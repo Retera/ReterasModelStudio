@@ -1,0 +1,15 @@
+<project default="jar">
+    <target name="clean">
+        <delete dir="build"/>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="build/classes"/>
+        <javac srcdir="src" destdir="build/classes"/>
+    </target>
+
+    <target name="jar" depends="compile">
+        <mkdir dir="build/jar"/>
+        <jar destfile="build/jar/com.realityinteractive.imageio.tga.jar" basedir="build/classes" />
+    </target>
+</project>

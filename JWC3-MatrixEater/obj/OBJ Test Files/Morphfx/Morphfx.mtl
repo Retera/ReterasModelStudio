@@ -1,0 +1,12 @@
+#
+# mtl file for Morphfx.obj obj file
+#
+
+newmtl particles_morphfx.m2_Geoset_000_Lum
+illum 2
+Kd 0.000000 0.000000 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ns 0.000000
+map_Kd Morphfx_green_glow3.png

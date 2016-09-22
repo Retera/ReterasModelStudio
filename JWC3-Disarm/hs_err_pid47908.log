@@ -1,0 +1,282 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  EXCEPTION_ACCESS_VIOLATION (0xc0000005) at pc=0x0000000180003b10, pid=47908, tid=49128
+#
+# JRE version: 7.0-b147
+# Java VM: Java HotSpot(TM) 64-Bit Server VM (21.0-b17 mixed mode windows-amd64 compressed oops)
+# Problematic frame:
+# C  0x0000000180003b10
+#
+# Failed to write core dump. Minidumps are not enabled by default on client versions of Windows
+#
+# If you would like to submit a bug report, please visit:
+#   http://bugreport.sun.com/bugreport/crash.jsp
+# The crash happened outside the Java Virtual Machine in native code.
+# See problematic frame for where to report the bug.
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x00000000021c6800):  JavaThread "Finalizer" daemon [_thread_in_native, id=49128, stack(0x0000000006b10000,0x0000000006c10000)]
+
+siginfo: ExceptionCode=0xc0000005, ExceptionInformation=0x0000000000000008 0x0000000180003b10
+
+Registers:
+RAX=0x0000000180003b10, RBX=0x000000077fe51918, RCX=0x00000000021c69d0, RDX=0x0000000006c0eda0
+RSP=0x0000000006c0ed18, RBP=0x0000000006c0ed90, RSI=0x00000000021c6800, RDI=0x0000000000000000
+R8 =0x000000000815b380, R9 =0x0000000000000001, R10=0x00000000025a21bc, R11=0x000000006cf5a160
+R12=0x0000000000000000, R13=0x000000077fe51918, R14=0x0000000006c0edb8, R15=0x00000000021c6800
+RIP=0x0000000180003b10, EFLAGS=0x0000000000010202
+
+Top of Stack: (sp=0x0000000006c0ed18)
+0x0000000006c0ed18:   00000000025a21e9 00000000021c69d0
+0x0000000006c0ed28:   0000000006c0eda0 000000000817db00
+0x0000000006c0ed38:   00000007f89910c0 0000000000000009
+0x0000000006c0ed48:   0000000000000000 0000000006c0ed50
+0x0000000006c0ed58:   0000000000000000 0000000006c0edb8
+0x0000000006c0ed68:   000000077ff0ed60 0000000000000000
+0x0000000006c0ed78:   000000077fe51918 0000000000000000
+0x0000000006c0ed88:   0000000006c0edb0 0000000006c0ee00
+0x0000000006c0ed98:   0000000002596038 0000000784c83290
+0x0000000006c0eda8:   000000000259f018 000000000815b380
+0x0000000006c0edb8:   00000007f896b158 0000000006c0edc0
+0x0000000006c0edc8:   000000077fe4eca4 0000000006c0ee10
+0x0000000006c0edd8:   000000077ff0ed60 0000000780b3e2f8
+0x0000000006c0ede8:   000000077fe4ecc8 0000000006c0edb0
+0x0000000006c0edf8:   0000000006c0ee10 0000000006c0eef0
+0x0000000006c0ee08:   0000000002590573 00000007f5b0d840 
+
+Instructions: (pc=0x0000000180003b10)
+0x0000000180003af0:   
+[error occurred during error reporting (printing registers, top of stack, instructions near pc), id 0xc0000005]
+
+Register to memory mapping:
+
+RAX=0x0000000180003b10 is an unknown value
+RBX=0x000000077fe51918 is an oop
+{method} 
+ - klass: {other class}
+RCX=0x00000000021c69d0 is an unknown value
+RDX=0x0000000006c0eda0 is pointing into the stack for thread: 0x00000000021c6800
+RSP=0x0000000006c0ed18 is pointing into the stack for thread: 0x00000000021c6800
+RBP=0x0000000006c0ed90 is pointing into the stack for thread: 0x00000000021c6800
+RSI=0x00000000021c6800 is a thread
+RDI=0x0000000000000000 is an unknown value
+R8 =0x000000000815b380 is an unknown value
+R9 =0x0000000000000001 is an unknown value
+R10=0x00000000025a21bc is an Interpreter codelet
+method entry point (kind = native)  [0x00000000025a1f40, 0x00000000025a27c0]  2176 bytes
+R11=0x000000006cf5a160 is an unknown value
+R12=0x0000000000000000 is an unknown value
+R13=0x000000077fe51918 is an oop
+{method} 
+ - klass: {other class}
+R14=0x0000000006c0edb8 is pointing into the stack for thread: 0x00000000021c6800
+R15=0x00000000021c6800 is a thread
+
+
+Stack: [0x0000000006b10000,0x0000000006c10000],  sp=0x0000000006c0ed18,  free space=1019k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+C  0x0000000180003b10
+j  com.sun.jna.Memory.finalize()V+4
+v  ~StubRoutines::call_stub
+V  [jvm.dll+0x1a4446]
+
+Java frames: (J=compiled Java code, j=interpreted, Vv=VM code)
+j  com.sun.jna.Memory.free(J)V+0
+j  com.sun.jna.Memory.finalize()V+4
+v  ~StubRoutines::call_stub
+j  java.lang.ref.Finalizer.invokeFinalizeMethod(Ljava/lang/Object;)V+0
+j  java.lang.ref.Finalizer.runFinalizer()V+45
+j  java.lang.ref.Finalizer.access$100(Ljava/lang/ref/Finalizer;)V+1
+j  java.lang.ref.Finalizer$FinalizerThread.run()V+11
+v  ~StubRoutines::call_stub
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+  0x0000000010647000 JavaThread "AWT-Shutdown" [_thread_blocked, id=48860, stack(0x000000000bb00000,0x000000000bc00000)]
+  0x000000000776d000 JavaThread "Thread-1" daemon [_thread_in_native, id=42436, stack(0x0000000009970000,0x0000000009a70000)]
+  0x000000000b33a800 JavaThread "TimerQueue" daemon [_thread_blocked, id=48324, stack(0x0000000009430000,0x0000000009530000)]
+  0x00000000002eb800 JavaThread "DestroyJavaVM" [_thread_blocked, id=48944, stack(0x0000000002490000,0x0000000002590000)]
+  0x00000000075b7800 JavaThread "Java2D Disposer" daemon [_thread_blocked, id=48452, stack(0x0000000008b90000,0x0000000008c90000)]
+  0x000000000639b800 JavaThread "Service Thread" daemon [_thread_blocked, id=47892, stack(0x00000000070e0000,0x00000000071e0000)]
+  0x000000000639b000 JavaThread "C2 CompilerThread1" daemon [_thread_blocked, id=48912, stack(0x00000000071f0000,0x00000000072f0000)]
+  0x0000000006395000 JavaThread "C2 CompilerThread0" daemon [_thread_blocked, id=33300, stack(0x0000000006fb0000,0x00000000070b0000)]
+  0x000000000638e000 JavaThread "Attach Listener" daemon [_thread_blocked, id=49052, stack(0x0000000006d20000,0x0000000006e20000)]
+  0x0000000006389000 JavaThread "Signal Dispatcher" daemon [_thread_blocked, id=49036, stack(0x0000000006c20000,0x0000000006d20000)]
+=>0x00000000021c6800 JavaThread "Finalizer" daemon [_thread_in_native, id=49128, stack(0x0000000006b10000,0x0000000006c10000)]
+  0x00000000021be000 JavaThread "Reference Handler" daemon [_thread_blocked, id=48096, stack(0x0000000006900000,0x0000000006a00000)]
+
+Other Threads:
+  0x00000000021b8800 VMThread [stack: 0x0000000006a00000,0x0000000006b00000] [id=49020]
+  0x00000000063ac000 WatcherThread [stack: 0x0000000007320000,0x0000000007420000] [id=46628]
+
+VM state:not at safepoint (normal execution)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+Heap
+ PSYoungGen      total 492160K, used 64088K [0x00000007d6eb0000, 0x00000007f9b20000, 0x0000000800000000)
+  eden space 444480K, 3% used [0x00000007d6eb0000,0x00000007d7eb6e00,0x00000007f20c0000)
+  from space 47680K, 99% used [0x00000007f3570000,0x00000007f63ff280,0x00000007f6400000)
+  to   space 56448K, 0% used [0x00000007f6400000,0x00000007f6400000,0x00000007f9b20000)
+ PSOldGen        total 159680K, used 119542K [0x0000000784c00000, 0x000000078e7f0000, 0x00000007d6eb0000)
+  object space 159680K, 74% used [0x0000000784c00000,0x000000078c0bd968,0x000000078e7f0000)
+ PSPermGen       total 40192K, used 18132K [0x000000077fa00000, 0x0000000782140000, 0x0000000784c00000)
+  object space 40192K, 45% used [0x000000077fa00000,0x0000000780bb5330,0x0000000782140000)
+
+Code Cache  [0x0000000002590000, 0x0000000002900000, 0x0000000005590000)
+ total_blobs=1545 nmethods=985 adapters=509 free_code_cache=45722Kb largest_free_block=46764800
+
+Dynamic libraries:
+0x000000013f290000 - 0x000000013f2c3000 	C:\Program Files (x86)\Eclipse\jre\bin\javaw.exe
+0x0000000076fa0000 - 0x0000000077149000 	C:\Windows\SYSTEM32\ntdll.dll
+0x0000000076d80000 - 0x0000000076e9f000 	C:\Windows\system32\kernel32.dll
+0x000007fefcf90000 - 0x000007fefcffb000 	C:\Windows\system32\KERNELBASE.dll
+0x000007fefd7f0000 - 0x000007fefd8cb000 	C:\Windows\system32\ADVAPI32.dll
+0x000007feff190000 - 0x000007feff22f000 	C:\Windows\system32\msvcrt.dll
+0x000007feff170000 - 0x000007feff18f000 	C:\Windows\SYSTEM32\sechost.dll
+0x000007feff040000 - 0x000007feff16d000 	C:\Windows\system32\RPCRT4.dll
+0x0000000076ea0000 - 0x0000000076f9a000 	C:\Windows\system32\USER32.dll
+0x000007fefd6a0000 - 0x000007fefd707000 	C:\Windows\system32\GDI32.dll
+0x000007fefdb00000 - 0x000007fefdb0e000 	C:\Windows\system32\LPK.dll
+0x000007fefd5d0000 - 0x000007fefd699000 	C:\Windows\system32\USP10.dll
+0x000007fefbe50000 - 0x000007fefc044000 	C:\Windows\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.7601.17514_none_fa396087175ac9ac\COMCTL32.dll
+0x000007feff230000 - 0x000007feff2a1000 	C:\Windows\system32\SHLWAPI.dll
+0x000007fefd180000 - 0x000007fefd1ae000 	C:\Windows\system32\IMM32.DLL
+0x000007fefef30000 - 0x000007feff039000 	C:\Windows\system32\MSCTF.dll
+0x0000000077bb0000 - 0x0000000077c81000 	C:\Program Files (x86)\Eclipse\jre\bin\msvcr100.dll
+0x000000006cda0000 - 0x000000006d46e000 	C:\Program Files (x86)\Eclipse\jre\bin\server\jvm.dll
+0x000007fefa980000 - 0x000007fefa989000 	C:\Windows\system32\WSOCK32.dll
+0x000007fefdab0000 - 0x000007fefdafd000 	C:\Windows\system32\WS2_32.dll
+0x000007fefef20000 - 0x000007fefef28000 	C:\Windows\system32\NSI.dll
+0x000007fefaa20000 - 0x000007fefaa5b000 	C:\Windows\system32\WINMM.dll
+0x0000000077170000 - 0x0000000077177000 	C:\Windows\system32\PSAPI.DLL
+0x0000000067710000 - 0x000000006771f000 	C:\Program Files (x86)\Eclipse\jre\bin\verify.dll
+0x00000000593a0000 - 0x00000000593c8000 	C:\Program Files (x86)\Eclipse\jre\bin\java.dll
+0x000000005d630000 - 0x000000005d645000 	C:\Program Files (x86)\Eclipse\jre\bin\zip.dll
+0x000000006c320000 - 0x000000006c4b3000 	C:\Program Files (x86)\Eclipse\jre\bin\awt.dll
+0x000007fefd710000 - 0x000007fefd7e7000 	C:\Windows\system32\OLEAUT32.dll
+0x000007fefdf20000 - 0x000007fefe123000 	C:\Windows\system32\ole32.dll
+0x000007fefc610000 - 0x000007fefc627000 	C:\Windows\system32\CRYPTSP.dll
+0x000007fefc320000 - 0x000007fefc367000 	C:\Windows\system32\rsaenh.dll
+0x000007fefbcf0000 - 0x000007fefbd0e000 	C:\Windows\system32\USERENV.dll
+0x000007fefcd50000 - 0x000007fefcd5f000 	C:\Windows\system32\profapi.dll
+0x000007fefcc80000 - 0x000007fefcc8f000 	C:\Windows\system32\CRYPTBASE.dll
+0x000000005ad60000 - 0x000000005ad79000 	C:\Program Files (x86)\Eclipse\jre\bin\net.dll
+0x000007fefc5b0000 - 0x000007fefc605000 	C:\Windows\system32\mswsock.dll
+0x000007fefc7e0000 - 0x000007fefc7e7000 	C:\Windows\System32\wship6.dll
+0x000007fefa180000 - 0x000007fefa195000 	C:\Windows\system32\NLAapi.dll
+0x000007fef5f30000 - 0x000007fef5f45000 	C:\Windows\system32\napinsp.dll
+0x000007fef5f10000 - 0x000007fef5f29000 	C:\Windows\system32\pnrpnsp.dll
+0x000007fefc440000 - 0x000007fefc49b000 	C:\Windows\system32\DNSAPI.dll
+0x000007fef5eb0000 - 0x000007fef5ebb000 	C:\Windows\System32\winrnr.dll
+0x000007fef5e20000 - 0x000007fef5e30000 	C:\Windows\system32\wshbth.dll
+0x000007fef7ad0000 - 0x000007fef7aff000 	C:\Program Files\Common Files\Microsoft Shared\Windows Live\WLIDNSP.DLL
+0x000007fefbbd0000 - 0x000007fefbbd7000 	C:\Windows\System32\wshtcpip.dll
+0x000007fef9f70000 - 0x000007fef9f97000 	C:\Windows\system32\IPHLPAPI.DLL
+0x000007fef9f50000 - 0x000007fef9f5b000 	C:\Windows\system32\WINNSI.DLL
+0x000007fef7ac0000 - 0x000007fef7ac8000 	C:\Windows\system32\rasadhlp.dll
+0x000007fef93e0000 - 0x000007fef9433000 	C:\Windows\System32\fwpuclnt.dll
+0x000000005abd0000 - 0x000000005abe1000 	C:\Program Files (x86)\Eclipse\jre\bin\nio.dll
+0x0000000005f60000 - 0x0000000005fda000 	C:\Users\Eric\workspace\Disarm\StormLib_x64.dll
+0x000007fefd1b0000 - 0x000007fefd3f0000 	C:\Windows\system32\WININET.dll
+0x000007fefd0f0000 - 0x000007fefd0f4000 	C:\Windows\system32\api-ms-win-downlevel-user32-l1-1-0.dll
+0x000007fefd100000 - 0x000007fefd104000 	C:\Windows\system32\api-ms-win-downlevel-shlwapi-l1-1-0.dll
+0x000007fefce00000 - 0x000007fefce04000 	C:\Windows\system32\api-ms-win-downlevel-version-l1-1-0.dll
+0x000007fefbb00000 - 0x000007fefbb0c000 	C:\Windows\system32\version.DLL
+0x000007fefd110000 - 0x000007fefd113000 	C:\Windows\system32\api-ms-win-downlevel-normaliz-l1-1-0.dll
+0x0000000077160000 - 0x0000000077163000 	C:\Windows\system32\normaliz.DLL
+0x000007fefdbb0000 - 0x000007fefde59000 	C:\Windows\system32\iertutil.dll
+0x000007fefd040000 - 0x000007fefd045000 	C:\Windows\system32\api-ms-win-downlevel-advapi32-l1-1-0.dll
+0x000007fefcc20000 - 0x000007fefcc77000 	C:\Windows\system32\apphelp.dll
+0x000007fefb3a0000 - 0x000007fefb3f6000 	C:\Windows\system32\uxtheme.dll
+0x000007fef2130000 - 0x000007fef21af000 	C:\Program Files\Common Files\microsoft shared\ink\tiptsf.dll
+0x000007fefaf70000 - 0x000007fefaf88000 	C:\Windows\system32\dwmapi.dll
+0x000007fefe130000 - 0x000007fefeeb8000 	C:\Windows\system32\SHELL32.dll
+0x0000000055b60000 - 0x0000000055b94000 	C:\Program Files (x86)\Eclipse\jre\bin\fontmanager.dll
+0x000007fef1af0000 - 0x000007fef1b90000 	C:\Windows\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_5.82.7601.18201_none_a4d3b9377117c3df\comctl32.dll
+0x000007fefd3f0000 - 0x000007fefd5c7000 	C:\Windows\system32\SETUPAPI.dll
+0x000007fefd000000 - 0x000007fefd036000 	C:\Windows\system32\CFGMGR32.dll
+0x000007fefd120000 - 0x000007fefd13a000 	C:\Windows\system32\DEVOBJ.dll
+0x000007fefdb10000 - 0x000007fefdba9000 	C:\Windows\system32\CLBCatQ.DLL
+0x000007fefb400000 - 0x000007fefb52c000 	C:\Windows\system32\propsys.dll
+0x000007fefb870000 - 0x000007fefb89d000 	C:\Windows\system32\ntmarta.dll
+0x000007fefeec0000 - 0x000007fefef12000 	C:\Windows\system32\WLDAP32.dll
+0x000007fefa730000 - 0x000007fefa73b000 	C:\Windows\system32\slc.dll
+0x000007fefadc0000 - 0x000007fefaf21000 	C:\Windows\system32\WindowsCodecs.dll
+0x000007fef47b0000 - 0x000007fef49ed000 	C:\Program Files\Microsoft Office 15\root\VFS\ProgramFilesX64\Microsoft Office\Office15\GROOVEEX.DLL
+0x0000000071710000 - 0x00000000717a8000 	C:\Program Files\Microsoft Office 15\root\VFS\ProgramFilesX64\Microsoft Office\Office15\MSVCP100.dll
+0x00000000716e0000 - 0x000000007170b000 	C:\Program Files\Microsoft Office 15\root\VFS\ProgramFilesX64\Microsoft Office\Office15\ATL100.DLL
+0x000007fef5260000 - 0x000007fef5577000 	C:\Windows\system32\msi.dll
+0x000007fef33b0000 - 0x000007fef3c25000 	C:\Program Files\Microsoft Office 15\root\VFS\ProgramFilesX64\Microsoft Office\Office15\1033\GrooveIntlResource.dll
+0x00000000716c0000 - 0x00000000716d6000 	C:\Program Files\Common Files\TortoiseOverlays\TortoiseOverlays.dll
+0x00000000716a0000 - 0x00000000716b7000 	C:\Program Files\TortoiseSVN\bin\TortoiseStub.dll
+0x0000000071620000 - 0x000000007169c000 	C:\Program Files\TortoiseSVN\bin\TortoiseSVN.dll
+0x000007fef2f40000 - 0x000007fef33a9000 	C:\Program Files\TortoiseSVN\bin\libsvn_tsvn.dll
+0x00000000715f0000 - 0x000000007161d000 	C:\Program Files\TortoiseSVN\bin\libapr_tsvn.dll
+0x000007fef1a10000 - 0x000007fef1ae4000 	C:\Windows\system32\MSVCR110.dll
+0x00000000715a0000 - 0x00000000715e5000 	C:\Program Files\TortoiseSVN\bin\libaprutil_tsvn.dll
+0x000007fef5660000 - 0x000007fef5671000 	C:\Program Files\TortoiseSVN\bin\intl3_tsvn.dll
+0x000007fef4d10000 - 0x000007fef4d29000 	C:\Program Files\TortoiseSVN\bin\libsasl.dll
+0x000007fefcbc0000 - 0x000007fefcbcb000 	C:\Windows\system32\Secur32.dll
+0x000007fefcbf0000 - 0x000007fefcc15000 	C:\Windows\system32\SSPICLI.DLL
+0x000007fefce20000 - 0x000007fefcf8c000 	C:\Windows\system32\CRYPT32.dll
+0x000007fefcdf0000 - 0x000007fefcdff000 	C:\Windows\system32\MSASN1.dll
+0x000007fef1960000 - 0x000007fef1a07000 	C:\Windows\system32\MSVCP110.dll
+0x000007fef9890000 - 0x000007fef98c5000 	C:\Windows\system32\EhStorShell.dll
+0x000007fef1b90000 - 0x000007fef1c10000 	C:\Windows\system32\ntshrui.dll
+0x000007fefc980000 - 0x000007fefc9a3000 	C:\Windows\system32\srvcli.dll
+0x000007fef7030000 - 0x000007fef703f000 	C:\Windows\system32\cscapi.dll
+0x0000000006e20000 - 0x0000000006e96000 	C:\Program Files (x86)\SugarSync\SugarSyncShellExt_x64.dll
+0x00000000714d0000 - 0x0000000071599000 	C:\Windows\WinSxS\amd64_microsoft.vc80.crt_1fc8b3b9a1e18e3b_8.0.50727.4940_none_88df89932faf0bf6\MSVCR80.dll
+0x0000000054d70000 - 0x0000000054db1000 	C:\Program Files (x86)\Eclipse\jre\bin\t2k.dll
+0x000007fef7010000 - 0x000007fef7028000 	C:\Windows\system32\MPR.dll
+0x000007fef1c90000 - 0x000007fef1c9a000 	C:\Windows\System32\drprov.dll
+0x000007fefbe00000 - 0x000007fefbe3d000 	C:\Windows\System32\WINSTA.dll
+0x000007fef1c60000 - 0x000007fef1c82000 	C:\Windows\System32\ntlanman.dll
+0x000007fef1c40000 - 0x000007fef1c5d000 	C:\Windows\System32\davclnt.dll
+0x000007fef1c30000 - 0x000007fef1c3a000 	C:\Windows\System32\DAVHLPR.dll
+0x000007fefa920000 - 0x000007fefa935000 	C:\Windows\system32\wkscli.dll
+0x000007fefa940000 - 0x000007fefa94c000 	C:\Windows\system32\netutils.dll
+0x000007fefd140000 - 0x000007fefd17a000 	C:\Windows\system32\WINTRUST.dll
+0x000007fef4cf0000 - 0x000007fef4cfc000 	C:\Windows\system32\LINKINFO.dll
+0x000007fefa900000 - 0x000007fefa914000 	C:\Windows\system32\samcli.dll
+0x000007fefb530000 - 0x000007fefb54d000 	C:\Windows\system32\SAMLIB.dll
+0x0000000007d60000 - 0x0000000007daf000 	C:\Users\Eric\workspace\Disarm\lib\lwjgl64.dll
+0x000007fee33c0000 - 0x000007fee34dd000 	C:\Windows\system32\OPENGL32.dll
+0x000007fee4a00000 - 0x000007fee4a2d000 	C:\Windows\system32\GLU32.dll
+0x000007fee32c0000 - 0x000007fee33b1000 	C:\Windows\system32\DDRAW.dll
+0x000007fee49f0000 - 0x000007fee49f8000 	C:\Windows\system32\DCIMAN32.dll
+0x0000000067500000 - 0x0000000067507000 	C:\Program Files (x86)\Eclipse\jre\bin\jawt.dll
+0x000007fefaa60000 - 0x000007fefaab4000 	C:\Windows\system32\oleacc.dll
+0x000000000be70000 - 0x000000000cef0000 	C:\Windows\system32\ig7icd64.dll
+
+VM Arguments:
+jvm_args: -Djava.library.path=C:\Users\Eric\workspace\Disarm\lib -Dfile.encoding=Cp1252 
+java_command: com.requestin8r.disarm.src.MainFrame
+Launcher Type: SUN_STANDARD
+
+Environment Variables:
+PATH=C:\Python27\;C:\Python27\Scripts;C:\Program Files\Common Files\Microsoft Shared\Windows Live;C:\Program Files (x86)\Common Files\Microsoft Shared\Windows Live;C:\Program Files (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Client\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\ThinkPad\Bluetooth Software\;C:\Program Files\ThinkPad\Bluetooth Software\syswow64;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\Intel\OpenCL SDK\2.0\bin\x86;C:\Program Files (x86)\Intel\OpenCL SDK\2.0\bin\x64;C:\Program Files\Common Files\Lenovo;C:\Program Files (x86)\Windows Live\Shared;C:\SWTOOLS\ReadyApps;C:\Program Files (x86)\Symantec\VIP Access Client\;C:\Program Files (x86)\Common Files\Lenovo;C:\Program Files (x86)\Lenovo\Access Connections\;C:\Program Files\TortoiseSVN\bin;C:\Users\Eric\AppData\Roaming\Python\Scripts
+USERNAME=Eric
+OS=Windows_NT
+PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 58 Stepping 9, GenuineIntel
+
+
+
+---------------  S Y S T E M  ---------------
+
+OS: Windows 7 , 64 bit Build 7601 Service Pack 1
+
+CPU:total 4 (2 cores per cpu, 2 threads per core) family 6 model 58 stepping 9, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3, sse4.1, sse4.2, popcnt, ht
+
+Memory: 4k page, physical 8077104k(931220k free), swap 16152344k(6509496k free)
+
+vm_info: Java HotSpot(TM) 64-Bit Server VM (21.0-b17) for windows-amd64 JRE (1.7.0-b147), built on Jun 27 2011 02:19:45 by "java_re" with unknown MS VC++:1600
+
+time: Tue Apr 01 00:01:07 2014
+elapsed time: 309 seconds
+

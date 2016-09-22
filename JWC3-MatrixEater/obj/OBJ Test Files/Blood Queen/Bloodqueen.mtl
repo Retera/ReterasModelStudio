@@ -1,0 +1,60 @@
+#
+# mtl file for Bloodqueen.obj obj file
+#
+
+newmtl creature_bloodqueen_bloodqueen.m2_Geoset_000
+illum 2
+Kd 1.000000 1.000000 1.000000
+Ka 0.250000 0.250000 0.250000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ns 0.000000
+map_Kd Bloodqueen_bloodqueen01.png
+newmtl creature_bloodqueen_bloodqueen.m2_Geoset_001_Lum
+illum 2
+Kd 0.000000 0.000000 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ns 0.000000
+map_Kd Bloodqueen_bloodqueen02.png
+newmtl creature_bloodqueen_bloodqueen.m2_Geoset_002
+illum 2
+Kd 1.000000 1.000000 1.000000
+Ka 0.250000 0.250000 0.250000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ns 0.000000
+map_Kd Bloodqueen_bloodqueen02.png
+newmtl creature_bloodqueen_bloodqueen.m2_Geoset_004
+illum 2
+Kd 0.000000 0.000000 0.000000
+Ka 0.250000 0.250000 0.250000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ns 0.000000
+map_Kd Bloodqueen_bloodqueen01.png
+newmtl creature_bloodqueen_bloodqueen.m2_Geoset_005
+illum 2
+Kd 1.000000 1.000000 1.000000
+Ka 0.250000 0.250000 0.250000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ns 0.000000
+map_Kd Bloodqueen_bloodqueen01.png
+newmtl creature_bloodqueen_bloodqueen.m2_Geoset_006
+illum 2
+Kd 1.000000 1.000000 1.000000
+Ka 0.250000 0.250000 0.250000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ns 0.000000
+map_Kd Bloodqueen_bloodqueen01.png
+newmtl creature_bloodqueen_bloodqueen.m2_Geoset_007
+illum 2
+Kd 1.000000 1.000000 1.000000
+Ka 0.250000 0.250000 0.250000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ns 0.000000
+map_Kd Bloodqueen_bloodqueen02.png
