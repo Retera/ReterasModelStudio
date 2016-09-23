@@ -193,43 +193,40 @@ public class Viewport extends JPanel
 		// dispMDL.drawCameras(g, this, vertexSize);
 
 		final Graphics2D graphics2d = (Graphics2D) g;
-		// final AffineTransform transform = graphics2d.getTransform();
-		// graphics2d.translate(getWidth() / 2, getHeight() / 2);
-		// graphics2d.scale(m_zoom, -m_zoom);
-		// graphics2d.translate(m_a, -m_b);
 		viewportModelRenderer.reset(graphics2d, dispMDL.getProgramPreferences(), m_d1, m_d2, this, this);
 		dispMDL.getMDL().render(viewportModelRenderer);
-		// graphics2d.setTransform(transform);
 
-		switch (m_d1) {
-		case 0:
-			g.setColor(new Color(0, 255, 0));
-			break;
-		case 1:
-			g.setColor(new Color(255, 0, 0));
-			break;
-		case 2:
-			g.setColor(new Color(0, 0, 255));
-			break;
-		}
-		// g.setColor( new Color( 255, 0, 0 ) );
-		g.drawLine((int) Math.round(convertX(0)), (int) Math.round(convertY(0)), (int) Math.round(convertX(5)),
-				(int) Math.round(convertY(0)));
-
-		switch (m_d2) {
-		case 0:
-			g.setColor(new Color(0, 255, 0));
-			break;
-		case 1:
-			g.setColor(new Color(255, 0, 0));
-			break;
-		case 2:
-			g.setColor(new Color(0, 0, 255));
-			break;
-		}
-		// g.setColor( new Color( 255, 0, 0 ) );
-		g.drawLine((int) Math.round(convertX(0)), (int) Math.round(convertY(0)), (int) Math.round(convertX(0)),
-				(int) Math.round(convertY(5)));
+		// switch (m_d1) {
+		// case 0:
+		// g.setColor(new Color(0, 255, 0));
+		// break;
+		// case 1:
+		// g.setColor(new Color(255, 0, 0));
+		// break;
+		// case 2:
+		// g.setColor(new Color(0, 0, 255));
+		// break;
+		// }
+		// // g.setColor( new Color( 255, 0, 0 ) );
+		// g.drawLine((int) Math.round(convertX(0)), (int)
+		// Math.round(convertY(0)), (int) Math.round(convertX(5)),
+		// (int) Math.round(convertY(0)));
+		//
+		// switch (m_d2) {
+		// case 0:
+		// g.setColor(new Color(0, 255, 0));
+		// break;
+		// case 1:
+		// g.setColor(new Color(255, 0, 0));
+		// break;
+		// case 2:
+		// g.setColor(new Color(0, 0, 255));
+		// break;
+		// }
+		// // g.setColor( new Color( 255, 0, 0 ) );
+		// g.drawLine((int) Math.round(convertX(0)), (int)
+		// Math.round(convertY(0)), (int) Math.round(convertX(0)),
+		// (int) Math.round(convertY(5)));
 
 		// Visual effects from user controls
 		int xoff = 0;
@@ -249,22 +246,24 @@ public class Viewport extends JPanel
 			// }
 		}
 
-		try {
-			final double mx = (MouseInfo.getPointerInfo().getLocation().x - xoff);// MainFrame.frame.getX()-8);
-			final double my = (MouseInfo.getPointerInfo().getLocation().y - yoff);// MainFrame.frame.getY()-30);
-
-			// SelectionBox:
-			if (selectStart != null) {
-				final Point sEnd = new Point((int) mx, (int) my);
-				final Rectangle2D.Double r = pointsToRect(selectStart, sEnd);
-				g.setColor(MDLDisplay.selectColor);
-				graphics2d.draw(r);
-			}
-		} catch (final Exception exc) {
-			exc.printStackTrace();
-			// JOptionPane.showMessageDialog(null,"Error retrieving mouse
-			// coordinates. (Probably not a major issue. Due to sleep mode?)");
-		}
+		// try {
+		// final double mx = (MouseInfo.getPointerInfo().getLocation().x -
+		// xoff);// MainFrame.frame.getX()-8);
+		// final double my = (MouseInfo.getPointerInfo().getLocation().y -
+		// yoff);// MainFrame.frame.getY()-30);
+		//
+		// // SelectionBox:
+		// if (selectStart != null) {
+		// final Point sEnd = new Point((int) mx, (int) my);
+		// final Rectangle2D.Double r = pointsToRect(selectStart, sEnd);
+		// g.setColor(MDLDisplay.selectColor);
+		// graphics2d.draw(r);
+		// }
+		// } catch (final Exception exc) {
+		// exc.printStackTrace();
+		// // JOptionPane.showMessageDialog(null,"Error retrieving mouse
+		// // coordinates. (Probably not a major issue. Due to sleep mode?)");
+		// }
 	}
 
 	@Override

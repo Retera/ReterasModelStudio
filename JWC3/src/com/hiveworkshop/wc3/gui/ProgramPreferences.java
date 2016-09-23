@@ -34,7 +34,7 @@ public class ProgramPreferences implements Serializable {
 	Color highlighTriangleColor = new Color(255, 255, 0);
 	Color highlighVertexColor = new Color(0, 255, 0);
 	Color normalsColor = new Color(128, 128, 255);
-	Color pivotPointsColor = Color.magenta;
+	Color pivotPointsColor = Color.MAGENTA;
 	Color lightsColor = Color.YELLOW.brighter();
 	Color ambientLightColor = Color.CYAN.brighter();
 
