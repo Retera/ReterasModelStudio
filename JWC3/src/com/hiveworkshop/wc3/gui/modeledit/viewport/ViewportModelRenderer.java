@@ -170,7 +170,7 @@ public class ViewportModelRenderer implements ModelRenderer {
 		if (collisionShape.getFlags().contains("Box")) {
 			if (vertices.size() > 0) {
 				final Vertex vertex = vertices.get(0);
-				graphics.fillRoundRect(xCoord, yCoord,
+				graphics.drawRoundRect(xCoord, yCoord,
 						(int) coordinateSystem.convertX(vertex.getCoord(xDimension)) - xCoord,
 						(int) coordinateSystem.convertY(vertex.getCoord(yDimension)) - yCoord, vertexSize, vertexSize);
 			} else {
