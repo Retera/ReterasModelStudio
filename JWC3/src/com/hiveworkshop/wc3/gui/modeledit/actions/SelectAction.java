@@ -1,17 +1,20 @@
-package com.hiveworkshop.wc3.gui.modeledit;
+package com.hiveworkshop.wc3.gui.modeledit.actions;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import com.hiveworkshop.wc3.gui.modeledit.MDLDisplay;
+import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 public class SelectAction implements UndoAction {
-	ArrayList<Vertex> oldSel;
-	ArrayList<Vertex> newSel;
-	MDLDisplay mdl;
-	int selectionType;
+	private List<Vertex> oldSel;
+	private List<Vertex> newSel;
+	private MDLDisplay mdl;
+	private SelectionActionType selectionType;
 
-	public SelectAction(final ArrayList<Vertex> oldSelection, final ArrayList<Vertex> newSelection,
-			final MDLDisplay mdld, final int selectType) {
+	public SelectAction(final List<Vertex> oldSelection, final List<Vertex> newSelection, final MDLDisplay mdld,
+			final SelectionActionType selectType) {
 		oldSel = oldSelection;
 		newSel = new ArrayList<Vertex>(newSelection);
 		mdl = mdld;
@@ -32,34 +35,34 @@ public class SelectAction implements UndoAction {
 
 	@Override
 	public void redo() {
-		mdl.selection = newSel;
+		mdl.setSelection(newSel);
 	}
 
 	@Override
 	public void undo() {
-		mdl.selection = oldSel;
+		mdl.setSelection(oldSel);
 	}
 
 	@Override
 	public String actionName() {
 		String outName = "";
 		switch (selectionType) {
-		case 0:
+		case SELECT:
 			outName = "selection: select";
 			break;
-		case 1:
+		case ADD:
 			outName = "selection: add";
 			break;
-		case 2:
+		case DESELECT:
 			outName = "selection: deselect";
 			break;
-		case 3:
+		case SELECT_ALL:
 			outName = "Select All";
 			break;
-		case 4:
+		case INVERT_SELECTION:
 			outName = "Invert Selection";
 			break;
-		case 5:
+		case EXPAND_SELECTION:
 			outName = "Expand Selection";
 			break;
 		}

@@ -1,17 +1,20 @@
-package com.hiveworkshop.wc3.gui.modeledit;
+package com.hiveworkshop.wc3.gui.modeledit.actions;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import com.hiveworkshop.wc3.gui.modeledit.MDLDisplay;
+import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.TVertex;
 
 public class UVSelectAction implements UndoAction {
-	ArrayList<TVertex> oldSel;
-	ArrayList<TVertex> newSel;
-	MDLDisplay mdl;
-	int selectionType;
+	private List<TVertex> oldSel;
+	private List<TVertex> newSel;
+	private MDLDisplay mdl;
+	private UVSelectionActionType selectionType;
 
-	public UVSelectAction(final ArrayList<TVertex> oldSelection, final ArrayList<TVertex> newSelection,
-			final MDLDisplay mdld, final int selectType) {
+	public UVSelectAction(final List<TVertex> oldSelection, final List<TVertex> newSelection, final MDLDisplay mdld,
+			final UVSelectionActionType selectType) {
 		oldSel = oldSelection;
 		newSel = new ArrayList<TVertex>(newSelection);
 		mdl = mdld;
@@ -32,37 +35,37 @@ public class UVSelectAction implements UndoAction {
 
 	@Override
 	public void redo() {
-		mdl.uvselection = newSel;
+		mdl.setUvselection(newSel);
 	}
 
 	@Override
 	public void undo() {
-		mdl.uvselection = oldSel;
+		mdl.setUvselection(oldSel);
 	}
 
 	@Override
 	public String actionName() {
 		String outName = "";
 		switch (selectionType) {
-		case 0:
+		case SELECT:
 			outName = "UV selection: select";
 			break;
-		case 1:
+		case ADD:
 			outName = "UV selection: add";
 			break;
-		case 2:
+		case DESELECT:
 			outName = "UV selection: deselect";
 			break;
-		case 3:
+		case SELECT_ALL:
 			outName = "UV Select All";
 			break;
-		case 4:
+		case INVERT_SELECTION:
 			outName = "UV Invert Selection";
 			break;
-		case 5:
+		case EXPAND_SELECTION:
 			outName = "UV Expand Selection";
 			break;
-		case 6:
+		case SELECT_FROM_VIEWER:
 			outName = "UV Select from Viewer";
 			break;
 		}

@@ -2,7 +2,9 @@ package com.hiveworkshop.wc3.gui.modeledit.useractions;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Polygon;
+import java.awt.Rectangle;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.mdl.Vertex;
@@ -24,6 +26,27 @@ public final class MoverWidget {
 		eastTriangle.addPoint(0, -5);
 		eastTriangle.addPoint(18, 0);
 		eastTriangle.addPoint(0, 5);
+	}
+
+	public MoveDirection getDirectionByMouse(final Point mousePoint, final CoordinateSystem coordinateSystem,
+			final byte dim1, final byte dim2) {
+		final double x = coordinateSystem.convertX(point.getCoord(dim1));
+		final double y = coordinateSystem.convertX(point.getCoord(dim2));
+		eastTriangle.translate((int) x + 22, (int) y);
+		northTriangle.translate((int) x, (int) y + 22);
+		MoveDirection direction = null;
+		if (northTriangle.contains(mousePoint)) {
+			direction = MoveDirection.UP;
+		}
+		if (eastTriangle.contains(mousePoint)) {
+			direction = MoveDirection.RIGHT;
+		}
+		if (new Rectangle((int) x, (int) y, 20, 20).contains(mousePoint)) {
+			direction = MoveDirection.BOTH;
+		}
+		eastTriangle.translate(-((int) x + 22), -((int) y));
+		northTriangle.translate(-(int) x, -((int) y + 22));
+		return direction;
 	}
 
 	public Vertex getPoint() {

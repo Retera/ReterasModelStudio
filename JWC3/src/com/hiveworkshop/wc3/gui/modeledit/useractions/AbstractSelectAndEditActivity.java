@@ -11,6 +11,7 @@ import java.util.List;
 import javax.swing.SwingUtilities;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.SelectComponentAction;
 
 public abstract class AbstractSelectAndEditActivity implements ViewportActivity {
 	private SelectionManager selectionManager;
@@ -18,19 +19,21 @@ public abstract class AbstractSelectAndEditActivity implements ViewportActivity 
 	private Point2D.Double endingClick;
 	private CoordinateSystem coordinateSystem;
 	private ActionType actionType;
+	private UndoManager undoManager;
 
 	public AbstractSelectAndEditActivity reset(final SelectionManager selectionManager,
-			final CursorManager cursorManager, final CoordinateSystem coordinateSystem) {
+			final CursorManager cursorManager, final CoordinateSystem coordinateSystem, final UndoManager undoManager) {
 		this.selectionManager = selectionManager;
 		this.coordinateSystem = coordinateSystem;
+		this.undoManager = undoManager;
 		startingClick = null;
 		actionType = null;
-		onReset(selectionManager, cursorManager, coordinateSystem);
+		onReset(selectionManager, cursorManager, coordinateSystem, undoManager);
 		return this;
 	}
 
 	@Override
-	public void mousePressed(final MouseEvent e) {
+	public final void mousePressed(final MouseEvent e) {
 		startingClick = new Point2D.Double(coordinateSystem.geomX(e.getPoint().getX()),
 				coordinateSystem.geomY(e.getPoint().getY()));
 		if (SwingUtilities.isLeftMouseButton(e)) {
@@ -42,7 +45,7 @@ public abstract class AbstractSelectAndEditActivity implements ViewportActivity 
 	}
 
 	@Override
-	public void mouseReleased(final MouseEvent e) {
+	public final void mouseReleased(final MouseEvent e) {
 		if (actionType == ActionType.SELECT) {
 			if (startingClick != null) {
 				if (endingClick != null) {
@@ -61,10 +64,11 @@ public abstract class AbstractSelectAndEditActivity implements ViewportActivity 
 						}
 					}
 					selectionManager.addSelection(selectedItems);
+					undoManager.pushAction(new SelectComponentAction(selectionManager, selectedItems));
 				}
 			}
 		} else {
-			doAction(e, coordinateSystem, selectionManager, startingClick, endingClick);
+			doEndAction(e, coordinateSystem, selectionManager, startingClick, endingClick);
 		}
 		startingClick = null;
 		endingClick = null;
@@ -72,7 +76,7 @@ public abstract class AbstractSelectAndEditActivity implements ViewportActivity 
 	}
 
 	@Override
-	public void mouseDragged(final MouseEvent e) {
+	public final void mouseDragged(final MouseEvent e) {
 		endingClick = new Point2D.Double(coordinateSystem.geomX(e.getPoint().getX()),
 				coordinateSystem.geomY(e.getPoint().getY()));
 		if (actionType == ActionType.SELECT) {
@@ -81,16 +85,24 @@ public abstract class AbstractSelectAndEditActivity implements ViewportActivity 
 		}
 	}
 
+	@Override
+	public final void mouseMoved(final MouseEvent e) {
+		doMouseMove(e, coordinateSystem, selectionManager);
+	}
+
 	protected abstract void doDrag(MouseEvent e, CoordinateSystem coordinateSystem, SelectionManager selectionManager,
 			Point2D.Double startingClick, Point2D.Double endingClick);
 
+	protected abstract void doMouseMove(MouseEvent e, CoordinateSystem coordinateSystem,
+			SelectionManager selectionManager);
+
 	protected abstract void onReset(final SelectionManager selectionManager, final CursorManager cursorManager,
-			final CoordinateSystem coordinateSystem);
+			final CoordinateSystem coordinateSystem, UndoManager undoManager);
 
 	protected abstract void onRender(Graphics2D g, CoordinateSystem coordinateSystem);
 
-	protected abstract void doAction(MouseEvent e, CoordinateSystem coordinateSystem, SelectionManager selectionManager,
-			Point2D.Double startingClick, Point2D.Double endingClick);
+	protected abstract void doEndAction(MouseEvent e, CoordinateSystem coordinateSystem,
+			SelectionManager selectionManager, Point2D.Double startingClick, Point2D.Double endingClick);
 
 	protected abstract void doStartAction(MouseEvent e, CoordinateSystem coordinateSystem,
 			SelectionManager selectionManager, Point2D.Double startingClick);
