@@ -25,6 +25,20 @@ import javax.swing.JTextArea;
 import javax.swing.SpinnerNumberModel;
 
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
+import com.hiveworkshop.wc3.gui.modeledit.actions.VertexActionType;
+import com.hiveworkshop.wc3.gui.modeledit.actions.DeleteAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.ExtrudeAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.MoveAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.RotateAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.SelectAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.SelectionActionType;
+import com.hiveworkshop.wc3.gui.modeledit.actions.SnapAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.SnapNormalsAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.SpecialDeleteAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.UVMoveAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.UVSelectAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.UVSelectionActionType;
+import com.hiveworkshop.wc3.gui.modeledit.actions.UVSnapAction;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
@@ -49,16 +63,16 @@ public class MDLDisplay {
 	UndoHandler undoHandler;
 
 	MDL model;
-	ArrayList<Vertex> selection = new ArrayList<Vertex>();
-	ArrayList<TVertex> uvselection = new ArrayList<TVertex>();
-	ArrayList<Geoset> visibleGeosets = new ArrayList<Geoset>();
-	ArrayList<Geoset> editableGeosets = new ArrayList<Geoset>();
+	List<Vertex> selection = new ArrayList<Vertex>();
+	List<TVertex> uvselection = new ArrayList<TVertex>();
+	List<Geoset> visibleGeosets = new ArrayList<Geoset>();
+	List<Geoset> editableGeosets = new ArrayList<Geoset>();
 	Geoset highlight;
 	public static Color selectColor = Color.red;
 	ModelPanel mpanel;
 
-	ArrayList<UndoAction> actionStack = new ArrayList<UndoAction>();
-	ArrayList<UndoAction> redoStack = new ArrayList<UndoAction>();
+	List<UndoAction> actionStack = new ArrayList<UndoAction>();
+	List<UndoAction> redoStack = new ArrayList<UndoAction>();
 
 	int actionType = -1;
 	UndoAction currentAction;
@@ -89,6 +103,10 @@ public class MDLDisplay {
 		}
 	}
 
+	public void setSelection(final List<Vertex> selection) {
+		this.selection = selection;
+	}
+
 	public void setUVPanel(final UVPanel panel) {
 		uvpanel = panel;
 	}
@@ -101,8 +119,16 @@ public class MDLDisplay {
 		return visibleGeosets;
 	}
 
-	public ArrayList<Geoset> getEditableGeosets() {
+	public List<Geoset> getEditableGeosets() {
 		return editableGeosets;
+	}
+
+	public List<TVertex> getUVSelection() {
+		return uvselection;
+	}
+
+	public void setUvselection(final List<TVertex> uvselection) {
+		this.uvselection = uvselection;
 	}
 
 	public Geoset getHighlight() {
@@ -510,7 +536,7 @@ public class MDLDisplay {
 	}
 
 	public void drawVerteces(final Graphics g, final Geoset geo, final Viewport vp, final int vertexSize,
-			final ArrayList<Vertex> selection) {
+			final List<Vertex> selection) {
 		if (programPreferences.showNormals()) {
 			for (final GeosetVertex ver : geo.getVertices()) {
 				final Color temp = g.getColor();
@@ -549,7 +575,7 @@ public class MDLDisplay {
 	}
 
 	public void drawTVerteces(final Graphics g, final Geoset geo, final UVViewport vp, final int vertexSize,
-			final ArrayList<TVertex> selection, final int layerId) {
+			final List<TVertex> selection, final int layerId) {
 		g.setColor(Color.black);
 		for (int i = 0; i < geo.getVertices().size(); i++) {
 			final TVertex ver = geo.getVertices().get(i).getTVertex(layerId);
@@ -1026,7 +1052,8 @@ public class MDLDisplay {
 				break;
 			}
 			redoStack.clear();
-			actionStack.add(new SelectAction(oldSelection, selection, this, selectionType));
+			actionStack.add(
+					new SelectAction(oldSelection, selection, this, SelectionActionType.fromLegacyId(selectionType)));
 		}
 	}
 
@@ -1061,7 +1088,8 @@ public class MDLDisplay {
 				break;
 			}
 			redoStack.clear();
-			actionStack.add(new UVSelectAction(oldSelection, uvselection, this, selectionType));
+			actionStack.add(new UVSelectAction(oldSelection, uvselection, this,
+					UVSelectionActionType.fromLegacyId(selectionType)));
 		}
 	}
 
@@ -1110,14 +1138,14 @@ public class MDLDisplay {
 					}
 				}
 				if (getDimEditable(dim1)) {
-					((MoveAction) currentAction).moveVector.translateCoord(dim1, deltaX);
+					((MoveAction) currentAction).getMoveVector().translateCoord(dim1, deltaX);
 				}
 				if (getDimEditable(dim2)) {
-					((MoveAction) currentAction).moveVector.translateCoord(dim2, deltaY);
+					((MoveAction) currentAction).getMoveVector().translateCoord(dim2, deltaY);
 				}
 				break;
 			case 4:// Rotate
-				final ArrayList<Normal> normals = ((RotateAction) currentAction).normals;
+				final ArrayList<Normal> normals = ((RotateAction) currentAction).getNormals();
 				v = Vertex.centerOfGroup(selection);
 				double cx = v.getCoord(dim1);
 				double cy = v.getCoord(dim2);
@@ -1159,10 +1187,10 @@ public class MDLDisplay {
 							ver.setCoord(dim2, Math.sin(verAng + deltaAng) * r + cy);
 						}
 						// if( getDimEditable(dim1) )
-						((MoveAction) currentAction).moveVectors.get(selection.indexOf(ver)).translateCoord(dim1,
+						((MoveAction) currentAction).getMoveVectors().get(selection.indexOf(ver)).translateCoord(dim1,
 								ver.getCoord(dim1) - x1);
 						// if( getDimEditable(dim2) )
-						((MoveAction) currentAction).moveVectors.get(selection.indexOf(ver)).translateCoord(dim2,
+						((MoveAction) currentAction).getMoveVectors().get(selection.indexOf(ver)).translateCoord(dim2,
 								ver.getCoord(dim2) - y1);
 					}
 
@@ -1190,10 +1218,10 @@ public class MDLDisplay {
 						ver.setCoord(dim2, Math.sin(verAng + deltaAng) * r + cy);
 					}
 					// if( getDimEditable(dim1) )
-					((RotateAction) currentAction).normalMoveVectors.get(normals.indexOf(ver)).translateCoord(dim1,
+					((RotateAction) currentAction).getNormalMoveVectors().get(normals.indexOf(ver)).translateCoord(dim1,
 							ver.getCoord(dim1) - x1);
 					// if( getDimEditable(dim2) )
-					((RotateAction) currentAction).normalMoveVectors.get(normals.indexOf(ver)).translateCoord(dim2,
+					((RotateAction) currentAction).getNormalMoveVectors().get(normals.indexOf(ver)).translateCoord(dim2,
 							ver.getCoord(dim2) - y1);
 				}
 				break;
@@ -1229,16 +1257,16 @@ public class MDLDisplay {
 						ver.translateCoord((byte) 2, dzs * (distRatio - 1));
 					}
 					if (getDimEditable(0)) {
-						((MoveAction) currentAction).moveVectors.get(selection.indexOf(ver)).translateCoord((byte) 0,
-								dxs * (distRatio - 1));
+						((MoveAction) currentAction).getMoveVectors().get(selection.indexOf(ver))
+								.translateCoord((byte) 0, dxs * (distRatio - 1));
 					}
 					if (getDimEditable(1)) {
-						((MoveAction) currentAction).moveVectors.get(selection.indexOf(ver)).translateCoord((byte) 1,
-								dys * (distRatio - 1));
+						((MoveAction) currentAction).getMoveVectors().get(selection.indexOf(ver))
+								.translateCoord((byte) 1, dys * (distRatio - 1));
 					}
 					if (getDimEditable(2)) {
-						((MoveAction) currentAction).moveVectors.get(selection.indexOf(ver)).translateCoord((byte) 2,
-								dzs * (distRatio - 1));
+						((MoveAction) currentAction).getMoveVectors().get(selection.indexOf(ver))
+								.translateCoord((byte) 2, dzs * (distRatio - 1));
 					}
 				}
 				break;
@@ -1254,10 +1282,10 @@ public class MDLDisplay {
 					}
 				}
 				if (getDimEditable(dim1)) {
-					((ExtrudeAction) currentAction).baseMovement.moveVector.translateCoord(dim1, deltaX);
+					((ExtrudeAction) currentAction).getBaseMovement().getMoveVector().translateCoord(dim1, deltaX);
 				}
 				if (getDimEditable(dim2)) {
-					((ExtrudeAction) currentAction).baseMovement.moveVector.translateCoord(dim2, deltaY);
+					((ExtrudeAction) currentAction).getBaseMovement().getMoveVector().translateCoord(dim2, deltaY);
 					// extrudeSelection(mouseStart,mouseStop,dim1,dim2);
 				}
 
@@ -1274,10 +1302,10 @@ public class MDLDisplay {
 					}
 				}
 				if (getDimEditable(dim1)) {
-					((ExtrudeAction) currentAction).baseMovement.moveVector.translateCoord(dim1, deltaX);
+					((ExtrudeAction) currentAction).getBaseMovement().getMoveVector().translateCoord(dim1, deltaX);
 				}
 				if (getDimEditable(dim2)) {
-					((ExtrudeAction) currentAction).baseMovement.moveVector.translateCoord(dim2, deltaY);
+					((ExtrudeAction) currentAction).getBaseMovement().getMoveVector().translateCoord(dim2, deltaY);
 				}
 				// double deltaXe = mouseStop.x - mouseStart.x;
 				// double deltaYe = mouseStop.y - mouseStart.y;
@@ -1452,10 +1480,10 @@ public class MDLDisplay {
 					}
 				}
 				if (!uvpanel.getDimLock(dim1)) {
-					((UVMoveAction) currentUVAction).moveVector.translateCoord(dim1, deltaX);
+					((UVMoveAction) currentUVAction).getMoveVector().translateCoord(dim1, deltaX);
 				}
 				if (!uvpanel.getDimLock(dim2)) {
-					((UVMoveAction) currentUVAction).moveVector.translateCoord(dim2, deltaY);
+					((UVMoveAction) currentUVAction).getMoveVector().translateCoord(dim2, deltaY);
 				}
 				break;
 			case 4:// Rotate
@@ -1500,11 +1528,11 @@ public class MDLDisplay {
 							ver.setCoord(dim2, Math.sin(verAng + deltaAng) * r + cy);
 						}
 						// if( getDimEditable(dim1) )
-						((UVMoveAction) currentUVAction).moveVectors.get(uvselection.indexOf(ver)).translateCoord(dim1,
-								ver.getCoord(dim1) - x1);
+						((UVMoveAction) currentUVAction).getMoveVectors().get(uvselection.indexOf(ver))
+								.translateCoord(dim1, ver.getCoord(dim1) - x1);
 						// if( getDimEditable(dim2) )
-						((UVMoveAction) currentUVAction).moveVectors.get(uvselection.indexOf(ver)).translateCoord(dim2,
-								ver.getCoord(dim2) - y1);
+						((UVMoveAction) currentUVAction).getMoveVectors().get(uvselection.indexOf(ver))
+								.translateCoord(dim2, ver.getCoord(dim2) - y1);
 					}
 
 				}
@@ -1534,11 +1562,11 @@ public class MDLDisplay {
 						ver.translateCoord((byte) 1, dys * (distRatio - 1));
 					}
 					if (!uvpanel.getDimLock(0)) {
-						((UVMoveAction) currentUVAction).moveVectors.get(uvselection.indexOf(ver))
+						((UVMoveAction) currentUVAction).getMoveVectors().get(uvselection.indexOf(ver))
 								.translateCoord((byte) 0, dxs * (distRatio - 1));
 					}
 					if (!uvpanel.getDimLock(1)) {
-						((UVMoveAction) currentUVAction).moveVectors.get(uvselection.indexOf(ver))
+						((UVMoveAction) currentUVAction).getMoveVectors().get(uvselection.indexOf(ver))
 								.translateCoord((byte) 1, dys * (distRatio - 1));
 					}
 				}
@@ -1734,8 +1762,8 @@ public class MDLDisplay {
 		}
 	}
 
-	public void clone(final ArrayList<Vertex> source, final boolean selectCopies) {
-		final ArrayList<Vertex> oldSelection = new ArrayList<Vertex>(selection);
+	public void clone(final List<Vertex> source, final boolean selectCopies) {
+		final List<Vertex> oldSelection = new ArrayList<Vertex>(selection);
 
 		final ArrayList<GeosetVertex> vertCopies = new ArrayList<GeosetVertex>();
 		final ArrayList<Triangle> selTris = new ArrayList<Triangle>();
@@ -1860,21 +1888,21 @@ public class MDLDisplay {
 					MoveAction temp = new MoveAction();
 					temp.storeSelection(selection);
 					temp.createEmptyMoveVector();
-					temp.actType = actionType;
+					temp.setActType(VertexActionType.fromLegacyId(actionType));
 					currentAction = temp;
 					break;
 				case 4:
 					temp = new RotateAction();
 					temp.storeSelection(selection);
 					temp.createEmptyMoveVectors();
-					temp.actType = actionType;
+					temp.setActType(VertexActionType.fromLegacyId(actionType));
 					currentAction = temp;
 					break;
 				case 5:
 					temp = new MoveAction();
 					temp.storeSelection(selection);
 					temp.createEmptyMoveVectors();
-					temp.actType = actionType;
+					temp.setActType(VertexActionType.fromLegacyId(actionType));
 					currentAction = temp;
 					break;
 				case 6:
@@ -2071,10 +2099,10 @@ public class MDLDisplay {
 					System.out.println("Extrude finished with " + probs + " inexplicable errors.");
 					ExtrudeAction tempe = new ExtrudeAction();
 					tempe.storeSelection(selection);
-					tempe.type = true;
+					tempe.setType(true);
 					tempe.storeBaseMovement(new Vertex(0, 0, 0));
-					tempe.addedTriangles = newTriangles;
-					tempe.addedVerts = copies;
+					tempe.setAddedTriangles(newTriangles);
+					tempe.setAddedVerts(copies);
 					currentAction = tempe;
 					break;
 				case 7:
@@ -2196,11 +2224,11 @@ public class MDLDisplay {
 
 					tempe = new ExtrudeAction();
 					tempe.storeSelection(selection);
-					tempe.type = false;
+					tempe.setType(false);
 					tempe.storeBaseMovement(new Vertex(0, 0, 0));
-					tempe.addedTriangles = newTriangles;
-					tempe.addedVerts = copies;
-					tempe.copiedGroup = copiedGroup;
+					tempe.setAddedTriangles(newTriangles);
+					tempe.setAddedVerts(copies);
+					tempe.setCopiedGroup(copiedGroup);
 					currentAction = tempe;
 					break;
 				}
@@ -2223,21 +2251,21 @@ public class MDLDisplay {
 					UVMoveAction temp = new UVMoveAction();
 					temp.storeSelection(uvselection);
 					temp.createEmptyMoveVector();
-					temp.actType = actionTypeUV;
+					temp.setActType(VertexActionType.fromLegacyId(actionTypeUV));
 					currentUVAction = temp;
 					break;
 				case 4:
 					temp = new UVMoveAction();
 					temp.storeSelection(uvselection);
 					temp.createEmptyMoveVectors();
-					temp.actType = actionTypeUV;
+					temp.setActType(VertexActionType.fromLegacyId(actionTypeUV));
 					currentUVAction = temp;
 					break;
 				case 5:
 					temp = new UVMoveAction();
 					temp.storeSelection(uvselection);
 					temp.createEmptyMoveVectors();
-					temp.actType = actionTypeUV;
+					temp.setActType(VertexActionType.fromLegacyId(actionTypeUV));
 					currentUVAction = temp;
 					break;
 				case 6:
@@ -2310,7 +2338,7 @@ public class MDLDisplay {
 			final MoveAction temp = new MoveAction();
 			temp.storeSelection(selection);
 			temp.createEmptyMoveVector();
-			temp.actType = actionType;
+			temp.setActType(VertexActionType.fromLegacyId(actionType));
 			final JPanel inputPanel = new JPanel();
 			final GridLayout layout = new GridLayout(6, 1);
 			inputPanel.setLayout(layout);
@@ -2334,9 +2362,9 @@ public class MDLDisplay {
 				ver.translateCoord((byte) 1, deltaY);
 				ver.translateCoord((byte) 2, deltaZ);
 			}
-			temp.moveVector.translateCoord((byte) 0, deltaX);
-			temp.moveVector.translateCoord((byte) 1, deltaY);
-			temp.moveVector.translateCoord((byte) 2, deltaZ);
+			temp.getMoveVector().translateCoord((byte) 0, deltaX);
+			temp.getMoveVector().translateCoord((byte) 1, deltaY);
+			temp.getMoveVector().translateCoord((byte) 2, deltaZ);
 			// updateAction(new
 			// Vertex(0,0,0),((MoveAction)currentAction).moveVector,0,1);
 			redoStack.clear();
@@ -2367,7 +2395,7 @@ public class MDLDisplay {
 			final RotateAction temp = new RotateAction();
 			temp.storeSelection(selection);
 			temp.createEmptyMoveVectors();
-			temp.actType = 4; // i think this is rot
+			temp.setActType(VertexActionType.ROTATE); // i think this is rot
 			final double deltaXAngle = Math.toRadians(((Number) spinners[0].getValue()).doubleValue());
 			final double deltaYAngle = Math.toRadians(((Number) spinners[1].getValue()).doubleValue());
 			final double deltaZAngle = Math.toRadians(((Number) spinners[2].getValue()).doubleValue());
@@ -2383,7 +2411,7 @@ public class MDLDisplay {
 	}
 
 	private void immediateRotate(final RotateAction action, final byte dim1, final byte dim2, final double deltaAng) {
-		final ArrayList<Normal> normals = action.normals;
+		final ArrayList<Normal> normals = action.getNormals();
 		final Vertex v = Vertex.centerOfGroup(selection);
 		double cx = v.getCoord(dim1);
 		double cy = v.getCoord(dim2);
@@ -2410,10 +2438,10 @@ public class MDLDisplay {
 					ver.setCoord(dim2, Math.sin(verAng + deltaAng) * r + cy);
 				}
 				// if( getDimEditable(dim1) )
-				((MoveAction) action).moveVectors.get(selection.indexOf(ver)).translateCoord(dim1,
+				((MoveAction) action).getMoveVectors().get(selection.indexOf(ver)).translateCoord(dim1,
 						ver.getCoord(dim1) - x1);
 				// if( getDimEditable(dim2) )
-				((MoveAction) action).moveVectors.get(selection.indexOf(ver)).translateCoord(dim2,
+				((MoveAction) action).getMoveVectors().get(selection.indexOf(ver)).translateCoord(dim2,
 						ver.getCoord(dim2) - y1);
 			}
 
@@ -2441,9 +2469,9 @@ public class MDLDisplay {
 				ver.setCoord(dim2, Math.sin(verAng + deltaAng) * r + cy);
 			}
 			// if( getDimEditable(dim1) )
-			(action).normalMoveVectors.get(normals.indexOf(ver)).translateCoord(dim1, ver.getCoord(dim1) - x1);
+			(action).getNormalMoveVectors().get(normals.indexOf(ver)).translateCoord(dim1, ver.getCoord(dim1) - x1);
 			// if( getDimEditable(dim2) )
-			(action).normalMoveVectors.get(normals.indexOf(ver)).translateCoord(dim2, ver.getCoord(dim2) - y1);
+			(action).getNormalMoveVectors().get(normals.indexOf(ver)).translateCoord(dim2, ver.getCoord(dim2) - y1);
 		}
 	}
 
@@ -2453,7 +2481,7 @@ public class MDLDisplay {
 			final MoveAction temp = new MoveAction();
 			temp.storeSelection(selection);
 			temp.createEmptyMoveVector();
-			temp.actType = actionType;
+			temp.setActType(VertexActionType.MOVE);
 			final JPanel inputPanel = new JPanel();
 			final GridLayout layout = new GridLayout(6, 1);
 			inputPanel.setLayout(layout);
@@ -2480,9 +2508,9 @@ public class MDLDisplay {
 				ver.translateCoord((byte) 1, changeVector.y);
 				ver.translateCoord((byte) 2, changeVector.z);
 			}
-			temp.moveVector.translateCoord((byte) 0, changeVector.x);
-			temp.moveVector.translateCoord((byte) 1, changeVector.y);
-			temp.moveVector.translateCoord((byte) 2, changeVector.z);
+			temp.getMoveVector().translateCoord((byte) 0, changeVector.x);
+			temp.getMoveVector().translateCoord((byte) 1, changeVector.y);
+			temp.getMoveVector().translateCoord((byte) 2, changeVector.z);
 			redoStack.clear();
 			actionStack.add(temp);
 		}
@@ -2590,7 +2618,7 @@ public class MDLDisplay {
 					selection.add(v);
 				}
 			}
-			final SelectAction temp = new SelectAction(oldSelection, selection, this, 3);
+			final SelectAction temp = new SelectAction(oldSelection, selection, this, SelectionActionType.SELECT_ALL);
 			actionStack.add(temp);
 		}
 	}
@@ -2608,7 +2636,8 @@ public class MDLDisplay {
 					}
 				}
 			}
-			final UVSelectAction temp = new UVSelectAction(oldSelection, uvselection, this, 3);
+			final UVSelectAction temp = new UVSelectAction(oldSelection, uvselection, this,
+					UVSelectionActionType.SELECT_ALL);
 			actionStack.add(temp);
 		}
 	}
@@ -2763,7 +2792,8 @@ public class MDLDisplay {
 					}
 				}
 			}
-			final SelectAction temp = new SelectAction(oldSelection, selection, this, 5);
+			final SelectAction temp = new SelectAction(oldSelection, selection, this,
+					SelectionActionType.EXPAND_SELECTION);
 			actionStack.add(temp);
 		}
 	}
@@ -2802,7 +2832,8 @@ public class MDLDisplay {
 					}
 				}
 			}
-			final UVSelectAction temp = new UVSelectAction(oldSelection, uvselection, this, 5);
+			final UVSelectAction temp = new UVSelectAction(oldSelection, uvselection, this,
+					UVSelectionActionType.EXPAND_SELECTION);
 			actionStack.add(temp);
 		}
 	}
@@ -2904,7 +2935,8 @@ public class MDLDisplay {
 			// else
 			// selection.add(v);
 			// }
-			final SelectAction temp = new SelectAction(oldSelection, selection, this, 4);
+			final SelectAction temp = new SelectAction(oldSelection, selection, this,
+					SelectionActionType.INVERT_SELECTION);
 			actionStack.add(temp);
 		}
 	}
@@ -2923,7 +2955,8 @@ public class MDLDisplay {
 					}
 				}
 			}
-			final UVSelectAction temp = new UVSelectAction(oldSelection, uvselection, this, 4);
+			final UVSelectAction temp = new UVSelectAction(oldSelection, uvselection, this,
+					UVSelectionActionType.INVERT_SELECTION);
 			actionStack.add(temp);
 		}
 	}
@@ -2944,7 +2977,8 @@ public class MDLDisplay {
 					}
 				}
 			}
-			final UVSelectAction temp = new UVSelectAction(oldSelection, uvselection, this, 6);
+			final UVSelectAction temp = new UVSelectAction(oldSelection, uvselection, this,
+					UVSelectionActionType.SELECT_FROM_VIEWER);
 			actionStack.add(temp);
 		}
 	}

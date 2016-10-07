@@ -1,21 +1,22 @@
-package com.hiveworkshop.wc3.gui.modeledit;
+package com.hiveworkshop.wc3.gui.modeledit.actions;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.TVertex;
 
 /**
  * Undoable snap action.
- * 
+ *
  * Eric Theller 6/11/2012
  */
 public class UVSnapAction implements UndoAction {
-	ArrayList<TVertex> oldSelLocs;
-	ArrayList<TVertex> selection;
-	TVertex snapPoint;
+	private final List<TVertex> oldSelLocs;
+	private final List<TVertex> selection;
+	private final TVertex snapPoint;
 
-	public UVSnapAction(final ArrayList<TVertex> selection, final ArrayList<TVertex> oldSelLocs,
-			final TVertex snapPoint) {
+	public UVSnapAction(final List<TVertex> selection, final List<TVertex> oldSelLocs, final TVertex snapPoint) {
 		this.selection = new ArrayList<TVertex>(selection);
 		this.oldSelLocs = oldSelLocs;
 		this.snapPoint = new TVertex(snapPoint);

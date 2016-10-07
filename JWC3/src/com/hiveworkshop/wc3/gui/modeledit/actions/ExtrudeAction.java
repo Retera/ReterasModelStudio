@@ -1,44 +1,46 @@
-package com.hiveworkshop.wc3.gui.modeledit;
+package com.hiveworkshop.wc3.gui.modeledit.actions;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
+import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 /**
- * CloneAction -- allowing you to undo clone!
+ * ExtrudeAction -- something extruded that you can undo!
  *
  * Eric Theller 'Retera' 6/11/2012
  */
-public class CloneAction implements UndoAction {
+public class ExtrudeAction implements UndoAction {
 	MoveAction baseMovement;
-	ArrayList<Vertex> selection;
-	ArrayList<GeosetVertex> addedVerts;
-	ArrayList<Triangle> addedTriangles;
-	ArrayList<GeosetVertex> copiedGroup;
+	List<Vertex> selection;
+	List<GeosetVertex> addedVerts;
+	List<Triangle> addedTriangles;
+	List<GeosetVertex> copiedGroup;
 	boolean type;
 
-	public CloneAction(final ArrayList<Vertex> selection, final Vertex moveVector, final ArrayList<GeosetVertex> clones,
-			final ArrayList<Triangle> addedTriangles, final boolean isExtrude) {
+	public ExtrudeAction(final List<Vertex> selection, final Vertex moveVector, final List<GeosetVertex> clones,
+			final List<Triangle> addedTriangles, final boolean isExtrude) {
 		addedVerts = clones;
 		this.addedTriangles = addedTriangles;
 		this.selection = new ArrayList<Vertex>(selection);
-		baseMovement = new MoveAction(this.selection, moveVector, 0);
+		baseMovement = new MoveAction(this.selection, moveVector, VertexActionType.UNKNOWN);
 		type = isExtrude;
 	}
 
-	public CloneAction() {
+	public ExtrudeAction() {
 
 	}
 
-	public void storeSelection(final ArrayList<Vertex> selection) {
+	public void storeSelection(final List<Vertex> selection) {
 		this.selection = new ArrayList<Vertex>(selection);
 	}
 
 	public void storeBaseMovement(final Vertex moveVector) {
-		baseMovement = new MoveAction(this.selection, moveVector, 0);
+		baseMovement = new MoveAction(this.selection, moveVector, VertexActionType.UNKNOWN);
 	}
 
 	@Override
@@ -218,4 +220,37 @@ public class CloneAction implements UndoAction {
 			return "extrude";
 		}
 	}
+
+	public MoveAction getBaseMovement() {
+		return baseMovement;
+	}
+
+	public List<GeosetVertex> getAddedVerts() {
+		return addedVerts;
+	}
+
+	public void setAddedVerts(final List<GeosetVertex> addedVerts) {
+		this.addedVerts = addedVerts;
+	}
+
+	public List<Triangle> getAddedTriangles() {
+		return addedTriangles;
+	}
+
+	public void setAddedTriangles(final List<Triangle> addedTriangles) {
+		this.addedTriangles = addedTriangles;
+	}
+
+	public boolean isType() {
+		return type;
+	}
+
+	public void setType(final boolean type) {
+		this.type = type;
+	}
+
+	public void setCopiedGroup(final List<GeosetVertex> copiedGroup) {
+		this.copiedGroup = copiedGroup;
+	}
+
 }

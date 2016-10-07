@@ -1,7 +1,9 @@
-package com.hiveworkshop.wc3.gui.modeledit;
+package com.hiveworkshop.wc3.gui.modeledit.actions;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
@@ -12,13 +14,13 @@ import com.hiveworkshop.wc3.mdl.Vertex;
  * Eric Theller 6/11/2012
  */
 public class DeleteAction implements UndoAction {
-	ArrayList<Vertex> selection;
-	ArrayList<Vertex> deleted;
-	ArrayList<Triangle> deletedTris;
+	private final List<Vertex> selection;
+	private final List<Vertex> deleted;
+	private final List<Triangle> deletedTris;
 
-	public DeleteAction(final ArrayList<Vertex> selection, final ArrayList<Triangle> deletedTris) {
-		this.selection = selection;
-		this.deleted = selection;
+	public DeleteAction(final List<Vertex> selection, final List<Triangle> deletedTris) {
+		this.selection = new ArrayList<Vertex>(selection);
+		this.deleted = new ArrayList<Vertex>(selection);
 		this.deletedTris = deletedTris;
 	}
 

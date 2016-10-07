@@ -1,20 +1,22 @@
-package com.hiveworkshop.wc3.gui.modeledit;
+package com.hiveworkshop.wc3.gui.modeledit.actions;
 
 import java.util.ArrayList;
 
+import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 /**
  * Undoable snap action.
- * 
+ *
  * Eric Theller 6/11/2012
  */
-public class SnapAction implements UndoAction {
+public class SnapNormalsAction implements UndoAction {
 	ArrayList<Vertex> oldSelLocs;
 	ArrayList<Vertex> selection;
 	Vertex snapPoint;
 
-	public SnapAction(final ArrayList<Vertex> selection, final ArrayList<Vertex> oldSelLocs, final Vertex snapPoint) {
+	public SnapNormalsAction(final ArrayList<Vertex> selection, final ArrayList<Vertex> oldSelLocs,
+			final Vertex snapPoint) {
 		this.selection = new ArrayList<Vertex>(selection);
 		this.oldSelLocs = oldSelLocs;
 		this.snapPoint = new Vertex(snapPoint);
@@ -36,6 +38,6 @@ public class SnapAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "snap verteces";
+		return "snap normals";
 	}
 }
