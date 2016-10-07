@@ -37,10 +37,10 @@ public class SelectAndMoveActivity implements ViewportActivity {
 			if (endingClick != null) {
 				endingClick = new Point2D.Double(coordinateSystem.geomX(e.getPoint().getX()),
 						coordinateSystem.geomY(e.getPoint().getY()));
+
 			}
 		}
 		startingClick = null;
-
 	}
 
 	@Override
