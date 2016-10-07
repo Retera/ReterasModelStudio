@@ -5,7 +5,7 @@ import java.util.List;
 public interface SelectionManager {
 	List<? extends SelectionItemView> getSelection();
 
-	List<? extends SelectionItemView> getSelectableItems();
+	List<? extends SelectionItem> getSelectableItems();
 
 	void setSelection(List<SelectionItem> selectionItem);
 
