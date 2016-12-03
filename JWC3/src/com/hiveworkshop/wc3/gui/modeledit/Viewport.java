@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -188,13 +187,14 @@ public class Viewport extends JPanel
 			g.drawLine((int) cameraOrigin.x, 0, (int) cameraOrigin.x, getHeight());
 		}
 
-		// dispMDL.drawGeosets(g, this, vertexSize);
-		// dispMDL.drawPivots(g, this, vertexSize);
-		// dispMDL.drawCameras(g, this, vertexSize);
+		dispMDL.drawGeosets(g, this, vertexSize);
+		dispMDL.drawPivots(g, this, vertexSize);
+		dispMDL.drawCameras(g, this, vertexSize);
 
-		final Graphics2D graphics2d = (Graphics2D) g;
-		viewportModelRenderer.reset(graphics2d, dispMDL.getProgramPreferences(), m_d1, m_d2, this, this);
-		dispMDL.getMDL().render(viewportModelRenderer);
+		// final Graphics2D graphics2d = (Graphics2D) g;
+		// viewportModelRenderer.reset(graphics2d,
+		// dispMDL.getProgramPreferences(), m_d1, m_d2, this, this);
+		// dispMDL.getMDL().render(viewportModelRenderer);
 
 		// switch (m_d1) {
 		// case 0:
