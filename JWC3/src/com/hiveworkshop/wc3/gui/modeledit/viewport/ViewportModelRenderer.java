@@ -53,13 +53,13 @@ public class ViewportModelRenderer implements ModelRenderer {
 		geosetRenderer = new GeosetRendererImpl();
 
 		try {
-			attachmentImage = ImageIO.read(getClass().getResource("icons/attachment.png"));
-			eventImage = ImageIO.read(getClass().getResource("icons/event.png"));
-			lightImage = ImageIO.read(getClass().getResource("icons/light.png"));
-			particleImage = ImageIO.read(getClass().getResource("icons/particle1.png"));
-			particle2Image = ImageIO.read(getClass().getResource("icons/particle2.png"));
-			ribbonImage = ImageIO.read(getClass().getResource("icons/ribbon.png"));
-			collisionImage = ImageIO.read(getClass().getResource("icons/collision.png"));
+			attachmentImage = ImageIO.read(getClass().getResource("icons/nodes/attachment.png"));
+			eventImage = ImageIO.read(getClass().getResource("icons/nodes/event.png"));
+			lightImage = ImageIO.read(getClass().getResource("icons/nodes/light.png"));
+			particleImage = ImageIO.read(getClass().getResource("icons/nodes/particle1.png"));
+			particle2Image = ImageIO.read(getClass().getResource("icons/nodes/particle2.png"));
+			ribbonImage = ImageIO.read(getClass().getResource("icons/nodes/ribbon.png"));
+			collisionImage = ImageIO.read(getClass().getResource("icons/nodes/collision.png"));
 		} catch (final IOException e) {
 			throw new RuntimeException(e);
 		}

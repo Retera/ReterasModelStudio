@@ -56,6 +56,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
@@ -80,6 +81,11 @@ import com.hiveworkshop.wc3.gui.modeledit.ModelPanel;
 import com.hiveworkshop.wc3.gui.modeledit.PerspDisplayPanel;
 import com.hiveworkshop.wc3.gui.modeledit.UVPanel;
 import com.hiveworkshop.wc3.gui.modeledit.UndoHandler;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItemTypes;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionMode;
+import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarActionButtonType;
+import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
+import com.hiveworkshop.wc3.gui.modeledit.viewport.IconUtils;
 import com.hiveworkshop.wc3.jworldedit.models.UnitEditorModelSelector;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.AnimFlag.Entry;
@@ -132,7 +138,7 @@ import de.wc3data.stream.BlizzardDataOutputStream;
 public class MainPanel extends JPanel implements ActionListener, MouseListener, ChangeListener, UndoHandler {
 	ModeButton selectButton, addButton, deselectButton, moveButton, rotateButton, scaleButton, extrudeButton,
 			extendButton, snapButton, deleteButton, cloneButton, xButton, yButton, zButton;
-	ArrayList<ModeButton> buttons = new ArrayList<ModeButton>();
+	ArrayList<ModeButton> buttons = new ArrayList<>();
 	JMenuBar menuBar;
 	JMenu fileMenu, recentMenu, editMenu, modelMenu, mirrorSubmenu, tweaksSubmenu, viewMenu, importMenu, addMenu,
 			windowMenu, addParticle, animationMenu, singleAnimationMenu, aboutMenu, fetch;
@@ -145,7 +151,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			snapNormals, flipAllUVsU, flipAllUVsV, inverseAllUVs, mirrorX, mirrorY, mirrorZ, insideOut, showMatrices,
 			editUVs, exportTextures, scaleAnimations, animationViewer, linearizeAnimations, simplifyKeyframes,
 			riseFallBirth, animFromFile, animFromUnit, animFromModel, animFromObject, teamColor, teamGlow;
-	List<RecentItem> recentItems = new ArrayList<RecentItem>();
+	List<RecentItem> recentItems = new ArrayList<>();
 	UndoMenuItem undo;
 	RedoMenuItem redo;
 
@@ -169,6 +175,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 	SaveProfile profile = SaveProfile.get();
 	ProgramPreferences prefs = profile.getPreferences();// new
 														// ProgramPreferences();
+
+	JToolBar toolbar;
 
 	public boolean showNormals() {
 		return showNormals.isSelected();
@@ -419,10 +427,14 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			frame.setVisible(true);
 		}
 	};
+	private ToolbarButtonGroup<SelectionItemTypes> selectionItemTypeGroup;
+	private ToolbarButtonGroup<SelectionMode> selectionModeGroup;
+	private ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup;
 
 	public MainPanel() {
 		super();
 
+		add(createJToolBar());
 		// testArea = new PerspDisplayPanel("Graphic Test",2,0);
 		// //botArea.setViewport(0,1);
 		// add(testArea);
@@ -500,7 +512,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		tabbedPane = new DnDTabbedPane();
 		final GroupLayout layout = new GroupLayout(this);
 		layout.setHorizontalGroup(layout.createSequentialGroup()
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(tabbedPane)
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(toolbar)
+						.addComponent(tabbedPane)
 						.addGroup(layout.createSequentialGroup().addComponent(mouseCoordDisplay[0])
 								.addComponent(mouseCoordDisplay[1]).addComponent(mouseCoordDisplay[2])))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(selectButton)
@@ -510,27 +523,22 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 						.addComponent(snapButton).addComponent(deleteButton).addComponent(cloneButton)
 						.addComponent(divider[2]).addGroup(layout.createSequentialGroup().addComponent(xButton)
 								.addComponent(yButton).addComponent(zButton))));
-		layout.setVerticalGroup(
-				layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-						.addGroup(
-								layout.createSequentialGroup()
-										.addComponent(
-												tabbedPane)
-										.addGroup(
-												layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-														.addComponent(
-																mouseCoordDisplay[0])
-														.addComponent(mouseCoordDisplay[1])
-														.addComponent(mouseCoordDisplay[2])))
-				.addGroup(layout.createSequentialGroup().addComponent(selectButton).addGap(8).addComponent(addButton)
-						.addGap(8).addComponent(deselectButton).addGap(8).addComponent(divider[0]).addGap(8)
-						.addComponent(moveButton).addGap(8).addComponent(rotateButton).addGap(8)
-						.addComponent(scaleButton).addGap(8).addComponent(extrudeButton).addGap(8)
-						.addComponent(extendButton).addGap(8).addComponent(divider[1]).addGap(8)
-						.addComponent(snapButton).addGap(8).addComponent(deleteButton).addGap(8)
-						.addComponent(cloneButton).addGap(8).addComponent(divider[2]).addGap(8)
-						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(xButton)
-								.addComponent(yButton).addComponent(zButton))));
+		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(toolbar)
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+						.addGroup(layout.createSequentialGroup().addComponent(tabbedPane)
+								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+										.addComponent(mouseCoordDisplay[0]).addComponent(mouseCoordDisplay[1])
+										.addComponent(mouseCoordDisplay[2])))
+						.addGroup(layout.createSequentialGroup().addComponent(selectButton).addGap(8)
+								.addComponent(addButton).addGap(8).addComponent(deselectButton).addGap(8)
+								.addComponent(divider[0]).addGap(8).addComponent(moveButton).addGap(8)
+								.addComponent(rotateButton).addGap(8).addComponent(scaleButton).addGap(8)
+								.addComponent(extrudeButton).addGap(8).addComponent(extendButton).addGap(8)
+								.addComponent(divider[1]).addGap(8).addComponent(snapButton).addGap(8)
+								.addComponent(deleteButton).addGap(8).addComponent(cloneButton).addGap(8)
+								.addComponent(divider[2]).addGap(8)
+								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(xButton)
+										.addComponent(yButton).addComponent(zButton)))));
 		setLayout(layout);
 		// Create a file chooser
 		fc = new JFileChooser();
@@ -558,6 +566,55 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		tabbedPane.addMouseListener(this);
 		// setFocusable(true);
 		// selectButton.requestFocus();
+	}
+
+	public JToolBar createJToolBar() {
+		toolbar = new JToolBar(JToolBar.HORIZONTAL);
+		toolbar.setFloatable(false);
+		toolbar.add(new AbstractAction("New", IconUtils.loadImageIcon("icons/actions/new.png")) {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				newModel();
+			}
+		});
+		toolbar.add(new AbstractAction("Open", IconUtils.loadImageIcon("icons/actions/open.png")) {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				onClickOpen();
+			}
+		});
+		toolbar.add(new AbstractAction("Save", IconUtils.loadImageIcon("icons/actions/save.png")) {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				onClickSave();
+			}
+		});
+		toolbar.addSeparator();
+		toolbar.add(new AbstractAction("Undo", IconUtils.loadImageIcon("icons/actions/undo.png")) {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				currentMDLDisp().undo();
+			}
+		});
+		toolbar.add(new AbstractAction("Redo", IconUtils.loadImageIcon("icons/actions/redo.png")) {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				currentMDLDisp().redo();
+			}
+		});
+		toolbar.addSeparator();
+		selectionModeGroup = new ToolbarButtonGroup<>(toolbar, SelectionMode.values());
+		toolbar.addSeparator();
+		selectionItemTypeGroup = new ToolbarButtonGroup<>(toolbar, SelectionItemTypes.values());
+		toolbar.addSeparator();
+		actionTypeGroup = new ToolbarButtonGroup<>(toolbar, new ToolbarActionButtonType[] {
+				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/move2.png"), "Select and Move"),
+				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/rotate.png"), "Select and Rotate"),
+				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/scale.png"), "Select and Scale"),
+				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/extrude.png"), "Select and Extrude"),
+				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/extend.png"),
+						"Select and Extend"), });
+		return toolbar;
 	}
 
 	public void init() {
@@ -763,11 +820,10 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 									.get(0);
 
 							final JPanel particlePanel = new JPanel();
-							final List<IdObject> idObjects = new ArrayList<IdObject>(currentMDL().getIdObjects());
+							final List<IdObject> idObjects = new ArrayList<>(currentMDL().getIdObjects());
 							final Bone nullBone = new Bone("No parent");
 							idObjects.add(0, nullBone);
-							final JComboBox<IdObject> parent = new JComboBox<IdObject>(
-									idObjects.toArray(new IdObject[0]));
+							final JComboBox<IdObject> parent = new JComboBox<>(idObjects.toArray(new IdObject[0]));
 							parent.setRenderer(new BasicComboBoxRenderer() {
 								@Override
 								public Component getListCellRendererComponent(final JList list, final Object value,
@@ -871,20 +927,18 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 											.addGroup(layout.createSequentialGroup().addComponent(colorButtons[0])
 													.addGap(4).addComponent(colorButtons[1]).addGap(4)
 													.addComponent(colorButtons[2]))));
-							layout.setVerticalGroup(
-									layout.createParallelGroup(Alignment.CENTER).addComponent(imageLabel)
-											.addGroup(layout.createSequentialGroup().addComponent(titleLabel)
-													.addGroup(layout.createParallelGroup(Alignment.CENTER)
-															.addComponent(nameLabel).addComponent(nameField))
+							layout.setVerticalGroup(layout.createParallelGroup(Alignment.CENTER)
+									.addComponent(imageLabel)
+									.addGroup(layout.createSequentialGroup().addComponent(titleLabel)
+											.addGroup(layout.createParallelGroup(Alignment.CENTER)
+													.addComponent(nameLabel).addComponent(nameField))
 											.addGap(4)
 											.addGroup(layout.createParallelGroup(Alignment.CENTER)
-													.addComponent(parentLabel).addComponent(parent)).addGap(
-															4)
-													.addComponent(chooseAnimations).addGap(4)
-													.addGroup(layout.createParallelGroup(Alignment.CENTER)
-															.addComponent(xLabel).addComponent(xSpinner)
-															.addComponent(yLabel).addComponent(ySpinner)
-															.addComponent(zLabel).addComponent(zSpinner))
+													.addComponent(parentLabel).addComponent(parent))
+											.addGap(4).addComponent(chooseAnimations).addGap(4)
+											.addGroup(layout.createParallelGroup(Alignment.CENTER).addComponent(xLabel)
+													.addComponent(xSpinner).addComponent(yLabel).addComponent(ySpinner)
+													.addComponent(zLabel).addComponent(zSpinner))
 											.addGap(4)
 											.addGroup(layout.createParallelGroup(Alignment.CENTER)
 													.addComponent(colorButtons[0]).addComponent(colorButtons[1])
@@ -1298,74 +1352,9 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		// Open, off of the file menu:
 		refreshUndo();
 		if (e.getSource() == newModel) {
-
+			newModel();
 		} else if (e.getSource() == open) {
-			fc.setDialogTitle("Open");
-			final MDL current = currentMDL();
-			if (current != null && !current.isTemp() && current.getFile() != null) {
-				fc.setCurrentDirectory(current.getFile().getParentFile());
-			} else if (profile.getPath() != null) {
-				fc.setCurrentDirectory(new File(profile.getPath()));
-			}
-
-			final int returnValue = fc.showOpenDialog(this);
-
-			if (returnValue == JFileChooser.APPROVE_OPTION) {
-				currentFile = fc.getSelectedFile();
-				profile.setPath(currentFile.getParent());
-				// frontArea.clearGeosets();
-				// sideArea.clearGeosets();
-				// botArea.clearGeosets();
-				modelMenu.getAccessibleContext().setAccessibleDescription(
-						"Allows the user to control which parts of the model are displayed for editing.");
-				modelMenu.setEnabled(true);
-				SaveProfile.get().addRecent(currentFile.getPath());
-				updateRecent();
-				loadFile(currentFile);
-			}
-
-			fc.setSelectedFile(null);
-
-			// //Special thanks to the JWSFileChooserDemo from oracle's Java
-			// tutorials, from which many ideas were borrowed for the following
-			// FileOpenService fos = null;
-			// FileContents fileContents = null;
-			//
-			// try
-			// {
-			// fos =
-			// (FileOpenService)ServiceManager.lookup("javax.jnlp.FileOpenService");
-			// }
-			// catch (UnavailableServiceException exc )
-			// {
-			//
-			// }
-			//
-			// if( fos != null )
-			// {
-			// try
-			// {
-			// fileContents = fos.openFileDialog(null, null);
-			// }
-			// catch (Exception exc )
-			// {
-			// JOptionPane.showMessageDialog(this,"Opening command failed:
-			// "+exc.getLocalizedMessage());
-			// }
-			// }
-			//
-			// if( fileContents != null)
-			// {
-			// try
-			// {
-			// fileContents.getName();
-			// }
-			// catch (IOException exc)
-			// {
-			// JOptionPane.showMessageDialog(this,"Problem opening file:
-			// "+exc.getLocalizedMessage());
-			// }
-			// }
+			onClickOpen();
 		} else if (e.getSource() == fetchUnit) {
 			final Element unitFetched = fetchUnit();
 			final String filepath = convertPathToMDX(unitFetched.getField("file"));
@@ -1500,7 +1489,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			}
 			refreshController();
 		} else if (e.getSource() == importFromWorkspace) {
-			final List<MDL> optionNames = new ArrayList<MDL>();
+			final List<MDL> optionNames = new ArrayList<>();
 			for (int i = 0; i < this.tabbedPane.getTabCount(); i++) {
 				final ModelPanel modelPanel = (ModelPanel) tabbedPane.getComponentAt(i);
 				final MDL model = modelPanel.getMDLDisplay().getMDL();
@@ -1596,87 +1585,11 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				geoControl.getFrame().toFront();
 			}
 		} else if (e.getSource() == save && currentMDL() != null && currentMDL().getFile() != null) {
-			try {
-				if (currentMDL() != null) {
-					currentMDL().saveFile();
-					profile.setPath(currentMDL().getFile().getParent());
-					currentMDLDisp().resetBeenSaved();
-				}
-			} catch (final Exception exc) {
-				ExceptionPopup.display(exc);
-			}
-			refreshController();
+			onClickSave();
 		} else if (e.getSource() == saveAs) {
-			try {
-				fc.setDialogTitle("Save as");
-				final MDL current = currentMDL();
-				if (current != null && !current.isTemp() && current.getFile() != null) {
-					fc.setCurrentDirectory(current.getFile().getParentFile());
-				} else if (profile.getPath() != null) {
-					fc.setCurrentDirectory(new File(profile.getPath()));
-				}
-				final int returnValue = fc.showSaveDialog(this);
-				File temp = fc.getSelectedFile();
-				if (returnValue == JFileChooser.APPROVE_OPTION) {
-					if (temp != null) {
-						final FileFilter ff = fc.getFileFilter();
-						final String ext = ff.accept(new File("junk.mdl")) ? ".mdl" : ".mdx";
-						if (ff.accept(new File("junk.obj"))) {
-							throw new UnsupportedOperationException("OBJ saving has not been coded yet.");
-						}
-						final String name = temp.getName();
-						if (name.lastIndexOf('.') != -1) {
-							if (!name.substring(name.lastIndexOf('.'), name.length()).equals(ext)) {
-								temp = (new File(
-										temp.getAbsolutePath().substring(0, temp.getAbsolutePath().lastIndexOf('.'))
-												+ ext));
-							}
-						} else {
-							temp = (new File(temp.getAbsolutePath() + ext));
-						}
-						currentFile = temp;
-						if (temp.exists()) {
-							final Object[] options = { "Overwrite", "Cancel" };
-							final int n = JOptionPane.showOptionDialog(MainFrame.frame, "Selected file already exists.",
-									"Warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, options,
-									options[1]);
-							if (n == 1) {
-								fc.setSelectedFile(null);
-								return;
-							}
-						}
-						profile.setPath(currentFile.getParent());
-						if (ext.equals(".mdl")) {
-							currentMDL().printTo(currentFile);
-						} else if (prefs.isUseNativeMDXParser()) {
-							final MdxModel model = new MdxModel(currentMDL());
-							try (BlizzardDataOutputStream writer = new BlizzardDataOutputStream(currentFile)) {
-								model.save(writer);
-							} catch (final FileNotFoundException e1) {
-								e1.printStackTrace();
-							} catch (final IOException e1) {
-								e1.printStackTrace();
-							}
-						} else {
-							final File currentFileMDL = new File(
-									currentFile.getPath().substring(0, currentFile.getPath().length() - 1) + "l");
-							currentMDL().printTo(currentFileMDL);
-							MDXHandler.compile(currentFileMDL);
-						}
-						currentMDL().setFile(currentFile);
-						currentMDLDisp().resetBeenSaved();
-						tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(), currentFile.getName().split("\\.")[0]);
-						tabbedPane.setToolTipTextAt(tabbedPane.getSelectedIndex(), currentFile.getPath());
-					} else {
-						JOptionPane.showMessageDialog(this,
-								"You tried to save, but you somehow didn't select a file.\nThat is bad.");
-					}
-				}
-				fc.setSelectedFile(null);
-			} catch (final Exception exc) {
-				ExceptionPopup.display(exc);
+			if (!onClickSaveAs()) {
+				return;
 			}
-			refreshController();
 		} else if (e.getSource() == contextClose) {
 			if (((ModelPanel) tabbedPane.getComponentAt(contextClickedTab)).close()) {// this);
 				tabbedPane.remove(contextClickedTab);
@@ -1751,13 +1664,13 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				disp.getUVPanel().showFrame();
 			}
 		} else if (e.getSource() == exportTextures) {
-			final DefaultListModel<Material> materials = new DefaultListModel<Material>();
+			final DefaultListModel<Material> materials = new DefaultListModel<>();
 			for (int i = 0; i < currentMDL().getMaterials().size(); i++) {
 				final Material mat = currentMDL().getMaterials().get(i);
 				materials.addElement(mat);
 			}
 
-			final JList<Material> materialsList = new JList<Material>(materials);
+			final JList<Material> materialsList = new JList<>(materials);
 			materialsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			materialsList.setCellRenderer(new MaterialListRenderer(currentMDL()));
 			JOptionPane.showMessageDialog(this, new JScrollPane(materialsList));
@@ -1842,7 +1755,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				final List<Animation> anims = currentMDL().getAnims();
 
 				for (final AnimFlag flag : allAnimFlags) {
-					final List<Integer> indicesForDeletion = new ArrayList<Integer>();
+					final List<Integer> indicesForDeletion = new ArrayList<>();
 					Entry lastEntry = null;
 					for (int i = 0; i < flag.length(); i++) {
 						final Entry entry = flag.getEntry(i);
@@ -1860,7 +1773,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 						if (!flag.hasGlobalSeq()) {
 							Object olderKeyframe = null;
 							Object oldKeyframe = null;
-							final List<Integer> indicesForDeletion = new ArrayList<Integer>();
+							final List<Integer> indicesForDeletion = new ArrayList<>();
 							for (int i = 0; i < flag.length(); i++) {
 								final Entry entry = flag.getEntry(i);
 								//
@@ -1937,7 +1850,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 						if (flag.hasGlobalSeq() && flag.getGlobalSeq().equals(globalSeq)) {
 							Object olderKeyframe = null;
 							Object oldKeyframe = null;
-							final List<Integer> indicesForDeletion = new ArrayList<Integer>();
+							final List<Integer> indicesForDeletion = new ArrayList<>();
 							for (int i = 0; i < flag.length(); i++) {
 								final Entry entry = flag.getEntry(i);
 								//
@@ -2056,7 +1969,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				model.remove(oldDeath);
 			}
 
-			final List<IdObject> roots = new ArrayList<IdObject>();
+			final List<IdObject> roots = new ArrayList<>();
 			for (final IdObject obj : model.getIdObjects()) {
 				if (obj.getParent() == null) {
 					roots.add(obj);
@@ -2084,8 +1997,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 						continue;
 					}
 					if (trans == null) {
-						final ArrayList<Integer> times = new ArrayList<Integer>();
-						final ArrayList<Integer> values = new ArrayList<Integer>();
+						final ArrayList<Integer> times = new ArrayList<>();
+						final ArrayList<Integer> values = new ArrayList<>();
 						trans = new AnimFlag("Translation", times, values);
 						trans.addTag("Linear");
 						b.getAnimFlags().add(trans);
@@ -2224,6 +2137,168 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		// }
 		// repaint();
 		// }
+	}
+
+	private boolean onClickSaveAs() {
+		try {
+			fc.setDialogTitle("Save as");
+			final MDL current = currentMDL();
+			if (current != null && !current.isTemp() && current.getFile() != null) {
+				fc.setCurrentDirectory(current.getFile().getParentFile());
+			} else if (profile.getPath() != null) {
+				fc.setCurrentDirectory(new File(profile.getPath()));
+			}
+			final int returnValue = fc.showSaveDialog(this);
+			File temp = fc.getSelectedFile();
+			if (returnValue == JFileChooser.APPROVE_OPTION) {
+				if (temp != null) {
+					final FileFilter ff = fc.getFileFilter();
+					final String ext = ff.accept(new File("junk.mdl")) ? ".mdl" : ".mdx";
+					if (ff.accept(new File("junk.obj"))) {
+						throw new UnsupportedOperationException("OBJ saving has not been coded yet.");
+					}
+					final String name = temp.getName();
+					if (name.lastIndexOf('.') != -1) {
+						if (!name.substring(name.lastIndexOf('.'), name.length()).equals(ext)) {
+							temp = (new File(
+									temp.getAbsolutePath().substring(0, temp.getAbsolutePath().lastIndexOf('.'))
+											+ ext));
+						}
+					} else {
+						temp = (new File(temp.getAbsolutePath() + ext));
+					}
+					currentFile = temp;
+					if (temp.exists()) {
+						final Object[] options = { "Overwrite", "Cancel" };
+						final int n = JOptionPane.showOptionDialog(MainFrame.frame, "Selected file already exists.",
+								"Warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, options,
+								options[1]);
+						if (n == 1) {
+							fc.setSelectedFile(null);
+							return false;
+						}
+					}
+					profile.setPath(currentFile.getParent());
+					if (ext.equals(".mdl")) {
+						currentMDL().printTo(currentFile);
+					} else if (prefs.isUseNativeMDXParser()) {
+						final MdxModel model = new MdxModel(currentMDL());
+						try (BlizzardDataOutputStream writer = new BlizzardDataOutputStream(currentFile)) {
+							model.save(writer);
+						} catch (final FileNotFoundException e1) {
+							e1.printStackTrace();
+						} catch (final IOException e1) {
+							e1.printStackTrace();
+						}
+					} else {
+						final File currentFileMDL = new File(
+								currentFile.getPath().substring(0, currentFile.getPath().length() - 1) + "l");
+						currentMDL().printTo(currentFileMDL);
+						MDXHandler.compile(currentFileMDL);
+					}
+					currentMDL().setFile(currentFile);
+					currentMDLDisp().resetBeenSaved();
+					tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(), currentFile.getName().split("\\.")[0]);
+					tabbedPane.setToolTipTextAt(tabbedPane.getSelectedIndex(), currentFile.getPath());
+				} else {
+					JOptionPane.showMessageDialog(this,
+							"You tried to save, but you somehow didn't select a file.\nThat is bad.");
+				}
+			}
+			fc.setSelectedFile(null);
+			return true;
+		} catch (final Exception exc) {
+			ExceptionPopup.display(exc);
+		}
+		refreshController();
+		return false;
+	}
+
+	private void onClickSave() {
+		try {
+			if (currentMDL() != null) {
+				currentMDL().saveFile();
+				profile.setPath(currentMDL().getFile().getParent());
+				currentMDLDisp().resetBeenSaved();
+			}
+		} catch (final Exception exc) {
+			ExceptionPopup.display(exc);
+		}
+		refreshController();
+	}
+
+	private void onClickOpen() {
+		fc.setDialogTitle("Open");
+		final MDL current = currentMDL();
+		if (current != null && !current.isTemp() && current.getFile() != null) {
+			fc.setCurrentDirectory(current.getFile().getParentFile());
+		} else if (profile.getPath() != null) {
+			fc.setCurrentDirectory(new File(profile.getPath()));
+		}
+
+		final int returnValue = fc.showOpenDialog(this);
+
+		if (returnValue == JFileChooser.APPROVE_OPTION) {
+			currentFile = fc.getSelectedFile();
+			profile.setPath(currentFile.getParent());
+			// frontArea.clearGeosets();
+			// sideArea.clearGeosets();
+			// botArea.clearGeosets();
+			modelMenu.getAccessibleContext().setAccessibleDescription(
+					"Allows the user to control which parts of the model are displayed for editing.");
+			modelMenu.setEnabled(true);
+			SaveProfile.get().addRecent(currentFile.getPath());
+			updateRecent();
+			loadFile(currentFile);
+		}
+
+		fc.setSelectedFile(null);
+
+		// //Special thanks to the JWSFileChooserDemo from oracle's Java
+		// tutorials, from which many ideas were borrowed for the following
+		// FileOpenService fos = null;
+		// FileContents fileContents = null;
+		//
+		// try
+		// {
+		// fos =
+		// (FileOpenService)ServiceManager.lookup("javax.jnlp.FileOpenService");
+		// }
+		// catch (UnavailableServiceException exc )
+		// {
+		//
+		// }
+		//
+		// if( fos != null )
+		// {
+		// try
+		// {
+		// fileContents = fos.openFileDialog(null, null);
+		// }
+		// catch (Exception exc )
+		// {
+		// JOptionPane.showMessageDialog(this,"Opening command failed:
+		// "+exc.getLocalizedMessage());
+		// }
+		// }
+		//
+		// if( fileContents != null)
+		// {
+		// try
+		// {
+		// fileContents.getName();
+		// }
+		// catch (IOException exc)
+		// {
+		// JOptionPane.showMessageDialog(this,"Problem opening file:
+		// "+exc.getLocalizedMessage());
+		// }
+		// }
+	}
+
+	private void newModel() {
+		// TODO Auto-generated method stub
+
 	}
 
 	private Element fetchUnit() {
@@ -2415,7 +2490,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				try (BlizzardDataInputStream in = new BlizzardDataInputStream(new FileInputStream(f))) {
 					final MDL model = new MDL(MdxUtils.loadModel(in));
 					model.setFile(f);
-					temp = new ModelPanel(model, prefs, MainPanel.this);
+					temp = new ModelPanel(model, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup);
 				} catch (final FileNotFoundException e) {
 					e.printStackTrace();
 					ExceptionPopup.display(e);
@@ -2426,7 +2501,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 					throw new RuntimeException("Reading mdx failed");
 				}
 			} else {
-				temp = new ModelPanel(MDXHandler.convert(f), prefs, MainPanel.this);
+				temp = new ModelPanel(MDXHandler.convert(f), prefs, MainPanel.this, selectionItemTypeGroup,
+						selectionModeGroup);
 			}
 		} else if (f.getPath().toLowerCase().endsWith("obj")) {
 			// final Build builder = new Build();
@@ -2435,7 +2511,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			final Build builder = new Build();
 			try {
 				final Parse obj = new Parse(builder, f.getPath());
-				temp = new ModelPanel(builder.createMDL(), prefs, MainPanel.this);
+				temp = new ModelPanel(builder.createMDL(), prefs, MainPanel.this, selectionItemTypeGroup,
+						selectionModeGroup);
 			} catch (final FileNotFoundException e) {
 				ExceptionPopup.display(e);
 				e.printStackTrace();
@@ -2444,7 +2521,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				e.printStackTrace();
 			}
 		} else {
-			temp = new ModelPanel(f, prefs, MainPanel.this);
+			temp = new ModelPanel(f, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup);
 		}
 		temp.getMDLDisplay().addCoordDisplayListener(new CoordDisplayListener() {
 			@Override

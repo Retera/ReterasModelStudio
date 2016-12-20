@@ -2,6 +2,7 @@ package com.hiveworkshop.wc3.gui.modeledit;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -11,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
@@ -26,11 +28,15 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.Timer;
 
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionListener;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.CursorManager;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.ViewportActivity;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportModelRenderer;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportView;
 
-public class Viewport extends JPanel
-		implements MouseListener, ActionListener, MouseWheelListener, CoordinateSystem, ViewportView {
+public class Viewport extends JPanel implements MouseListener, ActionListener, MouseWheelListener, CoordinateSystem,
+		ViewportView, MouseMotionListener {
 	MDLDisplay dispMDL;
 	byte m_d1;
 	byte m_d2;
@@ -51,8 +57,19 @@ public class Viewport extends JPanel
 	JMenuItem manualSet;
 
 	private final ViewportModelRenderer viewportModelRenderer;
+	private final ViewportActivity activityListener;
+	private final SelectionManager selectionManager;
+	private final SelectionListener selectionListener;
+	private final CursorManager cursorManager;
+	private final Runnable updateListener = new Runnable() {
+		@Override
+		public void run() {
+			Viewport.this.repaint();
+		}
+	};
 
-	public Viewport(final byte d1, final byte d2, final MDLDisplay dispMDL) {
+	public Viewport(final byte d1, final byte d2, final MDLDisplay dispMDL, final ViewportActivity activityListener,
+			final SelectionManager selectionManager, final SelectionListener selectionListener) {
 		// Dimension 1 and Dimension 2, these specify which dimensions to
 		// display.
 		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z
@@ -60,6 +77,15 @@ public class Viewport extends JPanel
 		//
 		m_d1 = d1;
 		m_d2 = d2;
+		this.activityListener = activityListener;
+		this.selectionManager = selectionManager;
+		this.selectionListener = selectionListener;
+		this.cursorManager = new CursorManager() {
+			@Override
+			public void setCursor(final Cursor cursor) {
+				Viewport.this.setCursor(cursor);
+			}
+		};
 		// Viewport border
 		setBorder(BorderFactory.createBevelBorder(1));
 		if (dispMDL.getProgramPreferences().isInvertedDisplay()) {
@@ -74,6 +100,7 @@ public class Viewport extends JPanel
 		this.dispMDL = dispMDL;
 		addMouseListener(this);
 		addMouseWheelListener(this);
+		addMouseMotionListener(this);
 
 		contextMenu = new JPopupMenu();
 		reAssignMatrix = new JMenuItem("Re-assign Matrix");
@@ -195,6 +222,8 @@ public class Viewport extends JPanel
 		final Graphics2D graphics2d = (Graphics2D) g;
 		viewportModelRenderer.reset(graphics2d, dispMDL.getProgramPreferences(), m_d1, m_d2, this, this);
 		dispMDL.getMDL().render(viewportModelRenderer);
+		activityListener.render(graphics2d);
+		selectionManager.render(graphics2d, this);
 
 		// switch (m_d1) {
 		// case 0:
@@ -322,13 +351,15 @@ public class Viewport extends JPanel
 			// MainFrame.panel.setMouseCoordDisplay(m_d1,m_d2,((mx-getWidth()/2)/m_zoom)-m_a,-(((my-getHeight()/2)/m_zoom)-m_b));
 			// TODO update mouse coord display could be used still
 
-			if (actStart != null) {
-				final Point actEnd = new Point((int) mx, (int) my);
-				final Point2D.Double convertedStart = new Point2D.Double(geomX(actStart.x), geomY(actStart.y));
-				final Point2D.Double convertedEnd = new Point2D.Double(geomX(actEnd.x), geomY(actEnd.y));
-				dispMDL.updateAction(convertedStart, convertedEnd, m_d1, m_d2);
-				actStart = actEnd;
-			}
+			// if (actStart != null) {
+			// final Point actEnd = new Point((int) mx, (int) my);
+			// final Point2D.Double convertedStart = new
+			// Point2D.Double(geomX(actStart.x), geomY(actStart.y));
+			// final Point2D.Double convertedEnd = new
+			// Point2D.Double(geomX(actEnd.x), geomY(actEnd.y));
+			// dispMDL.updateAction(convertedStart, convertedEnd, m_d1, m_d2);
+			// actStart = actEnd;
+			// }
 			repaint();
 		} else if (e.getSource() == reAssignMatrix) {
 			final MatrixPopup matrixPopup = new MatrixPopup(dispMDL.getMDL());
@@ -375,11 +406,17 @@ public class Viewport extends JPanel
 		if (e.getButton() == MouseEvent.BUTTON2) {
 			lastClick = new Point(e.getX(), e.getY());
 		} else if (e.getButton() == MouseEvent.BUTTON1) {
-			selectStart = new Point(e.getX(), e.getY());
+			activityListener.reset(selectionManager, selectionListener, cursorManager, this, updateListener);
+			activityListener.mousePressed(e);
+			// selectStart = new Point(e.getX(), e.getY());
 		} else if (e.getButton() == MouseEvent.BUTTON3) {
-			actStart = new Point(e.getX(), e.getY());
-			final Point2D.Double convertedStart = new Point2D.Double(geomX(actStart.x), geomY(actStart.y));
-			dispMDL.startAction(convertedStart, m_d1, m_d2, dispMDL.getProgramPreferences().currentActionType());
+			activityListener.reset(selectionManager, selectionListener, cursorManager, this, updateListener);
+			activityListener.mousePressed(e);
+			// actStart = new Point(e.getX(), e.getY());
+			// final Point2D.Double convertedStart = new
+			// Point2D.Double(geomX(actStart.x), geomY(actStart.y));
+			// dispMDL.startAction(convertedStart, m_d1, m_d2,
+			// dispMDL.getProgramPreferences().currentActionType());
 		}
 	}
 
@@ -389,23 +426,30 @@ public class Viewport extends JPanel
 			m_a += (e.getX() - lastClick.x) / m_zoom;
 			m_b += (e.getY() - lastClick.y) / m_zoom;
 			lastClick = null;
-		} else if (e.getButton() == MouseEvent.BUTTON1 && selectStart != null) {
-			final Point selectEnd = new Point(e.getX(), e.getY());
-			final Rectangle2D.Double area = pointsToGeomRect(selectStart, selectEnd);
-			// System.out.println(area);
-			dispMDL.selectVerteces(area, m_d1, m_d2, dispMDL.getProgramPreferences().currentSelectionType());
-			selectStart = null;
-		} else if (e.getButton() == MouseEvent.BUTTON3 && actStart != null) {
-			final Point actEnd = new Point(e.getX(), e.getY());
-			final Point2D.Double convertedStart = new Point2D.Double(geomX(actStart.x), geomY(actStart.y));
-			final Point2D.Double convertedEnd = new Point2D.Double(geomX(actEnd.x), geomY(actEnd.y));
-			dispMDL.finishAction(convertedStart, convertedEnd, m_d1, m_d2);
-			actStart = null;
+		} else if (e
+				.getButton() == MouseEvent.BUTTON1/* && selectStart != null */) {
+			activityListener.mouseReleased(e);
+			// final Point selectEnd = new Point(e.getX(), e.getY());
+			// final Rectangle2D.Double area = pointsToGeomRect(selectStart,
+			// selectEnd);
+			// // System.out.println(area);
+			// dispMDL.selectVerteces(area, m_d1, m_d2,
+			// dispMDL.getProgramPreferences().currentSelectionType());
+			// selectStart = null;
+		} else if (e.getButton() == MouseEvent.BUTTON3/* && actStart != null */) {
+			// final Point actEnd = new Point(e.getX(), e.getY());
+			// final Point2D.Double convertedStart = new
+			// Point2D.Double(geomX(actStart.x), geomY(actStart.y));
+			// final Point2D.Double convertedEnd = new
+			// Point2D.Double(geomX(actEnd.x), geomY(actEnd.y));
+			// dispMDL.finishAction(convertedStart, convertedEnd, m_d1, m_d2);
+			// actStart = null;
+			activityListener.mouseReleased(e);
 		}
 		if (!mouseInBounds && selectStart == null && actStart == null && lastClick == null) {
 			clickTimer.stop();
-			repaint();
 		}
+		repaint();
 		// MainFrame.panel.refreshUndo();
 		dispMDL.refreshUndo();
 	}
@@ -494,5 +538,15 @@ public class Viewport extends JPanel
 	@Override
 	public double getZoom() {
 		return m_zoom;
+	}
+
+	@Override
+	public void mouseDragged(final MouseEvent e) {
+		activityListener.mouseDragged(e);
+	}
+
+	@Override
+	public void mouseMoved(final MouseEvent e) {
+		activityListener.mouseMoved(e);
 	}
 }
