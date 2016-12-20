@@ -14,5 +14,5 @@ public interface SelectionItemView {
 
 	boolean hitTest(Rectangle rectangle, CoordinateSystem coordinateSystem);
 
-	Vertex getPosition();
+	Vertex getCenter();
 }

@@ -4,12 +4,12 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
-import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionListener;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
 
 public interface ViewportActivity {
-	ViewportActivity reset(final SelectionManager selectionManager, SelectionListener selectionListener,
-			final CursorManager cursorManager, final CoordinateSystem coordinateSystem, Runnable updateListener);
+	ViewportActivity reset(final SelectionManager selectionManager, SelectionTypeApplicator selectionListener,
+			final CursorManager cursorManager, final CoordinateSystem coordinateSystem, UndoManager undoManager);
 
 	void mousePressed(MouseEvent e);
 

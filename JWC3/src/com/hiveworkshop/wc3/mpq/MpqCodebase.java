@@ -86,8 +86,12 @@ public class MpqCodebase implements Codebase {
 				}
 				final ArchivedFileStream stream = new ArchivedFileStream(mpqGuy.getInputChannel(), extractor, file);
 				final InputStream newInputStream = Channels.newInputStream(stream);
-				final String tempDir = System.getProperty("java.io.tmpdir") + "MatrixEaterExtract/";
-				final File tempProduct = new File(tempDir + filepath);
+				String tmpdir = System.getProperty("java.io.tmpdir");
+				if( !tmpdir.endsWith(File.separator) ) {
+					tmpdir += File.separator;
+				}
+				final String tempDir = tmpdir + "MatrixEaterExtract/";
+				final File tempProduct = new File(tempDir + filepath.replace('\\', File.separatorChar));
 				tempProduct.delete();
 				tempProduct.getParentFile().mkdirs();
 				Files.copy(newInputStream, tempProduct.toPath());

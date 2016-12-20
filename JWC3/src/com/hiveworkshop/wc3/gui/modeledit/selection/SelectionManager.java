@@ -5,8 +5,9 @@ import java.util.List;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 
-public interface SelectionManager {
-	List<? extends SelectionItemView> getSelection();
+public interface SelectionManager extends SelectionManagerView {
+	@Override
+	List<SelectionItem> getSelection();
 
 	List<? extends SelectionItem> getSelectableItems();
 
@@ -17,4 +18,6 @@ public interface SelectionManager {
 	void removeSelection(List<SelectionItem> selectionItem);
 
 	void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem);
+
+	void addSelectionListener(SelectionListener listener);
 }

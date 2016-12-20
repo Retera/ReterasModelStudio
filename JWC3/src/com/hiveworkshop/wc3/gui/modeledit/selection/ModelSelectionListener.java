@@ -5,7 +5,7 @@ import java.util.List;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonListener;
 
-public class ModelSelectionListener implements SelectionListener {
+public class ModelSelectionListener implements SelectionTypeApplicator {
 	private SelectionMode selectionMode;
 	private final SelectionManager selectionManager;
 

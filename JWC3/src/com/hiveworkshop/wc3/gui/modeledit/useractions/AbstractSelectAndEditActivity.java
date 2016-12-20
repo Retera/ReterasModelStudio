@@ -11,9 +11,10 @@ import java.util.List;
 import javax.swing.SwingUtilities;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.SelectComponentAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItem;
-import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionListener;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
 
 public abstract class AbstractSelectAndEditActivity implements ViewportActivity {
 	private SelectionManager selectionManager;
@@ -21,20 +22,20 @@ public abstract class AbstractSelectAndEditActivity implements ViewportActivity 
 	private Point2D.Double endingClick;
 	private CoordinateSystem coordinateSystem;
 	private ActionType actionType;
-	private Runnable updateListener;
-	private SelectionListener selectionListener;
+	private SelectionTypeApplicator selectionListener;
+	private UndoManager undoManager;
 
 	@Override
 	public AbstractSelectAndEditActivity reset(final SelectionManager selectionManager,
-			final SelectionListener selectionListener, final CursorManager cursorManager,
-			final CoordinateSystem coordinateSystem, final Runnable updateListener) {
+			final SelectionTypeApplicator selectionListener, final CursorManager cursorManager,
+			final CoordinateSystem coordinateSystem, final UndoManager undoManager) {
 		this.selectionManager = selectionManager;
 		this.selectionListener = selectionListener;
 		this.coordinateSystem = coordinateSystem;
-		this.updateListener = updateListener;
+		this.undoManager = undoManager;
 		startingClick = null;
 		actionType = null;
-		onReset(selectionManager, cursorManager, coordinateSystem);
+		onReset(selectionManager, cursorManager, coordinateSystem, undoManager);
 		return this;
 	}
 
@@ -53,7 +54,7 @@ public abstract class AbstractSelectAndEditActivity implements ViewportActivity 
 	}
 
 	@Override
-	public void mouseReleased(final MouseEvent e) {
+	public final void mouseReleased(final MouseEvent e) {
 		if (actionType == ActionType.SELECT) {
 			if (startingClick != null) {
 				if (endingClick != null) {
@@ -74,11 +75,12 @@ public abstract class AbstractSelectAndEditActivity implements ViewportActivity 
 						}
 					}
 					selectionListener.chooseGroup(selectedItems);
-					onSelect(e, coordinateSystem, selectionManager);
+					selectionManager.addSelection(selectedItems);
+					undoManager.pushAction(new SelectComponentAction(selectionManager, selectedItems));
 				}
 			}
 		} else {
-			doAction(e, coordinateSystem, selectionManager, startingClick, endingClick);
+			doEndAction(e, coordinateSystem, selectionManager, startingClick, endingClick);
 		}
 		startingClick = null;
 		endingClick = null;
@@ -98,19 +100,24 @@ public abstract class AbstractSelectAndEditActivity implements ViewportActivity 
 		}
 	}
 
+	@Override
+	public final void mouseMoved(final MouseEvent e) {
+		doMouseMove(e, coordinateSystem, selectionManager);
+	}
+
 	protected abstract void doDrag(MouseEvent e, CoordinateSystem coordinateSystem, SelectionManager selectionManager,
 			Point2D.Double startingClick, Point2D.Double endingClick);
 
+	protected abstract void doMouseMove(MouseEvent e, CoordinateSystem coordinateSystem,
+			SelectionManager selectionManager);
+
 	protected abstract void onReset(final SelectionManager selectionManager, final CursorManager cursorManager,
-			final CoordinateSystem coordinateSystem);
+			final CoordinateSystem coordinateSystem, UndoManager undoManager);
 
 	protected abstract void onRender(Graphics2D g, CoordinateSystem coordinateSystem);
 
-	protected abstract void doAction(MouseEvent e, CoordinateSystem coordinateSystem, SelectionManager selectionManager,
-			Point2D.Double startingClick, Point2D.Double endingClick);
-
-	protected abstract void onSelect(MouseEvent e, CoordinateSystem coordinateSystem,
-			SelectionManager selectionManager);
+	protected abstract void doEndAction(MouseEvent e, CoordinateSystem coordinateSystem,
+			SelectionManager selectionManager, Point2D.Double startingClick, Point2D.Double endingClick);
 
 	protected abstract void doStartAction(MouseEvent e, CoordinateSystem coordinateSystem,
 			SelectionManager selectionManager, Point2D.Double startingClick);

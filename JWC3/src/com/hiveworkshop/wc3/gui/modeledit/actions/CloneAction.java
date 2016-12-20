@@ -1,35 +1,37 @@
-package com.hiveworkshop.wc3.gui.modeledit;
+package com.hiveworkshop.wc3.gui.modeledit.actions;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
+import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 /**
- * ExtrudeAction -- something extruded that you can undo!
+ * CloneAction -- allowing you to undo clone!
  *
  * Eric Theller 'Retera' 6/11/2012
  */
-public class ExtrudeAction implements UndoAction {
-	MoveAction baseMovement;
-	ArrayList<Vertex> selection;
-	ArrayList<GeosetVertex> addedVerts;
-	ArrayList<Triangle> addedTriangles;
-	ArrayList<GeosetVertex> copiedGroup;
+public class CloneAction implements UndoAction {
+	private MoveAction baseMovement;
+	private List<Vertex> selection;
+	private List<GeosetVertex> addedVerts;
+	private List<Triangle> addedTriangles;
+	private List<GeosetVertex> copiedGroup;
 	boolean type;
 
-	public ExtrudeAction(final ArrayList<Vertex> selection, final Vertex moveVector,
-			final ArrayList<GeosetVertex> clones, final ArrayList<Triangle> addedTriangles, final boolean isExtrude) {
+	public CloneAction(final List<Vertex> selection, final Vertex moveVector, final List<GeosetVertex> clones,
+			final List<Triangle> addedTriangles, final boolean isExtrude) {
 		addedVerts = clones;
 		this.addedTriangles = addedTriangles;
 		this.selection = new ArrayList<Vertex>(selection);
-		baseMovement = new MoveAction(this.selection, moveVector, 0);
+		baseMovement = new MoveAction(this.selection, moveVector, VertexActionType.UNKNOWN);
 		type = isExtrude;
 	}
 
-	public ExtrudeAction() {
+	public CloneAction() {
 
 	}
 
@@ -38,7 +40,7 @@ public class ExtrudeAction implements UndoAction {
 	}
 
 	public void storeBaseMovement(final Vertex moveVector) {
-		baseMovement = new MoveAction(this.selection, moveVector, 0);
+		baseMovement = new MoveAction(this.selection, moveVector, VertexActionType.UNKNOWN);
 	}
 
 	@Override

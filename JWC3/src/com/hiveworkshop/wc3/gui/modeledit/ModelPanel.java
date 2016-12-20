@@ -19,7 +19,7 @@ import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.selection.ModelSelectionListener;
 import com.hiveworkshop.wc3.gui.modeledit.selection.ModelSelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItemTypes;
-import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionListener;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
@@ -64,7 +64,7 @@ public class ModelPanel extends JPanel implements ActionListener, MouseListener 
 		loadModel(input);
 
 		selectionManager = new ModelSelectionManager(dispModel, 3, notifier);
-		final SelectionListener selectionListener = new ModelSelectionListener(selectionManager, modeNotifier);
+		final SelectionTypeApplicator selectionListener = new ModelSelectionListener(selectionManager, modeNotifier);
 
 		frontArea = new DisplayPanel("Front", (byte) 1, (byte) 2, dispModel, selectionManager, selectionListener);
 		// frontArea.setViewport(1,2);

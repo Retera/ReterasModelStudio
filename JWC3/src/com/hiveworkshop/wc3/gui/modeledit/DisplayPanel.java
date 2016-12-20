@@ -13,7 +13,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import com.hiveworkshop.wc3.gui.GlobalIcons;
-import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionListener;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.useractions.SelectAndMoveActivity;
 
@@ -29,10 +29,10 @@ public class DisplayPanel extends JPanel implements ActionListener {
 	private final String title;
 	private final JButton up, down, left, right, plusZoom, minusZoom;
 	private final SelectionManager selectionManager;
-	private final SelectionListener selectionListener;
+	private final SelectionTypeApplicator selectionListener;
 
 	public DisplayPanel(final String title, final byte a, final byte b, final MDLDisplay dispMDL,
-			final SelectionManager selectionManager, final SelectionListener selectionListener) {
+			final SelectionManager selectionManager, final SelectionTypeApplicator selectionListener) {
 		super();
 		this.selectionManager = selectionManager;
 		this.selectionListener = selectionListener;

@@ -28,7 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.Timer;
 
-import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionListener;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.useractions.CursorManager;
 import com.hiveworkshop.wc3.gui.modeledit.useractions.ViewportActivity;
@@ -59,7 +59,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	private final ViewportModelRenderer viewportModelRenderer;
 	private final ViewportActivity activityListener;
 	private final SelectionManager selectionManager;
-	private final SelectionListener selectionListener;
+	private final SelectionTypeApplicator selectionListener;
 	private final CursorManager cursorManager;
 	private final Runnable updateListener = new Runnable() {
 		@Override
@@ -69,7 +69,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	};
 
 	public Viewport(final byte d1, final byte d2, final MDLDisplay dispMDL, final ViewportActivity activityListener,
-			final SelectionManager selectionManager, final SelectionListener selectionListener) {
+			final SelectionManager selectionManager, final SelectionTypeApplicator selectionListener) {
 		// Dimension 1 and Dimension 2, these specify which dimensions to
 		// display.
 		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z
@@ -214,10 +214,6 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 			g.drawLine(0, (int) cameraOrigin.y, getWidth(), (int) cameraOrigin.y);
 			g.drawLine((int) cameraOrigin.x, 0, (int) cameraOrigin.x, getHeight());
 		}
-
-		// dispMDL.drawGeosets(g, this, vertexSize);
-		// dispMDL.drawPivots(g, this, vertexSize);
-		// dispMDL.drawCameras(g, this, vertexSize);
 
 		final Graphics2D graphics2d = (Graphics2D) g;
 		viewportModelRenderer.reset(graphics2d, dispMDL.getProgramPreferences(), m_d1, m_d2, this, this);

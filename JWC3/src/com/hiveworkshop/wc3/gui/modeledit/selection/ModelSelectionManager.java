@@ -23,10 +23,11 @@ import com.hiveworkshop.wc3.mdl.Vertex;
  */
 public final class ModelSelectionManager implements SelectionManager, ToolbarButtonListener<SelectionItemTypes> {
 	private List<? extends SelectionItem> selectableItems;
-	private final List<SelectionItemView> selection;
+	private final List<SelectionItem> selection;
 	private final MDLDisplay model;
 	private SelectionItemTypes currentItemType;
 	private final int vertexSize;
+	private final List<SelectionListener> listeners;
 
 	public ModelSelectionManager(final MDLDisplay model, final int vertexSize,
 			final ToolbarButtonGroup<SelectionItemTypes> notififer) {
@@ -35,10 +36,11 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 		selectableItems = new ArrayList<>();
 		selection = new ArrayList<>();
 		notififer.addToolbarButtonListener(this);
+		listeners = new ArrayList<>();
 	}
 
 	@Override
-	public List<? extends SelectionItemView> getSelection() {
+	public List<SelectionItem> getSelection() {
 		return selection;
 	}
 
@@ -135,32 +137,56 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 		}
 
 		@Override
-		public void translate(final float x, final float y, final CoordinateSystem coordinateSystem) {
-			final double dx = coordinateSystem.geomX(x) - coordinateSystem.geomX(0);
-			final double dy = coordinateSystem.geomX(y) - coordinateSystem.geomX(0);
-			vertex.setCoord(coordinateSystem.getPortFirstXYZ(),
-					vertex.getCoord(coordinateSystem.getPortFirstXYZ()) + dx);
-			vertex.setCoord(coordinateSystem.getPortSecondXYZ(),
-					vertex.getCoord(coordinateSystem.getPortSecondXYZ()) + dy);
+		public void translate(final float x, final float y, final float z) {
+			vertex.x += x;
+			vertex.y += y;
+			vertex.z += z;
 		}
 
 		@Override
-		public void scale(final float centerX, final float centerY, final float x, final float y,
-				final CoordinateSystem coordinateSystem) {
-			final double dx = vertex.getCoord(coordinateSystem.getPortFirstXYZ()) - coordinateSystem.geomX(centerX);
-			final double dy = vertex.getCoord(coordinateSystem.getPortSecondXYZ()) - coordinateSystem.geomY(centerY);
-			vertex.setCoord(coordinateSystem.getPortFirstXYZ(), centerX + dx * x);
-			vertex.setCoord(coordinateSystem.getPortSecondXYZ(), centerY + dy * y);
+		public void scale(final float centerX, final float centerY, final float centerZ, final float x, final float y,
+				final float z) {
+			final double dx = vertex.x - centerX;
+			final double dy = vertex.y - centerY;
+			final double dz = vertex.z - centerZ;
+			vertex.x = centerX + dx * x;
+			vertex.y = centerY + dy * y;
+			vertex.z = centerZ + dz * z;
 		}
 
 		@Override
-		public void rotate(final float centerX, final float centerY, final float radians,
+		public void rotate(final float centerX, final float centerY, final float centerZ, final float radians,
 				final CoordinateSystem coordinateSystem) {
+
 			final double x1 = vertex.getCoord(coordinateSystem.getPortFirstXYZ());
 			final double y1 = vertex.getCoord(coordinateSystem.getPortSecondXYZ());
-			final double cx = coordinateSystem.geomX(centerX);
+			final double cx;// = coordinateSystem.geomX(centerX);
+			switch (coordinateSystem.getPortFirstXYZ()) {
+			case 0:
+				cx = centerX;
+				break;
+			case 1:
+				cx = centerY;
+				break;
+			default:
+			case 2:
+				cx = centerZ;
+				break;
+			}
 			final double dx = x1 - cx;
-			final double cy = coordinateSystem.geomY(centerY);
+			final double cy;// = coordinateSystem.geomY(centerY);
+			switch (coordinateSystem.getPortSecondXYZ()) {
+			case 0:
+				cy = centerX;
+				break;
+			case 1:
+				cy = centerY;
+				break;
+			default:
+			case 2:
+				cy = centerZ;
+				break;
+			}
 			final double dy = y1 - cy;
 			final double r = Math.sqrt(dx * dx + dy * dy);
 			double verAng = Math.acos(dx / r);
@@ -180,9 +206,14 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 		}
 
 		@Override
-		public Vertex getPosition() {
+		public Vertex getCenter() {
 			return vertex;
 		}
 
+	}
+
+	@Override
+	public void addSelectionListener(final SelectionListener listener) {
+		listeners.add(listener);
 	}
 }
