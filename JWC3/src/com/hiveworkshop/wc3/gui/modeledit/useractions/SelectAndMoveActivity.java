@@ -6,6 +6,8 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D.Double;
 import java.util.List;
 
+import javax.swing.SwingUtilities;
+
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.MoveComponentAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItem;
@@ -21,6 +23,7 @@ public class SelectAndMoveActivity extends AbstractSelectAndEditActivity impleme
 	private UndoManager undoManager;
 	private Vertex moveActionVector;
 	private Vertex moveActionPreviousVector;
+	private MoveDirection currentDirection = null;
 
 	@Override
 	protected void doMouseMove(final MouseEvent e, final CoordinateSystem coordinateSystem,
@@ -28,7 +31,7 @@ public class SelectAndMoveActivity extends AbstractSelectAndEditActivity impleme
 		if (moverWidget != null) {
 			final MoveDirection directionByMouse = moverWidget.getDirectionByMouse(e.getPoint(), coordinateSystem,
 					coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
-			if (directionByMouse != null) {
+			if (directionByMouse != MoverWidget.MoveDirection.NONE) {
 				cursorManager.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
 				moverWidget.setMoveDirection(directionByMouse);
 			} else {
@@ -41,8 +44,12 @@ public class SelectAndMoveActivity extends AbstractSelectAndEditActivity impleme
 	protected void doDrag(final MouseEvent e, final CoordinateSystem coordinateSystem,
 			final SelectionManager selectionManager, final Double startingClick, final Double endingClick) {
 		moveActionPreviousVector.setTo(moveActionVector);
-		moveActionVector.setCoord(coordinateSystem.getPortFirstXYZ(), endingClick.x - startingClick.x);
-		moveActionVector.setCoord(coordinateSystem.getPortSecondXYZ(), endingClick.y - startingClick.y);
+		if (currentDirection != MoverWidget.MoveDirection.UP) {
+			moveActionVector.setCoord(coordinateSystem.getPortFirstXYZ(), endingClick.x - startingClick.x);
+		}
+		if (currentDirection != MoverWidget.MoveDirection.RIGHT) {
+			moveActionVector.setCoord(coordinateSystem.getPortSecondXYZ(), endingClick.y - startingClick.y);
+		}
 		for (final SelectionItem item : selectionManager.getSelection()) {
 			item.translate((float) (moveActionVector.x - moveActionPreviousVector.x),
 					(float) (moveActionVector.y - moveActionPreviousVector.y),
@@ -54,8 +61,12 @@ public class SelectAndMoveActivity extends AbstractSelectAndEditActivity impleme
 	protected void doEndAction(final MouseEvent e, final CoordinateSystem coordinateSystem,
 			final SelectionManager selectionManager, final Double startingClick, final Double endingClick) {
 		moveActionPreviousVector.setTo(moveActionVector);
-		moveActionVector.setCoord(coordinateSystem.getPortFirstXYZ(), endingClick.x - startingClick.x);
-		moveActionVector.setCoord(coordinateSystem.getPortSecondXYZ(), endingClick.y - startingClick.y);
+		if (currentDirection != MoverWidget.MoveDirection.UP) {
+			moveActionVector.setCoord(coordinateSystem.getPortFirstXYZ(), endingClick.x - startingClick.x);
+		}
+		if (currentDirection != MoverWidget.MoveDirection.RIGHT) {
+			moveActionVector.setCoord(coordinateSystem.getPortSecondXYZ(), endingClick.y - startingClick.y);
+		}
 		for (final SelectionItem item : selectionManager.getSelection()) {
 			item.translate((float) (moveActionVector.x - moveActionPreviousVector.x),
 					(float) (moveActionVector.y - moveActionPreviousVector.y),
@@ -65,10 +76,17 @@ public class SelectAndMoveActivity extends AbstractSelectAndEditActivity impleme
 	}
 
 	@Override
-	protected void doStartAction(final MouseEvent e, final CoordinateSystem coordinateSystem,
+	protected boolean doStartAction(final MouseEvent e, final CoordinateSystem coordinateSystem,
 			final SelectionManager selectionManager, final Double startingClick) {
-		moveActionVector = new Vertex(0, 0, 0);
-		moveActionPreviousVector = new Vertex(0, 0, 0);
+		if (SwingUtilities.isRightMouseButton(e)
+				|| (moverWidget != null && (currentDirection = moverWidget.getDirectionByMouse(e.getPoint(),
+						coordinateSystem, coordinateSystem.getPortFirstXYZ(),
+						coordinateSystem.getPortSecondXYZ())) != MoverWidget.MoveDirection.NONE)) {
+			moveActionVector = new Vertex(0, 0, 0);
+			moveActionPreviousVector = new Vertex(0, 0, 0);
+			return true;
+		}
+		return false;
 	}
 
 	@Override

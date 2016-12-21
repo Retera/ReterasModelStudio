@@ -28,8 +28,8 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.Timer;
 
-import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
 import com.hiveworkshop.wc3.gui.modeledit.useractions.CursorManager;
 import com.hiveworkshop.wc3.gui.modeledit.useractions.ViewportActivity;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportModelRenderer;
@@ -59,14 +59,8 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	private final ViewportModelRenderer viewportModelRenderer;
 	private final ViewportActivity activityListener;
 	private final SelectionManager selectionManager;
-	private final SelectionTypeApplicator selectionListener;
+	private final SelectionTypeApplicator selectionTypeApplicator;
 	private final CursorManager cursorManager;
-	private final Runnable updateListener = new Runnable() {
-		@Override
-		public void run() {
-			Viewport.this.repaint();
-		}
-	};
 
 	public Viewport(final byte d1, final byte d2, final MDLDisplay dispMDL, final ViewportActivity activityListener,
 			final SelectionManager selectionManager, final SelectionTypeApplicator selectionListener) {
@@ -79,7 +73,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		m_d2 = d2;
 		this.activityListener = activityListener;
 		this.selectionManager = selectionManager;
-		this.selectionListener = selectionListener;
+		this.selectionTypeApplicator = selectionListener;
 		this.cursorManager = new CursorManager() {
 			@Override
 			public void setCursor(final Cursor cursor) {
@@ -218,8 +212,8 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		final Graphics2D graphics2d = (Graphics2D) g;
 		viewportModelRenderer.reset(graphics2d, dispMDL.getProgramPreferences(), m_d1, m_d2, this, this);
 		dispMDL.getMDL().render(viewportModelRenderer);
-		activityListener.render(graphics2d);
 		selectionManager.render(graphics2d, this);
+		activityListener.render(graphics2d);
 
 		// switch (m_d1) {
 		// case 0:
@@ -402,11 +396,11 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		if (e.getButton() == MouseEvent.BUTTON2) {
 			lastClick = new Point(e.getX(), e.getY());
 		} else if (e.getButton() == MouseEvent.BUTTON1) {
-			activityListener.reset(selectionManager, selectionListener, cursorManager, this, updateListener);
+			activityListener.reset(selectionManager, selectionTypeApplicator, cursorManager, this, dispMDL);
 			activityListener.mousePressed(e);
 			// selectStart = new Point(e.getX(), e.getY());
 		} else if (e.getButton() == MouseEvent.BUTTON3) {
-			activityListener.reset(selectionManager, selectionListener, cursorManager, this, updateListener);
+			activityListener.reset(selectionManager, selectionTypeApplicator, cursorManager, this, dispMDL);
 			activityListener.mousePressed(e);
 			// actStart = new Point(e.getX(), e.getY());
 			// final Point2D.Double convertedStart = new

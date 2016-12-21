@@ -5,7 +5,9 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.MDLDisplay;
@@ -27,7 +29,7 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 	private final MDLDisplay model;
 	private SelectionItemTypes currentItemType;
 	private final int vertexSize;
-	private final List<SelectionListener> listeners;
+	private final Set<SelectionListener> listeners;
 
 	public ModelSelectionManager(final MDLDisplay model, final int vertexSize,
 			final ToolbarButtonGroup<SelectionItemTypes> notififer) {
@@ -35,8 +37,8 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 		this.vertexSize = vertexSize;
 		selectableItems = new ArrayList<>();
 		selection = new ArrayList<>();
+		listeners = new HashSet<>();
 		notififer.addToolbarButtonListener(this);
-		listeners = new ArrayList<>();
 	}
 
 	@Override
@@ -51,28 +53,41 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 
 	@Override
 	public void setSelection(final List<SelectionItem> selectionItem) {
+		final ArrayList<SelectionItem> previousSelection = new ArrayList<>(selection);
 		selection.clear();
 		for (final SelectionItem item : selectionItem) {
 			selection.add(item);
+		}
+		for (final SelectionListener listener : listeners) {
+			listener.onSelectionChanged(previousSelection, selection);
 		}
 	}
 
 	@Override
 	public void addSelection(final List<SelectionItem> selectionItem) {
+		final ArrayList<SelectionItem> previousSelection = new ArrayList<>(selection);
 		for (final SelectionItem item : selectionItem) {
 			selection.add(item);
+		}
+		for (final SelectionListener listener : listeners) {
+			listener.onSelectionChanged(previousSelection, selection);
 		}
 	}
 
 	@Override
 	public void removeSelection(final List<SelectionItem> selectionItem) {
+		final ArrayList<SelectionItem> previousSelection = new ArrayList<>(selection);
 		for (final SelectionItem item : selectionItem) {
 			selection.remove(item);
+		}
+		for (final SelectionListener listener : listeners) {
+			listener.onSelectionChanged(previousSelection, selection);
 		}
 	}
 
 	@Override
 	public void typeChanged(final SelectionItemTypes newItemType) {
+		final ArrayList<SelectionItem> previousSelection = new ArrayList<>(selection);
 		switch (newItemType) {
 		case FACE:
 			break;
@@ -89,6 +104,9 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 			break;
 		}
 		this.currentItemType = newItemType;
+		for (final SelectionListener listener : listeners) {
+			listener.onSelectionChanged(previousSelection, selection);
+		}
 	}
 
 	@Override
@@ -121,13 +139,15 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 		public boolean hitTest(final Point2D point, final CoordinateSystem coordinateSystem) {
 			final double x = coordinateSystem.convertX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
 			final double y = coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
-			return point.distance(x, y) <= vertexSize / 2.0;
+			final double px = coordinateSystem.convertX(point.getX());
+			final double py = coordinateSystem.convertY(point.getY());
+			return Point2D.distance(px, py, x, y) <= vertexSize / 2.0;
 		}
 
 		@Override
 		public boolean hitTest(final Rectangle rectangle, final CoordinateSystem coordinateSystem) {
-			final double x = coordinateSystem.convertX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
-			final double y = coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
+			final double x = /* coordinateSystem.convertX */(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
+			final double y = /* coordinateSystem.convertY */(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
 			return rectangle.contains(x, y);
 		}
 
@@ -157,52 +177,7 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 		@Override
 		public void rotate(final float centerX, final float centerY, final float centerZ, final float radians,
 				final CoordinateSystem coordinateSystem) {
-
-			final double x1 = vertex.getCoord(coordinateSystem.getPortFirstXYZ());
-			final double y1 = vertex.getCoord(coordinateSystem.getPortSecondXYZ());
-			final double cx;// = coordinateSystem.geomX(centerX);
-			switch (coordinateSystem.getPortFirstXYZ()) {
-			case 0:
-				cx = centerX;
-				break;
-			case 1:
-				cx = centerY;
-				break;
-			default:
-			case 2:
-				cx = centerZ;
-				break;
-			}
-			final double dx = x1 - cx;
-			final double cy;// = coordinateSystem.geomY(centerY);
-			switch (coordinateSystem.getPortSecondXYZ()) {
-			case 0:
-				cy = centerX;
-				break;
-			case 1:
-				cy = centerY;
-				break;
-			default:
-			case 2:
-				cy = centerZ;
-				break;
-			}
-			final double dy = y1 - cy;
-			final double r = Math.sqrt(dx * dx + dy * dy);
-			double verAng = Math.acos(dx / r);
-			if (dy < 0) {
-				verAng = -verAng;
-			}
-			// if( getDimEditable(dim1) )
-			double nextDim = Math.cos(verAng + radians) * r + cx;
-			if (!Double.isNaN(nextDim)) {
-				vertex.setCoord(coordinateSystem.getPortFirstXYZ(), Math.cos(verAng + radians) * r + cx);
-			}
-			// if( getDimEditable(dim2) )
-			nextDim = Math.sin(verAng + radians) * r + cy;
-			if (!Double.isNaN(nextDim)) {
-				vertex.setCoord(coordinateSystem.getPortSecondXYZ(), Math.sin(verAng + radians) * r + cy);
-			}
+			rotateVertex(centerX, centerY, centerZ, radians, coordinateSystem, vertex);
 		}
 
 		@Override
@@ -215,5 +190,54 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 	@Override
 	public void addSelectionListener(final SelectionListener listener) {
 		listeners.add(listener);
+	}
+
+	private static void rotateVertex(final float centerX, final float centerY, final float centerZ, final float radians,
+			final CoordinateSystem coordinateSystem, final Vertex vertex) {
+		final double x1 = vertex.getCoord(coordinateSystem.getPortFirstXYZ());
+		final double y1 = vertex.getCoord(coordinateSystem.getPortSecondXYZ());
+		final double cx;// = coordinateSystem.geomX(centerX);
+		switch (coordinateSystem.getPortFirstXYZ()) {
+		case 0:
+			cx = centerX;
+			break;
+		case 1:
+			cx = centerY;
+			break;
+		default:
+		case 2:
+			cx = centerZ;
+			break;
+		}
+		final double dx = x1 - cx;
+		final double cy;// = coordinateSystem.geomY(centerY);
+		switch (coordinateSystem.getPortSecondXYZ()) {
+		case 0:
+			cy = centerX;
+			break;
+		case 1:
+			cy = centerY;
+			break;
+		default:
+		case 2:
+			cy = centerZ;
+			break;
+		}
+		final double dy = y1 - cy;
+		final double r = Math.sqrt(dx * dx + dy * dy);
+		double verAng = Math.acos(dx / r);
+		if (dy < 0) {
+			verAng = -verAng;
+		}
+		// if( getDimEditable(dim1) )
+		double nextDim = Math.cos(verAng + radians) * r + cx;
+		if (!Double.isNaN(nextDim)) {
+			vertex.setCoord(coordinateSystem.getPortFirstXYZ(), Math.cos(verAng + radians) * r + cx);
+		}
+		// if( getDimEditable(dim2) )
+		nextDim = Math.sin(verAng + radians) * r + cy;
+		if (!Double.isNaN(nextDim)) {
+			vertex.setCoord(coordinateSystem.getPortSecondXYZ(), Math.sin(verAng + radians) * r + cy);
+		}
 	}
 }

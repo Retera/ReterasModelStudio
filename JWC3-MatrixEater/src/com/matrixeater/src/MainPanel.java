@@ -1569,8 +1569,12 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 
 			fc.setSelectedFile(null);
 		} else if (e.getSource() == clearRecent) {
-			SaveProfile.get().clearRecent();
-			updateRecent();
+			final int dialogResult = JOptionPane.showConfirmDialog(this,
+					"Are you sure you want to clear the Recent history?", "Confirm Clear", JOptionPane.YES_NO_OPTION);
+			if (dialogResult == JOptionPane.YES_OPTION) {
+				SaveProfile.get().clearRecent();
+				updateRecent();
+			}
 		} else if (e.getSource() == nullmodelButton) {
 			nullmodelFile();
 			refreshController();

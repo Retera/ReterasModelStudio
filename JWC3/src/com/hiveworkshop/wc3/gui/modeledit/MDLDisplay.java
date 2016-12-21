@@ -25,7 +25,6 @@ import javax.swing.JTextArea;
 import javax.swing.SpinnerNumberModel;
 
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
-import com.hiveworkshop.wc3.gui.modeledit.actions.VertexActionType;
 import com.hiveworkshop.wc3.gui.modeledit.actions.DeleteAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.ExtrudeAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.MoveAction;
@@ -39,6 +38,8 @@ import com.hiveworkshop.wc3.gui.modeledit.actions.UVMoveAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.UVSelectAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.UVSelectionActionType;
 import com.hiveworkshop.wc3.gui.modeledit.actions.UVSnapAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.VertexActionType;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoManager;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
@@ -57,22 +58,22 @@ import com.hiveworkshop.wc3.mdl.Vertex;
  *
  * Eric Theller 6/7/2012
  */
-public class MDLDisplay {
+public class MDLDisplay implements UndoManager {
 	private final List<CoordDisplayListener> coordinateListeners;
 	ProgramPreferences programPreferences;
 	UndoHandler undoHandler;
 
 	MDL model;
-	List<Vertex> selection = new ArrayList<Vertex>();
-	List<TVertex> uvselection = new ArrayList<TVertex>();
-	List<Geoset> visibleGeosets = new ArrayList<Geoset>();
-	List<Geoset> editableGeosets = new ArrayList<Geoset>();
+	List<Vertex> selection = new ArrayList<>();
+	List<TVertex> uvselection = new ArrayList<>();
+	List<Geoset> visibleGeosets = new ArrayList<>();
+	List<Geoset> editableGeosets = new ArrayList<>();
 	Geoset highlight;
 	public static Color selectColor = Color.red;
 	ModelPanel mpanel;
 
-	List<UndoAction> actionStack = new ArrayList<UndoAction>();
-	List<UndoAction> redoStack = new ArrayList<UndoAction>();
+	List<UndoAction> actionStack = new ArrayList<>();
+	List<UndoAction> redoStack = new ArrayList<>();
 
 	int actionType = -1;
 	UndoAction currentAction;
@@ -93,7 +94,7 @@ public class MDLDisplay {
 		model = mdlr;
 		visibleGeosets.addAll(mdlr.getGeosets());
 		editableGeosets.addAll(mdlr.getGeosets());
-		coordinateListeners = new ArrayList<CoordDisplayListener>();
+		coordinateListeners = new ArrayList<>();
 		this.mpanel = mpanel;
 	}
 
@@ -155,8 +156,8 @@ public class MDLDisplay {
 		ArrayList<IdObject> geoParents = null;
 		ArrayList<IdObject> geoSubParents = null;
 		if (dispChildren) {
-			geoParents = new ArrayList<IdObject>();
-			geoSubParents = new ArrayList<IdObject>();
+			geoParents = new ArrayList<>();
+			geoSubParents = new ArrayList<>();
 			for (final Geoset geo : editableGeosets) {
 				for (final GeosetVertex ver : geo.getVertices()) {
 					for (final Bone b : ver.getBones()) {
@@ -281,7 +282,7 @@ public class MDLDisplay {
 	}
 
 	public void cogBones() {
-		final ArrayList<IdObject> selBones = new ArrayList<IdObject>();
+		final ArrayList<IdObject> selBones = new ArrayList<>();
 		for (final IdObject b : model.getIdObjects()) {
 			if (selection.contains(b.getPivotPoint()) && !selBones.contains(b)) {
 				selBones.add(b);
@@ -307,7 +308,7 @@ public class MDLDisplay {
 		for (final IdObject obj : selBones) {
 			if (Bone.class.isAssignableFrom(obj.getClass())) {
 				final Bone bone = (Bone) obj;
-				final ArrayList<GeosetVertex> childVerts = new ArrayList<GeosetVertex>();
+				final ArrayList<GeosetVertex> childVerts = new ArrayList<>();
 				for (final Geoset geo : model.getGeosets()) {
 					childVerts.addAll(geo.getChildrenOf(bone));
 					// if( obj.parent != null )
@@ -414,7 +415,7 @@ public class MDLDisplay {
 
 	public void drawFittedTriangles(final Graphics g, final Rectangle bounds, final byte a, final byte b,
 			final VertexFilter<? super GeosetVertex> filter, final Vertex extraHighlightPoint) {
-		final List<Triangle> triangles = new ArrayList<Triangle>();
+		final List<Triangle> triangles = new ArrayList<>();
 		double minX = Double.MAX_VALUE;
 		double maxX = Double.MIN_VALUE;
 		double minY = Double.MAX_VALUE;
@@ -658,8 +659,8 @@ public class MDLDisplay {
 			ArrayList<IdObject> geoParents = null;
 			ArrayList<IdObject> geoSubParents = null;
 			if (dispChildren) {
-				geoParents = new ArrayList<IdObject>();
-				geoSubParents = new ArrayList<IdObject>();
+				geoParents = new ArrayList<>();
+				geoSubParents = new ArrayList<>();
 				for (final Geoset geo : editableGeosets) {
 					for (final GeosetVertex ver : geo.getVertices()) {
 						for (final Bone b : ver.getBones()) {
@@ -824,7 +825,7 @@ public class MDLDisplay {
 			final int selectionType) {
 		if (!lockdown) {
 			beenSaved = false;
-			final ArrayList<Vertex> oldSelection = new ArrayList<Vertex>(selection);
+			final ArrayList<Vertex> oldSelection = new ArrayList<>(selection);
 			switch (selectionType) {
 			case 0:
 				selection.clear();
@@ -839,8 +840,8 @@ public class MDLDisplay {
 					ArrayList<IdObject> geoParents = null;
 					ArrayList<IdObject> geoSubParents = null;
 					if (dispChildren) {
-						geoParents = new ArrayList<IdObject>();
-						geoSubParents = new ArrayList<IdObject>();
+						geoParents = new ArrayList<>();
+						geoSubParents = new ArrayList<>();
 						for (final Geoset geo : editableGeosets) {
 							for (final GeosetVertex ver : geo.getVertices()) {
 								for (final Bone b : ver.getBones()) {
@@ -943,8 +944,8 @@ public class MDLDisplay {
 					ArrayList<IdObject> geoParents = null;
 					ArrayList<IdObject> geoSubParents = null;
 					if (dispChildren) {
-						geoParents = new ArrayList<IdObject>();
-						geoSubParents = new ArrayList<IdObject>();
+						geoParents = new ArrayList<>();
+						geoSubParents = new ArrayList<>();
 						for (final Geoset geo : editableGeosets) {
 							for (final GeosetVertex ver : geo.getVertices()) {
 								for (final Bone b : ver.getBones()) {
@@ -1060,7 +1061,7 @@ public class MDLDisplay {
 	public void selectTVerteces(final Rectangle2D.Double area, final int selectionType) {
 		if (!lockdown) {
 			beenSaved = false;
-			final ArrayList<TVertex> oldSelection = new ArrayList<TVertex>(uvselection);
+			final ArrayList<TVertex> oldSelection = new ArrayList<>(uvselection);
 			switch (selectionType) {
 			case 0:
 				uvselection.clear();
@@ -1588,8 +1589,8 @@ public class MDLDisplay {
 			final double deltaXe = mouseStop.x - mouseStart.x;
 			final double deltaYe = mouseStop.y - mouseStart.y;
 
-			final ArrayList<GeosetVertex> copies = new ArrayList<GeosetVertex>();
-			final ArrayList<Triangle> selTris = new ArrayList<Triangle>();
+			final ArrayList<GeosetVertex> copies = new ArrayList<>();
+			final ArrayList<Triangle> selTris = new ArrayList<>();
 			for (int i = 0; i < selection.size(); i++) {
 				final Vertex vert = selection.get(i);
 				if (vert.getClass() == GeosetVertex.class) {
@@ -1624,12 +1625,12 @@ public class MDLDisplay {
 				}
 			}
 			System.out.println(selection.size() + " verteces cloned into " + copies.size() + " more.");
-			final ArrayList<Triangle> newTriangles = new ArrayList<Triangle>();
+			final ArrayList<Triangle> newTriangles = new ArrayList<>();
 			for (int k = 0; k < selection.size(); k++) {
 				final Vertex vert = selection.get(k);
 				if (vert.getClass() == GeosetVertex.class) {
 					final GeosetVertex gv = (GeosetVertex) vert;
-					final ArrayList<Triangle> gvTriangles = new ArrayList<Triangle>(gv.getTriangles());
+					final ArrayList<Triangle> gvTriangles = new ArrayList<>(gv.getTriangles());
 					// for( Triangle tri: gv.getGeoset().getTriangle() )
 					// {
 					// if( tri.contains(gv) )
@@ -1763,12 +1764,12 @@ public class MDLDisplay {
 	}
 
 	public void clone(final List<Vertex> source, final boolean selectCopies) {
-		final List<Vertex> oldSelection = new ArrayList<Vertex>(selection);
+		final List<Vertex> oldSelection = new ArrayList<>(selection);
 
-		final ArrayList<GeosetVertex> vertCopies = new ArrayList<GeosetVertex>();
-		final ArrayList<Triangle> selTris = new ArrayList<Triangle>();
-		final ArrayList<IdObject> selBones = new ArrayList<IdObject>();
-		final ArrayList<IdObject> newBones = new ArrayList<IdObject>();
+		final ArrayList<GeosetVertex> vertCopies = new ArrayList<>();
+		final ArrayList<Triangle> selTris = new ArrayList<>();
+		final ArrayList<IdObject> selBones = new ArrayList<>();
+		final ArrayList<IdObject> newBones = new ArrayList<>();
 		for (int i = 0; i < source.size(); i++) {
 			final Vertex vert = source.get(i);
 			if (vert.getClass() == GeosetVertex.class) {
@@ -1793,12 +1794,12 @@ public class MDLDisplay {
 				newBones.add(b.copy());
 			}
 		}
-		final ArrayList<Triangle> newTriangles = new ArrayList<Triangle>();
+		final ArrayList<Triangle> newTriangles = new ArrayList<>();
 		for (int k = 0; k < source.size(); k++) {
 			final Vertex vert = source.get(k);
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
-				final ArrayList<Triangle> gvTriangles = new ArrayList<Triangle>();// gv.getTriangles());
+				final ArrayList<Triangle> gvTriangles = new ArrayList<>();// gv.getTriangles());
 				// WHY IS GV.TRIANGLES WRONG????
 				for (final Triangle tri : gv.getGeoset().getTriangle()) {
 					if (tri.contains(gv)) {
@@ -1906,8 +1907,8 @@ public class MDLDisplay {
 					currentAction = temp;
 					break;
 				case 6:
-					ArrayList<GeosetVertex> copies = new ArrayList<GeosetVertex>();
-					ArrayList<Triangle> selTris = new ArrayList<Triangle>();
+					ArrayList<GeosetVertex> copies = new ArrayList<>();
+					ArrayList<Triangle> selTris = new ArrayList<>();
 					for (int i = 0; i < selection.size(); i++) {
 						final Vertex vert = selection.get(i);
 						if (vert.getClass() == GeosetVertex.class) {
@@ -1943,12 +1944,12 @@ public class MDLDisplay {
 						}
 					}
 					System.out.println(selection.size() + " verteces cloned into " + copies.size() + " more.");
-					ArrayList<Triangle> newTriangles = new ArrayList<Triangle>();
+					ArrayList<Triangle> newTriangles = new ArrayList<>();
 					for (int k = 0; k < selection.size(); k++) {
 						final Vertex vert = selection.get(k);
 						if (vert.getClass() == GeosetVertex.class) {
 							final GeosetVertex gv = (GeosetVertex) vert;
-							final ArrayList<Triangle> gvTriangles = new ArrayList<Triangle>();// gv.getTriangles());
+							final ArrayList<Triangle> gvTriangles = new ArrayList<>();// gv.getTriangles());
 							// WHY IS GV.TRIANGLES WRONG????
 							for (final Triangle tri : gv.getGeoset().getTriangle()) {
 								if (tri.contains(gv)) {
@@ -2107,11 +2108,11 @@ public class MDLDisplay {
 					break;
 				case 7:
 
-					final ArrayList<Triangle> edges = new ArrayList<Triangle>();
-					final ArrayList<Triangle> brokenFaces = new ArrayList<Triangle>();
+					final ArrayList<Triangle> edges = new ArrayList<>();
+					final ArrayList<Triangle> brokenFaces = new ArrayList<>();
 
-					copies = new ArrayList<GeosetVertex>();
-					selTris = new ArrayList<Triangle>();
+					copies = new ArrayList<>();
+					selTris = new ArrayList<>();
 					for (int i = 0; i < selection.size(); i++) {
 						final Vertex vert = selection.get(i);
 						if (vert.getClass() == GeosetVertex.class) {
@@ -2131,8 +2132,8 @@ public class MDLDisplay {
 						}
 					}
 					System.out.println(selection.size() + " verteces cloned into " + copies.size() + " more.");
-					newTriangles = new ArrayList<Triangle>();
-					final ArrayList<GeosetVertex> copiedGroup = new ArrayList<GeosetVertex>();
+					newTriangles = new ArrayList<>();
+					final ArrayList<GeosetVertex> copiedGroup = new ArrayList<>();
 					for (final Triangle tri : selTris) {
 						if (!selection.contains(tri.get(0)) || !selection.contains(tri.get(1))
 								|| !selection.contains(tri.get(2))) {
@@ -2519,7 +2520,7 @@ public class MDLDisplay {
 	public void snap() {
 		if (!lockdown) {
 			beenSaved = false;
-			final ArrayList<Vertex> oldLocations = new ArrayList<Vertex>();
+			final ArrayList<Vertex> oldLocations = new ArrayList<>();
 			final Vertex cog = Vertex.centerOfGroup(selection);
 			for (int i = 0; i < selection.size(); i++) {
 				oldLocations.add(new Vertex(selection.get(i)));
@@ -2533,8 +2534,8 @@ public class MDLDisplay {
 	public void snapNormals() {
 		if (!lockdown) {
 			beenSaved = false;
-			final ArrayList<Vertex> oldLocations = new ArrayList<Vertex>();
-			final ArrayList<Vertex> selectedNormals = new ArrayList<Vertex>();
+			final ArrayList<Vertex> oldLocations = new ArrayList<>();
+			final ArrayList<Vertex> selectedNormals = new ArrayList<>();
 			final Normal snapped = new Normal(0, 0, 1);
 			for (int i = 0; i < selection.size(); i++) {
 				if (selection.get(i) instanceof GeosetVertex) {
@@ -2552,7 +2553,7 @@ public class MDLDisplay {
 	public void snapUVs() {
 		if (!lockdown) {
 			beenSaved = false;
-			final ArrayList<TVertex> oldLocations = new ArrayList<TVertex>();
+			final ArrayList<TVertex> oldLocations = new ArrayList<>();
 			final TVertex cog = TVertex.centerOfGroup(uvselection);
 			for (int i = 0; i < uvselection.size(); i++) {
 				oldLocations.add(new TVertex(uvselection.get(i)));
@@ -2565,9 +2566,9 @@ public class MDLDisplay {
 
 	public void delete() {
 		if (!lockdown) {
-			final ArrayList<Geoset> remGeosets = new ArrayList<Geoset>();// model.getGeosets()
+			final ArrayList<Geoset> remGeosets = new ArrayList<>();// model.getGeosets()
 			beenSaved = false;
-			final ArrayList<Triangle> deletedTris = new ArrayList<Triangle>();
+			final ArrayList<Triangle> deletedTris = new ArrayList<>();
 			for (int i = 0; i < selection.size(); i++) {
 				if (selection.get(i).getClass() == GeosetVertex.class) {
 					final GeosetVertex gv = (GeosetVertex) selection.get(i);
@@ -2603,7 +2604,7 @@ public class MDLDisplay {
 	public void selectAll() {
 		if (!lockdown) {
 			beenSaved = false;
-			final ArrayList<Vertex> oldSelection = new ArrayList<Vertex>(selection);
+			final ArrayList<Vertex> oldSelection = new ArrayList<>(selection);
 			selection.clear();
 			for (final Geoset geo : editableGeosets) {
 				for (final GeosetVertex v : geo.getVertices()) {
@@ -2626,7 +2627,7 @@ public class MDLDisplay {
 	public void selectAllUV() {
 		if (!lockdown) {
 			beenSaved = false;
-			final ArrayList<TVertex> oldSelection = new ArrayList<TVertex>(uvselection);
+			final ArrayList<TVertex> oldSelection = new ArrayList<>(uvselection);
 			uvselection.clear();
 			for (final Geoset geo : editableGeosets) {
 				for (int i = 0; i < geo.getVertices().size(); i++) {
@@ -2643,7 +2644,7 @@ public class MDLDisplay {
 	}
 
 	public void viewMatrices() {
-		final ArrayList<Bone> boneRefs = new ArrayList<Bone>();
+		final ArrayList<Bone> boneRefs = new ArrayList<>();
 		for (final Vertex ver : selection) {
 			if (ver instanceof GeosetVertex) {
 				final GeosetVertex gv = (GeosetVertex) ver;
@@ -2686,7 +2687,7 @@ public class MDLDisplay {
 	public void insideOut() {
 		// Called both by a menu button and by the mirroring function
 		if (!lockdown) {
-			final ArrayList<Triangle> selTris = new ArrayList<Triangle>();
+			final ArrayList<Triangle> selTris = new ArrayList<>();
 			for (int i = 0; i < selection.size(); i++) {
 				final Vertex vert = selection.get(i);
 				if (vert.getClass() == GeosetVertex.class) {
@@ -2736,7 +2737,7 @@ public class MDLDisplay {
 					normal.setCoord(mirrorDim, -normal.getCoord(mirrorDim));
 				}
 			}
-			final ArrayList<IdObject> selBones = new ArrayList<IdObject>();
+			final ArrayList<IdObject> selBones = new ArrayList<>();
 			for (final IdObject b : model.getIdObjects()) {
 				if (selection.contains(b.getPivotPoint()) && !selBones.contains(b)) {
 					selBones.add(b);
@@ -2768,8 +2769,8 @@ public class MDLDisplay {
 	public void expandSelection() {
 		if (!lockdown) {
 			beenSaved = false;
-			final ArrayList<Vertex> oldSelection = new ArrayList<Vertex>(selection);
-			final ArrayList<Triangle> oldTris = new ArrayList<Triangle>();
+			final ArrayList<Vertex> oldSelection = new ArrayList<>(selection);
+			final ArrayList<Triangle> oldTris = new ArrayList<>();
 			for (final Vertex v : oldSelection) {
 				if (v instanceof GeosetVertex) {
 					final GeosetVertex gv = (GeosetVertex) v;
@@ -2801,7 +2802,7 @@ public class MDLDisplay {
 	public void expandSelectionUV() {
 		if (!lockdown) {
 			beenSaved = false;
-			final ArrayList<TVertex> oldSelection = new ArrayList<TVertex>(uvselection);
+			final ArrayList<TVertex> oldSelection = new ArrayList<>(uvselection);
 
 			// *** update parenting system
 			for (final Geoset geo : editableGeosets) {
@@ -2811,7 +2812,7 @@ public class MDLDisplay {
 				}
 			}
 
-			final ArrayList<Triangle> oldTris = new ArrayList<Triangle>();
+			final ArrayList<Triangle> oldTris = new ArrayList<>();
 			for (final TVertex v : oldSelection) {
 				final GeosetVertex gv = v.getParent();
 				for (final Triangle triangle : gv.getTriangles()) {
@@ -2841,7 +2842,7 @@ public class MDLDisplay {
 	public void invertSelection() {
 		if (!lockdown) {
 			beenSaved = false;
-			final ArrayList<Vertex> oldSelection = new ArrayList<Vertex>(selection);
+			final ArrayList<Vertex> oldSelection = new ArrayList<>(selection);
 			for (final Geoset geo : editableGeosets) {
 				for (final GeosetVertex v : geo.getVertices()) {
 					if (selection.contains(v)) {
@@ -2855,8 +2856,8 @@ public class MDLDisplay {
 				ArrayList<IdObject> geoParents = null;
 				ArrayList<IdObject> geoSubParents = null;
 				if (dispChildren) {
-					geoParents = new ArrayList<IdObject>();
-					geoSubParents = new ArrayList<IdObject>();
+					geoParents = new ArrayList<>();
+					geoSubParents = new ArrayList<>();
 					for (final Geoset geo : editableGeosets) {
 						for (final GeosetVertex ver : geo.getVertices()) {
 							for (final Bone b : ver.getBones()) {
@@ -2944,7 +2945,7 @@ public class MDLDisplay {
 	public void invertSelectionUV() {
 		if (!lockdown) {
 			beenSaved = false;
-			final ArrayList<TVertex> oldSelection = new ArrayList<TVertex>(uvselection);
+			final ArrayList<TVertex> oldSelection = new ArrayList<>(uvselection);
 			for (final Geoset geo : editableGeosets) {
 				for (int i = 0; i < geo.getVertices().size(); i++) {
 					final TVertex v = geo.getVertices().get(i).getTVertex(uvpanel.currentLayer());
@@ -2965,7 +2966,7 @@ public class MDLDisplay {
 		if (!lockdown) {
 			beenSaved = false;
 
-			final ArrayList<TVertex> oldSelection = new ArrayList<TVertex>(uvselection);
+			final ArrayList<TVertex> oldSelection = new ArrayList<>(uvselection);
 
 			uvselection.clear();
 			for (final Vertex ver : selection) {
@@ -2998,8 +2999,8 @@ public class MDLDisplay {
 			ArrayList<IdObject> geoParents = null;
 			ArrayList<IdObject> geoSubParents = null;
 			if (dispChildren) {
-				geoParents = new ArrayList<IdObject>();
-				geoSubParents = new ArrayList<IdObject>();
+				geoParents = new ArrayList<>();
+				geoSubParents = new ArrayList<>();
 				for (final Geoset geo : editableGeosets) {
 					for (final GeosetVertex ver : geo.getVertices()) {
 						for (final Bone b : ver.getBones()) {
@@ -3233,5 +3234,10 @@ public class MDLDisplay {
 
 	public void addCoordDisplayListener(final CoordDisplayListener listener) {
 		this.coordinateListeners.add(listener);
+	}
+
+	@Override
+	public void pushAction(final UndoAction action) {
+		actionStack.add(action);
 	}
 }

@@ -8,7 +8,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import java.util.ArrayList;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -16,12 +15,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
-import com.hiveworkshop.wc3.gui.modeledit.selection.ModelSelectionListener;
+import com.hiveworkshop.wc3.gui.modeledit.selection.ModelSelectionApplicator;
 import com.hiveworkshop.wc3.gui.modeledit.selection.ModelSelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItemTypes;
-import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionMode;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.wc3.mdl.MDL;
 
@@ -34,7 +33,6 @@ import com.hiveworkshop.wc3.mdl.MDL;
 public class ModelPanel extends JPanel implements ActionListener, MouseListener {
 	JMenuBar menuBar;
 	JMenu fileMenu, modelMenu;
-	ArrayList geoItems = new ArrayList();
 	DisplayPanel frontArea, sideArea, botArea;
 	PerspDisplayPanel perspArea;
 	MDL model;
@@ -64,7 +62,8 @@ public class ModelPanel extends JPanel implements ActionListener, MouseListener 
 		loadModel(input);
 
 		selectionManager = new ModelSelectionManager(dispModel, 3, notifier);
-		final SelectionTypeApplicator selectionListener = new ModelSelectionListener(selectionManager, modeNotifier);
+		final SelectionTypeApplicator selectionListener = new ModelSelectionApplicator(selectionManager, modeNotifier,
+				dispModel);
 
 		frontArea = new DisplayPanel("Front", (byte) 1, (byte) 2, dispModel, selectionManager, selectionListener);
 		// frontArea.setViewport(1,2);
