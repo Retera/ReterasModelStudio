@@ -4,6 +4,7 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelChangeNotifier;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
 
@@ -46,8 +47,10 @@ public final class ViewportActivityManager implements ViewportActivity {
 	@Override
 	public ViewportActivity reset(final SelectionManager selectionManager,
 			final SelectionTypeApplicator selectionListener, final CursorManager cursorManager,
-			final CoordinateSystem coordinateSystem, final UndoManager undoManager) {
-		return currentActivity.reset(selectionManager, selectionListener, cursorManager, coordinateSystem, undoManager);
+			final CoordinateSystem coordinateSystem, final UndoManager undoManager,
+			final ModelChangeNotifier modelChangeNotifier) {
+		return currentActivity.reset(selectionManager, selectionListener, cursorManager, coordinateSystem, undoManager,
+				modelChangeNotifier);
 	}
 
 }

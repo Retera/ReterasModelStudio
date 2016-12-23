@@ -1,6 +1,7 @@
 package com.hiveworkshop.wc3.gui.modeledit.useractions;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
@@ -11,6 +12,7 @@ import java.util.List;
 import javax.swing.SwingUtilities;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelChangeNotifier;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItem;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
@@ -22,19 +24,22 @@ public abstract class AbstractSelectAndEditActivity implements ViewportActivity 
 	private CoordinateSystem coordinateSystem;
 	private ActionType actionType;
 	private SelectionTypeApplicator selectionApplicator;
+	private CursorManager cursorManager;
 	private UndoManager undoManager;
 
 	@Override
 	public AbstractSelectAndEditActivity reset(final SelectionManager selectionManager,
 			final SelectionTypeApplicator selectionListener, final CursorManager cursorManager,
-			final CoordinateSystem coordinateSystem, final UndoManager undoManager) {
+			final CoordinateSystem coordinateSystem, final UndoManager undoManager,
+			final ModelChangeNotifier modelChangeNotifier) {
 		this.selectionManager = selectionManager;
 		this.selectionApplicator = selectionListener;
+		this.cursorManager = cursorManager;
 		this.coordinateSystem = coordinateSystem;
 		this.undoManager = undoManager;
 		startingClick = null;
 		actionType = null;
-		onReset(selectionManager, cursorManager, coordinateSystem, undoManager);
+		onReset(selectionManager, cursorManager, coordinateSystem, undoManager, modelChangeNotifier);
 		return this;
 	}
 
@@ -84,6 +89,9 @@ public abstract class AbstractSelectAndEditActivity implements ViewportActivity 
 		}
 		startingClick = null;
 		endingClick = null;
+		if (cursorManager != null) {
+			cursorManager.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		}
 	}
 
 	@Override
@@ -97,11 +105,31 @@ public abstract class AbstractSelectAndEditActivity implements ViewportActivity 
 			} else {
 				doDrag(e, coordinateSystem, selectionManager, startingClick, endingClick);
 			}
+		} else {
+			if (cursorManager != null) {
+				cursorManager.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			}
 		}
 	}
 
 	@Override
 	public final void mouseMoved(final MouseEvent e) {
+		if (coordinateSystem != null) {
+			final Point2D.Double mousePoint = new Point2D.Double(coordinateSystem.geomX(e.getPoint().getX()),
+					coordinateSystem.geomY(e.getPoint().getY()));
+			boolean hitAnItem = false;
+			for (final SelectionItem item : selectionManager.getSelectableItems()) {
+				if (item.hitTest(mousePoint, coordinateSystem)) {
+					hitAnItem = true;
+					break;
+				}
+			}
+			if (hitAnItem) {
+				cursorManager.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+			} else {
+				cursorManager.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			}
+		}
 		doMouseMove(e, coordinateSystem, selectionManager);
 	}
 
@@ -112,7 +140,7 @@ public abstract class AbstractSelectAndEditActivity implements ViewportActivity 
 			SelectionManager selectionManager);
 
 	protected abstract void onReset(final SelectionManager selectionManager, final CursorManager cursorManager,
-			final CoordinateSystem coordinateSystem, UndoManager undoManager);
+			final CoordinateSystem coordinateSystem, UndoManager undoManager, ModelChangeNotifier modelChangeNotifier);
 
 	protected abstract void onRender(Graphics2D g, CoordinateSystem coordinateSystem);
 

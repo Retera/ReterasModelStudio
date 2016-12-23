@@ -2,9 +2,11 @@ package com.hiveworkshop.wc3.gui.modeledit.selection;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,7 +17,9 @@ import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonListener;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
+import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.util.Callback;
 
 /**
  * Need to get this code out of MDLDisplay!
@@ -30,6 +34,8 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 	private SelectionItemTypes currentItemType;
 	private final int vertexSize;
 	private final Set<SelectionListener> listeners;
+
+	private static final Color FACE_HIGHLIGHT_COLOR = new Color(1f, 0.45f, 0.45f, 0.3f);
 
 	public ModelSelectionManager(final MDLDisplay model, final int vertexSize,
 			final ToolbarButtonGroup<SelectionItemTypes> notififer) {
@@ -88,13 +94,19 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 	@Override
 	public void typeChanged(final SelectionItemTypes newItemType) {
 		final ArrayList<SelectionItem> previousSelection = new ArrayList<>(selection);
+		final List<SelectionItem> selectableItems = new ArrayList<>();
 		switch (newItemType) {
 		case FACE:
+			for (final Geoset geoset : model.getEditableGeosets()) {
+				for (final Triangle triangle : geoset.getTriangle()) {
+					selectableItems.add(new FaceItem(triangle));
+				}
+			}
+			this.selectableItems = selectableItems;
 			break;
 		case GROUP:
 			break;
 		case VERTEX:
-			final List<SelectionItem> selectableItems = new ArrayList<>();
 			for (final Geoset geoset : model.getEditableGeosets()) {
 				for (final GeosetVertex vertex : geoset.getVertices()) {
 					selectableItems.add(new VertexItem(vertex));
@@ -117,16 +129,18 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 	}
 
 	private final class VertexItem implements SelectionItem {
-		private final Vertex vertex;
+		private final VertexComponent vertexComponent;
 
 		public VertexItem(final Vertex vertex) {
-			this.vertex = vertex;
+			this.vertexComponent = new VertexComponent(vertex);
 		}
 
 		@Override
 		public void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem) {
-			final double x = coordinateSystem.convertX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
-			final double y = coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
+			final double x = coordinateSystem
+					.convertX(vertexComponent.getVertex().getCoord(coordinateSystem.getPortFirstXYZ()));
+			final double y = coordinateSystem
+					.convertY(vertexComponent.getVertex().getCoord(coordinateSystem.getPortSecondXYZ()));
 			if (selection.contains(this)) {
 				graphics.setColor(Color.RED);
 			} else {
@@ -137,8 +151,10 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 
 		@Override
 		public boolean hitTest(final Point2D point, final CoordinateSystem coordinateSystem) {
-			final double x = coordinateSystem.convertX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
-			final double y = coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
+			final double x = coordinateSystem
+					.convertX(vertexComponent.getVertex().getCoord(coordinateSystem.getPortFirstXYZ()));
+			final double y = coordinateSystem
+					.convertY(vertexComponent.getVertex().getCoord(coordinateSystem.getPortSecondXYZ()));
 			final double px = coordinateSystem.convertX(point.getX());
 			final double py = coordinateSystem.convertY(point.getY());
 			return Point2D.distance(px, py, x, y) <= vertexSize / 2.0;
@@ -146,14 +162,29 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 
 		@Override
 		public boolean hitTest(final Rectangle rectangle, final CoordinateSystem coordinateSystem) {
-			final double x = /* coordinateSystem.convertX */(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
-			final double y = /* coordinateSystem.convertY */(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
+			final double x = /* coordinateSystem.convertX */(vertexComponent.getVertex()
+					.getCoord(coordinateSystem.getPortFirstXYZ()));
+			final double y = /* coordinateSystem.convertY */(vertexComponent.getVertex()
+					.getCoord(coordinateSystem.getPortSecondXYZ()));
 			return rectangle.contains(x, y);
 		}
 
 		@Override
-		public void delete() {
-			selection.remove(this);
+		public Vertex getCenter() {
+			return vertexComponent.getVertex();
+		}
+
+		@Override
+		public void forEachComponent(final Callback<MutableSelectionComponent> callback) {
+			callback.run(vertexComponent);
+		}
+	}
+
+	private static final class VertexComponent implements MutableSelectionComponent {
+		private final Vertex vertex;
+
+		public VertexComponent(final Vertex vertex) {
+			this.vertex = vertex;
 		}
 
 		@Override
@@ -181,8 +212,150 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 		}
 
 		@Override
-		public Vertex getCenter() {
+		public void delete() {
+			throw new UnsupportedOperationException("delete is nyi");
+		}
+
+		public Vertex getVertex() {
 			return vertex;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((vertex == null) ? 0 : vertex.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(final Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			final VertexComponent other = (VertexComponent) obj;
+			if (vertex == null) {
+				if (other.vertex != null) {
+					return false;
+				}
+			} else if (!vertex.equals(other.vertex)) {
+				return false;
+			}
+			return true;
+		}
+
+	}
+
+	private final class FaceItem implements SelectionItem {
+		private final Triangle triangle;
+		// single-threaded, cached
+		private final int[] xpts;
+		private final int[] ypts;
+		private final MutableSelectionComponent[] vertexComponents;
+
+		public FaceItem(final Triangle triangle) {
+			this.triangle = triangle;
+			xpts = new int[3];
+			ypts = new int[3];
+			vertexComponents = new MutableSelectionComponent[3];
+			for (int i = 0; i < 3; i++) {
+				// TODO fix to not be full-fledged vertex item, for efficiency??
+				// doesn't need SelectionItem interface
+				vertexComponents[i] = new VertexComponent(triangle.get(i));
+			}
+		}
+
+		@Override
+		public void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem) {
+			if (selection.contains(this)) {
+				final GeosetVertex[] verts = triangle.getVerts();
+				for (int i = 0; i < verts.length; i++) {
+					xpts[i] = (int) coordinateSystem.convertX(verts[i].getCoord(coordinateSystem.getPortFirstXYZ()));
+					ypts[i] = (int) coordinateSystem.convertY(verts[i].getCoord(coordinateSystem.getPortSecondXYZ()));
+				}
+				graphics.setColor(FACE_HIGHLIGHT_COLOR);
+				graphics.fillPolygon(xpts, ypts, 3);
+				graphics.setColor(Color.RED);
+				graphics.drawPolygon(xpts, ypts, 3);
+			}
+		}
+
+		@Override
+		public boolean hitTest(final Point2D point, final CoordinateSystem coordinateSystem) {
+			final GeosetVertex[] verts = triangle.getVerts();
+			for (int i = 0; i < verts.length; i++) {
+				xpts[i] = (int) (verts[i].getCoord(coordinateSystem.getPortFirstXYZ()));
+				ypts[i] = (int) (verts[i].getCoord(coordinateSystem.getPortSecondXYZ()));
+			} // TODO fix bad performance allocation
+			return new Polygon(xpts, ypts, 3).contains(point);
+		}
+
+		@Override
+		public boolean hitTest(final Rectangle rectangle, final CoordinateSystem coordinateSystem) {
+			final GeosetVertex[] verts = triangle.getVerts();
+			for (int i = 0; i < verts.length; i++) {
+				xpts[i] = (int) (verts[i].getCoord(coordinateSystem.getPortFirstXYZ()));
+				ypts[i] = (int) (verts[i].getCoord(coordinateSystem.getPortSecondXYZ()));
+			}
+			final Polygon polygon = new Polygon(xpts, ypts, 3);
+			return rectangle.contains(xpts[0], ypts[0]) || rectangle.contains(xpts[1], ypts[1])
+					|| rectangle.contains(xpts[2], ypts[2]) || polygon.intersects(rectangle);
+		}
+
+		@Override
+		public Vertex getCenter() {
+			return Vertex.centerOfGroup(Arrays.asList(triangle.getVerts()));
+		}
+
+		// @Override
+		// public void translate(final float x, final float y, final float z) {
+		// for (final Vertex vertex : triangle.getVerts()) {
+		// vertex.x += x;
+		// vertex.y += y;
+		// vertex.z += z;
+		// }
+		// }
+		//
+		// @Override
+		// public void scale(final float centerX, final float centerY, final
+		// float centerZ, final float x, final float y,
+		// final float z) {
+		// for (final Vertex vertex : triangle.getVerts()) {
+		// final double dx = vertex.x - centerX;
+		// final double dy = vertex.y - centerY;
+		// final double dz = vertex.z - centerZ;
+		// vertex.x = centerX + dx * x;
+		// vertex.y = centerY + dy * y;
+		// vertex.z = centerZ + dz * z;
+		// }
+		// }
+		//
+		// @Override
+		// public void rotate(final float centerX, final float centerY, final
+		// float centerZ, final float radians,
+		// final CoordinateSystem coordinateSystem) {
+		// for (final Vertex vertex : triangle.getVerts()) {
+		// rotateVertex(centerX, centerY, centerZ, radians, coordinateSystem,
+		// vertex);
+		// }
+		// }
+		//
+		// @Override
+		// public void delete() {
+		// selection.remove(this);
+		// }
+
+		@Override
+		public void forEachComponent(final Callback<MutableSelectionComponent> callback) {
+			for (final MutableSelectionComponent component : vertexComponents) {
+				callback.run(component);
+			}
 		}
 
 	}

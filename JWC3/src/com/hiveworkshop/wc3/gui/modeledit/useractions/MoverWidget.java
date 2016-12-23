@@ -11,13 +11,14 @@ import com.hiveworkshop.wc3.mdl.Vertex;
 
 public final class MoverWidget {
 	private static final int TRIANGLE_OFFSET = 60 - 16;
-	private Vertex point;
+	private final Vertex point;
 	private MoveDirection moveDirection = MoveDirection.NONE;
 	private final Polygon northTriangle;
 	private final Polygon eastTriangle;
 
 	public MoverWidget(final Vertex point) {
-		this.point = point;
+		this.point = new Vertex(0, 0, 0);
+		this.point.setTo(point);
 		northTriangle = new Polygon();
 		northTriangle.addPoint(-5, 0);
 		northTriangle.addPoint(0, -18);
@@ -36,10 +37,12 @@ public final class MoverWidget {
 		eastTriangle.translate((int) x + TRIANGLE_OFFSET, (int) y);
 		northTriangle.translate((int) x, (int) y - TRIANGLE_OFFSET);
 		MoveDirection direction = MoveDirection.NONE;
-		if (northTriangle.contains(mousePoint) || Math.abs(x - mousePoint.getX()) <= 1) {
+		if (northTriangle.contains(mousePoint)
+				|| (Math.abs(x - mousePoint.getX()) <= 1 && mousePoint.y < y && mousePoint.y > y - TRIANGLE_OFFSET)) {
 			direction = MoveDirection.UP;
 		}
-		if (eastTriangle.contains(mousePoint) || Math.abs(y - mousePoint.getY()) <= 1) {
+		if (eastTriangle.contains(mousePoint)
+				|| (Math.abs(y - mousePoint.getY()) <= 1 && mousePoint.x > x && mousePoint.x < x + TRIANGLE_OFFSET)) {
 			direction = MoveDirection.RIGHT;
 		}
 		if (new Rectangle((int) x, (int) y - 20, 20, 20).contains(mousePoint)) {
@@ -55,7 +58,7 @@ public final class MoverWidget {
 	}
 
 	public void setPoint(final Vertex point) {
-		this.point = point;
+		this.point.setTo(point);
 	}
 
 	public MoveDirection getMoveDirection() {

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItem;
+import com.hiveworkshop.wc3.gui.modeledit.selection.edits.UniqueComponentSpecificTranslation;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 public class VertexModifyComponentAction implements UndoAction {
@@ -20,19 +21,23 @@ public class VertexModifyComponentAction implements UndoAction {
 
 	@Override
 	public void undo() {
+		final UniqueComponentSpecificTranslation callback = new UniqueComponentSpecificTranslation();
 		for (int i = 0; i < scaledItems.size(); i++) {
 			final SelectionItem selectionItem = scaledItems.get(i);
 			final Vertex translation = itemTranslations.get(i);
-			selectionItem.translate(-(float) translation.x, -(float) translation.y, -(float) translation.z);
+			selectionItem.forEachComponent(
+					callback.resetValues(-(float) translation.x, -(float) translation.y, -(float) translation.z));
 		}
 	}
 
 	@Override
 	public void redo() {
+		final UniqueComponentSpecificTranslation callback = new UniqueComponentSpecificTranslation();
 		for (int i = 0; i < scaledItems.size(); i++) {
 			final SelectionItem selectionItem = scaledItems.get(i);
 			final Vertex translation = itemTranslations.get(i);
-			selectionItem.translate((float) translation.x, (float) translation.y, (float) translation.z);
+			selectionItem.forEachComponent(
+					callback.resetValues((float) translation.x, (float) translation.y, (float) translation.z));
 		}
 	}
 

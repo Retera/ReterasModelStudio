@@ -39,6 +39,7 @@ import com.hiveworkshop.wc3.gui.modeledit.actions.UVSelectAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.UVSelectionActionType;
 import com.hiveworkshop.wc3.gui.modeledit.actions.UVSnapAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.VertexActionType;
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelChangeNotifier;
 import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoManager;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Camera;
@@ -90,12 +91,15 @@ public class MDLDisplay implements UndoManager {
 
 	UVPanel uvpanel = null;
 
+	private final ModelChangeNotifier modelChangeNotifier;
+
 	public MDLDisplay(final MDL mdlr, final ModelPanel mpanel) {
 		model = mdlr;
 		visibleGeosets.addAll(mdlr.getGeosets());
 		editableGeosets.addAll(mdlr.getGeosets());
 		coordinateListeners = new ArrayList<>();
 		this.mpanel = mpanel;
+		modelChangeNotifier = new ModelChangeNotifier();
 	}
 
 	public void reloadTextures() {
@@ -3084,6 +3088,7 @@ public class MDLDisplay implements UndoManager {
 				redoStack.add(temp);
 
 				cureSelection();
+				modelChangeNotifier.modelChanged();
 			} else {
 				JOptionPane.showMessageDialog(null, "Nothing to undo!");
 			}
@@ -3108,6 +3113,7 @@ public class MDLDisplay implements UndoManager {
 				actionStack.add(temp);
 
 				cureSelection();
+				modelChangeNotifier.modelChanged();
 			} else {
 				JOptionPane.showMessageDialog(null, "Nothing to redo!");
 			}
@@ -3239,5 +3245,9 @@ public class MDLDisplay implements UndoManager {
 	@Override
 	public void pushAction(final UndoAction action) {
 		actionStack.add(action);
+	}
+
+	public ModelChangeNotifier getModelChangeNotifier() {
+		return modelChangeNotifier;
 	}
 }

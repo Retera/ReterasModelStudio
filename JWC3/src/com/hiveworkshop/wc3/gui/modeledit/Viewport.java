@@ -396,11 +396,13 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		if (e.getButton() == MouseEvent.BUTTON2) {
 			lastClick = new Point(e.getX(), e.getY());
 		} else if (e.getButton() == MouseEvent.BUTTON1) {
-			activityListener.reset(selectionManager, selectionTypeApplicator, cursorManager, this, dispMDL);
+			activityListener.reset(selectionManager, selectionTypeApplicator, cursorManager, this, dispMDL,
+					dispMDL.getModelChangeNotifier());
 			activityListener.mousePressed(e);
 			// selectStart = new Point(e.getX(), e.getY());
 		} else if (e.getButton() == MouseEvent.BUTTON3) {
-			activityListener.reset(selectionManager, selectionTypeApplicator, cursorManager, this, dispMDL);
+			activityListener.reset(selectionManager, selectionTypeApplicator, cursorManager, this, dispMDL,
+					dispMDL.getModelChangeNotifier());
 			activityListener.mousePressed(e);
 			// actStart = new Point(e.getX(), e.getY());
 			// final Point2D.Double convertedStart = new
