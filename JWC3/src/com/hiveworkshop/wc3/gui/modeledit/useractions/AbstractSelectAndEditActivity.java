@@ -3,9 +3,9 @@ package com.hiveworkshop.wc3.gui.modeledit.useractions;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,8 +72,7 @@ public abstract class AbstractSelectAndEditActivity implements ViewportActivity 
 					final double minY = Math.min(startingClick.y, endingClick.y);
 					final double maxX = Math.max(startingClick.x, endingClick.x);
 					final double maxY = Math.max(startingClick.y, endingClick.y);
-					final Rectangle area = new Rectangle((int) minX, (int) minY, (int) (maxX - minX),
-							(int) (maxY - minY));
+					final Rectangle2D area = new Rectangle2D.Double(minX, minY, (maxX - minX), (maxY - minY));
 					final List<SelectionItem> selectedItems = new ArrayList<>();
 					for (final SelectionItem item : selectionManager.getSelectableItems()) {
 						if (item.hitTest(startingClick, coordinateSystem) || item.hitTest(endingClick, coordinateSystem)

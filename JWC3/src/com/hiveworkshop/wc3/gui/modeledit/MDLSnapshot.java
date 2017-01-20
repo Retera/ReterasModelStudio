@@ -89,7 +89,7 @@ public class MDLSnapshot {
 	boolean texLoaded = false;
 
 	JCheckBox wireframe;
-	HashMap<Bitmap, Integer> textureMap = new HashMap<Bitmap, Integer>();
+	HashMap<Bitmap, Integer> textureMap = new HashMap<>();
 
 	Class<? extends Throwable> lastThrownErrorClass;
 
@@ -449,7 +449,7 @@ public class MDLSnapshot {
 
 		setYangle(35);
 		final MDL model = this.dispMDL.getMDL();
-		final List<Vertex> shapeData = new ArrayList<Vertex>();
+		final List<Vertex> shapeData = new ArrayList<>();
 		for (final Geoset geo : dispMDL.getVisibleGeosets()) {
 			boolean isOnlyAdditive = true;
 			for (final Layer layer : geo.getMaterial().getLayers()) {
@@ -715,8 +715,10 @@ public class MDLSnapshot {
 						for (final Triangle tri : geo.getTriangle()) {
 							for (final GeosetVertex v : tri.getVerts()) {
 								if (renderMask.isAccepted(v)) {
-									GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z,
-											(float) v.getNormal().x);
+									if (v.getNormal() != null) {
+										GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z,
+												(float) v.getNormal().x);
+									}
 									GL11.glTexCoord2f(
 											(float) v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).x,
 											(float) v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).y);

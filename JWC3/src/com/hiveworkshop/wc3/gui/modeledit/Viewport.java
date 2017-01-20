@@ -18,6 +18,7 @@ import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -28,12 +29,16 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.Timer;
 
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.TeamColorAddAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
 import com.hiveworkshop.wc3.gui.modeledit.useractions.CursorManager;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoManager;
 import com.hiveworkshop.wc3.gui.modeledit.useractions.ViewportActivity;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportModelRenderer;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportView;
+import com.hiveworkshop.wc3.mdl.Geoset;
+import com.hiveworkshop.wc3.util.Callback;
 
 public class Viewport extends JPanel implements MouseListener, ActionListener, MouseWheelListener, CoordinateSystem,
 		ViewportView, MouseMotionListener {
@@ -55,15 +60,19 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	JMenuItem manualMove;
 	JMenuItem manualRotate;
 	JMenuItem manualSet;
+	JMenuItem addTeamColor;
 
 	private final ViewportModelRenderer viewportModelRenderer;
 	private final ViewportActivity activityListener;
 	private final SelectionManager selectionManager;
 	private final SelectionTypeApplicator selectionTypeApplicator;
 	private final CursorManager cursorManager;
+	private final UndoManager undoManager;
+	private final Callback<List<Geoset>> geosetAdditionListener;
 
 	public Viewport(final byte d1, final byte d2, final MDLDisplay dispMDL, final ViewportActivity activityListener,
-			final SelectionManager selectionManager, final SelectionTypeApplicator selectionListener) {
+			final SelectionManager selectionManager, final SelectionTypeApplicator selectionListener,
+			final Callback<List<Geoset>> geosetAdditionListener) {
 		// Dimension 1 and Dimension 2, these specify which dimensions to
 		// display.
 		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z
@@ -74,6 +83,8 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		this.activityListener = activityListener;
 		this.selectionManager = selectionManager;
 		this.selectionTypeApplicator = selectionListener;
+		this.undoManager = dispMDL;
+		this.geosetAdditionListener = geosetAdditionListener;
 		this.cursorManager = new CursorManager() {
 			@Override
 			public void setCursor(final Cursor cursor) {
@@ -115,6 +126,9 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		renameBone = new JMenuItem("Rename Bone");
 		renameBone.addActionListener(this);
 		contextMenu.add(renameBone);
+		addTeamColor = new JMenuItem("Fucking add teamcolor underlayer");
+		addTeamColor.addActionListener(this);
+		contextMenu.add(addTeamColor);
 
 		viewportModelRenderer = new ViewportModelRenderer(3);
 
@@ -367,6 +381,11 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 			}
 		} else if (e.getSource() == cogBone) {
 			dispMDL.cogBones();
+		} else if (e.getSource() == addTeamColor) {
+			final TeamColorAddAction teamColorAddAction = new TeamColorAddAction(selectionManager.getSelectedFaces(),
+					dispMDL.getMDL(), geosetAdditionListener, selectionManager);
+			teamColorAddAction.redo();
+			undoManager.pushAction(teamColorAddAction);
 		} else if (e.getSource() == manualMove) {
 			dispMDL.manualMove();
 		} else if (e.getSource() == manualRotate) {
@@ -396,12 +415,12 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		if (e.getButton() == MouseEvent.BUTTON2) {
 			lastClick = new Point(e.getX(), e.getY());
 		} else if (e.getButton() == MouseEvent.BUTTON1) {
-			activityListener.reset(selectionManager, selectionTypeApplicator, cursorManager, this, dispMDL,
+			activityListener.reset(selectionManager, selectionTypeApplicator, cursorManager, this, undoManager,
 					dispMDL.getModelChangeNotifier());
 			activityListener.mousePressed(e);
 			// selectStart = new Point(e.getX(), e.getY());
 		} else if (e.getButton() == MouseEvent.BUTTON3) {
-			activityListener.reset(selectionManager, selectionTypeApplicator, cursorManager, this, dispMDL,
+			activityListener.reset(selectionManager, selectionTypeApplicator, cursorManager, this, undoManager,
 					dispMDL.getModelChangeNotifier());
 			activityListener.mousePressed(e);
 			// actStart = new Point(e.getX(), e.getY());

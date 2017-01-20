@@ -545,13 +545,15 @@ public class MDLDisplay implements UndoManager {
 		if (programPreferences.showNormals()) {
 			for (final GeosetVertex ver : geo.getVertices()) {
 				final Color temp = g.getColor();
-				g.setColor(programPreferences.getNormalsColor());
-				g.drawLine((int) Math.round(vp.convertX(ver.getCoord(vp.getPortFirstXYZ()))),
-						(int) Math.round(vp.convertY(ver.getCoord(vp.getPortSecondXYZ()))),
-						(int) Math.round(vp.convertX(ver.getCoord(vp.getPortFirstXYZ())
-								+ ver.getNormal().getCoord(vp.getPortFirstXYZ()) * 12 / vp.getZoomAmount())),
-						(int) Math.round(vp.convertY(ver.getCoord(vp.getPortSecondXYZ())
-								+ ver.getNormal().getCoord(vp.getPortSecondXYZ()) * 12 / vp.getZoomAmount())));
+				if (ver.getNormal() != null) {
+					g.setColor(programPreferences.getNormalsColor());
+					g.drawLine((int) Math.round(vp.convertX(ver.getCoord(vp.getPortFirstXYZ()))),
+							(int) Math.round(vp.convertY(ver.getCoord(vp.getPortSecondXYZ()))),
+							(int) Math.round(vp.convertX(ver.getCoord(vp.getPortFirstXYZ())
+									+ ver.getNormal().getCoord(vp.getPortFirstXYZ()) * 12 / vp.getZoomAmount())),
+							(int) Math.round(vp.convertY(ver.getCoord(vp.getPortSecondXYZ())
+									+ ver.getNormal().getCoord(vp.getPortSecondXYZ()) * 12 / vp.getZoomAmount())));
+				}
 			}
 		}
 		g.setColor(programPreferences.getVertexColor());
@@ -2544,8 +2546,10 @@ public class MDLDisplay implements UndoManager {
 			for (int i = 0; i < selection.size(); i++) {
 				if (selection.get(i) instanceof GeosetVertex) {
 					final GeosetVertex gv = (GeosetVertex) selection.get(i);
-					oldLocations.add(new Vertex(gv.getNormal()));
-					selectedNormals.add(gv.getNormal());
+					if (gv.getNormal() != null) {
+						oldLocations.add(new Vertex(gv.getNormal()));
+						selectedNormals.add(gv.getNormal());
+					} // else no normal to snap!!!
 				}
 			}
 			final SnapNormalsAction temp = new SnapNormalsAction(selectedNormals, oldLocations, snapped);
@@ -2737,8 +2741,10 @@ public class MDLDisplay implements UndoManager {
 				if (vert.getClass() == GeosetVertex.class) {
 					final GeosetVertex gv = (GeosetVertex) vert;
 					final Normal normal = gv.getNormal();
-					// Flip normals, preserve lighting!
-					normal.setCoord(mirrorDim, -normal.getCoord(mirrorDim));
+					if (normal != null) {
+						// Flip normals, preserve lighting!
+						normal.setCoord(mirrorDim, -normal.getCoord(mirrorDim));
+					}
 				}
 			}
 			final ArrayList<IdObject> selBones = new ArrayList<>();

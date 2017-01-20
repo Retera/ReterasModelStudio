@@ -4,10 +4,13 @@ import java.awt.Graphics2D;
 import java.util.List;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
+import com.hiveworkshop.wc3.mdl.Triangle;
 
 public interface SelectionManager extends SelectionManagerView {
 	@Override
 	List<SelectionItem> getSelection();
+
+	List<Triangle> getSelectedFaces();
 
 	List<? extends SelectionItem> getSelectableItems();
 

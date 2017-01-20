@@ -19,18 +19,20 @@ public class RotateAction extends MoveAction {
 	public RotateAction(final ArrayList<Vertex> selection, final ArrayList<Vertex> moveVectors,
 			final VertexActionType actionType) {
 		super(selection, moveVectors, actionType);
-		normals = new ArrayList<Normal>();
+		normals = new ArrayList<>();
 		for (final Vertex ver : selection) {
 			if (ver instanceof GeosetVertex) {
 				final GeosetVertex gv = (GeosetVertex) ver;
-				normals.add(gv.getNormal());
+				if (gv.getNormal() != null) {
+					normals.add(gv.getNormal());
+				}
 			}
 		}
 	}
 
 	public RotateAction() {
 		super();
-		normals = new ArrayList<Normal>();
+		normals = new ArrayList<>();
 	}
 
 	@Override
@@ -39,7 +41,9 @@ public class RotateAction extends MoveAction {
 		for (final Vertex ver : selection) {
 			if (ver instanceof GeosetVertex) {
 				final GeosetVertex gv = (GeosetVertex) ver;
-				normals.add(gv.getNormal());
+				if (gv.getNormal() != null) {
+					normals.add(gv.getNormal());
+				}
 			}
 		}
 	}
@@ -48,7 +52,7 @@ public class RotateAction extends MoveAction {
 	public void createEmptyMoveVectors() {
 		super.createEmptyMoveVectors();
 
-		normalMoveVectors = new ArrayList<Vertex>();
+		normalMoveVectors = new ArrayList<>();
 		for (int i = 0; i < normals.size(); i++) {
 			normalMoveVectors.add(new Vertex(0, 0, 0));
 		}

@@ -1,4 +1,4 @@
-package com.matrixeater.src;
+package com.hiveworkshop.wc3.util;
 
 public class MathUtils {
 	/**

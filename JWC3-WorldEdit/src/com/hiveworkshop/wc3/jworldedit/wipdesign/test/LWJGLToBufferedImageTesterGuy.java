@@ -36,13 +36,14 @@ public class LWJGLToBufferedImageTesterGuy {
 		try {
 			final Element unit = UnitOptionPane.show(null);
 			String field = unit.getField("file");
-			if( field.endsWith(".mdl") ) {
+			if (field.endsWith(".mdl")) {
 				field = field.replace(".mdl", ".mdx");
 			} else {
 				field += ".mdx";
 			}
 			System.out.println(field);
-			model = new MDL(MdxUtils.loadModel(new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream(field))));
+			model = new MDL(
+					MdxUtils.loadModel(new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream(field))));
 			mdlDisplay = MDLSnapshot.createDefaultDisplay(unit);
 			JOptionPane.showMessageDialog(null, new UnitOutlinePanel(unit));
 		} catch (final IOException e1) {
@@ -50,10 +51,11 @@ public class LWJGLToBufferedImageTesterGuy {
 		}
 		System.out.println(model.getHeaderName());
 		try {
-			final MDLSnapshot mdlSnapshot = new MDLSnapshot(mdlDisplay, 256, 256);
+			final MDLSnapshot mdlSnapshot = new MDLSnapshot(mdlDisplay, 32, 32);
 			mdlSnapshot.zoomToFit();
 			final BufferedImage bufferedImage = mdlSnapshot.getBufferedImage();
-//			JOptionPane.showMessageDialog(null, new ImageIcon(bufferedImage));
+			// JOptionPane.showMessageDialog(null, new
+			// ImageIcon(bufferedImage));
 		} catch (final Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

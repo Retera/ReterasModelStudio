@@ -2,9 +2,9 @@ package com.hiveworkshop.wc3.gui.modeledit.selection;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Polygon;
-import java.awt.Rectangle;
+import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -45,6 +45,48 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 		selection = new ArrayList<>();
 		listeners = new HashSet<>();
 		notififer.addToolbarButtonListener(this);
+	}
+
+	@Override
+	public List<Triangle> getSelectedFaces() {
+		final List<Triangle> faces = new ArrayList<>();
+		// TODO fix this design hack
+		if (currentItemType == SelectionItemTypes.VERTEX) {
+			final Set<GeosetVertex> selectedVertices = new HashSet<>();
+			final Set<Triangle> partiallySelectedFaces = new HashSet<>();
+			for (final SelectionItem item : selection) {
+				if (!(item instanceof VertexItem)) {
+					throw new RuntimeException("Selection manager type failure");
+				}
+				final VertexItem vertexItem = (VertexItem) item;
+				final Vertex vertex = vertexItem.vertexComponent.vertex;
+				if (vertex instanceof GeosetVertex) {
+					final GeosetVertex gv = (GeosetVertex) vertex;
+					partiallySelectedFaces.addAll(gv.getTriangles());
+					selectedVertices.add(gv);
+				}
+			}
+			for (final Triangle face : partiallySelectedFaces) {
+				boolean whollySelected = true;
+				for (final GeosetVertex gv : face.getVerts()) {
+					if (!selectedVertices.contains(gv)) {
+						whollySelected = false;
+					}
+				}
+				if (whollySelected) {
+					faces.add(face);
+				}
+			}
+		} else if (currentItemType == SelectionItemTypes.FACE) {
+			for (final SelectionItem item : selection) {
+				if (!(item instanceof FaceItem)) {
+					throw new RuntimeException("Selection manager type failure");
+				}
+				final FaceItem faceItem = (FaceItem) item;
+				faces.add(faceItem.triangle);
+			}
+		}
+		return faces;
 	}
 
 	@Override
@@ -161,7 +203,7 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 		}
 
 		@Override
-		public boolean hitTest(final Rectangle rectangle, final CoordinateSystem coordinateSystem) {
+		public boolean hitTest(final Rectangle2D rectangle, final CoordinateSystem coordinateSystem) {
 			final double x = /* coordinateSystem.convertX */(vertexComponent.getVertex()
 					.getCoord(coordinateSystem.getPortFirstXYZ()));
 			final double y = /* coordinateSystem.convertY */(vertexComponent.getVertex()
@@ -289,23 +331,33 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 		@Override
 		public boolean hitTest(final Point2D point, final CoordinateSystem coordinateSystem) {
 			final GeosetVertex[] verts = triangle.getVerts();
-			for (int i = 0; i < verts.length; i++) {
-				xpts[i] = (int) (verts[i].getCoord(coordinateSystem.getPortFirstXYZ()));
-				ypts[i] = (int) (verts[i].getCoord(coordinateSystem.getPortSecondXYZ()));
+			final Path2D.Double path = new Path2D.Double();
+			path.moveTo(verts[0].getCoord(coordinateSystem.getPortFirstXYZ()),
+					verts[0].getCoord(coordinateSystem.getPortSecondXYZ()));
+			for (int i = 1; i < verts.length; i++) {
+				path.lineTo(verts[i].getCoord(coordinateSystem.getPortFirstXYZ()),
+						verts[i].getCoord(coordinateSystem.getPortSecondXYZ()));
+				// xpts[i] = (int)
+				// (verts[i].getCoord(coordinateSystem.getPortFirstXYZ()));
+				// ypts[i] = (int)
+				// (verts[i].getCoord(coordinateSystem.getPortSecondXYZ()));
 			} // TODO fix bad performance allocation
-			return new Polygon(xpts, ypts, 3).contains(point);
+			path.closePath();
+			return path.contains(point);
 		}
 
 		@Override
-		public boolean hitTest(final Rectangle rectangle, final CoordinateSystem coordinateSystem) {
+		public boolean hitTest(final Rectangle2D rectangle, final CoordinateSystem coordinateSystem) {
 			final GeosetVertex[] verts = triangle.getVerts();
-			for (int i = 0; i < verts.length; i++) {
-				xpts[i] = (int) (verts[i].getCoord(coordinateSystem.getPortFirstXYZ()));
-				ypts[i] = (int) (verts[i].getCoord(coordinateSystem.getPortSecondXYZ()));
+			final Path2D.Double path = new Path2D.Double();
+			path.moveTo(verts[0].getCoord(coordinateSystem.getPortFirstXYZ()),
+					verts[0].getCoord(coordinateSystem.getPortSecondXYZ()));
+			for (int i = 1; i < verts.length; i++) {
+				path.lineTo(verts[i].getCoord(coordinateSystem.getPortFirstXYZ()),
+						verts[i].getCoord(coordinateSystem.getPortSecondXYZ()));
 			}
-			final Polygon polygon = new Polygon(xpts, ypts, 3);
 			return rectangle.contains(xpts[0], ypts[0]) || rectangle.contains(xpts[1], ypts[1])
-					|| rectangle.contains(xpts[2], ypts[2]) || polygon.intersects(rectangle);
+					|| rectangle.contains(xpts[2], ypts[2]) || path.intersects(rectangle);
 		}
 
 		@Override

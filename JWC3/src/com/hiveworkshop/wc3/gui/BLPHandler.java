@@ -22,7 +22,7 @@ public class BLPHandler {
 	 * Caching here is dangerous, only works if you're not changing the
 	 * underlying images.
 	 */
-	Map<String, BufferedImage> cache = new HashMap<String, BufferedImage>();
+	Map<String, BufferedImage> cache = new HashMap<>();
 
 	public BufferedImage getTexture(final String workingDirectory, final String filepath) {
 		final BufferedImage image = getGameTex(filepath);
@@ -118,6 +118,35 @@ public class BLPHandler {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public void compressBLPHopefullyALot(final File blpFile, final File blpOutput, final boolean generateMipMaps) {
+		try {
+			try {
+				Runtime.getRuntime()
+						.exec(new String[] { "blplabcl/blplabcl.exe", "\"" + blpFile.getPath() + "\"",
+								"\"" + blpOutput.getPath() + "\"", "-type0", "-q25", generateMipMaps ? "-mm8" : "",
+								"-opt1", "-opt2" })
+						.waitFor();
+			} catch (final InterruptedException e) {
+				e.printStackTrace();
+			}
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void compressTGAHopefullyALot(final File blpFile, final File blpOutput) {
+		try {
+			try {
+				Runtime.getRuntime().exec(new String[] { "blplabcl/blplabcl.exe", "\"" + blpFile.getPath() + "\"",
+						"\"" + blpOutput.getPath() + "\"", "-type0" }).waitFor();
+			} catch (final InterruptedException e) {
+				e.printStackTrace();
+			}
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public File convertBLPtoTGA(final File blpFile, final File fileTGA) {

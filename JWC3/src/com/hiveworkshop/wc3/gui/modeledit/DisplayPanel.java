@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
@@ -13,9 +14,12 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import com.hiveworkshop.wc3.gui.GlobalIcons;
-import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
 import com.hiveworkshop.wc3.gui.modeledit.useractions.SelectAndMoveActivity;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.ViewportActivityManager;
+import com.hiveworkshop.wc3.mdl.Geoset;
+import com.hiveworkshop.wc3.util.Callback;
 
 /**
  * Write a description of class DisplayPanel here.
@@ -30,12 +34,15 @@ public class DisplayPanel extends JPanel implements ActionListener {
 	private final JButton up, down, left, right, plusZoom, minusZoom;
 	private final SelectionManager selectionManager;
 	private final SelectionTypeApplicator selectionListener;
+	private final Callback<List<Geoset>> geosetAdditionListener;
 
 	public DisplayPanel(final String title, final byte a, final byte b, final MDLDisplay dispMDL,
-			final SelectionManager selectionManager, final SelectionTypeApplicator selectionListener) {
+			final SelectionManager selectionManager, final SelectionTypeApplicator selectionListener,
+			final Callback<List<Geoset>> geosetAdditionListener) {
 		super();
 		this.selectionManager = selectionManager;
 		this.selectionListener = selectionListener;
+		this.geosetAdditionListener = geosetAdditionListener;
 		setBorder(BorderFactory.createTitledBorder(title));// BorderFactory.createCompoundBorder(
 		// BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title),BorderFactory.createBevelBorder(1)),BorderFactory.createEmptyBorder(1,1,1,1)
 		// ));
@@ -121,7 +128,8 @@ public class DisplayPanel extends JPanel implements ActionListener {
 	}
 
 	public void setViewport(final byte a, final byte b, final MDLDisplay dispModel) {
-		vp = new Viewport(a, b, dispModel, new SelectAndMoveActivity(), selectionManager, selectionListener);
+		vp = new Viewport(a, b, dispModel, new ViewportActivityManager(new SelectAndMoveActivity()), selectionManager,
+				selectionListener, geosetAdditionListener);
 		add(vp);
 	}
 

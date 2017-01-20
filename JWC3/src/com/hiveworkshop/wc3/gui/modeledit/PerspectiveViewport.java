@@ -94,7 +94,7 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 	boolean texLoaded = false;
 
 	JCheckBox wireframe;
-	HashMap<Bitmap, Integer> textureMap = new HashMap<Bitmap, Integer>();
+	HashMap<Bitmap, Integer> textureMap = new HashMap<>();
 
 	Class<? extends Throwable> lastThrownErrorClass;
 
@@ -531,8 +531,10 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 						glBegin(GL11.GL_TRIANGLES);
 						for (final Triangle tri : geo.getTriangle()) {
 							for (final GeosetVertex v : tri.getVerts()) {
-								GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z,
-										(float) v.getNormal().x);
+								if (v.getNormal() != null) {
+									GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z,
+											(float) v.getNormal().x);
+								}
 								GL11.glTexCoord2f(
 										(float) v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).x,
 										(float) v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).y);
@@ -578,8 +580,10 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 						glBegin(GL11.GL_TRIANGLES);
 						for (final Triangle tri : geo.getTriangle()) {
 							for (final GeosetVertex v : tri.getVerts()) {
-								GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z,
-										(float) v.getNormal().x);
+								if (v.getNormal() != null) {
+									GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z,
+											(float) v.getNormal().x);
+								}
 								GL11.glTexCoord2f(
 										(float) v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).x,
 										(float) v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).y);
@@ -636,7 +640,9 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 				glBegin(GL11.GL_TRIANGLES);
 				for (final Triangle tri : dispMDL.highlight.getTriangle()) {
 					for (final GeosetVertex v : tri.getVerts()) {
-						GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z, (float) v.getNormal().x);
+						if (v.getNormal() != null) {
+							GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z, (float) v.getNormal().x);
+						}
 						GL11.glTexCoord2f((float) v.getTverts().get(0).x, (float) v.getTverts().get(0).y);
 						GL11.glVertex3f((float) v.y / 1.0f, (float) v.z / 1.0f, (float) v.x / 1.0f);
 					}
@@ -655,13 +661,17 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 				for (final Geoset geo : dispMDL.visibleGeosets) {// .getMDL().getGeosets()
 					for (final Triangle tri : geo.getTriangle()) {
 						for (final GeosetVertex v : tri.getVerts()) {
-							GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z, (float) v.getNormal().x);
-							GL11.glVertex3f((float) v.y / 1.0f, (float) v.z / 1.0f, (float) v.x / 1.0f);
+							if (v.getNormal() != null) {
+								GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z,
+										(float) v.getNormal().x);
+								GL11.glVertex3f((float) v.y / 1.0f, (float) v.z / 1.0f, (float) v.x / 1.0f);
 
-							GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z, (float) v.getNormal().x);
-							GL11.glVertex3f((float) v.y / 1.0f + (float) (v.getNormal().y * 6 / m_zoom),
-									(float) v.z / 1.0f + (float) (v.getNormal().z * 6 / m_zoom),
-									(float) v.x / 1.0f + (float) (v.getNormal().x * 6 / m_zoom));
+								GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z,
+										(float) v.getNormal().x);
+								GL11.glVertex3f((float) v.y / 1.0f + (float) (v.getNormal().y * 6 / m_zoom),
+										(float) v.z / 1.0f + (float) (v.getNormal().z * 6 / m_zoom),
+										(float) v.x / 1.0f + (float) (v.getNormal().x * 6 / m_zoom));
+							}
 						}
 					}
 				}

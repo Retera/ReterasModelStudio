@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.util.List;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -22,7 +23,9 @@ import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
+import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.util.Callback;
 
 /**
  * The ModelPanel is a pane holding the display of a given MDL model. I plan to
@@ -43,15 +46,15 @@ public class ModelPanel extends JPanel implements ActionListener, MouseListener 
 	private final SelectionManager selectionManager;
 
 	public ModelPanel(final File input, final ProgramPreferences prefs, final UndoHandler undoHandler,
-			final ToolbarButtonGroup<SelectionItemTypes> notifier,
-			final ToolbarButtonGroup<SelectionMode> modeNotifier) {
-		this(MDL.read(input), prefs, undoHandler, notifier, modeNotifier);
+			final ToolbarButtonGroup<SelectionItemTypes> notifier, final ToolbarButtonGroup<SelectionMode> modeNotifier,
+			final Callback<List<Geoset>> geosetAdditionListener) {
+		this(MDL.read(input), prefs, undoHandler, notifier, modeNotifier, geosetAdditionListener);
 		file = input;
 	}
 
 	public ModelPanel(final MDL input, final ProgramPreferences prefs, final UndoHandler undoHandler,
-			final ToolbarButtonGroup<SelectionItemTypes> notifier,
-			final ToolbarButtonGroup<SelectionMode> modeNotifier) {
+			final ToolbarButtonGroup<SelectionItemTypes> notifier, final ToolbarButtonGroup<SelectionMode> modeNotifier,
+			final Callback<List<Geoset>> geosetAdditionListener) {
 		super();
 		this.prefs = prefs;
 		this.undoHandler = undoHandler;
@@ -65,13 +68,16 @@ public class ModelPanel extends JPanel implements ActionListener, MouseListener 
 		final SelectionTypeApplicator selectionListener = new ModelSelectionApplicator(selectionManager, modeNotifier,
 				dispModel);
 
-		frontArea = new DisplayPanel("Front", (byte) 1, (byte) 2, dispModel, selectionManager, selectionListener);
+		frontArea = new DisplayPanel("Front", (byte) 1, (byte) 2, dispModel, selectionManager, selectionListener,
+				geosetAdditionListener);
 		// frontArea.setViewport(1,2);
 		add(frontArea);
-		botArea = new DisplayPanel("Bottom", (byte) 1, (byte) 0, dispModel, selectionManager, selectionListener);
+		botArea = new DisplayPanel("Bottom", (byte) 1, (byte) 0, dispModel, selectionManager, selectionListener,
+				geosetAdditionListener);
 		// botArea.setViewport(0,1);
 		add(botArea);
-		sideArea = new DisplayPanel("Side", (byte) 0, (byte) 2, dispModel, selectionManager, selectionListener);
+		sideArea = new DisplayPanel("Side", (byte) 0, (byte) 2, dispModel, selectionManager, selectionListener,
+				geosetAdditionListener);
 		// sideArea.setViewport(0,2);
 		add(sideArea);
 

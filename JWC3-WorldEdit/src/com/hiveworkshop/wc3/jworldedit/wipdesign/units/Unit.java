@@ -5,8 +5,6 @@ import java.util.List;
 
 import javax.swing.Icon;
 
-import org.newdawn.slick.tests.xml.Item;
-
 import com.hiveworkshop.wc3.jworldedit.wipdesign.units.enums.AiBuffer;
 import com.hiveworkshop.wc3.jworldedit.wipdesign.units.enums.ArmorType;
 import com.hiveworkshop.wc3.jworldedit.wipdesign.units.enums.AttackBits;

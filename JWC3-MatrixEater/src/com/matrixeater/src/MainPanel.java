@@ -88,17 +88,16 @@ import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.IconUtils;
 import com.hiveworkshop.wc3.jworldedit.models.UnitEditorModelSelector;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
-import com.hiveworkshop.wc3.mdl.AnimFlag.Entry;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.IdObject;
+import com.hiveworkshop.wc3.mdl.Layer;
 import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.mdl.MDXHandler;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
-import com.hiveworkshop.wc3.mdl.QuaternionRotation;
 import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.UVLayer;
@@ -430,6 +429,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 	private ToolbarButtonGroup<SelectionItemTypes> selectionItemTypeGroup;
 	private ToolbarButtonGroup<SelectionMode> selectionModeGroup;
 	private ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup;
+	private final Callback<List<Geoset>> geosetAdditionCallback;
 
 	public MainPanel() {
 		super();
@@ -566,6 +566,24 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		tabbedPane.addMouseListener(this);
 		// setFocusable(true);
 		// selectButton.requestFocus();
+		geosetAdditionCallback = new Callback<List<Geoset>>() {
+			@Override
+			public void run(final List<Geoset> geosetsAdded) {
+
+				// Tell program to set visibility after import
+				final MDLDisplay display = displayFor(currentMDL());
+				if (display != null) {
+					display.setBeenSaved(false); // we edited the model
+					for (final Geoset geoset : geosetsAdded) {
+						display.makeGeosetEditable(geoset, true);
+						display.makeGeosetVisible(geoset, true);
+					}
+					geoControl.repaint();
+					geoControl.setMDLDisplay(display);
+					display.reloadTextures();// .mpanel.perspArea.reloadTextures();//addGeosets(newGeosets);
+				}
+			}
+		};
 	}
 
 	public JToolBar createJToolBar() {
@@ -1673,6 +1691,10 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				final Material mat = currentMDL().getMaterials().get(i);
 				materials.addElement(mat);
 			}
+			for (final ParticleEmitter2 emitter2 : currentMDL().sortedIdObjects(ParticleEmitter2.class)) {
+				final Material dummyMaterial = new Material(
+						new Layer("Blend", currentMDL().getTexture(emitter2.getTextureID())));
+			}
 
 			final JList<Material> materialsList = new JList<>(materials);
 			materialsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -1755,170 +1777,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 					"This is an irreversible process that will lose some of your model data,\nin exchange for making it a smaller storage size.\n\nContinue and simplify keyframes?",
 					"Warning: Simplify Keyframes", JOptionPane.OK_CANCEL_OPTION);
 			if (x == JOptionPane.OK_OPTION) {
-				final List<AnimFlag> allAnimFlags = currentMDL().getAllAnimFlags();
-				final List<Animation> anims = currentMDL().getAnims();
-
-				for (final AnimFlag flag : allAnimFlags) {
-					final List<Integer> indicesForDeletion = new ArrayList<>();
-					Entry lastEntry = null;
-					for (int i = 0; i < flag.length(); i++) {
-						final Entry entry = flag.getEntry(i);
-						if (lastEntry != null && lastEntry.time == entry.time) {
-							indicesForDeletion.add(new Integer(i));
-						}
-						lastEntry = entry;
-					}
-					for (int i = indicesForDeletion.size() - 1; i >= 0; i--) {
-						flag.deleteAt(indicesForDeletion.get(i));
-					}
-				}
-				for (final Animation anim : anims) {
-					for (final AnimFlag flag : allAnimFlags) {
-						if (!flag.hasGlobalSeq()) {
-							Object olderKeyframe = null;
-							Object oldKeyframe = null;
-							final List<Integer> indicesForDeletion = new ArrayList<>();
-							for (int i = 0; i < flag.length(); i++) {
-								final Entry entry = flag.getEntry(i);
-								//
-								// //Types of AnimFlags:
-								// // 0 Alpha
-								// public static final int ALPHA = 0;
-								// // 1 Scaling
-								// public static final int SCALING = 1;
-								// // 2 Rotation
-								// public static final int ROTATION = 2;
-								// // 3 Translation
-								// public static final int TRANSLATION = 3;
-								// // 4 Color
-								// public static final int COLOR = 4;
-								// // 5 TextureID
-								// public static final int TEXTUREID = 5;
-								if (entry.time >= anim.getStart() && entry.time <= anim.getEnd()) {
-									if (entry.value instanceof Double) {
-										final Double d = (Double) entry.value;
-										final Double older = (Double) olderKeyframe;
-										final Double old = (Double) oldKeyframe;
-										if (older != null && old != null && MathUtils.isBetween(older, old, d)) {
-											indicesForDeletion.add(new Integer(i - 1));
-										}
-									} else if (entry.value instanceof Vertex) {
-										final Vertex current = (Vertex) entry.value;
-										final Vertex older = (Vertex) olderKeyframe;
-										final Vertex old = (Vertex) oldKeyframe;
-										if (older != null && old != null
-												&& MathUtils.isBetween(older.x, old.x, current.x)
-												&& MathUtils.isBetween(older.y, old.y, current.y)
-												&& MathUtils.isBetween(older.z, old.z, current.z)) {
-											indicesForDeletion.add(new Integer(i - 1));
-										}
-									} else if (entry.value instanceof QuaternionRotation) {
-										final QuaternionRotation current = (QuaternionRotation) entry.value;
-										final QuaternionRotation older = (QuaternionRotation) olderKeyframe;
-										final QuaternionRotation old = (QuaternionRotation) oldKeyframe;
-										final Vertex euler = current.toEuler();
-										if (older != null && old != null) {
-											final Vertex olderEuler = older.toEuler();
-											final Vertex oldEuler = old.toEuler();
-											if (MathUtils.isBetween(olderEuler.x, oldEuler.x, euler.x)
-													&& MathUtils.isBetween(olderEuler.y, oldEuler.y, euler.y)
-													&& MathUtils.isBetween(olderEuler.z, oldEuler.z, euler.z)) {
-												// if
-												// (MathUtils.isBetween(older.a,
-												// old.a, current.a)
-												// &&
-												// MathUtils.isBetween(older.b,
-												// old.b, current.b)
-												// &&
-												// MathUtils.isBetween(older.c,
-												// old.c, current.c)
-												// &&
-												// MathUtils.isBetween(older.d,
-												// old.d, current.d)) {
-												indicesForDeletion.add(new Integer(i - 1));
-											}
-										}
-									}
-									olderKeyframe = oldKeyframe;
-									oldKeyframe = entry.value;
-								}
-							}
-							for (int i = indicesForDeletion.size() - 1; i >= 0; i--) {
-								flag.deleteAt(indicesForDeletion.get(i));
-							}
-						}
-					}
-				}
-				for (final Integer globalSeq : currentMDL().getGlobalSeqs()) {
-					for (final AnimFlag flag : allAnimFlags) {
-						if (flag.hasGlobalSeq() && flag.getGlobalSeq().equals(globalSeq)) {
-							Object olderKeyframe = null;
-							Object oldKeyframe = null;
-							final List<Integer> indicesForDeletion = new ArrayList<>();
-							for (int i = 0; i < flag.length(); i++) {
-								final Entry entry = flag.getEntry(i);
-								//
-								// //Types of AnimFlags:
-								// // 0 Alpha
-								// public static final int ALPHA = 0;
-								// // 1 Scaling
-								// public static final int SCALING = 1;
-								// // 2 Rotation
-								// public static final int ROTATION = 2;
-								// // 3 Translation
-								// public static final int TRANSLATION = 3;
-								// // 4 Color
-								// public static final int COLOR = 4;
-								// // 5 TextureID
-								// public static final int TEXTUREID = 5;
-								if (entry.value instanceof Double) {
-									final Double d = (Double) entry.value;
-									final Double older = (Double) olderKeyframe;
-									final Double old = (Double) oldKeyframe;
-									if (older != null && old != null && MathUtils.isBetween(older, old, d)) {
-										indicesForDeletion.add(new Integer(i - 1));
-									}
-								} else if (entry.value instanceof Vertex) {
-									final Vertex current = (Vertex) entry.value;
-									final Vertex older = (Vertex) olderKeyframe;
-									final Vertex old = (Vertex) oldKeyframe;
-									if (older != null && old != null && MathUtils.isBetween(older.x, old.x, current.x)
-											&& MathUtils.isBetween(older.y, old.y, current.y)
-											&& MathUtils.isBetween(older.z, old.z, current.z)) {
-										indicesForDeletion.add(new Integer(i - 1));
-									}
-								} else if (entry.value instanceof QuaternionRotation) {
-									final QuaternionRotation current = (QuaternionRotation) entry.value;
-									final QuaternionRotation older = (QuaternionRotation) olderKeyframe;
-									final QuaternionRotation old = (QuaternionRotation) oldKeyframe;
-									final Vertex euler = current.toEuler();
-									if (older != null && old != null) {
-										final Vertex olderEuler = older.toEuler();
-										final Vertex oldEuler = old.toEuler();
-										if (MathUtils.isBetween(olderEuler.x, oldEuler.x, euler.x)
-												&& MathUtils.isBetween(olderEuler.y, oldEuler.y, euler.y)
-												&& MathUtils.isBetween(olderEuler.z, oldEuler.z, euler.z)) {
-											// if (MathUtils.isBetween(older.a,
-											// old.a, current.a)
-											// && MathUtils.isBetween(older.b,
-											// old.b, current.b)
-											// && MathUtils.isBetween(older.c,
-											// old.c, current.c)
-											// && MathUtils.isBetween(older.d,
-											// old.d, current.d)) {
-											indicesForDeletion.add(new Integer(i - 1));
-										}
-									}
-								}
-								olderKeyframe = oldKeyframe;
-								oldKeyframe = entry.value;
-							}
-							for (int i = indicesForDeletion.size() - 1; i >= 0; i--) {
-								flag.deleteAt(indicesForDeletion.get(i));
-							}
-						}
-					}
-				}
+				simplifyKeyframes();
 			}
 		} else if (e.getSource() == riseFallBirth) {
 			final MDLDisplay disp = currentMDLDisp();
@@ -2141,6 +2000,11 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		// }
 		// repaint();
 		// }
+	}
+
+	private void simplifyKeyframes() {
+		final MDL currentMDL = currentMDL();
+		currentMDL.simplifyKeyframes();
 	}
 
 	private boolean onClickSaveAs() {
@@ -2494,7 +2358,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				try (BlizzardDataInputStream in = new BlizzardDataInputStream(new FileInputStream(f))) {
 					final MDL model = new MDL(MdxUtils.loadModel(in));
 					model.setFile(f);
-					temp = new ModelPanel(model, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup);
+					temp = new ModelPanel(model, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
+							geosetAdditionCallback);
 				} catch (final FileNotFoundException e) {
 					e.printStackTrace();
 					ExceptionPopup.display(e);
@@ -2506,7 +2371,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				}
 			} else {
 				temp = new ModelPanel(MDXHandler.convert(f), prefs, MainPanel.this, selectionItemTypeGroup,
-						selectionModeGroup);
+						selectionModeGroup, geosetAdditionCallback);
 			}
 		} else if (f.getPath().toLowerCase().endsWith("obj")) {
 			// final Build builder = new Build();
@@ -2516,7 +2381,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			try {
 				final Parse obj = new Parse(builder, f.getPath());
 				temp = new ModelPanel(builder.createMDL(), prefs, MainPanel.this, selectionItemTypeGroup,
-						selectionModeGroup);
+						selectionModeGroup, geosetAdditionCallback);
 			} catch (final FileNotFoundException e) {
 				ExceptionPopup.display(e);
 				e.printStackTrace();
@@ -2525,7 +2390,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				e.printStackTrace();
 			}
 		} else {
-			temp = new ModelPanel(f, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup);
+			temp = new ModelPanel(f, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
+					geosetAdditionCallback);
 		}
 		temp.getMDLDisplay().addCoordDisplayListener(new CoordDisplayListener() {
 			@Override
@@ -2575,24 +2441,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		final MDL currentModel = currentMDL();
 		if (currentModel != null) {
 			importPanel = new ImportPanel(currentModel, model);
-			importPanel.setCallback(new Callback<List<Geoset>>() {
-				@Override
-				public void run(final List<Geoset> geosetsAdded) {
-
-					// Tell program to set visibility after import
-					final MDLDisplay display = displayFor(currentModel);
-					if (display != null) {
-						display.setBeenSaved(false); // we edited the model
-						for (final Geoset geoset : geosetsAdded) {
-							display.makeGeosetEditable(geoset, true);
-							display.makeGeosetVisible(geoset, true);
-						}
-						geoControl.repaint();
-						geoControl.setMDLDisplay(display);
-						display.reloadTextures();// .mpanel.perspArea.reloadTextures();//addGeosets(newGeosets);
-					}
-				}
-			});
+			importPanel.setCallback(geosetAdditionCallback);
 		}
 	}
 
