@@ -40,7 +40,7 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 	int[] loneIntData = new int[loneIntNames.length];
 	Vertex staticColor;
 
-	ArrayList<AnimFlag> animFlags = new ArrayList<AnimFlag>();
+	ArrayList<AnimFlag> animFlags = new ArrayList<>();
 
 	private RibbonEmitter() {
 
@@ -74,9 +74,13 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 		}
 		if (emitter.ribbonEmitterHeightAbove != null) {
 			add(new AnimFlag(emitter.ribbonEmitterHeightAbove));
+		} else {
+			setHeightAbove(emitter.heightAbove);
 		}
 		if (emitter.ribbonEmitterHeightBelow != null) {
 			add(new AnimFlag(emitter.ribbonEmitterHeightBelow));
+		} else {
+			setHeightBelow(emitter.heightBelow);
 		}
 		setAlpha(emitter.alpha);
 		setStaticColor(new Vertex(emitter.color));
@@ -86,7 +90,6 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 		setColumns(emitter.columns);
 		setMaterialId(emitter.materialId);
 		setGravity(emitter.gravity);
-
 	}
 
 	@Override
@@ -202,7 +205,7 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 		// -- uses objectId value of idObject superclass
 		// -- uses parentId value of idObject superclass
 		// -- uses the parent (java Object reference) of idObject superclass
-		final ArrayList<AnimFlag> pAnimFlags = new ArrayList<AnimFlag>(this.animFlags);
+		final ArrayList<AnimFlag> pAnimFlags = new ArrayList<>(this.animFlags);
 		writer.println(MDLReader.getClassName(this.getClass()) + " \"" + getName() + "\" {");
 		if (objectId != -1) {
 			writer.println("\tObjectId " + objectId + ",");
@@ -434,8 +437,8 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 
 	@Override
 	public List<String> getFlags() {
-		return new ArrayList<String>();// Current ribbon implementation uses no
-										// flags!
+		return new ArrayList<>();// Current ribbon implementation uses no
+									// flags!
 	}
 
 	@Override

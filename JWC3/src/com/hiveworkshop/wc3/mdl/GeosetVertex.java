@@ -17,11 +17,11 @@ import javax.swing.JOptionPane;
  */
 public class GeosetVertex extends Vertex {
 	Matrix matrixRef;
-	Normal normal;
+	private Normal normal;
 	public int VertexGroup;
-	ArrayList<TVertex> tverts = new ArrayList<TVertex>();
-	ArrayList<Bone> bones = new ArrayList<Bone>();
-	ArrayList<Triangle> triangles = new ArrayList<Triangle>();
+	ArrayList<TVertex> tverts = new ArrayList<>();
+	ArrayList<Bone> bones = new ArrayList<>();
+	ArrayList<Triangle> triangles = new ArrayList<>();
 	Geoset geoset;
 
 	public GeosetVertex(final double x, final double y, final double z) {
@@ -36,8 +36,8 @@ public class GeosetVertex extends Vertex {
 	public GeosetVertex(final GeosetVertex old) {
 		super(old.x, old.y, old.z);
 		this.normal = new Normal(old.normal);
-		this.bones = new ArrayList<Bone>(old.bones);
-		this.tverts = new ArrayList<TVertex>();
+		this.bones = new ArrayList<>(old.bones);
+		this.tverts = new ArrayList<>();
 		for (final TVertex tv : old.tverts) {
 			tverts.add(new TVertex(tv));
 		}

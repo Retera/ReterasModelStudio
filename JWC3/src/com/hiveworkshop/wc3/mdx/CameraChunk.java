@@ -59,7 +59,7 @@ public class CameraChunk {
 		public float[] targetPosition = new float[3];
 		public CameraPositionTranslation cameraPositionTranslation;
 		public CameraTargetTranslation cameraTargetTranslation;
-		//TODO Needs rotation!
+		// TODO Needs rotation!
 		public CameraRotation cameraRotation;
 
 		public void load(final BlizzardDataInputStream in) throws IOException {
@@ -74,12 +74,10 @@ public class CameraChunk {
 				if (MdxUtils.checkOptionalId(in, CameraPositionTranslation.key)) {
 					cameraPositionTranslation = new CameraPositionTranslation();
 					cameraPositionTranslation.load(in);
-				} else if (MdxUtils.checkOptionalId(in,
-						CameraTargetTranslation.key)) {
+				} else if (MdxUtils.checkOptionalId(in, CameraTargetTranslation.key)) {
 					cameraTargetTranslation = new CameraTargetTranslation();
 					cameraTargetTranslation.load(in);
-				} else if (MdxUtils.checkOptionalId(in,
-						CameraRotation.key)) {
+				} else if (MdxUtils.checkOptionalId(in, CameraRotation.key)) {
 					cameraRotation = new CameraRotation();
 					cameraRotation.load(in);
 				}
@@ -111,6 +109,9 @@ public class CameraChunk {
 			if (cameraTargetTranslation != null) {
 				cameraTargetTranslation.save(out);
 			}
+			if (cameraRotation != null) {
+				cameraRotation.save(out);
+			}
 
 		}
 
@@ -139,68 +140,70 @@ public class CameraChunk {
 		public Camera() {
 
 		}
+
 		public Camera(final com.hiveworkshop.wc3.mdl.Camera mdlCam) {
 			name = mdlCam.getName();
 			position = mdlCam.getPosition().toFloatArray();
-			fieldOfView = (float)mdlCam.getFieldOfView();
-			farClippingPlane = (float)mdlCam.getFarClip();
-			nearClippingPlane = (float)mdlCam.getNearClip();
+			fieldOfView = (float) mdlCam.getFieldOfView();
+			farClippingPlane = (float) mdlCam.getFarClip();
+			nearClippingPlane = (float) mdlCam.getNearClip();
 			targetPosition = mdlCam.getTargetPosition().toFloatArray();
-			for( final AnimFlag af: mdlCam.getAnimFlags() ) {
-				if( af.getName().equals("Translation") ) {
+			for (final AnimFlag af : mdlCam.getAnimFlags()) {
+				if (af.getName().equals("Translation")) {
 					cameraPositionTranslation = new CameraPositionTranslation();
 					cameraPositionTranslation.globalSequenceId = af.getGlobalSeqId();
 					cameraPositionTranslation.interpolationType = af.getInterpType();
-					cameraPositionTranslation.translationTrack = new CameraPositionTranslation.TranslationTrack[af.size()];
+					cameraPositionTranslation.translationTrack = new CameraPositionTranslation.TranslationTrack[af
+							.size()];
 					final boolean hasTans = af.tans();
-					for( int i = 0; i < af.size(); i++ ) {
+					for (int i = 0; i < af.size(); i++) {
 						final CameraPositionTranslation.TranslationTrack mdxEntry = cameraPositionTranslation.new TranslationTrack();
 						cameraPositionTranslation.translationTrack[i] = mdxEntry;
 						final AnimFlag.Entry mdlEntry = af.getEntry(i);
-						mdxEntry.translation = ((Vertex)mdlEntry.value).toFloatArray();
+						mdxEntry.translation = ((Vertex) mdlEntry.value).toFloatArray();
 						mdxEntry.time = mdlEntry.time.intValue();
-						if( hasTans ) {
-							mdxEntry.inTan = ((Vertex)mdlEntry.inTan).toFloatArray();
-							mdxEntry.outTan = ((Vertex)mdlEntry.outTan).toFloatArray();
+						if (hasTans) {
+							mdxEntry.inTan = ((Vertex) mdlEntry.inTan).toFloatArray();
+							mdxEntry.outTan = ((Vertex) mdlEntry.outTan).toFloatArray();
 						}
 					}
-				} else if( af.getName().equals("Rotation") ) {
+				} else if (af.getName().equals("Rotation")) {
 					cameraRotation = new CameraRotation();
 					cameraRotation.globalSequenceId = af.getGlobalSeqId();
 					cameraRotation.interpolationType = af.getInterpType();
 					cameraRotation.translationTrack = new CameraRotation.TranslationTrack[af.size()];
 					final boolean hasTans = af.tans();
-					for( int i = 0; i < af.size(); i++ ) {
+					for (int i = 0; i < af.size(); i++) {
 						final CameraRotation.TranslationTrack mdxEntry = cameraRotation.new TranslationTrack();
 						cameraRotation.translationTrack[i] = mdxEntry;
 						final AnimFlag.Entry mdlEntry = af.getEntry(i);
-						mdxEntry.rotation = ((Number)mdlEntry.value).floatValue();
+						mdxEntry.rotation = ((Number) mdlEntry.value).floatValue();
 						mdxEntry.time = mdlEntry.time.intValue();
-						if( hasTans ) {
-							mdxEntry.inTan = ((Number)mdlEntry.inTan).floatValue();
-							mdxEntry.outTan = ((Number)mdlEntry.outTan).floatValue();
+						if (hasTans) {
+							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();
+							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
 						}
 					}
 				} else {
 					System.err.println("discarded flag " + af.getName());
 				}
 			}
-			for( final AnimFlag af: mdlCam.getAnimFlags() ) {
-				if( af.getName().equals("Translation") ) {
+			for (final AnimFlag af : mdlCam.getAnimFlags()) {
+				if (af.getName().equals("Translation")) {
 					cameraTargetTranslation = new CameraTargetTranslation();
 					cameraTargetTranslation.globalSequenceId = af.getGlobalSeqId();
 					cameraTargetTranslation.interpolationType = af.getInterpType();
 					cameraTargetTranslation.translationTrack = new CameraTargetTranslation.TranslationTrack[af.size()];
 					final boolean hasTans = af.tans();
-					for( int i = 0; i < af.size(); i++ ) {
+					for (int i = 0; i < af.size(); i++) {
 						final CameraTargetTranslation.TranslationTrack mdxEntry = cameraTargetTranslation.new TranslationTrack();
 						cameraTargetTranslation.translationTrack[i] = mdxEntry;
 						final AnimFlag.Entry mdlEntry = af.getEntry(i);
-						mdxEntry.translation = ((Vertex)mdlEntry.value).toFloatArray();
+						mdxEntry.translation = ((Vertex) mdlEntry.value).toFloatArray();
 						mdxEntry.time = mdlEntry.time.intValue();
-						if( hasTans ) {
-							mdxEntry.inTan = ((Vertex)mdlEntry.inTan).toFloatArray();
-							mdxEntry.outTan = ((Vertex)mdlEntry.outTan).toFloatArray();
+						if (hasTans) {
+							mdxEntry.inTan = ((Vertex) mdlEntry.inTan).toFloatArray();
+							mdxEntry.outTan = ((Vertex) mdlEntry.outTan).toFloatArray();
 						}
 					}
 				} else {

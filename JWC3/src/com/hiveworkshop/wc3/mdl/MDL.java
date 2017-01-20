@@ -17,6 +17,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
+import com.hiveworkshop.wc3.mdl.AnimFlag.Entry;
 import com.hiveworkshop.wc3.mdl.renderer.GeosetRenderer;
 import com.hiveworkshop.wc3.mdl.renderer.ModelRenderer;
 import com.hiveworkshop.wc3.mdl.renderer.TriangleRenderer;
@@ -39,6 +40,7 @@ import com.hiveworkshop.wc3.mdx.RibbonEmitterChunk;
 import com.hiveworkshop.wc3.mdx.SequenceChunk.Sequence;
 import com.hiveworkshop.wc3.mdx.TextureAnimationChunk.TextureAnimation;
 import com.hiveworkshop.wc3.mdx.TextureChunk.Texture;
+import com.hiveworkshop.wc3.util.MathUtils;
 
 import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
@@ -58,17 +60,17 @@ public class MDL implements Named {
 	private int BlendTime;
 	private ExtLog extents;
 	private int formatVersion = 800;
-	protected ArrayList<String> header = new ArrayList<String>();
-	protected ArrayList<Animation> anims = new ArrayList<Animation>();
-	protected ArrayList<Integer> globalSeqs = new ArrayList<Integer>();
-	protected ArrayList<Bitmap> textures = new ArrayList<Bitmap>();
-	protected ArrayList<Material> materials = new ArrayList<Material>();
-	protected ArrayList<TextureAnim> texAnims = new ArrayList<TextureAnim>();
-	protected ArrayList<Geoset> geosets = new ArrayList<Geoset>();
-	protected ArrayList<GeosetAnim> geosetAnims = new ArrayList<GeosetAnim>();
-	protected ArrayList<IdObject> idObjects = new ArrayList<IdObject>();
-	protected ArrayList<Vertex> pivots = new ArrayList<Vertex>();
-	protected ArrayList<Camera> cameras = new ArrayList<Camera>();
+	protected ArrayList<String> header = new ArrayList<>();
+	protected ArrayList<Animation> anims = new ArrayList<>();
+	protected ArrayList<Integer> globalSeqs = new ArrayList<>();
+	protected ArrayList<Bitmap> textures = new ArrayList<>();
+	protected ArrayList<Material> materials = new ArrayList<>();
+	protected ArrayList<TextureAnim> texAnims = new ArrayList<>();
+	protected ArrayList<Geoset> geosets = new ArrayList<>();
+	protected ArrayList<GeosetAnim> geosetAnims = new ArrayList<>();
+	protected ArrayList<IdObject> idObjects = new ArrayList<>();
+	protected ArrayList<Vertex> pivots = new ArrayList<>();
+	protected ArrayList<Camera> cameras = new ArrayList<>();
 
 	protected ArrayList m_junkCode = new ArrayList();// A series of
 														// UnrecognizedElements
@@ -140,7 +142,7 @@ public class MDL implements Named {
 			extents = new ExtLog(other.extents);
 		}
 		formatVersion = other.formatVersion;
-		header = new ArrayList<String>(other.header);
+		header = new ArrayList<>(other.header);
 		name = other.name;
 	}
 
@@ -221,7 +223,7 @@ public class MDL implements Named {
 		BlendTime = other.BlendTime;
 		extents = new ExtLog(other.extents);
 		formatVersion = other.formatVersion;
-		header = new ArrayList<String>(other.header);
+		header = new ArrayList<>(other.header);
 		anims = new ArrayList(other.anims);
 		globalSeqs = new ArrayList(other.globalSeqs);
 		textures = new ArrayList(other.textures);
@@ -678,7 +680,7 @@ public class MDL implements Named {
 			final List<ParticleEmitter> particleEmitters = sortedIdObjects(ParticleEmitter.class);
 			final List<ParticleEmitter2> particleEmitters2 = sortedIdObjects(ParticleEmitter2.class);
 			final List<RibbonEmitter> ribbonEmitters = sortedIdObjects(RibbonEmitter.class);
-			final List<IdObject> emitters = new ArrayList<IdObject>();
+			final List<IdObject> emitters = new ArrayList<>();
 			emitters.addAll(particleEmitters2);
 			emitters.addAll(particleEmitters);
 			emitters.addAll(ribbonEmitters);
@@ -744,7 +746,7 @@ public class MDL implements Named {
 		// the information specific to each node about how it will
 		// move if it gets translated into or onto the current model
 
-		final ArrayList<AnimFlag> newImpFlags = new ArrayList<AnimFlag>();
+		final ArrayList<AnimFlag> newImpFlags = new ArrayList<>();
 		for (final AnimFlag af : othersFlags) {
 			if (!af.hasGlobalSeq) {
 				newImpFlags.add(AnimFlag.buildEmptyFrom(af));
@@ -752,7 +754,7 @@ public class MDL implements Named {
 				newImpFlags.add(new AnimFlag(af));
 			}
 		}
-		final ArrayList<EventObject> newImpEventObjs = new ArrayList<EventObject>();
+		final ArrayList<EventObject> newImpEventObjs = new ArrayList<>();
 		for (final Object e : othersEventObjs) {
 			newImpEventObjs.add(EventObject.buildEmptyFrom((EventObject) e));
 		}
@@ -783,10 +785,10 @@ public class MDL implements Named {
 
 		// Now, map the bones in the other model onto the bones in the current
 		// model
-		final List<Bone> leftBehind = new ArrayList<Bone>(); // the bones that
-																// don't find
-																// matches in
-																// current model
+		final List<Bone> leftBehind = new ArrayList<>(); // the bones that
+															// don't find
+															// matches in
+															// current model
 		for (final IdObject object : other.idObjects) {
 			if (object instanceof Bone) {
 				// the bone from the other model
@@ -822,7 +824,7 @@ public class MDL implements Named {
 		final List<AnimFlag> othersFlags = other.getAllAnimFlags();
 		final List<EventObject> othersEventObjs = other.sortedIdObjects(EventObject.class);
 
-		final List<Animation> newAnimations = new ArrayList<Animation>();
+		final List<Animation> newAnimations = new ArrayList<>();
 
 		// ------ Duplicate the time track in the other model -------------
 		//
@@ -830,7 +832,7 @@ public class MDL implements Named {
 		// the information specific to each node about how it will
 		// move if it gets translated into or onto the current model
 
-		final ArrayList<AnimFlag> newImpFlags = new ArrayList<AnimFlag>();
+		final ArrayList<AnimFlag> newImpFlags = new ArrayList<>();
 		for (final AnimFlag af : othersFlags) {
 			if (!af.hasGlobalSeq) {
 				newImpFlags.add(AnimFlag.buildEmptyFrom(af));
@@ -838,7 +840,7 @@ public class MDL implements Named {
 				newImpFlags.add(new AnimFlag(af));
 			}
 		}
-		final ArrayList<EventObject> newImpEventObjs = new ArrayList<EventObject>();
+		final ArrayList<EventObject> newImpEventObjs = new ArrayList<>();
 		for (final Object e : othersEventObjs) {
 			newImpEventObjs.add(EventObject.buildEmptyFrom((EventObject) e));
 		}
@@ -870,10 +872,10 @@ public class MDL implements Named {
 
 		// Now, map the bones in the other model onto the bones in the current
 		// model
-		final List<Bone> leftBehind = new ArrayList<Bone>(); // the bones that
-																// don't find
-																// matches in
-																// current model
+		final List<Bone> leftBehind = new ArrayList<>(); // the bones that
+															// don't find
+															// matches in
+															// current model
 		for (final IdObject object : other.idObjects) {
 			if (object instanceof Bone) {
 				// the bone from the other model
@@ -922,19 +924,21 @@ public class MDL implements Named {
 		return anims.size();
 	}
 
-	public static MDL read(File f) {
-		if (f.getPath().endsWith(".mdx")) {
+	public static MDL read(final File f) {
+		if (f.getPath().toLowerCase().endsWith(".mdx")) {
 			// f = MDXHandler.convert(f);
 			try (BlizzardDataInputStream in = new BlizzardDataInputStream(new FileInputStream(f))) {
 				return new MDL(MdxUtils.loadModel(in));
 			} catch (final FileNotFoundException e) {
-				e.printStackTrace();
-				f = MDXHandler.convert(f);
-				// return null;
+				throw new RuntimeException(e);
+				// e.printStackTrace();
+				// f = MDXHandler.convert(f);
+				// // return null;
 			} catch (final IOException e) {
-				e.printStackTrace();
-				f = MDXHandler.convert(f);
-				// return null;
+				throw new RuntimeException(e);
+				// e.printStackTrace();
+				// f = MDXHandler.convert(f);
+				// // return null;
 			}
 		}
 		try (final FileInputStream fos = new FileInputStream(f)) {
@@ -1181,7 +1185,7 @@ public class MDL implements Named {
 	public void printTo(final File baseFile) {
 		File f = baseFile;
 		boolean mdx = false;
-		if (f.getPath().endsWith(".mdx")) {
+		if (f.getPath().toLowerCase().endsWith(".mdx")) {
 			// String fp = baseFile.getPath();
 			// f = new File(fp.substring(0,fp.length()-1) + "l");
 			// mdx = true;
@@ -1503,7 +1507,7 @@ public class MDL implements Named {
 		if (texAnims != null) {
 			texAnims.clear();
 		} else {
-			texAnims = new ArrayList<TextureAnim>();
+			texAnims = new ArrayList<>();
 		}
 	}
 
@@ -1523,7 +1527,11 @@ public class MDL implements Named {
 		textures.clear();
 		for (final Material m : materials) {
 			for (final Layer lay : m.layers) {
-				if (lay.texture != null && !textures.contains(lay.texture)) {
+				if (lay.texture != null && !textures.contains(lay.texture)
+						&& (lay.textures == null /*
+													 * || lay.textures.size() ==
+													 * 0
+													 */)) {
 					boolean good = true;
 					for (final Bitmap btm : textures) {
 						if (lay.texture.equals(btm)) {
@@ -1638,7 +1646,7 @@ public class MDL implements Named {
 		// Delete empty rotation/translation/scaling
 		for (final IdObject obj : idObjects) {
 			final List<AnimFlag> animFlags = obj.getAnimFlags();
-			final List<AnimFlag> bad = new ArrayList<AnimFlag>();
+			final List<AnimFlag> bad = new ArrayList<>();
 			for (final AnimFlag flag : animFlags) {
 				if (flag.length() <= 0) {
 					bad.add(flag);
@@ -1667,7 +1675,7 @@ public class MDL implements Named {
 	}
 
 	public void sortIdObjects() {
-		final ArrayList<IdObject> allObjects = new ArrayList<IdObject>();
+		final ArrayList<IdObject> allObjects = new ArrayList<>();
 		final ArrayList<Bone> bones = sortedIdObjects(Bone.class);
 		final ArrayList<Light> lights = sortedIdObjects(Light.class);
 		final ArrayList<Helper> helpers = sortedIdObjects(Helper.class);
@@ -1692,7 +1700,7 @@ public class MDL implements Named {
 	}
 
 	public <T> ArrayList<T> sortedIdObjects(final Class<T> objectClass) {
-		final ArrayList<T> objects = new ArrayList<T>();
+		final ArrayList<T> objects = new ArrayList<>();
 		for (final IdObject obj : idObjects) {
 			if (obj.getClass() == objectClass) {
 				objects.add((T) obj);
@@ -2050,7 +2058,7 @@ public class MDL implements Named {
 
 	public ArrayList<VisibilitySource> getAllVisibilitySources() {
 		final List<AnimFlag> animFlags = getAllAnimFlags();// laggggg!
-		final ArrayList<VisibilitySource> out = new ArrayList<VisibilitySource>();
+		final ArrayList<VisibilitySource> out = new ArrayList<>();
 		for (final AnimFlag af : animFlags) {
 			if (af.getName().equals("Visibility") || af.getName().equals("Alpha")) {
 				out.add((VisibilitySource) getAnimFlagSource(af));
@@ -2353,9 +2361,16 @@ public class MDL implements Named {
 			for (final Triangle triangle : geoset.getTriangle()) {
 				final TriangleRenderer triangleRenderer = geosetRenderer.beginTriangle();
 				for (final GeosetVertex vertex : triangle.getVerts()) {
-					final VertexRenderer vertexRenderer = triangleRenderer.renderVertex(vertex.x, vertex.y, vertex.z,
-							vertex.getNormal().x, vertex.getNormal().y, vertex.getNormal().z,
-							vertex.getBoneAttachments());
+					final VertexRenderer vertexRenderer;
+					// TODO redesign for nullable normals
+					if (vertex.getNormal() != null) {
+						vertexRenderer = triangleRenderer.renderVertex(vertex.x, vertex.y, vertex.z,
+								vertex.getNormal().x, vertex.getNormal().y, vertex.getNormal().z,
+								vertex.getBoneAttachments());
+					} else {
+						vertexRenderer = triangleRenderer.renderVertex(vertex.x, vertex.y, vertex.z, 0, 0, 0,
+								vertex.getBoneAttachments());
+					}
 					for (final TVertex tvert : vertex.getTverts()) {
 						vertexRenderer.textureCoords(tvert.x, tvert.y);
 					}
@@ -2370,6 +2385,173 @@ public class MDL implements Named {
 		}
 		for (final Camera camera : cameras) {
 			renderer.camera(camera);
+		}
+	}
+
+	public void simplifyKeyframes() {
+		final MDL currentMDL = this;
+		final List<AnimFlag> allAnimFlags = currentMDL.getAllAnimFlags();
+		final List<Animation> anims = currentMDL.getAnims();
+
+		for (final AnimFlag flag : allAnimFlags) {
+			final List<Integer> indicesForDeletion = new ArrayList<>();
+			Entry lastEntry = null;
+			for (int i = 0; i < flag.length(); i++) {
+				final Entry entry = flag.getEntry(i);
+				if (lastEntry != null && lastEntry.time == entry.time) {
+					indicesForDeletion.add(new Integer(i));
+				}
+				lastEntry = entry;
+			}
+			for (int i = indicesForDeletion.size() - 1; i >= 0; i--) {
+				flag.deleteAt(indicesForDeletion.get(i));
+			}
+		}
+		for (final Animation anim : anims) {
+			for (final AnimFlag flag : allAnimFlags) {
+				if (!flag.hasGlobalSeq()) {
+					Object olderKeyframe = null;
+					Object oldKeyframe = null;
+					final List<Integer> indicesForDeletion = new ArrayList<>();
+					for (int i = 0; i < flag.length(); i++) {
+						final Entry entry = flag.getEntry(i);
+						//
+						// //Types of AnimFlags:
+						// // 0 Alpha
+						// public static final int ALPHA = 0;
+						// // 1 Scaling
+						// public static final int SCALING = 1;
+						// // 2 Rotation
+						// public static final int ROTATION = 2;
+						// // 3 Translation
+						// public static final int TRANSLATION = 3;
+						// // 4 Color
+						// public static final int COLOR = 4;
+						// // 5 TextureID
+						// public static final int TEXTUREID = 5;
+						if (entry.time >= anim.getStart() && entry.time <= anim.getEnd()) {
+							if (entry.value instanceof Double) {
+								final Double d = (Double) entry.value;
+								final Double older = (Double) olderKeyframe;
+								final Double old = (Double) oldKeyframe;
+								if (older != null && old != null && MathUtils.isBetween(older, old, d)) {
+									indicesForDeletion.add(new Integer(i - 1));
+								}
+							} else if (entry.value instanceof Vertex) {
+								final Vertex current = (Vertex) entry.value;
+								final Vertex older = (Vertex) olderKeyframe;
+								final Vertex old = (Vertex) oldKeyframe;
+								if (older != null && old != null && MathUtils.isBetween(older.x, old.x, current.x)
+										&& MathUtils.isBetween(older.y, old.y, current.y)
+										&& MathUtils.isBetween(older.z, old.z, current.z)) {
+									indicesForDeletion.add(new Integer(i - 1));
+								}
+							} else if (entry.value instanceof QuaternionRotation) {
+								final QuaternionRotation current = (QuaternionRotation) entry.value;
+								final QuaternionRotation older = (QuaternionRotation) olderKeyframe;
+								final QuaternionRotation old = (QuaternionRotation) oldKeyframe;
+								final Vertex euler = current.toEuler();
+								if (older != null && old != null) {
+									final Vertex olderEuler = older.toEuler();
+									final Vertex oldEuler = old.toEuler();
+									if (MathUtils.isBetween(olderEuler.x, oldEuler.x, euler.x)
+											&& MathUtils.isBetween(olderEuler.y, oldEuler.y, euler.y)
+											&& MathUtils.isBetween(olderEuler.z, oldEuler.z, euler.z)) {
+										// if
+										// (MathUtils.isBetween(older.a,
+										// old.a, current.a)
+										// &&
+										// MathUtils.isBetween(older.b,
+										// old.b, current.b)
+										// &&
+										// MathUtils.isBetween(older.c,
+										// old.c, current.c)
+										// &&
+										// MathUtils.isBetween(older.d,
+										// old.d, current.d)) {
+										indicesForDeletion.add(new Integer(i - 1));
+									}
+								}
+							}
+							olderKeyframe = oldKeyframe;
+							oldKeyframe = entry.value;
+						}
+					}
+					for (int i = indicesForDeletion.size() - 1; i >= 0; i--) {
+						flag.deleteAt(indicesForDeletion.get(i));
+					}
+				}
+			}
+		}
+		for (final Integer globalSeq : currentMDL.getGlobalSeqs()) {
+			for (final AnimFlag flag : allAnimFlags) {
+				if (flag.hasGlobalSeq() && flag.getGlobalSeq().equals(globalSeq)) {
+					Object olderKeyframe = null;
+					Object oldKeyframe = null;
+					final List<Integer> indicesForDeletion = new ArrayList<>();
+					for (int i = 0; i < flag.length(); i++) {
+						final Entry entry = flag.getEntry(i);
+						//
+						// //Types of AnimFlags:
+						// // 0 Alpha
+						// public static final int ALPHA = 0;
+						// // 1 Scaling
+						// public static final int SCALING = 1;
+						// // 2 Rotation
+						// public static final int ROTATION = 2;
+						// // 3 Translation
+						// public static final int TRANSLATION = 3;
+						// // 4 Color
+						// public static final int COLOR = 4;
+						// // 5 TextureID
+						// public static final int TEXTUREID = 5;
+						if (entry.value instanceof Double) {
+							final Double d = (Double) entry.value;
+							final Double older = (Double) olderKeyframe;
+							final Double old = (Double) oldKeyframe;
+							if (older != null && old != null && MathUtils.isBetween(older, old, d)) {
+								indicesForDeletion.add(new Integer(i - 1));
+							}
+						} else if (entry.value instanceof Vertex) {
+							final Vertex current = (Vertex) entry.value;
+							final Vertex older = (Vertex) olderKeyframe;
+							final Vertex old = (Vertex) oldKeyframe;
+							if (older != null && old != null && MathUtils.isBetween(older.x, old.x, current.x)
+									&& MathUtils.isBetween(older.y, old.y, current.y)
+									&& MathUtils.isBetween(older.z, old.z, current.z)) {
+								indicesForDeletion.add(new Integer(i - 1));
+							}
+						} else if (entry.value instanceof QuaternionRotation) {
+							final QuaternionRotation current = (QuaternionRotation) entry.value;
+							final QuaternionRotation older = (QuaternionRotation) olderKeyframe;
+							final QuaternionRotation old = (QuaternionRotation) oldKeyframe;
+							final Vertex euler = current.toEuler();
+							if (older != null && old != null) {
+								final Vertex olderEuler = older.toEuler();
+								final Vertex oldEuler = old.toEuler();
+								if (MathUtils.isBetween(olderEuler.x, oldEuler.x, euler.x)
+										&& MathUtils.isBetween(olderEuler.y, oldEuler.y, euler.y)
+										&& MathUtils.isBetween(olderEuler.z, oldEuler.z, euler.z)) {
+									// if (MathUtils.isBetween(older.a,
+									// old.a, current.a)
+									// && MathUtils.isBetween(older.b,
+									// old.b, current.b)
+									// && MathUtils.isBetween(older.c,
+									// old.c, current.c)
+									// && MathUtils.isBetween(older.d,
+									// old.d, current.d)) {
+									indicesForDeletion.add(new Integer(i - 1));
+								}
+							}
+						}
+						olderKeyframe = oldKeyframe;
+						oldKeyframe = entry.value;
+					}
+					for (int i = indicesForDeletion.size() - 1; i >= 0; i--) {
+						flag.deleteAt(indicesForDeletion.get(i));
+					}
+				}
+			}
 		}
 	}
 	// public void destroy()

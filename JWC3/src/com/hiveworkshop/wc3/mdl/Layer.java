@@ -67,23 +67,23 @@ public class Layer implements Named, VisibilitySource, LayerView {
 	Bitmap texture;
 	TextureAnim textureAnim;
 	private double staticAlpha = -1;// Amount of static alpha (opacity)
-	private ArrayList<String> flags = new ArrayList<String>();// My way of
-																// dealing with
-																// all the stuff
-																// that I
-																// forget/don't
-																// bother with:
-																// "Unshaded,"
-																// "Unfogged,"
-																// "TwoSided,"
-																// "CoordId X,"
-																// actually
-																// CoordId was
-																// moved into
-																// its own field
-	ArrayList<AnimFlag> anims = new ArrayList<AnimFlag>();// Used instead of
-															// static alpha for
-															// animated alpha
+	private ArrayList<String> flags = new ArrayList<>();// My way of
+														// dealing with
+														// all the stuff
+														// that I
+														// forget/don't
+														// bother with:
+														// "Unshaded,"
+														// "Unfogged,"
+														// "TwoSided,"
+														// "CoordId X,"
+														// actually
+														// CoordId was
+														// moved into
+														// its own field
+	ArrayList<AnimFlag> anims = new ArrayList<>();// Used instead of
+													// static alpha for
+													// animated alpha
 	ArrayList<Bitmap> textures;
 
 	public String getFilterModeString() {
@@ -215,16 +215,24 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		TVertexAnimId = other.TVertexAnimId;
 		CoordId = other.CoordId;
 		texture = new Bitmap(other.texture);
-		textureAnim = new TextureAnim(other.textureAnim);
+		if (other.textureAnim != null) {
+			textureAnim = new TextureAnim(other.textureAnim);
+		} else {
+			textureAnim = null;
+		}
 		staticAlpha = other.staticAlpha;
-		flags = new ArrayList<String>(other.flags);
-		anims = new ArrayList<AnimFlag>();
-		textures = new ArrayList<Bitmap>();
+		flags = new ArrayList<>(other.flags);
+		anims = new ArrayList<>();
+		textures = new ArrayList<>();
 		for (final AnimFlag af : other.anims) {
 			anims.add(new AnimFlag(af));
 		}
-		for (final Bitmap bmp : other.textures) {
-			textures.add(new Bitmap(bmp));
+		if (other.textures != null) {
+			for (final Bitmap bmp : other.textures) {
+				textures.add(new Bitmap(bmp));
+			}
+		} else {
+			textures = null;
 		}
 	}
 
@@ -276,8 +284,8 @@ public class Layer implements Named, VisibilitySource, LayerView {
 	}
 
 	private Layer() {
-		flags = new ArrayList<String>();
-		anims = new ArrayList<AnimFlag>();
+		flags = new ArrayList<>();
+		anims = new ArrayList<>();
 	}
 
 	public Bitmap firstTexture() {
@@ -306,7 +314,7 @@ public class Layer implements Named, VisibilitySource, LayerView {
 	}
 
 	public void buildTextureList(final MDL mdlr) {
-		textures = new ArrayList<Bitmap>();
+		textures = new ArrayList<>();
 		final AnimFlag txFlag = getFlag("TextureID");
 		for (int i = 0; i < txFlag.values.size(); i++) {
 			textures.add(mdlr.getTexture(((Integer) txFlag.values.get(i)).intValue()));
@@ -598,6 +606,10 @@ public class Layer implements Named, VisibilitySource, LayerView {
 
 	public void setFilterMode(final String filterMode) {
 		this.filterMode = filterMode;
+	}
+
+	public void setFilterMode(final FilterMode mode) {
+		this.filterMode = mode.getMdlText();
 	}
 
 	public void setCoordId(final int coordId) {

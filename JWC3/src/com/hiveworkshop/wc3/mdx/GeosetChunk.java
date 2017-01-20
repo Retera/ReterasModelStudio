@@ -78,8 +78,7 @@ public class GeosetChunk {
 			final int inclusiveSize = in.readInt();
 			MdxUtils.checkId(in, "VRTX");
 			final int nrOfVertexPositions = in.readInt();
-			vertexPositions = MdxUtils.loadFloatArray(in,
-					nrOfVertexPositions * 3);
+			vertexPositions = MdxUtils.loadFloatArray(in, nrOfVertexPositions * 3);
 			MdxUtils.checkId(in, "NRMS");
 			final int nrOfVertexNormals = in.readInt();
 			vertexNormals = MdxUtils.loadFloatArray(in, nrOfVertexNormals * 3);
@@ -116,11 +115,10 @@ public class GeosetChunk {
 			MdxUtils.checkId(in, "UVAS");
 			nrOfTextureVertexGroups = in.readInt();
 			vertexTexturePositions = new float[nrOfTextureVertexGroups][];
-			for( int i = 0; i < nrOfTextureVertexGroups; i++ ) {
+			for (int i = 0; i < nrOfTextureVertexGroups; i++) {
 				MdxUtils.checkId(in, "UVBS");
 				final int nrOfVertexTexturePositions = in.readInt();
-				vertexTexturePositions[i] = MdxUtils.loadFloatArray(in,
-						nrOfVertexTexturePositions * 2);
+				vertexTexturePositions[i] = MdxUtils.loadFloatArray(in, nrOfVertexTexturePositions * 2);
 				System.err.println("Read UVBS layer " + i);
 			}
 		}
@@ -193,7 +191,7 @@ public class GeosetChunk {
 			}
 			out.writeNByteString("UVAS", 4);
 			out.writeInt(nrOfTextureVertexGroups);
-			for( int i = 0; i < nrOfTextureVertexGroups; i++ ) {
+			for (int i = 0; i < nrOfTextureVertexGroups; i++) {
 				out.writeNByteString("UVBS", 4);
 				nrOfVertexTexturePositions = vertexTexturePositions[i].length / 2;
 				out.writeInt(nrOfVertexTexturePositions);
@@ -246,7 +244,7 @@ public class GeosetChunk {
 			}
 			a += 4;
 			a += 4;
-			for(int i = 0; i < vertexTexturePositions.length; i++ ) {
+			for (int i = 0; i < vertexTexturePositions.length; i++) {
 				a += 4;
 				a += 4;
 				a += 4 * vertexTexturePositions[i].length;
@@ -291,11 +289,13 @@ public class GeosetChunk {
 
 				return a;
 			}
+
 			public Extent() {
 
 			}
+
 			public Extent(final ExtLog ext) {
-				bounds = (float)ext.getBoundsRadius();
+				bounds = (float) ext.getBoundsRadius();
 				minimumExtent = ext.getMinimumExtent().toFloatArray();
 				maximumExtent = ext.getMaximumExtent().toFloatArray();
 			}
@@ -304,68 +304,77 @@ public class GeosetChunk {
 		public Geoset() {
 
 		}
+
 		public Geoset(final com.hiveworkshop.wc3.mdl.Geoset mdlGeo) {
-			if( mdlGeo.getExtents() != null ) {
-				boundsRadius = (float)mdlGeo.getExtents().getBoundsRadius();
-				if( mdlGeo.getExtents().getMinimumExtent() != null) {
+			if (mdlGeo.getExtents() != null) {
+				boundsRadius = (float) mdlGeo.getExtents().getBoundsRadius();
+				if (mdlGeo.getExtents().getMinimumExtent() != null) {
 					minimumExtent = mdlGeo.getExtents().getMinimumExtent().toFloatArray();
 				}
-				if( mdlGeo.getExtents().getMaximumExtent() != null) {
+				if (mdlGeo.getExtents().getMaximumExtent() != null) {
 					maximumExtent = mdlGeo.getExtents().getMaximumExtent().toFloatArray();
 				}
 			}
 			extent = new Extent[mdlGeo.getAnims().size()];
-			for( int i = 0; i < extent.length; i++ ) {
+			for (int i = 0; i < extent.length; i++) {
 				extent[i] = new Extent(mdlGeo.getAnim(i).getExtents());
 			}
 			materialId = mdlGeo.getMaterialID();
 			final int numVertices = mdlGeo.getVertices().size();
 			nrOfTextureVertexGroups = mdlGeo.getUVLayers().size();
 			vertexPositions = new float[numVertices * 3];
-			vertexNormals = new float[numVertices * 3];
+			final boolean hasNormals = mdlGeo.getNormals().size() > 0;
+			if (hasNormals) {
+				vertexNormals = new float[numVertices * 3];
+			} else {
+				vertexNormals = new float[0];
+			}
 			vertexGroups = new byte[numVertices];
 			vertexTexturePositions = new float[nrOfTextureVertexGroups][numVertices * 2];
-			for( int vId = 0; vId < numVertices; vId++ ) {
+			for (int vId = 0; vId < numVertices; vId++) {
 				final GeosetVertex vertex = mdlGeo.getVertex(vId);
-				vertexPositions[vId*3 + 0] = (float)vertex.getX();
-				vertexPositions[vId*3 + 1] = (float)vertex.getY();
-				vertexPositions[vId*3 + 2] = (float)vertex.getZ();
-				vertexNormals[vId*3 + 0] = (float)vertex.getNormal().getX();
-				vertexNormals[vId*3 + 1] = (float)vertex.getNormal().getY();
-				vertexNormals[vId*3 + 2] = (float)vertex.getNormal().getZ();
-				for( int uvLayerIndex = 0; uvLayerIndex < nrOfTextureVertexGroups; uvLayerIndex++ ) {
-					vertexTexturePositions[uvLayerIndex][vId*2 + 0] = (float)vertex.getTVertex(uvLayerIndex).getX();
-					vertexTexturePositions[uvLayerIndex][vId*2 + 1] = (float)vertex.getTVertex(uvLayerIndex).getY();
+				vertexPositions[vId * 3 + 0] = (float) vertex.getX();
+				vertexPositions[vId * 3 + 1] = (float) vertex.getY();
+				vertexPositions[vId * 3 + 2] = (float) vertex.getZ();
+				if (hasNormals) {
+					vertexNormals[vId * 3 + 0] = (float) vertex.getNormal().getX();
+					vertexNormals[vId * 3 + 1] = (float) vertex.getNormal().getY();
+					vertexNormals[vId * 3 + 2] = (float) vertex.getNormal().getZ();
 				}
-				vertexGroups[vId] = (byte)vertex.getVertexGroup();
+				for (int uvLayerIndex = 0; uvLayerIndex < nrOfTextureVertexGroups; uvLayerIndex++) {
+					vertexTexturePositions[uvLayerIndex][vId * 2 + 0] = (float) vertex.getTVertex(uvLayerIndex).getX();
+					vertexTexturePositions[uvLayerIndex][vId * 2 + 1] = (float) vertex.getTVertex(uvLayerIndex).getY();
+				}
+				vertexGroups[vId] = (byte) vertex.getVertexGroup();
 			}
 
-			// Again, the current implementation of my mdl code is that it only handles triangle facetypes
+			// Again, the current implementation of my mdl code is that it only
+			// handles triangle facetypes
 			// (there's another note about this in the MDX -> MDL geoset code)
-			faceGroups = new int[] { mdlGeo.getTriangle().size()*3 };
+			faceGroups = new int[] { mdlGeo.getTriangle().size() * 3 };
 			faceTypeGroups = new int[] { 4 }; // triangles!
-			faces = new short[mdlGeo.getTriangle().size()*3]; // triangles!
+			faces = new short[mdlGeo.getTriangle().size() * 3]; // triangles!
 			int i = 0;
-			for( final Triangle tri: mdlGeo.getTriangle() ) {
-				for( int v = 0; v < /*tri.size()*/3; v++) {
-					faces[i++] = (short)tri.getId(v);
+			for (final Triangle tri : mdlGeo.getTriangle()) {
+				for (int v = 0; v < /* tri.size() */3; v++) {
+					faces[i++] = (short) tri.getId(v);
 				}
 			}
-			if( mdlGeo.getFlags().contains("Unselectable") ) {
+			if (mdlGeo.getFlags().contains("Unselectable")) {
 				selectionType = 4;
 			}
 			selectionGroup = mdlGeo.getSelectionGroup();
 
 			int matrixIndexsSize = 0;
-			for( final Matrix matrix: mdlGeo.getMatrix()) {
+			for (final Matrix matrix : mdlGeo.getMatrix()) {
 				matrixIndexsSize += matrix.size();
 			}
 			matrixGroups = new int[mdlGeo.getMatrix().size()];
 			matrixIndexs = new int[matrixIndexsSize];
 			i = 0;
 			int groupIndex = 0;
-			for( final Matrix matrix: mdlGeo.getMatrix() ) {
-				for( int index = 0; index < matrix.size(); index++ ) {
+			for (final Matrix matrix : mdlGeo.getMatrix()) {
+				for (int index = 0; index < matrix.size(); index++) {
 					matrixIndexs[i++] = matrix.getBoneId(index);
 				}
 				matrixGroups[groupIndex++] = matrix.size();

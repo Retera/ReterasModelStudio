@@ -14,7 +14,7 @@ public class Geoset implements Named, VisibilitySource {
 	ArrayList<GeosetVertex> vertex;
 	ArrayList<Normal> normals;
 	ArrayList<UVLayer> uvlayers;
-	ArrayList<Triangle> triangle;
+	ArrayList<Triangle> triangles;
 	ArrayList<Matrix> matrix;
 	ArrayList<Animation> anims;
 	ArrayList<String> flags;
@@ -29,7 +29,7 @@ public class Geoset implements Named, VisibilitySource {
 	public Geoset() {
 		vertex = new ArrayList();
 		matrix = new ArrayList();
-		triangle = new ArrayList();
+		triangles = new ArrayList();
 		normals = new ArrayList();
 		uvlayers = new ArrayList();
 		anims = new ArrayList();
@@ -46,7 +46,7 @@ public class Geoset implements Named, VisibilitySource {
 		}
 
 		setMaterialID(mdxGeo.materialId);
-		final ArrayList<UVLayer> uv = new ArrayList<UVLayer>();
+		final ArrayList<UVLayer> uv = new ArrayList<>();
 		for (int i = 0; i < mdxGeo.nrOfTextureVertexGroups; i++) {
 			final UVLayer layer = new UVLayer();
 			uv.add(layer);
@@ -60,19 +60,13 @@ public class Geoset implements Named, VisibilitySource {
 			GeosetVertex gv;
 			add(gv = new GeosetVertex(mdxGeo.vertexPositions[i], mdxGeo.vertexPositions[i + 1],
 					mdxGeo.vertexPositions[i + 2]));
-			gv.setVertexGroup((256 + mdxGeo.vertexGroups[k]) % 256); // this is
-																		// a
-																		// byte,
-																		// the
-																		// other
-																		// guys
-																		// java
-																		// code
-																		// will
-																		// read
-																		// as
-																		// signed
-			addNormal(new Normal(mdxGeo.vertexNormals[i], mdxGeo.vertexNormals[i + 1], mdxGeo.vertexNormals[i + 2]));
+			gv.setVertexGroup((256 + mdxGeo.vertexGroups[k]) % 256);
+			// this is an unsigned byte, the other guys java code will read as
+			// signed
+			if (mdxGeo.vertexNormals.length > 0) {
+				addNormal(
+						new Normal(mdxGeo.vertexNormals[i], mdxGeo.vertexNormals[i + 1], mdxGeo.vertexNormals[i + 2]));
+			}
 
 			for (int uvId = 0; uvId < uv.size(); uvId++) {
 				uv.get(uvId).addTVertex(new TVertex(mdxGeo.vertexTexturePositions[uvId][j],
@@ -157,7 +151,7 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 	public boolean contains(final Triangle t) {
-		return triangle.contains(t);
+		return triangles.contains(t);
 	}
 
 	public boolean contains(final Vertex v) {
@@ -193,7 +187,7 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 	public void setTriangles(final ArrayList<Triangle> list) {
-		triangle = list;
+		triangles = list;
 	}
 
 	public void addTriangle(final Triangle p) {
@@ -202,26 +196,26 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 	public void add(final Triangle p) {
-		triangle.add(p);
+		triangles.add(p);
 	}
 
 	public Triangle getTriangle(final int triId) {
-		return triangle.get(triId);
+		return triangles.get(triId);
 	}
 
 	public Triangle[] getTrianglesAll() {
-		return (Triangle[]) triangle.toArray();
+		return (Triangle[]) triangles.toArray();
 	}
 
 	/**
 	 * Returns all vertices that directly inherit motion from the specified
 	 * Bone, or an empty list if no vertices reference the object.
-	 * 
+	 *
 	 * @param parent
 	 * @return
 	 */
 	public ArrayList<GeosetVertex> getChildrenOf(final Bone parent) {
-		final ArrayList<GeosetVertex> children = new ArrayList<GeosetVertex>();
+		final ArrayList<GeosetVertex> children = new ArrayList<>();
 		for (final GeosetVertex gv : vertex) {
 			if (gv.bones.contains(parent)) {
 				children.add(gv);
@@ -231,11 +225,11 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 	public int numTriangles() {
-		return triangle.size();
+		return triangles.size();
 	}
 
 	public void removeTriangle(final Triangle t) {
-		triangle.remove(t);
+		triangles.remove(t);
 	}
 
 	public void addMatrix(final Matrix v) {
@@ -298,7 +292,7 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 	public ArrayList<TVertex> getTVertecesInArea(final Rectangle2D.Double area, final int layerId) {
-		final ArrayList<TVertex> temp = new ArrayList<TVertex>();
+		final ArrayList<TVertex> temp = new ArrayList<>();
 		for (int i = 0; i < vertex.size(); i++) {
 			final TVertex ver = vertex.get(i).getTVertex(layerId);
 			// Point2D.Double p = new
@@ -311,7 +305,7 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 	public ArrayList<Vertex> getVertecesInArea(final Rectangle2D.Double area, final byte dim1, final byte dim2) {
-		final ArrayList<Vertex> temp = new ArrayList<Vertex>();
+		final ArrayList<Vertex> temp = new ArrayList<>();
 		for (final Vertex ver : vertex) {
 			// Point2D.Double p = new
 			// Point(ver.getCoords(dim1),ver.getCoords(dim2))
@@ -324,7 +318,6 @@ public class Geoset implements Named, VisibilitySource {
 
 	public static Geoset read(final BufferedReader mdl) {
 		String line = MDLReader.nextLine(mdl);
-		System.out.println("geo begins with " + line);
 		if (line.contains("Geoset")) {
 			line = MDLReader.nextLine(mdl);
 			final Geoset geo = new Geoset();
@@ -335,12 +328,15 @@ public class Geoset implements Named, VisibilitySource {
 			while (!((line = MDLReader.nextLine(mdl)).contains("\t}"))) {
 				geo.addVertex(GeosetVertex.parseText(line));
 			}
+			MDLReader.mark(mdl);
 			line = MDLReader.nextLine(mdl);
 			if (line.contains("Normals")) {
 				// If we have normals:
 				while (!((line = MDLReader.nextLine(mdl)).contains("\t}"))) {
 					geo.addNormal(Normal.parseText(line));
 				}
+			} else {
+				MDLReader.reset(mdl);
 			}
 			while (((line = MDLReader.nextLine(mdl)).contains("TVertices"))) {
 				geo.addUVLayer(UVLayer.read(mdl));
@@ -436,11 +432,14 @@ public class Geoset implements Named, VisibilitySource {
 			for (int m = 0; m < szmx; m++) {
 				gv.addBoneAttachment((Bone) mdlr.getIdObject(mx.getBoneId(m)));
 			}
-			gv.setNormal(normals.get(i));
-			for (final Triangle t : triangle) {
+			if (normals != null && normals.size() > 0) {
+				gv.setNormal(normals.get(i));
+			}
+			for (final Triangle t : triangles) {
 				if (t.containsRef(gv)) {
 					gv.triangles.add(t);
 				}
+				t.geoset = this;
 			}
 			gv.geoset = this;
 			// gv.addBoneAttachment(null);//Why was this here?
@@ -488,10 +487,10 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 	public void purifyFaces() {
-		for (int i = triangle.size() - 1; i >= 0; i--) {
-			final Triangle tri = triangle.get(i);
-			for (int ix = 0; ix < triangle.size(); ix++) {
-				final Triangle trix = triangle.get(ix);
+		for (int i = triangles.size() - 1; i >= 0; i--) {
+			final Triangle tri = triangles.get(i);
+			for (int ix = 0; ix < triangles.size(); ix++) {
+				final Triangle trix = triangles.get(ix);
 				if (trix != tri) {
 					if (trix.equalRefsNoIds(tri))// Changed this from
 													// "sameVerts" -- this means
@@ -502,7 +501,7 @@ public class Geoset implements Named, VisibilitySource {
 													// longer be purged
 													// automatically.
 					{
-						triangle.remove(tri);
+						triangles.remove(tri);
 						break;
 					}
 				}
@@ -544,7 +543,9 @@ public class Geoset implements Named, VisibilitySource {
 		}
 		for (int i = 0; i < vertex.size(); i++) {
 			writer.println(tabs + vertex.get(i).toString() + ",");
-			normals.add(vertex.get(i).getNormal());
+			if (vertex.get(i).getNormal() != null) {
+				normals.add(vertex.get(i).getNormal());
+			}
 			for (int uv = 0; uv < bigNum; uv++) {
 				try {
 					final TVertex temp = vertex.get(i).getTVertex(uv);
@@ -558,12 +559,19 @@ public class Geoset implements Named, VisibilitySource {
 				}
 			}
 		}
+		final boolean hasNormals = normals.size() > 0;
 		writer.println("\t}");
-		writer.println("\tNormals " + normals.size() + " {");
-		for (int i = 0; i < normals.size(); i++) {
-			writer.println(tabs + normals.get(i).toString() + ",");
+		if (hasNormals) {
+			if (normals.size() != vertex.size()) {
+				JOptionPane.showMessageDialog(null,
+						"Number of normals differs from number of vertices. The model file will be corrupt.\nTo fix it, delete or fix the Normals chunk in MDL.");
+			}
+			writer.println("\tNormals " + normals.size() + " {");
+			for (int i = 0; i < normals.size(); i++) {
+				writer.println(tabs + normals.get(i).toString() + ",");
+			}
+			writer.println("\t}");
 		}
-		writer.println("\t}");
 		for (int i = 0; i < uvlayers.size(); i++) {
 			uvlayers.get(i).printTo(writer, 1, true);
 		}
@@ -589,26 +597,26 @@ public class Geoset implements Named, VisibilitySource {
 		}
 		writer.println("\t}");
 		if (trianglesTogether) {
-			writer.println("\tFaces 1 " + (triangle.size() * 3) + " {");
+			writer.println("\tFaces 1 " + (triangles.size() * 3) + " {");
 			writer.println("\t\tTriangles {");
 			String triangleOut = "\t\t\t{ ";
-			for (int i = 0; i < triangle.size(); i++) {
-				triangle.get(i).updateVertexIds(this);
-				if (i != triangle.size() - 1) {
-					triangleOut = triangleOut + triangle.get(i).toString() + ", ";
+			for (int i = 0; i < triangles.size(); i++) {
+				triangles.get(i).updateVertexIds(this);
+				if (i != triangles.size() - 1) {
+					triangleOut = triangleOut + triangles.get(i).toString() + ", ";
 				} else {
-					triangleOut = triangleOut + triangle.get(i).toString() + " ";
+					triangleOut = triangleOut + triangles.get(i).toString() + " ";
 				}
 			}
 			writer.println(triangleOut + "},");
 			writer.println("\t\t}");
 		} else {
-			writer.println("\tFaces " + triangle.size() + " " + (triangle.size() * 3) + " {");
+			writer.println("\tFaces " + triangles.size() + " " + (triangles.size() * 3) + " {");
 			writer.println("\t\tTriangles {");
 			final String triangleOut = "\t\t\t{ ";
-			for (int i = 0; i < triangle.size(); i++) {
-				triangle.get(i).updateVertexIds(this);
-				writer.println(triangleOut + triangle.get(i).toString() + " },");
+			for (int i = 0; i < triangles.size(); i++) {
+				triangles.get(i).updateVertexIds(this);
+				writer.println(triangleOut + triangles.get(i).toString() + " },");
 			}
 			writer.println("\t\t}");
 		}
@@ -665,7 +673,9 @@ public class Geoset implements Named, VisibilitySource {
 			uvlayers.add(new UVLayer());
 		}
 		for (int i = 0; i < vertex.size(); i++) {
-			normals.add(vertex.get(i).getNormal());
+			if (vertex.get(i).getNormal() != null) {
+				normals.add(vertex.get(i).getNormal());
+			}
 			for (int uv = 0; uv < bigNum; uv++) {
 				final TVertex temp = vertex.get(i).getTVertex(uv);
 				if (temp != null) {
@@ -693,8 +703,8 @@ public class Geoset implements Named, VisibilitySource {
 			vertex.get(i).VertexGroup = matrix.indexOf(newTemp);
 			vertex.get(i).setMatrix(newTemp);
 		}
-		for (int i = 0; i < triangle.size(); i++) {
-			triangle.get(i).updateVertexIds(this);
+		for (int i = 0; i < triangles.size(); i++) {
+			triangles.get(i).updateVertexIds(this);
 		}
 		int boneRefCount = 0;
 		for (int i = 0; i < matrix.size(); i++) {
@@ -766,11 +776,11 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 	public ArrayList<Triangle> getTriangle() {
-		return triangle;
+		return triangles;
 	}
 
 	public void setTriangle(final ArrayList<Triangle> triangle) {
-		this.triangle = triangle;
+		this.triangles = triangle;
 	}
 
 	public ArrayList<Matrix> getMatrix() {

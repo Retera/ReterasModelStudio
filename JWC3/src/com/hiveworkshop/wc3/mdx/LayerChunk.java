@@ -185,7 +185,7 @@ public class LayerChunk {
 			} else {
 				alpha = (float) layer.getStaticAlpha();
 			}
-			textureId = layer.getTextureId();
+			textureId = layer.getTextureId() == -1 ? 0 : layer.getTextureId();
 		}
 	}
 }

@@ -115,7 +115,7 @@ public abstract class IdObject implements Named {
 
 	public ArrayList<IdObject> getAllChildren(final HashMap<IdObject, ArrayList<IdObject>> childMap) {
 		final ArrayList<IdObject> children = childMap.get(this);
-		final ArrayList<IdObject> allChildren = new ArrayList<IdObject>();
+		final ArrayList<IdObject> allChildren = new ArrayList<>();
 		if (children != null) {
 			for (int i = 0; i < children.size(); i++) {
 				final IdObject child = children.get(i);

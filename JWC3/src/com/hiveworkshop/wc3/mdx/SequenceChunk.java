@@ -14,13 +14,13 @@ public class SequenceChunk {
 
 	public static final String key = "SEQS";
 
-	public void load(BlizzardDataInputStream in) throws IOException {
+	public void load(final BlizzardDataInputStream in) throws IOException {
 		MdxUtils.checkId(in, "SEQS");
-		int chunkSize = in.readInt();
-		List<Sequence> sequenceList = new ArrayList();
+		final int chunkSize = in.readInt();
+		final List<Sequence> sequenceList = new ArrayList();
 		int sequenceCounter = chunkSize;
 		while (sequenceCounter > 0) {
-			Sequence tempsequence = new Sequence();
+			final Sequence tempsequence = new Sequence();
 			sequenceList.add(tempsequence);
 			tempsequence.load(in);
 			sequenceCounter -= tempsequence.getSize();
@@ -28,8 +28,8 @@ public class SequenceChunk {
 		sequence = sequenceList.toArray(new Sequence[sequenceList.size()]);
 	}
 
-	public void save(BlizzardDataOutputStream out) throws IOException {
-		int nrOfSequences = sequence.length;
+	public void save(final BlizzardDataOutputStream out) throws IOException {
+		final int nrOfSequences = sequence.length;
 		out.writeNByteString("SEQS", 4);
 		out.writeInt(getSize() - 8);// ChunkSize
 		for (int i = 0; i < sequence.length; i++) {
@@ -61,7 +61,7 @@ public class SequenceChunk {
 		public float[] minimumExtent = new float[3];
 		public float[] maximumExtent = new float[3];
 
-		public void load(BlizzardDataInputStream in) throws IOException {
+		public void load(final BlizzardDataInputStream in) throws IOException {
 			name = in.readCharsAsString(80);
 			intervalStart = in.readInt();
 			intervalEnd = in.readInt();
@@ -74,7 +74,7 @@ public class SequenceChunk {
 			maximumExtent = MdxUtils.loadFloatArray(in, 3);
 		}
 
-		public void save(BlizzardDataOutputStream out) throws IOException {
+		public void save(final BlizzardDataOutputStream out) throws IOException {
 			out.writeNByteString(name, 80);
 			out.writeInt(intervalStart);
 			out.writeInt(intervalEnd);
@@ -113,23 +113,26 @@ public class SequenceChunk {
 
 			return a;
 		}
-		
+
 		public Sequence() {
-			
+
 		}
-		public Sequence(Animation anim) {
+
+		public Sequence(final Animation anim) {
 			name = anim.getName();
-			boundsRadius = (float)anim.getExtents().getBoundsRadius();
+			boundsRadius = anim.getExtents() == null ? 0 : (float) anim.getExtents().getBoundsRadius();
 			intervalEnd = anim.getIntervalEnd();
 			intervalStart = anim.getIntervalStart();
-			maximumExtent = anim.getExtents().getMaximumExtent().toFloatArray();
-			minimumExtent = anim.getExtents().getMinimumExtent().toFloatArray();
-			for( String tag: anim.getTags() ) {
-				if( tag.startsWith("MoveSpeed") ) {
+			maximumExtent = anim.getExtents() == null ? new float[] { 0, 0, 0 }
+					: anim.getExtents().getMaximumExtent().toFloatArray();
+			minimumExtent = anim.getExtents() == null ? new float[] { 0, 0, 0 }
+					: anim.getExtents().getMinimumExtent().toFloatArray();
+			for (final String tag : anim.getTags()) {
+				if (tag.startsWith("MoveSpeed")) {
 					moveSpeed = Float.parseFloat(tag.split(" ")[1]);
-				} else if( tag.startsWith("NonLooping") ) {
+				} else if (tag.startsWith("NonLooping")) {
 					nonLooping = 1;
-				} else if( tag.startsWith("Rarity") ) {
+				} else if (tag.startsWith("Rarity")) {
 					rarity = Float.parseFloat(tag.split(" ")[1]);
 				}
 			}

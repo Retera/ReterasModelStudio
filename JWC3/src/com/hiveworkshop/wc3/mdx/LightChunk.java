@@ -15,13 +15,13 @@ public class LightChunk {
 
 	public static final String key = "LITE";
 
-	public void load(BlizzardDataInputStream in) throws IOException {
+	public void load(final BlizzardDataInputStream in) throws IOException {
 		MdxUtils.checkId(in, "LITE");
-		int chunkSize = in.readInt();
-		List<Light> lightList = new ArrayList();
+		final int chunkSize = in.readInt();
+		final List<Light> lightList = new ArrayList();
 		int lightCounter = chunkSize;
 		while (lightCounter > 0) {
-			Light templight = new Light();
+			final Light templight = new Light();
 			lightList.add(templight);
 			templight.load(in);
 			lightCounter -= templight.getSize();
@@ -29,8 +29,8 @@ public class LightChunk {
 		light = lightList.toArray(new Light[lightList.size()]);
 	}
 
-	public void save(BlizzardDataOutputStream out) throws IOException {
-		int nrOfLights = light.length;
+	public void save(final BlizzardDataOutputStream out) throws IOException {
+		final int nrOfLights = light.length;
 		out.writeNByteString("LITE", 4);
 		out.writeInt(getSize() - 8);// ChunkSize
 		for (int i = 0; i < light.length; i++) {
@@ -65,8 +65,8 @@ public class LightChunk {
 		public LightAmbientColor lightAmbientColor;
 		public LightAmbientIntensity lightAmbientIntensity;
 
-		public void load(BlizzardDataInputStream in) throws IOException {
-			int inclusiveSize = in.readInt();
+		public void load(final BlizzardDataInputStream in) throws IOException {
+			final int inclusiveSize = in.readInt();
 			node = new Node();
 			node.load(in);
 			type = in.readInt();
@@ -89,8 +89,7 @@ public class LightChunk {
 				} else if (MdxUtils.checkOptionalId(in, LightAmbientColor.key)) {
 					lightAmbientColor = new LightAmbientColor();
 					lightAmbientColor.load(in);
-				} else if (MdxUtils.checkOptionalId(in,
-						LightAmbientIntensity.key)) {
+				} else if (MdxUtils.checkOptionalId(in, LightAmbientIntensity.key)) {
 					lightAmbientIntensity = new LightAmbientIntensity();
 					lightAmbientIntensity.load(in);
 				}
@@ -98,7 +97,7 @@ public class LightChunk {
 			}
 		}
 
-		public void save(BlizzardDataOutputStream out) throws IOException {
+		public void save(final BlizzardDataOutputStream out) throws IOException {
 			out.writeInt(getSize());// InclusiveSize
 			node.save(out);
 			out.writeInt(type);
@@ -106,8 +105,8 @@ public class LightChunk {
 			out.writeInt(attenuationEnd);
 			if (color.length % 3 != 0) {
 				throw new IllegalArgumentException(
-						"The array color needs either the length 3 or a multiple of this number. (got "
-								+ color.length + ")");
+						"The array color needs either the length 3 or a multiple of this number. (got " + color.length
+								+ ")");
 			}
 			MdxUtils.saveFloatArray(out, color);
 			out.writeFloat(intensity);
@@ -165,111 +164,125 @@ public class LightChunk {
 
 			return a;
 		}
+
 		public Light() {
-			
+
 		}
-		public Light(com.hiveworkshop.wc3.mdl.Light light) {
+
+		public Light(final com.hiveworkshop.wc3.mdl.Light light) {
 			node = new Node(light);
 			node.flags |= 0x200;
 			// more to do here
-			for( AnimFlag af: light.getAnimFlags() ) {
-				if( af.getName().equals("Visibility") ) {
+			for (final AnimFlag af : light.getAnimFlags()) {
+				if (af.getName().equals("Visibility")) {
 					lightVisibility = new LightVisibility();
 					lightVisibility.globalSequenceId = af.getGlobalSeqId();
 					lightVisibility.interpolationType = af.getInterpType();
 					lightVisibility.scalingTrack = new LightVisibility.ScalingTrack[af.size()];
-					boolean hasTans = af.tans();
-					for( int i = 0; i < af.size(); i++ ) {
-						LightVisibility.ScalingTrack mdxEntry = lightVisibility.new ScalingTrack();
+					final boolean hasTans = af.tans();
+					for (int i = 0; i < af.size(); i++) {
+						final LightVisibility.ScalingTrack mdxEntry = lightVisibility.new ScalingTrack();
 						lightVisibility.scalingTrack[i] = mdxEntry;
-						AnimFlag.Entry mdlEntry = af.getEntry(i);
-						mdxEntry.visibility = ((Number)mdlEntry.value).floatValue();
+						final AnimFlag.Entry mdlEntry = af.getEntry(i);
+						mdxEntry.visibility = ((Number) mdlEntry.value).floatValue();
 						mdxEntry.time = mdlEntry.time.intValue();
-						if( hasTans ) {
-							mdxEntry.inTan = ((Number)mdlEntry.inTan).floatValue();
-							mdxEntry.outTan = ((Number)mdlEntry.outTan).floatValue();
+						if (hasTans) {
+							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();
+							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
 						}
 					}
-				} else if( af.getName().equals("Color") ) {
+				} else if (af.getName().equals("Color")) {
 					lightColor = new LightColor();
 					lightColor.globalSequenceId = af.getGlobalSeqId();
 					lightColor.interpolationType = af.getInterpType();
 					lightColor.scalingTrack = new LightColor.ScalingTrack[af.size()];
-					boolean hasTans = af.tans();
-					for( int i = 0; i < af.size(); i++ ) {
-						LightColor.ScalingTrack mdxEntry = lightColor.new ScalingTrack();
+					final boolean hasTans = af.tans();
+					for (int i = 0; i < af.size(); i++) {
+						final LightColor.ScalingTrack mdxEntry = lightColor.new ScalingTrack();
 						lightColor.scalingTrack[i] = mdxEntry;
-						AnimFlag.Entry mdlEntry = af.getEntry(i);
-						mdxEntry.color = ((Vertex)mdlEntry.value).toFloatArray();
+						final AnimFlag.Entry mdlEntry = af.getEntry(i);
+						mdxEntry.color = ((Vertex) mdlEntry.value).toFloatArray();
 						mdxEntry.time = mdlEntry.time.intValue();
-						if( hasTans ) {
-							mdxEntry.inTan = ((Vertex)mdlEntry.inTan).toFloatArray();
-							mdxEntry.outTan = ((Vertex)mdlEntry.outTan).toFloatArray();
+						if (hasTans) {
+							mdxEntry.inTan = ((Vertex) mdlEntry.inTan).toFloatArray();
+							mdxEntry.outTan = ((Vertex) mdlEntry.outTan).toFloatArray();
 						}
 					}
-				} else if( af.getName().equals("Intensity") ) {
+				} else if (af.getName().equals("Intensity")) {
 					lightIntensity = new LightIntensity();
 					lightIntensity.globalSequenceId = af.getGlobalSeqId();
 					lightIntensity.interpolationType = af.getInterpType();
 					lightIntensity.scalingTrack = new LightIntensity.ScalingTrack[af.size()];
-					boolean hasTans = af.tans();
-					for( int i = 0; i < af.size(); i++ ) {
-						LightIntensity.ScalingTrack mdxEntry = lightIntensity.new ScalingTrack();
+					final boolean hasTans = af.tans();
+					for (int i = 0; i < af.size(); i++) {
+						final LightIntensity.ScalingTrack mdxEntry = lightIntensity.new ScalingTrack();
 						lightIntensity.scalingTrack[i] = mdxEntry;
-						AnimFlag.Entry mdlEntry = af.getEntry(i);
-						mdxEntry.intensity = ((Number)mdlEntry.value).floatValue();
+						final AnimFlag.Entry mdlEntry = af.getEntry(i);
+						mdxEntry.intensity = ((Number) mdlEntry.value).floatValue();
 						mdxEntry.time = mdlEntry.time.intValue();
-						if( hasTans ) {
-							mdxEntry.inTan = ((Number)mdlEntry.inTan).floatValue();
-							mdxEntry.outTan = ((Number)mdlEntry.outTan).floatValue();
+						if (hasTans) {
+							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();
+							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
 						}
 					}
-				} else if( af.getName().equals("AmbIntensity") ) {
+				} else if (af.getName().equals("AmbIntensity")) {
 					lightAmbientIntensity = new LightAmbientIntensity();
 					lightAmbientIntensity.globalSequenceId = af.getGlobalSeqId();
 					lightAmbientIntensity.interpolationType = af.getInterpType();
 					lightAmbientIntensity.scalingTrack = new LightAmbientIntensity.ScalingTrack[af.size()];
-					boolean hasTans = af.tans();
-					for( int i = 0; i < af.size(); i++ ) {
-						LightAmbientIntensity.ScalingTrack mdxEntry = lightAmbientIntensity.new ScalingTrack();
+					final boolean hasTans = af.tans();
+					for (int i = 0; i < af.size(); i++) {
+						final LightAmbientIntensity.ScalingTrack mdxEntry = lightAmbientIntensity.new ScalingTrack();
 						lightAmbientIntensity.scalingTrack[i] = mdxEntry;
-						AnimFlag.Entry mdlEntry = af.getEntry(i);
-						mdxEntry.ambientIntensity = ((Number)mdlEntry.value).floatValue();
+						final AnimFlag.Entry mdlEntry = af.getEntry(i);
+						mdxEntry.ambientIntensity = ((Number) mdlEntry.value).floatValue();
 						mdxEntry.time = mdlEntry.time.intValue();
-						if( hasTans ) {
-							mdxEntry.inTan = ((Number)mdlEntry.inTan).floatValue();
-							mdxEntry.outTan = ((Number)mdlEntry.outTan).floatValue();
+						if (hasTans) {
+							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();
+							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
 						}
 					}
-				} else if( af.getName().equals("AmbColor") ) {
+				} else if (af.getName().equals("AmbColor")) {
 					lightAmbientColor = new LightAmbientColor();
 					lightAmbientColor.globalSequenceId = af.getGlobalSeqId();
 					lightAmbientColor.interpolationType = af.getInterpType();
 					lightAmbientColor.scalingTrack = new LightAmbientColor.ScalingTrack[af.size()];
-					boolean hasTans = af.tans();
-					for( int i = 0; i < af.size(); i++ ) {
-						LightAmbientColor.ScalingTrack mdxEntry = lightAmbientColor.new ScalingTrack();
+					final boolean hasTans = af.tans();
+					for (int i = 0; i < af.size(); i++) {
+						final LightAmbientColor.ScalingTrack mdxEntry = lightAmbientColor.new ScalingTrack();
 						lightAmbientColor.scalingTrack[i] = mdxEntry;
-						AnimFlag.Entry mdlEntry = af.getEntry(i);
-						mdxEntry.ambientColor = ((Vertex)mdlEntry.value).toFloatArray();
+						final AnimFlag.Entry mdlEntry = af.getEntry(i);
+						mdxEntry.ambientColor = ((Vertex) mdlEntry.value).toFloatArray();
 						mdxEntry.time = mdlEntry.time.intValue();
-						if( hasTans ) {
-							mdxEntry.inTan = ((Vertex)mdlEntry.inTan).toFloatArray();
-							mdxEntry.outTan = ((Vertex)mdlEntry.outTan).toFloatArray();
+						if (hasTans) {
+							mdxEntry.inTan = ((Vertex) mdlEntry.inTan).toFloatArray();
+							mdxEntry.outTan = ((Vertex) mdlEntry.outTan).toFloatArray();
 						}
 					}
 				} else {
 					System.err.println("discarded flag " + af.getName());
 				}
 			}
-			//other components of light, copied regardless currently (if this becomes an issue, fix here)
-			color = light.getStaticColor().toFloatArray(); //copied regardless currently
-			ambientColor = light.getStaticAmbColor().toFloatArray(); //copied regardless currently
+			// other components of light, copied regardless currently (if this
+			// becomes an issue, fix here)
+			if (light.getStaticColor() != null) {
+				color = light.getStaticColor().toFloatArray();
+			} else {
+				color = new float[] { 1, 1, 1 };
+			}
+			if (light.getStaticAmbColor() != null) {
+				ambientColor = light.getStaticAmbColor().toFloatArray();
+			} else {
+				ambientColor = new float[] { 1, 1, 1 };
+			}
 			attenuationStart = light.getAttenuationStart();
 			attenuationEnd = light.getAttenuationEnd();
-			intensity = (float)light.getIntensity(); //copied regardless currently
-			ambientIntensity = (float)light.getAmbIntensity(); //copied regardless currently
-			for( String flag: light.getFlags() ) {
+			intensity = (float) light.getIntensity(); // copied regardless
+														// currently
+			ambientIntensity = (float) light.getAmbIntensity(); // copied
+																// regardless
+																// currently
+			for (final String flag : light.getFlags()) {
 				switch (flag) {
 				case "Omnidirectional":
 					type = 0;
