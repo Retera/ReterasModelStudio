@@ -29,7 +29,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.Timer;
 
-import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.TeamColorAddAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
 import com.hiveworkshop.wc3.gui.modeledit.useractions.CursorManager;
@@ -222,44 +221,46 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 			g.drawLine(0, (int) cameraOrigin.y, getWidth(), (int) cameraOrigin.y);
 			g.drawLine((int) cameraOrigin.x, 0, (int) cameraOrigin.x, getHeight());
 		}
-
 		final Graphics2D graphics2d = (Graphics2D) g;
-		viewportModelRenderer.reset(graphics2d, dispMDL.getProgramPreferences(), m_d1, m_d2, this, this);
-		dispMDL.getMDL().render(viewportModelRenderer);
-		selectionManager.render(graphics2d, this);
-		activityListener.render(graphics2d);
 
-		// switch (m_d1) {
-		// case 0:
-		// g.setColor(new Color(0, 255, 0));
-		// break;
-		// case 1:
-		// g.setColor(new Color(255, 0, 0));
-		// break;
-		// case 2:
-		// g.setColor(new Color(0, 0, 255));
-		// break;
-		// }
-		// // g.setColor( new Color( 255, 0, 0 ) );
-		// g.drawLine((int) Math.round(convertX(0)), (int)
-		// Math.round(convertY(0)), (int) Math.round(convertX(5)),
-		// (int) Math.round(convertY(0)));
-		//
-		// switch (m_d2) {
-		// case 0:
-		// g.setColor(new Color(0, 255, 0));
-		// break;
-		// case 1:
-		// g.setColor(new Color(255, 0, 0));
-		// break;
-		// case 2:
-		// g.setColor(new Color(0, 0, 255));
-		// break;
-		// }
-		// // g.setColor( new Color( 255, 0, 0 ) );
-		// g.drawLine((int) Math.round(convertX(0)), (int)
-		// Math.round(convertY(0)), (int) Math.round(convertX(0)),
-		// (int) Math.round(convertY(5)));
+		dispMDL.drawGeosets(g, this, 1);
+		dispMDL.drawPivots(g, this, 1);
+		dispMDL.drawCameras(g, this, 1);
+		// viewportModelRenderer.reset(graphics2d,
+		// dispMDL.getProgramPreferences(), m_d1, m_d2, this, this);
+		// dispMDL.getMDL().render(viewportModelRenderer);
+		// selectionManager.render(graphics2d, this);
+		// activityListener.render(graphics2d);
+
+		switch (m_d1) {
+		case 0:
+			g.setColor(new Color(0, 255, 0));
+			break;
+		case 1:
+			g.setColor(new Color(255, 0, 0));
+			break;
+		case 2:
+			g.setColor(new Color(0, 0, 255));
+			break;
+		}
+		// g.setColor( new Color( 255, 0, 0 ) );
+		g.drawLine((int) Math.round(convertX(0)), (int) Math.round(convertY(0)), (int) Math.round(convertX(5)),
+				(int) Math.round(convertY(0)));
+
+		switch (m_d2) {
+		case 0:
+			g.setColor(new Color(0, 255, 0));
+			break;
+		case 1:
+			g.setColor(new Color(255, 0, 0));
+			break;
+		case 2:
+			g.setColor(new Color(0, 0, 255));
+			break;
+		}
+		// g.setColor( new Color( 255, 0, 0 ) );
+		g.drawLine((int) Math.round(convertX(0)), (int) Math.round(convertY(0)), (int) Math.round(convertX(0)),
+				(int) Math.round(convertY(5)));
 
 		// Visual effects from user controls
 		int xoff = 0;
@@ -279,24 +280,22 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 			// }
 		}
 
-		// try {
-		// final double mx = (MouseInfo.getPointerInfo().getLocation().x -
-		// xoff);// MainFrame.frame.getX()-8);
-		// final double my = (MouseInfo.getPointerInfo().getLocation().y -
-		// yoff);// MainFrame.frame.getY()-30);
-		//
-		// // SelectionBox:
-		// if (selectStart != null) {
-		// final Point sEnd = new Point((int) mx, (int) my);
-		// final Rectangle2D.Double r = pointsToRect(selectStart, sEnd);
-		// g.setColor(MDLDisplay.selectColor);
-		// graphics2d.draw(r);
-		// }
-		// } catch (final Exception exc) {
-		// exc.printStackTrace();
-		// // JOptionPane.showMessageDialog(null,"Error retrieving mouse
-		// // coordinates. (Probably not a major issue. Due to sleep mode?)");
-		// }
+		try {
+			final double mx = (MouseInfo.getPointerInfo().getLocation().x - xoff);// MainFrame.frame.getX()-8);
+			final double my = (MouseInfo.getPointerInfo().getLocation().y - yoff);// MainFrame.frame.getY()-30);
+
+			// SelectionBox:
+			if (selectStart != null) {
+				final Point sEnd = new Point((int) mx, (int) my);
+				final Rectangle2D.Double r = pointsToRect(selectStart, sEnd);
+				g.setColor(MDLDisplay.selectColor);
+				graphics2d.draw(r);
+			}
+		} catch (final Exception exc) {
+			exc.printStackTrace();
+			// JOptionPane.showMessageDialog(null,"Error retrieving mouse
+			// coordinates. (Probably not a major issue. Due to sleep mode?)");
+		}
 	}
 
 	@Override
@@ -355,15 +354,13 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 			// MainFrame.panel.setMouseCoordDisplay(m_d1,m_d2,((mx-getWidth()/2)/m_zoom)-m_a,-(((my-getHeight()/2)/m_zoom)-m_b));
 			// TODO update mouse coord display could be used still
 
-			// if (actStart != null) {
-			// final Point actEnd = new Point((int) mx, (int) my);
-			// final Point2D.Double convertedStart = new
-			// Point2D.Double(geomX(actStart.x), geomY(actStart.y));
-			// final Point2D.Double convertedEnd = new
-			// Point2D.Double(geomX(actEnd.x), geomY(actEnd.y));
-			// dispMDL.updateAction(convertedStart, convertedEnd, m_d1, m_d2);
-			// actStart = actEnd;
-			// }
+			if (actStart != null) {
+				final Point actEnd = new Point((int) mx, (int) my);
+				final Point2D.Double convertedStart = new Point2D.Double(geomX(actStart.x), geomY(actStart.y));
+				final Point2D.Double convertedEnd = new Point2D.Double(geomX(actEnd.x), geomY(actEnd.y));
+				dispMDL.updateAction(convertedStart, convertedEnd, m_d1, m_d2);
+				actStart = actEnd;
+			}
 			repaint();
 		} else if (e.getSource() == reAssignMatrix) {
 			final MatrixPopup matrixPopup = new MatrixPopup(dispMDL.getMDL());
@@ -382,10 +379,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		} else if (e.getSource() == cogBone) {
 			dispMDL.cogBones();
 		} else if (e.getSource() == addTeamColor) {
-			final TeamColorAddAction teamColorAddAction = new TeamColorAddAction(selectionManager.getSelectedFaces(),
-					dispMDL.getMDL(), geosetAdditionListener, selectionManager);
-			teamColorAddAction.redo();
-			undoManager.pushAction(teamColorAddAction);
+			dispMDL.addTeamColor(geosetAdditionListener);
 		} else if (e.getSource() == manualMove) {
 			dispMDL.manualMove();
 		} else if (e.getSource() == manualRotate) {
@@ -415,19 +409,19 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		if (e.getButton() == MouseEvent.BUTTON2) {
 			lastClick = new Point(e.getX(), e.getY());
 		} else if (e.getButton() == MouseEvent.BUTTON1) {
-			activityListener.reset(selectionManager, selectionTypeApplicator, cursorManager, this, undoManager,
-					dispMDL.getModelChangeNotifier());
-			activityListener.mousePressed(e);
-			// selectStart = new Point(e.getX(), e.getY());
+			// activityListener.reset(selectionManager, selectionTypeApplicator,
+			// cursorManager, this, undoManager,
+			// dispMDL.getModelChangeNotifier());
+			// activityListener.mousePressed(e);
+			selectStart = new Point(e.getX(), e.getY());
 		} else if (e.getButton() == MouseEvent.BUTTON3) {
-			activityListener.reset(selectionManager, selectionTypeApplicator, cursorManager, this, undoManager,
-					dispMDL.getModelChangeNotifier());
-			activityListener.mousePressed(e);
-			// actStart = new Point(e.getX(), e.getY());
-			// final Point2D.Double convertedStart = new
-			// Point2D.Double(geomX(actStart.x), geomY(actStart.y));
-			// dispMDL.startAction(convertedStart, m_d1, m_d2,
-			// dispMDL.getProgramPreferences().currentActionType());
+			// activityListener.reset(selectionManager, selectionTypeApplicator,
+			// cursorManager, this, undoManager,
+			// dispMDL.getModelChangeNotifier());
+			// activityListener.mousePressed(e);
+			actStart = new Point(e.getX(), e.getY());
+			final Point2D.Double convertedStart = new Point2D.Double(geomX(actStart.x), geomY(actStart.y));
+			dispMDL.startAction(convertedStart, m_d1, m_d2, dispMDL.getProgramPreferences().currentActionType());
 		}
 	}
 
@@ -439,23 +433,19 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 			lastClick = null;
 		} else if (e
 				.getButton() == MouseEvent.BUTTON1/* && selectStart != null */) {
-			activityListener.mouseReleased(e);
-			// final Point selectEnd = new Point(e.getX(), e.getY());
-			// final Rectangle2D.Double area = pointsToGeomRect(selectStart,
-			// selectEnd);
-			// // System.out.println(area);
-			// dispMDL.selectVerteces(area, m_d1, m_d2,
-			// dispMDL.getProgramPreferences().currentSelectionType());
-			// selectStart = null;
+			// activityListener.mouseReleased(e);
+			final Point selectEnd = new Point(e.getX(), e.getY());
+			final Rectangle2D.Double area = pointsToGeomRect(selectStart, selectEnd);
+			// System.out.println(area);
+			dispMDL.selectVerteces(area, m_d1, m_d2, dispMDL.getProgramPreferences().currentSelectionType());
+			selectStart = null;
 		} else if (e.getButton() == MouseEvent.BUTTON3/* && actStart != null */) {
-			// final Point actEnd = new Point(e.getX(), e.getY());
-			// final Point2D.Double convertedStart = new
-			// Point2D.Double(geomX(actStart.x), geomY(actStart.y));
-			// final Point2D.Double convertedEnd = new
-			// Point2D.Double(geomX(actEnd.x), geomY(actEnd.y));
-			// dispMDL.finishAction(convertedStart, convertedEnd, m_d1, m_d2);
-			// actStart = null;
-			activityListener.mouseReleased(e);
+			final Point actEnd = new Point(e.getX(), e.getY());
+			final Point2D.Double convertedStart = new Point2D.Double(geomX(actStart.x), geomY(actStart.y));
+			final Point2D.Double convertedEnd = new Point2D.Double(geomX(actEnd.x), geomY(actEnd.y));
+			dispMDL.finishAction(convertedStart, convertedEnd, m_d1, m_d2);
+			actStart = null;
+			// activityListener.mouseReleased(e);
 		}
 		if (!mouseInBounds && selectStart == null && actStart == null && lastClick == null) {
 			clickTimer.stop();

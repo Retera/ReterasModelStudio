@@ -435,6 +435,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		super();
 
 		add(createJToolBar());
+		toolbar.setVisible(false); // prod hack toolbar not working
 		// testArea = new PerspDisplayPanel("Graphic Test",2,0);
 		// //botArea.setViewport(0,1);
 		// add(testArea);

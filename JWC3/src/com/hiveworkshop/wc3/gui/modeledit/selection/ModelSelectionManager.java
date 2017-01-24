@@ -417,7 +417,7 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 		listeners.add(listener);
 	}
 
-	private static void rotateVertex(final float centerX, final float centerY, final float centerZ, final float radians,
+	public static void rotateVertex(final float centerX, final float centerY, final float centerZ, final float radians,
 			final CoordinateSystem coordinateSystem, final Vertex vertex) {
 		final double x1 = vertex.getCoord(coordinateSystem.getPortFirstXYZ());
 		final double y1 = vertex.getCoord(coordinateSystem.getPortSecondXYZ());

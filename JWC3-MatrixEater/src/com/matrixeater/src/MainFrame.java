@@ -6,11 +6,13 @@ import java.awt.event.WindowEvent;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 
 /**
  * Write a description of class MainFrame here.
- * 
+ *
  * @author (your name)
  * @version (a version number or a date)
  */
@@ -37,26 +39,21 @@ public class MainFrame extends JFrame {
 		// registry.registerServiceProvider(
 		// new com.realityinteractive.imageio.tga.TGAImageReaderSpi());
 
-		// try {
-		// // Set cross-platform Java L&F (also called "Metal")
-		// UIManager.setLookAndFeel(
-		// UIManager.getSystemLookAndFeelClassName());
-		// }
-		// catch (UnsupportedLookAndFeelException e) {
-		// // handle exception
-		// }
-		// catch (ClassNotFoundException e) {
-		// // handle exception
-		// }
-		// catch (InstantiationException e) {
-		// // handle exception
-		// }
-		// catch (IllegalAccessException e) {
-		// // handle exception
-		// }
-		EditorDisplayManager.setupLookAndFeel();
+		try {
+			// Set cross-platform Java L&F (also called "Metal")
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (final UnsupportedLookAndFeelException e) {
+			// handle exception
+		} catch (final ClassNotFoundException e) {
+			// handle exception
+		} catch (final InstantiationException e) {
+			// handle exception
+		} catch (final IllegalAccessException e) {
+			// handle exception
+		}
+		// EditorDisplayManager.setupLookAndFeel();
 
-		frame = new MainFrame("The MatrixEater");
+		frame = new MainFrame("The Matrix Eater Devbuild 1.20.3");
 		panel.init();
 	}
 

@@ -13,7 +13,9 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
@@ -40,6 +42,12 @@ import com.hiveworkshop.wc3.gui.modeledit.actions.UVSelectionActionType;
 import com.hiveworkshop.wc3.gui.modeledit.actions.UVSnapAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.VertexActionType;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelChangeNotifier;
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.TeamColorAddAction;
+import com.hiveworkshop.wc3.gui.modeledit.selection.ModelSelectionManager;
+import com.hiveworkshop.wc3.gui.modeledit.selection.MutableSelectionComponent;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItem;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionListener;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoManager;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Camera;
@@ -52,6 +60,7 @@ import com.hiveworkshop.wc3.mdl.Normal;
 import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.util.Callback;
 
 /**
  * A wrapper for an MDL to control how it is displayed onscreen, between all
@@ -3255,5 +3264,218 @@ public class MDLDisplay implements UndoManager {
 
 	public ModelChangeNotifier getModelChangeNotifier() {
 		return modelChangeNotifier;
+	}
+
+	public List<Triangle> getSelectedFaces() {
+		final List<Triangle> faces = new ArrayList<>();
+		// TODO fix this design hack
+		final Set<GeosetVertex> selectedVertices = new HashSet<>();
+		final Set<Triangle> partiallySelectedFaces = new HashSet<>();
+		for (final Vertex vertex : selection) {
+			if (vertex instanceof GeosetVertex) {
+				final GeosetVertex gv = (GeosetVertex) vertex;
+				partiallySelectedFaces.addAll(gv.getTriangles());
+				selectedVertices.add(gv);
+			}
+		}
+		for (final Triangle face : partiallySelectedFaces) {
+			boolean whollySelected = true;
+			for (final GeosetVertex gv : face.getVerts()) {
+				if (!selectedVertices.contains(gv)) {
+					whollySelected = false;
+				}
+			}
+			if (whollySelected) {
+				faces.add(face);
+			}
+		}
+		return faces;
+	}
+
+	public void addTeamColor(final Callback<List<Geoset>> listener) {
+		final TeamColorAddAction teamColorAddAction = new TeamColorAddAction(getSelectedFaces(), getMDL(), listener,
+				new SelectionManager() {
+					@Override
+					public void setSelection(final List<SelectionItem> selectionItem) {
+						final List<Vertex> vertices = new ArrayList<>();
+						for (final SelectionItem item : selectionItem) {
+							vertices.add(((VertexItem) item).vertexComponent.vertex);
+						}
+						MDLDisplay.this.setSelection(vertices);
+					}
+
+					@Override
+					public void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem) {
+						throw new UnsupportedOperationException();
+					}
+
+					@Override
+					public void removeSelection(final List<SelectionItem> selectionItem) {
+						final List<Vertex> vertices = new ArrayList<>();
+						for (final SelectionItem item : selectionItem) {
+							vertices.add(((VertexItem) item).vertexComponent.vertex);
+						}
+						MDLDisplay.this.selection.removeAll(vertices);
+					}
+
+					@Override
+					public List<SelectionItem> getSelection() {
+						final List<SelectionItem> vertices = new ArrayList<>();
+						for (final Vertex v : selection) {
+							vertices.add(new VertexItem(v));
+						}
+						return vertices;
+					}
+
+					@Override
+					public List<Triangle> getSelectedFaces() {
+						return MDLDisplay.this.getSelectedFaces();
+					}
+
+					@Override
+					public List<? extends SelectionItem> getSelectableItems() {
+						throw new UnsupportedOperationException();
+					}
+
+					@Override
+					public void addSelectionListener(final SelectionListener listener) {
+						throw new UnsupportedOperationException();
+					}
+
+					@Override
+					public void addSelection(final List<SelectionItem> selectionItem) {
+						final List<Vertex> vertices = new ArrayList<>();
+						for (final SelectionItem item : selectionItem) {
+							vertices.add(((VertexItem) item).vertexComponent.vertex);
+						}
+						MDLDisplay.this.selection.addAll(vertices);
+					}
+				});
+		teamColorAddAction.redo();
+		pushAction(teamColorAddAction);
+	}
+
+	private final class VertexItem implements SelectionItem {
+		private final VertexComponent vertexComponent;
+
+		public VertexItem(final Vertex vertex) {
+			this.vertexComponent = new VertexComponent(vertex);
+		}
+
+		@Override
+		public void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem) {
+			final double x = coordinateSystem
+					.convertX(vertexComponent.getVertex().getCoord(coordinateSystem.getPortFirstXYZ()));
+			final double y = coordinateSystem
+					.convertY(vertexComponent.getVertex().getCoord(coordinateSystem.getPortSecondXYZ()));
+			if (selection.contains(this)) {
+				graphics.setColor(Color.RED);
+			} else {
+				graphics.setColor(getProgramPreferences().getVertexColor());
+			}
+			graphics.fillRect((int) x - 3 / 2, (int) y - 3 / 2, 3, 3);
+		}
+
+		@Override
+		public boolean hitTest(final Point2D point, final CoordinateSystem coordinateSystem) {
+			final double x = coordinateSystem
+					.convertX(vertexComponent.getVertex().getCoord(coordinateSystem.getPortFirstXYZ()));
+			final double y = coordinateSystem
+					.convertY(vertexComponent.getVertex().getCoord(coordinateSystem.getPortSecondXYZ()));
+			final double px = coordinateSystem.convertX(point.getX());
+			final double py = coordinateSystem.convertY(point.getY());
+			return Point2D.distance(px, py, x, y) <= 3 / 2.0;
+		}
+
+		@Override
+		public boolean hitTest(final Rectangle2D rectangle, final CoordinateSystem coordinateSystem) {
+			final double x = /* coordinateSystem.convertX */(vertexComponent.getVertex()
+					.getCoord(coordinateSystem.getPortFirstXYZ()));
+			final double y = /* coordinateSystem.convertY */(vertexComponent.getVertex()
+					.getCoord(coordinateSystem.getPortSecondXYZ()));
+			return rectangle.contains(x, y);
+		}
+
+		@Override
+		public Vertex getCenter() {
+			return vertexComponent.getVertex();
+		}
+
+		@Override
+		public void forEachComponent(final Callback<MutableSelectionComponent> callback) {
+			callback.run(vertexComponent);
+		}
+	}
+
+	private static final class VertexComponent implements MutableSelectionComponent {
+		private final Vertex vertex;
+
+		public VertexComponent(final Vertex vertex) {
+			this.vertex = vertex;
+		}
+
+		@Override
+		public void translate(final float x, final float y, final float z) {
+			vertex.x += x;
+			vertex.y += y;
+			vertex.z += z;
+		}
+
+		@Override
+		public void scale(final float centerX, final float centerY, final float centerZ, final float x, final float y,
+				final float z) {
+			final double dx = vertex.x - centerX;
+			final double dy = vertex.y - centerY;
+			final double dz = vertex.z - centerZ;
+			vertex.x = centerX + dx * x;
+			vertex.y = centerY + dy * y;
+			vertex.z = centerZ + dz * z;
+		}
+
+		@Override
+		public void rotate(final float centerX, final float centerY, final float centerZ, final float radians,
+				final CoordinateSystem coordinateSystem) {
+			ModelSelectionManager.rotateVertex(centerX, centerY, centerZ, radians, coordinateSystem, vertex);
+		}
+
+		@Override
+		public void delete() {
+			throw new UnsupportedOperationException("delete is nyi");
+		}
+
+		public Vertex getVertex() {
+			return vertex;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((vertex == null) ? 0 : vertex.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(final Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			final VertexComponent other = (VertexComponent) obj;
+			if (vertex == null) {
+				if (other.vertex != null) {
+					return false;
+				}
+			} else if (!vertex.equals(other.vertex)) {
+				return false;
+			}
+			return true;
+		}
+
 	}
 }
