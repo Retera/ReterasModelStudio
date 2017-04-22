@@ -337,8 +337,13 @@ public class Material implements MaterialView {
 			final Layer lay = layers.get(i);
 			final Bitmap tex = lay.firstTexture();
 			final String path = getRenderableTexturePath(tex);
-			final BufferedImage newImage = BLPHandler.get()
-					.getTexture(workingDirectory == null ? null : workingDirectory.getPath(), path);
+			BufferedImage newImage;
+			try {
+				newImage = BLPHandler.get().getTexture(workingDirectory == null ? null : workingDirectory.getPath(),
+						path);
+			} catch (final Exception exc) {
+				newImage = null;
+			}
 			if (theImage == null) {
 				theImage = newImage;
 			} else {

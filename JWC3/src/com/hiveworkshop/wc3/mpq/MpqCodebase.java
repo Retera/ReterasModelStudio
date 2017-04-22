@@ -24,13 +24,13 @@ import mpq.MPQArchive;
 import mpq.MPQException;
 
 public class MpqCodebase implements Codebase {
-	private final boolean isDebugMode = true;
+	private final boolean isDebugMode = false;
 	MpqGuy war3;
 	MpqGuy war3x;
 	MpqGuy war3xlocal;
 	MpqGuy war3patch;
 	MpqGuy hfmd;
-	ArrayList<MpqGuy> mpqList = new ArrayList<MpqGuy>();
+	ArrayList<MpqGuy> mpqList = new ArrayList<>();
 	ArchivedFileExtractor extractor = new ArchivedFileExtractor();
 
 	private static final class MpqGuy {
@@ -61,7 +61,7 @@ public class MpqCodebase implements Codebase {
 		}
 	}
 
-	Map<String, File> cache = new HashMap<String, File>();
+	Map<String, File> cache = new HashMap<>();
 
 	@Override
 	public File getFile(final String filepath) {
@@ -87,7 +87,7 @@ public class MpqCodebase implements Codebase {
 				final ArchivedFileStream stream = new ArchivedFileStream(mpqGuy.getInputChannel(), extractor, file);
 				final InputStream newInputStream = Channels.newInputStream(stream);
 				String tmpdir = System.getProperty("java.io.tmpdir");
-				if( !tmpdir.endsWith(File.separator) ) {
+				if (!tmpdir.endsWith(File.separator)) {
 					tmpdir += File.separator;
 				}
 				final String tempDir = tmpdir + "MatrixEaterExtract/";
