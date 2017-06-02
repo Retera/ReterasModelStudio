@@ -75,7 +75,7 @@ import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
-import com.hiveworkshop.wc3.units.Element;
+import com.hiveworkshop.wc3.units.GameObject;
 
 import de.wc3data.stream.BlizzardDataInputStream;
 
@@ -341,7 +341,7 @@ public class MDLSnapshot {
 		return height;
 	}
 
-	public static MDLDisplay createDefaultDisplay(final Element unit) {
+	public static MDLDisplay createDefaultDisplay(final GameObject unit) {
 		MDLDisplay mdlDisplay;
 		MDL model;
 		try {

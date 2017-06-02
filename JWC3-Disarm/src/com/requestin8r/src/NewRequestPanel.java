@@ -18,7 +18,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.hiveworkshop.wc3.gui.modeledit.MDLDisplay;
 import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
-import com.hiveworkshop.wc3.units.Element;
+import com.hiveworkshop.wc3.units.GameObject;
 import com.hiveworkshop.wc3.units.ModelOptionPane;
 import com.hiveworkshop.wc3.units.UnitOptionPane;
 
@@ -30,9 +30,9 @@ public class NewRequestPanel extends JPanel implements ActionListener {
 
 	public NewRequestPanel(final MainFrame frame) {
 		this.frame = frame;
-		final Font smallFont = new Font("Arial",Font.BOLD,16);
-		final Font medFont = new Font("Arial",Font.BOLD,28);
-		final Font bigFont = new Font("Arial",Font.BOLD,46);
+		final Font smallFont = new Font("Arial", Font.BOLD, 16);
+		final Font medFont = new Font("Arial", Font.BOLD, 28);
+		final Font bigFont = new Font("Arial", Font.BOLD, 46);
 
 		final JLabel title = new JLabel("New Project");
 		title.setIcon(new ImageIcon(IconGet.get("BasicStruct", 64)));
@@ -48,10 +48,12 @@ public class NewRequestPanel extends JPanel implements ActionListener {
 		unit.addActionListener(this);
 		final JLabel unitTip = new JLabel("Choose a base model by selecting a unit type from Warcraft III.");
 		unitTip.setFont(smallFont);
-		model = new JButton("Model", new ImageIcon(new ImageIcon(getClass().getResource("BTNfootmanBro.png")).getImage().getScaledInstance(48,48,Image.SCALE_SMOOTH)));
+		model = new JButton("Model", new ImageIcon(new ImageIcon(getClass().getResource("BTNfootmanBro.png")).getImage()
+				.getScaledInstance(48, 48, Image.SCALE_SMOOTH)));
 		model.setFont(medFont);
 		model.addActionListener(this);
-		final JLabel modelTip = new JLabel("Choose a base model by selecting a model from the Warcraft III Object Editor.");
+		final JLabel modelTip = new JLabel(
+				"Choose a base model by selecting a model from the Warcraft III Object Editor.");
 		modelTip.setFont(smallFont);
 		custom = new JButton("Custom", new ImageIcon(IconGet.get("Temp", 48)));
 		custom.setFont(medFont);
@@ -69,44 +71,18 @@ public class NewRequestPanel extends JPanel implements ActionListener {
 
 		final GroupLayout layout = new GroupLayout(this);
 
-		layout.setHorizontalGroup(layout.createSequentialGroup()
-				.addGap(16)
+		layout.setHorizontalGroup(layout.createSequentialGroup().addGap(16)
 				.addGroup(layout.createParallelGroup()
-						.addGroup(layout.createParallelGroup()
-								.addComponent(title)
-								.addComponent(desc)
-								.addComponent(unit)
-								.addComponent(unitTip)
-								.addComponent(model)
-								.addComponent(modelTip)
-								.addComponent(custom)
+						.addGroup(layout.createParallelGroup().addComponent(title).addComponent(desc).addComponent(unit)
+								.addComponent(unitTip).addComponent(model).addComponent(modelTip).addComponent(custom)
 								.addComponent(customTip)
 
-						)
-						.addComponent(back)
-				)
-				.addGap(16));
+						).addComponent(back)).addGap(16));
 
-		layout.setVerticalGroup(layout.createSequentialGroup()
-				.addGap(16)
-				.addComponent(title)
-				.addGap(4)
-				.addComponent(desc)
-				.addGap(64)
-				.addComponent(unit)
-				.addGap(4)
-				.addComponent(unitTip)
-				.addGap(32)
-				.addComponent(model)
-				.addGap(4)
-				.addComponent(modelTip)
-				.addGap(32)
-				.addComponent(custom)
-				.addGap(4)
-				.addComponent(customTip)
-				.addGap(84)
-				.addComponent(back)
-				.addGap(16));
+		layout.setVerticalGroup(layout.createSequentialGroup().addGap(16).addComponent(title).addGap(4)
+				.addComponent(desc).addGap(64).addComponent(unit).addGap(4).addComponent(unitTip).addGap(32)
+				.addComponent(model).addGap(4).addComponent(modelTip).addGap(32).addComponent(custom).addGap(4)
+				.addComponent(customTip).addGap(84).addComponent(back).addGap(16));
 
 		setLayout(layout);
 
@@ -118,9 +94,9 @@ public class NewRequestPanel extends JPanel implements ActionListener {
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
-		if( e.getSource() == unit ) {
-			final Element choice = UnitOptionPane.show(this);
-			if( choice != null ) {
+		if (e.getSource() == unit) {
+			final GameObject choice = UnitOptionPane.show(this);
+			if (choice != null) {
 				JOptionPane.showMessageDialog(null, choice.getName() + ". Good choice.");
 			} else {
 				return;
@@ -133,41 +109,39 @@ public class NewRequestPanel extends JPanel implements ActionListener {
 			MDL toLoad;
 			MDLDisplay modelDisp = null;
 			try {
-				if( filepath.endsWith(".mdl") ) {
+				if (filepath.endsWith(".mdl")) {
 					filepath = filepath.replace(".mdl", ".mdx");
-				}
-				else if( !filepath.endsWith(".mdx") ) {
+				} else if (!filepath.endsWith(".mdx")) {
 					filepath = filepath.concat(".mdx");
 				}
 				toLoad = MDL.read(MpqCodebase.get().getFile(filepath));
 				modelDisp = new MDLDisplay(toLoad, null);
-			}
-			catch (final Exception exc) {
+			} catch (final Exception exc) {
 				exc.printStackTrace();
-				//bad model!
-				JOptionPane.showMessageDialog(frame,"The chosen model could not be used.","Program Error",JOptionPane.ERROR_MESSAGE);
+				// bad model!
+				JOptionPane.showMessageDialog(frame, "The chosen model could not be used.", "Program Error",
+						JOptionPane.ERROR_MESSAGE);
 			}
 
-			if( modelDisp != null ) {
+			if (modelDisp != null) {
 				final WorkPanel workPanel = new WorkPanel(new Project(modelDisp, icon, name), frame);
 				frame.setContentPane(workPanel);
 				frame.revalidate();
 				frame.pack();
 			}
-		}
-		else if( e.getSource() == model ) {
+		} else if (e.getSource() == model) {
 			String filepath = ModelOptionPane.show(this);
-			if( filepath != null ) {
+			if (filepath != null) {
 				JOptionPane.showMessageDialog(null, filepath + ". Good choice.");
 			} else {
 				return;
 			}
 
 			String name = filepath;
-			if( name.contains("\\") ) {
+			if (name.contains("\\")) {
 				name = name.substring(name.lastIndexOf("\\") + 1);
 			}
-			if( name.contains(".") ) {
+			if (name.contains(".")) {
 				name = name.substring(0, name.indexOf("."));
 			}
 			final Image icon = IconGet.get("Temp", 64);
@@ -175,31 +149,29 @@ public class NewRequestPanel extends JPanel implements ActionListener {
 			MDL toLoad;
 			MDLDisplay modelDisp = null;
 			try {
-				if( filepath.endsWith(".mdl") ) {
+				if (filepath.endsWith(".mdl")) {
 					filepath = filepath.replace(".mdl", ".mdx");
-				}
-				else if( !filepath.endsWith(".mdx") ) {
+				} else if (!filepath.endsWith(".mdx")) {
 					filepath = filepath.concat(".mdx");
 				}
 				toLoad = MDL.read(MpqCodebase.get().getFile(filepath));
 				modelDisp = new MDLDisplay(toLoad, null);
-			}
-			catch (final Exception exc) {
+			} catch (final Exception exc) {
 				exc.printStackTrace();
-				//bad model!
-				JOptionPane.showMessageDialog(frame,"The chosen model could not be used.","Program Error",JOptionPane.ERROR_MESSAGE);
+				// bad model!
+				JOptionPane.showMessageDialog(frame, "The chosen model could not be used.", "Program Error",
+						JOptionPane.ERROR_MESSAGE);
 			}
 
-			if( modelDisp != null ) {
+			if (modelDisp != null) {
 				final WorkPanel workPanel = new WorkPanel(new Project(modelDisp, icon, name), frame);
 				frame.setContentPane(workPanel);
 				frame.revalidate();
 				frame.pack();
 			}
-		}
-		else if( e.getSource() == custom ) {
+		} else if (e.getSource() == custom) {
 			final int x = jfc.showOpenDialog(frame);
-			if( x == JFileChooser.APPROVE_OPTION && jfc.getSelectedFile() != null ) {
+			if (x == JFileChooser.APPROVE_OPTION && jfc.getSelectedFile() != null) {
 				JOptionPane.showMessageDialog(null, jfc.getSelectedFile() + ". Good choice.");
 			} else {
 				return;
@@ -207,10 +179,10 @@ public class NewRequestPanel extends JPanel implements ActionListener {
 
 			final String filepath = jfc.getSelectedFile().getPath();
 			String name = filepath;
-			if( name.contains("\\") ) {
+			if (name.contains("\\")) {
 				name = name.substring(name.lastIndexOf("\\") + 1);
 			}
-			if( name.contains(".") ) {
+			if (name.contains(".")) {
 				name = name.substring(0, name.indexOf("."));
 			}
 			final Image icon = IconGet.get("Temp", 64);
@@ -220,21 +192,20 @@ public class NewRequestPanel extends JPanel implements ActionListener {
 			try {
 				toLoad = MDL.read(new File(filepath));
 				modelDisp = new MDLDisplay(toLoad, null);
-			}
-			catch (final Exception exc) {
+			} catch (final Exception exc) {
 				exc.printStackTrace();
-				//bad model!
-				JOptionPane.showMessageDialog(frame,"The chosen model could not be used.","Program Error",JOptionPane.ERROR_MESSAGE);
+				// bad model!
+				JOptionPane.showMessageDialog(frame, "The chosen model could not be used.", "Program Error",
+						JOptionPane.ERROR_MESSAGE);
 			}
 
-			if( modelDisp != null ) {
+			if (modelDisp != null) {
 				final WorkPanel workPanel = new WorkPanel(new Project(modelDisp, icon, name), frame);
 				frame.setContentPane(workPanel);
 				frame.revalidate();
 				frame.pack();
 			}
-		}
-		else if( e.getSource() == back ) {
+		} else if (e.getSource() == back) {
 			frame.setContentPane(frame.mainPanel);
 			frame.revalidate();
 			frame.pack();

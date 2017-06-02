@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.nio.channels.Channels;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
@@ -265,6 +266,47 @@ public class MpqCodebase implements Codebase {
 		// e.printStackTrace();
 		// }
 		return null;
+	}
+
+	public boolean isBaseGameFile(final String filepath) {
+		try {
+			for (int i = 3; i >= 0; i--) {
+				final MpqGuy mpqGuy = mpqList.get(i);
+				final MPQArchive mpq = mpqGuy.getArchive();
+				try {
+					mpq.lookupPath(filepath);
+					return true;
+				} catch (final MPQException exc) {
+					if (exc.getMessage().equals("lookup not found")) {
+						continue;
+					} else {
+						throw new IOException(exc);
+					}
+				}
+			}
+		} catch (final IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	public LoadedMPQ loadMPQ(final Path path) throws MPQException, IOException {
+		final SeekableByteChannel sbc = Files.newByteChannel(path, EnumSet.of(StandardOpenOption.READ));
+		final MpqGuy temp = new MpqGuy(new MPQArchive(sbc), sbc);
+		mpqList.add(temp);
+		cache.clear();
+		return new LoadedMPQ() {
+			@Override
+			public void unload() {
+				mpqList.remove(temp);
+				cache.clear();
+			}
+		};
+	}
+
+	public interface LoadedMPQ {
+		void unload();
 	}
 
 	private static MpqCodebase current;

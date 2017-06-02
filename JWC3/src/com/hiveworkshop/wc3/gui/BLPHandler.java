@@ -98,6 +98,8 @@ public class BLPHandler {
 		return null;
 	}
 
+	public static boolean WANT_DESTROY_SAVED_TGAS = true;
+
 	public File convertBLPtoTGA(final File blpFile) {
 		try {
 			final File fileTGA = new File(blpFile.getPath().substring(0, blpFile.getPath().lastIndexOf(".")) + ".tga");
@@ -112,7 +114,9 @@ public class BLPHandler {
 			// ImageIO.read(fileTGA);//TargaReader.getImage(fileTGA.getPath());//ImageIO.read(fileTGA);
 
 			// new TestMPQ().drawBlp(bi);//myBLP.getBufferedImage());
-			fileTGA.deleteOnExit();
+			if (WANT_DESTROY_SAVED_TGAS) {
+				fileTGA.deleteOnExit();
+			}
 			return fileTGA;
 		} catch (final IOException e) {
 			e.printStackTrace();
@@ -162,7 +166,29 @@ public class BLPHandler {
 			// ImageIO.read(fileTGA);//TargaReader.getImage(fileTGA.getPath());//ImageIO.read(fileTGA);
 
 			// new TestMPQ().drawBlp(bi);//myBLP.getBufferedImage());
-			fileTGA.deleteOnExit();
+			if (WANT_DESTROY_SAVED_TGAS) {
+				fileTGA.deleteOnExit();
+			}
+			return fileTGA;
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public File convertTGAtoBLP(final File blpFile, final File fileTGA) {
+		try {
+			try {
+				Runtime.getRuntime().exec(new String[] { "blplabcl/blplabcl.exe", "\"" + blpFile.getPath() + "\"",
+						"\"" + fileTGA.getPath() + "\"", "-type0", "-q100", "-mm8" }).waitFor();
+			} catch (final InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// BufferedImage bi =
+			// ImageIO.read(fileTGA);//TargaReader.getImage(fileTGA.getPath());//ImageIO.read(fileTGA);
+
+			// new TestMPQ().drawBlp(bi);//myBLP.getBufferedImage());
 			return fileTGA;
 		} catch (final IOException e) {
 			e.printStackTrace();

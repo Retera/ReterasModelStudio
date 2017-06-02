@@ -13,28 +13,29 @@ import javax.swing.Timer;
 import com.hiveworkshop.wc3.gui.modeledit.MDLDisplay;
 import com.hiveworkshop.wc3.gui.modeledit.MDLSnapshot;
 import com.hiveworkshop.wc3.mdl.Geoset;
-import com.hiveworkshop.wc3.units.Element;
+import com.hiveworkshop.wc3.units.GameObject;
 
 public class UnitOutlinePanel extends JPanel {
 	private static final Color GREEN = new Color(100, 255, 0);
-//	private final Area outline;
+	// private final Area outline;
 	private BufferedImage bufferedImage;
 	private MDLSnapshot snapshot;
 	private float xAngle = 0;
-	public UnitOutlinePanel(final Element unit) {
-//		setBackground(Color.black);
+
+	public UnitOutlinePanel(final GameObject unit) {
+		// setBackground(Color.black);
 		try {
 			final MDLDisplay mdlDisplay = MDLSnapshot.createDefaultDisplay(unit);
 			snapshot = new MDLSnapshot(mdlDisplay, 1024, 1024);
 			snapshot.zoomToFit();
 			bufferedImage = snapshot.getBufferedImage();
-			for(final Geoset geo: mdlDisplay.getMDL().getGeosets()) {
-				if( geo.getMaterial().firstLayer().getTexture().getPath().equals("") ) {
+			for (final Geoset geo : mdlDisplay.getMDL().getGeosets()) {
+				if (geo.getMaterial().firstLayer().getTexture().getPath().equals("")) {
 					mdlDisplay.makeGeosetEditable(geo, false);
 					mdlDisplay.makeGeosetVisible(geo, false);
 				}
 			}
-//			outline = snapshot.getOutline();
+			// outline = snapshot.getOutline();
 			setPreferredSize(new Dimension(1024, 1024));
 		} catch (final Exception e) {
 			throw new RuntimeException(e);
@@ -61,8 +62,9 @@ public class UnitOutlinePanel extends JPanel {
 		super.paintComponent(g);
 		g.setColor(GREEN);
 		g.drawImage(bufferedImage, 0, 0, null);
-//		((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-//		((Graphics2D)g).setStroke(new BasicStroke(3));
-//		((Graphics2D)g).draw(outline);
+		// ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+		// RenderingHints.VALUE_ANTIALIAS_ON);
+		// ((Graphics2D)g).setStroke(new BasicStroke(3));
+		// ((Graphics2D)g).draw(outline);
 	}
 }

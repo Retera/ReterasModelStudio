@@ -12,7 +12,7 @@ import com.hiveworkshop.wc3.gui.modeledit.MDLSnapshot;
 import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
-import com.hiveworkshop.wc3.units.Element;
+import com.hiveworkshop.wc3.units.GameObject;
 import com.hiveworkshop.wc3.units.UnitOptionPane;
 
 import de.wc3data.stream.BlizzardDataInputStream;
@@ -34,7 +34,7 @@ public class LWJGLToBufferedImageTesterGuy {
 		MDL model;
 		MDLDisplay mdlDisplay;
 		try {
-			final Element unit = UnitOptionPane.show(null);
+			final GameObject unit = UnitOptionPane.show(null);
 			String field = unit.getField("file");
 			if (field.endsWith(".mdl")) {
 				field = field.replace(".mdl", ".mdx");

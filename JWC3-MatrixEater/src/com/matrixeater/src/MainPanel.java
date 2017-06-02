@@ -106,7 +106,6 @@ import com.hiveworkshop.wc3.mdl.VisibilitySource;
 import com.hiveworkshop.wc3.mdx.MdxModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
-import com.hiveworkshop.wc3.units.Element;
 import com.hiveworkshop.wc3.units.GameObject;
 import com.hiveworkshop.wc3.units.ModelOptionPane;
 import com.hiveworkshop.wc3.units.ModelOptionPane.ModelElement;
@@ -1375,7 +1374,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		} else if (e.getSource() == open) {
 			onClickOpen();
 		} else if (e.getSource() == fetchUnit) {
-			final Element unitFetched = fetchUnit();
+			final GameObject unitFetched = fetchUnit();
 			final String filepath = convertPathToMDX(unitFetched.getField("file"));
 			if (filepath != null) {
 				loadFile(MpqCodebase.get().getFile(filepath), true, true, unitFetched.getScaledIcon(0.25f));
@@ -2170,8 +2169,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 
 	}
 
-	private Element fetchUnit() {
-		final Element choice = UnitOptionPane.show(this);
+	private GameObject fetchUnit() {
+		final GameObject choice = UnitOptionPane.show(this);
 		if (choice != null) {
 
 		} else {

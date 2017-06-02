@@ -154,9 +154,9 @@ public class GeosetAnimationChunk {
 						mdxEntry.color = ((Vertex) mdlEntry.value).toFloatArray();
 						// ========== RGB for some reason, mdl is BGR
 						// ==============
-						final float blue = mdxEntry.color[0];
-						mdxEntry.color[0] = mdxEntry.color[2];
-						mdxEntry.color[2] = blue;
+						// final float blue = mdxEntry.color[0];
+						// mdxEntry.color[0] = mdxEntry.color[2];
+						// mdxEntry.color[2] = blue;
 						// ========== RGB for some reason, mdl is BGR
 						// ==============
 						mdxEntry.time = mdlEntry.time.intValue();

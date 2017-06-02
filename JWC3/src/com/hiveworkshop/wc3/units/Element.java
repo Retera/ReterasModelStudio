@@ -37,7 +37,7 @@ public class Element extends HashedGameObject {
 	public List<Integer> requiresLevels() {
 		final String stringList = getField("Requiresamount");
 		final String[] listAsArray = stringList.split(",");
-		final LinkedList<Integer> output = new LinkedList<Integer>();
+		final LinkedList<Integer> output = new LinkedList<>();
 		if (listAsArray != null && listAsArray.length > 0 && !listAsArray[0].equals("")) {
 			for (final String levelString : listAsArray) {
 				final Integer level = Integer.parseInt(levelString);
@@ -81,7 +81,7 @@ public class Element extends HashedGameObject {
 		return getFieldAsList("abilList", parentTable);
 	}
 
-	HashMap<String, List<Element>> hashedLists = new HashMap<String, List<Element>>();
+	HashMap<String, List<Element>> hashedLists = new HashMap<>();
 
 	@Override
 	public String toString() {
@@ -125,6 +125,7 @@ public class Element extends HashedGameObject {
 		return artField;
 	}
 
+	@Override
 	public Image getImage() {
 		final String artField = getIconPath();
 		try {
@@ -140,12 +141,14 @@ public class Element extends HashedGameObject {
 				(int) (img.getHeight(null) * 1.25), Image.SCALE_SMOOTH));
 	}
 
+	@Override
 	public ImageIcon getScaledIcon(final double amt) {
 		final Image img = getImage();
 		return new ImageIcon(img.getScaledInstance((int) (img.getWidth(null) * amt), (int) (img.getHeight(null) * amt),
 				Image.SCALE_SMOOTH));
 	}
 
+	@Override
 	public ImageIcon getScaledTintedIcon(final Color tint, final double amt) {
 		final Image img = getTintedImage(tint);
 		return new ImageIcon(img.getScaledInstance((int) (img.getWidth(null) * amt), (int) (img.getHeight(null) * amt),
