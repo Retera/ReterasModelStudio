@@ -3478,4 +3478,8 @@ public class MDLDisplay implements UndoManager {
 		}
 
 	}
+
+	public List<Vertex> getSelection() {
+		return selection;
+	}
 }

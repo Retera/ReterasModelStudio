@@ -148,7 +148,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			newDirectory, creditsButton, clearRecent, nullmodelButton, selectAll, invertSelect, expandSelection,
 			snapNormals, flipAllUVsU, flipAllUVsV, inverseAllUVs, mirrorX, mirrorY, mirrorZ, insideOut, showMatrices,
 			editUVs, exportTextures, scaleAnimations, animationViewer, linearizeAnimations, simplifyKeyframes,
-			riseFallBirth, animFromFile, animFromUnit, animFromModel, animFromObject, teamColor, teamGlow;
+			divideVertices, riseFallBirth, animFromFile, animFromUnit, animFromModel, animFromObject, teamColor,
+			teamGlow;
 	List<RecentItem> recentItems = new ArrayList<>();
 	UndoMenuItem undo;
 	RedoMenuItem redo;
@@ -1086,6 +1087,12 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		linearizeAnimations.setMnemonic(KeyEvent.VK_L);
 		linearizeAnimations.addActionListener(this);
 		modelMenu.add(linearizeAnimations);
+		modelMenu.add(scaleAnimations);
+
+		divideVertices = new JMenuItem("Clone in Place");
+		divideVertices.setMnemonic(KeyEvent.VK_D);
+		divideVertices.addActionListener(this);
+		modelMenu.add(divideVertices);
 
 		simplifyKeyframes = new JMenuItem("Simplify Keyframes (Experimental)");
 		simplifyKeyframes.setMnemonic(KeyEvent.VK_K);
@@ -1771,6 +1778,13 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				for (final AnimFlag flag : allAnimFlags) {
 					flag.linearize();
 				}
+			}
+		} else if (e.getSource() == divideVertices) {
+			final int x = JOptionPane.showConfirmDialog(this,
+					"This is an irreversible process that will split selected vertices into many copies of themself, one for each face, so you can wrap textures and normals in a different way.\n\nContinue?",
+					"Warning"/* : Divide Vertices" */, JOptionPane.OK_CANCEL_OPTION);
+			if (x == JOptionPane.OK_OPTION) {
+				currentMDLDisp().clone(currentMDLDisp().getSelection(), true);
 			}
 		} else if (e.getSource() == simplifyKeyframes) {
 			final int x = JOptionPane.showConfirmDialog(this,

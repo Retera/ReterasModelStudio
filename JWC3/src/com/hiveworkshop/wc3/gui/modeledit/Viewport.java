@@ -125,7 +125,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		renameBone = new JMenuItem("Rename Bone");
 		renameBone.addActionListener(this);
 		contextMenu.add(renameBone);
-		addTeamColor = new JMenuItem("Fucking add teamcolor underlayer");
+		addTeamColor = new JMenuItem("Add teamcolor underlayer");
 		addTeamColor.addActionListener(this);
 		contextMenu.add(addTeamColor);
 

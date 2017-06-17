@@ -204,4 +204,8 @@ public class BLPHandler {
 		}
 		return current;
 	}
+
+	public void dropCache() {
+		cache.clear();
+	}
 }

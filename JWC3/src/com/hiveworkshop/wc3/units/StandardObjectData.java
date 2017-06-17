@@ -20,6 +20,7 @@ import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.mpq.Codebase;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.resources.WEString;
+import com.hiveworkshop.wc3.util.IconUtils;
 
 public class StandardObjectData {
 	public static WarcraftData getStandardUnits() {
@@ -412,7 +413,9 @@ public class StandardObjectData {
 					storedImage = BLPHandler.get().getGameTex(artField);
 					storedImagePath = artField;
 					if (storedImage == null) {
-						return BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp");
+						return IconUtils.scale(
+								BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp"),
+								64, 64);
 					}
 					return storedImage;
 				} catch (final Exception exc) {
@@ -421,7 +424,9 @@ public class StandardObjectData {
 					storedImage = BLPHandler.get().getGameTex(artField);
 					storedImagePath = artField;
 					if (storedImage == null) {
-						return BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp");
+						return IconUtils.scale(
+								BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp"),
+								64, 64);
 					}
 					return storedImage;
 					// return
@@ -429,7 +434,9 @@ public class StandardObjectData {
 				}
 			} else {
 				if (storedImage == null) {
-					return BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp");
+					return IconUtils.scale(
+							BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp"), 64,
+							64);
 				}
 				return storedImage;
 			}

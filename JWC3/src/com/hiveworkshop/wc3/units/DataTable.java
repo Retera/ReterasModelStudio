@@ -17,11 +17,25 @@ import com.hiveworkshop.wc3.mpq.MpqCodebase;
 public class DataTable implements ObjectData {
 	static DataTable theTable;
 	static DataTable spawnTable;
+	static DataTable splatTable;
+	static DataTable terrainTable;
 	static DataTable ginterTable;
 	static DataTable buffTable;
 	static DataTable itemTable;
 	static DataTable theTableDestructibles;
 	static DataTable theTableDoodads;
+
+	public static void dropCache() {
+		theTable = null;
+		spawnTable = null;
+		splatTable = null;
+		terrainTable = null;
+		ginterTable = null;
+		buffTable = null;
+		itemTable = null;
+		theTableDestructibles = null;
+		theTableDoodads = null;
+	}
 
 	public static DataTable get() {
 		if (theTable == null) {
@@ -69,6 +83,22 @@ public class DataTable implements ObjectData {
 			spawnTable.loadSpawns();
 		}
 		return spawnTable;
+	}
+
+	public static DataTable getSplats() {
+		if (splatTable == null) {
+			splatTable = new DataTable();
+			splatTable.loadSplats();
+		}
+		return splatTable;
+	}
+
+	public static DataTable getTerrain() {
+		if (terrainTable == null) {
+			terrainTable = new DataTable();
+			terrainTable.loadTerrain();
+		}
+		return terrainTable;
 	}
 
 	public static DataTable getGinters() {
@@ -148,6 +178,23 @@ public class DataTable implements ObjectData {
 	public void loadSpawns() {
 		try {
 			readSLK(MpqCodebase.get().getResourceAsStream("Splats\\SpawnData.slk"));
+		} catch (final IOException e) {
+			ExceptionPopup.display(e);
+		}
+	}
+
+	public void loadSplats() {
+		try {
+			readSLK(MpqCodebase.get().getResourceAsStream("Splats\\SplatData.slk"));
+			readSLK(MpqCodebase.get().getResourceAsStream("Splats\\UberSplatData.slk"));
+		} catch (final IOException e) {
+			ExceptionPopup.display(e);
+		}
+	}
+
+	public void loadTerrain() {
+		try {
+			readSLK(MpqCodebase.get().getResourceAsStream("TerrainArt\\Terrain.slk"));
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
@@ -310,7 +357,7 @@ public class DataTable implements ObjectData {
 	}
 
 	public void readTXT(final InputStream txt, final boolean canProduce) throws IOException {
-		final BufferedReader reader = new BufferedReader(new InputStreamReader(txt));
+		final BufferedReader reader = new BufferedReader(new InputStreamReader(txt, "utf-8"));
 
 		String input = "";
 		Element currentUnit = null;
@@ -360,7 +407,7 @@ public class DataTable implements ObjectData {
 	}
 
 	public void readSLK(final InputStream txt) throws IOException {
-		final BufferedReader reader = new BufferedReader(new InputStreamReader(txt));
+		final BufferedReader reader = new BufferedReader(new InputStreamReader(txt, "utf-8"));
 
 		String input = "";
 		Element currentUnit = null;
@@ -394,8 +441,12 @@ public class DataTable implements ObjectData {
 		// }
 		//
 		int col = 0;
+		int lastFieldId = 0;
 		while ((input = reader.readLine()) != null) {
-			if (input.startsWith("O;")) {
+			if (input.startsWith("E")) {
+				break;
+			}
+			if (input.startsWith("O;") || input.startsWith("F;")) {
 				continue;
 			}
 			if (input.contains("X1;")) {
@@ -407,12 +458,21 @@ public class DataTable implements ObjectData {
 			if (rowStartCount <= 1) {
 				final int subXIndex = input.indexOf("X");
 				int eIndex = input.indexOf("K");
-				if (flipMode && input.contains("Y")) {
-					eIndex = Math.min(input.indexOf("Y"), eIndex);
+				final int fieldId;
+				if (subXIndex < 0) {
+					if (lastFieldId == 0) {
+						rowStartCount++;
+					}
+					fieldId = lastFieldId + 1;
+				} else {
+					if (flipMode && input.contains("Y")) {
+						eIndex = Math.min(input.indexOf("Y"), eIndex);
+					}
+					fieldId = Integer.parseInt(input.substring(subXIndex + 1, eIndex - 1));
 				}
-				final int fieldId = Integer.parseInt(input.substring(subXIndex + 1, eIndex - 1));
 
 				dataNames[fieldId - 1] = input.substring(input.indexOf("\"") + 1, input.lastIndexOf("\""));
+				lastFieldId = fieldId;
 				continue;
 			}
 			// if( rowStartCount == 2)

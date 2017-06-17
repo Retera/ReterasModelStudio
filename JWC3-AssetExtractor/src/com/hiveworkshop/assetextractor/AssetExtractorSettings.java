@@ -1,10 +1,10 @@
-package com.hiveworkshop.assetripper;
+package com.hiveworkshop.assetextractor;
 
-public class AssetRipperSettings {
+public class AssetExtractorSettings {
 	private final boolean includeInternal;
 	private final int flatten;
 
-	public AssetRipperSettings(final boolean includeInternal, final int flatten) {
+	public AssetExtractorSettings(final boolean includeInternal, final int flatten) {
 		this.includeInternal = includeInternal;
 		this.flatten = flatten;
 	}

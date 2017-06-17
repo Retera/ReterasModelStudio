@@ -25,7 +25,7 @@ import mpq.MPQArchive;
 import mpq.MPQException;
 
 public class MpqCodebase implements Codebase {
-	private final boolean isDebugMode = false;
+	private final boolean isDebugMode = true;
 	MpqGuy war3;
 	MpqGuy war3x;
 	MpqGuy war3xlocal;
@@ -49,6 +49,19 @@ public class MpqCodebase implements Codebase {
 
 		public SeekableByteChannel getInputChannel() {
 			return inputChannel;
+		}
+
+		public boolean has(final String file) {
+			try {
+				archive.lookupPath(file);
+				return true;
+			} catch (final MPQException exc) {
+				if (exc.getMessage().equals("lookup not found")) {
+					return false;
+				} else {
+					throw new RuntimeException(exc);
+				}
+			}
 		}
 	}
 
@@ -139,36 +152,11 @@ public class MpqCodebase implements Codebase {
 		if (cache.containsKey(filepath)) {
 			return true;
 		}
-		// for( int i = mpqList.size()-1; i >= 0; i-- )
-		// {
-		// final MPQArchive mpq = mpqList.get(i).getArchive();
-		// try {
-		// if( mpq.containsFile(filepath) )
-		// {
-		// return true;
-		// }
-		// } catch (final MPQArchiveException e) {
-		// e.printStackTrace();
-		// }
-		// }
-		try {
-			for (int i = mpqList.size() - 1; i >= 0; i--) {
-				final MpqGuy mpqGuy = mpqList.get(i);
-				final MPQArchive mpq = mpqGuy.getArchive();
-				try {
-					mpq.lookupPath(filepath);
-					return true;
-				} catch (final MPQException exc) {
-					if (exc.getMessage().equals("lookup not found")) {
-						continue;
-					} else {
-						throw new IOException(exc);
-					}
-				}
+		for (int i = mpqList.size() - 1; i >= 0; i--) {
+			final MpqGuy mpqGuy = mpqList.get(i);
+			if (mpqGuy.has(filepath)) {
+				return true;
 			}
-		} catch (final IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		return false;
 	}
@@ -270,12 +258,12 @@ public class MpqCodebase implements Codebase {
 
 	public boolean isBaseGameFile(final String filepath) {
 		try {
-			for (int i = 3; i >= 0; i--) {
+			for (int i = mpqList.size() - 1; i >= 0; i--) {
 				final MpqGuy mpqGuy = mpqList.get(i);
 				final MPQArchive mpq = mpqGuy.getArchive();
 				try {
 					mpq.lookupPath(filepath);
-					return true;
+					return i <= 3;
 				} catch (final MPQException exc) {
 					if (exc.getMessage().equals("lookup not found")) {
 						continue;
@@ -302,11 +290,18 @@ public class MpqCodebase implements Codebase {
 				mpqList.remove(temp);
 				cache.clear();
 			}
+
+			@Override
+			public boolean hasListfile() {
+				return temp.has("(listfile)");
+			}
 		};
 	}
 
 	public interface LoadedMPQ {
 		void unload();
+
+		boolean hasListfile();
 	}
 
 	private static MpqCodebase current;

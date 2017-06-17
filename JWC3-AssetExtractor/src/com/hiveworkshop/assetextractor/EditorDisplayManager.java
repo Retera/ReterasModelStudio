@@ -1,4 +1,4 @@
-package com.hiveworkshop.assetripper;
+package com.hiveworkshop.assetextractor;
 
 import java.util.Properties;
 

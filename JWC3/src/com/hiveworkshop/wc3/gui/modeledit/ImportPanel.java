@@ -114,7 +114,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 
 	// Animation
 	JPanel animPanel = new JPanel();
-	JButton importAllAnims, uncheckAllAnims;
+	JButton importAllAnims, timescaleAllAnims, uncheckAllAnims;
 	JCheckBox clearExistingAnims;
 	JTabbedPane animTabs = new JTabbedPane(JTabbedPane.LEFT, JTabbedPane.SCROLL_TAB_LAYOUT);
 	DefaultListModel existingAnims;
@@ -125,7 +125,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 	JCheckBox clearExistingBones;
 	// JTabbedPane boneTabs = new
 	// JTabbedPane(JTabbedPane.LEFT,JTabbedPane.SCROLL_TAB_LAYOUT);
-	DefaultListModel<BonePanel> bonePanels = new DefaultListModel<BonePanel>();
+	DefaultListModel<BonePanel> bonePanels = new DefaultListModel<>();
 	JList boneTabs = new JList(bonePanels);
 	JScrollPane boneTabsPane = new JScrollPane(boneTabs);
 	// DefaultListModel<BonePanel> oldBonePanels = new
@@ -142,7 +142,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 	JPanel geosetAnimPanel = new JPanel();
 	JTabbedPane geosetAnimTabs = new JTabbedPane(JTabbedPane.LEFT, JTabbedPane.SCROLL_TAB_LAYOUT);
 
-	DefaultListModel<BoneShell> futureBoneList = new DefaultListModel<BoneShell>();
+	DefaultListModel<BoneShell> futureBoneList = new DefaultListModel<>();
 	ArrayList<BoneShell> oldBones;
 	ArrayList<BoneShell> newBones;
 
@@ -154,7 +154,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 	JPanel objectsPanel = new JPanel();
 	// JTabbedPane objectTabs = new
 	// JTabbedPane(JTabbedPane.LEFT,JTabbedPane.SCROLL_TAB_LAYOUT);
-	DefaultListModel<ObjectPanel> objectPanels = new DefaultListModel<ObjectPanel>();
+	DefaultListModel<ObjectPanel> objectPanels = new DefaultListModel<>();
 	JList objectTabs = new JList(objectPanels);
 	JScrollPane objectTabsPane = new JScrollPane(objectTabs);
 	CardLayout objectCardLayout = new CardLayout();
@@ -250,7 +250,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				.setHorizontalGroup(geosetLayout
 						.createParallelGroup(GroupLayout.Alignment.CENTER).addGroup(geosetLayout.createSequentialGroup()
 								.addComponent(importAllGeos).addGap(8).addComponent(uncheckAllGeos))
-				.addComponent(geosetTabs));
+						.addComponent(geosetTabs));
 		geosetLayout
 				.setVerticalGroup(geosetLayout.createSequentialGroup()
 						.addGroup(geosetLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
@@ -272,6 +272,10 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		importAllAnims.addActionListener(this);
 		animPanel.add(importAllAnims);
 
+		timescaleAllAnims = new JButton("Time-scale All");
+		timescaleAllAnims.addActionListener(this);
+		animPanel.add(timescaleAllAnims);
+
 		uncheckAllAnims = new JButton("Leave All");
 		uncheckAllAnims.addActionListener(this);
 		animPanel.add(uncheckAllAnims);
@@ -292,13 +296,13 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		animPanel.add(animTabs);
 
 		final GroupLayout animLayout = new GroupLayout(animPanel);
-		animLayout.setHorizontalGroup(animLayout
-				.createParallelGroup(GroupLayout.Alignment.CENTER).addGroup(animLayout.createSequentialGroup()
-						.addComponent(importAllAnims).addGap(8).addComponent(uncheckAllAnims))
+		animLayout.setHorizontalGroup(animLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
+				.addGroup(animLayout.createSequentialGroup().addComponent(importAllAnims).addGap(8)
+						.addComponent(timescaleAllAnims).addGap(8).addComponent(uncheckAllAnims))
 				.addComponent(clearExistingAnims).addComponent(animTabs));
 		animLayout.setVerticalGroup(animLayout.createSequentialGroup()
 				.addGroup(animLayout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(importAllAnims)
-						.addComponent(uncheckAllAnims))
+						.addComponent(timescaleAllAnims).addComponent(uncheckAllAnims))
 				.addComponent(clearExistingAnims).addGap(8).addComponent(animTabs));
 		animPanel.setLayout(animLayout);
 
@@ -483,7 +487,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				.setHorizontalGroup(objectLayout
 						.createParallelGroup(GroupLayout.Alignment.CENTER).addGroup(objectLayout.createSequentialGroup()
 								.addComponent(importAllObjs).addGap(8).addComponent(uncheckAllObjs))
-				.addComponent(splitPane));
+						.addComponent(splitPane));
 		objectLayout
 				.setVerticalGroup(objectLayout.createSequentialGroup()
 						.addGroup(objectLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
@@ -602,6 +606,11 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				final AnimPanel aniPanel = (AnimPanel) animTabs.getComponentAt(i);
 				aniPanel.setSelected(true);
 			}
+		} else if (e.getSource() == timescaleAllAnims) {
+			for (int i = 0; i < animTabs.getTabCount(); i++) {
+				final AnimPanel aniPanel = (AnimPanel) animTabs.getComponentAt(i);
+				aniPanel.importTypeBox.setSelectedIndex(2);
+			}
 		} else if (e.getSource() == uncheckAllAnims) {
 			for (int i = 0; i < animTabs.getTabCount(); i++) {
 				final AnimPanel aniPanel = (AnimPanel) animTabs.getComponentAt(i);
@@ -624,7 +633,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			// - A matrix
 			// - Another bone
 			// - An IdObject
-			final ArrayList<BonePanel> usedBonePanels = new ArrayList<BonePanel>();
+			final ArrayList<BonePanel> usedBonePanels = new ArrayList<>();
 			// for( int i = 0; i < bonePanels.size(); i++ )
 			// {
 			// BonePanel bonePanel = bonePanels.get(i);
@@ -1050,8 +1059,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 
 	public DefaultListModel<BoneShell> getFutureBoneList() {
 		if (oldBones == null) {
-			oldBones = new ArrayList<BoneShell>();
-			newBones = new ArrayList<BoneShell>();
+			oldBones = new ArrayList<>();
+			newBones = new ArrayList<>();
 			final ArrayList<Bone> oldBonesRefs = currentModel.sortedIdObjects(Bone.class);
 			for (final Bone b : oldBonesRefs) {
 				final BoneShell bs = new BoneShell(b);
@@ -1093,7 +1102,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		return futureBoneList;
 	}
 
-	DefaultListModel<BoneShell> futureBoneListEx = new DefaultListModel<BoneShell>();
+	DefaultListModel<BoneShell> futureBoneListEx = new DefaultListModel<>();
 	ArrayList<BoneShell> oldHelpers;
 	ArrayList<BoneShell> newHelpers;
 
@@ -1180,8 +1189,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		// }
 		// }
 		if (oldHelpers == null) {
-			oldHelpers = new ArrayList<BoneShell>();
-			newHelpers = new ArrayList<BoneShell>();
+			oldHelpers = new ArrayList<>();
+			newHelpers = new ArrayList<>();
 			ArrayList<? extends Bone> oldHelpersRefs = currentModel.sortedIdObjects(Bone.class);
 			for (final Bone b : oldHelpersRefs) {
 				final BoneShell bs = new BoneShell(b);
@@ -1249,7 +1258,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 	ArrayList<Object> visSourcesNew;
 	DefaultListModel<VisibilityPane> visComponents;
 
-	ArrayList<VisibilityPane> allVisShellPanes = new ArrayList<VisibilityPane>();
+	ArrayList<VisibilityPane> allVisShellPanes = new ArrayList<>();
 	private final BoneShellListCellRenderer boneRenderer;
 
 	public VisibilityShell shellFromObject(final Object o) {
@@ -1273,7 +1282,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 	public void initVisibilityList() {
 		visSourcesOld = new ArrayList();
 		visSourcesNew = new ArrayList();
-		allVisShells = new ArrayList<VisibilityShell>();
+		allVisShells = new ArrayList<>();
 		MDL model = currentModel;
 		final ArrayList tempList = new ArrayList();
 		for (final Material mat : model.getMaterials()) {
@@ -1408,7 +1417,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		}
 		visSourcesNew.add(VisibilityPane.NOTVISIBLE);
 		visSourcesNew.add(VisibilityPane.VISIBLE);
-		visComponents = new DefaultListModel<VisibilityPane>();
+		visComponents = new DefaultListModel<>();
 	}
 
 	public DefaultListModel<VisibilityPane> visibilityList() {
@@ -1498,7 +1507,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 	 * the MultiBone panel.
 	 */
 	public void setParentMultiBones() {
-		final JList<BoneShell> list = new JList<BoneShell>(getFutureBoneListExtended());
+		final JList<BoneShell> list = new JList<>(getFutureBoneListExtended());
 		list.setCellRenderer(boneRenderer);
 		final int x = JOptionPane.showConfirmDialog(this, new JScrollPane(list), "Set Parent for All Selected Bones",
 				JOptionPane.OK_CANCEL_OPTION);
@@ -1579,15 +1588,15 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 					}
 				}
 			}
-			final ArrayList<Animation> oldAnims = new ArrayList<Animation>();
+			final ArrayList<Animation> oldAnims = new ArrayList<>();
 			oldAnims.addAll(currentModel.getAnims());
-			final ArrayList<Animation> newAnims = new ArrayList<Animation>();
+			final ArrayList<Animation> newAnims = new ArrayList<>();
 			final java.util.List<AnimFlag> curFlags = currentModel.getAllAnimFlags();
 			final java.util.List<AnimFlag> impFlags = importedModel.getAllAnimFlags();
 			final ArrayList curEventObjs = currentModel.sortedIdObjects(EventObject.class);
 			final ArrayList impEventObjs = importedModel.sortedIdObjects(EventObject.class);
 			// note to self: remember to scale event objects with time
-			final ArrayList<AnimFlag> newImpFlags = new ArrayList<AnimFlag>();
+			final ArrayList<AnimFlag> newImpFlags = new ArrayList<>();
 			for (final AnimFlag af : impFlags) {
 				if (!af.hasGlobalSeq()) {
 					newImpFlags.add(AnimFlag.buildEmptyFrom(af));
@@ -1595,7 +1604,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 					newImpFlags.add(new AnimFlag(af));
 				}
 			}
-			final ArrayList<EventObject> newImpEventObjs = new ArrayList<EventObject>();
+			final ArrayList<EventObject> newImpEventObjs = new ArrayList<>();
 			for (final Object e : impEventObjs) {
 				newImpEventObjs.add(EventObject.buildEmptyFrom((EventObject) e));
 			}
@@ -1810,7 +1819,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				}
 			}
 
-			final ArrayList<AnimFlag> finalVisFlags = new ArrayList<AnimFlag>();
+			final ArrayList<AnimFlag> finalVisFlags = new ArrayList<>();
 			for (int i = 0; i < visComponents.size(); i++) {
 				final VisibilityPane vPanel = visComponents.get(i);
 				final VisibilitySource temp = ((VisibilitySource) vPanel.sourceShell.source);
@@ -1955,7 +1964,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			// MainFrame.panel.geoControl.setMDLDisplay(display);
 			// display.reloadTextures();//.mpanel.perspArea.reloadTextures();//addGeosets(newGeosets);
 			// }
-			final List<Geoset> geosetsAdded = new ArrayList<Geoset>();
+			final List<Geoset> geosetsAdded = new ArrayList<>();
 			for (int i = 0; i < geosetTabs.getTabCount(); i++) {
 				final GeosetPanel gp = (GeosetPanel) geosetTabs.getComponentAt(i);
 				if (gp.doImport.isSelected() && gp.model == importedModel) {
@@ -2208,7 +2217,7 @@ class MaterialListCellRenderer extends DefaultListCellRenderer {
 	MDL myModel;
 	Object myMaterial;
 	Font theFont = new Font("Arial", Font.BOLD, 32);
-	HashMap<Material, ImageIcon> map = new HashMap<Material, ImageIcon>();
+	HashMap<Material, ImageIcon> map = new HashMap<>();
 
 	public MaterialListCellRenderer(final MDL model) {
 		myModel = model;
@@ -2351,14 +2360,11 @@ class AnimPanel extends JPanel implements ChangeListener, ItemListener, ListSele
 		// cardLayout.show(cardPane,IMPORTBASIC);
 
 		final GroupLayout layout = new GroupLayout(this);
-		layout.setHorizontalGroup(
-				layout.createSequentialGroup().addGap(8)
-						.addGroup(
-								layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(title)
-										.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-												.addComponent(doImport)
-												.addComponent(inReverse).addGroup(layout.createSequentialGroup()
-														.addComponent(importTypeBox).addComponent(cardPane))))
+		layout.setHorizontalGroup(layout.createSequentialGroup().addGap(8).addGroup(layout
+				.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(title)
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(doImport)
+						.addComponent(inReverse)
+						.addGroup(layout.createSequentialGroup().addComponent(importTypeBox).addComponent(cardPane))))
 				.addGap(8));
 		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(title).addGap(16).addComponent(doImport)
 				.addComponent(inReverse).addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
@@ -2624,7 +2630,7 @@ class BonePanel extends JPanel implements ItemListener, ListSelectionListener {
 										.addComponent(cardPanel)
 										.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 												.addComponent(parentTitle).addComponent(futureBonesListPane))))
-				.addGap(8));
+						.addGap(8));
 		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(title).addGap(16).addGroup(layout
 				.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(importTypeBox).addComponent(cardPanel)
 				.addGroup(layout.createSequentialGroup().addComponent(parentTitle).addComponent(futureBonesListPane))));
@@ -3160,7 +3166,7 @@ class BoneAttachmentPane extends JPanel implements ActionListener, ListSelection
 		oldBoneRefsPane = new JScrollPane(oldBoneRefsList);
 
 		newRefsLabel = new JLabel("New Refs");
-		newRefs = new DefaultListModel<BoneShell>();
+		newRefs = new DefaultListModel<>();
 		newRefsList = new JList(newRefs);
 		newRefsList.setCellRenderer(renderer);
 		newRefsPane = new JScrollPane(newRefsList);
@@ -3191,12 +3197,10 @@ class BoneAttachmentPane extends JPanel implements ActionListener, ListSelection
 		layout.setVerticalGroup(layout.createSequentialGroup()
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(oldBoneRefsLabel)
 						.addComponent(newRefsLabel).addComponent(bonesLabel))
-				.addGroup(
-						layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(oldBoneRefsPane)
-								.addComponent(newRefsPane)
-								.addGroup(layout.createSequentialGroup().addComponent(moveUp).addGap(16)
-										.addComponent(moveDown))
-								.addComponent(bonesPane))
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(oldBoneRefsPane)
+						.addComponent(newRefsPane)
+						.addGroup(layout.createSequentialGroup().addComponent(moveUp).addGap(16).addComponent(moveDown))
+						.addComponent(bonesPane))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(removeNewRef)
 						.addComponent(useBone)));
 		setLayout(layout);
@@ -3310,7 +3314,7 @@ class BoneAttachmentPane extends JPanel implements ActionListener, ListSelection
 
 	public void buildOldRefsList() {
 		if (oldBoneRefs == null) {
-			oldBoneRefs = new DefaultListModel<MatrixShell>();
+			oldBoneRefs = new DefaultListModel<>();
 		} else {
 			oldBoneRefs.clear();
 		}
@@ -3438,8 +3442,8 @@ class ObjectPanel extends JPanel {
 		final GroupLayout layout = new GroupLayout(this);
 		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(title)
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(doImport)
-						.addComponent(oldParentLabel)
-						.addGroup(layout.createSequentialGroup().addComponent(parentLabel).addComponent(parentsPane))));
+						.addComponent(oldParentLabel).addGroup(
+								layout.createSequentialGroup().addComponent(parentLabel).addComponent(parentsPane))));
 		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(title).addGap(16).addComponent(doImport)
 				.addComponent(oldParentLabel).addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 						.addComponent(parentLabel).addComponent(parentsPane)));
@@ -3488,8 +3492,8 @@ class MultiObjectPanel extends ObjectPanel implements ChangeListener {
 		final GroupLayout layout = new GroupLayout(this);
 		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(title)
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(doImport)
-						.addComponent(oldParentLabel)
-						.addGroup(layout.createSequentialGroup().addComponent(parentLabel).addComponent(parentsPane))));
+						.addComponent(oldParentLabel).addGroup(
+								layout.createSequentialGroup().addComponent(parentLabel).addComponent(parentsPane))));
 		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(title).addGap(16).addComponent(doImport)
 				.addComponent(oldParentLabel).addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 						.addComponent(parentLabel).addComponent(parentsPane)));

@@ -281,6 +281,27 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 		for (int i = 1; i < loneIntData.length; i++) {
 			writer.println("\t" + loneIntNames[i] + " " + loneIntData[i] + ",");
 		}
+		currentFlag = "Rotation";
+		for (int i = 0; i < pAnimFlags.size(); i++) {
+			if (pAnimFlags.get(i).getName().equals(currentFlag)) {
+				pAnimFlags.get(i).printTo(writer, 1);
+				pAnimFlags.remove(i);
+			}
+		}
+		currentFlag = "Translation";
+		for (int i = 0; i < pAnimFlags.size(); i++) {
+			if (pAnimFlags.get(i).getName().equals(currentFlag)) {
+				pAnimFlags.get(i).printTo(writer, 1);
+				pAnimFlags.remove(i);
+			}
+		}
+		currentFlag = "Scaling";
+		for (int i = 0; i < pAnimFlags.size(); i++) {
+			if (pAnimFlags.get(i).getName().equals(currentFlag)) {
+				pAnimFlags.get(i).printTo(writer, 1);
+				pAnimFlags.remove(i);
+			}
+		}
 		writer.println("}");
 	}
 

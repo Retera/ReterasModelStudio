@@ -46,7 +46,7 @@ public class ModelOptionPanel extends JPanel {
 
 	static class ModelGroup {
 		String name;
-		List<Model> models = new ArrayList<Model>();
+		List<Model> models = new ArrayList<>();
 
 		public ModelGroup(final String name) {
 			this.name = name;
@@ -83,7 +83,7 @@ public class ModelOptionPanel extends JPanel {
 		}
 	}
 
-	static List<ModelGroup> groups = new ArrayList<ModelGroup>();
+	static List<ModelGroup> groups = new ArrayList<>();
 
 	static DataTable unitData = DataTable.get();
 	static DataTable itemData = DataTable.getItems();
@@ -94,6 +94,10 @@ public class ModelOptionPanel extends JPanel {
 	static DataTable ginterData = DataTable.getGinters();
 
 	static boolean preloaded;
+
+	public static void dropCache() {
+		preloaded = false;
+	}
 
 	static void preload() {
 		if (preloaded) {
@@ -112,6 +116,14 @@ public class ModelOptionPanel extends JPanel {
 			// - Spawned Effects
 			// - Game Interface
 		}
+		groups.clear();
+		unitData = DataTable.get();
+		itemData = DataTable.getItems();
+		buffData = DataTable.getBuffs();
+		destData = DataTable.getDestructables();
+		doodData = DataTable.getDoodads();
+		spawnData = DataTable.getSpawns();
+		ginterData = DataTable.getGinters();
 
 		// WESTRING_OE_TYPECAT_UNIT=Units
 		// WESTRING_OE_TYPECAT_UNIT_MSSL=Units - Missiles
@@ -127,16 +139,16 @@ public class ModelOptionPanel extends JPanel {
 		// WESTRING_OE_TYPECAT_XTRA=Extra
 
 		// Preload "Units" modelGroup
-		final Map<String, NamedList<String>> unitsModelData = new HashMap<String, NamedList<String>>();
-		final Map<String, NamedList<String>> unitsMissileData = new HashMap<String, NamedList<String>>();
-		final Map<String, NamedList<String>> unitsSpecialData = new HashMap<String, NamedList<String>>();
-		final Map<String, NamedList<String>> abilityModelData = new HashMap<String, NamedList<String>>();
-		final Map<String, NamedList<String>> buffModelData = new HashMap<String, NamedList<String>>();
-		final Map<String, NamedList<String>> itemsModelData = new HashMap<String, NamedList<String>>();
-		final Map<String, NamedList<String>> destModelData = new HashMap<String, NamedList<String>>();
-		final Map<String, NamedList<String>> doodModelData = new HashMap<String, NamedList<String>>();
-		final Map<String, NamedList<String>> spawnModelData = new HashMap<String, NamedList<String>>();
-		final Map<String, NamedList<String>> ginterModelData = new HashMap<String, NamedList<String>>();
+		final Map<String, NamedList<String>> unitsModelData = new HashMap<>();
+		final Map<String, NamedList<String>> unitsMissileData = new HashMap<>();
+		final Map<String, NamedList<String>> unitsSpecialData = new HashMap<>();
+		final Map<String, NamedList<String>> abilityModelData = new HashMap<>();
+		final Map<String, NamedList<String>> buffModelData = new HashMap<>();
+		final Map<String, NamedList<String>> itemsModelData = new HashMap<>();
+		final Map<String, NamedList<String>> destModelData = new HashMap<>();
+		final Map<String, NamedList<String>> doodModelData = new HashMap<>();
+		final Map<String, NamedList<String>> spawnModelData = new HashMap<>();
+		final Map<String, NamedList<String>> ginterModelData = new HashMap<>();
 
 		// List<Unit> sortedUnitData = new ArrayList<Unit>();
 		for (String str : unitData.keySet()) {
@@ -153,7 +165,7 @@ public class ModelOptionPanel extends JPanel {
 					}
 					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
 					if (unitList == null) {
-						unitList = new NamedList<String>(filepath);
+						unitList = new NamedList<>(filepath);
 						unitList.setCachedIconPath(unit.getIconPath());
 						abilityModelData.put(filepath.toLowerCase(), unitList);
 					}
@@ -166,7 +178,7 @@ public class ModelOptionPanel extends JPanel {
 					}
 					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
 					if (unitList == null) {
-						unitList = new NamedList<String>(filepath);
+						unitList = new NamedList<>(filepath);
 						unitList.setCachedIconPath(unit.getIconPath());
 						abilityModelData.put(filepath.toLowerCase(), unitList);
 					}
@@ -179,7 +191,7 @@ public class ModelOptionPanel extends JPanel {
 					}
 					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
 					if (unitList == null) {
-						unitList = new NamedList<String>(filepath);
+						unitList = new NamedList<>(filepath);
 						unitList.setCachedIconPath(unit.getIconPath());
 						abilityModelData.put(filepath.toLowerCase(), unitList);
 					}
@@ -192,7 +204,7 @@ public class ModelOptionPanel extends JPanel {
 					}
 					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
 					if (unitList == null) {
-						unitList = new NamedList<String>(filepath);
+						unitList = new NamedList<>(filepath);
 						unitList.setCachedIconPath(unit.getIconPath());
 						abilityModelData.put(filepath.toLowerCase(), unitList);
 					}
@@ -205,7 +217,7 @@ public class ModelOptionPanel extends JPanel {
 					}
 					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase().toLowerCase());
 					if (unitList == null) {
-						unitList = new NamedList<String>(filepath);
+						unitList = new NamedList<>(filepath);
 						unitList.setCachedIconPath(unit.getIconPath());
 						abilityModelData.put(filepath.toLowerCase().toLowerCase(), unitList);
 					}
@@ -219,7 +231,7 @@ public class ModelOptionPanel extends JPanel {
 					}
 					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
 					if (unitList == null) {
-						unitList = new NamedList<String>(filepath);
+						unitList = new NamedList<>(filepath);
 						unitList.setCachedIconPath(unit.getIconPath());
 						abilityModelData.put(filepath.toLowerCase(), unitList);
 					}
@@ -232,7 +244,7 @@ public class ModelOptionPanel extends JPanel {
 					}
 					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
 					if (unitList == null) {
-						unitList = new NamedList<String>(filepath);
+						unitList = new NamedList<>(filepath);
 						unitList.setCachedIconPath(unit.getIconPath());
 						abilityModelData.put(filepath.toLowerCase(), unitList);
 					}
@@ -245,7 +257,7 @@ public class ModelOptionPanel extends JPanel {
 					}
 					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
 					if (unitList == null) {
-						unitList = new NamedList<String>(filepath);
+						unitList = new NamedList<>(filepath);
 						unitList.setCachedIconPath(unit.getIconPath());
 						abilityModelData.put(filepath.toLowerCase(), unitList);
 					}
@@ -259,7 +271,7 @@ public class ModelOptionPanel extends JPanel {
 					}
 					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
 					if (unitList == null) {
-						unitList = new NamedList<String>(filepath);
+						unitList = new NamedList<>(filepath);
 						unitList.setCachedIconPath(unit.getIconPath());
 						abilityModelData.put(filepath.toLowerCase(), unitList);
 					}
@@ -272,7 +284,7 @@ public class ModelOptionPanel extends JPanel {
 					}
 					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
 					if (unitList == null) {
-						unitList = new NamedList<String>(filepath);
+						unitList = new NamedList<>(filepath);
 						unitList.setCachedIconPath(unit.getIconPath());
 						abilityModelData.put(filepath.toLowerCase(), unitList);
 					}
@@ -285,7 +297,7 @@ public class ModelOptionPanel extends JPanel {
 					}
 					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
 					if (unitList == null) {
-						unitList = new NamedList<String>(filepath);
+						unitList = new NamedList<>(filepath);
 						unitList.setCachedIconPath(unit.getIconPath());
 						abilityModelData.put(filepath.toLowerCase(), unitList);
 					}
@@ -299,7 +311,7 @@ public class ModelOptionPanel extends JPanel {
 					}
 					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
 					if (unitList == null) {
-						unitList = new NamedList<String>(filepath);
+						unitList = new NamedList<>(filepath);
 						unitList.setCachedIconPath(unit.getIconPath());
 						abilityModelData.put(filepath.toLowerCase(), unitList);
 					}
@@ -312,7 +324,7 @@ public class ModelOptionPanel extends JPanel {
 					}
 					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
 					if (unitList == null) {
-						unitList = new NamedList<String>(filepath);
+						unitList = new NamedList<>(filepath);
 						unitList.setCachedIconPath(unit.getIconPath());
 						abilityModelData.put(filepath.toLowerCase(), unitList);
 					}
@@ -325,7 +337,7 @@ public class ModelOptionPanel extends JPanel {
 					}
 					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
 					if (unitList == null) {
-						unitList = new NamedList<String>(filepath);
+						unitList = new NamedList<>(filepath);
 						unitList.setCachedIconPath(unit.getIconPath());
 						abilityModelData.put(filepath.toLowerCase(), unitList);
 					}
@@ -339,7 +351,7 @@ public class ModelOptionPanel extends JPanel {
 					}
 					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
 					if (unitList == null) {
-						unitList = new NamedList<String>(filepath);
+						unitList = new NamedList<>(filepath);
 						unitList.setCachedIconPath(unit.getIconPath());
 						abilityModelData.put(filepath.toLowerCase(), unitList);
 					}
@@ -352,7 +364,7 @@ public class ModelOptionPanel extends JPanel {
 					}
 					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
 					if (unitList == null) {
-						unitList = new NamedList<String>(filepath);
+						unitList = new NamedList<>(filepath);
 						unitList.setCachedIconPath(unit.getIconPath());
 						abilityModelData.put(filepath.toLowerCase(), unitList);
 					}
@@ -365,7 +377,7 @@ public class ModelOptionPanel extends JPanel {
 					}
 					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
 					if (unitList == null) {
-						unitList = new NamedList<String>(filepath);
+						unitList = new NamedList<>(filepath);
 						unitList.setCachedIconPath(unit.getIconPath());
 						abilityModelData.put(filepath.toLowerCase(), unitList);
 					}
@@ -379,7 +391,7 @@ public class ModelOptionPanel extends JPanel {
 					}
 					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
 					if (unitList == null) {
-						unitList = new NamedList<String>(filepath);
+						unitList = new NamedList<>(filepath);
 						unitList.setCachedIconPath(unit.getIconPath());
 						abilityModelData.put(filepath.toLowerCase(), unitList);
 					}
@@ -392,7 +404,7 @@ public class ModelOptionPanel extends JPanel {
 					}
 					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
 					if (unitList == null) {
-						unitList = new NamedList<String>(filepath);
+						unitList = new NamedList<>(filepath);
 						unitList.setCachedIconPath(unit.getIconPath());
 						abilityModelData.put(filepath.toLowerCase(), unitList);
 					}
@@ -405,7 +417,7 @@ public class ModelOptionPanel extends JPanel {
 					}
 					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
 					if (unitList == null) {
-						unitList = new NamedList<String>(filepath);
+						unitList = new NamedList<>(filepath);
 						unitList.setCachedIconPath(unit.getIconPath());
 						abilityModelData.put(filepath.toLowerCase(), unitList);
 					}
@@ -420,7 +432,7 @@ public class ModelOptionPanel extends JPanel {
 				if (filepath.length() > 0) {
 					NamedList<String> unitList = unitsModelData.get(filepath.toLowerCase());
 					if (unitList == null) {
-						unitList = new NamedList<String>(filepath);
+						unitList = new NamedList<>(filepath);
 						unitList.setCachedIconPath(unit.getIconPath());
 						unitsModelData.put(filepath.toLowerCase(), unitList);
 					}
@@ -434,7 +446,7 @@ public class ModelOptionPanel extends JPanel {
 						for (final String fp : filepaths) {
 							NamedList<String> unitList = unitsMissileData.get(fp.toLowerCase());
 							if (unitList == null) {
-								unitList = new NamedList<String>(filepath);
+								unitList = new NamedList<>(filepath);
 								unitList.setCachedIconPath(unit.getIconPath());
 								unitsMissileData.put(fp.toLowerCase(), unitList);
 							}
@@ -443,7 +455,7 @@ public class ModelOptionPanel extends JPanel {
 					} else {
 						NamedList<String> unitList = unitsMissileData.get(filepath.toLowerCase());
 						if (unitList == null) {
-							unitList = new NamedList<String>(filepath);
+							unitList = new NamedList<>(filepath);
 							unitList.setCachedIconPath(unit.getIconPath());
 							unitsMissileData.put(filepath.toLowerCase(), unitList);
 						}
@@ -455,7 +467,7 @@ public class ModelOptionPanel extends JPanel {
 				if (filepath.length() > 0) {
 					NamedList<String> unitList = unitsSpecialData.get(filepath.toLowerCase());
 					if (unitList == null) {
-						unitList = new NamedList<String>(filepath);
+						unitList = new NamedList<>(filepath);
 						unitList.setCachedIconPath(unit.getIconPath());
 						unitsSpecialData.put(filepath.toLowerCase(), unitList);
 					}
@@ -466,7 +478,7 @@ public class ModelOptionPanel extends JPanel {
 				if (filepath.length() > 0) {
 					NamedList<String> unitList = unitsSpecialData.get(filepath.toLowerCase());
 					if (unitList == null) {
-						unitList = new NamedList<String>(filepath);
+						unitList = new NamedList<>(filepath);
 						unitList.setCachedIconPath(unit.getIconPath());
 						unitsSpecialData.put(filepath.toLowerCase(), unitList);
 					}
@@ -485,7 +497,7 @@ public class ModelOptionPanel extends JPanel {
 				}
 				NamedList<String> unitList = buffModelData.get(filepath.toLowerCase());
 				if (unitList == null) {
-					unitList = new NamedList<String>(filepath);
+					unitList = new NamedList<>(filepath);
 					unitList.setCachedIconPath(unit.getIconPath());
 					buffModelData.put(filepath.toLowerCase(), unitList);
 				}
@@ -498,7 +510,7 @@ public class ModelOptionPanel extends JPanel {
 				}
 				NamedList<String> unitList = buffModelData.get(filepath.toLowerCase());
 				if (unitList == null) {
-					unitList = new NamedList<String>(filepath);
+					unitList = new NamedList<>(filepath);
 					unitList.setCachedIconPath(unit.getIconPath());
 					buffModelData.put(filepath.toLowerCase(), unitList);
 				}
@@ -511,7 +523,7 @@ public class ModelOptionPanel extends JPanel {
 				}
 				NamedList<String> unitList = buffModelData.get(filepath.toLowerCase());
 				if (unitList == null) {
-					unitList = new NamedList<String>(filepath);
+					unitList = new NamedList<>(filepath);
 					unitList.setCachedIconPath(unit.getIconPath());
 					buffModelData.put(filepath.toLowerCase(), unitList);
 				}
@@ -525,7 +537,7 @@ public class ModelOptionPanel extends JPanel {
 				}
 				NamedList<String> unitList = buffModelData.get(filepath.toLowerCase());
 				if (unitList == null) {
-					unitList = new NamedList<String>(filepath);
+					unitList = new NamedList<>(filepath);
 					unitList.setCachedIconPath(unit.getIconPath());
 					buffModelData.put(filepath.toLowerCase(), unitList);
 				}
@@ -538,7 +550,7 @@ public class ModelOptionPanel extends JPanel {
 				}
 				NamedList<String> unitList = buffModelData.get(filepath.toLowerCase());
 				if (unitList == null) {
-					unitList = new NamedList<String>(filepath);
+					unitList = new NamedList<>(filepath);
 					unitList.setCachedIconPath(unit.getIconPath());
 					buffModelData.put(filepath.toLowerCase(), unitList);
 				}
@@ -551,7 +563,7 @@ public class ModelOptionPanel extends JPanel {
 				}
 				NamedList<String> unitList = buffModelData.get(filepath.toLowerCase());
 				if (unitList == null) {
-					unitList = new NamedList<String>(filepath);
+					unitList = new NamedList<>(filepath);
 					unitList.setCachedIconPath(unit.getIconPath());
 					buffModelData.put(filepath.toLowerCase(), unitList);
 				}
@@ -565,7 +577,7 @@ public class ModelOptionPanel extends JPanel {
 				}
 				NamedList<String> unitList = buffModelData.get(filepath.toLowerCase());
 				if (unitList == null) {
-					unitList = new NamedList<String>(filepath);
+					unitList = new NamedList<>(filepath);
 					unitList.setCachedIconPath(unit.getIconPath());
 					buffModelData.put(filepath.toLowerCase(), unitList);
 				}
@@ -578,7 +590,7 @@ public class ModelOptionPanel extends JPanel {
 				}
 				NamedList<String> unitList = buffModelData.get(filepath.toLowerCase());
 				if (unitList == null) {
-					unitList = new NamedList<String>(filepath);
+					unitList = new NamedList<>(filepath);
 					unitList.setCachedIconPath(unit.getIconPath());
 					buffModelData.put(filepath.toLowerCase(), unitList);
 				}
@@ -591,7 +603,7 @@ public class ModelOptionPanel extends JPanel {
 				}
 				NamedList<String> unitList = buffModelData.get(filepath.toLowerCase());
 				if (unitList == null) {
-					unitList = new NamedList<String>(filepath);
+					unitList = new NamedList<>(filepath);
 					unitList.setCachedIconPath(unit.getIconPath());
 					buffModelData.put(filepath.toLowerCase(), unitList);
 				}
@@ -605,7 +617,7 @@ public class ModelOptionPanel extends JPanel {
 				}
 				NamedList<String> unitList = buffModelData.get(filepath.toLowerCase());
 				if (unitList == null) {
-					unitList = new NamedList<String>(filepath);
+					unitList = new NamedList<>(filepath);
 					unitList.setCachedIconPath(unit.getIconPath());
 					buffModelData.put(filepath.toLowerCase(), unitList);
 				}
@@ -618,7 +630,7 @@ public class ModelOptionPanel extends JPanel {
 				}
 				NamedList<String> unitList = buffModelData.get(filepath.toLowerCase());
 				if (unitList == null) {
-					unitList = new NamedList<String>(filepath);
+					unitList = new NamedList<>(filepath);
 					unitList.setCachedIconPath(unit.getIconPath());
 					buffModelData.put(filepath.toLowerCase(), unitList);
 				}
@@ -631,7 +643,7 @@ public class ModelOptionPanel extends JPanel {
 				}
 				NamedList<String> unitList = buffModelData.get(filepath.toLowerCase());
 				if (unitList == null) {
-					unitList = new NamedList<String>(filepath);
+					unitList = new NamedList<>(filepath);
 					unitList.setCachedIconPath(unit.getIconPath());
 					buffModelData.put(filepath.toLowerCase(), unitList);
 				}
@@ -646,7 +658,7 @@ public class ModelOptionPanel extends JPanel {
 			if (filepath.length() > 0) {
 				NamedList<String> unitList = itemsModelData.get(filepath.toLowerCase());
 				if (unitList == null) {
-					unitList = new NamedList<String>(filepath);
+					unitList = new NamedList<>(filepath);
 					unitList.setCachedIconPath(unit.getIconPath());
 					itemsModelData.put(filepath.toLowerCase(), unitList);
 				}
@@ -661,7 +673,7 @@ public class ModelOptionPanel extends JPanel {
 			if (filepath.length() > 0) {
 				NamedList<String> unitList = destModelData.get(filepath.toLowerCase());
 				if (unitList == null) {
-					unitList = new NamedList<String>(filepath);
+					unitList = new NamedList<>(filepath);
 					unitList.setCachedIconPath(unit.getIconPath());
 					destModelData.put(filepath.toLowerCase(), unitList);
 				}
@@ -675,7 +687,7 @@ public class ModelOptionPanel extends JPanel {
 						if (filepath2.length() > 0) {
 							NamedList<String> unitList2 = destModelData.get(filepath2.toLowerCase());
 							if (unitList2 == null) {
-								unitList2 = new NamedList<String>(filepath2);
+								unitList2 = new NamedList<>(filepath2);
 								unitList2.setCachedIconPath(unit.getIconPath());
 								destModelData.put(filepath2.toLowerCase(), unitList2);
 							}
@@ -694,7 +706,7 @@ public class ModelOptionPanel extends JPanel {
 			if (filepath.length() > 0) {
 				NamedList<String> unitList = doodModelData.get(filepath.toLowerCase());
 				if (unitList == null) {
-					unitList = new NamedList<String>(filepath);
+					unitList = new NamedList<>(filepath);
 					unitList.setCachedIconPath(unit.getIconPath());
 					doodModelData.put(filepath.toLowerCase(), unitList);
 				}
@@ -708,7 +720,7 @@ public class ModelOptionPanel extends JPanel {
 						if (filepath2.length() > 0) {
 							NamedList<String> unitList2 = doodModelData.get(filepath2.toLowerCase());
 							if (unitList2 == null) {
-								unitList2 = new NamedList<String>(filepath2);
+								unitList2 = new NamedList<>(filepath2);
 								unitList2.setCachedIconPath(unit.getIconPath());
 								doodModelData.put(filepath2.toLowerCase(), unitList2);
 							}
@@ -732,7 +744,7 @@ public class ModelOptionPanel extends JPanel {
 				if (filepath.length() > 0) {
 					NamedList<String> unitList = spawnModelData.get(filepath.toLowerCase());
 					if (unitList == null) {
-						unitList = new NamedList<String>(filepath);
+						unitList = new NamedList<>(filepath);
 						unitList.setCachedIconPath(unit.getIconPath());
 						spawnModelData.put(filepath.toLowerCase(), unitList);
 					}
@@ -758,7 +770,7 @@ public class ModelOptionPanel extends JPanel {
 					if (filepath.length() > 0) {
 						NamedList<String> unitList = ginterModelData.get(filepath.toLowerCase());
 						if (unitList == null) {
-							unitList = new NamedList<String>(filepath);
+							unitList = new NamedList<>(filepath);
 							unitList.setCachedIconPath(race.getIconPath());
 							ginterModelData.put(filepath.toLowerCase(), unitList);
 						}
@@ -1056,8 +1068,8 @@ public class ModelOptionPanel extends JPanel {
 	JComboBox<Model> modelBox;
 	JTextField filePathField;
 	String cachedIconPath;
-	DefaultComboBoxModel<ModelGroup> groupsModel = new DefaultComboBoxModel<ModelGroup>();
-	List<DefaultComboBoxModel<Model>> groupModels = new ArrayList<DefaultComboBoxModel<Model>>();
+	DefaultComboBoxModel<ModelGroup> groupsModel = new DefaultComboBoxModel<>();
+	List<DefaultComboBoxModel<Model>> groupModels = new ArrayList<>();
 
 	PerspDisplayPanel viewer;
 
@@ -1069,15 +1081,15 @@ public class ModelOptionPanel extends JPanel {
 
 		for (final ModelGroup group : groups) {
 			groupsModel.addElement(group);
-			final DefaultComboBoxModel<Model> groupModel = new DefaultComboBoxModel<Model>();
+			final DefaultComboBoxModel<Model> groupModel = new DefaultComboBoxModel<>();
 
 			for (final Model model : group.models) {
 				groupModel.addElement(model);
 			}
 			groupModels.add(groupModel);
 		}
-		groupBox = new JComboBox<ModelGroup>(groupsModel);
-		modelBox = new JComboBox<Model>(groupModels.get(0));
+		groupBox = new JComboBox<>(groupsModel);
+		modelBox = new JComboBox<>(groupModels.get(0));
 		filePathField = new JTextField();
 		filePathField.setMaximumSize(new Dimension(20000, 25));
 		groupBox.addActionListener(new ActionListener() {
@@ -1179,7 +1191,7 @@ public class ModelOptionPanel extends JPanel {
 						.addGroup(layout.createParallelGroup()
 								.addComponent(viewer).addGroup(layout.createSequentialGroup().addComponent(groupBox)
 										.addGap(4).addComponent(modelBox).addGap(4).addComponent(filePathField)))
-				.addGap(8));
+						.addGap(8));
 
 		setLayout(layout);
 	}

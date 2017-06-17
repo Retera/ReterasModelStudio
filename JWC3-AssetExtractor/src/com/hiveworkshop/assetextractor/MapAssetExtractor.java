@@ -1,4 +1,4 @@
-package com.hiveworkshop.assetripper;
+package com.hiveworkshop.assetextractor;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -16,13 +16,13 @@ import net.wc3c.w3o.W3UFile;
 import net.wc3c.w3o.W3UFile.Unit;
 import net.wc3c.wts.WTSFile;
 
-public final class MapAssetRipper implements AutoCloseable {
+public final class MapAssetExtractor implements AutoCloseable {
 	private final Path map;
 	private final MpqCodebase codebase;
 	private final WarcraftData unitData;
 	private LoadedMPQ loadedMPQ;
 
-	public MapAssetRipper(final Path map) {
+	public MapAssetExtractor(final Path map) {
 		this.map = map;
 		codebase = MpqCodebase.get();
 		if (map.toString().length() > 0) {
@@ -91,9 +91,10 @@ public final class MapAssetRipper implements AutoCloseable {
 		return unitData;
 	}
 
-	public void ripObject(final String objectId, final Path destinationFolder, final AssetRipperSettings settings) {
+	public void extractObject(final String objectId, final Path destinationFolder,
+			final AssetExtractorSettings settings) {
 		final AssetSourceObject source = new AssetSourceObject(objectId);
-		source.rip(codebase, unitData, destinationFolder, settings);
+		source.extract(codebase, unitData, destinationFolder, settings);
 	}
 
 	@Override
@@ -101,5 +102,9 @@ public final class MapAssetRipper implements AutoCloseable {
 		if (loadedMPQ != null) {
 			loadedMPQ.unload();
 		}
+	}
+
+	public LoadedMPQ getLoadedMPQ() {
+		return loadedMPQ;
 	}
 }
