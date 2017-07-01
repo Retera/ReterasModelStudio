@@ -51,9 +51,9 @@ public class Build implements BuilderInterface {
 	public String objFilename = null;
 	// these accumulate each type of vertex as they are parsed, so they can then
 	// be referenced via index.
-	public ArrayList<VertexGeometric> verticesG = new ArrayList<VertexGeometric>();
-	public ArrayList<VertexTexture> verticesT = new ArrayList<VertexTexture>();
-	public ArrayList<VertexNormal> verticesN = new ArrayList<VertexNormal>();
+	public ArrayList<VertexGeometric> verticesG = new ArrayList<>();
+	public ArrayList<VertexTexture> verticesT = new ArrayList<>();
+	public ArrayList<VertexNormal> verticesN = new ArrayList<>();
 	// we use this map to consolidate redundant face vertices. Since a face is
 	// defined as a list of index
 	// triplets, each index referring to a vertex within ONE of the three
@@ -61,23 +61,23 @@ public class Build implements BuilderInterface {
 	// or verticesN, two faces might end up specifying the same combination.
 	// Clearly (@TODO: really?) this
 	// combination should be shared between both faces.
-	HashMap<String, FaceVertex> faceVerticeMap = new HashMap<String, FaceVertex>();
+	HashMap<String, FaceVertex> faceVerticeMap = new HashMap<>();
 	// Each face vertex as it is parsed, minus the redundant face vertices.
 	// @TODO: Not used anywhere yet, maybe get rid of this.
-	public ArrayList<FaceVertex> faceVerticeList = new ArrayList<FaceVertex>();
-	public ArrayList<Face> faces = new ArrayList<Face>();
-	public HashMap<Integer, ArrayList<Face>> smoothingGroups = new HashMap<Integer, ArrayList<Face>>();
+	public ArrayList<FaceVertex> faceVerticeList = new ArrayList<>();
+	public ArrayList<Face> faces = new ArrayList<>();
+	public HashMap<Integer, ArrayList<Face>> smoothingGroups = new HashMap<>();
 	private int currentSmoothingGroupNumber = NO_SMOOTHING_GROUP;
 	private ArrayList<Face> currentSmoothingGroup = null;
-	public HashMap<String, ArrayList<Face>> groups = new HashMap<String, ArrayList<Face>>();
-	private final ArrayList<String> currentGroups = new ArrayList<String>();
-	private final ArrayList<ArrayList<Face>> currentGroupFaceLists = new ArrayList<ArrayList<Face>>();
+	public HashMap<String, ArrayList<Face>> groups = new HashMap<>();
+	private final ArrayList<String> currentGroups = new ArrayList<>();
+	private final ArrayList<ArrayList<Face>> currentGroupFaceLists = new ArrayList<>();
 	public String objectName = null;
 	private Material currentMaterial = null;
 	private Material currentMap = null;
-	public HashMap<String, Material> materialLib = new HashMap<String, Material>();
+	public HashMap<String, Material> materialLib = new HashMap<>();
 	private Material currentMaterialBeingParsed = null;
-	public HashMap<String, Material> mapLib = new HashMap<String, Material>();
+	public HashMap<String, Material> mapLib = new HashMap<>();
 	private final Material currentMapBeingParsed = null;
 	public int faceTriCount = 0;
 	public int faceQuadCount = 0;
@@ -358,7 +358,7 @@ public class Build implements BuilderInterface {
 			return;
 		}
 		if (null == smoothingGroups.get(currentSmoothingGroupNumber)) {
-			currentSmoothingGroup = new ArrayList<Face>();
+			currentSmoothingGroup = new ArrayList<>();
 			smoothingGroups.put(currentSmoothingGroupNumber, currentSmoothingGroup);
 		}
 	}
@@ -739,13 +739,13 @@ public class Build implements BuilderInterface {
 			if (faces.size() >= 10000 || verticesG.size() >= 10000) {
 				loadbar.show();
 			}
-			final Set<Face> processedFaces = new HashSet<Face>();
+			final Set<Face> processedFaces = new HashSet<>();
 			for (final Map.Entry<String, ArrayList<Face>> entry : groups.entrySet()) {
 				// we want to split group by material
 				// for each material, we have
 				// - list of vertices
 				// - geoset
-				final Map<Material, Subgroup> materialToSubgroup = new HashMap<Material, Subgroup>();
+				final Map<Material, Subgroup> materialToSubgroup = new HashMap<>();
 				// final Map<VertexKey,GeosetVertex> builderVertexToMdlVertex =
 				// new HashMap<VertexKey,GeosetVertex>();
 				// Map
@@ -758,7 +758,7 @@ public class Build implements BuilderInterface {
 			// ==================== second run for "face" global
 			// ============================
 
-			final Map<Material, Subgroup> materialToSubgroup = new HashMap<Material, Subgroup>();
+			final Map<Material, Subgroup> materialToSubgroup = new HashMap<>();
 			convertMesh(mdl, processedFaces, objectName, materialToSubgroup, faces);
 
 			// ===================== end second run
@@ -869,8 +869,8 @@ public class Build implements BuilderInterface {
 					if (name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".tga")
 							|| name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".bmp")) {
 						if (userWantsSwapToBLP) {
+							File imageFilePNG = new File(objFolder.getPath() + "/" + name);
 							try {
-								File imageFilePNG = new File(objFolder.getPath() + "/" + name);
 								if (!imageFilePNG.exists() && name.indexOf("_") >= 0) {
 									imageFilePNG = new File(
 											objFolder.getPath() + "/" + name.substring(name.indexOf("_") + 1));
@@ -898,7 +898,7 @@ public class Build implements BuilderInterface {
 								// BlpFile.writePalettedBLP(imageData,
 								// imageFileBLP, true, true, false);
 							} catch (final Exception e) {
-								ExceptionPopup.display("Unable to convert PNG to BLP.", e);
+								ExceptionPopup.display("Unable to convert PNG to BLP: " + imageFilePNG.toString(), e);
 							}
 						}
 						name = name.substring(0, name.lastIndexOf('.')) + ".blp";
@@ -975,7 +975,7 @@ public class Build implements BuilderInterface {
 		}
 		final Bone groupBone = new Bone(groupName);
 		mdl.add(groupBone);
-		final List<Vertex> attachedVertices = new ArrayList<Vertex>();
+		final List<Vertex> attachedVertices = new ArrayList<>();
 		for (final Map.Entry<Material, Subgroup> subgroup : materialToSubgroup.entrySet()) {
 			final Geoset geo = subgroup.getValue().getGeo();
 			geo.setParentModel(mdl);
@@ -984,7 +984,7 @@ public class Build implements BuilderInterface {
 			boolean noteForMatrixEaterAboutWrapHeights = false;
 			final UVLayer uvLayer = new UVLayer();
 			geo.addUVLayer(uvLayer);
-			final List<VertexKey> vertexKeys = new ArrayList<VertexKey>();
+			final List<VertexKey> vertexKeys = new ArrayList<>();
 			vertexKeys.addAll(vertexKeysToIndices.keySet());
 			Collections.sort(vertexKeys, new Comparator<VertexKey>() {
 				@Override
@@ -997,7 +997,7 @@ public class Build implements BuilderInterface {
 			// }
 
 			for (final VertexKey key : vertexKeys) {
-				final ArrayList<TVertex> tverts = new ArrayList<TVertex>();
+				final ArrayList<TVertex> tverts = new ArrayList<>();
 				final TVertex createdTVertex = key.createTVertex();
 
 				if (createdTVertex.getX() > 1.0 || createdTVertex.getX() < 0 || createdTVertex.getY() > 1.0
@@ -1017,7 +1017,7 @@ public class Build implements BuilderInterface {
 				triangle.updateVertexRefs();
 			}
 
-			final List<Layer> layers = new ArrayList<Layer>();
+			final List<Layer> layers = new ArrayList<>();
 			final Material material = subgroup.getKey();// materialLib.get(groupName);
 			final com.hiveworkshop.wc3.mdl.Material mdlMaterial = convertMaterial(geo, layers, material);
 			if (noteForMatrixEaterAboutWrapHeights) {
@@ -1134,7 +1134,7 @@ public class Build implements BuilderInterface {
 		final com.hiveworkshop.wc3.mdl.Material mdlMaterial = new com.hiveworkshop.wc3.mdl.Material(layers);
 		if (colorOn) {
 			mdlMaterial.add("ConstantColor");
-			final List<ReflectivityTransmiss> transmisses = new ArrayList<ReflectivityTransmiss>();
+			final List<ReflectivityTransmiss> transmisses = new ArrayList<>();
 			ReflectivityTransmiss max = null;
 			for (final ReflectivityTransmiss transmiss : transmisses) {
 				if (transmiss.bz + transmiss.gy + transmiss.rx > max.bz + max.rx + max.gy) {

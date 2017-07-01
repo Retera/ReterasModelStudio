@@ -543,11 +543,11 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 
 	@Override
 	public void mouseDragged(final MouseEvent e) {
-		activityListener.mouseDragged(e);
+		// activityListener.mouseDragged(e);
 	}
 
 	@Override
 	public void mouseMoved(final MouseEvent e) {
-		activityListener.mouseMoved(e);
+		// activityListener.mouseMoved(e);
 	}
 }
