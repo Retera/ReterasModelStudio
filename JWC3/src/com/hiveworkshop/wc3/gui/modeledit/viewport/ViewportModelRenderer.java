@@ -26,10 +26,10 @@ import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.renderer.GeosetRenderer;
-import com.hiveworkshop.wc3.mdl.renderer.MaterialView;
 import com.hiveworkshop.wc3.mdl.renderer.ModelRenderer;
 import com.hiveworkshop.wc3.mdl.renderer.TriangleRenderer;
-import com.hiveworkshop.wc3.mdl.renderer.VertexRenderer;
+import com.hiveworkshop.wc3.mdl.v2.MaterialView;
+import com.hiveworkshop.wc3.mdl.v2.visitor.VertexVisitor;
 
 public class ViewportModelRenderer implements ModelRenderer {
 	private final Image attachmentImage;
@@ -278,7 +278,7 @@ public class ViewportModelRenderer implements ModelRenderer {
 	}
 
 	private final class TriangleRendererImpl implements TriangleRenderer {
-		private final List<Point> previousVertices = new ArrayList<Point>();
+		private final List<Point> previousVertices = new ArrayList<>();
 
 		public TriangleRendererImpl reset() {
 			previousVertices.clear();
@@ -286,7 +286,7 @@ public class ViewportModelRenderer implements ModelRenderer {
 		}
 
 		@Override
-		public VertexRenderer renderVertex(final double x, final double y, final double z, final double normalX,
+		public VertexVisitor vertex(final double x, final double y, final double z, final double normalX,
 				final double normalY, final double normalZ, final List<Bone> bones) {
 			double firstCoord, secondCoord;
 			switch (xDimension) {
@@ -326,7 +326,7 @@ public class ViewportModelRenderer implements ModelRenderer {
 			// graphics.fillRect((int) firstCoord - vertexSize / 2, (int)
 			// secondCoord - vertexSize / 2, vertexSize,
 			// vertexSize);
-			return VertexRenderer.NO_ACTION;
+			return VertexVisitor.NO_ACTION;
 		}
 
 		@Override

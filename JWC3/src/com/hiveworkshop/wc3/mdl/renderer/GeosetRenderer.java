@@ -1,7 +1,6 @@
 package com.hiveworkshop.wc3.mdl.renderer;
 
-public interface GeosetRenderer {
-	TriangleRenderer beginTriangle();
+import com.hiveworkshop.wc3.mdl.v2.visitor.GeosetVisitor;
 
-	void geosetFinished();
+public interface GeosetRenderer extends GeosetVisitor {
 }

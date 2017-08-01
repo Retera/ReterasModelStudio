@@ -18,10 +18,10 @@ import javax.swing.JOptionPane;
 
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.mdl.AnimFlag.Entry;
-import com.hiveworkshop.wc3.mdl.renderer.GeosetRenderer;
 import com.hiveworkshop.wc3.mdl.renderer.ModelRenderer;
-import com.hiveworkshop.wc3.mdl.renderer.TriangleRenderer;
-import com.hiveworkshop.wc3.mdl.renderer.VertexRenderer;
+import com.hiveworkshop.wc3.mdl.v2.visitor.GeosetVisitor;
+import com.hiveworkshop.wc3.mdl.v2.visitor.TriangleVisitor;
+import com.hiveworkshop.wc3.mdl.v2.visitor.VertexVisitor;
 import com.hiveworkshop.wc3.mdx.AttachmentChunk;
 import com.hiveworkshop.wc3.mdx.BoneChunk;
 import com.hiveworkshop.wc3.mdx.CameraChunk;
@@ -2357,18 +2357,17 @@ public class MDL implements Named {
 
 	public void render(final ModelRenderer renderer) {
 		for (final Geoset geoset : geosets) {
-			final GeosetRenderer geosetRenderer = renderer.beginGeoset(geoset.getMaterial(), geoset.getGeosetAnim());
+			final GeosetVisitor geosetRenderer = renderer.beginGeoset(geoset.getMaterial(), geoset.getGeosetAnim());
 			for (final Triangle triangle : geoset.getTriangle()) {
-				final TriangleRenderer triangleRenderer = geosetRenderer.beginTriangle();
+				final TriangleVisitor triangleRenderer = geosetRenderer.beginTriangle();
 				for (final GeosetVertex vertex : triangle.getVerts()) {
-					final VertexRenderer vertexRenderer;
+					final VertexVisitor vertexRenderer;
 					// TODO redesign for nullable normals
 					if (vertex.getNormal() != null) {
-						vertexRenderer = triangleRenderer.renderVertex(vertex.x, vertex.y, vertex.z,
-								vertex.getNormal().x, vertex.getNormal().y, vertex.getNormal().z,
-								vertex.getBoneAttachments());
+						vertexRenderer = triangleRenderer.vertex(vertex.x, vertex.y, vertex.z, vertex.getNormal().x,
+								vertex.getNormal().y, vertex.getNormal().z, vertex.getBoneAttachments());
 					} else {
-						vertexRenderer = triangleRenderer.renderVertex(vertex.x, vertex.y, vertex.z, 0, 0, 0,
+						vertexRenderer = triangleRenderer.vertex(vertex.x, vertex.y, vertex.z, 0, 0, 0,
 								vertex.getBoneAttachments());
 					}
 					for (final TVertex tvert : vertex.getTverts()) {

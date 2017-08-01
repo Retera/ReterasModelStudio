@@ -6,7 +6,8 @@ import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
-import com.hiveworkshop.wc3.mdl.renderer.LayerView;
+import com.hiveworkshop.wc3.mdl.v2.LayerView;
+import com.hiveworkshop.wc3.mdl.v2.timelines.Animatable;
 import com.hiveworkshop.wc3.mdx.LayerChunk;
 
 /**
@@ -554,8 +555,7 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		TVertexAnimId = tVertexAnimId;
 	}
 
-	@Override
-	public Bitmap getTexture() {
+	public Bitmap getTextureBitmap() {
 		return texture;
 	}
 
@@ -563,7 +563,6 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		this.texture = texture;
 	}
 
-	@Override
 	public double getStaticAlpha() {
 		return staticAlpha;
 	}
@@ -649,5 +648,15 @@ public class Layer implements Named, VisibilitySource, LayerView {
 	@Override
 	public boolean isNoDepthSet() {
 		return flags.contains("NoDepthSet");
+	}
+
+	@Override
+	public Animatable<Bitmap> getTexture() {
+		throw new UnsupportedOperationException("not yet implemented");
+	}
+
+	@Override
+	public Animatable<Double> getAlpha() {
+		throw new UnsupportedOperationException("not yet implemented");
 	}
 }

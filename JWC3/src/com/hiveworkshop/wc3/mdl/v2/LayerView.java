@@ -1,14 +1,15 @@
-package com.hiveworkshop.wc3.mdl.renderer;
+package com.hiveworkshop.wc3.mdl.v2;
 
 import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Layer;
+import com.hiveworkshop.wc3.mdl.v2.timelines.Animatable;
 
 public interface LayerView {
 	Layer.FilterMode getFilterMode();
 
-	Bitmap getTexture();
+	Animatable<Bitmap> getTexture();
 
-	double getStaticAlpha();
+	Animatable<Double> getAlpha();
 
 	boolean isUnshaded();
 

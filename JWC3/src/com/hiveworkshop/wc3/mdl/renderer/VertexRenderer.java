@@ -1,17 +1,6 @@
 package com.hiveworkshop.wc3.mdl.renderer;
 
-public interface VertexRenderer {
-	void textureCoords(double u, double v);
+import com.hiveworkshop.wc3.mdl.v2.visitor.VertexVisitor;
 
-	void vertexFinished();
-
-	public static final VertexRenderer NO_ACTION = new VertexRenderer() {
-		@Override
-		public void textureCoords(final double u, final double v) {
-		}
-
-		@Override
-		public void vertexFinished() {
-		}
-	};
+public interface VertexRenderer extends VertexVisitor {
 }

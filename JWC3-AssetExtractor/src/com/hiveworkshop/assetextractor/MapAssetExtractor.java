@@ -73,7 +73,8 @@ public final class MapAssetExtractor implements AutoCloseable {
 					}
 				}
 			} catch (final IOException e) {
-				throw new IllegalArgumentException(e);
+				// throw new IllegalArgumentException(e);
+				e.printStackTrace();
 			}
 		}
 		return unitData;

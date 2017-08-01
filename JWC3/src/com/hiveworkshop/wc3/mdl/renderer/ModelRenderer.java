@@ -1,8 +1,6 @@
 package com.hiveworkshop.wc3.mdl.renderer;
 
-import com.hiveworkshop.wc3.mdl.GeosetAnim;
+import com.hiveworkshop.wc3.mdl.v2.visitor.ModelVisitor;
 
-public interface ModelRenderer extends IdObjectVisitor {
-	GeosetRenderer beginGeoset(MaterialView material, GeosetAnim geosetAnim);
-
+public interface ModelRenderer extends ModelVisitor {
 }

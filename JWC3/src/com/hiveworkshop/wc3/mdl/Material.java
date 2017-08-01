@@ -12,7 +12,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
-import com.hiveworkshop.wc3.mdl.renderer.MaterialView;
+import com.hiveworkshop.wc3.mdl.v2.MaterialView;
 import com.hiveworkshop.wc3.mdx.LayerChunk;
 import com.hiveworkshop.wc3.mdx.MaterialChunk;
 
@@ -23,24 +23,23 @@ import com.hiveworkshop.wc3.mdx.MaterialChunk;
  */
 public class Material implements MaterialView {
 	public static int teamColor = 0;
-	ArrayList<Layer> layers;
+	com.etheller.collections.ArrayList<Layer> layers;
 	private int priorityPlane = 0;
-	private ArrayList<String> flags = new ArrayList<String>();// My way of
-																// dealing with
-																// all the stuff
-																// that I
-																// forget/don't
-																// bother with:
-																// "Unshaded,"
-																// "Unfogged,"
-																// "TwoSided,"
-																// "CoordId X,"
-																// actually
-																// CoordId was
-																// moved into
-																// its own field
+	private ArrayList<String> flags = new ArrayList<>();// My way of
+														// dealing with
+														// all the stuff
+														// that I
+														// forget/don't
+														// bother with:
+														// "Unshaded,"
+														// "Unfogged,"
+														// "TwoSided,"
+														// "CoordId X,"
+														// actually
+														// CoordId was
+														// moved into
+														// its own field
 
-	@Override
 	public String getName() {
 		String name = "";
 		if (layers.size() > 0) {
@@ -75,24 +74,27 @@ public class Material implements MaterialView {
 	}
 
 	public Material(final Layer lay) {
-		layers = new ArrayList<Layer>();
-		flags = new ArrayList<String>();
+		layers = new com.etheller.collections.ArrayList<>();
+		flags = new ArrayList<>();
 		layers.add(lay);
 	}
 
 	public Material(final List<Layer> layers) {
-		this.layers = new ArrayList<Layer>();
-		this.layers.addAll(layers);
+		this.layers = new com.etheller.collections.ArrayList<>();
+		for (final Layer layer : layers) {
+			this.layers.add(layer);
+		}
+		// this.layers.addAll(layers);
 	}
 
 	private Material() {
-		layers = new ArrayList<Layer>();
-		flags = new ArrayList<String>();
+		layers = new com.etheller.collections.ArrayList<>();
+		flags = new ArrayList<>();
 	}
 
 	public Material(final Material other) {
-		layers = new ArrayList<Layer>();
-		flags = new ArrayList<String>(other.flags);
+		layers = new com.etheller.collections.ArrayList<>();
+		flags = new ArrayList<>(other.flags);
 		for (final Layer lay : other.layers) {
 			layers.add(new Layer(lay));
 		}
@@ -123,11 +125,11 @@ public class Material implements MaterialView {
 	}
 
 	@Override
-	public ArrayList<Layer> getLayers() {
+	public com.etheller.collections.ArrayList<Layer> getLayers() {
 		return layers;
 	}
 
-	public void setLayers(final ArrayList<Layer> layers) {
+	public void setLayers(final com.etheller.collections.ArrayList<Layer> layers) {
 		this.layers = layers;
 	}
 
@@ -288,7 +290,7 @@ public class Material implements MaterialView {
 
 	public static ArrayList<Material> readAll(final BufferedReader mdl, final MDL mdlr) {
 		String line = "";
-		final ArrayList<Material> outputs = new ArrayList<Material>();
+		final ArrayList<Material> outputs = new ArrayList<>();
 		MDLReader.mark(mdl);
 		if ((line = MDLReader.nextLine(mdl)).contains("Materials")) {
 			MDLReader.mark(mdl);
@@ -342,7 +344,8 @@ public class Material implements MaterialView {
 				newImage = BLPHandler.get().getTexture(workingDirectory == null ? null : workingDirectory.getPath(),
 						path);
 			} catch (final Exception exc) {
-				newImage = null;
+				// newImage = null;
+				newImage = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
 			}
 			if (theImage == null) {
 				theImage = newImage;

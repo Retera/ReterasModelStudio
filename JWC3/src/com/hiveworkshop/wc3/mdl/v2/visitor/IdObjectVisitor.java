@@ -1,4 +1,4 @@
-package com.hiveworkshop.wc3.mdl.renderer;
+package com.hiveworkshop.wc3.mdl.v2.visitor;
 
 import com.hiveworkshop.wc3.mdl.Attachment;
 import com.hiveworkshop.wc3.mdl.Bone;

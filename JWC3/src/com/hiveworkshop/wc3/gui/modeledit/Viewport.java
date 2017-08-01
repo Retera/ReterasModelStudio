@@ -431,8 +431,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 			m_a += (e.getX() - lastClick.x) / m_zoom;
 			m_b += (e.getY() - lastClick.y) / m_zoom;
 			lastClick = null;
-		} else if (e
-				.getButton() == MouseEvent.BUTTON1/* && selectStart != null */) {
+		} else if (e.getButton() == MouseEvent.BUTTON1 && selectStart != null) {
 			// activityListener.mouseReleased(e);
 			final Point selectEnd = new Point(e.getX(), e.getY());
 			final Rectangle2D.Double area = pointsToGeomRect(selectStart, selectEnd);

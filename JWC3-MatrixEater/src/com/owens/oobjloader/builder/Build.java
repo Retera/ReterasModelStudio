@@ -831,7 +831,7 @@ public class Build implements BuilderInterface {
 			int nLayers = 0;
 			for (final com.hiveworkshop.wc3.mdl.Material material : mdl.getMaterials()) {
 				for (final Layer layer : material.getLayers()) {
-					final String name = layer.getTexture().getPath();
+					final String name = layer.getTextureBitmap().getPath();
 					if (name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".tga")
 							|| name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".bmp")) {
 						hasPNGs = true;
@@ -865,7 +865,7 @@ public class Build implements BuilderInterface {
 			}
 			for (final com.hiveworkshop.wc3.mdl.Material material : mdl.getMaterials()) {
 				for (final Layer layer : material.getLayers()) {
-					String name = layer.getTexture().getPath();
+					String name = layer.getTextureBitmap().getPath();
 					if (name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".tga")
 							|| name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".bmp")) {
 						if (userWantsSwapToBLP) {
@@ -902,7 +902,7 @@ public class Build implements BuilderInterface {
 							}
 						}
 						name = name.substring(0, name.lastIndexOf('.')) + ".blp";
-						layer.getTexture().setPath(name);
+						layer.getTextureBitmap().setPath(name);
 					}
 					if (loadbar.isVisible()) {
 						loadbar.setPercent(index / (float) nLayers);
@@ -1022,8 +1022,8 @@ public class Build implements BuilderInterface {
 			final com.hiveworkshop.wc3.mdl.Material mdlMaterial = convertMaterial(geo, layers, material);
 			if (noteForMatrixEaterAboutWrapHeights) {
 				for (final Layer layer : layers) {
-					layer.getTexture().setWrapHeight(true);
-					layer.getTexture().setWrapWidth(true);
+					layer.getTextureBitmap().setWrapHeight(true);
+					layer.getTextureBitmap().setWrapWidth(true);
 					// JOptionPane.showMessageDialog(null, "One or more meshes
 					// were imported with texture coordinates stretching outside
 					// the texture.\n\nThese will not render correctly in the

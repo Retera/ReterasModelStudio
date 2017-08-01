@@ -13,7 +13,7 @@ import com.hiveworkshop.wc3.mdx.TextureChunk;
 import com.hiveworkshop.wc3.mpq.Codebase;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.units.GameObject;
-import com.hiveworkshop.wc3.units.StandardObjectData.WarcraftData;
+import com.hiveworkshop.wc3.units.ObjectData;
 import com.hiveworkshop.wc3.util.IconUtils;
 import com.hiveworkshop.wc3.util.ModelUtils;
 
@@ -26,7 +26,7 @@ public final class AssetSourceObject {
 		this.unitId = unitId;
 	}
 
-	public void extract(final Codebase mpqs, final WarcraftData standardUnits, final Path outputDirectory,
+	public void extract(final Codebase mpqs, final ObjectData standardUnits, final Path outputDirectory,
 			final AssetExtractorSettings settings) {
 		if (!Files.exists(outputDirectory)) {
 			throw new IllegalArgumentException("The folder does not exist: " + outputDirectory.toString());
@@ -38,10 +38,10 @@ public final class AssetSourceObject {
 		final String modelFile = asMdxExtension(unit.getField("file"));
 		final String specialArt = asMdxExtension(unit.getField("Specialart"));
 		final String[] missileArts = unit.getField("Missileart").split(",");
-		final String icon = unit.getField("Art");
-		final String disabledIcon = IconUtils.getDisabledIcon(icon);
-		final String scoreScreenIcon = unit.getField("ScoreScreenIcon");
-		final String casterUpgradeIcon = unit.getField("Casterupgradeart");
+		final String icon = asExtension(unit.getField("Art"), ".blp");
+		final String disabledIcon = asExtension(IconUtils.getDisabledIcon(icon), ".blp");
+		final String scoreScreenIcon = asExtension(unit.getField("ScoreScreenIcon"), ".blp");
+		final String casterUpgradeIcon = asExtension(unit.getField("Casterupgradeart"), ".blp");
 		extract(mpqs, outputDirectory, modelFile, settings, false);
 		extract(mpqs, outputDirectory, icon, settings, settings.getFlatten() == 3);
 		extract(mpqs, outputDirectory, disabledIcon, settings, settings.getFlatten() == 3);
@@ -55,9 +55,25 @@ public final class AssetSourceObject {
 				extractModel(mpqs, outputDirectory, asMdxExtension(missileArt), settings);
 			}
 			extractModel(mpqs, outputDirectory, ModelUtils.getPortrait(modelFile), settings);
+
+			// abilities
+			extractModel(mpqs, outputDirectory, asMdxExtension(unit.getField("SpecialArt")), settings);
+			extractModel(mpqs, outputDirectory, asMdxExtension(unit.getField("TargetArt")), settings);
+			extractModel(mpqs, outputDirectory, asMdxExtension(unit.getField("Areaeffectart")), settings);
+
 		} catch (final IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public static String asExtension(String modelFile, final String extension) {
+		if (modelFile.contains(".")) {
+			modelFile = modelFile.substring(0, modelFile.lastIndexOf('.')) + extension;
+		}
+		if (!modelFile.toLowerCase().endsWith(extension)) {
+			modelFile += extension;
+		}
+		return modelFile;
 	}
 
 	public static String asMdxExtension(String modelFile) {

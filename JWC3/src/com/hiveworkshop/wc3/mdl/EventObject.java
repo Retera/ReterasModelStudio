@@ -7,7 +7,7 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import com.hiveworkshop.wc3.mdl.renderer.IdObjectVisitor;
+import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.EventObjectChunk;
 import com.hiveworkshop.wc3.mdx.Node;
 
@@ -18,8 +18,8 @@ import com.hiveworkshop.wc3.mdx.Node;
  * Eric Theller 3/10/2012 3:52 PM
  */
 public class EventObject extends IdObject {
-	ArrayList<Integer> eventTrack = new ArrayList<Integer>();
-	ArrayList<AnimFlag> animFlags = new ArrayList<AnimFlag>();
+	ArrayList<Integer> eventTrack = new ArrayList<>();
+	ArrayList<AnimFlag> animFlags = new ArrayList<>();
 	Integer globalSeq;
 	int globalSeqId = -1;
 	boolean hasGlobalSeq;
@@ -73,7 +73,7 @@ public class EventObject extends IdObject {
 	}
 
 	@Override
-	public IdObject copy() {
+	public EventObject copy() {
 		final EventObject x = new EventObject();
 
 		x.name = name + " copy";
@@ -82,7 +82,7 @@ public class EventObject extends IdObject {
 		x.parentId = parentId;
 		x.parent = parent;
 
-		x.eventTrack = new ArrayList<Integer>(eventTrack);
+		x.eventTrack = new ArrayList<>(eventTrack);
 		for (final AnimFlag af : animFlags) {
 			x.animFlags.add(new AnimFlag(af));
 		}
@@ -148,7 +148,7 @@ public class EventObject extends IdObject {
 		// -- uses objectId value of idObject superclass
 		// -- uses parentId value of idObject superclass
 		// -- uses the parent (java Object reference) of idObject superclass
-		final ArrayList<AnimFlag> pAnimFlags = new ArrayList<AnimFlag>(this.animFlags);
+		final ArrayList<AnimFlag> pAnimFlags = new ArrayList<>(this.animFlags);
 		writer.println(MDLReader.getClassName(this.getClass()) + " \"" + getName() + "\" {");
 		if (objectId != -1) {
 			writer.println("\tObjectId " + objectId + ",");
@@ -321,7 +321,7 @@ public class EventObject extends IdObject {
 
 	@Override
 	public List<String> getFlags() {
-		return new ArrayList<String>();// Current eventobject implementation
+		return new ArrayList<>();// Current eventobject implementation
 										// uses no flags!
 	}
 

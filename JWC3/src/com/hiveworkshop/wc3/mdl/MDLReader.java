@@ -1,9 +1,11 @@
 package com.hiveworkshop.wc3.mdl;
-import javax.swing.JOptionPane;
-import java.util.ArrayList;
-import java.io.*;
-import java.util.Date;
 import java.awt.Component;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+
+import javax.swing.JOptionPane;
 public class MDLReader
 {
     static int c = 0;

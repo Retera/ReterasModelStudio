@@ -53,6 +53,7 @@ import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
@@ -90,6 +91,8 @@ import com.hiveworkshop.wc3.jworldedit.models.UnitEditorModelSelector;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Bone;
+import com.hiveworkshop.wc3.mdl.EventObject;
+import com.hiveworkshop.wc3.mdl.ExtLog;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.IdObject;
@@ -134,11 +137,12 @@ import de.wc3data.stream.BlizzardDataOutputStream;
  * @version (a version number or a date)
  */
 public class MainPanel extends JPanel implements ActionListener, MouseListener, ChangeListener, UndoHandler {
+	private static final boolean EMBEDDED_VIEW_CTRL_MODE = true;
 	ModeButton selectButton, addButton, deselectButton, moveButton, rotateButton, scaleButton, extrudeButton,
 			extendButton, snapButton, deleteButton, cloneButton, xButton, yButton, zButton;
 	ArrayList<ModeButton> buttons = new ArrayList<>();
 	JMenuBar menuBar;
-	JMenu fileMenu, recentMenu, editMenu, modelMenu, mirrorSubmenu, tweaksSubmenu, viewMenu, importMenu, addMenu,
+	JMenu fileMenu, recentMenu, editMenu, toolsMenu, mirrorSubmenu, tweaksSubmenu, viewMenu, importMenu, addMenu,
 			windowMenu, addParticle, animationMenu, singleAnimationMenu, aboutMenu, fetch;
 	JCheckBoxMenuItem mirrorFlip, fetchPortraitsToo, showNormals, useNativeMDXParser, textureModels,
 			showVertexModifyControls;
@@ -168,6 +172,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 	boolean loading;
 	JTabbedPane tabbedPane;
 	ViewController geoControl;
+	JScrollPane leftHandGeoControlEmbeddedPane;
 	JTextField[] mouseCoordDisplay = new JTextField[3];
 	boolean cheatShift = false;
 	boolean cheatAlt = false;
@@ -430,6 +435,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 	private ToolbarButtonGroup<SelectionMode> selectionModeGroup;
 	private ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup;
 	private final Callback<List<Geoset>> geosetAdditionCallback;
+	private JMenuItem combineAnims;
 
 	public MainPanel() {
 		super();
@@ -511,10 +517,19 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		}
 
 		tabbedPane = new DnDTabbedPane();
+		leftHandGeoControlEmbeddedPane = new JScrollPane();
+		leftHandGeoControlEmbeddedPane.setVisible(EMBEDDED_VIEW_CTRL_MODE);
+		leftHandGeoControlEmbeddedPane.setMinimumSize(new Dimension(150, 0));
+		JComponent tabbedPaneArea;
+		if (!EMBEDDED_VIEW_CTRL_MODE) {
+			tabbedPaneArea = tabbedPane;
+		} else {
+			tabbedPaneArea = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftHandGeoControlEmbeddedPane, tabbedPane);
+		}
 		final GroupLayout layout = new GroupLayout(this);
 		layout.setHorizontalGroup(layout.createSequentialGroup()
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(toolbar)
-						.addComponent(tabbedPane)
+						.addComponent(tabbedPaneArea)
 						.addGroup(layout.createSequentialGroup().addComponent(mouseCoordDisplay[0])
 								.addComponent(mouseCoordDisplay[1]).addComponent(mouseCoordDisplay[2])))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(selectButton)
@@ -526,7 +541,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 								.addComponent(yButton).addComponent(zButton))));
 		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(toolbar)
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-						.addGroup(layout.createSequentialGroup().addComponent(tabbedPane)
+						.addGroup(layout.createSequentialGroup().addComponent(tabbedPaneArea)
 								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
 										.addComponent(mouseCoordDisplay[0]).addComponent(mouseCoordDisplay[1])
 										.addComponent(mouseCoordDisplay[2])))
@@ -784,12 +799,12 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				.setAccessibleDescription("Allows the user to use various tools to edit the currently selected model.");
 		menuBar.add(editMenu);
 
-		modelMenu = new JMenu("Tools");
-		modelMenu.setMnemonic(KeyEvent.VK_T);
-		modelMenu.getAccessibleContext().setAccessibleDescription(
+		toolsMenu = new JMenu("Tools");
+		toolsMenu.setMnemonic(KeyEvent.VK_T);
+		toolsMenu.getAccessibleContext().setAccessibleDescription(
 				"Allows the user to use various model editing tools. (You must open a model before you may use this menu.)");
-		modelMenu.setEnabled(false);
-		menuBar.add(modelMenu);
+		toolsMenu.setEnabled(false);
+		menuBar.add(toolsMenu);
 
 		viewMenu = new JMenu("View");
 		viewMenu.setMnemonic(KeyEvent.VK_V);
@@ -1059,50 +1074,92 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		showMatrices = new JMenuItem("View Selected \"Matrices\"");
 		showMatrices.setMnemonic(KeyEvent.VK_V);
 		showMatrices.addActionListener(viewMatricesAction);
-		modelMenu.add(showMatrices);
+		toolsMenu.add(showMatrices);
 
 		insideOut = new JMenuItem("Flip all selected faces");
 		insideOut.setMnemonic(KeyEvent.VK_I);
 		insideOut.addActionListener(insideOutAction);
-		modelMenu.add(insideOut);
+		toolsMenu.add(insideOut);
 
-		modelMenu.add(new JSeparator());
+		toolsMenu.add(new JSeparator());
 
 		editUVs = new JMenuItem("Edit UV Mapping");
 		editUVs.setMnemonic(KeyEvent.VK_U);
 		editUVs.addActionListener(this);
-		modelMenu.add(editUVs);
+		toolsMenu.add(editUVs);
 
 		exportTextures = new JMenuItem("Export Texture");
 		exportTextures.setMnemonic(KeyEvent.VK_E);
 		exportTextures.addActionListener(this);
-		modelMenu.add(exportTextures);
+		toolsMenu.add(exportTextures);
 
 		scaleAnimations = new JMenuItem("Edit Animations");
 		scaleAnimations.setMnemonic(KeyEvent.VK_A);
 		scaleAnimations.addActionListener(this);
-		modelMenu.add(scaleAnimations);
+		toolsMenu.add(scaleAnimations);
 
 		linearizeAnimations = new JMenuItem("Linearize Animations");
 		linearizeAnimations.setMnemonic(KeyEvent.VK_L);
 		linearizeAnimations.addActionListener(this);
-		modelMenu.add(linearizeAnimations);
-		modelMenu.add(scaleAnimations);
+		toolsMenu.add(linearizeAnimations);
+		toolsMenu.add(scaleAnimations);
 
 		divideVertices = new JMenuItem("Clone in Place");
 		divideVertices.setMnemonic(KeyEvent.VK_D);
 		divideVertices.addActionListener(this);
-		modelMenu.add(divideVertices);
+		toolsMenu.add(divideVertices);
+
+		combineAnims = new JMenuItem("Put together two animations for that guy dtnmang or Misha");
+		combineAnims.setMnemonic(KeyEvent.VK_P);
+		combineAnims.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final ArrayList<Animation> anims = currentMDL().getAnims();
+				final Animation[] array = anims.toArray(new Animation[0]);
+				final Object choice = JOptionPane.showInputDialog(MainPanel.this, "Pick the first animation",
+						"Choose 1st Anim", JOptionPane.PLAIN_MESSAGE, null, array, array[0]);
+				final Animation animation = (Animation) choice;
+
+				final Object choice2 = JOptionPane.showInputDialog(MainPanel.this, "Pick the second animation",
+						"Choose 2nd Anim", JOptionPane.PLAIN_MESSAGE, null, array, array[0]);
+				final Animation animation2 = (Animation) choice2;
+
+				final String nameChoice = JOptionPane.showInputDialog(MainPanel.this,
+						"What should the combined animation be called?");
+				if (nameChoice != null) {
+					final int anim1Length = animation.getEnd() - animation.getStart();
+					final int anim2Length = animation2.getEnd() - animation2.getStart();
+					final int totalLength = anim1Length + anim2Length;
+
+					final MDL model = currentMDL();
+					final int animTrackEnd = model.animTrackEnd();
+					final int start = animTrackEnd + 1000;
+					animation.copyToInterval(start, start + anim1Length, model.getAllAnimFlags(),
+							model.sortedIdObjects(EventObject.class));
+					animation2.copyToInterval(start + anim1Length, start + totalLength, model.getAllAnimFlags(),
+							model.sortedIdObjects(EventObject.class));
+
+					final Animation newAnimation = new Animation(nameChoice, start, start + totalLength);
+					model.add(newAnimation);
+					newAnimation.getTags().add("NonLooping");
+					newAnimation.setExtents(new ExtLog(animation.getExtents()));
+					JOptionPane.showMessageDialog(MainPanel.this,
+							"DONE! Made a combined animation called " + newAnimation.getName(), "Success",
+							JOptionPane.PLAIN_MESSAGE);
+				}
+			}
+		});
+		toolsMenu.add(combineAnims);
 
 		simplifyKeyframes = new JMenuItem("Simplify Keyframes (Experimental)");
 		simplifyKeyframes.setMnemonic(KeyEvent.VK_K);
 		simplifyKeyframes.addActionListener(this);
-		modelMenu.add(simplifyKeyframes);
+		toolsMenu.add(simplifyKeyframes);
 
 		tweaksSubmenu = new JMenu("Tweaks");
 		tweaksSubmenu.setMnemonic(KeyEvent.VK_T);
 		tweaksSubmenu.getAccessibleContext().setAccessibleDescription("Allows the user to tweak conversion mistakes.");
-		modelMenu.add(tweaksSubmenu);
+		toolsMenu.add(tweaksSubmenu);
 
 		flipAllUVsU = new JMenuItem("Flip All UVs U");
 		flipAllUVsU.setMnemonic(KeyEvent.VK_U);
@@ -1122,7 +1179,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		mirrorSubmenu = new JMenu("Mirror");
 		mirrorSubmenu.setMnemonic(KeyEvent.VK_M);
 		mirrorSubmenu.getAccessibleContext().setAccessibleDescription("Allows the user to mirror objects.");
-		modelMenu.add(mirrorSubmenu);
+		toolsMenu.add(mirrorSubmenu);
 
 		mirrorX = new JMenuItem("Mirror X");
 		mirrorX.setMnemonic(KeyEvent.VK_X);
@@ -1329,6 +1386,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		showController.setMnemonic(KeyEvent.VK_H);
 		showController.setAccelerator(KeyStroke.getKeyStroke("control H"));
 		showController.addActionListener(this);
+		showController.setEnabled(!EMBEDDED_VIEW_CTRL_MODE);
 		fileMenu.add(showController);
 
 		undo = new UndoMenuItem("Undo");
@@ -1390,9 +1448,9 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
 					loadFile(MpqCodebase.get().getFile(portrait), true, false, unitFetched.getScaledIcon(0.25f));
 				}
-				modelMenu.getAccessibleContext().setAccessibleDescription(
+				toolsMenu.getAccessibleContext().setAccessibleDescription(
 						"Allows the user to control which parts of the model are displayed for editing.");
-				modelMenu.setEnabled(true);
+				toolsMenu.setEnabled(true);
 			}
 		} else if (e.getSource() == fetchModel) {
 			final ModelElement model = fetchModel();
@@ -1407,9 +1465,9 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
 					loadFile(MpqCodebase.get().getFile(portrait), true, false, icon);
 				}
-				modelMenu.getAccessibleContext().setAccessibleDescription(
+				toolsMenu.getAccessibleContext().setAccessibleDescription(
 						"Allows the user to control which parts of the model are displayed for editing.");
-				modelMenu.setEnabled(true);
+				toolsMenu.setEnabled(true);
 			}
 		} else if (e.getSource() == fetchObject) {
 			final GameObject objectFetched = fetchObject();
@@ -1423,9 +1481,9 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 					loadFile(MpqCodebase.get().getFile(portrait), true, false, new ImageIcon(BLPHandler.get()
 							.getGameTex(objectFetched.getField("Art")).getScaledInstance(16, 16, Image.SCALE_FAST)));
 				}
-				modelMenu.getAccessibleContext().setAccessibleDescription(
+				toolsMenu.getAccessibleContext().setAccessibleDescription(
 						"Allows the user to control which parts of the model are displayed for editing.");
-				modelMenu.setEnabled(true);
+				toolsMenu.setEnabled(true);
 			}
 		} else if (e.getSource() == importButton) {
 			fc.setDialogTitle("Import");
@@ -1440,9 +1498,9 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			if (returnValue == JFileChooser.APPROVE_OPTION) {
 				currentFile = fc.getSelectedFile();
 				profile.setPath(currentFile.getParent());
-				modelMenu.getAccessibleContext().setAccessibleDescription(
+				toolsMenu.getAccessibleContext().setAccessibleDescription(
 						"Allows the user to control which parts of the model are displayed for editing.");
-				modelMenu.setEnabled(true);
+				toolsMenu.setEnabled(true);
 				importFile(currentFile);
 			}
 
@@ -1605,9 +1663,10 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			refreshController();
 		} else if (e.getSource() == showController) {
 			if (geoControl == null) {
-				geoControl = new ViewController(currentMDLDisp());
+				geoControl = new ViewController(currentMDLDisp(), !EMBEDDED_VIEW_CTRL_MODE);
+				leftHandGeoControlEmbeddedPane.setViewportView(geoControl);
 			}
-			if (!geoControl.getFrame().isVisible()) {
+			if (!EMBEDDED_VIEW_CTRL_MODE && !geoControl.getFrame().isVisible()) {
 				geoControl.getFrame().setVisible(true);
 				// geoControl.getFrame().setExtendedState(geoControl.getFrame().getExtendedState()
 				// | JFrame.MAXIMIZED_BOTH);
@@ -2126,9 +2185,9 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			// frontArea.clearGeosets();
 			// sideArea.clearGeosets();
 			// botArea.clearGeosets();
-			modelMenu.getAccessibleContext().setAccessibleDescription(
+			toolsMenu.getAccessibleContext().setAccessibleDescription(
 					"Allows the user to control which parts of the model are displayed for editing.");
-			modelMenu.setEnabled(true);
+			toolsMenu.setEnabled(true);
 			SaveProfile.get().addRecent(currentFile.getPath());
 			updateRecent();
 			loadFile(currentFile);
@@ -2313,9 +2372,9 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 						// frontArea.clearGeosets();
 						// sideArea.clearGeosets();
 						// botArea.clearGeosets();
-						modelMenu.getAccessibleContext().setAccessibleDescription(
+						toolsMenu.getAccessibleContext().setAccessibleDescription(
 								"Allows the user to control which parts of the model are displayed for editing.");
-						modelMenu.setEnabled(true);
+						toolsMenu.setEnabled(true);
 						SaveProfile.get().addRecent(currentFile.getPath());
 						updateRecent();
 						loadFile(currentFile);
@@ -2420,9 +2479,10 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 
 		temp.setFocusable(false);
 		if (geoControl == null) {
-			geoControl = new ViewController(temp.getMDLDisplay());
+			geoControl = new ViewController(temp.getMDLDisplay(), !EMBEDDED_VIEW_CTRL_MODE);
+			leftHandGeoControlEmbeddedPane.setViewportView(geoControl);
 		}
-		if (!geoControl.getFrame().isVisible()) {
+		if (!EMBEDDED_VIEW_CTRL_MODE && !geoControl.getFrame().isVisible()) {
 			geoControl.getFrame().setVisible(true);
 		}
 		tabbedPane.addTab(f.getName().split("\\.")[0], icon, temp, f.getPath());

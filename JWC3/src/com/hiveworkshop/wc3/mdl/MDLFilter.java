@@ -1,5 +1,6 @@
 package com.hiveworkshop.wc3.mdl;
 import java.io.File;
+
 import javax.swing.filechooser.FileFilter;
 /**
  * Write a description of class MDLFilter here.

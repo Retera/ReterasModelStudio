@@ -30,7 +30,7 @@ public class UnitOutlinePanel extends JPanel {
 			snapshot.zoomToFit();
 			bufferedImage = snapshot.getBufferedImage();
 			for (final Geoset geo : mdlDisplay.getMDL().getGeosets()) {
-				if (geo.getMaterial().firstLayer().getTexture().getPath().equals("")) {
+				if (geo.getMaterial().firstLayer().getTextureBitmap().getPath().equals("")) {
 					mdlDisplay.makeGeosetEditable(geo, false);
 					mdlDisplay.makeGeosetVisible(geo, false);
 				}
