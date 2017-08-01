@@ -53,7 +53,7 @@ public class MainFrame extends JFrame {
 		}
 		// EditorDisplayManager.setupLookAndFeel();
 
-		frame = new MainFrame("The Matrix Eater ~Kyrbi0's Mauve Edition~");
+		frame = new MainFrame("The Matrix Eater v1.21");
 		panel.init();
 	}
 
