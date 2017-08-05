@@ -22,7 +22,11 @@ import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
+import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarActionButtonType;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
+import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonListener;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.SelectAndMoveActivity;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.ViewportActivityManager;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.util.Callback;
@@ -47,13 +51,15 @@ public class ModelPanel extends JPanel implements ActionListener, MouseListener 
 
 	public ModelPanel(final File input, final ProgramPreferences prefs, final UndoHandler undoHandler,
 			final ToolbarButtonGroup<SelectionItemTypes> notifier, final ToolbarButtonGroup<SelectionMode> modeNotifier,
+			final ToolbarButtonGroup<ToolbarActionButtonType> actionNotifier,
 			final Callback<List<Geoset>> geosetAdditionListener) {
-		this(MDL.read(input), prefs, undoHandler, notifier, modeNotifier, geosetAdditionListener);
+		this(MDL.read(input), prefs, undoHandler, notifier, modeNotifier, actionNotifier, geosetAdditionListener);
 		file = input;
 	}
 
 	public ModelPanel(final MDL input, final ProgramPreferences prefs, final UndoHandler undoHandler,
 			final ToolbarButtonGroup<SelectionItemTypes> notifier, final ToolbarButtonGroup<SelectionMode> modeNotifier,
+			final ToolbarButtonGroup<ToolbarActionButtonType> actionNotifier,
 			final Callback<List<Geoset>> geosetAdditionListener) {
 		super();
 		this.prefs = prefs;
@@ -68,16 +74,24 @@ public class ModelPanel extends JPanel implements ActionListener, MouseListener 
 		final SelectionTypeApplicator selectionListener = new ModelSelectionApplicator(selectionManager, modeNotifier,
 				dispModel);
 
+		final ViewportActivityManager viewportActivityManager = new ViewportActivityManager(
+				new SelectAndMoveActivity());
+		actionNotifier.addToolbarButtonListener(new ToolbarButtonListener<ToolbarActionButtonType>() {
+			@Override
+			public void typeChanged(final ToolbarActionButtonType newType) {
+
+			}
+		});
 		frontArea = new DisplayPanel("Front", (byte) 1, (byte) 2, dispModel, selectionManager, selectionListener,
-				geosetAdditionListener);
+				geosetAdditionListener, viewportActivityManager);
 		// frontArea.setViewport(1,2);
 		add(frontArea);
 		botArea = new DisplayPanel("Bottom", (byte) 1, (byte) 0, dispModel, selectionManager, selectionListener,
-				geosetAdditionListener);
+				geosetAdditionListener, viewportActivityManager);
 		// botArea.setViewport(0,1);
 		add(botArea);
 		sideArea = new DisplayPanel("Side", (byte) 0, (byte) 2, dispModel, selectionManager, selectionListener,
-				geosetAdditionListener);
+				geosetAdditionListener, viewportActivityManager);
 		// sideArea.setViewport(0,2);
 		add(sideArea);
 

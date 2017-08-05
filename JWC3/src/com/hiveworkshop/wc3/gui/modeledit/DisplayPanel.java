@@ -16,8 +16,7 @@ import javax.swing.JPanel;
 import com.hiveworkshop.wc3.gui.GlobalIcons;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.SelectAndMoveActivity;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.ViewportActivityManager;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.ViewportActivity;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.util.Callback;
 
@@ -35,14 +34,16 @@ public class DisplayPanel extends JPanel implements ActionListener {
 	private final SelectionManager selectionManager;
 	private final SelectionTypeApplicator selectionListener;
 	private final Callback<List<Geoset>> geosetAdditionListener;
+	private final ViewportActivity activityListener;
 
 	public DisplayPanel(final String title, final byte a, final byte b, final MDLDisplay dispMDL,
 			final SelectionManager selectionManager, final SelectionTypeApplicator selectionListener,
-			final Callback<List<Geoset>> geosetAdditionListener) {
+			final Callback<List<Geoset>> geosetAdditionListener, final ViewportActivity activityListener) {
 		super();
 		this.selectionManager = selectionManager;
 		this.selectionListener = selectionListener;
 		this.geosetAdditionListener = geosetAdditionListener;
+		this.activityListener = activityListener;
 		setBorder(BorderFactory.createTitledBorder(title));// BorderFactory.createCompoundBorder(
 		// BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title),BorderFactory.createBevelBorder(1)),BorderFactory.createEmptyBorder(1,1,1,1)
 		// ));
@@ -128,8 +129,8 @@ public class DisplayPanel extends JPanel implements ActionListener {
 	}
 
 	public void setViewport(final byte a, final byte b, final MDLDisplay dispModel) {
-		vp = new Viewport(a, b, dispModel, new ViewportActivityManager(new SelectAndMoveActivity()), selectionManager,
-				selectionListener, geosetAdditionListener);
+		vp = new Viewport(a, b, dispModel, activityListener, selectionManager, selectionListener,
+				geosetAdditionListener);
 		add(vp);
 	}
 

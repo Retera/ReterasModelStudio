@@ -86,6 +86,9 @@ import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarActionButtonType;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.SelectAndMoveActivity;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.SelectAndScaleActivity;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.ViewportActivity;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.IconUtils;
 import com.hiveworkshop.wc3.jworldedit.models.UnitEditorModelSelector;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
@@ -441,7 +444,6 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		super();
 
 		add(createJToolBar());
-		toolbar.setVisible(false); // prod hack toolbar not working
 		// testArea = new PerspDisplayPanel("Graphic Test",2,0);
 		// //botArea.setViewport(0,1);
 		// add(testArea);
@@ -642,9 +644,19 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		selectionItemTypeGroup = new ToolbarButtonGroup<>(toolbar, SelectionItemTypes.values());
 		toolbar.addSeparator();
 		actionTypeGroup = new ToolbarButtonGroup<>(toolbar, new ToolbarActionButtonType[] {
-				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/move2.png"), "Select and Move"),
+				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/move2.png"), "Select and Move") {
+					@Override
+					public ViewportActivity createActivity() {
+						return new SelectAndMoveActivity();
+					}
+				},
 				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/rotate.png"), "Select and Rotate"),
-				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/scale.png"), "Select and Scale"),
+				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/scale.png"), "Select and Scale") {
+					@Override
+					public ViewportActivity createActivity() {
+						return new SelectAndScaleActivity();
+					}
+				},
 				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/extrude.png"), "Select and Extrude"),
 				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/extend.png"),
 						"Select and Extend"), });

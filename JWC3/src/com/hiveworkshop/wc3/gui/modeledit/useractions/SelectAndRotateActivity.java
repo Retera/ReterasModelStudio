@@ -12,32 +12,32 @@ import javax.swing.SwingUtilities;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelChangeNotifier;
-import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.MoveComponentAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ScaleComponentAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItem;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItemView;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionListener;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
-import com.hiveworkshop.wc3.gui.modeledit.selection.edits.UniqueComponentSpecificTranslation;
+import com.hiveworkshop.wc3.gui.modeledit.selection.edits.UniqueComponentSpecificScaling;
 import com.hiveworkshop.wc3.gui.modeledit.useractions.MoverWidget.MoveDirection;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.RotatorWidget.RotateDirection;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
-public class SelectAndMoveActivity extends AbstractSelectAndEditActivity
+public class SelectAndRotateActivity extends AbstractSelectAndEditActivity
 		implements SelectionListener, ModelChangeListener {
-	private MoverWidget moverWidget = null;
+	private RotatorWidget moverWidget = null;
 	private CursorManager cursorManager;
 	private UndoManager undoManager;
 	private Vertex moveActionVector;
 	private Vertex moveActionPreviousVector;
-	private MoveDirection currentDirection = null;
+	private RotateDirection currentDirection = null;
 	private SelectionManager selectionManager;
 
 	@Override
 	protected void doMouseMove(final MouseEvent e, final CoordinateSystem coordinateSystem,
 			final SelectionManager selectionManager) {
 		if (moverWidget != null) {
-			final MoveDirection directionByMouse = moverWidget.getDirectionByMouse(e.getPoint(), coordinateSystem,
-					coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
-			if (directionByMouse != MoverWidget.MoveDirection.NONE) {
+			final RotateDirection directionByMouse = moverWidget.getDirectionByMouse(e.getPoint(), coordinateSystem);
+			if (directionByMouse != RotatorWidget.RotateDirection.NONE) {
 				cursorManager.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
 				moverWidget.setMoveDirection(directionByMouse);
 			} else {
@@ -50,16 +50,40 @@ public class SelectAndMoveActivity extends AbstractSelectAndEditActivity
 	protected void doDrag(final MouseEvent e, final CoordinateSystem coordinateSystem,
 			final SelectionManager selectionManager, final Double startingClick, final Double endingClick) {
 		moveActionPreviousVector.setTo(moveActionVector);
+		moveActionVector.setCoord(coordinateSystem.getPortFirstXYZ(), endingClick.x - startingClick.x);
+		moveActionVector.setCoord(coordinateSystem.getPortSecondXYZ(), endingClick.y - startingClick.y);
+		final Vertex v = getCenter(selectionManager.getSelectableItems());
+		double cxs = v.getCoord(coordinateSystem.getPortFirstXYZ());
+		double cys = v.getCoord(coordinateSystem.getPortSecondXYZ());
+		double czs = 0;
+		double dxs = moveActionVector.x - cxs;
+		double dys = moveActionVector.y - cys;
+		final double dzs = 0;
+		final double startDist = Math.sqrt(dxs * dxs + dys * dys);
+		dxs = moveActionPreviousVector.x - cxs;
+		dys = moveActionPreviousVector.y - cys;
+		final double endDist = Math.sqrt(dxs * dxs + dys * dys);
+		final double distRatio = endDist / startDist;
+		cxs = v.getCoord((byte) 0);
+		cys = v.getCoord((byte) 1);
+		czs = v.getCoord((byte) 2);
+		Vertex scaleValues;
+		if (currentDirection == MoveDirection.BOTH) {
+			scaleValues = new Vertex(distRatio, distRatio, distRatio);
+		} else {
+			scaleValues = new Vertex(1, 1, 1);
+		}
 		if (currentDirection != MoverWidget.MoveDirection.UP) {
-			moveActionVector.setCoord(coordinateSystem.getPortFirstXYZ(), endingClick.x - startingClick.x);
+			scaleValues.setCoord(coordinateSystem.getPortFirstXYZ(), distRatio);
 		}
 		if (currentDirection != MoverWidget.MoveDirection.RIGHT) {
-			moveActionVector.setCoord(coordinateSystem.getPortSecondXYZ(), endingClick.y - startingClick.y);
+			scaleValues.setCoord(coordinateSystem.getPortSecondXYZ(), distRatio);
 		}
-		final UniqueComponentSpecificTranslation callback = new UniqueComponentSpecificTranslation().resetValues(
-				(float) (moveActionVector.x - moveActionPreviousVector.x),
-				(float) (moveActionVector.y - moveActionPreviousVector.y),
-				(float) (moveActionVector.z - moveActionPreviousVector.z));
+		if (currentDirection == MoveDirection.BOTH) {
+			scaleValues.setCoord(coordinateSystem.getPortSecondXYZ(), distRatio);
+		}
+		final UniqueComponentSpecificScaling callback = new UniqueComponentSpecificScaling().resetValues((float) cxs,
+				(float) cys, (float) czs, (float) (scaleValues.x), (float) (scaleValues.y), (float) (scaleValues.z));
 		for (final SelectionItem item : selectionManager.getSelection()) {
 			item.forEachComponent(callback);
 		}
@@ -69,30 +93,46 @@ public class SelectAndMoveActivity extends AbstractSelectAndEditActivity
 	protected void doEndAction(final MouseEvent e, final CoordinateSystem coordinateSystem,
 			final SelectionManager selectionManager, final Double startingClick, final Double endingClick) {
 		moveActionPreviousVector.setTo(moveActionVector);
+		moveActionVector.setCoord(coordinateSystem.getPortFirstXYZ(), endingClick.x - startingClick.x);
+		moveActionVector.setCoord(coordinateSystem.getPortSecondXYZ(), endingClick.y - startingClick.y);
+		final Vertex v = getCenter(selectionManager.getSelectableItems());
+		double cxs = v.getCoord(coordinateSystem.getPortFirstXYZ());
+		double cys = v.getCoord(coordinateSystem.getPortSecondXYZ());
+		double czs = 0;
+		double dxs = moveActionVector.x - cxs;
+		double dys = moveActionVector.y - cys;
+		final double dzs = 0;
+		final double startDist = Math.sqrt(dxs * dxs + dys * dys);
+		dxs = moveActionPreviousVector.x - cxs;
+		dys = moveActionPreviousVector.y - cys;
+		final double endDist = Math.sqrt(dxs * dxs + dys * dys);
+		final double distRatio = endDist / startDist;
+		cxs = v.getCoord((byte) 0);
+		cys = v.getCoord((byte) 1);
+		czs = v.getCoord((byte) 2);
+		Vertex scaleValues;
+		if (currentDirection == MoveDirection.BOTH) {
+			scaleValues = new Vertex(distRatio, distRatio, distRatio);
+		} else {
+			scaleValues = new Vertex(1, 1, 1);
+		}
 		if (currentDirection != MoverWidget.MoveDirection.UP) {
-			moveActionVector.setCoord(coordinateSystem.getPortFirstXYZ(), endingClick.x - startingClick.x);
-			if (moverWidget != null) {
-				moverWidget.getPoint().setCoord(coordinateSystem.getPortFirstXYZ(),
-						moverWidget.getPoint().getCoord(coordinateSystem.getPortFirstXYZ()) + endingClick.x
-								- startingClick.x);
-			}
+			scaleValues.setCoord(coordinateSystem.getPortFirstXYZ(), distRatio);
 		}
 		if (currentDirection != MoverWidget.MoveDirection.RIGHT) {
-			moveActionVector.setCoord(coordinateSystem.getPortSecondXYZ(), endingClick.y - startingClick.y);
-			if (moverWidget != null) {
-				moverWidget.getPoint().setCoord(coordinateSystem.getPortSecondXYZ(),
-						moverWidget.getPoint().getCoord(coordinateSystem.getPortSecondXYZ()) + endingClick.y
-								- startingClick.y);
-			}
+			scaleValues.setCoord(coordinateSystem.getPortSecondXYZ(), distRatio);
 		}
-		final UniqueComponentSpecificTranslation callback = new UniqueComponentSpecificTranslation().resetValues(
-				(float) (moveActionVector.x - moveActionPreviousVector.x),
-				(float) (moveActionVector.y - moveActionPreviousVector.y),
-				(float) (moveActionVector.z - moveActionPreviousVector.z));
+		if (currentDirection == MoveDirection.BOTH) {
+			scaleValues.setCoord(coordinateSystem.getPortSecondXYZ(), distRatio);
+		}
+		final UniqueComponentSpecificScaling callback = new UniqueComponentSpecificScaling().resetValues((float) cxs,
+				(float) cys, (float) czs, (float) (scaleValues.x), (float) (scaleValues.y), (float) (scaleValues.z));
 		for (final SelectionItem item : selectionManager.getSelection()) {
 			item.forEachComponent(callback);
 		}
-		undoManager.pushAction(new MoveComponentAction(selectionManager.getSelection(), moveActionVector));
+		final ScaleComponentAction modifyAction = new ScaleComponentAction(selectionManager.getSelection(), (float) cxs,
+				(float) cys, (float) czs, (float) (scaleValues.x), (float) (scaleValues.y), (float) (scaleValues.z));
+		undoManager.pushAction(modifyAction);
 	}
 
 	@Override
@@ -103,8 +143,7 @@ public class SelectAndMoveActivity extends AbstractSelectAndEditActivity
 			currentDirection = MoveDirection.NONE;
 			doAction = true;
 		} else if ((moverWidget != null && (currentDirection = moverWidget.getDirectionByMouse(e.getPoint(),
-				coordinateSystem, coordinateSystem.getPortFirstXYZ(),
-				coordinateSystem.getPortSecondXYZ())) != MoverWidget.MoveDirection.NONE)) {
+				coordinateSystem)) != MoverWidget.MoveDirection.NONE)) {
 			doAction = true;
 		}
 		if (doAction) {
