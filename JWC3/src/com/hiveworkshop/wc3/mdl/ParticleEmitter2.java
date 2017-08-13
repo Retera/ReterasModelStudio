@@ -52,9 +52,9 @@ public class ParticleEmitter2 extends IdObject implements VisibilitySource {
 	Vertex[] vertexData = new Vertex[vertexDataNames.length];
 
 	Vertex[] segmentColor = new Vertex[3];
-	ArrayList<AnimFlag> animFlags = new ArrayList<AnimFlag>();
+	ArrayList<AnimFlag> animFlags = new ArrayList<>();
 
-	ArrayList<String> unknownFlags = new ArrayList<String>();
+	ArrayList<String> unknownFlags = new ArrayList<>();
 
 	Bitmap texture;
 
@@ -216,7 +216,7 @@ public class ParticleEmitter2 extends IdObject implements VisibilitySource {
 		for (final AnimFlag af : animFlags) {
 			x.animFlags.add(new AnimFlag(af));
 		}
-		unknownFlags = new ArrayList<String>(x.unknownFlags);
+		unknownFlags = new ArrayList<>(x.unknownFlags);
 
 		x.texture = texture;
 		return x;
@@ -350,7 +350,7 @@ public class ParticleEmitter2 extends IdObject implements VisibilitySource {
 		// -- uses parentId value of idObject superclass
 		// -- uses the parent (java Object reference) of idObject superclass
 		// -- uses the TextureID value
-		final ArrayList<AnimFlag> pAnimFlags = new ArrayList<AnimFlag>(this.animFlags);
+		final ArrayList<AnimFlag> pAnimFlags = new ArrayList<>(this.animFlags);
 		writer.println(MDLReader.getClassName(this.getClass()) + " \"" + getName() + "\" {");
 		if (objectId != -1) {
 			writer.println("\tObjectId " + objectId + ",");
@@ -723,9 +723,13 @@ public class ParticleEmitter2 extends IdObject implements VisibilitySource {
 		return segmentColor.length;
 	}
 
+	public void setTexture(final Bitmap texture) {
+		this.texture = texture;
+	}
+
 	@Override
 	public List<String> getFlags() {
-		final List<String> flags = new ArrayList<String>(unknownFlags);
+		final List<String> flags = new ArrayList<>(unknownFlags);
 		for (int i = 0; i < knownFlags.length; i++) {
 			if (knownFlags[i]) {
 				flags.add(knownFlagNames[i]);

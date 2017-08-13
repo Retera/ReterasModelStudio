@@ -70,9 +70,9 @@ public class MpqCodebase implements Codebase {
 		war3x = loadMPQ("war3x.mpq");
 		war3xlocal = loadMPQ("war3xlocal.mpq");
 		war3patch = loadMPQ("war3patch.mpq");
-		if (isDebugMode) {
-			hfmd = loadMPQ("hfmd.exe");
-		}
+		// if (isDebugMode) {
+		// hfmd = loadMPQ("hfmd.exe");
+		// }
 	}
 
 	Map<String, File> cache = new HashMap<>();

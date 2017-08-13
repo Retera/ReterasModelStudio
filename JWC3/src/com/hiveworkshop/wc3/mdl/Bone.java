@@ -24,8 +24,8 @@ public class Bone extends IdObject {
 	GeosetAnim geosetAnim;
 	boolean hasGeoAnim;// Sometimes its "None," sometimes it's not used
 
-	ArrayList<AnimFlag> animFlags = new ArrayList<AnimFlag>();
-	ArrayList<String> flags = new ArrayList<String>();
+	ArrayList<AnimFlag> animFlags = new ArrayList<>();
+	ArrayList<String> flags = new ArrayList<>();
 
 	public Bone() {
 
@@ -52,7 +52,7 @@ public class Bone extends IdObject {
 		for (final AnimFlag af : b.animFlags) {
 			animFlags.add(new AnimFlag(af));
 		}
-		flags = new ArrayList<String>(b.flags);
+		flags = new ArrayList<>(b.flags);
 	}
 
 	public Bone(final BoneChunk.Bone bone) {
@@ -205,7 +205,7 @@ public class Bone extends IdObject {
 	/**
 	 * Returns true if this bone contains some type of data that moves, scales,
 	 * rotates, or otherwise changes based on the time track.
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean animates() {
@@ -239,6 +239,24 @@ public class Bone extends IdObject {
 	@Override
 	public void add(final AnimFlag af) {
 		animFlags.add(af);
+	}
+
+	/**
+	 * @return
+	 * @deprecated Recalculated on save
+	 */
+	@Deprecated
+	public void setGeoset(final Geoset geoset) {
+		this.geoset = geoset;
+	}
+
+	/**
+	 * @return
+	 * @deprecated Recalculated on save
+	 */
+	@Deprecated
+	public void setGeosetAnim(final GeosetAnim geosetAnim) {
+		this.geosetAnim = geosetAnim;
 	}
 
 	/**

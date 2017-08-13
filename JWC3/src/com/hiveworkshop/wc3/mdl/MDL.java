@@ -83,6 +83,8 @@ public class MDL implements Named {
 	private boolean loading;
 	private boolean temporary;
 
+	public static boolean DISABLE_BONE_GEO_ID_VALIDATOR = false;
+
 	public File getFile() {
 		return fileRef;
 	}
@@ -1994,6 +1996,9 @@ public class MDL implements Named {
 	}
 
 	public void cureBoneGeoAnimIds() {
+		if (DISABLE_BONE_GEO_ID_VALIDATOR) {
+			return;
+		}
 		final ArrayList<Bone> bones = sortedIdObjects(Bone.class);
 		for (final Bone b : bones) {
 			b.multiGeoId = false;
