@@ -465,4 +465,8 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 			vertex.setCoord(coordinateSystem.getPortSecondXYZ(), Math.sin(verAng + radians) * r + cy);
 		}
 	}
+
+	public static void rotateVertex(final Vertex center, final Vertex axis, final float radians, final Vertex vertex) {
+
+	}
 }

@@ -650,16 +650,29 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 						return new SelectAndMoveActivity();
 					}
 				},
-				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/rotate.png"), "Select and Rotate"),
-				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/scale.png"), "Select and Scale") {
+				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/rotate.png"), "Select and Rotate") {
 					@Override
 					public ViewportActivity createActivity() {
 						return new SelectAndScaleActivity();
 					}
+				}, new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/scale.png"), "Select and Scale") {
+					@Override
+					public ViewportActivity createActivity() {
+						return new SelectAndScaleActivity();
+					}
+				}, new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/extrude.png"),
+						"Select and Extrude") {
+					@Override
+					public ViewportActivity createActivity() {
+						return new SelectAndMoveActivity();
+					}
 				},
-				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/extrude.png"), "Select and Extrude"),
-				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/extend.png"),
-						"Select and Extend"), });
+				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/extend.png"), "Select and Extend") {
+					@Override
+					public ViewportActivity createActivity() {
+						return new SelectAndMoveActivity();
+					}
+				}, });
 		return toolbar;
 	}
 
@@ -2444,7 +2457,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 					final MDL model = new MDL(MdxUtils.loadModel(in));
 					model.setFile(f);
 					temp = new ModelPanel(model, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
-							geosetAdditionCallback);
+							actionTypeGroup, geosetAdditionCallback);
 				} catch (final FileNotFoundException e) {
 					e.printStackTrace();
 					ExceptionPopup.display(e);
@@ -2456,7 +2469,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				}
 			} else {
 				temp = new ModelPanel(MDXHandler.convert(f), prefs, MainPanel.this, selectionItemTypeGroup,
-						selectionModeGroup, geosetAdditionCallback);
+						selectionModeGroup, actionTypeGroup, geosetAdditionCallback);
 			}
 		} else if (f.getPath().toLowerCase().endsWith("obj")) {
 			// final Build builder = new Build();
@@ -2466,7 +2479,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			try {
 				final Parse obj = new Parse(builder, f.getPath());
 				temp = new ModelPanel(builder.createMDL(), prefs, MainPanel.this, selectionItemTypeGroup,
-						selectionModeGroup, geosetAdditionCallback);
+						selectionModeGroup, actionTypeGroup, geosetAdditionCallback);
 			} catch (final FileNotFoundException e) {
 				ExceptionPopup.display(e);
 				e.printStackTrace();
@@ -2475,7 +2488,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				e.printStackTrace();
 			}
 		} else {
-			temp = new ModelPanel(f, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
+			temp = new ModelPanel(f, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup, actionTypeGroup,
 					geosetAdditionCallback);
 		}
 		temp.getMDLDisplay().addCoordDisplayListener(new CoordDisplayListener() {

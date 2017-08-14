@@ -16,8 +16,10 @@ import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends DefaultListCellRenderer {
-	private static final int SIZE = 64;
-	private final Map<TYPE, ImageIcon> matrixShellToCachedRenderer = new HashMap<TYPE, ImageIcon>();
+	private static final int SIZE = 32;
+	private static final int QUARTER_SIZE = SIZE / 4;
+	private static final int EIGHTH_SIZE = SIZE / 8;
+	private final Map<TYPE, ImageIcon> matrixShellToCachedRenderer = new HashMap<>();
 	private final ResettableVertexFilter<TYPE> matrixFilter;
 	private final MDLDisplay modelDisplay;
 	private final MDLDisplay otherDisplay;
@@ -44,7 +46,7 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 				graphics.setColor(backgroundColor);
 				graphics.fill3DRect(0, 0, SIZE, SIZE, true);
 				graphics.setColor(backgroundColor.brighter());
-				graphics.fill3DRect(8, 8, SIZE - 16, SIZE - 16, true);
+				graphics.fill3DRect(EIGHTH_SIZE, EIGHTH_SIZE, SIZE - QUARTER_SIZE, SIZE - QUARTER_SIZE, true);
 				if (otherDisplay != null && contains(otherDisplay, matrixShell)) {
 					otherDisplay.drawFittedTriangles(graphics, new Rectangle(SIZE, SIZE), (byte) 1, (byte) 2,
 							matrixFilter.reset(matrixShell), getRenderVertex(matrixShell));
