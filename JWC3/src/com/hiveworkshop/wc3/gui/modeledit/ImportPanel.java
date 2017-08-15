@@ -114,7 +114,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 
 	// Animation
 	JPanel animPanel = new JPanel();
-	JButton importAllAnims, timescaleAllAnims, uncheckAllAnims;
+	JButton importAllAnims, timescaleAllAnims, uncheckAllAnims, renameAllAnims;
 	JCheckBox clearExistingAnims;
 	JTabbedPane animTabs = new JTabbedPane(JTabbedPane.LEFT, JTabbedPane.SCROLL_TAB_LAYOUT);
 	DefaultListModel existingAnims;
@@ -276,6 +276,10 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		timescaleAllAnims.addActionListener(this);
 		animPanel.add(timescaleAllAnims);
 
+		renameAllAnims = new JButton("Import and Rename All");
+		renameAllAnims.addActionListener(this);
+		animPanel.add(renameAllAnims);
+
 		uncheckAllAnims = new JButton("Leave All");
 		uncheckAllAnims.addActionListener(this);
 		animPanel.add(uncheckAllAnims);
@@ -298,11 +302,12 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		final GroupLayout animLayout = new GroupLayout(animPanel);
 		animLayout.setHorizontalGroup(animLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
 				.addGroup(animLayout.createSequentialGroup().addComponent(importAllAnims).addGap(8)
-						.addComponent(timescaleAllAnims).addGap(8).addComponent(uncheckAllAnims))
+						.addComponent(renameAllAnims).addGap(8).addComponent(timescaleAllAnims).addGap(8)
+						.addComponent(uncheckAllAnims))
 				.addComponent(clearExistingAnims).addComponent(animTabs));
 		animLayout.setVerticalGroup(animLayout.createSequentialGroup()
 				.addGroup(animLayout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(importAllAnims)
-						.addComponent(timescaleAllAnims).addComponent(uncheckAllAnims))
+						.addComponent(renameAllAnims).addComponent(timescaleAllAnims).addComponent(uncheckAllAnims))
 				.addComponent(clearExistingAnims).addGap(8).addComponent(animTabs));
 		animPanel.setLayout(animLayout);
 
@@ -610,6 +615,36 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			for (int i = 0; i < animTabs.getTabCount(); i++) {
 				final AnimPanel aniPanel = (AnimPanel) animTabs.getComponentAt(i);
 				aniPanel.importTypeBox.setSelectedIndex(2);
+			}
+		} else if (e.getSource() == renameAllAnims) {
+			final String newTagString = JOptionPane.showInputDialog(this,
+					"Choose additional naming (i.e. swim or alternate)");
+			if (newTagString != null) {
+				for (int i = 0; i < animTabs.getTabCount(); i++) {
+					final AnimPanel aniPanel = (AnimPanel) animTabs.getComponentAt(i);
+					aniPanel.importTypeBox.setSelectedIndex(1);
+					final String oldName = aniPanel.anim.getName();
+					String baseName = oldName;
+					while (baseName.length() > 0 && baseName.contains(" ")) {
+						final int lastSpaceIndex = baseName.lastIndexOf(' ');
+						final String lastWord = baseName.substring(lastSpaceIndex + 1);
+						boolean chunkHasInt = false;
+						for (int animationId = 0; animationId < 10; animationId++) {
+							if (lastWord.contains(Integer.toString(animationId))) {
+								chunkHasInt = true;
+							}
+						}
+						if (lastWord.contains("-") || chunkHasInt || lastWord.toLowerCase().contains("alternate")
+								|| lastWord.length() <= 0) {
+							baseName = baseName.substring(0, baseName.lastIndexOf(' '));
+						} else {
+							break;
+						}
+					}
+					final String afterBase = oldName.substring(Math.min(oldName.length(), baseName.length() + 1));
+					final String newName = baseName + " " + newTagString + " " + afterBase;
+					aniPanel.newNameEntry.setText(newName);
+				}
 			}
 		} else if (e.getSource() == uncheckAllAnims) {
 			for (int i = 0; i < animTabs.getTabCount(); i++) {
@@ -1695,11 +1730,11 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			}
 
 			if (clearBones) {
-				for (final Object o : currentModel.sortedIdObjects(Bone.class)) {
-					currentModel.remove((IdObject) o);
+				for (final IdObject o : currentModel.sortedIdObjects(Bone.class)) {
+					currentModel.remove(o);
 				}
-				for (final Object o : currentModel.sortedIdObjects(Helper.class)) {
-					currentModel.remove((IdObject) o);
+				for (final IdObject o : currentModel.sortedIdObjects(Helper.class)) {
+					currentModel.remove(o);
 				}
 			}
 			for (int i = 0; i < bonePanels.size(); i++) {
@@ -1919,7 +1954,6 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 					}
 				}
 				if (flagOld != null) {
-					// if( test )
 					System.out.println("Copyin' my bro");
 					newVisFlag.copyFrom(flagOld);
 				} else {
