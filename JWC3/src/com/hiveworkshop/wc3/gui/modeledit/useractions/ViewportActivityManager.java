@@ -2,9 +2,11 @@ package com.hiveworkshop.wc3.gui.modeledit.useractions;
 
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelChangeNotifier;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItemView;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
 
@@ -17,6 +19,9 @@ public final class ViewportActivityManager implements ViewportActivity {
 
 	public void setCurrentActivity(final ViewportActivity currentActivity) {
 		this.currentActivity = currentActivity;
+		if (this.currentActivity != null) {
+			this.currentActivity.modelChanged();
+		}
 	}
 
 	@Override
@@ -51,6 +56,17 @@ public final class ViewportActivityManager implements ViewportActivity {
 			final ModelChangeNotifier modelChangeNotifier) {
 		return currentActivity.reset(selectionManager, selectionListener, cursorManager, coordinateSystem, undoManager,
 				modelChangeNotifier);
+	}
+
+	@Override
+	public void onSelectionChanged(final List<? extends SelectionItemView> previousSelection,
+			final List<? extends SelectionItemView> newSelection) {
+		currentActivity.onSelectionChanged(previousSelection, newSelection);
+	}
+
+	@Override
+	public void modelChanged() {
+		currentActivity.modelChanged();
 	}
 
 }

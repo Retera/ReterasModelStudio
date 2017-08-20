@@ -79,7 +79,7 @@ public class ModelPanel extends JPanel implements ActionListener, MouseListener 
 		actionNotifier.addToolbarButtonListener(new ToolbarButtonListener<ToolbarActionButtonType>() {
 			@Override
 			public void typeChanged(final ToolbarActionButtonType newType) {
-
+				viewportActivityManager.setCurrentActivity(newType.createActivity());
 			}
 		});
 		frontArea = new DisplayPanel("Front", (byte) 1, (byte) 2, dispModel, selectionManager, selectionListener,

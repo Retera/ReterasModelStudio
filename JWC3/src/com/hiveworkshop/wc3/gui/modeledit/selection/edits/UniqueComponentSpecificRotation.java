@@ -18,7 +18,7 @@ public final class UniqueComponentSpecificRotation implements Callback<MutableSe
 
 	private float radians;
 
-	private CoordinateSystem coordinateSystem;
+	private Pair<Byte, Byte> axes;
 
 	@Override
 	public void run(final MutableSelectionComponent item) {

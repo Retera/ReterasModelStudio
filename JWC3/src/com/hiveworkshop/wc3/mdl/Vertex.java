@@ -164,5 +164,15 @@ public class Vertex {
 	public double vectorMagnitude() {
 		return distance(ORIGIN);
 	}
-	public Vertex
+
+	public Vertex crossProduct(final Vertex other) {
+		final double x2 = other.x;
+		final double y2 = other.y;
+		final double z2 = other.z;
+		return crossProduct(x2, y2, z2);
+	}
+
+	private Vertex crossProduct(final double x2, final double y2, final double z2) {
+		return new Vertex(y * z2 - y2 * z, x2 * z - x * z2, x * y2 - x2 * y);
+	}
 }

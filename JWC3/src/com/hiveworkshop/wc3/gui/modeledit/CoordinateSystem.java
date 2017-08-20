@@ -49,6 +49,10 @@ public interface CoordinateSystem {
 			};
 		}
 
+		public static byte getUnusedXYZ(final CoordinateSystem coordinateSystem) {
+			return (byte) (3 - coordinateSystem.getPortFirstXYZ() - coordinateSystem.getPortSecondXYZ());
+		}
+
 		private Util() {
 		}
 	}

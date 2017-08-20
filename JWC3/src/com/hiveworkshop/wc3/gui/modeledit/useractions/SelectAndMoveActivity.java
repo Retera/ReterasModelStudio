@@ -124,6 +124,11 @@ public class SelectAndMoveActivity extends AbstractSelectAndEditActivity
 		this.cursorManager = cursorManager;
 		this.undoManager = undoManager;
 		selectionManager.addSelectionListener(this);
+		if (selectionManager.getSelection().isEmpty()) {
+			moverWidget = null;
+		} else {
+			moverWidget = new MoverWidget(getCenter(selectionManager.getSelection()));
+		}
 	}
 
 	@Override
@@ -145,8 +150,10 @@ public class SelectAndMoveActivity extends AbstractSelectAndEditActivity
 
 	@Override
 	public void modelChanged() {
-		final List<SelectionItem> selection = selectionManager.getSelection();
-		moverWidget = new MoverWidget(getCenter(selection));
+		if (moverWidget == null && selectionManager != null) {
+			final List<SelectionItem> selection = selectionManager.getSelection();
+			moverWidget = new MoverWidget(getCenter(selection));
+		}
 	}
 
 	private Vertex getCenter(final List<? extends SelectionItemView> items) {

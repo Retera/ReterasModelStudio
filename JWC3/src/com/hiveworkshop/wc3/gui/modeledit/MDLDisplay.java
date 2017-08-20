@@ -3477,6 +3477,11 @@ public class MDLDisplay implements UndoManager {
 			return true;
 		}
 
+		@Override
+		public void rotate(final Vertex center, final Vertex perpendicular, final float radians) {
+			ModelSelectionManager.rotateVertex(center, perpendicular, radians, vertex);
+		}
+
 	}
 
 	public List<Vertex> getSelection() {

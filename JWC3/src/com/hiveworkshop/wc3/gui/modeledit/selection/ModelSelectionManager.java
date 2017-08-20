@@ -292,6 +292,11 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 			return true;
 		}
 
+		@Override
+		public void rotate(final Vertex center, final Vertex perpendicular, final float radians) {
+			rotateVertex(center, perpendicular, radians, vertex);
+		}
+
 	}
 
 	private final class FaceItem implements SelectionItem {
@@ -467,6 +472,31 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 	}
 
 	public static void rotateVertex(final Vertex center, final Vertex axis, final float radians, final Vertex vertex) {
-
+		final double centerX = center.x;
+		final double centerY = center.y;
+		final double centerZ = center.z;
+		final double vertexX = vertex.x;
+		final double vertexY = vertex.y;
+		final double vertexZ = vertex.z;
+		final double deltaX = vertexX - centerX;
+		final double deltaY = vertexY - centerY;
+		final double deltaZ = vertexZ - centerZ;
+		double radiansToApply;
+		final double twoPi = Math.PI * 2;
+		if (radians > Math.PI) {
+			radiansToApply = (radians - twoPi) % twoPi;
+		} else if (radians <= -Math.PI) {
+			radiansToApply = (radians + twoPi) % twoPi;
+		} else {
+			radiansToApply = radians;
+		}
+		final double cosRadians = Math.cos(radiansToApply);
+		if (radiansToApply == Math.PI) {
+			vertex.x = centerX - deltaX;
+			vertex.y = centerY - deltaY;
+			vertex.z = centerY - deltaZ;
+		}
+		final double resultDeltaX = vertexX * cosRadians;
+		throw new UnsupportedOperationException("NYI");
 	}
 }

@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.useractions;
 import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ public class SelectAndScaleActivity extends AbstractSelectAndEditActivity
 	private UndoManager undoManager;
 	private Vertex moveActionVector;
 	private Vertex moveActionPreviousVector;
+	private Point2D.Double previousEndingClick = null;
 	private MoveDirection currentDirection = null;
 	private SelectionManager selectionManager;
 
@@ -52,41 +54,21 @@ public class SelectAndScaleActivity extends AbstractSelectAndEditActivity
 		moveActionPreviousVector.setTo(moveActionVector);
 		moveActionVector.setCoord(coordinateSystem.getPortFirstXYZ(), endingClick.x - startingClick.x);
 		moveActionVector.setCoord(coordinateSystem.getPortSecondXYZ(), endingClick.y - startingClick.y);
-		final Vertex v = getCenter(selectionManager.getSelectableItems());
+		final Vertex v = getCenter(selectionManager.getSelection());
 		double cxs = v.getCoord(coordinateSystem.getPortFirstXYZ());
 		double cys = v.getCoord(coordinateSystem.getPortSecondXYZ());
 		double czs = 0;
-		double dxs = moveActionVector.x - cxs;
-		double dys = moveActionVector.y - cys;
-		final double dzs = 0;
-		final double startDist = Math.sqrt(dxs * dxs + dys * dys);
-		dxs = moveActionPreviousVector.x - cxs;
-		dys = moveActionPreviousVector.y - cys;
-		final double endDist = Math.sqrt(dxs * dxs + dys * dys);
-		final double distRatio = endDist / startDist;
+		final Vertex scaleValues = computeScaleFactor(coordinateSystem, previousEndingClick, endingClick, cxs, cys);
 		cxs = v.getCoord((byte) 0);
 		cys = v.getCoord((byte) 1);
 		czs = v.getCoord((byte) 2);
-		Vertex scaleValues;
-		if (currentDirection == MoveDirection.BOTH) {
-			scaleValues = new Vertex(distRatio, distRatio, distRatio);
-		} else {
-			scaleValues = new Vertex(1, 1, 1);
-		}
-		if (currentDirection != MoverWidget.MoveDirection.UP) {
-			scaleValues.setCoord(coordinateSystem.getPortFirstXYZ(), distRatio);
-		}
-		if (currentDirection != MoverWidget.MoveDirection.RIGHT) {
-			scaleValues.setCoord(coordinateSystem.getPortSecondXYZ(), distRatio);
-		}
-		if (currentDirection == MoveDirection.BOTH) {
-			scaleValues.setCoord(coordinateSystem.getPortSecondXYZ(), distRatio);
-		}
 		final UniqueComponentSpecificScaling callback = new UniqueComponentSpecificScaling().resetValues((float) cxs,
 				(float) cys, (float) czs, (float) (scaleValues.x), (float) (scaleValues.y), (float) (scaleValues.z));
 		for (final SelectionItem item : selectionManager.getSelection()) {
 			item.forEachComponent(callback);
 		}
+		previousEndingClick.x = endingClick.x;
+		previousEndingClick.y = endingClick.y;
 	}
 
 	@Override
@@ -95,44 +77,49 @@ public class SelectAndScaleActivity extends AbstractSelectAndEditActivity
 		moveActionPreviousVector.setTo(moveActionVector);
 		moveActionVector.setCoord(coordinateSystem.getPortFirstXYZ(), endingClick.x - startingClick.x);
 		moveActionVector.setCoord(coordinateSystem.getPortSecondXYZ(), endingClick.y - startingClick.y);
-		final Vertex v = getCenter(selectionManager.getSelectableItems());
-		double cxs = v.getCoord(coordinateSystem.getPortFirstXYZ());
-		double cys = v.getCoord(coordinateSystem.getPortSecondXYZ());
-		double czs = 0;
-		double dxs = moveActionVector.x - cxs;
-		double dys = moveActionVector.y - cys;
+		final Vertex v = getCenter(selectionManager.getSelection());
+		final double cxs = v.getCoord(coordinateSystem.getPortFirstXYZ());
+		final double cys = v.getCoord(coordinateSystem.getPortSecondXYZ());
+		final double czs = 0;
+		Vertex scaleValues = computeScaleFactor(coordinateSystem, previousEndingClick, endingClick, cxs, cys);
+		final double cx = v.getCoord((byte) 0);
+		final double cy = v.getCoord((byte) 1);
+		final double cz = v.getCoord((byte) 2);
+		final UniqueComponentSpecificScaling callback = new UniqueComponentSpecificScaling().resetValues((float) cx,
+				(float) cy, (float) cz, (float) (scaleValues.x), (float) (scaleValues.y), (float) (scaleValues.z));
+		for (final SelectionItem item : selectionManager.getSelection()) {
+			item.forEachComponent(callback);
+		}
+		scaleValues = computeScaleFactor(coordinateSystem, startingClick, endingClick, cxs, cys);
+		final ScaleComponentAction modifyAction = new ScaleComponentAction(selectionManager.getSelection(), (float) cx,
+				(float) cy, (float) cz, (float) (scaleValues.x), (float) (scaleValues.y), (float) (scaleValues.z));
+		undoManager.pushAction(modifyAction);
+		previousEndingClick = null;
+	}
+
+	private Vertex computeScaleFactor(final CoordinateSystem coordinateSystem, final Double startingClick,
+			final Double endingClick, final double cxs, final double cys) {
+		double dxs = endingClick.x - cxs;
+		double dys = endingClick.y - cys;
 		final double dzs = 0;
-		final double startDist = Math.sqrt(dxs * dxs + dys * dys);
-		dxs = moveActionPreviousVector.x - cxs;
-		dys = moveActionPreviousVector.y - cys;
 		final double endDist = Math.sqrt(dxs * dxs + dys * dys);
+		dxs = startingClick.x - cxs;
+		dys = startingClick.y - cys;
+		final double startDist = Math.sqrt(dxs * dxs + dys * dys);
 		final double distRatio = endDist / startDist;
-		cxs = v.getCoord((byte) 0);
-		cys = v.getCoord((byte) 1);
-		czs = v.getCoord((byte) 2);
 		Vertex scaleValues;
-		if (currentDirection == MoveDirection.BOTH) {
+		if (currentDirection == MoveDirection.BOTH || currentDirection == MoveDirection.NONE) {
 			scaleValues = new Vertex(distRatio, distRatio, distRatio);
 		} else {
 			scaleValues = new Vertex(1, 1, 1);
 		}
-		if (currentDirection != MoverWidget.MoveDirection.UP) {
+		if (currentDirection == MoverWidget.MoveDirection.RIGHT) {
 			scaleValues.setCoord(coordinateSystem.getPortFirstXYZ(), distRatio);
 		}
-		if (currentDirection != MoverWidget.MoveDirection.RIGHT) {
+		if (currentDirection == MoverWidget.MoveDirection.UP) {
 			scaleValues.setCoord(coordinateSystem.getPortSecondXYZ(), distRatio);
 		}
-		if (currentDirection == MoveDirection.BOTH) {
-			scaleValues.setCoord(coordinateSystem.getPortSecondXYZ(), distRatio);
-		}
-		final UniqueComponentSpecificScaling callback = new UniqueComponentSpecificScaling().resetValues((float) cxs,
-				(float) cys, (float) czs, (float) (scaleValues.x), (float) (scaleValues.y), (float) (scaleValues.z));
-		for (final SelectionItem item : selectionManager.getSelection()) {
-			item.forEachComponent(callback);
-		}
-		final ScaleComponentAction modifyAction = new ScaleComponentAction(selectionManager.getSelection(), (float) cxs,
-				(float) cys, (float) czs, (float) (scaleValues.x), (float) (scaleValues.y), (float) (scaleValues.z));
-		undoManager.pushAction(modifyAction);
+		return scaleValues;
 	}
 
 	@Override
@@ -148,6 +135,7 @@ public class SelectAndScaleActivity extends AbstractSelectAndEditActivity
 			doAction = true;
 		}
 		if (doAction) {
+			previousEndingClick = new Point2D.Double(startingClick.x, startingClick.y);
 			moveActionVector = new Vertex(0, 0, 0);
 			moveActionPreviousVector = new Vertex(0, 0, 0);
 			return true;
@@ -164,6 +152,11 @@ public class SelectAndScaleActivity extends AbstractSelectAndEditActivity
 		this.cursorManager = cursorManager;
 		this.undoManager = undoManager;
 		selectionManager.addSelectionListener(this);
+		if (selectionManager.getSelection().isEmpty()) {
+			moverWidget = null;
+		} else {
+			moverWidget = new MoverWidget(getCenter(selectionManager.getSelection()));
+		}
 	}
 
 	@Override
@@ -185,8 +178,10 @@ public class SelectAndScaleActivity extends AbstractSelectAndEditActivity
 
 	@Override
 	public void modelChanged() {
-		final List<SelectionItem> selection = selectionManager.getSelection();
-		moverWidget = new MoverWidget(getCenter(selection));
+		if (moverWidget == null && selectionManager != null) {
+			final List<SelectionItem> selection = selectionManager.getSelection();
+			moverWidget = new MoverWidget(getCenter(selection));
+		}
 	}
 
 	private Vertex getCenter(final List<? extends SelectionItemView> items) {
