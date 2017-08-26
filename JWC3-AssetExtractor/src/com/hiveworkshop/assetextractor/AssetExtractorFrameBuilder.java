@@ -252,7 +252,7 @@ public final class AssetExtractorFrameBuilder {
 				}
 				action.doAction(destinationPath, extractor);
 				extractor.close();
-			} catch (final Exception exc) {
+			} catch (final Throwable exc) {
 				ExceptionPopup.display(exc);
 				exc.printStackTrace();
 			}

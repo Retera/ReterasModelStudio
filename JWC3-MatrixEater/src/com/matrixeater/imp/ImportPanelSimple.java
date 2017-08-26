@@ -9,34 +9,35 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class ImportPanelSimple extends JPanel implements ActionListener {
-	JButton animationTransfer = new JButton(com.matrixeater.src.MainPanel.AnimIcon);//"Animation Transferer");
+	JButton animationTransfer = new JButton(com.matrixeater.src.MainPanel.AnimIcon);// "Animation
+																					// Transferer");
 	JFrame frame;
-	public ImportPanelSimple()
-	{
+
+	public ImportPanelSimple() {
 		add(animationTransfer);
 		animationTransfer.addActionListener(this);
-		
-		setPreferredSize(new Dimension(800,600));
+
+		setPreferredSize(new Dimension(800, 600));
 		frame = new JFrame("Simple Import Handler");
-        frame.setContentPane(this);
-        
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        
-        frame.setVisible(true);
-        
-        //animationTransfer.doClick();
+		frame.setContentPane(this);
+
+		frame.pack();
+		frame.setLocationRelativeTo(null);
+
+		frame.setVisible(true);
+
+		// animationTransfer.doClick();
 	}
+
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		if( e.getSource() == animationTransfer)
-		{
-	        frame.setContentPane(new AnimationTransfer());
-	        frame.setTitle("Animation Transferer");
-	        frame.setIconImage(com.matrixeater.src.MainPanel.AnimIcon.getImage());
-	        frame.revalidate();
-	        frame.pack();
-	        frame.setLocationRelativeTo(null);
+	public void actionPerformed(final ActionEvent e) {
+		if (e.getSource() == animationTransfer) {
+			frame.setContentPane(new AnimationTransfer(frame));
+			frame.setTitle("Animation Transferer");
+			frame.setIconImage(com.matrixeater.src.MainPanel.AnimIcon.getImage());
+			frame.revalidate();
+			frame.pack();
+			frame.setLocationRelativeTo(null);
 		}
 	}
 }

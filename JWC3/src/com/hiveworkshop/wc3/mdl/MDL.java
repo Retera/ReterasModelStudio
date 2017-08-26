@@ -930,7 +930,9 @@ public class MDL implements Named {
 		if (f.getPath().toLowerCase().endsWith(".mdx")) {
 			// f = MDXHandler.convert(f);
 			try (BlizzardDataInputStream in = new BlizzardDataInputStream(new FileInputStream(f))) {
-				return new MDL(MdxUtils.loadModel(in));
+				final MDL mdl = new MDL(MdxUtils.loadModel(in));
+				mdl.fileRef = f;
+				return mdl;
 			} catch (final FileNotFoundException e) {
 				throw new RuntimeException(e);
 				// e.printStackTrace();
