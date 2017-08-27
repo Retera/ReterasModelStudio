@@ -394,17 +394,25 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 
 	@Override
 	public void mouseEntered(final MouseEvent e) {
-		clickTimer.setRepeats(true);
-		clickTimer.start();
-		mouseInBounds = true;
+		if (!activityListener.isEditing()) {
+			clickTimer.setRepeats(true);
+			clickTimer.start();
+			mouseInBounds = true;
+			setBorder(BorderFactory.createBevelBorder(1, Color.YELLOW, Color.YELLOW.darker()));
+			activityListener.reset(selectionManager, selectionTypeApplicator, cursorManager, this, undoManager,
+					dispMDL.getModelChangeNotifier());
+		}
 	}
 
 	@Override
 	public void mouseExited(final MouseEvent e) {
-		if (selectStart == null && actStart == null && lastClick == null) {
-			clickTimer.stop();
+		if (!activityListener.isEditing()) {
+			if (selectStart == null && actStart == null && lastClick == null) {
+				clickTimer.stop();
+			}
+			mouseInBounds = false;
+			setBorder(BorderFactory.createBevelBorder(1));
 		}
-		mouseInBounds = false;
 	}
 
 	@Override
@@ -460,6 +468,9 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		repaint();
 		// MainFrame.panel.refreshUndo();
 		dispMDL.refreshUndo();
+		if (mouseInBounds && !getBounds().contains(e.getPoint()) && !activityListener.isEditing()) {
+			mouseExited(e);
+		}
 	}
 
 	@Override
@@ -555,6 +566,9 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 
 	@Override
 	public void mouseMoved(final MouseEvent e) {
+		if (!mouseInBounds && getBounds().contains(e.getPoint()) && !activityListener.isEditing()) {
+			mouseEntered(e);
+		}
 		activityListener.mouseMoved(e);
 	}
 }

@@ -22,11 +22,8 @@ import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
-import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarActionButtonType;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
-import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonListener;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.SelectAndMoveActivity;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.ViewportActivityManager;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.ViewportActivity;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.util.Callback;
@@ -38,6 +35,7 @@ import com.hiveworkshop.wc3.util.Callback;
  * Eric Theller 6/7/2012
  */
 public class ModelPanel extends JPanel implements ActionListener, MouseListener {
+	private static final int VERTEX_SIZE = 3;
 	JMenuBar menuBar;
 	JMenu fileMenu, modelMenu;
 	DisplayPanel frontArea, sideArea, botArea;
@@ -47,51 +45,43 @@ public class ModelPanel extends JPanel implements ActionListener, MouseListener 
 	File file;
 	ProgramPreferences prefs;
 	UndoHandler undoHandler;
-	private final SelectionManager selectionManager;
+	private final ModelSelectionManager selectionManager;
+	private final ToolbarButtonGroup<SelectionItemTypes> selectionItemTypeNotifier;
 
 	public ModelPanel(final File input, final ProgramPreferences prefs, final UndoHandler undoHandler,
 			final ToolbarButtonGroup<SelectionItemTypes> notifier, final ToolbarButtonGroup<SelectionMode> modeNotifier,
-			final ToolbarButtonGroup<ToolbarActionButtonType> actionNotifier,
-			final Callback<List<Geoset>> geosetAdditionListener) {
-		this(MDL.read(input), prefs, undoHandler, notifier, modeNotifier, actionNotifier, geosetAdditionListener);
+			final ViewportActivity viewportActivity, final Callback<List<Geoset>> geosetAdditionListener) {
+		this(MDL.read(input), prefs, undoHandler, notifier, modeNotifier, viewportActivity, geosetAdditionListener);
 		file = input;
 	}
 
 	public ModelPanel(final MDL input, final ProgramPreferences prefs, final UndoHandler undoHandler,
 			final ToolbarButtonGroup<SelectionItemTypes> notifier, final ToolbarButtonGroup<SelectionMode> modeNotifier,
-			final ToolbarButtonGroup<ToolbarActionButtonType> actionNotifier,
-			final Callback<List<Geoset>> geosetAdditionListener) {
+			final ViewportActivity viewportActivity, final Callback<List<Geoset>> geosetAdditionListener) {
 		super();
 		this.prefs = prefs;
 		this.undoHandler = undoHandler;
+		this.selectionItemTypeNotifier = notifier;
 		// Produce the front display panel
 		// file = input;
 		// model = MDL.read(file);
 		// dispModel = new MDLDisplay(model,this);
 		loadModel(input);
 
-		selectionManager = new ModelSelectionManager(dispModel, 3, notifier);
+		selectionManager = dispModel.getSelectionManager();
 		final SelectionTypeApplicator selectionListener = new ModelSelectionApplicator(selectionManager, modeNotifier,
 				dispModel);
 
-		final ViewportActivityManager viewportActivityManager = new ViewportActivityManager(
-				new SelectAndMoveActivity());
-		actionNotifier.addToolbarButtonListener(new ToolbarButtonListener<ToolbarActionButtonType>() {
-			@Override
-			public void typeChanged(final ToolbarActionButtonType newType) {
-				viewportActivityManager.setCurrentActivity(newType.createActivity());
-			}
-		});
 		frontArea = new DisplayPanel("Front", (byte) 1, (byte) 2, dispModel, selectionManager, selectionListener,
-				geosetAdditionListener, viewportActivityManager);
+				geosetAdditionListener, viewportActivity);
 		// frontArea.setViewport(1,2);
 		add(frontArea);
 		botArea = new DisplayPanel("Bottom", (byte) 1, (byte) 0, dispModel, selectionManager, selectionListener,
-				geosetAdditionListener, viewportActivityManager);
+				geosetAdditionListener, viewportActivity);
 		// botArea.setViewport(0,1);
 		add(botArea);
 		sideArea = new DisplayPanel("Side", (byte) 0, (byte) 2, dispModel, selectionManager, selectionListener,
-				geosetAdditionListener, viewportActivityManager);
+				geosetAdditionListener, viewportActivity);
 		// sideArea.setViewport(0,2);
 		add(sideArea);
 
@@ -145,9 +135,13 @@ public class ModelPanel extends JPanel implements ActionListener, MouseListener 
 
 	public void loadModel(final MDL model) {
 		this.model = model;
-		dispModel = new MDLDisplay(model, this);
+		dispModel = new MDLDisplay(model, this, VERTEX_SIZE, selectionItemTypeNotifier);
 		dispModel.setProgramPreferences(prefs);
 		dispModel.setUndoHandler(undoHandler);
+	}
+
+	public SelectionManager getSelectionManager() {
+		return selectionManager;
 	}
 
 	@Override

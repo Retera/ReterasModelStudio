@@ -11,12 +11,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.etheller.collections.HashMap;
+import com.etheller.collections.ListView;
+import com.etheller.collections.Map;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.MDLDisplay;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonListener;
+import com.hiveworkshop.wc3.gui.modeledit.viewport.IdObjectRenderer;
+import com.hiveworkshop.wc3.gui.modeledit.viewport.NodeIconPalette;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
+import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.util.Callback;
@@ -36,6 +42,10 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 	private final Set<SelectionListener> listeners;
 
 	private static final Color FACE_HIGHLIGHT_COLOR = new Color(1f, 0.45f, 0.45f, 0.3f);
+	private boolean showPivots;
+
+	private final IdObjectRenderer selectedNodeRenderer;
+	private final Map<Object, SelectionItem> thingToWrapperItem;
 
 	public ModelSelectionManager(final MDLDisplay model, final int vertexSize,
 			final ToolbarButtonGroup<SelectionItemTypes> notififer) {
@@ -45,9 +55,18 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 		selection = new ArrayList<>();
 		listeners = new HashSet<>();
 		notififer.addToolbarButtonListener(this);
+		selectedNodeRenderer = new IdObjectRenderer(model.getProgramPreferences().getLightsColor(),
+				model.getProgramPreferences().getPivotPointsSelectedColor(), vertexSize, NodeIconPalette.SELECTED);
+		thingToWrapperItem = new HashMap<>();
+	}
+
+	public void setShowPivots(final boolean showPivots) {
+		this.showPivots = showPivots;
+		reloadSelection();
 	}
 
 	@Override
+	@Deprecated
 	public List<Triangle> getSelectedFaces() {
 		final List<Triangle> faces = new ArrayList<>();
 		// TODO fix this design hack
@@ -100,7 +119,7 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 	}
 
 	@Override
-	public void setSelection(final List<SelectionItem> selectionItem) {
+	public void setSelection(final List<? extends SelectionItem> selectionItem) {
 		final ArrayList<SelectionItem> previousSelection = new ArrayList<>(selection);
 		selection.clear();
 		for (final SelectionItem item : selectionItem) {
@@ -112,7 +131,7 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 	}
 
 	@Override
-	public void addSelection(final List<SelectionItem> selectionItem) {
+	public void addSelection(final List<? extends SelectionItem> selectionItem) {
 		final ArrayList<SelectionItem> previousSelection = new ArrayList<>(selection);
 		for (final SelectionItem item : selectionItem) {
 			selection.add(item);
@@ -123,7 +142,7 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 	}
 
 	@Override
-	public void removeSelection(final List<SelectionItem> selectionItem) {
+	public void removeSelection(final List<? extends SelectionItem> selectionItem) {
 		final ArrayList<SelectionItem> previousSelection = new ArrayList<>(selection);
 		for (final SelectionItem item : selectionItem) {
 			selection.remove(item);
@@ -135,16 +154,22 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 
 	@Override
 	public void typeChanged(final SelectionItemTypes newItemType) {
+		this.currentItemType = newItemType;
+		reloadSelection();
+	}
+
+	private void reloadSelection() {
 		final ArrayList<SelectionItem> previousSelection = new ArrayList<>(selection);
 		final List<SelectionItem> selectableItems = new ArrayList<>();
-		switch (newItemType) {
+		switch (currentItemType) {
 		case FACE:
 			for (final Geoset geoset : model.getEditableGeosets()) {
 				for (final Triangle triangle : geoset.getTriangle()) {
-					selectableItems.add(new FaceItem(triangle));
+					final FaceItem faceItem = new FaceItem(triangle);
+					selectableItems.add(faceItem);
+					thingToWrapperItem.put(triangle, faceItem);
 				}
 			}
-			this.selectableItems = selectableItems;
 			break;
 		case GROUP:
 			break;
@@ -154,10 +179,14 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 					selectableItems.add(new VertexItem(vertex));
 				}
 			}
-			this.selectableItems = selectableItems;
 			break;
 		}
-		this.currentItemType = newItemType;
+		if (showPivots) {
+			for (final IdObject object : model.getMDL().getIdObjects()) {
+				selectableItems.add(new NodeItem(object));
+			}
+		}
+		this.selectableItems = selectableItems;
 		for (final SelectionListener listener : listeners) {
 			listener.onSelectionChanged(previousSelection, selection);
 		}
@@ -220,6 +249,16 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 		public void forEachComponent(final Callback<MutableSelectionComponent> callback) {
 			callback.run(vertexComponent);
 		}
+
+		@Override
+		public ListView<? extends SelectionItem> getConnectedComponents() {
+			final com.etheller.collections.List<VertexItem> connectedComponents = new com.etheller.collections.ArrayList<>();
+			if (vertexComponent.vertex instanceof GeosetVertex) {
+				final GeosetVertex geosetVertex = (GeosetVertex) vertexComponent.vertex;
+
+			}
+			return connectedComponents;
+		}
 	}
 
 	private static final class VertexComponent implements MutableSelectionComponent {
@@ -249,8 +288,8 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 
 		@Override
 		public void rotate(final float centerX, final float centerY, final float centerZ, final float radians,
-				final CoordinateSystem coordinateSystem) {
-			rotateVertex(centerX, centerY, centerZ, radians, coordinateSystem, vertex);
+				final byte firstXYZ, final byte secondXYZ) {
+			rotateVertex(centerX, centerY, centerZ, radians, firstXYZ, secondXYZ, vertex);
 		}
 
 		@Override
@@ -417,86 +456,87 @@ public final class ModelSelectionManager implements SelectionManager, ToolbarBut
 
 	}
 
+	private final class NodeItem implements SelectionItem {
+		private final VertexComponent component;
+		private final IdObject node;
+
+		public NodeItem(final IdObject node) {
+			this.node = node;
+			component = new VertexComponent(node.getPivotPoint());
+		}
+
+		@Override
+		public void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem) {
+			selectedNodeRenderer.reset(coordinateSystem, graphics);
+			node.apply(selectedNodeRenderer);
+		}
+
+		@Override
+		public boolean hitTest(final Point2D point, final CoordinateSystem coordinateSystem) {
+			final double x = coordinateSystem
+					.convertX(node.getPivotPoint().getCoord(coordinateSystem.getPortFirstXYZ()));
+			final double y = coordinateSystem
+					.convertY(node.getPivotPoint().getCoord(coordinateSystem.getPortSecondXYZ()));
+			final double px = coordinateSystem.convertX(point.getX());
+			final double py = coordinateSystem.convertY(point.getY());
+			return Point2D.distance(px, py, x, y) <= NodeIconPalette.SELECTED.getAttachmentImage().getWidth(null) / 2.0;
+		}
+
+		@Override
+		public boolean hitTest(final Rectangle2D rectangle, final CoordinateSystem coordinateSystem) {
+			final double x = /* coordinateSystem.convertX */(node.getPivotPoint()
+					.getCoord(coordinateSystem.getPortFirstXYZ()));
+			final double y = /* coordinateSystem.convertY */(node.getPivotPoint()
+					.getCoord(coordinateSystem.getPortSecondXYZ()));
+			return rectangle.contains(x, y);
+		}
+
+		@Override
+		public Vertex getCenter() {
+			return node.getPivotPoint();
+		}
+
+		@Override
+		public void forEachComponent(final Callback<MutableSelectionComponent> callback) {
+			callback.run(component);
+		}
+
+	}
+
+	public boolean isShowPivots() {
+		return showPivots;
+	}
+
 	@Override
 	public void addSelectionListener(final SelectionListener listener) {
 		listeners.add(listener);
 	}
 
-	public static void rotateVertex(final float centerX, final float centerY, final float centerZ, final float radians,
-			final CoordinateSystem coordinateSystem, final Vertex vertex) {
-		final double x1 = vertex.getCoord(coordinateSystem.getPortFirstXYZ());
-		final double y1 = vertex.getCoord(coordinateSystem.getPortSecondXYZ());
-		final double cx;// = coordinateSystem.geomX(centerX);
-		switch (coordinateSystem.getPortFirstXYZ()) {
-		case 0:
-			cx = centerX;
-			break;
-		case 1:
-			cx = centerY;
-			break;
-		default:
-		case 2:
-			cx = centerZ;
-			break;
+	@Override
+	@Deprecated
+	public List<Vertex> getSelectedVertices() {
+		final List<Vertex> vertices = new ArrayList<>();
+		// TODO fix this design hack
+		if (currentItemType == SelectionItemTypes.VERTEX) {
+			for (final SelectionItem item : selection) {
+				if (!(item instanceof VertexItem)) {
+					throw new RuntimeException("Selection manager type failure");
+				}
+				final VertexItem vertexItem = (VertexItem) item;
+				final Vertex vertex = vertexItem.vertexComponent.vertex;
+				vertices.add(vertex);
+			}
+		} else if (currentItemType == SelectionItemTypes.FACE) {
+			for (final SelectionItem item : selection) {
+				if (!(item instanceof FaceItem)) {
+					throw new RuntimeException("Selection manager type failure");
+				}
+				final FaceItem faceItem = (FaceItem) item;
+				for (final Vertex vertex : faceItem.triangle.getVerts()) {
+					vertices.add(vertex);
+				}
+			}
 		}
-		final double dx = x1 - cx;
-		final double cy;// = coordinateSystem.geomY(centerY);
-		switch (coordinateSystem.getPortSecondXYZ()) {
-		case 0:
-			cy = centerX;
-			break;
-		case 1:
-			cy = centerY;
-			break;
-		default:
-		case 2:
-			cy = centerZ;
-			break;
-		}
-		final double dy = y1 - cy;
-		final double r = Math.sqrt(dx * dx + dy * dy);
-		double verAng = Math.acos(dx / r);
-		if (dy < 0) {
-			verAng = -verAng;
-		}
-		// if( getDimEditable(dim1) )
-		double nextDim = Math.cos(verAng + radians) * r + cx;
-		if (!Double.isNaN(nextDim)) {
-			vertex.setCoord(coordinateSystem.getPortFirstXYZ(), Math.cos(verAng + radians) * r + cx);
-		}
-		// if( getDimEditable(dim2) )
-		nextDim = Math.sin(verAng + radians) * r + cy;
-		if (!Double.isNaN(nextDim)) {
-			vertex.setCoord(coordinateSystem.getPortSecondXYZ(), Math.sin(verAng + radians) * r + cy);
-		}
-	}
-
-	public static void rotateVertex(final Vertex center, final Vertex axis, final float radians, final Vertex vertex) {
-		final double centerX = center.x;
-		final double centerY = center.y;
-		final double centerZ = center.z;
-		final double vertexX = vertex.x;
-		final double vertexY = vertex.y;
-		final double vertexZ = vertex.z;
-		final double deltaX = vertexX - centerX;
-		final double deltaY = vertexY - centerY;
-		final double deltaZ = vertexZ - centerZ;
-		double radiansToApply;
-		final double twoPi = Math.PI * 2;
-		if (radians > Math.PI) {
-			radiansToApply = (radians - twoPi) % twoPi;
-		} else if (radians <= -Math.PI) {
-			radiansToApply = (radians + twoPi) % twoPi;
-		} else {
-			radiansToApply = radians;
-		}
-		final double cosRadians = Math.cos(radiansToApply);
-		if (radiansToApply == Math.PI) {
-			vertex.x = centerX - deltaX;
-			vertex.y = centerY - deltaY;
-			vertex.z = centerY - deltaZ;
-		}
-		final double resultDeltaX = vertexX * cosRadians;
-		throw new UnsupportedOperationException("NYI");
+		return vertices;
 	}
 }

@@ -13,9 +13,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
@@ -31,7 +29,6 @@ import com.hiveworkshop.wc3.gui.modeledit.actions.DeleteAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.ExtrudeAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.MoveAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.RotateAction;
-import com.hiveworkshop.wc3.gui.modeledit.actions.SelectAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.SelectionActionType;
 import com.hiveworkshop.wc3.gui.modeledit.actions.SnapAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.SnapNormalsAction;
@@ -44,10 +41,8 @@ import com.hiveworkshop.wc3.gui.modeledit.actions.VertexActionType;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelChangeNotifier;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.TeamColorAddAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.ModelSelectionManager;
-import com.hiveworkshop.wc3.gui.modeledit.selection.MutableSelectionComponent;
-import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItem;
-import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionListener;
-import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItemTypes;
+import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoManager;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Camera;
@@ -74,7 +69,8 @@ public class MDLDisplay implements UndoManager {
 	UndoHandler undoHandler;
 
 	MDL model;
-	List<Vertex> selection = new ArrayList<>();
+	// List<Vertex> selection = new ArrayList<>();
+	ModelSelectionManager selectionManager;
 	List<TVertex> uvselection = new ArrayList<>();
 	List<Geoset> visibleGeosets = new ArrayList<>();
 	List<Geoset> editableGeosets = new ArrayList<>();
@@ -90,9 +86,6 @@ public class MDLDisplay implements UndoManager {
 	int actionTypeUV = -1;
 	UndoAction currentUVAction;
 
-	boolean beenSaved = true;
-	boolean lockdown = false;// lockdown editability
-	boolean dispPivots = false;
 	boolean dispChildren = false;
 	boolean dispPivotNames = false;
 	boolean dispCameras = false;
@@ -102,8 +95,10 @@ public class MDLDisplay implements UndoManager {
 
 	private final ModelChangeNotifier modelChangeNotifier;
 
-	public MDLDisplay(final MDL mdlr, final ModelPanel mpanel) {
+	public MDLDisplay(final MDL mdlr, final ModelPanel mpanel, final int vertexSize,
+			final ToolbarButtonGroup<SelectionItemTypes> selectionTypeNotifier) {
 		model = mdlr;
+		this.selectionManager = new ModelSelectionManager(this, vertexSize, selectionTypeNotifier);
 		visibleGeosets.addAll(mdlr.getGeosets());
 		editableGeosets.addAll(mdlr.getGeosets());
 		coordinateListeners = new ArrayList<>();
@@ -111,14 +106,14 @@ public class MDLDisplay implements UndoManager {
 		modelChangeNotifier = new ModelChangeNotifier();
 	}
 
+	public ModelSelectionManager getSelectionManager() {
+		return selectionManager;
+	}
+
 	public void reloadTextures() {
 		if (mpanel != null) {
 			mpanel.perspArea.reloadTextures();
 		}
-	}
-
-	public void setSelection(final List<Vertex> selection) {
-		this.selection = selection;
 	}
 
 	public void setUVPanel(final UVPanel panel) {
@@ -150,13 +145,13 @@ public class MDLDisplay implements UndoManager {
 	}
 
 	public void setDispPivots(final boolean flag) {
-		dispPivots = flag;
-		if (!flag) {
-			for (final IdObject o : model.getIdObjects()) {
-				final Vertex ver = o.getPivotPoint();
-				selection.remove(ver);
-			}
-		}
+		selectionManager.setShowPivots(flag);
+		// if (!flag) {
+		// for (final IdObject o : model.getIdObjects()) {
+		// final Vertex ver = o.getPivotPoint();
+		// selection.remove(ver);
+		// }
+		// }
 	}
 
 	public void setDispPivotNames(final boolean flag) {
@@ -2859,162 +2854,17 @@ public class MDLDisplay implements UndoManager {
 	}
 
 	public void invertSelection() {
-		if (!lockdown) {
-			beenSaved = false;
-			final ArrayList<Vertex> oldSelection = new ArrayList<>(selection);
-			for (final Geoset geo : editableGeosets) {
-				for (final GeosetVertex v : geo.getVertices()) {
-					if (selection.contains(v)) {
-						selection.remove(v);
-					} else {
-						selection.add(v);
-					}
-				}
-			}
-			if (dispPivots) {
-				ArrayList<IdObject> geoParents = null;
-				ArrayList<IdObject> geoSubParents = null;
-				if (dispChildren) {
-					geoParents = new ArrayList<>();
-					geoSubParents = new ArrayList<>();
-					for (final Geoset geo : editableGeosets) {
-						for (final GeosetVertex ver : geo.getVertices()) {
-							for (final Bone b : ver.getBones()) {
-								if (!geoParents.contains(b)) {
-									geoParents.add(b);
-								}
-							}
-						}
-					}
-					// childMap = new HashMap<IdObject,ArrayList<IdObject>>();
-					for (final IdObject obj : model.getIdObjects()) {
-						if (!geoParents.contains(obj)) {
-							boolean valid = false;
-							for (int i = 0; !valid && i < geoParents.size(); i++) {
-								valid = geoParents.get(i).childOf(obj);
-							}
-							if (valid) {
-								geoSubParents.add(obj);
-							}
-							// if( obj.parent != null )
-							// {
-							// ArrayList<IdObject> children =
-							// childMap.get(obj.parent);
-							// if( children == null )
-							// {
-							// children = new ArrayList<IdObject>();
-							// childMap.put(obj.parent, children);
-							// }
-							// children.add(obj);
-							// }
-						}
-					}
-					// System.out.println(geoSubParents);
-				}
-
-				if (!dispChildren) {
-					for (final Vertex ver : model.getPivots()) {
-						if (selection.contains(ver)) {
-							selection.remove(ver);
-						} else {
-							selection.add(ver);
-						}
-					}
+		final ArrayList<Vertex> oldSelection = new ArrayList<>(selection);
+		for (final Geoset geo : editableGeosets) {
+			for (final GeosetVertex v : geo.getVertices()) {
+				if (selection.contains(v)) {
+					selection.remove(v);
 				} else {
-					for (final IdObject o : model.getIdObjects()) {
-						// boolean hasRef = false;//highlight != null &&
-						// highlight.containsReference(o);
-						// if( dispChildren )
-						// {
-						// for( int i = 0; !hasRef && i <
-						// editableGeosets.size(); i++ )
-						// {
-						// hasRef = editableGeosets.get(i).containsReference(o);
-						// }
-						// }
-						if (geoParents.contains(o) || geoSubParents.contains(o))// !dispChildren
-																				// ||
-																				// hasRef
-																				// )
-						{
-							final Vertex ver = o.getPivotPoint();
-							if (selection.contains(ver)) {
-								selection.remove(ver);
-							} else {
-								selection.add(ver);
-							}
-						}
-					}
+					selection.add(v);
 				}
 			}
-			// for( IdObject o: model.getIdObjects() )
-			// {
-			// Vertex v = o.getPivotPoint();
-			// if( selection.contains(v) )
-			// selection.remove(v);
-			// else
-			// selection.add(v);
-			// }
-			final SelectAction temp = new SelectAction(oldSelection, selection, this,
-					SelectionActionType.INVERT_SELECTION);
-			actionStack.add(temp);
 		}
-	}
-
-	public void invertSelectionUV() {
-		if (!lockdown) {
-			beenSaved = false;
-			final ArrayList<TVertex> oldSelection = new ArrayList<>(uvselection);
-			for (final Geoset geo : editableGeosets) {
-				for (int i = 0; i < geo.getVertices().size(); i++) {
-					final TVertex v = geo.getVertices().get(i).getTVertex(uvpanel.currentLayer());
-					if (uvselection.contains(v)) {
-						uvselection.remove(v);
-					} else {
-						uvselection.add(v);
-					}
-				}
-			}
-			final UVSelectAction temp = new UVSelectAction(oldSelection, uvselection, this,
-					UVSelectionActionType.INVERT_SELECTION);
-			actionStack.add(temp);
-		}
-	}
-
-	public void selFromMain() {
-		if (!lockdown) {
-			beenSaved = false;
-
-			final ArrayList<TVertex> oldSelection = new ArrayList<>(uvselection);
-
-			uvselection.clear();
-			for (final Vertex ver : selection) {
-				if (ver instanceof GeosetVertex) {
-					final GeosetVertex gv = (GeosetVertex) ver;
-					final TVertex myT = gv.getTverts().get(uvpanel.currentLayer());
-					if (!uvselection.contains(myT)) {
-						uvselection.add(myT);
-					}
-				}
-			}
-			final UVSelectAction temp = new UVSelectAction(oldSelection, uvselection, this,
-					UVSelectionActionType.SELECT_FROM_VIEWER);
-			actionStack.add(temp);
-		}
-	}
-
-	public void cureSelection() {
-		// this probably conflicts with the undo feature
-		if (!lockdown) {
-			for (int i = 0; i < selection.size(); i++) {
-				if (selection.get(i).getClass() == GeosetVertex.class) {
-					final GeosetVertex gv = (GeosetVertex) selection.get(i);
-
-					if (!editableGeosets.contains(gv.getGeoset())) {
-						selection.remove(i);
-					}
-				}
-			}
+		if (dispPivots) {
 			ArrayList<IdObject> geoParents = null;
 			ArrayList<IdObject> geoSubParents = null;
 			if (dispChildren) {
@@ -3054,59 +2904,100 @@ public class MDLDisplay implements UndoManager {
 				}
 				// System.out.println(geoSubParents);
 			}
-			if (dispChildren) {
+
+			if (!dispChildren) {
+				for (final Vertex ver : model.getPivots()) {
+					if (selection.contains(ver)) {
+						selection.remove(ver);
+					} else {
+						selection.add(ver);
+					}
+				}
+			} else {
 				for (final IdObject o : model.getIdObjects()) {
 					// boolean hasRef = false;//highlight != null &&
 					// highlight.containsReference(o);
 					// if( dispChildren )
 					// {
-					// for( int i = 0; !hasRef && i < editableGeosets.size();
-					// i++ )
+					// for( int i = 0; !hasRef && i <
+					// editableGeosets.size(); i++ )
 					// {
 					// hasRef = editableGeosets.get(i).containsReference(o);
 					// }
 					// }
-					if (!(geoParents.contains(o) || geoSubParents.contains(o)))// !dispChildren
-																				// ||
-																				// hasRef
-																				// )
+					if (geoParents.contains(o) || geoSubParents.contains(o))// !dispChildren
+																			// ||
+																			// hasRef
+																			// )
 					{
 						final Vertex ver = o.getPivotPoint();
 						if (selection.contains(ver)) {
 							selection.remove(ver);
-						}
-					}
-				}
-			}
-			if (uvpanel != null) {
-				for (final Geoset geo : model.getGeosets()) {
-					if (!editableGeosets.contains(geo)) {
-						for (int i = 0; i < geo.getVertices().size(); i++) {
-							final TVertex v = geo.getVertices().get(i).getTVertex(uvpanel.currentLayer());
-							if (uvselection.contains(v)) {
-								uvselection.remove(v);
-							}
+						} else {
+							selection.add(ver);
 						}
 					}
 				}
 			}
 		}
+		// for( IdObject o: model.getIdObjects() )
+		// {
+		// Vertex v = o.getPivotPoint();
+		// if( selection.contains(v) )
+		// selection.remove(v);
+		// else
+		// selection.add(v);
+		// }
+		final SelectAction temp = new SelectAction(oldSelection, selection, this, SelectionActionType.INVERT_SELECTION);
+		actionStack.add(temp);
+	}
+
+	public void invertSelectionUV() {
+		final ArrayList<TVertex> oldSelection = new ArrayList<>(uvselection);
+		for (final Geoset geo : editableGeosets) {
+			for (int i = 0; i < geo.getVertices().size(); i++) {
+				final TVertex v = geo.getVertices().get(i).getTVertex(uvpanel.currentLayer());
+				if (uvselection.contains(v)) {
+					uvselection.remove(v);
+				} else {
+					uvselection.add(v);
+				}
+			}
+		}
+		final UVSelectAction temp = new UVSelectAction(oldSelection, uvselection, this,
+				UVSelectionActionType.INVERT_SELECTION);
+		actionStack.add(temp);
+	}
+
+	public void selFromMain() {
+		final ArrayList<TVertex> oldSelection = new ArrayList<>(uvselection);
+
+		uvselection.clear();
+		for (final Vertex ver : selectionManager.getSelectedVertices()) {
+			if (ver instanceof GeosetVertex) {
+				final GeosetVertex gv = (GeosetVertex) ver;
+				final TVertex myT = gv.getTverts().get(uvpanel.currentLayer());
+				if (!uvselection.contains(myT)) {
+					uvselection.add(myT);
+				}
+			}
+		}
+		final UVSelectAction temp = new UVSelectAction(oldSelection, uvselection, this,
+				UVSelectionActionType.SELECT_FROM_VIEWER);
+		actionStack.add(temp);
 	}
 
 	public void undo() {
-		if (!lockdown) {
-			beenSaved = false;
-			if (actionStack.size() > 0) {
-				final UndoAction temp = actionStack.get(actionStack.size() - 1);
-				actionStack.remove(temp);
-				temp.undo();
-				redoStack.add(temp);
+		if (actionStack.size() > 0) {
+			final UndoAction temp = actionStack.get(actionStack.size() - 1);
+			actionStack.remove(temp);
+			temp.undo();
+			redoStack.add(temp);
 
-				cureSelection();
-				modelChangeNotifier.modelChanged();
-			} else {
-				JOptionPane.showMessageDialog(null, "Nothing to undo!");
-			}
+			// cureSelection();
+			modelChangeNotifier.modelChanged();
+		} else {
+			JOptionPane.showMessageDialog(null, "Nothing to undo!");
 		}
 	}
 
@@ -3119,19 +3010,14 @@ public class MDLDisplay implements UndoManager {
 	}
 
 	public void redo() {
-		if (!lockdown) {
-			beenSaved = false;
-			if (redoStack.size() > 0) {
-				final UndoAction temp = redoStack.get(redoStack.size() - 1);
-				redoStack.remove(temp);
-				temp.redo();
-				actionStack.add(temp);
-
-				cureSelection();
-				modelChangeNotifier.modelChanged();
-			} else {
-				JOptionPane.showMessageDialog(null, "Nothing to redo!");
-			}
+		if (redoStack.size() > 0) {
+			final UndoAction temp = redoStack.get(redoStack.size() - 1);
+			redoStack.remove(temp);
+			temp.redo();
+			actionStack.add(temp);
+			modelChangeNotifier.modelChanged();
+		} else {
+			JOptionPane.showMessageDialog(null, "Nothing to redo!");
 		}
 	}
 
@@ -3151,27 +3037,6 @@ public class MDLDisplay implements UndoManager {
 		} else {
 			return "Can't redo";
 		}
-	}
-
-	public void lockdown() {
-		lockdown = true;
-	}
-
-	public void unlock() {
-		lockdown = false;
-		cureSelection();// keep it happening but not on lockdown!
-	}
-
-	public boolean beenSaved() {
-		return beenSaved;
-	}
-
-	public void resetBeenSaved() {
-		beenSaved = true;
-	}
-
-	public void setBeenSaved(final boolean flag) {
-		beenSaved = flag;
 	}
 
 	public boolean getDimEditable(final int dim) {
@@ -3214,13 +3079,11 @@ public class MDLDisplay implements UndoManager {
 	}
 
 	public void refreshUndo() {
-		// JOptionPane.showMessageDialog(null, "Empty method called to refresh
-		// undo button, no undo button coded yet.");
 		undoHandler.refreshUndo();
 	}
 
 	public boolean isDispPivots() {
-		return dispPivots;
+		return selectionManager.isShowPivots();
 	}
 
 	public boolean isDispChildren() {
@@ -3266,225 +3129,10 @@ public class MDLDisplay implements UndoManager {
 		return modelChangeNotifier;
 	}
 
-	public List<Triangle> getSelectedFaces() {
-		final List<Triangle> faces = new ArrayList<>();
-		// TODO fix this design hack
-		final Set<GeosetVertex> selectedVertices = new HashSet<>();
-		final Set<Triangle> partiallySelectedFaces = new HashSet<>();
-		for (final Vertex vertex : selection) {
-			if (vertex instanceof GeosetVertex) {
-				final GeosetVertex gv = (GeosetVertex) vertex;
-				partiallySelectedFaces.addAll(gv.getTriangles());
-				selectedVertices.add(gv);
-			}
-		}
-		for (final Triangle face : partiallySelectedFaces) {
-			boolean whollySelected = true;
-			for (final GeosetVertex gv : face.getVerts()) {
-				if (!selectedVertices.contains(gv)) {
-					whollySelected = false;
-				}
-			}
-			if (whollySelected) {
-				faces.add(face);
-			}
-		}
-		return faces;
-	}
-
 	public void addTeamColor(final Callback<List<Geoset>> listener) {
-		final TeamColorAddAction teamColorAddAction = new TeamColorAddAction(getSelectedFaces(), getMDL(), listener,
-				new SelectionManager() {
-					@Override
-					public void setSelection(final List<SelectionItem> selectionItem) {
-						final List<Vertex> vertices = new ArrayList<>();
-						for (final SelectionItem item : selectionItem) {
-							vertices.add(((VertexItem) item).vertexComponent.vertex);
-						}
-						MDLDisplay.this.setSelection(vertices);
-					}
-
-					@Override
-					public void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem) {
-						throw new UnsupportedOperationException();
-					}
-
-					@Override
-					public void removeSelection(final List<SelectionItem> selectionItem) {
-						final List<Vertex> vertices = new ArrayList<>();
-						for (final SelectionItem item : selectionItem) {
-							vertices.add(((VertexItem) item).vertexComponent.vertex);
-						}
-						MDLDisplay.this.selection.removeAll(vertices);
-					}
-
-					@Override
-					public List<SelectionItem> getSelection() {
-						final List<SelectionItem> vertices = new ArrayList<>();
-						for (final Vertex v : selection) {
-							vertices.add(new VertexItem(v));
-						}
-						return vertices;
-					}
-
-					@Override
-					public List<Triangle> getSelectedFaces() {
-						return MDLDisplay.this.getSelectedFaces();
-					}
-
-					@Override
-					public List<? extends SelectionItem> getSelectableItems() {
-						throw new UnsupportedOperationException();
-					}
-
-					@Override
-					public void addSelectionListener(final SelectionListener listener) {
-						throw new UnsupportedOperationException();
-					}
-
-					@Override
-					public void addSelection(final List<SelectionItem> selectionItem) {
-						final List<Vertex> vertices = new ArrayList<>();
-						for (final SelectionItem item : selectionItem) {
-							vertices.add(((VertexItem) item).vertexComponent.vertex);
-						}
-						MDLDisplay.this.selection.addAll(vertices);
-					}
-				});
+		final TeamColorAddAction teamColorAddAction = new TeamColorAddAction(selectionManager.getSelectedFaces(),
+				getMDL(), listener, selectionManager);
 		teamColorAddAction.redo();
 		pushAction(teamColorAddAction);
-	}
-
-	private final class VertexItem implements SelectionItem {
-		private final VertexComponent vertexComponent;
-
-		public VertexItem(final Vertex vertex) {
-			this.vertexComponent = new VertexComponent(vertex);
-		}
-
-		@Override
-		public void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem) {
-			final double x = coordinateSystem
-					.convertX(vertexComponent.getVertex().getCoord(coordinateSystem.getPortFirstXYZ()));
-			final double y = coordinateSystem
-					.convertY(vertexComponent.getVertex().getCoord(coordinateSystem.getPortSecondXYZ()));
-			if (selection.contains(this)) {
-				graphics.setColor(Color.RED);
-			} else {
-				graphics.setColor(getProgramPreferences().getVertexColor());
-			}
-			graphics.fillRect((int) x - 3 / 2, (int) y - 3 / 2, 3, 3);
-		}
-
-		@Override
-		public boolean hitTest(final Point2D point, final CoordinateSystem coordinateSystem) {
-			final double x = coordinateSystem
-					.convertX(vertexComponent.getVertex().getCoord(coordinateSystem.getPortFirstXYZ()));
-			final double y = coordinateSystem
-					.convertY(vertexComponent.getVertex().getCoord(coordinateSystem.getPortSecondXYZ()));
-			final double px = coordinateSystem.convertX(point.getX());
-			final double py = coordinateSystem.convertY(point.getY());
-			return Point2D.distance(px, py, x, y) <= 3 / 2.0;
-		}
-
-		@Override
-		public boolean hitTest(final Rectangle2D rectangle, final CoordinateSystem coordinateSystem) {
-			final double x = /* coordinateSystem.convertX */(vertexComponent.getVertex()
-					.getCoord(coordinateSystem.getPortFirstXYZ()));
-			final double y = /* coordinateSystem.convertY */(vertexComponent.getVertex()
-					.getCoord(coordinateSystem.getPortSecondXYZ()));
-			return rectangle.contains(x, y);
-		}
-
-		@Override
-		public Vertex getCenter() {
-			return vertexComponent.getVertex();
-		}
-
-		@Override
-		public void forEachComponent(final Callback<MutableSelectionComponent> callback) {
-			callback.run(vertexComponent);
-		}
-	}
-
-	private static final class VertexComponent implements MutableSelectionComponent {
-		private final Vertex vertex;
-
-		public VertexComponent(final Vertex vertex) {
-			this.vertex = vertex;
-		}
-
-		@Override
-		public void translate(final float x, final float y, final float z) {
-			vertex.x += x;
-			vertex.y += y;
-			vertex.z += z;
-		}
-
-		@Override
-		public void scale(final float centerX, final float centerY, final float centerZ, final float x, final float y,
-				final float z) {
-			final double dx = vertex.x - centerX;
-			final double dy = vertex.y - centerY;
-			final double dz = vertex.z - centerZ;
-			vertex.x = centerX + dx * x;
-			vertex.y = centerY + dy * y;
-			vertex.z = centerZ + dz * z;
-		}
-
-		@Override
-		public void rotate(final float centerX, final float centerY, final float centerZ, final float radians,
-				final CoordinateSystem coordinateSystem) {
-			ModelSelectionManager.rotateVertex(centerX, centerY, centerZ, radians, coordinateSystem, vertex);
-		}
-
-		@Override
-		public void delete() {
-			throw new UnsupportedOperationException("delete is nyi");
-		}
-
-		public Vertex getVertex() {
-			return vertex;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((vertex == null) ? 0 : vertex.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(final Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			final VertexComponent other = (VertexComponent) obj;
-			if (vertex == null) {
-				if (other.vertex != null) {
-					return false;
-				}
-			} else if (!vertex.equals(other.vertex)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public void rotate(final Vertex center, final Vertex perpendicular, final float radians) {
-			ModelSelectionManager.rotateVertex(center, perpendicular, radians, vertex);
-		}
-
-	}
-
-	public List<Vertex> getSelection() {
-		return selection;
 	}
 }

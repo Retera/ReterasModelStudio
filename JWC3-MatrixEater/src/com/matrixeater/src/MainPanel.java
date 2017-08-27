@@ -86,10 +86,14 @@ import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarActionButtonType;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
+import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonListener;
 import com.hiveworkshop.wc3.gui.modeledit.useractions.SelectAndMoveActivity;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.SelectAndRotateActivity;
 import com.hiveworkshop.wc3.gui.modeledit.useractions.SelectAndScaleActivity;
 import com.hiveworkshop.wc3.gui.modeledit.useractions.ViewportActivity;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.ViewportActivityManager;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.IconUtils;
+import com.hiveworkshop.wc3.gui.mpqbrowser.MPQBrowser;
 import com.hiveworkshop.wc3.jworldedit.models.UnitEditorModelSelector;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
@@ -154,9 +158,9 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			importButton, importUnit, importGameModel, importGameObject, importFromWorkspace, importButtonS,
 			newDirectory, creditsButton, clearRecent, nullmodelButton, selectAll, invertSelect, expandSelection,
 			snapNormals, flipAllUVsU, flipAllUVsV, inverseAllUVs, mirrorX, mirrorY, mirrorZ, insideOut, showMatrices,
-			editUVs, exportTextures, scaleAnimations, animationViewer, linearizeAnimations, simplifyKeyframes,
-			divideVertices, riseFallBirth, animFromFile, animFromUnit, animFromModel, animFromObject, teamColor,
-			teamGlow;
+			editUVs, exportTextures, scaleAnimations, animationViewer, mpqViewer, linearizeAnimations,
+			simplifyKeyframes, divideVertices, riseFallBirth, animFromFile, animFromUnit, animFromModel, animFromObject,
+			teamColor, teamGlow;
 	List<RecentItem> recentItems = new ArrayList<>();
 	UndoMenuItem undo;
 	RedoMenuItem redo;
@@ -434,11 +438,31 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			frame.setVisible(true);
 		}
 	};
+	AbstractAction openMPQViewerAction = new AbstractAction("Open MPQ Browser") {
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			final MPQBrowser mpqBrowser = new MPQBrowser(MpqCodebase.get(), new Callback<String>() {
+				@Override
+				public void run(final String filepath) {
+					System.out.println("OPENING FROM BROWSER: " + filepath);
+					loadFile(MpqCodebase.get().getFile(filepath));
+				}
+			});
+			final JFrame frame = new JFrame("MPQ Browser");
+			frame.setIconImage(MainFrame.frame.getIconImage());
+			frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			frame.setContentPane(mpqBrowser);
+			frame.pack();
+			frame.setLocationRelativeTo(MainPanel.this);
+			frame.setVisible(true);
+		}
+	};
 	private ToolbarButtonGroup<SelectionItemTypes> selectionItemTypeGroup;
 	private ToolbarButtonGroup<SelectionMode> selectionModeGroup;
 	private ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup;
 	private final Callback<List<Geoset>> geosetAdditionCallback;
 	private JMenuItem combineAnims;
+	private final ViewportActivityManager viewportActivityManager;
 
 	public MainPanel() {
 		super();
@@ -602,6 +626,14 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				}
 			}
 		};
+
+		viewportActivityManager = new ViewportActivityManager(new SelectAndMoveActivity());
+		actionTypeGroup.addToolbarButtonListener(new ToolbarButtonListener<ToolbarActionButtonType>() {
+			@Override
+			public void typeChanged(final ToolbarActionButtonType newType) {
+				viewportActivityManager.setCurrentActivity(newType.createActivity());
+			}
+		});
 	}
 
 	public JToolBar createJToolBar() {
@@ -653,7 +685,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/rotate.png"), "Select and Rotate") {
 					@Override
 					public ViewportActivity createActivity() {
-						return new SelectAndScaleActivity();
+						return new SelectAndRotateActivity();
 					}
 				}, new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/scale.png"), "Select and Scale") {
 					@Override
@@ -841,6 +873,11 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		windowMenu.getAccessibleContext()
 				.setAccessibleDescription("Allows the user to open various windows containing the program features.");
 		menuBar.add(windowMenu);
+
+		mpqViewer = new JMenuItem("MPQ Browser");
+		mpqViewer.setMnemonic(KeyEvent.VK_A);
+		mpqViewer.addActionListener(openMPQViewerAction);
+		windowMenu.add(mpqViewer);
 
 		animationViewer = new JMenuItem("Animation Viewer");
 		animationViewer.setMnemonic(KeyEvent.VK_A);
@@ -2457,7 +2494,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 					final MDL model = new MDL(MdxUtils.loadModel(in));
 					model.setFile(f);
 					temp = new ModelPanel(model, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
-							actionTypeGroup, geosetAdditionCallback);
+							viewportActivityManager, geosetAdditionCallback);
 				} catch (final FileNotFoundException e) {
 					e.printStackTrace();
 					ExceptionPopup.display(e);
@@ -2469,7 +2506,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				}
 			} else {
 				temp = new ModelPanel(MDXHandler.convert(f), prefs, MainPanel.this, selectionItemTypeGroup,
-						selectionModeGroup, actionTypeGroup, geosetAdditionCallback);
+						selectionModeGroup, viewportActivityManager, geosetAdditionCallback);
 			}
 		} else if (f.getPath().toLowerCase().endsWith("obj")) {
 			// final Build builder = new Build();
@@ -2479,7 +2516,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			try {
 				final Parse obj = new Parse(builder, f.getPath());
 				temp = new ModelPanel(builder.createMDL(), prefs, MainPanel.this, selectionItemTypeGroup,
-						selectionModeGroup, actionTypeGroup, geosetAdditionCallback);
+						selectionModeGroup, viewportActivityManager, geosetAdditionCallback);
 			} catch (final FileNotFoundException e) {
 				ExceptionPopup.display(e);
 				e.printStackTrace();
@@ -2488,8 +2525,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				e.printStackTrace();
 			}
 		} else {
-			temp = new ModelPanel(f, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup, actionTypeGroup,
-					geosetAdditionCallback);
+			temp = new ModelPanel(f, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
+					viewportActivityManager, geosetAdditionCallback);
 		}
 		temp.getMDLDisplay().addCoordDisplayListener(new CoordDisplayListener() {
 			@Override

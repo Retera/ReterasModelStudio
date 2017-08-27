@@ -3,7 +3,6 @@ package com.hiveworkshop.wc3.gui.modeledit.selection.edits;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.selection.MutableSelectionComponent;
 import com.hiveworkshop.wc3.util.Callback;
 
@@ -18,27 +17,35 @@ public final class UniqueComponentSpecificRotation implements Callback<MutableSe
 
 	private float radians;
 
-	private Pair<Byte, Byte> axes;
+	private byte firstXYZ;
+
+	private byte secondXYZ;
 
 	@Override
 	public void run(final MutableSelectionComponent item) {
 		if (!processedComponents.contains(item)) {
-			item.rotate(centerX, centerY, centerZ, radians, coordinateSystem);
+			item.rotate(centerX, centerY, centerZ, radians, firstXYZ, secondXYZ);
 			processedComponents.add(item);
 		}
 	}
 
 	public UniqueComponentSpecificRotation resetValues(final float centerX, final float centerY, final float centerZ,
-			final float radians, final CoordinateSystem coordinateSystem) {
+			final float radians, final byte firstXYZ, final byte secondXYZ) {
 		this.centerX = centerX;
 		this.centerY = centerY;
 		this.centerZ = centerZ;
 		this.radians = radians;
-		this.coordinateSystem = coordinateSystem;
+		this.firstXYZ = firstXYZ;
+		this.secondXYZ = secondXYZ;
 		return this;
 	}
 
 	public void reset() {
 		processedComponents.clear();
+	}
+
+	public UniqueComponentSpecificRotation reverse() {
+		return new UniqueComponentSpecificRotation().resetValues(centerX, centerY, centerZ, -radians, firstXYZ,
+				secondXYZ);
 	}
 }

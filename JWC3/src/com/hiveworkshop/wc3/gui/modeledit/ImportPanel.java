@@ -3195,7 +3195,7 @@ class BoneAttachmentPane extends JPanel implements ActionListener, ListSelection
 		oldBoneRefsList = new JList(oldBoneRefs);
 		oldBoneRefsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		oldBoneRefsList.setCellRenderer(new MatrixShell2DListCellRenderer(new MDLDisplay(impPanel.currentModel, null),
-				new MDLDisplay(impPanel.importedModel, null)));
+				new MDLDisplay(impPanel.importedModel, null, 3)));
 		oldBoneRefsList.addListSelectionListener(this);
 		oldBoneRefsPane = new JScrollPane(oldBoneRefsList);
 

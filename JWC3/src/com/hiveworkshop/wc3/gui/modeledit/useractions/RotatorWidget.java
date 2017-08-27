@@ -27,11 +27,11 @@ public final class RotatorWidget {
 		if (Math.abs(deltaX) <= 3 && Math.abs(deltaY) <= ROTATOR_RADIUS) {
 			return RotateDirection.VERTICALLY;
 		}
-		if (Math.abs(x - mousePoint.getX()) <= ROTATOR_RADIUS && Math.abs(y - mousePoint.getY()) <= 3) {
+		if (Math.abs(deltaX) <= ROTATOR_RADIUS && Math.abs(deltaY) <= 3) {
 			return RotateDirection.HORIZONTALLY;
 		}
 		final double dstSquared = deltaY * deltaY + deltaX * deltaX;
-		if (Math.abs(dstSquared - ROTATOR_RADIUS_SQUARED) <= 3) {
+		if (Math.abs(Math.sqrt(dstSquared) - ROTATOR_RADIUS) <= 3) {
 			return RotateDirection.SPIN;
 		}
 		if (dstSquared < ROTATOR_RADIUS_SQUARED) {

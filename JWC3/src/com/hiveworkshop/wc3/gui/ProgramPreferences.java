@@ -34,9 +34,12 @@ public class ProgramPreferences implements Serializable {
 	Color highlighTriangleColor = new Color(255, 255, 0);
 	Color highlighVertexColor = new Color(0, 255, 0);
 	Color normalsColor = new Color(128, 128, 255);
+	Color pivotPointsSelectedColor = Color.RED.darker();
 	Color pivotPointsColor = Color.MAGENTA;
 	Color lightsColor = Color.YELLOW.brighter();
 	Color ambientLightColor = Color.CYAN.brighter();
+	Color selectColor = Color.RED;
+	private int vertexSize = 3;
 
 	public void reload() {
 		dimLocks = new boolean[3];
@@ -55,6 +58,31 @@ public class ProgramPreferences implements Serializable {
 			lightsColor = Color.YELLOW.brighter();
 			ambientLightColor = Color.CYAN.brighter();
 		}
+		if (pivotPointsSelectedColor == null) {
+			pivotPointsSelectedColor = Color.RED.darker();
+		}
+		if (selectColor == null) {
+			selectColor = Color.RED;
+		}
+		if (vertexSize == 0) {
+			vertexSize = 3;
+		}
+	}
+
+	public int getVertexSize() {
+		return vertexSize;
+	}
+
+	public void setVertexSize(final int vertexSize) {
+		this.vertexSize = vertexSize;
+	}
+
+	public Color getSelectColor() {
+		return selectColor;
+	}
+
+	public void setSelectColor(final Color selectColor) {
+		this.selectColor = selectColor;
 	}
 
 	public int viewMode() {
@@ -298,6 +326,14 @@ public class ProgramPreferences implements Serializable {
 
 	public void setPivotPointsColor(final Color pivotPointsColor) {
 		this.pivotPointsColor = pivotPointsColor;
+	}
+
+	public Color getPivotPointsSelectedColor() {
+		return pivotPointsSelectedColor;
+	}
+
+	public void setPivotPointsSelectedColor(final Color pivotPointsSelectedColor) {
+		this.pivotPointsSelectedColor = pivotPointsSelectedColor;
 	}
 
 	public Color getLightsColor() {

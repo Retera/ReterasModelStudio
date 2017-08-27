@@ -24,4 +24,6 @@ public interface ViewportActivity extends SelectionListener, ModelChangeListener
 	void mouseDragged(MouseEvent e);
 
 	void render(Graphics2D g);
+
+	boolean isEditing();
 }

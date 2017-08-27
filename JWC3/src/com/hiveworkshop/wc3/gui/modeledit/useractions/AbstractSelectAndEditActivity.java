@@ -170,6 +170,11 @@ public abstract class AbstractSelectAndEditActivity implements ViewportActivity 
 		onRender(g, coordinateSystem);
 	}
 
+	@Override
+	public boolean isEditing() {
+		return startingClick != null;
+	}
+
 	private static enum ActionType {
 		SELECT, EDIT
 	};

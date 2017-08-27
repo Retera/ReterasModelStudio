@@ -53,6 +53,12 @@ public interface CoordinateSystem {
 			return (byte) (3 - coordinateSystem.getPortFirstXYZ() - coordinateSystem.getPortSecondXYZ());
 		}
 
+		public static double getZoom(final CoordinateSystem coordinateSystem) {
+			final double originX = coordinateSystem.convertX(0);
+			final double offsetX = coordinateSystem.convertX(100);
+			return (offsetX - originX) / 100.0;
+		}
+
 		private Util() {
 		}
 	}

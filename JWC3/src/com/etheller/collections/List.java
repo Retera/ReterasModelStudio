@@ -40,6 +40,16 @@ public interface List<TYPE> extends ListView<TYPE>, Collection<TYPE> {
 			}
 		}
 
+		public static <T extends Comparable<T>> void sort(final List<T> list) {
+			final Comparable[] a = list.toArray(new Comparable[0]);
+			Arrays.sort(a);
+			final ListIterator i = list.listIterator();
+			for (int j = 0; j < a.length; j++) {
+				i.next();
+				i.set(a[j]);
+			}
+		}
+
 		private Util() {
 		}
 	}

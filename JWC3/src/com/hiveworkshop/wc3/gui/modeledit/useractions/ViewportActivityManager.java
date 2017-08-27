@@ -20,7 +20,6 @@ public final class ViewportActivityManager implements ViewportActivity {
 	public void setCurrentActivity(final ViewportActivity currentActivity) {
 		this.currentActivity = currentActivity;
 		if (this.currentActivity != null) {
-			this.currentActivity.modelChanged();
 		}
 	}
 
@@ -67,6 +66,11 @@ public final class ViewportActivityManager implements ViewportActivity {
 	@Override
 	public void modelChanged() {
 		currentActivity.modelChanged();
+	}
+
+	@Override
+	public boolean isEditing() {
+		return currentActivity.isEditing();
 	}
 
 }

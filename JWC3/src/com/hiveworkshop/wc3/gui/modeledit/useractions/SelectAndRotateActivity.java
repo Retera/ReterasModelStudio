@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.useractions;
 import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,14 +13,13 @@ import javax.swing.SwingUtilities;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelChangeNotifier;
-import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ScaleComponentAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.RotateComponentAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItem;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItemView;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionListener;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionUtils;
 import com.hiveworkshop.wc3.gui.modeledit.selection.edits.UniqueComponentSpecificRotation;
-import com.hiveworkshop.wc3.gui.modeledit.selection.edits.UniqueComponentSpecificScaling;
 import com.hiveworkshop.wc3.gui.modeledit.useractions.RotatorWidget.RotateDirection;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
@@ -30,6 +30,7 @@ public class SelectAndRotateActivity extends AbstractSelectAndEditActivity
 	private UndoManager undoManager;
 	private Vertex moveActionVector;
 	private Vertex moveActionPreviousVector;
+	private Point2D.Double previousEndingClick = null;
 	private RotateDirection currentDirection = null;
 	private SelectionManager selectionManager;
 
@@ -55,118 +56,30 @@ public class SelectAndRotateActivity extends AbstractSelectAndEditActivity
 		moveActionVector.setCoord(portFirstXYZ, endingClick.x - startingClick.x);
 		final byte portSecondXYZ = coordinateSystem.getPortSecondXYZ();
 		moveActionVector.setCoord(portSecondXYZ, endingClick.y - startingClick.y);
-		final Vertex center = getCenter(selectionManager.getSelectableItems());
-		switch (currentDirection) {
-		case FREE:
-			break;
-		case HORIZONTALLY: {
-			final double radius = getCircumscribedSphereRadius(center, selectionManager.getSelection());
-			final double deltaAngle = (endingClick.x - startingClick.x) / radius;
-			final UniqueComponentSpecificRotation uniqueComponentSpecificRotation = new UniqueComponentSpecificRotation();
-			uniqueComponentSpecificRotation.resetValues((float) center.x, (float) center.y, (float) center.z,
-					(float) deltaAngle, coordinateSystem);
-			SelectionUtils.applyToSelection(selectionManager, uniqueComponentSpecificRotation);
-		}
-			break;
-		case NONE:
-			break;
-		case SPIN: {
-			final double startingDeltaX = startingClick.x - center.getCoord(portFirstXYZ);
-			final double startingDeltaY = startingClick.y - center.getCoord(portSecondXYZ);
-			final double endingDeltaX = endingClick.x - center.getCoord(portFirstXYZ);
-			final double endingDeltaY = endingClick.y - center.getCoord(portSecondXYZ);
-			final double startingAngle = Math.atan2(startingDeltaY, startingDeltaX);
-			final double endingAngle = Math.atan2(endingDeltaY, endingDeltaX);
-			final double deltaAngle = endingAngle - startingAngle;
-			final UniqueComponentSpecificRotation uniqueComponentSpecificRotation = new UniqueComponentSpecificRotation();
-			uniqueComponentSpecificRotation.resetValues((float) center.x, (float) center.y, (float) center.z,
-					(float) deltaAngle, coordinateSystem);
-			SelectionUtils.applyToSelection(selectionManager, uniqueComponentSpecificRotation);
-		}
-			break;
-		case VERTICALLY:
-			break;
-		}
-		double cxs = center.getCoord(portFirstXYZ);
-		double cys = center.getCoord(portSecondXYZ);
-		double czs = 0;
-		double dxs = moveActionVector.x - cxs;
-		double dys = moveActionVector.y - cys;
-		final double dzs = 0;
-		final double startDist = Math.sqrt(dxs * dxs + dys * dys);
-		dxs = moveActionPreviousVector.x - cxs;
-		dys = moveActionPreviousVector.y - cys;
-		final double endDist = Math.sqrt(dxs * dxs + dys * dys);
-		final double distRatio = endDist / startDist;
-		cxs = center.getCoord((byte) 0);
-		cys = center.getCoord((byte) 1);
-		czs = center.getCoord((byte) 2);
-		Vertex scaleValues;
-		if (currentDirection == RotateDirection.FREE) {
-			scaleValues = new Vertex(distRatio, distRatio, distRatio);
-		} else {
-			scaleValues = new Vertex(1, 1, 1);
-		}
-		if (currentDirection != RotateDirection.FREE) {
-			scaleValues.setCoord(portFirstXYZ, distRatio);
-		}
-		if (currentDirection != RotateDirection.FREE) {
-			scaleValues.setCoord(portSecondXYZ, distRatio);
-		}
-		if (currentDirection == RotateDirection.FREE) {
-			scaleValues.setCoord(portSecondXYZ, distRatio);
-		}
-		final UniqueComponentSpecificScaling callback = new UniqueComponentSpecificScaling().resetValues((float) cxs,
-				(float) cys, (float) czs, (float) (scaleValues.x), (float) (scaleValues.y), (float) (scaleValues.z));
-		for (final SelectionItem item : selectionManager.getSelection()) {
-			item.forEachComponent(callback);
-		}
+		final Vertex center = getCenter(selectionManager.getSelection());
+		final UniqueComponentSpecificRotation uniqueComponentSpecificRotation = createRotation(coordinateSystem,
+				selectionManager, previousEndingClick, endingClick, portFirstXYZ, portSecondXYZ, center);
+		SelectionUtils.applyToSelection(selectionManager, uniqueComponentSpecificRotation);
+		previousEndingClick.x = endingClick.x;
+		previousEndingClick.y = endingClick.y;
 	}
 
 	@Override
 	protected void doEndAction(final MouseEvent e, final CoordinateSystem coordinateSystem,
 			final SelectionManager selectionManager, final Double startingClick, final Double endingClick) {
-		moveActionPreviousVector.setTo(moveActionVector);
-		moveActionVector.setCoord(coordinateSystem.getPortFirstXYZ(), endingClick.x - startingClick.x);
-		moveActionVector.setCoord(coordinateSystem.getPortSecondXYZ(), endingClick.y - startingClick.y);
-		final Vertex v = getCenter(selectionManager.getSelectableItems());
-		double cxs = v.getCoord(coordinateSystem.getPortFirstXYZ());
-		double cys = v.getCoord(coordinateSystem.getPortSecondXYZ());
-		double czs = 0;
-		double dxs = moveActionVector.x - cxs;
-		double dys = moveActionVector.y - cys;
-		final double dzs = 0;
-		final double startDist = Math.sqrt(dxs * dxs + dys * dys);
-		dxs = moveActionPreviousVector.x - cxs;
-		dys = moveActionPreviousVector.y - cys;
-		final double endDist = Math.sqrt(dxs * dxs + dys * dys);
-		final double distRatio = endDist / startDist;
-		cxs = v.getCoord((byte) 0);
-		cys = v.getCoord((byte) 1);
-		czs = v.getCoord((byte) 2);
-		Vertex scaleValues;
-		if (currentDirection == RotateDirection.FREE) {
-			scaleValues = new Vertex(distRatio, distRatio, distRatio);
-		} else {
-			scaleValues = new Vertex(1, 1, 1);
+		final byte portFirstXYZ = coordinateSystem.getPortFirstXYZ();
+		final byte portSecondXYZ = coordinateSystem.getPortSecondXYZ();
+		doDrag(e, coordinateSystem, selectionManager, startingClick, endingClick);
+		if (moverWidget != null) {
+			moverWidget.getPoint().setTo(getCenter(selectionManager.getSelection()));
 		}
-		if (currentDirection != RotateDirection.FREE) {
-			scaleValues.setCoord(coordinateSystem.getPortFirstXYZ(), distRatio);
-		}
-		if (currentDirection != RotateDirection.FREE) {
-			scaleValues.setCoord(coordinateSystem.getPortSecondXYZ(), distRatio);
-		}
-		if (currentDirection == RotateDirection.FREE) {
-			scaleValues.setCoord(coordinateSystem.getPortSecondXYZ(), distRatio);
-		}
-		final UniqueComponentSpecificScaling callback = new UniqueComponentSpecificScaling().resetValues((float) cxs,
-				(float) cys, (float) czs, (float) (scaleValues.x), (float) (scaleValues.y), (float) (scaleValues.z));
-		for (final SelectionItem item : selectionManager.getSelection()) {
-			item.forEachComponent(callback);
-		}
-		final ScaleComponentAction modifyAction = new ScaleComponentAction(selectionManager.getSelection(), (float) cxs,
-				(float) cys, (float) czs, (float) (scaleValues.x), (float) (scaleValues.y), (float) (scaleValues.z));
+		final Vertex center = getCenter(selectionManager.getSelection());
+		final UniqueComponentSpecificRotation uniqueComponentSpecificRotation = createRotation(coordinateSystem,
+				selectionManager, startingClick, endingClick, portFirstXYZ, portSecondXYZ, center);
+		final RotateComponentAction modifyAction = new RotateComponentAction(selectionManager.getSelection(),
+				uniqueComponentSpecificRotation);
 		undoManager.pushAction(modifyAction);
+		previousEndingClick = null;
 	}
 
 	@Override
@@ -174,15 +87,16 @@ public class SelectAndRotateActivity extends AbstractSelectAndEditActivity
 			final SelectionManager selectionManager, final Double startingClick) {
 		boolean doAction = false;
 		if (SwingUtilities.isRightMouseButton(e)) {
-			currentDirection = RotateDirection.FREE;
+			currentDirection = RotateDirection.SPIN;
 			doAction = true;
 		} else if ((moverWidget != null && (currentDirection = moverWidget.getDirectionByMouse(e.getPoint(),
-				coordinateSystem)) != RotatorWidget.RotateDirection.FREE)) {
+				coordinateSystem)) != RotatorWidget.RotateDirection.NONE)) {
 			doAction = true;
 		}
 		if (doAction) {
 			moveActionVector = new Vertex(0, 0, 0);
 			moveActionPreviousVector = new Vertex(0, 0, 0);
+			previousEndingClick = new Point2D.Double(startingClick.x, startingClick.y);
 			return true;
 		}
 		return false;
@@ -223,8 +137,10 @@ public class SelectAndRotateActivity extends AbstractSelectAndEditActivity
 
 	@Override
 	public void modelChanged() {
-		final List<SelectionItem> selection = selectionManager.getSelection();
-		moverWidget = new RotatorWidget(getCenter(selection));
+		if (moverWidget == null && selectionManager != null) {
+			final List<SelectionItem> selection = selectionManager.getSelection();
+			moverWidget = new RotatorWidget(getCenter(selection));
+		}
 	}
 
 	private Vertex getCenter(final List<? extends SelectionItemView> items) {
@@ -245,5 +161,45 @@ public class SelectAndRotateActivity extends AbstractSelectAndEditActivity
 			}
 		}
 		return radius;
+	}
+
+	private UniqueComponentSpecificRotation createRotation(final CoordinateSystem coordinateSystem,
+			final SelectionManager selectionManager, final Double startingClick, final Double endingClick,
+			final byte portFirstXYZ, final byte portSecondXYZ, final Vertex center) {
+		final UniqueComponentSpecificRotation uniqueComponentSpecificRotation = new UniqueComponentSpecificRotation();
+		switch (currentDirection) {
+		case FREE:
+			break;
+		case HORIZONTALLY: {
+			final double radius = getCircumscribedSphereRadius(center, selectionManager.getSelection());
+			final double deltaAngle = (endingClick.x - startingClick.x) / radius;
+			uniqueComponentSpecificRotation.resetValues((float) center.x, (float) center.y, (float) center.z,
+					(float) deltaAngle, coordinateSystem.getPortFirstXYZ(),
+					CoordinateSystem.Util.getUnusedXYZ(coordinateSystem));
+		}
+			break;
+		case NONE:
+			break;
+		case SPIN: {
+			final double startingDeltaX = startingClick.x - center.getCoord(portFirstXYZ);
+			final double startingDeltaY = startingClick.y - center.getCoord(portSecondXYZ);
+			final double endingDeltaX = endingClick.x - center.getCoord(portFirstXYZ);
+			final double endingDeltaY = endingClick.y - center.getCoord(portSecondXYZ);
+			final double startingAngle = Math.atan2(startingDeltaY, startingDeltaX);
+			final double endingAngle = Math.atan2(endingDeltaY, endingDeltaX);
+			final double deltaAngle = endingAngle - startingAngle;
+			uniqueComponentSpecificRotation.resetValues((float) center.x, (float) center.y, (float) center.z,
+					(float) deltaAngle, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+		}
+			break;
+		case VERTICALLY:
+			final double radius = getCircumscribedSphereRadius(center, selectionManager.getSelection());
+			final double deltaAngle = (endingClick.y - startingClick.y) / radius;
+			uniqueComponentSpecificRotation.resetValues((float) center.x, (float) center.y, (float) center.z,
+					(float) deltaAngle, CoordinateSystem.Util.getUnusedXYZ(coordinateSystem),
+					coordinateSystem.getPortSecondXYZ());
+			break;
+		}
+		return uniqueComponentSpecificRotation;
 	}
 }

@@ -1,6 +1,6 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.util.List;
+import java.util.Collection;
 
 import javax.swing.JOptionPane;
 
@@ -139,7 +139,7 @@ public class Vertex {
 		return new float[] { (float) x, (float) y, (float) z };
 	}
 
-	public static Vertex centerOfGroup(final List<? extends Vertex> group) {
+	public static Vertex centerOfGroup(final Collection<? extends Vertex> group) {
 		double xTot = 0;
 		double yTot = 0;
 		double zTot = 0;
@@ -174,5 +174,104 @@ public class Vertex {
 
 	private Vertex crossProduct(final double x2, final double y2, final double z2) {
 		return new Vertex(y * z2 - y2 * z, x2 * z - x * z2, x * y2 - x2 * y);
+	}
+
+	public void translate(final float x, final float y, final float z) {
+		this.x += x;
+		this.y += y;
+		this.z += z;
+	}
+
+	public void scale(final float centerX, final float centerY, final float centerZ, final float scaleX, final float scaleY,
+			final float scaleZ) {
+		final double dx = this.x - centerX;
+		final double dy = this.y - centerY;
+		final double dz = this.z - centerZ;
+		this.x = centerX + dx * scaleX;
+		this.y = centerY + dy * scaleY;
+		this.z = centerZ + dz * scaleZ;
+	}
+
+	public void rotate(final float centerX, final float centerY, final float centerZ, final float radians,
+			final byte firstXYZ, final byte secondXYZ) {
+		rotateVertex(centerX, centerY, centerZ, radians, firstXYZ, secondXYZ, this);
+	}
+
+	public static void rotateVertex(final Vertex center, final Vertex axis, final float radians, final Vertex vertex) {
+		final double centerX = center.x;
+		final double centerY = center.y;
+		final double centerZ = center.z;
+		final double vertexX = vertex.x;
+		final double vertexY = vertex.y;
+		final double vertexZ = vertex.z;
+		final double deltaX = vertexX - centerX;
+		final double deltaY = vertexY - centerY;
+		final double deltaZ = vertexZ - centerZ;
+		double radiansToApply;
+		final double twoPi = Math.PI * 2;
+		if (radians > Math.PI) {
+			radiansToApply = (radians - twoPi) % twoPi;
+		} else if (radians <= -Math.PI) {
+			radiansToApply = (radians + twoPi) % twoPi;
+		} else {
+			radiansToApply = radians;
+		}
+		final double cosRadians = Math.cos(radiansToApply);
+		if (radiansToApply == Math.PI) {
+			vertex.x = centerX - deltaX;
+			vertex.y = centerY - deltaY;
+			vertex.z = centerY - deltaZ;
+		}
+		final double resultDeltaX = vertexX * cosRadians;
+		throw new UnsupportedOperationException("NYI");
+	}
+
+	public static void rotateVertex(final float centerX, final float centerY, final float centerZ, final float radians,
+			final byte firstXYZ, final byte secondXYZ, final Vertex vertex) {
+		final double x1 = vertex.getCoord(firstXYZ);
+		final double y1 = vertex.getCoord(secondXYZ);
+		final double cx;// = coordinateSystem.geomX(centerX);
+		switch (firstXYZ) {
+		case 0:
+			cx = centerX;
+			break;
+		case 1:
+			cx = centerY;
+			break;
+		default:
+		case 2:
+			cx = centerZ;
+			break;
+		}
+		final double dx = x1 - cx;
+		final double cy;// = coordinateSystem.geomY(centerY);
+		switch (secondXYZ) {
+		case 0:
+			cy = centerX;
+			break;
+		case 1:
+			cy = centerY;
+			break;
+		default:
+		case 2:
+			cy = centerZ;
+			break;
+		}
+		final double dy = y1 - cy;
+		final double r = Math.sqrt(dx * dx + dy * dy);
+		double verAng = Math.acos(dx / r);
+		if (dy < 0) {
+			verAng = -verAng;
+		}
+		// if( getDimEditable(dim1) )
+		double nextDim = Math.cos(verAng + radians) * r + cx;
+		if (!Double.isNaN(nextDim)) {
+			vertex.setCoord(firstXYZ, Math.cos(verAng + radians) * r + cx);
+		}
+		// if( getDimEditable(dim2) )
+		nextDim = Math.sin(verAng + radians) * r + cy;
+		if (!Double.isNaN(nextDim)) {
+			vertex.setCoord(secondXYZ, Math.sin(verAng + radians) * r + cy);
+		}
 	}
 }

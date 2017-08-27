@@ -18,8 +18,8 @@ import javax.swing.JOptionPane;
 
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.mdl.AnimFlag.Entry;
-import com.hiveworkshop.wc3.mdl.renderer.ModelRenderer;
 import com.hiveworkshop.wc3.mdl.v2.visitor.GeosetVisitor;
+import com.hiveworkshop.wc3.mdl.v2.visitor.ModelVisitor;
 import com.hiveworkshop.wc3.mdl.v2.visitor.TriangleVisitor;
 import com.hiveworkshop.wc3.mdl.v2.visitor.VertexVisitor;
 import com.hiveworkshop.wc3.mdx.AttachmentChunk;
@@ -930,7 +930,9 @@ public class MDL implements Named {
 		if (f.getPath().toLowerCase().endsWith(".mdx")) {
 			// f = MDXHandler.convert(f);
 			try (BlizzardDataInputStream in = new BlizzardDataInputStream(new FileInputStream(f))) {
-				return new MDL(MdxUtils.loadModel(in));
+				final MDL mdl = new MDL(MdxUtils.loadModel(in));
+				mdl.fileRef = f;
+				return mdl;
 			} catch (final FileNotFoundException e) {
 				throw new RuntimeException(e);
 				// e.printStackTrace();
@@ -2360,7 +2362,7 @@ public class MDL implements Named {
 		this.cameras = cameras;
 	}
 
-	public void render(final ModelRenderer renderer) {
+	public void render(final ModelVisitor renderer) {
 		for (final Geoset geoset : geosets) {
 			final GeosetVisitor geosetRenderer = renderer.beginGeoset(geoset.getMaterial(), geoset.getGeosetAnim());
 			for (final Triangle triangle : geoset.getTriangle()) {

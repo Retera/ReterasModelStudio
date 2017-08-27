@@ -1,8 +1,10 @@
 package com.hiveworkshop.wc3.mpq;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.channels.Channels;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
@@ -14,6 +16,9 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.etheller.collections.HashSet;
+import com.etheller.collections.Set;
+import com.etheller.collections.SetView;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.user.SaveProfile;
 
@@ -222,6 +227,33 @@ public class MpqCodebase implements Codebase {
 		if (isDebugMode) {
 			hfmd = loadMPQ("hfmd.exe");
 		}
+	}
+
+	public SetView<String> getMergedListfile() {
+		final Set<String> listfile = new HashSet<>();
+		for (final MpqGuy mpqGuy : mpqList) {
+			try {
+				final ArchivedFile listfileContents = mpqGuy.getArchive().lookupHash2(new HashLookup("(listfile)"));
+				final ArchivedFileStream stream = new ArchivedFileStream(mpqGuy.getInputChannel(), extractor,
+						listfileContents);
+				final InputStream newInputStream = Channels.newInputStream(stream);
+				try (BufferedReader reader = new BufferedReader(new InputStreamReader(newInputStream))) {
+					String line;
+					while ((line = reader.readLine()) != null) {
+						listfile.add(line);
+					}
+				} catch (final IOException exc) {
+					throw new RuntimeException(exc);
+				}
+			} catch (final MPQException exc) {
+				if (exc.getMessage().equals("lookup not found")) {
+					continue;
+				} else {
+					throw new RuntimeException(exc);
+				}
+			}
+		}
+		return listfile;
 	}
 
 	private MpqGuy loadMPQ(final String mpq) {
