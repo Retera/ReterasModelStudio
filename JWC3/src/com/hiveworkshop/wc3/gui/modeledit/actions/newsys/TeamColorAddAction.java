@@ -95,7 +95,8 @@ public final class TeamColorAddAction implements UndoAction {
 			b.getTriangles().add(newTriangle);
 			c.getTriangles().add(newTriangle);
 		}
-		selection = selectionManager.getSelection();
+		throw new UnsupportedOperationException("NOT CODED FOR NEW VERSION YET");
+		// selection = selectionManager.getSelection();
 	}
 
 	@Override

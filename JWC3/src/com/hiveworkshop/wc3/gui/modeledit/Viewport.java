@@ -571,4 +571,9 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		}
 		activityListener.mouseMoved(e);
 	}
+
+	@Override
+	public CoordinateSystem copy() {
+		return new BasicCoordinateSystem(m_d1, m_d2, m_a, m_b, m_zoom, getWidth(), getHeight());
+	}
 }

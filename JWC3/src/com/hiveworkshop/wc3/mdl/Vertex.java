@@ -176,14 +176,14 @@ public class Vertex {
 		return new Vertex(y * z2 - y2 * z, x2 * z - x * z2, x * y2 - x2 * y);
 	}
 
-	public void translate(final float x, final float y, final float z) {
+	public void translate(final double x, final double y, final double z) {
 		this.x += x;
 		this.y += y;
 		this.z += z;
 	}
 
-	public void scale(final float centerX, final float centerY, final float centerZ, final float scaleX, final float scaleY,
-			final float scaleZ) {
+	public void scale(final double centerX, final double centerY, final double centerZ, final double scaleX,
+			final double scaleY, final double scaleZ) {
 		final double dx = this.x - centerX;
 		final double dy = this.y - centerY;
 		final double dz = this.z - centerZ;
@@ -192,12 +192,12 @@ public class Vertex {
 		this.z = centerZ + dz * scaleZ;
 	}
 
-	public void rotate(final float centerX, final float centerY, final float centerZ, final float radians,
+	public void rotate(final double centerX, final double centerY, final double centerZ, final double radians,
 			final byte firstXYZ, final byte secondXYZ) {
 		rotateVertex(centerX, centerY, centerZ, radians, firstXYZ, secondXYZ, this);
 	}
 
-	public static void rotateVertex(final Vertex center, final Vertex axis, final float radians, final Vertex vertex) {
+	public static void rotateVertex(final Vertex center, final Vertex axis, final double radians, final Vertex vertex) {
 		final double centerX = center.x;
 		final double centerY = center.y;
 		final double centerZ = center.z;
@@ -226,8 +226,8 @@ public class Vertex {
 		throw new UnsupportedOperationException("NYI");
 	}
 
-	public static void rotateVertex(final float centerX, final float centerY, final float centerZ, final float radians,
-			final byte firstXYZ, final byte secondXYZ, final Vertex vertex) {
+	public static void rotateVertex(final double centerX, final double centerY, final double centerZ,
+			final double radians, final byte firstXYZ, final byte secondXYZ, final Vertex vertex) {
 		final double x1 = vertex.getCoord(firstXYZ);
 		final double y1 = vertex.getCoord(secondXYZ);
 		final double cx;// = coordinateSystem.geomX(centerX);

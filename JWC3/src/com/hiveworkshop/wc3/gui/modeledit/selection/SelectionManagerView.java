@@ -1,7 +1,7 @@
 package com.hiveworkshop.wc3.gui.modeledit.selection;
 
-import java.util.List;
+import java.util.Set;
 
-public interface SelectionManagerView {
-	List<? extends SelectionItemView> getSelection();
+public interface SelectionManagerView<T> extends SelectionView {
+	Set<T> getSelection();
 }
