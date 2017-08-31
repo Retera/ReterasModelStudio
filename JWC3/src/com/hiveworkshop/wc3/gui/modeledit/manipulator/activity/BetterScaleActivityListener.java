@@ -2,12 +2,12 @@ package com.hiveworkshop.wc3.gui.modeledit.manipulator.activity;
 
 import com.hiveworkshop.wc3.gui.modeledit.manipulator.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoManager;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoActionListener;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 public final class BetterScaleActivityListener extends AbstractBetterScaleActivityListener {
 
-	public BetterScaleActivityListener(final ModelEditor modelEditor, final UndoManager undoManager,
+	public BetterScaleActivityListener(final ModelEditor modelEditor, final UndoActionListener undoManager,
 			final SelectionView selectionView) {
 		super(modelEditor, undoManager, selectionView);
 	}

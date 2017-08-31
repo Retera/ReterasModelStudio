@@ -27,7 +27,7 @@ public class SelectAndRotateActivity extends AbstractSelectAndEditActivity
 		implements SelectionListener, ModelChangeListener {
 	private RotatorWidget moverWidget = null;
 	private CursorManager cursorManager;
-	private UndoManager undoManager;
+	private UndoActionListener undoManager;
 	private Vertex moveActionVector;
 	private Vertex moveActionPreviousVector;
 	private Point2D.Double previousEndingClick = null;
@@ -104,7 +104,7 @@ public class SelectAndRotateActivity extends AbstractSelectAndEditActivity
 
 	@Override
 	protected void onReset(final SelectionManager selectionManager, final CursorManager cursorManager,
-			final CoordinateSystem coordinateSystem, final UndoManager undoManager,
+			final CoordinateSystem coordinateSystem, final UndoActionListener undoManager,
 			final ModelChangeNotifier modelChangeNotifier) {
 		this.selectionManager = selectionManager;
 		modelChangeNotifier.subscribe(this);

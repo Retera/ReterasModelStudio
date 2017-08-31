@@ -6,7 +6,8 @@ import java.util.Set;
 
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoManager;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoActionListener;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
@@ -15,13 +16,15 @@ public class FaceModelEditor implements ModelEditor {
 	private static final Color FACE_HIGHLIGHT_COLOR = new Color(1f, 0.45f, 0.45f, 0.3f);
 	private final ModelView model;
 	private final ProgramPreferences programPreferences;
-	private final FaceSelectionManager selectionManager;
+	private final SelectionManager<Triangle> selectionManager;
+	private final UndoActionListener undoActionListener;
 
-	public FaceModelEditor(final UndoManager undoManager, final ModelView model,
-			final ProgramPreferences programPreferences) {
+	public FaceModelEditor(final UndoActionListener undoActionListener, final ModelView model,
+			final ProgramPreferences programPreferences, final SelectionManager<Triangle> selectionManager) {
+		this.undoActionListener = undoActionListener;
 		this.model = model;
 		this.programPreferences = programPreferences;
-		this.selectionManager = new FaceSelectionManager();
+		this.selectionManager = selectionManager;
 	}
 
 	@Override
@@ -108,7 +111,7 @@ public class FaceModelEditor implements ModelEditor {
 	@Override
 	public void cloneSelectedComponents() {
 		// TODO Auto-generated method stub
-
+		throw new UnsupportedOperationException("DID NOT CODE CLONING SELECTED FACES YET");
 	}
 
 }

@@ -10,30 +10,34 @@ import java.util.List;
 import java.util.Set;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
+import com.hiveworkshop.wc3.gui.modeledit.manipulator.actions.SetSelectionAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoManager;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoActionListener;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
-public final class FaceSelectingEventListener extends AbstractSelectingEventListener<Triangle> {
+public final class FaceSelectingEventHandler extends AbstractSelectingEventHandler<Triangle> {
 
 	private final ModelView model;
 
-	public FaceSelectingEventListener(final UndoManager undoManager, final SelectionManager<Triangle> selectionManager,
-			final ModelView model) {
+	public FaceSelectingEventHandler(final UndoActionListener undoManager,
+			final SelectionManager<Triangle> selectionManager, final ModelView model) {
 		super(undoManager, selectionManager);
 		this.model = model;
 	}
 
 	@Override
 	public void expandSelection() {
+		final Set<Triangle> oldSelection = new HashSet<>(selectionManager.getSelection());
 		final Set<Triangle> expandedSelection = new HashSet<>(selectionManager.getSelection());
 		for (final Triangle triangle : new ArrayList<>(selectionManager.getSelection())) {
 			expandSelection(triangle, expandedSelection);
 		}
 		selectionManager.addSelection(expandedSelection);
+		undoManager.pushAction(
+				new SetSelectionAction<>(expandedSelection, oldSelection, selectionManager, "expand selection"));
 	}
 
 	private void expandSelection(final Triangle currentTriangle, final Set<Triangle> selection) {
@@ -49,6 +53,7 @@ public final class FaceSelectingEventListener extends AbstractSelectingEventList
 
 	@Override
 	public void invertSelection() {
+		final Set<Triangle> oldSelection = new HashSet<>(selectionManager.getSelection());
 		final Set<Triangle> invertedSelection = new HashSet<>(selectionManager.getSelection());
 		for (final Geoset geoset : model.getEditableGeosets()) {
 			for (final Triangle triangle : geoset.getTriangle()) {
@@ -60,10 +65,13 @@ public final class FaceSelectingEventListener extends AbstractSelectingEventList
 			}
 		}
 		selectionManager.setSelection(invertedSelection);
+		undoManager.pushAction(
+				new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection"));
 	}
 
 	@Override
 	public void selectAll() {
+		final Set<Triangle> oldSelection = new HashSet<>(selectionManager.getSelection());
 		final Set<Triangle> allSelection = new HashSet<>();
 		for (final Geoset geoset : model.getEditableGeosets()) {
 			for (final Triangle triangle : geoset.getTriangle()) {
@@ -71,6 +79,7 @@ public final class FaceSelectingEventListener extends AbstractSelectingEventList
 			}
 		}
 		selectionManager.setSelection(allSelection);
+		undoManager.pushAction(new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all"));
 	}
 
 	@Override

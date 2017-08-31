@@ -6,12 +6,12 @@ import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 
-public final class ViewportSelectionListener {
+public final class ViewportSelectionHandler {
 	private final ToolbarButtonGroup<SelectionMode> modeButtonGroup;
-	private final SelectingEventListener modelEditor;
+	private final SelectingEventHandler modelEditor;
 
-	public ViewportSelectionListener(final ToolbarButtonGroup<SelectionMode> modeButtonGroup,
-			final SelectingEventListener modelEditor) {
+	public ViewportSelectionHandler(final ToolbarButtonGroup<SelectionMode> modeButtonGroup,
+			final SelectingEventHandler modelEditor) {
 		this.modeButtonGroup = modeButtonGroup;
 		this.modelEditor = modelEditor;
 	}

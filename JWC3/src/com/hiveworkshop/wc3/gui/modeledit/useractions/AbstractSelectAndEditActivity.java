@@ -13,24 +13,24 @@ import javax.swing.SwingUtilities;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelChangeNotifier;
+import com.hiveworkshop.wc3.gui.modeledit.manipulator.SelectingEventHandler;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItem;
-import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
 
 public abstract class AbstractSelectAndEditActivity implements ViewportActivity {
-	private SelectionManager selectionManager;
 	private Point2D.Double startingClick;
 	private Point2D.Double endingClick;
 	private CoordinateSystem coordinateSystem;
 	private ActionType actionType;
 	private SelectionTypeApplicator selectionApplicator;
 	private CursorManager cursorManager;
-	private UndoManager undoManager;
+	private UndoActionListener undoManager;
+	private SelectingEventHandler selectionManager;
 
 	@Override
-	public AbstractSelectAndEditActivity reset(final SelectionManager selectionManager,
+	public AbstractSelectAndEditActivity reset(final SelectingEventHandler selectionManager,
 			final SelectionTypeApplicator selectionListener, final CursorManager cursorManager,
-			final CoordinateSystem coordinateSystem, final UndoManager undoManager,
+			final CoordinateSystem coordinateSystem, final UndoActionListener undoManager,
 			final ModelChangeNotifier modelChangeNotifier) {
 		this.selectionManager = selectionManager;
 		this.selectionApplicator = selectionListener;
@@ -132,22 +132,22 @@ public abstract class AbstractSelectAndEditActivity implements ViewportActivity 
 		doMouseMove(e, coordinateSystem, selectionManager);
 	}
 
-	protected abstract void doDrag(MouseEvent e, CoordinateSystem coordinateSystem, SelectionManager selectionManager,
-			Point2D.Double startingClick, Point2D.Double endingClick);
+	protected abstract void doDrag(MouseEvent e, CoordinateSystem coordinateSystem,
+			SelectingEventHandler selectionManager, Point2D.Double startingClick, Point2D.Double endingClick);
 
 	protected abstract void doMouseMove(MouseEvent e, CoordinateSystem coordinateSystem,
-			SelectionManager selectionManager);
+			SelectingEventHandler selectionManager);
 
-	protected abstract void onReset(final SelectionManager selectionManager, final CursorManager cursorManager,
-			final CoordinateSystem coordinateSystem, UndoManager undoManager, ModelChangeNotifier modelChangeNotifier);
+	protected abstract void onReset(final SelectingEventHandler selectionManager, final CursorManager cursorManager,
+			final CoordinateSystem coordinateSystem, UndoActionListener undoManager, ModelChangeNotifier modelChangeNotifier);
 
 	protected abstract void onRender(Graphics2D g, CoordinateSystem coordinateSystem);
 
 	protected abstract void doEndAction(MouseEvent e, CoordinateSystem coordinateSystem,
-			SelectionManager selectionManager, Point2D.Double startingClick, Point2D.Double endingClick);
+			SelectingEventHandler selectionManager, Point2D.Double startingClick, Point2D.Double endingClick);
 
 	protected abstract boolean doStartAction(MouseEvent e, CoordinateSystem coordinateSystem,
-			SelectionManager selectionManager, Point2D.Double startingClick);
+			SelectingEventHandler selectionManager, Point2D.Double startingClick);
 
 	@Override
 	public void render(final Graphics2D g) {

@@ -1,7 +1,7 @@
 package com.hiveworkshop.wc3.gui.modeledit.useractions;
 
-import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
+public interface UndoManager extends UndoActionListener {
+	void undo();
 
-public interface UndoManager {
-	void pushAction(UndoAction action);
+	void redo();
 }

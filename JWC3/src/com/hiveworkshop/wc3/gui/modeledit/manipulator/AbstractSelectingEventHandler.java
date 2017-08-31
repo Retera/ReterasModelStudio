@@ -9,13 +9,14 @@ import com.hiveworkshop.wc3.gui.modeledit.manipulator.actions.AddSelectionAction
 import com.hiveworkshop.wc3.gui.modeledit.manipulator.actions.RemoveSelectionAction;
 import com.hiveworkshop.wc3.gui.modeledit.manipulator.actions.SetSelectionAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoManager;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoActionListener;
 
-public abstract class AbstractSelectingEventListener<T> implements SelectingEventListener {
-	protected final UndoManager undoManager;
+public abstract class AbstractSelectingEventHandler<T> implements SelectingEventHandler {
+	protected final UndoActionListener undoManager;
 	protected final SelectionManager<T> selectionManager;
 
-	public AbstractSelectingEventListener(final UndoManager undoManager, final SelectionManager<T> selectionManager) {
+	public AbstractSelectingEventHandler(final UndoActionListener undoManager,
+			final SelectionManager<T> selectionManager) {
 		this.undoManager = undoManager;
 		this.selectionManager = selectionManager;
 	}

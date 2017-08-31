@@ -3,11 +3,11 @@ package com.hiveworkshop.wc3.gui.modeledit.manipulator.activity;
 import java.awt.geom.Point2D.Double;
 
 import com.hiveworkshop.wc3.gui.modeledit.manipulator.ModelEditor;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoManager;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoActionListener;
 
 public final class BetterMoveXActivityListener extends AbstractBetterMoveActivityListener {
 
-	public BetterMoveXActivityListener(final ModelEditor modelEditor, final UndoManager undoManager) {
+	public BetterMoveXActivityListener(final ModelEditor modelEditor, final UndoActionListener undoManager) {
 		super(modelEditor, undoManager);
 	}
 

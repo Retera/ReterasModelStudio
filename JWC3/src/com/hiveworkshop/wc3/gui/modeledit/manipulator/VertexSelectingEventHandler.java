@@ -10,7 +10,7 @@ import java.util.Set;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.manipulator.actions.SetSelectionAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoManager;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoActionListener;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
@@ -19,11 +19,11 @@ import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
-public final class VertexSelectingEventListener extends AbstractSelectingEventListener<Vertex> {
+public final class VertexSelectingEventHandler extends AbstractSelectingEventHandler<Vertex> {
 	private final ModelView model;
 
-	public VertexSelectingEventListener(final UndoManager undoManager, final SelectionManager<Vertex> selectionManager,
-			final ModelView model) {
+	public VertexSelectingEventHandler(final UndoActionListener undoManager,
+			final SelectionManager<Vertex> selectionManager, final ModelView model) {
 		super(undoManager, selectionManager);
 		this.model = model;
 	}

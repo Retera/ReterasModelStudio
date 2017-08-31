@@ -32,7 +32,7 @@ import javax.swing.Timer;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
 import com.hiveworkshop.wc3.gui.modeledit.useractions.CursorManager;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoManager;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.useractions.ViewportActivity;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportModelRenderer;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportView;
@@ -66,7 +66,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	private final SelectionManager selectionManager;
 	private final SelectionTypeApplicator selectionTypeApplicator;
 	private final CursorManager cursorManager;
-	private final UndoManager undoManager;
+	private final UndoActionListener undoManager;
 	private final Callback<List<Geoset>> geosetAdditionListener;
 
 	public Viewport(final byte d1, final byte d2, final MDLDisplay dispMDL, final ViewportActivity activityListener,

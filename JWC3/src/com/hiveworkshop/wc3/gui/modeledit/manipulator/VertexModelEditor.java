@@ -8,6 +8,8 @@ import java.util.Set;
 
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.NodeIconPalette;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Camera;
@@ -21,12 +23,15 @@ import com.hiveworkshop.wc3.mdl.v2.ModelView;
 public class VertexModelEditor implements ModelEditor {
 	private final ModelView model;
 	private final ProgramPreferences programPreferences;
-	private final VertexSelectionManager selectionManager;
+	private final SelectionManager<Vertex> selectionManager;
+	private final UndoActionListener undoActionListener;
 
-	public VertexModelEditor(final ModelView model, final ProgramPreferences programPreferences) {
+	public VertexModelEditor(final UndoActionListener undoActionListener, final ModelView model,
+			final ProgramPreferences programPreferences, final SelectionManager<Vertex> selectionManager) {
+		this.undoActionListener = undoActionListener;
 		this.model = model;
 		this.programPreferences = programPreferences;
-		this.selectionManager = new VertexSelectionManager();
+		this.selectionManager = selectionManager;
 	}
 
 	@Override
@@ -212,6 +217,7 @@ public class VertexModelEditor implements ModelEditor {
 			}
 		}
 		selectionManager.setSelection(newSelection);
+		throw new UnsupportedOperationException("DID NOT RE-CODE GOOD CLONING OF VERTICES YET");
 	}
 
 }

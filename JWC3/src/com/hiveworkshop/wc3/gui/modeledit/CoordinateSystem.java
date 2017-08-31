@@ -1,6 +1,6 @@
 package com.hiveworkshop.wc3.gui.modeledit;
 
-public interface CoordinateSystem {
+public interface CoordinateSystem extends CoordinateAxes {
 	double convertX(double x);
 
 	double convertY(double y);
@@ -8,10 +8,6 @@ public interface CoordinateSystem {
 	double geomX(double x);
 
 	double geomY(double y);
-
-	byte getPortFirstXYZ();
-
-	byte getPortSecondXYZ();
 
 	CoordinateSystem copy();
 
@@ -65,7 +61,7 @@ public interface CoordinateSystem {
 			return new IdentityCoordinateSystem(b, a);
 		}
 
-		public static byte getUnusedXYZ(final CoordinateSystem coordinateSystem) {
+		public static byte getUnusedXYZ(final CoordinateAxes coordinateSystem) {
 			return getUnusedXYZ(coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 		}
 

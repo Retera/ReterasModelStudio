@@ -8,6 +8,7 @@ import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 public final class VertexSelectionManager extends AbstractSelectionManager<Vertex> {
+
 	public Set<Triangle> getSelectedFaces() {
 		final Set<Triangle> faces = new HashSet<>();
 		final Set<GeosetVertex> selectedVertices = new HashSet<>();

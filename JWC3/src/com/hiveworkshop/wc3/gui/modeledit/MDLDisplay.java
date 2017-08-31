@@ -43,7 +43,7 @@ import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.TeamColorAddAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.ModelSelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoManager;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoActionListener;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
@@ -63,7 +63,7 @@ import com.hiveworkshop.wc3.util.Callback;
  *
  * Eric Theller 6/7/2012
  */
-public class MDLDisplay implements UndoManager {
+public class MDLDisplay implements UndoActionListener {
 	private final List<CoordDisplayListener> coordinateListeners;
 	ProgramPreferences programPreferences;
 	UndoHandler undoHandler;

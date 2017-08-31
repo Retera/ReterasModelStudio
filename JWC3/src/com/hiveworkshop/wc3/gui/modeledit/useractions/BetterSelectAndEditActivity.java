@@ -25,12 +25,12 @@ public abstract class BetterSelectAndEditActivity implements ViewportActivity {
 	private ActionType actionType;
 	private SelectionTypeApplicator selectionApplicator;
 	private CursorManager cursorManager;
-	private UndoManager undoManager;
+	private UndoActionListener undoManager;
 
 	@Override
 	public BetterSelectAndEditActivity reset(final SelectionManager selectionManager,
 			final SelectionTypeApplicator selectionListener, final CursorManager cursorManager,
-			final CoordinateSystem coordinateSystem, final UndoManager undoManager,
+			final CoordinateSystem coordinateSystem, final UndoActionListener undoManager,
 			final ModelChangeNotifier modelChangeNotifier) {
 		this.selectionManager = selectionManager;
 		this.selectionApplicator = selectionListener;
@@ -139,7 +139,7 @@ public abstract class BetterSelectAndEditActivity implements ViewportActivity {
 			SelectionManager selectionManager);
 
 	protected abstract void onReset(final SelectionManager selectionManager, final CursorManager cursorManager,
-			final CoordinateSystem coordinateSystem, UndoManager undoManager, ModelChangeNotifier modelChangeNotifier);
+			final CoordinateSystem coordinateSystem, UndoActionListener undoManager, ModelChangeNotifier modelChangeNotifier);
 
 	protected abstract void onRender(Graphics2D g, CoordinateSystem coordinateSystem);
 

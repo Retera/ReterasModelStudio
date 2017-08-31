@@ -4,7 +4,7 @@ import java.awt.Rectangle;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 
-public interface SelectingEventListener {
+public interface SelectingEventHandler {
 	void setSelectedRegion(Rectangle region, CoordinateSystem coordinateSystem);
 
 	void removeSelectedRegion(Rectangle region, CoordinateSystem coordinateSystem);

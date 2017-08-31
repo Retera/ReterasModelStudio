@@ -6,15 +6,15 @@ import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.manipulator.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.manipulator.actions.RotateAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoManager;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoActionListener;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 public class BetterRotateHorizontalActivityListener extends AbstractBetterActivityListener {
 	private final ModelEditor modelEditor;
-	private final UndoManager undoManager;
+	private final UndoActionListener undoManager;
 	private final SelectionView selectionView;
 
-	public BetterRotateHorizontalActivityListener(final ModelEditor modelEditor, final UndoManager undoManager,
+	public BetterRotateHorizontalActivityListener(final ModelEditor modelEditor, final UndoActionListener undoManager,
 			final SelectionView selectionView) {
 		this.modelEditor = modelEditor;
 		this.undoManager = undoManager;
