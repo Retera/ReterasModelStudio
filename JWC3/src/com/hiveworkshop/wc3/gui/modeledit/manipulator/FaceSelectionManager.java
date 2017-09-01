@@ -1,8 +1,10 @@
 package com.hiveworkshop.wc3.gui.modeledit.manipulator;
 
+import java.awt.geom.Point2D.Double;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.hiveworkshop.wc3.gui.modeledit.CoordinateAxes;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
@@ -42,5 +44,16 @@ public final class FaceSelectionManager extends AbstractSelectionManager<Triangl
 			}
 		}
 		return radius;
+	}
+
+	@Override
+	public boolean canSelectAt(final Double point, final CoordinateAxes axes) {
+		boolean canSelect = false;
+		for (final Triangle item : selection) {
+			if (FaceSelectingEventHandler.hitTest(item, point, axes.getPortFirstXYZ(), axes.getPortSecondXYZ())) {
+				canSelect = true;
+			}
+		}
+		return canSelect;
 	}
 }

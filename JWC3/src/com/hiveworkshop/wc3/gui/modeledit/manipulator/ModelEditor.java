@@ -22,5 +22,6 @@ public interface ModelEditor {
 
 	void rotate3d(Vertex center, Vertex axis, double radians);
 
+	// TODO maybe put this on selection view
 	void renderSelection(ModelElementRenderer renderer, final CoordinateSystem coordinateSystem);
 }

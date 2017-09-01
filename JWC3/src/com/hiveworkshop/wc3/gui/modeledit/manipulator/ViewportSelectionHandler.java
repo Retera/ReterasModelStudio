@@ -1,8 +1,8 @@
 package com.hiveworkshop.wc3.gui.modeledit.manipulator;
 
-import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 
-import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
+import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 
@@ -16,17 +16,15 @@ public final class ViewportSelectionHandler {
 		this.modelEditor = modelEditor;
 	}
 
-	public void selectRegion(final Rectangle region, final CoordinateSystem coordinateSystem) {
+	public UndoAction selectRegion(final Rectangle2D region, final byte dim1, final byte dim2) {
 		switch (modeButtonGroup.getActiveButtonType()) {
 		case ADD:
-			modelEditor.addSelectedRegion(region, coordinateSystem);
-			break;
-		case SELECT:
-			modelEditor.setSelectedRegion(region, coordinateSystem);
-			break;
+			return modelEditor.addSelectedRegion(region, dim1, dim2);
 		case DESELECT:
-			modelEditor.removeSelectedRegion(region, coordinateSystem);
-			break;
+			return modelEditor.removeSelectedRegion(region, dim1, dim2);
+		default:
+		case SELECT:
+			return modelEditor.setSelectedRegion(region, dim1, dim2);
 		}
 	}
 

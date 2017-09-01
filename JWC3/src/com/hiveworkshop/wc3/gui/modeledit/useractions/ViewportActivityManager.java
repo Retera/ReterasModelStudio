@@ -53,7 +53,7 @@ public final class ViewportActivityManager implements ViewportActivity {
 			final SelectionTypeApplicator selectionListener, final CursorManager cursorManager,
 			final CoordinateSystem coordinateSystem, final UndoActionListener undoManager,
 			final ModelChangeNotifier modelChangeNotifier) {
-		return currentActivity.reset(selectionManager, selectionListener, cursorManager, coordinateSystem, undoManager,
+		return currentActivity.viewportChanged(selectionManager, selectionListener, cursorManager, coordinateSystem, undoManager,
 				modelChangeNotifier);
 	}
 

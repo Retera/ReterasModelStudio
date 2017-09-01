@@ -2,15 +2,13 @@ package com.hiveworkshop.wc3.gui.modeledit.manipulator.activity;
 
 import com.hiveworkshop.wc3.gui.modeledit.manipulator.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoActionListener;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
-public final class BetterScaleXActivityListener extends AbstractBetterScaleActivityListener {
+public final class ScaleYManipulator extends AbstractScaleManipulator {
 	private final Vertex resettableScaleFactors;
 
-	public BetterScaleXActivityListener(final ModelEditor modelEditor, final UndoActionListener undoManager,
-			final SelectionView selectionView) {
-		super(modelEditor, undoManager, selectionView);
+	public ScaleYManipulator(final ModelEditor modelEditor, final SelectionView selectionView) {
+		super(modelEditor, selectionView);
 		this.resettableScaleFactors = new Vertex(0, 0, 0);
 	}
 
@@ -20,7 +18,7 @@ public final class BetterScaleXActivityListener extends AbstractBetterScaleActiv
 		resettableScaleFactors.x = 1;
 		resettableScaleFactors.y = 1;
 		resettableScaleFactors.z = 1;
-		resettableScaleFactors.setCoord(dim1, scaleFactor);
+		resettableScaleFactors.setCoord(dim2, scaleFactor);
 		modelEditor.scale(center.x, center.y, center.z, scaleFactor, scaleFactor, scaleFactor);
 	}
 

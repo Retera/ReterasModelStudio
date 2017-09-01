@@ -399,7 +399,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 			clickTimer.start();
 			mouseInBounds = true;
 			setBorder(BorderFactory.createBevelBorder(1, Color.YELLOW, Color.YELLOW.darker()));
-			activityListener.reset(selectionManager, selectionTypeApplicator, cursorManager, this, undoManager,
+			activityListener.viewportChanged(selectionManager, selectionTypeApplicator, cursorManager, this, undoManager,
 					dispMDL.getModelChangeNotifier());
 		}
 	}
@@ -420,12 +420,12 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		if (e.getButton() == MouseEvent.BUTTON2) {
 			lastClick = new Point(e.getX(), e.getY());
 		} else if (e.getButton() == MouseEvent.BUTTON1) {
-			activityListener.reset(selectionManager, selectionTypeApplicator, cursorManager, this, undoManager,
+			activityListener.viewportChanged(selectionManager, selectionTypeApplicator, cursorManager, this, undoManager,
 					dispMDL.getModelChangeNotifier());
 			activityListener.mousePressed(e);
 			// selectStart = new Point(e.getX(), e.getY());
 		} else if (e.getButton() == MouseEvent.BUTTON3) {
-			activityListener.reset(selectionManager, selectionTypeApplicator, cursorManager, this, undoManager,
+			activityListener.viewportChanged(selectionManager, selectionTypeApplicator, cursorManager, this, undoManager,
 					dispMDL.getModelChangeNotifier());
 			activityListener.mousePressed(e);
 			// actStart = new Point(e.getX(), e.getY());

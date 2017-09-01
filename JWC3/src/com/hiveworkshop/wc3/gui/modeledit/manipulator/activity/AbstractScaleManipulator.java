@@ -2,21 +2,18 @@ package com.hiveworkshop.wc3.gui.modeledit.manipulator.activity;
 
 import java.awt.geom.Point2D.Double;
 
+import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.manipulator.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.manipulator.actions.ScaleAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoActionListener;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
-public abstract class AbstractBetterScaleActivityListener extends AbstractBetterActivityListener {
+public abstract class AbstractScaleManipulator extends AbstractManipulator {
 	private final ModelEditor modelEditor;
-	private final UndoActionListener undoManager;
 	private final SelectionView selectionView;
 
-	public AbstractBetterScaleActivityListener(final ModelEditor modelEditor, final UndoActionListener undoManager,
-			final SelectionView selectionView) {
+	public AbstractScaleManipulator(final ModelEditor modelEditor, final SelectionView selectionView) {
 		this.modelEditor = modelEditor;
-		this.undoManager = undoManager;
 		this.selectionView = selectionView;
 	}
 
@@ -28,11 +25,11 @@ public abstract class AbstractBetterScaleActivityListener extends AbstractBetter
 	}
 
 	@Override
-	public void finish(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
+	public UndoAction finish(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
 		update(mouseStart, mouseEnd, dim1, dim2);
 		final Vertex center = selectionView.getCenter();
 		final double scaleFactor = computeScaleFactor(activityStart, mouseEnd, center, dim1, dim2);
-		undoManager.pushAction(new ScaleAction(modelEditor, center, scaleFactor, scaleFactor, scaleFactor));
+		return new ScaleAction(modelEditor, center, scaleFactor, scaleFactor, scaleFactor);
 	}
 
 	protected abstract void scaleWithFactor(final ModelEditor modelEditor, final Vertex center,

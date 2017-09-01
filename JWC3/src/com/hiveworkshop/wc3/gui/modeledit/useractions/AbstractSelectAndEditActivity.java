@@ -28,7 +28,7 @@ public abstract class AbstractSelectAndEditActivity implements ViewportActivity 
 	private SelectingEventHandler selectionManager;
 
 	@Override
-	public AbstractSelectAndEditActivity reset(final SelectingEventHandler selectionManager,
+	public AbstractSelectAndEditActivity viewportChanged(final SelectingEventHandler selectionManager,
 			final SelectionTypeApplicator selectionListener, final CursorManager cursorManager,
 			final CoordinateSystem coordinateSystem, final UndoActionListener undoManager,
 			final ModelChangeNotifier modelChangeNotifier) {

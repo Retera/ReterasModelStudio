@@ -1,59 +1,55 @@
 package com.hiveworkshop.wc3.gui.modeledit.manipulator;
 
-import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 import java.util.List;
 import java.util.Set;
 
-import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
+import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.manipulator.actions.AddSelectionAction;
 import com.hiveworkshop.wc3.gui.modeledit.manipulator.actions.RemoveSelectionAction;
 import com.hiveworkshop.wc3.gui.modeledit.manipulator.actions.SetSelectionAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoActionListener;
 
 public abstract class AbstractSelectingEventHandler<T> implements SelectingEventHandler {
-	protected final UndoActionListener undoManager;
 	protected final SelectionManager<T> selectionManager;
 
-	public AbstractSelectingEventHandler(final UndoActionListener undoManager,
-			final SelectionManager<T> selectionManager) {
-		this.undoManager = undoManager;
+	public AbstractSelectingEventHandler(final SelectionManager<T> selectionManager) {
 		this.selectionManager = selectionManager;
 	}
 
 	@Override
-	public final void setSelectedRegion(final Rectangle region, final CoordinateSystem coordinateSystem) {
-		final List<T> newSelection = genericSelect(region, coordinateSystem);
-		setSelectionWithAction(newSelection);
+	public final UndoAction setSelectedRegion(final Rectangle2D region, final byte dim1, final byte dim2) {
+		final List<T> newSelection = genericSelect(region, dim1, dim2);
+		return setSelectionWithAction(newSelection);
 	}
 
 	@Override
-	public final void removeSelectedRegion(final Rectangle region, final CoordinateSystem coordinateSystem) {
-		final List<T> newSelection = genericSelect(region, coordinateSystem);
-		removeSelectionWithAction(newSelection);
+	public final UndoAction removeSelectedRegion(final Rectangle2D region, final byte dim1, final byte dim2) {
+		final List<T> newSelection = genericSelect(region, dim1, dim2);
+		return removeSelectionWithAction(newSelection);
 	}
 
 	@Override
-	public final void addSelectedRegion(final Rectangle region, final CoordinateSystem coordinateSystem) {
-		final List<T> newSelection = genericSelect(region, coordinateSystem);
-		addSelectionWithAction(newSelection);
+	public final UndoAction addSelectedRegion(final Rectangle2D region, final byte dim1, final byte dim2) {
+		final List<T> newSelection = genericSelect(region, dim1, dim2);
+		return addSelectionWithAction(newSelection);
 	}
 
-	protected final void setSelectionWithAction(final List<T> newSelection) {
+	protected final UndoAction setSelectionWithAction(final List<T> newSelection) {
 		final Set<T> previousSelection = selectionManager.getSelection();
 		selectionManager.setSelection(newSelection);
-		undoManager.pushAction(new SetSelectionAction<>(newSelection, previousSelection, selectionManager, "select"));
+		return (new SetSelectionAction<>(newSelection, previousSelection, selectionManager, "select"));
 	}
 
-	protected final void removeSelectionWithAction(final List<T> newSelection) {
+	protected final UndoAction removeSelectionWithAction(final List<T> newSelection) {
 		selectionManager.removeSelection(newSelection);
-		undoManager.pushAction(new RemoveSelectionAction<>(newSelection, selectionManager));
+		return (new RemoveSelectionAction<>(newSelection, selectionManager));
 	}
 
-	protected final void addSelectionWithAction(final List<T> newSelection) {
+	protected final UndoAction addSelectionWithAction(final List<T> newSelection) {
 		selectionManager.addSelection(newSelection);
-		undoManager.pushAction(new AddSelectionAction<>(newSelection, selectionManager));
+		return (new AddSelectionAction<>(newSelection, selectionManager));
 	}
 
-	protected abstract List<T> genericSelect(final Rectangle region, final CoordinateSystem coordinateSystem);
+	protected abstract List<T> genericSelect(final Rectangle2D region, byte dim1, byte dim2);
 }

@@ -1,9 +1,12 @@
 package com.hiveworkshop.wc3.gui.modeledit.manipulator.activity;
 
+import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 
-public abstract class AbstractBetterActivityListener implements BetterActivityListener {
+import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
+
+public abstract class AbstractManipulator implements Manipulator {
 	protected final Point2D.Double activityStart = new Point2D.Double();
 
 	@Override
@@ -14,5 +17,10 @@ public abstract class AbstractBetterActivityListener implements BetterActivityLi
 	}
 
 	protected void onStart(final Double mouseStart, final byte dim1, final byte dim2) {
+	}
+
+	@Override
+	public void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem) {
+
 	}
 }
