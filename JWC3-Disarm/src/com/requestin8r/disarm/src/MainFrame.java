@@ -33,8 +33,9 @@ public class MainFrame extends JFrame {
 		ADVSTRUCT = BLPHandler.get().getGameTex("ReplaceableTextures\\CommandButtons\\BTNCurse.blp");
 	}
 	public static final Image ADVSTRUCT;
+
 	public MainFrame() {
-		super("Disarm: Weaponless Model Creator v1.05");
+		super("Disarm: Weaponless Model Creator v1.06");
 		setContentPane(mainPanel);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setIconImage(ADVSTRUCT);
