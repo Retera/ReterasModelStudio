@@ -2739,6 +2739,24 @@ public class MDLDisplay implements UndoManager {
 		}
 	}
 
+	public void insideOutNormals() {
+		// Called both by a menu button and by the mirroring function
+		if (!lockdown) {
+			for (int i = 0; i < selection.size(); i++) {
+				final Vertex vert = selection.get(i);
+				if (vert.getClass() == GeosetVertex.class) {
+					final GeosetVertex gv = (GeosetVertex) vert;
+					final Normal normal = gv.getNormal();
+					normal.x = -normal.x;
+					normal.y = -normal.y;
+					normal.z = -normal.z;
+				} else {
+					System.out.println("GeosetVertex " + i + " was not found for \"insideOut\" function.");
+				}
+			}
+		}
+	}
+
 	public void mirror(final byte dim, final boolean flipModel) {
 		if (!lockdown) {
 			final byte mirrorDim = dim;

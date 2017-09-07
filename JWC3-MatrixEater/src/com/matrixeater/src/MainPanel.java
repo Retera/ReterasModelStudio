@@ -150,10 +150,10 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 	JMenuItem newModel, open, fetchUnit, fetchModel, fetchObject, save, showController, mergeGeoset, saveAs,
 			importButton, importUnit, importGameModel, importGameObject, importFromWorkspace, importButtonS,
 			newDirectory, creditsButton, clearRecent, nullmodelButton, selectAll, invertSelect, expandSelection,
-			snapNormals, flipAllUVsU, flipAllUVsV, inverseAllUVs, mirrorX, mirrorY, mirrorZ, insideOut, showMatrices,
-			editUVs, exportTextures, scaleAnimations, animationViewer, linearizeAnimations, simplifyKeyframes,
-			divideVertices, riseFallBirth, animFromFile, animFromUnit, animFromModel, animFromObject, teamColor,
-			teamGlow;
+			snapNormals, flipAllUVsU, flipAllUVsV, inverseAllUVs, mirrorX, mirrorY, mirrorZ, insideOut,
+			insideOutNormals, showMatrices, editUVs, exportTextures, scaleAnimations, animationViewer,
+			linearizeAnimations, simplifyKeyframes, divideVertices, riseFallBirth, animFromFile, animFromUnit,
+			animFromModel, animFromObject, teamColor, teamGlow;
 	List<RecentItem> recentItems = new ArrayList<>();
 	UndoMenuItem undo;
 	RedoMenuItem redo;
@@ -404,6 +404,16 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			final ModelPanel mpanel = ((ModelPanel) tabbedPane.getSelectedComponent());
 			if (mpanel != null) {
 				mpanel.getMDLDisplay().insideOut();
+			}
+			repaint();
+		}
+	};
+	AbstractAction insideOutNormalsAction = new AbstractAction("Inside Out Normals") {
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			final ModelPanel mpanel = ((ModelPanel) tabbedPane.getSelectedComponent());
+			if (mpanel != null) {
+				mpanel.getMDLDisplay().insideOutNormals();
 			}
 			repaint();
 		}
@@ -1080,6 +1090,10 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		insideOut.setMnemonic(KeyEvent.VK_I);
 		insideOut.addActionListener(insideOutAction);
 		toolsMenu.add(insideOut);
+
+		insideOutNormals = new JMenuItem("Flip all selected normals");
+		insideOutNormals.addActionListener(insideOutNormalsAction);
+		toolsMenu.add(insideOutNormals);
 
 		toolsMenu.add(new JSeparator());
 
