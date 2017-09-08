@@ -1,4 +1,4 @@
-package com.hiveworkshop.wc3.gui.modeledit.useractions;
+package com.hiveworkshop.wc3.gui.modeledit.activity;
 
 import java.awt.Cursor;
 

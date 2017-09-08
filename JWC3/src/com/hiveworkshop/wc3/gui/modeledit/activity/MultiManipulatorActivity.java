@@ -1,4 +1,4 @@
-package com.hiveworkshop.wc3.gui.modeledit.useractions;
+package com.hiveworkshop.wc3.gui.modeledit.activity;
 
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
@@ -8,9 +8,10 @@ import java.awt.geom.Point2D.Double;
 import javax.swing.SwingUtilities;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
+import com.hiveworkshop.wc3.gui.modeledit.manipulator.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.manipulator.activity.Manipulator;
+import com.hiveworkshop.wc3.gui.modeledit.manipulator.builder.ManipulatorBuilder;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public final class MultiManipulatorActivity implements ViewportActivity {
 	private final ManipulatorBuilder manipulatorBuilder;
@@ -20,25 +21,18 @@ public final class MultiManipulatorActivity implements ViewportActivity {
 	private CursorManager cursorManager;
 	private Double mouseStartPoint;
 	private Double lastDragPoint;
-	private final SelectionView selectionView;
-	private final ModelView modelView;
+	private SelectionView selectionView;
 
 	public MultiManipulatorActivity(final ManipulatorBuilder manipulatorBuilder,
-			final UndoActionListener undoActionListener, final SelectionView selectionView, final ModelView modelView) {
+			final UndoActionListener undoActionListener, final SelectionView selectionView) {
 		this.manipulatorBuilder = manipulatorBuilder;
 		this.undoActionListener = undoActionListener;
 		this.selectionView = selectionView;
-		this.modelView = modelView;
 	}
 
 	@Override
 	public void onSelectionChanged(final SelectionView newSelection) {
-
-	}
-
-	@Override
-	public void modelChanged() {
-
+		this.selectionView = newSelection;
 	}
 
 	@Override
@@ -97,7 +91,7 @@ public final class MultiManipulatorActivity implements ViewportActivity {
 
 	@Override
 	public void render(final Graphics2D graphics) {
-		manipulatorBuilder.render(graphics, coordinateSystem, selectionView, modelView);
+		manipulatorBuilder.render(graphics, coordinateSystem, selectionView);
 		if (manipulator != null) {
 			manipulator.render(graphics, coordinateSystem);
 		}
@@ -106,6 +100,17 @@ public final class MultiManipulatorActivity implements ViewportActivity {
 	@Override
 	public boolean isEditing() {
 		return manipulator != null;
+	}
+
+	@Override
+	public void modelEditorChanged(final ModelEditor newModelEditor) {
+		manipulatorBuilder.modelEditorChanged(newModelEditor);
+	}
+
+	@Override
+	public void modelChanged() {
+		// TODO Auto-generated method stub
+
 	}
 
 }

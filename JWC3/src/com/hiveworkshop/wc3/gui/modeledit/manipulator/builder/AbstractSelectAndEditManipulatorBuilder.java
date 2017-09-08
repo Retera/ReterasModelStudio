@@ -1,28 +1,40 @@
-package com.hiveworkshop.wc3.gui.modeledit.useractions;
+package com.hiveworkshop.wc3.gui.modeledit.manipulator.builder;
 
 import java.awt.Cursor;
-import java.awt.Graphics2D;
 import java.awt.Point;
 
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
+import com.hiveworkshop.wc3.gui.modeledit.activity.ButtonType;
+import com.hiveworkshop.wc3.gui.modeledit.activity.Graphics2DToModelElementRendererAdapter;
+import com.hiveworkshop.wc3.gui.modeledit.manipulator.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.manipulator.ViewportSelectionHandler;
 import com.hiveworkshop.wc3.gui.modeledit.manipulator.activity.Manipulator;
 import com.hiveworkshop.wc3.gui.modeledit.manipulator.activity.SelectManipulator;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.wc3.mdl.Vertex;
-import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public abstract class AbstractSelectAndEditManipulatorBuilder implements ManipulatorBuilder {
 	private final ViewportSelectionHandler viewportSelectionHandler;
 	private final ProgramPreferences programPreferences;
+	private ModelEditor modelEditor;
 	private final Graphics2DToModelElementRendererAdapter grAdapter;
 
 	public AbstractSelectAndEditManipulatorBuilder(final ViewportSelectionHandler viewportSelectionHandler,
-			final ProgramPreferences programPreferences) {
+			final ProgramPreferences programPreferences, final ModelEditor modelEditor) {
 		this.viewportSelectionHandler = viewportSelectionHandler;
 		this.programPreferences = programPreferences;
+		this.modelEditor = modelEditor;
 		grAdapter = new Graphics2DToModelElementRendererAdapter(programPreferences.getVertexSize());
+	}
+
+	@Override
+	public void modelEditorChanged(final ModelEditor newModelEditor) {
+		this.modelEditor = newModelEditor;
+	}
+
+	protected final ModelEditor getModelEditor() {
+		return modelEditor;
 	}
 
 	@Override
@@ -54,14 +66,6 @@ public abstract class AbstractSelectAndEditManipulatorBuilder implements Manipul
 		}
 	}
 
-	@Override
-	public final void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem,
-			final SelectionView selectionView, final ModelView modelView) {
-		selectionView.renderSelection(grAdapter.reset(graphics, coordinateSystem), coordinateSystem, modelView,
-				programPreferences);
-		renderWidget(graphics, coordinateSystem, selectionView, modelView);
-	}
-
 	protected abstract boolean widgetOffersEdit(Vertex selectionCenter, Point mousePoint,
 			CoordinateSystem coordinateSystem, SelectionView selectionView);
 
@@ -70,8 +74,5 @@ public abstract class AbstractSelectAndEditManipulatorBuilder implements Manipul
 
 	protected abstract Manipulator createDefaultManipulator(Vertex selectionCenter, Point mousePoint,
 			CoordinateSystem coordinateSystem, SelectionView selectionView);
-
-	protected abstract void renderWidget(final Graphics2D graphics, final CoordinateSystem coordinateSystem,
-			final SelectionView selectionView, final ModelView modelView);
 
 }

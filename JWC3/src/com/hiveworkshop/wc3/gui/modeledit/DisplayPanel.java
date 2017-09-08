@@ -14,9 +14,9 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import com.hiveworkshop.wc3.gui.GlobalIcons;
+import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivity;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.ViewportActivity;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.util.Callback;
 

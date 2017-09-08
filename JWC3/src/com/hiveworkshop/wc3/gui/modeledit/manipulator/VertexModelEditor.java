@@ -7,8 +7,8 @@ import java.util.Set;
 
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
+import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoActionListener;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.IdObject;
@@ -95,6 +95,7 @@ public class VertexModelEditor implements ModelEditor {
 		// renderer.camera(camera);
 		// }
 		// }
+		selectionManager.renderSelection(renderer, coordinateSystem, model, programPreferences);
 	}
 
 	@Override

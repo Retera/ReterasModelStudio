@@ -1,9 +1,9 @@
 package com.hiveworkshop.wc3.gui.modeledit.manipulator;
 
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
+import com.hiveworkshop.wc3.gui.modeledit.activity.UndoManager;
+import com.hiveworkshop.wc3.gui.modeledit.activity.UndoManagerImpl;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItemTypes;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoManager;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoManagerImpl;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public final class BigModelEditorGuy {

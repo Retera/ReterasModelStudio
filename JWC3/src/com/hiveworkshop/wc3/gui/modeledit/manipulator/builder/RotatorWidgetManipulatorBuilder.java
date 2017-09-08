@@ -1,4 +1,4 @@
-package com.hiveworkshop.wc3.gui.modeledit.useractions;
+package com.hiveworkshop.wc3.gui.modeledit.manipulator.builder;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -12,18 +12,16 @@ import com.hiveworkshop.wc3.gui.modeledit.manipulator.activity.RotateHorizontalM
 import com.hiveworkshop.wc3.gui.modeledit.manipulator.activity.RotateManipulator;
 import com.hiveworkshop.wc3.gui.modeledit.manipulator.activity.RotateVerticalManipulator;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.RotatorWidget.RotateDirection;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.widgets.RotatorWidget;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.widgets.RotatorWidget.RotateDirection;
 import com.hiveworkshop.wc3.mdl.Vertex;
-import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public final class RotatorWidgetManipulatorBuilder extends AbstractSelectAndEditManipulatorBuilder {
-	private final ModelEditor modelEditor;
 	private final RotatorWidget moverWidget = new RotatorWidget(new Vertex(0, 0, 0));
 
 	public RotatorWidgetManipulatorBuilder(final ModelEditor modelEditor,
 			final ViewportSelectionHandler viewportSelectionHandler, final ProgramPreferences programPreferences) {
-		super(viewportSelectionHandler, programPreferences);
-		this.modelEditor = modelEditor;
+		super(viewportSelectionHandler, programPreferences, modelEditor);
 	}
 
 	@Override
@@ -43,13 +41,15 @@ public final class RotatorWidgetManipulatorBuilder extends AbstractSelectAndEdit
 		}
 		switch (directionByMouse) {
 		case FREE:
-			return new RotateManipulator(modelEditor, selectionView);
+			return new RotateManipulator(getModelEditor(), selectionView);
 		case HORIZONTALLY:
-			return new RotateHorizontalManipulator(modelEditor, selectionView);
+			return new RotateHorizontalManipulator(getModelEditor(), selectionView);
 		case VERTICALLY:
-			return new RotateVerticalManipulator(modelEditor, selectionView);
+			return new RotateVerticalManipulator(getModelEditor(), selectionView);
 		case SPIN:
-			return new RotateManipulator(modelEditor, selectionView);
+			return new RotateManipulator(getModelEditor(), selectionView);
+		case NONE:
+			return null;
 		}
 		return null;
 	}
@@ -57,12 +57,13 @@ public final class RotatorWidgetManipulatorBuilder extends AbstractSelectAndEdit
 	@Override
 	protected Manipulator createDefaultManipulator(final Vertex selectionCenter, final Point mousePoint,
 			final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
-		return new RotateManipulator(modelEditor, selectionView);
+		return new RotateManipulator(getModelEditor(), selectionView);
 	}
 
 	@Override
-	protected void renderWidget(final Graphics2D graphics, final CoordinateSystem coordinateSystem,
-			final SelectionView selectionView, final ModelView modelView) {
+	public void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem,
+			final SelectionView selectionView) {
+		moverWidget.setPoint(selectionView.getCenter());
 		moverWidget.render(graphics, coordinateSystem);
 	}
 

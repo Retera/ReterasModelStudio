@@ -5,8 +5,8 @@ import java.util.Set;
 
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
+import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoActionListener;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
@@ -101,6 +101,7 @@ public class FaceModelEditor implements ModelEditor {
 		// }
 		// geosetRenderer.geosetFinished();
 		// }
+		this.selectionManager.renderSelection(renderer, coordinateSystem, this.model, programPreferences);
 	}
 
 	@Override

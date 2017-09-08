@@ -29,11 +29,11 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.Timer;
 
+import com.hiveworkshop.wc3.gui.modeledit.activity.CursorManager;
+import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
+import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivity;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.CursorManager;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoActionListener;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.ViewportActivity;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportModelRenderer;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportView;
 import com.hiveworkshop.wc3.mdl.Geoset;

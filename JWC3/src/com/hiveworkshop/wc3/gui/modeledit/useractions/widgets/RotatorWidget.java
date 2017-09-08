@@ -1,4 +1,4 @@
-package com.hiveworkshop.wc3.gui.modeledit.useractions;
+package com.hiveworkshop.wc3.gui.modeledit.useractions.widgets;
 
 import java.awt.Color;
 import java.awt.Graphics2D;

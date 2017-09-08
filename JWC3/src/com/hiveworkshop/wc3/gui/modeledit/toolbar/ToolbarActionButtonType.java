@@ -2,7 +2,7 @@ package com.hiveworkshop.wc3.gui.modeledit.toolbar;
 
 import javax.swing.ImageIcon;
 
-import com.hiveworkshop.wc3.gui.modeledit.useractions.ViewportActivity;
+import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivity;
 
 public abstract class ToolbarActionButtonType implements ToolbarButtonType {
 	private final ImageIcon imageIcon;
