@@ -1,6 +1,5 @@
 package com.hiveworkshop.wc3.gui.modeledit.manipulator;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -10,10 +9,7 @@ import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoActionListener;
-import com.hiveworkshop.wc3.gui.modeledit.viewport.NodeIconPalette;
 import com.hiveworkshop.wc3.mdl.Bone;
-import com.hiveworkshop.wc3.mdl.Camera;
-import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Triangle;
@@ -99,30 +95,6 @@ public class VertexModelEditor implements ModelEditor {
 		// renderer.camera(camera);
 		// }
 		// }
-		for (final Geoset geo : model.getEditableGeosets()) {
-			for (final Triangle triangle : geo.getTriangle()) {
-				for (final GeosetVertex geosetVertex : triangle.getVerts()) {
-					if (selectionManager.getSelection().contains(geosetVertex)) {
-						renderer.renderVertex(programPreferences.getSelectColor(), geosetVertex);
-					} else {
-						renderer.renderVertex(programPreferences.getVertexColor(), geosetVertex);
-					}
-				}
-			}
-		}
-		for (final IdObject object : model.getEditableIdObjects()) {
-			if (selectionManager.getSelection().contains(object.getPivotPoint())) {
-				renderer.renderIdObject(object, NodeIconPalette.SELECTED);
-			}
-		}
-		for (final Camera camera : model.getEditableCameras()) {
-			renderer.renderCamera(
-					selectionManager.getSelection().contains(camera.getPosition()) ? Color.GREEN.darker()
-							: Color.ORANGE.darker(),
-					camera.getPosition(), selectionManager.getSelection().contains(camera.getTargetPosition())
-							? Color.GREEN.darker() : Color.ORANGE.darker(),
-					camera.getTargetPosition());
-		}
 	}
 
 	@Override

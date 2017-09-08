@@ -2,9 +2,11 @@ package com.hiveworkshop.wc3.gui.modeledit.selection;
 
 import java.awt.Point;
 
+import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.manipulator.ModelElementRenderer;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public interface SelectionView {
 	Vertex getCenter();
@@ -17,5 +19,6 @@ public interface SelectionView {
 
 	double getCircumscribedSphereRadius(Vertex center);
 
-	void renderSelection(ModelElementRenderer renderer, final CoordinateSystem coordinateSystem);
+	void renderSelection(ModelElementRenderer renderer, final CoordinateSystem coordinateSystem, ModelView modelView,
+			ProgramPreferences programPreferences);
 }

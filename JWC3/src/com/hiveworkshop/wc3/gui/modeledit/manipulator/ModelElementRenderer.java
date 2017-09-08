@@ -11,7 +11,7 @@ public interface ModelElementRenderer {
 
 	void renderVertex(Color color, Vertex vertex);
 
-	void renderIdObject(IdObject object, NodeIconPalette nodeIconPalette);
+	void renderIdObject(IdObject object, NodeIconPalette nodeIconPalette, Color lightColor, Color pivotPointColor);
 
 	void renderCamera(Color boxColor, Vertex position, Color targetColor, Vertex targetPosition);
 }

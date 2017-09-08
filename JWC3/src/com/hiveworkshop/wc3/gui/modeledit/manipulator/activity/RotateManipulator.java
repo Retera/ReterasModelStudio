@@ -6,12 +6,10 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.manipulator.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.manipulator.actions.RotateAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.UndoActionListener;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 public class RotateManipulator extends AbstractManipulator {
 	private final ModelEditor modelEditor;
-	private final UndoActionListener undoManager;
 	private final SelectionView selectionView;
 
 	public RotateManipulator(final ModelEditor modelEditor, final SelectionView selectionView) {

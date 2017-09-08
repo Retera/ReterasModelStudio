@@ -10,6 +10,7 @@ import javax.swing.SwingUtilities;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.manipulator.activity.Manipulator;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public final class MultiManipulatorActivity implements ViewportActivity {
 	private final ManipulatorBuilder manipulatorBuilder;
@@ -19,11 +20,15 @@ public final class MultiManipulatorActivity implements ViewportActivity {
 	private CursorManager cursorManager;
 	private Double mouseStartPoint;
 	private Double lastDragPoint;
+	private final SelectionView selectionView;
+	private final ModelView modelView;
 
 	public MultiManipulatorActivity(final ManipulatorBuilder manipulatorBuilder,
-			final UndoActionListener undoActionListener) {
+			final UndoActionListener undoActionListener, final SelectionView selectionView, final ModelView modelView) {
 		this.manipulatorBuilder = manipulatorBuilder;
 		this.undoActionListener = undoActionListener;
+		this.selectionView = selectionView;
+		this.modelView = modelView;
 	}
 
 	@Override
@@ -52,7 +57,8 @@ public final class MultiManipulatorActivity implements ViewportActivity {
 		} else {
 			buttonType = ButtonType.LEFT_MOUSE;
 		}
-		manipulator = manipulatorBuilder.buildActivityListener(e.getX(), e.getY(), buttonType, coordinateSystem);
+		manipulator = manipulatorBuilder.buildActivityListener(e.getX(), e.getY(), buttonType, coordinateSystem,
+				selectionView);
 		if (manipulator != null) {
 			mouseStartPoint = new Point2D.Double(coordinateSystem.geomX(e.getPoint().getX()),
 					coordinateSystem.geomY(e.getPoint().getY()));
@@ -75,7 +81,7 @@ public final class MultiManipulatorActivity implements ViewportActivity {
 
 	@Override
 	public void mouseMoved(final MouseEvent e) {
-		cursorManager.setCursor(manipulatorBuilder.getCursorAt(e.getX(), e.getY(), coordinateSystem));
+		cursorManager.setCursor(manipulatorBuilder.getCursorAt(e.getX(), e.getY(), coordinateSystem, selectionView));
 	}
 
 	@Override
@@ -91,7 +97,7 @@ public final class MultiManipulatorActivity implements ViewportActivity {
 
 	@Override
 	public void render(final Graphics2D graphics) {
-		manipulatorBuilder.render(graphics, coordinateSystem);
+		manipulatorBuilder.render(graphics, coordinateSystem, selectionView, modelView);
 		if (manipulator != null) {
 			manipulator.render(graphics, coordinateSystem);
 		}

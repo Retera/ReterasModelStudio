@@ -1,6 +1,5 @@
 package com.hiveworkshop.wc3.gui.modeledit.manipulator;
 
-import java.awt.Color;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,7 +12,6 @@ import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public class FaceModelEditor implements ModelEditor {
-	private static final Color FACE_HIGHLIGHT_COLOR = new Color(1f, 0.45f, 0.45f, 0.3f);
 	private final ModelView model;
 	private final ProgramPreferences programPreferences;
 	private final SelectionManager<Triangle> selectionManager;
@@ -103,9 +101,6 @@ public class FaceModelEditor implements ModelEditor {
 		// }
 		// geosetRenderer.geosetFinished();
 		// }
-		for (final Triangle triangle : selectionManager.getSelection()) {
-			renderer.renderFace(Color.RED, FACE_HIGHLIGHT_COLOR, triangle.get(0), triangle.get(1), triangle.get(2));
-		}
 	}
 
 	@Override

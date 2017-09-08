@@ -1,5 +1,10 @@
 package com.hiveworkshop.wc3.gui.modeledit;
 
+import java.awt.Point;
+import java.awt.geom.Point2D;
+
+import com.hiveworkshop.wc3.mdl.Vertex;
+
 public interface CoordinateSystem extends CoordinateAxes {
 	double convertX(double x);
 
@@ -73,6 +78,33 @@ public interface CoordinateSystem extends CoordinateAxes {
 			final double originX = coordinateSystem.convertX(0);
 			final double offsetX = coordinateSystem.convertX(100);
 			return (offsetX - originX) / 100.0;
+		}
+
+		public static Point2D.Double geom(final CoordinateSystem coordinateSystem, final Point point) {
+			return new Point2D.Double(coordinateSystem.geomX(point.x), coordinateSystem.geomY(point.y));
+		}
+
+		public static Vertex convertToVertex(final CoordinateSystem coordinateSystem, final Point point) {
+			final Vertex vertex = new Vertex(0, 0, 0);
+			return convertToVertex(coordinateSystem, point, vertex);
+		}
+
+		public static Vertex convertToVertex(final CoordinateSystem coordinateSystem, final Point point,
+				final Vertex recycleVertex) {
+			recycleVertex.setCoord(coordinateSystem.getPortFirstXYZ(), coordinateSystem.geomX(point.x));
+			recycleVertex.setCoord(coordinateSystem.getPortSecondXYZ(), coordinateSystem.geomY(point.y));
+			return recycleVertex;
+		}
+
+		public static Point convertToPoint(final CoordinateSystem coordinateSystem, final Vertex vertex) {
+			return convertToPoint(coordinateSystem, vertex, new Point(0, 0));
+		}
+
+		public static Point convertToPoint(final CoordinateSystem coordinateSystem, final Vertex vertex,
+				final Point recyclePoint) {
+			recyclePoint.x = (int) coordinateSystem.convertX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
+			recyclePoint.y = (int) coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
+			return recyclePoint;
 		}
 
 		private Util() {

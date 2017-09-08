@@ -25,14 +25,14 @@ public final class BigModelEditorGuy {
 		case FACE: {
 			final FaceSelectionManager selectionManager = new FaceSelectionManager();
 			modelEditor = new FaceModelEditor(undoManager, model, programPreferences, selectionManager);
-			selectingEventListener = new FaceSelectingEventHandler(undoManager, selectionManager, model);
+			selectingEventListener = new FaceSelectingEventHandler(selectionManager, model);
 			break;
 		}
 		default:
 		case VERTEX: {
 			final VertexSelectionManager selectionManager = new VertexSelectionManager();
 			modelEditor = new VertexModelEditor(undoManager, model, programPreferences, selectionManager);
-			selectingEventListener = new VertexSelectingEventHandler(undoManager, selectionManager, model);
+			selectingEventListener = new VertexSelectingEventHandler(selectionManager, model);
 			break;
 		}
 		}

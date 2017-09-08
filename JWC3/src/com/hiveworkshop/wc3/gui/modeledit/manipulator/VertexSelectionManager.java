@@ -1,13 +1,20 @@
 package com.hiveworkshop.wc3.gui.modeledit.manipulator;
 
-import java.awt.geom.Point2D.Double;
+import java.awt.Color;
+import java.awt.Point;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.hiveworkshop.wc3.gui.modeledit.CoordinateAxes;
+import com.hiveworkshop.wc3.gui.ProgramPreferences;
+import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
+import com.hiveworkshop.wc3.gui.modeledit.viewport.NodeIconPalette;
+import com.hiveworkshop.wc3.mdl.Camera;
+import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
+import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public final class VertexSelectionManager extends AbstractSelectionManager<Vertex> {
 
@@ -54,13 +61,42 @@ public final class VertexSelectionManager extends AbstractSelectionManager<Verte
 	}
 
 	@Override
-	public boolean canSelectAt(final Double point, final CoordinateAxes axes) {
+	public boolean canSelectAt(final Point point, final CoordinateSystem axes) {
 		boolean canSelect = false;
 		for (final Vertex item : selection) {
-			if (VertexSelectingEventHandler.hitTest(item, point, axes.getPortFirstXYZ(), axes.getPortSecondXYZ())) {
+			if (VertexSelectingEventHandler.hitTest(item, CoordinateSystem.Util.geom(axes, point), axes, 3)) {
 				canSelect = true;
 			}
 		}
 		return canSelect;
+	}
+
+	@Override
+	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem,
+			final ModelView model, final ProgramPreferences programPreferences) {
+		for (final Geoset geo : model.getEditableGeosets()) {
+			for (final Triangle triangle : geo.getTriangle()) {
+				for (final GeosetVertex geosetVertex : triangle.getVerts()) {
+					if (selection.contains(geosetVertex)) {
+						renderer.renderVertex(programPreferences.getSelectColor(), geosetVertex);
+					} else {
+						renderer.renderVertex(programPreferences.getVertexColor(), geosetVertex);
+					}
+				}
+			}
+		}
+		for (final IdObject object : model.getEditableIdObjects()) {
+			if (selection.contains(object.getPivotPoint())) {
+				renderer.renderIdObject(object, NodeIconPalette.SELECTED, programPreferences.getSelectColor(),
+						programPreferences.getPivotPointsSelectedColor());
+			}
+		}
+		for (final Camera camera : model.getEditableCameras()) {
+			renderer.renderCamera(
+					selection.contains(camera.getPosition()) ? Color.GREEN.darker() : Color.ORANGE.darker(),
+					camera.getPosition(),
+					selection.contains(camera.getTargetPosition()) ? Color.GREEN.darker() : Color.ORANGE.darker(),
+					camera.getTargetPosition());
+		}
 	}
 }

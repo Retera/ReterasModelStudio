@@ -1,15 +1,19 @@
 package com.hiveworkshop.wc3.gui.modeledit.manipulator;
 
-import java.awt.geom.Point2D.Double;
+import java.awt.Color;
+import java.awt.Point;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.hiveworkshop.wc3.gui.modeledit.CoordinateAxes;
+import com.hiveworkshop.wc3.gui.ProgramPreferences;
+import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public final class FaceSelectionManager extends AbstractSelectionManager<Triangle> {
+	private static final Color FACE_HIGHLIGHT_COLOR = new Color(1f, 0.45f, 0.45f, 0.3f);
 
 	@Override
 	public Vertex getCenter() {
@@ -47,7 +51,7 @@ public final class FaceSelectionManager extends AbstractSelectionManager<Triangl
 	}
 
 	@Override
-	public boolean canSelectAt(final Double point, final CoordinateAxes axes) {
+	public boolean canSelectAt(final Point point, final CoordinateSystem axes) {
 		boolean canSelect = false;
 		for (final Triangle item : selection) {
 			if (FaceSelectingEventHandler.hitTest(item, point, axes.getPortFirstXYZ(), axes.getPortSecondXYZ())) {
@@ -55,5 +59,13 @@ public final class FaceSelectionManager extends AbstractSelectionManager<Triangl
 			}
 		}
 		return canSelect;
+	}
+
+	@Override
+	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem,
+			final ModelView modelView, final ProgramPreferences programPreferences) {
+		for (final Triangle triangle : selection) {
+			renderer.renderFace(Color.RED, FACE_HIGHLIGHT_COLOR, triangle.get(0), triangle.get(1), triangle.get(2));
+		}
 	}
 }
