@@ -6,7 +6,7 @@ import java.awt.Point;
 
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
-import com.hiveworkshop.wc3.gui.modeledit.manipulator.ModelElementRenderer;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelElementRenderer;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.NodeIconPalette;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.ResettableIdObjectRenderer;
 import com.hiveworkshop.wc3.mdl.IdObject;
@@ -16,8 +16,8 @@ public final class Graphics2DToModelElementRendererAdapter implements ModelEleme
 	private Graphics2D graphics;
 	private CoordinateSystem coordinateSystem;
 	private final Point recyclePointA = new Point(), recyclePointB = new Point(), recyclePointC = new Point();
-	private int[] recycleXCoords;
-	private int[] recycleYCoords;
+	private final int[] recycleXCoords = new int[3];
+	private final int[] recycleYCoords = new int[3];
 	private ProgramPreferences programPreferences;
 	private final int vertexSize;
 	private final ResettableIdObjectRenderer idObjectRenderer;
@@ -46,9 +46,9 @@ public final class Graphics2DToModelElementRendererAdapter implements ModelEleme
 		recycleYCoords[0] = recyclePointA.y;
 		recycleYCoords[1] = recyclePointB.y;
 		recycleYCoords[2] = recyclePointC.y;
-		graphics.fillPolygon(recycleXCoords, recycleXCoords, 3);
+		graphics.fillPolygon(recycleXCoords, recycleYCoords, 3);
 		graphics.setColor(borderColor);
-		graphics.drawPolygon(recycleXCoords, recycleXCoords, 3);
+		graphics.drawPolygon(recycleXCoords, recycleYCoords, 3);
 	}
 
 	@Override

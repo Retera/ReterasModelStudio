@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.EventObjectChunk;
 import com.hiveworkshop.wc3.mdx.Node;
@@ -76,7 +77,7 @@ public class EventObject extends IdObject {
 	public EventObject copy() {
 		final EventObject x = new EventObject();
 
-		x.name = name + " copy";
+		x.name = name;
 		x.pivotPoint = new Vertex(pivotPoint);
 		x.objectId = objectId;
 		x.parentId = parentId;
@@ -322,7 +323,7 @@ public class EventObject extends IdObject {
 	@Override
 	public List<String> getFlags() {
 		return new ArrayList<>();// Current eventobject implementation
-										// uses no flags!
+									// uses no flags!
 	}
 
 	@Override
@@ -375,5 +376,10 @@ public class EventObject extends IdObject {
 	@Override
 	public void apply(final IdObjectVisitor visitor) {
 		visitor.eventObject(this);
+	}
+
+	@Override
+	public double getClickRadius(final CoordinateSystem coordinateSystem) {
+		return 8 / CoordinateSystem.Util.getZoom(coordinateSystem);
 	}
 }

@@ -75,6 +75,9 @@ public interface CoordinateSystem extends CoordinateAxes {
 		}
 
 		public static double getZoom(final CoordinateSystem coordinateSystem) {
+			if (coordinateSystem instanceof Viewport) {
+				return ((Viewport) coordinateSystem).getZoom();
+			}
 			final double originX = coordinateSystem.convertX(0);
 			final double offsetX = coordinateSystem.convertX(100);
 			return (offsetX - originX) / 100.0;

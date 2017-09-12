@@ -1,6 +1,7 @@
 package com.hiveworkshop.wc3.gui.modeledit.actions.newsys;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -21,23 +22,22 @@ import com.hiveworkshop.wc3.mdl.Layer.FilterMode;
 import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.Triangle;
-import com.hiveworkshop.wc3.util.Callback;
 
 public final class TeamColorAddAction implements UndoAction {
 
 	private List<Triangle> trianglesMovedToSeparateGeo;
 	private final List<Geoset> geosetsCreated;
 	private final MDL model;
-	private final List<Triangle> trisToSeparate;
-	private final Callback<List<Geoset>> geosetAdditionListener;
+	private final Collection<Triangle> trisToSeparate;
+	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final SelectionManager selectionManager;
 	private final List<SelectionItem> selection;
 
-	public TeamColorAddAction(final List<Triangle> trisToSeparate, final MDL model,
-			final Callback<List<Geoset>> geosetAdditionListener, final SelectionManager selectionManager) {
+	public TeamColorAddAction(final Collection<Triangle> trisToSeparate, final MDL model,
+			final ModelStructureChangeListener modelStructureChangeListener, final SelectionManager selectionManager) {
 		this.trisToSeparate = trisToSeparate;
 		this.model = model;
-		this.geosetAdditionListener = geosetAdditionListener;
+		this.modelStructureChangeListener = modelStructureChangeListener;
 		this.selectionManager = selectionManager;
 		this.geosetsCreated = new ArrayList<>();
 		final Set<GeosetVertex> verticesInTheTriangles = new HashSet<>();

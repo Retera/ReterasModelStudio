@@ -94,7 +94,7 @@ public class CloneAction implements UndoAction {
 		for (final GeosetVertex cgv : addedVerts) {
 			if (cgv != null) {
 				boolean inGeoset = false;
-				for (final Triangle t : cgv.getGeoset().getTriangle()) {
+				for (final Triangle t : cgv.getGeoset().getTriangles()) {
 					if (t.containsRef(cgv)) {
 						inGeoset = true;
 						break;

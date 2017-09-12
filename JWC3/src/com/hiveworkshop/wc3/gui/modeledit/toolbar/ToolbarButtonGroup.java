@@ -15,18 +15,33 @@ public final class ToolbarButtonGroup<BUTTON_TYPE extends ToolbarButtonType> {
 	private BUTTON_TYPE activeButtonType;
 	private final List<ToolbarButtonListener<BUTTON_TYPE>> listeners;
 
+	private final List<ToolbarSelectAction> buttons;
+
 	public ToolbarButtonGroup(final JToolBar toolBar, final BUTTON_TYPE[] toolbarButtonTypes) {
 		this.toolbarButtonTypes = toolbarButtonTypes;
 		listeners = new ArrayList<>();
+		buttons = new ArrayList<>();
 		for (final BUTTON_TYPE type : toolbarButtonTypes) {
-			createButton(toolBar, type);
+			buttons.add(createButton(toolBar, type));
 		}
+	}
+
+	public BUTTON_TYPE[] getToolbarButtonTypes() {
+		return toolbarButtonTypes;
 	}
 
 	public void addToolbarButtonListener(final ToolbarButtonListener<BUTTON_TYPE> listener) {
 		listeners.add(listener);
 		if (activeButtonType != null) {
 			listener.typeChanged(activeButtonType);
+		}
+	}
+
+	public void setToolbarButtonType(final BUTTON_TYPE buttonType) {
+		for (final ToolbarSelectAction action : buttons) {
+			if (action.getButtonType() == buttonType) {
+				setActiveButton(action.getButton(), action.getButtonType());
+			}
 		}
 	}
 
@@ -42,6 +57,10 @@ public final class ToolbarButtonGroup<BUTTON_TYPE extends ToolbarButtonType> {
 			return button;
 		}
 
+		public BUTTON_TYPE getButtonType() {
+			return buttonType;
+		}
+
 		public void setButton(final JButton button) {
 			this.button = button;
 		}
@@ -52,7 +71,7 @@ public final class ToolbarButtonGroup<BUTTON_TYPE extends ToolbarButtonType> {
 		}
 	}
 
-	private JButton createButton(final JToolBar toolBar, final BUTTON_TYPE editorAction) {
+	private ToolbarSelectAction createButton(final JToolBar toolBar, final BUTTON_TYPE editorAction) {
 		final ToolbarSelectAction toolbarEditAction = new ToolbarSelectAction(editorAction);
 		final JButton button = toolBar.add(toolbarEditAction);
 		button.setToolTipText(editorAction.getName());
@@ -62,7 +81,7 @@ public final class ToolbarButtonGroup<BUTTON_TYPE extends ToolbarButtonType> {
 		if (activeButtonType == null) {
 			setActiveButton(button, editorAction);
 		}
-		return button;
+		return toolbarEditAction;
 	}
 
 	private void setActiveButton(final JButton button, final BUTTON_TYPE type) {

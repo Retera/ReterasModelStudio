@@ -67,7 +67,7 @@ public abstract class ModelVisitorAdapter implements ModelVisitor {
 	}
 
 	@Override
-	public GeosetVisitor beginGeoset(final MaterialView material, final GeosetAnim geosetAnim) {
+	public GeosetVisitor beginGeoset(final int geosetId, final MaterialView material, final GeosetAnim geosetAnim) {
 		return GeosetVisitor.NO_ACTION;
 	}
 

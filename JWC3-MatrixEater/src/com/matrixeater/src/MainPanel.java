@@ -22,11 +22,16 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
 import javax.swing.GroupLayout;
@@ -75,26 +80,34 @@ import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordDisplayListener;
 import com.hiveworkshop.wc3.gui.modeledit.ImportPanel;
-import com.hiveworkshop.wc3.gui.modeledit.MDLDisplay;
 import com.hiveworkshop.wc3.gui.modeledit.MaterialListRenderer;
 import com.hiveworkshop.wc3.gui.modeledit.ModeButton;
 import com.hiveworkshop.wc3.gui.modeledit.ModelPanel;
 import com.hiveworkshop.wc3.gui.modeledit.PerspDisplayPanel;
 import com.hiveworkshop.wc3.gui.modeledit.UVPanel;
 import com.hiveworkshop.wc3.gui.modeledit.UndoHandler;
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
+import com.hiveworkshop.wc3.gui.modeledit.activity.MultiManipulatorActivity;
+import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivity;
-import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivityManager;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.MoverWidgetManipulatorBuilder;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.RotatorWidgetManipulatorBuilder;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.ScaleWidgetManipulatorBuilder;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarActionButtonType;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonListener;
+import com.hiveworkshop.wc3.gui.modeledit.util.DnDTabbedPane;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.IconUtils;
 import com.hiveworkshop.wc3.gui.mpqbrowser.MPQBrowser;
 import com.hiveworkshop.wc3.jworldedit.models.UnitEditorModelSelector;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Bone;
+import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.EventObject;
 import com.hiveworkshop.wc3.mdl.ExtLog;
 import com.hiveworkshop.wc3.mdl.Geoset;
@@ -110,6 +123,8 @@ import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.UVLayer;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.VisibilitySource;
+import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import com.hiveworkshop.wc3.mdl.v2.ModelViewStateListener;
 import com.hiveworkshop.wc3.mdx.MdxModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
@@ -255,12 +270,18 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		public void actionPerformed(final ActionEvent e) {
 			final ModelPanel mpanel = ((ModelPanel) tabbedPane.getSelectedComponent());
 			if (mpanel != null) {
-				mpanel.getMDLDisplay().undo();
+				try {
+					mpanel.getUndoManager().undo();
+				} catch (final NoSuchElementException exc) {
+					JOptionPane.showMessageDialog(MainPanel.this, "Nothing to undo!");
+				} catch (final Exception exc) {
+					ExceptionPopup.display(exc);
+				}
 			}
 			refreshUndo();
 			repaint();
 			geoControl.repaint();
-			mpanel.getMDLDisplay().notifyUpdate();
+			mpanel.repaintSelfAndRelatedChildren();
 		}
 	};
 	AbstractAction redoAction = new AbstractAction("Redo") {
@@ -268,12 +289,67 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		public void actionPerformed(final ActionEvent e) {
 			final ModelPanel mpanel = ((ModelPanel) tabbedPane.getSelectedComponent());
 			if (mpanel != null) {
-				mpanel.getMDLDisplay().redo();
+				try {
+					mpanel.getUndoManager().redo();
+				} catch (final NoSuchElementException exc) {
+					JOptionPane.showMessageDialog(MainPanel.this, "Nothing to redo!");
+				} catch (final Exception exc) {
+					ExceptionPopup.display(exc);
+				}
 			}
 			refreshUndo();
 			repaint();
 			geoControl.repaint();
-			mpanel.getMDLDisplay().notifyUpdate();
+			mpanel.repaintSelfAndRelatedChildren();
+		}
+	};
+	ClonedNodeNamePicker namePicker = new ClonedNodeNamePicker() {
+		@Override
+		public Map<IdObject, String> pickNames(final Collection<IdObject> clonedNodes) {
+			final JPanel panel = new JPanel();
+			panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+			final Map<JTextField, IdObject> textFieldToObject = new HashMap<>();
+			for (final IdObject object : clonedNodes) {
+				final JTextField textField = new JTextField(object.getName() + " copy");
+				final JLabel oldNameLabel = new JLabel("Enter name for clone of \"" + object.getName() + "\":");
+				panel.add(oldNameLabel);
+				panel.add(textField);
+				textFieldToObject.put(textField, object);
+			}
+			final JPanel dumbPanel = new JPanel();
+			dumbPanel.add(panel);
+			final JScrollPane scrollPane = new JScrollPane(dumbPanel);
+			scrollPane.setPreferredSize(new Dimension(450, 300));
+			final int x = JOptionPane.showConfirmDialog(MainPanel.this, scrollPane, "Choose Node Names",
+					JOptionPane.OK_CANCEL_OPTION);
+			if (x != JOptionPane.OK_OPTION) {
+				return null;
+			}
+			final Map<IdObject, String> objectToName = new HashMap<>();
+			for (final JTextField field : textFieldToObject.keySet()) {
+				final IdObject idObject = textFieldToObject.get(field);
+				objectToName.put(idObject, field.getText());
+			}
+			return objectToName;
+		}
+
+	};
+	AbstractAction cloneAction = new AbstractAction("CloneSelection") {
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			final ModelPanel mpanel = ((ModelPanel) tabbedPane.getSelectedComponent());
+			if (mpanel != null) {
+				try {
+					mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor()
+							.cloneSelectedComponents(modelStructureChangeListener, namePicker));
+				} catch (final Exception exc) {
+					ExceptionPopup.display(exc);
+				}
+			}
+			refreshUndo();
+			repaint();
+			geoControl.repaint();
+			mpanel.repaintSelfAndRelatedChildren();
 		}
 	};
 	AbstractAction deleteAction = new AbstractAction("Delete") {
@@ -281,11 +357,12 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		public void actionPerformed(final ActionEvent e) {
 			final ModelPanel mpanel = ((ModelPanel) tabbedPane.getSelectedComponent());
 			if (mpanel != null) {
-				mpanel.getMDLDisplay().delete();
+				mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor()
+						.deleteSelectedComponents(modelStructureChangeListener));
 			}
 			repaint();
 			geoControl.repaint();
-			mpanel.getMDLDisplay().notifyUpdate();
+			mpanel.repaintSelfAndRelatedChildren();
 		}
 	};
 	AbstractAction selectAllAction = new AbstractAction("Select All") {
@@ -293,7 +370,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		public void actionPerformed(final ActionEvent e) {
 			final ModelPanel mpanel = ((ModelPanel) tabbedPane.getSelectedComponent());
 			if (mpanel != null) {
-				mpanel.getMDLDisplay().selectAll();
+				mpanel.getUndoManager()
+						.pushAction(mpanel.getModelEditorManager().getSelectingEventHandler().selectAll());
 			}
 			repaint();
 		}
@@ -303,7 +381,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		public void actionPerformed(final ActionEvent e) {
 			final ModelPanel mpanel = ((ModelPanel) tabbedPane.getSelectedComponent());
 			if (mpanel != null) {
-				mpanel.getMDLDisplay().invertSelection();
+				mpanel.getUndoManager()
+						.pushAction(mpanel.getModelEditorManager().getSelectingEventHandler().invertSelection());
 			}
 			repaint();
 		}
@@ -313,7 +392,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		public void actionPerformed(final ActionEvent e) {
 			final ModelPanel mpanel = ((ModelPanel) tabbedPane.getSelectedComponent());
 			if (mpanel != null) {
-				mpanel.getMDLDisplay().expandSelection();
+				mpanel.getUndoManager()
+						.pushAction(mpanel.getModelEditorManager().getSelectingEventHandler().expandSelection());
 			}
 			repaint();
 		}
@@ -323,7 +403,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		public void actionPerformed(final ActionEvent e) {
 			final ModelPanel mpanel = ((ModelPanel) tabbedPane.getSelectedComponent());
 			if (mpanel != null) {
-				mpanel.getMDLDisplay().snapNormals();
+				mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().snapNormals());
 			}
 			repaint();
 		}
@@ -345,6 +425,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 	AbstractAction flipAllUVsVAction = new AbstractAction("Flip All UVs V") {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
+			// TODO this should be an action
 			for (final Geoset geo : currentMDL().getGeosets()) {
 				for (final UVLayer layer : geo.getUVLayers()) {
 					for (int i = 0; i < layer.numTVerteces(); i++) {
@@ -359,6 +440,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 	AbstractAction inverseAllUVsAction = new AbstractAction("Swap UVs U for V") {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
+			// TODO this should be an action
 			for (final Geoset geo : currentMDL().getGeosets()) {
 				for (final UVLayer layer : geo.getUVLayers()) {
 					for (int i = 0; i < layer.numTVerteces(); i++) {
@@ -377,7 +459,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		public void actionPerformed(final ActionEvent e) {
 			final ModelPanel mpanel = ((ModelPanel) tabbedPane.getSelectedComponent());
 			if (mpanel != null) {
-				mpanel.getMDLDisplay().mirror((byte) 1, mirrorFlip.isSelected());
+				mpanel.getUndoManager().pushAction(
+						mpanel.getModelEditorManager().getModelEditor().mirror((byte) 1, mirrorFlip.isSelected()));
 			}
 			repaint();
 		}
@@ -387,7 +470,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		public void actionPerformed(final ActionEvent e) {
 			final ModelPanel mpanel = ((ModelPanel) tabbedPane.getSelectedComponent());
 			if (mpanel != null) {
-				mpanel.getMDLDisplay().mirror((byte) 2, mirrorFlip.isSelected());
+				mpanel.getUndoManager().pushAction(
+						mpanel.getModelEditorManager().getModelEditor().mirror((byte) 2, mirrorFlip.isSelected()));
 			}
 			repaint();
 		}
@@ -397,7 +481,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		public void actionPerformed(final ActionEvent e) {
 			final ModelPanel mpanel = ((ModelPanel) tabbedPane.getSelectedComponent());
 			if (mpanel != null) {
-				mpanel.getMDLDisplay().mirror((byte) 0, mirrorFlip.isSelected());
+				mpanel.getUndoManager().pushAction(
+						mpanel.getModelEditorManager().getModelEditor().mirror((byte) 0, mirrorFlip.isSelected()));
 			}
 			repaint();
 		}
@@ -407,7 +492,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		public void actionPerformed(final ActionEvent e) {
 			final ModelPanel mpanel = ((ModelPanel) tabbedPane.getSelectedComponent());
 			if (mpanel != null) {
-				mpanel.getMDLDisplay().insideOut();
+				mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().flipSelectedFaces());
 			}
 			repaint();
 		}
@@ -417,7 +502,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		public void actionPerformed(final ActionEvent e) {
 			final ModelPanel mpanel = ((ModelPanel) tabbedPane.getSelectedComponent());
 			if (mpanel != null) {
-				mpanel.getMDLDisplay().insideOutNormals();
+				mpanel.getUndoManager()
+						.pushAction(mpanel.getModelEditorManager().getModelEditor().flipSelectedNormals());
 			}
 			repaint();
 		}
@@ -427,7 +513,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		public void actionPerformed(final ActionEvent e) {
 			final ModelPanel mpanel = ((ModelPanel) tabbedPane.getSelectedComponent());
 			if (mpanel != null) {
-				mpanel.getMDLDisplay().viewMatrices();
+				mpanel.viewMatrices();
 			}
 			repaint();
 		}
@@ -435,7 +521,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 	AbstractAction openAnimationViewerAction = new AbstractAction("Open Animation Viewer") {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
-			final AnimationViewer animationViewer = new AnimationViewer(currentMDLDisp());
+			final AnimationViewer animationViewer = new AnimationViewer(currentModelPanel().getModelViewManager(),
+					prefs);
 			final JFrame frame = new JFrame("Animation Viewer: " + currentMDL().getName());
 			frame.setIconImage(MainFrame.frame.getIconImage());
 			frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -467,9 +554,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 	private ToolbarButtonGroup<SelectionItemTypes> selectionItemTypeGroup;
 	private ToolbarButtonGroup<SelectionMode> selectionModeGroup;
 	private ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup;
-	private final Callback<List<Geoset>> geosetAdditionCallback;
+	private final ModelStructureChangeListener modelStructureChangeListener;
 	private JMenuItem combineAnims;
-	private final ViewportActivityManager viewportActivityManager;
 
 	public MainPanel() {
 		super();
@@ -615,32 +701,84 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		tabbedPane.addMouseListener(this);
 		// setFocusable(true);
 		// selectButton.requestFocus();
-		geosetAdditionCallback = new Callback<List<Geoset>>() {
-			@Override
-			public void run(final List<Geoset> geosetsAdded) {
+		modelStructureChangeListener = new ModelStructureChangeListener() {
 
+			@Override
+			public void nodesRemoved(final List<IdObject> nodes) {
 				// Tell program to set visibility after import
-				final MDLDisplay display = displayFor(currentMDL());
+				final ModelPanel display = displayFor(currentModelPanel().getModel());
 				if (display != null) {
-					display.setBeenSaved(false); // we edited the model
-					for (final Geoset geoset : geosetsAdded) {
-						display.makeGeosetEditable(geoset, true);
-						display.makeGeosetVisible(geoset, true);
+					// display.setBeenSaved(false); // we edited the model
+					// TODO notify been saved system, wherever that moves to
+					for (final IdObject geoset : nodes) {
+						display.getModelViewManager().makeIdObjectNotVisible(geoset);
 					}
-					geoControl.repaint();
-					geoControl.setMDLDisplay(display);
-					display.reloadTextures();// .mpanel.perspArea.reloadTextures();//addGeosets(newGeosets);
+					reloadGeosetManagers(display);
+				}
+			}
+
+			@Override
+			public void nodesAdded(final List<IdObject> nodes) {
+				// Tell program to set visibility after import
+				final ModelPanel display = displayFor(currentModelPanel().getModel());
+				if (display != null) {
+					// display.setBeenSaved(false); // we edited the model
+					// TODO notify been saved system, wherever that moves to
+					for (final IdObject geoset : nodes) {
+						display.getModelViewManager().makeIdObjectVisible(geoset);
+					}
+					reloadGeosetManagers(display);
+				}
+			}
+
+			@Override
+			public void geosetsRemoved(final List<Geoset> geosets) {
+				// Tell program to set visibility after import
+				final ModelPanel display = displayFor(currentModelPanel().getModel());
+				if (display != null) {
+					// display.setBeenSaved(false); // we edited the model
+					// TODO notify been saved system, wherever that moves to
+					for (final Geoset geoset : geosets) {
+						display.getModelViewManager().makeGeosetNotEditable(geoset);
+						display.getModelViewManager().makeGeosetNotVisible(geoset);
+					}
+					reloadGeosetManagers(display);
+				}
+			}
+
+			@Override
+			public void geosetsAdded(final List<Geoset> geosets) {
+				// Tell program to set visibility after import
+				final ModelPanel display = displayFor(currentModelPanel().getModel());
+				if (display != null) {
+					// display.setBeenSaved(false); // we edited the model
+					// TODO notify been saved system, wherever that moves to
+					for (final Geoset geoset : geosets) {
+						display.getModelViewManager().makeGeosetEditable(geoset);
+						// display.getModelViewManager().makeGeosetVisible(geoset);
+					}
+					reloadGeosetManagers(display);
 				}
 			}
 		};
 
-		viewportActivityManager = new ViewportActivityManager(new SelectAndMoveActivity());
 		actionTypeGroup.addToolbarButtonListener(new ToolbarButtonListener<ToolbarActionButtonType>() {
 			@Override
 			public void typeChanged(final ToolbarActionButtonType newType) {
-				viewportActivityManager.setCurrentActivity(newType.createActivity());
+				for (int i = 0; i < MainPanel.this.tabbedPane.getTabCount(); i++) {
+					final ModelPanel modelPanel = (ModelPanel) tabbedPane.getComponentAt(i);
+					modelPanel.changeActivity(newType);
+				}
 			}
 		});
+		actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
+	}
+
+	private void reloadGeosetManagers(final ModelPanel display) {
+		geoControl.repaint();
+		display.getModelViewManagingTree().reloadFromModelView();
+		geoControl.setMDLDisplay(display.getModelViewManagingTree());
+		display.getPerspArea().reloadTextures();// .mpanel.perspArea.reloadTextures();//addGeosets(newGeosets);
 	}
 
 	public JToolBar createJToolBar() {
@@ -668,13 +806,27 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		toolbar.add(new AbstractAction("Undo", IconUtils.loadImageIcon("icons/actions/undo.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				currentMDLDisp().undo();
+				try {
+					currentModelPanel().getUndoManager().undo();
+				} catch (final NoSuchElementException exc) {
+					JOptionPane.showMessageDialog(MainPanel.this, "Nothing to undo!");
+				} catch (final Exception exc) {
+					ExceptionPopup.display(exc);
+					// exc.printStackTrace();
+				}
 			}
 		});
 		toolbar.add(new AbstractAction("Redo", IconUtils.loadImageIcon("icons/actions/redo.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				currentMDLDisp().redo();
+				try {
+					currentModelPanel().getUndoManager().redo();
+				} catch (final NoSuchElementException exc) {
+					JOptionPane.showMessageDialog(MainPanel.this, "Nothing to redo!");
+				} catch (final Exception exc) {
+					ExceptionPopup.display(exc);
+					// exc.printStackTrace();
+				}
 			}
 		});
 		toolbar.addSeparator();
@@ -682,34 +834,58 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		toolbar.addSeparator();
 		selectionItemTypeGroup = new ToolbarButtonGroup<>(toolbar, SelectionItemTypes.values());
 		toolbar.addSeparator();
-		actionTypeGroup = new ToolbarButtonGroup<>(toolbar, new ToolbarActionButtonType[] {
-				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/move2.png"), "Select and Move") {
+		final ToolbarActionButtonType selectAndMoveActionType = new ToolbarActionButtonType(
+				IconUtils.loadImageIcon("icons/actions/move2.png"), "Select and Move") {
+			@Override
+			public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+					final ModelView modelView, final UndoActionListener undoActionListener) {
+				return new MultiManipulatorActivity(
+						new MoverWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
+								modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
+						undoActionListener, modelEditorManager.getSelectionView());
+			}
+		};
+		final ToolbarActionButtonType selectAndRotateActionType = new ToolbarActionButtonType(
+				IconUtils.loadImageIcon("icons/actions/rotate.png"), "Select and Rotate") {
+			@Override
+			public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+					final ModelView modelView, final UndoActionListener undoActionListener) {
+				return new MultiManipulatorActivity(
+						new RotatorWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
+								modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
+						undoActionListener, modelEditorManager.getSelectionView());
+			}
+		};
+		actionTypeGroup = new ToolbarButtonGroup<>(toolbar, new ToolbarActionButtonType[] { selectAndMoveActionType,
+				selectAndRotateActionType,
+				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/scale.png"), "Select and Scale") {
 					@Override
-					public ViewportActivity createActivity() {
-						return new SelectAndMoveActivity();
-					}
-				},
-				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/rotate.png"), "Select and Rotate") {
-					@Override
-					public ViewportActivity createActivity() {
-						return new SelectAndRotateActivity();
-					}
-				}, new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/scale.png"), "Select and Scale") {
-					@Override
-					public ViewportActivity createActivity() {
-						return new SelectAndScaleActivity();
+					public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+							final ModelView modelView, final UndoActionListener undoActionListener) {
+						return new MultiManipulatorActivity(
+								new ScaleWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
+										modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
+								undoActionListener, modelEditorManager.getSelectionView());
 					}
 				}, new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/extrude.png"),
 						"Select and Extrude") {
 					@Override
-					public ViewportActivity createActivity() {
-						return new SelectAndMoveActivity();
+					public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+							final ModelView modelView, final UndoActionListener undoActionListener) {
+						return new MultiManipulatorActivity(
+								new MoverWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
+										modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
+								undoActionListener, modelEditorManager.getSelectionView());
 					}
 				},
 				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/extend.png"), "Select and Extend") {
 					@Override
-					public ViewportActivity createActivity() {
-						return new SelectAndMoveActivity();
+					public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+							final ModelView modelView, final UndoActionListener undoActionListener) {
+						return new MultiManipulatorActivity(
+								new MoverWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
+										modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
+								undoActionListener, modelEditorManager.getSelectionView());
 					}
 				}, });
 		return toolbar;
@@ -731,15 +907,27 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		root.getActionMap().put("Delete", deleteAction);
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("DELETE"), "Delete");
 
+		root.getActionMap().put("CloneSelection", cloneAction);
+		// root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control
+		// V"), null);
+		// root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control
+		// V"),
+		// "CloneSelection");
+
 		root.getActionMap().put("shiftSelect", new AbstractAction("shiftSelect") {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				if (prefs.getSelectionType() == 0) {
-					for (int b = 0; b < 3; b++) {
-						buttons.get(b).resetColors();
-					}
-					addButton.setColors(prefs.getActiveColor1(), prefs.getActiveColor2());
-					prefs.setSelectionType(1);
+				// if (prefs.getSelectionType() == 0) {
+				// for (int b = 0; b < 3; b++) {
+				// buttons.get(b).resetColors();
+				// }
+				// addButton.setColors(prefs.getActiveColor1(),
+				// prefs.getActiveColor2());
+				// prefs.setSelectionType(1);
+				// cheatShift = true;
+				// }
+				if (selectionModeGroup.getActiveButtonType() == SelectionMode.SELECT) {
+					selectionModeGroup.setToolbarButtonType(SelectionMode.ADD);
 					cheatShift = true;
 				}
 			}
@@ -747,12 +935,17 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		root.getActionMap().put("altSelect", new AbstractAction("altSelect") {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				if (prefs.getSelectionType() == 0) {
-					for (int b = 0; b < 3; b++) {
-						buttons.get(b).resetColors();
-					}
-					deselectButton.setColors(prefs.getActiveColor1(), prefs.getActiveColor2());
-					prefs.setSelectionType(2);
+				// if (prefs.getSelectionType() == 0) {
+				// for (int b = 0; b < 3; b++) {
+				// buttons.get(b).resetColors();
+				// }
+				// deselectButton.setColors(prefs.getActiveColor1(),
+				// prefs.getActiveColor2());
+				// prefs.setSelectionType(2);
+				// cheatAlt = true;
+				// }
+				if (selectionModeGroup.getActiveButtonType() == SelectionMode.SELECT) {
+					selectionModeGroup.setToolbarButtonType(SelectionMode.DESELECT);
 					cheatAlt = true;
 				}
 			}
@@ -767,12 +960,17 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		root.getActionMap().put("unShiftSelect", new AbstractAction("unShiftSelect") {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				if (prefs.getSelectionType() == 1 && cheatShift) {
-					for (int b = 0; b < 3; b++) {
-						buttons.get(b).resetColors();
-					}
-					selectButton.setColors(prefs.getActiveColor1(), prefs.getActiveColor2());
-					prefs.setSelectionType(0);
+				// if (prefs.getSelectionType() == 1 && cheatShift) {
+				// for (int b = 0; b < 3; b++) {
+				// buttons.get(b).resetColors();
+				// }
+				// selectButton.setColors(prefs.getActiveColor1(),
+				// prefs.getActiveColor2());
+				// prefs.setSelectionType(0);
+				// cheatShift = false;
+				// }
+				if (selectionModeGroup.getActiveButtonType() == SelectionMode.ADD && cheatShift) {
+					selectionModeGroup.setToolbarButtonType(SelectionMode.SELECT);
 					cheatShift = false;
 				}
 			}
@@ -780,12 +978,17 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		root.getActionMap().put("unAltSelect", new AbstractAction("unAltSelect") {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				if (prefs.getSelectionType() == 2 && cheatAlt) {
-					for (int b = 0; b < 3; b++) {
-						buttons.get(b).resetColors();
-					}
-					selectButton.setColors(prefs.getActiveColor1(), prefs.getActiveColor2());
-					prefs.setSelectionType(0);
+				// if (prefs.getSelectionType() == 2 && cheatAlt) {
+				// for (int b = 0; b < 3; b++) {
+				// buttons.get(b).resetColors();
+				// }
+				// selectButton.setColors(prefs.getActiveColor1(),
+				// prefs.getActiveColor2());
+				// prefs.setSelectionType(0);
+				// cheatAlt = false;
+				// }
+				if (selectionModeGroup.getActiveButtonType() == SelectionMode.DESELECT && cheatAlt) {
+					selectionModeGroup.setToolbarButtonType(SelectionMode.SELECT);
 					cheatAlt = false;
 				}
 			}
@@ -871,7 +1074,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		menuBar.add(toolsMenu);
 
 		viewMenu = new JMenu("View");
-		viewMenu.setMnemonic(KeyEvent.VK_V);
+		// viewMenu.setMnemonic(KeyEvent.VK_V);
 		viewMenu.getAccessibleContext().setAccessibleDescription("Allows the user to control view settings.");
 		menuBar.add(viewMenu);
 
@@ -1141,7 +1344,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		aboutMenu.add(creditsButton);
 
 		showMatrices = new JMenuItem("View Selected \"Matrices\"");
-		showMatrices.setMnemonic(KeyEvent.VK_V);
+		// showMatrices.setMnemonic(KeyEvent.VK_V);
 		showMatrices.addActionListener(viewMatricesAction);
 		toolsMenu.add(showMatrices);
 
@@ -1177,9 +1380,10 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		toolsMenu.add(linearizeAnimations);
 		toolsMenu.add(scaleAnimations);
 
-		divideVertices = new JMenuItem("Clone in Place");
-		divideVertices.setMnemonic(KeyEvent.VK_D);
-		divideVertices.addActionListener(this);
+		divideVertices = new JMenuItem("Clone");
+		// divideVertices.setMnemonic(KeyEvent.VK_V);
+		divideVertices.setAccelerator(KeyStroke.getKeyStroke("control V"));
+		divideVertices.addActionListener(cloneAction);
 		toolsMenu.add(divideVertices);
 
 		combineAnims = new JMenuItem("Put together two animations for that guy dtnmang or Misha");
@@ -1240,7 +1444,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		tweaksSubmenu.add(flipAllUVsU);
 
 		flipAllUVsV = new JMenuItem("Flip All UVs V");
-		flipAllUVsV.setMnemonic(KeyEvent.VK_V);
+		// flipAllUVsV.setMnemonic(KeyEvent.VK_V);
 		flipAllUVsV.addActionListener(flipAllUVsVAction);
 		tweaksSubmenu.add(flipAllUVsV);
 
@@ -1291,7 +1495,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		viewMenu.add(new JSeparator());
 
 		showVertexModifyControls = new JCheckBoxMenuItem("Show Viewport Buttons", true);
-		showVertexModifyControls.setMnemonic(KeyEvent.VK_V);
+		// showVertexModifyControls.setMnemonic(KeyEvent.VK_V);
 		showVertexModifyControls.addActionListener(this);
 		viewMenu.add(showVertexModifyControls);
 
@@ -1507,645 +1711,663 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 	public void actionPerformed(final ActionEvent e) {
 		// Open, off of the file menu:
 		refreshUndo();
-		if (e.getSource() == newModel) {
-			newModel();
-		} else if (e.getSource() == open) {
-			onClickOpen();
-		} else if (e.getSource() == fetchUnit) {
-			final GameObject unitFetched = fetchUnit();
-			final String filepath = convertPathToMDX(unitFetched.getField("file"));
-			if (filepath != null) {
-				loadFile(MpqCodebase.get().getFile(filepath), true, true, unitFetched.getScaledIcon(0.25f));
-				final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
-						+ filepath.substring(filepath.lastIndexOf('.'), filepath.length());
-				if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
-					loadFile(MpqCodebase.get().getFile(portrait), true, false, unitFetched.getScaledIcon(0.25f));
+		try {
+			if (e.getSource() == newModel) {
+				newModel();
+			} else if (e.getSource() == open) {
+				onClickOpen();
+			} else if (e.getSource() == fetchUnit) {
+				final GameObject unitFetched = fetchUnit();
+				final String filepath = convertPathToMDX(unitFetched.getField("file"));
+				if (filepath != null) {
+					loadFile(MpqCodebase.get().getFile(filepath), true, true, unitFetched.getScaledIcon(0.25f));
+					final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
+							+ filepath.substring(filepath.lastIndexOf('.'), filepath.length());
+					if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
+						loadFile(MpqCodebase.get().getFile(portrait), true, false, unitFetched.getScaledIcon(0.25f));
+					}
+					toolsMenu.getAccessibleContext().setAccessibleDescription(
+							"Allows the user to control which parts of the model are displayed for editing.");
+					toolsMenu.setEnabled(true);
 				}
-				toolsMenu.getAccessibleContext().setAccessibleDescription(
-						"Allows the user to control which parts of the model are displayed for editing.");
-				toolsMenu.setEnabled(true);
-			}
-		} else if (e.getSource() == fetchModel) {
-			final ModelElement model = fetchModel();
-			final String filepath = convertPathToMDX(model.getFilepath());
-			if (filepath != null) {
+			} else if (e.getSource() == fetchModel) {
+				final ModelElement model = fetchModel();
+				final String filepath = convertPathToMDX(model.getFilepath());
+				if (filepath != null) {
 
-				final ImageIcon icon = model.hasCachedIconPath() ? new ImageIcon(BLPHandler.get()
-						.getGameTex(model.getCachedIconPath()).getScaledInstance(16, 16, Image.SCALE_FAST)) : MDLIcon;
-				loadFile(MpqCodebase.get().getFile(filepath), true, true, icon);
-				final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
-						+ filepath.substring(filepath.lastIndexOf('.'), filepath.length());
-				if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
-					loadFile(MpqCodebase.get().getFile(portrait), true, false, icon);
+					final ImageIcon icon = model.hasCachedIconPath() ? new ImageIcon(BLPHandler.get()
+							.getGameTex(model.getCachedIconPath()).getScaledInstance(16, 16, Image.SCALE_FAST))
+							: MDLIcon;
+					loadFile(MpqCodebase.get().getFile(filepath), true, true, icon);
+					final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
+							+ filepath.substring(filepath.lastIndexOf('.'), filepath.length());
+					if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
+						loadFile(MpqCodebase.get().getFile(portrait), true, false, icon);
+					}
+					toolsMenu.getAccessibleContext().setAccessibleDescription(
+							"Allows the user to control which parts of the model are displayed for editing.");
+					toolsMenu.setEnabled(true);
 				}
-				toolsMenu.getAccessibleContext().setAccessibleDescription(
-						"Allows the user to control which parts of the model are displayed for editing.");
-				toolsMenu.setEnabled(true);
-			}
-		} else if (e.getSource() == fetchObject) {
-			final GameObject objectFetched = fetchObject();
-			final String filepath = convertPathToMDX(objectFetched.getField("file"));
-			if (filepath != null) {
-				loadFile(MpqCodebase.get().getFile(filepath), true, true, new ImageIcon(BLPHandler.get()
-						.getGameTex(objectFetched.getField("Art")).getScaledInstance(16, 16, Image.SCALE_FAST)));
-				final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
-						+ filepath.substring(filepath.lastIndexOf('.'), filepath.length());
-				if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
-					loadFile(MpqCodebase.get().getFile(portrait), true, false, new ImageIcon(BLPHandler.get()
+			} else if (e.getSource() == fetchObject) {
+				final GameObject objectFetched = fetchObject();
+				final String filepath = convertPathToMDX(objectFetched.getField("file"));
+				if (filepath != null) {
+					loadFile(MpqCodebase.get().getFile(filepath), true, true, new ImageIcon(BLPHandler.get()
 							.getGameTex(objectFetched.getField("Art")).getScaledInstance(16, 16, Image.SCALE_FAST)));
-				}
-				toolsMenu.getAccessibleContext().setAccessibleDescription(
-						"Allows the user to control which parts of the model are displayed for editing.");
-				toolsMenu.setEnabled(true);
-			}
-		} else if (e.getSource() == importButton) {
-			fc.setDialogTitle("Import");
-			final MDL current = currentMDL();
-			if (current != null && !current.isTemp() && current.getFile() != null) {
-				fc.setCurrentDirectory(current.getFile().getParentFile());
-			} else if (profile.getPath() != null) {
-				fc.setCurrentDirectory(new File(profile.getPath()));
-			}
-			final int returnValue = fc.showOpenDialog(this);
-
-			if (returnValue == JFileChooser.APPROVE_OPTION) {
-				currentFile = fc.getSelectedFile();
-				profile.setPath(currentFile.getParent());
-				toolsMenu.getAccessibleContext().setAccessibleDescription(
-						"Allows the user to control which parts of the model are displayed for editing.");
-				toolsMenu.setEnabled(true);
-				importFile(currentFile);
-			}
-
-			fc.setSelectedFile(null);
-
-			// //Special thanks to the JWSFileChooserDemo from oracle's Java
-			// tutorials, from which many ideas were borrowed for the following
-			// FileOpenService fos = null;
-			// FileContents fileContents = null;
-			//
-			// try
-			// {
-			// fos =
-			// (FileOpenService)ServiceManager.lookup("javax.jnlp.FileOpenService");
-			// }
-			// catch (UnavailableServiceException exc )
-			// {
-			//
-			// }
-			//
-			// if( fos != null )
-			// {
-			// try
-			// {
-			// fileContents = fos.openFileDialog(null, null);
-			// }
-			// catch (Exception exc )
-			// {
-			// JOptionPane.showMessageDialog(this,"Opening command failed:
-			// "+exc.getLocalizedMessage());
-			// }
-			// }
-			//
-			// if( fileContents != null)
-			// {
-			// try
-			// {
-			// fileContents.getName();
-			// }
-			// catch (IOException exc)
-			// {
-			// JOptionPane.showMessageDialog(this,"Problem opening file:
-			// "+exc.getLocalizedMessage());
-			// }
-			// }
-			refreshController();
-		} else if (e.getSource() == importUnit) {
-			final String filepath = convertPathToMDX(fetchUnit().getField("file"));
-			final MDL current = currentMDL();
-			if (filepath != null) {
-				final File animationSource = MpqCodebase.get().getFile(filepath);
-				importFile(animationSource);
-			}
-			refreshController();
-		} else if (e.getSource() == importGameModel) {
-			final String filepath = convertPathToMDX(fetchModel().getFilepath());
-			final MDL current = currentMDL();
-			if (filepath != null) {
-				final File animationSource = MpqCodebase.get().getFile(filepath);
-				importFile(animationSource);
-			}
-			refreshController();
-		} else if (e.getSource() == importGameObject) {
-			final String filepath = convertPathToMDX(fetchObject().getField("file"));
-			final MDL current = currentMDL();
-			if (filepath != null) {
-				final File animationSource = MpqCodebase.get().getFile(filepath);
-				importFile(animationSource);
-			}
-			refreshController();
-		} else if (e.getSource() == importFromWorkspace) {
-			final List<MDL> optionNames = new ArrayList<>();
-			for (int i = 0; i < this.tabbedPane.getTabCount(); i++) {
-				final ModelPanel modelPanel = (ModelPanel) tabbedPane.getComponentAt(i);
-				final MDL model = modelPanel.getMDLDisplay().getMDL();
-				optionNames.add(model);
-			}
-			final MDL choice = (MDL) JOptionPane.showInputDialog(this, "Choose a workspace item to import data from:",
-					"Import from Workspace", JOptionPane.OK_CANCEL_OPTION, null, optionNames.toArray(),
-					optionNames.get(0));
-			if (choice != null) {
-				importFile(MDL.deepClone(choice, choice.getHeaderName()));
-			}
-			refreshController();
-		} else if (e.getSource() == importButtonS) {
-			new ImportPanelSimple();
-			refreshController();
-		} else if (e.getSource() == mergeGeoset) {
-			fc.setDialogTitle("Merge Geoset");
-			final MDL current = currentMDL();
-			if (current != null && !current.isTemp() && current.getFile() != null) {
-				fc.setCurrentDirectory(current.getFile().getParentFile());
-			} else if (profile.getPath() != null) {
-				fc.setCurrentDirectory(new File(profile.getPath()));
-			}
-			final int returnValue = fc.showOpenDialog(this);
-
-			if (returnValue == JFileChooser.APPROVE_OPTION) {
-				currentFile = fc.getSelectedFile();
-				final MDL geoSource = MDL.read(currentFile);
-				profile.setPath(currentFile.getParent());
-				boolean going = true;
-				Geoset host = null;
-				while (going) {
-					final String s = JOptionPane.showInputDialog(this,
-							"Geoset into which to Import: (1 to " + current.getGeosetsSize() + ")");
-					try {
-						final int x = Integer.parseInt(s);
-						if (x >= 1 && x <= current.getGeosetsSize()) {
-							host = current.getGeoset(x - 1);
-							going = false;
-						}
-					} catch (final NumberFormatException exc) {
-
+					final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
+							+ filepath.substring(filepath.lastIndexOf('.'), filepath.length());
+					if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
+						loadFile(MpqCodebase.get().getFile(portrait), true, false,
+								new ImageIcon(BLPHandler.get().getGameTex(objectFetched.getField("Art"))
+										.getScaledInstance(16, 16, Image.SCALE_FAST)));
 					}
+					toolsMenu.getAccessibleContext().setAccessibleDescription(
+							"Allows the user to control which parts of the model are displayed for editing.");
+					toolsMenu.setEnabled(true);
 				}
-				Geoset newGeoset = null;
-				going = true;
-				while (going) {
-					final String s = JOptionPane.showInputDialog(this,
-							"Geoset to Import: (1 to " + geoSource.getGeosetsSize() + ")");
-					try {
-						final int x = Integer.parseInt(s);
-						if (x <= geoSource.getGeosetsSize()) {
-							newGeoset = geoSource.getGeoset(x - 1);
-							going = false;
-						}
-					} catch (final NumberFormatException exc) {
-
-					}
-				}
-				newGeoset.updateToObjects(current);
-				System.out.println("putting " + newGeoset.numUVLayers() + " into a nice " + host.numUVLayers());
-				for (int i = 0; i < newGeoset.numVerteces(); i++) {
-					final GeosetVertex ver = newGeoset.getVertex(i);
-					host.add(ver);
-					ver.setGeoset(host);// geoset = host;
-					// for( int z = 0; z < host.n.numUVLayers(); z++ )
-					// {
-					// host.getUVLayer(z).addTVertex(newGeoset.getVertex(i).getTVertex(z));
-					// }
-				}
-				for (int i = 0; i < newGeoset.numTriangles(); i++) {
-					final Triangle tri = newGeoset.getTriangle(i);
-					host.add(tri);
-					tri.setGeoRef(host);
-				}
-			}
-
-			fc.setSelectedFile(null);
-		} else if (e.getSource() == clearRecent) {
-			final int dialogResult = JOptionPane.showConfirmDialog(this,
-					"Are you sure you want to clear the Recent history?", "Confirm Clear", JOptionPane.YES_NO_OPTION);
-			if (dialogResult == JOptionPane.YES_OPTION) {
-				SaveProfile.get().clearRecent();
-				updateRecent();
-			}
-		} else if (e.getSource() == nullmodelButton) {
-			nullmodelFile();
-			refreshController();
-		} else if (e.getSource() == showController) {
-			if (geoControl == null) {
-				geoControl = new ViewController(currentMDLDisp(), !EMBEDDED_VIEW_CTRL_MODE);
-				leftHandGeoControlEmbeddedPane.setViewportView(geoControl);
-			}
-			if (!EMBEDDED_VIEW_CTRL_MODE && !geoControl.getFrame().isVisible()) {
-				geoControl.getFrame().setVisible(true);
-				// geoControl.getFrame().setExtendedState(geoControl.getFrame().getExtendedState()
-				// | JFrame.MAXIMIZED_BOTH);
-				geoControl.getFrame().toFront();
-			}
-		} else if (e.getSource() == save && currentMDL() != null && currentMDL().getFile() != null) {
-			onClickSave();
-		} else if (e.getSource() == saveAs) {
-			if (!onClickSaveAs()) {
-				return;
-			}
-		} else if (e.getSource() == contextClose) {
-			if (((ModelPanel) tabbedPane.getComponentAt(contextClickedTab)).close()) {// this);
-				tabbedPane.remove(contextClickedTab);
-			}
-		} else if (e.getSource() == contextCloseAll) {
-			this.closeAll();
-		} else if (e.getSource() == snapButton) {
-			final MDLDisplay mdlDisp = currentMDLDisp();
-			if (mdlDisp != null) {
-				mdlDisp.snap();
-			}
-		} else if (e.getSource() == cloneButton) {
-			setCloneOn(!prefs.isCloneOn());
-			// ModelPanel mpanel =
-			// ((ModelPanel)tabbedPane.getSelectedComponent());
-			// if( mpanel != null )
-			// mpanel.getMDLDisplay().clone(mpanel.getMDLDisplay().selection,true);
-		} else if (e.getSource() == xButton) {
-			final int x = 1;
-			setDimLock(x, !prefs.getDimLock(x));
-		} else if (e.getSource() == yButton) {
-			final int x = 2;
-			setDimLock(x, !prefs.getDimLock(x));
-		} else if (e.getSource() == zButton) {
-			final int x = 0;
-			setDimLock(x, !prefs.getDimLock(x));
-		} else if (e.getSource() == newDirectory) {
-			final DirectorySelector selector = new DirectorySelector(SaveProfile.get().getGameDirectory(), "");
-			JOptionPane.showMessageDialog(null, selector, "Locating Warcraft III Directory",
-					JOptionPane.QUESTION_MESSAGE);
-			String wcDirectory = selector.getDir();
-			if (!(wcDirectory.endsWith("/") || wcDirectory.endsWith("\\"))) {
-				wcDirectory = wcDirectory + "\\";
-			}
-			SaveProfile.get().setGameDirectory(wcDirectory);
-
-			PerspDisplayPanel pdp;
-			for (int i = 0; i < tabbedPane.getComponentCount(); i++) {
-				pdp = ((ModelPanel) tabbedPane.getComponentAt(i)).getPerspArea();
-				pdp.reloadAllTextures();
-			}
-			MpqCodebase.get().refresh();
-		} else if (e.getSource() == showVertexModifyControls) {
-			final boolean selected = showVertexModifyControls.isSelected();
-			prefs.setShowVertexModifierControls(selected);
-			// SaveProfile.get().setShowViewportButtons(selected);
-			for (int i = 0; i < tabbedPane.getComponentCount(); i++) {
-				final ModelPanel panel = ((ModelPanel) tabbedPane.getComponentAt(i));
-				panel.getFrontArea().setControlsVisible(selected);
-				panel.getBotArea().setControlsVisible(selected);
-				panel.getSideArea().setControlsVisible(selected);
-				final MDLDisplay disp = ((ModelPanel) tabbedPane.getComponentAt(i)).getMDLDisplay();
-				if (disp.getUVPanel() != null) {
-					disp.getUVPanel().setControlsVisible(selected);
-				}
-			}
-		} else if (e.getSource() == textureModels) {
-			prefs.setTextureModels(textureModels.isSelected());
-		} else if (e.getSource() == showNormals) {
-			prefs.setShowNormals(showNormals.isSelected());
-		} else if (e.getSource() == useNativeMDXParser) {
-			final boolean selected = useNativeMDXParser.isSelected();
-			prefs.setUseNativeMDXParser(selected);
-			// SaveProfile.get().setNativeMDXParserEnabled(selected);
-		} else if (e.getSource() == editUVs) {
-			final MDLDisplay disp = currentMDLDisp();
-			if (disp.getUVPanel() == null) {
-				final UVPanel panel = new UVPanel(disp);
-				disp.setUVPanel(panel);
-				panel.showFrame();
-			} else if (!disp.getUVPanel().frameVisible()) {
-				disp.getUVPanel().showFrame();
-			}
-		} else if (e.getSource() == exportTextures) {
-			final DefaultListModel<Material> materials = new DefaultListModel<>();
-			for (int i = 0; i < currentMDL().getMaterials().size(); i++) {
-				final Material mat = currentMDL().getMaterials().get(i);
-				materials.addElement(mat);
-			}
-			for (final ParticleEmitter2 emitter2 : currentMDL().sortedIdObjects(ParticleEmitter2.class)) {
-				final Material dummyMaterial = new Material(
-						new Layer("Blend", currentMDL().getTexture(emitter2.getTextureID())));
-			}
-
-			final JList<Material> materialsList = new JList<>(materials);
-			materialsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-			materialsList.setCellRenderer(new MaterialListRenderer(currentMDL()));
-			JOptionPane.showMessageDialog(this, new JScrollPane(materialsList));
-
-			if (exportTextureDialog.getCurrentDirectory() == null) {
+			} else if (e.getSource() == importButton) {
+				fc.setDialogTitle("Import");
 				final MDL current = currentMDL();
 				if (current != null && !current.isTemp() && current.getFile() != null) {
 					fc.setCurrentDirectory(current.getFile().getParentFile());
 				} else if (profile.getPath() != null) {
 					fc.setCurrentDirectory(new File(profile.getPath()));
 				}
-			}
-			if (exportTextureDialog.getCurrentDirectory() == null) {
-				exportTextureDialog.setSelectedFile(new File(exportTextureDialog.getCurrentDirectory() + File.separator
-						+ materialsList.getSelectedValue().getName()));
-			}
+				final int returnValue = fc.showOpenDialog(this);
 
-			final int x = exportTextureDialog.showSaveDialog(this);
-			if (x == JFileChooser.APPROVE_OPTION) {
-				final File file = exportTextureDialog.getSelectedFile();
-				if (file != null) {
-					try {
-						if (file.getName().lastIndexOf('.') >= 0) {
-							BufferedImage bufferedImage = materialsList.getSelectedValue()
-									.getBufferedImage(currentMDL().getWorkingDirectory());
-							final String fileExtension = file.getName().substring(file.getName().lastIndexOf('.') + 1)
-									.toUpperCase();
-							if (fileExtension.equals("BMP") || fileExtension.equals("JPG")
-									|| fileExtension.equals("JPEG")) {
-								JOptionPane.showMessageDialog(this,
-										"Warning: Alpha channel was converted to black. Some data will be lost\nif you convert this texture back to Warcraft BLP.");
-								bufferedImage = removeAlphaChannel(bufferedImage);
+				if (returnValue == JFileChooser.APPROVE_OPTION) {
+					currentFile = fc.getSelectedFile();
+					profile.setPath(currentFile.getParent());
+					toolsMenu.getAccessibleContext().setAccessibleDescription(
+							"Allows the user to control which parts of the model are displayed for editing.");
+					toolsMenu.setEnabled(true);
+					importFile(currentFile);
+				}
+
+				fc.setSelectedFile(null);
+
+				// //Special thanks to the JWSFileChooserDemo from oracle's Java
+				// tutorials, from which many ideas were borrowed for the
+				// following
+				// FileOpenService fos = null;
+				// FileContents fileContents = null;
+				//
+				// try
+				// {
+				// fos =
+				// (FileOpenService)ServiceManager.lookup("javax.jnlp.FileOpenService");
+				// }
+				// catch (UnavailableServiceException exc )
+				// {
+				//
+				// }
+				//
+				// if( fos != null )
+				// {
+				// try
+				// {
+				// fileContents = fos.openFileDialog(null, null);
+				// }
+				// catch (Exception exc )
+				// {
+				// JOptionPane.showMessageDialog(this,"Opening command failed:
+				// "+exc.getLocalizedMessage());
+				// }
+				// }
+				//
+				// if( fileContents != null)
+				// {
+				// try
+				// {
+				// fileContents.getName();
+				// }
+				// catch (IOException exc)
+				// {
+				// JOptionPane.showMessageDialog(this,"Problem opening file:
+				// "+exc.getLocalizedMessage());
+				// }
+				// }
+				refreshController();
+			} else if (e.getSource() == importUnit) {
+				final String filepath = convertPathToMDX(fetchUnit().getField("file"));
+				final MDL current = currentMDL();
+				if (filepath != null) {
+					final File animationSource = MpqCodebase.get().getFile(filepath);
+					importFile(animationSource);
+				}
+				refreshController();
+			} else if (e.getSource() == importGameModel) {
+				final String filepath = convertPathToMDX(fetchModel().getFilepath());
+				final MDL current = currentMDL();
+				if (filepath != null) {
+					final File animationSource = MpqCodebase.get().getFile(filepath);
+					importFile(animationSource);
+				}
+				refreshController();
+			} else if (e.getSource() == importGameObject) {
+				final String filepath = convertPathToMDX(fetchObject().getField("file"));
+				final MDL current = currentMDL();
+				if (filepath != null) {
+					final File animationSource = MpqCodebase.get().getFile(filepath);
+					importFile(animationSource);
+				}
+				refreshController();
+			} else if (e.getSource() == importFromWorkspace) {
+				final List<MDL> optionNames = new ArrayList<>();
+				for (int i = 0; i < this.tabbedPane.getTabCount(); i++) {
+					final ModelPanel modelPanel = (ModelPanel) tabbedPane.getComponentAt(i);
+					final MDL model = modelPanel.getModel();
+					optionNames.add(model);
+				}
+				final MDL choice = (MDL) JOptionPane.showInputDialog(this,
+						"Choose a workspace item to import data from:", "Import from Workspace",
+						JOptionPane.OK_CANCEL_OPTION, null, optionNames.toArray(), optionNames.get(0));
+				if (choice != null) {
+					importFile(MDL.deepClone(choice, choice.getHeaderName()));
+				}
+				refreshController();
+			} else if (e.getSource() == importButtonS) {
+				new ImportPanelSimple();
+				refreshController();
+			} else if (e.getSource() == mergeGeoset) {
+				fc.setDialogTitle("Merge Geoset");
+				final MDL current = currentMDL();
+				if (current != null && !current.isTemp() && current.getFile() != null) {
+					fc.setCurrentDirectory(current.getFile().getParentFile());
+				} else if (profile.getPath() != null) {
+					fc.setCurrentDirectory(new File(profile.getPath()));
+				}
+				final int returnValue = fc.showOpenDialog(this);
+
+				if (returnValue == JFileChooser.APPROVE_OPTION) {
+					currentFile = fc.getSelectedFile();
+					final MDL geoSource = MDL.read(currentFile);
+					profile.setPath(currentFile.getParent());
+					boolean going = true;
+					Geoset host = null;
+					while (going) {
+						final String s = JOptionPane.showInputDialog(this,
+								"Geoset into which to Import: (1 to " + current.getGeosetsSize() + ")");
+						try {
+							final int x = Integer.parseInt(s);
+							if (x >= 1 && x <= current.getGeosetsSize()) {
+								host = current.getGeoset(x - 1);
+								going = false;
 							}
-							final boolean write = ImageIO.write(bufferedImage, fileExtension, file);
-							if (!write) {
-								JOptionPane.showMessageDialog(this, "File type unknown or unavailable");
-							}
-						} else {
-							JOptionPane.showMessageDialog(this, "No file type was specified");
+						} catch (final NumberFormatException exc) {
+
 						}
-					} catch (final IOException e1) {
-						ExceptionPopup.display(e1);
-						e1.printStackTrace();
-					} catch (final Exception e2) {
-						ExceptionPopup.display(e2);
-						e2.printStackTrace();
 					}
-				} else {
-					JOptionPane.showMessageDialog(this, "No output file was specified");
+					Geoset newGeoset = null;
+					going = true;
+					while (going) {
+						final String s = JOptionPane.showInputDialog(this,
+								"Geoset to Import: (1 to " + geoSource.getGeosetsSize() + ")");
+						try {
+							final int x = Integer.parseInt(s);
+							if (x <= geoSource.getGeosetsSize()) {
+								newGeoset = geoSource.getGeoset(x - 1);
+								going = false;
+							}
+						} catch (final NumberFormatException exc) {
+
+						}
+					}
+					newGeoset.updateToObjects(current);
+					System.out.println("putting " + newGeoset.numUVLayers() + " into a nice " + host.numUVLayers());
+					for (int i = 0; i < newGeoset.numVerteces(); i++) {
+						final GeosetVertex ver = newGeoset.getVertex(i);
+						host.add(ver);
+						ver.setGeoset(host);// geoset = host;
+						// for( int z = 0; z < host.n.numUVLayers(); z++ )
+						// {
+						// host.getUVLayer(z).addTVertex(newGeoset.getVertex(i).getTVertex(z));
+						// }
+					}
+					for (int i = 0; i < newGeoset.numTriangles(); i++) {
+						final Triangle tri = newGeoset.getTriangle(i);
+						host.add(tri);
+						tri.setGeoRef(host);
+					}
 				}
-			}
-		} else if (e.getSource() == scaleAnimations) {
-			final MDLDisplay disp = currentMDLDisp();
-			// if( disp.animpanel == null )
-			// {
-			// AnimationPanel panel = new UVPanel(disp);
-			// disp.setUVPanel(panel);
-			// panel.showFrame();
-			// }
-			// else if(!disp.uvpanel.frameVisible() )
-			// {
-			// disp.uvpanel.showFrame();
-			// }
-			final AnimationFrame aFrame = new AnimationFrame(disp);
-			aFrame.setVisible(true);
-		} else if (e.getSource() == linearizeAnimations) {
-			final int x = JOptionPane.showConfirmDialog(this,
-					"This is an irreversible process that will lose some of your model data,\nin exchange for making it a smaller storage size.\n\nContinue and simplify animations?",
-					"Warning: Linearize Animations", JOptionPane.OK_CANCEL_OPTION);
-			if (x == JOptionPane.OK_OPTION) {
-				final List<AnimFlag> allAnimFlags = currentMDL().getAllAnimFlags();
-				for (final AnimFlag flag : allAnimFlags) {
-					flag.linearize();
+
+				fc.setSelectedFile(null);
+			} else if (e.getSource() == clearRecent) {
+				final int dialogResult = JOptionPane.showConfirmDialog(this,
+						"Are you sure you want to clear the Recent history?", "Confirm Clear",
+						JOptionPane.YES_NO_OPTION);
+				if (dialogResult == JOptionPane.YES_OPTION) {
+					SaveProfile.get().clearRecent();
+					updateRecent();
 				}
-			}
-		} else if (e.getSource() == divideVertices) {
-			final int x = JOptionPane.showConfirmDialog(this,
-					"This is an irreversible process that will split selected vertices into many copies of themself, one for each face, so you can wrap textures and normals in a different way.\n\nContinue?",
-					"Warning"/* : Divide Vertices" */, JOptionPane.OK_CANCEL_OPTION);
-			if (x == JOptionPane.OK_OPTION) {
-				currentMDLDisp().clone(currentMDLDisp().getSelection(), true);
-			}
-		} else if (e.getSource() == simplifyKeyframes) {
-			final int x = JOptionPane.showConfirmDialog(this,
-					"This is an irreversible process that will lose some of your model data,\nin exchange for making it a smaller storage size.\n\nContinue and simplify keyframes?",
-					"Warning: Simplify Keyframes", JOptionPane.OK_CANCEL_OPTION);
-			if (x == JOptionPane.OK_OPTION) {
-				simplifyKeyframes();
-			}
-		} else if (e.getSource() == riseFallBirth) {
-			final MDLDisplay disp = currentMDLDisp();
-			final MDL model = disp.getMDL();
-			final Animation lastAnim = model.getAnim(model.getAnimsSize() - 1);
-
-			final Animation oldBirth = model.findAnimByName("birth");
-			final Animation oldDeath = model.findAnimByName("death");
-
-			Animation birth = new Animation("Birth", lastAnim.getEnd() + 300, lastAnim.getEnd() + 2300);
-			Animation death = new Animation("Death", birth.getEnd() + 300, birth.getEnd() + 2300);
-			final Animation stand = model.findAnimByName("stand");
-
-			final int confirmed = JOptionPane.showConfirmDialog(this,
-					"This will permanently alter model. Are you sure?", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
-			if (confirmed != JOptionPane.OK_OPTION) {
-				return;
-			}
-
-			boolean wipeoutOldBirth = false;
-			if (oldBirth != null) {
-				final String[] choices = { "Ignore", "Delete", "Overwrite" };
-				final Object x = JOptionPane.showInputDialog(this,
-						"Existing birth detected. What should be done with it?", "Question", JOptionPane.PLAIN_MESSAGE,
-						null, choices, choices[0]);
-				if (x == choices[1]) {
-					wipeoutOldBirth = true;
-				} else if (x == choices[2]) {
-					birth = oldBirth;
-				} else {
+			} else if (e.getSource() == nullmodelButton) {
+				nullmodelFile();
+				refreshController();
+			} else if (e.getSource() == showController) {
+				if (geoControl == null) {
+					geoControl = new ViewController(currentModelPanel().getModelViewManagingTree(),
+							!EMBEDDED_VIEW_CTRL_MODE);
+					leftHandGeoControlEmbeddedPane.setViewportView(geoControl);
+				}
+				if (!EMBEDDED_VIEW_CTRL_MODE && !geoControl.getFrame().isVisible()) {
+					geoControl.getFrame().setVisible(true);
+					// geoControl.getFrame().setExtendedState(geoControl.getFrame().getExtendedState()
+					// | JFrame.MAXIMIZED_BOTH);
+					geoControl.getFrame().toFront();
+				}
+			} else if (e.getSource() == save && currentMDL() != null && currentMDL().getFile() != null) {
+				onClickSave();
+			} else if (e.getSource() == saveAs) {
+				if (!onClickSaveAs()) {
 					return;
 				}
-			}
-			boolean wipeoutOldDeath = false;
-			if (oldDeath != null) {
-				final String[] choices = { "Ignore", "Delete", "Overwrite" };
-				final Object x = JOptionPane.showInputDialog(this,
-						"Existing death detected. What should be done with it?", "Question", JOptionPane.PLAIN_MESSAGE,
-						null, choices, choices[0]);
-				if (x == choices[1]) {
-					wipeoutOldDeath = true;
-				} else if (x == choices[2]) {
-					death = oldDeath;
-				} else {
-					return;
+			} else if (e.getSource() == contextClose) {
+				if (((ModelPanel) tabbedPane.getComponentAt(contextClickedTab)).close()) {// this);
+					tabbedPane.remove(contextClickedTab);
 				}
-			}
-			if (wipeoutOldBirth) {
-				model.remove(oldBirth);
-			}
-			if (wipeoutOldDeath) {
-				model.remove(oldDeath);
-			}
+			} else if (e.getSource() == contextCloseAll) {
+				this.closeAll();
+			} else if (e.getSource() == snapButton) {
+				final ModelPanel currentModelPanel = currentModelPanel();
+				if (currentModelPanel != null) {
+					currentModelPanel.getUndoManager().pushAction(
+							currentModelPanel.getModelEditorManager().getModelEditor().snapSelectedVertices());
+				}
+			} else if (e.getSource() == cloneButton) {
+				setCloneOn(!prefs.isCloneOn());
+				// ModelPanel mpanel =
+				// ((ModelPanel)tabbedPane.getSelectedComponent());
+				// if( mpanel != null )
+				// mpanel.getMDLDisplay().clone(mpanel.getMDLDisplay().selection,true);
+			} else if (e.getSource() == xButton) {
+				final int x = 1;
+				setDimLock(x, !prefs.getDimLock(x));
+			} else if (e.getSource() == yButton) {
+				final int x = 2;
+				setDimLock(x, !prefs.getDimLock(x));
+			} else if (e.getSource() == zButton) {
+				final int x = 0;
+				setDimLock(x, !prefs.getDimLock(x));
+			} else if (e.getSource() == newDirectory) {
+				final DirectorySelector selector = new DirectorySelector(SaveProfile.get().getGameDirectory(), "");
+				JOptionPane.showMessageDialog(null, selector, "Locating Warcraft III Directory",
+						JOptionPane.QUESTION_MESSAGE);
+				String wcDirectory = selector.getDir();
+				if (!(wcDirectory.endsWith("/") || wcDirectory.endsWith("\\"))) {
+					wcDirectory = wcDirectory + "\\";
+				}
+				SaveProfile.get().setGameDirectory(wcDirectory);
 
-			final List<IdObject> roots = new ArrayList<>();
-			for (final IdObject obj : model.getIdObjects()) {
-				if (obj.getParent() == null) {
-					roots.add(obj);
+				PerspDisplayPanel pdp;
+				for (int i = 0; i < tabbedPane.getComponentCount(); i++) {
+					pdp = ((ModelPanel) tabbedPane.getComponentAt(i)).getPerspArea();
+					pdp.reloadAllTextures();
 				}
-			}
-			for (final AnimFlag af : model.getAllAnimFlags()) {
-				af.deleteAnim(birth);
-				af.deleteAnim(death);
-			}
-			for (final IdObject obj : roots) {
-				if (obj instanceof Bone) {
-					final Bone b = (Bone) obj;
-					AnimFlag trans = null;
-					boolean globalSeq = false;
-					for (final AnimFlag af : b.getAnimFlags()) {
-						if (af.getTypeId() == AnimFlag.TRANSLATION) {
-							if (af.hasGlobalSeq()) {
-								globalSeq = true;
+				MpqCodebase.get().refresh();
+			} else if (e.getSource() == showVertexModifyControls) {
+				final boolean selected = showVertexModifyControls.isSelected();
+				prefs.setShowVertexModifierControls(selected);
+				// SaveProfile.get().setShowViewportButtons(selected);
+				for (int i = 0; i < tabbedPane.getComponentCount(); i++) {
+					final ModelPanel panel = ((ModelPanel) tabbedPane.getComponentAt(i));
+					panel.getFrontArea().setControlsVisible(selected);
+					panel.getBotArea().setControlsVisible(selected);
+					panel.getSideArea().setControlsVisible(selected);
+					final UVPanel uvPanel = ((ModelPanel) tabbedPane.getComponentAt(i)).getEditUVPanel();
+					if (uvPanel != null) {
+						uvPanel.setControlsVisible(selected);
+					}
+				}
+			} else if (e.getSource() == textureModels) {
+				prefs.setTextureModels(textureModels.isSelected());
+			} else if (e.getSource() == showNormals) {
+				prefs.setShowNormals(showNormals.isSelected());
+			} else if (e.getSource() == useNativeMDXParser) {
+				final boolean selected = useNativeMDXParser.isSelected();
+				prefs.setUseNativeMDXParser(selected);
+				// SaveProfile.get().setNativeMDXParserEnabled(selected);
+			} else if (e.getSource() == editUVs) {
+				final ModelPanel disp = currentModelPanel();
+				if (disp.getEditUVPanel() == null) {
+					final UVPanel panel = new UVPanel(disp);
+					disp.setEditUVPanel(panel);
+					panel.showFrame();
+				} else if (!disp.getEditUVPanel().frameVisible()) {
+					disp.getEditUVPanel().showFrame();
+				}
+			} else if (e.getSource() == exportTextures) {
+				final DefaultListModel<Material> materials = new DefaultListModel<>();
+				for (int i = 0; i < currentMDL().getMaterials().size(); i++) {
+					final Material mat = currentMDL().getMaterials().get(i);
+					materials.addElement(mat);
+				}
+				for (final ParticleEmitter2 emitter2 : currentMDL().sortedIdObjects(ParticleEmitter2.class)) {
+					final Material dummyMaterial = new Material(
+							new Layer("Blend", currentMDL().getTexture(emitter2.getTextureID())));
+				}
+
+				final JList<Material> materialsList = new JList<>(materials);
+				materialsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+				materialsList.setCellRenderer(new MaterialListRenderer(currentMDL()));
+				JOptionPane.showMessageDialog(this, new JScrollPane(materialsList));
+
+				if (exportTextureDialog.getCurrentDirectory() == null) {
+					final MDL current = currentMDL();
+					if (current != null && !current.isTemp() && current.getFile() != null) {
+						fc.setCurrentDirectory(current.getFile().getParentFile());
+					} else if (profile.getPath() != null) {
+						fc.setCurrentDirectory(new File(profile.getPath()));
+					}
+				}
+				if (exportTextureDialog.getCurrentDirectory() == null) {
+					exportTextureDialog.setSelectedFile(new File(exportTextureDialog.getCurrentDirectory()
+							+ File.separator + materialsList.getSelectedValue().getName()));
+				}
+
+				final int x = exportTextureDialog.showSaveDialog(this);
+				if (x == JFileChooser.APPROVE_OPTION) {
+					final File file = exportTextureDialog.getSelectedFile();
+					if (file != null) {
+						try {
+							if (file.getName().lastIndexOf('.') >= 0) {
+								BufferedImage bufferedImage = materialsList.getSelectedValue()
+										.getBufferedImage(currentMDL().getWorkingDirectory());
+								final String fileExtension = file.getName()
+										.substring(file.getName().lastIndexOf('.') + 1).toUpperCase();
+								if (fileExtension.equals("BMP") || fileExtension.equals("JPG")
+										|| fileExtension.equals("JPEG")) {
+									JOptionPane.showMessageDialog(this,
+											"Warning: Alpha channel was converted to black. Some data will be lost\nif you convert this texture back to Warcraft BLP.");
+									bufferedImage = removeAlphaChannel(bufferedImage);
+								}
+								final boolean write = ImageIO.write(bufferedImage, fileExtension, file);
+								if (!write) {
+									JOptionPane.showMessageDialog(this, "File type unknown or unavailable");
+								}
 							} else {
-								trans = af;
+								JOptionPane.showMessageDialog(this, "No file type was specified");
+							}
+						} catch (final IOException e1) {
+							ExceptionPopup.display(e1);
+							e1.printStackTrace();
+						} catch (final Exception e2) {
+							ExceptionPopup.display(e2);
+							e2.printStackTrace();
+						}
+					} else {
+						JOptionPane.showMessageDialog(this, "No output file was specified");
+					}
+				}
+			} else if (e.getSource() == scaleAnimations) {
+				// if( disp.animpanel == null )
+				// {
+				// AnimationPanel panel = new UVPanel(disp);
+				// disp.setUVPanel(panel);
+				// panel.showFrame();
+				// }
+				// else if(!disp.uvpanel.frameVisible() )
+				// {
+				// disp.uvpanel.showFrame();
+				// }
+				final AnimationFrame aFrame = new AnimationFrame(currentModelPanel());
+				aFrame.setVisible(true);
+			} else if (e.getSource() == linearizeAnimations) {
+				final int x = JOptionPane.showConfirmDialog(this,
+						"This is an irreversible process that will lose some of your model data,\nin exchange for making it a smaller storage size.\n\nContinue and simplify animations?",
+						"Warning: Linearize Animations", JOptionPane.OK_CANCEL_OPTION);
+				if (x == JOptionPane.OK_OPTION) {
+					final List<AnimFlag> allAnimFlags = currentMDL().getAllAnimFlags();
+					for (final AnimFlag flag : allAnimFlags) {
+						flag.linearize();
+					}
+				}
+			} else if (e.getSource() == divideVertices) {
+				// final int x = JOptionPane.showConfirmDialog(this,
+				// "This is an irreversible process that will split selected
+				// vertices into many copies of themself, one for each face, so
+				// you can wrap textures and normals in a different
+				// way.\n\nContinue?",
+				// "Warning"/* : Divide Vertices" */,
+				// JOptionPane.OK_CANCEL_OPTION);
+				// if (x == JOptionPane.OK_OPTION) {
+				final ModelPanel currentModelPanel = currentModelPanel();
+				if (currentModelPanel != null) {
+					currentModelPanel.getUndoManager().pushAction(currentModelPanel.getModelEditorManager()
+							.getModelEditor().cloneSelectedComponents(modelStructureChangeListener, namePicker));
+				}
+				// }
+			} else if (e.getSource() == simplifyKeyframes) {
+				final int x = JOptionPane.showConfirmDialog(this,
+						"This is an irreversible process that will lose some of your model data,\nin exchange for making it a smaller storage size.\n\nContinue and simplify keyframes?",
+						"Warning: Simplify Keyframes", JOptionPane.OK_CANCEL_OPTION);
+				if (x == JOptionPane.OK_OPTION) {
+					simplifyKeyframes();
+				}
+			} else if (e.getSource() == riseFallBirth) {
+				final ModelView disp = currentModelPanel().getModelViewManager();
+				final MDL model = disp.getModel();
+				final Animation lastAnim = model.getAnim(model.getAnimsSize() - 1);
+
+				final Animation oldBirth = model.findAnimByName("birth");
+				final Animation oldDeath = model.findAnimByName("death");
+
+				Animation birth = new Animation("Birth", lastAnim.getEnd() + 300, lastAnim.getEnd() + 2300);
+				Animation death = new Animation("Death", birth.getEnd() + 300, birth.getEnd() + 2300);
+				final Animation stand = model.findAnimByName("stand");
+
+				final int confirmed = JOptionPane.showConfirmDialog(this,
+						"This will permanently alter model. Are you sure?", "Confirmation",
+						JOptionPane.OK_CANCEL_OPTION);
+				if (confirmed != JOptionPane.OK_OPTION) {
+					return;
+				}
+
+				boolean wipeoutOldBirth = false;
+				if (oldBirth != null) {
+					final String[] choices = { "Ignore", "Delete", "Overwrite" };
+					final Object x = JOptionPane.showInputDialog(this,
+							"Existing birth detected. What should be done with it?", "Question",
+							JOptionPane.PLAIN_MESSAGE, null, choices, choices[0]);
+					if (x == choices[1]) {
+						wipeoutOldBirth = true;
+					} else if (x == choices[2]) {
+						birth = oldBirth;
+					} else {
+						return;
+					}
+				}
+				boolean wipeoutOldDeath = false;
+				if (oldDeath != null) {
+					final String[] choices = { "Ignore", "Delete", "Overwrite" };
+					final Object x = JOptionPane.showInputDialog(this,
+							"Existing death detected. What should be done with it?", "Question",
+							JOptionPane.PLAIN_MESSAGE, null, choices, choices[0]);
+					if (x == choices[1]) {
+						wipeoutOldDeath = true;
+					} else if (x == choices[2]) {
+						death = oldDeath;
+					} else {
+						return;
+					}
+				}
+				if (wipeoutOldBirth) {
+					model.remove(oldBirth);
+				}
+				if (wipeoutOldDeath) {
+					model.remove(oldDeath);
+				}
+
+				final List<IdObject> roots = new ArrayList<>();
+				for (final IdObject obj : model.getIdObjects()) {
+					if (obj.getParent() == null) {
+						roots.add(obj);
+					}
+				}
+				for (final AnimFlag af : model.getAllAnimFlags()) {
+					af.deleteAnim(birth);
+					af.deleteAnim(death);
+				}
+				for (final IdObject obj : roots) {
+					if (obj instanceof Bone) {
+						final Bone b = (Bone) obj;
+						AnimFlag trans = null;
+						boolean globalSeq = false;
+						for (final AnimFlag af : b.getAnimFlags()) {
+							if (af.getTypeId() == AnimFlag.TRANSLATION) {
+								if (af.hasGlobalSeq()) {
+									globalSeq = true;
+								} else {
+									trans = af;
+								}
 							}
 						}
+						if (globalSeq) {
+							continue;
+						}
+						if (trans == null) {
+							final ArrayList<Integer> times = new ArrayList<>();
+							final ArrayList<Integer> values = new ArrayList<>();
+							trans = new AnimFlag("Translation", times, values);
+							trans.addTag("Linear");
+							b.getAnimFlags().add(trans);
+						}
+						trans.addEntry(birth.getStart(), new Vertex(0, 0, -300));
+						trans.addEntry(birth.getEnd(), new Vertex(0, 0, 0));
+						trans.addEntry(death.getStart(), new Vertex(0, 0, 0));
+						trans.addEntry(death.getEnd(), new Vertex(0, 0, -300));
 					}
-					if (globalSeq) {
-						continue;
+				}
+
+				// visibility
+				for (final VisibilitySource source : model.getAllVisibilitySources()) {
+					final AnimFlag dummy = new AnimFlag("dummy");
+					final AnimFlag af = source.getVisibilityFlag();
+					dummy.copyFrom(af);
+					af.deleteAnim(birth);
+					af.deleteAnim(death);
+					af.copyFrom(dummy, stand.getStart(), stand.getEnd(), birth.getStart(), birth.getEnd());
+					af.copyFrom(dummy, stand.getStart(), stand.getEnd(), death.getStart(), death.getEnd());
+					af.setEntry(death.getEnd(), new Integer(0));
+				}
+
+				if (!birth.getTags().contains("NonLooping")) {
+					birth.addTag("NonLooping");
+				}
+				if (!death.getTags().contains("NonLooping")) {
+					death.addTag("NonLooping");
+				}
+
+				if (!model.contains(birth)) {
+					model.add(birth);
+				}
+				if (!model.contains(death)) {
+					model.add(death);
+				}
+
+				JOptionPane.showMessageDialog(this, "Done!");
+			} else if (e.getSource() == animFromFile) {
+				fc.setDialogTitle("Animation Source");
+				final MDL current = currentMDL();
+				if (current != null && !current.isTemp() && current.getFile() != null) {
+					fc.setCurrentDirectory(current.getFile().getParentFile());
+				} else if (profile.getPath() != null) {
+					fc.setCurrentDirectory(new File(profile.getPath()));
+				}
+				final int returnValue = fc.showOpenDialog(this);
+
+				if (returnValue == JFileChooser.APPROVE_OPTION) {
+					currentFile = fc.getSelectedFile();
+					profile.setPath(currentFile.getParent());
+					final MDL animationSourceModel = MDL.read(currentFile);
+					addSingleAnimation(current, animationSourceModel);
+				}
+
+				fc.setSelectedFile(null);
+
+				refreshController();
+			} else if (e.getSource() == animFromUnit) {
+				fc.setDialogTitle("Animation Source");
+				final String filepath = convertPathToMDX(fetchUnit().getField("file"));
+				final MDL current = currentMDL();
+				if (filepath != null) {
+					final MDL animationSource = MDL.read(MpqCodebase.get().getFile(filepath));
+					addSingleAnimation(current, animationSource);
+				}
+			} else if (e.getSource() == animFromModel) {
+				fc.setDialogTitle("Animation Source");
+				final String filepath = convertPathToMDX(fetchModel().getFilepath());
+				final MDL current = currentMDL();
+				if (filepath != null) {
+					final MDL animationSource = MDL.read(MpqCodebase.get().getFile(filepath));
+					addSingleAnimation(current, animationSource);
+				}
+			} else if (e.getSource() == animFromObject) {
+				fc.setDialogTitle("Animation Source");
+				final String filepath = convertPathToMDX(fetchObject().getField("file"));
+				final MDL current = currentMDL();
+				if (filepath != null) {
+					final MDL animationSource = MDL.read(MpqCodebase.get().getFile(filepath));
+					addSingleAnimation(current, animationSource);
+				}
+			} else if (e.getSource() == creditsButton) {
+				final DefaultStyledDocument panel = new DefaultStyledDocument();
+				final JTextPane epane = new JTextPane();
+				final RTFEditorKit rtfk = new RTFEditorKit();
+				try {
+					rtfk.read(MainPanel.class.getResourceAsStream("credits.rtf"), panel, 0);
+				} catch (final MalformedURLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (final IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (final BadLocationException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				epane.setDocument(panel);
+				final JFrame frame = new JFrame("About");
+				frame.setContentPane(new JScrollPane(epane));
+				frame.setSize(650, 500);
+				frame.setLocationRelativeTo(null);
+				frame.setVisible(true);
+				// JOptionPane.showMessageDialog(this,new JScrollPane(epane));
+			} else {
+				boolean done = false;
+				for (int i = 3; i < 8 && !done; i++) {
+					if (e.getSource() == buttons.get(i)) {
+						done = true;
+						for (int b = 3; b < 8; b++) {
+							buttons.get(b).resetColors();
+						}
+						buttons.get(i).setColors(prefs.getActiveRColor1(), prefs.getActiveRColor2());
+						prefs.setActionType(i);
 					}
-					if (trans == null) {
-						final ArrayList<Integer> times = new ArrayList<>();
-						final ArrayList<Integer> values = new ArrayList<>();
-						trans = new AnimFlag("Translation", times, values);
-						trans.addTag("Linear");
-						b.getAnimFlags().add(trans);
+				}
+				for (int i = 0; i < 3 && !done; i++) {
+					if (e.getSource() == buttons.get(i)) {
+						done = true;
+						for (int b = 0; b < 3; b++) {
+							buttons.get(b).resetColors();
+						}
+						buttons.get(i).setColors(prefs.getActiveColor1(), prefs.getActiveColor2());
+						prefs.setSelectionType(i);
 					}
-					trans.addEntry(birth.getStart(), new Vertex(0, 0, -300));
-					trans.addEntry(birth.getEnd(), new Vertex(0, 0, 0));
-					trans.addEntry(death.getStart(), new Vertex(0, 0, 0));
-					trans.addEntry(death.getEnd(), new Vertex(0, 0, -300));
 				}
 			}
-
-			// visibility
-			for (final VisibilitySource source : model.getAllVisibilitySources()) {
-				final AnimFlag dummy = new AnimFlag("dummy");
-				final AnimFlag af = source.getVisibilityFlag();
-				dummy.copyFrom(af);
-				af.deleteAnim(birth);
-				af.deleteAnim(death);
-				af.copyFrom(dummy, stand.getStart(), stand.getEnd(), birth.getStart(), birth.getEnd());
-				af.copyFrom(dummy, stand.getStart(), stand.getEnd(), death.getStart(), death.getEnd());
-				af.setEntry(death.getEnd(), new Integer(0));
-			}
-
-			if (!birth.getTags().contains("NonLooping")) {
-				birth.addTag("NonLooping");
-			}
-			if (!death.getTags().contains("NonLooping")) {
-				death.addTag("NonLooping");
-			}
-
-			if (!model.contains(birth)) {
-				model.add(birth);
-			}
-			if (!model.contains(death)) {
-				model.add(death);
-			}
-
-			JOptionPane.showMessageDialog(this, "Done!");
-		} else if (e.getSource() == animFromFile) {
-			fc.setDialogTitle("Animation Source");
-			final MDL current = currentMDL();
-			if (current != null && !current.isTemp() && current.getFile() != null) {
-				fc.setCurrentDirectory(current.getFile().getParentFile());
-			} else if (profile.getPath() != null) {
-				fc.setCurrentDirectory(new File(profile.getPath()));
-			}
-			final int returnValue = fc.showOpenDialog(this);
-
-			if (returnValue == JFileChooser.APPROVE_OPTION) {
-				currentFile = fc.getSelectedFile();
-				profile.setPath(currentFile.getParent());
-				final MDL animationSourceModel = MDL.read(currentFile);
-				addSingleAnimation(current, animationSourceModel);
-			}
-
-			fc.setSelectedFile(null);
-
-			refreshController();
-		} else if (e.getSource() == animFromUnit) {
-			fc.setDialogTitle("Animation Source");
-			final String filepath = convertPathToMDX(fetchUnit().getField("file"));
-			final MDL current = currentMDL();
-			if (filepath != null) {
-				final MDL animationSource = MDL.read(MpqCodebase.get().getFile(filepath));
-				addSingleAnimation(current, animationSource);
-			}
-		} else if (e.getSource() == animFromModel) {
-			fc.setDialogTitle("Animation Source");
-			final String filepath = convertPathToMDX(fetchModel().getFilepath());
-			final MDL current = currentMDL();
-			if (filepath != null) {
-				final MDL animationSource = MDL.read(MpqCodebase.get().getFile(filepath));
-				addSingleAnimation(current, animationSource);
-			}
-		} else if (e.getSource() == animFromObject) {
-			fc.setDialogTitle("Animation Source");
-			final String filepath = convertPathToMDX(fetchObject().getField("file"));
-			final MDL current = currentMDL();
-			if (filepath != null) {
-				final MDL animationSource = MDL.read(MpqCodebase.get().getFile(filepath));
-				addSingleAnimation(current, animationSource);
-			}
-		} else if (e.getSource() == creditsButton) {
-			final DefaultStyledDocument panel = new DefaultStyledDocument();
-			final JTextPane epane = new JTextPane();
-			final RTFEditorKit rtfk = new RTFEditorKit();
-			try {
-				rtfk.read(MainPanel.class.getResourceAsStream("credits.rtf"), panel, 0);
-			} catch (final MalformedURLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (final IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (final BadLocationException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			epane.setDocument(panel);
-			final JFrame frame = new JFrame("About");
-			frame.setContentPane(new JScrollPane(epane));
-			frame.setSize(650, 500);
-			frame.setLocationRelativeTo(null);
-			frame.setVisible(true);
-			// JOptionPane.showMessageDialog(this,new JScrollPane(epane));
-		} else {
-			boolean done = false;
-			for (int i = 3; i < 8 && !done; i++) {
-				if (e.getSource() == buttons.get(i)) {
-					done = true;
-					for (int b = 3; b < 8; b++) {
-						buttons.get(b).resetColors();
-					}
-					buttons.get(i).setColors(prefs.getActiveRColor1(), prefs.getActiveRColor2());
-					prefs.setActionType(i);
-				}
-			}
-			for (int i = 0; i < 3 && !done; i++) {
-				if (e.getSource() == buttons.get(i)) {
-					done = true;
-					for (int b = 0; b < 3; b++) {
-						buttons.get(b).resetColors();
-					}
-					buttons.get(i).setColors(prefs.getActiveColor1(), prefs.getActiveColor2());
-					prefs.setSelectionType(i);
-				}
-			}
+			// for( int i = 0; i < geoItems.size(); i++ )
+			// {
+			// JCheckBoxMenuItem geoItem = (JCheckBoxMenuItem)geoItems.get(i);
+			// if( e.getSource() == geoItem )
+			// {
+			// frontArea.setGeosetVisible(i,geoItem.isSelected());
+			// frontArea.setGeosetHighlight(i,false);
+			// }
+			// repaint();
+			// }
+		} catch (final Exception exc) {
+			ExceptionPopup.display(exc);
 		}
-		// for( int i = 0; i < geoItems.size(); i++ )
-		// {
-		// JCheckBoxMenuItem geoItem = (JCheckBoxMenuItem)geoItems.get(i);
-		// if( e.getSource() == geoItem )
-		// {
-		// frontArea.setGeosetVisible(i,geoItem.isSelected());
-		// frontArea.setGeosetHighlight(i,false);
-		// }
-		// repaint();
-		// }
 	}
 
 	private void simplifyKeyframes() {
@@ -2159,6 +2381,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			final MDL current = currentMDL();
 			if (current != null && !current.isTemp() && current.getFile() != null) {
 				fc.setCurrentDirectory(current.getFile().getParentFile());
+				fc.setSelectedFile(current.getFile());
 			} else if (profile.getPath() != null) {
 				fc.setCurrentDirectory(new File(profile.getPath()));
 			}
@@ -2211,7 +2434,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 						MDXHandler.compile(currentFileMDL);
 					}
 					currentMDL().setFile(currentFile);
-					currentMDLDisp().resetBeenSaved();
+					// currentMDLDisp().resetBeenSaved();
+					// TODO reset been saved
 					tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(), currentFile.getName().split("\\.")[0]);
 					tabbedPane.setToolTipTextAt(tabbedPane.getSelectedIndex(), currentFile.getPath());
 				} else {
@@ -2233,7 +2457,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			if (currentMDL() != null) {
 				currentMDL().saveFile();
 				profile.setPath(currentMDL().getFile().getParent());
-				currentMDLDisp().resetBeenSaved();
+				// currentMDLDisp().resetBeenSaved();
+				// TODO reset been saved
 			}
 		} catch (final Exception exc) {
 			ExceptionPopup.display(exc);
@@ -2414,6 +2639,59 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				+ " with " + visibilitySource.getName() + "'s visibility  OK!");
 	}
 
+	private final class RepaintingModelStateListener implements ModelViewStateListener {
+		private final JComponent component;
+
+		public RepaintingModelStateListener(final JComponent component) {
+			this.component = component;
+		}
+
+		@Override
+		public void idObjectVisible(final IdObject bone) {
+			component.repaint();
+		}
+
+		@Override
+		public void idObjectNotVisible(final IdObject bone) {
+			component.repaint();
+		}
+
+		@Override
+		public void highlightGeoset(final Geoset geoset) {
+			component.repaint();
+		}
+
+		@Override
+		public void geosetVisible(final Geoset geoset) {
+			component.repaint();
+		}
+
+		@Override
+		public void geosetNotVisible(final Geoset geoset) {
+			component.repaint();
+		}
+
+		@Override
+		public void geosetNotEditable(final Geoset geoset) {
+			component.repaint();
+		}
+
+		@Override
+		public void geosetEditable(final Geoset geoset) {
+			component.repaint();
+		}
+
+		@Override
+		public void cameraVisible(final Camera camera) {
+			component.repaint();
+		}
+
+		@Override
+		public void cameraNotVisible(final Camera camera) {
+			component.repaint();
+		}
+	}
+
 	class RecentItem extends JMenuItem {
 		public RecentItem(final String what) {
 			super(what);
@@ -2460,15 +2738,23 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 
 	public MDL currentMDL() {
 		if (tabbedPane.getSelectedComponent() != null) {
-			return ((ModelPanel) tabbedPane.getSelectedComponent()).getMDLDisplay().getMDL();
+			return ((ModelPanel) tabbedPane.getSelectedComponent()).getModel();
 		} else {
 			return null;
 		}
 	}
 
-	public MDLDisplay currentMDLDisp() {
+	public ModelEditorManager currentMDLDisp() {
 		if (tabbedPane.getSelectedComponent() != null) {
-			return ((ModelPanel) tabbedPane.getSelectedComponent()).getMDLDisplay();
+			return ((ModelPanel) tabbedPane.getSelectedComponent()).getModelEditorManager();
+		} else {
+			return null;
+		}
+	}
+
+	public ModelPanel currentModelPanel() {
+		if (tabbedPane.getSelectedComponent() != null) {
+			return ((ModelPanel) tabbedPane.getSelectedComponent());
 		} else {
 			return null;
 		}
@@ -2481,13 +2767,14 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 	 * @param model
 	 * @return
 	 */
-	public MDLDisplay displayFor(final MDL model) {
-		MDLDisplay output = null;
-		MDLDisplay tempDisplay;
+	public ModelPanel displayFor(final MDL model) {
+		ModelPanel output = null;
+		ModelView tempDisplay;
 		for (int i = 0; i < tabbedPane.getTabCount(); i++) {
-			tempDisplay = ((ModelPanel) tabbedPane.getComponentAt(i)).getMDLDisplay();
-			if (tempDisplay.getMDL() == model) {
-				output = tempDisplay;
+			final ModelPanel modelPanel = (ModelPanel) tabbedPane.getComponentAt(i);
+			tempDisplay = modelPanel.getModelViewManager();
+			if (tempDisplay.getModel() == model) {
+				output = modelPanel;
 				break;
 			}
 		}
@@ -2498,6 +2785,13 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		// new Thread(new Runnable() {
 		// @Override
 		// public void run() {
+		final CoordDisplayListener coordDisplayListener = new CoordDisplayListener() {
+			@Override
+			public void notifyUpdate(final byte dimension1, final byte dimension2, final double coord1,
+					final double coord2) {
+				MainPanel.this.setMouseCoordDisplay(dimension1, dimension2, coord1, coord2);
+			}
+		};
 		ModelPanel temp = null;
 		if (f.getPath().toLowerCase().endsWith("mdx")) {
 			if (prefs.isUseNativeMDXParser()) {
@@ -2505,7 +2799,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 					final MDL model = new MDL(MdxUtils.loadModel(in));
 					model.setFile(f);
 					temp = new ModelPanel(model, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
-							viewportActivityManager, geosetAdditionCallback);
+							modelStructureChangeListener, coordDisplayListener);
 				} catch (final FileNotFoundException e) {
 					e.printStackTrace();
 					ExceptionPopup.display(e);
@@ -2517,7 +2811,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				}
 			} else {
 				temp = new ModelPanel(MDXHandler.convert(f), prefs, MainPanel.this, selectionItemTypeGroup,
-						selectionModeGroup, viewportActivityManager, geosetAdditionCallback);
+						selectionModeGroup, modelStructureChangeListener, coordDisplayListener);
 			}
 		} else if (f.getPath().toLowerCase().endsWith("obj")) {
 			// final Build builder = new Build();
@@ -2527,7 +2821,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			try {
 				final Parse obj = new Parse(builder, f.getPath());
 				temp = new ModelPanel(builder.createMDL(), prefs, MainPanel.this, selectionItemTypeGroup,
-						selectionModeGroup, viewportActivityManager, geosetAdditionCallback);
+						selectionModeGroup, modelStructureChangeListener, coordDisplayListener);
 			} catch (final FileNotFoundException e) {
 				ExceptionPopup.display(e);
 				e.printStackTrace();
@@ -2537,22 +2831,17 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			}
 		} else {
 			temp = new ModelPanel(f, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
-					viewportActivityManager, geosetAdditionCallback);
+					modelStructureChangeListener, coordDisplayListener);
 		}
-		temp.getMDLDisplay().addCoordDisplayListener(new CoordDisplayListener() {
-			@Override
-			public void notifyUpdate(final byte dimension1, final byte dimension2, final double coord1,
-					final double coord2) {
-				MainPanel.this.setMouseCoordDisplay(dimension1, dimension2, coord1, coord2);
-			}
-		});
 		if (temporary) {
-			temp.getMDLDisplay().getMDL().setTemp(true);
+			temp.getModelViewManager().getModel().setTemp(true);
 		}
+		temp.getModelViewManager().addStateListener(new RepaintingModelStateListener(MainPanel.this));
+		temp.changeActivity(actionTypeGroup.getActiveButtonType());
 
 		temp.setFocusable(false);
 		if (geoControl == null) {
-			geoControl = new ViewController(temp.getMDLDisplay(), !EMBEDDED_VIEW_CTRL_MODE);
+			geoControl = new ViewController(temp.getModelViewManagingTree(), !EMBEDDED_VIEW_CTRL_MODE);
 			leftHandGeoControlEmbeddedPane.setViewportView(geoControl);
 		}
 		if (!EMBEDDED_VIEW_CTRL_MODE && !geoControl.getFrame().isVisible()) {
@@ -2563,7 +2852,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			tabbedPane.setSelectedComponent(temp);
 		}
 		if (temporary) {
-			temp.getMDLDisplay().getMDL().setFile(null);
+			temp.getModelViewManager().getModel().setFile(null);
 		}
 		// }
 		// }).start();
@@ -2588,7 +2877,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		final MDL currentModel = currentMDL();
 		if (currentModel != null) {
 			importPanel = new ImportPanel(currentModel, model);
-			importPanel.setCallback(geosetAdditionCallback);
+			importPanel.setCallback(modelStructureChangeListener);
 		}
 	}
 
@@ -2762,7 +3051,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 
 	public void refreshController() {
 		if (geoControl != null) {
-			geoControl.geoControl.repaint();
+			geoControl.repaint();
 		}
 	}
 
@@ -2823,7 +3112,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 	@Override
 	public void stateChanged(final ChangeEvent e) {
 		if (((ModelPanel) tabbedPane.getSelectedComponent()) != null) {
-			geoControl.setMDLDisplay(((ModelPanel) tabbedPane.getSelectedComponent()).getMDLDisplay());
+			geoControl.setMDLDisplay(((ModelPanel) tabbedPane.getSelectedComponent()).getModelViewManagingTree());
 		} else {
 			geoControl.setMDLDisplay(null);
 		}
@@ -2845,8 +3134,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		@Override
 		public String getText() {
 			if (funcEnabled()) {
-				return "Undo " + ((ModelPanel) tabbedPane.getSelectedComponent()).getMDLDisplay().undoText();// +"
-																												// Ctrl+Z";
+				return "Undo " + ((ModelPanel) tabbedPane.getSelectedComponent()).getUndoManager().getUndoText();// +"
+																													// Ctrl+Z";
 			} else {
 				return "Can't undo";// +" Ctrl+Z";
 			}
@@ -2854,7 +3143,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 
 		public boolean funcEnabled() {
 			try {
-				return ((ModelPanel) tabbedPane.getSelectedComponent()).getMDLDisplay().canUndo();
+				return !((ModelPanel) tabbedPane.getSelectedComponent()).getUndoManager().isUndoListEmpty();
 			} catch (final NullPointerException e) {
 				return false;
 			}
@@ -2869,8 +3158,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		@Override
 		public String getText() {
 			if (funcEnabled()) {
-				return "Redo " + ((ModelPanel) tabbedPane.getSelectedComponent()).getMDLDisplay().redoText();// +"
-																												// Ctrl+Y";
+				return "Redo " + ((ModelPanel) tabbedPane.getSelectedComponent()).getUndoManager().getRedoText();// +"
+																													// Ctrl+Y";
 			} else {
 				return "Can't redo";// +" Ctrl+Y";
 			}
@@ -2878,7 +3167,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 
 		public boolean funcEnabled() {
 			try {
-				return ((ModelPanel) tabbedPane.getSelectedComponent()).getMDLDisplay().canRedo();
+				return !((ModelPanel) tabbedPane.getSelectedComponent()).getUndoManager().isRedoListEmpty();
 			} catch (final NullPointerException e) {
 				return false;
 			}

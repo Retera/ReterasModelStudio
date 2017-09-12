@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.BoneChunk;
 
@@ -37,7 +38,7 @@ public class Bone extends IdObject {
 	}
 
 	public Bone(final Bone b) {
-		name = b.name + " copy";
+		name = b.name;
 		pivotPoint = new Vertex(b.pivotPoint);
 		objectId = b.objectId;
 		parentId = b.parentId;
@@ -346,5 +347,10 @@ public class Bone extends IdObject {
 	@Override
 	public void apply(final IdObjectVisitor visitor) {
 		visitor.bone(this);
+	}
+
+	@Override
+	public double getClickRadius(final CoordinateSystem coordinateSystem) {
+		return 8 / CoordinateSystem.Util.getZoom(coordinateSystem);
 	}
 }

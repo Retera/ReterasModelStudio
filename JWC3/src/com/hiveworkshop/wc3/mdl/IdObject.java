@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.Node;
 
@@ -96,6 +97,8 @@ public abstract class IdObject implements Named {
 		}
 		return false;
 	}
+
+	public abstract double getClickRadius(CoordinateSystem coordinateSystem);
 
 	public boolean parentOf(final IdObject other, final HashMap<IdObject, ArrayList<IdObject>> childMap) {
 		final ArrayList<IdObject> children = childMap.get(this);

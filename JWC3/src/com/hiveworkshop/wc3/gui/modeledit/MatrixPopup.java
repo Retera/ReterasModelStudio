@@ -20,6 +20,8 @@ import javax.swing.event.ListSelectionListener;
 
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 
 /**
  * The panel to handle re-assigning Matrices.
@@ -52,7 +54,7 @@ public class MatrixPopup extends JPanel implements ActionListener, ListSelection
 
 	public MatrixPopup(final MDL model) {
 		this.model = model;
-		final MDLDisplay disp = new MDLDisplay(model, null);
+		final ModelView disp = new ModelViewManager(model);
 		final ParentToggleRenderer renderer = new ParentToggleRenderer(displayParents, disp, null);
 		displayParents.addChangeListener(this);
 
@@ -69,7 +71,7 @@ public class MatrixPopup extends JPanel implements ActionListener, ListSelection
 		useBone.addActionListener(this);
 
 		newRefsLabel = new JLabel("New Refs");
-		newRefs = new DefaultListModel<BoneShell>();
+		newRefs = new DefaultListModel<>();
 		newRefsList = new JList(newRefs);
 		newRefsList.setCellRenderer(renderer);
 		newRefsPane = new JScrollPane(newRefsList);
@@ -102,11 +104,9 @@ public class MatrixPopup extends JPanel implements ActionListener, ListSelection
 				.addComponent(displayParents).addGap(10)
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(newRefsLabel)
 						.addComponent(bonesLabel))
-				.addGroup(
-						layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(newRefsPane)
-								.addGroup(layout.createSequentialGroup().addComponent(moveUp).addGap(16)
-										.addComponent(moveDown))
-								.addComponent(bonesPane))
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(newRefsPane)
+						.addGroup(layout.createSequentialGroup().addComponent(moveUp).addGap(16).addComponent(moveDown))
+						.addComponent(bonesPane))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(removeNewRef)
 						.addComponent(useBone)));
 		setLayout(layout);
@@ -226,7 +226,7 @@ public class MatrixPopup extends JPanel implements ActionListener, ListSelection
 	}
 
 	public void buildBonesList() {
-		bones = new DefaultListModel<BoneShell>();
+		bones = new DefaultListModel<>();
 		final ArrayList<Bone> modelBones = model.sortedIdObjects(Bone.class);
 		// ArrayList<Bone> modelHelpers = model.sortedIdObjects(Bone.class);
 		for (final Bone b : modelBones) {

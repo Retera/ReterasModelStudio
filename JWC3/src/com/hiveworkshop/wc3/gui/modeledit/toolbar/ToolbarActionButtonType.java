@@ -2,9 +2,9 @@ package com.hiveworkshop.wc3.gui.modeledit.toolbar;
 
 import javax.swing.ImageIcon;
 
-import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivity;
+import com.hiveworkshop.wc3.gui.modeledit.activity.ActivityDescriptor;
 
-public abstract class ToolbarActionButtonType implements ToolbarButtonType {
+public abstract class ToolbarActionButtonType implements ToolbarButtonType, ActivityDescriptor {
 	private final ImageIcon imageIcon;
 	private final String name;
 
@@ -22,6 +22,4 @@ public abstract class ToolbarActionButtonType implements ToolbarButtonType {
 	public String getName() {
 		return name;
 	}
-
-	public abstract ViewportActivity createActivity();
 }

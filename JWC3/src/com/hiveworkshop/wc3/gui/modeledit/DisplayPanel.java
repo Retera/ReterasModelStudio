@@ -5,7 +5,6 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
@@ -14,11 +13,13 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import com.hiveworkshop.wc3.gui.GlobalIcons;
+import com.hiveworkshop.wc3.gui.ProgramPreferences;
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
+import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivity;
-import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
-import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
-import com.hiveworkshop.wc3.mdl.Geoset;
-import com.hiveworkshop.wc3.util.Callback;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ModelEditorChangeNotifier;
+import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 /**
  * Write a description of class DisplayPanel here.
@@ -27,30 +28,28 @@ import com.hiveworkshop.wc3.util.Callback;
  * @version (a version number or a date)
  */
 public class DisplayPanel extends JPanel implements ActionListener {
-	private final MDLDisplay dispMDL;
 	private Viewport vp;
 	private final String title;
 	private final JButton up, down, left, right, plusZoom, minusZoom;
-	private final SelectionManager selectionManager;
-	private final SelectionTypeApplicator selectionListener;
-	private final Callback<List<Geoset>> geosetAdditionListener;
 	private final ViewportActivity activityListener;
+	private final ModelEditorChangeNotifier modelEditorChangeNotifier;
+	private final ModelStructureChangeListener modelStructureChangeListener;
 
-	public DisplayPanel(final String title, final byte a, final byte b, final MDLDisplay dispMDL,
-			final SelectionManager selectionManager, final SelectionTypeApplicator selectionListener,
-			final Callback<List<Geoset>> geosetAdditionListener, final ViewportActivity activityListener) {
+	public DisplayPanel(final String title, final byte a, final byte b, final ModelView modelView,
+			final ModelEditor modelEditor, final ModelStructureChangeListener modelStructureChangeListener,
+			final ViewportActivity activityListener, final ProgramPreferences preferences,
+			final UndoActionListener undoListener, final CoordDisplayListener coordDisplayListener,
+			final UndoHandler undoHandler, final ModelEditorChangeNotifier modelEditorChangeNotifier) {
 		super();
-		this.selectionManager = selectionManager;
-		this.selectionListener = selectionListener;
-		this.geosetAdditionListener = geosetAdditionListener;
+		this.modelStructureChangeListener = modelStructureChangeListener;
 		this.activityListener = activityListener;
+		this.modelEditorChangeNotifier = modelEditorChangeNotifier;
 		setBorder(BorderFactory.createTitledBorder(title));// BorderFactory.createCompoundBorder(
 		// BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title),BorderFactory.createBevelBorder(1)),BorderFactory.createEmptyBorder(1,1,1,1)
 		// ));
 		setOpaque(true);
-		setViewport(a, b, dispMDL);
+		setViewport(a, b, modelView, preferences, undoListener, coordDisplayListener, undoHandler, modelEditor);
 		this.title = title;
-		this.dispMDL = dispMDL;
 
 		plusZoom = new JButton("");
 		Dimension dim = new Dimension(20, 20);
@@ -128,9 +127,13 @@ public class DisplayPanel extends JPanel implements ActionListener {
 		minusZoom.setVisible(flag);
 	}
 
-	public void setViewport(final byte a, final byte b, final MDLDisplay dispModel) {
-		vp = new Viewport(a, b, dispModel, activityListener, selectionManager, selectionListener,
-				geosetAdditionListener);
+	public void setViewport(final byte a, final byte b, final ModelView modelView,
+			final ProgramPreferences programPreferences, final UndoActionListener undoListener,
+			final CoordDisplayListener coordDisplayListener, final UndoHandler undoHandler,
+			final ModelEditor modelEditor) {
+		vp = new Viewport(a, b, modelView, programPreferences, activityListener, modelStructureChangeListener,
+				undoListener, coordDisplayListener, undoHandler, modelEditor);
+		modelEditorChangeNotifier.subscribe(vp);
 		add(vp);
 	}
 
@@ -197,5 +200,9 @@ public class DisplayPanel extends JPanel implements ActionListener {
 
 	public BufferedImage getBufferedImage() {
 		return vp.getBufferedImage();
+	}
+
+	public Viewport getViewport() {
+		return vp; // TODO why is this named vp is it the vice president
 	}
 }

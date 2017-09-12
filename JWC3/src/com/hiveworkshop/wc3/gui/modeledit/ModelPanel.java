@@ -8,25 +8,33 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import java.util.List;
+import java.util.ArrayList;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
-import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivity;
-import com.hiveworkshop.wc3.gui.modeledit.selection.ModelSelectionApplicator;
-import com.hiveworkshop.wc3.gui.modeledit.selection.ModelSelectionManager;
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
+import com.hiveworkshop.wc3.gui.modeledit.activity.ActivityDescriptor;
+import com.hiveworkshop.wc3.gui.modeledit.activity.DoNothingActivity;
+import com.hiveworkshop.wc3.gui.modeledit.activity.UndoManager;
+import com.hiveworkshop.wc3.gui.modeledit.activity.UndoManagerImpl;
+import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivityManager;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ModelEditorChangeNotifier;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItemTypes;
-import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionMode;
-import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionTypeApplicator;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
-import com.hiveworkshop.wc3.mdl.Geoset;
+import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonListener;
+import com.hiveworkshop.wc3.mdl.Bone;
+import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.MDL;
-import com.hiveworkshop.wc3.util.Callback;
+import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 
 /**
  * The ModelPanel is a pane holding the display of a given MDL model. I plan to
@@ -36,60 +44,83 @@ import com.hiveworkshop.wc3.util.Callback;
  */
 public class ModelPanel extends JPanel implements ActionListener, MouseListener {
 	private static final int VERTEX_SIZE = 3;
-	JMenuBar menuBar;
-	JMenu fileMenu, modelMenu;
-	DisplayPanel frontArea, sideArea, botArea;
-	PerspDisplayPanel perspArea;
-	MDL model;
-	MDLDisplay dispModel;
-	File file;
-	ProgramPreferences prefs;
-	UndoHandler undoHandler;
-	private final ModelSelectionManager selectionManager;
+	private JMenuBar menuBar;
+	private JMenu fileMenu, modelMenu;
+	private DisplayPanel frontArea, sideArea, botArea;
+	private PerspDisplayPanel perspArea;
+	private MDL model;
+	private File file;
+	private final ProgramPreferences prefs;
+	private final UndoHandler undoHandler;
 	private final ToolbarButtonGroup<SelectionItemTypes> selectionItemTypeNotifier;
+	private final ViewportActivityManager viewportActivityManager;
+	private final ModelEditorChangeNotifier modelEditorChangeNotifier;
+	private final ModelEditorManager modelEditorManager;
+	private final ModelViewManager modelView;
+	private final UndoManager undoManager;
+	private UVPanel editUVPanel;
+
+	private final ModelViewManagingTree modelViewManagingTree;
 
 	public ModelPanel(final File input, final ProgramPreferences prefs, final UndoHandler undoHandler,
 			final ToolbarButtonGroup<SelectionItemTypes> notifier, final ToolbarButtonGroup<SelectionMode> modeNotifier,
-			final ViewportActivity viewportActivity, final Callback<List<Geoset>> geosetAdditionListener) {
-		this(MDL.read(input), prefs, undoHandler, notifier, modeNotifier, viewportActivity, geosetAdditionListener);
+			final ModelStructureChangeListener modelStructureChangeListener,
+			final CoordDisplayListener coordDisplayListener) {
+		this(MDL.read(input), prefs, undoHandler, notifier, modeNotifier, modelStructureChangeListener,
+				coordDisplayListener);
 		file = input;
 	}
 
 	public ModelPanel(final MDL input, final ProgramPreferences prefs, final UndoHandler undoHandler,
 			final ToolbarButtonGroup<SelectionItemTypes> notifier, final ToolbarButtonGroup<SelectionMode> modeNotifier,
-			final ViewportActivity viewportActivity, final Callback<List<Geoset>> geosetAdditionListener) {
+			final ModelStructureChangeListener modelStructureChangeListener,
+			final CoordDisplayListener coordDisplayListener) {
 		super();
 		this.prefs = prefs;
 		this.undoHandler = undoHandler;
 		this.selectionItemTypeNotifier = notifier;
+		viewportActivityManager = new ViewportActivityManager(new DoNothingActivity());
+		modelEditorChangeNotifier = new ModelEditorChangeNotifier();
+		modelEditorChangeNotifier.subscribe(viewportActivityManager);
+		modelView = new ModelViewManager(input);
+		modelViewManagingTree = new ModelViewManagingTree(modelView);
+		modelViewManagingTree.setFocusable(false);
+		undoManager = new UndoManagerImpl();
+		modelEditorManager = new ModelEditorManager(modelView, prefs, modeNotifier, modelEditorChangeNotifier,
+				viewportActivityManager);
+		selectionItemTypeNotifier.addToolbarButtonListener(new ToolbarButtonListener<SelectionItemTypes>() {
+			@Override
+			public void typeChanged(final SelectionItemTypes newType) {
+				modelEditorManager.setSelectionItemType(newType);
+			}
+		});
 		// Produce the front display panel
 		// file = input;
 		// model = MDL.read(file);
 		// dispModel = new MDLDisplay(model,this);
 		loadModel(input);
 
-		selectionManager = dispModel.getSelectionManager();
-		final SelectionTypeApplicator selectionListener = new ModelSelectionApplicator(selectionManager, modeNotifier,
-				dispModel);
-
-		frontArea = new DisplayPanel("Front", (byte) 1, (byte) 2, dispModel, selectionManager, selectionListener,
-				geosetAdditionListener, viewportActivity);
+		frontArea = new DisplayPanel("Front", (byte) 1, (byte) 2, modelView, modelEditorManager.getModelEditor(),
+				modelStructureChangeListener, viewportActivityManager, prefs, undoManager, coordDisplayListener,
+				undoHandler, modelEditorChangeNotifier);
 		// frontArea.setViewport(1,2);
 		add(frontArea);
-		botArea = new DisplayPanel("Bottom", (byte) 1, (byte) 0, dispModel, selectionManager, selectionListener,
-				geosetAdditionListener, viewportActivity);
+		botArea = new DisplayPanel("Bottom", (byte) 1, (byte) 0, modelView, modelEditorManager.getModelEditor(),
+				modelStructureChangeListener, viewportActivityManager, prefs, undoManager, coordDisplayListener,
+				undoHandler, modelEditorChangeNotifier);
 		// botArea.setViewport(0,1);
 		add(botArea);
-		sideArea = new DisplayPanel("Side", (byte) 0, (byte) 2, dispModel, selectionManager, selectionListener,
-				geosetAdditionListener, viewportActivity);
+		sideArea = new DisplayPanel("Side", (byte) 0, (byte) 2, modelView, modelEditorManager.getModelEditor(),
+				modelStructureChangeListener, viewportActivityManager, prefs, undoManager, coordDisplayListener,
+				undoHandler, modelEditorChangeNotifier);
 		// sideArea.setViewport(0,2);
 		add(sideArea);
 
-		frontArea.setControlsVisible(dispModel.getProgramPreferences().showVMControls());
-		botArea.setControlsVisible(dispModel.getProgramPreferences().showVMControls());
-		sideArea.setControlsVisible(dispModel.getProgramPreferences().showVMControls());
+		frontArea.setControlsVisible(prefs.showVMControls());
+		botArea.setControlsVisible(prefs.showVMControls());
+		sideArea.setControlsVisible(prefs.showVMControls());
 
-		perspArea = new PerspDisplayPanel("Perspective", dispModel);
+		perspArea = new PerspDisplayPanel("Perspective", modelView, prefs);
 		// perspAreaPanel.setMinimumSize(new Dimension(200,200));
 		// perspAreaPanel.add(Box.createHorizontalStrut(200));
 		// perspAreaPanel.add(Box.createVerticalStrut(200));
@@ -125,6 +156,23 @@ public class ModelPanel extends JPanel implements ActionListener, MouseListener 
 		// Create a file chooser
 	}
 
+	public void changeActivity(final ActivityDescriptor activityDescriptor) {
+		viewportActivityManager
+				.setCurrentActivity(activityDescriptor.createActivity(modelEditorManager, modelView, undoManager));
+	}
+
+	public ModelEditorManager getModelEditorManager() {
+		return modelEditorManager;
+	}
+
+	public UVPanel getEditUVPanel() {
+		return editUVPanel;
+	}
+
+	public void setEditUVPanel(final UVPanel editUVPanel) {
+		this.editUVPanel = editUVPanel;
+	}
+
 	public void loadModel(final File input) {
 		file = input;
 		if (file != null) {
@@ -135,13 +183,6 @@ public class ModelPanel extends JPanel implements ActionListener, MouseListener 
 
 	public void loadModel(final MDL model) {
 		this.model = model;
-		dispModel = new MDLDisplay(model, this, VERTEX_SIZE, selectionItemTypeNotifier);
-		dispModel.setProgramPreferences(prefs);
-		dispModel.setUndoHandler(undoHandler);
-	}
-
-	public SelectionManager getSelectionManager() {
-		return selectionManager;
 	}
 
 	@Override
@@ -284,16 +325,12 @@ public class ModelPanel extends JPanel implements ActionListener, MouseListener 
 		// }
 	}
 
-	public MDLDisplay getMDLDisplay() {
-		return dispModel;
-	}
-
 	public boolean close()// MainPanel parent) TODO fix
 	{
 		// returns true if closed successfully
 		boolean canceled = false;
 		// int myIndex = parent.tabbedPane.indexOfComponent(this);
-		if (!getMDLDisplay().beenSaved()) {
+		if (!undoManager.isUndoListEmpty()) {
 			final Object[] options = { "Yes", "No", "Cancel" };
 			final int n = JOptionPane.showOptionDialog(this, "Would you like to save "
 					+ model.getName()/* parent.tabbedPane.getTitleAt(myIndex) */ + " (\"" + model.getHeaderName()
@@ -303,14 +340,14 @@ public class ModelPanel extends JPanel implements ActionListener, MouseListener 
 			case 0:
 				// ((ModelPanel)parent.tabbedPane.getComponentAt(myIndex)).getMDLDisplay().getMDL().saveFile();
 				// parent.tabbedPane.remove(myIndex);
-				if (dispModel.uvpanel != null) {
-					dispModel.uvpanel.frame.setVisible(false);
+				if (editUVPanel != null) {
+					editUVPanel.frame.setVisible(false);
 				}
 				break;
 			case 1:
 				// parent.tabbedPane.remove(myIndex);
-				if (dispModel.uvpanel != null) {
-					dispModel.uvpanel.frame.setVisible(false);
+				if (editUVPanel != null) {
+					editUVPanel.frame.setVisible(false);
 				}
 				break;
 			case 2:
@@ -378,5 +415,65 @@ public class ModelPanel extends JPanel implements ActionListener, MouseListener 
 
 	public void setPerspArea(final PerspDisplayPanel perspArea) {
 		this.perspArea = perspArea;
+	}
+
+	public UndoManager getUndoManager() {
+		return undoManager;
+	}
+
+	public void repaintSelfAndRelatedChildren() {
+		repaint();
+		if (editUVPanel != null) {
+			editUVPanel.repaint();
+		}
+	}
+
+	public void viewMatrices() {
+		final ArrayList<Bone> boneRefs = new ArrayList<>();
+		for (final Vertex ver : modelEditorManager.getSelectionView().getSelectedVertices()) {
+			if (ver instanceof GeosetVertex) {
+				final GeosetVertex gv = (GeosetVertex) ver;
+				for (final Bone b : gv.getBones()) {
+					if (!boneRefs.contains(b)) {
+						boneRefs.add(b);
+					}
+				}
+			}
+		}
+		String boneList = "";
+		for (int i = 0; i < boneRefs.size(); i++) {
+			if (i == boneRefs.size() - 2) {
+				boneList = boneList + boneRefs.get(i).getName() + " and ";
+			} else if (i == boneRefs.size() - 1) {
+				boneList = boneList + boneRefs.get(i).getName();
+			} else {
+				boneList = boneList + boneRefs.get(i).getName() + ", ";
+			}
+		}
+		if (boneRefs.size() == 0) {
+			boneList = "Nothing was selected that was attached to any bones.";
+		}
+		final JTextArea tpane = new JTextArea(boneList);
+		tpane.setLineWrap(true);
+		tpane.setWrapStyleWord(true);
+		tpane.setEditable(false);
+		tpane.setSize(230, 400);
+
+		final JScrollPane jspane = new JScrollPane(tpane);
+		jspane.setPreferredSize(new Dimension(270, 230));
+
+		JOptionPane.showMessageDialog(null, jspane);
+	}
+
+	public MDL getModel() {
+		return model;
+	}
+
+	public ModelViewManager getModelViewManager() {
+		return modelView;
+	}
+
+	public ModelViewManagingTree getModelViewManagingTree() {
+		return modelViewManagingTree;
 	}
 }

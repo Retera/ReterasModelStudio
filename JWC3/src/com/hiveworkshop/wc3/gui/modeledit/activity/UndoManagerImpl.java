@@ -34,4 +34,30 @@ public final class UndoManagerImpl implements UndoManager {
 		availableRedoActions.clear();
 	}
 
+	@Override
+	public boolean isUndoListEmpty() {
+		return availableUndoActions.isEmpty();
+	}
+
+	@Override
+	public String getUndoText() {
+		if (availableUndoActions.isEmpty()) {
+			return "";
+		}
+		return availableUndoActions.peek().actionName();
+	}
+
+	@Override
+	public String getRedoText() {
+		if (availableRedoActions.isEmpty()) {
+			return "";
+		}
+		return availableRedoActions.peek().actionName();
+	}
+
+	@Override
+	public boolean isRedoListEmpty() {
+		return availableRedoActions.isEmpty();
+	}
+
 }

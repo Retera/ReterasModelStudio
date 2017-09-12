@@ -8,16 +8,15 @@ import java.awt.geom.Point2D.Double;
 import javax.swing.SwingUtilities;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
-import com.hiveworkshop.wc3.gui.modeledit.manipulator.ModelEditor;
-import com.hiveworkshop.wc3.gui.modeledit.manipulator.activity.Manipulator;
-import com.hiveworkshop.wc3.gui.modeledit.manipulator.builder.ManipulatorBuilder;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.ManipulatorBuilder;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
 
 public final class MultiManipulatorActivity implements ViewportActivity {
 	private final ManipulatorBuilder manipulatorBuilder;
 	private final UndoActionListener undoActionListener;
 	private Manipulator manipulator;
-	private CoordinateSystem coordinateSystem;
 	private CursorManager cursorManager;
 	private Double mouseStartPoint;
 	private Double lastDragPoint;
@@ -36,13 +35,12 @@ public final class MultiManipulatorActivity implements ViewportActivity {
 	}
 
 	@Override
-	public void viewportChanged(final CursorManager cursorManager, final CoordinateSystem coordinateSystem) {
+	public void viewportChanged(final CursorManager cursorManager) {
 		this.cursorManager = cursorManager;
-		this.coordinateSystem = coordinateSystem;
 	}
 
 	@Override
-	public void mousePressed(final MouseEvent e) {
+	public void mousePressed(final MouseEvent e, final CoordinateSystem coordinateSystem) {
 		final ButtonType buttonType;
 		if (SwingUtilities.isRightMouseButton(e)) {
 			buttonType = ButtonType.RIGHT_MOUSE;
@@ -57,11 +55,12 @@ public final class MultiManipulatorActivity implements ViewportActivity {
 			mouseStartPoint = new Point2D.Double(coordinateSystem.geomX(e.getPoint().getX()),
 					coordinateSystem.geomY(e.getPoint().getY()));
 			manipulator.start(mouseStartPoint, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+			lastDragPoint = mouseStartPoint;
 		}
 	}
 
 	@Override
-	public void mouseReleased(final MouseEvent e) {
+	public void mouseReleased(final MouseEvent e, final CoordinateSystem coordinateSystem) {
 		if (manipulator != null) {
 			final Point2D.Double mouseEnd = new Point2D.Double(coordinateSystem.geomX(e.getPoint().getX()),
 					coordinateSystem.geomY(e.getPoint().getY()));
@@ -74,12 +73,12 @@ public final class MultiManipulatorActivity implements ViewportActivity {
 	}
 
 	@Override
-	public void mouseMoved(final MouseEvent e) {
+	public void mouseMoved(final MouseEvent e, final CoordinateSystem coordinateSystem) {
 		cursorManager.setCursor(manipulatorBuilder.getCursorAt(e.getX(), e.getY(), coordinateSystem, selectionView));
 	}
 
 	@Override
-	public void mouseDragged(final MouseEvent e) {
+	public void mouseDragged(final MouseEvent e, final CoordinateSystem coordinateSystem) {
 		if (manipulator != null) {
 			final Point2D.Double mouseEnd = new Point2D.Double(coordinateSystem.geomX(e.getPoint().getX()),
 					coordinateSystem.geomY(e.getPoint().getY()));
@@ -90,7 +89,7 @@ public final class MultiManipulatorActivity implements ViewportActivity {
 	}
 
 	@Override
-	public void render(final Graphics2D graphics) {
+	public void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem) {
 		manipulatorBuilder.render(graphics, coordinateSystem, selectionView);
 		if (manipulator != null) {
 			manipulator.render(graphics, coordinateSystem);

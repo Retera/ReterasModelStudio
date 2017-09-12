@@ -1,6 +1,7 @@
 package com.hiveworkshop.wc3.gui.modeledit.actions;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
@@ -16,8 +17,8 @@ public class SnapAction implements UndoAction {
 	private final List<Vertex> selection;
 	private final Vertex snapPoint;
 
-	public SnapAction(final List<Vertex> selection, final List<Vertex> oldSelLocs, final Vertex snapPoint) {
-		this.selection = new ArrayList<Vertex>(selection);
+	public SnapAction(final Collection<Vertex> selection, final List<Vertex> oldSelLocs, final Vertex snapPoint) {
+		this.selection = new ArrayList<>(selection);
 		this.oldSelLocs = oldSelLocs;
 		this.snapPoint = new Vertex(snapPoint);
 	}

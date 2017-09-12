@@ -1,7 +1,9 @@
 package com.hiveworkshop.wc3.gui.modeledit.actions;
 
+import java.util.Collection;
 import java.util.List;
 
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.mdl.Triangle;
@@ -11,12 +13,15 @@ public class SpecialDeleteAction extends DeleteAction {
 
 	private final List<Geoset> deletedGeosets;
 	private final MDL parent;
+	private final ModelStructureChangeListener modelStructureChangeListener;
 
-	public SpecialDeleteAction(final List<Vertex> selection, final List<Triangle> deletedTris,
-			final List<Geoset> deletedGs, final MDL parentModel) {
+	public SpecialDeleteAction(final Collection<Vertex> selection, final List<Triangle> deletedTris,
+			final List<Geoset> deletedGs, final MDL parentModel,
+			final ModelStructureChangeListener modelStructureChangeListener) {
 		super(selection, deletedTris);
 		deletedGeosets = deletedGs;
 		parent = parentModel;
+		this.modelStructureChangeListener = modelStructureChangeListener;
 	}
 
 	@Override
@@ -29,6 +34,7 @@ public class SpecialDeleteAction extends DeleteAction {
 			}
 			parent.remove(g);
 		}
+		modelStructureChangeListener.geosetsRemoved(deletedGeosets);
 	}
 
 	@Override
@@ -41,6 +47,7 @@ public class SpecialDeleteAction extends DeleteAction {
 			}
 			parent.add(g);
 		}
+		modelStructureChangeListener.geosetsAdded(deletedGeosets);
 	}
 
 	@Override

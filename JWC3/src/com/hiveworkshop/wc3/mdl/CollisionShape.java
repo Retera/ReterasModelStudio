@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.CollisionShapeChunk;
 import com.hiveworkshop.wc3.mdx.Node;
@@ -17,10 +18,10 @@ import com.hiveworkshop.wc3.mdx.Node;
  * Eric Theller 3/10/2012 3:52 PM
  */
 public class CollisionShape extends IdObject {
-	ArrayList<String> flags = new ArrayList<String>();
+	ArrayList<String> flags = new ArrayList<>();
 	ExtLog extents;
-	ArrayList<Vertex> vertices = new ArrayList<Vertex>();
-	ArrayList<AnimFlag> animFlags = new ArrayList<AnimFlag>();
+	ArrayList<Vertex> vertices = new ArrayList<>();
+	ArrayList<AnimFlag> animFlags = new ArrayList<>();
 
 	public CollisionShape(final CollisionShapeChunk.CollisionShape mdxSource) {
 		this.name = mdxSource.node.name;
@@ -58,14 +59,17 @@ public class CollisionShape extends IdObject {
 	public IdObject copy() {
 		final CollisionShape x = new CollisionShape();
 
-		x.name = name + " copy";
+		x.name = name;
 		x.pivotPoint = new Vertex(pivotPoint);
 		x.objectId = objectId;
 		x.parentId = parentId;
 		x.parent = parent;
 
-		x.flags = new ArrayList<String>(flags);
-		x.vertices = new ArrayList<Vertex>(vertices);
+		x.flags = new ArrayList<>(flags);
+		x.vertices = new ArrayList<>(vertices);
+		if (extents != null) {
+			x.extents = new ExtLog(extents);
+		}
 		for (final AnimFlag af : animFlags) {
 			x.animFlags.add(new AnimFlag(af));
 		}
@@ -213,5 +217,32 @@ public class CollisionShape extends IdObject {
 	@Override
 	public void apply(final IdObjectVisitor visitor) {
 		visitor.collisionShape(this);
+	}
+
+	@Override
+	public double getClickRadius(final CoordinateSystem coordinateSystem) {
+		final byte xDimension = coordinateSystem.getPortFirstXYZ();
+		final byte yDimension = coordinateSystem.getPortSecondXYZ();
+		final int xCoord = (int) coordinateSystem.convertX(pivotPoint.getCoord(xDimension));
+		final int yCoord = (int) coordinateSystem.convertY(pivotPoint.getCoord(yDimension));
+		if (flags.contains("Box")) {
+			if (vertices.size() > 0) {
+				final Vertex vertex = vertices.get(0);
+				final int secondXCoord = (int) coordinateSystem.convertX(vertex.getCoord(xDimension));
+				final int secondYCoord = (int) coordinateSystem.convertY(vertex.getCoord(yDimension));
+				final int minXCoord = Math.min(xCoord, secondXCoord);
+				final int minYCoord = Math.min(yCoord, secondYCoord);
+				final int maxXCoord = Math.max(xCoord, secondXCoord);
+				final int maxYCoord = Math.max(yCoord, secondYCoord);
+				final int generalRadius = Math.max(maxXCoord - minXCoord, maxYCoord - minYCoord) / 2;
+				return generalRadius;
+			} else {
+				return 8 / CoordinateSystem.Util.getZoom(coordinateSystem);
+			}
+		}
+		if (extents == null) {
+			return 8 / CoordinateSystem.Util.getZoom(coordinateSystem);
+		}
+		return extents.getBoundsRadius();
 	}
 }

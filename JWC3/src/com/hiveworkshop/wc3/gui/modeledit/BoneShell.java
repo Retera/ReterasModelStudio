@@ -1,5 +1,8 @@
 package com.hiveworkshop.wc3.gui.modeledit;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.hiveworkshop.wc3.mdl.Bone;
 
 public class BoneShell {
@@ -32,5 +35,13 @@ public class BoneShell {
 				return modelName + ": " + bone.getName();
 			}
 		}
+	}
+
+	public static List<Bone> toBonesList(final List<BoneShell> boneShells) {
+		final List<Bone> bones = new ArrayList<>();
+		for (final BoneShell bs : boneShells) {
+			bones.add(bs.bone);
+		}
+		return bones;
 	}
 }

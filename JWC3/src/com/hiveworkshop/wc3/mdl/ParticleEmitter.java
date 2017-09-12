@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.ParticleEmitterChunk;
 
@@ -28,10 +29,10 @@ public class ParticleEmitter extends IdObject implements VisibilitySource {
 	double[] timeDoubleData = new double[timeDoubleNames.length];
 
 	boolean MDLEmitter = true;
-	ArrayList<AnimFlag> animFlags = new ArrayList<AnimFlag>();
+	ArrayList<AnimFlag> animFlags = new ArrayList<>();
 
 	String path = null;
-	ArrayList<String> flags = new ArrayList<String>();
+	ArrayList<String> flags = new ArrayList<>();
 
 	private ParticleEmitter() {
 
@@ -86,7 +87,7 @@ public class ParticleEmitter extends IdObject implements VisibilitySource {
 	public IdObject copy() {
 		final ParticleEmitter x = new ParticleEmitter();
 
-		x.name = name + " copy";
+		x.name = name;
 		x.pivotPoint = new Vertex(pivotPoint);
 		x.objectId = objectId;
 		x.parentId = parentId;
@@ -162,7 +163,7 @@ public class ParticleEmitter extends IdObject implements VisibilitySource {
 		// -- uses objectId value of idObject superclass
 		// -- uses parentId value of idObject superclass
 		// -- uses the parent (java Object reference) of idObject superclass
-		final ArrayList<AnimFlag> pAnimFlags = new ArrayList<AnimFlag>(this.animFlags);
+		final ArrayList<AnimFlag> pAnimFlags = new ArrayList<>(this.animFlags);
 		writer.println(MDLReader.getClassName(this.getClass()) + " \"" + getName() + "\" {");
 		if (objectId != -1) {
 			writer.println("\tObjectId " + objectId + ",");
@@ -390,5 +391,10 @@ public class ParticleEmitter extends IdObject implements VisibilitySource {
 	@Override
 	public void apply(final IdObjectVisitor visitor) {
 		visitor.particleEmitter(this);
+	}
+
+	@Override
+	public double getClickRadius(final CoordinateSystem coordinateSystem) {
+		return 8 / CoordinateSystem.Util.getZoom(coordinateSystem);
 	}
 }

@@ -22,4 +22,6 @@ public interface ModelView {
 	void addStateListener(ModelViewStateListener listener);
 
 	void visit(ModelVisitor visitor);
+
+	Geoset getHighlightedGeoset();
 }

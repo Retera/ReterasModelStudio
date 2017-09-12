@@ -73,6 +73,8 @@ import com.hiveworkshop.wc3.mdl.Layer;
 import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.units.GameObject;
@@ -341,8 +343,8 @@ public class MDLSnapshot {
 		return height;
 	}
 
-	public static MDLDisplay createDefaultDisplay(final GameObject unit) {
-		MDLDisplay mdlDisplay;
+	public static ModelView createDefaultDisplay(final GameObject unit) {
+		ModelViewManager mdlDisplay;
 		MDL model;
 		try {
 			String field = unit.getField("file");
@@ -353,7 +355,7 @@ public class MDLSnapshot {
 			}
 			model = new MDL(
 					MdxUtils.loadModel(new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream(field))));
-			mdlDisplay = new MDLDisplay(model, null);
+			mdlDisplay = new ModelViewManager(model);
 
 			Animation bestStandAnim = null;
 			for (final Animation anim : model.getAnims()) {
@@ -383,8 +385,8 @@ public class MDLSnapshot {
 						for (int i = 0; i < visibilityFlag.size(); i++) {
 							final Entry entry = visibilityFlag.getEntry(i);
 							if (entry.time == bestStandAnim.getStart() && ((Number) entry.value).intValue() == 0) {
-								mdlDisplay.makeGeosetEditable(geo, false);
-								mdlDisplay.makeGeosetVisible(geo, false);
+								mdlDisplay.makeGeosetNotEditable(geo);
+								mdlDisplay.makeGeosetNotVisible(geo);
 							}
 						}
 					}
@@ -712,7 +714,7 @@ public class MDLSnapshot {
 							GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 						}
 						glBegin(GL11.GL_TRIANGLES);
-						for (final Triangle tri : geo.getTriangle()) {
+						for (final Triangle tri : geo.getTriangles()) {
 							for (final GeosetVertex v : tri.getVerts()) {
 								if (renderMask.isAccepted(v)) {
 									if (v.getNormal() != null) {
@@ -761,7 +763,7 @@ public class MDLSnapshot {
 							GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 						}
 						glBegin(GL11.GL_TRIANGLES);
-						for (final Triangle tri : geo.getTriangle()) {
+						for (final Triangle tri : geo.getTriangles()) {
 							for (final GeosetVertex v : tri.getVerts()) {
 								if (renderMask.isAccepted(v)) {
 									GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z,
@@ -820,7 +822,7 @@ public class MDLSnapshot {
 				// }
 				glColor3f(1f, 3f, 1f);
 				glBegin(GL11.GL_TRIANGLES);
-				for (final Triangle tri : dispMDL.getHighlight().getTriangle()) {
+				for (final Triangle tri : dispMDL.getHighlight().getTriangles()) {
 					for (final GeosetVertex v : tri.getVerts()) {
 						if (renderMask.isAccepted(v)) {
 							GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z, (float) v.getNormal().x);
@@ -841,7 +843,7 @@ public class MDLSnapshot {
 				glColor3f(1f, 1f, 3f);
 				// if( wireframe.isSelected() )
 				for (final Geoset geo : dispMDL.getVisibleGeosets()) {// .getMDL().getGeosets()
-					for (final Triangle tri : geo.getTriangle()) {
+					for (final Triangle tri : geo.getTriangles()) {
 						for (final GeosetVertex v : tri.getVerts()) {
 							if (renderMask.isAccepted(v)) {
 								GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z,

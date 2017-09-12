@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
+import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.AttachmentChunk;
 
@@ -17,8 +18,8 @@ import com.hiveworkshop.wc3.mdx.AttachmentChunk;
  */
 public class Attachment extends IdObject implements VisibilitySource {
 	String path = null;
-	ArrayList<AnimFlag> animFlags = new ArrayList<AnimFlag>();
-	ArrayList<String> flags = new ArrayList<String>();
+	ArrayList<AnimFlag> animFlags = new ArrayList<>();
+	ArrayList<String> flags = new ArrayList<>();
 
 	int AttachmentID = 0;
 
@@ -62,7 +63,7 @@ public class Attachment extends IdObject implements VisibilitySource {
 	public IdObject copy() {
 		final Attachment x = new Attachment();
 
-		x.name = name + " copy";
+		x.name = name;
 		x.pivotPoint = new Vertex(pivotPoint);
 		x.objectId = objectId;
 		x.parentId = parentId;
@@ -72,7 +73,7 @@ public class Attachment extends IdObject implements VisibilitySource {
 		for (final AnimFlag af : animFlags) {
 			x.animFlags.add(new AnimFlag(af));
 		}
-		flags = new ArrayList<String>(x.flags);
+		flags = new ArrayList<>(x.flags);
 		return x;
 	}
 
@@ -247,6 +248,11 @@ public class Attachment extends IdObject implements VisibilitySource {
 	@Override
 	public void apply(final IdObjectVisitor visitor) {
 		visitor.attachment(this);
+	}
+
+	@Override
+	public double getClickRadius(final CoordinateSystem coordinateSystem) {
+		return 8 / CoordinateSystem.Util.getZoom(coordinateSystem);
 	}
 
 }

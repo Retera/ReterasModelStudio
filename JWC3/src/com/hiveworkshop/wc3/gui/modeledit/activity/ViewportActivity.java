@@ -5,21 +5,21 @@ import java.awt.event.MouseEvent;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelChangeListener;
-import com.hiveworkshop.wc3.gui.modeledit.manipulator.listener.ModelEditorChangeListener;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ModelEditorChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionListener;
 
 public interface ViewportActivity extends SelectionListener, ModelChangeListener, ModelEditorChangeListener {
-	void viewportChanged(CursorManager cursorManager, CoordinateSystem coordinateSystem);
+	void viewportChanged(CursorManager cursorManager);
 
-	void mousePressed(MouseEvent e);
+	void mousePressed(MouseEvent e, CoordinateSystem coordinateSystem);
 
-	void mouseReleased(MouseEvent e);
+	void mouseReleased(MouseEvent e, CoordinateSystem coordinateSystem);
 
-	void mouseMoved(MouseEvent e);
+	void mouseMoved(MouseEvent e, CoordinateSystem coordinateSystem);
 
-	void mouseDragged(MouseEvent e);
+	void mouseDragged(MouseEvent e, CoordinateSystem coordinateSystem);
 
-	void render(Graphics2D g);
+	void render(Graphics2D g, CoordinateSystem coordinateSystem);
 
 	boolean isEditing();
 }

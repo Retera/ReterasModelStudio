@@ -21,9 +21,10 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
-import com.hiveworkshop.wc3.gui.modeledit.MDLDisplay;
 import com.hiveworkshop.wc3.gui.modeledit.PerspDisplayPanel;
 import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.mdx.MdxModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
@@ -1074,7 +1075,7 @@ public class ModelOptionPanel extends JPanel {
 	PerspDisplayPanel viewer;
 
 	final MDL blank = new MDL();
-	final MDLDisplay blankDisp = new MDLDisplay(blank, null);
+	final ModelView blankDisp = new ModelViewManager(blank);
 
 	public ModelOptionPanel() {
 		preload();
@@ -1103,7 +1104,7 @@ public class ModelOptionPanel extends JPanel {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				MDL toLoad = blank;
-				MDLDisplay modelDisp;
+				ModelView modelDisp;
 				try {
 					String filepath = ((Model) modelBox.getSelectedItem()).filepath;
 					filePathField.setText(filepath);
@@ -1116,7 +1117,7 @@ public class ModelOptionPanel extends JPanel {
 					final InputStream modelStream = MpqCodebase.get().getResourceAsStream(filepath);
 					final MdxModel model = MdxUtils.loadModel(new BlizzardDataInputStream(modelStream));
 					toLoad = model.toMDL();// MDL.read(modelStream);
-					modelDisp = new MDLDisplay(toLoad, null);
+					modelDisp = new ModelViewManager(toLoad);
 				} catch (final Exception exc) {
 					exc.printStackTrace();
 					// bad model!
@@ -1145,7 +1146,7 @@ public class ModelOptionPanel extends JPanel {
 
 			void refresh() {
 				MDL toLoad = blank;
-				MDLDisplay modelDisp;
+				ModelView modelDisp;
 				try {
 					String filepath = filePathField.getText();
 					if (filepath.endsWith(".mdl")) {
@@ -1156,7 +1157,7 @@ public class ModelOptionPanel extends JPanel {
 					final InputStream modelStream = MpqCodebase.get().getResourceAsStream(filepath);
 					final MdxModel model = MdxUtils.loadModel(new BlizzardDataInputStream(modelStream));
 					toLoad = model.toMDL();// MDL.read(modelStream);
-					modelDisp = new MDLDisplay(toLoad, null);
+					modelDisp = new ModelViewManager(toLoad);
 					cachedIconPath = null;
 				} catch (final Exception exc) {
 					exc.printStackTrace();
@@ -1175,7 +1176,8 @@ public class ModelOptionPanel extends JPanel {
 		groupBox.setMaximumSize(new Dimension(140, 25));
 		modelBox.setMaximumSize(new Dimension(10000, 25));
 
-		viewer = new PerspDisplayPanel("blank", blankDisp);
+		// TODO program prefs not be null???
+		viewer = new PerspDisplayPanel("blank", blankDisp, null);
 		modelBox.setSelectedIndex(0);
 
 		add(groupBox);

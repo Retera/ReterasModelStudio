@@ -1012,7 +1012,7 @@ public class Build implements BuilderInterface {
 				geo.add(createdVertex);
 				attachedVertices.add(createdVertex);
 			}
-			for (final Triangle triangle : geo.getTriangle()) {
+			for (final Triangle triangle : geo.getTriangles()) {
 				triangle.setGeoset(geo);
 				triangle.updateVertexRefs();
 			}

@@ -390,7 +390,7 @@ public class MDLDisplay implements UndoActionListener {
 
 	public void drawTriangles(final Graphics g, final Geoset geo, final CoordinateSystem vp) {
 		if (programPreferences.viewMode() == 0 || true) {
-			for (final Triangle t : geo.getTriangle()) {
+			for (final Triangle t : geo.getTriangles()) {
 				final double[] x = t.getCoords(vp.getPortFirstXYZ());
 				final double[] y = t.getCoords(vp.getPortSecondXYZ());
 				final int[] xint = new int[4];
@@ -404,7 +404,7 @@ public class MDLDisplay implements UndoActionListener {
 				g.drawPolyline(xint, yint, 4);
 			}
 		} else if (programPreferences.viewMode() == 1) {
-			for (final Triangle t : geo.getTriangle()) {
+			for (final Triangle t : geo.getTriangles()) {
 				final double[] x = t.getCoords(vp.getPortFirstXYZ());
 				final double[] y = t.getCoords(vp.getPortSecondXYZ());
 				final int[] xint = new int[4];
@@ -430,7 +430,7 @@ public class MDLDisplay implements UndoActionListener {
 		double maxY = Double.MIN_VALUE;
 		g.setColor(Color.GRAY);
 		for (final Geoset geo : model.getGeosets()) {
-			for (final Triangle t : geo.getTriangle()) {
+			for (final Triangle t : geo.getTriangles()) {
 				boolean drawTriangle = false;
 				for (final GeosetVertex vertex : t.getVerts()) {
 					if (filter.isAccepted(vertex)) {
@@ -470,7 +470,7 @@ public class MDLDisplay implements UndoActionListener {
 		((Graphics2D) g).scale(bounds.getWidth() / boxSize, bounds.getHeight() / boxSize);
 		((Graphics2D) g).translate(-minX, -minY);
 		for (final Geoset geo : model.getGeosets()) {
-			for (final Triangle t : geo.getTriangle()) {
+			for (final Triangle t : geo.getTriangles()) {
 				drawTriangle(g, a, b, t);
 			}
 		}
@@ -505,7 +505,7 @@ public class MDLDisplay implements UndoActionListener {
 
 	public void drawTriangles(final Graphics g, final Geoset geo, final UVViewport vp, final int layerId) {
 		if (programPreferences.viewMode() == 0 || true) {
-			for (final Triangle t : geo.getTriangle()) {
+			for (final Triangle t : geo.getTriangles()) {
 				final double[] x = t.getTVertCoords((byte) 0, layerId);
 				final double[] y = t.getTVertCoords((byte) 1, layerId);
 				final int[] xint = new int[4];
@@ -519,7 +519,7 @@ public class MDLDisplay implements UndoActionListener {
 				g.drawPolyline(xint, yint, 4);
 			}
 		} else if (programPreferences.viewMode() == 1) {
-			for (final Triangle t : geo.getTriangle()) {
+			for (final Triangle t : geo.getTriangles()) {
 				final double[] x = t.getTVertCoords((byte) 0, layerId);
 				final double[] y = t.getTVertCoords((byte) 1, layerId);
 				final int[] xint = new int[4];
@@ -1759,7 +1759,7 @@ public class MDLDisplay implements UndoActionListener {
 			for (final GeosetVertex cgv : copies) {
 				if (cgv != null) {
 					boolean inGeoset = false;
-					for (final Triangle t : cgv.getGeoset().getTriangle()) {
+					for (final Triangle t : cgv.getGeoset().getTriangles()) {
 						if (t.containsRef(cgv)) {
 							inGeoset = true;
 							break;
@@ -1811,7 +1811,7 @@ public class MDLDisplay implements UndoActionListener {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				final ArrayList<Triangle> gvTriangles = new ArrayList<>();// gv.getTriangles());
 				// WHY IS GV.TRIANGLES WRONG????
-				for (final Triangle tri : gv.getGeoset().getTriangle()) {
+				for (final Triangle tri : gv.getGeoset().getTriangles()) {
 					if (tri.contains(gv)) {
 						boolean good = true;
 						for (final Vertex vTemp : tri.getAll()) {
@@ -1961,7 +1961,7 @@ public class MDLDisplay implements UndoActionListener {
 							final GeosetVertex gv = (GeosetVertex) vert;
 							final ArrayList<Triangle> gvTriangles = new ArrayList<>();// gv.getTriangles());
 							// WHY IS GV.TRIANGLES WRONG????
-							for (final Triangle tri : gv.getGeoset().getTriangle()) {
+							for (final Triangle tri : gv.getGeoset().getTriangles()) {
 								if (tri.contains(gv)) {
 									boolean good = true;
 									for (final Vertex vTemp : tri.getAll()) {
@@ -2083,7 +2083,7 @@ public class MDLDisplay implements UndoActionListener {
 					for (final GeosetVertex cgv : copies) {
 						if (cgv != null) {
 							boolean inGeoset = false;
-							for (final Triangle t : cgv.getGeoset().getTriangle()) {
+							for (final Triangle t : cgv.getGeoset().getTriangles()) {
 								if (t.containsRef(cgv)) {
 									inGeoset = true;
 									break;

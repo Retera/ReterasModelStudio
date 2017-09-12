@@ -66,7 +66,7 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 		// graphics.drawLine(xCoord, yCoord - vertexSize * 3, xCoord, yCoord +
 		// vertexSize * 3);
 		graphics.drawImage(lightImage, xCoord - lightImage.getWidth(null) / 2, yCoord - lightImage.getHeight(null) / 2,
-				lightImage.getWidth(null), -lightImage.getHeight(null), null);
+				lightImage.getWidth(null), lightImage.getHeight(null), null);
 
 		final int attenuationStart = (int) (light.getAttenuationStart() * zoom);
 		if (attenuationStart > 0) {
@@ -218,11 +218,19 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 		final int xCoord = (int) coordinateSystem.convertX(pivotPoint.getCoord(xDimension));
 		final int yCoord = (int) coordinateSystem.convertY(pivotPoint.getCoord(yDimension));
 		if (collisionShape.getFlags().contains("Box")) {
-			if (vertices.size() > 0) {
+			if (vertices.size() > 1) {
 				final Vertex vertex = vertices.get(0);
-				graphics.drawRoundRect(xCoord, yCoord,
-						(int) coordinateSystem.convertX(vertex.getCoord(xDimension)) - xCoord,
-						(int) coordinateSystem.convertY(vertex.getCoord(yDimension)) - yCoord, vertexSize, vertexSize);
+				final Vertex vertex2 = vertices.get(1);
+				final int firstXCoord = (int) coordinateSystem.convertX(vertex2.getCoord(xDimension));
+				final int firstYCoord = (int) coordinateSystem.convertY(vertex2.getCoord(yDimension));
+				final int secondXCoord = (int) coordinateSystem.convertX(vertex.getCoord(xDimension));
+				final int secondYCoord = (int) coordinateSystem.convertY(vertex.getCoord(yDimension));
+				final int minXCoord = Math.min(firstXCoord, secondXCoord);
+				final int minYCoord = Math.min(firstYCoord, secondYCoord);
+				final int maxXCoord = Math.max(firstXCoord, secondXCoord);
+				final int maxYCoord = Math.max(firstYCoord, secondYCoord);
+				graphics.drawRoundRect(minXCoord, minYCoord, maxXCoord - minXCoord, maxYCoord - minYCoord, vertexSize,
+						vertexSize);
 			} else {
 				drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage);
 			}

@@ -3,10 +3,11 @@ package com.hiveworkshop.wc3.gui.modeledit;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Matrix;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public final class MatrixShell2DListCellRenderer extends AbstractSnapshottingListCellRenderer2D<MatrixShell> {
 
-	public MatrixShell2DListCellRenderer(final MDLDisplay modelDisplay, final MDLDisplay otherDisplay) {
+	public MatrixShell2DListCellRenderer(final ModelView modelDisplay, final ModelView otherDisplay) {
 		super(modelDisplay, otherDisplay);
 	}
 
@@ -37,8 +38,8 @@ public final class MatrixShell2DListCellRenderer extends AbstractSnapshottingLis
 	}
 
 	@Override
-	protected boolean contains(final MDLDisplay modelDisp, final MatrixShell object) {
-		return modelDisp.getMDL().contains(object.getMatrix().getBones().get(0));
+	protected boolean contains(final ModelView modelDisp, final MatrixShell object) {
+		return modelDisp.getModel().contains(object.getMatrix().getBones().get(0));
 	}
 
 	@Override

@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.Node;
 import com.hiveworkshop.wc3.mdx.ParticleEmitter2Chunk;
@@ -200,7 +201,7 @@ public class ParticleEmitter2 extends IdObject implements VisibilitySource {
 	public IdObject copy() {
 		final ParticleEmitter2 x = new ParticleEmitter2();
 
-		x.name = name + " copy";
+		x.name = name;
 		x.pivotPoint = new Vertex(pivotPoint);
 		x.objectId = objectId;
 		x.parentId = parentId;
@@ -746,5 +747,10 @@ public class ParticleEmitter2 extends IdObject implements VisibilitySource {
 	@Override
 	public void apply(final IdObjectVisitor visitor) {
 		visitor.particleEmitter2(this);
+	}
+
+	@Override
+	public double getClickRadius(final CoordinateSystem coordinateSystem) {
+		return 8 / CoordinateSystem.Util.getZoom(coordinateSystem);
 	}
 }

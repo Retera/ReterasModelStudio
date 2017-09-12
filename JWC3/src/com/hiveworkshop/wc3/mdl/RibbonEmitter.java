@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.RibbonEmitterChunk;
 
@@ -96,7 +97,7 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 	public IdObject copy() {
 		final RibbonEmitter x = new RibbonEmitter();
 
-		x.name = name + " copy";
+		x.name = name;
 		x.pivotPoint = new Vertex(pivotPoint);
 		x.objectId = objectId;
 		x.parentId = parentId;
@@ -470,5 +471,10 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 	@Override
 	public void apply(final IdObjectVisitor visitor) {
 		visitor.ribbonEmitter(this);
+	}
+
+	@Override
+	public double getClickRadius(final CoordinateSystem coordinateSystem) {
+		return 8 / CoordinateSystem.Util.getZoom(coordinateSystem);
 	}
 }

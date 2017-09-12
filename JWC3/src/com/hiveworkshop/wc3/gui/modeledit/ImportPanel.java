@@ -47,6 +47,7 @@ import javax.swing.event.ListSelectionListener;
 
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.GlobalIcons;
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Attachment;
@@ -69,7 +70,8 @@ import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.VisibilitySource;
-import com.hiveworkshop.wc3.util.Callback;
+import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 
 /**
  * The panel to handle the import function.
@@ -181,7 +183,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 	boolean importStarted = false;
 	boolean importEnded = false;
 
-	private Callback<List<Geoset>> callback;
+	private ModelStructureChangeListener callback;
 
 	public ImportPanel(final MDL a, final MDL b) {
 		this(a, b, true);
@@ -322,8 +324,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		for (int i = 0; i < currentMDLHelpers.size(); i++) {
 			existingBones.addElement(new BoneShell(currentMDLHelpers.get(i)));
 		}
-		boneRenderer = new BoneShellListCellRenderer(new MDLDisplay(currentModel, null),
-				new MDLDisplay(importedModel, null));
+		boneRenderer = new BoneShellListCellRenderer(new ModelViewManager(currentModel),
+				new ModelViewManager(importedModel));
 
 		final ArrayList<Bone> importedMDLBones = importedModel.sortedIdObjects(Bone.class);
 		final ArrayList<Helper> importedMDLHelpers = importedModel.sortedIdObjects(Helper.class);
@@ -332,7 +334,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		// Initialized up here for use with BonePanels
 
 		final BonePanelListCellRenderer bonePanelRenderer = new BonePanelListCellRenderer(
-				new MDLDisplay(currentModel, null), new MDLDisplay(importedModel, null));
+				new ModelViewManager(currentModel), new ModelViewManager(importedModel));
 		for (int i = 0; i < importedMDLBones.size(); i++) {
 			final Bone b = importedMDLBones.get(i);
 			final BonePanel bonePanel = new BonePanel(b, existingBones, boneRenderer, this);
@@ -405,8 +407,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		// Matrices Panel
 		addTab("Matrices", greenIcon, geosetAnimPanel, "Controls which bones geosets are attached to.");
 
-		final ParentToggleRenderer ptr = new ParentToggleRenderer(displayParents, new MDLDisplay(currentModel, null),
-				new MDLDisplay(importedModel, null));
+		final ParentToggleRenderer ptr = new ParentToggleRenderer(displayParents, new ModelViewManager(currentModel),
+				new ModelViewManager(importedModel));
 
 		displayParents.addChangeListener(this);
 
@@ -1077,7 +1079,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 	 *
 	 * @param callback
 	 */
-	public void setCallback(final Callback<List<Geoset>> callback) {
+	public void setCallback(final ModelStructureChangeListener callback) {
 		this.callback = callback;
 	}
 
@@ -2006,7 +2008,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				}
 			}
 			if (callback != null) {
-				callback.run(geosetsAdded);
+				callback.geosetsAdded(geosetsAdded);
 			}
 		} catch (final Exception e) {
 			e.printStackTrace();
@@ -2925,7 +2927,7 @@ class MultiBonePanel extends BonePanel {
 }
 
 class BoneShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<BoneShell> {
-	public BoneShellListCellRenderer(final MDLDisplay modelDisplay, final MDLDisplay otherDisplay) {
+	public BoneShellListCellRenderer(final ModelView modelDisplay, final ModelView otherDisplay) {
 		super(modelDisplay, otherDisplay);
 	}
 
@@ -2940,8 +2942,8 @@ class BoneShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 	}
 
 	@Override
-	protected boolean contains(final MDLDisplay modelDisp, final BoneShell object) {
-		return modelDisp.getMDL().contains(object.bone);
+	protected boolean contains(final ModelView modelDisp, final BoneShell object) {
+		return modelDisp.getModel().contains(object.bone);
 	}
 
 	private static final class BoneShellFilter implements ResettableVertexFilter<BoneShell> {
@@ -3000,8 +3002,8 @@ class BoneListCellRenderer extends DefaultListCellRenderer {
 class ParentToggleRenderer extends BoneShellListCellRenderer {
 	JCheckBox toggleBox;
 
-	public ParentToggleRenderer(final JCheckBox toggleBox, final MDLDisplay currentModelDisp,
-			final MDLDisplay importedModelDisp) {
+	public ParentToggleRenderer(final JCheckBox toggleBox, final ModelView currentModelDisp,
+			final ModelView importedModelDisp) {
 		super(currentModelDisp, importedModelDisp);
 		this.toggleBox = toggleBox;
 	}
@@ -3026,7 +3028,7 @@ class ParentToggleRenderer extends BoneShellListCellRenderer {
 }
 
 class BonePanelListCellRenderer extends AbstractSnapshottingListCellRenderer2D<Bone> {
-	public BonePanelListCellRenderer(final MDLDisplay modelDisplay, final MDLDisplay otherDisplay) {
+	public BonePanelListCellRenderer(final ModelView modelDisplay, final ModelView otherDisplay) {
 		super(modelDisplay, otherDisplay);
 	}
 
@@ -3073,8 +3075,8 @@ class BonePanelListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 	}
 
 	@Override
-	protected boolean contains(final MDLDisplay modelDisp, final Bone object) {
-		return modelDisp.getMDL().contains(object);
+	protected boolean contains(final ModelView modelDisp, final Bone object) {
+		return modelDisp.getModel().contains(object);
 	}
 }
 
@@ -3194,8 +3196,8 @@ class BoneAttachmentPane extends JPanel implements ActionListener, ListSelection
 		buildOldRefsList();
 		oldBoneRefsList = new JList(oldBoneRefs);
 		oldBoneRefsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		oldBoneRefsList.setCellRenderer(new MatrixShell2DListCellRenderer(new MDLDisplay(impPanel.currentModel, null),
-				new MDLDisplay(impPanel.importedModel, null, 3)));
+		oldBoneRefsList.setCellRenderer(new MatrixShell2DListCellRenderer(new ModelViewManager(impPanel.currentModel),
+				new ModelViewManager(impPanel.importedModel)));
 		oldBoneRefsList.addListSelectionListener(this);
 		oldBoneRefsPane = new JScrollPane(oldBoneRefsList);
 

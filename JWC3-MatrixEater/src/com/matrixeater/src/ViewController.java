@@ -5,7 +5,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
 import com.hiveworkshop.wc3.gui.GlobalIcons;
-import com.hiveworkshop.wc3.gui.modeledit.MDLDisplay;
+import com.hiveworkshop.wc3.gui.modeledit.ModelViewManagingTree;
 
 /**
  * A view control, containing several control options
@@ -14,24 +14,19 @@ import com.hiveworkshop.wc3.gui.modeledit.MDLDisplay;
  */
 public class ViewController extends JTabbedPane {
 	JFrame frame;
-	GeosetController geoControl;
-	ObjectController objControl;
-	MDLDisplay dispModel;
+	ModelViewManagingTree modelViewManagingTree;
 	JScrollPane geoScroll;
 
-	public ViewController(final MDLDisplay disp, final boolean spawnFrame) {
+	public ViewController(final ModelViewManagingTree disp, final boolean spawnFrame) {
 		super();
-		dispModel = disp;
 		if (spawnFrame) {
 			frame = new JFrame("View Controller");
 			frame.setContentPane(this);
 			frame.setIconImage(GlobalIcons.redIcon.getImage());
 		}
-		geoControl = new GeosetController(disp, false);// !spawnFrame);
-		objControl = new ObjectController(disp);
-		geoScroll = new JScrollPane(geoControl);
-		addTab("", GlobalIcons.geoIcon, geoScroll, "Controls visibility of geosets.");
-		addTab("", GlobalIcons.boneIcon, objControl, "Controls visibility of bones.");
+		modelViewManagingTree = disp;
+		geoScroll = new JScrollPane(modelViewManagingTree);
+		addTab("", GlobalIcons.geoIcon, geoScroll, "Controls visibility");
 		if (spawnFrame) {
 			frame.setVisible(true);
 			frame.pack();
@@ -42,9 +37,8 @@ public class ViewController extends JTabbedPane {
 		return frame;
 	}
 
-	public void setMDLDisplay(final MDLDisplay disp) {
-		geoControl.setMDLDisplay(disp);
-		objControl.setMDLDisplay(disp);
+	public void setMDLDisplay(final ModelViewManagingTree disp) {
+		geoScroll.setViewportView(modelViewManagingTree = disp);
 		repaint();
 	}
 }

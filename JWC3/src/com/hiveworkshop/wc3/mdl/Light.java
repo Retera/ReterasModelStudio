@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
+import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.LightChunk;
 
@@ -22,8 +23,8 @@ public class Light extends IdObject implements VisibilitySource {
 	Vertex staticColor;
 	double AmbIntensity = -1;
 	Vertex staticAmbColor;
-	ArrayList<AnimFlag> animFlags = new ArrayList<AnimFlag>();
-	ArrayList<String> flags = new ArrayList<String>();
+	ArrayList<AnimFlag> animFlags = new ArrayList<>();
+	ArrayList<String> flags = new ArrayList<>();
 
 	private Light() {
 
@@ -108,7 +109,7 @@ public class Light extends IdObject implements VisibilitySource {
 		for (final AnimFlag af : animFlags) {
 			x.animFlags.add(new AnimFlag(af));
 		}
-		flags = new ArrayList<String>(x.flags);
+		flags = new ArrayList<>(x.flags);
 		return x;
 	}
 
@@ -166,7 +167,7 @@ public class Light extends IdObject implements VisibilitySource {
 		// -- uses objectId value of idObject superclass
 		// -- uses parentId value of idObject superclass
 		// -- uses the parent (java Object reference) of idObject superclass
-		final ArrayList<AnimFlag> pAnimFlags = new ArrayList<AnimFlag>(this.animFlags);
+		final ArrayList<AnimFlag> pAnimFlags = new ArrayList<>(this.animFlags);
 		writer.println(MDLReader.getClassName(this.getClass()) + " \"" + getName() + "\" {");
 		if (objectId != -1) {
 			writer.println("\tObjectId " + objectId + ",");
@@ -406,5 +407,10 @@ public class Light extends IdObject implements VisibilitySource {
 	@Override
 	public void apply(final IdObjectVisitor visitor) {
 		visitor.light(this);
+	}
+
+	@Override
+	public double getClickRadius(final CoordinateSystem coordinateSystem) {
+		return 8 / CoordinateSystem.Util.getZoom(coordinateSystem);
 	}
 }

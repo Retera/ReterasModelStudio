@@ -56,16 +56,16 @@ public class NodeIconPalette {
 
 	private static NodeIconPalette createInternal(final boolean isSelected) {
 		final Image attachmentImage = IconUtils
-				.loadImage("icons/nodes/attachment" + (isSelected ? "Selected" : "") + ".png");
-		final Image eventImage = IconUtils.loadImage("icons/nodes/event" + (isSelected ? "Selected" : "") + ".png");
-		final Image lightImage = IconUtils.loadImage("icons/nodes/light" + (isSelected ? "Selected" : "") + ".png");
+				.loadImage("icons/nodes/attachment" + (isSelected ? "Select" : "") + ".png");
+		final Image eventImage = IconUtils.loadImage("icons/nodes/event" + (isSelected ? "Select" : "") + ".png");
+		final Image lightImage = IconUtils.loadImage("icons/nodes/light" + (isSelected ? "Select" : "") + ".png");
 		final Image particleImage = IconUtils
-				.loadImage("icons/nodes/particle1" + (isSelected ? "Selected" : "") + ".png");
+				.loadImage("icons/nodes/particle1" + (isSelected ? "Select" : "") + ".png");
 		final Image particle2Image = IconUtils
-				.loadImage("icons/nodes/particle2" + (isSelected ? "Selected" : "") + ".png");
-		final Image ribbonImage = IconUtils.loadImage("icons/nodes/ribbon" + (isSelected ? "Selected" : "") + ".png");
+				.loadImage("icons/nodes/particle2" + (isSelected ? "Select" : "") + ".png");
+		final Image ribbonImage = IconUtils.loadImage("icons/nodes/ribbon" + (isSelected ? "Select" : "") + ".png");
 		final Image collisionImage = IconUtils
-				.loadImage("icons/nodes/collision" + (isSelected ? "Selected" : "") + ".png");
+				.loadImage("icons/nodes/collision" + (isSelected ? "Select" : "") + ".png");
 		final NodeIconPalette palette = new NodeIconPalette(attachmentImage, eventImage, lightImage, particleImage,
 				particle2Image, ribbonImage, collisionImage);
 		return palette;

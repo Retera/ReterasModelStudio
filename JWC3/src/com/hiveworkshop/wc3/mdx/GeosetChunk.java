@@ -351,11 +351,11 @@ public class GeosetChunk {
 			// Again, the current implementation of my mdl code is that it only
 			// handles triangle facetypes
 			// (there's another note about this in the MDX -> MDL geoset code)
-			faceGroups = new int[] { mdlGeo.getTriangle().size() * 3 };
+			faceGroups = new int[] { mdlGeo.getTriangles().size() * 3 };
 			faceTypeGroups = new int[] { 4 }; // triangles!
-			faces = new short[mdlGeo.getTriangle().size() * 3]; // triangles!
+			faces = new short[mdlGeo.getTriangles().size() * 3]; // triangles!
 			int i = 0;
-			for (final Triangle tri : mdlGeo.getTriangle()) {
+			for (final Triangle tri : mdlGeo.getTriangles()) {
 				for (int v = 0; v < /* tri.size() */3; v++) {
 					faces[i++] = (short) tri.getId(v);
 				}

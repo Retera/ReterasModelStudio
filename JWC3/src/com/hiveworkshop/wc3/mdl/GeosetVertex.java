@@ -19,9 +19,9 @@ public class GeosetVertex extends Vertex {
 	Matrix matrixRef;
 	private Normal normal;
 	public int VertexGroup;
-	ArrayList<TVertex> tverts = new ArrayList<>();
-	ArrayList<Bone> bones = new ArrayList<>();
-	ArrayList<Triangle> triangles = new ArrayList<>();
+	List<TVertex> tverts = new ArrayList<>();
+	List<Bone> bones = new ArrayList<>();
+	List<Triangle> triangles = new ArrayList<>();
 	Geoset geoset;
 
 	public GeosetVertex(final double x, final double y, final double z) {
@@ -43,6 +43,7 @@ public class GeosetVertex extends Vertex {
 		}
 		// odd, but when writing
 		this.geoset = old.geoset;
+		// TODO copy triangles???????
 	}
 
 	public void addTVertex(final TVertex v) {
@@ -134,7 +135,7 @@ public class GeosetVertex extends Vertex {
 		return temp;
 	}
 
-	public ArrayList<TVertex> getTverts() {
+	public List<TVertex> getTverts() {
 		return tverts;
 	}
 
@@ -142,15 +143,15 @@ public class GeosetVertex extends Vertex {
 		this.tverts = tverts;
 	}
 
-	public ArrayList<Bone> getBones() {
+	public List<Bone> getBones() {
 		return bones;
 	}
 
-	public void setBones(final ArrayList<Bone> bones) {
+	public void setBones(final List<Bone> bones) {
 		this.bones = bones;
 	}
 
-	public ArrayList<Triangle> getTriangles() {
+	public List<Triangle> getTriangles() {
 		return triangles;
 	}
 
@@ -169,5 +170,14 @@ public class GeosetVertex extends Vertex {
 	@Deprecated()
 	public Matrix getMatrixRef() {
 		return matrixRef;
+	}
+
+	@Override
+	public void rotate(final double centerX, final double centerY, final double centerZ, final double radians,
+			final byte firstXYZ, final byte secondXYZ) {
+		super.rotate(centerX, centerY, centerZ, radians, firstXYZ, secondXYZ);
+		// TODO fix bad design, use interface or something instead of bizarre
+		// override
+		normal.rotate(0, 0, 0, radians, firstXYZ, secondXYZ);
 	}
 }

@@ -1,7 +1,6 @@
 package com.hiveworkshop.wc3.mdl.v2;
 
 import com.etheller.util.SubscriberSetNotifier;
-import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.IdObject;
@@ -45,7 +44,7 @@ public final class ModelViewStateNotifier extends SubscriberSetNotifier<ModelVie
 	}
 
 	@Override
-	public void idObjectNotVisible(final Bone bone) {
+	public void idObjectNotVisible(final IdObject bone) {
 		for (final ModelViewStateListener listener : set) {
 			listener.idObjectNotVisible(bone);
 		}
@@ -62,6 +61,13 @@ public final class ModelViewStateNotifier extends SubscriberSetNotifier<ModelVie
 	public void cameraNotVisible(final Camera camera) {
 		for (final ModelViewStateListener listener : set) {
 			listener.cameraNotVisible(camera);
+		}
+	}
+
+	@Override
+	public void highlightGeoset(final Geoset geoset) {
+		for (final ModelViewStateListener listener : set) {
+			listener.highlightGeoset(geoset);
 		}
 	}
 

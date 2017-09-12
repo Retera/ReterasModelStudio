@@ -2363,9 +2363,11 @@ public class MDL implements Named {
 	}
 
 	public void render(final ModelVisitor renderer) {
+		int geosetId = 0;
 		for (final Geoset geoset : geosets) {
-			final GeosetVisitor geosetRenderer = renderer.beginGeoset(geoset.getMaterial(), geoset.getGeosetAnim());
-			for (final Triangle triangle : geoset.getTriangle()) {
+			final GeosetVisitor geosetRenderer = renderer.beginGeoset(geosetId++, geoset.getMaterial(),
+					geoset.getGeosetAnim());
+			for (final Triangle triangle : geoset.getTriangles()) {
 				final TriangleVisitor triangleRenderer = geosetRenderer.beginTriangle();
 				for (final GeosetVertex vertex : triangle.getVerts()) {
 					final VertexVisitor vertexRenderer;

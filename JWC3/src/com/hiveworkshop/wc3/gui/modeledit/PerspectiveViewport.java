@@ -69,6 +69,7 @@ import org.lwjgl.opengl.PixelFormat;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
+import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
@@ -76,9 +77,10 @@ import com.hiveworkshop.wc3.mdl.Layer;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, ActionListener, MouseWheelListener {
-	MDLDisplay dispMDL;
+	ModelView modelView;
 	Vertex cameraPos = new Vertex(0, 0, 0);
 	double m_zoom = 1;
 	Point lastClick;
@@ -97,9 +99,12 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 	HashMap<Bitmap, Integer> textureMap = new HashMap<>();
 
 	Class<? extends Throwable> lastThrownErrorClass;
+	private final ProgramPreferences programPreferences;
 
-	public PerspectiveViewport(final MDLDisplay dispMDL) throws LWJGLException {
+	public PerspectiveViewport(final ModelView modelView, final ProgramPreferences programPreferences)
+			throws LWJGLException {
 		super();
+		this.programPreferences = programPreferences;
 		// Dimension 1 and Dimension 2, these specify which dimensions to
 		// display.
 		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z
@@ -112,7 +117,7 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 		// add(Box.createHorizontalStrut(200));
 		// add(Box.createVerticalStrut(200));
 		// setLayout( new BoxLayout(this,BoxLayout.LINE_AXIS));
-		this.dispMDL = dispMDL;
+		this.modelView = modelView;
 		addMouseListener(this);
 		addMouseWheelListener(this);
 
@@ -152,7 +157,7 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 		// }
 		// initGL();
 
-		for (final Geoset geo : dispMDL.getMDL().getGeosets()) {// .getMDL().getGeosets()
+		for (final Geoset geo : modelView.getEditableGeosets()) {// .getMDL().getGeosets()
 			for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
 				final Bitmap tex = geo.getMaterial().getLayers().get(i).firstTexture();
 				if (textureMap.get(tex) == null) {
@@ -171,11 +176,11 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 						texture = loadTexture(BLPHandler.get().getGameTex(path + ".blp"));
 					} catch (final Exception exc) {
 						exc.printStackTrace();
-						texture = loadTexture(BLPHandler.get()
-								.getCustomTex(dispMDL.getMDL().getWorkingDirectory().getPath() + "\\" + path + ".blp"));// TextureLoader.getTexture("TGA",
-																														// new
-																														// FileInputStream(new
-																														// File(dispMDL.getMDL().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
+						texture = loadTexture(BLPHandler.get().getCustomTex(
+								modelView.getModel().getWorkingDirectory().getPath() + "\\" + path + ".blp"));// TextureLoader.getTexture("TGA",
+						// new
+						// FileInputStream(new
+						// File(dispMDL.getMDL().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
 
 						// try { } catch (FileNotFoundException e) {
 						// // Auto-generated catch block
@@ -216,10 +221,10 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 				} catch (final Exception exc) {
 					exc.printStackTrace();
 					texture = loadTexture(BLPHandler.get()
-							.getCustomTex(dispMDL.getMDL().getWorkingDirectory().getPath() + "\\" + path + ".blp"));// TextureLoader.getTexture("TGA",
-																													// new
-																													// FileInputStream(new
-																													// File(dispMDL.getMDL().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
+							.getCustomTex(modelView.getModel().getWorkingDirectory().getPath() + "\\" + path + ".blp"));// TextureLoader.getTexture("TGA",
+																														// new
+																														// FileInputStream(new
+																														// File(dispMDL.getMDL().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
 
 					// try { } catch (FileNotFoundException e) {
 					// // Auto-generated catch block
@@ -242,9 +247,9 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 	@Override
 	public void initGL() {
 		try {
-			if (dispMDL.getProgramPreferences() == null || dispMDL.getProgramPreferences().textureModels()) {
+			if (programPreferences == null || programPreferences.textureModels()) {
 				texLoaded = true;
-				for (final Geoset geo : dispMDL.getMDL().getGeosets()) {// .getMDL().getGeosets()
+				for (final Geoset geo : modelView.getModel().getGeosets()) {// .getMDL().getGeosets()
 					for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
 						final Bitmap tex = geo.getMaterial().getLayers().get(i).firstTexture();
 						String path = tex.getPath();
@@ -263,10 +268,10 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 						} catch (final Exception exc) {
 							exc.printStackTrace();
 							texture = loadTexture(BLPHandler.get().getCustomTex(
-									dispMDL.getMDL().getWorkingDirectory().getPath() + "\\" + path + ".blp"));// TextureLoader.getTexture("TGA",
-																												// new
-																												// FileInputStream(new
-																												// File(dispMDL.getMDL().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
+									modelView.getModel().getWorkingDirectory().getPath() + "\\" + path + ".blp"));// TextureLoader.getTexture("TGA",
+																													// new
+																													// FileInputStream(new
+																													// File(dispMDL.getMDL().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
 
 							// try { } catch (FileNotFoundException e) {
 							// // Auto-generated catch block
@@ -382,8 +387,7 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 	private float yangle;
 
 	public boolean renderTextures() {
-		return texLoaded
-				&& (dispMDL.getProgramPreferences() == null || dispMDL.getProgramPreferences().textureModels());
+		return texLoaded && (programPreferences == null || programPreferences.textureModels());
 	}
 
 	@Override
@@ -407,8 +411,7 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 				e.printStackTrace();
 				ExceptionPopup.display("Error loading new texture:", e);
 			}
-		} else if (!texLoaded
-				&& (dispMDL.getProgramPreferences() == null || dispMDL.getProgramPreferences().textureModels())) {
+		} else if (!texLoaded && (programPreferences == null || programPreferences.textureModels())) {
 			forceReloadTextures();
 			texLoaded = true;
 		}
@@ -418,9 +421,9 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 				current_height = getHeight();
 				glViewport(0, 0, current_width, current_height);
 			}
-			if (dispMDL.getProgramPreferences() != null && dispMDL.getProgramPreferences().viewMode() == 0) {
+			if (programPreferences != null && programPreferences.viewMode() == 0) {
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			} else if (dispMDL.getProgramPreferences() == null || dispMDL.getProgramPreferences().viewMode() == 1) {
+			} else if (programPreferences == null || programPreferences.viewMode() == 1) {
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
 			glViewport(0, 0, getWidth(), getHeight());
@@ -493,8 +496,8 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 			// glTranslatef(getWidth() / 2.0f, getHeight() / 2.0f, 0.0f);
 			// glRotatef(2*angle, 0f, 0f, -1.0f);
 			// glRectf(-50.0f, -50.0f, 50.0f, 50.0f);
-			for (final Geoset geo : dispMDL.visibleGeosets) {// .getMDL().getGeosets()
-				if (!dispMDL.editableGeosets.contains(geo) && dispMDL.highlight != geo) {
+			for (final Geoset geo : modelView.getVisibleGeosets()) {// .getMDL().getGeosets()
+				if (!modelView.getEditableGeosets().contains(geo) && modelView.getHighlightedGeoset() != geo) {
 					for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
 						final Layer layer = geo.getMaterial().getLayers().get(i);
 						final Bitmap tex = layer.firstTexture();
@@ -529,7 +532,7 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 							GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 						}
 						glBegin(GL11.GL_TRIANGLES);
-						for (final Triangle tri : geo.getTriangle()) {
+						for (final Triangle tri : geo.getTriangles()) {
 							for (final GeosetVertex v : tri.getVerts()) {
 								if (v.getNormal() != null) {
 									GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z,
@@ -550,8 +553,8 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 				}
 			}
 			glColor3f(2f, 2f, 2f);
-			for (final Geoset geo : dispMDL.editableGeosets) {// .getMDL().getGeosets()
-				if (dispMDL.highlight != geo) {
+			for (final Geoset geo : modelView.getEditableGeosets()) {// .getMDL().getGeosets()
+				if (modelView.getHighlightedGeoset() != geo) {
 					for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
 						final Layer layer = geo.getMaterial().getLayers().get(i);
 						final Bitmap tex = layer.firstTexture();
@@ -578,7 +581,7 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 							GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 						}
 						glBegin(GL11.GL_TRIANGLES);
-						for (final Triangle tri : geo.getTriangle()) {
+						for (final Triangle tri : geo.getTriangles()) {
 							for (final GeosetVertex v : tri.getVerts()) {
 								if (v.getNormal() != null) {
 									GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z,
@@ -601,7 +604,7 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 			GL11.glDepthMask(true);
 			// System.out.println("max:
 			// "+GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE));
-			if (dispMDL.highlight != null) {
+			if (modelView.getHighlightedGeoset() != null) {
 				// for( int i = 0; i < dispMDL.highlight.material.layers.size();
 				// i++ )
 				// {
@@ -638,7 +641,7 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 				// }
 				glColor3f(1f, 3f, 1f);
 				glBegin(GL11.GL_TRIANGLES);
-				for (final Triangle tri : dispMDL.highlight.getTriangle()) {
+				for (final Triangle tri : modelView.getHighlightedGeoset().getTriangles()) {
 					for (final GeosetVertex v : tri.getVerts()) {
 						if (v.getNormal() != null) {
 							GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z, (float) v.getNormal().x);
@@ -654,12 +657,12 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
 			GL11.glDisable(GL11.GL_TEXTURE_2D);
-			if (dispMDL.getProgramPreferences() != null && dispMDL.getProgramPreferences().showNormals()) {
+			if (programPreferences != null && programPreferences.showNormals()) {
 				glBegin(GL11.GL_LINES);
 				glColor3f(1f, 1f, 3f);
 				// if( wireframe.isSelected() )
-				for (final Geoset geo : dispMDL.visibleGeosets) {// .getMDL().getGeosets()
-					for (final Triangle tri : geo.getTriangle()) {
+				for (final Geoset geo : modelView.getVisibleGeosets()) {// .getMDL().getGeosets()
+					for (final Triangle tri : geo.getTriangles()) {
 						for (final GeosetVertex v : tri.getVerts()) {
 							if (v.getNormal() != null) {
 								GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z,
@@ -876,7 +879,9 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 			// dispMDL.setMatrix(matrixPopup.newRefs);
 			// }
 		} else if (e.getSource() == cogBone) {
-			dispMDL.cogBones();
+			// modelView.cogBones();
+			JOptionPane.showMessageDialog(this,
+					"Please use other viewport, this action is not implemented for this viewport.");
 		}
 	}
 

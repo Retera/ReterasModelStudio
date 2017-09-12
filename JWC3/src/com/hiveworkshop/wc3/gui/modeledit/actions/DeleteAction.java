@@ -1,6 +1,7 @@
 package com.hiveworkshop.wc3.gui.modeledit.actions;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
@@ -18,9 +19,9 @@ public class DeleteAction implements UndoAction {
 	private final List<Vertex> deleted;
 	private final List<Triangle> deletedTris;
 
-	public DeleteAction(final List<Vertex> selection, final List<Triangle> deletedTris) {
-		this.selection = new ArrayList<Vertex>(selection);
-		this.deleted = new ArrayList<Vertex>(selection);
+	public DeleteAction(final Collection<Vertex> selection, final List<Triangle> deletedTris) {
+		this.selection = new ArrayList<>(selection);
+		this.deleted = new ArrayList<>(selection);
 		this.deletedTris = deletedTris;
 	}
 

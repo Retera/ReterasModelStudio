@@ -775,7 +775,7 @@ public class Geoset implements Named, VisibilitySource {
 		this.uvlayers = uvlayers;
 	}
 
-	public ArrayList<Triangle> getTriangle() {
+	public ArrayList<Triangle> getTriangles() {
 		return triangles;
 	}
 
@@ -837,5 +837,9 @@ public class Geoset implements Named, VisibilitySource {
 
 	public void setGeosetAnim(final GeosetAnim geosetAnim) {
 		this.geosetAnim = geosetAnim;
+	}
+
+	public void remove(final Triangle tri) {
+		this.triangles.remove(tri);
 	}
 }

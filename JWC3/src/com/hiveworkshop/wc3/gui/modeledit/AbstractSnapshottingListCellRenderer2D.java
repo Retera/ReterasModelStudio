@@ -12,8 +12,10 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JList;
 
+import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportModelRenderer;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends DefaultListCellRenderer {
 	private static final int SIZE = 32;
@@ -21,10 +23,10 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 	private static final int EIGHTH_SIZE = SIZE / 8;
 	private final Map<TYPE, ImageIcon> matrixShellToCachedRenderer = new HashMap<>();
 	private final ResettableVertexFilter<TYPE> matrixFilter;
-	private final MDLDisplay modelDisplay;
-	private final MDLDisplay otherDisplay;
+	private final ModelView modelDisplay;
+	private final ModelView otherDisplay;
 
-	public AbstractSnapshottingListCellRenderer2D(final MDLDisplay modelDisplay, final MDLDisplay otherDisplay) {
+	public AbstractSnapshottingListCellRenderer2D(final ModelView modelDisplay, final ModelView otherDisplay) {
 		this.modelDisplay = modelDisplay;
 		this.otherDisplay = otherDisplay;
 		matrixFilter = createFilter();
@@ -48,12 +50,14 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 				graphics.setColor(backgroundColor.brighter());
 				graphics.fill3DRect(EIGHTH_SIZE, EIGHTH_SIZE, SIZE - QUARTER_SIZE, SIZE - QUARTER_SIZE, true);
 				if (otherDisplay != null && contains(otherDisplay, matrixShell)) {
-					otherDisplay.drawFittedTriangles(graphics, new Rectangle(SIZE, SIZE), (byte) 1, (byte) 2,
-							matrixFilter.reset(matrixShell), getRenderVertex(matrixShell));
+					ViewportModelRenderer.drawFittedTriangles(otherDisplay.getModel(), graphics,
+							new Rectangle(SIZE, SIZE), (byte) 1, (byte) 2, matrixFilter.reset(matrixShell),
+							getRenderVertex(matrixShell));
 				}
 				if (modelDisplay != null && contains(modelDisplay, matrixShell)) {
-					modelDisplay.drawFittedTriangles(graphics, new Rectangle(SIZE, SIZE), (byte) 1, (byte) 2,
-							matrixFilter.reset(matrixShell), getRenderVertex(matrixShell));
+					ViewportModelRenderer.drawFittedTriangles(modelDisplay.getModel(), graphics,
+							new Rectangle(SIZE, SIZE), (byte) 1, (byte) 2, matrixFilter.reset(matrixShell),
+							getRenderVertex(matrixShell));
 				}
 				graphics.dispose();
 				myIcon = new ImageIcon(image);
@@ -71,7 +75,7 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 
 	protected abstract Vertex getRenderVertex(TYPE value);
 
-	protected abstract boolean contains(MDLDisplay modelDisp, TYPE object);
+	protected abstract boolean contains(ModelView modelDisp, TYPE object);
 
 	protected interface ResettableVertexFilter<TYPE> extends VertexFilter<GeosetVertex> {
 		ResettableVertexFilter<TYPE> reset(final TYPE matrix);
