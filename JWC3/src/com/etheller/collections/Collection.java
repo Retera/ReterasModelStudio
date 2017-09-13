@@ -27,5 +27,9 @@ public interface Collection<T> extends CollectionView<T> {
 
 		private Util() {
 		}
+
+		public static <T> boolean isEmpty(final List<T> collection) {
+			return collection.size() == 0;
+		}
 	}
 }

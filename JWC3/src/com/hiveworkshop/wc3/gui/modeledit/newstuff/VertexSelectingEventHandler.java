@@ -8,10 +8,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.SetSelectionAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponentVisitor;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
@@ -181,5 +186,45 @@ public final class VertexSelectingEventHandler extends AbstractSelectingEventHan
 		final double dx = x - vertexX;
 		final double dy = y - vertexY;
 		return Math.sqrt(dx * dx + dy * dy);
+	}
+
+	@Override
+	protected UndoAction buildHideComponentAction(final ListView<? extends SelectableComponent> selectableComponents,
+			final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
+		final List<Vertex> previousSelection = new ArrayList<>(selectionManager.getSelection());
+		final List<Vertex> possibleVerticesToTruncate = new ArrayList<>();
+		for (final SelectableComponent component : selectableComponents) {
+			component.visit(new SelectableComponentVisitor() {
+				@Override
+				public void accept(final Camera camera) {
+					possibleVerticesToTruncate.add(camera.getPosition());
+					possibleVerticesToTruncate.add(camera.getTargetPosition());
+				}
+
+				@Override
+				public void accept(final IdObject node) {
+					possibleVerticesToTruncate.add(node.getPivotPoint());
+				}
+
+				@Override
+				public void accept(final Geoset geoset) {
+					possibleVerticesToTruncate.addAll(geoset.getVertices());
+				}
+			});
+		}
+		final Runnable truncateSelectionRunnable = new Runnable() {
+			@Override
+			public void run() {
+				selectionManager.removeSelection(possibleVerticesToTruncate);
+			}
+		};
+		final Runnable unTruncateSelectionRunnable = new Runnable() {
+			@Override
+			public void run() {
+				selectionManager.setSelection(previousSelection);
+			}
+		};
+		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable,
+				unTruncateSelectionRunnable, refreshGUIRunnable);
 	}
 }

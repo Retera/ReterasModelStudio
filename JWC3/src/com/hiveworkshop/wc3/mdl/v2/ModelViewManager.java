@@ -1,8 +1,8 @@
 package com.hiveworkshop.wc3.mdl.v2;
 
-import com.etheller.collections.ArrayList;
-import com.etheller.collections.List;
-import com.etheller.collections.ListView;
+import com.etheller.collections.HashSet;
+import com.etheller.collections.Set;
+import com.etheller.collections.SetView;
 import com.etheller.util.CollectionUtils;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
@@ -14,20 +14,20 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.ModelVisitor;
 public final class ModelViewManager implements ModelView {
 	private final MDL model;
 	private final ModelViewStateNotifier modelViewStateNotifier;
-	private final List<Geoset> editableGeosets;// TODO should be a set
-	private final List<Geoset> visibleGeosets;
-	private final List<IdObject> editableIdObjects;
-	private final List<Camera> editableCameras;
+	private final Set<Geoset> editableGeosets;// TODO should be a set
+	private final Set<Geoset> visibleGeosets;
+	private final Set<IdObject> editableIdObjects;
+	private final Set<Camera> editableCameras;
 	private Geoset highlightedGeoset;
 	private final RenderByViewModelRenderer renderByViewModelRenderer;
 
 	public ModelViewManager(final MDL model) {
 		this.model = model;
 		this.modelViewStateNotifier = new ModelViewStateNotifier();
-		this.editableGeosets = new ArrayList<>(CollectionUtils.asList(model.getGeosets()));
-		this.visibleGeosets = new ArrayList<>();
-		this.editableIdObjects = new ArrayList<>();
-		this.editableCameras = new ArrayList<>();
+		this.editableGeosets = new HashSet<Geoset>(CollectionUtils.asSet(model.getGeosets()));
+		this.visibleGeosets = new HashSet<>();
+		this.editableIdObjects = new HashSet<>();
+		this.editableCameras = new HashSet<>();
 		this.renderByViewModelRenderer = new RenderByViewModelRenderer(this);
 	}
 
@@ -46,22 +46,22 @@ public final class ModelViewManager implements ModelView {
 	}
 
 	@Override
-	public ListView<Geoset> getVisibleGeosets() {
+	public SetView<Geoset> getVisibleGeosets() {
 		return visibleGeosets;
 	}
 
 	@Override
-	public ListView<Geoset> getEditableGeosets() {
+	public SetView<Geoset> getEditableGeosets() {
 		return editableGeosets;
 	}
 
 	@Override
-	public ListView<IdObject> getEditableIdObjects() {
+	public SetView<IdObject> getEditableIdObjects() {
 		return editableIdObjects;
 	}
 
 	@Override
-	public ListView<Camera> getEditableCameras() {
+	public SetView<Camera> getEditableCameras() {
 		return editableCameras;
 	}
 

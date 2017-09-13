@@ -17,7 +17,7 @@ public abstract class AbstractSelectionManager<T> implements SelectionManager<T>
 	}
 
 	@Override
-	public void setSelection(final Collection<T> selectionItem) {
+	public void setSelection(final Collection<? extends T> selectionItem) {
 		selection.clear();
 		for (final T item : selectionItem) {
 			selection.add(item);
@@ -26,7 +26,7 @@ public abstract class AbstractSelectionManager<T> implements SelectionManager<T>
 	}
 
 	@Override
-	public void addSelection(final Collection<T> selectionItem) {
+	public void addSelection(final Collection<? extends T> selectionItem) {
 		for (final T item : selectionItem) {
 			selection.add(item);
 		}
@@ -34,7 +34,7 @@ public abstract class AbstractSelectionManager<T> implements SelectionManager<T>
 	}
 
 	@Override
-	public void removeSelection(final Collection<T> selectionItem) {
+	public void removeSelection(final Collection<? extends T> selectionItem) {
 		for (final T item : selectionItem) {
 			selection.remove(item);
 		}

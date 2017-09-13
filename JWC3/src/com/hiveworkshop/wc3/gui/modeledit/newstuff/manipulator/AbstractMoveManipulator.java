@@ -4,7 +4,7 @@ import java.awt.geom.Point2D.Double;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.MoveAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.MoveAction;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 public abstract class AbstractMoveManipulator extends AbstractManipulator {

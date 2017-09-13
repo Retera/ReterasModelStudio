@@ -9,13 +9,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.SetSelectionAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponentVisitor;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
+import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Triangle;
+import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public final class FaceSelectingEventHandler extends AbstractSelectingEventHandler<Triangle> {
@@ -115,6 +123,47 @@ public final class FaceSelectingEventHandler extends AbstractSelectingEventHandl
 			}
 		}
 		return canSelect;
+	}
+
+	@Override
+	protected UndoAction buildHideComponentAction(final ListView<? extends SelectableComponent> selectableComponents,
+			final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
+		final List<Triangle> previousSelection = new ArrayList<>(selectionManager.getSelection());
+		final List<Triangle> possibleTrianglesToTruncate = new ArrayList<>();
+		final List<Vertex> possibleVerticesToTruncate = new ArrayList<>();
+		for (final SelectableComponent component : selectableComponents) {
+			component.visit(new SelectableComponentVisitor() {
+				@Override
+				public void accept(final Camera camera) {
+					possibleVerticesToTruncate.add(camera.getPosition());
+					possibleVerticesToTruncate.add(camera.getTargetPosition());
+				}
+
+				@Override
+				public void accept(final IdObject node) {
+					possibleVerticesToTruncate.add(node.getPivotPoint());
+				}
+
+				@Override
+				public void accept(final Geoset geoset) {
+					possibleTrianglesToTruncate.addAll(geoset.getTriangles());
+				}
+			});
+		}
+		final Runnable truncateSelectionRunnable = new Runnable() {
+			@Override
+			public void run() {
+				selectionManager.removeSelection(possibleTrianglesToTruncate);
+			}
+		};
+		final Runnable unTruncateSelectionRunnable = new Runnable() {
+			@Override
+			public void run() {
+				selectionManager.setSelection(previousSelection);
+			}
+		};
+		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable,
+				unTruncateSelectionRunnable, refreshGUIRunnable);
 	}
 
 	public static boolean hitTest(final Triangle triangle, final Point2D point,

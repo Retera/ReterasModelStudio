@@ -1,4 +1,4 @@
-package com.hiveworkshop.wc3.gui.modeledit.newstuff.actions;
+package com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;

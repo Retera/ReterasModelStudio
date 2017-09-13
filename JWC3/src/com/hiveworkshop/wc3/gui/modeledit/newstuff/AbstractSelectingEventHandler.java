@@ -5,11 +5,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.AddSelectionAction;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.RemoveSelectionAction;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.SetSelectionAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.AddSelectionAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.MakeEditableAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.RemoveSelectionAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 
 public abstract class AbstractSelectingEventHandler<T> implements SelectingEventHandler {
@@ -54,4 +58,22 @@ public abstract class AbstractSelectingEventHandler<T> implements SelectingEvent
 	}
 
 	protected abstract List<T> genericSelect(final Rectangle2D region, final CoordinateSystem coordinateSystem);
+
+	@Override
+	public UndoAction hideComponent(final ListView<? extends SelectableComponent> selectableComponent,
+			final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
+		final UndoAction hideComponentAction = buildHideComponentAction(selectableComponent, editabilityToggleHandler,
+				refreshGUIRunnable);
+		hideComponentAction.redo();
+		return hideComponentAction;
+	}
+
+	protected abstract UndoAction buildHideComponentAction(ListView<? extends SelectableComponent> selectableComponents,
+			EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable);
+
+	@Override
+	public UndoAction showComponent(final EditabilityToggleHandler editabilityToggleHandler) {
+		editabilityToggleHandler.makeEditable();
+		return new MakeEditableAction(editabilityToggleHandler);
+	}
 }

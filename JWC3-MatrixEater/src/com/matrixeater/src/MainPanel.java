@@ -91,6 +91,8 @@ import com.hiveworkshop.wc3.gui.modeledit.activity.MultiManipulatorActivity;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivity;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.ExtendWidgetManipulatorBuilder;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.ExtrudeWidgetManipulatorBuilder;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.MoverWidgetManipulatorBuilder;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.RotatorWidgetManipulatorBuilder;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.ScaleWidgetManipulatorBuilder;
@@ -873,7 +875,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 					public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 							final ModelView modelView, final UndoActionListener undoActionListener) {
 						return new MultiManipulatorActivity(
-								new MoverWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
+								new ExtrudeWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
 										modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
 								undoActionListener, modelEditorManager.getSelectionView());
 					}
@@ -883,11 +885,28 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 					public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 							final ModelView modelView, final UndoActionListener undoActionListener) {
 						return new MultiManipulatorActivity(
-								new MoverWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
+								new ExtendWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
 										modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
 								undoActionListener, modelEditorManager.getSelectionView());
 					}
 				}, });
+		toolbar.addSeparator();
+		toolbar.add(new AbstractAction("Snap", IconUtils.loadImageIcon("icons/actions/snap.png")) {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				try {
+					final ModelPanel currentModelPanel = currentModelPanel();
+					if (currentModelPanel != null) {
+						currentModelPanel.getUndoManager().pushAction(
+								currentModelPanel.getModelEditorManager().getModelEditor().snapSelectedVertices());
+					}
+				} catch (final NoSuchElementException exc) {
+					JOptionPane.showMessageDialog(MainPanel.this, "Nothing to undo!");
+				} catch (final Exception exc) {
+					ExceptionPopup.display(exc);
+				}
+			}
+		});
 		return toolbar;
 	}
 

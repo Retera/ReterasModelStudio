@@ -5,7 +5,18 @@ import java.util.Iterator;
 public class HashSet<TYPE> implements Set<TYPE> {
 	private static final Object PRESENT = new Object();
 
-	private final HashMap<TYPE, Object> map = new HashMap<>();
+	private final HashMap<TYPE, Object> map;
+
+	public HashSet() {
+		map = new HashMap<>();
+	}
+
+	public HashSet(final Collection<TYPE> stuff) {
+		map = new HashMap<>(stuff.size(), HashMap.DEFAULT_LOAD_FACTOR);
+		for (final TYPE element : stuff) {
+			add(element);
+		}
+	}
 
 	@Override
 	public int size() {

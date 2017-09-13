@@ -1,4 +1,4 @@
-package com.hiveworkshop.wc3.gui.modeledit.newstuff.actions;
+package com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools;
 
 import com.etheller.collections.HashMap;
 import com.etheller.collections.Map;

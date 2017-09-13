@@ -109,6 +109,9 @@ public class JCheckBoxTree extends JTree {
 		return node.isChecked();
 	}
 
+	/**
+	 * Reloads the checking state from the data model.
+	 */
 	private void resetCheckingState() {
 		checkedPaths = new HashSet<>();
 		final JCheckBoxTreeNode node = (JCheckBoxTreeNode) getModel().getRoot();

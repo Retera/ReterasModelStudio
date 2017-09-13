@@ -4,7 +4,9 @@ import javax.swing.DefaultListModel;
 
 import com.etheller.collections.ArrayList;
 import com.etheller.collections.CollectionView;
+import com.etheller.collections.HashSet;
 import com.etheller.collections.List;
+import com.etheller.collections.Set;
 
 public final class CollectionUtils {
 
@@ -33,5 +35,13 @@ public final class CollectionUtils {
 	}
 
 	private CollectionUtils() {
+	}
+
+	public static <T> Set<T> asSet(final java.util.Collection<T> collection) {
+		final Set<T> resultSet = new HashSet<>();
+		for (final T element : collection) {
+			resultSet.add(element);
+		}
+		return resultSet;
 	}
 }

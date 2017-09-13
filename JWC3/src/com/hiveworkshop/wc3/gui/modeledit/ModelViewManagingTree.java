@@ -1,49 +1,71 @@
 package com.hiveworkshop.wc3.gui.modeledit;
 
-import java.awt.Dimension;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
 import javax.swing.tree.DefaultTreeModel;
 
+import com.etheller.collections.ArrayList;
+import com.etheller.collections.Collection;
+import com.etheller.collections.HashMap;
+import com.etheller.collections.List;
+import com.etheller.collections.Map;
+import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponentVisitor;
 import com.hiveworkshop.wc3.gui.modeledit.util.JCheckBoxTree;
 import com.hiveworkshop.wc3.gui.modeledit.util.JCheckBoxTreeNode;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.IdObject;
-import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
-import com.hiveworkshop.wc3.mpq.MpqCodebase;
 
 public final class ModelViewManagingTree extends JCheckBoxTree {
 	private final ModelViewManager modelViewManager;
 
-	public ModelViewManagingTree(final ModelViewManager modelViewManager) {
+	public ModelViewManagingTree(final ModelViewManager modelViewManager, final UndoActionListener undoActionListener,
+			final ModelEditorManager modelEditorManager) {
 		super(buildTreeModel(modelViewManager));
 		this.modelViewManager = modelViewManager;
 		addCheckChangeEventListener(new CheckChangeEventListener() {
 			@Override
 			public void checkStateChanged(final CheckChangeEvent event) {
 				final JCheckBoxTreeNode sourceNode = (JCheckBoxTreeNode) event.getSource();
-				handleNodeRecursively(sourceNode);
+				final List<CheckableDisplayElement<?>> components = new ArrayList<>();
+				handleNodeRecursively(sourceNode, components);
+				final CheckableDisplayElementToggleHandler toggleHandler = new CheckableDisplayElementToggleHandler(
+						components);
+				UndoAction showHideComponentAction;
+				if (isSelected(sourceNode)) {
+					showHideComponentAction = modelEditorManager.getSelectingEventHandler()
+							.showComponent(toggleHandler);
+				} else {
+					final Runnable refreshGUIRunnable = new Runnable() {
+						@Override
+						public void run() {
+							reloadFromModelView();
+						}
+					};
+					showHideComponentAction = modelEditorManager.getSelectingEventHandler().hideComponent(components,
+							toggleHandler, refreshGUIRunnable);
+				}
+				undoActionListener.pushAction(showHideComponentAction);
 			}
 
-			private void handleNodeRecursively(final JCheckBoxTreeNode parent) {
-				notifyModelViewManagerStateChanged(parent);
+			private void handleNodeRecursively(final JCheckBoxTreeNode parent,
+					final List<CheckableDisplayElement<?>> components) {
+				notifyModelViewManagerStateChanged(parent, components);
 				for (int i = 0; i < parent.getChildCount(); i++) {
 					final JCheckBoxTreeNode childAt = (JCheckBoxTreeNode) parent.getChildAt(i);
-					handleNodeRecursively(childAt);
+					handleNodeRecursively(childAt, components);
 				}
 			}
 
-			private void notifyModelViewManagerStateChanged(final JCheckBoxTreeNode sourceNode) {
+			private void notifyModelViewManagerStateChanged(final JCheckBoxTreeNode sourceNode,
+					final List<CheckableDisplayElement<?>> components) {
 				final Object userObject = sourceNode.getUserObject();
 				final CheckableDisplayElement<?> element = (CheckableDisplayElement<?>) userObject;
 				element.setChecked(isSelected(sourceNode));
+				components.add(element);
 			}
 		});
 	}
@@ -89,9 +111,10 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 			} else {
 				parentTreeNode.add(treeNode);
 			}
-			final List<JCheckBoxTreeNode> childrenToLinkToCurrentNode = nodeToChildrenAwaitingLink.get(object);
-			if (childrenToLinkToCurrentNode != null && !childrenToLinkToCurrentNode.isEmpty()) {
-				for (final JCheckBoxTreeNode child : childrenToLinkToCurrentNode) {
+			final List<JCheckBoxTreeNode> childrenNeedingLinkToCurrentNode = nodeToChildrenAwaitingLink.get(object);
+			if (childrenNeedingLinkToCurrentNode != null
+					&& !Collection.Util.isEmpty(childrenNeedingLinkToCurrentNode)) {
+				for (final JCheckBoxTreeNode child : childrenNeedingLinkToCurrentNode) {
 					treeNode.add(child);
 				}
 			}
@@ -114,16 +137,9 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 		return defaultTreeModel;
 	}
 
-	public static void main(final String[] args) {
-		final JScrollPane scrollPane = new JScrollPane(new ModelViewManagingTree(new ModelViewManager(
-				MDL.read(MpqCodebase.get().getFile("units\\human\\footman\\footman_portrait.mdx")))));
-		scrollPane.setPreferredSize(new Dimension(800, 600));
-		JOptionPane.showMessageDialog(null, scrollPane);
-	}
-
-	private static abstract class CheckableDisplayElement<T> {
+	private static abstract class CheckableDisplayElement<T> implements SelectableComponent {
 		private final ModelViewManager modelViewManager;
-		private final T item;
+		protected final T item;
 
 		public CheckableDisplayElement(final ModelViewManager modelViewManager, final T item) {
 			this.modelViewManager = modelViewManager;
@@ -163,6 +179,11 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 			return "Geoset " + modelViewManager.getModel().getGeosetId(item);
 		}
 
+		@Override
+		public void visit(final SelectableComponentVisitor visitor) {
+			visitor.accept(item);
+		}
+
 	}
 
 	private static final class CheckableNodeElement extends CheckableDisplayElement<IdObject> {
@@ -184,6 +205,10 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 			return item.getClass().getSimpleName() + " \"" + item.getName() + "\"";
 		}
 
+		@Override
+		public void visit(final SelectableComponentVisitor visitor) {
+			visitor.accept(item);
+		}
 	}
 
 	private static final class CheckableCameraElement extends CheckableDisplayElement<Camera> {
@@ -205,6 +230,10 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 			return item.getName();
 		}
 
+		@Override
+		public void visit(final SelectableComponentVisitor visitor) {
+			visitor.accept(item);
+		}
 	}
 
 	private static final class CheckableModelElement extends CheckableDisplayElement<Void> {
@@ -222,6 +251,9 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 			return modelViewManager.getModel().getHeaderName();
 		}
 
+		@Override
+		public void visit(final SelectableComponentVisitor visitor) {
+		}
 	}
 
 	private static final class CheckableDummyElement extends CheckableDisplayElement<String> {
@@ -237,6 +269,32 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 		@Override
 		protected String getName(final String item, final ModelViewManager modelViewManager) {
 			return item;
+		}
+
+		@Override
+		public void visit(final SelectableComponentVisitor visitor) {
+		}
+	}
+
+	private static final class CheckableDisplayElementToggleHandler implements EditabilityToggleHandler {
+		private final Collection<CheckableDisplayElement<?>> elements;
+
+		public CheckableDisplayElementToggleHandler(final Collection<CheckableDisplayElement<?>> elements) {
+			this.elements = elements;
+		}
+
+		@Override
+		public void makeEditable() {
+			for (final CheckableDisplayElement<?> element : elements) {
+				element.setChecked(true);
+			}
+		}
+
+		@Override
+		public void makeNotEditable() {
+			for (final CheckableDisplayElement<?> element : elements) {
+				element.setChecked(false);
+			}
 		}
 
 	}

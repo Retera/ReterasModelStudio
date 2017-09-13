@@ -1,4 +1,4 @@
-package com.hiveworkshop.wc3.gui.modeledit.newstuff.actions;
+package com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection;
 
 import java.util.ArrayList;
 import java.util.Collection;

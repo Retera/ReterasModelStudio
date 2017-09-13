@@ -5,7 +5,7 @@ import java.awt.geom.Point2D.Double;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.RotateAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.RotateAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.wc3.mdl.Vertex;
 

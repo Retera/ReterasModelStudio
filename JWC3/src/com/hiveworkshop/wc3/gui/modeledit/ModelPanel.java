@@ -83,11 +83,11 @@ public class ModelPanel extends JPanel implements ActionListener, MouseListener 
 		modelEditorChangeNotifier = new ModelEditorChangeNotifier();
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
 		modelView = new ModelViewManager(input);
-		modelViewManagingTree = new ModelViewManagingTree(modelView);
-		modelViewManagingTree.setFocusable(false);
 		undoManager = new UndoManagerImpl();
 		modelEditorManager = new ModelEditorManager(modelView, prefs, modeNotifier, modelEditorChangeNotifier,
 				viewportActivityManager);
+		modelViewManagingTree = new ModelViewManagingTree(modelView, undoManager, modelEditorManager);
+		modelViewManagingTree.setFocusable(false);
 		selectionItemTypeNotifier.addToolbarButtonListener(new ToolbarButtonListener<SelectionItemTypes>() {
 			@Override
 			public void typeChanged(final SelectionItemTypes newType) {
