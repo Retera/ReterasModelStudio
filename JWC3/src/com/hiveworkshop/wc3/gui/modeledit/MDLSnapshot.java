@@ -61,6 +61,7 @@ import org.lwjgl.opengl.PixelFormat;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
+import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.AnimFlag.Entry;
 import com.hiveworkshop.wc3.mdl.Animation;
@@ -83,7 +84,7 @@ import de.wc3data.stream.BlizzardDataInputStream;
 
 public class MDLSnapshot {
 
-	MDLDisplay dispMDL;
+	ModelView dispMDL;
 	Vertex cameraPos = new Vertex(0, 0, 0);
 	double zoom = 1;
 	boolean enabled = false;
@@ -94,11 +95,14 @@ public class MDLSnapshot {
 	HashMap<Bitmap, Integer> textureMap = new HashMap<>();
 
 	Class<? extends Throwable> lastThrownErrorClass;
+	private final ProgramPreferences programPreferences;
 
-	public MDLSnapshot(final MDLDisplay dispMDL, final int width, final int height) throws LWJGLException {
+	public MDLSnapshot(final ModelView dispMDL, final int width, final int height,
+			final ProgramPreferences programPreferences) throws LWJGLException {
 		this.dispMDL = dispMDL;
 		this.width = width;
 		this.height = height;
+		this.programPreferences = programPreferences;
 	}
 
 	public void setCameraPosition(final Vertex cameraPos) {
@@ -141,7 +145,7 @@ public class MDLSnapshot {
 	public void forceReloadTextures() {
 		texLoaded = true;
 
-		for (final Geoset geo : dispMDL.getMDL().getGeosets()) {// .getMDL().getGeosets()
+		for (final Geoset geo : dispMDL.getModel().getGeosets()) {// .getModel().getGeosets()
 			for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
 				final Layer layer = geo.getMaterial().getLayers().get(i);
 				final Bitmap tex = layer.firstTexture();
@@ -162,12 +166,12 @@ public class MDLSnapshot {
 						texture = loadTexture(layer, gameTex);
 					} catch (final Exception exc) {
 						exc.printStackTrace();
-						final BufferedImage customTex = BLPHandler.get()
-								.getCustomTex(dispMDL.getMDL().getWorkingDirectory().getPath() + "\\" + path + ".blp");
+						final BufferedImage customTex = BLPHandler.get().getCustomTex(
+								dispMDL.getModel().getWorkingDirectory().getPath() + "\\" + path + ".blp");
 						texture = loadTexture(layer, customTex);// TextureLoader.getTexture("TGA",
 																// new
 																// FileInputStream(new
-																// File(dispMDL.getMDL().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
+																// File(dispMDL.getModel().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
 
 						// try { } catch (FileNotFoundException e) {
 						// // Auto-generated catch block
@@ -189,7 +193,7 @@ public class MDLSnapshot {
 	}
 
 	public void addGeosets(final List<Geoset> geosets) {
-		for (final Geoset geo : geosets) {// .getMDL().getGeosets()
+		for (final Geoset geo : geosets) {// .getModel().getGeosets()
 			for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
 				final Layer layer = geo.getMaterial().getLayers().get(i);
 				final Bitmap tex = layer.firstTexture();
@@ -210,11 +214,11 @@ public class MDLSnapshot {
 				} catch (final Exception exc) {
 					exc.printStackTrace();
 					final BufferedImage customTex = BLPHandler.get()
-							.getCustomTex(dispMDL.getMDL().getWorkingDirectory().getPath() + "\\" + path + ".blp");
+							.getCustomTex(dispMDL.getModel().getWorkingDirectory().getPath() + "\\" + path + ".blp");
 					texture = loadTexture(layer, customTex);// TextureLoader.getTexture("TGA",
 															// new
 															// FileInputStream(new
-															// File(dispMDL.getMDL().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
+															// File(dispMDL.getModel().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
 
 					// try { } catch (FileNotFoundException e) {
 					// // Auto-generated catch block
@@ -236,9 +240,9 @@ public class MDLSnapshot {
 
 	public void initGL() {
 		try {
-			if (dispMDL.getProgramPreferences() == null || dispMDL.getProgramPreferences().textureModels()) {
+			if (programPreferences == null || programPreferences.textureModels()) {
 				texLoaded = true;
-				for (final Geoset geo : dispMDL.getMDL().getGeosets()) {// .getMDL().getGeosets()
+				for (final Geoset geo : dispMDL.getModel().getGeosets()) {// .getModel().getGeosets()
 					for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
 						final Layer layer = geo.getMaterial().getLayers().get(i);
 						final Bitmap tex = layer.firstTexture();
@@ -261,11 +265,11 @@ public class MDLSnapshot {
 						} catch (final Exception exc) {
 							exc.printStackTrace();
 							final BufferedImage customTex = BLPHandler.get().getCustomTex(
-									dispMDL.getMDL().getWorkingDirectory().getPath() + "\\" + path + ".blp");
+									dispMDL.getModel().getWorkingDirectory().getPath() + "\\" + path + ".blp");
 							texture = loadTexture(layer, customTex);// TextureLoader.getTexture("TGA",
 																	// new
 																	// FileInputStream(new
-																	// File(dispMDL.getMDL().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
+																	// File(dispMDL.getModel().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
 
 							// try { } catch (FileNotFoundException e) {
 							// // Auto-generated catch block
@@ -343,7 +347,7 @@ public class MDLSnapshot {
 		return height;
 	}
 
-	public static ModelView createDefaultDisplay(final GameObject unit) {
+	public static ModelViewManager createDefaultDisplay(final GameObject unit) {
 		ModelViewManager mdlDisplay;
 		MDL model;
 		try {
@@ -403,7 +407,7 @@ public class MDLSnapshot {
 						// (float)(45-model.getExtents().getMaximumExtent().getZ()/400*45));
 		double width = 128;
 		double depth = 64;
-		final MDL model = this.dispMDL.getMDL();
+		final MDL model = this.dispMDL.getModel();
 		final ExtLog exts = model.getExtents();
 		boolean loadedWidth = false;
 		final List<CollisionShape> sortedIdObjects = model.sortedIdObjects(CollisionShape.class);
@@ -450,7 +454,7 @@ public class MDLSnapshot {
 	public void zoomToFit(final VertexFilter<? super GeosetVertex> filter) {
 
 		setYangle(35);
-		final MDL model = this.dispMDL.getMDL();
+		final MDL model = this.dispMDL.getModel();
 		final List<Vertex> shapeData = new ArrayList<>();
 		for (final Geoset geo : dispMDL.getVisibleGeosets()) {
 			boolean isOnlyAdditive = true;
@@ -563,8 +567,7 @@ public class MDLSnapshot {
 	private boolean drawBackground;
 
 	public boolean renderTextures() {
-		return texLoaded
-				&& (dispMDL.getProgramPreferences() == null || dispMDL.getProgramPreferences().textureModels());
+		return texLoaded && (programPreferences == null || programPreferences.textureModels());
 	}
 
 	public void paintGL() {
@@ -591,8 +594,7 @@ public class MDLSnapshot {
 				e.printStackTrace();
 				ExceptionPopup.display("Error loading new texture:", e);
 			}
-		} else if (!texLoaded
-				&& (dispMDL.getProgramPreferences() == null || dispMDL.getProgramPreferences().textureModels())) {
+		} else if (!texLoaded && (programPreferences == null || programPreferences.textureModels())) {
 			forceReloadTextures();
 			texLoaded = true;
 		}
@@ -602,9 +604,9 @@ public class MDLSnapshot {
 				current_height = getHeight();
 				glViewport(0, 0, current_width, current_height);
 			}
-			if (dispMDL.getProgramPreferences() != null && dispMDL.getProgramPreferences().viewMode() == 0) {
+			if (programPreferences != null && programPreferences.viewMode() == 0) {
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			} else if (dispMDL.getProgramPreferences() == null || dispMDL.getProgramPreferences().viewMode() == 1) {
+			} else if (programPreferences == null || programPreferences.viewMode() == 1) {
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
 			glViewport(0, 0, getWidth(), getHeight());
@@ -681,8 +683,8 @@ public class MDLSnapshot {
 			// glTranslatef(getWidth() / 2.0f, getHeight() / 2.0f, 0.0f);
 			// glRotatef(2*angle, 0f, 0f, -1.0f);
 			// glRectf(-50.0f, -50.0f, 50.0f, 50.0f);
-			for (final Geoset geo : dispMDL.getVisibleGeosets()) {// .getMDL().getGeosets()
-				if (!dispMDL.getEditableGeosets().contains(geo) && dispMDL.getHighlight() != geo) {
+			for (final Geoset geo : dispMDL.getVisibleGeosets()) {// .getModel().getGeosets()
+				if (!dispMDL.getEditableGeosets().contains(geo) && dispMDL.getHighlightedGeoset() != geo) {
 					for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
 						final Layer layer = geo.getMaterial().getLayers().get(i);
 						final Bitmap tex = layer.firstTexture();
@@ -737,8 +739,8 @@ public class MDLSnapshot {
 				}
 			}
 			glColor3f(2f, 2f, 2f);
-			for (final Geoset geo : dispMDL.getEditableGeosets()) {// .getMDL().getGeosets()
-				if (dispMDL.getHighlight() != geo) {
+			for (final Geoset geo : dispMDL.getEditableGeosets()) {// .getModel().getGeosets()
+				if (dispMDL.getHighlightedGeoset() != geo) {
 					for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
 						final Layer layer = geo.getMaterial().getLayers().get(i);
 						final Bitmap tex = layer.firstTexture();
@@ -786,7 +788,7 @@ public class MDLSnapshot {
 			GL11.glDepthMask(true);
 			// System.out.println("max:
 			// "+GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE));
-			if (dispMDL.getHighlight() != null) {
+			if (dispMDL.getHighlightedGeoset() != null) {
 				// for( int i = 0; i < dispMDL.highlight.material.layers.size();
 				// i++ )
 				// {
@@ -822,7 +824,7 @@ public class MDLSnapshot {
 				// }
 				glColor3f(1f, 3f, 1f);
 				glBegin(GL11.GL_TRIANGLES);
-				for (final Triangle tri : dispMDL.getHighlight().getTriangles()) {
+				for (final Triangle tri : dispMDL.getHighlightedGeoset().getTriangles()) {
 					for (final GeosetVertex v : tri.getVerts()) {
 						if (renderMask.isAccepted(v)) {
 							GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z, (float) v.getNormal().x);
@@ -838,11 +840,11 @@ public class MDLSnapshot {
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
 			GL11.glDisable(GL11.GL_TEXTURE_2D);
-			if (dispMDL.getProgramPreferences() != null && dispMDL.getProgramPreferences().showNormals()) {
+			if (programPreferences != null && programPreferences.showNormals()) {
 				glBegin(GL11.GL_LINES);
 				glColor3f(1f, 1f, 3f);
 				// if( wireframe.isSelected() )
-				for (final Geoset geo : dispMDL.getVisibleGeosets()) {// .getMDL().getGeosets()
+				for (final Geoset geo : dispMDL.getVisibleGeosets()) {// .getModel().getGeosets()
 					for (final Triangle tri : geo.getTriangles()) {
 						for (final GeosetVertex v : tri.getVerts()) {
 							if (renderMask.isAccepted(v)) {
@@ -862,7 +864,7 @@ public class MDLSnapshot {
 
 				// glPolygonMode( GL_FRONT, GL_POINTS );
 				// for (Geoset geo : dispMDL.visibleGeosets)
-				// {//.getMDL().getGeosets()
+				// {//.getModel().getGeosets()
 				// if( !dispMDL.editableGeosets.contains(geo) &&
 				// dispMDL.highlight != geo )
 				// for (Triangle tri : geo.m_triangle) {
@@ -905,7 +907,7 @@ public class MDLSnapshot {
 	//// makeCurrent();
 	// GL11.glBegin(GL11.GL_QUADS);
 	// GL11.glColor3f(0f,1f,1f);
-	// for (Geoset geo : dispMDL.getMDL().getGeosets()) {
+	// for (Geoset geo : dispMDL.getModel().getGeosets()) {
 	// for (Triangle tri : geo.m_triangle) {
 	// for (Vertex v : tri.m_verts) {
 	// GL11.glVertex3f((float) v.x, (float) v.y, (float) v.z);

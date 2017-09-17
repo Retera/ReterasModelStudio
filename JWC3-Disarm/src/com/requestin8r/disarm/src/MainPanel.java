@@ -35,7 +35,6 @@ import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.rtf.RTFEditorKit;
 
 import com.hiveworkshop.wc3.gui.modeledit.BoneShell;
-import com.hiveworkshop.wc3.gui.modeledit.MDLDisplay;
 import com.hiveworkshop.wc3.gui.modeledit.PerspDisplayPanel;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Attachment;
@@ -48,6 +47,7 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.units.GameObject;
 import com.hiveworkshop.wc3.units.ModelOptionPane;
@@ -157,8 +157,8 @@ public class MainPanel extends JPanel implements ActionListener {
 
 	public MainPanel(final MainFrame parent) {
 		frame = parent;
-		final MDLDisplay blank = new MDLDisplay(new MDL(), null);
-		viewer = new PerspDisplayPanel("", blank);
+		final ModelViewManager blank = new ModelViewManager(new MDL());
+		viewer = new PerspDisplayPanel("", blank, null);
 		viewer.setViewport(blank, viewerSize);
 
 		final Font smallFont = new Font("Arial", Font.BOLD, 16);
@@ -252,7 +252,7 @@ public class MainPanel extends JPanel implements ActionListener {
 			final Image icon = choice.getImage();
 
 			MDL toLoad;
-			MDLDisplay modelDisp = null;
+			ModelViewManager modelDisp = null;
 			try {
 				if (filepath.endsWith(".mdl")) {
 					filepath = filepath.replace(".mdl", ".mdx");
@@ -260,7 +260,7 @@ public class MainPanel extends JPanel implements ActionListener {
 					filepath = filepath.concat(".mdx");
 				}
 				toLoad = MDL.read(MpqCodebase.get().getFile(filepath));
-				modelDisp = new MDLDisplay(toLoad, null);
+				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
 				// bad model!
@@ -295,7 +295,7 @@ public class MainPanel extends JPanel implements ActionListener {
 			final Image icon = IconGet.get("Temp", 64);
 
 			MDL toLoad;
-			MDLDisplay modelDisp = null;
+			ModelViewManager modelDisp = null;
 			try {
 				if (filepath.endsWith(".mdl")) {
 					filepath = filepath.replace(".mdl", ".mdx");
@@ -303,7 +303,7 @@ public class MainPanel extends JPanel implements ActionListener {
 					filepath = filepath.concat(".mdx");
 				}
 				toLoad = MDL.read(MpqCodebase.get().getFile(filepath));
-				modelDisp = new MDLDisplay(toLoad, null);
+				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
 				// bad model!
@@ -340,10 +340,10 @@ public class MainPanel extends JPanel implements ActionListener {
 			final Image icon = IconGet.get("Temp", 64);
 
 			MDL toLoad;
-			MDLDisplay modelDisp = null;
+			ModelViewManager modelDisp = null;
 			try {
 				toLoad = MDL.read(new File(filepath));
-				modelDisp = new MDLDisplay(toLoad, null);
+				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
 				// bad model!
@@ -372,7 +372,7 @@ public class MainPanel extends JPanel implements ActionListener {
 			final Image icon = choice.getImage();
 
 			MDL toLoad;
-			MDLDisplay modelDisp = null;
+			ModelViewManager modelDisp = null;
 			try {
 				if (filepath.endsWith(".mdl")) {
 					filepath = filepath.replace(".mdl", ".mdx");
@@ -380,7 +380,7 @@ public class MainPanel extends JPanel implements ActionListener {
 					filepath = filepath.concat(".mdx");
 				}
 				toLoad = MDL.read(MpqCodebase.get().getFile(filepath));
-				modelDisp = new MDLDisplay(toLoad, null);
+				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
 				// bad model!
@@ -420,7 +420,7 @@ public class MainPanel extends JPanel implements ActionListener {
 			final Image icon = IconGet.get("Temp", 64);
 
 			MDL toLoad;
-			MDLDisplay modelDisp = null;
+			ModelViewManager modelDisp = null;
 			try {
 				if (filepath.endsWith(".mdl")) {
 					filepath = filepath.replace(".mdl", ".mdx");
@@ -428,7 +428,7 @@ public class MainPanel extends JPanel implements ActionListener {
 					filepath = filepath.concat(".mdx");
 				}
 				toLoad = MDL.read(MpqCodebase.get().getFile(filepath));
-				modelDisp = new MDLDisplay(toLoad, null);
+				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
 				// bad model!
@@ -469,10 +469,10 @@ public class MainPanel extends JPanel implements ActionListener {
 			final Image icon = IconGet.get("Temp", 64);
 
 			MDL toLoad;
-			MDLDisplay modelDisp = null;
+			ModelViewManager modelDisp = null;
 			try {
 				toLoad = MDL.read(new File(filepath));
-				modelDisp = new MDLDisplay(toLoad, null);
+				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
 				// bad model!
@@ -551,8 +551,8 @@ public class MainPanel extends JPanel implements ActionListener {
 						}
 					}
 					// profile.setPath(currentFile.getParent());
-					current.model.getMDL().printTo(currentFile);
-					current.model.getMDL().setFile(currentFile);
+					current.model.getModel().printTo(currentFile);
+					current.model.getModel().setFile(currentFile);
 					current.model.resetBeenSaved();
 					// tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(),currentFile.getName().split("\\.")[0]);
 					// tabbedPane.setToolTipTextAt(tabbedPane.getSelectedIndex(),currentFile.getPath());
@@ -584,21 +584,21 @@ public class MainPanel extends JPanel implements ActionListener {
 			final DefaultStyledDocument panel = new DefaultStyledDocument();
 			final JTextPane epane = new JTextPane();
 			try {
-				for (final IdObject obj : current.model.getMDL().sortedIdObjects(Bone.class)) {
+				for (final IdObject obj : current.model.getModel().sortedIdObjects(Bone.class)) {
 					// String caseless = obj.getName().toLowerCase();
 					// if( !caseless.contains("object")
 					// && !caseless.contains("mesh")
 					// && !caseless.contains("cone"))
 					panel.insertString(panel.getLength(), obj.getName() + "\n", null);
 				}
-				for (final IdObject obj : current.model.getMDL().sortedIdObjects(Helper.class)) {
+				for (final IdObject obj : current.model.getModel().sortedIdObjects(Helper.class)) {
 					// String caseless = obj.getName().toLowerCase();
 					// if( !caseless.contains("object")
 					// && !caseless.contains("mesh")
 					// && !caseless.contains("cone"))
 					panel.insertString(panel.getLength(), obj.getName() + "\n", null);
 				}
-				for (final IdObject obj : current.model.getMDL().sortedIdObjects(Attachment.class)) {
+				for (final IdObject obj : current.model.getModel().sortedIdObjects(Attachment.class)) {
 					// String caseless = obj.getName().toLowerCase();
 					// if( !caseless.contains("object")
 					// && !caseless.contains("mesh")
@@ -714,8 +714,8 @@ public class MainPanel extends JPanel implements ActionListener {
 
 			final Bone yoBone = getBoneFromKeywords(source, keywords);
 
-			final MDL model = current.model.getMDL();
-			final MDL sourceModel = source.model.getMDL();
+			final MDL model = current.model.getModel();
+			final MDL sourceModel = source.model.getModel();
 			// for( Bone bone: sourceModel.sortedIdObjects(Bone.class) ) {
 			// boolean match = false;
 			// for( String str: keywords ) {
@@ -984,11 +984,11 @@ public class MainPanel extends JPanel implements ActionListener {
 	}
 
 	public ArrayList<Vertex> selectGroup(final Project current, final String[] keywords, final boolean group) {
-		for (final String str : keywords) {
+		for (final String str : keywords) {final s
 			System.err.println(str);
 		}
 		if (current != null) {
-			final MDL model = current.model.getMDL();
+			final MDL model = current.model.getModel();
 			if (model == null) {
 				JOptionPane.showMessageDialog(frame, "No suitable model loaded!", "ERROR", JOptionPane.ERROR_MESSAGE);
 				return null;

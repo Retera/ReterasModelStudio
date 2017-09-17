@@ -7,9 +7,9 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import com.hiveworkshop.wc3.gui.modeledit.MDLDisplay;
 import com.hiveworkshop.wc3.gui.modeledit.MDLSnapshot;
 import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.units.GameObject;
@@ -32,7 +32,7 @@ public class LWJGLToBufferedImageTesterGuy {
 		}
 
 		MDL model;
-		MDLDisplay mdlDisplay;
+		ModelViewManager mdlDisplay;
 		try {
 			final GameObject unit = UnitOptionPane.show(null);
 			String field = unit.getField("file");
@@ -51,7 +51,7 @@ public class LWJGLToBufferedImageTesterGuy {
 		}
 		System.out.println(model.getHeaderName());
 		try {
-			final MDLSnapshot mdlSnapshot = new MDLSnapshot(mdlDisplay, 32, 32);
+			final MDLSnapshot mdlSnapshot = new MDLSnapshot(mdlDisplay, 32, 32, null);
 			mdlSnapshot.zoomToFit();
 			final BufferedImage bufferedImage = mdlSnapshot.getBufferedImage();
 			// JOptionPane.showMessageDialog(null, new

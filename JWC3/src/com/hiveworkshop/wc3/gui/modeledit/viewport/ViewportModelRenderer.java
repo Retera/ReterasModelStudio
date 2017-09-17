@@ -21,6 +21,7 @@ import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Helper;
+import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
@@ -32,6 +33,7 @@ import com.hiveworkshop.wc3.mdl.renderer.GeosetRenderer;
 import com.hiveworkshop.wc3.mdl.renderer.ModelRenderer;
 import com.hiveworkshop.wc3.mdl.renderer.TriangleRenderer;
 import com.hiveworkshop.wc3.mdl.v2.MaterialView;
+import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.visitor.VertexVisitor;
 
 public class ViewportModelRenderer implements ModelRenderer {
@@ -43,7 +45,10 @@ public class ViewportModelRenderer implements ModelRenderer {
 	private byte yDimension;
 	private ViewportView viewportView;
 	private CoordinateSystem coordinateSystem;
-	private IdObjectRenderer idObjectRenderer;
+	private ResettableIdObjectRenderer idObjectRenderer;
+	// TODO Now that I added modelView to this class, why does
+	// RenderByViewModelRenderer exist???
+	private ModelView modelView;
 
 	public ViewportModelRenderer(final int vertexSize) {
 		this.vertexSize = vertexSize;
@@ -52,66 +57,89 @@ public class ViewportModelRenderer implements ModelRenderer {
 
 	public ViewportModelRenderer reset(final Graphics2D graphics, final ProgramPreferences programPreferences,
 			final byte xDimension, final byte yDimension, final ViewportView viewportView,
-			final CoordinateSystem coordinateSystem) {
+			final CoordinateSystem coordinateSystem, final ModelView modelView) {
 		this.graphics = graphics;
 		this.programPreferences = programPreferences;
 		this.xDimension = xDimension;
 		this.yDimension = yDimension;
 		this.viewportView = viewportView;
 		this.coordinateSystem = coordinateSystem;
-		idObjectRenderer = new IdObjectRenderer(programPreferences.getLightsColor(),
-				programPreferences.getPivotPointsColor(), vertexSize, NodeIconPalette.UNSELECTED)
-						.reset(coordinateSystem, graphics);
+		this.modelView = modelView;
+		idObjectRenderer = new ResettableIdObjectRenderer(vertexSize);
+		idObjectRenderer.reset(coordinateSystem, graphics, programPreferences.getLightsColor(),
+				programPreferences.getPivotPointsColor(), NodeIconPalette.UNSELECTED);
 		return this;
 	}
 
 	@Override
 	public GeosetRenderer beginGeoset(final int geosetId, final MaterialView material, final GeosetAnim geosetAnim) {
+		graphics.setColor(programPreferences.getTriangleColor());
+		if (modelView.getHighlightedGeoset() == modelView.getModel().getGeoset(geosetId)) {
+			graphics.setColor(programPreferences.getHighlighTriangleColor());
+		}
 		return geosetRenderer.reset();
 	}
 
 	@Override
 	public void bone(final Bone object) {
+		resetIdObjectRendererWithNode(object);
 		idObjectRenderer.bone(object);
+	}
+
+	private void resetIdObjectRendererWithNode(final IdObject object) {
+		idObjectRenderer.reset(coordinateSystem, graphics,
+				modelView.getHighlightedNode() == object ? programPreferences.getHighlighVertexColor()
+						: programPreferences.getLightsColor(),
+				modelView.getHighlightedNode() == object ? programPreferences.getHighlighVertexColor()
+						: programPreferences.getPivotPointsColor(),
+				modelView.getHighlightedNode() == object ? NodeIconPalette.HIGHLIGHT : NodeIconPalette.UNSELECTED);
 	}
 
 	@Override
 	public void light(final Light light) {
+		resetIdObjectRendererWithNode(light);
 		idObjectRenderer.light(light);
 	}
 
 	@Override
 	public void helper(final Helper object) {
+		resetIdObjectRendererWithNode(object);
 		idObjectRenderer.helper(object);
 	}
 
 	@Override
 	public void attachment(final Attachment attachment) {
+		resetIdObjectRendererWithNode(attachment);
 		idObjectRenderer.attachment(attachment);
 	}
 
 	@Override
 	public void particleEmitter(final ParticleEmitter particleEmitter) {
+		resetIdObjectRendererWithNode(particleEmitter);
 		idObjectRenderer.particleEmitter(particleEmitter);
 	}
 
 	@Override
 	public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
+		resetIdObjectRendererWithNode(particleEmitter);
 		idObjectRenderer.particleEmitter2(particleEmitter);
 	}
 
 	@Override
 	public void ribbonEmitter(final RibbonEmitter ribbonEmitter) {
+		resetIdObjectRendererWithNode(ribbonEmitter);
 		idObjectRenderer.ribbonEmitter(ribbonEmitter);
 	}
 
 	@Override
 	public void eventObject(final EventObject eventObject) {
+		resetIdObjectRendererWithNode(eventObject);
 		idObjectRenderer.eventObject(eventObject);
 	}
 
 	@Override
 	public void collisionShape(final CollisionShape collisionShape) {
+		resetIdObjectRendererWithNode(collisionShape);
 		idObjectRenderer.collisionShape(collisionShape);
 
 	}
@@ -130,7 +158,6 @@ public class ViewportModelRenderer implements ModelRenderer {
 
 		@Override
 		public TriangleRenderer beginTriangle() {
-			graphics.setColor(programPreferences.getTriangleColor());
 			return triangleRenderer.reset();
 		}
 
@@ -191,6 +218,43 @@ public class ViewportModelRenderer implements ModelRenderer {
 			// graphics.fillRect((int) firstCoord - vertexSize / 2, (int)
 			// secondCoord - vertexSize / 2, vertexSize,
 			// vertexSize);
+			if (programPreferences.showNormals()) {
+				final Color triangleColor = graphics.getColor();
+				double firstNormalCoord, secondNormalCoord;
+				switch (xDimension) {
+				case 0:
+					firstNormalCoord = normalX;
+					break;
+				case 1:
+					firstNormalCoord = normalY;
+					break;
+				case 2:
+					firstNormalCoord = normalZ;
+					break;
+				default:
+					throw new IllegalStateException("Invalid x dimension");
+				}
+				switch (yDimension) {
+				case 0:
+					secondNormalCoord = normalX;
+					break;
+				case 1:
+					secondNormalCoord = normalY;
+					break;
+				case 2:
+					secondNormalCoord = normalZ;
+					break;
+				default:
+					throw new IllegalStateException("Invalid y dimension");
+				}
+				graphics.setColor(programPreferences.getNormalsColor());
+				final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+				final Point endPoint = new Point(
+						(int) coordinateSystem.convertX(firstCoord + firstNormalCoord * 12 / zoom),
+						(int) coordinateSystem.convertY(secondCoord + secondNormalCoord * 12 / zoom));
+				graphics.drawLine(point.x, point.y, endPoint.x, endPoint.y);
+				graphics.setColor(triangleColor);
+			}
 			return VertexVisitor.NO_ACTION;
 		}
 

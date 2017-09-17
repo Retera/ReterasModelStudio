@@ -1,5 +1,6 @@
 package com.hiveworkshop.wc3.gui.modeledit.newstuff;
 
+import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ModelEditorChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItemTypes;
@@ -13,7 +14,6 @@ public final class ModelEditorManager {
 	private final ModelView model;
 	private final ProgramPreferences programPreferences;
 	private ModelEditor modelEditor;
-	private SelectingEventHandler selectingEventHandler;
 	private final ViewportSelectionHandlerImpl viewportSelectionHandler;
 	private final ModelEditorChangeListener modelEditorChangeListener;
 	private SelectionView selectionView;
@@ -34,11 +34,29 @@ public final class ModelEditorManager {
 		switch (selectionMode) {
 		case FACE: {
 			final FaceSelectionManager selectionManager = new FaceSelectionManager();
-			modelEditor = new FaceModelEditor(model, programPreferences, selectionManager);
-			selectingEventHandler = new FaceSelectingEventHandler(selectionManager, model);
-			viewportSelectionHandler.setSelectingEventHandler(selectingEventHandler);
+			final PivotPointSelectionManager pivotSelectionManager = new PivotPointSelectionManager();
+			final ModelEditorNotifier modelEditorNotifier = new ModelEditorNotifier();
+			modelEditorNotifier.subscribe(new FaceModelEditor(model, programPreferences, selectionManager));
+			modelEditorNotifier.subscribe(new PivotPointModelEditor(model, programPreferences, pivotSelectionManager));
+			modelEditor = modelEditorNotifier;
+			viewportSelectionHandler.setSelectingEventHandler(modelEditor);
 			modelEditorChangeListener.modelEditorChanged(modelEditor);
-			selectionView = selectionManager;
+			selectionView = new MultiPartSelectionView(
+					ListView.Util.<SelectionView> of(selectionManager, pivotSelectionManager));
+			selectionListener.onSelectionChanged(selectionView);
+			break;
+		}
+		case GROUP: {
+			final VertexGroupSelectionManager selectionManager = new VertexGroupSelectionManager();
+			final PivotPointSelectionManager pivotSelectionManager = new PivotPointSelectionManager();
+			final ModelEditorNotifier modelEditorNotifier = new ModelEditorNotifier();
+			modelEditorNotifier.subscribe(new VertexGroupModelEditor(model, programPreferences, selectionManager));
+			modelEditorNotifier.subscribe(new PivotPointModelEditor(model, programPreferences, pivotSelectionManager));
+			modelEditor = modelEditorNotifier;
+			viewportSelectionHandler.setSelectingEventHandler(modelEditor);
+			modelEditorChangeListener.modelEditorChanged(modelEditor);
+			selectionView = new MultiPartSelectionView(
+					ListView.Util.<SelectionView> of(selectionManager, pivotSelectionManager));
 			selectionListener.onSelectionChanged(selectionView);
 			break;
 		}
@@ -46,8 +64,7 @@ public final class ModelEditorManager {
 		case VERTEX: {
 			final VertexSelectionManager selectionManager = new VertexSelectionManager();
 			modelEditor = new VertexModelEditor(model, programPreferences, selectionManager);
-			selectingEventHandler = new VertexSelectingEventHandler(selectionManager, model, programPreferences);
-			viewportSelectionHandler.setSelectingEventHandler(selectingEventHandler);
+			viewportSelectionHandler.setSelectingEventHandler(modelEditor);
 			modelEditorChangeListener.modelEditorChanged(modelEditor);
 			selectionView = selectionManager;
 			selectionListener.onSelectionChanged(selectionView);
@@ -62,10 +79,6 @@ public final class ModelEditorManager {
 
 	public ViewportSelectionHandlerImpl getViewportSelectionHandler() {
 		return viewportSelectionHandler;
-	}
-
-	public SelectingEventHandler getSelectingEventHandler() {
-		return selectingEventHandler;
 	}
 
 	public SelectionView getSelectionView() {

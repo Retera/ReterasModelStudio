@@ -4,10 +4,10 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
-public final class ScaleYManipulator extends AbstractScaleManipulator {
+public final class ScaleXYManipulator extends AbstractScaleManipulator {
 	private final Vertex resettableScaleFactors;
 
-	public ScaleYManipulator(final ModelEditor modelEditor, final SelectionView selectionView) {
+	public ScaleXYManipulator(final ModelEditor modelEditor, final SelectionView selectionView) {
 		super(modelEditor, selectionView);
 		this.resettableScaleFactors = new Vertex(0, 0, 0);
 	}
@@ -18,6 +18,7 @@ public final class ScaleYManipulator extends AbstractScaleManipulator {
 		resettableScaleFactors.x = 1;
 		resettableScaleFactors.y = 1;
 		resettableScaleFactors.z = 1;
+		resettableScaleFactors.setCoord(dim1, scaleFactor);
 		resettableScaleFactors.setCoord(dim2, scaleFactor);
 		modelEditor.rawScale(center.x, center.y, center.z, resettableScaleFactors.x, resettableScaleFactors.y,
 				resettableScaleFactors.z);
@@ -28,6 +29,7 @@ public final class ScaleYManipulator extends AbstractScaleManipulator {
 		resettableScaleFactors.x = 1;
 		resettableScaleFactors.y = 1;
 		resettableScaleFactors.z = 1;
+		resettableScaleFactors.setCoord(dim1, scaleFactor);
 		resettableScaleFactors.setCoord(dim2, scaleFactor);
 		return resettableScaleFactors;
 	}

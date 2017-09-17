@@ -6,6 +6,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 public class JCheckBoxTreeNode extends DefaultMutableTreeNode {
 	private boolean checked;
 	private boolean allChildrenSelected;
+	private boolean hasPersonalState; // NYI, do not use
 
 	public JCheckBoxTreeNode() {
 		super();
@@ -39,5 +40,15 @@ public class JCheckBoxTreeNode extends DefaultMutableTreeNode {
 
 	public void setAllChildrenSelected(final boolean allChildrenSelected) {
 		this.allChildrenSelected = allChildrenSelected;
+	}
+
+	// NYI, buggy, do not use
+	public void setHasPersonalState(final boolean hasPersonalState) {
+		this.hasPersonalState = hasPersonalState;
+	}
+
+	// NYI, buggy, do not use
+	public boolean isHasPersonalState() {
+		return hasPersonalState;
 	}
 }

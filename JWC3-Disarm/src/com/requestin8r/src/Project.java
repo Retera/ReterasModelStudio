@@ -4,19 +4,21 @@ import java.awt.Image;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import com.hiveworkshop.wc3.gui.modeledit.MDLDisplay;
+import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 
 public class Project {
-	Queue<Operation> operations = new LinkedList<Operation>();
+	Queue<Operation> operations = new LinkedList<>();
 	public String name;
 	public Image icon;
-	public MDLDisplay model;
-	public Project(final MDLDisplay model, final String name, final Image icon) {
+	public ModelViewManager model;
+
+	public Project(final ModelViewManager model, final String name, final Image icon) {
 		this.model = model;
 		this.name = name;
 		this.icon = icon;
 	}
-	public Project(final MDLDisplay model, final Image icon, final String name) {
+
+	public Project(final ModelViewManager model, final Image icon, final String name) {
 		this.model = model;
 		this.name = name;
 		this.icon = icon;

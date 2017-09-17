@@ -16,7 +16,7 @@ public final class MirrorModelAction implements UndoAction {
 	private final List<IdObject> idObjects;
 	private final byte mirrorDim;
 
-	public MirrorModelAction(final Collection<Vertex> selection, final Collection<IdObject> idObjects,
+	public MirrorModelAction(final Collection<? extends Vertex> selection, final Collection<IdObject> idObjects,
 			final byte mirrorDim) {
 		this.selection = new ArrayList<>(selection);
 		this.idObjects = new ArrayList<>(idObjects);

@@ -23,4 +23,13 @@ public final class ScaleXManipulator extends AbstractScaleManipulator {
 				resettableScaleFactors.z);
 	}
 
+	@Override
+	protected Vertex buildScaleVector(final double scaleFactor, final byte dim1, final byte dim2) {
+		resettableScaleFactors.x = 1;
+		resettableScaleFactors.y = 1;
+		resettableScaleFactors.z = 1;
+		resettableScaleFactors.setCoord(dim1, scaleFactor);
+		return resettableScaleFactors;
+	}
+
 }

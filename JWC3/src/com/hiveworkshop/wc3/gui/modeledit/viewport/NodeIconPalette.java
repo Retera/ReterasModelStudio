@@ -11,8 +11,9 @@ public class NodeIconPalette {
 	private final Image ribbonImage;
 	private final Image collisionImage;
 
-	public static final NodeIconPalette SELECTED = createInternal(true);
-	public static final NodeIconPalette UNSELECTED = createInternal(false);
+	public static final NodeIconPalette SELECTED = createInternal("Select");
+	public static final NodeIconPalette UNSELECTED = createInternal("");
+	public static final NodeIconPalette HIGHLIGHT = createInternal("Highlight");
 
 	public NodeIconPalette(final Image attachmentImage, final Image eventImage, final Image lightImage,
 			final Image particleImage, final Image particle2Image, final Image ribbonImage,
@@ -54,18 +55,14 @@ public class NodeIconPalette {
 		return collisionImage;
 	}
 
-	private static NodeIconPalette createInternal(final boolean isSelected) {
-		final Image attachmentImage = IconUtils
-				.loadImage("icons/nodes/attachment" + (isSelected ? "Select" : "") + ".png");
-		final Image eventImage = IconUtils.loadImage("icons/nodes/event" + (isSelected ? "Select" : "") + ".png");
-		final Image lightImage = IconUtils.loadImage("icons/nodes/light" + (isSelected ? "Select" : "") + ".png");
-		final Image particleImage = IconUtils
-				.loadImage("icons/nodes/particle1" + (isSelected ? "Select" : "") + ".png");
-		final Image particle2Image = IconUtils
-				.loadImage("icons/nodes/particle2" + (isSelected ? "Select" : "") + ".png");
-		final Image ribbonImage = IconUtils.loadImage("icons/nodes/ribbon" + (isSelected ? "Select" : "") + ".png");
-		final Image collisionImage = IconUtils
-				.loadImage("icons/nodes/collision" + (isSelected ? "Select" : "") + ".png");
+	private static NodeIconPalette createInternal(final String template) {
+		final Image attachmentImage = IconUtils.loadImage("icons/nodes/attachment" + template + ".png");
+		final Image eventImage = IconUtils.loadImage("icons/nodes/event" + template + ".png");
+		final Image lightImage = IconUtils.loadImage("icons/nodes/light" + template + ".png");
+		final Image particleImage = IconUtils.loadImage("icons/nodes/particle1" + template + ".png");
+		final Image particle2Image = IconUtils.loadImage("icons/nodes/particle2" + template + ".png");
+		final Image ribbonImage = IconUtils.loadImage("icons/nodes/ribbon" + template + ".png");
+		final Image collisionImage = IconUtils.loadImage("icons/nodes/collision" + template + ".png");
 		final NodeIconPalette palette = new NodeIconPalette(attachmentImage, eventImage, lightImage, particleImage,
 				particle2Image, ribbonImage, collisionImage);
 		return palette;

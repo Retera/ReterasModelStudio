@@ -15,8 +15,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import com.hiveworkshop.wc3.gui.modeledit.MDLDisplay;
 import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.units.GameObject;
 import com.hiveworkshop.wc3.units.ModelOptionPane;
@@ -107,7 +107,7 @@ public class NewRequestPanel extends JPanel implements ActionListener {
 			final Image icon = choice.getImage();
 
 			MDL toLoad;
-			MDLDisplay modelDisp = null;
+			ModelViewManager modelDisp = null;
 			try {
 				if (filepath.endsWith(".mdl")) {
 					filepath = filepath.replace(".mdl", ".mdx");
@@ -115,7 +115,7 @@ public class NewRequestPanel extends JPanel implements ActionListener {
 					filepath = filepath.concat(".mdx");
 				}
 				toLoad = MDL.read(MpqCodebase.get().getFile(filepath));
-				modelDisp = new MDLDisplay(toLoad, null);
+				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
 				// bad model!
@@ -147,7 +147,7 @@ public class NewRequestPanel extends JPanel implements ActionListener {
 			final Image icon = IconGet.get("Temp", 64);
 
 			MDL toLoad;
-			MDLDisplay modelDisp = null;
+			ModelViewManager modelDisp = null;
 			try {
 				if (filepath.endsWith(".mdl")) {
 					filepath = filepath.replace(".mdl", ".mdx");
@@ -155,7 +155,7 @@ public class NewRequestPanel extends JPanel implements ActionListener {
 					filepath = filepath.concat(".mdx");
 				}
 				toLoad = MDL.read(MpqCodebase.get().getFile(filepath));
-				modelDisp = new MDLDisplay(toLoad, null);
+				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
 				// bad model!
@@ -188,10 +188,10 @@ public class NewRequestPanel extends JPanel implements ActionListener {
 			final Image icon = IconGet.get("Temp", 64);
 
 			MDL toLoad;
-			MDLDisplay modelDisp = null;
+			ModelViewManager modelDisp = null;
 			try {
 				toLoad = MDL.read(new File(filepath));
-				modelDisp = new MDLDisplay(toLoad, null);
+				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
 				// bad model!

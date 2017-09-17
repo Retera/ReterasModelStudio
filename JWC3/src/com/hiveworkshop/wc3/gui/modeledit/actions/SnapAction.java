@@ -17,7 +17,8 @@ public class SnapAction implements UndoAction {
 	private final List<Vertex> selection;
 	private final Vertex snapPoint;
 
-	public SnapAction(final Collection<Vertex> selection, final List<Vertex> oldSelLocs, final Vertex snapPoint) {
+	public SnapAction(final Collection<? extends Vertex> selection, final List<Vertex> oldSelLocs,
+			final Vertex snapPoint) {
 		this.selection = new ArrayList<>(selection);
 		this.oldSelLocs = oldSelLocs;
 		this.snapPoint = new Vertex(snapPoint);

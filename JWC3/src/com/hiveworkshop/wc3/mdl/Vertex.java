@@ -154,6 +154,21 @@ public class Vertex {
 		return new Vertex(xTot, yTot, zTot);
 	}
 
+	public static Vertex centerOfGroup(final com.etheller.collections.Collection<? extends Vertex> group) {
+		double xTot = 0;
+		double yTot = 0;
+		double zTot = 0;
+		for (final Vertex v : group) {
+			xTot += v.getX();
+			yTot += v.getY();
+			zTot += v.getZ();
+		}
+		xTot /= group.size();
+		yTot /= group.size();
+		zTot /= group.size();
+		return new Vertex(xTot, yTot, zTot);
+	}
+
 	public double distance(final Vertex other) {
 		final double dx = other.x - x;
 		final double dy = other.y - y;

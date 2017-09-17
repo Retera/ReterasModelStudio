@@ -16,4 +16,8 @@ public final class ScaleManipulator extends AbstractScaleManipulator {
 		modelEditor.rawScale(center.x, center.y, center.z, scaleFactor, scaleFactor, scaleFactor);
 	}
 
+	@Override
+	protected Vertex buildScaleVector(final double scaleFactor, final byte dim1, final byte dim2) {
+		return new Vertex(scaleFactor, scaleFactor, scaleFactor);
+	}
 }

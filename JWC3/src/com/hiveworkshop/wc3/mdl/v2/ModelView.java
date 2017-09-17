@@ -24,4 +24,6 @@ public interface ModelView {
 	void visit(ModelVisitor visitor);
 
 	Geoset getHighlightedGeoset();
+
+	IdObject getHighlightedNode();
 }

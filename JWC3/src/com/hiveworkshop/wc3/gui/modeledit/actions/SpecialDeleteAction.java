@@ -15,7 +15,7 @@ public class SpecialDeleteAction extends DeleteAction {
 	private final MDL parent;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 
-	public SpecialDeleteAction(final Collection<Vertex> selection, final List<Triangle> deletedTris,
+	public SpecialDeleteAction(final Collection<? extends Vertex> selection, final List<Triangle> deletedTris,
 			final List<Geoset> deletedGs, final MDL parentModel,
 			final ModelStructureChangeListener modelStructureChangeListener) {
 		super(selection, deletedTris);

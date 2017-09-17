@@ -237,7 +237,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		// dispMDL.drawGeosets(g, this, 1);
 		// dispMDL.drawPivots(g, this, 1);
 		// dispMDL.drawCameras(g, this, 1);
-		viewportModelRenderer.reset(graphics2d, programPreferences, m_d1, m_d2, this, this);
+		viewportModelRenderer.reset(graphics2d, programPreferences, m_d1, m_d2, this, this, modelView);
 		modelView.visit(viewportModelRenderer);
 		activityListener.render(graphics2d, this);
 
@@ -445,7 +445,8 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		final double deltaXAngle = Math.toRadians(((Number) spinners[0].getValue()).doubleValue());
 		final double deltaYAngle = Math.toRadians(((Number) spinners[1].getValue()).doubleValue());
 		final double deltaZAngle = Math.toRadians(((Number) spinners[2].getValue()).doubleValue());
-		final UndoAction rotate = modelEditor.rotate(deltaXAngle, deltaYAngle, deltaZAngle);
+		final UndoAction rotate = modelEditor.rotate(modelEditor.getSelectionCenter(), deltaXAngle, deltaYAngle,
+				deltaZAngle);
 		undoListener.pushAction(rotate);
 
 	}
@@ -469,7 +470,8 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		final double positionX = ((Number) spinners[0].getValue()).doubleValue();
 		final double positionY = ((Number) spinners[1].getValue()).doubleValue();
 		final double positionZ = ((Number) spinners[2].getValue()).doubleValue();
-		final UndoAction setPosition = modelEditor.setPosition(positionX, positionY, positionZ);
+		final UndoAction setPosition = modelEditor.setPosition(modelEditor.getSelectionCenter(), positionX, positionY,
+				positionZ);
 		undoListener.pushAction(setPosition);
 	}
 

@@ -661,7 +661,7 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 				glBegin(GL11.GL_LINES);
 				glColor3f(1f, 1f, 3f);
 				// if( wireframe.isSelected() )
-				for (final Geoset geo : modelView.getVisibleGeosets()) {// .getMDL().getGeosets()
+				for (final Geoset geo : modelView.getEditableGeosets()) {// .getMDL().getGeosets()
 					for (final Triangle tri : geo.getTriangles()) {
 						for (final GeosetVertex v : tri.getVerts()) {
 							if (v.getNormal() != null) {

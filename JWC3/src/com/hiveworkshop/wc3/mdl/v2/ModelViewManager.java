@@ -19,20 +19,17 @@ public final class ModelViewManager implements ModelView {
 	private final Set<IdObject> editableIdObjects;
 	private final Set<Camera> editableCameras;
 	private Geoset highlightedGeoset;
+	private IdObject highlightedNode;
 	private final RenderByViewModelRenderer renderByViewModelRenderer;
 
 	public ModelViewManager(final MDL model) {
 		this.model = model;
 		this.modelViewStateNotifier = new ModelViewStateNotifier();
-		this.editableGeosets = new HashSet<Geoset>(CollectionUtils.asSet(model.getGeosets()));
+		this.editableGeosets = new HashSet<>(CollectionUtils.asSet(model.getGeosets()));
 		this.visibleGeosets = new HashSet<>();
 		this.editableIdObjects = new HashSet<>();
 		this.editableCameras = new HashSet<>();
 		this.renderByViewModelRenderer = new RenderByViewModelRenderer(this);
-	}
-
-	public void setHighlightedGeoset(final Geoset highlightedGeoset) {
-		this.highlightedGeoset = highlightedGeoset;
 	}
 
 	@Override
@@ -73,6 +70,11 @@ public final class ModelViewManager implements ModelView {
 	@Override
 	public Geoset getHighlightedGeoset() {
 		return highlightedGeoset;
+	}
+
+	@Override
+	public IdObject getHighlightedNode() {
+		return highlightedNode;
 	}
 
 	public void makeGeosetEditable(final Geoset geoset) {
@@ -120,4 +122,23 @@ public final class ModelViewManager implements ModelView {
 		modelViewStateNotifier.highlightGeoset(geoset);
 	}
 
+	public void unhighlightGeoset(final Geoset geoset) {
+		if (highlightedGeoset == geoset) {
+			highlightedGeoset = null;
+		}
+		modelViewStateNotifier.unhighlightGeoset(geoset);
+	}
+
+	public void highlightNode(final IdObject node) {
+		highlightedNode = node;
+		modelViewStateNotifier.highlightNode(node);
+	}
+
+	public void unhighlightNode(final IdObject node) {
+		if (highlightedNode == node) {
+			highlightedNode = null;
+		}
+		modelViewStateNotifier.unhighlightNode(node);
+
+	}
 }

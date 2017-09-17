@@ -14,7 +14,7 @@ public interface SelectionView {
 
 	Collection<Triangle> getSelectedFaces();
 
-	Collection<Vertex> getSelectedVertices();
+	Collection<? extends Vertex> getSelectedVertices();
 
 	// needs to be coord system, not coord axes, so that
 	// vertex selection view knows the zoom level,

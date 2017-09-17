@@ -11,16 +11,17 @@ import javax.swing.JList;
 import org.lwjgl.LWJGLException;
 
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
+import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public abstract class AbstractSnapshottingListCellRenderer<TYPE> extends DefaultListCellRenderer {
-	private final Map<TYPE, ImageIcon> matrixShellToCachedRenderer = new HashMap<TYPE, ImageIcon>();
+	private final Map<TYPE, ImageIcon> matrixShellToCachedRenderer = new HashMap<>();
 	private final MDLSnapshot modelSnapshot;
 	private final ResettableVertexFilter<TYPE> matrixFilter;
 
-	public AbstractSnapshottingListCellRenderer(final MDLDisplay modelDisplay) {
+	public AbstractSnapshottingListCellRenderer(final ModelView modelDisplay) {
 		matrixFilter = createFilter();
 		try {
-			modelSnapshot = new MDLSnapshot(modelDisplay, 64, 64);
+			modelSnapshot = new MDLSnapshot(modelDisplay, 64, 64, null);
 			modelSnapshot.zoomToFit();
 		} catch (final LWJGLException e) {
 			throw new RuntimeException(e);

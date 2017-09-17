@@ -19,7 +19,7 @@ public class DeleteAction implements UndoAction {
 	private final List<Vertex> deleted;
 	private final List<Triangle> deletedTris;
 
-	public DeleteAction(final Collection<Vertex> selection, final List<Triangle> deletedTris) {
+	public DeleteAction(final Collection<? extends Vertex> selection, final List<Triangle> deletedTris) {
 		this.selection = new ArrayList<>(selection);
 		this.deleted = new ArrayList<>(selection);
 		this.deletedTris = deletedTris;

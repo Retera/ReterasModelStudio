@@ -9,9 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.etheller.collections.HashMap;
 import com.etheller.collections.ListView;
-import com.etheller.collections.Map;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
@@ -19,13 +17,10 @@ import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeLis
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.TeamColorAddAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.AutoCenterBonesAction;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.RenameBoneAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponentVisitor;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
-import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
@@ -34,11 +29,11 @@ import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
-public class VertexModelEditor extends AbstractModelEditor<Vertex> {
+public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	private final ProgramPreferences programPreferences;
 
-	public VertexModelEditor(final ModelView model, final ProgramPreferences programPreferences,
-			final SelectionManager<Vertex> selectionManager) {
+	public GeosetVertexModelEditor(final ModelView model, final ProgramPreferences programPreferences,
+			final SelectionManager<GeosetVertex> selectionManager) {
 		super(selectionManager, model);
 		this.programPreferences = programPreferences;
 	}
@@ -83,51 +78,12 @@ public class VertexModelEditor extends AbstractModelEditor<Vertex> {
 
 	@Override
 	public UndoAction autoCenterSelectedBones() {
-		final Set<IdObject> selBones = new HashSet<>();
-		for (final IdObject b : model.getEditableIdObjects()) {
-			selBones.add(b);
-		}
-
-		final Map<Bone, Vertex> boneToOldPosition = new HashMap<>();
-		for (final IdObject obj : selBones) {
-			if (Bone.class.isAssignableFrom(obj.getClass())) {
-				final Bone bone = (Bone) obj;
-				final ArrayList<GeosetVertex> childVerts = new ArrayList<>();
-				for (final Geoset geo : model.getModel().getGeosets()) {
-					childVerts.addAll(geo.getChildrenOf(bone));
-				}
-				if (childVerts.size() > 0) {
-					final Vertex pivotPoint = bone.getPivotPoint();
-					boneToOldPosition.put(bone, new Vertex(pivotPoint));
-					pivotPoint.setTo(Vertex.centerOfGroup(childVerts));
-				}
-			}
-		}
-		return new AutoCenterBonesAction(boneToOldPosition);
+		throw new UnsupportedOperationException("This feature is not available in Geoset Vertex mode");
 	}
 
 	@Override
 	public UndoAction setSelectedBoneName(final String name) {
-		if (selectionManager.getSelection().size() != 1) {
-			throw new IllegalStateException("Only one bone can be renamed at a time.");
-		}
-		final Vertex selectedVertex = selectionManager.getSelection().iterator().next();
-		IdObject node = null;
-		for (final IdObject bone : this.model.getEditableIdObjects()) {
-			if (bone.getPivotPoint() == selectedVertex) {
-				if (node != null) {
-					throw new IllegalStateException(
-							"Flagrant error. Multiple bones are bound to the same memory addresses. Save your work and restart the application.");
-				}
-				node = bone;
-			}
-		}
-		if (node == null) {
-			throw new IllegalStateException("Selection is not a node");
-		}
-		final RenameBoneAction renameBoneAction = new RenameBoneAction(node.getName(), name, node);
-		renameBoneAction.redo();
-		return renameBoneAction;
+		throw new UnsupportedOperationException("This feature is not available in Geoset Vertex mode");
 	}
 
 	@Override
@@ -140,24 +96,29 @@ public class VertexModelEditor extends AbstractModelEditor<Vertex> {
 
 	@Override
 	protected void selectByVertices(final Collection<Vertex> newSelection) {
-		selectionManager.setSelection(newSelection);
+		final List<GeosetVertex> newGeosetVertices = new ArrayList<>();
+		for (final Geoset geoset : model.getEditableGeosets()) {
+			for (final GeosetVertex vertex : geoset.getVertices()) {
+				if (newSelection.contains(vertex)) {
+					newGeosetVertices.add(vertex);
+				}
+			}
+		}
+		selectionManager.setSelection(newGeosetVertices);
 	}
 
 	@Override
 	public UndoAction expandSelection() {
-		final Set<Vertex> expandedSelection = new HashSet<>(selectionManager.getSelection());
-		final ArrayList<Vertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
-		for (final Vertex v : oldSelection) {
-			if (v instanceof GeosetVertex) {
-				final GeosetVertex gv = (GeosetVertex) v;
-				expandSelection(gv, expandedSelection);
-			}
+		final Set<GeosetVertex> expandedSelection = new HashSet<>(selectionManager.getSelection());
+		final ArrayList<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
+		for (final GeosetVertex v : oldSelection) {
+			expandSelection(v, expandedSelection);
 		}
 		selectionManager.setSelection(expandedSelection);
 		return (new SetSelectionAction<>(expandedSelection, oldSelection, selectionManager, "expand selection"));
 	}
 
-	private void expandSelection(final GeosetVertex currentVertex, final Set<Vertex> selection) {
+	private void expandSelection(final GeosetVertex currentVertex, final Set<GeosetVertex> selection) {
 		selection.add(currentVertex);
 		for (final Triangle tri : currentVertex.getTriangles()) {
 			for (final GeosetVertex other : tri.getVerts()) {
@@ -170,25 +131,18 @@ public class VertexModelEditor extends AbstractModelEditor<Vertex> {
 
 	@Override
 	public UndoAction invertSelection() {
-		final ArrayList<Vertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
-		final Set<Vertex> invertedSelection = new HashSet<>(selectionManager.getSelection());
+		final ArrayList<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
+		final Set<GeosetVertex> invertedSelection = new HashSet<>(selectionManager.getSelection());
 		for (final Geoset geo : model.getEditableGeosets()) {
 			for (final GeosetVertex geosetVertex : geo.getVertices()) {
 				toggleSelection(invertedSelection, geosetVertex);
 			}
 		}
-		for (final IdObject object : model.getEditableIdObjects()) {
-			toggleSelection(invertedSelection, object.getPivotPoint());
-		}
-		for (final Camera object : model.getEditableCameras()) {
-			toggleSelection(invertedSelection, object.getPosition());
-			toggleSelection(invertedSelection, object.getTargetPosition());
-		}
 		selectionManager.setSelection(invertedSelection);
 		return (new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection"));
 	}
 
-	private void toggleSelection(final Set<Vertex> selection, final Vertex position) {
+	private void toggleSelection(final Set<GeosetVertex> selection, final GeosetVertex position) {
 		if (selection.contains(position)) {
 			selection.remove(position);
 		} else {
@@ -198,27 +152,20 @@ public class VertexModelEditor extends AbstractModelEditor<Vertex> {
 
 	@Override
 	public UndoAction selectAll() {
-		final ArrayList<Vertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
-		final Set<Vertex> allSelection = new HashSet<>();
+		final ArrayList<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
+		final Set<GeosetVertex> allSelection = new HashSet<>();
 		for (final Geoset geo : model.getEditableGeosets()) {
 			for (final GeosetVertex geosetVertex : geo.getVertices()) {
 				allSelection.add(geosetVertex);
 			}
-		}
-		for (final IdObject object : model.getEditableIdObjects()) {
-			allSelection.add(object.getPivotPoint());
-		}
-		for (final Camera object : model.getEditableCameras()) {
-			allSelection.add(object.getPosition());
-			allSelection.add(object.getTargetPosition());
 		}
 		selectionManager.setSelection(allSelection);
 		return (new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all"));
 	}
 
 	@Override
-	protected List<Vertex> genericSelect(final Rectangle2D region, final CoordinateSystem coordinateSystem) {
-		final List<Vertex> selectedItems = new ArrayList<>();
+	protected List<GeosetVertex> genericSelect(final Rectangle2D region, final CoordinateSystem coordinateSystem) {
+		final List<GeosetVertex> selectedItems = new ArrayList<>();
 		final double startingClickX = region.getX();
 		final double startingClickY = region.getY();
 		final double endingClickX = region.getX() + region.getWidth();
@@ -234,10 +181,6 @@ public class VertexModelEditor extends AbstractModelEditor<Vertex> {
 				hitTest(selectedItems, area, geosetVertex, coordinateSystem, programPreferences.getVertexSize());
 			}
 		}
-		for (final IdObject object : model.getEditableIdObjects()) {
-			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem,
-					object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2);
-		}
 		return selectedItems;
 	}
 
@@ -252,17 +195,11 @@ public class VertexModelEditor extends AbstractModelEditor<Vertex> {
 				}
 			}
 		}
-		for (final IdObject object : model.getEditableIdObjects()) {
-			if (hitTest(object.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes,
-					object.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes) * 2)) {
-				canSelect = true;
-			}
-		}
 		return canSelect;
 	}
 
-	public static void hitTest(final List<Vertex> selectedItems, final Rectangle2D area, final Vertex geosetVertex,
-			final CoordinateSystem coordinateSystem, final double vertexSize) {
+	public static void hitTest(final List<GeosetVertex> selectedItems, final Rectangle2D area,
+			final GeosetVertex geosetVertex, final CoordinateSystem coordinateSystem, final double vertexSize) {
 		final byte dim1 = coordinateSystem.getPortFirstXYZ();
 		final byte dim2 = coordinateSystem.getPortSecondXYZ();
 		final double minX = coordinateSystem.convertX(area.getMinX());
@@ -297,19 +234,16 @@ public class VertexModelEditor extends AbstractModelEditor<Vertex> {
 	@Override
 	protected UndoAction buildHideComponentAction(final ListView<? extends SelectableComponent> selectableComponents,
 			final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
-		final List<Vertex> previousSelection = new ArrayList<>(selectionManager.getSelection());
-		final List<Vertex> possibleVerticesToTruncate = new ArrayList<>();
+		final List<GeosetVertex> previousSelection = new ArrayList<>(selectionManager.getSelection());
+		final List<GeosetVertex> possibleVerticesToTruncate = new ArrayList<>();
 		for (final SelectableComponent component : selectableComponents) {
 			component.visit(new SelectableComponentVisitor() {
 				@Override
 				public void accept(final Camera camera) {
-					possibleVerticesToTruncate.add(camera.getPosition());
-					possibleVerticesToTruncate.add(camera.getTargetPosition());
 				}
 
 				@Override
 				public void accept(final IdObject node) {
-					possibleVerticesToTruncate.add(node.getPivotPoint());
 				}
 
 				@Override

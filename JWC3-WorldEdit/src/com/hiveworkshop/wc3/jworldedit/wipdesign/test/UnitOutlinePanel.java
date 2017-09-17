@@ -10,9 +10,9 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import com.hiveworkshop.wc3.gui.modeledit.MDLDisplay;
 import com.hiveworkshop.wc3.gui.modeledit.MDLSnapshot;
 import com.hiveworkshop.wc3.mdl.Geoset;
+import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.units.GameObject;
 
 public class UnitOutlinePanel extends JPanel {
@@ -25,14 +25,14 @@ public class UnitOutlinePanel extends JPanel {
 	public UnitOutlinePanel(final GameObject unit) {
 		// setBackground(Color.black);
 		try {
-			final MDLDisplay mdlDisplay = MDLSnapshot.createDefaultDisplay(unit);
-			snapshot = new MDLSnapshot(mdlDisplay, 1024, 1024);
+			final ModelViewManager mdlDisplay = MDLSnapshot.createDefaultDisplay(unit);
+			snapshot = new MDLSnapshot(mdlDisplay, 1024, 1024, null);
 			snapshot.zoomToFit();
 			bufferedImage = snapshot.getBufferedImage();
-			for (final Geoset geo : mdlDisplay.getMDL().getGeosets()) {
+			for (final Geoset geo : mdlDisplay.getModel().getGeosets()) {
 				if (geo.getMaterial().firstLayer().getTextureBitmap().getPath().equals("")) {
-					mdlDisplay.makeGeosetEditable(geo, false);
-					mdlDisplay.makeGeosetVisible(geo, false);
+					mdlDisplay.makeGeosetNotEditable(geo);
+					mdlDisplay.makeGeosetNotVisible(geo);
 				}
 			}
 			// outline = snapshot.getOutline();

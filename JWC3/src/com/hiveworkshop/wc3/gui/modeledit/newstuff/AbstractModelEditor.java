@@ -1,5 +1,6 @@
 package com.hiveworkshop.wc3.gui.modeledit.newstuff;
 
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -11,6 +12,7 @@ import com.etheller.collections.HashMap;
 import com.etheller.collections.ListView;
 import com.etheller.collections.Map;
 import com.etheller.util.CollectionUtils;
+import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.DeleteAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.ExtrudeAction;
@@ -20,6 +22,10 @@ import com.hiveworkshop.wc3.gui.modeledit.actions.SpecialDeleteAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.MoveAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.RotateAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.AddSelectionAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.MakeEditableAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.RemoveSelectionAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.CloneAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.FlipFacesAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.FlipNormalsAction;
@@ -27,6 +33,8 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.MirrorModelActi
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.SetMatrixAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.wc3.mdl.Bone;
@@ -57,8 +65,7 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 	}
 
 	@Override
-	public UndoAction setPosition(final double x, final double y, final double z) {
-		final Vertex center = selectionManager.getCenter();
+	public UndoAction setPosition(final Vertex center, final double x, final double y, final double z) {
 		final Vertex delta = new Vertex(x - center.x, y - center.y, z - center.z);
 		final MoveAction moveAction = new MoveAction(this, delta);
 		moveAction.redo();
@@ -66,12 +73,12 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 	}
 
 	@Override
-	public UndoAction rotate(final double rotateX, final double rotateY, final double rotateZ) {
+	public UndoAction rotate(final Vertex center, final double rotateX, final double rotateY, final double rotateZ) {
 
 		final CompoundAction compoundAction = new CompoundAction("rotate",
-				ListView.Util.of(new RotateAction(this, selectionManager.getCenter(), rotateX, (byte) 0, (byte) 2),
-						new RotateAction(this, selectionManager.getCenter(), rotateY, (byte) 1, (byte) 0),
-						new RotateAction(this, selectionManager.getCenter(), rotateZ, (byte) 1, (byte) 2)));
+				ListView.Util.of(new RotateAction(this, center, rotateX, (byte) 0, (byte) 2),
+						new RotateAction(this, center, rotateY, (byte) 1, (byte) 0),
+						new RotateAction(this, center, rotateZ, (byte) 1, (byte) 2)));
 		compoundAction.redo();
 		return compoundAction;
 	}
@@ -121,7 +128,7 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 		// TODO this code operates directly on MODEL
 		final ArrayList<Geoset> remGeosets = new ArrayList<>();// model.getGeosets()
 		final ArrayList<Triangle> deletedTris = new ArrayList<>();
-		final Collection<Vertex> selection = selectionManager.getSelectedVertices();
+		final Collection<? extends Vertex> selection = selectionManager.getSelectedVertices();
 		for (final Vertex vertex : selection) {
 			if (vertex.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vertex;
@@ -159,6 +166,9 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 	public UndoAction mirror(final byte dim, final boolean flipModel) {
 		final MirrorModelAction mirror = new MirrorModelAction(selectionManager.getSelectedVertices(),
 				CollectionUtils.toJava(model.getEditableIdObjects()), dim);
+		// super weird passing of currently editable id Objects, works because
+		// mirror action checks selected vertices against pivot points from this
+		// list
 		mirror.redo();
 		if (flipModel) {
 			final UndoAction flipFacesAction = flipSelectedFaces();
@@ -184,7 +194,7 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 
 	@Override
 	public UndoAction snapSelectedNormals() {
-		final Collection<Vertex> selection = selectionManager.getSelectedVertices();
+		final Collection<? extends Vertex> selection = selectionManager.getSelectedVertices();
 		final ArrayList<Vertex> oldLocations = new ArrayList<>();
 		final ArrayList<Vertex> selectedNormals = new ArrayList<>();
 		final Normal snapped = new Normal(0, 0, 1);
@@ -534,7 +544,7 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 
 	@Override
 	public UndoAction snapSelectedVertices() {
-		final Collection<Vertex> selection = selectionManager.getSelectedVertices();
+		final Collection<? extends Vertex> selection = selectionManager.getSelectedVertices();
 		final ArrayList<Vertex> oldLocations = new ArrayList<>();
 		final Vertex cog = Vertex.centerOfGroup(selection);
 		for (final Vertex vertex : selection) {
@@ -647,5 +657,94 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 		return cloneAction;
 	}
 
+	@Override
+	public void rawTranslate(final double x, final double y, final double z) {
+		for (final Vertex vertex : selectionManager.getSelectedVertices()) {
+			vertex.translate(x, y, z);
+		}
+	}
+
+	@Override
+	public void rawScale(final double centerX, final double centerY, final double centerZ, final double scaleX,
+			final double scaleY, final double scaleZ) {
+		for (final Vertex vertex : selectionManager.getSelectedVertices()) {
+			vertex.scale(centerX, centerY, centerZ, scaleX, scaleY, scaleZ);
+		}
+	}
+
+	@Override
+	public void rawRotate2d(final double centerX, final double centerY, final double centerZ, final double radians,
+			final byte firstXYZ, final byte secondXYZ) {
+		for (final Vertex vertex : selectionManager.getSelectedVertices()) {
+			vertex.rotate(centerX, centerY, centerZ, radians, firstXYZ, secondXYZ);
+		}
+	}
+
+	@Override
+	public void rawRotate3d(final Vertex center, final Vertex axis, final double radians) {
+		for (final Vertex vertex : selectionManager.getSelectedVertices()) {
+			Vertex.rotateVertex(center, axis, radians, vertex);
+		}
+	}
+
+	@Override
+	public final UndoAction setSelectedRegion(final Rectangle2D region, final CoordinateSystem coordinateSystem) {
+		final List<T> newSelection = genericSelect(region, coordinateSystem);
+		return setSelectionWithAction(newSelection);
+	}
+
+	@Override
+	public final UndoAction removeSelectedRegion(final Rectangle2D region, final CoordinateSystem coordinateSystem) {
+		final List<T> newSelection = genericSelect(region, coordinateSystem);
+		return removeSelectionWithAction(newSelection);
+	}
+
+	@Override
+	public final UndoAction addSelectedRegion(final Rectangle2D region, final CoordinateSystem coordinateSystem) {
+		final List<T> newSelection = genericSelect(region, coordinateSystem);
+		return addSelectionWithAction(newSelection);
+	}
+
+	protected final UndoAction setSelectionWithAction(final List<T> newSelection) {
+		final Set<T> previousSelection = new HashSet<>(selectionManager.getSelection());
+		selectionManager.setSelection(newSelection);
+		return (new SetSelectionAction<>(newSelection, previousSelection, selectionManager, "select"));
+	}
+
+	protected final UndoAction removeSelectionWithAction(final List<T> newSelection) {
+		selectionManager.removeSelection(newSelection);
+		return (new RemoveSelectionAction<>(newSelection, selectionManager));
+	}
+
+	protected final UndoAction addSelectionWithAction(final List<T> newSelection) {
+		selectionManager.addSelection(newSelection);
+		return (new AddSelectionAction<>(newSelection, selectionManager));
+	}
+
+	protected abstract List<T> genericSelect(final Rectangle2D region, final CoordinateSystem coordinateSystem);
+
+	@Override
+	public UndoAction hideComponent(final ListView<? extends SelectableComponent> selectableComponent,
+			final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
+		final UndoAction hideComponentAction = buildHideComponentAction(selectableComponent, editabilityToggleHandler,
+				refreshGUIRunnable);
+		hideComponentAction.redo();
+		return hideComponentAction;
+	}
+
+	protected abstract UndoAction buildHideComponentAction(ListView<? extends SelectableComponent> selectableComponents,
+			EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable);
+
+	@Override
+	public UndoAction showComponent(final EditabilityToggleHandler editabilityToggleHandler) {
+		editabilityToggleHandler.makeEditable();
+		return new MakeEditableAction(editabilityToggleHandler);
+	}
+
 	protected abstract void selectByVertices(Collection<Vertex> newSelection);
+
+	@Override
+	public Vertex getSelectionCenter() {
+		return selectionManager.getCenter();
+	}
 }

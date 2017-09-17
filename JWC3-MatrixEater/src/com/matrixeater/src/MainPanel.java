@@ -372,8 +372,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		public void actionPerformed(final ActionEvent e) {
 			final ModelPanel mpanel = ((ModelPanel) tabbedPane.getSelectedComponent());
 			if (mpanel != null) {
-				mpanel.getUndoManager()
-						.pushAction(mpanel.getModelEditorManager().getSelectingEventHandler().selectAll());
+				mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().selectAll());
 			}
 			repaint();
 		}
@@ -383,8 +382,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		public void actionPerformed(final ActionEvent e) {
 			final ModelPanel mpanel = ((ModelPanel) tabbedPane.getSelectedComponent());
 			if (mpanel != null) {
-				mpanel.getUndoManager()
-						.pushAction(mpanel.getModelEditorManager().getSelectingEventHandler().invertSelection());
+				mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().invertSelection());
 			}
 			repaint();
 		}
@@ -394,8 +392,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		public void actionPerformed(final ActionEvent e) {
 			final ModelPanel mpanel = ((ModelPanel) tabbedPane.getSelectedComponent());
 			if (mpanel != null) {
-				mpanel.getUndoManager()
-						.pushAction(mpanel.getModelEditorManager().getSelectingEventHandler().expandSelection());
+				mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().expandSelection());
 			}
 			repaint();
 		}
@@ -2707,6 +2704,21 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 
 		@Override
 		public void cameraNotVisible(final Camera camera) {
+			component.repaint();
+		}
+
+		@Override
+		public void unhighlightGeoset(final Geoset geoset) {
+			component.repaint();
+		}
+
+		@Override
+		public void highlightNode(final IdObject node) {
+			component.repaint();
+		}
+
+		@Override
+		public void unhighlightNode(final IdObject node) {
 			component.repaint();
 		}
 	}

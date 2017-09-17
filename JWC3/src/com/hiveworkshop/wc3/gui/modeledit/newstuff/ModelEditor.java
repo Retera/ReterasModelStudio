@@ -1,11 +1,16 @@
 package com.hiveworkshop.wc3.gui.modeledit.newstuff;
 
+import java.awt.Point;
+import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 
+import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
@@ -28,9 +33,9 @@ public interface ModelEditor {
 	// knowledge of center point from state holders
 	UndoAction translate(double x, double y, double z);
 
-	UndoAction setPosition(double x, double y, double z);
+	UndoAction setPosition(Vertex center, double x, double y, double z);
 
-	UndoAction rotate(double rotateX, double rotateY, double rotateZ);
+	UndoAction rotate(Vertex center, double rotateX, double rotateY, double rotateZ);
 
 	UndoAction setMatrix(Collection<Bone> bones);
 
@@ -55,6 +60,25 @@ public interface ModelEditor {
 	UndoAction cloneSelectedComponents(ModelStructureChangeListener modelStructureChangeListener,
 			ClonedNodeNamePicker clonedNodeNamePicker);
 
+	UndoAction setSelectedRegion(Rectangle2D region, CoordinateSystem coordinateSystem);
+
+	UndoAction removeSelectedRegion(Rectangle2D region, CoordinateSystem coordinateSystem);
+
+	UndoAction addSelectedRegion(Rectangle2D region, CoordinateSystem coordinateSystem);
+
+	UndoAction expandSelection();
+
+	UndoAction invertSelection();
+
+	UndoAction selectAll();
+
+	UndoAction hideComponent(ListView<? extends SelectableComponent> selectableComponents,
+			EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable);
+
+	UndoAction showComponent(EditabilityToggleHandler editabilityToggleHandler);
+
+	boolean canSelectAt(Point point, CoordinateSystem axes);
+
 	void rawTranslate(double x, double y, double z);
 
 	void rawScale(double centerX, double centerY, double centerZ, double scaleX, double scaleY, double scaleZ);
@@ -65,4 +89,6 @@ public interface ModelEditor {
 
 	// TODO maybe put this on selection view
 	void renderSelection(ModelElementRenderer renderer, final CoordinateSystem coordinateSystem);
+
+	Vertex getSelectionCenter();
 }

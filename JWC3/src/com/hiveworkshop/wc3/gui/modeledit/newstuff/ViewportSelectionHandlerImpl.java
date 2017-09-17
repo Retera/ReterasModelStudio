@@ -10,15 +10,15 @@ import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 
 public final class ViewportSelectionHandlerImpl implements ViewportSelectionHandler {
 	private final ToolbarButtonGroup<SelectionMode> modeButtonGroup;
-	private SelectingEventHandler selectingEventHandler;
+	private ModelEditor selectingEventHandler;
 
 	public ViewportSelectionHandlerImpl(final ToolbarButtonGroup<SelectionMode> modeButtonGroup,
-			final SelectingEventHandler selectingEventHandler) {
+			final ModelEditor selectingEventHandler) {
 		this.modeButtonGroup = modeButtonGroup;
 		this.selectingEventHandler = selectingEventHandler;
 	}
 
-	public void setSelectingEventHandler(final SelectingEventHandler selectingEventHandler) {
+	public void setSelectingEventHandler(final ModelEditor selectingEventHandler) {
 		this.selectingEventHandler = selectingEventHandler;
 	}
 

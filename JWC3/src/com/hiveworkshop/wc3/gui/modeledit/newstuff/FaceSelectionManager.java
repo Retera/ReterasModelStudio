@@ -7,13 +7,18 @@ import java.util.Set;
 
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
+import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public final class FaceSelectionManager extends AbstractSelectionManager<Triangle> {
-	private static final Color FACE_HIGHLIGHT_COLOR = new Color(1f, 0.45f, 0.45f, 0.3f);
+	private static final Color FACE_SELECTED_COLOR = new Color(1f, 0.45f, 0.45f, 0.3f);
+
+	private static final Color FACE_HIGHLIGHT_COLOR = new Color(0.45f, 1f, 0.45f, 0.3f);
+
+	private static final Color FACE_NOT_SELECTED_COLOR = new Color(0.45f, 0.45f, 1f, 0.3f);
 
 	@Override
 	public Vertex getCenter() {
@@ -54,8 +59,23 @@ public final class FaceSelectionManager extends AbstractSelectionManager<Triangl
 	@Override
 	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem,
 			final ModelView modelView, final ProgramPreferences programPreferences) {
-		for (final Triangle triangle : selection) {
-			renderer.renderFace(Color.RED, FACE_HIGHLIGHT_COLOR, triangle.get(0), triangle.get(1), triangle.get(2));
+		for (final Geoset geoset : modelView.getEditableGeosets()) {
+			for (final Triangle triangle : geoset.getTriangles()) {
+				Color outlineColor;
+				Color fillColor;
+				if (geoset == modelView.getHighlightedGeoset()) {
+					outlineColor = Color.YELLOW;
+					fillColor = FACE_HIGHLIGHT_COLOR;
+				} else if (selection.contains(triangle)) {
+					outlineColor = Color.RED;
+					fillColor = FACE_SELECTED_COLOR;
+				} else {
+					outlineColor = Color.BLUE;
+					fillColor = FACE_NOT_SELECTED_COLOR;
+					continue;
+				}
+				renderer.renderFace(outlineColor, fillColor, triangle.get(0), triangle.get(1), triangle.get(2));
+			}
 		}
 	}
 

@@ -23,4 +23,10 @@ public interface ModelViewStateListener {
 
 	void highlightGeoset(Geoset geoset);
 
+	void unhighlightGeoset(Geoset geoset);
+
+	void highlightNode(IdObject node);
+
+	void unhighlightNode(IdObject node);
+
 }

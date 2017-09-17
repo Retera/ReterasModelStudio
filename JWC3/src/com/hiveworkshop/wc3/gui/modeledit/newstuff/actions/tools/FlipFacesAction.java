@@ -12,7 +12,7 @@ import com.hiveworkshop.wc3.mdl.Vertex;
 public final class FlipFacesAction implements UndoAction {
 	private final List<Vertex> selection;
 
-	public FlipFacesAction(final Collection<Vertex> selection) {
+	public FlipFacesAction(final Collection<? extends Vertex> selection) {
 		this.selection = new ArrayList<>(selection);
 	}
 

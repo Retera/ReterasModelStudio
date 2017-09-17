@@ -29,13 +29,16 @@ public abstract class AbstractScaleManipulator extends AbstractManipulator {
 		update(mouseStart, mouseEnd, dim1, dim2);
 		final Vertex center = selectionView.getCenter();
 		final double scaleFactor = computeScaleFactor(activityStart, mouseEnd, center, dim1, dim2);
-		return new ScaleAction(modelEditor, center, scaleFactor, scaleFactor, scaleFactor);
+		final Vertex scaleVector = buildScaleVector(scaleFactor, dim1, dim2);
+		return new ScaleAction(modelEditor, center, scaleVector.x, scaleVector.y, scaleVector.z);
 	}
 
 	protected abstract void scaleWithFactor(final ModelEditor modelEditor, final Vertex center,
 			final double scaleFactor, byte dim1, byte dim2);
 
-	private double computeScaleFactor(final Double startingClick, final Double endingClick, final Vertex center,
+	protected abstract Vertex buildScaleVector(final double scaleFactor, byte dim1, byte dim2);
+
+	protected double computeScaleFactor(final Double startingClick, final Double endingClick, final Vertex center,
 			final byte dim1, final byte dim2) {
 		double dxs = endingClick.x - center.getCoord(dim1);
 		double dys = endingClick.y - center.getCoord(dim2);

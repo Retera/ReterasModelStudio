@@ -71,4 +71,25 @@ public final class ModelViewStateNotifier extends SubscriberSetNotifier<ModelVie
 		}
 	}
 
+	@Override
+	public void unhighlightGeoset(final Geoset geoset) {
+		for (final ModelViewStateListener listener : set) {
+			listener.unhighlightGeoset(geoset);
+		}
+	}
+
+	@Override
+	public void highlightNode(final IdObject node) {
+		for (final ModelViewStateListener listener : set) {
+			listener.highlightNode(node);
+		}
+	}
+
+	@Override
+	public void unhighlightNode(final IdObject node) {
+		for (final ModelViewStateListener listener : set) {
+			listener.unhighlightNode(node);
+		}
+	}
+
 }
