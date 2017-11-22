@@ -29,9 +29,16 @@ public class MetaDataToJavaClassConverter {
 	}
 
 	public static void main(final String[] args) {
+	}
+
+	private static void generateUnitClassWithTable() {
+		final DataTable standardUnitMeta = StandardObjectData.getStandardUnitMeta();
+	}
+
+	private static void generateUnitClassWithFields() {
 		final DataTable standardUnitMeta = StandardObjectData.getStandardUnitMeta();
 		final MetaDataToJavaClassConverter converter = new MetaDataToJavaClassConverter(standardUnitMeta);
-		final Map<String, String> typeToJava = new HashMap<String, String>();
+		final Map<String, String> typeToJava = new HashMap<>();
 		typeToJava.put("string", "String");
 		typeToJava.put("real", "float");
 		typeToJava.put("int", "int");
@@ -43,8 +50,8 @@ public class MetaDataToJavaClassConverter {
 			System.out.println(key);
 		}
 		System.out.println("------");
-		final Set<String> types = new HashSet<String>();
-		final List<Element> unitMetaFields = new ArrayList<Element>();
+		final Set<String> types = new HashSet<>();
+		final List<Element> unitMetaFields = new ArrayList<>();
 		for (final String key : standardUnitMeta.keySet()) {
 			final Element metaField = standardUnitMeta.get(key);
 			if (metaField.getFieldValue("useUnit") == 1 && metaField.getFieldValue("useBuilding") == 1) {
@@ -72,7 +79,7 @@ public class MetaDataToJavaClassConverter {
 					isList = true;
 					typeString = typeString.substring(0, typeString.length() - 4);
 				}
-				if( typeToJava.containsKey(typeString) ) {
+				if (typeToJava.containsKey(typeString)) {
 					typeString = typeToJava.get(typeString);
 				} else {
 					typeString = Character.toUpperCase(typeString.charAt(0)) + typeString.substring(1);
@@ -130,7 +137,8 @@ public class MetaDataToJavaClassConverter {
 					}
 				}
 
-				System.out.println("\t" + typeToJava.get(type) + " " + lowerCaseTitle(finalDisplayName.toString()) + ";");
+				System.out
+						.println("\t" + typeToJava.get(type) + " " + lowerCaseTitle(finalDisplayName.toString()) + ";");
 			}
 		}
 		for (final Element metaField : unitMetaFields) {
@@ -149,8 +157,10 @@ public class MetaDataToJavaClassConverter {
 				System.out.println("\tpublic " + typeToJava.get(type) + " get" + finalDisplayName.toString() + "() {");
 				System.out.println("\t\treturn " + lowerCaseTitle(finalDisplayName.toString()) + ";");
 				System.out.println("\t}");
-				System.out.println("\tpublic void set" + finalDisplayName.toString() + "("+typeToJava.get(type)+" " + lowerCaseTitle(finalDisplayName.toString()) + ") {");
-				System.out.println("\t\tthis." + lowerCaseTitle(finalDisplayName.toString()) + " = " + lowerCaseTitle(finalDisplayName.toString()) + ";");
+				System.out.println("\tpublic void set" + finalDisplayName.toString() + "(" + typeToJava.get(type) + " "
+						+ lowerCaseTitle(finalDisplayName.toString()) + ") {");
+				System.out.println("\t\tthis." + lowerCaseTitle(finalDisplayName.toString()) + " = "
+						+ lowerCaseTitle(finalDisplayName.toString()) + ";");
 				System.out.println("\t}");
 			}
 		}

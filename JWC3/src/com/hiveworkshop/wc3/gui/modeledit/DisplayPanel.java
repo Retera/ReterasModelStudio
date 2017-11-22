@@ -17,6 +17,7 @@ import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivity;
+import com.hiveworkshop.wc3.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ModelEditorChangeNotifier;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
@@ -39,7 +40,8 @@ public class DisplayPanel extends JPanel implements ActionListener {
 			final ModelEditor modelEditor, final ModelStructureChangeListener modelStructureChangeListener,
 			final ViewportActivity activityListener, final ProgramPreferences preferences,
 			final UndoActionListener undoListener, final CoordDisplayListener coordDisplayListener,
-			final UndoHandler undoHandler, final ModelEditorChangeNotifier modelEditorChangeNotifier) {
+			final UndoHandler undoHandler, final ModelEditorChangeNotifier modelEditorChangeNotifier,
+			final ViewportTransferHandler viewportTransferHandler) {
 		super();
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		this.activityListener = activityListener;
@@ -48,7 +50,8 @@ public class DisplayPanel extends JPanel implements ActionListener {
 		// BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title),BorderFactory.createBevelBorder(1)),BorderFactory.createEmptyBorder(1,1,1,1)
 		// ));
 		setOpaque(true);
-		setViewport(a, b, modelView, preferences, undoListener, coordDisplayListener, undoHandler, modelEditor);
+		setViewport(a, b, modelView, preferences, undoListener, coordDisplayListener, undoHandler, modelEditor,
+				viewportTransferHandler);
 		this.title = title;
 
 		plusZoom = new JButton("");
@@ -130,9 +133,9 @@ public class DisplayPanel extends JPanel implements ActionListener {
 	public void setViewport(final byte a, final byte b, final ModelView modelView,
 			final ProgramPreferences programPreferences, final UndoActionListener undoListener,
 			final CoordDisplayListener coordDisplayListener, final UndoHandler undoHandler,
-			final ModelEditor modelEditor) {
+			final ModelEditor modelEditor, final ViewportTransferHandler viewportTransferHandler) {
 		vp = new Viewport(a, b, modelView, programPreferences, activityListener, modelStructureChangeListener,
-				undoListener, coordDisplayListener, undoHandler, modelEditor);
+				undoListener, coordDisplayListener, undoHandler, modelEditor, viewportTransferHandler);
 		modelEditorChangeNotifier.subscribe(vp);
 		add(vp);
 	}

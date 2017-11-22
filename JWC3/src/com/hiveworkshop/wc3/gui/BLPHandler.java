@@ -19,8 +19,7 @@ public class BLPHandler {
 	}
 
 	/**
-	 * Caching here is dangerous, only works if you're not changing the
-	 * underlying images.
+	 * Caching here is dangerous, only works if you're not changing the underlying images.
 	 */
 	Map<String, BufferedImage> cache = new HashMap<>();
 
@@ -42,9 +41,8 @@ public class BLPHandler {
 	}
 
 	/**
-	 * Gets a texture file from BLP format inside the Warcraft archives into a
-	 * BufferedImage you can use, based on a filepath in the Warcraft
-	 * installation's MPQ files.
+	 * Gets a texture file from BLP format inside the Warcraft archives into a BufferedImage you can use, based on a
+	 * filepath in the Warcraft installation's MPQ files.
 	 *
 	 * @param filepath
 	 * @return
@@ -59,8 +57,7 @@ public class BLPHandler {
 			cache.put(filepath, img);
 			return img;// ImageIO.read(tga);
 		} catch (final IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// we return null here, swallow exception, be very careful with this
 		}
 		// final File blpFile = MpqCodebase.get().getFile(filepath);
 		// final File tga = convertBLPtoTGA(blpFile);
@@ -76,8 +73,7 @@ public class BLPHandler {
 	}
 
 	/**
-	 * Returns a BufferedImage from any arbitrary filepath string on your
-	 * computer, reading the image from BLP format.
+	 * Returns a BufferedImage from any arbitrary filepath string on your computer, reading the image from BLP format.
 	 *
 	 * @param filepath
 	 * @return

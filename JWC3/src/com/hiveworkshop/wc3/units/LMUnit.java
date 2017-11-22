@@ -4,9 +4,9 @@ import java.util.LinkedHashMap;
 
 public class LMUnit extends Element {
 
-	public LMUnit(String id, DataTable table) {
+	public LMUnit(final String id, final DataTable table) {
 		super(id, table);
-		fields = new LinkedHashMap<String,String>();
+		fields = new LinkedHashMap<>();
 	}
 
 }

@@ -196,7 +196,11 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 	public void add(final Triangle p) {
-		triangles.add(p);
+		if (!triangles.contains(p)) {
+			triangles.add(p);
+		} else {
+			System.out.println("2x triangles");
+		}
 	}
 
 	public Triangle getTriangle(final int triId) {

@@ -24,6 +24,7 @@ import com.hiveworkshop.wc3.gui.modeledit.activity.DoNothingActivity;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoManager;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoManagerImpl;
 import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivityManager;
+import com.hiveworkshop.wc3.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ModelEditorChangeNotifier;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItemTypes;
@@ -65,16 +66,16 @@ public class ModelPanel extends JPanel implements ActionListener, MouseListener 
 	public ModelPanel(final File input, final ProgramPreferences prefs, final UndoHandler undoHandler,
 			final ToolbarButtonGroup<SelectionItemTypes> notifier, final ToolbarButtonGroup<SelectionMode> modeNotifier,
 			final ModelStructureChangeListener modelStructureChangeListener,
-			final CoordDisplayListener coordDisplayListener) {
+			final CoordDisplayListener coordDisplayListener, final ViewportTransferHandler viewportTransferHandler) {
 		this(MDL.read(input), prefs, undoHandler, notifier, modeNotifier, modelStructureChangeListener,
-				coordDisplayListener);
+				coordDisplayListener, viewportTransferHandler);
 		file = input;
 	}
 
 	public ModelPanel(final MDL input, final ProgramPreferences prefs, final UndoHandler undoHandler,
 			final ToolbarButtonGroup<SelectionItemTypes> notifier, final ToolbarButtonGroup<SelectionMode> modeNotifier,
 			final ModelStructureChangeListener modelStructureChangeListener,
-			final CoordDisplayListener coordDisplayListener) {
+			final CoordDisplayListener coordDisplayListener, final ViewportTransferHandler viewportTransferHandler) {
 		super();
 		this.prefs = prefs;
 		this.undoHandler = undoHandler;
@@ -102,17 +103,17 @@ public class ModelPanel extends JPanel implements ActionListener, MouseListener 
 
 		frontArea = new DisplayPanel("Front", (byte) 1, (byte) 2, modelView, modelEditorManager.getModelEditor(),
 				modelStructureChangeListener, viewportActivityManager, prefs, undoManager, coordDisplayListener,
-				undoHandler, modelEditorChangeNotifier);
+				undoHandler, modelEditorChangeNotifier, viewportTransferHandler);
 		// frontArea.setViewport(1,2);
 		add(frontArea);
 		botArea = new DisplayPanel("Bottom", (byte) 1, (byte) 0, modelView, modelEditorManager.getModelEditor(),
 				modelStructureChangeListener, viewportActivityManager, prefs, undoManager, coordDisplayListener,
-				undoHandler, modelEditorChangeNotifier);
+				undoHandler, modelEditorChangeNotifier, viewportTransferHandler);
 		// botArea.setViewport(0,1);
 		add(botArea);
 		sideArea = new DisplayPanel("Side", (byte) 0, (byte) 2, modelView, modelEditorManager.getModelEditor(),
 				modelStructureChangeListener, viewportActivityManager, prefs, undoManager, coordDisplayListener,
-				undoHandler, modelEditorChangeNotifier);
+				undoHandler, modelEditorChangeNotifier, viewportTransferHandler);
 		// sideArea.setViewport(0,2);
 		add(sideArea);
 

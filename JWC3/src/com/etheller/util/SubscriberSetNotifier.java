@@ -15,4 +15,8 @@ public abstract class SubscriberSetNotifier<LISTENER_TYPE> {
 	public final void subscribe(final LISTENER_TYPE listener) {
 		set.add(listener);
 	}
+
+	public final void unsubscribe(final LISTENER_TYPE listener) {
+		set.remove(listener);
+	}
 }

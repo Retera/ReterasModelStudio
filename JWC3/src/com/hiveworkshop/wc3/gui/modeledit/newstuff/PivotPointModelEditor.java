@@ -17,6 +17,7 @@ import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.TeamColorAddAction;
+import com.hiveworkshop.wc3.gui.modeledit.cutpaste.CopiedModelData;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.AutoCenterBonesAction;
@@ -151,8 +152,77 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 	}
 
 	@Override
-	protected void selectByVertices(final Collection<Vertex> newSelection) {
-		selectionManager.setSelection(newSelection);
+	public void selectByVertices(final Collection<? extends Vertex> newSelection) {
+		final List<Vertex> newlySelectedPivots = new ArrayList<>();
+		for (final IdObject object : model.getEditableIdObjects()) {
+			if (newSelection.contains(object.getPivotPoint())) {
+				newlySelectedPivots.add(object.getPivotPoint());
+			}
+			object.apply(new IdObjectVisitor() {
+				@Override
+				public void ribbonEmitter(final RibbonEmitter particleEmitter) {
+
+				}
+
+				@Override
+				public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
+
+				}
+
+				@Override
+				public void particleEmitter(final ParticleEmitter particleEmitter) {
+
+				}
+
+				@Override
+				public void light(final Light light) {
+
+				}
+
+				@Override
+				public void helper(final Helper object) {
+
+				}
+
+				@Override
+				public void eventObject(final EventObject eventObject) {
+
+				}
+
+				@Override
+				public void collisionShape(final CollisionShape collisionShape) {
+					for (final Vertex vertex : collisionShape.getVertices()) {
+						if (newSelection.contains(vertex)) {
+							newlySelectedPivots.add(vertex);
+						}
+					}
+				}
+
+				@Override
+				public void camera(final Camera camera) {
+
+				}
+
+				@Override
+				public void bone(final Bone object) {
+
+				}
+
+				@Override
+				public void attachment(final Attachment attachment) {
+
+				}
+			});
+		}
+		for (final Camera camera : model.getEditableCameras()) {
+			if (newSelection.contains(camera.getPosition())) {
+				newlySelectedPivots.add(camera.getPosition());
+			}
+			if (newSelection.contains(camera.getTargetPosition())) {
+				newlySelectedPivots.add(camera.getTargetPosition());
+			}
+		}
+		selectionManager.setSelection(newlySelectedPivots);
 	}
 
 	@Override
@@ -706,5 +776,23 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			hitTest(selectedItems, area, attachment.getPivotPoint(), coordinateSystem,
 					attachment.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2);
 		}
+	}
+
+	@Override
+	public CopiedModelData copySelection() {
+		final Set<Vertex> selection = selectionManager.getSelection();
+		final Set<IdObject> clonedNodes = new HashSet<>();
+		final Set<Camera> clonedCameras = new HashSet<>();
+		for (final IdObject b : model.getEditableIdObjects()) {
+			if (selection.contains(b.getPivotPoint())) {
+				clonedNodes.add(b.copy());
+			}
+		}
+		for (final Camera camera : model.getEditableCameras()) {
+			if (selection.contains(camera.getTargetPosition()) || selection.contains(camera.getPosition())) {
+				clonedCameras.add(camera);
+			}
+		}
+		return new CopiedModelData(new ArrayList<Geoset>(), clonedNodes, clonedCameras);
 	}
 }

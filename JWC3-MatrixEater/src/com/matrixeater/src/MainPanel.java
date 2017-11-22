@@ -31,6 +31,7 @@ import java.util.NoSuchElementException;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
@@ -66,6 +67,7 @@ import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.TransferHandler;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
@@ -90,6 +92,7 @@ import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeLis
 import com.hiveworkshop.wc3.gui.modeledit.activity.MultiManipulatorActivity;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivity;
+import com.hiveworkshop.wc3.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.ExtendWidgetManipulatorBuilder;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.ExtrudeWidgetManipulatorBuilder;
@@ -103,6 +106,7 @@ import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarActionButtonType;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonListener;
 import com.hiveworkshop.wc3.gui.modeledit.util.DnDTabbedPane;
+import com.hiveworkshop.wc3.gui.modeledit.util.TransferActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.IconUtils;
 import com.hiveworkshop.wc3.gui.mpqbrowser.MPQBrowser;
 import com.hiveworkshop.wc3.jworldedit.models.UnitEditorModelSelector;
@@ -173,8 +177,9 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			newDirectory, creditsButton, clearRecent, nullmodelButton, selectAll, invertSelect, expandSelection,
 			snapNormals, flipAllUVsU, flipAllUVsV, inverseAllUVs, mirrorX, mirrorY, mirrorZ, insideOut,
 			insideOutNormals, showMatrices, editUVs, exportTextures, scaleAnimations, animationViewer, mpqViewer,
-			linearizeAnimations, simplifyKeyframes, divideVertices, riseFallBirth, animFromFile, animFromUnit,
+			linearizeAnimations, simplifyKeyframes, duplicateSelection, riseFallBirth, animFromFile, animFromUnit,
 			animFromModel, animFromObject, teamColor, teamGlow;
+	JMenuItem cut, copy, paste;
 	List<RecentItem> recentItems = new ArrayList<>();
 	UndoMenuItem undo;
 	RedoMenuItem redo;
@@ -281,9 +286,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				}
 			}
 			refreshUndo();
-			repaint();
-			geoControl.repaint();
-			mpanel.repaintSelfAndRelatedChildren();
+			repaintSelfAndChildren(mpanel);
 		}
 	};
 	AbstractAction redoAction = new AbstractAction("Redo") {
@@ -300,9 +303,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				}
 			}
 			refreshUndo();
-			repaint();
-			geoControl.repaint();
-			mpanel.repaintSelfAndRelatedChildren();
+			repaintSelfAndChildren(mpanel);
 		}
 	};
 	ClonedNodeNamePicker namePicker = new ClonedNodeNamePicker() {
@@ -349,9 +350,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				}
 			}
 			refreshUndo();
-			repaint();
-			geoControl.repaint();
-			mpanel.repaintSelfAndRelatedChildren();
+			repaintSelfAndChildren(mpanel);
 		}
 	};
 	AbstractAction deleteAction = new AbstractAction("Delete") {
@@ -362,9 +361,54 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor()
 						.deleteSelectedComponents(modelStructureChangeListener));
 			}
-			repaint();
-			geoControl.repaint();
-			mpanel.repaintSelfAndRelatedChildren();
+			repaintSelfAndChildren(mpanel);
+		}
+	};
+	AbstractAction cutAction = new AbstractAction("Cut") {
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			final ModelPanel mpanel = ((ModelPanel) tabbedPane.getSelectedComponent());
+			if (mpanel != null) {
+				try {
+					mpanel.getModelEditorManager();// cut something to clipboard
+				} catch (final Exception exc) {
+					ExceptionPopup.display(exc);
+				}
+			}
+			refreshUndo();
+			repaintSelfAndChildren(mpanel);
+		}
+	};
+	AbstractAction copyAction = new AbstractAction("Copy") {
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			final ModelPanel mpanel = ((ModelPanel) tabbedPane.getSelectedComponent());
+			if (mpanel != null) {
+				try {
+					mpanel.getModelEditorManager();// copy something to
+													// clipboard
+				} catch (final Exception exc) {
+					ExceptionPopup.display(exc);
+				}
+			}
+			refreshUndo();
+			repaintSelfAndChildren(mpanel);
+		}
+	};
+	AbstractAction pasteAction = new AbstractAction("Paste") {
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			final ModelPanel mpanel = ((ModelPanel) tabbedPane.getSelectedComponent());
+			if (mpanel != null) {
+				try {
+					mpanel.getModelEditorManager();// paste something from
+													// clipboard
+				} catch (final Exception exc) {
+					ExceptionPopup.display(exc);
+				}
+			}
+			refreshUndo();
+			repaintSelfAndChildren(mpanel);
 		}
 	};
 	AbstractAction selectAllAction = new AbstractAction("Select All") {
@@ -555,6 +599,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 	private ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private JMenuItem combineAnims;
+	private final ViewportTransferHandler viewportTransferHandler;
 
 	public MainPanel() {
 		super();
@@ -759,6 +804,36 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 					reloadGeosetManagers(display);
 				}
 			}
+
+			@Override
+			public void camerasAdded(final List<Camera> cameras) {
+				// Tell program to set visibility after import
+				final ModelPanel display = displayFor(currentModelPanel().getModel());
+				if (display != null) {
+					// display.setBeenSaved(false); // we edited the model
+					// TODO notify been saved system, wherever that moves to
+					for (final Camera camera : cameras) {
+						display.getModelViewManager().makeCameraVisible(camera);
+						// display.getModelViewManager().makeGeosetVisible(geoset);
+					}
+					reloadGeosetManagers(display);
+				}
+			}
+
+			@Override
+			public void camerasRemoved(final List<Camera> cameras) {
+				// Tell program to set visibility after import
+				final ModelPanel display = displayFor(currentModelPanel().getModel());
+				if (display != null) {
+					// display.setBeenSaved(false); // we edited the model
+					// TODO notify been saved system, wherever that moves to
+					for (final Camera camera : cameras) {
+						display.getModelViewManager().makeCameraNotVisible(camera);
+						// display.getModelViewManager().makeGeosetVisible(geoset);
+					}
+					reloadGeosetManagers(display);
+				}
+			}
 		};
 
 		actionTypeGroup.addToolbarButtonListener(new ToolbarButtonListener<ToolbarActionButtonType>() {
@@ -771,6 +846,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			}
 		});
 		actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
+		viewportTransferHandler = new ViewportTransferHandler();
 	}
 
 	private void reloadGeosetManagers(final ModelPanel display) {
@@ -1396,12 +1472,6 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		toolsMenu.add(linearizeAnimations);
 		toolsMenu.add(scaleAnimations);
 
-		divideVertices = new JMenuItem("Clone");
-		// divideVertices.setMnemonic(KeyEvent.VK_V);
-		divideVertices.setAccelerator(KeyStroke.getKeyStroke("control V"));
-		divideVertices.addActionListener(cloneAction);
-		toolsMenu.add(divideVertices);
-
 		combineAnims = new JMenuItem("Put together two animations for that guy dtnmang or Misha");
 		combineAnims.setMnemonic(KeyEvent.VK_P);
 		combineAnims.addActionListener(new ActionListener() {
@@ -1698,6 +1768,35 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 
 		editMenu.add(new JSeparator());
 
+		final TransferActionListener transferActionListener = new TransferActionListener();
+		cut = new JMenuItem("Cut");
+		cut.addActionListener(transferActionListener);
+		cut.setActionCommand((String) TransferHandler.getCutAction().getValue(Action.NAME));
+		cut.setAccelerator(KeyStroke.getKeyStroke("control X"));
+		editMenu.add(cut);
+
+		copy = new JMenuItem("Copy");
+		copy.addActionListener(transferActionListener);
+		copy.setActionCommand((String) TransferHandler.getCopyAction().getValue(Action.NAME));
+		copy.setAccelerator(KeyStroke.getKeyStroke("control C"));
+		editMenu.add(copy);
+
+		paste = new JMenuItem("Paste");
+		paste.addActionListener(transferActionListener);
+		paste.setActionCommand((String) TransferHandler.getPasteAction().getValue(Action.NAME));
+		paste.setAccelerator(KeyStroke.getKeyStroke("control V"));
+		editMenu.add(paste);
+
+		editMenu.add(new JSeparator());
+
+		duplicateSelection = new JMenuItem("Duplicate");
+		// divideVertices.setMnemonic(KeyEvent.VK_V);
+		duplicateSelection.setAccelerator(KeyStroke.getKeyStroke("control D"));
+		duplicateSelection.addActionListener(cloneAction);
+		toolsMenu.add(duplicateSelection);
+
+		editMenu.add(new JSeparator());
+
 		snapNormals = new JMenuItem("Snap Normals");
 		snapNormals.setAccelerator(KeyStroke.getKeyStroke("control L"));
 		snapNormals.addActionListener(snapNormalsAction);
@@ -1734,52 +1833,60 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				onClickOpen();
 			} else if (e.getSource() == fetchUnit) {
 				final GameObject unitFetched = fetchUnit();
-				final String filepath = convertPathToMDX(unitFetched.getField("file"));
-				if (filepath != null) {
-					loadFile(MpqCodebase.get().getFile(filepath), true, true, unitFetched.getScaledIcon(0.25f));
-					final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
-							+ filepath.substring(filepath.lastIndexOf('.'), filepath.length());
-					if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
-						loadFile(MpqCodebase.get().getFile(portrait), true, false, unitFetched.getScaledIcon(0.25f));
+				if (unitFetched != null) {
+					final String filepath = convertPathToMDX(unitFetched.getField("file"));
+					if (filepath != null) {
+						loadFile(MpqCodebase.get().getFile(filepath), true, true, unitFetched.getScaledIcon(0.25f));
+						final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
+								+ filepath.substring(filepath.lastIndexOf('.'), filepath.length());
+						if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
+							loadFile(MpqCodebase.get().getFile(portrait), true, false,
+									unitFetched.getScaledIcon(0.25f));
+						}
+						toolsMenu.getAccessibleContext().setAccessibleDescription(
+								"Allows the user to control which parts of the model are displayed for editing.");
+						toolsMenu.setEnabled(true);
 					}
-					toolsMenu.getAccessibleContext().setAccessibleDescription(
-							"Allows the user to control which parts of the model are displayed for editing.");
-					toolsMenu.setEnabled(true);
 				}
 			} else if (e.getSource() == fetchModel) {
 				final ModelElement model = fetchModel();
-				final String filepath = convertPathToMDX(model.getFilepath());
-				if (filepath != null) {
+				if (model != null) {
+					final String filepath = convertPathToMDX(model.getFilepath());
+					if (filepath != null) {
 
-					final ImageIcon icon = model.hasCachedIconPath() ? new ImageIcon(BLPHandler.get()
-							.getGameTex(model.getCachedIconPath()).getScaledInstance(16, 16, Image.SCALE_FAST))
-							: MDLIcon;
-					loadFile(MpqCodebase.get().getFile(filepath), true, true, icon);
-					final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
-							+ filepath.substring(filepath.lastIndexOf('.'), filepath.length());
-					if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
-						loadFile(MpqCodebase.get().getFile(portrait), true, false, icon);
+						final ImageIcon icon = model.hasCachedIconPath() ? new ImageIcon(BLPHandler.get()
+								.getGameTex(model.getCachedIconPath()).getScaledInstance(16, 16, Image.SCALE_FAST))
+								: MDLIcon;
+						loadFile(MpqCodebase.get().getFile(filepath), true, true, icon);
+						final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
+								+ filepath.substring(filepath.lastIndexOf('.'), filepath.length());
+						if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
+							loadFile(MpqCodebase.get().getFile(portrait), true, false, icon);
+						}
+						toolsMenu.getAccessibleContext().setAccessibleDescription(
+								"Allows the user to control which parts of the model are displayed for editing.");
+						toolsMenu.setEnabled(true);
 					}
-					toolsMenu.getAccessibleContext().setAccessibleDescription(
-							"Allows the user to control which parts of the model are displayed for editing.");
-					toolsMenu.setEnabled(true);
 				}
 			} else if (e.getSource() == fetchObject) {
 				final GameObject objectFetched = fetchObject();
-				final String filepath = convertPathToMDX(objectFetched.getField("file"));
-				if (filepath != null) {
-					loadFile(MpqCodebase.get().getFile(filepath), true, true, new ImageIcon(BLPHandler.get()
-							.getGameTex(objectFetched.getField("Art")).getScaledInstance(16, 16, Image.SCALE_FAST)));
-					final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
-							+ filepath.substring(filepath.lastIndexOf('.'), filepath.length());
-					if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
-						loadFile(MpqCodebase.get().getFile(portrait), true, false,
+				if (objectFetched != null) {
+					final String filepath = convertPathToMDX(objectFetched.getField("file"));
+					if (filepath != null) {
+						loadFile(MpqCodebase.get().getFile(filepath), true, true,
 								new ImageIcon(BLPHandler.get().getGameTex(objectFetched.getField("Art"))
 										.getScaledInstance(16, 16, Image.SCALE_FAST)));
+						final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
+								+ filepath.substring(filepath.lastIndexOf('.'), filepath.length());
+						if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
+							loadFile(MpqCodebase.get().getFile(portrait), true, false,
+									new ImageIcon(BLPHandler.get().getGameTex(objectFetched.getField("Art"))
+											.getScaledInstance(16, 16, Image.SCALE_FAST)));
+						}
+						toolsMenu.getAccessibleContext().setAccessibleDescription(
+								"Allows the user to control which parts of the model are displayed for editing.");
+						toolsMenu.setEnabled(true);
 					}
-					toolsMenu.getAccessibleContext().setAccessibleDescription(
-							"Allows the user to control which parts of the model are displayed for editing.");
-					toolsMenu.setEnabled(true);
 				}
 			} else if (e.getSource() == importButton) {
 				fc.setDialogTitle("Import");
@@ -1845,7 +1952,11 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				// }
 				refreshController();
 			} else if (e.getSource() == importUnit) {
-				final String filepath = convertPathToMDX(fetchUnit().getField("file"));
+				final GameObject fetchUnitResult = fetchUnit();
+				if (fetchUnitResult == null) {
+					return;
+				}
+				final String filepath = convertPathToMDX(fetchUnitResult.getField("file"));
 				final MDL current = currentMDL();
 				if (filepath != null) {
 					final File animationSource = MpqCodebase.get().getFile(filepath);
@@ -1853,7 +1964,11 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				}
 				refreshController();
 			} else if (e.getSource() == importGameModel) {
-				final String filepath = convertPathToMDX(fetchModel().getFilepath());
+				final ModelElement fetchModelResult = fetchModel();
+				if (fetchModelResult == null) {
+					return;
+				}
+				final String filepath = convertPathToMDX(fetchModelResult.getFilepath());
 				final MDL current = currentMDL();
 				if (filepath != null) {
 					final File animationSource = MpqCodebase.get().getFile(filepath);
@@ -1861,7 +1976,11 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				}
 				refreshController();
 			} else if (e.getSource() == importGameObject) {
-				final String filepath = convertPathToMDX(fetchObject().getField("file"));
+				final GameObject fetchObjectResult = fetchObject();
+				if (fetchObjectResult == null) {
+					return;
+				}
+				final String filepath = convertPathToMDX(fetchObjectResult.getField("file"));
 				final MDL current = currentMDL();
 				if (filepath != null) {
 					final File animationSource = MpqCodebase.get().getFile(filepath);
@@ -2137,7 +2256,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 						flag.linearize();
 					}
 				}
-			} else if (e.getSource() == divideVertices) {
+			} else if (e.getSource() == duplicateSelection) {
 				// final int x = JOptionPane.showConfirmDialog(this,
 				// "This is an irreversible process that will split selected
 				// vertices into many copies of themself, one for each face, so
@@ -2303,7 +2422,11 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				refreshController();
 			} else if (e.getSource() == animFromUnit) {
 				fc.setDialogTitle("Animation Source");
-				final String filepath = convertPathToMDX(fetchUnit().getField("file"));
+				final GameObject fetchResult = fetchUnit();
+				if (fetchResult == null) {
+					return;
+				}
+				final String filepath = convertPathToMDX(fetchResult.getField("file"));
 				final MDL current = currentMDL();
 				if (filepath != null) {
 					final MDL animationSource = MDL.read(MpqCodebase.get().getFile(filepath));
@@ -2311,7 +2434,11 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				}
 			} else if (e.getSource() == animFromModel) {
 				fc.setDialogTitle("Animation Source");
-				final String filepath = convertPathToMDX(fetchModel().getFilepath());
+				final ModelElement fetchResult = fetchModel();
+				if (fetchResult == null) {
+					return;
+				}
+				final String filepath = convertPathToMDX(fetchResult.getFilepath());
 				final MDL current = currentMDL();
 				if (filepath != null) {
 					final MDL animationSource = MDL.read(MpqCodebase.get().getFile(filepath));
@@ -2319,7 +2446,11 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				}
 			} else if (e.getSource() == animFromObject) {
 				fc.setDialogTitle("Animation Source");
-				final String filepath = convertPathToMDX(fetchObject().getField("file"));
+				final GameObject fetchResult = fetchObject();
+				if (fetchResult == null) {
+					return;
+				}
+				final String filepath = convertPathToMDX(fetchResult.getField("file"));
 				final MDL current = currentMDL();
 				if (filepath != null) {
 					final MDL animationSource = MDL.read(MpqCodebase.get().getFile(filepath));
@@ -2830,7 +2961,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 					final MDL model = new MDL(MdxUtils.loadModel(in));
 					model.setFile(f);
 					temp = new ModelPanel(model, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
-							modelStructureChangeListener, coordDisplayListener);
+							modelStructureChangeListener, coordDisplayListener, viewportTransferHandler);
 				} catch (final FileNotFoundException e) {
 					e.printStackTrace();
 					ExceptionPopup.display(e);
@@ -2842,7 +2973,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				}
 			} else {
 				temp = new ModelPanel(MDXHandler.convert(f), prefs, MainPanel.this, selectionItemTypeGroup,
-						selectionModeGroup, modelStructureChangeListener, coordDisplayListener);
+						selectionModeGroup, modelStructureChangeListener, coordDisplayListener,
+						viewportTransferHandler);
 			}
 		} else if (f.getPath().toLowerCase().endsWith("obj")) {
 			// final Build builder = new Build();
@@ -2852,7 +2984,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			try {
 				final Parse obj = new Parse(builder, f.getPath());
 				temp = new ModelPanel(builder.createMDL(), prefs, MainPanel.this, selectionItemTypeGroup,
-						selectionModeGroup, modelStructureChangeListener, coordDisplayListener);
+						selectionModeGroup, modelStructureChangeListener, coordDisplayListener,
+						viewportTransferHandler);
 			} catch (final FileNotFoundException e) {
 				ExceptionPopup.display(e);
 				e.printStackTrace();
@@ -2862,7 +2995,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			}
 		} else {
 			temp = new ModelPanel(f, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
-					modelStructureChangeListener, coordDisplayListener);
+					modelStructureChangeListener, coordDisplayListener, viewportTransferHandler);
 		}
 		if (temporary) {
 			temp.getModelViewManager().getModel().setTemp(true);
@@ -3214,6 +3347,12 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			} // ;//this);
 		}
 		return success;
+	}
+
+	private void repaintSelfAndChildren(final ModelPanel mpanel) {
+		repaint();
+		geoControl.repaint();
+		mpanel.repaintSelfAndRelatedChildren();
 	}
 
 	public static BufferedImage removeAlphaChannel(final BufferedImage source) {

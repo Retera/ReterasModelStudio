@@ -2,22 +2,26 @@ package com.hiveworkshop.wc3.gui.modeledit.newstuff;
 
 import java.awt.Point;
 import java.awt.geom.Rectangle2D;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 import com.etheller.collections.ArrayList;
+import com.etheller.collections.Collection;
 import com.etheller.collections.List;
 import com.etheller.collections.ListView;
 import com.etheller.util.SubscriberSetNotifier;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
+import com.hiveworkshop.wc3.gui.modeledit.cutpaste.CopiedModelData;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.wc3.mdl.Bone;
+import com.hiveworkshop.wc3.mdl.Camera;
+import com.hiveworkshop.wc3.mdl.Geoset;
+import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> implements ModelEditor {
@@ -162,7 +166,7 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
-	public UndoAction setMatrix(final Collection<Bone> bones) {
+	public UndoAction setMatrix(final java.util.Collection<Bone> bones) {
 		final List<UndoAction> actions = new ArrayList<>();
 		for (final ModelEditor handler : set) {
 			actions.add(handler.setMatrix(bones));
@@ -311,9 +315,34 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	public Vertex getSelectionCenter() {
 		final Set<Vertex> centers = new HashSet<>();
 		for (final ModelEditor handler : set) {
-			centers.add(handler.getSelectionCenter());
+			final Vertex selectionCenter = handler.getSelectionCenter();
+			if (Double.isNaN(selectionCenter.x) || Double.isNaN(selectionCenter.y) || Double.isNaN(selectionCenter.z)) {
+				continue;
+			}
+			centers.add(selectionCenter);
 		}
 		return Vertex.centerOfGroup(centers);
+	}
+
+	@Override
+	public CopiedModelData copySelection() {
+		final List<Geoset> allGeosetsCreated = new ArrayList<>();
+		final List<IdObject> allNodesCreated = new ArrayList<>();
+		final List<Camera> allCamerasCreated = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			final CopiedModelData copySelection = handler.copySelection();
+			Collection.Util.addAll(allGeosetsCreated, copySelection.getGeosets());
+			Collection.Util.addAll(allNodesCreated, copySelection.getIdObjects());
+			Collection.Util.addAll(allCamerasCreated, copySelection.getCameras());
+		}
+		return new CopiedModelData(allGeosetsCreated, allNodesCreated, allCamerasCreated);
+	}
+
+	@Override
+	public void selectByVertices(final java.util.Collection<? extends Vertex> newSelection) {
+		for (final ModelEditor handler : set) {
+			handler.selectByVertices(newSelection);
+		}
 	}
 
 }

@@ -8,6 +8,7 @@ import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
+import com.hiveworkshop.wc3.gui.modeledit.cutpaste.CopiedModelData;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
@@ -77,6 +78,8 @@ public interface ModelEditor {
 
 	UndoAction showComponent(EditabilityToggleHandler editabilityToggleHandler);
 
+	void selectByVertices(Collection<? extends Vertex> newSelection);
+
 	boolean canSelectAt(Point point, CoordinateSystem axes);
 
 	void rawTranslate(double x, double y, double z);
@@ -91,4 +94,6 @@ public interface ModelEditor {
 	void renderSelection(ModelElementRenderer renderer, final CoordinateSystem coordinateSystem);
 
 	Vertex getSelectionCenter();
+
+	CopiedModelData copySelection();
 }

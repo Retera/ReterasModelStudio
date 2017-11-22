@@ -20,6 +20,8 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
+import javax.swing.Action;
+import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -31,6 +33,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.Timer;
+import javax.swing.TransferHandler;
 
 import com.etheller.util.CollectionUtils;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
@@ -38,6 +41,7 @@ import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeLis
 import com.hiveworkshop.wc3.gui.modeledit.activity.CursorManager;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivity;
+import com.hiveworkshop.wc3.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ModelEditorChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportModelRenderer;
@@ -75,12 +79,13 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	private final UndoHandler undoHandler;
 	private ModelEditor modelEditor;
 	private final ModelStructureChangeListener modelStructureChangeListener;
+	private Point lastMouseMotion = new Point(0, 0);
 
 	public Viewport(final byte d1, final byte d2, final ModelView modelView,
 			final ProgramPreferences programPreferences, final ViewportActivity activityListener,
 			final ModelStructureChangeListener modelStructureChangeListener, final UndoActionListener undoListener,
 			final CoordDisplayListener coordDisplayListener, final UndoHandler undoHandler,
-			final ModelEditor modelEditor) {
+			final ModelEditor modelEditor, final ViewportTransferHandler viewportTransferHandler) {
 		// Dimension 1 and Dimension 2, these specify which dimensions to
 		// display.
 		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z
@@ -102,6 +107,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 				Viewport.this.setCursor(cursor);
 			}
 		};
+		setupCopyPaste(viewportTransferHandler);
 		// Viewport border
 		setBorder(BorderFactory.createBevelBorder(1));
 		if (programPreferences.isInvertedDisplay()) {
@@ -142,6 +148,15 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 
 		viewportModelRenderer = new ViewportModelRenderer(3);
 
+	}
+
+	private void setupCopyPaste(final ViewportTransferHandler viewportTransferHandler) {
+		setTransferHandler(viewportTransferHandler);
+		final ActionMap map = getActionMap();
+		map.put(TransferHandler.getCutAction().getValue(Action.NAME), TransferHandler.getCutAction());
+		map.put(TransferHandler.getCopyAction().getValue(Action.NAME), TransferHandler.getCopyAction());
+		map.put(TransferHandler.getPasteAction().getValue(Action.NAME), TransferHandler.getPasteAction());
+		setFocusable(true);
 	}
 
 	public void setPosition(final double a, final double b) {
@@ -479,6 +494,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	public void mouseEntered(final MouseEvent e) {
 		if (!activityListener.isEditing()) {
 			activityListener.viewportChanged(cursorManager);
+			requestFocus();
 			mouseInBounds = true;
 			setBorder(BorderFactory.createBevelBorder(1, Color.YELLOW, Color.YELLOW.darker()));
 			clickTimer.setRepeats(true);
@@ -503,10 +519,12 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 			lastClick = new Point(e.getX(), e.getY());
 		} else if (e.getButton() == MouseEvent.BUTTON1) {
 			activityListener.viewportChanged(cursorManager);
+			requestFocus();
 			activityListener.mousePressed(e, this);
 			// selectStart = new Point(e.getX(), e.getY());
 		} else if (e.getButton() == MouseEvent.BUTTON3) {
 			activityListener.viewportChanged(cursorManager);
+			requestFocus();
 			activityListener.mousePressed(e, this);
 			// actStart = new Point(e.getX(), e.getY());
 			// final Point2D.Double convertedStart = new
@@ -642,6 +660,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	@Override
 	public void mouseDragged(final MouseEvent e) {
 		activityListener.mouseDragged(e, this);
+		lastMouseMotion = e.getPoint();
 	}
 
 	@Override
@@ -650,6 +669,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 			mouseEntered(e);
 		}
 		activityListener.mouseMoved(e, this);
+		lastMouseMotion = e.getPoint();
 	}
 
 	@Override
@@ -662,4 +682,28 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		this.modelEditor = newModelEditor;
 		// TODO call from display panel and above
 	}
+
+	public static class DropLocation extends TransferHandler.DropLocation {
+		protected DropLocation(final Point dropPoint) {
+			super(dropPoint);
+		}
+
+	}
+
+	public ModelView getModelView() {
+		return modelView;
+	}
+
+	public Point getLastMouseMotion() {
+		return lastMouseMotion;
+	}
+
+	public ModelStructureChangeListener getModelStructureChangeListener() {
+		return modelStructureChangeListener;
+	}
+
+	public ModelEditor getModelEditor() {
+		return modelEditor;
+	}
+
 }

@@ -29,7 +29,7 @@ public final class HashMap<KEY, VALUE> implements Map<KEY, VALUE> {
 
 	public HashMap(final int desiredCapacity, final float loadFactor) {
 		final int initialCapacity = tableSizeFor(desiredCapacity);
-		table = createTable(desiredCapacity);
+		table = createTable(initialCapacity);
 		capacityMinusOne = table.length - 1;
 		threshold = (int) (initialCapacity * loadFactor);
 	}
@@ -124,7 +124,7 @@ public final class HashMap<KEY, VALUE> implements Map<KEY, VALUE> {
 			}
 			node = node.getNext();
 		}
-		node = new Node<KEY, VALUE>(hash, key, value, table[index]);
+		node = new Node<>(hash, key, value, table[index]);
 		table[index] = node;
 		size++;
 		modCount++;

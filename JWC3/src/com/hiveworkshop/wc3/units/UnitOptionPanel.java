@@ -2,6 +2,8 @@ package com.hiveworkshop.wc3.units;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,8 +29,7 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 	public static final String TILESETS = "ABKYXJDCIFLWNOZGVQ";
 
 	ObjectData unitData;
-	ObjectData abilityData = StandardObjectData.getStandardAbilities();
-	ObjectData upgradeData = StandardObjectData.getStandardUpgrades();
+	final ObjectData abilityData;
 	GameObject selection = null;
 
 	JComboBox<String> raceBox, meleeBox, tilesetBox, levelBox;// playerBox,
@@ -87,12 +88,24 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 		}
 	};
 
+	private final int borderGapAmount;
+
+	private final boolean verticalStyle;
+
 	public GameObject getSelection() {
 		return selection;
 	}
 
-	public UnitOptionPanel(final ObjectData dataTable, final boolean showCustomUnits) {
+	public UnitOptionPanel(final ObjectData dataTable, final ObjectData abilityData) {
+		this(dataTable, abilityData, 12, false, false);
+	}
+
+	public UnitOptionPanel(final ObjectData dataTable, final ObjectData abilityData, final int borderGapAmount,
+			final boolean hideBorder, final boolean verticalStyle) {
 		unitData = dataTable;
+		this.abilityData = abilityData;
+		this.borderGapAmount = borderGapAmount;
+		this.verticalStyle = verticalStyle;
 		unitsLabel = new JLabel(WEString.getString("WESTRING_UNITS") + ": " + WEString.getString("WESTRING_NONE_CAPS"));
 		heroesLabel = new JLabel(WEString.getString("WESTRING_UTYPE_HEROES"));
 		buildingsLabel = new JLabel(WEString.getString("WESTRING_UTYPE_BUILDINGS"));
@@ -150,6 +163,9 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 		buttonsPanel = new JPanel();
 		buttonsScrollPane = new JScrollPane(buttonsPanel);
 		buttonsScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+		if (hideBorder) {
+			buttonsScrollPane.setBorder(null);
+		}
 
 		// playerBox = new JComboBox<String>(playerBoxModel);
 		// playerBox.addActionListener(this);
@@ -398,10 +414,29 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 			addActionListener(buttonListener);
 			this.setDisabledIcon(unit.getScaledTintedIcon(Color.green, 0.5));
 			setMargin(new Insets(0, 0, 0, 0));
+			setBorder(null);
 		}
 
 		public GameObject getUnit() {
 			return unit;
+		}
+
+		@Override
+		protected void paintComponent(final Graphics g) {
+			if (!isEnabled()) {
+				g.translate(1, 1);
+			}
+			super.paintComponent(g);
+			if (!isEnabled()) {
+				g.translate(-1, -1);
+				final Graphics2D g2 = (Graphics2D) g.create();
+				g2.setColor(Color.GRAY);
+				for (int i = 0; i < 2; i++) {
+					g2.setColor(g2.getColor().brighter());
+					g2.draw3DRect(i, i, getWidth() - i * 2 - 1, getHeight() - i * 2 - 1, false);
+				}
+				g2.dispose();
+			}
 		}
 	}
 
@@ -450,39 +485,64 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 		GroupLayout.Group horizontalGroup;
 		GroupLayout.Group verticalGroup;
 
-		if (race.equals("neutrals")) {
-			layout.setHorizontalGroup(superHorizontalGroup = layout.createSequentialGroup().addGap(12).addGroup(layout
-					.createParallelGroup()
-					// .addComponent(playerBox)
-					.addGroup(layout.createSequentialGroup().addComponent(raceBox).addGap(4).addComponent(meleeBox))
-					.addGroup(layout.createSequentialGroup().addComponent(tilesetBox).addGap(4).addComponent(levelBox))
-					.addComponent(unitsLabel).addComponent(buttonsScrollPane)));
+		final boolean neutrals = race.equals("neutrals");
+		tilesetBox.setVisible(neutrals);
+		levelBox.setVisible(neutrals);
+		if (verticalStyle) {
+			layout.setHorizontalGroup(superHorizontalGroup = layout.createSequentialGroup().addGap(borderGapAmount)
+					.addGroup(layout.createParallelGroup()
+							// .addComponent(playerBox)
+							.addGroup(layout.createSequentialGroup().addComponent(raceBox).addGap(4)
+									.addComponent(meleeBox).addGap(4).addComponent(tilesetBox).addGap(4)
+									.addComponent(levelBox))
+							.addComponent(unitsLabel).addComponent(buttonsScrollPane))
+					.addGap(borderGapAmount));
 
-			layout.setVerticalGroup(layout.createSequentialGroup().addGap(12)
+			layout.setVerticalGroup(layout.createSequentialGroup().addGap(borderGapAmount)
+					// .addComponent(playerBox)
+					// .addGap(4)
+					.addGroup(layout.createParallelGroup().addComponent(raceBox).addComponent(meleeBox)
+							.addComponent(tilesetBox).addComponent(levelBox))
+					.addGap(4).addComponent(unitsLabel).addGap(4).addComponent(buttonsScrollPane)
+					.addGap(borderGapAmount));
+		} else if (neutrals) {
+			layout.setHorizontalGroup(superHorizontalGroup = layout.createSequentialGroup().addGap(borderGapAmount)
+					.addGroup(layout.createParallelGroup()
+							// .addComponent(playerBox)
+							.addGroup(layout.createSequentialGroup().addComponent(raceBox).addGap(4)
+									.addComponent(meleeBox))
+							.addGroup(layout.createSequentialGroup().addComponent(tilesetBox).addGap(4)
+									.addComponent(levelBox))
+							.addComponent(unitsLabel).addComponent(buttonsScrollPane))
+					.addGap(borderGapAmount));
+
+			layout.setVerticalGroup(layout.createSequentialGroup().addGap(borderGapAmount)
 					// .addComponent(playerBox)
 					// .addGap(4)
 					.addGroup(layout.createParallelGroup().addComponent(raceBox).addComponent(meleeBox)).addGap(4)
 					.addGroup(layout.createParallelGroup().addComponent(tilesetBox).addComponent(levelBox)).addGap(4)
-					.addComponent(unitsLabel).addGap(4).addComponent(buttonsScrollPane).addGap(12));
+					.addComponent(unitsLabel).addGap(4).addComponent(buttonsScrollPane).addGap(borderGapAmount));
 		} else {
-			layout.setHorizontalGroup(superHorizontalGroup = layout.createSequentialGroup().addGap(12).addGroup(layout
-					.createParallelGroup()
-					// .addComponent(playerBox)
-					.addGroup(layout.createSequentialGroup().addComponent(raceBox).addGap(4).addComponent(meleeBox))
-					.addComponent(unitsLabel).addComponent(buttonsScrollPane)));
+			layout.setHorizontalGroup(superHorizontalGroup = layout.createSequentialGroup().addGap(borderGapAmount)
+					.addGroup(layout.createParallelGroup()
+							// .addComponent(playerBox)
+							.addGroup(layout.createSequentialGroup().addComponent(raceBox).addGap(4)
+									.addComponent(meleeBox))
+							.addComponent(unitsLabel).addComponent(buttonsScrollPane))
+					.addGap(borderGapAmount));
 
-			layout.setVerticalGroup(layout.createSequentialGroup().addGap(12)
+			layout.setVerticalGroup(layout.createSequentialGroup().addGap(borderGapAmount)
 					// .addComponent(playerBox)
 					// .addGap(4)
 					.addGroup(layout.createParallelGroup().addComponent(raceBox).addComponent(meleeBox)).addGap(4)
-					.addComponent(unitsLabel).addGap(4).addComponent(buttonsScrollPane).addGap(12));
+					.addComponent(unitsLabel).addGap(4).addComponent(buttonsScrollPane).addGap(borderGapAmount));
 		}
 
-		int rowLength = Math.max(1, (buttonsScrollPane.getWidth()) / 32 - 1);// (getWidth()
-																				// -
-																				// 24)
-																				// /
-																				// 32;
+		int rowLength = Math.max(1, (buttonsScrollPane.getWidth()) / 32);// (getWidth()
+		// -
+		// 24)
+		// /
+		// 32;
 		if (firstTime) {
 			rowLength = 7;
 			firstTime = false;
@@ -494,7 +554,6 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 
 		layout2.setVerticalGroup(verticalGroup);
 		layout2.setHorizontalGroup(horizontalGroup);
-		System.err.println(tileset);
 
 		GroupLayout.Group lastVertGroup = null;
 		GroupLayout.Group lastHorizGroup = null;

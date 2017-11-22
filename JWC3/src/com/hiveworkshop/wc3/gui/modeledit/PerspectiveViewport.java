@@ -173,11 +173,13 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 					}
 					Integer texture = null;
 					try {
-						texture = loadTexture(BLPHandler.get().getGameTex(path + ".blp"));
+						texture = loadTexture(BLPHandler.get().getGameTex(path + ".blp"), tex);
 					} catch (final Exception exc) {
 						exc.printStackTrace();
-						texture = loadTexture(BLPHandler.get().getCustomTex(
-								modelView.getModel().getWorkingDirectory().getPath() + "\\" + path + ".blp"));// TextureLoader.getTexture("TGA",
+						texture = loadTexture(
+								BLPHandler.get().getCustomTex(
+										modelView.getModel().getWorkingDirectory().getPath() + "\\" + path + ".blp"),
+								tex);// TextureLoader.getTexture("TGA",
 						// new
 						// FileInputStream(new
 						// File(dispMDL.getMDL().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
@@ -217,14 +219,14 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 				}
 				Integer texture = null;
 				try {
-					texture = loadTexture(BLPHandler.get().getGameTex(path + ".blp"));
+					texture = loadTexture(BLPHandler.get().getGameTex(path + ".blp"), tex);
 				} catch (final Exception exc) {
 					exc.printStackTrace();
-					texture = loadTexture(BLPHandler.get()
-							.getCustomTex(modelView.getModel().getWorkingDirectory().getPath() + "\\" + path + ".blp"));// TextureLoader.getTexture("TGA",
-																														// new
-																														// FileInputStream(new
-																														// File(dispMDL.getMDL().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
+					texture = loadTexture(BLPHandler.get().getCustomTex(
+							modelView.getModel().getWorkingDirectory().getPath() + "\\" + path + ".blp"), tex);// TextureLoader.getTexture("TGA",
+					// new
+					// FileInputStream(new
+					// File(dispMDL.getMDL().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
 
 					// try { } catch (FileNotFoundException e) {
 					// // Auto-generated catch block
@@ -264,14 +266,14 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 						}
 						Integer texture = null;
 						try {
-							texture = loadTexture(BLPHandler.get().getGameTex(path + ".blp"));
+							texture = loadTexture(BLPHandler.get().getGameTex(path + ".blp"), tex);
 						} catch (final Exception exc) {
 							exc.printStackTrace();
 							texture = loadTexture(BLPHandler.get().getCustomTex(
-									modelView.getModel().getWorkingDirectory().getPath() + "\\" + path + ".blp"));// TextureLoader.getTexture("TGA",
-																													// new
-																													// FileInputStream(new
-																													// File(dispMDL.getMDL().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
+									modelView.getModel().getWorkingDirectory().getPath() + "\\" + path + ".blp"), tex);// TextureLoader.getTexture("TGA",
+																														// new
+																														// FileInputStream(new
+																														// File(dispMDL.getMDL().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
 
 							// try { } catch (FileNotFoundException e) {
 							// // Auto-generated catch block
@@ -503,10 +505,6 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 						final Bitmap tex = layer.firstTexture();
 						final Integer texture = textureMap.get(tex);
 
-						GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S,
-								tex.getWrapWidth() ? GL11.GL_REPEAT : GL11.GL_CLAMP);
-						GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T,
-								tex.getWrapHeight() ? GL11.GL_REPEAT : GL11.GL_CLAMP);
 						if (texture != null) {
 							// texture.bind();
 							GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
@@ -514,6 +512,10 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 								GL11.glEnable(GL11.GL_TEXTURE_2D);
 							}
 							GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
+							GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S,
+									tex.getWrapWidth() ? GL11.GL_REPEAT : GL11.GL_CLAMP);
+							GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T,
+									tex.getWrapHeight() ? GL11.GL_REPEAT : GL11.GL_CLAMP);
 						} else {
 							GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_COLOR);
 							GL11.glDisable(GL11.GL_TEXTURE_2D);
@@ -559,13 +561,13 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 						final Layer layer = geo.getMaterial().getLayers().get(i);
 						final Bitmap tex = layer.firstTexture();
 						final Integer texture = textureMap.get(tex);
-						GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S,
-								tex.getWrapWidth() ? GL11.GL_REPEAT : GL11.GL_CLAMP);
-						GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T,
-								tex.getWrapHeight() ? GL11.GL_REPEAT : GL11.GL_CLAMP);
 						if (texture != null) {
 							// texture.bind();
 							GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
+							GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S,
+									tex.getWrapWidth() ? GL11.GL_REPEAT : GL11.GL_CLAMP);
+							GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T,
+									tex.getWrapHeight() ? GL11.GL_REPEAT : GL11.GL_CLAMP);
 						}
 						if (layer.getFilterModeString().equals("Additive")) {
 							// GL11.glDisable(GL11.GL_DEPTH_TEST);
@@ -1022,7 +1024,7 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 
 	private static final int BYTES_PER_PIXEL = 4;
 
-	public static int loadTexture(final BufferedImage image) {
+	public static int loadTexture(final BufferedImage image, final Bitmap bitmap) {
 
 		final int[] pixels = new int[image.getWidth() * image.getHeight()];
 		image.getRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());
@@ -1055,8 +1057,10 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureID); // Bind texture ID
 
 		// Setup wrap mode
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S,
+				bitmap.getWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T,
+				bitmap.getWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
 
 		// Setup texture scaling filtering
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);

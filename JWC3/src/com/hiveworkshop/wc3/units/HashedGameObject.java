@@ -2,13 +2,14 @@ package com.hiveworkshop.wc3.units;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import com.hiveworkshop.wc3.resources.WEString;
 
 public abstract class HashedGameObject implements GameObject {
-	HashMap<String, String> fields = new HashMap<>();
+	HashMap<StringKey, String> fields = new HashMap<>();
 	String id;
 	ObjectData parentTable;
 
@@ -21,20 +22,20 @@ public abstract class HashedGameObject implements GameObject {
 
 	@Override
 	public void setField(final String field, final String value) {
-		fields.put(field, value);
+		fields.put(new StringKey(field), value);
 	}
 
 	@Override
 	public String getField(final String field) {
 		String value = "";
-		if (fields.get(field) != null) {
-			value = fields.get(field);
+		if (fields.get(new StringKey(field)) != null) {
+			value = fields.get(new StringKey(field));
 		}
 		return value;
 	}
 
 	public boolean hasField(final String field) {
-		return fields.containsKey(field);
+		return fields.containsKey(new StringKey(field));
 	}
 
 	@Override
@@ -164,6 +165,10 @@ public abstract class HashedGameObject implements GameObject {
 
 	@Override
 	public Set<String> keySet() {
-		return fields.keySet();
+		final Set<String> keySet = new HashSet<>();
+		for (final StringKey key : fields.keySet()) {
+			keySet.add(key.getString());
+		}
+		return keySet;
 	}
 }

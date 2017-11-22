@@ -72,11 +72,91 @@ public class StandardObjectData {
 		return units;
 	}
 
+	public static WarcraftData getStandardItems() {
+		final Codebase source = MpqCodebase.get();
+
+		final DataTable profile = new DataTable();
+		final DataTable itemData = new DataTable();
+
+		try {
+			profile.readTXT(source.getResourceAsStream("Units\\ItemFunc.txt"), true);
+			profile.readTXT(source.getResourceAsStream("Units\\ItemStrings.txt"), true);
+			itemData.readSLK(source.getResourceAsStream("Units\\ItemData.slk"));
+		} catch (final IOException e) {
+			ExceptionPopup.display(e);
+		}
+
+		final WarcraftData units = new WarcraftData();
+
+		units.add(profile, "Profile", false);
+		units.add(itemData, "ItemData", true);
+
+		return units;
+	}
+
+	public static WarcraftData getStandardDestructables() {
+		final Codebase source = MpqCodebase.get();
+
+		final DataTable destructableData = new DataTable();
+
+		try {
+			destructableData.readSLK(source.getResourceAsStream("Units\\DestructableData.slk"));
+		} catch (final IOException e) {
+			ExceptionPopup.display(e);
+		}
+
+		final WarcraftData units = new WarcraftData();
+
+		units.add(destructableData, "DestructableData", true);
+
+		return units;
+	}
+
+	public static WarcraftData getStandardDoodads() {
+		final Codebase source = MpqCodebase.get();
+
+		final DataTable destructableData = new DataTable();
+
+		try {
+			destructableData.readSLK(source.getResourceAsStream("Doodads\\Doodads.slk"));
+		} catch (final IOException e) {
+			ExceptionPopup.display(e);
+		}
+
+		final WarcraftData units = new WarcraftData();
+
+		units.add(destructableData, "DoodadData", true);
+
+		return units;
+	}
+
 	public static DataTable getStandardUnitMeta() {
 		final Codebase source = MpqCodebase.get();
 		final DataTable unitMetaData = new DataTable();
 		try {
 			unitMetaData.readSLK(source.getResourceAsStream("Units\\UnitMetaData.slk"));
+		} catch (final IOException e) {
+			ExceptionPopup.display(e);
+		}
+		return unitMetaData;
+	}
+
+	public static DataTable getStandardDestructableMeta() {
+		final Codebase source = MpqCodebase.get();
+		final DataTable unitMetaData = new DataTable();
+		try {
+			unitMetaData.readSLK(source.getResourceAsStream("Units\\DestructableMetaData.slk"));
+		} catch (final IOException e) {
+			ExceptionPopup.display(e);
+		}
+		return unitMetaData;
+	}
+
+	public static DataTable getStandardDoodadMeta() {
+		final Codebase source = MpqCodebase.get();
+		final DataTable unitMetaData = new DataTable();
+		try {
+			unitMetaData.readSLK(source.getResourceAsStream("Doodads\\DoodadMetaData.slk"));
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
@@ -108,6 +188,43 @@ public class StandardObjectData {
 			profile.readTXT(source.getResourceAsStream("Units\\ItemAbilityStrings.txt"), true);
 
 			abilityData.readSLK(source.getResourceAsStream("Units\\AbilityData.slk"));
+		} catch (final IOException e) {
+			ExceptionPopup.display(e);
+		}
+
+		final WarcraftData abilities = new WarcraftData();
+
+		abilities.add(profile, "Profile", false);
+		abilities.add(abilityData, "AbilityData", true);
+
+		return abilities;
+	}
+
+	public static WarcraftData getStandardAbilityBuffs() {
+		final Codebase source = MpqCodebase.get();
+
+		final DataTable profile = new DataTable();
+		final DataTable abilityData = new DataTable();
+
+		try {
+			profile.readTXT(source.getResourceAsStream("Units\\CampaignAbilityFunc.txt"), true);
+			profile.readTXT(source.getResourceAsStream("Units\\CampaignAbilityStrings.txt"), true);
+			profile.readTXT(source.getResourceAsStream("Units\\CommonAbilityFunc.txt"), true);
+			profile.readTXT(source.getResourceAsStream("Units\\CommonAbilityStrings.txt"), true);
+			profile.readTXT(source.getResourceAsStream("Units\\HumanAbilityFunc.txt"), true);
+			profile.readTXT(source.getResourceAsStream("Units\\HumanAbilityStrings.txt"), true);
+			profile.readTXT(source.getResourceAsStream("Units\\NeutralAbilityFunc.txt"), true);
+			profile.readTXT(source.getResourceAsStream("Units\\NeutralAbilityStrings.txt"), true);
+			profile.readTXT(source.getResourceAsStream("Units\\NightElfAbilityFunc.txt"), true);
+			profile.readTXT(source.getResourceAsStream("Units\\NightElfAbilityStrings.txt"), true);
+			profile.readTXT(source.getResourceAsStream("Units\\OrcAbilityFunc.txt"), true);
+			profile.readTXT(source.getResourceAsStream("Units\\OrcAbilityStrings.txt"), true);
+			profile.readTXT(source.getResourceAsStream("Units\\UndeadAbilityFunc.txt"), true);
+			profile.readTXT(source.getResourceAsStream("Units\\UndeadAbilityStrings.txt"), true);
+			profile.readTXT(source.getResourceAsStream("Units\\ItemAbilityFunc.txt"), true);
+			profile.readTXT(source.getResourceAsStream("Units\\ItemAbilityStrings.txt"), true);
+
+			abilityData.readSLK(source.getResourceAsStream("Units\\AbilityBuffData.slk"));
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
@@ -153,11 +270,44 @@ public class StandardObjectData {
 		return units;
 	}
 
+	public static DataTable getStandardUpgradeMeta() {
+		final Codebase source = MpqCodebase.get();
+		final DataTable unitMetaData = new DataTable();
+		try {
+			unitMetaData.readSLK(source.getResourceAsStream("Units\\UpgradeMetaData.slk"));
+		} catch (final IOException e) {
+			ExceptionPopup.display(e);
+		}
+		return unitMetaData;
+	}
+
+	public static DataTable getStandardUpgradeEffectMeta() {
+		final Codebase source = MpqCodebase.get();
+		final DataTable unitMetaData = new DataTable();
+		try {
+			unitMetaData.readSLK(source.getResourceAsStream("Units\\UpgradeEffectMetaData.slk"));
+		} catch (final IOException e) {
+			ExceptionPopup.display(e);
+		}
+		return unitMetaData;
+	}
+
 	public static DataTable getStandardAbilityMeta() {
 		final Codebase source = MpqCodebase.get();
 		final DataTable unitMetaData = new DataTable();
 		try {
 			unitMetaData.readSLK(source.getResourceAsStream("Units\\AbilityMetaData.slk"));
+		} catch (final IOException e) {
+			ExceptionPopup.display(e);
+		}
+		return unitMetaData;
+	}
+
+	public static DataTable getStandardAbilityBuffMeta() {
+		final Codebase source = MpqCodebase.get();
+		final DataTable unitMetaData = new DataTable();
+		try {
+			unitMetaData.readSLK(source.getResourceAsStream("Units\\AbilityBuffMetaData.slk"));
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
@@ -188,16 +338,16 @@ public class StandardObjectData {
 
 	public static class WarcraftData implements ObjectData {
 		List<DataTable> tables = new ArrayList<>();
-		Map<String, DataTable> tableMap = new HashMap<>();
-		Map<String, WarcraftObject> units = new HashMap<>();
+		Map<StringKey, DataTable> tableMap = new HashMap<>();
+		Map<StringKey, WarcraftObject> units = new HashMap<>();
 
 		public void add(final DataTable data, final String name, final boolean canMake) {
-			tableMap.put(name, data);
+			tableMap.put(new StringKey(name), data);
 			tables.add(data);
 			if (canMake) {
 				for (final String id : data.keySet()) {
-					if (!units.containsKey(id)) {
-						units.put(id, new WarcraftObject(data.get(id).getId(), this));
+					if (!units.containsKey(new StringKey(id))) {
+						units.put(new StringKey(id), new WarcraftObject(data.get(id).getId(), this));
 					}
 				}
 			}
@@ -215,12 +365,12 @@ public class StandardObjectData {
 		}
 
 		public DataTable getTable(final String tableName) {
-			return tableMap.get(tableName);
+			return tableMap.get(new StringKey(tableName));
 		}
 
 		@Override
 		public GameObject get(final String id) {
-			return units.get(id);
+			return units.get(new StringKey(id));
 		}
 
 		@Override
@@ -230,7 +380,11 @@ public class StandardObjectData {
 
 		@Override
 		public Set<String> keySet() {
-			return units.keySet();
+			final Set<String> keySet = new HashSet<>();
+			for (final StringKey key : units.keySet()) {
+				keySet.add(key.getString());
+			}
+			return keySet;
 		}
 
 		public void cloneUnit(final String parentId, final String cloneId) {
@@ -242,7 +396,7 @@ public class StandardObjectData {
 				}
 				table.put(cloneId, cloneUnit);
 			}
-			units.put(cloneId, new WarcraftObject(cloneId, this));
+			units.put(new StringKey(cloneId), new WarcraftObject(cloneId, this));
 		}
 	}
 
@@ -292,8 +446,7 @@ public class StandardObjectData {
 		/*
 		 * (non-Javadoc) I'm not entirely sure this is still safe to use
 		 *
-		 * @see com.hiveworkshop.wc3.units.GameObject#getFieldAsList(java.lang.
-		 * String)
+		 * @see com.hiveworkshop.wc3.units.GameObject#getFieldAsList(java.lang. String)
 		 */
 		@Override
 		public List<? extends GameObject> getFieldAsList(final String field, final ObjectData objectData) {
@@ -488,5 +641,8 @@ public class StandardObjectData {
 			}
 			return keySet;
 		}
+	}
+
+	private StandardObjectData() {
 	}
 }

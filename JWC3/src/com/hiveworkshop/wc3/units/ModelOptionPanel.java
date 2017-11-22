@@ -763,7 +763,7 @@ public class ModelOptionPanel extends JPanel {
 		for (final String str : ginterData.keySet()) {
 			final Element race = ginterData.get(str);
 			// System.err.println("Gintering unit " + str);
-			for (final String fieldName : race.fields.keySet()) {
+			for (final String fieldName : race.keySet()) {
 				final String value = race.getField(fieldName);
 				if (value.endsWith(".mdl")) {
 

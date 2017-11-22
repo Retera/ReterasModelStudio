@@ -2,6 +2,7 @@ package com.hiveworkshop.wc3.gui.modeledit.actions.newsys;
 
 import java.util.List;
 
+import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.IdObject;
 
@@ -13,4 +14,8 @@ public interface ModelStructureChangeListener {
 	void nodesAdded(List<IdObject> nodes);
 
 	void nodesRemoved(List<IdObject> nodes);
+
+	void camerasAdded(List<Camera> nodes);
+
+	void camerasRemoved(List<Camera> nodes);
 }

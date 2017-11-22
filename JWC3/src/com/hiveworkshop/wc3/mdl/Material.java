@@ -7,10 +7,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.mdl.v2.MaterialView;
 import com.hiveworkshop.wc3.mdx.LayerChunk;
@@ -25,20 +27,11 @@ public class Material implements MaterialView {
 	public static int teamColor = 0;
 	com.etheller.collections.ArrayList<Layer> layers;
 	private int priorityPlane = 0;
-	private ArrayList<String> flags = new ArrayList<>();// My way of
-														// dealing with
-														// all the stuff
-														// that I
-														// forget/don't
-														// bother with:
-														// "Unshaded,"
-														// "Unfogged,"
-														// "TwoSided,"
-														// "CoordId X,"
-														// actually
-														// CoordId was
-														// moved into
-														// its own field
+	// "flags" are my way of dealing with all the stuff that I
+	// forget/don't bother with: "Unshaded," "Unfogged,"
+	// "TwoSided," "CoordId X," actually CoordId was
+	// moved into its own field
+	private ArrayList<String> flags = new ArrayList<>();
 
 	public String getName() {
 		String name = "";
@@ -224,7 +217,8 @@ public class Material implements MaterialView {
 			if (other.layers != null) {
 				return false;
 			}
-		} else if (!layers.equals(other.layers)) {
+		} else if (!Arrays.equals(ListView.Util.toArray(other.layers, new Layer[other.layers.size()]),
+				ListView.Util.toArray(layers, new Layer[layers.size()]))) {
 			return false;
 		}
 		if (priorityPlane != other.priorityPlane) {

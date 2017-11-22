@@ -1,482 +1,416 @@
 package com.hiveworkshop.wc3.jworldedit.objects;
 
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.awt.Component;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
+import java.awt.Point;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
 
-import javax.swing.AbstractAction;
-import javax.swing.JComponent;
+import javax.swing.Action;
+import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
-import javax.swing.JTree;
-import javax.swing.KeyStroke;
+import javax.swing.TransferHandler;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 
-import com.hiveworkshop.wc3.resources.WEString;
+import com.hiveworkshop.wc3.jworldedit.objects.better.EditorFieldBuilder;
+import com.hiveworkshop.wc3.jworldedit.objects.better.ObjectDataTableModel;
+import com.hiveworkshop.wc3.jworldedit.objects.sorting.TreeNodeLinker;
+import com.hiveworkshop.wc3.jworldedit.objects.sorting.general.TopLevelCategoryFolder;
 import com.hiveworkshop.wc3.units.DataTable;
-import com.hiveworkshop.wc3.units.Element;
-import com.hiveworkshop.wc3.units.GameObject;
-import com.hiveworkshop.wc3.units.StandardObjectData;
-import com.hiveworkshop.wc3.units.StandardObjectData.WarcraftData;
-import com.hiveworkshop.wc3.units.StandardObjectData.WarcraftObject;
-import com.hiveworkshop.wc3.units.UnitComparator;
+import com.hiveworkshop.wc3.units.objectdata.MutableObjectData;
+import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.MutableGameObject;
+import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.WorldEditorDataType;
+import com.hiveworkshop.wc3.units.objectdata.MutableObjectDataChangeListener;
+import com.hiveworkshop.wc3.units.objectdata.War3ID;
 
 public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener {
-	WarcraftData unitData = StandardObjectData.getStandardUnits();
-	GameObject currentUnit = null;
-	DataTable unitMetaData = StandardObjectData.getStandardUnitMeta();
-	UnitEditorSettings settings = new UnitEditorSettings();
-	JTree tree;
-	UnitEditorTreeModel model;
-	DefaultMutableTreeNode root;
+	private final class TreeNodeLinkerFromModel implements TreeNodeLinker {
+		private final DefaultTreeModel treeModel;
 
-	JLabel debugLabel = new JLabel("debug");
+		private TreeNodeLinkerFromModel(final DefaultTreeModel treeModel) {
+			this.treeModel = treeModel;
+		}
+
+		@Override
+		public void insertNodeInto(final DefaultMutableTreeNode newChild, final DefaultMutableTreeNode parent,
+				final int index) {
+			treeModel.insertNodeInto(newChild, parent, index);
+		}
+	}
+
+	private static final Object SHIFT_KEY_LOCK = new Object();
+	private final MutableObjectData unitData;
+	private final DataTable unitMetaData;
+	MutableGameObject currentUnit = null;
+	UnitEditorSettings settings = new UnitEditorSettings();
+	UnitEditorTree tree;
+	TopLevelCategoryFolder root;
 
 	JTable table;
-	DefaultTableModel tableModel;
-	public UnitEditorPanel() {
-		root = new DefaultMutableTreeNode();
-//		System.out.println(unitData.get("opeo").getName());
-//		root.add(new DefaultMutableTreeNode(unitData.get("opeo")));
-//		root.add(new DefaultMutableTreeNode(unitData.get("hpea")));
-//		root.add(new DefaultMutableTreeNode(unitData.get("uaco")));
-		final DefaultMutableTreeNode standardUnitsFolder = new DefaultMutableTreeNode(WEString.getString("WESTRING_UE_STANDARDUNITS"));
-		final DefaultMutableTreeNode customUnitsFolder = new DefaultMutableTreeNode(WEString.getString("WESTRING_UE_CUSTOMUNITS"));
-		sortRaces();
-		for( int i = 0; i < 7; i++ ) {
-			final String race = raceName(i);
-			final String raceKey = raceKey(i);
-			final DefaultMutableTreeNode humanFolder = new DefaultMutableTreeNode(race);
-			final DefaultMutableTreeNode humanMeleeFolder = new DefaultMutableTreeNode(WEString.getString("WESTRING_MELEE"));
-			final DefaultMutableTreeNode humanCampFolder = new DefaultMutableTreeNode(WEString.getString("WESTRING_CAMPAIGN"));
-			final RaceData humanMData = sortedRaces.get(raceKey+"melee");
-			final RaceData humanCData = sortedRaces.get(raceKey+"campaign");
-			loadRaceData(humanMeleeFolder, humanMData);
-			loadRaceData(humanCampFolder, humanCData);
-			if( humanMeleeFolder.getLeafCount() > 1 ) {
-				humanFolder.add(humanMeleeFolder);
-			}
-			if( humanCampFolder.getLeafCount() > 1 ) {
-				humanFolder.add(humanCampFolder);
-			}
-			standardUnitsFolder.add(humanFolder);
-		}
-		root.add(standardUnitsFolder);
-		root.add(customUnitsFolder);
+	private final EditorFieldBuilder editorFieldBuilder;
+	private boolean holdingShift = false;
+	private ObjectDataTableModel dataModel;
+	private TreePath currentUnitTreePath;
+	private final EditorTabCustomToolbarButtonData editorTabCustomToolbarButtonData;
+	private final Runnable customUnitPopupRunner;
 
-		model = new UnitEditorTreeModel(root);
-		tree = new JTree(root);
-		tree.setModel(model);
-		tree.setCellRenderer(new UnitTreeCellRenderer(settings));
-		tree.setRootVisible(false);
+	public UnitEditorPanel(final MutableObjectData unitData, final DataTable unitMetaData,
+			final EditorFieldBuilder editorFieldBuilder, final ObjectTabTreeBrowserBuilder objectTabTreeBrowserBuilder,
+			final WorldEditorDataType dataType, final EditorTabCustomToolbarButtonData editorTabCustomToolbarButtonData,
+			final Runnable customUnitPopupRunner) {
+		this.editorTabCustomToolbarButtonData = editorTabCustomToolbarButtonData;
+		this.customUnitPopupRunner = customUnitPopupRunner;
+		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		this.unitData = unitData;
+		this.unitMetaData = unitMetaData;
+		this.editorFieldBuilder = editorFieldBuilder;
+		tree = new UnitEditorTree(unitData, objectTabTreeBrowserBuilder, settings, dataType);
+		root = tree.getRoot();
 		this.setLeftComponent(new JScrollPane(tree));
-		final JPanel temp = new JPanel();
-//		temp.setBackground(Color.blue);
-		temp.add(debugLabel);
+		// temp.setBackground(Color.blue);
+		table = new JTable();
+		((DefaultTableCellRenderer) table.getTableHeader().getDefaultRenderer()).setHorizontalAlignment(JLabel.LEFT);
+		table.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseReleased(final MouseEvent e) {
 
+			}
 
+			@Override
+			public void mousePressed(final MouseEvent e) {
 
-		table = new JTable() {
+			}
 
+			@Override
+			public void mouseExited(final MouseEvent e) {
 
-            private static final long serialVersionUID = 1L;
-            private Class editingClass;
+			}
 
-            @Override
-            public TableCellRenderer getCellRenderer(final int row, final int column) {
-                editingClass = null;
-                // TODO bad, this should use UnitMetaData lookup instead of class
-                final int modelColumn = convertColumnIndexToModel(column);
-                if (modelColumn == 1) {
-                    final Class rowClass = getModel().getValueAt(row, modelColumn).getClass();
-                    return getDefaultRenderer(rowClass);
-                } else {
-                    return super.getCellRenderer(row, column);
-                }
-            }
+			@Override
+			public void mouseEntered(final MouseEvent e) {
 
-            @Override
-            public TableCellEditor getCellEditor(final int row, final int column) {
-                editingClass = null;
-                final int modelColumn = convertColumnIndexToModel(column);
-                if (modelColumn == 1) {
-                    editingClass = getModel().getValueAt(row, modelColumn).getClass();
-                    return getDefaultEditor(editingClass);
-                } else {
-                    return super.getCellEditor(row, column);
-                }
-            }
-            //  This method is also invoked by the editor when the value in the editor
-            //  component is saved in the TableModel. The class was saved when the
-            //  editor was invoked so the proper class can be created.
+			}
 
-            @Override
-            public Class getColumnClass(final int column) {
-                return editingClass != null ? editingClass : super.getColumnClass(column);
-            }
+			@Override
+			public void mouseClicked(final MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					final int rowIndex = table.getSelectedRow();
+					if (dataModel != null) {
+						dataModel.doPopupAt(UnitEditorPanel.this, rowIndex, holdingShift);
+					}
+				}
+			}
+		});
+		table.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(final KeyEvent e) {
+
+			}
+
+			@Override
+			public void keyReleased(final KeyEvent e) {
+			}
+
+			@Override
+			public void keyPressed(final KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					final int rowIndex = table.getSelectedRow();
+					if (dataModel != null) {
+						dataModel.doPopupAt(UnitEditorPanel.this, rowIndex, holdingShift);
+					}
+				}
+			}
+		});
+		final DefaultTableCellRenderer editHighlightingRenderer = new DefaultTableCellRenderer() {
+			@Override
+			public Component getTableCellRendererComponent(final JTable table, final Object value,
+					final boolean isSelected, final boolean hasFocus, final int row, final int column) {
+				final boolean rowHasFocus = isSelected && table.hasFocus();
+				setBackground(null);
+				final Component tableCellRendererComponent = super.getTableCellRendererComponent(table, value,
+						isSelected, hasFocus, row, column);
+				if (isSelected) {
+					if (rowHasFocus) {
+						setForeground(settings.getSelectedValueColor());
+					} else {
+						setForeground(null);
+						setBackground(settings.getSelectedUnfocusedValueColor());
+					}
+				} else if (dataModel != null && dataModel.hasEditedValue(row)) {
+					setForeground(settings.getEditedValueColor());
+				} else {
+					setForeground(null);
+				}
+				return this;
+			}
 		};
+		table.addFocusListener(new FocusListener() {
+			@Override
+			public void focusLost(final FocusEvent e) {
+				table.repaint();
+			}
+
+			@Override
+			public void focusGained(final FocusEvent e) {
+				table.repaint();
+			}
+		});
+		tree.addFocusListener(new FocusListener() {
+			@Override
+			public void focusLost(final FocusEvent e) {
+				tree.repaint();
+			}
+
+			@Override
+			public void focusGained(final FocusEvent e) {
+				tree.repaint();
+			}
+		});
+		table.getTableHeader().setReorderingAllowed(false);
+		table.setDefaultRenderer(Object.class, editHighlightingRenderer);
+		table.setDefaultRenderer(String.class, editHighlightingRenderer);
+		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
+
+			@Override
+			public boolean dispatchKeyEvent(final KeyEvent ke) {
+				synchronized (SHIFT_KEY_LOCK) {
+					switch (ke.getID()) {
+					case KeyEvent.KEY_PRESSED:
+						if (ke.getKeyCode() == KeyEvent.VK_SHIFT) {
+							holdingShift = true;
+						}
+						break;
+
+					case KeyEvent.KEY_RELEASED:
+						if (ke.getKeyCode() == KeyEvent.VK_SHIFT) {
+							holdingShift = false;
+						}
+						break;
+					}
+					return false;
+				}
+			}
+		});
 		table.setShowGrid(false);
-		fillTable();
 
 		setRightComponent(new JScrollPane(table));
 
 		tree.addTreeSelectionListener(this);
+		tree.selectFirstUnit();
 
+		unitData.addChangeListener(new MutableObjectDataChangeListener() {
+			@Override
+			public void textChanged(final War3ID changedObject) {
+				final DefaultTreeModel treeModel = tree.getModel();
+				if (currentUnitTreePath != null) {
+					treeModel.nodeChanged((TreeNode) currentUnitTreePath.getLastPathComponent());
+				}
+			}
 
-//		KeyEventDispatcher myKeyEventDispatcher = new DefaultFocusManager();
-//		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(myKeyEventDispatcher);
+			@Override
+			public void modelChanged(final War3ID changedObject) {
+
+			}
+
+			@Override
+			public void iconsChanged(final War3ID changedObject) {
+				final DefaultTreeModel treeModel = tree.getModel();
+				if (currentUnitTreePath != null) {
+					treeModel.nodeChanged((TreeNode) currentUnitTreePath.getLastPathComponent());
+				}
+			}
+
+			@Override
+			public void fieldsChanged(final War3ID changedObject) {
+
+			}
+
+			@Override
+			public void categoriesChanged(final War3ID changedObject) {
+				final DefaultTreeModel treeModel = tree.getModel();
+				if (currentUnitTreePath != null) {
+					final MutableTreeNode lastPathComponent = (MutableTreeNode) currentUnitTreePath
+							.getLastPathComponent();
+					treeModel.removeNodeFromParent(lastPathComponent);
+					final DefaultMutableTreeNode newObjectNode = root.insertObjectInto(unitData.get(changedObject),
+							new TreeNodeLinkerFromModel(treeModel));
+					selectTreeNode(newObjectNode);
+				}
+			}
+
+			@Override
+			public void objectCreated(final War3ID newObject) {
+				final MutableGameObject mutableGameObject = unitData.get(newObject);
+				final DefaultMutableTreeNode newTreeNode = root.insertObjectInto(mutableGameObject,
+						new TreeNodeLinkerFromModel(tree.getModel()));
+				TreeNode node = newTreeNode.getParent();
+				while ((node != null)) {
+					tree.getModel().nodeChanged(node);
+					node = node.getParent();
+				}
+				selectTreeNode(newTreeNode);
+			}
+
+			@Override
+			public void objectsCreated(final War3ID[] newObjects) {
+				tree.setSelectionPath(null);
+				for (final War3ID newObjectId : newObjects) {
+					final MutableGameObject mutableGameObject = unitData.get(newObjectId);
+					final DefaultMutableTreeNode newTreeNode = root.insertObjectInto(mutableGameObject,
+							new TreeNodeLinkerFromModel(tree.getModel()));
+					TreeNode node = newTreeNode.getParent();
+					while ((node != null)) {
+						tree.getModel().nodeChanged(node);
+						node = node.getParent();
+					}
+					addSelectedTreeNode(newTreeNode);
+				}
+			}
+		});
+		// KeyEventDispatcher myKeyEventDispatcher = new DefaultFocusManager();
+		// KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(myKeyEventDispatcher);
+		setupCopyPaste(new ObjectTabTreeBrowserTransferHandler(dataType));
 	}
-	public static String categoryName(final String cat) {
-		switch (cat.toLowerCase()) {
-		case "abil":
-			return WEString.getString("WESTRING_OE_CAT_ABILITIES").replace("&", "");
-		case "art":
-			return WEString.getString("WESTRING_OE_CAT_ART").replace("&", "");
-		case "combat":
-			return WEString.getString("WESTRING_OE_CAT_COMBAT").replace("&", "");
-		case "data":
-			return WEString.getString("WESTRING_OE_CAT_DATA").replace("&", "");
-		case "editor":
-			return WEString.getString("WESTRING_OE_CAT_EDITOR").replace("&", "");
-		case "move":
-			return WEString.getString("WESTRING_OE_CAT_MOVEMENT").replace("&", "");
-		case "path":
-			return WEString.getString("WESTRING_OE_CAT_PATHING").replace("&", "");
-		case "sound":
-			return WEString.getString("WESTRING_OE_CAT_SOUND").replace("&", "");
-		case "stats":
-			return WEString.getString("WESTRING_OE_CAT_STATS").replace("&", "");
-		case "tech":
-			return WEString.getString("WESTRING_OE_CAT_TECHTREE").replace("&", "");
-		case "text":
-			return WEString.getString("WESTRING_OE_CAT_TEXT").replace("&", "");
+
+	private void setupCopyPaste(final ObjectTabTreeBrowserTransferHandler treeTransferHandler) {
+		tree.setTransferHandler(treeTransferHandler);
+		final ActionMap map = tree.getActionMap();
+		map.put(TransferHandler.getCutAction().getValue(Action.NAME), TransferHandler.getCutAction());
+		map.put(TransferHandler.getCopyAction().getValue(Action.NAME), TransferHandler.getCopyAction());
+		map.put(TransferHandler.getPasteAction().getValue(Action.NAME), TransferHandler.getPasteAction());
+	}
+
+	public void runCustomUnitPopup() {
+		customUnitPopupRunner.run();
+	}
+
+	private void selectTreeNode(final TreeNode lastPathComponent) {
+		final TreePath pathForNode = getPathForNode(lastPathComponent);
+		tree.setSelectionPath(pathForNode);
+		tree.scrollPathToVisible(pathForNode);
+	}
+
+	private void addSelectedTreeNode(final TreeNode lastPathComponent) {
+		final TreePath pathForNode = getPathForNode(lastPathComponent);
+		tree.addSelectionPath(pathForNode);
+		tree.scrollPathToVisible(pathForNode);
+	}
+
+	private TreePath getPathForNode(final TreeNode lastPathComponent) {
+		final LinkedList<Object> nodes = new LinkedList<>();
+		TreeNode currentNode = lastPathComponent;
+		while (currentNode != null) {
+			nodes.addFirst(currentNode);
+			currentNode = currentNode.getParent();
 		}
-		return WEString.getString("WESTRING_UNKNOWN");
+		final TreePath pathForNode = new TreePath(nodes.toArray());
+		return pathForNode;
 	}
+
+	public void selectUnit(final War3ID unitId) {
+		final Enumeration<TreeNode> depthFirstEnumeration = root.depthFirstEnumeration();
+		while (depthFirstEnumeration.hasMoreElements()) {
+			final TreeNode nextElement = depthFirstEnumeration.nextElement();
+			if (nextElement instanceof DefaultMutableTreeNode) {
+				if (((DefaultMutableTreeNode) nextElement).getUserObject() instanceof MutableGameObject) {
+					final MutableGameObject object = (MutableGameObject) ((DefaultMutableTreeNode) nextElement)
+							.getUserObject();
+					if (object.getAlias().equals(unitId)) {
+						selectTreeNode(nextElement);
+						return;
+					}
+				}
+			}
+		}
+	}
+
+	public EditorTabCustomToolbarButtonData getEditorTabCustomToolbarButtonData() {
+		return editorTabCustomToolbarButtonData;
+	}
+
 	public void fillTable() {
-		if( currentUnit == null ) {
-			currentUnit = unitData.get("hpea");
-		}
-		final Vector colNames = new Vector();
-		colNames.add("Name");
-		colNames.add("Value");
-		final Vector fields = new Vector();
-		for( final String fieldId: unitMetaData.keySet() ) {
-			final Element field = unitMetaData.get(fieldId);
-			final Vector fieldVect = new Vector();
-			String name = field.getField("field");
-			if( !settings.isDisplayAsRawData() ) {
-				name = categoryName(field.getField("category"))+" - "+WEString.getString(field.getField("displayName"));
-			}
+		dataModel = new ObjectDataTableModel(currentUnit, unitMetaData, editorFieldBuilder,
+				settings.isDisplayAsRawData(), new Runnable() {
+					@Override
+					public void run() {
+						final DefaultTreeModel treeModel = tree.getModel();
+						if (currentUnitTreePath != null) {
+							for (final Object untypedTreePathNode : currentUnitTreePath.getPath()) {
+								treeModel.nodeChanged((TreeNode) untypedTreePathNode);
+							}
+						}
 
-			fieldVect.add(name);
-			String fieldValueString = currentUnit.getField(field.getField("field"));
-			final int index = Integer.parseInt(field.getField("index"));
-			if( index != -1 ) {
-				final String[] items = fieldValueString.split(",");
-				if( index < items.length ) {
-					fieldValueString = items[index];
-				} else {
-					fieldValueString = "";
-				}
-			}
-			Object trueFieldValue;
-			switch(field.getField("type")) {
-			case "int":
-				try {
-					trueFieldValue = Integer.parseInt(fieldValueString);
-				} catch (final NumberFormatException exc) {
-					trueFieldValue = new Integer(0);
-				}
-				break;
-			case "bool":
-				trueFieldValue = new Boolean(fieldValueString.equals("1"));
-				break;
-			case "string":
-				trueFieldValue = fieldValueString;
-				break;
-			default:
-				trueFieldValue = fieldValueString;
-			}
-			fieldVect.add(trueFieldValue);
-			if( field.getFieldValue("useUnit") > 0
-					|| (currentUnit.getFieldValue("isbldg") > 0 && field.getFieldValue("useBuilding") > 0)
-					|| (Character.isUpperCase(currentUnit.getId().charAt(0)) && field.getFieldValue("useHero") > 0)
-					) {
-				fields.add(fieldVect);
-			}
-		}
-		fields.sort(new Comparator<Vector>() {
-
-			@Override
-			public int compare(final Vector o1, final Vector o2) {
-				return o1.get(0).toString().compareTo(o2.get(0).toString());
-			}
-
-		});
-		if( tableModel == null ) {
-			tableModel = new DefaultTableModel(fields, colNames) {
-
-				@Override
-				public boolean isCellEditable(final int row, final int col) {
-					if( col > 0 ) {
-						return super.isCellEditable(row, col);
-					} else {
-						return false;
 					}
-				}
-			};
-			table.setModel(tableModel);
-		} else {
-			tableModel.setDataVector(fields, colNames);
-		}
-	}
-	public void loadHotkeys() {
-		final JRootPane root = getRootPane();
-		this.getRootPane().getActionMap().put("displayAsRawData", new AbstractAction() {
-
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				settings.setDisplayAsRawData(!settings.isDisplayAsRawData());
-		        final Enumeration<DefaultMutableTreeNode> enumer = UnitEditorPanel.this.root.breadthFirstEnumeration();
-		        while( enumer.hasMoreElements() ) {
-		        	model.nodeChanged(enumer.nextElement());
-		        }
-		        fillTable();
-				repaint();
-			}
-
-		});
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control D"),"displayAsRawData");
-
-	}
-	static class UnitEditorTreeModel extends DefaultTreeModel {
-		public UnitEditorTreeModel(final DefaultMutableTreeNode root) {
-			super(root);
-		}
-
-		/**
-		 *
-		 */
-		private static final long serialVersionUID = 1L;
-
+				});
+		table.setModel(dataModel);
+		table.setAutoCreateColumnsFromModel(false);
 	}
 
-	public void loadRaceData(final DefaultMutableTreeNode folder, final RaceData data) {
-		final DefaultMutableTreeNode units = new DefaultMutableTreeNode(WEString.getString("WESTRING_UNITS"));
-		final DefaultMutableTreeNode buildings = new DefaultMutableTreeNode(WEString.getString("WESTRING_UTYPE_BUILDINGS"));
-		final DefaultMutableTreeNode heroes = new DefaultMutableTreeNode(WEString.getString("WESTRING_UTYPE_HEROES"));
-		final DefaultMutableTreeNode special = new DefaultMutableTreeNode(WEString.getString("WESTRING_UTYPE_SPECIAL"));
-		for( final WarcraftObject u: data.units ) {
-			units.add(new DefaultMutableTreeNode(u));
+	public void toggleDisplayAsRawData() {
+		settings.setDisplayAsRawData(!settings.isDisplayAsRawData());
+		if (dataModel != null) {
+			dataModel.setDisplayAsRawData(settings.isDisplayAsRawData());
 		}
-		for( final WarcraftObject u: data.buildings ) {
-			buildings.add(new DefaultMutableTreeNode(u));
-		}
-		for( final WarcraftObject u: data.heroes ) {
-			heroes.add(new DefaultMutableTreeNode(u));
-		}
-		for( final WarcraftObject u: data.special ) {
-			special.add(new DefaultMutableTreeNode(u));
-		}
-		if( data.units.size() > 0 ) {
-			folder.add(units);
-		}
-		if( data.buildings.size() > 0 ) {
-			folder.add(buildings);
-		}
-		if( data.heroes.size() > 0 ) {
-			folder.add(heroes);
-		}
-		if( data.special.size() > 0 ) {
-			folder.add(special);
+		refreshAllTreeNodes();
+		// fillTable();
+		repaint();
+	}
+
+	private void refreshAllTreeNodes() {
+		final Enumeration<DefaultMutableTreeNode> enumer = UnitEditorPanel.this.root.breadthFirstEnumeration();
+		while (enumer.hasMoreElements()) {
+			tree.getModel().nodeChanged(enumer.nextElement());
 		}
 	}
 
-
-	class RaceData {
-		List<WarcraftObject> units = new ArrayList<WarcraftObject>();
-		List<WarcraftObject> heroes = new ArrayList<WarcraftObject>();
-		List<WarcraftObject> buildings = new ArrayList<WarcraftObject>();
-		List<WarcraftObject> buildingsUprooted = new ArrayList<WarcraftObject>();
-		List<WarcraftObject> special = new ArrayList<WarcraftObject>();
-
-		void sort() {
-			final Comparator<WarcraftObject> unitComp = new UnitComparator();
-
-			Collections.sort(units, unitComp);
-			Collections.sort(heroes, unitComp);
-			Collections.sort(buildings, unitComp);
-			Collections.sort(buildingsUprooted, unitComp);
-			Collections.sort(special, unitComp);
-		}
-	}
-
-	static Map<String,RaceData> sortedRaces;
-
-	private String raceKey(final int index) {
-		switch (index) {
-		case -1:
-			return "human";
-		case 0:
-			return "human";
-		case 1:
-			return "orc";
-		case 2:
-			return "undead";
-		case 3:
-			return "nightelf";
-		case 4:
-			return "naga";
-		case 5:
-			return "hostiles";
-		case 6:
-			return "passives";
-		}
-		return "passives";
-	}
-
-	private String raceName(final int index) {
-		switch (index) {
-		case -1:
-			return WEString.getString("WESTRING_RACE_OTHER");
-		case 0:
-			return WEString.getString("WESTRING_RACE_HUMAN");
-		case 1:
-			return WEString.getString("WESTRING_RACE_ORC");
-		case 2:
-			return WEString.getString("WESTRING_RACE_UNDEAD");
-		case 3:
-			return WEString.getString("WESTRING_RACE_NIGHTELF");
-		case 4:
-			return WEString.getString("WESTRING_RACE_NEUTRAL_NAGA");
-		case 5:
-			return WEString.getString("WESTRING_NEUTRAL_HOSTILE");
-		case 6:
-			return WEString.getString("WESTRING_NEUTRAL_PASSIVE");
-		}
-		return WEString.getString("WESTRING_RACE_NEUTRALS");
-	}
-
-	public void sortRaces() {
-		if ( sortedRaces == null ) {
-			sortedRaces = new HashMap<String,RaceData>();
-
-			for( int i = 0; i < 7; i++ ) {
-				sortedRaces.put(raceKey(i) + "melee", new RaceData());
-				sortedRaces.put(raceKey(i) + "campaign", new RaceData());
-				sortedRaces.put(raceKey(i) + "custom", new RaceData());
-			}
-
-			final WarcraftObject root = (WarcraftObject)unitData.get("Aroo");
-			final WarcraftObject rootAncientProtector = (WarcraftObject)unitData.get("Aro2");
-			final WarcraftObject rootAncients = (WarcraftObject)unitData.get("Aro1");
-			for( String str: unitData.keySet() ) {
-				final String baseId = str;
-				str = str.toUpperCase();
-				if( str.startsWith("B")
-						|| str.startsWith("R")
-						|| str.startsWith("A")
-						|| str.startsWith("S")
-						|| str.startsWith("X")
-						|| str.startsWith("M")
-						|| str.startsWith("HERO") ) {
-					continue;
-				}
-
-				final WarcraftObject unit = (WarcraftObject)unitData.get(baseId);
-//				if( unit == null ) {
-//					System.err.println(str);
-//					continue;
-//				}
-				String raceKey = "passives";
-				final String abilities = unit.getField("abilList");
-				final boolean isCampaign = unit.getField("campaign").startsWith("1");
-//				boolean isCustom = !unit.getField("inEditor").startsWith("1");
-				int sortGroupId = 0;
-
-				for( int i = 0; i < 6; i++ ) {
-					if( unit.getField("race").equals(raceKey(i)) ) {
-						raceKey = raceKey(i);
-					}
-				}
-				if( raceKey.equals("passives") && unit.getFieldValue("hostilePal") > 0 ) {
-					raceKey = "hostiles";
-				}
-
-				if( unit.getField("special").startsWith("1") ) {
-					sortGroupId = 4;
-				}
-				else if( unit.getId().length() > 1 && Character.isUpperCase(unit.getId().charAt(0)) ) {
-					sortGroupId = 1;
-				}
-				else if( abilities.contains("Aroo") || abilities.contains("Aro2") || abilities.contains("Aro1") ) {
-					sortGroupId = 3;
-				}
-				else if( unit.getField("isbldg").startsWith("1") ) {
-					sortGroupId = 2;
-				}
-				else {
-					sortGroupId = 0;
-				}
-//				sortedRaces.get(raceKey(i) + "campaign").
-
-				final String storeKey = raceKey + (isCampaign ? "campaign" : "melee");
-//				if( isCustom ) {
-//					storeKey = raceKey + "custom";
-//				}
-
-				switch(sortGroupId) {
-				case 0:
-					sortedRaces.get(storeKey).units.add(unit);
-					break;
-				case 1:
-					sortedRaces.get(storeKey).heroes.add(unit);
-					break;
-				case 2:
-					sortedRaces.get(storeKey).buildings.add(unit);
-					break;
-				case 3:
-					sortedRaces.get(storeKey).buildingsUprooted.add(unit);
-					sortedRaces.get(storeKey).buildings.add(unit);
-					break;
-				case 4:
-					sortedRaces.get(storeKey).special.add(unit);
-					break;
-				}
-			}
-
-			for( final String str: sortedRaces.keySet() ) {
-				final RaceData race = sortedRaces.get(str);
-				race.sort();
-			}
-		}
-	}
 	@Override
 	public void valueChanged(final TreeSelectionEvent e) {
-		final DefaultMutableTreeNode o = (DefaultMutableTreeNode)e.getNewLeadSelectionPath().getLastPathComponent();
-		if( o.getUserObject() instanceof WarcraftObject ) {
-			final WarcraftObject obj = (WarcraftObject)o.getUserObject();
-			debugLabel.setText(obj.getName());
-//			System.out.println(obj.getId());
-			currentUnit = obj;
-			fillTable();
+		currentUnitTreePath = e.getNewLeadSelectionPath();
+		if (currentUnitTreePath != null) {
+			final DefaultMutableTreeNode o = (DefaultMutableTreeNode) currentUnitTreePath.getLastPathComponent();
+			if (o.getUserObject() instanceof MutableGameObject) {
+				final MutableGameObject obj = (MutableGameObject) o.getUserObject();
+				currentUnit = obj;
+				final Set<String> fields = new HashSet<>();
+				if (dataModel != null) {
+					for (final int rowIndex : table.getSelectedRows()) {
+						fields.add(dataModel.getFieldRawDataName(rowIndex));
+					}
+				}
+				fillTable();
+				for (int rowIndex = 0; rowIndex < table.getRowCount(); rowIndex++) {
+					if (fields.contains(dataModel.getFieldRawDataName(rowIndex))) {
+						table.addRowSelectionInterval(rowIndex, rowIndex);
+					}
+				}
+			}
 		}
+	}
+
+	public static class DropLocation extends TransferHandler.DropLocation {
+		protected DropLocation(final Point dropPoint) {
+			super(dropPoint);
+		}
+
 	}
 }

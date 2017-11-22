@@ -23,11 +23,11 @@ public final class VertexGroupSelectionManager extends AbstractSelectionManager<
 
 	private static final Color GROUP_HIGHLIGHT_COLOR = new Color(0.45f, 1f, 0.45f, 0.3f);
 
-	private final VertexSelectionManager cachedVertexListManager;
+	private final GeosetVertexSelectionManager cachedVertexListManager;
 	private final Set<Integer> resettableIntegerSet = new HashSet<>();
 
 	public VertexGroupSelectionManager() {
-		cachedVertexListManager = new VertexSelectionManager();
+		cachedVertexListManager = new GeosetVertexSelectionManager();
 		addSelectionListener(new SelectionListener() {
 			@Override
 			public void onSelectionChanged(final SelectionView newSelection) {
@@ -103,5 +103,4 @@ public final class VertexGroupSelectionManager extends AbstractSelectionManager<
 			// }
 		}
 	}
-
 }

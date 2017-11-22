@@ -20,6 +20,7 @@ public class DataTable implements ObjectData {
 	static DataTable splatTable;
 	static DataTable terrainTable;
 	static DataTable ginterTable;
+	static DataTable unitEditorDataTable;
 	static DataTable buffTable;
 	static DataTable itemTable;
 	static DataTable theTableDestructibles;
@@ -107,6 +108,14 @@ public class DataTable implements ObjectData {
 			ginterTable.loadGinters();
 		}
 		return ginterTable;
+	}
+
+	public static DataTable getWorldEditorData() {
+		if (unitEditorDataTable == null) {
+			unitEditorDataTable = new DataTable();
+			unitEditorDataTable.loadUnitEditorData();
+		}
+		return unitEditorDataTable;
 	}
 
 	Map<StringKey, Element> dataTable = new LinkedHashMap<>();
@@ -203,6 +212,15 @@ public class DataTable implements ObjectData {
 	public void loadGinters() {
 		try {
 			readTXT(MpqCodebase.get().getResourceAsStream("UI\\war3skins.txt"), true);
+		} catch (final IOException e) {
+			ExceptionPopup.display(e);
+		}
+	}
+
+	public void loadUnitEditorData() {
+		try {
+			readTXT(MpqCodebase.get().getResourceAsStream("UI\\UnitEditorData.txt"), true);
+			readTXT(MpqCodebase.get().getResourceAsStream("UI\\WorldEditData.txt"), true);
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
@@ -499,7 +517,9 @@ public class DataTable implements ObjectData {
 				if (fieldValue.length() > 1 && fieldValue.startsWith("\"") && fieldValue.endsWith("\"")) {
 					fieldValue = fieldValue.substring(1, fieldValue.length() - 1);
 				}
-				currentUnit.setField(dataNames[fieldId - 1], fieldValue);
+				if (dataNames[fieldId - 1] != null) {
+					currentUnit.setField(dataNames[fieldId - 1], fieldValue);
+				}
 			}
 		}
 
@@ -590,45 +610,4 @@ public class DataTable implements ObjectData {
 	// System.out.println(abil.getUnitId());
 	// }
 	// }
-	private static final class StringKey {
-		private final String string;
-
-		public StringKey(final String string) {
-			this.string = string;
-		}
-
-		public String getString() {
-			return string;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((string.toLowerCase() == null) ? 0 : string.toLowerCase().hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(final Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			final StringKey other = (StringKey) obj;
-			if (string == null) {
-				if (other.string != null) {
-					return false;
-				}
-			} else if (!string.equalsIgnoreCase(other.string)) {
-				return false;
-			}
-			return true;
-		}
-	}
 }

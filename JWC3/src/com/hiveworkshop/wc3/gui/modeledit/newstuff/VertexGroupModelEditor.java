@@ -14,6 +14,7 @@ import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
+import com.hiveworkshop.wc3.gui.modeledit.cutpaste.CopiedModelData;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.DoNothingAction;
@@ -250,7 +251,7 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 	}
 
 	@Override
-	protected void selectByVertices(final Collection<Vertex> newSelection) {
+	public void selectByVertices(final Collection<? extends Vertex> newSelection) {
 		final List<VertexGroupBundle> newSelectionGroups = new ArrayList<>();
 		for (final Geoset geoset : model.getEditableGeosets()) {
 			for (final GeosetVertex geosetVertex : geoset.getVertices()) {
@@ -261,5 +262,49 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 			}
 		}
 		selectionManager.setSelection(newSelectionGroups);
+	}
+
+	@Override
+	public CopiedModelData copySelection() {
+		// TODO fix heavy overlap with other model editor code
+		final Set<VertexGroupBundle> selection = selectionManager.getSelection();
+		final List<Geoset> copiedGeosets = new ArrayList<>();
+		for (final Geoset geoset : model.getEditableGeosets()) {
+			final Geoset copy = new Geoset();
+			copy.setSelectionGroup(geoset.getSelectionGroup());
+			copy.setAnims(geoset.getAnims());
+			copy.setMaterial(geoset.getMaterial());
+			final Set<Triangle> copiedTriangles = new HashSet<>();
+			final Set<GeosetVertex> copiedVertices = new HashSet<>();
+			for (final Triangle triangle : geoset.getTriangles()) {
+				boolean triangleIsFullySelected = true;
+				final List<GeosetVertex> triangleVertices = new ArrayList<>(3);
+				for (final GeosetVertex geosetVertex : triangle.getAll()) {
+					if (selection.contains(new VertexGroupBundle(geoset, geosetVertex.getVertexGroup()))) {
+						final GeosetVertex newGeosetVertex = new GeosetVertex(geosetVertex);
+						newGeosetVertex.getTriangles().clear();
+						copiedVertices.add(newGeosetVertex);
+						triangleVertices.add(newGeosetVertex);
+					} else {
+						triangleIsFullySelected = false;
+					}
+				}
+				if (triangleIsFullySelected) {
+					final Triangle newTriangle = new Triangle(triangleVertices.get(0), triangleVertices.get(1),
+							triangleVertices.get(2), copy);
+					copiedTriangles.add(newTriangle);
+				}
+			}
+			for (final Triangle triangle : copiedTriangles) {
+				copy.add(triangle);
+			}
+			for (final GeosetVertex geosetVertex : copiedVertices) {
+				copy.add(geosetVertex);
+			}
+			if (copiedTriangles.size() > 0 || copiedVertices.size() > 0) {
+				copiedGeosets.add(copy);
+			}
+		}
+		return new CopiedModelData(copiedGeosets, new ArrayList<IdObject>(), new ArrayList<Camera>());
 	}
 }

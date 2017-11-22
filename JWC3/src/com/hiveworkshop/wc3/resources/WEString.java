@@ -55,7 +55,14 @@ public class WEString {
 
 	public static String getString(final String key) {
 		try {
-			return get().getString(key.toUpperCase());
+			String string = get().getString(key.toUpperCase());
+			if (string.charAt(0) == '"' && string.length() >= 2 && string.charAt(string.length() - 1) == '"') {
+				string = string.substring(1, string.length() - 1);
+			}
+			while (string.startsWith("WESTRING")) {
+				string = getString(string);
+			}
+			return string;
 		} catch (final MissingResourceException exc) {
 			return getGameStrings().getString(key.toUpperCase());
 		}

@@ -50,10 +50,17 @@ import com.hiveworkshop.wc3.mdl.v2.ModelView;
 public abstract class AbstractModelEditor<T> implements ModelEditor {
 	protected final SelectionManager<T> selectionManager;
 	protected final ModelView model;
+	private final VertexSelectionHelper vertexSelectionHelper;
 
 	public AbstractModelEditor(final SelectionManager<T> selectionManager, final ModelView model) {
 		this.selectionManager = selectionManager;
 		this.model = model;
+		this.vertexSelectionHelper = new VertexSelectionHelper() {
+			@Override
+			public void selectVertices(final Collection<Vertex> vertices) {
+				selectByVertices(vertices);
+			}
+		};
 	}
 
 	@Override
@@ -128,7 +135,7 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 		// TODO this code operates directly on MODEL
 		final ArrayList<Geoset> remGeosets = new ArrayList<>();// model.getGeosets()
 		final ArrayList<Triangle> deletedTris = new ArrayList<>();
-		final Collection<? extends Vertex> selection = selectionManager.getSelectedVertices();
+		final Collection<? extends Vertex> selection = new ArrayList<>(selectionManager.getSelectedVertices());
 		for (final Vertex vertex : selection) {
 			if (vertex.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vertex;
@@ -141,6 +148,11 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 				gv.getGeoset().remove(gv);
 			}
 		}
+		for (final Triangle t : deletedTris) {
+			for (final GeosetVertex vertex : t.getAll()) {
+				vertex.getTriangles().remove(t);
+			}
+		}
 		for (int i = model.getModel().getGeosets().size() - 1; i >= 0; i--) {
 			if (model.getModel().getGeosets().get(i).isEmpty()) {
 				final Geoset g = model.getModel().getGeoset(i);
@@ -151,12 +163,13 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 				}
 			}
 		}
+		selectByVertices(new ArrayList<Vertex>());
 		if (remGeosets.size() <= 0) {
-			final DeleteAction temp = new DeleteAction(selection, deletedTris);
+			final DeleteAction temp = new DeleteAction(selection, deletedTris, vertexSelectionHelper);
 			return temp;
 		} else {
-			final SpecialDeleteAction temp = new SpecialDeleteAction(selection, deletedTris, remGeosets,
-					model.getModel(), modelStructureChangeListener);
+			final SpecialDeleteAction temp = new SpecialDeleteAction(selection, deletedTris, vertexSelectionHelper,
+					remGeosets, model.getModel(), modelStructureChangeListener);
 			modelStructureChangeListener.geosetsRemoved(remGeosets);
 			return temp;
 		}
@@ -617,7 +630,11 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 			final GeosetVertex a = newVertices.get(source.indexOf(tri.get(0)));
 			final GeosetVertex b = newVertices.get(source.indexOf(tri.get(1)));
 			final GeosetVertex c = newVertices.get(source.indexOf(tri.get(2)));
-			newTriangles.add(new Triangle(a, b, c, a.getGeoset()));
+			final Triangle newTriangle = new Triangle(a, b, c, a.getGeoset());
+			newTriangles.add(newTriangle);
+			a.getTriangles().add(newTriangle);
+			b.getTriangles().add(newTriangle);
+			c.getTriangles().add(newTriangle);
 		}
 		final Set<Vertex> newSelection = new HashSet<>();
 		for (final Vertex ver : newVertices) {
@@ -646,13 +663,9 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 				newVerticesWithoutNulls.add(vertex);
 			}
 		}
+		// TODO cameras
 		final CloneAction cloneAction = new CloneAction(model, source, modelStructureChangeListener,
-				new VertexSelectionHelper() {
-					@Override
-					public void selectVertices(final Collection<Vertex> vertices) {
-						selectByVertices(vertices);
-					}
-				}, selBones, newVerticesWithoutNulls, newTriangles, newBones, newSelection);
+				vertexSelectionHelper, selBones, newVerticesWithoutNulls, newTriangles, newBones, newSelection);
 		cloneAction.redo();
 		return cloneAction;
 	}
@@ -712,13 +725,15 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 	}
 
 	protected final UndoAction removeSelectionWithAction(final List<T> newSelection) {
+		final Set<T> previousSelection = new HashSet<>(selectionManager.getSelection());
 		selectionManager.removeSelection(newSelection);
-		return (new RemoveSelectionAction<>(newSelection, selectionManager));
+		return (new RemoveSelectionAction<>(previousSelection, newSelection, selectionManager));
 	}
 
 	protected final UndoAction addSelectionWithAction(final List<T> newSelection) {
+		final Set<T> previousSelection = new HashSet<>(selectionManager.getSelection());
 		selectionManager.addSelection(newSelection);
-		return (new AddSelectionAction<>(newSelection, selectionManager));
+		return (new AddSelectionAction<>(previousSelection, newSelection, selectionManager));
 	}
 
 	protected abstract List<T> genericSelect(final Rectangle2D region, final CoordinateSystem coordinateSystem);
@@ -740,8 +755,6 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 		editabilityToggleHandler.makeEditable();
 		return new MakeEditableAction(editabilityToggleHandler);
 	}
-
-	protected abstract void selectByVertices(Collection<Vertex> newSelection);
 
 	@Override
 	public Vertex getSelectionCenter() {

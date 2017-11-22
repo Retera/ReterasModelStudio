@@ -4,10 +4,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -213,10 +215,12 @@ public class MDL implements Named {
 
 	public MDL() {
 		name = "UnnamedModel";
+		formatVersion = 800;
 	}
 
 	public MDL(final String newName) {
 		name = newName;
+		formatVersion = 800;
 	}
 
 	public MDL(final MDL other) {
@@ -1208,14 +1212,25 @@ public class MDL implements Named {
 				mdx = true;
 			}
 		}
-		PrintWriter writer = null;
+		try {
+			printTo(new FileOutputStream(baseFile));
+		} catch (final FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
 
+		if (mdx) {
+			MDXHandler.compile(f);
+		}
+	}
+
+	public void printTo(final OutputStream outputStream) {
 		rebuildLists();
 		// If rebuilding the lists is to crash, then we want to crash the thread
 		// BEFORE clearing the file
 
+		PrintWriter writer = null;
 		try {
-			writer = new PrintWriter(f);
+			writer = new PrintWriter(outputStream);
 		} catch (final Exception e) {
 			JOptionPane.showMessageDialog(null, "Unable to save MDL to file.");
 		}
@@ -1424,10 +1439,6 @@ public class MDL implements Named {
 		} catch (final Exception e) {
 			JOptionPane.showMessageDialog(null, "Unable to close MDL writer -- did you run out of hard drive space?");
 			ExceptionPopup.display(e);
-		}
-
-		if (mdx) {
-			MDXHandler.compile(f);
 		}
 	}
 

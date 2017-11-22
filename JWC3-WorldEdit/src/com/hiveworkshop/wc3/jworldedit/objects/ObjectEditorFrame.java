@@ -12,48 +12,52 @@ import javax.swing.UnsupportedLookAndFeelException;
 import net.sf.image4j.codec.ico.ICODecoder;
 
 public class ObjectEditorFrame extends JFrame {
-	
-	UnitEditorPanel panel;
-	
+
+	ObjectEditorPanel panel;
+
 	public ObjectEditorFrame() {
-		super("Object Editor (JWorldEdit Beta)");
+		super("Object Editor");
 		try {
-			List<BufferedImage> images = ICODecoder.read(this.getClass().getResourceAsStream("worldedit.ico"));
-			List<BufferedImage> finalImages = new ArrayList<BufferedImage>();
+			final List<BufferedImage> images = ICODecoder.read(this.getClass().getResourceAsStream("worldedit.ico"));
+			final List<BufferedImage> finalImages = new ArrayList<>();
 			BufferedImage lastImage = null;
-			for( BufferedImage image: images ) {
-				if( lastImage != null && image.getWidth() != lastImage.getWidth() ) {
+			for (final BufferedImage image : images) {
+				if (lastImage != null && image.getWidth() != lastImage.getWidth()) {
 					finalImages.add(lastImage);
 				}
 				lastImage = image;
 			}
 			finalImages.add(lastImage);
 			setIconImages(finalImages);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 		}
-		setContentPane(panel = new UnitEditorPanel());
+		setContentPane(panel = new ObjectEditorPanel());
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		
+
 		pack();
 		setLocationRelativeTo(null);
-		//setIconImage(BLPHandler.get().getGameTex(""));
+		// setIconImage(BLPHandler.get().getGameTex(""));
 	}
 
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
+			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel");
+		} catch (final Exception exc) {
+			try {
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			} catch (final ClassNotFoundException e) {
+				e.printStackTrace();
+			} catch (final InstantiationException e) {
+				e.printStackTrace();
+			} catch (final IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (final UnsupportedLookAndFeelException e) {
+				e.printStackTrace();
+			}
 		}
-		
-		ObjectEditorFrame frame = new ObjectEditorFrame();
+
+		final ObjectEditorFrame frame = new ObjectEditorFrame();
 		frame.setVisible(true);
 		frame.panel.loadHotkeys();
 	}

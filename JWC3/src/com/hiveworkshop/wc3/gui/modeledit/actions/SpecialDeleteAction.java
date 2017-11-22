@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
+import com.hiveworkshop.wc3.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.mdl.Triangle;
@@ -16,9 +17,9 @@ public class SpecialDeleteAction extends DeleteAction {
 	private final ModelStructureChangeListener modelStructureChangeListener;
 
 	public SpecialDeleteAction(final Collection<? extends Vertex> selection, final List<Triangle> deletedTris,
-			final List<Geoset> deletedGs, final MDL parentModel,
+			final VertexSelectionHelper vertexSelectionHelper, final List<Geoset> deletedGs, final MDL parentModel,
 			final ModelStructureChangeListener modelStructureChangeListener) {
-		super(selection, deletedTris);
+		super(selection, deletedTris, vertexSelectionHelper);
 		deletedGeosets = deletedGs;
 		parent = parentModel;
 		this.modelStructureChangeListener = modelStructureChangeListener;

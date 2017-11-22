@@ -131,8 +131,9 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 		final JCheckBoxTreeNode mesh = new JCheckBoxTreeNode(new CheckableDummyElement(modelViewManager, "Mesh"));
 
 		for (final Geoset geoset : modelViewManager.getModel().getGeosets()) {
+			boolean contains = modelViewManager.getEditableGeosets().contains(geoset);
 			mesh.add(new JCheckBoxTreeNode(new CheckableGeosetElement(modelViewManager, geoset),
-					modelViewManager.getEditableGeosets().contains(geoset)));
+					contains));
 		}
 
 		if (mesh.getChildCount() > 0) {

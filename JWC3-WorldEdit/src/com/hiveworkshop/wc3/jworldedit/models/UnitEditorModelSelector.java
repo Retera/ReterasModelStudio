@@ -32,7 +32,7 @@ import javax.swing.tree.TreePath;
 
 import com.hiveworkshop.wc3.gui.modeledit.PerspDisplayPanel;
 import com.hiveworkshop.wc3.jworldedit.objects.UnitEditorSettings;
-import com.hiveworkshop.wc3.jworldedit.objects.UnitTreeCellRenderer;
+import com.hiveworkshop.wc3.jworldedit.objects.WarcraftObjectTreeCellRenderer;
 import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
@@ -45,6 +45,7 @@ import com.hiveworkshop.wc3.units.StandardObjectData;
 import com.hiveworkshop.wc3.units.StandardObjectData.WarcraftData;
 import com.hiveworkshop.wc3.units.StandardObjectData.WarcraftObject;
 import com.hiveworkshop.wc3.units.UnitComparator;
+import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.WorldEditorDataType;
 
 import de.wc3data.stream.BlizzardDataInputStream;
 
@@ -103,7 +104,7 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 		model = new UnitEditorTreeModel(root);
 		tree = new JTree(root);
 		tree.setModel(model);
-		tree.setCellRenderer(new UnitTreeCellRenderer(settings));
+		tree.setCellRenderer(new WarcraftObjectTreeCellRenderer(settings, WorldEditorDataType.UNITS));
 		tree.setRootVisible(false);
 		JScrollPane treePane;
 		this.setLeftComponent(treePane = new JScrollPane(tree));

@@ -16,6 +16,7 @@ import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.TeamColorAddAction;
+import com.hiveworkshop.wc3.gui.modeledit.cutpaste.CopiedModelData;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
@@ -83,7 +84,7 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 	}
 
 	@Override
-	protected void selectByVertices(final Collection<Vertex> newSelection) {
+	public void selectByVertices(final Collection<? extends Vertex> newSelection) {
 		final Set<Triangle> newlySelectedFaces = new HashSet<>();
 		for (final Geoset geoset : model.getModel().getGeosets()) {
 			for (final Triangle triangle : geoset.getTriangles()) {
@@ -263,5 +264,44 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 		return rectangle.contains(verts[0].getCoord(dim1), verts[0].getCoord(dim2))
 				|| rectangle.contains(verts[1].getCoord(dim1), verts[1].getCoord(dim2))
 				|| rectangle.contains(verts[2].getCoord(dim1), verts[2].getCoord(dim2)) || path.intersects(rectangle);
+	}
+
+	@Override
+	public CopiedModelData copySelection() {
+		// TODO heavy overlap with GeosetVertexModelEditor's code
+		final Set<Triangle> selection = selectionManager.getSelection();
+		final List<Geoset> copiedGeosets = new ArrayList<>();
+		for (final Geoset geoset : model.getEditableGeosets()) {
+			final Geoset copy = new Geoset();
+			copy.setSelectionGroup(geoset.getSelectionGroup());
+			copy.setAnims(geoset.getAnims());
+			copy.setMaterial(geoset.getMaterial());
+			final Set<Triangle> copiedTriangles = new HashSet<>();
+			final Set<GeosetVertex> copiedVertices = new HashSet<>();
+			for (final Triangle triangle : geoset.getTriangles()) {
+				if (selection.contains(triangle)) {
+					final List<GeosetVertex> triangleVertices = new ArrayList<>(3);
+					for (final GeosetVertex geosetVertex : triangle.getAll()) {
+						final GeosetVertex newGeosetVertex = new GeosetVertex(geosetVertex);
+						newGeosetVertex.getTriangles().clear();
+						copiedVertices.add(newGeosetVertex);
+						triangleVertices.add(newGeosetVertex);
+					}
+					final Triangle newTriangle = new Triangle(triangleVertices.get(0), triangleVertices.get(1),
+							triangleVertices.get(2), copy);
+					copiedTriangles.add(newTriangle);
+				}
+			}
+			for (final Triangle triangle : copiedTriangles) {
+				copy.add(triangle);
+			}
+			for (final GeosetVertex geosetVertex : copiedVertices) {
+				copy.add(geosetVertex);
+			}
+			if (copiedTriangles.size() > 0 || copiedVertices.size() > 0) {
+				copiedGeosets.add(copy);
+			}
+		}
+		return new CopiedModelData(copiedGeosets, new ArrayList<IdObject>(), new ArrayList<Camera>());
 	}
 }
