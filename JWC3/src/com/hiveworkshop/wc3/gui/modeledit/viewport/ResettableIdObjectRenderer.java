@@ -80,13 +80,11 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 	}
 
 	private void drawCrosshair(final Bone object) {
-		final int xCoord = (int) coordinateSystem
-				.convertX(object.getPivotPoint().getCoord(coordinateSystem.getPortFirstXYZ()));
-		final int yCoord = (int) coordinateSystem
-				.convertY(object.getPivotPoint().getCoord(coordinateSystem.getPortSecondXYZ()));
-		graphics.drawOval(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2, vertexSize * 2);
-		graphics.drawLine(xCoord - (int) (vertexSize * 1.5f), yCoord, xCoord + (int) (vertexSize * 1.5f), yCoord);
-		graphics.drawLine(xCoord, yCoord - (int) (vertexSize * 1.5f), xCoord, yCoord + (int) (vertexSize * 1.5f));
+		drawCrosshair(object.getPivotPoint());
+	}
+
+	private void drawCrosshair(final Vertex pivotPoint) {
+		drawCrosshair(graphics, coordinateSystem, vertexSize, pivotPoint);
 	}
 
 	@Override
@@ -209,6 +207,15 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 				nodeImage.getWidth(null), nodeImage.getHeight(null), null);
 	}
 
+	public static void drawCrosshair(final Graphics2D graphics, final CoordinateSystem coordinateSystem,
+			final int vertexSize, final Vertex pivotPoint) {
+		final int xCoord = (int) coordinateSystem.convertX(pivotPoint.getCoord(coordinateSystem.getPortFirstXYZ()));
+		final int yCoord = (int) coordinateSystem.convertY(pivotPoint.getCoord(coordinateSystem.getPortSecondXYZ()));
+		graphics.drawOval(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2, vertexSize * 2);
+		graphics.drawLine(xCoord - (int) (vertexSize * 1.5f), yCoord, xCoord + (int) (vertexSize * 1.5f), yCoord);
+		graphics.drawLine(xCoord, yCoord - (int) (vertexSize * 1.5f), xCoord, yCoord + (int) (vertexSize * 1.5f));
+	}
+
 	public static void drawCollisionShape(final Graphics2D graphics, final Color color,
 			final CoordinateSystem coordinateSystem, final byte xDimension, final byte yDimension, final int vertexSize,
 			final CollisionShape collisionShape, final Image collisionImage) {
@@ -229,8 +236,10 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 				final int minYCoord = Math.min(firstYCoord, secondYCoord);
 				final int maxXCoord = Math.max(firstXCoord, secondXCoord);
 				final int maxYCoord = Math.max(firstYCoord, secondYCoord);
+
 				graphics.drawRoundRect(minXCoord, minYCoord, maxXCoord - minXCoord, maxYCoord - minYCoord, vertexSize,
 						vertexSize);
+				drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage);
 			} else {
 				drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage);
 			}
@@ -240,9 +249,13 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 				final double boundsRadius = collisionShape.getExtents().getBoundsRadius() * zoom;
 				graphics.drawOval((int) (xCoord - boundsRadius), (int) (yCoord - boundsRadius),
 						(int) (boundsRadius * 2), (int) (boundsRadius * 2));
+				drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage);
 			} else {
 				drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage);
 			}
+		}
+		for (final Vertex vertex : vertices) {
+			drawCrosshair(graphics, coordinateSystem, vertexSize, vertex);
 		}
 	}
 }

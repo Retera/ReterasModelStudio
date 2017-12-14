@@ -1,5 +1,6 @@
 package com.hiveworkshop.wc3.gui.modeledit;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
@@ -130,7 +131,8 @@ public class PerspDisplayPanel extends JPanel implements ActionListener {
 		// .addComponent(down)
 		// ));
 		//
-		setLayout(layout);
+		setLayout(new BorderLayout());
+		add(vp);
 		// add(Box.createHorizontalStrut(200));
 		// add(Box.createVerticalStrut(200));
 		// setLayout( new BoxLayout(this,BoxLayout.LINE_AXIS));
@@ -190,8 +192,7 @@ public class PerspDisplayPanel extends JPanel implements ActionListener {
 			// .addComponent(down)
 			// ));
 			//
-			setLayout(layout);
-			revalidate();
+			setLayout(new BorderLayout());
 			// vp.setWireframeHandler(wireframe);
 			// vpp = new JPanel();
 			// vpp.add(Box.createHorizontalStrut(200));

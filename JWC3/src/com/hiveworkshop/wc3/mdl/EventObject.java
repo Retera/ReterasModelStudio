@@ -13,8 +13,7 @@ import com.hiveworkshop.wc3.mdx.EventObjectChunk;
 import com.hiveworkshop.wc3.mdx.Node;
 
 /**
- * A class for EventObjects, which include such things as craters, footprints,
- * splashes, blood spurts, and sounds
+ * A class for EventObjects, which include such things as craters, footprints, splashes, blood spurts, and sounds
  *
  * Eric Theller 3/10/2012 3:52 PM
  */
@@ -380,6 +379,6 @@ public class EventObject extends IdObject {
 
 	@Override
 	public double getClickRadius(final CoordinateSystem coordinateSystem) {
-		return 8 / CoordinateSystem.Util.getZoom(coordinateSystem);
+		return DEFAULT_CLICK_RADIUS / CoordinateSystem.Util.getZoom(coordinateSystem);
 	}
 }

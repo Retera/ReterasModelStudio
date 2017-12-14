@@ -411,6 +411,6 @@ public class Light extends IdObject implements VisibilitySource {
 
 	@Override
 	public double getClickRadius(final CoordinateSystem coordinateSystem) {
-		return 8 / CoordinateSystem.Util.getZoom(coordinateSystem);
+		return DEFAULT_CLICK_RADIUS / CoordinateSystem.Util.getZoom(coordinateSystem);
 	}
 }

@@ -121,6 +121,16 @@ public final class MPQBrowser extends JPanel {
 				return treeCellRendererComponent;
 			}
 		});
+		tree.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(final MouseEvent e) {
+				if (e.getClickCount() >= 2) {
+					fileOpenCallback
+							.run(((MPQTreeNode) tree.getPathForLocation(e.getX(), e.getY()).getLastPathComponent())
+									.getPath());
+				}
+			}
+		});
 		setLayout(new BorderLayout());
 		add(new JScrollPane(tree), BorderLayout.CENTER);
 

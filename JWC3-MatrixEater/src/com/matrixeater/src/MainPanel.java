@@ -7,7 +7,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -83,9 +82,9 @@ import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordDisplayListener;
 import com.hiveworkshop.wc3.gui.modeledit.ImportPanel;
 import com.hiveworkshop.wc3.gui.modeledit.MaterialListRenderer;
-import com.hiveworkshop.wc3.gui.modeledit.ModeButton;
 import com.hiveworkshop.wc3.gui.modeledit.ModelPanel;
 import com.hiveworkshop.wc3.gui.modeledit.PerspDisplayPanel;
+import com.hiveworkshop.wc3.gui.modeledit.ProgramPreferencesPanel;
 import com.hiveworkshop.wc3.gui.modeledit.UVPanel;
 import com.hiveworkshop.wc3.gui.modeledit.UndoHandler;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
@@ -163,9 +162,6 @@ import de.wc3data.stream.BlizzardDataOutputStream;
  */
 public class MainPanel extends JPanel implements ActionListener, MouseListener, ChangeListener, UndoHandler {
 	private static final boolean EMBEDDED_VIEW_CTRL_MODE = true;
-	ModeButton selectButton, addButton, deselectButton, moveButton, rotateButton, scaleButton, extrudeButton,
-			extendButton, snapButton, deleteButton, cloneButton, xButton, yButton, zButton;
-	ArrayList<ModeButton> buttons = new ArrayList<>();
 	JMenuBar menuBar;
 	JMenu fileMenu, recentMenu, editMenu, toolsMenu, mirrorSubmenu, tweaksSubmenu, viewMenu, importMenu, addMenu,
 			windowMenu, addParticle, animationMenu, singleAnimationMenu, aboutMenu, fetch;
@@ -177,8 +173,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			newDirectory, creditsButton, clearRecent, nullmodelButton, selectAll, invertSelect, expandSelection,
 			snapNormals, flipAllUVsU, flipAllUVsV, inverseAllUVs, mirrorX, mirrorY, mirrorZ, insideOut,
 			insideOutNormals, showMatrices, editUVs, exportTextures, scaleAnimations, animationViewer, mpqViewer,
-			linearizeAnimations, simplifyKeyframes, duplicateSelection, riseFallBirth, animFromFile, animFromUnit,
-			animFromModel, animFromObject, teamColor, teamGlow;
+			preferencesWindow, linearizeAnimations, simplifyKeyframes, duplicateSelection, riseFallBirth, animFromFile,
+			animFromUnit, animFromModel, animFromObject, teamColor, teamGlow;
 	JMenuItem cut, copy, paste;
 	List<RecentItem> recentItems = new ArrayList<>();
 	UndoMenuItem undo;
@@ -229,47 +225,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		return -1;
 	}
 
-	public void setCloneOn(final boolean flag) {
-		prefs.setCloneOn(flag);
-		// cloneOn = flag;
-		if (flag) {
-			cloneButton.setColors(prefs.getActiveBColor1(), prefs.getActiveBColor2());
-		} else {
-			cloneButton.resetColors();
-			System.out.println("reset???");
-		}
-	}
-
-	@Override
-	public void paintComponent(final Graphics g) {
-		super.paintComponent(g);
-		if (!prefs.isCloneOn() && cloneButton.isColorModeActive()) {
-			cloneButton.resetColors();
-		}
-	}
-
-	public ModeButton getDLockButton(final int x) {
-		switch (x) {
-		case 0:
-			return zButton;
-		case 1:
-			return xButton;
-		case 2:
-			return yButton;
-		}
-		return null;
-	}
-
-	public void setDimLock(final int x, final boolean flag) {
-		prefs.setDimLock(x, flag);
-		if (prefs.getDimLock(x)) {
-			getDLockButton(x).setColors(prefs.getActiveBColor1(), prefs.getActiveBColor2());
-		} else {
-			getDLockButton(x).resetColors();
-		}
-	}
-
-	JMenuItem contextClose, contextCloseAll;
+	JMenuItem contextClose, contextCloseAll, contextCloseOthers;
 	int contextClickedTab = 0;
 	JPopupMenu contextMenu;
 	AbstractAction undoAction = new AbstractAction("Undo") {
@@ -575,6 +531,29 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			frame.setVisible(true);
 		}
 	};
+	AbstractAction openPreferencesAction = new AbstractAction("Open Preferences") {
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			final ProgramPreferences programPreferences = new ProgramPreferences();
+			programPreferences.loadFrom(prefs);
+			final ProgramPreferencesPanel programPreferencesPanel = new ProgramPreferencesPanel(programPreferences);
+			// final JFrame frame = new JFrame("Preferences");
+			// frame.setIconImage(MainFrame.frame.getIconImage());
+			// frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			// frame.setContentPane(programPreferencesPanel);
+			// frame.pack();
+			// frame.setLocationRelativeTo(MainPanel.this);
+			// frame.setVisible(true);
+
+			final int ret = JOptionPane.showConfirmDialog(MainPanel.this, programPreferencesPanel, "Preferences",
+					JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+			if (ret == JOptionPane.OK_OPTION) {
+				prefs.loadFrom(programPreferences);
+				SaveProfile.save();
+				updateUIFromProgramPreferences();
+			}
+		}
+	};
 	AbstractAction openMPQViewerAction = new AbstractAction("Open MPQ Browser") {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
@@ -609,9 +588,6 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		// //botArea.setViewport(0,1);
 		// add(testArea);
 
-		selectButton = new ModeButton("Select");
-		addButton = new ModeButton("Add");
-		deselectButton = new ModeButton("Deselect");
 		final JLabel[] divider = new JLabel[3];
 		for (int i = 0; i < divider.length; i++) {
 			divider[i] = new JLabel("----------");
@@ -622,62 +598,19 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			mouseCoordDisplay[i].setMinimumSize(new Dimension(50, 15));
 			mouseCoordDisplay[i].setEditable(false);
 		}
-		moveButton = new ModeButton("Move");
-		rotateButton = new ModeButton("Rotate");
-		scaleButton = new ModeButton("Scale");
-		extrudeButton = new ModeButton("Extrude");
-		extendButton = new ModeButton("Extend");
-		extendButton.setToolTipText("A modified version of extrude that favors creating less faces.");
-		snapButton = new ModeButton("Snap");
-		deleteButton = new ModeButton("Delete");
-		cloneButton = new ModeButton("Clone");
-		xButton = new ModeButton("X");
-		yButton = new ModeButton("Y");
-		zButton = new ModeButton("Z");
 
 		contextMenu = new JPopupMenu();
 		contextClose = new JMenuItem("Close");
 		contextClose.addActionListener(this);
 		contextMenu.add(contextClose);
 
+		contextCloseOthers = new JMenuItem("Close Others");
+		contextCloseOthers.addActionListener(this);
+		contextMenu.add(contextCloseOthers);
+
 		contextCloseAll = new JMenuItem("Close All");
 		contextCloseAll.addActionListener(this);
 		contextMenu.add(contextCloseAll);
-
-		buttons.add(selectButton);
-		buttons.add(addButton);
-		buttons.add(deselectButton);
-		buttons.add(moveButton);
-		buttons.add(rotateButton);
-		buttons.add(scaleButton);
-		buttons.add(extrudeButton);
-		buttons.add(extendButton);
-		buttons.add(snapButton);
-		buttons.add(deleteButton);
-		buttons.add(cloneButton);
-
-		xButton.addActionListener(this);
-		xButton.setMaximumSize(new Dimension(26, 26));
-		xButton.setMinimumSize(new Dimension(20, 20));
-		xButton.setMargin(new Insets(0, 0, 0, 0));
-		yButton.addActionListener(this);
-		yButton.setMaximumSize(new Dimension(26, 26));
-		yButton.setMinimumSize(new Dimension(20, 20));
-		yButton.setMargin(new Insets(0, 0, 0, 0));
-		zButton.addActionListener(this);
-		zButton.setMaximumSize(new Dimension(26, 26));
-		zButton.setMinimumSize(new Dimension(20, 20));
-		zButton.setMargin(new Insets(0, 0, 0, 0));
-
-		for (int i = 0; i < buttons.size(); i++) {
-			buttons.get(i).setMaximumSize(new Dimension(100, 35));
-			buttons.get(i).setMinimumSize(new Dimension(90, 15));
-			if (buttons.get(i) != deleteButton) {
-				buttons.get(i).addActionListener(this);
-			} else {
-				buttons.get(i).addActionListener(deleteAction);
-			}
-		}
 
 		tabbedPane = new DnDTabbedPane();
 		leftHandGeoControlEmbeddedPane = new JScrollPane();
@@ -689,44 +622,30 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		} else {
 			tabbedPaneArea = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftHandGeoControlEmbeddedPane, tabbedPane);
 		}
+		final JPanel toolsPanel = new JPanel();
 		final GroupLayout layout = new GroupLayout(this);
 		layout.setHorizontalGroup(layout.createSequentialGroup()
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(toolbar)
 						.addComponent(tabbedPaneArea)
 						.addGroup(layout.createSequentialGroup().addComponent(mouseCoordDisplay[0])
 								.addComponent(mouseCoordDisplay[1]).addComponent(mouseCoordDisplay[2])))
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(selectButton)
-						.addComponent(addButton).addComponent(deselectButton).addComponent(divider[0])
-						.addComponent(moveButton).addComponent(rotateButton).addComponent(scaleButton)
-						.addComponent(extrudeButton).addComponent(extendButton).addComponent(divider[1])
-						.addComponent(snapButton).addComponent(deleteButton).addComponent(cloneButton)
-						.addComponent(divider[2]).addGroup(layout.createSequentialGroup().addComponent(xButton)
-								.addComponent(yButton).addComponent(zButton))));
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(toolsPanel)));
 		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(toolbar)
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 						.addGroup(layout.createSequentialGroup().addComponent(tabbedPaneArea)
 								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
 										.addComponent(mouseCoordDisplay[0]).addComponent(mouseCoordDisplay[1])
 										.addComponent(mouseCoordDisplay[2])))
-						.addGroup(layout.createSequentialGroup().addComponent(selectButton).addGap(8)
-								.addComponent(addButton).addGap(8).addComponent(deselectButton).addGap(8)
-								.addComponent(divider[0]).addGap(8).addComponent(moveButton).addGap(8)
-								.addComponent(rotateButton).addGap(8).addComponent(scaleButton).addGap(8)
-								.addComponent(extrudeButton).addGap(8).addComponent(extendButton).addGap(8)
-								.addComponent(divider[1]).addGap(8).addComponent(snapButton).addGap(8)
-								.addComponent(deleteButton).addGap(8).addComponent(cloneButton).addGap(8)
-								.addComponent(divider[2]).addGap(8)
-								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(xButton)
-										.addComponent(yButton).addComponent(zButton)))));
+						.addGroup(layout.createSequentialGroup().addComponent(toolsPanel))));
 		setLayout(layout);
 		// Create a file chooser
 		fc = new JFileChooser();
 		filterFile = new File("", ".mdl");
 		filter = new MDLFilter();
 		fc.setAcceptAllFileFilterUsed(false);
+		fc.addChoosableFileFilter(new FileNameExtensionFilter("Warcraft III Binary Model '-.mdx'", "mdx"));
 		fc.addChoosableFileFilter(filter);
-		fc.addChoosableFileFilter(new FileNameExtensionFilter("Warcraft III Binary Model", "mdx"));
-		fc.addChoosableFileFilter(new FileNameExtensionFilter("Wavefront OBJ", "obj"));
+		fc.addChoosableFileFilter(new FileNameExtensionFilter("Wavefront OBJ '-.obj'", "obj"));
 		exportTextureDialog = new JFileChooser();
 		exportTextureDialog.setDialogTitle("Export Texture");
 		final String[] imageTypes = ImageIO.getWriterFileSuffixes();
@@ -745,96 +664,12 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		tabbedPane.addMouseListener(this);
 		// setFocusable(true);
 		// selectButton.requestFocus();
-		modelStructureChangeListener = new ModelStructureChangeListener() {
-
+		modelStructureChangeListener = new ModelStructureChangeListenerImplementation(new ModelReference() {
 			@Override
-			public void nodesRemoved(final List<IdObject> nodes) {
-				// Tell program to set visibility after import
-				final ModelPanel display = displayFor(currentModelPanel().getModel());
-				if (display != null) {
-					// display.setBeenSaved(false); // we edited the model
-					// TODO notify been saved system, wherever that moves to
-					for (final IdObject geoset : nodes) {
-						display.getModelViewManager().makeIdObjectNotVisible(geoset);
-					}
-					reloadGeosetManagers(display);
-				}
+			public MDL getModel() {
+				return currentModelPanel().getModel();
 			}
-
-			@Override
-			public void nodesAdded(final List<IdObject> nodes) {
-				// Tell program to set visibility after import
-				final ModelPanel display = displayFor(currentModelPanel().getModel());
-				if (display != null) {
-					// display.setBeenSaved(false); // we edited the model
-					// TODO notify been saved system, wherever that moves to
-					for (final IdObject geoset : nodes) {
-						display.getModelViewManager().makeIdObjectVisible(geoset);
-					}
-					reloadGeosetManagers(display);
-				}
-			}
-
-			@Override
-			public void geosetsRemoved(final List<Geoset> geosets) {
-				// Tell program to set visibility after import
-				final ModelPanel display = displayFor(currentModelPanel().getModel());
-				if (display != null) {
-					// display.setBeenSaved(false); // we edited the model
-					// TODO notify been saved system, wherever that moves to
-					for (final Geoset geoset : geosets) {
-						display.getModelViewManager().makeGeosetNotEditable(geoset);
-						display.getModelViewManager().makeGeosetNotVisible(geoset);
-					}
-					reloadGeosetManagers(display);
-				}
-			}
-
-			@Override
-			public void geosetsAdded(final List<Geoset> geosets) {
-				// Tell program to set visibility after import
-				final ModelPanel display = displayFor(currentModelPanel().getModel());
-				if (display != null) {
-					// display.setBeenSaved(false); // we edited the model
-					// TODO notify been saved system, wherever that moves to
-					for (final Geoset geoset : geosets) {
-						display.getModelViewManager().makeGeosetEditable(geoset);
-						// display.getModelViewManager().makeGeosetVisible(geoset);
-					}
-					reloadGeosetManagers(display);
-				}
-			}
-
-			@Override
-			public void camerasAdded(final List<Camera> cameras) {
-				// Tell program to set visibility after import
-				final ModelPanel display = displayFor(currentModelPanel().getModel());
-				if (display != null) {
-					// display.setBeenSaved(false); // we edited the model
-					// TODO notify been saved system, wherever that moves to
-					for (final Camera camera : cameras) {
-						display.getModelViewManager().makeCameraVisible(camera);
-						// display.getModelViewManager().makeGeosetVisible(geoset);
-					}
-					reloadGeosetManagers(display);
-				}
-			}
-
-			@Override
-			public void camerasRemoved(final List<Camera> cameras) {
-				// Tell program to set visibility after import
-				final ModelPanel display = displayFor(currentModelPanel().getModel());
-				if (display != null) {
-					// display.setBeenSaved(false); // we edited the model
-					// TODO notify been saved system, wherever that moves to
-					for (final Camera camera : cameras) {
-						display.getModelViewManager().makeCameraNotVisible(camera);
-						// display.getModelViewManager().makeGeosetVisible(geoset);
-					}
-					reloadGeosetManagers(display);
-				}
-			}
-		};
+		});
 
 		actionTypeGroup.addToolbarButtonListener(new ToolbarButtonListener<ToolbarActionButtonType>() {
 			@Override
@@ -984,8 +819,6 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 	}
 
 	public void init() {
-		buttons.get(0).setColors(prefs.getActiveColor1(), prefs.getActiveColor2());
-		buttons.get(3).setColors(prefs.getActiveRColor1(), prefs.getActiveRColor2());
 		final JRootPane root = getRootPane();
 		// JPanel root = this;
 		root.getActionMap().put("Undo", undoAction);
@@ -1104,6 +937,19 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control E"),
 				"Expand Selection");
 
+		updateUIFromProgramPreferences();
+		// if( wireframe.isSelected() ){
+		// prefs.setViewMode(0);
+		// }
+		// else if( solid.isSelected() ){
+		// prefs.setViewMode(1);
+		// }
+		// else {
+		// prefs.setViewMode(-1);
+		// }
+	}
+
+	private void updateUIFromProgramPreferences() {
 		// prefs.setShowVertexModifierControls(showVertexModifyControls.isSelected());
 		showVertexModifyControls.setSelected(prefs.isShowVertexModifierControls());
 		// prefs.setTextureModels(textureModels.isSelected());
@@ -1124,15 +970,6 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		default:
 			break;
 		}
-		// if( wireframe.isSelected() ){
-		// prefs.setViewMode(0);
-		// }
-		// else if( solid.isSelected() ){
-		// prefs.setViewMode(1);
-		// }
-		// else {
-		// prefs.setViewMode(-1);
-		// }
 	}
 
 	public JMenuBar createMenuBar() {
@@ -1185,6 +1022,13 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		animationViewer.setMnemonic(KeyEvent.VK_A);
 		animationViewer.addActionListener(openAnimationViewerAction);
 		windowMenu.add(animationViewer);
+
+		windowMenu.addSeparator();
+
+		preferencesWindow = new JMenuItem("Preferences Window");
+		preferencesWindow.setMnemonic(KeyEvent.VK_P);
+		preferencesWindow.addActionListener(openPreferencesAction);
+		windowMenu.add(preferencesWindow);
 
 		addMenu = new JMenu("Add");
 		addMenu.setMnemonic(KeyEvent.VK_A);
@@ -2102,27 +1946,8 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				}
 			} else if (e.getSource() == contextCloseAll) {
 				this.closeAll();
-			} else if (e.getSource() == snapButton) {
-				final ModelPanel currentModelPanel = currentModelPanel();
-				if (currentModelPanel != null) {
-					currentModelPanel.getUndoManager().pushAction(
-							currentModelPanel.getModelEditorManager().getModelEditor().snapSelectedVertices());
-				}
-			} else if (e.getSource() == cloneButton) {
-				setCloneOn(!prefs.isCloneOn());
-				// ModelPanel mpanel =
-				// ((ModelPanel)tabbedPane.getSelectedComponent());
-				// if( mpanel != null )
-				// mpanel.getMDLDisplay().clone(mpanel.getMDLDisplay().selection,true);
-			} else if (e.getSource() == xButton) {
-				final int x = 1;
-				setDimLock(x, !prefs.getDimLock(x));
-			} else if (e.getSource() == yButton) {
-				final int x = 2;
-				setDimLock(x, !prefs.getDimLock(x));
-			} else if (e.getSource() == zButton) {
-				final int x = 0;
-				setDimLock(x, !prefs.getDimLock(x));
+			} else if (e.getSource() == contextCloseOthers) {
+				this.closeOthers();
 			} else if (e.getSource() == newDirectory) {
 				final DirectorySelector selector = new DirectorySelector(SaveProfile.get().getGameDirectory(), "");
 				JOptionPane.showMessageDialog(null, selector, "Locating Warcraft III Directory",
@@ -2479,28 +2304,6 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				frame.setLocationRelativeTo(null);
 				frame.setVisible(true);
 				// JOptionPane.showMessageDialog(this,new JScrollPane(epane));
-			} else {
-				boolean done = false;
-				for (int i = 3; i < 8 && !done; i++) {
-					if (e.getSource() == buttons.get(i)) {
-						done = true;
-						for (int b = 3; b < 8; b++) {
-							buttons.get(b).resetColors();
-						}
-						buttons.get(i).setColors(prefs.getActiveRColor1(), prefs.getActiveRColor2());
-						prefs.setActionType(i);
-					}
-				}
-				for (int i = 0; i < 3 && !done; i++) {
-					if (e.getSource() == buttons.get(i)) {
-						done = true;
-						for (int b = 0; b < 3; b++) {
-							buttons.get(b).resetColors();
-						}
-						buttons.get(i).setColors(prefs.getActiveColor1(), prefs.getActiveColor2());
-						prefs.setSelectionType(i);
-					}
-				}
 			}
 			// for( int i = 0; i < geoItems.size(); i++ )
 			// {
@@ -2786,6 +2589,115 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 				+ " with " + visibilitySource.getName() + "'s visibility  OK!");
 	}
 
+	private interface ModelReference {
+		MDL getModel();
+	}
+
+	private final class ModelStructureChangeListenerImplementation implements ModelStructureChangeListener {
+		private final ModelReference modelReference;
+
+		public ModelStructureChangeListenerImplementation(final ModelReference modelReference) {
+			this.modelReference = modelReference;
+		}
+
+		public ModelStructureChangeListenerImplementation(final MDL model) {
+			this.modelReference = new ModelReference() {
+				@Override
+				public MDL getModel() {
+					return model;
+				}
+			};
+		}
+
+		@Override
+		public void nodesRemoved(final List<IdObject> nodes) {
+			// Tell program to set visibility after import
+			final ModelPanel display = displayFor(modelReference.getModel());
+			if (display != null) {
+				// display.setBeenSaved(false); // we edited the model
+				// TODO notify been saved system, wherever that moves to
+				for (final IdObject geoset : nodes) {
+					display.getModelViewManager().makeIdObjectNotVisible(geoset);
+				}
+				reloadGeosetManagers(display);
+			}
+		}
+
+		@Override
+		public void nodesAdded(final List<IdObject> nodes) {
+			// Tell program to set visibility after import
+			final ModelPanel display = displayFor(modelReference.getModel());
+			if (display != null) {
+				// display.setBeenSaved(false); // we edited the model
+				// TODO notify been saved system, wherever that moves to
+				for (final IdObject geoset : nodes) {
+					display.getModelViewManager().makeIdObjectVisible(geoset);
+				}
+				reloadGeosetManagers(display);
+			}
+		}
+
+		@Override
+		public void geosetsRemoved(final List<Geoset> geosets) {
+			// Tell program to set visibility after import
+			final ModelPanel display = displayFor(modelReference.getModel());
+			if (display != null) {
+				// display.setBeenSaved(false); // we edited the model
+				// TODO notify been saved system, wherever that moves to
+				for (final Geoset geoset : geosets) {
+					display.getModelViewManager().makeGeosetNotEditable(geoset);
+					display.getModelViewManager().makeGeosetNotVisible(geoset);
+				}
+				reloadGeosetManagers(display);
+			}
+		}
+
+		@Override
+		public void geosetsAdded(final List<Geoset> geosets) {
+			// Tell program to set visibility after import
+			final ModelPanel display = displayFor(modelReference.getModel());
+			if (display != null) {
+				// display.setBeenSaved(false); // we edited the model
+				// TODO notify been saved system, wherever that moves to
+				for (final Geoset geoset : geosets) {
+					display.getModelViewManager().makeGeosetEditable(geoset);
+					// display.getModelViewManager().makeGeosetVisible(geoset);
+				}
+				reloadGeosetManagers(display);
+			}
+		}
+
+		@Override
+		public void camerasAdded(final List<Camera> cameras) {
+			// Tell program to set visibility after import
+			final ModelPanel display = displayFor(modelReference.getModel());
+			if (display != null) {
+				// display.setBeenSaved(false); // we edited the model
+				// TODO notify been saved system, wherever that moves to
+				for (final Camera camera : cameras) {
+					display.getModelViewManager().makeCameraVisible(camera);
+					// display.getModelViewManager().makeGeosetVisible(geoset);
+				}
+				reloadGeosetManagers(display);
+			}
+		}
+
+		@Override
+		public void camerasRemoved(final List<Camera> cameras) {
+			// Tell program to set visibility after import
+			final ModelPanel display = displayFor(modelReference.getModel());
+			if (display != null) {
+				// display.setBeenSaved(false); // we edited the model
+				// TODO notify been saved system, wherever that moves to
+				for (final Camera camera : cameras) {
+					display.getModelViewManager().makeCameraNotVisible(camera);
+					// display.getModelViewManager().makeGeosetVisible(geoset);
+				}
+				reloadGeosetManagers(display);
+			}
+		}
+	}
+
 	private final class RepaintingModelStateListener implements ModelViewStateListener {
 		private final JComponent component;
 
@@ -2923,8 +2835,7 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 	}
 
 	/**
-	 * Returns the MDLDisplay associated with a given MDL, or null if one cannot
-	 * be found.
+	 * Returns the MDLDisplay associated with a given MDL, or null if one cannot be found.
 	 *
 	 * @param model
 	 * @return
@@ -3041,7 +2952,15 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		final MDL currentModel = currentMDL();
 		if (currentModel != null) {
 			importPanel = new ImportPanel(currentModel, model);
-			importPanel.setCallback(modelStructureChangeListener);
+			importPanel.setCallback(new ModelStructureChangeListenerImplementation(new ModelReference() {
+				private final MDL model = currentMDL();
+
+				@Override
+				public MDL getModel() {
+					return model;
+				}
+			}));
+
 		}
 	}
 
@@ -3341,6 +3260,20 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 	public boolean closeAll() {
 		boolean success = true;
 		for (int i = tabbedPane.getTabCount() - 1; i >= 0 && success; i--) {
+			final ModelPanel modelPanel = (ModelPanel) tabbedPane.getComponentAt(i);
+			if (success = modelPanel.close()) {
+				tabbedPane.remove(i);
+			} // ;//this);
+		}
+		return success;
+	}
+
+	public boolean closeOthers() {
+		boolean success = true;
+		for (int i = tabbedPane.getTabCount() - 1; i >= 0 && success; i--) {
+			if (contextClickedTab == i) {
+				continue;
+			}
 			final ModelPanel modelPanel = (ModelPanel) tabbedPane.getComponentAt(i);
 			if (success = modelPanel.close()) {
 				tabbedPane.remove(i);

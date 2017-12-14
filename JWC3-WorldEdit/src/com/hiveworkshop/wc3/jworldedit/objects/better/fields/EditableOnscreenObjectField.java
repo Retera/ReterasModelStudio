@@ -14,7 +14,7 @@ public interface EditableOnscreenObjectField {
 
 	boolean hasEditedValue(MutableGameObject gameUnit);
 
-	boolean popupEditor(MutableGameObject gameUnit, Component parent, boolean editRawData);
+	boolean popupEditor(MutableGameObject gameUnit, Component parent, boolean editRawData, boolean disableLimits);
 
 	// void setValue(final MutableGameObject gameUnit, final Object value);
 

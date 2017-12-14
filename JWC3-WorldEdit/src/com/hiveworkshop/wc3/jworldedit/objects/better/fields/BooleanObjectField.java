@@ -26,14 +26,15 @@ public class BooleanObjectField extends AbstractObjectField {
 
 	@Override
 	protected boolean popupEditor(final MutableGameObject gameUnit, final Component parent, final boolean editRawData,
-			final War3ID metaKey, final int level, final String defaultDialogTitle, final GameObject metaDataField) {
+			final boolean disableLimits, final War3ID metaKey, final int level, final String defaultDialogTitle,
+			final GameObject metaDataField) {
 		final JPanel checkboxPanel = new JPanel();
 		checkboxPanel.add(new JLabel(getDisplayName(gameUnit)));
 		final JCheckBox checkBox = new JCheckBox("", gameUnit.getFieldAsBoolean(metaKey, level));
 		checkboxPanel.add(checkBox);
-		final int result = JOptionPane.showConfirmDialog(parent, checkboxPanel,
+		final int result = FieldPopupUtils.showPopup(parent, checkboxPanel,
 				String.format(defaultDialogTitle, WEString.getString("WESTRING_COD_TYPE_BOOL")),
-				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, checkBox);
 		if (result == JOptionPane.OK_OPTION) {
 			gameUnit.setField(metaKey, level, checkBox.isSelected());
 			return true;

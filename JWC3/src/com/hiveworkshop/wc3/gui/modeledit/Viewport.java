@@ -36,6 +36,7 @@ import javax.swing.Timer;
 import javax.swing.TransferHandler;
 
 import com.etheller.util.CollectionUtils;
+import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.CursorManager;
@@ -346,74 +347,78 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
-		if (e.getSource() == clickTimer) {
-			int xoff = 0;
-			int yoff = 0;
-			Component temp = this;
-			while (temp != null) {
-				xoff += temp.getX();
-				yoff += temp.getY();
-				// if( temp.getClass() == ModelPanel.class )
-				// {
-				//// temp = MainFrame.panel;
-				// temp = null; // TODO
-				// }
-				// else
-				// {
-				temp = temp.getParent();
-				// }
-			}
-			final double mx = (MouseInfo.getPointerInfo().getLocation().x - xoff);// MainFrame.frame.getX()-8);
-			final double my = (MouseInfo.getPointerInfo().getLocation().y - yoff);// MainFrame.frame.getY()-30);
-			// JOptionPane.showMessageDialog(null,mx+","+my+" as mouse,
-			// "+lastClick.x+","+lastClick.y+" as last.");
-			// System.out.println(xoff+" and "+mx);
-			if (lastClick != null) {
+		try {
+			if (e.getSource() == clickTimer) {
+				int xoff = 0;
+				int yoff = 0;
+				Component temp = this;
+				while (temp != null) {
+					xoff += temp.getX();
+					yoff += temp.getY();
+					// if( temp.getClass() == ModelPanel.class )
+					// {
+					//// temp = MainFrame.panel;
+					// temp = null; // TODO
+					// }
+					// else
+					// {
+					temp = temp.getParent();
+					// }
+				}
+				final double mx = (MouseInfo.getPointerInfo().getLocation().x - xoff);// MainFrame.frame.getX()-8);
+				final double my = (MouseInfo.getPointerInfo().getLocation().y - yoff);// MainFrame.frame.getY()-30);
+				// JOptionPane.showMessageDialog(null,mx+","+my+" as mouse,
+				// "+lastClick.x+","+lastClick.y+" as last.");
+				// System.out.println(xoff+" and "+mx);
+				if (lastClick != null) {
 
-				m_a += ((int) mx - lastClick.x) / m_zoom;
-				m_b += ((int) my - lastClick.y) / m_zoom;
-				lastClick.x = (int) mx;
-				lastClick.y = (int) my;
-			}
-			coordDisplayListener.notifyUpdate(m_d1, m_d2, ((mx - getWidth() / 2) / m_zoom) - m_a,
-					-(((my - getHeight() / 2) / m_zoom) - m_b));
-			// MainFrame.panel.setMouseCoordDisplay(m_d1,m_d2,((mx-getWidth()/2)/m_zoom)-m_a,-(((my-getHeight()/2)/m_zoom)-m_b));
-			// TODO update mouse coord display could be used still
+					m_a += ((int) mx - lastClick.x) / m_zoom;
+					m_b += ((int) my - lastClick.y) / m_zoom;
+					lastClick.x = (int) mx;
+					lastClick.y = (int) my;
+				}
+				coordDisplayListener.notifyUpdate(m_d1, m_d2, ((mx - getWidth() / 2) / m_zoom) - m_a,
+						-(((my - getHeight() / 2) / m_zoom) - m_b));
+				// MainFrame.panel.setMouseCoordDisplay(m_d1,m_d2,((mx-getWidth()/2)/m_zoom)-m_a,-(((my-getHeight()/2)/m_zoom)-m_b));
+				// TODO update mouse coord display could be used still
 
-			// if (actStart != null) {
-			// final Point actEnd = new Point((int) mx, (int) my);
-			// final Point2D.Double convertedStart = new
-			// Point2D.Double(geomX(actStart.x), geomY(actStart.y));
-			// final Point2D.Double convertedEnd = new
-			// Point2D.Double(geomX(actEnd.x), geomY(actEnd.y));
-			// dispMDL.updateAction(convertedStart, convertedEnd, m_d1, m_d2);
-			// actStart = actEnd;
-			// }
-			repaint();
-		} else if (e.getSource() == reAssignMatrix) {
-			final MatrixPopup matrixPopup = new MatrixPopup(modelView.getModel());
-			final String[] words = { "Accept", "Cancel" };
-			final int i = JOptionPane.showOptionDialog(this, matrixPopup, "Rebuild Matrix", JOptionPane.PLAIN_MESSAGE,
-					JOptionPane.YES_NO_OPTION, null, words, words[1]);
-			if (i == 0) {
-				// JOptionPane.showMessageDialog(null,"action approved");
-				modelEditor.setMatrix(BoneShell.toBonesList(CollectionUtils.asList(matrixPopup.newRefs)));
+				// if (actStart != null) {
+				// final Point actEnd = new Point((int) mx, (int) my);
+				// final Point2D.Double convertedStart = new
+				// Point2D.Double(geomX(actStart.x), geomY(actStart.y));
+				// final Point2D.Double convertedEnd = new
+				// Point2D.Double(geomX(actEnd.x), geomY(actEnd.y));
+				// dispMDL.updateAction(convertedStart, convertedEnd, m_d1, m_d2);
+				// actStart = actEnd;
+				// }
+				repaint();
+			} else if (e.getSource() == reAssignMatrix) {
+				final MatrixPopup matrixPopup = new MatrixPopup(modelView.getModel());
+				final String[] words = { "Accept", "Cancel" };
+				final int i = JOptionPane.showOptionDialog(this, matrixPopup, "Rebuild Matrix",
+						JOptionPane.PLAIN_MESSAGE, JOptionPane.YES_NO_OPTION, null, words, words[1]);
+				if (i == 0) {
+					// JOptionPane.showMessageDialog(null,"action approved");
+					modelEditor.setMatrix(BoneShell.toBonesList(CollectionUtils.asList(matrixPopup.newRefs)));
+				}
+			} else if (e.getSource() == renameBone) {
+				final String name = JOptionPane.showInputDialog(this, "Enter bone name:");
+				if (name != null) {
+					modelEditor.setSelectedBoneName(name);
+				}
+			} else if (e.getSource() == cogBone) {
+				modelEditor.autoCenterSelectedBones();
+			} else if (e.getSource() == addTeamColor) {
+				modelEditor.addTeamColor(modelStructureChangeListener);
+			} else if (e.getSource() == manualMove) {
+				manualMove();
+			} else if (e.getSource() == manualRotate) {
+				manualRotate();
+			} else if (e.getSource() == manualSet) {
+				manualSet();
 			}
-		} else if (e.getSource() == renameBone) {
-			final String name = JOptionPane.showInputDialog(this, "Enter bone name:");
-			if (name != null) {
-				modelEditor.setSelectedBoneName(name);
-			}
-		} else if (e.getSource() == cogBone) {
-			modelEditor.autoCenterSelectedBones();
-		} else if (e.getSource() == addTeamColor) {
-			modelEditor.addTeamColor(modelStructureChangeListener);
-		} else if (e.getSource() == manualMove) {
-			manualMove();
-		} else if (e.getSource() == manualRotate) {
-			manualRotate();
-		} else if (e.getSource() == manualSet) {
-			manualSet();
+		} catch (final Exception exc) {
+			ExceptionPopup.display(exc);
 		}
 	}
 
@@ -540,8 +545,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 			m_a += (e.getX() - lastClick.x) / m_zoom;
 			m_b += (e.getY() - lastClick.y) / m_zoom;
 			lastClick = null;
-		} else if (e
-				.getButton() == MouseEvent.BUTTON1/* && selectStart != null */) {
+		} else if (e.getButton() == MouseEvent.BUTTON1/* && selectStart != null */) {
 			activityListener.mouseReleased(e, this);
 			// final Point selectEnd = new Point(e.getX(), e.getY());
 			// final Rectangle2D.Double area = pointsToGeomRect(selectStart,

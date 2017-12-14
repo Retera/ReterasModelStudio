@@ -12,10 +12,9 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.ParticleEmitterChunk;
 
 /**
- * ParticleEmitter2 class, these are the things most people would think of as a
- * particle emitter, I think. Blizzard favored use of these over
- * ParticleEmitters and I do too simply because I so often recycle data and
- * there are more of these to use.
+ * ParticleEmitter2 class, these are the things most people would think of as a particle emitter, I think. Blizzard
+ * favored use of these over ParticleEmitters and I do too simply because I so often recycle data and there are more of
+ * these to use.
  *
  * Eric Theller 3/10/2012 3:32 PM
  */
@@ -395,6 +394,6 @@ public class ParticleEmitter extends IdObject implements VisibilitySource {
 
 	@Override
 	public double getClickRadius(final CoordinateSystem coordinateSystem) {
-		return 8 / CoordinateSystem.Util.getZoom(coordinateSystem);
+		return DEFAULT_CLICK_RADIUS / CoordinateSystem.Util.getZoom(coordinateSystem);
 	}
 }

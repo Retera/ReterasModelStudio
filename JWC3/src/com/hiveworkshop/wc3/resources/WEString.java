@@ -53,14 +53,22 @@ public class WEString {
 		return bundlegs;
 	}
 
-	public static String getString(final String key) {
+	public static String getString(String string) {
+		try {
+			while (string.toUpperCase().startsWith("WESTRING")) {
+				string = internalGetString(string);
+			}
+			return string;
+		} catch (final MissingResourceException exc) {
+			return getGameStrings().getString(string.toUpperCase());
+		}
+	}
+
+	private static String internalGetString(final String key) {
 		try {
 			String string = get().getString(key.toUpperCase());
 			if (string.charAt(0) == '"' && string.length() >= 2 && string.charAt(string.length() - 1) == '"') {
 				string = string.substring(1, string.length() - 1);
-			}
-			while (string.startsWith("WESTRING")) {
-				string = getString(string);
 			}
 			return string;
 		} catch (final MissingResourceException exc) {

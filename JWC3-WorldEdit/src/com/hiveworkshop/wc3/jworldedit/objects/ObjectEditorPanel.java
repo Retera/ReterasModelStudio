@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -125,7 +127,21 @@ public final class ObjectEditorPanel extends JPanel {
 		final JToolBar toolBar = new JToolBar();
 		makeButton(worldEditorData, toolBar, "newMap", "ToolBarIcon_New", "WESTRING_TOOLBAR_NEW");
 		makeButton(worldEditorData, toolBar, "openMap", "ToolBarIcon_Open", "WESTRING_TOOLBAR_OPEN");
-		makeButton(worldEditorData, toolBar, "saveMap", "ToolBarIcon_Save", "WESTRING_TOOLBAR_SAVE");
+		final JButton saveButton = makeButton(worldEditorData, toolBar, "saveMap", "ToolBarIcon_Save",
+				"WESTRING_TOOLBAR_SAVE");
+		saveButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final JFileChooser jFileChooser = new JFileChooser(
+						new File(System.getProperty("user.home") + "/Documents/Warcraft III/Maps"));
+				jFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				jFileChooser.setDialogTitle("Save Map");
+				if (jFileChooser.showSaveDialog(ObjectEditorPanel.this) == JFileChooser.APPROVE_OPTION) {
+
+				}
+
+			}
+		});
 		toolBar.add(Box.createHorizontalStrut(8));
 		final TransferActionListener transferActionListener = new TransferActionListener();
 		copyButton = makeButton(worldEditorData, toolBar, "copy", "ToolBarIcon_Copy", "WESTRING_MENU_OE_UNIT_COPY");

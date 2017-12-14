@@ -17,6 +17,8 @@ import com.hiveworkshop.wc3.mdx.Node;
  * @version (a version number or a date)
  */
 public abstract class IdObject implements Named {
+	public static final int DEFAULT_CLICK_RADIUS = 8;
+
 	public static enum NodeFlags {
 		DONTINHERIT_TRANSLATION("DontInherit { Translation }"),
 		DONTINHERIT_SCALING("DontInherit { Rotation }"),
@@ -167,8 +169,7 @@ public abstract class IdObject implements Named {
 	/**
 	 * @param parentId
 	 *            new Parent ID
-	 * @deprecated IF UNSURE, YOU SHOULD USE setParent(), note that all object
-	 *             IDs are deleted and regenerated at save
+	 * @deprecated IF UNSURE, YOU SHOULD USE setParent(), note that all object IDs are deleted and regenerated at save
 	 */
 	@Deprecated
 	public void setParentId(final int parentId) {

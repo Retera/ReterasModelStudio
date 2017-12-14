@@ -18,6 +18,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.TeamColorAddAction;
 import com.hiveworkshop.wc3.gui.modeledit.cutpaste.CopiedModelData;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.nodes.DeleteNodesAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.AutoCenterBonesAction;
@@ -31,6 +32,7 @@ import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.CollisionShape;
 import com.hiveworkshop.wc3.mdl.EventObject;
+import com.hiveworkshop.wc3.mdl.ExtLog;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Helper;
@@ -649,8 +651,11 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		}
 
 		@Override
-		public void helper(final Helper object) {
-			handleDefaultNode(point, axes, object);
+		public void helper(final Helper node) {
+			if (hitTest(node.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes,
+					node.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes))) {
+				mouseOverVertex = true;
+			}
 		}
 
 		@Override
@@ -662,8 +667,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		public void collisionShape(final CollisionShape collisionShape) {
 			handleDefaultNode(point, axes, collisionShape);
 			for (final Vertex vertex : collisionShape.getVertices()) {
-				if (hitTest(vertex, CoordinateSystem.Util.geom(axes, point), axes,
-						programPreferences.getVertexSize())) {
+				if (hitTest(vertex, CoordinateSystem.Util.geom(axes, point), axes, IdObject.DEFAULT_CLICK_RADIUS)) {
 					mouseOverVertex = true;
 				}
 			}
@@ -682,8 +686,11 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		}
 
 		@Override
-		public void bone(final Bone object) {
-			handleDefaultNode(point, axes, object);
+		public void bone(final Bone node) {
+			if (hitTest(node.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes,
+					node.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes))) {
+				mouseOverVertex = true;
+			}
 		}
 
 		@Override
@@ -739,7 +746,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		@Override
 		public void helper(final Helper object) {
 			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem,
-					object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2);
+					object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem));
 		}
 
 		@Override
@@ -754,7 +761,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 					collisionShape.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem)
 							* 2);
 			for (final Vertex vertex : collisionShape.getVertices()) {
-				hitTest(selectedItems, area, vertex, coordinateSystem, programPreferences.getVertexSize());
+				hitTest(selectedItems, area, vertex, coordinateSystem, IdObject.DEFAULT_CLICK_RADIUS);
 			}
 		}
 
@@ -768,7 +775,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		@Override
 		public void bone(final Bone object) {
 			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem,
-					object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2);
+					object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem));
 		}
 
 		@Override
@@ -794,5 +801,74 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			}
 		}
 		return new CopiedModelData(new ArrayList<Geoset>(), clonedNodes, clonedCameras);
+	}
+
+	@Override
+	public void rawScale(final double centerX, final double centerY, final double centerZ, final double scaleX,
+			final double scaleY, final double scaleZ) {
+		super.rawScale(centerX, centerY, centerZ, scaleX, scaleY, scaleZ);
+		for (final IdObject b : model.getEditableIdObjects()) {
+			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
+				b.apply(new IdObjectVisitor() {
+					@Override
+					public void ribbonEmitter(final RibbonEmitter particleEmitter) {
+					}
+
+					@Override
+					public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
+					}
+
+					@Override
+					public void particleEmitter(final ParticleEmitter particleEmitter) {
+					}
+
+					@Override
+					public void light(final Light light) {
+					}
+
+					@Override
+					public void helper(final Helper object) {
+					}
+
+					@Override
+					public void eventObject(final EventObject eventObject) {
+					}
+
+					@Override
+					public void collisionShape(final CollisionShape collisionShape) {
+						final ExtLog extents = collisionShape.getExtents();
+						if (extents != null && scaleX == scaleY && scaleY == scaleZ) {
+							extents.setBoundsRadius(extents.getBoundsRadius() * scaleX);
+						}
+					}
+
+					@Override
+					public void camera(final Camera camera) {
+					}
+
+					@Override
+					public void bone(final Bone object) {
+					}
+
+					@Override
+					public void attachment(final Attachment attachment) {
+					}
+				});
+			}
+		}
+	}
+
+	@Override
+	public UndoAction deleteSelectedComponents(final ModelStructureChangeListener modelStructureChangeListener) {
+		final List<IdObject> deletedIdObjects = new ArrayList<>();
+		for (final IdObject object : model.getEditableIdObjects()) {
+			if (selectionManager.getSelection().contains(object.getPivotPoint())) {
+				deletedIdObjects.add(object);
+			}
+		}
+		final DeleteNodesAction deleteNodesAction = new DeleteNodesAction(selectionManager.getSelection(),
+				deletedIdObjects, modelStructureChangeListener, model, vertexSelectionHelper);
+		deleteNodesAction.redo();
+		return deleteNodesAction;
 	}
 }

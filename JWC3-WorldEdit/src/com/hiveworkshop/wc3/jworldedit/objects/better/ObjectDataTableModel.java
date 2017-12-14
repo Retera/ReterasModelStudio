@@ -107,10 +107,10 @@ public class ObjectDataTableModel implements TableModel {
 
 	}
 
-	public void doPopupAt(final Component parent, final int rowIndex, final boolean editRawData) {
+	public void doPopupAt(final Component parent, final int rowIndex, final boolean isHoldingShift) {
 		final boolean hadBeenEdited = gameObject.hasEditorData();
 		final EditableOnscreenObjectField field = fields.get(rowIndex);
-		if (field.popupEditor(gameObject, parent, editRawData)) {
+		if (field.popupEditor(gameObject, parent, displayAsRawData, isHoldingShift)) {
 			for (final TableModelListener listener : tableModelListeners) {
 				listener.tableChanged(new TableModelEvent(this, rowIndex, rowIndex, 1));
 			}

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Attachment;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Camera;
@@ -902,6 +903,11 @@ public class MdxModel {
 		// MatrixEater at runtime in doPostRead()
 		// in favor of each vertex having its own attachments list, no vertex
 		// groups)
+		for (final AnimFlag animFlag : mdl.getAllAnimFlags()) {
+			animFlag.sort();
+			// apparently this normally only gets sorted
+			// on AnimFlag.printTo which is dumb
+		}
 
 		versionChunk = new VersionChunk();
 		versionChunk.version = mdl.getFormatVersion();

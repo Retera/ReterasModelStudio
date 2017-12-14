@@ -30,7 +30,8 @@ public class FloatObjectField extends AbstractObjectField {
 
 	@Override
 	protected boolean popupEditor(final MutableGameObject gameUnit, final Component parent, final boolean editRawData,
-			final War3ID metaKey, final int level, final String defaultDialogTitle, final GameObject metaDataField) {
+			final boolean disableLimits, final War3ID metaKey, final int level, final String defaultDialogTitle,
+			final GameObject metaDataField) {
 		final JPanel popupPanel = new JPanel();
 		popupPanel.add(new JLabel(getDisplayName(gameUnit)));
 		float minFloatValue = Float.parseFloat(metaDataField.getField("minVal"));
@@ -48,10 +49,11 @@ public class FloatObjectField extends AbstractObjectField {
 		}
 		final JSpinner spinner = new JSpinner(new SpinnerNumberModel(currentValue, minFloatValue, maxFloatValue, 0.1f));
 		spinner.setMinimumSize(new Dimension(50, 1));
+		spinner.setPreferredSize(new Dimension(75, 20));
 		popupPanel.add(spinner);
-		final int result = JOptionPane.showConfirmDialog(parent, popupPanel,
+		final int result = FieldPopupUtils.showPopup(parent, popupPanel,
 				String.format(defaultDialogTitle, WEString.getString("WESTRING_COD_TYPE_REAL")),
-				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, spinner);
 		if (result == JOptionPane.OK_OPTION) {
 			gameUnit.setField(metaKey, level, ((Number) spinner.getValue()).floatValue());
 			return true;

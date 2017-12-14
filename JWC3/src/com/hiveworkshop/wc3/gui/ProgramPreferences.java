@@ -69,6 +69,34 @@ public class ProgramPreferences implements Serializable {
 		}
 	}
 
+	public void loadFrom(final ProgramPreferences other) {
+		viewMode = other.viewMode;
+		showNormals = other.showNormals;
+		showVertexModifierControls = other.showVertexModifierControls;
+		textureModels = other.textureModels;
+		useNativeMDXParser = other.useNativeMDXParser;
+		loadPortraits = other.loadPortraits;
+		invertedDisplay = other.invertedDisplay;
+		activeRColor1 = other.activeRColor1;
+		activeRColor2 = other.activeRColor2;
+		activeColor1 = other.activeColor1;
+		activeColor2 = other.activeBColor2;
+		activeBColor1 = other.activeBColor1;
+		activeBColor2 = other.activeBColor2;
+		vertexColor = other.vertexColor;
+		triangleColor = other.triangleColor;
+		visibleUneditableColor = other.visibleUneditableColor;
+		highlighTriangleColor = other.highlighTriangleColor;
+		highlighVertexColor = other.highlighVertexColor;
+		normalsColor = other.normalsColor;
+		pivotPointsSelectedColor = other.pivotPointsSelectedColor;
+		pivotPointsColor = other.pivotPointsColor;
+		lightsColor = other.lightsColor;
+		ambientLightColor = other.ambientLightColor;
+		selectColor = other.selectColor;
+		vertexSize = other.vertexSize;
+	}
+
 	public int getVertexSize() {
 		return vertexSize;
 	}
@@ -270,6 +298,7 @@ public class ProgramPreferences implements Serializable {
 
 	public void setVertexColor(final Color vertexColor) {
 		this.vertexColor = vertexColor;
+		SaveProfile.save();
 	}
 
 	public Color getTriangleColor() {
@@ -278,6 +307,7 @@ public class ProgramPreferences implements Serializable {
 
 	public void setTriangleColor(final Color triangleColor) {
 		this.triangleColor = triangleColor;
+		SaveProfile.save();
 	}
 
 	public Color getVisibleUneditableColor() {
@@ -286,6 +316,7 @@ public class ProgramPreferences implements Serializable {
 
 	public void setVisibleUneditableColor(final Color visibleUneditableColor) {
 		this.visibleUneditableColor = visibleUneditableColor;
+		SaveProfile.save();
 	}
 
 	public Color getHighlighTriangleColor() {
@@ -294,6 +325,7 @@ public class ProgramPreferences implements Serializable {
 
 	public void setHighlighTriangleColor(final Color highlighTriangleColor) {
 		this.highlighTriangleColor = highlighTriangleColor;
+		SaveProfile.save();
 	}
 
 	public Color getHighlighVertexColor() {
@@ -302,6 +334,7 @@ public class ProgramPreferences implements Serializable {
 
 	public void setHighlighVertexColor(final Color highlighVertexColor) {
 		this.highlighVertexColor = highlighVertexColor;
+		SaveProfile.save();
 	}
 
 	public Color getNormalsColor() {
@@ -310,6 +343,7 @@ public class ProgramPreferences implements Serializable {
 
 	public void setNormalsColor(final Color normalsColor) {
 		this.normalsColor = normalsColor;
+		SaveProfile.save();
 	}
 
 	public Boolean isInvertedDisplay() {
@@ -318,6 +352,7 @@ public class ProgramPreferences implements Serializable {
 
 	public void setInvertedDisplay(final Boolean invertedDisplay) {
 		this.invertedDisplay = invertedDisplay;
+		SaveProfile.save();
 	}
 
 	public Color getPivotPointsColor() {
@@ -326,6 +361,7 @@ public class ProgramPreferences implements Serializable {
 
 	public void setPivotPointsColor(final Color pivotPointsColor) {
 		this.pivotPointsColor = pivotPointsColor;
+		SaveProfile.save();
 	}
 
 	public Color getPivotPointsSelectedColor() {
@@ -334,6 +370,7 @@ public class ProgramPreferences implements Serializable {
 
 	public void setPivotPointsSelectedColor(final Color pivotPointsSelectedColor) {
 		this.pivotPointsSelectedColor = pivotPointsSelectedColor;
+		SaveProfile.save();
 	}
 
 	public Color getLightsColor() {
@@ -342,6 +379,7 @@ public class ProgramPreferences implements Serializable {
 
 	public void setLightsColor(final Color lightsColor) {
 		this.lightsColor = lightsColor;
+		SaveProfile.save();
 	}
 
 	public Color getAmbientLightColor() {
@@ -350,5 +388,6 @@ public class ProgramPreferences implements Serializable {
 
 	public void setAmbientLightColor(final Color ambientLightColor) {
 		this.ambientLightColor = ambientLightColor;
+		SaveProfile.save();
 	}
 }

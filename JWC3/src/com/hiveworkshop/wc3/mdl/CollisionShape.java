@@ -227,21 +227,21 @@ public class CollisionShape extends IdObject {
 		final int yCoord = (int) coordinateSystem.convertY(pivotPoint.getCoord(yDimension));
 		if (flags.contains("Box")) {
 			if (vertices.size() > 0) {
-				final Vertex vertex = vertices.get(0);
-				final int secondXCoord = (int) coordinateSystem.convertX(vertex.getCoord(xDimension));
-				final int secondYCoord = (int) coordinateSystem.convertY(vertex.getCoord(yDimension));
-				final int minXCoord = Math.min(xCoord, secondXCoord);
-				final int minYCoord = Math.min(yCoord, secondYCoord);
-				final int maxXCoord = Math.max(xCoord, secondXCoord);
-				final int maxYCoord = Math.max(yCoord, secondYCoord);
-				final int generalRadius = Math.max(maxXCoord - minXCoord, maxYCoord - minYCoord) / 2;
-				return generalRadius;
+				// final Vertex vertex = vertices.get(0);
+				// final int secondXCoord = (int) coordinateSystem.convertX(vertex.getCoord(xDimension));
+				// final int secondYCoord = (int) coordinateSystem.convertY(vertex.getCoord(yDimension));
+				// final int minXCoord = Math.min(xCoord, secondXCoord);
+				// final int minYCoord = Math.min(yCoord, secondYCoord);
+				// final int maxXCoord = Math.max(xCoord, secondXCoord);
+				// final int maxYCoord = Math.max(yCoord, secondYCoord);
+				// final int generalRadius = Math.max(maxXCoord - minXCoord, maxYCoord - minYCoord) / 2;
+				return DEFAULT_CLICK_RADIUS / CoordinateSystem.Util.getZoom(coordinateSystem);
 			} else {
-				return 8 / CoordinateSystem.Util.getZoom(coordinateSystem);
+				return DEFAULT_CLICK_RADIUS / CoordinateSystem.Util.getZoom(coordinateSystem);
 			}
 		}
 		if (extents == null) {
-			return 8 / CoordinateSystem.Util.getZoom(coordinateSystem);
+			return DEFAULT_CLICK_RADIUS / CoordinateSystem.Util.getZoom(coordinateSystem);
 		}
 		return extents.getBoundsRadius();
 	}

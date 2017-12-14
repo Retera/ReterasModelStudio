@@ -50,7 +50,7 @@ import com.hiveworkshop.wc3.mdl.v2.ModelView;
 public abstract class AbstractModelEditor<T> implements ModelEditor {
 	protected final SelectionManager<T> selectionManager;
 	protected final ModelView model;
-	private final VertexSelectionHelper vertexSelectionHelper;
+	protected final VertexSelectionHelper vertexSelectionHelper;
 
 	public AbstractModelEditor(final SelectionManager<T> selectionManager, final ModelView model) {
 		this.selectionManager = selectionManager;

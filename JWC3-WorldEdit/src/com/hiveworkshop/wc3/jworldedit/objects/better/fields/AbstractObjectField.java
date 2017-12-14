@@ -45,7 +45,8 @@ public abstract class AbstractObjectField implements EditableOnscreenObjectField
 	protected abstract Object getValue(MutableGameObject gameUnit, War3ID metaKey, int level);
 
 	@Override
-	public boolean popupEditor(final MutableGameObject gameUnit, final Component parent, final boolean editRawData) {
+	public boolean popupEditor(final MutableGameObject gameUnit, final Component parent, final boolean editRawData,
+			final boolean disableLimits) {
 		String worldEditValueStringKey;
 		switch (dataType) {
 		case ABILITIES:
@@ -72,7 +73,8 @@ public abstract class AbstractObjectField implements EditableOnscreenObjectField
 			break;
 		}
 		final String defaultDialogTitle = WEString.getString(worldEditValueStringKey);
-		return popupEditor(gameUnit, parent, editRawData, metaKey, level, defaultDialogTitle, metaDataField);
+		return popupEditor(gameUnit, parent, editRawData, disableLimits, metaKey, level, defaultDialogTitle,
+				metaDataField);
 	}
 
 	@Override
@@ -81,6 +83,6 @@ public abstract class AbstractObjectField implements EditableOnscreenObjectField
 	}
 
 	protected abstract boolean popupEditor(MutableGameObject gameUnit, Component parent, boolean editRawData,
-			War3ID metaKey, int level, String defaultDialogTitle, GameObject metaDataField);
+			boolean disableLimits, War3ID metaKey, int level, String defaultDialogTitle, GameObject metaDataField);
 
 }
