@@ -407,6 +407,16 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			repaint();
 		}
 	};
+	AbstractAction recalcNormalsAction = new AbstractAction("RecalculateNormals") {
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			final ModelPanel mpanel = ((ModelPanel) tabbedPane.getSelectedComponent());
+			if (mpanel != null) {
+				mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().recalcNormals());
+			}
+			repaint();
+		}
+	};
 	AbstractAction flipAllUVsUAction = new AbstractAction("Flip All UVs U") {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
@@ -623,7 +633,9 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 			tabbedPaneArea = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftHandGeoControlEmbeddedPane, tabbedPane);
 		}
 		final JPanel toolsPanel = new JPanel();
+		toolsPanel.setMaximumSize(new Dimension(30, 999999));
 		final GroupLayout layout = new GroupLayout(this);
+		toolbar.setMaximumSize(new Dimension(80000, 48));
 		layout.setHorizontalGroup(layout.createSequentialGroup()
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(toolbar)
 						.addComponent(tabbedPaneArea)
@@ -1645,6 +1657,11 @@ public class MainPanel extends JPanel implements ActionListener, MouseListener, 
 		snapNormals.setAccelerator(KeyStroke.getKeyStroke("control L"));
 		snapNormals.addActionListener(snapNormalsAction);
 		editMenu.add(snapNormals);
+
+		final JMenuItem recalcNormals = new JMenuItem("Recalculate Normals");
+		recalcNormals.setAccelerator(KeyStroke.getKeyStroke("control N"));
+		recalcNormals.addActionListener(recalcNormalsAction);
+		editMenu.add(recalcNormals);
 
 		editMenu.add(new JSeparator());
 

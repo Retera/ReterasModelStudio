@@ -34,8 +34,8 @@ import javax.swing.TransferHandler;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.modeledit.util.TransferActionListener;
+import com.hiveworkshop.wc3.jworldedit.AbstractWorldEditorPanel;
 import com.hiveworkshop.wc3.jworldedit.objects.better.fields.builders.AbilityFieldBuilder;
 import com.hiveworkshop.wc3.jworldedit.objects.better.fields.builders.BasicEditorFieldBuilder;
 import com.hiveworkshop.wc3.jworldedit.objects.better.fields.builders.DoodadFieldBuilder;
@@ -55,19 +55,8 @@ import com.hiveworkshop.wc3.units.objectdata.War3ID;
 import com.hiveworkshop.wc3.units.objectdata.War3ObjectDataChangeset;
 import com.hiveworkshop.wc3.util.IconUtils;
 
-public final class ObjectEditorPanel extends JPanel {
+public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 	private static final War3ID UNIT_NAME = War3ID.fromString("unam");
-
-	private final class ToolbarButtonAction extends AbstractAction {
-		private ToolbarButtonAction(final String name, final Icon icon) {
-			super(name, icon);
-		}
-
-		@Override
-		public void actionPerformed(final ActionEvent e) {
-
-		}
-	}
 
 	private final List<UnitEditorPanel> editors = new ArrayList<>();
 	private JButton createNewButton;
@@ -163,9 +152,9 @@ public final class ObjectEditorPanel extends JPanel {
 		toolBar.add(Box.createHorizontalStrut(8));
 		makeButton(worldEditorData, toolBar, "terrainEditor", "ToolBarIcon_Module_Terrain",
 				"WESTRING_MENU_MODULE_TERRAIN");
-		makeButton(worldEditorData, toolBar, "soundEditor", "ToolBarIcon_Module_Script",
+		makeButton(worldEditorData, toolBar, "scriptEditor", "ToolBarIcon_Module_Script",
 				"WESTRING_MENU_MODULE_SCRIPTS");
-		makeButton(worldEditorData, toolBar, "scriptEditor", "ToolBarIcon_Module_Sound", "WESTRING_MENU_MODULE_SOUND");
+		makeButton(worldEditorData, toolBar, "soundEditor", "ToolBarIcon_Module_Sound", "WESTRING_MENU_MODULE_SOUND");
 		// final JButton objectEditorButton = makeButton(worldEditorData, toolBar, "objectEditor",
 		// "ToolBarIcon_Module_ObjectEditor", "WESTRING_MENU_OBJECTEDITOR");
 		final JToggleButton objectEditorButton = new JToggleButton(
@@ -189,29 +178,6 @@ public final class ObjectEditorPanel extends JPanel {
 				new ImageIcon(IconUtils.worldEditStyleIcon(getIcon(worldEditorData, "ToolBarIcon_TestMap").getImage())),
 				"WESTRING_TOOLBAR_TESTMAP");
 		return toolBar;
-	}
-
-	private JButton makeButton(final DataTable worldEditorData, final JToolBar toolBar, final String actionName,
-			final String iconKey, final String tooltipKey) {
-		return makeButton(worldEditorData, toolBar, actionName, getIcon(worldEditorData, iconKey), tooltipKey);
-	}
-
-	private JButton makeButton(final DataTable worldEditorData, final JToolBar toolBar, final String actionName,
-			final ImageIcon icon, final String tooltipKey) {
-		final JButton button = toolBar.add(new ToolbarButtonAction(actionName, icon));
-		button.setToolTipText(WEString.getString(tooltipKey).replace("&", ""));
-		button.setPreferredSize(new Dimension(24, 24));
-		button.setMargin(new Insets(1, 1, 1, 1));
-		button.setFocusable(false);
-		return button;
-	}
-
-	private ImageIcon getIcon(final DataTable worldEditorData, final String iconName) {
-		String iconTexturePath = worldEditorData.get("WorldEditArt").getField(iconName);
-		if (!iconTexturePath.toString().endsWith(".blp")) {
-			iconTexturePath += ".blp";
-		}
-		return new ImageIcon(BLPHandler.get().getGameTex(iconTexturePath));
 	}
 
 	public void loadHotkeys() {

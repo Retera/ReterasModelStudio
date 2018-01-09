@@ -34,7 +34,7 @@ import javax.swing.tree.TreePath;
 
 import com.hiveworkshop.wc3.jworldedit.objects.better.EditorFieldBuilder;
 import com.hiveworkshop.wc3.jworldedit.objects.better.ObjectDataTableModel;
-import com.hiveworkshop.wc3.jworldedit.objects.sorting.TreeNodeLinker;
+import com.hiveworkshop.wc3.jworldedit.objects.sorting.TreeNodeLinkerFromModel;
 import com.hiveworkshop.wc3.jworldedit.objects.sorting.general.TopLevelCategoryFolder;
 import com.hiveworkshop.wc3.units.DataTable;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData;
@@ -44,20 +44,6 @@ import com.hiveworkshop.wc3.units.objectdata.MutableObjectDataChangeListener;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
 
 public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener {
-	private final class TreeNodeLinkerFromModel implements TreeNodeLinker {
-		private final DefaultTreeModel treeModel;
-
-		private TreeNodeLinkerFromModel(final DefaultTreeModel treeModel) {
-			this.treeModel = treeModel;
-		}
-
-		@Override
-		public void insertNodeInto(final DefaultMutableTreeNode newChild, final DefaultMutableTreeNode parent,
-				final int index) {
-			treeModel.insertNodeInto(newChild, parent, index);
-		}
-	}
-
 	private static final Object SHIFT_KEY_LOCK = new Object();
 	private final MutableObjectData unitData;
 	private final DataTable unitMetaData;

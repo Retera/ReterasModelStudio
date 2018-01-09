@@ -23,8 +23,8 @@ public final class BLPExtractorCompressorWar3 {
 		}
 		final File target = new File(args[0]);
 		root = target;
-		texRoot = new File(target.getParent() + "/ns" + "textures");
-		compressRoot = new File(target.getParent() + "/ns" + "texturesCompressed");
+		texRoot = new File(target.getParent() + "/Compressor");
+		compressRoot = new File(target.getParent() + "/CompressorOut");
 		operate(target);
 		System.out.println("Passed: " + passed.size());
 		System.out.println("Failed: " + failed.size());
@@ -63,7 +63,8 @@ public final class BLPExtractorCompressorWar3 {
 							|| relativePath.toLowerCase().contains("\\sharedmodels")
 							|| relativePath.toLowerCase().contains("\\objects\\inventoryitems")
 							|| relativePath.toLowerCase().contains("\\replaceabletextures\\splats")
-							|| relativePath.toLowerCase().startsWith("\\ReplaceableTextures\\Splats");// ReplaceableTextures\Splats
+							|| relativePath.toLowerCase().startsWith("\\ReplaceableTextures\\Splats")
+							|| !relativePath.toLowerCase().substring(1).contains("\\");// ReplaceableTextures\Splats
 					// BlpFile.writePalettedBLP(blpImage, compressTarget,
 					// blpImage.getColorModel().hasAlpha(),
 					// generateMipMaps, false);

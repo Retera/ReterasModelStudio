@@ -6,6 +6,8 @@ import java.awt.event.WindowEvent;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 
 /**
@@ -49,7 +51,22 @@ public class MainFrame extends JFrame {
 		// } catch (final IllegalAccessException e) {
 		// // handle exception
 		// }
-		EditorDisplayManager.setupLookAndFeel();
+		// EditorDisplayManager.setupLookAndFeel();
+		try {
+			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel");
+		} catch (final Exception exc) {
+			try {
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			} catch (final ClassNotFoundException e) {
+				e.printStackTrace();
+			} catch (final InstantiationException e) {
+				e.printStackTrace();
+			} catch (final IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (final UnsupportedLookAndFeelException e) {
+				e.printStackTrace();
+			}
+		}
 
 		frame = new MainFrame("The Matrix Eater v1.21");
 		panel.init();

@@ -24,7 +24,7 @@ public final class SquishWar3 {
 		}
 		final File target = new File(args[0]);
 		root = target;
-		texRoot = new File(target.getParent() + "/" + "models");
+		texRoot = new File(target.getParent() + "/" + "CompressorStep2");
 		squish(target);
 		System.out.println("Passed: " + passed.size());
 		System.out.println("Failed: " + failed.size());

@@ -8,6 +8,7 @@ import javax.swing.tree.TreePath;
 
 import com.etheller.collections.ArrayList;
 import com.etheller.collections.List;
+import com.hiveworkshop.wc3.jworldedit.objects.sorting.PreModelCreationTreeNodeLinker;
 import com.hiveworkshop.wc3.jworldedit.objects.sorting.TreeNodeLinker;
 import com.hiveworkshop.wc3.jworldedit.objects.sorting.general.TopLevelCategoryFolder;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData;
@@ -51,13 +52,7 @@ public final class UnitEditorTree extends JTree {
 	private static DefaultTreeModel makeTreeModel(final MutableObjectData unitData,
 			final ObjectTabTreeBrowserBuilder browserBuilder) {
 		final TopLevelCategoryFolder root = browserBuilder.build();
-		final TreeNodeLinker linker = new TreeNodeLinker() {
-			@Override
-			public void insertNodeInto(final DefaultMutableTreeNode newChild, final DefaultMutableTreeNode parent,
-					final int index) {
-				parent.insert(newChild, index);
-			}
-		};
+		final TreeNodeLinker linker = new PreModelCreationTreeNodeLinker();
 		for (final War3ID alias : unitData.keySet()) {
 			final MutableGameObject unit = unitData.get(alias);
 			root.insertObjectInto(unit, linker);

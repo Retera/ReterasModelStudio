@@ -461,6 +461,7 @@ public class DataTable implements ObjectData {
 		int col = 0;
 		int lastFieldId = 0;
 		while ((input = reader.readLine()) != null) {
+			System.out.println(input);
 			if (input.startsWith("E")) {
 				break;
 			}
@@ -512,7 +513,8 @@ public class DataTable implements ObjectData {
 				if (flipMode && input.contains("Y")) {
 					eIndex = Math.min(input.indexOf("Y"), eIndex);
 				}
-				final int fieldId = Integer.parseInt(input.substring(subXIndex + 1, eIndex - 1));
+				final int fieldId = (subXIndex == -1 || subXIndex > eIndex) ? 1
+						: Integer.parseInt(input.substring(subXIndex + 1, eIndex - 1));
 				String fieldValue = input.substring(eIndex + 1);
 				if (fieldValue.length() > 1 && fieldValue.startsWith("\"") && fieldValue.endsWith("\"")) {
 					fieldValue = fieldValue.substring(1, fieldValue.length() - 1);

@@ -100,7 +100,8 @@ public final class AssetExtractorFrameBuilder {
 					@Override
 					public void doAction(final String destinationPath, final MapAssetExtractor extractor)
 							throws IOException {
-						final UnitOptionPanel uop = new UnitOptionPanel(extractor.getUnitData(), false);
+						final UnitOptionPanel uop = new UnitOptionPanel(extractor.getUnitData(),
+								StandardObjectData.getStandardAbilities());
 						while (true) {
 							final int x = JOptionPane.showConfirmDialog(jPanel, uop, "Choose Unit Type",
 									JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);

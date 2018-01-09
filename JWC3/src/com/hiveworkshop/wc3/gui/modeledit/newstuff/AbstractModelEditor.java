@@ -16,6 +16,7 @@ import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.DeleteAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.ExtrudeAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.RecalculateNormalsAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.SnapAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.SnapNormalsAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.SpecialDeleteAction;
@@ -124,6 +125,25 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 			}
 		}
 		final SnapNormalsAction temp = new SnapNormalsAction(selectedNormals, oldLocations, snapped);
+		temp.redo();// a handy way to do the snapping!
+		return temp;
+	}
+
+	@Override
+	public UndoAction recalcNormals() {
+		final ArrayList<Vertex> oldLocations = new ArrayList<>();
+		final ArrayList<GeosetVertex> selectedVertices = new ArrayList<>();
+		final Normal snapped = new Normal(0, 0, 1);
+		for (final Vertex vertex : selectionManager.getSelectedVertices()) {
+			if (vertex instanceof GeosetVertex) {
+				final GeosetVertex gv = (GeosetVertex) vertex;
+				if (gv.getNormal() != null) {
+					oldLocations.add(new Vertex(gv.getNormal()));
+					selectedVertices.add(gv);
+				} // else no normal to snap!!!
+			}
+		}
+		final RecalculateNormalsAction temp = new RecalculateNormalsAction(selectedVertices, oldLocations, snapped);
 		temp.redo();// a handy way to do the snapping!
 		return temp;
 	}
