@@ -23,13 +23,17 @@ public class TriggerCategoryTreeNode extends DefaultMutableTreeNode {
 		}
 	}
 
+	public TriggerCategory getCategory() {
+		return category;
+	}
+
 	public TriggerTreeNode getNode(final Trigger trigger) {
 		return triggerToNode.get(trigger);
 	}
 
 	public void add(final Trigger trigger, final DefaultTreeModel treeModel) {
 		final TriggerTreeNode newChild = createChild(trigger);
-		treeModel.insertNodeInto(newChild, this, getChildCount());
+		treeModel.insertNodeInto(newChild, this, 0);
 	}
 
 	private TriggerTreeNode createChild(final Trigger trigger) {

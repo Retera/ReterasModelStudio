@@ -41,7 +41,7 @@ public final class TriggerEnvironment implements TriggerTreeController {
 		} while (nameFinder.isNameFound());
 		final TriggerImpl triggerImpl = new TriggerImpl(triggerName);
 		triggerImpl.setCategory(triggerCategory);
-		triggerCategory.getTriggers().add(triggerImpl);
+		triggerCategory.getTriggers().add(0, triggerImpl);
 		return triggerImpl;
 	}
 

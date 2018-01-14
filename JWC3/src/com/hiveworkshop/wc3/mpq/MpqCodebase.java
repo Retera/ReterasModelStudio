@@ -30,7 +30,7 @@ import mpq.MPQArchive;
 import mpq.MPQException;
 
 public class MpqCodebase implements Codebase {
-	private final boolean isDebugMode = false;
+	private final boolean isDebugMode = true;
 	MpqGuy war3;
 	MpqGuy war3x;
 	MpqGuy war3xlocal;

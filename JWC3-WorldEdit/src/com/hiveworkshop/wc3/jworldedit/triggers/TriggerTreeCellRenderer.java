@@ -13,18 +13,24 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeCellRenderer;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
+import com.hiveworkshop.wc3.jworldedit.WorldEditArt;
 import com.hiveworkshop.wc3.jworldedit.objects.UnitEditorSettings;
+import com.hiveworkshop.wc3.jworldedit.triggers.gui.TriggerCategoryTreeNode;
+import com.hiveworkshop.wc3.jworldedit.triggers.gui.TriggerEnvironmentRootNode;
+import com.hiveworkshop.wc3.jworldedit.triggers.gui.TriggerTreeNode;
 import com.hiveworkshop.wc3.jworldedit.triggers.impl.Trigger;
+import com.hiveworkshop.wc3.jworldedit.triggers.impl.TriggerCategory;
 import com.hiveworkshop.wc3.jworldedit.triggers.impl.TriggerEnvironment;
-import com.hiveworkshop.wc3.util.IconUtils;
 
 public class TriggerTreeCellRenderer extends DefaultTreeCellRenderer implements TreeCellRenderer {
 	UnitEditorSettings settings = new UnitEditorSettings();
 	private Color defaultBackgroundSelectionColor = null;
+	private final WorldEditArt worldEditArt;
 
-	public TriggerTreeCellRenderer(final UnitEditorSettings settings) {
+	public TriggerTreeCellRenderer(final UnitEditorSettings settings, final WorldEditArt worldEditArt) {
 		super();
 		this.settings = settings;
+		this.worldEditArt = worldEditArt;
 	}
 
 	@Override
@@ -35,9 +41,10 @@ public class TriggerTreeCellRenderer extends DefaultTreeCellRenderer implements 
 		}
 		final DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
 
-		if (node.getUserObject() instanceof TriggerEnvironment) {
-			final TriggerEnvironment unit = (TriggerEnvironment) node.getUserObject();
-			final String displayName = unit.getName();
+		if (node instanceof TriggerEnvironmentRootNode) {
+			final TriggerEnvironmentRootNode rootNode = (TriggerEnvironmentRootNode) node;
+			final TriggerEnvironment triggerEnv = rootNode.getTriggerEnvironment();
+			final String displayName = triggerEnv.getName();
 			this.revalidate();
 			super.getTreeCellRendererComponent(tree, displayName, selected, expanded, leaf, row, hasFocus);
 			try {
@@ -47,28 +54,35 @@ public class TriggerTreeCellRenderer extends DefaultTreeCellRenderer implements 
 			} catch (final Exception exc) {
 				exc.printStackTrace();
 			}
-		} else if (node.getUserObject() instanceof Trigger) {
-			final Trigger unit = (Trigger) node.getUserObject();
-			final String displayName = unit.getName();
+		} else if (node instanceof TriggerTreeNode) {
+			final TriggerTreeNode triggerTreeNode = (TriggerTreeNode) node;
+			final Trigger trigger = triggerTreeNode.getTrigger();
+			final String displayName = trigger.getName();
 			this.revalidate();
 			super.getTreeCellRendererComponent(tree, displayName, selected, expanded, leaf, row, hasFocus);
 			try {
-				final BufferedImage img = IconUtils.worldEditStyleIcon(
-						BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-Trigger.blp")
-								.getScaledInstance(16, 16, Image.SCALE_FAST));
-				setIcon(new ImageIcon(
-						toBufferedImage(img.getScaledInstance(16, 16, Image.SCALE_DEFAULT)).getSubimage(1, 1, 14, 14)));
+				if (trigger.isComment()) {
+					setIcon(worldEditArt.getIcon("SEIcon_TriggerComment"));
+				} else {
+					setIcon(worldEditArt.getIcon("SEIcon_Trigger"));
+				}
 			} catch (final Exception exc) {
 				exc.printStackTrace();
 			}
-		} else {
-			super.getTreeCellRendererComponent(tree, value.toString(), selected, expanded, false, row, hasFocus);
-			if (expanded) {
-				setIcon(new ImageIcon(
-						BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp")));
-			} else {
-				setIcon(new ImageIcon(
-						BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp")));
+		} else if (node instanceof TriggerCategoryTreeNode) {
+			final TriggerCategoryTreeNode triggerTreeNode = (TriggerCategoryTreeNode) node;
+			final TriggerCategory trigger = triggerTreeNode.getCategory();
+			final String displayName = trigger.getName();
+			this.revalidate();
+			super.getTreeCellRendererComponent(tree, displayName, selected, expanded, leaf, row, hasFocus);
+			try {
+				if (expanded) {
+					setIcon(worldEditArt.getIcon("SEIcon_TriggerCategoryOpen"));
+				} else {
+					setIcon(worldEditArt.getIcon("SEIcon_TriggerCategory"));
+				}
+			} catch (final Exception exc) {
+				exc.printStackTrace();
 			}
 		}
 		if (selected) {

@@ -33,6 +33,8 @@ import javax.swing.UnsupportedLookAndFeelException;
 import com.hiveworkshop.wc3.gui.modeledit.util.TransferActionListener;
 import com.hiveworkshop.wc3.jworldedit.objects.ObjectEditorFrame;
 import com.hiveworkshop.wc3.jworldedit.triggers.gui.TriggerTree;
+import com.hiveworkshop.wc3.jworldedit.triggers.impl.Trigger;
+import com.hiveworkshop.wc3.jworldedit.triggers.impl.TriggerCategory;
 import com.hiveworkshop.wc3.jworldedit.triggers.impl.TriggerEnvironment;
 import com.hiveworkshop.wc3.resources.WEString;
 import com.hiveworkshop.wc3.units.DataTable;
@@ -46,7 +48,7 @@ public class TriggerEditor extends JPanel {
 	private JButton createNewCommentButton;
 	private JButton pasteButton;
 	private JButton copyButton;
-	private TriggerTree triggerTree;
+	private final TriggerTree triggerTree;
 
 	public TriggerEditor() {
 		final TriggerEnvironment triggerEnvironment = new TriggerEnvironment("Untitled");
@@ -98,7 +100,8 @@ public class TriggerEditor extends JPanel {
 		createNewCategoryButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-
+				final TriggerCategory category = triggerTree.getController().createCategory();
+				triggerTree.select(category);
 			}
 		});
 		createNewTriggerButton = makeButton(worldEditorData, toolBar, "createNewTrigger", "ToolBarIcon_SE_NewTrigger",
@@ -106,7 +109,8 @@ public class TriggerEditor extends JPanel {
 		createNewTriggerButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-
+				final Trigger trigger = triggerTree.createTrigger();
+				triggerTree.select(trigger);
 			}
 		});
 		createNewCommentButton = makeButton(worldEditorData, toolBar, "createNewTriggerComment",
@@ -114,7 +118,8 @@ public class TriggerEditor extends JPanel {
 		createNewCommentButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-
+				final Trigger trigger = triggerTree.createTriggerComment();
+				triggerTree.select(trigger);
 			}
 		});
 		toolBar.add(Box.createHorizontalStrut(8));

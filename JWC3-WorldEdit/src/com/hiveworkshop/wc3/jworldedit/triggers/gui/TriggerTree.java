@@ -2,12 +2,16 @@ package com.hiveworkshop.wc3.jworldedit.triggers.gui;
 
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
+import com.hiveworkshop.wc3.jworldedit.WorldEditArt;
 import com.hiveworkshop.wc3.jworldedit.objects.UnitEditorSettings;
 import com.hiveworkshop.wc3.jworldedit.triggers.TriggerTreeCellRenderer;
 import com.hiveworkshop.wc3.jworldedit.triggers.impl.Trigger;
 import com.hiveworkshop.wc3.jworldedit.triggers.impl.TriggerCategory;
 import com.hiveworkshop.wc3.jworldedit.triggers.impl.TriggerEnvironment;
+import com.hiveworkshop.wc3.units.DataTable;
 
 public class TriggerTree extends JTree {
 	private final TriggerEnvironment triggerEnvironment;
@@ -16,17 +20,32 @@ public class TriggerTree extends JTree {
 
 	public TriggerTree(final TriggerEnvironment triggerEnvironment) {
 		super(new TriggerEnvironmentRootNode(triggerEnvironment));
+		getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		root = (TriggerEnvironmentRootNode) ((DefaultTreeModel) getModel()).getRoot();
 		this.triggerEnvironment = triggerEnvironment;
-		setCellRenderer(new TriggerTreeCellRenderer(new UnitEditorSettings()));
+		setCellRenderer(new TriggerTreeCellRenderer(new UnitEditorSettings(),
+				new WorldEditArt(DataTable.getWorldEditorData())));
 		controller = new GUIModelTriggerTreeController(triggerEnvironment, root, ((DefaultTreeModel) getModel()));
+		setEditable(true);
+		setDragEnabled(true);
 	}
 
 	public GUIModelTriggerTreeController getController() {
 		return controller;
 	}
 
-	private static class GUIModelTriggerTreeController implements TriggerTreeController {
+	public void select(final TriggerCategory category) {
+		final TriggerCategoryTreeNode node = root.getNode(category);
+		setSelectionPath(new TreePath(new Object[] { root, node }));
+	}
+
+	public void select(final Trigger trigger) {
+		final TriggerCategoryTreeNode categoryNode = root.getNode(trigger.getCategory());
+		final TriggerTreeNode triggerNode = categoryNode.getNode(trigger);
+		setSelectionPath(new TreePath(new Object[] { root, categoryNode, triggerNode }));
+	}
+
+	public static class GUIModelTriggerTreeController implements TriggerTreeController {
 		private final TriggerTreeController delegate;
 		private final TriggerEnvironmentRootNode root;
 		private final DefaultTreeModel treeModel;
@@ -89,6 +108,54 @@ public class TriggerTree extends JTree {
 			node.setUserObject(name);
 			treeModel.nodeChanged(node);
 		}
+	}
 
+	public Trigger createTrigger() {
+		return createTrigger(TypedTriggerInstantiator.TRIGGER);
+	}
+
+	public Trigger createTriggerComment() {
+		return createTrigger(TypedTriggerInstantiator.COMMENT);
+	}
+
+	private static enum TypedTriggerInstantiator {
+		TRIGGER() {
+			@Override
+			public Trigger create(final TriggerTreeController controller, final TriggerCategory category) {
+				return controller.createTrigger(category);
+			}
+		},
+		COMMENT() {
+			@Override
+			public Trigger create(final TriggerTreeController controller, final TriggerCategory category) {
+				return controller.createTriggerComment(category);
+			}
+		};
+		public abstract Trigger create(TriggerTreeController controller, TriggerCategory category);
+	};
+
+	private Trigger createTrigger(final TypedTriggerInstantiator instantiator) {
+		final TreePath selectionPath = getSelectionPath();
+		if (!canCreateTrigger(selectionPath)) {
+			throw new IllegalStateException("Cannot create trigger at selection");
+		}
+		final Object lastPathComponent = selectionPath.getLastPathComponent();
+		if (lastPathComponent instanceof TriggerCategoryTreeNode) {
+			// category
+			final TriggerCategoryTreeNode node = (TriggerCategoryTreeNode) lastPathComponent;
+			return instantiator.create(controller, node.getCategory());
+		} else if (lastPathComponent instanceof TriggerTreeNode) {
+			final TriggerTreeNode node = (TriggerTreeNode) lastPathComponent;
+			final int newTriggerIndex = node.getParent().getIndex(node) + 1;
+			final Trigger trigger = instantiator.create(controller, node.getTrigger().getCategory());
+			controller.moveTrigger(trigger, trigger.getCategory(), newTriggerIndex);
+			return trigger;
+		} else {
+			throw new IllegalStateException("Cannot create trigger with selection");
+		}
+	}
+
+	public boolean canCreateTrigger(final TreePath selectionPath) {
+		return selectionPath.getPathCount() >= 2;
 	}
 }

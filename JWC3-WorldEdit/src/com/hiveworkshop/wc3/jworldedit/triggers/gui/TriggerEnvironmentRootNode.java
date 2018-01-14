@@ -21,6 +21,10 @@ public final class TriggerEnvironmentRootNode extends DefaultMutableTreeNode {
 		}
 	}
 
+	public TriggerEnvironment getTriggerEnvironment() {
+		return triggerEnvironment;
+	}
+
 	public TriggerCategoryTreeNode getNode(final TriggerCategory category) {
 		return categoryToNode.get(category);
 	}
