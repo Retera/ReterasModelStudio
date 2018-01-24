@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
+import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
 import com.hiveworkshop.wc3.mdx.AttachmentVisibility;
 import com.hiveworkshop.wc3.mdx.CameraPositionTranslation;
 import com.hiveworkshop.wc3.mdx.CameraRotation;
@@ -37,9 +38,8 @@ import com.hiveworkshop.wc3.mdx.TextureScaling;
 import com.hiveworkshop.wc3.mdx.TextureTranslation;
 
 /**
- * A java class for MDL "motion flags," such as Alpha, Translation, Scaling, or
- * Rotation AnimFlags are not "real" things from an MDL and are given this name
- * by me, as an invented java class to simplify the programming
+ * A java class for MDL "motion flags," such as Alpha, Translation, Scaling, or Rotation AnimFlags are not "real" things
+ * from an MDL and are given this name by me, as an invented java class to simplify the programming
  *
  * Eric Theller 11/5/2011
  */
@@ -96,8 +96,7 @@ public class AnimFlag {
 	public static final int TEXTUREID = 5;
 
 	/**
-	 * Use for titles like "Intensity", "AmbIntensity", and other extraneous
-	 * things not included in the options above.
+	 * Use for titles like "Intensity", "AmbIntensity", and other extraneous things not included in the options above.
 	 */
 	public static final int OTHER_TYPE = 0;
 
@@ -831,6 +830,26 @@ public class AnimFlag {
 		tags.add("DontInterp");
 	}
 
+	public void setInterpType(final InterpolationType interpolationType) {
+		System.err.println("Unsafe call to setInterpType, please rewrite code in AnimFlag class");
+		tags.clear();// we're pretty sure this is just interp type now
+		switch (interpolationType) {
+		case BEZIER:
+			tags.add("Bezier");
+			break;
+		case HERMITE:
+			tags.add("Hermite");
+			break;
+		case LINEAR:
+			tags.add("Linear");
+			break;
+		default:
+		case DONT_INTERP:
+			tags.add("DontInterp");
+			break;
+		}
+	}
+
 	public int size() {
 		return times.size();
 	}
@@ -927,9 +946,8 @@ public class AnimFlag {
 	}
 
 	/**
-	 * This class is a small shell of an example for how my "AnimFlag" class
-	 * should've been implemented. It's currently only used for the
-	 * {@link AnimFlag#getEntry(int)} function.
+	 * This class is a small shell of an example for how my "AnimFlag" class should've been implemented. It's currently
+	 * only used for the {@link AnimFlag#getEntry(int)} function.
 	 *
 	 * @author Eric
 	 *
@@ -1627,10 +1645,9 @@ public class AnimFlag {
 	}
 
 	/**
-	 * Copies time track data from a certain interval into a different, new
-	 * interval. The AnimFlag source of the data to copy cannot be same AnimFlag
-	 * into which the data is copied, or else a ConcurrentModificationException
-	 * will be thrown.
+	 * Copies time track data from a certain interval into a different, new interval. The AnimFlag source of the data to
+	 * copy cannot be same AnimFlag into which the data is copied, or else a ConcurrentModificationException will be
+	 * thrown.
 	 *
 	 * @param source
 	 * @param sourceStart
@@ -1774,5 +1791,17 @@ public class AnimFlag {
 			inTans.set(j, iInTan);
 			outTans.set(j, iOutTan);
 		}
+	}
+
+	public ArrayList getValues() {
+		return values;
+	}
+
+	public ArrayList getInTans() {
+		return inTans;
+	}
+
+	public ArrayList getOutTans() {
+		return outTans;
 	}
 }

@@ -3,10 +3,9 @@ package com.hiveworkshop.wc3.mdl;
 import javax.swing.JOptionPane;
 
 /**
- * Quaternions are the most useless thing I've ever heard of. Nevertheless, I
- * wanted a simple object to encompass four quaternion values for rotation (this
- * is how MDLs handle rotating)
- * 
+ * Quaternions are the most useless thing I've ever heard of. Nevertheless, I wanted a simple object to encompass four
+ * quaternion values for rotation (this is how MDLs handle rotating)
+ *
  * Eric Theller 3/8/2012
  */
 public class QuaternionRotation {
@@ -20,6 +19,10 @@ public class QuaternionRotation {
 	}
 
 	public QuaternionRotation(final Vertex eulerRotation) {
+		set(eulerRotation);
+	}
+
+	public void set(final Vertex eulerRotation) {
 		// eulerRotation.x = Math.toRadians(eulerRotation.x);
 		// eulerRotation.y = Math.toRadians(eulerRotation.y);
 		// eulerRotation.z = Math.toRadians(eulerRotation.z);
@@ -70,14 +73,11 @@ public class QuaternionRotation {
 		// d = c1 * s2 * c3 - s1 * c2 * s3;
 
 		/**
-		 * double heading = eulerRotation.x; double attitude = eulerRotation.y;
-		 * double bank = eulerRotation.z; double c1 = Math.cos(heading); double
-		 * s1 = Math.sin(heading); double c2 = Math.cos(attitude); double s2 =
-		 * Math.sin(attitude); double c3 = Math.cos(bank); double s3 =
-		 * Math.sin(bank); a = Math.sqrt(1.0 + c1 * c2 + c1*c3 - s1 * s2 * s3 +
-		 * c2*c3) / 2.0; double w4 = (4.0 * a); b = (c2 * s3 + c1 * s3 + s1 * s2
-		 * * c3) / w4 ; c = (s1 * c2 + s1 * c3 + c1 * s2 * s3) / w4 ; d = (-s1 *
-		 * s3 + c1 * s2 * c3 +s2) / w4 ;
+		 * double heading = eulerRotation.x; double attitude = eulerRotation.y; double bank = eulerRotation.z; double c1
+		 * = Math.cos(heading); double s1 = Math.sin(heading); double c2 = Math.cos(attitude); double s2 =
+		 * Math.sin(attitude); double c3 = Math.cos(bank); double s3 = Math.sin(bank); a = Math.sqrt(1.0 + c1 * c2 +
+		 * c1*c3 - s1 * s2 * s3 + c2*c3) / 2.0; double w4 = (4.0 * a); b = (c2 * s3 + c1 * s3 + s1 * s2 * c3) / w4 ; c =
+		 * (s1 * c2 + s1 * c3 + c1 * s2 * s3) / w4 ; d = (-s1 * s3 + c1 * s2 * c3 +s2) / w4 ;
 		 */
 
 		// Now Quaternions can go burn and die.
@@ -88,6 +88,27 @@ public class QuaternionRotation {
 		b = data[1];
 		c = data[2];
 		d = data[3];
+	}
+
+	public QuaternionRotation(final Vertex axis, final double angle) {
+		set(axis, angle);
+	}
+
+	public void set(final Vertex axis, final double angle) {
+		final double halfAngle = angle / 2;
+		final double sinOfHalfAngle = Math.sin(halfAngle);
+		a = axis.x * sinOfHalfAngle;
+		b = axis.y * sinOfHalfAngle;
+		c = axis.z * sinOfHalfAngle;
+		d = Math.cos(halfAngle);
+	}
+
+	public void normalize() {
+		final double sumSq = Math.sqrt(a * a + b * b + c * c + d * d);
+		a /= sumSq;
+		b /= sumSq;
+		c /= sumSq;
+		d /= sumSq;
 	}
 
 	public double[] toArray() {
@@ -112,6 +133,18 @@ public class QuaternionRotation {
 
 	public double getD() {
 		return d;
+	}
+
+	public Vertex getAxisOfRotation() {
+		final double sqrt = Math.sqrt(1 - d * d);
+		if (sqrt == 0) {
+			return new Vertex(0, 0, 0);
+		}
+		return new Vertex(a / sqrt, b / sqrt, c / sqrt);
+	}
+
+	public double getAngleAroundAxis() {
+		return 2 * Math.acos(d);
 	}
 
 	public Vertex toEuler() {

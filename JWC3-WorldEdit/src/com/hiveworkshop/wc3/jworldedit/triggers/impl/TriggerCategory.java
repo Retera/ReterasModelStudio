@@ -1,9 +1,14 @@
 package com.hiveworkshop.wc3.jworldedit.triggers.impl;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class TriggerCategory {
+public final class TriggerCategory implements Serializable {
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 6165741794379834433L;
 	private String name;
 	private final List<Trigger> triggers;
 	private boolean isComment;
@@ -31,5 +36,16 @@ public final class TriggerCategory {
 
 	public void setName(final String name) {
 		this.name = name;
+	}
+
+	public TriggerCategory copy() {
+		final TriggerCategory triggerCategory = new TriggerCategory(name);
+		triggerCategory.isComment = isComment;
+		for (final Trigger trigger : triggers) {
+			final Trigger copiedTrigger = trigger.copy();
+			triggerCategory.triggers.add(copiedTrigger);
+			copiedTrigger.setCategory(triggerCategory);
+		}
+		return triggerCategory;
 	}
 }

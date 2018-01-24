@@ -29,7 +29,7 @@ public final class War3ID {
 
 	public String asStringValue() {
 		String string = CharInt.toString(value);
-		if (string.charAt(3) == '\0' || string.charAt(3) == ' ') {
+		if ((string.charAt(3) == '\0' || string.charAt(3) == ' ') && string.charAt(2) != '\0') {
 			string = string.substring(0, 3);
 		}
 		return string;

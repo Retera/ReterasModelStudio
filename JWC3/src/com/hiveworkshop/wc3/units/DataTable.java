@@ -461,7 +461,6 @@ public class DataTable implements ObjectData {
 		int col = 0;
 		int lastFieldId = 0;
 		while ((input = reader.readLine()) != null) {
-			System.out.println(input);
 			if (input.startsWith("E")) {
 				break;
 			}

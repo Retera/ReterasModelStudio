@@ -14,7 +14,13 @@ public interface TriggerTreeController {
 
 	void moveTrigger(Trigger trigger, TriggerCategory triggerCategory, int index);
 
+	void moveCategory(TriggerCategory triggerCategory, int index);
+
 	void toggleCategoryIsComment(TriggerCategory triggerCategory);
 
 	void renameCategory(TriggerCategory trigger, String name);
+
+	void deleteTrigger(Trigger trigger);
+
+	void deleteCategory(TriggerCategory category);
 }

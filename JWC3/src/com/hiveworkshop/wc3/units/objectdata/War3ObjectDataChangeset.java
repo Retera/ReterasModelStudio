@@ -567,7 +567,7 @@ public final class War3ObjectDataChangeset {
 					}
 				}
 			}
-			if (newid == null) {
+			if (newid == null && !isOriginal) {
 				throw new IllegalStateException("custom unit has no ID!");
 			}
 			map.put(isOriginal ? origid : newid, existingObject);

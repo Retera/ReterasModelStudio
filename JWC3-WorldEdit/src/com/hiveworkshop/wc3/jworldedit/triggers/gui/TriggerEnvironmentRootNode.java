@@ -9,7 +9,7 @@ import javax.swing.tree.DefaultTreeModel;
 import com.hiveworkshop.wc3.jworldedit.triggers.impl.TriggerCategory;
 import com.hiveworkshop.wc3.jworldedit.triggers.impl.TriggerEnvironment;
 
-public final class TriggerEnvironmentRootNode extends DefaultMutableTreeNode {
+public final class TriggerEnvironmentRootNode extends DefaultMutableTreeNode implements TriggerElementTreeNode {
 	private final Map<TriggerCategory, TriggerCategoryTreeNode> categoryToNode = new HashMap<>();
 	private final TriggerEnvironment triggerEnvironment;
 
@@ -38,5 +38,10 @@ public final class TriggerEnvironmentRootNode extends DefaultMutableTreeNode {
 		final TriggerCategoryTreeNode newChild = new TriggerCategoryTreeNode(category);
 		categoryToNode.put(category, newChild);
 		return newChild;
+	}
+
+	@Override
+	public TriggerElementTreeNode copy() {
+		throw new UnsupportedOperationException();
 	}
 }

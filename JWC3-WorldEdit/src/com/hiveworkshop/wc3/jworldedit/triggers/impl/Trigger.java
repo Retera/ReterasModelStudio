@@ -14,4 +14,6 @@ public interface Trigger {
 	String getComment();
 
 	void setComment(String comment);
+
+	Trigger copy();
 }

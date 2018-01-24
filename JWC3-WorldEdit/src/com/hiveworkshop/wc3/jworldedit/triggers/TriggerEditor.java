@@ -29,6 +29,7 @@ import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.tree.TreePath;
 
 import com.hiveworkshop.wc3.gui.modeledit.util.TransferActionListener;
 import com.hiveworkshop.wc3.jworldedit.objects.ObjectEditorFrame;
@@ -102,6 +103,7 @@ public class TriggerEditor extends JPanel {
 			public void actionPerformed(final ActionEvent e) {
 				final TriggerCategory category = triggerTree.getController().createCategory();
 				triggerTree.select(category);
+				triggerTree.startEditingAtPath(triggerTree.getSelectionPath());
 			}
 		});
 		createNewTriggerButton = makeButton(worldEditorData, toolBar, "createNewTrigger", "ToolBarIcon_SE_NewTrigger",
@@ -111,6 +113,8 @@ public class TriggerEditor extends JPanel {
 			public void actionPerformed(final ActionEvent e) {
 				final Trigger trigger = triggerTree.createTrigger();
 				triggerTree.select(trigger);
+				TreePath selectionPath = triggerTree.getSelectionPath();
+				triggerTree.startEditingAtPath(selectionPath);
 			}
 		});
 		createNewCommentButton = makeButton(worldEditorData, toolBar, "createNewTriggerComment",
@@ -120,6 +124,7 @@ public class TriggerEditor extends JPanel {
 			public void actionPerformed(final ActionEvent e) {
 				final Trigger trigger = triggerTree.createTriggerComment();
 				triggerTree.select(trigger);
+				triggerTree.startEditingAtPath(triggerTree.getSelectionPath());
 			}
 		});
 		toolBar.add(Box.createHorizontalStrut(8));

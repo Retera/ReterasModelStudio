@@ -21,8 +21,8 @@ public abstract class IdObject implements Named {
 
 	public static enum NodeFlags {
 		DONTINHERIT_TRANSLATION("DontInherit { Translation }"),
-		DONTINHERIT_SCALING("DontInherit { Rotation }"),
-		DONTINHERIT_ROTATION("DontInherit { Scaling }"),
+		DONTINHERIT_SCALING("DontInherit { Scaling }"),
+		DONTINHERIT_ROTATION("DontInherit { Rotation }"),
 		BILLBOARDED("Billboarded"),
 		BILLBOARD_LOCK_X("BillboardLockX"),
 		BILLBOARD_LOCK_Y("BillboardLockY"),

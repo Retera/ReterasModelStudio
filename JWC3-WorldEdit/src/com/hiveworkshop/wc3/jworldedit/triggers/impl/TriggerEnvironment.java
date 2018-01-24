@@ -9,7 +9,7 @@ import com.hiveworkshop.wc3.jworldedit.triggers.gui.TriggerTreeController;
 import com.hiveworkshop.wc3.resources.WEString;
 
 public final class TriggerEnvironment implements TriggerTreeController {
-	private final String name;
+	private String name;
 	private final List<TriggerCategory> categories;
 	private transient final DefaultTriggerNameFinder nameFinder = new DefaultTriggerNameFinder();
 
@@ -20,6 +20,10 @@ public final class TriggerEnvironment implements TriggerTreeController {
 
 	public String getName() {
 		return name;
+	}
+
+	public void setName(final String name) {
+		this.name = name;
 	}
 
 	public List<TriggerCategory> getCategories() {
@@ -72,7 +76,9 @@ public final class TriggerEnvironment implements TriggerTreeController {
 	@Override
 	public void moveTrigger(final Trigger trigger, final TriggerCategory triggerCategory, final int index) {
 		final TriggerCategory previousCategory = trigger.getCategory();
-		previousCategory.getTriggers().remove(trigger);
+		if (previousCategory != null) {
+			previousCategory.getTriggers().remove(trigger);
+		}
 		trigger.setCategory(triggerCategory);
 		triggerCategory.getTriggers().add(index, trigger);
 	}
@@ -119,5 +125,22 @@ public final class TriggerEnvironment implements TriggerTreeController {
 		public boolean isNameFound() {
 			return nameFound;
 		}
+	}
+
+	@Override
+	public void deleteTrigger(final Trigger trigger) {
+		trigger.getCategory().getTriggers().remove(trigger);
+		trigger.setCategory(null);
+	}
+
+	@Override
+	public void deleteCategory(final TriggerCategory category) {
+		categories.remove(category);
+	}
+
+	@Override
+	public void moveCategory(final TriggerCategory triggerCategory, final int index) {
+		categories.remove(triggerCategory);
+		categories.add(index, triggerCategory);
 	}
 }

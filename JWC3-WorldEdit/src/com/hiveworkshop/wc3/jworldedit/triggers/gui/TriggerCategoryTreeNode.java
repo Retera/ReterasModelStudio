@@ -9,7 +9,7 @@ import javax.swing.tree.DefaultTreeModel;
 import com.hiveworkshop.wc3.jworldedit.triggers.impl.Trigger;
 import com.hiveworkshop.wc3.jworldedit.triggers.impl.TriggerCategory;
 
-public class TriggerCategoryTreeNode extends DefaultMutableTreeNode {
+public class TriggerCategoryTreeNode extends DefaultMutableTreeNode implements TriggerElementTreeNode {
 
 	private final TriggerCategory category;
 	private final Map<Trigger, TriggerTreeNode> triggerToNode;
@@ -42,4 +42,13 @@ public class TriggerCategoryTreeNode extends DefaultMutableTreeNode {
 		return newChild;
 	}
 
+	@Override
+	public TriggerElementTreeNode copy() {
+		return new TriggerCategoryTreeNode(category);
+	}
+
+	@Override
+	public String toString() {
+		return "TCTN: " + super.toString();
+	}
 }

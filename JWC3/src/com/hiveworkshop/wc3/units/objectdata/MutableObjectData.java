@@ -14,7 +14,6 @@ import com.etheller.util.CollectionUtils;
 import com.hiveworkshop.wc3.resources.WEString;
 import com.hiveworkshop.wc3.units.GameObject;
 import com.hiveworkshop.wc3.units.ObjectData;
-import com.sun.istack.internal.Nullable;
 
 public final class MutableObjectData {
 	private final WorldEditorDataType worldEditorDataType;
@@ -154,7 +153,6 @@ public final class MutableObjectData {
 		return cachedKeySet;
 	}
 
-	@Nullable()
 	public MutableGameObject get(final War3ID id) {
 		MutableGameObject mutableGameObject = cachedKeyToGameObject.get(id);
 		if (mutableGameObject == null) {
@@ -300,7 +298,7 @@ public final class MutableObjectData {
 		}
 
 		public void setField(final War3ID field, final int level, final boolean value) {
-			if (value == (Integer.parseInt(getFieldStringFromSLKs(field, level)) == 1)) {
+			if (value == (asInt(getFieldStringFromSLKs(field, level).trim()) == 1)) {
 				if (value != (getFieldAsBoolean(field, level))) {
 					fireChangedEvent(field, level);
 				}
@@ -314,7 +312,7 @@ public final class MutableObjectData {
 		}
 
 		public void setField(final War3ID field, final int level, final int value) {
-			if (value == (Integer.parseInt(getFieldStringFromSLKs(field, level)))) {
+			if (value == (asInt(getFieldStringFromSLKs(field, level).trim()))) {
 				if (value != (getFieldAsInteger(field, level))) {
 					fireChangedEvent(field, level);
 				}
@@ -337,7 +335,7 @@ public final class MutableObjectData {
 		}
 
 		public void setField(final War3ID field, final int level, final float value) {
-			if (Math.abs(value - (Float.parseFloat(getFieldStringFromSLKs(field, level)))) < 0.00001f) {
+			if (Math.abs(value - (asFloat(getFieldStringFromSLKs(field, level).trim()))) < 0.00001f) {
 				if (Math.abs(value - getFieldAsFloat(field, level)) > 0.00001f) {
 					fireChangedEvent(field, level);
 				}
@@ -364,6 +362,7 @@ public final class MutableObjectData {
 				final ChangeMap changeMap = customUnitData.getChanges();
 				final List<Change> changeList = changeMap.get(field);
 				matchingChange = new Change();
+				matchingChange.setId(field);
 				matchingChange.setLevel(level);
 				if (editorData.extended()) {
 					// dunno why, but Blizzard sure likes those dataptrs in the ability data
@@ -544,7 +543,7 @@ public final class MutableObjectData {
 			if (matchingChange != null) {
 				if (matchingChange.getVartype() != War3ObjectDataChangeset.VAR_TYPE_INT) {
 					throw new IllegalStateException(
-							"Requested string value of '" + field + "' from '" + parentWC3Object.getId()
+							"Requested integer value of '" + field + "' from '" + parentWC3Object.getId()
 									+ "', but this field was not an int! vartype=" + matchingChange.getVartype());
 				}
 				return matchingChange.getLongval();
@@ -562,8 +561,8 @@ public final class MutableObjectData {
 			if (matchingChange != null) {
 				if (matchingChange.getVartype() != War3ObjectDataChangeset.VAR_TYPE_BOOLEAN) {
 					throw new IllegalStateException(
-							"Requested string value of '" + field + "' from '" + parentWC3Object.getId()
-									+ "', but this field was not an int! vartype=" + matchingChange.getVartype());
+							"Requested boolean value of '" + field + "' from '" + parentWC3Object.getId()
+									+ "', but this field was not a bool! vartype=" + matchingChange.getVartype());
 				}
 				return matchingChange.isBoolval();
 			}
@@ -581,7 +580,7 @@ public final class MutableObjectData {
 				if (matchingChange.getVartype() != War3ObjectDataChangeset.VAR_TYPE_REAL
 						&& matchingChange.getVartype() != War3ObjectDataChangeset.VAR_TYPE_UNREAL) {
 					throw new IllegalStateException(
-							"Requested string value of '" + field + "' from '" + parentWC3Object.getId()
+							"Requested float value of '" + field + "' from '" + parentWC3Object.getId()
 									+ "', but this field was not a float! vartype=" + matchingChange.getVartype());
 				}
 				return matchingChange.getRealval();
@@ -624,6 +623,16 @@ public final class MutableObjectData {
 			return customUnitData.getOldId();
 		}
 
+	}
+
+	private static int asInt(final String text) {
+		return text == null ? 0
+				: "".equals(text) ? 0 : "-".equals(text) ? 0 : "_".equals(text) ? 0 : Integer.parseInt(text);
+	}
+
+	private static float asFloat(final String text) {
+		return text == null ? 0
+				: "".equals(text) ? 0 : "-".equals(text) ? 0 : "_".equals(text) ? 0 : Float.parseFloat(text);
 	}
 
 	public enum WorldEditorDataType {
