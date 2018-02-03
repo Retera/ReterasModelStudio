@@ -13,19 +13,20 @@ import javax.swing.JPanel;
 import org.lwjgl.LWJGLException;
 
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
-import com.hiveworkshop.wc3.gui.modeledit.PerspectiveViewport;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public class AnimationViewer extends JPanel {
 	private final ModelView mdlDisp;
-	private PerspectiveViewport perspectiveViewport;
+	private AnimatedPerspectiveViewport perspectiveViewport;
 
 	public AnimationViewer(final ModelView mdlDisp, final ProgramPreferences programPreferences) {
 		this.mdlDisp = mdlDisp;
 		try {
-			perspectiveViewport = new PerspectiveViewport(mdlDisp, programPreferences);
+			perspectiveViewport = new AnimatedPerspectiveViewport(mdlDisp, programPreferences);
 			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
+			perspectiveViewport.setTrackTime(0);
+			perspectiveViewport.setLive(true);
 		} catch (final LWJGLException e) {
 			throw new RuntimeException(e);
 		}

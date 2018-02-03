@@ -262,6 +262,43 @@ public class QuaternionRotation {
 		return temp;
 	}
 
+	public static QuaternionRotation ghostwolfNlerp(final QuaternionRotation out,
+			final QuaternionRotation startingValue, final QuaternionRotation endingValue,
+			final float interpolationFactor) {
+		final double ax = startingValue.a, ay = startingValue.b, az = startingValue.c, aw = startingValue.d;
+		final double bx = startingValue.a, by = startingValue.b, bz = startingValue.c, bw = startingValue.d;
+		final float inverseFactor = 1 - interpolationFactor;
+		final double x1 = inverseFactor * ax;
+		final double y1 = inverseFactor * ay;
+		final double z1 = inverseFactor * az;
+		final double w1 = inverseFactor * aw;
+		final double x2 = interpolationFactor * bx;
+		final double y2 = interpolationFactor * by;
+		final double z2 = interpolationFactor * bz;
+		final double w2 = interpolationFactor * bw;
+
+		// Dot product
+		if (ax * bx + ay * by + az * bz + aw * bw < 0) {
+			out.a = x1 - x2;
+			out.b = y1 - y2;
+			out.c = z1 - z2;
+			out.d = w1 - w2;
+		} else {
+			out.a = x1 + x2;
+			out.b = y1 + y2;
+			out.c = z1 + z2;
+			out.d = w1 + w2;
+		}
+
+		// Super slow and generally not needed.
+		// quat.normalize(out, out);
+		return out;
+	}
+
+	public static QuaternionRotation ghostwolfNquad(final QuaternionRotation out, final QuaternionRotation a, final QuaternionRotation aOutTan, final QuaternionRotation bInTan, final QuaternionRotation b, float ) {
+
+	}
+
 	@Override
 	public String toString() {
 		return "{ " + MDLReader.doubleToString(a) + ", " + MDLReader.doubleToString(b) + ", "

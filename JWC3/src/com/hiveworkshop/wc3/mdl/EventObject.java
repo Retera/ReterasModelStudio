@@ -39,7 +39,7 @@ public class EventObject extends IdObject {
 	public EventObject(final EventObjectChunk.EventObject mdxSource) {
 		this.name = mdxSource.node.name;
 		// debug print:
-		System.out.println(getName() + ": " + Integer.toBinaryString(mdxSource.node.flags));
+		// System.out.println(getName() + ": " + Integer.toBinaryString(mdxSource.node.flags));
 		if ((mdxSource.node.flags & 1024) != 1024) {
 			System.err.println("MDX -> MDL error: An eventobject '" + mdxSource.node.name
 					+ "' not flagged as eventobject in MDX!");

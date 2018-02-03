@@ -491,7 +491,8 @@ public final class War3ObjectDataChangeset {
 			}
 			final int ccount = stream.readInt();// Retera: I assume this is change count?
 			if (ccount == 0 && isOriginal) {
-				throw new IOException("we seem to have reached the end of the stream and get zeroes");
+				// throw new IOException("we seem to have reached the end of the stream and get zeroes");
+				System.err.println("we seem to have reached the end of the stream and get zeroes");
 			}
 			for (int j = 0; j < ccount; j++) {
 				final War3ID chid = readWar3ID(stream);

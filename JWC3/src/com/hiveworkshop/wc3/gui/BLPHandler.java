@@ -1,12 +1,20 @@
 package com.hiveworkshop.wc3.gui;
 
+import java.awt.Graphics2D;
+import java.awt.Transparency;
+import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.DataBuffer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.imageio.ImageIO;
 
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 
@@ -41,6 +49,46 @@ public class BLPHandler {
 	}
 
 	/**
+	 * Convert an input buffered image into sRGB color space using component values directly instead of performing a
+	 * color space conversion.
+	 *
+	 * @param in
+	 *            Input image to be converted.
+	 * @return Resulting sRGB image.
+	 */
+	public static BufferedImage forceBufferedImagesRGB(final BufferedImage in) {
+		// Resolve input ColorSpace.
+		final ColorSpace inCS = in.getColorModel().getColorSpace();
+		final ColorSpace sRGBCS = ColorSpace.getInstance(ColorSpace.CS_sRGB);
+		if (inCS == sRGBCS) {
+			// Already is sRGB.
+			return in;
+		}
+		if (inCS.getNumComponents() != sRGBCS.getNumComponents()) {
+			throw new IllegalArgumentException("Input color space has different number of components from sRGB.");
+		}
+
+		// Draw input.
+		final ColorModel lRGBModel = new ComponentColorModel(inCS, true, false, Transparency.TRANSLUCENT,
+				DataBuffer.TYPE_BYTE);
+		final ColorModel sRGBModel = new ComponentColorModel(sRGBCS, true, false, Transparency.TRANSLUCENT,
+				DataBuffer.TYPE_BYTE);
+		final BufferedImage lRGB = new BufferedImage(lRGBModel,
+				lRGBModel.createCompatibleWritableRaster(in.getWidth(), in.getHeight()), false, null);
+		final Graphics2D graphic = lRGB.createGraphics();
+		try {
+			graphic.drawImage(in, 0, 0, null);
+		} finally {
+			graphic.dispose();
+		}
+
+		// Convert to sRGB.
+		final BufferedImage sRGB = new BufferedImage(sRGBModel, lRGB.getRaster(), false, null);
+
+		return sRGB;
+	}
+
+	/**
 	 * Gets a texture file from BLP format inside the Warcraft archives into a BufferedImage you can use, based on a
 	 * filepath in the Warcraft installation's MPQ files.
 	 *
@@ -53,7 +101,8 @@ public class BLPHandler {
 		}
 		final InputStream blpFile = MpqCodebase.get().getResourceAsStream(filepath);
 		try {
-			final BufferedImage img = BlpFile.read(filepath, blpFile);
+			// final BufferedImage img = BlpFile.read(filepath, blpFile);
+			final BufferedImage img = forceBufferedImagesRGB(ImageIO.read(blpFile));
 			cache.put(filepath, img);
 			return img;// ImageIO.read(tga);
 		} catch (final IOException e) {

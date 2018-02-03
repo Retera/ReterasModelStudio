@@ -12,6 +12,6 @@ public class AnimationFrame extends JFrame {
 		setIconImage(GlobalIcons.animIcon.getImage());
 		setContentPane(new AnimationPanel(mdlDisp.getModelViewManager(), this, mdlDisp.getUndoManager()));
 		pack();
-		setLocationRelativeTo(mdlDisp);
+		setLocationRelativeTo(mdlDisp.getView());
 	}
 }

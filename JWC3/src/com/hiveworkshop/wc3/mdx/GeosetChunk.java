@@ -74,7 +74,6 @@ public class GeosetChunk {
 		public static final String key = "VRTX";
 
 		public void load(final BlizzardDataInputStream in) throws IOException {
-			System.err.println("start read geo");
 			final int inclusiveSize = in.readInt();
 			MdxUtils.checkId(in, "VRTX");
 			final int nrOfVertexPositions = in.readInt();
@@ -119,7 +118,6 @@ public class GeosetChunk {
 				MdxUtils.checkId(in, "UVBS");
 				final int nrOfVertexTexturePositions = in.readInt();
 				vertexTexturePositions[i] = MdxUtils.loadFloatArray(in, nrOfVertexTexturePositions * 2);
-				System.err.println("Read UVBS layer " + i);
 			}
 		}
 

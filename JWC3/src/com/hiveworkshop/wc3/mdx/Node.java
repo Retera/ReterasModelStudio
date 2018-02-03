@@ -11,6 +11,8 @@ import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
 
 public class Node {
+	public static final boolean LOG_DISCARDED_FLAGS = false;
+
 	public String name = "";
 	public int objectId;
 	public int parentId;
@@ -183,7 +185,9 @@ public class Node {
 					}
 				}
 			} else {
-				System.err.println("node discarded flag " + af.getName());
+				if (Node.LOG_DISCARDED_FLAGS) {
+					System.err.println("node discarded flag " + af.getName());
+				}
 			}
 		}
 	}

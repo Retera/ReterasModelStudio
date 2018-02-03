@@ -59,7 +59,6 @@ public class Bitmap {
 
 	public Bitmap(final TextureChunk.Texture tex) {
 		this(tex.fileName, tex.replaceableId);
-		System.err.println(tex.replaceableId + "," + replaceableId);
 		if (replaceableId == 0 && !imagePath.equals("")) {
 			replaceableId = -1; // nice and tidy it up for the MDL code
 		}

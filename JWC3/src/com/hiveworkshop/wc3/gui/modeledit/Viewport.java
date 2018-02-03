@@ -592,25 +592,8 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		int wr = e.getWheelRotation();
 		final boolean neg = wr < 0;
 
-		// get mouse coords
-		int xoff = 0;
-		int yoff = 0;
-		Component temp = this;
-		while (temp != null) {
-			xoff += temp.getX();
-			yoff += temp.getY();
-			// if( temp.getClass() == ModelPanel.class )
-			// {
-			//// temp = MainFrame.panel;
-			// temp = null; // TODO fix
-			// }
-			// else
-			// {
-			temp = temp.getParent();
-			// }
-		}
-		final double mx = (MouseInfo.getPointerInfo().getLocation().x - xoff);
-		final double my = (MouseInfo.getPointerInfo().getLocation().y - yoff);
+		final double mx = e.getX();
+		final double my = e.getY();
 
 		if (neg) {
 			wr = -wr;

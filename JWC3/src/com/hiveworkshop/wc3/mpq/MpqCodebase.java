@@ -327,6 +327,11 @@ public class MpqCodebase implements Codebase {
 			public boolean hasListfile() {
 				return temp.has("(listfile)");
 			}
+
+			@Override
+			public boolean has(final String path) {
+				return temp.has(path);
+			}
 		};
 	}
 
@@ -334,6 +339,8 @@ public class MpqCodebase implements Codebase {
 		void unload();
 
 		boolean hasListfile();
+
+		boolean has(String path);
 	}
 
 	private static MpqCodebase current;

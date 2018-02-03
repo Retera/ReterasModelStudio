@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 
-import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -22,6 +21,8 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ModelEditorChangeNotifier;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
+import net.infonode.docking.View;
+
 /**
  * Write a description of class DisplayPanel here.
  *
@@ -35,6 +36,7 @@ public class DisplayPanel extends JPanel implements ActionListener {
 	private final ViewportActivity activityListener;
 	private final ModelEditorChangeNotifier modelEditorChangeNotifier;
 	private final ModelStructureChangeListener modelStructureChangeListener;
+	private final View view;
 
 	public DisplayPanel(final String title, final byte a, final byte b, final ModelView modelView,
 			final ModelEditor modelEditor, final ModelStructureChangeListener modelStructureChangeListener,
@@ -46,7 +48,7 @@ public class DisplayPanel extends JPanel implements ActionListener {
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		this.activityListener = activityListener;
 		this.modelEditorChangeNotifier = modelEditorChangeNotifier;
-		setBorder(BorderFactory.createTitledBorder(title));// BorderFactory.createCompoundBorder(
+		// setBorder(BorderFactory.createTitledBorder(title));// BorderFactory.createCompoundBorder(
 		// BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title),BorderFactory.createBevelBorder(1)),BorderFactory.createEmptyBorder(1,1,1,1)
 		// ));
 		setOpaque(true);
@@ -119,6 +121,11 @@ public class DisplayPanel extends JPanel implements ActionListener {
 						.addComponent(down)));
 
 		setLayout(layout);
+		this.view = new View(title, null, this);
+	}
+
+	public View getView() {
+		return view;
 	}
 
 	public void setControlsVisible(final boolean flag) {

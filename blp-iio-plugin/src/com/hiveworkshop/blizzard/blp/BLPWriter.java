@@ -204,32 +204,36 @@ public class BLPWriter extends ImageWriter {
 				throw new IIOException("Stream not empty.");
 			}
 		}
+		
+		RenderedImage im = image.getRenderedImage();
+		
+		// Prepare default param if required.
+		if (param == null) {
+			param = getDefaultWriteParam();
+			param.setDestinationType(new ImageTypeSpecifier(im));
+		}
 
 		// get image processing values
-		RenderedImage im = image.getRenderedImage();
 		Rectangle sourceRegion = new Rectangle(0, 0, im.getWidth(),
 				im.getHeight());
 		int sourceXSubsampling = 1;
 		int sourceYSubsampling = 1;
 		int[] sourceBands = null;
 		Point destOff = new Point();
-		if (param != null) {
-			Rectangle sourceRegionParam = param.getSourceRegion();
-			if (sourceRegionParam != null)
-				sourceRegion = sourceRegion.intersection(param
-						.getSourceRegion());
-			destOff = param.getDestinationOffset();
-			sourceXSubsampling = param.getSourceXSubsampling();
-			sourceYSubsampling = param.getSourceYSubsampling();
-			sourceBands = param.getSourceBands();
-
-			int subsampleXOffset = param.getSubsamplingXOffset();
-			int subsampleYOffset = param.getSubsamplingYOffset();
-			sourceRegion.x += subsampleXOffset;
-			sourceRegion.y += subsampleYOffset;
-			sourceRegion.width -= subsampleXOffset;
-			sourceRegion.height -= subsampleYOffset;
-		}
+		Rectangle sourceRegionParam = param.getSourceRegion();
+		if (sourceRegionParam != null)
+			sourceRegion = sourceRegion.intersection(param
+					.getSourceRegion());
+		destOff = param.getDestinationOffset();
+		sourceXSubsampling = param.getSourceXSubsampling();
+		sourceYSubsampling = param.getSourceYSubsampling();
+		sourceBands = param.getSourceBands();
+		int subsampleXOffset = param.getSubsamplingXOffset();
+		int subsampleYOffset = param.getSubsamplingYOffset();
+		sourceRegion.x += subsampleXOffset;
+		sourceRegion.y += subsampleYOffset;
+		sourceRegion.width -= subsampleXOffset;
+		sourceRegion.height -= subsampleYOffset;
 
 		// create source Raster
 		int width = sourceRegion.width;

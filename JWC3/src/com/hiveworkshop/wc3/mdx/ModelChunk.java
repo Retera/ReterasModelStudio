@@ -15,19 +15,22 @@ public class ModelChunk {
 
 	public static final String key = "MODL";
 
-	public void load(BlizzardDataInputStream in) throws IOException {
+	public void load(final BlizzardDataInputStream in) throws IOException {
 		MdxUtils.checkId(in, "MODL");
-		int chunkSize = in.readInt();
+		final int chunkSize = in.readInt();
 		name = in.readCharsAsString(336);
 		unknownNull = in.readInt();
-		System.err.println("He said he didn't know what this was: " + unknownNull);
+		if (unknownNull != 0) {
+			System.err
+					.println("He said he didn't know what this was: " + unknownNull + " (possible loss of model data)");
+		}
 		boundsRadius = in.readFloat();
 		minimumExtent = MdxUtils.loadFloatArray(in, 3);
 		maximumExtent = MdxUtils.loadFloatArray(in, 3);
 		blendTime = in.readInt();
 	}
 
-	public void save(BlizzardDataOutputStream out) throws IOException {
+	public void save(final BlizzardDataOutputStream out) throws IOException {
 		out.writeNByteString("MODL", 4);
 		out.writeInt(getSize() - 8);// ChunkSize
 		out.writeNByteString(name, 336);

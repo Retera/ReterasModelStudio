@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.hiveworkshop.wc3.mdl.AnimFlag;
+import com.hiveworkshop.wc3.mdl.MdlxUtils;
 
 import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
@@ -14,23 +15,22 @@ public class RibbonEmitterChunk {
 
 	public static final String key = "RIBB";
 
-	public void load(BlizzardDataInputStream in) throws IOException {
+	public void load(final BlizzardDataInputStream in) throws IOException {
 		MdxUtils.checkId(in, "RIBB");
-		int chunkSize = in.readInt();
-		List<RibbonEmitter> ribbonEmitterList = new ArrayList();
+		final int chunkSize = in.readInt();
+		final List<RibbonEmitter> ribbonEmitterList = new ArrayList();
 		int ribbonEmitterCounter = chunkSize;
 		while (ribbonEmitterCounter > 0) {
-			RibbonEmitter tempribbonEmitter = new RibbonEmitter();
+			final RibbonEmitter tempribbonEmitter = new RibbonEmitter();
 			ribbonEmitterList.add(tempribbonEmitter);
 			tempribbonEmitter.load(in);
 			ribbonEmitterCounter -= tempribbonEmitter.getSize();
 		}
-		ribbonEmitter = ribbonEmitterList
-				.toArray(new RibbonEmitter[ribbonEmitterList.size()]);
+		ribbonEmitter = ribbonEmitterList.toArray(new RibbonEmitter[ribbonEmitterList.size()]);
 	}
 
-	public void save(BlizzardDataOutputStream out) throws IOException {
-		int nrOfRibbonEmitters = ribbonEmitter.length;
+	public void save(final BlizzardDataOutputStream out) throws IOException {
+		final int nrOfRibbonEmitters = ribbonEmitter.length;
 		out.writeNByteString("RIBB", 4);
 		out.writeInt(getSize() - 8);// ChunkSize
 		for (int i = 0; i < ribbonEmitter.length; i++) {
@@ -57,7 +57,7 @@ public class RibbonEmitterChunk {
 		public float alpha;
 		public float[] color = new float[3];
 		public float lifeSpan;
-		public int unknownNull;
+		public int textureSlot;
 		public int emissionRate;
 		public int rows;
 		public int columns;
@@ -67,8 +67,8 @@ public class RibbonEmitterChunk {
 		public RibbonEmitterHeightAbove ribbonEmitterHeightAbove;
 		public RibbonEmitterHeightBelow ribbonEmitterHeightBelow;
 
-		public void load(BlizzardDataInputStream in) throws IOException {
-			int inclusiveSize = in.readInt();
+		public void load(final BlizzardDataInputStream in) throws IOException {
+			final int inclusiveSize = in.readInt();
 			node = new Node();
 			node.load(in);
 			heightAbove = in.readFloat();
@@ -76,7 +76,7 @@ public class RibbonEmitterChunk {
 			alpha = in.readFloat();
 			color = MdxUtils.loadFloatArray(in, 3);
 			lifeSpan = in.readFloat();
-			unknownNull = in.readInt();
+			textureSlot = in.readInt();
 			emissionRate = in.readInt();
 			rows = in.readInt();
 			columns = in.readInt();
@@ -86,12 +86,10 @@ public class RibbonEmitterChunk {
 				if (MdxUtils.checkOptionalId(in, RibbonEmitterVisibility.key)) {
 					ribbonEmitterVisibility = new RibbonEmitterVisibility();
 					ribbonEmitterVisibility.load(in);
-				} else if (MdxUtils.checkOptionalId(in,
-						RibbonEmitterHeightAbove.key)) {
+				} else if (MdxUtils.checkOptionalId(in, RibbonEmitterHeightAbove.key)) {
 					ribbonEmitterHeightAbove = new RibbonEmitterHeightAbove();
 					ribbonEmitterHeightAbove.load(in);
-				} else if (MdxUtils.checkOptionalId(in,
-						RibbonEmitterHeightBelow.key)) {
+				} else if (MdxUtils.checkOptionalId(in, RibbonEmitterHeightBelow.key)) {
 					ribbonEmitterHeightBelow = new RibbonEmitterHeightBelow();
 					ribbonEmitterHeightBelow.load(in);
 				}
@@ -99,7 +97,7 @@ public class RibbonEmitterChunk {
 			}
 		}
 
-		public void save(BlizzardDataOutputStream out) throws IOException {
+		public void save(final BlizzardDataOutputStream out) throws IOException {
 			out.writeInt(getSize());// InclusiveSize
 			node.save(out);
 			out.writeFloat(heightAbove);
@@ -107,12 +105,12 @@ public class RibbonEmitterChunk {
 			out.writeFloat(alpha);
 			if (color.length % 3 != 0) {
 				throw new IllegalArgumentException(
-						"The array color needs either the length 3 or a multiple of this number. (got "
-								+ color.length + ")");
+						"The array color needs either the length 3 or a multiple of this number. (got " + color.length
+								+ ")");
 			}
 			MdxUtils.saveFloatArray(out, color);
 			out.writeFloat(lifeSpan);
-			out.writeInt(unknownNull);
+			out.writeInt(textureSlot);
 			out.writeInt(emissionRate);
 			out.writeInt(rows);
 			out.writeInt(columns);
@@ -157,79 +155,82 @@ public class RibbonEmitterChunk {
 
 			return a;
 		}
-		
+
 		public RibbonEmitter() {
-			
+
 		}
-		public RibbonEmitter(com.hiveworkshop.wc3.mdl.RibbonEmitter mdlEmitter) {
+
+		public RibbonEmitter(final com.hiveworkshop.wc3.mdl.RibbonEmitter mdlEmitter) {
 			node = new Node(mdlEmitter);
 			node.flags |= 0x4000;
-			heightAbove = (float)mdlEmitter.getHeightAbove();
-			heightBelow = (float)mdlEmitter.getHeightBelow();
-			alpha = (float)mdlEmitter.getAlpha();
-			color = mdlEmitter.getStaticColor().toFloatArray();
-			lifeSpan = (float)mdlEmitter.getLifeSpan();
+			heightAbove = (float) mdlEmitter.getHeightAbove();
+			heightBelow = (float) mdlEmitter.getHeightBelow();
+			alpha = (float) mdlEmitter.getAlpha();
+			color = MdlxUtils.flipRGBtoBGR(mdlEmitter.getStaticColor().toFloatArray());
+			lifeSpan = (float) mdlEmitter.getLifeSpan();
 			emissionRate = mdlEmitter.getEmissionRate();
 			rows = mdlEmitter.getRows();
 			columns = mdlEmitter.getColumns();
 			materialId = mdlEmitter.getMaterialId();
-			gravity = (float)mdlEmitter.getGravity();
-			
+			gravity = (float) mdlEmitter.getGravity();
+			textureSlot = (int) mdlEmitter.getTextureSlot();
 
-			for( AnimFlag af: mdlEmitter.getAnimFlags() ) {
-				if( af.getName().equals("Visibility") ) {
+			for (final AnimFlag af : mdlEmitter.getAnimFlags()) {
+				if (af.getName().equals("Visibility")) {
 					ribbonEmitterVisibility = new RibbonEmitterVisibility();
 					ribbonEmitterVisibility.globalSequenceId = af.getGlobalSeqId();
 					ribbonEmitterVisibility.interpolationType = af.getInterpType();
 					ribbonEmitterVisibility.scalingTrack = new RibbonEmitterVisibility.ScalingTrack[af.size()];
-					boolean hasTans = af.tans();
-					for( int i = 0; i < af.size(); i++ ) {
-						RibbonEmitterVisibility.ScalingTrack mdxEntry = ribbonEmitterVisibility.new ScalingTrack();
+					final boolean hasTans = af.tans();
+					for (int i = 0; i < af.size(); i++) {
+						final RibbonEmitterVisibility.ScalingTrack mdxEntry = ribbonEmitterVisibility.new ScalingTrack();
 						ribbonEmitterVisibility.scalingTrack[i] = mdxEntry;
-						AnimFlag.Entry mdlEntry = af.getEntry(i);
-						mdxEntry.visibility = ((Number)mdlEntry.value).floatValue();
+						final AnimFlag.Entry mdlEntry = af.getEntry(i);
+						mdxEntry.visibility = ((Number) mdlEntry.value).floatValue();
 						mdxEntry.time = mdlEntry.time.intValue();
-						if( hasTans ) {
-							mdxEntry.inTan = ((Number)mdlEntry.inTan).floatValue();
-							mdxEntry.outTan = ((Number)mdlEntry.outTan).floatValue();
+						if (hasTans) {
+							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();
+							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
 						}
 					}
-				} else if( af.getName().equals("HeightAbove") ) {
+				} else if (af.getName().equals("HeightAbove")) {
 					ribbonEmitterHeightAbove = new RibbonEmitterHeightAbove();
 					ribbonEmitterHeightAbove.globalSequenceId = af.getGlobalSeqId();
 					ribbonEmitterHeightAbove.interpolationType = af.getInterpType();
 					ribbonEmitterHeightAbove.scalingTrack = new RibbonEmitterHeightAbove.ScalingTrack[af.size()];
-					boolean hasTans = af.tans();
-					for( int i = 0; i < af.size(); i++ ) {
-						RibbonEmitterHeightAbove.ScalingTrack mdxEntry = ribbonEmitterHeightAbove.new ScalingTrack();
+					final boolean hasTans = af.tans();
+					for (int i = 0; i < af.size(); i++) {
+						final RibbonEmitterHeightAbove.ScalingTrack mdxEntry = ribbonEmitterHeightAbove.new ScalingTrack();
 						ribbonEmitterHeightAbove.scalingTrack[i] = mdxEntry;
-						AnimFlag.Entry mdlEntry = af.getEntry(i);
-						mdxEntry.heightAbove = ((Number)mdlEntry.value).floatValue();
+						final AnimFlag.Entry mdlEntry = af.getEntry(i);
+						mdxEntry.heightAbove = ((Number) mdlEntry.value).floatValue();
 						mdxEntry.time = mdlEntry.time.intValue();
-						if( hasTans ) {
-							mdxEntry.inTan = ((Number)mdlEntry.inTan).floatValue();
-							mdxEntry.outTan = ((Number)mdlEntry.outTan).floatValue();
+						if (hasTans) {
+							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();
+							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
 						}
 					}
-				} else if( af.getName().equals("HeightBelow") ) {
+				} else if (af.getName().equals("HeightBelow")) {
 					ribbonEmitterHeightBelow = new RibbonEmitterHeightBelow();
 					ribbonEmitterHeightBelow.globalSequenceId = af.getGlobalSeqId();
 					ribbonEmitterHeightBelow.interpolationType = af.getInterpType();
 					ribbonEmitterHeightBelow.scalingTrack = new RibbonEmitterHeightBelow.ScalingTrack[af.size()];
-					boolean hasTans = af.tans();
-					for( int i = 0; i < af.size(); i++ ) {
-						RibbonEmitterHeightBelow.ScalingTrack mdxEntry = ribbonEmitterHeightBelow.new ScalingTrack();
+					final boolean hasTans = af.tans();
+					for (int i = 0; i < af.size(); i++) {
+						final RibbonEmitterHeightBelow.ScalingTrack mdxEntry = ribbonEmitterHeightBelow.new ScalingTrack();
 						ribbonEmitterHeightBelow.scalingTrack[i] = mdxEntry;
-						AnimFlag.Entry mdlEntry = af.getEntry(i);
-						mdxEntry.heightBelow = ((Number)mdlEntry.value).floatValue();
+						final AnimFlag.Entry mdlEntry = af.getEntry(i);
+						mdxEntry.heightBelow = ((Number) mdlEntry.value).floatValue();
 						mdxEntry.time = mdlEntry.time.intValue();
-						if( hasTans ) {
-							mdxEntry.inTan = ((Number)mdlEntry.inTan).floatValue();
-							mdxEntry.outTan = ((Number)mdlEntry.outTan).floatValue();
+						if (hasTans) {
+							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();
+							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
 						}
 					}
 				} else {
-					System.err.println("discarded flag " + af.getName());
+					if (Node.LOG_DISCARDED_FLAGS) {
+						System.err.println("discarded flag " + af.getName());
+					}
 				}
 			}
 		}

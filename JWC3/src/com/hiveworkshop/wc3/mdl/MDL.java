@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -48,8 +47,7 @@ import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
 
 /**
- * A java object to represent and store an MDL 3d model (Warcraft III file
- * format).
+ * A java object to represent and store an MDL 3d model (Warcraft III file format).
  *
  * Eric Theller 11/5/2011
  */
@@ -117,9 +115,8 @@ public class MDL implements Named {
 	}
 
 	/**
-	 * IMPORTANT: This is the only way to retrieve the true header name from the
-	 * top of the "model chunk", the same one set by {@link #setName(String)}
-	 * function.
+	 * IMPORTANT: This is the only way to retrieve the true header name from the top of the "model chunk", the same one
+	 * set by {@link #setName(String)} function.
 	 *
 	 * @return
 	 */
@@ -405,48 +402,6 @@ public class MDL implements Named {
 		doPostRead(); // fixes all the things
 	}
 
-	public void loadFile(final File f) {
-		fileRef = f;
-		BufferedReader mdl;
-		try {
-			mdl = new BufferedReader(new FileReader(f));
-		} catch (final FileNotFoundException e) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Attempted to read file, but file was not found.");
-			return;
-		}
-		String line = "opening";
-		loading = true;
-		int geoId = 0;
-		while (loading) {
-			final boolean done = false;
-
-			while (!(line = nextLine(mdl)).startsWith("Geoset ") && loading) {
-				System.out.println(line);
-			}
-			line = nextLine(mdl);
-			final Geoset geo = new Geoset();
-			if (!doesContainString(line, "Vertices") && loading) {
-				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Error: Vertices not found at beginning of Geoset " + geoId + "!");
-			}
-			while (doesContainString((line = nextLine(mdl)), "{") && loading) {
-				parseVertex(line, geo);
-			}
-			while (!doesContainString((line = nextLine(mdl)), "Triangles") && loading) {
-				System.out.println(line);
-			}
-			line = nextLine(mdl);
-			// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Triangles
-			// found on line"+c);
-			if (loading) {
-				parseTriangles(line, geo);
-				addGeoset(geo);
-			}
-			geoId++;
-		}
-	}
-
 	public void parseVertex(final String input, final Geoset geoset) {
 		final String[] entries = input.split(",");
 		try {
@@ -677,8 +632,7 @@ public class MDL implements Named {
 	/**
 	 * Deletes all the animation in the model from the time track.
 	 *
-	 * Might leave behind nice things like global sequences if the code works
-	 * out.
+	 * Might leave behind nice things like global sequences if the code works out.
 	 */
 	public void deleteAllAnimation(final boolean clearUnusedNodes) {
 		if (clearUnusedNodes) {
@@ -725,13 +679,11 @@ public class MDL implements Named {
 	}
 
 	/**
-	 * Copies the animations from another model into this model. Specifically,
-	 * copies all motion from similarly named bones and copies in the "Anim"
-	 * blocks at the top of the MDL for the newly added sections.
+	 * Copies the animations from another model into this model. Specifically, copies all motion from similarly named
+	 * bones and copies in the "Anim" blocks at the top of the MDL for the newly added sections.
 	 *
-	 * In addition, any bones with significant amounts of motion that were not
-	 * found to correlate with the contents of this model get added to this
-	 * model's list of bones.
+	 * In addition, any bones with significant amounts of motion that were not found to correlate with the contents of
+	 * this model get added to this model's list of bones.
 	 *
 	 * @param other
 	 */
@@ -1037,7 +989,6 @@ public class MDL implements Named {
 			MDLReader.mark(mdl);
 			boolean hadGeosets = false;
 			line = MDLReader.nextLine(mdl);
-			System.out.println("Geoset block starting with with \"" + line + "\".");
 			while ((line).contains("Geoset ")) {
 				hadGeosets = true;
 				MDLReader.reset(mdl);
@@ -1045,7 +996,6 @@ public class MDL implements Named {
 				MDLReader.mark(mdl);
 				line = MDLReader.nextLine(mdl);
 			}
-			System.out.println("Geoset blocks finished.");
 			// if( hadGeosets )
 			MDLReader.reset(mdl);
 			MDLReader.mark(mdl);
@@ -1056,11 +1006,9 @@ public class MDL implements Named {
 				mdlr.addGeosetAnim(GeosetAnim.read(mdl));
 				MDLReader.mark(mdl);
 			}
-			System.out.println("GeosetAnim blocks finished.");
 			// if( hadGeosetAnims )
 			MDLReader.reset(mdl);
 			line = MDLReader.nextLine(mdl);
-			System.out.println("IdObject starting with with \"" + line + "\".");
 			while ((line).length() > 1 && !line.equals("COMPLETED PARSING")) {
 				if (line.startsWith("Bone ")) {
 					MDLReader.reset(mdl);
@@ -1114,7 +1062,6 @@ public class MDL implements Named {
 				}
 				line = MDLReader.nextLine(mdl);
 			}
-			System.out.println("IdObject blocks finished with \"" + line + "\".");
 			mdlr.updateIdObjectReferences();
 			for (final Geoset geo : mdlr.geosets) {
 				geo.updateToObjects(mdlr);
@@ -1126,12 +1073,10 @@ public class MDL implements Named {
 				}
 			}
 			final List<AnimFlag> animFlags = mdlr.getAllAnimFlags();// laggggg!
-			System.out.println("AnimFlags:");
 			for (final AnimFlag af : animFlags) {
 				af.updateGlobalSeqRef(mdlr);
 				if (!af.getName().equals("Scaling") && !af.getName().equals("Translation")
 						&& !af.getName().equals("Rotation")) {
-					System.out.println(mdlr.getAnimFlagSource(af).getClass().getName() + ": " + af.getName());
 				}
 			}
 			final List<EventObject> evtObjs = mdlr.sortedIdObjects(EventObject.class);
@@ -1168,12 +1113,10 @@ public class MDL implements Named {
 			temp.updateTextureRef(textures);
 		}
 		final List<AnimFlag> animFlags = this.getAllAnimFlags();// laggggg!
-		System.out.println("AnimFlags:");
 		for (final AnimFlag af : animFlags) {
 			af.updateGlobalSeqRef(this);
 			if (!af.getName().equals("Scaling") && !af.getName().equals("Translation")
 					&& !af.getName().equals("Rotation")) {
-				System.out.println(this.getAnimFlagSource(af).getClass().getName() + ": " + af.getName());
 			}
 		}
 		final List<EventObject> evtObjs = sortedIdObjects(EventObject.class);
@@ -1186,7 +1129,6 @@ public class MDL implements Named {
 	}
 
 	public void saveFile() {
-		System.out.println("Save to:" + fileRef);
 		printTo(fileRef);
 	}
 
@@ -1405,7 +1347,6 @@ public class MDL implements Named {
 					|| obj.getClass() == CollisionShape.class)) {
 				writer.println("PivotPoints " + pivots.size() + " {");
 				for (int p = 0; p < pivots.size(); p++) {
-					System.out.println(pivots.get(p));
 					writer.println("\t" + pivots.get(p).toString() + ",");
 				}
 				writer.println("}");
@@ -1544,8 +1485,7 @@ public class MDL implements Named {
 			for (final Layer lay : m.layers) {
 				if (lay.texture != null && !textures.contains(lay.texture)
 						&& (lay.textures == null /*
-													 * || lay.textures.size() ==
-													 * 0
+													 * || lay.textures.size() == 0
 													 */)) {
 					boolean good = true;
 					for (final Bitmap btm : textures) {
@@ -2060,6 +2000,10 @@ public class MDL implements Named {
 									b2.geoset = null;
 									if (ga != null) {
 										b2.geosetAnim = ga.getMostVisible(b2.geosetAnim);
+										if (b2.geosetAnim != null) {
+											b2.geoset = b2.geosetAnim.geoset;
+											b2.multiGeoId = false;
+										}
 									}
 
 								}

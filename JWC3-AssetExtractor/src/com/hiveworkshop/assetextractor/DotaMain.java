@@ -23,7 +23,8 @@ public class DotaMain {
 			BLPHandler.get().dropCache();
 			final WarcraftData unitData = extractor.getUnitData();
 			for (final String key : unitData.keySet()) {
-				extractor.extractObject(key, Paths.get(args[1]), new AssetExtractorSettings(false, 3));
+				extractor.extractObject(key, Paths.get(args[1]),
+						new AssetExtractorSettings(false, AssetExtractorSettings.FLATTEN_BY_RETAIN_ALL_PATHS));
 			}
 			extractor.close();
 		} catch (final Throwable exc) {

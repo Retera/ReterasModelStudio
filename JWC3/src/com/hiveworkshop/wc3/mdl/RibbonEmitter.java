@@ -56,16 +56,13 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 			System.err.println("MDX -> MDL error: A ribbon emitter '" + emitter.node.name
 					+ "' not flagged as ribbon emitter in MDX!");
 		}
-		System.out.println(getName() + ": " + Integer.toBinaryString(emitter.node.flags));
 		// System.out.println(emitter.node.name + ": " +
 		// Integer.toBinaryString(emitter.node.flags));
 		// ----- Convert Base NODE to "IDOBJECT" -----
 		loadFrom(emitter.node);
 		// ----- End Base NODE to "IDOBJECT" -----
 
-		if (emitter.unknownNull != 0) {
-			System.err.println("Surprise! This model has a special emitter data point worthy of documenting! " + name);
-		}
+		setTextureSlot(emitter.textureSlot);
 		// System.out.println(attachment.node.name + ": " +
 		// Integer.toBinaryString(attachment.unknownNull));
 
@@ -83,7 +80,7 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 			setHeightBelow(emitter.heightBelow);
 		}
 		setAlpha(emitter.alpha);
-		setStaticColor(new Vertex(emitter.color));
+		setStaticColor(new Vertex(MdlxUtils.flipRGBtoBGR(emitter.color)));
 		setLifeSpan(emitter.lifeSpan);
 		setEmissionRate(emitter.emissionRate);
 		setRows(emitter.rows);

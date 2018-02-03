@@ -1,4 +1,4 @@
-package com.hiveworkshop.wc3.gui.modeledit;
+package com.matrixeater.src.viewer;
 
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_COLOR_MATERIAL;
@@ -20,7 +20,6 @@ import static org.lwjgl.opengl.GL11.glBegin;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11.glColor3f;
-import static org.lwjgl.opengl.GL11.glColor4f;
 import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glEnd;
 import static org.lwjgl.opengl.GL11.glLight;
@@ -57,6 +56,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.Timer;
+import javax.swing.ToolTipManager;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
@@ -78,7 +78,7 @@ import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
-public class PerspectiveViewport extends BetterAWTGLCanvas
+public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 		implements MouseListener, ActionListener, MouseWheelListener {
 	ModelView modelView;
 	Vertex cameraPos = new Vertex(0, 0, 0);
@@ -101,7 +101,10 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 	Class<? extends Throwable> lastThrownErrorClass;
 	private final ProgramPreferences programPreferences;
 
-	public PerspectiveViewport(final ModelView modelView, final ProgramPreferences programPreferences)
+	private int trackTime;
+	private boolean live;
+
+	public AnimatedPerspectiveViewport(final ModelView modelView, final ProgramPreferences programPreferences)
 			throws LWJGLException {
 		super();
 		this.programPreferences = programPreferences;
@@ -244,6 +247,14 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 				}
 			}
 		}
+	}
+
+	public void setTrackTime(final int trackTime) {
+		this.trackTime = trackTime;
+	}
+
+	public void setLive(final boolean live) {
+		this.live = live;
 	}
 
 	@Override
@@ -493,216 +504,60 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			// glColor3f(1f,1f,0f);
 			// glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE ) ;
 			// glEnable(GL_COLOR_MATERIAL);
-			glColor4f(0.5882352941176471f, 0.5882352941176471f, 1f, 0.3f);
-			// glPushMatrix();
-			// glTranslatef(getWidth() / 2.0f, getHeight() / 2.0f, 0.0f);
-			// glRotatef(2*angle, 0f, 0f, -1.0f);
-			// glRectf(-50.0f, -50.0f, 50.0f, 50.0f);
-			for (final Geoset geo : modelView.getVisibleGeosets()) {// .getMDL().getGeosets()
-				if (!modelView.getEditableGeosets().contains(geo) && modelView.getHighlightedGeoset() != geo) {
-					for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
-						final Layer layer = geo.getMaterial().getLayers().get(i);
-						final Bitmap tex = layer.firstTexture();
-						final Integer texture = textureMap.get(tex);
-
-						if (texture != null) {
-							// texture.bind();
-							GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-							if (renderTextures()) {
-								GL11.glEnable(GL11.GL_TEXTURE_2D);
-							}
-							GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
-							GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S,
-									tex.getWrapWidth() ? GL11.GL_REPEAT : GL11.GL_CLAMP);
-							GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T,
-									tex.getWrapHeight() ? GL11.GL_REPEAT : GL11.GL_CLAMP);
-						} else {
-							GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_COLOR);
-							GL11.glDisable(GL11.GL_TEXTURE_2D);
-						}
-						if (layer.getFilterModeString().equals("Additive")) {
-							// GL11.glDisable(GL11.GL_DEPTH_TEST);
-							GL11.glDepthMask(false);
-							GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
-						} else if (layer.getFilterModeString().equals("AddAlpha")) {
-							// GL11.glDisable(GL11.GL_DEPTH_TEST);
-							GL11.glDepthMask(false);
-							GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
-						} else {
-							// GL11.glEnable(GL11.GL_DEPTH_TEST);
-							GL11.glDepthMask(true);
-							GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-						}
-						glBegin(GL11.GL_TRIANGLES);
-						for (final Triangle tri : geo.getTriangles()) {
-							for (final GeosetVertex v : tri.getVerts()) {
-								if (v.getNormal() != null) {
-									GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z,
-											(float) v.getNormal().x);
-								}
-								GL11.glTexCoord2f(
-										(float) v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).x,
-										(float) v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).y);
-								GL11.glVertex3f((float) v.y / 1.0f, (float) v.z / 1.0f, (float) v.x / 1.0f);
-							}
-						}
-						// if( texture != null )
-						// {
-						// texture.release();
-						// }
-						glEnd();
-					}
-				}
-			}
 			glColor3f(2f, 2f, 2f);
-			for (final Geoset geo : modelView.getEditableGeosets()) {// .getMDL().getGeosets()
-				if (modelView.getHighlightedGeoset() != geo) {
-					for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
-						final Layer layer = geo.getMaterial().getLayers().get(i);
-						final Bitmap tex = layer.firstTexture();
-						final Integer texture = textureMap.get(tex);
-						if (texture != null) {
-							// texture.bind();
-							GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
-							GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S,
-									tex.getWrapWidth() ? GL11.GL_REPEAT : GL11.GL_CLAMP);
-							GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T,
-									tex.getWrapHeight() ? GL11.GL_REPEAT : GL11.GL_CLAMP);
-						}
-						if (layer.getFilterModeString().equals("Additive")) {
-							// GL11.glDisable(GL11.GL_DEPTH_TEST);
-							GL11.glDepthMask(false);
-							GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
-						} else if (layer.getFilterModeString().equals("AddAlpha")) {
-							// GL11.glDisable(GL11.GL_DEPTH_TEST);
-							GL11.glDepthMask(false);
-							GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
-						} else {
-							// GL11.glEnable(GL11.GL_DEPTH_TEST);
-							GL11.glDepthMask(true);
-							GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-						}
-						glBegin(GL11.GL_TRIANGLES);
-						for (final Triangle tri : geo.getTriangles()) {
-							for (final GeosetVertex v : tri.getVerts()) {
-								if (v.getNormal() != null) {
-									GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z,
-											(float) v.getNormal().x);
-								}
-								GL11.glTexCoord2f(
-										(float) v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).x,
-										(float) v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).y);
-								GL11.glVertex3f((float) v.y / 1.0f, (float) v.z / 1.0f, (float) v.x / 1.0f);
-							}
-						}
-						// if( texture != null )
-						// {
-						// texture.release();
-						// }
-						glEnd();
+			for (final Geoset geo : modelView.getModel().getGeosets()) {// .getMDL().getGeosets()
+				for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
+					final Layer layer = geo.getMaterial().getLayers().get(i);
+					final Bitmap tex = layer.firstTexture();
+					final Integer texture = textureMap.get(tex);
+					if (texture != null) {
+						// texture.bind();
+						GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
+						GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S,
+								tex.getWrapWidth() ? GL11.GL_REPEAT : GL11.GL_CLAMP);
+						GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T,
+								tex.getWrapHeight() ? GL11.GL_REPEAT : GL11.GL_CLAMP);
 					}
-				}
-			}
-			GL11.glDepthMask(true);
-			// System.out.println("max:
-			// "+GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE));
-			if (modelView.getHighlightedGeoset() != null) {
-				// for( int i = 0; i < dispMDL.highlight.material.layers.size();
-				// i++ )
-				// {
-				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-				// GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE,
-				// GL11.GL_COLOR);
-				GL11.glDisable(GL11.GL_TEXTURE_2D);
-				// Layer layer = dispMDL.highlight.material.layers.get(i);
-				// Bitmap tex = layer.firstTexture();
-				// Texture texture = textureMap.get(tex);
-				// if( texture != null )
-				// {
-				// texture.bind();
-				// //GL11.glBindTexture(GL11.GL_TEXTURE_2D,texture.getTextureID());
-				// }
-				// if( layer.getFilterMode().equals("Additive") )
-				// {
-				// //GL11.glDisable(GL11.GL_DEPTH_TEST);
-				// GL11.glDepthMask(false);
-				// GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
-				// }
-				// else if( layer.getFilterMode().equals("AddAlpha") )
-				// {
-				// //GL11.glDisable(GL11.GL_DEPTH_TEST);
-				// GL11.glDepthMask(false);
-				// GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
-				// }
-				// else
-				// {
-				// //GL11.glEnable(GL11.GL_DEPTH_TEST);
-				// GL11.glDepthMask(true);
-				// GL11.glBlendFunc(GL11.GL_SRC_ALPHA,
-				// GL11.GL_ONE_MINUS_SRC_ALPHA);
-				// }
-				glColor3f(1f, 3f, 1f);
-				glBegin(GL11.GL_TRIANGLES);
-				for (final Triangle tri : modelView.getHighlightedGeoset().getTriangles()) {
-					for (final GeosetVertex v : tri.getVerts()) {
-						if (v.getNormal() != null) {
-							GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z, (float) v.getNormal().x);
-						}
-						GL11.glTexCoord2f((float) v.getTverts().get(0).x, (float) v.getTverts().get(0).y);
-						GL11.glVertex3f((float) v.y / 1.0f, (float) v.z / 1.0f, (float) v.x / 1.0f);
+					if (layer.getFilterModeString().equals("Additive")) {
+						// GL11.glDisable(GL11.GL_DEPTH_TEST);
+						GL11.glDepthMask(false);
+						GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
+					} else if (layer.getFilterModeString().equals("AddAlpha")) {
+						// GL11.glDisable(GL11.GL_DEPTH_TEST);
+						GL11.glDepthMask(false);
+						GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+					} else {
+						// GL11.glEnable(GL11.GL_DEPTH_TEST);
+						GL11.glDepthMask(true);
+						GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 					}
-				}
-				glEnd();
-				// }
-			}
-
-			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
-			GL11.glDisable(GL11.GL_TEXTURE_2D);
-			if (programPreferences != null && programPreferences.showNormals()) {
-				glBegin(GL11.GL_LINES);
-				glColor3f(1f, 1f, 3f);
-				// if( wireframe.isSelected() )
-				for (final Geoset geo : modelView.getEditableGeosets()) {// .getMDL().getGeosets()
+					glBegin(GL11.GL_TRIANGLES);
 					for (final Triangle tri : geo.getTriangles()) {
 						for (final GeosetVertex v : tri.getVerts()) {
 							if (v.getNormal() != null) {
 								GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z,
 										(float) v.getNormal().x);
-								GL11.glVertex3f((float) v.y / 1.0f, (float) v.z / 1.0f, (float) v.x / 1.0f);
-
-								GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z,
-										(float) v.getNormal().x);
-								GL11.glVertex3f((float) v.y / 1.0f + (float) (v.getNormal().y * 6 / m_zoom),
-										(float) v.z / 1.0f + (float) (v.getNormal().z * 6 / m_zoom),
-										(float) v.x / 1.0f + (float) (v.getNormal().x * 6 / m_zoom));
 							}
+							GL11.glTexCoord2f(
+									(float) v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).x,
+									(float) v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).y);
+							GL11.glVertex3f((float) v.y / 1.0f, (float) v.z / 1.0f, (float) v.x / 1.0f);
 						}
 					}
+					// if( texture != null )
+					// {
+					// texture.release();
+					// }
+					glEnd();
 				}
-
-				// glPolygonMode( GL_FRONT, GL_POINTS );
-				// for (Geoset geo : dispMDL.visibleGeosets)
-				// {//.getMDL().getGeosets()
-				// if( !dispMDL.editableGeosets.contains(geo) &&
-				// dispMDL.highlight != geo )
-				// for (Triangle tri : geo.m_triangle) {
-				// for (GeosetVertex v : tri.m_verts) {
-				// if( dispMDL.selection.contains(v))
-				// glColor3f(1f, 0f, 0f);
-				// else
-				// glColor3f(0f, 0f, 0f);
-				// GL11.glNormal3f((float) v.normal.y, (float) v.normal.z,
-				// (float) v.normal.x);
-				// GL11.glVertex3f((float) v.y/1.0f, (float) v.z/1.0f, (float)
-				// v.x/1.0f);
-				// }
-				// }
-				// }
-
-				glEnd();
-				// GL11.glDisable(GL11.GL_BLEND);
 			}
+			GL11.glDepthMask(true);
+			// System.out.println("max:
+			// "+GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE));
+
+			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
+			GL11.glDisable(GL11.GL_TEXTURE_2D);
 
 			// glPopMatrix();
 			swapBuffers();
@@ -951,9 +806,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			// {
 			// actStart = null;
 
-			// JPopupMenu.setDefaultLightWeightPopupEnabled(false);
-			// ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
-			// contextMenu.show(this, e.getX(), e.getY());
+			JPopupMenu.setDefaultLightWeightPopupEnabled(false);
+			ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
+			contextMenu.show(this, e.getX(), e.getY());
 			// }
 		}
 	}

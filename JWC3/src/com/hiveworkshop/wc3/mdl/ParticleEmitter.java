@@ -48,7 +48,6 @@ public class ParticleEmitter extends IdObject implements VisibilitySource {
 			System.err.println("MDX -> MDL error: A particle emitter '" + emitter.node.name
 					+ "' not flagged as particle emitter in MDX!");
 		}
-		System.out.println(getName() + ": " + Integer.toBinaryString(emitter.node.flags));
 		// System.out.println(emitter.node.name + ": " +
 		// Integer.toBinaryString(emitter.node.flags));
 		// ----- Convert Base NODE to "IDOBJECT" -----

@@ -112,7 +112,6 @@ public class AnimFlag {
 	int typeid = 0;
 
 	public boolean equals(final AnimFlag o) {
-		System.out.println("AF compared, important to note!");
 		boolean does = o instanceof AnimFlag;
 		if (!does) {
 			return false;
@@ -286,10 +285,10 @@ public class AnimFlag {
 		// NOTE: autoreplaced from a > 0 check, Linear shouldn't have 'tans'???
 		for (final GeosetColor.ScalingTrack track : geosetColor.scalingTrack) {
 			if (tans) {
-				addEntry(track.time, new Vertex(MdlxUtils.flipRGBtoBGR(track.color)), new Vertex(track.inTan),
-						new Vertex(track.outTan));
+				addEntry(track.time, new Vertex(/* MdlxUtils.flipRGBtoBGR( */track.color/* ) */),
+						new Vertex(track.inTan), new Vertex(track.outTan));
 			} else {
-				addEntry(track.time, new Vertex(MdlxUtils.flipRGBtoBGR(track.color)));
+				addEntry(track.time, new Vertex(/* MdlxUtils.flipRGBtoBGR( */track.color/* ) */));
 			}
 		}
 	}
@@ -1524,7 +1523,7 @@ public class AnimFlag {
 								return null;
 							}
 						} else {
-							System.out.println("Equal entries spell success");
+							// System.out.println("Equal entries spell success");
 						}
 						// btimes.remove(currentTime);
 						// bvalues.remove(partVal);

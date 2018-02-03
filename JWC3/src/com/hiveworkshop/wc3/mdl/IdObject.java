@@ -182,11 +182,9 @@ public abstract class IdObject implements Named {
 		parentId = node.parentId;
 		objectId = node.objectId;
 		int shift = 0;
-		System.err.println(String.format("%32s", Integer.toBinaryString(node.flags)).replace(' ', '0'));
 		for (final IdObject.NodeFlags flag : IdObject.NodeFlags.values()) {
 			if (((node.flags >> shift) & 1) == 1) {
 				add(flag.getMdlText());
-				System.err.println("Flag match: " + flag.getMdlText());
 			}
 			shift++;
 		}

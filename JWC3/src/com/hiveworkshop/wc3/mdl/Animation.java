@@ -274,7 +274,6 @@ public class Animation {
 
 	public static Animation read(final BufferedReader mdl) {
 		final Animation anim = new Animation();
-		System.out.println("Beginning anim");
 		boolean limited = false;
 		String line = MDLReader.nextLine(mdl);
 		try {
@@ -318,13 +317,11 @@ public class Animation {
 				MDLReader.reset(mdl);
 				anim.extents = ExtLog.read(mdl);
 			} else {
-				System.out.println("Adding anim tag: " + line);
 				anim.tags.add(MDLReader.readFlag(line));
 			}
 			MDLReader.mark(mdl);
 			line = MDLReader.nextLine(mdl);
 		}
-		System.out.println("Anim completed");
 		return anim;
 	}
 

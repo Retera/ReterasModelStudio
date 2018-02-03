@@ -47,8 +47,7 @@ public class GeosetAnim implements VisibilitySource, Named {
 
 	/**
 	 * @param geosetId
-	 * @deprecated GeosetIds are regenerated on save, this is here for MDX
-	 *             converter
+	 * @deprecated GeosetIds are regenerated on save, this is here for MDX converter
 	 */
 	@Deprecated
 	public GeosetAnim(final int geosetId) {
@@ -100,7 +99,6 @@ public class GeosetAnim implements VisibilitySource, Named {
 				MDLReader.mark(mdl);
 			}
 			// MDLReader.reset(mdl);
-			System.out.println("GeosetAnim reading completed!");
 			return geo;
 		} else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),

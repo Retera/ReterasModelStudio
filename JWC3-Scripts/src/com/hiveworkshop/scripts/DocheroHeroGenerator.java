@@ -18,7 +18,7 @@ import com.hiveworkshop.wc3.units.objectdata.War3ObjectDataChangeset;
 import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
 
-public final class EntlordHeroGenerator2 {
+public final class DocheroHeroGenerator {
 	public static void main(final String[] args) {
 		final War3ObjectDataChangeset editorData = new War3ObjectDataChangeset('u');
 		final WarcraftData standardUnitData = StandardObjectData.getStandardUnits();
@@ -32,10 +32,10 @@ public final class EntlordHeroGenerator2 {
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}
-		final MutableGameObject reterasNewHero = unitData.get(War3ID.fromString("Nngs"));
+		final MutableGameObject reterasNewHero = unitData.get(War3ID.fromString("N000"));
 		System.out.println(reterasNewHero.getFieldAsString(War3ID.fromString("umdl"), 0));
 
-		final MutableGameObject ancientOfWar = unitData.get(War3ID.fromString("etrp"));
+		final MutableGameObject ancientOfWar = unitData.get(War3ID.fromString("edoc"));
 		for (final String key : standardUnitMetaData.keySet()) {
 			final Element metaDataField = standardUnitMetaData.get(key);
 			if (metaDataField.getField("useHero").equals("1") || metaDataField.getField("useUnit").equals("1")

@@ -260,7 +260,9 @@ public class LightChunk {
 						}
 					}
 				} else {
-					System.err.println("discarded flag " + af.getName());
+					if (Node.LOG_DISCARDED_FLAGS) {
+						System.err.println("discarded flag " + af.getName());
+					}
 				}
 			}
 			// other components of light, copied regardless currently (if this

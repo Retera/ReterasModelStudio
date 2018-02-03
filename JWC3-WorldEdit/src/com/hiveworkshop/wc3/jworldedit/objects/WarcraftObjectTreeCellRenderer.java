@@ -52,11 +52,11 @@ public class WarcraftObjectTreeCellRenderer extends DefaultTreeCellRenderer impl
 			// setText(displayName);
 			// setPreferredSize(getUI().getPreferredSize(this));
 			try {
-				BufferedImage img;
+				BufferedImage img = null;
 				try {
 					img = IconUtils.getIcon(unit, worldEditorDataType);
 				} catch (final Exception e) {
-					img = BLPHandler.get().getGameTex("Textures\\BTNTemp.blp");
+					// img = BLPHandler.get().getGameTex("Textures\\BTNTemp.blp");
 				}
 				if (img == null) {
 					img = IconUtils.worldEditStyleIcon(
