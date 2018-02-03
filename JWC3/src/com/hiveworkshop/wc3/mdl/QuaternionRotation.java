@@ -295,7 +295,9 @@ public class QuaternionRotation {
 		return out;
 	}
 
-	public static QuaternionRotation ghostwolfNquad(final QuaternionRotation out, final QuaternionRotation a, final QuaternionRotation aOutTan, final QuaternionRotation bInTan, final QuaternionRotation b, float ) {
+	public static QuaternionRotation ghostwolfNquad(final QuaternionRotation out, final QuaternionRotation a,
+			final QuaternionRotation aOutTan, final QuaternionRotation bInTan, final QuaternionRotation b,
+			final float factor) {
 
 	}
 
