@@ -295,10 +295,66 @@ public class QuaternionRotation {
 		return out;
 	}
 
+	public static QuaternionRotation slerp(final QuaternionRotation out, final QuaternionRotation startingValue,
+			final QuaternionRotation endingValue, final float interpolationFactor) {
+		final double ax = startingValue.a, ay = startingValue.b, az = startingValue.c, aw = startingValue.d;
+		double bx = startingValue.a, by = startingValue.b, bz = startingValue.c, bw = startingValue.d;
+		final double omega;
+		double cosom;
+		final double sinom, scale0, scale1;
+		// calc cosine
+		cosom = ax * bx + ay * by + az * bz + aw * bw;
+		// adjust signs (if necessary)
+		if (cosom < 0) {
+			cosom = -cosom;
+			bx = -bx;
+			by = -by;
+			bz = -bz;
+			bw = -bw;
+		}
+		// calculate coefficients
+		if ((1.0 - cosom) > 0.000001) {
+			// standard case (slerp)
+			omega = Math.acos(cosom);
+			sinom = Math.sin(omega);
+			scale0 = Math.sin((1.0 - interpolationFactor) * omega) / sinom;
+			scale1 = Math.sin(interpolationFactor * omega) / sinom;
+		} else {
+			// "from" and "to" quaternions are very close
+			// ... so we can do a linear interpolation
+			scale0 = 1.0 - interpolationFactor;
+			scale1 = interpolationFactor;
+		}
+
+		out.a = scale0 * ax + scale1 * bx;
+		out.b = scale0 * ay + scale1 * by;
+		out.c = scale0 * az + scale1 * bz;
+		out.d = scale0 * aw + scale1 * bw;
+
+		// Super slow and generally not needed.
+		// quat.normalize(out, out);
+		return out;
+	}
+
+	private static QuaternionRotation temp1 = new QuaternionRotation(0, 0, 0, 0);
+	private static QuaternionRotation temp2 = new QuaternionRotation(0, 0, 0, 0);
+
 	public static QuaternionRotation ghostwolfNquad(final QuaternionRotation out, final QuaternionRotation a,
 			final QuaternionRotation aOutTan, final QuaternionRotation bInTan, final QuaternionRotation b,
-			final float factor) {
+			final float t) {
+		ghostwolfNlerp(temp1, a, b, t);
+		ghostwolfNlerp(temp2, aOutTan, bInTan, t);
+		ghostwolfNlerp(out, temp1, temp2, 2 * t * (1 - t));
+		return out;
+	}
 
+	public static QuaternionRotation ghostwolfSquad(final QuaternionRotation out, final QuaternionRotation a,
+			final QuaternionRotation aOutTan, final QuaternionRotation bInTan, final QuaternionRotation b,
+			final float t) {
+		slerp(temp1, a, b, t);
+		slerp(temp2, aOutTan, bInTan, t);
+		slerp(out, temp1, temp2, 2 * t * (1 - t));
+		return out;
 	}
 
 	@Override

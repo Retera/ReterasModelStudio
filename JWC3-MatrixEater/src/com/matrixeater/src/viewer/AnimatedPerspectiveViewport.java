@@ -52,7 +52,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.JCheckBox;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.Timer;
@@ -89,8 +88,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 	Timer clickTimer = new Timer(16, this);
 	boolean mouseInBounds = false;
 	JPopupMenu contextMenu;
-	JMenuItem reAssignMatrix;
-	JMenuItem cogBone;
 	boolean enabled = false;
 
 	boolean texLoaded = false;
@@ -123,14 +120,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 		this.modelView = modelView;
 		addMouseListener(this);
 		addMouseWheelListener(this);
-
-		contextMenu = new JPopupMenu();
-		reAssignMatrix = new JMenuItem("Re-assign Matrix");
-		reAssignMatrix.addActionListener(this);
-		contextMenu.add(reAssignMatrix);
-		cogBone = new JMenuItem("Auto-Center Bone(s)");
-		cogBone.addActionListener(this);
-		contextMenu.add(cogBone);
 	}
 
 	public void setWireframeHandler(final JCheckBox nwireframe) {
@@ -724,21 +713,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 				actStart = actEnd;
 			}
 			repaint();
-		} else if (e.getSource() == reAssignMatrix) {
-			// MatrixPopup matrixPopup = new MatrixPopup(dispMDL.getMDL());
-			// String[] words = { "Accept", "Cancel" };
-			// int i = JOptionPane.showOptionDialog(MainFrame.panel,
-			// matrixPopup,
-			// "Rebuild Matrix", JOptionPane.PLAIN_MESSAGE,
-			// JOptionPane.YES_NO_OPTION, null, words, words[1]);
-			// if (i == 0) {
-			// // JOptionPane.showMessageDialog(null,"action approved");
-			// dispMDL.setMatrix(matrixPopup.newRefs);
-			// }
-		} else if (e.getSource() == cogBone) {
-			// modelView.cogBones();
-			JOptionPane.showMessageDialog(this,
-					"Please use other viewport, this action is not implemented for this viewport.");
 		}
 	}
 

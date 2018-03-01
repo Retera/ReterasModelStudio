@@ -1,5 +1,8 @@
 package com.hiveworkshop.wc3.jworldedit.objects;
 
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -30,6 +33,17 @@ public final class UnitEditorTree extends JTree {
 		setCellRenderer(new WarcraftObjectTreeCellRenderer(settings, dataType));
 		setRootVisible(false);
 		setScrollsOnExpand(true);
+		addFocusListener(new FocusListener() {
+			@Override
+			public void focusLost(final FocusEvent e) {
+				repaint();
+			}
+
+			@Override
+			public void focusGained(final FocusEvent e) {
+				repaint();
+			}
+		});
 	}
 
 	public TopLevelCategoryFolder getRoot() {

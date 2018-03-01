@@ -36,10 +36,11 @@ import com.hiveworkshop.wc3.mdx.RibbonEmitterVisibility;
 import com.hiveworkshop.wc3.mdx.TextureRotation;
 import com.hiveworkshop.wc3.mdx.TextureScaling;
 import com.hiveworkshop.wc3.mdx.TextureTranslation;
+import com.hiveworkshop.wc3.util.MathUtils;
 
 /**
- * A java class for MDL "motion flags," such as Alpha, Translation, Scaling, or Rotation AnimFlags are not "real" things
- * from an MDL and are given this name by me, as an invented java class to simplify the programming
+ * A java class for MDL "motion flags," such as Alpha, Translation, Scaling, or Rotation. AnimFlags are not "real"
+ * things from an MDL and are given this name by me, as an invented java class to simplify the programming
  *
  * Eric Theller 11/5/2011
  */
@@ -75,6 +76,20 @@ public class AnimFlag {
 			}
 		}
 		return 0;
+	}
+
+	public InterpolationType getInterpTypeAsEnum() {
+		switch (getInterpType()) {
+		case 0:
+			return InterpolationType.DONT_INTERP;
+		case 1:
+			return InterpolationType.LINEAR;
+		case 2:
+			return InterpolationType.HERMITE;
+		case 3:
+			return InterpolationType.BEZIER;
+		}
+		throw new IllegalStateException();
 	}
 	// 0: none
 	// 1: linear
@@ -1802,5 +1817,230 @@ public class AnimFlag {
 
 	public ArrayList getOutTans() {
 		return outTans;
+	}
+
+	public int ceilIndex(final int time) {
+		final int ceilIndex = ceilIndex(time, 0, times.size() - 1);
+		if (ceilIndex == -1) {
+			return times.size() - 1;
+		}
+		return ceilIndex;
+	}
+
+	/*
+	 * Rather than spending time visualizing corner cases for these, I borrowed logic from:
+	 * https://www.geeksforgeeks.org/ceiling-in-a-sorted-array/
+	 */
+	private int ceilIndex(final int time, final int lo, final int hi) {
+		if (time <= times.get(lo)) {
+			return lo;
+		}
+		if (time > times.get(hi)) {
+			return -1;
+		}
+		final int mid = (lo + hi) / 2;
+		final Integer midTime = times.get(mid);
+		if (midTime == time) {
+			return mid;
+		} else if (midTime < time) {
+			if (mid + 1 <= hi && time <= times.get(mid + 1)) {
+				return mid + 1;
+			} else {
+				return ceilIndex(time, mid + 1, hi);
+			}
+		} else {
+			if (mid - 1 >= lo && time > times.get(mid - 1)) {
+				return mid;
+			} else {
+				return ceilIndex(time, lo, mid - 1);
+			}
+		}
+	}
+
+	public int floorIndex(final int time) {
+		final int floorIndex = floorIndex(time, 0, times.size() - 1);
+		if (floorIndex == -1) {
+			return 0;
+		}
+		return floorIndex;
+	}
+
+	/*
+	 * Rather than spending time visualizing corner cases for these, I borrowed logic from:
+	 * https://www.geeksforgeeks.org/floor-in-a-sorted-array/
+	 */
+	private int floorIndex(final int time, final int lo, final int hi) {
+		if (lo > hi) {
+			return -1;
+		}
+		if (time >= times.get(hi)) {
+			return hi;
+		}
+		final int mid = (lo + hi) / 2;
+		final Integer midTime = times.get(mid);
+		if (times.get(mid) == time) {
+			return mid;
+		}
+		if (mid > 0 && times.get(mid - 1) <= time && time < midTime) {
+			return mid - 1;
+		}
+		if (time > midTime) {
+			return floorIndex(time, mid + 1, hi);
+		} else {
+			return floorIndex(time, lo, mid - 1);
+		}
+	}
+
+	/**
+	 * Interpolates at a given time. The lack of generics on this function is abysmal, but currently this is how the
+	 * codebase is.
+	 *
+	 * @param time
+	 * @param animation
+	 * @return
+	 */
+	public Object interpolateAt(final int time, final Animation animation) {
+		if (times.isEmpty()) {
+			return null;
+		}
+		final int floorIndex = floorIndex(time);
+		final int ceilIndex = ceilIndex(time);
+		if (floorIndex == ceilIndex) {
+			return values.get(floorIndex);
+		}
+		if (time < animation.getEnd() && times.get(ceilIndex) > animation.getEnd()) {
+			return values.get(floorIndex);
+		}
+		switch (typeid) {
+		case ALPHA | OTHER_TYPE: {
+			// Double
+			final Double previous = (Double) values.get(floorIndex);
+			final Double next = (Double) values.get(ceilIndex);
+			switch (getInterpTypeAsEnum()) {
+			case BEZIER: {
+				final Double previousOutTan = (Double) outTans.get(floorIndex);
+				final Double nextInTan = (Double) inTans.get(ceilIndex);
+				final Integer floorTime = times.get(floorIndex);
+				final Integer ceilTime = times.get(ceilIndex);
+				final double bezier = MathUtils.bezier(previous, previousOutTan, nextInTan, next,
+						(float) (time - floorTime) / (float) (ceilTime - floorTime));
+				return bezier;
+			}
+			case DONT_INTERP:
+				return values.get(floorIndex);
+			case HERMITE: {
+				final Double previousOutTan = (Double) outTans.get(floorIndex);
+				final Double nextInTan = (Double) inTans.get(ceilIndex);
+				final Integer floorTime = times.get(floorIndex);
+				final Integer ceilTime = times.get(ceilIndex);
+				final double hermite = MathUtils.hermite(previous, previousOutTan, nextInTan, next,
+						(float) (time - floorTime) / (float) (ceilTime - floorTime));
+				return hermite;
+			}
+			case LINEAR:
+				final Integer floorTime = times.get(floorIndex);
+				final Integer ceilTime = times.get(ceilIndex);
+				final double lerp = MathUtils.lerp(previous, next,
+						(float) (time - floorTime) / (float) (ceilTime - floorTime));
+				return lerp;
+			default:
+				throw new IllegalStateException();
+			}
+		}
+		case TRANSLATION:
+		case SCALING:
+		case COLOR: {
+			// Vertex
+			final Vertex previous = (Vertex) values.get(floorIndex);
+			final Vertex next = (Vertex) values.get(ceilIndex);
+			switch (getInterpTypeAsEnum()) {
+			case BEZIER: {
+				final Vertex previousOutTan = (Vertex) outTans.get(floorIndex);
+				final Vertex nextInTan = (Vertex) inTans.get(ceilIndex);
+				final Integer floorTime = times.get(floorIndex);
+				final Integer ceilTime = times.get(ceilIndex);
+				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
+				final Vertex bezier = new Vertex(
+						MathUtils.bezier(previous.x, previousOutTan.x, nextInTan.x, next.x, timeFactor),
+						MathUtils.bezier(previous.y, previousOutTan.y, nextInTan.y, next.y, timeFactor),
+						MathUtils.bezier(previous.z, previousOutTan.z, nextInTan.z, next.z, timeFactor));
+				return bezier;
+			}
+			case DONT_INTERP:
+				return values.get(floorIndex);
+			case HERMITE: {
+				final Vertex previousOutTan = (Vertex) outTans.get(floorIndex);
+				final Vertex nextInTan = (Vertex) inTans.get(ceilIndex);
+				final Integer floorTime = times.get(floorIndex);
+				final Integer ceilTime = times.get(ceilIndex);
+				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
+				final Vertex hermite = new Vertex(
+						MathUtils.hermite(previous.x, previousOutTan.x, nextInTan.x, next.x, timeFactor),
+						MathUtils.hermite(previous.y, previousOutTan.y, nextInTan.y, next.y, timeFactor),
+						MathUtils.hermite(previous.z, previousOutTan.z, nextInTan.z, next.z, timeFactor));
+				return hermite;
+			}
+			case LINEAR:
+				final Integer floorTime = times.get(floorIndex);
+				final Integer ceilTime = times.get(ceilIndex);
+				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
+				final Vertex lerp = new Vertex(MathUtils.lerp(previous.x, next.x, timeFactor),
+						MathUtils.lerp(previous.y, next.y, timeFactor), MathUtils.lerp(previous.z, next.z, timeFactor));
+				return lerp;
+			default:
+				throw new IllegalStateException();
+			}
+		}
+		case ROTATION: {
+			// Quat
+			final QuaternionRotation previous = (QuaternionRotation) values.get(floorIndex);
+			final QuaternionRotation next = (QuaternionRotation) values.get(ceilIndex);
+			switch (getInterpTypeAsEnum()) {
+			case BEZIER: {
+				final QuaternionRotation previousOutTan = (QuaternionRotation) outTans.get(floorIndex);
+				final QuaternionRotation nextInTan = (QuaternionRotation) inTans.get(ceilIndex);
+				final Integer floorTime = times.get(floorIndex);
+				final Integer ceilTime = times.get(ceilIndex);
+				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
+				final QuaternionRotation result = new QuaternionRotation(0, 0, 0, 0);
+				return QuaternionRotation.ghostwolfSquad(result, previous, previousOutTan, nextInTan, next, timeFactor);
+			}
+			case DONT_INTERP:
+				return values.get(floorIndex);
+			case HERMITE: {
+				final QuaternionRotation previousOutTan = (QuaternionRotation) outTans.get(floorIndex);
+				final QuaternionRotation nextInTan = (QuaternionRotation) inTans.get(ceilIndex);
+				final Integer floorTime = times.get(floorIndex);
+				final Integer ceilTime = times.get(ceilIndex);
+				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
+				final QuaternionRotation result = new QuaternionRotation(0, 0, 0, 0);
+				return QuaternionRotation.ghostwolfSquad(result, previous, previousOutTan, nextInTan, next, timeFactor);
+			}
+			case LINEAR:
+				final Integer floorTime = times.get(floorIndex);
+				final Integer ceilTime = times.get(ceilIndex);
+				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
+				final QuaternionRotation result = new QuaternionRotation(0, 0, 0, 0);
+				return QuaternionRotation.slerp(result, previous, next, timeFactor);
+			default:
+				throw new IllegalStateException();
+			}
+		}
+		case TEXTUREID:
+		// Integer
+		{
+			final Integer previous = (Integer) values.get(floorIndex);
+			switch (getInterpTypeAsEnum()) {
+			case DONT_INTERP:
+			case BEZIER: // dont use bezier on these, does that even make any sense?
+			case HERMITE: // dont use hermite on these, does that even make any sense?
+			case LINEAR: // dont use linear on these, does that even make any sense?
+				return previous;
+			default:
+				throw new IllegalStateException();
+			}
+		}
+		}
+		throw new IllegalStateException();
 	}
 }

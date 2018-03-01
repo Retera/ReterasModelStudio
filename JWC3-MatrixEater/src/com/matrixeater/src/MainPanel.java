@@ -1,5 +1,6 @@
 package com.matrixeater.src;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -30,8 +31,10 @@ import java.util.NoSuchElementException;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -70,6 +73,8 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.rtf.RTFEditorKit;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
@@ -105,6 +110,9 @@ import com.hiveworkshop.wc3.gui.modeledit.viewport.IconUtils;
 import com.hiveworkshop.wc3.gui.mpqbrowser.BLPPanel;
 import com.hiveworkshop.wc3.gui.mpqbrowser.MPQBrowser;
 import com.hiveworkshop.wc3.jworldedit.models.UnitEditorModelSelector;
+import com.hiveworkshop.wc3.jworldedit.objects.UnitEditorSettings;
+import com.hiveworkshop.wc3.jworldedit.objects.UnitEditorTree;
+import com.hiveworkshop.wc3.jworldedit.objects.UnitTabTreeBrowserBuilder;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Bone;
@@ -132,10 +140,17 @@ import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.units.GameObject;
 import com.hiveworkshop.wc3.units.ModelOptionPane;
 import com.hiveworkshop.wc3.units.ModelOptionPane.ModelElement;
+import com.hiveworkshop.wc3.units.StandardObjectData;
 import com.hiveworkshop.wc3.units.UnitOptionPane;
+import com.hiveworkshop.wc3.units.objectdata.MutableObjectData;
+import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.MutableGameObject;
+import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.WorldEditorDataType;
+import com.hiveworkshop.wc3.units.objectdata.War3ID;
+import com.hiveworkshop.wc3.units.objectdata.War3ObjectDataChangeset;
 import com.hiveworkshop.wc3.user.DirectorySelector;
 import com.hiveworkshop.wc3.user.SaveProfile;
 import com.hiveworkshop.wc3.util.Callback;
+import com.hiveworkshop.wc3.util.ModelUtils;
 import com.matrixeater.imp.ImportPanelSimple;
 import com.matrixeater.src.viewer.AnimationViewer;
 import com.owens.oobjloader.builder.Build;
@@ -175,8 +190,8 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 			newDirectory, creditsButton, clearRecent, nullmodelButton, selectAll, invertSelect, expandSelection,
 			snapNormals, flipAllUVsU, flipAllUVsV, inverseAllUVs, mirrorX, mirrorY, mirrorZ, insideOut,
 			insideOutNormals, showMatrices, editUVs, exportTextures, scaleAnimations, animationViewer, mpqViewer,
-			preferencesWindow, linearizeAnimations, simplifyKeyframes, duplicateSelection, riseFallBirth, animFromFile,
-			animFromUnit, animFromModel, animFromObject, teamColor, teamGlow;
+			hiveViewer, unitViewer, preferencesWindow, linearizeAnimations, simplifyKeyframes, duplicateSelection,
+			riseFallBirth, animFromFile, animFromUnit, animFromModel, animFromObject, teamColor, teamGlow;
 	JMenuItem cut, copy, paste;
 	List<RecentItem> recentItems = new ArrayList<>();
 	UndoMenuItem undo;
@@ -192,6 +207,8 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 	File currentFile;
 	ImportPanel importPanel;
 	static final ImageIcon MDLIcon = new ImageIcon(MainPanel.class.getResource("ImageBin/MDLIcon_16.png"));
+	static final ImageIcon HIVE_CONCEPT_LOGO = new ImageIcon(
+			MainPanel.class.getResource("ImageBin/HiveLogoConcept.png"));
 	public static final ImageIcon AnimIcon = new ImageIcon(MainPanel.class.getResource("ImageBin/Anim.png"));
 	boolean loading;
 	RootWindow modelTabWindow;
@@ -542,13 +559,20 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 		public void actionPerformed(final ActionEvent e) {
 			final AnimationViewer animationViewer = new AnimationViewer(currentModelPanel().getModelViewManager(),
 					prefs);
-			final JFrame frame = new JFrame("Animation Viewer: " + currentMDL().getName());
-			frame.setIconImage(MainFrame.frame.getIconImage());
-			frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-			frame.setContentPane(animationViewer);
-			frame.pack();
-			frame.setLocationRelativeTo(MainPanel.this);
-			frame.setVisible(true);
+			// final JFrame frame = new JFrame("Animation Viewer: " + currentMDL().getName());
+			// frame.setIconImage(MainFrame.frame.getIconImage());
+			// frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			// frame.setContentPane(animationViewer);
+			// frame.pack();
+			// frame.setLocationRelativeTo(MainPanel.this);
+			// frame.setVisible(true);
+
+			final FloatingWindow createFloatingWindow = rootWindow.createFloatingWindow(rootWindow.getLocation(),
+					new Dimension(640, 480),
+					new View("MPQ Browser",
+							new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
+							animationViewer));
+			createFloatingWindow.getTopLevelAncestor().setVisible(true);
 		}
 	};
 	AbstractAction openPreferencesAction = new AbstractAction("Open Preferences") {
@@ -607,6 +631,101 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 					new View("MPQ Browser",
 							new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
 							mpqBrowser)));
+		}
+	};
+	AbstractAction openUnitViewerAction = new AbstractAction("Open Unit Browser") {
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			final UnitEditorTree unitEditorTree = new UnitEditorTree(
+					new MutableObjectData(WorldEditorDataType.UNITS, StandardObjectData.getStandardUnits(),
+							StandardObjectData.getStandardUnitMeta(), new War3ObjectDataChangeset()),
+					new UnitTabTreeBrowserBuilder(), new UnitEditorSettings(), WorldEditorDataType.UNITS);
+			// final FloatingWindow floatingWindow = rootWindow.createFloatingWindow(rootWindow.getLocation(),
+			// mpqBrowser.getPreferredSize(),
+			// new View("MPQ Browser",
+			// new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
+			// mpqBrowser));
+			// floatingWindow.getTopLevelAncestor().setVisible(true);
+			unitEditorTree.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(final MouseEvent e) {
+					if (e.getClickCount() >= 2) {
+						final TreePath currentUnitTreePath = unitEditorTree.getSelectionPath();
+						if (currentUnitTreePath != null) {
+							final DefaultMutableTreeNode o = (DefaultMutableTreeNode) currentUnitTreePath
+									.getLastPathComponent();
+							if (o.getUserObject() instanceof MutableGameObject) {
+								final MutableGameObject obj = (MutableGameObject) o.getUserObject();
+								final String path = convertPathToMDX(
+										obj.getFieldAsString(War3ID.fromString("umdl"), 0));
+								final String portrait = ModelUtils.getPortrait(path);
+								final ImageIcon icon = new ImageIcon(
+										com.hiveworkshop.wc3.util.IconUtils.getIcon(obj, WorldEditorDataType.UNITS)
+												.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
+								loadFile(MpqCodebase.get().getFile(path), true, true, icon);
+								if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
+									loadFile(MpqCodebase.get().getFile(portrait), true, false, icon);
+								}
+								toolsMenu.getAccessibleContext().setAccessibleDescription(
+										"Allows the user to control which parts of the model are displayed for editing.");
+								toolsMenu.setEnabled(true);
+							}
+						}
+					}
+				}
+			});
+			rootWindow.setWindow(new SplitWindow(true, 0.75f, rootWindow.getWindow(),
+					new View("Unit Browser",
+							new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
+							new JScrollPane(unitEditorTree))));
+		}
+	};
+	AbstractAction openHiveViewerAction = new AbstractAction("Open Hive Browser") {
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			final JPanel panel = new JPanel();
+			panel.setLayout(new BorderLayout());
+			panel.add(BorderLayout.BEFORE_FIRST_LINE, new JLabel(HIVE_CONCEPT_LOGO));
+			// final JPanel resourceFilters = new JPanel();
+			// resourceFilters.setBorder(BorderFactory.createTitledBorder("Resource Filters"));
+			// panel.add(BorderLayout.BEFORE_LINE_BEGINS, resourceFilters);
+			// resourceFilters.add(new JLabel("Resource Type"));
+			// resourceFilters.add(new JComboBox<>(new String[] { "Any" }));
+			final JList<String> view = new JList<>(
+					new String[] { "Bongo Bongo (Phantom Shadow Beast)", "Other Model", "Other Model" });
+			view.setCellRenderer(new DefaultListCellRenderer() {
+				@Override
+				public Component getListCellRendererComponent(final javax.swing.JList<?> list, final Object value,
+						final int index, final boolean isSelected, final boolean cellHasFocus) {
+					final Component listCellRendererComponent = super.getListCellRendererComponent(list, value, index,
+							isSelected, cellHasFocus);
+					final ImageIcon icon = new ImageIcon(MainPanel.class.getResource("ImageBin/deleteme.png"));
+					setIcon(new ImageIcon(icon.getImage().getScaledInstance(48, 32, Image.SCALE_DEFAULT)));
+					return listCellRendererComponent;
+				}
+			});
+			panel.add(BorderLayout.BEFORE_LINE_BEGINS, new JScrollPane(view));
+
+			final JPanel tags = new JPanel();
+			tags.setBorder(BorderFactory.createTitledBorder("Tags"));
+			tags.setLayout(new GridLayout(30, 1));
+			tags.add(new JCheckBox("Results must include all selected tags"));
+			tags.add(new JSeparator());
+			tags.add(new JLabel("Types (Models)"));
+			tags.add(new JSeparator());
+			tags.add(new JCheckBox("Building"));
+			tags.add(new JCheckBox("Doodad"));
+			tags.add(new JCheckBox("Item"));
+			tags.add(new JCheckBox("User Interface"));
+			panel.add(BorderLayout.CENTER, tags);
+			// final FloatingWindow floatingWindow = rootWindow.createFloatingWindow(rootWindow.getLocation(),
+			// mpqBrowser.getPreferredSize(),
+			// new View("MPQ Browser",
+			// new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
+			// mpqBrowser));
+			// floatingWindow.getTopLevelAncestor().setVisible(true);
+			rootWindow.setWindow(new SplitWindow(true, 0.75f, rootWindow.getWindow(), new View("Hive Browser",
+					new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)), panel)));
 		}
 	};
 	private ToolbarButtonGroup<SelectionItemTypes> selectionItemTypeGroup;
@@ -1056,6 +1175,16 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 		mpqViewer.setMnemonic(KeyEvent.VK_A);
 		mpqViewer.addActionListener(openMPQViewerAction);
 		windowMenu.add(mpqViewer);
+
+		unitViewer = new JMenuItem("Unit Browser");
+		unitViewer.setMnemonic(KeyEvent.VK_U);
+		unitViewer.addActionListener(openUnitViewerAction);
+		windowMenu.add(unitViewer);
+
+		hiveViewer = new JMenuItem("Hive Browser");
+		hiveViewer.setMnemonic(KeyEvent.VK_H);
+		hiveViewer.addActionListener(openHiveViewerAction);
+		windowMenu.add(hiveViewer);
 
 		animationViewer = new JMenuItem("Animation Viewer");
 		animationViewer.setMnemonic(KeyEvent.VK_A);
@@ -2970,6 +3099,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 		}
 		final View view = temp.getView();
 		addTabForView(view, selectNewTab);
+		modelPanels.add(temp);
 
 		// tabbedPane.addTab(f.getName().split("\\.")[0], icon, temp, f.getPath());
 		// if (selectNewTab) {

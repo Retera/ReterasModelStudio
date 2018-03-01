@@ -28,4 +28,17 @@ public class MathUtils {
 		final double factor4 = factorTimes2 * (3 - 2 * t);
 		return (a * factor1) + (aOutTan * factor2) + (bInTan * factor3) + (b * factor4);
 	}
+
+	public static double bezier(final double a, final double aOutTan, final double bInTan, final double b,
+			final double t) {
+		final double invt = 1 - t;
+		final double factorSquared = t * t;
+		final double inverseFactorSquared = invt * invt;
+		final double factor1 = inverseFactorSquared * invt;
+		final double factor2 = 3 * t * inverseFactorSquared;
+		final double factor3 = 3 * factorSquared * invt;
+		final double factor4 = factorSquared * t;
+
+		return (a * factor1) + (aOutTan * factor2) + (bInTan * factor3) + (b * factor4);
+	}
 }

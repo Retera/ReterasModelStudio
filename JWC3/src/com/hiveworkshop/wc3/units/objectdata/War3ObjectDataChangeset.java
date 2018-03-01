@@ -481,6 +481,7 @@ public final class War3ObjectDataChangeset {
 				existingObject.setNewId(readWar3ID(stream));
 			} else {
 				newid = readWar3ID(stream);
+				System.out.println("Reading: " + newid + ":" + origid);
 				if (noid.equals(origid) || noid.equals(newid)) {
 					throw new IOException("the input stream might be screwed");
 				}
@@ -664,6 +665,7 @@ public final class War3ObjectDataChangeset {
 				totalSize += changeEntry.getValue().size();
 			}
 			if (totalSize > 0 || !isOriginal) {
+				System.out.println("Writing: " + cl.getOldId());
 				outputStream.writeChars(cl.getOldId().asStringValue().toCharArray());
 				outputStream.writeChars(cl.getNewId().asStringValue().toCharArray());
 				count = totalSize;// cl.getChanges().size();

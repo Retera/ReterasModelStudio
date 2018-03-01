@@ -161,17 +161,6 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 				table.repaint();
 			}
 		});
-		tree.addFocusListener(new FocusListener() {
-			@Override
-			public void focusLost(final FocusEvent e) {
-				tree.repaint();
-			}
-
-			@Override
-			public void focusGained(final FocusEvent e) {
-				tree.repaint();
-			}
-		});
 		table.getTableHeader().setReorderingAllowed(false);
 		table.setDefaultRenderer(Object.class, editHighlightingRenderer);
 		table.setDefaultRenderer(String.class, editHighlightingRenderer);
