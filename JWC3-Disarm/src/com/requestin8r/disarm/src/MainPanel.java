@@ -26,8 +26,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JSpinner;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.BadLocationException;
@@ -35,10 +37,13 @@ import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.rtf.RTFEditorKit;
 
 import com.hiveworkshop.wc3.gui.modeledit.BoneShell;
+import com.hiveworkshop.wc3.gui.modeledit.ModelScale;
 import com.hiveworkshop.wc3.gui.modeledit.PerspDisplayPanel;
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Attachment;
 import com.hiveworkshop.wc3.mdl.Bone;
+import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
@@ -58,8 +63,46 @@ import com.requestin8r.src.IconGet;
 import com.requestin8r.src.Project;
 
 public class MainPanel extends JPanel implements ActionListener {
+	private final class DoNothingModelChangeListener implements ModelStructureChangeListener {
+		@Override
+		public void nodesRemoved(final List<IdObject> nodes) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void nodesAdded(final List<IdObject> nodes) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void geosetsRemoved(final List<Geoset> geosets) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void geosetsAdded(final List<Geoset> geosets) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void camerasRemoved(final List<Camera> nodes) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void camerasAdded(final List<Camera> nodes) {
+			// TODO Auto-generated method stub
+
+		}
+	}
+
 	String[] keywords = { "weapon", "weap", "axe", "sword", "bow", "knife", "gun", "spear" };
-	JButton custom, unit, model, disarm, undo, save;
+	JButton custom, unit, model, disarm, scalify, undo, save;
 	PerspDisplayPanel viewer;
 	JFileChooser jfc = new JFileChooser();
 	MainFrame frame;
@@ -164,10 +207,10 @@ public class MainPanel extends JPanel implements ActionListener {
 		final Font smallFont = new Font("Arial", Font.BOLD, 16);
 		final Font medFont = new Font("Arial", Font.BOLD, 28);
 		final Font bigFont = new Font("Arial", Font.BOLD, 46);
-		final JLabel title = new JLabel("Disarm");
+		final JLabel title = new JLabel("MDXScale");
 		title.setIcon(new ImageIcon(IconGet.get("Curse", 64)));
 		title.setFont(bigFont);
-		final JLabel desc = new JLabel("Create a weaponless model!");
+		final JLabel desc = new JLabel("Scale the model!");
 		desc.setFont(smallFont);
 
 		add(title);
@@ -194,6 +237,11 @@ public class MainPanel extends JPanel implements ActionListener {
 		disarm.addActionListener(this);
 		disarm.setToolTipText("Remove the weapon from this model!");
 
+		scalify = new JButton("Scale Now!", new ImageIcon(IconGet.get("Bloodlust", 48)));
+		scalify.setFont(medFont);
+		scalify.addActionListener(this);
+		scalify.setToolTipText("Scale the model!");
+
 		undo = new JButton("Undo", new ImageIcon(IconGet.get("Cancel", 48)));
 		undo.setFont(medFont);
 		undo.addActionListener(this);
@@ -218,7 +266,7 @@ public class MainPanel extends JPanel implements ActionListener {
 						.addGroup(layout.createSequentialGroup().addComponent(unit).addGap(8).addComponent(model)
 								.addGap(8).addComponent(custom))
 						.addComponent(viewer)
-						.addGroup(layout.createSequentialGroup().addComponent(disarm).addGap(8).addComponent(undo))
+						.addGroup(layout.createSequentialGroup().addComponent(scalify).addGap(8).addComponent(undo))
 						.addComponent(save))
 				.addGap(16));
 
@@ -227,7 +275,7 @@ public class MainPanel extends JPanel implements ActionListener {
 						.addGroup(layout.createParallelGroup().addComponent(unit).addGap(32).addComponent(model)
 								.addGap(32).addComponent(custom))
 						.addGap(16).addComponent(viewer).addGap(16)
-						.addGroup(layout.createParallelGroup().addComponent(disarm).addGap(32).addComponent(undo))
+						.addGroup(layout.createParallelGroup().addComponent(scalify).addGap(32).addComponent(undo))
 						.addGap(16).addComponent(save).addGap(16));
 
 		setLayout(layout);
@@ -243,7 +291,8 @@ public class MainPanel extends JPanel implements ActionListener {
 		if (e.getSource() == unit) {
 			final GameObject choice = UnitOptionPane.show(this);
 			if (choice != null) {
-			} else {
+			}
+			else {
 				return;
 			}
 
@@ -256,12 +305,14 @@ public class MainPanel extends JPanel implements ActionListener {
 			try {
 				if (filepath.endsWith(".mdl")) {
 					filepath = filepath.replace(".mdl", ".mdx");
-				} else if (!filepath.endsWith(".mdx")) {
+				}
+				else if (!filepath.endsWith(".mdx")) {
 					filepath = filepath.concat(".mdx");
 				}
 				toLoad = MDL.read(MpqCodebase.get().getFile(filepath));
 				modelDisp = new ModelViewManager(toLoad);
-			} catch (final Exception exc) {
+			}
+			catch (final Exception exc) {
 				exc.printStackTrace();
 				// bad model!
 				JOptionPane.showMessageDialog(frame, "The chosen model could not be used.", "Program Error",
@@ -276,12 +327,14 @@ public class MainPanel extends JPanel implements ActionListener {
 				// frame.revalidate();
 				// frame.pack();
 			}
-		} else if (e.getSource() == model) {
+		}
+		else if (e.getSource() == model) {
 			String filepath = ModelOptionPane.show(this);
 			if (filepath != null) {
 				// JOptionPane.showMessageDialog(null, filepath + ". Good
 				// choice.");
-			} else {
+			}
+			else {
 				return;
 			}
 
@@ -299,12 +352,14 @@ public class MainPanel extends JPanel implements ActionListener {
 			try {
 				if (filepath.endsWith(".mdl")) {
 					filepath = filepath.replace(".mdl", ".mdx");
-				} else if (!filepath.endsWith(".mdx")) {
+				}
+				else if (!filepath.endsWith(".mdx")) {
 					filepath = filepath.concat(".mdx");
 				}
 				toLoad = MDL.read(MpqCodebase.get().getFile(filepath));
 				modelDisp = new ModelViewManager(toLoad);
-			} catch (final Exception exc) {
+			}
+			catch (final Exception exc) {
 				exc.printStackTrace();
 				// bad model!
 				JOptionPane.showMessageDialog(frame, "The chosen model could not be used.", "Program Error",
@@ -320,12 +375,14 @@ public class MainPanel extends JPanel implements ActionListener {
 				current = new Project(modelDisp, icon, name);
 				viewer.setViewport(modelDisp, viewerSize);
 			}
-		} else if (e.getSource() == custom) {
+		}
+		else if (e.getSource() == custom) {
 			final int x = jfc.showOpenDialog(frame);
 			if (x == JFileChooser.APPROVE_OPTION && jfc.getSelectedFile() != null) {
 				// JOptionPane.showMessageDialog(null, jfc.getSelectedFile() +
 				// ". Good choice.");
-			} else {
+			}
+			else {
 				return;
 			}
 
@@ -344,7 +401,8 @@ public class MainPanel extends JPanel implements ActionListener {
 			try {
 				toLoad = MDL.read(new File(filepath));
 				modelDisp = new ModelViewManager(toLoad);
-			} catch (final Exception exc) {
+			}
+			catch (final Exception exc) {
 				exc.printStackTrace();
 				// bad model!
 				JOptionPane.showMessageDialog(frame, "The chosen model could not be used.", "Program Error",
@@ -360,10 +418,12 @@ public class MainPanel extends JPanel implements ActionListener {
 				// frame.revalidate();
 				// frame.pack();
 			}
-		} else if (e.getSource() == fromUnit) {
+		}
+		else if (e.getSource() == fromUnit) {
 			final GameObject choice = UnitOptionPane.show(this);
 			if (choice != null) {
-			} else {
+			}
+			else {
 				return;
 			}
 
@@ -376,12 +436,14 @@ public class MainPanel extends JPanel implements ActionListener {
 			try {
 				if (filepath.endsWith(".mdl")) {
 					filepath = filepath.replace(".mdl", ".mdx");
-				} else if (!filepath.endsWith(".mdx")) {
+				}
+				else if (!filepath.endsWith(".mdx")) {
 					filepath = filepath.concat(".mdx");
 				}
 				toLoad = MDL.read(MpqCodebase.get().getFile(filepath));
 				modelDisp = new ModelViewManager(toLoad);
-			} catch (final Exception exc) {
+			}
+			catch (final Exception exc) {
 				exc.printStackTrace();
 				// bad model!
 				JOptionPane.showMessageDialog(frame, "The chosen model could not be used.", "Program Error",
@@ -401,12 +463,14 @@ public class MainPanel extends JPanel implements ActionListener {
 					addFrom(source, str.split(","), strs2.split(","), wantsGroup == JOptionPane.YES_OPTION);
 				}
 			}
-		} else if (e.getSource() == fromModel) {
+		}
+		else if (e.getSource() == fromModel) {
 			String filepath = ModelOptionPane.show(this);
 			if (filepath != null) {
 				// JOptionPane.showMessageDialog(null, filepath + ". Good
 				// choice.");
-			} else {
+			}
+			else {
 				return;
 			}
 
@@ -424,12 +488,14 @@ public class MainPanel extends JPanel implements ActionListener {
 			try {
 				if (filepath.endsWith(".mdl")) {
 					filepath = filepath.replace(".mdl", ".mdx");
-				} else if (!filepath.endsWith(".mdx")) {
+				}
+				else if (!filepath.endsWith(".mdx")) {
 					filepath = filepath.concat(".mdx");
 				}
 				toLoad = MDL.read(MpqCodebase.get().getFile(filepath));
 				modelDisp = new ModelViewManager(toLoad);
-			} catch (final Exception exc) {
+			}
+			catch (final Exception exc) {
 				exc.printStackTrace();
 				// bad model!
 				JOptionPane.showMessageDialog(frame, "The chosen model could not be used.", "Program Error",
@@ -449,12 +515,14 @@ public class MainPanel extends JPanel implements ActionListener {
 					addFrom(source, str.split(","), strs2.split(","), wantsGroup == JOptionPane.YES_OPTION);
 				}
 			}
-		} else if (e.getSource() == fromCustom) {
+		}
+		else if (e.getSource() == fromCustom) {
 			final int x = jfc.showOpenDialog(frame);
 			if (x == JFileChooser.APPROVE_OPTION && jfc.getSelectedFile() != null) {
 				// JOptionPane.showMessageDialog(null, jfc.getSelectedFile() +
 				// ". Good choice.");
-			} else {
+			}
+			else {
 				return;
 			}
 
@@ -473,7 +541,8 @@ public class MainPanel extends JPanel implements ActionListener {
 			try {
 				toLoad = MDL.read(new File(filepath));
 				modelDisp = new ModelViewManager(toLoad);
-			} catch (final Exception exc) {
+			}
+			catch (final Exception exc) {
 				exc.printStackTrace();
 				// bad model!
 				JOptionPane.showMessageDialog(frame, "The chosen model could not be used.", "Program Error",
@@ -493,32 +562,48 @@ public class MainPanel extends JPanel implements ActionListener {
 					addFrom(source, str.split(","), strs2.split(","), wantsGroup == JOptionPane.YES_OPTION);
 				}
 			}
-		} else if (e.getSource() == disarm) {
+		}
+		else if (e.getSource() == disarm) {
 			disarm(keywords);
-		} else if (e.getSource() == removeComponent) {
+		}
+		else if (e.getSource() == scalify) {
+			final JSpinner xSpin = new JSpinner(new SpinnerNumberModel(1, 0, 100000000, 0.001));
+			final JSpinner ySpin = new JSpinner(new SpinnerNumberModel(1, 0, 100000000, 0.001));
+			final JSpinner zSpin = new JSpinner(new SpinnerNumberModel(1, 0, 100000000, 0.001));
+			JOptionPane.showMessageDialog(this, new Object[] { new JLabel("X Scale"), xSpin, new JLabel("Y Scale"),
+					ySpin, new JLabel("Z Scale"), zSpin }, "Scale Now!", JOptionPane.PLAIN_MESSAGE);
+			ModelScale.scale(this.current.model.getModel(), ((Number) xSpin.getValue()).doubleValue(),
+					((Number) ySpin.getValue()).doubleValue(), ((Number) zSpin.getValue()).doubleValue());
+		}
+		else if (e.getSource() == removeComponent) {
 			final String str = JOptionPane.showInputDialog(frame,
 					"What parts of the model would you like to remove?\nEnter them as a comma-separated list with no spaces. \nThe \"Disarm Now!\" button runs on the list \"weapon,weap,axe,sword,bow,knife,gun,spear\", for example.");
 			if (str != null) {
 				disarm(str.split(","), false);
 			}
-		} else if (e.getSource() == removeGroup) {
+		}
+		else if (e.getSource() == removeGroup) {
 			final String str = JOptionPane.showInputDialog(frame,
 					"What parts of the model would you like to remove?\nEnter them as a comma-separated list with no spaces. \nThe \"Disarm Now!\" button runs on the list \"weapon,weap,axe,sword,bow,knife,gun,spear\", for example.");
 			if (str != null) {
 				disarm(str.split(","));
 			}
-		} else if (e.getSource() == stripTo) {
+		}
+		else if (e.getSource() == stripTo) {
 			final String str = JOptionPane.showInputDialog(frame,
 					"What parts of the model would you like to isolate?\nEnter them as a comma-separated list with no spaces. \nThe \"Disarm Now!\" button runs on the list \"weapon,weap,axe,sword,bow,knife,gun,spear\", for example.");
 
 			if (str != null) {
 				isolateParts(str);
 			}
-		} else if (e.getSource() == undo) {
+		}
+		else if (e.getSource() == undo) {
 			if (current != null) {
-				current.model.undo();
+				throw new UnsupportedOperationException("didn't fix code yet");
+				// current.model.undo();
 			}
-		} else if (e.getSource() == save) {
+		}
+		else if (e.getSource() == save) {
 			if (current == null) {
 				JOptionPane.showMessageDialog(frame, "Nothing to save.", "ERROR", JOptionPane.ERROR_MESSAGE);
 
@@ -537,7 +622,8 @@ public class MainPanel extends JPanel implements ActionListener {
 									temp.getAbsolutePath().substring(0, temp.getAbsolutePath().lastIndexOf('.'))
 											+ ext));
 						}
-					} else {
+					}
+					else {
 						temp = (new File(temp.getAbsolutePath() + ext));
 					}
 					final File currentFile = temp;
@@ -553,17 +639,18 @@ public class MainPanel extends JPanel implements ActionListener {
 					// profile.setPath(currentFile.getParent());
 					current.model.getModel().printTo(currentFile);
 					current.model.getModel().setFile(currentFile);
-					current.model.resetBeenSaved();
 					// tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(),currentFile.getName().split("\\.")[0]);
 					// tabbedPane.setToolTipTextAt(tabbedPane.getSelectedIndex(),currentFile.getPath());
-				} else {
+				}
+				else {
 					JOptionPane.showMessageDialog(this,
 							"You tried to save, but you somehow didn't select a file.\nThat is unfortunate.");
 				}
 			}
 			jfc.setSelectedFile(null);
 			// refreshController();
-		} else if (e.getSource() == newDirectory) {
+		}
+		else if (e.getSource() == newDirectory) {
 			final DirectorySelector selector = new DirectorySelector(SaveProfile.get().getGameDirectory(), "");
 			JOptionPane.showMessageDialog(null, selector, "Locating Warcraft III Directory",
 					JOptionPane.QUESTION_MESSAGE);
@@ -577,7 +664,8 @@ public class MainPanel extends JPanel implements ActionListener {
 			pdp = viewer;
 			pdp.reloadAllTextures();
 			MpqCodebase.get().refresh();
-		} else if (e.getSource() == listOpts) {
+		}
+		else if (e.getSource() == listOpts) {
 			if (current == null) {
 				return;
 			}
@@ -605,7 +693,8 @@ public class MainPanel extends JPanel implements ActionListener {
 					// && !caseless.contains("cone"))
 					panel.insertString(panel.getLength(), obj.getName() + "\n", null);
 				}
-			} catch (final BadLocationException e1) {
+			}
+			catch (final BadLocationException e1) {
 				e1.printStackTrace();
 			}
 			epane.setDocument(panel);
@@ -616,19 +705,23 @@ public class MainPanel extends JPanel implements ActionListener {
 			frame.setLocationRelativeTo(null);
 			frame.setVisible(true);
 			// JOptionPane.showMessageDialog(this,new JScrollPane(epane));
-		} else if (e.getSource() == about) {
+		}
+		else if (e.getSource() == about) {
 			final DefaultStyledDocument panel = new DefaultStyledDocument();
 			final JTextPane epane = new JTextPane();
 			final RTFEditorKit rtfk = new RTFEditorKit();
 			try {
 				rtfk.read(MainPanel.class.getResourceAsStream("credits.rtf"), panel, 0);
-			} catch (final MalformedURLException e1) {
+			}
+			catch (final MalformedURLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			} catch (final IOException e1) {
+			}
+			catch (final IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			} catch (final BadLocationException e1) {
+			}
+			catch (final BadLocationException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
@@ -640,19 +733,23 @@ public class MainPanel extends JPanel implements ActionListener {
 			frame.setLocationRelativeTo(null);
 			frame.setVisible(true);
 			// JOptionPane.showMessageDialog(this,new JScrollPane(epane));
-		} else if (e.getSource() == instructions) {
+		}
+		else if (e.getSource() == instructions) {
 			final DefaultStyledDocument panel = new DefaultStyledDocument();
 			final JTextPane epane = new JTextPane();
 			final RTFEditorKit rtfk = new RTFEditorKit();
 			try {
 				rtfk.read(MainPanel.class.getResourceAsStream("instr.rtf"), panel, 0);
-			} catch (final MalformedURLException e1) {
+			}
+			catch (final MalformedURLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			} catch (final IOException e1) {
+			}
+			catch (final IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			} catch (final BadLocationException e1) {
+			}
+			catch (final BadLocationException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
@@ -664,19 +761,23 @@ public class MainPanel extends JPanel implements ActionListener {
 			frame.setLocationRelativeTo(null);
 			frame.setVisible(true);
 			// JOptionPane.showMessageDialog(this,new JScrollPane(epane));
-		} else if (e.getSource() == aboutMXE) {
+		}
+		else if (e.getSource() == aboutMXE) {
 			final DefaultStyledDocument panel = new DefaultStyledDocument();
 			final JTextPane epane = new JTextPane();
 			final RTFEditorKit rtfk = new RTFEditorKit();
 			try {
 				rtfk.read(com.matrixeater.src.MainPanel.class.getResourceAsStream("credits.rtf"), panel, 0);
-			} catch (final MalformedURLException e1) {
+			}
+			catch (final MalformedURLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			} catch (final IOException e1) {
+			}
+			catch (final IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			} catch (final BadLocationException e1) {
+			}
+			catch (final BadLocationException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
@@ -708,9 +809,12 @@ public class MainPanel extends JPanel implements ActionListener {
 						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			source.model.selectVerteces(selection, 0);
-			source.model.invertSelection();
-			source.model.delete();
+			if (true) {
+				throw new UnsupportedOperationException("didn't fix code yet");
+				// source.model.selectVerteces(selection, 0);
+				// source.model.invertSelection();
+				// source.model.delete();
+			}
 
 			final Bone yoBone = getBoneFromKeywords(source, keywords);
 
@@ -817,8 +921,11 @@ public class MainPanel extends JPanel implements ActionListener {
 
 			final DefaultListModel<BoneShell> shellList = new DefaultListModel<>();
 			shellList.addElement(new BoneShell(myBone));
-			source.model.selectVerteces(selection, 0);
-			source.model.setMatrix(shellList);
+			source.editor.selectByVertices(selection);
+			// source.model.setMatrix(shellList);
+			if (true) {
+				throw new UnsupportedOperationException("didn't fix code yet");
+			}
 
 			final Vertex startPivot = myBone.getPivotPoint();
 			final Vertex endPivot = yoBone.getPivotPoint();
@@ -845,7 +952,8 @@ public class MainPanel extends JPanel implements ActionListener {
 				AnimFlag flag = null;
 				if (oldFlag != null) {
 					flag = AnimFlag.buildEmptyFrom(oldFlag);
-				} else if (myBaseGeoset != null && myBaseGeoset.getVisibilityFlag() != null) {
+				}
+				else if (myBaseGeoset != null && myBaseGeoset.getVisibilityFlag() != null) {
 					flag = new AnimFlag(myBaseGeoset.getVisibilityFlag());
 				}
 				geoanim.setVisibilityFlag(flag);
@@ -853,13 +961,14 @@ public class MainPanel extends JPanel implements ActionListener {
 					flag.copyFrom(myBaseGeoset.getVisibilityFlag());
 				}
 
-				current.model.makeGeosetEditable(geo, true);
-				current.model.makeGeosetVisible(geo, true);
+				current.model.makeGeosetEditable(geo);
+				current.model.makeGeosetVisible(geo);
 			}
 			// model.updateObjectIds();
 			// model.doSavePreps();
-			current.model.resetBeenSaved();
-			viewer.reloadTextures();
+			// current.viewer.reloadTextures();
+
+			throw new UnsupportedOperationException("didn't fix code yet");
 		}
 	}
 
@@ -875,18 +984,18 @@ public class MainPanel extends JPanel implements ActionListener {
 		if (current != null) {
 			final ArrayList<Vertex> selection = selectGroup(keywords, group);
 			if (selection != null) {
-				current.model.selectVerteces(selection, 0);
+				current.editor.selectByVertices(selection);
 				if (inverse) {
-					current.model.invertSelection();
+					current.editor.invertSelection();
 				}
-				current.model.delete();
+				current.editor.deleteSelectedComponents(new DoNothingModelChangeListener());
 			}
 		}
 	}
 
 	public Bone getBoneFromKeywords(final Project current, final String[] keywords) {
 		if (current != null) {
-			final MDL model = current.model.getMDL();
+			final MDL model = current.model.getModel();
 			if (model == null) {
 				// JOptionPane.showMessageDialog(frame, "No suitable model
 				// loaded!", "ERROR", JOptionPane.ERROR_MESSAGE);
@@ -934,7 +1043,8 @@ public class MainPanel extends JPanel implements ActionListener {
 						}
 						isValid.put(b, boneValid);
 						valid = boneValid;
-					} else if (!isValid.get(b)) {
+					}
+					else if (!isValid.get(b)) {
 						valid = false;
 					}
 					if (valid) {
@@ -963,7 +1073,8 @@ public class MainPanel extends JPanel implements ActionListener {
 						}
 						isValid.put(b, boneValid);
 						valid = boneValid;
-					} else if (!isValid.get(b)) {
+					}
+					else if (!isValid.get(b)) {
 						valid = false;
 					}
 					if (valid) {
@@ -984,7 +1095,7 @@ public class MainPanel extends JPanel implements ActionListener {
 	}
 
 	public ArrayList<Vertex> selectGroup(final Project current, final String[] keywords, final boolean group) {
-		for (final String str : keywords) {final s
+		for (final String str : keywords) {
 			System.err.println(str);
 		}
 		if (current != null) {
@@ -1042,7 +1153,8 @@ public class MainPanel extends JPanel implements ActionListener {
 								}
 								isValid.put(b, boneValid);
 								valid = boneValid;
-							} else if (!isValid.get(b)) {
+							}
+							else if (!isValid.get(b)) {
 								valid = false;
 							}
 						}
@@ -1111,7 +1223,8 @@ public class MainPanel extends JPanel implements ActionListener {
 						"Warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, opts, opts[1]);
 				if (x == 1) {
 					selection.removeAll(enlargedBadPool);
-				} else if (x == 2) {
+				}
+				else if (x == 2) {
 					for (final Vertex v : allConnectionsPool) {
 						if (!selection.contains(v)) {
 							selection.add(v);

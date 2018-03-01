@@ -154,7 +154,8 @@ public class AnimFlag {
 		for (final MaterialTextureId.ScalingTrack track : source.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, track.textureId, track.inTan, track.outTan);
-			} else {
+			}
+			else {
 				addEntry(track.time, track.textureId);
 			}
 		}
@@ -172,7 +173,8 @@ public class AnimFlag {
 		for (final MaterialAlpha.ScalingTrack track : source.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.alpha), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.alpha));
 			}
 		}
@@ -197,7 +199,8 @@ public class AnimFlag {
 			if (tans) {
 				addEntry(track.time, new QuaternionRotation(track.rotation), new QuaternionRotation(track.inTan),
 						new QuaternionRotation(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new QuaternionRotation(track.rotation));
 			}
 		}
@@ -221,7 +224,8 @@ public class AnimFlag {
 		for (final TextureScaling.TranslationTrack track : textureData.translationTrack) {
 			if (tans) {
 				addEntry(track.time, new Vertex(track.scaling), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new Vertex(track.scaling));
 			}
 		}
@@ -245,7 +249,8 @@ public class AnimFlag {
 		for (final TextureTranslation.TranslationTrack track : textureData.translationTrack) {
 			if (tans) {
 				addEntry(track.time, new Vertex(track.translation), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new Vertex(track.translation));
 			}
 		}
@@ -269,7 +274,8 @@ public class AnimFlag {
 		for (final GeosetAlpha.ScalingTrack track : geosetAlpha.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.alpha), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.alpha));
 			}
 		}
@@ -289,7 +295,8 @@ public class AnimFlag {
 			if (tans) {
 				addEntry(track.time, new Vertex(MdlxUtils.flipRGBtoBGR(track.color)), new Vertex(track.inTan),
 						new Vertex(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new Vertex(MdlxUtils.flipRGBtoBGR(track.color)));
 			}
 		}
@@ -308,7 +315,8 @@ public class AnimFlag {
 		for (final GeosetTranslation.TranslationTrack track : geosetTranslation.translationTrack) {
 			if (tans) {
 				addEntry(track.time, new Vertex(track.translation), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new Vertex(track.translation));
 			}
 		}
@@ -333,7 +341,8 @@ public class AnimFlag {
 			if (tans) {
 				addEntry(track.time, new QuaternionRotation(track.rotation), new QuaternionRotation(track.inTan),
 						new QuaternionRotation(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new QuaternionRotation(track.rotation));
 			}
 		}
@@ -357,7 +366,8 @@ public class AnimFlag {
 		for (final GeosetScaling.ScalingTrack track : geosetData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, new Vertex(track.scaling), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new Vertex(track.scaling));
 			}
 		}
@@ -381,7 +391,8 @@ public class AnimFlag {
 		for (final LightVisibility.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.visibility), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.visibility));
 			}
 		}
@@ -405,7 +416,8 @@ public class AnimFlag {
 		for (final LightColor.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, new Vertex(track.color), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new Vertex(track.color));
 			}
 		}
@@ -429,7 +441,8 @@ public class AnimFlag {
 		for (final LightIntensity.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.intensity), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.intensity));
 			}
 		}
@@ -453,7 +466,8 @@ public class AnimFlag {
 		for (final LightAmbientIntensity.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.ambientIntensity), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.ambientIntensity));
 			}
 		}
@@ -477,7 +491,8 @@ public class AnimFlag {
 		for (final LightAmbientColor.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, new Vertex(track.ambientColor), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new Vertex(track.ambientColor));
 			}
 		}
@@ -501,7 +516,8 @@ public class AnimFlag {
 		for (final AttachmentVisibility.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.visibility), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.visibility));
 			}
 		}
@@ -525,7 +541,8 @@ public class AnimFlag {
 		for (final ParticleEmitterVisibility.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.visibility), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.visibility));
 			}
 		}
@@ -549,7 +566,8 @@ public class AnimFlag {
 		for (final ParticleEmitter2Visibility.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.visibility), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.visibility));
 			}
 		}
@@ -573,7 +591,8 @@ public class AnimFlag {
 		for (final ParticleEmitter2EmissionRate.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.emissionRate), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.emissionRate));
 			}
 		}
@@ -597,7 +616,8 @@ public class AnimFlag {
 		for (final ParticleEmitter2Latitude.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.speed), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.speed));
 			}
 		}
@@ -621,7 +641,8 @@ public class AnimFlag {
 		for (final ParticleEmitter2Length.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.length), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.length));
 			}
 		}
@@ -645,7 +666,8 @@ public class AnimFlag {
 		for (final ParticleEmitter2Speed.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.speed), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.speed));
 			}
 		}
@@ -669,7 +691,8 @@ public class AnimFlag {
 		for (final ParticleEmitter2Width.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.width), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.width));
 			}
 		}
@@ -693,7 +716,8 @@ public class AnimFlag {
 		for (final RibbonEmitterVisibility.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.visibility), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.visibility));
 			}
 		}
@@ -717,7 +741,8 @@ public class AnimFlag {
 		for (final RibbonEmitterHeightAbove.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.heightAbove), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.heightAbove));
 			}
 		}
@@ -741,7 +766,8 @@ public class AnimFlag {
 		for (final RibbonEmitterHeightBelow.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.heightBelow), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.heightBelow));
 			}
 		}
@@ -765,7 +791,8 @@ public class AnimFlag {
 		for (final CameraPositionTranslation.TranslationTrack track : translation.translationTrack) {
 			if (tans) {
 				addEntry(track.time, new Vertex(track.translation), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new Vertex(track.translation));
 			}
 		}
@@ -789,7 +816,8 @@ public class AnimFlag {
 		for (final CameraTargetTranslation.TranslationTrack track : translation.translationTrack) {
 			if (tans) {
 				addEntry(track.time, new Vertex(track.translation), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new Vertex(track.translation));
 			}
 		}
@@ -813,7 +841,8 @@ public class AnimFlag {
 		for (final CameraRotation.TranslationTrack track : translation.translationTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.rotation), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.rotation));
 			}
 		}
@@ -870,17 +899,21 @@ public class AnimFlag {
 		typeid = 0;
 		if (title.equals("Scaling")) {
 			typeid = 1;
-		} else if (title.equals("Rotation")) {
+		}
+		else if (title.equals("Rotation")) {
 			typeid = 2;
-		} else if (title.equals("Translation")) {
+		}
+		else if (title.equals("Translation")) {
 			typeid = 3;
-		} else if (title.equals("TextureID"))// aflg.title.equals("Visibility")
-												// || -- 100.088% visible in
-												// UndeadCampaign3D OutTans! Go
-												// look!
+		}
+		else if (title.equals("TextureID"))// aflg.title.equals("Visibility")
+											// || -- 100.088% visible in
+											// UndeadCampaign3D OutTans! Go
+											// look!
 		{
 			typeid = 5;
-		} else if (title.contains("Color"))// AmbColor
+		}
+		else if (title.contains("Color"))// AmbColor
 		{
 			typeid = 4;
 		}
@@ -956,7 +989,8 @@ public class AnimFlag {
 	public Entry getEntry(final int index) {
 		if (tans()) {
 			return new Entry(times.get(index), values.get(index), inTans.get(index), outTans.get(index));
-		} else {
+		}
+		else {
 			return new Entry(times.get(index), values.get(index));
 		}
 	}
@@ -991,7 +1025,8 @@ public class AnimFlag {
 			if (item instanceof Vertex) {
 				final Vertex v = (Vertex) item;
 				toAdd = (T) v;
-			} else if (item instanceof QuaternionRotation) {
+			}
+			else if (item instanceof QuaternionRotation) {
 				final QuaternionRotation r = (QuaternionRotation) item;
 				toAdd = (T) r;
 			}
@@ -1024,11 +1059,14 @@ public class AnimFlag {
 		int typeid = 0;
 		if (aflg.title.equals("Scaling")) {
 			typeid = 1;
-		} else if (aflg.title.equals("Rotation")) {
+		}
+		else if (aflg.title.equals("Rotation")) {
 			typeid = 2;
-		} else if (aflg.title.equals("Translation")) {
+		}
+		else if (aflg.title.equals("Translation")) {
 			typeid = 3;
-		} else if (!aflg.title.equals("Alpha")) {
+		}
+		else if (!aflg.title.equals("Alpha")) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Unable to parse \"" + aflg.title + "\": Missing or unrecognized open statement.");
 		}
@@ -1039,7 +1077,8 @@ public class AnimFlag {
 				if (line[i].contains("In"))// InTan
 				{
 					target = aflg.inTans;
-				} else// OutTan
+				}
+				else// OutTan
 				{
 					target = aflg.outTans;
 				}
@@ -1062,7 +1101,8 @@ public class AnimFlag {
 					target.add(Vertex.parseText(line[i]));
 					break;
 				}
-			} else if (line[i].contains(":")) {
+			}
+			else if (line[i].contains(":")) {
 				switch (typeid) {
 				case 0: // Alpha
 					// A single double is used to store alpha data
@@ -1086,15 +1126,18 @@ public class AnimFlag {
 					aflg.values.add(Vertex.parseText(line[i]));
 					break;
 				}
-			} else if (line[i].contains("GlobalSeqId")) {
+			}
+			else if (line[i].contains("GlobalSeqId")) {
 				if (!aflg.hasGlobalSeq) {
 					aflg.globalSeqId = MDLReader.readInt(line[i]);
 					aflg.hasGlobalSeq = true;
-				} else {
+				}
+				else {
 					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "Error while parsing " + aflg.title
 							+ ": More than one Global Sequence Id is present in the same " + aflg.title + "!");
 				}
-			} else {
+			}
+			else {
 				aflg.tags.add(MDLReader.readFlag(line[i]));
 			}
 		}
@@ -1113,20 +1156,25 @@ public class AnimFlag {
 		int typeid = 0;
 		if (aflg.title.equals("Scaling")) {
 			typeid = 1;
-		} else if (aflg.title.equals("Rotation")) {
+		}
+		else if (aflg.title.equals("Rotation")) {
 			typeid = 2;
-		} else if (aflg.title.equals("Translation")) {
+		}
+		else if (aflg.title.equals("Translation")) {
 			typeid = 3;
-		} else if (aflg.title.equals("TextureID"))// aflg.title.equals("Visibility")
-													// || -- 100.088% visible in
-													// UndeadCampaign3D OutTans!
-													// Go look!
+		}
+		else if (aflg.title.equals("TextureID"))// aflg.title.equals("Visibility")
+												// || -- 100.088% visible in
+												// UndeadCampaign3D OutTans!
+												// Go look!
 		{
 			typeid = 5;
-		} else if (aflg.title.contains("Color"))// AmbColor
+		}
+		else if (aflg.title.contains("Color"))// AmbColor
 		{
 			typeid = 4;
-		} else if (!(aflg.title.equals("Alpha"))) {
+		}
+		else if (!(aflg.title.equals("Alpha"))) {
 			// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Unable
 			// to parse \""+aflg.title+"\": Missing or unrecognized open
 			// statement.");
@@ -1141,7 +1189,8 @@ public class AnimFlag {
 				if (line.contains("In"))// InTan
 				{
 					target = aflg.inTans;
-				} else// OutTan
+				}
+				else// OutTan
 				{
 					target = aflg.outTans;
 				}
@@ -1159,7 +1208,8 @@ public class AnimFlag {
 					// data
 					try {
 						target.add(QuaternionRotation.parseText(line));
-					} catch (final Exception e) {
+					}
+					catch (final Exception e) {
 						// typeid = 0;//Yay! random bad model.
 						target.add(new Double(MDLReader.readDouble(line)));
 					}
@@ -1177,7 +1227,8 @@ public class AnimFlag {
 					target.add(new Integer(MDLReader.readInt(line)));
 					break;
 				}
-			} else if (line.contains(":")) {
+			}
+			else if (line.contains(":")) {
 				switch (typeid) {
 				case 0: // Alpha
 					// A single double is used to store alpha data
@@ -1196,7 +1247,8 @@ public class AnimFlag {
 
 						aflg.times.add(new Integer(MDLReader.readBeforeColon(line)));
 						aflg.values.add(QuaternionRotation.parseText(line));
-					} catch (final Exception e) {
+					}
+					catch (final Exception e) {
 						// JOptionPane.showMessageDialog(null,e.getStackTrace());
 						// typeid = 0;
 						// aflg.times.add(new
@@ -1220,15 +1272,18 @@ public class AnimFlag {
 					aflg.values.add(new Integer(MDLReader.readInt(line)));
 					break;
 				}
-			} else if (line.contains("GlobalSeqId")) {
+			}
+			else if (line.contains("GlobalSeqId")) {
 				if (!aflg.hasGlobalSeq) {
 					aflg.globalSeqId = MDLReader.readInt(line);
 					aflg.hasGlobalSeq = true;
-				} else {
+				}
+				else {
 					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "Error while parsing " + aflg.title
 							+ ": More than one Global Sequence Id is present in the same " + aflg.title + "!");
 				}
-			} else {
+			}
+			else {
 				aflg.tags.add(MDLReader.readFlag(line));
 			}
 		}
@@ -1250,9 +1305,11 @@ public class AnimFlag {
 	public String flagToString(final Object o) {
 		if (o.getClass() == double.class) {
 			return MDLReader.doubleToString((Double) o);
-		} else if (o.getClass() == Double.class) {
+		}
+		else if (o.getClass() == Double.class) {
 			return MDLReader.doubleToString(((Double) o).doubleValue());
-		} else {
+		}
+		else {
 			return o.toString();
 		}
 	}
@@ -1317,7 +1374,8 @@ public class AnimFlag {
 				}
 				outTans.set(k, new QuaternionRotation(euler));
 			}
-		} else if (typeid == 3) {
+		}
+		else if (typeid == 3) {
 			// Translation
 			for (int k = 0; k < values.size(); k++) {
 				final Vertex trans = (Vertex) values.get(k);
@@ -1496,24 +1554,30 @@ public class AnimFlag {
 						if (partVal.doubleValue() > currentVal.doubleValue()) {
 							if (mostVisible == null) {
 								mostVisible = partner;
-							} else if (mostVisible == this) {
+							}
+							else if (mostVisible == this) {
 								return null;
 							}
-						} else if (partVal.doubleValue() < currentVal.doubleValue()) {
+						}
+						else if (partVal.doubleValue() < currentVal.doubleValue()) {
 							if (mostVisible == null) {
 								mostVisible = this;
-							} else if (mostVisible == partner) {
+							}
+							else if (mostVisible == partner) {
 								return null;
 							}
-						} else {
+						}
+						else {
 							System.out.println("Equal entries spell success");
 						}
 						// btimes.remove(currentTime);
 						// bvalues.remove(partVal);
-					} else if (currentVal.doubleValue() < 1) {
+					}
+					else if (currentVal.doubleValue() < 1) {
 						if (mostVisible == null) {
 							mostVisible = partner;
-						} else if (mostVisible == this) {
+						}
+						else if (mostVisible == this) {
 							return null;
 						}
 					}
@@ -1530,30 +1594,37 @@ public class AnimFlag {
 						if (partVal.doubleValue() > currentVal.doubleValue()) {
 							if (mostVisible == null) {
 								mostVisible = this;
-							} else if (mostVisible == partner) {
-								return null;
 							}
-						} else if (partVal.doubleValue() < currentVal.doubleValue()) {
-							if (mostVisible == null) {
-								mostVisible = partner;
-							} else if (mostVisible == this) {
+							else if (mostVisible == partner) {
 								return null;
 							}
 						}
-					} else if (currentVal.doubleValue() < 1) {
+						else if (partVal.doubleValue() < currentVal.doubleValue()) {
+							if (mostVisible == null) {
+								mostVisible = partner;
+							}
+							else if (mostVisible == this) {
+								return null;
+							}
+						}
+					}
+					else if (currentVal.doubleValue() < 1) {
 						if (mostVisible == null) {
 							mostVisible = this;
-						} else if (mostVisible == partner) {
+						}
+						else if (mostVisible == partner) {
 							return null;
 						}
 					}
 				}
 				if (mostVisible == null) {
 					return partner;// partner has priority!
-				} else {
+				}
+				else {
 					return mostVisible;
 				}
-			} else {
+			}
+			else {
 				JOptionPane.showMessageDialog(null,
 						"Error: Program attempted to compare visibility with non-visibility animation component.\nThis... probably means something is horribly wrong. Save your work, if you can.");
 			}
@@ -1581,7 +1652,8 @@ public class AnimFlag {
 		if (stans && mtans) {
 			inTans.addAll(source.inTans);
 			outTans.addAll(source.outTans);
-		} else if (mtans) {
+		}
+		else if (mtans) {
 			JOptionPane.showMessageDialog(null,
 					"Some animations will lose complexity due to transfer incombatibility. There will probably be no visible change.");
 			inTans.clear();
@@ -1610,7 +1682,8 @@ public class AnimFlag {
 					}
 				}
 			}
-		} else {
+		}
+		else {
 			System.out.println("KeyFrame deleting was blocked by a GlobalSequence");
 		}
 
@@ -1752,7 +1825,8 @@ public class AnimFlag {
 		times.set(i, times.get(j));
 		try {
 			values.set(i, values.get(j));
-		} catch (final Exception e) {
+		}
+		catch (final Exception e) {
 			e.printStackTrace();
 			// System.out.println(getName()+":
 			// "+times.size()+","+values.size());
@@ -1774,5 +1848,21 @@ public class AnimFlag {
 			inTans.set(j, iInTan);
 			outTans.set(j, iOutTan);
 		}
+	}
+
+	public ArrayList getValues() {
+		return values;
+	}
+
+	public ArrayList<Integer> getTimes() {
+		return times;
+	}
+
+	public ArrayList getInTans() {
+		return inTans;
+	}
+
+	public ArrayList getOutTans() {
+		return outTans;
 	}
 }

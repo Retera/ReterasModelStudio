@@ -14,16 +14,20 @@ public class MainFrame extends JFrame {
 	static {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (final ClassNotFoundException e) {
+		}
+		catch (final ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (final InstantiationException e) {
+		}
+		catch (final InstantiationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (final IllegalAccessException e) {
+		}
+		catch (final IllegalAccessException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (final UnsupportedLookAndFeelException e) {
+		}
+		catch (final UnsupportedLookAndFeelException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -32,10 +36,11 @@ public class MainFrame extends JFrame {
 
 		ADVSTRUCT = BLPHandler.get().getGameTex("ReplaceableTextures\\CommandButtons\\BTNCurse.blp");
 	}
+
 	public static final Image ADVSTRUCT;
 
 	public MainFrame() {
-		super("Disarm: Weaponless Model Creator v1.06");
+		super("MDXScale: Scale models in style");
 		setContentPane(mainPanel);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setIconImage(ADVSTRUCT);
@@ -47,16 +52,20 @@ public class MainFrame extends JFrame {
 	public static void main(final String[] args) {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (final ClassNotFoundException e) {
+		}
+		catch (final ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (final InstantiationException e) {
+		}
+		catch (final InstantiationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (final IllegalAccessException e) {
+		}
+		catch (final IllegalAccessException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (final UnsupportedLookAndFeelException e) {
+		}
+		catch (final UnsupportedLookAndFeelException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
