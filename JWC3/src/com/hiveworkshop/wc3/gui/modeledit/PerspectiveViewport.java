@@ -35,7 +35,7 @@ import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 import java.awt.Color;
-import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -57,7 +57,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.Timer;
-import javax.swing.ToolTipManager;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
@@ -113,8 +112,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		//
 		// Viewport border
 		// setBorder(BorderFactory.createBevelBorder(1));
-		setBackground(new Color(255, 255, 255));
-		// setMinimumSize(new Dimension(200, 200));
+		setBackground(new Color(80, 80, 80));
+		setMinimumSize(new Dimension(200, 200));
 		// add(Box.createHorizontalStrut(200));
 		// add(Box.createVerticalStrut(200));
 		// setLayout( new BoxLayout(this,BoxLayout.LINE_AXIS));
@@ -446,7 +445,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 				glEnable(GL11.GL_TEXTURE_2D);
 			}
 			GL11.glEnable(GL11.GL_BLEND);
-			glClearColor(0.3137254901960784f, 0.3137254901960784f, 0.3137254901960784f, 1.0f);
+			glClearColor(getBackground().getRed() / 255f, getBackground().getGreen() / 255f,
+					getBackground().getBlue() / 255f, 1.0f);
 			// glClearColor(0f, 0f, 0f, 1.0f);
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
@@ -707,7 +707,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 
 			// glPopMatrix();
 			swapBuffers();
-			// repaint();
+			repaint();
 		} catch (final Throwable e) {
 			if (lastThrownErrorClass == null || lastThrownErrorClass != e.getClass()) {
 				lastThrownErrorClass = e.getClass();
@@ -952,9 +952,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			// {
 			// actStart = null;
 
-			JPopupMenu.setDefaultLightWeightPopupEnabled(false);
-			ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
-			contextMenu.show(this, e.getX(), e.getY());
+			// JPopupMenu.setDefaultLightWeightPopupEnabled(false);
+			// ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
+			// contextMenu.show(this, e.getX(), e.getY());
 			// }
 		}
 	}
@@ -963,23 +963,6 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 	public void mouseWheelMoved(final MouseWheelEvent e) {
 		int wr = e.getWheelRotation();
 		final boolean neg = wr < 0;
-
-		// get mouse coords
-		int xoff = 0;
-		int yoff = 0;
-		Component temp = this;
-		while (temp != null) {
-			xoff += temp.getX();
-			yoff += temp.getY();
-			if (temp.getClass() == ModelPanel.class) {
-				// temp = MainFrame.panel; //TODO fix
-				temp = null;
-			} else {
-				temp = temp.getParent();
-			}
-		}
-		final double mx = (MouseInfo.getPointerInfo().getLocation().x - xoff);
-		final double my = (MouseInfo.getPointerInfo().getLocation().y - yoff);
 
 		if (neg) {
 			wr = -wr;
@@ -1073,5 +1056,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 
 		// Return the texture ID so we can bind it later again
 		return textureID;
+	}
+
+	public void setViewportBackground(final Color background) {
+		setBackground(background);
 	}
 }

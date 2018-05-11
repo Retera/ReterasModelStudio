@@ -1,8 +1,6 @@
 package com.hiveworkshop.wc3.gui.modeledit;
 
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -10,10 +8,10 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.ArrayList;
 
+import javax.swing.Icon;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
@@ -37,13 +35,17 @@ import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 
+import net.infonode.docking.RootWindow;
+import net.infonode.docking.SplitWindow;
+import net.infonode.docking.View;
+import net.infonode.docking.util.StringViewMap;
+
 /**
- * The ModelPanel is a pane holding the display of a given MDL model. I plan to
- * tab between them.
+ * The ModelPanel is a pane holding the display of a given MDL model. I plan to tab between them.
  *
  * Eric Theller 6/7/2012
  */
-public class ModelPanel extends JPanel implements ActionListener, MouseListener {
+public class ModelPanel implements ActionListener, MouseListener {
 	private static final int VERTEX_SIZE = 3;
 	private JMenuBar menuBar;
 	private JMenu fileMenu, modelMenu;
@@ -63,20 +65,25 @@ public class ModelPanel extends JPanel implements ActionListener, MouseListener 
 
 	private final ModelViewManagingTree modelViewManagingTree;
 
+	private final RootWindow rootWindow;
+	private final StringViewMap stringViewMap;
+	private final View view;
+
 	public ModelPanel(final File input, final ProgramPreferences prefs, final UndoHandler undoHandler,
 			final ToolbarButtonGroup<SelectionItemTypes> notifier, final ToolbarButtonGroup<SelectionMode> modeNotifier,
 			final ModelStructureChangeListener modelStructureChangeListener,
-			final CoordDisplayListener coordDisplayListener, final ViewportTransferHandler viewportTransferHandler) {
+			final CoordDisplayListener coordDisplayListener, final ViewportTransferHandler viewportTransferHandler,
+			final Icon icon) {
 		this(MDL.read(input), prefs, undoHandler, notifier, modeNotifier, modelStructureChangeListener,
-				coordDisplayListener, viewportTransferHandler);
+				coordDisplayListener, viewportTransferHandler, icon);
 		file = input;
 	}
 
 	public ModelPanel(final MDL input, final ProgramPreferences prefs, final UndoHandler undoHandler,
 			final ToolbarButtonGroup<SelectionItemTypes> notifier, final ToolbarButtonGroup<SelectionMode> modeNotifier,
 			final ModelStructureChangeListener modelStructureChangeListener,
-			final CoordDisplayListener coordDisplayListener, final ViewportTransferHandler viewportTransferHandler) {
-		super();
+			final CoordDisplayListener coordDisplayListener, final ViewportTransferHandler viewportTransferHandler,
+			final Icon icon) {
 		this.prefs = prefs;
 		this.undoHandler = undoHandler;
 		this.selectionItemTypeNotifier = notifier;
@@ -101,21 +108,21 @@ public class ModelPanel extends JPanel implements ActionListener, MouseListener 
 		// dispModel = new MDLDisplay(model,this);
 		loadModel(input);
 
+		stringViewMap = new StringViewMap();
+		rootWindow = new RootWindow(stringViewMap);
+
 		frontArea = new DisplayPanel("Front", (byte) 1, (byte) 2, modelView, modelEditorManager.getModelEditor(),
 				modelStructureChangeListener, viewportActivityManager, prefs, undoManager, coordDisplayListener,
 				undoHandler, modelEditorChangeNotifier, viewportTransferHandler);
 		// frontArea.setViewport(1,2);
-		add(frontArea);
 		botArea = new DisplayPanel("Bottom", (byte) 1, (byte) 0, modelView, modelEditorManager.getModelEditor(),
 				modelStructureChangeListener, viewportActivityManager, prefs, undoManager, coordDisplayListener,
 				undoHandler, modelEditorChangeNotifier, viewportTransferHandler);
 		// botArea.setViewport(0,1);
-		add(botArea);
 		sideArea = new DisplayPanel("Side", (byte) 0, (byte) 2, modelView, modelEditorManager.getModelEditor(),
 				modelStructureChangeListener, viewportActivityManager, prefs, undoManager, coordDisplayListener,
 				undoHandler, modelEditorChangeNotifier, viewportTransferHandler);
 		// sideArea.setViewport(0,2);
-		add(sideArea);
 
 		frontArea.setControlsVisible(prefs.showVMControls());
 		botArea.setControlsVisible(prefs.showVMControls());
@@ -127,9 +134,8 @@ public class ModelPanel extends JPanel implements ActionListener, MouseListener 
 		// perspAreaPanel.add(Box.createVerticalStrut(200));
 		// perspAreaPanel.setLayout( new BoxLayout(this,BoxLayout.LINE_AXIS));
 		// botArea.setViewport(0,1);
-		add(perspArea);
-
-		setLayout(new GridLayout(2, 2));
+		rootWindow.setWindow(new SplitWindow(false, new SplitWindow(true, frontArea.getView(), botArea.getView()),
+				new SplitWindow(true, sideArea.getView(), perspArea.getView())));
 
 		// Hacky viewer
 		// frontArea.setVisible(false);
@@ -155,6 +161,19 @@ public class ModelPanel extends JPanel implements ActionListener, MouseListener 
 		// setLayout(layout);
 
 		// Create a file chooser
+		view = new View(input.getName(), icon, rootWindow);
+	}
+
+	public View getView() {
+		return view;
+	}
+
+	public RootWindow getRootWindow() {
+		return rootWindow;
+	}
+
+	public void setFile(final File file) {
+		this.file = file;
 	}
 
 	public void changeActivity(final ActivityDescriptor activityDescriptor) {
@@ -184,14 +203,6 @@ public class ModelPanel extends JPanel implements ActionListener, MouseListener 
 
 	public void loadModel(final MDL model) {
 		this.model = model;
-	}
-
-	@Override
-	public void paintComponent(final Graphics g) {
-		super.paintComponent(g);
-		perspArea.getViewport().setMinimumSize(new Dimension(200, 200));
-		// botArea.setMaximumSize(frontArea.getSize());
-		// sideArea.setMaximumSize(frontArea.getSize());
 	}
 
 	@Override
@@ -333,10 +344,11 @@ public class ModelPanel extends JPanel implements ActionListener, MouseListener 
 		// int myIndex = parent.tabbedPane.indexOfComponent(this);
 		if (!undoManager.isUndoListEmpty()) {
 			final Object[] options = { "Yes", "No", "Cancel" };
-			final int n = JOptionPane.showOptionDialog(this, "Would you like to save "
-					+ model.getName()/* parent.tabbedPane.getTitleAt(myIndex) */ + " (\"" + model.getHeaderName()
-					+ "\") before closing?", "Warning", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE,
-					null, options, options[2]);
+			final int n = JOptionPane.showOptionDialog(rootWindow,
+					"Would you like to save " + model.getName()/* parent.tabbedPane.getTitleAt(myIndex) */ + " (\""
+							+ model.getHeaderName() + "\") before closing?",
+					"Warning", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, options,
+					options[2]);
 			switch (n) {
 			case 0:
 				// ((ModelPanel)parent.tabbedPane.getComponentAt(myIndex)).getMDLDisplay().getMDL().saveFile();
@@ -423,7 +435,7 @@ public class ModelPanel extends JPanel implements ActionListener, MouseListener 
 	}
 
 	public void repaintSelfAndRelatedChildren() {
-		repaint();
+		rootWindow.repaint();
 		if (editUVPanel != null) {
 			editUVPanel.repaint();
 		}

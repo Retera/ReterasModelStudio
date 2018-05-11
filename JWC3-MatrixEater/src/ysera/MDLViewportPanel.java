@@ -1,4 +1,4 @@
-package swife;
+package ysera;
 
 import javax.swing.JPanel;
 

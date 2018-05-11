@@ -1,6 +1,9 @@
 package com.hiveworkshop.assetextractor;
 
 public class AssetExtractorSettings {
+	public static final int FLATTEN_BY_RETAIN_ICON_AND_TEXTURE_PATHS = 3;
+	public static final int FLATTEN_BY_RETAIN_ALL_PATHS = 0;
+
 	private final boolean includeInternal;
 	private final int flatten;
 

@@ -3,10 +3,9 @@ package com.hiveworkshop.wc3.mdl;
 import javax.swing.JOptionPane;
 
 /**
- * Quaternions are the most useless thing I've ever heard of. Nevertheless, I
- * wanted a simple object to encompass four quaternion values for rotation (this
- * is how MDLs handle rotating)
- * 
+ * Quaternions are the most useless thing I've ever heard of. Nevertheless, I wanted a simple object to encompass four
+ * quaternion values for rotation (this is how MDLs handle rotating)
+ *
  * Eric Theller 3/8/2012
  */
 public class QuaternionRotation {
@@ -20,6 +19,10 @@ public class QuaternionRotation {
 	}
 
 	public QuaternionRotation(final Vertex eulerRotation) {
+		set(eulerRotation);
+	}
+
+	public void set(final Vertex eulerRotation) {
 		// eulerRotation.x = Math.toRadians(eulerRotation.x);
 		// eulerRotation.y = Math.toRadians(eulerRotation.y);
 		// eulerRotation.z = Math.toRadians(eulerRotation.z);
@@ -70,14 +73,11 @@ public class QuaternionRotation {
 		// d = c1 * s2 * c3 - s1 * c2 * s3;
 
 		/**
-		 * double heading = eulerRotation.x; double attitude = eulerRotation.y;
-		 * double bank = eulerRotation.z; double c1 = Math.cos(heading); double
-		 * s1 = Math.sin(heading); double c2 = Math.cos(attitude); double s2 =
-		 * Math.sin(attitude); double c3 = Math.cos(bank); double s3 =
-		 * Math.sin(bank); a = Math.sqrt(1.0 + c1 * c2 + c1*c3 - s1 * s2 * s3 +
-		 * c2*c3) / 2.0; double w4 = (4.0 * a); b = (c2 * s3 + c1 * s3 + s1 * s2
-		 * * c3) / w4 ; c = (s1 * c2 + s1 * c3 + c1 * s2 * s3) / w4 ; d = (-s1 *
-		 * s3 + c1 * s2 * c3 +s2) / w4 ;
+		 * double heading = eulerRotation.x; double attitude = eulerRotation.y; double bank = eulerRotation.z; double c1
+		 * = Math.cos(heading); double s1 = Math.sin(heading); double c2 = Math.cos(attitude); double s2 =
+		 * Math.sin(attitude); double c3 = Math.cos(bank); double s3 = Math.sin(bank); a = Math.sqrt(1.0 + c1 * c2 +
+		 * c1*c3 - s1 * s2 * s3 + c2*c3) / 2.0; double w4 = (4.0 * a); b = (c2 * s3 + c1 * s3 + s1 * s2 * c3) / w4 ; c =
+		 * (s1 * c2 + s1 * c3 + c1 * s2 * s3) / w4 ; d = (-s1 * s3 + c1 * s2 * c3 +s2) / w4 ;
 		 */
 
 		// Now Quaternions can go burn and die.
@@ -88,6 +88,27 @@ public class QuaternionRotation {
 		b = data[1];
 		c = data[2];
 		d = data[3];
+	}
+
+	public QuaternionRotation(final Vertex axis, final double angle) {
+		set(axis, angle);
+	}
+
+	public void set(final Vertex axis, final double angle) {
+		final double halfAngle = angle / 2;
+		final double sinOfHalfAngle = Math.sin(halfAngle);
+		a = axis.x * sinOfHalfAngle;
+		b = axis.y * sinOfHalfAngle;
+		c = axis.z * sinOfHalfAngle;
+		d = Math.cos(halfAngle);
+	}
+
+	public void normalize() {
+		final double sumSq = Math.sqrt(a * a + b * b + c * c + d * d);
+		a /= sumSq;
+		b /= sumSq;
+		c /= sumSq;
+		d /= sumSq;
 	}
 
 	public double[] toArray() {
@@ -112,6 +133,18 @@ public class QuaternionRotation {
 
 	public double getD() {
 		return d;
+	}
+
+	public Vertex getAxisOfRotation() {
+		final double sqrt = Math.sqrt(1 - d * d);
+		if (sqrt == 0) {
+			return new Vertex(0, 0, 0);
+		}
+		return new Vertex(a / sqrt, b / sqrt, c / sqrt);
+	}
+
+	public double getAngleAroundAxis() {
+		return 2 * Math.acos(d);
 	}
 
 	public Vertex toEuler() {
@@ -227,6 +260,101 @@ public class QuaternionRotation {
 		}
 		temp = new QuaternionRotation(a, b, c, d);
 		return temp;
+	}
+
+	public static QuaternionRotation ghostwolfNlerp(final QuaternionRotation out,
+			final QuaternionRotation startingValue, final QuaternionRotation endingValue,
+			final float interpolationFactor) {
+		final double ax = startingValue.a, ay = startingValue.b, az = startingValue.c, aw = startingValue.d;
+		final double bx = startingValue.a, by = startingValue.b, bz = startingValue.c, bw = startingValue.d;
+		final float inverseFactor = 1 - interpolationFactor;
+		final double x1 = inverseFactor * ax;
+		final double y1 = inverseFactor * ay;
+		final double z1 = inverseFactor * az;
+		final double w1 = inverseFactor * aw;
+		final double x2 = interpolationFactor * bx;
+		final double y2 = interpolationFactor * by;
+		final double z2 = interpolationFactor * bz;
+		final double w2 = interpolationFactor * bw;
+
+		// Dot product
+		if (ax * bx + ay * by + az * bz + aw * bw < 0) {
+			out.a = x1 - x2;
+			out.b = y1 - y2;
+			out.c = z1 - z2;
+			out.d = w1 - w2;
+		} else {
+			out.a = x1 + x2;
+			out.b = y1 + y2;
+			out.c = z1 + z2;
+			out.d = w1 + w2;
+		}
+
+		// Super slow and generally not needed.
+		// quat.normalize(out, out);
+		return out;
+	}
+
+	public static QuaternionRotation slerp(final QuaternionRotation out, final QuaternionRotation startingValue,
+			final QuaternionRotation endingValue, final float interpolationFactor) {
+		final double ax = startingValue.a, ay = startingValue.b, az = startingValue.c, aw = startingValue.d;
+		double bx = startingValue.a, by = startingValue.b, bz = startingValue.c, bw = startingValue.d;
+		final double omega;
+		double cosom;
+		final double sinom, scale0, scale1;
+		// calc cosine
+		cosom = ax * bx + ay * by + az * bz + aw * bw;
+		// adjust signs (if necessary)
+		if (cosom < 0) {
+			cosom = -cosom;
+			bx = -bx;
+			by = -by;
+			bz = -bz;
+			bw = -bw;
+		}
+		// calculate coefficients
+		if ((1.0 - cosom) > 0.000001) {
+			// standard case (slerp)
+			omega = Math.acos(cosom);
+			sinom = Math.sin(omega);
+			scale0 = Math.sin((1.0 - interpolationFactor) * omega) / sinom;
+			scale1 = Math.sin(interpolationFactor * omega) / sinom;
+		} else {
+			// "from" and "to" quaternions are very close
+			// ... so we can do a linear interpolation
+			scale0 = 1.0 - interpolationFactor;
+			scale1 = interpolationFactor;
+		}
+
+		out.a = scale0 * ax + scale1 * bx;
+		out.b = scale0 * ay + scale1 * by;
+		out.c = scale0 * az + scale1 * bz;
+		out.d = scale0 * aw + scale1 * bw;
+
+		// Super slow and generally not needed.
+		// quat.normalize(out, out);
+		return out;
+	}
+
+	private static QuaternionRotation temp1 = new QuaternionRotation(0, 0, 0, 0);
+	private static QuaternionRotation temp2 = new QuaternionRotation(0, 0, 0, 0);
+
+	public static QuaternionRotation ghostwolfNquad(final QuaternionRotation out, final QuaternionRotation a,
+			final QuaternionRotation aOutTan, final QuaternionRotation bInTan, final QuaternionRotation b,
+			final float t) {
+		ghostwolfNlerp(temp1, a, b, t);
+		ghostwolfNlerp(temp2, aOutTan, bInTan, t);
+		ghostwolfNlerp(out, temp1, temp2, 2 * t * (1 - t));
+		return out;
+	}
+
+	public static QuaternionRotation ghostwolfSquad(final QuaternionRotation out, final QuaternionRotation a,
+			final QuaternionRotation aOutTan, final QuaternionRotation bInTan, final QuaternionRotation b,
+			final float t) {
+		slerp(temp1, a, b, t);
+		slerp(temp2, aOutTan, bInTan, t);
+		slerp(out, temp1, temp2, 2 * t * (1 - t));
+		return out;
 	}
 
 	@Override

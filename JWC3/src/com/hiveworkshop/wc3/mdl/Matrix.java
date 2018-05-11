@@ -81,7 +81,6 @@ public class Matrix {
 	}
 
 	public void updateBones(final MDL mdlr) {
-		System.out.println("bones updated");
 		if (bones == null) {
 			bones = new ArrayList<>();
 		} else {
@@ -182,19 +181,15 @@ public class Matrix {
 			tabs = tabs + "\t";
 		}
 		if (m_boneIds.size() > 0) {
-			System.out.print(tabs + "Matrices { " + m_boneIds.get(0).toString());
 			writer.print(tabs + "Matrices { " + m_boneIds.get(0).toString());
 		} else {
-			System.out.print(tabs + "Matrices { -1");
 			writer.print(tabs + "Matrices { -1");
 		}
 		// writer.print(tabs+"Matrices { "+bones.get(0).getClass().getName());
 		for (int i = 1; i < bones.size(); i++) {
-			System.out.print(", " + m_boneIds.get(i));
 			writer.print(", " + m_boneIds.get(i));
 			// writer.print(", "+bones.get(i).getClass().getName());
 		}
-		System.out.println(" },");
 		writer.println(" },");
 	}
 

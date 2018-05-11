@@ -14,23 +14,22 @@ public class AttachmentChunk {
 
 	public static final String key = "ATCH";
 
-	public void load(BlizzardDataInputStream in) throws IOException {
+	public void load(final BlizzardDataInputStream in) throws IOException {
 		MdxUtils.checkId(in, "ATCH");
-		int chunkSize = in.readInt();
-		List<Attachment> attachmentList = new ArrayList();
+		final int chunkSize = in.readInt();
+		final List<Attachment> attachmentList = new ArrayList();
 		int attachmentCounter = chunkSize;
 		while (attachmentCounter > 0) {
-			Attachment tempattachment = new Attachment();
+			final Attachment tempattachment = new Attachment();
 			attachmentList.add(tempattachment);
 			tempattachment.load(in);
 			attachmentCounter -= tempattachment.getSize();
 		}
-		attachment = attachmentList.toArray(new Attachment[attachmentList
-				.size()]);
+		attachment = attachmentList.toArray(new Attachment[attachmentList.size()]);
 	}
 
-	public void save(BlizzardDataOutputStream out) throws IOException {
-		int nrOfAttachments = attachment.length;
+	public void save(final BlizzardDataOutputStream out) throws IOException {
+		final int nrOfAttachments = attachment.length;
 		out.writeNByteString("ATCH", 4);
 		out.writeInt(getSize() - 8);// ChunkSize
 		for (int i = 0; i < attachment.length; i++) {
@@ -57,8 +56,8 @@ public class AttachmentChunk {
 		public int attachmentId;
 		public AttachmentVisibility attachmentVisibility;
 
-		public void load(BlizzardDataInputStream in) throws IOException {
-			int inclusiveSize = in.readInt();
+		public void load(final BlizzardDataInputStream in) throws IOException {
+			final int inclusiveSize = in.readInt();
 			node = new Node();
 			node.load(in);
 			unknownName_modelPath = in.readCharsAsString(256);
@@ -71,7 +70,7 @@ public class AttachmentChunk {
 
 		}
 
-		public void save(BlizzardDataOutputStream out) throws IOException {
+		public void save(final BlizzardDataOutputStream out) throws IOException {
 			out.writeInt(getSize());// InclusiveSize
 			node.save(out);
 			out.writeNByteString(unknownName_modelPath, 256);
@@ -96,35 +95,38 @@ public class AttachmentChunk {
 
 			return a;
 		}
-		
+
 		public Attachment() {
-			
+
 		}
-		public Attachment(com.hiveworkshop.wc3.mdl.Attachment atc) {
+
+		public Attachment(final com.hiveworkshop.wc3.mdl.Attachment atc) {
 			node = new Node(atc);
 			node.flags |= 0x800;
 			unknownName_modelPath = atc.getPath();
 			attachmentId = atc.getAttachmentID();
-			for( AnimFlag af: atc.getAnimFlags() ) {
-				if( af.getName().equals("Visibility") ) {
+			for (final AnimFlag af : atc.getAnimFlags()) {
+				if (af.getName().equals("Visibility")) {
 					attachmentVisibility = new AttachmentVisibility();
 					attachmentVisibility.globalSequenceId = af.getGlobalSeqId();
 					attachmentVisibility.interpolationType = af.getInterpType();
 					attachmentVisibility.scalingTrack = new AttachmentVisibility.ScalingTrack[af.size()];
-					boolean hasTans = af.tans();
-					for( int i = 0; i < af.size(); i++ ) {
-						AttachmentVisibility.ScalingTrack mdxEntry = attachmentVisibility.new ScalingTrack();
+					final boolean hasTans = af.tans();
+					for (int i = 0; i < af.size(); i++) {
+						final AttachmentVisibility.ScalingTrack mdxEntry = attachmentVisibility.new ScalingTrack();
 						attachmentVisibility.scalingTrack[i] = mdxEntry;
-						AnimFlag.Entry mdlEntry = af.getEntry(i);
-						mdxEntry.visibility = ((Number)mdlEntry.value).floatValue();
+						final AnimFlag.Entry mdlEntry = af.getEntry(i);
+						mdxEntry.visibility = ((Number) mdlEntry.value).floatValue();
 						mdxEntry.time = mdlEntry.time.intValue();
-						if( hasTans ) {
-							mdxEntry.inTan = ((Number)mdlEntry.inTan).floatValue();
-							mdxEntry.outTan = ((Number)mdlEntry.outTan).floatValue();
+						if (hasTans) {
+							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();
+							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
 						}
 					}
 				} else {
-					System.err.println("discarded flag " + af.getName());
+					if (Node.LOG_DISCARDED_FLAGS) {
+						System.err.println("discarded flag " + af.getName());
+					}
 				}
 			}
 		}

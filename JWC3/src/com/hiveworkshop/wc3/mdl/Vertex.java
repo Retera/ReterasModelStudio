@@ -180,6 +180,10 @@ public class Vertex {
 		return distance(ORIGIN);
 	}
 
+	public Vertex delta(final Vertex other) {
+		return new Vertex(other.x - x, other.y - y, other.z - z);
+	}
+
 	public Vertex crossProduct(final Vertex other) {
 		final double x2 = other.x;
 		final double y2 = other.y;

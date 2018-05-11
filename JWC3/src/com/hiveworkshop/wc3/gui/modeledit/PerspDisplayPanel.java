@@ -1,6 +1,7 @@
 package com.hiveworkshop.wc3.gui.modeledit;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
@@ -21,6 +22,8 @@ import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
+import net.infonode.docking.View;
+
 /**
  * Write a description of class DisplayPanel here.
  *
@@ -34,12 +37,12 @@ public class PerspDisplayPanel extends JPanel implements ActionListener {
 	private String title;
 	private final JButton up, down, left, right, plusZoom, minusZoom;
 	private final ProgramPreferences programPreferences;
+	private final View view;
 
 	// private JCheckBox wireframe;
 	public PerspDisplayPanel(final String title, final ModelView dispMDL, final ProgramPreferences programPreferences) {
 		super();
 		this.programPreferences = programPreferences;
-		setBorder(BorderFactory.createTitledBorder(title));// BorderFactory.createCompoundBorder(
 		// BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title),BorderFactory.createBevelBorder(1)),BorderFactory.createEmptyBorder(1,1,1,1)
 		// ));
 		setOpaque(true);
@@ -137,6 +140,19 @@ public class PerspDisplayPanel extends JPanel implements ActionListener {
 		// add(Box.createVerticalStrut(200));
 		// setLayout( new BoxLayout(this,BoxLayout.LINE_AXIS));
 		// setLayout(new GridLayout(1,1));
+		this.view = new View(title, null, this);
+	}
+
+	public void setViewportBackground(final Color background) {
+		vp.setViewportBackground(background);
+	}
+
+	public Color getViewportBackground() {
+		return vp.getBackground();
+	}
+
+	public View getView() {
+		return view;
 	}
 
 	public void addGeosets(final List<Geoset> list) {

@@ -50,6 +50,34 @@ public class MainFrame extends JFrame {
 		// // handle exception
 		// }
 		EditorDisplayManager.setupLookAndFeel();
+		// try {
+		// UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel");
+		// } catch (final Exception exc) {
+		// try {
+		// UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		// } catch (final ClassNotFoundException e) {
+		// e.printStackTrace();
+		// } catch (final InstantiationException e) {
+		// e.printStackTrace();
+		// } catch (final IllegalAccessException e) {
+		// e.printStackTrace();
+		// } catch (final UnsupportedLookAndFeelException e) {
+		// e.printStackTrace();
+		// }
+		// }
+		// try {
+		// final InfoNodeLookAndFeelTheme theme = new InfoNodeLookAndFeelTheme("Matrix Eater", new Color(44, 46, 20),
+		// new Color(116, 126, 36), new Color(44, 46, 20), new Color(220, 202, 132), new Color(116, 126, 36),
+		// new Color(220, 202, 132));
+		// theme.setDesktopColor(new Color(60, 82, 44));
+		// theme.setTreeOpenIcon(new IconUIResource(new ImageIcon(
+		// BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp"))));
+		// theme.setTreeClosedIcon(new IconUIResource(new ImageIcon(
+		// BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp"))));
+		// UIManager.setLookAndFeel(new InfoNodeLookAndFeel(theme));
+		// } catch (final UnsupportedLookAndFeelException e) {
+		// e.printStackTrace();
+		// }
 
 		frame = new MainFrame("The Matrix Eater v1.21");
 		panel.init();

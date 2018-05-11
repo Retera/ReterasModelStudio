@@ -167,7 +167,9 @@ public class GeosetAnimationChunk {
 					}
 					colorFound = true;
 				} else {
-					System.err.println("discarded flag " + af.getName());
+					if (Node.LOG_DISCARDED_FLAGS) {
+						System.err.println("discarded flag " + af.getName());
+					}
 				}
 			}
 			if (alphaFound || Math.abs(mdlGeoAnim.getStaticAlpha() - (-1)) <= 0.001) {

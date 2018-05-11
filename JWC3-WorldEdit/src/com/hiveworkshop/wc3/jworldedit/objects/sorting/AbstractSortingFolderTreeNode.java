@@ -25,7 +25,7 @@ public abstract class AbstractSortingFolderTreeNode extends SortingFolderTreeNod
 	@Override
 	public DefaultMutableTreeNode add(final MutableGameObject mutableGameObject, final TreeNodeLinker treeModel) {
 		final DefaultMutableTreeNode newChild = new DefaultMutableTreeNode(mutableGameObject);
-		add(newChild);
+		treeModel.insertNodeInto(newChild, this, getChildCount());
 		return newChild;
 	}
 

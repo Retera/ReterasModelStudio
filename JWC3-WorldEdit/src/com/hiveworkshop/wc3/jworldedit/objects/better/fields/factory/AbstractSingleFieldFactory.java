@@ -22,6 +22,10 @@ public abstract class AbstractSingleFieldFactory implements SingleFieldFactory {
 		final String rawDataName = getRawDataName(metaData, metaKey, level);
 		final String metaDataType = metaField.getField("type");
 		switch (metaDataType) {
+		case "attackBits":
+		case "teamColor":
+		case "deathType":
+		case "versionFlags":
 		case "int":
 			return new IntegerObjectField(displayName, rawDataName, metaKey, level, worldEditorDataType, metaField);
 		case "real":

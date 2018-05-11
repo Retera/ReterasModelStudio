@@ -177,7 +177,9 @@ public class LayerChunk {
 						}
 					}
 				} else {
-					System.err.println("discarded flag " + af.getName());
+					if (Node.LOG_DISCARDED_FLAGS) {
+						System.err.println("discarded flag " + af.getName());
+					}
 				}
 			}
 			if (alphaFound || Math.abs(layer.getStaticAlpha() - (-1)) <= 0.001) {

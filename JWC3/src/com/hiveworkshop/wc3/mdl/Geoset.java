@@ -212,8 +212,8 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 	/**
-	 * Returns all vertices that directly inherit motion from the specified
-	 * Bone, or an empty list if no vertices reference the object.
+	 * Returns all vertices that directly inherit motion from the specified Bone, or an empty list if no vertices
+	 * reference the object.
 	 *
 	 * @param parent
 	 * @return
@@ -360,7 +360,7 @@ public class Geoset implements Named, VisibilitySource {
 			}
 			line = MDLReader.nextLine(mdl);
 			if (!line.contains("Triangles")) {
-				System.out.println(line);
+				System.out.println("No triangles: " + line);
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "Error: Triangles missing or invalid!");
 			}
 			geo.setTriangles(Triangle.read(mdl, geo));
@@ -378,10 +378,8 @@ public class Geoset implements Named, VisibilitySource {
 			line = MDLReader.nextLine(mdl);
 			while (!line.contains("}") || line.contains("},")) {
 				if (line.contains("Extent") || line.contains("BoundsRadius")) {
-					System.out.println("Parsing geoset extLog:" + line);
 					MDLReader.reset(mdl);
 					geo.setExtLog(ExtLog.read(mdl));
-					System.out.println("Completed geoset extLog.");
 				} else if (line.contains("Anim")) {
 					MDLReader.reset(mdl);
 					geo.add(Animation.read(mdl));
@@ -394,14 +392,12 @@ public class Geoset implements Named, VisibilitySource {
 					MDLReader.mark(mdl);
 				} else {
 					geo.addFlag(MDLReader.readFlag(line));
-					System.out.println("Reading to geoFlag: " + line);
 					MDLReader.mark(mdl);
 				}
 				line = MDLReader.nextLine(mdl);
 			}
 			// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Geoset
 			// reading completed!");
-			System.out.println("Geoset reading completed!");
 
 			return geo;
 		} else {

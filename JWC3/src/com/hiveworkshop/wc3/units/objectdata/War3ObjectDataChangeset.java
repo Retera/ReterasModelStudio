@@ -481,6 +481,7 @@ public final class War3ObjectDataChangeset {
 				existingObject.setNewId(readWar3ID(stream));
 			} else {
 				newid = readWar3ID(stream);
+				System.out.println("Reading: " + newid + ":" + origid);
 				if (noid.equals(origid) || noid.equals(newid)) {
 					throw new IOException("the input stream might be screwed");
 				}
@@ -491,7 +492,8 @@ public final class War3ObjectDataChangeset {
 			}
 			final int ccount = stream.readInt();// Retera: I assume this is change count?
 			if (ccount == 0 && isOriginal) {
-				throw new IOException("we seem to have reached the end of the stream and get zeroes");
+				// throw new IOException("we seem to have reached the end of the stream and get zeroes");
+				System.err.println("we seem to have reached the end of the stream and get zeroes");
 			}
 			for (int j = 0; j < ccount; j++) {
 				final War3ID chid = readWar3ID(stream);
@@ -567,7 +569,7 @@ public final class War3ObjectDataChangeset {
 					}
 				}
 			}
-			if (newid == null) {
+			if (newid == null && !isOriginal) {
 				throw new IllegalStateException("custom unit has no ID!");
 			}
 			map.put(isOriginal ? origid : newid, existingObject);
@@ -663,6 +665,7 @@ public final class War3ObjectDataChangeset {
 				totalSize += changeEntry.getValue().size();
 			}
 			if (totalSize > 0 || !isOriginal) {
+				System.out.println("Writing: " + cl.getOldId());
 				outputStream.writeChars(cl.getOldId().asStringValue().toCharArray());
 				outputStream.writeChars(cl.getNewId().asStringValue().toCharArray());
 				count = totalSize;// cl.getChanges().size();

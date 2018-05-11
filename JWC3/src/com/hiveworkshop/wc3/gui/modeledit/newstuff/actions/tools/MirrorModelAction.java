@@ -15,9 +15,15 @@ public final class MirrorModelAction implements UndoAction {
 	private final List<Vertex> selection;
 	private final List<IdObject> idObjects;
 	private final byte mirrorDim;
+	private final double centerX;
+	private final double centerY;
+	private final double centerZ;
 
 	public MirrorModelAction(final Collection<? extends Vertex> selection, final Collection<IdObject> idObjects,
-			final byte mirrorDim) {
+			final byte mirrorDim, final double centerX, final double centerY, final double centerZ) {
+		this.centerX = centerX;
+		this.centerY = centerY;
+		this.centerZ = centerZ;
 		this.selection = new ArrayList<>(selection);
 		this.idObjects = new ArrayList<>(idObjects);
 		this.mirrorDim = mirrorDim;
@@ -34,8 +40,9 @@ public final class MirrorModelAction implements UndoAction {
 	}
 
 	private void doMirror() {
-		final Vertex center = Vertex.centerOfGroup(selection);// Calc center
-																// of mass
+		final Vertex center = new Vertex(centerX, centerY, centerZ);
+		// Vertex.centerOfGroup(selection);// Calc center
+		// // of mass
 		for (final Vertex vert : selection) {
 			vert.setCoord(mirrorDim, 2 * center.getCoord(mirrorDim) - vert.getCoord(mirrorDim));
 			if (vert.getClass() == GeosetVertex.class) {

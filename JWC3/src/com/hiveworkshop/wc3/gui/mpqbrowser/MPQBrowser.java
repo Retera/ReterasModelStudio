@@ -2,6 +2,9 @@ package com.hiveworkshop.wc3.gui.mpqbrowser;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -178,8 +181,21 @@ public final class MPQBrowser extends JPanel {
 				}
 			}
 		});
+		final JMenuItem copyPathToClipboardItem = new JMenuItem("Copy Path to Clipboard");
+		copyPathToClipboardItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final MPQTreeNode clickedNode = ((MPQTreeNode) mouseAdapterExtension.getClickedPath()
+						.getLastPathComponent());
+				final StringSelection selection = new StringSelection(clickedNode.getPath());
+				final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+				clipboard.setContents(selection, selection);
+			}
+		});
 		contextMenu.add(openItem);
 		contextMenu.add(extractItem);
+		contextMenu.addSeparator();
+		contextMenu.add(copyPathToClipboardItem);
 		mouseAdapterExtension = new MouseAdapterExtension(contextMenu);
 		tree.addMouseListener(mouseAdapterExtension);
 	}

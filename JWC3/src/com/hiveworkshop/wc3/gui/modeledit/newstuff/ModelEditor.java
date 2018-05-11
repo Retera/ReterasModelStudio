@@ -16,8 +16,8 @@ import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 /**
- * SelectionManager should've been like this so it didn't wrap the selection in
- * silly Item objects, but the code hasn't been reworked to be this thing yet
+ * SelectionManager should've been like this so it didn't wrap the selection in silly Item objects, but the code hasn't
+ * been reworked to be this thing yet
  *
  * @author Eric
  *
@@ -44,7 +44,9 @@ public interface ModelEditor {
 
 	UndoAction snapNormals();
 
-	UndoAction mirror(byte dim, boolean flipModel);
+	UndoAction recalcNormals();
+
+	UndoAction mirror(byte dim, boolean flipModel, double centerX, double centerY, double centerZ);
 
 	UndoAction flipSelectedFaces();
 

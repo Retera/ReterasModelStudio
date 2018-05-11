@@ -39,6 +39,9 @@ public final class FlipFacesAction implements UndoAction {
 						selTris.add(temptr);
 					}
 				}
+				if (gv.getNormal() != null) {
+					gv.getNormal().inverse();
+				}
 			}
 		}
 
@@ -55,7 +58,7 @@ public final class FlipFacesAction implements UndoAction {
 		}
 
 		for (final Triangle tri : selTris) {
-			tri.flip(true);
+			tri.flip(false);
 		}
 	}
 

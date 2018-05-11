@@ -185,7 +185,9 @@ public class CameraChunk {
 						}
 					}
 				} else {
-					System.err.println("discarded flag " + af.getName());
+					if (Node.LOG_DISCARDED_FLAGS) {
+						System.err.println("discarded flag " + af.getName());
+					}
 				}
 			}
 			for (final AnimFlag af : mdlCam.getAnimFlags()) {
@@ -207,7 +209,9 @@ public class CameraChunk {
 						}
 					}
 				} else {
-					System.err.println("discarded flag " + af.getName());
+					if (Node.LOG_DISCARDED_FLAGS) {
+						System.err.println("discarded flag " + af.getName());
+					}
 				}
 			}
 		}

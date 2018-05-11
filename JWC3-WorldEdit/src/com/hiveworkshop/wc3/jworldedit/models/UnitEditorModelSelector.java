@@ -49,6 +49,7 @@ import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.WorldEditorDataTy
 
 import de.wc3data.stream.BlizzardDataInputStream;
 
+@Deprecated
 public class UnitEditorModelSelector extends JSplitPane implements TreeSelectionListener {
 	WarcraftData unitData = StandardObjectData.getStandardUnits();
 	GameObject currentUnit = null;
