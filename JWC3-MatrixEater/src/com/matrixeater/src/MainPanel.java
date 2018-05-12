@@ -208,8 +208,8 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 	File currentFile;
 	ImportPanel importPanel;
 	static final ImageIcon MDLIcon = new ImageIcon(MainPanel.class.getResource("ImageBin/MDLIcon_16.png"));
-	static final ImageIcon HIVE_CONCEPT_LOGO = new ImageIcon(
-			MainPanel.class.getResource("ImageBin/HiveLogoConcept.png"));
+	static final ImageIcon POWERED_BY_HIVE = new ImageIcon(
+			MainPanel.class.getResource("ImageBin/powered_by_hive.png"));
 	public static final ImageIcon AnimIcon = new ImageIcon(MainPanel.class.getResource("ImageBin/Anim.png"));
 	boolean loading;
 	RootWindow modelTabWindow;
@@ -690,7 +690,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 		public void actionPerformed(final ActionEvent e) {
 			final JPanel panel = new JPanel();
 			panel.setLayout(new BorderLayout());
-			panel.add(BorderLayout.BEFORE_FIRST_LINE, new JLabel(HIVE_CONCEPT_LOGO));
+			panel.add(BorderLayout.BEFORE_FIRST_LINE, new JLabel(POWERED_BY_HIVE));
 			// final JPanel resourceFilters = new JPanel();
 			// resourceFilters.setBorder(BorderFactory.createTitledBorder("Resource Filters"));
 			// panel.add(BorderLayout.BEFORE_LINE_BEGINS, resourceFilters);
