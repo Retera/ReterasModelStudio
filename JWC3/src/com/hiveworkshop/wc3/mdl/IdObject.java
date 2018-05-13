@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
+import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.Node;
 
@@ -48,7 +49,8 @@ public abstract class IdObject implements Named {
 	Vertex pivotPoint;
 	int objectId = -1;
 	int parentId = -1;
-	IdObject parent;
+	private IdObject parent;
+	private final List<IdObject> childrenNodes = new ArrayList<>();
 
 	public void setName(final String text) {
 		name = text;
@@ -68,7 +70,7 @@ public abstract class IdObject implements Named {
 		pivotPoint = host.pivotPoint;
 		objectId = host.objectId;
 		parentId = host.parentId;
-		parent = host.parent;
+		setParent(host.parent);
 	}
 
 	public static IdObject read(final BufferedReader mdl) {
@@ -82,7 +84,13 @@ public abstract class IdObject implements Named {
 	}
 
 	public void setParent(final IdObject p) {
+		if (parent != null) {
+			parent.childrenNodes.remove(this);
+		}
 		parent = p;
+		if (parent != null) {
+			parent.childrenNodes.add(this);
+		}
 	}
 
 	public IdObject copy() {
@@ -134,6 +142,10 @@ public abstract class IdObject implements Named {
 		return allChildren;
 	}
 
+	public boolean hasFlag(final NodeFlags flag) {
+		return getFlags().contains(flag.getMdlText());
+	}
+
 	public abstract void flipOver(byte axis);
 
 	/**
@@ -183,7 +195,7 @@ public abstract class IdObject implements Named {
 		objectId = node.objectId;
 		int shift = 0;
 		for (final IdObject.NodeFlags flag : IdObject.NodeFlags.values()) {
-			if (((node.flags >> shift) & 1) == 1) {
+			if (((node.flags >>> shift) & 1) == 1) {
 				add(flag.getMdlText());
 			}
 			shift++;
@@ -218,4 +230,17 @@ public abstract class IdObject implements Named {
 	public abstract List<AnimFlag> getAnimFlags();
 
 	public abstract void apply(IdObjectVisitor visitor);
+
+	public abstract float getRenderVisibility(AnimatedRenderEnvironment animatedRenderEnvironment);
+
+	public abstract Vertex getRenderTranslation(AnimatedRenderEnvironment animatedRenderEnvironment);
+
+	public abstract QuaternionRotation getRenderRotation(AnimatedRenderEnvironment animatedRenderEnvironment);
+
+	public abstract Vertex getRenderScale(AnimatedRenderEnvironment animatedRenderEnvironment);
+
+	public List<IdObject> getChildrenNodes() {
+		return childrenNodes;
+	}
+
 }

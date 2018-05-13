@@ -79,7 +79,7 @@ public class MainFrame extends JFrame {
 		// e.printStackTrace();
 		// }
 
-		frame = new MainFrame("The Matrix Eater v1.21");
+		frame = new MainFrame("Retera's War3 Studio Max");
 		panel.init();
 	}
 

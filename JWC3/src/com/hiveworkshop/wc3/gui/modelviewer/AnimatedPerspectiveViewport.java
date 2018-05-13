@@ -1,4 +1,4 @@
-package com.matrixeater.src.viewer;
+package com.hiveworkshop.wc3.gui.modelviewer;
 
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_COLOR_MATERIAL;
@@ -48,6 +48,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -55,7 +56,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.Timer;
-import javax.swing.ToolTipManager;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
@@ -63,24 +63,38 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.Pbuffer;
 import org.lwjgl.opengl.PixelFormat;
+import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Quaternion;
+import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.lwjgl.BetterAWTGLCanvas;
+import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Bitmap;
+import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Geoset;
+import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Layer;
+import com.hiveworkshop.wc3.mdl.Layer.FilterMode;
 import com.hiveworkshop.wc3.mdl.Material;
+import com.hiveworkshop.wc3.mdl.RenderModel;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
-		implements MouseListener, ActionListener, MouseWheelListener {
+		implements MouseListener, ActionListener, MouseWheelListener, AnimatedRenderEnvironment {
 	ModelView modelView;
+	private RenderModel renderModel;
 	Vertex cameraPos = new Vertex(0, 0, 0);
+	Quaternion inverseCameraRotationQuat = new Quaternion();
+	Quaternion inverseCameraRotationYSpin = new Quaternion();
+	Quaternion inverseCameraRotationZSpin = new Quaternion();
+	private final Vector4f axisHeap = new Vector4f();
 	double m_zoom = 1;
 	Point lastClick;
 	Point leftClickStart;
@@ -98,8 +112,11 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 	Class<? extends Throwable> lastThrownErrorClass;
 	private final ProgramPreferences programPreferences;
 
-	private int trackTime;
+	private int animationTime;
 	private boolean live;
+	private Animation animation;
+	private long lastUpdateMillis = System.currentTimeMillis();
+	private long lastExceptionTimeMillis = 0;
 
 	public AnimatedPerspectiveViewport(final ModelView modelView, final ProgramPreferences programPreferences)
 			throws LWJGLException {
@@ -118,16 +135,41 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 		// add(Box.createVerticalStrut(200));
 		// setLayout( new BoxLayout(this,BoxLayout.LINE_AXIS));
 		this.modelView = modelView;
+		this.renderModel = new RenderModel(modelView.getModel());
+		renderModel.refreshFromEditor(this, inverseCameraRotationQuat, inverseCameraRotationYSpin,
+				inverseCameraRotationZSpin);
 		addMouseListener(this);
 		addMouseWheelListener(this);
+	}
+
+	public void setModel(final ModelView modelView) {
+		setAnimation(null);
+		this.modelView = modelView;
+		this.renderModel = new RenderModel(modelView.getModel());
+		renderModel.refreshFromEditor(this, inverseCameraRotationQuat, inverseCameraRotationYSpin,
+				inverseCameraRotationZSpin);
+		if (modelView.getModel().getAnims().size() > 0) {
+			setAnimation(modelView.getModel().getAnim(0));
+		}
+		reloadAllTextures();
+	}
+
+	public void setAnimation(final Animation animation) {
+		this.animation = animation;
+		animationTime = 0;
+		lastUpdateMillis = System.currentTimeMillis();
+		if (animation != null) {
+			renderModel.refreshFromEditor(this, inverseCameraRotationQuat, inverseCameraRotationYSpin,
+					inverseCameraRotationZSpin);
+		} else {
+			renderModel.refreshFromEditor(this, inverseCameraRotationQuat, inverseCameraRotationYSpin,
+					inverseCameraRotationZSpin);
+		}
 	}
 
 	public void setWireframeHandler(final JCheckBox nwireframe) {
 		wireframe = nwireframe;
 	}
-
-	private final float[] whiteDiffuse = { 1f, 1f, 1f, 1f };
-	private final float[] posSun = { 0.0f, 10.0f, 0.0f, 1.0f };
 
 	boolean wantReload = false;
 
@@ -149,48 +191,56 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 		// }
 		// initGL();
 
-		for (final Geoset geo : modelView.getEditableGeosets()) {// .getMDL().getGeosets()
+		for (final Geoset geo : modelView.getModel().getGeosets()) {// .getMDL().getGeosets()
 			for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
-				final Bitmap tex = geo.getMaterial().getLayers().get(i).firstTexture();
-				if (textureMap.get(tex) == null) {
-					String path = tex.getPath();
-					if (path.length() == 0) {
-						if (tex.getReplaceableId() == 1) {
-							path = "ReplaceableTextures\\TeamColor\\TeamColor0" + Material.teamColor;
-						} else if (tex.getReplaceableId() == 2) {
-							path = "ReplaceableTextures\\TeamGlow\\TeamGlow0" + Material.teamColor;
-						}
-					} else {
-						path = path.substring(0, path.length() - 4);
+				final Layer layer = geo.getMaterial().getLayers().get(i);
+				if (layer.getTextureBitmap() == null) {
+					for (final Bitmap tex : layer.getTextures()) {
+						loadToTexMap(tex);
 					}
-					Integer texture = null;
-					try {
-						texture = loadTexture(BLPHandler.get().getGameTex(path + ".blp"), tex);
-					} catch (final Exception exc) {
-						exc.printStackTrace();
-						texture = loadTexture(
-								BLPHandler.get().getCustomTex(
-										modelView.getModel().getWorkingDirectory().getPath() + "\\" + path + ".blp"),
-								tex);// TextureLoader.getTexture("TGA",
-						// new
-						// FileInputStream(new
-						// File(dispMDL.getMDL().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
-
-						// try { } catch (FileNotFoundException e) {
-						// // Auto-generated catch block
-						// e.printStackTrace();
-						// } catch (IOException e) {
-						// // Auto-generated catch block
-						// e.printStackTrace();
-						// }
-					}
-					if (texture != null) {
-						textureMap.put(tex, texture);
-						// textureMapCID.put(tex,
-						// geo.getMaterial().getLayers().get(i).getCoordId());
-						// texture.bind();
-					}
+				} else {
+					loadToTexMap(layer.getTextureBitmap());
 				}
+			}
+		}
+	}
+
+	public void loadToTexMap(final Bitmap tex) {
+		if (textureMap.get(tex) == null) {
+			String path = tex.getPath();
+			if (path.length() == 0) {
+				if (tex.getReplaceableId() == 1) {
+					path = "ReplaceableTextures\\TeamColor\\TeamColor0" + Material.teamColor;
+				} else if (tex.getReplaceableId() == 2) {
+					path = "ReplaceableTextures\\TeamGlow\\TeamGlow0" + Material.teamColor;
+				}
+			} else {
+				path = path.substring(0, path.length() - 4);
+			}
+			Integer texture = null;
+			try {
+				texture = loadTexture(BLPHandler.get().getGameTex(path + ".blp"), tex);
+			} catch (final Exception exc) {
+				exc.printStackTrace();
+				texture = loadTexture(BLPHandler.get().getCustomTex(
+						modelView.getModel().getWorkingDirectory().getPath() + "\\" + path + ".blp"), tex);// TextureLoader.getTexture("TGA",
+				// new
+				// FileInputStream(new
+				// File(dispMDL.getMDL().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
+
+				// try { } catch (FileNotFoundException e) {
+				// // Auto-generated catch block
+				// e.printStackTrace();
+				// } catch (IOException e) {
+				// // Auto-generated catch block
+				// e.printStackTrace();
+				// }
+			}
+			if (texture != null) {
+				textureMap.put(tex, texture);
+				// textureMapCID.put(tex,
+				// geo.getMaterial().getLayers().get(i).getCoordId());
+				// texture.bind();
 			}
 		}
 	}
@@ -238,8 +288,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 		}
 	}
 
-	public void setTrackTime(final int trackTime) {
-		this.trackTime = trackTime;
+	public void setAnimationTime(final int trackTime) {
+		this.animationTime = trackTime;
 	}
 
 	public void setLive(final boolean live) {
@@ -291,6 +341,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 						}
 					}
 				}
+				renderModel.refreshFromEditor(this, inverseCameraRotationQuat, inverseCameraRotationYSpin,
+						inverseCameraRotationZSpin);
 			}
 			// try {
 			//// Display.setDisplayMode(new DisplayMode(800, 600));
@@ -392,9 +444,19 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 		return texLoaded && (programPreferences == null || programPreferences.textureModels());
 	}
 
+	private final Vector4f vertexHeap = new Vector4f();
+	private final Vector4f appliedVertexHeap = new Vector4f();
+	private final Vector4f vertexSumHeap = new Vector4f();
+	private final Vector4f normalHeap = new Vector4f();
+	private final Vector4f appliedNormalHeap = new Vector4f();
+	private final Vector4f normalSumHeap = new Vector4f();
+
 	@Override
 	public void paintGL() {
 		// setSize(getParent().getSize());
+		if (System.currentTimeMillis() - lastExceptionTimeMillis < 5000) {
+			return;
+		}
 		if (wantReloadAll) {
 			wantReloadAll = false;
 			wantReload = false;// If we just reloaded all, no need to reload
@@ -418,6 +480,12 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 			texLoaded = true;
 		}
 		try {
+			final long currentTimeMillis = System.currentTimeMillis();
+			if (animation != null) {
+				animationTime = (int) ((animationTime + (currentTimeMillis - lastUpdateMillis)) % animation.length());
+			}
+			renderModel.updateNodes(false);
+			lastUpdateMillis = currentTimeMillis;
 			if (getWidth() != current_width || getHeight() != current_height) {
 				current_width = getWidth();
 				current_height = getHeight();
@@ -468,7 +536,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 			glScalef((float) m_zoom, (float) m_zoom, (float) m_zoom);
 
 			final FloatBuffer ambientColor = BufferUtils.createFloatBuffer(4);
-			ambientColor.put(0.2f).put(0.2f).put(0.2f).put(1f).flip();
+			ambientColor.put(0.8f).put(0.8f).put(0.8f).put(1f).flip();
 			// float [] ambientColor = {0.2f, 0.2f, 0.2f, 1f};
 			// FloatBuffer buffer =
 			// ByteBuffer.allocateDirect(ambientColor.length*8).asFloatBuffer();
@@ -493,54 +561,63 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 			// glColor3f(1f,1f,0f);
 			// glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE ) ;
 			// glEnable(GL_COLOR_MATERIAL);
-			glColor3f(2f, 2f, 2f);
-			for (final Geoset geo : modelView.getModel().getGeosets()) {// .getMDL().getGeosets()
-				for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
-					final Layer layer = geo.getMaterial().getLayers().get(i);
-					final Bitmap tex = layer.firstTexture();
-					final Integer texture = textureMap.get(tex);
-					if (texture != null) {
-						// texture.bind();
-						GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
-						GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S,
-								tex.getWrapWidth() ? GL11.GL_REPEAT : GL11.GL_CLAMP);
-						GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T,
-								tex.getWrapHeight() ? GL11.GL_REPEAT : GL11.GL_CLAMP);
-					}
-					if (layer.getFilterModeString().equals("Additive")) {
-						// GL11.glDisable(GL11.GL_DEPTH_TEST);
-						GL11.glDepthMask(false);
-						GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
-					} else if (layer.getFilterModeString().equals("AddAlpha")) {
-						// GL11.glDisable(GL11.GL_DEPTH_TEST);
-						GL11.glDepthMask(false);
-						GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
-					} else {
-						// GL11.glEnable(GL11.GL_DEPTH_TEST);
-						GL11.glDepthMask(true);
-						GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-					}
-					glBegin(GL11.GL_TRIANGLES);
+			final ArrayList<Geoset> geosets = modelView.getModel().getGeosets();
+			render(geosets);
+			if (programPreferences != null && programPreferences.showNormals()) {
+				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
+				GL11.glDisable(GL11.GL_TEXTURE_2D);
+
+				glBegin(GL11.GL_LINES);
+				glColor3f(1f, 1f, 3f);
+				// if( wireframe.isSelected() )
+				for (final Geoset geo : modelView.getModel().getGeosets()) {// .getMDL().getGeosets()
 					for (final Triangle tri : geo.getTriangles()) {
 						for (final GeosetVertex v : tri.getVerts()) {
-							if (v.getNormal() != null) {
-								GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z,
-										(float) v.getNormal().x);
+
+							vertexHeap.x = (float) v.x;
+							vertexHeap.y = (float) v.y;
+							vertexHeap.z = (float) v.z;
+							vertexHeap.w = 1;
+							vertexSumHeap.set(0, 0, 0, 0);
+							for (final Bone bone : v.getBones()) {
+								Matrix4f.transform(renderModel.getRenderNode(bone).getWorldMatrix(), vertexHeap,
+										appliedVertexHeap);
+								Vector4f.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
 							}
-							GL11.glTexCoord2f(
-									(float) v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).x,
-									(float) v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).y);
-							GL11.glVertex3f((float) v.y / 1.0f, (float) v.z / 1.0f, (float) v.x / 1.0f);
+							final int boneCount = v.getBones().size();
+							vertexSumHeap.x /= boneCount;
+							vertexSumHeap.y /= boneCount;
+							vertexSumHeap.z /= boneCount;
+							vertexSumHeap.w /= boneCount;
+							if (v.getNormal() != null) {
+								normalHeap.x = (float) v.getNormal().x;
+								normalHeap.y = (float) v.getNormal().y;
+								normalHeap.z = (float) v.getNormal().z;
+								normalHeap.w = 0;
+								normalSumHeap.set(0, 0, 0, 0);
+								for (final Bone bone : v.getBones()) {
+									Matrix4f.transform(renderModel.getRenderNode(bone).getWorldMatrix(), normalHeap,
+											appliedNormalHeap);
+									Vector4f.add(normalSumHeap, appliedNormalHeap, normalSumHeap);
+								}
+								normalSumHeap.normalise();
+
+								GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
+
+								GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
+								GL11.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
+
+								GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
+								GL11.glVertex3f(vertexSumHeap.y + (float) (normalSumHeap.y * 6 / m_zoom),
+										vertexSumHeap.z + (float) (normalSumHeap.z * 6 / m_zoom),
+										vertexSumHeap.x + (float) (normalSumHeap.x * 6 / m_zoom));
+							}
 						}
 					}
-					// if( texture != null )
-					// {
-					// texture.release();
-					// }
-					glEnd();
 				}
+				glEnd();
 			}
-			GL11.glDepthMask(true);
 			// System.out.println("max:
 			// "+GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE));
 
@@ -552,6 +629,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 			swapBuffers();
 			repaint();
 		} catch (final Throwable e) {
+			e.printStackTrace();
+			lastExceptionTimeMillis = System.currentTimeMillis();
 			if (lastThrownErrorClass == null || lastThrownErrorClass != e.getClass()) {
 				lastThrownErrorClass = e.getClass();
 				JOptionPane.showMessageDialog(null, "Rendering failed because of this exact reason:\n"
@@ -586,6 +665,173 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 	// e.printStackTrace();
 	// }
 	// }
+
+	public void render(final ArrayList<Geoset> geosets) {
+		for (final Geoset geo : geosets) {// .getMDL().getGeosets()
+			render(geo, true);
+		}
+		for (final Geoset geo : geosets) {// .getMDL().getGeosets()
+			render(geo, false);
+		}
+	}
+
+	public void render(final Geoset geo, final boolean renderOpaque) {
+		final GeosetAnim geosetAnim = geo.getGeosetAnim();
+		float geosetAnimVisibility = 1;
+		if (animation != null && geosetAnim != null) {
+			geosetAnimVisibility = geosetAnim.getRenderVisibility(this);
+			if (geosetAnimVisibility < RenderModel.MAGIC_RENDER_SHOW_CONSTANT) {
+				return;
+			}
+		}
+		for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
+			final Layer layer = geo.getMaterial().getLayers().get(i);
+
+			if (animation != null) {
+				final float layerVisibility = layer.getRenderVisibility(this);
+				if (/* geo.getMaterial().isConstantColor() && */ geosetAnim != null) {
+					final Vector3f renderColor = geosetAnim.getRenderColor(this);
+					if (renderColor != null) {
+						GL11.glColor4f(renderColor.z * 1f, renderColor.y * 1f, renderColor.x * 1f,
+								geosetAnimVisibility * layerVisibility);
+					} else {
+						GL11.glColor4f(1f, 1f, 1f, geosetAnimVisibility * layerVisibility);
+					}
+				} else {
+					GL11.glColor4f(1f, 1f, 1f, geosetAnimVisibility * layerVisibility);
+				}
+			} else {
+				GL11.glColor4f(1f, 1f, 1f, 1f);
+			}
+
+			final FilterMode filterMode = layer.getFilterMode();
+			final boolean opaqueLayer = filterMode == FilterMode.NONE || filterMode == FilterMode.TRANSPARENT;
+			if ((renderOpaque && opaqueLayer) || (!renderOpaque && !opaqueLayer)) {
+				final Bitmap tex = layer.getRenderTexture(this);
+				final Integer texture = textureMap.get(tex);
+				bindLayer(layer, tex, texture);
+				glBegin(GL11.GL_TRIANGLES);
+				for (final Triangle tri : geo.getTriangles()) {
+					for (final GeosetVertex v : tri.getVerts()) {
+
+						vertexHeap.x = (float) v.x;
+						vertexHeap.y = (float) v.y;
+						vertexHeap.z = (float) v.z;
+						vertexHeap.w = 1;
+						vertexSumHeap.set(0, 0, 0, 0);
+						for (final Bone bone : v.getBones()) {
+							Matrix4f.transform(renderModel.getRenderNode(bone).getWorldMatrix(), vertexHeap,
+									appliedVertexHeap);
+							Vector4f.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
+						}
+						final int boneCount = v.getBones().size();
+						vertexSumHeap.x /= boneCount;
+						vertexSumHeap.y /= boneCount;
+						vertexSumHeap.z /= boneCount;
+						vertexSumHeap.w /= boneCount;
+						if (v.getNormal() != null) {
+							normalHeap.x = (float) v.getNormal().x;
+							normalHeap.y = (float) v.getNormal().y;
+							normalHeap.z = (float) v.getNormal().z;
+							normalHeap.w = 0;
+							normalSumHeap.set(0, 0, 0, 0);
+							for (final Bone bone : v.getBones()) {
+								Matrix4f.transform(renderModel.getRenderNode(bone).getWorldMatrix(), normalHeap,
+										appliedNormalHeap);
+								Vector4f.add(normalSumHeap, appliedNormalHeap, normalSumHeap);
+							}
+
+							if (normalSumHeap.length() > 0) {
+								normalSumHeap.normalise();
+							} else {
+								normalSumHeap.set(0, 1, 0, 0);
+							}
+
+							GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
+						}
+						GL11.glTexCoord2f((float) v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).x,
+								(float) v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).y);
+						GL11.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
+					}
+				}
+				// if( texture != null )
+				// {
+				// texture.release();
+				// }
+				glEnd();
+			}
+		}
+	}
+
+	public void bindLayer(final Layer layer, final Bitmap tex, final Integer texture) {
+		if (texture != null) {
+			// texture.bind();
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S,
+					tex.getWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T,
+					tex.getWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+		}
+		boolean depthMask = false;
+		switch (layer.getFilterMode()) {
+		case BLEND:
+			GL11.glDisable(GL11.GL_ALPHA_TEST);
+			GL11.glEnable(GL11.GL_BLEND);
+			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+			break;
+		case ADDITIVE:
+			GL11.glDisable(GL11.GL_ALPHA_TEST);
+			GL11.glEnable(GL11.GL_BLEND);
+			GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
+			break;
+		case ADDALPHA:
+			GL11.glDisable(GL11.GL_ALPHA_TEST);
+			GL11.glEnable(GL11.GL_BLEND);
+			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+			break;
+		case MODULATE:
+			GL11.glDisable(GL11.GL_ALPHA_TEST);
+			GL11.glEnable(GL11.GL_BLEND);
+			GL11.glBlendFunc(GL11.GL_ZERO, GL11.GL_SRC_COLOR);
+			break;
+		case MODULATE2X:
+			GL11.glDisable(GL11.GL_ALPHA_TEST);
+			GL11.glEnable(GL11.GL_BLEND);
+			GL11.glBlendFunc(GL11.GL_DST_COLOR, GL11.GL_SRC_COLOR);
+			break;
+		case NONE:
+			GL11.glDisable(GL11.GL_ALPHA_TEST);
+			GL11.glDisable(GL11.GL_BLEND);
+			depthMask = true;
+			break;
+		case TRANSPARENT:
+			GL11.glEnable(GL11.GL_ALPHA_TEST);
+			GL11.glAlphaFunc(GL11.GL_GREATER, 0.75f);
+			GL11.glDisable(GL11.GL_BLEND);
+			depthMask = true;
+			break;
+		}
+		if (layer.isTwoSided()) {
+			GL11.glDisable(GL11.GL_CULL_FACE);
+		} else {
+			GL11.glEnable(GL11.GL_CULL_FACE);
+		}
+		if (layer.isNoDepthTest()) {
+			GL11.glDisable(GL11.GL_DEPTH_TEST);
+		} else {
+			GL11.glEnable(GL11.GL_DEPTH_TEST);
+		}
+		if (layer.isNoDepthSet()) {
+			GL11.glDepthMask(false);
+		} else {
+			GL11.glDepthMask(depthMask);
+		}
+		if (layer.isUnshaded()) {
+			GL11.glDisable(GL_LIGHTING);
+		} else {
+			glEnable(GL_LIGHTING);
+		}
+	}
 
 	// public void paintComponent(Graphics g)
 	// {
@@ -700,6 +946,21 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 
 				xangle += (mx - leftClickStart.x);
 				yangle += (my - leftClickStart.y);
+
+				axisHeap.set(0, 1, 0, (float) Math.toRadians(yangle));
+				inverseCameraRotationYSpin.setFromAxisAngle(axisHeap);
+				axisHeap.set(0, 0, 1, (float) Math.toRadians(xangle));
+				inverseCameraRotationZSpin.setFromAxisAngle(axisHeap);
+				Quaternion.mul(inverseCameraRotationYSpin, inverseCameraRotationZSpin, inverseCameraRotationQuat);
+				inverseCameraRotationQuat.x = -inverseCameraRotationQuat.x;
+				inverseCameraRotationQuat.y = -inverseCameraRotationQuat.y;
+				inverseCameraRotationQuat.z = -inverseCameraRotationQuat.z;
+				inverseCameraRotationYSpin.x = -inverseCameraRotationYSpin.x;
+				inverseCameraRotationYSpin.y = -inverseCameraRotationYSpin.y;
+				inverseCameraRotationYSpin.z = -inverseCameraRotationYSpin.z;
+				inverseCameraRotationZSpin.x = -inverseCameraRotationZSpin.x;
+				inverseCameraRotationZSpin.y = -inverseCameraRotationZSpin.y;
+				inverseCameraRotationZSpin.z = -inverseCameraRotationZSpin.z;
 				leftClickStart.x = (int) mx;
 				leftClickStart.y = (int) my;
 			}
@@ -774,17 +1035,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 
 	@Override
 	public void mouseClicked(final MouseEvent e) {
-		if (e.getButton() == MouseEvent.BUTTON3) {
-
-			// if( actEnd.equals(actStart) )
-			// {
-			// actStart = null;
-
-			JPopupMenu.setDefaultLightWeightPopupEnabled(false);
-			ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
-			contextMenu.show(this, e.getX(), e.getY());
-			// }
-		}
 	}
 
 	@Override
@@ -884,5 +1134,20 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 
 		// Return the texture ID so we can bind it later again
 		return textureID;
+	}
+
+	@Override
+	public int getAnimationTime() {
+		return animationTime;
+	}
+
+	@Override
+	public Animation getCurrentAnimation() {
+		return animation;
+	}
+
+	@Override
+	public int getGlobalSeqTime(final int globalSeqLength) {
+		return (int) (lastUpdateMillis % globalSeqLength);
 	}
 }

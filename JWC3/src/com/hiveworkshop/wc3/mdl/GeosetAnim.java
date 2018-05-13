@@ -6,6 +6,9 @@ import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
+import org.lwjgl.util.vector.Vector3f;
+
+import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdx.GeosetAnimationChunk;
 
 /**
@@ -263,5 +266,38 @@ public class GeosetAnim implements VisibilitySource, Named {
 
 	public void setDropShadow(final boolean dropShadow) {
 		this.dropShadow = dropShadow;
+	}
+
+	public float getRenderVisibility(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag visibilityFlag = getVisibilityFlag();
+		if (visibilityFlag != null) {
+			final Number alpha = (Number) visibilityFlag.interpolateAt(animatedRenderEnvironment);
+			final float alphaFloatValue = alpha.floatValue();
+			return alphaFloatValue;
+		}
+		return (float) staticAlpha;
+	}
+
+	private static Vector3f renderColorVector = new Vector3f();
+
+	public Vector3f getRenderColor(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag colorFlag = AnimFlag.find(animFlags, "Color");
+		if (colorFlag != null) {
+			final Vertex color = (Vertex) colorFlag.interpolateAt(animatedRenderEnvironment);
+			if (color == null) {
+				return null;
+			}
+			renderColorVector.x = (float) color.z;
+			renderColorVector.y = (float) color.y;
+			renderColorVector.z = (float) color.x;
+			return renderColorVector;
+		}
+		if (staticColor == null) {
+			return null;
+		}
+		renderColorVector.x = (float) staticColor.x;
+		renderColorVector.y = (float) staticColor.y;
+		renderColorVector.z = (float) staticColor.z;
+		return renderColorVector;
 	}
 }

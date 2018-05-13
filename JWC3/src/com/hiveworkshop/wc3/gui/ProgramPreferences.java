@@ -12,7 +12,7 @@ public class ProgramPreferences implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private int viewMode = 1;
 	private boolean showNormals;
-	private boolean showVertexModifierControls = true;
+	private boolean showVertexModifierControls = false;
 	private boolean textureModels = true;
 	private boolean useNativeMDXParser = true;
 	private boolean loadPortraits = true;

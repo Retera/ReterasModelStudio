@@ -1577,7 +1577,7 @@ public class MDL implements Named {
 		for (int i = 0; i < idObjects.size(); i++) {
 			final IdObject obj = idObjects.get(i);
 			if (obj.parentId != -1) {
-				obj.parent = idObjects.get(obj.parentId);
+				obj.setParent(idObjects.get(obj.parentId));
 			}
 			if (i > pivots.size()) {
 				JOptionPane.showMessageDialog(null, "Error: More objects than PivotPoints were found.");
@@ -1621,7 +1621,7 @@ public class MDL implements Named {
 		for (int i = 0; i < idObjects.size(); i++) {
 			final IdObject obj = idObjects.get(i);
 			obj.objectId = idObjects.indexOf(obj);
-			obj.parentId = idObjects.indexOf(obj.parent);
+			obj.parentId = idObjects.indexOf(obj.getParent());
 		}
 		for (final Bone b : bones) {
 			b.geosetId = geosets.indexOf(b.geoset);
@@ -1981,7 +1981,7 @@ public class MDL implements Named {
 					} else if (ga != null && ga != b.geosetAnim) {
 						b.geosetAnim = ga.getMostVisible(b.geosetAnim);
 					}
-					IdObject bp = b.parent;
+					IdObject bp = b.getParent();
 					while (bp != null) {
 						if (bp.getClass() == Bone.class) {
 							final Bone b2 = ((Bone) bp);
@@ -2011,7 +2011,7 @@ public class MDL implements Named {
 								b2.geosetAnim = ga.getMostVisible(b2.geosetAnim);
 							}
 						}
-						bp = bp.parent;
+						bp = bp.getParent();
 					}
 				}
 			}
@@ -2525,4 +2525,5 @@ public class MDL implements Named {
 	// e.printStackTrace();
 	// }
 	// }
+
 }

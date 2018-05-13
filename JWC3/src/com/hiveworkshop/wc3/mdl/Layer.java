@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
+import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdl.v2.LayerView;
 import com.hiveworkshop.wc3.mdl.v2.timelines.Animatable;
 import com.hiveworkshop.wc3.mdx.LayerChunk;
@@ -295,6 +296,33 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		} else {
 			return textures.get(0);
 		}
+	}
+
+	public Bitmap getRenderTexture(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		if (texture != null) {
+			return texture;
+		} else {
+			final AnimFlag textureFlag = AnimFlag.find(getAnims(), "TextureID");
+			final Integer textureIdAtTime = (Integer) textureFlag.interpolateAt(animatedRenderEnvironment);
+			if (textureIdAtTime >= textures.size()) {
+				return texture;
+			}
+			final Bitmap textureAtTime = textures.get(textureIdAtTime);
+			return textureAtTime;
+		}
+	}
+
+	public float getRenderVisibility(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag visibilityFlag = getVisibilityFlag();
+		if (visibilityFlag != null) {
+			final Number alpha = (Number) visibilityFlag.interpolateAt(animatedRenderEnvironment);
+			if (alpha == null) {
+				return staticAlpha < 0 ? 1 : (float) staticAlpha;
+			}
+			final float alphaFloatValue = alpha.floatValue();
+			return alphaFloatValue;
+		}
+		return staticAlpha < 0 ? 1 : (float) staticAlpha;
 	}
 
 	public void setTextureAnim(final TextureAnim texa) {

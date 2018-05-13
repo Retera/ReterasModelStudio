@@ -21,7 +21,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
-import com.hiveworkshop.wc3.gui.modeledit.PerspDisplayPanel;
+import com.hiveworkshop.wc3.gui.modelviewer.AnimationViewer;
 import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
@@ -1072,7 +1072,7 @@ public class ModelOptionPanel extends JPanel {
 	DefaultComboBoxModel<ModelGroup> groupsModel = new DefaultComboBoxModel<>();
 	List<DefaultComboBoxModel<Model>> groupModels = new ArrayList<>();
 
-	PerspDisplayPanel viewer;
+	AnimationViewer viewer;
 
 	final MDL blank = new MDL();
 	final ModelView blankDisp = new ModelViewManager(blank);
@@ -1124,7 +1124,7 @@ public class ModelOptionPanel extends JPanel {
 					modelDisp = blankDisp;
 				}
 
-				viewer.setViewport(modelDisp);
+				viewer.setModel(modelDisp);
 				viewer.setTitle(toLoad.getName());
 			}
 		});
@@ -1165,7 +1165,7 @@ public class ModelOptionPanel extends JPanel {
 					modelDisp = blankDisp;
 				}
 
-				viewer.setViewport(modelDisp);
+				viewer.setModel(modelDisp);
 				viewer.setTitle(toLoad.getName());
 			}
 		});
@@ -1177,7 +1177,8 @@ public class ModelOptionPanel extends JPanel {
 		modelBox.setMaximumSize(new Dimension(10000, 25));
 
 		// TODO program prefs not be null???
-		viewer = new PerspDisplayPanel("blank", blankDisp, null);
+		// viewer = new PerspDisplayPanel("blank", blankDisp, null);
+		viewer = new AnimationViewer(blankDisp, null, false);
 		modelBox.setSelectedIndex(0);
 
 		add(groupBox);

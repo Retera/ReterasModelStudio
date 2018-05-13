@@ -266,7 +266,7 @@ public class QuaternionRotation {
 			final QuaternionRotation startingValue, final QuaternionRotation endingValue,
 			final float interpolationFactor) {
 		final double ax = startingValue.a, ay = startingValue.b, az = startingValue.c, aw = startingValue.d;
-		final double bx = startingValue.a, by = startingValue.b, bz = startingValue.c, bw = startingValue.d;
+		final double bx = endingValue.a, by = endingValue.b, bz = endingValue.c, bw = endingValue.d;
 		final float inverseFactor = 1 - interpolationFactor;
 		final double x1 = inverseFactor * ax;
 		final double y1 = inverseFactor * ay;
@@ -298,7 +298,7 @@ public class QuaternionRotation {
 	public static QuaternionRotation slerp(final QuaternionRotation out, final QuaternionRotation startingValue,
 			final QuaternionRotation endingValue, final float interpolationFactor) {
 		final double ax = startingValue.a, ay = startingValue.b, az = startingValue.c, aw = startingValue.d;
-		double bx = startingValue.a, by = startingValue.b, bz = startingValue.c, bw = startingValue.d;
+		double bx = endingValue.a, by = endingValue.b, bz = endingValue.c, bw = endingValue.d;
 		final double omega;
 		double cosom;
 		final double sinom, scale0, scale1;

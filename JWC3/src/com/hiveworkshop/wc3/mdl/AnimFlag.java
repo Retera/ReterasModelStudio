@@ -3,9 +3,11 @@ package com.hiveworkshop.wc3.mdl;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
 import com.hiveworkshop.wc3.mdx.AttachmentVisibility;
 import com.hiveworkshop.wc3.mdx.CameraPositionTranslation;
@@ -1045,6 +1047,15 @@ public class AnimFlag {
 
 	}
 
+	public static AnimFlag find(final List<AnimFlag> flags, final String name) {
+		for (final AnimFlag flag : flags) {
+			if (flag.getName().equals(name)) {
+				return flag;
+			}
+		}
+		return null;
+	}
+
 	public static AnimFlag parseText(final String[] line) {
 
 		final AnimFlag aflg = new AnimFlag();
@@ -1896,6 +1907,35 @@ public class AnimFlag {
 		}
 	}
 
+	private static final QuaternionRotation ROTATE_IDENTITY = new QuaternionRotation(0, 0, 0, 1);
+	private static final Vertex SCALE_IDENTITY = new Vertex(1, 1, 1);
+	private static final Vertex TRANSLATE_IDENTITY = new Vertex(0, 0, 0);
+
+	private Object identity(final int typeid) {
+		switch (typeid) {
+		case ALPHA | OTHER_TYPE: {
+			return 1.;
+		}
+		case TRANSLATION:
+			return TRANSLATE_IDENTITY;
+		case SCALING:
+		case COLOR: {
+			return SCALE_IDENTITY;
+		}
+		case ROTATION: {
+			return ROTATE_IDENTITY;
+		}
+		case TEXTUREID:
+		// Integer
+		{
+			System.err.println("Texture identity used in renderer... TODO make this function more intelligent.");
+			return 0;
+		}
+		default:
+			throw new IllegalStateException();
+		}
+	}
+
 	/**
 	 * Interpolates at a given time. The lack of generics on this function is abysmal, but currently this is how the
 	 * codebase is.
@@ -1904,26 +1944,90 @@ public class AnimFlag {
 	 * @param animation
 	 * @return
 	 */
-	public Object interpolateAt(final int time, final Animation animation) {
+	public Object interpolateAt(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		if (times.isEmpty()) {
 			return null;
 		}
-		final int floorIndex = floorIndex(time);
-		final int ceilIndex = ceilIndex(time);
-		if (floorIndex == ceilIndex) {
-			return values.get(floorIndex);
-		}
-		if (time < animation.getEnd() && times.get(ceilIndex) > animation.getEnd()) {
-			return values.get(floorIndex);
+		// TODO ghostwolf says to stop using binary search, because linear walking is faster for the small MDL case
+		int time;
+		int ceilIndex;
+		int floorIndex;
+		Object floorInTan;
+		Object floorOutTan;
+		Object floorValue;
+		Object ceilValue;
+		Integer floorIndexTime;
+		Integer ceilIndexTime;
+		if (hasGlobalSeq() && getGlobalSeq() > 0) {
+			time = (animatedRenderEnvironment.getGlobalSeqTime(getGlobalSeq()));
+			final int floorAnimStartIndex = floorIndex(1);
+			final int floorAnimEndIndex = floorIndex(getGlobalSeq());
+			floorIndex = floorIndex(time);
+			ceilIndex = ceilIndex(time);
+			floorValue = values.get(floorIndex);
+			floorInTan = tans() ? inTans.get(floorIndex) : null;
+			floorOutTan = tans() ? outTans.get(floorIndex) : null;
+			ceilValue = values.get(ceilIndex);
+			floorIndexTime = times.get(floorIndex);
+			ceilIndexTime = times.get(ceilIndex);
+			if (ceilIndexTime < 0) {
+				return identity(typeid);
+			}
+			if (floorIndexTime > getGlobalSeq()) {
+				return identity(typeid);
+			}
+			if (floorIndexTime < 0 && ceilIndexTime > getGlobalSeq()) {
+				return identity(typeid);
+			} else if (floorIndexTime < 0) {
+				floorValue = identity(typeid);
+				floorInTan = floorOutTan = identity(typeid);
+			} else if (ceilIndexTime > getGlobalSeq()) {
+				ceilValue = values.get(floorAnimStartIndex);
+				ceilIndex = floorAnimStartIndex;
+			}
+			if (floorIndex == ceilIndex) {
+				return floorValue;
+			}
+		} else {
+			final Animation animation = animatedRenderEnvironment.getCurrentAnimation();
+			time = animation.getStart() + animatedRenderEnvironment.getAnimationTime();
+			final int floorAnimStartIndex = floorIndex(animation.getStart() + 1);
+			final int floorAnimEndIndex = floorIndex(animation.getEnd());
+			floorIndex = floorIndex(time);
+			ceilIndex = ceilIndex(time);
+			floorValue = values.get(floorIndex);
+			floorInTan = tans() ? inTans.get(floorIndex) : null;
+			floorOutTan = tans() ? outTans.get(floorIndex) : null;
+			ceilValue = values.get(ceilIndex);
+			floorIndexTime = times.get(floorIndex);
+			ceilIndexTime = times.get(ceilIndex);
+			if (ceilIndexTime < animation.getStart()) {
+				return identity(typeid);
+			}
+			if (floorIndexTime > animation.getEnd()) {
+				return identity(typeid);
+			}
+			if (floorIndexTime < animation.getStart() && ceilIndexTime > animation.getEnd()) {
+				return identity(typeid);
+			} else if (floorIndexTime < animation.getStart()) {
+				floorValue = identity(typeid);
+				floorInTan = floorOutTan = identity(typeid);
+			} else if (ceilIndexTime > animation.getEnd()) {
+				ceilValue = values.get(floorAnimStartIndex);
+				ceilIndex = floorAnimStartIndex;
+			}
+			if (floorIndex == ceilIndex) {
+				return floorValue;
+			}
 		}
 		switch (typeid) {
 		case ALPHA | OTHER_TYPE: {
 			// Double
-			final Double previous = (Double) values.get(floorIndex);
-			final Double next = (Double) values.get(ceilIndex);
+			final Double previous = (Double) floorValue;
+			final Double next = (Double) ceilValue;
 			switch (getInterpTypeAsEnum()) {
 			case BEZIER: {
-				final Double previousOutTan = (Double) outTans.get(floorIndex);
+				final Double previousOutTan = (Double) floorOutTan;
 				final Double nextInTan = (Double) inTans.get(ceilIndex);
 				final Integer floorTime = times.get(floorIndex);
 				final Integer ceilTime = times.get(ceilIndex);
@@ -1932,9 +2036,9 @@ public class AnimFlag {
 				return bezier;
 			}
 			case DONT_INTERP:
-				return values.get(floorIndex);
+				return floorValue;
 			case HERMITE: {
-				final Double previousOutTan = (Double) outTans.get(floorIndex);
+				final Double previousOutTan = (Double) floorOutTan;
 				final Double nextInTan = (Double) inTans.get(ceilIndex);
 				final Integer floorTime = times.get(floorIndex);
 				final Integer ceilTime = times.get(ceilIndex);
@@ -1956,11 +2060,11 @@ public class AnimFlag {
 		case SCALING:
 		case COLOR: {
 			// Vertex
-			final Vertex previous = (Vertex) values.get(floorIndex);
-			final Vertex next = (Vertex) values.get(ceilIndex);
+			final Vertex previous = (Vertex) floorValue;
+			final Vertex next = (Vertex) ceilValue;
 			switch (getInterpTypeAsEnum()) {
 			case BEZIER: {
-				final Vertex previousOutTan = (Vertex) outTans.get(floorIndex);
+				final Vertex previousOutTan = (Vertex) floorOutTan;
 				final Vertex nextInTan = (Vertex) inTans.get(ceilIndex);
 				final Integer floorTime = times.get(floorIndex);
 				final Integer ceilTime = times.get(ceilIndex);
@@ -1972,9 +2076,9 @@ public class AnimFlag {
 				return bezier;
 			}
 			case DONT_INTERP:
-				return values.get(floorIndex);
+				return floorValue;
 			case HERMITE: {
-				final Vertex previousOutTan = (Vertex) outTans.get(floorIndex);
+				final Vertex previousOutTan = (Vertex) floorOutTan;
 				final Vertex nextInTan = (Vertex) inTans.get(ceilIndex);
 				final Integer floorTime = times.get(floorIndex);
 				final Integer ceilTime = times.get(ceilIndex);
@@ -1998,11 +2102,11 @@ public class AnimFlag {
 		}
 		case ROTATION: {
 			// Quat
-			final QuaternionRotation previous = (QuaternionRotation) values.get(floorIndex);
-			final QuaternionRotation next = (QuaternionRotation) values.get(ceilIndex);
+			final QuaternionRotation previous = (QuaternionRotation) floorValue;
+			final QuaternionRotation next = (QuaternionRotation) ceilValue;
 			switch (getInterpTypeAsEnum()) {
 			case BEZIER: {
-				final QuaternionRotation previousOutTan = (QuaternionRotation) outTans.get(floorIndex);
+				final QuaternionRotation previousOutTan = (QuaternionRotation) floorOutTan;
 				final QuaternionRotation nextInTan = (QuaternionRotation) inTans.get(ceilIndex);
 				final Integer floorTime = times.get(floorIndex);
 				final Integer ceilTime = times.get(ceilIndex);
@@ -2011,9 +2115,9 @@ public class AnimFlag {
 				return QuaternionRotation.ghostwolfSquad(result, previous, previousOutTan, nextInTan, next, timeFactor);
 			}
 			case DONT_INTERP:
-				return values.get(floorIndex);
+				return floorValue;
 			case HERMITE: {
-				final QuaternionRotation previousOutTan = (QuaternionRotation) outTans.get(floorIndex);
+				final QuaternionRotation previousOutTan = (QuaternionRotation) floorOutTan;
 				final QuaternionRotation nextInTan = (QuaternionRotation) inTans.get(ceilIndex);
 				final Integer floorTime = times.get(floorIndex);
 				final Integer ceilTime = times.get(ceilIndex);
@@ -2034,7 +2138,7 @@ public class AnimFlag {
 		case TEXTUREID:
 		// Integer
 		{
-			final Integer previous = (Integer) values.get(floorIndex);
+			final Integer previous = (Integer) floorValue;
 			switch (getInterpTypeAsEnum()) {
 			case DONT_INTERP:
 			case BEZIER: // dont use bezier on these, does that even make any sense?

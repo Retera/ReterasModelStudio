@@ -8,6 +8,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
+import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.CollisionShapeChunk;
 import com.hiveworkshop.wc3.mdx.Node;
@@ -63,7 +64,7 @@ public class CollisionShape extends IdObject {
 		x.pivotPoint = new Vertex(pivotPoint);
 		x.objectId = objectId;
 		x.parentId = parentId;
-		x.parent = parent;
+		x.setParent(getParent());
 
 		x.flags = new ArrayList<>(flags);
 		x.vertices = new ArrayList<>(vertices);
@@ -142,7 +143,7 @@ public class CollisionShape extends IdObject {
 			writer.println("\tObjectId " + objectId + ",");
 		}
 		if (parentId != -1) {
-			writer.println("\tParent " + parentId + ",\t// \"" + parent.getName() + "\"");
+			writer.println("\tParent " + parentId + ",\t// \"" + getParent().getName() + "\"");
 		}
 		for (final String s : flags) {
 			writer.println("\t" + s + ",");
@@ -244,5 +245,37 @@ public class CollisionShape extends IdObject {
 			return DEFAULT_CLICK_RADIUS / CoordinateSystem.Util.getZoom(coordinateSystem);
 		}
 		return extents.getBoundsRadius();
+	}
+
+	@Override
+	public float getRenderVisibility(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		return 1;
+	}
+
+	@Override
+	public Vertex getRenderTranslation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Translation");
+		if (translationFlag != null) {
+			return (Vertex) translationFlag.interpolateAt(animatedRenderEnvironment);
+		}
+		return null;
+	}
+
+	@Override
+	public QuaternionRotation getRenderRotation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Rotation");
+		if (translationFlag != null) {
+			return (QuaternionRotation) translationFlag.interpolateAt(animatedRenderEnvironment);
+		}
+		return null;
+	}
+
+	@Override
+	public Vertex getRenderScale(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Scaling");
+		if (translationFlag != null) {
+			return (Vertex) translationFlag.interpolateAt(animatedRenderEnvironment);
+		}
+		return null;
 	}
 }
