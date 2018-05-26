@@ -12,6 +12,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.ManipulatorBuilder;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.wc3.mdl.RenderModel;
 
 public final class MultiManipulatorActivity implements ViewportActivity {
 	private final ManipulatorBuilder manipulatorBuilder;
@@ -89,8 +90,17 @@ public final class MultiManipulatorActivity implements ViewportActivity {
 	}
 
 	@Override
-	public void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem) {
-		manipulatorBuilder.render(graphics, coordinateSystem, selectionView);
+	public void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem,
+			final RenderModel renderModel) {
+		manipulatorBuilder.render(graphics, coordinateSystem, selectionView, renderModel);
+		if (manipulator != null) {
+			manipulator.render(graphics, coordinateSystem);
+		}
+	}
+
+	@Override
+	public void renderStatic(final Graphics2D graphics, final CoordinateSystem coordinateSystem) {
+		manipulatorBuilder.renderStatic(graphics, coordinateSystem, selectionView);
 		if (manipulator != null) {
 			manipulator.render(graphics, coordinateSystem);
 		}

@@ -4,8 +4,10 @@ import java.util.Collection;
 
 import javax.swing.JOptionPane;
 
+import org.lwjgl.util.vector.Vector4f;
+
 public class Vertex {
-	private static final Vertex ORIGIN = new Vertex(0, 0, 0);
+	public static final Vertex ORIGIN = new Vertex(0, 0, 0);
 	public double x = 0;
 	public double y = 0;
 	public double z = 0;
@@ -38,6 +40,19 @@ public class Vertex {
 			return z;
 		}
 		return 0;
+	}
+
+	public static float getCoord(final Vector4f vector, final byte dim) {
+		switch (dim) {
+		case 0:
+			return vector.x;
+		case 1:
+			return vector.y;
+		case 2:
+			return vector.z;
+		default:
+			throw new IllegalStateException();
+		}
 	}
 
 	public void setCoord(final byte dim, final double value) {
@@ -170,6 +185,13 @@ public class Vertex {
 	}
 
 	public double distance(final Vertex other) {
+		final double dx = other.x - x;
+		final double dy = other.y - y;
+		final double dz = other.z - z;
+		return Math.sqrt(dx * dx + dy * dy + dz * dz);
+	}
+
+	public double distance(final Vector4f other) {
 		final double dx = other.x - x;
 		final double dy = other.y - y;
 		final double dz = other.z - z;

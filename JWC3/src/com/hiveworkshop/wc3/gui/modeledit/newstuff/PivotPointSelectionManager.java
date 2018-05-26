@@ -53,7 +53,7 @@ public final class PivotPointSelectionManager extends AbstractSelectionManager<V
 			}
 		}
 		for (final Camera camera : model.getEditableCameras()) {
-			renderer.renderCamera(
+			renderer.renderCamera(camera,
 					selection.contains(camera.getPosition()) ? Color.GREEN.darker() : Color.ORANGE.darker(),
 					camera.getPosition(),
 					selection.contains(camera.getTargetPosition()) ? Color.GREEN.darker() : Color.ORANGE.darker(),

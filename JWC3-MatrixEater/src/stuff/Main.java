@@ -9,6 +9,7 @@ import javax.swing.JOptionPane;
 
 import com.hiveworkshop.wc3.gui.modeledit.PerspDisplayPanel;
 import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
@@ -28,7 +29,7 @@ public class Main {
 		try {
 
 			final PerspDisplayPanel perspDisplayPanel = new PerspDisplayPanel("Zergling man!",
-					new ModelViewManager(model), null);
+					new ModelViewManager(model), null, new RenderModel(model));
 			JOptionPane.showMessageDialog(null, perspDisplayPanel);
 			final BufferedImage bufferedImage = perspDisplayPanel.getViewport().getBufferedImage();
 			JOptionPane.showMessageDialog(null, new ImageIcon(model.getMaterial(1).getBufferedImage(null)));

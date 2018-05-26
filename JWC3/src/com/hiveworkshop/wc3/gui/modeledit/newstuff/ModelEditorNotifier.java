@@ -12,9 +12,15 @@ import com.etheller.collections.ListView;
 import com.etheller.util.SubscriberSetNotifier;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
-import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.cutpaste.CopiedModelData;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.ModelEditorActionType;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.CompoundMoveAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.CompoundRotateAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.CompoundScaleAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.CompoundAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericMoveAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericRotateAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
@@ -37,6 +43,18 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 
 	private CompoundAction mergeActions(final List<UndoAction> actions) {
 		return new CompoundAction(actions.get(0).actionName(), actions);
+	}
+
+	private CompoundMoveAction mergeMoveActions(final List<GenericMoveAction> actions) {
+		return new CompoundMoveAction(actions.get(0).actionName(), actions);
+	}
+
+	private GenericScaleAction mergeScaleActions(final List<GenericScaleAction> actions) {
+		return new CompoundScaleAction(actions.get(0).actionName(), actions);
+	}
+
+	private CompoundRotateAction mergeRotateActions(final List<GenericRotateAction> actions) {
+		return new CompoundRotateAction(actions.get(0).actionName(), actions);
 	}
 
 	@Override
@@ -130,10 +148,10 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
-	public UndoAction addTeamColor(final ModelStructureChangeListener modelStructureChangeListener) {
+	public UndoAction addTeamColor() {
 		final List<UndoAction> actions = new ArrayList<>();
 		for (final ModelEditor handler : set) {
-			actions.add(handler.addTeamColor(modelStructureChangeListener));
+			actions.add(handler.addTeamColor());
 		}
 		return mergeActions(actions);
 	}
@@ -175,10 +193,10 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
-	public UndoAction deleteSelectedComponents(final ModelStructureChangeListener modelStructureChangeListener) {
+	public UndoAction deleteSelectedComponents() {
 		final List<UndoAction> actions = new ArrayList<>();
 		for (final ModelEditor handler : set) {
-			actions.add(handler.deleteSelectedComponents(modelStructureChangeListener));
+			actions.add(handler.deleteSelectedComponents());
 		}
 		return mergeActions(actions);
 	}
@@ -266,11 +284,10 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
-	public UndoAction cloneSelectedComponents(final ModelStructureChangeListener modelStructureChangeListener,
-			final ClonedNodeNamePicker clonedNodeNamePicker) {
+	public UndoAction cloneSelectedComponents(final ClonedNodeNamePicker clonedNodeNamePicker) {
 		final List<UndoAction> actions = new ArrayList<>();
 		for (final ModelEditor handler : set) {
-			actions.add(handler.cloneSelectedComponents(modelStructureChangeListener, clonedNodeNamePicker));
+			actions.add(handler.cloneSelectedComponents(clonedNodeNamePicker));
 		}
 		return mergeActions(actions);
 	}
@@ -302,13 +319,6 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	public void rawRotate3d(final Vertex center, final Vertex axis, final double radians) {
 		for (final ModelEditor handler : set) {
 			handler.rawRotate3d(center, axis, radians);
-		}
-	}
-
-	@Override
-	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem) {
-		for (final ModelEditor handler : set) {
-			handler.renderSelection(renderer, coordinateSystem);
 		}
 	}
 
@@ -355,4 +365,50 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 		}
 	}
 
+	@Override
+	public boolean editorWantsAnimation() {
+		for (final ModelEditor handler : set) {
+			if (handler.editorWantsAnimation()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public GenericMoveAction beginTranslation() {
+		final List<GenericMoveAction> actions = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			actions.add(handler.beginTranslation());
+		}
+		return mergeMoveActions(actions);
+	}
+
+	@Override
+	public GenericRotateAction beginRotation(final double centerX, final double centerY, final double centerZ,
+			final byte firstXYZ, final byte secondXYZ) {
+		final List<GenericRotateAction> actions = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			actions.add(handler.beginRotation(centerX, centerY, centerZ, firstXYZ, secondXYZ));
+		}
+		return mergeRotateActions(actions);
+	}
+
+	@Override
+	public GenericScaleAction beginScaling(final double centerX, final double centerY, final double centerZ) {
+		final List<GenericScaleAction> actions = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			actions.add(handler.beginScaling(centerX, centerY, centerZ));
+		}
+		return mergeScaleActions(actions);
+	}
+
+	@Override
+	public UndoAction createKeyframe(final ModelEditorActionType actionType) {
+		final List<UndoAction> actions = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			actions.add(handler.createKeyframe(actionType));
+		}
+		return mergeActions(actions);
+	}
 }

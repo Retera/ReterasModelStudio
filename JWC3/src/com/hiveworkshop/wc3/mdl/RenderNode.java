@@ -149,7 +149,7 @@ public final class RenderNode {
 
 	public void resetTransformation() {
 		localLocation.set(0, 0, 0);
-		localRotation.set(0, 0, 0, 0);
+		localRotation.set(0, 0, 0, 1);
 		localScale.set(1, 1, 1);
 		dirty = true;
 	}
@@ -175,4 +175,39 @@ public final class RenderNode {
 		return worldMatrix;
 	}
 
+	public Quaternion getInverseWorldRotation() {
+		return inverseWorldRotation;
+	}
+
+	public Vector3f getInverseWorldLocation() {
+		return inverseWorldLocation;
+	}
+
+	public Vector3f getInverseWorldScale() {
+		return inverseWorldScale;
+	}
+
+	public Vector3f getWorldLocation() {
+		return worldLocation;
+	}
+
+	public Vector3f getLocalLocation() {
+		return localLocation;
+	}
+
+	public Vector3f getLocalScale() {
+		return localScale;
+	}
+
+	public Matrix4f getLocalMatrix() {
+		return localMatrix;
+	}
+
+	public Quaternion getLocalRotation() {
+		return localRotation;
+	}
+
+	public Quaternion getWorldRotation() {
+		return worldRotation;
+	}
 }

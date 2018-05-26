@@ -51,56 +51,21 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 	private final SelectionAtPointTester selectionAtPointTester;
 
 	public PivotPointModelEditor(final ModelView model, final ProgramPreferences programPreferences,
-			final SelectionManager<Vertex> selectionManager) {
-		super(selectionManager, model);
+			final SelectionManager<Vertex> selectionManager,
+			final ModelStructureChangeListener structureChangeListener) {
+		super(selectionManager, model, structureChangeListener);
 		this.programPreferences = programPreferences;
 		this.genericSelectorVisitor = new GenericSelectorVisitor();
 		this.selectionAtPointTester = new SelectionAtPointTester();
 	}
 
 	@Override
-	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem) {
-		// for (final Geoset geo : model.getEditableGeosets()) {
-		// final GeosetVisitor geosetRenderer = renderer.beginGeoset(null,
-		// null);
-		// for (final Triangle triangle : geo.getTriangle()) {
-		// final TriangleVisitor triangleRenderer =
-		// geosetRenderer.beginTriangle();
-		// for (final GeosetVertex geosetVertex : triangle.getVerts()) {
-		// if (selection.contains(geosetVertex)) {
-		// final VertexVisitor vertexRenderer =
-		// triangleRenderer.vertex(geosetVertex.x, geosetVertex.y,
-		// geosetVertex.z, geosetVertex.getNormal().x,
-		// geosetVertex.getNormal().y,
-		// geosetVertex.getNormal().z, geosetVertex.getBoneAttachments());
-		// vertexRenderer.vertexFinished();
-		// }
-		// }
-		// triangleRenderer.triangleFinished();
-		// }
-		// geosetRenderer.geosetFinished();
-		// }
-		// for (final IdObject object : model.getEditableIdObjects()) {
-		// if (selection.contains(object.getPivotPoint())) {
-		// object.apply(renderer);
-		// }
-		// }
-		// for (final Camera camera : model.getEditableCameras()) {
-		// if (selection.contains(camera.getPosition())) {
-		// renderer.camera(camera);
-		// }
-		// if (selection.contains(camera.getTargetPosition())) {
-		// renderer.camera(camera);
-		// }
-		// }
-		selectionManager.renderSelection(renderer, coordinateSystem, model, programPreferences);
-	}
-
-	@Override
 	public UndoAction autoCenterSelectedBones() {
 		final Set<IdObject> selBones = new HashSet<>();
 		for (final IdObject b : model.getEditableIdObjects()) {
-			selBones.add(b);
+			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
+				selBones.add(b);
+			}
 		}
 
 		final Map<Bone, Vertex> boneToOldPosition = new HashMap<>();
@@ -146,9 +111,9 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 	}
 
 	@Override
-	public UndoAction addTeamColor(final ModelStructureChangeListener modelStructureChangeListener) {
+	public UndoAction addTeamColor() {
 		final TeamColorAddAction teamColorAddAction = new TeamColorAddAction(selectionManager.getSelectedFaces(),
-				model.getModel(), modelStructureChangeListener, selectionManager);
+				model.getModel(), structureChangeListener, selectionManager);
 		teamColorAddAction.redo();
 		return teamColorAddAction;
 	}
@@ -859,7 +824,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 	}
 
 	@Override
-	public UndoAction deleteSelectedComponents(final ModelStructureChangeListener modelStructureChangeListener) {
+	public UndoAction deleteSelectedComponents() {
 		final List<IdObject> deletedIdObjects = new ArrayList<>();
 		for (final IdObject object : model.getEditableIdObjects()) {
 			if (selectionManager.getSelection().contains(object.getPivotPoint())) {
@@ -867,7 +832,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			}
 		}
 		final DeleteNodesAction deleteNodesAction = new DeleteNodesAction(selectionManager.getSelection(),
-				deletedIdObjects, modelStructureChangeListener, model, vertexSelectionHelper);
+				deletedIdObjects, structureChangeListener, model, vertexSelectionHelper);
 		deleteNodesAction.redo();
 		return deleteNodesAction;
 	}

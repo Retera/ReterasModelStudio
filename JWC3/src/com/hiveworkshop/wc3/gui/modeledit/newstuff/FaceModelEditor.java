@@ -35,34 +35,10 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 	private final ProgramPreferences programPreferences;
 
 	public FaceModelEditor(final ModelView model, final ProgramPreferences programPreferences,
-			final SelectionManager<Triangle> selectionManager) {
-		super(selectionManager, model);
+			final SelectionManager<Triangle> selectionManager,
+			final ModelStructureChangeListener structureChangeListener) {
+		super(selectionManager, model, structureChangeListener);
 		this.programPreferences = programPreferences;
-	}
-
-	@Override
-	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem) {
-		// for (final Geoset geo : model.getEditableGeosets()) {
-		// final GeosetVisitor geosetRenderer = renderer.beginGeoset(null,
-		// null);
-		// for (final Triangle triangle : geo.getTriangle()) {
-		// if (selection.contains(triangle)) {
-		// final TriangleVisitor triangleRenderer =
-		// geosetRenderer.beginTriangle();
-		// for (final GeosetVertex geosetVertex : triangle.getVerts()) {
-		// final VertexVisitor vertexRenderer =
-		// triangleRenderer.vertex(geosetVertex.x, geosetVertex.y,
-		// geosetVertex.z, geosetVertex.getNormal().x,
-		// geosetVertex.getNormal().y,
-		// geosetVertex.getNormal().z, geosetVertex.getBoneAttachments());
-		// vertexRenderer.vertexFinished();
-		// }
-		// triangleRenderer.triangleFinished();
-		// }
-		// }
-		// geosetRenderer.geosetFinished();
-		// }
-		this.selectionManager.renderSelection(renderer, coordinateSystem, this.model, programPreferences);
 	}
 
 	@Override
@@ -76,9 +52,9 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 	}
 
 	@Override
-	public UndoAction addTeamColor(final ModelStructureChangeListener modelStructureChangeListener) {
+	public UndoAction addTeamColor() {
 		final TeamColorAddAction teamColorAddAction = new TeamColorAddAction(selectionManager.getSelection(),
-				model.getModel(), modelStructureChangeListener, selectionManager);
+				model.getModel(), structureChangeListener, selectionManager);
 		teamColorAddAction.redo();
 		return teamColorAddAction;
 	}

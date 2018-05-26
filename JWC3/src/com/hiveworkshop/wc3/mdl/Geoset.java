@@ -244,6 +244,9 @@ public class Geoset implements Named, VisibilitySource {
 		if (vertId < 0) {
 			return matrix.get(256 + vertId);
 		}
+		if (vertId >= matrix.size()) {
+			return null;
+		}
 		return matrix.get(vertId);
 	}
 
@@ -427,10 +430,12 @@ public class Geoset implements Named, VisibilitySource {
 				}
 			}
 			final Matrix mx = getMatrix(gv.getVertexGroup());
-			final int szmx = mx.size();
-			gv.clearBoneAttachments();
-			for (int m = 0; m < szmx; m++) {
-				gv.addBoneAttachment((Bone) mdlr.getIdObject(mx.getBoneId(m)));
+			if (mx != null) {
+				final int szmx = mx.size();
+				gv.clearBoneAttachments();
+				for (int m = 0; m < szmx; m++) {
+					gv.addBoneAttachment((Bone) mdlr.getIdObject(mx.getBoneId(m)));
+				}
 			}
 			if (normals != null && normals.size() > 0) {
 				gv.setNormal(normals.get(i));
@@ -442,6 +447,7 @@ public class Geoset implements Named, VisibilitySource {
 				t.geoset = this;
 			}
 			gv.geoset = this;
+
 			// gv.addBoneAttachment(null);//Why was this here?
 		}
 		try {

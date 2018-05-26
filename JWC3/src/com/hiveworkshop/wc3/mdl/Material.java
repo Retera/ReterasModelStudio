@@ -24,7 +24,7 @@ import com.hiveworkshop.wc3.mdx.MaterialChunk;
  * Eric Theller 11/5/2011
  */
 public class Material implements MaterialView {
-	public static int teamColor = 0;
+	public static int teamColor = 07;
 	com.etheller.collections.ArrayList<Layer> layers;
 	private int priorityPlane = 0;
 	// "flags" are my way of dealing with all the stuff that I
@@ -32,6 +32,14 @@ public class Material implements MaterialView {
 	// "TwoSided," "CoordId X," actually CoordId was
 	// moved into its own field
 	private ArrayList<String> flags = new ArrayList<>();
+
+	public static String getTeamColorNumberString() {
+		final String string = Integer.toString(teamColor);
+		if (string.length() < 2) {
+			return '0' + string;
+		}
+		return string;
+	}
 
 	public String getName() {
 		String name = "";

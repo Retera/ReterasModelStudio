@@ -15,7 +15,7 @@ public final class ScaleManipulatorUsesYMouseDrag extends AbstractScaleManipulat
 	@Override
 	protected final void scaleWithFactor(final ModelEditor modelEditor, final Vertex center, final double scaleFactor,
 			final byte dim1, final byte dim2) {
-		modelEditor.rawScale(center.x, center.y, center.z, scaleFactor, scaleFactor, scaleFactor);
+		getScaleAction().updateScale(scaleFactor, scaleFactor, scaleFactor);
 	}
 
 	@Override

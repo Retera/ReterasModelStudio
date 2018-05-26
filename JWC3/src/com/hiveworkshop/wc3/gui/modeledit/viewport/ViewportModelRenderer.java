@@ -45,7 +45,7 @@ public class ViewportModelRenderer implements ModelRenderer {
 	private byte yDimension;
 	private ViewportView viewportView;
 	private CoordinateSystem coordinateSystem;
-	private ResettableIdObjectRenderer idObjectRenderer;
+	private final ResettableIdObjectRenderer idObjectRenderer;
 	// TODO Now that I added modelView to this class, why does
 	// RenderByViewModelRenderer exist???
 	private ModelView modelView;
@@ -53,6 +53,7 @@ public class ViewportModelRenderer implements ModelRenderer {
 	public ViewportModelRenderer(final int vertexSize) {
 		this.vertexSize = vertexSize;
 		geosetRenderer = new GeosetRendererImpl();
+		idObjectRenderer = new ResettableIdObjectRenderer(vertexSize);
 	}
 
 	public ViewportModelRenderer reset(final Graphics2D graphics, final ProgramPreferences programPreferences,
@@ -65,7 +66,6 @@ public class ViewportModelRenderer implements ModelRenderer {
 		this.viewportView = viewportView;
 		this.coordinateSystem = coordinateSystem;
 		this.modelView = modelView;
-		idObjectRenderer = new ResettableIdObjectRenderer(vertexSize);
 		idObjectRenderer.reset(coordinateSystem, graphics, programPreferences.getLightsColor(),
 				programPreferences.getPivotPointsColor(), NodeIconPalette.UNSELECTED);
 		return this;

@@ -1,9 +1,7 @@
 package com.hiveworkshop.wc3.gui.modeledit.newstuff;
 
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,7 +10,6 @@ import com.etheller.collections.HashMap;
 import com.etheller.collections.ListView;
 import com.etheller.collections.Map;
 import com.etheller.util.CollectionUtils;
-import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.DeleteAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.ExtrudeAction;
@@ -21,21 +18,21 @@ import com.hiveworkshop.wc3.gui.modeledit.actions.SnapAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.SnapNormalsAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.SpecialDeleteAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.MoveAction;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.RotateAction;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.AddSelectionAction;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.MakeEditableAction;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.RemoveSelectionAction;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.ModelEditorActionType;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.SimpleRotateAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.StaticMeshMoveAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.StaticMeshRotateAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.StaticMeshScaleAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.CloneAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.FlipFacesAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.FlipNormalsAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.MirrorModelAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.SetMatrixAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.CompoundAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericMoveAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericRotateAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
-import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.wc3.mdl.Bone;
@@ -48,47 +45,22 @@ import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
-public abstract class AbstractModelEditor<T> implements ModelEditor {
-	protected final SelectionManager<T> selectionManager;
+public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> implements ModelEditor {
 	protected final ModelView model;
 	protected final VertexSelectionHelper vertexSelectionHelper;
+	protected final ModelStructureChangeListener structureChangeListener;
 
-	public AbstractModelEditor(final SelectionManager<T> selectionManager, final ModelView model) {
-		this.selectionManager = selectionManager;
+	public AbstractModelEditor(final SelectionManager<T> selectionManager, final ModelView model,
+			final ModelStructureChangeListener structureChangeListener) {
+		super(selectionManager);
 		this.model = model;
+		this.structureChangeListener = structureChangeListener;
 		this.vertexSelectionHelper = new VertexSelectionHelper() {
 			@Override
 			public void selectVertices(final Collection<Vertex> vertices) {
 				selectByVertices(vertices);
 			}
 		};
-	}
-
-	@Override
-	public UndoAction translate(final double x, final double y, final double z) {
-		final Vertex delta = new Vertex(x, y, z);
-		final MoveAction moveAction = new MoveAction(this, delta);
-		moveAction.redo();
-		return moveAction;
-	}
-
-	@Override
-	public UndoAction setPosition(final Vertex center, final double x, final double y, final double z) {
-		final Vertex delta = new Vertex(x - center.x, y - center.y, z - center.z);
-		final MoveAction moveAction = new MoveAction(this, delta);
-		moveAction.redo();
-		return moveAction;
-	}
-
-	@Override
-	public UndoAction rotate(final Vertex center, final double rotateX, final double rotateY, final double rotateZ) {
-
-		final CompoundAction compoundAction = new CompoundAction("rotate",
-				ListView.Util.of(new RotateAction(this, center, rotateX, (byte) 0, (byte) 2),
-						new RotateAction(this, center, rotateY, (byte) 1, (byte) 0),
-						new RotateAction(this, center, rotateZ, (byte) 1, (byte) 2)));
-		compoundAction.redo();
-		return compoundAction;
 	}
 
 	@Override
@@ -149,7 +121,7 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 	}
 
 	@Override
-	public UndoAction deleteSelectedComponents(final ModelStructureChangeListener modelStructureChangeListener) {
+	public UndoAction deleteSelectedComponents() {
 		// TODO this code is RIPPED FROM MDLDispaly and is not good for general
 		// cases
 		// TODO this code operates directly on MODEL
@@ -189,8 +161,8 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 			return temp;
 		} else {
 			final SpecialDeleteAction temp = new SpecialDeleteAction(selection, deletedTris, vertexSelectionHelper,
-					remGeosets, model.getModel(), modelStructureChangeListener);
-			modelStructureChangeListener.geosetsRemoved(remGeosets);
+					remGeosets, model.getModel(), structureChangeListener);
+			structureChangeListener.geosetsRemoved(remGeosets);
 			return temp;
 		}
 	}
@@ -265,7 +237,7 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 				}
 			} else {
 				copies.add(null);
-				System.out.println("GeosetVertex " + i + " was not found.");
+				// System.out.println("GeosetVertex " + i + " was not found.");
 			}
 		}
 		for (final Triangle tri : selTris) {
@@ -276,15 +248,15 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 						final GeosetVertex b = copies.get(selection.indexOf(a));
 						tri.set(i, b);
 						a.getTriangles().remove(tri);
-						if (a.getTriangles().contains(tri)) {
-							System.out.println("It's a bloody war!");
-						}
+						// if (a.getTriangles().contains(tri)) {
+						// System.out.println("It's a bloody war!");
+						// }
 						b.getTriangles().add(tri);
 					}
 				}
 			}
 		}
-		System.out.println(selection.size() + " verteces cloned into " + copies.size() + " more.");
+		// System.out.println(selection.size() + " verteces cloned into " + copies.size() + " more.");
 		final ArrayList<Triangle> newTriangles = new ArrayList<>();
 		for (int k = 0; k < selection.size(); k++) {
 			final Vertex vert = selection.get(k);
@@ -307,13 +279,13 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 					}
 				}
 				for (final Triangle tri : gvTriangles) {
-					for (final GeosetVertex copyVer : copies) {
-						if (copyVer != null) {
-							if (tri.containsRef(copyVer)) {
-								System.out.println("holy brejeezers!");
-							}
-						}
-					}
+					// for (final GeosetVertex copyVer : copies) {
+					// if (copyVer != null) {
+					// if (tri.containsRef(copyVer)) {
+					// System.out.println("holy brejeezers!");
+					// }
+					// }
+					// }
 					for (int gvI = 0; gvI < tri.getAll().length; gvI++) {
 						final GeosetVertex gvTemp = tri.get(gvI);
 						if (!gvTemp.equalLocs(gv) && gvTemp.getGeoset() == gv.getGeoset()) {
@@ -332,12 +304,12 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 							if (okay && ctCount == 1 && selection.contains(gvTemp)) {
 								final GeosetVertex gvCopy = copies.get(selection.indexOf(gv));
 								final GeosetVertex gvTempCopy = copies.get(selection.indexOf(gvTemp));
-								if (gvCopy == null) {
-									System.out.println("Vertex (gvCopy) copy found as null!");
-								}
-								if (gvTempCopy == null) {
-									System.out.println("Vertex (gvTempCopy) copy found as null!");
-								}
+								// if (gvCopy == null) {
+								// System.out.println("Vertex (gvCopy) copy found as null!");
+								// }
+								// if (gvTempCopy == null) {
+								// System.out.println("Vertex (gvTempCopy) copy found as null!");
+								// }
 								Triangle newFace = new Triangle(null, null, null, gv.getGeoset());
 
 								final int indexA = temptr.indexOf(gv);
@@ -350,7 +322,7 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 									}
 								}
 
-								System.out.println(" Indeces: " + indexA + "," + indexB + "," + indexC);
+								// System.out.println(" Indeces: " + indexA + "," + indexB + "," + indexC);
 
 								newFace.set(indexA, gv);
 								newFace.set(indexB, gvTemp);
@@ -375,10 +347,10 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 								if (!bad) {
 									newTriangles.add(newFace);
 
-									System.out.println("New Face: ");
-									System.out.println(newFace.get(0));
-									System.out.println(newFace.get(1));
-									System.out.println(newFace.get(2));
+									// System.out.println("New Face: ");
+									// System.out.println(newFace.get(0));
+									// System.out.println(newFace.get(1));
+									// System.out.println(newFace.get(2));
 
 									newFace = new Triangle(null, null, null, gv.getGeoset());
 
@@ -388,10 +360,10 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 									// Make sure it's included later
 									newTriangles.add(newFace);
 
-									System.out.println("New Alternate Face: ");
-									System.out.println(newFace.get(0));
-									System.out.println(newFace.get(1));
-									System.out.println(newFace.get(2));
+									// System.out.println("New Alternate Face: ");
+									// System.out.println(newFace.get(0));
+									// System.out.println(newFace.get(1));
+									// System.out.println(newFace.get(2));
 
 								}
 							}
@@ -431,14 +403,14 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				for (final Triangle t : gv.getTriangles()) {
-					System.out.println("SHOULD be one: " + Collections.frequency(gv.getTriangles(), t));
+					// System.out.println("SHOULD be one: " + Collections.frequency(gv.getTriangles(), t));
 					if (!t.containsRef(gv)) {
 						probs++;
 					}
 				}
 			}
 		}
-		System.out.println("Extrude finished with " + probs + " inexplicable errors.");
+		// System.out.println("Extrude finished with " + probs + " inexplicable errors.");
 		final ExtrudeAction tempe = new ExtrudeAction(); // TODO better code
 		tempe.storeSelection(selection);
 		tempe.setType(true);
@@ -473,7 +445,7 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 				}
 			} else {
 				// copies.add(null);
-				System.out.println("GeosetVertex " + i + " was not found.");
+				// System.out.println("GeosetVertex " + i + " was not found.");
 			}
 		}
 		System.out.println(selection.size() + " verteces cloned into " + copies.size() + " more.");
@@ -505,12 +477,12 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 					}
 				}
 				if (selVerts == 2) {
-					if (gvCopy == null) {
-						System.out.println("Vertex (gvCopy) copy found as null!");
-					}
-					if (gvTempCopy == null) {
-						System.out.println("Vertex (gvTempCopy) copy found as null!");
-					}
+					// if (gvCopy == null) {
+					// System.out.println("Vertex (gvCopy) copy found as null!");
+					// }
+					// if (gvTempCopy == null) {
+					// System.out.println("Vertex (gvTempCopy) copy found as null!");
+					// }
 					Triangle newFace = new Triangle(null, null, null, gv.getGeoset());
 
 					final int indexA = tri.indexOf(gvCopy);
@@ -523,7 +495,7 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 						}
 					}
 
-					System.out.println(" Indeces: " + indexA + "," + indexB + "," + indexC);
+					// System.out.println(" Indeces: " + indexA + "," + indexB + "," + indexC);
 
 					newFace.set(indexA, gv);
 					newFace.set(indexB, gvTemp);
@@ -535,10 +507,10 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 					gv.getGeoset().addTriangle(newFace);
 					newTriangles.add(newFace);
 
-					System.out.println("New Face: ");
-					System.out.println(newFace.get(0));
-					System.out.println(newFace.get(1));
-					System.out.println(newFace.get(2));
+					// System.out.println("New Face: ");
+					// System.out.println(newFace.get(0));
+					// System.out.println(newFace.get(1));
+					// System.out.println(newFace.get(2));
 
 					newFace = new Triangle(null, null, null, gv.getGeoset());
 
@@ -552,10 +524,10 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 					gv.getGeoset().addTriangle(newFace);
 					newTriangles.add(newFace);
 
-					System.out.println("New Alternate Face: ");
-					System.out.println(newFace.get(0));
-					System.out.println(newFace.get(1));
-					System.out.println(newFace.get(2));
+					// System.out.println("New Alternate Face: ");
+					// System.out.println(newFace.get(0));
+					// System.out.println(newFace.get(1));
+					// System.out.println(newFace.get(2));
 				}
 			}
 		}
@@ -590,8 +562,7 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 	}
 
 	@Override
-	public UndoAction cloneSelectedComponents(final ModelStructureChangeListener modelStructureChangeListener,
-			final ClonedNodeNamePicker clonedNodeNamePicker) {
+	public UndoAction cloneSelectedComponents(final ClonedNodeNamePicker clonedNodeNamePicker) {
 		final List<Vertex> source = new ArrayList<>(selectionManager.getSelectedVertices());
 		final ArrayList<Triangle> selTris = new ArrayList<>();
 		final ArrayList<IdObject> selBones = new ArrayList<>();
@@ -685,8 +656,8 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 			}
 		}
 		// TODO cameras
-		final CloneAction cloneAction = new CloneAction(model, source, modelStructureChangeListener,
-				vertexSelectionHelper, selBones, newVerticesWithoutNulls, newTriangles, newBones, newSelection);
+		final CloneAction cloneAction = new CloneAction(model, source, structureChangeListener, vertexSelectionHelper,
+				selBones, newVerticesWithoutNulls, newTriangles, newBones, newSelection);
 		cloneAction.redo();
 		return cloneAction;
 	}
@@ -722,63 +693,60 @@ public abstract class AbstractModelEditor<T> implements ModelEditor {
 	}
 
 	@Override
-	public final UndoAction setSelectedRegion(final Rectangle2D region, final CoordinateSystem coordinateSystem) {
-		final List<T> newSelection = genericSelect(region, coordinateSystem);
-		return setSelectionWithAction(newSelection);
+	public UndoAction translate(final double x, final double y, final double z) {
+		final Vertex delta = new Vertex(x, y, z);
+		final StaticMeshMoveAction moveAction = new StaticMeshMoveAction(this, delta);
+		moveAction.redo();
+		return moveAction;
 	}
 
 	@Override
-	public final UndoAction removeSelectedRegion(final Rectangle2D region, final CoordinateSystem coordinateSystem) {
-		final List<T> newSelection = genericSelect(region, coordinateSystem);
-		return removeSelectionWithAction(newSelection);
+	public UndoAction setPosition(final Vertex center, final double x, final double y, final double z) {
+		final Vertex delta = new Vertex(x - center.x, y - center.y, z - center.z);
+		final StaticMeshMoveAction moveAction = new StaticMeshMoveAction(this, delta);
+		moveAction.redo();
+		return moveAction;
 	}
 
 	@Override
-	public final UndoAction addSelectedRegion(final Rectangle2D region, final CoordinateSystem coordinateSystem) {
-		final List<T> newSelection = genericSelect(region, coordinateSystem);
-		return addSelectionWithAction(newSelection);
-	}
+	public UndoAction rotate(final Vertex center, final double rotateX, final double rotateY, final double rotateZ) {
 
-	protected final UndoAction setSelectionWithAction(final List<T> newSelection) {
-		final Set<T> previousSelection = new HashSet<>(selectionManager.getSelection());
-		selectionManager.setSelection(newSelection);
-		return (new SetSelectionAction<>(newSelection, previousSelection, selectionManager, "select"));
-	}
-
-	protected final UndoAction removeSelectionWithAction(final List<T> newSelection) {
-		final Set<T> previousSelection = new HashSet<>(selectionManager.getSelection());
-		selectionManager.removeSelection(newSelection);
-		return (new RemoveSelectionAction<>(previousSelection, newSelection, selectionManager));
-	}
-
-	protected final UndoAction addSelectionWithAction(final List<T> newSelection) {
-		final Set<T> previousSelection = new HashSet<>(selectionManager.getSelection());
-		selectionManager.addSelection(newSelection);
-		return (new AddSelectionAction<>(previousSelection, newSelection, selectionManager));
-	}
-
-	protected abstract List<T> genericSelect(final Rectangle2D region, final CoordinateSystem coordinateSystem);
-
-	@Override
-	public UndoAction hideComponent(final ListView<? extends SelectableComponent> selectableComponent,
-			final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
-		final UndoAction hideComponentAction = buildHideComponentAction(selectableComponent, editabilityToggleHandler,
-				refreshGUIRunnable);
-		hideComponentAction.redo();
-		return hideComponentAction;
-	}
-
-	protected abstract UndoAction buildHideComponentAction(ListView<? extends SelectableComponent> selectableComponents,
-			EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable);
-
-	@Override
-	public UndoAction showComponent(final EditabilityToggleHandler editabilityToggleHandler) {
-		editabilityToggleHandler.makeEditable();
-		return new MakeEditableAction(editabilityToggleHandler);
+		final CompoundAction compoundAction = new CompoundAction("rotate",
+				ListView.Util.of(new SimpleRotateAction(this, center, rotateX, (byte) 0, (byte) 2),
+						new SimpleRotateAction(this, center, rotateY, (byte) 1, (byte) 0),
+						new SimpleRotateAction(this, center, rotateZ, (byte) 1, (byte) 2)));
+		compoundAction.redo();
+		return compoundAction;
 	}
 
 	@Override
 	public Vertex getSelectionCenter() {
 		return selectionManager.getCenter();
+	}
+
+	@Override
+	public boolean editorWantsAnimation() {
+		return false;
+	}
+
+	@Override
+	public GenericMoveAction beginTranslation() {
+		return new StaticMeshMoveAction(this, Vertex.ORIGIN);
+	}
+
+	@Override
+	public GenericRotateAction beginRotation(final double centerX, final double centerY, final double centerZ,
+			final byte dim1, final byte dim2) {
+		return new StaticMeshRotateAction(this, new Vertex(centerX, centerY, centerZ), dim1, dim2);
+	}
+
+	@Override
+	public GenericScaleAction beginScaling(final double centerX, final double centerY, final double centerZ) {
+		return new StaticMeshScaleAction(this, centerX, centerY, centerZ);
+	}
+
+	@Override
+	public UndoAction createKeyframe(final ModelEditorActionType actionType) {
+		throw new UnsupportedOperationException("Cannot create keyframe outside of animation mode");
 	}
 }

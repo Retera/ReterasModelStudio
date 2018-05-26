@@ -7,12 +7,14 @@ import java.awt.Point;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.activity.ButtonType;
+import com.hiveworkshop.wc3.gui.modeledit.activity.Graphics2DToAnimatedModelElementRendererAdapter;
 import com.hiveworkshop.wc3.gui.modeledit.activity.Graphics2DToModelElementRendererAdapter;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ViewportSelectionHandler;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.SelectManipulator;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.wc3.mdl.RenderModel;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
@@ -21,6 +23,7 @@ public abstract class AbstractSelectAndEditManipulatorBuilder implements Manipul
 	private final ProgramPreferences programPreferences;
 	private ModelEditor modelEditor;
 	private final Graphics2DToModelElementRendererAdapter graphics2dToModelElementRendererAdapter;
+	private final Graphics2DToAnimatedModelElementRendererAdapter graphics2dToAnimatedModelElementRendererAdapter;
 	private final ModelView modelView;
 
 	public AbstractSelectAndEditManipulatorBuilder(final ViewportSelectionHandler viewportSelectionHandler,
@@ -30,6 +33,8 @@ public abstract class AbstractSelectAndEditManipulatorBuilder implements Manipul
 		this.modelEditor = modelEditor;
 		this.modelView = modelView;
 		graphics2dToModelElementRendererAdapter = new Graphics2DToModelElementRendererAdapter(
+				programPreferences.getVertexSize());
+		graphics2dToAnimatedModelElementRendererAdapter = new Graphics2DToAnimatedModelElementRendererAdapter(
 				programPreferences.getVertexSize());
 	}
 
@@ -75,6 +80,17 @@ public abstract class AbstractSelectAndEditManipulatorBuilder implements Manipul
 
 	@Override
 	public final void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem,
+			final SelectionView selectionView, final RenderModel renderModel) {
+		selectionView.renderSelection(
+				graphics2dToAnimatedModelElementRendererAdapter.reset(graphics, coordinateSystem, renderModel),
+				coordinateSystem, modelView, programPreferences);
+		if (!selectionView.isEmpty()) {
+			renderWidget(graphics, coordinateSystem, selectionView);
+		}
+	}
+
+	@Override
+	public final void renderStatic(final Graphics2D graphics, final CoordinateSystem coordinateSystem,
 			final SelectionView selectionView) {
 		selectionView.renderSelection(graphics2dToModelElementRendererAdapter.reset(graphics, coordinateSystem),
 				coordinateSystem, modelView, programPreferences);

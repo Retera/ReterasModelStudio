@@ -17,6 +17,7 @@ public abstract class AbstractExtrudeManipulator extends AbstractMoveManipulator
 
 	@Override
 	protected void onStart(final Double mouseStart, final byte dim1, final byte dim2) {
+		super.onStart(mouseStart, dim1, dim2);
 		beginExtrudingSelection = modelEditor.beginExtrudingSelection();
 	}
 

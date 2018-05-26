@@ -34,8 +34,9 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 	private final ProgramPreferences programPreferences;
 
 	public VertexGroupModelEditor(final ModelView model, final ProgramPreferences programPreferences,
-			final SelectionManager<VertexGroupBundle> selectionManager) {
-		super(selectionManager, model);
+			final SelectionManager<VertexGroupBundle> selectionManager,
+			final ModelStructureChangeListener structureChangeListener) {
+		super(selectionManager, model, structureChangeListener);
 		this.programPreferences = programPreferences;
 	}
 
@@ -103,7 +104,7 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 	}
 
 	@Override
-	public UndoAction addTeamColor(final ModelStructureChangeListener modelStructureChangeListener) {
+	public UndoAction addTeamColor() {
 		throw new UnsupportedOperationException("This feature is not coded yet, at least not correctly");
 	}
 
@@ -163,11 +164,6 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 			}
 		}
 		return canSelect;
-	}
-
-	@Override
-	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem) {
-		selectionManager.renderSelection(renderer, coordinateSystem, model, programPreferences);
 	}
 
 	@Override

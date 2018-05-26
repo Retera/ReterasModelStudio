@@ -34,6 +34,10 @@ public final class RenderModel {
 		return objectToRenderNode.get(idObject);
 	}
 
+	public AnimatedRenderEnvironment getAnimatedRenderEnvironment() {
+		return animatedRenderEnvironment;
+	}
+
 	public void refreshFromEditor(final AnimatedRenderEnvironment animatedRenderEnvironment,
 			final Quaternion inverseCameraRotation, final Quaternion inverseCameraRotationYSpin,
 			final Quaternion inverseCameraRotationZSpin) {
@@ -102,6 +106,8 @@ public final class RenderModel {
 							localLocation.x = (float) renderTranslation.x;
 							localLocation.y = (float) renderTranslation.y;
 							localLocation.z = (float) renderTranslation.z;
+						} else {
+							localLocation.set(0, 0, 0);
 						}
 					}
 
@@ -113,6 +119,8 @@ public final class RenderModel {
 							localRotation.y = (float) renderRotation.b;
 							localRotation.z = (float) renderRotation.c;
 							localRotation.w = (float) renderRotation.d;
+						} else {
+							localRotation.set(0, 0, 0, 1);
 						}
 					}
 
@@ -123,6 +131,8 @@ public final class RenderModel {
 							localScale.x = (float) renderScale.x;
 							localScale.y = (float) renderScale.y;
 							localScale.z = (float) renderScale.z;
+						} else {
+							localScale.set(1, 1, 1);
 						}
 					}
 					node.dirty = true;
@@ -141,8 +151,6 @@ public final class RenderModel {
 					}
 
 					Quaternion.mul(localRotation, inverseCameraRotation, localRotation);
-
-					// TODO face camera, TODO have a camera
 				} else if (node.billboardedY) {
 					wasDirty = true;
 
@@ -192,5 +200,6 @@ public final class RenderModel {
 				node.updateChildren();
 			}
 		}
+
 	}
 }

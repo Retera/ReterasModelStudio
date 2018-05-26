@@ -4,14 +4,14 @@ import java.util.Iterator;
 
 import com.etheller.collections.ArrayList;
 import com.etheller.collections.CollectionView;
-import com.etheller.collections.HashMap;
+import com.etheller.collections.LinkedHashMap;
 import com.etheller.collections.List;
 import com.etheller.collections.Map;
 import com.etheller.collections.MapView;
 import com.etheller.collections.MapView.Entry;
 
 public final class ChangeMap implements Iterable<MapView.Entry<War3ID, List<Change>>> {
-	private final Map<War3ID, List<Change>> idToChanges = new HashMap<>();
+	private final Map<War3ID, List<Change>> idToChanges = new LinkedHashMap<>();
 
 	public void add(final War3ID war3Id, final Change change) {
 		List<Change> list = idToChanges.get(war3Id);
@@ -49,5 +49,9 @@ public final class ChangeMap implements Iterable<MapView.Entry<War3ID, List<Chan
 
 	public int size() {
 		return idToChanges.size();
+	}
+
+	public void clear() {
+		idToChanges.clear();
 	}
 }

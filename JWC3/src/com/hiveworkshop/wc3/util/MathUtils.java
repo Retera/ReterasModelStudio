@@ -127,4 +127,37 @@ public class MathUtils {
 		out.m32 = v.z;
 		out.m33 = 1;
 	}
+
+	public static void fromQuat(final Quaternion q, final Matrix4f out) {
+		final float x = q.x, y = q.y, z = q.z, w = q.w;
+		final float x2 = x + x;
+		final float y2 = y + y;
+		final float z2 = z + z;
+		final float xx = x * x2;
+		final float yx = y * x2;
+		final float yy = y * y2;
+		final float zx = z * x2;
+		final float zy = z * y2;
+		final float zz = z * z2;
+		final float wx = w * x2;
+		final float wy = w * y2;
+		final float wz = w * z2;
+		out.m00 = 1 - yy - zz;
+		out.m01 = yx + wz;
+		out.m02 = zx - wy;
+		out.m03 = 0;
+		out.m10 = yx - wz;
+		out.m11 = 1 - xx - zz;
+		out.m12 = zy + wx;
+		out.m13 = 0;
+		out.m20 = zx + wy;
+		out.m21 = zy - wx;
+		out.m22 = 1 - xx - yy;
+		out.m23 = 0;
+		out.m30 = 0;
+		out.m31 = 0;
+		out.m32 = 0;
+		out.m33 = 1;
+
+	}
 }

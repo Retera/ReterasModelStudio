@@ -10,4 +10,6 @@ public interface SelectionManager<T> extends SelectionManagerView<T> {
 	void removeSelection(Collection<? extends T> selection);
 
 	void addSelectionListener(SelectionListener listener);
+
+	void removeSelectionListener(SelectionListener listener);
 }

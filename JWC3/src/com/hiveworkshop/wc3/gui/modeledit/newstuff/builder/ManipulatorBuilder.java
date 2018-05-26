@@ -8,6 +8,7 @@ import com.hiveworkshop.wc3.gui.modeledit.activity.ButtonType;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ModelEditorChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.wc3.mdl.RenderModel;
 
 public interface ManipulatorBuilder extends ModelEditorChangeListener {
 	Cursor getCursorAt(int x, int y, CoordinateSystem coordinateSystem, SelectionView selectionView);
@@ -15,5 +16,8 @@ public interface ManipulatorBuilder extends ModelEditorChangeListener {
 	Manipulator buildActivityListener(int x, int y, ButtonType clickedButton, CoordinateSystem coordinateSystem,
 			SelectionView selectionView);
 
-	void render(Graphics2D graphics, CoordinateSystem coordinateSystem, SelectionView selectionView);
+	void render(Graphics2D graphics, CoordinateSystem coordinateSystem, SelectionView selectionView,
+			RenderModel renderModel);
+
+	void renderStatic(Graphics2D graphics, CoordinateSystem coordinateSystem, SelectionView selectionView);
 }

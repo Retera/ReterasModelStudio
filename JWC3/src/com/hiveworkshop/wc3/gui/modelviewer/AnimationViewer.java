@@ -80,7 +80,12 @@ public class AnimationViewer extends JPanel {
 	@Override
 	public void paintComponent(final Graphics g) {
 		super.paintComponent(g);
-		perspectiveViewport.repaint();
+		// perspectiveViewport.repaint();
+		perspectiveViewport.paint(perspectiveViewport.getGraphics());
+	}
+
+	public void reloadAllTextures() {
+		perspectiveViewport.reloadAllTextures();
 	}
 
 	public void reload() {

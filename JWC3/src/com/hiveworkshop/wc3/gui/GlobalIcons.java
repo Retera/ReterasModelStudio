@@ -22,4 +22,6 @@ public class GlobalIcons {
 	public static final ImageIcon moveUpIcon = new ImageIcon(GlobalIcons.class.getResource("ImageBin/moveUp.png"));
 	public static final ImageIcon moveDownIcon = new ImageIcon(GlobalIcons.class.getResource("ImageBin/moveDown.png"));
 	public static final ImageIcon setKeyframeIcon = new ImageIcon(GlobalIcons.class.getResource("ImageBin/setkey.png"));
+	public static final ImageIcon setTimeBoundsIcon = new ImageIcon(
+			GlobalIcons.class.getResource("ImageBin/setbounds.png"));
 }

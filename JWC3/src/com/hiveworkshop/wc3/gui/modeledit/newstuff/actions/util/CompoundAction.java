@@ -14,7 +14,8 @@ public final class CompoundAction implements UndoAction {
 
 	@Override
 	public void undo() {
-		for (final UndoAction action : actions) {
+		for (int i = actions.size() - 1; i >= 0; i--) {
+			final UndoAction action = actions.get(i);
 			action.undo();
 		}
 	}

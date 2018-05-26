@@ -2,21 +2,47 @@ package com.hiveworkshop.wc3.gui.animedit;
 
 import com.hiveworkshop.wc3.gui.animedit.TimeBoundChangeListener.TimeBoundChangeNotifier;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
-import com.hiveworkshop.wc3.mdl.Animation;
 
 public class TimeEnvironmentImpl implements AnimatedRenderEnvironment, TimeBoundProvider {
 	private int currentTime;
 	private int globalSequenceLength = -1;
-	private Animation animation;
 	private final TimeBoundChangeNotifier notifier = new TimeBoundChangeNotifier();
+	private final ControllableTimeBoundProvider controllableTimeBoundProvider = new ControllableTimeBoundProvider(0,
+			1000);
+	private boolean staticViewMode;
 
 	public void setCurrentTime(final int currentTime) {
 		this.currentTime = currentTime;
 	}
 
-	public void setAnimation(final Animation animation) {
-		this.animation = animation;
-		notifier.timeBoundsChanged(animation.getStart(), animation.getEnd());
+	public void setStart(final int startTime) {
+		controllableTimeBoundProvider.setStart(startTime);
+		if (globalSequenceLength == -1) {
+			notifier.timeBoundsChanged(controllableTimeBoundProvider.getStart(),
+					controllableTimeBoundProvider.getEnd());
+		}
+	}
+
+	public void setEnd(final int endTime) {
+		controllableTimeBoundProvider.setEnd(endTime);
+		if (globalSequenceLength == -1) {
+			notifier.timeBoundsChanged(controllableTimeBoundProvider.getStart(),
+					controllableTimeBoundProvider.getEnd());
+		}
+	}
+
+	public void setBounds(final int startTime, final int endTime) {
+		controllableTimeBoundProvider.setStart(startTime);
+		controllableTimeBoundProvider.setEnd(endTime);
+		globalSequenceLength = -1;
+		if (globalSequenceLength == -1) {
+			notifier.timeBoundsChanged(controllableTimeBoundProvider.getStart(),
+					controllableTimeBoundProvider.getEnd());
+		}
+	}
+
+	public void setStaticViewMode(final boolean staticViewMode) {
+		this.staticViewMode = staticViewMode;
 	}
 
 	public void setGlobalSeq(final int globalSeq) {
@@ -37,8 +63,11 @@ public class TimeEnvironmentImpl implements AnimatedRenderEnvironment, TimeBound
 	}
 
 	@Override
-	public Animation getCurrentAnimation() {
-		return animation;
+	public BasicTimeBoundProvider getCurrentAnimation() {
+		if (staticViewMode) {
+			return null;
+		}
+		return controllableTimeBoundProvider;
 	}
 
 	@Override
@@ -51,8 +80,8 @@ public class TimeEnvironmentImpl implements AnimatedRenderEnvironment, TimeBound
 
 	@Override
 	public int getStart() {
-		if (globalSequenceLength == -1 && animation != null) {
-			return animation.getStart();
+		if (globalSequenceLength == -1) {
+			return controllableTimeBoundProvider.getStart();
 		}
 		return 0;
 	}
@@ -60,11 +89,7 @@ public class TimeEnvironmentImpl implements AnimatedRenderEnvironment, TimeBound
 	@Override
 	public int getEnd() {
 		if (globalSequenceLength == -1) {
-			if (animation != null) {
-				return animation.getEnd();
-			} else {
-				return 1;
-			}
+			return controllableTimeBoundProvider.getEnd();
 		}
 		return globalSequenceLength;
 	}

@@ -3,6 +3,12 @@ package com.hiveworkshop.wc3.gui.modeledit;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 
+import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector4f;
+
+import com.hiveworkshop.wc3.mdl.Bone;
+import com.hiveworkshop.wc3.mdl.GeosetVertex;
+import com.hiveworkshop.wc3.mdl.RenderModel;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 public interface CoordinateSystem extends CoordinateAxes {
@@ -107,6 +113,33 @@ public interface CoordinateSystem extends CoordinateAxes {
 				final Point recyclePoint) {
 			recyclePoint.x = (int) coordinateSystem.convertX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
 			recyclePoint.y = (int) coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
+			return recyclePoint;
+		}
+
+		private static final Vector4f vertexHeap = new Vector4f();
+		private static final Vector4f appliedVertexHeap = new Vector4f();
+		private static final Vector4f vertexSumHeap = new Vector4f();
+
+		public static Point convertToPoint(final CoordinateSystem coordinateSystem, final GeosetVertex vertex,
+				final Point recyclePoint, final RenderModel renderModel) {
+			vertexHeap.x = (float) vertex.x;
+			vertexHeap.y = (float) vertex.y;
+			vertexHeap.z = (float) vertex.z;
+			vertexHeap.w = 1;
+			vertexSumHeap.set(0, 0, 0, 0);
+			for (final Bone bone : vertex.getBones()) {
+				Matrix4f.transform(renderModel.getRenderNode(bone).getWorldMatrix(), vertexHeap, appliedVertexHeap);
+				Vector4f.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
+			}
+			final int boneCount = vertex.getBones().size();
+			vertexSumHeap.x /= boneCount;
+			vertexSumHeap.y /= boneCount;
+			vertexSumHeap.z /= boneCount;
+			vertexSumHeap.w /= boneCount;
+			recyclePoint.x = (int) coordinateSystem
+					.convertX(Vertex.getCoord(vertexSumHeap, coordinateSystem.getPortFirstXYZ()));
+			recyclePoint.y = (int) coordinateSystem
+					.convertY(Vertex.getCoord(vertexSumHeap, coordinateSystem.getPortSecondXYZ()));
 			return recyclePoint;
 		}
 

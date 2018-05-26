@@ -6,6 +6,7 @@ import java.awt.event.MouseEvent;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.wc3.mdl.RenderModel;
 
 public final class ViewportActivityManager implements ViewportActivity {
 	private ViewportActivity currentActivity;
@@ -48,8 +49,13 @@ public final class ViewportActivityManager implements ViewportActivity {
 	}
 
 	@Override
-	public void render(final Graphics2D g, final CoordinateSystem coordinateSystem) {
-		currentActivity.render(g, coordinateSystem);
+	public void render(final Graphics2D g, final CoordinateSystem coordinateSystem, final RenderModel renderModel) {
+		currentActivity.render(g, coordinateSystem, renderModel);
+	}
+
+	@Override
+	public void renderStatic(final Graphics2D g, final CoordinateSystem coordinateSystem) {
+		currentActivity.renderStatic(g, coordinateSystem);
 	}
 
 	@Override

@@ -19,6 +19,7 @@ import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivity;
 import com.hiveworkshop.wc3.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ModelEditorChangeNotifier;
+import com.hiveworkshop.wc3.mdl.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 import net.infonode.docking.View;
@@ -43,7 +44,7 @@ public class DisplayPanel extends JPanel implements ActionListener {
 			final ViewportActivity activityListener, final ProgramPreferences preferences,
 			final UndoActionListener undoListener, final CoordDisplayListener coordDisplayListener,
 			final UndoHandler undoHandler, final ModelEditorChangeNotifier modelEditorChangeNotifier,
-			final ViewportTransferHandler viewportTransferHandler) {
+			final ViewportTransferHandler viewportTransferHandler, final RenderModel renderModel) {
 		super();
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		this.activityListener = activityListener;
@@ -53,7 +54,7 @@ public class DisplayPanel extends JPanel implements ActionListener {
 		// ));
 		setOpaque(true);
 		setViewport(a, b, modelView, preferences, undoListener, coordDisplayListener, undoHandler, modelEditor,
-				viewportTransferHandler);
+				viewportTransferHandler, renderModel);
 		this.title = title;
 
 		plusZoom = new JButton("");
@@ -140,9 +141,10 @@ public class DisplayPanel extends JPanel implements ActionListener {
 	public void setViewport(final byte a, final byte b, final ModelView modelView,
 			final ProgramPreferences programPreferences, final UndoActionListener undoListener,
 			final CoordDisplayListener coordDisplayListener, final UndoHandler undoHandler,
-			final ModelEditor modelEditor, final ViewportTransferHandler viewportTransferHandler) {
+			final ModelEditor modelEditor, final ViewportTransferHandler viewportTransferHandler,
+			final RenderModel renderModel) {
 		vp = new Viewport(a, b, modelView, programPreferences, activityListener, modelStructureChangeListener,
-				undoListener, coordDisplayListener, undoHandler, modelEditor, viewportTransferHandler);
+				undoListener, coordDisplayListener, undoHandler, modelEditor, viewportTransferHandler, renderModel);
 		modelEditorChangeNotifier.subscribe(vp);
 		add(vp);
 	}

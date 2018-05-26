@@ -46,6 +46,11 @@ public abstract class AbstractSelectionManager<T> implements SelectionManager<T>
 		listeners.add(listener);
 	}
 
+	@Override
+	public void removeSelectionListener(final SelectionListener listener) {
+		listeners.remove(listener);
+	}
+
 	private void fireChangeListeners() {
 		for (final SelectionListener listener : listeners) {
 			listener.onSelectionChanged(this);

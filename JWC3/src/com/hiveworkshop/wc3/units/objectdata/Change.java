@@ -8,6 +8,7 @@ public final class Change {
 	private String strval;
 
 	private boolean boolval;
+	private War3ID junkDNA;
 
 	public War3ID getId() {
 		return id;
@@ -73,6 +74,14 @@ public final class Change {
 		this.boolval = boolval;
 	}
 
+	public void setJunkDNA(final War3ID junkDNA) {
+		this.junkDNA = junkDNA;
+	}
+
+	public War3ID getJunkDNA() {
+		return junkDNA;
+	}
+
 	public void copyFrom(final Change other) {
 		id = other.id;
 		level = other.level;
@@ -82,6 +91,7 @@ public final class Change {
 		realval = other.realval;
 		strval = other.strval;
 		boolval = other.boolval;
+		junkDNA = other.junkDNA;
 	}
 
 	@Override

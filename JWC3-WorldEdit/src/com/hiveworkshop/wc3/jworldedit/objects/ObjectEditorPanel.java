@@ -45,6 +45,7 @@ import com.hiveworkshop.wc3.jworldedit.objects.better.fields.builders.ItemFieldB
 import com.hiveworkshop.wc3.jworldedit.objects.better.fields.builders.UnitFieldBuilder;
 import com.hiveworkshop.wc3.jworldedit.objects.better.fields.builders.UpgradesFieldBuilder;
 import com.hiveworkshop.wc3.jworldedit.objects.better.fields.factory.BasicSingleFieldFactory;
+import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.resources.WEString;
 import com.hiveworkshop.wc3.units.DataTable;
 import com.hiveworkshop.wc3.units.GameObject;
@@ -53,10 +54,12 @@ import com.hiveworkshop.wc3.units.UnitOptionPanel;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.MutableGameObject;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.WorldEditorDataType;
+import com.hiveworkshop.wc3.units.objectdata.WTSFile;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
 import com.hiveworkshop.wc3.units.objectdata.War3ObjectDataChangeset;
 import com.hiveworkshop.wc3.util.IconUtils;
 
+import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
 
 public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
@@ -94,6 +97,8 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 		tabbedPane.addTab(WEString.getString("WESTRING_OBJTAB_UPGRADES"),
 				getIcon(worldEditorData, "ToolBarIcon_OE_NewUpgr"), createUpgradeEditor());
 		tabbedPane.addTab("Terrains", getIcon(worldEditorData, "ToolBarIcon_Module_Terrain"), createUpgradeEditor());
+
+		War3ObjectDataChangeset.printMaxLoads();
 
 		final JToolBar toolBar = createToolbar(worldEditorData);
 		toolBar.setFloatable(false);
@@ -195,7 +200,13 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 		toolBar.add(Box.createHorizontalStrut(8));
 		makeButton(worldEditorData, toolBar, "testMap",
 				new ImageIcon(IconUtils.worldEditStyleIcon(getIcon(worldEditorData, "ToolBarIcon_TestMap").getImage())),
-				"WESTRING_TOOLBAR_TESTMAP");
+				"WESTRING_TOOLBAR_TESTMAP").addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(final ActionEvent e) {
+						ObjectEditorFrame.main(new String[] {});
+					}
+				});
+		;
 		return toolBar;
 	}
 
@@ -215,7 +226,18 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 
 	private UnitEditorPanel createUnitEditor() {
 		final DataTable standardUnitMeta = StandardObjectData.getStandardUnitMeta();
-		final War3ObjectDataChangeset unitDataChangeset = new War3ObjectDataChangeset();
+		final War3ObjectDataChangeset unitDataChangeset = new War3ObjectDataChangeset('u');
+		try {
+			final MpqCodebase mpqCodebase = MpqCodebase.get();
+			if (mpqCodebase.has("war3map.w3u")) {
+				unitDataChangeset.load(new BlizzardDataInputStream(mpqCodebase.getResourceAsStream("war3map.w3u")),
+						mpqCodebase.has("war3map.wts") ? new WTSFile(mpqCodebase.getResourceAsStream("war3map.wts"))
+								: null,
+						true);
+			}
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
 		unitData = new MutableObjectData(WorldEditorDataType.UNITS, StandardObjectData.getStandardUnits(),
 				standardUnitMeta, unitDataChangeset);
 		final UnitEditorPanel unitEditorPanel = new UnitEditorPanel(unitData, standardUnitMeta, new UnitFieldBuilder(),
@@ -227,7 +249,18 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 	}
 
 	private UnitEditorPanel createItemEditor() {
-		final War3ObjectDataChangeset unitDataChangeset = new War3ObjectDataChangeset();
+		final War3ObjectDataChangeset unitDataChangeset = new War3ObjectDataChangeset('t');
+		try {
+			final MpqCodebase mpqCodebase = MpqCodebase.get();
+			if (mpqCodebase.has("war3map.w3t")) {
+				unitDataChangeset.load(new BlizzardDataInputStream(mpqCodebase.getResourceAsStream("war3map.w3t")),
+						mpqCodebase.has("war3map.wts") ? new WTSFile(mpqCodebase.getResourceAsStream("war3map.wts"))
+								: null,
+						true);
+			}
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
 		final DataTable standardUnitMeta = StandardObjectData.getStandardUnitMeta();
 		final UnitEditorPanel unitEditorPanel = new UnitEditorPanel(
 				new MutableObjectData(WorldEditorDataType.ITEM, StandardObjectData.getStandardItems(), standardUnitMeta,
@@ -247,6 +280,17 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 	private UnitEditorPanel createDestructibleEditor() {
 		final War3ObjectDataChangeset unitDataChangeset = new War3ObjectDataChangeset('b');
 		final DataTable standardUnitMeta = StandardObjectData.getStandardDestructableMeta();
+		try {
+			final MpqCodebase mpqCodebase = MpqCodebase.get();
+			if (mpqCodebase.has("war3map.w3b")) {
+				unitDataChangeset.load(new BlizzardDataInputStream(mpqCodebase.getResourceAsStream("war3map.w3b")),
+						mpqCodebase.has("war3map.wts") ? new WTSFile(mpqCodebase.getResourceAsStream("war3map.wts"))
+								: null,
+						true);
+			}
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
 		final UnitEditorPanel unitEditorPanel = new UnitEditorPanel(
 				new MutableObjectData(WorldEditorDataType.DESTRUCTIBLES, StandardObjectData.getStandardDestructables(),
 						standardUnitMeta, unitDataChangeset),
@@ -267,6 +311,17 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 
 	private UnitEditorPanel createDoodadEditor() {
 		final War3ObjectDataChangeset unitDataChangeset = new War3ObjectDataChangeset('d');
+		try {
+			final MpqCodebase mpqCodebase = MpqCodebase.get();
+			if (mpqCodebase.has("war3map.w3d")) {
+				unitDataChangeset.load(new BlizzardDataInputStream(mpqCodebase.getResourceAsStream("war3map.w3d")),
+						mpqCodebase.has("war3map.wts") ? new WTSFile(mpqCodebase.getResourceAsStream("war3map.wts"))
+								: null,
+						true);
+			}
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
 		final DataTable standardUnitMeta = StandardObjectData.getStandardDoodadMeta();
 		final UnitEditorPanel unitEditorPanel = new UnitEditorPanel(
 				new MutableObjectData(WorldEditorDataType.DOODADS, StandardObjectData.getStandardDoodads(),
@@ -286,6 +341,17 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 
 	private UnitEditorPanel createAbilityEditor() {
 		final War3ObjectDataChangeset unitDataChangeset = new War3ObjectDataChangeset('a');
+		try {
+			final MpqCodebase mpqCodebase = MpqCodebase.get();
+			if (mpqCodebase.has("war3map.w3a")) {
+				unitDataChangeset.load(new BlizzardDataInputStream(mpqCodebase.getResourceAsStream("war3map.w3a")),
+						mpqCodebase.has("war3map.wts") ? new WTSFile(mpqCodebase.getResourceAsStream("war3map.wts"))
+								: null,
+						true);
+			}
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
 		final DataTable standardUnitMeta = StandardObjectData.getStandardAbilityMeta();
 		final UnitEditorPanel unitEditorPanel = new UnitEditorPanel(
 				new MutableObjectData(WorldEditorDataType.ABILITIES, StandardObjectData.getStandardAbilities(),
@@ -305,6 +371,17 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 
 	private UnitEditorPanel createAbilityBuffEditor() {
 		final War3ObjectDataChangeset unitDataChangeset = new War3ObjectDataChangeset('f');
+		try {
+			final MpqCodebase mpqCodebase = MpqCodebase.get();
+			if (mpqCodebase.has("war3map.w3h")) {
+				unitDataChangeset.load(new BlizzardDataInputStream(mpqCodebase.getResourceAsStream("war3map.w3h")),
+						mpqCodebase.has("war3map.wts") ? new WTSFile(mpqCodebase.getResourceAsStream("war3map.wts"))
+								: null,
+						true);
+			}
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
 		final DataTable standardUnitMeta = StandardObjectData.getStandardAbilityBuffMeta();
 		final UnitEditorPanel unitEditorPanel = new UnitEditorPanel(
 				new MutableObjectData(WorldEditorDataType.BUFFS_EFFECTS, StandardObjectData.getStandardAbilityBuffs(),
@@ -326,6 +403,17 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 
 	private UnitEditorPanel createUpgradeEditor() {
 		final War3ObjectDataChangeset unitDataChangeset = new War3ObjectDataChangeset('g');
+		try {
+			final MpqCodebase mpqCodebase = MpqCodebase.get();
+			if (mpqCodebase.has("war3map.w3q")) {
+				unitDataChangeset.load(new BlizzardDataInputStream(mpqCodebase.getResourceAsStream("war3map.w3q")),
+						mpqCodebase.has("war3map.wts") ? new WTSFile(mpqCodebase.getResourceAsStream("war3map.wts"))
+								: null,
+						true);
+			}
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
 		final DataTable standardMeta = StandardObjectData.getStandardUpgradeMeta();
 		final DataTable standardUpgradeEffectMeta = StandardObjectData.getStandardUpgradeEffectMeta();
 		final UnitEditorPanel unitEditorPanel = new UnitEditorPanel(

@@ -32,6 +32,7 @@ import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.modeledit.PerspDisplayPanel;
 import com.hiveworkshop.wc3.gui.mpqbrowser.MPQBrowser;
 import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
@@ -213,7 +214,9 @@ public class BlpConverterPanel extends JPanel {
 		leftHandCardPanel.setLayout(cardLayout);
 		final BlpConverterPanel converterPanel = new BlpConverterPanel();
 		leftHandCardPanel.add("tex", converterPanel);
-		final PerspDisplayPanel modelViewport = new PerspDisplayPanel("", new ModelViewManager(new MDL()), null);
+		final MDL emptyModel = new MDL();
+		final PerspDisplayPanel modelViewport = new PerspDisplayPanel("", new ModelViewManager(emptyModel), null,
+				new RenderModel(emptyModel));
 		leftHandCardPanel.add("model", modelViewport);
 		final MpqCodebase mpqCodebase = MpqCodebase.get();
 		cardLayout.show(leftHandCardPanel, "tex");

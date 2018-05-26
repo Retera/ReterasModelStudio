@@ -35,6 +35,7 @@ public class MpqCodebase implements Codebase {
 	MpqGuy war3x;
 	MpqGuy war3xlocal;
 	MpqGuy war3patch;
+	MpqGuy deprecatedPatch129;
 	MpqGuy hfmd;
 	ArrayList<MpqGuy> mpqList = new ArrayList<>();
 	ArchivedFileExtractor extractor = new ArchivedFileExtractor();
@@ -71,12 +72,13 @@ public class MpqCodebase implements Codebase {
 	}
 
 	public MpqCodebase() {
-		war3 = loadMPQ("war3.mpq");
-		war3x = loadMPQ("war3x.mpq");
-		war3xlocal = loadMPQ("war3xlocal.mpq");
-		war3patch = loadMPQ("war3patch.mpq");
+		war3 = loadMPQ("war3.mpq", true);
+		war3x = loadMPQ("war3x.mpq", true);
+		war3xlocal = loadMPQ("war3xlocal.mpq", true);
+		war3patch = loadMPQ("war3patch.mpq", false);
+		deprecatedPatch129 = loadMPQ("Deprecated.mpq", false);
 		if (isDebugMode) {
-			hfmd = loadMPQ("hfmd.exe");
+			hfmd = loadMPQ("hfmd.exe", false);
 		}
 	}
 
@@ -207,6 +209,16 @@ public class MpqCodebase implements Codebase {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		try {
+			deprecatedPatch129.getInputChannel().close();
+			// } catch (IOException e) {
+			// e.printStackTrace();
+		} catch (final NullPointerException e) {
+			e.printStackTrace();
+		} catch (final IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		if (isDebugMode) {
 			try {
 				hfmd.getInputChannel().close();
@@ -220,12 +232,13 @@ public class MpqCodebase implements Codebase {
 			}
 		}
 		mpqList.clear();
-		war3 = loadMPQ("war3.mpq");
-		war3x = loadMPQ("war3x.mpq");
-		war3xlocal = loadMPQ("war3xlocal.mpq");
-		war3patch = loadMPQ("war3patch.mpq");
+		war3 = loadMPQ("war3.mpq", true);
+		war3x = loadMPQ("war3x.mpq", true);
+		war3xlocal = loadMPQ("war3xlocal.mpq", true);
+		war3patch = loadMPQ("war3patch.mpq", false);
+		deprecatedPatch129 = loadMPQ("Deprecated.mpq", false);
 		if (isDebugMode) {
-			hfmd = loadMPQ("hfmd.exe");
+			hfmd = loadMPQ("hfmd.exe", false);
 		}
 	}
 
@@ -256,15 +269,17 @@ public class MpqCodebase implements Codebase {
 		return listfile;
 	}
 
-	private MpqGuy loadMPQ(final String mpq) {
+	private MpqGuy loadMPQ(final String mpq, final boolean required) {
 		MpqGuy temp;
 		// try {
 		try {
-			final SeekableByteChannel sbc = Files.newByteChannel(Paths.get(getWarcraftDirectory(), mpq),
-					EnumSet.of(StandardOpenOption.READ));
-			temp = new MpqGuy(new MPQArchive(sbc), sbc);
-			mpqList.add(temp);
-			return temp;
+			final Path path = Paths.get(getWarcraftDirectory(), mpq);
+			if (required || Files.exists(path)) {
+				final SeekableByteChannel sbc = Files.newByteChannel(path, EnumSet.of(StandardOpenOption.READ));
+				temp = new MpqGuy(new MPQArchive(sbc), sbc);
+				mpqList.add(temp);
+				return temp;
+			}
 		} catch (final MPQException e) {
 			ExceptionPopup.display("Warcraft installation archive reading error occurred. Check your MPQs.\n" + mpq, e);
 			e.printStackTrace();

@@ -9,6 +9,8 @@ import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelElementRenderer;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.NodeIconPalette;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.ResettableIdObjectRenderer;
+import com.hiveworkshop.wc3.mdl.Camera;
+import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
@@ -35,7 +37,8 @@ public final class Graphics2DToModelElementRendererAdapter implements ModelEleme
 	}
 
 	@Override
-	public void renderFace(final Color borderColor, final Color color, final Vertex a, final Vertex b, final Vertex c) {
+	public void renderFace(final Color borderColor, final Color color, final GeosetVertex a, final GeosetVertex b,
+			final GeosetVertex c) {
 		graphics.setColor(color);
 		CoordinateSystem.Util.convertToPoint(coordinateSystem, a, recyclePointA);
 		CoordinateSystem.Util.convertToPoint(coordinateSystem, b, recyclePointB);
@@ -66,7 +69,7 @@ public final class Graphics2DToModelElementRendererAdapter implements ModelEleme
 	}
 
 	@Override
-	public void renderCamera(final Color boxColor, final Vertex position, final Color targetColor,
+	public void renderCamera(final Camera camera, final Color boxColor, final Vertex position, final Color targetColor,
 			final Vertex targetPosition) {
 		final Graphics2D g2 = ((Graphics2D) graphics.create());
 		final Vertex ver = position;

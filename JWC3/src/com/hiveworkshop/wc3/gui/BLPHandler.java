@@ -8,22 +8,23 @@ import java.awt.image.ColorModel;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.FileImageInputStream;
+import javax.imageio.stream.ImageInputStream;
 
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
-
-import de.wc3data.image.BlpFile;
 
 public class BLPHandler {
 
 	public BLPHandler() {
-
 	}
 
 	/**
@@ -37,9 +38,25 @@ public class BLPHandler {
 			return image;
 		}
 		try {
-			final BufferedImage newImage2 = getCustomTex(workingDirectory + "\\" + filepath);
-			if (newImage2 != null) {
-				return newImage2;
+			try {
+				final BufferedImage newImage2 = getCustomTex(workingDirectory + "\\" + filepath);
+				if (newImage2 != null) {
+					return newImage2;
+				}
+			} catch (final Exception exc3) {
+			}
+			final String lastHopePath = workingDirectory + "\\" + filepath.substring(filepath.lastIndexOf('\\') + 1);
+			final BufferedImage newImage3 = getCustomTex(lastHopePath);
+			if (newImage3 != null) {
+				return newImage3;
+				// } else {
+				//
+				// final String lastHopePath2 = "N:\\NEEDS_ORGANIZING\\WarCraft_III_Beta\\WarCraft_III_Beta\\War3beta\\"
+				// + filepath;
+				// final BufferedImage newImage4 = getCustomTex(lastHopePath2);
+				// if (newImage4 != null) {
+				// return newImage4;
+				// }
 			}
 			throw new RuntimeException("Failed to load game texture: " + filepath + " (in " + workingDirectory + ")");
 		} catch (final Exception exc2) {
@@ -100,6 +117,9 @@ public class BLPHandler {
 			return cache.get(filepath);
 		}
 		final InputStream blpFile = MpqCodebase.get().getResourceAsStream(filepath);
+		if (blpFile == null) {
+			return null;
+		}
 		try {
 			// final BufferedImage img = BlpFile.read(filepath, blpFile);
 			final BufferedImage img = forceBufferedImagesRGB(ImageIO.read(blpFile));
@@ -121,6 +141,30 @@ public class BLPHandler {
 		return null;
 	}
 
+	public static BufferedImage readCustom(final File file) throws IOException {
+		final ImageInputStream stream = new FileImageInputStream(file);
+		if (stream == null) {
+			throw new IllegalArgumentException("stream == null!");
+		}
+
+		final Iterator iter = ImageIO.getImageReaders(stream);
+		if (!iter.hasNext()) {
+			return null;
+		}
+
+		final ImageReader reader = (ImageReader) iter.next();
+		final ImageReadParam param = reader.getDefaultReadParam();
+		reader.setInput(file, true, true);
+		BufferedImage bi;
+		try {
+			bi = reader.read(0, param);
+		} finally {
+			reader.dispose();
+			stream.close();
+		}
+		return bi;
+	}
+
 	/**
 	 * Returns a BufferedImage from any arbitrary filepath string on your computer, reading the image from BLP format.
 	 *
@@ -131,7 +175,8 @@ public class BLPHandler {
 		final File blpFile = new File(filepath);
 		final File tga;
 		try {
-			return BlpFile.read(filepath, new FileInputStream(blpFile));
+			final BufferedImage img = forceBufferedImagesRGB(readCustom(blpFile));
+			return img;// BlpFile.read(filepath, new FileInputStream(blpFile));
 			// tga = convertBLPtoTGA(blpFile, File.createTempFile("customtex",
 			// ".tga"));//+(int)(Math.random()*50)
 			// System.out.println(tga.getPath());
@@ -253,4 +298,5 @@ public class BLPHandler {
 	public void dropCache() {
 		cache.clear();
 	}
+
 }

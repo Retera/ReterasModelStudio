@@ -9,7 +9,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.CompoundAction;
 
 public abstract class AbstractExtendManipulator extends AbstractMoveManipulator {
 
-	private UndoAction beginExtrudingSelection;
+	private UndoAction extrudeAction;
 
 	public AbstractExtendManipulator(final ModelEditor modelEditor) {
 		super(modelEditor);
@@ -17,13 +17,14 @@ public abstract class AbstractExtendManipulator extends AbstractMoveManipulator 
 
 	@Override
 	protected void onStart(final Double mouseStart, final byte dim1, final byte dim2) {
-		beginExtrudingSelection = modelEditor.beginExtendingSelection();
+		super.onStart(mouseStart, dim1, dim2);
+		extrudeAction = modelEditor.beginExtendingSelection();
 	}
 
 	@Override
 	public UndoAction finish(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
 		return new CompoundAction("extend",
-				ListView.Util.of(beginExtrudingSelection, super.finish(mouseStart, mouseEnd, dim1, dim2)));
+				ListView.Util.of(extrudeAction, super.finish(mouseStart, mouseEnd, dim1, dim2)));
 	}
 
 	@Override

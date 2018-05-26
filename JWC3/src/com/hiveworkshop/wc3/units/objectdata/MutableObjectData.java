@@ -649,9 +649,13 @@ public final class MutableObjectData {
 			final Change matchingChange = getMatchingChange(field, level);
 			if (matchingChange != null) {
 				if (matchingChange.getVartype() != War3ObjectDataChangeset.VAR_TYPE_BOOLEAN) {
-					throw new IllegalStateException(
-							"Requested boolean value of '" + field + "' from '" + parentWC3Object.getId()
-									+ "', but this field was not a bool! vartype=" + matchingChange.getVartype());
+					if (matchingChange.getVartype() == War3ObjectDataChangeset.VAR_TYPE_INT) {
+						return matchingChange.getLongval() == 1;
+					} else {
+						throw new IllegalStateException(
+								"Requested boolean value of '" + field + "' from '" + parentWC3Object.getId()
+										+ "', but this field was not a bool! vartype=" + matchingChange.getVartype());
+					}
 				}
 				return matchingChange.isBoolval();
 			}

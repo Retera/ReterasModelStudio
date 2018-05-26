@@ -3,7 +3,7 @@ package com.hiveworkshop.wc3.units.objectdata;
 import java.util.Iterator;
 
 import com.etheller.collections.CollectionView;
-import com.etheller.collections.HashMap;
+import com.etheller.collections.LinkedHashMap;
 import com.etheller.collections.Map;
 import com.etheller.collections.MapView.Entry;
 import com.etheller.collections.MapView.ForEach;
@@ -13,7 +13,7 @@ public final class ObjectMap implements Iterable<Entry<War3ID, ObjectDataChangeE
 	private final Map<War3ID, ObjectDataChangeEntry> idToDataChangeEntry;
 
 	public ObjectMap() {
-		idToDataChangeEntry = new HashMap<>();
+		idToDataChangeEntry = new LinkedHashMap<>();
 	}
 
 	public void clear() {

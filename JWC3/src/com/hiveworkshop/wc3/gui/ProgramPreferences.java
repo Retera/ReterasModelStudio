@@ -3,6 +3,8 @@ package com.hiveworkshop.wc3.gui;
 import java.awt.Color;
 import java.io.Serializable;
 
+import com.hiveworkshop.wc3.gui.ProgramPreferencesChangeListener.ProgramPreferencesChangeNotifier;
+import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.user.SaveProfile;
 
 public class ProgramPreferences implements Serializable {
@@ -38,8 +40,11 @@ public class ProgramPreferences implements Serializable {
 	Color pivotPointsColor = Color.MAGENTA;
 	Color lightsColor = Color.YELLOW.brighter();
 	Color ambientLightColor = Color.CYAN.brighter();
+	Color backgroundColor = new Color(255, 255, 255);// new Color(190, 190, 190)
+	Color perspectiveBackgroundColor = new Color(80, 80, 80);// new Color(190, 190, 190)
 	Color selectColor = Color.RED;
 	private int vertexSize = 3;
+	int teamColor;
 
 	public void reload() {
 		dimLocks = new boolean[3];
@@ -64,9 +69,16 @@ public class ProgramPreferences implements Serializable {
 		if (selectColor == null) {
 			selectColor = Color.RED;
 		}
+		if (perspectiveBackgroundColor == null) {
+			perspectiveBackgroundColor = new Color(80, 80, 80);
+		}
+		if (backgroundColor == null) {
+			backgroundColor = Color.DARK_GRAY.darker();
+		}
 		if (vertexSize == 0) {
 			vertexSize = 3;
 		}
+		Material.teamColor = teamColor;
 	}
 
 	public void loadFrom(final ProgramPreferences other) {
@@ -95,6 +107,22 @@ public class ProgramPreferences implements Serializable {
 		ambientLightColor = other.ambientLightColor;
 		selectColor = other.selectColor;
 		vertexSize = other.vertexSize;
+		teamColor = other.teamColor;
+		backgroundColor = other.backgroundColor;
+		perspectiveBackgroundColor = other.perspectiveBackgroundColor;
+		SaveProfile.save();
+		firePrefsChanged();
+
+	}
+
+	public int getTeamColor() {
+		return teamColor;
+	}
+
+	public void setTeamColor(final int teamColor) {
+		this.teamColor = teamColor;
+		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public int getVertexSize() {
@@ -103,6 +131,8 @@ public class ProgramPreferences implements Serializable {
 
 	public void setVertexSize(final int vertexSize) {
 		this.vertexSize = vertexSize;
+		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public Color getSelectColor() {
@@ -111,6 +141,8 @@ public class ProgramPreferences implements Serializable {
 
 	public void setSelectColor(final Color selectColor) {
 		this.selectColor = selectColor;
+		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public int viewMode() {
@@ -127,18 +159,12 @@ public class ProgramPreferences implements Serializable {
 
 	public void setCloneOn(final boolean cloneOn) {
 		this.cloneOn = cloneOn;
+		firePrefsChanged();
 	}
 
 	public void setDimLock(final int x, final boolean flag) {
 		dimLocks[x] = flag;
-		// if( dimLocks[x] )
-		// {
-		// getDLockButton(x).setColors(activeBColor1,activeBColor2);
-		// }
-		// else
-		// {
-		// getDLockButton(x).resetColors();
-		// }
+		firePrefsChanged();
 	}
 
 	public boolean getDimLock(final int dim) {
@@ -164,66 +190,79 @@ public class ProgramPreferences implements Serializable {
 	public void setViewMode(final int viewMode) {
 		this.viewMode = viewMode;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public void setShowNormals(final boolean showNormals) {
 		this.showNormals = showNormals;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public void setShowVertexModifierControls(final boolean showVertexModifierControls) {
 		this.showVertexModifierControls = showVertexModifierControls;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public void setTextureModels(final boolean textureModels) {
 		this.textureModels = textureModels;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public void setDimLocks(final boolean[] dimLocks) {
 		this.dimLocks = dimLocks;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public void setActiveRColor1(final Color activeRColor1) {
 		this.activeRColor1 = activeRColor1;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public void setActiveRColor2(final Color activeRColor2) {
 		this.activeRColor2 = activeRColor2;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public void setActiveColor1(final Color activeColor1) {
 		this.activeColor1 = activeColor1;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public void setActiveColor2(final Color activeColor2) {
 		this.activeColor2 = activeColor2;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public void setActiveBColor1(final Color activeBColor1) {
 		this.activeBColor1 = activeBColor1;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public void setActiveBColor2(final Color activeBColor2) {
 		this.activeBColor2 = activeBColor2;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public void setSelectionType(final int selectionType) {
 		this.selectionType = selectionType;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public void setActionType(final int actionType) {
 		this.actionType = actionType;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public Color getActiveRColor1() {
@@ -281,6 +320,7 @@ public class ProgramPreferences implements Serializable {
 	public void setUseNativeMDXParser(final boolean useNativeMDXParser) {
 		this.useNativeMDXParser = useNativeMDXParser;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public boolean isLoadPortraits() {
@@ -290,6 +330,7 @@ public class ProgramPreferences implements Serializable {
 	public void setLoadPortraits(final boolean loadPortraits) {
 		this.loadPortraits = loadPortraits;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public Color getVertexColor() {
@@ -299,6 +340,7 @@ public class ProgramPreferences implements Serializable {
 	public void setVertexColor(final Color vertexColor) {
 		this.vertexColor = vertexColor;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public Color getTriangleColor() {
@@ -308,6 +350,7 @@ public class ProgramPreferences implements Serializable {
 	public void setTriangleColor(final Color triangleColor) {
 		this.triangleColor = triangleColor;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public Color getVisibleUneditableColor() {
@@ -317,6 +360,7 @@ public class ProgramPreferences implements Serializable {
 	public void setVisibleUneditableColor(final Color visibleUneditableColor) {
 		this.visibleUneditableColor = visibleUneditableColor;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public Color getHighlighTriangleColor() {
@@ -326,6 +370,7 @@ public class ProgramPreferences implements Serializable {
 	public void setHighlighTriangleColor(final Color highlighTriangleColor) {
 		this.highlighTriangleColor = highlighTriangleColor;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public Color getHighlighVertexColor() {
@@ -335,6 +380,7 @@ public class ProgramPreferences implements Serializable {
 	public void setHighlighVertexColor(final Color highlighVertexColor) {
 		this.highlighVertexColor = highlighVertexColor;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public Color getNormalsColor() {
@@ -344,6 +390,7 @@ public class ProgramPreferences implements Serializable {
 	public void setNormalsColor(final Color normalsColor) {
 		this.normalsColor = normalsColor;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public Boolean isInvertedDisplay() {
@@ -353,6 +400,7 @@ public class ProgramPreferences implements Serializable {
 	public void setInvertedDisplay(final Boolean invertedDisplay) {
 		this.invertedDisplay = invertedDisplay;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public Color getPivotPointsColor() {
@@ -362,6 +410,7 @@ public class ProgramPreferences implements Serializable {
 	public void setPivotPointsColor(final Color pivotPointsColor) {
 		this.pivotPointsColor = pivotPointsColor;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public Color getPivotPointsSelectedColor() {
@@ -371,6 +420,7 @@ public class ProgramPreferences implements Serializable {
 	public void setPivotPointsSelectedColor(final Color pivotPointsSelectedColor) {
 		this.pivotPointsSelectedColor = pivotPointsSelectedColor;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public Color getLightsColor() {
@@ -380,6 +430,7 @@ public class ProgramPreferences implements Serializable {
 	public void setLightsColor(final Color lightsColor) {
 		this.lightsColor = lightsColor;
 		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public Color getAmbientLightColor() {
@@ -389,5 +440,45 @@ public class ProgramPreferences implements Serializable {
 	public void setAmbientLightColor(final Color ambientLightColor) {
 		this.ambientLightColor = ambientLightColor;
 		SaveProfile.save();
+		firePrefsChanged();
+	}
+
+	public Color getBackgroundColor() {
+		return backgroundColor;
+	}
+
+	public void setBackgroundColor(final Color backgroundColor) {
+		this.backgroundColor = backgroundColor;
+		SaveProfile.save();
+		firePrefsChanged();
+	}
+
+	public Color getPerspectiveBackgroundColor() {
+		return perspectiveBackgroundColor;
+	}
+
+	public void setPerspectiveBackgroundColor(final Color perspectiveBackgroundColor) {
+		this.perspectiveBackgroundColor = perspectiveBackgroundColor;
+		SaveProfile.save();
+		firePrefsChanged();
+	}
+
+	public void resetToDefaults() {
+		loadFrom(new ProgramPreferences());
+	}
+
+	private void firePrefsChanged() {
+		if (notifier != null) {
+			notifier.preferencesChanged();
+		}
+	}
+
+	private transient ProgramPreferencesChangeNotifier notifier = new ProgramPreferencesChangeNotifier();
+
+	public void addChangeListener(final ProgramPreferencesChangeListener listener) {
+		if (notifier == null) {
+			notifier = new ProgramPreferencesChangeNotifier();
+		}
+		notifier.subscribe(listener);
 	}
 }

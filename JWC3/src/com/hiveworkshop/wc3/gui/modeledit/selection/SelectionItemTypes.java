@@ -8,7 +8,8 @@ import com.hiveworkshop.wc3.gui.modeledit.viewport.IconUtils;
 public enum SelectionItemTypes implements ToolbarButtonType {
 	VERTEX("Select Vertices", IconUtils.loadImageIcon("icons/actions/vertex.png")),
 	FACE("Select Faces", IconUtils.loadImageIcon("icons/actions/poly.png")),
-	GROUP("Select Groups", IconUtils.loadImageIcon("icons/actions/bundle.png"));
+	GROUP("Select Groups", IconUtils.loadImageIcon("icons/actions/bundle.png")),
+	ANIMATE("Select Nodes and Animate", IconUtils.loadImageIcon("icons/actions/animate.png"));
 
 	private final String name;
 	private final ImageIcon imageIcon;

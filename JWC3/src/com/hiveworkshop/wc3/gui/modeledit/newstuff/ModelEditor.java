@@ -7,8 +7,11 @@ import java.util.Collection;
 import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
-import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.cutpaste.CopiedModelData;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.ModelEditorActionType;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericMoveAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericRotateAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
@@ -28,7 +31,7 @@ public interface ModelEditor {
 
 	UndoAction setSelectedBoneName(String name);
 
-	UndoAction addTeamColor(ModelStructureChangeListener modelStructureChangeListener);
+	UndoAction addTeamColor();
 
 	// should move to a Util at a later date, if it does not require internal
 	// knowledge of center point from state holders
@@ -40,7 +43,9 @@ public interface ModelEditor {
 
 	UndoAction setMatrix(Collection<Bone> bones);
 
-	UndoAction deleteSelectedComponents(ModelStructureChangeListener modelStructureChangeListener);
+	UndoAction createKeyframe(ModelEditorActionType actionType);
+
+	UndoAction deleteSelectedComponents();
 
 	UndoAction snapNormals();
 
@@ -60,8 +65,7 @@ public interface ModelEditor {
 
 	UndoAction beginExtendingSelection();
 
-	UndoAction cloneSelectedComponents(ModelStructureChangeListener modelStructureChangeListener,
-			ClonedNodeNamePicker clonedNodeNamePicker);
+	UndoAction cloneSelectedComponents(ClonedNodeNamePicker clonedNodeNamePicker);
 
 	UndoAction setSelectedRegion(Rectangle2D region, CoordinateSystem coordinateSystem);
 
@@ -84,6 +88,12 @@ public interface ModelEditor {
 
 	boolean canSelectAt(Point point, CoordinateSystem axes);
 
+	GenericMoveAction beginTranslation();
+
+	GenericScaleAction beginScaling(double centerX, double centerY, double centerZ);
+
+	GenericRotateAction beginRotation(double centerX, double centerY, double centerZ, byte firstXYZ, byte secondXYZ);
+
 	void rawTranslate(double x, double y, double z);
 
 	void rawScale(double centerX, double centerY, double centerZ, double scaleX, double scaleY, double scaleZ);
@@ -92,10 +102,11 @@ public interface ModelEditor {
 
 	void rawRotate3d(Vertex center, Vertex axis, double radians);
 
-	// TODO maybe put this on selection view
-	void renderSelection(ModelElementRenderer renderer, final CoordinateSystem coordinateSystem);
-
 	Vertex getSelectionCenter();
 
 	CopiedModelData copySelection();
+
+	// true if we conceptually are editing/operating on top of an animated model, instead of a static one
+	// -- this is *definitely* a bit of a hack
+	boolean editorWantsAnimation();
 }

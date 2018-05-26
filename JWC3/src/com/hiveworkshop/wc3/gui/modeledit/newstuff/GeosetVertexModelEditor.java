@@ -34,47 +34,10 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	private final ProgramPreferences programPreferences;
 
 	public GeosetVertexModelEditor(final ModelView model, final ProgramPreferences programPreferences,
-			final SelectionManager<GeosetVertex> selectionManager) {
-		super(selectionManager, model);
+			final SelectionManager<GeosetVertex> selectionManager,
+			final ModelStructureChangeListener structureChangeListener) {
+		super(selectionManager, model, structureChangeListener);
 		this.programPreferences = programPreferences;
-	}
-
-	@Override
-	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem) {
-		// for (final Geoset geo : model.getEditableGeosets()) {
-		// final GeosetVisitor geosetRenderer = renderer.beginGeoset(null,
-		// null);
-		// for (final Triangle triangle : geo.getTriangle()) {
-		// final TriangleVisitor triangleRenderer =
-		// geosetRenderer.beginTriangle();
-		// for (final GeosetVertex geosetVertex : triangle.getVerts()) {
-		// if (selection.contains(geosetVertex)) {
-		// final VertexVisitor vertexRenderer =
-		// triangleRenderer.vertex(geosetVertex.x, geosetVertex.y,
-		// geosetVertex.z, geosetVertex.getNormal().x,
-		// geosetVertex.getNormal().y,
-		// geosetVertex.getNormal().z, geosetVertex.getBoneAttachments());
-		// vertexRenderer.vertexFinished();
-		// }
-		// }
-		// triangleRenderer.triangleFinished();
-		// }
-		// geosetRenderer.geosetFinished();
-		// }
-		// for (final IdObject object : model.getEditableIdObjects()) {
-		// if (selection.contains(object.getPivotPoint())) {
-		// object.apply(renderer);
-		// }
-		// }
-		// for (final Camera camera : model.getEditableCameras()) {
-		// if (selection.contains(camera.getPosition())) {
-		// renderer.camera(camera);
-		// }
-		// if (selection.contains(camera.getTargetPosition())) {
-		// renderer.camera(camera);
-		// }
-		// }
-		selectionManager.renderSelection(renderer, coordinateSystem, model, programPreferences);
 	}
 
 	@Override
@@ -88,9 +51,9 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	}
 
 	@Override
-	public UndoAction addTeamColor(final ModelStructureChangeListener modelStructureChangeListener) {
+	public UndoAction addTeamColor() {
 		final TeamColorAddAction teamColorAddAction = new TeamColorAddAction(selectionManager.getSelectedFaces(),
-				model.getModel(), modelStructureChangeListener, selectionManager);
+				model.getModel(), structureChangeListener, selectionManager);
 		teamColorAddAction.redo();
 		return teamColorAddAction;
 	}

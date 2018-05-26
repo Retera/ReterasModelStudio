@@ -39,6 +39,14 @@ public class Normal extends Vertex {
 		return temp;
 	}
 
+	public Normal normalize() {
+		final double magnitude = Math.sqrt(x * x + y * y + z * z);
+		x /= magnitude;
+		y /= magnitude;
+		z /= magnitude;
+		return this;
+	}
+
 	public void inverse() {
 		x = -x;
 		y = -y;

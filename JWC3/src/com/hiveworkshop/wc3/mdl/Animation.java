@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import com.hiveworkshop.wc3.gui.animedit.BasicTimeBoundProvider;
 import com.hiveworkshop.wc3.mdx.SequenceChunk;
 
 /**
@@ -14,7 +15,7 @@ import com.hiveworkshop.wc3.mdx.SequenceChunk;
  *
  * Eric Theller 11/5/2011
  */
-public class Animation {
+public class Animation implements BasicTimeBoundProvider {
 	private String name = "";
 	private int intervalStart = 0;
 	private int intervalEnd = -1;
@@ -107,6 +108,10 @@ public class Animation {
 
 	public String getName() {
 		return this.name;
+	}
+
+	public boolean isNonLooping() {
+		return tags.contains("NonLooping");
 	}
 
 	public int length() {
@@ -204,10 +209,12 @@ public class Animation {
 		setInterval(start, end, aniFlags, eventObjs);
 	}
 
+	@Override
 	public int getStart() {
 		return intervalStart;
 	}
 
+	@Override
 	public int getEnd() {
 		return intervalEnd;
 	}

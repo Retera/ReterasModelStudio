@@ -7,6 +7,7 @@ import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ModelEditorChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionListener;
+import com.hiveworkshop.wc3.mdl.RenderModel;
 
 public interface ViewportActivity extends SelectionListener, ModelChangeListener, ModelEditorChangeListener {
 	void viewportChanged(CursorManager cursorManager);
@@ -19,7 +20,9 @@ public interface ViewportActivity extends SelectionListener, ModelChangeListener
 
 	void mouseDragged(MouseEvent e, CoordinateSystem coordinateSystem);
 
-	void render(Graphics2D g, CoordinateSystem coordinateSystem);
+	void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel);
+
+	void renderStatic(Graphics2D g, CoordinateSystem coordinateSystem);
 
 	boolean isEditing();
 }

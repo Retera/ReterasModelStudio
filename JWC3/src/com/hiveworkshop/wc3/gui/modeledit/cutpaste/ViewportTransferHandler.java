@@ -85,10 +85,10 @@ public class ViewportTransferHandler extends TransferHandler {
 			pastedModelView.makeCameraVisible(object);
 		}
 		final ModelEditorNotifier modelEditorNotifier = new ModelEditorNotifier();
-		modelEditorNotifier
-				.subscribe(new GeosetVertexModelEditor(pastedModelView, null, new GeosetVertexSelectionManager()));
-		modelEditorNotifier
-				.subscribe(new PivotPointModelEditor(pastedModelView, null, new PivotPointSelectionManager()));
+		modelEditorNotifier.subscribe(new GeosetVertexModelEditor(pastedModelView, null,
+				new GeosetVertexSelectionManager(), viewport.getModelStructureChangeListener()));
+		modelEditorNotifier.subscribe(new PivotPointModelEditor(pastedModelView, null, new PivotPointSelectionManager(),
+				viewport.getModelStructureChangeListener()));
 		modelEditorNotifier.selectAll();
 		final Double geomPoint = CoordinateSystem.Util.geom(viewport, dropPoint);
 		final Vertex vertex = new Vertex(0, 0, 0);
@@ -187,8 +187,7 @@ public class ViewportTransferHandler extends TransferHandler {
 	}
 
 	/**
-	 * When the export is complete, remove the old list entry if the action was
-	 * a move.
+	 * When the export is complete, remove the old list entry if the action was a move.
 	 */
 	@Override
 	protected void exportDone(final JComponent c, final Transferable data, final int action) {

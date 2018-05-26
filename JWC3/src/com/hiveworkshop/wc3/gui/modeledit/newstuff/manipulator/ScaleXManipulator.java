@@ -19,8 +19,7 @@ public final class ScaleXManipulator extends AbstractScaleManipulator {
 		resettableScaleFactors.y = 1;
 		resettableScaleFactors.z = 1;
 		resettableScaleFactors.setCoord(dim1, scaleFactor);
-		modelEditor.rawScale(center.x, center.y, center.z, resettableScaleFactors.x, resettableScaleFactors.y,
-				resettableScaleFactors.z);
+		getScaleAction().updateScale(resettableScaleFactors.x, resettableScaleFactors.y, resettableScaleFactors.z);
 	}
 
 	@Override

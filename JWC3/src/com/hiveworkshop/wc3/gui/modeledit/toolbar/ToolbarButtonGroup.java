@@ -5,8 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JToolBar;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
 
 public final class ToolbarButtonGroup<BUTTON_TYPE extends ToolbarButtonType> {
 
@@ -15,7 +18,8 @@ public final class ToolbarButtonGroup<BUTTON_TYPE extends ToolbarButtonType> {
 	private BUTTON_TYPE activeButtonType;
 	private final List<ToolbarButtonListener<BUTTON_TYPE>> listeners;
 
-	private final List<ToolbarSelectAction> buttons;
+	private final List<ToolbarButtonAction> buttons;
+	private Border activeButtonDefaultBorder;
 
 	public ToolbarButtonGroup(final JToolBar toolBar, final BUTTON_TYPE[] toolbarButtonTypes) {
 		this.toolbarButtonTypes = toolbarButtonTypes;
@@ -38,18 +42,19 @@ public final class ToolbarButtonGroup<BUTTON_TYPE extends ToolbarButtonType> {
 	}
 
 	public void setToolbarButtonType(final BUTTON_TYPE buttonType) {
-		for (final ToolbarSelectAction action : buttons) {
+		for (final ToolbarButtonAction action : buttons) {
 			if (action.getButtonType() == buttonType) {
-				setActiveButton(action.getButton(), action.getButtonType());
+				setActiveButton(action.getButton(), action.getButtonType(), action.defaultBorder);
 			}
 		}
 	}
 
-	private final class ToolbarSelectAction extends AbstractAction {
+	public final class ToolbarButtonAction extends AbstractAction {
 		private JButton button;
+		private Border defaultBorder;
 		private final BUTTON_TYPE buttonType;
 
-		public ToolbarSelectAction(final BUTTON_TYPE buttonType) {
+		public ToolbarButtonAction(final BUTTON_TYPE buttonType) {
 			this.buttonType = buttonType;
 		}
 
@@ -63,34 +68,38 @@ public final class ToolbarButtonGroup<BUTTON_TYPE extends ToolbarButtonType> {
 
 		public void setButton(final JButton button) {
 			this.button = button;
+			defaultBorder = button.getBorder();
 		}
 
 		@Override
 		public void actionPerformed(final ActionEvent e) {
-			setActiveButton(button, buttonType);
+			setActiveButton(button, buttonType, defaultBorder);
 		}
 	}
 
-	private ToolbarSelectAction createButton(final JToolBar toolBar, final BUTTON_TYPE editorAction) {
-		final ToolbarSelectAction toolbarEditAction = new ToolbarSelectAction(editorAction);
+	private ToolbarButtonAction createButton(final JToolBar toolBar, final BUTTON_TYPE editorAction) {
+		final ToolbarButtonAction toolbarEditAction = new ToolbarButtonAction(editorAction);
 		final JButton button = toolBar.add(toolbarEditAction);
 		button.setToolTipText(editorAction.getName());
 		button.setIcon(editorAction.getImageIcon());
 		button.setDisabledIcon(editorAction.getImageIcon());
 		toolbarEditAction.setButton(button);
 		if (activeButtonType == null) {
-			setActiveButton(button, editorAction);
+			setActiveButton(button, editorAction, toolbarEditAction.defaultBorder);
 		}
 		return toolbarEditAction;
 	}
 
-	private void setActiveButton(final JButton button, final BUTTON_TYPE type) {
+	private void setActiveButton(final JButton button, final BUTTON_TYPE type, final Border defaultBorder) {
 		if (activeButton != null) {
 			activeButton.setEnabled(true);
+			activeButton.setBorder(activeButtonDefaultBorder);
 		}
 		activeButton = button;
 		activeButton.setEnabled(false);
+		activeButton.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 		activeButtonType = type;
+		this.activeButtonDefaultBorder = defaultBorder;
 		for (final ToolbarButtonListener<BUTTON_TYPE> listener : listeners) {
 			listener.typeChanged(activeButtonType);
 		}
@@ -98,5 +107,9 @@ public final class ToolbarButtonGroup<BUTTON_TYPE extends ToolbarButtonType> {
 
 	public BUTTON_TYPE getActiveButtonType() {
 		return activeButtonType;
+	}
+
+	public List<ToolbarButtonAction> getButtons() {
+		return buttons;
 	}
 }

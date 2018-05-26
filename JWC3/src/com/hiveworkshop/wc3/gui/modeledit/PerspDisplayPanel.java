@@ -20,6 +20,7 @@ import org.lwjgl.LWJGLException;
 import com.hiveworkshop.wc3.gui.GlobalIcons;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.mdl.Geoset;
+import com.hiveworkshop.wc3.mdl.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 import net.infonode.docking.View;
@@ -38,11 +39,14 @@ public class PerspDisplayPanel extends JPanel implements ActionListener {
 	private final JButton up, down, left, right, plusZoom, minusZoom;
 	private final ProgramPreferences programPreferences;
 	private final View view;
+	private final RenderModel editorRenderModel;
 
 	// private JCheckBox wireframe;
-	public PerspDisplayPanel(final String title, final ModelView dispMDL, final ProgramPreferences programPreferences) {
+	public PerspDisplayPanel(final String title, final ModelView dispMDL, final ProgramPreferences programPreferences,
+			final RenderModel editorRenderModel) {
 		super();
 		this.programPreferences = programPreferences;
+		this.editorRenderModel = editorRenderModel;
 		// BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title),BorderFactory.createBevelBorder(1)),BorderFactory.createEmptyBorder(1,1,1,1)
 		// ));
 		setOpaque(true);
@@ -177,7 +181,8 @@ public class PerspDisplayPanel extends JPanel implements ActionListener {
 				vp.destroy();
 			}
 			removeAll();
-			vp = new PerspectiveViewport(dispModel, programPreferences);
+			vp = new PerspectiveViewport(dispModel, programPreferences, editorRenderModel);
+			vp.setIgnoreRepaint(false);
 			vp.setMinimumSize(new Dimension(viewerSize, viewerSize));
 			final GroupLayout layout = new GroupLayout(this);
 			layout.setHorizontalGroup(layout.createSequentialGroup().addComponent(vp));
@@ -235,8 +240,9 @@ public class PerspDisplayPanel extends JPanel implements ActionListener {
 	@Override
 	public void paintComponent(final Graphics g) {
 		super.paintComponent(g);
+		vp.paint(vp.getGraphics());
 		// g.drawString(title,3,3);
-		vp.repaint();
+		// vp.repaint();
 	}
 
 	// public void addGeoset(Geoset g)

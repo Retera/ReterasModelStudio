@@ -4,17 +4,25 @@ import java.awt.geom.Point2D.Double;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.ScaleAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 public abstract class AbstractScaleManipulator extends AbstractManipulator {
 	private final ModelEditor modelEditor;
 	private final SelectionView selectionView;
+	private GenericScaleAction scaleAction;
 
 	public AbstractScaleManipulator(final ModelEditor modelEditor, final SelectionView selectionView) {
 		this.modelEditor = modelEditor;
 		this.selectionView = selectionView;
+	}
+
+	@Override
+	protected void onStart(final Double mouseStart, final byte dim1, final byte dim2) {
+		super.onStart(mouseStart, dim1, dim2);
+		final Vertex center = selectionView.getCenter();
+		scaleAction = modelEditor.beginScaling(center.x, center.y, center.z);
 	}
 
 	@Override
@@ -24,13 +32,14 @@ public abstract class AbstractScaleManipulator extends AbstractManipulator {
 		scaleWithFactor(modelEditor, center, scaleFactor, dim1, dim2);
 	}
 
+	protected final GenericScaleAction getScaleAction() {
+		return scaleAction;
+	}
+
 	@Override
 	public UndoAction finish(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
 		update(mouseStart, mouseEnd, dim1, dim2);
-		final Vertex center = selectionView.getCenter();
-		final double scaleFactor = computeScaleFactor(activityStart, mouseEnd, center, dim1, dim2);
-		final Vertex scaleVector = buildScaleVector(scaleFactor, dim1, dim2);
-		return new ScaleAction(modelEditor, center, scaleVector.x, scaleVector.y, scaleVector.z);
+		return scaleAction;
 	}
 
 	protected abstract void scaleWithFactor(final ModelEditor modelEditor, final Vertex center,

@@ -38,6 +38,7 @@ import javax.swing.TransferHandler;
 import com.etheller.util.CollectionUtils;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
+import com.hiveworkshop.wc3.gui.ProgramPreferencesChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.CursorManager;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
@@ -45,8 +46,10 @@ import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivity;
 import com.hiveworkshop.wc3.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ModelEditorChangeListener;
+import com.hiveworkshop.wc3.gui.modeledit.viewport.AnimatedViewportModelRenderer;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportModelRenderer;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportView;
+import com.hiveworkshop.wc3.mdl.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public class Viewport extends JPanel implements MouseListener, ActionListener, MouseWheelListener, CoordinateSystem,
@@ -71,6 +74,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	JMenuItem addTeamColor;
 
 	private final ViewportModelRenderer viewportModelRenderer;
+	private final AnimatedViewportModelRenderer animatedViewportModelRenderer;
 	private final ViewportActivity activityListener;
 	private final CursorManager cursorManager;
 	private final UndoActionListener undoListener;
@@ -81,12 +85,14 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	private ModelEditor modelEditor;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private Point lastMouseMotion = new Point(0, 0);
+	private final RenderModel renderModel;
 
 	public Viewport(final byte d1, final byte d2, final ModelView modelView,
 			final ProgramPreferences programPreferences, final ViewportActivity activityListener,
 			final ModelStructureChangeListener modelStructureChangeListener, final UndoActionListener undoListener,
 			final CoordDisplayListener coordDisplayListener, final UndoHandler undoHandler,
-			final ModelEditor modelEditor, final ViewportTransferHandler viewportTransferHandler) {
+			final ModelEditor modelEditor, final ViewportTransferHandler viewportTransferHandler,
+			final RenderModel renderModel) {
 		// Dimension 1 and Dimension 2, these specify which dimensions to
 		// display.
 		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z
@@ -102,6 +108,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		this.undoListener = undoListener;
 		this.coordDisplayListener = coordDisplayListener;
 		this.undoHandler = undoHandler;
+		this.renderModel = renderModel;
 		this.cursorManager = new CursorManager() {
 			@Override
 			public void setCursor(final Cursor cursor) {
@@ -111,11 +118,13 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		setupCopyPaste(viewportTransferHandler);
 		// Viewport border
 		setBorder(BorderFactory.createBevelBorder(1));
-		if (programPreferences.isInvertedDisplay()) {
-			setBackground(Color.DARK_GRAY.darker());
-		} else {
-			setBackground(new Color(255, 255, 255));
-		}
+		setupViewportBackground(programPreferences);
+		programPreferences.addChangeListener(new ProgramPreferencesChangeListener() {
+			@Override
+			public void preferencesChanged() {
+				setupViewportBackground(programPreferences);
+			}
+		});
 		setMinimumSize(new Dimension(200, 200));
 		add(Box.createHorizontalStrut(200));
 		add(Box.createVerticalStrut(200));
@@ -148,7 +157,17 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		contextMenu.add(addTeamColor);
 
 		viewportModelRenderer = new ViewportModelRenderer(3);
+		animatedViewportModelRenderer = new AnimatedViewportModelRenderer(3);
 
+	}
+
+	public void setupViewportBackground(final ProgramPreferences programPreferences) {
+		// if (programPreferences.isInvertedDisplay()) {
+		// setBackground(Color.DARK_GRAY.darker());
+		// } else {
+		// setBackground(new Color(255, 255, 255));
+		// }
+		setBackground(programPreferences.getBackgroundColor());
 	}
 
 	private void setupCopyPaste(final ViewportTransferHandler viewportTransferHandler) {
@@ -253,9 +272,17 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		// dispMDL.drawGeosets(g, this, 1);
 		// dispMDL.drawPivots(g, this, 1);
 		// dispMDL.drawCameras(g, this, 1);
-		viewportModelRenderer.reset(graphics2d, programPreferences, m_d1, m_d2, this, this, modelView);
-		modelView.visit(viewportModelRenderer);
-		activityListener.render(graphics2d, this);
+		if (modelEditor.editorWantsAnimation()) {
+			renderModel.updateNodes(true);
+			animatedViewportModelRenderer.reset(graphics2d, programPreferences, m_d1, m_d2, this, this, modelView,
+					renderModel);
+			modelView.visit(animatedViewportModelRenderer);
+			activityListener.render(graphics2d, this, renderModel);
+		} else {
+			viewportModelRenderer.reset(graphics2d, programPreferences, m_d1, m_d2, this, this, modelView);
+			modelView.visit(viewportModelRenderer);
+			activityListener.renderStatic(graphics2d, this);
+		}
 
 		switch (m_d1) {
 		case 0:
@@ -288,22 +315,22 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 				(int) Math.round(convertY(5)));
 
 		// Visual effects from user controls
-		int xoff = 0;
-		int yoff = 0;
-		Component temp = this;
-		while (temp != null) {
-			xoff += temp.getX();
-			yoff += temp.getY();
-			// if( temp.getClass() == ModelPanel.class )
-			// {
-			//// temp = MainFrame.panel; TODO
-			// temp = null;
-			// }
-			// else
-			// {
-			temp = temp.getParent();
-			// }
-		}
+		// int xoff = 0;
+		// int yoff = 0;
+		// Component temp = this;
+		// while (temp != null) {
+		// xoff += temp.getX();
+		// yoff += temp.getY();
+		// // if( temp.getClass() == ModelPanel.class )
+		// // {
+		// //// temp = MainFrame.panel; TODO
+		// // temp = null;
+		// // }
+		// // else
+		// // {
+		// temp = temp.getParent();
+		// // }
+		// }
 
 		// try {
 		// final double mx = (MouseInfo.getPointerInfo().getLocation().x -
@@ -409,7 +436,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 			} else if (e.getSource() == cogBone) {
 				modelEditor.autoCenterSelectedBones();
 			} else if (e.getSource() == addTeamColor) {
-				modelEditor.addTeamColor(modelStructureChangeListener);
+				modelEditor.addTeamColor();
 			} else if (e.getSource() == manualMove) {
 				manualMove();
 			} else if (e.getSource() == manualRotate) {

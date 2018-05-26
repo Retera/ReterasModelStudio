@@ -2,7 +2,7 @@ package com.hiveworkshop.wc3.units.objectdata;
 
 import com.hiveworkshop.wc3.util.CharInt;
 
-public final class War3ID {
+public final class War3ID implements Comparable<War3ID> {
 	public static final War3ID NONE = new War3ID(0);
 	private final int value;
 
@@ -76,5 +76,10 @@ public final class War3ID {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public int compareTo(final War3ID o) {
+		return Integer.compare(value, o.value);
 	}
 }

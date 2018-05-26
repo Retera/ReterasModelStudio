@@ -20,6 +20,7 @@ public class GeosetVertex extends Vertex {
 	List<TVertex> tverts = new ArrayList<>();
 	List<Bone> bones = new ArrayList<>();
 	List<Triangle> triangles = new ArrayList<>();
+
 	Geoset geoset;
 
 	public GeosetVertex(final double x, final double y, final double z) {

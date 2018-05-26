@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import com.hiveworkshop.wc3.gui.animedit.BasicTimeBoundProvider;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
 import com.hiveworkshop.wc3.mdx.AttachmentVisibility;
@@ -847,6 +848,28 @@ public class AnimFlag {
 		tags.add("DontInterp");
 	}
 
+	public static AnimFlag createEmpty2018(final String title, final InterpolationType interpolationType) {
+		final AnimFlag flag = new AnimFlag();
+		flag.title = title;
+		switch (interpolationType) {
+		case BEZIER:
+			flag.tags.add("Bezier");
+			break;
+		case HERMITE:
+			flag.tags.add("Hermite");
+			break;
+		case LINEAR:
+			flag.tags.add("Linear");
+			break;
+		default:
+		case DONT_INTERP:
+			flag.tags.add("DontInterp");
+			break;
+		}
+		flag.generateTypeId();
+		return flag;
+	}
+
 	public void setInterpType(final InterpolationType interpolationType) {
 		System.err.println("Unsafe call to setInterpType, please rewrite code in AnimFlag class");
 		tags.clear();// we're pretty sure this is just interp type now
@@ -1048,6 +1071,8 @@ public class AnimFlag {
 	}
 
 	public static AnimFlag find(final List<AnimFlag> flags, final String name) {
+		// TODO make flags be a map and remove this method, this is 2018
+		// not 2012 anymore, and I learned basic software dev
 		for (final AnimFlag flag : flags) {
 			if (flag.getName().equals(name)) {
 				return flag;
@@ -1836,6 +1861,9 @@ public class AnimFlag {
 	}
 
 	public int ceilIndex(final int time) {
+		if (times.size() == 0) {
+			return 0;
+		}
 		final int ceilIndex = ceilIndex(time, 0, times.size() - 1);
 		if (ceilIndex == -1) {
 			return times.size() - 1;
@@ -1874,6 +1902,9 @@ public class AnimFlag {
 	}
 
 	public int floorIndex(final int time) {
+		if (times.size() == 0) {
+			return 0;
+		}
 		final int floorIndex = floorIndex(time, 0, times.size() - 1);
 		if (floorIndex == -1) {
 			return 0;
@@ -1907,9 +1938,9 @@ public class AnimFlag {
 		}
 	}
 
-	private static final QuaternionRotation ROTATE_IDENTITY = new QuaternionRotation(0, 0, 0, 1);
-	private static final Vertex SCALE_IDENTITY = new Vertex(1, 1, 1);
-	private static final Vertex TRANSLATE_IDENTITY = new Vertex(0, 0, 0);
+	public static final QuaternionRotation ROTATE_IDENTITY = new QuaternionRotation(0, 0, 0, 1);
+	public static final Vertex SCALE_IDENTITY = new Vertex(1, 1, 1);
+	public static final Vertex TRANSLATE_IDENTITY = new Vertex(0, 0, 0);
 
 	private Object identity(final int typeid) {
 		switch (typeid) {
@@ -1989,12 +2020,17 @@ public class AnimFlag {
 				return floorValue;
 			}
 		} else {
-			final Animation animation = animatedRenderEnvironment.getCurrentAnimation();
+			final BasicTimeBoundProvider animation = animatedRenderEnvironment.getCurrentAnimation();
 			time = animation.getStart() + animatedRenderEnvironment.getAnimationTime();
 			final int floorAnimStartIndex = floorIndex(animation.getStart() + 1);
 			final int floorAnimEndIndex = floorIndex(animation.getEnd());
 			floorIndex = floorIndex(time);
 			ceilIndex = ceilIndex(time);
+			if (ceilIndex < floorIndex) {
+				// retarded repeated keyframes issue, see Peasant's Bone_Chest
+				// at time 18300
+				ceilIndex = floorIndex;
+			}
 			floorValue = values.get(floorIndex);
 			floorInTan = tans() ? inTans.get(floorIndex) : null;
 			floorOutTan = tans() ? outTans.get(floorIndex) : null;
@@ -2010,11 +2046,26 @@ public class AnimFlag {
 			if (floorIndexTime < animation.getStart() && ceilIndexTime > animation.getEnd()) {
 				return identity(typeid);
 			} else if (floorIndexTime < animation.getStart()) {
-				floorValue = identity(typeid);
-				floorInTan = floorOutTan = identity(typeid);
+				if (times.get(floorAnimEndIndex) == animation.getEnd()) {
+					floorIndex = floorAnimEndIndex;
+					floorValue = values.get(floorAnimEndIndex);
+					if (tans()) {
+						floorInTan = inTans.get(floorAnimEndIndex);
+						floorOutTan = inTans.get(floorAnimEndIndex);
+						floorIndexTime = times.get(floorAnimEndIndex);
+					}
+				} else {
+					floorValue = identity(typeid);
+					floorInTan = floorOutTan = identity(typeid);
+					floorIndexTime = animation.getStart();
+				}
 			} else if (ceilIndexTime > animation.getEnd()) {
-				ceilValue = values.get(floorAnimStartIndex);
-				ceilIndex = floorAnimStartIndex;
+				if (times.get(floorAnimStartIndex) == animation.getStart()) {
+					ceilValue = values.get(floorAnimStartIndex);
+					ceilIndex = floorAnimStartIndex;
+				}
+				// NOTE: we just let it be in this case, based on
+				// Water Elemental's birth
 			}
 			if (floorIndex == ceilIndex) {
 				return floorValue;
@@ -2029,7 +2080,7 @@ public class AnimFlag {
 			case BEZIER: {
 				final Double previousOutTan = (Double) floorOutTan;
 				final Double nextInTan = (Double) inTans.get(ceilIndex);
-				final Integer floorTime = times.get(floorIndex);
+				final Integer floorTime = floorIndexTime;
 				final Integer ceilTime = times.get(ceilIndex);
 				final double bezier = MathUtils.bezier(previous, previousOutTan, nextInTan, next,
 						(float) (time - floorTime) / (float) (ceilTime - floorTime));
@@ -2040,14 +2091,14 @@ public class AnimFlag {
 			case HERMITE: {
 				final Double previousOutTan = (Double) floorOutTan;
 				final Double nextInTan = (Double) inTans.get(ceilIndex);
-				final Integer floorTime = times.get(floorIndex);
+				final Integer floorTime = floorIndexTime;
 				final Integer ceilTime = times.get(ceilIndex);
 				final double hermite = MathUtils.hermite(previous, previousOutTan, nextInTan, next,
 						(float) (time - floorTime) / (float) (ceilTime - floorTime));
 				return hermite;
 			}
 			case LINEAR:
-				final Integer floorTime = times.get(floorIndex);
+				final Integer floorTime = floorIndexTime;
 				final Integer ceilTime = times.get(ceilIndex);
 				final double lerp = MathUtils.lerp(previous, next,
 						(float) (time - floorTime) / (float) (ceilTime - floorTime));
@@ -2066,7 +2117,7 @@ public class AnimFlag {
 			case BEZIER: {
 				final Vertex previousOutTan = (Vertex) floorOutTan;
 				final Vertex nextInTan = (Vertex) inTans.get(ceilIndex);
-				final Integer floorTime = times.get(floorIndex);
+				final Integer floorTime = floorIndexTime;
 				final Integer ceilTime = times.get(ceilIndex);
 				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
 				final Vertex bezier = new Vertex(
@@ -2080,7 +2131,7 @@ public class AnimFlag {
 			case HERMITE: {
 				final Vertex previousOutTan = (Vertex) floorOutTan;
 				final Vertex nextInTan = (Vertex) inTans.get(ceilIndex);
-				final Integer floorTime = times.get(floorIndex);
+				final Integer floorTime = floorIndexTime;
 				final Integer ceilTime = times.get(ceilIndex);
 				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
 				final Vertex hermite = new Vertex(
@@ -2090,7 +2141,7 @@ public class AnimFlag {
 				return hermite;
 			}
 			case LINEAR:
-				final Integer floorTime = times.get(floorIndex);
+				final Integer floorTime = floorIndexTime;
 				final Integer ceilTime = times.get(ceilIndex);
 				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
 				final Vertex lerp = new Vertex(MathUtils.lerp(previous.x, next.x, timeFactor),
@@ -2108,7 +2159,7 @@ public class AnimFlag {
 			case BEZIER: {
 				final QuaternionRotation previousOutTan = (QuaternionRotation) floorOutTan;
 				final QuaternionRotation nextInTan = (QuaternionRotation) inTans.get(ceilIndex);
-				final Integer floorTime = times.get(floorIndex);
+				final Integer floorTime = floorIndexTime;
 				final Integer ceilTime = times.get(ceilIndex);
 				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
 				final QuaternionRotation result = new QuaternionRotation(0, 0, 0, 0);
@@ -2119,14 +2170,14 @@ public class AnimFlag {
 			case HERMITE: {
 				final QuaternionRotation previousOutTan = (QuaternionRotation) floorOutTan;
 				final QuaternionRotation nextInTan = (QuaternionRotation) inTans.get(ceilIndex);
-				final Integer floorTime = times.get(floorIndex);
+				final Integer floorTime = floorIndexTime;
 				final Integer ceilTime = times.get(ceilIndex);
 				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
 				final QuaternionRotation result = new QuaternionRotation(0, 0, 0, 0);
 				return QuaternionRotation.ghostwolfSquad(result, previous, previousOutTan, nextInTan, next, timeFactor);
 			}
 			case LINEAR:
-				final Integer floorTime = times.get(floorIndex);
+				final Integer floorTime = floorIndexTime;
 				final Integer ceilTime = times.get(ceilIndex);
 				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
 				final QuaternionRotation result = new QuaternionRotation(0, 0, 0, 0);
@@ -2151,5 +2202,47 @@ public class AnimFlag {
 		}
 		}
 		throw new IllegalStateException();
+	}
+
+	public void removeKeyframe(final int trackTime) {
+		final int keyframeIndex = floorIndex(trackTime);
+		if (keyframeIndex >= size() || times.get(keyframeIndex) != trackTime) {
+			throw new IllegalStateException(
+					"Attempted to undo creation of keyframe, but no keyframe was found (" + keyframeIndex + ")");
+		} else {
+			times.remove(keyframeIndex);
+			values.remove(keyframeIndex);
+			if (tans()) {
+				inTans.remove(keyframeIndex);
+				outTans.remove(keyframeIndex);
+			}
+		}
+	}
+
+	public void addKeyframe(final int trackTime, final Object value) {
+		final int keyframeIndex = ceilIndex(trackTime);
+		times.add(keyframeIndex, trackTime);
+		values.add(keyframeIndex, value);
+	}
+
+	public void addKeyframe(final int trackTime, final Object value, final Object inTan, final Object outTan) {
+		final int keyframeIndex = ceilIndex(trackTime);
+		times.add(keyframeIndex, trackTime);
+		values.add(keyframeIndex, value);
+		inTans.add(keyframeIndex, inTan);
+		outTans.add(keyframeIndex, outTan);
+	}
+
+	public void slideKeyframe(final int startTrackTime, final int endTrackTime) {
+		if (times.size() < 1) {
+			throw new IllegalStateException("Unable to slide keyframe: no frames exist");
+		}
+		final int startIndex = floorIndex(startTrackTime);
+		final int endIndex = floorIndex(endTrackTime);
+		if (times.get(endIndex) == endTrackTime) {
+			throw new IllegalStateException("Sliding this keyframe would create duplicate entries at one time!");
+		}
+		times.set(startIndex, endTrackTime);
+		sort();
 	}
 }

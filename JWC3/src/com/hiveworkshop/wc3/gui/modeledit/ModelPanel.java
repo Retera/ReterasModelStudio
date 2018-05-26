@@ -31,10 +31,12 @@ import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonListener;
-import com.hiveworkshop.wc3.gui.modelviewer.AnimationViewer;
+import com.hiveworkshop.wc3.gui.modelviewer.AnimationController;
+import com.hiveworkshop.wc3.gui.modelviewer.ControlledAnimationViewer;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.RenderModel;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 
@@ -65,7 +67,9 @@ public class ModelPanel implements ActionListener, MouseListener {
 	private final JComponent parent;
 	private final Icon icon;
 	private JMenuItem menuItem;
-	private final AnimationViewer animationViewer;
+	private final ControlledAnimationViewer animationViewer;
+	private final RenderModel editorRenderModel;
+	private final AnimationController animationController;
 
 	public ModelPanel(final JComponent parent, final File input, final ProgramPreferences prefs,
 			final UndoHandler undoHandler, final ToolbarButtonGroup<SelectionItemTypes> notifier,
@@ -94,8 +98,9 @@ public class ModelPanel implements ActionListener, MouseListener {
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
 		modelView = new ModelViewManager(input);
 		undoManager = new UndoManagerImpl();
+		editorRenderModel = new RenderModel(input);
 		modelEditorManager = new ModelEditorManager(modelView, prefs, modeNotifier, modelEditorChangeNotifier,
-				viewportActivityManager);
+				viewportActivityManager, editorRenderModel, modelStructureChangeListener);
 		modelViewManagingTree = new ModelViewManagingTree(modelView, undoManager, modelEditorManager);
 		modelViewManagingTree.setFocusable(false);
 		selectionItemTypeNotifier.addToolbarButtonListener(new ToolbarButtonListener<SelectionItemTypes>() {
@@ -112,24 +117,26 @@ public class ModelPanel implements ActionListener, MouseListener {
 
 		frontArea = new DisplayPanel("Front", (byte) 1, (byte) 2, modelView, modelEditorManager.getModelEditor(),
 				modelStructureChangeListener, viewportActivityManager, prefs, undoManager, coordDisplayListener,
-				undoHandler, modelEditorChangeNotifier, viewportTransferHandler);
+				undoHandler, modelEditorChangeNotifier, viewportTransferHandler, editorRenderModel);
 		// frontArea.setViewport(1,2);
 		botArea = new DisplayPanel("Bottom", (byte) 1, (byte) 0, modelView, modelEditorManager.getModelEditor(),
 				modelStructureChangeListener, viewportActivityManager, prefs, undoManager, coordDisplayListener,
-				undoHandler, modelEditorChangeNotifier, viewportTransferHandler);
+				undoHandler, modelEditorChangeNotifier, viewportTransferHandler, editorRenderModel);
 		// botArea.setViewport(0,1);
 		sideArea = new DisplayPanel("Side", (byte) 0, (byte) 2, modelView, modelEditorManager.getModelEditor(),
 				modelStructureChangeListener, viewportActivityManager, prefs, undoManager, coordDisplayListener,
-				undoHandler, modelEditorChangeNotifier, viewportTransferHandler);
+				undoHandler, modelEditorChangeNotifier, viewportTransferHandler, editorRenderModel);
 		// sideArea.setViewport(0,2);
 
-		animationViewer = new AnimationViewer(modelView, prefs, true);
+		animationViewer = new ControlledAnimationViewer(modelView, prefs);
+
+		animationController = new AnimationController(modelView, true, animationViewer);
 
 		frontArea.setControlsVisible(prefs.showVMControls());
 		botArea.setControlsVisible(prefs.showVMControls());
 		sideArea.setControlsVisible(prefs.showVMControls());
 
-		perspArea = new PerspDisplayPanel("Perspective", modelView, prefs);
+		perspArea = new PerspDisplayPanel("Perspective", modelView, prefs, editorRenderModel);
 		// perspAreaPanel.setMinimumSize(new Dimension(200,200));
 		// perspAreaPanel.add(Box.createHorizontalStrut(200));
 		// perspAreaPanel.add(Box.createVerticalStrut(200));
@@ -162,8 +169,16 @@ public class ModelPanel implements ActionListener, MouseListener {
 		// Create a file chooser
 	}
 
-	public AnimationViewer getAnimationViewer() {
+	public RenderModel getEditorRenderModel() {
+		return editorRenderModel;
+	}
+
+	public ControlledAnimationViewer getAnimationViewer() {
 		return animationViewer;
+	}
+
+	public AnimationController getAnimationController() {
+		return animationController;
 	}
 
 	public JComponent getParent() {
@@ -445,7 +460,13 @@ public class ModelPanel implements ActionListener, MouseListener {
 	}
 
 	public void repaintSelfAndRelatedChildren() {
-		parent.repaint();
+		botArea.repaint();
+		sideArea.repaint();
+		frontArea.repaint();
+		perspArea.repaint();
+		animationViewer.repaint();
+		animationController.repaint();
+		modelViewManagingTree.repaint();
 		if (editUVPanel != null) {
 			editUVPanel.repaint();
 		}

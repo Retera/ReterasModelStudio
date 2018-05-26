@@ -27,6 +27,47 @@ import de.wc3data.stream.BlizzardDataOutputStream;
  *
  */
 public final class War3ObjectDataChangeset {
+	private static long DEBUG_FOR_KAM__MAX_LOAD_TIME = 0;
+	private static int DEBUG_FOR_KAM__MAX_CHANGE_COUNT = 0;
+	private static War3ID DEBUG_FOR_KAM__MAX_LOAD_ID1 = null;
+	private static War3ID DEBUG_FOR_KAM__MAX_LOAD_ID2 = null;
+	private static War3ID DEBUG_FOR_KAM__MAX_CH_ID1 = null;
+	private static War3ID DEBUG_FOR_KAM__MAX_CH_ID2 = null;
+	private static final War3ID ABILITY_LEVEL_FIELD = War3ID.fromString("alev");
+
+	private static final class TimedEntry {
+
+	}
+
+	public static void resetMaxLoads() {
+		DEBUG_FOR_KAM__MAX_LOAD_TIME = -1;
+		DEBUG_FOR_KAM__MAX_CHANGE_COUNT = -1;
+	}
+
+	public static void printMaxLoads() {
+		System.out.println("Max load origid: " + DEBUG_FOR_KAM__MAX_LOAD_ID1);
+		System.out.println("Max load newid: " + DEBUG_FOR_KAM__MAX_LOAD_ID2);
+		System.out.println("Max load time: " + DEBUG_FOR_KAM__MAX_LOAD_TIME);
+		System.out.println("Max change origid: " + DEBUG_FOR_KAM__MAX_CH_ID1);
+		System.out.println("Max change newid: " + DEBUG_FOR_KAM__MAX_CH_ID2);
+		System.out.println("Max change count: " + DEBUG_FOR_KAM__MAX_CHANGE_COUNT);
+		System.exit(0);
+	}
+
+	public static void checkMaxLoadTime(final War3ID origid, final War3ID newid, final long deltaNanoTime,
+			final int changeCount) {
+		if (deltaNanoTime > DEBUG_FOR_KAM__MAX_LOAD_TIME) {
+			DEBUG_FOR_KAM__MAX_LOAD_TIME = deltaNanoTime;
+			DEBUG_FOR_KAM__MAX_LOAD_ID1 = origid;
+			DEBUG_FOR_KAM__MAX_LOAD_ID2 = newid;
+		}
+		if (changeCount > DEBUG_FOR_KAM__MAX_CHANGE_COUNT) {
+			DEBUG_FOR_KAM__MAX_CHANGE_COUNT = changeCount;
+			DEBUG_FOR_KAM__MAX_CH_ID1 = origid;
+			DEBUG_FOR_KAM__MAX_CH_ID2 = newid;
+		}
+	}
+
 	public static final int VAR_TYPE_INT = 0;
 	public static final int VAR_TYPE_REAL = 1;
 	public static final int VAR_TYPE_UNREAL = 2;
@@ -466,6 +507,7 @@ public final class War3ObjectDataChangeset {
 		int ptr;
 		final int count = stream.readInt();
 		for (int i = 0; i < count; i++) {
+			final long nanoTime = System.nanoTime();
 			War3ID origid;
 			War3ID newid = null;
 			origid = readWar3ID(stream);
@@ -481,7 +523,6 @@ public final class War3ObjectDataChangeset {
 				existingObject.setNewId(readWar3ID(stream));
 			} else {
 				newid = readWar3ID(stream);
-				System.out.println("Reading: " + newid + ":" + origid);
 				if (noid.equals(origid) || noid.equals(newid)) {
 					throw new IOException("the input stream might be screwed");
 				}
@@ -540,6 +581,8 @@ public final class War3ObjectDataChangeset {
 					newlyReadChange.setRealval(stream.readFloat());
 					break;
 				}
+				final War3ID crap = readWar3ID(stream);
+				newlyReadChange.setJunkDNA(crap);
 				List<Change> existingChanges = existingObject.getChanges().get(chid);
 				if (existingChanges == null) {
 					existingChanges = new ArrayList<>();
@@ -559,7 +602,6 @@ public final class War3ObjectDataChangeset {
 						existingObject.getChanges().add(chid, existingChanges);
 					}
 				}
-				final War3ID crap = readWar3ID(stream);
 				if (!crap.equals(existingObject.getOldId()) && !crap.equals(existingObject.getNewId())
 						&& !crap.equals(noid)) {
 					for (int charIndex = 0; charIndex < 4; charIndex++) {
@@ -573,6 +615,9 @@ public final class War3ObjectDataChangeset {
 				throw new IllegalStateException("custom unit has no ID!");
 			}
 			map.put(isOriginal ? origid : newid, existingObject);
+			final long endNanoTime = System.nanoTime();
+			final long deltaNanoTime = endNanoTime - nanoTime;
+			checkMaxLoadTime(origid, newid, deltaNanoTime, ccount);
 		}
 		return true;
 	}
@@ -655,6 +700,7 @@ public final class War3ObjectDataChangeset {
 
 	public boolean saveTable(final BlizzardDataOutputStream outputStream, final ObjectMap map, final boolean isOriginal)
 			throws IOException {
+		final War3ID noid = new War3ID(0);
 		int count;
 		count = map.size();
 		outputStream.writeInt(count);
@@ -665,14 +711,13 @@ public final class War3ObjectDataChangeset {
 				totalSize += changeEntry.getValue().size();
 			}
 			if (totalSize > 0 || !isOriginal) {
-				System.out.println("Writing: " + cl.getOldId());
-				outputStream.writeChars(cl.getOldId().asStringValue().toCharArray());
-				outputStream.writeChars(cl.getNewId().asStringValue().toCharArray());
+				saveWriteChars(outputStream, cl.getOldId().asStringValue().toCharArray());
+				saveWriteChars(outputStream, cl.getNewId().asStringValue().toCharArray());
 				count = totalSize;// cl.getChanges().size();
 				outputStream.writeInt(count);
 				for (final MapView.Entry<War3ID, List<Change>> changes : entry.getValue().getChanges()) {
 					for (final Change change : changes.getValue()) {
-						outputStream.writeChars(change.getId().asStringValue().toCharArray());
+						saveWriteChars(outputStream, change.getId().asStringValue().toCharArray());
 						outputStream.writeInt(change.getVartype());
 						if (extended()) {
 							outputStream.writeInt(change.getLevel());
@@ -692,12 +737,27 @@ public final class War3ObjectDataChangeset {
 							outputStream.writeFloat(change.getRealval());
 							break;
 						}
-						outputStream.writeChars(cl.getNewId().asStringValue().toCharArray());
+						// if (change.getJunkDNA() == null) {
+						// saveWriteChars(outputStream, cl.getNewId().asStringValue().toCharArray());
+						// } else {
+						// saveWriteChars(outputStream, change.getJunkDNA().asStringValue().toCharArray());
+						// }
+						// saveWriteChars(outputStream, cl.getNewId().asStringValue().toCharArray());
+						saveWriteChars(outputStream, noid.asStringValue().toCharArray());
 					}
 				}
 			}
 		}
 		return true;
+	}
+
+	private void saveWriteChars(final BlizzardDataOutputStream outputStream, final char[] charArray)
+			throws IOException {
+		// TODO Auto-generated method stub
+		outputStream.writeChars(charArray);
+		for (int i = charArray.length; i < 4; i++) {
+			outputStream.writeByte(0);
+		}
 	}
 
 	public boolean save(final BlizzardDataOutputStream outputStream, final boolean generateWTS) throws IOException {

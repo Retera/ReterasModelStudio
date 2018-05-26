@@ -7,15 +7,21 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.Icon;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -61,41 +67,69 @@ public final class MPQBrowser extends JPanel {
 	private final JTree tree;
 	private final JFileChooser exportFileChooser;
 	private MouseAdapterExtension mouseAdapterExtension;
+	private List<Filter> filters;
+	private final MpqCodebase mpqCodebase;
+	private DefaultTreeModel treeModel;
+	private final Map<String, Filter> extensionToFilter = new HashMap<>();
+	private Filter otherFilter;
 
 	public MPQBrowser(final MpqCodebase mpqCodebase, final Callback<String> fileOpenCallback) {
-		final MPQTreeNode root = new MPQTreeNode(null, "", "");
-		final SetView<String> mergedListfile = mpqCodebase.getMergedListfile();
-		final List<String> listfile = new ArrayList<>();
-		for (final String string : mergedListfile) {
-			listfile.add(string);
-		}
-		List.Util.sort(listfile);
-		for (String string : listfile) {
-			MPQTreeNode currentNode = root;
-			final StringBuilder totalPath = new StringBuilder();
-			for (int slashIndex = string.indexOf('\\'); slashIndex != -1; slashIndex = string.indexOf('\\')) {
-				final String prefixName = string.substring(0, slashIndex);
-				if (totalPath.length() > 0) {
-					totalPath.append("\\");
+		this.mpqCodebase = mpqCodebase;
+		final JMenuBar menuBar = new JMenuBar();
+		final JMenu fileMenu = new JMenu("File");
+		fileMenu.setEnabled(false);
+		menuBar.add(fileMenu);
+		final JMenu filtersMenu = new JMenu("Filters");
+		menuBar.add(filtersMenu);
+		this.filters = new ArrayList<>();
+		filters.add(new Filter("Text", new String[] { ".txt" }));
+		filters.add(new Filter("Sylk", new String[] { ".slk" }));
+		filters.add(new Filter("Script", new String[] { ".ai", ".wai", ".j", ".js", ".pld" }));
+		filters.add(new Filter("Html", new String[] { ".htm", ".html" }));
+		filters.add(new Filter("Models", new String[] { ".mdl", ".mdx" }));
+		filters.add(new Filter("Images", new String[] { ".bmp", ".tga", ".jpg", ".jpeg", ".pcx", ".blp" }));
+		filters.add(new Filter("Maps", new String[] { ".w3m", ".w3x", ".w3n" }));
+		filters.add(new Filter("Sounds", new String[] { ".wav" }));
+		filters.add(new Filter("Music", new String[] { ".mp3", ".mid" }));
+		otherFilter = new Filter("Other", true);
+		filters.add(otherFilter);
+		for (final Filter filter : filters) {
+			filtersMenu.add(filter.getFilterCheckBoxItem());
+			filter.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(final ActionEvent e) {
+					refreshTree();
 				}
-				totalPath.append(prefixName);
-				MPQTreeNode child = currentNode.getChild(prefixName);
-				if (child == null) {
-					child = new MPQTreeNode(currentNode, totalPath.toString(), prefixName);
-					currentNode.addChild(prefixName, child);
-				}
-				currentNode = child;
-				string = string.substring(slashIndex + 1);
+			});
+			for (final String ext : filter.extensions) {
+				extensionToFilter.put(ext, filter);
 			}
-			if (totalPath.length() > 0) {
-				totalPath.append("\\");
-			}
-			totalPath.append(string);
-			final MPQTreeNode leafNode = new MPQTreeNode(currentNode, totalPath.toString(), string);
-			currentNode.addChild(string, leafNode);
 		}
-		root.sort();
-		final DefaultTreeModel treeModel = new DefaultTreeModel(root);
+		filtersMenu.addSeparator();
+		final JMenuItem allItem = new JMenuItem("All");
+		filtersMenu.add(allItem);
+		allItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				for (final Filter filter : filters) {
+					filter.getFilterCheckBoxItem().setSelected(true);
+				}
+				refreshTree();
+			}
+		});
+		final JMenuItem noneItem = new JMenuItem("None");
+		filtersMenu.add(noneItem);
+		noneItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				for (final Filter filter : filters) {
+					filter.getFilterCheckBoxItem().setSelected(false);
+				}
+				refreshTree();
+			}
+		});
+		final MPQTreeNode root = createMPQTree(mpqCodebase);
+		treeModel = new DefaultTreeModel(root);
 		this.tree = new JTree(treeModel);
 		tree.setShowsRootHandles(true);
 		tree.setRootVisible(false);
@@ -135,6 +169,7 @@ public final class MPQBrowser extends JPanel {
 			}
 		});
 		setLayout(new BorderLayout());
+		add(menuBar, BorderLayout.BEFORE_FIRST_LINE);
 		add(new JScrollPane(tree), BorderLayout.CENTER);
 
 		exportFileChooser = new JFileChooser(SaveProfile.get().getPath());
@@ -200,6 +235,62 @@ public final class MPQBrowser extends JPanel {
 		tree.addMouseListener(mouseAdapterExtension);
 	}
 
+	public void refreshTree() {
+		final MPQTreeNode newTree = createMPQTree(mpqCodebase);
+		treeModel.setRoot(newTree);
+	}
+
+	public MPQTreeNode createMPQTree(final MpqCodebase mpqCodebase) {
+		final MPQTreeNode root = new MPQTreeNode(null, "", "");
+		final SetView<String> mergedListfile = mpqCodebase.getMergedListfile();
+		final List<String> listfile = new ArrayList<>();
+		for (final String string : mergedListfile) {
+			listfile.add(string);
+		}
+		List.Util.sort(listfile);
+		for (String string : listfile) {
+			final int periodIndex = string.indexOf('.');
+			boolean foundMatch = false;
+			if (periodIndex != -1) {
+				final String extension = string.substring(periodIndex);
+				final Filter filter = extensionToFilter.get(extension);
+				if (filter != null) {
+					foundMatch = true;
+					if (!filter.getFilterCheckBoxItem().isSelected()) {
+						continue;
+					}
+				}
+			}
+			if (!foundMatch && !otherFilter.getFilterCheckBoxItem().isSelected()) {
+				continue;
+			}
+			MPQTreeNode currentNode = root;
+			final StringBuilder totalPath = new StringBuilder();
+			for (int slashIndex = string.indexOf('\\'); slashIndex != -1; slashIndex = string.indexOf('\\')) {
+				final String prefixName = string.substring(0, slashIndex);
+				if (totalPath.length() > 0) {
+					totalPath.append("\\");
+				}
+				totalPath.append(prefixName);
+				MPQTreeNode child = currentNode.getChild(prefixName);
+				if (child == null) {
+					child = new MPQTreeNode(currentNode, totalPath.toString(), prefixName);
+					currentNode.addChild(prefixName, child);
+				}
+				currentNode = child;
+				string = string.substring(slashIndex + 1);
+			}
+			if (totalPath.length() > 0) {
+				totalPath.append("\\");
+			}
+			totalPath.append(string);
+			final MPQTreeNode leafNode = new MPQTreeNode(currentNode, totalPath.toString(), string);
+			currentNode.addChild(string, leafNode);
+		}
+		root.sort();
+		return root;
+	}
+
 	private static File getDummyFile(final String extension) {
 		String tmpdir = System.getProperty("java.io.tmpdir");
 		if (!tmpdir.endsWith(File.separator)) {
@@ -218,5 +309,65 @@ public final class MPQBrowser extends JPanel {
 			}
 		}
 		return dummy;
+	}
+
+	private static final class Filter {
+		private final String[] extensions;
+		private final String name;
+		private final JCheckBoxMenuItem filterCheckBoxItem;
+		private boolean isOtherFilter;
+
+		public Filter(final String name, final String[] extensions) {
+			this.name = name;
+			this.extensions = extensions;
+			this.filterCheckBoxItem = new JCheckBoxMenuItem(getDescription(), true);
+		}
+
+		public Filter(final String name, final boolean isOtherFilter) {
+			this.name = name;
+			this.isOtherFilter = isOtherFilter;
+			this.extensions = new String[] {};
+			this.filterCheckBoxItem = new JCheckBoxMenuItem(name, true);
+		}
+
+		public boolean passes(final String path) {
+			for (final String extension : extensions) {
+				if (path.endsWith(extension)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public boolean isOtherFilter() {
+			return isOtherFilter;
+		}
+
+		public String getDescription() {
+			final StringBuilder descBuilder = new StringBuilder(name);
+			descBuilder.append(" (");
+			if (extensions.length > 0) {
+				descBuilder.append("*");
+				descBuilder.append(extensions[0]);
+				for (int i = 1; i < extensions.length; i++) {
+					descBuilder.append(", *");
+					descBuilder.append(extensions[i]);
+				}
+			}
+			descBuilder.append(")");
+			return descBuilder.toString();
+		}
+
+		public void addItemListener(final ItemListener itemListener) {
+			filterCheckBoxItem.addItemListener(itemListener);
+		}
+
+		public void addActionListener(final ActionListener listener) {
+			filterCheckBoxItem.addActionListener(listener);
+		}
+
+		public JCheckBoxMenuItem getFilterCheckBoxItem() {
+			return filterCheckBoxItem;
+		}
 	}
 }

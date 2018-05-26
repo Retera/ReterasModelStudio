@@ -64,10 +64,10 @@ public final class FaceSelectionManager extends AbstractSelectionManager<Triangl
 				Color outlineColor;
 				Color fillColor;
 				if (geoset == modelView.getHighlightedGeoset()) {
-					outlineColor = Color.YELLOW;
+					outlineColor = programPreferences.getHighlighTriangleColor();
 					fillColor = FACE_HIGHLIGHT_COLOR;
 				} else if (selection.contains(triangle)) {
-					outlineColor = Color.RED;
+					outlineColor = programPreferences.getSelectColor();
 					fillColor = FACE_SELECTED_COLOR;
 				} else {
 					outlineColor = Color.BLUE;

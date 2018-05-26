@@ -90,7 +90,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 				setModel(buildTreeModel(modelViewManager));
 				final TreePath newRootPath = new TreePath(getModel().getRoot());
 				final List<TreePath> pathsToExpand = new ArrayList<>();
-				while (expandedDescendants.hasMoreElements()) {
+				while (expandedDescendants != null && expandedDescendants.hasMoreElements()) {
 					final TreePath nextPathToExpand = expandedDescendants.nextElement();
 					TreePath newPathWithNewObjects = newRootPath;
 					JCheckBoxTreeNode currentNode = (JCheckBoxTreeNode) getModel().getRoot();
