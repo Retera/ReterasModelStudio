@@ -225,7 +225,7 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 			try {
 				final File workingDirectory = modelView.getModel().getWorkingDirectory();
 				texture = loadTexture(BLPHandler.get()
-						.getTexture(workingDirectory == null ? "" : workingDirectory.getPath(), path + ".blp"), tex);
+						.getTexture(workingDirectory == null ? null : workingDirectory.getPath(), path + ".blp"), tex);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
 				// new
@@ -435,27 +435,17 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 			glEnable(GL_LIGHT1);
 			glEnable(GL_NORMALIZE);
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-			// System.out.println("max:
-			// "+GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE));
 			if (renderTextures()) {
 				glEnable(GL11.GL_TEXTURE_2D);
 			}
 			GL11.glEnable(GL11.GL_BLEND);
 			glClearColor(backgroundRed, backgroundGreen, backgroundBlue, 1.0f);
-			// glClearColor(0f, 0f, 0f, 1.0f);
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
-			gluPerspective(45f, (float) current_width / (float) current_height, 1.0f, 600.0f);
-			// GLU.gluOrtho2D(45f, (float)current_width/(float)current_height,
-			// 1.0f, 600.0f);
-			// glRotatef(angle, 0, 0, 0);
-			// glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
-			// gluOrtho2D(0.0f, (float) getWidth(), 0.0f, (float) getHeight());
-			// GLU.
+			gluPerspective(45f, (float) current_width / (float) current_height, 20.0f, 600.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
-			// GL11.glShadeModel(GL11.GL_SMOOTH);
 
 			glTranslatef(0f + (float) cameraPos.x * (float) m_zoom, -70f - (float) cameraPos.y * (float) m_zoom,
 					-200f - (float) cameraPos.z * (float) m_zoom);
@@ -465,10 +455,6 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 
 			final FloatBuffer ambientColor = BufferUtils.createFloatBuffer(4);
 			ambientColor.put(0.6f).put(0.6f).put(0.6f).put(1f).flip();
-			// float [] ambientColor = {0.2f, 0.2f, 0.2f, 1f};
-			// FloatBuffer buffer =
-			// ByteBuffer.allocateDirect(ambientColor.length*8).asFloatBuffer();
-			// buffer.put(ambientColor).flip();
 			glLightModel(GL_LIGHT_MODEL_AMBIENT, ambientColor);
 
 			final FloatBuffer lightColor0 = BufferUtils.createFloatBuffer(4);
@@ -597,8 +583,7 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 		} catch (final Throwable e) {
 			if (lastThrownErrorClass == null || lastThrownErrorClass != e.getClass()) {
 				lastThrownErrorClass = e.getClass();
-				JOptionPane.showMessageDialog(null, "Rendering failed because of this exact reason:\n"
-						+ e.getClass().getSimpleName() + ": " + e.getMessage());
+				ExceptionPopup.display(e);
 			}
 			throw new RuntimeException(e);
 		}

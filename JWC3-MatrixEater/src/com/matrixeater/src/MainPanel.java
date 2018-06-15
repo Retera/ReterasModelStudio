@@ -87,11 +87,14 @@ import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.GlobalIcons;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.animedit.ControllableTimeBoundProvider;
+import com.hiveworkshop.wc3.gui.animedit.TimeBoundChangeListener;
 import com.hiveworkshop.wc3.gui.animedit.TimeBoundChooserPanel;
 import com.hiveworkshop.wc3.gui.animedit.TimeEnvironmentImpl;
 import com.hiveworkshop.wc3.gui.animedit.TimeSliderPanel;
 import com.hiveworkshop.wc3.gui.animedit.TimeSliderTimeListener;
+import com.hiveworkshop.wc3.gui.modeledit.ActiveViewportWatcher;
 import com.hiveworkshop.wc3.gui.modeledit.CoordDisplayListener;
+import com.hiveworkshop.wc3.gui.modeledit.FaceCreationException;
 import com.hiveworkshop.wc3.gui.modeledit.ImportPanel;
 import com.hiveworkshop.wc3.gui.modeledit.MaterialListRenderer;
 import com.hiveworkshop.wc3.gui.modeledit.ModeButton;
@@ -99,11 +102,16 @@ import com.hiveworkshop.wc3.gui.modeledit.ModelPanel;
 import com.hiveworkshop.wc3.gui.modeledit.PerspDisplayPanel;
 import com.hiveworkshop.wc3.gui.modeledit.ProgramPreferencesPanel;
 import com.hiveworkshop.wc3.gui.modeledit.UVPanel;
+import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.UndoHandler;
+import com.hiveworkshop.wc3.gui.modeledit.Viewport;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
+import com.hiveworkshop.wc3.gui.modeledit.activity.ActivityDescriptor;
+import com.hiveworkshop.wc3.gui.modeledit.activity.ChangeActivityListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.MultiManipulatorActivity;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivity;
+import com.hiveworkshop.wc3.gui.modeledit.creator.CreatorModelingPanel;
 import com.hiveworkshop.wc3.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.ModelEditorActionType;
@@ -206,7 +214,7 @@ import net.miginfocom.swing.MigLayout;
  * @author (your name)
  * @version (a version number or a date)
  */
-public class MainPanel extends JPanel implements ActionListener, UndoHandler {
+public class MainPanel extends JPanel implements ActionListener, UndoHandler, ChangeActivityListener {
 	JMenuBar menuBar;
 	JMenu fileMenu, recentMenu, editMenu, toolsMenu, mirrorSubmenu, tweaksSubmenu, viewMenu, importMenu, addMenu,
 			windowMenu, addParticle, animationMenu, singleAnimationMenu, aboutMenu, fetch;
@@ -218,7 +226,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 			newDirectory, creditsButton, clearRecent, nullmodelButton, selectAll, invertSelect, expandSelection,
 			snapNormals, flipAllUVsU, flipAllUVsV, inverseAllUVs, mirrorX, mirrorY, mirrorZ, insideOut,
 			insideOutNormals, showMatrices, editUVs, exportTextures, scaleAnimations, animationViewer,
-			animationController, mpqViewer, hiveViewer, unitViewer, preferencesWindow, linearizeAnimations,
+			animationController, modelingTab, mpqViewer, hiveViewer, unitViewer, preferencesWindow, linearizeAnimations,
 			simplifyKeyframes, duplicateSelection, riseFallBirth, animFromFile, animFromUnit, animFromModel,
 			animFromObject, teamColor, teamGlow;
 	JMenuItem cut, copy, paste;
@@ -243,6 +251,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 	ModelPanel currentModelPanel;
 	View frontView, leftView, bottomView, perspectiveView;
 	private View previewView;
+	private View creatorView;
 	private View animationControllerView;
 	JScrollPane geoControl;
 	JTextField[] mouseCoordDisplay = new JTextField[3];
@@ -260,6 +269,8 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 	private ModeButton animationModeButton;
 	private boolean animationModeState = false;
 	private BLPPanel blpPanel;
+
+	private final ActiveViewportWatcher activeViewportWatcher = new ActiveViewportWatcher();
 
 	WarcraftDirectoryChangeNotifier directoryChangeNotifier = new WarcraftDirectoryChangeNotifier();
 
@@ -373,8 +384,12 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 		public void actionPerformed(final ActionEvent e) {
 			final ModelPanel mpanel = currentModelPanel();
 			if (mpanel != null) {
-				mpanel.getUndoManager()
-						.pushAction(mpanel.getModelEditorManager().getModelEditor().deleteSelectedComponents());
+				if (animationModeState) {
+					timeSliderPanel.deleteSelectedKeyframes();
+				} else {
+					mpanel.getUndoManager()
+							.pushAction(mpanel.getModelEditorManager().getModelEditor().deleteSelectedComponents());
+				}
 			}
 			repaintSelfAndChildren(mpanel);
 		}
@@ -610,6 +625,12 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 			return animationControllerView;
 		}
 	});
+	AbstractAction openModelingTabAction = new OpenViewAction("Modeling", new OpenViewGetter() {
+		@Override
+		public View getView() {
+			return creatorView;
+		}
+	});
 	AbstractAction openPerspectiveAction = new OpenViewAction("Perspective", new OpenViewGetter() {
 		@Override
 		public View getView() {
@@ -669,56 +690,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 						// try {
 						// final BufferedImage image =
 						// ImageIO.read(MpqCodebase.get().getResourceAsStream(filepath));
-						final MDL blankTextureModel = new MDL(filepath.substring(filepath.lastIndexOf('\\') + 1));
-						final Geoset newGeoset = new Geoset();
-						final Layer layer = new Layer("Blend", new Bitmap(filepath));
-						layer.add("Unshaded");
-						final Material material = new Material(layer);
-						newGeoset.setMaterial(material);
-						final BufferedImage bufferedImage = material.getBufferedImage(null);
-						final int textureWidth = bufferedImage.getWidth();
-						final int textureHeight = bufferedImage.getHeight();
-						final float aspectRatio = textureWidth / (float) textureHeight;
-
-						final int displayWidth = (int) (aspectRatio > 1 ? 128 : 128 * aspectRatio);
-						final int displayHeight = (int) (aspectRatio < 1 ? 128 : 128 / aspectRatio);
-
-						final GeosetVertex upperLeft = new GeosetVertex(0, displayWidth / 2, displayHeight,
-								new Normal(0, 0, 1));
-						final TVertex upperLeftTVert = new TVertex(1, 0);
-						upperLeft.addTVertex(upperLeftTVert);
-						newGeoset.add(upperLeft);
-						upperLeft.setGeoset(newGeoset);
-
-						final GeosetVertex upperRight = new GeosetVertex(0, -displayWidth / 2, displayHeight,
-								new Normal(0, 0, 1));
-						newGeoset.add(upperRight);
-						final TVertex upperRightTVert = new TVertex(0, 0);
-						upperRight.addTVertex(upperRightTVert);
-						upperRight.setGeoset(newGeoset);
-
-						final GeosetVertex lowerLeft = new GeosetVertex(0, displayWidth / 2, 0, new Normal(0, 0, 1));
-						newGeoset.add(lowerLeft);
-						final TVertex lowerLeftTVert = new TVertex(1, 1);
-						lowerLeft.addTVertex(lowerLeftTVert);
-						lowerLeft.setGeoset(newGeoset);
-
-						final GeosetVertex lowerRight = new GeosetVertex(0, -displayWidth / 2, 0, new Normal(0, 0, 1));
-						newGeoset.add(lowerRight);
-						final TVertex lowerRightTVert = new TVertex(0, 1);
-						lowerRight.addTVertex(lowerRightTVert);
-						lowerRight.setGeoset(newGeoset);
-
-						newGeoset.add(new Triangle(upperLeft, upperRight, lowerLeft));
-						newGeoset.add(new Triangle(upperRight, lowerRight, lowerLeft));
-						blankTextureModel.add(newGeoset);
-						blankTextureModel.add(new Animation("Stand", 0, 1000));
-						blankTextureModel.doSavePreps();
-
-						loadModel(true, true,
-								new ModelPanel(MainPanel.this, blankTextureModel, prefs, MainPanel.this,
-										selectionItemTypeGroup, selectionModeGroup, modelStructureChangeListener,
-										coordDisplayListener, viewportTransferHandler, GlobalIcons.orangeIcon));
+						loadBLPPathAsModel(filepath);
 
 						// final BufferedImage image = BLPHandler.get().getGameTex(filepath);
 						//
@@ -815,7 +787,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 								if (o.getUserObject() instanceof MutableGameObject) {
 									final MutableGameObject obj = (MutableGameObject) o.getUserObject();
 									final int numberOfVariations = obj.getFieldAsInteger(War3ID.fromString("dvar"), 0);
-									if (numberOfVariations > 0) {
+									if (numberOfVariations > 1) {
 										for (int i = 0; i < numberOfVariations; i++) {
 											final String path = convertPathToMDX(
 													obj.getFieldAsString(War3ID.fromString("dfil"), 0) + i + ".mdl");
@@ -916,6 +888,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 	private RootWindow rootWindow;
 	private View viewportControllerWindowView;
 	private ControllableTimeBoundProvider timeBoundProvider;
+	private ActivityDescriptor currentActivity;
 
 	public MainPanel() {
 		super();
@@ -935,9 +908,15 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 			mouseCoordDisplay[i].setMinimumSize(new Dimension(50, 15));
 			mouseCoordDisplay[i].setEditable(false);
 		}
+		modelStructureChangeListener = new ModelStructureChangeListenerImplementation(new ModelReference() {
+			@Override
+			public MDL getModel() {
+				return currentModelPanel().getModel();
+			}
+		});
 		animatedRenderEnvironment = new TimeEnvironmentImpl();
 		blpPanel = new BLPPanel(null);
-		timeSliderPanel = new TimeSliderPanel(animatedRenderEnvironment);
+		timeSliderPanel = new TimeSliderPanel(animatedRenderEnvironment, modelStructureChangeListener);
 		timeSliderPanel.setVisible(false);
 		timeSliderPanel.addListener(new TimeSliderTimeListener() {
 			@Override
@@ -949,7 +928,31 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 				}
 			}
 		});
+		animatedRenderEnvironment.addChangeListener(new TimeBoundChangeListener() {
+			@Override
+			public void timeBoundsChanged(final int start, final int end) {
+				final Integer globalSeq = animatedRenderEnvironment.getGlobalSeq();
+				if (globalSeq != null) {
+					creatorPanel.setChosenGlobalSeq(globalSeq);
+				} else {
+					final ModelPanel modelPanel = currentModelPanel();
+					if (modelPanel != null) {
+						boolean foundAnim = false;
+						for (final Animation animation : modelPanel.getModel().getAnims()) {
+							if (animation.getStart() == start && animation.getEnd() == end) {
+								creatorPanel.setChosenAnimation(animation);
+								foundAnim = true;
+								break;
+							}
+						}
+						if (!foundAnim) {
+							creatorPanel.setChosenAnimation(null);
+						}
+					}
 
+				}
+			}
+		});
 		setKeyframe = new JButton(GlobalIcons.setKeyframeIcon);
 		setKeyframe.setMargin(new Insets(0, 0, 0, 0));
 		setKeyframe.setToolTipText("Create Keyframe");
@@ -971,7 +974,8 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				final TimeBoundChooserPanel timeBoundChooserPanel = new TimeBoundChooserPanel(
-						currentModelPanel() == null ? null : currentModelPanel().getModelViewManager());
+						currentModelPanel() == null ? null : currentModelPanel().getModelViewManager(),
+						modelStructureChangeListener);
 				final int confirmDialogResult = JOptionPane.showConfirmDialog(MainPanel.this, timeBoundChooserPanel,
 						"Set Time Bounds", JOptionPane.OK_CANCEL_OPTION);
 				if (confirmDialogResult == JOptionPane.OK_OPTION) {
@@ -984,24 +988,9 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 				}
 			}
 		});
+
 		animationModeButton = new ModeButton("Animate");
 		animationModeButton.setVisible(false);// TODO remove this if unused
-		selectionItemTypeGroup.addToolbarButtonListener(new ToolbarButtonListener<SelectionItemTypes>() {
-			@Override
-			public void typeChanged(final SelectionItemTypes newType) {
-				animationModeState = newType == SelectionItemTypes.ANIMATE;
-				// we need to refresh the state of stuff AFTER the ModelPanels, this
-				// is a pretty signficant design flaw, so we're just going to
-				// post to the EDT to get behind them (they're called
-				// on the same notifier as this method)
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						refreshAnimationModeState();
-					}
-				});
-			}
-		});
 
 		contextMenu = new JPopupMenu();
 		contextClose = new JMenuItem("Close");
@@ -1035,10 +1024,21 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 		bottomView = new View("Bottom", null, new JPanel());
 		perspectiveView = new View("Perspective", null, new JPanel());
 		previewView = new View("Preview", null, new JPanel());
+		creatorPanel = new CreatorModelingPanel(new ChangeActivityListener() {
+
+			@Override
+			public void changeActivity(final ActivityDescriptor newType) {
+				actionTypeGroup.maybeSetButtonType(newType);
+				MainPanel.this.changeActivity(newType);
+			}
+		}, prefs, actionTypeGroup, activeViewportWatcher, animatedRenderEnvironment);
+		creatorView = new View("Modeling", null, creatorPanel);
 		animationControllerView = new View("Animation Controller", null, new JPanel());
 		final TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {
-				new SplitWindow(false, new SplitWindow(true, frontView, bottomView),
-						new SplitWindow(true, leftView, perspectiveView)),
+				new SplitWindow(true, 0.8f,
+						new SplitWindow(false, new SplitWindow(true, frontView, bottomView),
+								new SplitWindow(true, leftView, perspectiveView)),
+						creatorView),
 				new SplitWindow(true, 0.8f, previewView, animationControllerView) });
 		rootWindow.setWindow(new SplitWindow(true, 0.2f, viewportControllerWindowView, startupTabWindow));
 		startupTabWindow.setSelectedTab(0);
@@ -1048,16 +1048,14 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 						.addComponent(rootWindow).addComponent(timeSliderPanel)
 						.addGroup(layout.createSequentialGroup().addComponent(mouseCoordDisplay[0])
 								.addComponent(mouseCoordDisplay[1]).addComponent(mouseCoordDisplay[2])
-								.addComponent(horizontalGlue).addComponent(setKeyframe)
-								.addComponent(animationModeButton).addComponent(setTimeBounds))));
+								.addComponent(horizontalGlue).addComponent(setKeyframe).addComponent(setTimeBounds))));
 		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(toolbar)
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 						.addGroup(layout.createSequentialGroup().addComponent(rootWindow).addComponent(timeSliderPanel)
 								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
 										.addComponent(mouseCoordDisplay[0]).addComponent(mouseCoordDisplay[1])
 										.addComponent(mouseCoordDisplay[2]).addComponent(horizontalGlue)
-										.addComponent(setKeyframe).addComponent(animationModeButton)
-										.addComponent(setTimeBounds)))));
+										.addComponent(setKeyframe).addComponent(setTimeBounds)))));
 		setLayout(layout);
 		// Create a file chooser
 		fc = new JFileChooser();
@@ -1065,6 +1063,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 		filter = new MDLFilter();
 		fc.setAcceptAllFileFilterUsed(false);
 		fc.addChoosableFileFilter(new FileNameExtensionFilter("Warcraft III Binary Model '-.mdx'", "mdx"));
+		fc.addChoosableFileFilter(new FileNameExtensionFilter("Warcraft III Texture '-.blp'", "blp"));
 		fc.addChoosableFileFilter(filter);
 		fc.addChoosableFileFilter(new FileNameExtensionFilter("Wavefront OBJ '-.obj'", "obj"));
 		exportTextureDialog = new JFileChooser();
@@ -1083,18 +1082,28 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 
 		// setFocusable(true);
 		// selectButton.requestFocus();
-		modelStructureChangeListener = new ModelStructureChangeListenerImplementation(new ModelReference() {
+		selectionItemTypeGroup.addToolbarButtonListener(new ToolbarButtonListener<SelectionItemTypes>() {
 			@Override
-			public MDL getModel() {
-				return currentModelPanel().getModel();
+			public void typeChanged(final SelectionItemTypes newType) {
+				animationModeState = newType == SelectionItemTypes.ANIMATE;
+				// we need to refresh the state of stuff AFTER the ModelPanels, this
+				// is a pretty signficant design flaw, so we're just going to
+				// post to the EDT to get behind them (they're called
+				// on the same notifier as this method)
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						refreshAnimationModeState();
+					}
+				});
 			}
 		});
 
 		actionTypeGroup.addToolbarButtonListener(new ToolbarButtonListener<ToolbarActionButtonType>() {
 			@Override
 			public void typeChanged(final ToolbarActionButtonType newType) {
-				for (final ModelPanel modelPanel : modelPanels) {
-					modelPanel.changeActivity(newType);
+				if (newType != null) {
+					changeActivity(newType);
 				}
 			}
 		});
@@ -1109,12 +1118,27 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 		};
 	}
 
+	@Override
+	public void changeActivity(final ActivityDescriptor newType) {
+		this.currentActivity = newType;
+		for (final ModelPanel modelPanel : modelPanels) {
+			modelPanel.changeActivity(newType);
+		}
+		creatorPanel.changeActivity(newType);
+	}
+
 	private static final Quaternion IDENTITY = new Quaternion();
 	private TimeEnvironmentImpl animatedRenderEnvironment;
 	private JButton snapButton;
 	private CoordDisplayListener coordDisplayListener;
 	protected ModelEditorActionType actionType;
 	private JMenu teamColorMenu;
+	private CreatorModelingPanel creatorPanel;
+	private ToolbarActionButtonType selectAndMoveDescriptor;
+	private ToolbarActionButtonType selectAndRotateDescriptor;
+	private ToolbarActionButtonType selectAndScaleDescriptor;
+	private ToolbarActionButtonType selectAndExtrudeDescriptor;
+	private ToolbarActionButtonType selectAndExtendDescriptor;
 
 	public void refreshAnimationModeState() {
 		if (animationModeState) {
@@ -1150,6 +1174,8 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 		}
 		snapButton.setVisible(!animationModeState);
 		timeSliderPanel.setVisible(animationModeState);
+		setKeyframe.setVisible(animationModeState);
+		setTimeBounds.setVisible(animationModeState);
 		timeSliderPanel.setKeyframeModeActive(animationModeState);
 		if (animationModeState) {
 			animationModeButton.setColors(prefs.getActiveColor1(), prefs.getActiveColor2());
@@ -1157,6 +1183,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 			animationModeButton.resetColors();
 		}
 		timeSliderPanel.repaint();
+		creatorPanel.setAnimationModeState(animationModeState);
 	}
 
 	private void reloadGeosetManagers(final ModelPanel display) {
@@ -1166,6 +1193,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 		display.getPerspArea().reloadTextures();// .mpanel.perspArea.reloadTextures();//addGeosets(newGeosets);
 		display.getAnimationViewer().reload();
 		display.getAnimationController().reload();
+		creatorPanel.reloadAnimationList();
 	}
 
 	/**
@@ -1280,8 +1308,8 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 		toolbar.addSeparator();
 		selectionItemTypeGroup = new ToolbarButtonGroup<>(toolbar, SelectionItemTypes.values());
 		toolbar.addSeparator();
-		final ToolbarActionButtonType selectAndMoveActionType = new ToolbarActionButtonType(
-				IconUtils.loadImageIcon("icons/actions/move2.png"), "Select and Move") {
+		selectAndMoveDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/move2.png"),
+				"Select and Move") {
 			@Override
 			public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
@@ -1292,8 +1320,8 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 						undoActionListener, modelEditorManager.getSelectionView());
 			}
 		};
-		final ToolbarActionButtonType selectAndRotateActionType = new ToolbarActionButtonType(
-				IconUtils.loadImageIcon("icons/actions/rotate.png"), "Select and Rotate") {
+		selectAndRotateDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/rotate.png"),
+				"Select and Rotate") {
 			@Override
 			public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
@@ -1304,41 +1332,46 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 						undoActionListener, modelEditorManager.getSelectionView());
 			}
 		};
-		actionTypeGroup = new ToolbarButtonGroup<>(toolbar, new ToolbarActionButtonType[] { selectAndMoveActionType,
-				selectAndRotateActionType,
-				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/scale.png"), "Select and Scale") {
-					@Override
-					public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
-							final ModelView modelView, final UndoActionListener undoActionListener) {
-						actionType = ModelEditorActionType.SCALING;
-						return new MultiManipulatorActivity(
-								new ScaleWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
-										modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
-								undoActionListener, modelEditorManager.getSelectionView());
-					}
-				}, new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/extrude.png"),
-						"Select and Extrude") {
-					@Override
-					public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
-							final ModelView modelView, final UndoActionListener undoActionListener) {
-						actionType = ModelEditorActionType.TRANSLATION;
-						return new MultiManipulatorActivity(
-								new ExtrudeWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
-										modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
-								undoActionListener, modelEditorManager.getSelectionView());
-					}
-				},
-				new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/extend.png"), "Select and Extend") {
-					@Override
-					public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
-							final ModelView modelView, final UndoActionListener undoActionListener) {
-						actionType = ModelEditorActionType.TRANSLATION;
-						return new MultiManipulatorActivity(
-								new ExtendWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
-										modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
-								undoActionListener, modelEditorManager.getSelectionView());
-					}
-				}, });
+		selectAndScaleDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/scale.png"),
+				"Select and Scale") {
+			@Override
+			public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+					final ModelView modelView, final UndoActionListener undoActionListener) {
+				actionType = ModelEditorActionType.SCALING;
+				return new MultiManipulatorActivity(
+						new ScaleWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
+								modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
+						undoActionListener, modelEditorManager.getSelectionView());
+			}
+		};
+		selectAndExtrudeDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/extrude.png"),
+				"Select and Extrude") {
+			@Override
+			public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+					final ModelView modelView, final UndoActionListener undoActionListener) {
+				actionType = ModelEditorActionType.TRANSLATION;
+				return new MultiManipulatorActivity(
+						new ExtrudeWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
+								modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
+						undoActionListener, modelEditorManager.getSelectionView());
+			}
+		};
+		selectAndExtendDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/extend.png"),
+				"Select and Extend") {
+			@Override
+			public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+					final ModelView modelView, final UndoActionListener undoActionListener) {
+				actionType = ModelEditorActionType.TRANSLATION;
+				return new MultiManipulatorActivity(
+						new ExtendWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
+								modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
+						undoActionListener, modelEditorManager.getSelectionView());
+			}
+		};
+		actionTypeGroup = new ToolbarButtonGroup<>(toolbar,
+				new ToolbarActionButtonType[] { selectAndMoveDescriptor, selectAndRotateDescriptor,
+						selectAndScaleDescriptor, selectAndExtrudeDescriptor, selectAndExtendDescriptor, });
+		currentActivity = actionTypeGroup.getActiveButtonType();
 		toolbar.addSeparator();
 		snapButton = toolbar.add(new AbstractAction("Snap", IconUtils.loadImageIcon("icons/actions/snap.png")) {
 			@Override
@@ -1356,6 +1389,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 				}
 			}
 		});
+
 		return toolbar;
 	}
 
@@ -1388,6 +1422,185 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 		});
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("SPACE"),
 				"MaximizeSpacebar");
+
+		root.getActionMap().put("PressRight", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				if (animationModeState) {
+					timeSliderPanel.jumpRight();
+				}
+			}
+		});
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("RIGHT"),
+				"PressRight");
+		root.getActionMap().put("PressLeft", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				if (animationModeState) {
+					timeSliderPanel.jumpLeft();
+				}
+			}
+		});
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("LEFT"),
+				"PressLeft");
+		root.getActionMap().put("PressUp", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				if (animationModeState) {
+					timeSliderPanel.jumpFrames(1);
+				}
+			}
+		});
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("UP"), "PressUp");
+		root.getActionMap().put("PressShiftUp", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				if (animationModeState) {
+					timeSliderPanel.jumpFrames(10);
+				}
+			}
+		});
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("shift UP"),
+				"PressShiftUp");
+		root.getActionMap().put("PressDown", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				if (animationModeState) {
+					timeSliderPanel.jumpFrames(-1);
+				}
+			}
+		});
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("DOWN"),
+				"PressDown");
+		root.getActionMap().put("PressShiftDown", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				if (animationModeState) {
+					timeSliderPanel.jumpFrames(-10);
+				}
+			}
+		});
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("shift DOWN"),
+				"PressShiftDown");
+
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control SPACE"),
+				"PlayKeyboardKey");
+		root.getActionMap().put("PlayKeyboardKey", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				timeSliderPanel.play();
+			}
+		});
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("W"),
+				"QKeyboardKey");
+		root.getActionMap().put("QKeyboardKey", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
+			}
+		});
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("E"),
+				"WKeyboardKey");
+		root.getActionMap().put("WKeyboardKey", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[1]);
+			}
+		});
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("R"),
+				"EKeyboardKey");
+		root.getActionMap().put("EKeyboardKey", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[2]);
+			}
+		});
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("T"),
+				"RKeyboardKey");
+		root.getActionMap().put("RKeyboardKey", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				if (!animationModeState) {
+					actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[3]);
+				}
+			}
+		});
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("Y"),
+				"TKeyboardKey");
+		root.getActionMap().put("TKeyboardKey", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				if (!animationModeState) {
+					actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[4]);
+				}
+			}
+		});
+
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("A"),
+				"AKeyboardKey");
+		root.getActionMap().put("AKeyboardKey", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				selectionItemTypeGroup.setToolbarButtonType(selectionItemTypeGroup.getToolbarButtonTypes()[0]);
+			}
+		});
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("S"),
+				"SKeyboardKey");
+		root.getActionMap().put("SKeyboardKey", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				selectionItemTypeGroup.setToolbarButtonType(selectionItemTypeGroup.getToolbarButtonTypes()[1]);
+			}
+		});
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("D"),
+				"DKeyboardKey");
+		root.getActionMap().put("DKeyboardKey", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				selectionItemTypeGroup.setToolbarButtonType(selectionItemTypeGroup.getToolbarButtonTypes()[2]);
+			}
+		});
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("F"),
+				"FKeyboardKey");
+		root.getActionMap().put("FKeyboardKey", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				selectionItemTypeGroup.setToolbarButtonType(selectionItemTypeGroup.getToolbarButtonTypes()[3]);
+			}
+		});
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("Z"),
+				"ZKeyboardKey");
+		root.getActionMap().put("ZKeyboardKey", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				prefs.setViewMode(prefs.getViewMode() == 1 ? 0 : 1);
+			}
+		});
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control F"),
+				"CreateFaceShortcut");
+		root.getActionMap().put("CreateFaceShortcut", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				if (!animationModeState) {
+					try {
+						final ModelPanel modelPanel = currentModelPanel();
+						if (modelPanel != null) {
+							final Viewport viewport = activeViewportWatcher.getViewport();
+							final Vertex facingVector = viewport == null ? new Vertex(0, 0, 1)
+									: viewport.getFacingVector();
+							final UndoAction createFaceFromSelection = modelPanel.getModelEditorManager()
+									.getModelEditor().createFaceFromSelection(facingVector);
+							modelPanel.getUndoManager().pushAction(createFaceFromSelection);
+						}
+					} catch (final FaceCreationException exc) {
+						JOptionPane.showMessageDialog(MainPanel.this, exc.getMessage(), "Error",
+								JOptionPane.ERROR_MESSAGE);
+					} catch (final Exception exc) {
+						ExceptionPopup.display(exc);
+					}
+				}
+			}
+		});
 		// root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control
 		// V"), null);
 		// root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control
@@ -1602,6 +1815,11 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 		animationController.setMnemonic(KeyEvent.VK_C);
 		animationController.addActionListener(openAnimationControllerAction);
 		viewsMenu.add(animationController);
+
+		modelingTab = new JMenuItem("Modeling");
+		modelingTab.setMnemonic(KeyEvent.VK_M);
+		modelingTab.addActionListener(openModelingTabAction);
+		viewsMenu.add(modelingTab);
 
 		final JMenuItem perspectiveItem = new JMenuItem("Perspective");
 		perspectiveItem.setMnemonic(KeyEvent.VK_P);
@@ -1844,6 +2062,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 								particle.setVisibilityFlag(visFlag);
 								particle.setName(nameField.getText());
 								currentMDL().add(particle);
+								modelStructureChangeListener.nodesAdded(Collections.<IdObject> singletonList(particle));
 							}
 						}
 					});
@@ -1913,6 +2132,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 		insideOut = new JMenuItem("Flip all selected faces");
 		insideOut.setMnemonic(KeyEvent.VK_I);
 		insideOut.addActionListener(insideOutAction);
+		insideOut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_DOWN_MASK));
 		toolsMenu.add(insideOut);
 
 		insideOutNormals = new JMenuItem("Flip all selected normals");
@@ -1931,7 +2151,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 		exportTextures.addActionListener(this);
 		toolsMenu.add(exportTextures);
 
-		scaleAnimations = new JMenuItem("Edit Animations");
+		scaleAnimations = new JMenuItem("Change Animation Speeds");
 		scaleAnimations.setMnemonic(KeyEvent.VK_A);
 		scaleAnimations.addActionListener(this);
 		toolsMenu.add(scaleAnimations);
@@ -2238,20 +2458,46 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 		editMenu.add(new JSeparator());
 
 		final TransferActionListener transferActionListener = new TransferActionListener();
+		final ActionListener copyActionListener = new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				if (!animationModeState) {
+					transferActionListener.actionPerformed(e);
+				} else {
+					if (e.getActionCommand().equals(TransferHandler.getCutAction().getValue(Action.NAME))) {
+						timeSliderPanel.cut();
+					} else if (e.getActionCommand().equals(TransferHandler.getCopyAction().getValue(Action.NAME))) {
+						timeSliderPanel.copy();
+					} else if (e.getActionCommand().equals(TransferHandler.getPasteAction().getValue(Action.NAME))) {
+						timeSliderPanel.paste();
+					}
+				}
+			}
+		};
+		final ActionListener cutActionListener = new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				if (!animationModeState) {
+					transferActionListener.actionPerformed(e);
+				} else {
+					timeSliderPanel.cut();
+				}
+			}
+		};
 		cut = new JMenuItem("Cut");
-		cut.addActionListener(transferActionListener);
+		cut.addActionListener(copyActionListener);
 		cut.setActionCommand((String) TransferHandler.getCutAction().getValue(Action.NAME));
 		cut.setAccelerator(KeyStroke.getKeyStroke("control X"));
 		editMenu.add(cut);
 
 		copy = new JMenuItem("Copy");
-		copy.addActionListener(transferActionListener);
+		copy.addActionListener(copyActionListener);
 		copy.setActionCommand((String) TransferHandler.getCopyAction().getValue(Action.NAME));
 		copy.setAccelerator(KeyStroke.getKeyStroke("control C"));
 		editMenu.add(copy);
 
 		paste = new JMenuItem("Paste");
-		paste.addActionListener(transferActionListener);
+		paste.addActionListener(copyActionListener);
 		paste.setActionCommand((String) TransferHandler.getPasteAction().getValue(Action.NAME));
 		paste.setAccelerator(KeyStroke.getKeyStroke("control V"));
 		editMenu.add(paste);
@@ -2726,7 +2972,12 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 				// {
 				// disp.uvpanel.showFrame();
 				// }
-				final AnimationFrame aFrame = new AnimationFrame(currentModelPanel());
+				final AnimationFrame aFrame = new AnimationFrame(currentModelPanel(), new Runnable() {
+					@Override
+					public void run() {
+						timeSliderPanel.revalidateKeyframeDisplay();
+					}
+				});
 				aFrame.setVisible(true);
 			} else if (e.getSource() == linearizeAnimations) {
 				final int x = JOptionPane.showConfirmDialog(this,
@@ -3168,11 +3419,29 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 		if (userDialogResult == JOptionPane.OK_OPTION) {
 			final MDL mdl = new MDL(newModelNameField.getText());
 			if (createBoxButton.isSelected()) {
-				ModelUtils.createBox(mdl, new Vertex(64, 64, 128), new Vertex(-64, -64, 0));
+				final SpinnerNumberModel sModel = new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1);
+				final JSpinner spinner = new JSpinner(sModel);
+				final int userChoice = JOptionPane.showConfirmDialog(this, spinner, "Box: Choose Segments",
+						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+				if (userChoice != JOptionPane.OK_OPTION) {
+					return;
+				}
+				ModelUtils.createBox(mdl, new Vertex(64, 64, 128), new Vertex(-64, -64, 0),
+						((Number) spinner.getValue()).intValue());
+			} else if (createPlaneButton.isSelected()) {
+				final SpinnerNumberModel sModel = new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1);
+				final JSpinner spinner = new JSpinner(sModel);
+				final int userChoice = JOptionPane.showConfirmDialog(this, spinner, "Plane: Choose Segments",
+						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+				if (userChoice != JOptionPane.OK_OPTION) {
+					return;
+				}
+				ModelUtils.createGroundPlane(mdl, new Vertex(64, 64, 0), new Vertex(-64, -64, 0),
+						((Number) spinner.getValue()).intValue());
 			}
 			final ModelPanel temp = new ModelPanel(this, mdl, prefs, MainPanel.this, selectionItemTypeGroup,
 					selectionModeGroup, modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
-					GlobalIcons.MDLIcon);
+					activeViewportWatcher, GlobalIcons.MDLIcon);
 			loadModel(true, true, temp);
 		}
 
@@ -3279,8 +3548,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 		}
 		JOptionPane.showMessageDialog(this, "Added " + animationSourceModel.getName() + "'s " + choice.getName()
 				+ " with " + visibilitySource.getName() + "'s visibility  OK!");
-		currentModelPanel().getAnimationViewer().reload();
-		currentModelPanel().getAnimationController().reload();
+		modelStructureChangeListener.animationsAdded(animationsAdded);
 	}
 
 	private interface OpenViewGetter {
@@ -3423,7 +3691,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 		}
 
 		@Override
-		public void keyframeAdded(final IdObject node, final AnimFlag timeline, final int trackTime) {
+		public void keyframeAdded(final TimelineContainer node, final AnimFlag timeline, final int trackTime) {
 			timeSliderPanel.revalidateKeyframeDisplay();
 		}
 
@@ -3433,8 +3701,22 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 		}
 
 		@Override
-		public void keyframeRemoved(final IdObject node, final AnimFlag timeline, final int trackTime) {
+		public void keyframeRemoved(final TimelineContainer node, final AnimFlag timeline, final int trackTime) {
 			timeSliderPanel.revalidateKeyframeDisplay();
+		}
+
+		@Override
+		public void animationsAdded(final List<Animation> animation) {
+			currentModelPanel().getAnimationViewer().reload();
+			currentModelPanel().getAnimationController().reload();
+			creatorPanel.reloadAnimationList();
+		}
+
+		@Override
+		public void animationsRemoved(final List<Animation> animation) {
+			currentModelPanel().getAnimationViewer().reload();
+			currentModelPanel().getAnimationController().reload();
+			creatorPanel.reloadAnimationList();
 		}
 	}
 
@@ -3590,6 +3872,10 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 	}
 
 	public void loadFile(final File f, final boolean temporary, final boolean selectNewTab, final ImageIcon icon) {
+		if (f.getPath().toLowerCase().endsWith("blp")) {
+			loadBLPPathAsModel(f.getName(), f.getParentFile());
+			return;
+		}
 		ModelPanel temp = null;
 		if (f.getPath().toLowerCase().endsWith("mdx")) {
 			if (prefs.isUseNativeMDXParser()) {
@@ -3598,7 +3884,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 					model.setFile(f);
 					temp = new ModelPanel(this, model, prefs, MainPanel.this, selectionItemTypeGroup,
 							selectionModeGroup, modelStructureChangeListener, coordDisplayListener,
-							viewportTransferHandler, icon);
+							viewportTransferHandler, activeViewportWatcher, icon);
 				} catch (final FileNotFoundException e) {
 					e.printStackTrace();
 					ExceptionPopup.display(e);
@@ -3612,7 +3898,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 				final File convertedFile = MDXHandler.convert(f);
 				temp = new ModelPanel(this, MDL.read(convertedFile), prefs, MainPanel.this, selectionItemTypeGroup,
 						selectionModeGroup, modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
-						icon);
+						activeViewportWatcher, icon);
 				temp.setFile(convertedFile);
 			}
 		} else if (f.getPath().toLowerCase().endsWith("obj")) {
@@ -3624,7 +3910,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 				final Parse obj = new Parse(builder, f.getPath());
 				temp = new ModelPanel(this, builder.createMDL(), prefs, MainPanel.this, selectionItemTypeGroup,
 						selectionModeGroup, modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
-						icon);
+						activeViewportWatcher, icon);
 			} catch (final FileNotFoundException e) {
 				ExceptionPopup.display(e);
 				e.printStackTrace();
@@ -3634,10 +3920,72 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 			}
 		} else {
 			temp = new ModelPanel(this, MDL.read(f), prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
-					modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, icon);
+					modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, activeViewportWatcher,
+					icon);
 			temp.setFile(f);
 		}
 		loadModel(temporary, selectNewTab, temp);
+	}
+
+	public void loadBLPPathAsModel(final String filepath) {
+		loadBLPPathAsModel(filepath, null);
+	}
+
+	public void loadBLPPathAsModel(final String filepath, final File workingDirectory) {
+		final MDL blankTextureModel = new MDL(filepath.substring(filepath.lastIndexOf('\\') + 1));
+		if (workingDirectory != null) {
+			blankTextureModel.setFile(new File(workingDirectory.getPath() + "/" + filepath + ".mdl"));
+		}
+		final Geoset newGeoset = new Geoset();
+		final Layer layer = new Layer("Blend", new Bitmap(filepath));
+		layer.add("Unshaded");
+		final Material material = new Material(layer);
+		newGeoset.setMaterial(material);
+		final BufferedImage bufferedImage = material.getBufferedImage(blankTextureModel.getWorkingDirectory());
+		final int textureWidth = bufferedImage.getWidth();
+		final int textureHeight = bufferedImage.getHeight();
+		final float aspectRatio = textureWidth / (float) textureHeight;
+
+		final int displayWidth = (int) (aspectRatio > 1 ? 128 : 128 * aspectRatio);
+		final int displayHeight = (int) (aspectRatio < 1 ? 128 : 128 / aspectRatio);
+
+		final int groundOffset = aspectRatio > 1 ? (128 - displayHeight) / 2 : 0;
+		final GeosetVertex upperLeft = new GeosetVertex(0, displayWidth / 2, displayHeight + groundOffset,
+				new Normal(0, 0, 1));
+		final TVertex upperLeftTVert = new TVertex(1, 0);
+		upperLeft.addTVertex(upperLeftTVert);
+		newGeoset.add(upperLeft);
+		upperLeft.setGeoset(newGeoset);
+
+		final GeosetVertex upperRight = new GeosetVertex(0, -displayWidth / 2, displayHeight + groundOffset,
+				new Normal(0, 0, 1));
+		newGeoset.add(upperRight);
+		final TVertex upperRightTVert = new TVertex(0, 0);
+		upperRight.addTVertex(upperRightTVert);
+		upperRight.setGeoset(newGeoset);
+
+		final GeosetVertex lowerLeft = new GeosetVertex(0, displayWidth / 2, groundOffset, new Normal(0, 0, 1));
+		newGeoset.add(lowerLeft);
+		final TVertex lowerLeftTVert = new TVertex(1, 1);
+		lowerLeft.addTVertex(lowerLeftTVert);
+		lowerLeft.setGeoset(newGeoset);
+
+		final GeosetVertex lowerRight = new GeosetVertex(0, -displayWidth / 2, groundOffset, new Normal(0, 0, 1));
+		newGeoset.add(lowerRight);
+		final TVertex lowerRightTVert = new TVertex(0, 1);
+		lowerRight.addTVertex(lowerRightTVert);
+		lowerRight.setGeoset(newGeoset);
+
+		newGeoset.add(new Triangle(upperLeft, upperRight, lowerLeft));
+		newGeoset.add(new Triangle(upperRight, lowerRight, lowerLeft));
+		blankTextureModel.add(newGeoset);
+		blankTextureModel.add(new Animation("Stand", 0, 1000));
+		blankTextureModel.doSavePreps();
+
+		loadModel(workingDirectory == null, true,
+				new ModelPanel(MainPanel.this, blankTextureModel, prefs, MainPanel.this, selectionItemTypeGroup,
+						selectionModeGroup, modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
+						activeViewportWatcher, GlobalIcons.orangeIcon));
 	}
 
 	public void loadModel(final boolean temporary, final boolean selectNewTab, final ModelPanel temp) {
@@ -3664,7 +4012,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 		});
 		temp.setJMenuItem(menuItem);
 		temp.getModelViewManager().addStateListener(new RepaintingModelStateListener(MainPanel.this));
-		temp.changeActivity(actionTypeGroup.getActiveButtonType());
+		temp.changeActivity(currentActivity);
 
 		if (geoControl == null) {
 			geoControl = new JScrollPane(temp.getModelViewManagingTree());
@@ -3720,7 +4068,13 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 		previewView.setComponent(modelContextManager.getAnimationViewer());
 		animationControllerView.setComponent(modelContextManager.getAnimationController());
 		refreshAnimationModeState();
-		timeSliderPanel.setUndoManager(currentModelPanel.getUndoManager());
+		timeSliderPanel.setUndoManager(currentModelPanel.getUndoManager(), animatedRenderEnvironment);
+		timeSliderPanel.setModelView(currentModelPanel.getModelViewManager());
+		creatorPanel.setModelEditorManager(currentModelPanel.getModelEditorManager());
+		creatorPanel.setCurrentModel(currentModelPanel.getModelViewManager());
+		creatorPanel.setUndoManager(currentModelPanel.getUndoManager());
+		activeViewportWatcher.viewportChanged(null);
+		timeSliderPanel.revalidateKeyframeDisplay();
 	}
 
 	public void loadFile(final File f, final boolean temporary) {
@@ -4031,6 +4385,8 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler {
 		for (final ModelPanel panel : modelPanels) {
 			if (success = panel.close()) {
 				windowMenu.remove(panel.getMenuItem());
+			} else {
+				break;
 			}
 		}
 		return success;

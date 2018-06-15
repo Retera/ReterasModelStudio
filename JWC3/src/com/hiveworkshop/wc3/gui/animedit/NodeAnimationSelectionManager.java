@@ -85,18 +85,37 @@ public final class NodeAnimationSelectionManager extends AbstractSelectionManage
 			final ModelView model, final ProgramPreferences programPreferences) {
 		// TODO !!! apply rendering
 		final Set<IdObject> drawnSelection = new HashSet<>();
+		final Set<IdObject> parentedNonSelection = new HashSet<>();
 		for (final IdObject object : model.getEditableIdObjects()) {
 			if (selection.contains(object)) {
-				renderer.renderIdObject(object, NodeIconPalette.SELECTED, programPreferences.getSelectColor(),
-						programPreferences.getPivotPointsSelectedColor());
+				renderer.renderIdObject(object, NodeIconPalette.SELECTED,
+						programPreferences.getAnimatedBoneSelectedColor(),
+						programPreferences.getAnimatedBoneSelectedColor());
 				drawnSelection.add(object);
+			} else {
+				IdObject parent = object.getParent();
+				while (parent != null) {
+					if (selection.contains(parent)) {
+						parentedNonSelection.add(object);
+					}
+					parent = parent.getParent();
+				}
 			}
 		}
 		for (final IdObject selectedObject : selection) {
 			if (!drawnSelection.contains(selectedObject)) {
 				renderBoneDummy.setPivotPoint(selectedObject.getPivotPoint());
-				renderer.renderIdObject(renderBoneDummy, NodeIconPalette.SELECTED, programPreferences.getSelectColor(),
-						programPreferences.getPivotPointsSelectedColor());
+				renderer.renderIdObject(renderBoneDummy, NodeIconPalette.SELECTED,
+						programPreferences.getAnimatedBoneSelectedColor(),
+						programPreferences.getAnimatedBoneSelectedColor());
+				drawnSelection.add(selectedObject);
+			}
+		}
+		for (final IdObject object : model.getEditableIdObjects()) {
+			if (parentedNonSelection.contains(object) && !drawnSelection.contains(object)) {
+				renderer.renderIdObject(object, NodeIconPalette.SELECTED,
+						programPreferences.getAnimatedBoneSelectedUpstreamColor(),
+						programPreferences.getAnimatedBoneSelectedUpstreamColor());
 			}
 		}
 	}

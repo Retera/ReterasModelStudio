@@ -11,6 +11,7 @@ import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
+import com.hiveworkshop.wc3.gui.animedit.TimeEnvironmentImpl;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.animation.AddKeyframeAction;
@@ -269,9 +270,14 @@ public abstract class IdObject implements Named, TimelineContainer {
 			final double newDeltaY, final double newDeltaZ) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
-		AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), "Translation");
+		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from
+		// a TimeEnvironmentImpl render environment, and never from the anim previewer impl
+		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
+				.getAnimatedRenderEnvironment();
+		AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), "Translation", timeEnvironmentImpl.getGlobalSeq());
 		if (translationFlag == null) {
-			translationFlag = AnimFlag.createEmpty2018("Translation", InterpolationType.HERMITE);
+			translationFlag = AnimFlag.createEmpty2018("Translation", InterpolationType.HERMITE,
+					timeEnvironmentImpl.getGlobalSeq());
 			getAnimFlags().add(translationFlag);
 		}
 		final int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
@@ -343,8 +349,11 @@ public abstract class IdObject implements Named, TimelineContainer {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
 		final int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
-		final int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart()
-				+ animationTime;
+		int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart() + animationTime;
+		final Integer globalSeq = ((TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment()).getGlobalSeq();
+		if (globalSeq != null) {
+			trackTime = renderModel.getAnimatedRenderEnvironment().getGlobalSeqTime(globalSeq);
+		}
 		final int floorIndex = translationFlag.floorIndex(trackTime);
 		final RenderNode renderNode = renderModel.getRenderNode(this);
 
@@ -377,8 +386,11 @@ public abstract class IdObject implements Named, TimelineContainer {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
 		final int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
-		final int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart()
-				+ animationTime;
+		int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart() + animationTime;
+		final Integer globalSeq = ((TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment()).getGlobalSeq();
+		if (globalSeq != null) {
+			trackTime = renderModel.getAnimatedRenderEnvironment().getGlobalSeqTime(globalSeq);
+		}
 		final int floorIndex = rotationTimeline.floorIndex(trackTime);
 		final RenderNode renderNode = renderModel.getRenderNode(this);
 
@@ -414,8 +426,11 @@ public abstract class IdObject implements Named, TimelineContainer {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
 		final int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
-		final int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart()
-				+ animationTime;
+		int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart() + animationTime;
+		final Integer globalSeq = ((TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment()).getGlobalSeq();
+		if (globalSeq != null) {
+			trackTime = renderModel.getAnimatedRenderEnvironment().getGlobalSeqTime(globalSeq);
+		}
 		final int floorIndex = scalingTimeline.floorIndex(trackTime);
 		final RenderNode renderNode = renderModel.getRenderNode(this);
 
@@ -450,13 +465,21 @@ public abstract class IdObject implements Named, TimelineContainer {
 
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
-		final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), "Translation");
+		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from
+		// a TimeEnvironmentImpl render environment, and never from the anim previewer impl
+		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
+				.getAnimatedRenderEnvironment();
+		final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), "Translation",
+				timeEnvironmentImpl.getGlobalSeq());
 		if (translationFlag == null) {
 			return;
 		}
 		final int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
-		final int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart()
-				+ animationTime;
+		int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart() + animationTime;
+		final Integer globalSeq = timeEnvironmentImpl.getGlobalSeq();
+		if (globalSeq != null) {
+			trackTime = timeEnvironmentImpl.getGlobalSeqTime(globalSeq);
+		}
 		final int floorIndex = translationFlag.floorIndex(trackTime);
 		final RenderNode renderNode = renderModel.getRenderNode(this);
 		if (parent != null) {
@@ -519,13 +542,20 @@ public abstract class IdObject implements Named, TimelineContainer {
 
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
-		final AnimFlag rotationTimeline = AnimFlag.find(getAnimFlags(), "Rotation");
+		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from
+		// a TimeEnvironmentImpl render environment, and never from the anim previewer impl
+		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
+				.getAnimatedRenderEnvironment();
+		final AnimFlag rotationTimeline = AnimFlag.find(getAnimFlags(), "Rotation", timeEnvironmentImpl.getGlobalSeq());
 		if (rotationTimeline == null) {
 			return;
 		}
 		final int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
-		final int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart()
-				+ animationTime;
+		int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart() + animationTime;
+		final Integer globalSeq = timeEnvironmentImpl.getGlobalSeq();
+		if (globalSeq != null) {
+			trackTime = timeEnvironmentImpl.getGlobalSeqTime(globalSeq);
+		}
 		final int floorIndex = rotationTimeline.floorIndex(trackTime);
 		final RenderNode renderNode = renderModel.getRenderNode(this);
 		final byte unusedXYZ = CoordinateSystem.Util.getUnusedXYZ(firstXYZ, secondXYZ);
@@ -634,13 +664,20 @@ public abstract class IdObject implements Named, TimelineContainer {
 
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
-		final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), "Scaling");
+		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from
+		// a TimeEnvironmentImpl render environment, and never from the anim previewer impl
+		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
+				.getAnimatedRenderEnvironment();
+		final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), "Scaling", timeEnvironmentImpl.getGlobalSeq());
 		if (translationFlag == null) {
 			return;
 		}
 		final int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
-		final int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart()
-				+ animationTime;
+		int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart() + animationTime;
+		final Integer globalSeq = timeEnvironmentImpl.getGlobalSeq();
+		if (globalSeq != null) {
+			trackTime = timeEnvironmentImpl.getGlobalSeqTime(globalSeq);
+		}
 		final int floorIndex = translationFlag.floorIndex(trackTime);
 		// final RenderNode renderNode = renderModel.getRenderNode(this);
 		// if (parent != null) {
@@ -683,13 +720,14 @@ public abstract class IdObject implements Named, TimelineContainer {
 		}
 	}
 
-	public void updateLocalRotationKeyframe(final int trackTime, final Quaternion localRotation) {
+	public void updateLocalRotationKeyframe(final int trackTime, final Integer trackGlobalSeq,
+			final Quaternion localRotation) {
 		// Note to future author: the reason for saved local rotation is that
 		// we would like to be able to undo the action of rotating the animation data
 
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
-		final AnimFlag rotationTimeline = AnimFlag.find(getAnimFlags(), "Rotation");
+		final AnimFlag rotationTimeline = AnimFlag.find(getAnimFlags(), "Rotation", trackGlobalSeq);
 		if (rotationTimeline == null) {
 			return;
 		}
@@ -736,13 +774,14 @@ public abstract class IdObject implements Named, TimelineContainer {
 		}
 	}
 
-	public void updateLocalRotationKeyframeInverse(final int trackTime, final Quaternion localRotation) {
+	public void updateLocalRotationKeyframeInverse(final int trackTime, final Integer trackGlobalSeq,
+			final Quaternion localRotation) {
 		// Note to future author: the reason for saved local rotation is that
 		// we would like to be able to undo the action of rotating the animation data
 
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
-		final AnimFlag rotationTimeline = AnimFlag.find(getAnimFlags(), "Rotation");
+		final AnimFlag rotationTimeline = AnimFlag.find(getAnimFlags(), "Rotation", trackGlobalSeq);
 		if (rotationTimeline == null) {
 			return;
 		}
@@ -795,11 +834,11 @@ public abstract class IdObject implements Named, TimelineContainer {
 		}
 	}
 
-	public void updateLocalTranslationKeyframe(final int trackTime, final double newDeltaX, final double newDeltaY,
-			final double newDeltaZ) {
+	public void updateLocalTranslationKeyframe(final int trackTime, final Integer trackGlobalSeq,
+			final double newDeltaX, final double newDeltaY, final double newDeltaZ) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
-		final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), "Translation");
+		final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), "Translation", trackGlobalSeq);
 		if (translationFlag == null) {
 			return;
 		}
@@ -827,10 +866,11 @@ public abstract class IdObject implements Named, TimelineContainer {
 
 	}
 
-	public void updateLocalScalingKeyframe(final int trackTime, final Vector3f localScaling) {
+	public void updateLocalScalingKeyframe(final int trackTime, final Integer trackGlobalSeq,
+			final Vector3f localScaling) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
-		final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), "Scaling");
+		final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), "Scaling", trackGlobalSeq);
 		if (translationFlag == null) {
 			return;
 		}

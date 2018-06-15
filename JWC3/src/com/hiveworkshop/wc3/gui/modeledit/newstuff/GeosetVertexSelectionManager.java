@@ -1,5 +1,6 @@
 package com.hiveworkshop.wc3.gui.modeledit.newstuff;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -58,15 +59,14 @@ public final class GeosetVertexSelectionManager extends AbstractSelectionManager
 	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem,
 			final ModelView model, final ProgramPreferences programPreferences) {
 		for (final Geoset geo : model.getEditableGeosets()) {
-			for (final Triangle triangle : geo.getTriangles()) {
-				for (final GeosetVertex geosetVertex : triangle.getVerts()) {
-					if (model.getHighlightedGeoset() == geo) {
-						renderer.renderVertex(programPreferences.getHighlighVertexColor(), geosetVertex);
-					} else if (selection.contains(geosetVertex)) {
-						renderer.renderVertex(programPreferences.getSelectColor(), geosetVertex);
-					} else {
-						renderer.renderVertex(programPreferences.getVertexColor(), geosetVertex);
-					}
+			final ArrayList<GeosetVertex> vertices = geo.getVertices();
+			for (final GeosetVertex geosetVertex : vertices) {
+				if (model.getHighlightedGeoset() == geo) {
+					renderer.renderVertex(programPreferences.getHighlighVertexColor(), geosetVertex);
+				} else if (selection.contains(geosetVertex)) {
+					renderer.renderVertex(programPreferences.getSelectColor(), geosetVertex);
+				} else {
+					renderer.renderVertex(programPreferences.getVertexColor(), geosetVertex);
 				}
 			}
 		}

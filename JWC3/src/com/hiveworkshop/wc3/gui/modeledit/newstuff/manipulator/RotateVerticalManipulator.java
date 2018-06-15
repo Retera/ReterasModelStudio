@@ -44,7 +44,7 @@ public class RotateVerticalManipulator extends AbstractManipulator {
 			final byte portFirstXYZ, final byte portSecondXYZ) {
 		double radius = selectionView.getCircumscribedSphereRadius(center);
 		if (radius <= 0) {
-			radius = 0.1;
+			radius = 64;
 		}
 		final double deltaAngle = (endingClick.y - startingClick.y) / radius;
 		return deltaAngle;

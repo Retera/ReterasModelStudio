@@ -18,12 +18,15 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 	private final HashMap<IdObject, Vector3f> nodeToLocalScale;
 	private final NodeAnimationModelEditor modelEditor;
 	private final Vertex center;
+	private final Integer trackGlobalSeq;
 
 	public ScalingKeyframeAction(final UndoAction addingTimelinesOrKeyframesAction, final int trackTime,
-			final Collection<IdObject> nodeSelection, final NodeAnimationModelEditor modelEditor, final double centerX,
-			final double centerY, final double centerZ) {
+			final Integer trackGlobalSeq, final Collection<IdObject> nodeSelection,
+			final NodeAnimationModelEditor modelEditor, final double centerX, final double centerY,
+			final double centerZ) {
 		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
 		this.trackTime = trackTime;
+		this.trackGlobalSeq = trackGlobalSeq;
 		this.modelEditor = modelEditor;
 		nodeToLocalScale = new HashMap<>();
 		for (final IdObject node : nodeSelection) {
@@ -41,7 +44,7 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 			tempInverse.x = 1 / localTranslation.x;
 			tempInverse.y = 1 / localTranslation.y;
 			tempInverse.z = 1 / localTranslation.z;
-			node.updateLocalScalingKeyframe(trackTime, tempInverse);
+			node.updateLocalScalingKeyframe(trackTime, trackGlobalSeq, tempInverse);
 		}
 		addingTimelinesOrKeyframesAction.undo();
 	}
@@ -52,7 +55,7 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 		for (final Map.Entry<IdObject, Vector3f> nodeAndLocalTranslation : nodeToLocalScale.entrySet()) {
 			final IdObject node = nodeAndLocalTranslation.getKey();
 			final Vector3f localTranslation = nodeAndLocalTranslation.getValue();
-			node.updateLocalScalingKeyframe(trackTime, localTranslation);
+			node.updateLocalScalingKeyframe(trackTime, trackGlobalSeq, localTranslation);
 		}
 	}
 

@@ -119,7 +119,6 @@ public class ViewportTransferHandler extends TransferHandler {
 				geosetsAdded.add(pastedGeoset);
 			}
 		}
-		modelStructureChangeListener.geosetsAdded(geosetsAdded);
 		for (final IdObject idObject : pastedModel.getIdObjects()) {
 			currentModelView.getModel().add(idObject);
 		}
@@ -131,6 +130,7 @@ public class ViewportTransferHandler extends TransferHandler {
 		for (final Geoset pastedGeoset : pastedModel.getGeosets()) {
 			pastedGeoset.applyVerticesToMatrices(currentModelView.getModel());
 		}
+		modelStructureChangeListener.geosetsAdded(geosetsAdded);
 	}
 
 	/**

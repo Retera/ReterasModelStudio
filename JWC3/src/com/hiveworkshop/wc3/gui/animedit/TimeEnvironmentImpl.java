@@ -17,7 +17,11 @@ public class TimeEnvironmentImpl implements AnimatedRenderEnvironment, TimeBound
 
 	public void setStart(final int startTime) {
 		controllableTimeBoundProvider.setStart(startTime);
+
 		if (globalSequenceLength == -1) {
+			if (currentTime < startTime) {
+				currentTime = startTime;
+			}
 			notifier.timeBoundsChanged(controllableTimeBoundProvider.getStart(),
 					controllableTimeBoundProvider.getEnd());
 		}
@@ -26,6 +30,9 @@ public class TimeEnvironmentImpl implements AnimatedRenderEnvironment, TimeBound
 	public void setEnd(final int endTime) {
 		controllableTimeBoundProvider.setEnd(endTime);
 		if (globalSequenceLength == -1) {
+			if (currentTime > endTime) {
+				currentTime = endTime;
+			}
 			notifier.timeBoundsChanged(controllableTimeBoundProvider.getStart(),
 					controllableTimeBoundProvider.getEnd());
 		}
@@ -36,6 +43,7 @@ public class TimeEnvironmentImpl implements AnimatedRenderEnvironment, TimeBound
 		controllableTimeBoundProvider.setEnd(endTime);
 		globalSequenceLength = -1;
 		if (globalSequenceLength == -1) {
+			currentTime = 0;
 			notifier.timeBoundsChanged(controllableTimeBoundProvider.getStart(),
 					controllableTimeBoundProvider.getEnd());
 		}
@@ -47,10 +55,20 @@ public class TimeEnvironmentImpl implements AnimatedRenderEnvironment, TimeBound
 
 	public void setGlobalSeq(final int globalSeq) {
 		this.globalSequenceLength = globalSeq;
+		if (globalSequenceLength != -1) {
+			currentTime = 0;
+		}
 		notifier.timeBoundsChanged(0, globalSequenceLength);
 	}
 
 	public int getGlobalSequenceLength() {
+		return globalSequenceLength;
+	}
+
+	public Integer getGlobalSeq() {
+		if (globalSequenceLength == -1) {
+			return null;
+		}
 		return globalSequenceLength;
 	}
 

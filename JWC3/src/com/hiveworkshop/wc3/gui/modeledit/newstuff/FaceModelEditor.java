@@ -12,9 +12,11 @@ import java.util.Set;
 
 import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
+import com.hiveworkshop.wc3.gui.animedit.WrongModeException;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.SplitGeosetAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.TeamColorAddAction;
 import com.hiveworkshop.wc3.gui.modeledit.cutpaste.CopiedModelData;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
@@ -53,8 +55,22 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 
 	@Override
 	public UndoAction addTeamColor() {
-		final TeamColorAddAction teamColorAddAction = new TeamColorAddAction(selectionManager.getSelection(),
-				model.getModel(), structureChangeListener, selectionManager);
+		// copy the selection before we hand it off, so the we can't strip the stored action's
+		// list of faces to add/remove
+		final TeamColorAddAction<Triangle> teamColorAddAction = new TeamColorAddAction<>(
+				new ArrayList<>(selectionManager.getSelection()), model.getModel(), structureChangeListener,
+				selectionManager, vertexSelectionHelper);
+		teamColorAddAction.redo();
+		return teamColorAddAction;
+	}
+
+	@Override
+	public UndoAction splitGeoset() {
+		// copy the selection before we hand it off, so the we can't strip the stored action's
+		// list of faces to add/remove
+		final SplitGeosetAction<Triangle> teamColorAddAction = new SplitGeosetAction<>(
+				new ArrayList<>(selectionManager.getSelection()), model.getModel(), structureChangeListener,
+				selectionManager, vertexSelectionHelper);
 		teamColorAddAction.redo();
 		return teamColorAddAction;
 	}
@@ -279,5 +295,16 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 			}
 		}
 		return new CopiedModelData(copiedGeosets, new ArrayList<IdObject>(), new ArrayList<Camera>());
+	}
+
+	@Override
+	public UndoAction addVertex(final double x, final double y, final double z,
+			final Vertex preferredNormalFacingVector) {
+		throw new WrongModeException("Unable to add vertex in face selection mode");
+	}
+
+	@Override
+	public UndoAction createFaceFromSelection(final Vertex preferredFacingVector) {
+		throw new WrongModeException("Unable to create face from vertices in face selection mode");
 	}
 }

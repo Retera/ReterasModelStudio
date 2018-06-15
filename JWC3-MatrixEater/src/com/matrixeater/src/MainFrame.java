@@ -1,21 +1,12 @@
 package com.matrixeater.src;
 
-import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
-import javax.swing.plaf.IconUIResource;
-
-import com.hiveworkshop.wc3.gui.BLPHandler;
-
-import net.infonode.gui.laf.InfoNodeLookAndFeel;
-import net.infonode.gui.laf.InfoNodeLookAndFeelTheme;
 
 /**
  * Write a description of class MainFrame here.
@@ -58,7 +49,7 @@ public class MainFrame extends JFrame {
 		// } catch (final IllegalAccessException e) {
 		// // handle exception
 		// }
-		// EditorDisplayManager.setupLookAndFeel();
+		EditorDisplayManager.setupLookAndFeel();
 		// try {
 		// UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel");
 		// } catch (final Exception exc) {
@@ -74,21 +65,21 @@ public class MainFrame extends JFrame {
 		// e.printStackTrace();
 		// }
 		// }
-		try {
-			final InfoNodeLookAndFeelTheme theme = new InfoNodeLookAndFeelTheme("Matrix Eater", new Color(44, 46, 20),
-					new Color(116, 126, 36), new Color(44, 46, 20), new Color(220, 202, 132), new Color(116, 126, 36),
-					new Color(220, 202, 132));
-			theme.setDesktopColor(new Color(60, 82, 44));
-			theme.setTreeOpenIcon(new IconUIResource(new ImageIcon(
-					BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp"))));
-			theme.setTreeClosedIcon(new IconUIResource(new ImageIcon(
-					BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp"))));
-			UIManager.setLookAndFeel(new InfoNodeLookAndFeel(theme));
-		} catch (final UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
-		}
+		// try {
+		// final InfoNodeLookAndFeelTheme theme = new InfoNodeLookAndFeelTheme("Matrix Eater", new Color(44, 46, 20),
+		// new Color(116, 126, 36), new Color(44, 46, 20), new Color(220, 202, 132), new Color(116, 126, 36),
+		// new Color(220, 202, 132));
+		// theme.setDesktopColor(new Color(60, 82, 44));
+		// theme.setTreeOpenIcon(new IconUIResource(new ImageIcon(
+		// BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp"))));
+		// theme.setTreeClosedIcon(new IconUIResource(new ImageIcon(
+		// BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp"))));
+		// UIManager.setLookAndFeel(new InfoNodeLookAndFeel(theme));
+		// } catch (final UnsupportedLookAndFeelException e) {
+		// e.printStackTrace();
+		// }
 
-		frame = new MainFrame("DD Model Chickens");
+		frame = new MainFrame("Just another Warcraft III model editor");
 		panel.init();
 	}
 

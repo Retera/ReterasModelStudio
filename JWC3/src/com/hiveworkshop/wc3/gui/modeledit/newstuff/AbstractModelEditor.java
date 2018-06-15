@@ -10,6 +10,7 @@ import com.etheller.collections.HashMap;
 import com.etheller.collections.ListView;
 import com.etheller.collections.Map;
 import com.etheller.util.CollectionUtils;
+import com.hiveworkshop.wc3.gui.animedit.WrongModeException;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.DeleteAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.ExtrudeAction;
@@ -18,7 +19,11 @@ import com.hiveworkshop.wc3.gui.modeledit.actions.SnapAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.SnapNormalsAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.SpecialDeleteAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
+import com.hiveworkshop.wc3.gui.modeledit.creator.actions.DrawBoxAction;
+import com.hiveworkshop.wc3.gui.modeledit.creator.actions.DrawPlaneAction;
+import com.hiveworkshop.wc3.gui.modeledit.creator.actions.NewGeosetAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.ModelEditorActionType;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.CompoundMoveAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.SimpleRotateAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.StaticMeshMoveAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.StaticMeshRotateAction;
@@ -29,16 +34,21 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.FlipNormalsActi
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.MirrorModelAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.SetMatrixAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.CompoundAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.DoNothingMoveActionAdapter;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.VertexSelectionHelper;
+import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.IdObject;
+import com.hiveworkshop.wc3.mdl.Layer;
+import com.hiveworkshop.wc3.mdl.Layer.FilterMode;
+import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.Matrix;
 import com.hiveworkshop.wc3.mdl.Normal;
 import com.hiveworkshop.wc3.mdl.Triangle;
@@ -741,6 +751,12 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 	}
 
 	@Override
+	public GenericRotateAction beginSquatTool(final double centerX, final double centerY, final double centerZ,
+			final byte firstXYZ, final byte secondXYZ) {
+		throw new WrongModeException("Unable to use squat tool outside animation editor mode");
+	}
+
+	@Override
 	public GenericScaleAction beginScaling(final double centerX, final double centerY, final double centerZ) {
 		return new StaticMeshScaleAction(this, centerX, centerY, centerZ);
 	}
@@ -748,5 +764,75 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 	@Override
 	public UndoAction createKeyframe(final ModelEditorActionType actionType) {
 		throw new UnsupportedOperationException("Cannot create keyframe outside of animation mode");
+	}
+
+	@Override
+	public GenericMoveAction addPlane(final double x, final double y, final double x2, final double y2, final byte dim1,
+			final byte dim2, final Vertex facingVector, final int numberOfWidthSegments,
+			final int numberOfHeightSegments) {
+		final ArrayList<Geoset> geosets = model.getModel().getGeosets();
+		Geoset solidWhiteGeoset = null;
+		for (final Geoset geoset : geosets) {
+			final Layer firstLayer = geoset.getMaterial().firstLayer();
+			if (geoset.getMaterial() != null && firstLayer != null && firstLayer.getFilterMode() == FilterMode.NONE
+					&& "Textures\\white.blp".equalsIgnoreCase(firstLayer.getTextureBitmap().getPath())) {
+				solidWhiteGeoset = geoset;
+			}
+		}
+		boolean needsGeosetAction = false;
+		if (solidWhiteGeoset == null) {
+			solidWhiteGeoset = new Geoset();
+			solidWhiteGeoset.setMaterial(new Material(new Layer("None", new Bitmap("Textures\\white.blp"))));
+			needsGeosetAction = true;
+		}
+		GenericMoveAction action;
+		final DrawPlaneAction drawVertexAction = new DrawPlaneAction(x, y, x2, y2, dim1, dim2, facingVector,
+				numberOfWidthSegments, numberOfHeightSegments, solidWhiteGeoset);
+		if (needsGeosetAction) {
+			final NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, model.getModel(),
+					structureChangeListener);
+			action = new CompoundMoveAction("create plane",
+					ListView.Util.of(new DoNothingMoveActionAdapter(newGeosetAction), drawVertexAction));
+		} else {
+			action = drawVertexAction;
+		}
+		action.redo();
+		return action;
+
+	}
+
+	@Override
+	public GenericMoveAction addBox(final double x, final double y, final double x2, final double y2, final byte dim1,
+			final byte dim2, final Vertex facingVector, final int numberOfLengthSegments,
+			final int numberOfWidthSegments, final int numberOfHeightSegments) {
+		final ArrayList<Geoset> geosets = model.getModel().getGeosets();
+		Geoset solidWhiteGeoset = null;
+		for (final Geoset geoset : geosets) {
+			final Layer firstLayer = geoset.getMaterial().firstLayer();
+			if (geoset.getMaterial() != null && firstLayer != null && firstLayer.getFilterMode() == FilterMode.NONE
+					&& "Textures\\white.blp".equalsIgnoreCase(firstLayer.getTextureBitmap().getPath())) {
+				solidWhiteGeoset = geoset;
+			}
+		}
+		boolean needsGeosetAction = false;
+		if (solidWhiteGeoset == null) {
+			solidWhiteGeoset = new Geoset();
+			solidWhiteGeoset.setMaterial(new Material(new Layer("None", new Bitmap("Textures\\white.blp"))));
+			needsGeosetAction = true;
+		}
+		GenericMoveAction action;
+		final DrawBoxAction drawVertexAction = new DrawBoxAction(x, y, x2, y2, dim1, dim2, facingVector,
+				numberOfLengthSegments, numberOfWidthSegments, numberOfHeightSegments, solidWhiteGeoset);
+		if (needsGeosetAction) {
+			final NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, model.getModel(),
+					structureChangeListener);
+			action = new CompoundMoveAction("create plane",
+					ListView.Util.of(new DoNothingMoveActionAdapter(newGeosetAction), drawVertexAction));
+		} else {
+			action = drawVertexAction;
+		}
+		action.redo();
+		return action;
+
 	}
 }

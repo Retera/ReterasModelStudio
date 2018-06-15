@@ -24,4 +24,6 @@ public class GlobalIcons {
 	public static final ImageIcon setKeyframeIcon = new ImageIcon(GlobalIcons.class.getResource("ImageBin/setkey.png"));
 	public static final ImageIcon setTimeBoundsIcon = new ImageIcon(
 			GlobalIcons.class.getResource("ImageBin/setbounds.png"));
+	public static final ImageIcon PLAY = new ImageIcon(GlobalIcons.class.getResource("ImageBin/btn_play.png"));
+	public static final ImageIcon PAUSE = new ImageIcon(GlobalIcons.class.getResource("ImageBin/btn_pause.png"));
 }

@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -2525,5 +2526,150 @@ public class MDL implements Named {
 	// e.printStackTrace();
 	// }
 	// }
+
+	public void removeAllTimelinesForGlobalSeq(final Integer selectedValue) {
+		for (final Material m : materials) {
+			for (final Layer lay : m.layers) {
+				final Iterator<AnimFlag> iterator = lay.anims.iterator();
+				while (iterator.hasNext()) {
+					final AnimFlag animFlag = iterator.next();
+					if (selectedValue.equals(animFlag.getGlobalSeq())) {
+						iterator.remove();
+					}
+				}
+			}
+		}
+		if (texAnims != null) {
+			for (final TextureAnim texa : texAnims) {
+				if (texa != null) {
+					final Iterator<AnimFlag> iterator = texa.animFlags.iterator();
+					while (iterator.hasNext()) {
+						final AnimFlag animFlag = iterator.next();
+						if (selectedValue.equals(animFlag.getGlobalSeq())) {
+							iterator.remove();
+						}
+					}
+				} else {
+					JOptionPane.showMessageDialog(null,
+							"WARNING: Error with processing time-scale from TextureAnims! Program will attempt to proceed.");
+				}
+			}
+		}
+		if (geosetAnims != null) {
+			for (final GeosetAnim ga : geosetAnims) {
+				if (ga != null) {
+					final Iterator<AnimFlag> iterator = ga.animFlags.iterator();
+					while (iterator.hasNext()) {
+						final AnimFlag animFlag = iterator.next();
+						if (selectedValue.equals(animFlag.getGlobalSeq())) {
+							iterator.remove();
+						}
+					}
+				} else {
+					JOptionPane.showMessageDialog(null,
+							"WARNING: Error with processing time-scale from GeosetAnims! Program will attempt to proceed.");
+				}
+			}
+		}
+		final ArrayList<Bone> bones = sortedIdObjects(Bone.class);
+		bones.addAll(sortedIdObjects(Helper.class));// Hey, look at that!
+		for (final Bone b : bones) {
+			final Iterator<AnimFlag> iterator = b.animFlags.iterator();
+			while (iterator.hasNext()) {
+				final AnimFlag animFlag = iterator.next();
+				if (selectedValue.equals(animFlag.getGlobalSeq())) {
+					iterator.remove();
+				}
+			}
+		}
+		final ArrayList<Light> lights = sortedIdObjects(Light.class);
+		for (final Light l : lights) {
+			final Iterator<AnimFlag> iterator = l.animFlags.iterator();
+			while (iterator.hasNext()) {
+				final AnimFlag animFlag = iterator.next();
+				if (selectedValue.equals(animFlag.getGlobalSeq())) {
+					iterator.remove();
+				}
+			}
+		}
+		final ArrayList<Attachment> atcs = sortedIdObjects(Attachment.class);
+		for (final Attachment x : atcs) {
+			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
+			while (iterator.hasNext()) {
+				final AnimFlag animFlag = iterator.next();
+				if (selectedValue.equals(animFlag.getGlobalSeq())) {
+					iterator.remove();
+				}
+			}
+		}
+		final ArrayList<ParticleEmitter2> pes = sortedIdObjects(ParticleEmitter2.class);
+		for (final ParticleEmitter2 x : pes) {
+			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
+			while (iterator.hasNext()) {
+				final AnimFlag animFlag = iterator.next();
+				if (selectedValue.equals(animFlag.getGlobalSeq())) {
+					iterator.remove();
+				}
+			}
+		}
+		final ArrayList<ParticleEmitter> xpes = sortedIdObjects(ParticleEmitter.class);
+		for (final ParticleEmitter x : xpes) {
+			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
+			while (iterator.hasNext()) {
+				final AnimFlag animFlag = iterator.next();
+				if (selectedValue.equals(animFlag.getGlobalSeq())) {
+					iterator.remove();
+				}
+			}
+		}
+		final ArrayList<RibbonEmitter> res = sortedIdObjects(RibbonEmitter.class);
+		for (final RibbonEmitter x : res) {
+			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
+			while (iterator.hasNext()) {
+				final AnimFlag animFlag = iterator.next();
+				if (selectedValue.equals(animFlag.getGlobalSeq())) {
+					iterator.remove();
+				}
+			}
+		}
+		final ArrayList<CollisionShape> cs = sortedIdObjects(CollisionShape.class);
+		for (final CollisionShape x : cs) {
+			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
+			while (iterator.hasNext()) {
+				final AnimFlag animFlag = iterator.next();
+				if (selectedValue.equals(animFlag.getGlobalSeq())) {
+					iterator.remove();
+				}
+			}
+		}
+		final ArrayList<EventObject> evt = sortedIdObjects(EventObject.class);
+		for (final EventObject x : evt) {
+			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
+			while (iterator.hasNext()) {
+				final AnimFlag animFlag = iterator.next();
+				if (selectedValue.equals(animFlag.getGlobalSeq())) {
+					iterator.remove();
+				}
+			}
+		}
+		if (cameras != null) {
+			for (final Camera x : cameras) {
+				Iterator<AnimFlag> iterator = x.animFlags.iterator();
+				while (iterator.hasNext()) {
+					final AnimFlag animFlag = iterator.next();
+					if (selectedValue.equals(animFlag.getGlobalSeq())) {
+						iterator.remove();
+					}
+				}
+				iterator = x.targetAnimFlags.iterator();
+				while (iterator.hasNext()) {
+					final AnimFlag animFlag = iterator.next();
+					if (selectedValue.equals(animFlag.getGlobalSeq())) {
+						iterator.remove();
+					}
+				}
+			}
+		}
+	}
 
 }

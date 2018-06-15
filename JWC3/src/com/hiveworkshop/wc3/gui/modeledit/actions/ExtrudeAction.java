@@ -1,7 +1,6 @@
 package com.hiveworkshop.wc3.gui.modeledit.actions;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
@@ -26,7 +25,7 @@ public class ExtrudeAction implements UndoAction {
 			final List<Triangle> addedTriangles, final boolean isExtrude) {
 		addedVerts = clones;
 		this.addedTriangles = addedTriangles;
-		this.selection = new ArrayList<Vertex>(selection);
+		this.selection = new ArrayList<>(selection);
 		baseMovement = new MoveAction(this.selection, moveVector, VertexActionType.UNKNOWN);
 		type = isExtrude;
 	}
@@ -36,7 +35,7 @@ public class ExtrudeAction implements UndoAction {
 	}
 
 	public void storeSelection(final List<Vertex> selection) {
-		this.selection = new ArrayList<Vertex>(selection);
+		this.selection = new ArrayList<>(selection);
 	}
 
 	public void storeBaseMovement(final Vertex moveVector) {
@@ -62,7 +61,7 @@ public class ExtrudeAction implements UndoAction {
 					}
 				}
 				if (good) {
-					final ArrayList<Triangle> tris = new ArrayList<Triangle>(gv.getTriangles());
+					final ArrayList<Triangle> tris = new ArrayList<>(gv.getTriangles());
 					for (final Triangle t : tris) {
 						if (!selection.contains(t.get(0)) || !selection.contains(t.get(1))
 								|| !selection.contains(t.get(2))) {
@@ -115,14 +114,12 @@ public class ExtrudeAction implements UndoAction {
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				for (final Triangle t : gv.getTriangles()) {
-					System.out.println("SHOULD be one: " + Collections.frequency(gv.getTriangles(), t));
 					if (!t.containsRef(gv)) {
 						probs++;
 					}
 				}
 			}
 		}
-		System.out.println("Redo " + actionName() + " finished with " + probs + " inexplicable errors.");
 	}
 
 	@Override
@@ -141,7 +138,7 @@ public class ExtrudeAction implements UndoAction {
 				final GeosetVertex cgv = addedVerts.get(i);
 				if (cgv != null) {
 					final GeosetVertex gv = (GeosetVertex) selection.get(addedVerts.indexOf(cgv));
-					final ArrayList<Triangle> ctris = new ArrayList<Triangle>(cgv.getTriangles());
+					final ArrayList<Triangle> ctris = new ArrayList<>(cgv.getTriangles());
 					for (final Triangle t : ctris) {
 						t.set(t.indexOf(cgv), gv);
 						cgv.getTriangles().remove(t);
@@ -166,7 +163,7 @@ public class ExtrudeAction implements UndoAction {
 				final GeosetVertex cgv = addedVerts.get(i);
 				if (cgv != null) {
 					final GeosetVertex gv = copiedGroup.get(addedVerts.indexOf(cgv));
-					final ArrayList<Triangle> ctris = new ArrayList<Triangle>(cgv.getTriangles());
+					final ArrayList<Triangle> ctris = new ArrayList<>(cgv.getTriangles());
 					for (final Triangle t : ctris) {
 						t.set(t.indexOf(cgv), gv);
 						cgv.getTriangles().remove(t);
@@ -202,14 +199,12 @@ public class ExtrudeAction implements UndoAction {
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				for (final Triangle t : gv.getTriangles()) {
-					System.out.println("SHOULD be one: " + Collections.frequency(gv.getTriangles(), t));
 					if (!t.containsRef(gv)) {
 						probs++;
 					}
 				}
 			}
 		}
-		System.out.println("Undo " + actionName() + " finished with " + probs + " inexplicable errors.");
 	}
 
 	@Override

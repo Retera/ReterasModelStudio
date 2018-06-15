@@ -157,6 +157,15 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
+	public UndoAction splitGeoset() {
+		final List<UndoAction> actions = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			actions.add(handler.splitGeoset());
+		}
+		return mergeActions(actions);
+	}
+
+	@Override
 	public UndoAction translate(final double x, final double y, final double z) {
 		final List<UndoAction> actions = new ArrayList<>();
 		for (final ModelEditor handler : set) {
@@ -395,6 +404,16 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
+	public GenericRotateAction beginSquatTool(final double centerX, final double centerY, final double centerZ,
+			final byte firstXYZ, final byte secondXYZ) {
+		final List<GenericRotateAction> actions = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			actions.add(handler.beginRotation(centerX, centerY, centerZ, firstXYZ, secondXYZ));
+		}
+		return mergeRotateActions(actions);
+	}
+
+	@Override
 	public GenericScaleAction beginScaling(final double centerX, final double centerY, final double centerZ) {
 		final List<GenericScaleAction> actions = new ArrayList<>();
 		for (final ModelEditor handler : set) {
@@ -410,5 +429,46 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 			actions.add(handler.createKeyframe(actionType));
 		}
 		return mergeActions(actions);
+	}
+
+	@Override
+	public UndoAction addVertex(final double x, final double y, final double z,
+			final Vertex preferredNormalFacingVector) {
+		final List<UndoAction> actions = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			actions.add(handler.addVertex(x, y, z, preferredNormalFacingVector));
+		}
+		return mergeActions(actions);
+	}
+
+	@Override
+	public GenericMoveAction addPlane(final double x, final double y, final double x2, final double y2, final byte dim1,
+			final byte dim2, final Vertex facingVector, final int numberOfSegmentsX, final int numberOfSegmentsY) {
+		final List<GenericMoveAction> actions = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			actions.add(handler.addPlane(x, y, x2, y2, dim1, dim2, facingVector, numberOfSegmentsX, numberOfSegmentsY));
+		}
+		return mergeMoveActions(actions);
+	}
+
+	@Override
+	public UndoAction createFaceFromSelection(final Vertex preferredFacingVector) {
+		final List<UndoAction> actions = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			actions.add(handler.createFaceFromSelection(preferredFacingVector));
+		}
+		return mergeActions(actions);
+	}
+
+	@Override
+	public GenericMoveAction addBox(final double x, final double y, final double x2, final double y2, final byte dim1,
+			final byte dim2, final Vertex facingVector, final int numberOfLengthSegments,
+			final int numberOfWidthSegments, final int numberOfHeightSegments) {
+		final List<GenericMoveAction> actions = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			actions.add(handler.addBox(x, y, x2, y2, dim1, dim2, facingVector, numberOfLengthSegments,
+					numberOfWidthSegments, numberOfHeightSegments));
+		}
+		return mergeMoveActions(actions);
 	}
 }

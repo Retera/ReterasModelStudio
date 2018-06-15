@@ -3,10 +3,10 @@ package com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.animation;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
-import com.hiveworkshop.wc3.mdl.IdObject;
+import com.hiveworkshop.wc3.mdl.TimelineContainer;
 
 public class AddKeyframeAction implements UndoAction {
-	private final IdObject node;
+	private final TimelineContainer node;
 	private final AnimFlag timeline;
 	private final int trackTime;
 	private final Object keyframeValue;
@@ -14,7 +14,7 @@ public class AddKeyframeAction implements UndoAction {
 	private final Object keyframeOutTan;
 	private final ModelStructureChangeListener structureChangeListener;
 
-	public AddKeyframeAction(final IdObject node, final AnimFlag timeline, final int trackTime,
+	public AddKeyframeAction(final TimelineContainer node, final AnimFlag timeline, final int trackTime,
 			final Object keyframeValue, final Object keyframeInTan, final Object keyframeOutTan,
 			final ModelStructureChangeListener structureChangeListener) {
 		this.node = node;
@@ -26,7 +26,7 @@ public class AddKeyframeAction implements UndoAction {
 		this.structureChangeListener = structureChangeListener;
 	}
 
-	public AddKeyframeAction(final IdObject node, final AnimFlag timeline, final int trackTime,
+	public AddKeyframeAction(final TimelineContainer node, final AnimFlag timeline, final int trackTime,
 			final Object keyframeValue, final ModelStructureChangeListener structureChangeListener) {
 		this(node, timeline, trackTime, keyframeValue, null, null, structureChangeListener);
 	}

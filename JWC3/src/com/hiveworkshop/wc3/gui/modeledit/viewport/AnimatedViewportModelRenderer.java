@@ -64,7 +64,7 @@ public class AnimatedViewportModelRenderer implements ModelRenderer {
 		this.modelView = modelView;
 		this.renderModel = renderModel;
 		idObjectRenderer.reset(coordinateSystem, graphics, programPreferences.getLightsColor(),
-				programPreferences.getPivotPointsColor(), NodeIconPalette.UNSELECTED, renderModel);
+				programPreferences.getAnimatedBoneUnselectedColor(), NodeIconPalette.UNSELECTED, renderModel);
 		return this;
 	}
 
@@ -88,7 +88,7 @@ public class AnimatedViewportModelRenderer implements ModelRenderer {
 				modelView.getHighlightedNode() == object ? programPreferences.getHighlighVertexColor()
 						: programPreferences.getLightsColor(),
 				modelView.getHighlightedNode() == object ? programPreferences.getHighlighVertexColor()
-						: programPreferences.getPivotPointsColor(),
+						: programPreferences.getAnimatedBoneUnselectedColor(),
 				modelView.getHighlightedNode() == object ? NodeIconPalette.HIGHLIGHT : NodeIconPalette.UNSELECTED,
 				renderModel);
 	}

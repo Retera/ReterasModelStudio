@@ -223,6 +223,10 @@ public class Vertex {
 		this.z += z;
 	}
 
+	public double dotProduct(final Vertex other) {
+		return other.x * x + other.y * y + other.z * z;
+	}
+
 	public void scale(final double centerX, final double centerY, final double centerZ, final double scaleX,
 			final double scaleY, final double scaleZ) {
 		final double dx = this.x - centerX;

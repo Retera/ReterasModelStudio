@@ -63,7 +63,6 @@ public final class EditAnimationLengthsAction implements UndoAction {
 
 			// now actually scale animation
 			myAnimation.setInterval(myAnimation.getIntervalStart(), myAnimation.getIntervalStart() + newLength, mdl);
-			myAnimationsIndex++;
 
 			if (lengthIncrease < 0) {
 				// afterwards move all the animations after it, so that they're
@@ -71,7 +70,7 @@ public final class EditAnimationLengthsAction implements UndoAction {
 
 				// (getAnimsSize is a badly named "number of animations"
 				// function)
-				for (int index = mdl.getAnimsSize() - 1; index > myAnimationsIndex; index--) {
+				for (int index = myAnimationsIndex + 1; index < mdl.getAnimsSize(); index++) {
 					final Animation anim = mdl.getAnim(index);
 					final int startOfAnim = anim.getIntervalStart();
 					// I didn't know eclipse is smart enough to write
@@ -83,6 +82,7 @@ public final class EditAnimationLengthsAction implements UndoAction {
 					anim.setInterval(startOfAnim + lengthIncrease, endOfAnim + lengthIncrease, mdl);
 				}
 			}
+			myAnimationsIndex++;
 		}
 		myAnimationsIndex = 0;
 		for (final Integer myAnimation : mdl.getGlobalSeqs()) {

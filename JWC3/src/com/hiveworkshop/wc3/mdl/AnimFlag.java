@@ -848,7 +848,8 @@ public class AnimFlag {
 		tags.add("DontInterp");
 	}
 
-	public static AnimFlag createEmpty2018(final String title, final InterpolationType interpolationType) {
+	public static AnimFlag createEmpty2018(final String title, final InterpolationType interpolationType,
+			final Integer globalSeq) {
 		final AnimFlag flag = new AnimFlag();
 		flag.title = title;
 		switch (interpolationType) {
@@ -867,6 +868,7 @@ public class AnimFlag {
 			break;
 		}
 		flag.generateTypeId();
+		flag.setGlobSeq(globalSeq);
 		return flag;
 	}
 
@@ -1019,10 +1021,49 @@ public class AnimFlag {
 		}
 	}
 
+	public static Object cloneValue(final Object value) {
+		if (value == null) {
+			return null;
+		}
+		if (value instanceof Integer) {
+			return value;
+		} else if (value instanceof Double) {
+			return value;
+		} else if (value instanceof Vertex) {
+			final Vertex vertex = (Vertex) value;
+			final Vertex clonedVertex = new Vertex(vertex);
+			return clonedVertex;
+		} else if (value instanceof QuaternionRotation) {
+			final QuaternionRotation vertex = (QuaternionRotation) value;
+			final QuaternionRotation clonedVertex = new QuaternionRotation(vertex);
+			return clonedVertex;
+		} else {
+			throw new IllegalStateException(value.getClass().getName());
+		}
+	}
+
 	public Object valueAt(final Integer time) {
 		for (int i = 0; i < times.size(); i++) {
 			if (times.get(i).equals(time)) {
 				return values.get(i);
+			}
+		}
+		return null;
+	}
+
+	public Object inTanAt(final Integer time) {
+		for (int i = 0; i < times.size(); i++) {
+			if (times.get(i).equals(time)) {
+				return inTans.get(i);
+			}
+		}
+		return null;
+	}
+
+	public Object outTanAt(final Integer time) {
+		for (int i = 0; i < times.size(); i++) {
+			if (times.get(i).equals(time)) {
+				return outTans.get(i);
 			}
 		}
 		return null;
@@ -1068,6 +1109,18 @@ public class AnimFlag {
 
 	private AnimFlag() {
 
+	}
+
+	public static AnimFlag find(final List<AnimFlag> flags, final String name, final Integer globalSeq) {
+		// TODO make flags be a map and remove this method, this is 2018
+		// not 2012 anymore, and I learned basic software dev
+		for (final AnimFlag flag : flags) {
+			if (flag.getName().equals(name) && ((globalSeq == null && flag.globalSeq == null)
+					|| (globalSeq != null && globalSeq.equals(flag.globalSeq)))) {
+				return flag;
+			}
+		}
+		return null;
 	}
 
 	public static AnimFlag find(final List<AnimFlag> flags, final String name) {
@@ -1727,10 +1780,10 @@ public class AnimFlag {
 				// If this "i" is a part of the anim being rescaled
 				final double ratio = (double) (i - sourceStart) / (double) (sourceEnd - sourceStart);
 				times.add(new Integer((int) (newStart + (ratio * (newEnd - newStart)))));
-				values.add(source.values.get(index));
+				values.add(cloneValue(source.values.get(index)));
 				if (tans) {
-					inTans.add(source.inTans.get(index));
-					outTans.add(source.outTans.get(index));
+					inTans.add(cloneValue(source.inTans.get(index)));
+					outTans.add(cloneValue(source.outTans.get(index)));
 				}
 			}
 		}
@@ -2059,10 +2112,11 @@ public class AnimFlag {
 					floorInTan = floorOutTan = identity(typeid);
 					floorIndexTime = animation.getStart();
 				}
-			} else if (ceilIndexTime > animation.getEnd()) {
+			} else if (ceilIndexTime > animation.getEnd() || (ceilIndexTime < time && floorAnimEndIndex < time)) {
 				if (times.get(floorAnimStartIndex) == animation.getStart()) {
 					ceilValue = values.get(floorAnimStartIndex);
 					ceilIndex = floorAnimStartIndex;
+					ceilIndexTime = animation.getEnd();
 				}
 				// NOTE: we just let it be in this case, based on
 				// Water Elemental's birth
@@ -2081,7 +2135,7 @@ public class AnimFlag {
 				final Double previousOutTan = (Double) floorOutTan;
 				final Double nextInTan = (Double) inTans.get(ceilIndex);
 				final Integer floorTime = floorIndexTime;
-				final Integer ceilTime = times.get(ceilIndex);
+				final Integer ceilTime = ceilIndexTime;
 				final double bezier = MathUtils.bezier(previous, previousOutTan, nextInTan, next,
 						(float) (time - floorTime) / (float) (ceilTime - floorTime));
 				return bezier;
@@ -2092,14 +2146,14 @@ public class AnimFlag {
 				final Double previousOutTan = (Double) floorOutTan;
 				final Double nextInTan = (Double) inTans.get(ceilIndex);
 				final Integer floorTime = floorIndexTime;
-				final Integer ceilTime = times.get(ceilIndex);
+				final Integer ceilTime = ceilIndexTime;
 				final double hermite = MathUtils.hermite(previous, previousOutTan, nextInTan, next,
 						(float) (time - floorTime) / (float) (ceilTime - floorTime));
 				return hermite;
 			}
 			case LINEAR:
 				final Integer floorTime = floorIndexTime;
-				final Integer ceilTime = times.get(ceilIndex);
+				final Integer ceilTime = ceilIndexTime;
 				final double lerp = MathUtils.lerp(previous, next,
 						(float) (time - floorTime) / (float) (ceilTime - floorTime));
 				return lerp;
@@ -2118,7 +2172,7 @@ public class AnimFlag {
 				final Vertex previousOutTan = (Vertex) floorOutTan;
 				final Vertex nextInTan = (Vertex) inTans.get(ceilIndex);
 				final Integer floorTime = floorIndexTime;
-				final Integer ceilTime = times.get(ceilIndex);
+				final Integer ceilTime = ceilIndexTime;
 				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
 				final Vertex bezier = new Vertex(
 						MathUtils.bezier(previous.x, previousOutTan.x, nextInTan.x, next.x, timeFactor),
@@ -2132,7 +2186,7 @@ public class AnimFlag {
 				final Vertex previousOutTan = (Vertex) floorOutTan;
 				final Vertex nextInTan = (Vertex) inTans.get(ceilIndex);
 				final Integer floorTime = floorIndexTime;
-				final Integer ceilTime = times.get(ceilIndex);
+				final Integer ceilTime = ceilIndexTime;
 				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
 				final Vertex hermite = new Vertex(
 						MathUtils.hermite(previous.x, previousOutTan.x, nextInTan.x, next.x, timeFactor),
@@ -2142,7 +2196,7 @@ public class AnimFlag {
 			}
 			case LINEAR:
 				final Integer floorTime = floorIndexTime;
-				final Integer ceilTime = times.get(ceilIndex);
+				final Integer ceilTime = ceilIndexTime;
 				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
 				final Vertex lerp = new Vertex(MathUtils.lerp(previous.x, next.x, timeFactor),
 						MathUtils.lerp(previous.y, next.y, timeFactor), MathUtils.lerp(previous.z, next.z, timeFactor));
@@ -2160,7 +2214,7 @@ public class AnimFlag {
 				final QuaternionRotation previousOutTan = (QuaternionRotation) floorOutTan;
 				final QuaternionRotation nextInTan = (QuaternionRotation) inTans.get(ceilIndex);
 				final Integer floorTime = floorIndexTime;
-				final Integer ceilTime = times.get(ceilIndex);
+				final Integer ceilTime = ceilIndexTime;
 				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
 				final QuaternionRotation result = new QuaternionRotation(0, 0, 0, 0);
 				return QuaternionRotation.ghostwolfSquad(result, previous, previousOutTan, nextInTan, next, timeFactor);
@@ -2171,14 +2225,14 @@ public class AnimFlag {
 				final QuaternionRotation previousOutTan = (QuaternionRotation) floorOutTan;
 				final QuaternionRotation nextInTan = (QuaternionRotation) inTans.get(ceilIndex);
 				final Integer floorTime = floorIndexTime;
-				final Integer ceilTime = times.get(ceilIndex);
+				final Integer ceilTime = ceilIndexTime;
 				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
 				final QuaternionRotation result = new QuaternionRotation(0, 0, 0, 0);
 				return QuaternionRotation.ghostwolfSquad(result, previous, previousOutTan, nextInTan, next, timeFactor);
 			}
 			case LINEAR:
 				final Integer floorTime = floorIndexTime;
-				final Integer ceilTime = times.get(ceilIndex);
+				final Integer ceilTime = ceilIndexTime;
 				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
 				final QuaternionRotation result = new QuaternionRotation(0, 0, 0, 0);
 				return QuaternionRotation.slerp(result, previous, next, timeFactor);
@@ -2207,8 +2261,8 @@ public class AnimFlag {
 	public void removeKeyframe(final int trackTime) {
 		final int keyframeIndex = floorIndex(trackTime);
 		if (keyframeIndex >= size() || times.get(keyframeIndex) != trackTime) {
-			throw new IllegalStateException(
-					"Attempted to undo creation of keyframe, but no keyframe was found (" + keyframeIndex + ")");
+			throw new IllegalStateException("Attempted to remove keyframe, but no keyframe was found (" + keyframeIndex
+					+ " @ time " + trackTime + ")");
 		} else {
 			times.remove(keyframeIndex);
 			values.remove(keyframeIndex);
@@ -2220,17 +2274,56 @@ public class AnimFlag {
 	}
 
 	public void addKeyframe(final int trackTime, final Object value) {
-		final int keyframeIndex = ceilIndex(trackTime);
+		int keyframeIndex = ceilIndex(trackTime);
+		if (keyframeIndex == times.size() - 1) {
+			if (times.isEmpty()) {
+				keyframeIndex = 0;
+			} else if (trackTime > times.get(times.size() - 1)) {
+				keyframeIndex = times.size();
+			}
+		}
 		times.add(keyframeIndex, trackTime);
 		values.add(keyframeIndex, value);
 	}
 
 	public void addKeyframe(final int trackTime, final Object value, final Object inTan, final Object outTan) {
-		final int keyframeIndex = ceilIndex(trackTime);
+		int keyframeIndex = ceilIndex(trackTime);
+		if (keyframeIndex == times.size() - 1) {
+			if (times.isEmpty()) {
+				keyframeIndex = 0;
+			} else if (trackTime > times.get(times.size() - 1)) {
+				keyframeIndex = times.size();
+			}
+		}
 		times.add(keyframeIndex, trackTime);
 		values.add(keyframeIndex, value);
 		inTans.add(keyframeIndex, inTan);
 		outTans.add(keyframeIndex, outTan);
+	}
+
+	public void setKeyframe(final Integer time, final Object value) {
+		if (tans()) {
+			throw new IllegalStateException();
+		}
+		// TODO maybe binary search, ghostwolf says it's not worth it
+		for (int index = 0; index < times.size(); index++) {
+			if (times.get(index).equals(time)) {
+				values.set(index, value);
+			}
+		}
+	}
+
+	public void setKeyframe(final Integer time, final Object value, final Object inTan, final Object outTan) {
+		if (!tans()) {
+			throw new IllegalStateException();
+		}
+		for (int index = 0; index < times.size(); index++) {
+			if (times.get(index).equals(time)) {
+				values.set(index, value);
+				inTans.set(index, inTan);
+				outTans.set(index, outTan);
+			}
+		}
 	}
 
 	public void slideKeyframe(final int startTrackTime, final int endTrackTime) {

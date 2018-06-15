@@ -229,17 +229,19 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
 	private static final Vector4f vertexHeap = new Vector4f();
 	private static final Vector4f vertexHeap2 = new Vector4f();
 
-	public static void drawCrosshair(final Graphics2D graphics, final CoordinateSystem coordinateSystem,
-			final int vertexSize, final Vertex pivotPoint, final Matrix4f worldMatrix) {
+	public static void drawCrosshair(final Graphics2D graphics, final CoordinateSystem coordinateSystem, int vertexSize,
+			final Vertex pivotPoint, final Matrix4f worldMatrix) {
 		loadPivotInVertexHeap(pivotPoint, worldMatrix, vertexHeap);
+		vertexSize *= 3;
 
 		final int xCoord = (int) coordinateSystem
 				.convertX(Vertex.getCoord(vertexHeap, coordinateSystem.getPortFirstXYZ()));
 		final int yCoord = (int) coordinateSystem
 				.convertY(Vertex.getCoord(vertexHeap, coordinateSystem.getPortSecondXYZ()));
-		graphics.drawOval(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2, vertexSize * 2);
-		graphics.drawLine(xCoord - (int) (vertexSize * 1.5f), yCoord, xCoord + (int) (vertexSize * 1.5f), yCoord);
-		graphics.drawLine(xCoord, yCoord - (int) (vertexSize * 1.5f), xCoord, yCoord + (int) (vertexSize * 1.5f));
+		// graphics.drawOval(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2, vertexSize * 2);
+		// graphics.drawLine(xCoord - (int) (vertexSize * 1.5f), yCoord, xCoord + (int) (vertexSize * 1.5f), yCoord);
+		// graphics.drawLine(xCoord, yCoord - (int) (vertexSize * 1.5f), xCoord, yCoord + (int) (vertexSize * 1.5f));
+		graphics.fillRect(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2, vertexSize * 2);
 	}
 
 	public static void loadPivotInVertexHeap(final Vertex pivotPoint, final Matrix4f worldMatrix,

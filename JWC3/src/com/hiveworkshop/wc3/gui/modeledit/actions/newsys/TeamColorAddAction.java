@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
-import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItem;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.wc3.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.ExtLog;
@@ -22,24 +22,30 @@ import com.hiveworkshop.wc3.mdl.Layer.FilterMode;
 import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.Triangle;
+import com.hiveworkshop.wc3.mdl.Vertex;
 
-public final class TeamColorAddAction implements UndoAction {
+public final class TeamColorAddAction<T> implements UndoAction {
 
 	private List<Triangle> trianglesMovedToSeparateGeo;
 	private final List<Geoset> geosetsCreated;
 	private final MDL model;
 	private final Collection<Triangle> trisToSeparate;
 	private final ModelStructureChangeListener modelStructureChangeListener;
-	private final SelectionManager selectionManager;
-	private final List<SelectionItem> selection;
+	private final SelectionManager<T> selectionManager;
+	private final Collection<T> selection;
+	private final Collection<Vertex> newVerticesToSelect;
+	private final VertexSelectionHelper vertexSelectionHelper;
 
 	public TeamColorAddAction(final Collection<Triangle> trisToSeparate, final MDL model,
-			final ModelStructureChangeListener modelStructureChangeListener, final SelectionManager selectionManager) {
+			final ModelStructureChangeListener modelStructureChangeListener, final SelectionManager<T> selectionManager,
+			final VertexSelectionHelper vertexSelectionHelper) {
 		this.trisToSeparate = trisToSeparate;
 		this.model = model;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		this.selectionManager = selectionManager;
+		this.vertexSelectionHelper = vertexSelectionHelper;
 		this.geosetsCreated = new ArrayList<>();
+		this.newVerticesToSelect = new ArrayList<>();
 		final Set<GeosetVertex> verticesInTheTriangles = new HashSet<>();
 		final Set<Geoset> geosetsToCopy = new HashSet<>();
 		for (final Triangle tri : trisToSeparate) {
@@ -64,14 +70,19 @@ public final class TeamColorAddAction implements UndoAction {
 			geosetCreated.setSelectionGroup(geoset.getSelectionGroup());
 			final GeosetAnim geosetAnim = geoset.getGeosetAnim();
 			if (geosetAnim != null) {
-				geosetCreated.setGeosetAnim(new GeosetAnim(geoset, geosetAnim));
+				geosetCreated.setGeosetAnim(new GeosetAnim(geosetCreated, geosetAnim));
 			}
 			geosetCreated.setParentModel(model);
 			final Material newMaterial = new Material(geoset.getMaterial());
 			if (newMaterial.getLayers().get(0).getFilterMode() == FilterMode.NONE) {
 				newMaterial.getLayers().get(0).setFilterMode(FilterMode.BLEND);
 			}
-			newMaterial.getLayers().add(0, new Layer(FilterMode.NONE.getMdlText(), new Bitmap("", 1)));
+			final Layer teamColorLayer = new Layer(FilterMode.NONE.getMdlText(), new Bitmap("", 1));
+			teamColorLayer.add("Unshaded");
+			if (geoset.getMaterial().firstLayer().getFlags().contains("TwoSided")) {
+				teamColorLayer.add("TwoSided");
+			}
+			newMaterial.getLayers().add(0, teamColorLayer);
 			geosetCreated.setMaterial(newMaterial);
 			oldGeoToNewGeo.put(geoset, geosetCreated);
 			geosetsCreated.add(geosetCreated);
@@ -82,6 +93,7 @@ public final class TeamColorAddAction implements UndoAction {
 			copy.setGeoset(newGeoset);
 			newGeoset.add(copy);
 			oldVertToNewVert.put(vertex, copy);
+			newVerticesToSelect.add(copy);
 		}
 		for (final Triangle tri : trisToSeparate) {
 			final GeosetVertex a, b, c;
@@ -95,8 +107,7 @@ public final class TeamColorAddAction implements UndoAction {
 			b.getTriangles().add(newTriangle);
 			c.getTriangles().add(newTriangle);
 		}
-		throw new UnsupportedOperationException("NOT CODED FOR NEW VERSION YET");
-		// selection = selectionManager.getSelection();
+		selection = new ArrayList<>(selectionManager.getSelection());
 	}
 
 	@Override
@@ -104,6 +115,7 @@ public final class TeamColorAddAction implements UndoAction {
 		for (final Geoset geoset : geosetsCreated) {
 			model.remove(geoset);
 		}
+		modelStructureChangeListener.geosetsRemoved(geosetsCreated);
 		for (final Triangle tri : trisToSeparate) {
 			final Geoset geoset = tri.getGeoset();
 			for (final GeosetVertex gv : tri.getVerts()) {
@@ -132,8 +144,9 @@ public final class TeamColorAddAction implements UndoAction {
 			}
 			geoset.removeTriangle(tri);
 		}
-		geosetAdditionListener.run(geosetsCreated);
+		modelStructureChangeListener.geosetsAdded(geosetsCreated);
 		selectionManager.removeSelection(selection);
+		vertexSelectionHelper.selectVertices(newVerticesToSelect);
 	}
 
 	@Override

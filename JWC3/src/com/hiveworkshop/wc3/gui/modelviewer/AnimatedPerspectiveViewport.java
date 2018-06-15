@@ -252,7 +252,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 			try {
 				final File workingDirectory = modelView.getModel().getWorkingDirectory();
 				texture = loadTexture(BLPHandler.get()
-						.getTexture(workingDirectory == null ? "" : workingDirectory.getPath(), path + ".blp"), tex,
+						.getTexture(workingDirectory == null ? null : workingDirectory.getPath(), path + ".blp"), tex,
 						layer.getFilterMode() != FilterMode.NONE);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -470,7 +470,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 			// glClearColor(0f, 0f, 0f, 1.0f);
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
-			gluPerspective(45f, (float) getWidth() / (float) getHeight(), 1.0f, 600.0f);
+			gluPerspective(45f, (float) getWidth() / (float) getHeight(), 20.0f, 600.0f);
 			// GLU.gluOrtho2D(45f, (float)current_width/(float)current_height,
 			// 1.0f, 600.0f);
 			// glRotatef(angle, 0, 0, 0);

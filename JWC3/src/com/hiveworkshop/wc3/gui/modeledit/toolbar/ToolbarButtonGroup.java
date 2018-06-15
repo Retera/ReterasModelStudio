@@ -41,12 +41,30 @@ public final class ToolbarButtonGroup<BUTTON_TYPE extends ToolbarButtonType> {
 		}
 	}
 
+	public void maybeSetButtonType(final Object possibleButtonType) {
+		boolean foundMatch = false;
+		for (final ToolbarButtonAction action : buttons) {
+			if (action.getButtonType() == possibleButtonType) {
+				setActiveButton(action.getButton(), action.getButtonType(), action.defaultBorder);
+				foundMatch = true;
+				break;
+			}
+		}
+		if (!foundMatch) {
+			clear();
+		}
+	}
+
 	public void setToolbarButtonType(final BUTTON_TYPE buttonType) {
 		for (final ToolbarButtonAction action : buttons) {
 			if (action.getButtonType() == buttonType) {
 				setActiveButton(action.getButton(), action.getButtonType(), action.defaultBorder);
 			}
 		}
+	}
+
+	public void clear() {
+		setActiveButton(null, null, null);
 	}
 
 	public final class ToolbarButtonAction extends AbstractAction {
@@ -96,12 +114,18 @@ public final class ToolbarButtonGroup<BUTTON_TYPE extends ToolbarButtonType> {
 			activeButton.setBorder(activeButtonDefaultBorder);
 		}
 		activeButton = button;
-		activeButton.setEnabled(false);
-		activeButton.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		activeButtonType = type;
-		this.activeButtonDefaultBorder = defaultBorder;
-		for (final ToolbarButtonListener<BUTTON_TYPE> listener : listeners) {
-			listener.typeChanged(activeButtonType);
+		if (button != null) {
+			activeButton.setEnabled(false);
+			activeButton.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+			activeButtonType = type;
+			this.activeButtonDefaultBorder = defaultBorder;
+			for (final ToolbarButtonListener<BUTTON_TYPE> listener : listeners) {
+				listener.typeChanged(activeButtonType);
+			}
+		} else {
+			for (final ToolbarButtonListener<BUTTON_TYPE> listener : listeners) {
+				listener.typeChanged(null);
+			}
 		}
 	}
 

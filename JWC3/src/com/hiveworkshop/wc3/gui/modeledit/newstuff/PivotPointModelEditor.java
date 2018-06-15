@@ -16,13 +16,13 @@ import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
-import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.TeamColorAddAction;
 import com.hiveworkshop.wc3.gui.modeledit.cutpaste.CopiedModelData;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.nodes.DeleteNodesAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.AutoCenterBonesAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.RenameBoneAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.DoNothingAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponentVisitor;
@@ -112,10 +112,12 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 
 	@Override
 	public UndoAction addTeamColor() {
-		final TeamColorAddAction teamColorAddAction = new TeamColorAddAction(selectionManager.getSelectedFaces(),
-				model.getModel(), structureChangeListener, selectionManager);
-		teamColorAddAction.redo();
-		return teamColorAddAction;
+		return new DoNothingAction("add team color");
+	}
+
+	@Override
+	public UndoAction splitGeoset() {
+		return new DoNothingAction("split geoset");
 	}
 
 	@Override
@@ -760,6 +762,11 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 				clonedNodes.add(b.copy());
 			}
 		}
+		for (final IdObject obj : clonedNodes) {
+			if (!clonedNodes.contains(obj.getParent())) {
+				obj.setParent(null);
+			}
+		}
 		for (final Camera camera : model.getEditableCameras()) {
 			if (selection.contains(camera.getTargetPosition()) || selection.contains(camera.getPosition())) {
 				clonedCameras.add(camera);
@@ -836,4 +843,16 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		deleteNodesAction.redo();
 		return deleteNodesAction;
 	}
+
+	@Override
+	public UndoAction createFaceFromSelection(final Vertex preferredFacingVector) {
+		return new DoNothingAction("create face");
+	}
+
+	@Override
+	public UndoAction addVertex(final double x, final double y, final double z,
+			final Vertex preferredNormalFacingVector) {
+		return new DoNothingAction("add vertex");
+	}
+
 }

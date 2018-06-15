@@ -28,12 +28,14 @@ public class AnimationPanel extends JPanel implements ActionListener {
 	ModelView mdlDisp;
 	AnimationFrame parentFrame;
 	private final UndoActionListener undoActionListener;
+	private final Runnable onFinish;
 
 	public AnimationPanel(final ModelView mdlDisp, final AnimationFrame frame,
-			final UndoActionListener undoActionListener) {
+			final UndoActionListener undoActionListener, final Runnable onFinish) {
 		this.mdlDisp = mdlDisp;
 		parentFrame = frame;
 		this.undoActionListener = undoActionListener;
+		this.onFinish = onFinish;
 		final GridLayout layout = new GridLayout(
 				(mdlDisp.getModel().getAnimsSize() + mdlDisp.getModel().getGlobalSeqs().size()) * 2 + 2, 2);
 		setLayout(layout);
@@ -116,6 +118,7 @@ public class AnimationPanel extends JPanel implements ActionListener {
 			editAnimationLengths.redo();
 			undoActionListener.pushAction(editAnimationLengths);
 			parentFrame.setVisible(false);
+			onFinish.run();
 		}
 	}
 }

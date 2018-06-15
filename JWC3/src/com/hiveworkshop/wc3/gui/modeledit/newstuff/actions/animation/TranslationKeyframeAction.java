@@ -16,11 +16,14 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 	private final int trackTime;
 	private final HashMap<IdObject, Vector3f> nodeToLocalTranslation;
 	private final NodeAnimationModelEditor modelEditor;
+	private final Integer trackGlobalSeq;
 
 	public TranslationKeyframeAction(final UndoAction addingTimelinesOrKeyframesAction, final int trackTime,
-			final Collection<IdObject> nodeSelection, final NodeAnimationModelEditor modelEditor) {
+			final Integer trackGlobalSeq, final Collection<IdObject> nodeSelection,
+			final NodeAnimationModelEditor modelEditor) {
 		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
 		this.trackTime = trackTime;
+		this.trackGlobalSeq = trackGlobalSeq;
 		this.modelEditor = modelEditor;
 		nodeToLocalTranslation = new HashMap<>();
 		for (final IdObject node : nodeSelection) {
@@ -33,7 +36,7 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 		for (final Map.Entry<IdObject, Vector3f> nodeAndLocalTranslation : nodeToLocalTranslation.entrySet()) {
 			final IdObject node = nodeAndLocalTranslation.getKey();
 			final Vector3f localTranslation = nodeAndLocalTranslation.getValue();
-			node.updateLocalTranslationKeyframe(trackTime, -localTranslation.x, -localTranslation.y,
+			node.updateLocalTranslationKeyframe(trackTime, trackGlobalSeq, -localTranslation.x, -localTranslation.y,
 					-localTranslation.z);
 		}
 		addingTimelinesOrKeyframesAction.undo();
@@ -45,7 +48,8 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 		for (final Map.Entry<IdObject, Vector3f> nodeAndLocalTranslation : nodeToLocalTranslation.entrySet()) {
 			final IdObject node = nodeAndLocalTranslation.getKey();
 			final Vector3f localTranslation = nodeAndLocalTranslation.getValue();
-			node.updateLocalTranslationKeyframe(trackTime, localTranslation.x, localTranslation.y, localTranslation.z);
+			node.updateLocalTranslationKeyframe(trackTime, trackGlobalSeq, localTranslation.x, localTranslation.y,
+					localTranslation.z);
 		}
 	}
 

@@ -27,47 +27,6 @@ import de.wc3data.stream.BlizzardDataOutputStream;
  *
  */
 public final class War3ObjectDataChangeset {
-	private static long DEBUG_FOR_KAM__MAX_LOAD_TIME = 0;
-	private static int DEBUG_FOR_KAM__MAX_CHANGE_COUNT = 0;
-	private static War3ID DEBUG_FOR_KAM__MAX_LOAD_ID1 = null;
-	private static War3ID DEBUG_FOR_KAM__MAX_LOAD_ID2 = null;
-	private static War3ID DEBUG_FOR_KAM__MAX_CH_ID1 = null;
-	private static War3ID DEBUG_FOR_KAM__MAX_CH_ID2 = null;
-	private static final War3ID ABILITY_LEVEL_FIELD = War3ID.fromString("alev");
-
-	private static final class TimedEntry {
-
-	}
-
-	public static void resetMaxLoads() {
-		DEBUG_FOR_KAM__MAX_LOAD_TIME = -1;
-		DEBUG_FOR_KAM__MAX_CHANGE_COUNT = -1;
-	}
-
-	public static void printMaxLoads() {
-		System.out.println("Max load origid: " + DEBUG_FOR_KAM__MAX_LOAD_ID1);
-		System.out.println("Max load newid: " + DEBUG_FOR_KAM__MAX_LOAD_ID2);
-		System.out.println("Max load time: " + DEBUG_FOR_KAM__MAX_LOAD_TIME);
-		System.out.println("Max change origid: " + DEBUG_FOR_KAM__MAX_CH_ID1);
-		System.out.println("Max change newid: " + DEBUG_FOR_KAM__MAX_CH_ID2);
-		System.out.println("Max change count: " + DEBUG_FOR_KAM__MAX_CHANGE_COUNT);
-		System.exit(0);
-	}
-
-	public static void checkMaxLoadTime(final War3ID origid, final War3ID newid, final long deltaNanoTime,
-			final int changeCount) {
-		if (deltaNanoTime > DEBUG_FOR_KAM__MAX_LOAD_TIME) {
-			DEBUG_FOR_KAM__MAX_LOAD_TIME = deltaNanoTime;
-			DEBUG_FOR_KAM__MAX_LOAD_ID1 = origid;
-			DEBUG_FOR_KAM__MAX_LOAD_ID2 = newid;
-		}
-		if (changeCount > DEBUG_FOR_KAM__MAX_CHANGE_COUNT) {
-			DEBUG_FOR_KAM__MAX_CHANGE_COUNT = changeCount;
-			DEBUG_FOR_KAM__MAX_CH_ID1 = origid;
-			DEBUG_FOR_KAM__MAX_CH_ID2 = newid;
-		}
-	}
-
 	public static final int VAR_TYPE_INT = 0;
 	public static final int VAR_TYPE_REAL = 1;
 	public static final int VAR_TYPE_UNREAL = 2;
@@ -617,7 +576,6 @@ public final class War3ObjectDataChangeset {
 			map.put(isOriginal ? origid : newid, existingObject);
 			final long endNanoTime = System.nanoTime();
 			final long deltaNanoTime = endNanoTime - nanoTime;
-			checkMaxLoadTime(origid, newid, deltaNanoTime, ccount);
 		}
 		return true;
 	}

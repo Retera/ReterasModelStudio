@@ -98,8 +98,6 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 				getIcon(worldEditorData, "ToolBarIcon_OE_NewUpgr"), createUpgradeEditor());
 		tabbedPane.addTab("Terrains", getIcon(worldEditorData, "ToolBarIcon_Module_Terrain"), createUpgradeEditor());
 
-		War3ObjectDataChangeset.printMaxLoads();
-
 		final JToolBar toolBar = createToolbar(worldEditorData);
 		toolBar.setFloatable(false);
 

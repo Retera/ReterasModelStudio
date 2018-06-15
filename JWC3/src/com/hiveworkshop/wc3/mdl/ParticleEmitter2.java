@@ -756,6 +756,9 @@ public class ParticleEmitter2 extends IdObject implements VisibilitySource {
 		final AnimFlag visibilityFlag = getVisibilityFlag();
 		if (visibilityFlag != null) {
 			final Number visibility = (Number) visibilityFlag.interpolateAt(animatedRenderEnvironment);
+			if (visibility == null) {
+				return 1;
+			}
 			return visibility.floatValue();
 		}
 		return 1;

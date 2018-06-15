@@ -18,6 +18,13 @@ public class QuaternionRotation {
 		this.d = d;
 	}
 
+	public QuaternionRotation(final QuaternionRotation other) {
+		this.a = other.a;
+		this.b = other.b;
+		this.c = other.c;
+		this.d = other.d;
+	}
+
 	public QuaternionRotation(final Vertex eulerRotation) {
 		set(eulerRotation);
 	}

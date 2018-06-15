@@ -115,6 +115,27 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 						programPreferences.setHighlighVertexColor(color);
 					}
 				});
+		final ColorChooserIcon animtedBoneSelectedColorIcon = new ColorChooserIcon(
+				programPreferences.getAnimatedBoneSelectedColor(), new ColorListener() {
+					@Override
+					public void colorChanged(final Color color) {
+						programPreferences.setAnimatedBoneSelectedColor(color);
+					}
+				});
+		final ColorChooserIcon animtedBoneUnselectedColorIcon = new ColorChooserIcon(
+				programPreferences.getAnimatedBoneUnselectedColor(), new ColorListener() {
+					@Override
+					public void colorChanged(final Color color) {
+						programPreferences.setAnimatedBoneUnselectedColor(color);
+					}
+				});
+		final ColorChooserIcon animtedBoneSelectedUpstreamColorIcon = new ColorChooserIcon(
+				programPreferences.getAnimatedBoneSelectedUpstreamColor(), new ColorListener() {
+					@Override
+					public void colorChanged(final Color color) {
+						programPreferences.setAnimatedBoneSelectedUpstreamColor(color);
+					}
+				});
 		int row = 0;
 		modelEditorPanel.add(new JLabel("Show Viewport Gridlines:"), "cell 0 " + row);
 		modelEditorPanel.add(invertedDisplay, "cell 1 " + row);
@@ -142,6 +163,15 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		row++;
 		modelEditorPanel.add(new JLabel("Visible Uneditable Mesh Color:"), "cell 0 " + row);
 		modelEditorPanel.add(visibleUneditableColorIcon, "cell 1 " + row);
+		row++;
+		modelEditorPanel.add(new JLabel("Animation Editor Bone Color:"), "cell 0 " + row);
+		modelEditorPanel.add(animtedBoneUnselectedColorIcon, "cell 1 " + row);
+		row++;
+		modelEditorPanel.add(new JLabel("Animation Editor Selected Bone Color:"), "cell 0 " + row);
+		modelEditorPanel.add(animtedBoneSelectedColorIcon, "cell 1 " + row);
+		row++;
+		modelEditorPanel.add(new JLabel("Animation Editor Selected Upstream Color:"), "cell 0 " + row);
+		modelEditorPanel.add(animtedBoneSelectedUpstreamColorIcon, "cell 1 " + row);
 		row++;
 		addTab("Editor", new JScrollPane(modelEditorPanel));
 	}

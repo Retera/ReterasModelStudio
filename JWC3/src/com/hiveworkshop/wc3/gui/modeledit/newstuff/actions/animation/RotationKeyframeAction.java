@@ -20,12 +20,15 @@ public class RotationKeyframeAction implements GenericRotateAction {
 	private final Vertex center;
 	private final byte dim1;
 	private final byte dim2;
+	private final Integer trackGlobalSeq;
 
 	public RotationKeyframeAction(final UndoAction addingTimelinesOrKeyframesAction, final int trackTime,
-			final Collection<IdObject> nodeSelection, final NodeAnimationModelEditor modelEditor, final double centerX,
-			final double centerY, final double centerZ, final byte dim1, final byte dim2) {
+			final Integer trackGlobalSeq, final Collection<IdObject> nodeSelection,
+			final NodeAnimationModelEditor modelEditor, final double centerX, final double centerY,
+			final double centerZ, final byte dim1, final byte dim2) {
 		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
 		this.trackTime = trackTime;
+		this.trackGlobalSeq = trackGlobalSeq;
 		this.modelEditor = modelEditor;
 		this.dim1 = dim1;
 		this.dim2 = dim2;
@@ -41,7 +44,7 @@ public class RotationKeyframeAction implements GenericRotateAction {
 		for (final Map.Entry<IdObject, Quaternion> nodeAndLocalTranslation : nodeToLocalRotation.entrySet()) {
 			final IdObject node = nodeAndLocalTranslation.getKey();
 			final Quaternion localTranslation = nodeAndLocalTranslation.getValue();
-			node.updateLocalRotationKeyframeInverse(trackTime, localTranslation);
+			node.updateLocalRotationKeyframeInverse(trackTime, trackGlobalSeq, localTranslation);
 		}
 		addingTimelinesOrKeyframesAction.undo();
 	}
@@ -52,7 +55,7 @@ public class RotationKeyframeAction implements GenericRotateAction {
 		for (final Map.Entry<IdObject, Quaternion> nodeAndLocalTranslation : nodeToLocalRotation.entrySet()) {
 			final IdObject node = nodeAndLocalTranslation.getKey();
 			final Quaternion localTranslation = nodeAndLocalTranslation.getValue();
-			node.updateLocalRotationKeyframe(trackTime, localTranslation);
+			node.updateLocalRotationKeyframe(trackTime, trackGlobalSeq, localTranslation);
 		}
 	}
 

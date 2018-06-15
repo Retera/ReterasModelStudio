@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
@@ -15,10 +16,114 @@ import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 public final class ModelUtils {
+	public static final class Mesh {
+		private final List<GeosetVertex> vertices;
+		private final List<Triangle> triangles;
+
+		private Mesh(final List<GeosetVertex> vertices, final List<Triangle> triangles) {
+			this.vertices = vertices;
+			this.triangles = triangles;
+		}
+
+		public List<GeosetVertex> getVertices() {
+			return vertices;
+		}
+
+		public List<Triangle> getTriangles() {
+			return triangles;
+		}
+
+	}
+
 	public static String getPortrait(final String filepath) {
 		final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
 				+ filepath.substring(filepath.lastIndexOf('.'), filepath.length());
 		return portrait;
+	}
+
+	public static Mesh createPlane(final byte planeDimension, final boolean outward, final double planeHeight,
+			final double minFirst, final double minSecond, final double maxFirst, final double maxSecond,
+			final int numberOfSegments) {
+		return createPlane(planeDimension, outward, planeHeight, minFirst, minSecond, maxFirst, maxSecond,
+				numberOfSegments, numberOfSegments);
+	}
+
+	public static Mesh createPlane(final byte planeDimension, final boolean outward, final double planeHeight,
+			final double minFirst, final double minSecond, final double maxFirst, final double maxSecond,
+			final int numberOfSegmentsX, final int numberOfSegmentsY) {
+		byte firstDimension, secondDimension;
+		switch (planeDimension) {
+		case 0:
+			firstDimension = (byte) 1;
+			secondDimension = (byte) 2;
+			break;
+		case 1:
+			firstDimension = (byte) 0;
+			secondDimension = (byte) 2;
+			break;
+		case 2:
+			firstDimension = (byte) 0;
+			secondDimension = (byte) 1;
+			break;
+		default:
+			throw new IllegalStateException();
+		}
+		boolean flipFacesForIterationDesignFlaw = false;
+		if (planeDimension == 1) {
+			flipFacesForIterationDesignFlaw = true;
+		}
+		final Vertex normal = new Vertex(0, 0, 0);
+		normal.setCoord(planeDimension, outward ? 1 : -1);
+		return createPlane(firstDimension, secondDimension, normal, planeHeight, minFirst, minSecond, maxFirst,
+				maxSecond, numberOfSegmentsX, numberOfSegmentsY);
+	}
+
+	public static Mesh createPlane(final byte firstDimension, final byte secondDimension, final Vertex facingVector,
+			final double planeHeight, final double minFirst, final double minSecond, final double maxFirst,
+			final double maxSecond, final int numberOfSegments) {
+		return createPlane(firstDimension, secondDimension, facingVector, planeHeight, minFirst, minSecond, maxFirst,
+				maxSecond, numberOfSegments, numberOfSegments);
+	}
+
+	public static Mesh createPlane(final byte firstDimension, final byte secondDimension, final Vertex facingVector,
+			final double planeHeight, final double minFirst, final double minSecond, final double maxFirst,
+			final double maxSecond, final int numberOfSegmentsX, final int numberOfSegmentsY) {
+		final byte planeDimension = CoordinateSystem.Util.getUnusedXYZ(firstDimension, secondDimension);
+		final List<GeosetVertex> vertices = new ArrayList<>();
+		final List<Triangle> triangles = new ArrayList<>();
+		final double firstDimensionSegmentWidth = (maxFirst - minFirst) / numberOfSegmentsX;
+		final double secondDimensionSegmentWidth = (maxSecond - minSecond) / numberOfSegmentsY;
+		GeosetVertex[] previousRow = null;
+		for (int y = 0; y < numberOfSegmentsY + 1; y++) {
+			final GeosetVertex[] currentRow = new GeosetVertex[numberOfSegmentsX + 1];
+			for (int x = 0; x < numberOfSegmentsX + 1; x++) {
+				final Normal normal = new Normal(facingVector.x, facingVector.y, facingVector.z);
+				final GeosetVertex vertex = new GeosetVertex(0, 0, 0, normal);
+				currentRow[x] = vertex;
+				vertex.setCoord(planeDimension, planeHeight);
+				vertex.setCoord(firstDimension, minFirst + x * firstDimensionSegmentWidth);
+				vertex.setCoord(secondDimension, minSecond + y * secondDimensionSegmentWidth);
+				vertices.add(vertex);
+				if (y > 0) {
+					if (x > 0) {
+						final GeosetVertex lowerLeft = previousRow[x - 1];
+						final GeosetVertex lowerRight = previousRow[x];
+						final GeosetVertex upperLeft = currentRow[x - 1];
+						final Triangle firstFace = new Triangle(vertex, upperLeft, lowerLeft);
+						triangles.add(firstFace);
+						final Triangle secondFace = new Triangle(vertex, lowerLeft, lowerRight);
+						triangles.add(secondFace);
+						final boolean flip = firstFace.getFacingVector().dotProduct(facingVector) < 0;
+						if (flip) {
+							firstFace.flip(false);
+							secondFace.flip(false);
+						}
+					}
+				}
+			}
+			previousRow = currentRow;
+		}
+		return new Mesh(vertices, triangles);
 	}
 
 	/**
@@ -26,34 +131,12 @@ public final class ModelUtils {
 	 * @param max
 	 * @param min
 	 */
-	public static void createBox(final MDL model, final Vertex max, final Vertex min) {
+	public static void createBox(final MDL model, final Vertex max, final Vertex min, final int segments) {
 		final Geoset geoset = new Geoset();
 		geoset.setMaterial(new Material(new Layer("None", new Bitmap("textures\\white.blp"))));
-		final GeosetVertex minMinMin = new GeosetVertex(min.x, min.y, min.z, new Normal(-1, -1, -1).normalize());
-		geoset.add(minMinMin);
-		final GeosetVertex minMinMax = new GeosetVertex(min.x, min.y, max.z, new Normal(-1, -1, 1).normalize());
-		geoset.add(minMinMax);
-		final GeosetVertex minMaxMin = new GeosetVertex(min.x, max.y, min.z, new Normal(-1, 1, -1).normalize());
-		geoset.add(minMaxMin);
-		final GeosetVertex minMaxMax = new GeosetVertex(min.x, max.y, max.z, new Normal(-1, 1, 1).normalize());
-		geoset.add(minMaxMax);
-		final GeosetVertex maxMinMin = new GeosetVertex(max.x, min.y, min.z, new Normal(1, -1, -1).normalize());
-		geoset.add(maxMinMin);
-		final GeosetVertex maxMinMax = new GeosetVertex(max.x, min.y, max.z, new Normal(1, -1, 1).normalize());
-		geoset.add(maxMinMax);
-		final GeosetVertex maxMaxMin = new GeosetVertex(max.x, max.y, min.z, new Normal(1, 1, -1).normalize());
-		geoset.add(maxMaxMin);
-		final GeosetVertex maxMaxMax = new GeosetVertex(max.x, max.y, max.z, new Normal(1, 1, 1).normalize());
-		geoset.add(maxMaxMax);
-		for (final GeosetVertex vertex : geoset.getVertices()) {
-			vertex.addTVertex(new TVertex(0, 0));
-			vertex.setGeoset(geoset);
-		}
 
-		final List<GeosetVertex> verticesOnSide = new ArrayList<>();
 		for (byte side = (byte) 0; side < 2; side++) {
 			for (byte dimension = (byte) 0; dimension < 3; dimension++) {
-				verticesOnSide.clear();
 				Vertex sideMaxima;
 				switch (side) {
 				case 0:
@@ -67,37 +150,155 @@ public final class ModelUtils {
 				}
 				final double coordinateAtSide = sideMaxima.getCoord(dimension);
 
-				GeosetVertex farthestFromFirstPoint = null;
-				GeosetVertex firstPoint = null;
-				double farthestDistanceFromFirst = Double.MIN_VALUE;
-				for (final GeosetVertex vertex : geoset.getVertices()) {
-					if (vertex.getCoord(dimension) == coordinateAtSide) {
-						verticesOnSide.add(vertex);
-						if (firstPoint == null) {
-							firstPoint = vertex;
-						} else {
-							final double distance = vertex.distance(firstPoint);
-							if (farthestFromFirstPoint == null || distance > farthestDistanceFromFirst) {
-								farthestDistanceFromFirst = distance;
-								farthestFromFirstPoint = vertex;
-							}
-						}
-					}
+				byte firstDimension, secondDimension;
+				switch (dimension) {
+				case 0:
+					firstDimension = (byte) 1;
+					secondDimension = (byte) 2;
+					break;
+				case 1:
+					firstDimension = (byte) 0;
+					secondDimension = (byte) 2;
+					break;
+				case 2:
+					firstDimension = (byte) 0;
+					secondDimension = (byte) 1;
+					break;
+				default:
+					throw new IllegalStateException();
 				}
-				if (farthestFromFirstPoint == verticesOnSide.get(1)) {
-					geoset.add(new Triangle(verticesOnSide.get(0), verticesOnSide.get(2), farthestFromFirstPoint));
-					geoset.add(new Triangle(verticesOnSide.get(0), farthestFromFirstPoint, verticesOnSide.get(3)));
-				} else if (farthestFromFirstPoint == verticesOnSide.get(2)) {
-					geoset.add(new Triangle(verticesOnSide.get(0), verticesOnSide.get(1), farthestFromFirstPoint));
-					geoset.add(new Triangle(verticesOnSide.get(0), farthestFromFirstPoint, verticesOnSide.get(3)));
-				} else {
-					geoset.add(new Triangle(verticesOnSide.get(0), verticesOnSide.get(1), farthestFromFirstPoint));
-					geoset.add(new Triangle(verticesOnSide.get(0), farthestFromFirstPoint, verticesOnSide.get(2)));
+				final double minFirst = min.getCoord(firstDimension);
+				final double minSecond = min.getCoord(secondDimension);
+				final double maxFirst = max.getCoord(firstDimension);
+				final double maxSecond = max.getCoord(secondDimension);
+
+				final Mesh sidedPlane = createPlane(dimension, side == 1, coordinateAtSide, minFirst, minSecond,
+						maxFirst, maxSecond, segments);
+				for (final GeosetVertex vertex : sidedPlane.vertices) {
+					geoset.add(vertex);
+				}
+				for (final Triangle triangle : sidedPlane.triangles) {
+					geoset.add(triangle);
 				}
 			}
 		}
+		for (final GeosetVertex vertex : geoset.getVertices()) {
+			vertex.addTVertex(new TVertex(0, 0));
+			vertex.setGeoset(geoset);
+		}
 		for (final Triangle triangle : geoset.getTriangles()) {
 			triangle.setGeoset(geoset);
+			for (final GeosetVertex vertex : triangle.getVerts()) {
+				vertex.getTriangles().add(triangle);
+			}
+		}
+		model.add(geoset);
+	}
+
+	/**
+	 * Creates a box ready to add to the dataGeoset, but does not actually modify the geoset itself
+	 *
+	 * @param max
+	 * @param min
+	 * @param segments
+	 * @param dataGeoset
+	 * @return
+	 */
+	public static Mesh createBox(final Vertex max, final Vertex min, final int lengthSegs, final int widthSegs,
+			final int heightSegs, final Geoset dataGeoset) {
+		final Mesh box = new Mesh(new ArrayList<>(), new ArrayList<>());
+		for (byte side = (byte) 0; side < 2; side++) {
+			for (byte dimension = (byte) 0; dimension < 3; dimension++) {
+				Vertex sideMaxima;
+				switch (side) {
+				case 0:
+					sideMaxima = min;
+					break;
+				case 1:
+					sideMaxima = max;
+					break;
+				default:
+					throw new IllegalStateException();
+				}
+				final double coordinateAtSide = sideMaxima.getCoord(dimension);
+
+				int segsX, segsY;
+				byte firstDimension, secondDimension;
+				switch (dimension) {
+				case 0:
+					firstDimension = (byte) 1;
+					secondDimension = (byte) 2;
+					segsX = widthSegs;
+					segsY = heightSegs;
+					break;
+				case 1:
+					firstDimension = (byte) 0;
+					secondDimension = (byte) 2;
+					segsX = lengthSegs;
+					segsY = heightSegs;
+					break;
+				case 2:
+					firstDimension = (byte) 0;
+					secondDimension = (byte) 1;
+					segsX = lengthSegs;
+					segsY = widthSegs;
+					break;
+				default:
+					throw new IllegalStateException();
+				}
+				final double minFirst = min.getCoord(firstDimension);
+				final double minSecond = min.getCoord(secondDimension);
+				final double maxFirst = max.getCoord(firstDimension);
+				final double maxSecond = max.getCoord(secondDimension);
+
+				final Mesh sidedPlane = createPlane(dimension, side != 1, coordinateAtSide, minFirst, minSecond,
+						maxFirst, maxSecond, segsX, segsY);
+				for (final GeosetVertex vertex : sidedPlane.vertices) {
+					box.vertices.add(vertex);
+				}
+				for (final Triangle triangle : sidedPlane.triangles) {
+					box.triangles.add(triangle);
+				}
+			}
+		}
+		for (final GeosetVertex vertex : box.getVertices()) {
+			vertex.addTVertex(new TVertex(0, 0));
+			vertex.setGeoset(dataGeoset);
+		}
+		for (final Triangle triangle : box.getTriangles()) {
+			triangle.setGeoset(dataGeoset);
+			for (final GeosetVertex vertex : triangle.getVerts()) {
+				vertex.getTriangles().add(triangle);
+			}
+		}
+		return box;
+	}
+
+	/**
+	 * @param model
+	 * @param max
+	 * @param min
+	 */
+	public static void createGroundPlane(final MDL model, final Vertex max, final Vertex min, final int segments) {
+		final Geoset geoset = new Geoset();
+		geoset.setMaterial(new Material(new Layer("None", new Bitmap("textures\\white.blp"))));
+
+		final Mesh sidedPlane = createPlane((byte) 2, true, 0, min.x, min.y, max.x, max.y, segments);
+		for (final GeosetVertex vertex : sidedPlane.vertices) {
+			geoset.add(vertex);
+		}
+		for (final Triangle triangle : sidedPlane.triangles) {
+			geoset.add(triangle);
+		}
+		for (final GeosetVertex vertex : geoset.getVertices()) {
+			vertex.addTVertex(new TVertex(0, 0));
+			vertex.setGeoset(geoset);
+		}
+		for (final Triangle triangle : geoset.getTriangles()) {
+			triangle.setGeoset(geoset);
+			for (final GeosetVertex vertex : triangle.getVerts()) {
+				vertex.getTriangles().add(triangle);
+			}
 		}
 		model.add(geoset);
 	}

@@ -143,6 +143,10 @@ public final class RenderNode {
 
 	public void updateChildren() {
 		for (final IdObject childNode : idObject.getChildrenNodes()) {
+			if (model.getRenderNode(childNode) == null) {
+				throw new NullPointerException("Cannot find child \"" + childNode.getName() + ":"
+						+ childNode.getObjectId() + "\" of \"" + idObject.getName() + "\"");
+			}
 			model.getRenderNode(childNode).update();
 		}
 	}

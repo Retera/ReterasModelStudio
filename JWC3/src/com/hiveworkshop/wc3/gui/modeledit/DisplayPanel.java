@@ -38,17 +38,20 @@ public class DisplayPanel extends JPanel implements ActionListener {
 	private final ModelEditorChangeNotifier modelEditorChangeNotifier;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final View view;
+	private final ViewportListener viewportListener;
 
 	public DisplayPanel(final String title, final byte a, final byte b, final ModelView modelView,
 			final ModelEditor modelEditor, final ModelStructureChangeListener modelStructureChangeListener,
 			final ViewportActivity activityListener, final ProgramPreferences preferences,
 			final UndoActionListener undoListener, final CoordDisplayListener coordDisplayListener,
 			final UndoHandler undoHandler, final ModelEditorChangeNotifier modelEditorChangeNotifier,
-			final ViewportTransferHandler viewportTransferHandler, final RenderModel renderModel) {
+			final ViewportTransferHandler viewportTransferHandler, final RenderModel renderModel,
+			final ViewportListener viewportListener) {
 		super();
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		this.activityListener = activityListener;
 		this.modelEditorChangeNotifier = modelEditorChangeNotifier;
+		this.viewportListener = viewportListener;
 		// setBorder(BorderFactory.createTitledBorder(title));// BorderFactory.createCompoundBorder(
 		// BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title),BorderFactory.createBevelBorder(1)),BorderFactory.createEmptyBorder(1,1,1,1)
 		// ));
@@ -144,7 +147,8 @@ public class DisplayPanel extends JPanel implements ActionListener {
 			final ModelEditor modelEditor, final ViewportTransferHandler viewportTransferHandler,
 			final RenderModel renderModel) {
 		vp = new Viewport(a, b, modelView, programPreferences, activityListener, modelStructureChangeListener,
-				undoListener, coordDisplayListener, undoHandler, modelEditor, viewportTransferHandler, renderModel);
+				undoListener, coordDisplayListener, undoHandler, modelEditor, viewportTransferHandler, renderModel,
+				viewportListener);
 		modelEditorChangeNotifier.subscribe(vp);
 		add(vp);
 	}

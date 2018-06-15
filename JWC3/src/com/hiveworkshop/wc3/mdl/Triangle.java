@@ -290,8 +290,7 @@ public class Triangle {
 	}
 
 	/**
-	 * Flips the triangle's orientation, and optionally the normal vectors for
-	 * all the triangle's components.
+	 * Flips the triangle's orientation, and optionally the normal vectors for all the triangle's components.
 	 */
 	public void flip(final boolean flipNormals) {
 		GeosetVertex tempVert;
@@ -335,5 +334,12 @@ public class Triangle {
 
 	public void setVertIds(final int[] vertIds) {
 		this.vertIds = vertIds;
+	}
+
+	public Vertex getFacingVector() {
+		// NOTE does allocation
+		final Vertex firstEdge = verts[0].delta(verts[1]);
+		final Vertex secondEdge = verts[1].delta(verts[2]);
+		return firstEdge.crossProduct(secondEdge);
 	}
 }

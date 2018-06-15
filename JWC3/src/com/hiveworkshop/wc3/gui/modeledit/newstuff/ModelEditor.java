@@ -33,6 +33,8 @@ public interface ModelEditor {
 
 	UndoAction addTeamColor();
 
+	UndoAction splitGeoset();
+
 	// should move to a Util at a later date, if it does not require internal
 	// knowledge of center point from state holders
 	UndoAction translate(double x, double y, double z);
@@ -40,6 +42,14 @@ public interface ModelEditor {
 	UndoAction setPosition(Vertex center, double x, double y, double z);
 
 	UndoAction rotate(Vertex center, double rotateX, double rotateY, double rotateZ);
+
+	UndoAction addVertex(double x, double y, double z, Vertex preferredNormalFacingVector);
+
+	GenericMoveAction addPlane(double x, double y, double x2, double y2, byte dim1, byte dim2, Vertex facingVector,
+			int numberOfWidthSegments, int numberOfHeightSegments);
+
+	GenericMoveAction addBox(double x, double y, double x2, double y2, byte dim1, byte dim2, Vertex facingVector,
+			int numberOfLengthSegments, int numberOfWidthSegments, int numberOfHeightSegments);
 
 	UndoAction setMatrix(Collection<Bone> bones);
 
@@ -94,6 +104,8 @@ public interface ModelEditor {
 
 	GenericRotateAction beginRotation(double centerX, double centerY, double centerZ, byte firstXYZ, byte secondXYZ);
 
+	GenericRotateAction beginSquatTool(double centerX, double centerY, double centerZ, byte firstXYZ, byte secondXYZ);
+
 	void rawTranslate(double x, double y, double z);
 
 	void rawScale(double centerX, double centerY, double centerZ, double scaleX, double scaleY, double scaleZ);
@@ -109,4 +121,6 @@ public interface ModelEditor {
 	// true if we conceptually are editing/operating on top of an animated model, instead of a static one
 	// -- this is *definitely* a bit of a hack
 	boolean editorWantsAnimation();
+
+	UndoAction createFaceFromSelection(Vertex preferredFacingVector);
 }

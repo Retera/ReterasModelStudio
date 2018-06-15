@@ -5,6 +5,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,20 +13,32 @@ import java.util.Set;
 import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
+import com.hiveworkshop.wc3.gui.modeledit.FaceCreationException;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.SplitGeosetAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.TeamColorAddAction;
+import com.hiveworkshop.wc3.gui.modeledit.creator.actions.DrawVertexAction;
+import com.hiveworkshop.wc3.gui.modeledit.creator.actions.NewGeosetAction;
 import com.hiveworkshop.wc3.gui.modeledit.cutpaste.CopiedModelData;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.AddTriangleAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponentVisitor;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.IdObject;
+import com.hiveworkshop.wc3.mdl.Layer;
+import com.hiveworkshop.wc3.mdl.Layer.FilterMode;
+import com.hiveworkshop.wc3.mdl.Material;
+import com.hiveworkshop.wc3.mdl.Normal;
+import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
@@ -52,8 +65,18 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 
 	@Override
 	public UndoAction addTeamColor() {
-		final TeamColorAddAction teamColorAddAction = new TeamColorAddAction(selectionManager.getSelectedFaces(),
-				model.getModel(), structureChangeListener, selectionManager);
+		final TeamColorAddAction<GeosetVertex> teamColorAddAction = new TeamColorAddAction<>(
+				selectionManager.getSelectedFaces(), model.getModel(), structureChangeListener, selectionManager,
+				vertexSelectionHelper);
+		teamColorAddAction.redo();
+		return teamColorAddAction;
+	}
+
+	@Override
+	public UndoAction splitGeoset() {
+		final SplitGeosetAction<GeosetVertex> teamColorAddAction = new SplitGeosetAction<>(
+				selectionManager.getSelectedFaces(), model.getModel(), structureChangeListener, selectionManager,
+				vertexSelectionHelper);
 		teamColorAddAction.redo();
 		return teamColorAddAction;
 	}
@@ -273,5 +296,80 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 			}
 		}
 		return new CopiedModelData(copiedGeosets, new ArrayList<IdObject>(), new ArrayList<Camera>());
+	}
+
+	@Override
+	public UndoAction addVertex(final double x, final double y, final double z,
+			final Vertex preferredNormalFacingVector) {
+		final ArrayList<Geoset> geosets = model.getModel().getGeosets();
+		Geoset solidWhiteGeoset = null;
+		for (final Geoset geoset : geosets) {
+			final Layer firstLayer = geoset.getMaterial().firstLayer();
+			if (geoset.getMaterial() != null && firstLayer != null && firstLayer.getFilterMode() == FilterMode.NONE
+					&& "Textures\\white.blp".equalsIgnoreCase(firstLayer.getTextureBitmap().getPath())) {
+				solidWhiteGeoset = geoset;
+			}
+		}
+		boolean needsGeosetAction = false;
+		if (solidWhiteGeoset == null) {
+			solidWhiteGeoset = new Geoset();
+			solidWhiteGeoset.setMaterial(new Material(new Layer("None", new Bitmap("Textures\\white.blp"))));
+			needsGeosetAction = true;
+		}
+		final GeosetVertex geosetVertex = new GeosetVertex(x, y, z, new Normal(preferredNormalFacingVector.x,
+				preferredNormalFacingVector.y, preferredNormalFacingVector.z));
+		geosetVertex.setGeoset(solidWhiteGeoset);
+		geosetVertex.addTVertex(new TVertex(0, 0));
+		UndoAction action;
+		final DrawVertexAction drawVertexAction = new DrawVertexAction(geosetVertex);
+		if (needsGeosetAction) {
+			final NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, model.getModel(),
+					structureChangeListener);
+			action = new CompoundAction("add vertex", ListView.Util.of(newGeosetAction, drawVertexAction));
+		} else {
+			action = drawVertexAction;
+		}
+		action.redo();
+		return action;
+	}
+
+	@Override
+	public UndoAction createFaceFromSelection(final Vertex preferredFacingVector) {
+		final Set<GeosetVertex> selection = selectionManager.getSelection();
+		if (selection.size() != 3) {
+			throw new FaceCreationException(
+					"A face can only be created from exactly 3 vertices (you have " + selection.size() + " selected)");
+		}
+		int index = 0;
+		final GeosetVertex[] verticesArray = new GeosetVertex[3];
+		Geoset geoset = null;
+		for (final GeosetVertex vertex : selection) {
+			verticesArray[index++] = vertex;
+			if (geoset == null) {
+				geoset = vertex.getGeoset();
+			} else if (geoset != vertex.getGeoset()) {
+				throw new FaceCreationException(
+						"All three vertices to create a face must be a part of the same Geoset");
+			}
+		}
+		for (final Triangle existingTriangle : verticesArray[0].getTriangles()) {
+			if (existingTriangle.contains(verticesArray[0]) && existingTriangle.contains(verticesArray[1])
+					&& existingTriangle.contains(verticesArray[2])) {
+				throw new FaceCreationException("Triangle already exists");
+			}
+		}
+
+		final Triangle newTriangle = new Triangle(verticesArray[0], verticesArray[1], verticesArray[2], geoset);
+		final Vertex facingVector = newTriangle.getFacingVector();
+		final double cosine = facingVector.dotProduct(preferredFacingVector)
+				/ (facingVector.vectorMagnitude() * preferredFacingVector.vectorMagnitude());
+		if (cosine < 0) {
+			newTriangle.flip(false);
+		}
+
+		final AddTriangleAction addTriangleAction = new AddTriangleAction(geoset,
+				Collections.singletonList(newTriangle));
+		addTriangleAction.redo();
+		return addTriangleAction;
 	}
 }

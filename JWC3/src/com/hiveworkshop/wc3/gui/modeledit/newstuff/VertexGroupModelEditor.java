@@ -11,9 +11,12 @@ import java.util.Set;
 
 import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
+import com.hiveworkshop.wc3.gui.animedit.WrongModeException;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.SplitGeosetAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.TeamColorAddAction;
 import com.hiveworkshop.wc3.gui.modeledit.cutpaste.CopiedModelData;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
@@ -105,7 +108,20 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 
 	@Override
 	public UndoAction addTeamColor() {
-		throw new UnsupportedOperationException("This feature is not coded yet, at least not correctly");
+		final TeamColorAddAction<VertexGroupBundle> teamColorAddAction = new TeamColorAddAction<>(
+				selectionManager.getSelectedFaces(), model.getModel(), structureChangeListener, selectionManager,
+				vertexSelectionHelper);
+		teamColorAddAction.redo();
+		return teamColorAddAction;
+	}
+
+	@Override
+	public UndoAction splitGeoset() {
+		final SplitGeosetAction<VertexGroupBundle> teamColorAddAction = new SplitGeosetAction<>(
+				selectionManager.getSelectedFaces(), model.getModel(), structureChangeListener, selectionManager,
+				vertexSelectionHelper);
+		teamColorAddAction.redo();
+		return teamColorAddAction;
 	}
 
 	@Override
@@ -302,5 +318,16 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 			}
 		}
 		return new CopiedModelData(copiedGeosets, new ArrayList<IdObject>(), new ArrayList<Camera>());
+	}
+
+	@Override
+	public UndoAction createFaceFromSelection(final Vertex preferredFacingVector) {
+		throw new WrongModeException("Unable to create face from vertices in vertex group selection mode");
+	}
+
+	@Override
+	public UndoAction addVertex(final double x, final double y, final double z,
+			final Vertex preferredNormalFacingVector) {
+		throw new WrongModeException("Unable to draw vertices in vertex group selection mode");
 	}
 }

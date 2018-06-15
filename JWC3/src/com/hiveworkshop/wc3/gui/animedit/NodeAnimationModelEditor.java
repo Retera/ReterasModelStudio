@@ -27,6 +27,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.animation.AddKeyframe
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.animation.AddTimelineAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.animation.RotationKeyframeAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.animation.ScalingKeyframeAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.animation.SquatToolKeyframeAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.animation.TranslationKeyframeAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.StaticMeshMoveAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
@@ -557,6 +558,19 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	@Override
+	public UndoAction addVertex(final double x, final double y, final double z,
+			final Vertex preferredNormalFacingVector) {
+		throw new WrongModeException("Unable to add vertices in Animation Editor");
+	}
+
+	@Override
+	public GenericMoveAction addPlane(final double x, final double y, final double x2, final double y2, final byte dim1,
+			final byte dim2, final Vertex facingVector, final int numberOfWidthSegments,
+			final int numberOfHeightSegments) {
+		throw new WrongModeException("Unable to add plane in Animation Editor");
+	}
+
+	@Override
 	public void rawScale(final double centerX, final double centerY, final double centerZ, final double scaleX,
 			final double scaleY, final double scaleZ) {
 		throw new UnsupportedOperationException("Unable to scale directly in animation mode, use other system");
@@ -571,9 +585,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	public void rawTranslate(final double x, final double y, final double z) {
-		for (final IdObject idObject : selectionManager.getSelection()) {
-			idObject.addOrUpdateTranslationKeyframe(renderModel, x, y, z);
-		}
+		throw new UnsupportedOperationException("Unable to translate directly in animation mode, use other system");
 	}
 
 	public void rawTranslate(final double x, final double y, final double z,
@@ -594,6 +606,23 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		for (final IdObject idObject : selectionManager.getSelection()) {
 			idObject.updateRotationKeyframe(renderModel, centerX, centerY, centerZ, radians, firstXYZ, secondXYZ,
 					nodeToLocalRotation.get(idObject));
+		}
+	}
+
+	public void rawSquatToolRotate2d(final double centerX, final double centerY, final double centerZ,
+			final double radians, final byte firstXYZ, final byte secondXYZ,
+			final Map<IdObject, Quaternion> nodeToLocalRotation) {
+		for (final IdObject idObject : selectionManager.getSelection()) {
+			idObject.updateRotationKeyframe(renderModel, centerX, centerY, centerZ, radians, firstXYZ, secondXYZ,
+					nodeToLocalRotation.get(idObject));
+		}
+		for (final IdObject idObject : model.getModel().getIdObjects()) {
+			if (selectionManager.getSelection().contains(idObject.getParent()) && ((idObject.getClass() == Bone.class
+					&& idObject.getParent().getClass() == Bone.class)
+					|| (idObject.getClass() == Helper.class && idObject.getParent().getClass() == Helper.class))) {
+				idObject.updateRotationKeyframe(renderModel, centerX, centerY, centerZ, -radians, firstXYZ, secondXYZ,
+						nodeToLocalRotation.get(idObject));
+			}
 		}
 	}
 
@@ -643,10 +672,16 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	public GenericMoveAction beginTranslation() {
 		final Set<IdObject> selection = selectionManager.getSelection();
 		final com.etheller.collections.List<UndoAction> actions = new com.etheller.collections.ArrayList<>();
+		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from
+		// a TimeEnvironmentImpl render environment, and never from the anim previewer impl
+		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
+				.getAnimatedRenderEnvironment();
 		for (final IdObject node : selection) {
-			AnimFlag translationTimeline = AnimFlag.find(node.getAnimFlags(), "Translation");
+			AnimFlag translationTimeline = AnimFlag.find(node.getAnimFlags(), "Translation",
+					timeEnvironmentImpl.getGlobalSeq());
 			if (translationTimeline == null) {
-				translationTimeline = AnimFlag.createEmpty2018("Translation", InterpolationType.HERMITE);
+				translationTimeline = AnimFlag.createEmpty2018("Translation", InterpolationType.HERMITE,
+						timeEnvironmentImpl.getGlobalSeq());
 				node.add(translationTimeline);
 				final AddTimelineAction addTimelineAction = new AddTimelineAction(node, translationTimeline,
 						structureChangeListener);
@@ -660,10 +695,12 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 			}
 		}
 
-		return new TranslationKeyframeAction(new CompoundAction("setup", actions),
-				renderModel.getAnimatedRenderEnvironment().getAnimationTime()
-						+ renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart(),
-				selection, this);
+		final int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime()
+				+ renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
+		final int trackTimeToUse = timeEnvironmentImpl.getGlobalSeq() == null ? trackTime
+				: timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
+		return new TranslationKeyframeAction(new CompoundAction("setup", actions), trackTimeToUse,
+				timeEnvironmentImpl.getGlobalSeq(), selection, this);
 	}
 
 	@Override
@@ -671,10 +708,14 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 			final byte firstXYZ, final byte secondXYZ) {
 		final Set<IdObject> selection = selectionManager.getSelection();
 		final com.etheller.collections.List<UndoAction> actions = new com.etheller.collections.ArrayList<>();
+		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
+				.getAnimatedRenderEnvironment();
 		for (final IdObject node : selection) {
-			AnimFlag translationTimeline = AnimFlag.find(node.getAnimFlags(), "Rotation");
+			AnimFlag translationTimeline = AnimFlag.find(node.getAnimFlags(), "Rotation",
+					timeEnvironmentImpl.getGlobalSeq());
 			if (translationTimeline == null) {
-				translationTimeline = AnimFlag.createEmpty2018("Rotation", InterpolationType.HERMITE);
+				translationTimeline = AnimFlag.createEmpty2018("Rotation", InterpolationType.HERMITE,
+						timeEnvironmentImpl.getGlobalSeq());
 				node.add(translationTimeline);
 				final AddTimelineAction addTimelineAction = new AddTimelineAction(node, translationTimeline,
 						structureChangeListener);
@@ -688,20 +729,26 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 			}
 		}
 
-		return new RotationKeyframeAction(new CompoundAction("setup", actions),
-				renderModel.getAnimatedRenderEnvironment().getAnimationTime()
-						+ renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart(),
-				selection, this, centerX, centerY, centerZ, firstXYZ, secondXYZ);
+		final int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime()
+				+ renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
+		final int trackTimeToUse = timeEnvironmentImpl.getGlobalSeq() == null ? trackTime
+				: timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
+		return new RotationKeyframeAction(new CompoundAction("setup", actions), trackTimeToUse,
+				timeEnvironmentImpl.getGlobalSeq(), selection, this, centerX, centerY, centerZ, firstXYZ, secondXYZ);
 	}
 
 	@Override
 	public GenericScaleAction beginScaling(final double centerX, final double centerY, final double centerZ) {
 		final Set<IdObject> selection = selectionManager.getSelection();
 		final com.etheller.collections.List<UndoAction> actions = new com.etheller.collections.ArrayList<>();
+		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
+				.getAnimatedRenderEnvironment();
 		for (final IdObject node : selection) {
-			AnimFlag translationTimeline = AnimFlag.find(node.getAnimFlags(), "Scaling");
+			AnimFlag translationTimeline = AnimFlag.find(node.getAnimFlags(), "Scaling",
+					timeEnvironmentImpl.getGlobalSeq());
 			if (translationTimeline == null) {
-				translationTimeline = AnimFlag.createEmpty2018("Scaling", InterpolationType.HERMITE);
+				translationTimeline = AnimFlag.createEmpty2018("Scaling", InterpolationType.HERMITE,
+						timeEnvironmentImpl.getGlobalSeq());
 				node.add(translationTimeline);
 				final AddTimelineAction addTimelineAction = new AddTimelineAction(node, translationTimeline,
 						structureChangeListener);
@@ -715,10 +762,12 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 			}
 		}
 
-		return new ScalingKeyframeAction(new CompoundAction("setup", actions),
-				renderModel.getAnimatedRenderEnvironment().getAnimationTime()
-						+ renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart(),
-				selection, this, centerX, centerY, centerZ);
+		final int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime()
+				+ renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
+		final int trackTimeToUse = timeEnvironmentImpl.getGlobalSeq() == null ? trackTime
+				: timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
+		return new ScalingKeyframeAction(new CompoundAction("setup", actions), trackTimeToUse,
+				timeEnvironmentImpl.getGlobalSeq(), selection, this, centerX, centerY, centerZ);
 	}
 
 	@Override
@@ -740,9 +789,13 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		final Set<IdObject> selection = selectionManager.getSelection();
 		final com.etheller.collections.List<UndoAction> actions = new com.etheller.collections.ArrayList<>();
 		for (final IdObject node : selection) {
-			AnimFlag translationTimeline = AnimFlag.find(node.getAnimFlags(), keyframeMdlTypeName);
+			final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
+					.getAnimatedRenderEnvironment();
+			AnimFlag translationTimeline = AnimFlag.find(node.getAnimFlags(), keyframeMdlTypeName,
+					timeEnvironmentImpl.getGlobalSeq());
 			if (translationTimeline == null) {
-				translationTimeline = AnimFlag.createEmpty2018(keyframeMdlTypeName, InterpolationType.HERMITE);
+				translationTimeline = AnimFlag.createEmpty2018(keyframeMdlTypeName, InterpolationType.HERMITE,
+						timeEnvironmentImpl.getGlobalSeq());
 				node.add(translationTimeline);
 				final AddTimelineAction addTimelineAction = new AddTimelineAction(node, translationTimeline,
 						structureChangeListener);
@@ -770,6 +823,64 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		}
 
 		return new CompoundAction("create keyframe", actions);
+	}
+
+	@Override
+	public UndoAction createFaceFromSelection(final Vertex preferredFacingVector) {
+		throw new WrongModeException("Unable to create face in animation editor");
+	}
+
+	@Override
+	public GenericMoveAction addBox(final double x, final double y, final double x2, final double y2, final byte dim1,
+			final byte dim2, final Vertex facingVector, final int numberOfLengthSegments,
+			final int numberOfWidthSegments, final int numberOfHeightSegments) {
+		throw new WrongModeException("Unable to create box in animation editor");
+	}
+
+	@Override
+	public UndoAction splitGeoset() {
+		throw new WrongModeException("Unable to split geoset in animation editor");
+	}
+
+	@Override
+	public GenericRotateAction beginSquatTool(final double centerX, final double centerY, final double centerZ,
+			final byte firstXYZ, final byte secondXYZ) {
+		final Set<IdObject> selection = new HashSet<>(selectionManager.getSelection());
+		for (final IdObject idObject : model.getModel().getIdObjects()) {
+			if (selectionManager.getSelection().contains(idObject.getParent()) && ((idObject.getClass() == Bone.class
+					&& idObject.getParent().getClass() == Bone.class)
+					|| (idObject.getClass() == Helper.class && idObject.getParent().getClass() == Helper.class))) {
+				selection.add(idObject);
+			}
+		}
+		final com.etheller.collections.List<UndoAction> actions = new com.etheller.collections.ArrayList<>();
+		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
+				.getAnimatedRenderEnvironment();
+		for (final IdObject node : selection) {
+			AnimFlag translationTimeline = AnimFlag.find(node.getAnimFlags(), "Rotation",
+					timeEnvironmentImpl.getGlobalSeq());
+			if (translationTimeline == null) {
+				translationTimeline = AnimFlag.createEmpty2018("Rotation", InterpolationType.HERMITE,
+						timeEnvironmentImpl.getGlobalSeq());
+				node.add(translationTimeline);
+				final AddTimelineAction addTimelineAction = new AddTimelineAction(node, translationTimeline,
+						structureChangeListener);
+				structureChangeListener.timelineAdded(node, translationTimeline);
+				actions.add(addTimelineAction);
+			}
+			final AddKeyframeAction keyframeAction = node.createRotationKeyframe(renderModel, translationTimeline,
+					structureChangeListener);
+			if (keyframeAction != null) {
+				actions.add(keyframeAction);
+			}
+		}
+
+		final int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime()
+				+ renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
+		final int trackTimeToUse = timeEnvironmentImpl.getGlobalSeq() == null ? trackTime
+				: timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
+		return new SquatToolKeyframeAction(new CompoundAction("setup", actions), trackTimeToUse,
+				timeEnvironmentImpl.getGlobalSeq(), selection, this, centerX, centerY, centerZ, firstXYZ, secondXYZ);
 	}
 
 }

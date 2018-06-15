@@ -1,5 +1,6 @@
 package com.hiveworkshop.wc3.gui.modeledit;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -9,8 +10,10 @@ import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -31,6 +34,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSpinner;
+import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.Timer;
 import javax.swing.TransferHandler;
@@ -47,10 +51,27 @@ import com.hiveworkshop.wc3.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ModelEditorChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.AnimatedViewportModelRenderer;
+import com.hiveworkshop.wc3.gui.modeledit.viewport.NodeIconPalette;
+import com.hiveworkshop.wc3.gui.modeledit.viewport.ResettableAnimatedIdObjectParentLinkRenderer;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportModelRenderer;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportView;
+import com.hiveworkshop.wc3.mdl.Attachment;
+import com.hiveworkshop.wc3.mdl.Bone;
+import com.hiveworkshop.wc3.mdl.Camera;
+import com.hiveworkshop.wc3.mdl.CollisionShape;
+import com.hiveworkshop.wc3.mdl.EventObject;
+import com.hiveworkshop.wc3.mdl.GeosetAnim;
+import com.hiveworkshop.wc3.mdl.Helper;
+import com.hiveworkshop.wc3.mdl.Light;
+import com.hiveworkshop.wc3.mdl.ParticleEmitter;
+import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
 import com.hiveworkshop.wc3.mdl.RenderModel;
+import com.hiveworkshop.wc3.mdl.RibbonEmitter;
+import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.mdl.v2.MaterialView;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import com.hiveworkshop.wc3.mdl.v2.visitor.GeosetVisitor;
+import com.hiveworkshop.wc3.mdl.v2.visitor.ModelVisitor;
 
 public class Viewport extends JPanel implements MouseListener, ActionListener, MouseWheelListener, CoordinateSystem,
 		ViewportView, MouseMotionListener, ModelEditorChangeListener {
@@ -72,9 +93,11 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	JMenuItem manualRotate;
 	JMenuItem manualSet;
 	JMenuItem addTeamColor;
+	JMenuItem splitGeo;
 
 	private final ViewportModelRenderer viewportModelRenderer;
 	private final AnimatedViewportModelRenderer animatedViewportModelRenderer;
+	private final ResettableAnimatedIdObjectParentLinkRenderer linkRenderer;
 	private final ViewportActivity activityListener;
 	private final CursorManager cursorManager;
 	private final UndoActionListener undoListener;
@@ -86,13 +109,17 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private Point lastMouseMotion = new Point(0, 0);
 	private final RenderModel renderModel;
+	private final ModelVisitorImplementation linkRenderingVisitorAdapter;
+	private final JMenuItem createFace;
+	private final Vertex facingVector;
+	private final ViewportListener viewportListener;
 
 	public Viewport(final byte d1, final byte d2, final ModelView modelView,
 			final ProgramPreferences programPreferences, final ViewportActivity activityListener,
 			final ModelStructureChangeListener modelStructureChangeListener, final UndoActionListener undoListener,
 			final CoordDisplayListener coordDisplayListener, final UndoHandler undoHandler,
 			final ModelEditor modelEditor, final ViewportTransferHandler viewportTransferHandler,
-			final RenderModel renderModel) {
+			final RenderModel renderModel, final ViewportListener viewportListener) {
 		// Dimension 1 and Dimension 2, these specify which dimensions to
 		// display.
 		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z
@@ -109,6 +136,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		this.coordDisplayListener = coordDisplayListener;
 		this.undoHandler = undoHandler;
 		this.renderModel = renderModel;
+		this.viewportListener = viewportListener;
 		this.cursorManager = new CursorManager() {
 			@Override
 			public void setCursor(final Cursor cursor) {
@@ -134,12 +162,17 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		addMouseMotionListener(this);
 
 		contextMenu = new JPopupMenu();
-		reAssignMatrix = new JMenuItem("Re-assign Matrix");
-		reAssignMatrix.addActionListener(this);
-		contextMenu.add(reAssignMatrix);
-		cogBone = new JMenuItem("Auto-Center Bone(s)");
-		cogBone.addActionListener(this);
-		contextMenu.add(cogBone);
+		createFace = new JMenuItem("Create Face");
+		createFace.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
+		createFace.addActionListener(this);
+		contextMenu.add(createFace);
+		addTeamColor = new JMenuItem("Split Geoset and Add Team Color");
+		addTeamColor.addActionListener(this);
+		contextMenu.add(addTeamColor);
+		splitGeo = new JMenuItem("Split Geoset");
+		splitGeo.addActionListener(this);
+		contextMenu.add(splitGeo);
+		contextMenu.addSeparator();
 		manualMove = new JMenuItem("Translation Type-in");
 		manualMove.addActionListener(this);
 		contextMenu.add(manualMove);
@@ -149,16 +182,25 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		manualSet = new JMenuItem("Position Type-in");
 		manualSet.addActionListener(this);
 		contextMenu.add(manualSet);
+		contextMenu.addSeparator();
+		reAssignMatrix = new JMenuItem("Re-assign Matrix");
+		reAssignMatrix.addActionListener(this);
+		contextMenu.add(reAssignMatrix);
+		cogBone = new JMenuItem("Auto-Center Bone(s)");
+		cogBone.addActionListener(this);
+		contextMenu.add(cogBone);
 		renameBone = new JMenuItem("Rename Bone");
 		renameBone.addActionListener(this);
 		contextMenu.add(renameBone);
-		addTeamColor = new JMenuItem("Add teamcolor underlayer");
-		addTeamColor.addActionListener(this);
-		contextMenu.add(addTeamColor);
 
-		viewportModelRenderer = new ViewportModelRenderer(3);
-		animatedViewportModelRenderer = new AnimatedViewportModelRenderer(3);
+		viewportModelRenderer = new ViewportModelRenderer(programPreferences.getVertexSize());
+		animatedViewportModelRenderer = new AnimatedViewportModelRenderer(programPreferences.getVertexSize());
+		linkRenderer = new ResettableAnimatedIdObjectParentLinkRenderer(programPreferences.getVertexSize());
+		linkRenderingVisitorAdapter = new ModelVisitorImplementation();
 
+		facingVector = new Vertex(0, 0, 0);
+		final byte unusedXYZ = CoordinateSystem.Util.getUnusedXYZ(this);
+		facingVector.setCoord(unusedXYZ, unusedXYZ == 0 ? 1 : -1);
 	}
 
 	public void setupViewportBackground(final ProgramPreferences programPreferences) {
@@ -273,7 +315,12 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		// dispMDL.drawPivots(g, this, 1);
 		// dispMDL.drawCameras(g, this, 1);
 		if (modelEditor.editorWantsAnimation()) {
+			final Stroke stroke = graphics2d.getStroke();
+			graphics2d.setStroke(new BasicStroke(3));
 			renderModel.updateNodes(true);
+			linkRenderer.reset(this, graphics2d, NodeIconPalette.HIGHLIGHT, renderModel);
+			modelView.visit(linkRenderingVisitorAdapter);
+			graphics2d.setStroke(stroke);
 			animatedViewportModelRenderer.reset(graphics2d, programPreferences, m_d1, m_d2, this, this, modelView,
 					renderModel);
 			modelView.visit(animatedViewportModelRenderer);
@@ -434,15 +481,23 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 					modelEditor.setSelectedBoneName(name);
 				}
 			} else if (e.getSource() == cogBone) {
-				modelEditor.autoCenterSelectedBones();
+				undoListener.pushAction(modelEditor.autoCenterSelectedBones());
 			} else if (e.getSource() == addTeamColor) {
-				modelEditor.addTeamColor();
+				undoListener.pushAction(modelEditor.addTeamColor());
+			} else if (e.getSource() == splitGeo) {
+				undoListener.pushAction(modelEditor.splitGeoset());
 			} else if (e.getSource() == manualMove) {
 				manualMove();
 			} else if (e.getSource() == manualRotate) {
 				manualRotate();
 			} else if (e.getSource() == manualSet) {
 				manualSet();
+			} else if (e.getSource() == createFace) {
+				try {
+					undoListener.pushAction(modelEditor.createFaceFromSelection(facingVector));
+				} catch (final FaceCreationException exc) {
+					JOptionPane.showMessageDialog(this, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+				}
 			}
 		} catch (final Exception exc) {
 			ExceptionPopup.display(exc);
@@ -526,6 +581,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	public void mouseEntered(final MouseEvent e) {
 		if (!activityListener.isEditing()) {
 			activityListener.viewportChanged(cursorManager);
+			viewportListener.viewportChanged(this);
 			requestFocus();
 			mouseInBounds = true;
 			setBorder(BorderFactory.createBevelBorder(1, Color.YELLOW, Color.YELLOW.darker()));
@@ -551,11 +607,13 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 			lastClick = new Point(e.getX(), e.getY());
 		} else if (e.getButton() == MouseEvent.BUTTON1) {
 			activityListener.viewportChanged(cursorManager);
+			viewportListener.viewportChanged(this);
 			requestFocus();
 			activityListener.mousePressed(e, this);
 			// selectStart = new Point(e.getX(), e.getY());
 		} else if (e.getButton() == MouseEvent.BUTTON3) {
 			activityListener.viewportChanged(cursorManager);
+			viewportListener.viewportChanged(this);
 			requestFocus();
 			activityListener.mousePressed(e, this);
 			// actStart = new Point(e.getX(), e.getY());
@@ -568,7 +626,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 
 	@Override
 	public void mouseReleased(final MouseEvent e) {
-		if (e.getButton() == MouseEvent.BUTTON2) {
+		if (e.getButton() == MouseEvent.BUTTON2 && lastClick != null) {
 			m_a += (e.getX() - lastClick.x) / m_zoom;
 			m_b += (e.getY() - lastClick.y) / m_zoom;
 			lastClick = null;
@@ -697,6 +755,62 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		// TODO call from display panel and above
 	}
 
+	private final class ModelVisitorImplementation implements ModelVisitor {
+		@Override
+		public void ribbonEmitter(final RibbonEmitter particleEmitter) {
+			linkRenderer.ribbonEmitter(particleEmitter);
+		}
+
+		@Override
+		public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
+			linkRenderer.particleEmitter2(particleEmitter);
+		}
+
+		@Override
+		public void particleEmitter(final ParticleEmitter particleEmitter) {
+			linkRenderer.particleEmitter(particleEmitter);
+		}
+
+		@Override
+		public void light(final Light light) {
+			linkRenderer.light(light);
+		}
+
+		@Override
+		public void helper(final Helper object) {
+			linkRenderer.helper(object);
+		}
+
+		@Override
+		public void eventObject(final EventObject eventObject) {
+			linkRenderer.eventObject(eventObject);
+		}
+
+		@Override
+		public void collisionShape(final CollisionShape collisionShape) {
+			linkRenderer.collisionShape(collisionShape);
+		}
+
+		@Override
+		public void camera(final Camera camera) {
+		}
+
+		@Override
+		public void bone(final Bone object) {
+			linkRenderer.bone(object);
+		}
+
+		@Override
+		public void attachment(final Attachment attachment) {
+			linkRenderer.attachment(attachment);
+		}
+
+		@Override
+		public GeosetVisitor beginGeoset(final int geosetId, final MaterialView material, final GeosetAnim geosetAnim) {
+			return GeosetVisitor.NO_ACTION;
+		}
+	}
+
 	public static class DropLocation extends TransferHandler.DropLocation {
 		protected DropLocation(final Point dropPoint) {
 			super(dropPoint);
@@ -718,6 +832,10 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 
 	public ModelEditor getModelEditor() {
 		return modelEditor;
+	}
+
+	public Vertex getFacingVector() {
+		return facingVector;
 	}
 
 }

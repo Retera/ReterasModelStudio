@@ -275,6 +275,9 @@ public class GeosetAnim implements VisibilitySource, Named {
 			final float alphaFloatValue = alpha.floatValue();
 			return alphaFloatValue;
 		}
+		if (staticAlpha == -1) {
+			return 1;
+		}
 		return (float) staticAlpha;
 	}
 

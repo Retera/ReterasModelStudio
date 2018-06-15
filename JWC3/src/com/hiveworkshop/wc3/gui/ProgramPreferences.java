@@ -38,6 +38,9 @@ public class ProgramPreferences implements Serializable {
 	Color normalsColor = new Color(128, 128, 255);
 	Color pivotPointsSelectedColor = Color.RED.darker();
 	Color pivotPointsColor = Color.MAGENTA;
+	Color animatedBoneUnselectedColor = Color.GREEN;
+	Color animatedBoneSelectedColor = Color.RED;
+	Color animatedBoneSelectedUpstreamColor = Color.YELLOW;
 	Color lightsColor = Color.YELLOW.brighter();
 	Color ambientLightColor = Color.CYAN.brighter();
 	Color backgroundColor = new Color(255, 255, 255);// new Color(190, 190, 190)
@@ -62,6 +65,11 @@ public class ProgramPreferences implements Serializable {
 			pivotPointsColor = Color.magenta;
 			lightsColor = Color.YELLOW.brighter();
 			ambientLightColor = Color.CYAN.brighter();
+		}
+		if (animatedBoneSelectedColor == null) {
+			animatedBoneSelectedColor = Color.red;
+			animatedBoneUnselectedColor = Color.green;
+			animatedBoneSelectedUpstreamColor = Color.yellow;
 		}
 		if (pivotPointsSelectedColor == null) {
 			pivotPointsSelectedColor = Color.RED.darker();
@@ -103,6 +111,9 @@ public class ProgramPreferences implements Serializable {
 		normalsColor = other.normalsColor;
 		pivotPointsSelectedColor = other.pivotPointsSelectedColor;
 		pivotPointsColor = other.pivotPointsColor;
+		animatedBoneSelectedColor = other.animatedBoneSelectedColor;
+		animatedBoneUnselectedColor = other.animatedBoneUnselectedColor;
+		animatedBoneSelectedUpstreamColor = other.animatedBoneSelectedUpstreamColor;
 		lightsColor = other.lightsColor;
 		ambientLightColor = other.ambientLightColor;
 		selectColor = other.selectColor;
@@ -399,6 +410,36 @@ public class ProgramPreferences implements Serializable {
 
 	public void setInvertedDisplay(final Boolean invertedDisplay) {
 		this.invertedDisplay = invertedDisplay;
+		SaveProfile.save();
+		firePrefsChanged();
+	}
+
+	public Color getAnimatedBoneSelectedColor() {
+		return animatedBoneSelectedColor;
+	}
+
+	public Color getAnimatedBoneSelectedUpstreamColor() {
+		return animatedBoneSelectedUpstreamColor;
+	}
+
+	public Color getAnimatedBoneUnselectedColor() {
+		return animatedBoneUnselectedColor;
+	}
+
+	public void setAnimatedBoneSelectedColor(final Color animatedBoneSelectedColor) {
+		this.animatedBoneSelectedColor = animatedBoneSelectedColor;
+		SaveProfile.save();
+		firePrefsChanged();
+	}
+
+	public void setAnimatedBoneSelectedUpstreamColor(final Color animatedBoneSelectedUpstreamColor) {
+		this.animatedBoneSelectedUpstreamColor = animatedBoneSelectedUpstreamColor;
+		SaveProfile.save();
+		firePrefsChanged();
+	}
+
+	public void setAnimatedBoneUnselectedColor(final Color animatedBoneUnselectedColor) {
+		this.animatedBoneUnselectedColor = animatedBoneUnselectedColor;
 		SaveProfile.save();
 		firePrefsChanged();
 	}
