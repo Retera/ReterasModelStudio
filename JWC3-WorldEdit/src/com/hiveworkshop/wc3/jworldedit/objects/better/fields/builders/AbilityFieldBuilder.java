@@ -26,13 +26,13 @@ public class AbilityFieldBuilder extends AbstractLevelsFieldBuilder {
 		final String specificallyNotAllowedAbilityIds = metaDataField.getField("notSpecific");
 		boolean passesSpecificCheck;
 		if (useSpecific.length() > 0) {
-			passesSpecificCheck = Arrays.asList(useSpecific.split(",")).contains(gameObject.getAlias().asStringValue());
+			passesSpecificCheck = Arrays.asList(useSpecific.split(",")).contains(gameObject.getCode().asStringValue());
 		} else {
 			passesSpecificCheck = true;
 		}
 		if (specificallyNotAllowedAbilityIds.length() > 0) {
 			if (Arrays.asList(specificallyNotAllowedAbilityIds.split(","))
-					.contains(gameObject.getAlias().asStringValue())) {
+					.contains(gameObject.getCode().asStringValue())) {
 				passesSpecificCheck = false;
 			}
 		}

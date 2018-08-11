@@ -1132,6 +1132,7 @@ public class MdxModel {
 				particleEmitter2Chunk = new ParticleEmitter2Chunk();
 				particleEmitter2Chunk.load(in);
 			} else if (MdxUtils.checkOptionalId(in, RibbonEmitterChunk.key)) {
+				System.err.println("RIBBON CHUNK");
 				ribbonEmitterChunk = new RibbonEmitterChunk();
 				ribbonEmitterChunk.load(in);
 			} else if (MdxUtils.checkOptionalId(in, EventObjectChunk.key)) {
@@ -1143,6 +1144,8 @@ public class MdxModel {
 			} else if (MdxUtils.checkOptionalId(in, CollisionShapeChunk.key)) {
 				collisionShapeChunk = new CollisionShapeChunk();
 				collisionShapeChunk.load(in);
+			} else {
+				System.err.println("WTF: " + MdxUtils.getOptionalId(in));
 			}
 
 		}

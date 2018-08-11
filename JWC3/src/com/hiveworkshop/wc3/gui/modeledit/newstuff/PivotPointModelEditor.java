@@ -22,11 +22,14 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.MakeNotEdit
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.AutoCenterBonesAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.RenameBoneAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.SetParentAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.DoNothingAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponentVisitor;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.wc3.gui.modeledit.selection.VertexSelectionHelper;
+import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Attachment;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Camera;
@@ -57,6 +60,19 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		this.programPreferences = programPreferences;
 		this.genericSelectorVisitor = new GenericSelectorVisitor();
 		this.selectionAtPointTester = new SelectionAtPointTester();
+	}
+
+	@Override
+	public UndoAction setParent(final IdObject node) {
+		final HashMap<IdObject, IdObject> nodeToOldParent = new HashMap<>();
+		for (final IdObject b : model.getEditableIdObjects()) {
+			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
+				nodeToOldParent.put(b, b.getParent());
+			}
+		}
+		final SetParentAction setParentAction = new SetParentAction(nodeToOldParent, node, structureChangeListener);
+		setParentAction.redo();
+		return setParentAction;
 	}
 
 	@Override
@@ -800,6 +816,19 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 
 					@Override
 					public void helper(final Helper object) {
+						final AnimFlag translation = AnimFlag.find(object.getAnimFlags(), "Translation");
+						if (translation != null) {
+							for (int i = 0; i < translation.size(); i++) {
+								final Vertex scaleData = (Vertex) translation.getValues().get(i);
+								scaleData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
+								if (translation.tans()) {
+									final Vertex inTanData = (Vertex) translation.getInTans().get(i);
+									inTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
+									final Vertex outTanData = (Vertex) translation.getInTans().get(i);
+									outTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
+								}
+							}
+						}
 					}
 
 					@Override
@@ -820,6 +849,19 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 
 					@Override
 					public void bone(final Bone object) {
+						final AnimFlag translation = AnimFlag.find(object.getAnimFlags(), "Translation");
+						if (translation != null) {
+							for (int i = 0; i < translation.size(); i++) {
+								final Vertex scaleData = (Vertex) translation.getValues().get(i);
+								scaleData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
+								if (translation.tans()) {
+									final Vertex inTanData = (Vertex) translation.getInTans().get(i);
+									inTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
+									final Vertex outTanData = (Vertex) translation.getInTans().get(i);
+									outTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
+								}
+							}
+						}
 					}
 
 					@Override
@@ -855,4 +897,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		return new DoNothingAction("add vertex");
 	}
 
+	public VertexSelectionHelper getVertexSelectionHelper() {
+		return vertexSelectionHelper;
+	}
 }

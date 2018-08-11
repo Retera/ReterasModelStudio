@@ -8,7 +8,7 @@ import com.hiveworkshop.wc3.mdl.IdObject.NodeFlags;
 import com.hiveworkshop.wc3.util.MathUtils;
 
 public final class RenderNode {
-	private final IdObject idObject;
+	private final AnimatedNode idObject;
 
 	private boolean dontInheritScaling = false;
 	boolean billboarded;
@@ -37,7 +37,7 @@ public final class RenderNode {
 
 	private final RenderModel model;
 
-	public RenderNode(final RenderModel model, final IdObject idObject) {
+	public RenderNode(final RenderModel model, final AnimatedNode idObject) {
 		this.model = model;
 		this.idObject = idObject;
 	}
@@ -129,7 +129,7 @@ public final class RenderNode {
 	}
 
 	public void update() {
-		final IdObject parent = idObject.getParent();
+		final AnimatedNode parent = idObject.getParent();
 		if (this.dirty || (parent != null && model.getRenderNode(idObject.getParent()).wasDirty)) {
 			this.dirty = true;
 			this.wasDirty = true;
@@ -142,10 +142,15 @@ public final class RenderNode {
 	}
 
 	public void updateChildren() {
-		for (final IdObject childNode : idObject.getChildrenNodes()) {
+		for (final AnimatedNode childNode : idObject.getChildrenNodes()) {
 			if (model.getRenderNode(childNode) == null) {
-				throw new NullPointerException("Cannot find child \"" + childNode.getName() + ":"
-						+ childNode.getObjectId() + "\" of \"" + idObject.getName() + "\"");
+				if (childNode instanceof IdObject) {
+					throw new NullPointerException("Cannot find child \"" + childNode.getName() + ":"
+							+ ((IdObject) childNode).getObjectId() + "\" of \"" + idObject.getName() + "\"");
+				} else {
+					throw new NullPointerException(
+							"Cannot find child \"" + childNode.getName() + "\" of \"" + idObject.getName() + "\"");
+				}
 			}
 			model.getRenderNode(childNode).update();
 		}

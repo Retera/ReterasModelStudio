@@ -19,7 +19,7 @@ public abstract class AbstractNoLevelsFieldBuilder extends AbstractFieldBuilder 
 	@Override
 	protected void makeAndAddFields(final List<EditableOnscreenObjectField> fields, final War3ID metaKey,
 			final GameObject metaDataField, final MutableGameObject gameObject, final ObjectData metaData) {
-		fields.add(singleFieldFactory.create(gameObject, metaData, metaKey, 0, worldEditorDataType));
+		fields.add(singleFieldFactory.create(gameObject, metaData, metaKey, 0, worldEditorDataType, false));
 	}
 
 }

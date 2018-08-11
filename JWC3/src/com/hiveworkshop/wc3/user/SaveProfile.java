@@ -169,6 +169,18 @@ public class SaveProfile implements Serializable {
 		}
 	}
 
+	public static boolean testTargetFolderReadOnly(final String wcDirectory) {
+		final File temp = new File(wcDirectory + "war3.mpq");
+		if (!temp.exists()) {
+			JOptionPane.showMessageDialog(null,
+					"Could not find war3.mpq. Please choose a valid Warcraft III installation.",
+					"WARNING: Needs WC3 Installation", JOptionPane.WARNING_MESSAGE);
+			// requestNewWc3Directory();
+			return false;
+		}
+		return true;
+	}
+
 	public static void requestNewWc3Directory() {
 		final String autoDir = autoWarcraftDirectory();
 

@@ -80,7 +80,7 @@ public final class IconUtils {
 			final String category = gameObject.getFieldAsString(War3ID.fromString("dcat"), 0);
 			final Element categories = unitEditorData.get("DoodadCategories");
 			if (categories.hasField(category)) {
-				iconPath = categories.getField(category).split(",")[1];
+				iconPath = categories.getField(category, 1);
 			} else {
 				iconPath = "ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp";
 			}
@@ -93,7 +93,7 @@ public final class IconUtils {
 			iconPath = gameObject.getFieldAsString(War3ID.fromString("iico"), 0);
 			break;
 		case UPGRADES:
-			iconPath = gameObject.getFieldAsString(War3ID.fromString("gar1"), 0);
+			iconPath = gameObject.getFieldAsString(War3ID.fromString("gar1"), 1);
 			break;
 		default:
 		case UNITS:

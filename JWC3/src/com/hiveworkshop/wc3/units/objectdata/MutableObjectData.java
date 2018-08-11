@@ -94,8 +94,9 @@ public final class MutableObjectData {
 			newObjects.add(nextDefaultEditorId);
 			previousAliasToNewAlias.put(entry.getKey(), nextDefaultEditorId);
 		}
-		final War3ID[] fieldsToCheck = { War3ID.fromString("utra"), War3ID.fromString("uupt"),
-				War3ID.fromString("ubui") };
+		final War3ID[] fieldsToCheck = worldEditorDataType == WorldEditorDataType.UNITS
+				? new War3ID[] { War3ID.fromString("utra"), War3ID.fromString("uupt"), War3ID.fromString("ubui") }
+				: new War3ID[] {};
 		for (final War3ID unitId : newObjects) {
 			final MutableGameObject unit = get(unitId);
 			for (final War3ID field : fieldsToCheck) {
@@ -129,8 +130,9 @@ public final class MutableObjectData {
 
 	public War3ObjectDataChangeset copySelectedObjects(final List<MutableGameObject> objectsToCopy) {
 		final War3ObjectDataChangeset changeset = new War3ObjectDataChangeset();
-		final War3ID[] fieldsToCheck = { War3ID.fromString("utra"), War3ID.fromString("uupt"),
-				War3ID.fromString("ubui") };
+		final War3ID[] fieldsToCheck = (worldEditorDataType == WorldEditorDataType.UNITS)
+				? new War3ID[] { War3ID.fromString("utra"), War3ID.fromString("uupt"), War3ID.fromString("ubui") }
+				: new War3ID[] {};
 		final Map<War3ID, War3ID> previousAliasToNewAlias = new HashMap<>();
 		for (final MutableGameObject gameObject : objectsToCopy) {
 			final ObjectDataChangeEntry gameObjectUserDataToCopy;
@@ -197,6 +199,10 @@ public final class MutableObjectData {
 
 	}
 
+	public WorldEditorDataType getWorldEditorDataType() {
+		return worldEditorDataType;
+	}
+
 	public ObjectData getSourceSLKMetaData() {
 		return sourceSLKMetaData;
 	}
@@ -224,6 +230,11 @@ public final class MutableObjectData {
 			cachedKeySet = customKeys;
 		}
 		return cachedKeySet;
+	}
+
+	public void dropCachesHack() {
+		cachedKeySet = null;
+		cachedKeyToGameObject.clear();
 	}
 
 	public MutableGameObject get(final War3ID id) {
@@ -262,17 +273,56 @@ public final class MutableObjectData {
 		return get(id);
 	}
 
+	public void remove(final War3ID id) {
+		remove(id, true);
+	}
+
+	public void remove(final List<MutableGameObject> objects) {
+		final List<War3ID> removedIds = new ArrayList<>();
+		for (final MutableGameObject object : objects) {
+			if (object.isCustom()) {
+				remove(object.getAlias(), false);
+				removedIds.add(object.getAlias());
+			}
+		}
+		changeNotifier.objectsRemoved(removedIds.toArray(new War3ID[removedIds.size()]));
+	}
+
+	private MutableGameObject remove(final War3ID id, final boolean fireListeners) {
+		final ObjectDataChangeEntry removedObject = editorData.getCustom().remove(id);
+		final MutableGameObject removedMutableObj = cachedKeyToGameObject.remove(id);
+		if (cachedKeySet != null) {
+			cachedKeySet.remove(id);
+		}
+		if (fireListeners) {
+			changeNotifier.objectRemoved(id);
+		}
+		return removedMutableObj /* might be null based on cache, don't use */;
+	}
+
 	private static boolean goodForId(final char c) {
 		return Character.isDigit(c) || (c >= 'A' && c <= 'Z');
 	}
 
 	public War3ID getNextDefaultEditorId(final War3ID startingId) {
 		War3ID newId = startingId;
-		while (editorData.getCustom().containsKey(newId)
-				|| editorData.getCustom().containsKey(War3ID.fromString(newId.toString().toUpperCase()))
-				|| sourceSLKData.get(newId.toString()) != null || !goodForId(newId.charAt(1))
-				|| !goodForId(newId.charAt(2)) || !goodForId(newId.charAt(3))) {
-			newId = new War3ID(newId.getValue() + 1);
+		while (editorData.getCustom().containsKeyCaseInsensitive(newId) || sourceSLKData.get(newId.toString()) != null
+				|| !goodForId(newId.charAt(1)) || !goodForId(newId.charAt(2)) || !goodForId(newId.charAt(3))) {
+			// TODO good code general solution
+			if (newId.charAt(3) == 'Z') {
+				if (newId.charAt(2) == 'Z') {
+					if (newId.charAt(1) == 'Z') {
+						newId = new War3ID(newId.getValue() / (256 * 256 * 256) * (256 * 256 * 256) + 256 * 256 * 256
+								+ '0' + '0' * 256 + '0' * 256 * 256);
+					} else {
+						newId = new War3ID(newId.getValue() / (256 * 256) * (256 * 256) + 256 * 256 + '0' + '0' * 256);
+					}
+				} else {
+					newId = new War3ID(newId.getValue() / 256 * 256 + 256 + '0');
+				}
+			} else {
+				newId = new War3ID(newId.getValue() + 1);
+			}
 		}
 		return newId;
 	}
@@ -280,10 +330,8 @@ public final class MutableObjectData {
 	public static War3ID getNextDefaultEditorId(final War3ID startingId, final War3ObjectDataChangeset editorData,
 			final ObjectData sourceSLKData) {
 		War3ID newId = startingId;
-		while (editorData.getCustom().containsKey(newId)
-				|| editorData.getCustom().containsKey(War3ID.fromString(newId.toString().toUpperCase()))
-				|| sourceSLKData.get(newId.toString()) != null || !goodForId(newId.charAt(1))
-				|| !goodForId(newId.charAt(2)) || !goodForId(newId.charAt(3))) {
+		while (editorData.getCustom().containsKeyCaseInsensitive(newId) || sourceSLKData.get(newId.toString()) != null
+				|| !goodForId(newId.charAt(1)) || !goodForId(newId.charAt(2)) || !goodForId(newId.charAt(3))) {
 			newId = new War3ID(newId.getValue() + 1);
 		}
 		return newId;
@@ -483,7 +531,11 @@ public final class MutableObjectData {
 				return matchingChange.getStrval();
 			}
 			// no luck with custom data, look at the standard data
-			return getFieldStringFromSLKs(field, level);
+			int slkLevel = level;
+			if (worldEditorDataType == WorldEditorDataType.UPGRADES) {
+				slkLevel -= 1;
+			}
+			return getFieldStringFromSLKs(field, slkLevel);
 		}
 
 		private Change getMatchingChange(final War3ID field, final int level) {
@@ -518,7 +570,8 @@ public final class MutableObjectData {
 		}
 
 		public String getName() {
-			String name = getFieldAsString(editorData.getNameField(), 0);
+			String name = getFieldAsString(editorData.getNameField(),
+					worldEditorDataType == WorldEditorDataType.UPGRADES ? 1 : 0);
 			boolean nameKnown = name.length() >= 1;
 			if (!nameKnown && !readSLKTag("code").equals(getAlias().toString()) && readSLKTag("code").length() >= 4
 					&& !isCustom()) {
@@ -563,7 +616,7 @@ public final class MutableObjectData {
 				suf = getFieldAsString(UNIT_EDITOR_SUFFIX, 0);
 				break;
 			case UPGRADES:
-				suf = getFieldAsString(UPGRADE_EDITOR_SUFFIX, 0);
+				suf = getFieldAsString(UPGRADE_EDITOR_SUFFIX, 1);
 				break;
 			}
 			if (nameKnown/* && name.startsWith("WESTRING") */) {
@@ -611,7 +664,6 @@ public final class MutableObjectData {
 			if (parentWC3Object == null) {
 				throw new IllegalStateException("corrupted unit, no parent unit id");
 			}
-			final String fieldStringValue = parentWC3Object.getField(getEditorMetaDataDisplayKey(level, metaData));
 			int index = metaData.getFieldValue("index");
 			final String upgradeHack = metaData.getField("appendIndex");
 			if ("0".equals(upgradeHack)) {
@@ -619,11 +671,11 @@ public final class MutableObjectData {
 				index = level;
 			}
 			if (index != -1) {
-				final String[] split = fieldStringValue.split(",");
-				if (index < split.length) {
-					return split[index];
-				}
+				final String fieldStringValue = parentWC3Object.getField(getEditorMetaDataDisplayKey(level, metaData),
+						index);
+				return fieldStringValue;
 			}
+			final String fieldStringValue = parentWC3Object.getField(getEditorMetaDataDisplayKey(level, metaData));
 			return fieldStringValue;
 		}
 
@@ -729,7 +781,23 @@ public final class MutableObjectData {
 	}
 
 	public enum WorldEditorDataType {
-		UNITS, ITEM, DESTRUCTIBLES, DOODADS, ABILITIES, BUFFS_EFFECTS, UPGRADES;
+		UNITS("w3u"),
+		ITEM("w3t"),
+		DESTRUCTIBLES("w3b"),
+		DOODADS("w3d"),
+		ABILITIES("w3a"),
+		BUFFS_EFFECTS("w3h"),
+		UPGRADES("w3q");
+
+		private String extension;
+
+		private WorldEditorDataType(final String extension) {
+			this.extension = extension;
+		}
+
+		public String getExtension() {
+			return extension;
+		}
 	}
 
 	public static String getEditorMetaDataDisplayKey(int level, final GameObject metaData) {
@@ -757,5 +825,13 @@ public final class MutableObjectData {
 			}
 		}
 		return metaDataName;
+	}
+
+	public static String getDisplayAsRawDataName(final MutableGameObject gameObject) {
+		String aliasString = gameObject.getAlias().toString();
+		if (!gameObject.getAlias().equals(gameObject.getCode())) {
+			aliasString += ":" + gameObject.getCode().toString();
+		}
+		return aliasString + " (" + gameObject.getName() + ")";
 	}
 }

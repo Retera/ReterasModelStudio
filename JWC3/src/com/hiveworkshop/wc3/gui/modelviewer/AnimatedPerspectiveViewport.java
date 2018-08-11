@@ -221,6 +221,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 		// //GL11.glDeleteTextures(textureMap.get(tex));
 		// }
 		// initGL();
+		renderModel.refreshFromEditor(this, inverseCameraRotationQuat, inverseCameraRotationYSpin,
+				inverseCameraRotationZSpin);
 
 		for (final Geoset geo : modelView.getModel().getGeosets()) {// .getMDL().getGeosets()
 			for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
@@ -570,8 +572,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 								}
 
 								GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-
-								GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
 								GL11.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
 
 								GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
@@ -599,12 +599,16 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 			lastExceptionTimeMillis = System.currentTimeMillis();
 			if (lastThrownErrorClass == null || lastThrownErrorClass != e.getClass()) {
 				lastThrownErrorClass = e.getClass();
-				JOptionPane.showMessageDialog(null, "Rendering failed because of this exact reason:\n"
-						+ e.getClass().getSimpleName() + ": " + e.getMessage());
+				popupCount++;
+				if (popupCount < 10) {
+					ExceptionPopup.display(e);
+				}
 			}
 			throw new RuntimeException(e);
 		}
 	}
+
+	int popupCount = 0;
 	// public void paintGL() {
 	// super.paintGL();
 	// try {
@@ -728,8 +732,11 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 
 							GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
 						}
-						GL11.glTexCoord2f((float) v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).x,
-								(float) v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).y);
+						int coordId = layer.getCoordId();
+						if (coordId >= v.getTverts().size()) {
+							coordId = v.getTverts().size() - 1;
+						}
+						GL11.glTexCoord2f((float) v.getTverts().get(coordId).x, (float) v.getTverts().get(coordId).y);
 						GL11.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
 					}
 				}
@@ -973,9 +980,9 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 
 	@Override
 	public void mousePressed(final MouseEvent e) {
-		if (e.getButton() == MouseEvent.BUTTON2) {
+		if (programPreferences.getThreeDCameraPanButton().isButton(e)) {
 			lastClick = new Point(e.getXOnScreen(), e.getYOnScreen());
-		} else if (e.getButton() == MouseEvent.BUTTON1) {
+		} else if (programPreferences.getThreeDCameraSpinButton().isButton(e)) {
 			leftClickStart = new Point(e.getXOnScreen(), e.getYOnScreen());
 		} else if (e.getButton() == MouseEvent.BUTTON3) {
 			actStart = new Point(e.getX(), e.getY());
@@ -986,11 +993,11 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 
 	@Override
 	public void mouseReleased(final MouseEvent e) {
-		if (e.getButton() == MouseEvent.BUTTON2) {
+		if (programPreferences.getThreeDCameraPanButton().isButton(e)) {
 			cameraPos.x += (e.getXOnScreen() - lastClick.x) / m_zoom;
 			cameraPos.y += (e.getYOnScreen() - lastClick.y) / m_zoom;
 			lastClick = null;
-		} else if (e.getButton() == MouseEvent.BUTTON1 && leftClickStart != null) {
+		} else if (programPreferences.getThreeDCameraSpinButton().isButton(e) && leftClickStart != null) {
 			final Point selectEnd = new Point(e.getX(), e.getY());
 			final Rectangle2D.Double area = pointsToGeomRect(leftClickStart, selectEnd);
 			// System.out.println(area);

@@ -56,10 +56,12 @@ public final class ModelEditorManager {
 			final FaceSelectionManager selectionManager = new FaceSelectionManager();
 			final PivotPointSelectionManager pivotSelectionManager = new PivotPointSelectionManager();
 			final ModelEditorNotifier modelEditorNotifier = new ModelEditorNotifier();
-			modelEditorNotifier.subscribe(
-					new FaceModelEditor(model, programPreferences, selectionManager, structureChangeListener));
-			modelEditorNotifier.subscribe(new PivotPointModelEditor(model, programPreferences, pivotSelectionManager,
-					structureChangeListener));
+			final FaceModelEditor faceModelEditor = new FaceModelEditor(model, programPreferences, selectionManager,
+					structureChangeListener);
+			modelEditorNotifier.subscribe(faceModelEditor);
+			final PivotPointModelEditor pivotPointModelEditor = new PivotPointModelEditor(model, programPreferences,
+					pivotSelectionManager, structureChangeListener);
+			modelEditorNotifier.subscribe(pivotPointModelEditor);
 			modelEditor = modelEditorNotifier;
 			if (lastSelectedVertices != null) {
 				modelEditor.selectByVertices(lastSelectedVertices);
@@ -70,16 +72,21 @@ public final class ModelEditorManager {
 					ListView.Util.<SelectionView> of(selectionManager, pivotSelectionManager));
 			selectionListener.onSelectionChanged(selectionView);
 			nodeAnimationSelectionManager = null;
+			modelEditorNotifier.setCloneContextHelper(new CloneContextHelper(model, structureChangeListener,
+					faceModelEditor.getVertexSelectionHelper(), pivotPointModelEditor.getVertexSelectionHelper(),
+					pivotPointModelEditor.selectionManager, faceModelEditor.selectionManager));
 			break;
 		}
 		case GROUP: {
 			final VertexGroupSelectionManager selectionManager = new VertexGroupSelectionManager();
 			final PivotPointSelectionManager pivotSelectionManager = new PivotPointSelectionManager();
 			final ModelEditorNotifier modelEditorNotifier = new ModelEditorNotifier();
-			modelEditorNotifier.subscribe(
-					new VertexGroupModelEditor(model, programPreferences, selectionManager, structureChangeListener));
-			modelEditorNotifier.subscribe(new PivotPointModelEditor(model, programPreferences, pivotSelectionManager,
-					structureChangeListener));
+			final VertexGroupModelEditor vertexGroupModelEditor = new VertexGroupModelEditor(model, programPreferences,
+					selectionManager, structureChangeListener);
+			modelEditorNotifier.subscribe(vertexGroupModelEditor);
+			final PivotPointModelEditor pivotPointModelEditor = new PivotPointModelEditor(model, programPreferences,
+					pivotSelectionManager, structureChangeListener);
+			modelEditorNotifier.subscribe(pivotPointModelEditor);
 			modelEditor = modelEditorNotifier;
 			if (lastSelectedVertices != null) {
 				modelEditor.selectByVertices(lastSelectedVertices);
@@ -90,6 +97,9 @@ public final class ModelEditorManager {
 					ListView.Util.<SelectionView> of(selectionManager, pivotSelectionManager));
 			selectionListener.onSelectionChanged(selectionView);
 			nodeAnimationSelectionManager = null;
+			modelEditorNotifier.setCloneContextHelper(new CloneContextHelper(model, structureChangeListener,
+					vertexGroupModelEditor.getVertexSelectionHelper(), pivotPointModelEditor.getVertexSelectionHelper(),
+					pivotPointModelEditor.selectionManager, vertexGroupModelEditor.selectionManager));
 			break;
 		}
 		case ANIMATE: {
@@ -106,15 +116,18 @@ public final class ModelEditorManager {
 			selectionListener.onSelectionChanged(selectionView);
 			break;
 		}
-		default:
-		case VERTEX: {
-			final GeosetVertexSelectionManager selectionManager = new GeosetVertexSelectionManager();
+		case CLUSTER: {
+			final VertexClusterDefinitions vertexClusterDefinitions = new VertexClusterDefinitions(model.getModel());
+			final VertexClusterSelectionManager selectionManager = new VertexClusterSelectionManager(
+					vertexClusterDefinitions);
 			final PivotPointSelectionManager pivotSelectionManager = new PivotPointSelectionManager();
 			final ModelEditorNotifier modelEditorNotifier = new ModelEditorNotifier();
-			modelEditorNotifier.subscribe(
-					new GeosetVertexModelEditor(model, programPreferences, selectionManager, structureChangeListener));
-			modelEditorNotifier.subscribe(new PivotPointModelEditor(model, programPreferences, pivotSelectionManager,
-					structureChangeListener));
+			final VertexClusterModelEditor vertexGroupModelEditor = new VertexClusterModelEditor(model,
+					programPreferences, selectionManager, structureChangeListener, vertexClusterDefinitions);
+			modelEditorNotifier.subscribe(vertexGroupModelEditor);
+			final PivotPointModelEditor pivotPointModelEditor = new PivotPointModelEditor(model, programPreferences,
+					pivotSelectionManager, structureChangeListener);
+			modelEditorNotifier.subscribe(pivotPointModelEditor);
 			modelEditor = modelEditorNotifier;
 			if (lastSelectedVertices != null) {
 				modelEditor.selectByVertices(lastSelectedVertices);
@@ -125,6 +138,36 @@ public final class ModelEditorManager {
 					ListView.Util.<SelectionView> of(selectionManager, pivotSelectionManager));
 			selectionListener.onSelectionChanged(selectionView);
 			nodeAnimationSelectionManager = null;
+			modelEditorNotifier.setCloneContextHelper(new CloneContextHelper(model, structureChangeListener,
+					vertexGroupModelEditor.getVertexSelectionHelper(), pivotPointModelEditor.getVertexSelectionHelper(),
+					pivotPointModelEditor.selectionManager, vertexGroupModelEditor.selectionManager));
+			break;
+		}
+		default:
+		case VERTEX: {
+			final GeosetVertexSelectionManager selectionManager = new GeosetVertexSelectionManager();
+			final PivotPointSelectionManager pivotSelectionManager = new PivotPointSelectionManager();
+			final ModelEditorNotifier modelEditorNotifier = new ModelEditorNotifier();
+			final GeosetVertexModelEditor geosetVertexModelEditor = new GeosetVertexModelEditor(model,
+					programPreferences, selectionManager, structureChangeListener);
+			modelEditorNotifier.subscribe(geosetVertexModelEditor);
+			final PivotPointModelEditor pivotPointModelEditor = new PivotPointModelEditor(model, programPreferences,
+					pivotSelectionManager, structureChangeListener);
+			modelEditorNotifier.subscribe(pivotPointModelEditor);
+			modelEditor = modelEditorNotifier;
+			if (lastSelectedVertices != null) {
+				modelEditor.selectByVertices(lastSelectedVertices);
+			}
+			viewportSelectionHandler.setSelectingEventHandler(modelEditor);
+			modelEditorChangeListener.modelEditorChanged(modelEditor);
+			selectionView = new MultiPartSelectionView(
+					ListView.Util.<SelectionView> of(selectionManager, pivotSelectionManager));
+			selectionListener.onSelectionChanged(selectionView);
+			nodeAnimationSelectionManager = null;
+			modelEditorNotifier.setCloneContextHelper(new CloneContextHelper(model, structureChangeListener,
+					geosetVertexModelEditor.getVertexSelectionHelper(),
+					pivotPointModelEditor.getVertexSelectionHelper(), pivotPointModelEditor.selectionManager,
+					geosetVertexModelEditor.selectionManager));
 			break;
 		}
 		}

@@ -308,7 +308,9 @@ public class CreatorModelingPanel extends JPanel implements ChangeActivityListen
 
 	public void setCurrentModel(final ModelView modelView) {
 		this.modelView = modelView;
-		reloadAnimationList();
+		if (modelView != null) {
+			reloadAnimationList();
+		}
 	}
 
 	public void setChosenAnimation(final Animation animation) {

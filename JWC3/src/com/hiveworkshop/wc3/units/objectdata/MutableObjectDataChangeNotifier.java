@@ -54,4 +54,18 @@ public final class MutableObjectDataChangeNotifier extends SubscriberSetNotifier
 		}
 	}
 
+	@Override
+	public void objectRemoved(final War3ID newObject) {
+		for (final MutableObjectDataChangeListener listener : set) {
+			listener.objectRemoved(newObject);
+		}
+	}
+
+	@Override
+	public void objectsRemoved(final War3ID[] newObject) {
+		for (final MutableObjectDataChangeListener listener : set) {
+			listener.objectsRemoved(newObject);
+		}
+	}
+
 }

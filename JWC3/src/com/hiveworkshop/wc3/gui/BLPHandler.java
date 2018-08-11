@@ -49,14 +49,14 @@ public class BLPHandler {
 			final BufferedImage newImage3 = getCustomTex(lastHopePath);
 			if (newImage3 != null) {
 				return newImage3;
-				// } else {
-				//
-				// final String lastHopePath2 = "N:\\NEEDS_ORGANIZING\\WarCraft_III_Beta\\WarCraft_III_Beta\\War3beta\\"
-				// + filepath;
-				// final BufferedImage newImage4 = getCustomTex(lastHopePath2);
-				// if (newImage4 != null) {
-				// return newImage4;
-				// }
+			} else {
+
+				final String lastHopePath2 = "N:\\NEEDS_ORGANIZING\\WarCraft_III_Beta\\WarCraft_III_Beta\\War3beta\\"
+						+ filepath;
+				final BufferedImage newImage4 = getCustomTex(lastHopePath2);
+				if (newImage4 != null) {
+					return newImage4;
+				}
 			}
 			throw new RuntimeException("Failed to load game texture: " + filepath + " (in " + workingDirectory + ")");
 		} catch (final Exception exc2) {

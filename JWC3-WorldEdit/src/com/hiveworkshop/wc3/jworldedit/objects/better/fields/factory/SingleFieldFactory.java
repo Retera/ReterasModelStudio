@@ -8,5 +8,5 @@ import com.hiveworkshop.wc3.units.objectdata.War3ID;
 
 public interface SingleFieldFactory {
 	EditableOnscreenObjectField create(MutableGameObject gameObject, ObjectData metaData, War3ID metaKey, int level,
-			MutableObjectData.WorldEditorDataType worldEditorDataType);
+			MutableObjectData.WorldEditorDataType worldEditorDataType, boolean hasMoreThanOneLevel);
 }

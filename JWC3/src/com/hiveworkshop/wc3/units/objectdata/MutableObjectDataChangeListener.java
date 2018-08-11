@@ -14,4 +14,8 @@ public interface MutableObjectDataChangeListener {
 	void objectCreated(War3ID newObject);
 
 	void objectsCreated(War3ID[] newObject);
+
+	void objectRemoved(War3ID removedObject);
+
+	void objectsRemoved(War3ID[] removedObject);
 }

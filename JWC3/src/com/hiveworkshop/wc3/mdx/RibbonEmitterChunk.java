@@ -93,7 +93,6 @@ public class RibbonEmitterChunk {
 					ribbonEmitterHeightBelow = new RibbonEmitterHeightBelow();
 					ribbonEmitterHeightBelow.load(in);
 				}
-
 			}
 		}
 

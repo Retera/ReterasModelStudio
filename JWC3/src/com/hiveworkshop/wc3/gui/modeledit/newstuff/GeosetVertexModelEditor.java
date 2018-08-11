@@ -29,6 +29,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHan
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponentVisitor;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.wc3.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
@@ -371,5 +372,14 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 				Collections.singletonList(newTriangle));
 		addTriangleAction.redo();
 		return addTriangleAction;
+	}
+
+	@Override
+	public UndoAction setParent(final IdObject node) {
+		throw new UnsupportedOperationException("This feature is not available in Geoset Vertex mode");
+	}
+
+	public VertexSelectionHelper getVertexSelectionHelper() {
+		return vertexSelectionHelper;
 	}
 }

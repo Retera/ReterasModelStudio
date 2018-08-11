@@ -1045,11 +1045,10 @@ public class ModelOptionPanel extends JPanel {
 		final Element extraModels = worldEditData.get("ExtraModels");
 		int emId = 0;
 		while (extraModels.getField(String.format("%2d", emId).replace(" ", "0")).length() > 0) {
-			final String field = extraModels.getField(String.format("%2d", emId).replace(" ", "0"));
-			final String[] fieldParts = field.split(",");
+			final String fieldName = String.format("%2d", emId).replace(" ", "0");
 			final Model nextModel = new Model();
-			nextModel.displayName = WEString.getString(fieldParts[2]);
-			nextModel.filepath = fieldParts[1];
+			nextModel.displayName = WEString.getString(extraModels.getField(fieldName, 2));
+			nextModel.filepath = extraModels.getField(fieldName, 1);
 			nextModel.cachedIcon = extraModels.getIconPath();
 			extra.models.add(nextModel);
 

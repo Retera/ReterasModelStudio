@@ -48,6 +48,8 @@ public class ProgramPreferences implements Serializable {
 	Color selectColor = Color.RED;
 	private int vertexSize = 3;
 	int teamColor;
+	private MouseButtonPreference threeDCameraSpinButton = MouseButtonPreference.LEFT;
+	private MouseButtonPreference threeDCameraPanButton = MouseButtonPreference.MIDDLE;
 
 	public void reload() {
 		dimLocks = new boolean[3];
@@ -87,6 +89,10 @@ public class ProgramPreferences implements Serializable {
 			vertexSize = 3;
 		}
 		Material.teamColor = teamColor;
+		if (threeDCameraSpinButton == null) {
+			threeDCameraSpinButton = MouseButtonPreference.LEFT;
+			threeDCameraPanButton = MouseButtonPreference.MIDDLE;
+		}
 	}
 
 	public void loadFrom(final ProgramPreferences other) {
@@ -121,6 +127,8 @@ public class ProgramPreferences implements Serializable {
 		teamColor = other.teamColor;
 		backgroundColor = other.backgroundColor;
 		perspectiveBackgroundColor = other.perspectiveBackgroundColor;
+		threeDCameraPanButton = other.threeDCameraPanButton;
+		threeDCameraSpinButton = other.threeDCameraSpinButton;
 		SaveProfile.save();
 		firePrefsChanged();
 
@@ -500,6 +508,26 @@ public class ProgramPreferences implements Serializable {
 
 	public void setPerspectiveBackgroundColor(final Color perspectiveBackgroundColor) {
 		this.perspectiveBackgroundColor = perspectiveBackgroundColor;
+		SaveProfile.save();
+		firePrefsChanged();
+	}
+
+	public MouseButtonPreference getThreeDCameraSpinButton() {
+		return threeDCameraSpinButton;
+	}
+
+	public void setThreeDCameraSpinButton(final MouseButtonPreference threeDCameraSpinButton) {
+		this.threeDCameraSpinButton = threeDCameraSpinButton;
+		SaveProfile.save();
+		firePrefsChanged();
+	}
+
+	public MouseButtonPreference getThreeDCameraPanButton() {
+		return threeDCameraPanButton;
+	}
+
+	public void setThreeDCameraPanButton(final MouseButtonPreference threeDCameraPanButton) {
+		this.threeDCameraPanButton = threeDCameraPanButton;
 		SaveProfile.save();
 		firePrefsChanged();
 	}

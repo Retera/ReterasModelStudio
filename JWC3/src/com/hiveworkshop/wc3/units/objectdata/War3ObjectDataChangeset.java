@@ -3,6 +3,12 @@ package com.hiveworkshop.wc3.units.objectdata;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
 import java.util.Iterator;
 
 import com.etheller.collections.ArrayList;
@@ -462,7 +468,9 @@ public final class War3ObjectDataChangeset {
 	public boolean loadtable(final BlizzardDataInputStream stream, final ObjectMap map, final boolean isOriginal,
 			final WTS wts, final boolean inlineWTS) throws IOException {
 		final War3ID noid = new War3ID(0);
-		final StringBuffer stringBuffer = new StringBuffer();
+		final ByteBuffer stringByteBuffer = ByteBuffer.allocate(1024); // TODO check max len?
+		final CharsetDecoder decoder = Charset.forName("utf-8").newDecoder().onMalformedInput(CodingErrorAction.REPLACE)
+				.onUnmappableCharacter(CodingErrorAction.REPLACE);
 		int ptr;
 		final int count = stream.readInt();
 		for (int i = 0; i < count; i++) {
@@ -518,12 +526,13 @@ public final class War3ObjectDataChangeset {
 					break;
 				case 3:
 					ptr = 0;
-					stringBuffer.setLength(0);
-					char charRead;
-					while ((charRead = (char) (byte) stream.read()) != 0) {
-						stringBuffer.append(charRead);
+					stringByteBuffer.clear();
+					byte charRead;
+					while ((charRead = (byte) stream.read()) != 0) {
+						stringByteBuffer.put(charRead);
 					}
-					newlyReadChange.setStrval(stringBuffer.toString());
+					stringByteBuffer.flip();
+					newlyReadChange.setStrval(decoder.decode(stringByteBuffer).toString());
 					if (inlineWTS && newlyReadChange.getStrval().length() > 8
 							&& "TRIGSTR_".equals(newlyReadChange.getStrval().substring(0, 8))) {
 						final int key = getWTSValue(newlyReadChange);
@@ -658,6 +667,10 @@ public final class War3ObjectDataChangeset {
 
 	public boolean saveTable(final BlizzardDataOutputStream outputStream, final ObjectMap map, final boolean isOriginal)
 			throws IOException {
+		final CharsetEncoder encoder = Charset.forName("utf-8").newEncoder().onMalformedInput(CodingErrorAction.REPLACE)
+				.onUnmappableCharacter(CodingErrorAction.REPLACE);
+		final CharBuffer charBuffer = CharBuffer.allocate(1024);
+		final ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
 		final War3ID noid = new War3ID(0);
 		int count;
 		count = map.size();
@@ -686,7 +699,19 @@ public final class War3ObjectDataChangeset {
 							outputStream.writeInt(change.getLongval());
 							break;
 						case 3:
-							outputStream.writeString(change.getStrval());
+							charBuffer.clear();
+							byteBuffer.clear();
+							charBuffer.put(change.getStrval());
+							charBuffer.flip();
+							encoder.encode(charBuffer, byteBuffer, false);
+							byteBuffer.flip();
+							final byte[] stringBytes = new byte[byteBuffer.remaining() + 1];
+							int i = 0;
+							while (byteBuffer.hasRemaining()) {
+								stringBytes[i++] = byteBuffer.get();
+							}
+							stringBytes[i] = 0;
+							outputStream.write(stringBytes);
 							break;
 						case 4:
 							outputStream.writeInt(change.isBoolval() ? 1 : 0);

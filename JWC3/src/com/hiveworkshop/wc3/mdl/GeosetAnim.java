@@ -272,8 +272,12 @@ public class GeosetAnim implements VisibilitySource, Named {
 		final AnimFlag visibilityFlag = getVisibilityFlag();
 		if (visibilityFlag != null) {
 			final Number alpha = (Number) visibilityFlag.interpolateAt(animatedRenderEnvironment);
-			final float alphaFloatValue = alpha.floatValue();
-			return alphaFloatValue;
+			if (alpha == null) {
+				return 1;
+			} else {
+				final float alphaFloatValue = alpha.floatValue();
+				return alphaFloatValue;
+			}
 		}
 		if (staticAlpha == -1) {
 			return 1;
@@ -290,9 +294,9 @@ public class GeosetAnim implements VisibilitySource, Named {
 			if (color == null) {
 				return null;
 			}
-			renderColorVector.x = (float) color.z;
+			renderColorVector.x = (float) color.x;
 			renderColorVector.y = (float) color.y;
-			renderColorVector.z = (float) color.x;
+			renderColorVector.z = (float) color.z;
 			return renderColorVector;
 		}
 		if (staticColor == null) {

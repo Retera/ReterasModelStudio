@@ -413,11 +413,28 @@ public class DataTable implements ObjectData {
 				}
 			} else if (input.contains("=")) {
 				final int eIndex = input.indexOf("=");
-				String fieldValue = input.substring(eIndex + 1);
-				if (fieldValue.length() > 1 && fieldValue.startsWith("\"") && fieldValue.endsWith("\"")) {
-					fieldValue = fieldValue.substring(1, fieldValue.length() - 1);
+				final String fieldValue = input.substring(eIndex + 1);
+				// if (fieldValue.length() > 1 && fieldValue.startsWith("\"") && fieldValue.endsWith("\"")) {
+				// fieldValue = fieldValue.substring(1, fieldValue.length() - 1);
+				// }
+				int fieldIndex = 0;
+				final StringBuilder builder = new StringBuilder();
+				boolean withinQuotedString = false;
+				final String fieldName = input.substring(0, eIndex);
+				for (int i = 0; i < fieldValue.length(); i++) {
+					final char c = fieldValue.charAt(i);
+					if (c == '\"') {
+						withinQuotedString = !withinQuotedString;
+					} else if (!withinQuotedString && c == ',') {
+						currentUnit.setField(fieldName, builder.toString(), fieldIndex++);
+						builder.setLength(0); // empty buffer
+					} else {
+						builder.append(c);
+					}
 				}
-				currentUnit.setField(input.substring(0, eIndex), fieldValue);
+				if (builder.length() > 0) {
+					currentUnit.setField(fieldName, builder.toString(), fieldIndex++);
+				}
 			}
 		}
 
@@ -475,23 +492,41 @@ public class DataTable implements ObjectData {
 			}
 			if (rowStartCount <= 1) {
 				final int subXIndex = input.indexOf("X");
-				int eIndex = input.indexOf("K");
-				final int fieldId;
-				if (subXIndex < 0) {
-					if (lastFieldId == 0) {
-						rowStartCount++;
+				final int subYIndex = input.indexOf("Y");
+				if (subYIndex >= 0 && subYIndex < subXIndex) {
+					final int eIndex = input.indexOf("K");
+					final int fieldId;
+					if (subXIndex < 0) {
+						if (lastFieldId == 0) {
+							rowStartCount++;
+						}
+						fieldId = lastFieldId + 1;
+					} else {
+						fieldId = Integer.parseInt(input.substring(subXIndex + 1, eIndex - 1));
 					}
-					fieldId = lastFieldId + 1;
-				} else {
-					if (flipMode && input.contains("Y")) {
-						eIndex = Math.min(input.indexOf("Y"), eIndex);
-					}
-					fieldId = Integer.parseInt(input.substring(subXIndex + 1, eIndex - 1));
-				}
 
-				dataNames[fieldId - 1] = input.substring(input.indexOf("\"") + 1, input.lastIndexOf("\""));
-				lastFieldId = fieldId;
-				continue;
+					dataNames[fieldId - 1] = input.substring(input.indexOf("\"") + 1, input.lastIndexOf("\""));
+					lastFieldId = fieldId;
+					continue;
+				} else {
+					int eIndex = input.indexOf("K");
+					final int fieldId;
+					if (subXIndex < 0) {
+						if (lastFieldId == 0) {
+							rowStartCount++;
+						}
+						fieldId = lastFieldId + 1;
+					} else {
+						if (flipMode && input.contains("Y")) {
+							eIndex = Math.min(subYIndex, eIndex);
+						}
+						fieldId = Integer.parseInt(input.substring(subXIndex + 1, eIndex - 1));
+					}
+
+					dataNames[fieldId - 1] = input.substring(input.indexOf("\"") + 1, input.lastIndexOf("\""));
+					lastFieldId = fieldId;
+					continue;
+				}
 			}
 			// if( rowStartCount == 2)
 			// System.out.println(Arrays.toString(dataNames));

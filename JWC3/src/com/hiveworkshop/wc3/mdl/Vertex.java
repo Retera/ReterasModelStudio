@@ -206,6 +206,12 @@ public class Vertex {
 		return new Vertex(other.x - x, other.y - y, other.z - z);
 	}
 
+	public void subtract(final Vertex other) {
+		this.x -= other.x;
+		this.y -= other.y;
+		this.z -= other.z;
+	}
+
 	public Vertex crossProduct(final Vertex other) {
 		final double x2 = other.x;
 		final double y2 = other.y;

@@ -22,6 +22,7 @@ import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -62,6 +63,7 @@ import com.hiveworkshop.wc3.mdl.CollisionShape;
 import com.hiveworkshop.wc3.mdl.EventObject;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.Helper;
+import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
@@ -87,6 +89,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	boolean mouseInBounds = false;
 	JPopupMenu contextMenu;
 	JMenuItem reAssignMatrix;
+	JMenuItem setParent;
 	JMenuItem renameBone;
 	JMenuItem cogBone;
 	JMenuItem manualMove;
@@ -186,6 +189,9 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		reAssignMatrix = new JMenuItem("Re-assign Matrix");
 		reAssignMatrix.addActionListener(this);
 		contextMenu.add(reAssignMatrix);
+		setParent = new JMenuItem("Set Parent");
+		setParent.addActionListener(this);
+		contextMenu.add(setParent);
 		cogBone = new JMenuItem("Auto-Center Bone(s)");
 		cogBone.addActionListener(this);
 		contextMenu.add(cogBone);
@@ -474,6 +480,42 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 				if (i == 0) {
 					// JOptionPane.showMessageDialog(null,"action approved");
 					modelEditor.setMatrix(BoneShell.toBonesList(CollectionUtils.asList(matrixPopup.newRefs)));
+				}
+			} else if (e.getSource() == setParent) {
+				class NodeShell {
+					IdObject node;
+
+					public NodeShell(final IdObject node) {
+						this.node = node;
+					}
+
+					public IdObject getNode() {
+						return node;
+					}
+
+					@Override
+					public String toString() {
+						if (node == null) {
+							return "(No parent)";
+						}
+						return node.getName();
+					}
+				}
+
+				final ArrayList<IdObject> idObjects = modelView.getModel().getIdObjects();
+				final NodeShell[] nodeOptions = new NodeShell[idObjects.size() + 1];
+				nodeOptions[0] = new NodeShell(null);
+				final NodeShell defaultChoice = nodeOptions[0];
+				for (int i = 0; i < idObjects.size(); i++) {
+					final IdObject node = idObjects.get(i);
+					nodeOptions[i + 1] = new NodeShell(node);
+				}
+				final NodeShell result = (NodeShell) JOptionPane.showInputDialog(this, "Choose a parent node",
+						"Set Parent Node", JOptionPane.PLAIN_MESSAGE, null, nodeOptions, defaultChoice);
+				final MatrixPopup matrixPopup = new MatrixPopup(modelView.getModel());
+				if (result != null) {
+					// JOptionPane.showMessageDialog(null,"action approved");
+					modelEditor.setParent(result.getNode());
 				}
 			} else if (e.getSource() == renameBone) {
 				final String name = JOptionPane.showInputDialog(this, "Enter bone name:");

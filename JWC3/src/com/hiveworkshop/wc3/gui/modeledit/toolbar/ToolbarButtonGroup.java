@@ -109,13 +109,16 @@ public final class ToolbarButtonGroup<BUTTON_TYPE extends ToolbarButtonType> {
 	}
 
 	private void setActiveButton(final JButton button, final BUTTON_TYPE type, final Border defaultBorder) {
+		if (activeButton == button) {
+			return;
+		}
 		if (activeButton != null) {
-			activeButton.setEnabled(true);
+			// activeButton.setEnabled(true);
 			activeButton.setBorder(activeButtonDefaultBorder);
 		}
 		activeButton = button;
 		if (button != null) {
-			activeButton.setEnabled(false);
+			// activeButton.setEnabled(false);
 			activeButton.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 			activeButtonType = type;
 			this.activeButtonDefaultBorder = defaultBorder;

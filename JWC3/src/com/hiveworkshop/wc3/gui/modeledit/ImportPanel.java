@@ -1433,10 +1433,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		for (final Object o : importedModel.getAllVisibilitySources()) {
 			if (o.getClass() != GeosetAnim.class) {
 				visSourcesNew.add(shellFromObject(o));
-				System.out.println(shellFromObject(o).source.getName());
 			} else {
 				visSourcesNew.add(shellFromObject(((GeosetAnim) o).getGeoset()));
-				System.out.println(shellFromObject(((GeosetAnim) o).getGeoset()).source.getName());
 			}
 		}
 		visSourcesNew.add(VisibilityPane.NOTVISIBLE);
@@ -1746,8 +1744,9 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				case 1: // List targets =
 						// bonePanel.boneList.getSelectedValuesList();
 					// we will go through all bone shells for this
-					break;
 				case 2:
+					// Fix cross-model referencing issue (force clean parent node's list of children)
+					b.setParent(null);
 					break;
 				}
 			}
@@ -1843,6 +1842,11 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 						// "+objectPanel.camera.getName());
 						currentModel.add(objectPanel.camera);
 						camerasAdded.add(objectPanel.camera);
+					}
+				} else {
+					if (objectPanel.object != null) {
+						objectPanel.object.setParent(null);
+						// Fix cross-model referencing issue (force clean parent node's list of children)
 					}
 				}
 			}
@@ -2315,7 +2319,7 @@ class AnimPanel extends JPanel implements ChangeListener, ItemListener, ListSele
 	JPanel blankCardGS = new JPanel();
 
 	JPanel nameCard = new JPanel();
-	JTextField newNameEntry = new JTextField("", 8);
+	JTextField newNameEntry = new JTextField("", 40);
 
 	JPanel animListCard = new JPanel();
 	DefaultListModel existingAnims;

@@ -80,6 +80,14 @@ public class MpqCodebase implements Codebase {
 		if (isDebugMode) {
 			hfmd = loadMPQ("hfmd.exe", false);
 		}
+		// try {
+		// loadMPQ(Paths.get(
+		// "C:\\Users\\Eric\\Documents\\Warcraft III\\Maps\\Templar30Not\\Oldinject\\NWU_S3_B10_FIX22.w3x"));
+		// } catch (final MPQException e) {
+		// e.printStackTrace();
+		// } catch (final IOException e) {
+		// e.printStackTrace();
+		// }
 	}
 
 	Map<String, File> cache = new HashMap<>();
@@ -240,6 +248,14 @@ public class MpqCodebase implements Codebase {
 		if (isDebugMode) {
 			hfmd = loadMPQ("hfmd.exe", false);
 		}
+		// try {
+		// loadMPQ(Paths.get(
+		// "C:\\Users\\Eric\\Documents\\Warcraft III\\Maps\\Templar30Not\\Oldinject\\NWU_S3_B10_FIX22.w3x"));
+		// } catch (final MPQException e) {
+		// e.printStackTrace();
+		// } catch (final IOException e) {
+		// e.printStackTrace();
+		// }
 	}
 
 	public SetView<String> getMergedListfile() {

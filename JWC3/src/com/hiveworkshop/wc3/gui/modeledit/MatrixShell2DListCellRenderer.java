@@ -39,7 +39,8 @@ public final class MatrixShell2DListCellRenderer extends AbstractSnapshottingLis
 
 	@Override
 	protected boolean contains(final ModelView modelDisp, final MatrixShell object) {
-		return modelDisp.getModel().contains(object.getMatrix().getBones().get(0));
+		return object.getMatrix().getBones().isEmpty() ? false
+				: modelDisp.getModel().contains(object.getMatrix().getBones().get(0));
 	}
 
 	@Override

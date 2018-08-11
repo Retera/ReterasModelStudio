@@ -8,6 +8,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ import javax.swing.KeyStroke;
 import javax.swing.TransferHandler;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.hiveworkshop.wc3.gui.modeledit.util.TransferActionListener;
 import com.hiveworkshop.wc3.jworldedit.AbstractWorldEditorPanel;
@@ -73,6 +75,8 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 
 	private MutableObjectData unitData;
 
+	private final JFileChooser jFileChooser;
+
 	public ObjectEditorPanel() {
 		tabbedPane = new JTabbedPane() {
 			@Override
@@ -96,7 +100,7 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 				getIcon(worldEditorData, "ToolBarIcon_OE_NewBuff"), createAbilityBuffEditor());
 		tabbedPane.addTab(WEString.getString("WESTRING_OBJTAB_UPGRADES"),
 				getIcon(worldEditorData, "ToolBarIcon_OE_NewUpgr"), createUpgradeEditor());
-		tabbedPane.addTab("Terrains", getIcon(worldEditorData, "ToolBarIcon_Module_Terrain"), createUpgradeEditor());
+		// tabbedPane.addTab("Terrains", getIcon(worldEditorData, "ToolBarIcon_Module_Terrain"), createUpgradeEditor());
 
 		final JToolBar toolBar = createToolbar(worldEditorData);
 		toolBar.setFloatable(false);
@@ -120,37 +124,26 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 						WEString.getString(editorTabCustomToolbarButtonData.getPasteObject()).replace("&", ""));
 			}
 		});
+		jFileChooser = new JFileChooser(new File(System.getProperty("user.home") + "/Documents/Warcraft III/Maps"));
 	}
 
 	private JToolBar createToolbar(final DataTable worldEditorData) {
 		final JToolBar toolBar = new JToolBar();
 		makeButton(worldEditorData, toolBar, "newMap", "ToolBarIcon_New", "WESTRING_TOOLBAR_NEW");
-		makeButton(worldEditorData, toolBar, "openMap", "ToolBarIcon_Open", "WESTRING_TOOLBAR_OPEN");
+		final JButton openButton = makeButton(worldEditorData, toolBar, "openMap", "ToolBarIcon_Open",
+				"WESTRING_TOOLBAR_OPEN");
+		openButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				openSpecificTabData();
+			}
+		});
 		final JButton saveButton = makeButton(worldEditorData, toolBar, "saveMap", "ToolBarIcon_Save",
 				"WESTRING_TOOLBAR_SAVE");
 		saveButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				final JFileChooser jFileChooser = new JFileChooser(
-						new File(System.getProperty("user.home") + "/Documents/Warcraft III/Maps"));
-				jFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				jFileChooser.setDialogTitle("Save Map");
-				if (jFileChooser.showSaveDialog(ObjectEditorPanel.this) == JFileChooser.APPROVE_OPTION) {
-					final File selectedFile = jFileChooser.getSelectedFile();
-					if (selectedFile != null) {
-						final File w3uFile = new File(selectedFile.getPath() + ".w3u");
-						try {
-							try (BlizzardDataOutputStream outputStream = new BlizzardDataOutputStream(w3uFile)) {
-								unitData.getEditorData().save(outputStream, false);
-							}
-						} catch (final FileNotFoundException e1) {
-							e1.printStackTrace();
-						} catch (final IOException e1) {
-							e1.printStackTrace();
-						}
-					}
-				}
-
+				saveSpecificTabData();
 			}
 		});
 		toolBar.add(Box.createHorizontalStrut(8));
@@ -218,8 +211,31 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 				}
 			}
 		});
+		this.getRootPane().getActionMap().put("searchUnits", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final int selectedIndex = tabbedPane.getSelectedIndex();
+				final UnitEditorPanel unitEditorPanel = editors.get(selectedIndex);
+				unitEditorPanel.doSearchForUnit();
+			}
+		});
+		this.getRootPane().getActionMap().put("searchFindNextUnit", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final int selectedIndex = tabbedPane.getSelectedIndex();
+				final UnitEditorPanel unitEditorPanel = editors.get(selectedIndex);
+				unitEditorPanel.doSearchFindNextUnit();
+			}
+		});
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control D"),
 				"displayAsRawData");
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control F"),
+				"searchUnits");
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control G"),
+				"searchFindNextUnit");
+		for (final UnitEditorPanel editor : editors) {
+			editor.loadHotkeys();
+		}
 	}
 
 	private UnitEditorPanel createUnitEditor() {
@@ -428,6 +444,110 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 					}
 				});
 		return unitEditorPanel;
+	}
+
+	public void saveSpecificTabData() {
+		// jFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		jFileChooser.resetChoosableFileFilters();
+		jFileChooser.setAcceptAllFileFilterUsed(false);
+		jFileChooser.setDialogTitle("Export Data from this Tab");
+		final int selectedIndex = tabbedPane.getSelectedIndex();
+		final UnitEditorPanel unitEditorPanel = editors.get(selectedIndex);
+		JOptionPane.showMessageDialog(ObjectEditorPanel.this,
+				"OK, friend, we are going to export " + unitEditorPanel.getUnitData().getWorldEditorDataType());
+		jFileChooser.addChoosableFileFilter(
+				new FileNameExtensionFilter(getFileTypeName(unitEditorPanel.getUnitData().getWorldEditorDataType()),
+						unitEditorPanel.getUnitData().getWorldEditorDataType().getExtension()));
+		final String extension = unitEditorPanel.getUnitData().getWorldEditorDataType().getExtension();
+		if (jFileChooser.showSaveDialog(ObjectEditorPanel.this) == JFileChooser.APPROVE_OPTION) {
+			final File selectedFile = jFileChooser.getSelectedFile();
+			if (selectedFile != null) {
+				String path = selectedFile.getPath();
+				if (!path.toLowerCase().endsWith("." + extension)) {
+					path += "." + extension;
+				}
+				final File w3uFile = new File(path);
+				if (w3uFile.exists()) {
+					final int result = JOptionPane.showConfirmDialog(ObjectEditorPanel.this,
+							w3uFile.getName() + " already exists. Ok to overwrite?", "Warning",
+							JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+					if (result != JOptionPane.OK_OPTION) {
+						return;
+					}
+				}
+				try {
+					try (BlizzardDataOutputStream outputStream = new BlizzardDataOutputStream(w3uFile)) {
+						unitEditorPanel.getUnitData().getEditorData().save(outputStream, false);
+					}
+				} catch (final FileNotFoundException e1) {
+					e1.printStackTrace();
+				} catch (final IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}
+	}
+
+	public String getFileTypeName(final WorldEditorDataType dataType) {
+		switch (dataType) {
+		case ABILITIES:
+			return WEString.getString("WESTRING_FILETYPE_ABILITYDATA");
+		case BUFFS_EFFECTS:
+			return WEString.getString("WESTRING_FILETYPE_BUFFDATA");
+		case DESTRUCTIBLES:
+			return WEString.getString("WESTRING_FILETYPE_DESTRUCTABLEDATA");
+		case DOODADS:
+			return WEString.getString("WESTRING_FILETYPE_DOODADDATA");
+		case ITEM:
+			return WEString.getString("WESTRING_FILETYPE_ITEMDATA");
+		case UNITS:
+			return WEString.getString("WESTRING_FILETYPE_UNITDATA");
+		case UPGRADES:
+			return WEString.getString("WESTRING_FILETYPE_UPGRADEDATA");
+		default:
+			return WEString.getString("WESTRING_UNKNOWN");
+		}
+	}
+
+	public void openSpecificTabData() {
+		// jFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		jFileChooser.resetChoosableFileFilters();
+		jFileChooser.setAcceptAllFileFilterUsed(false);
+		jFileChooser.setDialogTitle("Import Data to this Tab");
+		final int selectedIndex = tabbedPane.getSelectedIndex();
+		final UnitEditorPanel unitEditorPanel = editors.get(selectedIndex);
+		JOptionPane.showMessageDialog(ObjectEditorPanel.this,
+				"OK, friend, we are going to import " + unitEditorPanel.getUnitData().getWorldEditorDataType()
+						+ ". This will replace all settings, like WE.");
+		jFileChooser.addChoosableFileFilter(
+				new FileNameExtensionFilter(getFileTypeName(unitEditorPanel.getUnitData().getWorldEditorDataType()),
+						unitEditorPanel.getUnitData().getWorldEditorDataType().getExtension()));
+		final String extension = unitEditorPanel.getUnitData().getWorldEditorDataType().getExtension();
+		if (jFileChooser.showOpenDialog(ObjectEditorPanel.this) == JFileChooser.APPROVE_OPTION) {
+			final File selectedFile = jFileChooser.getSelectedFile();
+			if (selectedFile != null) {
+				final String path = selectedFile.getPath();
+				final File w3uFile = new File(path);
+				if (!w3uFile.exists()) {
+					JOptionPane.showMessageDialog(ObjectEditorPanel.this, "Error. Chosen file did not exist. Retry?");
+					return;
+				}
+				try {
+					try (BlizzardDataInputStream inputStream = new BlizzardDataInputStream(
+							new FileInputStream(w3uFile))) {
+						unitEditorPanel.getUnitData().dropCachesHack();
+						unitEditorPanel.getUnitData().getEditorData().getCustom().clear();
+						unitEditorPanel.getUnitData().getEditorData().getOriginal().clear();
+						unitEditorPanel.getUnitData().getEditorData().load(inputStream, null, false);
+						unitEditorPanel.reloadAllDataVerySlowly();
+					}
+				} catch (final FileNotFoundException e1) {
+					e1.printStackTrace();
+				} catch (final IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}
 	}
 
 	private final class NewCustomUnitDialogRunner implements Runnable {

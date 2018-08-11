@@ -44,7 +44,7 @@ public final class War3ID implements Comparable<War3ID> {
 	}
 
 	public char charAt(final int index) {
-		return asStringValue().charAt(index); // TODO performance
+		return (char) ((value >>> ((3 - index) * 8)) & 0xFF);
 	}
 
 	@Override

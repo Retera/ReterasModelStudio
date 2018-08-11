@@ -25,11 +25,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
 import javax.imageio.ImageIO;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -80,6 +84,9 @@ import javax.swing.text.rtf.RTFEditorKit;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rtextarea.RTextScrollPane;
 import org.lwjgl.util.vector.Quaternion;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
@@ -221,10 +228,10 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 	JCheckBoxMenuItem mirrorFlip, fetchPortraitsToo, showNormals, useNativeMDXParser, textureModels,
 			showVertexModifyControls;
 	ArrayList geoItems = new ArrayList();
-	JMenuItem newModel, open, fetchUnit, fetchModel, fetchObject, save, showController, mergeGeoset, saveAs,
+	JMenuItem newModel, open, fetchUnit, fetchModel, fetchObject, save, close, showController, mergeGeoset, saveAs,
 			importButton, importUnit, importGameModel, importGameObject, importFromWorkspace, importButtonS,
 			newDirectory, creditsButton, clearRecent, nullmodelButton, selectAll, invertSelect, expandSelection,
-			snapNormals, flipAllUVsU, flipAllUVsV, inverseAllUVs, mirrorX, mirrorY, mirrorZ, insideOut,
+			snapNormals, snapVertices, flipAllUVsU, flipAllUVsV, inverseAllUVs, mirrorX, mirrorY, mirrorZ, insideOut,
 			insideOutNormals, showMatrices, editUVs, exportTextures, scaleAnimations, animationViewer,
 			animationController, modelingTab, mpqViewer, hiveViewer, unitViewer, preferencesWindow, linearizeAnimations,
 			simplifyKeyframes, duplicateSelection, riseFallBirth, animFromFile, animFromUnit, animFromModel,
@@ -250,6 +257,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 	List<ModelPanel> modelPanels;
 	ModelPanel currentModelPanel;
 	View frontView, leftView, bottomView, perspectiveView;
+	private View hackerView;
 	private View previewView;
 	private View creatorView;
 	private View animationControllerView;
@@ -478,12 +486,23 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 			repaint();
 		}
 	};
-	AbstractAction snapNormalsAction = new AbstractAction("Expand Selection") {
+	AbstractAction snapNormalsAction = new AbstractAction("Snap Normals") {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
 			final ModelPanel mpanel = currentModelPanel();
 			if (mpanel != null) {
 				mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().snapNormals());
+			}
+			repaint();
+		}
+	};
+	AbstractAction snapVerticesAction = new AbstractAction("Snap Vertices") {
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			final ModelPanel mpanel = currentModelPanel();
+			if (mpanel != null) {
+				mpanel.getUndoManager()
+						.pushAction(mpanel.getModelEditorManager().getModelEditor().snapSelectedVertices());
 			}
 			repaint();
 		}
@@ -653,6 +672,12 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		@Override
 		public View getView() {
 			return bottomView;
+		}
+	});
+	AbstractAction hackerViewAction = new OpenViewAction("Matrix Eater Script", new OpenViewGetter() {
+		@Override
+		public View getView() {
+			return hackerView;
 		}
 	});
 	AbstractAction openPreferencesAction = new AbstractAction("Open Preferences") {
@@ -1024,6 +1049,41 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		bottomView = new View("Bottom", null, new JPanel());
 		perspectiveView = new View("Perspective", null, new JPanel());
 		previewView = new View("Preview", null, new JPanel());
+		final JPanel hackerPanel = new JPanel(new BorderLayout());
+		final RSyntaxTextArea matrixEaterScriptTextArea = new RSyntaxTextArea(20, 60);
+		matrixEaterScriptTextArea.setCodeFoldingEnabled(true);
+		matrixEaterScriptTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
+		hackerPanel.add(new RTextScrollPane(matrixEaterScriptTextArea), BorderLayout.CENTER);
+		final JButton run = new JButton("Run",
+				new ImageIcon(BLPHandler.get().getGameTex("ReplaceableTextures\\CommandButtons\\BTNReplay-Play.blp")
+						.getScaledInstance(24, 24, Image.SCALE_FAST)));
+		run.addActionListener(new ActionListener() {
+			ScriptEngineManager factory = new ScriptEngineManager();
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final String text = matrixEaterScriptTextArea.getText();
+				final ScriptEngine engine = factory.getEngineByName("JavaScript");
+				final ModelPanel modelPanel = currentModelPanel();
+				if (modelPanel != null) {
+					engine.put("modelPanel", modelPanel);
+					engine.put("model", modelPanel.getModel());
+					engine.put("world", MainPanel.this);
+					try {
+						engine.eval(text);
+					} catch (final ScriptException e1) {
+						e1.printStackTrace();
+						JOptionPane.showMessageDialog(MainPanel.this, e1.getMessage(), "Error",
+								JOptionPane.ERROR_MESSAGE);
+					}
+				} else {
+					JOptionPane.showMessageDialog(MainPanel.this, "Must open a file!", "Error",
+							JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
+		hackerPanel.add(run, BorderLayout.NORTH);
+		hackerView = new View("Matrix Eater Script", null, hackerPanel);
 		creatorPanel = new CreatorModelingPanel(new ChangeActivityListener() {
 
 			@Override
@@ -1035,12 +1095,13 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		creatorView = new View("Modeling", null, creatorPanel);
 		animationControllerView = new View("Animation Controller", null, new JPanel());
 		final TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {
-				new SplitWindow(true, 0.8f,
-						new SplitWindow(false, new SplitWindow(true, frontView, bottomView),
-								new SplitWindow(true, leftView, perspectiveView)),
-						creatorView),
+				new SplitWindow(true, 0.2f, viewportControllerWindowView,
+						new SplitWindow(true, 0.8f,
+								new SplitWindow(false, new SplitWindow(true, frontView, bottomView),
+										new SplitWindow(true, leftView, perspectiveView)),
+								creatorView)),
 				new SplitWindow(true, 0.8f, previewView, animationControllerView) });
-		rootWindow.setWindow(new SplitWindow(true, 0.2f, viewportControllerWindowView, startupTabWindow));
+		rootWindow.setWindow(startupTabWindow);
 		startupTabWindow.setSelectedTab(0);
 		final Component horizontalGlue = Box.createHorizontalGlue();
 		layout.setHorizontalGroup(layout.createSequentialGroup()
@@ -1194,6 +1255,16 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		display.getAnimationViewer().reload();
 		display.getAnimationController().reload();
 		creatorPanel.reloadAnimationList();
+
+		display.getEditorRenderModel().refreshFromEditor(animatedRenderEnvironment, IDENTITY, IDENTITY, IDENTITY);
+	}
+
+	public void reloadGUI() {
+		refreshUndo();
+		refreshController();
+		refreshAnimationModeState();
+		reloadGeosetManagers(currentModelPanel());
+
 	}
 
 	/**
@@ -1568,6 +1639,14 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 				selectionItemTypeGroup.setToolbarButtonType(selectionItemTypeGroup.getToolbarButtonTypes()[3]);
 			}
 		});
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("G"),
+				"GKeyboardKey");
+		root.getActionMap().put("GKeyboardKey", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				selectionItemTypeGroup.setToolbarButtonType(selectionItemTypeGroup.getToolbarButtonTypes()[4]);
+			}
+		});
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("Z"),
 				"ZKeyboardKey");
 		root.getActionMap().put("ZKeyboardKey", new AbstractAction() {
@@ -1601,6 +1680,24 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 				}
 			}
 		});
+		for (int i = 1; i <= 9; i++) {
+			root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
+					.put(KeyStroke.getKeyStroke("alt pressed " + i), i + "KeyboardKey");
+			final int index = i;
+			root.getActionMap().put(i + "KeyboardKey", new AbstractAction() {
+				@Override
+				public void actionPerformed(final ActionEvent e) {
+					final DockingWindow window = rootWindow.getWindow();
+					if (window instanceof TabWindow) {
+						final TabWindow tabWindow = (TabWindow) window;
+						final int tabCount = tabWindow.getChildWindowCount();
+						if (index - 1 < tabCount) {
+							tabWindow.setSelectedTab(index - 1);
+						}
+					}
+				}
+			});
+		}
 		// root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control
 		// V"), null);
 		// root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control
@@ -1645,8 +1742,8 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		});
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
 				.put(KeyStroke.getKeyStroke("shift pressed SHIFT"), "shiftSelect");
-		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
-				.put(KeyStroke.getKeyStroke("control pressed CONTROL"), "shiftSelect");
+		// root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
+		// .put(KeyStroke.getKeyStroke("control pressed CONTROL"), "shiftSelect");
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("alt pressed ALT"),
 				"altSelect");
 
@@ -1688,8 +1785,9 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		});
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("released SHIFT"),
 				"unShiftSelect");
-		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("released CONTROL"),
-				"unShiftSelect");
+		// root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("released
+		// CONTROL"),
+		// "unShiftSelect");
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("released ALT"),
 				"unAltSelect");
 
@@ -1840,6 +1938,12 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		bottomItem.setMnemonic(KeyEvent.VK_B);
 		bottomItem.addActionListener(openBottomAction);
 		viewsMenu.add(bottomItem);
+
+		final JMenuItem hackerViewItem = new JMenuItem("Matrix Eater Script");
+		hackerViewItem.setMnemonic(KeyEvent.VK_H);
+		hackerViewItem.setAccelerator(KeyStroke.getKeyStroke("control P"));
+		hackerViewItem.addActionListener(hackerViewAction);
+		viewsMenu.add(hackerViewItem);
 
 		final JMenu browsersMenu = new JMenu("Browsers");
 		browsersMenu.setMnemonic(KeyEvent.VK_B);
@@ -2368,6 +2472,12 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		});
 		fetch.add(fetchPortraitsToo);
 
+		close = new JMenuItem("Close");
+		close.setAccelerator(KeyStroke.getKeyStroke("control E"));
+		close.setMnemonic(KeyEvent.VK_E);
+		close.addActionListener(this);
+		fileMenu.add(close);
+
 		fileMenu.add(new JSeparator());
 
 		importMenu = new JMenu("Import");
@@ -2382,6 +2492,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 
 		importUnit = new JMenuItem("From Unit");
 		importUnit.setMnemonic(KeyEvent.VK_U);
+		importUnit.setAccelerator(KeyStroke.getKeyStroke("control shift U"));
 		importUnit.addActionListener(this);
 		importMenu.add(importUnit);
 
@@ -2512,6 +2623,11 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 
 		editMenu.add(new JSeparator());
 
+		snapVertices = new JMenuItem("Snap Vertices");
+		snapVertices.setAccelerator(KeyStroke.getKeyStroke("control W"));
+		snapVertices.addActionListener(snapVerticesAction);
+		editMenu.add(snapVertices);
+
 		snapNormals = new JMenuItem("Snap Normals");
 		snapNormals.setAccelerator(KeyStroke.getKeyStroke("control L"));
 		snapNormals.addActionListener(snapNormalsAction);
@@ -2579,6 +2695,22 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 				newModel();
 			} else if (e.getSource() == open) {
 				onClickOpen();
+			} else if (e.getSource() == close) {
+				final ModelPanel modelPanel = currentModelPanel();
+				final int oldIndex = modelPanels.indexOf(modelPanel);
+				if (modelPanel != null) {
+					if (modelPanel.close()) {
+						modelPanels.remove(modelPanel);
+						windowMenu.remove(modelPanel.getMenuItem());
+						if (modelPanels.size() > 0) {
+							final int newIndex = Math.min(modelPanels.size() - 1, oldIndex);
+							setCurrentModel(modelPanels.get(newIndex));
+						} else {
+							// TODO remove from notifiers to fix leaks
+							setCurrentModel(null);
+						}
+					}
+				}
 			} else if (e.getSource() == fetchUnit) {
 				final GameObject unitFetched = fetchUnit();
 				if (unitFetched != null) {
@@ -2935,13 +3067,16 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 							if (file.getName().lastIndexOf('.') >= 0) {
 								BufferedImage bufferedImage = materialsList.getSelectedValue()
 										.getBufferedImage(currentMDL().getWorkingDirectory());
-								final String fileExtension = file.getName()
-										.substring(file.getName().lastIndexOf('.') + 1).toUpperCase();
+								String fileExtension = file.getName().substring(file.getName().lastIndexOf('.') + 1)
+										.toUpperCase();
 								if (fileExtension.equals("BMP") || fileExtension.equals("JPG")
 										|| fileExtension.equals("JPEG")) {
 									JOptionPane.showMessageDialog(this,
 											"Warning: Alpha channel was converted to black. Some data will be lost\nif you convert this texture back to Warcraft BLP.");
 									bufferedImage = removeAlphaChannel(bufferedImage);
+								}
+								if (fileExtension.equals("BLP")) {
+									fileExtension = "blp";
 								}
 								final boolean write = ImageIO.write(bufferedImage, fileExtension, file);
 								if (!write) {
@@ -4058,21 +4193,39 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 
 	public void setCurrentModel(final ModelPanel modelContextManager) {
 		currentModelPanel = modelContextManager;
-		geoControl.setViewportView(currentModelPanel.getModelViewManagingTree());
-		geoControl.repaint();
+		if (currentModelPanel == null) {
+			final JPanel jPanel = new JPanel();
+			jPanel.add(new JLabel("..."));
+			viewportControllerWindowView.setComponent(jPanel);
+			frontView.setComponent(new JPanel());
+			bottomView.setComponent(new JPanel());
+			leftView.setComponent(new JPanel());
+			perspectiveView.setComponent(new JPanel());
+			previewView.setComponent(new JPanel());
+			animationControllerView.setComponent(new JPanel());
+			refreshAnimationModeState();
+			timeSliderPanel.setUndoManager(null, animatedRenderEnvironment);
+			timeSliderPanel.setModelView(null);
+			creatorPanel.setModelEditorManager(null);
+			creatorPanel.setCurrentModel(null);
+			creatorPanel.setUndoManager(null);
+		} else {
+			geoControl.setViewportView(currentModelPanel.getModelViewManagingTree());
+			geoControl.repaint();
 
-		frontView.setComponent(modelContextManager.getFrontArea());
-		bottomView.setComponent(modelContextManager.getBotArea());
-		leftView.setComponent(modelContextManager.getSideArea());
-		perspectiveView.setComponent(modelContextManager.getPerspArea());
-		previewView.setComponent(modelContextManager.getAnimationViewer());
-		animationControllerView.setComponent(modelContextManager.getAnimationController());
-		refreshAnimationModeState();
-		timeSliderPanel.setUndoManager(currentModelPanel.getUndoManager(), animatedRenderEnvironment);
-		timeSliderPanel.setModelView(currentModelPanel.getModelViewManager());
-		creatorPanel.setModelEditorManager(currentModelPanel.getModelEditorManager());
-		creatorPanel.setCurrentModel(currentModelPanel.getModelViewManager());
-		creatorPanel.setUndoManager(currentModelPanel.getUndoManager());
+			frontView.setComponent(modelContextManager.getFrontArea());
+			bottomView.setComponent(modelContextManager.getBotArea());
+			leftView.setComponent(modelContextManager.getSideArea());
+			perspectiveView.setComponent(modelContextManager.getPerspArea());
+			previewView.setComponent(modelContextManager.getAnimationViewer());
+			animationControllerView.setComponent(modelContextManager.getAnimationController());
+			refreshAnimationModeState();
+			timeSliderPanel.setUndoManager(currentModelPanel.getUndoManager(), animatedRenderEnvironment);
+			timeSliderPanel.setModelView(currentModelPanel.getModelViewManager());
+			creatorPanel.setModelEditorManager(currentModelPanel.getModelEditorManager());
+			creatorPanel.setCurrentModel(currentModelPanel.getModelViewManager());
+			creatorPanel.setUndoManager(currentModelPanel.getUndoManager());
+		}
 		activeViewportWatcher.viewportChanged(null);
 		timeSliderPanel.revalidateKeyframeDisplay();
 	}
@@ -4382,25 +4535,52 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 
 	public boolean closeAll() {
 		boolean success = true;
-		for (final ModelPanel panel : modelPanels) {
+		final Iterator<ModelPanel> iterator = modelPanels.iterator();
+		boolean closedCurrentPanel = false;
+		ModelPanel lastUnclosedModelPanel = null;
+		while (iterator.hasNext()) {
+			final ModelPanel panel = iterator.next();
 			if (success = panel.close()) {
 				windowMenu.remove(panel.getMenuItem());
+				iterator.remove();
+				if (panel == currentModelPanel) {
+					closedCurrentPanel = true;
+				}
 			} else {
+				lastUnclosedModelPanel = panel;
 				break;
 			}
+		}
+		if (closedCurrentPanel) {
+			setCurrentModel(lastUnclosedModelPanel);
 		}
 		return success;
 	}
 
 	public boolean closeOthers(final ModelPanel panelToKeepOpen) {
 		boolean success = true;
-		for (final ModelPanel panel : modelPanels) {
+		final Iterator<ModelPanel> iterator = modelPanels.iterator();
+		boolean closedCurrentPanel = false;
+		ModelPanel lastUnclosedModelPanel = null;
+		while (iterator.hasNext()) {
+			final ModelPanel panel = iterator.next();
 			if (panel == panelToKeepOpen) {
+				lastUnclosedModelPanel = panel;
 				continue;
 			}
 			if (success = panel.close()) {
 				windowMenu.remove(panel.getMenuItem());
+				iterator.remove();
+				if (panel == currentModelPanel) {
+					closedCurrentPanel = true;
+				}
+			} else {
+				lastUnclosedModelPanel = panel;
+				break;
 			}
+		}
+		if (closedCurrentPanel) {
+			setCurrentModel(lastUnclosedModelPanel);
 		}
 		return success;
 	}

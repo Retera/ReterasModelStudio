@@ -89,6 +89,7 @@ import com.hiveworkshop.wc3.mdl.RenderModel;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import com.hiveworkshop.wc3.util.MathUtils;
 
 public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, ActionListener, MouseWheelListener {
 	ModelView modelView;
@@ -96,6 +97,7 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 	Quaternion inverseCameraRotationQuat = new Quaternion();
 	Quaternion inverseCameraRotationYSpin = new Quaternion();
 	Quaternion inverseCameraRotationZSpin = new Quaternion();
+	Matrix4f matrixHeap = new Matrix4f();
 	private final Vector4f axisHeap = new Vector4f();
 	double m_zoom = 1;
 	Point lastClick;
@@ -447,10 +449,11 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
 
-			glTranslatef(0f + (float) cameraPos.x * (float) m_zoom, -70f - (float) cameraPos.y * (float) m_zoom,
-					-200f - (float) cameraPos.z * (float) m_zoom);
+			glTranslatef(0f, -70f, -200f);
 			glRotatef(yangle, 1f, 0f, 0f);
 			glRotatef(xangle, 0f, 1f, 0f);
+			glTranslatef((float) cameraPos.y * (float) m_zoom, (float) cameraPos.z * (float) m_zoom,
+					(float) cameraPos.x * (float) m_zoom);
 			glScalef((float) m_zoom, (float) m_zoom, (float) m_zoom);
 
 			final FloatBuffer ambientColor = BufferUtils.createFloatBuffer(4);
@@ -583,11 +586,16 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 		} catch (final Throwable e) {
 			if (lastThrownErrorClass == null || lastThrownErrorClass != e.getClass()) {
 				lastThrownErrorClass = e.getClass();
-				ExceptionPopup.display(e);
+				popupCount++;
+				if (popupCount < 10) {
+					ExceptionPopup.display(e);
+				}
 			}
 			throw new RuntimeException(e);
 		}
 	}
+
+	int popupCount = 0;
 
 	public void bindLayer(final Layer layer, final Bitmap tex, final Integer texture) {
 		if (texture != null) {
@@ -757,10 +765,12 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 
 							GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
 						}
-						final int coordId = layer.getCoordId();
+						int coordId = layer.getCoordId();
+						if (coordId >= v.getTverts().size()) {
+							coordId = v.getTverts().size() - 1;
+						}
 						final int highestTvertexIndx = v.getTverts().size() - 1;
-						GL11.glTexCoord2f((float) v.getTverts().get(highestTvertexIndx - coordId).x,
-								(float) v.getTverts().get(highestTvertexIndx - coordId).y);
+						GL11.glTexCoord2f((float) v.getTverts().get(coordId).x, (float) v.getTverts().get(coordId).y);
 						GL11.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
 					}
 				}
@@ -810,11 +820,33 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 			// "+lastClick.x+","+lastClick.y+" as last.");
 			// System.out.println(xoff+" and "+mx);
 			if (lastClick != null) {
-
-				cameraPos.x += ((int) mx - lastClick.x) / m_zoom;
-				cameraPos.y += ((int) my - lastClick.y) / m_zoom;
+				MathUtils.fromQuat(inverseCameraRotationQuat, matrixHeap);
+				vertexHeap.x = 0;
+				vertexHeap.y = (float) (((int) mx - lastClick.x) / m_zoom);
+				vertexHeap.z = -(float) (((int) my - lastClick.y) / m_zoom);
+				vertexHeap.w = 1;
+				Matrix4f.transform(matrixHeap, vertexHeap, vertexHeap);
+				cameraPos.x += vertexHeap.x;
+				cameraPos.y += vertexHeap.y;
+				cameraPos.z += vertexHeap.z;
 				lastClick.x = (int) mx;
 				lastClick.y = (int) my;
+				// rip it from magos's code:
+				// final double dx = ((int) mx - lastClick.x) / m_zoom;
+				// final double dy = ((int) my - lastClick.y) / m_zoom;
+				// final double yaw = xangle;
+				// final double pitch = yangle;
+				// final double x_x = dx * Math.sin(yaw);
+				// final double x_y = -dy * Math.sin(pitch) * Math.cos(yaw);
+				// final double y_x = -dx * Math.cos(yaw);
+				// final double y_y = -dy * Math.sin(pitch) * Math.sin(yaw);
+				// final double z_x = 0;
+				// final double z_y = dy * Math.cos(pitch);
+				// cameraPos.x += (x_x + x_y);
+				// cameraPos.y += (y_x + y_y);
+				// cameraPos.z += (z_x + z_y);
+				// lastClick.x = (int) mx;
+				// lastClick.y = (int) my;
 			}
 			if (leftClickStart != null) {
 
@@ -884,9 +916,9 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 
 	@Override
 	public void mousePressed(final MouseEvent e) {
-		if (e.getButton() == MouseEvent.BUTTON2) {
+		if (programPreferences.getThreeDCameraPanButton().isButton(e)) {
 			lastClick = new Point(e.getXOnScreen(), e.getYOnScreen());
-		} else if (e.getButton() == MouseEvent.BUTTON1) {
+		} else if (programPreferences.getThreeDCameraSpinButton().isButton(e)) {
 			leftClickStart = new Point(e.getXOnScreen(), e.getYOnScreen());
 		} else if (e.getButton() == MouseEvent.BUTTON3) {
 			actStart = new Point(e.getX(), e.getY());
@@ -897,11 +929,11 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 
 	@Override
 	public void mouseReleased(final MouseEvent e) {
-		if (e.getButton() == MouseEvent.BUTTON2) {
+		if (programPreferences.getThreeDCameraPanButton().isButton(e) && lastClick != null) {
 			cameraPos.x += (e.getXOnScreen() - lastClick.x) / m_zoom;
 			cameraPos.y += (e.getYOnScreen() - lastClick.y) / m_zoom;
 			lastClick = null;
-		} else if (e.getButton() == MouseEvent.BUTTON1 && leftClickStart != null) {
+		} else if (programPreferences.getThreeDCameraSpinButton().isButton(e) && leftClickStart != null) {
 			final Point selectEnd = new Point(e.getX(), e.getY());
 			final Rectangle2D.Double area = pointsToGeomRect(leftClickStart, selectEnd);
 			// System.out.println(area);

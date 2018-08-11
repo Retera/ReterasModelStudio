@@ -40,11 +40,11 @@ public final class ItemSortByClassFolder extends AbstractSortingFolderTreeNode {
 		itemClassToTreeNode = new LinkedHashMap<>();
 		itemClassesList = new ArrayList<>();
 		for (int i = 0; i < numClasses; i++) {
-			final String classData = itemClasses.getField(String.format("%2d", i).replace(' ', '0'));
-			final String[] typeToNameTag = classData.split(",");
-			final BottomLevelCategoryFolder classFolder = new BottomLevelCategoryFolder(
-					WEString.getString(typeToNameTag[1]), ITEM_NAME_COMPARATOR);
-			itemClassToTreeNode.put(typeToNameTag[0], classFolder);
+			final String typeName = itemClasses.getField(String.format("%2d", i).replace(' ', '0'), 0);
+			final String tag = itemClasses.getField(String.format("%2d", i).replace(' ', '0'), 1);
+			final BottomLevelCategoryFolder classFolder = new BottomLevelCategoryFolder(WEString.getString(tag),
+					ITEM_NAME_COMPARATOR);
+			itemClassToTreeNode.put(typeName, classFolder);
 			itemClassesList.add(classFolder);
 		}
 	}

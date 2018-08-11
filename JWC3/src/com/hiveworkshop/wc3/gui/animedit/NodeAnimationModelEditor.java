@@ -32,6 +32,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.animation.Translation
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.StaticMeshMoveAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.CloneAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericRotateAction;
@@ -553,7 +554,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	@Override
-	public UndoAction cloneSelectedComponents(final ClonedNodeNamePicker clonedNodeNamePicker) {
+	public CloneAction cloneSelectedComponents(final ClonedNodeNamePicker clonedNodeNamePicker) {
 		throw new WrongModeException("Unable to clone components in Animation Editor");
 	}
 
@@ -585,7 +586,10 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	public void rawTranslate(final double x, final double y, final double z) {
-		throw new UnsupportedOperationException("Unable to translate directly in animation mode, use other system");
+		// throw new UnsupportedOperationException("Unable to translate directly in animation mode, use other system");
+		for (final IdObject idObject : selectionManager.getSelection()) {
+			idObject.updateTranslationKeyframe(renderModel, x, y, z, new Vector3f());
+		}
 	}
 
 	public void rawTranslate(final double x, final double y, final double z,
@@ -881,6 +885,11 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 				: timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
 		return new SquatToolKeyframeAction(new CompoundAction("setup", actions), trackTimeToUse,
 				timeEnvironmentImpl.getGlobalSeq(), selection, this, centerX, centerY, centerZ, firstXYZ, secondXYZ);
+	}
+
+	@Override
+	public UndoAction setParent(final IdObject node) {
+		throw new WrongModeException("Can't set parent in Animation Editor");
 	}
 
 }

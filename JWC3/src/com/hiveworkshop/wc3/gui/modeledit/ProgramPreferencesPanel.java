@@ -7,12 +7,14 @@ import java.awt.event.ActionListener;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
+import com.hiveworkshop.wc3.gui.MouseButtonPreference;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.util.ColorChooserIcon;
 import com.hiveworkshop.wc3.gui.util.ColorChooserIcon.ColorListener;
@@ -174,5 +176,32 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		modelEditorPanel.add(animtedBoneSelectedUpstreamColorIcon, "cell 1 " + row);
 		row++;
 		addTab("Editor", new JScrollPane(modelEditorPanel));
+
+		final JPanel hotkeysPanel = new JPanel();
+		hotkeysPanel.setLayout(new MigLayout());
+		row = 0;
+		final JComboBox<MouseButtonPreference> cameraSpinBox = new JComboBox<>(MouseButtonPreference.values());
+		cameraSpinBox.setSelectedItem(programPreferences.getThreeDCameraSpinButton());
+		final JComboBox<MouseButtonPreference> cameraPanBox = new JComboBox<>(MouseButtonPreference.values());
+		cameraPanBox.setSelectedItem(programPreferences.getThreeDCameraPanButton());
+		cameraSpinBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				programPreferences.setThreeDCameraSpinButton((MouseButtonPreference) cameraSpinBox.getSelectedItem());
+			}
+		});
+		cameraPanBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				programPreferences.setThreeDCameraPanButton((MouseButtonPreference) cameraPanBox.getSelectedItem());
+			}
+		});
+		hotkeysPanel.add(new JLabel("3D Camera Spin"), "cell 0 " + row);
+		hotkeysPanel.add(cameraSpinBox, "cell 1 " + row);
+		row++;
+		hotkeysPanel.add(new JLabel("3D Camera Pan"), "cell 0 " + row);
+		hotkeysPanel.add(cameraPanBox, "cell 1 " + row);
+		row++;
+		addTab("Hotkeys", hotkeysPanel);
 	}
 }

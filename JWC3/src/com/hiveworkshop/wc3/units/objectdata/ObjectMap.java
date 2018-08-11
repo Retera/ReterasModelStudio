@@ -3,24 +3,30 @@ package com.hiveworkshop.wc3.units.objectdata;
 import java.util.Iterator;
 
 import com.etheller.collections.CollectionView;
+import com.etheller.collections.HashSet;
 import com.etheller.collections.LinkedHashMap;
 import com.etheller.collections.Map;
 import com.etheller.collections.MapView.Entry;
 import com.etheller.collections.MapView.ForEach;
+import com.etheller.collections.Set;
 import com.etheller.collections.SetView;
 
 public final class ObjectMap implements Iterable<Entry<War3ID, ObjectDataChangeEntry>> {
 	private final Map<War3ID, ObjectDataChangeEntry> idToDataChangeEntry;
+	private final Set<War3ID> lowerCaseKeySet;
 
 	public ObjectMap() {
 		idToDataChangeEntry = new LinkedHashMap<>();
+		lowerCaseKeySet = new HashSet<>();
 	}
 
 	public void clear() {
 		idToDataChangeEntry.clear();
+		lowerCaseKeySet.clear();
 	}
 
 	public ObjectDataChangeEntry remove(final War3ID key) {
+		lowerCaseKeySet.remove(War3ID.fromString(key.toString().toLowerCase()));
 		return idToDataChangeEntry.remove(key);
 	}
 
@@ -29,6 +35,7 @@ public final class ObjectMap implements Iterable<Entry<War3ID, ObjectDataChangeE
 	}
 
 	public ObjectDataChangeEntry put(final War3ID key, final ObjectDataChangeEntry value) {
+		lowerCaseKeySet.add(War3ID.fromString(key.toString().toLowerCase()));
 		return idToDataChangeEntry.put(key, value);
 	}
 
@@ -42,6 +49,10 @@ public final class ObjectMap implements Iterable<Entry<War3ID, ObjectDataChangeE
 
 	public boolean containsKey(final War3ID key) {
 		return idToDataChangeEntry.containsKey(key);
+	}
+
+	public boolean containsKeyCaseInsensitive(final War3ID key) {
+		return lowerCaseKeySet.contains(War3ID.fromString(key.toString().toLowerCase()));
 	}
 
 	public boolean containsValue(final ObjectDataChangeEntry value) {

@@ -83,4 +83,5 @@ public final class FaceSelectionManager extends AbstractSelectionManager<Triangl
 	public Collection<Triangle> getSelectedFaces() {
 		return getSelection();
 	}
+
 }

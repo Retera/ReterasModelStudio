@@ -89,7 +89,7 @@ public class Element extends HashedGameObject {
 	}
 
 	public int getTechTier() {
-		final String tier = fields.get("Custom Field: TechTier");
+		final String tier = getField("Custom Field: TechTier");
 		if (tier == null) {
 			return -1;
 		}
@@ -101,7 +101,7 @@ public class Element extends HashedGameObject {
 	}
 
 	public int getTechDepth() {
-		final String tier = fields.get("Custom Field: TechDepth");
+		final String tier = getField("Custom Field: TechDepth");
 		if (tier == null) {
 			return -1;
 		}

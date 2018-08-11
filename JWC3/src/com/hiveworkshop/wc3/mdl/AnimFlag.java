@@ -303,11 +303,9 @@ public class AnimFlag {
 		// NOTE: autoreplaced from a > 0 check, Linear shouldn't have 'tans'???
 		for (final GeosetColor.ScalingTrack track : geosetColor.scalingTrack) {
 			if (tans) {
-				addEntry(track.time, new Vertex(MdlxUtils.flipRGBtoBGR(track.color)),
-						new Vertex(MdlxUtils.flipRGBtoBGR(track.inTan)),
-						new Vertex(MdlxUtils.flipRGBtoBGR(track.outTan)));
+				addEntry(track.time, new Vertex(track.color), new Vertex(track.inTan), new Vertex(track.outTan));
 			} else {
-				addEntry(track.time, new Vertex(MdlxUtils.flipRGBtoBGR(track.color)));
+				addEntry(track.time, new Vertex(track.color));
 			}
 		}
 	}
@@ -2029,8 +2027,12 @@ public class AnimFlag {
 	 * @return
 	 */
 	public Object interpolateAt(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		int localTypeId = typeid;
+		if (localTypeId == ROTATION && size() > 0 && values.get(0) instanceof Double) {
+			localTypeId = ALPHA; // magic Camera rotation!
+		}
 		if (times.isEmpty()) {
-			return null;
+			return identity(localTypeId);
 		}
 		// TODO ghostwolf says to stop using binary search, because linear walking is faster for the small MDL case
 		int time;
@@ -2055,16 +2057,16 @@ public class AnimFlag {
 			floorIndexTime = times.get(floorIndex);
 			ceilIndexTime = times.get(ceilIndex);
 			if (ceilIndexTime < 0) {
-				return identity(typeid);
+				return identity(localTypeId);
 			}
 			if (floorIndexTime > getGlobalSeq()) {
-				return identity(typeid);
+				return identity(localTypeId);
 			}
 			if (floorIndexTime < 0 && ceilIndexTime > getGlobalSeq()) {
-				return identity(typeid);
+				return identity(localTypeId);
 			} else if (floorIndexTime < 0) {
-				floorValue = identity(typeid);
-				floorInTan = floorOutTan = identity(typeid);
+				floorValue = identity(localTypeId);
+				floorInTan = floorOutTan = identity(localTypeId);
 			} else if (ceilIndexTime > getGlobalSeq()) {
 				ceilValue = values.get(floorAnimStartIndex);
 				ceilIndex = floorAnimStartIndex;
@@ -2091,13 +2093,13 @@ public class AnimFlag {
 			floorIndexTime = times.get(floorIndex);
 			ceilIndexTime = times.get(ceilIndex);
 			if (ceilIndexTime < animation.getStart()) {
-				return identity(typeid);
+				return identity(localTypeId);
 			}
 			if (floorIndexTime > animation.getEnd()) {
-				return identity(typeid);
+				return identity(localTypeId);
 			}
 			if (floorIndexTime < animation.getStart() && ceilIndexTime > animation.getEnd()) {
-				return identity(typeid);
+				return identity(localTypeId);
 			} else if (floorIndexTime < animation.getStart()) {
 				if (times.get(floorAnimEndIndex) == animation.getEnd()) {
 					floorIndex = floorAnimEndIndex;
@@ -2108,8 +2110,8 @@ public class AnimFlag {
 						floorIndexTime = times.get(floorAnimEndIndex);
 					}
 				} else {
-					floorValue = identity(typeid);
-					floorInTan = floorOutTan = identity(typeid);
+					floorValue = identity(localTypeId);
+					floorInTan = floorOutTan = identity(localTypeId);
 					floorIndexTime = animation.getStart();
 				}
 			} else if (ceilIndexTime > animation.getEnd() || (ceilIndexTime < time && floorAnimEndIndex < time)) {
@@ -2125,7 +2127,7 @@ public class AnimFlag {
 				return floorValue;
 			}
 		}
-		switch (typeid) {
+		switch (localTypeId) {
 		case ALPHA | OTHER_TYPE: {
 			// Double
 			final Double previous = (Double) floorValue;

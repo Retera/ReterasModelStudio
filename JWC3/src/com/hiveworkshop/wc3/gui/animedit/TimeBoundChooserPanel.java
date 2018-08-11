@@ -224,7 +224,8 @@ public class TimeBoundChooserPanel extends JPanel {
 				final JSpinner moveSpeedChooser = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
 				extraProperties.setBorder(BorderFactory.createTitledBorder("Misc"));
 				extraProperties.setLayout(new MigLayout());
-				extraProperties.add(new JCheckBox("NonLooping"), "cell 0 0");
+				final JCheckBox nonLoopingChooser = new JCheckBox("NonLooping");
+				extraProperties.add(nonLoopingChooser, "cell 0 0");
 				extraProperties.add(new JLabel("Rarity"), "cell 0 1");
 				extraProperties.add(rarityChooser, "cell 1 1");
 				extraProperties.add(new JLabel("MoveSpeed"), "cell 0 2");
@@ -247,6 +248,9 @@ public class TimeBoundChooserPanel extends JPanel {
 					}
 					if (moveValue != 0) {
 						newAnimation.addTag("MoveSpeed " + moveValue);
+					}
+					if (nonLoopingChooser.isSelected()) {
+						newAnimation.addTag("NonLooping");
 					}
 				}
 

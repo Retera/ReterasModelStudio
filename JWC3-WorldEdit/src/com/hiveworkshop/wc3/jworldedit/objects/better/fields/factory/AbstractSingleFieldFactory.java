@@ -15,17 +15,20 @@ import com.hiveworkshop.wc3.units.objectdata.War3ID;
 public abstract class AbstractSingleFieldFactory implements SingleFieldFactory {
 	@Override
 	public final EditableOnscreenObjectField create(final MutableGameObject gameObject, final ObjectData metaData,
-			final War3ID metaKey, final int level, final WorldEditorDataType worldEditorDataType) {
+			final War3ID metaKey, final int level, final WorldEditorDataType worldEditorDataType,
+			final boolean hasMoreThanOneLevel) {
 		final GameObject metaField = metaData.get(metaKey.toString());
 
-		final String displayName = getDisplayName(metaData, metaKey, level, gameObject);
-		final String rawDataName = getRawDataName(metaData, metaKey, level);
+		final String displayName = getDisplayName(metaData, metaKey, hasMoreThanOneLevel ? level : 0, gameObject);
+		final String rawDataName = getRawDataName(metaData, metaKey, hasMoreThanOneLevel ? level : 0);
 		final String metaDataType = metaField.getField("type");
 		switch (metaDataType) {
 		case "attackBits":
 		case "teamColor":
 		case "deathType":
 		case "versionFlags":
+		case "channelFlags":
+		case "channelType":
 		case "int":
 			return new IntegerObjectField(displayName, rawDataName, metaKey, level, worldEditorDataType, metaField);
 		case "real":

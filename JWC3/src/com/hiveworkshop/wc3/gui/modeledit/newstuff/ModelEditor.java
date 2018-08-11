@@ -16,6 +16,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ClonedNodeNamePicker
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.wc3.mdl.Bone;
+import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 /**
@@ -52,6 +53,8 @@ public interface ModelEditor {
 			int numberOfLengthSegments, int numberOfWidthSegments, int numberOfHeightSegments);
 
 	UndoAction setMatrix(Collection<Bone> bones);
+
+	UndoAction setParent(IdObject node);
 
 	UndoAction createKeyframe(ModelEditorActionType actionType);
 

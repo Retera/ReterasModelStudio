@@ -25,6 +25,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHan
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponentVisitor;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.wc3.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
@@ -329,5 +330,14 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 	public UndoAction addVertex(final double x, final double y, final double z,
 			final Vertex preferredNormalFacingVector) {
 		throw new WrongModeException("Unable to draw vertices in vertex group selection mode");
+	}
+
+	@Override
+	public UndoAction setParent(final IdObject node) {
+		throw new UnsupportedOperationException("This feature is not available in Vertex Group mode");
+	}
+
+	public VertexSelectionHelper getVertexSelectionHelper() {
+		return vertexSelectionHelper;
 	}
 }

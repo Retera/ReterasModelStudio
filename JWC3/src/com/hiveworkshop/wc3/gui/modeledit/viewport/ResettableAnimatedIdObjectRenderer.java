@@ -33,6 +33,7 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
 	private Color pivotPointColor;
 	private NodeIconPalette nodeIconPalette;
 	private RenderModel renderModel;
+	private final ViewportRenderableCamera renderableCameraProp = new ViewportRenderableCamera();
 
 	public ResettableAnimatedIdObjectRenderer(final int vertexSize) {
 		this.vertexSize = vertexSize;
@@ -140,75 +141,57 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
 
 	@Override
 	public void camera(final Camera camera) {
-		// TODO ANIMATE CAMERAS
-		System.err.println("TODO ANIMATE CAMERAS");
-
 		graphics.setColor(Color.GREEN.darker());
 		final Graphics2D g2 = ((Graphics2D) graphics.create());
 		final Vertex ver = camera.getPosition();
 		final Vertex targ = camera.getTargetPosition();
-		// final boolean verSel = selection.contains(ver);
-		// final boolean tarSel = selection.contains(targ);
-		final Point start = new Point(
-				(int) Math.round(coordinateSystem.convertX(ver.getCoord(coordinateSystem.getPortFirstXYZ()))),
-				(int) Math.round(coordinateSystem.convertY(ver.getCoord(coordinateSystem.getPortSecondXYZ()))));
-		final Point end = new Point(
-				(int) Math.round(coordinateSystem.convertX(targ.getCoord(coordinateSystem.getPortFirstXYZ()))),
-				(int) Math.round(coordinateSystem.convertY(targ.getCoord(coordinateSystem.getPortSecondXYZ()))));
-		// if (dispCameraNames) {
-		// boolean changedCol = false;
+		loadPivotInVertexHeap(ver, renderModel.getRenderNode(camera.getSourceNode()).getWorldMatrix(), vertexHeap);
+		final float startX = Vertex.getCoord(vertexHeap, coordinateSystem.getPortFirstXYZ());
+		final float startY = Vertex.getCoord(vertexHeap, coordinateSystem.getPortSecondXYZ());
+		final Point start = new Point((int) Math.round(coordinateSystem.convertX(startX)),
+				(int) Math.round(coordinateSystem.convertY(startY)));
+		loadPivotInVertexHeap(targ, renderModel.getRenderNode(camera.getTargetNode()).getWorldMatrix(), vertexHeap);
+		final float endX = Vertex.getCoord(vertexHeap, coordinateSystem.getPortFirstXYZ());
+		final float endY = Vertex.getCoord(vertexHeap, coordinateSystem.getPortSecondXYZ());
+		final Point end = new Point((int) Math.round(coordinateSystem.convertX(endX)),
+				(int) Math.round(coordinateSystem.convertY(endY)));
+
+		Double renderRotationScalar = renderModel.getAnimatedRenderEnvironment() == null ? Double.valueOf(0)
+				: camera.getSourceNode().getRenderRotationScalar(renderModel.getAnimatedRenderEnvironment());
+		if (renderRotationScalar == null) {
+			renderRotationScalar = 0.;
+		}
+		renderableCameraProp.render(g2, coordinateSystem, startX, startY, endX, endY, renderRotationScalar);
+
+		// g2.translate(end.x, end.y);
+		// g2.rotate(-(Math.PI / 2 + Math.atan2(end.x - start.x, end.y - start.y)));
+		// final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+		// final int size = (int) (20 * zoom);
+		// final double dist = start.distance(end);
 		//
-		// if (verSel) {
-		// g2.setColor(Color.orange.darker());
-		// changedCol = true;
-		// }
-		// g2.drawString(cam.getName(), (int)
-		// Math.round(vp.convertX(ver.getCoord(vp.getPortFirstXYZ()))),
-		// (int) Math.round(vp.convertY(ver.getCoord(vp.getPortSecondXYZ()))));
-		// if (tarSel) {
-		// g2.setColor(Color.orange.darker());
-		// changedCol = true;
-		// } else if (verSel) {
-		// g2.setColor(Color.green.darker());
-		// changedCol = false;
-		// }
-		// g2.drawString(cam.getName() + "_target",
-		// (int) Math.round(vp.convertX(targ.getCoord(vp.getPortFirstXYZ()))),
-		// (int) Math.round(vp.convertY(targ.getCoord(vp.getPortSecondXYZ()))));
-		// if (changedCol) {
-		// g2.setColor(Color.green.darker());
-		// }
-		// }
-
-		g2.translate(end.x, end.y);
-		g2.rotate(-(Math.PI / 2 + Math.atan2(end.x - start.x, end.y - start.y)));
-		final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
-		final int size = (int) (20 * zoom);
-		final double dist = start.distance(end);
-
-		// if (verSel) {
-		// g2.setColor(Color.orange.darker());
-		// }
-		// Cam
-		g2.fillRect((int) dist - vertexSize, 0 - vertexSize, 1 + vertexSize * 2, 1 + vertexSize * 2);
-		g2.drawRect((int) dist - size, -size, size * 2, size * 2);
-
-		// if (tarSel) {
-		// g2.setColor(Color.orange.darker());
-		// } else if (verSel) {
-		// g2.setColor(Color.green.darker());
-		// }
-		// Target
-		g2.fillRect(0 - vertexSize, 0 - vertexSize, 1 + vertexSize * 2, 1 + vertexSize * 2);
-		g2.drawLine(0, 0, size, size);// (int)Math.round(vp.convertX(targ.getCoord(vp.getPortFirstXYZ())+5)),
-										// (int)Math.round(vp.convertY(targ.getCoord(vp.getPortSecondXYZ())+5)));
-		g2.drawLine(0, 0, size, -size);// (int)Math.round(vp.convertX(targ.getCoord(vp.getPortFirstXYZ())-5)),
-										// (int)Math.round(vp.convertY(targ.getCoord(vp.getPortSecondXYZ())-5)));
-
-		// if (!verSel && tarSel) {
-		// g2.setColor(Color.green.darker());
-		// }
-		g2.drawLine(0, 0, (int) dist, 0);
+		// // if (verSel) {
+		// // g2.setColor(Color.orange.darker());
+		// // }
+		// // Cam
+		// g2.fillRect((int) dist - vertexSize, 0 - vertexSize, 1 + vertexSize * 2, 1 + vertexSize * 2);
+		// g2.drawRect((int) dist - size, -size, size * 2, size * 2);
+		//
+		// // if (tarSel) {
+		// // g2.setColor(Color.orange.darker());
+		// // } else if (verSel) {
+		// // g2.setColor(Color.green.darker());
+		// // }
+		// // Target
+		// g2.fillRect(0 - vertexSize, 0 - vertexSize, 1 + vertexSize * 2, 1 + vertexSize * 2);
+		// g2.drawLine(0, 0, size, size);// (int)Math.round(vp.convertX(targ.getCoord(vp.getPortFirstXYZ())+5)),
+		// // (int)Math.round(vp.convertY(targ.getCoord(vp.getPortSecondXYZ())+5)));
+		// g2.drawLine(0, 0, size, -size);// (int)Math.round(vp.convertX(targ.getCoord(vp.getPortFirstXYZ())-5)),
+		// // (int)Math.round(vp.convertY(targ.getCoord(vp.getPortSecondXYZ())-5)));
+		//
+		// // if (!verSel && tarSel) {
+		// // g2.setColor(Color.green.darker());
+		// // }
+		// g2.drawLine(0, 0, (int) dist, 0);
 	}
 
 	private void drawNodeImage(final IdObject attachment, final Image nodeImage, final Matrix4f worldMatrix) {

@@ -56,6 +56,8 @@ public class Matrix {
 		return out;
 	}
 
+	long lastPopupTimeHack = 0;
+
 	public void updateIds(final MDL mdlr) {
 		final int sz1 = bones.size();
 		if (m_boneIds == null) {
@@ -69,14 +71,20 @@ public class Matrix {
 				m_boneIds.add(newId);
 			} else {
 				new Exception("Matrix error").printStackTrace();
-				JOptionPane.showMessageDialog(null,
-						"Error: A matrix's bone reference was missing in the model!\nDid you move geometry between models and forget to update bones?");
+				if (System.currentTimeMillis() - lastPopupTimeHack > 2000) {
+					JOptionPane.showMessageDialog(null,
+							"Error: A matrix's bone reference was missing in the model!\nDid you move geometry between models and forget to update bones?");
+					lastPopupTimeHack = System.currentTimeMillis();
+				}
 			}
 		}
 		if (m_boneIds.size() < sz1 || (sz1 != 0 && m_boneIds.size() == 0)) {
 			new Exception("Matrix error").printStackTrace();
-			JOptionPane.showMessageDialog(null,
-					"Error: bad sizes in matrix (" + (sz1 - m_boneIds.size()) + " as difference, should be same size)");
+			if (System.currentTimeMillis() - lastPopupTimeHack > 2000) {
+				JOptionPane.showMessageDialog(null, "Error: bad sizes in matrix (" + (sz1 - m_boneIds.size())
+						+ " as difference, should be same size)");
+				lastPopupTimeHack = System.currentTimeMillis();
+			}
 		}
 	}
 

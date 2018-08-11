@@ -14,6 +14,7 @@ import javax.swing.tree.TreeCellRenderer;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.jworldedit.objects.sorting.SortingFolderTreeNode;
+import com.hiveworkshop.wc3.units.objectdata.MutableObjectData;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.MutableGameObject;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.WorldEditorDataType;
 import com.hiveworkshop.wc3.util.IconUtils;
@@ -41,11 +42,7 @@ public class WarcraftObjectTreeCellRenderer extends DefaultTreeCellRenderer impl
 			final MutableGameObject unit = (MutableGameObject) node.getUserObject();
 			String displayName = unit.getName();
 			if (settings.isDisplayAsRawData()) {
-				String aliasString = unit.getAlias().toString();
-				if (!unit.getAlias().equals(unit.getCode())) {
-					aliasString += ":" + unit.getCode().toString();
-				}
-				displayName = aliasString + " (" + displayName + ")";
+				displayName = MutableObjectData.getDisplayAsRawDataName(unit);
 			}
 			this.revalidate();
 			super.getTreeCellRendererComponent(tree, displayName, selected, expanded, leaf, row, hasFocus);

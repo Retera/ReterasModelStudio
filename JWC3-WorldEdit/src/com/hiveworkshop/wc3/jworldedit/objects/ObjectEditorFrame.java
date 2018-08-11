@@ -62,4 +62,8 @@ public class ObjectEditorFrame extends JFrame {
 		frame.panel.loadHotkeys();
 	}
 
+	public void loadHotkeys() {
+		panel.loadHotkeys();
+	}
+
 }

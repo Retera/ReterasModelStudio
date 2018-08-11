@@ -9,6 +9,8 @@ import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.wc3.mdl.Camera.SourceNode;
+import com.hiveworkshop.wc3.mdl.Camera.TargetNode;
 
 /**
  * For rendering. Copied from ghostwolf's stuff
@@ -18,19 +20,19 @@ import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 public final class RenderModel {
 	private final MDL model;
 	public static final double MAGIC_RENDER_SHOW_CONSTANT = 0.75;
-	private final List<IdObject> sortedNodes = new ArrayList<>();
+	private final List<AnimatedNode> sortedNodes = new ArrayList<>();
 	private Quaternion inverseCameraRotation;
 	private Quaternion inverseCameraRotationYSpin;
 	private Quaternion inverseCameraRotationZSpin;
 	private AnimatedRenderEnvironment animatedRenderEnvironment;
 
-	private final Map<IdObject, RenderNode> objectToRenderNode = new HashMap<>();
+	private final Map<AnimatedNode, RenderNode> objectToRenderNode = new HashMap<>();
 
 	public RenderModel(final MDL model) {
 		this.model = model;
 	}
 
-	public RenderNode getRenderNode(final IdObject idObject) {
+	public RenderNode getRenderNode(final AnimatedNode idObject) {
 		return objectToRenderNode.get(idObject);
 	}
 
@@ -46,8 +48,26 @@ public final class RenderModel {
 		this.inverseCameraRotationYSpin = inverseCameraRotationYSpin;
 		this.inverseCameraRotationZSpin = inverseCameraRotationZSpin;
 		sortedNodes.clear();
+		for (final Camera camera : model.getCameras()) {
+			final SourceNode object = camera.getSourceNode();
+			sortedNodes.add(object);
+			RenderNode renderNode = objectToRenderNode.get(object);
+			if (renderNode == null) {
+				renderNode = new RenderNode(this, object);
+				objectToRenderNode.put(object, renderNode);
+			}
+		}
 		setupHierarchy(null);
-		for (final IdObject node : sortedNodes) {
+		for (final Camera camera : model.getCameras()) {
+			final TargetNode object = camera.getTargetNode();
+			sortedNodes.add(object);
+			RenderNode renderNode = objectToRenderNode.get(object);
+			if (renderNode == null) {
+				renderNode = new RenderNode(this, object);
+				objectToRenderNode.put(object, renderNode);
+			}
+		}
+		for (final AnimatedNode node : sortedNodes) {
 			getRenderNode(node).refreshFromEditor();
 		}
 	}
@@ -68,15 +88,15 @@ public final class RenderModel {
 
 	public void updateNodes(final boolean forced) {
 		if (animatedRenderEnvironment == null || animatedRenderEnvironment.getCurrentAnimation() == null) {
-			for (final IdObject idObject : sortedNodes) {
+			for (final AnimatedNode idObject : sortedNodes) {
 				getRenderNode(idObject).resetTransformation();
 				getRenderNode(idObject).getWorldMatrix().setIdentity();
 			}
 			return;
 		}
-		for (final IdObject idObject : sortedNodes) {
+		for (final AnimatedNode idObject : sortedNodes) {
 			final RenderNode node = getRenderNode(idObject);
-			final IdObject idObjectParent = idObject.getParent();
+			final AnimatedNode idObjectParent = idObject.getParent();
 			final RenderNode parent = idObjectParent == null ? null : getRenderNode(idObjectParent);
 			final boolean objectVisible = idObject
 					.getRenderVisibility(animatedRenderEnvironment) >= MAGIC_RENDER_SHOW_CONSTANT;

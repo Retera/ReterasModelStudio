@@ -11,9 +11,15 @@ public interface GameObject {
 
 	public void setField(String field, String value);
 
+	public void setField(String field, String value, int index);
+
 	public String getField(String field);
 
+	public String getField(String field, int index);
+
 	public int getFieldValue(String field);
+
+	public int getFieldValue(String field, int index);
 
 	public List<? extends GameObject> getFieldAsList(String field, ObjectData objectData);
 

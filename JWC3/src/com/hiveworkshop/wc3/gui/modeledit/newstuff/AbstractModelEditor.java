@@ -572,7 +572,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 	}
 
 	@Override
-	public UndoAction cloneSelectedComponents(final ClonedNodeNamePicker clonedNodeNamePicker) {
+	public CloneAction cloneSelectedComponents(final ClonedNodeNamePicker clonedNodeNamePicker) {
 		final List<Vertex> source = new ArrayList<>(selectionManager.getSelectedVertices());
 		final ArrayList<Triangle> selTris = new ArrayList<>();
 		final ArrayList<IdObject> selBones = new ArrayList<>();

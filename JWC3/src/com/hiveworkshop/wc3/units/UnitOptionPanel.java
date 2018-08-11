@@ -353,6 +353,7 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 
 		public UnitButton(final GameObject u) {
 			super(u.getScaledIcon(0.5));
+			setFocusable(false);
 			this.unit = u;
 			String uberTip = unit.getField("Ubertip");
 			if (uberTip.length() < 1) {

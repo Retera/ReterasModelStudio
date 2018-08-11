@@ -410,6 +410,39 @@ public class StandardObjectData {
 		}
 
 		@Override
+		public void setField(final String field, final String value, final int index) {
+			for (final DataTable table : dataSource.getTables()) {
+				final Element element = table.get(id);
+				if (element != null && element.hasField(field)) {
+					element.setField(field, value, index);
+					return;
+				}
+			}
+		}
+
+		@Override
+		public String getField(final String field, final int index) {
+			for (final DataTable table : dataSource.getTables()) {
+				final Element element = table.get(id);
+				if (element != null && element.hasField(field)) {
+					return element.getField(field, index);
+				}
+			}
+			return "";
+		}
+
+		@Override
+		public int getFieldValue(final String field, final int index) {
+			for (final DataTable table : dataSource.getTables()) {
+				final Element element = table.get(id);
+				if (element != null && element.hasField(field)) {
+					return element.getFieldValue(field, index);
+				}
+			}
+			return 0;
+		}
+
+		@Override
 		public void setField(final String field, final String value) {
 			for (final DataTable table : dataSource.getTables()) {
 				final Element element = table.get(id);

@@ -18,10 +18,14 @@ import java.util.Set;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.TransferHandler;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -34,14 +38,18 @@ import javax.swing.tree.TreePath;
 
 import com.hiveworkshop.wc3.jworldedit.objects.better.EditorFieldBuilder;
 import com.hiveworkshop.wc3.jworldedit.objects.better.ObjectDataTableModel;
+import com.hiveworkshop.wc3.jworldedit.objects.better.fields.FieldPopupUtils;
 import com.hiveworkshop.wc3.jworldedit.objects.sorting.TreeNodeLinkerFromModel;
 import com.hiveworkshop.wc3.jworldedit.objects.sorting.general.TopLevelCategoryFolder;
+import com.hiveworkshop.wc3.resources.WEString;
 import com.hiveworkshop.wc3.units.DataTable;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.MutableGameObject;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.WorldEditorDataType;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectDataChangeListener;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
+
+import net.miginfocom.swing.MigLayout;
 
 public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener {
 	private static final Object SHIFT_KEY_LOCK = new Object();
@@ -59,6 +67,10 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 	private TreePath currentUnitTreePath;
 	private final EditorTabCustomToolbarButtonData editorTabCustomToolbarButtonData;
 	private final Runnable customUnitPopupRunner;
+	private JPanel searchPanel;
+	private JTextField findTextField;
+	private JCheckBox caseSens;
+	private JScrollPane treeScrollPane;
 
 	public UnitEditorPanel(final MutableObjectData unitData, final DataTable unitMetaData,
 			final EditorFieldBuilder editorFieldBuilder, final ObjectTabTreeBrowserBuilder objectTabTreeBrowserBuilder,
@@ -72,7 +84,8 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 		this.editorFieldBuilder = editorFieldBuilder;
 		tree = new UnitEditorTree(unitData, objectTabTreeBrowserBuilder, settings, dataType);
 		root = tree.getRoot();
-		this.setLeftComponent(new JScrollPane(tree));
+		treeScrollPane = new JScrollPane(tree);
+		this.setLeftComponent(treeScrollPane);
 		// temp.setBackground(Color.blue);
 		table = new JTable();
 		((DefaultTableCellRenderer) table.getTableHeader().getDefaultRenderer()).setHorizontalAlignment(JLabel.LEFT);
@@ -196,9 +209,11 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 		unitData.addChangeListener(new MutableObjectDataChangeListener() {
 			@Override
 			public void textChanged(final War3ID changedObject) {
-				final DefaultTreeModel treeModel = tree.getModel();
-				if (currentUnitTreePath != null) {
-					treeModel.nodeChanged((TreeNode) currentUnitTreePath.getLastPathComponent());
+				final UnitEditorTreeModel treeModel = tree.getModel();
+				final TreeNode changedNode = treeModel.getNodeById(changedObject);
+				if (changedNode != null) {
+					final MutableTreeNode lastPathComponent = (MutableTreeNode) changedNode;
+					treeModel.nodeChanged(lastPathComponent);
 				}
 			}
 
@@ -209,9 +224,11 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 
 			@Override
 			public void iconsChanged(final War3ID changedObject) {
-				final DefaultTreeModel treeModel = tree.getModel();
-				if (currentUnitTreePath != null) {
-					treeModel.nodeChanged((TreeNode) currentUnitTreePath.getLastPathComponent());
+				final UnitEditorTreeModel treeModel = tree.getModel();
+				final TreeNode changedNode = treeModel.getNodeById(changedObject);
+				if (changedNode != null) {
+					final MutableTreeNode lastPathComponent = (MutableTreeNode) changedNode;
+					treeModel.nodeChanged(lastPathComponent);
 				}
 			}
 
@@ -222,10 +239,10 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 
 			@Override
 			public void categoriesChanged(final War3ID changedObject) {
-				final DefaultTreeModel treeModel = tree.getModel();
-				if (currentUnitTreePath != null) {
-					final MutableTreeNode lastPathComponent = (MutableTreeNode) currentUnitTreePath
-							.getLastPathComponent();
+				final UnitEditorTreeModel treeModel = tree.getModel();
+				final TreeNode changedNode = treeModel.getNodeById(changedObject);
+				if (changedNode != null) {
+					final MutableTreeNode lastPathComponent = (MutableTreeNode) changedNode;
 					treeModel.removeNodeFromParent(lastPathComponent);
 					final DefaultMutableTreeNode newObjectNode = root.insertObjectInto(unitData.get(changedObject),
 							new TreeNodeLinkerFromModel(treeModel));
@@ -261,10 +278,47 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 					addSelectedTreeNode(newTreeNode);
 				}
 			}
+
+			@Override
+			public void objectRemoved(final War3ID removedId) {
+				final UnitEditorTreeModel treeModel = tree.getModel();
+				final MutableTreeNode changedNode = treeModel.getNodeById(removedId);
+				if (changedNode != null) {
+					treeModel.removeNodeFromParent(changedNode);
+				}
+			}
+
+			@Override
+			public void objectsRemoved(final War3ID[] removedIds) {
+				final UnitEditorTreeModel treeModel = tree.getModel();
+				for (final War3ID removedId : removedIds) {
+					final MutableTreeNode changedNode = treeModel.getNodeById(removedId);
+					if (changedNode != null) {
+						treeModel.removeNodeFromParent(changedNode);
+					}
+				}
+
+			}
 		});
 		// KeyEventDispatcher myKeyEventDispatcher = new DefaultFocusManager();
 		// KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(myKeyEventDispatcher);
 		setupCopyPaste(new ObjectTabTreeBrowserTransferHandler(dataType));
+
+		searchPanel = new JPanel(new MigLayout());
+		searchPanel.add(new JLabel(WEString.getString("WESTRING_FINDDLG_FIND")), "cell 0 0");
+		findTextField = new JTextField(40);
+		searchPanel.add(findTextField, "cell 1 0");
+		caseSens = new JCheckBox(WEString.getString("WESTRING_FINDDLG_CASESENS"));
+		searchPanel.add(caseSens, "cell 1 1");
+	}
+
+	public void reloadAllDataVerySlowly() {
+		tree.reloadAllObjectDataVerySlowly();
+		root = tree.getRoot();
+	}
+
+	public MutableObjectData getUnitData() {
+		return unitData;
 	}
 
 	private void setupCopyPaste(final ObjectTabTreeBrowserTransferHandler treeTransferHandler) {
@@ -387,5 +441,69 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 			super(dropPoint);
 		}
 
+	}
+
+	public void doSearchForUnit() {
+		final boolean tableHadFocus = table.hasFocus();
+		final int result = FieldPopupUtils.showPopup(this, searchPanel, WEString.getString("WESTRING_FINDDLG_TITLE"),
+				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, findTextField);
+		if (result == JOptionPane.OK_OPTION) {
+			if (tableHadFocus) {
+				findInTable(findTextField.getText(), settings.isDisplayAsRawData(), caseSens.isSelected());
+			} else {
+				tree.find(findTextField.getText(), settings.isDisplayAsRawData(), caseSens.isSelected());
+			}
+		}
+	}
+
+	public void doSearchFindNextUnit() {
+		if (table.hasFocus()) {
+			findInTable(findTextField.getText(), settings.isDisplayAsRawData(), caseSens.isSelected());
+		} else {
+			tree.find(findTextField.getText(), settings.isDisplayAsRawData(), caseSens.isSelected());
+		}
+	}
+
+	private void findInTable(String text, final boolean displayAsRawData, final boolean caseSensitive) {
+		if (!caseSensitive) {
+			text = text.toLowerCase();
+		}
+		final int startIndex = table.getSelectedRow() + 1;
+		for (int i = startIndex; i < dataModel.getRowCount(); i++) {
+			for (int j = 0; j < dataModel.getColumnCount(); j++) {
+				final Object tableData = dataModel.getValueAt(i, j);
+				String tableString = tableData.toString();
+				if (!caseSensitive) {
+					tableString = tableString.toLowerCase();
+					if (tableString.contains(text)) {
+						final int rowToSelect = table.convertRowIndexToView(i);
+						table.setRowSelectionInterval(rowToSelect, rowToSelect);
+						table.scrollRectToVisible(table.getCellRect(rowToSelect, j, true));
+						return;
+					}
+				}
+			}
+		}
+		if (startIndex > 0) {
+			for (int i = 0; i < startIndex; i++) {
+				for (int j = 0; j < dataModel.getColumnCount(); j++) {
+					final Object tableData = dataModel.getValueAt(i, j);
+					String tableString = tableData.toString();
+					if (!caseSensitive) {
+						tableString = tableString.toLowerCase();
+						if (tableString.contains(text)) {
+							final int rowToSelect = table.convertRowIndexToView(i);
+							table.setRowSelectionInterval(rowToSelect, rowToSelect);
+							table.scrollRectToVisible(table.getCellRect(rowToSelect, j, true));
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	public void loadHotkeys() {
+		tree.loadHotkeys();
 	}
 }

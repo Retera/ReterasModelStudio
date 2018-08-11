@@ -9,7 +9,7 @@ import java.util.Set;
 import com.hiveworkshop.wc3.resources.WEString;
 
 public abstract class HashedGameObject implements GameObject {
-	HashMap<StringKey, String> fields = new HashMap<>();
+	HashMap<StringKey, List<String>> fields = new HashMap<>();
 	String id;
 	ObjectData parentTable;
 
@@ -22,14 +22,25 @@ public abstract class HashedGameObject implements GameObject {
 
 	@Override
 	public void setField(final String field, final String value) {
-		fields.put(new StringKey(field), value);
+		final StringKey key = new StringKey(field);
+		List<String> list = fields.get(key);
+		if (list == null) {
+			list = new ArrayList<>();
+			fields.put(key, list);
+			list.add(value);
+		} else {
+			list.set(0, value);
+		}
 	}
 
 	@Override
 	public String getField(final String field) {
 		String value = "";
 		if (fields.get(new StringKey(field)) != null) {
-			value = fields.get(new StringKey(field));
+			final List<String> list = fields.get(new StringKey(field));
+			if (list != null) {
+				value = list.get(0);
+			}
 		}
 		return value;
 	}
@@ -43,6 +54,50 @@ public abstract class HashedGameObject implements GameObject {
 		int i = 0;
 		try {
 			i = Integer.parseInt(getField(field));
+		} catch (final NumberFormatException e) {
+
+		}
+		return i;
+	}
+
+	@Override
+	public void setField(final String field, final String value, final int index) {
+		final StringKey key = new StringKey(field);
+		List<String> list = fields.get(key);
+		if (list == null) {
+			if (index == 0) {
+				list = new ArrayList<>();
+				fields.put(key, list);
+				list.add(value);
+			} else {
+				throw new IndexOutOfBoundsException();
+			}
+		} else {
+			if (list.size() == index) {
+				list.add(value);
+			} else {
+				list.set(index, value);
+			}
+		}
+	}
+
+	@Override
+	public String getField(final String field, final int index) {
+		String value = "";
+		if (fields.get(new StringKey(field)) != null) {
+			final List<String> list = fields.get(new StringKey(field));
+			if (list != null) {
+				value = list.get(index);
+			}
+		}
+		return value;
+	}
+
+	@Override
+	public int getFieldValue(final String field, final int index) {
+		int i = 0;
+		try {
+			i = Integer.parseInt(getField(field, index));
 		} catch (final NumberFormatException e) {
 
 		}

@@ -31,6 +31,11 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> implements ModelEditor {
+	private CloneContextHelper cloneContextHelper;
+
+	public void setCloneContextHelper(final CloneContextHelper cloneContextHelper) {
+		this.cloneContextHelper = cloneContextHelper;
+	}
 
 	@Override
 	public UndoAction setSelectedRegion(final Rectangle2D region, final CoordinateSystem coordinateSystem) {
@@ -140,6 +145,19 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 		for (final ModelEditor handler : set) {
 			try {
 				actions.add(handler.setSelectedBoneName(name));
+			} catch (final UnsupportedOperationException e) {
+				// don't add actions for unsupported operations
+			}
+		}
+		return mergeActions(actions);
+	}
+
+	@Override
+	public UndoAction setParent(final IdObject parent) {
+		final List<UndoAction> actions = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			try {
+				actions.add(handler.setParent(parent));
 			} catch (final UnsupportedOperationException e) {
 				// don't add actions for unsupported operations
 			}
@@ -294,6 +312,9 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 
 	@Override
 	public UndoAction cloneSelectedComponents(final ClonedNodeNamePicker clonedNodeNamePicker) {
+		if (cloneContextHelper != null) {
+			return cloneContextHelper.cloneSelectedComponents(clonedNodeNamePicker);
+		}
 		final List<UndoAction> actions = new ArrayList<>();
 		for (final ModelEditor handler : set) {
 			actions.add(handler.cloneSelectedComponents(clonedNodeNamePicker));

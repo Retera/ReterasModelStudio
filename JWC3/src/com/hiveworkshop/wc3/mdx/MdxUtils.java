@@ -9,25 +9,22 @@ public class MdxUtils {
 
 	/*
 	 * private static Set<MdxComponent> optionalPool = new HashSet();
-	 * 
-	 * public void addOptionalPool(MdxComponent component){
-	 * optionalPool.add(component); }
-	 * 
-	 * 
+	 *
+	 * public void addOptionalPool(MdxComponent component){ optionalPool.add(component); }
+	 *
+	 *
 	 * public void executeOptionalPool(){
-	 * 
+	 *
 	 * }
 	 */
 
-	public static MdxModel loadModel(BlizzardDataInputStream in)
-			throws IOException {
-		MdxModel model = new MdxModel();
+	public static MdxModel loadModel(final BlizzardDataInputStream in) throws IOException {
+		final MdxModel model = new MdxModel();
 		model.load(in);
 		return model;
 	}
 
-	public static boolean checkOptionalId(BlizzardDataInputStream in,
-			String name) throws IOException {
+	public static boolean checkOptionalId(final BlizzardDataInputStream in, final String name) throws IOException {
 
 		in.mark(8);
 
@@ -40,44 +37,47 @@ public class MdxUtils {
 		return false;
 	}
 
-	public static void checkId(BlizzardDataInputStream in, String name)
-			throws IOException {
-		String found = in.readCharsAsString(4);
+	public static String getOptionalId(final BlizzardDataInputStream in) throws IOException {
+
+		in.mark(8);
+		try {
+			final String readCharsAsString = in.readCharsAsString(4);
+			return readCharsAsString;
+		} finally {
+			in.reset();
+		}
+	}
+
+	public static void checkId(final BlizzardDataInputStream in, final String name) throws IOException {
+		final String found = in.readCharsAsString(4);
 		if (!found.equals(name)) {
-			throw new IOException(
-					"Error loading model: CheckID failed, required " + name
-							+ " found " + found);
+			throw new IOException("Error loading model: CheckID failed, required " + name + " found " + found);
 		}
 	}
 
 	/*
-	 * public static boolean checkOptionalId(BlizzardDataInputStream in, String
-	 * name) throws IOException { if(lastCheck == null){ lastCheck =
-	 * in.readCharsAsString(4); }
-	 * 
+	 * public static boolean checkOptionalId(BlizzardDataInputStream in, String name) throws IOException { if(lastCheck
+	 * == null){ lastCheck = in.readCharsAsString(4); }
+	 *
 	 * return lastCheck.equals(name); }
-	 * 
-	 * public static void checkId(BlizzardDataInputStream in, String name)
-	 * throws IOException {
-	 * 
+	 *
+	 * public static void checkId(BlizzardDataInputStream in, String name) throws IOException {
+	 *
 	 * if(lastCheck != null){
-	 * 
+	 *
 	 * if(!name.equals(lastCheck)){ throw new IOException(
-	 * "Error loading model: CheckID failed after optinal check, required " +
-	 * name + " found " + lastCheck); }
-	 * 
+	 * "Error loading model: CheckID failed after optinal check, required " + name + " found " + lastCheck); }
+	 *
 	 * lastCheck=null;
-	 * 
+	 *
 	 * }else{
-	 * 
-	 * String found = in.readCharsAsString(4); if (!found.equals(name)) { throw
-	 * new IOException("Error loading model: CheckID failed, required " + name +
-	 * " found " + found); } } }
+	 *
+	 * String found = in.readCharsAsString(4); if (!found.equals(name)) { throw new
+	 * IOException("Error loading model: CheckID failed, required " + name + " found " + found); } } }
 	 */
 
-	public static float[] loadFloatArray(BlizzardDataInputStream in, int size)
-			throws IOException {
-		float array[] = new float[size];
+	public static float[] loadFloatArray(final BlizzardDataInputStream in, final int size) throws IOException {
+		final float array[] = new float[size];
 
 		for (int i = 0; i < size; i++) {
 			array[i] = in.readFloat();
@@ -85,9 +85,8 @@ public class MdxUtils {
 		return array;
 	}
 
-	public static int[] loadIntArray(BlizzardDataInputStream in, int size)
-			throws IOException {
-		int array[] = new int[size];
+	public static int[] loadIntArray(final BlizzardDataInputStream in, final int size) throws IOException {
+		final int array[] = new int[size];
 
 		for (int i = 0; i < size; i++) {
 			array[i] = in.readInt();
@@ -96,9 +95,8 @@ public class MdxUtils {
 		return array;
 	}
 
-	public static short[] loadShortArray(BlizzardDataInputStream in, int size)
-			throws IOException {
-		short array[] = new short[size];
+	public static short[] loadShortArray(final BlizzardDataInputStream in, final int size) throws IOException {
+		final short array[] = new short[size];
 
 		for (int i = 0; i < size; i++) {
 			array[i] = (short) (in.readShort() & 0xFFFF);
@@ -107,9 +105,8 @@ public class MdxUtils {
 		return array;
 	}
 
-	public static byte[] loadByteArray(BlizzardDataInputStream in, int size)
-			throws IOException {
-		byte array[] = new byte[size];
+	public static byte[] loadByteArray(final BlizzardDataInputStream in, final int size) throws IOException {
+		final byte array[] = new byte[size];
 
 		for (int i = 0; i < size; i++) {
 			array[i] = in.readByte();
@@ -117,9 +114,8 @@ public class MdxUtils {
 		return array;
 	}
 
-	public static char[] loadCharArray(BlizzardDataInputStream in, int size)
-			throws IOException {
-		char array[] = new char[size];
+	public static char[] loadCharArray(final BlizzardDataInputStream in, final int size) throws IOException {
+		final char array[] = new char[size];
 
 		for (int i = 0; i < size; i++) {
 			array[i] = in.readChar();
@@ -127,36 +123,31 @@ public class MdxUtils {
 		return array;
 	}
 
-	public static void saveFloatArray(BlizzardDataOutputStream out,
-			float[] array) throws IOException {
+	public static void saveFloatArray(final BlizzardDataOutputStream out, final float[] array) throws IOException {
 		for (int i = 0; i < array.length; i++) {
 			out.writeFloat(array[i]);
 		}
 	}
 
-	public static void saveIntArray(BlizzardDataOutputStream out, int[] array)
-			throws IOException {
+	public static void saveIntArray(final BlizzardDataOutputStream out, final int[] array) throws IOException {
 		for (int i = 0; i < array.length; i++) {
 			out.writeInt(array[i]);
 		}
 	}
 
-	public static void saveShortArray(BlizzardDataOutputStream out,
-			short[] array) throws IOException {
+	public static void saveShortArray(final BlizzardDataOutputStream out, final short[] array) throws IOException {
 		for (int i = 0; i < array.length; i++) {
 			out.writeNByteInt(array[i], 2);
 		}
 	}
 
-	public static void saveByteArray(BlizzardDataOutputStream out, byte[] array)
-			throws IOException {
+	public static void saveByteArray(final BlizzardDataOutputStream out, final byte[] array) throws IOException {
 		for (int i = 0; i < array.length; i++) {
 			out.writeByte(array[i]);
 		}
 	}
 
-	public static void saveCharArray(BlizzardDataOutputStream out, char[] array)
-			throws IOException {
+	public static void saveCharArray(final BlizzardDataOutputStream out, final char[] array) throws IOException {
 		out.writeChars(array);
 	}
 }

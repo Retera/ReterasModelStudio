@@ -26,10 +26,11 @@ public abstract class AbstractLevelsFieldBuilder extends AbstractFieldBuilder {
 		final int actualRepeatCount = gameObject.getFieldAsInteger(levelField, 0);
 		if (repeatCount >= 1 && actualRepeatCount > 1) {
 			for (int level = 1; level <= actualRepeatCount; level++) {
-				fields.add(singleFieldFactory.create(gameObject, metaData, metaKey, level, worldEditorDataType));
+				fields.add(singleFieldFactory.create(gameObject, metaData, metaKey, level, worldEditorDataType, true));
 			}
 		} else {
-			fields.add(singleFieldFactory.create(gameObject, metaData, metaKey, 0, worldEditorDataType));
+			fields.add(singleFieldFactory.create(gameObject, metaData, metaKey, repeatCount >= 1 ? 1 : 0,
+					worldEditorDataType, false));
 		}
 	}
 }
