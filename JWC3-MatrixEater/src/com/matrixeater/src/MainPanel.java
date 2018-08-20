@@ -674,10 +674,10 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 			return bottomView;
 		}
 	});
-	AbstractAction openAction = new OpenViewAction("Front", new OpenViewGetter() {
+	AbstractAction openToolsAction = new OpenViewAction("Tools", new OpenViewGetter() {
 		@Override
 		public View getView() {
-			return frontView;
+			return toolView;
 		}
 	});
 	AbstractAction hackerViewAction = new OpenViewAction("Matrix Eater Script", new OpenViewGetter() {
@@ -1981,6 +1981,11 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		bottomItem.setMnemonic(KeyEvent.VK_B);
 		bottomItem.addActionListener(openBottomAction);
 		viewsMenu.add(bottomItem);
+
+		final JMenuItem toolsItem = new JMenuItem("Tools");
+		toolsItem.setMnemonic(KeyEvent.VK_T);
+		toolsItem.addActionListener(openToolsAction);
+		viewsMenu.add(toolsItem);
 
 		final JMenuItem hackerViewItem = new JMenuItem("Matrix Eater Script");
 		hackerViewItem.setMnemonic(KeyEvent.VK_H);
