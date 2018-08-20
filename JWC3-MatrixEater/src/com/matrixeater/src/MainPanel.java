@@ -674,6 +674,12 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 			return bottomView;
 		}
 	});
+	AbstractAction openAction = new OpenViewAction("Front", new OpenViewGetter() {
+		@Override
+		public View getView() {
+			return frontView;
+		}
+	});
 	AbstractAction hackerViewAction = new OpenViewAction("Matrix Eater Script", new OpenViewGetter() {
 		@Override
 		public View getView() {
@@ -731,10 +737,11 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 			// new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
 			// mpqBrowser));
 			// floatingWindow.getTopLevelAncestor().setVisible(true);
-			rootWindow.setWindow(new SplitWindow(true, 0.75f, rootWindow.getWindow(),
-					new View("MPQ Browser",
-							new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
-							mpqBrowser)));
+			final View view = new View("MPQ Browser",
+					new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
+					mpqBrowser);
+			view.getWindowProperties().setCloseEnabled(true);
+			rootWindow.setWindow(new SplitWindow(true, 0.75f, rootWindow.getWindow(), view));
 		}
 	};
 	AbstractAction openUnitViewerAction = new AbstractAction("Open Unit Browser") {
@@ -911,7 +918,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 	private final ViewportTransferHandler viewportTransferHandler;
 	private StringViewMap viewMap;
 	private RootWindow rootWindow;
-	private View viewportControllerWindowView;
+	private View viewportControllerWindowView, toolView;
 	private ControllableTimeBoundProvider timeBoundProvider;
 	private ActivityDescriptor currentActivity;
 
@@ -1040,6 +1047,12 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		final JPanel jPanel = new JPanel();
 		jPanel.add(new JLabel("..."));
 		viewportControllerWindowView = new View("View Controller", GlobalIcons.geoIcon, jPanel);
+		viewportControllerWindowView.getWindowProperties().setCloseEnabled(false);
+		viewportControllerWindowView.getWindowProperties().setMaximizeEnabled(true);
+		viewportControllerWindowView.getWindowProperties().setMinimizeEnabled(true);
+		viewportControllerWindowView.getWindowProperties().setRestoreEnabled(true);
+		toolView = new View("Tools", null, new JPanel());
+		toolView.getWindowProperties().setCloseEnabled(false);
 		rootWindow.getWindowProperties().getTabProperties().getTitledTabProperties()
 				.setSizePolicy(TitledTabSizePolicy.EQUAL_SIZE);
 		rootWindow.getWindowProperties().getTabProperties().getTitledTabProperties()
@@ -1094,13 +1107,16 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		}, prefs, actionTypeGroup, activeViewportWatcher, animatedRenderEnvironment);
 		creatorView = new View("Modeling", null, creatorPanel);
 		animationControllerView = new View("Animation Controller", null, new JPanel());
-		final TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {
-				new SplitWindow(true, 0.2f, viewportControllerWindowView,
-						new SplitWindow(true, 0.8f,
-								new SplitWindow(false, new SplitWindow(true, frontView, bottomView),
-										new SplitWindow(true, leftView, perspectiveView)),
-								creatorView)),
-				new SplitWindow(true, 0.8f, previewView, animationControllerView) });
+		final TabWindow leftHandTabWindow = new TabWindow(
+				new DockingWindow[] { viewportControllerWindowView, toolView });
+		leftHandTabWindow.getWindowProperties().setCloseEnabled(false);
+		final SplitWindow editingTab = new SplitWindow(true, 0.2f, leftHandTabWindow,
+				new SplitWindow(true, 0.8f, new SplitWindow(false, new SplitWindow(true, frontView, bottomView),
+						new SplitWindow(true, leftView, perspectiveView)), creatorView));
+		editingTab.getWindowProperties().setCloseEnabled(false);
+		final SplitWindow viewingTab = new SplitWindow(true, 0.8f, previewView, animationControllerView);
+		viewingTab.getWindowProperties().setCloseEnabled(false);
+		final TabWindow startupTabWindow = new TabWindow(new DockingWindow[] { editingTab, viewingTab });
 		rootWindow.setWindow(startupTabWindow);
 		startupTabWindow.setSelectedTab(0);
 		final Component horizontalGlue = Box.createHorizontalGlue();
@@ -1157,6 +1173,15 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 						refreshAnimationModeState();
 					}
 				});
+
+				if (newType == SelectionItemTypes.TPOSE) {
+
+					final Object[] settings = { "Move Linked", "Move Single" };
+					final Object dialogResult = JOptionPane.showInputDialog(null, "Choose settings:", "T-Pose Settings",
+							JOptionPane.PLAIN_MESSAGE, null, settings, settings[0]);
+					final boolean moveLinked = dialogResult == settings[0];
+					ModelEditorManager.MOVE_LINKED = moveLinked;
+				}
 			}
 		});
 
@@ -1177,6 +1202,22 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 				MainPanel.this.setMouseCoordDisplay(dimension1, dimension2, coord1, coord2);
 			}
 		};
+	}
+
+	public void defaultModelStartupHack() {
+
+		final String filepath = "units\\other\\DranaiAkama\\DranaiAkama.mdx";
+		if (filepath != null) {
+			loadFile(MpqCodebase.get().getFile(filepath), true, true, GlobalIcons.greenIcon);
+			final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
+					+ filepath.substring(filepath.lastIndexOf('.'), filepath.length());
+			if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
+				loadFile(MpqCodebase.get().getFile(portrait), true, false, GlobalIcons.greenIcon);
+			}
+			toolsMenu.getAccessibleContext().setAccessibleDescription(
+					"Allows the user to control which parts of the model are displayed for editing.");
+			toolsMenu.setEnabled(true);
+		}
 	}
 
 	@Override
@@ -1813,6 +1854,8 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		// else {
 		// prefs.setViewMode(-1);
 		// }
+
+		// defaultModelStartupHack();
 	}
 
 	private void updateUIFromProgramPreferences() {

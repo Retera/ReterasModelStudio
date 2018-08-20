@@ -58,7 +58,7 @@ public class DrawBoxActivity implements ViewportActivity {
 		this.numSegsY = numSegsY;
 		this.numSegsZ = numSegsZ;
 		this.graphics2dToModelElementRendererAdapter = new Graphics2DToModelElementRendererAdapter(
-				preferences.getVertexSize());
+				preferences.getVertexSize(), preferences);
 	}
 
 	public void setNumSegsX(final int numSegsX) {

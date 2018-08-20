@@ -33,7 +33,7 @@ public abstract class AbstractSelectAndEditManipulatorBuilder implements Manipul
 		this.modelEditor = modelEditor;
 		this.modelView = modelView;
 		graphics2dToModelElementRendererAdapter = new Graphics2DToModelElementRendererAdapter(
-				programPreferences.getVertexSize());
+				programPreferences.getVertexSize(), programPreferences);
 		graphics2dToAnimatedModelElementRendererAdapter = new Graphics2DToAnimatedModelElementRendererAdapter(
 				programPreferences.getVertexSize());
 	}

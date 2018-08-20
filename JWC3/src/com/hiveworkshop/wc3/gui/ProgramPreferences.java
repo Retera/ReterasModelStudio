@@ -21,6 +21,7 @@ public class ProgramPreferences implements Serializable {
 	private transient boolean cloneOn = false;
 	private transient boolean[] dimLocks = new boolean[3];
 	private Boolean invertedDisplay = true;
+	private Boolean useBoxesForPivotPoints = true;
 	Color activeRColor1 = new Color(200, 255, 200);
 	Color activeRColor2 = new Color(60, 170, 0);
 	Color activeColor1 = new Color(255, 200, 200);
@@ -56,6 +57,9 @@ public class ProgramPreferences implements Serializable {
 		actionType = 3;
 		if (invertedDisplay == null) {
 			invertedDisplay = true;
+		}
+		if (useBoxesForPivotPoints == null) {
+			useBoxesForPivotPoints = true;
 		}
 		if (vertexColor == null || normalsColor == null || pivotPointsColor == null) {
 			vertexColor = new Color(0, 0, 255);// new Color(0, 0, 0)
@@ -103,6 +107,7 @@ public class ProgramPreferences implements Serializable {
 		useNativeMDXParser = other.useNativeMDXParser;
 		loadPortraits = other.loadPortraits;
 		invertedDisplay = other.invertedDisplay;
+		useBoxesForPivotPoints = other.useBoxesForPivotPoints;
 		activeRColor1 = other.activeRColor1;
 		activeRColor2 = other.activeRColor2;
 		activeColor1 = other.activeColor1;
@@ -414,6 +419,23 @@ public class ProgramPreferences implements Serializable {
 
 	public Boolean isInvertedDisplay() {
 		return invertedDisplay;
+	}
+
+	public Boolean getUseBoxesForPivotPoints() {
+		return useBoxesForPivotPoints;
+	}
+
+	public boolean isUseBoxesForPivotPoints() {
+		if (useBoxesForPivotPoints == null) {
+			return true;
+		}
+		return useBoxesForPivotPoints;
+	}
+
+	public void setUseBoxesForPivotPoints(final Boolean useBoxesForPivotPoints) {
+		this.useBoxesForPivotPoints = useBoxesForPivotPoints;
+		SaveProfile.save();
+		firePrefsChanged();
 	}
 
 	public void setInvertedDisplay(final Boolean invertedDisplay) {

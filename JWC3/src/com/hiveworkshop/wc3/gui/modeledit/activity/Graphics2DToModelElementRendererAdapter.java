@@ -20,12 +20,13 @@ public final class Graphics2DToModelElementRendererAdapter implements ModelEleme
 	private final Point recyclePointA = new Point(), recyclePointB = new Point(), recyclePointC = new Point();
 	private final int[] recycleXCoords = new int[3];
 	private final int[] recycleYCoords = new int[3];
-	private ProgramPreferences programPreferences;
+	private final ProgramPreferences programPreferences;
 	private final int vertexSize;
 	private final ResettableIdObjectRenderer idObjectRenderer;
 
-	public Graphics2DToModelElementRendererAdapter(final int vertexSize) {
+	public Graphics2DToModelElementRendererAdapter(final int vertexSize, final ProgramPreferences programPreferences) {
 		this.vertexSize = vertexSize;
+		this.programPreferences = programPreferences;
 		this.idObjectRenderer = new ResettableIdObjectRenderer(vertexSize);
 	}
 
@@ -65,7 +66,8 @@ public final class Graphics2DToModelElementRendererAdapter implements ModelEleme
 	@Override
 	public void renderIdObject(final IdObject object, final NodeIconPalette nodeIconPalette, final Color lightColor,
 			final Color pivotPointColor) {
-		object.apply(idObjectRenderer.reset(coordinateSystem, graphics, lightColor, pivotPointColor, nodeIconPalette));
+		object.apply(idObjectRenderer.reset(coordinateSystem, graphics, lightColor, pivotPointColor, nodeIconPalette,
+				programPreferences.isUseBoxesForPivotPoints()));
 	}
 
 	@Override

@@ -28,6 +28,7 @@ public final class ModelEditorManager {
 	private final RenderModel renderModel;
 	private NodeAnimationSelectionManager nodeAnimationSelectionManager;
 	private final ModelStructureChangeListener structureChangeListener;
+	public static boolean MOVE_LINKED;
 
 	public ModelEditorManager(final ModelView model, final ProgramPreferences programPreferences,
 			final ToolbarButtonGroup<SelectionMode> modeButtonGroup,
@@ -113,6 +114,21 @@ public final class ModelEditorManager {
 			viewportSelectionHandler.setSelectingEventHandler(modelEditor);
 			modelEditorChangeListener.modelEditorChanged(modelEditor);
 			selectionView = nodeAnimationSelectionManager;
+			selectionListener.onSelectionChanged(selectionView);
+			break;
+		}
+		case TPOSE: {
+			final boolean moveLinked = MOVE_LINKED;// dialog == settings[0];
+			final TPoseSelectionManager tposeSelectionManager = new TPoseSelectionManager(model, moveLinked);
+			final TPoseModelEditor tPoseModelEditor = new TPoseModelEditor(model, programPreferences,
+					tposeSelectionManager, structureChangeListener);
+			modelEditor = tPoseModelEditor;
+			if (lastSelectedVertices != null) {
+				modelEditor.selectByVertices(lastSelectedVertices);
+			}
+			viewportSelectionHandler.setSelectingEventHandler(modelEditor);
+			modelEditorChangeListener.modelEditorChanged(modelEditor);
+			selectionView = tposeSelectionManager;
 			selectionListener.onSelectionChanged(selectionView);
 			break;
 		}

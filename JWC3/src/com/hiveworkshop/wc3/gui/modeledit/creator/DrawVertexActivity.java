@@ -44,7 +44,7 @@ public class DrawVertexActivity implements ViewportActivity {
 		this.selectionView = selectionView;
 		this.activeViewportWatcher = activeViewportWatcher;
 		this.graphics2dToModelElementRendererAdapter = new Graphics2DToModelElementRendererAdapter(
-				preferences.getVertexSize());
+				preferences.getVertexSize(), preferences);
 	}
 
 	@Override

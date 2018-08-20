@@ -42,7 +42,7 @@ public class AnimationPanel extends JPanel implements ActionListener {
 
 		for (final Animation anim : mdlDisp.getModel().getAnims()) {
 			final JLabel label = new JLabel(anim.getName() + " (" + anim.length() / 1000.00 + " s)");
-			final int maxLength = anim.length() * 4;
+			final int maxLength = Math.max(100000, anim.length() * 4);
 			final JSlider bar = new JSlider(0, maxLength);
 			bar.setValue(anim.length());
 			final JSpinner spinner = new JSpinner(
@@ -63,7 +63,7 @@ public class AnimationPanel extends JPanel implements ActionListener {
 		int i = 0;
 		for (final Integer globalSeq : mdlDisp.getModel().getGlobalSeqs()) {
 			final JLabel label = new JLabel("Global Sequence " + ++i + " (" + globalSeq / 1000.00 + " s)");
-			final int maxLength = globalSeq * 4;
+			final int maxLength = Math.max(100000, globalSeq * 4);
 			final JSlider bar = new JSlider(0, maxLength);
 			bar.setValue(globalSeq);
 			final JSpinner spinner = new JSpinner(

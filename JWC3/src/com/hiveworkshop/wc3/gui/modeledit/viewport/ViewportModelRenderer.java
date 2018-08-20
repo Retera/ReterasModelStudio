@@ -67,7 +67,8 @@ public class ViewportModelRenderer implements ModelRenderer {
 		this.coordinateSystem = coordinateSystem;
 		this.modelView = modelView;
 		idObjectRenderer.reset(coordinateSystem, graphics, programPreferences.getLightsColor(),
-				programPreferences.getPivotPointsColor(), NodeIconPalette.UNSELECTED);
+				programPreferences.getPivotPointsColor(), NodeIconPalette.UNSELECTED,
+				programPreferences.isUseBoxesForPivotPoints());
 		return this;
 	}
 
@@ -92,7 +93,8 @@ public class ViewportModelRenderer implements ModelRenderer {
 						: programPreferences.getLightsColor(),
 				modelView.getHighlightedNode() == object ? programPreferences.getHighlighVertexColor()
 						: programPreferences.getPivotPointsColor(),
-				modelView.getHighlightedNode() == object ? NodeIconPalette.HIGHLIGHT : NodeIconPalette.UNSELECTED);
+				modelView.getHighlightedNode() == object ? NodeIconPalette.HIGHLIGHT : NodeIconPalette.UNSELECTED,
+				programPreferences.isUseBoxesForPivotPoints());
 	}
 
 	@Override

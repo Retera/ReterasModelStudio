@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -32,8 +31,12 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		final JRadioButton wireframeViewMode = new JRadioButton("Wireframe");
 		final JRadioButton solidViewMode = new JRadioButton("Solid");
 		final JCheckBox invertedDisplay = new JCheckBox();
+		final JCheckBox useBoxesForNodes = new JCheckBox();
 		if (programPreferences.isInvertedDisplay() != null && programPreferences.isInvertedDisplay()) {
 			invertedDisplay.setSelected(true);
+		}
+		if (programPreferences.getUseBoxesForPivotPoints() != null && programPreferences.getUseBoxesForPivotPoints()) {
+			useBoxesForNodes.setSelected(true);
 		}
 		final ActionListener viewModeUpdater = new ActionListener() {
 			@Override
@@ -50,17 +53,27 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		viewModes.add(wireframeViewMode);
 		viewModes.add(solidViewMode);
 
-		generalPrefsPanel.add(viewModeLabel);
-		generalPrefsPanel.add(wireframeViewMode);
-		generalPrefsPanel.add(solidViewMode);
-		final BoxLayout boxLayout = new BoxLayout(generalPrefsPanel, BoxLayout.PAGE_AXIS);
-		generalPrefsPanel.setLayout(boxLayout);
+		generalPrefsPanel.setLayout(new MigLayout());
+		generalPrefsPanel.add(viewModeLabel, "cell 0 0");
+		generalPrefsPanel.add(wireframeViewMode, "cell 0 1");
+		generalPrefsPanel.add(solidViewMode, "cell 0 2");
+		generalPrefsPanel.add(new JLabel("Show Viewport Gridlines:"), "cell 0 3");
+		generalPrefsPanel.add(invertedDisplay, "cell 1 3");
+		generalPrefsPanel.add(new JLabel("Use Boxes for Nodes:"), "cell 0 4");
+		generalPrefsPanel.add(useBoxesForNodes, "cell 1 4");
+		// final BoxLayout boxLayout = new BoxLayout(generalPrefsPanel, BoxLayout.PAGE_AXIS);
 
 		addTab("General", generalPrefsPanel);
 
 		final JPanel modelEditorPanel = new JPanel();
 		modelEditorPanel.setLayout(new MigLayout());
 		invertedDisplay.addActionListener(viewModeUpdater);
+		useBoxesForNodes.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				programPreferences.setUseBoxesForPivotPoints(useBoxesForNodes.isSelected());
+			}
+		});
 		final ColorChooserIcon backgroundColorIcon = new ColorChooserIcon(programPreferences.getBackgroundColor(),
 				new ColorListener() {
 					@Override
@@ -138,10 +151,21 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 						programPreferences.setAnimatedBoneSelectedUpstreamColor(color);
 					}
 				});
+		final ColorChooserIcon pivotPointColorIcon = new ColorChooserIcon(programPreferences.getPivotPointsColor(),
+				new ColorListener() {
+					@Override
+					public void colorChanged(final Color color) {
+						programPreferences.setPivotPointsColor(color);
+					}
+				});
+		final ColorChooserIcon pivotPointSelectedColorIcon = new ColorChooserIcon(
+				programPreferences.getPivotPointsSelectedColor(), new ColorListener() {
+					@Override
+					public void colorChanged(final Color color) {
+						programPreferences.setPivotPointsSelectedColor(color);
+					}
+				});
 		int row = 0;
-		modelEditorPanel.add(new JLabel("Show Viewport Gridlines:"), "cell 0 " + row);
-		modelEditorPanel.add(invertedDisplay, "cell 1 " + row);
-		row++;
 		modelEditorPanel.add(new JLabel("Background Color:"), "cell 0 " + row);
 		modelEditorPanel.add(backgroundColorIcon, "cell 1 " + row);
 		row++;
@@ -175,7 +199,13 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		modelEditorPanel.add(new JLabel("Animation Editor Selected Upstream Color:"), "cell 0 " + row);
 		modelEditorPanel.add(animtedBoneSelectedUpstreamColorIcon, "cell 1 " + row);
 		row++;
-		addTab("Editor", new JScrollPane(modelEditorPanel));
+		modelEditorPanel.add(new JLabel("Pivot Point Color:"), "cell 0 " + row);
+		modelEditorPanel.add(pivotPointColorIcon, "cell 1 " + row);
+		row++;
+		modelEditorPanel.add(new JLabel("Pivot Point Selected Color:"), "cell 0 " + row);
+		modelEditorPanel.add(pivotPointSelectedColorIcon, "cell 1 " + row);
+		row++;
+		addTab("Colors/Theme", new JScrollPane(modelEditorPanel));
 
 		final JPanel hotkeysPanel = new JPanel();
 		hotkeysPanel.setLayout(new MigLayout());
