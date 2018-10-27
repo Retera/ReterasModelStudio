@@ -1109,6 +1109,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		animationControllerView = new View("Animation Controller", null, new JPanel());
 		final TabWindow leftHandTabWindow = new TabWindow(
 				new DockingWindow[] { viewportControllerWindowView, toolView });
+		leftHandTabWindow.setSelectedTab(0);
 		leftHandTabWindow.getWindowProperties().setCloseEnabled(false);
 		final SplitWindow editingTab = new SplitWindow(true, 0.2f, leftHandTabWindow,
 				new SplitWindow(true, 0.8f, new SplitWindow(false, new SplitWindow(true, frontView, bottomView),
@@ -1182,6 +1183,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 					final boolean moveLinked = dialogResult == settings[0];
 					ModelEditorManager.MOVE_LINKED = moveLinked;
 				}
+				repaint();
 			}
 		});
 
@@ -4245,6 +4247,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 			final JPanel jPanel = new JPanel();
 			jPanel.add(new JLabel("..."));
 			viewportControllerWindowView.setComponent(jPanel);
+			geoControl = null;
 			frontView.setComponent(new JPanel());
 			bottomView.setComponent(new JPanel());
 			leftView.setComponent(new JPanel());
