@@ -1,5 +1,6 @@
 package com.hiveworkshop.wc3.mpq;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -10,16 +11,19 @@ import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
+
 import com.etheller.collections.HashSet;
 import com.etheller.collections.Set;
 import com.etheller.collections.SetView;
-import com.hiveworkshop.wc3.gui.ExceptionPopup;
+import com.hiveworkshop.wc3.casc.Cascket;
 import com.hiveworkshop.wc3.user.SaveProfile;
 
 import mpq.ArchivedFile;
@@ -39,6 +43,7 @@ public class MpqCodebase implements Codebase {
 	MpqGuy hfmd;
 	ArrayList<MpqGuy> mpqList = new ArrayList<>();
 	ArchivedFileExtractor extractor = new ArchivedFileExtractor();
+	Cascket casc;
 
 	private static final class MpqGuy {
 		private final MPQArchive archive;
@@ -80,9 +85,11 @@ public class MpqCodebase implements Codebase {
 		if (isDebugMode) {
 			hfmd = loadMPQ("hfmd.exe", false);
 		}
+		casc = new Cascket(Paths.get(getWarcraftDirectory(), "Data"));
 		// try {
 		// loadMPQ(Paths.get(
-		// "C:\\Users\\Eric\\Documents\\Warcraft III\\Maps\\Templar30Not\\Oldinject\\NWU_S3_B10_FIX22.w3x"));
+		// "C:\\Users\\Eric\\Documents\\Warcraft
+		// III\\Maps\\Templar30Not\\Oldinject\\NWU_S3_B10_FIX22.w3x"));
 		// } catch (final MPQException e) {
 		// e.printStackTrace();
 		// } catch (final IOException e) {
@@ -94,6 +101,9 @@ public class MpqCodebase implements Codebase {
 
 	@Override
 	public File getFile(final String filepath) {
+		if (casc.has(filepath)) {
+			return casc.getFile(filepath);
+		}
 		if (cache.containsKey(filepath)) {
 			return cache.get(filepath);
 		}
@@ -137,6 +147,9 @@ public class MpqCodebase implements Codebase {
 
 	@Override
 	public InputStream getResourceAsStream(final String filepath) {
+		if (casc.has(filepath)) {
+			return casc.getResourceAsStream(filepath);
+		}
 		try {
 			for (int i = mpqList.size() - 1; i >= 0; i--) {
 				final MpqGuy mpqGuy = mpqList.get(i);
@@ -164,6 +177,9 @@ public class MpqCodebase implements Codebase {
 
 	@Override
 	public boolean has(final String filepath) {
+		if (casc.has(filepath)) {
+			return true;
+		}
 		if (cache.containsKey(filepath)) {
 			return true;
 		}
@@ -248,9 +264,11 @@ public class MpqCodebase implements Codebase {
 		if (isDebugMode) {
 			hfmd = loadMPQ("hfmd.exe", false);
 		}
+		casc = new Cascket(Paths.get(getWarcraftDirectory(), "Data"));
 		// try {
 		// loadMPQ(Paths.get(
-		// "C:\\Users\\Eric\\Documents\\Warcraft III\\Maps\\Templar30Not\\Oldinject\\NWU_S3_B10_FIX22.w3x"));
+		// "C:\\Users\\Eric\\Documents\\Warcraft
+		// III\\Maps\\Templar30Not\\Oldinject\\NWU_S3_B10_FIX22.w3x"));
 		// } catch (final MPQException e) {
 		// e.printStackTrace();
 		// } catch (final IOException e) {
@@ -297,10 +315,10 @@ public class MpqCodebase implements Codebase {
 				return temp;
 			}
 		} catch (final MPQException e) {
-			ExceptionPopup.display("Warcraft installation archive reading error occurred. Check your MPQs.\n" + mpq, e);
+//			ExceptionPopup.display("Warcraft installation archive reading error occurred. Check your MPQs.\n" + mpq, e);
 			e.printStackTrace();
 		} catch (final IOException e) {
-			ExceptionPopup.display("Warcraft installation archive reading error occurred. Check your MPQs.\n" + mpq, e);
+//			ExceptionPopup.display("Warcraft installation archive reading error occurred. Check your MPQs.\n" + mpq, e);
 			e.printStackTrace();
 		}
 		// } catch (MPQFormatException e) {
@@ -389,5 +407,92 @@ public class MpqCodebase implements Codebase {
 	public static String getWarcraftDirectory() {
 		// return "C:\\temp\\WC3Archives\\";
 		return SaveProfile.getWarcraftDirectory();
+	}
+
+	public static void main(final String[] args) {
+		try {
+//			dumpMpq("war3.mpq");
+//			dumpMpq("War3x.mpq");
+//			dumpMpq("War3xlocal.mpq");
+//			dumpMpq2("War3Patch.mpq");
+		} catch (final Exception e) {
+			e.printStackTrace();
+		}
+		for (final File file : new File("/home/etheller/Documents/MPQ/war3.mpq/ReplaceableTextures/CommandButtons/")
+				.listFiles()) {
+			final String relevantPath = file.getPath().substring("/home/etheller/Documents/MPQ/war3.mpq/".length());
+			final File tftOverride = new File("/home/etheller/Documents/MPQ/War3x.mpq/" + relevantPath);
+			if (tftOverride.exists()) {
+				System.out.println("Overriden: " + relevantPath);
+				try {
+					final BufferedImage rocIcon = ImageIO.read(file);
+					ImageIO.write(rocIcon, "png",
+							new File("/home/etheller/Pictures/Icons/ROC." + file.getName() + ".png"));
+					final BufferedImage tftIcon = ImageIO.read(tftOverride);
+					ImageIO.write(tftIcon, "png",
+							new File("/home/etheller/Pictures/Icons/TFT." + file.getName() + ".png"));
+				} catch (final IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	private static void dumpMpq(final String mpqName) throws IOException, MPQException {
+		final String gameInstallPath = "/home/etheller/Applications/MiniWc3/";
+		final String dumpFolderPath = "/home/etheller/Documents/MPQ";
+		final SeekableByteChannel channel = Files.newByteChannel(Paths.get(gameInstallPath + mpqName),
+				StandardOpenOption.READ);
+		final MPQArchive mpq = new MPQArchive(channel);
+		final MpqGuy mpqGuy = new MpqGuy(mpq, channel);
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(mpqGetFile(mpqGuy, "(listfile)")))) {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				try (final InputStream fileFromMpq = mpqGetFile(mpqGuy, line)) {
+					final Path dumpPath = Paths.get(dumpFolderPath, mpqName, line.replace('\\', '/'));
+					final Path dumpPathParent = dumpPath.getParent();
+					Files.createDirectories(dumpPathParent);
+					Files.copy(fileFromMpq, dumpPath, StandardCopyOption.REPLACE_EXISTING);
+				}
+			}
+		}
+	}
+
+	private static void dumpMpq2(final String mpqName) throws IOException, MPQException {
+		final String gameInstallPath = "/home/etheller/Applications/MiniWc3/";
+		final String dumpFolderPath = "/home/etheller/Documents/MPQ";
+		final SeekableByteChannel channel = Files.newByteChannel(Paths.get(gameInstallPath + mpqName),
+				StandardOpenOption.READ);
+		final MPQArchive mpq = new MPQArchive(channel);
+		final MpqGuy mpqGuy = new MpqGuy(mpq, channel);
+		for (final String cascline : get().casc.getListfile()) {
+			final String line = cascline.substring(cascline.indexOf('\\') + 1);
+			if (mpqGuy.has(line)) {
+				try (final InputStream fileFromMpq = mpqGetFile(mpqGuy, line)) {
+					final Path dumpPath = Paths.get(dumpFolderPath, mpqName, line.replace('\\', '/'));
+					final Path dumpPathParent = dumpPath.getParent();
+					Files.createDirectories(dumpPathParent);
+					Files.copy(fileFromMpq, dumpPath, StandardCopyOption.REPLACE_EXISTING);
+				}
+			}
+		}
+	}
+
+	private static InputStream mpqGetFile(final MpqGuy mpqGuy, final String filepath) throws IOException {
+
+		final MPQArchive mpq = mpqGuy.getArchive();
+		ArchivedFile file = null;
+		try {
+			file = mpq.lookupHash2(new HashLookup(filepath));
+		} catch (final MPQException exc) {
+			if (exc.getMessage().equals("lookup not found")) {
+				return null;
+			} else {
+				throw new IOException(exc);
+			}
+		}
+		final ArchivedFileStream stream = new ArchivedFileStream(mpqGuy.getInputChannel(), get().extractor, file);
+		final InputStream newInputStream = Channels.newInputStream(stream);
+		return newInputStream;
 	}
 }

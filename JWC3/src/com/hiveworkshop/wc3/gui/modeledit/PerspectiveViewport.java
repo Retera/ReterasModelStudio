@@ -133,7 +133,8 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 		//
 		// Viewport border
 		// setBorder(BorderFactory.createBevelBorder(1));
-		setBackground(programPreferences.getPerspectiveBackgroundColor() == null ? new Color(80, 80, 80)
+		setBackground((programPreferences == null || programPreferences.getPerspectiveBackgroundColor() == null)
+				? new Color(80, 80, 80)
 				: programPreferences.getPerspectiveBackgroundColor());
 		setMinimumSize(new Dimension(200, 200));
 		// add(Box.createHorizontalStrut(200));

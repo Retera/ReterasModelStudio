@@ -28,7 +28,8 @@ public class BLPHandler {
 	}
 
 	/**
-	 * Caching here is dangerous, only works if you're not changing the underlying images.
+	 * Caching here is dangerous, only works if you're not changing the underlying
+	 * images.
 	 */
 	Map<String, BufferedImage> cache = new HashMap<>();
 
@@ -39,13 +40,14 @@ public class BLPHandler {
 		}
 		try {
 			try {
-				final BufferedImage newImage2 = getCustomTex(workingDirectory + "\\" + filepath);
+				final BufferedImage newImage2 = getCustomTex(workingDirectory + File.separatorChar + filepath);
 				if (newImage2 != null) {
 					return newImage2;
 				}
 			} catch (final Exception exc3) {
 			}
-			final String lastHopePath = workingDirectory + "\\" + filepath.substring(filepath.lastIndexOf('\\') + 1);
+			final String lastHopePath = workingDirectory + File.separator
+					+ filepath.substring(filepath.lastIndexOf(File.separatorChar) + 1);
 			final BufferedImage newImage3 = getCustomTex(lastHopePath);
 			if (newImage3 != null) {
 				return newImage3;
@@ -66,11 +68,10 @@ public class BLPHandler {
 	}
 
 	/**
-	 * Convert an input buffered image into sRGB color space using component values directly instead of performing a
-	 * color space conversion.
+	 * Convert an input buffered image into sRGB color space using component values
+	 * directly instead of performing a color space conversion.
 	 *
-	 * @param in
-	 *            Input image to be converted.
+	 * @param in Input image to be converted.
 	 * @return Resulting sRGB image.
 	 */
 	public static BufferedImage forceBufferedImagesRGB(final BufferedImage in) {
@@ -106,8 +107,9 @@ public class BLPHandler {
 	}
 
 	/**
-	 * Gets a texture file from BLP format inside the Warcraft archives into a BufferedImage you can use, based on a
-	 * filepath in the Warcraft installation's MPQ files.
+	 * Gets a texture file from BLP format inside the Warcraft archives into a
+	 * BufferedImage you can use, based on a filepath in the Warcraft installation's
+	 * MPQ files.
 	 *
 	 * @param filepath
 	 * @return
@@ -166,7 +168,8 @@ public class BLPHandler {
 	}
 
 	/**
-	 * Returns a BufferedImage from any arbitrary filepath string on your computer, reading the image from BLP format.
+	 * Returns a BufferedImage from any arbitrary filepath string on your computer,
+	 * reading the image from BLP format.
 	 *
 	 * @param filepath
 	 * @return
