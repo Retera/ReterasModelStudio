@@ -29,6 +29,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
+import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.PerspDisplayPanel;
 import com.hiveworkshop.wc3.gui.mpqbrowser.MPQBrowser;
 import com.hiveworkshop.wc3.mdl.MDL;
@@ -215,8 +216,8 @@ public class BlpConverterPanel extends JPanel {
 		final BlpConverterPanel converterPanel = new BlpConverterPanel();
 		leftHandCardPanel.add("tex", converterPanel);
 		final MDL emptyModel = new MDL();
-		final PerspDisplayPanel modelViewport = new PerspDisplayPanel("", new ModelViewManager(emptyModel), null,
-				new RenderModel(emptyModel));
+		final PerspDisplayPanel modelViewport = new PerspDisplayPanel("", new ModelViewManager(emptyModel),
+				new ProgramPreferences(), new RenderModel(emptyModel));
 		leftHandCardPanel.add("model", modelViewport);
 		final MpqCodebase mpqCodebase = MpqCodebase.get();
 		cardLayout.show(leftHandCardPanel, "tex");

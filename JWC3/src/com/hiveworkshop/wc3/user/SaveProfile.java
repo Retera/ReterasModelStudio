@@ -3,7 +3,6 @@ package com.hiveworkshop.wc3.user;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
@@ -152,26 +151,10 @@ public class SaveProfile implements Serializable {
 		}
 	}
 
-	public static void testTargetFolder(final String wcDirectory) {
-		final File temp = new File(wcDirectory + "mod_test_file.txt");
-		boolean good = false;
-		try {
-			good = temp.createNewFile();
-			temp.delete();
-		} catch (final IOException e) {
-			e.printStackTrace();
-		}
-		if (!good) {
-			JOptionPane.showMessageDialog(null,
-					"You might not have permissions to access the chosen folder.\nYou should \"Run as Administrator\" on this program, or otherwise gain file permissions to the target folder, for the mod to work optimally.\n\nThe Java WC3 Libraries will permit you to use this folder, however, for read-only purposes.",
-					"WARNING: Needs WC3 Installation", JOptionPane.WARNING_MESSAGE);
-			// requestNewWc3Directory();
-		}
-	}
-
 	public static boolean testTargetFolderReadOnly(final String wcDirectory) {
 		final File temp = new File(wcDirectory + "war3.mpq");
-		if (!temp.exists()) {
+		final File datat = new File(wcDirectory + "/Data");
+		if (!temp.exists() && !datat.exists()) {
 			JOptionPane.showMessageDialog(null,
 					"Could not find war3.mpq. Please choose a valid Warcraft III installation.",
 					"WARNING: Needs WC3 Installation", JOptionPane.WARNING_MESSAGE);
@@ -197,7 +180,7 @@ public class SaveProfile implements Serializable {
 				wcDirectory = wcDirectory.replace('\\', '/');
 			}
 
-			testTargetFolder(wcDirectory);
+			testTargetFolderReadOnly(wcDirectory);
 
 			get().setGameDirectory(wcDirectory);
 		}
