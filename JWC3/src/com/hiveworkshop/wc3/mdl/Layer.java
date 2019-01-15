@@ -294,7 +294,10 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		if (texture != null) {
 			return texture;
 		} else {
-			return textures.get(0);
+			if(textures != null && textures.size()>0) {
+				return textures.get(0);
+			}
+			return null; 
 		}
 	}
 
@@ -362,10 +365,10 @@ public class Layer implements Named, VisibilitySource, LayerView {
 	}
 
 	public void updateRefs(final MDL mdlr) {
-		if (textureId >= 0) {
+		if (textureId >= 0 && textureId < mdlr.getTextures().size()) {
 			texture = mdlr.getTexture(textureId);
 		}
-		if (TVertexAnimId >= 0) {
+		if (TVertexAnimId >= 0 && TVertexAnimId < mdlr.texAnims.size()) {
 			textureAnim = mdlr.texAnims.get(TVertexAnimId);
 		}
 		final AnimFlag txFlag = getFlag("TextureID");

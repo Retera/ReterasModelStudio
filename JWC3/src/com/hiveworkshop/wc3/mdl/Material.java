@@ -365,6 +365,9 @@ public class Material implements MaterialView {
 	 * @return
 	 */
 	private String getRenderableTexturePath(final Bitmap tex) {
+		if(tex == null ) {
+			return "Textures\\white.blp";
+		}
 		String path = tex.getPath();
 		if (path.length() == 0) {
 			if (tex.getReplaceableId() == 1) {

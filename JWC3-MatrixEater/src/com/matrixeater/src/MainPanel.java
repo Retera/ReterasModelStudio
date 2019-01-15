@@ -728,6 +728,17 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 						// addTabForView(new View(filepath.substring(filepath.lastIndexOf('\\') + 1),
 						// new ImageIcon(image.getScaledInstance(16, 16, Image.SCALE_DEFAULT)),
 						// new BLPPanel(image)), true);
+					} else if (filepath.toLowerCase().endsWith(".png")) {
+						// try {
+						// final BufferedImage image =
+						// ImageIO.read(MpqCodebase.get().getResourceAsStream(filepath));
+						loadBLPPathAsModel(filepath);
+
+						// final BufferedImage image = BLPHandler.get().getGameTex(filepath);
+						//
+						// addTabForView(new View(filepath.substring(filepath.lastIndexOf('\\') + 1),
+						// new ImageIcon(image.getScaledInstance(16, 16, Image.SCALE_DEFAULT)),
+						// new BLPPanel(image)), true);
 					}
 				}
 			});
@@ -799,7 +810,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		@Override
 		public void actionPerformed(final ActionEvent e) {
 			final UnitEditorTree unitEditorTree = new UnitEditorTree(getDoodadData(), new DoodadTabTreeBrowserBuilder(),
-					getUnitEditorSettings(), WorldEditorDataType.DOODADS);
+					getUnitEditorSettings(), WorldEditorDataType.DOODADS); 
 			unitEditorTree.selectFirstUnit();
 			// final FloatingWindow floatingWindow = rootWindow.createFloatingWindow(rootWindow.getLocation(),
 			// mpqBrowser.getPreferredSize(),
@@ -1142,6 +1153,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		fc.setAcceptAllFileFilterUsed(false);
 		fc.addChoosableFileFilter(new FileNameExtensionFilter("Warcraft III Binary Model '-.mdx'", "mdx"));
 		fc.addChoosableFileFilter(new FileNameExtensionFilter("Warcraft III Texture '-.blp'", "blp"));
+		fc.addChoosableFileFilter(new FileNameExtensionFilter("PNG Image '-.png'", "png"));
 		fc.addChoosableFileFilter(filter);
 		fc.addChoosableFileFilter(new FileNameExtensionFilter("Wavefront OBJ '-.obj'", "obj"));
 		exportTextureDialog = new JFileChooser();
@@ -4058,6 +4070,10 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 
 	public void loadFile(final File f, final boolean temporary, final boolean selectNewTab, final ImageIcon icon) {
 		if (f.getPath().toLowerCase().endsWith("blp")) {
+			loadBLPPathAsModel(f.getName(), f.getParentFile());
+			return;
+		}
+		if(f.getPath().toLowerCase().endsWith("png")) {
 			loadBLPPathAsModel(f.getName(), f.getParentFile());
 			return;
 		}
