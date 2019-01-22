@@ -35,7 +35,7 @@ public class IntegerObjectField extends AbstractObjectField {
 		popupPanel.add(new JLabel(getDisplayName(gameUnit)));
 		int minValue = metaDataField.getFieldValue("minVal");
 		int maxValue = metaDataField.getFieldValue("maxVal");
-		if (editRawData) {
+		if (disableLimits) {
 			minValue = -1000000000;
 			maxValue = 1000000000;
 		}

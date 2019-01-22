@@ -53,18 +53,18 @@ public class MainFrame extends JFrame {
 		// registry.registerServiceProvider(
 		// new com.realityinteractive.imageio.tga.TGAImageReaderSpi());
 
-		// try {
-		// // Set cross-platform Java L&F (also called "Metal")
-		// UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		// } catch (final UnsupportedLookAndFeelException e) {
-		// // handle exception
-		// } catch (final ClassNotFoundException e) {
-		// // handle exception
-		// } catch (final InstantiationException e) {
-		// // handle exception
-		// } catch (final IllegalAccessException e) {
-		// // handle exception
-		// }
+		 try {
+		 // Set cross-platform Java L&F (also called "Metal")
+		 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		 } catch (final UnsupportedLookAndFeelException e) {
+		 // handle exception
+		 } catch (final ClassNotFoundException e) {
+		 // handle exception
+		 } catch (final InstantiationException e) {
+		 // handle exception
+		 } catch (final IllegalAccessException e) {
+		 // handle exception
+		 }
 		// EditorDisplayManager.setupLookAndFeel();
 		// try {
 		// UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel");
@@ -81,21 +81,21 @@ public class MainFrame extends JFrame {
 		// e.printStackTrace();
 		// }
 		// }
-		try {
-			final InfoNodeLookAndFeelTheme theme = new InfoNodeLookAndFeelTheme("Matrix Eater", new Color(44, 46, 20),
-					new Color(116, 126, 36), new Color(44, 46, 20), new Color(220, 202, 132), new Color(116, 126, 36),
-					new Color(220, 202, 132));
-			theme.setShadingFactor(-0.8);
-			theme.setDesktopColor(new Color(60, 82, 44));
-			theme.setTreeOpenIcon(new IconUIResource(new ImageIcon(
-					BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp"))));
-			theme.setTreeClosedIcon(new IconUIResource(new ImageIcon(
-					BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp"))));
-
-			UIManager.setLookAndFeel(new InfoNodeLookAndFeel(theme));
-		} catch (final UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			final InfoNodeLookAndFeelTheme theme = new InfoNodeLookAndFeelTheme("Matrix Eater", new Color(44, 46, 20),
+//					new Color(116, 126, 36), new Color(44, 46, 20), new Color(220, 202, 132), new Color(116, 126, 36),
+//					new Color(220, 202, 132));
+//			theme.setShadingFactor(-0.8);
+//			theme.setDesktopColor(new Color(60, 82, 44));
+//			theme.setTreeOpenIcon(new IconUIResource(new ImageIcon(
+//					BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp"))));
+//			theme.setTreeClosedIcon(new IconUIResource(new ImageIcon(
+//					BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp"))));
+//
+//			UIManager.setLookAndFeel(new InfoNodeLookAndFeel(theme));
+//		} catch (final UnsupportedLookAndFeelException e) {
+//			e.printStackTrace();
+//		}
 		// TechshaperFrame.main(args);
 
 		SwingUtilities.invokeLater(new Runnable() {

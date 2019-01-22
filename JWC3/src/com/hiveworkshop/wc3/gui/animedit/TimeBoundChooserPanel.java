@@ -20,6 +20,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -58,6 +59,7 @@ public class TimeBoundChooserPanel extends JPanel {
 			}
 		}
 		animationBox = new JList<>(animations);
+		animationBox.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // until code is improved
 		animationBox.addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(final ListSelectionEvent e) {

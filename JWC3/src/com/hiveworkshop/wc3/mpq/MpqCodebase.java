@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -101,11 +102,13 @@ public class MpqCodebase implements Codebase {
 
 	@Override
 	public File getFile(final String filepath) {
-		if (casc.has(filepath)) {
-			return casc.getFile(filepath);
-		}
 		if (cache.containsKey(filepath)) {
 			return cache.get(filepath);
+		}
+		if (casc.has(filepath)) {
+			File tempProduct = casc.getFile(filepath);
+			cache.put(filepath, tempProduct);
+			return tempProduct;
 		}
 		try {
 			for (int i = mpqList.size() - 1; i >= 0; i--) {
@@ -299,6 +302,10 @@ public class MpqCodebase implements Codebase {
 					throw new RuntimeException(exc);
 				}
 			}
+		}
+		Collection<String> cascListfile = casc.getListfile();
+		for(String cascString: cascListfile) {
+			listfile.add(cascString);
 		}
 		return listfile;
 	}

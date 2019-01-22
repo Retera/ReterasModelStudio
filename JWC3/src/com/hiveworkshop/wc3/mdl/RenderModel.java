@@ -22,6 +22,7 @@ public final class RenderModel {
 	public static final double MAGIC_RENDER_SHOW_CONSTANT = 0.75;
 	private final List<AnimatedNode> sortedNodes = new ArrayList<>();
 	private Quaternion inverseCameraRotation;
+	private Quaternion inverseCameraRotationXSpin;
 	private Quaternion inverseCameraRotationYSpin;
 	private Quaternion inverseCameraRotationZSpin;
 	private AnimatedRenderEnvironment animatedRenderEnvironment;

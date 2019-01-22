@@ -36,7 +36,7 @@ public class FloatObjectField extends AbstractObjectField {
 		popupPanel.add(new JLabel(getDisplayName(gameUnit)));
 		float minFloatValue = Float.parseFloat(metaDataField.getField("minVal"));
 		float maxFloatValue = Float.parseFloat(metaDataField.getField("maxVal"));
-		if (editRawData) {
+		if (disableLimits) {
 			minFloatValue = -1000000000.0f;
 			maxFloatValue = 1000000000.0f;
 		}

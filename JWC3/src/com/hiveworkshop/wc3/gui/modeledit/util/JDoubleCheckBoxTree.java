@@ -49,6 +49,7 @@ public class JDoubleCheckBoxTree extends JTree {
 	}
 
 	HashSet<TreeNode> checkedPaths = new HashSet<>();
+	HashSet<TreeNode> checkedPaths2 = new HashSet<>();
 
 	// Defining a new event type for the checking mechanism and preparing
 	// event-handling mechanism
@@ -102,14 +103,30 @@ public class JDoubleCheckBoxTree extends JTree {
 		return checkedPaths.toArray(new TreeNode[checkedPaths.size()]);
 	}
 
+	// New method that returns only the checked paths (totally ignores original
+	// "selection" mechanism)
+	public TreeNode[] getCheckedPaths2() {
+		return checkedPaths2.toArray(new TreeNode[checkedPaths2.size()]);
+	}
+
 	// Returns true in case that the node is selected, has children but not all
 	// of them are selected
-	public boolean isSelectedPartially(final JCheckBoxTreeNode node) {
+	public boolean isSelected2Partially(final JDoubleCheckBoxTreeNode node) {
+		return node.isChecked2() && node.getChildCount() > 0 && !node.isAllChildrenV2Selected();
+	}
+
+	// Returns true in case that the node is selected, has children but not all
+	// of them are selected
+	public boolean isSelectedPartially(final JDoubleCheckBoxTreeNode node) {
 		return node.isChecked() && node.getChildCount() > 0 && !node.isAllChildrenSelected();
 	}
 
-	public boolean isSelected(final JCheckBoxTreeNode node) {
+	public boolean isSelected(final JDoubleCheckBoxTreeNode node) {
 		return node.isChecked();
+	}
+
+	public boolean isSelected2(final JDoubleCheckBoxTreeNode node) {
+		return node.isChecked2();
 	}
 
 	/**
@@ -117,26 +134,38 @@ public class JDoubleCheckBoxTree extends JTree {
 	 */
 	private void resetCheckingState() {
 		checkedPaths = new HashSet<>();
-		final JCheckBoxTreeNode node = (JCheckBoxTreeNode) getModel().getRoot();
+		final JDoubleCheckBoxTreeNode node = (JDoubleCheckBoxTreeNode) getModel().getRoot();
 		if (node == null) {
 			return;
 		}
 		checkAllCheckedRecursively(node);
 	}
 
+	/**
+	 * Reloads the checking state from the data model.
+	 */
+	private void resetCheckingV2State() {
+		checkedPaths2 = new HashSet<>();
+		final JDoubleCheckBoxTreeNode node = (JDoubleCheckBoxTreeNode) getModel().getRoot();
+		if (node == null) {
+			return;
+		}
+		checkAllCheckedV2Recursively(node);
+	}
+
 	// Creating data structure of the current model for the checking mechanism
-	private boolean checkAllCheckedRecursively(final JCheckBoxTreeNode node) {
+	private boolean checkAllCheckedRecursively(final JDoubleCheckBoxTreeNode node) {
 		final TreeNode[] path = node.getPath();
 		final TreePath tp = new TreePath(path);
 		boolean allChildrenChecked = true;
 		boolean anyChildChecked = false;
 		for (int i = 0; i < node.getChildCount(); i++) {
 			final TreeNode childAt = node.getChildAt(i);
-			if (checkAllCheckedRecursively((JCheckBoxTreeNode) tp.pathByAddingChild(childAt).getLastPathComponent())) {
+			if (checkAllCheckedRecursively((JDoubleCheckBoxTreeNode) tp.pathByAddingChild(childAt).getLastPathComponent())) {
 			} else {
 				allChildrenChecked = false;
 			}
-			if (((JCheckBoxTreeNode) childAt).isChecked()) {
+			if (((JDoubleCheckBoxTreeNode) childAt).isChecked()) {
 				anyChildChecked = true;
 			}
 
@@ -148,6 +177,32 @@ public class JDoubleCheckBoxTree extends JTree {
 			node.setAllChildrenSelected(allChildrenChecked);
 		}
 		return allChildrenChecked && node.isChecked();
+	}
+
+	// Creating data structure of the current model for the checking mechanism
+	private boolean checkAllCheckedV2Recursively(final JDoubleCheckBoxTreeNode node) {
+		final TreeNode[] path = node.getPath();
+		final TreePath tp = new TreePath(path);
+		boolean allChildrenChecked = true;
+		boolean anyChildChecked = false;
+		for (int i = 0; i < node.getChildCount(); i++) {
+			final TreeNode childAt = node.getChildAt(i);
+			if (checkAllCheckedV2Recursively((JDoubleCheckBoxTreeNode) tp.pathByAddingChild(childAt).getLastPathComponent())) {
+			} else {
+				allChildrenChecked = false;
+			}
+			if (((JDoubleCheckBoxTreeNode) childAt).isChecked2()) {
+				anyChildChecked = true;
+			}
+
+		}
+		if (node.getChildCount() > 0 && anyChildChecked && !node.isHasPersonalState2()) {
+			node.setChecked2(true);
+		}
+		if (!node.isHasPersonalState2()) {
+			node.setAllChildrenV2Selected(allChildrenChecked);
+		}
+		return allChildrenChecked && node.isChecked2();
 	}
 
 	// Overriding cell renderer by a class that ignores the original "selection"
@@ -168,7 +223,7 @@ public class JDoubleCheckBoxTree extends JTree {
 		@Override
 		public Component getTreeCellRendererComponent(final JTree tree, final Object value, final boolean selected,
 				final boolean expanded, final boolean leaf, final int row, final boolean hasFocus) {
-			final JCheckBoxTreeNode node = (JCheckBoxTreeNode) value;
+			final JDoubleCheckBoxTreeNode node = (JDoubleCheckBoxTreeNode) value;
 			final Object obj = node.getUserObject();
 			checkBox.setSelected(node.isChecked());
 			checkBox.setText(obj.toString());
@@ -230,7 +285,7 @@ public class JDoubleCheckBoxTree extends JTree {
 				if (tp == null) {
 					return;
 				}
-				final boolean checkMode = !((JCheckBoxTreeNode) tp.getLastPathComponent()).isChecked();
+				final boolean checkMode = !((JDoubleCheckBoxTreeNode) tp.getLastPathComponent()).isChecked();
 				checkSubTree(tp, checkMode);
 				updatePredecessorsWithCheckMode(tp, checkMode);
 				// Firing the check change event
@@ -249,13 +304,13 @@ public class JDoubleCheckBoxTree extends JTree {
 		if (parentPath == null) {
 			return;
 		}
-		final JCheckBoxTreeNode parentCheckedNode = (JCheckBoxTreeNode) parentPath.getLastPathComponent();
+		final JDoubleCheckBoxTreeNode parentCheckedNode = (JDoubleCheckBoxTreeNode) parentPath.getLastPathComponent();
 		final DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) parentPath.getLastPathComponent();
 		parentCheckedNode.setAllChildrenSelected(true);
 		parentCheckedNode.setChecked(false);
 		for (int i = 0; i < parentNode.getChildCount(); i++) {
 			final TreePath childPath = parentPath.pathByAddingChild(parentNode.getChildAt(i));
-			final JCheckBoxTreeNode childCheckedNode = (JCheckBoxTreeNode) (childPath.getLastPathComponent());
+			final JDoubleCheckBoxTreeNode childCheckedNode = (JDoubleCheckBoxTreeNode) (childPath.getLastPathComponent());
 			// It is enough that even one subtree is not fully selected
 			// to determine that the parent is not fully selected
 			if (!childCheckedNode.isAllChildrenSelected()) {
@@ -277,7 +332,7 @@ public class JDoubleCheckBoxTree extends JTree {
 
 	// Recursively checks/unchecks a subtree
 	protected void checkSubTree(final TreePath tp, final boolean check) {
-		final JCheckBoxTreeNode cn = (JCheckBoxTreeNode) (tp.getLastPathComponent());
+		final JDoubleCheckBoxTreeNode cn = (JDoubleCheckBoxTreeNode) (tp.getLastPathComponent());
 		cn.setChecked(check);
 		final DefaultMutableTreeNode node = (DefaultMutableTreeNode) tp.getLastPathComponent();
 		if (!cn.isHasPersonalState()) {
