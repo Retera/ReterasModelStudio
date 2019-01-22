@@ -1,0 +1,65 @@
+BLP Laboratory command line executable v1.0
+
+
+
+blplabcl.exe <input_file> <output_file> -typeN -qN -mmN -opt1 -opt2
+
+-typeN - ID of image type
+-qN - quality for the image
+-mmN - number of mipmaps
+-opt1 - special option #1
+-opt2 - special option #2
+
+
+
+======== BLP:
+
+-typeN
+    use N = 0 for compressed format 
+    use N = 1 for paletted format
+
+-qN
+    if -type0, use 1 <= N <= 100
+    if -type1, use 1 <= N <= 256
+
+-mmN
+    0 <= N <= 15 (required mipmap count minus one)
+    
+-opt1
+    if -type0, it is "Merge headers"
+    if -type1, it is "Compress palette"
+
+-opt2
+    if -type0, it is "Progressive encoding"
+    if -type1, it is "Error diffusion"
+
+
+
+======== DDS:
+
+-typeN
+    use N = 0 for DXT compressed format 
+    use N = 1 for true color format
+
+-mmN
+    0 <= N <= 15 (required mipmap count minus one)
+
+-opt1
+    if -type0, it is "Error diffusion"
+
+
+
+======== TGA:
+
+-typeN
+    use N = 0 for true color format 
+    use N = 1 for paletted format
+
+-qN
+    if -type1, use 1 <= N <= 256
+
+-opt1
+    if -type1, it is "Compress palette"
+
+-opt2
+    if -type1, it is "Error diffusion"

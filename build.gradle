@@ -1,0 +1,90 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        jcenter()
+    }
+    //dependencies {
+	//	compile files('jars/idw-gpl.jar')
+	//	compile files('jars/blp-iio-plugin.jar')
+    //}
+}
+
+allprojects {
+    apply plugin: "eclipse"
+    apply plugin: "idea"
+
+    version = '1.0'
+    ext {
+        appName = "reterawc3"
+        jtattooVersion = '1.6.11'
+        xstreamVersion = '1.4.9'
+        miglayoutVersion = '4.2'
+		lwjglVersion = '3.0.0a'
+		image4jVersion = '0.7zensight1'
+		rsyntaxtextareaVersion = '3.0.2'
+    }
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+        jcenter()
+        maven {
+        	url "https://jitpack.io"
+        }
+    }
+}
+
+project(":matrixeater") {
+    apply plugin: "java"
+
+
+    dependencies {
+        compile project(":craft3data")
+        compile project(":craft3editor")
+        compile "org.fifesoft:rsyntaxtextarea:$rsyntaxtextareaVersion"
+    }
+}
+
+project(":disarm") {
+    apply plugin: "java"
+
+
+    dependencies {
+        compile project(":craft3data")
+        compile project(":craft3editor")
+    }
+}
+
+project(":craft3editor") {
+    apply plugin: "java"
+
+
+    dependencies {
+        compile project(":craft3data")
+        compile "net.sf.image4j:image4j:$image4jVersion"
+    }
+}
+
+project(":craft3data") {
+    apply plugin: "java"
+
+
+    dependencies {
+        compile "com.jtattoo:JTattoo:$jtattooVersion"
+        compile "com.miglayout:miglayout-swing:$miglayoutVersion"
+		compile "org.lwjgl:lwjgl:${lwjglVersion}"
+		compile "org.lwjgl:lwjgl-platform:${lwjglVersion}:natives-windows"
+		compile "org.lwjgl:lwjgl-platform:${lwjglVersion}:natives-linux"
+		compile "org.lwjgl:lwjgl-platform:${lwjglVersion}:natives-osx"
+        compile "com.github.ebourg:infonode:master"
+        compile "com.github.DrSuperGood:blp-iio-plugin:master"
+    }
+}
+
+tasks.eclipse.doLast {
+    delete ".project"
+}
