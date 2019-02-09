@@ -1,6 +1,5 @@
 package com.matrixeater.src;
 
-import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -11,13 +10,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
-import javax.swing.plaf.IconUIResource;
 
-import com.hiveworkshop.wc3.gui.BLPHandler;
+import com.badlogic.gdx.backends.lwjgl.LwjglNativesLoader;
 import com.hiveworkshop.wc3.user.SaveProfile;
-
-import net.infonode.gui.laf.InfoNodeLookAndFeel;
-import net.infonode.gui.laf.InfoNodeLookAndFeelTheme;
 
 /**
  * Write a description of class MainFrame here.
@@ -35,6 +30,7 @@ public class MainFrame extends JFrame {
 	}
 
 	public static void main(final String[] args) {
+		LwjglNativesLoader.load();
 		final String autoWarcraftDirectory = SaveProfile.getWarcraftDirectory();
 		if (!SaveProfile.testTargetFolderReadOnly(autoWarcraftDirectory)) {
 			SaveProfile.requestNewWc3Directory();
@@ -53,18 +49,18 @@ public class MainFrame extends JFrame {
 		// registry.registerServiceProvider(
 		// new com.realityinteractive.imageio.tga.TGAImageReaderSpi());
 
-		 try {
-		 // Set cross-platform Java L&F (also called "Metal")
-		 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		 } catch (final UnsupportedLookAndFeelException e) {
-		 // handle exception
-		 } catch (final ClassNotFoundException e) {
-		 // handle exception
-		 } catch (final InstantiationException e) {
-		 // handle exception
-		 } catch (final IllegalAccessException e) {
-		 // handle exception
-		 }
+		try {
+			// Set cross-platform Java L&F (also called "Metal")
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (final UnsupportedLookAndFeelException e) {
+			// handle exception
+		} catch (final ClassNotFoundException e) {
+			// handle exception
+		} catch (final InstantiationException e) {
+			// handle exception
+		} catch (final IllegalAccessException e) {
+			// handle exception
+		}
 		// EditorDisplayManager.setupLookAndFeel();
 		// try {
 		// UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel");
@@ -115,8 +111,8 @@ public class MainFrame extends JFrame {
 		panel = new MainPanel();
 		setContentPane(panel);
 		menuBar = panel.createMenuBar();
-		setJMenuBar(menuBar);// MainFrame.class.getResource("ImageBin/MatrixEaterMEBasic.png")
-		setIconImage((new ImageIcon(MainFrame.class.getResource("ImageBin/DDChicken2.png"))).getImage());
+		setJMenuBar(menuBar);// MainFrame.class.getResource("ImageBin/DDChicken2.png")
+		setIconImage(new ImageIcon(MainFrame.class.getResource("ImageBin/MatrixEaterMEBasic.png")).getImage());
 
 		addWindowListener(new WindowAdapter() {
 			@Override

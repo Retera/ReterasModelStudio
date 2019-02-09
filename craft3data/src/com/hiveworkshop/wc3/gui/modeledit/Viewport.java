@@ -238,7 +238,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	}
 
 	public void zoom(final double amount) {
-		m_zoom *= (1 + amount);
+		m_zoom *= 1 + amount;
 	}
 
 	public double getZoomAmount() {
@@ -412,7 +412,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 
 	@Override
 	public double convertY(final double y) {
-		return ((-y + m_b) * m_zoom) + getHeight() / 2;
+		return (-y + m_b) * m_zoom + getHeight() / 2;
 	}
 
 	@Override
@@ -445,8 +445,8 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 					temp = temp.getParent();
 					// }
 				}
-				final double mx = (MouseInfo.getPointerInfo().getLocation().x - xoff);// MainFrame.frame.getX()-8);
-				final double my = (MouseInfo.getPointerInfo().getLocation().y - yoff);// MainFrame.frame.getY()-30);
+				final double mx = MouseInfo.getPointerInfo().getLocation().x - xoff;// MainFrame.frame.getX()-8);
+				final double my = MouseInfo.getPointerInfo().getLocation().y - yoff;// MainFrame.frame.getY()-30);
 				// JOptionPane.showMessageDialog(null,mx+","+my+" as mouse,
 				// "+lastClick.x+","+lastClick.y+" as last.");
 				// System.out.println(xoff+" and "+mx);
@@ -457,8 +457,8 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 					lastClick.x = (int) mx;
 					lastClick.y = (int) my;
 				}
-				coordDisplayListener.notifyUpdate(m_d1, m_d2, ((mx - getWidth() / 2) / m_zoom) - m_a,
-						-(((my - getHeight() / 2) / m_zoom) - m_b));
+				coordDisplayListener.notifyUpdate(m_d1, m_d2, (mx - getWidth() / 2) / m_zoom - m_a,
+						-((my - getHeight() / 2) / m_zoom - m_b));
 				// MainFrame.panel.setMouseCoordDisplay(m_d1,m_d2,((mx-getWidth()/2)/m_zoom)-m_a,-(((my-getHeight()/2)/m_zoom)-m_b));
 				// TODO update mouse coord display could be used still
 
@@ -743,16 +743,16 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 				Math.min(geomY(a.y), geomY(b.y)));
 		final Point2D.Double lowRight = new Point2D.Double(Math.max(geomX(a.x), geomX(b.x)),
 				Math.max(geomY(a.y), geomY(b.y)));
-		final Rectangle2D.Double temp = new Rectangle2D.Double(topLeft.x, topLeft.y, (lowRight.x - (topLeft.x)),
-				((lowRight.y) - (topLeft.y)));
+		final Rectangle2D.Double temp = new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x,
+				lowRight.y - topLeft.y);
 		return temp;
 	}
 
 	public Rectangle2D.Double pointsToRect(final Point a, final Point b) {
-		final Point2D.Double topLeft = new Point2D.Double(Math.min((a.x), (b.x)), Math.min((a.y), (b.y)));
-		final Point2D.Double lowRight = new Point2D.Double(Math.max((a.x), (b.x)), Math.max((a.y), (b.y)));
-		final Rectangle2D.Double temp = new Rectangle2D.Double(topLeft.x, topLeft.y, (lowRight.x - (topLeft.x)),
-				((lowRight.y) - (topLeft.y)));
+		final Point2D.Double topLeft = new Point2D.Double(Math.min(a.x, b.x), Math.min(a.y, b.y));
+		final Point2D.Double lowRight = new Point2D.Double(Math.max(a.x, b.x), Math.max(a.y, b.y));
+		final Rectangle2D.Double temp = new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x,
+				lowRight.y - topLeft.y);
 		return temp;
 	}
 

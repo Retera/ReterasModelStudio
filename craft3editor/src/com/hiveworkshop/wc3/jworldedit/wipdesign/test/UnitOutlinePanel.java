@@ -26,7 +26,7 @@ public class UnitOutlinePanel extends JPanel {
 		// setBackground(Color.black);
 		try {
 			final ModelViewManager mdlDisplay = MDLSnapshot.createDefaultDisplay(unit);
-			snapshot = new MDLSnapshot(mdlDisplay, 1024, 1024, null);
+			snapshot = new MDLSnapshot(mdlDisplay, 128, 128, null);
 			snapshot.zoomToFit();
 			bufferedImage = snapshot.getBufferedImage();
 			for (final Geoset geo : mdlDisplay.getModel().getGeosets()) {
@@ -36,7 +36,7 @@ public class UnitOutlinePanel extends JPanel {
 				}
 			}
 			// outline = snapshot.getOutline();
-			setPreferredSize(new Dimension(1024, 1024));
+			setPreferredSize(new Dimension(128, 128));
 		} catch (final Exception e) {
 			throw new RuntimeException(e);
 		}

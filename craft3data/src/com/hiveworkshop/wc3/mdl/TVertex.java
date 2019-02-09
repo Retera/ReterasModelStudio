@@ -1,10 +1,11 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.util.List;
+import java.util.Collection;
 
 import javax.swing.JOptionPane;
 
 public class TVertex {
+	public static final TVertex ORIGIN = new TVertex(0, 0);
 	GeosetVertex parent;
 	public double x = 0;
 	public double y = 0;
@@ -17,6 +18,14 @@ public class TVertex {
 	public TVertex(final TVertex old) {
 		this.x = old.x;
 		this.y = old.y;
+	}
+
+	public void setX(final double x) {
+		this.x = x;
+	}
+
+	public void setY(final double y) {
+		this.y = y;
 	}
 
 	/**
@@ -87,6 +96,49 @@ public class TVertex {
 		return y;
 	}
 
+	public void translate(final double x, final double y) {
+		this.x += x;
+		this.y += y;
+	}
+
+	public void scale(final double centerX, final double centerY, final double scaleX, final double scaleY) {
+		final double dx = this.x - centerX;
+		final double dy = this.y - centerY;
+		this.x = centerX + dx * scaleX;
+		this.y = centerY + dy * scaleY;
+	}
+
+	public void rotate(final double centerX, final double centerY, final double radians) {
+		rotateVertex(centerX, centerY, radians, this);
+	}
+
+	public static void rotateVertex(final double centerX, final double centerY, final double radians,
+			final TVertex vertex) {
+		final double x1 = vertex.getX();
+		final double y1 = vertex.getY();
+		final double cx;// = coordinateSystem.geomX(centerX);
+		cx = centerX;
+		final double dx = x1 - cx;
+		final double cy;// = coordinateSystem.geomY(centerY);
+		cy = centerY;
+		final double dy = y1 - cy;
+		final double r = Math.sqrt(dx * dx + dy * dy);
+		double verAng = Math.acos(dx / r);
+		if (dy < 0) {
+			verAng = -verAng;
+		}
+		// if( getDimEditable(dim1) )
+		double nextDim = Math.cos(verAng + radians) * r + cx;
+		if (!Double.isNaN(nextDim)) {
+			vertex.setX(Math.cos(verAng + radians) * r + cx);
+		}
+		// if( getDimEditable(dim2) )
+		nextDim = Math.sin(verAng + radians) * r + cy;
+		if (!Double.isNaN(nextDim)) {
+			vertex.setY(Math.sin(verAng + radians) * r + cy);
+		}
+	}
+
 	public static TVertex parseText(final String input) {
 		final String[] entries = input.split(",");
 		TVertex temp = null;
@@ -113,7 +165,7 @@ public class TVertex {
 		return "{ " + MDLReader.doubleToString(x) + ", " + MDLReader.doubleToString(y) + " }";
 	}
 
-	public static TVertex centerOfGroup(final List<? extends TVertex> group) {
+	public static TVertex centerOfGroup(final Collection<? extends TVertex> group) {
 		double xTot = 0;
 		double yTot = 0;
 		for (final TVertex v : group) {

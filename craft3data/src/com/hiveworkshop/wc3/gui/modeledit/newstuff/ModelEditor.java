@@ -13,6 +13,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericMoveActio
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ComponentVisibilityListener;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.wc3.mdl.Bone;
@@ -20,14 +21,14 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 /**
- * SelectionManager should've been like this so it didn't wrap the selection in silly Item objects, but the code hasn't
- * been reworked to be this thing yet
+ * SelectionManager should've been like this so it didn't wrap the selection in
+ * silly Item objects, but the code hasn't been reworked to be this thing yet
  *
  * @author Eric
  *
  * @param <T>
  */
-public interface ModelEditor {
+public interface ModelEditor extends ComponentVisibilityListener {
 	UndoAction autoCenterSelectedBones();
 
 	UndoAction setSelectedBoneName(String name);
@@ -121,7 +122,8 @@ public interface ModelEditor {
 
 	CopiedModelData copySelection();
 
-	// true if we conceptually are editing/operating on top of an animated model, instead of a static one
+	// true if we conceptually are editing/operating on top of an animated model,
+	// instead of a static one
 	// -- this is *definitely* a bit of a hack
 	boolean editorWantsAnimation();
 

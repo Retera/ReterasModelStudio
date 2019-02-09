@@ -21,6 +21,7 @@ import javax.swing.JOptionPane;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.mdl.AnimFlag.Entry;
 import com.hiveworkshop.wc3.mdl.v2.visitor.GeosetVisitor;
+import com.hiveworkshop.wc3.mdl.v2.visitor.MeshVisitor;
 import com.hiveworkshop.wc3.mdl.v2.visitor.ModelVisitor;
 import com.hiveworkshop.wc3.mdl.v2.visitor.TriangleVisitor;
 import com.hiveworkshop.wc3.mdl.v2.visitor.VertexVisitor;
@@ -48,7 +49,8 @@ import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
 
 /**
- * A java object to represent and store an MDL 3d model (Warcraft III file format).
+ * A java object to represent and store an MDL 3d model (Warcraft III file
+ * format).
  *
  * Eric Theller 11/5/2011
  */
@@ -116,8 +118,8 @@ public class MDL implements Named {
 	}
 
 	/**
-	 * IMPORTANT: This is the only way to retrieve the true header name from the top of the "model chunk", the same one
-	 * set by {@link #setName(String)} function.
+	 * IMPORTANT: This is the only way to retrieve the true header name from the top
+	 * of the "model chunk", the same one set by {@link #setName(String)} function.
 	 *
 	 * @return
 	 */
@@ -243,10 +245,8 @@ public class MDL implements Named {
 	/**
 	 * Used for checking MDX conversions.
 	 *
-	 * @param flags
-	 *            An int representing a set of booleans with its bits
-	 * @param mask
-	 *            A bit to check against
+	 * @param flags An int representing a set of booleans with its bits
+	 * @param mask  A bit to check against
 	 * @return Whether the specified bit was "true" (=1)
 	 */
 	public static boolean hasFlag(final int flags, final int mask) {
@@ -374,11 +374,10 @@ public class MDL implements Named {
 				if (!corruptedCameraWarningGiven && (mdlCam.getName().contains("????????")
 						|| mdlCam.getName().length() > 20 || mdlCam.getName().length() <= 0)) {
 					corruptedCameraWarningGiven = true;
-					JOptionPane.showMessageDialog(null,
-							"--- " + this.getName()
-									+ " ---\nWARNING: Java Warcraft Libraries thinks we are loading a camera with corrupted data due to bug in Native MDX Parser.\nPlease DISABLE \"View > Use Native MDX Parser\" if you want to correctly edit \""
-									+ getName()
-									+ "\".\nYou may continue to work, but portions of the model's data have been lost, and will be missing if you save.",
+					JOptionPane.showMessageDialog(null, "--- " + this.getName()
+							+ " ---\nWARNING: Java Warcraft Libraries thinks we are loading a camera with corrupted data due to bug in Native MDX Parser.\nPlease DISABLE \"View > Use Native MDX Parser\" if you want to correctly edit \""
+							+ getName()
+							+ "\".\nYou may continue to work, but portions of the model's data have been lost, and will be missing if you save.",
 							"Warning", JOptionPane.WARNING_MESSAGE);
 				}
 				add(mdlCam);
@@ -573,7 +572,7 @@ public class MDL implements Named {
 		try {
 			if (index < idObjects.size()) {
 				final IdObject temp = idObjects.get(index);
-				if (temp.getClass() == (Bone.class)) {
+				if (temp.getClass() == Bone.class) {
 					return (Bone) temp;
 				}
 			}
@@ -680,11 +679,13 @@ public class MDL implements Named {
 	}
 
 	/**
-	 * Copies the animations from another model into this model. Specifically, copies all motion from similarly named
-	 * bones and copies in the "Anim" blocks at the top of the MDL for the newly added sections.
+	 * Copies the animations from another model into this model. Specifically,
+	 * copies all motion from similarly named bones and copies in the "Anim" blocks
+	 * at the top of the MDL for the newly added sections.
 	 *
-	 * In addition, any bones with significant amounts of motion that were not found to correlate with the contents of
-	 * this model get added to this model's list of bones.
+	 * In addition, any bones with significant amounts of motion that were not found
+	 * to correlate with the contents of this model get added to this model's list
+	 * of bones.
 	 *
 	 * @param other
 	 */
@@ -990,7 +991,7 @@ public class MDL implements Named {
 			MDLReader.mark(mdl);
 			boolean hadGeosets = false;
 			line = MDLReader.nextLine(mdl);
-			while ((line).contains("Geoset ")) {
+			while (line.contains("Geoset ")) {
 				hadGeosets = true;
 				MDLReader.reset(mdl);
 				mdlr.addGeoset(Geoset.read(mdl));
@@ -1010,7 +1011,7 @@ public class MDL implements Named {
 			// if( hadGeosetAnims )
 			MDLReader.reset(mdl);
 			line = MDLReader.nextLine(mdl);
-			while ((line).length() > 1 && !line.equals("COMPLETED PARSING")) {
+			while (line.length() > 1 && !line.equals("COMPLETED PARSING")) {
 				if (line.startsWith("Bone ")) {
 					MDLReader.reset(mdl);
 					mdlr.addIdObject(Bone.read(mdl));
@@ -1181,7 +1182,7 @@ public class MDL implements Named {
 		for (final String s : header) {
 			writer.println(s);
 		}
-		writer.println("// Saved by Retera's MDL Toolkit on " + (new Date(System.currentTimeMillis())).toString());
+		writer.println("// Saved by Retera's MDL Toolkit on " + new Date(System.currentTimeMillis()).toString());
 		writer.println("Version {");
 		writer.println("\tFormatVersion " + formatVersion + ",");
 		writer.println("}");
@@ -1484,10 +1485,7 @@ public class MDL implements Named {
 		textures.clear();
 		for (final Material m : materials) {
 			for (final Layer lay : m.layers) {
-				if (lay.texture != null && !textures.contains(lay.texture)
-						&& (lay.textures == null /*
-													 * || lay.textures.size() == 0
-													 */)) {
+				if (lay.texture != null && !textures.contains(lay.texture) && lay.textures == null) {
 					boolean good = true;
 					for (final Bitmap btm : textures) {
 						if (lay.texture.equals(btm)) {
@@ -1985,7 +1983,7 @@ public class MDL implements Named {
 					IdObject bp = b.getParent();
 					while (bp != null) {
 						if (bp.getClass() == Bone.class) {
-							final Bone b2 = ((Bone) bp);
+							final Bone b2 = (Bone) bp;
 							if (!b2.multiGeoId) {
 								if (b2.geoset == null) {
 									// The bone has been found by no prior
@@ -2318,7 +2316,7 @@ public class MDL implements Named {
 		this.cameras = cameras;
 	}
 
-	public void render(final ModelVisitor renderer) {
+	public void visit(final MeshVisitor renderer) {
 		int geosetId = 0;
 		for (final Geoset geoset : geosets) {
 			final GeosetVisitor geosetRenderer = renderer.beginGeoset(geosetId++, geoset.getMaterial(),
@@ -2344,6 +2342,10 @@ public class MDL implements Named {
 			}
 			geosetRenderer.geosetFinished();
 		}
+	}
+
+	public void render(final ModelVisitor renderer) {
+		visit(renderer);
 		for (final IdObject object : idObjects) {
 			object.apply(renderer);
 		}

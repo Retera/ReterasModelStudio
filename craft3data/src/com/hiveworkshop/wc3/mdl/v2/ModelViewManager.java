@@ -8,7 +8,9 @@ import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.v2.render.RenderByViewMeshRenderer;
 import com.hiveworkshop.wc3.mdl.v2.render.RenderByViewModelRenderer;
+import com.hiveworkshop.wc3.mdl.v2.visitor.MeshVisitor;
 import com.hiveworkshop.wc3.mdl.v2.visitor.ModelVisitor;
 
 public final class ModelViewManager implements ModelView {
@@ -21,6 +23,7 @@ public final class ModelViewManager implements ModelView {
 	private Geoset highlightedGeoset;
 	private IdObject highlightedNode;
 	private final RenderByViewModelRenderer renderByViewModelRenderer;
+	private final RenderByViewMeshRenderer renderByViewMeshRenderer;
 
 	public ModelViewManager(final MDL model) {
 		this.model = model;
@@ -30,6 +33,7 @@ public final class ModelViewManager implements ModelView {
 		this.editableIdObjects = new HashSet<>();
 		this.editableCameras = new HashSet<>();
 		this.renderByViewModelRenderer = new RenderByViewModelRenderer(this);
+		this.renderByViewMeshRenderer = new RenderByViewMeshRenderer(this);
 	}
 
 	@Override
@@ -140,5 +144,10 @@ public final class ModelViewManager implements ModelView {
 		}
 		modelViewStateNotifier.unhighlightNode(node);
 
+	}
+
+	@Override
+	public void visitMesh(final MeshVisitor visitor) {
+		model.visit(renderByViewMeshRenderer.reset(visitor));
 	}
 }

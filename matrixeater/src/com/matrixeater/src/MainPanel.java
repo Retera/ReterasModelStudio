@@ -135,6 +135,7 @@ import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonListener;
 import com.hiveworkshop.wc3.gui.modeledit.util.TransferActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.IconUtils;
+import com.hiveworkshop.wc3.gui.modelviewer.AnimationViewer;
 import com.hiveworkshop.wc3.gui.mpqbrowser.BLPPanel;
 import com.hiveworkshop.wc3.gui.mpqbrowser.MPQBrowser;
 import com.hiveworkshop.wc3.jworldedit.models.BetterUnitEditorModelSelector;
@@ -742,13 +743,15 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 					}
 				}
 			});
-			// final FloatingWindow floatingWindow = rootWindow.createFloatingWindow(rootWindow.getLocation(),
+			// final FloatingWindow floatingWindow =
+			// rootWindow.createFloatingWindow(rootWindow.getLocation(),
 			// mpqBrowser.getPreferredSize(),
 			// new View("MPQ Browser",
-			// new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
+			// new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16,
+			// Image.SCALE_FAST)),
 			// mpqBrowser));
 			// floatingWindow.getTopLevelAncestor().setVisible(true);
-			final View view = new View("MPQ Browser",
+			final View view = new View("Data Browser",
 					new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
 					mpqBrowser);
 			view.getWindowProperties().setCloseEnabled(true);
@@ -761,10 +764,12 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 			final UnitEditorTree unitEditorTree = new UnitEditorTree(getUnitData(), new UnitTabTreeBrowserBuilder(),
 					getUnitEditorSettings(), WorldEditorDataType.UNITS);
 			unitEditorTree.selectFirstUnit();
-			// final FloatingWindow floatingWindow = rootWindow.createFloatingWindow(rootWindow.getLocation(),
+			// final FloatingWindow floatingWindow =
+			// rootWindow.createFloatingWindow(rootWindow.getLocation(),
 			// mpqBrowser.getPreferredSize(),
 			// new View("MPQ Browser",
-			// new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
+			// new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16,
+			// Image.SCALE_FAST)),
 			// mpqBrowser));
 			// floatingWindow.getTopLevelAncestor().setVisible(true);
 			unitEditorTree.addMouseListener(new MouseAdapter() {
@@ -810,12 +815,14 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		@Override
 		public void actionPerformed(final ActionEvent e) {
 			final UnitEditorTree unitEditorTree = new UnitEditorTree(getDoodadData(), new DoodadTabTreeBrowserBuilder(),
-					getUnitEditorSettings(), WorldEditorDataType.DOODADS); 
+					getUnitEditorSettings(), WorldEditorDataType.DOODADS);
 			unitEditorTree.selectFirstUnit();
-			// final FloatingWindow floatingWindow = rootWindow.createFloatingWindow(rootWindow.getLocation(),
+			// final FloatingWindow floatingWindow =
+			// rootWindow.createFloatingWindow(rootWindow.getLocation(),
 			// mpqBrowser.getPreferredSize(),
 			// new View("MPQ Browser",
-			// new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
+			// new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16,
+			// Image.SCALE_FAST)),
 			// mpqBrowser));
 			// floatingWindow.getTopLevelAncestor().setVisible(true);
 			unitEditorTree.addMouseListener(new MouseAdapter() {
@@ -880,7 +887,8 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 			panel.setLayout(new BorderLayout());
 			panel.add(BorderLayout.BEFORE_FIRST_LINE, new JLabel(POWERED_BY_HIVE));
 			// final JPanel resourceFilters = new JPanel();
-			// resourceFilters.setBorder(BorderFactory.createTitledBorder("Resource Filters"));
+			// resourceFilters.setBorder(BorderFactory.createTitledBorder("Resource
+			// Filters"));
 			// panel.add(BorderLayout.BEFORE_LINE_BEGINS, resourceFilters);
 			// resourceFilters.add(new JLabel("Resource Type"));
 			// resourceFilters.add(new JComboBox<>(new String[] { "Any" }));
@@ -911,10 +919,12 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 			tags.add(new JCheckBox("Item"));
 			tags.add(new JCheckBox("User Interface"));
 			panel.add(BorderLayout.CENTER, tags);
-			// final FloatingWindow floatingWindow = rootWindow.createFloatingWindow(rootWindow.getLocation(),
+			// final FloatingWindow floatingWindow =
+			// rootWindow.createFloatingWindow(rootWindow.getLocation(),
 			// mpqBrowser.getPreferredSize(),
 			// new View("MPQ Browser",
-			// new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
+			// new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16,
+			// Image.SCALE_FAST)),
 			// mpqBrowser));
 			// floatingWindow.getTopLevelAncestor().setVisible(true);
 			rootWindow.setWindow(new SplitWindow(true, 0.75f, rootWindow.getWindow(), new View("Hive Browser",
@@ -1323,8 +1333,9 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 	}
 
 	/**
-	 * Right now this is a plug to the statics to load unit data. However, it's a non-static method so that we can have
-	 * it load from an opened map in the future -- the MutableObjectData class can parse map unit data!
+	 * Right now this is a plug to the statics to load unit data. However, it's a
+	 * non-static method so that we can have it load from an opened map in the
+	 * future -- the MutableObjectData class can parse map unit data!
 	 *
 	 * @return
 	 */
@@ -1961,6 +1972,32 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		viewsMenu.setMnemonic(KeyEvent.VK_V);
 		windowMenu.add(viewsMenu);
 
+		final JMenuItem testItem = new JMenuItem("test");
+		testItem.addActionListener(new OpenViewAction("Animation Preview", new OpenViewGetter() {
+			@Override
+			public View getView() {
+				final JPanel testPanel = new JPanel();
+
+				for (int i = 0; i < 3; i++) {
+//					final ControlledAnimationViewer animationViewer = new ControlledAnimationViewer(
+//							currentModelPanel().getModelViewManager(), prefs);
+//					animationViewer.setMinimumSize(new Dimension(400, 400));
+//					final AnimationController animationController = new AnimationController(
+//							currentModelPanel().getModelViewManager(), true, animationViewer);
+
+					final AnimationViewer animationViewer2 = new AnimationViewer(
+							currentModelPanel().getModelViewManager(), prefs, false);
+					animationViewer2.setMinimumSize(new Dimension(400, 400));
+					testPanel.add(animationViewer2);
+//					testPanel.add(animationController);
+				}
+				testPanel.setLayout(new GridLayout(1, 4));
+				return new View("Test", null, testPanel);
+			}
+		}));
+
+		viewsMenu.add(testItem);
+
 		animationViewer = new JMenuItem("Animation Preview");
 		animationViewer.setMnemonic(KeyEvent.VK_A);
 		animationViewer.addActionListener(openAnimationViewerAction);
@@ -2011,7 +2048,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		browsersMenu.setMnemonic(KeyEvent.VK_B);
 		windowMenu.add(browsersMenu);
 
-		mpqViewer = new JMenuItem("MPQ Browser");
+		mpqViewer = new JMenuItem("Data Browser");
 		mpqViewer.setMnemonic(KeyEvent.VK_A);
 		mpqViewer.addActionListener(openMPQViewerAction);
 		browsersMenu.add(mpqViewer);
@@ -2165,36 +2202,42 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 
 							final GroupLayout layout = new GroupLayout(particlePanel);
 
-							layout.setHorizontalGroup(layout.createSequentialGroup().addComponent(imageLabel).addGap(8)
-									.addGroup(layout.createParallelGroup(Alignment.CENTER).addComponent(titleLabel)
-											.addGroup(layout.createSequentialGroup().addComponent(nameLabel).addGap(4)
-													.addComponent(nameField))
-											.addGroup(layout.createSequentialGroup().addComponent(parentLabel).addGap(4)
-													.addComponent(parent))
-											.addComponent(chooseAnimations)
-											.addGroup(layout.createSequentialGroup().addComponent(xLabel)
-													.addComponent(xSpinner).addGap(4).addComponent(yLabel)
-													.addComponent(ySpinner).addGap(4).addComponent(zLabel)
-													.addComponent(zSpinner))
-											.addGroup(layout.createSequentialGroup().addComponent(colorButtons[0])
-													.addGap(4).addComponent(colorButtons[1]).addGap(4)
-													.addComponent(colorButtons[2]))));
-							layout.setVerticalGroup(layout.createParallelGroup(Alignment.CENTER)
-									.addComponent(imageLabel)
-									.addGroup(layout.createSequentialGroup().addComponent(titleLabel)
+							layout.setHorizontalGroup(
+									layout.createSequentialGroup().addComponent(imageLabel).addGap(8)
 											.addGroup(layout.createParallelGroup(Alignment.CENTER)
-													.addComponent(nameLabel).addComponent(nameField))
-											.addGap(4)
-											.addGroup(layout.createParallelGroup(Alignment.CENTER)
-													.addComponent(parentLabel).addComponent(parent))
-											.addGap(4).addComponent(chooseAnimations).addGap(4)
-											.addGroup(layout.createParallelGroup(Alignment.CENTER).addComponent(xLabel)
-													.addComponent(xSpinner).addComponent(yLabel).addComponent(ySpinner)
-													.addComponent(zLabel).addComponent(zSpinner))
-											.addGap(4)
-											.addGroup(layout.createParallelGroup(Alignment.CENTER)
-													.addComponent(colorButtons[0]).addComponent(colorButtons[1])
-													.addComponent(colorButtons[2]))));
+													.addComponent(titleLabel)
+													.addGroup(layout.createSequentialGroup().addComponent(nameLabel)
+															.addGap(4).addComponent(nameField))
+													.addGroup(layout.createSequentialGroup().addComponent(parentLabel)
+															.addGap(4).addComponent(parent))
+													.addComponent(chooseAnimations)
+													.addGroup(layout.createSequentialGroup().addComponent(xLabel)
+															.addComponent(xSpinner).addGap(4).addComponent(yLabel)
+															.addComponent(ySpinner).addGap(4).addComponent(zLabel)
+															.addComponent(zSpinner))
+													.addGroup(
+															layout.createSequentialGroup().addComponent(colorButtons[0])
+																	.addGap(4).addComponent(colorButtons[1]).addGap(4)
+																	.addComponent(colorButtons[2]))));
+							layout.setVerticalGroup(
+									layout.createParallelGroup(Alignment.CENTER).addComponent(imageLabel)
+											.addGroup(
+													layout.createSequentialGroup().addComponent(titleLabel)
+															.addGroup(layout.createParallelGroup(Alignment.CENTER)
+																	.addComponent(nameLabel).addComponent(nameField))
+															.addGap(4)
+															.addGroup(layout.createParallelGroup(Alignment.CENTER)
+																	.addComponent(parentLabel).addComponent(parent))
+															.addGap(4).addComponent(chooseAnimations).addGap(4)
+															.addGroup(layout.createParallelGroup(Alignment.CENTER)
+																	.addComponent(xLabel).addComponent(xSpinner)
+																	.addComponent(yLabel).addComponent(ySpinner)
+																	.addComponent(zLabel).addComponent(zSpinner))
+															.addGap(4)
+															.addGroup(layout.createParallelGroup(Alignment.CENTER)
+																	.addComponent(colorButtons[0])
+																	.addComponent(colorButtons[1])
+																	.addComponent(colorButtons[2]))));
 							particlePanel.setLayout(layout);
 							final int x = JOptionPane.showConfirmDialog(MainPanel.this, particlePanel,
 									"Add " + basicName, JOptionPane.OK_CANCEL_OPTION);
@@ -2228,7 +2271,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 								particle.setVisibilityFlag(visFlag);
 								particle.setName(nameField.getText());
 								currentMDL().add(particle);
-								modelStructureChangeListener.nodesAdded(Collections.<IdObject> singletonList(particle));
+								modelStructureChangeListener.nodesAdded(Collections.<IdObject>singletonList(particle));
 							}
 						}
 					});
@@ -3040,7 +3083,8 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 					return;
 				}
 				// } else if (e.getSource() == contextClose) {
-				// if (((ModelPanel) tabbedPane.getComponentAt(contextClickedTab)).close()) {// this);
+				// if (((ModelPanel) tabbedPane.getComponentAt(contextClickedTab)).close()) {//
+				// this);
 				// tabbedPane.remove(contextClickedTab);
 				// }
 			} else if (e.getSource() == contextCloseAll) {
@@ -3456,12 +3500,11 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 					final String name = temp.getName();
 					if (name.lastIndexOf('.') != -1) {
 						if (!name.substring(name.lastIndexOf('.'), name.length()).equals(ext)) {
-							temp = (new File(
-									temp.getAbsolutePath().substring(0, temp.getAbsolutePath().lastIndexOf('.'))
-											+ ext));
+							temp = new File(
+									temp.getAbsolutePath().substring(0, temp.getAbsolutePath().lastIndexOf('.')) + ext);
 						}
 					} else {
-						temp = (new File(temp.getAbsolutePath() + ext));
+						temp = new File(temp.getAbsolutePath() + ext);
 					}
 					currentFile = temp;
 					if (temp.exists()) {
@@ -4050,7 +4093,8 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 	}
 
 	/**
-	 * Returns the MDLDisplay associated with a given MDL, or null if one cannot be found.
+	 * Returns the MDLDisplay associated with a given MDL, or null if one cannot be
+	 * found.
 	 *
 	 * @param model
 	 * @return
@@ -4073,7 +4117,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 			loadBLPPathAsModel(f.getName(), f.getParentFile());
 			return;
 		}
-		if(f.getPath().toLowerCase().endsWith("png")) {
+		if (f.getPath().toLowerCase().endsWith("png")) {
 			loadBLPPathAsModel(f.getName(), f.getParentFile());
 			return;
 		}
@@ -4238,7 +4282,8 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 	public void addTabForView(final ModelPanel view, final boolean selectNewTab) {
 		// modelTabStringViewMap.addView(view);
 		// final DockingWindow previousWindow = modelTabWindow.getWindow();
-		// final TabWindow tabWindow = previousWindow instanceof TabWindow ? (TabWindow) previousWindow : new
+		// final TabWindow tabWindow = previousWindow instanceof TabWindow ? (TabWindow)
+		// previousWindow : new
 		// TabWindow();
 		// DockingWindow selectedWindow = null;
 		// if (previousWindow == tabWindow) {
@@ -4249,7 +4294,8 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		// }
 		// tabWindow.addTab(view);
 		// if (selectedWindow != null) {
-		// tabWindow.setSelectedTab(tabWindow.getChildWindowIndex(selectNewTab ? view : selectedWindow));
+		// tabWindow.setSelectedTab(tabWindow.getChildWindowIndex(selectNewTab ? view :
+		// selectedWindow));
 		// }
 		// modelTabWindow.setWindow(tabWindow);
 		if (selectNewTab) {
@@ -4353,7 +4399,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 				}
 			}
 			if (c == '9') {
-				output = output.substring(0, output.length() - depth) + (0)
+				output = output.substring(0, output.length() - depth) + 0
 						+ output.substring(output.length() - depth + 1);
 			} else if (continueLoop) {
 				output = output.substring(0, output.length() - depth + 1) + 1
@@ -4538,7 +4584,8 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 	// @Override
 	// public void stateChanged(final ChangeEvent e) {
 	// if (((ModelPanel) tabbedPane.getSelectedComponent()) != null) {
-	// geoControl.setMDLDisplay(((ModelPanel) tabbedPane.getSelectedComponent()).getModelViewManagingTree());
+	// geoControl.setMDLDisplay(((ModelPanel)
+	// tabbedPane.getSelectedComponent()).getModelViewManagingTree());
 	// } else {
 	// geoControl.setMDLDisplay(null);
 	// }

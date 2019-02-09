@@ -29,12 +29,19 @@ public final class RenderModel {
 
 	private final Map<AnimatedNode, RenderNode> objectToRenderNode = new HashMap<>();
 
+	private final RenderNode rootPosition;
+
 	public RenderModel(final MDL model) {
 		this.model = model;
+		this.rootPosition = new RenderNode(this, new Bone("RootPositionHack"));
 	}
 
 	public RenderNode getRenderNode(final AnimatedNode idObject) {
-		return objectToRenderNode.get(idObject);
+		final RenderNode renderNode = objectToRenderNode.get(idObject);
+		if (renderNode == null) {
+			return rootPosition;
+		}
+		return renderNode;
 	}
 
 	public AnimatedRenderEnvironment getAnimatedRenderEnvironment() {
@@ -101,11 +108,12 @@ public final class RenderModel {
 			final RenderNode parent = idObjectParent == null ? null : getRenderNode(idObjectParent);
 			final boolean objectVisible = idObject
 					.getRenderVisibility(animatedRenderEnvironment) >= MAGIC_RENDER_SHOW_CONSTANT;
-			final boolean nodeVisible = forced || ((parent == null || parent.visible) && objectVisible);
+			final boolean nodeVisible = forced || (parent == null || parent.visible) && objectVisible;
 
 			node.visible = nodeVisible;
 
-			// Every node only needs to be updated if this is a forced update, or if both the parent node and the
+			// Every node only needs to be updated if this is a forced update, or if both
+			// the parent node and the
 			// generic object corresponding to this node are visible.
 			// Incoming messy code for optimizations!
 			// --- All copied from Ghostwolf
@@ -173,14 +181,26 @@ public final class RenderModel {
 
 					Quaternion.mul(localRotation, inverseCameraRotation, localRotation);
 				} else if (node.billboardedY) {
+					// To solve billboard Y, you must rotate to face camera
+					// in node local space only around the node-local version of the Y axis.
+					// Imagine that we have a vector facing outward from the plane that represents
+					// where the front of the plane will face after we apply the node's rotation.
+					// We can easily do "billboarding", which is to say we can construct a rotation
+					// that turns this facing to face the camera. However, for BillboardLockY, we
+					// must
+					// instead take the projection of the vector that would result from this --
+					// "facing camera"
+					// vector, and take the projection of that vector onto the plane perpendicular
+					// to the billboard lock axis.
+
 					wasDirty = true;
 
 					// Cancel the parent's rotation;
 					localRotation.setIdentity();
 					Quaternion.mul(localRotation, inverseCameraRotationYSpin, localRotation);
-					if (parent != null) {
-						Quaternion.mul(localRotation, localRotation, parent.inverseWorldRotation);
-					}
+//					if (parent != null) {
+//						Quaternion.mul(localRotation, localRotation, parent.inverseWorldRotation);
+//					}
 
 					// TODO face camera, TODO have a camera
 				} else if (node.billboardedZ) {
@@ -198,17 +218,19 @@ public final class RenderModel {
 					// TODO face camera, TODO have a camera
 				}
 
-				final boolean wasReallyDirty = forced || wasDirty || (parent == null || parent.wasDirty);
+				final boolean wasReallyDirty = forced || wasDirty || parent == null || parent.wasDirty;
 				node.wasDirty = wasReallyDirty;
 
-				// If this is a forced upate, or this node's local data was updated, or the parent node updated, do
+				// If this is a forced upate, or this node's local data was updated, or the
+				// parent node updated, do
 				// a full world update.
 
 				if (wasReallyDirty) {
 					node.recalculateTransformation();
 				}
 
-				// If there is an instance object associated with this node, and the node is visible (which might
+				// If there is an instance object associated with this node, and the node is
+				// visible (which might
 				// not be the case for a forced update!), update the object.
 				// This includes attachments and emitters.
 

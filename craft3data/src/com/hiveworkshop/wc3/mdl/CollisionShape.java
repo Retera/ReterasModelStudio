@@ -35,10 +35,20 @@ public class CollisionShape extends IdObject {
 			for (int i = 0; i < mdxSource.vertexs.length; i += 3) {
 				vertices.add(new Vertex(mdxSource.vertexs[i + 0], mdxSource.vertexs[i + 1], mdxSource.vertexs[i + 2]));
 			}
+		} else if (mdxSource.type == 1) {
+			add("Plane");
+			for (int i = 0; i < mdxSource.vertexs.length; i += 3) {
+				vertices.add(new Vertex(mdxSource.vertexs[i + 0], mdxSource.vertexs[i + 1], mdxSource.vertexs[i + 2]));
+			}
 		} else if (mdxSource.type == 2) {
 			add("Sphere");
 			extents = new ExtLog(mdxSource.boundsRadius);
 			vertices.add(new Vertex(mdxSource.vertexs));
+		} else if (mdxSource.type == 3) {
+			add("Cylinder");
+			for (int i = 0; i < mdxSource.vertexs.length; i += 3) {
+				vertices.add(new Vertex(mdxSource.vertexs[i + 0], mdxSource.vertexs[i + 1], mdxSource.vertexs[i + 2]));
+			}
 		}
 		// ----- Convert Base NODE to "IDOBJECT" -----
 		setParentId(mdxSource.node.parentId);
@@ -107,11 +117,11 @@ public class CollisionShape extends IdObject {
 				} else if (line.contains("Parent")) {
 					e.parentId = MDLReader.splitToInts(line)[0];
 					// e.parent = mdlr.getIdObject(e.parentId);
-				} else if (line.contains("Extent") || (line).contains("BoundsRadius")) {
+				} else if (line.contains("Extent") || line.contains("BoundsRadius")) {
 					MDLReader.reset(mdl);
 					e.extents = ExtLog.read(mdl);
 				} else if (line.contains("Vertices")) {
-					while (!((line = MDLReader.nextLine(mdl)).contains("\t}"))) {
+					while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
 						e.addVertex(Vertex.parseText(line));
 					}
 				} else if ((line.contains("Scaling") || line.contains("Rotation") || line.contains("Translation"))
@@ -229,13 +239,16 @@ public class CollisionShape extends IdObject {
 		if (flags.contains("Box")) {
 			if (vertices.size() > 0) {
 				// final Vertex vertex = vertices.get(0);
-				// final int secondXCoord = (int) coordinateSystem.convertX(vertex.getCoord(xDimension));
-				// final int secondYCoord = (int) coordinateSystem.convertY(vertex.getCoord(yDimension));
+				// final int secondXCoord = (int)
+				// coordinateSystem.convertX(vertex.getCoord(xDimension));
+				// final int secondYCoord = (int)
+				// coordinateSystem.convertY(vertex.getCoord(yDimension));
 				// final int minXCoord = Math.min(xCoord, secondXCoord);
 				// final int minYCoord = Math.min(yCoord, secondYCoord);
 				// final int maxXCoord = Math.max(xCoord, secondXCoord);
 				// final int maxYCoord = Math.max(yCoord, secondYCoord);
-				// final int generalRadius = Math.max(maxXCoord - minXCoord, maxYCoord - minYCoord) / 2;
+				// final int generalRadius = Math.max(maxXCoord - minXCoord, maxYCoord -
+				// minYCoord) / 2;
 				return DEFAULT_CLICK_RADIUS / CoordinateSystem.Util.getZoom(coordinateSystem);
 			} else {
 				return DEFAULT_CLICK_RADIUS / CoordinateSystem.Util.getZoom(coordinateSystem);

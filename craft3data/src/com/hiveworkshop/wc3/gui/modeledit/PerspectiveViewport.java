@@ -133,7 +133,7 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 		//
 		// Viewport border
 		// setBorder(BorderFactory.createBevelBorder(1));
-		setBackground((programPreferences == null || programPreferences.getPerspectiveBackgroundColor() == null)
+		setBackground(programPreferences == null || programPreferences.getPerspectiveBackgroundColor() == null
 				? new Color(80, 80, 80)
 				: programPreferences.getPerspectiveBackgroundColor());
 		setMinimumSize(new Dimension(200, 200));
@@ -331,7 +331,7 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 	}
 
 	public void zoom(final double amount) {
-		m_zoom *= (1 + amount);
+		m_zoom *= 1 + amount;
 	}
 
 	public double getZoomAmount() {
@@ -713,7 +713,7 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 
 			final FilterMode filterMode = layer.getFilterMode();
 			final boolean opaqueLayer = filterMode == FilterMode.NONE || filterMode == FilterMode.TRANSPARENT;
-			if ((renderOpaque && opaqueLayer) || (!renderOpaque && !opaqueLayer)) {
+			if (renderOpaque && opaqueLayer || !renderOpaque && !opaqueLayer) {
 				if (!overriddenMaterials) {
 					final Bitmap tex = layer.getRenderTexture(timeEnvironment);
 					final Integer texture = textureMap.get(tex);
@@ -789,7 +789,7 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 	}
 
 	public double convertY(final double y) {
-		return ((-y + cameraPos.y) * m_zoom) + getHeight() / 2;
+		return (-y + cameraPos.y) * m_zoom + getHeight() / 2;
 	}
 
 	public double geomX(final double x) {
@@ -815,8 +815,8 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 			// temp = temp.getParent();
 			// }
 			// }
-			final double mx = (MouseInfo.getPointerInfo().getLocation().x - xoff);// MainFrame.frame.getX()-8);
-			final double my = (MouseInfo.getPointerInfo().getLocation().y - yoff);// MainFrame.frame.getY()-30);
+			final double mx = MouseInfo.getPointerInfo().getLocation().x - xoff;// MainFrame.frame.getX()-8);
+			final double my = MouseInfo.getPointerInfo().getLocation().y - yoff;// MainFrame.frame.getY()-30);
 			// JOptionPane.showMessageDialog(null,mx+","+my+" as mouse,
 			// "+lastClick.x+","+lastClick.y+" as last.");
 			// System.out.println(xoff+" and "+mx);
@@ -851,8 +851,8 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 			}
 			if (leftClickStart != null) {
 
-				xangle += (mx - leftClickStart.x);
-				yangle += (my - leftClickStart.y);
+				xangle += mx - leftClickStart.x;
+				yangle += my - leftClickStart.y;
 
 				axisHeap.set(0, 1, 0, (float) Math.toRadians(yangle));
 				inverseCameraRotationYSpin.setFromAxisAngle(axisHeap);
@@ -1005,16 +1005,16 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 				Math.min(geomY(a.y), geomY(b.y)));
 		final Point2D.Double lowRight = new Point2D.Double(Math.max(geomX(a.x), geomX(b.x)),
 				Math.max(geomY(a.y), geomY(b.y)));
-		final Rectangle2D.Double temp = new Rectangle2D.Double(topLeft.x, topLeft.y, (lowRight.x - (topLeft.x)),
-				((lowRight.y) - (topLeft.y)));
+		final Rectangle2D.Double temp = new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x,
+				lowRight.y - topLeft.y);
 		return temp;
 	}
 
 	public Rectangle2D.Double pointsToRect(final Point a, final Point b) {
-		final Point2D.Double topLeft = new Point2D.Double(Math.min((a.x), (b.x)), Math.min((a.y), (b.y)));
-		final Point2D.Double lowRight = new Point2D.Double(Math.max((a.x), (b.x)), Math.max((a.y), (b.y)));
-		final Rectangle2D.Double temp = new Rectangle2D.Double(topLeft.x, topLeft.y, (lowRight.x - (topLeft.x)),
-				((lowRight.y) - (topLeft.y)));
+		final Point2D.Double topLeft = new Point2D.Double(Math.min(a.x, b.x), Math.min(a.y, b.y));
+		final Point2D.Double lowRight = new Point2D.Double(Math.max(a.x, b.x), Math.max(a.y, b.y));
+		final Rectangle2D.Double temp = new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x,
+				lowRight.y - topLeft.y);
 		return temp;
 	}
 
@@ -1035,10 +1035,10 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 		for (int y = 0; y < image.getHeight(); y++) {
 			for (int x = 0; x < image.getWidth(); x++) {
 				final int pixel = pixels[y * image.getWidth() + x];
-				buffer.put((byte) ((pixel >> 16) & 0xFF)); // Red component
-				buffer.put((byte) ((pixel >> 8) & 0xFF)); // Green component
+				buffer.put((byte) (pixel >> 16 & 0xFF)); // Red component
+				buffer.put((byte) (pixel >> 8 & 0xFF)); // Green component
 				buffer.put((byte) (pixel & 0xFF)); // Blue component
-				buffer.put((byte) ((pixel >> 24) & 0xFF)); // Alpha component.
+				buffer.put((byte) (pixel >> 24 & 0xFF)); // Alpha component.
 															// Only for RGBA
 			}
 		}

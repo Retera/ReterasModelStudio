@@ -42,8 +42,9 @@ import com.hiveworkshop.wc3.mdx.TextureTranslation;
 import com.hiveworkshop.wc3.util.MathUtils;
 
 /**
- * A java class for MDL "motion flags," such as Alpha, Translation, Scaling, or Rotation. AnimFlags are not "real"
- * things from an MDL and are given this name by me, as an invented java class to simplify the programming
+ * A java class for MDL "motion flags," such as Alpha, Translation, Scaling, or
+ * Rotation. AnimFlags are not "real" things from an MDL and are given this name
+ * by me, as an invented java class to simplify the programming
  *
  * Eric Theller 11/5/2011
  */
@@ -114,7 +115,8 @@ public class AnimFlag {
 	public static final int TEXTUREID = 5;
 
 	/**
-	 * Use for titles like "Intensity", "AmbIntensity", and other extraneous things not included in the options above.
+	 * Use for titles like "Intensity", "AmbIntensity", and other extraneous things
+	 * not included in the options above.
 	 */
 	public static final int OTHER_TYPE = 0;
 
@@ -146,7 +148,7 @@ public class AnimFlag {
 
 	public void setGlobSeq(final Integer inte) {
 		globalSeq = inte;
-		hasGlobalSeq = (inte != null);
+		hasGlobalSeq = inte != null;
 	}
 
 	public Integer getGlobalSeq() {
@@ -986,8 +988,9 @@ public class AnimFlag {
 	}
 
 	/**
-	 * This class is a small shell of an example for how my "AnimFlag" class should've been implemented. It's currently
-	 * only used for the {@link AnimFlag#getEntry(int)} function.
+	 * This class is a small shell of an example for how my "AnimFlag" class
+	 * should've been implemented. It's currently only used for the
+	 * {@link AnimFlag#getEntry(int)} function.
 	 *
 	 * @author Eric
 	 *
@@ -1113,8 +1116,8 @@ public class AnimFlag {
 		// TODO make flags be a map and remove this method, this is 2018
 		// not 2012 anymore, and I learned basic software dev
 		for (final AnimFlag flag : flags) {
-			if (flag.getName().equals(name) && ((globalSeq == null && flag.globalSeq == null)
-					|| (globalSeq != null && globalSeq.equals(flag.globalSeq)))) {
+			if (flag.getName().equals(name) && (globalSeq == null && flag.globalSeq == null
+					|| globalSeq != null && globalSeq.equals(flag.globalSeq))) {
 				return flag;
 			}
 		}
@@ -1246,7 +1249,7 @@ public class AnimFlag {
 		} else if (aflg.title.contains("Color"))// AmbColor
 		{
 			typeid = 4;
-		} else if (!(aflg.title.equals("Alpha"))) {
+		} else if (!aflg.title.equals("Alpha")) {
 			// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Unable
 			// to parse \""+aflg.title+"\": Missing or unrecognized open
 			// statement.");
@@ -1598,11 +1601,11 @@ public class AnimFlag {
 
 	public AnimFlag getMostVisible(final AnimFlag partner) {
 		if (partner != null) {
-			if ((typeid == 0) && (partner.typeid == 0)) {
+			if (typeid == 0 && partner.typeid == 0) {
 				final ArrayList<Integer> atimes = new ArrayList<>(times);
 				final ArrayList<Integer> btimes = new ArrayList<>(partner.times);
-				final ArrayList<Double> avalues = (new ArrayList(values));
-				final ArrayList<Double> bvalues = (new ArrayList(partner.values));
+				final ArrayList<Double> avalues = new ArrayList(values);
+				final ArrayList<Double> bvalues = new ArrayList(partner.values);
 				AnimFlag mostVisible = null;
 				for (int i = atimes.size() - 1; i >= 0; i--)
 				// count down from top, meaning that removing the current value
@@ -1747,9 +1750,10 @@ public class AnimFlag {
 	}
 
 	/**
-	 * Copies time track data from a certain interval into a different, new interval. The AnimFlag source of the data to
-	 * copy cannot be same AnimFlag into which the data is copied, or else a ConcurrentModificationException will be
-	 * thrown.
+	 * Copies time track data from a certain interval into a different, new
+	 * interval. The AnimFlag source of the data to copy cannot be same AnimFlag
+	 * into which the data is copied, or else a ConcurrentModificationException will
+	 * be thrown.
 	 *
 	 * @param source
 	 * @param sourceStart
@@ -1777,7 +1781,7 @@ public class AnimFlag {
 			if (i >= sourceStart && i <= sourceEnd) {
 				// If this "i" is a part of the anim being rescaled
 				final double ratio = (double) (i - sourceStart) / (double) (sourceEnd - sourceStart);
-				times.add(new Integer((int) (newStart + (ratio * (newEnd - newStart)))));
+				times.add(new Integer((int) (newStart + ratio * (newEnd - newStart))));
 				values.add(cloneValue(source.values.get(index)));
 				if (tans) {
 					inTans.add(cloneValue(source.inTans.get(index)));
@@ -1803,7 +1807,7 @@ public class AnimFlag {
 			if (i >= start && i <= end) {
 				// If this "i" is a part of the anim being rescaled
 				final double ratio = (double) (i - start) / (double) (end - start);
-				times.set(z, new Integer((int) (newStart + (ratio * (newEnd - newStart)))));
+				times.set(z, new Integer((int) (newStart + ratio * (newEnd - newStart))));
 			}
 		}
 		// }
@@ -1923,8 +1927,8 @@ public class AnimFlag {
 	}
 
 	/*
-	 * Rather than spending time visualizing corner cases for these, I borrowed logic from:
-	 * https://www.geeksforgeeks.org/ceiling-in-a-sorted-array/
+	 * Rather than spending time visualizing corner cases for these, I borrowed
+	 * logic from: https://www.geeksforgeeks.org/ceiling-in-a-sorted-array/
 	 */
 	private int ceilIndex(final int time, final int lo, final int hi) {
 		if (time <= times.get(lo)) {
@@ -1964,8 +1968,8 @@ public class AnimFlag {
 	}
 
 	/*
-	 * Rather than spending time visualizing corner cases for these, I borrowed logic from:
-	 * https://www.geeksforgeeks.org/floor-in-a-sorted-array/
+	 * Rather than spending time visualizing corner cases for these, I borrowed
+	 * logic from: https://www.geeksforgeeks.org/floor-in-a-sorted-array/
 	 */
 	private int floorIndex(final int time, final int lo, final int hi) {
 		if (lo > hi) {
@@ -2019,8 +2023,8 @@ public class AnimFlag {
 	}
 
 	/**
-	 * Interpolates at a given time. The lack of generics on this function is abysmal, but currently this is how the
-	 * codebase is.
+	 * Interpolates at a given time. The lack of generics on this function is
+	 * abysmal, but currently this is how the codebase is.
 	 *
 	 * @param time
 	 * @param animation
@@ -2034,7 +2038,8 @@ public class AnimFlag {
 		if (times.isEmpty()) {
 			return identity(localTypeId);
 		}
-		// TODO ghostwolf says to stop using binary search, because linear walking is faster for the small MDL case
+		// TODO ghostwolf says to stop using binary search, because linear walking is
+		// faster for the small MDL case
 		int time;
 		int ceilIndex;
 		int floorIndex;
@@ -2044,12 +2049,17 @@ public class AnimFlag {
 		Object ceilValue;
 		Integer floorIndexTime;
 		Integer ceilIndexTime;
-		if (hasGlobalSeq() && getGlobalSeq() > 0) {
-			time = (animatedRenderEnvironment.getGlobalSeqTime(getGlobalSeq()));
+		if (hasGlobalSeq() && getGlobalSeq() >= 0) {
+			time = animatedRenderEnvironment.getGlobalSeqTime(getGlobalSeq());
 			final int floorAnimStartIndex = floorIndex(1);
 			final int floorAnimEndIndex = floorIndex(getGlobalSeq());
 			floorIndex = floorIndex(time);
 			ceilIndex = ceilIndex(time);
+			if (ceilIndex < floorIndex) {
+				// retarded repeated keyframes issue, see Peasant's Bone_Chest
+				// at time 18300
+				ceilIndex = floorIndex;
+			}
 			floorValue = values.get(floorIndex);
 			floorInTan = tans() ? inTans.get(floorIndex) : null;
 			floorOutTan = tans() ? outTans.get(floorIndex) : null;
@@ -2104,17 +2114,19 @@ public class AnimFlag {
 				if (times.get(floorAnimEndIndex) == animation.getEnd()) {
 					floorIndex = floorAnimEndIndex;
 					floorValue = values.get(floorAnimEndIndex);
+					floorIndexTime = animation.getStart();
 					if (tans()) {
 						floorInTan = inTans.get(floorAnimEndIndex);
 						floorOutTan = inTans.get(floorAnimEndIndex);
-						floorIndexTime = times.get(floorAnimEndIndex);
+//						floorIndexTime = times.get(floorAnimEndIndex);
 					}
 				} else {
 					floorValue = identity(localTypeId);
 					floorInTan = floorOutTan = identity(localTypeId);
 					floorIndexTime = animation.getStart();
 				}
-			} else if (ceilIndexTime > animation.getEnd() || (ceilIndexTime < time && floorAnimEndIndex < time)) {
+			} else if (ceilIndexTime > animation.getEnd()
+					|| ceilIndexTime < time && times.get(floorAnimEndIndex) < time) {
 				if (times.get(floorAnimStartIndex) == animation.getStart()) {
 					ceilValue = values.get(floorAnimStartIndex);
 					ceilIndex = floorAnimStartIndex;

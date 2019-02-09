@@ -4,10 +4,10 @@ import java.awt.Component;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Enumeration;
@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
@@ -26,6 +27,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.TransferHandler;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -71,6 +73,7 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 	private JTextField findTextField;
 	private JCheckBox caseSens;
 	private JScrollPane treeScrollPane;
+	private final Set<String> lastSelectedFields = new HashSet<>();
 
 	public UnitEditorPanel(final MutableObjectData unitData, final DataTable unitMetaData,
 			final EditorFieldBuilder editorFieldBuilder, final ObjectTabTreeBrowserBuilder objectTabTreeBrowserBuilder,
@@ -120,23 +123,25 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 				}
 			}
 		});
-		table.addKeyListener(new KeyListener() {
+		final KeyStroke enter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+		table.getInputMap(JTable.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(enter, "EnterKeyPopupAction");
+		table.getActionMap().put("EnterKeyPopupAction", new AbstractAction() {
 			@Override
-			public void keyTyped(final KeyEvent e) {
-
+			public void actionPerformed(final ActionEvent evt) {
+				final int rowIndex = table.getSelectedRow();
+				if (dataModel != null) {
+					dataModel.doPopupAt(UnitEditorPanel.this, rowIndex, false);
+				}
 			}
-
+		});
+		final KeyStroke shiftEnter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.SHIFT_DOWN_MASK);
+		table.getInputMap(JTable.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(shiftEnter, "ShiftEnterKeyPopupAction");
+		table.getActionMap().put("ShiftEnterKeyPopupAction", new AbstractAction() {
 			@Override
-			public void keyReleased(final KeyEvent e) {
-			}
-
-			@Override
-			public void keyPressed(final KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					final int rowIndex = table.getSelectedRow();
-					if (dataModel != null) {
-						dataModel.doPopupAt(UnitEditorPanel.this, rowIndex, holdingShift);
-					}
+			public void actionPerformed(final ActionEvent evt) {
+				final int rowIndex = table.getSelectedRow();
+				if (dataModel != null) {
+					dataModel.doPopupAt(UnitEditorPanel.this, rowIndex, true);
 				}
 			}
 		});
@@ -256,7 +261,7 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 				final DefaultMutableTreeNode newTreeNode = root.insertObjectInto(mutableGameObject,
 						new TreeNodeLinkerFromModel(tree.getModel()));
 				TreeNode node = newTreeNode.getParent();
-				while ((node != null)) {
+				while (node != null) {
 					tree.getModel().nodeChanged(node);
 					node = node.getParent();
 				}
@@ -271,7 +276,7 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 					final DefaultMutableTreeNode newTreeNode = root.insertObjectInto(mutableGameObject,
 							new TreeNodeLinkerFromModel(tree.getModel()));
 					TreeNode node = newTreeNode.getParent();
-					while ((node != null)) {
+					while (node != null) {
 						tree.getModel().nodeChanged(node);
 						node = node.getParent();
 					}
@@ -416,21 +421,25 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 	public void valueChanged(final TreeSelectionEvent e) {
 		currentUnitTreePath = e.getNewLeadSelectionPath();
 		if (currentUnitTreePath != null) {
+			if (currentUnit != null) {
+				lastSelectedFields.clear();
+				if (dataModel != null) {
+					for (final int rowIndex : table.getSelectedRows()) {
+						lastSelectedFields.add(dataModel.getFieldRawDataName(rowIndex));
+					}
+				}
+			}
 			final DefaultMutableTreeNode o = (DefaultMutableTreeNode) currentUnitTreePath.getLastPathComponent();
 			if (o.getUserObject() instanceof MutableGameObject) {
 				final MutableGameObject obj = (MutableGameObject) o.getUserObject();
 				currentUnit = obj;
-				final Set<String> fields = new HashSet<>();
-				if (dataModel != null) {
-					for (final int rowIndex : table.getSelectedRows()) {
-						fields.add(dataModel.getFieldRawDataName(rowIndex));
-					}
-				}
-				fillTable();
-				for (int rowIndex = 0; rowIndex < table.getRowCount(); rowIndex++) {
-					if (fields.contains(dataModel.getFieldRawDataName(rowIndex))) {
-						table.addRowSelectionInterval(rowIndex, rowIndex);
-					}
+			} else {
+				currentUnit = null;
+			}
+			fillTable();
+			for (int rowIndex = 0; rowIndex < table.getRowCount(); rowIndex++) {
+				if (lastSelectedFields.contains(dataModel.getFieldRawDataName(rowIndex))) {
+					table.addRowSelectionInterval(rowIndex, rowIndex);
 				}
 			}
 		}

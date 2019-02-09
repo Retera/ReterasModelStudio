@@ -9,3 +9,7 @@ sourceSets.main.java.srcDirs = [ "src/" ]
 eclipse.project {
     name = appName + "-craft3data"
 }
+//dependencies {
+//	compile(name: 'idw-gpl', ext:'jar')
+//	compile(name: 'blp-iio-plugin', ext:'jar')
+//}

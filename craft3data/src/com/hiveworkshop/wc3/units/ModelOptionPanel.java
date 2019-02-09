@@ -21,6 +21,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
+import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimationViewer;
 import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
@@ -156,7 +157,7 @@ public class ModelOptionPanel extends JPanel {
 			str = str.toUpperCase();
 			if (str.startsWith("R")) {
 				continue;
-			} else if ((str.startsWith("A") || str.startsWith("S"))) {
+			} else if (str.startsWith("A") || str.startsWith("S")) {
 				// ability
 				final Element unit = unitData.get(str);
 				String filepath = unit.getField("Areaeffectart");
@@ -1177,7 +1178,7 @@ public class ModelOptionPanel extends JPanel {
 
 		// TODO program prefs not be null???
 		// viewer = new PerspDisplayPanel("blank", blankDisp, null);
-		viewer = new AnimationViewer(blankDisp, null, false);
+		viewer = new AnimationViewer(blankDisp, new ProgramPreferences(), false);
 		modelBox.setSelectedIndex(0);
 
 		add(groupBox);
@@ -1188,12 +1189,10 @@ public class ModelOptionPanel extends JPanel {
 		layout.setHorizontalGroup(layout.createSequentialGroup().addGap(8).addComponent(viewer).addGap(8).addGroup(
 				layout.createParallelGroup().addComponent(groupBox).addComponent(modelBox).addComponent(filePathField))
 				.addGap(8));
-		layout.setVerticalGroup(
-				layout.createSequentialGroup().addGap(8)
-						.addGroup(layout.createParallelGroup()
-								.addComponent(viewer).addGroup(layout.createSequentialGroup().addComponent(groupBox)
-										.addGap(4).addComponent(modelBox).addGap(4).addComponent(filePathField)))
-						.addGap(8));
+		layout.setVerticalGroup(layout.createSequentialGroup().addGap(8)
+				.addGroup(layout.createParallelGroup().addComponent(viewer).addGroup(layout.createSequentialGroup()
+						.addComponent(groupBox).addGap(4).addComponent(modelBox).addGap(4).addComponent(filePathField)))
+				.addGap(8));
 
 		setLayout(layout);
 	}

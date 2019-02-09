@@ -35,11 +35,19 @@ public abstract class HashedGameObject implements GameObject {
 
 	@Override
 	public String getField(final String field) {
-		String value = "";
+		final String value = "";
 		if (fields.get(new StringKey(field)) != null) {
 			final List<String> list = fields.get(new StringKey(field));
+			final StringBuilder sb = new StringBuilder();
 			if (list != null) {
-				value = list.get(0);
+				for (final String str : list) {
+					if (sb.length() != 0) {
+						sb.append(',');
+					}
+					sb.append(str);
+				}
+				return sb.toString();
+//				value = list.get(0);
 			}
 		}
 		return value;

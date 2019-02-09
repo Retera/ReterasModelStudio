@@ -11,12 +11,15 @@ import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import com.etheller.collections.ArrayList;
 import com.etheller.collections.List;
+import com.hiveworkshop.wc3.jworldedit.objects.sorting.AbstractSortingFolderTreeNode;
 import com.hiveworkshop.wc3.jworldedit.objects.sorting.PreModelCreationTreeNodeLinker;
 import com.hiveworkshop.wc3.jworldedit.objects.sorting.TreeNodeLinker;
 import com.hiveworkshop.wc3.jworldedit.objects.sorting.general.TopLevelCategoryFolder;
@@ -39,6 +42,29 @@ public final class UnitEditorTree extends JTree {
 		this.browserBuilder = browserBuilder;
 		root = (TopLevelCategoryFolder) getModel().getRoot();
 		setCellRenderer(new WarcraftObjectTreeCellRenderer(settings, dataType));
+		addTreeExpansionListener(new TreeExpansionListener() {
+
+			@Override
+			public void treeExpanded(final TreeExpansionEvent event) {
+				final TreePath expandedPath = event.getPath();
+				final Object lastPathComponent = expandedPath.getLastPathComponent();
+				if (lastPathComponent instanceof AbstractSortingFolderTreeNode) {
+					final AbstractSortingFolderTreeNode folderTreeNode = (AbstractSortingFolderTreeNode) lastPathComponent;
+					if (!folderTreeNode.isHasExpandedFirstTime()) {
+						if (folderTreeNode.getChildCount() > 0) {
+							final TreeNode childAt = folderTreeNode.getChildAt(0);
+							expandPath(expandedPath.pathByAddingChild(childAt));
+						}
+						folderTreeNode.setHasExpandedFirstTime(true);
+					}
+				}
+			}
+
+			@Override
+			public void treeCollapsed(final TreeExpansionEvent event) {
+
+			}
+		});
 		setRootVisible(false);
 		setScrollsOnExpand(true);
 		addFocusListener(new FocusListener() {
@@ -180,7 +206,7 @@ public final class UnitEditorTree extends JTree {
 			final MutableGameObject unit = unitData.get(alias);
 			root.insertObjectInto(unit, linker);
 		}
-		return (new UnitEditorTreeModel(root));
+		return new UnitEditorTreeModel(root);
 	}
 
 	public void acceptPastedObjectData(final War3ObjectDataChangeset changeset) {

@@ -55,6 +55,7 @@ public class FloatObjectField extends AbstractObjectField {
 				String.format(defaultDialogTitle, WEString.getString("WESTRING_COD_TYPE_REAL")),
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, spinner);
 		if (result == JOptionPane.OK_OPTION) {
+			System.out.println(spinner.getValue() + " on the outside");
 			gameUnit.setField(metaKey, level, ((Number) spinner.getValue()).floatValue());
 			return true;
 		}

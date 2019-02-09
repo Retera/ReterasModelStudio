@@ -63,7 +63,7 @@ public class UVPanel extends JPanel implements ActionListener {
 	JCheckBoxMenuItem wrapImage;
 
 	ArrayList<ModeButton> buttons = new ArrayList<>();
-	private final MDLDisplay dispMDL;
+	private final ModelPanel dispMDL;
 	private UVViewport vp;
 	private final JButton up, down, left, right, plusZoom, minusZoom;
 	private final JTextField[] mouseCoordDisplay = new JTextField[2];
@@ -224,16 +224,18 @@ public class UVPanel extends JPanel implements ActionListener {
 		add(right);
 
 		final GroupLayout layout = new GroupLayout(this);
-		layout.setHorizontalGroup(layout.createSequentialGroup().addGroup(layout
-				.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(vp)
-				.addGroup(layout.createSequentialGroup().addComponent(mouseCoordDisplay[0])
-						.addComponent(mouseCoordDisplay[1]).addGap(120)
-						.addGroup(layout.createSequentialGroup().addComponent(left).addGroup(layout
-								.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(up).addComponent(down))
-								.addComponent(right))
+		layout.setHorizontalGroup(layout.createSequentialGroup()
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(vp)
+						.addGroup(layout.createSequentialGroup().addComponent(mouseCoordDisplay[0])
+								.addComponent(mouseCoordDisplay[1]).addGap(120)
+								.addGroup(layout.createSequentialGroup().addComponent(left)
+										.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+												.addComponent(up).addComponent(down))
+										.addComponent(right))
 
-						.addGap(16).addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-								.addComponent(plusZoom).addComponent(minusZoom))))
+								.addGap(16)
+								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+										.addComponent(plusZoom).addComponent(minusZoom))))
 
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(loadImage)
 						.addComponent(divider[0]).addComponent(selectButton).addComponent(addButton)
@@ -243,18 +245,16 @@ public class UVPanel extends JPanel implements ActionListener {
 						.addGroup(layout.createSequentialGroup().addComponent(xButton).addComponent(yButton))));
 		layout.setVerticalGroup(
 				layout.createParallelGroup()
-						.addGroup(layout.createSequentialGroup().addComponent(vp)
-								.addGroup(layout.createParallelGroup().addComponent(mouseCoordDisplay[0])
-										.addComponent(mouseCoordDisplay[1]).addGroup(layout.createParallelGroup(
-												GroupLayout.Alignment.CENTER)
-												.addGroup(layout
-														.createSequentialGroup().addComponent(up).addGroup(layout
-																.createParallelGroup(GroupLayout.Alignment.CENTER)
-																.addComponent(left).addComponent(right))
-														.addComponent(down))
+						.addGroup(layout.createSequentialGroup().addComponent(vp).addGroup(layout.createParallelGroup()
+								.addComponent(mouseCoordDisplay[0]).addComponent(mouseCoordDisplay[1])
+								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+										.addGroup(layout.createSequentialGroup().addComponent(up)
+												.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+														.addComponent(left).addComponent(right))
+												.addComponent(down))
 
-												.addGroup(layout.createSequentialGroup().addComponent(plusZoom)
-														.addGap(16).addComponent(minusZoom)))
+										.addGroup(layout.createSequentialGroup().addComponent(plusZoom).addGap(16)
+												.addComponent(minusZoom)))
 
 						))
 
@@ -511,16 +511,16 @@ public class UVPanel extends JPanel implements ActionListener {
 	@Override
 	public void actionPerformed(final ActionEvent e) {
 		if (e.getSource() == up) {
-			vp.translate(0, (20 * (1 / vp.getZoomAmount())));
+			vp.translate(0, 20 * (1 / vp.getZoomAmount()));
 			vp.repaint();
 		} else if (e.getSource() == down) {
-			vp.translate(0, (-20 * (1 / vp.getZoomAmount())));
+			vp.translate(0, -20 * (1 / vp.getZoomAmount()));
 			vp.repaint();
 		} else if (e.getSource() == left) {
-			vp.translate((20 * (1 / vp.getZoomAmount())), 0);
+			vp.translate(20 * (1 / vp.getZoomAmount()), 0);
 			vp.repaint();
 		} else if (e.getSource() == right) {
-			vp.translate((-20 * (1 / vp.getZoomAmount())), 0);// *vp.getZoomAmount()
+			vp.translate(-20 * (1 / vp.getZoomAmount()), 0);// *vp.getZoomAmount()
 			vp.repaint();
 		} else if (e.getSource() == plusZoom) {
 			vp.zoom(.15);

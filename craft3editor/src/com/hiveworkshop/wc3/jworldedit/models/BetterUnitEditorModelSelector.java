@@ -21,6 +21,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.PerspDisplayPanel;
 import com.hiveworkshop.wc3.jworldedit.objects.UnitEditorSettings;
 import com.hiveworkshop.wc3.jworldedit.objects.UnitEditorTree;
@@ -67,7 +68,8 @@ public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSel
 		final JPanel temp = new JPanel();
 		temp.add(debugLabel);
 
-		modelPanel = new PerspDisplayPanel("blank", modelDisp, null, new RenderModel(modelDisp.getModel()));
+		modelPanel = new PerspDisplayPanel("blank", modelDisp, new ProgramPreferences(),
+				new RenderModel(modelDisp.getModel()));
 		fillTable();
 
 		setRightComponent(modelPanel);

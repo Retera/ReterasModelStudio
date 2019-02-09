@@ -100,7 +100,8 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 				getIcon(worldEditorData, "ToolBarIcon_OE_NewBuff"), createAbilityBuffEditor());
 		tabbedPane.addTab(WEString.getString("WESTRING_OBJTAB_UPGRADES"),
 				getIcon(worldEditorData, "ToolBarIcon_OE_NewUpgr"), createUpgradeEditor());
-		// tabbedPane.addTab("Terrains", getIcon(worldEditorData, "ToolBarIcon_Module_Terrain"), createUpgradeEditor());
+		// tabbedPane.addTab("Terrains", getIcon(worldEditorData,
+		// "ToolBarIcon_Module_Terrain"), createUpgradeEditor());
 
 		final JToolBar toolBar = createToolbar(worldEditorData);
 		toolBar.setFloatable(false);
@@ -170,7 +171,8 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 		makeButton(worldEditorData, toolBar, "scriptEditor", "ToolBarIcon_Module_Script",
 				"WESTRING_MENU_MODULE_SCRIPTS");
 		makeButton(worldEditorData, toolBar, "soundEditor", "ToolBarIcon_Module_Sound", "WESTRING_MENU_MODULE_SOUND");
-		// final JButton objectEditorButton = makeButton(worldEditorData, toolBar, "objectEditor",
+		// final JButton objectEditorButton = makeButton(worldEditorData, toolBar,
+		// "objectEditor",
 		// "ToolBarIcon_Module_ObjectEditor", "WESTRING_MENU_OBJECTEDITOR");
 		final JToggleButton objectEditorButton = new JToggleButton(
 				getIcon(worldEditorData, "ToolBarIcon_Module_ObjectEditor"));
@@ -254,6 +256,7 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 		}
 		unitData = new MutableObjectData(WorldEditorDataType.UNITS, StandardObjectData.getStandardUnits(),
 				standardUnitMeta, unitDataChangeset);
+
 		final UnitEditorPanel unitEditorPanel = new UnitEditorPanel(unitData, standardUnitMeta, new UnitFieldBuilder(),
 				new UnitTabTreeBrowserBuilder(), WorldEditorDataType.UNITS,
 				new EditorTabCustomToolbarButtonData("WESTRING_MENU_OE_UNIT_NEW", "ToolBarIcon_OE_NewUnit",
@@ -279,9 +282,9 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 		final UnitEditorPanel unitEditorPanel = new UnitEditorPanel(
 				new MutableObjectData(WorldEditorDataType.ITEM, StandardObjectData.getStandardItems(), standardUnitMeta,
 						unitDataChangeset),
-				standardUnitMeta, new ItemFieldBuilder(), new ItemTabTreeBrowserBuilder(),
-				WorldEditorDataType.ITEM, new EditorTabCustomToolbarButtonData("WESTRING_MENU_OE_ITEM_NEW",
-						"ToolBarIcon_OE_NewItem", "WESTRING_MENU_OE_ITEM_COPY", "WESTRING_MENU_OE_ITEM_PASTE"),
+				standardUnitMeta, new ItemFieldBuilder(), new ItemTabTreeBrowserBuilder(), WorldEditorDataType.ITEM,
+				new EditorTabCustomToolbarButtonData("WESTRING_MENU_OE_ITEM_NEW", "ToolBarIcon_OE_NewItem",
+						"WESTRING_MENU_OE_ITEM_COPY", "WESTRING_MENU_OE_ITEM_PASTE"),
 				new Runnable() {
 					@Override
 					public void run() {
@@ -310,9 +313,9 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 						standardUnitMeta, unitDataChangeset),
 				standardUnitMeta,
 				new BasicEditorFieldBuilder(BasicSingleFieldFactory.INSTANCE, WorldEditorDataType.DESTRUCTIBLES),
-				new DestructableTabTreeBrowserBuilder(),
-				WorldEditorDataType.DESTRUCTIBLES, new EditorTabCustomToolbarButtonData("WESTRING_MENU_OE_DEST_NEW",
-						"ToolBarIcon_OE_NewDest", "WESTRING_MENU_OE_DEST_COPY", "WESTRING_MENU_OE_DEST_PASTE"),
+				new DestructableTabTreeBrowserBuilder(), WorldEditorDataType.DESTRUCTIBLES,
+				new EditorTabCustomToolbarButtonData("WESTRING_MENU_OE_DEST_NEW", "ToolBarIcon_OE_NewDest",
+						"WESTRING_MENU_OE_DEST_COPY", "WESTRING_MENU_OE_DEST_PASTE"),
 				new Runnable() {
 					@Override
 					public void run() {
@@ -402,9 +405,9 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 						standardUnitMeta, unitDataChangeset),
 				standardUnitMeta,
 				new BasicEditorFieldBuilder(BasicSingleFieldFactory.INSTANCE, WorldEditorDataType.BUFFS_EFFECTS),
-				new BuffTabTreeBrowserBuilder(),
-				WorldEditorDataType.BUFFS_EFFECTS, new EditorTabCustomToolbarButtonData("WESTRING_MENU_OE_BUFF_NEW",
-						"ToolBarIcon_OE_NewBuff", "WESTRING_MENU_OE_BUFF_COPY", "WESTRING_MENU_OE_BUFF_PASTE"),
+				new BuffTabTreeBrowserBuilder(), WorldEditorDataType.BUFFS_EFFECTS,
+				new EditorTabCustomToolbarButtonData("WESTRING_MENU_OE_BUFF_NEW", "ToolBarIcon_OE_NewBuff",
+						"WESTRING_MENU_OE_BUFF_COPY", "WESTRING_MENU_OE_BUFF_PASTE"),
 				new Runnable() {
 					@Override
 					public void run() {

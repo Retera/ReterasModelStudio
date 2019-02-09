@@ -130,7 +130,7 @@ public final class MutableObjectData {
 
 	public War3ObjectDataChangeset copySelectedObjects(final List<MutableGameObject> objectsToCopy) {
 		final War3ObjectDataChangeset changeset = new War3ObjectDataChangeset();
-		final War3ID[] fieldsToCheck = (worldEditorDataType == WorldEditorDataType.UNITS)
+		final War3ID[] fieldsToCheck = worldEditorDataType == WorldEditorDataType.UNITS
 				? new War3ID[] { War3ID.fromString("utra"), War3ID.fromString("uupt"), War3ID.fromString("ubui") }
 				: new War3ID[] {};
 		final Map<War3ID, War3ID> previousAliasToNewAlias = new HashMap<>();
@@ -216,7 +216,8 @@ public final class MutableObjectData {
 	}
 
 	/**
-	 * Returns the set of all Unit IDs in the map, at the cost of a lot of time to go find them all.
+	 * Returns the set of all Unit IDs in the map, at the cost of a lot of time to
+	 * go find them all.
 	 *
 	 * @return
 	 */
@@ -301,7 +302,7 @@ public final class MutableObjectData {
 	}
 
 	private static boolean goodForId(final char c) {
-		return Character.isDigit(c) || (c >= 'A' && c <= 'Z');
+		return Character.isDigit(c) || c >= 'A' && c <= 'Z';
 	}
 
 	public War3ID getNextDefaultEditorId(final War3ID startingId) {
@@ -312,10 +313,10 @@ public final class MutableObjectData {
 			if (newId.charAt(3) == 'Z') {
 				if (newId.charAt(2) == 'Z') {
 					if (newId.charAt(1) == 'Z') {
-						newId = new War3ID(newId.getValue() / (256 * 256 * 256) * (256 * 256 * 256) + 256 * 256 * 256
+						newId = new War3ID(newId.getValue() / (256 * 256 * 256) * 256 * 256 * 256 + 256 * 256 * 256
 								+ '0' + '0' * 256 + '0' * 256 * 256);
 					} else {
-						newId = new War3ID(newId.getValue() / (256 * 256) * (256 * 256) + 256 * 256 + '0' + '0' * 256);
+						newId = new War3ID(newId.getValue() / (256 * 256) * 256 * 256 + 256 * 256 + '0' + '0' * 256);
 					}
 				} else {
 					newId = new War3ID(newId.getValue() / 256 * 256 + 256 + '0');
@@ -374,7 +375,8 @@ public final class MutableObjectData {
 		CATEGORY_FIELDS.add(War3ID.fromString("feff")); // is effect
 
 		CATEGORY_FIELDS.add(War3ID.fromString("grac")); // upgrade race
-		// field structure fields - doesn't seem to be changeFlags 's' like you might hope
+		// field structure fields - doesn't seem to be changeFlags 's' like you might
+		// hope
 		FIELD_SETTINGS_FIELDS.add(War3ID.fromString("ubdg")); // unit is a builder
 		FIELD_SETTINGS_FIELDS.add(War3ID.fromString("dvar")); // doodad variations
 		FIELD_SETTINGS_FIELDS.add(War3ID.fromString("alev")); // ability level
@@ -436,7 +438,7 @@ public final class MutableObjectData {
 
 		public void setField(final War3ID field, final int level, final boolean value) {
 			if (value == (asInt(getFieldStringFromSLKs(field, level).trim()) == 1)) {
-				if (value != (getFieldAsBoolean(field, level))) {
+				if (value != getFieldAsBoolean(field, level)) {
 					fireChangedEvent(field, level);
 				}
 				resetFieldToDefaults(field, level);
@@ -449,8 +451,8 @@ public final class MutableObjectData {
 		}
 
 		public void setField(final War3ID field, final int level, final int value) {
-			if (value == (asInt(getFieldStringFromSLKs(field, level).trim()))) {
-				if (value != (getFieldAsInteger(field, level))) {
+			if (value == asInt(getFieldStringFromSLKs(field, level).trim())) {
+				if (value != getFieldAsInteger(field, level)) {
 					fireChangedEvent(field, level);
 				}
 				resetFieldToDefaults(field, level);
@@ -472,7 +474,7 @@ public final class MutableObjectData {
 		}
 
 		public void setField(final War3ID field, final int level, final float value) {
-			if (Math.abs(value - (asFloat(getFieldStringFromSLKs(field, level).trim()))) < 0.00001f) {
+			if (Math.abs(value - asFloat(getFieldStringFromSLKs(field, level).trim())) < 0.00001f) {
 				if (Math.abs(value - getFieldAsFloat(field, level)) > 0.00001f) {
 					fireChangedEvent(field, level);
 				}
@@ -781,12 +783,7 @@ public final class MutableObjectData {
 	}
 
 	public enum WorldEditorDataType {
-		UNITS("w3u"),
-		ITEM("w3t"),
-		DESTRUCTIBLES("w3b"),
-		DOODADS("w3d"),
-		ABILITIES("w3a"),
-		BUFFS_EFFECTS("w3h"),
+		UNITS("w3u"), ITEM("w3t"), DESTRUCTIBLES("w3b"), DOODADS("w3d"), ABILITIES("w3a"), BUFFS_EFFECTS("w3h"),
 		UPGRADES("w3q");
 
 		private String extension;
@@ -804,7 +801,7 @@ public final class MutableObjectData {
 		String metaDataName = metaData.getField("field");
 		final int repeatCount = metaData.getFieldValue("repeat");
 		final String upgradeHack = metaData.getField("appendIndex");
-		final boolean repeats = repeatCount > 0 && !("0".equals(upgradeHack));
+		final boolean repeats = repeatCount > 0 && !"0".equals(upgradeHack);
 		final int data = metaData.getFieldValue("data");
 		if (data > 0) {
 			metaDataName += (char) ('A' + (data - 1));

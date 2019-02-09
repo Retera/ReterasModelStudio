@@ -14,23 +14,22 @@ public class CollisionShapeChunk {
 
 	public static final String key = "CLID";
 
-	public void load(BlizzardDataInputStream in) throws IOException {
+	public void load(final BlizzardDataInputStream in) throws IOException {
 		MdxUtils.checkId(in, "CLID");
-		int chunkSize = in.readInt();
-		List<CollisionShape> collisionShapeList = new ArrayList();
+		final int chunkSize = in.readInt();
+		final List<CollisionShape> collisionShapeList = new ArrayList();
 		int collisionShapeCounter = chunkSize;
 		while (collisionShapeCounter > 0) {
-			CollisionShape tempcollisionShape = new CollisionShape();
+			final CollisionShape tempcollisionShape = new CollisionShape();
 			collisionShapeList.add(tempcollisionShape);
 			tempcollisionShape.load(in);
 			collisionShapeCounter -= tempcollisionShape.getSize();
 		}
-		collisionShape = collisionShapeList
-				.toArray(new CollisionShape[collisionShapeList.size()]);
+		collisionShape = collisionShapeList.toArray(new CollisionShape[collisionShapeList.size()]);
 	}
 
-	public void save(BlizzardDataOutputStream out) throws IOException {
-		int nrOfCollisionShapes = collisionShape.length;
+	public void save(final BlizzardDataOutputStream out) throws IOException {
+		final int nrOfCollisionShapes = collisionShape.length;
 		out.writeNByteString("CLID", 4);
 		out.writeInt(getSize() - 8);// ChunkSize
 		for (int i = 0; i < collisionShape.length; i++) {
@@ -56,18 +55,18 @@ public class CollisionShapeChunk {
 		public float[] vertexs = new float[0];
 		public float boundsRadius;
 
-		public void load(BlizzardDataInputStream in) throws IOException {
+		public void load(final BlizzardDataInputStream in) throws IOException {
 			node = new Node();
 			node.load(in);
 			type = in.readInt();
-			vertexs = MdxUtils.loadFloatArray(in, (2 - type / 2) * 3);
-			if (type == 2) {
+			vertexs = MdxUtils.loadFloatArray(in, (type == 2 ? 1 : 2) * 3);
+			if (type == 2 || type == 3) {
 				boundsRadius = in.readFloat();
 			}
 		}
 
-		public void save(BlizzardDataOutputStream out) throws IOException {
-			int nrOfVertices = vertexs.length / 3;
+		public void save(final BlizzardDataOutputStream out) throws IOException {
+			final int nrOfVertices = vertexs.length / 3;
 			node.save(out);
 			out.writeInt(type);
 			if (vertexs.length % 3 != 0) {
@@ -76,7 +75,7 @@ public class CollisionShapeChunk {
 								+ vertexs.length + ")");
 			}
 			MdxUtils.saveFloatArray(out, vertexs);
-			if (type == 2) {
+			if (type == 2 || type == 3) {
 				out.writeFloat(boundsRadius);
 			}
 
@@ -86,23 +85,24 @@ public class CollisionShapeChunk {
 			int a = 0;
 			a += node.getSize();
 			a += 4;
-			a += (2 - type / 2) * 12;
-			if (type == 2) {
+			a += (type == 2 ? 1 : 2) * 12;
+			if (type == 2 || type == 3) {
 				a += 4;
 			}
 
 			return a;
 		}
-		
+
 		public CollisionShape() {
-			
+
 		}
-		public CollisionShape(com.hiveworkshop.wc3.mdl.CollisionShape other) {
+
+		public CollisionShape(final com.hiveworkshop.wc3.mdl.CollisionShape other) {
 			node = new Node(other);
 //			node.flags |= 8192;
 			node.flags |= 0x2000;
-			vertexs = new float[other.getVertices().size()*3];
-			for( String flag: other.getFlags() ) {
+			vertexs = new float[other.getVertices().size() * 3];
+			for (final String flag : other.getFlags()) {
 				switch (flag) {
 				case "Box":
 					type = 0;
@@ -114,20 +114,21 @@ public class CollisionShapeChunk {
 					type = 2;
 					break;
 				case "Cylinder":
-					type = 2;
+					type = 3;
 					break;
 				default:
 					break;
 				}
 			}
 			int i = 0;
-			for( Vertex vert: other.getVertices() ) {
-				vertexs[i++] = (float)vert.getX();
-				vertexs[i++] = (float)vert.getY();
-				vertexs[i++] = (float)vert.getZ();
+			for (final Vertex vert : other.getVertices()) {
+				vertexs[i++] = (float) vert.getX();
+				vertexs[i++] = (float) vert.getY();
+				vertexs[i++] = (float) vert.getZ();
 			}
-			if( type > 1 )
-				boundsRadius = (float)other.getExtents().getBoundsRadius();
+			if (type > 1) {
+				boundsRadius = (float) other.getExtents().getBoundsRadius();
+			}
 		}
 	}
 }

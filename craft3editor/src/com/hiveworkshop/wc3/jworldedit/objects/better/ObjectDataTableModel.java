@@ -1,6 +1,7 @@
 package com.hiveworkshop.wc3.jworldedit.objects.better;
 
 import java.awt.Component;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -32,13 +33,17 @@ public class ObjectDataTableModel implements TableModel {
 		this.displayAsRawData = displayAsRawData;
 		this.runOnIsCustomUnitStateChange = runOnIsCustomUnitStateChange;
 		this.tableModelListeners = new HashSet<>();
-		this.fields = editorFieldBuilder.buildFields(metaData, gameObject);
-		Collections.sort(this.fields, new Comparator<EditableOnscreenObjectField>() {
-			@Override
-			public int compare(final EditableOnscreenObjectField o1, final EditableOnscreenObjectField o2) {
-				return o1.getDisplayName(gameObject).compareTo(o2.getDisplayName(gameObject));
-			}
-		});
+		if (gameObject != null) {
+			this.fields = editorFieldBuilder.buildFields(metaData, gameObject);
+			Collections.sort(this.fields, new Comparator<EditableOnscreenObjectField>() {
+				@Override
+				public int compare(final EditableOnscreenObjectField o1, final EditableOnscreenObjectField o2) {
+					return o1.getDisplayName(gameObject).compareTo(o2.getDisplayName(gameObject));
+				}
+			});
+		} else {
+			this.fields = new ArrayList<>();
+		}
 	}
 
 	public void setDisplayAsRawData(final boolean displayAsRawData) {
@@ -59,6 +64,9 @@ public class ObjectDataTableModel implements TableModel {
 	}
 
 	public boolean hasEditedValue(final int rowIndex) {
+		if (gameObject == null) {
+			return false;
+		}
 		return fields.get(rowIndex).hasEditedValue(gameObject);
 	}
 
@@ -88,6 +96,9 @@ public class ObjectDataTableModel implements TableModel {
 
 	@Override
 	public Object getValueAt(final int rowIndex, final int columnIndex) {
+		if (gameObject == null) {
+			return 0;
+		}
 		if (columnIndex == 0) {
 			if (displayAsRawData) {
 				return fields.get(rowIndex).getRawDataName();
@@ -108,6 +119,9 @@ public class ObjectDataTableModel implements TableModel {
 	}
 
 	public void doPopupAt(final Component parent, final int rowIndex, final boolean isHoldingShift) {
+		if (gameObject == null) {
+			return;
+		}
 		final boolean hadBeenEdited = gameObject.hasEditorData();
 		final EditableOnscreenObjectField field = fields.get(rowIndex);
 		if (field.popupEditor(gameObject, parent, displayAsRawData, isHoldingShift)) {

@@ -149,7 +149,7 @@ public class CameraChunk {
 			nearClippingPlane = (float) mdlCam.getNearClip();
 			targetPosition = mdlCam.getTargetPosition().toFloatArray();
 			for (final AnimFlag af : mdlCam.getAnimFlags()) {
-				if (af.getName().equals("Translation")) {
+				if (af.getName().equals("Translation") && af.size() > 0) {
 					cameraPositionTranslation = new CameraPositionTranslation();
 					cameraPositionTranslation.globalSequenceId = af.getGlobalSeqId();
 					cameraPositionTranslation.interpolationType = af.getInterpType();
@@ -167,7 +167,7 @@ public class CameraChunk {
 							mdxEntry.outTan = ((Vertex) mdlEntry.outTan).toFloatArray();
 						}
 					}
-				} else if (af.getName().equals("Rotation")) {
+				} else if (af.getName().equals("Rotation") && af.size() > 0) {
 					cameraRotation = new CameraRotation();
 					cameraRotation.globalSequenceId = af.getGlobalSeqId();
 					cameraRotation.interpolationType = af.getInterpType();

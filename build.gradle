@@ -1,14 +1,13 @@
 buildscript {
     repositories {
         mavenLocal()
+		flatDir {
+			dirs "$rootProject.projectDir/jars"
+		}
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         jcenter()
     }
-    //dependencies {
-	//	compile files('jars/idw-gpl.jar')
-	//	compile files('jars/blp-iio-plugin.jar')
-    //}
 }
 
 allprojects {
@@ -17,12 +16,12 @@ allprojects {
 
     version = '1.0'
     ext {
-        appName = "reterawc3"
+        appName = "retera-jwc3"
         jtattooVersion = '1.6.11'
         xstreamVersion = '1.4.9'
         miglayoutVersion = '4.2'
-		lwjglVersion = '3.0.0a'
-		image4jVersion = '0.7zensight1'
+		lwjglVersion = '2.9.3'
+		image4jVersion = '0.7'
 		rsyntaxtextareaVersion = '3.0.2'
     }
 
@@ -31,10 +30,6 @@ allprojects {
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
-        jcenter()
-        maven {
-        	url "https://jitpack.io"
-        }
     }
 }
 
@@ -45,7 +40,7 @@ project(":matrixeater") {
     dependencies {
         compile project(":craft3data")
         compile project(":craft3editor")
-        compile "org.fifesoft:rsyntaxtextarea:$rsyntaxtextareaVersion"
+        compile "com.fifesoft:rsyntaxtextarea:$rsyntaxtextareaVersion"
     }
 }
 
@@ -65,7 +60,7 @@ project(":craft3editor") {
 
     dependencies {
         compile project(":craft3data")
-        compile "net.sf.image4j:image4j:$image4jVersion"
+        compile "org.jclarion:image4j:$image4jVersion"
     }
 }
 
@@ -80,8 +75,10 @@ project(":craft3data") {
 		compile "org.lwjgl:lwjgl-platform:${lwjglVersion}:natives-windows"
 		compile "org.lwjgl:lwjgl-platform:${lwjglVersion}:natives-linux"
 		compile "org.lwjgl:lwjgl-platform:${lwjglVersion}:natives-osx"
-        compile "com.github.ebourg:infonode:master"
-        compile "com.github.DrSuperGood:blp-iio-plugin:master"
+		compile "org.lwjgl.lwjgl:lwjgl_util:${lwjglVersion}"
+//        compile "com.github.ebourg:infonode:master"
+//        compile "com.github.DrSuperGood:blp-iio-plugin:master"
+		compile files(fileTree(dir:'../jars', includes: ['*.jar']))
     }
 }
 

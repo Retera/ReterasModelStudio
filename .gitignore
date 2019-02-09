@@ -1,5 +1,44 @@
+## Java
+
+*.class
+*.war
+*.ear
+hs_err_pid*
+
+## Robovm
+robovm-build/
+
+## GWT
+war/
+html/war/gwt_bree/
+html/gwt-unitCache/
+.apt_generated/
+html/war/WEB-INF/deploy/
+html/war/WEB-INF/classes/
+.gwt/
+gwt-unitCache/
+www-test/
+.gwt-tmp/
+
+## Android Studio and Intellij and Android in general
+android/libs/armeabi/
+android/libs/armeabi-v7a/
+android/libs/arm64-v8a/
+android/libs/x86/
+android/libs/x86_64/
+android/gen/
+.idea/
+*.ipr
+*.iws
+*.iml
+out/
+com_crashlytics_export_strings.xml
+
+## Eclipse
+.classpath
+.project
 .metadata
-bin/
+**/bin/
 tmp/
 *.tmp
 *.bak
@@ -8,43 +47,24 @@ tmp/
 local.properties
 .settings/
 .loadpath
-.recommenders
-
-# Eclipse Core
-.project
-
-# External tool builders
 .externalToolBuilders/
-
-# Locally stored "Eclipse launch configurations"
 *.launch
 
-# PyDev specific (Python IDE for Eclipse)
-*.pydevproject
+## NetBeans
+**/nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+nbactions.xml
+nb-configuration.xml
 
-# CDT-specific (C/C++ Development Tooling)
-.cproject
+## Gradle
 
-# JDT-specific (Eclipse Java Development Tools)
-.classpath
+.gradle
+gradle-app.setting
+build/
 
-# Java annotation processor (APT)
-.factorypath
-
-# PDT-specific (PHP Development Tools)
-.buildpath
-
-# sbteclipse plugin
-.target
-
-# Tern plugin
-.tern-project
-
-# TeXlipse plugin
-.texlipse
-
-# STS (Spring Tool Suite)
-.springBeans
-
-# Code Recommenders
-.recommenders/
+## OS Specific
+.DS_Store
+Thumbs.db

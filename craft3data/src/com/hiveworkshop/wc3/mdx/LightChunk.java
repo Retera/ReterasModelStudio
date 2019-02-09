@@ -70,6 +70,9 @@ public class LightChunk {
 			node = new Node();
 			node.load(in);
 			type = in.readInt();
+			// Ghostwolf says attenuation start/end are floats.
+			// Magos is unclear, looks like int. My highschool system uses int.
+			// They are not interchangeable so one of us is wrong.
 			attenuationStart = in.readInt();
 			attenuationEnd = in.readInt();
 			color = MdxUtils.loadFloatArray(in, 3);

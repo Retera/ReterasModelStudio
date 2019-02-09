@@ -5,6 +5,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.MutableGameObject;
 
 public abstract class AbstractSortingFolderTreeNode extends SortingFolderTreeNode {
+	private boolean hasExpandedFirstTime = false;
 	/**
 	 * default generated id to stop warnings, not going to serialize these folders
 	 */
@@ -20,6 +21,14 @@ public abstract class AbstractSortingFolderTreeNode extends SortingFolderTreeNod
 
 	public AbstractSortingFolderTreeNode(final Object userObject) {
 		super(userObject);
+	}
+
+	public boolean isHasExpandedFirstTime() {
+		return hasExpandedFirstTime;
+	}
+
+	public void setHasExpandedFirstTime(final boolean hasExpandedFirstTime) {
+		this.hasExpandedFirstTime = hasExpandedFirstTime;
 	}
 
 	@Override

@@ -87,15 +87,13 @@ public class MpqCodebase implements Codebase {
 			hfmd = loadMPQ("hfmd.exe", false);
 		}
 		casc = new Cascket(Paths.get(getWarcraftDirectory(), "Data"));
-		// try {
-		// loadMPQ(Paths.get(
-		// "C:\\Users\\Eric\\Documents\\Warcraft
-		// III\\Maps\\Templar30Not\\Oldinject\\NWU_S3_B10_FIX22.w3x"));
-		// } catch (final MPQException e) {
-		// e.printStackTrace();
-		// } catch (final IOException e) {
-		// e.printStackTrace();
-		// }
+//		try {
+//			loadMPQ(Paths.get("-"));
+//		} catch (final MPQException e) {
+//			e.printStackTrace();
+//		} catch (final IOException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	Map<String, File> cache = new HashMap<>();
@@ -106,7 +104,7 @@ public class MpqCodebase implements Codebase {
 			return cache.get(filepath);
 		}
 		if (casc.has(filepath)) {
-			File tempProduct = casc.getFile(filepath);
+			final File tempProduct = casc.getFile(filepath);
 			cache.put(filepath, tempProduct);
 			return tempProduct;
 		}
@@ -268,15 +266,13 @@ public class MpqCodebase implements Codebase {
 			hfmd = loadMPQ("hfmd.exe", false);
 		}
 		casc = new Cascket(Paths.get(getWarcraftDirectory(), "Data"));
-		// try {
-		// loadMPQ(Paths.get(
-		// "C:\\Users\\Eric\\Documents\\Warcraft
-		// III\\Maps\\Templar30Not\\Oldinject\\NWU_S3_B10_FIX22.w3x"));
-		// } catch (final MPQException e) {
-		// e.printStackTrace();
-		// } catch (final IOException e) {
-		// e.printStackTrace();
-		// }
+//		try {
+//			loadMPQ(Paths.get("-"));
+//		} catch (final MPQException e) {
+//			e.printStackTrace();
+//		} catch (final IOException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	public SetView<String> getMergedListfile() {
@@ -303,8 +299,8 @@ public class MpqCodebase implements Codebase {
 				}
 			}
 		}
-		Collection<String> cascListfile = casc.getListfile();
-		for(String cascString: cascListfile) {
+		final Collection<String> cascListfile = casc.getListfile();
+		for (final String cascString : cascListfile) {
 			listfile.add(cascString);
 		}
 		return listfile;

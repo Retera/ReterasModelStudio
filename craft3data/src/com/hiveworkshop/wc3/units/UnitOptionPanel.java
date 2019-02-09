@@ -490,8 +490,8 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 		tilesetBox.setVisible(neutrals);
 		levelBox.setVisible(neutrals);
 		if (verticalStyle) {
-			layout.setHorizontalGroup(superHorizontalGroup = layout.createSequentialGroup().addGap(borderGapAmount)
-					.addGroup(layout.createParallelGroup()
+			layout.setHorizontalGroup(superHorizontalGroup = layout
+					.createSequentialGroup().addGap(borderGapAmount).addGroup(layout.createParallelGroup()
 							// .addComponent(playerBox)
 							.addGroup(layout.createSequentialGroup().addComponent(raceBox).addGap(4)
 									.addComponent(meleeBox).addGap(4).addComponent(tilesetBox).addGap(4)
@@ -507,8 +507,8 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 					.addGap(4).addComponent(unitsLabel).addGap(4).addComponent(buttonsScrollPane)
 					.addGap(borderGapAmount));
 		} else if (neutrals) {
-			layout.setHorizontalGroup(superHorizontalGroup = layout.createSequentialGroup().addGap(borderGapAmount)
-					.addGroup(layout.createParallelGroup()
+			layout.setHorizontalGroup(superHorizontalGroup = layout
+					.createSequentialGroup().addGap(borderGapAmount).addGroup(layout.createParallelGroup()
 							// .addComponent(playerBox)
 							.addGroup(layout.createSequentialGroup().addComponent(raceBox).addGap(4)
 									.addComponent(meleeBox))
@@ -524,8 +524,8 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 					.addGroup(layout.createParallelGroup().addComponent(tilesetBox).addComponent(levelBox)).addGap(4)
 					.addComponent(unitsLabel).addGap(4).addComponent(buttonsScrollPane).addGap(borderGapAmount));
 		} else {
-			layout.setHorizontalGroup(superHorizontalGroup = layout.createSequentialGroup().addGap(borderGapAmount)
-					.addGroup(layout.createParallelGroup()
+			layout.setHorizontalGroup(superHorizontalGroup = layout
+					.createSequentialGroup().addGap(borderGapAmount).addGroup(layout.createParallelGroup()
 							// .addComponent(playerBox)
 							.addGroup(layout.createSequentialGroup().addComponent(raceBox).addGap(4)
 									.addComponent(meleeBox))
@@ -539,7 +539,7 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 					.addComponent(unitsLabel).addGap(4).addComponent(buttonsScrollPane).addGap(borderGapAmount));
 		}
 
-		int rowLength = Math.max(1, (buttonsScrollPane.getWidth()) / 32);// (getWidth()
+		int rowLength = Math.max(1, buttonsScrollPane.getWidth() / 32);// (getWidth()
 		// -
 		// 24)
 		// /
