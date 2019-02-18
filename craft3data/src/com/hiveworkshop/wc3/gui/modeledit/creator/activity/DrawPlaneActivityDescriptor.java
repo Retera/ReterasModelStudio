@@ -8,12 +8,12 @@ import com.hiveworkshop.wc3.gui.modeledit.ActiveViewportWatcher;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.activity.ActivityDescriptor;
 import com.hiveworkshop.wc3.gui.modeledit.activity.ButtonType;
-import com.hiveworkshop.wc3.gui.modeledit.activity.MultiManipulatorActivity;
+import com.hiveworkshop.wc3.gui.modeledit.activity.ModelEditorMultiManipulatorActivity;
+import com.hiveworkshop.wc3.gui.modeledit.activity.ModelEditorViewportActivity;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
-import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivity;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.ManipulatorBuilder;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.model.ModelEditorManipulatorBuilder;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.wc3.mdl.RenderModel;
@@ -42,9 +42,9 @@ public class DrawPlaneActivityDescriptor implements ActivityDescriptor {
 	}
 
 	@Override
-	public ViewportActivity createActivity(final ModelEditorManager modelEditorManager, final ModelView modelView,
-			final UndoActionListener undoActionListener) {
-		return new MultiManipulatorActivity(new ManipulatorBuilder() {
+	public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+			final ModelView modelView, final UndoActionListener undoActionListener) {
+		return new ModelEditorMultiManipulatorActivity(new ModelEditorManipulatorBuilder() {
 
 			private ModelEditor newModelEditor;
 

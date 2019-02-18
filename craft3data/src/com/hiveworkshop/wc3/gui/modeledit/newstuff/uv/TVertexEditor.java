@@ -55,7 +55,7 @@ public interface TVertexEditor extends ComponentVisibilityListener {
 
 	GenericScaleAction beginScaling(double centerX, double centerY);
 
-	GenericRotateAction beginRotation(double centerX, double centerY);
+	GenericRotateAction beginRotation(double centerX, double centerY, byte dim1, byte dim2);
 
 	void rawTranslate(double x, double y);
 

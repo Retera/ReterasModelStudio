@@ -24,10 +24,10 @@ public class GameEnumObjectField extends AbstractObjectField {
 	private final String metaMetaWestringName;
 	private final DataTable worldEditorData;
 
-	public GameEnumObjectField(final String displayName, final String rawDataName, final War3ID metaKey,
-			final int level, final WorldEditorDataType dataType, final GameObject metaDataField,
+	public GameEnumObjectField(final String displayName, final String sortName, final String rawDataName,
+			final War3ID metaKey, final int level, final WorldEditorDataType dataType, final GameObject metaDataField,
 			final String metaMetaKeyName, final String metaMetaWestringName, final DataTable worldEditorData) {
-		super(displayName, rawDataName, metaKey, level, dataType, metaDataField);
+		super(displayName, sortName, rawDataName, metaKey, level, dataType, metaDataField);
 		this.metaMetaKeyName = metaMetaKeyName;
 		this.metaMetaWestringName = metaMetaWestringName;
 		this.worldEditorData = worldEditorData;

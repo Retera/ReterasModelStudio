@@ -14,10 +14,18 @@ public final class LevelsSingleFieldFactory extends AbstractSingleFieldFactory {
 	protected String getDisplayName(final ObjectData metaData, final War3ID metaKey, final int level,
 			final MutableGameObject gameObject) {
 		final GameObject metaDataFieldObject = metaData.get(metaKey.toString());
-		String prefix = EditableOnscreenObjectField.categoryName(metaDataFieldObject.getField("category")) + " - ";
+		final String prefix = EditableOnscreenObjectField.categoryName(metaDataFieldObject.getField("category"))
+				+ " - ";
+		return prefix + WEString.getString(metaDataFieldObject.getField("displayName"));
+	}
+
+	@Override
+	protected String getDisplayPrefix(final ObjectData metaData, final War3ID metaKey, final int level,
+			final MutableGameObject gameObject) {
+		String prefix = "";
 		if (level > 0) {
 			prefix = String.format(WEString.getString("WESTRING_AEVAL_LVL"), level) + " - " + prefix;
 		}
-		return prefix + WEString.getString(metaDataFieldObject.getField("displayName"));
+		return prefix;
 	}
 }

@@ -5,6 +5,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -16,12 +17,14 @@ import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
+import com.hiveworkshop.wc3.gui.modeledit.creator.actions.DrawBoneAction;
 import com.hiveworkshop.wc3.gui.modeledit.cutpaste.CopiedModelData;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.nodes.DeleteNodesAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.AutoCenterBonesAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.RenameBoneAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.RigAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.SetParentAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.DoNothingAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
@@ -287,7 +290,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			visitor.camera(camera);
 		}
 		selectionManager.setSelection(expandedSelection);
-		return (new SetSelectionAction<>(expandedSelection, oldSelection, selectionManager, "expand selection"));
+		return new SetSelectionAction<>(expandedSelection, oldSelection, selectionManager, "expand selection");
 	}
 
 	@Override
@@ -356,7 +359,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			visitor.camera(object);
 		}
 		selectionManager.setSelection(invertedSelection);
-		return (new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection"));
+		return new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection");
 	}
 
 	private void toggleSelection(final Set<Vertex> selection, final Vertex position) {
@@ -433,7 +436,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			visitor.camera(object);
 		}
 		selectionManager.setSelection(allSelection);
-		return (new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all"));
+		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all");
 	}
 
 	@Override
@@ -448,7 +451,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		final double minY = Math.min(startingClickY, endingClickY);
 		final double maxX = Math.max(startingClickX, endingClickX);
 		final double maxY = Math.max(startingClickY, endingClickY);
-		final Rectangle2D area = new Rectangle2D.Double(minX, minY, (maxX - minX), (maxY - minY));
+		final Rectangle2D area = new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
 		final IdObjectVisitor visitor = genericSelectorVisitor.reset(selectedItems, area, coordinateSystem);
 		for (final IdObject object : model.getEditableIdObjects()) {
 			object.apply(visitor);
@@ -899,5 +902,39 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 
 	public VertexSelectionHelper getVertexSelectionHelper() {
 		return vertexSelectionHelper;
+	}
+
+	@Override
+	public RigAction rig() {
+		final List<Bone> selectedBones = new ArrayList<>();
+		for (final IdObject object : model.getEditableIdObjects()) {
+			if (selectionManager.getSelection().contains(object.getPivotPoint())) {
+				if (object instanceof Bone) {
+					selectedBones.add((Bone) object);
+				}
+			}
+		}
+		return new RigAction(Collections.<Vertex>emptyList(), selectedBones);
+	}
+
+	private static String getNumberName(final String name, final int number) {
+		return name + String.format("%3s", Integer.toString(number)).replace(' ', '0');
+	}
+
+	@Override
+	public UndoAction addBone(final double x, final double y, final double z) {
+		final Set<String> allBoneNames = new HashSet<>();
+		for (final IdObject object : model.getModel().getIdObjects()) {
+			allBoneNames.add(object.getName());
+		}
+		int nameNumber = 1;
+		while (allBoneNames.contains(getNumberName("Bone", nameNumber))) {
+			nameNumber++;
+		}
+		final Bone bone = new Bone(getNumberName("Bone", nameNumber));
+		bone.setPivotPoint(new Vertex(x, y, z));
+		final DrawBoneAction drawBoneAction = new DrawBoneAction(model, structureChangeListener, bone);
+		drawBoneAction.redo();
+		return drawBoneAction;
 	}
 }

@@ -21,9 +21,9 @@ import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.ActivityDescriptor;
 import com.hiveworkshop.wc3.gui.modeledit.activity.DoNothingActivity;
+import com.hiveworkshop.wc3.gui.modeledit.activity.ModelEditorViewportActivityManager;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoManager;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoManagerImpl;
-import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivityManager;
 import com.hiveworkshop.wc3.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ModelEditorChangeNotifier;
@@ -41,7 +41,8 @@ import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 
 /**
- * The ModelPanel is a pane holding the display of a given MDL model. I plan to tab between them.
+ * The ModelPanel is a pane holding the display of a given MDL model. I plan to
+ * tab between them.
  *
  * Eric Theller 6/7/2012
  */
@@ -56,7 +57,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 	private final ProgramPreferences prefs;
 	private final UndoHandler undoHandler;
 	private final ToolbarButtonGroup<SelectionItemTypes> selectionItemTypeNotifier;
-	private final ViewportActivityManager viewportActivityManager;
+	private final ModelEditorViewportActivityManager viewportActivityManager;
 	private final ModelEditorChangeNotifier modelEditorChangeNotifier;
 	private final ModelEditorManager modelEditorManager;
 	private final ModelViewManager modelView;
@@ -93,7 +94,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 		this.undoHandler = undoHandler;
 		this.selectionItemTypeNotifier = notifier;
 		this.icon = icon;
-		viewportActivityManager = new ViewportActivityManager(new DoNothingActivity());
+		viewportActivityManager = new ModelEditorViewportActivityManager(new DoNothingActivity());
 		modelEditorChangeNotifier = new ModelEditorChangeNotifier();
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
 		modelView = new ModelViewManager(input);

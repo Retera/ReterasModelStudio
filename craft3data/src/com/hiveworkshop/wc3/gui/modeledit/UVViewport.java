@@ -2,6 +2,7 @@ package com.hiveworkshop.wc3.gui.modeledit;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -12,6 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
@@ -29,12 +31,16 @@ import javax.swing.JPopupMenu;
 import javax.swing.Timer;
 
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
+import com.hiveworkshop.wc3.gui.modeledit.activity.CursorManager;
+import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivity;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexEditor;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexEditorChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.viewport.UVViewportModelRenderer;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportView;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
-public class UVViewport extends JPanel
-		implements MouseListener, ActionListener, MouseWheelListener, CoordinateSystem, ViewportView {
+public class UVViewport extends JPanel implements MouseListener, ActionListener, MouseWheelListener,
+		MouseMotionListener, CoordinateSystem, ViewportView, TVertexEditorChangeListener {
 	ArrayList<Image> backgrounds = new ArrayList<>();
 	double m_a = 0;
 	double m_b = 0;
@@ -52,10 +58,20 @@ public class UVViewport extends JPanel
 	private final ProgramPreferences programPreferences;
 	private final UVViewportModelRenderer viewportModelRenderer;
 	private final ModelView modelView;
+	private final ViewportActivity activityListener;
+	private final CoordDisplayListener coordDisplayListener;
+	private final CursorManager cursorManager;
+	private Point lastMouseMotion = new Point(0, 0);
+	private TVertexEditor editor;
 
-	public UVViewport(final ModelView modelView, final UVPanel parent, final ProgramPreferences programPreferences) {
+	public UVViewport(final ModelView modelView, final UVPanel parent, final ProgramPreferences programPreferences,
+			final ViewportActivity viewportActivity, final CoordDisplayListener coordDisplayListener,
+			final TVertexEditor editor) {
 		this.modelView = modelView;
 		this.programPreferences = programPreferences;
+		this.activityListener = viewportActivity;
+		this.coordDisplayListener = coordDisplayListener;
+		this.editor = editor;
 		// Dimension 1 and Dimension 2, these specify which dimensions to
 		// display.
 		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z
@@ -79,6 +95,12 @@ public class UVViewport extends JPanel
 		this.parent = parent;
 
 		viewportModelRenderer = new UVViewportModelRenderer();
+		this.cursorManager = new CursorManager() {
+			@Override
+			public void setCursor(final Cursor cursor) {
+				UVViewport.this.setCursor(cursor);
+			}
+		};
 	}
 
 	public void init() {
@@ -263,13 +285,6 @@ public class UVViewport extends JPanel
 			parent.setMouseCoordDisplay((mx - getWidth() / 2) / aspectRatio / m_zoom - m_a,
 					(my - getHeight() / 2) / m_zoom - m_b);
 
-			if (actStart != null) {
-				final Point actEnd = new Point((int) mx, (int) my);
-				final Point2D.Double convertedStart = new Point2D.Double(geomX(actStart.x), geomY(actStart.y));
-				final Point2D.Double convertedEnd = new Point2D.Double(geomX(actEnd.x), geomY(actEnd.y));
-				dispMDL.updateUVAction(convertedStart, convertedEnd);
-				actStart = actEnd;
-			}
 			repaint();
 		} else if (e.getSource() == placeholderButton) {
 			JOptionPane.showMessageDialog(null, "Placeholder code.");
@@ -278,17 +293,25 @@ public class UVViewport extends JPanel
 
 	@Override
 	public void mouseEntered(final MouseEvent e) {
-		clickTimer.setRepeats(true);
-		clickTimer.start();
-		mouseInBounds = true;
+		if (!activityListener.isEditing()) {
+			activityListener.viewportChanged(cursorManager);
+			requestFocus();
+			mouseInBounds = true;
+			setBorder(BorderFactory.createBevelBorder(1, Color.YELLOW, Color.YELLOW.darker()));
+			clickTimer.setRepeats(true);
+			clickTimer.start();
+		}
 	}
 
 	@Override
 	public void mouseExited(final MouseEvent e) {
-		if (selectStart == null && actStart == null && lastClick == null) {
-			clickTimer.stop();
+		if (!activityListener.isEditing()) {
+			if (selectStart == null && actStart == null && lastClick == null) {
+				clickTimer.stop();
+			}
+			mouseInBounds = false;
+			setBorder(BorderFactory.createBevelBorder(1));
 		}
-		mouseInBounds = false;
 	}
 
 	@Override
@@ -296,39 +319,55 @@ public class UVViewport extends JPanel
 		if (e.getButton() == MouseEvent.BUTTON2) {
 			lastClick = new Point(e.getX(), e.getY());
 		} else if (e.getButton() == MouseEvent.BUTTON1) {
-			selectStart = new Point(e.getX(), e.getY());
+			activityListener.viewportChanged(cursorManager);
+			requestFocus();
+			activityListener.mousePressed(e, this);
 		} else if (e.getButton() == MouseEvent.BUTTON3) {
-			actStart = new Point(e.getX(), e.getY());
-			final Point2D.Double convertedStart = new Point2D.Double(geomX(actStart.x), geomY(actStart.y));
-			dispMDL.startUVAction(convertedStart, parent.currentActionType());
+			activityListener.viewportChanged(cursorManager);
+			requestFocus();
+			activityListener.mousePressed(e, this);
 		}
 	}
 
 	@Override
 	public void mouseReleased(final MouseEvent e) {
-		if (e.getButton() == MouseEvent.BUTTON2) {
-			m_a += (e.getX() - lastClick.x) / m_zoom;
-			m_b += (e.getY() - lastClick.y) / m_zoom;
-			lastClick = null;
-		} else if (e.getButton() == MouseEvent.BUTTON1 && selectStart != null) {
-			final Point selectEnd = new Point(e.getX(), e.getY());
-			final Rectangle2D.Double area = pointsToGeomRect(selectStart, selectEnd);
-			// System.out.println(area);
-			dispMDL.selectTVerteces(area, parent.currentSelectionType());
-			selectStart = null;
-		} else if (e.getButton() == MouseEvent.BUTTON3 && actStart != null) {
-			final Point actEnd = new Point(e.getX(), e.getY());
-			final Point2D.Double convertedStart = new Point2D.Double(geomX(actStart.x), geomY(actStart.y));
-			final Point2D.Double convertedEnd = new Point2D.Double(geomX(actEnd.x), geomY(actEnd.y));
-			dispMDL.finishUVAction(convertedStart, convertedEnd);
-			actStart = null;
-		}
 		if (!mouseInBounds && selectStart == null && actStart == null && lastClick == null) {
 			clickTimer.stop();
 			repaint();
 		}
 		// MainFrame.panel.refreshUndo();
 		// TODO fix, refresh undo
+		if (e.getButton() == MouseEvent.BUTTON2 && lastClick != null) {
+			m_a += (e.getX() - lastClick.x) / m_zoom;
+			m_b += (e.getY() - lastClick.y) / m_zoom;
+			lastClick = null;
+		} else if (e.getButton() == MouseEvent.BUTTON1/* && selectStart != null */) {
+			activityListener.mouseReleased(e, this);
+			// final Point selectEnd = new Point(e.getX(), e.getY());
+			// final Rectangle2D.Double area = pointsToGeomRect(selectStart,
+			// selectEnd);
+			// // System.out.println(area);
+			// dispMDL.selectVerteces(area, m_d1, m_d2,
+			// dispMDL.getProgramPreferences().currentSelectionType());
+			// selectStart = null;
+		} else if (e.getButton() == MouseEvent.BUTTON3/* && actStart != null */) {
+			// final Point actEnd = new Point(e.getX(), e.getY());
+			// final Point2D.Double convertedStart = new
+			// Point2D.Double(geomX(actStart.x), geomY(actStart.y));
+			// final Point2D.Double convertedEnd = new
+			// Point2D.Double(geomX(actEnd.x), geomY(actEnd.y));
+			// dispMDL.finishAction(convertedStart, convertedEnd, m_d1, m_d2);
+			// actStart = null;
+			activityListener.mouseReleased(e, this);
+		}
+		if (!mouseInBounds && selectStart == null && actStart == null && lastClick == null) {
+			clickTimer.stop();
+			repaint();
+		}
+		// MainFrame.panel.refreshUndo();
+		if (mouseInBounds && !getBounds().contains(e.getPoint()) && !activityListener.isEditing()) {
+			mouseExited(e);
+		}
 	}
 
 	@Override
@@ -415,5 +454,40 @@ public class UVViewport extends JPanel
 	@Override
 	public CoordinateSystem copy() {
 		return new BasicCoordinateSystem((byte) 0, (byte) 1, m_a, m_b, m_zoom, getWidth(), getHeight());
+	}
+
+	@Override
+	public void mouseDragged(final MouseEvent e) {
+		activityListener.mouseDragged(e, this);
+		lastMouseMotion = e.getPoint();
+	}
+
+	@Override
+	public void mouseMoved(final MouseEvent e) {
+		if (!mouseInBounds && getBounds().contains(e.getPoint()) && !activityListener.isEditing()) {
+			mouseEntered(e);
+		}
+		activityListener.mouseMoved(e, this);
+		lastMouseMotion = e.getPoint();
+	}
+
+	@Override
+	public double getCameraX() {
+		return m_a;
+	}
+
+	@Override
+	public double getCameraY() {
+		return m_b;
+	}
+
+	@Override
+	public double getZoom() {
+		return m_zoom;
+	}
+
+	@Override
+	public void editorChanged(final TVertexEditor newModelEditor) {
+		this.editor = newModelEditor;
 	}
 }

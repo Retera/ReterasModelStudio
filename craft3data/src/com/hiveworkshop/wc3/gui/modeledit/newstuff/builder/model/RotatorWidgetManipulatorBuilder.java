@@ -1,4 +1,4 @@
-package com.hiveworkshop.wc3.gui.modeledit.newstuff.builder;
+package com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.model;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -8,19 +8,19 @@ import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ViewportSelectionHandler;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.Manipulator;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.SquatToolHorizontalManipulator;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.SquatToolManipulator;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.SquatToolVerticalManipulator;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.RotateHorizontalManipulator;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.RotateManipulator;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.RotateVerticalManipulator;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.wc3.gui.modeledit.useractions.widgets.RotatorWidget;
 import com.hiveworkshop.wc3.gui.modeledit.useractions.widgets.RotatorWidget.RotateDirection;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
-public final class SquatToolWidgetManipulatorBuilder extends AbstractSelectAndEditManipulatorBuilder {
+public final class RotatorWidgetManipulatorBuilder extends AbstractSelectAndEditModelEditorManipulatorBuilder {
 	private final RotatorWidget moverWidget = new RotatorWidget(new Vertex(0, 0, 0));
 
-	public SquatToolWidgetManipulatorBuilder(final ModelEditor modelEditor,
+	public RotatorWidgetManipulatorBuilder(final ModelEditor modelEditor,
 			final ViewportSelectionHandler viewportSelectionHandler, final ProgramPreferences programPreferences,
 			final ModelView modelView) {
 		super(viewportSelectionHandler, programPreferences, modelEditor, modelView);
@@ -45,13 +45,13 @@ public final class SquatToolWidgetManipulatorBuilder extends AbstractSelectAndEd
 		}
 		switch (directionByMouse) {
 		case FREE:
-			return new SquatToolManipulator(getModelEditor(), selectionView);
+			return new RotateManipulator(getModelEditor(), selectionView);
 		case HORIZONTALLY:
-			return new SquatToolHorizontalManipulator(getModelEditor(), selectionView);
+			return new RotateHorizontalManipulator(getModelEditor(), selectionView);
 		case VERTICALLY:
-			return new SquatToolVerticalManipulator(getModelEditor(), selectionView);
+			return new RotateVerticalManipulator(getModelEditor(), selectionView);
 		case SPIN:
-			return new SquatToolManipulator(getModelEditor(), selectionView);
+			return new RotateManipulator(getModelEditor(), selectionView);
 		case NONE:
 			return null;
 		}
@@ -61,7 +61,7 @@ public final class SquatToolWidgetManipulatorBuilder extends AbstractSelectAndEd
 	@Override
 	protected Manipulator createDefaultManipulator(final Vertex selectionCenter, final Point mousePoint,
 			final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
-		return new SquatToolManipulator(getModelEditor(), selectionView);
+		return new RotateManipulator(getModelEditor(), selectionView);
 	}
 
 	@Override

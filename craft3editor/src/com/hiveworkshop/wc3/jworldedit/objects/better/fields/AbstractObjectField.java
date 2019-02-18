@@ -11,15 +11,18 @@ import com.hiveworkshop.wc3.units.objectdata.War3ID;
 
 public abstract class AbstractObjectField implements EditableOnscreenObjectField {
 	private final String displayName;
+	private final String sortName;
 	private final String rawDataName;
 	private final War3ID metaKey;
 	private final int level;
 	private final WorldEditorDataType dataType;
 	private final GameObject metaDataField;
 
-	public AbstractObjectField(final String displayName, final String rawDataName, final War3ID metaKey,
-			final int level, final MutableObjectData.WorldEditorDataType dataType, final GameObject metaDataField) {
+	public AbstractObjectField(final String displayName, final String sortName, final String rawDataName,
+			final War3ID metaKey, final int level, final MutableObjectData.WorldEditorDataType dataType,
+			final GameObject metaDataField) {
 		this.displayName = displayName;
+		this.sortName = sortName;
 		this.rawDataName = rawDataName;
 		this.metaKey = metaKey;
 		this.level = level;
@@ -30,6 +33,16 @@ public abstract class AbstractObjectField implements EditableOnscreenObjectField
 	@Override
 	public final String getDisplayName(final MutableGameObject gameUnit) {
 		return displayName;
+	}
+
+	@Override
+	public String getSortName(final MutableGameObject gameUnit) {
+		return sortName;
+	}
+
+	@Override
+	public int getLevel() {
+		return level;
 	}
 
 	@Override

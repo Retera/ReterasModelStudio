@@ -1,4 +1,4 @@
-package com.hiveworkshop.wc3.gui.modeledit.newstuff.builder;
+package com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.model;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -7,20 +7,20 @@ import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ViewportSelectionHandler;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.ExtrudeManipulator;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.ExtrudeXManipulator;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.ExtrudeYManipulator;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.Manipulator;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.MoveManipulator;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.MoveXManipulator;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.MoveYManipulator;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.wc3.gui.modeledit.useractions.widgets.MoverWidget;
 import com.hiveworkshop.wc3.gui.modeledit.useractions.widgets.MoverWidget.MoveDirection;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
-public final class ExtrudeWidgetManipulatorBuilder extends AbstractSelectAndEditManipulatorBuilder {
+public final class MoverWidgetManipulatorBuilder extends AbstractSelectAndEditModelEditorManipulatorBuilder {
 	private final MoverWidget moverWidget = new MoverWidget(new Vertex(0, 0, 0));
 
-	public ExtrudeWidgetManipulatorBuilder(final ModelEditor modelEditor,
+	public MoverWidgetManipulatorBuilder(final ModelEditor modelEditor,
 			final ViewportSelectionHandler viewportSelectionHandler, final ProgramPreferences programPreferences,
 			final ModelView modelView) {
 		super(viewportSelectionHandler, programPreferences, modelEditor, modelView);
@@ -47,11 +47,11 @@ public final class ExtrudeWidgetManipulatorBuilder extends AbstractSelectAndEdit
 		}
 		switch (directionByMouse) {
 		case BOTH:
-			return new ExtrudeManipulator(getModelEditor());
+			return new MoveManipulator(getModelEditor());
 		case RIGHT:
-			return new ExtrudeXManipulator(getModelEditor());
+			return new MoveXManipulator(getModelEditor());
 		case UP:
-			return new ExtrudeYManipulator(getModelEditor());
+			return new MoveYManipulator(getModelEditor());
 		case NONE:
 			return null;
 		}
@@ -61,7 +61,7 @@ public final class ExtrudeWidgetManipulatorBuilder extends AbstractSelectAndEdit
 	@Override
 	protected Manipulator createDefaultManipulator(final Vertex selectionCenter, final Point mousePoint,
 			final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
-		return new ExtrudeManipulator(getModelEditor());
+		return new MoveManipulator(getModelEditor());
 	}
 
 	@Override

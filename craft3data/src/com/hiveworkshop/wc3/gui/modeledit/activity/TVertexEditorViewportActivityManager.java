@@ -4,27 +4,27 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexEditor;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.wc3.mdl.RenderModel;
 
-public final class ViewportActivityManager implements ViewportActivity {
-	private ViewportActivity currentActivity;
+public final class TVertexEditorViewportActivityManager implements TVertexEditorViewportActivity {
+	private TVertexEditorViewportActivity currentActivity;
 	private CursorManager cursorManager;
 	private CoordinateSystem coordinateSystem;
-	private ModelEditor newModelEditor;
+	private TVertexEditor newModelEditor;
 	private SelectionView newSelection;
 
-	public ViewportActivityManager(final ViewportActivity currentActivity) {
+	public TVertexEditorViewportActivityManager(final TVertexEditorViewportActivity currentActivity) {
 		this.currentActivity = currentActivity;
 	}
 
-	public void setCurrentActivity(final ViewportActivity currentActivity) {
+	public void setCurrentActivity(final TVertexEditorViewportActivity currentActivity) {
 		this.currentActivity = currentActivity;
 		if (this.currentActivity != null) {
 			this.currentActivity.viewportChanged(cursorManager);
 			this.currentActivity.onSelectionChanged(newSelection);
-			this.currentActivity.modelEditorChanged(newModelEditor);
+			this.currentActivity.editorChanged(newModelEditor);
 		}
 	}
 
@@ -85,10 +85,10 @@ public final class ViewportActivityManager implements ViewportActivity {
 	}
 
 	@Override
-	public void modelEditorChanged(final ModelEditor newModelEditor) {
+	public void editorChanged(final TVertexEditor newModelEditor) {
 		this.newModelEditor = newModelEditor;
 		if (currentActivity != null) {
-			currentActivity.modelEditorChanged(newModelEditor);
+			currentActivity.editorChanged(newModelEditor);
 		}
 	}
 

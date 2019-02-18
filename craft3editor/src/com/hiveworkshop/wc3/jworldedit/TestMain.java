@@ -5,7 +5,7 @@ import com.hiveworkshop.wc3.util.CharInt;
 public class TestMain {
 
 	public static void main(final String[] args) {
-		final int int1 = CharInt.toInt("BBIR");
+		final int int1 = CharInt.toInt("SBLG");
 		System.out.println(int1);
 	}
 

@@ -56,7 +56,8 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 
 	@Override
 	public UndoAction addTeamColor() {
-		// copy the selection before we hand it off, so the we can't strip the stored action's
+		// copy the selection before we hand it off, so the we can't strip the stored
+		// action's
 		// list of faces to add/remove
 		final TeamColorAddAction<Triangle> teamColorAddAction = new TeamColorAddAction<>(
 				new ArrayList<>(selectionManager.getSelection()), model.getModel(), structureChangeListener,
@@ -67,7 +68,8 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 
 	@Override
 	public UndoAction splitGeoset() {
-		// copy the selection before we hand it off, so the we can't strip the stored action's
+		// copy the selection before we hand it off, so the we can't strip the stored
+		// action's
 		// list of faces to add/remove
 		final SplitGeosetAction<Triangle> teamColorAddAction = new SplitGeosetAction<>(
 				new ArrayList<>(selectionManager.getSelection()), model.getModel(), structureChangeListener,
@@ -103,7 +105,7 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 			expandSelection(triangle, expandedSelection);
 		}
 		selectionManager.addSelection(expandedSelection);
-		return (new SetSelectionAction<>(expandedSelection, oldSelection, selectionManager, "expand selection"));
+		return new SetSelectionAction<>(expandedSelection, oldSelection, selectionManager, "expand selection");
 	}
 
 	private void expandSelection(final Triangle currentTriangle, final Set<Triangle> selection) {
@@ -131,7 +133,7 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 			}
 		}
 		selectionManager.setSelection(invertedSelection);
-		return (new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection"));
+		return new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection");
 	}
 
 	@Override
@@ -144,7 +146,7 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 			}
 		}
 		selectionManager.setSelection(allSelection);
-		return (new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all"));
+		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all");
 	}
 
 	@Override
@@ -159,7 +161,7 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 		final double minY = Math.min(startingClickY, endingClickY);
 		final double maxX = Math.max(startingClickX, endingClickX);
 		final double maxY = Math.max(startingClickY, endingClickY);
-		final Rectangle2D area = new Rectangle2D.Double(minX, minY, (maxX - minX), (maxY - minY));
+		final Rectangle2D area = new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
 		for (final Geoset geoset : model.getEditableGeosets()) {
 			for (final Triangle triangle : geoset.getTriangles()) {
 				if (hitTest(triangle, new Point2D.Double(area.getX(), area.getY()), coordinateSystem) || hitTest(

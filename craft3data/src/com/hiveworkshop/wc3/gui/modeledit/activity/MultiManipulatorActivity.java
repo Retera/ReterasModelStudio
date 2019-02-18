@@ -8,14 +8,14 @@ import java.awt.geom.Point2D.Double;
 import javax.swing.SwingUtilities;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.ManipulatorBuilder;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.wc3.mdl.RenderModel;
 
-public final class MultiManipulatorActivity implements ViewportActivity {
-	private final ManipulatorBuilder manipulatorBuilder;
+public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends ManipulatorBuilder>
+		implements ViewportActivity {
+	protected final MANIPULATOR_BUILDER manipulatorBuilder;
 	private final UndoActionListener undoActionListener;
 	private Manipulator manipulator;
 	private CursorManager cursorManager;
@@ -23,7 +23,7 @@ public final class MultiManipulatorActivity implements ViewportActivity {
 	private Double lastDragPoint;
 	private SelectionView selectionView;
 
-	public MultiManipulatorActivity(final ManipulatorBuilder manipulatorBuilder,
+	public MultiManipulatorActivity(final MANIPULATOR_BUILDER manipulatorBuilder,
 			final UndoActionListener undoActionListener, final SelectionView selectionView) {
 		this.manipulatorBuilder = manipulatorBuilder;
 		this.undoActionListener = undoActionListener;
@@ -109,11 +109,6 @@ public final class MultiManipulatorActivity implements ViewportActivity {
 	@Override
 	public boolean isEditing() {
 		return manipulator != null;
-	}
-
-	@Override
-	public void modelEditorChanged(final ModelEditor newModelEditor) {
-		manipulatorBuilder.modelEditorChanged(newModelEditor);
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package com.hiveworkshop.wc3.gui.modeledit.newstuff.builder;
+package com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.model;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -8,21 +8,19 @@ import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ViewportSelectionHandler;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.Manipulator;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.ScaleManipulator;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.ScaleManipulatorUsesYMouseDrag;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.ScaleXManipulator;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.ScaleXYManipulator;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.ScaleYManipulator;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.SquatToolHorizontalManipulator;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.SquatToolManipulator;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.SquatToolVerticalManipulator;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.widgets.ScalerWidget;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.widgets.ScalerWidget.ScaleDirection;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.widgets.RotatorWidget;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.widgets.RotatorWidget.RotateDirection;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
-public final class ScaleWidgetManipulatorBuilder extends AbstractSelectAndEditManipulatorBuilder {
-	private final ScalerWidget moverWidget = new ScalerWidget(new Vertex(0, 0, 0));
+public final class SquatToolWidgetManipulatorBuilder extends AbstractSelectAndEditModelEditorManipulatorBuilder {
+	private final RotatorWidget moverWidget = new RotatorWidget(new Vertex(0, 0, 0));
 
-	public ScaleWidgetManipulatorBuilder(final ModelEditor modelEditor,
+	public SquatToolWidgetManipulatorBuilder(final ModelEditor modelEditor,
 			final ViewportSelectionHandler viewportSelectionHandler, final ProgramPreferences programPreferences,
 			final ModelView modelView) {
 		super(viewportSelectionHandler, programPreferences, modelEditor, modelView);
@@ -32,30 +30,28 @@ public final class ScaleWidgetManipulatorBuilder extends AbstractSelectAndEditMa
 	protected boolean widgetOffersEdit(final Vertex selectionCenter, final Point mousePoint,
 			final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getCenter());
-		final ScaleDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem,
-				coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+		final RotateDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem);
 		moverWidget.setMoveDirection(directionByMouse);
-		return directionByMouse != ScaleDirection.NONE;
+		return directionByMouse != RotateDirection.NONE;
 	}
 
 	@Override
 	protected Manipulator createManipulatorFromWidget(final Vertex selectionCenter, final Point mousePoint,
 			final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getCenter());
-		final ScaleDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem,
-				coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+		final RotateDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem);
 		if (directionByMouse != null) {
 			moverWidget.setMoveDirection(directionByMouse);
 		}
 		switch (directionByMouse) {
-		case XYZ:
-			return new ScaleManipulatorUsesYMouseDrag(getModelEditor(), selectionView);
-		case FLAT_XY:
-			return new ScaleXYManipulator(getModelEditor(), selectionView);
-		case RIGHT:
-			return new ScaleXManipulator(getModelEditor(), selectionView);
-		case UP:
-			return new ScaleYManipulator(getModelEditor(), selectionView);
+		case FREE:
+			return new SquatToolManipulator(getModelEditor(), selectionView);
+		case HORIZONTALLY:
+			return new SquatToolHorizontalManipulator(getModelEditor(), selectionView);
+		case VERTICALLY:
+			return new SquatToolVerticalManipulator(getModelEditor(), selectionView);
+		case SPIN:
+			return new SquatToolManipulator(getModelEditor(), selectionView);
 		case NONE:
 			return null;
 		}
@@ -65,7 +61,7 @@ public final class ScaleWidgetManipulatorBuilder extends AbstractSelectAndEditMa
 	@Override
 	protected Manipulator createDefaultManipulator(final Vertex selectionCenter, final Point mousePoint,
 			final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
-		return new ScaleManipulator(getModelEditor(), selectionView);
+		return new SquatToolManipulator(getModelEditor(), selectionView);
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package com.hiveworkshop.wc3.gui.modeledit.newstuff.builder;
+package com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.model;
 
 import java.awt.Cursor;
 import java.awt.Graphics2D;
@@ -18,7 +18,7 @@ import com.hiveworkshop.wc3.mdl.RenderModel;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
-public abstract class AbstractSelectAndEditManipulatorBuilder implements ManipulatorBuilder {
+public abstract class AbstractSelectAndEditModelEditorManipulatorBuilder implements ModelEditorManipulatorBuilder {
 	private final ViewportSelectionHandler viewportSelectionHandler;
 	private final ProgramPreferences programPreferences;
 	private ModelEditor modelEditor;
@@ -26,7 +26,7 @@ public abstract class AbstractSelectAndEditManipulatorBuilder implements Manipul
 	private final Graphics2DToAnimatedModelElementRendererAdapter graphics2dToAnimatedModelElementRendererAdapter;
 	private final ModelView modelView;
 
-	public AbstractSelectAndEditManipulatorBuilder(final ViewportSelectionHandler viewportSelectionHandler,
+	public AbstractSelectAndEditModelEditorManipulatorBuilder(final ViewportSelectionHandler viewportSelectionHandler,
 			final ProgramPreferences programPreferences, final ModelEditor modelEditor, final ModelView modelView) {
 		this.viewportSelectionHandler = viewportSelectionHandler;
 		this.programPreferences = programPreferences;

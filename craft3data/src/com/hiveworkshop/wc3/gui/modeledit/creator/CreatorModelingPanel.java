@@ -25,31 +25,31 @@ import com.hiveworkshop.wc3.gui.modeledit.ModeButton;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.Viewport;
 import com.hiveworkshop.wc3.gui.modeledit.activity.ActivityDescriptor;
-import com.hiveworkshop.wc3.gui.modeledit.activity.ChangeActivityListener;
-import com.hiveworkshop.wc3.gui.modeledit.activity.MultiManipulatorActivity;
+import com.hiveworkshop.wc3.gui.modeledit.activity.ModelEditorChangeActivityListener;
+import com.hiveworkshop.wc3.gui.modeledit.activity.ModelEditorMultiManipulatorActivity;
+import com.hiveworkshop.wc3.gui.modeledit.activity.ModelEditorViewportActivity;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
-import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivity;
 import com.hiveworkshop.wc3.gui.modeledit.creator.activity.DrawBoxActivityDescriptor;
 import com.hiveworkshop.wc3.gui.modeledit.creator.activity.DrawPlaneActivityDescriptor;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.SquatToolWidgetManipulatorBuilder;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.model.SquatToolWidgetManipulatorBuilder;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarActionButtonType;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
-public class CreatorModelingPanel extends JPanel implements ChangeActivityListener {
+public class CreatorModelingPanel extends JPanel implements ModelEditorChangeActivityListener {
 	private static final String ANIMATIONBASICS = "ANIMATIONBASICS";
 
 	private final class ActionListenerImplementation implements ActionListener {
 		private final ActivityDescriptor activityDescriptor;
 		private final ProgramPreferences programPreferences;
-		private final ChangeActivityListener listener;
+		private final ModelEditorChangeActivityListener listener;
 		private final ModeButton planeButton;
 
 		private ActionListenerImplementation(final ActivityDescriptor activityDescriptor,
-				final ProgramPreferences programPreferences, final ChangeActivityListener listener,
+				final ProgramPreferences programPreferences, final ModelEditorChangeActivityListener listener,
 				final ModeButton planeButton) {
 			this.activityDescriptor = activityDescriptor;
 			this.programPreferences = programPreferences;
@@ -72,7 +72,7 @@ public class CreatorModelingPanel extends JPanel implements ChangeActivityListen
 	private static final String EXTENDED_PRIMITIVES = "EP";
 	private static final String ANIMATION_NODES = "AN";
 
-	private final ChangeActivityListener listener;
+	private final ModelEditorChangeActivityListener listener;
 	private final List<ModeButton> modeButtons = new ArrayList<>();
 	private boolean listeningForActivityChanges = true;
 	private boolean animationModeState;
@@ -94,7 +94,8 @@ public class CreatorModelingPanel extends JPanel implements ChangeActivityListen
 	private final CardLayout northCardLayout;
 	private final JPanel northCardPanel;
 
-	public CreatorModelingPanel(final ChangeActivityListener listener, final ProgramPreferences programPreferences,
+	public CreatorModelingPanel(final ModelEditorChangeActivityListener listener,
+			final ProgramPreferences programPreferences,
 			final ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup,
 			final ActiveViewportWatcher activeViewportWatcher, final TimeEnvironmentImpl timeEnvironmentImpl) {
 		this.listener = listener;
@@ -172,12 +173,14 @@ public class CreatorModelingPanel extends JPanel implements ChangeActivityListen
 		cardLayout.show(cardPanel, modeChooserBoxModel.getElementAt(0));
 	}
 
-	public void makeMeshBasicsPanel(final ChangeActivityListener listener, final ProgramPreferences programPrefences,
+	public void makeMeshBasicsPanel(final ModelEditorChangeActivityListener listener,
+			final ProgramPreferences programPrefences,
 			final ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup,
 			final ActiveViewportWatcher activeViewportWatcher, final DefaultComboBoxModel<String> modeChooserBoxModel,
 			final JPanel cardPanel) {
 		final ModeButton vertexButton = new ModeButton("Vertex");
 		final ModeButton faceButton = new ModeButton("Face from Selection");
+		final ModeButton boneButton = new ModeButton("Bone");
 		faceButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -203,6 +206,7 @@ public class CreatorModelingPanel extends JPanel implements ChangeActivityListen
 		drawToolsPanel.setBorder(BorderFactory.createTitledBorder("Draw"));
 		drawToolsPanel.add(vertexButton);
 		drawToolsPanel.add(faceButton);
+		drawToolsPanel.add(boneButton);
 		final JPanel meshBasicsPanel = new JPanel(new BorderLayout());
 		cardPanel.add(meshBasicsPanel, modeChooserBoxModel.getElementAt(0));
 
@@ -237,10 +241,21 @@ public class CreatorModelingPanel extends JPanel implements ChangeActivityListen
 				listeningForActivityChanges = true;
 			}
 		});
+		boneButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				listeningForActivityChanges = false;
+				listener.changeActivity(new DrawBoneActivityDescriptor(programPrefences, activeViewportWatcher));
+				resetButtons();
+				vertexButton.setColors(programPrefences.getActiveColor1(), programPrefences.getActiveColor2());
+				listeningForActivityChanges = true;
+			}
+		});
 		modeButtons.add(vertexButton);
+		modeButtons.add(boneButton);
 	}
 
-	public void makeAnimationBasicsPanel(final ChangeActivityListener listener,
+	public void makeAnimationBasicsPanel(final ModelEditorChangeActivityListener listener,
 			final ProgramPreferences programPreferences,
 			final ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup,
 			final ActiveViewportWatcher activeViewportWatcher, final DefaultComboBoxModel<String> modeChooserBoxModel,
@@ -269,9 +284,9 @@ public class CreatorModelingPanel extends JPanel implements ChangeActivityListen
 		}
 		final ActivityDescriptor selectAndSquatDescriptor = new ActivityDescriptor() {
 			@Override
-			public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
-				return new MultiManipulatorActivity(
+				return new ModelEditorMultiManipulatorActivity(
 						new SquatToolWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
 								modelEditorManager.getViewportSelectionHandler(), programPreferences, modelView),
 						undoActionListener, modelEditorManager.getSelectionView());
@@ -351,7 +366,7 @@ public class CreatorModelingPanel extends JPanel implements ChangeActivityListen
 			thingToChooseableItem.put(integer, chooseableItem);
 			animationChooserBoxModel.addElement(chooseableItem);
 		}
-		if (sawLast && (selectedItem != null)) {
+		if (sawLast && selectedItem != null) {
 			animationChooserBox.setSelectedItem(thingToChooseableItem.get(thingSelected));
 		}
 	}
@@ -411,7 +426,7 @@ public class CreatorModelingPanel extends JPanel implements ChangeActivityListen
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((animation == null) ? 0 : animation.hashCode());
+			result = prime * result + (animation == null ? 0 : animation.hashCode());
 			return result;
 		}
 
@@ -463,7 +478,7 @@ public class CreatorModelingPanel extends JPanel implements ChangeActivityListen
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((text == null) ? 0 : text.hashCode());
+			result = prime * result + (text == null ? 0 : text.hashCode());
 			return result;
 		}
 
@@ -516,7 +531,7 @@ public class CreatorModelingPanel extends JPanel implements ChangeActivityListen
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((globalSeq == null) ? 0 : globalSeq.hashCode());
+			result = prime * result + (globalSeq == null ? 0 : globalSeq.hashCode());
 			return result;
 		}
 

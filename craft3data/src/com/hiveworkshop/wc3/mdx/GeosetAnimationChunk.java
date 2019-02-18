@@ -119,7 +119,6 @@ public class GeosetAnimationChunk {
 		}
 
 		public GeosetAnimation(final GeosetAnim mdlGeoAnim) {
-			mdlGeoAnim.getStaticAlpha();
 			boolean alphaFound = false;
 			boolean colorFound = false;
 			for (final AnimFlag af : mdlGeoAnim.getAnimFlags()) {

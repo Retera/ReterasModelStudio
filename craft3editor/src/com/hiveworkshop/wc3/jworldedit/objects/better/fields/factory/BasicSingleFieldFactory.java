@@ -18,4 +18,10 @@ public final class BasicSingleFieldFactory extends AbstractSingleFieldFactory {
 				+ " - ";
 		return prefix + WEString.getString(metaDataFieldObject.getField("displayName"));
 	}
+
+	@Override
+	protected String getDisplayPrefix(final ObjectData metaData, final War3ID metaKey, final int level,
+			final MutableGameObject gameObject) {
+		return "";
+	}
 }

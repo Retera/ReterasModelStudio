@@ -20,6 +20,7 @@ public abstract class AbstractSingleFieldFactory implements SingleFieldFactory {
 		final GameObject metaField = metaData.get(metaKey.toString());
 
 		final String displayName = getDisplayName(metaData, metaKey, hasMoreThanOneLevel ? level : 0, gameObject);
+		final String displayPrefix = getDisplayPrefix(metaData, metaKey, hasMoreThanOneLevel ? level : 0, gameObject);
 		final String rawDataName = getRawDataName(metaData, metaKey, hasMoreThanOneLevel ? level : 0);
 		final String metaDataType = metaField.getField("type");
 		switch (metaDataType) {
@@ -30,19 +31,26 @@ public abstract class AbstractSingleFieldFactory implements SingleFieldFactory {
 		case "channelFlags":
 		case "channelType":
 		case "int":
-			return new IntegerObjectField(displayName, rawDataName, metaKey, level, worldEditorDataType, metaField);
+			return new IntegerObjectField(displayPrefix + displayName, displayName, rawDataName, metaKey, level,
+					worldEditorDataType, metaField);
 		case "real":
 		case "unreal":
-			return new FloatObjectField(displayName, rawDataName, metaKey, level, worldEditorDataType, metaField);
+			return new FloatObjectField(displayPrefix + displayName, displayName, rawDataName, metaKey, level,
+					worldEditorDataType, metaField);
 		case "bool":
-			return new BooleanObjectField(displayName, rawDataName, metaKey, level, worldEditorDataType, metaField);
+			return new BooleanObjectField(displayPrefix + displayName, displayName, rawDataName, metaKey, level,
+					worldEditorDataType, metaField);
 		default:
 		case "string":
-			return new StringObjectField(displayName, rawDataName, metaKey, level, worldEditorDataType, metaField);
+			return new StringObjectField(displayPrefix + displayName, displayName, rawDataName, metaKey, level,
+					worldEditorDataType, metaField);
 		}
 	}
 
 	protected abstract String getDisplayName(final ObjectData metaData, final War3ID metaKey, final int level,
+			MutableGameObject gameObject);
+
+	protected abstract String getDisplayPrefix(ObjectData metaData, War3ID metaKey, int level,
 			MutableGameObject gameObject);
 
 	private String getRawDataName(final ObjectData metaData, final War3ID metaKey, final int level) {

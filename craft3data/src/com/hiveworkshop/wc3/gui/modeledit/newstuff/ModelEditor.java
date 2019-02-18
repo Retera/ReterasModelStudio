@@ -9,6 +9,7 @@ import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.cutpaste.CopiedModelData;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.ModelEditorActionType;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.RigAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericScaleAction;
@@ -46,6 +47,8 @@ public interface ModelEditor extends ComponentVisibilityListener {
 	UndoAction rotate(Vertex center, double rotateX, double rotateY, double rotateZ);
 
 	UndoAction addVertex(double x, double y, double z, Vertex preferredNormalFacingVector);
+
+	UndoAction addBone(double x, double y, double z);
 
 	GenericMoveAction addPlane(double x, double y, double x2, double y2, byte dim1, byte dim2, Vertex facingVector,
 			int numberOfWidthSegments, int numberOfHeightSegments);
@@ -89,13 +92,17 @@ public interface ModelEditor extends ComponentVisibilityListener {
 
 	UndoAction expandSelection();
 
+	RigAction rig();
+
 	UndoAction invertSelection();
 
 	UndoAction selectAll();
 
+	@Override
 	UndoAction hideComponent(ListView<? extends SelectableComponent> selectableComponents,
 			EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable);
 
+	@Override
 	UndoAction showComponent(EditabilityToggleHandler editabilityToggleHandler);
 
 	void selectByVertices(Collection<? extends Vertex> newSelection);

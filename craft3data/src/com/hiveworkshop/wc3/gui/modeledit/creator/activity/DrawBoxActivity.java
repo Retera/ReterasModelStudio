@@ -14,8 +14,8 @@ import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.Viewport;
 import com.hiveworkshop.wc3.gui.modeledit.activity.CursorManager;
 import com.hiveworkshop.wc3.gui.modeledit.activity.Graphics2DToModelElementRendererAdapter;
+import com.hiveworkshop.wc3.gui.modeledit.activity.ModelEditorViewportActivity;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
-import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivity;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
@@ -23,7 +23,7 @@ import com.hiveworkshop.wc3.mdl.RenderModel;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
-public class DrawBoxActivity implements ViewportActivity {
+public class DrawBoxActivity implements ModelEditorViewportActivity {
 
 	private final ProgramPreferences preferences;
 	private ModelEditor modelEditor;

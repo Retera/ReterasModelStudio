@@ -2,6 +2,7 @@ package com.hiveworkshop.wc3.gui.modeledit.newstuff;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,6 +33,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.CloneAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.FlipFacesAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.FlipNormalsAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.MirrorModelAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.RigAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.SetMatrixAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.DoNothingMoveActionAdapter;
@@ -266,7 +268,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 				}
 			}
 		}
-		// System.out.println(selection.size() + " verteces cloned into " + copies.size() + " more.");
+		// System.out.println(selection.size() + " verteces cloned into " +
+		// copies.size() + " more.");
 		final ArrayList<Triangle> newTriangles = new ArrayList<>();
 		for (int k = 0; k < selection.size(); k++) {
 			final Vertex vert = selection.get(k);
@@ -413,14 +416,16 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				for (final Triangle t : gv.getTriangles()) {
-					// System.out.println("SHOULD be one: " + Collections.frequency(gv.getTriangles(), t));
+					// System.out.println("SHOULD be one: " +
+					// Collections.frequency(gv.getTriangles(), t));
 					if (!t.containsRef(gv)) {
 						probs++;
 					}
 				}
 			}
 		}
-		// System.out.println("Extrude finished with " + probs + " inexplicable errors.");
+		// System.out.println("Extrude finished with " + probs + " inexplicable
+		// errors.");
 		final ExtrudeAction tempe = new ExtrudeAction(); // TODO better code
 		tempe.storeSelection(selection);
 		tempe.setType(true);
@@ -834,5 +839,15 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		action.redo();
 		return action;
 
+	}
+
+	@Override
+	public RigAction rig() {
+		return new RigAction(selectionManager.getSelectedVertices(), Collections.<Bone>emptyList());
+	}
+
+	@Override
+	public UndoAction addBone(final double x, final double y, final double z) {
+		throw new WrongModeException("Unable to add bone outside of pivot point editor");
 	}
 }

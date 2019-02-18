@@ -6,11 +6,10 @@ import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelElementRenderer;
 import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
-import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public interface TVertexSelectionView {
-	Vertex getCenter();
+	TVertex getCenter();
 
 	Collection<Triangle> getSelectedFaces();
 

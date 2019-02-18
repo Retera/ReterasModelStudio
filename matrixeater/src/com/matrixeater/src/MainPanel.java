@@ -114,19 +114,19 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoHandler;
 import com.hiveworkshop.wc3.gui.modeledit.Viewport;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.ActivityDescriptor;
-import com.hiveworkshop.wc3.gui.modeledit.activity.ChangeActivityListener;
-import com.hiveworkshop.wc3.gui.modeledit.activity.MultiManipulatorActivity;
+import com.hiveworkshop.wc3.gui.modeledit.activity.ModelEditorChangeActivityListener;
+import com.hiveworkshop.wc3.gui.modeledit.activity.ModelEditorMultiManipulatorActivity;
+import com.hiveworkshop.wc3.gui.modeledit.activity.ModelEditorViewportActivity;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
-import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivity;
 import com.hiveworkshop.wc3.gui.modeledit.creator.CreatorModelingPanel;
 import com.hiveworkshop.wc3.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.ModelEditorActionType;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.ExtendWidgetManipulatorBuilder;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.ExtrudeWidgetManipulatorBuilder;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.MoverWidgetManipulatorBuilder;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.RotatorWidgetManipulatorBuilder;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.ScaleWidgetManipulatorBuilder;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.model.ExtendWidgetManipulatorBuilder;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.model.ExtrudeWidgetManipulatorBuilder;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.model.MoverWidgetManipulatorBuilder;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.model.RotatorWidgetManipulatorBuilder;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.model.ScaleWidgetManipulatorBuilder;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionMode;
@@ -222,7 +222,7 @@ import net.miginfocom.swing.MigLayout;
  * @author (your name)
  * @version (a version number or a date)
  */
-public class MainPanel extends JPanel implements ActionListener, UndoHandler, ChangeActivityListener {
+public class MainPanel extends JPanel implements ActionListener, UndoHandler, ModelEditorChangeActivityListener {
 	JMenuBar menuBar;
 	JMenu fileMenu, recentMenu, editMenu, toolsMenu, mirrorSubmenu, tweaksSubmenu, viewMenu, importMenu, addMenu,
 			windowMenu, addParticle, animationMenu, singleAnimationMenu, aboutMenu, fetch;
@@ -235,7 +235,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 			snapNormals, snapVertices, flipAllUVsU, flipAllUVsV, inverseAllUVs, mirrorX, mirrorY, mirrorZ, insideOut,
 			insideOutNormals, showMatrices, editUVs, exportTextures, scaleAnimations, animationViewer,
 			animationController, modelingTab, mpqViewer, hiveViewer, unitViewer, preferencesWindow, linearizeAnimations,
-			simplifyKeyframes, duplicateSelection, riseFallBirth, animFromFile, animFromUnit, animFromModel,
+			simplifyKeyframes, rigButton, duplicateSelection, riseFallBirth, animFromFile, animFromUnit, animFromModel,
 			animFromObject, teamColor, teamGlow;
 	JMenuItem cut, copy, paste;
 	List<RecentItem> recentItems = new ArrayList<>();
@@ -473,6 +473,16 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 			final ModelPanel mpanel = currentModelPanel();
 			if (mpanel != null) {
 				mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().invertSelection());
+			}
+			repaint();
+		}
+	};
+	AbstractAction rigAction = new AbstractAction("Rig") {
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			final ModelPanel mpanel = currentModelPanel();
+			if (mpanel != null) {
+				mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().rig());
 			}
 			repaint();
 		}
@@ -1118,7 +1128,7 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		});
 		hackerPanel.add(run, BorderLayout.NORTH);
 		hackerView = new View("Matrix Eater Script", null, hackerPanel);
-		creatorPanel = new CreatorModelingPanel(new ChangeActivityListener() {
+		creatorPanel = new CreatorModelingPanel(new ModelEditorChangeActivityListener() {
 
 			@Override
 			public void changeActivity(final ActivityDescriptor newType) {
@@ -1448,10 +1458,10 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		selectAndMoveDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/move2.png"),
 				"Select and Move") {
 			@Override
-			public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
 				actionType = ModelEditorActionType.TRANSLATION;
-				return new MultiManipulatorActivity(
+				return new ModelEditorMultiManipulatorActivity(
 						new MoverWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
 								modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
 						undoActionListener, modelEditorManager.getSelectionView());
@@ -1460,10 +1470,10 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		selectAndRotateDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/rotate.png"),
 				"Select and Rotate") {
 			@Override
-			public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
 				actionType = ModelEditorActionType.ROTATION;
-				return new MultiManipulatorActivity(
+				return new ModelEditorMultiManipulatorActivity(
 						new RotatorWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
 								modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
 						undoActionListener, modelEditorManager.getSelectionView());
@@ -1472,10 +1482,10 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		selectAndScaleDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/scale.png"),
 				"Select and Scale") {
 			@Override
-			public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
 				actionType = ModelEditorActionType.SCALING;
-				return new MultiManipulatorActivity(
+				return new ModelEditorMultiManipulatorActivity(
 						new ScaleWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
 								modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
 						undoActionListener, modelEditorManager.getSelectionView());
@@ -1484,10 +1494,10 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		selectAndExtrudeDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/extrude.png"),
 				"Select and Extrude") {
 			@Override
-			public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
 				actionType = ModelEditorActionType.TRANSLATION;
-				return new MultiManipulatorActivity(
+				return new ModelEditorMultiManipulatorActivity(
 						new ExtrudeWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
 								modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
 						undoActionListener, modelEditorManager.getSelectionView());
@@ -1496,10 +1506,10 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		selectAndExtendDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/extend.png"),
 				"Select and Extend") {
 			@Override
-			public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
 				actionType = ModelEditorActionType.TRANSLATION;
-				return new MultiManipulatorActivity(
+				return new ModelEditorMultiManipulatorActivity(
 						new ExtendWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
 								modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
 						undoActionListener, modelEditorManager.getSelectionView());
@@ -1868,6 +1878,10 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		root.getActionMap().put("Expand Selection", expandSelectionAction);
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control E"),
 				"Expand Selection");
+
+		root.getActionMap().put("RigAction", rigAction);
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control W"),
+				"RigAction");
 
 		updateUIFromProgramPreferences();
 		// if( wireframe.isSelected() ){
@@ -2417,6 +2431,11 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Ch
 		simplifyKeyframes.setMnemonic(KeyEvent.VK_K);
 		simplifyKeyframes.addActionListener(this);
 		toolsMenu.add(simplifyKeyframes);
+
+		rigButton = new JMenuItem("Rig Selection");
+		rigButton.setMnemonic(KeyEvent.VK_R);
+		rigButton.addActionListener(rigAction);
+		toolsMenu.add(rigButton);
 
 		tweaksSubmenu = new JMenu("Tweaks");
 		tweaksSubmenu.setMnemonic(KeyEvent.VK_T);

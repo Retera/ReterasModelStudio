@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -35,6 +36,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
@@ -42,9 +44,28 @@ import javax.swing.SpinnerNumberModel;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.GlobalIcons;
+import com.hiveworkshop.wc3.gui.modeledit.activity.ModelEditorViewportActivity;
+import com.hiveworkshop.wc3.gui.modeledit.activity.MultiManipulatorActivity;
+import com.hiveworkshop.wc3.gui.modeledit.activity.TVertexEditorMultiManipulatorActivity;
+import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
+import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivity;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.ModelEditorActionType;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.model.ExtendWidgetManipulatorBuilder;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.model.ExtrudeWidgetManipulatorBuilder;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.model.MoverWidgetManipulatorBuilder;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.model.RotatorWidgetManipulatorBuilder;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.model.ScaleWidgetManipulatorBuilder;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItemTypes;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionMode;
+import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarActionButtonType;
+import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
+import com.hiveworkshop.wc3.gui.modeledit.viewport.IconUtils;
 import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.mdl.Material;
+import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.user.SaveProfile;
+import com.matrixeater.src.MainPanel;
 
 /**
  * Write a description of class DisplayPanel here.
@@ -71,7 +92,7 @@ public class UVPanel extends JPanel implements ActionListener {
 	int selectionType = 0;
 	boolean cheatShift = false;
 	boolean cheatAlt = false;
-	int actionType = 3;
+	ModelEditorActionType actionType;
 
 	JFrame frame;
 	AbstractAction selectAllAction = new AbstractAction("Select All") {
@@ -116,6 +137,11 @@ public class UVPanel extends JPanel implements ActionListener {
 			repaint();
 		}
 	};
+	private ToolbarButtonGroup<SelectionItemTypes> selectionItemTypeGroup;
+	private ToolbarButtonGroup<SelectionMode> selectionModeGroup;
+	private ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup;
+
+	private JToolBar toolbar;
 
 	public UVPanel(final ModelPanel dispMDL) {
 		super();
@@ -269,6 +295,126 @@ public class UVPanel extends JPanel implements ActionListener {
 										.addComponent(yButton))));
 
 		setLayout(layout);
+	}
+
+	public JToolBar createJToolBar() {
+		toolbar = new JToolBar(JToolBar.HORIZONTAL);
+		toolbar.setFloatable(false);
+		toolbar.addSeparator();
+		toolbar.add(new AbstractAction("Undo", IconUtils.loadImageIcon("icons/actions/undo.png")) {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				try {
+					currentModelPanel().getUndoManager().undo();
+				} catch (final NoSuchElementException exc) {
+					JOptionPane.showMessageDialog(UVPanel.this, "Nothing to undo!");
+				} catch (final Exception exc) {
+					ExceptionPopup.display(exc);
+					// exc.printStackTrace();
+				}
+			}
+		});
+		toolbar.add(new AbstractAction("Redo", IconUtils.loadImageIcon("icons/actions/redo.png")) {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				try {
+					currentModelPanel().getUndoManager().redo();
+				} catch (final NoSuchElementException exc) {
+					JOptionPane.showMessageDialog(UVPanel.this, "Nothing to redo!");
+				} catch (final Exception exc) {
+					ExceptionPopup.display(exc);
+					// exc.printStackTrace();
+				}
+			}
+		});
+		toolbar.addSeparator();
+		selectionModeGroup = new ToolbarButtonGroup<>(toolbar, SelectionMode.values());
+		toolbar.addSeparator();
+		selectionItemTypeGroup = new ToolbarButtonGroup<>(toolbar, SelectionItemTypes.values());
+		toolbar.addSeparator();
+		selectAndMoveDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/move2.png"),
+				"Select and Move") {
+			@Override
+			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+					final ModelView modelView, final UndoActionListener undoActionListener) {
+				actionType = ModelEditorActionType.TRANSLATION;
+				return new TVertexEditorMultiManipulatorActivity(
+						new MoverWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
+								modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
+						undoActionListener, modelEditorManager.getSelectionView());
+			}
+		};
+		selectAndRotateDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/rotate.png"),
+				"Select and Rotate") {
+			@Override
+			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+					final ModelView modelView, final UndoActionListener undoActionListener) {
+				actionType = ModelEditorActionType.ROTATION;
+				return new MultiManipulatorActivity(
+						new RotatorWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
+								modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
+						undoActionListener, modelEditorManager.getSelectionView());
+			}
+		};
+		selectAndScaleDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/scale.png"),
+				"Select and Scale") {
+			@Override
+			public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+					final ModelView modelView, final UndoActionListener undoActionListener) {
+				actionType = ModelEditorActionType.SCALING;
+				return new MultiManipulatorActivity(
+						new ScaleWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
+								modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
+						undoActionListener, modelEditorManager.getSelectionView());
+			}
+		};
+		selectAndExtrudeDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/extrude.png"),
+				"Select and Extrude") {
+			@Override
+			public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+					final ModelView modelView, final UndoActionListener undoActionListener) {
+				actionType = ModelEditorActionType.TRANSLATION;
+				return new MultiManipulatorActivity(
+						new ExtrudeWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
+								modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
+						undoActionListener, modelEditorManager.getSelectionView());
+			}
+		};
+		selectAndExtendDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/extend.png"),
+				"Select and Extend") {
+			@Override
+			public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+					final ModelView modelView, final UndoActionListener undoActionListener) {
+				actionType = ModelEditorActionType.TRANSLATION;
+				return new MultiManipulatorActivity(
+						new ExtendWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
+								modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
+						undoActionListener, modelEditorManager.getSelectionView());
+			}
+		};
+		actionTypeGroup = new ToolbarButtonGroup<>(toolbar,
+				new ToolbarActionButtonType[] { selectAndMoveDescriptor, selectAndRotateDescriptor,
+						selectAndScaleDescriptor, selectAndExtrudeDescriptor, selectAndExtendDescriptor, });
+		currentActivity = actionTypeGroup.getActiveButtonType();
+		toolbar.addSeparator();
+		snapButton = toolbar.add(new AbstractAction("Snap", IconUtils.loadImageIcon("icons/actions/snap.png")) {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				try {
+					final ModelPanel currentModelPanel = currentModelPanel();
+					if (currentModelPanel != null) {
+						currentModelPanel.getUndoManager().pushAction(
+								currentModelPanel.getModelEditorManager().getModelEditor().snapSelectedVertices());
+					}
+				} catch (final NoSuchElementException exc) {
+					JOptionPane.showMessageDialog(MainPanel.this, "Nothing to undo!");
+				} catch (final Exception exc) {
+					ExceptionPopup.display(exc);
+				}
+			}
+		});
+
+		return toolbar;
 	}
 
 	public JMenuBar createMenuBar() {
@@ -724,5 +870,9 @@ public class UVPanel extends JPanel implements ActionListener {
 
 	public int currentActionType() {
 		return actionType;
+	}
+
+	private ModelPanel currentModelPanel() {
+		return dispMDL;
 	}
 }

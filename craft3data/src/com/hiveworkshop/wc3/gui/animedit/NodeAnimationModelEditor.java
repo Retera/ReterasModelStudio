@@ -33,6 +33,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.StaticMeshMove
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.CloneAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.RigAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericRotateAction;
@@ -177,7 +178,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 			toggleSelection(invertedSelection, node);
 		}
 		selectionManager.setSelection(invertedSelection);
-		return (new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection"));
+		return new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection");
 	}
 
 	private void toggleSelection(final Set<IdObject> selection, final IdObject position) {
@@ -196,7 +197,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 			allSelection.add(node);
 		}
 		selectionManager.setSelection(allSelection);
-		return (new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all"));
+		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all");
 	}
 
 	@Override
@@ -211,7 +212,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		final double minY = Math.min(startingClickY, endingClickY);
 		final double maxX = Math.max(startingClickX, endingClickX);
 		final double maxY = Math.max(startingClickY, endingClickY);
-		final Rectangle2D area = new Rectangle2D.Double(minX, minY, (maxX - minX), (maxY - minY));
+		final Rectangle2D area = new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
 		final IdObjectVisitor visitor = genericSelectorVisitor.reset(selectedItems, area, coordinateSystem);
 		for (final IdObject object : model.getEditableIdObjects()) {
 			object.apply(visitor);
@@ -376,11 +377,13 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		@Override
 		public void camera(final Camera camera) {
 			System.err.println("CAMERA processed in NodeAnimationModelEditor!!!");
-			// if (hitTest(camera.getPosition(), CoordinateSystem.Util.geom(axes, point), axes,
+			// if (hitTest(camera.getPosition(), CoordinateSystem.Util.geom(axes, point),
+			// axes,
 			// programPreferences.getVertexSize(), worldMatrix)) {
 			// mouseOverVertex = true;
 			// }
-			// if (hitTest(camera.getTargetPosition(), CoordinateSystem.Util.geom(axes, point), axes,
+			// if (hitTest(camera.getTargetPosition(), CoordinateSystem.Util.geom(axes,
+			// point), axes,
 			// programPreferences.getVertexSize(), worldMatrix)) {
 			// mouseOverVertex = true;
 			// }
@@ -586,7 +589,8 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	public void rawTranslate(final double x, final double y, final double z) {
-		// throw new UnsupportedOperationException("Unable to translate directly in animation mode, use other system");
+		// throw new UnsupportedOperationException("Unable to translate directly in
+		// animation mode, use other system");
 		for (final IdObject idObject : selectionManager.getSelection()) {
 			idObject.updateTranslationKeyframe(renderModel, x, y, z, new Vector3f());
 		}
@@ -621,9 +625,9 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 					nodeToLocalRotation.get(idObject));
 		}
 		for (final IdObject idObject : model.getModel().getIdObjects()) {
-			if (selectionManager.getSelection().contains(idObject.getParent()) && ((idObject.getClass() == Bone.class
-					&& idObject.getParent().getClass() == Bone.class)
-					|| (idObject.getClass() == Helper.class && idObject.getParent().getClass() == Helper.class))) {
+			if (selectionManager.getSelection().contains(idObject.getParent()) && (idObject.getClass() == Bone.class
+					&& idObject.getParent().getClass() == Bone.class
+					|| idObject.getClass() == Helper.class && idObject.getParent().getClass() == Helper.class)) {
 				idObject.updateRotationKeyframe(renderModel, centerX, centerY, centerZ, -radians, firstXYZ, secondXYZ,
 						nodeToLocalRotation.get(idObject));
 			}
@@ -655,7 +659,8 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	public UndoAction rotate(final Vertex center, final double rotateX, final double rotateY, final double rotateZ) {
 		throw new UnsupportedOperationException("Not yet implemented for animation editing");
 		// final CompoundAction compoundAction = new CompoundAction("rotate",
-		// ListView.Util.of(new StaticMeshRotateAction(this, center, rotateX, (byte) 0, (byte) 2),
+		// ListView.Util.of(new StaticMeshRotateAction(this, center, rotateX, (byte) 0,
+		// (byte) 2),
 		// new StaticMeshRotateAction(this, center, rotateY, (byte) 1, (byte) 0),
 		// new StaticMeshRotateAction(this, center, rotateZ, (byte) 1, (byte) 2)));
 		// compoundAction.redo();
@@ -676,8 +681,10 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	public GenericMoveAction beginTranslation() {
 		final Set<IdObject> selection = selectionManager.getSelection();
 		final com.etheller.collections.List<UndoAction> actions = new com.etheller.collections.ArrayList<>();
-		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from
-		// a TimeEnvironmentImpl render environment, and never from the anim previewer impl
+		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be
+		// constructed from
+		// a TimeEnvironmentImpl render environment, and never from the anim previewer
+		// impl
 		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
 				.getAnimatedRenderEnvironment();
 		for (final IdObject node : selection) {
@@ -851,9 +858,9 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 			final byte firstXYZ, final byte secondXYZ) {
 		final Set<IdObject> selection = new HashSet<>(selectionManager.getSelection());
 		for (final IdObject idObject : model.getModel().getIdObjects()) {
-			if (selectionManager.getSelection().contains(idObject.getParent()) && ((idObject.getClass() == Bone.class
-					&& idObject.getParent().getClass() == Bone.class)
-					|| (idObject.getClass() == Helper.class && idObject.getParent().getClass() == Helper.class))) {
+			if (selectionManager.getSelection().contains(idObject.getParent()) && (idObject.getClass() == Bone.class
+					&& idObject.getParent().getClass() == Bone.class
+					|| idObject.getClass() == Helper.class && idObject.getParent().getClass() == Helper.class)) {
 				selection.add(idObject);
 			}
 		}
@@ -890,6 +897,16 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	@Override
 	public UndoAction setParent(final IdObject node) {
 		throw new WrongModeException("Can't set parent in Animation Editor");
+	}
+
+	@Override
+	public RigAction rig() {
+		throw new WrongModeException("Unable to rig in Animation Editor");
+	}
+
+	@Override
+	public UndoAction addBone(final double x, final double y, final double z) {
+		throw new WrongModeException("Unable to add bone in Animation Editor");
 	}
 
 }

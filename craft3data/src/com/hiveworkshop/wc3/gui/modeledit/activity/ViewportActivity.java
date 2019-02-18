@@ -5,11 +5,10 @@ import java.awt.event.MouseEvent;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelChangeListener;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ModelEditorChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionListener;
 import com.hiveworkshop.wc3.mdl.RenderModel;
 
-public interface ViewportActivity extends SelectionListener, ModelChangeListener, ModelEditorChangeListener {
+public interface ViewportActivity extends SelectionListener, ModelChangeListener {
 	void viewportChanged(CursorManager cursorManager);
 
 	void mousePressed(MouseEvent e, CoordinateSystem coordinateSystem);

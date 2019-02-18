@@ -38,7 +38,19 @@ public class ObjectDataTableModel implements TableModel {
 			Collections.sort(this.fields, new Comparator<EditableOnscreenObjectField>() {
 				@Override
 				public int compare(final EditableOnscreenObjectField o1, final EditableOnscreenObjectField o2) {
-					return o1.getDisplayName(gameObject).compareTo(o2.getDisplayName(gameObject));
+					final int o1Level = o1.getLevel();
+					final int o2Level = o2.getLevel();
+					if (o1Level != 0 && o2Level == 0) {
+						return 1;
+					}
+					if (o1Level == 0 && o2Level != 0) {
+						return -1;
+					}
+					final int sortNameComparison = o1.getSortName(gameObject).compareTo(o2.getSortName(gameObject));
+					if (sortNameComparison != 0) {
+						return sortNameComparison;
+					}
+					return Integer.compare(o1Level, o2Level);
 				}
 			});
 		} else {

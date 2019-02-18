@@ -17,9 +17,9 @@ import com.hiveworkshop.wc3.units.objectdata.War3ID;
 
 public class FloatObjectField extends AbstractObjectField {
 
-	public FloatObjectField(final String displayName, final String rawDataName, final War3ID metaKey, final int level,
-			final WorldEditorDataType dataType, final GameObject metaDataField) {
-		super(displayName, rawDataName, metaKey, level, dataType, metaDataField);
+	public FloatObjectField(final String displayName, final String sortName, final String rawDataName,
+			final War3ID metaKey, final int level, final WorldEditorDataType dataType, final GameObject metaDataField) {
+		super(displayName, sortName, rawDataName, metaKey, level, dataType, metaDataField);
 		// TODO Auto-generated constructor stub
 	}
 

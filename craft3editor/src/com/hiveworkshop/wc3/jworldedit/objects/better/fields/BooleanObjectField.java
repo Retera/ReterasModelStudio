@@ -14,9 +14,9 @@ import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.WorldEditorDataTy
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
 
 public class BooleanObjectField extends AbstractObjectField {
-	public BooleanObjectField(final String displayName, final String rawDataName, final War3ID metaKey, final int level,
-			final WorldEditorDataType dataType, final GameObject metaDataField) {
-		super(displayName, rawDataName, metaKey, level, dataType, metaDataField);
+	public BooleanObjectField(final String displayName, final String sortName, final String rawDataName,
+			final War3ID metaKey, final int level, final WorldEditorDataType dataType, final GameObject metaDataField) {
+		super(displayName, sortName, rawDataName, metaKey, level, dataType, metaDataField);
 	}
 
 	@Override

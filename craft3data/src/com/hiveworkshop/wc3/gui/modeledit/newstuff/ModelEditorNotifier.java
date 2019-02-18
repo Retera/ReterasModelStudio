@@ -10,6 +10,7 @@ import com.etheller.collections.Collection;
 import com.etheller.collections.List;
 import com.etheller.collections.ListView;
 import com.etheller.util.SubscriberSetNotifier;
+import com.hiveworkshop.wc3.gui.animedit.WrongModeException;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.cutpaste.CopiedModelData;
@@ -17,6 +18,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.ModelEditorActionType
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.CompoundMoveAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.CompoundRotateAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.CompoundScaleAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.RigAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericRotateAction;
@@ -491,5 +493,29 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 					numberOfWidthSegments, numberOfHeightSegments));
 		}
 		return mergeMoveActions(actions);
+	}
+
+	@Override
+	public RigAction rig() {
+		final List<RigAction> rigActions = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			rigActions.add(handler.rig());
+		}
+		final RigAction rigAction = new RigAction(rigActions.toArray(new RigAction[rigActions.size()]));
+		rigAction.redo();
+		return rigAction;
+	}
+
+	@Override
+	public UndoAction addBone(final double x, final double y, final double z) {
+		final List<UndoAction> actions = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			try {
+				actions.add(handler.addBone(x, y, z));
+			} catch (final WrongModeException e) {
+				// don't add actions for unsupported operations
+			}
+		}
+		return mergeActions(actions);
 	}
 }

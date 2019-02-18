@@ -39,4 +39,10 @@ public class UpgradeSingleFieldFactory extends AbstractSingleFieldFactory {
 		return defaultDisplayName;
 	}
 
+	@Override
+	protected String getDisplayPrefix(final ObjectData metaData, final War3ID metaKey, final int level,
+			final MutableGameObject gameObject) {
+		return LevelsSingleFieldFactory.INSTANCE.getDisplayPrefix(metaData, metaKey, level, gameObject);
+	}
+
 }

@@ -8,6 +8,12 @@ import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.MutableGameObject
 public interface EditableOnscreenObjectField {
 	String getDisplayName(final MutableGameObject gameUnit);
 
+	/* for sorting */
+	String getSortName(final MutableGameObject gameUnit);
+
+	/* for sorting */
+	int getLevel();
+
 	String getRawDataName();
 
 	Object getValue(final MutableGameObject gameUnit);
