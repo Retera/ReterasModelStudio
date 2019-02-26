@@ -2102,6 +2102,7 @@ public class AnimFlag {
 			ceilValue = values.get(ceilIndex);
 			floorIndexTime = times.get(floorIndex);
 			ceilIndexTime = times.get(ceilIndex);
+			final boolean blockAllowingNoInterp = false;
 			if (ceilIndexTime < animation.getStart()) {
 				return identity(localTypeId);
 			}
@@ -2131,6 +2132,10 @@ public class AnimFlag {
 					ceilValue = values.get(floorAnimStartIndex);
 					ceilIndex = floorAnimStartIndex;
 					ceilIndexTime = animation.getEnd();
+				} else {
+					ceilIndex = ceilIndex(animation.getStart());
+					ceilValue = values.get(ceilIndex);
+					ceilIndexTime = times.get(ceilIndex);
 				}
 				// NOTE: we just let it be in this case, based on
 				// Water Elemental's birth
