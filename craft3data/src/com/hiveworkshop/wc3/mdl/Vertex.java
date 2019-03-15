@@ -30,6 +30,18 @@ public class Vertex {
 		z = data[2];
 	}
 
+	public Vertex(final float[] data, final boolean flip) {
+		if (flip) {
+			z = data[0];
+			y = data[1];
+			x = data[2];
+		} else {
+			x = data[0];
+			y = data[1];
+			z = data[2];
+		}
+	}
+
 	public double getCoord(final byte dim) {
 		switch (dim) {
 		case 0:

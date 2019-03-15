@@ -1966,6 +1966,8 @@ public class MDL implements Named {
 							// The bone has been found by no prior matrices
 							if (ga != null) {
 								b.geosetAnim = ga;
+							} else {
+								b.geosetAnim = null;
 							}
 							b.geoset = g;
 						} else if (b.geoset != g) {
@@ -1974,11 +1976,17 @@ public class MDL implements Named {
 							b.geoset = null;
 							if (ga != null) {
 								b.geosetAnim = ga.getMostVisible(b.geosetAnim);
+							} else {
+								b.geosetAnim = null;
 							}
 
 						}
-					} else if (ga != null && ga != b.geosetAnim) {
-						b.geosetAnim = ga.getMostVisible(b.geosetAnim);
+					} else if (ga != null) {
+						if (ga != b.geosetAnim) {
+							b.geosetAnim = ga.getMostVisible(b.geosetAnim);
+						}
+					} else {
+						b.geosetAnim = null;
 					}
 					IdObject bp = b.getParent();
 					while (bp != null) {
@@ -1990,6 +1998,8 @@ public class MDL implements Named {
 									// matrices
 									if (ga != null) {
 										b2.geosetAnim = ga;
+									} else {
+										b2.geosetAnim = null;
 									}
 									b2.geoset = g;
 								} else if (b2.geoset != g) {

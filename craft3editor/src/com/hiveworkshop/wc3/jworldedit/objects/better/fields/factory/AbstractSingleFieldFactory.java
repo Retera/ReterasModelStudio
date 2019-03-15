@@ -3,10 +3,12 @@ package com.hiveworkshop.wc3.jworldedit.objects.better.fields.factory;
 import com.hiveworkshop.wc3.jworldedit.objects.better.fields.BooleanObjectField;
 import com.hiveworkshop.wc3.jworldedit.objects.better.fields.EditableOnscreenObjectField;
 import com.hiveworkshop.wc3.jworldedit.objects.better.fields.FloatObjectField;
+import com.hiveworkshop.wc3.jworldedit.objects.better.fields.GameEnumObjectField;
 import com.hiveworkshop.wc3.jworldedit.objects.better.fields.IntegerObjectField;
 import com.hiveworkshop.wc3.jworldedit.objects.better.fields.StringObjectField;
 import com.hiveworkshop.wc3.units.GameObject;
 import com.hiveworkshop.wc3.units.ObjectData;
+import com.hiveworkshop.wc3.units.StandardObjectData;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.MutableGameObject;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.WorldEditorDataType;
@@ -31,19 +33,24 @@ public abstract class AbstractSingleFieldFactory implements SingleFieldFactory {
 		case "channelFlags":
 		case "channelType":
 		case "int":
-			return new IntegerObjectField(displayPrefix + displayName, displayName, rawDataName, metaKey, level,
-					worldEditorDataType, metaField);
+			return new IntegerObjectField(displayPrefix + displayName, displayName, rawDataName, hasMoreThanOneLevel,
+					metaKey, level, worldEditorDataType, metaField);
 		case "real":
 		case "unreal":
-			return new FloatObjectField(displayPrefix + displayName, displayName, rawDataName, metaKey, level,
-					worldEditorDataType, metaField);
+			return new FloatObjectField(displayPrefix + displayName, displayName, rawDataName, hasMoreThanOneLevel,
+					metaKey, level, worldEditorDataType, metaField);
 		case "bool":
-			return new BooleanObjectField(displayPrefix + displayName, displayName, rawDataName, metaKey, level,
-					worldEditorDataType, metaField);
+			return new BooleanObjectField(displayPrefix + displayName, displayName, rawDataName, hasMoreThanOneLevel,
+					metaKey, level, worldEditorDataType, metaField);
+		case "unitRace":
+			return new GameEnumObjectField(displayPrefix + displayName, displayName, rawDataName, hasMoreThanOneLevel,
+					metaKey, level, worldEditorDataType, metaField, "unitRace", "WESTRING_COD_TYPE_UNITRACE",
+					StandardObjectData.getUnitEditorData());
+
 		default:
 		case "string":
-			return new StringObjectField(displayPrefix + displayName, displayName, rawDataName, metaKey, level,
-					worldEditorDataType, metaField);
+			return new StringObjectField(displayPrefix + displayName, displayName, rawDataName, hasMoreThanOneLevel,
+					metaKey, level, worldEditorDataType, metaField);
 		}
 	}
 

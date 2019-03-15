@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreeNode;
 
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.MutableGameObject;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
@@ -16,10 +17,21 @@ public class UnitEditorTreeModel extends DefaultTreeModel {
 
 	public UnitEditorTreeModel(final DefaultMutableTreeNode root, final boolean asksAllowsChildren) {
 		super(root, asksAllowsChildren);
+		init(root);
 	}
 
 	public UnitEditorTreeModel(final DefaultMutableTreeNode root) {
 		super(root);
+		init(root);
+	}
+
+	@Override
+	public void setRoot(final TreeNode root) {
+		super.setRoot(root);
+		if (root instanceof DefaultMutableTreeNode) {
+			unitIdToNode.clear();
+			init((DefaultMutableTreeNode) root);
+		}
 	}
 
 	private void init(final DefaultMutableTreeNode root) {

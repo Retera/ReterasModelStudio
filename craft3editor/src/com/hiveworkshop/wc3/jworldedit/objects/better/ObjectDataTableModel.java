@@ -4,7 +4,7 @@ import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -32,7 +32,7 @@ public class ObjectDataTableModel implements TableModel {
 		this.metaData = metaData;
 		this.displayAsRawData = displayAsRawData;
 		this.runOnIsCustomUnitStateChange = runOnIsCustomUnitStateChange;
-		this.tableModelListeners = new HashSet<>();
+		this.tableModelListeners = new LinkedHashSet<>();
 		if (gameObject != null) {
 			this.fields = editorFieldBuilder.buildFields(metaData, gameObject);
 			Collections.sort(this.fields, new Comparator<EditableOnscreenObjectField>() {
@@ -40,10 +40,10 @@ public class ObjectDataTableModel implements TableModel {
 				public int compare(final EditableOnscreenObjectField o1, final EditableOnscreenObjectField o2) {
 					final int o1Level = o1.getLevel();
 					final int o2Level = o2.getLevel();
-					if (o1Level != 0 && o2Level == 0) {
+					if (o1.isShowingLevelDisplay() && !o2.isShowingLevelDisplay()) {
 						return 1;
 					}
-					if (o1Level == 0 && o2Level != 0) {
+					if (!o1.isShowingLevelDisplay() && o2.isShowingLevelDisplay()) {
 						return -1;
 					}
 					final int sortNameComparison = o1.getSortName(gameObject).compareTo(o2.getSortName(gameObject));
@@ -123,6 +123,10 @@ public class ObjectDataTableModel implements TableModel {
 
 	public String getFieldRawDataName(final int rowIndex) {
 		return fields.get(rowIndex).getRawDataName();
+	}
+
+	public int getFieldLevel(final int rowIndex) {
+		return fields.get(rowIndex).getLevel();
 	}
 
 	@Override

@@ -12,9 +12,13 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import com.hiveworkshop.wc3.gui.modelviewer.AnimationControllerListener.LoopType;
@@ -45,8 +49,11 @@ public class AnimationController extends JPanel {
 			@Override
 			public Component getListCellRendererComponent(final JList list, final Object value, final int index,
 					final boolean isSelected, final boolean cellHasFocus) {
-				return super.getListCellRendererComponent(list, value == null ? "(Unanimated)" : value, index,
-						isSelected, cellHasFocus);
+				Object display = value == null ? "(Unanimated)" : value;
+				if (value != null) {
+					display = "(" + mdlDisp.getModel().getAnims().indexOf(value) + ") " + display;
+				}
+				return super.getListCellRendererComponent(list, display, index, isSelected, cellHasFocus);
 			}
 		});
 		animationBox.addActionListener(new ActionListener() {
@@ -75,8 +82,18 @@ public class AnimationController extends JPanel {
 				if (newIndex != previousSelectedIndex) {
 					animationBox.setSelectedIndex(newIndex);
 					// animationBox.setSelectedIndex(
-					// ((newIndex % animations.getSize()) + animations.getSize()) % animations.getSize());
+					// ((newIndex % animations.getSize()) + animations.getSize()) %
+					// animations.getSize());
 				}
+			}
+		});
+		final JSlider speedSlider = new JSlider(0, 100, 50);
+		final JLabel speedSliderLabel = new JLabel("Speed: 100%");
+		speedSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(final ChangeEvent e) {
+				speedSliderLabel.setText("Speed: " + speedSlider.getValue() * 2 + "%");
+				listener.setSpeed(speedSlider.getValue() / 50f);
 			}
 		});
 
@@ -118,16 +135,18 @@ public class AnimationController extends JPanel {
 		alwaysLoopButton.addActionListener(setLoopTypeActionListener);
 		neverLoopButton.addActionListener(setLoopTypeActionListener);
 
-		groupLayout.setHorizontalGroup(groupLayout.createParallelGroup().addComponent(animationBox).addGroup(groupLayout
-				.createSequentialGroup().addGap(8)
-				.addGroup(groupLayout.createParallelGroup().addComponent(playAnimationButton)
-						.addComponent(defaultLoopButton).addComponent(alwaysLoopButton).addComponent(neverLoopButton))
-				.addGap(8)
+		groupLayout.setHorizontalGroup(groupLayout.createParallelGroup().addComponent(animationBox)
+				.addGroup(groupLayout.createSequentialGroup().addGap(8)
+						.addGroup(groupLayout.createParallelGroup().addComponent(playAnimationButton)
+								.addComponent(defaultLoopButton).addComponent(alwaysLoopButton)
+								.addComponent(neverLoopButton).addComponent(speedSliderLabel).addComponent(speedSlider))
+						.addGap(8)
 
-		));
+				));
 		groupLayout.setVerticalGroup(groupLayout.createSequentialGroup().addComponent(animationBox).addGap(32)
 				.addComponent(playAnimationButton).addGap(16).addComponent(defaultLoopButton)
-				.addComponent(alwaysLoopButton).addComponent(neverLoopButton)
+				.addComponent(alwaysLoopButton).addComponent(neverLoopButton).addGap(16).addComponent(speedSliderLabel)
+				.addComponent(speedSlider)
 
 		);
 		setLayout(groupLayout);

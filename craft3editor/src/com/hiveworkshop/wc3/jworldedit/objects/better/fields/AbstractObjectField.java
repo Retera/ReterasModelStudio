@@ -13,17 +13,19 @@ public abstract class AbstractObjectField implements EditableOnscreenObjectField
 	private final String displayName;
 	private final String sortName;
 	private final String rawDataName;
+	private final boolean showingLevelDisplay;
 	private final War3ID metaKey;
 	private final int level;
 	private final WorldEditorDataType dataType;
 	private final GameObject metaDataField;
 
 	public AbstractObjectField(final String displayName, final String sortName, final String rawDataName,
-			final War3ID metaKey, final int level, final MutableObjectData.WorldEditorDataType dataType,
-			final GameObject metaDataField) {
+			final boolean showLevelDisplay, final War3ID metaKey, final int level,
+			final MutableObjectData.WorldEditorDataType dataType, final GameObject metaDataField) {
 		this.displayName = displayName;
 		this.sortName = sortName;
 		this.rawDataName = rawDataName;
+		this.showingLevelDisplay = showLevelDisplay;
 		this.metaKey = metaKey;
 		this.level = level;
 		this.dataType = dataType;
@@ -38,6 +40,11 @@ public abstract class AbstractObjectField implements EditableOnscreenObjectField
 	@Override
 	public String getSortName(final MutableGameObject gameUnit) {
 		return sortName;
+	}
+
+	@Override
+	public boolean isShowingLevelDisplay() {
+		return showingLevelDisplay;
 	}
 
 	@Override

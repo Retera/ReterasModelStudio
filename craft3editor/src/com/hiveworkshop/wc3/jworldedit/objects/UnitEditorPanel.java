@@ -29,6 +29,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.TransferHandler;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -160,7 +162,7 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 						setForeground(null);
 						setBackground(settings.getSelectedUnfocusedValueColor());
 					}
-				} else if (dataModel != null && dataModel.hasEditedValue(row)) {
+				} else if ((dataModel != null) && dataModel.hasEditedValue(row)) {
 					setForeground(settings.getEditedValueColor());
 				} else {
 					setForeground(null);
@@ -244,6 +246,7 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 
 			@Override
 			public void categoriesChanged(final War3ID changedObject) {
+				System.out.println("categoriesChanged(" + changedObject + ")");
 				final UnitEditorTreeModel treeModel = tree.getModel();
 				final TreeNode changedNode = treeModel.getNodeById(changedObject);
 				if (changedNode != null) {
@@ -252,6 +255,8 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 					final DefaultMutableTreeNode newObjectNode = root.insertObjectInto(unitData.get(changedObject),
 							new TreeNodeLinkerFromModel(treeModel));
 					selectTreeNode(newObjectNode);
+				} else {
+					System.out.println("Changed node was not found");
 				}
 			}
 
@@ -396,7 +401,32 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 
 					}
 				});
+		dataModel.addTableModelListener(new TableModelListener() {
+			@Override
+			public void tableChanged(final TableModelEvent e) {
+				if (currentUnit != null) {
+					lastSelectedFields.clear();
+					if (dataModel != null) {
+						for (final int rowIndex : table.getSelectedRows()) {
+							lastSelectedFields.add(
+									dataModel.getFieldRawDataName(rowIndex) + ":" + dataModel.getFieldLevel(rowIndex));
+						}
+					}
+				}
+			}
+		});
 		table.setModel(dataModel);
+		dataModel.addTableModelListener(new TableModelListener() {
+			@Override
+			public void tableChanged(final TableModelEvent e) {
+				for (int rowIndex = 0; rowIndex < table.getRowCount(); rowIndex++) {
+					if (lastSelectedFields.contains(
+							dataModel.getFieldRawDataName(rowIndex) + ":" + dataModel.getFieldLevel(rowIndex))) {
+						table.addRowSelectionInterval(rowIndex, rowIndex);
+					}
+				}
+			}
+		});
 		table.setAutoCreateColumnsFromModel(false);
 	}
 
@@ -425,7 +455,8 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 				lastSelectedFields.clear();
 				if (dataModel != null) {
 					for (final int rowIndex : table.getSelectedRows()) {
-						lastSelectedFields.add(dataModel.getFieldRawDataName(rowIndex));
+						lastSelectedFields
+								.add(dataModel.getFieldRawDataName(rowIndex) + ":" + dataModel.getFieldLevel(rowIndex));
 					}
 				}
 			}
@@ -438,7 +469,8 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 			}
 			fillTable();
 			for (int rowIndex = 0; rowIndex < table.getRowCount(); rowIndex++) {
-				if (lastSelectedFields.contains(dataModel.getFieldRawDataName(rowIndex))) {
+				if (lastSelectedFields
+						.contains(dataModel.getFieldRawDataName(rowIndex) + ":" + dataModel.getFieldLevel(rowIndex))) {
 					table.addRowSelectionInterval(rowIndex, rowIndex);
 				}
 			}

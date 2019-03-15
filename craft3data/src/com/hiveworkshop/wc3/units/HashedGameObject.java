@@ -95,7 +95,9 @@ public abstract class HashedGameObject implements GameObject {
 		if (fields.get(new StringKey(field)) != null) {
 			final List<String> list = fields.get(new StringKey(field));
 			if (list != null) {
-				value = list.get(index);
+				if (list.size() > index) {
+					value = list.get(index);
+				}
 			}
 		}
 		return value;

@@ -71,7 +71,7 @@ public class Light extends IdObject implements VisibilitySource {
 		if (light.lightColor != null) {
 			add(new AnimFlag(light.lightColor));
 		} else {
-			setStaticColor(new Vertex(light.color));
+			setStaticColor(new Vertex(light.color, true));
 		}
 		if (light.lightIntensity != null) {
 			add(new AnimFlag(light.lightIntensity));
@@ -81,7 +81,7 @@ public class Light extends IdObject implements VisibilitySource {
 		if (light.lightAmbientColor != null) {
 			add(new AnimFlag(light.lightAmbientColor));
 		} else {
-			setStaticAmbColor(new Vertex(light.ambientColor));
+			setStaticAmbColor(new Vertex(light.ambientColor, true));
 		}
 		if (light.lightAmbientIntensity != null) {
 			add(new AnimFlag(light.lightAmbientIntensity));

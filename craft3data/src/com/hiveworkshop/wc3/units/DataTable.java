@@ -383,7 +383,7 @@ public class DataTable implements ObjectData {
 			if (input.startsWith("//")) {
 				continue;
 			}
-			if (input.contains("[") && input.contains("]")) {
+			if (input.startsWith("[") && input.contains("]")) {
 				final int start = input.indexOf("[") + 1;
 				final int end = input.indexOf("]");
 				final String newKey = input.substring(start, end);
@@ -414,7 +414,8 @@ public class DataTable implements ObjectData {
 			} else if (input.contains("=")) {
 				final int eIndex = input.indexOf("=");
 				final String fieldValue = input.substring(eIndex + 1);
-				// if (fieldValue.length() > 1 && fieldValue.startsWith("\"") && fieldValue.endsWith("\"")) {
+				// if (fieldValue.length() > 1 && fieldValue.startsWith("\"") &&
+				// fieldValue.endsWith("\"")) {
 				// fieldValue = fieldValue.substring(1, fieldValue.length() - 1);
 				// }
 				int fieldIndex = 0;
@@ -547,7 +548,7 @@ public class DataTable implements ObjectData {
 				if (flipMode && input.contains("Y")) {
 					eIndex = Math.min(input.indexOf("Y"), eIndex);
 				}
-				final int fieldId = (subXIndex == -1 || subXIndex > eIndex) ? 1
+				final int fieldId = subXIndex == -1 || subXIndex > eIndex ? 1
 						: Integer.parseInt(input.substring(subXIndex + 1, eIndex - 1));
 				String fieldValue = input.substring(eIndex + 1);
 				if (fieldValue.length() > 1 && fieldValue.startsWith("\"") && fieldValue.endsWith("\"")) {

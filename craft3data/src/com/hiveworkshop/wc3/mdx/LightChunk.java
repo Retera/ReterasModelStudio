@@ -272,11 +272,17 @@ public class LightChunk {
 			// becomes an issue, fix here)
 			if (light.getStaticColor() != null) {
 				color = light.getStaticColor().toFloatArray();
+				final float blue = color[0];
+				color[0] = color[2];
+				color[2] = blue;
 			} else {
 				color = new float[] { 1, 1, 1 };
 			}
 			if (light.getStaticAmbColor() != null) {
 				ambientColor = light.getStaticAmbColor().toFloatArray();
+				final float blue = ambientColor[0];
+				ambientColor[0] = ambientColor[2];
+				ambientColor[2] = blue;
 			} else {
 				ambientColor = new float[] { 1, 1, 1 };
 			}

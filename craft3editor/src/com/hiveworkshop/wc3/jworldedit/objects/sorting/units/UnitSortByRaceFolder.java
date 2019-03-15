@@ -62,9 +62,13 @@ public final class UnitSortByRaceFolder extends AbstractSortingFolderTreeNode {
 		return DefaultUnitRace.NEUTRAL_PASSIVE;
 	}
 
+	private static final List<String> defaultNeutralRaces = Arrays.asList("commoner", "demon", "critters", "other",
+			"creeps", "");
+
 	@Override
 	public SortingFolderTreeNode getNextNode(final MutableGameObject object) {
 		final String race = object.getFieldAsString(UNIT_RACE_FIELD, 0);
+
 		DefaultUnitRace raceKey = null;
 		for (int i = 0; i < 6; i++) {
 			if (race.equals(raceKey(i).getKeyString())) {
@@ -72,13 +76,32 @@ public final class UnitSortByRaceFolder extends AbstractSortingFolderTreeNode {
 			}
 		}
 		if (raceKey == null) {
-			if (raceFolders.containsKey(race)) {
+			if (defaultNeutralRaces.contains(race)) {
+				raceKey = DefaultUnitRace.NEUTRAL_PASSIVE;
+			} else if (raceFolders.containsKey(race)) {
 				return raceFolders.get(race);
 			} else {
-				raceKey = DefaultUnitRace.NEUTRAL_PASSIVE;
+//				raceKey = DefaultUnitRace.NEUTRAL_PASSIVE;
+
+				SortingFolderTreeNode sortingFolderTreeNode = raceFolders.get(race);
+				if (sortingFolderTreeNode == null) {
+					sortingFolderTreeNode = new UnitRaceLevelFolder(new SortRace() {
+						@Override
+						public String getKeyString() {
+							return race;
+						}
+
+						@Override
+						public String getDisplayName() {
+							return race;
+						}
+					});
+					raceFolders.put(race, sortingFolderTreeNode);
+				}
+				return sortingFolderTreeNode;
 			}
 		}
-		if (raceKey == DefaultUnitRace.NEUTRAL_PASSIVE
+		if ((raceKey == DefaultUnitRace.NEUTRAL_PASSIVE)
 				&& object.getFieldAsBoolean(UNIT_DISPLAY_AS_NEUTRAL_HOSTILE_FIELD, 0)) {
 			raceKey = DefaultUnitRace.NEUTRAL_HOSTILE;
 		}

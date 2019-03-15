@@ -2,6 +2,8 @@ package com.hiveworkshop.wc3.jworldedit.objects.better.fields;
 
 import java.awt.Component;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.JComboBox;
@@ -25,9 +27,10 @@ public class GameEnumObjectField extends AbstractObjectField {
 	private final DataTable worldEditorData;
 
 	public GameEnumObjectField(final String displayName, final String sortName, final String rawDataName,
-			final War3ID metaKey, final int level, final WorldEditorDataType dataType, final GameObject metaDataField,
-			final String metaMetaKeyName, final String metaMetaWestringName, final DataTable worldEditorData) {
-		super(displayName, sortName, rawDataName, metaKey, level, dataType, metaDataField);
+			final boolean showingLevelDisplay, final War3ID metaKey, final int level,
+			final WorldEditorDataType dataType, final GameObject metaDataField, final String metaMetaKeyName,
+			final String metaMetaWestringName, final DataTable worldEditorData) {
+		super(displayName, sortName, rawDataName, showingLevelDisplay, metaKey, level, dataType, metaDataField);
 		this.metaMetaKeyName = metaMetaKeyName;
 		this.metaMetaWestringName = metaMetaWestringName;
 		this.worldEditorData = worldEditorData;
@@ -58,15 +61,20 @@ public class GameEnumObjectField extends AbstractObjectField {
 			}
 			final GameEnumChoice itemClass = new GameEnumChoice(value, editRawData ? value : displayName);
 			itemClassesList.add(itemClass);
-			if (categoryKey.equals(gameUnit.getFieldAsString(metaKey, level))) {
+			if (value.equals(gameUnit.getFieldAsString(metaKey, level))) {
 				selectedItemClass = itemClass;
 			}
 		}
+		Collections.sort(itemClassesList, new Comparator<GameEnumChoice>() {
+			@Override
+			public int compare(final GameEnumChoice a, final GameEnumChoice b) {
+				return a.getCategoryDisplay().compareTo(b.getCategoryDisplay());
+			}
+		});
 
 		final JPanel popupPanel = new JPanel();
 		popupPanel.add(new JLabel(getDisplayName(gameUnit)));
 		if (disableLimits) {
-			popupPanel.add(new JLabel(getDisplayName(gameUnit)));
 			final JTextField textField = new JTextField(gameUnit.getFieldAsString(metaKey, level),
 					StringObjectField.STRING_FIELD_COLUMNS);
 			popupPanel.add(textField);

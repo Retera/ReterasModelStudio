@@ -70,4 +70,9 @@ public class ControlledAnimationViewer extends JPanel implements AnimationContro
 	public void setLoop(final LoopType loopType) {
 		perspectiveViewport.setLoopType(loopType);
 	}
+
+	@Override
+	public void setSpeed(final float speed) {
+		perspectiveViewport.setAnimationSpeed(speed);
+	}
 }

@@ -413,7 +413,7 @@ public class StandardObjectData {
 		public void setField(final String field, final String value, final int index) {
 			for (final DataTable table : dataSource.getTables()) {
 				final Element element = table.get(id);
-				if (element != null && element.hasField(field)) {
+				if ((element != null) && element.hasField(field)) {
 					element.setField(field, value, index);
 					return;
 				}
@@ -424,7 +424,7 @@ public class StandardObjectData {
 		public String getField(final String field, final int index) {
 			for (final DataTable table : dataSource.getTables()) {
 				final Element element = table.get(id);
-				if (element != null && element.hasField(field)) {
+				if ((element != null) && element.hasField(field)) {
 					return element.getField(field, index);
 				}
 			}
@@ -435,7 +435,7 @@ public class StandardObjectData {
 		public int getFieldValue(final String field, final int index) {
 			for (final DataTable table : dataSource.getTables()) {
 				final Element element = table.get(id);
-				if (element != null && element.hasField(field)) {
+				if ((element != null) && element.hasField(field)) {
 					return element.getFieldValue(field, index);
 				}
 			}
@@ -446,7 +446,7 @@ public class StandardObjectData {
 		public void setField(final String field, final String value) {
 			for (final DataTable table : dataSource.getTables()) {
 				final Element element = table.get(id);
-				if (element != null && element.hasField(field)) {
+				if ((element != null) && element.hasField(field)) {
 					element.setField(field, value);
 					return;
 				}
@@ -458,7 +458,7 @@ public class StandardObjectData {
 		public String getField(final String field) {
 			for (final DataTable table : dataSource.getTables()) {
 				final Element element = table.get(id);
-				if (element != null && element.hasField(field)) {
+				if ((element != null) && element.hasField(field)) {
 					return element.getField(field);
 				}
 			}
@@ -469,7 +469,7 @@ public class StandardObjectData {
 		public int getFieldValue(final String field) {
 			for (final DataTable table : dataSource.getTables()) {
 				final Element element = table.get(id);
-				if (element != null && element.hasField(field)) {
+				if ((element != null) && element.hasField(field)) {
 					return element.getFieldValue(field);
 				}
 			}
@@ -485,7 +485,7 @@ public class StandardObjectData {
 		public List<? extends GameObject> getFieldAsList(final String field, final ObjectData objectData) {
 			for (final DataTable table : dataSource.getTables()) {
 				final Element element = table.get(id);
-				if (element != null && element.hasField(field)) {
+				if ((element != null) && element.hasField(field)) {
 					return element.getFieldAsList(field, objectData);
 				}
 			}
@@ -510,26 +510,26 @@ public class StandardObjectData {
 		public String getName() {
 			String name = getField("Name");
 			boolean nameKnown = name.length() >= 1;
-			if (!nameKnown && !getField("code").equals(id) && getField("code").length() >= 4) {
+			if (!nameKnown && !getField("code").equals(id) && (getField("code").length() >= 4)) {
 				final Element other = (Element) dataSource.get(getField("code").substring(0, 4));
 				if (other != null) {
 					name = other.getName();
 					nameKnown = true;
 				}
 			}
-			if (!nameKnown && getField("EditorName").length() > 1) {
+			if (!nameKnown && (getField("EditorName").length() > 1)) {
 				name = getField("EditorName");
 				nameKnown = true;
 			}
-			if (!nameKnown && getField("Editorname").length() > 1) {
+			if (!nameKnown && (getField("Editorname").length() > 1)) {
 				name = getField("Editorname");
 				nameKnown = true;
 			}
-			if (!nameKnown && getField("BuffTip").length() > 1) {
+			if (!nameKnown && (getField("BuffTip").length() > 1)) {
 				name = getField("BuffTip");
 				nameKnown = true;
 			}
-			if (!nameKnown && getField("Bufftip").length() > 1) {
+			if (!nameKnown && (getField("Bufftip").length() > 1)) {
 				name = getField("Bufftip");
 				nameKnown = true;
 			}
@@ -565,7 +565,7 @@ public class StandardObjectData {
 				}
 			}
 			String suf = getField("EditorSuffix");
-			if (suf.length() > 0 && !suf.equals("_")) {
+			if ((suf.length() > 0) && !suf.equals("_")) {
 				if (suf.startsWith("WESTRING")) {
 					suf = WEString.getString(suf);
 				}
@@ -594,7 +594,7 @@ public class StandardObjectData {
 			if (artField.indexOf(',') != -1) {
 				artField = artField.substring(0, artField.indexOf(','));
 			}
-			if (storedImage == null || storedImagePath == null || !storedImagePath.equals(artField)) {
+			if ((storedImage == null) || (storedImagePath == null) || !storedImagePath.equals(artField)) {
 				try {
 					storedImage = BLPHandler.get().getGameTex(artField);
 					storedImagePath = artField;

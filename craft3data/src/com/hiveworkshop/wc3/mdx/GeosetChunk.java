@@ -368,12 +368,18 @@ public class GeosetChunk {
 				matrixIndexsSize += matrix.size();
 			}
 			matrixGroups = new int[mdlGeo.getMatrix().size()];
+			if (matrixIndexsSize == -1) {
+				matrixIndexsSize = 1;
+			}
 			matrixIndexs = new int[matrixIndexsSize];
 			i = 0;
 			int groupIndex = 0;
 			for (final Matrix matrix : mdlGeo.getMatrix()) {
 				for (int index = 0; index < matrix.size(); index++) {
 					matrixIndexs[i++] = matrix.getBoneId(index);
+				}
+				if (matrix.size() <= 0) {
+					matrixIndexs[i++] = -1;
 				}
 				matrixGroups[groupIndex++] = matrix.size();
 			}

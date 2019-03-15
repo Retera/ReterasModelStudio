@@ -44,7 +44,7 @@ public class EditorFieldTransferHandler extends TransferHandler {
 		// Fetch the data -- bail if this fails
 		try {
 			data = (byte[]) info.getTransferable().getTransferData(dataFlavor);
-			pastedObjects = new War3ObjectDataChangeset();
+			pastedObjects = new War3ObjectDataChangeset(editorPanel.getWar3ObjectDataChangesetKindChar());
 			try (BlizzardDataInputStream inputStream = new BlizzardDataInputStream(new ByteArrayInputStream(data))) {
 
 				pastedObjects.load(inputStream, null, false);
@@ -123,7 +123,8 @@ public class EditorFieldTransferHandler extends TransferHandler {
 	}
 
 	/**
-	 * When the export is complete, remove the old list entry if the action was a move.
+	 * When the export is complete, remove the old list entry if the action was a
+	 * move.
 	 */
 	@Override
 	protected void exportDone(final JComponent c, final Transferable data, final int action) {

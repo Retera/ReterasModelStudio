@@ -26,8 +26,9 @@ import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
 
 /**
- * Inspired by PitzerMike's obj.h, without a lot of immediate focus on Java conventions. I will probably get it
- * converted over to Java conventions once I have a working replica of his obj.h code.
+ * Inspired by PitzerMike's obj.h, without a lot of immediate focus on Java
+ * conventions. I will probably get it converted over to Java conventions once I
+ * have a working replica of his obj.h code.
  *
  * @author Eric
  *
@@ -201,6 +202,10 @@ public final class War3ObjectDataChangeset {
 		return true;
 	}
 
+	public char getExpectedKind() {
+		return expected;
+	}
+
 	public War3ID getNameField() {
 		final War3ID field = War3ID.fromString("unam");
 		char cmp = kind;
@@ -369,7 +374,8 @@ public final class War3ObjectDataChangeset {
 	}
 
 	// we use only special characters to avoid collisions with existing objects
-	// the first character must remain unchanged though because it can have a special meaning
+	// the first character must remain unchanged though because it can have a
+	// special meaning
 	public War3ID getunusedid(final War3ID substitutefor) {
 		lastused = lastused.set(0, substitutefor.charAt(0));
 		lastused = lastused.set(3, nextchar(substitutefor.charAt(3)));
@@ -395,7 +401,8 @@ public final class War3ObjectDataChangeset {
 				switch (collisionHandling) {
 				case CREATE_NEW_ID:
 					oldId = sourceObject.getKey();
-					// obj.cpp: get new id until we finally have one that isn't used yet, or we're out of ids
+					// obj.cpp: get new id until we finally have one that isn't used yet, or we're
+					// out of ids
 					replacementId = getunusedid(oldId);
 					while (!(oldId.charAt(1) == '~' && oldId.charAt(2) == '~' && oldId.charAt(3) == '~')
 							&& targetCustom.containsKey(replacementId)) {
@@ -500,8 +507,14 @@ public final class War3ObjectDataChangeset {
 			}
 			final int ccount = stream.readInt();// Retera: I assume this is change count?
 			if (ccount == 0 && isOriginal) {
-				// throw new IOException("we seem to have reached the end of the stream and get zeroes");
+				// throw new IOException("we seem to have reached the end of the stream and get
+				// zeroes");
 				System.err.println("we seem to have reached the end of the stream and get zeroes");
+			}
+			if (isOriginal) {
+				System.out.println("StandardUnit \"" + origid + "\" " + ccount + " {");
+			} else {
+				System.out.println("CustomUnit \"" + origid + ":" + newid + "\" " + ccount + " {");
 			}
 			for (int j = 0; j < ccount; j++) {
 				final War3ID chid = readWar3ID(stream);
@@ -515,14 +528,19 @@ public final class War3ObjectDataChangeset {
 				final Change newlyReadChange = new Change();
 				newlyReadChange.setId(chid);
 				newlyReadChange.setVartype(stream.readInt());
+				System.out.println("\t\"" + chid + "\" {");
+				System.out.println("\t\tType " + newlyReadChange.getVartype() + ",");
 				if (extended()) {
 					newlyReadChange.setLevel(stream.readInt());
 					newlyReadChange.setDataptr(stream.readInt());
+					System.out.println("\t\tLevel " + newlyReadChange.getLevel() + ",");
+					System.out.println("\t\tData " + newlyReadChange.getDataptr() + ",");
 				}
 
 				switch (newlyReadChange.getVartype()) {
 				case 0:
 					newlyReadChange.setLongval(stream.readInt());
+					System.out.println("\t\tValue " + newlyReadChange.getLongval() + ",");
 					break;
 				case 3:
 					ptr = 0;
@@ -541,15 +559,19 @@ public final class War3ObjectDataChangeset {
 							newlyReadChange.setStrval(newlyReadChange.getStrval().substring(0, MAX_STR_LEN - 1));
 						}
 					}
+					System.out.println("\t\tValue \"" + newlyReadChange.getStrval() + "\",");
 					break;
 				case 4:
 					newlyReadChange.setBoolval(stream.readInt() == 1);
+					System.out.println("\t\tValue " + newlyReadChange.isBoolval() + ",");
 					break;
 				default:
 					newlyReadChange.setRealval(stream.readFloat());
+					System.out.println("\t\tValue " + newlyReadChange.getRealval() + ",");
 					break;
 				}
 				final War3ID crap = readWar3ID(stream);
+				System.out.println("\t\tExtra \"" + crap + "\",");
 				newlyReadChange.setJunkDNA(crap);
 				List<Change> existingChanges = existingObject.getChanges().get(chid);
 				if (existingChanges == null) {
@@ -578,7 +600,9 @@ public final class War3ObjectDataChangeset {
 						}
 					}
 				}
+				System.out.println("\t}");
 			}
+			System.out.println("}");
 			if (newid == null && !isOriginal) {
 				throw new IllegalStateException("custom unit has no ID!");
 			}
@@ -723,7 +747,8 @@ public final class War3ObjectDataChangeset {
 						// if (change.getJunkDNA() == null) {
 						// saveWriteChars(outputStream, cl.getNewId().asStringValue().toCharArray());
 						// } else {
-						// saveWriteChars(outputStream, change.getJunkDNA().asStringValue().toCharArray());
+						// saveWriteChars(outputStream,
+						// change.getJunkDNA().asStringValue().toCharArray());
 						// }
 						// saveWriteChars(outputStream, cl.getNewId().asStringValue().toCharArray());
 						saveWriteChars(outputStream, noid.asStringValue().toCharArray());

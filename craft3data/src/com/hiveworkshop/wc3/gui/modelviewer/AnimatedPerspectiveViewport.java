@@ -435,11 +435,12 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 				if (currentTimeMillis - lastExceptionTimeMillis > 16) {
 					if (animation != null && animation.length() > 0) {
 						if (looping) {
-							animationTime = (int) ((animationTime + (currentTimeMillis - lastUpdateMillis))
+							animationTime = (int) ((animationTime
+									+ (long) ((currentTimeMillis - lastUpdateMillis) * animSpeed))
 									% animation.length());
 						} else {
 							animationTime = Math.min(animation.length(),
-									(int) (animationTime + (currentTimeMillis - lastUpdateMillis)));
+									(int) (animationTime + (currentTimeMillis - lastUpdateMillis) * animSpeed));
 						}
 					}
 					renderModel.updateNodes(false);
@@ -1072,6 +1073,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 
 	private static final int BYTES_PER_PIXEL = 4;
 	private LoopType loopType;
+	private float animSpeed = 1.0f;
 
 	public static int loadTexture(final BufferedImage image, final Bitmap bitmap, final boolean alpha) {
 
@@ -1157,5 +1159,10 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 			looping = false;
 			break;
 		}
+	}
+
+	public void setAnimationSpeed(final float speed) {
+		this.animSpeed = speed;
+
 	}
 }

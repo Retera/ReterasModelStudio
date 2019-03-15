@@ -232,6 +232,10 @@ public final class UnitEditorTree extends JTree {
 		return unitData.copySelectedObjects(objectsToCopy);
 	}
 
+	public char getWar3ObjectDataChangesetKindChar() {
+		return unitData.getEditorData().getExpectedKind();
+	}
+
 	public MutableGameObject getSelectedGameObject() {
 		final DefaultMutableTreeNode o = (DefaultMutableTreeNode) getLastSelectedPathComponent();
 		if (o != null && o.getUserObject() instanceof MutableGameObject) {

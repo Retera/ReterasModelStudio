@@ -28,6 +28,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import com.badlogic.gdx.backends.lwjgl.LwjglNativesLoader;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.PerspDisplayPanel;
@@ -207,6 +208,7 @@ public class BlpConverterPanel extends JPanel {
 	}
 
 	public static void main(final String[] args) {
+		LwjglNativesLoader.load();
 		EditorDisplayManager.setupLookAndFeel();
 		final JFrame frame = new JFrame("MACgos Browser for Hayate on Mac");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

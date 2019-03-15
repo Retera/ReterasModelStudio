@@ -12,4 +12,6 @@ public interface AnimationControllerListener {
 	public enum LoopType {
 		DEFAULT_LOOP, ALWAYS_LOOP, NEVER_LOOP;
 	}
+
+	void setSpeed(float f);
 }

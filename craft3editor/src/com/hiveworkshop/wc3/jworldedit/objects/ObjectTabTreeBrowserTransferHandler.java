@@ -12,6 +12,7 @@ import java.io.IOException;
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
+import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.WorldEditorDataType;
 import com.hiveworkshop.wc3.units.objectdata.War3ObjectDataChangeset;
 
@@ -30,42 +31,51 @@ public class ObjectTabTreeBrowserTransferHandler extends TransferHandler {
 	 */
 	@Override
 	public boolean importData(final TransferHandler.TransferSupport info) {
-		byte[] data = null;
-		War3ObjectDataChangeset pastedObjects = null;
-
-		// If we can't handle the import, bail now.
-		if (!canImport(info)) {
-			return false;
-		}
-
-		final UnitEditorTree editorPanel = (UnitEditorTree) info.getComponent();
-		// Fetch the data -- bail if this fails
 		try {
-			data = (byte[]) info.getTransferable().getTransferData(dataFlavor);
-			pastedObjects = new War3ObjectDataChangeset();
-			try (BlizzardDataInputStream inputStream = new BlizzardDataInputStream(new ByteArrayInputStream(data))) {
+			byte[] data = null;
+			War3ObjectDataChangeset pastedObjects = null;
 
-				pastedObjects.load(inputStream, null, false);
+			// If we can't handle the import, bail now.
+			if (!canImport(info)) {
+				return false;
 			}
-		} catch (final UnsupportedFlavorException ufe) {
-			System.out.println("importData: unsupported data flavor");
-			ufe.printStackTrace();
-			return false;
-		} catch (final IOException ioe) {
-			System.out.println("importData: I/O exception");
-			ioe.printStackTrace();
-			return false;
-		}
 
-		if (info.isDrop()) { // This is a drop
-			final UnitEditorPanel.DropLocation dl = (UnitEditorPanel.DropLocation) info.getDropLocation();
-			final Point dropPoint = dl.getDropPoint();
-			// discard drop point, unit location is based on tree sorter folders
-			editorPanel.acceptPastedObjectData(pastedObjects);
-			return true;
-		} else { // This is a paste
-			editorPanel.acceptPastedObjectData(pastedObjects);
-			return true;
+			final UnitEditorTree editorPanel = (UnitEditorTree) info.getComponent();
+			// Fetch the data -- bail if this fails
+			try {
+				data = (byte[]) info.getTransferable().getTransferData(dataFlavor);
+				pastedObjects = new War3ObjectDataChangeset(editorPanel.getWar3ObjectDataChangesetKindChar());
+				try (BlizzardDataInputStream inputStream = new BlizzardDataInputStream(
+						new ByteArrayInputStream(data))) {
+
+					pastedObjects.load(inputStream, null, false);
+				}
+			} catch (final UnsupportedFlavorException ufe) {
+				System.out.println("importData: unsupported data flavor");
+				ufe.printStackTrace();
+				ExceptionPopup.display(ufe);
+				return false;
+			} catch (final IOException ioe) {
+				System.out.println("importData: I/O exception");
+				ioe.printStackTrace();
+				ExceptionPopup.display(ioe);
+				return false;
+			}
+
+			if (info.isDrop()) { // This is a drop
+				final UnitEditorPanel.DropLocation dl = (UnitEditorPanel.DropLocation) info.getDropLocation();
+				final Point dropPoint = dl.getDropPoint();
+				// discard drop point, unit location is based on tree sorter folders
+				editorPanel.acceptPastedObjectData(pastedObjects);
+				return true;
+			} else { // This is a paste
+				editorPanel.acceptPastedObjectData(pastedObjects);
+				return true;
+			}
+		} catch (final Throwable th) {
+			th.printStackTrace();
+			ExceptionPopup.display(th);
+			return false;
 		}
 	}
 
@@ -74,42 +84,48 @@ public class ObjectTabTreeBrowserTransferHandler extends TransferHandler {
 	 */
 	@Override
 	protected Transferable createTransferable(final JComponent c) {
-		final UnitEditorTree unitEditorPanel = (UnitEditorTree) c;
-		final War3ObjectDataChangeset selectedUnitsAsChangeset = unitEditorPanel.copySelectedObjects();
-		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		try (BlizzardDataOutputStream blizzardStream = new BlizzardDataOutputStream(outputStream)) {
-			selectedUnitsAsChangeset.save(blizzardStream, false);
-		} catch (final FileNotFoundException e) {
-			System.out.println("failed to copy");
-			e.printStackTrace();
-		} catch (final IOException e) {
-			System.out.println("failed to copy");
-			e.printStackTrace();
-		}
-		final byte[] byteArray = outputStream.toByteArray();
-		return new Transferable() {
-			DataFlavor[] flavors = { dataFlavor };
+		try {
+			final UnitEditorTree unitEditorPanel = (UnitEditorTree) c;
+			final War3ObjectDataChangeset selectedUnitsAsChangeset = unitEditorPanel.copySelectedObjects();
+			final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			try (BlizzardDataOutputStream blizzardStream = new BlizzardDataOutputStream(outputStream)) {
+				selectedUnitsAsChangeset.save(blizzardStream, false);
+			} catch (final FileNotFoundException e) {
+				System.out.println("failed to copy");
+				e.printStackTrace();
+			} catch (final IOException e) {
+				System.out.println("failed to copy");
+				e.printStackTrace();
+			}
+			final byte[] byteArray = outputStream.toByteArray();
+			return new Transferable() {
+				DataFlavor[] flavors = { dataFlavor };
 
-			@Override
-			public boolean isDataFlavorSupported(final DataFlavor flavor) {
-				for (final DataFlavor flavorAllowed : flavors) {
-					if (flavorAllowed.equals(flavor)) {
-						return true;
+				@Override
+				public boolean isDataFlavorSupported(final DataFlavor flavor) {
+					for (final DataFlavor flavorAllowed : flavors) {
+						if (flavorAllowed.equals(flavor)) {
+							return true;
+						}
 					}
+					return false;
 				}
-				return false;
-			}
 
-			@Override
-			public DataFlavor[] getTransferDataFlavors() {
-				return flavors;
-			}
+				@Override
+				public DataFlavor[] getTransferDataFlavors() {
+					return flavors;
+				}
 
-			@Override
-			public Object getTransferData(final DataFlavor flavor) throws UnsupportedFlavorException, IOException {
-				return byteArray;
-			}
-		};
+				@Override
+				public Object getTransferData(final DataFlavor flavor) throws UnsupportedFlavorException, IOException {
+					return byteArray;
+				}
+			};
+		} catch (final Throwable th) {
+			th.printStackTrace();
+			ExceptionPopup.display(th);
+			return null;
+		}
 	}
 
 	/**
@@ -121,7 +137,8 @@ public class ObjectTabTreeBrowserTransferHandler extends TransferHandler {
 	}
 
 	/**
-	 * When the export is complete, remove the old list entry if the action was a move.
+	 * When the export is complete, remove the old list entry if the action was a
+	 * move.
 	 */
 	@Override
 	protected void exportDone(final JComponent c, final Transferable data, final int action) {

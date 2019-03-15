@@ -3,6 +3,7 @@ package com.matrixeater.src;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -200,7 +201,9 @@ import com.owens.oobjloader.parser.Parse;
 import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
 import net.infonode.docking.DockingWindow;
+import net.infonode.docking.DockingWindowListener;
 import net.infonode.docking.FloatingWindow;
+import net.infonode.docking.OperationAbortedException;
 import net.infonode.docking.RootWindow;
 import net.infonode.docking.SplitWindow;
 import net.infonode.docking.TabWindow;
@@ -1075,6 +1078,80 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Mo
 		toolbar.setMaximumSize(new Dimension(80000, 48));
 		viewMap = new StringViewMap();
 		rootWindow = new RootWindow(viewMap);
+		rootWindow.addListener(new DockingWindowListener() {
+			@Override
+			public void windowUndocking(final DockingWindow arg0) throws OperationAbortedException {
+			}
+
+			@Override
+			public void windowUndocked(final DockingWindow dockingWindow) {
+				JOptionPane.showMessageDialog(null, "popping out window");
+				final Container topLevelAncestor = dockingWindow.getTopLevelAncestor();
+				if (topLevelAncestor instanceof JComponent) {
+					linkActions(((JComponent) topLevelAncestor).getRootPane());
+				}
+			}
+
+			@Override
+			public void windowShown(final DockingWindow arg0) {
+			}
+
+			@Override
+			public void windowRestoring(final DockingWindow arg0) throws OperationAbortedException {
+			}
+
+			@Override
+			public void windowRestored(final DockingWindow arg0) {
+			}
+
+			@Override
+			public void windowRemoved(final DockingWindow arg0, final DockingWindow arg1) {
+			}
+
+			@Override
+			public void windowMinimizing(final DockingWindow arg0) throws OperationAbortedException {
+			}
+
+			@Override
+			public void windowMinimized(final DockingWindow arg0) {
+			}
+
+			@Override
+			public void windowMaximizing(final DockingWindow arg0) throws OperationAbortedException {
+			}
+
+			@Override
+			public void windowMaximized(final DockingWindow arg0) {
+			}
+
+			@Override
+			public void windowHidden(final DockingWindow arg0) {
+			}
+
+			@Override
+			public void windowDocking(final DockingWindow arg0) throws OperationAbortedException {
+			}
+
+			@Override
+			public void windowDocked(final DockingWindow arg0) {
+			}
+
+			@Override
+			public void windowClosing(final DockingWindow arg0) throws OperationAbortedException {
+			}
+
+			@Override
+			public void windowClosed(final DockingWindow arg0) {
+			}
+
+			@Override
+			public void windowAdded(final DockingWindow arg0, final DockingWindow arg1) {
+			}
+
+			@Override
+			public void viewFocusChanged(final View arg0, final View arg1) {
+			}
+		});
 		final JPanel jPanel = new JPanel();
 		jPanel.add(new JLabel("..."));
 		viewportControllerWindowView = new View("View Controller", GlobalIcons.geoIcon, jPanel);
@@ -1543,6 +1620,23 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Mo
 	public void init() {
 		final JRootPane root = getRootPane();
 		// JPanel root = this;
+		linkActions(root);
+
+		updateUIFromProgramPreferences();
+		// if( wireframe.isSelected() ){
+		// prefs.setViewMode(0);
+		// }
+		// else if( solid.isSelected() ){
+		// prefs.setViewMode(1);
+		// }
+		// else {
+		// prefs.setViewMode(-1);
+		// }
+
+		// defaultModelStartupHack();
+	}
+
+	private void linkActions(final JComponent root) {
 		root.getActionMap().put("Undo", undoAction);
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control Z"),
 				"Undo");
@@ -1882,19 +1976,6 @@ public class MainPanel extends JPanel implements ActionListener, UndoHandler, Mo
 		root.getActionMap().put("RigAction", rigAction);
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control W"),
 				"RigAction");
-
-		updateUIFromProgramPreferences();
-		// if( wireframe.isSelected() ){
-		// prefs.setViewMode(0);
-		// }
-		// else if( solid.isSelected() ){
-		// prefs.setViewMode(1);
-		// }
-		// else {
-		// prefs.setViewMode(-1);
-		// }
-
-		// defaultModelStartupHack();
 	}
 
 	private void updateUIFromProgramPreferences() {

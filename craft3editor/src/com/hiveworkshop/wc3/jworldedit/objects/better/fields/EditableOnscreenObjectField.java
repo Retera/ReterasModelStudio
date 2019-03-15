@@ -14,6 +14,8 @@ public interface EditableOnscreenObjectField {
 	/* for sorting */
 	int getLevel();
 
+	boolean isShowingLevelDisplay();
+
 	String getRawDataName();
 
 	Object getValue(final MutableGameObject gameUnit);

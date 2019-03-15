@@ -1132,7 +1132,6 @@ public class MdxModel {
 				particleEmitter2Chunk = new ParticleEmitter2Chunk();
 				particleEmitter2Chunk.load(in);
 			} else if (MdxUtils.checkOptionalId(in, RibbonEmitterChunk.key)) {
-				System.err.println("RIBBON CHUNK");
 				ribbonEmitterChunk = new RibbonEmitterChunk();
 				ribbonEmitterChunk.load(in);
 			} else if (MdxUtils.checkOptionalId(in, EventObjectChunk.key)) {

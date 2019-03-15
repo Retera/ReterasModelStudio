@@ -18,8 +18,9 @@ public class StringObjectField extends AbstractObjectField {
 	public static final int STRING_FIELD_COLUMNS = 23;
 
 	public StringObjectField(final String displayName, final String sortName, final String rawDataName,
-			final War3ID metaKey, final int level, final WorldEditorDataType dataType, final GameObject metaDataField) {
-		super(displayName, sortName, rawDataName, metaKey, level, dataType, metaDataField);
+			final boolean showingLevelDisplay, final War3ID metaKey, final int level,
+			final WorldEditorDataType dataType, final GameObject metaDataField) {
+		super(displayName, sortName, rawDataName, showingLevelDisplay, metaKey, level, dataType, metaDataField);
 	}
 
 	@Override

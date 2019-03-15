@@ -78,7 +78,7 @@ public class Matrix {
 				}
 			}
 		}
-		if (m_boneIds.size() < sz1 || (sz1 != 0 && m_boneIds.size() == 0)) {
+		if (m_boneIds.size() < sz1 || sz1 != 0 && m_boneIds.size() == 0) {
 			new Exception("Matrix error").printStackTrace();
 			if (System.currentTimeMillis() - lastPopupTimeHack > 2000) {
 				JOptionPane.showMessageDialog(null, "Error: bad sizes in matrix (" + (sz1 - m_boneIds.size())
