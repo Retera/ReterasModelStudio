@@ -6,16 +6,16 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.AbstractManipulator;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexEditor;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexSelectionView;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 public abstract class AbstractScaleTVertexManipulator extends AbstractManipulator {
 	private final TVertexEditor modelEditor;
-	private final TVertexSelectionView selectionView;
+	private final SelectionView selectionView;
 	private GenericScaleAction scaleAction;
 
-	public AbstractScaleTVertexManipulator(final TVertexEditor modelEditor, final TVertexSelectionView selectionView) {
+	public AbstractScaleTVertexManipulator(final TVertexEditor modelEditor, final SelectionView selectionView) {
 		this.modelEditor = modelEditor;
 		this.selectionView = selectionView;
 	}
@@ -23,13 +23,13 @@ public abstract class AbstractScaleTVertexManipulator extends AbstractManipulato
 	@Override
 	protected void onStart(final Double mouseStart, final byte dim1, final byte dim2) {
 		super.onStart(mouseStart, dim1, dim2);
-		final TVertex center = selectionView.getCenter();
+		final TVertex center = selectionView.getUVCenter(modelEditor.getUVLayerIndex());
 		scaleAction = modelEditor.beginScaling(center.x, center.y);
 	}
 
 	@Override
 	public void update(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
-		final TVertex center = selectionView.getCenter();
+		final TVertex center = selectionView.getUVCenter(modelEditor.getUVLayerIndex());
 		final double scaleFactor = computeScaleFactor(mouseStart, mouseEnd, center, dim1, dim2);
 		scaleWithFactor(modelEditor, center, scaleFactor, dim1, dim2);
 	}
@@ -53,10 +53,10 @@ public abstract class AbstractScaleTVertexManipulator extends AbstractManipulato
 			final byte dim1, final byte dim2) {
 		double dxs = endingClick.x - center.getCoord(dim1);
 		double dys = endingClick.y - center.getCoord(dim2);
-		final double endDist = Math.sqrt(dxs * dxs + dys * dys);
+		final double endDist = Math.sqrt((dxs * dxs) + (dys * dys));
 		dxs = startingClick.x - center.getCoord(dim1);
 		dys = startingClick.y - center.getCoord(dim2);
-		final double startDist = Math.sqrt(dxs * dxs + dys * dys);
+		final double startDist = Math.sqrt((dxs * dxs) + (dys * dys));
 		final double distRatio = endDist / startDist;
 		return distRatio;
 	}

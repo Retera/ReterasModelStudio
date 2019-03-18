@@ -104,38 +104,61 @@ public class TVertex {
 	public void scale(final double centerX, final double centerY, final double scaleX, final double scaleY) {
 		final double dx = this.x - centerX;
 		final double dy = this.y - centerY;
-		this.x = centerX + dx * scaleX;
-		this.y = centerY + dy * scaleY;
+		this.x = centerX + (dx * scaleX);
+		this.y = centerY + (dy * scaleY);
 	}
 
-	public void rotate(final double centerX, final double centerY, final double radians) {
-		rotateVertex(centerX, centerY, radians, this);
+	public void rotate(final double centerX, final double centerY, final double radians, final byte firstXYZ,
+			final byte secondXYZ) {
+		rotateVertex(centerX, centerY, radians, firstXYZ, secondXYZ, this);
 	}
 
 	public static void rotateVertex(final double centerX, final double centerY, final double radians,
-			final TVertex vertex) {
-		final double x1 = vertex.getX();
-		final double y1 = vertex.getY();
+			final byte firstXYZ, final byte secondXYZ, final TVertex vertex) {
+		final double x1 = vertex.getCoord(firstXYZ);
+		final double y1 = vertex.getCoord(secondXYZ);
 		final double cx;// = coordinateSystem.geomX(centerX);
-		cx = centerX;
+		switch (firstXYZ) {
+		case 0:
+			cx = centerX;
+			break;
+		case 1:
+			cx = centerY;
+			break;
+		default:
+		case 2:
+			cx = 0;
+			break;
+		}
 		final double dx = x1 - cx;
 		final double cy;// = coordinateSystem.geomY(centerY);
-		cy = centerY;
+		switch (secondXYZ) {
+		case 0:
+			cy = centerX;
+			break;
+		case 1:
+			cy = centerY;
+			break;
+		default:
+		case 2:
+			cy = 0;
+			break;
+		}
 		final double dy = y1 - cy;
-		final double r = Math.sqrt(dx * dx + dy * dy);
+		final double r = Math.sqrt((dx * dx) + (dy * dy));
 		double verAng = Math.acos(dx / r);
 		if (dy < 0) {
 			verAng = -verAng;
 		}
 		// if( getDimEditable(dim1) )
-		double nextDim = Math.cos(verAng + radians) * r + cx;
+		double nextDim = (Math.cos(verAng + radians) * r) + cx;
 		if (!Double.isNaN(nextDim)) {
-			vertex.setX(Math.cos(verAng + radians) * r + cx);
+			vertex.setCoord(firstXYZ, (Math.cos(verAng + radians) * r) + cx);
 		}
 		// if( getDimEditable(dim2) )
-		nextDim = Math.sin(verAng + radians) * r + cy;
+		nextDim = (Math.sin(verAng + radians) * r) + cy;
 		if (!Double.isNaN(nextDim)) {
-			vertex.setY(Math.sin(verAng + radians) * r + cy);
+			vertex.setCoord(secondXYZ, (Math.sin(verAng + radians) * r) + cy);
 		}
 	}
 
@@ -175,5 +198,11 @@ public class TVertex {
 		xTot /= group.size();
 		yTot /= group.size();
 		return new TVertex(xTot, yTot);
+	}
+
+	public double distance(final TVertex other) {
+		final double dx = other.x - x;
+		final double dy = other.y - y;
+		return Math.sqrt((dx * dx) + (dy * dy));
 	}
 }

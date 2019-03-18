@@ -1,6 +1,7 @@
 package com.hiveworkshop.wc3.gui.modeledit.newstuff;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -8,11 +9,13 @@ import org.lwjgl.util.vector.Vector4f;
 
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexModelElementRenderer;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.NodeIconPalette;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.IdObject;
+import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
@@ -151,5 +154,26 @@ public final class TPoseSelectionManager extends AbstractSelectionManager<IdObje
 			vertices.add(object.getPivotPoint());
 		}
 		return vertices;
+	}
+
+	@Override
+	public TVertex getUVCenter(final int tvertexLayerId) {
+		return TVertex.ORIGIN;
+	}
+
+	@Override
+	public Collection<? extends TVertex> getSelectedTVertices(final int tvertexLayerId) {
+		return Collections.emptySet();
+	}
+
+	@Override
+	public double getCircumscribedSphereRadius(final TVertex center, final int tvertexLayerId) {
+		return 0;
+	}
+
+	@Override
+	public void renderUVSelection(final TVertexModelElementRenderer renderer, final ModelView modelView,
+			final ProgramPreferences programPreferences, final int tvertexLayerId) {
+
 	}
 }

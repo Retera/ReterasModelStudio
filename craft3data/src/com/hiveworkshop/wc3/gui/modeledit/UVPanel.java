@@ -3,7 +3,6 @@ package com.hiveworkshop.wc3.gui.modeledit;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -11,6 +10,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import javax.imageio.ImageIO;
@@ -44,28 +46,32 @@ import javax.swing.SpinnerNumberModel;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.GlobalIcons;
-import com.hiveworkshop.wc3.gui.modeledit.activity.ModelEditorViewportActivity;
-import com.hiveworkshop.wc3.gui.modeledit.activity.MultiManipulatorActivity;
+import com.hiveworkshop.wc3.gui.ProgramPreferences;
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
+import com.hiveworkshop.wc3.gui.modeledit.activity.TVertexEditorActivityDescriptor;
 import com.hiveworkshop.wc3.gui.modeledit.activity.TVertexEditorMultiManipulatorActivity;
+import com.hiveworkshop.wc3.gui.modeledit.activity.TVertexEditorViewportActivity;
+import com.hiveworkshop.wc3.gui.modeledit.activity.TVertexEditorViewportActivityManager;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
-import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivity;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.ModelEditorActionType;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.model.ExtendWidgetManipulatorBuilder;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.model.ExtrudeWidgetManipulatorBuilder;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.model.MoverWidgetManipulatorBuilder;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.model.RotatorWidgetManipulatorBuilder;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.model.ScaleWidgetManipulatorBuilder;
-import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItemTypes;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.uv.MoverWidgetTVertexEditorManipulatorBuilder;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.uv.RotatorWidgetTVertexEditorManipulatorBuilder;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.uv.ScaleWidgetTVertexEditorManipulatorBuilder;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.DoNothingTVertexActivity;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexEditorChangeActivityListener;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexEditorChangeNotifier;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexToolbarActionButtonType;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.viewport.TVertexEditorManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionMode;
-import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarActionButtonType;
+import com.hiveworkshop.wc3.gui.modeledit.selection.TVertexSelectionItemTypes;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
+import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonListener;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.IconUtils;
 import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.mdl.Material;
+import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.user.SaveProfile;
-import com.matrixeater.src.MainPanel;
 
 /**
  * Write a description of class DisplayPanel here.
@@ -73,11 +79,13 @@ import com.matrixeater.src.MainPanel;
  * @author (your name)
  * @version (a version number or a date)
  */
-public class UVPanel extends JPanel implements ActionListener {
+public class UVPanel extends JPanel
+		implements ActionListener, CoordDisplayListener, TVertexEditorChangeActivityListener {
+
 	static final ImageIcon UVIcon = new ImageIcon(GlobalIcons.class.getResource("ImageBin/UVMap.png"));
 
-	ModeButton loadImage, selectButton, addButton, deselectButton, moveButton, rotateButton, scaleButton, snapButton,
-			xButton, yButton;
+	ModeButton loadImage, selectButton, addButton, deselectButton, moveButton, rotateButton, scaleButton;
+	JButton snapButton;
 	JMenuItem selectAll, invertSelect, expandSelection, selFromMain, mirrorX, mirrorY, setAspectRatio;
 	JMenu editMenu, mirrorSubmenu, dispMenu;
 	JMenuBar menuBar;
@@ -88,6 +96,9 @@ public class UVPanel extends JPanel implements ActionListener {
 	private UVViewport vp;
 	private final JButton up, down, left, right, plusZoom, minusZoom;
 	private final JTextField[] mouseCoordDisplay = new JTextField[2];
+	private final TVertexEditorViewportActivityManager viewportActivityManager;
+	private final TVertexEditorChangeNotifier modelEditorChangeNotifier;
+	private final TVertexEditorManager modelEditorManager;
 
 	int selectionType = 0;
 	boolean cheatShift = false;
@@ -98,53 +109,109 @@ public class UVPanel extends JPanel implements ActionListener {
 	AbstractAction selectAllAction = new AbstractAction("Select All") {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
-			dispMDL.selectAllUV();
+
+			final ModelPanel mpanel = currentModelPanel();
+			if (mpanel != null) {
+				mpanel.getUndoManager().pushAction(modelEditorManager.getModelEditor().selectAll());
+			}
 			repaint();
 		}
 	};
 	AbstractAction invertSelectAction = new AbstractAction("Invert Selection") {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
-			dispMDL.invertSelectionUV();
+			final ModelPanel mpanel = currentModelPanel();
+			if (mpanel != null) {
+				mpanel.getUndoManager().pushAction(modelEditorManager.getModelEditor().invertSelection());
+			}
 			repaint();
 		}
 	};
 	AbstractAction expandSelectionAction = new AbstractAction("Expand Selection") {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
-			dispMDL.expandSelectionUV();
+			final ModelPanel mpanel = currentModelPanel();
+			if (mpanel != null) {
+				mpanel.getUndoManager().pushAction(modelEditorManager.getModelEditor().expandSelection());
+			}
 			repaint();
 		}
 	};
 	AbstractAction selFromMainAction = new AbstractAction("Sel From Main") {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
-			dispMDL.selFromMain();
+			final ModelPanel mpanel = currentModelPanel();
+			if (mpanel != null) {
+				mpanel.getUndoManager().pushAction(modelEditorManager.getModelEditor()
+						.selectFromViewer(mpanel.getModelEditorManager().getSelectionView()));
+			}
 			repaint();
 		}
 	};
 	AbstractAction mirrorXAction = new AbstractAction("Mirror X") {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
-			dispMDL.mirrorUV((byte) 0);
+			final ModelPanel mpanel = currentModelPanel();
+			if (mpanel != null) {
+				final TVertex selectionCenter = modelEditorManager.getModelEditor().getSelectionCenter();
+				mpanel.getUndoManager().pushAction(
+						modelEditorManager.getModelEditor().mirror((byte) 0, selectionCenter.x, selectionCenter.y));
+			}
 			repaint();
 		}
 	};
 	AbstractAction mirrorYAction = new AbstractAction("Mirror Y") {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
-			dispMDL.mirrorUV((byte) 1);
+			final ModelPanel mpanel = currentModelPanel();
+			if (mpanel != null) {
+				final TVertex selectionCenter = modelEditorManager.getModelEditor().getSelectionCenter();
+				mpanel.getUndoManager().pushAction(
+						modelEditorManager.getModelEditor().mirror((byte) 1, selectionCenter.x, selectionCenter.y));
+			}
 			repaint();
 		}
 	};
-	private ToolbarButtonGroup<SelectionItemTypes> selectionItemTypeGroup;
+	private ToolbarButtonGroup<TVertexSelectionItemTypes> selectionItemTypeGroup;
 	private ToolbarButtonGroup<SelectionMode> selectionModeGroup;
-	private ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup;
+	private ToolbarButtonGroup<TVertexToolbarActionButtonType> actionTypeGroup;
 
 	private JToolBar toolbar;
 
-	public UVPanel(final ModelPanel dispMDL) {
+	private final int uvLayerIndex = 0;
+
+	private TVertexToolbarActionButtonType selectAndMoveDescriptor;
+
+	private final ProgramPreferences prefs;
+
+	private TVertexToolbarActionButtonType selectAndRotateDescriptor;
+
+	private TVertexToolbarActionButtonType selectAndScaleDescriptor;
+
+	private TVertexEditorActivityDescriptor currentActivity;
+
+	private AbstractAction undoAction;
+
+	private AbstractAction redoAction;
+	private final List<ModeButton> modeButtons = new ArrayList<>();
+	private final List<ModeButton> selectionModeButtons = new ArrayList<>();
+	private final Map<TVertexEditorActivityDescriptor, ModeButton> typeToButton = new HashMap<>();
+	private final Map<SelectionMode, ModeButton> modeToButton = new HashMap<>();
+
+	public UVPanel(final ModelPanel dispMDL, final ProgramPreferences prefs,
+			final ModelStructureChangeListener modelStructureChangeListener) {
 		super();
+
+		add(createJToolBar());
+
+		viewportActivityManager = new TVertexEditorViewportActivityManager(new DoNothingTVertexActivity());
+		modelEditorChangeNotifier = new TVertexEditorChangeNotifier();
+		modelEditorChangeNotifier.subscribe(viewportActivityManager);
+		modelEditorManager = new TVertexEditorManager(dispMDL.getModelViewManager(), prefs, selectionModeGroup,
+				modelEditorChangeNotifier, viewportActivityManager, dispMDL.getEditorRenderModel(),
+				modelStructureChangeListener);
+
+		this.prefs = prefs;
 		setBorder(BorderFactory.createLineBorder(Color.black));// BorderFactory.createCompoundBorder(
 		// BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title),BorderFactory.createBevelBorder(1)),BorderFactory.createEmptyBorder(1,1,1,1)
 		// ));
@@ -154,8 +221,17 @@ public class UVPanel extends JPanel implements ActionListener {
 
 		// Copied from MainPanel
 		selectButton = new ModeButton("Select");
+		modeToButton.put(selectionModeGroup.getToolbarButtonTypes()[0], selectButton);
+		selectButton.addActionListener(new ButtonModeChangeListener(0));
+		selectionModeButtons.add(selectButton);
 		addButton = new ModeButton("Add");
+		modeToButton.put(selectionModeGroup.getToolbarButtonTypes()[1], addButton);
+		addButton.addActionListener(new ButtonModeChangeListener(1));
+		selectionModeButtons.add(addButton);
 		deselectButton = new ModeButton("Deselect");
+		modeToButton.put(selectionModeGroup.getToolbarButtonTypes()[2], deselectButton);
+		deselectButton.addActionListener(new ButtonModeChangeListener(2));
+		selectionModeButtons.add(deselectButton);
 		final JLabel[] divider = new JLabel[4];
 		for (int i = 0; i < divider.length; i++) {
 			divider[i] = new JLabel("----------");
@@ -168,11 +244,18 @@ public class UVPanel extends JPanel implements ActionListener {
 		}
 		loadImage = new ModeButton("Load Image");
 		moveButton = new ModeButton("Move");
+		moveButton.addActionListener(new ButtonActionChangeListener(0));
 		rotateButton = new ModeButton("Rotate");
+		rotateButton.addActionListener(new ButtonActionChangeListener(1));
 		scaleButton = new ModeButton("Scale");
-		snapButton = new ModeButton("Snap");
-		xButton = new ModeButton("X");
-		yButton = new ModeButton("Y");
+		scaleButton.addActionListener(new ButtonActionChangeListener(2));
+
+		typeToButton.put(actionTypeGroup.getToolbarButtonTypes()[0], moveButton);
+		typeToButton.put(actionTypeGroup.getToolbarButtonTypes()[1], rotateButton);
+		typeToButton.put(actionTypeGroup.getToolbarButtonTypes()[2], scaleButton);
+		modeButtons.add(moveButton);
+		modeButtons.add(rotateButton);
+		modeButtons.add(scaleButton);
 
 		buttons.add(selectButton);
 		buttons.add(addButton);
@@ -180,17 +263,7 @@ public class UVPanel extends JPanel implements ActionListener {
 		buttons.add(moveButton);
 		buttons.add(rotateButton);
 		buttons.add(scaleButton);
-		buttons.add(snapButton);
 		buttons.add(loadImage);
-
-		xButton.addActionListener(this);
-		xButton.setMaximumSize(new Dimension(26, 26));
-		xButton.setMinimumSize(new Dimension(20, 20));
-		xButton.setMargin(new Insets(0, 0, 0, 0));
-		yButton.addActionListener(this);
-		yButton.setMaximumSize(new Dimension(26, 26));
-		yButton.setMinimumSize(new Dimension(20, 20));
-		yButton.setMargin(new Insets(0, 0, 0, 0));
 
 		for (int i = 0; i < buttons.size(); i++) {
 			buttons.get(i).setMaximumSize(new Dimension(100, 35));
@@ -249,28 +322,29 @@ public class UVPanel extends JPanel implements ActionListener {
 		right.addActionListener(this);
 		add(right);
 
+		toolbar.setMaximumSize(new Dimension(80000, 48));
 		final GroupLayout layout = new GroupLayout(this);
-		layout.setHorizontalGroup(layout.createSequentialGroup()
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(vp)
-						.addGroup(layout.createSequentialGroup().addComponent(mouseCoordDisplay[0])
-								.addComponent(mouseCoordDisplay[1]).addGap(120)
-								.addGroup(layout.createSequentialGroup().addComponent(left)
+		layout.setHorizontalGroup(
+				layout.createSequentialGroup()
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(toolbar)
+								.addComponent(vp)
+								.addGroup(layout.createSequentialGroup().addComponent(mouseCoordDisplay[0])
+										.addComponent(mouseCoordDisplay[1]).addGap(120)
+										.addGroup(layout.createSequentialGroup().addComponent(left)
+												.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+														.addComponent(up).addComponent(down))
+												.addComponent(right))
+
+										.addGap(16)
 										.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-												.addComponent(up).addComponent(down))
-										.addComponent(right))
+												.addComponent(plusZoom).addComponent(minusZoom))))
 
-								.addGap(16)
-								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-										.addComponent(plusZoom).addComponent(minusZoom))))
-
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(loadImage)
-						.addComponent(divider[0]).addComponent(selectButton).addComponent(addButton)
-						.addComponent(deselectButton).addComponent(divider[1]).addComponent(moveButton)
-						.addComponent(rotateButton).addComponent(scaleButton).addComponent(divider[2])
-						.addComponent(snapButton).addComponent(divider[3])
-						.addGroup(layout.createSequentialGroup().addComponent(xButton).addComponent(yButton))));
-		layout.setVerticalGroup(
-				layout.createParallelGroup()
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(loadImage)
+								.addComponent(divider[0]).addComponent(selectButton).addComponent(addButton)
+								.addComponent(deselectButton).addComponent(divider[1]).addComponent(moveButton)
+								.addComponent(rotateButton).addComponent(scaleButton)));
+		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(toolbar)
+				.addGroup(layout.createParallelGroup()
 						.addGroup(layout.createSequentialGroup().addComponent(vp).addGroup(layout.createParallelGroup()
 								.addComponent(mouseCoordDisplay[0]).addComponent(mouseCoordDisplay[1])
 								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
@@ -288,20 +362,64 @@ public class UVPanel extends JPanel implements ActionListener {
 								.addComponent(divider[0]).addGap(8).addComponent(selectButton).addGap(8)
 								.addComponent(addButton).addGap(8).addComponent(deselectButton).addGap(8)
 								.addComponent(divider[1]).addGap(8).addComponent(moveButton).addGap(8)
-								.addComponent(rotateButton).addGap(8).addComponent(scaleButton).addGap(8)
-								.addComponent(divider[2]).addGap(8).addComponent(snapButton).addGap(8)
-								.addComponent(divider[3]).addGap(8)
-								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(xButton)
-										.addComponent(yButton))));
+								.addComponent(rotateButton).addGap(8).addComponent(scaleButton).addGap(8).addGap(8))));
 
 		setLayout(layout);
+		selectionModeGroup.addToolbarButtonListener(new ToolbarButtonListener<SelectionMode>() {
+			@Override
+			public void typeChanged(final SelectionMode newType) {
+				resetSelectionModeButtons();
+				final ModeButton selectionModeButton = modeToButton.get(newType);
+				if (selectionModeButton != null) {
+					selectionModeButton.setColors(prefs.getActiveColor1(), prefs.getActiveColor2());
+				}
+			}
+		});
+
+		selectionItemTypeGroup.addToolbarButtonListener(new ToolbarButtonListener<TVertexSelectionItemTypes>() {
+			@Override
+			public void typeChanged(final TVertexSelectionItemTypes newType) {
+//				animationModeState = newType == SelectionItemTypes.ANIMATE;
+//				// we need to refresh the state of stuff AFTER the ModelPanels, this
+//				// is a pretty signficant design flaw, so we're just going to
+//				// post to the EDT to get behind them (they're called
+//				// on the same notifier as this method)
+//				SwingUtilities.invokeLater(new Runnable() {
+//					@Override
+//					public void run() {
+//						refreshAnimationModeState();
+//					}
+//				});
+//
+//				if (newType == SelectionItemTypes.TPOSE) {
+//
+//					final Object[] settings = { "Move Linked", "Move Single" };
+//					final Object dialogResult = JOptionPane.showInputDialog(null, "Choose settings:", "T-Pose Settings",
+//							JOptionPane.PLAIN_MESSAGE, null, settings, settings[0]);
+//					final boolean moveLinked = dialogResult == settings[0];
+//					ModelEditorManager.MOVE_LINKED = moveLinked;
+//				}
+				modelEditorManager.setSelectionItemType(newType);
+				repaint();
+			}
+		});
+
+		actionTypeGroup.addToolbarButtonListener(new ToolbarButtonListener<TVertexToolbarActionButtonType>() {
+			@Override
+			public void typeChanged(final TVertexToolbarActionButtonType newType) {
+				if (newType != null) {
+					changeActivity(newType);
+				}
+			}
+		});
+		actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
 	}
 
 	public JToolBar createJToolBar() {
 		toolbar = new JToolBar(JToolBar.HORIZONTAL);
 		toolbar.setFloatable(false);
 		toolbar.addSeparator();
-		toolbar.add(new AbstractAction("Undo", IconUtils.loadImageIcon("icons/actions/undo.png")) {
+		undoAction = new AbstractAction("Undo", IconUtils.loadImageIcon("icons/actions/undo.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -312,9 +430,11 @@ public class UVPanel extends JPanel implements ActionListener {
 					ExceptionPopup.display(exc);
 					// exc.printStackTrace();
 				}
+				repaint();
 			}
-		});
-		toolbar.add(new AbstractAction("Redo", IconUtils.loadImageIcon("icons/actions/redo.png")) {
+		};
+		toolbar.add(undoAction);
+		redoAction = new AbstractAction("Redo", IconUtils.loadImageIcon("icons/actions/redo.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -325,76 +445,53 @@ public class UVPanel extends JPanel implements ActionListener {
 					ExceptionPopup.display(exc);
 					// exc.printStackTrace();
 				}
+				repaint();
 			}
-		});
+		};
+		toolbar.add(redoAction);
 		toolbar.addSeparator();
 		selectionModeGroup = new ToolbarButtonGroup<>(toolbar, SelectionMode.values());
 		toolbar.addSeparator();
-		selectionItemTypeGroup = new ToolbarButtonGroup<>(toolbar, SelectionItemTypes.values());
+		selectionItemTypeGroup = new ToolbarButtonGroup<>(toolbar, TVertexSelectionItemTypes.values());
 		toolbar.addSeparator();
-		selectAndMoveDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/move2.png"),
+		selectAndMoveDescriptor = new TVertexToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/move2.png"),
 				"Select and Move") {
 			@Override
-			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+			public TVertexEditorViewportActivity createActivity(final TVertexEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
 				actionType = ModelEditorActionType.TRANSLATION;
 				return new TVertexEditorMultiManipulatorActivity(
-						new MoverWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
+						new MoverWidgetTVertexEditorManipulatorBuilder(modelEditorManager.getModelEditor(),
 								modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
 						undoActionListener, modelEditorManager.getSelectionView());
 			}
 		};
-		selectAndRotateDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/rotate.png"),
-				"Select and Rotate") {
+		selectAndRotateDescriptor = new TVertexToolbarActionButtonType(
+				IconUtils.loadImageIcon("icons/actions/rotate.png"), "Select and Rotate") {
 			@Override
-			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+			public TVertexEditorViewportActivity createActivity(final TVertexEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
 				actionType = ModelEditorActionType.ROTATION;
-				return new MultiManipulatorActivity(
-						new RotatorWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
+				return new TVertexEditorMultiManipulatorActivity(
+						new RotatorWidgetTVertexEditorManipulatorBuilder(modelEditorManager.getModelEditor(),
 								modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
 						undoActionListener, modelEditorManager.getSelectionView());
 			}
 		};
-		selectAndScaleDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/scale.png"),
-				"Select and Scale") {
+		selectAndScaleDescriptor = new TVertexToolbarActionButtonType(
+				IconUtils.loadImageIcon("icons/actions/scale.png"), "Select and Scale") {
 			@Override
-			public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+			public TVertexEditorViewportActivity createActivity(final TVertexEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
 				actionType = ModelEditorActionType.SCALING;
-				return new MultiManipulatorActivity(
-						new ScaleWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
+				return new TVertexEditorMultiManipulatorActivity(
+						new ScaleWidgetTVertexEditorManipulatorBuilder(modelEditorManager.getModelEditor(),
 								modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
 						undoActionListener, modelEditorManager.getSelectionView());
 			}
 		};
-		selectAndExtrudeDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/extrude.png"),
-				"Select and Extrude") {
-			@Override
-			public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
-					final ModelView modelView, final UndoActionListener undoActionListener) {
-				actionType = ModelEditorActionType.TRANSLATION;
-				return new MultiManipulatorActivity(
-						new ExtrudeWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
-								modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
-						undoActionListener, modelEditorManager.getSelectionView());
-			}
-		};
-		selectAndExtendDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/extend.png"),
-				"Select and Extend") {
-			@Override
-			public ViewportActivity createActivity(final ModelEditorManager modelEditorManager,
-					final ModelView modelView, final UndoActionListener undoActionListener) {
-				actionType = ModelEditorActionType.TRANSLATION;
-				return new MultiManipulatorActivity(
-						new ExtendWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
-								modelEditorManager.getViewportSelectionHandler(), prefs, modelView),
-						undoActionListener, modelEditorManager.getSelectionView());
-			}
-		};
-		actionTypeGroup = new ToolbarButtonGroup<>(toolbar,
-				new ToolbarActionButtonType[] { selectAndMoveDescriptor, selectAndRotateDescriptor,
-						selectAndScaleDescriptor, selectAndExtrudeDescriptor, selectAndExtendDescriptor, });
+		actionTypeGroup = new ToolbarButtonGroup<>(toolbar, new TVertexToolbarActionButtonType[] {
+				selectAndMoveDescriptor, selectAndRotateDescriptor, selectAndScaleDescriptor });
 		currentActivity = actionTypeGroup.getActiveButtonType();
 		toolbar.addSeparator();
 		snapButton = toolbar.add(new AbstractAction("Snap", IconUtils.loadImageIcon("icons/actions/snap.png")) {
@@ -403,11 +500,9 @@ public class UVPanel extends JPanel implements ActionListener {
 				try {
 					final ModelPanel currentModelPanel = currentModelPanel();
 					if (currentModelPanel != null) {
-						currentModelPanel.getUndoManager().pushAction(
-								currentModelPanel.getModelEditorManager().getModelEditor().snapSelectedVertices());
+						currentModelPanel.getUndoManager()
+								.pushAction(modelEditorManager.getModelEditor().snapSelectedVertices());
 					}
-				} catch (final NoSuchElementException exc) {
-					JOptionPane.showMessageDialog(MainPanel.this, "Nothing to undo!");
 				} catch (final Exception exc) {
 					ExceptionPopup.display(exc);
 				}
@@ -498,22 +593,99 @@ public class UVPanel extends JPanel implements ActionListener {
 
 	public void init() {
 		vp.init();
-		buttons.get(0).setColors(dispMDL.getProgramPreferences().getActiveColor1(),
-				dispMDL.getProgramPreferences().getActiveColor2());
-		buttons.get(3).setColors(dispMDL.getProgramPreferences().getActiveRColor1(),
-				dispMDL.getProgramPreferences().getActiveRColor2());
+		buttons.get(0).setColors(prefs.getActiveColor1(), prefs.getActiveColor2());
+		buttons.get(3).setColors(prefs.getActiveRColor1(), prefs.getActiveRColor2());
 
 		final JRootPane root = getRootPane();
+
+		root.getActionMap().put("Undo", undoAction);
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control Z"),
+				"Undo");
+
+		root.getActionMap().put("Redo", redoAction);
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control Y"),
+				"Redo");
+
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("W"),
+				"QKeyboardKey");
+		root.getActionMap().put("QKeyboardKey", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
+			}
+		});
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("E"),
+				"WKeyboardKey");
+		root.getActionMap().put("WKeyboardKey", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[1]);
+			}
+		});
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("R"),
+				"EKeyboardKey");
+		root.getActionMap().put("EKeyboardKey", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[2]);
+			}
+		});
+
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("A"),
+				"AKeyboardKey");
+		root.getActionMap().put("AKeyboardKey", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				selectionItemTypeGroup.setToolbarButtonType(selectionItemTypeGroup.getToolbarButtonTypes()[0]);
+			}
+		});
+		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("S"),
+				"SKeyboardKey");
+		root.getActionMap().put("SKeyboardKey", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				selectionItemTypeGroup.setToolbarButtonType(selectionItemTypeGroup.getToolbarButtonTypes()[1]);
+			}
+		});
+//		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("D"),
+//				"DKeyboardKey");
+//		root.getActionMap().put("DKeyboardKey", new AbstractAction() {
+//			@Override
+//			public void actionPerformed(final ActionEvent e) {
+//				selectionItemTypeGroup.setToolbarButtonType(selectionItemTypeGroup.getToolbarButtonTypes()[2]);
+//			}
+//		});
+//		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("F"),
+//				"FKeyboardKey");
+//		root.getActionMap().put("FKeyboardKey", new AbstractAction() {
+//			@Override
+//			public void actionPerformed(final ActionEvent e) {
+//				selectionItemTypeGroup.setToolbarButtonType(selectionItemTypeGroup.getToolbarButtonTypes()[3]);
+//			}
+//		});
+//		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("G"),
+//				"GKeyboardKey");
+//		root.getActionMap().put("GKeyboardKey", new AbstractAction() {
+//			@Override
+//			public void actionPerformed(final ActionEvent e) {
+//				selectionItemTypeGroup.setToolbarButtonType(selectionItemTypeGroup.getToolbarButtonTypes()[4]);
+//			}
+//		});
+
 		root.getActionMap().put("shiftSelect", new AbstractAction("shiftSelect") {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				if (selectionType == 0) {
-					for (int b = 0; b < 3; b++) {
-						buttons.get(b).resetColors();
-					}
-					addButton.setColors(dispMDL.getProgramPreferences().getActiveColor1(),
-							dispMDL.getProgramPreferences().getActiveColor2());
-					selectionType = 1;
+				// if (prefs.getSelectionType() == 0) {
+				// for (int b = 0; b < 3; b++) {
+				// buttons.get(b).resetColors();
+				// }
+				// addButton.setColors(prefs.getActiveColor1(),
+				// prefs.getActiveColor2());
+				// prefs.setSelectionType(1);
+				// cheatShift = true;
+				// }
+				if (selectionModeGroup.getActiveButtonType() == SelectionMode.SELECT) {
+					selectionModeGroup.setToolbarButtonType(SelectionMode.ADD);
 					cheatShift = true;
 				}
 			}
@@ -521,34 +693,42 @@ public class UVPanel extends JPanel implements ActionListener {
 		root.getActionMap().put("altSelect", new AbstractAction("altSelect") {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				if (selectionType == 0) {
-					for (int b = 0; b < 3; b++) {
-						buttons.get(b).resetColors();
-					}
-					deselectButton.setColors(dispMDL.getProgramPreferences().getActiveColor1(),
-							dispMDL.getProgramPreferences().getActiveColor2());
-					selectionType = 2;
+				// if (prefs.getSelectionType() == 0) {
+				// for (int b = 0; b < 3; b++) {
+				// buttons.get(b).resetColors();
+				// }
+				// deselectButton.setColors(prefs.getActiveColor1(),
+				// prefs.getActiveColor2());
+				// prefs.setSelectionType(2);
+				// cheatAlt = true;
+				// }
+				if (selectionModeGroup.getActiveButtonType() == SelectionMode.SELECT) {
+					selectionModeGroup.setToolbarButtonType(SelectionMode.DESELECT);
 					cheatAlt = true;
 				}
 			}
 		});
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
 				.put(KeyStroke.getKeyStroke("shift pressed SHIFT"), "shiftSelect");
-		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
-				.put(KeyStroke.getKeyStroke("control pressed CONTROL"), "shiftSelect");
+		// root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
+		// .put(KeyStroke.getKeyStroke("control pressed CONTROL"), "shiftSelect");
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("alt pressed ALT"),
 				"altSelect");
 
 		root.getActionMap().put("unShiftSelect", new AbstractAction("unShiftSelect") {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				if (selectionType == 1 && cheatShift) {
-					for (int b = 0; b < 3; b++) {
-						buttons.get(b).resetColors();
-					}
-					selectButton.setColors(dispMDL.getProgramPreferences().getActiveColor1(),
-							dispMDL.getProgramPreferences().getActiveColor2());
-					selectionType = 0;
+				// if (prefs.getSelectionType() == 1 && cheatShift) {
+				// for (int b = 0; b < 3; b++) {
+				// buttons.get(b).resetColors();
+				// }
+				// selectButton.setColors(prefs.getActiveColor1(),
+				// prefs.getActiveColor2());
+				// prefs.setSelectionType(0);
+				// cheatShift = false;
+				// }
+				if ((selectionModeGroup.getActiveButtonType() == SelectionMode.ADD) && cheatShift) {
+					selectionModeGroup.setToolbarButtonType(SelectionMode.SELECT);
 					cheatShift = false;
 				}
 			}
@@ -556,21 +736,26 @@ public class UVPanel extends JPanel implements ActionListener {
 		root.getActionMap().put("unAltSelect", new AbstractAction("unAltSelect") {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				if (selectionType == 2 && cheatAlt) {
-					for (int b = 0; b < 3; b++) {
-						buttons.get(b).resetColors();
-					}
-					selectButton.setColors(dispMDL.getProgramPreferences().getActiveColor1(),
-							dispMDL.getProgramPreferences().getActiveColor2());
-					selectionType = 0;
+				// if (prefs.getSelectionType() == 2 && cheatAlt) {
+				// for (int b = 0; b < 3; b++) {
+				// buttons.get(b).resetColors();
+				// }
+				// selectButton.setColors(prefs.getActiveColor1(),
+				// prefs.getActiveColor2());
+				// prefs.setSelectionType(0);
+				// cheatAlt = false;
+				// }
+				if ((selectionModeGroup.getActiveButtonType() == SelectionMode.DESELECT) && cheatAlt) {
+					selectionModeGroup.setToolbarButtonType(SelectionMode.SELECT);
 					cheatAlt = false;
 				}
 			}
 		});
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("released SHIFT"),
 				"unShiftSelect");
-		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("released CONTROL"),
-				"unShiftSelect");
+		// root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("released
+		// CONTROL"),
+		// "unShiftSelect");
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("released ALT"),
 				"unAltSelect");
 
@@ -586,7 +771,11 @@ public class UVPanel extends JPanel implements ActionListener {
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control E"),
 				"Expand Selection");
 
-		setControlsVisible(dispMDL.getProgramPreferences().showVMControls());
+		setControlsVisible(prefs.showVMControls());
+	}
+
+	protected boolean animationModeState() {
+		return false;
 	}
 
 	public boolean frameVisible() {
@@ -595,7 +784,7 @@ public class UVPanel extends JPanel implements ActionListener {
 
 	public void showFrame() {
 		if (frame == null) {
-			frame = new JFrame("Texture Coordinate Editor: " + dispMDL.getMDL().getName());
+			frame = new JFrame("Texture Coordinate Editor: " + currentModelPanel().getModel().getName());
 			frame.setContentPane(this);
 			frame.setIconImage(UVIcon.getImage());
 			// frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -621,7 +810,8 @@ public class UVPanel extends JPanel implements ActionListener {
 	}
 
 	public void setViewport(final ModelPanel dispModel) {
-		vp = new UVViewport(dispModel, this);
+		vp = new UVViewport(dispModel.getModelViewManager(), this, prefs, viewportActivityManager, this,
+				modelEditorManager.getModelEditor());
 		add(vp);
 	}
 
@@ -674,15 +864,6 @@ public class UVPanel extends JPanel implements ActionListener {
 		} else if (e.getSource() == minusZoom) {
 			vp.zoom(-.15);
 			vp.repaint();
-		} else if (e.getSource() == xButton) {
-			final int x = 0;
-			setDimLock(x, !dimLocks[x]);
-		} else if (e.getSource() == yButton) {
-			final int x = 1;
-			setDimLock(x, !dimLocks[x]);
-		} else if (e.getSource() == snapButton) {
-			dispMDL.snapUVs();
-			repaint();
 		} else if (e.getSource() == loadImage) {
 
 			final int x = JOptionPane.showConfirmDialog(this,
@@ -690,26 +871,26 @@ public class UVPanel extends JPanel implements ActionListener {
 					"Load Image", JOptionPane.YES_NO_CANCEL_OPTION);
 			if (x == JOptionPane.YES_OPTION) {
 				final DefaultListModel<Material> materials = new DefaultListModel<>();
-				for (int i = 0; i < dispMDL.model.getMaterials().size(); i++) {
-					final Material mat = dispMDL.model.getMaterials().get(i);
+				for (int i = 0; i < dispMDL.getModel().getMaterials().size(); i++) {
+					final Material mat = dispMDL.getModel().getMaterials().get(i);
 					materials.addElement(mat);
 				}
 
 				final JList<Material> materialsList = new JList<>(materials);
 				materialsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-				materialsList.setCellRenderer(new MaterialListRenderer(dispMDL.getMDL()));
+				materialsList.setCellRenderer(new MaterialListRenderer(dispMDL.getModel()));
 				JOptionPane.showMessageDialog(this, new JScrollPane(materialsList));
 
 				vp.clearBackgroundImage();
 				if (materialsList.getSelectedValue() != null) {
-					vp.addBackgroundImage(
-							materialsList.getSelectedValue().getBufferedImage(dispMDL.getMDL().getWorkingDirectory()));
+					vp.addBackgroundImage(materialsList.getSelectedValue()
+							.getBufferedImage(dispMDL.getModel().getWorkingDirectory()));
 				}
 			} else if (x == JOptionPane.NO_OPTION) {
 				final JFileChooser jfc = new JFileChooser();
-				final MDL current = dispMDL.model;
+				final MDL current = dispMDL.getModel();
 				final SaveProfile profile = SaveProfile.get();
-				if (current != null && current.getWorkingDirectory() != null) {
+				if ((current != null) && (current.getWorkingDirectory() != null)) {
 					jfc.setCurrentDirectory(current.getWorkingDirectory());
 				} else if (profile.getPath() != null) {
 					jfc.setCurrentDirectory(new File(profile.getPath()));
@@ -794,30 +975,6 @@ public class UVPanel extends JPanel implements ActionListener {
 			JOptionPane.showMessageDialog(this, panel);
 			vp.setAspectRatio(
 					((Integer) widthVal.getValue()).intValue() / (double) ((Integer) heightVal.getValue()).intValue());
-		} else {
-			boolean done = false;
-			for (int i = 3; i < 6 && !done; i++) {
-				if (e.getSource() == buttons.get(i)) {
-					done = true;
-					for (int b = 3; b < 6; b++) {
-						buttons.get(b).resetColors();
-					}
-					buttons.get(i).setColors(dispMDL.getProgramPreferences().getActiveRColor1(),
-							dispMDL.getProgramPreferences().getActiveRColor2());
-					actionType = i;
-				}
-			}
-			for (int i = 0; i < 3 && !done; i++) {
-				if (e.getSource() == buttons.get(i)) {
-					done = true;
-					for (int b = 0; b < 3; b++) {
-						buttons.get(b).resetColors();
-					}
-					buttons.get(i).setColors(dispMDL.getProgramPreferences().getActiveColor1(),
-							dispMDL.getProgramPreferences().getActiveColor2());
-					selectionType = i;
-				}
-			}
 		}
 	}
 
@@ -835,44 +992,66 @@ public class UVPanel extends JPanel implements ActionListener {
 	 * @return
 	 */
 	public int currentLayer() {
-		return 0;
-	}
-
-	boolean[] dimLocks = new boolean[2];
-
-	public ModeButton getDLockButton(final int x) {
-		switch (x) {
-		case 0:
-			return xButton;
-		case 1:
-			return yButton;
-		}
-		return null;
-	}
-
-	public void setDimLock(final int x, final boolean flag) {
-		dimLocks[x] = flag;
-		if (dimLocks[x]) {
-			getDLockButton(x).setColors(dispMDL.getProgramPreferences().getActiveBColor1(),
-					dispMDL.getProgramPreferences().getActiveBColor2());
-		} else {
-			getDLockButton(x).resetColors();
-		}
-	}
-
-	public boolean getDimLock(final int dim) {
-		return dimLocks[dim];
-	}
-
-	public int currentSelectionType() {
-		return selectionType;
-	}
-
-	public int currentActionType() {
-		return actionType;
+		return uvLayerIndex;
 	}
 
 	private ModelPanel currentModelPanel() {
 		return dispMDL;
+	}
+
+	@Override
+	public void notifyUpdate(final byte dimension1, final byte dimension2, final double coord1, final double coord2) {
+		setMouseCoordDisplay(coord1, coord2);
+	}
+
+	@Override
+	public void changeActivity(final TVertexEditorActivityDescriptor newType) {
+		currentActivity = newType;
+		viewportActivityManager.setCurrentActivity(
+				newType.createActivity(modelEditorManager, dispMDL.getModelViewManager(), dispMDL.getUndoManager()));
+		resetButtons();
+		final ModeButton modeButton = typeToButton.get(newType);
+		if (modeButton != null) {
+			modeButton.setColors(prefs.getActiveRColor1(), prefs.getActiveRColor2());
+		}
+		actionTypeGroup.maybeSetButtonType(newType);
+	}
+
+	public void resetButtons() {
+		for (final ModeButton button : modeButtons) {
+			button.resetColors();
+		}
+	}
+
+	public void resetSelectionModeButtons() {
+		for (final ModeButton button : selectionModeButtons) {
+			button.resetColors();
+		}
+	}
+
+	private final class ButtonActionChangeListener implements ActionListener {
+		private final int buttonIndex;
+
+		private ButtonActionChangeListener(final int buttonIndex) {
+			this.buttonIndex = buttonIndex;
+		}
+
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			changeActivity(actionTypeGroup.getToolbarButtonTypes()[buttonIndex]);
+		}
+	}
+
+	private final class ButtonModeChangeListener implements ActionListener {
+		private final int buttonIndex;
+
+		private ButtonModeChangeListener(final int buttonIndex) {
+			this.buttonIndex = buttonIndex;
+		}
+
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			selectionModeGroup.setToolbarButtonType(selectionModeGroup.getToolbarButtonTypes()[buttonIndex]);
+		}
 	}
 }

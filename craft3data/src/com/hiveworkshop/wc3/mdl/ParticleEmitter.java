@@ -13,9 +13,10 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.ParticleEmitterChunk;
 
 /**
- * ParticleEmitter2 class, these are the things most people would think of as a particle emitter, I think. Blizzard
- * favored use of these over ParticleEmitters and I do too simply because I so often recycle data and there are more of
- * these to use.
+ * ParticleEmitter2 class, these are the things most people would think of as a
+ * particle emitter, I think. Blizzard favored use of these over
+ * ParticleEmitters and I do too simply because I so often recycle data and
+ * there are more of these to use.
  *
  * Eric Theller 3/10/2012 3:32 PM
  */
@@ -64,14 +65,38 @@ public class ParticleEmitter extends IdObject implements VisibilitySource {
 		if (emitter.particleEmitterVisibility != null) {
 			add(new AnimFlag(emitter.particleEmitterVisibility));
 		}
-		setEmissionRate(emitter.emissionRate);
-		setGravity(emitter.gravity);
-		setInitVelocity(emitter.initialVelocity);
-		setLatitude(emitter.latitude);
-		setLifeSpan(emitter.lifeSpan);
-		setLongitude(emitter.longitude);
+		if (emitter.particleEmitterEmissionRate != null) {
+			add(new AnimFlag(emitter.particleEmitterEmissionRate));
+		} else {
+			setEmissionRate(emitter.emissionRate);
+		}
+		if (emitter.particleEmitterGravity != null) {
+			add(new AnimFlag(emitter.particleEmitterGravity));
+		} else {
+			setGravity(emitter.gravity);
+		}
+		if (emitter.particleEmitterSpeed != null) {
+			add(new AnimFlag(emitter.particleEmitterSpeed));
+		} else {
+			setInitVelocity(emitter.initialVelocity);
+		}
+		if (emitter.particleEmitterLatitude != null) {
+			add(new AnimFlag(emitter.particleEmitterLatitude));
+		} else {
+			setLatitude(emitter.latitude);
+		}
+		if (emitter.particleEmitterLifeSpan != null) {
+			add(new AnimFlag(emitter.particleEmitterLifeSpan));
+		} else {
+			setLifeSpan(emitter.lifeSpan);
+		}
+		if (emitter.particleEmitterLongitude != null) {
+			add(new AnimFlag(emitter.particleEmitterLongitude));
+		} else {
+			setLongitude(emitter.longitude);
+		}
 		setMDLEmitter(((emitter.node.flags >> 15) & 1) == 1);
-		if (!isMDLEmitter() && ((emitter.node.flags >> 8) & 1) == 1) {
+		if (!isMDLEmitter() && (((emitter.node.flags >> 8) & 1) == 1)) {
 			System.err.println(
 					"WARNING in MDX -> MDL: ParticleEmitter of unknown type! Defaults to EmitterUsesTGA in my MDL code!");
 		}
@@ -112,6 +137,7 @@ public class ParticleEmitter extends IdObject implements VisibilitySource {
 			while ((!line.contains("}") || line.contains("},") || line.contains("\t}"))
 					&& !line.equals("COMPLETED PARSING")) {
 				boolean foundType = false;
+				boolean inParticle = false;
 				if (line.contains("ObjectId")) {
 					pe.objectId = MDLReader.readInt(line);
 					foundType = true;
@@ -130,8 +156,14 @@ public class ParticleEmitter extends IdObject implements VisibilitySource {
 					MDLReader.reset(mdl);
 					pe.animFlags.add(AnimFlag.read(mdl));
 					foundType = true;
+				} else if (line.contains("Particle {")) {
+					foundType = true;
+					inParticle = true;
+				} else if (inParticle && line.contains("\t}")) {
+					foundType = true;
+					inParticle = false;
 				}
-				for (int i = 0; i < timeDoubleNames.length && !foundType; i++) {
+				for (int i = 0; (i < timeDoubleNames.length) && !foundType; i++) {
 					if (line.contains(timeDoubleNames[i])) {
 						foundType = true;
 						if (line.contains("static")) {
@@ -182,7 +214,7 @@ public class ParticleEmitter extends IdObject implements VisibilitySource {
 				writer.println("\tstatic " + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
 			} else {
 				boolean set = false;
-				for (int a = 0; a < pAnimFlags.size() && !set; a++) {
+				for (int a = 0; (a < pAnimFlags.size()) && !set; a++) {
 					if (pAnimFlags.get(a).getName().equals(currentFlag)) {
 						pAnimFlags.get(a).printTo(writer, 1);
 						pAnimFlags.remove(a);
@@ -208,7 +240,7 @@ public class ParticleEmitter extends IdObject implements VisibilitySource {
 				writer.println("\t\tstatic " + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
 			} else {
 				boolean set = false;
-				for (int a = 0; a < pAnimFlags.size() && !set; a++) {
+				for (int a = 0; (a < pAnimFlags.size()) && !set; a++) {
 					if (pAnimFlags.get(a).getName().equals(currentFlag)) {
 						pAnimFlags.get(a).printTo(writer, 2);
 						pAnimFlags.remove(a);

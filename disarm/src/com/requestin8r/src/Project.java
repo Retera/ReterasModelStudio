@@ -22,7 +22,7 @@ public class Project {
 		this.name = name;
 		this.icon = icon;
 		editor = new GeosetVertexModelEditor(model, SaveProfile.get().getPreferences(),
-				new GeosetVertexSelectionManager());
+				new GeosetVertexSelectionManager(), new DoNothingModelChangeListener());
 	}
 
 	public Project(final ModelViewManager model, final Image icon, final String name) {
@@ -30,6 +30,6 @@ public class Project {
 		this.name = name;
 		this.icon = icon;
 		editor = new GeosetVertexModelEditor(model, SaveProfile.get().getPreferences(),
-				new GeosetVertexSelectionManager());
+				new GeosetVertexSelectionManager(), new DoNothingModelChangeListener());
 	}
 }

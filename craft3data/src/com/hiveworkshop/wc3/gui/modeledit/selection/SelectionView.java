@@ -5,6 +5,8 @@ import java.util.Collection;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelElementRenderer;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexModelElementRenderer;
+import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
@@ -26,6 +28,15 @@ public interface SelectionView {
 
 	void renderSelection(ModelElementRenderer renderer, final CoordinateSystem coordinateSystem, ModelView modelView,
 			ProgramPreferences programPreferences);
+
+	TVertex getUVCenter(int tvertexLayerId);
+
+	Collection<? extends TVertex> getSelectedTVertices(int tvertexLayerId);
+
+	double getCircumscribedSphereRadius(TVertex center, int tvertexLayerId);
+
+	void renderUVSelection(TVertexModelElementRenderer renderer, ModelView modelView,
+			ProgramPreferences programPreferences, int tvertexLayerId);
 
 	boolean isEmpty();
 }

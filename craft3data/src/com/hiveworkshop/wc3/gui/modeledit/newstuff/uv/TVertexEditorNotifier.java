@@ -21,6 +21,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericRotateAct
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
@@ -180,9 +181,10 @@ public class TVertexEditorNotifier extends SubscriberSetNotifier<TVertexEditor> 
 	}
 
 	@Override
-	public void rawRotate2d(final double centerX, final double centerY, final double radians) {
+	public void rawRotate2d(final double centerX, final double centerY, final double radians, final byte dim1,
+			final byte dim2) {
 		for (final TVertexEditor handler : set) {
-			handler.rawRotate2d(centerX, centerY, radians);
+			handler.rawRotate2d(centerX, centerY, radians, dim1, dim2);
 		}
 	}
 
@@ -225,10 +227,11 @@ public class TVertexEditorNotifier extends SubscriberSetNotifier<TVertexEditor> 
 	}
 
 	@Override
-	public GenericRotateAction beginRotation(final double centerX, final double centerY) {
+	public GenericRotateAction beginRotation(final double centerX, final double centerY, final byte dim1,
+			final byte dim2) {
 		final List<GenericRotateAction> actions = new ArrayList<>();
 		for (final TVertexEditor handler : set) {
-			actions.add(handler.beginRotation(centerX, centerY));
+			actions.add(handler.beginRotation(centerX, centerY, dim1, dim2));
 		}
 		return mergeRotateActions(actions);
 	}
@@ -247,5 +250,28 @@ public class TVertexEditorNotifier extends SubscriberSetNotifier<TVertexEditor> 
 		for (final TVertexEditor handler : set) {
 			handler.setUVLayerIndex(uvLayerIndex);
 		}
+	}
+
+	@Override
+	public UndoAction selectFromViewer(final SelectionView viewerSelectionView) {
+		final List<UndoAction> actions = new ArrayList<>();
+		for (final TVertexEditor handler : set) {
+			actions.add(handler.selectFromViewer(viewerSelectionView));
+		}
+		return mergeActions(actions);
+	}
+
+	@Override
+	public int getUVLayerIndex() {
+		int uvLayerIndex = -1;
+		for (final TVertexEditor handler : set) {
+			if (uvLayerIndex == -1) {
+				uvLayerIndex = handler.getUVLayerIndex();
+			} else if (uvLayerIndex != handler.getUVLayerIndex()) {
+				throw new IllegalStateException("Differing UV Layer Indices between editors: " + uvLayerIndex + " != "
+						+ handler.getUVLayerIndex());
+			}
+		}
+		return uvLayerIndex;
 	}
 }

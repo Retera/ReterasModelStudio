@@ -51,6 +51,7 @@ project(":disarm") {
     dependencies {
         compile project(":craft3data")
         compile project(":craft3editor")
+        compile project(":matrixeater")
     }
 }
 

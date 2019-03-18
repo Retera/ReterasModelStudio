@@ -88,7 +88,7 @@ public class CameraChunk {
 		public void save(final BlizzardDataOutputStream out) throws IOException {
 			out.writeInt(getSize());// InclusiveSize
 			out.writeNByteString(name, 80);
-			if (position.length % 3 != 0) {
+			if ((position.length % 3) != 0) {
 				throw new IllegalArgumentException(
 						"The array position needs either the length 3 or a multiple of this number. (got "
 								+ position.length + ")");
@@ -97,7 +97,7 @@ public class CameraChunk {
 			out.writeFloat(fieldOfView);
 			out.writeFloat(farClippingPlane);
 			out.writeFloat(nearClippingPlane);
-			if (targetPosition.length % 3 != 0) {
+			if ((targetPosition.length % 3) != 0) {
 				throw new IllegalArgumentException(
 						"The array targetPosition needs either the length 3 or a multiple of this number. (got "
 								+ targetPosition.length + ")");
@@ -149,7 +149,7 @@ public class CameraChunk {
 			nearClippingPlane = (float) mdlCam.getNearClip();
 			targetPosition = mdlCam.getTargetPosition().toFloatArray();
 			for (final AnimFlag af : mdlCam.getAnimFlags()) {
-				if (af.getName().equals("Translation") && af.size() > 0) {
+				if (af.getName().equals("Translation") && (af.size() > 0)) {
 					cameraPositionTranslation = new CameraPositionTranslation();
 					cameraPositionTranslation.globalSequenceId = af.getGlobalSeqId();
 					cameraPositionTranslation.interpolationType = af.getInterpType();
@@ -167,7 +167,7 @@ public class CameraChunk {
 							mdxEntry.outTan = ((Vertex) mdlEntry.outTan).toFloatArray();
 						}
 					}
-				} else if (af.getName().equals("Rotation") && af.size() > 0) {
+				} else if (af.getName().equals("Rotation") && (af.size() > 0)) {
 					cameraRotation = new CameraRotation();
 					cameraRotation.globalSequenceId = af.getGlobalSeqId();
 					cameraRotation.interpolationType = af.getInterpType();
@@ -190,7 +190,7 @@ public class CameraChunk {
 					}
 				}
 			}
-			for (final AnimFlag af : mdlCam.getAnimFlags()) {
+			for (final AnimFlag af : mdlCam.getTargetAnimFlags()) {
 				if (af.getName().equals("Translation")) {
 					cameraTargetTranslation = new CameraTargetTranslation();
 					cameraTargetTranslation.globalSequenceId = af.getGlobalSeqId();

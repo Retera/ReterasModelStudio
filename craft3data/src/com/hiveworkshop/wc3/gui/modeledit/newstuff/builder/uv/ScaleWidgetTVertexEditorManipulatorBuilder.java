@@ -13,25 +13,25 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.uv.ScaleXTVertexM
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.uv.ScaleXYTVertexManipulator;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.uv.ScaleYTVertexManipulator;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexEditor;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexSelectionView;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.widgets.ScalerWidget;
-import com.hiveworkshop.wc3.gui.modeledit.useractions.widgets.ScalerWidget.ScaleDirection;
-import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.widgets.tvertex.TVertexScalerWidget;
+import com.hiveworkshop.wc3.gui.modeledit.useractions.widgets.tvertex.TVertexScalerWidget.ScaleDirection;
+import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
-public final class ScaleWidgetManipulatorBuilder extends AbstractSelectAndEditTVertexEditorManipulatorBuilder {
-	private final ScalerWidget moverWidget = new ScalerWidget(new Vertex(0, 0, 0));
+public final class ScaleWidgetTVertexEditorManipulatorBuilder extends AbstractSelectAndEditTVertexEditorManipulatorBuilder {
+	private final TVertexScalerWidget moverWidget = new TVertexScalerWidget(new TVertex(0, 0));
 
-	public ScaleWidgetManipulatorBuilder(final TVertexEditor modelEditor,
+	public ScaleWidgetTVertexEditorManipulatorBuilder(final TVertexEditor modelEditor,
 			final ViewportSelectionHandler viewportSelectionHandler, final ProgramPreferences programPreferences,
 			final ModelView modelView) {
 		super(viewportSelectionHandler, programPreferences, modelEditor, modelView);
 	}
 
 	@Override
-	protected boolean widgetOffersEdit(final Vertex selectionCenter, final Point mousePoint,
-			final CoordinateSystem coordinateSystem, final TVertexSelectionView selectionView) {
-		moverWidget.setPoint(selectionView.getCenter());
+	protected boolean widgetOffersEdit(final TVertex selectionCenter, final Point mousePoint,
+			final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
+		moverWidget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
 		final ScaleDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem,
 				coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 		moverWidget.setMoveDirection(directionByMouse);
@@ -39,9 +39,9 @@ public final class ScaleWidgetManipulatorBuilder extends AbstractSelectAndEditTV
 	}
 
 	@Override
-	protected Manipulator createManipulatorFromWidget(final Vertex selectionCenter, final Point mousePoint,
-			final CoordinateSystem coordinateSystem, final TVertexSelectionView selectionView) {
-		moverWidget.setPoint(selectionView.getCenter());
+	protected Manipulator createManipulatorFromWidget(final TVertex selectionCenter, final Point mousePoint,
+			final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
+		moverWidget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
 		final ScaleDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem,
 				coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 		if (directionByMouse != null) {
@@ -63,15 +63,15 @@ public final class ScaleWidgetManipulatorBuilder extends AbstractSelectAndEditTV
 	}
 
 	@Override
-	protected Manipulator createDefaultManipulator(final Vertex selectionCenter, final Point mousePoint,
-			final CoordinateSystem coordinateSystem, final TVertexSelectionView selectionView) {
+	protected Manipulator createDefaultManipulator(final TVertex selectionCenter, final Point mousePoint,
+			final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
 		return new ScaleTVertexManipulator(getModelEditor(), selectionView);
 	}
 
 	@Override
 	protected void renderWidget(final Graphics2D graphics, final CoordinateSystem coordinateSystem,
-			final TVertexSelectionView selectionView) {
-		moverWidget.setPoint(selectionView.getCenter());
+			final SelectionView selectionView) {
+		moverWidget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
 		moverWidget.render(graphics, coordinateSystem);
 	}
 

@@ -363,7 +363,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 		// }
 	}
 
-	public boolean close()// MainPanel parent) TODO fix
+	public boolean close(final ModelPanelCloseListener listener)// MainPanel parent) TODO fix
 	{
 		// returns true if closed successfully
 		boolean canceled = false;
@@ -378,6 +378,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 			switch (n) {
 			case 0:
 				// ((ModelPanel)parent.tabbedPane.getComponentAt(myIndex)).getMDLDisplay().getMDL().saveFile();
+				listener.save(model);
 				// parent.tabbedPane.remove(myIndex);
 				if (editUVPanel != null) {
 					editUVPanel.frame.setVisible(false);
@@ -487,9 +488,9 @@ public class ModelPanel implements ActionListener, MouseListener {
 		}
 		String boneList = "";
 		for (int i = 0; i < boneRefs.size(); i++) {
-			if (i == boneRefs.size() - 2) {
+			if (i == (boneRefs.size() - 2)) {
 				boneList = boneList + boneRefs.get(i).getName() + " and ";
-			} else if (i == boneRefs.size() - 1) {
+			} else if (i == (boneRefs.size() - 1)) {
 				boneList = boneList + boneRefs.get(i).getName();
 			} else {
 				boneList = boneList + boneRefs.get(i).getName() + ", ";

@@ -6,15 +6,15 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.AbstractManipulator;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexEditor;
-import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexSelectionView;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.wc3.mdl.TVertex;
 
-public class RotateManipulator extends AbstractManipulator {
+public class RotateTVertexManipulator extends AbstractManipulator {
 	private final TVertexEditor modelEditor;
-	private final TVertexSelectionView selectionView;
+	private final SelectionView selectionView;
 	private GenericRotateAction rotationAction;
 
-	public RotateManipulator(final TVertexEditor modelEditor, final TVertexSelectionView selectionView) {
+	public RotateTVertexManipulator(final TVertexEditor modelEditor, final SelectionView selectionView) {
 		this.modelEditor = modelEditor;
 		this.selectionView = selectionView;
 	}
@@ -22,13 +22,13 @@ public class RotateManipulator extends AbstractManipulator {
 	@Override
 	protected void onStart(final Double mouseStart, final byte dim1, final byte dim2) {
 		super.onStart(mouseStart, dim1, dim2);
-		final TVertex center = selectionView.getCenter();
+		final TVertex center = selectionView.getUVCenter(modelEditor.getUVLayerIndex());
 		rotationAction = modelEditor.beginRotation(center.x, center.y, dim1, dim2);
 	}
 
 	@Override
 	public void update(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
-		final TVertex center = selectionView.getCenter();
+		final TVertex center = selectionView.getUVCenter(modelEditor.getUVLayerIndex());
 		final double radians = computeRotateRadians(mouseStart, mouseEnd, center, dim1, dim2);
 		rotationAction.updateRotation(radians);
 	}

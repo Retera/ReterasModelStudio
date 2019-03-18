@@ -372,7 +372,7 @@ public class MDL implements Named {
 			for (final CameraChunk.Camera cam : mdx.cameraChunk.camera) {
 				final Camera mdlCam = new Camera(cam);
 				if (!corruptedCameraWarningGiven && (mdlCam.getName().contains("????????")
-						|| mdlCam.getName().length() > 20 || mdlCam.getName().length() <= 0)) {
+						|| (mdlCam.getName().length() > 20) || (mdlCam.getName().length() <= 0))) {
 					corruptedCameraWarningGiven = true;
 					JOptionPane.showMessageDialog(null, "--- " + this.getName()
 							+ " ---\nWARNING: Java Warcraft Libraries thinks we are loading a camera with corrupted data due to bug in Native MDX Parser.\nPlease DISABLE \"View > Use Native MDX Parser\" if you want to correctly edit \""
@@ -392,10 +392,10 @@ public class MDL implements Named {
 		}
 
 		if (mdx.pivotPointChunk != null) {
-			for (int objId = 0; objId < mdx.pivotPointChunk.pivotPoints.length / 3; objId++) {
-				addPivotPoint(new Vertex(mdx.pivotPointChunk.pivotPoints[objId * 3 + 0],
-						mdx.pivotPointChunk.pivotPoints[objId * 3 + 1],
-						mdx.pivotPointChunk.pivotPoints[objId * 3 + 2]));
+			for (int objId = 0; objId < (mdx.pivotPointChunk.pivotPoints.length / 3); objId++) {
+				addPivotPoint(new Vertex(mdx.pivotPointChunk.pivotPoints[(objId * 3) + 0],
+						mdx.pivotPointChunk.pivotPoints[(objId * 3) + 1],
+						mdx.pivotPointChunk.pivotPoints[(objId * 3) + 2]));
 			}
 		}
 
@@ -420,7 +420,7 @@ public class MDL implements Named {
 		s[0] = s[0].substring(4, s[0].length());
 		final int s_size = countContainsString(input, ",");
 		s[s_size - 1] = s[s_size - 1].substring(0, s[s_size - 1].length() - 2);
-		for (int t = 0; t < s_size - 1; t += 3)// s[t+3].equals("")||
+		for (int t = 0; t < (s_size - 1); t += 3)// s[t+3].equals("")||
 		{
 			for (int i = 0; i < 3; i++) {
 				s[t + i] = s[t + i].substring(1);
@@ -652,7 +652,7 @@ public class MDL implements Named {
 				for (final Animation anim : anims) {
 					final Integer animStartTime = anim.getStart();
 					final Number visible = (Number) visibility.valueAt(animStartTime);
-					if (visible == null || visible.floatValue() > 0) {
+					if ((visible == null) || (visible.floatValue() > 0)) {
 						talliesFor++;
 					} else {
 						talliesAgainst++;
@@ -755,7 +755,7 @@ public class MDL implements Named {
 				final Bone bone = (Bone) object;
 				// the object in this model of similar name
 				final Object localObject = getObject(bone.getName());
-				if (localObject != null && localObject instanceof Bone) {
+				if ((localObject != null) && (localObject instanceof Bone)) {
 					final Bone localBone = (Bone) localObject;
 					localBone.copyMotionFrom(bone); // if it's a match, take the
 													// data
@@ -842,7 +842,7 @@ public class MDL implements Named {
 				final Bone bone = (Bone) object;
 				// the object in this model of similar name
 				final Object localObject = getObject(bone.getName());
-				if (localObject != null && localObject instanceof Bone) {
+				if ((localObject != null) && (localObject instanceof Bone)) {
 					final Bone localBone = (Bone) localObject;
 					localBone.copyMotionFrom(bone); // if it's a match, take the
 													// data
@@ -1011,7 +1011,7 @@ public class MDL implements Named {
 			// if( hadGeosetAnims )
 			MDLReader.reset(mdl);
 			line = MDLReader.nextLine(mdl);
-			while (line.length() > 1 && !line.equals("COMPLETED PARSING")) {
+			while ((line.length() > 1) && !line.equals("COMPLETED PARSING")) {
 				if (line.startsWith("Bone ")) {
 					MDLReader.reset(mdl);
 					mdlr.addIdObject(Bone.read(mdl));
@@ -1344,9 +1344,9 @@ public class MDL implements Named {
 
 		for (int i = 0; i < idObjects.size(); i++) {
 			final IdObject obj = idObjects.get(i);
-			if (!pivotsPrinted && (obj.getClass() == ParticleEmitter.class || obj.getClass() == ParticleEmitter2.class
-					|| obj.getClass() == RibbonEmitter.class || obj.getClass() == EventObject.class
-					|| obj.getClass() == CollisionShape.class)) {
+			if (!pivotsPrinted && ((obj.getClass() == ParticleEmitter.class)
+					|| (obj.getClass() == ParticleEmitter2.class) || (obj.getClass() == RibbonEmitter.class)
+					|| (obj.getClass() == EventObject.class) || (obj.getClass() == CollisionShape.class))) {
 				writer.println("PivotPoints " + pivots.size() + " {");
 				for (int p = 0; p < pivots.size(); p++) {
 					writer.println("\t" + pivots.get(p).toString() + ",");
@@ -1354,7 +1354,8 @@ public class MDL implements Named {
 				writer.println("}");
 				pivotsPrinted = true;
 			}
-			if (!camerasPrinted && (obj.getClass() == EventObject.class || obj.getClass() == CollisionShape.class)) {
+			if (!camerasPrinted
+					&& ((obj.getClass() == EventObject.class) || (obj.getClass() == CollisionShape.class))) {
 				camerasPrinted = true;
 				for (int c = 0; c < cameras.size(); c++) {
 					cameras.get(c).printTo(writer);
@@ -1444,14 +1445,14 @@ public class MDL implements Named {
 	public void rebuildMaterialList() {
 		materials.clear();
 		for (final Geoset g : geosets) {
-			if (g.material != null && !materials.contains(g.material)) {
+			if ((g.material != null) && !materials.contains(g.material)) {
 				materials.add(g.material);
 			}
 			g.setMaterialId(materials.indexOf(g.material)); // -1 if null
 		}
 		final ArrayList<RibbonEmitter> ribbons = sortedIdObjects(RibbonEmitter.class);
 		for (final RibbonEmitter r : ribbons) {
-			if (r.material != null && !materials.contains(r.material)) {
+			if ((r.material != null) && !materials.contains(r.material)) {
 				materials.add(r.material);
 			} else {
 				// JOptionPane.showMessageDialog(null,"Null material found for
@@ -1473,7 +1474,7 @@ public class MDL implements Named {
 		clearTexAnims();
 		for (final Material m : materials) {
 			for (final Layer lay : m.layers) {
-				if (lay.textureAnim != null && !texAnims.contains(lay.textureAnim)) {
+				if ((lay.textureAnim != null) && !texAnims.contains(lay.textureAnim)) {
 					texAnims.add(lay.textureAnim);
 				}
 			}
@@ -1485,7 +1486,7 @@ public class MDL implements Named {
 		textures.clear();
 		for (final Material m : materials) {
 			for (final Layer lay : m.layers) {
-				if (lay.texture != null && !textures.contains(lay.texture) && lay.textures == null) {
+				if ((lay.texture != null) && !textures.contains(lay.texture) && (lay.textures == null)) {
 					boolean good = true;
 					for (final Bitmap btm : textures) {
 						if (lay.texture.equals(btm)) {
@@ -1518,7 +1519,7 @@ public class MDL implements Named {
 		final ArrayList<ParticleEmitter2> particles = sortedIdObjects(ParticleEmitter2.class);
 		for (final ParticleEmitter2 pe : particles) {
 			boolean good = true;
-			if (pe.texture != null && !textures.contains(pe.texture)) {
+			if ((pe.texture != null) && !textures.contains(pe.texture)) {
 				for (final Bitmap btm : textures) {
 					if (pe.texture.equals(btm)) {
 						good = false;
@@ -1537,13 +1538,13 @@ public class MDL implements Named {
 		final List<AnimFlag> animFlags = getAllAnimFlags();// laggggg!
 		final List<EventObject> evtObjs = sortedIdObjects(EventObject.class);
 		for (final AnimFlag af : animFlags) {
-			if (!globalSeqs.contains(af.globalSeq) && af.globalSeq != null) {
+			if (!globalSeqs.contains(af.globalSeq) && (af.globalSeq != null)) {
 				globalSeqs.add(af.globalSeq);
 			}
 			af.updateGlobalSeqId(this);// keep the ids straight
 		}
 		for (final EventObject af : evtObjs) {
-			if (!globalSeqs.contains(af.globalSeq) && af.globalSeq != null) {
+			if (!globalSeqs.contains(af.globalSeq) && (af.globalSeq != null)) {
 				globalSeqs.add(af.globalSeq);
 			}
 			af.updateGlobalSeqId(this);// keep the ids straight
@@ -1584,10 +1585,10 @@ public class MDL implements Named {
 			obj.setPivotPoint(pivots.get(i));
 		}
 		for (final Bone b : bones) {
-			if (b.geosetId != -1 && b.geosetId < geosets.size()) {
+			if ((b.geosetId != -1) && (b.geosetId < geosets.size())) {
 				b.geoset = geosets.get(b.geosetId);
 			}
-			if (b.geosetAnimId != -1 && b.geosetAnimId < geosetAnims.size()) {
+			if ((b.geosetAnimId != -1) && (b.geosetAnimId < geosetAnims.size())) {
 				b.geosetAnim = geosetAnims.get(b.geosetAnimId);
 			}
 		}
@@ -1921,7 +1922,7 @@ public class MDL implements Named {
 	public GeosetAnim getGeosetAnimOfGeoset(final Geoset g) {
 		if (g.geosetAnim == null) {
 			boolean noIds = true;
-			for (int i = 0; i < geosetAnims.size() && noIds; i++) {
+			for (int i = 0; (i < geosetAnims.size()) && noIds; i++) {
 				final GeosetAnim ga = geosetAnims.get(i);
 				if (ga.geosetId != -1) {
 					noIds = false;
@@ -2016,7 +2017,7 @@ public class MDL implements Named {
 									}
 
 								}
-							} else if (ga != null && ga != b2.geosetAnim) {
+							} else if ((ga != null) && (ga != b2.geosetAnim)) {
 								b2.geosetAnim = ga.getMostVisible(b2.geosetAnim);
 							}
 						}
@@ -2141,7 +2142,7 @@ public class MDL implements Named {
 					"Added null IdObject component to model, which is really bad. Tell Retera you saw this once you have errors.");
 		}
 		idObjects.add(x);
-		if (x.pivotPoint != null && !pivots.contains(x.pivotPoint)) {
+		if ((x.pivotPoint != null) && !pivots.contains(x.pivotPoint)) {
 			pivots.add(x.pivotPoint);
 		}
 	}
@@ -2374,7 +2375,7 @@ public class MDL implements Named {
 			Entry lastEntry = null;
 			for (int i = 0; i < flag.length(); i++) {
 				final Entry entry = flag.getEntry(i);
-				if (lastEntry != null && lastEntry.time == entry.time) {
+				if ((lastEntry != null) && (lastEntry.time == entry.time)) {
 					indicesForDeletion.add(new Integer(i));
 				}
 				lastEntry = entry;
@@ -2405,19 +2406,19 @@ public class MDL implements Named {
 						// public static final int COLOR = 4;
 						// // 5 TextureID
 						// public static final int TEXTUREID = 5;
-						if (entry.time >= anim.getStart() && entry.time <= anim.getEnd()) {
+						if ((entry.time >= anim.getStart()) && (entry.time <= anim.getEnd())) {
 							if (entry.value instanceof Double) {
 								final Double d = (Double) entry.value;
 								final Double older = (Double) olderKeyframe;
 								final Double old = (Double) oldKeyframe;
-								if (older != null && old != null && MathUtils.isBetween(older, old, d)) {
+								if ((older != null) && (old != null) && MathUtils.isBetween(older, old, d)) {
 									indicesForDeletion.add(new Integer(i - 1));
 								}
 							} else if (entry.value instanceof Vertex) {
 								final Vertex current = (Vertex) entry.value;
 								final Vertex older = (Vertex) olderKeyframe;
 								final Vertex old = (Vertex) oldKeyframe;
-								if (older != null && old != null && MathUtils.isBetween(older.x, old.x, current.x)
+								if ((older != null) && (old != null) && MathUtils.isBetween(older.x, old.x, current.x)
 										&& MathUtils.isBetween(older.y, old.y, current.y)
 										&& MathUtils.isBetween(older.z, old.z, current.z)) {
 									indicesForDeletion.add(new Integer(i - 1));
@@ -2427,7 +2428,7 @@ public class MDL implements Named {
 								final QuaternionRotation older = (QuaternionRotation) olderKeyframe;
 								final QuaternionRotation old = (QuaternionRotation) oldKeyframe;
 								final Vertex euler = current.toEuler();
-								if (older != null && old != null) {
+								if ((older != null) && (old != null)) {
 									final Vertex olderEuler = older.toEuler();
 									final Vertex oldEuler = old.toEuler();
 									if (MathUtils.isBetween(olderEuler.x, oldEuler.x, euler.x)
@@ -2485,14 +2486,14 @@ public class MDL implements Named {
 							final Double d = (Double) entry.value;
 							final Double older = (Double) olderKeyframe;
 							final Double old = (Double) oldKeyframe;
-							if (older != null && old != null && MathUtils.isBetween(older, old, d)) {
+							if ((older != null) && (old != null) && MathUtils.isBetween(older, old, d)) {
 								indicesForDeletion.add(new Integer(i - 1));
 							}
 						} else if (entry.value instanceof Vertex) {
 							final Vertex current = (Vertex) entry.value;
 							final Vertex older = (Vertex) olderKeyframe;
 							final Vertex old = (Vertex) oldKeyframe;
-							if (older != null && old != null && MathUtils.isBetween(older.x, old.x, current.x)
+							if ((older != null) && (old != null) && MathUtils.isBetween(older.x, old.x, current.x)
 									&& MathUtils.isBetween(older.y, old.y, current.y)
 									&& MathUtils.isBetween(older.z, old.z, current.z)) {
 								indicesForDeletion.add(new Integer(i - 1));
@@ -2502,7 +2503,7 @@ public class MDL implements Named {
 							final QuaternionRotation older = (QuaternionRotation) olderKeyframe;
 							final QuaternionRotation old = (QuaternionRotation) oldKeyframe;
 							final Vertex euler = current.toEuler();
-							if (older != null && old != null) {
+							if ((older != null) && (old != null)) {
 								final Vertex olderEuler = older.toEuler();
 								final Vertex oldEuler = old.toEuler();
 								if (MathUtils.isBetween(olderEuler.x, oldEuler.x, euler.x)
@@ -2680,6 +2681,32 @@ public class MDL implements Named {
 						iterator.remove();
 					}
 				}
+			}
+		}
+	}
+
+	public void remove(final Bitmap texture) {
+		// remove a texture, replacing with "Textures\\white.blp" if necessary.
+		final Bitmap replacement = new Bitmap("Textures\\white.blp");
+		textures.remove(texture);
+		for (final Material material : materials) {
+			for (final Layer layer : material.getLayers()) {
+				if (layer.getTextureBitmap().equals(texture)) {
+					layer.setTexture(replacement);
+				} else {
+					if ((layer.getTextures() != null) && layer.getTextures().contains(texture)) {
+						for (int i = 0; i < layer.getTextures().size(); i++) {
+							if (layer.getTextures().get(i).equals(texture)) {
+								layer.getTextures().set(i, replacement);
+							}
+						}
+					}
+				}
+			}
+		}
+		for (final ParticleEmitter2 emitter : sortedIdObjects(ParticleEmitter2.class)) {
+			if (emitter.getTexture().equals(texture)) {
+				emitter.setTexture(replacement);
 			}
 		}
 	}

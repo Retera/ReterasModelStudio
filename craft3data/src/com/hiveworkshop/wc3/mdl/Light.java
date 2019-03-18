@@ -63,8 +63,16 @@ public class Light extends IdObject implements VisibilitySource {
 			add("Omnidirectional");
 			break;
 		}
-		setAttenuationStart(light.attenuationStart);
-		setAttenuationEnd(light.attenuationEnd);
+		if (light.lightAttenuationStart != null) {
+			add(new AnimFlag(light.lightAttenuationStart));
+		} else {
+			setAttenuationStart(light.attenuationStart);
+		}
+		if (light.lightAttenuationEnd != null) {
+			add(new AnimFlag(light.lightAttenuationEnd));
+		} else {
+			setAttenuationEnd(light.attenuationEnd);
+		}
 		if (light.lightVisibility != null) {
 			add(new AnimFlag(light.lightVisibility));
 		}
@@ -192,7 +200,7 @@ public class Light extends IdObject implements VisibilitySource {
 			writer.println("\tstatic " + currentFlag + " " + AttenuationStart + ",");
 		} else {
 			boolean set = false;
-			for (int i = 0; i < pAnimFlags.size() && !set; i++) {
+			for (int i = 0; (i < pAnimFlags.size()) && !set; i++) {
 				if (pAnimFlags.get(i).getName().equals(currentFlag)) {
 					pAnimFlags.get(i).printTo(writer, 1);
 					pAnimFlags.remove(i);
@@ -205,7 +213,7 @@ public class Light extends IdObject implements VisibilitySource {
 			writer.println("\tstatic " + currentFlag + " " + AttenuationEnd + ",");
 		} else {
 			boolean set = false;
-			for (int i = 0; i < pAnimFlags.size() && !set; i++) {
+			for (int i = 0; (i < pAnimFlags.size()) && !set; i++) {
 				if (pAnimFlags.get(i).getName().equals(currentFlag)) {
 					pAnimFlags.get(i).printTo(writer, 1);
 					pAnimFlags.remove(i);
@@ -218,7 +226,7 @@ public class Light extends IdObject implements VisibilitySource {
 			writer.println("\tstatic " + currentFlag + " " + Intensity + ",");
 		} else {
 			boolean set = false;
-			for (int i = 0; i < pAnimFlags.size() && !set; i++) {
+			for (int i = 0; (i < pAnimFlags.size()) && !set; i++) {
 				if (pAnimFlags.get(i).getName().equals(currentFlag)) {
 					pAnimFlags.get(i).printTo(writer, 1);
 					pAnimFlags.remove(i);
@@ -231,7 +239,7 @@ public class Light extends IdObject implements VisibilitySource {
 			writer.println("\tstatic " + currentFlag + " " + staticColor.toString() + ",");
 		} else {
 			boolean set = false;
-			for (int i = 0; i < pAnimFlags.size() && !set; i++) {
+			for (int i = 0; (i < pAnimFlags.size()) && !set; i++) {
 				if (pAnimFlags.get(i).getName().equals(currentFlag)) {
 					pAnimFlags.get(i).printTo(writer, 1);
 					pAnimFlags.remove(i);
@@ -244,7 +252,7 @@ public class Light extends IdObject implements VisibilitySource {
 			writer.println("\tstatic " + currentFlag + " " + AmbIntensity + ",");
 		} else {
 			boolean set = false;
-			for (int i = 0; i < pAnimFlags.size() && !set; i++) {
+			for (int i = 0; (i < pAnimFlags.size()) && !set; i++) {
 				if (pAnimFlags.get(i).getName().equals(currentFlag)) {
 					pAnimFlags.get(i).printTo(writer, 1);
 					pAnimFlags.remove(i);
@@ -257,7 +265,7 @@ public class Light extends IdObject implements VisibilitySource {
 			writer.println("\tstatic " + currentFlag + " " + staticAmbColor.toString() + ",");
 		} else {
 			boolean set = false;
-			for (int i = 0; i < pAnimFlags.size() && !set; i++) {
+			for (int i = 0; (i < pAnimFlags.size()) && !set; i++) {
 				if (pAnimFlags.get(i).getName().equals(currentFlag)) {
 					pAnimFlags.get(i).printTo(writer, 1);
 					pAnimFlags.remove(i);

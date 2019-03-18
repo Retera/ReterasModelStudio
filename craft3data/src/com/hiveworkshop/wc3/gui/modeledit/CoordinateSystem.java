@@ -9,6 +9,7 @@ import org.lwjgl.util.vector.Vector4f;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.RenderModel;
+import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 public interface CoordinateSystem extends CoordinateAxes {
@@ -110,6 +111,13 @@ public interface CoordinateSystem extends CoordinateAxes {
 		}
 
 		public static Point convertToPoint(final CoordinateSystem coordinateSystem, final Vertex vertex,
+				final Point recyclePoint) {
+			recyclePoint.x = (int) coordinateSystem.convertX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
+			recyclePoint.y = (int) coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
+			return recyclePoint;
+		}
+
+		public static Point convertToPoint(final CoordinateSystem coordinateSystem, final TVertex vertex,
 				final Point recyclePoint) {
 			recyclePoint.x = (int) coordinateSystem.convertX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
 			recyclePoint.y = (int) coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));

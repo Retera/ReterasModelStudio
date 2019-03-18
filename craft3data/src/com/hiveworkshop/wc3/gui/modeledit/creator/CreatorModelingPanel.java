@@ -80,7 +80,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 	private UndoActionListener undoActionListener;
 	private final ActiveViewportWatcher activeViewportWatcher;
 	private final ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup;
-	private final Map<ActivityDescriptor, ModeButton> typeToButton = new HashMap<>();
+	private final Map<ActivityDescriptor, List<ModeButton>> typeToButtons = new HashMap<>();
 	private final ProgramPreferences programPreferences;
 	private final DefaultComboBoxModel<String> modeChooserBoxModel;
 	private final DefaultComboBoxModel<ChooseableTimeRange> animationChooserBoxModel;
@@ -225,7 +225,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 					listener.changeActivity(type);
 				}
 			});
-			typeToButton.put(type, button);
+			putTypeToButton(type, button);
 			modeButtons.add(button);
 		}
 
@@ -247,7 +247,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 				listeningForActivityChanges = false;
 				listener.changeActivity(new DrawBoneActivityDescriptor(programPrefences, activeViewportWatcher));
 				resetButtons();
-				vertexButton.setColors(programPrefences.getActiveColor1(), programPrefences.getActiveColor2());
+				boneButton.setColors(programPrefences.getActiveColor1(), programPrefences.getActiveColor2());
 				listeningForActivityChanges = true;
 			}
 		});
@@ -277,7 +277,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 						listener.changeActivity(type);
 					}
 				});
-				typeToButton.put(type, button);
+				putTypeToButton(type, button);
 				modeButtons.add(button);
 			}
 			index++;
@@ -301,10 +301,19 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 				listener.changeActivity(selectAndSquatDescriptor);
 			}
 		});
-		typeToButton.put(selectAndSquatDescriptor, squatButton);
+		putTypeToButton(selectAndSquatDescriptor, squatButton);
 		modeButtons.add(squatButton);
 
 		meshBasicsPanel.add(editToolsPanel, BorderLayout.CENTER);
+	}
+
+	private void putTypeToButton(final ActivityDescriptor type, final ModeButton button) {
+		List<ModeButton> buttons = typeToButtons.get(type);
+		if (buttons == null) {
+			buttons = new ArrayList<>();
+			typeToButtons.put(type, buttons);
+		}
+		buttons.add(button);
 	}
 
 	public void setAnimationModeState(final boolean animationModeState) {
@@ -366,17 +375,19 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 			thingToChooseableItem.put(integer, chooseableItem);
 			animationChooserBoxModel.addElement(chooseableItem);
 		}
-		if (sawLast && selectedItem != null) {
+		if (sawLast && (selectedItem != null)) {
 			animationChooserBox.setSelectedItem(thingToChooseableItem.get(thingSelected));
 		}
 	}
 
 	@Override
 	public void changeActivity(final ActivityDescriptor newType) {
-		final ModeButton modeButton = typeToButton.get(newType);
-		if (modeButton != null) {
+		final List<ModeButton> modeButtons = typeToButtons.get(newType);
+		if ((modeButtons != null) && !modeButtons.isEmpty()) {
 			resetButtons();
-			modeButton.setColors(programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
+			for (final ModeButton modeButton : modeButtons) {
+				modeButton.setColors(programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
+			}
 		} else {
 			if (listeningForActivityChanges) {
 				resetButtons();
@@ -426,7 +437,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + (animation == null ? 0 : animation.hashCode());
+			result = (prime * result) + (animation == null ? 0 : animation.hashCode());
 			return result;
 		}
 
@@ -478,7 +489,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + (text == null ? 0 : text.hashCode());
+			result = (prime * result) + (text == null ? 0 : text.hashCode());
 			return result;
 		}
 
@@ -531,7 +542,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + (globalSeq == null ? 0 : globalSeq.hashCode());
+			result = (prime * result) + (globalSeq == null ? 0 : globalSeq.hashCode());
 			return result;
 		}
 

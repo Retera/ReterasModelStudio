@@ -21,20 +21,33 @@ import com.hiveworkshop.wc3.mdx.GeosetScaling;
 import com.hiveworkshop.wc3.mdx.GeosetTranslation;
 import com.hiveworkshop.wc3.mdx.LightAmbientColor;
 import com.hiveworkshop.wc3.mdx.LightAmbientIntensity;
+import com.hiveworkshop.wc3.mdx.LightAttenuationEnd;
+import com.hiveworkshop.wc3.mdx.LightAttenuationStart;
 import com.hiveworkshop.wc3.mdx.LightColor;
 import com.hiveworkshop.wc3.mdx.LightIntensity;
 import com.hiveworkshop.wc3.mdx.LightVisibility;
 import com.hiveworkshop.wc3.mdx.MaterialAlpha;
 import com.hiveworkshop.wc3.mdx.MaterialTextureId;
 import com.hiveworkshop.wc3.mdx.ParticleEmitter2EmissionRate;
+import com.hiveworkshop.wc3.mdx.ParticleEmitter2Gravity;
 import com.hiveworkshop.wc3.mdx.ParticleEmitter2Latitude;
 import com.hiveworkshop.wc3.mdx.ParticleEmitter2Length;
 import com.hiveworkshop.wc3.mdx.ParticleEmitter2Speed;
+import com.hiveworkshop.wc3.mdx.ParticleEmitter2Variation;
 import com.hiveworkshop.wc3.mdx.ParticleEmitter2Visibility;
 import com.hiveworkshop.wc3.mdx.ParticleEmitter2Width;
+import com.hiveworkshop.wc3.mdx.ParticleEmitterEmissionRate;
+import com.hiveworkshop.wc3.mdx.ParticleEmitterGravity;
+import com.hiveworkshop.wc3.mdx.ParticleEmitterLatitude;
+import com.hiveworkshop.wc3.mdx.ParticleEmitterLifeSpan;
+import com.hiveworkshop.wc3.mdx.ParticleEmitterLongitude;
+import com.hiveworkshop.wc3.mdx.ParticleEmitterSpeed;
 import com.hiveworkshop.wc3.mdx.ParticleEmitterVisibility;
+import com.hiveworkshop.wc3.mdx.RibbonEmitterAlpha;
+import com.hiveworkshop.wc3.mdx.RibbonEmitterColor;
 import com.hiveworkshop.wc3.mdx.RibbonEmitterHeightAbove;
 import com.hiveworkshop.wc3.mdx.RibbonEmitterHeightBelow;
+import com.hiveworkshop.wc3.mdx.RibbonEmitterTextureSlot;
 import com.hiveworkshop.wc3.mdx.RibbonEmitterVisibility;
 import com.hiveworkshop.wc3.mdx.TextureRotation;
 import com.hiveworkshop.wc3.mdx.TextureScaling;
@@ -142,7 +155,7 @@ public class AnimFlag {
 		does = values.equals(af.values) && (globalSeq == null ? af.globalSeq == null : globalSeq.equals(af.globalSeq))
 				&& (tags == null ? af.tags == null : tags.equals(af.tags))
 				&& (inTans == null ? af.inTans == null : inTans.equals(af.inTans))
-				&& (outTans == null ? af.outTans == null : outTans.equals(af.outTans)) && typeid == af.typeid;
+				&& (outTans == null ? af.outTans == null : outTans.equals(af.outTans)) && (typeid == af.typeid);
 		return does;
 	}
 
@@ -476,6 +489,54 @@ public class AnimFlag {
 		}
 	}
 
+	public AnimFlag(final LightAttenuationStart trackData) {
+		title = "AttenuationStart";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(trackData.interpolationType));
+		if (trackData.globalSequenceId >= 0) {
+			setGlobalSeqId(trackData.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = trackData.interpolationType > 1; // NOTE:
+																// autoreplaced
+																// from a > 0
+																// check, Linear
+																// shouldn't
+																// have
+																// 'tans'???
+		for (final LightAttenuationStart.ScalingTrack track : trackData.scalingTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.attenuationStart), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.attenuationStart));
+			}
+		}
+	}
+
+	public AnimFlag(final LightAttenuationEnd trackData) {
+		title = "AttenuationEnd";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(trackData.interpolationType));
+		if (trackData.globalSequenceId >= 0) {
+			setGlobalSeqId(trackData.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = trackData.interpolationType > 1; // NOTE:
+																// autoreplaced
+																// from a > 0
+																// check, Linear
+																// shouldn't
+																// have
+																// 'tans'???
+		for (final LightAttenuationEnd.ScalingTrack track : trackData.scalingTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.attenuationEnd), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.attenuationEnd));
+			}
+		}
+	}
+
 	public AnimFlag(final LightAmbientColor trackData) {
 		title = "AmbColor";
 		generateTypeId();
@@ -524,6 +585,114 @@ public class AnimFlag {
 		}
 	}
 
+	public AnimFlag(final ParticleEmitterEmissionRate trackData) {
+		title = "EmissionRate";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(trackData.interpolationType));
+		if (trackData.globalSequenceId >= 0) {
+			setGlobalSeqId(trackData.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = trackData.interpolationType > 1;
+		for (final ParticleEmitterEmissionRate.ScalingTrack track : trackData.scalingTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.emissionRate), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.emissionRate));
+			}
+		}
+	}
+
+	public AnimFlag(final ParticleEmitterGravity trackData) {
+		title = "Gravity";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(trackData.interpolationType));
+		if (trackData.globalSequenceId >= 0) {
+			setGlobalSeqId(trackData.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = trackData.interpolationType > 1;
+		for (final ParticleEmitterGravity.ScalingTrack track : trackData.scalingTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.gravity), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.gravity));
+			}
+		}
+	}
+
+	public AnimFlag(final ParticleEmitterLatitude trackData) {
+		title = "Latitude";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(trackData.interpolationType));
+		if (trackData.globalSequenceId >= 0) {
+			setGlobalSeqId(trackData.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = trackData.interpolationType > 1;
+		for (final ParticleEmitterLatitude.ScalingTrack track : trackData.scalingTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.latitude), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.latitude));
+			}
+		}
+	}
+
+	public AnimFlag(final ParticleEmitterLifeSpan trackData) {
+		title = "LifeSpan";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(trackData.interpolationType));
+		if (trackData.globalSequenceId >= 0) {
+			setGlobalSeqId(trackData.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = trackData.interpolationType > 1;
+		for (final ParticleEmitterLifeSpan.ScalingTrack track : trackData.scalingTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.lifeSpan), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.lifeSpan));
+			}
+		}
+	}
+
+	public AnimFlag(final ParticleEmitterLongitude trackData) {
+		title = "Longitude";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(trackData.interpolationType));
+		if (trackData.globalSequenceId >= 0) {
+			setGlobalSeqId(trackData.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = trackData.interpolationType > 1;
+		for (final ParticleEmitterLongitude.ScalingTrack track : trackData.scalingTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.longitude), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.longitude));
+			}
+		}
+	}
+
+	public AnimFlag(final ParticleEmitterSpeed trackData) {
+		title = "InitVelocity";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(trackData.interpolationType));
+		if (trackData.globalSequenceId >= 0) {
+			setGlobalSeqId(trackData.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = trackData.interpolationType > 1;
+		for (final ParticleEmitterSpeed.ScalingTrack track : trackData.scalingTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.speed), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.speed));
+			}
+		}
+	}
+
 	public AnimFlag(final ParticleEmitterVisibility trackData) {
 		title = "Visibility";
 		generateTypeId();
@@ -568,6 +737,54 @@ public class AnimFlag {
 				addEntry(track.time, box(track.visibility), box(track.inTan), box(track.outTan));
 			} else {
 				addEntry(track.time, box(track.visibility));
+			}
+		}
+	}
+
+	public AnimFlag(final ParticleEmitter2Variation trackData) {
+		title = "Variation";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(trackData.interpolationType));
+		if (trackData.globalSequenceId >= 0) {
+			setGlobalSeqId(trackData.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = trackData.interpolationType > 1; // NOTE:
+																// autoreplaced
+																// from a > 0
+																// check, Linear
+																// shouldn't
+																// have
+																// 'tans'???
+		for (final ParticleEmitter2Variation.VariationTrack track : trackData.scalingTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.variation), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.variation));
+			}
+		}
+	}
+
+	public AnimFlag(final ParticleEmitter2Gravity trackData) {
+		title = "Gravity";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(trackData.interpolationType));
+		if (trackData.globalSequenceId >= 0) {
+			setGlobalSeqId(trackData.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = trackData.interpolationType > 1; // NOTE:
+																// autoreplaced
+																// from a > 0
+																// check, Linear
+																// shouldn't
+																// have
+																// 'tans'???
+		for (final ParticleEmitter2Gravity.VariationTrack track : trackData.scalingTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.gravity), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.gravity));
 			}
 		}
 	}
@@ -760,6 +977,60 @@ public class AnimFlag {
 				addEntry(track.time, box(track.heightBelow), box(track.inTan), box(track.outTan));
 			} else {
 				addEntry(track.time, box(track.heightBelow));
+			}
+		}
+	}
+
+	public AnimFlag(final RibbonEmitterAlpha trackData) {
+		title = "Alpha";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(trackData.interpolationType));
+		if (trackData.globalSequenceId >= 0) {
+			setGlobalSeqId(trackData.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = trackData.interpolationType > 1;
+		for (final RibbonEmitterAlpha.ScalingTrack track : trackData.scalingTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.alpha), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.alpha));
+			}
+		}
+	}
+
+	public AnimFlag(final RibbonEmitterColor trackData) {
+		title = "Color";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(trackData.interpolationType));
+		if (trackData.globalSequenceId >= 0) {
+			setGlobalSeqId(trackData.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = trackData.interpolationType > 1;
+		for (final RibbonEmitterColor.ScalingTrack track : trackData.scalingTrack) {
+			if (tans) {
+				addEntry(track.time, new Vertex(track.color), new Vertex(track.inTan), new Vertex(track.outTan));
+			} else {
+				addEntry(track.time, new Vertex(track.color));
+			}
+		}
+	}
+
+	public AnimFlag(final RibbonEmitterTextureSlot trackData) {
+		title = "TextureSlot";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(trackData.interpolationType));
+		if (trackData.globalSequenceId >= 0) {
+			setGlobalSeqId(trackData.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = trackData.interpolationType > 1;
+		for (final RibbonEmitterTextureSlot.ScalingTrack track : trackData.scalingTrack) {
+			if (tans) {
+				addEntry(track.time, track.textureSlot, track.inTan, track.outTan);
+			} else {
+				addEntry(track.time, track.textureSlot);
 			}
 		}
 	}
@@ -1116,8 +1387,8 @@ public class AnimFlag {
 		// TODO make flags be a map and remove this method, this is 2018
 		// not 2012 anymore, and I learned basic software dev
 		for (final AnimFlag flag : flags) {
-			if (flag.getName().equals(name) && (globalSeq == null && flag.globalSeq == null
-					|| globalSeq != null && globalSeq.equals(flag.globalSeq))) {
+			if (flag.getName().equals(name) && (((globalSeq == null) && (flag.globalSeq == null))
+					|| ((globalSeq != null) && globalSeq.equals(flag.globalSeq)))) {
 				return flag;
 			}
 		}
@@ -1601,7 +1872,7 @@ public class AnimFlag {
 
 	public AnimFlag getMostVisible(final AnimFlag partner) {
 		if (partner != null) {
-			if (typeid == 0 && partner.typeid == 0) {
+			if ((typeid == 0) && (partner.typeid == 0)) {
 				final ArrayList<Integer> atimes = new ArrayList<>(times);
 				final ArrayList<Integer> btimes = new ArrayList<>(partner.times);
 				final ArrayList<Double> avalues = new ArrayList(values);
@@ -1685,7 +1956,7 @@ public class AnimFlag {
 	}
 
 	public boolean tans() {
-		return tags.contains("Bezier") || tags.contains("Hermite") || inTans.size() > 0;
+		return tags.contains("Bezier") || tags.contains("Hermite") || (inTans.size() > 0);
 	}
 
 	public void linearize() {
@@ -1722,7 +1993,7 @@ public class AnimFlag {
 				final Integer inte = times.get(index);
 				final int i = inte.intValue();
 				// int index = times.indexOf(inte);
-				if (i >= anim.getStart() && i <= anim.getEnd()) {
+				if ((i >= anim.getStart()) && (i <= anim.getEnd())) {
 					// If this "i" is a part of the anim being removed
 
 					times.remove(index);
@@ -1778,10 +2049,10 @@ public class AnimFlag {
 		for (final Integer inte : source.times) {
 			final int i = inte.intValue();
 			final int index = source.times.indexOf(inte);
-			if (i >= sourceStart && i <= sourceEnd) {
+			if ((i >= sourceStart) && (i <= sourceEnd)) {
 				// If this "i" is a part of the anim being rescaled
 				final double ratio = (double) (i - sourceStart) / (double) (sourceEnd - sourceStart);
-				times.add(new Integer((int) (newStart + ratio * (newEnd - newStart))));
+				times.add(new Integer((int) (newStart + (ratio * (newEnd - newStart)))));
 				values.add(cloneValue(source.values.get(index)));
 				if (tans) {
 					inTans.add(cloneValue(source.inTans.get(index)));
@@ -1804,10 +2075,10 @@ public class AnimFlag {
 		{
 			final Integer inte = times.get(z);
 			final int i = inte.intValue();
-			if (i >= start && i <= end) {
+			if ((i >= start) && (i <= end)) {
 				// If this "i" is a part of the anim being rescaled
 				final double ratio = (double) (i - start) / (double) (end - start);
-				times.set(z, new Integer((int) (newStart + ratio * (newEnd - newStart))));
+				times.set(z, new Integer((int) (newStart + (ratio * (newEnd - newStart)))));
 			}
 		}
 		// }
@@ -1844,7 +2115,7 @@ public class AnimFlag {
 		// look at), found on google
 		// (re-written by Eric "Retera" for use in AnimFlags)
 		int i = low, j = high;
-		final Integer pivot = times.get(low + (high - low) / 2);
+		final Integer pivot = times.get(low + ((high - low) / 2));
 
 		while (i <= j) {
 			while (times.get(i).intValue() < pivot.intValue()) {
@@ -1942,13 +2213,13 @@ public class AnimFlag {
 		if (midTime == time) {
 			return mid;
 		} else if (midTime < time) {
-			if (mid + 1 <= hi && time <= times.get(mid + 1)) {
+			if (((mid + 1) <= hi) && (time <= times.get(mid + 1))) {
 				return mid + 1;
 			} else {
 				return ceilIndex(time, mid + 1, hi);
 			}
 		} else {
-			if (mid - 1 >= lo && time > times.get(mid - 1)) {
+			if (((mid - 1) >= lo) && (time > times.get(mid - 1))) {
 				return mid;
 			} else {
 				return ceilIndex(time, lo, mid - 1);
@@ -1983,7 +2254,7 @@ public class AnimFlag {
 		if (times.get(mid) == time) {
 			return mid;
 		}
-		if (mid > 0 && times.get(mid - 1) <= time && time < midTime) {
+		if ((mid > 0) && (times.get(mid - 1) <= time) && (time < midTime)) {
 			return mid - 1;
 		}
 		if (time > midTime) {
@@ -2032,7 +2303,7 @@ public class AnimFlag {
 	 */
 	public Object interpolateAt(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		int localTypeId = typeid;
-		if (localTypeId == ROTATION && size() > 0 && values.get(0) instanceof Double) {
+		if ((localTypeId == ROTATION) && (size() > 0) && (values.get(0) instanceof Double)) {
 			localTypeId = ALPHA; // magic Camera rotation!
 		}
 		if (times.isEmpty()) {
@@ -2049,7 +2320,7 @@ public class AnimFlag {
 		Object ceilValue;
 		Integer floorIndexTime;
 		Integer ceilIndexTime;
-		if (hasGlobalSeq() && getGlobalSeq() >= 0) {
+		if (hasGlobalSeq() && (getGlobalSeq() >= 0)) {
 			time = animatedRenderEnvironment.getGlobalSeqTime(getGlobalSeq());
 			final int floorAnimStartIndex = floorIndex(1);
 			final int floorAnimEndIndex = floorIndex(getGlobalSeq());
@@ -2072,7 +2343,7 @@ public class AnimFlag {
 			if (floorIndexTime > getGlobalSeq()) {
 				return identity(localTypeId);
 			}
-			if (floorIndexTime < 0 && ceilIndexTime > getGlobalSeq()) {
+			if ((floorIndexTime < 0) && (ceilIndexTime > getGlobalSeq())) {
 				return identity(localTypeId);
 			} else if (floorIndexTime < 0) {
 				floorValue = identity(localTypeId);
@@ -2109,7 +2380,7 @@ public class AnimFlag {
 			if (floorIndexTime > animation.getEnd()) {
 				return identity(localTypeId);
 			}
-			if (floorIndexTime < animation.getStart() && ceilIndexTime > animation.getEnd()) {
+			if ((floorIndexTime < animation.getStart()) && (ceilIndexTime > animation.getEnd())) {
 				return identity(localTypeId);
 			} else if (floorIndexTime < animation.getStart()) {
 				if (times.get(floorAnimEndIndex) == animation.getEnd()) {
@@ -2126,8 +2397,8 @@ public class AnimFlag {
 					floorInTan = floorOutTan = identity(localTypeId);
 					floorIndexTime = animation.getStart();
 				}
-			} else if (ceilIndexTime > animation.getEnd()
-					|| ceilIndexTime < time && times.get(floorAnimEndIndex) < time) {
+			} else if ((ceilIndexTime > animation.getEnd())
+					|| ((ceilIndexTime < time) && (times.get(floorAnimEndIndex) < time))) {
 				if (times.get(floorAnimStartIndex) == animation.getStart()) {
 					ceilValue = values.get(floorAnimStartIndex);
 					ceilIndex = floorAnimStartIndex;
@@ -2279,7 +2550,7 @@ public class AnimFlag {
 
 	public void removeKeyframe(final int trackTime) {
 		final int keyframeIndex = floorIndex(trackTime);
-		if (keyframeIndex >= size() || times.get(keyframeIndex) != trackTime) {
+		if ((keyframeIndex >= size()) || (times.get(keyframeIndex) != trackTime)) {
 			throw new IllegalStateException("Attempted to remove keyframe, but no keyframe was found (" + keyframeIndex
 					+ " @ time " + trackTime + ")");
 		} else {
@@ -2294,7 +2565,7 @@ public class AnimFlag {
 
 	public void addKeyframe(final int trackTime, final Object value) {
 		int keyframeIndex = ceilIndex(trackTime);
-		if (keyframeIndex == times.size() - 1) {
+		if (keyframeIndex == (times.size() - 1)) {
 			if (times.isEmpty()) {
 				keyframeIndex = 0;
 			} else if (trackTime > times.get(times.size() - 1)) {
@@ -2307,7 +2578,7 @@ public class AnimFlag {
 
 	public void addKeyframe(final int trackTime, final Object value, final Object inTan, final Object outTan) {
 		int keyframeIndex = ceilIndex(trackTime);
-		if (keyframeIndex == times.size() - 1) {
+		if (keyframeIndex == (times.size() - 1)) {
 			if (times.isEmpty()) {
 				keyframeIndex = 0;
 			} else if (trackTime > times.get(times.size() - 1)) {

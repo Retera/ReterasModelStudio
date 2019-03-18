@@ -10,6 +10,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericMoveActio
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ComponentVisibilityListener;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
@@ -47,6 +48,8 @@ public interface TVertexEditor extends ComponentVisibilityListener {
 
 	UndoAction selectAll();
 
+	UndoAction selectFromViewer(SelectionView viewerSelectionView);
+
 	void selectByVertices(Collection<? extends Vertex> newSelection);
 
 	boolean canSelectAt(Point point, CoordinateSystem axes);
@@ -61,10 +64,12 @@ public interface TVertexEditor extends ComponentVisibilityListener {
 
 	void rawScale(double centerX, double centerY, double scaleX, double scaleY);
 
-	void rawRotate2d(double centerX, double centerY, double radians);
+	void rawRotate2d(double centerX, double centerY, double radians, byte firstXYZ, byte secondXYZ);
 
 	TVertex getSelectionCenter();
 
 	void setUVLayerIndex(int uvLayerIndex);
+
+	int getUVLayerIndex();
 
 }

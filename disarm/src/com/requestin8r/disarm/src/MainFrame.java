@@ -8,31 +8,26 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
-import com.hiveworkshop.wc3.user.SaveProfile;
 
 public class MainFrame extends JFrame {
 	static {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		}
-		catch (final ClassNotFoundException e) {
+		} catch (final ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		catch (final InstantiationException e) {
+		} catch (final InstantiationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		catch (final IllegalAccessException e) {
+		} catch (final IllegalAccessException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		catch (final UnsupportedLookAndFeelException e) {
+		} catch (final UnsupportedLookAndFeelException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		SaveProfile.testTargetFolder(SaveProfile.getWarcraftDirectory());
+//		SaveProfile.testTargetFolder(SaveProfile.getWarcraftDirectory());
 
 		ADVSTRUCT = BLPHandler.get().getGameTex("ReplaceableTextures\\CommandButtons\\BTNCurse.blp");
 	}
@@ -52,20 +47,16 @@ public class MainFrame extends JFrame {
 	public static void main(final String[] args) {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		}
-		catch (final ClassNotFoundException e) {
+		} catch (final ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		catch (final InstantiationException e) {
+		} catch (final InstantiationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		catch (final IllegalAccessException e) {
+		} catch (final IllegalAccessException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		catch (final UnsupportedLookAndFeelException e) {
+		} catch (final UnsupportedLookAndFeelException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

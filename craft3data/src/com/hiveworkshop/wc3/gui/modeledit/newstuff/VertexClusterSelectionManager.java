@@ -10,10 +10,12 @@ import java.util.Set;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.VertexClusterModelEditor.VertexGroupBundle;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexModelElementRenderer;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionListener;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
+import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
@@ -114,5 +116,26 @@ public final class VertexClusterSelectionManager extends AbstractSelectionManage
 			// }
 			// }
 		}
+	}
+
+	@Override
+	public TVertex getUVCenter(final int tvertexLayerId) {
+		throw new UnsupportedOperationException("Not yet implemented");
+	}
+
+	@Override
+	public Collection<? extends TVertex> getSelectedTVertices(final int tvertexLayerId) {
+		throw new UnsupportedOperationException("Not yet implemented");
+	}
+
+	@Override
+	public double getCircumscribedSphereRadius(final TVertex center, final int tvertexLayerId) {
+		throw new UnsupportedOperationException("Not yet implemented");
+	}
+
+	@Override
+	public void renderUVSelection(final TVertexModelElementRenderer renderer, final ModelView modelView,
+			final ProgramPreferences programPreferences, final int tvertexLayerId) {
+		throw new UnsupportedOperationException("Not yet implemented");
 	}
 }

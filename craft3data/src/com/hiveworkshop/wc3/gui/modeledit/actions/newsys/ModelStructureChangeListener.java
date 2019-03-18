@@ -33,4 +33,6 @@ public interface ModelStructureChangeListener {
 	void animationsAdded(List<Animation> animation);
 
 	void animationsRemoved(List<Animation> animation);
+
+	void texturesChanged();
 }

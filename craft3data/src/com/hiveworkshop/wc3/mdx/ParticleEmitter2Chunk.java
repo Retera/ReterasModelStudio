@@ -86,6 +86,8 @@ public class ParticleEmitter2Chunk {
 		public int priorityPlane;
 		public int replaceableId;
 		public ParticleEmitter2Visibility particleEmitter2Visibility;
+		public ParticleEmitter2Gravity particleEmitter2Gravity;
+		public ParticleEmitter2Variation particleEmitter2Variation;
 		public ParticleEmitter2EmissionRate particleEmitter2EmissionRate;
 		public ParticleEmitter2Width particleEmitter2Width;
 		public ParticleEmitter2Length particleEmitter2Length;
@@ -129,10 +131,16 @@ public class ParticleEmitter2Chunk {
 			squirt = in.readInt();
 			priorityPlane = in.readInt();
 			replaceableId = in.readInt();
-			for (int i = 0; i < 6; i++) {
+			for (int i = 0; i < 8; i++) {
 				if (MdxUtils.checkOptionalId(in, ParticleEmitter2Visibility.key)) {
 					particleEmitter2Visibility = new ParticleEmitter2Visibility();
 					particleEmitter2Visibility.load(in);
+				} else if (MdxUtils.checkOptionalId(in, ParticleEmitter2Variation.key)) {
+					particleEmitter2Variation = new ParticleEmitter2Variation();
+					particleEmitter2Variation.load(in);
+				} else if (MdxUtils.checkOptionalId(in, ParticleEmitter2Gravity.key)) {
+					particleEmitter2Gravity = new ParticleEmitter2Gravity();
+					particleEmitter2Gravity.load(in);
 				} else if (MdxUtils.checkOptionalId(in, ParticleEmitter2EmissionRate.key)) {
 					particleEmitter2EmissionRate = new ParticleEmitter2EmissionRate();
 					particleEmitter2EmissionRate.load(in);
@@ -170,19 +178,19 @@ public class ParticleEmitter2Chunk {
 			out.writeInt(headOrTail);
 			out.writeFloat(tailLength);
 			out.writeFloat(time);
-			if (segmentColor.length % 9 != 0) {
+			if ((segmentColor.length % 9) != 0) {
 				throw new IllegalArgumentException(
 						"The array segmentColor needs either the length 9 or a multiple of this number. (got "
 								+ segmentColor.length + ")");
 			}
 			MdxUtils.saveFloatArray(out, segmentColor);
-			if (segmentAlpha.length % 3 != 0) {
+			if ((segmentAlpha.length % 3) != 0) {
 				throw new IllegalArgumentException(
 						"The array segmentAlpha needs either the length 3 or a multiple of this number. (got "
 								+ segmentAlpha.length + ")");
 			}
 			MdxUtils.saveByteArray(out, segmentAlpha);
-			if (segmentScaling.length % 3 != 0) {
+			if ((segmentScaling.length % 3) != 0) {
 				throw new IllegalArgumentException(
 						"The array segmentScaling needs either the length 3 or a multiple of this number. (got "
 								+ segmentScaling.length + ")");
@@ -207,8 +215,14 @@ public class ParticleEmitter2Chunk {
 			if (particleEmitter2Visibility != null) {
 				particleEmitter2Visibility.save(out);
 			}
+			if (particleEmitter2Variation != null) {
+				particleEmitter2Variation.save(out);
+			}
 			if (particleEmitter2EmissionRate != null) {
 				particleEmitter2EmissionRate.save(out);
+			}
+			if (particleEmitter2Gravity != null) {
+				particleEmitter2Gravity.save(out);
 			}
 			if (particleEmitter2Width != null) {
 				particleEmitter2Width.save(out);
@@ -265,6 +279,12 @@ public class ParticleEmitter2Chunk {
 			if (particleEmitter2Visibility != null) {
 				a += particleEmitter2Visibility.getSize();
 			}
+			if (particleEmitter2Variation != null) {
+				a += particleEmitter2Variation.getSize();
+			}
+			if (particleEmitter2Gravity != null) {
+				a += particleEmitter2Gravity.getSize();
+			}
 			if (particleEmitter2EmissionRate != null) {
 				a += particleEmitter2EmissionRate.getSize();
 			}
@@ -300,7 +320,8 @@ public class ParticleEmitter2Chunk {
 			length = (float) mdlEmitter.getLength();
 			width = (float) mdlEmitter.getWidth();
 
-			// for( ParticleEmitter2FilterMode nodeFlag: ParticleEmitter2FilterMode.values() ) {
+			// for( ParticleEmitter2FilterMode nodeFlag: ParticleEmitter2FilterMode.values()
+			// ) {
 			// if( mdlEmitter.getFlags().contains(nodeFlag.getMdlText()) )
 			// filterMode = nodeFlag.ordinal();
 			// }
@@ -393,6 +414,40 @@ public class ParticleEmitter2Chunk {
 						particleEmitter2Visibility.scalingTrack[i] = mdxEntry;
 						final AnimFlag.Entry mdlEntry = af.getEntry(i);
 						mdxEntry.visibility = ((Number) mdlEntry.value).floatValue();
+						mdxEntry.time = mdlEntry.time.intValue();
+						if (hasTans) {
+							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();
+							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
+						}
+					}
+				} else if (af.getName().equals("Variation")) {
+					particleEmitter2Variation = new ParticleEmitter2Variation();
+					particleEmitter2Variation.globalSequenceId = af.getGlobalSeqId();
+					particleEmitter2Variation.interpolationType = af.getInterpType();
+					particleEmitter2Variation.scalingTrack = new ParticleEmitter2Variation.VariationTrack[af.size()];
+					final boolean hasTans = af.tans();
+					for (int i = 0; i < af.size(); i++) {
+						final ParticleEmitter2Variation.VariationTrack mdxEntry = particleEmitter2Variation.new VariationTrack();
+						particleEmitter2Variation.scalingTrack[i] = mdxEntry;
+						final AnimFlag.Entry mdlEntry = af.getEntry(i);
+						mdxEntry.variation = ((Number) mdlEntry.value).floatValue();
+						mdxEntry.time = mdlEntry.time.intValue();
+						if (hasTans) {
+							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();
+							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
+						}
+					}
+				} else if (af.getName().equals("Gravity")) {
+					particleEmitter2Gravity = new ParticleEmitter2Gravity();
+					particleEmitter2Gravity.globalSequenceId = af.getGlobalSeqId();
+					particleEmitter2Gravity.interpolationType = af.getInterpType();
+					particleEmitter2Gravity.scalingTrack = new ParticleEmitter2Gravity.VariationTrack[af.size()];
+					final boolean hasTans = af.tans();
+					for (int i = 0; i < af.size(); i++) {
+						final ParticleEmitter2Gravity.VariationTrack mdxEntry = particleEmitter2Gravity.new VariationTrack();
+						particleEmitter2Gravity.scalingTrack[i] = mdxEntry;
+						final AnimFlag.Entry mdlEntry = af.getEntry(i);
+						mdxEntry.gravity = ((Number) mdlEntry.value).floatValue();
 						mdxEntry.time = mdlEntry.time.intValue();
 						if (hasTans) {
 							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();

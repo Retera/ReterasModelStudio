@@ -17,12 +17,12 @@ public final class SimpleRotateUVAction implements UndoAction {
 
 	@Override
 	public void undo() {
-		modelEditor.rawRotate2d(center.x, center.y, -radians);
+		modelEditor.rawRotate2d(center.x, center.y, -radians, (byte) 0, (byte) 1);
 	}
 
 	@Override
 	public void redo() {
-		modelEditor.rawRotate2d(center.x, center.y, radians);
+		modelEditor.rawRotate2d(center.x, center.y, radians, (byte) 0, (byte) 1);
 	}
 
 	@Override

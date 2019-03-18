@@ -13,9 +13,10 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.RibbonEmitterChunk;
 
 /**
- * RibbonEmitter class, these are the things most people would think of as a particle emitter, I think. Blizzard favored
- * use of these over ParticleEmitters and I do too simply because I so often recycle data and there are more of these to
- * use.
+ * RibbonEmitter class, these are the things most people would think of as a
+ * particle emitter, I think. Blizzard favored use of these over
+ * ParticleEmitters and I do too simply because I so often recycle data and
+ * there are more of these to use.
  *
  * Eric Theller 3/10/2012 3:32 PM
  */
@@ -63,7 +64,11 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 		loadFrom(emitter.node);
 		// ----- End Base NODE to "IDOBJECT" -----
 
-		setTextureSlot(emitter.textureSlot);
+		if (emitter.ribbonEmitterTextureSlot != null) {
+			add(new AnimFlag(emitter.ribbonEmitterTextureSlot));
+		} else {
+			setTextureSlot(emitter.textureSlot);
+		}
 		// System.out.println(attachment.node.name + ": " +
 		// Integer.toBinaryString(attachment.unknownNull));
 
@@ -80,8 +85,16 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 		} else {
 			setHeightBelow(emitter.heightBelow);
 		}
-		setAlpha(emitter.alpha);
-		setStaticColor(new Vertex(MdlxUtils.flipRGBtoBGR(emitter.color)));
+		if (emitter.ribbonEmitterAlpha != null) {
+			add(new AnimFlag(emitter.ribbonEmitterAlpha));
+		} else {
+			setAlpha(emitter.alpha);
+		}
+		if (emitter.ribbonEmitterColor != null) {
+			add(new AnimFlag(emitter.ribbonEmitterColor));
+		} else {
+			setStaticColor(new Vertex(MdlxUtils.flipRGBtoBGR(emitter.color)));
+		}
 		setLifeSpan(emitter.lifeSpan);
 		setEmissionRate(emitter.emissionRate);
 		setRows(emitter.rows);
@@ -158,7 +171,7 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 						pe.animFlags.add(AnimFlag.read(mdl));
 					}
 				}
-				for (int i = 0; i < timeDoubleNames.length && !foundType; i++) {
+				for (int i = 0; (i < timeDoubleNames.length) && !foundType; i++) {
 					if (line.contains(timeDoubleNames[i])) {
 						foundType = true;
 						if (line.contains("static")) {
@@ -169,13 +182,13 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 						}
 					}
 				}
-				for (int i = 0; i < loneDoubleNames.length && !foundType; i++) {
+				for (int i = 0; (i < loneDoubleNames.length) && !foundType; i++) {
 					if (line.contains(loneDoubleNames[i])) {
 						foundType = true;
 						pe.loneDoubleData[i] = MDLReader.readDouble(line);
 					}
 				}
-				for (int i = 0; i < loneIntNames.length && !foundType; i++) {
+				for (int i = 0; (i < loneIntNames.length) && !foundType; i++) {
 					if (line.contains(loneIntNames[i])) {
 						foundType = true;
 						pe.loneIntData[i] = MDLReader.readInt(line);
@@ -218,7 +231,7 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 				writer.println("\tstatic " + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
 			} else {
 				boolean set = false;
-				for (int a = 0; a < pAnimFlags.size() && !set; a++) {
+				for (int a = 0; (a < pAnimFlags.size()) && !set; a++) {
 					if (pAnimFlags.get(a).getName().equals(currentFlag)) {
 						pAnimFlags.get(a).printTo(writer, 1);
 						pAnimFlags.remove(a);
@@ -233,7 +246,7 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 		currentFlag = "Color";
 		boolean set = false;
 		if (staticColor == null) {
-			for (int i = 0; i < pAnimFlags.size() && !set; i++) {
+			for (int i = 0; (i < pAnimFlags.size()) && !set; i++) {
 				if (pAnimFlags.get(i).getName().equals(currentFlag)) {
 					pAnimFlags.get(i).printTo(writer, 1);
 					pAnimFlags.remove(i);
@@ -249,7 +262,7 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 				writer.println("\tstatic " + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
 			} else {
 				set = false;
-				for (int a = 0; a < pAnimFlags.size() && !set; a++) {
+				for (int a = 0; (a < pAnimFlags.size()) && !set; a++) {
 					if (pAnimFlags.get(a).getName().equals(currentFlag)) {
 						pAnimFlags.get(a).printTo(writer, 1);
 						pAnimFlags.remove(a);
@@ -272,7 +285,7 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 			writer.println("\t" + loneIntNames[i] + " " + loneIntData[i] + ",");
 		}
 		for (int i = 0; i < loneDoubleData.length; i++) {
-			if (i == 0 || loneDoubleData[i] != 0) {
+			if ((i == 0) || (loneDoubleData[i] != 0)) {
 				writer.println("\t" + loneDoubleNames[i] + " " + loneDoubleData[i] + ",");
 			}
 		}

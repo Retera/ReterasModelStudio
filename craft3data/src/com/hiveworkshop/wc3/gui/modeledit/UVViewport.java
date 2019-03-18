@@ -79,12 +79,13 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 		//
 		// Viewport border
 		setBorder(BorderFactory.createBevelBorder(1));
-		setBackground(new Color(255, 255, 255));
+		setBackground(programPreferences.getBackgroundColor());
 		setMinimumSize(new Dimension(400, 400));
 		add(boxX = Box.createHorizontalStrut(400));
 		add(boxY = Box.createVerticalStrut(400));
 		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 		addMouseListener(this);
+		addMouseMotionListener(this);
 		addMouseWheelListener(this);
 
 		contextMenu = new JPopupMenu();
@@ -157,29 +158,30 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 			}
 			final float darkIncrement = increment * 10;
 			g.setColor(Color.DARK_GRAY);
-			for (float x = 0; cameraOrigin.x + x < getWidth() || cameraOrigin.x - x >= 0; x += lightIncrement) {
+			for (float x = 0; ((cameraOrigin.x + x) < getWidth()) || ((cameraOrigin.x - x) >= 0); x += lightIncrement) {
 				g.drawLine((int) (cameraOrigin.x + x), 0, (int) (cameraOrigin.x + x), getHeight());
 				g.drawLine((int) (cameraOrigin.x - x), 0, (int) (cameraOrigin.x - x), getHeight());
 			}
-			for (float y = 0; cameraOrigin.y + y < getHeight() || cameraOrigin.y - y >= 0; y += lightIncrement) {
+			for (float y = 0; ((cameraOrigin.y + y) < getHeight())
+					|| ((cameraOrigin.y - y) >= 0); y += lightIncrement) {
 				g.drawLine(0, (int) (cameraOrigin.y + y), getWidth(), (int) (cameraOrigin.y + y));
 				g.drawLine(0, (int) (cameraOrigin.y - y), getWidth(), (int) (cameraOrigin.y - y));
 			}
 			g.setColor(Color.GRAY);
-			for (float x = 0; cameraOrigin.x + x < getWidth() || cameraOrigin.x - x >= 0; x += increment) {
+			for (float x = 0; ((cameraOrigin.x + x) < getWidth()) || ((cameraOrigin.x - x) >= 0); x += increment) {
 				g.drawLine((int) (cameraOrigin.x + x), 0, (int) (cameraOrigin.x + x), getHeight());
 				g.drawLine((int) (cameraOrigin.x - x), 0, (int) (cameraOrigin.x - x), getHeight());
 			}
-			for (float y = 0; cameraOrigin.y + y < getHeight() || cameraOrigin.y - y >= 0; y += increment) {
+			for (float y = 0; ((cameraOrigin.y + y) < getHeight()) || ((cameraOrigin.y - y) >= 0); y += increment) {
 				g.drawLine(0, (int) (cameraOrigin.y + y), getWidth(), (int) (cameraOrigin.y + y));
 				g.drawLine(0, (int) (cameraOrigin.y - y), getWidth(), (int) (cameraOrigin.y - y));
 			}
 			g.setColor(Color.ORANGE);
-			for (float x = 0; cameraOrigin.x + x < getWidth() || cameraOrigin.x - x >= 0; x += darkIncrement) {
+			for (float x = 0; ((cameraOrigin.x + x) < getWidth()) || ((cameraOrigin.x - x) >= 0); x += darkIncrement) {
 				g.drawLine((int) (cameraOrigin.x + x), 0, (int) (cameraOrigin.x + x), getHeight());
 				g.drawLine((int) (cameraOrigin.x - x), 0, (int) (cameraOrigin.x - x), getHeight());
 			}
-			for (float y = 0; cameraOrigin.y + y < getHeight() || cameraOrigin.y - y >= 0; y += darkIncrement) {
+			for (float y = 0; ((cameraOrigin.y + y) < getHeight()) || ((cameraOrigin.y - y) >= 0); y += darkIncrement) {
 				g.drawLine(0, (int) (cameraOrigin.y + y), getWidth(), (int) (cameraOrigin.y + y));
 				g.drawLine(0, (int) (cameraOrigin.y - y), getWidth(), (int) (cameraOrigin.y - y));
 			}
@@ -241,22 +243,22 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 
 	@Override
 	public double convertX(final double x) {
-		return (x + m_a) * m_zoom * aspectRatio + getWidth() / 2;
+		return ((x + m_a) * m_zoom * aspectRatio) + (getWidth() / 2);
 	}
 
 	@Override
 	public double convertY(final double y) {
-		return (y + m_b) * m_zoom + getHeight() / 2;
+		return ((y + m_b) * m_zoom) + (getHeight() / 2);
 	}
 
 	@Override
 	public double geomX(final double x) {
-		return (x - getWidth() / 2) / aspectRatio / m_zoom - m_a;
+		return ((x - (getWidth() / 2)) / aspectRatio / m_zoom) - m_a;
 	}
 
 	@Override
 	public double geomY(final double y) {
-		return (y - getHeight() / 2) / m_zoom - m_b;
+		return ((y - (getHeight() / 2)) / m_zoom) - m_b;
 	}
 
 	@Override
@@ -282,8 +284,8 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 				lastClick.x = (int) mx;
 				lastClick.y = (int) my;
 			}
-			parent.setMouseCoordDisplay((mx - getWidth() / 2) / aspectRatio / m_zoom - m_a,
-					(my - getHeight() / 2) / m_zoom - m_b);
+			parent.setMouseCoordDisplay(((mx - (getWidth() / 2)) / aspectRatio / m_zoom) - m_a,
+					((my - (getHeight() / 2)) / m_zoom) - m_b);
 
 			repaint();
 		} else if (e.getSource() == placeholderButton) {
@@ -306,7 +308,7 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 	@Override
 	public void mouseExited(final MouseEvent e) {
 		if (!activityListener.isEditing()) {
-			if (selectStart == null && actStart == null && lastClick == null) {
+			if ((selectStart == null) && (actStart == null) && (lastClick == null)) {
 				clickTimer.stop();
 			}
 			mouseInBounds = false;
@@ -331,13 +333,13 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 
 	@Override
 	public void mouseReleased(final MouseEvent e) {
-		if (!mouseInBounds && selectStart == null && actStart == null && lastClick == null) {
+		if (!mouseInBounds && (selectStart == null) && (actStart == null) && (lastClick == null)) {
 			clickTimer.stop();
 			repaint();
 		}
 		// MainFrame.panel.refreshUndo();
 		// TODO fix, refresh undo
-		if (e.getButton() == MouseEvent.BUTTON2 && lastClick != null) {
+		if ((e.getButton() == MouseEvent.BUTTON2) && (lastClick != null)) {
 			m_a += (e.getX() - lastClick.x) / m_zoom;
 			m_b += (e.getY() - lastClick.y) / m_zoom;
 			lastClick = null;
@@ -360,7 +362,7 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 			// actStart = null;
 			activityListener.mouseReleased(e, this);
 		}
-		if (!mouseInBounds && selectStart == null && actStart == null && lastClick == null) {
+		if (!mouseInBounds && (selectStart == null) && (actStart == null) && (lastClick == null)) {
 			clickTimer.stop();
 			repaint();
 		}
@@ -395,13 +397,13 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 		}
 		for (int i = 0; i < wr; i++) {
 			if (neg) {
-				m_a -= (mx - getWidth() / 2) / aspectRatio * (1 / m_zoom - 1 / (m_zoom * 1.15));
-				m_b -= (my - getHeight() / 2) * (1 / m_zoom - 1 / (m_zoom * 1.15));
+				m_a -= ((mx - (getWidth() / 2)) / aspectRatio) * ((1 / m_zoom) - (1 / (m_zoom * 1.15)));
+				m_b -= (my - (getHeight() / 2)) * ((1 / m_zoom) - (1 / (m_zoom * 1.15)));
 				m_zoom *= 1.15;
 			} else {
 				m_zoom /= 1.15;
-				m_a -= (mx - getWidth() / 2) / aspectRatio * (1 / (m_zoom * 1.15) - 1 / m_zoom);
-				m_b -= (my - getHeight() / 2) * (1 / (m_zoom * 1.15) - 1 / m_zoom);
+				m_a -= ((mx - (getWidth() / 2)) / aspectRatio) * ((1 / (m_zoom * 1.15)) - (1 / m_zoom));
+				m_b -= (my - (getHeight() / 2)) * ((1 / (m_zoom * 1.15)) - (1 / m_zoom));
 			}
 		}
 	}
@@ -460,6 +462,7 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 	public void mouseDragged(final MouseEvent e) {
 		activityListener.mouseDragged(e, this);
 		lastMouseMotion = e.getPoint();
+		repaint();
 	}
 
 	@Override
@@ -469,6 +472,7 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 		}
 		activityListener.mouseMoved(e, this);
 		lastMouseMotion = e.getPoint();
+		repaint();
 	}
 
 	@Override

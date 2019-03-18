@@ -8,6 +8,7 @@ import java.util.Set;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.UVSnapAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericScaleAction;
@@ -17,6 +18,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.actions.StaticMeshUVMoveAc
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.actions.StaticMeshUVRotateAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.actions.StaticMeshUVScaleAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.wc3.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Vertex;
@@ -81,9 +83,10 @@ public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexE
 	}
 
 	@Override
-	public void rawRotate2d(final double centerX, final double centerY, final double radians) {
+	public void rawRotate2d(final double centerX, final double centerY, final double radians, final byte firstXYZ,
+			final byte secondXYZ) {
 		for (final TVertex vertex : TVertexUtils.getTVertices(selectionManager.getSelectedVertices(), uvLayerIndex)) {
-			vertex.rotate(centerX, centerY, radians);
+			vertex.rotate(centerX, centerY, radians, firstXYZ, secondXYZ);
 		}
 	}
 
@@ -121,23 +124,38 @@ public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexE
 	}
 
 	@Override
+	public UndoAction selectFromViewer(final SelectionView viewerSelectionView) {
+		final Set<T> previousSelection = selectionManager.getSelection();
+		selectByVertices(viewerSelectionView.getSelectedVertices());
+		final SetSelectionAction<T> setSelectionAction = new SetSelectionAction<>(selectionManager.getSelection(),
+				previousSelection, selectionManager, "select UV from viewer");
+		return setSelectionAction;
+	}
+
+	@Override
 	public GenericMoveAction beginTranslation() {
 		return new StaticMeshUVMoveAction(this, TVertex.ORIGIN);
 	}
 
 	@Override
-	public GenericRotateAction beginRotation(final double centerX, final double centerY) {
-		return new StaticMeshUVRotateAction(this, new TVertex(centerX, centerY));
+	public GenericRotateAction beginRotation(final double centerX, final double centerY, final byte dim1,
+			final byte dim2) {
+		return new StaticMeshUVRotateAction(this, new TVertex(centerX, centerY), dim1, dim2);
 	}
 
 	@Override
 	public GenericScaleAction beginScaling(final double centerX, final double centerY) {
-		return new StaticMeshUVScaleAction(this, centerX, centerX);
+		return new StaticMeshUVScaleAction(this, centerX, centerY);
 	}
 
 	@Override
 	public void setUVLayerIndex(final int uvLayerIndex) {
 		this.uvLayerIndex = uvLayerIndex;
 		// TODO deselect vertices with no such layer
+	}
+
+	@Override
+	public int getUVLayerIndex() {
+		return uvLayerIndex;
 	}
 }

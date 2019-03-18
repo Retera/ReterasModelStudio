@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 
 import com.hiveworkshop.wc3.gui.modeledit.PerspDisplayPanel;
 import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 
 public class WorkPanel extends JPanel implements ActionListener {
@@ -40,7 +41,7 @@ public class WorkPanel extends JPanel implements ActionListener {
 		final JLabel desc = new JLabel("Choose an operation to perform on the model.");
 		desc.setFont(smallFont);
 
-		viewer = new PerspDisplayPanel("", project.model, null);
+		viewer = new PerspDisplayPanel("", project.model, null, new RenderModel(project.model.getModel()));
 
 		add = new JButton("Add", new ImageIcon(IconGet.get("StatUp", 48)));
 		add.setFont(medFont);

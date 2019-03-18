@@ -14,9 +14,10 @@ import com.hiveworkshop.wc3.mdx.Node;
 import com.hiveworkshop.wc3.mdx.ParticleEmitter2Chunk;
 
 /**
- * ParticleEmitter2 class, these are the things most people would think of as a particle emitter, I think. Blizzard
- * favored use of these over ParticleEmitters and I do too simply because I so often recycle data and there are more of
- * these to use.
+ * ParticleEmitter2 class, these are the things most people would think of as a
+ * particle emitter, I think. Blizzard favored use of these over
+ * ParticleEmitters and I do too simply because I so often recycle data and
+ * there are more of these to use.
  *
  * Eric Theller 3/10/2012 3:32 PM
  */
@@ -108,13 +109,21 @@ public class ParticleEmitter2 extends IdObject implements VisibilitySource {
 		} else {
 			setSpeed(emitter.speed);
 		}
-		setVariation(emitter.variation);
+		if (emitter.particleEmitter2Variation != null) {
+			add(new AnimFlag(emitter.particleEmitter2Variation));
+		} else {
+			setVariation(emitter.variation);
+		}
 		if (emitter.particleEmitter2Latitude != null) {
 			add(new AnimFlag(emitter.particleEmitter2Latitude));
 		} else {
 			setLatitude(emitter.latitude);
 		}
-		setGravity(emitter.gravity);
+		if (emitter.particleEmitter2Gravity != null) {
+			add(new AnimFlag(emitter.particleEmitter2Gravity));
+		} else {
+			setGravity(emitter.gravity);
+		}
 		setLifeSpan(emitter.lifespan);
 		if (emitter.particleEmitter2EmissionRate != null) {
 			add(new AnimFlag(emitter.particleEmitter2EmissionRate));
@@ -173,8 +182,8 @@ public class ParticleEmitter2 extends IdObject implements VisibilitySource {
 		setTime(emitter.time);
 		// SegmentColor - Inverse order for MDL!
 		for (int i = 0; i < 3; i++) {
-			setSegmentColor(i, new Vertex(emitter.segmentColor[i * 3 + 2], emitter.segmentColor[i * 3 + 1],
-					emitter.segmentColor[i * 3 + 0]));
+			setSegmentColor(i, new Vertex(emitter.segmentColor[(i * 3) + 2], emitter.segmentColor[(i * 3) + 1],
+					emitter.segmentColor[(i * 3) + 0]));
 		}
 		setAlpha(new Vertex((256 + emitter.segmentAlpha[0]) % 256, (256 + emitter.segmentAlpha[1]) % 256,
 				(256 + emitter.segmentAlpha[2]) % 256));
@@ -259,7 +268,7 @@ public class ParticleEmitter2 extends IdObject implements VisibilitySource {
 					foundType = true;
 					// JOptionPane.showMessageDialog(null,"SegmentColor from
 					// line: "+line);
-					for (int i = 0; reading && i < 3; i++) {
+					for (int i = 0; reading && (i < 3); i++) {
 						line = MDLReader.nextLine(mdl);
 						if (line.contains("Color")) {
 							pe.segmentColor[i] = Vertex.parseText(line);
@@ -271,7 +280,7 @@ public class ParticleEmitter2 extends IdObject implements VisibilitySource {
 					}
 					line = MDLReader.nextLine(mdl);
 				}
-				for (int i = 0; i < vertexDataNames.length && !foundType; i++) {
+				for (int i = 0; (i < vertexDataNames.length) && !foundType; i++) {
 					if (line.contains("\t" + vertexDataNames[i] + " ")) {
 						foundType = true;
 						pe.vertexData[i] = Vertex.parseText(line);
@@ -279,7 +288,7 @@ public class ParticleEmitter2 extends IdObject implements VisibilitySource {
 						// from line: "+line);
 					}
 				}
-				for (int i = 0; i < loneDoubleNames.length && !foundType; i++) {
+				for (int i = 0; (i < loneDoubleNames.length) && !foundType; i++) {
 					if (line.contains(loneDoubleNames[i])) {
 						foundType = true;
 						pe.loneDoubleData[i] = MDLReader.readDouble(line);
@@ -287,7 +296,7 @@ public class ParticleEmitter2 extends IdObject implements VisibilitySource {
 						// from line: "+line);
 					}
 				}
-				for (int i = 0; i < loneIntNames.length && !foundType; i++) {
+				for (int i = 0; (i < loneIntNames.length) && !foundType; i++) {
 					if (line.contains(loneIntNames[i])) {
 						foundType = true;
 						pe.loneIntData[i] = MDLReader.readInt(line);
@@ -295,7 +304,7 @@ public class ParticleEmitter2 extends IdObject implements VisibilitySource {
 						// from line: "+line);
 					}
 				}
-				for (int i = 0; i < knownFlagNames.length && !foundType; i++) {
+				for (int i = 0; (i < knownFlagNames.length) && !foundType; i++) {
 					if (line.contains(knownFlagNames[i])) {
 						foundType = true;
 						pe.knownFlags[i] = true;
@@ -303,7 +312,7 @@ public class ParticleEmitter2 extends IdObject implements VisibilitySource {
 						// from line: "+line);
 					}
 				}
-				for (int i = 0; i < timeDoubleNames.length && !foundType; i++) {
+				for (int i = 0; (i < timeDoubleNames.length) && !foundType; i++) {
 					if (line.contains(timeDoubleNames[i])) {
 						foundType = true;
 						// JOptionPane.showMessageDialog(null,timeDoubleNames[i]+"
@@ -368,7 +377,7 @@ public class ParticleEmitter2 extends IdObject implements VisibilitySource {
 				writer.println("\tstatic " + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
 			} else {
 				boolean set = false;
-				for (int a = 0; a < pAnimFlags.size() && !set; a++) {
+				for (int a = 0; (a < pAnimFlags.size()) && !set; a++) {
 					if (pAnimFlags.get(a).getName().equals(currentFlag)) {
 						pAnimFlags.get(a).printTo(writer, 1);
 						pAnimFlags.remove(a);
@@ -401,7 +410,7 @@ public class ParticleEmitter2 extends IdObject implements VisibilitySource {
 				writer.println("\tstatic " + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
 			} else {
 				boolean set = false;
-				for (int a = 0; a < pAnimFlags.size() && !set; a++) {
+				for (int a = 0; (a < pAnimFlags.size()) && !set; a++) {
 					if (pAnimFlags.get(a).getName().equals(currentFlag)) {
 						pAnimFlags.get(a).printTo(writer, 1);
 						pAnimFlags.remove(a);
@@ -693,7 +702,7 @@ public class ParticleEmitter2 extends IdObject implements VisibilitySource {
 	@Override
 	public void add(final String flag) {
 		boolean isKnownFlag = false;
-		for (int i = 0; i < knownFlagNames.length && !isKnownFlag; i++) {
+		for (int i = 0; (i < knownFlagNames.length) && !isKnownFlag; i++) {
 			if (knownFlagNames[i].equals(flag)) {
 				knownFlags[i] = true;
 				isKnownFlag = true;
@@ -723,6 +732,10 @@ public class ParticleEmitter2 extends IdObject implements VisibilitySource {
 
 	public void setTexture(final Bitmap texture) {
 		this.texture = texture;
+	}
+
+	public Bitmap getTexture() {
+		return texture;
 	}
 
 	@Override

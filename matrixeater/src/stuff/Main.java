@@ -7,6 +7,8 @@ import java.io.IOException;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
+import com.badlogic.gdx.backends.lwjgl.LwjglNativesLoader;
+import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.PerspDisplayPanel;
 import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.mdl.RenderModel;
@@ -18,6 +20,7 @@ import de.wc3data.stream.BlizzardDataInputStream;
 
 public class Main {
 	public static void main(final String[] args) {
+		LwjglNativesLoader.load();
 		MDL model;
 		try {
 			model = new MDL(MdxUtils.loadModel(new BlizzardDataInputStream(
@@ -29,7 +32,7 @@ public class Main {
 		try {
 
 			final PerspDisplayPanel perspDisplayPanel = new PerspDisplayPanel("Zergling man!",
-					new ModelViewManager(model), null, new RenderModel(model));
+					new ModelViewManager(model), new ProgramPreferences(), new RenderModel(model));
 			JOptionPane.showMessageDialog(null, perspDisplayPanel);
 			final BufferedImage bufferedImage = perspDisplayPanel.getViewport().getBufferedImage();
 			JOptionPane.showMessageDialog(null, new ImageIcon(model.getMaterial(1).getBufferedImage(null)));

@@ -64,6 +64,8 @@ public class LightChunk {
 		public LightIntensity lightIntensity;
 		public LightAmbientColor lightAmbientColor;
 		public LightAmbientIntensity lightAmbientIntensity;
+		public LightAttenuationStart lightAttenuationStart;
+		public LightAttenuationEnd lightAttenuationEnd;
 
 		public void load(final BlizzardDataInputStream in) throws IOException {
 			final int inclusiveSize = in.readInt();
@@ -79,7 +81,7 @@ public class LightChunk {
 			intensity = in.readFloat();
 			ambientColor = MdxUtils.loadFloatArray(in, 3);
 			ambientIntensity = in.readFloat();
-			for (int i = 0; i < 5; i++) {
+			for (int i = 0; i < 7; i++) {
 				if (MdxUtils.checkOptionalId(in, LightVisibility.key)) {
 					lightVisibility = new LightVisibility();
 					lightVisibility.load(in);
@@ -95,6 +97,12 @@ public class LightChunk {
 				} else if (MdxUtils.checkOptionalId(in, LightAmbientIntensity.key)) {
 					lightAmbientIntensity = new LightAmbientIntensity();
 					lightAmbientIntensity.load(in);
+				} else if (MdxUtils.checkOptionalId(in, LightAttenuationStart.key)) {
+					lightAttenuationStart = new LightAttenuationStart();
+					lightAttenuationStart.load(in);
+				} else if (MdxUtils.checkOptionalId(in, LightAttenuationEnd.key)) {
+					lightAttenuationEnd = new LightAttenuationEnd();
+					lightAttenuationEnd.load(in);
 				}
 
 			}
@@ -106,14 +114,14 @@ public class LightChunk {
 			out.writeInt(type);
 			out.writeInt(attenuationStart);
 			out.writeInt(attenuationEnd);
-			if (color.length % 3 != 0) {
+			if ((color.length % 3) != 0) {
 				throw new IllegalArgumentException(
 						"The array color needs either the length 3 or a multiple of this number. (got " + color.length
 								+ ")");
 			}
 			MdxUtils.saveFloatArray(out, color);
 			out.writeFloat(intensity);
-			if (ambientColor.length % 3 != 0) {
+			if ((ambientColor.length % 3) != 0) {
 				throw new IllegalArgumentException(
 						"The array ambientColor needs either the length 3 or a multiple of this number. (got "
 								+ ambientColor.length + ")");
@@ -134,6 +142,12 @@ public class LightChunk {
 			}
 			if (lightAmbientIntensity != null) {
 				lightAmbientIntensity.save(out);
+			}
+			if (lightAttenuationStart != null) {
+				lightAttenuationStart.save(out);
+			}
+			if (lightAttenuationEnd != null) {
+				lightAttenuationEnd.save(out);
 			}
 
 		}
@@ -163,6 +177,12 @@ public class LightChunk {
 			}
 			if (lightAmbientIntensity != null) {
 				a += lightAmbientIntensity.getSize();
+			}
+			if (lightAttenuationStart != null) {
+				a += lightAttenuationStart.getSize();
+			}
+			if (lightAttenuationEnd != null) {
+				a += lightAttenuationEnd.getSize();
 			}
 
 			return a;
@@ -260,6 +280,40 @@ public class LightChunk {
 						if (hasTans) {
 							mdxEntry.inTan = ((Vertex) mdlEntry.inTan).toFloatArray();
 							mdxEntry.outTan = ((Vertex) mdlEntry.outTan).toFloatArray();
+						}
+					}
+				} else if (af.getName().equals("AttenuationStart")) {
+					lightAttenuationStart = new LightAttenuationStart();
+					lightAttenuationStart.globalSequenceId = af.getGlobalSeqId();
+					lightAttenuationStart.interpolationType = af.getInterpType();
+					lightAttenuationStart.scalingTrack = new LightAttenuationStart.ScalingTrack[af.size()];
+					final boolean hasTans = af.tans();
+					for (int i = 0; i < af.size(); i++) {
+						final LightAttenuationStart.ScalingTrack mdxEntry = lightAttenuationStart.new ScalingTrack();
+						lightAttenuationStart.scalingTrack[i] = mdxEntry;
+						final AnimFlag.Entry mdlEntry = af.getEntry(i);
+						mdxEntry.attenuationStart = ((Number) mdlEntry.value).floatValue();
+						mdxEntry.time = mdlEntry.time.intValue();
+						if (hasTans) {
+							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();
+							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
+						}
+					}
+				} else if (af.getName().equals("AttenuationEnd")) {
+					lightAttenuationEnd = new LightAttenuationEnd();
+					lightAttenuationEnd.globalSequenceId = af.getGlobalSeqId();
+					lightAttenuationEnd.interpolationType = af.getInterpType();
+					lightAttenuationEnd.scalingTrack = new LightAttenuationEnd.ScalingTrack[af.size()];
+					final boolean hasTans = af.tans();
+					for (int i = 0; i < af.size(); i++) {
+						final LightAttenuationEnd.ScalingTrack mdxEntry = lightAttenuationEnd.new ScalingTrack();
+						lightAttenuationEnd.scalingTrack[i] = mdxEntry;
+						final AnimFlag.Entry mdlEntry = af.getEntry(i);
+						mdxEntry.attenuationEnd = ((Number) mdlEntry.value).floatValue();
+						mdxEntry.time = mdlEntry.time.intValue();
+						if (hasTans) {
+							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();
+							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
 						}
 					}
 				} else {

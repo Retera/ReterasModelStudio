@@ -7,7 +7,9 @@ import java.util.List;
 import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexModelElementRenderer;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
@@ -55,6 +57,7 @@ public class MultiPartSelectionView implements SelectionView {
 	@Override
 	public double getCircumscribedSphereRadius(final Vertex center) {
 		double radius = 0;
+		// TODO WHY DOES THIS DISCARD THE CENTER ARG??
 		final Collection<? extends Vertex> selectedVertices = getSelectedVertices();
 		final Vertex centerOfGroup = Vertex.centerOfGroup(selectedVertices);
 		for (final Vertex item : selectedVertices) {
@@ -83,5 +86,50 @@ public class MultiPartSelectionView implements SelectionView {
 			}
 		}
 		return empty;
+	}
+
+	@Override
+	public TVertex getUVCenter(final int tvertexLayerId) {
+		final List<TVertex> vertices = new ArrayList<>();
+		for (final SelectionView selectionView : selectionViews) {
+			for (final TVertex vertex : selectionView.getSelectedTVertices(tvertexLayerId)) {
+				vertices.add(vertex);
+			}
+		}
+		return TVertex.centerOfGroup(vertices);
+	}
+
+	@Override
+	public Collection<? extends TVertex> getSelectedTVertices(final int tvertexLayerId) {
+		final List<TVertex> vertices = new ArrayList<>();
+		for (final SelectionView selectionView : selectionViews) {
+			for (final TVertex vertex : selectionView.getSelectedTVertices(tvertexLayerId)) {
+				vertices.add(vertex);
+			}
+		}
+		return vertices;
+	}
+
+	@Override
+	public double getCircumscribedSphereRadius(final TVertex center, final int tvertexLayerId) {
+		double radius = 0;
+		// TODO WHY DOES THIS DISCARD THE CENTER ARG??
+		final Collection<? extends TVertex> selectedVertices = getSelectedTVertices(tvertexLayerId);
+		final TVertex centerOfGroup = TVertex.centerOfGroup(selectedVertices);
+		for (final TVertex item : selectedVertices) {
+			final double distance = centerOfGroup.distance(item);
+			if (distance >= radius) {
+				radius = distance;
+			}
+		}
+		return radius;
+	}
+
+	@Override
+	public void renderUVSelection(final TVertexModelElementRenderer renderer, final ModelView modelView,
+			final ProgramPreferences programPreferences, final int tvertexLayerId) {
+		for (final SelectionView selectionView : selectionViews) {
+			selectionView.renderUVSelection(renderer, modelView, programPreferences, tvertexLayerId);
+		}
 	}
 }

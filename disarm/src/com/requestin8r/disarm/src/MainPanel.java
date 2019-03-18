@@ -36,22 +36,19 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.rtf.RTFEditorKit;
 
+import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.BoneShell;
 import com.hiveworkshop.wc3.gui.modeledit.ModelScale;
-import com.hiveworkshop.wc3.gui.modeledit.PerspDisplayPanel;
-import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
+import com.hiveworkshop.wc3.gui.modelviewer.AnimationViewer;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
-import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Attachment;
 import com.hiveworkshop.wc3.mdl.Bone;
-import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Helper;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.MDL;
-import com.hiveworkshop.wc3.mdl.TimelineContainer;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
@@ -65,83 +62,10 @@ import com.requestin8r.src.IconGet;
 import com.requestin8r.src.Project;
 
 public class MainPanel extends JPanel implements ActionListener {
-	private final class DoNothingModelChangeListener implements ModelStructureChangeListener {
-		@Override
-		public void nodesRemoved(final List<IdObject> nodes) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void nodesAdded(final List<IdObject> nodes) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void geosetsRemoved(final List<Geoset> geosets) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void geosetsAdded(final List<Geoset> geosets) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void camerasRemoved(final List<Camera> nodes) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void camerasAdded(final List<Camera> nodes) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void timelineAdded(final TimelineContainer node, final AnimFlag timeline) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void keyframeAdded(final TimelineContainer node, final AnimFlag timeline, final int trackTime) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void timelineRemoved(final TimelineContainer node, final AnimFlag timeline) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void keyframeRemoved(final TimelineContainer node, final AnimFlag timeline, final int trackTime) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void animationsAdded(final List<Animation> animation) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void animationsRemoved(final List<Animation> animation) {
-			// TODO Auto-generated method stub
-
-		}
-	}
 
 	String[] keywords = { "weapon", "weap", "axe", "sword", "bow", "knife", "gun", "spear" };
 	JButton custom, unit, model, disarm, scalify, undo, save;
-	PerspDisplayPanel viewer;
+	AnimationViewer viewer;
 	JFileChooser jfc = new JFileChooser();
 	MainFrame frame;
 
@@ -239,8 +163,8 @@ public class MainPanel extends JPanel implements ActionListener {
 	public MainPanel(final MainFrame parent) {
 		frame = parent;
 		final ModelViewManager blank = new ModelViewManager(new MDL());
-		viewer = new PerspDisplayPanel("", blank, null);
-		viewer.setViewport(blank, viewerSize);
+		viewer = new AnimationViewer(blank, new ProgramPreferences(), true);
+		viewer.setModel(blank);// , viewerSize);
 
 		final Font smallFont = new Font("Arial", Font.BOLD, 16);
 		final Font medFont = new Font("Arial", Font.BOLD, 28);
@@ -356,7 +280,7 @@ public class MainPanel extends JPanel implements ActionListener {
 
 			if (modelDisp != null) {
 				current = new Project(modelDisp, icon, name);
-				viewer.setViewport(modelDisp, viewerSize);
+				viewer.setModel(modelDisp);// , viewerSize);
 				// WorkPanel workPanel = new WorkPanel(, frame);
 				// frame.setContentPane(workPanel);
 				// frame.revalidate();
@@ -404,11 +328,11 @@ public class MainPanel extends JPanel implements ActionListener {
 				// frame.revalidate();
 				// frame.pack();
 				current = new Project(modelDisp, icon, name);
-				viewer.setViewport(modelDisp, viewerSize);
+				viewer.setModel(modelDisp);// , viewerSize);
 			}
 		} else if (e.getSource() == custom) {
 			final int x = jfc.showOpenDialog(frame);
-			if (x == JFileChooser.APPROVE_OPTION && jfc.getSelectedFile() != null) {
+			if ((x == JFileChooser.APPROVE_OPTION) && (jfc.getSelectedFile() != null)) {
 				// JOptionPane.showMessageDialog(null, jfc.getSelectedFile() +
 				// ". Good choice.");
 			} else {
@@ -439,7 +363,7 @@ public class MainPanel extends JPanel implements ActionListener {
 
 			if (modelDisp != null) {
 				current = new Project(modelDisp, icon, name);
-				viewer.setViewport(modelDisp, viewerSize);
+				viewer.setModel(modelDisp);// , viewerSize);
 				// WorkPanel workPanel = new WorkPanel(new Project(modelDisp,
 				// icon, name), frame);
 				// frame.setContentPane(workPanel);
@@ -537,7 +461,7 @@ public class MainPanel extends JPanel implements ActionListener {
 			}
 		} else if (e.getSource() == fromCustom) {
 			final int x = jfc.showOpenDialog(frame);
-			if (x == JFileChooser.APPROVE_OPTION && jfc.getSelectedFile() != null) {
+			if ((x == JFileChooser.APPROVE_OPTION) && (jfc.getSelectedFile() != null)) {
 				// JOptionPane.showMessageDialog(null, jfc.getSelectedFile() +
 				// ". Good choice.");
 			} else {
@@ -667,7 +591,7 @@ public class MainPanel extends JPanel implements ActionListener {
 			}
 			SaveProfile.get().setGameDirectory(wcDirectory);
 
-			PerspDisplayPanel pdp;
+			AnimationViewer pdp;
 			pdp = viewer;
 			pdp.reloadAllTextures();
 			MpqCodebase.get().refresh();
@@ -894,9 +818,9 @@ public class MainPanel extends JPanel implements ActionListener {
 
 			Geoset myBaseGeoset = null;
 
-			for (int i = 0; i < model.getGeosetsSize() && myBaseGeoset == null; i++) {
+			for (int i = 0; (i < model.getGeosetsSize()) && (myBaseGeoset == null); i++) {
 				final Geoset geo = model.getGeoset(i);
-				for (int v = 0; v < geo.numVerteces() && myBaseGeoset == null; v++) {
+				for (int v = 0; (v < geo.numVerteces()) && (myBaseGeoset == null); v++) {
 					final GeosetVertex gv = geo.getVertex(v);
 					if (gv.getBoneAttachments().contains(myBone)
 							|| gv.getBoneAttachments().contains(myBone.getParent())) {
@@ -945,11 +869,11 @@ public class MainPanel extends JPanel implements ActionListener {
 				AnimFlag flag = null;
 				if (oldFlag != null) {
 					flag = AnimFlag.buildEmptyFrom(oldFlag);
-				} else if (myBaseGeoset != null && myBaseGeoset.getVisibilityFlag() != null) {
+				} else if ((myBaseGeoset != null) && (myBaseGeoset.getVisibilityFlag() != null)) {
 					flag = new AnimFlag(myBaseGeoset.getVisibilityFlag());
 				}
 				geoanim.setVisibilityFlag(flag);
-				if (myBaseGeoset != null && flag != null && myBaseGeoset.getVisibilityFlag() != null) {
+				if ((myBaseGeoset != null) && (flag != null) && (myBaseGeoset.getVisibilityFlag() != null)) {
 					flag.copyFrom(myBaseGeoset.getVisibilityFlag());
 				}
 
@@ -980,7 +904,7 @@ public class MainPanel extends JPanel implements ActionListener {
 				if (inverse) {
 					current.editor.invertSelection();
 				}
-				current.editor.deleteSelectedComponents(new DoNothingModelChangeListener());
+				current.editor.deleteSelectedComponents();// new DoNothingModelChangeListener()
 			}
 		}
 	}
@@ -1205,7 +1129,7 @@ public class MainPanel extends JPanel implements ActionListener {
 				addNeighbors(selection, allConnectionsPool, gv, model, false);
 				// for( GeosetVertex)
 			}
-			if (enlargedBadPool.size() > 0 || badPool.size() > 0) {
+			if ((enlargedBadPool.size() > 0) || (badPool.size() > 0)) {
 				final String[] opts = { "Yes", "No", "Delete all connected" };
 				final int x = JOptionPane.showOptionDialog(frame,
 						"Some parts of the \"weapon\" were found to be connected to other parts of the model.\nThis could mean they are a part of a hand, or an arm. Delete them anyway?",
