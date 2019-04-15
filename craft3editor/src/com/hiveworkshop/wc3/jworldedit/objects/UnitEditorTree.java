@@ -29,7 +29,7 @@ import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.WorldEditorDataTy
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
 import com.hiveworkshop.wc3.units.objectdata.War3ObjectDataChangeset;
 
-public final class UnitEditorTree extends JTree {
+public class UnitEditorTree extends JTree {
 
 	private TopLevelCategoryFolder root;
 	private final MutableObjectData unitData;
@@ -146,7 +146,7 @@ public final class UnitEditorTree extends JTree {
 				foundSelection = nextElement == selectedNode;
 			}
 		}
-		if (foundSelection && selectedNode != null) {
+		if (foundSelection && (selectedNode != null)) {
 			depthFirstEnum = root.depthFirstEnumeration();
 			while (depthFirstEnum.hasMoreElements()) {
 				final Object nextElement = depthFirstEnum.nextElement();
@@ -174,7 +174,7 @@ public final class UnitEditorTree extends JTree {
 
 	public boolean matches(final DefaultMutableTreeNode node, final String text, final boolean displayAsRawData,
 			final boolean caseSensitive) {
-		if (node != null && node.getUserObject() instanceof MutableGameObject) {
+		if ((node != null) && (node.getUserObject() instanceof MutableGameObject)) {
 			final MutableGameObject obj = (MutableGameObject) node.getUserObject();
 			String name = displayAsRawData ? MutableObjectData.getDisplayAsRawDataName(obj) : obj.getName();
 			if (!caseSensitive) {
@@ -238,7 +238,7 @@ public final class UnitEditorTree extends JTree {
 
 	public MutableGameObject getSelectedGameObject() {
 		final DefaultMutableTreeNode o = (DefaultMutableTreeNode) getLastSelectedPathComponent();
-		if (o != null && o.getUserObject() instanceof MutableGameObject) {
+		if ((o != null) && (o.getUserObject() instanceof MutableGameObject)) {
 			final MutableGameObject obj = (MutableGameObject) o.getUserObject();
 			return obj;
 		}

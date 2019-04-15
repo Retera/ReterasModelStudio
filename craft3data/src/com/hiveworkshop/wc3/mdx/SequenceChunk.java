@@ -56,7 +56,7 @@ public class SequenceChunk {
 		public float moveSpeed;
 		public int nonLooping;
 		public float rarity;
-		public int unknownNull;
+		public int syncPoint;
 		public float boundsRadius;
 		public float[] minimumExtent = new float[3];
 		public float[] maximumExtent = new float[3];
@@ -68,7 +68,7 @@ public class SequenceChunk {
 			moveSpeed = in.readFloat();
 			nonLooping = in.readInt();
 			rarity = in.readFloat();
-			unknownNull = in.readInt();
+			syncPoint = in.readInt();
 			boundsRadius = in.readFloat();
 			minimumExtent = MdxUtils.loadFloatArray(in, 3);
 			maximumExtent = MdxUtils.loadFloatArray(in, 3);
@@ -81,7 +81,7 @@ public class SequenceChunk {
 			out.writeFloat(moveSpeed);
 			out.writeInt(nonLooping);
 			out.writeFloat(rarity);
-			out.writeInt(unknownNull);
+			out.writeInt(syncPoint);
 			out.writeFloat(boundsRadius);
 			if (minimumExtent.length % 3 != 0) {
 				throw new IllegalArgumentException(

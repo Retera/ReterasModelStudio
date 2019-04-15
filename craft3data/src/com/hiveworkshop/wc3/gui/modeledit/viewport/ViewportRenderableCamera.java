@@ -79,13 +79,16 @@ public class ViewportRenderableCamera {
 	}
 
 	public void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem, final double startX,
-			final double startY, final double endX, final double endY, final double rotation) {
+			final double startY, final float startZ, final double endX, final double endY, final float endZ,
+			final double rotation) {
 		start.setTo(Vertex.ORIGIN);
 		end.setTo(Vertex.ORIGIN);
-		start.setCoord(coordinateSystem.getPortFirstXYZ(), startX);
-		start.setCoord(coordinateSystem.getPortSecondXYZ(), startY);
-		end.setCoord(coordinateSystem.getPortFirstXYZ(), endX);
-		end.setCoord(coordinateSystem.getPortSecondXYZ(), endY);
+		start.x = startX;
+		start.y = startY;
+		start.z = startZ;
+		end.x = endX;
+		end.y = endY;
+		end.z = endZ;
 
 		startVector.x = (float) start.x;
 		startVector.y = (float) start.y;
@@ -105,7 +108,7 @@ public class ViewportRenderableCamera {
 		scaleTranslateMatrix.setIdentity();
 		vector3heap.set((float) (end.x), (float) (end.y), (float) (end.z));
 		scaleTranslateMatrix.translate(vector3heap);
-		Matrix4f.mul(rotationMatrix, scaleTranslateMatrix, scaleTranslateMatrix);
+		Matrix4f.mul(scaleTranslateMatrix, rotationMatrix, scaleTranslateMatrix);
 		vector3heap.set((float) cameraModelScale, (float) cameraModelScale, (float) cameraModelScale);
 		scaleTranslateMatrix.scale(vector3heap);
 

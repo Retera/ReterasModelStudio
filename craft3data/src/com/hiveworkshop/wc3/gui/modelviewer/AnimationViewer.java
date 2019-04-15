@@ -32,7 +32,7 @@ public class AnimationViewer extends JPanel {
 		this.mdlDisp = mdlDisp;
 		this.allowUnanimated = allowUnanimated;
 		try {
-			perspectiveViewport = new AnimatedPerspectiveViewport(mdlDisp, programPreferences);
+			perspectiveViewport = new AnimatedPerspectiveViewport(mdlDisp, programPreferences, true);
 			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
 			perspectiveViewport.setAnimationTime(0);
 			perspectiveViewport.setLive(true);
@@ -42,7 +42,7 @@ public class AnimationViewer extends JPanel {
 		setLayout(new BorderLayout());
 		add(perspectiveViewport, BorderLayout.CENTER);
 		animations = new DefaultComboBoxModel<>();
-		if (allowUnanimated || mdlDisp.getModel().getAnims().size() == 0) {
+		if (allowUnanimated || (mdlDisp.getModel().getAnims().size() == 0)) {
 			animations.addElement(null);
 		}
 		for (final Animation animation : mdlDisp.getModel().getAnims()) {
@@ -92,7 +92,7 @@ public class AnimationViewer extends JPanel {
 		final Animation selectedItem = (Animation) animationBox.getSelectedItem();
 		animations.removeAllElements();
 		boolean sawLast = selectedItem == null;
-		if (allowUnanimated || mdlDisp.getModel().getAnims().size() == 0) {
+		if (allowUnanimated || (mdlDisp.getModel().getAnims().size() == 0)) {
 			animations.addElement(null);
 		}
 		for (final Animation animation : mdlDisp.getModel().getAnims()) {
@@ -102,9 +102,9 @@ public class AnimationViewer extends JPanel {
 			}
 		}
 		perspectiveViewport.reloadTextures();
-		if (sawLast && (selectedItem != null || allowUnanimated)) {
+		if (sawLast && ((selectedItem != null) || allowUnanimated)) {
 			animationBox.setSelectedItem(selectedItem);
-		} else if (!allowUnanimated && mdlDisp.getModel().getAnims().size() > 0) {
+		} else if (!allowUnanimated && (mdlDisp.getModel().getAnims().size() > 0)) {
 			animationBox.setSelectedItem(mdlDisp.getModel().getAnim(0));
 		}
 	}

@@ -8,11 +8,13 @@ import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
+import com.hiveworkshop.wc3.gui.GUITheme;
 import com.hiveworkshop.wc3.gui.MouseButtonPreference;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.util.ColorChooserIcon;
@@ -32,11 +34,16 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		final JRadioButton solidViewMode = new JRadioButton("Solid");
 		final JCheckBox invertedDisplay = new JCheckBox();
 		final JCheckBox useBoxesForNodes = new JCheckBox();
-		if (programPreferences.isInvertedDisplay() != null && programPreferences.isInvertedDisplay()) {
+		final JCheckBox quickBrowse = new JCheckBox();
+		if ((programPreferences.isInvertedDisplay() != null) && programPreferences.isInvertedDisplay()) {
 			invertedDisplay.setSelected(true);
 		}
-		if (programPreferences.getUseBoxesForPivotPoints() != null && programPreferences.getUseBoxesForPivotPoints()) {
+		if ((programPreferences.getUseBoxesForPivotPoints() != null)
+				&& programPreferences.getUseBoxesForPivotPoints()) {
 			useBoxesForNodes.setSelected(true);
+		}
+		if ((programPreferences.getQuickBrowse() != null) && programPreferences.getQuickBrowse()) {
+			quickBrowse.setSelected(true);
 		}
 		final ActionListener viewModeUpdater = new ActionListener() {
 			@Override
@@ -61,7 +68,11 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		generalPrefsPanel.add(invertedDisplay, "cell 1 3");
 		generalPrefsPanel.add(new JLabel("Use Boxes for Nodes:"), "cell 0 4");
 		generalPrefsPanel.add(useBoxesForNodes, "cell 1 4");
-		// final BoxLayout boxLayout = new BoxLayout(generalPrefsPanel, BoxLayout.PAGE_AXIS);
+		generalPrefsPanel.add(new JLabel("Quick Browse:"), "cell 0 5");
+		quickBrowse.setToolTipText("When opening a new model, close old ones if they have not been modified.");
+		generalPrefsPanel.add(quickBrowse, "cell 1 5");
+		// final BoxLayout boxLayout = new BoxLayout(generalPrefsPanel,
+		// BoxLayout.PAGE_AXIS);
 
 		addTab("General", generalPrefsPanel);
 
@@ -165,6 +176,23 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 						programPreferences.setPivotPointsSelectedColor(color);
 					}
 				});
+
+		final JComboBox<GUITheme> themeCheckBox = new JComboBox<GUITheme>(GUITheme.values());
+		themeCheckBox.setSelectedItem(programPreferences.getTheme());
+		themeCheckBox.addActionListener(new ActionListener() {
+			boolean hasWarned = false;
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				programPreferences.setTheme((GUITheme) themeCheckBox.getSelectedItem());
+				if (!hasWarned) {
+					hasWarned = true;
+					JOptionPane.showMessageDialog(ProgramPreferencesPanel.this,
+							"Some settings may not take effect until you restart the application.", "Warning",
+							JOptionPane.WARNING_MESSAGE);
+				}
+			}
+		});
 		int row = 0;
 		modelEditorPanel.add(new JLabel("Background Color:"), "cell 0 " + row);
 		modelEditorPanel.add(backgroundColorIcon, "cell 1 " + row);
@@ -205,6 +233,9 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		modelEditorPanel.add(new JLabel("Pivot Point Selected Color:"), "cell 0 " + row);
 		modelEditorPanel.add(pivotPointSelectedColorIcon, "cell 1 " + row);
 		row++;
+		modelEditorPanel.add(new JLabel("Window Borders (Theme):"), "cell 0 " + row);
+		modelEditorPanel.add(themeCheckBox, "cell 1 " + row);
+
 		addTab("Colors/Theme", new JScrollPane(modelEditorPanel));
 
 		final JPanel hotkeysPanel = new JPanel();

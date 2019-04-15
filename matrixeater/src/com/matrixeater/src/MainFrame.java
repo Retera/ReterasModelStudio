@@ -1,5 +1,6 @@
 package com.matrixeater.src;
 
+import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -12,7 +13,12 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglNativesLoader;
+import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.user.SaveProfile;
+
+import net.infonode.gui.laf.InfoNodeLookAndFeel;
+import net.infonode.gui.laf.InfoNodeLookAndFeelTheme;
+import net.infonode.gui.laf.InfoNodeLookAndFeelThemes;
 
 /**
  * Write a description of class MainFrame here.
@@ -48,56 +54,141 @@ public class MainFrame extends JFrame {
 		// IIORegistry registry = IIORegistry.getDefaultInstance();
 		// registry.registerServiceProvider(
 		// new com.realityinteractive.imageio.tga.TGAImageReaderSpi());
+		final ProgramPreferences preferences = SaveProfile.get().getPreferences();
+		switch (preferences.getTheme()) {
+		case DARK:
+			EditorDisplayManager.setupLookAndFeel();
+			break;
+		case FOREST_GREEN:
+			try {
+				final InfoNodeLookAndFeelTheme theme = new InfoNodeLookAndFeelTheme("Matrix Eater",
+						new Color(44, 46, 20), new Color(116, 126, 36), new Color(44, 46, 20), new Color(220, 202, 132),
+						new Color(116, 126, 36), new Color(220, 202, 132));
+				theme.setShadingFactor(-0.8);
+				theme.setDesktopColor(new Color(60, 82, 44));
 
-		try {
-			// Set cross-platform Java L&F (also called "Metal")
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (final UnsupportedLookAndFeelException e) {
-			// handle exception
-		} catch (final ClassNotFoundException e) {
-			// handle exception
-		} catch (final InstantiationException e) {
-			// handle exception
-		} catch (final IllegalAccessException e) {
-			// handle exception
+				UIManager.setLookAndFeel(new InfoNodeLookAndFeel(theme));
+			} catch (final UnsupportedLookAndFeelException e) {
+				e.printStackTrace();
+			}
+			break;
+		case WINDOWS:
+			try {
+				// Set cross-platform Java L&F (also called "Metal")
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			} catch (final UnsupportedLookAndFeelException e) {
+				// handle exception
+			} catch (final ClassNotFoundException e) {
+				// handle exception
+			} catch (final InstantiationException e) {
+				// handle exception
+			} catch (final IllegalAccessException e) {
+				// handle exception
+			}
+			break;
+		case WINDOWS_CLASSIC:
+			try {
+				UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel");
+			} catch (final Exception exc) {
+				try {
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				} catch (final ClassNotFoundException e) {
+					e.printStackTrace();
+				} catch (final InstantiationException e) {
+					e.printStackTrace();
+				} catch (final IllegalAccessException e) {
+					e.printStackTrace();
+				} catch (final UnsupportedLookAndFeelException e) {
+					e.printStackTrace();
+				}
+			}
+			break;
+		case JAVA_DEFAULT:
+			break;
+		case SOFT_GRAY:
+			try {
+				final InfoNodeLookAndFeelTheme softGrayTheme = InfoNodeLookAndFeelThemes.getSoftGrayTheme();
+				UIManager.setLookAndFeel(new InfoNodeLookAndFeel(softGrayTheme));
+			} catch (final Exception exc) {
+				try {
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				} catch (final ClassNotFoundException e) {
+					e.printStackTrace();
+				} catch (final InstantiationException e) {
+					e.printStackTrace();
+				} catch (final IllegalAccessException e) {
+					e.printStackTrace();
+				} catch (final UnsupportedLookAndFeelException e) {
+					e.printStackTrace();
+				}
+			}
+
+			break;
+		case BLUE_ICE:
+			try {
+				final InfoNodeLookAndFeelTheme blueIceTheme = InfoNodeLookAndFeelThemes.getBlueIceTheme();
+				UIManager.setLookAndFeel(new InfoNodeLookAndFeel(blueIceTheme));
+			} catch (final Exception exc) {
+				try {
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				} catch (final ClassNotFoundException e) {
+					e.printStackTrace();
+				} catch (final InstantiationException e) {
+					e.printStackTrace();
+				} catch (final IllegalAccessException e) {
+					e.printStackTrace();
+				} catch (final UnsupportedLookAndFeelException e) {
+					e.printStackTrace();
+				}
+			}
+
+			break;
+		case DARK_BLUE_GREEN:
+			try {
+				final InfoNodeLookAndFeelTheme darkBlueGreenTheme = InfoNodeLookAndFeelThemes.getDarkBlueGreenTheme();
+				UIManager.setLookAndFeel(new InfoNodeLookAndFeel(darkBlueGreenTheme));
+			} catch (final Exception exc) {
+				try {
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				} catch (final ClassNotFoundException e) {
+					e.printStackTrace();
+				} catch (final InstantiationException e) {
+					e.printStackTrace();
+				} catch (final IllegalAccessException e) {
+					e.printStackTrace();
+				} catch (final UnsupportedLookAndFeelException e) {
+					e.printStackTrace();
+				}
+			}
+
+			break;
+		case GRAY:
+			try {
+				final InfoNodeLookAndFeelTheme grayTheme = InfoNodeLookAndFeelThemes.getGrayTheme();
+				UIManager.setLookAndFeel(new InfoNodeLookAndFeel(grayTheme));
+			} catch (final Exception exc) {
+				try {
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				} catch (final ClassNotFoundException e) {
+					e.printStackTrace();
+				} catch (final InstantiationException e) {
+					e.printStackTrace();
+				} catch (final IllegalAccessException e) {
+					e.printStackTrace();
+				} catch (final UnsupportedLookAndFeelException e) {
+					e.printStackTrace();
+				}
+			}
+
+			break;
 		}
-		// EditorDisplayManager.setupLookAndFeel();
-		// try {
-		// UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel");
-		// } catch (final Exception exc) {
-		// try {
-		// UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		// } catch (final ClassNotFoundException e) {
-		// e.printStackTrace();
-		// } catch (final InstantiationException e) {
-		// e.printStackTrace();
-		// } catch (final IllegalAccessException e) {
-		// e.printStackTrace();
-		// } catch (final UnsupportedLookAndFeelException e) {
-		// e.printStackTrace();
-		// }
-		// }
-//		try {
-//			final InfoNodeLookAndFeelTheme theme = new InfoNodeLookAndFeelTheme("Matrix Eater", new Color(44, 46, 20),
-//					new Color(116, 126, 36), new Color(44, 46, 20), new Color(220, 202, 132), new Color(116, 126, 36),
-//					new Color(220, 202, 132));
-//			theme.setShadingFactor(-0.8);
-//			theme.setDesktopColor(new Color(60, 82, 44));
-//			theme.setTreeOpenIcon(new IconUIResource(new ImageIcon(
-//					BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp"))));
-//			theme.setTreeClosedIcon(new IconUIResource(new ImageIcon(
-//					BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp"))));
-//
-//			UIManager.setLookAndFeel(new InfoNodeLookAndFeel(theme));
-//		} catch (final UnsupportedLookAndFeelException e) {
-//			e.printStackTrace();
-//		}
+
 		// TechshaperFrame.main(args);
 
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				frame = new MainFrame("Model Editor");
+				frame = new MainFrame("Retera Model Studio v0.01 Public Beta");
 				panel.init();
 			}
 		});

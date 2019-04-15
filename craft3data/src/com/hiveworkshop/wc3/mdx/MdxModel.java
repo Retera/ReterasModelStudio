@@ -51,21 +51,21 @@ public class MdxModel {
 
 	// Conversion helpers:
 	private static Vertex vertex3f(final float[] array) {
-		if (array == null || array.length < 3) {
+		if ((array == null) || (array.length < 3)) {
 			return null;
 		}
 		return new Vertex(array[0], array[1], array[2]);
 	}
 
 	private static Vertex vertex3f(final byte[] array) {
-		if (array == null || array.length < 3) {
+		if ((array == null) || (array.length < 3)) {
 			return null;
 		}
 		return new Vertex((256 + array[0]) % 256, (256 + array[1]) % 256, (256 + array[2]) % 256);
 	}
 
 	private static QuaternionRotation vertex4f(final float[] array) {
-		if (array == null || array.length < 3) {
+		if ((array == null) || (array.length < 3)) {
 			return null;
 		}
 		return new QuaternionRotation(array[0], array[1], array[2], array[3]);
@@ -975,8 +975,8 @@ public class MdxModel {
 			for (int i = 0; i < mdl.getGeosetAnims().size(); i++) {
 				final GeosetAnim geosetAnim = mdl.getGeosetAnim(i);
 				if (!geosetAnim.getAnimFlags().isEmpty() || !geosetAnim.isDropShadow()
-						|| Math.abs(geosetAnim.getStaticAlpha() - 1.0f) > 0.0001f
-						|| geosetAnim.getStaticColor() != null) {
+						|| (Math.abs(geosetAnim.getStaticAlpha() - 1.0f) > 0.0001f)
+						|| (geosetAnim.getStaticColor() != null)) {
 					nonEmptyGeosetAnimations.add(geosetAnim);
 				}
 			}
@@ -1144,7 +1144,10 @@ public class MdxModel {
 				collisionShapeChunk = new CollisionShapeChunk();
 				collisionShapeChunk.load(in);
 			} else {
-				System.err.println("WTF: " + MdxUtils.getOptionalId(in));
+				final int available = in.available();
+				if (available > 0) {
+					System.err.println("Unknown MDX Chunk: " + MdxUtils.getOptionalId(in));
+				}
 			}
 
 		}

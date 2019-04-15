@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
@@ -37,6 +38,7 @@ import javax.swing.tree.TreePath;
 import com.etheller.collections.ArrayList;
 import com.etheller.collections.List;
 import com.etheller.collections.SetView;
+import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.user.SaveProfile;
@@ -153,6 +155,14 @@ public final class MPQBrowser extends JPanel {
 							}
 							tempFile.delete();
 						}
+					}
+				} else {
+					if (expanded) {
+						setIcon(new ImageIcon(BLPHandler.get()
+								.getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp")));
+					} else {
+						setIcon(new ImageIcon(BLPHandler.get()
+								.getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp")));
 					}
 				}
 				return treeCellRendererComponent;

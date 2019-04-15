@@ -33,12 +33,17 @@ public class AnimationController extends JPanel {
 
 	public AnimationController(final ModelView mdlDisp, final boolean allowUnanimated,
 			final AnimationControllerListener listener) {
+		this(mdlDisp, allowUnanimated, listener, null);
+	}
+
+	public AnimationController(final ModelView mdlDisp, final boolean allowUnanimated,
+			final AnimationControllerListener listener, final Animation defaultAnimation) {
 		this.mdlDisp = mdlDisp;
 		this.allowUnanimated = allowUnanimated;
 		final GroupLayout groupLayout = new GroupLayout(this);
 
 		animations = new DefaultComboBoxModel<>();
-		if (allowUnanimated || mdlDisp.getModel().getAnims().size() == 0) {
+		if (allowUnanimated || (mdlDisp.getModel().getAnims().size() == 0)) {
 			animations.addElement(null);
 		}
 		for (final Animation animation : mdlDisp.getModel().getAnims()) {
@@ -74,7 +79,7 @@ public class AnimationController extends JPanel {
 					previousSelectedIndex = 0;
 				}
 				int newIndex = previousSelectedIndex + wheelRotation;
-				if (newIndex > animations.getSize() - 1) {
+				if (newIndex > (animations.getSize() - 1)) {
 					newIndex = animations.getSize() - 1;
 				} else if (newIndex < 0) {
 					newIndex = 0;
@@ -92,7 +97,7 @@ public class AnimationController extends JPanel {
 		speedSlider.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(final ChangeEvent e) {
-				speedSliderLabel.setText("Speed: " + speedSlider.getValue() * 2 + "%");
+				speedSliderLabel.setText("Speed: " + (speedSlider.getValue() * 2) + "%");
 				listener.setSpeed(speedSlider.getValue() / 50f);
 			}
 		});
@@ -152,13 +157,14 @@ public class AnimationController extends JPanel {
 		setLayout(groupLayout);
 
 		defaultLoopButton.doClick();
+		animationBox.setSelectedItem(defaultAnimation);
 	}
 
 	public void reload() {
 		final Animation selectedItem = (Animation) animationBox.getSelectedItem();
 		animations.removeAllElements();
 		boolean sawLast = selectedItem == null;
-		if (allowUnanimated || mdlDisp.getModel().getAnims().size() == 0) {
+		if (allowUnanimated || (mdlDisp.getModel().getAnims().size() == 0)) {
 			animations.addElement(null);
 		}
 		for (final Animation animation : mdlDisp.getModel().getAnims()) {
@@ -167,9 +173,9 @@ public class AnimationController extends JPanel {
 				sawLast = true;
 			}
 		}
-		if (sawLast && (selectedItem != null || allowUnanimated)) {
+		if (sawLast && ((selectedItem != null) || allowUnanimated)) {
 			animationBox.setSelectedItem(selectedItem);
-		} else if (!allowUnanimated && mdlDisp.getModel().getAnims().size() > 0) {
+		} else if (!allowUnanimated && (mdlDisp.getModel().getAnims().size() > 0)) {
 			animationBox.setSelectedItem(mdlDisp.getModel().getAnim(0));
 		}
 	}

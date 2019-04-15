@@ -100,20 +100,35 @@ public final class Warcraft3MapObjectData {
 		final War3ObjectDataChangeset buffChangeset = new War3ObjectDataChangeset('h');
 		final War3ObjectDataChangeset upgradeChangeset = new War3ObjectDataChangeset('q');
 
-		unitChangeset.load(new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream("war3map.w3u")),
-				new WTSFile(MpqCodebase.get().getResourceAsStream("war3map.wts")), inlineWTS);
-		itemChangeset.load(new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream("war3map.w3t")),
-				new WTSFile(MpqCodebase.get().getResourceAsStream("war3map.wts")), inlineWTS);
-		doodadChangeset.load(new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream("war3map.w3d")),
-				new WTSFile(MpqCodebase.get().getResourceAsStream("war3map.wts")), inlineWTS);
-		destructableChangeset.load(new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream("war3map.w3b")),
-				new WTSFile(MpqCodebase.get().getResourceAsStream("war3map.wts")), inlineWTS);
-		abilityChangeset.load(new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream("war3map.w3a")),
-				new WTSFile(MpqCodebase.get().getResourceAsStream("war3map.wts")), inlineWTS);
-		buffChangeset.load(new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream("war3map.w3h")),
-				new WTSFile(MpqCodebase.get().getResourceAsStream("war3map.wts")), inlineWTS);
-		upgradeChangeset.load(new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream("war3map.w3q")),
-				new WTSFile(MpqCodebase.get().getResourceAsStream("war3map.wts")), inlineWTS);
+		if (MpqCodebase.get().has("war3map.w3u")) {
+			unitChangeset.load(new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream("war3map.w3u")),
+					new WTSFile(MpqCodebase.get().getResourceAsStream("war3map.wts")), inlineWTS);
+		}
+		if (MpqCodebase.get().has("war3map.w3t")) {
+			itemChangeset.load(new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream("war3map.w3t")),
+					new WTSFile(MpqCodebase.get().getResourceAsStream("war3map.wts")), inlineWTS);
+		}
+		if (MpqCodebase.get().has("war3map.w3d")) {
+			doodadChangeset.load(new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream("war3map.w3d")),
+					new WTSFile(MpqCodebase.get().getResourceAsStream("war3map.wts")), inlineWTS);
+		}
+		if (MpqCodebase.get().has("war3map.w3b")) {
+			destructableChangeset.load(
+					new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream("war3map.w3b")),
+					new WTSFile(MpqCodebase.get().getResourceAsStream("war3map.wts")), inlineWTS);
+		}
+		if (MpqCodebase.get().has("war3map.w3a")) {
+			abilityChangeset.load(new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream("war3map.w3a")),
+					new WTSFile(MpqCodebase.get().getResourceAsStream("war3map.wts")), inlineWTS);
+		}
+		if (MpqCodebase.get().has("war3map.w3h")) {
+			buffChangeset.load(new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream("war3map.w3h")),
+					new WTSFile(MpqCodebase.get().getResourceAsStream("war3map.wts")), inlineWTS);
+		}
+		if (MpqCodebase.get().has("war3map.w3q")) {
+			upgradeChangeset.load(new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream("war3map.w3q")),
+					new WTSFile(MpqCodebase.get().getResourceAsStream("war3map.wts")), inlineWTS);
+		}
 
 		final MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.UNITS, standardUnits,
 				standardUnitMeta, unitChangeset);

@@ -78,6 +78,8 @@ import com.hiveworkshop.wc3.gui.modelviewer.AnimationControllerListener.LoopType
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Bone;
+import com.hiveworkshop.wc3.mdl.CollisionShape;
+import com.hiveworkshop.wc3.mdl.ExtLog;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
@@ -124,8 +126,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 
 	private float backgroundRed, backgroundBlue, backgroundGreen;
 
-	public AnimatedPerspectiveViewport(final ModelView modelView, final ProgramPreferences programPreferences)
-			throws LWJGLException {
+	public AnimatedPerspectiveViewport(final ModelView modelView, final ProgramPreferences programPreferences,
+			final boolean loadDefaultCamera) throws LWJGLException {
 		super();
 		this.programPreferences = programPreferences;
 		// Dimension 1 and Dimension 2, these specify which dimensions to
@@ -142,6 +144,9 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 		// add(Box.createVerticalStrut(200));
 		// setLayout( new BoxLayout(this,BoxLayout.LINE_AXIS));
 		this.modelView = modelView;
+		if (loadDefaultCamera) {
+			loadDefaultCameraFor(modelView);
+		}
 		this.renderModel = new RenderModel(modelView.getModel());
 		renderModel.refreshFromEditor(this, inverseCameraRotationQuat, inverseCameraRotationYSpin,
 				inverseCameraRotationZSpin);
@@ -159,6 +164,72 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas
 			});
 		}
 		loadBackgroundColors();
+	}
+
+	private void loadDefaultCameraFor(final ModelView modelView) {
+		ExtLog extents = null;
+		final ArrayList<CollisionShape> collisionShapes = modelView.getModel().sortedIdObjects(CollisionShape.class);
+		if (collisionShapes.size() > 0) {
+			for (final CollisionShape shape : collisionShapes) {
+				if ((shape != null) && (shape.getExtents() != null) && shape.getExtents().hasBoundsRadius()) {
+					extents = shape.getExtents();
+				}
+			}
+			final CollisionShape firstShape = collisionShapes.get(0);
+			extents = firstShape.getExtents();
+		}
+		if (extents == null) {
+			extents = modelView.getModel().getExtents();
+		}
+		Animation defaultAnimation = null;
+		for (final Animation animation : modelView.getModel().getAnims()) {
+			if ((defaultAnimation == null) || !defaultAnimation.getName().toLowerCase().contains("stand")
+					|| (animation.getName().toLowerCase().contains("stand")
+							&& (animation.getName().length() < defaultAnimation.getName().length()))) {
+				defaultAnimation = animation;
+				if ((animation.getExtents() != null) && (animation.getExtents().hasBoundsRadius()
+						|| (animation.getExtents().getMinimumExtent() != null))) {
+					extents = animation.getExtents();
+				}
+			}
+		}
+		this.animation = defaultAnimation;
+		if (extents != null) {
+			double boundsRadius = 64;
+			if (extents.hasBoundsRadius() && (extents.getBoundsRadius() > 1)) {
+				final double extBoundRadius = extents.getBoundsRadius();
+				if (extBoundRadius > boundsRadius) {
+					boundsRadius = extBoundRadius;
+				}
+			}
+			if ((extents.getMaximumExtent() != null) && (extents.getMaximumExtent() != null)) {
+				final double minMaxBoundRadius = extents.getMaximumExtent().distance(extents.getMinimumExtent()) / 2;
+				if (minMaxBoundRadius > boundsRadius) {
+					boundsRadius = minMaxBoundRadius;
+				}
+			}
+			if ((boundsRadius > 10000) || (boundsRadius < 0.1)) {
+				boundsRadius = 64;
+			}
+			this.m_zoom = 128 / (boundsRadius * 2);
+			this.cameraPos.y -= boundsRadius / 2;
+		}
+		this.yangle += 35;
+
+		axisHeap.set(0, 1, 0, (float) Math.toRadians(yangle));
+		inverseCameraRotationYSpin.setFromAxisAngle(axisHeap);
+		axisHeap.set(0, 0, 1, (float) Math.toRadians(xangle));
+		inverseCameraRotationZSpin.setFromAxisAngle(axisHeap);
+		Quaternion.mul(inverseCameraRotationYSpin, inverseCameraRotationZSpin, inverseCameraRotationQuat);
+		inverseCameraRotationQuat.x = -inverseCameraRotationQuat.x;
+		inverseCameraRotationQuat.y = -inverseCameraRotationQuat.y;
+		inverseCameraRotationQuat.z = -inverseCameraRotationQuat.z;
+		inverseCameraRotationYSpin.x = -inverseCameraRotationYSpin.x;
+		inverseCameraRotationYSpin.y = -inverseCameraRotationYSpin.y;
+		inverseCameraRotationYSpin.z = -inverseCameraRotationYSpin.z;
+		inverseCameraRotationZSpin.x = -inverseCameraRotationZSpin.x;
+		inverseCameraRotationZSpin.y = -inverseCameraRotationZSpin.y;
+		inverseCameraRotationZSpin.z = -inverseCameraRotationZSpin.z;
 	}
 
 	private void loadBackgroundColors() {

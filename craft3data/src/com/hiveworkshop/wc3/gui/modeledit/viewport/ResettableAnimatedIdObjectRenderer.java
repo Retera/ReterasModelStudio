@@ -74,8 +74,8 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
 		// vertexSize * 3, yCoord);
 		// graphics.drawLine(xCoord, yCoord - vertexSize * 3, xCoord, yCoord +
 		// vertexSize * 3);
-		graphics.drawImage(lightImage, xCoord - lightImage.getWidth(null) / 2, yCoord - lightImage.getHeight(null) / 2,
-				lightImage.getWidth(null), lightImage.getHeight(null), null);
+		graphics.drawImage(lightImage, xCoord - (lightImage.getWidth(null) / 2),
+				yCoord - (lightImage.getHeight(null) / 2), lightImage.getWidth(null), lightImage.getHeight(null), null);
 
 		final int attenuationStart = (int) (light.getAttenuationStart() * zoom);
 		if (attenuationStart > 0) {
@@ -146,13 +146,15 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
 		final Vertex ver = camera.getPosition();
 		final Vertex targ = camera.getTargetPosition();
 		loadPivotInVertexHeap(ver, renderModel.getRenderNode(camera.getSourceNode()).getWorldMatrix(), vertexHeap);
-		final float startX = Vertex.getCoord(vertexHeap, coordinateSystem.getPortFirstXYZ());
-		final float startY = Vertex.getCoord(vertexHeap, coordinateSystem.getPortSecondXYZ());
+		final float startX = Vertex.getCoord(vertexHeap, (byte) 0);
+		final float startY = Vertex.getCoord(vertexHeap, (byte) 1);
+		final float startZ = Vertex.getCoord(vertexHeap, (byte) 2);
 		final Point start = new Point((int) Math.round(coordinateSystem.convertX(startX)),
 				(int) Math.round(coordinateSystem.convertY(startY)));
 		loadPivotInVertexHeap(targ, renderModel.getRenderNode(camera.getTargetNode()).getWorldMatrix(), vertexHeap);
-		final float endX = Vertex.getCoord(vertexHeap, coordinateSystem.getPortFirstXYZ());
-		final float endY = Vertex.getCoord(vertexHeap, coordinateSystem.getPortSecondXYZ());
+		final float endX = Vertex.getCoord(vertexHeap, (byte) 0);
+		final float endY = Vertex.getCoord(vertexHeap, (byte) 1);
+		final float endZ = Vertex.getCoord(vertexHeap, (byte) 2);
 		final Point end = new Point((int) Math.round(coordinateSystem.convertX(endX)),
 				(int) Math.round(coordinateSystem.convertY(endY)));
 
@@ -161,7 +163,8 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
 		if (renderRotationScalar == null) {
 			renderRotationScalar = 0.;
 		}
-		renderableCameraProp.render(g2, coordinateSystem, startX, startY, endX, endY, renderRotationScalar);
+		renderableCameraProp.render(g2, coordinateSystem, startX, startY, startZ, endX, endY, endZ,
+				renderRotationScalar);
 
 		// g2.translate(end.x, end.y);
 		// g2.rotate(-(Math.PI / 2 + Math.atan2(end.x - start.x, end.y - start.y)));
@@ -173,7 +176,8 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
 		// // g2.setColor(Color.orange.darker());
 		// // }
 		// // Cam
-		// g2.fillRect((int) dist - vertexSize, 0 - vertexSize, 1 + vertexSize * 2, 1 + vertexSize * 2);
+		// g2.fillRect((int) dist - vertexSize, 0 - vertexSize, 1 + vertexSize * 2, 1 +
+		// vertexSize * 2);
 		// g2.drawRect((int) dist - size, -size, size * 2, size * 2);
 		//
 		// // if (tarSel) {
@@ -182,10 +186,13 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
 		// // g2.setColor(Color.green.darker());
 		// // }
 		// // Target
-		// g2.fillRect(0 - vertexSize, 0 - vertexSize, 1 + vertexSize * 2, 1 + vertexSize * 2);
-		// g2.drawLine(0, 0, size, size);// (int)Math.round(vp.convertX(targ.getCoord(vp.getPortFirstXYZ())+5)),
+		// g2.fillRect(0 - vertexSize, 0 - vertexSize, 1 + vertexSize * 2, 1 +
+		// vertexSize * 2);
+		// g2.drawLine(0, 0, size, size);//
+		// (int)Math.round(vp.convertX(targ.getCoord(vp.getPortFirstXYZ())+5)),
 		// // (int)Math.round(vp.convertY(targ.getCoord(vp.getPortSecondXYZ())+5)));
-		// g2.drawLine(0, 0, size, -size);// (int)Math.round(vp.convertX(targ.getCoord(vp.getPortFirstXYZ())-5)),
+		// g2.drawLine(0, 0, size, -size);//
+		// (int)Math.round(vp.convertX(targ.getCoord(vp.getPortFirstXYZ())-5)),
 		// // (int)Math.round(vp.convertY(targ.getCoord(vp.getPortSecondXYZ())-5)));
 		//
 		// // if (!verSel && tarSel) {
@@ -205,7 +212,7 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
 		loadPivotInVertexHeap(attachment.getPivotPoint(), worldMatrix, vertexHeap);
 		final int xCoord = (int) coordinateSystem.convertX(Vertex.getCoord(vertexHeap, xDimension));
 		final int yCoord = (int) coordinateSystem.convertY(Vertex.getCoord(vertexHeap, yDimension));
-		graphics.drawImage(nodeImage, xCoord - nodeImage.getWidth(null) / 2, yCoord - nodeImage.getHeight(null) / 2,
+		graphics.drawImage(nodeImage, xCoord - (nodeImage.getWidth(null) / 2), yCoord - (nodeImage.getHeight(null) / 2),
 				nodeImage.getWidth(null), nodeImage.getHeight(null), null);
 	}
 
@@ -221,9 +228,12 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
 				.convertX(Vertex.getCoord(vertexHeap, coordinateSystem.getPortFirstXYZ()));
 		final int yCoord = (int) coordinateSystem
 				.convertY(Vertex.getCoord(vertexHeap, coordinateSystem.getPortSecondXYZ()));
-		// graphics.drawOval(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2, vertexSize * 2);
-		// graphics.drawLine(xCoord - (int) (vertexSize * 1.5f), yCoord, xCoord + (int) (vertexSize * 1.5f), yCoord);
-		// graphics.drawLine(xCoord, yCoord - (int) (vertexSize * 1.5f), xCoord, yCoord + (int) (vertexSize * 1.5f));
+		// graphics.drawOval(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2,
+		// vertexSize * 2);
+		// graphics.drawLine(xCoord - (int) (vertexSize * 1.5f), yCoord, xCoord + (int)
+		// (vertexSize * 1.5f), yCoord);
+		// graphics.drawLine(xCoord, yCoord - (int) (vertexSize * 1.5f), xCoord, yCoord
+		// + (int) (vertexSize * 1.5f));
 		graphics.fillRect(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2, vertexSize * 2);
 	}
 

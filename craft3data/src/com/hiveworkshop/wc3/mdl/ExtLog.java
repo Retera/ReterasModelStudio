@@ -150,6 +150,10 @@ public class ExtLog {
 		}
 	}
 
+	public boolean hasBoundsRadius() {
+		return boundsRadius != -99;
+	}
+
 	public Vertex getMinimumExtent() {
 		return minimumExtent;
 	}

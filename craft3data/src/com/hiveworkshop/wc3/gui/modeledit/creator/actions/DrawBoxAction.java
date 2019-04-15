@@ -88,9 +88,9 @@ public class DrawBoxAction implements GenericMoveAction {
 	public void shiftPlanePoint(final Vertex vertex, final double newMinX, final double newMinY, final double scaleX,
 			final double scaleY, final double scaleZ) {
 		final double vertexX = vertex.getCoord(firstDimension);
-		vertex.setCoord(firstDimension, (vertexX - planeMinX) * scaleX + newMinX);
+		vertex.setCoord(firstDimension, ((vertexX - planeMinX) * scaleX) + newMinX);
 		final double vertexY = vertex.getCoord(secondDimension);
-		vertex.setCoord(secondDimension, (vertexY - planeMinY) * scaleY + newMinY);
+		vertex.setCoord(secondDimension, ((vertexY - planeMinY) * scaleY) + newMinY);
 		final byte unusedXYZ = CoordinateSystem.Util.getUnusedXYZ(firstDimension, secondDimension);
 		vertex.setCoord(unusedXYZ, vertex.getCoord(unusedXYZ) * scaleZ);
 	}
@@ -117,7 +117,7 @@ public class DrawBoxAction implements GenericMoveAction {
 
 	@Override
 	public String actionName() {
-		return "create plane";
+		return "create box";
 	}
 
 	public Mesh getPlane() {

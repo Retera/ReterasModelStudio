@@ -47,8 +47,10 @@ public class ProgramPreferences implements Serializable {
 	Color backgroundColor = new Color(255, 255, 255);// new Color(190, 190, 190)
 	Color perspectiveBackgroundColor = new Color(80, 80, 80);// new Color(190, 190, 190)
 	Color selectColor = Color.RED;
+	GUITheme theme;
 	private int vertexSize = 3;
 	int teamColor;
+	private Boolean quickBrowse;
 	private MouseButtonPreference threeDCameraSpinButton = MouseButtonPreference.LEFT;
 	private MouseButtonPreference threeDCameraPanButton = MouseButtonPreference.MIDDLE;
 
@@ -61,7 +63,7 @@ public class ProgramPreferences implements Serializable {
 		if (useBoxesForPivotPoints == null) {
 			useBoxesForPivotPoints = true;
 		}
-		if (vertexColor == null || normalsColor == null || pivotPointsColor == null) {
+		if ((vertexColor == null) || (normalsColor == null) || (pivotPointsColor == null)) {
 			vertexColor = new Color(0, 0, 255);// new Color(0, 0, 0)
 			triangleColor = new Color(255, 255, 255);// new Color(190, 190, 190)
 			visibleUneditableColor = new Color(150, 150, 255);
@@ -96,6 +98,12 @@ public class ProgramPreferences implements Serializable {
 		if (threeDCameraSpinButton == null) {
 			threeDCameraSpinButton = MouseButtonPreference.LEFT;
 			threeDCameraPanButton = MouseButtonPreference.MIDDLE;
+		}
+		if (theme == null) {
+			theme = GUITheme.WINDOWS;
+		}
+		if (quickBrowse == null) {
+			quickBrowse = Boolean.TRUE;
 		}
 	}
 
@@ -134,6 +142,8 @@ public class ProgramPreferences implements Serializable {
 		perspectiveBackgroundColor = other.perspectiveBackgroundColor;
 		threeDCameraPanButton = other.threeDCameraPanButton;
 		threeDCameraSpinButton = other.threeDCameraSpinButton;
+		theme = other.theme;
+		quickBrowse = other.quickBrowse;
 		SaveProfile.save();
 		firePrefsChanged();
 
@@ -285,6 +295,12 @@ public class ProgramPreferences implements Serializable {
 
 	public void setActionType(final int actionType) {
 		this.actionType = actionType;
+		SaveProfile.save();
+		firePrefsChanged();
+	}
+
+	public void setTheme(final GUITheme theme) {
+		this.theme = theme;
 		SaveProfile.save();
 		firePrefsChanged();
 	}
@@ -554,6 +570,16 @@ public class ProgramPreferences implements Serializable {
 		firePrefsChanged();
 	}
 
+	public Boolean getQuickBrowse() {
+		return quickBrowse;
+	}
+
+	public void setQuickBrowse(final Boolean quickBrowse) {
+		this.quickBrowse = quickBrowse;
+		SaveProfile.save();
+		firePrefsChanged();
+	}
+
 	public void resetToDefaults() {
 		loadFrom(new ProgramPreferences());
 	}
@@ -562,6 +588,10 @@ public class ProgramPreferences implements Serializable {
 		if (notifier != null) {
 			notifier.preferencesChanged();
 		}
+	}
+
+	public GUITheme getTheme() {
+		return theme;
 	}
 
 	private transient ProgramPreferencesChangeNotifier notifier = new ProgramPreferencesChangeNotifier();

@@ -77,9 +77,9 @@ public class ModelPanel implements ActionListener, MouseListener {
 			final ToolbarButtonGroup<SelectionMode> modeNotifier,
 			final ModelStructureChangeListener modelStructureChangeListener,
 			final CoordDisplayListener coordDisplayListener, final ViewportTransferHandler viewportTransferHandler,
-			final ViewportListener viewportListener, final Icon icon) {
+			final ViewportListener viewportListener, final Icon icon, final boolean specialBLPModel) {
 		this(parent, MDL.read(input), prefs, undoHandler, notifier, modeNotifier, modelStructureChangeListener,
-				coordDisplayListener, viewportTransferHandler, viewportListener, icon);
+				coordDisplayListener, viewportTransferHandler, viewportListener, icon, specialBLPModel);
 		file = input;
 	}
 
@@ -88,7 +88,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 			final ToolbarButtonGroup<SelectionMode> modeNotifier,
 			final ModelStructureChangeListener modelStructureChangeListener,
 			final CoordDisplayListener coordDisplayListener, final ViewportTransferHandler viewportTransferHandler,
-			final ViewportListener viewportListener, final Icon icon) {
+			final ViewportListener viewportListener, final Icon icon, final boolean specialBLPModel) {
 		this.parent = parent;
 		this.prefs = prefs;
 		this.undoHandler = undoHandler;
@@ -129,9 +129,10 @@ public class ModelPanel implements ActionListener, MouseListener {
 				undoHandler, modelEditorChangeNotifier, viewportTransferHandler, editorRenderModel, viewportListener);
 		// sideArea.setViewport(0,2);
 
-		animationViewer = new ControlledAnimationViewer(modelView, prefs);
+		animationViewer = new ControlledAnimationViewer(modelView, prefs, !specialBLPModel);
 
-		animationController = new AnimationController(modelView, true, animationViewer);
+		animationController = new AnimationController(modelView, true, animationViewer,
+				animationViewer.getCurrentAnimation());
 
 		frontArea.setControlsVisible(prefs.showVMControls());
 		botArea.setControlsVisible(prefs.showVMControls());
@@ -396,6 +397,9 @@ public class ModelPanel implements ActionListener, MouseListener {
 			}
 		} else {
 			// parent.tabbedPane.remove(myIndex);
+			if (editUVPanel != null) {
+				editUVPanel.frame.setVisible(false);
+			}
 		}
 		return !canceled;
 	}

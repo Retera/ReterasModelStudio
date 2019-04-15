@@ -17,10 +17,11 @@ public class ControlledAnimationViewer extends JPanel implements AnimationContro
 	private ModelView mdlDisp;
 	private AnimatedPerspectiveViewport perspectiveViewport;
 
-	public ControlledAnimationViewer(final ModelView mdlDisp, final ProgramPreferences programPreferences) {
+	public ControlledAnimationViewer(final ModelView mdlDisp, final ProgramPreferences programPreferences,
+			final boolean doDefaultCamera) {
 		this.mdlDisp = mdlDisp;
 		try {
-			perspectiveViewport = new AnimatedPerspectiveViewport(mdlDisp, programPreferences);
+			perspectiveViewport = new AnimatedPerspectiveViewport(mdlDisp, programPreferences, doDefaultCamera);
 			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
 			perspectiveViewport.setAnimationTime(0);
 			perspectiveViewport.setLive(true);
@@ -74,5 +75,9 @@ public class ControlledAnimationViewer extends JPanel implements AnimationContro
 	@Override
 	public void setSpeed(final float speed) {
 		perspectiveViewport.setAnimationSpeed(speed);
+	}
+
+	public Animation getCurrentAnimation() {
+		return perspectiveViewport.getCurrentAnimation();
 	}
 }

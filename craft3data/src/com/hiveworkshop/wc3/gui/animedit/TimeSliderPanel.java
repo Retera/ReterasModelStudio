@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.animedit;
 import java.awt.AWTException;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -43,7 +44,9 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
+import com.hiveworkshop.wc3.gui.GUITheme;
 import com.hiveworkshop.wc3.gui.GlobalIcons;
+import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.animedit.TimeSliderTimeListener.TimeSliderTimeNotifier;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
@@ -106,14 +109,19 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	private final JCheckBox allKF;
 	private TimeEnvironmentImpl timeEnvironmentImpl;
 	private final Timer liveAnimationTimer;
+	private final ProgramPreferences preferences;
+	private final GUITheme theme;
+	private boolean drawing;
 
 	public TimeSliderPanel(final TimeBoundProvider timeBoundProvider,
-			final ModelStructureChangeListener structureChangeListener) {
+			final ModelStructureChangeListener structureChangeListener, final ProgramPreferences preferences) {
 		this.timeBoundProvider = timeBoundProvider;
 		this.structureChangeListener = structureChangeListener;
+		this.preferences = preferences;
+		theme = preferences.getTheme();
 		this.notifier = new TimeSliderTimeNotifier();
 		add(Box.createVerticalStrut(VERTICAL_SLIDER_HEIGHT + VERTICAL_TICKS_HEIGHT));
-		setMaximumSize(new Dimension(Integer.MAX_VALUE, VERTICAL_SLIDER_HEIGHT + VERTICAL_TICKS_HEIGHT));
+		setMaximumSize(new Dimension(Integer.MAX_VALUE, VERTICAL_SLIDER_HEIGHT + VERTICAL_TICKS_HEIGHT + 9999));
 		timeBoundProvider.addChangeListener(this);
 		start = timeBoundProvider.getStart();
 		end = timeBoundProvider.getEnd();
@@ -126,6 +134,9 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		liveAnimationTimer = new Timer(16, new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				if (!drawing) {
+					return;
+				}
 				if (currentTime == end) {
 					currentTime = start;
 					timeChooserRect.x = computeSliderXFromTime();
@@ -139,6 +150,9 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		addMouseListener(new MouseListener() {
 			@Override
 			public void mouseReleased(final MouseEvent e) {
+				if (!drawing) {
+					return;
+				}
 				if (SwingUtilities.isLeftMouseButton(e)) {
 					final Point mousePoint = e.getPoint();
 					if (draggingSlider) {
@@ -307,6 +321,9 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 
 			@Override
 			public void mousePressed(final MouseEvent e) {
+				if (!drawing) {
+					return;
+				}
 				lastMousePoint = e.getPoint();
 				draggingSlider = sliderContainsPoint(lastMousePoint);
 				if (!draggingSlider) {
@@ -367,11 +384,17 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 
 			@Override
 			public void mouseMoved(final MouseEvent e) {
+				if (!drawing) {
+					return;
+				}
 				checkMouseOver(e.getPoint());
 			}
 
 			@Override
 			public void mouseDragged(final MouseEvent e) {
+				if (!drawing) {
+					return;
+				}
 				final Point mousePoint = e.getPoint();
 				if (draggingSlider) {
 					final double dx = mousePoint.getX() - lastMousePoint.getX();
@@ -832,6 +855,9 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	@Override
 	protected void paintComponent(final Graphics g) {
 		super.paintComponent(g);
+		if (!drawing) {
+			return;
+		}
 		final int width = getWidth();
 		if (keyframeModeActive) {
 			g.setColor(Color.RED);
@@ -865,7 +891,18 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 			g.drawString("No pixels", 0, 16);
 			return;
 		}
-		g.setColor(Color.WHITE);// TODO theme
+		switch (theme) {
+		case DARK:
+			g.setColor(Color.WHITE);
+			break;
+		case FOREST_GREEN:
+			g.setColor(Color.WHITE);
+			break;
+		default:
+			g.setColor(Color.BLACK);
+			break;
+
+		}
 		final int timeSpan = end - start;
 		final int tickWidthPixels = widthMinusOffsets / 30;
 		final int tickWidthTime = timeSpan / 30;
@@ -1184,5 +1221,13 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		} else {
 			liveAnimationTimer.start();
 		}
+	}
+
+	public void setDrawing(final boolean drawing) {
+		this.drawing = drawing;
+		for (final Component component : this.getComponents()) {
+			component.setEnabled(drawing);
+		}
+		repaint();
 	}
 }

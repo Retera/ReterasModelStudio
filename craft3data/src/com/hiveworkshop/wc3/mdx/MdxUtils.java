@@ -10,7 +10,8 @@ public class MdxUtils {
 	/*
 	 * private static Set<MdxComponent> optionalPool = new HashSet();
 	 *
-	 * public void addOptionalPool(MdxComponent component){ optionalPool.add(component); }
+	 * public void addOptionalPool(MdxComponent component){
+	 * optionalPool.add(component); }
 	 *
 	 *
 	 * public void executeOptionalPool(){
@@ -56,24 +57,28 @@ public class MdxUtils {
 	}
 
 	/*
-	 * public static boolean checkOptionalId(BlizzardDataInputStream in, String name) throws IOException { if(lastCheck
-	 * == null){ lastCheck = in.readCharsAsString(4); }
+	 * public static boolean checkOptionalId(BlizzardDataInputStream in, String
+	 * name) throws IOException { if(lastCheck == null){ lastCheck =
+	 * in.readCharsAsString(4); }
 	 *
 	 * return lastCheck.equals(name); }
 	 *
-	 * public static void checkId(BlizzardDataInputStream in, String name) throws IOException {
+	 * public static void checkId(BlizzardDataInputStream in, String name) throws
+	 * IOException {
 	 *
 	 * if(lastCheck != null){
 	 *
 	 * if(!name.equals(lastCheck)){ throw new IOException(
-	 * "Error loading model: CheckID failed after optinal check, required " + name + " found " + lastCheck); }
+	 * "Error loading model: CheckID failed after optinal check, required " + name +
+	 * " found " + lastCheck); }
 	 *
 	 * lastCheck=null;
 	 *
 	 * }else{
 	 *
 	 * String found = in.readCharsAsString(4); if (!found.equals(name)) { throw new
-	 * IOException("Error loading model: CheckID failed, required " + name + " found " + found); } } }
+	 * IOException("Error loading model: CheckID failed, required " + name +
+	 * " found " + found); } } }
 	 */
 
 	public static float[] loadFloatArray(final BlizzardDataInputStream in, final int size) throws IOException {

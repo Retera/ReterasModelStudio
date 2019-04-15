@@ -145,6 +145,8 @@ import com.hiveworkshop.wc3.jworldedit.models.BetterUnitEditorModelSelector;
 import com.hiveworkshop.wc3.jworldedit.objects.DoodadTabTreeBrowserBuilder;
 import com.hiveworkshop.wc3.jworldedit.objects.UnitEditorSettings;
 import com.hiveworkshop.wc3.jworldedit.objects.UnitEditorTree;
+import com.hiveworkshop.wc3.jworldedit.objects.UnitEditorTreeBrowser;
+import com.hiveworkshop.wc3.jworldedit.objects.UnitEditorTreeBrowser.MDLLoadListener;
 import com.hiveworkshop.wc3.jworldedit.objects.UnitTabTreeBrowserBuilder;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
@@ -211,6 +213,7 @@ import net.infonode.docking.RootWindow;
 import net.infonode.docking.SplitWindow;
 import net.infonode.docking.TabWindow;
 import net.infonode.docking.View;
+import net.infonode.docking.title.DockingWindowTitleProvider;
 import net.infonode.docking.util.StringViewMap;
 import net.infonode.tabbedpanel.titledtab.TitledTabBorderSizePolicy;
 import net.infonode.tabbedpanel.titledtab.TitledTabSizePolicy;
@@ -236,14 +239,14 @@ public class MainPanel extends JPanel
 	JCheckBoxMenuItem mirrorFlip, fetchPortraitsToo, showNormals, useNativeMDXParser, textureModels,
 			showVertexModifyControls;
 	ArrayList geoItems = new ArrayList();
-	JMenuItem newModel, open, fetchUnit, fetchModel, fetchObject, save, close, showController, mergeGeoset, saveAs,
-			importButton, importUnit, importGameModel, importGameObject, importFromWorkspace, importButtonS,
-			newDirectory, creditsButton, clearRecent, nullmodelButton, selectAll, invertSelect, expandSelection,
-			snapNormals, snapVertices, flipAllUVsU, flipAllUVsV, inverseAllUVs, mirrorX, mirrorY, mirrorZ, insideOut,
-			insideOutNormals, showMatrices, editUVs, exportTextures, editTextures, scaleAnimations, animationViewer,
-			animationController, modelingTab, mpqViewer, hiveViewer, unitViewer, preferencesWindow, linearizeAnimations,
-			simplifyKeyframes, rigButton, duplicateSelection, riseFallBirth, animFromFile, animFromUnit, animFromModel,
-			animFromObject, teamColor, teamGlow;
+	JMenuItem newModel, open, fetchUnit, fetchModel, fetchObject, save, close, exit, revert, showController,
+			mergeGeoset, saveAs, importButton, importUnit, importGameModel, importGameObject, importFromWorkspace,
+			importButtonS, newDirectory, creditsButton, clearRecent, nullmodelButton, selectAll, invertSelect,
+			expandSelection, snapNormals, snapVertices, flipAllUVsU, flipAllUVsV, inverseAllUVs, mirrorX, mirrorY,
+			mirrorZ, insideOut, insideOutNormals, showMatrices, editUVs, exportTextures, editTextures, scaleAnimations,
+			animationViewer, animationController, modelingTab, mpqViewer, hiveViewer, unitViewer, preferencesWindow,
+			linearizeAnimations, simplifyKeyframes, rigButton, duplicateSelection, riseFallBirth, animFromFile,
+			animFromUnit, animFromModel, animFromObject, teamColor, teamGlow;
 	JMenuItem cut, copy, paste;
 	List<RecentItem> recentItems = new ArrayList<>();
 	UndoMenuItem undo;
@@ -265,6 +268,7 @@ public class MainPanel extends JPanel
 	List<ModelPanel> modelPanels;
 	ModelPanel currentModelPanel;
 	View frontView, leftView, bottomView, perspectiveView;
+	private View timeSliderView;
 	private View hackerView;
 	private View previewView;
 	private View creatorView;
@@ -680,6 +684,12 @@ public class MainPanel extends JPanel
 			return leftView;
 		}
 	});
+	AbstractAction openTimeSliderAction = new OpenViewAction("Footer", new OpenViewGetter() {
+		@Override
+		public View getView() {
+			return timeSliderView;
+		}
+	});
 	AbstractAction openFrontAction = new OpenViewAction("Front", new OpenViewGetter() {
 		@Override
 		public View getView() {
@@ -778,50 +788,7 @@ public class MainPanel extends JPanel
 	AbstractAction openUnitViewerAction = new AbstractAction("Open Unit Browser") {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
-			final UnitEditorTree unitEditorTree = new UnitEditorTree(getUnitData(), new UnitTabTreeBrowserBuilder(),
-					getUnitEditorSettings(), WorldEditorDataType.UNITS);
-			unitEditorTree.selectFirstUnit();
-			// final FloatingWindow floatingWindow =
-			// rootWindow.createFloatingWindow(rootWindow.getLocation(),
-			// mpqBrowser.getPreferredSize(),
-			// new View("MPQ Browser",
-			// new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16,
-			// Image.SCALE_FAST)),
-			// mpqBrowser));
-			// floatingWindow.getTopLevelAncestor().setVisible(true);
-			unitEditorTree.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseClicked(final MouseEvent e) {
-					try {
-						if (e.getClickCount() >= 2) {
-							final TreePath currentUnitTreePath = unitEditorTree.getSelectionPath();
-							if (currentUnitTreePath != null) {
-								final DefaultMutableTreeNode o = (DefaultMutableTreeNode) currentUnitTreePath
-										.getLastPathComponent();
-								if (o.getUserObject() instanceof MutableGameObject) {
-									final MutableGameObject obj = (MutableGameObject) o.getUserObject();
-									final String path = convertPathToMDX(
-											obj.getFieldAsString(War3ID.fromString("umdl"), 0));
-									final String portrait = ModelUtils.getPortrait(path);
-									final ImageIcon icon = new ImageIcon(
-											com.hiveworkshop.wc3.util.IconUtils.getIcon(obj, WorldEditorDataType.UNITS)
-													.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
-									loadFile(MpqCodebase.get().getFile(path), true, true, icon);
-									if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
-										loadFile(MpqCodebase.get().getFile(portrait), true, false, icon);
-									}
-									toolsMenu.getAccessibleContext().setAccessibleDescription(
-											"Allows the user to control which parts of the model are displayed for editing.");
-									toolsMenu.setEnabled(true);
-								}
-							}
-						}
-					} catch (final Exception exc) {
-						exc.printStackTrace();
-						ExceptionPopup.display(exc);
-					}
-				}
-			});
+			final UnitEditorTree unitEditorTree = createUnitEditorTree();
 			rootWindow.setWindow(new SplitWindow(true, 0.75f, rootWindow.getWindow(),
 					new View("Unit Browser",
 							new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
@@ -986,8 +953,8 @@ public class MainPanel extends JPanel
 		});
 		animatedRenderEnvironment = new TimeEnvironmentImpl();
 		blpPanel = new BLPPanel(null);
-		timeSliderPanel = new TimeSliderPanel(animatedRenderEnvironment, modelStructureChangeListener);
-		timeSliderPanel.setVisible(false);
+		timeSliderPanel = new TimeSliderPanel(animatedRenderEnvironment, modelStructureChangeListener, prefs);
+		timeSliderPanel.setDrawing(false);
 		timeSliderPanel.addListener(new TimeSliderTimeListener() {
 			@Override
 			public void timeChanged(final int currentTime) {
@@ -1157,7 +1124,7 @@ public class MainPanel extends JPanel
 		});
 		final JPanel jPanel = new JPanel();
 		jPanel.add(new JLabel("..."));
-		viewportControllerWindowView = new View("View Controller", GlobalIcons.geoIcon, jPanel);
+		viewportControllerWindowView = new View("Outliner", null, jPanel);// GlobalIcons.geoIcon
 		viewportControllerWindowView.getWindowProperties().setCloseEnabled(false);
 		viewportControllerWindowView.getWindowProperties().setMaximizeEnabled(true);
 		viewportControllerWindowView.getWindowProperties().setMinimizeEnabled(true);
@@ -1173,6 +1140,22 @@ public class MainPanel extends JPanel
 		bottomView = new View("Bottom", null, new JPanel());
 		perspectiveView = new View("Perspective", null, new JPanel());
 		previewView = new View("Preview", null, new JPanel());
+		final JPanel timeSliderAndExtra = new JPanel();
+		final GroupLayout tsaeLayout = new GroupLayout(timeSliderAndExtra);
+		final Component horizontalGlue = Box.createHorizontalGlue();
+		final Component verticalGlue = Box.createVerticalGlue();
+		tsaeLayout.setHorizontalGroup(
+				tsaeLayout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(timeSliderPanel)
+						.addGroup(tsaeLayout.createSequentialGroup().addComponent(mouseCoordDisplay[0])
+								.addComponent(mouseCoordDisplay[1]).addComponent(mouseCoordDisplay[2])
+								.addComponent(horizontalGlue).addComponent(setKeyframe).addComponent(setTimeBounds)));
+		tsaeLayout.setVerticalGroup(tsaeLayout.createSequentialGroup().addComponent(timeSliderPanel).addGroup(
+				tsaeLayout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(mouseCoordDisplay[0])
+						.addComponent(mouseCoordDisplay[1]).addComponent(mouseCoordDisplay[2])
+						.addComponent(horizontalGlue).addComponent(setKeyframe).addComponent(setTimeBounds)));
+		timeSliderAndExtra.setLayout(tsaeLayout);
+
+		timeSliderView = new View("Footer", null, timeSliderAndExtra);
 		final JPanel hackerPanel = new JPanel(new BorderLayout());
 		final RSyntaxTextArea matrixEaterScriptTextArea = new RSyntaxTextArea(20, 60);
 		matrixEaterScriptTextArea.setCodeFoldingEnabled(true);
@@ -1218,33 +1201,13 @@ public class MainPanel extends JPanel
 		}, prefs, actionTypeGroup, activeViewportWatcher, animatedRenderEnvironment);
 		creatorView = new View("Modeling", null, creatorPanel);
 		animationControllerView = new View("Animation Controller", null, new JPanel());
-		final TabWindow leftHandTabWindow = new TabWindow(
-				new DockingWindow[] { viewportControllerWindowView, toolView });
-		leftHandTabWindow.setSelectedTab(0);
-		leftHandTabWindow.getWindowProperties().setCloseEnabled(false);
-		final SplitWindow editingTab = new SplitWindow(true, 0.2f, leftHandTabWindow,
-				new SplitWindow(true, 0.8f, new SplitWindow(false, new SplitWindow(true, frontView, bottomView),
-						new SplitWindow(true, leftView, perspectiveView)), creatorView));
-		editingTab.getWindowProperties().setCloseEnabled(false);
-		final SplitWindow viewingTab = new SplitWindow(true, 0.8f, previewView, animationControllerView);
-		viewingTab.getWindowProperties().setCloseEnabled(false);
-		final TabWindow startupTabWindow = new TabWindow(new DockingWindow[] { editingTab, viewingTab });
+		final TabWindow startupTabWindow = createMainLayout();
 		rootWindow.setWindow(startupTabWindow);
+		rootWindow.getRootWindowProperties().getFloatingWindowProperties().setUseFrame(true);
 		startupTabWindow.setSelectedTab(0);
-		final Component horizontalGlue = Box.createHorizontalGlue();
-		layout.setHorizontalGroup(layout.createSequentialGroup()
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(toolbar)
-						.addComponent(rootWindow).addComponent(timeSliderPanel)
-						.addGroup(layout.createSequentialGroup().addComponent(mouseCoordDisplay[0])
-								.addComponent(mouseCoordDisplay[1]).addComponent(mouseCoordDisplay[2])
-								.addComponent(horizontalGlue).addComponent(setKeyframe).addComponent(setTimeBounds))));
-		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(toolbar)
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-						.addGroup(layout.createSequentialGroup().addComponent(rootWindow).addComponent(timeSliderPanel)
-								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-										.addComponent(mouseCoordDisplay[0]).addComponent(mouseCoordDisplay[1])
-										.addComponent(mouseCoordDisplay[2]).addComponent(horizontalGlue)
-										.addComponent(setKeyframe).addComponent(setTimeBounds)))));
+		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(toolbar)
+				.addComponent(rootWindow));
+		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(toolbar).addComponent(rootWindow));
 		setLayout(layout);
 		// Create a file chooser
 		fc = new JFileChooser();
@@ -1318,6 +1281,78 @@ public class MainPanel extends JPanel
 		};
 	}
 
+	private TabWindow createMainLayout() {
+		final TabWindow leftHandTabWindow = new TabWindow(
+				new DockingWindow[] { viewportControllerWindowView, toolView });
+		leftHandTabWindow.setSelectedTab(0);
+		leftHandTabWindow.getWindowProperties().setCloseEnabled(false);
+		final SplitWindow editingTab = new SplitWindow(false, 0.875f,
+				new SplitWindow(true, 0.2f, leftHandTabWindow,
+						new SplitWindow(true, 0.8f,
+								new SplitWindow(false, new SplitWindow(true, frontView, bottomView),
+										new SplitWindow(true, leftView, perspectiveView)),
+								creatorView)),
+				timeSliderView);
+		editingTab.getWindowProperties().setCloseEnabled(false);
+		editingTab.getWindowProperties().setTitleProvider(new DockingWindowTitleProvider() {
+			@Override
+			public String getTitle(final DockingWindow arg0) {
+				return "Edit";
+			}
+		});
+
+		final MPQBrowser mpqBrowser = new MPQBrowser(MpqCodebase.get(), new Callback<String>() {
+			@Override
+			public void run(final String filepath) {
+				if (filepath.toLowerCase().endsWith(".mdx")) {
+					loadFile(MpqCodebase.get().getFile(filepath), true);
+				} else if (filepath.toLowerCase().endsWith(".blp")) {
+					loadBLPPathAsModel(filepath);
+				} else if (filepath.toLowerCase().endsWith(".png")) {
+					loadBLPPathAsModel(filepath);
+				}
+			}
+		});
+		ImageIcon imageIcon;
+		try {
+			imageIcon = new ImageIcon(ImageIO.read(MainFrame.class.getResource("ImageBin/MatrixEaterMEBasic.png"))
+					.getScaledInstance(16, 16, Image.SCALE_FAST));
+		} catch (final IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			imageIcon = null;
+		}
+		final View view = new View("Data Browser", imageIcon, mpqBrowser);
+		view.getWindowProperties().setCloseEnabled(true);
+
+		final UnitEditorTree unitEditorTree = createUnitEditorTree();
+		final TabWindow tabWindow = new TabWindow(
+				new DockingWindow[] { new View("Unit Browser", imageIcon, new JScrollPane(unitEditorTree)), view });
+		tabWindow.setSelectedTab(0);
+		final SplitWindow viewingTab = new SplitWindow(true, 0.8f,
+				new SplitWindow(true, 0.8f, previewView, animationControllerView), tabWindow);
+		viewingTab.getWindowProperties().setTitleProvider(new DockingWindowTitleProvider() {
+			@Override
+			public String getTitle(final DockingWindow arg0) {
+				return "View";
+			}
+		});
+		viewingTab.getWindowProperties().setCloseEnabled(false);
+		final TabWindow startupTabWindow = new TabWindow(new DockingWindow[] { viewingTab, editingTab });
+		return startupTabWindow;
+	}
+
+	private UnitEditorTree createUnitEditorTree() {
+		final UnitEditorTree unitEditorTree = new UnitEditorTreeBrowser(getUnitData(), new UnitTabTreeBrowserBuilder(),
+				getUnitEditorSettings(), WorldEditorDataType.UNITS, new MDLLoadListener() {
+					@Override
+					public void loadFile(final File file, final boolean b, final boolean c, final ImageIcon icon) {
+						MainPanel.this.loadFile(file, b, c, icon);
+					}
+				}, prefs);
+		return unitEditorTree;
+	}
+
 	public void defaultModelStartupHack() {
 
 		final String filepath = "units\\other\\DranaiAkama\\DranaiAkama.mdx";
@@ -1389,7 +1424,7 @@ public class MainPanel extends JPanel
 			buttons.get(i).getButton().setVisible(!animationModeState);
 		}
 		snapButton.setVisible(!animationModeState);
-		timeSliderPanel.setVisible(animationModeState);
+		timeSliderPanel.setDrawing(animationModeState);
 		setKeyframe.setVisible(animationModeState);
 		setTimeBounds.setVisible(animationModeState);
 		timeSliderPanel.setKeyframeModeActive(animationModeState);
@@ -2017,10 +2052,9 @@ public class MainPanel extends JPanel
 				.setAccessibleDescription("Allows the user to open, save, close, and manipulate files.");
 		menuBar.add(fileMenu);
 
-		recentMenu = new JMenu("Recent");
+		recentMenu = new JMenu("Open Recent");
 		recentMenu.setMnemonic(KeyEvent.VK_R);
 		recentMenu.getAccessibleContext().setAccessibleDescription("Allows you to access recently opened files.");
-		menuBar.add(recentMenu);
 
 		editMenu = new JMenu("Edit");
 		editMenu.setMnemonic(KeyEvent.VK_E);
@@ -2068,6 +2102,16 @@ public class MainPanel extends JPanel
 				.setAccessibleDescription("Allows the user to open various windows containing the program features.");
 		menuBar.add(windowMenu);
 
+		final JMenuItem resetViewButton = new JMenuItem("Reset Layout");
+		resetViewButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final TabWindow startupTabWindow = createMainLayout();
+				rootWindow.setWindow(startupTabWindow);
+			}
+		});
+		windowMenu.add(resetViewButton);
+
 		final JMenu viewsMenu = new JMenu("Views");
 		viewsMenu.setMnemonic(KeyEvent.VK_V);
 		windowMenu.add(viewsMenu);
@@ -2096,7 +2140,7 @@ public class MainPanel extends JPanel
 			}
 		}));
 
-		viewsMenu.add(testItem);
+//		viewsMenu.add(testItem);
 
 		animationViewer = new JMenuItem("Animation Preview");
 		animationViewer.setMnemonic(KeyEvent.VK_A);
@@ -2137,6 +2181,10 @@ public class MainPanel extends JPanel
 		toolsItem.setMnemonic(KeyEvent.VK_T);
 		toolsItem.addActionListener(openToolsAction);
 		viewsMenu.add(toolsItem);
+
+		final JMenuItem timeItem = new JMenuItem("Footer");
+		toolsItem.addActionListener(openTimeSliderAction);
+		viewsMenu.add(timeItem);
 
 		final JMenuItem hackerViewItem = new JMenuItem("Matrix Eater Script");
 		hackerViewItem.setMnemonic(KeyEvent.VK_H);
@@ -2419,12 +2467,12 @@ public class MainPanel extends JPanel
 		aboutMenu.setMnemonic(KeyEvent.VK_H);
 		menuBar.add(aboutMenu);
 
+		recentMenu.add(new JSeparator());
+
 		clearRecent = new JMenuItem("Clear");
 		clearRecent.setMnemonic(KeyEvent.VK_C);
 		clearRecent.addActionListener(this);
 		recentMenu.add(clearRecent);
-
-		recentMenu.add(new JSeparator());
 
 		updateRecent();
 
@@ -2663,7 +2711,9 @@ public class MainPanel extends JPanel
 		open.addActionListener(this);
 		fileMenu.add(open);
 
-		fetch = new JMenu("Fetch");
+		fileMenu.add(recentMenu);
+
+		fetch = new JMenu("Open Internal");
 		fetch.setMnemonic(KeyEvent.VK_F);
 		fileMenu.add(fetch);
 
@@ -2699,12 +2749,6 @@ public class MainPanel extends JPanel
 
 		});
 		fetch.add(fetchPortraitsToo);
-
-		close = new JMenuItem("Close");
-		close.setAccelerator(KeyStroke.getKeyStroke("control E"));
-		close.setMnemonic(KeyEvent.VK_E);
-		close.addActionListener(this);
-		fileMenu.add(close);
 
 		fileMenu.add(new JSeparator());
 
@@ -2773,6 +2817,51 @@ public class MainPanel extends JPanel
 		fileMenu.add(saveAs);
 
 		fileMenu.add(new JSeparator());
+
+		revert = new JMenuItem("Revert");
+		revert.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final ModelPanel modelPanel = currentModelPanel();
+				final int oldIndex = modelPanels.indexOf(modelPanel);
+				if (modelPanel != null) {
+					if (modelPanel.close(MainPanel.this)) {
+						modelPanels.remove(modelPanel);
+						windowMenu.remove(modelPanel.getMenuItem());
+						if (modelPanels.size() > 0) {
+							final int newIndex = Math.min(modelPanels.size() - 1, oldIndex);
+							setCurrentModel(modelPanels.get(newIndex));
+						} else {
+							// TODO remove from notifiers to fix leaks
+							setCurrentModel(null);
+						}
+					}
+				}
+				final File fileToRevert = modelPanel.getModel().getFile();
+				loadFile(fileToRevert);
+			}
+		});
+		fileMenu.add(revert);
+
+		close = new JMenuItem("Close");
+		close.setAccelerator(KeyStroke.getKeyStroke("control E"));
+		close.setMnemonic(KeyEvent.VK_E);
+		close.addActionListener(this);
+		fileMenu.add(close);
+
+		fileMenu.add(new JSeparator());
+
+		exit = new JMenuItem("Exit");
+		exit.setMnemonic(KeyEvent.VK_E);
+		exit.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				if (closeAll()) {
+					MainFrame.frame.dispose();
+				}
+			}
+		});
+		fileMenu.add(exit);
 
 		showController = new JMenuItem("Show Controller");
 		showController.setMnemonic(KeyEvent.VK_H);
@@ -3808,7 +3897,7 @@ public class MainPanel extends JPanel
 			}
 			final ModelPanel temp = new ModelPanel(this, mdl, prefs, MainPanel.this, selectionItemTypeGroup,
 					selectionModeGroup, modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
-					activeViewportWatcher, GlobalIcons.MDLIcon);
+					activeViewportWatcher, GlobalIcons.MDLIcon, false);
 			loadModel(true, true, temp);
 		}
 
@@ -4203,7 +4292,7 @@ public class MainPanel extends JPanel
 						loadFile(currentFile);
 					}
 				});
-				recentMenu.add(item);
+				recentMenu.add(item, recentMenu.getItemCount() - 2);
 			}
 		}
 	}
@@ -4265,7 +4354,7 @@ public class MainPanel extends JPanel
 					model.setFile(f);
 					temp = new ModelPanel(this, model, prefs, MainPanel.this, selectionItemTypeGroup,
 							selectionModeGroup, modelStructureChangeListener, coordDisplayListener,
-							viewportTransferHandler, activeViewportWatcher, icon);
+							viewportTransferHandler, activeViewportWatcher, icon, false);
 				} catch (final FileNotFoundException e) {
 					e.printStackTrace();
 					ExceptionPopup.display(e);
@@ -4279,7 +4368,7 @@ public class MainPanel extends JPanel
 				final File convertedFile = MDXHandler.convert(f);
 				temp = new ModelPanel(this, MDL.read(convertedFile), prefs, MainPanel.this, selectionItemTypeGroup,
 						selectionModeGroup, modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
-						activeViewportWatcher, icon);
+						activeViewportWatcher, icon, false);
 				temp.setFile(convertedFile);
 			}
 		} else if (f.getPath().toLowerCase().endsWith("obj")) {
@@ -4291,7 +4380,7 @@ public class MainPanel extends JPanel
 				final Parse obj = new Parse(builder, f.getPath());
 				temp = new ModelPanel(this, builder.createMDL(), prefs, MainPanel.this, selectionItemTypeGroup,
 						selectionModeGroup, modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
-						activeViewportWatcher, icon);
+						activeViewportWatcher, icon, false);
 			} catch (final FileNotFoundException e) {
 				ExceptionPopup.display(e);
 				e.printStackTrace();
@@ -4302,7 +4391,7 @@ public class MainPanel extends JPanel
 		} else {
 			temp = new ModelPanel(this, MDL.read(f), prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
 					modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, activeViewportWatcher,
-					icon);
+					icon, false);
 			temp.setFile(f);
 		}
 		loadModel(temporary, selectNewTab, temp);
@@ -4366,7 +4455,7 @@ public class MainPanel extends JPanel
 		loadModel(workingDirectory == null, true,
 				new ModelPanel(MainPanel.this, blankTextureModel, prefs, MainPanel.this, selectionItemTypeGroup,
 						selectionModeGroup, modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
-						activeViewportWatcher, GlobalIcons.orangeIcon));
+						activeViewportWatcher, GlobalIcons.orangeIcon, true));
 	}
 
 	public void loadModel(final boolean temporary, final boolean selectNewTab, final ModelPanel temp) {
@@ -4413,6 +4502,19 @@ public class MainPanel extends JPanel
 		// }
 		// }).start();
 		toolsMenu.setEnabled(true);
+
+		if (selectNewTab && (prefs.getQuickBrowse() != null) && prefs.getQuickBrowse()) {
+			for (int i = (modelPanels.size() - 2); i >= 0; i--) {
+				final ModelPanel openModelPanel = modelPanels.get(i);
+				if (openModelPanel.getUndoManager().isRedoListEmpty()
+						&& openModelPanel.getUndoManager().isUndoListEmpty()) {
+					if (openModelPanel.close(this)) {
+						modelPanels.remove(openModelPanel);
+						windowMenu.remove(openModelPanel.getMenuItem());
+					}
+				}
+			}
+		}
 	}
 
 	public void addTabForView(final ModelPanel view, final boolean selectNewTab) {
