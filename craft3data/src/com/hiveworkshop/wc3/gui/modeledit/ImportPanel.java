@@ -328,8 +328,6 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		for (int i = 0; i < currentMDLHelpers.size(); i++) {
 			existingBones.addElement(new BoneShell(currentMDLHelpers.get(i)));
 		}
-		boneRenderer = new BoneShellListCellRenderer(new ModelViewManager(currentModel),
-				new ModelViewManager(importedModel));
 
 		final ArrayList<Bone> importedMDLBones = importedModel.sortedIdObjects(Bone.class);
 		final ArrayList<Helper> importedMDLHelpers = importedModel.sortedIdObjects(Helper.class);
@@ -337,11 +335,15 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		clearExistingBones = new JCheckBox("Clear pre-existing bones and helpers");
 		// Initialized up here for use with BonePanels
 
+		ModelViewManager currentModelManager = new ModelViewManager(currentModel);
+		ModelViewManager importedModelManager = new ModelViewManager(importedModel);
 		final BonePanelListCellRenderer bonePanelRenderer = new BonePanelListCellRenderer(
-				new ModelViewManager(currentModel), new ModelViewManager(importedModel));
+				currentModelManager, importedModelManager);
+		boneShellRenderer = new BoneShellListCellRenderer(currentModelManager,
+				importedModelManager);
 		for (int i = 0; i < importedMDLBones.size(); i++) {
 			final Bone b = importedMDLBones.get(i);
-			final BonePanel bonePanel = new BonePanel(b, existingBones, boneRenderer, this);
+			final BonePanel bonePanel = new BonePanel(b, existingBones, boneShellRenderer, this);
 			// boneTabs.addTab(b.getClass().getName() + " \"" + b.getName() +
 			// "\"", cyanIcon, bonePanel, "Controls import settings for this
 			// bone.");;
@@ -351,7 +353,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		}
 		for (int i = 0; i < importedMDLHelpers.size(); i++) {
 			final Bone b = importedMDLHelpers.get(i);
-			final BonePanel bonePanel = new BonePanel(b, existingBones, boneRenderer, this);
+			final BonePanel bonePanel = new BonePanel(b, existingBones, boneShellRenderer, this);
 			// boneTabs.addTab(b.getClass().getName() + " \"" + b.getName() +
 			// "\"", cyanIcon, bonePanel, "Controls import settings for this
 			// bone.");;
@@ -362,7 +364,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		for (int i = 0; i < bonePanels.size(); i++) {
 			bonePanels.get(i).initList();
 		}
-		multiBonePane = new MultiBonePanel(existingBones, boneRenderer);
+		multiBonePane = new MultiBonePanel(existingBones, boneShellRenderer);
 		bonePanelCards.add(blankPane, "blank");
 		bonePanelCards.add(multiBonePane, "multiple");
 		boneTabs.setCellRenderer(bonePanelRenderer);// bonePanelRenderer);
@@ -413,8 +415,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		// Matrices Panel
 		addTab("Matrices", greenIcon, geosetAnimPanel, "Controls which bones geosets are attached to.");
 
-		final ParentToggleRenderer ptr = new ParentToggleRenderer(displayParents, new ModelViewManager(currentModel),
-				new ModelViewManager(importedModel));
+		final ParentToggleRenderer ptr = new ParentToggleRenderer(displayParents, currentModelManager,
+				importedModelManager);
 
 		displayParents.addChangeListener(this);
 
@@ -449,7 +451,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 
 		// Objects Panel
 		addTab("Objects", objIcon, objectsPanel, "Controls which objects are imported.");
-		getFutureBoneListExtended();
+		getFutureBoneListExtended(false);
 
 		// Build the objectTabs list of ObjectPanels
 		final ObjPanelListCellRenderer objectPanelRenderer = new ObjPanelListCellRenderer();
@@ -458,7 +460,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			final IdObject obj = importedModel.getIdObjects().get(i);
 			if (obj.getClass() != Bone.class && obj.getClass() != Helper.class) {
 
-				final ObjectPanel objPanel = new ObjectPanel(obj, futureBoneListEx);
+				final ObjectPanel objPanel = new ObjectPanel(obj, getFutureBoneListExtended(true));
 
 				objectPanelCards.add(objPanel, panelid + "");// (objPanel.title.getText()));
 				objectPanels.addElement(objPanel);
@@ -477,7 +479,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			objectPanels.addElement(objPanel);
 			panelid++;
 		}
-		multiObjectPane = new MultiObjectPanel(futureBoneListEx);
+		multiObjectPane = new MultiObjectPanel(getFutureBoneListExtended(true));
 		objectPanelCards.add(blankPane, "blank");
 		objectPanelCards.add(multiObjectPane, "multiple");
 		objectTabs.setCellRenderer(objectPanelRenderer);
@@ -953,7 +955,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			if (objectTabs.getSelectedValuesList().toArray().length < 1) {
 				objectCardLayout.show(objectPanelCards, "blank");
 			} else if (objectTabs.getSelectedValuesList().toArray().length == 1) {
-				getFutureBoneListExtended();
+				getFutureBoneListExtended(false);
 				objectCardLayout.show(objectPanelCards, (objectTabs.getSelectedIndex()) + "");// .title.getText()
 			} else if (objectTabs.getSelectedValuesList().toArray().length > 1) {
 				objectCardLayout.show(objectPanelCards, "multiple");
@@ -1145,11 +1147,12 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 	}
 
 	DefaultListModel<BoneShell> futureBoneListEx = new DefaultListModel<>();
+	List<DefaultListModel<BoneShell>> futureBoneListExFixableItems = new ArrayList<>();
 	ArrayList<BoneShell> oldHelpers;
 	ArrayList<BoneShell> newHelpers;
 	private final Set<BoneShell> futureBoneListExQuickLookupSet = new HashSet<>();
 
-	public DefaultListModel<BoneShell> getFutureBoneListExtended() {
+	public DefaultListModel<BoneShell> getFutureBoneListExtended(boolean newSnapshot) {
 		// if( futureBoneList.size() > 0 )
 		// {
 		// if( oldHelpers == null )
@@ -1322,8 +1325,23 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			System.out.println("average remove time: " + (totalRemoveTime / removeCount));
 			System.out.println("remove count: " + removeCount);
 		}
-
-		return futureBoneListEx;
+		
+		DefaultListModel<BoneShell> listModelToReturn;
+		if(newSnapshot || futureBoneListExFixableItems.isEmpty()) {
+			DefaultListModel<BoneShell> futureBoneListReplica = new DefaultListModel<>();
+			futureBoneListExFixableItems.add(futureBoneListReplica);
+			listModelToReturn = futureBoneListReplica;
+		} else {
+			listModelToReturn = futureBoneListExFixableItems.get(0);
+		}
+		for(DefaultListModel<BoneShell> model: futureBoneListExFixableItems) {
+			model.clear();
+			for(int i = 0; i < futureBoneListEx.getSize(); i++) {
+				model.addElement(futureBoneListEx.getElementAt(i));
+			}
+		}
+		return listModelToReturn;
+//		return futureBoneListEx;
 	}
 
 	ArrayList<VisibilityShell> allVisShells;
@@ -1332,7 +1350,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 	DefaultListModel<VisibilityPane> visComponents;
 
 	ArrayList<VisibilityPane> allVisShellPanes = new ArrayList<>();
-	private final BoneShellListCellRenderer boneRenderer;
+	private BoneShellListCellRenderer boneShellRenderer;
 
 	public VisibilityShell shellFromObject(final Object o) {
 		for (final VisibilityShell v : allVisShells) {
@@ -1578,8 +1596,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 	 * MultiBone panel.
 	 */
 	public void setParentMultiBones() {
-		final JList<BoneShell> list = new JList<>(getFutureBoneListExtended());
-		list.setCellRenderer(boneRenderer);
+		final JList<BoneShell> list = new JList<>(getFutureBoneListExtended(true));
+		list.setCellRenderer(boneShellRenderer);
 		final int x = JOptionPane.showConfirmDialog(this, new JScrollPane(list), "Set Parent for All Selected Bones",
 				JOptionPane.OK_CANCEL_OPTION);
 		if (x == JOptionPane.OK_OPTION) {
@@ -1627,7 +1645,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 	public void stateChanged(final ChangeEvent e) {
 		((AnimPanel) animTabs.getSelectedComponent()).updateSelectionPicks();
 		getFutureBoneList();
-		getFutureBoneListExtended();
+		getFutureBoneListExtended(false);
 		visibilityList();
 		// ((BoneAttachmentPane)geosetAnimTabs.getSelectedComponent()).refreshLists();
 		repaint();
@@ -2685,7 +2703,7 @@ class BonePanel extends JPanel implements ListSelectionListener, ActionListener 
 			}
 		}
 
-		futureBones = getImportPanel().getFutureBoneListExtended();
+		futureBones = getImportPanel().getFutureBoneListExtended(true);
 		futureBonesList = new JList(futureBones);
 		futureBonesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		futureBonesList.setCellRenderer(renderer);
@@ -2732,7 +2750,7 @@ class BonePanel extends JPanel implements ListSelectionListener, ActionListener 
 	}
 
 	public void initList() {
-		futureBones = getImportPanel().getFutureBoneListExtended();
+		futureBones = getImportPanel().getFutureBoneListExtended(false);
 		for (int i = 0; i < futureBones.size(); i++) {
 			final BoneShell bs = futureBones.get(i);
 			if (bs.bone == bone.getParent()) {
@@ -2834,7 +2852,7 @@ class BonePanel extends JPanel implements ListSelectionListener, ActionListener 
 		// // panel.reorderBonePicks(this);
 		// oldSelection = newSelection;
 		final long nanoStart = System.nanoTime();
-		futureBones = getImportPanel().getFutureBoneListExtended();
+		futureBones = getImportPanel().getFutureBoneListExtended(false);
 		final long nanoEnd = System.nanoTime();
 		System.out.println("updating future bone list took " + (nanoEnd - nanoStart) + " ns");
 	}
