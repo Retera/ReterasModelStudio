@@ -33,7 +33,8 @@ import com.hiveworkshop.wc3.mpq.Codebase;
  */
 public class Cascket implements Codebase {
 	private final Map<String, PathResult> pathToResult = new HashMap<>();
-	private final String[] prefixes = { "war3.mpq", "deprecated.mpq", "enus-war3local.mpq" };
+	private final String[] prefixes = { "war3.mpq", "deprecated.mpq", "enus-war3local.mpq", "war3.w3mod",
+			"deprecated.w3mod", "war3.w3mod\\_locales\\enus.w3mod" };
 
 	public Cascket(final Path dataFolder) {
 
@@ -117,7 +118,9 @@ public class Cascket implements Codebase {
 					 */
 				}
 
-				System.out.println(filePath + " : " + fileSize + " : " + (exists ? "yes" : "no"));
+				if (filePath.contains(".txt") && filePath.contains("enus")) {
+					System.out.println(filePath + " : " + fileSize + " : " + (exists ? "yes" : "no"));
+				}
 			}
 
 			System.out.println("shuttting down thread pool");
@@ -129,7 +132,7 @@ public class Cascket implements Codebase {
 			final double runtime = (endTime - startTime) / 1000000000d;
 			System.out.println("running time to process all files: " + runtime + "s");
 
-			System.out.println("average process speed: " + totalExtracted.get() / runtime + "B/sec");
+			System.out.println("average process speed: " + (totalExtracted.get() / runtime) + "B/sec");
 
 			System.out.println("success");
 		} catch (final IOException e) {
