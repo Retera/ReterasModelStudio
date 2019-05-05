@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 
 import com.hiveworkshop.wc3.gui.modeledit.PerspDisplayPanel;
 import com.hiveworkshop.wc3.mdl.MDL;
-import com.hiveworkshop.wc3.mdl.RenderModel;
+import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 
 public class WorkPanel extends JPanel implements ActionListener {

@@ -21,7 +21,7 @@ public final class HashMap<KEY, VALUE> implements Map<KEY, VALUE> {
 
 	private CollectionView<VALUE> cachedValueCollection;
 	private SetView<KEY> cachedKeySet;
-	private SetView<Entry<KEY, VALUE>> cachedEntrySet;
+	private Set<Entry<KEY, VALUE>> cachedEntrySet;
 
 	public HashMap() {
 		this(DEFAULT_DESIRED_CAPACITY, DEFAULT_LOAD_FACTOR);
@@ -92,7 +92,7 @@ public final class HashMap<KEY, VALUE> implements Map<KEY, VALUE> {
 	}
 
 	@Override
-	public SetView<MapView.Entry<KEY, VALUE>> entrySet() {
+	public Set<MapView.Entry<KEY, VALUE>> entrySet() {
 		if (cachedEntrySet == null) {
 			cachedEntrySet = new EntrySetViewAdapter();
 		}
@@ -259,7 +259,7 @@ public final class HashMap<KEY, VALUE> implements Map<KEY, VALUE> {
 		}
 	}
 
-	private final class EntrySetViewAdapter implements SetView<MapView.Entry<KEY, VALUE>> {
+	private final class EntrySetViewAdapter implements Set<MapView.Entry<KEY, VALUE>> {
 		@Override
 		public int size() {
 			return HashMap.this.size();
@@ -295,6 +295,21 @@ public final class HashMap<KEY, VALUE> implements Map<KEY, VALUE> {
 		@Override
 		public Iterator<MapView.Entry<KEY, VALUE>> iterator() {
 			return new EntryIterator();
+		}
+
+		@Override
+		public boolean add(Entry<KEY, VALUE> what) {
+			return HashMap.this.put(what.getKey(), what.getValue()) != what.getValue();
+		}
+
+		@Override
+		public boolean remove(Entry<KEY, VALUE> what) {
+			return HashMap.this.remove(what.getKey()) != null;
+		}
+
+		@Override
+		public void clear() {
+			HashMap.this.clear();
 		}
 	}
 

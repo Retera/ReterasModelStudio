@@ -13,7 +13,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.SelectManipulator
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.Graphics2DToTVertexModelElementRendererAdapter;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexEditor;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.wc3.mdl.RenderModel;
+import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 

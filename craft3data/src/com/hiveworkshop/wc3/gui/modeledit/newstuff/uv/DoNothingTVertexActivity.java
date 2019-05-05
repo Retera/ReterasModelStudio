@@ -7,7 +7,7 @@ import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.activity.CursorManager;
 import com.hiveworkshop.wc3.gui.modeledit.activity.TVertexEditorViewportActivity;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.wc3.mdl.RenderModel;
+import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 
 public final class DoNothingTVertexActivity implements TVertexEditorViewportActivity {
 

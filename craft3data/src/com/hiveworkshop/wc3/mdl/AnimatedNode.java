@@ -2,6 +2,7 @@ package com.hiveworkshop.wc3.mdl;
 
 import java.util.List;
 
+import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -12,7 +13,7 @@ import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 public interface AnimatedNode extends TimelineContainer {
 
 	public AddKeyframeAction createTranslationKeyframe(final RenderModel renderModel, final AnimFlag translationFlag,
-			final ModelStructureChangeListener structureChangeListener);
+                                                       final ModelStructureChangeListener structureChangeListener);
 
 	public AddKeyframeAction createRotationKeyframe(final RenderModel renderModel, final AnimFlag rotationTimeline,
 			final ModelStructureChangeListener structureChangeListener);

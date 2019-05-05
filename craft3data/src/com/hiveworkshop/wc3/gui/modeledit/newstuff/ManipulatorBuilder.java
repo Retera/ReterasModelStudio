@@ -8,7 +8,7 @@ import com.hiveworkshop.wc3.gui.modeledit.activity.ButtonType;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ModelEditorChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.wc3.mdl.RenderModel;
+import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 
 public interface ManipulatorBuilder extends ModelEditorChangeListener {
 	Cursor getCursorAt(int x, int y, CoordinateSystem coordinateSystem, SelectionView selectionView);

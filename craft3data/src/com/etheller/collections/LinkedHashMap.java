@@ -43,7 +43,7 @@ public class LinkedHashMap<KEY, VALUE> implements Map<KEY, VALUE> {
 		}
 	}
 
-	private final class EntrySetViewImplementation implements SetView<MapView.Entry<KEY, VALUE>> {
+	private final class EntrySetViewImplementation implements Set<MapView.Entry<KEY, VALUE>> {
 		private final java.util.Set<java.util.Map.Entry<KEY, VALUE>> javaEntrySet = javaMap.entrySet();
 
 		@Override
@@ -82,6 +82,21 @@ public class LinkedHashMap<KEY, VALUE> implements Map<KEY, VALUE> {
 					return new AbstractMap.SimpleEntry<>(javaNext.getKey(), javaNext.getValue());
 				}
 			};
+		}
+
+		@Override
+		public boolean add(Entry<KEY, VALUE> what) {
+			return javaEntrySet.add(new java.util.AbstractMap.SimpleEntry<>(what.getKey(), what.getValue()));
+		}
+
+		@Override
+		public boolean remove(Entry<KEY, VALUE> what) {
+			return javaEntrySet.remove(new java.util.AbstractMap.SimpleEntry<>(what.getKey(), what.getValue()));
+		}
+
+		@Override
+		public void clear() {
+			javaEntrySet.clear();
 		}
 	}
 

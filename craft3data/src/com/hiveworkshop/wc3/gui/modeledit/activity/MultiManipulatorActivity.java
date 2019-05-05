@@ -11,7 +11,7 @@ import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.ManipulatorBuilder;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.wc3.mdl.RenderModel;
+import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 
 public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends ManipulatorBuilder>
 		implements ViewportActivity {

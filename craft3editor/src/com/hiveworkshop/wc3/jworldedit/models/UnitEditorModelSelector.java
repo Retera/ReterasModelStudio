@@ -34,7 +34,7 @@ import com.hiveworkshop.wc3.gui.modeledit.PerspDisplayPanel;
 import com.hiveworkshop.wc3.jworldedit.objects.UnitEditorSettings;
 import com.hiveworkshop.wc3.jworldedit.objects.WarcraftObjectTreeCellRenderer;
 import com.hiveworkshop.wc3.mdl.MDL;
-import com.hiveworkshop.wc3.mdl.RenderModel;
+import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.mdx.MdxUtils;

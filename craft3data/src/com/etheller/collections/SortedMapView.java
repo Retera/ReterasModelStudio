@@ -302,5 +302,5 @@ public interface SortedMapView<K, V> extends MapView<K, V> {
 	 *         ascending key order
 	 */
 	@Override
-	SetView<Map.Entry<K, V>> entrySet();
+	SetView<MapView.Entry<K, V>> entrySet();
 }

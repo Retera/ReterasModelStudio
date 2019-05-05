@@ -2,6 +2,8 @@ package com.hiveworkshop.wc3.mdl;
 
 import java.util.List;
 
+import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
+import com.hiveworkshop.wc3.mdl.render3d.RenderNode;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
@@ -23,7 +25,7 @@ public abstract class AbstractAnimatedNode implements AnimatedNode {
 
 	@Override
 	public AddKeyframeAction createTranslationKeyframe(final RenderModel renderModel, final AnimFlag translationFlag,
-			final ModelStructureChangeListener structureChangeListener) {
+                                                       final ModelStructureChangeListener structureChangeListener) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
 		final int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();

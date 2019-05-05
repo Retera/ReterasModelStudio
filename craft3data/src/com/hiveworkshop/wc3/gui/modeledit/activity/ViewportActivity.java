@@ -6,7 +6,7 @@ import java.awt.event.MouseEvent;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionListener;
-import com.hiveworkshop.wc3.mdl.RenderModel;
+import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 
 public interface ViewportActivity extends SelectionListener, ModelChangeListener {
 	void viewportChanged(CursorManager cursorManager);

@@ -3,6 +3,8 @@ package com.matrixeater.src;
 import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.nio.file.Paths;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -14,8 +16,10 @@ import javax.swing.WindowConstants;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglNativesLoader;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
+import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.user.SaveProfile;
 
+import mpq.MPQException;
 import net.infonode.gui.laf.InfoNodeLookAndFeel;
 import net.infonode.gui.laf.InfoNodeLookAndFeelTheme;
 import net.infonode.gui.laf.InfoNodeLookAndFeelThemes;
@@ -42,6 +46,13 @@ public class MainFrame extends JFrame {
 			SaveProfile.requestNewWc3Directory();
 		}
 		System.out.println(autoWarcraftDirectory + " appears valid");
+//		try {
+//			MpqCodebase.get().loadMPQ(Paths.get("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Maps\\Altered Melee\\(6)HFNeonCity.w3x"));
+//		} catch (MPQException e) {
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 		// try {
 		// new File("logs").mkdir();
 		// System.setOut(new PrintStream(new File("logs/MatrixEater.log")));

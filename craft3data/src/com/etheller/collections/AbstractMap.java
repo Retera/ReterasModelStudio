@@ -494,9 +494,6 @@ public abstract class AbstractMap<K, V> implements Map<K, V> {
 		return values;
 	}
 
-	@Override
-	public abstract Set<Entry<K, V>> entrySet();
-
 	// Comparison and hashing
 
 	/**

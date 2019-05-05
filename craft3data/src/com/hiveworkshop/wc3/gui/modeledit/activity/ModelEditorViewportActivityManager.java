@@ -6,7 +6,7 @@ import java.awt.event.MouseEvent;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.wc3.mdl.RenderModel;
+import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 
 public final class ModelEditorViewportActivityManager implements ModelEditorViewportActivity {
 	private ModelEditorViewportActivity currentActivity;

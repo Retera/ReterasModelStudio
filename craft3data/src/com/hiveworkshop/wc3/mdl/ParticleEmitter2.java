@@ -49,6 +49,62 @@ public class ParticleEmitter2 extends IdObject implements VisibilitySource {
 			"DontInherit { Scaling }", "SortPrimsFarZ", "Unshaded", "LineEmitter", "Unfogged", "ModelSpace", "XYQuad",
 			"Squirt", "Additive", "Modulate2x", "Modulate", "AlphaKey", "Blend", "Tail", "Head", "Both" };
 	boolean[] knownFlags = new boolean[knownFlagNames.length];
+
+	public boolean isDontInheritRotation() {
+		return knownFlags[0];
+	}
+	public boolean isDontInheritTranslation() {
+		return knownFlags[1];
+	}
+	public boolean isDontInheritScaling() {
+		return knownFlags[2];
+	}
+	public boolean isSortPrimsFarZ() {
+		return knownFlags[3];
+	}
+	public boolean isUnshaded() {
+		return knownFlags[4];
+	}
+	public boolean isLineEmitter() {
+		return knownFlags[5];
+	}
+	public boolean isUnfogged() {
+		return knownFlags[6];
+	}
+	public boolean isModelSpace() {
+		return knownFlags[7];
+	}
+	public boolean isXYQuad() {
+		return knownFlags[8];
+	}
+	public boolean isSquirt() {
+		return knownFlags[9];
+	}
+	public boolean isAdditive() {
+		return knownFlags[10];
+	}
+	public boolean isModulate2x() {
+		return knownFlags[11];
+	}
+	public boolean isModulate() {
+		return knownFlags[12];
+	}
+	public boolean isAlphaKey(){
+		return knownFlags[13];
+	}
+	public boolean isBlend() {
+		return knownFlags[14];
+	}
+	public boolean isTail() {
+		return knownFlags[15];
+	}
+	public boolean isHead() {
+		return knownFlags[16];
+	}
+	public boolean isBoth() {
+		return knownFlags[17];
+	}
+
 	static final String[] vertexDataNames = { "Alpha", "ParticleScaling", "LifeSpanUVAnim", "DecayUVAnim", "TailUVAnim",
 			"TailDecayUVAnim" };
 	Vertex[] vertexData = new Vertex[vertexDataNames.length];

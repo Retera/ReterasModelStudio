@@ -18,7 +18,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexModelElementRendere
 import com.hiveworkshop.wc3.gui.modeledit.viewport.NodeIconPalette;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.IdObject;
-import com.hiveworkshop.wc3.mdl.RenderModel;
+import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;

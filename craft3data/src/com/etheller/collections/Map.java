@@ -6,4 +6,7 @@ public interface Map<KEY, VALUE> extends MapView<KEY, VALUE> {
 	VALUE remove(KEY key);
 
 	VALUE put(KEY key, VALUE value);
+
+	@Override
+	Set<MapView.Entry<KEY, VALUE>> entrySet();
 }

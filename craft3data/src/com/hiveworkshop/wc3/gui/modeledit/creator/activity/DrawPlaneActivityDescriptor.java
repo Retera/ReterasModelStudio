@@ -16,7 +16,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.model.ModelEditorManipulatorBuilder;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.wc3.mdl.RenderModel;
+import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public class DrawPlaneActivityDescriptor implements ActivityDescriptor {

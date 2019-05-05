@@ -13,7 +13,7 @@ import com.hiveworkshop.wc3.gui.modeledit.viewport.ResettableAnimatedIdObjectRen
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.IdObject;
-import com.hiveworkshop.wc3.mdl.RenderModel;
+import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 public final class Graphics2DToAnimatedModelElementRendererAdapter implements ModelElementRenderer {
