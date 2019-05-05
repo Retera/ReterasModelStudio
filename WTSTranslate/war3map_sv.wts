@@ -1,0 +1,7394 @@
+﻿STRING 0
+{
+Folken i Midgård
+}
+
+STRING 1
+{
+3v3v3v3 eller 6v6
+}
+
+STRING 2
+{
+Kämpa om kontrollen över Midgård !
+}
+
+STRING 3
+{
+Blizzard Entertainment
+}
+
+STRING 7
+{
+
+}
+
+STRING 8
+{
+
+}
+
+STRING 9
+{
+
+}
+
+STRING 10
+{
+spelare 1
+}
+
+STRING 11
+{
+spelare 2
+}
+
+STRING 12
+{
+spelare 3
+}
+
+STRING 13
+{
+spelare 4
+}
+
+STRING 14
+{
+Spelarens 5
+}
+
+STRING 15
+{
+Player 6
+}
+
+STRING 16
+{
+Player 7
+}
+
+STRING 17
+{
+Player 8
+}
+
+STRING 18
+{
+Player 9
+}
+
+STRING 19
+{
+Player 10
+}
+
+STRING 20
+{
+Player 11
+}
+
+STRING 21
+{
+Player 12
+}
+
+STRING 22
+{
+force 1
+}
+
+STRING 23
+// Unités: h001 (Garde du roi), Name (Nom)
+{
+Kings Guard
+}
+
+STRING 24
+// Unités: n000 (Hallebardier), Name (Nom)
+{
+Halberdier
+}
+
+STRING 25
+// Unités: h002 (Lanceur de haches), Name (Nom)
+{
+Axe Thrower
+}
+
+STRING 26
+// Unités: h003 (Habitation), Name (Nom)
+{
+Start
+}
+
+STRING 28
+// Unités: h00L (Taverne), Name (Nom)
+{
+Tavern
+}
+
+STRING 29
+// Unités: h007 (Champ de tir), Name (Nom)
+{
+Range
+}
+
+STRING 30
+// Unités: o000 (Atelier de siège), Name (Nom)
+{
+Siege Workshop-
+}
+
+STRING 31
+// Unités: h00B (Mineur), Name (Nom)
+{
+Minor
+}
+
+STRING 34
+// Unités: o001 (Engin de siège), Name (Nom)
+{
+Siege Engine
+}
+
+STRING 35
+// Unités: h00C (Démolisseur), Name (Nom)
+{
+Wrecker
+}
+
+STRING 36
+// Unités: h00D (Dompteur de bouc), Name (Nom)
+{
+Tamer get
+}
+
+STRING 39
+// Unités: n001 (Arbalétrier), Name (Nom)
+{
+crossbowman
+}
+
+STRING 40
+// Compétences: A000 (Arme 01), Name (Nom)
+{
+Vapen 01
+}
+
+STRING 43
+// Unités: e001 (Mage de guerre), Name (Nom)
+{
+War Mage
+}
+
+STRING 44
+// Unités: H00E (Roi sous la Montagne), Name (Nom)
+{
+Kungen under berget
+}
+
+STRING 45
+// Compétences: A001 (Aura), Name (Nom)
+{
+Aura
+}
+
+STRING 46
+{
+Välj din fraktion :
+}
+
+STRING 48
+{
+| C0060A9FBNains |r
+}
+
+STRING 51
+{
+| C00004000Elfes sylvan |r
+}
+
+STRING 52
+{
+Du har besegrats !
+}
+
+STRING 53
+{
+Du har besegrats !
+}
+
+STRING 54
+{
+Du har besegrats !
+}
+
+STRING 55
+{
+Du har besegrats !
+}
+
+STRING 56
+{
+Du har besegrats !
+}
+
+STRING 57
+{
+Du har besegrats !
+}
+
+STRING 58
+{
+Du har besegrats !
+}
+
+STRING 59
+{
+Du har besegrats !
+}
+
+STRING 60
+{
+Du har besegrats !
+}
+
+STRING 61
+{
+Du har besegrats !
+}
+
+STRING 62
+{
+Du har besegrats !
+}
+
+STRING 63
+{
+Du har besegrats !
+}
+
+STRING 65
+// Compétences: A004 (Assommoir), Tip (Aide - Normal)
+{
+Stunner
+}
+
+STRING 66
+// Compétences: A004 (Assommoir), Ubertip (Aide - Normal - Etendu)
+{
+Attacker har en 25 % stun motståndaren i 2 sekunder .
+}
+
+STRING 67
+// Compétences: A005 (Projectiles enflammés), Name (Nom)
+{
+Flaming projektiler
+}
+
+STRING 68
+// Compétences: A005 (Projectiles enflammés), Tip (Aide - Normal)
+{
+Flaming projektiler
+}
+
+STRING 69
+// Compétences: A006 (Huile bouillante), Name (Nom)
+{
+Kokande olja
+}
+
+STRING 70
+// Compétences: A006 (Huile bouillante), Tip (Aide - Normal)
+{
+Kokande olja
+}
+
+STRING 71
+// Compétences: A009 (Charge), Name (Nom)
+{
+Belastning
+}
+
+STRING 72
+// Compétences: A00W (Charge), Name (Nom)
+{
+Belastning
+}
+
+STRING 78
+// Compétences: A009 (Charge), Researchtip (Aide - Apprendre)
+{
+| Cffffcc00C |rharge !
+}
+
+STRING 79
+// Compétences: A009 (Charge), Researchubertip (Aide - Apprendre - Etendu)
+{
+| Cffffcc00C |rharge !
+}
+
+STRING 83
+// Unités: h007 (Champ de tir), Hotkey (Raccourci)
+{
+C
+}
+
+STRING 84
+// Unités: n002 (Chevaucheur de grizzly), Hotkey (Raccourci)
+{
+C
+}
+
+STRING 85
+// Compétences: A009 (Charge), Tip (Aide - Normal)
+{
+| Cffffcc00C |rharge
+}
+
+STRING 86
+// Compétences: A009 (Charge), Untip (Aide - Off)
+{
+| Cffffcc00C |rharge
+}
+
+STRING 89
+// Mises à jour: R001 (Feu liquide), Name (Nom)
+{
+Kokande olja
+}
+
+STRING 90
+// Mises à jour: R002 (Liquide enflammé), Name (Nom)
+{
+Flaming projektiler
+}
+
+STRING 91
+// Mises à jour: R003 (Lances empoisonnées), Name (Nom)
+{
+Assomoir
+}
+
+STRING 93
+// Mises à jour: R006 (Bombes de Machine volante), Name (Nom)
+{
+demolish
+}
+
+STRING 94
+// Mises à jour: R007 (Marque de l'ours), Name (Nom)
+{
+ryta
+}
+
+STRING 96
+// Unités: h005 (Forge), Hotkey (Raccourci)
+{
+F
+}
+
+STRING 97
+// Unités: h00X (Forge), Hotkey (Raccourci)
+{
+F
+}
+
+STRING 99
+// Compétences: A003 (Carreaux enflammés), Name (Nom)
+{
+plattor inflammerade
+}
+
+STRING 102
+// Unités: h00N (Cuirassé), Hotkey (Raccourci)
+{
+C
+}
+
+STRING 103
+// Unités: o003 (Clairière des Ents), Hotkey (Raccourci)
+{
+C
+}
+
+STRING 104
+// Mises à jour: R000 (Défensif), Ubertip (Aide - Etendue)
+{
+Tillåter infanterister och kungens vakter använder defensiv läge som förbättrar deras försvar mot piercing attacker .
+}
+
+STRING 105
+// Mises à jour: R001 (Feu liquide), Tip (Aide)
+{
+Sök |cffffcc00H | kokande Ruile
+}
+
+STRING 106
+// Mises à jour: R001 (Feu liquide), Ubertip (Aide - Etendue)
+{
+Ger Siege Motorer Liquid Fire attack 
+}
+
+STRING 107
+// Unités: n000 (Hallebardier), Hotkey (Raccourci)
+{
+H
+}
+
+STRING 108
+// Mises à jour: R002 (Liquide enflammé), Tip (Aide)
+{
+| Cffffcc00P | inflammerade rrojectiles
+}
+
+STRING 109
+// Mises à jour: R002 (Liquide enflammé), Ubertip (Aide - Etendue)
+{
+Förbättrar projektiler Siege Engine 
+}
+
+STRING 110
+// Unités: h015 (Port), Hotkey (Raccourci)
+{
+P
+}
+
+STRING 111
+// Mises à jour: R003 (Lances empoisonnées), Tip (Aide)
+{
+Sök |cffffcc00A |rssomoir
+}
+
+STRING 112
+// Unités: o000 (Atelier de siège), Hotkey (Raccourci)
+{
+A
+}
+
+STRING 113
+// Mises à jour: R003 (Lances empoisonnées), Ubertip (Aide - Etendue)
+{
+Ger Yxa Throwers angriper sannolikheten att bedöva sina mål.
+}
+
+STRING 114
+// Mises à jour: R004 (Folie furieuse), Tip (Aide)
+{
+Sök |cffffcc00C |rharge
+}
+
+STRING 115
+// Unités: e002 (Chêne de Fangorn), Hotkey (Raccourci)
+{
+C
+}
+
+STRING 116
+// Mises à jour: R004 (Folie furieuse), Ubertip (Aide - Etendue)
+{
+Tamer Bouc ger last sera inflliger som gör skada på fiendens enheter .
+}
+
+STRING 117
+// Compétences: A01P (Carreaux enflammés), Name (Nom)
+{
+plattor inflammerade
+}
+
+STRING 118
+// Mises à jour: R00G (Rets), Tip (Aide)
+{
+Sök |cffffcc00C |rarreaux enfammés
+}
+
+STRING 119
+// Unités: O005 (Commandant Uruk), Hotkey (Raccourci)
+{
+C
+}
+
+STRING 120
+// Mises à jour: R00G (Rets), Ubertip (Aide - Etendue)
+{
+Låter crossbowman dra flammande brickor för att orsaka mer skada på fiendens Untes .
+}
+
+STRING 121
+// Mises à jour: R006 (Bombes de Machine volante), Tip (Aide)
+{
+Sök Dice |cffffcc00m |rolir
+}
+
+STRING 122
+// Unités: h00B (Mineur), Hotkey (Raccourci)
+{
+M
+}
+
+STRING 123
+// Mises à jour: R006 (Bombes de Machine volante), Ubertip (Aide - Etendue)
+{
+Dubbel skada av Wrecking mot byggnader .
+}
+
+STRING 125
+// Mises à jour: R007 (Marque de l'ours), Ubertip (Aide - Etendue)
+{
+Gör det möjligt att lansera en Grizzly Roar som ökar temprairement attack vänliga enheter i närheten .
+}
+
+STRING 126
+// Unités: H00E (Roi sous la Montagne), Hotkey (Raccourci)
+{
+R
+}
+
+STRING 127
+// Compétences: A00A (Marteau), Name (Nom)
+{
+hammare
+}
+
+STRING 128
+// Compétences: A00A (Marteau), Tip (Aide - Normal)
+{
+| Cffffcc00M |rarteau
+}
+
+STRING 129
+// Compétences: A00A (Marteau), Ubertip (Aide - Normal - Etendu)
+{
+En hammaren träffar en fiende enhet 
+}
+
+STRING 130
+// Unités: e001 (Mage de guerre), Hotkey (Raccourci)
+{
+M
+}
+
+STRING 131
+// Compétences: A00E (Réincarnation), Researchubertip (Aide - Apprendre - Etendu)
+{
+Då dödades 
+}
+
+STRING 132
+// Compétences: A00E (Réincarnation), Ubertip (Aide - Normal - Etendu)
+{
+Då dödades 
+}
+
+STRING 133
+// Unités: h01R (Mentor), Hotkey (Raccourci)
+{
+M
+}
+
+STRING 134
+// Mises à jour: R008 (Formation Esprit marcheur adepte,Formation Esprit marcheur maître), Name (Nom)
+{
+Träning Mage skicklig krig
+}
+
+STRING 135
+// Mises à jour: R008 (Formation Esprit marcheur adepte,Formation Esprit marcheur maître), Tip (Aide)
+{
+| Cffffcc00F |rormation Mage skicklig krig
+}
+
+STRING 136
+// Mises à jour: R008 (Formation Esprit marcheur adepte,Formation Esprit marcheur maître), Tip (Aide)
+{
+| Cffffcc00F |rormation War Mage ledar
+}
+
+STRING 137
+// Mises à jour: R008 (Formation Esprit marcheur adepte,Formation Esprit marcheur maître), Ubertip (Aide - Etendue)
+{
+Ökar mana och träffpunkter och hastigheten för återvinning av War Mage . 
+}
+
+STRING 138
+// Mises à jour: R008 (Formation Esprit marcheur adepte,Formation Esprit marcheur maître), Name (Nom)
+{
+Mage utbildning ledar krig
+}
+
+STRING 139
+// Mises à jour: R008 (Formation Esprit marcheur adepte,Formation Esprit marcheur maître), Ubertip (Aide - Etendue)
+{
+Ökar mana och träffpunkter och hastigheten för återvinning av War Mage . 
+}
+
+STRING 140
+// Mises à jour: R009 (Armure de fer,Armure d'acier,Armure de mithril), Ubertip (Aide - Etendue)
+{
+Ökar försvar av tatueringar enheter .
+}
+
+STRING 141
+// Mises à jour: R009 (Armure de fer,Armure d'acier,Armure de mithril), Ubertip (Aide - Etendue)
+{
+Vidare ökar försvaret av tatueringar enheter .
+}
+
+STRING 142
+// Mises à jour: R009 (Armure de fer,Armure d'acier,Armure de mithril), Ubertip (Aide - Etendue)
+{
+Vidare ökar försvaret av tatueringar enheter .
+}
+
+STRING 143
+// Mises à jour: R00A (Epées de fer,Epées d'acier,Epées de mithril), Ubertip (Aide - Etendue)
+{
+Ökar de skador som stridsförband tatueringar .
+}
+
+STRING 144
+// Mises à jour: R00A (Epées de fer,Epées d'acier,Epées de mithril), Ubertip (Aide - Etendue)
+{
+Vidare uppgraderar skadan behandlas i strid med de Dwarf enheterna .
+}
+
+STRING 145
+// Mises à jour: R00A (Epées de fer,Epées d'acier,Epées de mithril), Ubertip (Aide - Etendue)
+{
+Vidare uppgraderar skadan behandlas i strid med de Dwarf enheterna .
+}
+
+STRING 150
+// Unités: h014 (Refuge), Hotkey (Raccourci)
+{
+R
+}
+
+STRING 155
+// Unités: h001 (Garde du roi), Tip (Aide - Basique)
+{
+Orsak |cffffcc00G | RARDE Kung
+}
+
+STRING 156
+// Unités: h001 (Garde du roi), Hotkey (Raccourci)
+{
+G
+}
+
+STRING 158
+// Unités: n000 (Hallebardier), Tip (Aide - Basique)
+{
+Orsak |cffffcc00H |rallebardier
+}
+
+STRING 160
+// Unités: h002 (Lanceur de haches), Tip (Aide - Basique)
+{
+Orsak |cffffcc00L |ranceur axlar
+}
+
+STRING 161
+// Unités: h002 (Lanceur de haches), Hotkey (Raccourci)
+{
+L
+}
+
+STRING 163
+// Unités: h00B (Mineur), Tip (Aide - Basique)
+{
+Orsak |cffffcc00M |rineur
+}
+
+STRING 164
+// Unités: h00B (Mineur), Ubertip (Aide - Etendue)
+{
+Din huvudsakliga arbetsenhet. 
+}
+
+STRING 166
+// Unités: h004 (Elevage), Hotkey (Raccourci)
+{
+E
+}
+
+STRING 167
+// Unités: o001 (Engin de siège), Tip (Aide - Basique)
+{
+Orsak |cffffcc00E |rngin säte
+}
+
+STRING 168
+// Unités: h00C (Démolisseur), Tip (Aide - Basique)
+{
+Orsak |cffffcc00D |rémolisseur
+}
+
+STRING 169
+// Unités: h00C (Démolisseur), Hotkey (Raccourci)
+{
+D
+}
+
+STRING 171
+// Unités: h00D (Dompteur de bouc), Tip (Aide - Basique)
+{
+Orsak |cffffcc00D |rompteur get
+}
+
+STRING 173
+// Unités: h00D (Dompteur de bouc), Hotkey (Raccourci)
+{
+D
+}
+
+STRING 174
+// Unités: n001 (Arbalétrier), Tip (Aide - Basique)
+{
+Orsak |cffffcc00A |rrbalétrier
+}
+
+STRING 176
+// Unités: e001 (Mage de guerre), Casterupgradetip (Astuces amélioration lanceur de sorts)
+{
+- Hammare - Hammare |n- blixt Shield - Hammer |n- blixt Shield |n- Fire Inside
+}
+
+STRING 177
+// Unités: e001 (Mage de guerre), Tip (Aide - Basique)
+{
+Orsak |cffffcc00M |rage krig
+}
+
+STRING 183
+// Unités: H00E (Roi sous la Montagne), Tip (Aide - Basique)
+{
+Ring |cffffcc00R | Kung under berget
+}
+
+STRING 184
+// Unités: H00E (Roi sous la Montagne), Revivetip (Aide - Résurrection)
+{
+Återuppliva |cffffcc00R | Kung under berget
+}
+
+STRING 185
+// Unités: H00E (Roi sous la Montagne), Awakentip (Aide - Eveillé)
+{
+Återuppliva |cffffcc00R | Kung under berget
+}
+
+STRING 188
+// Unités: h003 (Habitation), Hotkey (Raccourci)
+{
+H
+}
+
+STRING 189
+// Unités: n001 (Arbalétrier), Hotkey (Raccourci)
+{
+A
+}
+
+STRING 190
+// Unités: e00C (Porte étendard), Hotkey (Raccourci)
+{
+M
+}
+
+STRING 199
+// Unités: n00A (Ravageur), Hotkey (Raccourci)
+{
+C
+}
+
+STRING 200
+// Compétences: A010 (Racines), Hotkey (Raccourci - Normal)
+{
+R
+}
+
+STRING 201
+// Mises à jour: R00A (Epées de fer,Epées d'acier,Epées de mithril), Tip (Aide)
+{
+Förbättra |cffffcc00A |rrmes järn
+}
+
+STRING 202
+// Mises à jour: R00A (Epées de fer,Epées d'acier,Epées de mithril), Tip (Aide)
+{
+Förbättra |cffffcc00A |rrmes stål
+}
+
+STRING 203
+// Mises à jour: R00A (Epées de fer,Epées d'acier,Epées de mithril), Tip (Aide)
+{
+Förbättra |cffffcc00A |rrmes Mithril
+}
+
+STRING 204
+// Mises à jour: R00A (Epées de fer,Epées d'acier,Epées de mithril), Name (Nom)
+{
+Järn vapen
+}
+
+STRING 205
+// Mises à jour: R00A (Epées de fer,Epées d'acier,Epées de mithril), Name (Nom)
+{
+Stål vapen
+}
+
+STRING 206
+// Mises à jour: R00A (Epées de fer,Epées d'acier,Epées de mithril), Name (Nom)
+{
+Mithril vapen
+}
+
+STRING 207
+// Unités: h00I (Tour de garde), Hotkey (Raccourci)
+{
+A
+}
+
+STRING 208
+// Unités: h00Z (Archerie), Hotkey (Raccourci)
+{
+A
+}
+
+STRING 209
+// Unités: h011 (Tour de garde), Hotkey (Raccourci)
+{
+A
+}
+
+STRING 210
+// Compétences: A00F (Garnison), Name (Nom)
+{
+Garrison
+}
+
+STRING 212
+// Compétences: A00G (Postes de combat), Ubertip (Aide - Normal - Etendu)
+{
+Alla raketer nära axlarna ta sin tillflykt till vakttornetoch försvara deras läger .
+}
+
+STRING 213
+// Unités: h00H (Tour de garde), EditorSuffix (Nom - Suffixe éditeur)
+{
+( Launchers axlar )
+}
+
+STRING 215
+// Compétences: A00H (Postes de combat), Ubertip (Aide - Normal - Etendu)
+{
+Alla Archers ta sin tillflykt till den närbelägna vakttornetoch försvara deras läger .
+}
+
+STRING 216
+// Unités: h00I (Tour de garde), EditorSuffix (Nom - Suffixe éditeur)
+{
+( Crossbow )
+}
+
+STRING 218
+// Compétences: A00I (Repos), Ubertip (Aide - Normal - Etendu)
+{
+Enheter som ingår i Vakttornet återuppta sin ursprungliga position .
+}
+
+STRING 219
+// Mises à jour: R00B (Collecte de bois perfectionnée,Collecte de bois avancée), Ubertip (Aide - Etendue)
+{
+\u003cRhlh
+}
+
+STRING 220
+// Mises à jour: R00B (Collecte de bois perfectionnée,Collecte de bois avancée), Ubertip (Aide - Etendue)
+{
+\u003cRhlh
+}
+
+STRING 221
+// Unités: h009 (Tour de garde), Tip (Aide - Basique)
+{
+Att bygga ett torn |cffffcc00g | RARDE
+}
+
+STRING 223
+// Unités: h00H (Tour de garde), Hotkey (Raccourci)
+{
+L
+}
+
+STRING 225
+// Unités: h00J (Tour de garde), EditorSuffix (Nom - Suffixe éditeur)
+{
+( Bis )
+}
+
+STRING 226
+// Unités: h02K (Tour de garde), EditorSuffix (Nom - Suffixe éditeur)
+{
+( Launchers axlar )
+}
+
+STRING 227
+// Unités: u00A (Tour de l'Isengard), EditorSuffix (Nom - Suffixe éditeur)
+{
+( Crossbow )
+}
+
+STRING 228
+// Unités: h017 (Artisan), Hotkey (Raccourci)
+{
+A
+}
+
+STRING 230
+// Unités: h00H (Tour de garde), Tip (Aide - Basique)
+{
+Förbättra Vakttorn med Garrison |cffffcc00L |ranceurs axlar
+}
+
+STRING 234
+// Compétences: A003 (Carreaux enflammés), Tip (Aide - Normal)
+{
+| Cffffcc00C | inflammerad rarreaux
+}
+
+STRING 235
+// Compétences: A005 (Projectiles enflammés), Ubertip (Aide - Normal - Etendu)
+{
+Projektiler gear sits är nedsänkta i en uppvärmd vätska . 
+}
+
+STRING 236
+// Unités: n002 (Chevaucheur de grizzly), Name (Nom)
+{
+Rider grizzly
+}
+
+STRING 237
+// Unités: n002 (Chevaucheur de grizzly), Tip (Aide - Basique)
+{
+Resultat av en Rider |cffffcc00g |rrizzly
+}
+
+STRING 239
+// Unités: h01J (Palantir), Hotkey (Raccourci)
+{
+C
+}
+
+STRING 244
+// Unités: h00K (Grande habitation), Name (Nom)
+{
+Stor bostad
+}
+
+STRING 245
+// Unités: h00K (Grande habitation), Tip (Aide - Basique)
+{
+Förbättra |cffffcc00G |rrande hem
+}
+
+STRING 246
+// Mises à jour: R007 (Marque de l'ours), Tip (Aide)
+{
+Sök |cffffcc00R | vråla
+}
+
+STRING 247
+// Unités: o002 (Ivrogne), Name (Nom)
+{
+Drunk
+}
+
+STRING 248
+// Unités: h006 (Barraquement), Name (Nom)
+{
+Barraquement
+}
+
+STRING 249
+// Mises à jour: R00C (Formation de Prêtre Adepte,Formation de Prêtre Maître), Name (Nom)
+{
+Träning dIvrogne amatören
+}
+
+STRING 250
+// Mises à jour: R00C (Formation de Prêtre Adepte,Formation de Prêtre Maître), Name (Nom)
+{
+Yrkesutbildning Drunkard
+}
+
+STRING 251
+// Mises à jour: R00C (Formation de Prêtre Adepte,Formation de Prêtre Maître), Tip (Aide)
+{
+| Cffffcc00F |rormation Lush Amateur
+}
+
+STRING 252
+// Mises à jour: R00C (Formation de Prêtre Adepte,Formation de Prêtre Maître), Tip (Aide)
+{
+| Cffffcc00F |rormation Lush företags
+}
+
+STRING 253
+// Unités: e000 (Frêne de Fangorn), Hotkey (Raccourci)
+{
+F
+}
+
+STRING 254
+// Unités: u003 (Forge), Hotkey (Raccourci)
+{
+F
+}
+
+STRING 255
+// Mises à jour: R00C (Formation de Prêtre Adepte,Formation de Prêtre Maître), Ubertip (Aide - Etendue)
+{
+Ökar mana återhämtningshastighetmana och slog poäng fyllerister och tillåter dem att Skingra magi .
+}
+
+STRING 256
+// Mises à jour: R00C (Formation de Prêtre Adepte,Formation de Prêtre Maître), Ubertip (Aide - Etendue)
+{
+Ökar mana återhämtningshastighetmana och slog poäng fyllerister och tillåter dem att Skingra magi .
+}
+
+STRING 257
+// Unités: h003 (Habitation), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00H |rabitation
+}
+
+STRING 258
+// Unités: h003 (Habitation), Ubertip (Aide - Etendue)
+{
+Öka gränsen för enheten som du kan träna .
+}
+
+STRING 261
+// Unités: h005 (Forge), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00F |rorge
+}
+
+STRING 262
+// Unités: h005 (Forge), Ubertip (Aide - Etendue)
+{
+Innehåller vapen uppgraderingar 
+}
+
+STRING 264
+// Unités: h006 (Barraquement), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00B |rarraquement
+}
+
+STRING 265
+// Unités: h006 (Barraquement), Hotkey (Raccourci)
+{
+B
+}
+
+STRING 266
+// Unités: h007 (Champ de tir), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00C |rhamp skytte
+}
+
+STRING 267
+// Unités: h007 (Champ de tir), Ubertip (Aide - Etendue)
+{
+Möjliggör utbildning av Bärraketer yxor och bågskyttar . 
+}
+
+STRING 268
+// Unités: o000 (Atelier de siège), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00A |rtelier sätet
+}
+
+STRING 269
+// Unités: o000 (Atelier de siège), Ubertip (Aide - Etendue)
+{
+Möjliggör utbildning av Wrecking och belägringsmaskiner . 
+}
+
+STRING 270
+// Unités: h008 (Scierie), Ubertip (Aide - Etendue)
+{
+Låter bort timmer som avverkas . 
+}
+
+STRING 271
+// Unités: h00A (Comptoir des Nains), Ubertip (Aide - Etendue)
+{
+Låter rekrytera minderåriga och ett magasin för medel som uppbärs . 
+}
+
+STRING 273
+// Unités: h00I (Tour de garde), Tip (Aide - Basique)
+{
+Förbättra Watchtower med garnison |cffffcc00A |rrbalétriers
+}
+
+STRING 274
+// Unités: h00K (Grande habitation), Hotkey (Raccourci)
+{
+G
+}
+
+STRING 275
+// Unités: h00K (Grande habitation), Ubertip (Aide - Etendue)
+{
+Expanderande bostäder och därmed orsaka fler enheter .
+}
+
+STRING 276
+// Unités: h00L (Taverne), Ubertip (Aide - Etendue)
+{
+Tillåter inköp av vissa objekt och utbildning av fyllerister .
+}
+
+STRING 277
+// Unités: h00L (Taverne), Hotkey (Raccourci)
+{
+T
+}
+
+STRING 278
+// Unités: h00L (Taverne), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00T |raverne
+}
+
+STRING 279
+// Unités: h00U (Habitation), Hotkey (Raccourci)
+{
+H
+}
+
+STRING 280
+// Mises à jour: R007 (Marque de l'ours), Hotkey (Raccourci clavier)
+{
+R
+}
+
+STRING 281
+// Unités: h019 (Archer), Hotkey (Raccourci)
+{
+A
+}
+
+STRING 282
+// Unités: h01M (Haut fourneau), Hotkey (Raccourci)
+{
+F
+}
+
+STRING 286
+// Unités: h000 (Fantassin), Ubertip (Aide - Etendue)
+{
+En mångsidig soldat kan lära sig defensiv . 
+}
+
+STRING 287
+// Unités: h001 (Garde du roi), Ubertip (Aide - Etendue)
+{
+Att ge ett kraftfullt infanteri livvakt av kungen . 
+}
+
+STRING 288
+// Unités: n000 (Hallebardier), Ubertip (Aide - Etendue)
+{
+En ganska lätt enhet för att bekämpa fiendens kavalleri . 
+}
+
+STRING 289
+// Unités: h002 (Lanceur de haches), Ubertip (Aide - Etendue)
+{
+Enhet varierade attack kan lära Assomoir . 
+}
+
+STRING 290
+// Unités: o001 (Engin de siège), Ubertip (Aide - Etendue)
+{
+En belägring vapen på långt håll 
+}
+
+STRING 291
+// Unités: h00C (Démolisseur), Ubertip (Aide - Etendue)
+{
+En sittdel specialiserad på att förstöra fiendens byggnader . 
+}
+
+STRING 292
+// Unités: h00D (Dompteur de bouc), Ubertip (Aide - Etendue)
+{
+En kraftfull monterade krigare kan lära Charge . 
+}
+
+STRING 293
+// Unités: n001 (Arbalétrier), Ubertip (Aide - Etendue)
+{
+Robust enhet varierade attack kan lära Kakel inflammerad . 
+}
+
+STRING 294
+// Unités: e001 (Mage de guerre), Ubertip (Aide - Etendue)
+{
+En kämpe och ett hjul . 
+}
+
+STRING 295
+// Unités: n002 (Chevaucheur de grizzly), Ubertip (Aide - Etendue)
+{
+En kraftfull krigare rider en björn kamp . 
+}
+
+STRING 297
+// Unités: o002 (Ivrogne), Hotkey (Raccourci)
+{
+I
+}
+
+STRING 298
+// Unités: o002 (Ivrogne), Tip (Aide - Basique)
+{
+Orsak |cffffcc00I |rvrogne
+}
+
+STRING 299
+// Unités: o002 (Ivrogne), Casterupgradename (Noms amélioration lanceur de sorts)
+{
+Initierat 
+}
+
+STRING 306
+{
+c
+}
+
+STRING 307
+{
+9
+}
+
+STRING 308
+{
+5
+}
+
+STRING 309
+{
+0
+}
+
+STRING 310
+{
+7
+}
+
+STRING 311
+{
+b
+}
+
+STRING 312
+{
+8
+}
+
+STRING 313
+{
+6
+}
+
+STRING 314
+{
+o
+}
+
+STRING 315
+{
+l
+}
+
+STRING 316
+{
+z
+}
+
+STRING 320
+{
+p
+}
+
+STRING 324
+{
+e
+}
+
+STRING 325
+{
+u
+}
+
+STRING 326
+{
+r
+}
+
+STRING 327
+{
+n
+}
+
+STRING 328
+{
+2
+}
+
+STRING 329
+{
+f
+}
+
+STRING 330
+{
+11
+}
+
+STRING 331
+{
+j
+}
+
+STRING 332
+{
+d
+}
+
+STRING 333
+{
+s
+}
+
+STRING 334
+{
+t
+}
+
+STRING 335
+{
+q
+}
+
+STRING 336
+{
+3
+}
+
+STRING 337
+{
+g
+}
+
+STRING 338
+{
+12
+}
+
+STRING 339
+{
+k
+}
+
+STRING 340
+// Unités: o002 (Ivrogne), Ubertip (Aide - Etendue)
+{
+En dvärg expert på behärskning av alkohol . 
+}
+
+STRING 341
+// Unités: o002 (Ivrogne), Casterupgradetip (Astuces amélioration lanceur de sorts)
+{
+- Fylleri - Fylleri |n- Fire Breath - Fylleri | Breath of Fire - n |n - Mate dryck
+}
+
+STRING 342
+// Compétences: A00J (Ivresse), Name (Nom)
+{
+Intoxication
+}
+
+STRING 343
+// Compétences: A00J (Ivresse), Tip (Aide - Normal)
+{
+Intoxication
+}
+
+STRING 344
+// Compétences: A00K (Compagnon de boisson), Name (Nom)
+{
+Dricka kompis
+}
+
+STRING 345
+// Compétences: A00K (Compagnon de boisson), Ubertip (Aide - Normal - Etendu)
+{
+Fiende enhet gör berusad . 
+}
+
+STRING 346
+// Compétences: A00K (Compagnon de boisson), Tip (Aide - Normal)
+{
+| Cffffcc00C | drycker rompagnon
+}
+
+STRING 347
+// Compétences: A00L (Souffle de feu), Ubertip (Aide - Normal - Etendu)
+{
+Breath en kon av brand vid fiendens enheter att orsaka skada \u003cANbf
+}
+
+STRING 348
+// Compétences: A00L (Souffle de feu), Tip (Aide - Normal)
+{
+Breath |cffffcc00f |reu
+}
+
+STRING 349
+// Enchantements/Effets: B001 (), Bufftip (Bulle d'aide)
+{
+Dricka kompis
+}
+
+STRING 350
+// Enchantements/Effets: B001 (), Buffubertip (Bulle d'aide - longue)
+{
+Denna enhet är under påverkan av drycken Mate . 
+}
+
+STRING 351
+// Unités: n00C (Chevaucheur de loup), Hotkey (Raccourci)
+{
+C
+}
+
+STRING 352
+// Unités: h00A (Comptoir des Nains), Name (Nom)
+{
+Font Dwarfs
+}
+
+STRING 353
+// Unités: h00A (Comptoir des Nains), Hotkey (Raccourci)
+{
+N
+}
+
+STRING 354
+// Unités: h00A (Comptoir des Nains), Tip (Aide - Basique)
+{
+Att bygga ett teckensnitt |cffffcc00N |regn
+}
+
+STRING 355
+// Unités: h00F (Comptoir des Nains renforcé), Name (Nom)
+{
+Font dvärgar förstärkta
+}
+
+STRING 356
+// Unités: h00G (Comptoir des Nains sur-renforcé), Name (Nom)
+{
+Counter- förstärkta dvärgar
+}
+
+STRING 357
+// Objets: I004 (Parchemin de téléportation), Tip (Aide - Basique)
+{
+Köp pergament |cffffcc00t |réléportation
+}
+
+STRING 358
+// Objets: I004 (Parchemin de téléportation), Name (Nom)
+{
+Teleport Scroll
+}
+
+STRING 359
+// Unités: e00B (Troll des cavernes), Hotkey (Raccourci)
+{
+T
+}
+
+STRING 360
+// Objets: I004 (Parchemin de téléportation), Description (Description)
+{
+Teleport trupper till en vän Font .
+}
+
+STRING 361
+// Objets: I004 (Parchemin de téléportation), Ubertip (Aide - Etendue)
+{
+Teleporterar hjälten och alla närliggande enheter Counter vän sa .
+}
+
+STRING 362
+// Objets: I000 (Arkenstone), Name (Nom)
+{
+Arkenstone
+}
+
+STRING 364
+// Unités: h01G (Arbalétrier), Hotkey (Raccourci)
+{
+A
+}
+
+STRING 365
+// Compétences: A00M (Brise armure), Name (Nom)
+{
+Bris rustning
+}
+
+STRING 366
+// Compétences: A00M (Brise armure), Tip (Aide - Normal)
+{
+| Cffffcc00B |rrise rustning
+}
+
+STRING 367
+// Compétences: A00M (Brise armure), Ubertip (Aide - Normal - Etendu)
+{
+Minskar försvar av fiendeenhetavses \u003cAfae
+}
+
+STRING 368
+// Unités: e003 (Béornide), Hotkey (Raccourci)
+{
+B
+}
+
+STRING 369
+// Unités: e008 (Berserker), Hotkey (Raccourci)
+{
+B
+}
+
+STRING 370
+// Enchantements/Effets: B000 (), Buffubertip (Bulle d'aide - longue)
+{
+Denna enhet är påverkad av skuggning rustning. 
+}
+
+STRING 371
+// Enchantements/Effets: B000 (), Bufftip (Bulle d'aide)
+{
+Bris rustning
+}
+
+STRING 372
+// Mises à jour: R00D (Marteaux des tempêtes), Tip (Aide)
+{
+Sök |cffffcc00B |rrise rustning
+}
+
+STRING 373
+// Unités: e009 (Baliste), Hotkey (Raccourci)
+{
+B
+}
+
+STRING 374
+// Mises à jour: R00D (Marteaux des tempêtes), Ubertip (Aide - Etendue)
+{
+Kungen låter vårdnadshavare att träffa fienden medan förlora sitt försvar .
+}
+
+STRING 375
+// Unités: h009 (Tour de garde), Ubertip (Aide - Etendue)
+{
+Defensiv byggnad som kan förbättras för att innehålla en garnison Bärraketer axlar eller dArbalétriers . 
+}
+
+STRING 376
+// Unités: h00H (Tour de garde), Ubertip (Aide - Etendue)
+{
+Vakttornet har förbättrats för att rymma upp till 4 Launchers axlar och därmed orsaka mer skada när du använder Assomoir kapacitet . 
+}
+
+STRING 377
+// Unités: h00I (Tour de garde), Ubertip (Aide - Etendue)
+{
+Vakttornet har förbättrats för att rymma upp till 4 bågskyttar och därmed orsaka mer skada när du använder förmåga Kakel inflammerade . 
+}
+
+STRING 378
+// Unités: h00J (Tour de garde), Ubertip (Aide - Etendue)
+{
+Gör Vakttornet garnisonen reserven . 
+}
+
+STRING 379
+// Unités: h004 (Elevage), Name (Nom)
+{
+Avels
+}
+
+STRING 380
+// Unités: h004 (Elevage), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00E |rlevage
+}
+
+STRING 381
+// Unités: o001 (Engin de siège), Hotkey (Raccourci)
+{
+E
+}
+
+STRING 382
+// Unités: H00E (Roi sous la Montagne), Propernames (Noms propres)
+{
+Tråen
+}
+
+STRING 383
+// Unités: h00M (Chantier naval), Name (Nom)
+{
+Varv
+}
+
+STRING 384
+// Unités: h00M (Chantier naval), Tip (Aide - Basique)
+{
+Bygg en webbplats |cffffcc00n | Raval
+}
+
+STRING 385
+// Unités: h00M (Chantier naval), Ubertip (Aide - Etendue)
+{
+Lets rekrytera fartyg. 
+}
+
+STRING 386
+// Unités: h00N (Cuirassé), Name (Nom)
+{
+ironclad
+}
+
+STRING 387
+// Unités: h00N (Cuirassé), Tip (Aide - Basique)
+{
+Orsak |cffffcc00C |ruirassé
+}
+
+STRING 388
+// Unités: h00N (Cuirassé), Ubertip (Aide - Etendue)
+{
+En kraftfull fartyg effektivt krig mot andra båtar och byggnader . 
+}
+
+STRING 389
+// Unités: h00O (Frégate), Name (Nom)
+{
+fregatt
+}
+
+STRING 390
+// Unités: h00O (Frégate), Tip (Aide - Basique)
+{
+Orsak |cffffcc00F |rrégate
+}
+
+STRING 391
+// Unités: h00O (Frégate), Ubertip (Aide - Etendue)
+{
+En effektiv kombi attack mot marken enheter fartyg . 
+}
+
+STRING 392
+// Unités: h00P (Transport à vapeur), Name (Nom)
+{
+Transport ånga
+}
+
+STRING 393
+// Unités: o006 (Catapulte), Hotkey (Raccourci)
+{
+C
+}
+
+STRING 396
+{
+Tål normala attacker . 
+}
+
+STRING 398
+{
+Tål piercing och magiska attacker .
+}
+
+STRING 399
+{
+Sårbara mot normalt 
+}
+
+STRING 400
+{
+Sårbara mot normalt 
+}
+
+STRING 402
+{
+Sårbara mot normalt 
+}
+
+STRING 405
+{
+Effektiv mot kavalleri och infanteri varierade attack . 
+}
+
+STRING 407
+{
+Effektiv mot infanteri närstrid och varierade attack infanteri . 
+}
+
+STRING 408
+{
+Effektiv mot strukturer .
+}
+
+STRING 409
+{
+Tål normala och piercing magiska attacker . 
+}
+
+STRING 410
+{
+Tål piercing och piercing normala magiska attacker .
+}
+
+STRING 411
+{
+Klarar tunga attacker . 
+}
+
+STRING 412
+{
+Sårbara för piercing attacker magisk och heroiska tung .
+}
+
+STRING 413
+{
+Effektiv mot infanteri mot kavalleri närstrid och varierade attack infanterisoldater.
+}
+
+STRING 414
+{
+Effektiv mot varierade attack infanteri . 
+}
+
+STRING 415
+{
+Effektiv mot närstrid infanteri och anti - kavalleri infanteri . 
+}
+
+STRING 416
+{
+Typ : | Cffffcc00Structure | R
+}
+
+STRING 418
+{
+Typ : | anti - kavalleri Cffffcc00Fantassin | R
+}
+
+STRING 419
+{
+Typ : | Cffffcc00Fantassin närstrid | R
+}
+
+STRING 420
+{
+Typ : | Cffffcc00Fantassin varierade attack | R
+}
+
+STRING 421
+{
+Enhet gräns :
+}
+
+STRING 422
+{
+Begränsa enhet :
+}
+
+STRING 423
+{
+Antal soldater :
+}
+
+STRING 424
+{
+Maximalt antal trupper :
+}
+
+STRING 425
+{
+Typ : | Cffffcc00Héroïques | R
+}
+
+STRING 426
+{
+Typ : | Cffffcc00Unité säte | R
+}
+
+STRING 427
+{
+Typ : | Cffffcc00Lourdes |r
+}
+
+STRING 428
+{
+Bygga ett skrivbord
+}
+
+STRING 429
+{
+Bygga ett skrivbord
+}
+
+STRING 430
+{
+Bygga ett skrivbord
+}
+
+STRING 431
+{
+Bygga ett skrivbord
+}
+
+STRING 432
+{
+Underhåll
+}
+
+STRING 433
+{
+Typ : | Cffffcc00Cavalier | R
+}
+
+STRING 434
+{
+Typ : | Cffffcc00Perforantes | R
+}
+
+STRING 435
+{
+Typ : | Cffffcc00Normales | R
+}
+
+STRING 436
+{
+Typ : | Cffffcc00Perçantes | R
+}
+
+STRING 441
+// Unités: h00F (Comptoir des Nains renforcé), Hotkey (Raccourci)
+{
+N
+}
+
+STRING 450
+// Mises à jour: R00H (Fusée éclairante), Hotkey (Raccourci clavier)
+{
+R
+}
+
+STRING 451
+// Unités: h00T (Grande habitation), Name (Nom)
+{
+Stor bostad
+}
+
+STRING 452
+// Unités: h00T (Grande habitation), Tip (Aide - Basique)
+{
+Förbättra |cffffcc00G |rrande hem
+}
+
+STRING 453
+// Unités: h00T (Grande habitation), Hotkey (Raccourci)
+{
+G
+}
+
+STRING 454
+// Unités: h00T (Grande habitation), Ubertip (Aide - Etendue)
+{
+Expanderande bostäder och därmed orsaka fler enheter .
+}
+
+STRING 455
+// Unités: h00U (Habitation), Name (Nom)
+{
+Start
+}
+
+STRING 456
+// Unités: h00U (Habitation), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00H |rabitation
+}
+
+STRING 457
+// Unités: h00U (Habitation), Ubertip (Aide - Etendue)
+{
+Öka gränsen för enheten som du kan träna .
+}
+
+STRING 461
+// Unités: h00W (Entrepot), Ubertip (Aide - Etendue)
+{
+Låter bort timmer som avverkas . 
+}
+
+STRING 462
+// Unités: h00X (Forge), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00F |rorge
+}
+
+STRING 467
+// Unités: h00Q (Comptoir des Elfes), Hotkey (Raccourci)
+{
+E
+}
+
+STRING 471
+// Unités: h010 (Tour de garde), Tip (Aide - Basique)
+{
+Att bygga ett torn |cffffcc00g | RARDE
+}
+
+STRING 472
+// Unités: h010 (Tour de garde), Ubertip (Aide - Etendue)
+{
+Defensiv byggnad som kan förbättras för att innehålla en garnison Bärraketer axlar eller dArbalétriers . 
+}
+
+STRING 478
+// Unités: h013 (Tour de garde), EditorSuffix (Nom - Suffixe éditeur)
+{
+( Bis )
+}
+
+STRING 479
+// Unités: h013 (Tour de garde), Ubertip (Aide - Etendue)
+{
+Gör Vakttornet garnisonen reserven . 
+}
+
+STRING 488
+// Unités: h015 (Port), Ubertip (Aide - Etendue)
+{
+Lets rekrytera fartyg. 
+}
+
+STRING 492
+// Unités: u00C (Hutte), Hotkey (Raccourci)
+{
+H
+}
+
+STRING 493
+// Unités: O008 (Commandant Gobelin), Hotkey (Raccourci)
+{
+C
+}
+
+STRING 495
+// Unités: u007 (Atelier de siège), Hotkey (Raccourci)
+{
+A
+}
+
+STRING 496
+// Unités: n00B (Archer de Gundabad), Hotkey (Raccourci)
+{
+A
+}
+
+STRING 497
+// Unités: h02F (Forge), Hotkey (Raccourci)
+{
+F
+}
+
+STRING 499
+// Unités: H016 (Ranger de la foret), Name (Nom)
+{
+Ranger av skogen
+}
+
+STRING 504
+// Unités: h01F (Guerrier en armure), Ubertip (Aide - Etendue)
+{
+En mångsidig soldat kan lära sig defensiv . 
+}
+
+STRING 505
+{
+Force 2
+}
+
+STRING 506
+{
+Force 3
+}
+
+STRING 507
+{
+Force 4
+}
+
+STRING 508
+// Unités: h00F (Comptoir des Nains renforcé), Ubertip (Aide - Etendue)
+{
+Lås upp nya byggnader 
+}
+
+STRING 515
+// Unités: n003 (Piquier), Ubertip (Aide - Etendue)
+{
+En ganska lätt enhet för att bekämpa fiendens kavalleri . 
+}
+
+STRING 518
+// Unités: h01A (Garde monté), Ubertip (Aide - Etendue)
+{
+En kraftfull monterade krigare kan lära Charge . 
+}
+
+STRING 520
+// Objets: I000 (Arkenstone), Tip (Aide - Basique)
+{
+Köp |cffffcc00A |rrkenstone
+}
+
+STRING 526
+// Unités: e003 (Béornide), Name (Nom)
+{
+Béornide
+}
+
+STRING 527
+// Unités: e004 (Béornide), Name (Nom)
+{
+Béornide
+}
+
+STRING 528
+// Compétences: A00N (Forme d'ours), Name (Nom)
+{
+Bear Form
+}
+
+STRING 532
+// Unités: h01Q (Araignée géante), Hotkey (Raccourci)
+{
+A
+}
+
+STRING 535
+// Unités: h01A (Garde monté), Hotkey (Raccourci)
+{
+G
+}
+
+STRING 536
+// Unités: h01H (Eclaireur), Ubertip (Aide - Etendue)
+{
+Att ge ett kraftfullt infanteri livvakt av kungen . 
+}
+
+STRING 537
+// Compétences: A00O (Arme 02), Name (Nom)
+{
+Vapen 02
+}
+
+STRING 538
+// Unités: h00Q (Comptoir des Elfes), Name (Nom)
+{
+Font Elves
+}
+
+STRING 539
+// Unités: h00Q (Comptoir des Elfes), Tip (Aide - Basique)
+{
+Att bygga ett teckensnitt |cffffcc00E |rlfes
+}
+
+STRING 540
+// Unités: h00Q (Comptoir des Elfes), Ubertip (Aide - Etendue)
+{
+Låter rekrytera hantverkare och magasin för de insamlade medlen . 
+}
+
+STRING 541
+// Unités: h00R (Comptoir des Elfes renforcé), Tip (Aide - Basique)
+{
+Förbättra Tecken |cffffcc00E |rlfes förstärkt
+}
+
+STRING 542
+// Unités: h00R (Comptoir des Elfes renforcé), Name (Nom)
+{
+Font Elves förstärkta
+}
+
+STRING 543
+// Unités: h00R (Comptoir des Elfes renforcé), Hotkey (Raccourci)
+{
+E
+}
+
+STRING 544
+// Unités: h00S (Comptoir des Elfes sur-renforcé), Tip (Aide - Basique)
+{
+Förbättra Tecken |cffffcc00E |rlfes sur förstärkta
+}
+
+STRING 545
+// Unités: h00S (Comptoir des Elfes sur-renforcé), Name (Nom)
+{
+Elves kontra förstärkta
+}
+
+STRING 546
+// Unités: h00S (Comptoir des Elfes sur-renforcé), Hotkey (Raccourci)
+{
+E
+}
+
+STRING 547
+// Unités: h00W (Entrepot), Name (Nom)
+{
+Warehouse
+}
+
+STRING 549
+// Unités: h00Y (Ecurie), Name (Nom)
+{
+Ecurie
+}
+
+STRING 550
+// Unités: h00Y (Ecurie), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00E |rcurie
+}
+
+STRING 551
+// Unités: h00Y (Ecurie), Hotkey (Raccourci)
+{
+E
+}
+
+STRING 552
+// Unités: h00Z (Archerie), Name (Nom)
+{
+bågskytte
+}
+
+STRING 553
+// Unités: h00Z (Archerie), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00A |rrcherie
+}
+
+STRING 554
+// Unités: h011 (Tour de garde), EditorSuffix (Nom - Suffixe éditeur)
+{
+( Bågskyttar )
+}
+
+STRING 555
+// Unités: h011 (Tour de garde), Tip (Aide - Basique)
+{
+Förbättra Watchtower med garnison |cffffcc00A |rrchers
+}
+
+STRING 556
+// Unités: h012 (Tour de garde), EditorSuffix (Nom - Suffixe éditeur)
+{
+( Girl Scout )
+}
+
+STRING 557
+// Unités: h012 (Tour de garde), Tip (Aide - Basique)
+{
+Förbättra Watchtower med garnison |cffffcc00E |rclaireuses
+}
+
+STRING 558
+// Unités: h012 (Tour de garde), Hotkey (Raccourci)
+{
+E
+}
+
+STRING 561
+// Unités: h015 (Port), Name (Nom)
+{
+Port
+}
+
+STRING 562
+// Unités: h015 (Port), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00P |rort
+}
+
+STRING 563
+// Unités: h017 (Artisan), Name (Nom)
+{
+Hantverkare
+}
+
+STRING 564
+// Unités: h017 (Artisan), Tip (Aide - Basique)
+{
+Orsak |cffffcc00A |rrtisan
+}
+
+STRING 565
+// Unités: h018 (Epéiste), Name (Nom)
+{
+Swordsman
+}
+
+STRING 566
+// Unités: h018 (Epéiste), Hotkey (Raccourci)
+{
+E
+}
+
+STRING 567
+// Unités: h018 (Epéiste), Tip (Aide - Basique)
+{
+Orsak |cffffcc00E |rpéiste
+}
+
+STRING 568
+// Unités: h019 (Archer), Name (Nom)
+{
+Archer
+}
+
+STRING 569
+// Unités: h019 (Archer), Tip (Aide - Basique)
+{
+Orsak |cffffcc00A |rrcher
+}
+
+STRING 570
+// Unités: n003 (Piquier), Name (Nom)
+{
+piker
+}
+
+STRING 571
+// Unités: n003 (Piquier), Tip (Aide - Basique)
+{
+Orsak |cffffcc00P | Riquier
+}
+
+STRING 572
+// Unités: n003 (Piquier), Hotkey (Raccourci)
+{
+P
+}
+
+STRING 573
+// Unités: h01A (Garde monté), Name (Nom)
+{
+Guard monterad
+}
+
+STRING 574
+// Unités: h01A (Garde monté), Tip (Aide - Basique)
+{
+Orsak | monterad RARDE |cffffcc00G
+}
+
+STRING 575
+// Unités: e000 (Frêne de Fangorn), Name (Nom)
+{
+Aska Fangorn
+}
+
+STRING 576
+// Unités: e000 (Frêne de Fangorn), Tip (Aide - Basique)
+{
+Orsak |cffffcc00F |rrêne Fangorn
+}
+
+STRING 577
+// Unités: e002 (Chêne de Fangorn), Name (Nom)
+{
+Oak Fangorn
+}
+
+STRING 578
+// Unités: e002 (Chêne de Fangorn), Tip (Aide - Basique)
+{
+Orsak |cffffcc00C | Rhené Fangorn
+}
+
+STRING 579
+// Unités: n004 (Eclaireuse), Name (Nom)
+{
+Girl Scout
+}
+
+STRING 580
+// Unités: n004 (Eclaireuse), Tip (Aide - Basique)
+{
+Orsak |cffffcc00E |rclaireuse
+}
+
+STRING 581
+// Unités: n004 (Eclaireuse), Hotkey (Raccourci)
+{
+E
+}
+
+STRING 582
+// Unités: h01B (Guerrier), Name (Nom)
+{
+Warrior
+}
+
+STRING 583
+// Unités: h01B (Guerrier), Tip (Aide - Basique)
+{
+Orsak |cffffcc00G |ruerrier
+}
+
+STRING 584
+// Unités: h01B (Guerrier), Hotkey (Raccourci)
+{
+G
+}
+
+STRING 585
+// Unités: e005 (Barge), Name (Nom)
+{
+Barge
+}
+
+STRING 586
+// Unités: e006 (Navire de guerre), Name (Nom)
+{
+Örlogsfartyg
+}
+
+STRING 587
+// Unités: e007 (Trois-mats des Havres Gris ), Name (Nom)
+{
+Tremastad Grey Havens
+}
+
+STRING 588
+// Unités: n005 (Piquier), Hotkey (Raccourci)
+{
+P
+}
+
+STRING 589
+// Unités: o009 (Comptoir des Gobelins), Hotkey (Raccourci)
+{
+C
+}
+
+STRING 590
+// Unités: h01V (Tour de garde), Hotkey (Raccourci)
+{
+A
+}
+
+STRING 591
+// Compétences: A016 (Flêche de Morgul), Researchhotkey (Raccourci - Apprendre)
+{
+F
+}
+
+STRING 594
+// Compétences: A00I (Repos), EditorSuffix (Suffixe éditeur)
+{
+( Dwarf )
+}
+
+STRING 595
+// Compétences: A00P (Postes de combat), Ubertip (Aide - Normal - Etendu)
+{
+Alla bågskyttar släktingar tog sin tillflykt till vakttornetoch försvara deras läger .
+}
+
+STRING 596
+// Compétences: A00P (Postes de combat), EditorSuffix (Suffixe éditeur)
+{
+( Bågskyttar )
+}
+
+STRING 597
+// Compétences: A00Q (Postes de combat), Ubertip (Aide - Normal - Etendu)
+{
+Scouter runt om ta sin tillflykt i vakttornetoch försvara deras läger .
+}
+
+STRING 598
+// Compétences: A00Q (Postes de combat), EditorSuffix (Suffixe éditeur)
+{
+( Scouterna )
+}
+
+STRING 599
+// Compétences: A00R (Repos), Ubertip (Aide - Normal - Etendu)
+{
+Enheter som ingår i Vakttornet återuppta sin ursprungliga position .
+}
+
+STRING 600
+// Unités: h014 (Refuge), Name (Nom)
+{
+Refuge
+}
+
+STRING 602
+// Unités: h014 (Refuge), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00R | efuge
+}
+
+STRING 603
+// Mises à jour: R00F (Formation Druide-ours Adepte,Formation Druide-ours Maître), Name (Nom)
+{
+Adept utbildning Béornide
+}
+
+STRING 604
+// Mises à jour: R00F (Formation Druide-ours Adepte,Formation Druide-ours Maître), Ubertip (Aide - Etendue)
+{
+Ökar mana återhämtning hastighet av mana 
+}
+
+STRING 605
+// Mises à jour: R00F (Formation Druide-ours Adepte,Formation Druide-ours Maître), Ubertip (Aide - Etendue)
+{
+Ökar mana återhämtning hastighet av mana 
+}
+
+STRING 606
+// Mises à jour: R00F (Formation Druide-ours Adepte,Formation Druide-ours Maître), Name (Nom)
+{
+Lärarutbildning Béornide
+}
+
+STRING 607
+// Mises à jour: R00F (Formation Druide-ours Adepte,Formation Druide-ours Maître), Tip (Aide)
+{
+| Cffffcc00F |rormation Béornide Adept
+}
+
+STRING 608
+// Mises à jour: R00F (Formation Druide-ours Adepte,Formation Druide-ours Maître), Tip (Aide)
+{
+| Cffffcc00F |rormation Béornide ledar
+}
+
+STRING 609
+// Compétences: A00N (Forme d'ours), Ubertip (Aide - Normal - Etendu)
+{
+Metamorphosis i Béornide björnen 
+}
+
+STRING 610
+// Compétences: A00N (Forme d'ours), Untip (Aide - Off)
+{
+| Cffffcc00F |rorme av Béornide
+}
+
+STRING 611
+// Compétences: A00N (Forme d'ours), Unubertip (Aide - Off - Etendu)
+{
+Gör Béornide sin normala form .
+}
+
+STRING 612
+// Compétences: A00U (Flèches empoisonnées), Name (Nom)
+{
+förgiftade pilar
+}
+
+STRING 613
+// Compétences: A00U (Flèches empoisonnées), Tip (Aide - Normal)
+{
+förgiftade pilar
+}
+
+STRING 614
+// Compétences: A00V (Reconnaissance), Tip (Aide - Normal)
+{
+| Cffffcc00R | erkännande
+}
+
+STRING 615
+// Compétences: A00V (Reconnaissance), Ubertip (Aide - Normal - Etendu)
+{
+Kallelse en uggla som kan känna igen ett område på kartan | . NVoit osynliga enheter . 
+}
+
+STRING 619
+// Mises à jour: R00H (Fusée éclairante), Name (Nom)
+{
+erkännande
+}
+
+STRING 620
+// Mises à jour: R00M (Filet), Hotkey (Raccourci clavier)
+{
+R
+}
+
+STRING 621
+// Mises à jour: R00H (Fusée éclairante), Tip (Aide)
+{
+Sök |cffffcc00R | erkännande
+}
+
+STRING 622
+// Mises à jour: R00H (Fusée éclairante), Ubertip (Aide - Etendue)
+{
+Ger scouterna möjlighet att skicka ett fint erkännande för 60 sekunder . 
+}
+
+STRING 623
+// Unités: o003 (Clairière des Ents), Name (Nom)
+{
+Clearing Ents
+}
+
+STRING 624
+// Unités: o003 (Clairière des Ents), Tip (Aide - Basique)
+{
+Build a |cffffcc00C |rlairière Ents
+}
+
+STRING 625
+// Unités: o003 (Clairière des Ents), Ubertip (Aide - Etendue)
+{
+Möjliggör utbildning av ekar och askar av Fangorn . 
+}
+
+STRING 626
+// Compétences: A00W (Charge), Tip (Aide - Normal)
+{
+| Cffffcc00C |rharge
+}
+
+STRING 628
+// Compétences: A00W (Charge), Researchtip (Aide - Apprendre)
+{
+| Cffffcc00C |rharge !
+}
+
+STRING 629
+// Compétences: A00W (Charge), Researchubertip (Aide - Apprendre - Etendu)
+{
+| Cffffcc00C |rharge !
+}
+
+STRING 630
+// Compétences: A00W (Charge), Untip (Aide - Off)
+{
+| Cffffcc00C |rharge
+}
+
+STRING 631
+// Compétences: A00N (Forme d'ours), EditorSuffix (Suffixe éditeur)
+{
+( Silvan )
+}
+
+STRING 632
+// Compétences: A00Y (Ecorce durcie), Name (Nom)
+{
+Bark härdade
+}
+
+STRING 633
+// Compétences: A00Y (Ecorce durcie), Tip (Aide - Normal)
+{
+Bark härdade
+}
+
+STRING 634
+// Compétences: A00Y (Ecorce durcie), Ubertip (Aide - Normal - Etendu)
+{
+Minskar skador fattas av Ents \u003cAssk
+}
+
+STRING 635
+// Compétences: A00Z (Epines), Name (Nom)
+{
+Thorns
+}
+
+STRING 636
+// Compétences: A00Z (Epines), Ubertip (Aide - Normal - Etendu)
+{
+Ryggar fogar Ents \u003cANth
+}
+
+STRING 637
+// Compétences: A02A (Charge), Name (Nom)
+{
+Belastning
+}
+
+STRING 638
+// Unités: h02H (Archerie), Hotkey (Raccourci)
+{
+C
+}
+
+STRING 639
+// Compétences: A003 (Carreaux enflammés), Hotkey (Raccourci - Normal)
+{
+C
+}
+
+STRING 640
+// Mises à jour: R004 (Folie furieuse), Name (Nom)
+{
+Belastning
+}
+
+STRING 641
+// Mises à jour: R00I (Folie furieuse), Tip (Aide)
+{
+Sök |cffffcc00C |rharge
+}
+
+STRING 642
+// Compétences: A003 (Carreaux enflammés), Unhotkey (Raccourci - Off)
+{
+C
+}
+
+STRING 643
+// Mises à jour: R00I (Folie furieuse), Ubertip (Aide - Etendue)
+{
+Ger vakterna monterade sera inflliger belastning som gör skada på fiendens enheter .
+}
+
+STRING 644
+// Mises à jour: R00J (Dégâts supplémentaires des Tambours de guerre), Name (Nom)
+{
+Kritisk Hit
+}
+
+STRING 645
+// Compétences: A009 (Charge), Hotkey (Raccourci - Normal)
+{
+C
+}
+
+STRING 646
+// Mises à jour: R00J (Dégâts supplémentaires des Tambours de guerre), Tip (Aide)
+{
+Sök |cffffcc00C |roup kritisk
+}
+
+STRING 647
+// Mises à jour: R00J (Dégâts supplémentaires des Tambours de guerre), Ubertip (Aide - Etendue)
+{
+Perpet den Svärdsmän av attquer medan inligeant av cirtiques träffar målet .
+}
+
+STRING 648
+// Mises à jour: R00K (Peau dure), Name (Nom)
+{
+Bark härdade
+}
+
+STRING 649
+// Mises à jour: R00K (Peau dure), Tip (Aide)
+{
+Sök Bark |cffffcc00d |rdurcie
+}
+
+STRING 650
+// Mises à jour: R00K (Peau dure), Ubertip (Aide - Etendue)
+{
+Ents ger överlägsen motståndskraft mot skador .
+}
+
+STRING 651
+// Mises à jour: R00K (Peau dure), Hotkey (Raccourci clavier)
+{
+D
+}
+
+STRING 652
+// Mises à jour: R00L (Barricades d'épieux,Barricades d'épieux perfectionnées,Barricades d'épieux ), Name (Nom)
+{
+Thorns
+}
+
+STRING 653
+// Mises à jour: R00L (Barricades d'épieux,Barricades d'épieux perfectionnées,Barricades d'épieux ), Tip (Aide)
+{
+Sök |cffffcc00E |rpines
+}
+
+STRING 654
+// Unités: h01H (Eclaireur), Hotkey (Raccourci)
+{
+E
+}
+
+STRING 655
+// Mises à jour: R00L (Barricades d'épieux,Barricades d'épieux perfectionnées,Barricades d'épieux ), Ubertip (Aide - Etendue)
+{
+Omger enterna av Thorns som orsakar 30 % av skador fick till angriparen .
+}
+
+STRING 656
+// Compétences: A010 (Racines), Name (Nom)
+{
+Rötter
+}
+
+STRING 657
+// Compétences: A010 (Racines), Tip (Aide - Normal)
+{
+| Cffffcc00R |rötter
+}
+
+STRING 658
+// Compétences: A010 (Racines), Ubertip (Aide - Normal - Etendu)
+{
+Rötter uppstår från marken 
+}
+
+STRING 659
+// Compétences: A011 (Sacrifice sylvestre), Tip (Aide - Normal)
+{
+| Cffffcc00S | skotsk racrifice
+}
+
+STRING 660
+// Unités: n00D (Semi-troll), Hotkey (Raccourci)
+{
+S
+}
+
+STRING 662
+// Mises à jour: R00M (Filet), Name (Nom)
+{
+Rötter
+}
+
+STRING 664
+// Mises à jour: R00M (Filet), Tip (Aide)
+{
+Sök |cffffcc00R |rötter
+}
+
+STRING 665
+// Mises à jour: R00M (Filet), Ubertip (Aide - Etendue)
+{
+Fangorn gör aska skjuta Rötter jord 
+}
+
+STRING 666
+// Mises à jour: R00N (Puits de printemps), Name (Nom)
+{
+Sacrifice Scots
+}
+
+STRING 667
+// Mises à jour: R00N (Puits de printemps), Tip (Aide)
+{
+Sök |cffffcc00S | Scots racrifice
+}
+
+STRING 668
+// Mises à jour: R00N (Puits de printemps), Ubertip (Aide - Etendue)
+{
+Tillåter Oaks Fangorn lansering Sacrifice skottar ett träd för att ta liv .
+}
+
+STRING 669
+// Compétences: A011 (Sacrifice sylvestre), Hotkey (Raccourci - Normal)
+{
+S
+}
+
+STRING 670
+// Mises à jour: R00O (Force de la lune,Force supérieure de la lune,Force grandiose de la lune), Name (Nom)
+{
+Armes vitt stål
+}
+
+STRING 671
+// Mises à jour: R00O (Force de la lune,Force supérieure de la lune,Force grandiose de la lune), Name (Nom)
+{
+Mithril vapen
+}
+
+STRING 672
+// Mises à jour: R00O (Force de la lune,Force supérieure de la lune,Force grandiose de la lune), Name (Nom)
+{
+Vapen Galvorn
+}
+
+STRING 673
+// Mises à jour: R00O (Force de la lune,Force supérieure de la lune,Force grandiose de la lune), Tip (Aide)
+{
+Förbättra |cffffcc00A |rrmes vitt stål
+}
+
+STRING 674
+// Mises à jour: R00O (Force de la lune,Force supérieure de la lune,Force grandiose de la lune), Tip (Aide)
+{
+Förbättra |cffffcc00A |rrmes Mithril
+}
+
+STRING 675
+// Mises à jour: R00O (Force de la lune,Force supérieure de la lune,Force grandiose de la lune), Tip (Aide)
+{
+Förbättra |cffffcc00A |rrmes av Galvorn
+}
+
+STRING 676
+// Mises à jour: R00O (Force de la lune,Force supérieure de la lune,Force grandiose de la lune), Ubertip (Aide - Etendue)
+{
+Ökar de skador som den Wood Elves .
+}
+
+STRING 677
+// Mises à jour: R00O (Force de la lune,Force supérieure de la lune,Force grandiose de la lune), Ubertip (Aide - Etendue)
+{
+Vidare uppgraderar skadan behandlas av Wood Elves .
+}
+
+STRING 678
+// Mises à jour: R00O (Force de la lune,Force supérieure de la lune,Force grandiose de la lune), Ubertip (Aide - Etendue)
+{
+Vidare uppgraderar skadan behandlas av Wood Elves .
+}
+
+STRING 679
+// Unités: h027 (Ranger), Hotkey (Raccourci)
+{
+A
+}
+
+STRING 680
+// Unités: h02J (Tour de garde), Hotkey (Raccourci)
+{
+A
+}
+
+STRING 681
+// Unités: o00I (Atelier de siège), Hotkey (Raccourci)
+{
+A
+}
+
+STRING 682
+// Mises à jour: R00P (Cuir renforcé,Cuir supérieur,Cuir grandiose), Tip (Aide)
+{
+Förbättra |cffffcc00C |ruir garvat
+}
+
+STRING 683
+// Mises à jour: R00P (Cuir renforcé,Cuir supérieur,Cuir grandiose), Tip (Aide)
+{
+Förbättra |cffffcc00C |ruir förstärkt
+}
+
+STRING 684
+// Mises à jour: R00P (Cuir renforcé,Cuir supérieur,Cuir grandiose), Tip (Aide)
+{
+Förbättra |cffffcc00C |ruir supérireur
+}
+
+STRING 685
+// Mises à jour: R00P (Cuir renforcé,Cuir supérieur,Cuir grandiose), Name (Nom)
+{
+läder
+}
+
+STRING 686
+// Mises à jour: R00P (Cuir renforcé,Cuir supérieur,Cuir grandiose), Name (Nom)
+{
+Förstärkt läder
+}
+
+STRING 687
+// Mises à jour: R00P (Cuir renforcé,Cuir supérieur,Cuir grandiose), Name (Nom)
+{
+garvat läder
+}
+
+STRING 688
+// Mises à jour: R00P (Cuir renforcé,Cuir supérieur,Cuir grandiose), Ubertip (Aide - Etendue)
+{
+Ökar försvar av Sylvan Elves .
+}
+
+STRING 689
+// Mises à jour: R00P (Cuir renforcé,Cuir supérieur,Cuir grandiose), Ubertip (Aide - Etendue)
+{
+Vidare ökar försvaret av Sylvan Elves .
+}
+
+STRING 690
+// Mises à jour: R00P (Cuir renforcé,Cuir supérieur,Cuir grandiose), Ubertip (Aide - Etendue)
+{
+Vidare ökar försvaret av Sylvan Elves .
+}
+
+STRING 691
+// Compétences: A009 (Charge), Researchhotkey (Raccourci - Apprendre)
+{
+C
+}
+
+STRING 692
+// Compétences: A00K (Compagnon de boisson), Hotkey (Raccourci - Normal)
+{
+C
+}
+
+STRING 693
+// Compétences: A00W (Charge), Hotkey (Raccourci - Normal)
+{
+C
+}
+
+STRING 695
+// Unités: h01C (Prêtresse de la foret), Name (Nom)
+{
+Priestess av skogen
+}
+
+STRING 696
+// Unités: h01C (Prêtresse de la foret), Casterupgradetip (Astuces amélioration lanceur de sorts)
+{
+- Långsam - Långsam |n- Dispel Magic - Långsam |n- Dispel Magi |n- Polymorph
+}
+
+STRING 697
+// Unités: h01C (Prêtresse de la foret), Ubertip (Aide - Etendue)
+{
+En mycket mångsidig spell caster . 
+}
+
+STRING 698
+// Unités: h01C (Prêtresse de la foret), Tip (Aide - Basique)
+{
+Orsak |cffffcc00P |rrêtresse skogen
+}
+
+STRING 699
+// Mises à jour: R00Q (Formation de Prêtre Adepte,Formation de Prêtre Maître), Name (Nom)
+{
+Utbildning Priestess av skogen Follower
+}
+
+STRING 700
+// Mises à jour: R00Q (Formation de Prêtre Adepte,Formation de Prêtre Maître), Tip (Aide)
+{
+| Cffffcc00F |rormation Priestess av skogen Follower
+}
+
+STRING 701
+// Mises à jour: R00Q (Formation de Prêtre Adepte,Formation de Prêtre Maître), Tip (Aide)
+{
+| Cffffcc00F |rormation Priestess Mästare av skogen
+}
+
+STRING 702
+// Compétences: A016 (Flêche de Morgul), Hotkey (Raccourci - Normal)
+{
+F
+}
+
+STRING 703
+// Compétences: A01L (Filet), Hotkey (Raccourci - Normal)
+{
+F
+}
+
+STRING 704
+// Mises à jour: R00Q (Formation de Prêtre Adepte,Formation de Prêtre Maître), Name (Nom)
+{
+Priestess av utbildningen borra Maitre
+}
+
+STRING 705
+// Mises à jour: R00Q (Formation de Prêtre Adepte,Formation de Prêtre Maître), Ubertip (Aide - Etendue)
+{
+Ökar mana återhämtningshastighetmana och träffpoäng Priestesses i skogen och ger dem möjlighet att starta Skingra magi .
+}
+
+STRING 706
+// Mises à jour: R00Q (Formation de Prêtre Adepte,Formation de Prêtre Maître), Ubertip (Aide - Etendue)
+{
+Ökar mana återhämtningshastighetmana och slog punkter prästinnor skogen och ger dem möjlighet att starta Polymorph .
+}
+
+STRING 707
+// Mises à jour: R00R (Collecte de bois perfectionnée,Collecte de bois avancée), Ubertip (Aide - Etendue)
+{
+\u003cRhlh
+}
+
+STRING 708
+// Mises à jour: R00R (Collecte de bois perfectionnée,Collecte de bois avancée), Ubertip (Aide - Etendue)
+{
+\u003cRhlh
+}
+
+STRING 709
+// Unités: h00W (Entrepot), Tip (Aide - Basique)
+{
+Att bygga en E |cffffcc00n |rtrepot
+}
+
+STRING 710
+{
+| C00FFFFFFIsengard |r
+}
+
+STRING 714
+// Unités: n005 (Piquier), Name (Nom)
+{
+piker
+}
+
+STRING 715
+// Unités: n005 (Piquier), Tip (Aide - Basique)
+{
+Orsak |cffffcc00P | Riquier
+}
+
+STRING 716
+// Unités: n005 (Piquier), Ubertip (Aide - Etendue)
+{
+En ganska lätt enhet för att bekämpa fiendens kavalleri . 
+}
+
+STRING 720
+// Unités: u008 (Poudrerie), Hotkey (Raccourci)
+{
+P
+}
+
+STRING 721
+// Unités: o00D (Camp d'entrainement), Hotkey (Raccourci)
+{
+E
+}
+
+STRING 722
+// Objets: I000 (Arkenstone), Hotkey (Raccourci)
+{
+A
+}
+
+STRING 727
+// Unités: n007 (Kamikaze), Name (Nom)
+{
+Kamikaze
+}
+
+STRING 730
+// Unités: h01F (Guerrier en armure), Hotkey (Raccourci)
+{
+G
+}
+
+STRING 732
+// Compétences: A00S (Récupération), EditorSuffix (Suffixe éditeur)
+{
+( Silvan )
+}
+
+STRING 733
+// Compétences: A00T (Rugissement), EditorSuffix (Suffixe éditeur)
+{
+( Silvan )
+}
+
+STRING 734
+// Compétences: A014 (Bouclier divin), EditorSuffix (Suffixe éditeur)
+{
+( Dvärgar )
+}
+
+STRING 735
+// Mises à jour: R00D (Marteaux des tempêtes), Name (Nom)
+{
+Bris rustning
+}
+
+STRING 736
+// Compétences: A00W (Charge), EditorSuffix (Suffixe éditeur)
+{
+( Silvan )
+}
+
+STRING 737
+// Unités: H016 (Ranger de la foret), Propernames (Noms propres)
+{
+Legolas
+}
+
+STRING 738
+// Compétences: A015 (Tourbillon de lames), Researchubertip (Aide - Apprendre - Etendu)
+{
+Ranger skogens projekt en mängd blad på fiender i närheten . 
+}
+
+STRING 739
+// Compétences: A015 (Tourbillon de lames), Ubertip (Aide - Normal - Etendu)
+{
+Ranger skogens projekt en mängd blad på fiender i närheten . 
+}
+
+STRING 740
+// Compétences: A015 (Tourbillon de lames), Ubertip (Aide - Normal - Etendu)
+{
+Ranger skogens projekt en mängd blad på fiender i närheten . 
+}
+
+STRING 741
+// Compétences: A015 (Tourbillon de lames), Ubertip (Aide - Normal - Etendu)
+{
+Ranger skogens projekt en mängd blad på fiender i närheten . 
+}
+
+STRING 742
+// Compétences: A015 (Tourbillon de lames), Tip (Aide - Normal)
+{
+Vortex |cffffcc00l | Rodd -  |cffffcc00niveau 1 |r 
+}
+
+STRING 743
+// Compétences: A015 (Tourbillon de lames), EditorSuffix (Suffixe éditeur)
+{
+( Silvan )
+}
+
+STRING 744
+// Compétences: A016 (Flêche de Morgul), Name (Nom)
+{
+Arrow Morgul
+}
+
+STRING 745
+// Compétences: A016 (Flêche de Morgul), Researchtip (Aide - Apprendre)
+{
+Lärande |cffffcc00F |rlêche Morgul -  |cffffcc00niveau % d |r 
+}
+
+STRING 746
+// Compétences: A016 (Flêche de Morgul), Researchubertip (Aide - Apprendre - Etendu)
+{
+Sköt en pil gift som behandlar stora ursprungliga skadan 
+}
+
+STRING 747
+// Compétences: A016 (Flêche de Morgul), Tip (Aide - Normal)
+{
+| Cffffcc00F |rlêche Morgul -  |cffffcc00niveau 1 |r 
+}
+
+STRING 748
+// Compétences: A016 (Flêche de Morgul), Tip (Aide - Normal)
+{
+| Cffffcc00F |rlêche Morgul -  |cffffcc00niveau 2 |r 
+}
+
+STRING 749
+// Compétences: A016 (Flêche de Morgul), Tip (Aide - Normal)
+{
+| Cffffcc00F |rlêche Morgul -  |cffffcc00niveau 3 |r 
+}
+
+STRING 750
+// Compétences: A016 (Flêche de Morgul), Ubertip (Aide - Normal - Etendu)
+{
+En förgiftad pil hit med en skrämmande kraft en mark fiende enhet 
+}
+
+STRING 751
+// Compétences: A016 (Flêche de Morgul), Ubertip (Aide - Normal - Etendu)
+{
+En förgiftad pil hit med en skrämmande kraft en mark fiende enhet 
+}
+
+STRING 752
+// Compétences: A016 (Flêche de Morgul), Ubertip (Aide - Normal - Etendu)
+{
+En förgiftad pil hit med en skrämmande kraft en mark fiende enhet 
+}
+
+STRING 753
+// Enchantements/Effets: B002 (Flêche de Morgul), EditorName (Nom (dans l'éditeur))
+{
+Arrow Morgul
+}
+
+STRING 754
+// Enchantements/Effets: B002 (Flêche de Morgul), Bufftip (Bulle d'aide)
+{
+Arrow Morgul
+}
+
+STRING 755
+// Enchantements/Effets: B002 (Flêche de Morgul), Buffubertip (Bulle d'aide - longue)
+{
+Denna enhet har påverkats av en Fleche Morgul 
+}
+
+STRING 756
+// Compétences: A01L (Filet), Researchhotkey (Raccourci - Apprendre)
+{
+F
+}
+
+STRING 757
+// Compétences: A01Q (Flèches tranquilisantes), Hotkey (Raccourci - Normal)
+{
+F
+}
+
+STRING 758
+// Compétences: A017 (Tir multiple), Name (Nom)
+{
+Multiple skytte
+}
+
+STRING 762
+// Compétences: A017 (Tir multiple), Tip (Aide - Normal)
+{
+ C  Split Shot -  |cffffcc00Level 2 |r 
+}
+
+STRING 763
+// Compétences: A017 (Tir multiple), Tip (Aide - Normal)
+{
+ C  Split Shot -  |cffffcc00Level 3 |r 
+}
+
+STRING 765
+// Compétences: A017 (Tir multiple), Ubertip (Aide - Normal - Etendu)
+{
+Delar upp till 6 pilar i en ledning framför Ranger . 
+}
+
+STRING 766
+// Compétences: A017 (Tir multiple), Ubertip (Aide - Normal - Etendu)
+{
+Delar upp till 9 pilar i en ledning framför Ranger . 
+}
+
+STRING 768
+// Compétences: A017 (Tir multiple), Researchtip (Aide - Apprendre)
+{
+Kunskap |cffffcc00T | Multiple ER
+}
+
+STRING 769
+// Compétences: A017 (Tir multiple), Researchubertip (Aide - Apprendre - Etendu)
+{
+Däck 10 pilar i motsatta riktningar Ranger av skogen . 
+}
+
+STRING 770
+// Compétences: A017 (Tir multiple), Tip (Aide - Normal)
+{
+| Cffffcc00T | Multiple ER
+}
+
+STRING 771
+// Compétences: A017 (Tir multiple), Ubertip (Aide - Normal - Etendu)
+{
+Däck 10 pilar i motsatta riktningar Ranger av skogen . 
+}
+
+STRING 772
+// Unités: o00E (Puit à Trolls), Hotkey (Raccourci)
+{
+T
+}
+
+STRING 773
+// Unités: h01X (Tour de garde), Hotkey (Raccourci)
+{
+T
+}
+
+STRING 774
+// Unités: h01I (Arrow), Name (Nom)
+{
+arrow
+}
+
+STRING 775
+// Compétences: A018 (Allégeance naturelle), Name (Nom)
+{
+Naturlig trohet
+}
+
+STRING 776
+// Compétences: A018 (Allégeance naturelle), Researchtip (Aide - Apprendre)
+{
+Lärande |cffffcc00A |naturlig rllégeance
+}
+
+STRING 777
+// Compétences: A018 (Allégeance naturelle), Tip (Aide - Normal)
+{
+| Cffffcc00A |naturlig rllégeance
+}
+
+STRING 778
+// Compétences: A018 (Allégeance naturelle), Researchubertip (Aide - Apprendre - Etendu)
+{
+Gör det möjligt att ta kontroll över en neutral enhet .
+}
+
+STRING 779
+// Compétences: A018 (Allégeance naturelle), Ubertip (Aide - Normal - Etendu)
+{
+Gör det möjligt att ta kontroll över en neutral enhet .
+}
+
+STRING 780
+// Compétences: A018 (Allégeance naturelle), Researchhotkey (Raccourci - Apprendre)
+{
+A
+}
+
+STRING 781
+// Compétences: A018 (Allégeance naturelle), Hotkey (Raccourci - Normal)
+{
+A
+}
+
+STRING 782
+// Unités: h004 (Elevage), Ubertip (Aide - Etendue)
+{
+Möjliggör utbildning av Tamers get och grizzly Riders . 
+}
+
+STRING 783
+// Unités: h006 (Barraquement), Ubertip (Aide - Etendue)
+{
+Möjliggör utbildning av infanterisoldater
+}
+
+STRING 784
+// Unités: h00G (Comptoir des Nains sur-renforcé), Ubertip (Aide - Etendue)
+{
+Lås upp nya enheter och nya förbättringar . 
+}
+
+STRING 785
+// Unités: h00S (Comptoir des Elfes sur-renforcé), Ubertip (Aide - Etendue)
+{
+Lås upp nya enheter och nya förbättringar . 
+}
+
+STRING 786
+// Unités: h00V (Caserne), Ubertip (Aide - Etendue)
+{
+Möjliggör utbildning av krigarna 
+}
+
+STRING 787
+// Unités: h00X (Forge), Ubertip (Aide - Etendue)
+{
+Innehåller vapen uppgraderingar 
+}
+
+STRING 788
+// Unités: h00Y (Ecurie), Ubertip (Aide - Etendue)
+{
+Möjliggör utbildning av ? 
+}
+
+STRING 789
+// Unités: h00Z (Archerie), Ubertip (Aide - Etendue)
+{
+Tillåter utbildnings scouter och bågskyttar . 
+}
+
+STRING 790
+// Unités: h011 (Tour de garde), Ubertip (Aide - Etendue)
+{
+Vakttornet har förbättrats för att rymma upp till 4 Achers och därmed orsaka mer skada när du använder pilarna empoissonées kapacitet . 
+}
+
+STRING 791
+// Unités: h012 (Tour de garde), Ubertip (Aide - Etendue)
+{
+Vakttornet har förbättrats för att rymma upp till 4 Ecaireuses . 
+}
+
+STRING 792
+// Unités: h014 (Refuge), Ubertip (Aide - Etendue)
+{
+Tillåter inköp av vissa objekt och utbildning av prästinnor i skogen .
+}
+
+STRING 793
+// Unités: H016 (Ranger de la foret), Awakentip (Aide - Eveillé)
+{
+Återuppliva |cffffcc00R | skogen ranger
+}
+
+STRING 794
+// Unités: H016 (Ranger de la foret), Revivetip (Aide - Résurrection)
+{
+Återuppliva |cffffcc00R | skogen ranger
+}
+
+STRING 795
+// Unités: H016 (Ranger de la foret), Tip (Aide - Basique)
+{
+Ring |cffffcc00R | skogen ranger
+}
+
+STRING 796
+// Unités: H016 (Ranger de la foret), Ubertip (Aide - Etendue)
+{
+En mycket smidig hjälte och angripare . 
+}
+
+STRING 797
+// Unités: h017 (Artisan), Ubertip (Aide - Etendue)
+{
+Din huvudsakliga arbetsenhet. 
+}
+
+STRING 798
+// Unités: h018 (Epéiste), Ubertip (Aide - Etendue)
+{
+En mångsidig soldat kan lära Critical Strike . 
+}
+
+STRING 799
+// Unités: h019 (Archer), Ubertip (Aide - Etendue)
+{
+En utmärkt enhet varierade attack kan lära Arrows förgiftad . 
+}
+
+STRING 800
+// Unités: e000 (Frêne de Fangorn), Ubertip (Aide - Etendue)
+{
+En kraftfull enhet som har plats ifliger av skadezon . 
+}
+
+STRING 801
+// Unités: e002 (Chêne de Fangorn), Ubertip (Aide - Etendue)
+{
+Att införa en stridsenhetsom kan stå ut med svåra skador och utlösa förödelse på fiendens infanteri . 
+}
+
+STRING 802
+// Unités: e003 (Béornide), Tip (Aide - Basique)
+{
+Orsak |cffffcc00B |réornide
+}
+
+STRING 804
+// Unités: n004 (Eclaireuse), Ubertip (Aide - Etendue)
+{
+Enhet något varierade attack kan lära Recognition . 
+}
+
+STRING 805
+// Unités: h01B (Guerrier), Ubertip (Aide - Etendue)
+{
+En lätt infanterist i utbildning snabbt . 
+}
+
+STRING 806
+// Unités: h00R (Comptoir des Elfes renforcé), Ubertip (Aide - Etendue)
+{
+Lås upp nya byggnader 
+}
+
+STRING 807
+// Unités: e003 (Béornide), Ubertip (Aide - Etendue)
+{
+En kämpe och ett hjul . 
+}
+
+STRING 808
+// Unités: o004 (Ouvrier), Name (Nom)
+{
+Arbetare
+}
+
+STRING 809
+// Unités: o004 (Ouvrier), Hotkey (Raccourci)
+{
+O
+}
+
+STRING 810
+// Unités: o004 (Ouvrier), Tip (Aide - Basique)
+{
+Orsak |cffffcc00O |ruvrier
+}
+
+STRING 811
+// Unités: o004 (Ouvrier), Ubertip (Aide - Etendue)
+{
+Din huvudsakliga arbetsenhet. 
+}
+
+STRING 812
+// Unités: h01F (Guerrier en armure), Name (Nom)
+{
+Krigare i rustning
+}
+
+STRING 813
+// Unités: h01F (Guerrier en armure), Tip (Aide - Basique)
+{
+Orsak |cffffcc00G |ruerrier i rustning
+}
+
+STRING 814
+// Unités: h01G (Arbalétrier), Name (Nom)
+{
+crossbowman
+}
+
+STRING 815
+// Unités: h01G (Arbalétrier), Tip (Aide - Basique)
+{
+Orsak |cffffcc00A |rrbalétrier
+}
+
+STRING 816
+// Unités: n006 (Sentinelle), Name (Nom)
+{
+Sentinel
+}
+
+STRING 817
+// Unités: n006 (Sentinelle), Tip (Aide - Basique)
+{
+Orsak |cffffcc00S |rentinelle
+}
+
+STRING 818
+// Unités: n007 (Kamikaze), Tip (Aide - Basique)
+{
+Orsak |cffffcc00K |ramikaze
+}
+
+STRING 819
+// Unités: n007 (Kamikaze), Hotkey (Raccourci)
+{
+K
+}
+
+STRING 821
+// Unités: h01H (Eclaireur), Name (Nom)
+{
+Scout
+}
+
+STRING 822
+// Unités: h01H (Eclaireur), Tip (Aide - Basique)
+{
+Orsak |cffffcc00E |rclaireur
+}
+
+STRING 826
+// Unités: e00A (Berzerk snaga), Hotkey (Raccourci)
+{
+B
+}
+
+STRING 827
+// Unités: o00F (Bestiaire), Hotkey (Raccourci)
+{
+B
+}
+
+STRING 828
+// Unités: O005 (Commandant Uruk), Name (Nom)
+{
+Commander Uruk
+}
+
+STRING 829
+// Unités: O005 (Commandant Uruk), Propernames (Noms propres)
+{
+Lurtz
+}
+
+STRING 830
+// Unités: e008 (Berserker), Name (Nom)
+{
+Berserker
+}
+
+STRING 831
+// Unités: e008 (Berserker), Tip (Aide - Basique)
+{
+Orsak |cffffcc00B |rerserker
+}
+
+STRING 832
+// Unités: e008 (Berserker), Casterupgradename (Noms amélioration lanceur de sorts)
+{
+Initierad 
+}
+
+STRING 833
+// Unités: e008 (Berserker), Casterupgradetip (Astuces amélioration lanceur de sorts)
+{
+- Cleaver - Cleaver |n- Meltdown Madness - Cleaver |n- Folie furieusen |n- Provokation
+}
+
+STRING 834
+// Compétences: A019 (Provocation), Tip (Aide - Normal)
+{
+| Cffffcc00P |rrovocation
+}
+
+STRING 835
+// Compétences: A01A (Fendoir), Ubertip (Aide - Normal - Etendu)
+{
+Berserker slår med sådan kraft att \u003cACce
+}
+
+STRING 836
+// Compétences: A01B (Folie furieuse), Name (Nom)
+{
+Amok
+}
+
+STRING 837
+// Unités: h01O (Pillard snaga), Hotkey (Raccourci)
+{
+P
+}
+
+STRING 838
+// Mises à jour: R00S (Formation Chaman Adepte,Formation Chaman Maître), Name (Nom)
+{
+Träning Berserker Heretic
+}
+
+STRING 839
+// Mises à jour: R00S (Formation Chaman Adepte,Formation Chaman Maître), Name (Nom)
+{
+Träning Berserker Fanatic
+}
+
+STRING 840
+// Mises à jour: R00S (Formation Chaman Adepte,Formation Chaman Maître), Tip (Aide)
+{
+| Cffffcc00F |rormation Berserker Heretic
+}
+
+STRING 841
+// Mises à jour: R00S (Formation Chaman Adepte,Formation Chaman Maître), Tip (Aide)
+{
+| Cffffcc00F |rormation Berserker Fanatic
+}
+
+STRING 842
+// Compétences: A01Q (Flèches tranquilisantes), Unhotkey (Raccourci - Off)
+{
+F
+}
+
+STRING 843
+// Mises à jour: R008 (Formation Esprit marcheur adepte,Formation Esprit marcheur maître), Hotkey (Raccourci clavier)
+{
+F
+}
+
+STRING 844
+// Mises à jour: R00S (Formation Chaman Adepte,Formation Chaman Maître), Ubertip (Aide - Etendue)
+{
+Ökar lea liv och hastighet återhämtning träffpoäng Berserkers och ger dem möjlighet att starta Meltdown Madness .
+}
+
+STRING 845
+// Mises à jour: R00S (Formation Chaman Adepte,Formation Chaman Maître), Ubertip (Aide - Etendue)
+{
+Ökar lea liv och hastighet återhämtning träffpoäng Berserkers och ger dem möjlighet att starta Provokation .
+}
+
+STRING 846
+// Mises à jour: R00S (Formation Chaman Adepte,Formation Chaman Maître), effect1 (Effet 1)
+{
+rhpx
+}
+
+STRING 847
+// Mises à jour: R00S (Formation Chaman Adepte,Formation Chaman Maître), effect2 (Effet 2)
+{
+rhpx
+}
+
+STRING 848
+// Unités: h00F (Comptoir des Nains renforcé), Tip (Aide - Basique)
+{
+Förbättra Tecken |cffffcc00N |regn förstärkt
+}
+
+STRING 849
+// Unités: h00G (Comptoir des Nains sur-renforcé), Tip (Aide - Basique)
+{
+Förbättra Tecken |cffffcc00N |regn över förstärkta
+}
+
+STRING 850
+// Unités: h00G (Comptoir des Nains sur-renforcé), Hotkey (Raccourci)
+{
+N
+}
+
+STRING 851
+// Unités: h00W (Entrepot), Hotkey (Raccourci)
+{
+N
+}
+
+STRING 852
+// Unités: u000 (Comptoir de l'Isengard), Name (Nom)
+{
+Counter Isengard
+}
+
+STRING 853
+// Unités: u000 (Comptoir de l'Isengard), Hotkey (Raccourci)
+{
+I
+}
+
+STRING 854
+// Unités: u000 (Comptoir de l'Isengard), Tip (Aide - Basique)
+{
+Bygg upp en räknare av |cffffcc00I |rsengard
+}
+
+STRING 855
+// Unités: u000 (Comptoir de l'Isengard), Ubertip (Aide - Etendue)
+{
+Gör det möjligt att rekrytera arbetskraft och magasin för de insamlade medlen . 
+}
+
+STRING 856
+// Unités: u001 (Comptoir de l'Isengard renforcé), Tip (Aide - Basique)
+{
+Counter förbättra |cffffcc00I |rsengard förstärkt
+}
+
+STRING 857
+// Unités: u001 (Comptoir de l'Isengard renforcé), Hotkey (Raccourci)
+{
+I
+}
+
+STRING 858
+// Unités: u001 (Comptoir de l'Isengard renforcé), Name (Nom)
+{
+Counter Isengard förstärkt
+}
+
+STRING 859
+// Unités: u001 (Comptoir de l'Isengard renforcé), Ubertip (Aide - Etendue)
+{
+Lås upp nya byggnader 
+}
+
+STRING 860
+// Unités: u002 (Comptoir de l'Isengard sur-renforcé), Name (Nom)
+{
+Counter Isengard sur förstärkta
+}
+
+STRING 861
+// Unités: u002 (Comptoir de l'Isengard sur-renforcé), Hotkey (Raccourci)
+{
+I
+}
+
+STRING 862
+// Unités: u002 (Comptoir de l'Isengard sur-renforcé), Tip (Aide - Basique)
+{
+Counter förbättra |cffffcc00I |rsengard sur - förstärkt
+}
+
+STRING 863
+// Unités: u002 (Comptoir de l'Isengard sur-renforcé), Ubertip (Aide - Etendue)
+{
+Lås upp nya enheter och nya förbättringar . 
+}
+
+STRING 864
+// Unités: e009 (Baliste), Name (Nom)
+{
+Ballista
+}
+
+STRING 865
+// Unités: e009 (Baliste), Tip (Aide - Basique)
+{
+Orsak |cffffcc00B | GP
+}
+
+STRING 866
+// Unités: h01Z (Barque), Hotkey (Raccourci)
+{
+B
+}
+
+STRING 867
+// Unités: u006 (Bestiaire), Name (Nom)
+{
+bestiary
+}
+
+STRING 868
+// Unités: n009 (Chevaucheur de warg), Name (Nom)
+{
+Rider Warg
+}
+
+STRING 869
+// Compétences: A01C (Warg 01), Name (Nom)
+{
+Warg 01
+}
+
+STRING 870
+// Compétences: A01D (Warg 02), Name (Nom)
+{
+Warg 02
+}
+
+STRING 871
+// Compétences: A01E (Warg 03), Name (Nom)
+{
+Warg 03
+}
+
+STRING 872
+// Compétences: A01F (Warg 04), Name (Nom)
+{
+Warg 04
+}
+
+STRING 873
+// Unités: n00A (Ravageur), Name (Nom)
+{
+förödande
+}
+
+STRING 874
+// Unités: n00A (Ravageur), Tip (Aide - Basique)
+{
+Resultat av en Rider |cffffcc00g |rrizzly
+}
+
+STRING 875
+// Unités: n00A (Ravageur), Ubertip (Aide - Etendue)
+{
+En kraftfull krigare rider en björn kamp . 
+}
+
+STRING 876
+// Compétences: A00W (Charge), Researchhotkey (Raccourci - Apprendre)
+{
+C
+}
+
+STRING 877
+// Unités: h01E (Fournaise), Name (Nom)
+{
+Furnace
+}
+
+STRING 878
+// Unités: h01J (Palantir), Name (Nom)
+{
+Palantir
+}
+
+STRING 879
+// Unités: h01J (Palantir), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00C |rhamp skytte
+}
+
+STRING 880
+// Unités: h01J (Palantir), Ubertip (Aide - Etendue)
+{
+Möjliggör utbildning av Bärraketer yxor och bågskyttar . 
+}
+
+STRING 881
+// Unités: u008 (Poudrerie), Name (Nom)
+{
+Blåsa
+}
+
+STRING 882
+// Compétences: A01P (Carreaux enflammés), Hotkey (Raccourci - Normal)
+{
+C
+}
+
+STRING 884
+// Compétences: A019 (Provocation), EditorSuffix (Suffixe éditeur)
+{
+( Isengard )
+}
+
+STRING 885
+// Compétences: A01A (Fendoir), EditorSuffix (Suffixe éditeur)
+{
+( Isengard )
+}
+
+STRING 886
+// Unités: u003 (Forge), Name (Nom)
+{
+Forge
+}
+
+STRING 887
+// Unités: u005 (Fosse à Uruk), Name (Nom)
+{
+Pit Uruk
+}
+
+STRING 888
+// Unités: u003 (Forge), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00F |rorge
+}
+
+STRING 889
+// Unités: u003 (Forge), Ubertip (Aide - Etendue)
+{
+Innehåller vapen uppgraderingar och rustheterIsengård .
+}
+
+STRING 890
+// Unités: u004 (Tour de l'Isengard), Name (Nom)
+{
+Tower of Isengard
+}
+
+STRING 891
+// Unités: u004 (Tour de l'Isengard), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00T | Rour av Isengård
+}
+
+STRING 892
+// Unités: u004 (Tour de l'Isengard), Ubertip (Aide - Etendue)
+{
+Defensive byggnad som kan förbättras för att innehålla en garnison Sentinel eller dArbalétriers . 
+}
+
+STRING 893
+// Unités: h01E (Fournaise), Tip (Aide - Basique)
+{
+Bygg en fyra |cffffcc00n | höjning
+}
+
+STRING 894
+// Unités: h01E (Fournaise), Hotkey (Raccourci)
+{
+N
+}
+
+STRING 895
+// Unités: h01E (Fournaise), Ubertip (Aide - Etendue)
+{
+Låter bort timmer som avverkas .
+}
+
+STRING 896
+// Unités: u005 (Fosse à Uruk), Tip (Aide - Basique)
+{
+Bygg en Pit |cffffcc00U |rruk
+}
+
+STRING 897
+// Unités: u005 (Fosse à Uruk), Hotkey (Raccourci)
+{
+U
+}
+
+STRING 898
+// Unités: u005 (Fosse à Uruk), Ubertip (Aide - Etendue)
+{
+Möjliggör utbildning av Scout 
+}
+
+STRING 899
+// Unités: u006 (Bestiaire), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00B |restiaire
+}
+
+STRING 900
+// Unités: u006 (Bestiaire), Ubertip (Aide - Etendue)
+{
+Möjliggör utbildning av Riders Warg och skadedjur . 
+}
+
+STRING 901
+// Unités: u008 (Poudrerie), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00P |roudrerie
+}
+
+STRING 906
+// Unités: u009 (Tour de l'Isengard), Name (Nom)
+{
+Tower of Isengard
+}
+
+STRING 907
+// Unités: u009 (Tour de l'Isengard), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00T | Rour i Isengård med garnison Sentinel
+}
+
+STRING 908
+// Unités: u009 (Tour de l'Isengard), Ubertip (Aide - Etendue)
+{
+The Tower of Isengard har förbättrats för att rymma upp till 4 Sentinels och därmed orsaka mer skada när du använder förmåga ? . 
+}
+
+STRING 909
+// Unités: u009 (Tour de l'Isengard), EditorSuffix (Nom - Suffixe éditeur)
+{
+( Sentinels )
+}
+
+STRING 910
+// Unités: u00A (Tour de l'Isengard), Name (Nom)
+{
+Tower of Isengard
+}
+
+STRING 911
+// Unités: u00A (Tour de l'Isengard), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00T | Rour i Isengård med Garrison crossbowmen
+}
+
+STRING 913
+// Unités: u00B (Tour de l'Isengard), Name (Nom)
+{
+Tower of Isengard
+}
+
+STRING 914
+// Unités: u00B (Tour de l'Isengard), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00T | Rour av Isengård
+}
+
+STRING 915
+// Unités: u00B (Tour de l'Isengard), Ubertip (Aide - Etendue)
+{
+Gick till tornet i Isengård hans garnison reserv . 
+}
+
+STRING 916
+// Unités: u00B (Tour de l'Isengard), EditorSuffix (Nom - Suffixe éditeur)
+{
+( Bis )
+}
+
+STRING 917
+// Unités: h02J (Tour de garde), EditorSuffix (Nom - Suffixe éditeur)
+{
+( Crossbow )
+}
+
+STRING 918
+// Compétences: A01I (Postes de combat), Ubertip (Aide - Normal - Etendu)
+{
+Alla Sentinels nära tog sin tillflykt till tornet i Isengård och försvara deras läger .
+}
+
+STRING 919
+// Compétences: A01I (Postes de combat), EditorSuffix (Suffixe éditeur)
+{
+( Sentinels )
+}
+
+STRING 920
+// Compétences: A01J (Postes de combat), Ubertip (Aide - Normal - Etendu)
+{
+Alla Archers nära tog sin tillflykt till tornet i Isengård och försvara deras läger .
+}
+
+STRING 921
+// Compétences: A01J (Postes de combat), EditorSuffix (Suffixe éditeur)
+{
+( Crossbow Uruks )
+}
+
+STRING 923
+// Unités: o00C (Puit à Gobelins), Hotkey (Raccourci)
+{
+P
+}
+
+STRING 924
+// Mises à jour: R008 (Formation Esprit marcheur adepte,Formation Esprit marcheur maître), Hotkey (Raccourci clavier)
+{
+F
+}
+
+STRING 925
+// Mises à jour: R00U (Armure de fer,Armure d'acier,Armure de mithril), Tip (Aide)
+{
+Förbättra A |cffffcc00r |rmure black metal
+}
+
+STRING 926
+// Mises à jour: R00U (Armure de fer,Armure d'acier,Armure de mithril), Name (Nom)
+{
+Black metal pansar
+}
+
+STRING 927
+// Mises à jour: R00U (Armure de fer,Armure d'acier,Armure de mithril), Ubertip (Aide - Etendue)
+{
+Ökar försvarsenheterIsengard .
+}
+
+STRING 928
+// Mises à jour: R00U (Armure de fer,Armure d'acier,Armure de mithril), Ubertip (Aide - Etendue)
+{
+Vidare ökar försvarsenheternaIsengård .
+}
+
+STRING 929
+// Mises à jour: R00U (Armure de fer,Armure d'acier,Armure de mithril), Ubertip (Aide - Etendue)
+{
+Vidare ökar försvarsenheternaIsengård .
+}
+
+STRING 930
+// Mises à jour: R00V (Epées de fer,Epées d'acier,Epées de mithril), Name (Nom)
+{
+Järn vapen
+}
+
+STRING 931
+// Mises à jour: R003 (Lances empoisonnées), Hotkey (Raccourci clavier)
+{
+A
+}
+
+STRING 932
+// Mises à jour: R00A (Epées de fer,Epées d'acier,Epées de mithril), Hotkey (Raccourci clavier)
+{
+A
+}
+
+STRING 933
+// Mises à jour: R00A (Epées de fer,Epées d'acier,Epées de mithril), Hotkey (Raccourci clavier)
+{
+A
+}
+
+STRING 934
+// Mises à jour: R00V (Epées de fer,Epées d'acier,Epées de mithril), Name (Nom)
+{
+Stål vapen
+}
+
+STRING 935
+// Mises à jour: R00V (Epées de fer,Epées d'acier,Epées de mithril), Name (Nom)
+{
+Arms black metal
+}
+
+STRING 936
+// Mises à jour: R00V (Epées de fer,Epées d'acier,Epées de mithril), Tip (Aide)
+{
+Förbättra |cffffcc00A |rrmes järn
+}
+
+STRING 937
+// Mises à jour: R00V (Epées de fer,Epées d'acier,Epées de mithril), Tip (Aide)
+{
+Förbättra |cffffcc00A |rrmes stål
+}
+
+STRING 938
+// Mises à jour: R00V (Epées de fer,Epées d'acier,Epées de mithril), Tip (Aide)
+{
+Förbättra |cffffcc00A |rrmes black metal
+}
+
+STRING 939
+// Mises à jour: R00V (Epées de fer,Epées d'acier,Epées de mithril), Ubertip (Aide - Etendue)
+{
+Ökar de skador som stridsförband Isengård .
+}
+
+STRING 940
+// Mises à jour: R00V (Epées de fer,Epées d'acier,Epées de mithril), Ubertip (Aide - Etendue)
+{
+Vidare uppgraderar skadan behandlas av stridsförband Isengård .
+}
+
+STRING 941
+// Mises à jour: R00V (Epées de fer,Epées d'acier,Epées de mithril), Ubertip (Aide - Etendue)
+{
+Vidare uppgraderar skadan behandlas av stridsförband Isengård .
+}
+
+STRING 959
+// Compétences: A01B (Folie furieuse), EditorSuffix (Suffixe éditeur)
+{
+( Isengard )
+}
+
+STRING 960
+// Compétences: A01K (Tourbillon de lames), EditorSuffix (Suffixe éditeur)
+{
+( Isengard )
+}
+
+STRING 963
+// Compétences: A01K (Tourbillon de lames), Researchubertip (Aide - Apprendre - Etendu)
+{
+Commander Uruk blir okänslig för magi och regnade slag på mark fiender i närheten 
+}
+
+STRING 964
+// Compétences: A01K (Tourbillon de lames), Ubertip (Aide - Normal - Etendu)
+{
+Commander Uruk blir okänslig för magi och regnade slag på mark fiender i närheten 
+}
+
+STRING 966
+// Compétences: A01M (Point faible), Name (Nom)
+{
+svaghet
+}
+
+STRING 967
+// Unités: n00K (Piquier), Hotkey (Raccourci)
+{
+P
+}
+
+STRING 968
+// Compétences: A01M (Point faible), Researchtip (Aide - Apprendre)
+{
+Lärande |cffffcc00P | låg roint
+}
+
+STRING 969
+// Compétences: A01M (Point faible), Tip (Aide - Normal)
+{
+| Cffffcc00P | låg roint
+}
+
+STRING 970
+// Compétences: A01M (Point faible), Researchubertip (Aide - Apprendre - Etendu)
+{
+Fogar 600 poäng av skada på den riktade organisk enhet .
+}
+
+STRING 971
+// Compétences: A01M (Point faible), Ubertip (Aide - Normal - Etendu)
+{
+Fogar 600 poäng av skada på den riktade organisk enhet .
+}
+
+STRING 972
+// Objets: I006 (Palantir), Hotkey (Raccourci)
+{
+P
+}
+
+STRING 973
+// Compétences: A01L (Filet), Researchtip (Aide - Apprendre)
+{
+Kunskap |cffffcc00F |rilet
+}
+
+STRING 974
+// Compétences: A01L (Filet), Researchubertip (Aide - Apprendre - Etendu)
+{
+Emprisone målet enheten i ett nät för att immobilisera |n |n |cffffcc00niveau 1 |r - varar 12 sekunder .. 
+}
+
+STRING 978
+// Compétences: A01L (Filet), Ubertip (Aide - Normal - Etendu)
+{
+Enheten i fråga är delvis fångad i ett nät 
+}
+
+STRING 979
+// Compétences: A01L (Filet), Ubertip (Aide - Normal - Etendu)
+{
+Enheten i fråga är delvis fångad i ett nät 
+}
+
+STRING 980
+// Mises à jour: R00C (Formation de Prêtre Adepte,Formation de Prêtre Maître), Hotkey (Raccourci clavier)
+{
+F
+}
+
+STRING 981
+// Mises à jour: R00C (Formation de Prêtre Adepte,Formation de Prêtre Maître), Hotkey (Raccourci clavier)
+{
+F
+}
+
+STRING 982
+// Compétences: A01L (Filet), Tip (Aide - Normal)
+{
+| Cffffcc00F |rilet -  |cffffcc00niveau 1 |r 
+}
+
+STRING 983
+// Compétences: A01L (Filet), Tip (Aide - Normal)
+{
+| Cffffcc00F |rilet -  |cffffcc00niveau 2 |r 
+}
+
+STRING 984
+// Compétences: A01L (Filet), Tip (Aide - Normal)
+{
+| Cffffcc00F |rilet -  |cffffcc00niveau 3 |r 
+}
+
+STRING 985
+// Unités: u007 (Atelier de siège), Name (Nom)
+{
+Siege Workshop-
+}
+
+STRING 986
+// Unités: u007 (Atelier de siège), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00A |rtelier sätet
+}
+
+STRING 987
+// Unités: u007 (Atelier de siège), Ubertip (Aide - Etendue)
+{
+Möjliggör utbildning av baggar och Triggerfish . 
+}
+
+STRING 988
+// Unités: u008 (Poudrerie), Ubertip (Aide - Etendue)
+{
+Tillåter inköp av vissa objekt och utbildning självmordsbombare .
+}
+
+STRING 989
+// Unités: h01K (Bélier), Name (Nom)
+{
+Aries
+}
+
+STRING 990
+// Unités: h01K (Bélier), Tip (Aide - Basique)
+{
+Orsaken vara |cffffcc00l | kurir
+}
+
+STRING 991
+// Unités: h01K (Bélier), Hotkey (Raccourci)
+{
+L
+}
+
+STRING 992
+// Unités: h01K (Bélier), Ubertip (Aide - Etendue)
+{
+En sittdel specialiserad på att förstöra fiendens byggnader . 
+}
+
+STRING 993
+// Mises à jour: R00A (Epées de fer,Epées d'acier,Epées de mithril), Hotkey (Raccourci clavier)
+{
+A
+}
+
+STRING 994
+// Compétences: A01G (Explosion), Name (Nom)
+{
+explosion
+}
+
+STRING 995
+// Compétences: A01G (Explosion), Tip (Aide - Normal)
+{
+| Cffffcc00E |rxplosion
+}
+
+STRING 996
+// Unités: h023 (Milicien), Hotkey (Raccourci)
+{
+E
+}
+
+STRING 997
+// Unités: h02G (Ecurie), Hotkey (Raccourci)
+{
+E
+}
+
+STRING 998
+// Unités: h01L (DummyKaboom), Name (Nom)
+{
+DummyKaboom
+}
+
+STRING 999
+// Unités: h01G (Arbalétrier), Ubertip (Aide - Etendue)
+{
+En kraftfull enhet varierade attack kan lära Kakel inflammerad . 
+}
+
+STRING 1000
+// Unités: n007 (Kamikaze), Ubertip (Aide - Etendue)
+{
+En Uruk Hai redo att spränga sig själva för att orsaka betydande skador på byggnader i området med hjälp av Explosion . 
+}
+
+STRING 1001
+// Unités: n007 (Kamikaze), Casterupgradename (Noms amélioration lanceur de sorts)
+{
+Initierad pyroman 
+}
+
+STRING 1002
+// Unités: n007 (Kamikaze), Casterupgradetip (Astuces amélioration lanceur de sorts)
+{
+- Explosion - Explosion |n bränningen - Explosion |n bränningen |n- Fire Breath
+}
+
+STRING 1003
+// Unités: e008 (Berserker), Ubertip (Aide - Etendue)
+{
+En formidabel fighter . 
+}
+
+STRING 1004
+// Unités: u00A (Tour de l'Isengard), Ubertip (Aide - Etendue)
+{
+The Tower of Isengard har förbättrats för att rymma upp till 4 bågskyttar och därmed orsaka mer skada när du använder förmåga Kakel inflammerade . 
+}
+
+STRING 1005
+// Compétences: A01G (Explosion), Ubertip (Aide - Normal - Etendu)
+{
+Fogar 500 skador i det centrala området av explosionen
+}
+
+STRING 1006
+// Compétences: A01H (Immolation), EditorSuffix (Suffixe éditeur)
+{
+( Isengard )
+}
+
+STRING 1007
+// Compétences: A01N (Souffle de feu), EditorSuffix (Suffixe éditeur)
+{
+( Isengard )
+}
+
+STRING 1008
+// Compétences: A01O (Démolir), EditorSuffix (Suffixe éditeur)
+{
+( Isengard )
+}
+
+STRING 1009
+// Compétences: A01P (Carreaux enflammés), EditorSuffix (Suffixe éditeur)
+{
+( Isengard )
+}
+
+STRING 1010
+// Compétences: A01P (Carreaux enflammés), Tip (Aide - Normal)
+{
+| Cffffcc00C | inflammerad rarreaux
+}
+
+STRING 1011
+// Compétences: A01Q (Flèches tranquilisantes), Name (Nom)
+{
+Tranquilisantes pilar
+}
+
+STRING 1012
+// Compétences: A01Q (Flèches tranquilisantes), Tip (Aide - Normal)
+{
+| Cffffcc00F |rlèches tranquilisantes
+}
+
+STRING 1013
+// Compétences: A01Q (Flèches tranquilisantes), Ubertip (Aide - Normal - Etendu)
+{
+Lägger skador på attacker och saktar målet 
+}
+
+STRING 1014
+// Enchantements/Effets: B003 (Flèches tranquilisantes), EditorName (Nom (dans l'éditeur))
+{
+Tranquilisantes pilar
+}
+
+STRING 1015
+// Enchantements/Effets: B003 (Flèches tranquilisantes), Buffubertip (Bulle d'aide - longue)
+{
+Denna enhet har drabbats av en lugnande pil . 
+}
+
+STRING 1016
+// Enchantements/Effets: B003 (Flèches tranquilisantes), Bufftip (Bulle d'aide)
+{
+Tranquilisantes pilar
+}
+
+STRING 1017
+// Mises à jour: R00G (Rets), Name (Nom)
+{
+plattor inflammerade
+}
+
+STRING 1018
+// Compétences: A01P (Carreaux enflammés), Unhotkey (Raccourci - Off)
+{
+C
+}
+
+STRING 1019
+// Compétences: A02A (Charge), Hotkey (Raccourci - Normal)
+{
+C
+}
+
+STRING 1020
+// Mises à jour: R00Q (Formation de Prêtre Adepte,Formation de Prêtre Maître), Hotkey (Raccourci clavier)
+{
+F
+}
+
+STRING 1021
+// Mises à jour: R00Q (Formation de Prêtre Adepte,Formation de Prêtre Maître), Hotkey (Raccourci clavier)
+{
+F
+}
+
+STRING 1022
+// Mises à jour: R00T (Formation Sorcier docteur Adepte,Formation Sorcier docteur Maître), Name (Nom)
+{
+Kamikaze utbildning mordbrännare
+}
+
+STRING 1023
+// Mises à jour: R00T (Formation Sorcier docteur Adepte,Formation Sorcier docteur Maître), Name (Nom)
+{
+Kamikaze utbildning pyro
+}
+
+STRING 1024
+// Mises à jour: R00T (Formation Sorcier docteur Adepte,Formation Sorcier docteur Maître), Tip (Aide)
+{
+| Cffffcc00F |rormation Kamikaze mordbrännare
+}
+
+STRING 1025
+// Mises à jour: R00T (Formation Sorcier docteur Adepte,Formation Sorcier docteur Maître), Tip (Aide)
+{
+| Cffffcc00F |rormation Kamikaze pyro
+}
+
+STRING 1026
+// Mises à jour: R00S (Formation Chaman Adepte,Formation Chaman Maître), Hotkey (Raccourci clavier)
+{
+F
+}
+
+STRING 1027
+// Mises à jour: R00S (Formation Chaman Adepte,Formation Chaman Maître), Hotkey (Raccourci clavier)
+{
+F
+}
+
+STRING 1030
+// Mises à jour: R00W (Bombes de Machine volante), Name (Nom)
+{
+demolish
+}
+
+STRING 1031
+// Mises à jour: R00W (Bombes de Machine volante), Tip (Aide)
+{
+Sök |cffffcc00D |rémolir
+}
+
+STRING 1032
+// Mises à jour: R00W (Bombes de Machine volante), Hotkey (Raccourci clavier)
+{
+D
+}
+
+STRING 1033
+// Mises à jour: R00W (Bombes de Machine volante), Ubertip (Aide - Etendue)
+{
+Dubbel skada mot Rams byggnaderna .
+}
+
+STRING 1034
+// Compétences: A01R (Défensif), EditorSuffix (Suffixe éditeur)
+{
+( Isengard )
+}
+
+STRING 1035
+// Mises à jour: R00X (Rets), Name (Nom)
+{
+plattor inflammerade
+}
+
+STRING 1036
+// Mises à jour: R00X (Rets), Tip (Aide)
+{
+Sök |cffffcc00C |rarreaux enfammés
+}
+
+STRING 1037
+// Compétences: A02A (Charge), Researchhotkey (Raccourci - Apprendre)
+{
+C
+}
+
+STRING 1038
+// Mises à jour: R00X (Rets), Ubertip (Aide - Etendue)
+{
+Låter crossbowman dra flammande brickor för att orsaka mer skada på fiendens Untes .
+}
+
+STRING 1039
+// Compétences: A01S (Pillage), EditorSuffix (Suffixe éditeur)
+{
+( Isengard )
+}
+
+STRING 1040
+// Enchantements/Effets: B004 (Flèches tranquilisantes), EditorName (Nom (dans l'éditeur))
+{
+Tranquilisantes pilar
+}
+
+STRING 1041
+// Mises à jour: R00T (Formation Sorcier docteur Adepte,Formation Sorcier docteur Maître), Hotkey (Raccourci clavier)
+{
+F
+}
+
+STRING 1042
+// Mises à jour: R00Y (Contrôle de la magie), Ubertip (Aide - Etendue)
+{
+Ger Sentinels Pilar tranquilisantes förmåga som tillför skador på sina attacker och saktar målet .
+}
+
+STRING 1043
+// Mises à jour: R00Y (Contrôle de la magie), Tip (Aide)
+{
+Sök |cffffcc00F |rlèches tranquilisantes
+}
+
+STRING 1044
+// Enchantements/Effets: B005 (Flèches tranquilisantes), EditorName (Nom (dans l'éditeur))
+{
+Tranquilisantes pilar
+}
+
+STRING 1045
+// Enchantements/Effets: B004 (Flèches tranquilisantes), Buffubertip (Bulle d'aide - longue)
+{
+Denna enhet har drabbats av en lugnande pil . 
+}
+
+STRING 1046
+// Enchantements/Effets: B005 (Flèches tranquilisantes), Bufftip (Bulle d'aide)
+{
+Tranquilisantes pilar
+}
+
+STRING 1047
+// Mises à jour: R00Y (Contrôle de la magie), Name (Nom)
+{
+Tranquilisantes pilar
+}
+
+STRING 1048
+// Enchantements/Effets: B004 (Flèches tranquilisantes), Bufftip (Bulle d'aide)
+{
+Fèches tranquilisantes
+}
+
+STRING 1049
+// Enchantements/Effets: B005 (Flèches tranquilisantes), Buffubertip (Bulle d'aide - longue)
+{
+Denna enhet har drabbats av en lugnande pil . 
+}
+
+STRING 1050
+// Unités: n006 (Sentinelle), Ubertip (Aide - Etendue)
+{
+Enhet något varierade attack kan lära Arrows tranquilisantes . 
+}
+
+STRING 1051
+// Unités: u00C (Hutte), Name (Nom)
+{
+Hut
+}
+
+STRING 1052
+// Unités: u00C (Hutte), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00H | Rutte
+}
+
+STRING 1053
+// Unités: u00C (Hutte), Ubertip (Aide - Etendue)
+{
+Öka gränsen för enheten som du kan träna .
+}
+
+STRING 1054
+// Unités: u00D (Grande hutte), Name (Nom)
+{
+Stor hut
+}
+
+STRING 1055
+// Unités: u00D (Grande hutte), Tip (Aide - Basique)
+{
+Förbättra |cffffcc00G |rrande hut
+}
+
+STRING 1056
+// Unités: u00D (Grande hutte), Hotkey (Raccourci)
+{
+G
+}
+
+STRING 1057
+// Unités: u00D (Grande hutte), Ubertip (Aide - Etendue)
+{
+Förstorar hydda därigenom orsakar fler enheter .
+}
+
+STRING 1058
+// Unités: h01S (Hutte), Hotkey (Raccourci)
+{
+H
+}
+
+STRING 1059
+// Unités: O005 (Commandant Uruk), Awakentip (Aide - Eveillé)
+{
+Revive |cffffcc00C |rommandant Uruk
+}
+
+STRING 1060
+// Unités: O005 (Commandant Uruk), Revivetip (Aide - Résurrection)
+{
+Revive |cffffcc00C |rommandant Uruk
+}
+
+STRING 1061
+// Unités: O005 (Commandant Uruk), Tip (Aide - Basique)
+{
+Ring |cffffcc00C |rommandant Uruk
+}
+
+STRING 1062
+// Mises à jour: R004 (Folie furieuse), Hotkey (Raccourci clavier)
+{
+C
+}
+
+STRING 1063
+// Compétences: A01W (Dévoiler), EditorSuffix (Suffixe éditeur)
+{
+( Isengard )
+}
+
+STRING 1064
+// Mises à jour: R00Z (Défensif), Ubertip (Aide - Etendue)
+{
+Tillåter scouter och krigare i rustning med hjälp av defensiv läge som förbättrar deras försvar mot piercing attacker .
+}
+
+STRING 1065
+// Enchantements/Effets: B006 (Immolation), EditorSuffix (Suffixe éditeur)
+{
+( Isengard )
+}
+
+STRING 1071
+// Compétences: A01T (Position de siège), Tip (Aide - Normal)
+{
+| Cffffcc00P |rosition säte
+}
+
+STRING 1072
+// Compétences: A01T (Position de siège), Untip (Aide - Off)
+{
+| Cffffcc00P |rosition kampanj
+}
+
+STRING 1073
+// Compétences: A019 (Provocation), Hotkey (Raccourci - Normal)
+{
+P
+}
+
+STRING 1074
+// Compétences: A01T (Position de siège), Name (Nom)
+{
+Sittposition
+}
+
+STRING 1075
+// Compétences: A01M (Point faible), Researchhotkey (Raccourci - Apprendre)
+{
+P
+}
+
+STRING 1082
+// Compétences: A01T (Position de siège), Ubertip (Aide - Normal - Etendu)
+{
+Ballista slutar att vinna i omfattning och kraft .
+}
+
+STRING 1083
+// Compétences: A01T (Position de siège), Unubertip (Aide - Off - Etendu)
+{
+Ballista mobiliseras .
+}
+
+STRING 1084
+// Compétences: A01U (Tir puissant), Name (Nom)
+{
+shot
+}
+
+STRING 1085
+// Compétences: A01U (Tir puissant), Tip (Aide - Normal)
+{
+| Cffffcc00T | ER kraftfull
+}
+
+STRING 1086
+// Unités: h02M (Taverne), Hotkey (Raccourci)
+{
+T
+}
+
+STRING 1087
+// Compétences: A01U (Tir puissant), Ubertip (Aide - Normal - Etendu)
+{
+Fogar 300 skadepoäng till målet byggnaden .
+}
+
+STRING 1088
+// Mises à jour: R010 (Barrage), Name (Nom)
+{
+shot
+}
+
+STRING 1089
+// Objets: I004 (Parchemin de téléportation), Hotkey (Raccourci)
+{
+T
+}
+
+STRING 1090
+// Mises à jour: R010 (Barrage), Ubertip (Aide - Etendue)
+{
+Tillåter triggerfish i sätesbjudning att göra ett skott vålla svåra skador på en fiendebyggnad .
+}
+
+STRING 1091
+// Mises à jour: R010 (Barrage), Tip (Aide)
+{
+Sök |cffffcc00T | er kraftfull
+}
+
+STRING 1092
+// Objets: I006 (Palantir), Name (Nom)
+{
+Palantir
+}
+
+STRING 1093
+// Objets: I006 (Palantir), Tip (Aide - Basique)
+{
+Köp |cffffcc00P |ralantir
+}
+
+STRING 1094
+// Objets: I006 (Palantir), Ubertip (Aide - Etendue)
+{
+Hjälten kan angripa luft enheter på distans 
+}
+
+STRING 1095
+// Objets: I006 (Palantir), Description (Description)
+{
+Hjälten kan angripa luft enheter på distans 
+}
+
+STRING 1096
+// Compétences: A01V (Objet Palantir), Name (Nom)
+{
+Ämne Palantir
+}
+
+STRING 1097
+// Compétences: A01M (Point faible), Hotkey (Raccourci - Normal)
+{
+P
+}
+
+STRING 1098
+// Mises à jour: R00W (Bombes de Machine volante), EditorSuffix (Suffixe éditeur)
+{
+( Isengard )
+}
+
+STRING 1099
+// Mises à jour: R00X (Rets), EditorSuffix (Suffixe éditeur)
+{
+( Isengard )
+}
+
+STRING 1100
+// Mises à jour: R011 (Pillage), Ubertip (Aide - Etendue)
+{
+Tillåter Riders Warg Skadedjur och tjäna resurser när det handlar skada på fiendens byggnader .
+}
+
+STRING 1101
+// Mises à jour: R012 (Collecte de bois perfectionnée,Collecte de bois avancée), Ubertip (Aide - Etendue)
+{
+\u003cRhlh
+}
+
+STRING 1102
+// Mises à jour: R012 (Collecte de bois perfectionnée,Collecte de bois avancée), Ubertip (Aide - Etendue)
+{
+\u003cRhlh
+}
+
+STRING 1103
+// Enchantements/Effets: B006 (Immolation), EditorName (Nom (dans l'éditeur))
+{
+bränningen
+}
+
+STRING 1104
+// Mises à jour: R00Z (Défensif), EditorSuffix (Suffixe éditeur)
+{
+( Isengard )
+}
+
+STRING 1105
+// Mises à jour: R011 (Pillage), EditorSuffix (Suffixe éditeur)
+{
+( Isengard )
+}
+
+STRING 1106
+// Mises à jour: R00T (Formation Sorcier docteur Adepte,Formation Sorcier docteur Maître), Ubertip (Aide - Etendue)
+{
+Ökar mana återhämtningshastighetmana och slå punkter Kamikazes och ger dem möjlighet att starta bränningen .
+}
+
+STRING 1107
+// Mises à jour: R00T (Formation Sorcier docteur Adepte,Formation Sorcier docteur Maître), Ubertip (Aide - Etendue)
+{
+Ökar mana återhämtningshastighetmana och slog poäng Kamikazes och ger dem möjlighet att starta Breath of Fire .
+}
+
+STRING 1110
+// Unités: n00B (Archer de Gundabad), Tip (Aide - Basique)
+{
+Orsak |cffffcc00A |rrbalétrier
+}
+
+STRING 1114
+// Unités: h01N (Guerrier de Gundabad), Hotkey (Raccourci)
+{
+G
+}
+
+STRING 1116
+// Mises à jour: R00O (Force de la lune,Force supérieure de la lune,Force grandiose de la lune), Hotkey (Raccourci clavier)
+{
+A
+}
+
+STRING 1117
+// Unités: n00C (Chevaucheur de loup), Name (Nom)
+{
+Wolf Rider
+}
+
+STRING 1120
+// Mises à jour: R00G (Rets), Hotkey (Raccourci clavier)
+{
+C
+}
+
+STRING 1125
+// Unités: h026 (Bélier), Hotkey (Raccourci)
+{
+L
+}
+
+STRING 1127
+// Unités: h01Q (Araignée géante), Name (Nom)
+{
+Giant Spider
+}
+
+STRING 1131
+// Unités: n00D (Semi-troll), Name (Nom)
+{
+Semi - troll
+}
+
+STRING 1134
+// Unités: h02C (Habitation), Hotkey (Raccourci)
+{
+H
+}
+
+STRING 1136
+// Unités: o006 (Catapulte), Name (Nom)
+{
+katapult
+}
+
+STRING 1138
+// Compétences: A01G (Explosion), Hotkey (Raccourci - Normal)
+{
+E
+}
+
+STRING 1139
+// Unités: h01R (Mentor), Name (Nom)
+{
+Mentor
+}
+
+STRING 1143
+// Compétences: A00A (Marteau), Hotkey (Raccourci - Normal)
+{
+M
+}
+
+STRING 1145
+// Unités: e00B (Troll des cavernes), Name (Nom)
+{
+Cave Troll
+}
+
+STRING 1148
+// Mises à jour: R00I (Folie furieuse), Hotkey (Raccourci clavier)
+{
+C
+}
+
+STRING 1149
+// Unités: n00B (Archer de Gundabad), Name (Nom)
+{
+Archer Gundabad
+}
+
+STRING 1150
+// Unités: h01N (Guerrier de Gundabad), Name (Nom)
+{
+Warrior Gundabad
+}
+
+STRING 1155
+// Unités: O008 (Commandant Gobelin), Name (Nom)
+{
+Goblin Commander
+}
+
+STRING 1156
+// Unités: O008 (Commandant Gobelin), Propernames (Noms propres)
+{
+Golfimbul
+}
+
+STRING 1157
+// Unités: h01O (Pillard snaga), Name (Nom)
+{
+Pillard snaga
+}
+
+STRING 1158
+// Unités: h01P (Guetteur snaga), Name (Nom)
+{
+Watcher snaga
+}
+
+STRING 1159
+// Unités: e00A (Berzerk snaga), Name (Nom)
+{
+Berzerk snaga
+}
+
+STRING 1160
+// Unités: o007 (Snaga), Name (Nom)
+{
+Snaga
+}
+
+STRING 1161
+// Unités: o009 (Comptoir des Gobelins), Name (Nom)
+{
+Comptoir des Gobelins
+}
+
+STRING 1162
+// Unités: o00A (Comptoir des Gobelins renforcé), Name (Nom)
+{
+Comptoir des Gobelins förstärkt
+}
+
+STRING 1163
+// Unités: o00B (Comptoir des Gobelins sur-renforcé), Name (Nom)
+{
+Comptoir des Gobelins sur förstärkta
+}
+
+STRING 1164
+// Unités: o00C (Puit à Gobelins), Name (Nom)
+{
+Väl vid Gobelins
+}
+
+STRING 1165
+// Unités: o00E (Puit à Trolls), Name (Nom)
+{
+Well Trolls
+}
+
+STRING 1168
+// Unités: h01S (Hutte), Ubertip (Aide - Etendue)
+{
+Öka gränsen för enheten som du kan träna .
+}
+
+STRING 1171
+// Unités: h01P (Guetteur snaga), Hotkey (Raccourci)
+{
+G
+}
+
+STRING 1173
+// Unités: h01U (Tour de garde), Tip (Aide - Basique)
+{
+Att bygga ett torn |cffffcc00g | RARDE
+}
+
+STRING 1174
+// Unités: h01U (Tour de garde), Ubertip (Aide - Etendue)
+{
+Defensiv byggnad som kan förbättras för att innehålla en garnison Bärraketer axlar eller dArbalétriers . 
+}
+
+STRING 1178
+// Unités: h02K (Tour de garde), Hotkey (Raccourci)
+{
+L
+}
+
+STRING 1180
+// Unités: h01X (Tour de garde), EditorSuffix (Nom - Suffixe éditeur)
+{
+( Bis )
+}
+
+STRING 1181
+// Unités: h01X (Tour de garde), Ubertip (Aide - Etendue)
+{
+Gör Vakttornet garnisonen reserven . 
+}
+
+STRING 1182
+// Unités: h01Y (Chantier naval), Name (Nom)
+{
+Varv
+}
+
+STRING 1183
+// Unités: h01Y (Chantier naval), Tip (Aide - Basique)
+{
+Bygg en webbplats |cffffcc00n | Raval
+}
+
+STRING 1184
+// Unités: h01Y (Chantier naval), Ubertip (Aide - Etendue)
+{
+Lets rekrytera fartyg. 
+}
+
+STRING 1187
+// Compétences: A02D (Hâte), Hotkey (Raccourci - Normal)
+{
+H
+}
+
+STRING 1188
+// Mises à jour: R00O (Force de la lune,Force supérieure de la lune,Force grandiose de la lune), Hotkey (Raccourci clavier)
+{
+A
+}
+
+STRING 1189
+// Unités: o00H (Forge), Name (Nom)
+{
+Forge
+}
+
+STRING 1190
+// Unités: h01M (Haut fourneau), Name (Nom)
+{
+masugn
+}
+
+STRING 1191
+// Unités: o00D (Camp d'entrainement), Name (Nom)
+{
+UTBILDNINGSLÄGER
+}
+
+STRING 1192
+// Unités: h01S (Hutte), Name (Nom)
+{
+Hut
+}
+
+STRING 1193
+// Unités: h01T (Grande hutte), Name (Nom)
+{
+Stor hut
+}
+
+STRING 1194
+{
+| C0000FF00Gobelins |r
+}
+
+STRING 1195
+// Unités: e00A (Berzerk snaga), Casterupgradename (Noms amélioration lanceur de sorts)
+{
+Initierad 
+}
+
+STRING 1196
+// Compétences: Apg2 (Expiation), EditorSuffix (Suffixe éditeur)
+{
+( Gobelins )
+}
+
+STRING 1197
+// Compétences: A01X (Aura impie), EditorSuffix (Suffixe éditeur)
+{
+( Gobelins )
+}
+
+STRING 1199
+// Mises à jour: R013 (Epées de fer,Epées d'acier,Epées de mithril), Ubertip (Aide - Etendue)
+{
+Ökar de skador som strids Goblin enheter .
+}
+
+STRING 1200
+// Mises à jour: R013 (Epées de fer,Epées d'acier,Epées de mithril), Ubertip (Aide - Etendue)
+{
+Vidare uppgraderar skadan behandlas av Goblin stridsförband .
+}
+
+STRING 1201
+// Mises à jour: R013 (Epées de fer,Epées d'acier,Epées de mithril), Ubertip (Aide - Etendue)
+{
+Vidare uppgraderar skadan behandlas av Goblin stridsförband .
+}
+
+STRING 1202
+// Mises à jour: R013 (Epées de fer,Epées d'acier,Epées de mithril), Tip (Aide)
+{
+Förbättra |cffffcc00A |rrmes järn
+}
+
+STRING 1203
+// Mises à jour: R013 (Epées de fer,Epées d'acier,Epées de mithril), Tip (Aide)
+{
+Förbättra |cffffcc00A |rrmes stål
+}
+
+STRING 1204
+// Mises à jour: R013 (Epées de fer,Epées d'acier,Epées de mithril), Tip (Aide)
+{
+Förbättra |cffffcc00A |rrmes Mithril
+}
+
+STRING 1205
+// Mises à jour: R013 (Epées de fer,Epées d'acier,Epées de mithril), Name (Nom)
+{
+Järn vapen
+}
+
+STRING 1206
+// Mises à jour: R013 (Epées de fer,Epées d'acier,Epées de mithril), Name (Nom)
+{
+Stål vapen
+}
+
+STRING 1207
+// Mises à jour: R013 (Epées de fer,Epées d'acier,Epées de mithril), Name (Nom)
+{
+Mithril vapen
+}
+
+STRING 1208
+// Mises à jour: R00O (Force de la lune,Force supérieure de la lune,Force grandiose de la lune), Hotkey (Raccourci clavier)
+{
+A
+}
+
+STRING 1209
+// Mises à jour: R00V (Epées de fer,Epées d'acier,Epées de mithril), Hotkey (Raccourci clavier)
+{
+A
+}
+
+STRING 1210
+// Mises à jour: R00V (Epées de fer,Epées d'acier,Epées de mithril), Hotkey (Raccourci clavier)
+{
+A
+}
+
+STRING 1211
+// Mises à jour: R014 (Armure de fer,Armure d'acier,Armure de mithril), Ubertip (Aide - Etendue)
+{
+Ökar försvar av tatueringar enheter .
+}
+
+STRING 1212
+// Mises à jour: R014 (Armure de fer,Armure d'acier,Armure de mithril), Ubertip (Aide - Etendue)
+{
+Vidare ökar försvaret av tatueringar enheter .
+}
+
+STRING 1213
+// Mises à jour: R014 (Armure de fer,Armure d'acier,Armure de mithril), Ubertip (Aide - Etendue)
+{
+Vidare ökar försvaret av tatueringar enheter .
+}
+
+STRING 1214
+// Mises à jour: R014 (Armure de fer,Armure d'acier,Armure de mithril), Tip (Aide)
+{
+Förbättra A |cffffcc00r |rmure stål
+}
+
+STRING 1215
+// Mises à jour: R014 (Armure de fer,Armure d'acier,Armure de mithril), Tip (Aide)
+{
+Förbättra A |cffffcc00r |rmure järn
+}
+
+STRING 1216
+// Mises à jour: R014 (Armure de fer,Armure d'acier,Armure de mithril), Name (Nom)
+{
+Stål rustning
+}
+
+STRING 1217
+// Mises à jour: R014 (Armure de fer,Armure d'acier,Armure de mithril), Name (Nom)
+{
+Järn rustning
+}
+
+STRING 1218
+// Mises à jour: R014 (Armure de fer,Armure d'acier,Armure de mithril), Tip (Aide)
+{
+Förbättra A |cffffcc00r |rmure läder
+}
+
+STRING 1219
+// Mises à jour: R014 (Armure de fer,Armure d'acier,Armure de mithril), Name (Nom)
+{
+Leather Armor
+}
+
+STRING 1220
+// Mises à jour: R015 (Formation Sorcier docteur Adepte,Formation Sorcier docteur Maître), Name (Nom)
+{
+Adept Training Mentor
+}
+
+STRING 1221
+// Mises à jour: R015 (Formation Sorcier docteur Adepte,Formation Sorcier docteur Maître), Tip (Aide)
+{
+| Cffffcc00F |rormation Mentor Adept
+}
+
+STRING 1222
+// Mises à jour: R015 (Formation Sorcier docteur Adepte,Formation Sorcier docteur Maître), Tip (Aide)
+{
+| Cffffcc00F |rormation Mentor Läraren
+}
+
+STRING 1223
+// Mises à jour: R00T (Formation Sorcier docteur Adepte,Formation Sorcier docteur Maître), Hotkey (Raccourci clavier)
+{
+F
+}
+
+STRING 1224
+// Mises à jour: R00Y (Contrôle de la magie), Hotkey (Raccourci clavier)
+{
+F
+}
+
+STRING 1225
+// Mises à jour: R015 (Formation Sorcier docteur Adepte,Formation Sorcier docteur Maître), Name (Nom)
+{
+Mentor lärarutbildning
+}
+
+STRING 1228
+// Mises à jour: R015 (Formation Sorcier docteur Adepte,Formation Sorcier docteur Maître), Hotkey (Raccourci clavier)
+{
+F
+}
+
+STRING 1229
+// Mises à jour: R015 (Formation Sorcier docteur Adepte,Formation Sorcier docteur Maître), Hotkey (Raccourci clavier)
+{
+F
+}
+
+STRING 1232
+// Unités: h01R (Mentor), Casterupgradetip (Astuces amélioration lanceur de sorts)
+{
+- Försoning - Atonement |n- Unholy Aura - Försoning | Unholy Aura - n |n - Tag vård
+}
+
+STRING 1233
+// Unités: h01R (Mentor), Ubertip (Aide - Etendue)
+{
+Ett hjul stöd. 
+}
+
+STRING 1234
+// Unités: h01R (Mentor), Tip (Aide - Basique)
+{
+Orsak |cffffcc00M |rentor
+}
+
+STRING 1235
+// Compétences: A01Y (Balise de soins), EditorSuffix (Suffixe éditeur)
+{
+( Gobelins )
+}
+
+STRING 1237
+// Compétences: A01Z (Esquive), EditorSuffix (Suffixe éditeur)
+{
+( Gobelins )
+}
+
+STRING 1238
+// Compétences: A020 (Hurlement), EditorSuffix (Suffixe éditeur)
+{
+( Gobelins )
+}
+
+STRING 1241
+// Mises à jour: R016 (Formation Chaman Adepte,Formation Chaman Maître), Name (Nom)
+{
+Träning Berzerk Snaga Heretic
+}
+
+STRING 1242
+// Mises à jour: R016 (Formation Chaman Adepte,Formation Chaman Maître), Name (Nom)
+{
+Träning Berzerk Snaga Fanatic
+}
+
+STRING 1243
+// Mises à jour: R016 (Formation Chaman Adepte,Formation Chaman Maître), Tip (Aide)
+{
+| Cffffcc00F |rormation Berzerk Snaga Heretic
+}
+
+STRING 1244
+// Mises à jour: R016 (Formation Chaman Adepte,Formation Chaman Maître), Tip (Aide)
+{
+| Cffffcc00F |rormation Berzerk Snaga Fanatic
+}
+
+STRING 1245
+// Compétences: A022 (Dague maudite), Name (Nom)
+{
+Cursed dolk
+}
+
+STRING 1247
+// Compétences: A022 (Dague maudite), Tip (Aide - Normal)
+{
+| Cffffcc00D | Rague förbannade -  |cffffcc00niveau 1 |r
+}
+
+STRING 1248
+// Compétences: A022 (Dague maudite), Tip (Aide - Normal)
+{
+| Cffffcc00D | Rague förbannade -  |cffffcc00niveau 2 |r
+}
+
+STRING 1249
+// Compétences: A022 (Dague maudite), Tip (Aide - Normal)
+{
+| Cffffcc00D | Rague förbannade -  |cffffcc00niveau 3 |r
+}
+
+STRING 1250
+// Compétences: A021 (Lancer de hache), Name (Nom)
+{
+Att kasta yxa
+}
+
+STRING 1251
+// Compétences: A021 (Lancer de hache), Tip (Aide - Normal)
+{
+| Cffffcc00L |rancer axe
+}
+
+STRING 1252
+// Compétences: A021 (Lancer de hache), Ubertip (Aide - Normal - Etendu)
+{
+Projekt en yxa som bedövar ett mål fiende enhet medan skadegörelse .
+}
+
+STRING 1254
+// Unités: n00E (Balrog de Morgoth), Name (Nom)
+{
+Balrog av Morgoth
+}
+
+STRING 1255
+// Compétences: A023 (Balrog de Morgoth), Name (Nom)
+{
+Balrog av Morgoth
+}
+
+STRING 1256
+// Compétences: A023 (Balrog de Morgoth), Researchtip (Aide - Apprendre)
+{
+Kunskap |cffffcc00B |ralrog Morgoth
+}
+
+STRING 1257
+// Compétences: A023 (Balrog de Morgoth), Ubertip (Aide - Normal - Etendu)
+{
+Kallelse en meteor flammor som faller från himlen 
+}
+
+STRING 1258
+// Unités: e00D (Assassin), Hotkey (Raccourci)
+{
+B
+}
+
+STRING 1259
+// Compétences: A023 (Balrog de Morgoth), Tip (Aide - Normal)
+{
+| Cffffcc00B |ralrog Morgoth
+}
+
+STRING 1260
+// Unités: h02D (Caserne), Hotkey (Raccourci)
+{
+B
+}
+
+STRING 1261
+// Compétences: A022 (Dague maudite), Researchtip (Aide - Apprendre)
+{
+Lärande |cffffcc00D | Rague förbannad -  |cffffcc00niveau % d |r 
+}
+
+STRING 1262
+// Compétences: A024 (Projectiles en décomposition), EditorSuffix (Suffixe éditeur)
+{
+( Gobelins )
+}
+
+STRING 1263
+// Compétences: A025 (Flèches empoisonnées), Name (Nom)
+{
+förgiftade pilar
+}
+
+STRING 1264
+// Compétences: A025 (Flèches empoisonnées), EditorSuffix (Suffixe éditeur)
+{
+( Gobelins )
+}
+
+STRING 1265
+// Compétences: A025 (Flèches empoisonnées), Tip (Aide - Normal)
+{
+förgiftade pilar
+}
+
+STRING 1266
+// Compétences: A026 (Armure d'épines), Name (Nom)
+{
+Armor av Thorns
+}
+
+STRING 1267
+// Compétences: A026 (Armure d'épines), Ubertip (Aide - Normal - Etendu)
+{
+Ryggar av rustningen är knivskarp och hantera 20 % skada mottagits till angriparen .
+}
+
+STRING 1268
+// Compétences: A027 (Choc), EditorSuffix (Suffixe éditeur)
+{
+( Gobelins )
+}
+
+STRING 1269
+// Mises à jour: R005 (Rets), Name (Nom)
+{
+förgiftade pilar
+}
+
+STRING 1270
+// Mises à jour: R005 (Rets), Tip (Aide)
+{
+Sök |cffffcc00F | förgiftade rlèches
+}
+
+STRING 1271
+// Mises à jour: R005 (Rets), Ubertip (Aide - Etendue)
+{
+Tillåter Archers skjuta pilar att orsaka gift skador över tid till fiender .
+}
+
+STRING 1272
+// Mises à jour: R017 (Collecte de bois perfectionnée,Collecte de bois avancée), Ubertip (Aide - Etendue)
+{
+\u003cRhlh
+}
+
+STRING 1273
+// Mises à jour: R017 (Collecte de bois perfectionnée,Collecte de bois avancée), Ubertip (Aide - Etendue)
+{
+\u003cRhlh
+}
+
+STRING 1274
+// Mises à jour: R018 (Nuée maléfique), Ubertip (Aide - Etendue)
+{
+Katapulter ger möjlighet att generera Clouds ont överallt där de attackerar 
+}
+
+STRING 1275
+// Mises à jour: R019 (Rets), Name (Nom)
+{
+förgiftade pilar
+}
+
+STRING 1276
+// Mises à jour: R019 (Rets), Tip (Aide)
+{
+Sök |cffffcc00F | förgiftade rlèches
+}
+
+STRING 1277
+// Mises à jour: R019 (Rets), Ubertip (Aide - Etendue)
+{
+Tillåter Archers Gundabad rita pilar för att orsaka gift skador över tid till fiender .
+}
+
+STRING 1278
+// Mises à jour: R01A (Barricades d'épieux,Barricades d'épieux perfectionnées,Barricades d'épieux ), Name (Nom)
+{
+Armor av \ taggar
+}
+
+STRING 1279
+// Compétences: A01G (Explosion), Unhotkey (Raccourci - Off)
+{
+E
+}
+
+STRING 1280
+// Mises à jour: R01A (Barricades d'épieux,Barricades d'épieux perfectionnées,Barricades d'épieux ), Tip (Aide)
+{
+Sök Armor av |cffffcc00e |rpines
+}
+
+STRING 1281
+// Mises à jour: R01A (Barricades d'épieux,Barricades d'épieux perfectionnées,Barricades d'épieux ), Ubertip (Aide - Etendue)
+{
+Omfattar rustningar Bågskyttar och krigare Gundabad med törnen som orsakar 20 % av skador tas till angriparen .
+}
+
+STRING 1282
+// Mises à jour: R01B (Liquide enflammé), Name (Nom)
+{
+Shock
+}
+
+STRING 1283
+// Mises à jour: R00J (Dégâts supplémentaires des Tambours de guerre), Hotkey (Raccourci clavier)
+{
+C
+}
+
+STRING 1284
+// Mises à jour: R01B (Liquide enflammé), Tip (Aide)
+{
+Sök |cffffcc00C | RhoC
+}
+
+STRING 1285
+// Mises à jour: R01B (Liquide enflammé), Ubertip (Aide - Etendue)
+{
+Tillåter troll grottor med marken och orsaka skada zon .
+}
+
+STRING 1286
+// Compétences: A028 (Immunité contre les sorts), EditorSuffix (Suffixe éditeur)
+{
+( Gobelins )
+}
+
+STRING 1287
+// Mises à jour: R01C (Peau dure), Name (Nom)
+{
+Bark härdade
+}
+
+STRING 1288
+// Mises à jour: R01C (Peau dure), Tip (Aide)
+{
+Sök |cffffcc00I |rmmunité mot besvärjelser
+}
+
+STRING 1289
+// Mises à jour: R01C (Peau dure), Ubertip (Aide - Etendue)
+{
+Ger Semi troll och troll grotta överlägsen beständighet mot Stava .
+}
+
+STRING 1290
+// Mises à jour: R01C (Peau dure), Hotkey (Raccourci clavier)
+{
+I
+}
+
+STRING 1291
+// Unités: h00P (Transport à vapeur), Tip (Aide - Basique)
+{
+Orsak |cffffcc00T |rransport ånga
+}
+
+STRING 1292
+// Unités: h01Z (Barque), Name (Nom)
+{
+barquen
+}
+
+STRING 1293
+// Unités: h01Z (Barque), Tip (Aide - Basique)
+{
+Orsak |cffffcc00B |rarque
+}
+
+STRING 1294
+// Unités: h020 (Frégate), Name (Nom)
+{
+fregatt
+}
+
+STRING 1295
+// Unités: h020 (Frégate), Tip (Aide - Basique)
+{
+Orsak |cffffcc00F |rrégate
+}
+
+STRING 1296
+// Unités: h020 (Frégate), Ubertip (Aide - Etendue)
+{
+En effektiv kombi attack mot marken enheter fartyg . 
+}
+
+STRING 1297
+// Unités: h021 (Navire de guerre), Name (Nom)
+{
+Örlogsfartyg
+}
+
+STRING 1298
+// Unités: h021 (Navire de guerre), Tip (Aide - Basique)
+{
+Orsak |cffffcc00N |ravire krig
+}
+
+STRING 1299
+// Unités: h021 (Navire de guerre), Ubertip (Aide - Etendue)
+{
+En kraftfull fartyg effektivt krig mot andra båtar och byggnader . 
+}
+
+STRING 1300
+// Compétences: A00M (Brise armure), Hotkey (Raccourci - Normal)
+{
+B
+}
+
+STRING 1301
+// Mises à jour: R00P (Cuir renforcé,Cuir supérieur,Cuir grandiose), Hotkey (Raccourci clavier)
+{
+C
+}
+
+STRING 1302
+// Compétences: A029 (Lenteur), EditorSuffix (Suffixe éditeur)
+{
+( Gobelins )
+}
+
+STRING 1303
+// Mises à jour: R00V (Epées de fer,Epées d'acier,Epées de mithril), Hotkey (Raccourci clavier)
+{
+A
+}
+
+STRING 1304
+// Mises à jour: R01D (Canons de flak), Name (Nom)
+{
+Långsamhet
+}
+
+STRING 1305
+// Mises à jour: R01D (Canons de flak), Tip (Aide)
+{
+Sök |cffffcc00L |renteur
+}
+
+STRING 1307
+// Mises à jour: R01D (Canons de flak), Ubertip (Aide - Etendue)
+{
+Låter jätte spindel att bromsa sina mål .
+}
+
+STRING 1308
+// Compétences: A009 (Charge), Ubertip (Aide - Normal - Etendu)
+{
+Ladda enheten observation och orsakar 100 poäng av skada . 
+}
+
+STRING 1309
+// Compétences: A00W (Charge), Ubertip (Aide - Normal - Etendu)
+{
+Ladda enheten observation och orsakar 100 poäng av skada . 
+}
+
+STRING 1310
+// Compétences: A02A (Charge), Tip (Aide - Normal)
+{
+| Cffffcc00C |rharge
+}
+
+STRING 1311
+// Compétences: A02A (Charge), Ubertip (Aide - Normal - Etendu)
+{
+Ladda enheten observation och orsakar 100 poäng av skada . 
+}
+
+STRING 1312
+// Compétences: A02A (Charge), Researchtip (Aide - Apprendre)
+{
+| Cffffcc00C |rharge !
+}
+
+STRING 1313
+// Compétences: A02A (Charge), Researchubertip (Aide - Apprendre - Etendu)
+{
+| Cffffcc00C |rharge !
+}
+
+STRING 1314
+// Compétences: A02A (Charge), Untip (Aide - Off)
+{
+| Cffffcc00C |rharge
+}
+
+STRING 1315
+// Compétences: A02A (Charge), EditorSuffix (Suffixe éditeur)
+{
+( Gobelins )
+}
+
+STRING 1316
+// Compétences: A02B (Assommoir), Tip (Aide - Normal)
+{
+Stunner
+}
+
+STRING 1317
+// Compétences: A02B (Assommoir), Ubertip (Aide - Normal - Etendu)
+{
+Attacker har en 25 % stun motståndaren i 2 sekunder .
+}
+
+STRING 1318
+// Compétences: A02B (Assommoir), EditorSuffix (Suffixe éditeur)
+{
+( Gobelins )
+}
+
+STRING 1319
+// Mises à jour: R00I (Folie furieuse), Name (Nom)
+{
+Belastning
+}
+
+STRING 1320
+// Mises à jour: R00P (Cuir renforcé,Cuir supérieur,Cuir grandiose), Hotkey (Raccourci clavier)
+{
+C
+}
+
+STRING 1321
+// Mises à jour: R00P (Cuir renforcé,Cuir supérieur,Cuir grandiose), Hotkey (Raccourci clavier)
+{
+C
+}
+
+STRING 1322
+// Mises à jour: R01E (Folie furieuse), Name (Nom)
+{
+Belastning
+}
+
+STRING 1323
+// Mises à jour: R01E (Folie furieuse), Tip (Aide)
+{
+Sök |cffffcc00C |rharge
+}
+
+STRING 1324
+// Mises à jour: R00X (Rets), Hotkey (Raccourci clavier)
+{
+C
+}
+
+STRING 1325
+// Mises à jour: R01E (Folie furieuse), Ubertip (Aide - Etendue)
+{
+Tamer Bouc ger last sera inflliger som gör skada på fiendens enheter .
+}
+
+STRING 1326
+// Mises à jour: R01F (Lances empoisonnées), Name (Nom)
+{
+Assomoir
+}
+
+STRING 1327
+// Mises à jour: R01F (Lances empoisonnées), Tip (Aide)
+{
+Sök |cffffcc00A |rssomoir
+}
+
+STRING 1328
+// Mises à jour: R013 (Epées de fer,Epées d'acier,Epées de mithril), Hotkey (Raccourci clavier)
+{
+A
+}
+
+STRING 1329
+// Mises à jour: R01F (Lances empoisonnées), Ubertip (Aide - Etendue)
+{
+Ger Yxa Throwers angriper sannolikheten att bedöva sina mål.
+}
+
+STRING 1330
+// Unités: u00E (Gollum), Name (Nom)
+{
+Gollum
+}
+
+STRING 1331
+// Objets: I007 (Anneau unique), Name (Nom)
+{
+enda ring
+}
+
+STRING 1332
+// Objets: I007 (Anneau unique), Description (Description)
+{
+10 bonus smidighet 
+}
+
+STRING 1333
+// Objets: I007 (Anneau unique), Ubertip (Aide - Etendue)
+{
+Ökar 10 styrka 
+}
+
+STRING 1334
+{
+Gollum har visas i kartan!
+}
+
+STRING 1337
+// Unités: n00F (Sauron), Name (Nom)
+{
+Sauron
+}
+
+STRING 1338
+// Unités: n00G (Galadriel), Name (Nom)
+{
+Galadriel
+}
+
+STRING 1339
+// Compétences: A02C (Arme 03), Name (Nom)
+{
+Vapen 03
+}
+
+STRING 1341
+{
+Gollum blev dödad !
+}
+
+STRING 1345
+// Compétences: A02D (Hâte), Name (Nom)
+{
+Haste
+}
+
+STRING 1346
+// Compétences: A02D (Hâte), Ubertip (Aide - Normal - Etendu)
+{
+Enheten attacken 50 % snabbare 
+}
+
+STRING 1347
+// Compétences: A02D (Hâte), Tip (Aide - Normal)
+{
+| Cffffcc00H |ränta
+}
+
+STRING 1348
+// Compétences: A02E (Blizzard), EditorSuffix (Suffixe éditeur)
+{
+( Galadriel )
+}
+
+STRING 1349
+// Compétences: A02F (Tourbillon energétique), Ubertip (Aide - Normal - Etendu)
+{
+Projekt en mängd energiska strålar på fiender i närheten . 
+}
+
+STRING 1350
+// Compétences: A02F (Tourbillon energétique), Name (Nom)
+{
+Energetic virvel
+}
+
+STRING 1353
+// Compétences: A017 (Tir multiple), Researchhotkey (Raccourci - Apprendre)
+{
+T
+}
+
+STRING 1354
+// Enchantements/Effets: B007 (Hâte), EditorName (Nom (dans l'éditeur))
+{
+Haste
+}
+
+STRING 1355
+// Enchantements/Effets: B007 (Hâte), Buffubertip (Bulle d'aide - longue)
+{
+Denna enhet är under påverkan av Haste . 
+}
+
+STRING 1356
+// Compétences: A02F (Tourbillon energétique), Tip (Aide - Normal)
+{
+| Cffffcc00T | Energisk rourbillon
+}
+
+STRING 1357
+// Unités: n00I (Piège), Name (Nom)
+{
+Trap
+}
+
+STRING 1358
+// Compétences: A02G (Piège), Name (Nom)
+{
+Trap
+}
+
+STRING 1359
+// Compétences: A02G (Piège), Ubertip (Aide - Normal - Etendu)
+{
+Placerar en osynlig fälla den valda platsen som kvarstår 10 minuter .
+}
+
+STRING 1360
+// Compétences: A02G (Piège), Tip (Aide - Normal)
+{
+| Cffffcc00P | Riege
+}
+
+STRING 1361
+// Compétences: A02H (Dégâts piège), Name (Nom)
+{
+Skador fälla
+}
+
+STRING 1362
+// Compétences: A02I (Déclenchement piège), Name (Nom)
+{
+Trigger fälla
+}
+
+STRING 1363
+// Compétences: A01T (Position de siège), Hotkey (Raccourci - Normal)
+{
+P
+}
+
+STRING 1364
+// Mises à jour: R01G (Défensif), Name (Nom)
+{
+Trap
+}
+
+STRING 1365
+// Mises à jour: R01G (Défensif), Tip (Aide)
+{
+Sök |cffffcc00P | Riege
+}
+
+STRING 1366
+// Compétences: A01T (Position de siège), Unhotkey (Raccourci - Off)
+{
+P
+}
+
+STRING 1367
+// Mises à jour: R01G (Défensif), Ubertip (Aide - Etendue)
+{
+Tillåter snagas Raiders gillra fällor på marken .
+}
+
+STRING 1368
+// Compétences: A02J (Invisibilité), EditorSuffix (Suffixe éditeur)
+{
+(Ring)
+}
+
+STRING 1369
+// Unités: h026 (Bélier), Name (Nom)
+{
+Aries
+}
+
+STRING 1370
+// Compétences: A02K (Buff anneau), Name (Nom)
+{
+Buff ring
+}
+
+STRING 1371
+// Compétences: A02L (Objet bonus aux caractéristiques du héros (+10 partout)), Name (Nom)
+{
+Bonus föremål för egenskaper hjälten ( 10 alla)
+}
+
+STRING 1374
+// Mises à jour: R01H (Défensif), Name (Nom)
+{
+Reducerad tooling
+}
+
+STRING 1375
+// Mises à jour: R01H (Défensif), effect1 (Effet 1)
+{
+rmvx
+}
+
+STRING 1376
+// Mises à jour: R01H (Défensif), Name (Nom)
+{
+Reducerad tooling
+}
+
+STRING 1377
+// Unités: o00H (Forge), Hotkey (Raccourci)
+{
+O
+}
+
+STRING 1378
+// Mises à jour: R01H (Défensif), Tip (Aide)
+{
+Förbättra |cffffcc00O |rutillage reducerat
+}
+
+STRING 1379
+// Mises à jour: R01H (Défensif), Tip (Aide)
+{
+Förbättra |cffffcc00O |rutillage reducerat
+}
+
+STRING 1380
+// Mises à jour: R01H (Défensif), Ubertip (Aide - Etendue)
+{
+Snagas gör det möjligt att röra sig snabbare och öka produktiviteten .
+}
+
+STRING 1381
+// Mises à jour: R01H (Défensif), Ubertip (Aide - Etendue)
+{
+Snagas gör det möjligt att röra sig snabbare och öka produktiviteten .
+}
+
+STRING 1382
+// Unités: h01V (Tour de garde), EditorSuffix (Nom - Suffixe éditeur)
+{
+( Archers Gundabad )
+}
+
+STRING 1383
+// Unités: h01V (Tour de garde), Tip (Aide - Basique)
+{
+Förbättra Watchtower med garnison |cffffcc00A |rrchers av Gundabad
+}
+
+STRING 1384
+// Unités: h01V (Tour de garde), Ubertip (Aide - Etendue)
+{
+Vakttornet har förbättrats för att rymma upp till 4 Archers Gundabad och därmed orsaka mer skada när du använder förgiftade pilar kapacitet . 
+}
+
+STRING 1385
+// Unités: h01W (Tour de garde), EditorSuffix (Nom - Suffixe éditeur)
+{
+( Watchmen )
+}
+
+STRING 1386
+// Unités: h01W (Tour de garde), Tip (Aide - Basique)
+{
+Förbättra Vakttorn med Garrison |cffffcc00G |ruetteurs snagas
+}
+
+STRING 1387
+// Unités: h01W (Tour de garde), Ubertip (Aide - Etendue)
+{
+Vakttornet har förbättrats för att rymma upp till 4 Väktarna och därmed orsaka mer skada när du använder Assomoir kapacitet . 
+}
+
+STRING 1388
+// Compétences: A00R (Repos), EditorSuffix (Suffixe éditeur)
+{
+( Annat )
+}
+
+STRING 1389
+// Compétences: A02M (Postes de combat), Ubertip (Aide - Normal - Etendu)
+{
+Alla Archers Gundabad släktingar tog sin tillflykt till vakttornetoch försvara deras läger .
+}
+
+STRING 1390
+// Compétences: A02M (Postes de combat), EditorSuffix (Suffixe éditeur)
+{
+( Archer Gundabad )
+}
+
+STRING 1391
+// Compétences: A02N (Postes de combat), Ubertip (Aide - Normal - Etendu)
+{
+Alla Watchers snagas släktingar tog sin tillflykt till vakttornetoch försvara deras läger .
+}
+
+STRING 1392
+// Compétences: A02N (Postes de combat), EditorSuffix (Suffixe éditeur)
+{
+( Watcher )
+}
+
+STRING 1393
+// Unités: n00B (Archer de Gundabad), Ubertip (Aide - Etendue)
+{
+En varierade attack enhet rustning . 
+}
+
+STRING 1394
+// Unités: h01N (Guerrier de Gundabad), Tip (Aide - Basique)
+{
+Orsak |cffffcc00G |ruerrier av Gundabad
+}
+
+STRING 1395
+// Unités: h01N (Guerrier de Gundabad), Ubertip (Aide - Etendue)
+{
+Goblin bepansrade infanterist . 
+}
+
+STRING 1396
+// Unités: n00C (Chevaucheur de loup), Tip (Aide - Basique)
+{
+Orsak |cffffcc00C |revaucheur Wolf
+}
+
+STRING 1397
+// Unités: n00C (Chevaucheur de loup), Ubertip (Aide - Etendue)
+{
+En kraftfull enhet monterad . 
+}
+
+STRING 1398
+// Unités: h01O (Pillard snaga), Ubertip (Aide - Etendue)
+{
+En lätt närstridsenhetsom kan lära Trap . 
+}
+
+STRING 1399
+// Unités: h01O (Pillard snaga), Tip (Aide - Basique)
+{
+Orsak |cffffcc00P |rillard snaga
+}
+
+STRING 1400
+// Unités: h01P (Guetteur snaga), Tip (Aide - Basique)
+{
+Orsak |cffffcc00G |ruetteur snaga
+}
+
+STRING 1401
+// Unités: h01P (Guetteur snaga), Ubertip (Aide - Etendue)
+{
+Enhet varierade attack kan lära sig grundläggande Assomoir . 
+}
+
+STRING 1402
+// Unités: h01Q (Araignée géante), Tip (Aide - Basique)
+{
+Orsak |cffffcc00A | jätte rraignée
+}
+
+STRING 1403
+// Unités: h01Q (Araignée géante), Ubertip (Aide - Etendue)
+{
+En mycket mobilenheten. 
+}
+
+STRING 1404
+// Unités: n00D (Semi-troll), Tip (Aide - Basique)
+{
+Orsak |cffffcc00S |remi - troll
+}
+
+STRING 1405
+// Unités: n00D (Semi-troll), Ubertip (Aide - Etendue)
+{
+Unexperte i kampen mot fiendens kavalleri . 
+}
+
+STRING 1406
+// Unités: o006 (Catapulte), Ubertip (Aide - Etendue)
+{
+En belägring vapen på långt håll 
+}
+
+STRING 1407
+// Unités: o006 (Catapulte), Tip (Aide - Basique)
+{
+Orsak |cffffcc00C |ratapulte
+}
+
+STRING 1408
+// Unités: e00A (Berzerk snaga), Casterupgradetip (Astuces amélioration lanceur de sorts)
+{
+- Dodge - Dodge |n- kasta yxa - Dodge |n- kasta yxa |n- Howl
+}
+
+STRING 1409
+// Unités: e00A (Berzerk snaga), Tip (Aide - Basique)
+{
+Orsak |cffffcc00B |rerzerk snaga
+}
+
+STRING 1410
+// Unités: e00A (Berzerk snaga), Ubertip (Aide - Etendue)
+{
+En infanterist mycket mångsidig närstrid . 
+}
+
+STRING 1411
+// Unités: e00B (Troll des cavernes), Tip (Aide - Basique)
+{
+Orsak |cffffcc00T |rroll grottor
+}
+
+STRING 1412
+// Unités: e00B (Troll des cavernes), Ubertip (Aide - Etendue)
+{
+Att införa en stridsenhetsom kan utlösa förödelse mot fiendens infanteri . 
+}
+
+STRING 1413
+// Unités: o009 (Comptoir des Gobelins), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00C |romptoir Gobelins
+}
+
+STRING 1414
+// Unités: o009 (Comptoir des Gobelins), Ubertip (Aide - Etendue)
+{
+Låter rekrytera Snagas och magasin för de insamlade medlen . 
+}
+
+STRING 1415
+// Unités: o00A (Comptoir des Gobelins renforcé), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00C |romptoir Gobelins förstärkt
+}
+
+STRING 1416
+// Unités: o00A (Comptoir des Gobelins renforcé), Hotkey (Raccourci)
+{
+G
+}
+
+STRING 1417
+// Unités: o00A (Comptoir des Gobelins renforcé), Ubertip (Aide - Etendue)
+{
+Lås upp nya byggnader 
+}
+
+STRING 1418
+// Unités: o00B (Comptoir des Gobelins sur-renforcé), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00C |romptoir Gobelins sur - förstärkt
+}
+
+STRING 1419
+// Unités: o00B (Comptoir des Gobelins sur-renforcé), Hotkey (Raccourci)
+{
+G
+}
+
+STRING 1420
+// Unités: o00B (Comptoir des Gobelins sur-renforcé), Ubertip (Aide - Etendue)
+{
+Lås upp nya enheter och nya förbättringar . 
+}
+
+STRING 1421
+// Unités: o00C (Puit à Gobelins), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00P |ruit till Gobelins
+}
+
+STRING 1422
+// Unités: o00C (Puit à Gobelins), Ubertip (Aide - Etendue)
+{
+Möjliggör utbildning av grundläggande trupper Gobelins och innehåller förbättringar för dessa enheter .
+}
+
+STRING 1423
+// Unités: o00D (Camp d'entrainement), Tip (Aide - Basique)
+{
+Att bygga ett läger \ |cffffcc00e |rntrainement
+}
+
+STRING 1424
+// Unités: o00D (Camp d'entrainement), Ubertip (Aide - Etendue)
+{
+Låter träningskraftfullaenheterna Gobelins och innehåller förbättringar för dessa enheter .
+}
+
+STRING 1425
+// Unités: o00E (Puit à Trolls), Tip (Aide - Basique)
+{
+Att bygga en väl i |cffffcc00T |rrolls
+}
+
+STRING 1426
+// Unités: o00E (Puit à Trolls), Ubertip (Aide - Etendue)
+{
+Möjliggör utbildning av Trolls och innehåller förbättringar för dessa enheter .
+}
+
+STRING 1427
+// Unités: o00F (Bestiaire), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00B |restiaire
+}
+
+STRING 1428
+// Unités: o00F (Bestiaire), Ubertip (Aide - Etendue)
+{
+Möjliggör utbildning av kavalleriet Gobelins och innehåller förbättringar för dessa enheter .
+}
+
+STRING 1429
+// Unités: o00G (Chambre vaudou), Ubertip (Aide - Etendue)
+{
+Tillåter inköp av vissa objekt och utbildning av mentorer .
+}
+
+STRING 1430
+// Unités: h01S (Hutte), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00H | Rutte
+}
+
+STRING 1431
+// Unités: h01T (Grande hutte), Tip (Aide - Basique)
+{
+Förbättra |cffffcc00G |rrande hut
+}
+
+STRING 1432
+// Unités: h01T (Grande hutte), Hotkey (Raccourci)
+{
+G
+}
+
+STRING 1433
+// Unités: h01T (Grande hutte), Ubertip (Aide - Etendue)
+{
+Förstorar hydda därigenom orsakar fler enheter .
+}
+
+STRING 1434
+// Unités: h01X (Tour de garde), Tip (Aide - Basique)
+{
+Förbättra |cffffcc00T | Rour omsorg
+}
+
+STRING 1435
+// Unités: o00H (Forge), Tip (Aide - Basique)
+{
+Bygg en f |cffffcc00o |rrge
+}
+
+STRING 1436
+// Unités: o00H (Forge), Ubertip (Aide - Etendue)
+{
+Innehåller uppgraderingar vapen och rustningar Gobelins och diverse andra förbättringar .
+}
+
+STRING 1437
+// Unités: h01M (Haut fourneau), Tip (Aide - Basique)
+{
+Bygg en hög |cffffcc00f |rourneau
+}
+
+STRING 1438
+// Unités: h01M (Haut fourneau), Ubertip (Aide - Etendue)
+{
+Det är här det skördade virket deponeras . 
+}
+
+STRING 1439
+// Unités: h021 (Navire de guerre), Hotkey (Raccourci)
+{
+N
+}
+
+STRING 1440
+// Compétences: A017 (Tir multiple), Hotkey (Raccourci - Normal)
+{
+T
+}
+
+STRING 1441
+// Compétences: A00M (Brise armure), Unhotkey (Raccourci - Off)
+{
+B
+}
+
+STRING 1442
+// Compétences: A024 (Projectiles en décomposition), Name (Nom)
+{
+Projektiler nedbrytning
+}
+
+STRING 1443
+// Compétences: A024 (Projectiles en décomposition), Ubertip (Aide - Normal - Etendu)
+{
+Däck Projektiler ruttnande släpper en giftig moln under attackerna . 
+}
+
+STRING 1444
+// Compétences: A024 (Projectiles en décomposition), Tip (Aide - Normal)
+{
+Projektiler nedbrytning
+}
+
+STRING 1445
+// Compétences: A01U (Tir puissant), Hotkey (Raccourci - Normal)
+{
+T
+}
+
+STRING 1446
+// Compétences: A02G (Piège), Hotkey (Raccourci - Normal)
+{
+P
+}
+
+STRING 1447
+// Compétences: A023 (Balrog de Morgoth), Hotkey (Raccourci - Normal)
+{
+B
+}
+
+STRING 1448
+// Mises à jour: R00N (Puits de printemps), Hotkey (Raccourci clavier)
+{
+S
+}
+
+STRING 1449
+// Compétences: A02F (Tourbillon energétique), Hotkey (Raccourci - Normal)
+{
+T
+}
+
+STRING 1450
+// Mises à jour: R016 (Formation Chaman Adepte,Formation Chaman Maître), Hotkey (Raccourci clavier)
+{
+F
+}
+
+STRING 1451
+// Mises à jour: R002 (Liquide enflammé), Hotkey (Raccourci clavier)
+{
+P
+}
+
+STRING 1452
+// Mises à jour: R01H (Défensif), Hotkey (Raccourci clavier)
+{
+O
+}
+
+STRING 1453
+// Unités: H00E (Roi sous la Montagne), Ubertip (Aide - Etendue)
+{
+En krigare hjälte 
+}
+
+STRING 1454
+// Unités: O008 (Commandant Gobelin), Ubertip (Aide - Etendue)
+{
+En kämpe hjälte 
+}
+
+STRING 1455
+// Unités: O008 (Commandant Gobelin), Tip (Aide - Basique)
+{
+Åkalla |cffffcc00C |rommandant Goblin
+}
+
+STRING 1456
+// Unités: O008 (Commandant Gobelin), Awakentip (Aide - Eveillé)
+{
+Återuppliva |cffffcc00C |rommandant Goblin
+}
+
+STRING 1457
+// Unités: O008 (Commandant Gobelin), Revivetip (Aide - Résurrection)
+{
+Återuppliva |cffffcc00C |rommandant Goblin
+}
+
+STRING 1458
+// Mises à jour: R01B (Liquide enflammé), Hotkey (Raccourci clavier)
+{
+C
+}
+
+STRING 1459
+// Unités: h022 (Travailleur), Name (Nom)
+{
+Arbetare
+}
+
+STRING 1460
+// Unités: h023 (Milicien), Name (Nom)
+{
+MILISSOLDAT
+}
+
+STRING 1461
+// Unités: h023 (Milicien), Tip (Aide - Basique)
+{
+Orsak |cffffcc00E |rclaireur
+}
+
+STRING 1462
+// Unités: h023 (Milicien), Ubertip (Aide - Etendue)
+{
+Att ge ett kraftfullt infanteri livvakt av kungen . 
+}
+
+STRING 1463
+// Mises à jour: R00L (Barricades d'épieux,Barricades d'épieux perfectionnées,Barricades d'épieux ), Hotkey (Raccourci clavier)
+{
+E
+}
+
+STRING 1464
+// Unités: h024 (Soldat du Gondor), Ubertip (Aide - Etendue)
+{
+En mångsidig soldat kan lära sig defensiv . 
+}
+
+STRING 1465
+// Unités: h024 (Soldat du Gondor), Name (Nom)
+{
+Soldat av Gondor
+}
+
+STRING 1466
+// Unités: h024 (Soldat du Gondor), Hotkey (Raccourci)
+{
+G
+}
+
+STRING 1467
+// Unités: h024 (Soldat du Gondor), Tip (Aide - Basique)
+{
+Orsak |cffffcc00G |ruerrier i rustning
+}
+
+STRING 1468
+// Unités: n00J (Chevalier du Gondor), Name (Nom)
+{
+Riddare av Gondor
+}
+
+STRING 1469
+// Unités: H025 (Magicien gris), Name (Nom)
+{
+Grå Wizard
+}
+
+STRING 1470
+// Unités: h026 (Bélier), Tip (Aide - Basique)
+{
+Orsaken vara |cffffcc00l | kurir
+}
+
+STRING 1471
+// Unités: h026 (Bélier), Ubertip (Aide - Etendue)
+{
+En sittdel specialiserad på att förstöra fiendens byggnader . 
+}
+
+STRING 1472
+// Unités: n00K (Piquier), Name (Nom)
+{
+piker
+}
+
+STRING 1473
+// Unités: n00K (Piquier), Tip (Aide - Basique)
+{
+Orsak |cffffcc00P | Riquier
+}
+
+STRING 1474
+// Unités: n00K (Piquier), Ubertip (Aide - Etendue)
+{
+En ganska lätt enhet för att bekämpa fiendens kavalleri . 
+}
+
+STRING 1475
+// Destructibles: B000 (Bélier), Name (Nom)
+{
+Aries
+}
+
+STRING 1476
+// Compétences: A021 (Lancer de hache), Hotkey (Raccourci - Normal)
+{
+L
+}
+
+STRING 1477
+// Mises à jour: R01G (Défensif), Hotkey (Raccourci clavier)
+{
+P
+}
+
+STRING 1478
+// Unités: n00L (Archer du Gondor), Name (Nom)
+{
+Archer Gondors
+}
+
+STRING 1479
+// Unités: n00L (Archer du Gondor), Tip (Aide - Basique)
+{
+Orsak |cffffcc00S |rentinelle
+}
+
+STRING 1480
+// Unités: n00L (Archer du Gondor), Ubertip (Aide - Etendue)
+{
+Enhet något varierade attack kan lära Arrows tranquilisantes . 
+}
+
+STRING 1481
+// Unités: h027 (Ranger), Name (Nom)
+{
+Ranger
+}
+
+STRING 1482
+// Unités: h027 (Ranger), Tip (Aide - Basique)
+{
+Orsak |cffffcc00A |rrcher
+}
+
+STRING 1483
+// Unités: h027 (Ranger), Ubertip (Aide - Etendue)
+{
+En utmärkt enhet varierade attack kan lära Arrows förgiftad . 
+}
+
+STRING 1484
+// Mises à jour: R013 (Epées de fer,Epées d'acier,Epées de mithril), Hotkey (Raccourci clavier)
+{
+A
+}
+
+STRING 1485
+// Unités: e00C (Porte étendard), Name (Nom)
+{
+bärare
+}
+
+STRING 1486
+// Unités: e00C (Porte étendard), Casterupgradetip (Astuces amélioration lanceur de sorts)
+{
+- Hammare - Hammare |n- blixt Shield - Hammer |n- blixt Shield |n- Fire Inside
+}
+
+STRING 1487
+// Unités: e00C (Porte étendard), Tip (Aide - Basique)
+{
+Orsak |cffffcc00M |rage krig
+}
+
+STRING 1488
+// Unités: e00C (Porte étendard), Ubertip (Aide - Etendue)
+{
+En kämpe och ett hjul . 
+}
+
+STRING 1489
+// Mises à jour: R006 (Bombes de Machine volante), Hotkey (Raccourci clavier)
+{
+M
+}
+
+STRING 1491
+// Unités: e00D (Assassin), Casterupgradetip (Astuces amélioration lanceur de sorts)
+{
+- Dodge - Dodge |n- kasta yxa - Dodge |n- kasta yxa |n- Howl
+}
+
+STRING 1492
+// Unités: e00D (Assassin), Tip (Aide - Basique)
+{
+Orsak |cffffcc00B |rerzerk snaga
+}
+
+STRING 1493
+// Unités: e00D (Assassin), Ubertip (Aide - Etendue)
+{
+En infanterist mycket mångsidig närstrid . 
+}
+
+STRING 1494
+// Unités: e00D (Assassin), Casterupgradename (Noms amélioration lanceur de sorts)
+{
+Initierad 
+}
+
+STRING 1495
+// Compétences: A023 (Balrog de Morgoth), Researchhotkey (Raccourci - Apprendre)
+{
+B
+}
+
+STRING 1496
+// Unités: e00D (Assassin), Name (Nom)
+{
+Assassin
+}
+
+STRING 1497
+// Compétences: A02O (Arme 04), Name (Nom)
+{
+Vapen 04
+}
+
+STRING 1498
+// Compétences: A026 (Armure d'épines), Tip (Aide - Normal)
+{
+Armor av Thorns
+}
+
+STRING 1499
+// Unités: h028 (Comptoir du Gondor), Name (Nom)
+{
+Counter Gondor
+}
+
+STRING 1500
+// Unités: h028 (Comptoir du Gondor), Hotkey (Raccourci)
+{
+N
+}
+
+STRING 1501
+// Unités: h028 (Comptoir du Gondor), Tip (Aide - Basique)
+{
+Att bygga ett teckensnitt |cffffcc00N |regn
+}
+
+STRING 1502
+// Unités: h028 (Comptoir du Gondor), Ubertip (Aide - Etendue)
+{
+Låter rekrytera minderåriga och ett magasin för medel som uppbärs . 
+}
+
+STRING 1503
+// Unités: h029 (Comptoir du Gondor renforcé), Tip (Aide - Basique)
+{
+Förbättra Tecken |cffffcc00N |regn förstärkt
+}
+
+STRING 1504
+// Unités: h029 (Comptoir du Gondor renforcé), Ubertip (Aide - Etendue)
+{
+Lås upp nya byggnader 
+}
+
+STRING 1505
+// Unités: h029 (Comptoir du Gondor renforcé), Name (Nom)
+{
+Counter Gondor förstärkt
+}
+
+STRING 1506
+// Unités: h029 (Comptoir du Gondor renforcé), Hotkey (Raccourci)
+{
+N
+}
+
+STRING 1507
+// Unités: h02A (Comptoir du Gondor sur-renforcé), Tip (Aide - Basique)
+{
+Förbättra Tecken |cffffcc00N |regn över förstärkta
+}
+
+STRING 1508
+// Unités: h02A (Comptoir du Gondor sur-renforcé), Ubertip (Aide - Etendue)
+{
+Lås upp nya enheter och nya förbättringar . 
+}
+
+STRING 1509
+// Unités: h02A (Comptoir du Gondor sur-renforcé), Name (Nom)
+{
+Gondor på skrivbordet förstärkta
+}
+
+STRING 1510
+// Unités: h02A (Comptoir du Gondor sur-renforcé), Hotkey (Raccourci)
+{
+N
+}
+
+STRING 1511
+// Unités: h02B (Grande habitation), Name (Nom)
+{
+Stor bostad
+}
+
+STRING 1512
+// Unités: h02B (Grande habitation), Tip (Aide - Basique)
+{
+Förbättra |cffffcc00G |rrande hem
+}
+
+STRING 1513
+// Unités: h02B (Grande habitation), Hotkey (Raccourci)
+{
+G
+}
+
+STRING 1514
+// Unités: h02B (Grande habitation), Ubertip (Aide - Etendue)
+{
+Expanderande bostäder och därmed orsaka fler enheter .
+}
+
+STRING 1515
+// Unités: h02C (Habitation), Name (Nom)
+{
+Start
+}
+
+STRING 1516
+// Unités: h02C (Habitation), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00H |rabitation
+}
+
+STRING 1517
+// Unités: h02C (Habitation), Ubertip (Aide - Etendue)
+{
+Öka gränsen för enheten som du kan träna .
+}
+
+STRING 1518
+// Unités: h02D (Caserne), Ubertip (Aide - Etendue)
+{
+Möjliggör utbildning av infanterisoldater
+}
+
+STRING 1519
+// Unités: h02D (Caserne), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00B |rarraquement
+}
+
+STRING 1520
+// Unités: h02E (Scierie), Ubertip (Aide - Etendue)
+{
+Låter bort timmer som avverkas . 
+}
+
+STRING 1521
+// Unités: h02F (Forge), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00F |rorge
+}
+
+STRING 1522
+// Unités: h02F (Forge), Ubertip (Aide - Etendue)
+{
+Innehåller vapen uppgraderingar 
+}
+
+STRING 1523
+// Unités: h02G (Ecurie), Name (Nom)
+{
+Ecurie
+}
+
+STRING 1524
+// Unités: h02G (Ecurie), Ubertip (Aide - Etendue)
+{
+Möjliggör utbildning av Tamers get och grizzly Riders . 
+}
+
+STRING 1525
+// Unités: h02G (Ecurie), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00E |rlevage
+}
+
+STRING 1526
+// Unités: h02H (Archerie), Name (Nom)
+{
+bågskytte
+}
+
+STRING 1527
+// Unités: h02H (Archerie), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00C |rhamp skytte
+}
+
+STRING 1528
+// Unités: h02H (Archerie), Ubertip (Aide - Etendue)
+{
+Möjliggör utbildning av Bärraketer yxor och bågskyttar . 
+}
+
+STRING 1529
+// Unités: h02I (Tour de garde), Tip (Aide - Basique)
+{
+Att bygga ett torn |cffffcc00g | RARDE
+}
+
+STRING 1530
+// Unités: h02I (Tour de garde), Ubertip (Aide - Etendue)
+{
+Defensiv byggnad som kan förbättras för att innehålla en garnison Bärraketer axlar eller dArbalétriers . 
+}
+
+STRING 1531
+// Unités: h02J (Tour de garde), Tip (Aide - Basique)
+{
+Förbättra Watchtower med garnison |cffffcc00A |rrbalétriers
+}
+
+STRING 1532
+// Unités: h02J (Tour de garde), Ubertip (Aide - Etendue)
+{
+Vakttornet har förbättrats för att rymma upp till 4 bågskyttar och därmed orsaka mer skada när du använder förmåga Kakel inflammerade . 
+}
+
+STRING 1533
+// Unités: h02K (Tour de garde), Tip (Aide - Basique)
+{
+Förbättra Vakttorn med Garrison |cffffcc00L |ranceurs axlar
+}
+
+STRING 1534
+// Unités: h02K (Tour de garde), Ubertip (Aide - Etendue)
+{
+Vakttornet har förbättrats för att rymma upp till 4 Launchers axlar och därmed orsaka mer skada när du använder Assomoir kapacitet . 
+}
+
+STRING 1535
+// Unités: h02L (Tour de garde), EditorSuffix (Nom - Suffixe éditeur)
+{
+( Bis )
+}
+
+STRING 1536
+// Unités: h02L (Tour de garde), Ubertip (Aide - Etendue)
+{
+Gör Vakttornet garnisonen reserven . 
+}
+
+STRING 1537
+// Unités: h02M (Taverne), Name (Nom)
+{
+Tavern
+}
+
+STRING 1538
+// Unités: h02M (Taverne), Ubertip (Aide - Etendue)
+{
+Tillåter inköp av vissa objekt och utbildning av fyllerister .
+}
+
+STRING 1539
+// Unités: h02M (Taverne), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00T |raverne
+}
+
+STRING 1540
+// Unités: o00I (Atelier de siège), Name (Nom)
+{
+Siege Workshop-
+}
+
+STRING 1541
+// Unités: o00I (Atelier de siège), Tip (Aide - Basique)
+{
+Bygg en |cffffcc00A |rtelier sätet
+}
+
+STRING 1542
+// Unités: o00I (Atelier de siège), Ubertip (Aide - Etendue)
+{
+Möjliggör utbildning av Wrecking och belägringsmaskiner . 
+}
+
+STRING 1543
+// Unités: h02N (Port), Name (Nom)
+{
+Port
+}
+
+STRING 1544
+// Unités: h02N (Port), Tip (Aide - Basique)
+{
+Bygg en webbplats |cffffcc00n | Raval
+}
+
+STRING 1545
+// Unités: h02N (Port), Ubertip (Aide - Etendue)
+{
+Lets rekrytera fartyg. 
+}
+
+STRING 1546
+// Compétences: A00G (Postes de combat), EditorSuffix (Suffixe éditeur)
+{
+( Launchers axlar )
+}
+
+STRING 1547
+// Compétences: A00H (Postes de combat), EditorSuffix (Suffixe éditeur)
+{
+( Crossbow )
+}
+
+STRING 1548
+// Mises à jour: R001 (Feu liquide), Hotkey (Raccourci clavier)
+{
+H
+}
+
+STRING 1549
+// Mises à jour: R00D (Marteaux des tempêtes), Hotkey (Raccourci clavier)
+{
+B
+}
+
+STRING 1550
+// Mises à jour: R010 (Barrage), Hotkey (Raccourci clavier)
+{
+T
+}
+
+STRING 1551
+// Mises à jour: R013 (Epées de fer,Epées d'acier,Epées de mithril), Hotkey (Raccourci clavier)
+{
+A
+}
+
+STRING 1552
+// Mises à jour: R016 (Formation Chaman Adepte,Formation Chaman Maître), Hotkey (Raccourci clavier)
+{
+F
+}
+
+STRING 1553
+// Mises à jour: R01A (Barricades d'épieux,Barricades d'épieux perfectionnées,Barricades d'épieux ), Hotkey (Raccourci clavier)
+{
+E
+}
+
+STRING 1554
+// Mises à jour: R01D (Canons de flak), Hotkey (Raccourci clavier)
+{
+L
+}
+
+STRING 1555
+// Mises à jour: R01E (Folie furieuse), Hotkey (Raccourci clavier)
+{
+C
+}
+
+STRING 1556
+// Mises à jour: R01F (Lances empoisonnées), Hotkey (Raccourci clavier)
+{
+A
+}
+
+STRING 1557
+{
+| C000080FFGondor |r
+}
+
