@@ -10,6 +10,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import com.hiveworkshop.wc3.mdl.IdObject.NodeFlags;
 import com.hiveworkshop.wc3.util.MathUtils;
+import org.lwjgl.util.vector.Vector4f;
 
 public final class RenderNode {
 	private final AnimatedNode idObject;
@@ -22,6 +23,7 @@ public final class RenderNode {
 	private static final Vector3f locationHeap = new Vector3f();
 	private static final Vector3f scalingHeap = new Vector3f();
 	private static final Vector3f pivotHeap = new Vector3f();
+	private static final Vector4f vector4Heap = new Vector4f();
 
 	protected final Vector3f localLocation = new Vector3f();
 	protected final Quaternion localRotation = new Quaternion();
@@ -222,5 +224,21 @@ public final class RenderNode {
 
 	public Quaternion getWorldRotation() {
 		return worldRotation;
+	}
+
+	public Vector3f getWorldScale() {
+		return worldScale;
+	}
+
+	public Vector3f getPivot() {
+		vector4Heap.x = (float) idObject.getPivotPoint().x;
+		vector4Heap.y = (float) idObject.getPivotPoint().y;
+		vector4Heap.z = (float) idObject.getPivotPoint().z;
+		vector4Heap.w = 1;
+		Matrix4f.transform(worldMatrix, vector4Heap, vector4Heap);
+		pivotHeap.x = vector4Heap.x;
+		pivotHeap.y = vector4Heap.y;
+		pivotHeap.z = vector4Heap.z;
+		return pivotHeap;
 	}
 }

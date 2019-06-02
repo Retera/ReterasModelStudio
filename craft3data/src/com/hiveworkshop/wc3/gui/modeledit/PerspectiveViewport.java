@@ -201,12 +201,13 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 		for (final Geoset geo : modelView.getModel().getGeosets()) {// .getMDL().getGeosets()
 			for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
 				final Layer layer = geo.getMaterial().getLayers().get(i);
-				if (layer.getTextureBitmap() == null) {
+				if (layer.getTextureBitmap() != null) {
+					loadToTexMap( layer.getTextureBitmap(), true);
+				}
+				if (layer.getTextures() != null) {
 					for (final Bitmap tex : layer.getTextures()) {
-						loadToTexMap(tex, false);
+						loadToTexMap(tex, true);
 					}
-				} else {
-					loadToTexMap(layer.getTextureBitmap(), false);
 				}
 			}
 		}
@@ -303,12 +304,13 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 				for (final Geoset geo : modelView.getModel().getGeosets()) {// .getMDL().getGeosets()
 					for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
 						final Layer layer = geo.getMaterial().getLayers().get(i);
-						if (layer.getTextureBitmap() == null) {
+						if (layer.getTextureBitmap() != null) {
+							loadToTexMap( layer.getTextureBitmap(), true);
+						}
+						if (layer.getTextures() != null) {
 							for (final Bitmap tex : layer.getTextures()) {
 								loadToTexMap(tex, true);
 							}
-						} else {
-							loadToTexMap(layer.getTextureBitmap(), true);
 						}
 					}
 				}
@@ -715,7 +717,7 @@ public class PerspectiveViewport extends AWTGLCanvas implements MouseListener, A
 			final boolean opaqueLayer = filterMode == FilterMode.NONE || filterMode == FilterMode.TRANSPARENT;
 			if (renderOpaque && opaqueLayer || !renderOpaque && !opaqueLayer) {
 				if (!overriddenMaterials) {
-					final Bitmap tex = layer.getRenderTexture(timeEnvironment);
+					final Bitmap tex = layer.getRenderTexture(timeEnvironment, modelView.getModel());
 					final Integer texture = textureMap.get(tex);
 					bindLayer(layer, tex, texture);
 				}

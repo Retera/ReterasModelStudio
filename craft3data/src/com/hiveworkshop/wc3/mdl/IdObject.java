@@ -50,11 +50,11 @@ public abstract class IdObject extends AbstractAnimatedNode implements Named {
 		}
 	}
 
-	String name;
-	Vertex pivotPoint;
-	int objectId = -1;
-	int parentId = -1;
-	private IdObject parent;
+	protected String name;
+	protected Vertex pivotPoint;
+	protected int objectId = -1;
+	protected int parentId = -1;
+	protected IdObject parent;
 	private final List<IdObject> childrenNodes = new ArrayList<>();
 
 	public void setName(final String text) {

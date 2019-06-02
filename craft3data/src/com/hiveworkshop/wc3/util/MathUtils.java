@@ -160,4 +160,8 @@ public class MathUtils {
 		out.m33 = 1;
 
 	}
+
+	public static float randomInRange(double min, double max) {
+		return (float) (min + Math.random() * (max - min));
+	}
 }

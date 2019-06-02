@@ -1,19 +1,21 @@
 package com.hiveworkshop.wc3.mdl.render3d;
 
 import com.hiveworkshop.wc3.mdl.IdObject;
-import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL11;
 
 import java.nio.ByteBuffer;
 
-public abstract class RenderSharedGeometryEmitter<MODEL_OBJECT extends IdObject> extends RenderSharedEmitter<MODEL_OBJECT> {
+public abstract class RenderSharedGeometryEmitter<MODEL_OBJECT extends EmitterIdObject> extends RenderSharedEmitter<MODEL_OBJECT> {
     private static final int MAX_POWER_OF_TWO = 1 << 30;
     private final int elementsPerEmit;
     private float[] data ;
     private ByteBuffer buffer;
+    protected InternalResource internalResource;
 
-    public RenderSharedGeometryEmitter(MODEL_OBJECT model_object, int elementsPerEmit) {
+    public RenderSharedGeometryEmitter(MODEL_OBJECT model_object, int elementsPerEmit, InternalResource internalResource) {
         super(model_object);
         this.elementsPerEmit = elementsPerEmit;
+        this.internalResource = internalResource;
         this.data = new float[0];
         this.buffer = ByteBuffer.allocate(0);
     }
@@ -76,8 +78,12 @@ public abstract class RenderSharedGeometryEmitter<MODEL_OBJECT extends IdObject>
         }
     }
 
-
-
+    @Override
+    protected void render(RenderModel modelView, ParticleEmitterShader shader) {
+        if(internalResource != null && alive >0) {
+            shader.renderParticles(modelObject.getBlendSrc(), modelObject.getBlendDst(), modelObject.getRows(), modelObject.getCols(), internalResource, data, modelObject.isRibbonEmitter());
+        }
+    }
 
     /**
      * Returns a power of two size for the given target capacity.

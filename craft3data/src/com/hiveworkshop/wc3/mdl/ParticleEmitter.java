@@ -9,6 +9,7 @@ import javax.swing.JOptionPane;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.wc3.mdl.render3d.EmitterIdObject;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.ParticleEmitterChunk;
 
@@ -20,7 +21,32 @@ import com.hiveworkshop.wc3.mdx.ParticleEmitterChunk;
  *
  * Eric Theller 3/10/2012 3:32 PM
  */
-public class ParticleEmitter extends IdObject implements VisibilitySource {
+public class ParticleEmitter extends EmitterIdObject implements VisibilitySource {
+	@Override
+	public int getBlendSrc() {
+		return 0;
+	}
+
+	@Override
+	public int getBlendDst() {
+		return 0;
+	}
+
+	@Override
+	public int getRows() {
+		return 0;
+	}
+
+	@Override
+	public int getCols() {
+		return 0;
+	}
+
+	@Override
+	public boolean isRibbonEmitter() {
+		return false;
+	}
+
 	public static enum TimeDoubles {
 		EmissionRate, Gravity, Longitude, Latitude, LifeSpan, InitVelocity;
 	}
@@ -464,5 +490,53 @@ public class ParticleEmitter extends IdObject implements VisibilitySource {
 			return (Vertex) translationFlag.interpolateAt(animatedRenderEnvironment);
 		}
 		return null;
+	}
+
+	public double getRenderSpeed(AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag translationFlag = AnimFlag.find(animFlags, "InitVelocity");
+		if (translationFlag != null) {
+			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
+		}
+		return getInitVelocity();
+	}
+
+	public double getRenderLatitude(AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Latitude");
+		if (translationFlag != null) {
+			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
+		}
+		return getLatitude();
+	}
+
+	public double getRenderLongitude(AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Longitude");
+		if (translationFlag != null) {
+			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
+		}
+		return getLongitude();
+	}
+
+	public double getRenderLifeSpan(AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag translationFlag = AnimFlag.find(animFlags, "LifeSpan");
+		if (translationFlag != null) {
+			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
+		}
+		return getLifeSpan();
+	}
+
+	public double getRenderGravity(AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Gravity");
+		if (translationFlag != null) {
+			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
+		}
+		return getGravity();
+	}
+
+	public double getRenderEmissionRate(AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag translationFlag = AnimFlag.find(animFlags, "EmissionRate");
+		if (translationFlag != null) {
+			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
+		}
+		return getEmissionRate();
 	}
 }

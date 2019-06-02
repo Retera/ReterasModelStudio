@@ -46,6 +46,10 @@ public final class RenderModel {
 		return renderNode;
 	}
 
+	public RenderNode getRenderNodeByObjectId(int objectId) {
+		return getRenderNode(model.getIdObject(objectId));
+	}
+
 	public AnimatedRenderEnvironment getAnimatedRenderEnvironment() {
 		return animatedRenderEnvironment;
 	}

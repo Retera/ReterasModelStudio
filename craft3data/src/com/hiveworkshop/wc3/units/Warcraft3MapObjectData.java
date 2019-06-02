@@ -2,7 +2,9 @@ package com.hiveworkshop.wc3.units;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.units.StandardObjectData.WarcraftData;
@@ -22,6 +24,7 @@ public final class Warcraft3MapObjectData {
 	private final MutableObjectData buffs;
 	private final MutableObjectData upgrades;
 	private final List<MutableObjectData> datas;
+	private transient Map<WorldEditorDataType,MutableObjectData> typeToData = new HashMap<>();
 
 	public Warcraft3MapObjectData(final MutableObjectData units, final MutableObjectData items,
 			final MutableObjectData destructibles, final MutableObjectData doodads, final MutableObjectData abilities,
@@ -41,6 +44,13 @@ public final class Warcraft3MapObjectData {
 		datas.add(abilities);
 		datas.add(buffs);
 		datas.add(upgrades);
+		for(MutableObjectData data: datas) {
+			typeToData.put(data.getWorldEditorDataType(), data);
+		}
+	}
+
+	public MutableObjectData getDataByType(WorldEditorDataType type) {
+		return typeToData.get(type);
 	}
 
 	public MutableObjectData getUnits() {
@@ -142,7 +152,7 @@ public final class Warcraft3MapObjectData {
 				abilityMeta, abilityChangeset);
 		final MutableObjectData buffData = new MutableObjectData(WorldEditorDataType.BUFFS_EFFECTS,
 				standardAbilityBuffs, standardAbilityBuffMeta, buffChangeset);
-		final MutableObjectData upgradeData = new MutableObjectData(WorldEditorDataType.BUFFS_EFFECTS, standardUpgrades,
+		final MutableObjectData upgradeData = new MutableObjectData(WorldEditorDataType.UPGRADES, standardUpgrades,
 				standardUpgradeMeta, upgradeChangeset);
 
 		return new Warcraft3MapObjectData(unitData, itemData, destructableData, doodadData, abilityData, buffData,

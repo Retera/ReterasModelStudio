@@ -364,7 +364,7 @@ public final class War3ObjectDataChangeset {
 			return '['; // skip \ for the sam reason like ' ('\\')
 		case '[':
 			return ']';
-		case '_': // skip ´ and lower case letters (´ can't be seen very well)
+		case '_': // skip ï¿½ and lower case letters (ï¿½ can't be seen very well)
 			return '{';
 		case '~': // close circle and restart at !
 			return '!';
@@ -619,8 +619,11 @@ public final class War3ObjectDataChangeset {
 
 	private static int getWTSValue(final Change change) {
 		String numberAsText = change.getStrval().substring(8);
-		while (numberAsText.charAt(0) == '0') {
+		while (numberAsText.length()>0 && numberAsText.charAt(0) == '0') {
 			numberAsText = numberAsText.substring(1);
+		}
+		if(numberAsText.length()==0) {
+			return 0;
 		}
 		while (!Character.isDigit(numberAsText.charAt(numberAsText.length() - 1))) {
 			numberAsText = numberAsText.substring(0, numberAsText.length() - 1);

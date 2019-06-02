@@ -9,6 +9,7 @@ import javax.swing.JOptionPane;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.wc3.mdl.render3d.EmitterIdObject;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.Node;
 import com.hiveworkshop.wc3.mdx.ParticleEmitter2Chunk;
@@ -21,7 +22,7 @@ import com.hiveworkshop.wc3.mdx.ParticleEmitter2Chunk;
  *
  * Eric Theller 3/10/2012 3:32 PM
  */
-public class ParticleEmitter2 extends IdObject implements VisibilitySource {
+public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySource {
 	public static enum TimeDoubles {
 		Speed, Variation, Latitude, Gravity, EmissionRate, Width, Length;
 	}
@@ -667,8 +668,28 @@ public class ParticleEmitter2 extends IdObject implements VisibilitySource {
 		loneDoubleData[LoneDoubles.Time.ordinal()] = time;
 	}
 
+	@Override
+	public int getBlendSrc() {
+		return 0;
+	}
+
+	@Override
+	public int getBlendDst() {
+		return 0;
+	}
+
 	public int getRows() {
 		return loneIntData[LoneInts.Rows.ordinal()];
+	}
+
+	@Override
+	public int getCols() {
+		return 0;
+	}
+
+	@Override
+	public boolean isRibbonEmitter() {
+		return false;
 	}
 
 	public void setRows(final int rows) {
@@ -693,6 +714,10 @@ public class ParticleEmitter2 extends IdObject implements VisibilitySource {
 
 	public int getReplaceableId() {
 		return loneIntData[LoneInts.ReplaceableId.ordinal()];
+	}
+
+	public boolean isTeamColored() {
+		return getReplaceableId()  != 0;
 	}
 
 	public void setReplaceableId(final int replaceableId) {
@@ -786,6 +811,10 @@ public class ParticleEmitter2 extends IdObject implements VisibilitySource {
 		return segmentColor.length;
 	}
 
+	public Vertex[] getSegmentColors() {
+		return segmentColor;
+	}
+
 	public void setTexture(final Bitmap texture) {
 		this.texture = texture;
 	}
@@ -858,5 +887,61 @@ public class ParticleEmitter2 extends IdObject implements VisibilitySource {
 			return (Vertex) translationFlag.interpolateAt(animatedRenderEnvironment);
 		}
 		return null;
+	}
+
+	public double getRenderWidth(AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Width");
+		if (translationFlag != null) {
+			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
+		}
+		return getWidth();
+	}
+
+	public double getRenderLength(AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Length");
+		if (translationFlag != null) {
+			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
+		}
+		return getLength();
+	}
+
+	public double getRenderLatitude(AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Latitude");
+		if (translationFlag != null) {
+			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
+		}
+		return getLatitude();
+	}
+
+	public double getRenderVariation(AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Variation");
+		if (translationFlag != null) {
+			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
+		}
+		return getVariation();
+	}
+
+	public double getRenderSpeed(AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Speed");
+		if (translationFlag != null) {
+			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
+		}
+		return getSpeed();
+	}
+
+	public double getRenderGravity(AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Gravity");
+		if (translationFlag != null) {
+			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
+		}
+		return getGravity();
+	}
+
+	public double getRenderEmissionRate(AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag translationFlag = AnimFlag.find(animFlags, "EmissionRate");
+		if (translationFlag != null) {
+			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
+		}
+		return getEmissionRate();
 	}
 }
