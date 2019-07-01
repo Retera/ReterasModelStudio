@@ -23,6 +23,7 @@ import com.hiveworkshop.blizzard.casc.storage.Storage;
 import com.hiveworkshop.blizzard.casc.vfs.VirtualFileSystem;
 import com.hiveworkshop.blizzard.casc.vfs.VirtualFileSystem.PathResult;
 import com.hiveworkshop.wc3.mpq.Codebase;
+import com.hiveworkshop.wc3.user.WindowsRegistry;
 
 /**
  * CASC was dangerously close to put Matrix Eater in a casket, so we named it
@@ -33,8 +34,22 @@ import com.hiveworkshop.wc3.mpq.Codebase;
  */
 public class Cascket implements Codebase {
 	private final Map<String, PathResult> pathToResult = new HashMap<>();
-	private final String[] prefixes = { "war3.mpq", "deprecated.mpq", "enus-war3local.mpq", "war3.w3mod",
-			"deprecated.w3mod", "war3.w3mod\\_locales\\enus.w3mod" };
+	private final String[] prefixes = { "war3.mpq", "deprecated.mpq",
+			getLocalization().toLowerCase() + "-war3local.mpq", "war3.w3mod", "deprecated.w3mod",
+			"war3.w3mod\\_locales\\" + getLocalization().toLowerCase() + ".w3mod" };
+
+	public static String getLocalization() {
+		try {
+			final String readRegistry = WindowsRegistry.readRegistry(
+					"HKEY_CURRENT_USER\\Software\\Blizzard Entertainment\\Classic Launcher\\w3", "Locale");
+			if ((readRegistry == null) || (readRegistry.length() < 1)) {
+				return "enUS";
+			}
+			return readRegistry;
+		} catch (final Exception exc) {
+			return "enUS";
+		}
+	}
 
 	public Cascket(final Path dataFolder) {
 
@@ -117,10 +132,10 @@ public class Cascket implements Codebase {
 					 * e.printStackTrace(System.out); }
 					 */
 				}
-
-				if (filePath.contains(".txt") && filePath.contains("enus")) {
-					System.out.println(filePath + " : " + fileSize + " : " + (exists ? "yes" : "no"));
-				}
+//
+//				if (filePath.contains(".txt") && filePath.contains("enus")) {
+//					System.out.println(filePath + " : " + fileSize + " : " + (exists ? "yes" : "no"));
+//				}
 			}
 
 			System.out.println("shuttting down thread pool");

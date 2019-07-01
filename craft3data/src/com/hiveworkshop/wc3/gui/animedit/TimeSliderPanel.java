@@ -893,6 +893,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		}
 		switch (theme) {
 		case DARK:
+		case HIFI:
 			g.setColor(Color.WHITE);
 			break;
 		case FOREST_GREEN:

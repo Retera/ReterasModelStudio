@@ -250,8 +250,7 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				settings.setDisplayAsRawData(!settings.isDisplayAsRawData());
-				final Enumeration<DefaultMutableTreeNode> enumer = UnitEditorModelSelector.this.root
-						.breadthFirstEnumeration();
+				final Enumeration<TreeNode> enumer = UnitEditorModelSelector.this.root.breadthFirstEnumeration();
 				while (enumer.hasMoreElements()) {
 					model.nodeChanged(enumer.nextElement());
 				}
@@ -415,13 +414,13 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 						raceKey = raceKey(i);
 					}
 				}
-				if (raceKey.equals("passives") && unit.getFieldValue("hostilePal") > 0) {
+				if (raceKey.equals("passives") && (unit.getFieldValue("hostilePal") > 0)) {
 					raceKey = "hostiles";
 				}
 
 				if (unit.getField("special").startsWith("1")) {
 					sortGroupId = 4;
-				} else if (unit.getId().length() > 1 && Character.isUpperCase(unit.getId().charAt(0))) {
+				} else if ((unit.getId().length() > 1) && Character.isUpperCase(unit.getId().charAt(0))) {
 					sortGroupId = 1;
 				} else if (abilities.contains("Aroo") || abilities.contains("Aro2") || abilities.contains("Aro1")) {
 					sortGroupId = 3;

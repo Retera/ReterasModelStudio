@@ -5,17 +5,24 @@ import java.util.Properties;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import com.jtattoo.plaf.acryl.AcrylLookAndFeel;
+import com.jtattoo.plaf.aluminium.AluminiumLookAndFeel;
+import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
 import com.jtattoo.plaf.noire.NoireLookAndFeel;
 
 public final class EditorDisplayManager {
 
 	public static void setupLookAndFeel() {
+		setupLookAndFeel("Noire");
+	}
+
+	public static void setupLookAndFeel(final String jtattooTheme) {
 
 		// setup the look and feel properties
 		final Properties props = new Properties();
 		// props.put("windowDecoration", "false");
 		//
-		props.put("logoString", "MatrixEater");
+		props.put("logoString", "RMS");
 		// props.put("licenseKey", "INSERT YOUR LICENSE KEY HERE");
 		//
 		// props.put("selectionBackgroundColor", "180 240 197");
@@ -40,10 +47,24 @@ public final class EditorDisplayManager {
 		// props.put("windowBorderColor", "218 254 230");
 
 		// set your theme
-		NoireLookAndFeel.setCurrentTheme(props);
+		switch (jtattooTheme) {
+		case "Noire":
+			NoireLookAndFeel.setCurrentTheme(props);
+			break;
+		case "HiFi":
+			HiFiLookAndFeel.setCurrentTheme(props);
+			break;
+		case "Acryl":
+			AcrylLookAndFeel.setCurrentTheme(props);
+			break;
+		case "Aluminium":
+			AluminiumLookAndFeel.setCurrentTheme(props);
+			break;
+		}
 		// select the Look and Feel
 		try {
-			UIManager.setLookAndFeel("com.jtattoo.plaf.noire.NoireLookAndFeel");
+			UIManager.setLookAndFeel(
+					"com.jtattoo.plaf." + jtattooTheme.toLowerCase() + "." + jtattooTheme + "LookAndFeel");
 		} catch (final ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		} catch (final InstantiationException e) {

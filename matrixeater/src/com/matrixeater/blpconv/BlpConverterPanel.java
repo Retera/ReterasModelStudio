@@ -85,7 +85,7 @@ public class BlpConverterPanel extends JPanel {
 					public void propertyChange(final PropertyChangeEvent evt) {
 						final File oldFile = (File) evt.getOldValue();
 						final File newFile = (File) evt.getNewValue();
-						if (oldFile != null && newFile == null) {
+						if ((oldFile != null) && (newFile == null)) {
 							lastFileFilterFile = oldFile;
 						}
 					}
@@ -95,7 +95,7 @@ public class BlpConverterPanel extends JPanel {
 			@Override
 			public void propertyChange(final PropertyChangeEvent evt) {
 				final FileNameExtensionFilter newFilter = (FileNameExtensionFilter) evt.getNewValue();
-				if (newFilter != null && lastFileFilterFile != null) {
+				if ((newFilter != null) && (lastFileFilterFile != null)) {
 					final File newFile = new File(
 							lastFileFilterFile.getPath().substring(0, lastFileFilterFile.getPath().lastIndexOf('.') + 1)
 									+ newFilter.getExtensions()[0]);
@@ -113,13 +113,13 @@ public class BlpConverterPanel extends JPanel {
 						final File selectedFile = fileChooser.getSelectedFile();
 						if (selectedFile != null) {
 							final FileFilter fileFilter = fileChooser.getFileFilter();
-							if (fileFilter == blpFilter || selectedFile.getName().toLowerCase().endsWith("blp")) {
+							if ((fileFilter == blpFilter) || selectedFile.getName().toLowerCase().endsWith("blp")) {
 								final BufferedImage image = BlpFile.read(selectedFile);
 								if (image == null) {
 									throw new RuntimeException("unable to load: " + selectedFile);
 								}
 								setCurrentImage(image);
-							} else if (fileFilter == tgaFilter
+							} else if ((fileFilter == tgaFilter)
 									|| selectedFile.getName().toLowerCase().endsWith("tga")) {
 								final BufferedImage image = TgaFile.readTGA(selectedFile);
 								if (image == null) {
@@ -149,7 +149,7 @@ public class BlpConverterPanel extends JPanel {
 						final File selectedFile = fileChooser.getSelectedFile();
 						if (selectedFile != null) {
 							final FileFilter fileFilter = fileChooser.getFileFilter();
-							if (fileFilter == blpFilter || selectedFile.getName().toLowerCase().endsWith("blp")) {
+							if ((fileFilter == blpFilter) || selectedFile.getName().toLowerCase().endsWith("blp")) {
 								final String[] types = { "Jpg", "Paletted" };
 								final JComboBox<String> type = new JComboBox<>(types);
 								type.setEditable(false);
@@ -183,7 +183,7 @@ public class BlpConverterPanel extends JPanel {
 									BlpFile.writePalettedBLP(currentImage, selectedFile, useAlpha.isSelected(),
 											generateMipMaps.isSelected(), antiDither.isSelected());
 								}
-							} else if (fileFilter == tgaFilter
+							} else if ((fileFilter == tgaFilter)
 									|| selectedFile.getName().toLowerCase().endsWith("tga")) {
 								TgaFile.writeTGA(currentImage, selectedFile);
 							} else {
@@ -210,7 +210,7 @@ public class BlpConverterPanel extends JPanel {
 	public static void main(final String[] args) {
 		LwjglNativesLoader.load();
 		EditorDisplayManager.setupLookAndFeel();
-		final JFrame frame = new JFrame("MACgos Browser for Hayate on Mac");
+		final JFrame frame = new JFrame("BLP Converter (Using DrSuperGood blp-iio-plugin)");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		final JPanel leftHandCardPanel = new JPanel();
 		final CardLayout cardLayout = new CardLayout();

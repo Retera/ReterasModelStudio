@@ -35,6 +35,7 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		final JCheckBox invertedDisplay = new JCheckBox();
 		final JCheckBox useBoxesForNodes = new JCheckBox();
 		final JCheckBox quickBrowse = new JCheckBox();
+		final JCheckBox allowLoadingNonBlpTextures = new JCheckBox();
 		if ((programPreferences.isInvertedDisplay() != null) && programPreferences.isInvertedDisplay()) {
 			invertedDisplay.setSelected(true);
 		}
@@ -44,6 +45,10 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		}
 		if ((programPreferences.getQuickBrowse() != null) && programPreferences.getQuickBrowse()) {
 			quickBrowse.setSelected(true);
+		}
+		if ((programPreferences.getAllowLoadingNonBlpTextures() != null)
+				&& programPreferences.getAllowLoadingNonBlpTextures()) {
+			allowLoadingNonBlpTextures.setSelected(true);
 		}
 		final ActionListener viewModeUpdater = new ActionListener() {
 			@Override
@@ -71,6 +76,9 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		generalPrefsPanel.add(new JLabel("Quick Browse:"), "cell 0 5");
 		quickBrowse.setToolTipText("When opening a new model, close old ones if they have not been modified.");
 		generalPrefsPanel.add(quickBrowse, "cell 1 5");
+		generalPrefsPanel.add(new JLabel("Allow Loading Non BLP Textures:"), "cell 0 6");
+		allowLoadingNonBlpTextures.setToolTipText("Needed for opening PNGs with standard File Open");
+		generalPrefsPanel.add(allowLoadingNonBlpTextures, "cell 1 6");
 		// final BoxLayout boxLayout = new BoxLayout(generalPrefsPanel,
 		// BoxLayout.PAGE_AXIS);
 
@@ -79,6 +87,20 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		final JPanel modelEditorPanel = new JPanel();
 		modelEditorPanel.setLayout(new MigLayout());
 		invertedDisplay.addActionListener(viewModeUpdater);
+		quickBrowse.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				programPreferences.setQuickBrowse(quickBrowse.isSelected());
+			}
+		});
+		allowLoadingNonBlpTextures.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				programPreferences.setAllowLoadingNonBlpTextures(allowLoadingNonBlpTextures.isSelected());
+			}
+		});
 		useBoxesForNodes.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {

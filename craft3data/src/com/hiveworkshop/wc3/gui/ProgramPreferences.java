@@ -22,6 +22,7 @@ public class ProgramPreferences implements Serializable {
 	private transient boolean[] dimLocks = new boolean[3];
 	private Boolean invertedDisplay = true;
 	private Boolean useBoxesForPivotPoints = true;
+	private Boolean allowLoadingNonBlpTextures = true;
 	Color activeRColor1 = new Color(200, 255, 200);
 	Color activeRColor2 = new Color(60, 170, 0);
 	Color activeColor1 = new Color(255, 200, 200);
@@ -44,13 +45,13 @@ public class ProgramPreferences implements Serializable {
 	Color animatedBoneSelectedUpstreamColor = Color.YELLOW;
 	Color lightsColor = Color.YELLOW.brighter();
 	Color ambientLightColor = Color.CYAN.brighter();
-	Color backgroundColor = new Color(255, 255, 255);// new Color(190, 190, 190)
+	Color backgroundColor = new Color(45, 45, 45);// new Color(190, 190, 190)
 	Color perspectiveBackgroundColor = new Color(80, 80, 80);// new Color(190, 190, 190)
 	Color selectColor = Color.RED;
-	GUITheme theme;
+	GUITheme theme = GUITheme.ALUMINIUM;
 	private int vertexSize = 3;
-	int teamColor;
-	private Boolean quickBrowse;
+	int teamColor = 6;
+	private Boolean quickBrowse = true;
 	private MouseButtonPreference threeDCameraSpinButton = MouseButtonPreference.LEFT;
 	private MouseButtonPreference threeDCameraPanButton = MouseButtonPreference.MIDDLE;
 
@@ -62,6 +63,9 @@ public class ProgramPreferences implements Serializable {
 		}
 		if (useBoxesForPivotPoints == null) {
 			useBoxesForPivotPoints = true;
+		}
+		if (allowLoadingNonBlpTextures == null) {
+			allowLoadingNonBlpTextures = true;
 		}
 		if ((vertexColor == null) || (normalsColor == null) || (pivotPointsColor == null)) {
 			vertexColor = new Color(0, 0, 255);// new Color(0, 0, 0)
@@ -144,6 +148,7 @@ public class ProgramPreferences implements Serializable {
 		threeDCameraSpinButton = other.threeDCameraSpinButton;
 		theme = other.theme;
 		quickBrowse = other.quickBrowse;
+		this.allowLoadingNonBlpTextures = other.allowLoadingNonBlpTextures;
 		SaveProfile.save();
 		firePrefsChanged();
 
@@ -506,6 +511,16 @@ public class ProgramPreferences implements Serializable {
 
 	public void setPivotPointsSelectedColor(final Color pivotPointsSelectedColor) {
 		this.pivotPointsSelectedColor = pivotPointsSelectedColor;
+		SaveProfile.save();
+		firePrefsChanged();
+	}
+
+	public Boolean getAllowLoadingNonBlpTextures() {
+		return allowLoadingNonBlpTextures;
+	}
+
+	public void setAllowLoadingNonBlpTextures(final Boolean allowLoadingNonBlpTextures) {
+		this.allowLoadingNonBlpTextures = allowLoadingNonBlpTextures;
 		SaveProfile.save();
 		firePrefsChanged();
 	}
