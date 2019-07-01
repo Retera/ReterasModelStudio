@@ -1,6 +1,5 @@
 package com.hiveworkshop.blizzard.casc.vfs;
 
-import java.io.PrintStream;
 import java.util.List;
 
 /**
@@ -16,20 +15,12 @@ public class PrefixNode extends PathNode {
 		super(pathFragments);
 		this.nodes = nodes.toArray(new PathNode[0]);
 	}
-
-	@Override
-	protected void printPaths(final PrintStream out, final String pathPrefix) {
-		final String pathString = getPathString(pathPrefix);
-		for (final PathNode node : nodes) {
-			node.printPaths(out, pathString);
-		}
-	}
-
-	int getNodeCount() {
+	
+	public int getNodeCount() {
 		return nodes.length;
 	}
-
-	PathNode getNode(final int index) {
+	
+	public PathNode getNode(final int index) {
 		return nodes[index];
 	}
 }

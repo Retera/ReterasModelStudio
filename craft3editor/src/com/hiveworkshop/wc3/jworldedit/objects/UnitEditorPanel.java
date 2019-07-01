@@ -441,7 +441,7 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 	}
 
 	private void refreshAllTreeNodes() {
-		final Enumeration<DefaultMutableTreeNode> enumer = UnitEditorPanel.this.root.breadthFirstEnumeration();
+		final Enumeration<TreeNode> enumer = UnitEditorPanel.this.root.breadthFirstEnumeration();
 		while (enumer.hasMoreElements()) {
 			tree.getModel().nodeChanged(enumer.nextElement());
 		}

@@ -376,9 +376,15 @@ public class DataTable implements ObjectData {
 
 	public void readTXT(final InputStream txt, final boolean canProduce) throws IOException {
 		final BufferedReader reader = new BufferedReader(new InputStreamReader(txt, "utf-8"));
+		// BOM marker will only appear on the very beginning
+		reader.mark(4);
+		if ('\ufeff' != reader.read()) {
+			reader.reset(); // not the BOM marker
+		}
 
 		String input = "";
 		Element currentUnit = null;
+		boolean first = true;
 		while ((input = reader.readLine()) != null) {
 			if (input.startsWith("//")) {
 				continue;
@@ -426,7 +432,7 @@ public class DataTable implements ObjectData {
 					final char c = fieldValue.charAt(i);
 					if (c == '\"') {
 						withinQuotedString = !withinQuotedString;
-					} else if (!withinQuotedString && c == ',') {
+					} else if (!withinQuotedString && (c == ',')) {
 						currentUnit.setField(fieldName, builder.toString(), fieldIndex++);
 						builder.setLength(0); // empty buffer
 					} else {
@@ -434,6 +440,9 @@ public class DataTable implements ObjectData {
 					}
 				}
 				if (builder.length() > 0) {
+					if (currentUnit == null) {
+						System.out.println("null for " + input);
+					}
 					currentUnit.setField(fieldName, builder.toString(), fieldIndex++);
 				}
 			}
@@ -494,7 +503,7 @@ public class DataTable implements ObjectData {
 			if (rowStartCount <= 1) {
 				final int subXIndex = input.indexOf("X");
 				final int subYIndex = input.indexOf("Y");
-				if (subYIndex >= 0 && subYIndex < subXIndex) {
+				if ((subYIndex >= 0) && (subYIndex < subXIndex)) {
 					final int eIndex = input.indexOf("K");
 					final int fieldId;
 					if (subXIndex < 0) {
@@ -534,7 +543,7 @@ public class DataTable implements ObjectData {
 			if (input.contains("X1;")) {
 				final int start = input.indexOf("\"") + 1;
 				final int end = input.lastIndexOf("\"");
-				if (start - 1 != end) {
+				if ((start - 1) != end) {
 					final String newKey = input.substring(start, end);
 					currentUnit = dataTable.get(new StringKey(newKey));
 					if (currentUnit == null) {
@@ -548,10 +557,10 @@ public class DataTable implements ObjectData {
 				if (flipMode && input.contains("Y")) {
 					eIndex = Math.min(input.indexOf("Y"), eIndex);
 				}
-				final int fieldId = subXIndex == -1 || subXIndex > eIndex ? 1
+				final int fieldId = (subXIndex == -1) || (subXIndex > eIndex) ? 1
 						: Integer.parseInt(input.substring(subXIndex + 1, eIndex - 1));
 				String fieldValue = input.substring(eIndex + 1);
-				if (fieldValue.length() > 1 && fieldValue.startsWith("\"") && fieldValue.endsWith("\"")) {
+				if ((fieldValue.length() > 1) && fieldValue.startsWith("\"") && fieldValue.endsWith("\"")) {
 					fieldValue = fieldValue.substring(1, fieldValue.length() - 1);
 				}
 				if (dataNames[fieldId - 1] != null) {

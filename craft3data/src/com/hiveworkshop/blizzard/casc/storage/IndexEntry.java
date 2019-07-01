@@ -6,19 +6,19 @@ public class IndexEntry {
 	/**
 	 * Index encoding key.
 	 */
-	private final Key key;
-
+	private Key key;
+	
 	/**
 	 * Logical offset of storage container.
 	 */
-	private final long dataOffset;
-
+	private long dataOffset;
+	
 	/**
 	 * Size of storage container.
 	 */
-	private final long fileSize;
-
-	public IndexEntry(final byte[] key, final long dataOffset, final long fileSize) {
+	private long fileSize;
+	
+	public IndexEntry(byte[] key, long dataOffset, long fileSize) {
 		this.key = new Key(key);
 		this.dataOffset = dataOffset;
 		this.fileSize = fileSize;
@@ -26,7 +26,7 @@ public class IndexEntry {
 
 	@Override
 	public String toString() {
-		final StringBuilder builder = new StringBuilder();
+		final var builder = new StringBuilder();
 		builder.append("IndexEntry{key=");
 		builder.append(key);
 		builder.append(", dataOffset=");
@@ -45,11 +45,11 @@ public class IndexEntry {
 	public long getFileSize() {
 		return fileSize;
 	}
-
+	
 	public String getKeyString() {
 		return key.toString();
 	}
-
+	
 	public Key getKey() {
 		return key;
 	}

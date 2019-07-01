@@ -215,6 +215,7 @@ import net.infonode.docking.TabWindow;
 import net.infonode.docking.View;
 import net.infonode.docking.title.DockingWindowTitleProvider;
 import net.infonode.docking.util.StringViewMap;
+import net.infonode.tabbedpanel.TabAreaVisiblePolicy;
 import net.infonode.tabbedpanel.titledtab.TitledTabBorderSizePolicy;
 import net.infonode.tabbedpanel.titledtab.TitledTabSizePolicy;
 import net.miginfocom.swing.MigLayout;
@@ -1133,8 +1134,147 @@ public class MainPanel extends JPanel
 		toolView.getWindowProperties().setCloseEnabled(false);
 		rootWindow.getWindowProperties().getTabProperties().getTitledTabProperties()
 				.setSizePolicy(TitledTabSizePolicy.EQUAL_SIZE);
+		rootWindow.getRootWindowProperties().getViewProperties().getViewTitleBarProperties().setVisible(true);
 		rootWindow.getWindowProperties().getTabProperties().getTitledTabProperties()
 				.setBorderSizePolicy(TitledTabBorderSizePolicy.EQUAL_SIZE);
+		rootWindow.getRootWindowProperties().getTabWindowProperties().getTabbedPanelProperties().getTabAreaProperties()
+				.setTabAreaVisiblePolicy(TabAreaVisiblePolicy.MORE_THAN_ONE_TAB);
+		rootWindow.setBackground(Color.GREEN);
+		rootWindow.setForeground(Color.GREEN);
+		rootWindow.addListener(new DockingWindowListener() {
+
+			@Override
+			public void windowUndocking(final DockingWindow removedWindow) throws OperationAbortedException {
+				if (removedWindow instanceof View) {
+					final View view = (View) removedWindow;
+					view.getViewProperties().getViewTitleBarProperties().setVisible(true);
+				}
+			}
+
+			@Override
+			public void windowUndocked(final DockingWindow arg0) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void windowShown(final DockingWindow arg0) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void windowRestoring(final DockingWindow arg0) throws OperationAbortedException {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void windowRestored(final DockingWindow arg0) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void windowRemoved(final DockingWindow removedFromWindow, final DockingWindow removedWindow) {
+				if (removedFromWindow instanceof TabWindow) {
+					if (removedWindow instanceof View) {
+						final View view = (View) removedWindow;
+						view.getViewProperties().getViewTitleBarProperties().setVisible(true);
+					}
+					final TabWindow tabWindow = (TabWindow) removedFromWindow;
+					if (tabWindow.getChildWindowCount() == 1) {
+						final DockingWindow childWindow = tabWindow.getChildWindow(0);
+						if (childWindow instanceof View) {
+							final View singleChildView = (View) childWindow;
+							singleChildView.getViewProperties().getViewTitleBarProperties().setVisible(true);
+						}
+					} else if(tabWindow.getChildWindowCount() == 0) {
+						tabWindow.close();
+					}
+				}
+			}
+
+			@Override
+			public void windowMinimizing(final DockingWindow arg0) throws OperationAbortedException {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void windowMinimized(final DockingWindow arg0) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void windowMaximizing(final DockingWindow arg0) throws OperationAbortedException {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void windowMaximized(final DockingWindow arg0) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void windowHidden(final DockingWindow arg0) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void windowDocking(final DockingWindow arg0) throws OperationAbortedException {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void windowDocked(final DockingWindow arg0) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void windowClosing(final DockingWindow arg0) throws OperationAbortedException {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void windowClosed(final DockingWindow arg0) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void windowAdded(final DockingWindow addedToWindow, final DockingWindow addedWindow) {
+				if (addedToWindow instanceof TabWindow) {
+					final TabWindow tabWindow = (TabWindow) addedToWindow;
+					if (tabWindow.getChildWindowCount() == 2) {
+						for (int i = 0; i < 2; i++) {
+							final DockingWindow childWindow = tabWindow.getChildWindow(i);
+							if (childWindow instanceof View) {
+								final View singleChildView = (View) childWindow;
+								singleChildView.getViewProperties().getViewTitleBarProperties().setVisible(false);
+							}
+						}
+					}
+					if (addedWindow instanceof View) {
+						final View view = (View) addedWindow;
+						view.getViewProperties().getViewTitleBarProperties().setVisible(false);
+					}
+				}
+			}
+
+			@Override
+			public void viewFocusChanged(final View arg0, final View arg1) {
+				// TODO Auto-generated method stub
+
+			}
+		});
 		leftView = new View("Side", null, new JPanel());
 		frontView = new View("Front", null, new JPanel());
 		bottomView = new View("Bottom", null, new JPanel());
@@ -1315,7 +1455,7 @@ public class MainPanel extends JPanel
 		});
 		ImageIcon imageIcon;
 		try {
-			imageIcon = new ImageIcon(ImageIO.read(MainFrame.class.getResource("ImageBin/MatrixEaterMEBasic.png"))
+			imageIcon = new ImageIcon(ImageIO.read(MainFrame.class.getResource("ImageBin/retera.jpg"))
 					.getScaledInstance(16, 16, Image.SCALE_FAST));
 		} catch (final IOException e1) {
 			// TODO Auto-generated catch block
@@ -1339,7 +1479,21 @@ public class MainPanel extends JPanel
 		});
 		viewingTab.getWindowProperties().setCloseEnabled(false);
 		final TabWindow startupTabWindow = new TabWindow(new DockingWindow[] { viewingTab, editingTab });
+		traverseAndFix(startupTabWindow);
 		return startupTabWindow;
+	}
+
+	private void traverseAndFix(final DockingWindow window) {
+		final boolean tabWindow = window instanceof TabWindow;
+		final int childWindowCount = window.getChildWindowCount();
+		for (int i = 0; i < childWindowCount; i++) {
+			final DockingWindow childWindow = window.getChildWindow(i);
+			traverseAndFix(childWindow);
+			if (tabWindow && (childWindowCount != 1) && (childWindow instanceof View)) {
+				final View view = (View) childWindow;
+				view.getViewProperties().getViewTitleBarProperties().setVisible(false);
+			}
+		}
 	}
 
 	private UnitEditorTree createUnitEditorTree() {
@@ -2214,7 +2368,7 @@ public class MainPanel extends JPanel
 		hiveViewer = new JMenuItem("Hive Browser");
 		hiveViewer.setMnemonic(KeyEvent.VK_H);
 		hiveViewer.addActionListener(openHiveViewerAction);
-		browsersMenu.add(hiveViewer);
+//		browsersMenu.add(hiveViewer);
 
 		windowMenu.addSeparator();
 

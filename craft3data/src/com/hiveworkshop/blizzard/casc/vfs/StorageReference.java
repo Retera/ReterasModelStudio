@@ -31,7 +31,7 @@ public class StorageReference {
 	 */
 	private long actualSize = 0;
 
-	public StorageReference(final long offset, final long size, final Key encodingKey, final int physicalSize,
+	public StorageReference(final long offset, final long size, Key encodingKey, final int physicalSize,
 			final int actualSize) {
 		this.offset = offset;
 		this.size = size;
@@ -42,7 +42,7 @@ public class StorageReference {
 
 	@Override
 	public String toString() {
-		final StringBuilder builder = new StringBuilder();
+		final var builder = new StringBuilder();
 		builder.append("FileReference{encodingKey=");
 		builder.append(encodingKey);
 		builder.append(", offset=");

@@ -86,9 +86,13 @@ public class MpqCodebase implements Codebase {
 		if (isDebugMode) {
 			hfmd = loadMPQ("hfmd.exe", false);
 		}
-		casc = new Cascket(Paths.get(getWarcraftDirectory(), "Data"));
+		try {
+			casc = new Cascket(getWarcraftDirectory());
+		} catch (final Exception exc) {
+			exc.printStackTrace();
+		}
 //		try {
-//			loadMPQ(Paths.get("-"));
+//			loadMPQ(Paths.get("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Maps\\FelOrc.w3m"));
 //		} catch (final MPQException e) {
 //			e.printStackTrace();
 //		} catch (final IOException e) {
@@ -102,11 +106,6 @@ public class MpqCodebase implements Codebase {
 	public File getFile(final String filepath) {
 		if (cache.containsKey(filepath)) {
 			return cache.get(filepath);
-		}
-		if (casc.has(filepath)) {
-			final File tempProduct = casc.getFile(filepath);
-			cache.put(filepath, tempProduct);
-			return tempProduct;
 		}
 		try {
 			for (int i = mpqList.size() - 1; i >= 0; i--) {
@@ -143,14 +142,18 @@ public class MpqCodebase implements Codebase {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		if (casc != null) {
+			if (casc.has(filepath)) {
+				final File tempProduct = casc.getFile(filepath);
+				cache.put(filepath, tempProduct);
+				return tempProduct;
+			}
+		}
 		return null;
 	}
 
 	@Override
 	public InputStream getResourceAsStream(final String filepath) {
-		if (casc.has(filepath)) {
-			return casc.getResourceAsStream(filepath);
-		}
 		try {
 			for (int i = mpqList.size() - 1; i >= 0; i--) {
 				final MpqGuy mpqGuy = mpqList.get(i);
@@ -173,20 +176,27 @@ public class MpqCodebase implements Codebase {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		if (casc != null) {
+			if (casc.has(filepath)) {
+				return casc.getResourceAsStream(filepath);
+			}
+		}
 		return null;
 	}
 
 	@Override
 	public boolean has(final String filepath) {
-		if (casc.has(filepath)) {
-			return true;
-		}
 		if (cache.containsKey(filepath)) {
 			return true;
 		}
 		for (int i = mpqList.size() - 1; i >= 0; i--) {
 			final MpqGuy mpqGuy = mpqList.get(i);
 			if (mpqGuy.has(filepath)) {
+				return true;
+			}
+		}
+		if (casc != null) {
+			if (casc.has(filepath)) {
 				return true;
 			}
 		}
@@ -265,9 +275,13 @@ public class MpqCodebase implements Codebase {
 		if (isDebugMode) {
 			hfmd = loadMPQ("hfmd.exe", false);
 		}
-		casc = new Cascket(Paths.get(getWarcraftDirectory(), "Data"));
+		try {
+			casc = new Cascket(getWarcraftDirectory());
+		} catch (final Exception exc) {
+			exc.printStackTrace();
+		}
 //		try {
-//			loadMPQ(Paths.get("-"));
+//			loadMPQ(Paths.get("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Maps\\FelOrc.w3m"));
 //		} catch (final MPQException e) {
 //			e.printStackTrace();
 //		} catch (final IOException e) {
@@ -299,9 +313,11 @@ public class MpqCodebase implements Codebase {
 				}
 			}
 		}
-		final Collection<String> cascListfile = casc.getListfile();
-		for (final String cascString : cascListfile) {
-			listfile.add(cascString);
+		if (casc != null) {
+			final Collection<String> cascListfile = casc.getListfile();
+			for (final String cascString : cascListfile) {
+				listfile.add(cascString);
+			}
 		}
 		return listfile;
 	}

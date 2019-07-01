@@ -26,7 +26,7 @@ public class BankStream {
 	 * Constructs a bank steam from the given buffer. An optional key can be used to
 	 * verify the right file is being processed. If a key is provided it is assumed
 	 * the remaining size of the buffer exactly matches the container size.
-	 *
+	 * 
 	 * @param storageBuffer Storage buffer, as specified by an index file.
 	 * @param key           File encoding key to check contents with, or null if no
 	 *                      such check is required.
@@ -34,14 +34,14 @@ public class BankStream {
 	 *                     storageBuffer.
 	 */
 	public BankStream(final ByteBuffer storageBuffer, final Key encodingKey) throws IOException {
-		ByteBuffer streamBuffer = storageBuffer.slice();
+		var streamBuffer = storageBuffer.slice();
 		container = new StorageContainer(streamBuffer);
 		if (encodingKey != null && !container.getKey().equals(encodingKey)) {
 			throw new MalformedCASCStructureException("container encoding key mismatch");
 		}
 
-		final int storageSize = (int) container.getSize();
-		final int storageSizeDiff = Integer.compare(streamBuffer.capacity(), storageSize);
+		final var storageSize = (int) container.getSize();
+		final var storageSizeDiff = Integer.compare(streamBuffer.capacity(), storageSize);
 
 		if (storageSizeDiff < 0) {
 			throw new MalformedCASCStructureException("container buffer smaller than container");
@@ -49,7 +49,7 @@ public class BankStream {
 			throw new MalformedCASCStructureException("container buffer size mismatch");
 		} else if (storageSizeDiff > 0) {
 			// resize buffer to match file
-			final int streamPos = streamBuffer.position();
+			final var streamPos = streamBuffer.position();
 			streamBuffer.limit(storageSize);
 			streamBuffer.position(0);
 			streamBuffer = streamBuffer.slice();
@@ -70,7 +70,7 @@ public class BankStream {
 
 	/**
 	 * Get the length of the next bank in bytes.
-	 *
+	 * 
 	 * @return Length of bank in bytes.
 	 * @throws EOFException If there are no more banks in this stream.
 	 */
@@ -88,7 +88,7 @@ public class BankStream {
 	 * automatically allocate one large enough. The position of the bank buffer will
 	 * be advanced as appropriate, potentially allowing for many banks to be fetched
 	 * in sequence.
-	 *
+	 * 
 	 * @param bankBuffer Buffer to receive bank data.
 	 * @return If null then a new suitable buffer, otherwise bankBuffer.
 	 * @throws IOException  If something goes wrong during bank extraction.
@@ -100,9 +100,9 @@ public class BankStream {
 		}
 
 		if (content.length != 0) {
-			final BLTEContent blteEntry = content[bank];
-			final long encodedSize = blteEntry.getCompressedSize();
-			final long decodedSize = blteEntry.getDecompressedSize();
+			final var blteEntry = content[bank];
+			final var encodedSize = blteEntry.getCompressedSize();
+			final var decodedSize = blteEntry.getDecompressedSize();
 
 			if (streamBuffer.remaining() < encodedSize) {
 				throw new MalformedCASCStructureException("encoded data beyond end of file");
@@ -115,10 +115,8 @@ public class BankStream {
 				throw new BufferOverflowException();
 			}
 
-			final ByteBuffer encodedBuffer = ((ByteBuffer) streamBuffer.slice().limit((int) encodedSize)).slice();
-			final ByteBuffer decodedBuffer = ((ByteBuffer) bankBuffer.slice().limit((int) decodedSize)).slice();
-			final byte[] intermediateEncodedCopy = new byte[encodedBuffer.remaining()];
-			final byte[] intermediateDecodedCopy = new byte[decodedBuffer.remaining()];
+			final var encodedBuffer = streamBuffer.slice().limit((int) encodedSize).slice();
+			final var decodedBuffer = bankBuffer.slice().limit((int) decodedSize).slice();
 
 			final char encodingMode = (char) encodedBuffer.get();
 			switch (encodingMode) {
@@ -131,14 +129,12 @@ public class BankStream {
 				break;
 			case 'Z':
 				// zlib compressed data
-				final Inflater zlib = new Inflater();
-				encodedBuffer.get(intermediateEncodedCopy, 0, encodedBuffer.remaining());
-				zlib.setInput(intermediateEncodedCopy);
+				final var zlib = new Inflater();
+				zlib.setInput(encodedBuffer);
 				final int resultSize;
 				try {
-					resultSize = zlib.inflate(intermediateDecodedCopy);
-					decodedBuffer.put(intermediateDecodedCopy, 0, resultSize);
-				} catch (final DataFormatException e) {
+					resultSize = zlib.inflate(decodedBuffer);
+				} catch (DataFormatException e) {
 					throw new MalformedCASCStructureException("zlib inflate exception", e);
 				}
 				if (resultSize != decodedSize) {
@@ -176,7 +172,7 @@ public class BankStream {
 	/**
 	 * Returns true while one or more banks are remaining to be streamed. Only valid
 	 * if hasBanks returns true.
-	 *
+	 * 
 	 * @return True if another bank can be decoded, otherwise false.
 	 */
 	public boolean hasNextBank() {

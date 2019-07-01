@@ -1334,12 +1334,30 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		} else {
 			listModelToReturn = futureBoneListExFixableItems.get(0);
 		}
+		// We CANT call clear, we have to preserve
+		// the parent list
 		for(DefaultListModel<BoneShell> model: futureBoneListExFixableItems) {
-			model.clear();
+			// clean things that should not be there
+			for(int i = model.getSize()-1; i>=0; i--) {
+				BoneShell previousElement = model.get(i);
+				if(!futureBoneListExQuickLookupSet.contains(previousElement)) {
+					model.remove(i);
+				}
+			}
+			// add back things who should be there
 			for(int i = 0; i < futureBoneListEx.getSize(); i++) {
-				model.addElement(futureBoneListEx.getElementAt(i));
+				BoneShell elementAt = futureBoneListEx.getElementAt(i);
+				if(!model.contains(elementAt)) {
+					model.addElement(elementAt);
+				}
 			}
 		}
+//		for(DefaultListModel<BoneShell> model: futureBoneListExFixableItems) {
+//			model.clear();
+//			for(int i = 0; i < futureBoneListEx.getSize(); i++) {
+//				model.addElement(futureBoneListEx.getElementAt(i));
+//			}
+//		}
 		return listModelToReturn;
 //		return futureBoneListEx;
 	}

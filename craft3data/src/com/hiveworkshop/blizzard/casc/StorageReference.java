@@ -18,50 +18,41 @@ public class StorageReference {
 
 	/**
 	 * Decodes a storage reference from a configuration file.
-	 *
+	 * 
 	 * @param name          Name of reference.
 	 * @param configuration Map of configuration file content.
 	 */
 	public StorageReference(final String name, final Map<String, String> configuration) {
-		final String keys = configuration.get(name);
+		final var keys = configuration.get(name);
 		if (keys == null) {
 			throw new IllegalArgumentException("name does not exist in configuration");
 		}
-		final String sizes = configuration.get(name + SIZES_SUFFIX);
+		final var sizes = configuration.get(name + SIZES_SUFFIX);
 		if (sizes == null) {
 			throw new IllegalArgumentException("size missing in configuration");
 		}
 
-		final String[] keyStrings = keys.split(" ");
+		final var keyStrings = keys.split(" ");
 		contentKey = new Key(keyStrings[0]);
 		encodingKey = new Key(keyStrings[1]);
 
-		final String[] sizeStrings = sizes.split(" ");
+		final var sizeStrings = sizes.split(" ");
 		size = Long.parseLong(sizeStrings[0]);
 		storedSize = Long.parseLong(sizeStrings[1]);
 	}
 
 	/**
-	 * Size of file content in CASC storage.
-	 *
-	 * @return Approximate byte usage of file in CASC storage.
+	 * Content key?
+	 * 
+	 * @return Content key.
 	 */
-	public long getStoredSize() {
-		return storedSize;
-	}
-
-	/**
-	 * File size.
-	 *
-	 * @return File size in bytes of the file.
-	 */
-	public long getSize() {
-		return size;
+	public Key getContentKey() {
+		return contentKey;
 	}
 
 	/**
 	 * Encoding key used to lookup the file from CASC storage.
-	 *
+	 * 
 	 * @return Encoding key.
 	 */
 	public Key getEncodingKey() {
@@ -69,12 +60,21 @@ public class StorageReference {
 	}
 
 	/**
-	 * Content key?
-	 *
-	 * @return Content key.
+	 * File size.
+	 * 
+	 * @return File size in bytes of the file.
 	 */
-	public Key getContentKey() {
-		return contentKey;
+	public long getSize() {
+		return size;
+	}
+
+	/**
+	 * Size of file content in CASC storage.
+	 * 
+	 * @return Approximate byte usage of file in CASC storage.
+	 */
+	public long getStoredSize() {
+		return storedSize;
 	}
 
 }

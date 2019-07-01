@@ -17,55 +17,54 @@ public class StorageContainer {
 	 * Size of storage encoding key in bytes.
 	 */
 	private static final int ENCODING_KEY_SIZE = 16;
-
+	
 	/**
 	 * Container encoding key.
 	 */
 	private Key key;
 	private long size;
 	private short flags;
-
+	
 	public StorageContainer(final ByteBuffer storageBuffer) throws IOException {
-		final ByteBuffer containerBuffer = storageBuffer.slice();
+		final var containerBuffer = storageBuffer.slice();
 		containerBuffer.order(ByteOrder.LITTLE_ENDIAN);
-
+		
 		// key is in reversed byte order
 		final int checksumA;
 		final int checksumB;
 		try {
-			final byte[] keyArray = new byte[ENCODING_KEY_SIZE];
-			final int keyEnd = containerBuffer.position() + keyArray.length;
-			for (int writeIndex = 0, readIndex = keyEnd
-					- 1; writeIndex < keyArray.length; writeIndex += 1, readIndex -= 1) {
+			final var keyArray = new byte[ENCODING_KEY_SIZE];
+			final var keyEnd = containerBuffer.position() + keyArray.length;
+			for (int writeIndex = 0, readIndex = keyEnd - 1; writeIndex < keyArray.length; writeIndex+= 1, readIndex-= 1) {
 				keyArray[writeIndex] = containerBuffer.get(readIndex);
 			}
 			containerBuffer.position(keyEnd);
-
+			
 			key = new Key(keyArray);
 			size = Integer.toUnsignedLong(containerBuffer.getInt());
 			flags = containerBuffer.getShort();
-
+	
 			checksumA = containerBuffer.getInt();
 			checksumB = containerBuffer.getInt();
-		} catch (final BufferUnderflowException e) {
+		} catch (BufferUnderflowException e) {
 			throw new MalformedCASCStructureException("storage buffer too small");
 		}
-
-		final int computedA = checksumA; // TODO compute this
-		final int computedB = checksumB; // TODO compute this
+		
+		final var computedA = checksumA; // TODO compute this
+		final var computedB = checksumB; // TODO compute this
 		if (checksumA != computedA) {
 			throw new HashMismatchException("container checksum A mismatch");
 		}
 		if (checksumB != computedB) {
 			throw new HashMismatchException("container checksum B mismatch");
 		}
-
+		
 		storageBuffer.position(storageBuffer.position() + containerBuffer.position());
 	}
 
 	@Override
 	public String toString() {
-		final StringBuilder builder = new StringBuilder();
+		final var builder = new StringBuilder();
 		builder.append("FileEntry{key=");
 		builder.append(key);
 		builder.append(", size=");
@@ -88,5 +87,6 @@ public class StorageContainer {
 	public Key getKey() {
 		return key;
 	}
-
+	
+	
 }

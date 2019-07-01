@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
@@ -35,7 +35,7 @@ public class Info {
 	/**
 	 * Helper method to separate a single line of info file into separate field
 	 * strings.
-	 *
+	 * 
 	 * @param encodedLine Line of info file.
 	 * @return Array of separate fields.
 	 */
@@ -49,40 +49,61 @@ public class Info {
 
 	/**
 	 * Construct an info file from an array of encoded lines.
-	 *
+	 * 
 	 * @param encodedLines Encoded lines.
 	 * @throws IOException
 	 */
 	public Info(final ByteBuffer fileBuffer) throws IOException {
-		try (final ByteBufferInputStream fileStream = new ByteBufferInputStream(fileBuffer);
-				final Scanner lineScanner = new Scanner(fileStream, FILE_ENCODING.name())) {
-			final String[] encodedFieldDescriptors = separateFields(lineScanner.nextLine());
-			for (final String encodedFieldDescriptor : encodedFieldDescriptors) {
+		try (final var fileStream = new ByteBufferInputStream(fileBuffer);
+				final var lineScanner = new Scanner(fileStream, FILE_ENCODING)) {
+			final var encodedFieldDescriptors = separateFields(lineScanner.nextLine());
+			for (var encodedFieldDescriptor : encodedFieldDescriptors) {
 				fieldDescriptors.add(new FieldDescriptor(encodedFieldDescriptor));
 			}
 
 			while (lineScanner.hasNextLine()) {
-				records.add(new ArrayList<>(Arrays.asList(separateFields(lineScanner.nextLine()))));
+				records.add(new ArrayList<>(List.of(separateFields(lineScanner.nextLine()))));
 			}
-		} catch (final NoSuchElementException e) {
+		} catch (NoSuchElementException e) {
 			throw new MalformedCASCStructureException("missing headers");
 		}
 	}
 
 	/**
 	 * Retrieves a specific field of a record.
-	 *
+	 * 
 	 * @param recordIndex Record index to lookup.
-	 * @param fieldIndex  Field index of record to retrieve.
+	 * @param fieldIndex  Field index to retrieve of record.
 	 * @return Field value.
+	 * @throws IndexOutOfBoundsException When recordIndex or fieldIndex are out of
+	 *                                   bounds.
 	 */
 	public String getField(final int recordIndex, final int fieldIndex) {
 		return records.get(recordIndex).get(fieldIndex);
 	}
 
 	/**
+	 * Retrieves a specific field of a record.
+	 * 
+	 * @param recordIndex Record index to lookup.
+	 * @param fieldName   Field name to retrieve of record.
+	 * @return Field value, or null if field does not exist.
+	 * @throws IndexOutOfBoundsException When recordIndex is out of bounds.
+	 */
+	public String getField(final int recordIndex, final String fieldName) {
+		// resolve field
+		final var fieldIndex = getFieldIndex(fieldName);
+		if (fieldIndex == -1) {
+			// field does not exist
+			return null;
+		}
+
+		return getField(recordIndex, fieldIndex);
+	}
+
+	/**
 	 * Get the number of fields that make up each record.
-	 *
+	 * 
 	 * @return Field count.
 	 */
 	public int getFieldCount() {
@@ -91,7 +112,7 @@ public class Info {
 
 	/**
 	 * Retrieve the field descriptor of a field index.
-	 *
+	 * 
 	 * @param fieldIndex Field index to retrieve descriptor from.
 	 * @return Field descriptor for field index.
 	 */
@@ -102,7 +123,7 @@ public class Info {
 	/**
 	 * Lookup the index of a named field. Returns the field index for the field name
 	 * if found, otherwise returns -1.
-	 *
+	 * 
 	 * @param name Name of the field to find.
 	 * @return Field index of field.
 	 */
@@ -118,7 +139,7 @@ public class Info {
 
 	/**
 	 * Get the number of records in this file.
-	 *
+	 * 
 	 * @return Record count.
 	 */
 	public int getRecordCount() {

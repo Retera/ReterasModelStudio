@@ -41,6 +41,9 @@ project(":matrixeater") {
         compile project(":craft3data")
         compile project(":craft3editor")
         compile "com.fifesoft:rsyntaxtextarea:$rsyntaxtextareaVersion"
+        runtime project(":craft3data")
+        runtime project(":craft3editor")
+        runtime "com.fifesoft:rsyntaxtextarea:$rsyntaxtextareaVersion"
     }
 }
 
@@ -62,6 +65,8 @@ project(":craft3editor") {
     dependencies {
         compile project(":craft3data")
         compile "org.jclarion:image4j:$image4jVersion"
+        runtime project(":craft3data")
+        runtime "org.jclarion:image4j:$image4jVersion"
     }
 }
 
@@ -80,6 +85,16 @@ project(":craft3data") {
 //        compile "com.github.ebourg:infonode:master"
 //        compile "com.github.DrSuperGood:blp-iio-plugin:master"
 		compile files(fileTree(dir:'../jars', includes: ['*.jar']))
+        runtime "com.jtattoo:JTattoo:$jtattooVersion"
+        runtime "com.miglayout:miglayout-swing:$miglayoutVersion"
+		runtime "org.lwjgl:lwjgl:${lwjglVersion}"
+		runtime "org.lwjgl:lwjgl-platform:${lwjglVersion}:natives-windows"
+		runtime "org.lwjgl:lwjgl-platform:${lwjglVersion}:natives-linux"
+		runtime "org.lwjgl:lwjgl-platform:${lwjglVersion}:natives-osx"
+		runtime "org.lwjgl.lwjgl:lwjgl_util:${lwjglVersion}"
+//        compile "com.github.ebourg:infonode:master"
+//        compile "com.github.DrSuperGood:blp-iio-plugin:master"
+		runtime files(fileTree(dir:'../jars', includes: ['*.jar']))
     }
 }
 

@@ -178,13 +178,17 @@ public class BLPHandler {
 		final File blpFile = new File(filepath);
 		final File tga;
 		try {
-			final BufferedImage img = forceBufferedImagesRGB(readCustom(blpFile));
-			return img;// BlpFile.read(filepath, new FileInputStream(blpFile));
-			// tga = convertBLPtoTGA(blpFile, File.createTempFile("customtex",
-			// ".tga"));//+(int)(Math.random()*50)
-			// System.out.println(tga.getPath());
-			// //mpqlib.TestMPQ.draw(mpqlib.TargaReader.getImage(tga.getPath()));
-			// return TargaReader.getImage(tga.getPath());//ImageIO.read(tga);
+			if (filepath.toLowerCase().endsWith(".blp")) {
+				final BufferedImage img = forceBufferedImagesRGB(readCustom(blpFile));
+				return img;// BlpFile.read(filepath, new FileInputStream(blpFile));
+				// tga = convertBLPtoTGA(blpFile, File.createTempFile("customtex",
+				// ".tga"));//+(int)(Math.random()*50)
+				// System.out.println(tga.getPath());
+				// //mpqlib.TestMPQ.draw(mpqlib.TargaReader.getImage(tga.getPath()));
+				// return TargaReader.getImage(tga.getPath());//ImageIO.read(tga);
+			} else {
+				return ImageIO.read(blpFile);
+			}
 		} catch (final IOException e1) {
 			e1.printStackTrace();
 		}

@@ -250,7 +250,7 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				settings.setDisplayAsRawData(!settings.isDisplayAsRawData());
-				final Enumeration<DefaultMutableTreeNode> enumer = UnitEditorModelSelector.this.root
+				final Enumeration<TreeNode> enumer = UnitEditorModelSelector.this.root
 						.breadthFirstEnumeration();
 				while (enumer.hasMoreElements()) {
 					model.nodeChanged(enumer.nextElement());

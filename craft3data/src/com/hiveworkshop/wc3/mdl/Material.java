@@ -24,7 +24,7 @@ import com.hiveworkshop.wc3.mdx.MaterialChunk;
  * Eric Theller 11/5/2011
  */
 public class Material implements MaterialView {
-	public static int teamColor = 07;
+	public static int teamColor = 06;
 	com.etheller.collections.ArrayList<Layer> layers;
 	private int priorityPlane = 0;
 	// "flags" are my way of dealing with all the stuff that I
@@ -196,9 +196,9 @@ public class Material implements MaterialView {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((flags == null) ? 0 : flags.hashCode());
-		result = prime * result + ((layers == null) ? 0 : layers.hashCode());
-		result = prime * result + priorityPlane;
+		result = (prime * result) + ((flags == null) ? 0 : flags.hashCode());
+		result = (prime * result) + ((layers == null) ? 0 : layers.hashCode());
+		result = (prime * result) + priorityPlane;
 		return result;
 	}
 
@@ -365,7 +365,7 @@ public class Material implements MaterialView {
 	 * @return
 	 */
 	private String getRenderableTexturePath(final Bitmap tex) {
-		if(tex == null ) {
+		if (tex == null) {
 			return "Textures\\white.blp";
 		}
 		String path = tex.getPath();

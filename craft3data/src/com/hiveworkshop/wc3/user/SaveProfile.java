@@ -97,9 +97,9 @@ public class SaveProfile implements Serializable {
 		if (currentProfile == null) {
 			try {
 				final String homeProfile = System.getProperty("user.home");
-				String profilePath = "\\AppData\\Roaming\\JWC3";
+				String profilePath = "\\AppData\\Roaming\\RMS";
 				if (!System.getProperty("os.name").toLowerCase().contains("win")) {
-					profilePath = "/.jwc3";
+					profilePath = "/.rms";
 				}
 				final File profileDir = new File(homeProfile + profilePath);
 				File profileFile = new File(profileDir.getPath() + "\\user.profile");
@@ -124,9 +124,9 @@ public class SaveProfile implements Serializable {
 	public static void save() {
 		if (currentProfile != null) {
 			final String homeProfile = System.getProperty("user.home");
-			String profilePath = "\\AppData\\Roaming\\JWC3";
+			String profilePath = "\\AppData\\Roaming\\RMS";
 			if (!System.getProperty("os.name").toLowerCase().contains("win")) {
-				profilePath = "/.jwc3";
+				profilePath = "/.rms";
 			}
 			final File profileDir = new File(homeProfile + profilePath);
 			profileDir.mkdirs();
