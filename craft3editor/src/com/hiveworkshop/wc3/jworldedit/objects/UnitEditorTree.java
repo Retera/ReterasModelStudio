@@ -32,7 +32,7 @@ import com.hiveworkshop.wc3.units.objectdata.War3ObjectDataChangeset;
 public class UnitEditorTree extends JTree {
 
 	private TopLevelCategoryFolder root;
-	private final MutableObjectData unitData;
+	private MutableObjectData unitData;
 	private final ObjectTabTreeBrowserBuilder browserBuilder;
 
 	public UnitEditorTree(final MutableObjectData unitData, final ObjectTabTreeBrowserBuilder browserBuilder,
@@ -234,6 +234,15 @@ public class UnitEditorTree extends JTree {
 
 	public char getWar3ObjectDataChangesetKindChar() {
 		return unitData.getEditorData().getExpectedKind();
+	}
+
+	public WorldEditorDataType getDataType() {
+		return unitData.getWorldEditorDataType();
+	}
+
+	public void setUnitDataAndReloadVerySlowly(final MutableObjectData newUnitData) {
+		this.unitData = newUnitData;
+		reloadAllObjectDataVerySlowly();
 	}
 
 	public MutableGameObject getSelectedGameObject() {

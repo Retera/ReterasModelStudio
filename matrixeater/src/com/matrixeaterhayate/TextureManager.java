@@ -21,6 +21,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -67,7 +68,7 @@ public class TextureManager extends JPanel {
 				list.repaint();
 			}
 		});
-		panel.add(list);
+		panel.add(new JScrollPane(list));
 		Bitmap defaultTexture = null;
 		final DefaultListModel<Bitmap> bitmapListModel = new DefaultListModel<>();
 		for (final Bitmap bitmap : modelView.getModel().getTextures()) {

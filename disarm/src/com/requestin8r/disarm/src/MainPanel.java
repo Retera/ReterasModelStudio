@@ -56,8 +56,6 @@ import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.units.GameObject;
 import com.hiveworkshop.wc3.units.ModelOptionPane;
 import com.hiveworkshop.wc3.units.UnitOptionPane;
-import com.hiveworkshop.wc3.user.DirectorySelector;
-import com.hiveworkshop.wc3.user.SaveProfile;
 import com.requestin8r.src.IconGet;
 import com.requestin8r.src.Project;
 
@@ -582,19 +580,21 @@ public class MainPanel extends JPanel implements ActionListener {
 			jfc.setSelectedFile(null);
 			// refreshController();
 		} else if (e.getSource() == newDirectory) {
-			final DirectorySelector selector = new DirectorySelector(SaveProfile.get().getGameDirectory(), "");
-			JOptionPane.showMessageDialog(null, selector, "Locating Warcraft III Directory",
-					JOptionPane.QUESTION_MESSAGE);
-			String wcDirectory = selector.getDir();
-			if (!(wcDirectory.endsWith("/") || wcDirectory.endsWith("\\"))) {
-				wcDirectory = wcDirectory + "\\";
-			}
-			SaveProfile.get().setGameDirectory(wcDirectory);
-
-			AnimationViewer pdp;
-			pdp = viewer;
-			pdp.reloadAllTextures();
-			MpqCodebase.get().refresh();
+			JOptionPane.showMessageDialog(MainPanel.this,
+					"Disarm built from source is no longer supported and needs an update to fix this. If you live in my future and want disarm from source, see branch history, download 'prod' branch.");
+//			final DirectorySelector selector = new DirectorySelector(SaveProfile.get().getGameDirectory(), "");
+//			JOptionPane.showMessageDialog(null, selector, "Locating Warcraft III Directory",
+//					JOptionPane.QUESTION_MESSAGE);
+//			String wcDirectory = selector.getDir();
+//			if (!(wcDirectory.endsWith("/") || wcDirectory.endsWith("\\"))) {
+//				wcDirectory = wcDirectory + "\\";
+//			}
+//			SaveProfile.get().setGameDirectory(wcDirectory);
+//
+//			AnimationViewer pdp;
+//			pdp = viewer;
+//			pdp.reloadAllTextures();
+//			MpqCodebase.get().refresh();
 		} else if (e.getSource() == listOpts) {
 			if (current == null) {
 				return;

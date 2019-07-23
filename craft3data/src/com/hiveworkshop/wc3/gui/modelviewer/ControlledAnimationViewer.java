@@ -80,4 +80,8 @@ public class ControlledAnimationViewer extends JPanel implements AnimationContro
 	public Animation getCurrentAnimation() {
 		return perspectiveViewport.getCurrentAnimation();
 	}
+
+	public void setSpawnParticles(final boolean b) {
+		perspectiveViewport.setSpawnParticles(b);
+	}
 }

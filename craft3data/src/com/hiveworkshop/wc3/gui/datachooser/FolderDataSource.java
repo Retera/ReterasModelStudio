@@ -1,0 +1,58 @@
+package com.hiveworkshop.wc3.gui.datachooser;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Consumer;
+
+public class FolderDataSource implements DataSource {
+
+	private final Path folderPath;
+	private final Set<String> listfile;
+
+	public FolderDataSource(final Path folderPath) {
+		this.folderPath = folderPath;
+		this.listfile = new HashSet<>();
+		try {
+			Files.walk(folderPath).filter(Files::isRegularFile).forEach(new Consumer<Path>() {
+				@Override
+				public void accept(final Path t) {
+					listfile.add(t.toString());
+				}
+			});
+		} catch (final IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public InputStream getResourceAsStream(final String filepath) throws IOException {
+		return Files.newInputStream(folderPath.resolve(filepath), StandardOpenOption.READ);
+	}
+
+	@Override
+	public File getFile(final String filepath) throws IOException {
+		return new File(folderPath.toString() + File.separatorChar + filepath);
+	}
+
+	@Override
+	public boolean has(final String filepath) {
+		return Files.exists(folderPath.resolve(filepath));
+	}
+
+	@Override
+	public Collection<String> getListfile() {
+		return null;
+	}
+
+	@Override
+	public void close() {
+	}
+
+}

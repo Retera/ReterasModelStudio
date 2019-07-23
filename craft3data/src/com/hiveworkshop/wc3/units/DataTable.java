@@ -15,6 +15,7 @@ import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 
 public class DataTable implements ObjectData {
+	private static final boolean DEBUG = false;
 	static DataTable theTable;
 	static DataTable spawnTable;
 	static DataTable splatTable;
@@ -384,8 +385,11 @@ public class DataTable implements ObjectData {
 
 		String input = "";
 		Element currentUnit = null;
-		boolean first = true;
+		final boolean first = true;
 		while ((input = reader.readLine()) != null) {
+			if (DEBUG) {
+				System.out.println(input);
+			}
 			if (input.startsWith("//")) {
 				continue;
 			}
@@ -488,10 +492,13 @@ public class DataTable implements ObjectData {
 		int col = 0;
 		int lastFieldId = 0;
 		while ((input = reader.readLine()) != null) {
+			if (DEBUG) {
+				System.out.println(input);
+			}
 			if (input.startsWith("E")) {
 				break;
 			}
-			if (input.startsWith("O;") || input.startsWith("F;")) {
+			if (input.startsWith("O;")) {
 				continue;
 			}
 			if (input.contains("X1;")) {
@@ -500,11 +507,24 @@ public class DataTable implements ObjectData {
 			} else {
 				col++;
 			}
+			String kInput;
+			if (input.startsWith("F;")) {
+				kInput = reader.readLine();
+				if (DEBUG) {
+					System.out.println(kInput);
+				}
+			} else {
+				kInput = input;
+			}
 			if (rowStartCount <= 1) {
 				final int subXIndex = input.indexOf("X");
 				final int subYIndex = input.indexOf("Y");
 				if ((subYIndex >= 0) && (subYIndex < subXIndex)) {
-					final int eIndex = input.indexOf("K");
+					final int eIndex = kInput.indexOf("K");
+					final int fieldIdEndIndex = kInput != input ? input.length() : eIndex - 1;
+					if ((eIndex == -1) || (kInput.charAt(eIndex - 1) != ';')) {
+						continue;
+					}
 					final int fieldId;
 					if (subXIndex < 0) {
 						if (lastFieldId == 0) {
@@ -512,14 +532,22 @@ public class DataTable implements ObjectData {
 						}
 						fieldId = lastFieldId + 1;
 					} else {
-						fieldId = Integer.parseInt(input.substring(subXIndex + 1, eIndex - 1));
+						fieldId = Integer.parseInt(input.substring(subXIndex + 1, fieldIdEndIndex));
 					}
 
-					dataNames[fieldId - 1] = input.substring(input.indexOf("\"") + 1, input.lastIndexOf("\""));
+					final int quotationIndex = kInput.indexOf("\"");
+					if (quotationIndex == -1) {
+						dataNames[fieldId - 1] = kInput.substring(eIndex + 1);
+					} else {
+						dataNames[fieldId - 1] = kInput.substring(quotationIndex + 1, kInput.lastIndexOf("\""));
+					}
 					lastFieldId = fieldId;
 					continue;
 				} else {
-					int eIndex = input.indexOf("K");
+					int eIndex = kInput.indexOf("K");
+					if ((eIndex == -1) || (kInput.charAt(eIndex - 1) != ';')) {
+						continue;
+					}
 					final int fieldId;
 					if (subXIndex < 0) {
 						if (lastFieldId == 0) {
@@ -527,39 +555,46 @@ public class DataTable implements ObjectData {
 						}
 						fieldId = lastFieldId + 1;
 					} else {
-						if (flipMode && input.contains("Y")) {
+						if (flipMode && input.contains("Y") && (input == kInput)) {
 							eIndex = Math.min(subYIndex, eIndex);
 						}
-						fieldId = Integer.parseInt(input.substring(subXIndex + 1, eIndex - 1));
+						final int fieldIdEndIndex = kInput != input ? input.length() : eIndex - 1;
+						fieldId = Integer.parseInt(input.substring(subXIndex + 1, fieldIdEndIndex));
 					}
 
-					dataNames[fieldId - 1] = input.substring(input.indexOf("\"") + 1, input.lastIndexOf("\""));
+					final int quotationIndex = kInput.indexOf("\"");
+					if (quotationIndex == -1) {
+						dataNames[fieldId - 1] = kInput.substring(eIndex + 1);
+					} else {
+						dataNames[fieldId - 1] = kInput.substring(quotationIndex + 1, kInput.lastIndexOf("\""));
+					}
 					lastFieldId = fieldId;
 					continue;
 				}
 			}
 			// if( rowStartCount == 2)
 			// System.out.println(Arrays.toString(dataNames));
-			if (input.contains("X1;")) {
-				final int start = input.indexOf("\"") + 1;
-				final int end = input.lastIndexOf("\"");
+			if (input.contains("X1;") || ((input != kInput) && input.endsWith("X1"))) {
+				final int start = kInput.indexOf("\"") + 1;
+				final int end = kInput.lastIndexOf("\"");
 				if ((start - 1) != end) {
-					final String newKey = input.substring(start, end);
+					final String newKey = kInput.substring(start, end);
 					currentUnit = dataTable.get(new StringKey(newKey));
 					if (currentUnit == null) {
 						currentUnit = new Element(newKey, this);
 						dataTable.put(new StringKey(newKey), currentUnit);
 					}
 				}
-			} else if (input.contains("K")) {
+			} else if (kInput.contains("K")) {
 				final int subXIndex = input.indexOf("X");
-				int eIndex = input.indexOf("K");
-				if (flipMode && input.contains("Y")) {
-					eIndex = Math.min(input.indexOf("Y"), eIndex);
+				int eIndex = kInput.indexOf("K");
+				if (flipMode && kInput.contains("Y")) {
+					eIndex = Math.min(kInput.indexOf("Y"), eIndex);
 				}
-				final int fieldId = (subXIndex == -1) || (subXIndex > eIndex) ? 1
-						: Integer.parseInt(input.substring(subXIndex + 1, eIndex - 1));
-				String fieldValue = input.substring(eIndex + 1);
+				final int fieldIdEndIndex = kInput != input ? input.length() : eIndex - 1;
+				final int fieldId = (subXIndex == -1) || (subXIndex > fieldIdEndIndex) ? 1
+						: Integer.parseInt(input.substring(subXIndex + 1, fieldIdEndIndex));
+				String fieldValue = kInput.substring(eIndex + 1);
 				if ((fieldValue.length() > 1) && fieldValue.startsWith("\"") && fieldValue.endsWith("\"")) {
 					fieldValue = fieldValue.substring(1, fieldValue.length() - 1);
 				}

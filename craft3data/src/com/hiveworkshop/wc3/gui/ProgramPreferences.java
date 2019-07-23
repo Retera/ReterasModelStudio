@@ -23,6 +23,8 @@ public class ProgramPreferences implements Serializable {
 	private Boolean invertedDisplay = true;
 	private Boolean useBoxesForPivotPoints = true;
 	private Boolean allowLoadingNonBlpTextures = true;
+	private Boolean renderParticles = true;
+	private Boolean renderStaticPoseParticles = true;
 	Color activeRColor1 = new Color(200, 255, 200);
 	Color activeRColor2 = new Color(60, 170, 0);
 	Color activeColor1 = new Color(255, 200, 200);
@@ -66,6 +68,12 @@ public class ProgramPreferences implements Serializable {
 		}
 		if (allowLoadingNonBlpTextures == null) {
 			allowLoadingNonBlpTextures = true;
+		}
+		if (renderParticles == null) {
+			renderParticles = true;
+		}
+		if (renderStaticPoseParticles == null) {
+			renderStaticPoseParticles = true;
 		}
 		if ((vertexColor == null) || (normalsColor == null) || (pivotPointsColor == null)) {
 			vertexColor = new Color(0, 0, 255);// new Color(0, 0, 0)
@@ -149,6 +157,8 @@ public class ProgramPreferences implements Serializable {
 		theme = other.theme;
 		quickBrowse = other.quickBrowse;
 		this.allowLoadingNonBlpTextures = other.allowLoadingNonBlpTextures;
+		this.renderParticles = other.renderParticles;
+		this.renderStaticPoseParticles = other.renderStaticPoseParticles;
 		SaveProfile.save();
 		firePrefsChanged();
 
@@ -519,8 +529,28 @@ public class ProgramPreferences implements Serializable {
 		return allowLoadingNonBlpTextures;
 	}
 
+	public Boolean getRenderParticles() {
+		return renderParticles;
+	}
+
+	public Boolean getRenderStaticPoseParticles() {
+		return renderStaticPoseParticles;
+	}
+
 	public void setAllowLoadingNonBlpTextures(final Boolean allowLoadingNonBlpTextures) {
 		this.allowLoadingNonBlpTextures = allowLoadingNonBlpTextures;
+		SaveProfile.save();
+		firePrefsChanged();
+	}
+
+	public void setRenderParticles(final Boolean renderParticles) {
+		this.renderParticles = renderParticles;
+		SaveProfile.save();
+		firePrefsChanged();
+	}
+
+	public void setRenderStaticPoseParticles(final Boolean renderStaticPoseParticles) {
+		this.renderStaticPoseParticles = renderStaticPoseParticles;
 		SaveProfile.save();
 		firePrefsChanged();
 	}

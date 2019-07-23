@@ -20,9 +20,9 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
-import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 
 public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor {
@@ -34,6 +34,7 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
 	private NodeIconPalette nodeIconPalette;
 	private RenderModel renderModel;
 	private final ViewportRenderableCamera renderableCameraProp = new ViewportRenderableCamera();
+	private boolean crosshairIsBox;
 
 	public ResettableAnimatedIdObjectRenderer(final int vertexSize) {
 		this.vertexSize = vertexSize;
@@ -41,13 +42,14 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
 
 	public ResettableAnimatedIdObjectRenderer reset(final CoordinateSystem coordinateSystem, final Graphics2D graphics,
 			final Color lightColor, final Color pivotPointColor, final NodeIconPalette nodeIconPalette,
-			final RenderModel renderModel) {
+			final RenderModel renderModel, final boolean crosshairIsBox) {
 		this.coordinateSystem = coordinateSystem;
 		this.graphics = graphics;
 		this.lightColor = lightColor;
 		this.pivotPointColor = pivotPointColor;
 		this.nodeIconPalette = nodeIconPalette;
 		this.renderModel = renderModel;
+		this.crosshairIsBox = crosshairIsBox;
 		return this;
 	}
 
@@ -93,7 +95,7 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
 	}
 
 	private void drawCrosshair(final Vertex pivotPoint, final Matrix4f worldMatrix) {
-		drawCrosshair(graphics, coordinateSystem, vertexSize, pivotPoint, worldMatrix);
+		drawCrosshair(graphics, coordinateSystem, vertexSize, pivotPoint, worldMatrix, crosshairIsBox);
 	}
 
 	@Override
@@ -136,7 +138,7 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
 	public void collisionShape(final CollisionShape collisionShape) {
 		drawCollisionShape(graphics, pivotPointColor, coordinateSystem, coordinateSystem.getPortFirstXYZ(),
 				coordinateSystem.getPortSecondXYZ(), vertexSize, collisionShape, nodeIconPalette.getCollisionImage(),
-				renderModel.getRenderNode(collisionShape).getWorldMatrix());
+				renderModel.getRenderNode(collisionShape).getWorldMatrix(), crosshairIsBox);
 	}
 
 	@Override
@@ -220,21 +222,21 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
 	private static final Vector4f vertexHeap2 = new Vector4f();
 
 	public static void drawCrosshair(final Graphics2D graphics, final CoordinateSystem coordinateSystem, int vertexSize,
-			final Vertex pivotPoint, final Matrix4f worldMatrix) {
+			final Vertex pivotPoint, final Matrix4f worldMatrix, final boolean crosshairIsBox) {
 		loadPivotInVertexHeap(pivotPoint, worldMatrix, vertexHeap);
-		vertexSize *= 3;
 
 		final int xCoord = (int) coordinateSystem
 				.convertX(Vertex.getCoord(vertexHeap, coordinateSystem.getPortFirstXYZ()));
 		final int yCoord = (int) coordinateSystem
 				.convertY(Vertex.getCoord(vertexHeap, coordinateSystem.getPortSecondXYZ()));
-		// graphics.drawOval(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2,
-		// vertexSize * 2);
-		// graphics.drawLine(xCoord - (int) (vertexSize * 1.5f), yCoord, xCoord + (int)
-		// (vertexSize * 1.5f), yCoord);
-		// graphics.drawLine(xCoord, yCoord - (int) (vertexSize * 1.5f), xCoord, yCoord
-		// + (int) (vertexSize * 1.5f));
-		graphics.fillRect(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2, vertexSize * 2);
+		if (crosshairIsBox) {
+			vertexSize *= 3;
+			graphics.fillRect(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2, vertexSize * 2);
+		} else {
+			graphics.drawOval(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2, vertexSize * 2);
+			graphics.drawLine(xCoord - (int) (vertexSize * 1.5f), yCoord, xCoord + (int) (vertexSize * 1.5f), yCoord);
+			graphics.drawLine(xCoord, yCoord - (int) (vertexSize * 1.5f), xCoord, yCoord + (int) (vertexSize * 1.5f));
+		}
 	}
 
 	public static void loadPivotInVertexHeap(final Vertex pivotPoint, final Matrix4f worldMatrix,
@@ -248,7 +250,8 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
 
 	public static void drawCollisionShape(final Graphics2D graphics, final Color color,
 			final CoordinateSystem coordinateSystem, final byte xDimension, final byte yDimension, final int vertexSize,
-			final CollisionShape collisionShape, final Image collisionImage, final Matrix4f worldMatrix) {
+			final CollisionShape collisionShape, final Image collisionImage, final Matrix4f worldMatrix,
+			final boolean crosshairIsBox) {
 		final Vertex pivotPoint = collisionShape.getPivotPoint();
 		final ArrayList<Vertex> vertices = collisionShape.getVertices();
 		graphics.setColor(color);
@@ -292,7 +295,7 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
 			}
 		}
 		for (final Vertex vertex : vertices) {
-			drawCrosshair(graphics, coordinateSystem, vertexSize, vertex, worldMatrix);
+			drawCrosshair(graphics, coordinateSystem, vertexSize, vertex, worldMatrix, crosshairIsBox);
 		}
 	}
 }

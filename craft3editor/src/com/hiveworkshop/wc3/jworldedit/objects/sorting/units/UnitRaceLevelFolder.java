@@ -20,7 +20,7 @@ public class UnitRaceLevelFolder extends AbstractSortingFolderTreeNode {
 	private final UnitMeleeLevelFolder hidden;
 
 	public UnitRaceLevelFolder(final SortRace race) {
-		super(race.getDisplayName());
+		super(WEString.getString(race.getDisplayName()));
 		this.melee = new UnitMeleeLevelFolder(WEString.getString("WESTRING_MELEE"));
 		this.campaign = new UnitMeleeLevelFolder(WEString.getString("WESTRING_CAMPAIGN"));
 		this.hidden = new UnitMeleeLevelFolder(WEString.getString("WESTRING_ITEMSTATUS_HIDDEN"));

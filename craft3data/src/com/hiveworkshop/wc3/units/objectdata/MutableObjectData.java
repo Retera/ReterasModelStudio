@@ -19,6 +19,11 @@ import com.hiveworkshop.wc3.units.GameObject;
 import com.hiveworkshop.wc3.units.ObjectData;
 
 public final class MutableObjectData {
+	private static final War3ID ROC_SUPPORT_URAC = War3ID.fromString("urac");
+	private static final War3ID ROC_SUPPORT_UCAM = War3ID.fromString("ucam");
+	private static final War3ID ROC_SUPPORT_USPE = War3ID.fromString("uspe");
+	private static final War3ID ROC_SUPPORT_UBDG = War3ID.fromString("ubdg");
+
 	private final WorldEditorDataType worldEditorDataType;
 	private final ObjectData sourceSLKData;
 	private final ObjectData sourceSLKMetaData;
@@ -680,6 +685,17 @@ public final class MutableObjectData {
 		private String getFieldStringFromSLKs(final War3ID field, final int level) {
 			final GameObject metaData = sourceSLKMetaData.get(field.asStringValue());
 			if (metaData == null) {
+				if (worldEditorDataType == WorldEditorDataType.UNITS) {
+					if (ROC_SUPPORT_URAC.equals(field)) {
+						return parentWC3Object.getField("race");
+					} else if (ROC_SUPPORT_UCAM.equals(field)) {
+						return "0";
+					} else if (ROC_SUPPORT_USPE.equals(field)) {
+						return parentWC3Object.getField("special");
+					} else if (ROC_SUPPORT_UBDG.equals(field)) {
+						return parentWC3Object.getField("isbldg");
+					}
+				}
 				throw new IllegalStateException(
 						"Program requested " + field.toString() + " from " + worldEditorDataType);
 			}

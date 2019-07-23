@@ -219,7 +219,7 @@ public class BlpConverterPanel extends JPanel {
 		leftHandCardPanel.add("tex", converterPanel);
 		final MDL emptyModel = new MDL();
 		final PerspDisplayPanel modelViewport = new PerspDisplayPanel("", new ModelViewManager(emptyModel),
-				new ProgramPreferences(), new RenderModel(emptyModel));
+				new ProgramPreferences(), new RenderModel(emptyModel, null));
 		leftHandCardPanel.add("model", modelViewport);
 		final MpqCodebase mpqCodebase = MpqCodebase.get();
 		cardLayout.show(leftHandCardPanel, "tex");

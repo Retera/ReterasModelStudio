@@ -2302,6 +2302,12 @@ public class AnimFlag {
 	 * @return
 	 */
 	public Object interpolateAt(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
+			if (values.size() > 0) {
+				return values.get(0);
+			}
+			return identity(typeid);
+		}
 		int localTypeId = typeid;
 		if ((localTypeId == ROTATION) && (size() > 0) && (values.get(0) instanceof Double)) {
 			localTypeId = ALPHA; // magic Camera rotation!
@@ -2341,6 +2347,10 @@ public class AnimFlag {
 				return identity(localTypeId);
 			}
 			if (floorIndexTime > getGlobalSeq()) {
+				if (values.size() > 0) {
+					// out of range global sequences end up just using the higher value keyframe
+					return values.get(floorIndex);
+				}
 				return identity(localTypeId);
 			}
 			if ((floorIndexTime < 0) && (ceilIndexTime > getGlobalSeq())) {

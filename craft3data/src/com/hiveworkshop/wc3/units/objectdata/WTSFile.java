@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -24,7 +25,7 @@ public class WTSFile implements WTS {
 	}
 
 	private void parse() throws IOException {
-		final BufferedReader sourceReader = new BufferedReader(new InputStreamReader(source));
+		final BufferedReader sourceReader = new BufferedReader(new InputStreamReader(source, Charset.forName("utf-8")));
 		ParseState state = ParseState.NEXT_TRIGSTR;
 
 		// WTS files may start with a Byte Order Mark, which we will have to skip.

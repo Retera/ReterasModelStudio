@@ -555,7 +555,8 @@ public final class War3ObjectDataChangeset {
 							&& "TRIGSTR_".equals(newlyReadChange.getStrval().substring(0, 8))) {
 						final int key = getWTSValue(newlyReadChange);
 						newlyReadChange.setStrval(wts.get(key));
-						if (newlyReadChange.getStrval().length() > MAX_STR_LEN) {
+						if ((newlyReadChange.getStrval() != null)
+								&& (newlyReadChange.getStrval().length() > MAX_STR_LEN)) {
 							newlyReadChange.setStrval(newlyReadChange.getStrval().substring(0, MAX_STR_LEN - 1));
 						}
 					}

@@ -13,28 +13,19 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
-import com.hiveworkshop.wc3.user.WarcraftDirectoryChangeListener.WarcraftDirectoryChangeNotifier;
+import com.hiveworkshop.wc3.gui.datachooser.DataSourceDescriptor;
+import com.hiveworkshop.wc3.user.WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier;
 
 public class SaveProfile implements Serializable {
 	final static long serialVersionUID = 6L;
 	String lastDirectory;
 	static SaveProfile currentProfile;
 
-	String wcDirectory = null;
-
 	List<String> recent = null;
 	ProgramPreferences preferences;
+	private List<DataSourceDescriptor> dataSources;
 
-	static boolean firstTime = true;
-	private static final WarcraftDirectoryChangeNotifier WC3_DIR_CHANGE_NOTIFIER = new WarcraftDirectoryChangeNotifier();
-
-	public String getGameDirectory() {
-		if (firstTime) {
-			firstTime = false;
-			// testTargetFolder(wcDirectory);
-		}
-		return wcDirectory;
-	}
+	private transient WarcraftDataSourceChangeNotifier dataSourceChangeNotifier = new WarcraftDataSourceChangeNotifier();
 
 	public void clearRecent() {
 		getRecent().clear();
@@ -69,15 +60,18 @@ public class SaveProfile implements Serializable {
 		this.preferences = preferences;
 	}
 
-	public void setGameDirectory(final String dir) {
-		wcDirectory = dir;
-		firstTime = true;
+	public void setDataSources(final List<DataSourceDescriptor> dataSources) {
+		this.dataSources = dataSources;
 		save();
-		WC3_DIR_CHANGE_NOTIFIER.directoryChanged();
+		dataSourceChangeNotifier.dataSourcesChanged();
 	}
 
-	public static void addWarcraftDirectoryChangeListener(final WarcraftDirectoryChangeListener listener) {
-		WC3_DIR_CHANGE_NOTIFIER.subscribe(listener);
+	public List<DataSourceDescriptor> getDataSources() {
+		return dataSources;
+	}
+
+	public void addDataSourceChangeListener(final WarcraftDataSourceChangeListener listener) {
+		dataSourceChangeNotifier.subscribe(listener);
 	}
 
 	public SaveProfile() {
@@ -97,9 +91,9 @@ public class SaveProfile implements Serializable {
 		if (currentProfile == null) {
 			try {
 				final String homeProfile = System.getProperty("user.home");
-				String profilePath = "\\AppData\\Roaming\\RMS";
+				String profilePath = "\\AppData\\Roaming\\ReteraStudio";
 				if (!System.getProperty("os.name").toLowerCase().contains("win")) {
-					profilePath = "/.rms";
+					profilePath = "/.reteraStudio";
 				}
 				final File profileDir = new File(homeProfile + profilePath);
 				File profileFile = new File(profileDir.getPath() + "\\user.profile");
@@ -109,6 +103,7 @@ public class SaveProfile implements Serializable {
 				final ObjectInputStream ois = new ObjectInputStream(new FileInputStream(profileFile));
 				currentProfile = (SaveProfile) ois.readObject();
 				currentProfile.preferences.reload();
+				currentProfile.reload();
 				ois.close();
 			} catch (final Exception e) {
 
@@ -121,12 +116,16 @@ public class SaveProfile implements Serializable {
 		return currentProfile;
 	}
 
+	private void reload() {
+		dataSourceChangeNotifier = new WarcraftDataSourceChangeNotifier();
+	}
+
 	public static void save() {
 		if (currentProfile != null) {
 			final String homeProfile = System.getProperty("user.home");
-			String profilePath = "\\AppData\\Roaming\\RMS";
+			String profilePath = "\\AppData\\Roaming\\ReteraStudio";
 			if (!System.getProperty("os.name").toLowerCase().contains("win")) {
-				profilePath = "/.rms";
+				profilePath = "/.reteraStudio";
 			}
 			final File profileDir = new File(homeProfile + profilePath);
 			profileDir.mkdirs();
@@ -162,63 +161,5 @@ public class SaveProfile implements Serializable {
 			return false;
 		}
 		return true;
-	}
-
-	public static void requestNewWc3Directory() {
-		final String autoDir = autoWarcraftDirectory();
-
-		final DirectorySelector selector = new DirectorySelector(autoDir,
-				"Welcome to the Java WC3 Libraries! We need to make sure that the program can find your Warcraft III MPQ Archive files if the system is going to work.");
-		final int x = JOptionPane.showConfirmDialog(null, selector, "Locating Warcraft III Directory",
-				JOptionPane.OK_CANCEL_OPTION);
-		if (x == JOptionPane.YES_OPTION) {
-			String wcDirectory = selector.getDir();
-			if (!(wcDirectory.endsWith("/") || wcDirectory.endsWith("\\"))) {
-				wcDirectory = wcDirectory + "\\";
-			}
-			if (!System.getProperty("os.name").toLowerCase().contains("win")) {
-				wcDirectory = wcDirectory.replace('\\', '/');
-			}
-
-			testTargetFolderReadOnly(wcDirectory);
-
-			get().setGameDirectory(wcDirectory);
-		}
-	}
-
-	public static String getWarcraftDirectory() {
-		if (get().getGameDirectory() == null) {
-			requestNewWc3Directory();
-		}
-		return get().getGameDirectory();
-	}
-
-	public static String autoWarcraftDirectory() {
-		String wcDirectory = WindowsRegistry
-				.readRegistry("HKEY_CURRENT_USER\\Software\\Blizzard Entertainment\\Warcraft III", "InstallPathX");
-		if (wcDirectory == null) {
-			wcDirectory = WindowsRegistry
-					.readRegistry("HKEY_CURRENT_USER\\Software\\Blizzard Entertainment\\Warcraft III", "InstallPathX");
-		}
-		if (wcDirectory == null) {
-			wcDirectory = WindowsRegistry.readRegistry(
-					"HKEY_CURRENT_USER\\Software\\Classes\\VirtualStore\\MACHINE\\SOFTWARE\\Wow6432Node\\Blizzard Entertainment\\Warcraft III",
-					"InstallPath");
-		}
-		if (wcDirectory == null) {
-			JOptionPane.showMessageDialog(null,
-					"Error retrieving Warcraft III game directory.\nIs Warcraft III improperly installed on this machine?");
-			wcDirectory = System.getProperty("user.home");
-			if (wcDirectory == null) {
-				wcDirectory = "C:\\";
-			}
-		}
-		wcDirectory = wcDirectory.replace("\n", "").replace("\r", "");
-		if (!(wcDirectory.endsWith("/") || wcDirectory.endsWith("\\"))) {
-			// legacyFix(wcDirectory);
-			wcDirectory = wcDirectory + "\\";
-		}
-		System.out.println("WC3: " + wcDirectory);
-		return wcDirectory;
 	}
 }
