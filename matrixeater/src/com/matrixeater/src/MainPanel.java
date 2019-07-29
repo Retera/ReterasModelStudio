@@ -2487,13 +2487,6 @@ public class MainPanel extends JPanel
 
 		windowMenu.addSeparator();
 
-		preferencesWindow = new JMenuItem("Preferences Window");
-		preferencesWindow.setMnemonic(KeyEvent.VK_P);
-		preferencesWindow.addActionListener(openPreferencesAction);
-		windowMenu.add(preferencesWindow);
-
-		windowMenu.addSeparator();
-
 		addMenu = new JMenu("Add");
 		addMenu.setMnemonic(KeyEvent.VK_A);
 		addMenu.getAccessibleContext().setAccessibleDescription("Allows the user to add new components to the model.");
@@ -3284,54 +3277,54 @@ public class MainPanel extends JPanel
 		minimizeGeoset.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				final Map<Geoset,Geoset> sourceToDestination = new HashMap<>();
-				final List<Geoset> retainedGeosets = new ArrayList<>();
-				for(Geoset geoset: currentMDL().getGeosets()) {
-					for(Geoset retainedGeoset: retainedGeosets) {
-						if(retainedGeoset.getMaterial().equals(geoset.getMaterial())
-								&& retainedGeoset.getSelectionGroup()==geoset.getSelectionGroup()
-								&& retainedGeoset.getFlags().contains("Unselectable")==geoset.getFlags().contains("Unselectable")
-								&&
-								) {
-
-						}
-					}
-				}
+//				final Map<Geoset,Geoset> sourceToDestination = new HashMap<>();
+//				final List<Geoset> retainedGeosets = new ArrayList<>();
+//				for(Geoset geoset: currentMDL().getGeosets()) {
+//					for(Geoset retainedGeoset: retainedGeosets) {
+//						if(retainedGeoset.getMaterial().equals(geoset.getMaterial())
+//								&& retainedGeoset.getSelectionGroup()==geoset.getSelectionGroup()
+//								&& retainedGeoset.getFlags().contains("Unselectable")==geoset.getFlags().contains("Unselectable")
+//								&&
+//								) {
+//
+//						}
+//					}
+//				}
 			}
 
-			private boolean mergableGeosetAnims(final GeosetAnim first, final GeosetAnim second) {
-				if((first==null)&&(second==null)) {
-					return true;
-				}
-				if((first==null)||(second==null)) {
-					return false;
-				}
-				final AnimFlag firstVisibilityFlag = first.getVisibilityFlag();
-				final AnimFlag secondVisibilityFlag = second.getVisibilityFlag();
-				if((firstVisibilityFlag==null)!=(secondVisibilityFlag==null)) {
-					return false;
-				}
-				if((firstVisibilityFlag!=null)&&!firstVisibilityFlag.equals(secondVisibilityFlag)) {
-					return false;
-				}
-				if(first.isDropShadow()!=second.isDropShadow()) {
-					return false;
-				}
-				if(Math.abs(first.getStaticAlpha()-second.getStaticAlpha()) > 0.001) {
-					return false;
-				}
-				if((first.getStaticColor()==null)!=(second.getStaticColor()==null)) {
-					return false;
-				}
-				if((first.getStaticColor()!=null)&&!first.getStaticColor().equalLocs(second.getStaticColor())) {
-					return false;
-				}
-				final AnimFlag firstAnimatedColor = AnimFlag.find(first.getAnimFlags(), "Color");
-				final AnimFlag secondAnimatedColor = AnimFlag.find(second.getAnimFlags(), "Color");
-				if((firstAnimatedColor==null)!=(secondAnimatedColor==null)) {
-
-				}
-			}
+//			private boolean mergableGeosetAnims(final GeosetAnim first, final GeosetAnim second) {
+//				if ((first == null) && (second == null)) {
+//					return true;
+//				}
+//				if ((first == null) || (second == null)) {
+//					return false;
+//				}
+//				final AnimFlag firstVisibilityFlag = first.getVisibilityFlag();
+//				final AnimFlag secondVisibilityFlag = second.getVisibilityFlag();
+//				if ((firstVisibilityFlag == null) != (secondVisibilityFlag == null)) {
+//					return false;
+//				}
+//				if ((firstVisibilityFlag != null) && !firstVisibilityFlag.equals(secondVisibilityFlag)) {
+//					return false;
+//				}
+//				if (first.isDropShadow() != second.isDropShadow()) {
+//					return false;
+//				}
+//				if (Math.abs(first.getStaticAlpha() - second.getStaticAlpha()) > 0.001) {
+//					return false;
+//				}
+//				if ((first.getStaticColor() == null) != (second.getStaticColor() == null)) {
+//					return false;
+//				}
+//				if ((first.getStaticColor() != null) && !first.getStaticColor().equalLocs(second.getStaticColor())) {
+//					return false;
+//				}
+//				final AnimFlag firstAnimatedColor = AnimFlag.find(first.getAnimFlags(), "Color");
+//				final AnimFlag secondAnimatedColor = AnimFlag.find(second.getAnimFlags(), "Color");
+//				if ((firstAnimatedColor == null) != (secondAnimatedColor == null)) {
+//
+//				}
+//			}
 		});
 		optimizeMenu.add(minimizeGeoset);
 
@@ -3458,6 +3451,20 @@ public class MainPanel extends JPanel
 		expandSelection.setAccelerator(KeyStroke.getKeyStroke("control E"));
 		expandSelection.addActionListener(expandSelectionAction);
 		editMenu.add(expandSelection);
+
+		editMenu.addSeparator();
+
+		final JMenuItem deleteButton = new JMenuItem("Delete");
+		deleteButton.setMnemonic(KeyEvent.VK_D);
+		deleteButton.addActionListener(deleteAction);
+		editMenu.add(deleteButton);
+
+		editMenu.addSeparator();
+
+		preferencesWindow = new JMenuItem("Preferences Window");
+		preferencesWindow.setMnemonic(KeyEvent.VK_P);
+		preferencesWindow.addActionListener(openPreferencesAction);
+		editMenu.add(preferencesWindow);
 
 		for (int i = 0; i < menuBar.getMenuCount(); i++) {
 			menuBar.getMenu(i).getPopupMenu().setLightWeightPopupEnabled(false);

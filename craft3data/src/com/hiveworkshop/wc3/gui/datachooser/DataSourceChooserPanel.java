@@ -487,12 +487,16 @@ public class DataSourceChooserPanel extends JPanel {
 			dataSourceDescriptors.add(dataSourceDesc);
 			addDefaultCASCPrefixes(installPathPath, dataSourceDesc, allowPopup);
 		} else {
-			dataSourceDescriptors.add(new MpqDataSourceDescriptor(installPathPath.resolve("War3.mpq").toString()));
+			if (Files.exists(installPathPath.resolve("War3.mpq"))) {
+				dataSourceDescriptors.add(new MpqDataSourceDescriptor(installPathPath.resolve("War3.mpq").toString()));
+			}
 			if (Files.exists(installPathPath.resolve("War3Local.mpq"))) {
 				dataSourceDescriptors
 						.add(new MpqDataSourceDescriptor(installPathPath.resolve("War3Local.mpq").toString()));
 			}
-			dataSourceDescriptors.add(new MpqDataSourceDescriptor(installPathPath.resolve("War3x.mpq").toString()));
+			if (Files.exists(installPathPath.resolve("War3x.mpq"))) {
+				dataSourceDescriptors.add(new MpqDataSourceDescriptor(installPathPath.resolve("War3x.mpq").toString()));
+			}
 			if (Files.exists(installPathPath.resolve("War3xlocal.mpq"))) {
 				dataSourceDescriptors
 						.add(new MpqDataSourceDescriptor(installPathPath.resolve("War3xlocal.mpq").toString()));
