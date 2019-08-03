@@ -14,8 +14,8 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.ViewportSelectionHandler;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator.SelectManipulator;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public abstract class AbstractSelectAndEditManipulatorBuilder implements ModelEditorManipulatorBuilder {
@@ -81,9 +81,8 @@ public abstract class AbstractSelectAndEditManipulatorBuilder implements ModelEd
 	@Override
 	public final void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem,
 			final SelectionView selectionView, final RenderModel renderModel) {
-		selectionView.renderSelection(
-				graphics2dToAnimatedModelElementRendererAdapter.reset(graphics, coordinateSystem, renderModel),
-				coordinateSystem, modelView, programPreferences);
+		selectionView.renderSelection(graphics2dToAnimatedModelElementRendererAdapter.reset(graphics, coordinateSystem,
+				renderModel, programPreferences), coordinateSystem, modelView, programPreferences);
 		if (!selectionView.isEmpty()) {
 			renderWidget(graphics, coordinateSystem, selectionView);
 		}

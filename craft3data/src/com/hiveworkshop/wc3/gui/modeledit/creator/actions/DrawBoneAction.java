@@ -1,6 +1,6 @@
 package com.hiveworkshop.wc3.gui.modeledit.creator.actions;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
@@ -20,7 +20,8 @@ public class DrawBoneAction implements UndoAction {
 		this.modelView = modelView;
 		this.bone = bone;
 		this.modelStructureChangeListener = modelStructureChangeListener;
-		boneAsList = Collections.singletonList(bone);
+		boneAsList = new ArrayList<>();
+		boneAsList.add(bone);
 	}
 
 	@Override

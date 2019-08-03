@@ -33,10 +33,12 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 	}
 
 	public Graphics2DToAnimatedModelElementRendererAdapter reset(final Graphics2D graphics,
-			final CoordinateSystem coordinateSystem, final RenderModel renderModel) {
+			final CoordinateSystem coordinateSystem, final RenderModel renderModel,
+			final ProgramPreferences preferences) {
 		this.graphics = graphics;
 		this.coordinateSystem = coordinateSystem;
 		this.renderModel = renderModel;
+		this.programPreferences = preferences;
 		return this;
 	}
 
