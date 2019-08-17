@@ -33,11 +33,17 @@ public class FolderDataSource implements DataSource {
 
 	@Override
 	public InputStream getResourceAsStream(final String filepath) throws IOException {
+		if (!has(filepath)) {
+			return null;
+		}
 		return Files.newInputStream(folderPath.resolve(filepath), StandardOpenOption.READ);
 	}
 
 	@Override
 	public File getFile(final String filepath) throws IOException {
+		if (!has(filepath)) {
+			return null;
+		}
 		return new File(folderPath.toString() + File.separatorChar + filepath);
 	}
 
@@ -48,7 +54,7 @@ public class FolderDataSource implements DataSource {
 
 	@Override
 	public Collection<String> getListfile() {
-		return null;
+		return listfile;
 	}
 
 	@Override

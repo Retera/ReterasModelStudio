@@ -179,6 +179,7 @@ import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewStateListener;
+import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
 import com.hiveworkshop.wc3.mdx.MdxModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
@@ -248,12 +249,12 @@ public class MainPanel extends JPanel
 	ArrayList geoItems = new ArrayList();
 	JMenuItem newModel, open, fetchUnit, fetchModel, fetchObject, save, close, exit, revert, mergeGeoset, saveAs,
 			importButton, importUnit, importGameModel, importGameObject, importFromWorkspace, importButtonS,
-			newDirectory, creditsButton, clearRecent, nullmodelButton, selectAll, invertSelect, expandSelection,
-			snapNormals, snapVertices, flipAllUVsU, flipAllUVsV, inverseAllUVs, mirrorX, mirrorY, mirrorZ, insideOut,
-			insideOutNormals, showMatrices, editUVs, exportTextures, editTextures, scaleAnimations, animationViewer,
-			animationController, modelingTab, mpqViewer, hiveViewer, unitViewer, preferencesWindow, linearizeAnimations,
-			sortBones, simplifyKeyframes, rigButton, duplicateSelection, riseFallBirth, animFromFile, animFromUnit,
-			animFromModel, animFromObject, teamColor, teamGlow;
+			newDirectory, creditsButton, changelogButton, clearRecent, nullmodelButton, selectAll, invertSelect,
+			expandSelection, snapNormals, snapVertices, flipAllUVsU, flipAllUVsV, inverseAllUVs, mirrorX, mirrorY,
+			mirrorZ, insideOut, insideOutNormals, showMatrices, editUVs, exportTextures, editTextures, scaleAnimations,
+			animationViewer, animationController, modelingTab, mpqViewer, hiveViewer, unitViewer, preferencesWindow,
+			linearizeAnimations, sortBones, simplifyKeyframes, rigButton, duplicateSelection, riseFallBirth,
+			animFromFile, animFromUnit, animFromModel, animFromObject, teamColor, teamGlow;
 	JMenuItem cut, copy, paste;
 	List<RecentItem> recentItems = new ArrayList<>();
 	UndoMenuItem undo;
@@ -2737,7 +2738,7 @@ public class MainPanel extends JPanel
 		// importButtonS.setEnabled(false);
 		scriptsMenu.add(importButtonS);
 
-		mergeGeoset = new JMenuItem("Merge Geoset");
+		mergeGeoset = new JMenuItem("Oinkerwinkle-Style Merge Geoset");
 		mergeGeoset.setAccelerator(KeyStroke.getKeyStroke("control M"));
 		mergeGeoset.setMnemonic(KeyEvent.VK_M);
 		mergeGeoset.addActionListener(this);
@@ -2748,111 +2749,6 @@ public class MainPanel extends JPanel
 		nullmodelButton.setMnemonic(KeyEvent.VK_E);
 		nullmodelButton.addActionListener(this);
 		scriptsMenu.add(nullmodelButton);
-
-		aboutMenu = new JMenu("Help");
-		aboutMenu.setMnemonic(KeyEvent.VK_H);
-		menuBar.add(aboutMenu);
-
-		recentMenu.add(new JSeparator());
-
-		clearRecent = new JMenuItem("Clear");
-		clearRecent.setMnemonic(KeyEvent.VK_C);
-		clearRecent.addActionListener(this);
-		recentMenu.add(clearRecent);
-
-		updateRecent();
-
-		creditsButton = new JMenuItem("About");
-		creditsButton.setMnemonic(KeyEvent.VK_A);
-		creditsButton.addActionListener(this);
-		aboutMenu.add(creditsButton);
-
-		showMatrices = new JMenuItem("View Selected \"Matrices\"");
-		// showMatrices.setMnemonic(KeyEvent.VK_V);
-		showMatrices.addActionListener(viewMatricesAction);
-		toolsMenu.add(showMatrices);
-
-		insideOut = new JMenuItem("Flip all selected faces");
-		insideOut.setMnemonic(KeyEvent.VK_I);
-		insideOut.addActionListener(insideOutAction);
-		insideOut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_DOWN_MASK));
-		toolsMenu.add(insideOut);
-
-		insideOutNormals = new JMenuItem("Flip all selected normals");
-		insideOutNormals.addActionListener(insideOutNormalsAction);
-		toolsMenu.add(insideOutNormals);
-
-		toolsMenu.add(new JSeparator());
-
-		editUVs = new JMenuItem("Edit UV Mapping");
-		editUVs.setMnemonic(KeyEvent.VK_U);
-		editUVs.addActionListener(this);
-		toolsMenu.add(editUVs);
-
-		editTextures = new JMenuItem("Edit Textures");
-		editTextures.setMnemonic(KeyEvent.VK_T);
-		editTextures.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final TextureManager textureManager = new TextureManager(currentModelPanel().getModelViewManager(),
-						modelStructureChangeListener, textureExporter);
-				final JFrame frame = new JFrame("Edit Textures");
-				textureManager.setSize(new Dimension(800, 650));
-				frame.setContentPane(textureManager);
-				frame.setSize(textureManager.getSize());
-				frame.setLocationRelativeTo(null);
-				frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-				frame.setVisible(true);
-			}
-		});
-		toolsMenu.add(editTextures);
-
-		scaleAnimations = new JMenuItem("Change Animation Lengths");
-		scaleAnimations.setMnemonic(KeyEvent.VK_A);
-		scaleAnimations.addActionListener(this);
-		toolsMenu.add(scaleAnimations);
-
-		combineAnims = new JMenuItem("Put together two animations for that guy dtnmang or Misha");
-		combineAnims.setMnemonic(KeyEvent.VK_P);
-		combineAnims.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final ArrayList<Animation> anims = currentMDL().getAnims();
-				final Animation[] array = anims.toArray(new Animation[0]);
-				final Object choice = JOptionPane.showInputDialog(MainPanel.this, "Pick the first animation",
-						"Choose 1st Anim", JOptionPane.PLAIN_MESSAGE, null, array, array[0]);
-				final Animation animation = (Animation) choice;
-
-				final Object choice2 = JOptionPane.showInputDialog(MainPanel.this, "Pick the second animation",
-						"Choose 2nd Anim", JOptionPane.PLAIN_MESSAGE, null, array, array[0]);
-				final Animation animation2 = (Animation) choice2;
-
-				final String nameChoice = JOptionPane.showInputDialog(MainPanel.this,
-						"What should the combined animation be called?");
-				if (nameChoice != null) {
-					final int anim1Length = animation.getEnd() - animation.getStart();
-					final int anim2Length = animation2.getEnd() - animation2.getStart();
-					final int totalLength = anim1Length + anim2Length;
-
-					final MDL model = currentMDL();
-					final int animTrackEnd = model.animTrackEnd();
-					final int start = animTrackEnd + 1000;
-					animation.copyToInterval(start, start + anim1Length, model.getAllAnimFlags(),
-							model.sortedIdObjects(EventObject.class));
-					animation2.copyToInterval(start + anim1Length, start + totalLength, model.getAllAnimFlags(),
-							model.sortedIdObjects(EventObject.class));
-
-					final Animation newAnimation = new Animation(nameChoice, start, start + totalLength);
-					model.add(newAnimation);
-					newAnimation.getTags().add("NonLooping");
-					newAnimation.setExtents(new ExtLog(animation.getExtents()));
-					JOptionPane.showMessageDialog(MainPanel.this,
-							"DONE! Made a combined animation called " + newAnimation.getName(), "Success",
-							JOptionPane.PLAIN_MESSAGE);
-				}
-			}
-		});
-		toolsMenu.add(combineAnims);
 
 		exportAnimatedToStaticMesh = new JMenuItem("Export Animated to Static Mesh");
 		exportAnimatedToStaticMesh.setMnemonic(KeyEvent.VK_E);
@@ -2961,6 +2857,20 @@ public class MainPanel extends JPanel
 				}
 				snapshotModel.getAnims().clear();
 				snapshotModel.add(new Animation("Stand", 333, 1333));
+				final List<AnimFlag> allAnimFlags = snapshotModel.getAllAnimFlags();
+				for (final AnimFlag flag : allAnimFlags) {
+					if (!flag.hasGlobalSeq()) {
+						if (flag.size() > 0) {
+							final Object value = flag.interpolateAt(animatedRenderEnvironment);
+							flag.setInterpType(InterpolationType.DONT_INTERP);
+							flag.getValues().clear();
+							flag.getTimes().clear();
+							flag.getInTans().clear();
+							flag.getOutTans().clear();
+							flag.addEntry(333, value);
+						}
+					}
+				}
 				fc.setDialogTitle("Export Static Snapshot");
 				final int result = fc.showSaveDialog(MainPanel.this);
 				if (result == JFileChooser.APPROVE_OPTION) {
@@ -2975,7 +2885,117 @@ public class MainPanel extends JPanel
 
 			}
 		});
-		toolsMenu.add(exportAnimatedToStaticMesh);
+		scriptsMenu.add(exportAnimatedToStaticMesh);
+
+		combineAnims = new JMenuItem("Create Back2Back Animation");
+		combineAnims.setMnemonic(KeyEvent.VK_P);
+		combineAnims.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final ArrayList<Animation> anims = currentMDL().getAnims();
+				final Animation[] array = anims.toArray(new Animation[0]);
+				final Object choice = JOptionPane.showInputDialog(MainPanel.this, "Pick the first animation",
+						"Choose 1st Anim", JOptionPane.PLAIN_MESSAGE, null, array, array[0]);
+				final Animation animation = (Animation) choice;
+
+				final Object choice2 = JOptionPane.showInputDialog(MainPanel.this, "Pick the second animation",
+						"Choose 2nd Anim", JOptionPane.PLAIN_MESSAGE, null, array, array[0]);
+				final Animation animation2 = (Animation) choice2;
+
+				final String nameChoice = JOptionPane.showInputDialog(MainPanel.this,
+						"What should the combined animation be called?");
+				if (nameChoice != null) {
+					final int anim1Length = animation.getEnd() - animation.getStart();
+					final int anim2Length = animation2.getEnd() - animation2.getStart();
+					final int totalLength = anim1Length + anim2Length;
+
+					final MDL model = currentMDL();
+					final int animTrackEnd = model.animTrackEnd();
+					final int start = animTrackEnd + 1000;
+					animation.copyToInterval(start, start + anim1Length, model.getAllAnimFlags(),
+							model.sortedIdObjects(EventObject.class));
+					animation2.copyToInterval(start + anim1Length, start + totalLength, model.getAllAnimFlags(),
+							model.sortedIdObjects(EventObject.class));
+
+					final Animation newAnimation = new Animation(nameChoice, start, start + totalLength);
+					model.add(newAnimation);
+					newAnimation.getTags().add("NonLooping");
+					newAnimation.setExtents(new ExtLog(animation.getExtents()));
+					JOptionPane.showMessageDialog(MainPanel.this,
+							"DONE! Made a combined animation called " + newAnimation.getName(), "Success",
+							JOptionPane.PLAIN_MESSAGE);
+				}
+			}
+		});
+		scriptsMenu.add(combineAnims);
+
+		scaleAnimations = new JMenuItem("Change Animation Lengths by Scaling");
+		scaleAnimations.setMnemonic(KeyEvent.VK_A);
+		scaleAnimations.addActionListener(this);
+		scriptsMenu.add(scaleAnimations);
+
+		aboutMenu = new JMenu("Help");
+		aboutMenu.setMnemonic(KeyEvent.VK_H);
+		menuBar.add(aboutMenu);
+
+		recentMenu.add(new JSeparator());
+
+		clearRecent = new JMenuItem("Clear");
+		clearRecent.setMnemonic(KeyEvent.VK_C);
+		clearRecent.addActionListener(this);
+		recentMenu.add(clearRecent);
+
+		updateRecent();
+
+		changelogButton = new JMenuItem("Changelog");
+		changelogButton.setMnemonic(KeyEvent.VK_A);
+		changelogButton.addActionListener(this);
+		aboutMenu.add(changelogButton);
+
+		creditsButton = new JMenuItem("About");
+		creditsButton.setMnemonic(KeyEvent.VK_A);
+		creditsButton.addActionListener(this);
+		aboutMenu.add(creditsButton);
+
+		showMatrices = new JMenuItem("View Selected \"Matrices\"");
+		// showMatrices.setMnemonic(KeyEvent.VK_V);
+		showMatrices.addActionListener(viewMatricesAction);
+		toolsMenu.add(showMatrices);
+
+		insideOut = new JMenuItem("Flip all selected faces");
+		insideOut.setMnemonic(KeyEvent.VK_I);
+		insideOut.addActionListener(insideOutAction);
+		insideOut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_DOWN_MASK));
+		toolsMenu.add(insideOut);
+
+		insideOutNormals = new JMenuItem("Flip all selected normals");
+		insideOutNormals.addActionListener(insideOutNormalsAction);
+		toolsMenu.add(insideOutNormals);
+
+		toolsMenu.add(new JSeparator());
+
+		editUVs = new JMenuItem("Edit UV Mapping");
+		editUVs.setMnemonic(KeyEvent.VK_U);
+		editUVs.addActionListener(this);
+		toolsMenu.add(editUVs);
+
+		editTextures = new JMenuItem("Edit Textures");
+		editTextures.setMnemonic(KeyEvent.VK_T);
+		editTextures.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final TextureManager textureManager = new TextureManager(currentModelPanel().getModelViewManager(),
+						modelStructureChangeListener, textureExporter);
+				final JFrame frame = new JFrame("Edit Textures");
+				textureManager.setSize(new Dimension(800, 650));
+				frame.setContentPane(textureManager);
+				frame.setSize(textureManager.getSize());
+				frame.setLocationRelativeTo(null);
+				frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+				frame.setVisible(true);
+			}
+		});
+		toolsMenu.add(editTextures);
 
 		rigButton = new JMenuItem("Rig Selection");
 		rigButton.setMnemonic(KeyEvent.VK_R);
@@ -3039,7 +3059,7 @@ public class MainPanel extends JPanel
 		newDirectory.setToolTipText("Changes the directory from which to load texture files for the 3D display.");
 		newDirectory.setMnemonic(KeyEvent.VK_D);
 		newDirectory.addActionListener(this);
-		viewMenu.add(newDirectory);
+//		viewMenu.add(newDirectory);
 
 		viewMenu.add(new JSeparator());
 
@@ -3277,54 +3297,89 @@ public class MainPanel extends JPanel
 		minimizeGeoset.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-//				final Map<Geoset,Geoset> sourceToDestination = new HashMap<>();
-//				final List<Geoset> retainedGeosets = new ArrayList<>();
-//				for(Geoset geoset: currentMDL().getGeosets()) {
-//					for(Geoset retainedGeoset: retainedGeosets) {
-//						if(retainedGeoset.getMaterial().equals(geoset.getMaterial())
-//								&& retainedGeoset.getSelectionGroup()==geoset.getSelectionGroup()
-//								&& retainedGeoset.getFlags().contains("Unselectable")==geoset.getFlags().contains("Unselectable")
-//								&&
-//								) {
-//
-//						}
-//					}
-//				}
+				final int confirm = JOptionPane.showConfirmDialog(MainPanel.this,
+						"This is experimental and I did not code the Undo option for it yet. Continue?\nMy advice is to click cancel and save once first.",
+						"Confirmation", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+				if (confirm != JOptionPane.OK_OPTION) {
+					return;
+				}
+
+				currentMDL().doSavePreps();
+
+				final Map<Geoset, Geoset> sourceToDestination = new HashMap<>();
+				final List<Geoset> retainedGeosets = new ArrayList<>();
+				for (final Geoset geoset : currentMDL().getGeosets()) {
+					boolean alreadyRetained = false;
+					for (final Geoset retainedGeoset : retainedGeosets) {
+						if (retainedGeoset.getMaterial().equals(geoset.getMaterial())
+								&& (retainedGeoset.getSelectionGroup() == geoset.getSelectionGroup())
+								&& (retainedGeoset.getFlags().contains("Unselectable") == geoset.getFlags()
+										.contains("Unselectable"))
+								&& mergableGeosetAnims(retainedGeoset.getGeosetAnim(), geoset.getGeosetAnim())) {
+							alreadyRetained = true;
+							for (final GeosetVertex gv : geoset.getVertices()) {
+								retainedGeoset.add(gv);
+							}
+							for (final Triangle t : geoset.getTriangles()) {
+								retainedGeoset.add(t);
+							}
+							break;
+						}
+					}
+					if (!alreadyRetained) {
+						retainedGeosets.add(geoset);
+					}
+				}
+				final ArrayList<Geoset> geosets = currentMDL().getGeosets();
+				final List<Geoset> geosetsRemoved = new ArrayList<>();
+				final Iterator<Geoset> iterator = geosets.iterator();
+				while (iterator.hasNext()) {
+					final Geoset geoset = iterator.next();
+					if (!retainedGeosets.contains(geoset)) {
+						iterator.remove();
+						geosetsRemoved.add(geoset);
+					}
+				}
+				modelStructureChangeListener.geosetsRemoved(geosetsRemoved);
 			}
 
-//			private boolean mergableGeosetAnims(final GeosetAnim first, final GeosetAnim second) {
-//				if ((first == null) && (second == null)) {
-//					return true;
-//				}
-//				if ((first == null) || (second == null)) {
-//					return false;
-//				}
-//				final AnimFlag firstVisibilityFlag = first.getVisibilityFlag();
-//				final AnimFlag secondVisibilityFlag = second.getVisibilityFlag();
-//				if ((firstVisibilityFlag == null) != (secondVisibilityFlag == null)) {
-//					return false;
-//				}
-//				if ((firstVisibilityFlag != null) && !firstVisibilityFlag.equals(secondVisibilityFlag)) {
-//					return false;
-//				}
-//				if (first.isDropShadow() != second.isDropShadow()) {
-//					return false;
-//				}
-//				if (Math.abs(first.getStaticAlpha() - second.getStaticAlpha()) > 0.001) {
-//					return false;
-//				}
-//				if ((first.getStaticColor() == null) != (second.getStaticColor() == null)) {
-//					return false;
-//				}
-//				if ((first.getStaticColor() != null) && !first.getStaticColor().equalLocs(second.getStaticColor())) {
-//					return false;
-//				}
-//				final AnimFlag firstAnimatedColor = AnimFlag.find(first.getAnimFlags(), "Color");
-//				final AnimFlag secondAnimatedColor = AnimFlag.find(second.getAnimFlags(), "Color");
-//				if ((firstAnimatedColor == null) != (secondAnimatedColor == null)) {
-//
-//				}
-//			}
+			private boolean mergableGeosetAnims(final GeosetAnim first, final GeosetAnim second) {
+				if ((first == null) && (second == null)) {
+					return true;
+				}
+				if ((first == null) || (second == null)) {
+					return false;
+				}
+				final AnimFlag firstVisibilityFlag = first.getVisibilityFlag();
+				final AnimFlag secondVisibilityFlag = second.getVisibilityFlag();
+				if ((firstVisibilityFlag == null) != (secondVisibilityFlag == null)) {
+					return false;
+				}
+				if ((firstVisibilityFlag != null) && !firstVisibilityFlag.equals(secondVisibilityFlag)) {
+					return false;
+				}
+				if (first.isDropShadow() != second.isDropShadow()) {
+					return false;
+				}
+				if (Math.abs(first.getStaticAlpha() - second.getStaticAlpha()) > 0.001) {
+					return false;
+				}
+				if ((first.getStaticColor() == null) != (second.getStaticColor() == null)) {
+					return false;
+				}
+				if ((first.getStaticColor() != null) && !first.getStaticColor().equalLocs(second.getStaticColor())) {
+					return false;
+				}
+				final AnimFlag firstAnimatedColor = AnimFlag.find(first.getAnimFlags(), "Color");
+				final AnimFlag secondAnimatedColor = AnimFlag.find(second.getAnimFlags(), "Color");
+				if ((firstAnimatedColor == null) != (secondAnimatedColor == null)) {
+					return false;
+				}
+				if ((firstAnimatedColor != null) && !firstAnimatedColor.equals(secondAnimatedColor)) {
+					return false;
+				}
+				return true;
+			}
 		});
 		optimizeMenu.add(minimizeGeoset);
 
@@ -3705,7 +3760,7 @@ public class MainPanel extends JPanel
 				frame.setLocationRelativeTo(null);
 				frame.setVisible(true);
 			} else if (e.getSource() == mergeGeoset) {
-				fc.setDialogTitle("Merge Geoset");
+				fc.setDialogTitle("Merge Single Geoset (Oinker-based)");
 				final MDL current = currentMDL();
 				if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 					fc.setCurrentDirectory(current.getFile().getParentFile());
@@ -4137,6 +4192,31 @@ public class MainPanel extends JPanel
 				}
 				epane.setDocument(panel);
 				final JFrame frame = new JFrame("About");
+				frame.setContentPane(new JScrollPane(epane));
+				frame.setSize(650, 500);
+				frame.setLocationRelativeTo(null);
+				frame.setVisible(true);
+				// JOptionPane.showMessageDialog(this,new JScrollPane(epane));
+			} else if (e.getSource() == changelogButton) {
+				final DefaultStyledDocument panel = new DefaultStyledDocument();
+				final JTextPane epane = new JTextPane();
+				epane.setForeground(Color.BLACK);
+				epane.setBackground(Color.WHITE);
+				final RTFEditorKit rtfk = new RTFEditorKit();
+				try {
+					rtfk.read(MainPanel.class.getResourceAsStream("changelist.rtf"), panel, 0);
+				} catch (final MalformedURLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (final IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (final BadLocationException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				epane.setDocument(panel);
+				final JFrame frame = new JFrame("Changelog");
 				frame.setContentPane(new JScrollPane(epane));
 				frame.setSize(650, 500);
 				frame.setLocationRelativeTo(null);
