@@ -103,8 +103,14 @@ public class Vertex {
 		z = v.z;
 	}
 
+	public void setTo(final double vx, final double vy, final double vz) {
+		x = vx;
+		y = vy;
+		z = vz;
+	}
+
 	public boolean equalLocs(final Vertex v) {
-		return x == v.x && y == v.y && z == v.z;
+		return (x == v.x) && (y == v.y) && (z == v.z);
 	}
 
 	public double getX() {
@@ -200,14 +206,14 @@ public class Vertex {
 		final double dx = other.x - x;
 		final double dy = other.y - y;
 		final double dz = other.z - z;
-		return Math.sqrt(dx * dx + dy * dy + dz * dz);
+		return Math.sqrt((dx * dx) + (dy * dy) + (dz * dz));
 	}
 
 	public double distance(final Vector4f other) {
 		final double dx = other.x - x;
 		final double dy = other.y - y;
 		final double dz = other.z - z;
-		return Math.sqrt(dx * dx + dy * dy + dz * dz);
+		return Math.sqrt((dx * dx) + (dy * dy) + (dz * dz));
 	}
 
 	public double vectorMagnitude() {
@@ -232,7 +238,7 @@ public class Vertex {
 	}
 
 	private Vertex crossProduct(final double x2, final double y2, final double z2) {
-		return new Vertex(y * z2 - y2 * z, x2 * z - x * z2, x * y2 - x2 * y);
+		return new Vertex((y * z2) - (y2 * z), (x2 * z) - (x * z2), (x * y2) - (x2 * y));
 	}
 
 	public void translate(final double x, final double y, final double z) {
@@ -242,7 +248,7 @@ public class Vertex {
 	}
 
 	public double dotProduct(final Vertex other) {
-		return other.x * x + other.y * y + other.z * z;
+		return (other.x * x) + (other.y * y) + (other.z * z);
 	}
 
 	public void scale(final double centerX, final double centerY, final double centerZ, final double scaleX,
@@ -250,9 +256,9 @@ public class Vertex {
 		final double dx = this.x - centerX;
 		final double dy = this.y - centerY;
 		final double dz = this.z - centerZ;
-		this.x = centerX + dx * scaleX;
-		this.y = centerY + dy * scaleY;
-		this.z = centerZ + dz * scaleZ;
+		this.x = centerX + (dx * scaleX);
+		this.y = centerY + (dy * scaleY);
+		this.z = centerZ + (dz * scaleZ);
 	}
 
 	public void rotate(final double centerX, final double centerY, final double centerZ, final double radians,
@@ -321,20 +327,20 @@ public class Vertex {
 			break;
 		}
 		final double dy = y1 - cy;
-		final double r = Math.sqrt(dx * dx + dy * dy);
+		final double r = Math.sqrt((dx * dx) + (dy * dy));
 		double verAng = Math.acos(dx / r);
 		if (dy < 0) {
 			verAng = -verAng;
 		}
 		// if( getDimEditable(dim1) )
-		double nextDim = Math.cos(verAng + radians) * r + cx;
+		double nextDim = (Math.cos(verAng + radians) * r) + cx;
 		if (!Double.isNaN(nextDim)) {
-			vertex.setCoord(firstXYZ, Math.cos(verAng + radians) * r + cx);
+			vertex.setCoord(firstXYZ, (Math.cos(verAng + radians) * r) + cx);
 		}
 		// if( getDimEditable(dim2) )
-		nextDim = Math.sin(verAng + radians) * r + cy;
+		nextDim = (Math.sin(verAng + radians) * r) + cy;
 		if (!Double.isNaN(nextDim)) {
-			vertex.setCoord(secondXYZ, Math.sin(verAng + radians) * r + cy);
+			vertex.setCoord(secondXYZ, (Math.sin(verAng + radians) * r) + cy);
 		}
 	}
 }

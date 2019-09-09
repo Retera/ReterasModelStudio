@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
@@ -17,6 +18,8 @@ import javax.swing.JTabbedPane;
 import com.hiveworkshop.wc3.gui.GUITheme;
 import com.hiveworkshop.wc3.gui.MouseButtonPreference;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
+import com.hiveworkshop.wc3.gui.datachooser.DataSourceChooserPanel;
+import com.hiveworkshop.wc3.gui.datachooser.DataSourceDescriptor;
 import com.hiveworkshop.wc3.gui.util.ColorChooserIcon;
 import com.hiveworkshop.wc3.gui.util.ColorChooserIcon.ColorListener;
 
@@ -24,8 +27,10 @@ import net.miginfocom.swing.MigLayout;
 
 public final class ProgramPreferencesPanel extends JTabbedPane {
 	private final ProgramPreferences programPreferences;
+	private final DataSourceChooserPanel dataSourceChooserPanel;
 
-	public ProgramPreferencesPanel(final ProgramPreferences programPreferences) {
+	public ProgramPreferencesPanel(final ProgramPreferences programPreferences,
+			final List<DataSourceDescriptor> dataSources) {
 		this.programPreferences = programPreferences;
 
 		final JPanel generalPrefsPanel = new JPanel();
@@ -36,6 +41,7 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		final JCheckBox useBoxesForNodes = new JCheckBox();
 		final JCheckBox quickBrowse = new JCheckBox();
 		final JCheckBox allowLoadingNonBlpTextures = new JCheckBox();
+		final JCheckBox renderParticles = new JCheckBox();
 		if ((programPreferences.isInvertedDisplay() != null) && programPreferences.isInvertedDisplay()) {
 			invertedDisplay.setSelected(true);
 		}
@@ -49,6 +55,9 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		if ((programPreferences.getAllowLoadingNonBlpTextures() != null)
 				&& programPreferences.getAllowLoadingNonBlpTextures()) {
 			allowLoadingNonBlpTextures.setSelected(true);
+		}
+		if ((programPreferences.getRenderParticles() == null) || programPreferences.getRenderParticles()) {
+			renderParticles.setSelected(true);
 		}
 		final ActionListener viewModeUpdater = new ActionListener() {
 			@Override
@@ -79,6 +88,8 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		generalPrefsPanel.add(new JLabel("Allow Loading Non BLP Textures:"), "cell 0 6");
 		allowLoadingNonBlpTextures.setToolTipText("Needed for opening PNGs with standard File Open");
 		generalPrefsPanel.add(allowLoadingNonBlpTextures, "cell 1 6");
+		generalPrefsPanel.add(new JLabel("Render Particle Emitters:"), "cell 0 7");
+		generalPrefsPanel.add(renderParticles, "cell 1 7");
 		// final BoxLayout boxLayout = new BoxLayout(generalPrefsPanel,
 		// BoxLayout.PAGE_AXIS);
 
@@ -99,6 +110,12 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				programPreferences.setAllowLoadingNonBlpTextures(allowLoadingNonBlpTextures.isSelected());
+			}
+		});
+		renderParticles.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				programPreferences.setRenderParticles(renderParticles.isSelected());
 			}
 		});
 		useBoxesForNodes.addActionListener(new ActionListener() {
@@ -286,5 +303,12 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		hotkeysPanel.add(cameraPanBox, "cell 1 " + row);
 		row++;
 		addTab("Hotkeys", hotkeysPanel);
+
+		dataSourceChooserPanel = new DataSourceChooserPanel(dataSources);
+		addTab("Warcraft Data", dataSourceChooserPanel);
+	}
+
+	public List<DataSourceDescriptor> getDataSources() {
+		return dataSourceChooserPanel.getDataSourceDescriptors();
 	}
 }

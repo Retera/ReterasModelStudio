@@ -64,92 +64,12 @@ public class TVFSDecoder {
 		contentsOffsetDecoder = ByteBuffer.allocate(Integer.BYTES);
 	}
 
-	public TVFSFile loadFile(final ByteBuffer fileBuffer) throws IOException {
-		final ByteBuffer localBuffer = fileBuffer.slice();
-
-		// check identifier
-
-		if (localBuffer.remaining() < IDENTIFIER.remaining()
-				|| !localBuffer.limit(IDENTIFIER.remaining()).equals(IDENTIFIER)) {
-			throw new MalformedCASCStructureException("missing TVFS identifier");
-		}
-
-		// decode header
-
-		localBuffer.limit(localBuffer.capacity());
-		localBuffer.position(IDENTIFIER.remaining());
-
-		try {
-			version = localBuffer.get();
-			if (version != 1) {
-				throw new UnsupportedOperationException("unsupported TVFS version: " + version);
-			}
-			final int headerSize = Byte.toUnsignedInt(localBuffer.get());
-			if (headerSize > localBuffer.capacity()) {
-				throw new MalformedCASCStructureException("TVFS header extends past end of file");
-			}
-			localBuffer.limit(headerSize);
-
-			encodingKeySize = Byte.toUnsignedInt(localBuffer.get());
-			patchKeySize = Byte.toUnsignedInt(localBuffer.get());
-			flags = localBuffer.getInt();
-
-			pathOffset = localBuffer.getInt();
-			pathSize = localBuffer.getInt();
-			if (Integer.toUnsignedLong(pathOffset) + Integer.toUnsignedLong(pathSize) > localBuffer.capacity()) {
-				throw new MalformedCASCStructureException("path stream extends past end of file");
-			}
-
-			fileReferenceOffset = localBuffer.getInt();
-			fileReferenceSize = localBuffer.getInt();
-			if (Integer.toUnsignedLong(fileReferenceOffset) + Integer.toUnsignedLong(fileReferenceSize) > localBuffer
-					.capacity()) {
-				throw new MalformedCASCStructureException("logical data extends past end of file");
-			}
-
-			cascReferenceOffset = localBuffer.getInt();
-			cascReferenceSize = localBuffer.getInt();
-			if (Integer.toUnsignedLong(cascReferenceOffset) + Integer.toUnsignedLong(cascReferenceSize) > localBuffer
-					.capacity()) {
-				throw new MalformedCASCStructureException("storage data extends past end of file");
-			}
-
-			maximumPathDepth = Short.toUnsignedInt(localBuffer.getShort());
-		} catch (final BufferUnderflowException e) {
-			throw new MalformedCASCStructureException("header goes out of bounds");
-		}
-
-		contentsOffsetSize = Math.max(1, Integer.BYTES - Integer.numberOfLeadingZeros(cascReferenceSize) / Byte.SIZE);
-		contentsOffsetDecoder.putInt(0, 0);
-
-		localBuffer.limit(pathOffset + pathSize);
-		localBuffer.position(pathOffset);
-		pathBuffer = localBuffer.slice();
-		localBuffer.clear();
-
-		localBuffer.limit(fileReferenceOffset + fileReferenceSize);
-		localBuffer.position(fileReferenceOffset);
-		logicalBuffer = localBuffer.slice();
-		localBuffer.clear();
-
-		localBuffer.limit(cascReferenceOffset + cascReferenceSize);
-		localBuffer.position(cascReferenceOffset);
-		storageBuffer = localBuffer.slice();
-		localBuffer.clear();
-
-		final List<PathNode> rootNodes = decodeContainer();
-		final TVFSFile tvfsFile = new TVFSFile(version, flags, encodingKeySize, patchKeySize, maximumPathDepth,
-				rootNodes);
-
-		return tvfsFile;
-	}
-
 	public List<PathNode> decodeContainer() throws MalformedCASCStructureException {
 		return decodeContainer(pathBuffer);
 	}
 
 	private List<PathNode> decodeContainer(final ByteBuffer pathBuffer) throws MalformedCASCStructureException {
-		final List<PathNode> nodes = new ArrayList<PathNode>();
+		final ArrayList<PathNode> nodes = new ArrayList<PathNode>();
 
 		while (pathBuffer.hasRemaining()) {
 			final PathNode node = decodeNode(pathBuffer);
@@ -160,7 +80,7 @@ public class TVFSDecoder {
 	}
 
 	private PathNode decodeNode(final ByteBuffer pathBuffer) throws MalformedCASCStructureException {
-		final List<byte[]> pathFragments = new ArrayList<byte[]>();
+		final ArrayList<byte[]> pathFragments = new ArrayList<byte[]>();
 
 		PathNode node;
 		try {
@@ -249,5 +169,85 @@ public class TVFSDecoder {
 		}
 
 		return references;
+	}
+
+	public TVFSFile loadFile(final ByteBuffer fileBuffer) throws IOException {
+		final ByteBuffer localBuffer = fileBuffer.slice();
+
+		// check identifier
+
+		if ((localBuffer.remaining() < IDENTIFIER.remaining())
+				|| !localBuffer.limit(IDENTIFIER.remaining()).equals(IDENTIFIER)) {
+			throw new MalformedCASCStructureException("missing TVFS identifier");
+		}
+
+		// decode header
+
+		localBuffer.limit(localBuffer.capacity());
+		localBuffer.position(IDENTIFIER.remaining());
+
+		try {
+			version = localBuffer.get();
+			if (version != 1) {
+				throw new UnsupportedOperationException("unsupported TVFS version: " + version);
+			}
+			final int headerSize = Byte.toUnsignedInt(localBuffer.get());
+			if (headerSize > localBuffer.capacity()) {
+				throw new MalformedCASCStructureException("TVFS header extends past end of file");
+			}
+			localBuffer.limit(headerSize);
+
+			encodingKeySize = Byte.toUnsignedInt(localBuffer.get());
+			patchKeySize = Byte.toUnsignedInt(localBuffer.get());
+			flags = localBuffer.getInt();
+
+			pathOffset = localBuffer.getInt();
+			pathSize = localBuffer.getInt();
+			if ((Integer.toUnsignedLong(pathOffset) + Integer.toUnsignedLong(pathSize)) > localBuffer.capacity()) {
+				throw new MalformedCASCStructureException("path stream extends past end of file");
+			}
+
+			fileReferenceOffset = localBuffer.getInt();
+			fileReferenceSize = localBuffer.getInt();
+			if ((Integer.toUnsignedLong(fileReferenceOffset) + Integer.toUnsignedLong(fileReferenceSize)) > localBuffer
+					.capacity()) {
+				throw new MalformedCASCStructureException("logical data extends past end of file");
+			}
+
+			cascReferenceOffset = localBuffer.getInt();
+			cascReferenceSize = localBuffer.getInt();
+			if ((Integer.toUnsignedLong(cascReferenceOffset) + Integer.toUnsignedLong(cascReferenceSize)) > localBuffer
+					.capacity()) {
+				throw new MalformedCASCStructureException("storage data extends past end of file");
+			}
+
+			maximumPathDepth = Short.toUnsignedInt(localBuffer.getShort());
+		} catch (final BufferUnderflowException e) {
+			throw new MalformedCASCStructureException("header goes out of bounds");
+		}
+
+		contentsOffsetSize = Math.max(1, Integer.BYTES - (Integer.numberOfLeadingZeros(cascReferenceSize) / Byte.SIZE));
+		contentsOffsetDecoder.putInt(0, 0);
+
+		localBuffer.limit(pathOffset + pathSize);
+		localBuffer.position(pathOffset);
+		pathBuffer = localBuffer.slice();
+		localBuffer.clear();
+
+		localBuffer.limit(fileReferenceOffset + fileReferenceSize);
+		localBuffer.position(fileReferenceOffset);
+		logicalBuffer = localBuffer.slice();
+		localBuffer.clear();
+
+		localBuffer.limit(cascReferenceOffset + cascReferenceSize);
+		localBuffer.position(cascReferenceOffset);
+		storageBuffer = localBuffer.slice();
+		localBuffer.clear();
+
+		final List<PathNode> rootNodes = decodeContainer();
+		final TVFSFile tvfsFile = new TVFSFile(version, flags, encodingKeySize, patchKeySize, maximumPathDepth,
+				rootNodes);
+
+		return tvfsFile;
 	}
 }

@@ -11,6 +11,7 @@ import java.util.HashSet;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeSelectionModel;
@@ -102,7 +103,7 @@ public class JCheckBoxTree extends JTree {
 	// Returns true in case that the node is selected, has children but not all
 	// of them are selected
 	public boolean isSelectedPartially(final JCheckBoxTreeNode node) {
-		return node.isChecked() && node.getChildCount() > 0 && !node.isAllChildrenSelected();
+		return node.isChecked() && (node.getChildCount() > 0) && !node.isAllChildrenSelected();
 	}
 
 	public boolean isSelected(final JCheckBoxTreeNode node) {
@@ -138,7 +139,7 @@ public class JCheckBoxTree extends JTree {
 			}
 
 		}
-		if (node.getChildCount() > 0 && anyChildChecked && !node.isHasPersonalState()) {
+		if ((node.getChildCount() > 0) && anyChildChecked && !node.isHasPersonalState()) {
 			node.setChecked(true);
 		}
 		if (!node.isHasPersonalState()) {
@@ -169,7 +170,7 @@ public class JCheckBoxTree extends JTree {
 			final Object obj = node.getUserObject();
 			checkBox.setSelected(node.isChecked());
 			checkBox.setText(obj.toString());
-			checkBox.setOpaque(node.isChecked() && node.getChildCount() > 0 && !node.isAllChildrenSelected());
+			checkBox.setOpaque(node.isChecked() && (node.getChildCount() > 0) && !node.isAllChildrenSelected());
 			return this;
 		}
 	}
@@ -223,17 +224,19 @@ public class JCheckBoxTree extends JTree {
 
 			@Override
 			public void mouseReleased(final MouseEvent arg0) {
-				final TreePath tp = JCheckBoxTree.this.getPathForLocation(arg0.getX(), arg0.getY());
-				if (tp == null) {
-					return;
+				if (!SwingUtilities.isRightMouseButton(arg0)) {
+					final TreePath tp = JCheckBoxTree.this.getPathForLocation(arg0.getX(), arg0.getY());
+					if (tp == null) {
+						return;
+					}
+					final boolean checkMode = !((JCheckBoxTreeNode) tp.getLastPathComponent()).isChecked();
+					checkSubTree(tp, checkMode);
+					updatePredecessorsWithCheckMode(tp, checkMode);
+					// Firing the check change event
+					fireCheckChangeEvent(new CheckChangeEvent(tp.getLastPathComponent(), tp));
+					// Repainting tree after the data structures were updated
+					JCheckBoxTree.this.repaint();
 				}
-				final boolean checkMode = !((JCheckBoxTreeNode) tp.getLastPathComponent()).isChecked();
-				checkSubTree(tp, checkMode);
-				updatePredecessorsWithCheckMode(tp, checkMode);
-				// Firing the check change event
-				fireCheckChangeEvent(new CheckChangeEvent(tp.getLastPathComponent(), tp));
-				// Repainting tree after the data structures were updated
-				JCheckBoxTree.this.repaint();
 			}
 		});
 		this.setSelectionModel(dtsm);

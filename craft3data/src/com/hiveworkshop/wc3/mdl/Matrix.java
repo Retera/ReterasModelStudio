@@ -105,7 +105,8 @@ public class Matrix {
 			if (b != null) {
 				bones.add(b);
 			} else {
-				JOptionPane.showMessageDialog(null, "Error: A matrix's bone id was not referencing a real bone!");
+//				JOptionPane.showMessageDialog(null, "Error: A matrix's bone id was not referencing a real bone!");
+				System.err.println("Error: A matrix's bone id was not referencing a real bone! " + m_boneIds.get(i));
 			}
 		}
 	}

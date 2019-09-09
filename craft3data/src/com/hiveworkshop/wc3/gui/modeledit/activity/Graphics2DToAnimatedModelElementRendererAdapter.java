@@ -13,8 +13,8 @@ import com.hiveworkshop.wc3.gui.modeledit.viewport.ResettableAnimatedIdObjectRen
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.IdObject;
-import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 
 public final class Graphics2DToAnimatedModelElementRendererAdapter implements ModelElementRenderer {
 	private Graphics2D graphics;
@@ -33,10 +33,12 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 	}
 
 	public Graphics2DToAnimatedModelElementRendererAdapter reset(final Graphics2D graphics,
-			final CoordinateSystem coordinateSystem, final RenderModel renderModel) {
+			final CoordinateSystem coordinateSystem, final RenderModel renderModel,
+			final ProgramPreferences preferences) {
 		this.graphics = graphics;
 		this.coordinateSystem = coordinateSystem;
 		this.renderModel = renderModel;
+		this.programPreferences = preferences;
 		return this;
 	}
 
@@ -62,7 +64,7 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 	public void renderVertex(final Color color, final Vertex vertex) {
 		CoordinateSystem.Util.convertToPoint(coordinateSystem, vertex, recyclePointA);
 		graphics.setColor(color);
-		graphics.fillRect(recyclePointA.x - vertexSize / 2, (int) (recyclePointA.y - (vertexSize / 2.0)), vertexSize,
+		graphics.fillRect(recyclePointA.x - (vertexSize / 2), (int) (recyclePointA.y - (vertexSize / 2.0)), vertexSize,
 				vertexSize);
 	}
 
@@ -70,7 +72,7 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 	public void renderIdObject(final IdObject object, final NodeIconPalette nodeIconPalette, final Color lightColor,
 			final Color pivotPointColor) {
 		object.apply(idObjectRenderer.reset(coordinateSystem, graphics, lightColor, pivotPointColor, nodeIconPalette,
-				renderModel));
+				renderModel, programPreferences.isUseBoxesForPivotPoints()));
 	}
 
 	@Override
@@ -118,13 +120,13 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 		// }
 
 		g2.translate(end.x, end.y);
-		g2.rotate(-(Math.PI / 2 + Math.atan2(end.x - start.x, end.y - start.y)));
+		g2.rotate(-((Math.PI / 2) + Math.atan2(end.x - start.x, end.y - start.y)));
 		final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
 		final int size = (int) (20 * zoom);
 		final double dist = start.distance(end);
 
 		g2.setColor(boxColor);
-		g2.fillRect((int) dist - vertexSize, 0 - vertexSize, 1 + vertexSize * 2, 1 + vertexSize * 2);
+		g2.fillRect((int) dist - vertexSize, 0 - vertexSize, 1 + (vertexSize * 2), 1 + (vertexSize * 2));
 		g2.drawRect((int) dist - size, -size, size * 2, size * 2);
 
 		// if (tarSel) {
@@ -133,7 +135,7 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 		g2.setColor(targetColor);
 		// }
 		// Target
-		g2.fillRect(0 - vertexSize, 0 - vertexSize, 1 + vertexSize * 2, 1 + vertexSize * 2);
+		g2.fillRect(0 - vertexSize, 0 - vertexSize, 1 + (vertexSize * 2), 1 + (vertexSize * 2));
 		g2.drawLine(0, 0, size, size);// (int)Math.round(vp.convertX(targ.getCoord(vp.getPortFirstXYZ())+5)),
 										// (int)Math.round(vp.convertY(targ.getCoord(vp.getPortSecondXYZ())+5)));
 		g2.drawLine(0, 0, size, -size);// (int)Math.round(vp.convertX(targ.getCoord(vp.getPortFirstXYZ())-5)),

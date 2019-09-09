@@ -84,7 +84,7 @@ public class WarcraftObjectTreeCellRenderer extends DefaultTreeCellRenderer impl
 				setIcon(new ImageIcon(
 						BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp")));
 			}
-			if ((node instanceof SortingFolderTreeNode && ((SortingFolderTreeNode) node).hasEditedChildren())
+			if (((node instanceof SortingFolderTreeNode) && ((SortingFolderTreeNode) node).hasEditedChildren())
 					&& !selected) {
 				setForeground(settings.getEditedValueColor());
 			} else {

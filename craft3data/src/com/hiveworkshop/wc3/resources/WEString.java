@@ -60,14 +60,18 @@ public class WEString {
 			}
 			return string;
 		} catch (final MissingResourceException exc) {
-			return getGameStrings().getString(string.toUpperCase());
+			try {
+				return getGameStrings().getString(string.toUpperCase());
+			} catch (final MissingResourceException exc2) {
+				return string;
+			}
 		}
 	}
 
 	private static String internalGetString(final String key) {
 		try {
 			String string = get().getString(key.toUpperCase());
-			if (string.charAt(0) == '"' && string.length() >= 2 && string.charAt(string.length() - 1) == '"') {
+			if ((string.charAt(0) == '"') && (string.length() >= 2) && (string.charAt(string.length() - 1) == '"')) {
 				string = string.substring(1, string.length() - 1);
 			}
 			return string;

@@ -1,15 +1,15 @@
 package com.hiveworkshop.wc3.mdl.render3d;
 
-public abstract class EmittedObject {
-    public int health;
+public abstract class EmittedObject<EMITTER_VIEW extends EmitterView> {
+	public float health;
 
-    public EmitterView emitterView;
+	public EMITTER_VIEW emitterView;
 
-    public float[] vertices;
+	public float[] vertices;
 
-    public float lta, lba, rta, rba, rgb;
+	public float lta, lba, rta, rba, rgb;
 
-    public abstract void reset(EmitterView emitterView, boolean flag);
+	public abstract void reset(EMITTER_VIEW emitterView, boolean flag);
 
-    public abstract void update();
+	public abstract void update();
 }

@@ -42,21 +42,12 @@ public class StorageReference {
 	}
 
 	/**
-	 * Size of file content in CASC storage.
+	 * Content key?
 	 *
-	 * @return Approximate byte usage of file in CASC storage.
+	 * @return Content key.
 	 */
-	public long getStoredSize() {
-		return storedSize;
-	}
-
-	/**
-	 * File size.
-	 *
-	 * @return File size in bytes of the file.
-	 */
-	public long getSize() {
-		return size;
+	public Key getContentKey() {
+		return contentKey;
 	}
 
 	/**
@@ -69,12 +60,21 @@ public class StorageReference {
 	}
 
 	/**
-	 * Content key?
+	 * File size.
 	 *
-	 * @return Content key.
+	 * @return File size in bytes of the file.
 	 */
-	public Key getContentKey() {
-		return contentKey;
+	public long getSize() {
+		return size;
+	}
+
+	/**
+	 * Size of file content in CASC storage.
+	 *
+	 * @return Approximate byte usage of file in CASC storage.
+	 */
+	public long getStoredSize() {
+		return storedSize;
 	}
 
 }

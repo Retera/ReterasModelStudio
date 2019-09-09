@@ -36,7 +36,7 @@ public class BankStream {
 	public BankStream(final ByteBuffer storageBuffer, final Key encodingKey) throws IOException {
 		ByteBuffer streamBuffer = storageBuffer.slice();
 		container = new StorageContainer(streamBuffer);
-		if (encodingKey != null && !container.getKey().equals(encodingKey)) {
+		if ((encodingKey != null) && !container.getKey().equals(encodingKey)) {
 			throw new MalformedCASCStructureException("container encoding key mismatch");
 		}
 
@@ -45,7 +45,7 @@ public class BankStream {
 
 		if (storageSizeDiff < 0) {
 			throw new MalformedCASCStructureException("container buffer smaller than container");
-		} else if (encodingKey != null && storageSizeDiff != 0) {
+		} else if ((encodingKey != null) && (storageSizeDiff != 0)) {
 			throw new MalformedCASCStructureException("container buffer size mismatch");
 		} else if (storageSizeDiff > 0) {
 			// resize buffer to match file

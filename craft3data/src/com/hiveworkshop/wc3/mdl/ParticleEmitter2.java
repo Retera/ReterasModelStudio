@@ -7,6 +7,8 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import org.lwjgl.opengl.GL11;
+
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdl.render3d.EmitterIdObject;
@@ -54,54 +56,71 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 	public boolean isDontInheritRotation() {
 		return knownFlags[0];
 	}
+
 	public boolean isDontInheritTranslation() {
 		return knownFlags[1];
 	}
+
 	public boolean isDontInheritScaling() {
 		return knownFlags[2];
 	}
+
 	public boolean isSortPrimsFarZ() {
 		return knownFlags[3];
 	}
+
 	public boolean isUnshaded() {
 		return knownFlags[4];
 	}
+
 	public boolean isLineEmitter() {
 		return knownFlags[5];
 	}
+
 	public boolean isUnfogged() {
 		return knownFlags[6];
 	}
+
 	public boolean isModelSpace() {
 		return knownFlags[7];
 	}
+
 	public boolean isXYQuad() {
 		return knownFlags[8];
 	}
+
 	public boolean isSquirt() {
 		return knownFlags[9];
 	}
+
 	public boolean isAdditive() {
 		return knownFlags[10];
 	}
+
 	public boolean isModulate2x() {
 		return knownFlags[11];
 	}
+
 	public boolean isModulate() {
 		return knownFlags[12];
 	}
-	public boolean isAlphaKey(){
+
+	public boolean isAlphaKey() {
 		return knownFlags[13];
 	}
+
 	public boolean isBlend() {
 		return knownFlags[14];
 	}
+
 	public boolean isTail() {
-		return knownFlags[15];
+		return knownFlags[15] || isBoth();
 	}
+
 	public boolean isHead() {
-		return knownFlags[16];
+		return knownFlags[16] || isBoth();
 	}
+
 	public boolean isBoth() {
 		return knownFlags[17];
 	}
@@ -670,21 +689,46 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 
 	@Override
 	public int getBlendSrc() {
-		return 0;
+		switch (getFilterModeReallyBadReallySlow()) {
+		case Blend:
+			return GL11.GL_SRC_ALPHA;
+		case Additive:
+			return GL11.GL_SRC_ALPHA;
+		case AlphaKey:
+			return GL11.GL_SRC_ALPHA;
+		case Modulate:
+			return GL11.GL_ZERO;
+		case Modulate2x:
+			return GL11.GL_DST_COLOR;
+		}
+		return GL11.GL_ONE;
 	}
 
 	@Override
 	public int getBlendDst() {
-		return 0;
+		switch (getFilterModeReallyBadReallySlow()) {
+		case Blend:
+			return GL11.GL_ONE_MINUS_SRC_ALPHA;
+		case Additive:
+			return GL11.GL_ONE;
+		case AlphaKey:
+			return GL11.GL_ONE;
+		case Modulate:
+			return GL11.GL_SRC_COLOR;
+		case Modulate2x:
+			return GL11.GL_SRC_COLOR;
+		}
+		return GL11.GL_ONE;
 	}
 
+	@Override
 	public int getRows() {
 		return loneIntData[LoneInts.Rows.ordinal()];
 	}
 
 	@Override
 	public int getCols() {
-		return 0;
+		return loneIntData[LoneInts.Columns.ordinal()];
 	}
 
 	@Override
@@ -717,7 +761,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 	}
 
 	public boolean isTeamColored() {
-		return getReplaceableId()  != 0;
+		return getReplaceableId() != 0;
 	}
 
 	public void setReplaceableId(final int replaceableId) {
@@ -889,7 +933,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 		return null;
 	}
 
-	public double getRenderWidth(AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public double getRenderWidth(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Width");
 		if (translationFlag != null) {
 			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
@@ -897,7 +941,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 		return getWidth();
 	}
 
-	public double getRenderLength(AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public double getRenderLength(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Length");
 		if (translationFlag != null) {
 			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
@@ -905,7 +949,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 		return getLength();
 	}
 
-	public double getRenderLatitude(AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public double getRenderLatitude(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Latitude");
 		if (translationFlag != null) {
 			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
@@ -913,7 +957,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 		return getLatitude();
 	}
 
-	public double getRenderVariation(AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public double getRenderVariation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Variation");
 		if (translationFlag != null) {
 			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
@@ -921,7 +965,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 		return getVariation();
 	}
 
-	public double getRenderSpeed(AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public double getRenderSpeed(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Speed");
 		if (translationFlag != null) {
 			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
@@ -929,7 +973,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 		return getSpeed();
 	}
 
-	public double getRenderGravity(AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public double getRenderGravity(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Gravity");
 		if (translationFlag != null) {
 			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
@@ -937,11 +981,50 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 		return getGravity();
 	}
 
-	public double getRenderEmissionRate(AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public double getRenderEmissionRate(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		final AnimFlag translationFlag = AnimFlag.find(animFlags, "EmissionRate");
 		if (translationFlag != null) {
 			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
 		}
 		return getEmissionRate();
+	}
+
+	public static enum FilterMode {
+		Blend, Additive, Modulate, Modulate2x, AlphaKey;
+	};
+
+	public FilterMode getFilterModeReallyBadReallySlow() {
+		FilterMode filterMode = FilterMode.Blend;
+		for (final String flag : getFlags()) {
+			switch (flag) {
+			case "Head":
+				break;
+			case "Tail":
+				break;
+			case "Both":
+				break;
+			case "Blend":
+				filterMode = FilterMode.Blend;
+				break;
+			case "Additive":
+				filterMode = FilterMode.Additive;
+				break;
+			case "Modulate":
+				filterMode = FilterMode.Modulate;
+				break;
+			case "Modulate2x":
+				filterMode = FilterMode.Modulate2x;
+				break;
+			case "AlphaKey":
+				filterMode = FilterMode.AlphaKey;
+				break;
+			case "Squirt":
+				break;
+			default:
+				break;
+			// do nothing for the other flags, there will be many
+			}
+		}
+		return filterMode;
 	}
 }

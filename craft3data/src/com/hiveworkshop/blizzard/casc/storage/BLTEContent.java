@@ -37,7 +37,7 @@ public class BLTEContent {
 
 		// check identifier
 
-		if (contentBuffer.remaining() < IDENTIFIER.remaining()
+		if ((contentBuffer.remaining() < IDENTIFIER.remaining())
 				|| !contentBuffer.limit(IDENTIFIER.remaining()).equals(IDENTIFIER)) {
 			throw new MalformedCASCStructureException("missing BLTE identifier");
 		}

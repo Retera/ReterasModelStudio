@@ -77,7 +77,7 @@ public class Storage implements AutoCloseable {
 			accumulator ^= encodingKey[i];
 		}
 		final int nibbleMask = (1 << 4) - 1;
-		return accumulator & nibbleMask ^ accumulator >> 4 & nibbleMask;
+		return (accumulator & nibbleMask) ^ ((accumulator >> 4) & nibbleMask);
 	}
 
 	private Path folder;
@@ -283,7 +283,7 @@ public class Storage implements AutoCloseable {
 		} else {
 			storageBuffer = ByteBuffer.allocate((int) length);
 			while (storageBuffer.hasRemaining()
-					&& fileChannel.read(storageBuffer, offset + storageBuffer.position()) != -1) {
+					&& (fileChannel.read(storageBuffer, offset + storageBuffer.position()) != -1)) {
 				;
 			}
 
@@ -317,7 +317,7 @@ public class Storage implements AutoCloseable {
 				fileBuffer = mappedBuffer;
 			} else {
 				fileBuffer = ByteBuffer.allocate((int) fileLength);
-				while (fileBuffer.hasRemaining() && channel.read(fileBuffer, fileBuffer.position()) != -1) {
+				while (fileBuffer.hasRemaining() && (channel.read(fileBuffer, fileBuffer.position()) != -1)) {
 					;
 				}
 

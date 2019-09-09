@@ -6,10 +6,12 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 /**
- * GeosetVertex is a extended version of the Vertex class, for use strictly inside of Geosets. The idea is that a Vertex
- * object is used all over this program for any sort of point in 3d space (PivotPoint, Min/max extents, data in
- * translations and scaling) and is strictly three connected double values, while a GeosetVertex is an object that has
- * many additional useful parts for a Geoset
+ * GeosetVertex is a extended version of the Vertex class, for use strictly
+ * inside of Geosets. The idea is that a Vertex object is used all over this
+ * program for any sort of point in 3d space (PivotPoint, Min/max extents, data
+ * in translations and scaling) and is strictly three connected double values,
+ * while a GeosetVertex is an object that has many additional useful parts for a
+ * Geoset
  *
  * Eric Theller 3/9/2012
  */
@@ -188,6 +190,28 @@ public class GeosetVertex extends Vertex {
 			sum.x += perpendicular.x;
 			sum.y += perpendicular.y;
 			sum.z += perpendicular.z;
+		}
+		final double vectorMagnitude = sum.vectorMagnitude();
+		for (int i = 0; i < 3; i++) {
+			sum.setCoord((byte) i, sum.getCoord((byte) i) / vectorMagnitude);
+		}
+		return sum;
+	}
+
+	public Vertex createNormal(final List<GeosetVertex> matches) {
+		final Vertex sum = new Vertex(0, 0, 0);
+		for (final GeosetVertex match : matches) {
+			for (final Triangle triangle : match.triangles) {
+				final Vertex perpendicular = triangle.verts[0].delta(triangle.verts[1])
+						.crossProduct(triangle.verts[1].delta(triangle.verts[2]));
+				final double vectorMagnitude = perpendicular.vectorMagnitude();
+				perpendicular.x /= vectorMagnitude;
+				perpendicular.y /= vectorMagnitude;
+				perpendicular.z /= vectorMagnitude;
+				sum.x += perpendicular.x;
+				sum.y += perpendicular.y;
+				sum.z += perpendicular.z;
+			}
 		}
 		final double vectorMagnitude = sum.vectorMagnitude();
 		for (int i = 0; i < 3; i++) {

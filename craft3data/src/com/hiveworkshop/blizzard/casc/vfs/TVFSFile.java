@@ -24,31 +24,31 @@ public class TVFSFile {
 		this.rootNodes = rootNodeList.toArray(new PathNode[0]);
 	}
 
-	public byte getVersion() {
-		return version;
+	public int getEncodingKeySize() {
+		return encodingKeySize;
 	}
 
 	public int getFlags() {
 		return flags;
 	}
 
-	public int getEncodingKeySize() {
-		return encodingKeySize;
+	public int getMaximumPathDepth() {
+		return maximumPathDepth;
 	}
 
 	public int getPatchKeySize() {
 		return patchKeySize;
 	}
 
-	public int getMaximumPathDepth() {
-		return maximumPathDepth;
+	public PathNode getRootNode(final int index) {
+		return rootNodes[index];
 	}
 	
 	public int getRootNodeCount() {
 		return rootNodes.length;
 	}
 	
-	public PathNode getRootNode(final int index) {
-		return rootNodes[index];
+	public byte getVersion() {
+		return version;
 	}
 }

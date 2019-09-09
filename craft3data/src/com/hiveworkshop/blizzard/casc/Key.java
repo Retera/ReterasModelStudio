@@ -42,7 +42,7 @@ public final class Key implements Comparable<Key> {
 
 	@Override
 	public boolean equals(final Object obj) {
-		if (obj == null || !(obj instanceof Key)) {
+		if ((obj == null) || !(obj instanceof Key)) {
 			return false;
 		}
 

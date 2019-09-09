@@ -22,7 +22,7 @@ public class ObjectEditorFrame extends JFrame {
 			final List<BufferedImage> finalImages = new ArrayList<>();
 			BufferedImage lastImage = null;
 			for (final BufferedImage image : images) {
-				if (lastImage != null && image.getWidth() != lastImage.getWidth()) {
+				if ((lastImage != null) && (image.getWidth() != lastImage.getWidth())) {
 					finalImages.add(lastImage);
 				}
 				lastImage = image;
@@ -59,6 +59,13 @@ public class ObjectEditorFrame extends JFrame {
 
 		final ObjectEditorFrame frame = new ObjectEditorFrame();
 		frame.setVisible(true);
+//		final JMenuBar menubar = new JMenuBar();
+//		menubar.add(new JMenu("File"));
+//		menubar.add(new JMenu("Edit"));
+//		menubar.add(new JMenu("View"));
+//		menubar.add(new JMenu("Module"));
+//		menubar.add(new JMenu("Window"));
+//		frame.setJMenuBar(menubar);
 		frame.panel.loadHotkeys();
 	}
 

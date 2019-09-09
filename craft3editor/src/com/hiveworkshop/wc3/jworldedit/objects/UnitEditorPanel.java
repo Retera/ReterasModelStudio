@@ -1,6 +1,7 @@
 package com.hiveworkshop.wc3.jworldedit.objects;
 
 import java.awt.Component;
+import java.awt.Image;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Point;
@@ -19,14 +20,17 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.TransferHandler;
 import javax.swing.event.TableModelEvent;
@@ -35,11 +39,13 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.jworldedit.objects.better.EditorFieldBuilder;
 import com.hiveworkshop.wc3.jworldedit.objects.better.ObjectDataTableModel;
 import com.hiveworkshop.wc3.jworldedit.objects.better.fields.FieldPopupUtils;
@@ -52,6 +58,7 @@ import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.MutableGameObject
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.WorldEditorDataType;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectDataChangeListener;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
+import com.hiveworkshop.wc3.util.IconUtils;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -208,6 +215,153 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 		});
 		table.setShowGrid(false);
 
+		final JTabbedPane splitWithBehaviorEditor = new JTabbedPane();
+//		splitWithBehaviorEditor.addTab("Stats", new JScrollPane(table));
+
+		class BehaviorTreeNode extends DefaultMutableTreeNode {
+			private final ImageIcon icon;
+
+			public BehaviorTreeNode(final ImageIcon icon, final String text) {
+				super(text);
+				this.icon = icon;
+			}
+
+			public ImageIcon getIcon() {
+				return icon;
+			}
+		}
+
+		final String filepath = "replaceabletextures\\commandbuttons\\btnstormbolt.blp";
+		final BehaviorTreeNode behaviorRoot = new BehaviorTreeNode(niceIcon(filepath), "Storm Bolt");
+		final BehaviorTreeNode localVarNode = new BehaviorTreeNode(
+				niceIcon("replaceabletextures\\worldeditui\\editor-scriptvariable.blp"), "Local Variables");
+		behaviorRoot.add(localVarNode);
+		localVarNode.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-setvariables.blp"),
+				"LocalLevel"));
+		localVarNode.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-setvariables.blp"),
+				"LocalDuration"));
+		localVarNode.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-setvariables.blp"),
+				"LocalBuffType"));
+		final BehaviorTreeNode actionsOnLearn = new BehaviorTreeNode(
+				niceIcon("replaceabletextures\\worldeditui\\editor-triggeraction.blp"), "On Learn - Actions");
+		behaviorRoot.add(actionsOnLearn);
+		// (Ability: This_ability's Real Level Field Cooldown ('acdn'), of Level: level)
+		// Greater than or equal to 10.00
+		// (Ability: This_ability's Real Field: Missile Arc ('amac')) Greater than or
+		// equal to 10.00
+		// (Ability: This_ability's Integer Field: Missile Speed ('amsp')) Equal to 0
+
+		actionsOnLearn.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-setvariables.blp"),
+				"Set LocalLevel = (Level of (This ability) for (Triggering unit))"));
+		actionsOnLearn.add(new BehaviorTreeNode(niceIcon("ui\\widgets\\tooltips\\human\\tooltipmanaicon.blp"),
+				"Command Card - Add a (Unit target) command card icon for (This ability) using ((Ability: (This ability)'s Integer Field: Button Position - Normal (X) ('abpx')), (Ability: (This ability)'s Integer Field: Button Position - Normal (Y) ('abpy')))"));
+		actionsOnLearn.add(new BehaviorTreeNode(niceIcon("ui\\widgets\\tooltips\\human\\tooltipmanaicon.blp"),
+				"Command Card - Set the icon of (Last created Command Card Icon) to (Icon of (This ability))"));
+		actionsOnLearn.add(new BehaviorTreeNode(niceIcon("ui\\widgets\\tooltips\\human\\tooltipmanaicon.blp"),
+				"Command Card - Set the Mana Cost of (Last created Command Card Icon) to (Ability: (This ability)'s Integer Level Field Mana Cost ('amcs'), of Level: LocalLevel)"));
+		actionsOnLearn.add(new BehaviorTreeNode(niceIcon("ui\\widgets\\tooltips\\human\\tooltipmanaicon.blp"),
+				"Command Card - Set the Cooldown of (Last created Command Card Icon) to (Ability: (This ability)'s Real Level Field Cooldown ('acdn'), of Level: LocalLevel)"));
+		final BehaviorTreeNode actionsOnCast = new BehaviorTreeNode(
+				niceIcon("replaceabletextures\\worldeditui\\editor-triggeraction.blp"), "On Cast - Actions");
+		behaviorRoot.add(actionsOnCast);
+		actionsOnCast.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-setvariables.blp"),
+				"Set LocalLevel = (Level of (This ability) for (Casting unit))"));
+		actionsOnCast.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Missile.blp"),
+				"Missile - Create an initially unlaunched missile at (Position of (Casting unit)) with Z height 0.00 that will home in on (Target unit of ability being cast) above its head at Z height 0.00"));
+		actionsOnCast.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Missile.blp"),
+				"Missile - Change the model file of (Last created missile) to be (Art path of (This ability) Missile Art (index 0))"));
+		actionsOnCast.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Missile.blp"),
+				"Missile - Change the owner of (Last created missile) to be (Owner of (Casting unit))"));
+		actionsOnCast.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Missile.blp"),
+				"Missile - Launch (Last created missile) with a speed of (Ability: (This ability)'s Integer Field: Missile Speed ('amsp')) and arc of (Ability: (This ability)'s Real Field: Missile Arc ('amac'))"));
+		actionsOnCast.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Ability.blp"),
+				"Unit - Cause (Casting unit) to damage (Target unit of ability being cast), dealing (Ability: (This ability)'s Real Level Field Damage ('Htb1'), of Level: LocalLevel) damage of attack type Spells and damage type Normal"));
+		actionsOnCast.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-setvariables.blp"),
+				"Set LocalBuffType = (Ability: (This ability)'s Buff Level Field Buffs ('abuf'), of Level: LocalLevel)"));
+
+		{
+
+			final BehaviorTreeNode ifBlockStarter2 = new BehaviorTreeNode(
+					niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Logical.blp"),
+					"If (All Conditions are True) then do (Then Actions) else do (Else Actions)");
+			actionsOnCast.add(ifBlockStarter2);
+			final BehaviorTreeNode ifConditions2 = new BehaviorTreeNode(
+					niceIcon("replaceabletextures\\worldeditui\\editor-triggercondition.blp"), "If - Conditions");
+			ifBlockStarter2.add(ifConditions2);
+			ifConditions2.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Logical.blp"),
+					"((Target unit of ability being cast) is A Hero) Equal to True"));
+			// (Ability: This_ability's Real Level Field Duration - Normal ('adur'), of
+			// Level: level) Greater than or equal to 10.00
+
+			final BehaviorTreeNode thenActions2 = new BehaviorTreeNode(
+					niceIcon("replaceabletextures\\worldeditui\\editor-triggeraction.blp"), "Then - Actions");
+			ifBlockStarter2.add(thenActions2);
+			thenActions2.add(new BehaviorTreeNode(
+					niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-setvariables.blp"),
+					"Set LocalDuration = (Ability: (This ability)'s Real Level Field Duration - Hero ('ahdu'), of Level: LocalLevel)"));
+			final BehaviorTreeNode elseActions2 = new BehaviorTreeNode(
+					niceIcon("replaceabletextures\\worldeditui\\editor-triggeraction.blp"), "Else - Actions");
+			ifBlockStarter2.add(elseActions2);
+			elseActions2.add(new BehaviorTreeNode(
+					niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-setvariables.blp"),
+					"Set LocalDuration = (Ability: (This ability)'s Real Level Field Duration - Normal ('adur'), of Level: LocalLevel)"));
+		}
+
+		final BehaviorTreeNode ifBlockStarter = new BehaviorTreeNode(
+				niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Logical.blp"),
+				"If (All Conditions are True) then do (Then Actions) else do (Else Actions)");
+		actionsOnCast.add(ifBlockStarter);
+		final BehaviorTreeNode ifConditions = new BehaviorTreeNode(
+				niceIcon("replaceabletextures\\worldeditui\\editor-triggercondition.blp"), "If - Conditions");
+		ifBlockStarter.add(ifConditions);
+		ifConditions.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Logical.blp"),
+				"(Level of LocalBuffType for (Target unit of ability being cast)) Greater than 0"));
+		final BehaviorTreeNode thenActions = new BehaviorTreeNode(
+				niceIcon("replaceabletextures\\worldeditui\\editor-triggeraction.blp"), "Then - Actions");
+		ifBlockStarter.add(thenActions);
+		thenActions.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-CasterSystem.blp"),
+				"Buff - Add LocalDuration to the duration for (Buff of (Target unit of ability being cast) of type LocalBuffType and ability type (This ability))"));
+		final BehaviorTreeNode elseActions = new BehaviorTreeNode(
+				niceIcon("replaceabletextures\\worldeditui\\editor-triggeraction.blp"), "Else - Actions");
+		ifBlockStarter.add(elseActions);
+
+		elseActions.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-CasterSystem.blp"),
+				"Buff - Apply a new buff with Level: LocalLevel to (Target unit of ability being cast) of type LocalBuffType"));
+		elseActions.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-CasterSystem.blp"),
+				"Buff - Set the remaining duration for (Last applied buff) to LocalDuration"));
+		final BehaviorTreeNode actionsOnBuffApplied = new BehaviorTreeNode(
+				niceIcon("replaceabletextures\\worldeditui\\editor-triggeraction.blp"), "On Buff Applied - Actions");
+		behaviorRoot.add(actionsOnBuffApplied);
+		actionsOnBuffApplied
+				.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-SetVariables.blp"),
+						"Set LocalLevel = (Level of (This ability) for (Buffed unit))"));
+		actionsOnBuffApplied.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Ability.blp"),
+				"Stun (Buffed unit)"));
+		final BehaviorTreeNode actionsOnBuffRemoved = new BehaviorTreeNode(
+				niceIcon("replaceabletextures\\worldeditui\\editor-triggeraction.blp"), "On Buff Removed - Actions");
+		behaviorRoot.add(actionsOnBuffRemoved);
+		actionsOnBuffRemoved
+				.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-SetVariables.blp"),
+						"Set LocalLevel = (Level of (This ability) for (Buffed unit))"));
+		actionsOnBuffRemoved.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Ability.blp"),
+				"Unstun (Buffed unit)"));
+		final JTree behaviorTree = new JTree(behaviorRoot);
+		behaviorTree.setCellRenderer(new DefaultTreeCellRenderer() {
+			@Override
+			public Component getTreeCellRendererComponent(final JTree tree, final Object value, final boolean sel,
+					final boolean expanded, final boolean leaf, final int row, final boolean hasFocus) {
+				final Component treeCellRendererComponent = super.getTreeCellRendererComponent(tree, value, sel,
+						expanded, leaf, row, hasFocus);
+				if (value instanceof BehaviorTreeNode) {
+					this.setIcon(((BehaviorTreeNode) value).getIcon());
+				}
+				return treeCellRendererComponent;
+			}
+		});
+		for (int i = 0; i < behaviorTree.getRowCount(); i++) {
+			behaviorTree.expandRow(i);
+		}
+		splitWithBehaviorEditor.addTab("Behavior", new JScrollPane(behaviorTree));
 		setRightComponent(new JScrollPane(table));
 
 		tree.addTreeSelectionListener(this);
@@ -320,6 +474,11 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 		searchPanel.add(findTextField, "cell 1 0");
 		caseSens = new JCheckBox(WEString.getString("WESTRING_FINDDLG_CASESENS"));
 		searchPanel.add(caseSens, "cell 1 1");
+	}
+
+	private ImageIcon niceIcon(final String filepath) {
+		return new ImageIcon(IconUtils
+				.worldEditStyleIcon(BLPHandler.get().getGameTex(filepath).getScaledInstance(16, 16, Image.SCALE_FAST)));
 	}
 
 	public void reloadAllDataVerySlowly() {

@@ -32,7 +32,7 @@ public class Main {
 		try {
 
 			final PerspDisplayPanel perspDisplayPanel = new PerspDisplayPanel("Zergling man!",
-					new ModelViewManager(model), new ProgramPreferences(), new RenderModel(model));
+					new ModelViewManager(model), new ProgramPreferences(), new RenderModel(model, null));
 			JOptionPane.showMessageDialog(null, perspDisplayPanel);
 			final BufferedImage bufferedImage = perspDisplayPanel.getViewport().getBufferedImage();
 			JOptionPane.showMessageDialog(null, new ImageIcon(model.getMaterial(1).getBufferedImage(null)));

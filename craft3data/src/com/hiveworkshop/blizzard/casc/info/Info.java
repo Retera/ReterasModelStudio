@@ -1,6 +1,7 @@
 package com.hiveworkshop.blizzard.casc.info;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -55,7 +56,7 @@ public class Info {
 	 */
 	public Info(final ByteBuffer fileBuffer) throws IOException {
 		try (final ByteBufferInputStream fileStream = new ByteBufferInputStream(fileBuffer);
-				final Scanner lineScanner = new Scanner(fileStream, FILE_ENCODING.name())) {
+				final Scanner lineScanner = new Scanner(new InputStreamReader(fileStream, FILE_ENCODING))) {
 			final String[] encodedFieldDescriptors = separateFields(lineScanner.nextLine());
 			for (final String encodedFieldDescriptor : encodedFieldDescriptors) {
 				fieldDescriptors.add(new FieldDescriptor(encodedFieldDescriptor));
@@ -73,11 +74,32 @@ public class Info {
 	 * Retrieves a specific field of a record.
 	 *
 	 * @param recordIndex Record index to lookup.
-	 * @param fieldIndex  Field index of record to retrieve.
+	 * @param fieldIndex  Field index to retrieve of record.
 	 * @return Field value.
+	 * @throws IndexOutOfBoundsException When recordIndex or fieldIndex are out of
+	 *                                   bounds.
 	 */
 	public String getField(final int recordIndex, final int fieldIndex) {
 		return records.get(recordIndex).get(fieldIndex);
+	}
+
+	/**
+	 * Retrieves a specific field of a record.
+	 *
+	 * @param recordIndex Record index to lookup.
+	 * @param fieldName   Field name to retrieve of record.
+	 * @return Field value, or null if field does not exist.
+	 * @throws IndexOutOfBoundsException When recordIndex is out of bounds.
+	 */
+	public String getField(final int recordIndex, final String fieldName) {
+		// resolve field
+		final int fieldIndex = getFieldIndex(fieldName);
+		if (fieldIndex == -1) {
+			// field does not exist
+			return null;
+		}
+
+		return getField(recordIndex, fieldIndex);
 	}
 
 	/**

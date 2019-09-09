@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 
 import javax.swing.ImageIcon;
@@ -44,9 +45,10 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 					if (o.getUserObject() instanceof MutableGameObject) {
 						final MutableGameObject obj = (MutableGameObject) o.getUserObject();
 						final String path = convertPathToMDX(obj.getFieldAsString(War3ID.fromString("umdl"), 0));
-						final ImageIcon icon = new ImageIcon(
-								com.hiveworkshop.wc3.util.IconUtils.getIcon(obj, WorldEditorDataType.UNITS)
-										.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
+						final BufferedImage iconTexture = com.hiveworkshop.wc3.util.IconUtils.getIcon(obj,
+								WorldEditorDataType.UNITS);
+						final ImageIcon icon = iconTexture == null ? null
+								: new ImageIcon(iconTexture.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
 						listener.loadFile(MpqCodebase.get().getFile(path), true, true, icon);
 					}
 				}
@@ -66,9 +68,10 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 						final MutableGameObject obj = (MutableGameObject) o.getUserObject();
 						final String path = convertPathToMDX(obj.getFieldAsString(War3ID.fromString("umdl"), 0));
 						final String portrait = ModelUtils.getPortrait(path);
-						final ImageIcon icon = new ImageIcon(
-								com.hiveworkshop.wc3.util.IconUtils.getIcon(obj, WorldEditorDataType.UNITS)
-										.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
+						final BufferedImage iconTexture = com.hiveworkshop.wc3.util.IconUtils.getIcon(obj,
+								WorldEditorDataType.UNITS);
+						final ImageIcon icon = iconTexture == null ? null
+								: new ImageIcon(iconTexture.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
 						listener.loadFile(MpqCodebase.get().getFile(portrait), true, true, icon);
 					}
 				}
@@ -94,9 +97,10 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 									final String path = convertPathToMDX(
 											obj.getFieldAsString(War3ID.fromString("umdl"), 0));
 									final String portrait = ModelUtils.getPortrait(path);
-									final ImageIcon icon = new ImageIcon(
-											com.hiveworkshop.wc3.util.IconUtils.getIcon(obj, WorldEditorDataType.UNITS)
-													.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
+									final BufferedImage iconTexture = com.hiveworkshop.wc3.util.IconUtils.getIcon(obj,
+											WorldEditorDataType.UNITS);
+									final ImageIcon icon = iconTexture == null ? null
+											: new ImageIcon(iconTexture.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
 									listener.loadFile(MpqCodebase.get().getFile(path), true, true, icon);
 									if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
 										listener.loadFile(MpqCodebase.get().getFile(portrait), true, false, icon);

@@ -1579,8 +1579,10 @@ public class MDL implements Named {
 			if (obj.parentId != -1) {
 				obj.setParent(idObjects.get(obj.parentId));
 			}
-			if (i > pivots.size()) {
-				JOptionPane.showMessageDialog(null, "Error: More objects than PivotPoints were found.");
+			if (i >= pivots.size()) {
+				JOptionPane.showMessageDialog(null,
+						"Error: More objects than PivotPoints were found.\nAdditional pivot at {0,0,0} will be added.");
+				pivots.add(new Vertex(0, 0, 0));
 			}
 			obj.setPivotPoint(pivots.get(i));
 		}

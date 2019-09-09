@@ -22,8 +22,8 @@ public abstract class Hex {
 			CHAR_VALUES['0' + value] = (byte) value;
 		}
 		for (; value < RADIX; value += 1) {
-			CHAR_VALUES['a' - DECIMAL_CHARACTERS + value] = (byte) value;
-			CHAR_VALUES['A' - DECIMAL_CHARACTERS + value] = (byte) value;
+			CHAR_VALUES[('a' - DECIMAL_CHARACTERS) + value] = (byte) value;
+			CHAR_VALUES[('A' - DECIMAL_CHARACTERS) + value] = (byte) value;
 		}
 	}
 
@@ -44,8 +44,8 @@ public abstract class Hex {
 
 	public static byte[] decodeHex(final CharSequence hex) {
 		final int nibbleCount = hex.length();
-		int valueNibbleShift = (nibbleCount - 1) % (Byte.SIZE / RADIX_SIZE) * RADIX_SIZE;
-		final byte[] values = new byte[nibbleCount + 1 >> 1];
+		int valueNibbleShift = ((nibbleCount - 1) % (Byte.SIZE / RADIX_SIZE)) * RADIX_SIZE;
+		final byte[] values = new byte[(nibbleCount + 1) >> 1];
 		int valueIndex = 0;
 		int value = 0;
 
@@ -70,7 +70,7 @@ public abstract class Hex {
 	}
 
 	public static void stringBufferAppendHex(final StringBuilder builder, final byte hex) {
-		builder.append(HEX_DIGITS[hex >> 4 & NIBBLE_MASK]);
+		builder.append(HEX_DIGITS[(hex >> 4) & NIBBLE_MASK]);
 		builder.append(HEX_DIGITS[hex & NIBBLE_MASK]);
 	}
 

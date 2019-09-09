@@ -32,15 +32,20 @@ public class BLPHandler {
 	 * images.
 	 */
 	Map<String, BufferedImage> cache = new HashMap<>();
+	Map<String, BufferedImage> rawCache = new HashMap<>();
 
 	public BufferedImage getTexture(final String workingDirectory, final String filepath) {
-		final BufferedImage image = getGameTex(filepath);
+		return getTexture(workingDirectory, filepath, false);
+	}
+
+	public BufferedImage getTexture(final String workingDirectory, final String filepath, final boolean alpha) {
+		final BufferedImage image = getGameTex(filepath, alpha);
 		if (image != null) {
 			return image;
 		}
 		try {
 			try {
-				final BufferedImage newImage2 = getCustomTex(workingDirectory + File.separatorChar + filepath);
+				final BufferedImage newImage2 = getCustomTex(workingDirectory + File.separatorChar + filepath, alpha);
 				if (newImage2 != null) {
 					return newImage2;
 				}
@@ -48,14 +53,14 @@ public class BLPHandler {
 			}
 			final String lastHopePath = workingDirectory + File.separator
 					+ filepath.substring(filepath.lastIndexOf(File.separatorChar) + 1);
-			final BufferedImage newImage3 = getCustomTex(lastHopePath);
+			final BufferedImage newImage3 = getCustomTex(lastHopePath, alpha);
 			if (newImage3 != null) {
 				return newImage3;
 			} else {
 
 				final String lastHopePath2 = "N:\\NEEDS_ORGANIZING\\WarCraft_III_Beta\\WarCraft_III_Beta\\War3beta\\"
 						+ filepath;
-				final BufferedImage newImage4 = getCustomTex(lastHopePath2);
+				final BufferedImage newImage4 = getCustomTex(lastHopePath2, alpha);
 				if (newImage4 != null) {
 					return newImage4;
 				}
@@ -76,6 +81,9 @@ public class BLPHandler {
 	 */
 	public static BufferedImage forceBufferedImagesRGB(final BufferedImage in) {
 		// Resolve input ColorSpace.
+		if (in.getColorModel() == null) {
+			return in;
+		}
 		final ColorSpace inCS = in.getColorModel().getColorSpace();
 		final ColorSpace sRGBCS = ColorSpace.getInstance(ColorSpace.CS_sRGB);
 		if (inCS == sRGBCS) {
@@ -114,9 +122,10 @@ public class BLPHandler {
 	 * @param filepath
 	 * @return
 	 */
-	public BufferedImage getGameTex(final String filepath) {
-		if (cache.containsKey(filepath)) {
-			return cache.get(filepath);
+	public BufferedImage getGameTex(final String filepath, final boolean alpha) {
+		final Map<String, BufferedImage> cacheToUse = alpha ? rawCache : cache;
+		if (cacheToUse.containsKey(filepath)) {
+			return cacheToUse.get(filepath);
 		}
 		final InputStream blpFile = MpqCodebase.get().getResourceAsStream(filepath);
 		if (blpFile == null) {
@@ -124,8 +133,25 @@ public class BLPHandler {
 		}
 		try {
 			// final BufferedImage img = BlpFile.read(filepath, blpFile);
-			final BufferedImage img = forceBufferedImagesRGB(ImageIO.read(blpFile));
-			cache.put(filepath, img);
+			final BufferedImage rawImage = ImageIO.read(blpFile);
+			if (rawImage == null) {
+//				final BLPReader blpReader = new BLPReader(new BLPReaderSpi());
+//				blpReader.setInput(blpFile);
+//				final Iterator<IIOImage> readAll = blpReader
+//						.readAll(Collections.<ImageReadParam>emptyList().iterator());
+//				while (readAll.hasNext()) {
+//					final IIOImage next = readAll.next();
+//					final List<? extends BufferedImage> thumbnails = next.getThumbnails();
+//					return thumbnails.get(0);
+//				}
+				return null;
+			}
+			if (alpha) {
+				cacheToUse.put(filepath, rawImage);
+				return rawImage;
+			}
+			final BufferedImage img = forceBufferedImagesRGB(rawImage);
+			cacheToUse.put(filepath, img);
 			return img;// ImageIO.read(tga);
 		} catch (final IOException e) {
 			// we return null here, swallow exception, be very careful with this
@@ -141,6 +167,10 @@ public class BLPHandler {
 		// e.printStackTrace();
 		// }
 		return null;
+	}
+
+	public BufferedImage getGameTex(final String filepath) {
+		return getGameTex(filepath, false);
 	}
 
 	public static BufferedImage readCustom(final File file) throws IOException {
@@ -174,12 +204,16 @@ public class BLPHandler {
 	 * @param filepath
 	 * @return
 	 */
-	public BufferedImage getCustomTex(final String filepath) {
+	public BufferedImage getCustomTex(final String filepath, final boolean alpha) {
 		final File blpFile = new File(filepath);
 		final File tga;
 		try {
 			if (filepath.toLowerCase().endsWith(".blp")) {
-				final BufferedImage img = forceBufferedImagesRGB(readCustom(blpFile));
+				final BufferedImage rawImage = readCustom(blpFile);
+				if (alpha) {
+					return rawImage;
+				}
+				final BufferedImage img = forceBufferedImagesRGB(rawImage);
 				return img;// BlpFile.read(filepath, new FileInputStream(blpFile));
 				// tga = convertBLPtoTGA(blpFile, File.createTempFile("customtex",
 				// ".tga"));//+(int)(Math.random()*50)
@@ -193,6 +227,10 @@ public class BLPHandler {
 			e1.printStackTrace();
 		}
 		return null;
+	}
+
+	public BufferedImage getCustomTex(final String filepath) {
+		return getCustomTex(filepath, false);
 	}
 
 	public static boolean WANT_DESTROY_SAVED_TGAS = true;
@@ -304,6 +342,7 @@ public class BLPHandler {
 
 	public void dropCache() {
 		cache.clear();
+		rawCache.clear();
 	}
 
 }

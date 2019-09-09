@@ -36,8 +36,8 @@ import com.hiveworkshop.wc3.gui.modelviewer.ControlledAnimationViewer;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.MDL;
-import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 
 /**
@@ -99,7 +99,10 @@ public class ModelPanel implements ActionListener, MouseListener {
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
 		modelView = new ModelViewManager(input);
 		undoManager = new UndoManagerImpl();
-		editorRenderModel = new RenderModel(input);
+		editorRenderModel = new RenderModel(input, modelView);
+		editorRenderModel.setSpawnParticles((prefs.getRenderParticles() == null) || prefs.getRenderParticles());
+		editorRenderModel.setAllowInanimateParticles(
+				(prefs.getRenderStaticPoseParticles() == null) || prefs.getRenderStaticPoseParticles());
 		modelEditorManager = new ModelEditorManager(modelView, prefs, modeNotifier, modelEditorChangeNotifier,
 				viewportActivityManager, editorRenderModel, modelStructureChangeListener);
 		modelViewManagingTree = new ModelViewManagingTree(modelView, undoManager, modelEditorManager);
@@ -377,7 +380,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 					"Warning", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, options,
 					options[2]);
 			switch (n) {
-			case 0:
+			case JOptionPane.YES_OPTION:
 				// ((ModelPanel)parent.tabbedPane.getComponentAt(myIndex)).getMDLDisplay().getMDL().saveFile();
 				listener.save(model);
 				// parent.tabbedPane.remove(myIndex);
@@ -385,13 +388,13 @@ public class ModelPanel implements ActionListener, MouseListener {
 					editUVPanel.frame.setVisible(false);
 				}
 				break;
-			case 1:
+			case JOptionPane.NO_OPTION:
 				// parent.tabbedPane.remove(myIndex);
 				if (editUVPanel != null) {
 					editUVPanel.frame.setVisible(false);
 				}
 				break;
-			case 2:
+			case JOptionPane.CANCEL_OPTION:
 				canceled = true;
 				break;
 			}

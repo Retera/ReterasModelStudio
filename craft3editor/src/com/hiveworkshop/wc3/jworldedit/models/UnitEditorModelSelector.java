@@ -115,7 +115,7 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 		temp.add(debugLabel);
 
 		// TODO null prefs
-		modelPanel = new PerspDisplayPanel("blank", modelDisp, null, new RenderModel(modelDisp.getModel()));
+		modelPanel = new PerspDisplayPanel("blank", modelDisp, null, new RenderModel(modelDisp.getModel(), null));
 		// table.setShowGrid(false);
 		fillTable();
 

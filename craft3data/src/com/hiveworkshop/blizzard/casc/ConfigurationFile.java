@@ -1,6 +1,7 @@
 package com.hiveworkshop.blizzard.casc;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -75,7 +76,7 @@ public class ConfigurationFile {
 	 */
 	public ConfigurationFile(final ByteBuffer fileBuffer) throws IOException {
 		try (final ByteBufferInputStream fileStream = new ByteBufferInputStream(fileBuffer);
-				final Scanner lineScanner = new Scanner(fileStream, FILE_ENCODING.name())) {
+				final Scanner lineScanner = new Scanner(new InputStreamReader(fileStream, FILE_ENCODING))) {
 			while (lineScanner.hasNextLine()) {
 				final String line = lineScanner.nextLine().trim();
 				final int lineLength = line.indexOf('#');

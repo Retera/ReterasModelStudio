@@ -124,7 +124,7 @@ public class IndexFile {
 	}
 
 	public long getStoreOffset(final long dataOffset) {
-		return dataOffset & (1L << dataFileSizeBits) - 1L;
+		return dataOffset & ((1L << dataFileSizeBits) - 1L);
 	}
 
 	public long getDataSizeMaximum() {
@@ -133,7 +133,7 @@ public class IndexFile {
 
 	public IndexEntry getEntry(final Key encodingKey) {
 		final int index = Collections.binarySearch(entries, encodingKey, (left, right) -> {
-			if (left instanceof IndexEntry && right instanceof Key) {
+			if ((left instanceof IndexEntry) && (right instanceof Key)) {
 				final IndexEntry entry = (IndexEntry) left;
 				final Key ekey = (Key) right;
 				return entry.getKey().compareTo(ekey);

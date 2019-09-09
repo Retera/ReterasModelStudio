@@ -325,7 +325,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		if (modelEditor.editorWantsAnimation()) {
 			final Stroke stroke = graphics2d.getStroke();
 			graphics2d.setStroke(new BasicStroke(3));
-			renderModel.updateNodes(true);
+			renderModel.updateNodes(true, false);
 			linkRenderer.reset(this, graphics2d, NodeIconPalette.HIGHLIGHT, renderModel);
 			modelView.visit(linkRenderingVisitorAdapter);
 			graphics2d.setStroke(stroke);

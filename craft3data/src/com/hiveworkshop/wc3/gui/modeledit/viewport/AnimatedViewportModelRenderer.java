@@ -22,8 +22,8 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
-import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
+import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.renderer.GeosetRenderer;
 import com.hiveworkshop.wc3.mdl.renderer.ModelRenderer;
 import com.hiveworkshop.wc3.mdl.renderer.TriangleRenderer;
@@ -64,7 +64,8 @@ public class AnimatedViewportModelRenderer implements ModelRenderer {
 		this.modelView = modelView;
 		this.renderModel = renderModel;
 		idObjectRenderer.reset(coordinateSystem, graphics, programPreferences.getLightsColor(),
-				programPreferences.getAnimatedBoneUnselectedColor(), NodeIconPalette.UNSELECTED, renderModel);
+				programPreferences.getAnimatedBoneUnselectedColor(), NodeIconPalette.UNSELECTED, renderModel,
+				programPreferences.isUseBoxesForPivotPoints());
 		return this;
 	}
 
@@ -90,7 +91,7 @@ public class AnimatedViewportModelRenderer implements ModelRenderer {
 				modelView.getHighlightedNode() == object ? programPreferences.getHighlighVertexColor()
 						: programPreferences.getAnimatedBoneUnselectedColor(),
 				modelView.getHighlightedNode() == object ? NodeIconPalette.HIGHLIGHT : NodeIconPalette.UNSELECTED,
-				renderModel);
+				renderModel, programPreferences.isUseBoxesForPivotPoints());
 	}
 
 	@Override
@@ -293,8 +294,8 @@ public class AnimatedViewportModelRenderer implements ModelRenderer {
 				graphics.setColor(programPreferences.getNormalsColor());
 				final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
 				final Point endPoint = new Point(
-						(int) coordinateSystem.convertX(firstCoord + firstNormalCoord * 12 / zoom),
-						(int) coordinateSystem.convertY(secondCoord + secondNormalCoord * 12 / zoom));
+						(int) coordinateSystem.convertX(firstCoord + ((firstNormalCoord * 12) / zoom)),
+						(int) coordinateSystem.convertY(secondCoord + ((secondNormalCoord * 12) / zoom)));
 				graphics.drawLine(point.x, point.y, endPoint.x, endPoint.y);
 				graphics.setColor(triangleColor);
 			}

@@ -1,78 +1,78 @@
 package com.hiveworkshop.wc3.mdl.render3d;
 
-import com.hiveworkshop.wc3.mdl.IdObject;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class RenderSharedEmitter<MODEL_OBJECT extends IdObject> {
-    protected final MODEL_OBJECT modelObject;
-    protected List<EmittedObject> objects;
-    protected int alive;
+import com.hiveworkshop.wc3.mdl.IdObject;
 
-    public RenderSharedEmitter(MODEL_OBJECT modelObject) {
-        this.modelObject = modelObject;
-        this.objects = new ArrayList<>();
-        this.alive = 0;
-    }
+public abstract class RenderSharedEmitter<MODEL_OBJECT extends IdObject, EMITTER_VIEW extends EmitterView> {
+	protected final MODEL_OBJECT modelObject;
+	protected List<EmittedObject<EMITTER_VIEW>> objects;
+	protected int alive;
 
-    public EmittedObject emitObject(EmitterView emitterView, boolean flag) {
-        if(alive==objects.size()) {
-            objects.add(createObject());
-        }
+	public RenderSharedEmitter(final MODEL_OBJECT modelObject) {
+		this.modelObject = modelObject;
+		this.objects = new ArrayList<>();
+		this.alive = 0;
+	}
 
-        EmittedObject object = objects.get(alive);
-        this.alive += 1;
-        object.reset(emitterView, flag);
+	public EmittedObject<EMITTER_VIEW> emitObject(final EMITTER_VIEW emitterView, final boolean flag) {
+		if (alive == objects.size()) {
+			objects.add(createObject());
+		}
 
-        return object;
-    }
+		final EmittedObject<EMITTER_VIEW> object = objects.get(alive);
+		this.alive += 1;
+		object.reset(emitterView, flag);
 
-    public void update() {
-        for(int i = 0; i < alive; i++) {
-            EmittedObject object = objects.get(i);
+		return object;
+	}
 
-            object.update();
+	public void update() {
+		for (int i = 0; i < alive; i++) {
+			final EmittedObject<EMITTER_VIEW> object = objects.get(i);
 
-            if(object.health <= 0) {
-                alive -= 1;
+			object.update();
 
-                // Swap between this object and the first unused object.
-                // Decrement the iterator so the moved object is indexed
-                if(i != this.alive) {
-                    objects.set(i, objects.get(alive));
-                    objects.set(this.alive, object);
-                    i -= 1;
-                }
-            }
-        }
+			if (object.health <= 0) {
+				alive -= 1;
 
-        this.updateData();
-    }
+				// Swap between this object and the first unused object.
+				// Decrement the iterator so the moved object is indexed
+				if (i != this.alive) {
+					objects.set(i, objects.get(alive));
+					objects.set(this.alive, object);
+					i -= 1;
+				}
+			}
+		}
 
-    public void fill(EmitterView emitterView) {
-        int emission = emitterView.currentEmission;
-        
-        if(emission >= 1) {
-            for(int i = 0; i < emission; i+= 1, emitterView.currentEmission--) {
-                this.emit(emitterView);
-            }
-        }
-    }
+		this.updateData();
+	}
 
-    protected abstract void emit(EmitterView emitterView);
+	public void fill(final EMITTER_VIEW emitterView) {
+		final float emission = emitterView.currentEmission;
 
-    protected abstract void updateData();
+		if (emission >= 1) {
+			for (int i = 0; i < emission; i += 1, emitterView.currentEmission--) {
+				this.emit(emitterView);
+			}
+		}
+	}
 
-    protected abstract EmittedObject createObject();
+	protected abstract void emit(EMITTER_VIEW emitterView);
 
-    protected abstract void render(RenderModel modelView, ParticleEmitterShader shader);
+	protected abstract void updateData();
 
-    public void clear(Object owner) {
-        for(EmittedObject object: this.objects) {
-            if(owner == object.emitterView.instance) {
-                object.health = 0;
-            }
-        }
-    }
+	protected abstract EmittedObject<EMITTER_VIEW> createObject();
+
+	protected abstract void render(RenderModel modelView, ParticleEmitterShader shader);
+
+	public void clear(final Object owner) {
+		for (final EmittedObject<EMITTER_VIEW> object : this.objects) {
+			if (owner == object.emitterView.instance) {
+				object.health = 0;
+			}
+		}
+	}
 }

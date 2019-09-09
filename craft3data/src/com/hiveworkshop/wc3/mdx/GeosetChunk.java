@@ -367,7 +367,11 @@ public class GeosetChunk {
 
 			int matrixIndexsSize = 0;
 			for (final Matrix matrix : mdlGeo.getMatrix()) {
-				matrixIndexsSize += matrix.size();
+				int size = matrix.size();
+				if (size == -1) {
+					size = 1;
+				}
+				matrixIndexsSize += size;
 			}
 			matrixGroups = new int[mdlGeo.getMatrix().size()];
 			if (matrixIndexsSize == -1) {

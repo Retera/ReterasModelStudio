@@ -22,7 +22,7 @@ public class YseraPanel extends JPanel {
 		try {
 			final MDL model = new MDL();
 			add(BorderLayout.CENTER, new PerspectiveViewport(new ModelViewManager(model), new ProgramPreferences(),
-					new RenderModel(model)));
+					new RenderModel(model, null)));
 			/*
 			 * MdxUtils.loadModel(new BlizzardDataInputStream(
 			 * MpqCodebase.get().getResourceAsStream("Units\\Human\\Footman\\Footman.mdx")))

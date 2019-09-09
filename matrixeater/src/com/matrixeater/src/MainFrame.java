@@ -3,10 +3,13 @@ package com.matrixeater.src;
 import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -14,8 +17,17 @@ import javax.swing.WindowConstants;
 import javax.swing.plaf.ColorUIResource;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglNativesLoader;
+import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
+import com.hiveworkshop.wc3.gui.datachooser.DataSourceChooserPanel;
+import com.hiveworkshop.wc3.gui.datachooser.DataSourceDescriptor;
+import com.hiveworkshop.wc3.mpq.MpqCodebase;
+import com.hiveworkshop.wc3.resources.Resources;
+import com.hiveworkshop.wc3.resources.WEString;
+import com.hiveworkshop.wc3.units.DataTable;
+import com.hiveworkshop.wc3.units.ModelOptionPanel;
+import com.hiveworkshop.wc3.units.UnitOptionPanel;
 import com.hiveworkshop.wc3.user.SaveProfile;
 
 import net.infonode.gui.laf.InfoNodeLookAndFeel;
@@ -38,6 +50,7 @@ public class MainFrame extends JFrame {
 	}
 
 	public static void main(final String[] args) {
+		final boolean dataPromptForced = (args.length >= 1) && args[0].equals("-forcedataprompt");
 		try {
 			LwjglNativesLoader.load();
 //		try {
@@ -208,24 +221,89 @@ public class MainFrame extends JFrame {
 
 				break;
 			}
-			final String autoWarcraftDirectory = SaveProfile.getWarcraftDirectory();
-			if (!SaveProfile.testTargetFolderReadOnly(autoWarcraftDirectory)) {
-				SaveProfile.requestNewWc3Directory();
-			}
-			System.out.println(autoWarcraftDirectory + " appears valid");
-
-			// TechshaperFrame.main(args);
-
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					frame = new MainFrame("Retera Model Studio v0.03 Public Beta");
-					panel.init();
+					try {
+						final List<DataSourceDescriptor> dataSources = SaveProfile.get().getDataSources();
+						if ((dataSources == null) || dataPromptForced) {
+							final DataSourceChooserPanel dataSourceChooserPanel = new DataSourceChooserPanel(
+									dataSources);
+//							JF
+							final JFrame jFrame = new JFrame("Retera Model Studio: Setup");
+//							jFrame.setContentPane(dataSourceChooserPanel);
+							jFrame.setUndecorated(true);
+							jFrame.pack();
+							jFrame.setSize(0, 0);
+							jFrame.setLocationRelativeTo(null);
+							jFrame.setIconImage(
+									new ImageIcon(MainFrame.class.getResource("ImageBin/retera.jpg")).getImage());
+							jFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+							jFrame.setVisible(true);
+							try {
+								if (JOptionPane.showConfirmDialog(jFrame, dataSourceChooserPanel,
+										"Retera Model Studio: Setup", JOptionPane.OK_CANCEL_OPTION,
+										JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION) {
+									return;
+								}
+							} finally {
+								jFrame.setVisible(false);
+							}
+							SaveProfile.get().setDataSources(dataSourceChooserPanel.getDataSourceDescriptors());
+							SaveProfile.save();
+							MpqCodebase.get().refresh(SaveProfile.get().getDataSources());
+							// cache priority order...
+							UnitOptionPanel.dropRaceCache();
+							DataTable.dropCache();
+							ModelOptionPanel.dropCache();
+							WEString.dropCache();
+							Resources.dropCache();
+							BLPHandler.get().dropCache();
+						}
+
+						JPopupMenu.setDefaultLightWeightPopupEnabled(false);
+						frame = new MainFrame("Retera Model Studio v0.04 Public Beta");
+						panel.init();
+					} catch (final Throwable th) {
+						th.printStackTrace();
+						ExceptionPopup.display(th);
+						if (!dataPromptForced) {
+							new Thread(new Runnable() {
+								@Override
+								public void run() {
+									main(new String[] { "-forcedataprompt" });
+								}
+							}).start();
+						} else {
+							JOptionPane.showMessageDialog(null,
+									"Retera Model Studio startup sequence has failed for two attempts. The program will now exit.",
+									"Error", JOptionPane.ERROR_MESSAGE);
+							System.exit(-1);
+						}
+					}
 				}
 			});
 		} catch (final Throwable th) {
 			th.printStackTrace();
-			ExceptionPopup.display(th);
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					ExceptionPopup.display(th);
+				}
+			});
+			if (!dataPromptForced) {
+				main(new String[] { "-forcedataprompt" });
+			} else {
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						JOptionPane.showMessageDialog(null,
+								"Retera Model Studio startup sequence has failed for two attempts. The program will now exit.",
+								"Error", JOptionPane.ERROR_MESSAGE);
+						System.exit(-1);
+					}
+				});
+			}
 		}
 	}
 

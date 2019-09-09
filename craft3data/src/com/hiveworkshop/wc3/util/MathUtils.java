@@ -3,10 +3,14 @@ package com.hiveworkshop.wc3.util;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
+
+import com.hiveworkshop.wc3.mdl.Vertex;
 
 public class MathUtils {
 	/**
-	 * Returns true if the value of <code>b</code> falls between the values <code>a</code> and <code>c</code>.
+	 * Returns true if the value of <code>b</code> falls between the values
+	 * <code>a</code> and <code>c</code>.
 	 *
 	 * @param a
 	 * @param b
@@ -16,20 +20,31 @@ public class MathUtils {
 	public static boolean isBetween(final double a, final double b, final double c) {
 		final double min = Math.min(a, c);
 		final double max = Math.max(a, c);
-		return min < b && b < max;
+		return (min < b) && (b < max);
 	}
 
 	public static double lerp(final double a, final double b, final double t) {
-		return a + t * (b - a);
+		return a + (t * (b - a));
+	}
+
+	public static Vertex lerp(final Vertex out, final Vertex a, final Vertex b, final double t) {
+		out.setTo(MathUtils.lerp(a.x, b.x, t), MathUtils.lerp(a.y, b.y, t), MathUtils.lerp(a.z, b.z, t));
+		return out;
+	}
+
+	public static Vector4f lerp(final Vector4f out, final Vector4f a, final Vector4f b, final double t) {
+		out.set((float) MathUtils.lerp(a.x, b.x, t), (float) MathUtils.lerp(a.y, b.y, t),
+				(float) MathUtils.lerp(a.z, b.z, t), (float) MathUtils.lerp(a.w, b.w, t));
+		return out;
 	}
 
 	public static double hermite(final double a, final double aOutTan, final double bInTan, final double b,
 			final double t) {
 		final double factorTimes2 = t * t;
-		final double factor1 = factorTimes2 * (2 * t - 3) + 1;
-		final double factor2 = factorTimes2 * (t - 2) + t;
+		final double factor1 = (factorTimes2 * ((2 * t) - 3)) + 1;
+		final double factor2 = (factorTimes2 * (t - 2)) + t;
 		final double factor3 = factorTimes2 * (t - 1);
-		final double factor4 = factorTimes2 * (3 - 2 * t);
+		final double factor4 = factorTimes2 * (3 - (2 * t));
 		return (a * factor1) + (aOutTan * factor2) + (bInTan * factor3) + (b * factor4);
 	}
 
@@ -81,9 +96,9 @@ public class MathUtils {
 		out.m21 = (yz - wx) * sz;
 		out.m22 = (1 - (xx + yy)) * sz;
 		out.m23 = 0;
-		out.m30 = v.x + pivot.x - (out.m00 * pivot.x + out.m10 * pivot.y + out.m20 * pivot.z);
-		out.m31 = v.y + pivot.y - (out.m01 * pivot.x + out.m11 * pivot.y + out.m21 * pivot.z);
-		out.m32 = v.z + pivot.z - (out.m02 * pivot.x + out.m12 * pivot.y + out.m22 * pivot.z);
+		out.m30 = (v.x + pivot.x) - ((out.m00 * pivot.x) + (out.m10 * pivot.y) + (out.m20 * pivot.z));
+		out.m31 = (v.y + pivot.y) - ((out.m01 * pivot.x) + (out.m11 * pivot.y) + (out.m21 * pivot.z));
+		out.m32 = (v.z + pivot.z) - ((out.m02 * pivot.x) + (out.m12 * pivot.y) + (out.m22 * pivot.z));
 		out.m33 = 1;
 	}
 
@@ -161,7 +176,11 @@ public class MathUtils {
 
 	}
 
-	public static float randomInRange(double min, double max) {
-		return (float) (min + Math.random() * (max - min));
+	public static float randomInRange(final double min, final double max) {
+		return (float) (min + (Math.random() * (max - min)));
+	}
+
+	public static int uint8ToUint24(final byte right, final byte bottom, final byte a) {
+		return ((right << 16) & 0xFF0000) | ((bottom << 8) & 0xFF00) | (a & 0xFF);
 	}
 }

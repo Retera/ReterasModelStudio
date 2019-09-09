@@ -87,13 +87,13 @@ public class ModelOptionPanel extends JPanel {
 
 	static List<ModelGroup> groups = new ArrayList<>();
 
-	static DataTable unitData = DataTable.get();
-	static DataTable itemData = DataTable.getItems();
-	static DataTable buffData = DataTable.getBuffs();
-	static DataTable destData = DataTable.getDestructables();
-	static DataTable doodData = DataTable.getDoodads();
-	static DataTable spawnData = DataTable.getSpawns();
-	static DataTable ginterData = DataTable.getGinters();
+	static DataTable unitData = null;
+	static DataTable itemData = null;
+	static DataTable buffData = null;
+	static DataTable destData = null;
+	static DataTable doodData = null;
+	static DataTable spawnData = null;
+	static DataTable ginterData = null;
 
 	static boolean preloaded;
 
@@ -795,7 +795,7 @@ public class ModelOptionPanel extends JPanel {
 				if (nameOutput.length() > 0) {
 					nameOutput += ", ";
 				}
-				if (nameOutput.length() + unitName.length() > lengthCap) {
+				if ((nameOutput.length() + unitName.length()) > lengthCap) {
 					nameOutput += "...";
 					break;
 				} else {
@@ -820,7 +820,7 @@ public class ModelOptionPanel extends JPanel {
 				if (nameOutput.length() > 0) {
 					nameOutput += ", ";
 				}
-				if (nameOutput.length() + unitName.length() > lengthCap) {
+				if ((nameOutput.length() + unitName.length()) > lengthCap) {
 					nameOutput += "...";
 					break;
 				} else {
@@ -845,7 +845,7 @@ public class ModelOptionPanel extends JPanel {
 				if (nameOutput.length() > 0) {
 					nameOutput += ", ";
 				}
-				if (nameOutput.length() + unitName.length() > lengthCap) {
+				if ((nameOutput.length() + unitName.length()) > lengthCap) {
 					nameOutput += "...";
 					break;
 				} else {
@@ -870,7 +870,7 @@ public class ModelOptionPanel extends JPanel {
 				if (nameOutput.length() > 0) {
 					nameOutput += ", ";
 				}
-				if (nameOutput.length() + unitName.length() > lengthCap) {
+				if ((nameOutput.length() + unitName.length()) > lengthCap) {
 					nameOutput += "...";
 					break;
 				} else {
@@ -895,7 +895,7 @@ public class ModelOptionPanel extends JPanel {
 				if (nameOutput.length() > 0) {
 					nameOutput += ", ";
 				}
-				if (nameOutput.length() + unitName.length() > lengthCap) {
+				if ((nameOutput.length() + unitName.length()) > lengthCap) {
 					nameOutput += "...";
 					break;
 				} else {
@@ -920,7 +920,7 @@ public class ModelOptionPanel extends JPanel {
 				if (nameOutput.length() > 0) {
 					nameOutput += ", ";
 				}
-				if (nameOutput.length() + unitName.length() > lengthCap) {
+				if ((nameOutput.length() + unitName.length()) > lengthCap) {
 					nameOutput += "...";
 					break;
 				} else {
@@ -945,7 +945,7 @@ public class ModelOptionPanel extends JPanel {
 				if (nameOutput.length() > 0) {
 					nameOutput += ", ";
 				}
-				if (nameOutput.length() + unitName.length() > lengthCap) {
+				if ((nameOutput.length() + unitName.length()) > lengthCap) {
 					nameOutput += "...";
 					break;
 				} else {
@@ -970,7 +970,7 @@ public class ModelOptionPanel extends JPanel {
 				if (nameOutput.length() > 0) {
 					nameOutput += ", ";
 				}
-				if (nameOutput.length() + unitName.length() > lengthCap) {
+				if ((nameOutput.length() + unitName.length()) > lengthCap) {
 					nameOutput += "...";
 					break;
 				} else {
@@ -995,7 +995,7 @@ public class ModelOptionPanel extends JPanel {
 				if (nameOutput.length() > 0) {
 					nameOutput += ", ";
 				}
-				if (nameOutput.length() + unitName.length() > lengthCap) {
+				if ((nameOutput.length() + unitName.length()) > lengthCap) {
 					nameOutput += "...";
 					break;
 				} else {
@@ -1020,7 +1020,7 @@ public class ModelOptionPanel extends JPanel {
 				if (nameOutput.length() > 0) {
 					nameOutput += ", ";
 				}
-				if (nameOutput.length() + unitName.length() > lengthCap) {
+				if ((nameOutput.length() + unitName.length()) > lengthCap) {
 					nameOutput += "...";
 					break;
 				} else {

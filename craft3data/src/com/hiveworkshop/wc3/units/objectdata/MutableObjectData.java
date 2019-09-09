@@ -6,8 +6,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.JOptionPane;
-
 import com.etheller.collections.ArrayList;
 import com.etheller.collections.List;
 import com.etheller.collections.MapView;
@@ -19,6 +17,11 @@ import com.hiveworkshop.wc3.units.GameObject;
 import com.hiveworkshop.wc3.units.ObjectData;
 
 public final class MutableObjectData {
+	private static final War3ID ROC_SUPPORT_URAC = War3ID.fromString("urac");
+	private static final War3ID ROC_SUPPORT_UCAM = War3ID.fromString("ucam");
+	private static final War3ID ROC_SUPPORT_USPE = War3ID.fromString("uspe");
+	private static final War3ID ROC_SUPPORT_UBDG = War3ID.fromString("ubdg");
+
 	private final WorldEditorDataType worldEditorDataType;
 	private final ObjectData sourceSLKData;
 	private final ObjectData sourceSLKMetaData;
@@ -87,11 +90,10 @@ public final class MutableObjectData {
 		final Map<War3ID, War3ID> previousAliasToNewAlias = new HashMap<>();
 		for (final MapView.Entry<War3ID, ObjectDataChangeEntry> entry : changeset.getCustom()) {
 
-			final String newId = JOptionPane.showInputDialog("Choose UNIT ID");
-			final War3ID nextDefaultEditorId = War3ID.fromString(newId);
-			/*
-			 * getNextDefaultEditorId( War3ID.fromString(entry.getKey().charAt(0) + "000"));
-			 */;
+//			final String newId = JOptionPane.showInputDialog("Choose UNIT ID");
+			final War3ID nextDefaultEditorId = /* War3ID.fromString(newId); */getNextDefaultEditorId(
+					War3ID.fromString(entry.getKey().charAt(0) + "000"));
+			;
 			System.out.println("Merging " + nextDefaultEditorId + " for  " + entry.getKey());
 			// createNew API will notifier the changeNotifier
 			final MutableGameObject newObject = createNew(nextDefaultEditorId, entry.getValue().getOldId(), false);
@@ -680,6 +682,17 @@ public final class MutableObjectData {
 		private String getFieldStringFromSLKs(final War3ID field, final int level) {
 			final GameObject metaData = sourceSLKMetaData.get(field.asStringValue());
 			if (metaData == null) {
+				if (worldEditorDataType == WorldEditorDataType.UNITS) {
+					if (ROC_SUPPORT_URAC.equals(field)) {
+						return parentWC3Object.getField("race");
+					} else if (ROC_SUPPORT_UCAM.equals(field)) {
+						return "0";
+					} else if (ROC_SUPPORT_USPE.equals(field)) {
+						return parentWC3Object.getField("special");
+					} else if (ROC_SUPPORT_UBDG.equals(field)) {
+						return parentWC3Object.getField("isbldg");
+					}
+				}
 				throw new IllegalStateException(
 						"Program requested " + field.toString() + " from " + worldEditorDataType);
 			}

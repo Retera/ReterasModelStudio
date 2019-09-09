@@ -356,7 +356,7 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 		return unitEditorPanel;
 	}
 
-	private UnitEditorPanel createAbilityEditor() {
+	private JComponent createAbilityEditor() {
 		final War3ObjectDataChangeset unitDataChangeset = new War3ObjectDataChangeset('a');
 		try {
 			final MpqCodebase mpqCodebase = MpqCodebase.get();
