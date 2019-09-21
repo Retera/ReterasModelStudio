@@ -11,6 +11,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -477,8 +478,11 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 	}
 
 	private ImageIcon niceIcon(final String filepath) {
-		return new ImageIcon(IconUtils
-				.worldEditStyleIcon(BLPHandler.get().getGameTex(filepath).getScaledInstance(16, 16, Image.SCALE_FAST)));
+		BufferedImage gameTex = BLPHandler.get().getGameTex(filepath);
+		if (gameTex == null) {
+			gameTex = BLPHandler.get().getGameTex("Textures\\black32.blp");
+		}
+		return new ImageIcon(IconUtils.worldEditStyleIcon(gameTex.getScaledInstance(16, 16, Image.SCALE_FAST)));
 	}
 
 	public void reloadAllDataVerySlowly() {

@@ -250,7 +250,7 @@ public final class VirtualFileSystem {
 	 */
 	public static byte[][] convertFilePath(final String filePath) throws CharacterCodingException {
 		final String[] fragmentStrings = filePath.toLowerCase(Locale.ROOT).split("\\" + PATH_SEPERATOR);
-		final byte[][] pathFragments = new byte[fragmentStrings.length][];
+		final byte[][] pathFragments = new byte[fragmentStrings.length][]; 
 
 		final CharsetEncoder encoder = PATH_ENCODING.newEncoder();
 		encoder.onMalformedInput(CodingErrorAction.REPORT);

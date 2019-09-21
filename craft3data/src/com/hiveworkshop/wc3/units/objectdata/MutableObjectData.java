@@ -418,7 +418,10 @@ public final class MutableObjectData {
 		public MutableGameObject(final GameObject parentWC3Object, final ObjectDataChangeEntry customUnitData) {
 			this.parentWC3Object = parentWC3Object;
 			if (parentWC3Object == null) {
+				System.err.println(
+						"Parent object is null for " + customUnitData.getNewId() + ":" + customUnitData.getOldId());
 				throw new AssertionError("parentWC3Object cannot be null");
+//				this.parentWC3Object = new Element("", new DataTable());
 			}
 			this.customUnitData = customUnitData;
 		}

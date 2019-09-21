@@ -101,6 +101,7 @@ import com.hiveworkshop.wc3.util.MathUtils;
 
 public class PerspectiveViewport extends AWTGLCanvas
 		implements MouseListener, ActionListener, MouseWheelListener, RenderResourceAllocator {
+	public static final boolean LOG_EXCEPTIONS = false;
 	ModelView modelView;
 	Vertex cameraPos = new Vertex(0, 0, 0);
 	Quaternion inverseCameraRotationQuat = new Quaternion();
@@ -133,9 +134,9 @@ public class PerspectiveViewport extends AWTGLCanvas
 		@Override
 		public void run() {
 			editorRenderModel.updateNodes(true, true);
-			repaint();
 		}
 	};
+	Timer paintTimer;
 
 	public PerspectiveViewport(final ModelView modelView, final ProgramPreferences programPreferences,
 			final RenderModel editorRenderModel) throws LWJGLException {
@@ -180,6 +181,16 @@ public class PerspectiveViewport extends AWTGLCanvas
 			});
 		}
 		loadBackgroundColors();
+		paintTimer = new Timer(16, new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				repaint();
+				if (isShowing()) {
+					paintTimer.restart();
+				}
+			}
+		});
+		paintTimer.start();
 	}
 
 	private void loadBackgroundColors() {
@@ -266,12 +277,19 @@ public class PerspectiveViewport extends AWTGLCanvas
 							workingDirectory == null ? null : workingDirectory.getPath(), path + ".blp", true), tex);
 				}
 			} catch (final Exception exc) {
-				exc.printStackTrace();
+				if (LOG_EXCEPTIONS) {
+					exc.printStackTrace();
+				}
 				try {
-					texture = loadTexture(
-							BLPHandler.get().getCustomTex(
-									modelView.getModel().getWorkingDirectory().getPath() + "\\" + path + ".blp", true),
-							tex);// TextureLoader.getTexture("TGA",
+					if ((programPreferences.getAllowLoadingNonBlpTextures() != null)
+							&& programPreferences.getAllowLoadingNonBlpTextures()) {
+						texture = loadTexture(BLPHandler.get().getCustomTex(
+								modelView.getModel().getWorkingDirectory().getPath() + "\\" + path, true), tex);// TextureLoader.getTexture("TGA",
+					} else {
+						texture = loadTexture(BLPHandler.get().getCustomTex(
+								modelView.getModel().getWorkingDirectory().getPath() + "\\" + path + ".blp", true),
+								tex);// TextureLoader.getTexture("TGA",
+					}
 					// new
 					// FileInputStream(new
 					// File(dispMDL.getMDL().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
@@ -284,12 +302,14 @@ public class PerspectiveViewport extends AWTGLCanvas
 					// e.printStackTrace();
 					// }
 				} catch (final Exception exc2) {
-					exc2.printStackTrace();
+					if (LOG_EXCEPTIONS) {
+						exc2.printStackTrace();
 //					try {
 //						texture = loadTexture(BLPHandler.get().getGameTex("textures\\btntemp.blp"), tex);// TextureLoader.getTexture("TGA",
 //					} catch (Exception exc3) {
 //						exc3.printStackTrace();
 //					}
+					}
 				}
 			}
 			if (texture != null) {
@@ -676,6 +696,9 @@ public class PerspectiveViewport extends AWTGLCanvas
 			// glPopMatrix();
 			swapBuffers();
 			repaintRunnable.run();
+			if (isShowing()) {
+				paintTimer.restart();
+			}
 		} catch (final Throwable e) {
 			if ((lastThrownErrorClass == null) || (lastThrownErrorClass != e.getClass())) {
 				lastThrownErrorClass = e.getClass();
@@ -1028,7 +1051,6 @@ public class PerspectiveViewport extends AWTGLCanvas
 				// dispMDL.updateAction(convertedStart,convertedEnd,m_d1,m_d2);
 				actStart = actEnd;
 			}
-			repaint();
 		} else if (e.getSource() == reAssignMatrix) {
 			// MatrixPopup matrixPopup = new MatrixPopup(dispMDL.getMDL());
 			// String[] words = { "Accept", "Cancel" };
@@ -1096,7 +1118,6 @@ public class PerspectiveViewport extends AWTGLCanvas
 		}
 		if (!mouseInBounds && (leftClickStart == null) && (actStart == null) && (lastClick == null)) {
 			clickTimer.stop();
-			repaint();
 		}
 		/*
 		 * if( dispMDL != null ) dispMDL.refreshUndo();

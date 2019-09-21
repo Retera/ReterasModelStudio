@@ -101,6 +101,7 @@ import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements MouseListener, ActionListener,
 		MouseWheelListener, AnimatedRenderEnvironment, RenderResourceAllocator {
+	public static final boolean LOG_EXCEPTIONS = false;
 	ModelView modelView;
 	private RenderModel renderModel;
 	Vertex cameraPos = new Vertex(0, 0, 0);
@@ -113,6 +114,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	Point leftClickStart;
 	Point actStart;
 	Timer clickTimer = new Timer(16, this);
+	Timer paintTimer;
 	boolean mouseInBounds = false;
 	JPopupMenu contextMenu;
 	boolean enabled = false;
@@ -174,6 +176,16 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			});
 		}
 		loadBackgroundColors();
+		paintTimer = new Timer(16, new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				repaint();
+				if (isShowing()) {
+					paintTimer.restart();
+				}
+			}
+		});
+		paintTimer.start();
 	}
 
 	private void loadDefaultCameraFor(final ModelView modelView) {
@@ -362,15 +374,17 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 							tex, alpha);
 				}
 			} catch (final Exception exc) {
-				exc.printStackTrace();
+				if (LOG_EXCEPTIONS) {
+					exc.printStackTrace();
 //				try {
 //					texture = loadTexture(BLPHandler.get().getGameTex("textures\\btntemp.blp"), tex, layer.getFilterMode() != FilterMode.NONE);// TextureLoader.getTexture("TGA",
 //				} catch (Exception exc3) {
 //					exc3.printStackTrace();
 //				}
-				// new
-				// FileInputStream(new
-				// File(dispMDL.getMDL().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
+					// new
+					// FileInputStream(new
+					// File(dispMDL.getMDL().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
+				}
 
 				// try { } catch (FileNotFoundException e) {
 				// // Auto-generated catch block
@@ -731,7 +745,9 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 
 			// glPopMatrix();
 			swapBuffers();
-			repaint();
+			if (isShowing()) {
+				paintTimer.restart();
+			}
 		} catch (final Throwable e) {
 			e.printStackTrace();
 			lastExceptionTimeMillis = System.currentTimeMillis();
@@ -1160,7 +1176,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 				// dispMDL.updateAction(convertedStart,convertedEnd,m_d1,m_d2);
 				actStart = actEnd;
 			}
-			repaint();
 		}
 	}
 
@@ -1213,7 +1228,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		}
 		if (!mouseInBounds && (leftClickStart == null) && (actStart == null) && (lastClick == null)) {
 			clickTimer.stop();
-			repaint();
 		}
 		/*
 		 * if( dispMDL != null ) dispMDL.refreshUndo();

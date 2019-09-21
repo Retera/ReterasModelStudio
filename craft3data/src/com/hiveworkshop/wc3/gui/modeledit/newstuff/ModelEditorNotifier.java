@@ -155,6 +155,19 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
+	public UndoAction addSelectedBoneSuffix(final String name) {
+		final List<UndoAction> actions = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			try {
+				actions.add(handler.addSelectedBoneSuffix(name));
+			} catch (final UnsupportedOperationException e) {
+				// don't add actions for unsupported operations
+			}
+		}
+		return mergeActions(actions);
+	}
+
+	@Override
 	public UndoAction setParent(final IdObject parent) {
 		final List<UndoAction> actions = new ArrayList<>();
 		for (final ModelEditor handler : set) {

@@ -3386,13 +3386,18 @@ public class MainPanel extends JPanel
 						retainedGeosets.add(geoset);
 					}
 				}
-				final ArrayList<Geoset> geosets = currentMDL().getGeosets();
+				final MDL currentMDL = currentMDL();
+				final ArrayList<Geoset> geosets = currentMDL.getGeosets();
 				final List<Geoset> geosetsRemoved = new ArrayList<>();
 				final Iterator<Geoset> iterator = geosets.iterator();
 				while (iterator.hasNext()) {
 					final Geoset geoset = iterator.next();
 					if (!retainedGeosets.contains(geoset)) {
 						iterator.remove();
+						final GeosetAnim geosetAnim = geoset.getGeosetAnim();
+						if (geosetAnim != null) {
+							currentMDL.remove(geosetAnim);
+						}
 						geosetsRemoved.add(geoset);
 					}
 				}

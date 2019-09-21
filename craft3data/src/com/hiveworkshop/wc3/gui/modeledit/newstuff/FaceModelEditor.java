@@ -55,6 +55,11 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 	}
 
 	@Override
+	public UndoAction addSelectedBoneSuffix(final String name) {
+		throw new UnsupportedOperationException("This feature is not available in Face mode");
+	}
+
+	@Override
 	public UndoAction addTeamColor() {
 		// copy the selection before we hand it off, so the we can't strip the stored
 		// action's
@@ -293,7 +298,7 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 			for (final GeosetVertex geosetVertex : copiedVertices) {
 				copy.add(geosetVertex);
 			}
-			if (copiedTriangles.size() > 0 || copiedVertices.size() > 0) {
+			if ((copiedTriangles.size() > 0) || (copiedVertices.size() > 0)) {
 				copiedGeosets.add(copy);
 			}
 		}

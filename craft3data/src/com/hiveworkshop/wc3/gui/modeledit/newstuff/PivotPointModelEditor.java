@@ -26,6 +26,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.AutoCenterBones
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.RenameBoneAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.RigAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.SetParentAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.DoNothingAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
@@ -127,6 +128,21 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		final RenameBoneAction renameBoneAction = new RenameBoneAction(node.getName(), name, node);
 		renameBoneAction.redo();
 		return renameBoneAction;
+	}
+
+	@Override
+	public UndoAction addSelectedBoneSuffix(final String name) {
+		final Set<Vertex> selection = selectionManager.getSelection();
+		final com.etheller.collections.List<RenameBoneAction> actions = new com.etheller.collections.ArrayList<>();
+		for (final IdObject bone : this.model.getEditableIdObjects()) {
+			if (selection.contains(bone.getPivotPoint())) {
+				final RenameBoneAction renameBoneAction = new RenameBoneAction(bone.getName(), bone.getName() + name,
+						bone);
+				renameBoneAction.redo();
+				actions.add(renameBoneAction);
+			}
+		}
+		return new CompoundAction("add selected bone suffix", actions);
 	}
 
 	@Override
@@ -486,7 +502,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		final double x = coordinateSystem.convertX(vertexX);
 		final double vertexY = geosetVertex.getCoord(dim2);
 		final double y = coordinateSystem.convertY(vertexY);
-		if (distance(x, y, minX, minY) <= vertexSize / 2.0 || distance(x, y, maxX, maxY) <= vertexSize / 2.0
+		if ((distance(x, y, minX, minY) <= (vertexSize / 2.0)) || (distance(x, y, maxX, maxY) <= (vertexSize / 2.0))
 				|| area.contains(vertexX, vertexY)) {
 			selectedItems.add(geosetVertex);
 		}
@@ -498,13 +514,13 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		final double y = coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
 		final double px = coordinateSystem.convertX(point.getX());
 		final double py = coordinateSystem.convertY(point.getY());
-		return Point2D.distance(px, py, x, y) <= vertexSize / 2.0;
+		return Point2D.distance(px, py, x, y) <= (vertexSize / 2.0);
 	}
 
 	public static double distance(final double vertexX, final double vertexY, final double x, final double y) {
 		final double dx = x - vertexX;
 		final double dy = y - vertexY;
-		return Math.sqrt(dx * dx + dy * dy);
+		return Math.sqrt((dx * dx) + (dy * dy));
 	}
 
 	@Override
@@ -841,7 +857,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 					@Override
 					public void collisionShape(final CollisionShape collisionShape) {
 						final ExtLog extents = collisionShape.getExtents();
-						if (extents != null && scaleX == scaleY && scaleY == scaleZ) {
+						if ((extents != null) && (scaleX == scaleY) && (scaleY == scaleZ)) {
 							extents.setBoundsRadius(extents.getBoundsRadius() * scaleX);
 						}
 					}

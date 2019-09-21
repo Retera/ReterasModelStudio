@@ -23,6 +23,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.MakeNotEdit
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.AutoCenterBonesAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.RenameBoneAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.SetParentAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.DoNothingAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectableComponent;
@@ -116,6 +117,18 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	}
 
 	@Override
+	public UndoAction addSelectedBoneSuffix(final String name) {
+		final Set<IdObject> selection = selectionManager.getSelection();
+		final com.etheller.collections.List<RenameBoneAction> actions = new com.etheller.collections.ArrayList<>();
+		for (final IdObject bone : selection) {
+			final RenameBoneAction renameBoneAction = new RenameBoneAction(bone.getName(), bone.getName() + name, bone);
+			renameBoneAction.redo();
+			actions.add(renameBoneAction);
+		}
+		return new CompoundAction("add selected bone suffix", actions);
+	}
+
+	@Override
 	public UndoAction addTeamColor() {
 		return new DoNothingAction("add team color");
 	}
@@ -199,8 +212,10 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	@Override
 	public UndoAction invertSelection() {
 		throw new WrongModeException("Not supported in T-Pose mode");
-		// final ArrayList<Vertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
-		// final Set<Vertex> invertedSelection = new HashSet<>(selectionManager.getSelection());
+		// final ArrayList<Vertex> oldSelection = new
+		// ArrayList<>(selectionManager.getSelection());
+		// final Set<Vertex> invertedSelection = new
+		// HashSet<>(selectionManager.getSelection());
 		// final IdObjectVisitor visitor = new IdObjectVisitor() {
 		// @Override
 		// public void ribbonEmitter(final RibbonEmitter particleEmitter) {
@@ -263,7 +278,8 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		// visitor.camera(object);
 		// }
 		// selectionManager.setSelection(invertedSelection);
-		// return (new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection"));
+		// return (new SetSelectionAction<>(invertedSelection, oldSelection,
+		// selectionManager, "invert selection"));
 	}
 
 	private void toggleSelection(final Set<Vertex> selection, final Vertex position) {
@@ -277,7 +293,8 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	@Override
 	public UndoAction selectAll() {
 		throw new WrongModeException("Not supported in T-Pose mode");
-		// final ArrayList<Vertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
+		// final ArrayList<Vertex> oldSelection = new
+		// ArrayList<>(selectionManager.getSelection());
 		// final Set<Vertex> allSelection = new HashSet<>();
 		// final IdObjectVisitor visitor = new IdObjectVisitor() {
 		// @Override
@@ -341,7 +358,8 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		// visitor.camera(object);
 		// }
 		// selectionManager.setSelection(allSelection);
-		// return (new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all"));
+		// return (new SetSelectionAction<>(allSelection, oldSelection,
+		// selectionManager, "select all"));
 	}
 
 	@Override
@@ -391,7 +409,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		final double x = coordinateSystem.convertX(vertexX);
 		final double vertexY = geosetVertex.getCoord(dim2);
 		final double y = coordinateSystem.convertY(vertexY);
-		if (distance(x, y, minX, minY) <= vertexSize / 2.0 || distance(x, y, maxX, maxY) <= vertexSize / 2.0
+		if ((distance(x, y, minX, minY) <= (vertexSize / 2.0)) || (distance(x, y, maxX, maxY) <= (vertexSize / 2.0))
 				|| area.contains(vertexX, vertexY)) {
 			selectedItems.add(node);
 		}
@@ -403,13 +421,13 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		final double y = coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
 		final double px = coordinateSystem.convertX(point.getX());
 		final double py = coordinateSystem.convertY(point.getY());
-		return Point2D.distance(px, py, x, y) <= vertexSize / 2.0;
+		return Point2D.distance(px, py, x, y) <= (vertexSize / 2.0);
 	}
 
 	public static double distance(final double vertexX, final double vertexY, final double x, final double y) {
 		final double dx = x - vertexX;
 		final double dy = y - vertexY;
-		return Math.sqrt(dx * dx + dy * dy);
+		return Math.sqrt((dx * dx) + (dy * dy));
 	}
 
 	@Override
@@ -680,7 +698,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 					@Override
 					public void collisionShape(final CollisionShape collisionShape) {
 						final ExtLog extents = collisionShape.getExtents();
-						if (extents != null && scaleX == scaleY && scaleY == scaleZ) {
+						if ((extents != null) && (scaleX == scaleY) && (scaleY == scaleZ)) {
 							extents.setBoundsRadius(extents.getBoundsRadius() * scaleX);
 						}
 					}

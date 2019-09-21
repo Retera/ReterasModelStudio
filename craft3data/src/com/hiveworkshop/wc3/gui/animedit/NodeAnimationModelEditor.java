@@ -55,10 +55,10 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
-import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
-import com.hiveworkshop.wc3.mdl.render3d.RenderNode;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
+import com.hiveworkshop.wc3.mdl.render3d.RenderNode;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
@@ -90,6 +90,11 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	public UndoAction setSelectedBoneName(final String name) {
+		throw new WrongModeException("Unable to change bone names in Animation Editor");
+	}
+
+	@Override
+	public UndoAction addSelectedBoneSuffix(final String name) {
 		throw new WrongModeException("Unable to change bone names in Animation Editor");
 	}
 
@@ -250,7 +255,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		final double x = coordinateSystem.convertX(vertexX);
 		final double vertexY = Vertex.getCoord(pivotHeap, dim2);
 		final double y = coordinateSystem.convertY(vertexY);
-		if (distance(x, y, minX, minY) <= vertexSize / 2.0 || distance(x, y, maxX, maxY) <= vertexSize / 2.0
+		if ((distance(x, y, minX, minY) <= (vertexSize / 2.0)) || (distance(x, y, maxX, maxY) <= (vertexSize / 2.0))
 				|| area.contains(vertexX, vertexY)) {
 			selectedItems.add(object);
 		}
@@ -267,13 +272,13 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		final double y = coordinateSystem.convertY(Vertex.getCoord(pivotHeap, coordinateSystem.getPortSecondXYZ()));
 		final double px = coordinateSystem.convertX(point.getX());
 		final double py = coordinateSystem.convertY(point.getY());
-		return Point2D.distance(px, py, x, y) <= vertexSize / 2.0;
+		return Point2D.distance(px, py, x, y) <= (vertexSize / 2.0);
 	}
 
 	public static double distance(final double vertexX, final double vertexY, final double x, final double y) {
 		final double dx = x - vertexX;
 		final double dy = y - vertexY;
-		return Math.sqrt(dx * dx + dy * dy);
+		return Math.sqrt((dx * dx) + (dy * dy));
 	}
 
 	@Override
@@ -625,9 +630,9 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 					nodeToLocalRotation.get(idObject));
 		}
 		for (final IdObject idObject : model.getModel().getIdObjects()) {
-			if (selectionManager.getSelection().contains(idObject.getParent()) && (idObject.getClass() == Bone.class
-					&& idObject.getParent().getClass() == Bone.class
-					|| idObject.getClass() == Helper.class && idObject.getParent().getClass() == Helper.class)) {
+			if (selectionManager.getSelection().contains(idObject.getParent()) && (((idObject.getClass() == Bone.class)
+					&& (idObject.getParent().getClass() == Bone.class))
+					|| ((idObject.getClass() == Helper.class) && (idObject.getParent().getClass() == Helper.class)))) {
 				idObject.updateRotationKeyframe(renderModel, centerX, centerY, centerZ, -radians, firstXYZ, secondXYZ,
 						nodeToLocalRotation.get(idObject));
 			}
@@ -858,9 +863,9 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 			final byte firstXYZ, final byte secondXYZ) {
 		final Set<IdObject> selection = new HashSet<>(selectionManager.getSelection());
 		for (final IdObject idObject : model.getModel().getIdObjects()) {
-			if (selectionManager.getSelection().contains(idObject.getParent()) && (idObject.getClass() == Bone.class
-					&& idObject.getParent().getClass() == Bone.class
-					|| idObject.getClass() == Helper.class && idObject.getParent().getClass() == Helper.class)) {
+			if (selectionManager.getSelection().contains(idObject.getParent()) && (((idObject.getClass() == Bone.class)
+					&& (idObject.getParent().getClass() == Bone.class))
+					|| ((idObject.getClass() == Helper.class) && (idObject.getParent().getClass() == Helper.class)))) {
 				selection.add(idObject);
 			}
 		}

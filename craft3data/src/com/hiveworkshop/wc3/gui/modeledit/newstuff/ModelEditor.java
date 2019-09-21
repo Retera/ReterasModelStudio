@@ -34,6 +34,8 @@ public interface ModelEditor extends ComponentVisibilityListener {
 
 	UndoAction setSelectedBoneName(String name);
 
+	UndoAction addSelectedBoneSuffix(String name);
+
 	UndoAction addTeamColor();
 
 	UndoAction splitGeoset();

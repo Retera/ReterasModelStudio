@@ -87,11 +87,13 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	Point selectStart;
 	Point actStart;
 	Timer clickTimer = new Timer(16, this);
+	Timer paintTimer;
 	boolean mouseInBounds = false;
 	JPopupMenu contextMenu;
 	JMenuItem reAssignMatrix;
 	JMenuItem setParent;
 	JMenuItem renameBone;
+	JMenuItem appendBoneBone;
 	JMenuItem cogBone;
 	JMenuItem manualMove;
 	JMenuItem manualRotate;
@@ -199,6 +201,9 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		renameBone = new JMenuItem("Rename Bone");
 		renameBone.addActionListener(this);
 		contextMenu.add(renameBone);
+		appendBoneBone = new JMenuItem("Append Bone Suffix");
+		appendBoneBone.addActionListener(this);
+		contextMenu.add(appendBoneBone);
 
 		viewportModelRenderer = new ViewportModelRenderer(programPreferences.getVertexSize());
 		animatedViewportModelRenderer = new AnimatedViewportModelRenderer(programPreferences.getVertexSize());
@@ -208,6 +213,16 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		facingVector = new Vertex(0, 0, 0);
 		final byte unusedXYZ = CoordinateSystem.Util.getUnusedXYZ(this);
 		facingVector.setCoord(unusedXYZ, unusedXYZ == 0 ? 1 : -1);
+		paintTimer = new Timer(16, new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				repaint();
+				if (isShowing()) {
+					paintTimer.restart();
+				}
+			}
+		});
+		paintTimer.start();
 	}
 
 	public void setupViewportBackground(final ProgramPreferences programPreferences) {
@@ -477,7 +492,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 				// dispMDL.updateAction(convertedStart, convertedEnd, m_d1, m_d2);
 				// actStart = actEnd;
 				// }
-				repaint();
+//				repaint();
 			} else if (e.getSource() == reAssignMatrix) {
 				final MatrixPopup matrixPopup = new MatrixPopup(modelView.getModel());
 				final String[] words = { "Accept", "Cancel" };
@@ -527,6 +542,11 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 				final String name = JOptionPane.showInputDialog(this, "Enter bone name:");
 				if (name != null) {
 					modelEditor.setSelectedBoneName(name);
+				}
+			} else if (e.getSource() == appendBoneBone) {
+				final String name = JOptionPane.showInputDialog(this, "Enter bone suffix:");
+				if (name != null) {
+					modelEditor.addSelectedBoneSuffix(name);
 				}
 			} else if (e.getSource() == cogBone) {
 				undoListener.pushAction(modelEditor.autoCenterSelectedBones());
@@ -700,7 +720,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		if (!mouseInBounds && (selectStart == null) && (actStart == null) && (lastClick == null)) {
 			clickTimer.stop();
 		}
-		repaint();
+//		repaint();
 		// MainFrame.panel.refreshUndo();
 		undoHandler.refreshUndo();
 		if (mouseInBounds && !getBounds().contains(e.getPoint()) && !activityListener.isEditing()) {

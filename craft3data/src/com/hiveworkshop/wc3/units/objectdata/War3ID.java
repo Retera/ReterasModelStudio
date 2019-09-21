@@ -16,7 +16,7 @@ public final class War3ID implements Comparable<War3ID> {
 
 	public static War3ID fromString(String idString) {
 		if (idString.length() == 3) {
-			System.err.println(
+			System.out.println(
 					"Loaded custom data for the ability CURSE whose MetaData field, 'Crs', is the only 3 letter War3ID in the game. This might cause unexpected errors, so watch your % chance to miss in custom curse abilities carefully.");
 			idString += '\0';
 		}
@@ -29,7 +29,7 @@ public final class War3ID implements Comparable<War3ID> {
 
 	public String asStringValue() {
 		String string = CharInt.toString(value);
-		if ((string.charAt(3) == '\0' || string.charAt(3) == ' ') && string.charAt(2) != '\0') {
+		if (((string.charAt(3) == '\0') || (string.charAt(3) == ' ')) && (string.charAt(2) != '\0')) {
 			string = string.substring(0, 3);
 		}
 		return string;
@@ -56,7 +56,7 @@ public final class War3ID implements Comparable<War3ID> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + value;
+		result = (prime * result) + value;
 		return result;
 	}
 

@@ -65,6 +65,11 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	}
 
 	@Override
+	public UndoAction addSelectedBoneSuffix(final String name) {
+		throw new UnsupportedOperationException("This feature is not available in Geoset Vertex mode");
+	}
+
+	@Override
 	public UndoAction addTeamColor() {
 		final TeamColorAddAction<GeosetVertex> teamColorAddAction = new TeamColorAddAction<>(
 				selectionManager.getSelectedFaces(), model.getModel(), structureChangeListener, selectionManager,
@@ -198,7 +203,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 		final double x = coordinateSystem.convertX(vertexX);
 		final double vertexY = geosetVertex.getCoord(dim2);
 		final double y = coordinateSystem.convertY(vertexY);
-		if (distance(x, y, minX, minY) <= vertexSize / 2.0 || distance(x, y, maxX, maxY) <= vertexSize / 2.0
+		if ((distance(x, y, minX, minY) <= (vertexSize / 2.0)) || (distance(x, y, maxX, maxY) <= (vertexSize / 2.0))
 				|| area.contains(vertexX, vertexY)) {
 			selectedItems.add(geosetVertex);
 		}
@@ -210,13 +215,13 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 		final double y = coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
 		final double px = coordinateSystem.convertX(point.getX());
 		final double py = coordinateSystem.convertY(point.getY());
-		return Point2D.distance(px, py, x, y) <= vertexSize / 2.0;
+		return Point2D.distance(px, py, x, y) <= (vertexSize / 2.0);
 	}
 
 	public static double distance(final double vertexX, final double vertexY, final double x, final double y) {
 		final double dx = x - vertexX;
 		final double dy = y - vertexY;
-		return Math.sqrt(dx * dx + dy * dy);
+		return Math.sqrt((dx * dx) + (dy * dy));
 	}
 
 	@Override
@@ -292,7 +297,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 			for (final GeosetVertex geosetVertex : copiedVertices) {
 				copy.add(geosetVertex);
 			}
-			if (copiedTriangles.size() > 0 || copiedVertices.size() > 0) {
+			if ((copiedTriangles.size() > 0) || (copiedVertices.size() > 0)) {
 				copiedGeosets.add(copy);
 			}
 		}
@@ -306,7 +311,8 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 		Geoset solidWhiteGeoset = null;
 		for (final Geoset geoset : geosets) {
 			final Layer firstLayer = geoset.getMaterial().firstLayer();
-			if (geoset.getMaterial() != null && firstLayer != null && firstLayer.getFilterMode() == FilterMode.NONE
+			if ((geoset.getMaterial() != null) && (firstLayer != null)
+					&& (firstLayer.getFilterMode() == FilterMode.NONE)
 					&& "Textures\\white.blp".equalsIgnoreCase(firstLayer.getTextureBitmap().getPath())) {
 				solidWhiteGeoset = geoset;
 			}

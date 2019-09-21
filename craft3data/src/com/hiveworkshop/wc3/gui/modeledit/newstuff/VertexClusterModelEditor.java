@@ -71,8 +71,8 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexCl
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((geoset == null) ? 0 : geoset.hashCode());
-			result = prime * result + vertexGroupId;
+			result = (prime * result) + ((geoset == null) ? 0 : geoset.hashCode());
+			result = (prime * result) + vertexGroupId;
 			return result;
 		}
 
@@ -110,6 +110,11 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexCl
 
 	@Override
 	public UndoAction setSelectedBoneName(final String name) {
+		throw new UnsupportedOperationException("This feature is not available in Vertex Group mode");
+	}
+
+	@Override
+	public UndoAction addSelectedBoneSuffix(final String name) {
 		throw new UnsupportedOperationException("This feature is not available in Vertex Group mode");
 	}
 
@@ -323,7 +328,7 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexCl
 			for (final GeosetVertex geosetVertex : copiedVertices) {
 				copy.add(geosetVertex);
 			}
-			if (copiedTriangles.size() > 0 || copiedVertices.size() > 0) {
+			if ((copiedTriangles.size() > 0) || (copiedVertices.size() > 0)) {
 				copiedGeosets.add(copy);
 			}
 		}
