@@ -939,7 +939,7 @@ public class ModelOptionPanel extends JPanel {
 		final ModelGroup destructibles = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_DEST"));
 		for (final String str : destModelData.keySet()) {
 			final NamedList<String> unitList = destModelData.get(str);
-			// Collections.sort(unitList);
+			Collections.sort(unitList);
 			String nameOutput = "";
 			for (final String unitName : unitList) {
 				if (nameOutput.length() > 0) {
