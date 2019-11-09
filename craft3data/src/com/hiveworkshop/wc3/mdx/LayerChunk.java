@@ -53,6 +53,7 @@ public class LayerChunk {
 		public float emissive = Float.NaN;
 		public MaterialAlpha materialAlpha;
 		public MaterialTextureId materialTextureId;
+		public MaterialEmissions materialEmissions;
 
 		public void load(final BlizzardDataInputStream in, final int version) throws IOException {
 			final int inclusiveSize = in.readInt();
@@ -65,15 +66,17 @@ public class LayerChunk {
 			if (version == 900) {
 				emissive = in.readFloat();
 			}
-			for (int i = 0; i < 2; i++) {
+			for (int i = 0; i < 3; i++) {
 				if (MdxUtils.checkOptionalId(in, MaterialAlpha.key)) {
 					materialAlpha = new MaterialAlpha();
 					materialAlpha.load(in);
 				} else if (MdxUtils.checkOptionalId(in, MaterialTextureId.key)) {
 					materialTextureId = new MaterialTextureId();
 					materialTextureId.load(in);
+				} else if (MdxUtils.checkOptionalId(in, MaterialEmissions.key)) {
+					materialEmissions = new MaterialEmissions();
+					materialEmissions.load(in);
 				}
-
 			}
 		}
 
@@ -93,6 +96,9 @@ public class LayerChunk {
 			}
 			if (materialTextureId != null) {
 				materialTextureId.save(out);
+			}
+			if (materialEmissions != null) {
+				materialEmissions.save(out);
 			}
 
 		}
@@ -114,6 +120,9 @@ public class LayerChunk {
 			}
 			if (materialTextureId != null) {
 				a += materialTextureId.getSize();
+			}
+			if (materialEmissions != null) {
+				a += materialEmissions.getSize();
 			}
 
 			return a;
