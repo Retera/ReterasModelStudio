@@ -46,6 +46,9 @@ public class MdxModel {
 	public EventObjectChunk eventObjectChunk;
 	public CameraChunk cameraChunk;
 	public CollisionShapeChunk collisionShapeChunk;
+	public CornChunk cornChunk;
+	public FaceEffectsChunk faceEffectsChunk;
+	public BindPoseChunk bindPoseChunk;
 
 	public static final String key = "MDLX";
 
@@ -1078,17 +1081,27 @@ public class MdxModel {
 				collisionShapeChunk.collisionShape[i] = collisionShapeChunk.new CollisionShape(nodes.get(i));
 			}
 		}
+		if (versionChunk.version == 900) {
+			bindPoseChunk = mdl.getBindPoseChunk();
+			faceEffectsChunk = mdl.getFaceEffectsChunk();
+		}
 	}
 
 	public void load(final BlizzardDataInputStream in) throws IOException {
 		MdxUtils.checkId(in, "MDLX");
-		for (int i = 0; i < 20; i++) {
+		int version = 800;
+		for (int i = 0; i < 23; i++) {
+			in.mark(8);
+			final String chunk = in.readCharsAsString(4);
+			System.err.println("Parsing: " + chunk);
+			in.reset();
 			if (MdxUtils.checkOptionalId(in, VersionChunk.key)) {
 				versionChunk = new VersionChunk();
 				versionChunk.load(in);
+				version = versionChunk.version;
 			} else if (MdxUtils.checkOptionalId(in, ModelChunk.key)) {
 				modelChunk = new ModelChunk();
-				modelChunk.load(in);
+				modelChunk.load(in, version);
 			} else if (MdxUtils.checkOptionalId(in, SequenceChunk.key)) {
 				sequenceChunk = new SequenceChunk();
 				sequenceChunk.load(in);
@@ -1097,7 +1110,7 @@ public class MdxModel {
 				globalSequenceChunk.load(in);
 			} else if (MdxUtils.checkOptionalId(in, MaterialChunk.key)) {
 				materialChunk = new MaterialChunk();
-				materialChunk.load(in);
+				materialChunk.load(in, version);
 			} else if (MdxUtils.checkOptionalId(in, TextureChunk.key)) {
 				textureChunk = new TextureChunk();
 				textureChunk.load(in);
@@ -1106,7 +1119,7 @@ public class MdxModel {
 				textureAnimationChunk.load(in);
 			} else if (MdxUtils.checkOptionalId(in, GeosetChunk.key)) {
 				geosetChunk = new GeosetChunk();
-				geosetChunk.load(in);
+				geosetChunk.load(in, version);
 			} else if (MdxUtils.checkOptionalId(in, GeosetAnimationChunk.key)) {
 				geosetAnimationChunk = new GeosetAnimationChunk();
 				geosetAnimationChunk.load(in);
@@ -1125,12 +1138,16 @@ public class MdxModel {
 			} else if (MdxUtils.checkOptionalId(in, PivotPointChunk.key)) {
 				pivotPointChunk = new PivotPointChunk();
 				pivotPointChunk.load(in);
+				System.err.println("nrOfPivotPoints: " + (pivotPointChunk.pivotPoints.length / 3));
 			} else if (MdxUtils.checkOptionalId(in, ParticleEmitterChunk.key)) {
 				particleEmitterChunk = new ParticleEmitterChunk();
 				particleEmitterChunk.load(in);
 			} else if (MdxUtils.checkOptionalId(in, ParticleEmitter2Chunk.key)) {
 				particleEmitter2Chunk = new ParticleEmitter2Chunk();
 				particleEmitter2Chunk.load(in);
+			} else if (MdxUtils.checkOptionalId(in, CornChunk.key)) {
+				cornChunk = new CornChunk();
+				cornChunk.load(in);
 			} else if (MdxUtils.checkOptionalId(in, RibbonEmitterChunk.key)) {
 				ribbonEmitterChunk = new RibbonEmitterChunk();
 				ribbonEmitterChunk.load(in);
@@ -1143,10 +1160,27 @@ public class MdxModel {
 			} else if (MdxUtils.checkOptionalId(in, CollisionShapeChunk.key)) {
 				collisionShapeChunk = new CollisionShapeChunk();
 				collisionShapeChunk.load(in);
+			} else if (MdxUtils.checkOptionalId(in, FaceEffectsChunk.key)) {
+				faceEffectsChunk = new FaceEffectsChunk();
+				faceEffectsChunk.load(in);
+			} else if (MdxUtils.checkOptionalId(in, BindPoseChunk.key)) {
+				bindPoseChunk = new BindPoseChunk();
+				bindPoseChunk.load(in);
 			} else {
 				final int available = in.available();
 				if (available > 0) {
-					System.err.println("Unknown MDX Chunk: " + MdxUtils.getOptionalId(in));
+					boolean alpha = true;
+					for (final byte b : chunk.getBytes()) {
+						if (!Character.isAlphabetic(b)) {
+							alpha = false;
+						}
+					}
+					if (alpha) {
+						final String skipChunk = in.readCharsAsString(4);
+						System.err.println("Unknown MDX Chunk: " + skipChunk);// MdxUtils.getOptionalId(in));
+						final int bytesToSkip = in.readInt();
+						in.skip(bytesToSkip);
+					}
 				}
 			}
 
@@ -1168,7 +1202,7 @@ public class MdxModel {
 			globalSequenceChunk.save(out);
 		}
 		if (materialChunk != null) {
-			materialChunk.save(out);
+			materialChunk.save(out, versionChunk.version);
 		}
 		if (textureChunk != null) {
 			textureChunk.save(out);
@@ -1177,7 +1211,7 @@ public class MdxModel {
 			textureAnimationChunk.save(out);
 		}
 		if (geosetChunk != null) {
-			geosetChunk.save(out);
+			geosetChunk.save(out, versionChunk.version);
 		}
 		if (geosetAnimationChunk != null) {
 			geosetAnimationChunk.save(out);
@@ -1209,11 +1243,24 @@ public class MdxModel {
 		if (eventObjectChunk != null) {
 			eventObjectChunk.save(out);
 		}
+		if (versionChunk.version == 900) {
+			if (cornChunk != null) {
+				cornChunk.save(out);
+			}
+		}
 		if (cameraChunk != null) {
 			cameraChunk.save(out);
 		}
 		if (collisionShapeChunk != null) {
 			collisionShapeChunk.save(out);
+		}
+		if (versionChunk.version == 900) {
+			if (faceEffectsChunk != null) {
+				faceEffectsChunk.save(out);
+			}
+			if (bindPoseChunk != null) {
+				bindPoseChunk.save(out);
+			}
 		}
 
 	}
@@ -1234,7 +1281,7 @@ public class MdxModel {
 			a += globalSequenceChunk.getSize();
 		}
 		if (materialChunk != null) {
-			a += materialChunk.getSize();
+			a += materialChunk.getSize(versionChunk.version);
 		}
 		if (textureChunk != null) {
 			a += textureChunk.getSize();
@@ -1243,7 +1290,7 @@ public class MdxModel {
 			a += textureAnimationChunk.getSize();
 		}
 		if (geosetChunk != null) {
-			a += geosetChunk.getSize();
+			a += geosetChunk.getSize(versionChunk.version);
 		}
 		if (geosetAnimationChunk != null) {
 			a += geosetAnimationChunk.getSize();
@@ -1275,11 +1322,24 @@ public class MdxModel {
 		if (eventObjectChunk != null) {
 			a += eventObjectChunk.getSize();
 		}
+		if (versionChunk.version == 900) {
+			if (cornChunk != null) {
+				a += cornChunk.getSize();
+			}
+		}
 		if (cameraChunk != null) {
 			a += cameraChunk.getSize();
 		}
 		if (collisionShapeChunk != null) {
 			a += collisionShapeChunk.getSize();
+		}
+		if (versionChunk.version == 900) {
+			if (faceEffectsChunk != null) {
+				a += faceEffectsChunk.getSize();
+			}
+			if (bindPoseChunk != null) {
+				a += bindPoseChunk.getSize();
+			}
 		}
 
 		return a;

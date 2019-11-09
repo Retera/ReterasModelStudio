@@ -140,6 +140,8 @@ public class ViewportTransferHandler extends TransferHandler {
 	protected Transferable createTransferable(final JComponent c) {
 		final Viewport viewport = (Viewport) c;
 		final MDL stringableModel = new MDL("CopyPastedModelData");
+		stringableModel.setFormatVersion(viewport.getModelView().getModel().getFormatVersion());
+
 		final CopiedModelData copySelection = viewport.getModelEditor().copySelection();
 		final Bone dummyBone = new Bone("CopiedModelDummy");
 		final List<Vertex> verticesInNewMesh = new ArrayList<>();
@@ -187,7 +189,8 @@ public class ViewportTransferHandler extends TransferHandler {
 	}
 
 	/**
-	 * When the export is complete, remove the old list entry if the action was a move.
+	 * When the export is complete, remove the old list entry if the action was a
+	 * move.
 	 */
 	@Override
 	protected void exportDone(final JComponent c, final Transferable data, final int action) {

@@ -68,6 +68,7 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
+import com.hiveworkshop.wc3.mdl.PopcornFxEmitter;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
@@ -217,8 +218,8 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				repaint();
-				if (isShowing()) {
-					paintTimer.restart();
+				if (!isShowing()) {
+					paintTimer.stop();
 				}
 			}
 		});
@@ -420,6 +421,13 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		// // JOptionPane.showMessageDialog(null,"Error retrieving mouse
 		// // coordinates. (Probably not a major issue. Due to sleep mode?)");
 		// }
+		final boolean showing = isShowing();
+		final boolean running = paintTimer.isRunning();
+		if (showing && !running) {
+			paintTimer.restart();
+		} else if (!showing && running) {
+			paintTimer.stop();
+		}
 	}
 
 	@Override
@@ -837,6 +845,11 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		@Override
 		public void particleEmitter(final ParticleEmitter particleEmitter) {
 			linkRenderer.particleEmitter(particleEmitter);
+		}
+
+		@Override
+		public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+			linkRenderer.popcornFxEmitter(popcornFxEmitter);
 		}
 
 		@Override

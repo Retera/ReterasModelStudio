@@ -437,7 +437,7 @@ public class DataTable implements ObjectData {
 					if (c == '\"') {
 						withinQuotedString = !withinQuotedString;
 					} else if (!withinQuotedString && (c == ',')) {
-						currentUnit.setField(fieldName, builder.toString(), fieldIndex++);
+						currentUnit.setField(fieldName, builder.toString().trim(), fieldIndex++);
 						builder.setLength(0); // empty buffer
 					} else {
 						builder.append(c);
@@ -447,7 +447,7 @@ public class DataTable implements ObjectData {
 					if (currentUnit == null) {
 						System.out.println("null for " + input);
 					}
-					currentUnit.setField(fieldName, builder.toString(), fieldIndex++);
+					currentUnit.setField(fieldName, builder.toString().trim(), fieldIndex++);
 				}
 			}
 		}

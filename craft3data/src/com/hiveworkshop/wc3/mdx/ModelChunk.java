@@ -15,7 +15,7 @@ public class ModelChunk {
 
 	public static final String key = "MODL";
 
-	public void load(final BlizzardDataInputStream in) throws IOException {
+	public void load(final BlizzardDataInputStream in, final int version) throws IOException {
 		MdxUtils.checkId(in, "MODL");
 		final int chunkSize = in.readInt();
 		name = in.readCharsAsString(336);
@@ -36,13 +36,13 @@ public class ModelChunk {
 		out.writeNByteString(name, 336);
 		out.writeInt(unknownNull);
 		out.writeFloat(boundsRadius);
-		if (minimumExtent.length % 3 != 0) {
+		if ((minimumExtent.length % 3) != 0) {
 			throw new IllegalArgumentException(
 					"The array minimumExtent needs either the length 3 or a multiple of this number. (got "
 							+ minimumExtent.length + ")");
 		}
 		MdxUtils.saveFloatArray(out, minimumExtent);
-		if (maximumExtent.length % 3 != 0) {
+		if ((maximumExtent.length % 3) != 0) {
 			throw new IllegalArgumentException(
 					"The array maximumExtent needs either the length 3 or a multiple of this number. (got "
 							+ maximumExtent.length + ")");

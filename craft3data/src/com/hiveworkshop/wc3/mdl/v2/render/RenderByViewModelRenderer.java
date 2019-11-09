@@ -12,6 +12,7 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
+import com.hiveworkshop.wc3.mdl.PopcornFxEmitter;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.renderer.ModelRenderer;
 import com.hiveworkshop.wc3.mdl.v2.MaterialView;
@@ -36,7 +37,7 @@ public final class RenderByViewModelRenderer implements ModelRenderer {
 	@Override
 	public GeosetVisitor beginGeoset(final int geosetId, final MaterialView material, final GeosetAnim geosetAnim) {
 		final Geoset geoset = modelView.getModel().getGeoset(geosetId);
-		if (modelView.getEditableGeosets().contains(geoset) || modelView.getHighlightedGeoset() == geoset) {
+		if (modelView.getEditableGeosets().contains(geoset) || (modelView.getHighlightedGeoset() == geoset)) {
 			return fullModelRenderer.beginGeoset(geosetId, material, geosetAnim);
 		}
 		return GeosetVisitor.NO_ACTION;
@@ -85,6 +86,13 @@ public final class RenderByViewModelRenderer implements ModelRenderer {
 	}
 
 	@Override
+	public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+		if (isVisibleNode(popcornFxEmitter)) {
+			fullModelRenderer.popcornFxEmitter(popcornFxEmitter);
+		}
+	}
+
+	@Override
 	public void ribbonEmitter(final RibbonEmitter particleEmitter) {
 		if (isVisibleNode(particleEmitter)) {
 			fullModelRenderer.ribbonEmitter(particleEmitter);
@@ -113,7 +121,7 @@ public final class RenderByViewModelRenderer implements ModelRenderer {
 	}
 
 	private boolean isVisibleNode(final IdObject object) {
-		return modelView.getEditableIdObjects().contains(object) || object == modelView.getHighlightedNode();
+		return modelView.getEditableIdObjects().contains(object) || (object == modelView.getHighlightedNode());
 	}
 
 }

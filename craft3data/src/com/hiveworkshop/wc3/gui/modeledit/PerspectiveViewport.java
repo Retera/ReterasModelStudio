@@ -62,7 +62,6 @@ import javax.swing.Timer;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
-import org.lwjgl.opengl.AWTGLCanvas;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
@@ -79,6 +78,7 @@ import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.ProgramPreferencesChangeListener;
 import com.hiveworkshop.wc3.gui.animedit.BasicTimeBoundProvider;
+import com.hiveworkshop.wc3.gui.lwjgl.BetterAWTGLCanvas;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Bone;
@@ -99,9 +99,9 @@ import com.hiveworkshop.wc3.mdl.render3d.RenderResourceAllocator;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.util.MathUtils;
 
-public class PerspectiveViewport extends AWTGLCanvas
+public class PerspectiveViewport extends BetterAWTGLCanvas
 		implements MouseListener, ActionListener, MouseWheelListener, RenderResourceAllocator {
-	public static final boolean LOG_EXCEPTIONS = false;
+	public static final boolean LOG_EXCEPTIONS = true;
 	ModelView modelView;
 	Vertex cameraPos = new Vertex(0, 0, 0);
 	Quaternion inverseCameraRotationQuat = new Quaternion();
@@ -185,8 +185,8 @@ public class PerspectiveViewport extends AWTGLCanvas
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				repaint();
-				if (isShowing()) {
-					paintTimer.restart();
+				if (!isShowing()) {
+					paintTimer.stop();
 				}
 			}
 		});
@@ -418,6 +418,7 @@ public class PerspectiveViewport extends AWTGLCanvas
 		// etc) if they are using Windows 10 differing UI scale per monitor. I don't
 		// think I have an API
 		// to query that information yet, though.
+
 	}
 
 	public void setPosition(final double a, final double b) {
@@ -492,7 +493,6 @@ public class PerspectiveViewport extends AWTGLCanvas
 
 	@Override
 	public void paintGL() {
-		// setSize(getParent().getSize());
 		if (wantReloadAll) {
 			wantReloadAll = false;
 			wantReload = false;// If we just reloaded all, no need to reload
@@ -696,8 +696,12 @@ public class PerspectiveViewport extends AWTGLCanvas
 			// glPopMatrix();
 			swapBuffers();
 			repaintRunnable.run();
-			if (isShowing()) {
+			final boolean showing = isShowing();
+			final boolean running = paintTimer.isRunning();
+			if (showing && !running) {
 				paintTimer.restart();
+			} else if (!showing && running) {
+				paintTimer.stop();
 			}
 		} catch (final Throwable e) {
 			if ((lastThrownErrorClass == null) || (lastThrownErrorClass != e.getClass())) {
@@ -1189,6 +1193,9 @@ public class PerspectiveViewport extends AWTGLCanvas
 	private static final int BYTES_PER_PIXEL = 4;
 
 	public static int loadTexture(final BufferedImage image, final Bitmap bitmap) {
+		if (image == null) {
+			return -1;
+		}
 
 		final int[] pixels = new int[image.getWidth() * image.getHeight()];
 		image.getRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());

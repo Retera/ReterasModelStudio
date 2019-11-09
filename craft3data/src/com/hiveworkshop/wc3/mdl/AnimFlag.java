@@ -14,6 +14,9 @@ import com.hiveworkshop.wc3.mdx.AttachmentVisibility;
 import com.hiveworkshop.wc3.mdx.CameraPositionTranslation;
 import com.hiveworkshop.wc3.mdx.CameraRotation;
 import com.hiveworkshop.wc3.mdx.CameraTargetTranslation;
+import com.hiveworkshop.wc3.mdx.CornAlpha;
+import com.hiveworkshop.wc3.mdx.CornEmissionRate;
+import com.hiveworkshop.wc3.mdx.CornVisibility;
 import com.hiveworkshop.wc3.mdx.GeosetAlpha;
 import com.hiveworkshop.wc3.mdx.GeosetColor;
 import com.hiveworkshop.wc3.mdx.GeosetRotation;
@@ -905,6 +908,60 @@ public class AnimFlag {
 				addEntry(track.time, box(track.width), box(track.inTan), box(track.outTan));
 			} else {
 				addEntry(track.time, box(track.width));
+			}
+		}
+	}
+
+	public AnimFlag(final CornEmissionRate trackData) {
+		title = "EmissionRate";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(trackData.interpolationType));
+		if (trackData.globalSequenceId >= 0) {
+			setGlobalSeqId(trackData.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = trackData.interpolationType > 1;
+		for (final CornEmissionRate.EmissionRateTrack track : trackData.emissionRateTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.emissionRate), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.emissionRate));
+			}
+		}
+	}
+
+	public AnimFlag(final CornAlpha trackData) {
+		title = "Alpha";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(trackData.interpolationType));
+		if (trackData.globalSequenceId >= 0) {
+			setGlobalSeqId(trackData.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = trackData.interpolationType > 1;
+		for (final CornAlpha.AlphaTrack track : trackData.alphaTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.alpha), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.alpha));
+			}
+		}
+	}
+
+	public AnimFlag(final CornVisibility trackData) {
+		title = "Visibility";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(trackData.interpolationType));
+		if (trackData.globalSequenceId >= 0) {
+			setGlobalSeqId(trackData.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = trackData.interpolationType > 1;
+		for (final CornVisibility.VisibilityTrack track : trackData.visibilityTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.visibility), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.visibility));
 			}
 		}
 	}

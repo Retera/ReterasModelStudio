@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import com.etheller.collections.HashSet;
@@ -51,6 +52,12 @@ public class MpqCodebase implements Codebase {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		if (filepath.toLowerCase(Locale.US).endsWith(".blp")) {
+			return getFile(filepath.substring(0, filepath.lastIndexOf(".")) + ".dds");
+		}
+		if (filepath.toLowerCase(Locale.US).endsWith(".tif")) {
+			return getFile(filepath.substring(0, filepath.lastIndexOf(".")) + ".dds");
+		}
 		return null;
 	}
 
@@ -68,6 +75,12 @@ public class MpqCodebase implements Codebase {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		if (filepath.toLowerCase(Locale.US).endsWith(".blp")) {
+			return getResourceAsStream(filepath.substring(0, filepath.lastIndexOf(".")) + ".dds");
+		}
+		if (filepath.toLowerCase(Locale.US).endsWith(".tif")) {
+			return getResourceAsStream(filepath.substring(0, filepath.lastIndexOf(".")) + ".dds");
+		}
 		return null;
 	}
 
@@ -81,6 +94,12 @@ public class MpqCodebase implements Codebase {
 			if (mpq.has(filepath)) {
 				return true;
 			}
+		}
+		if (filepath.toLowerCase(Locale.US).endsWith(".blp")) {
+			return has(filepath.substring(0, filepath.lastIndexOf(".")) + ".dds");
+		}
+		if (filepath.toLowerCase(Locale.US).endsWith(".tif")) {
+			return has(filepath.substring(0, filepath.lastIndexOf(".")) + ".dds");
 		}
 		return false;
 	}

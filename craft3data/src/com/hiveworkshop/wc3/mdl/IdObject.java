@@ -26,13 +26,9 @@ public abstract class IdObject extends AbstractAnimatedNode implements Named {
 	public static final int DEFAULT_CLICK_RADIUS = 8;
 
 	public static enum NodeFlags {
-		DONTINHERIT_TRANSLATION("DontInherit { Translation }"),
-		DONTINHERIT_SCALING("DontInherit { Scaling }"),
-		DONTINHERIT_ROTATION("DontInherit { Rotation }"),
-		BILLBOARDED("Billboarded"),
-		BILLBOARD_LOCK_X("BillboardLockX"),
-		BILLBOARD_LOCK_Y("BillboardLockY"),
-		BILLBOARD_LOCK_Z("BillboardLockZ"),
+		DONTINHERIT_TRANSLATION("DontInherit { Translation }"), DONTINHERIT_SCALING("DontInherit { Scaling }"),
+		DONTINHERIT_ROTATION("DontInherit { Rotation }"), BILLBOARDED("Billboarded"),
+		BILLBOARD_LOCK_X("BillboardLockX"), BILLBOARD_LOCK_Y("BillboardLockY"), BILLBOARD_LOCK_Z("BillboardLockZ"),
 		CAMERA_ANCHORED("CameraAnchored");
 
 		String mdlText;
@@ -56,6 +52,7 @@ public abstract class IdObject extends AbstractAnimatedNode implements Named {
 	protected int parentId = -1;
 	protected IdObject parent;
 	private final List<IdObject> childrenNodes = new ArrayList<>();
+	protected float[] bindPose;
 
 	public void setName(final String text) {
 		name = text;
@@ -122,7 +119,7 @@ public abstract class IdObject extends AbstractAnimatedNode implements Named {
 				return true;
 			} else {
 				boolean deepChild = false;
-				for (int i = 0; !deepChild && i < children.size(); i++) {
+				for (int i = 0; !deepChild && (i < children.size()); i++) {
 					deepChild = children.get(i).parentOf(other, childMap);
 				}
 				return deepChild;
@@ -166,8 +163,7 @@ public abstract class IdObject extends AbstractAnimatedNode implements Named {
 	}
 
 	/**
-	 * @param objectId
-	 *            New object ID value
+	 * @param objectId New object ID value
 	 * @deprecated Note that all object IDs are deleted and regenerated at save
 	 */
 	@Deprecated
@@ -185,9 +181,9 @@ public abstract class IdObject extends AbstractAnimatedNode implements Named {
 	}
 
 	/**
-	 * @param parentId
-	 *            new Parent ID
-	 * @deprecated IF UNSURE, YOU SHOULD USE setParent(), note that all object IDs are deleted and regenerated at save
+	 * @param parentId new Parent ID
+	 * @deprecated IF UNSURE, YOU SHOULD USE setParent(), note that all object IDs
+	 *             are deleted and regenerated at save
 	 */
 	@Deprecated
 	public void setParentId(final int parentId) {
@@ -261,6 +257,14 @@ public abstract class IdObject extends AbstractAnimatedNode implements Named {
 	@Override
 	public List<IdObject> getChildrenNodes() {
 		return childrenNodes;
+	}
+
+	public float[] getBindPose() {
+		return bindPose;
+	}
+
+	public void setBindPose(final float[] bindPose) {
+		this.bindPose = bindPose;
 	}
 
 	private static final Vector4f translationHeap = new Vector4f();

@@ -26,6 +26,7 @@ import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
+import com.hiveworkshop.wc3.mdl.PopcornFxEmitter;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
@@ -125,6 +126,12 @@ public class ViewportModelRenderer implements ModelRenderer {
 	public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
 		resetIdObjectRendererWithNode(particleEmitter);
 		idObjectRenderer.particleEmitter2(particleEmitter);
+	}
+
+	@Override
+	public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+		resetIdObjectRendererWithNode(popcornFxEmitter);
+		idObjectRenderer.popcornFxEmitter(popcornFxEmitter);
 	}
 
 	@Override
@@ -252,8 +259,8 @@ public class ViewportModelRenderer implements ModelRenderer {
 				graphics.setColor(programPreferences.getNormalsColor());
 				final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
 				final Point endPoint = new Point(
-						(int) coordinateSystem.convertX(firstCoord + firstNormalCoord * 12 / zoom),
-						(int) coordinateSystem.convertY(secondCoord + secondNormalCoord * 12 / zoom));
+						(int) coordinateSystem.convertX(firstCoord + ((firstNormalCoord * 12) / zoom)),
+						(int) coordinateSystem.convertY(secondCoord + ((secondNormalCoord * 12) / zoom)));
 				graphics.drawLine(point.x, point.y, endPoint.x, endPoint.y);
 				graphics.setColor(triangleColor);
 			}

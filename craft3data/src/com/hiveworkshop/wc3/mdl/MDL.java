@@ -26,10 +26,12 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.ModelVisitor;
 import com.hiveworkshop.wc3.mdl.v2.visitor.TriangleVisitor;
 import com.hiveworkshop.wc3.mdl.v2.visitor.VertexVisitor;
 import com.hiveworkshop.wc3.mdx.AttachmentChunk;
+import com.hiveworkshop.wc3.mdx.BindPoseChunk;
 import com.hiveworkshop.wc3.mdx.BoneChunk;
 import com.hiveworkshop.wc3.mdx.CameraChunk;
 import com.hiveworkshop.wc3.mdx.CollisionShapeChunk;
 import com.hiveworkshop.wc3.mdx.EventObjectChunk;
+import com.hiveworkshop.wc3.mdx.FaceEffectsChunk;
 import com.hiveworkshop.wc3.mdx.GeosetAnimationChunk;
 import com.hiveworkshop.wc3.mdx.GeosetChunk;
 import com.hiveworkshop.wc3.mdx.HelperChunk;
@@ -85,6 +87,9 @@ public class MDL implements Named {
 	private int c;
 	private boolean loading;
 	private boolean temporary;
+
+	private FaceEffectsChunk faceEffectsChunk;
+	private BindPoseChunk bindPoseChunk;
 
 	public static boolean DISABLE_BONE_GEO_ID_VALIDATOR = false;
 
@@ -397,6 +402,11 @@ public class MDL implements Named {
 						mdx.pivotPointChunk.pivotPoints[(objId * 3) + 1],
 						mdx.pivotPointChunk.pivotPoints[(objId * 3) + 2]));
 			}
+		}
+
+		if (formatVersion == 900) {
+			faceEffectsChunk = mdx.faceEffectsChunk;
+			bindPoseChunk = mdx.bindPoseChunk;
 		}
 
 		doPostRead(); // fixes all the things
@@ -941,7 +951,7 @@ public class MDL implements Named {
 			}
 			line = MDLReader.nextLine(mdl);
 			mdlr.formatVersion = MDLReader.readInt(line);
-			if (mdlr.formatVersion != 800) {
+			if ((mdlr.formatVersion != 800) && (mdlr.formatVersion != 900)) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "The format version was confusing!");
 			}
 			line = MDLReader.nextLine(mdl);// this is "}" for format version
@@ -1061,6 +1071,36 @@ public class MDL implements Named {
 						mdlr.addPivotPoint(Vertex.parseText(line));
 					}
 					MDLReader.mark(mdl);
+				} else if (line.contains("FaceEffects ")) {
+					mdlr.faceEffectsChunk = new FaceEffectsChunk();
+					while (!(line = MDLReader.nextLine(mdl)).startsWith("}")) {
+						final String trimmedLine = line.trim();
+						if (trimmedLine.startsWith("Target")) {
+							mdlr.faceEffectsChunk.faceEffectTarget = MDLReader.readName(line);
+						} else if (trimmedLine.startsWith("Path")) {
+							mdlr.faceEffectsChunk.faceEffect = MDLReader.readName(line);
+						}
+					}
+					MDLReader.mark(mdl);
+				} else if (line.contains("BindPose ")) {
+					mdlr.bindPoseChunk = new BindPoseChunk();
+					final List<float[]> bindPoseElements = new ArrayList<>();
+					while (!(line = MDLReader.nextLine(mdl)).startsWith("}")) {
+						final String trimmedLine = line.trim();
+						if (trimmedLine.startsWith("Matrix")) {
+							final float[] matrix = new float[12];
+							for (int i = 0; i < 3; i++) {
+								parse4FloatBPos(MDLReader.nextLine(mdl), matrix, i);
+							}
+							MDLReader.nextLine(mdl);
+							bindPoseElements.add(matrix);
+						}
+					}
+					mdlr.bindPoseChunk.bindPose = new float[bindPoseElements.size()][];
+					for (int i = 0; i < bindPoseElements.size(); i++) {
+						mdlr.bindPoseChunk.bindPose[i] = bindPoseElements.get(i);
+					}
+					MDLReader.mark(mdl);
 				}
 				line = MDLReader.nextLine(mdl);
 			}
@@ -1098,6 +1138,30 @@ public class MDL implements Named {
 			// JOptionPane.showMessageDialog(null,newJTextPane(e));
 		}
 		return null;
+	}
+
+	public static void parse4FloatBPos(final String input, final float[] output, final int offset) {
+		final String[] entries = input.split(",");
+		try {
+			output[offset] = Float.parseFloat(entries[0].split("\\{")[1].trim());
+		} catch (final NumberFormatException e) {
+			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
+					"Error {" + input + "}: BindPose Matrix could not be interpreted.");
+		}
+		for (int i = 1; i < 3; i++) {
+			try {
+				output[offset + (i * 3)] = Float.parseFloat(entries[i].trim());
+			} catch (final NumberFormatException e) {
+				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
+						"Error {" + input + "}: BindPose Matrix could not be interpreted.");
+			}
+		}
+		try {
+			output[offset + (3 * 3)] = Float.parseFloat(entries[3].split("}")[0].trim());
+		} catch (final NumberFormatException e) {
+			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
+					"Error {" + input + "}: BindPose Matrix could not be interpreted.");
+		}
 	}
 
 	public void doPostRead() {
@@ -1378,6 +1442,46 @@ public class MDL implements Named {
 			}
 		}
 
+		if (faceEffectsChunk != null) {
+			writer.println("FaceEffects {");
+			writer.println("\tTarget \"" + faceEffectsChunk.faceEffectTarget + "\",");
+			writer.println("\tPath \"" + faceEffectsChunk.faceEffect + "\",");
+			writer.println("}");
+		}
+
+		if (bindPoseChunk != null) {
+			writer.println("BindPose " + bindPoseChunk.bindPose.length + " {");
+			final StringBuilder matrixStringBuilder = new StringBuilder();
+			for (int i = 0; i < bindPoseChunk.bindPose.length; i++) {
+				Named matrixPredictedParent = null;
+				if (i < idObjects.size()) {
+					matrixPredictedParent = idObjects.get(i);
+				} else if (i < (idObjects.size() + cameras.size())) {
+					matrixPredictedParent = cameras.get(i - idObjects.size());
+				}
+				if (matrixPredictedParent != null) {
+					writer.println("\tMatrix { // for \"" + matrixPredictedParent.getName() + "\"");
+				} else {
+					writer.println("\tMatrix {");
+				}
+				final float[] matrix = bindPoseChunk.bindPose[i];
+				for (int j = 0; j < 3; j++) {
+					matrixStringBuilder.setLength(0);
+					matrixStringBuilder.append("{ ");
+					for (int k = 0; k < 4; k++) {
+						if (k > 0) {
+							matrixStringBuilder.append(", ");
+						}
+						matrixStringBuilder.append(MDLReader.doubleToString(matrix[(k * 3) + j]));
+					}
+					matrixStringBuilder.append(" },");
+					writer.println("\t\t" + matrixStringBuilder.toString());
+				}
+				writer.println("\t}");
+			}
+			writer.println("}");
+		}
+
 		try {
 			writer.close();
 		} catch (final Exception e) {
@@ -1585,6 +1689,9 @@ public class MDL implements Named {
 				pivots.add(new Vertex(0, 0, 0));
 			}
 			obj.setPivotPoint(pivots.get(i));
+			if (bindPoseChunk != null) {
+				obj.bindPose = bindPoseChunk.bindPose[i];
+			}
 		}
 		for (final Bone b : bones) {
 			if ((b.geosetId != -1) && (b.geosetId < geosets.size())) {
@@ -1594,6 +1701,10 @@ public class MDL implements Named {
 				b.geosetAnim = geosetAnims.get(b.geosetAnimId);
 			}
 		}
+		for (int i = 0; i < cameras.size(); i++) {
+			final Camera camera = cameras.get(i);
+			camera.setBindPose(bindPoseChunk.bindPose[i + idObjects.size()]);
+		}
 	}
 
 	public void updateObjectIds() {
@@ -1601,6 +1712,7 @@ public class MDL implements Named {
 
 		// -- Injected in save prep --
 		// Delete empty rotation/translation/scaling
+		bindPoseChunk = null;
 		for (final IdObject obj : idObjects) {
 			final List<AnimFlag> animFlags = obj.getAnimFlags();
 			final List<AnimFlag> bad = new ArrayList<>();
@@ -1624,10 +1736,27 @@ public class MDL implements Named {
 			final IdObject obj = idObjects.get(i);
 			obj.objectId = idObjects.indexOf(obj);
 			obj.parentId = idObjects.indexOf(obj.getParent());
+			if (obj.getBindPose() != null) {
+				if (bindPoseChunk == null) {
+					bindPoseChunk = new BindPoseChunk();
+					bindPoseChunk.bindPose = new float[idObjects.size() + cameras.size()][];
+				}
+				bindPoseChunk.bindPose[i] = obj.getBindPose();
+			}
 		}
 		for (final Bone b : bones) {
 			b.geosetId = geosets.indexOf(b.geoset);
 			b.geosetAnimId = geosetAnims.indexOf(b.geosetAnim);
+		}
+		for (int i = 0; i < cameras.size(); i++) {
+			final Camera obj = cameras.get(i);
+			if (obj.getBindPose() != null) {
+				if (bindPoseChunk == null) {
+					bindPoseChunk = new BindPoseChunk();
+					bindPoseChunk.bindPose = new float[idObjects.size() + cameras.size()][];
+				}
+				bindPoseChunk.bindPose[i + idObjects.size()] = obj.getBindPose();
+			}
 		}
 	}
 
@@ -2711,6 +2840,14 @@ public class MDL implements Named {
 				emitter.setTexture(replacement);
 			}
 		}
+	}
+
+	public BindPoseChunk getBindPoseChunk() {
+		return bindPoseChunk;
+	}
+
+	public FaceEffectsChunk getFaceEffectsChunk() {
+		return faceEffectsChunk;
 	}
 
 }

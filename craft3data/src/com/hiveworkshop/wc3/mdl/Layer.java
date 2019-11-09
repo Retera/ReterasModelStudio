@@ -65,6 +65,7 @@ public class Layer implements Named, VisibilitySource, LayerView {
 	private int CoordId = 0;
 	Bitmap texture;
 	TextureAnim textureAnim;
+	private double emissive = Double.NaN;
 	private double staticAlpha = -1;// Amount of static alpha (opacity)
 	private ArrayList<String> flags = new ArrayList<>();// My way of
 	// dealing with
@@ -96,9 +97,11 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		result = (prime * result) + CoordId;
 		result = (prime * result) + TVertexAnimId;
 		result = (prime * result) + ((anims == null) ? 0 : anims.hashCode());
+		long temp;
+		temp = Double.doubleToLongBits(emissive);
+		result = (prime * result) + (int) (temp ^ (temp >>> 32));
 		result = (prime * result) + ((filterMode == null) ? 0 : filterMode.hashCode());
 		result = (prime * result) + ((flags == null) ? 0 : flags.hashCode());
-		long temp;
 		temp = Double.doubleToLongBits(staticAlpha);
 		result = (prime * result) + (int) (temp ^ (temp >>> 32));
 		result = (prime * result) + ((texture == null) ? 0 : texture.hashCode());
@@ -131,6 +134,9 @@ public class Layer implements Named, VisibilitySource, LayerView {
 				return false;
 			}
 		} else if (!anims.equals(other.anims)) {
+			return false;
+		}
+		if (Double.doubleToLongBits(emissive) != Double.doubleToLongBits(other.emissive)) {
 			return false;
 		}
 		if (filterMode == null) {
@@ -263,6 +269,9 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		}
 		if (MDL.hasFlag(shadingFlags, 0x80)) {
 			add("NoDepthSet");
+		}
+		if (!Float.isNaN(lay.emissive)) {
+			emissive = lay.emissive;
 		}
 		setTVertexAnimId(lay.textureAnimationId);
 		setCoordId(lay.unknownNull_CoordID); // this isn't an unknown field!
@@ -438,6 +447,8 @@ public class Layer implements Named, VisibilitySource, LayerView {
 					lay.texture = mdlr.getTexture(lay.textureId);
 				} else if (line.contains("CoordId")) {
 					lay.CoordId = MDLReader.readInt(line);
+				} else if (line.contains("Emissive")) {
+					lay.emissive = MDLReader.readDouble(line);
 				} else if (line.contains("TVertexAnimId")) {
 					lay.TVertexAnimId = MDLReader.readInt(line);
 				} else if (line.contains("static Alpha")) {
@@ -501,6 +512,9 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		}
 		if (useCoords) {
 			writer.println(tabs + "\tCoordId " + CoordId + ",");
+		}
+		if (!Double.isNaN(emissive)) {
+			writer.println(tabs + "\tEmissive " + MDLReader.doubleToString(emissive) + ",");
 		}
 		boolean foundAlpha = false;
 		for (int i = 0; i < anims.size(); i++) {
@@ -692,6 +706,14 @@ public class Layer implements Named, VisibilitySource, LayerView {
 	@Override
 	public boolean isNoDepthSet() {
 		return flags.contains("NoDepthSet");
+	}
+
+	public double getEmissive() {
+		return emissive;
+	}
+
+	public void setEmissive(final double emissive) {
+		this.emissive = emissive;
 	}
 
 	@Override
