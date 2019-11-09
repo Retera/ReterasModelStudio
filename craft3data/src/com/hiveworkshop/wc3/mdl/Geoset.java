@@ -266,8 +266,8 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 	public Matrix getMatrix(final int vertId) {
-		if (vertId < 0) {
-			return matrix.get(256 + vertId);
+		if ((vertId < 0) && (vertId >= -128)) {
+			return getMatrix(256 + vertId);
 		}
 		if (vertId >= matrix.size()) {
 			return null;
@@ -592,10 +592,14 @@ public class Geoset implements Named, VisibilitySource {
 			final GeosetVertex gv = vertex.get(i);
 			gv.clearBoneAttachments();
 			final Matrix mx = getMatrix(gv.getVertexGroup());
-			mx.updateIds(mdlr);
-			final int szmx = mx.size();
-			for (int m = 0; m < szmx; m++) {
-				gv.addBoneAttachment((Bone) mdlr.getIdObject(mx.getBoneId(m)));
+			if (((gv.getVertexGroup() == -1) || (mx == null)) && (mdlr.getFormatVersion() == 900)) {
+
+			} else {
+				mx.updateIds(mdlr);
+				final int szmx = mx.size();
+				for (int m = 0; m < szmx; m++) {
+					gv.addBoneAttachment((Bone) mdlr.getIdObject(mx.getBoneId(m)));
+				}
 			}
 		}
 	}
