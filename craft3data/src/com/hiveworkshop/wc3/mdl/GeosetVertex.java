@@ -22,6 +22,10 @@ public class GeosetVertex extends Vertex {
 	List<TVertex> tverts = new ArrayList<>();
 	List<Bone> bones = new ArrayList<>();
 	List<Triangle> triangles = new ArrayList<>();
+	private byte[] skinBoneIndexes;
+	private Bone[] skinBones;
+	private short[] skinBoneWeights;
+	private float[] tangent;
 
 	Geoset geoset;
 
@@ -32,6 +36,13 @@ public class GeosetVertex extends Vertex {
 	public GeosetVertex(final double x, final double y, final double z, final Normal n) {
 		super(x, y, z);
 		normal = n;
+	}
+
+	public void initV900() {
+		skinBoneIndexes = new byte[4];
+		skinBones = new Bone[4];
+		skinBoneWeights = new short[4];
+		tangent = new float[4];
 	}
 
 	public GeosetVertex(final GeosetVertex old) {
@@ -45,6 +56,18 @@ public class GeosetVertex extends Vertex {
 		// odd, but when writing
 		this.geoset = old.geoset;
 		// TODO copy triangles???????
+		if (old.skinBoneIndexes != null) {
+			this.skinBoneIndexes = old.skinBoneIndexes.clone();
+		}
+		if (old.skinBones != null) {
+			this.skinBones = old.skinBones.clone();
+		}
+		if (old.skinBoneWeights != null) {
+			this.skinBoneWeights = old.skinBoneWeights.clone();
+		}
+		if (old.tangent != null) {
+			this.tangent = old.tangent.clone();
+		}
 	}
 
 	public void addTVertex(final TVertex v) {
@@ -162,6 +185,35 @@ public class GeosetVertex extends Vertex {
 
 	public Geoset getGeoset() {
 		return geoset;
+	}
+
+	/**
+	 * @return
+	 * @deprecated for use only with saving functionalities inside the system
+	 */
+	@Deprecated
+	public byte[] getSkinBoneIndexes() {
+		return skinBoneIndexes;
+	}
+
+	public Bone[] getSkinBones() {
+		return skinBones;
+	}
+
+	public void setSkinBones(final Bone[] skinBones) {
+		this.skinBones = skinBones;
+	}
+
+	public short[] getSkinBoneWeights() {
+		return skinBoneWeights;
+	}
+
+	public void setSkinBoneWeights(final short[] skinBoneWeights) {
+		this.skinBoneWeights = skinBoneWeights;
+	}
+
+	public float[] getTangent() {
+		return tangent;
 	}
 
 	public void setGeoset(final Geoset geoset) {

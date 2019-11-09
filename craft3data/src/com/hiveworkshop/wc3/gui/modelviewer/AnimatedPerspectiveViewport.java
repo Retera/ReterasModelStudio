@@ -101,7 +101,7 @@ import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements MouseListener, ActionListener,
 		MouseWheelListener, AnimatedRenderEnvironment, RenderResourceAllocator {
-	public static final boolean LOG_EXCEPTIONS = false;
+	public static final boolean LOG_EXCEPTIONS = true;
 	ModelView modelView;
 	private RenderModel renderModel;
 	Vertex cameraPos = new Vertex(0, 0, 0);
@@ -180,8 +180,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				repaint();
-				if (isShowing()) {
-					paintTimer.restart();
+				if (!isShowing()) {
+					paintTimer.stop();
 				}
 			}
 		});
@@ -541,8 +541,9 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 
 	@Override
 	public void paintGL() {
-		// setSize(getParent().getSize());
+		setSize(getParent().getSize());
 		if ((System.currentTimeMillis() - lastExceptionTimeMillis) < 5000) {
+			System.err.println("AnimatedPerspectiveViewport omitting frames due to avoid Exception log spam");
 			return;
 		}
 		if (wantReloadAll) {
@@ -745,8 +746,12 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 
 			// glPopMatrix();
 			swapBuffers();
-			if (isShowing()) {
+			final boolean showing = isShowing();
+			final boolean running = paintTimer.isRunning();
+			if (showing && !running) {
 				paintTimer.restart();
+			} else if (!showing && running) {
+				paintTimer.stop();
 			}
 		} catch (final Throwable e) {
 			e.printStackTrace();
@@ -1292,6 +1297,9 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	private float yRatio;
 
 	public static int loadTexture(final BufferedImage image, final Bitmap bitmap, final boolean alpha) {
+		if (image == null) {
+			return -1;
+		}
 
 		final int[] pixels = new int[image.getWidth() * image.getHeight()];
 		image.getRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());

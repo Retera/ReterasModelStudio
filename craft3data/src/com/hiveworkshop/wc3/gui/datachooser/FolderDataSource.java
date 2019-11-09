@@ -23,7 +23,7 @@ public class FolderDataSource implements DataSource {
 			Files.walk(folderPath).filter(Files::isRegularFile).forEach(new Consumer<Path>() {
 				@Override
 				public void accept(final Path t) {
-					listfile.add(t.toString());
+					listfile.add(folderPath.relativize(t).toString());
 				}
 			});
 		} catch (final IOException e) {

@@ -13,8 +13,10 @@ import com.hiveworkshop.wc3.mdl.IdObject.NodeFlags;
 import com.hiveworkshop.wc3.mdx.CameraChunk;
 
 /**
- * Camera class, these are the things most people would think of as a particle emitter, I think. Blizzard favored use of
- * these over ParticleEmitters and I do too simply because I so often recycle data and there are more of these to use.
+ * Camera class, these are the things most people would think of as a particle
+ * emitter, I think. Blizzard favored use of these over ParticleEmitters and I
+ * do too simply because I so often recycle data and there are more of these to
+ * use.
  *
  * Eric Theller 3/10/2012 3:32 PM
  */
@@ -33,6 +35,7 @@ public class Camera implements Named {
 	ArrayList<AnimFlag> targetAnimFlags = new ArrayList<>();
 	private final SourceNode sourceNode = new SourceNode(this);
 	private final TargetNode targetNode = new TargetNode(this);
+	protected float[] bindPose;
 
 	public SourceNode getSourceNode() {
 		return sourceNode;
@@ -394,5 +397,13 @@ public class Camera implements Named {
 		public Vertex getRenderScale(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 			return AnimFlag.SCALE_IDENTITY;
 		}
+	}
+
+	public void setBindPose(final float[] bindPose) {
+		this.bindPose = bindPose;
+	}
+
+	public float[] getBindPose() {
+		return bindPose;
 	}
 }

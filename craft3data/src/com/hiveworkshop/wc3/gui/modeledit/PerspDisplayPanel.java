@@ -140,8 +140,8 @@ public class PerspDisplayPanel extends JPanel implements ActionListener {
 		//
 		setLayout(new BorderLayout());
 		add(vp);
-		// add(Box.createHorizontalStrut(200));
-		// add(Box.createVerticalStrut(200));
+//		add(Box.createHorizontalStrut(200));
+//		add(Box.createVerticalStrut(200));
 		// setLayout( new BoxLayout(this,BoxLayout.LINE_AXIS));
 		// setLayout(new GridLayout(1,1));
 		this.view = new View(title, null, this);
@@ -225,7 +225,7 @@ public class PerspDisplayPanel extends JPanel implements ActionListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		add(vp);
+		add(vp, BorderLayout.CENTER);
 	}
 
 	public void setTitle(final String what) {

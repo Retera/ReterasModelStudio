@@ -47,6 +47,7 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
+import com.hiveworkshop.wc3.mdl.PopcornFxEmitter;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
@@ -179,6 +180,11 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 				}
 
 				@Override
+				public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+
+				}
+
+				@Override
 				public void light(final Light light) {
 
 				}
@@ -247,6 +253,10 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			@Override
 			public void particleEmitter(final ParticleEmitter particleEmitter) {
 
+			}
+
+			@Override
+			public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
 			}
 
 			@Override
@@ -330,6 +340,11 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			}
 
 			@Override
+			public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+				toggleSelection(invertedSelection, popcornFxEmitter.getPivotPoint());
+			}
+
+			@Override
 			public void light(final Light light) {
 				toggleSelection(invertedSelection, light.getPivotPoint());
 			}
@@ -404,6 +419,11 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			@Override
 			public void particleEmitter(final ParticleEmitter particleEmitter) {
 				allSelection.add(particleEmitter.getPivotPoint());
+			}
+
+			@Override
+			public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+				allSelection.add(popcornFxEmitter.getPivotPoint());
 			}
 
 			@Override
@@ -556,6 +576,11 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 						}
 
 						@Override
+						public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+
+						}
+
+						@Override
 						public void light(final Light light) {
 
 						}
@@ -645,6 +670,11 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		@Override
 		public void particleEmitter(final ParticleEmitter particleEmitter) {
 			handleDefaultNode(point, axes, particleEmitter);
+		}
+
+		@Override
+		public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+			handleDefaultNode(point, axes, popcornFxEmitter);
 		}
 
 		@Override
@@ -740,6 +770,13 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		}
 
 		@Override
+		public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+			hitTest(selectedItems, area, popcornFxEmitter.getPivotPoint(), coordinateSystem,
+					popcornFxEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem)
+							* 2);
+		}
+
+		@Override
 		public void light(final Light light) {
 			hitTest(selectedItems, area, light.getPivotPoint(), coordinateSystem,
 					light.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2);
@@ -827,6 +864,10 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 
 					@Override
 					public void particleEmitter(final ParticleEmitter particleEmitter) {
+					}
+
+					@Override
+					public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
 					}
 
 					@Override

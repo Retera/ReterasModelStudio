@@ -20,6 +20,7 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 
+import com.hiveworkshop.wc3.gui.dds.DDSFile;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 
 public class BLPHandler {
@@ -57,7 +58,8 @@ public class BLPHandler {
 			if (newImage3 != null) {
 				return newImage3;
 			}
-			throw new RuntimeException("Failed to load game texture: " + filepath + " (in " + workingDirectory + ")");
+			return null;
+//			throw new RuntimeException("Failed to load game texture: " + filepath + " (in " + workingDirectory + ")");
 		} catch (final Exception exc2) {
 			throw new RuntimeException("Failed to load game texture: " + filepath + " (in " + workingDirectory + ")",
 					exc2);
@@ -119,7 +121,7 @@ public class BLPHandler {
 		if (cacheToUse.containsKey(filepath)) {
 			return cacheToUse.get(filepath);
 		}
-		final InputStream blpFile = MpqCodebase.get().getResourceAsStream(filepath);
+		InputStream blpFile = MpqCodebase.get().getResourceAsStream(filepath);
 		if (blpFile == null) {
 			return null;
 		}
@@ -136,6 +138,24 @@ public class BLPHandler {
 //					final List<? extends BufferedImage> thumbnails = next.getThumbnails();
 //					return thumbnails.get(0);
 //				}
+				blpFile = MpqCodebase.get().getResourceAsStream(filepath);
+				if (DDSFile.isValidDDSImage(blpFile)) {
+					final DDSFile image = new DDSFile(filepath);
+					if ((image.getTextureType() == DDSFile.TextureType.CUBEMAP)
+							|| (image.getTextureType() == DDSFile.TextureType.VOLUME)) {
+						System.err.println("Error from DDS: "
+								+ "<html>Error: This programm doesn't support cubemaps or volume textures." + "<br>"
+								+ image.getFile().getName() + " can not be loaded.</html>");
+						return null;
+					}
+					try {
+						image.loadImageData();
+					} catch (final ArrayIndexOutOfBoundsException exc2) {
+						// currently this is the normal maps case, bad dirty handling
+						return null;
+					}
+					return image.getData();
+				}
 				return null;
 			}
 			if (alpha) {
@@ -213,6 +233,9 @@ public class BLPHandler {
 				// //mpqlib.TestMPQ.draw(mpqlib.TargaReader.getImage(tga.getPath()));
 				// return TargaReader.getImage(tga.getPath());//ImageIO.read(tga);
 			} else {
+				if (!blpFile.exists()) {
+					return null;
+				}
 				return ImageIO.read(blpFile);
 			}
 		} catch (final IOException e1) {

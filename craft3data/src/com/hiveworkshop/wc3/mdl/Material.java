@@ -7,12 +7,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.mdl.v2.MaterialView;
 import com.hiveworkshop.wc3.mdx.LayerChunk;
@@ -32,6 +30,7 @@ public class Material implements MaterialView {
 	// "TwoSided," "CoordId X," actually CoordId was
 	// moved into its own field
 	private ArrayList<String> flags = new ArrayList<>();
+	private String shaderString;
 
 	public static String getTeamColorNumberString() {
 		final String string = Integer.toString(teamColor);
@@ -119,10 +118,19 @@ public class Material implements MaterialView {
 		if (MDL.hasFlag(mat.flags, 0x20)) {
 			add("FullResolution");
 		}
+		this.shaderString = mat.shader;
 	}
 
 	public void add(final String flag) {
 		flags.add(flag);
+	}
+
+	public String getShaderString() {
+		return shaderString;
+	}
+
+	public void setShaderString(final String shaderString) {
+		this.shaderString = shaderString;
 	}
 
 	@Override
@@ -151,31 +159,6 @@ public class Material implements MaterialView {
 		this.flags = flags;
 	}
 
-	public static Material parseText(final String[] line) {
-		if (line[0].contains("Material")) {
-			final Material mat = new Material();
-			for (int i = 1; i < line.length; i++) {
-				if (line[i].contains("Layer")) {
-					final String[] layerStrings = MDLReader.breakElement(line, i);
-					i += layerStrings.length - 1;
-					mat.layers.add(Layer.parseText(layerStrings));
-				} else if (line[i].contains("PriorityPlane")) {
-					mat.priorityPlane = MDLReader.readInt(line[i]);
-				} else {
-					mat.flags.add(MDLReader.readFlag(line[i]));
-					// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Error
-					// parsing Material: Unrecognized statement
-					// '"+line[i]+"'.");
-				}
-			}
-			return mat;
-		} else {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse Material: Missing or unrecognized open statement.");
-		}
-		return null;
-	}
-
 	public void updateTextureAnims(final ArrayList<TextureAnim> list) {
 		final int sz = layers.size();
 		for (int i = 0; i < sz; i++) {
@@ -199,6 +182,7 @@ public class Material implements MaterialView {
 		result = (prime * result) + ((flags == null) ? 0 : flags.hashCode());
 		result = (prime * result) + ((layers == null) ? 0 : layers.hashCode());
 		result = (prime * result) + priorityPlane;
+		result = (prime * result) + ((shaderString == null) ? 0 : shaderString.hashCode());
 		return result;
 	}
 
@@ -225,43 +209,22 @@ public class Material implements MaterialView {
 			if (other.layers != null) {
 				return false;
 			}
-		} else if (!Arrays.equals(ListView.Util.toArray(other.layers, new Layer[other.layers.size()]),
-				ListView.Util.toArray(layers, new Layer[layers.size()]))) {
+		} else if (!layers.equals(other.layers)) {
 			return false;
 		}
 		if (priorityPlane != other.priorityPlane) {
 			return false;
 		}
+		if (shaderString == null) {
+			if (other.shaderString != null) {
+				return false;
+			}
+		} else if (!shaderString.equals(other.shaderString)) {
+			return false;
+		}
 		return true;
 	}
 
-	// @Override
-	// public boolean equals(Object o)
-	// {
-	// if( !( o instanceof Material ) )
-	// {
-	// return false;
-	// }
-	// Material m = (Material)o;
-	// boolean does = priorityPlane == m.priorityPlane
-	// && flags.size() == m.flags.size()
-	// && layers.size() == m.layers.size();
-	// for( int i = 0; i < flags.size() && does; i++ )
-	// {
-	// if( !flags.get(i).equals(m.flags.get(i)) )
-	// {
-	// does = false;
-	// }
-	// }
-	// for( int i = 0; i < layers.size() && does; i++ )
-	// {
-	// if( !layers.get(i).equals(m.layers.get(i)) )
-	// {
-	// does = false;
-	// }
-	// }
-	// return does;
-	// }
 	public static Material read(final BufferedReader mdl, final MDL mdlr) {
 		String line = MDLReader.nextLine(mdl);
 		if (line.contains("Material")) {
@@ -274,6 +237,8 @@ public class Material implements MaterialView {
 					MDLReader.mark(mdl);
 				} else if (line.contains("PriorityPlane")) {
 					mat.priorityPlane = MDLReader.readInt(line);
+				} else if (line.contains("Shader")) {
+					mat.shaderString = MDLReader.readName(line);
 				} else {
 					mat.flags.add(MDLReader.readFlag(line));
 					// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Error
@@ -316,6 +281,9 @@ public class Material implements MaterialView {
 			tabs = tabs + "\t";
 		}
 		writer.println(tabs + "Material {");
+		if (shaderString != null) {
+			writer.println(tabs + "\tShader \"" + shaderString + "\",");
+		}
 		if (priorityPlane != 0) {
 			writer.println(tabs + "\tPriorityPlane " + priorityPlane + ",");
 		}
@@ -352,7 +320,9 @@ public class Material implements MaterialView {
 			if (theImage == null) {
 				theImage = newImage;
 			} else {
-				theImage = mergeImage(theImage, newImage);
+				if (newImage != null) {
+					theImage = mergeImage(theImage, newImage);
+				}
 			}
 		}
 		return theImage;

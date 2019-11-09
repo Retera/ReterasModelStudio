@@ -17,6 +17,7 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
+import com.hiveworkshop.wc3.mdl.PopcornFxEmitter;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
@@ -65,8 +66,8 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 		// vertexSize * 3, yCoord);
 		// graphics.drawLine(xCoord, yCoord - vertexSize * 3, xCoord, yCoord +
 		// vertexSize * 3);
-		graphics.drawImage(lightImage, xCoord - lightImage.getWidth(null) / 2, yCoord - lightImage.getHeight(null) / 2,
-				lightImage.getWidth(null), lightImage.getHeight(null), null);
+		graphics.drawImage(lightImage, xCoord - (lightImage.getWidth(null) / 2),
+				yCoord - (lightImage.getHeight(null) / 2), lightImage.getWidth(null), lightImage.getHeight(null), null);
 
 		final int attenuationStart = (int) (light.getAttenuationStart() * zoom);
 		if (attenuationStart > 0) {
@@ -108,6 +109,11 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 	@Override
 	public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
 		drawNodeImage(particleEmitter, nodeIconPalette.getParticle2Image());
+	}
+
+	@Override
+	public void popcornFxEmitter(final PopcornFxEmitter particleEmitter) {
+		drawNodeImage(particleEmitter, nodeIconPalette.getParticleImage());
 	}
 
 	@Override
@@ -166,7 +172,7 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 		// }
 
 		g2.translate(end.x, end.y);
-		g2.rotate(-(Math.PI / 2 + Math.atan2(end.x - start.x, end.y - start.y)));
+		g2.rotate(-((Math.PI / 2) + Math.atan2(end.x - start.x, end.y - start.y)));
 		final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
 		final int size = (int) (20 * zoom);
 		final double dist = start.distance(end);
@@ -175,7 +181,7 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 		// g2.setColor(Color.orange.darker());
 		// }
 		// Cam
-		g2.fillRect((int) dist - vertexSize, 0 - vertexSize, 1 + vertexSize * 2, 1 + vertexSize * 2);
+		g2.fillRect((int) dist - vertexSize, 0 - vertexSize, 1 + (vertexSize * 2), 1 + (vertexSize * 2));
 		g2.drawRect((int) dist - size, -size, size * 2, size * 2);
 
 		// if (tarSel) {
@@ -184,7 +190,7 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 		// g2.setColor(Color.green.darker());
 		// }
 		// Target
-		g2.fillRect(0 - vertexSize, 0 - vertexSize, 1 + vertexSize * 2, 1 + vertexSize * 2);
+		g2.fillRect(0 - vertexSize, 0 - vertexSize, 1 + (vertexSize * 2), 1 + (vertexSize * 2));
 		g2.drawLine(0, 0, size, size);// (int)Math.round(vp.convertX(targ.getCoord(vp.getPortFirstXYZ())+5)),
 										// (int)Math.round(vp.convertY(targ.getCoord(vp.getPortSecondXYZ())+5)));
 		g2.drawLine(0, 0, size, -size);// (int)Math.round(vp.convertX(targ.getCoord(vp.getPortFirstXYZ())-5)),
@@ -205,7 +211,7 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 			final CoordinateSystem coordinateSystem, final IdObject attachment, final Image nodeImage) {
 		final int xCoord = (int) coordinateSystem.convertX(attachment.getPivotPoint().getCoord(xDimension));
 		final int yCoord = (int) coordinateSystem.convertY(attachment.getPivotPoint().getCoord(yDimension));
-		graphics.drawImage(nodeImage, xCoord - nodeImage.getWidth(null) / 2, yCoord - nodeImage.getHeight(null) / 2,
+		graphics.drawImage(nodeImage, xCoord - (nodeImage.getWidth(null) / 2), yCoord - (nodeImage.getHeight(null) / 2),
 				nodeImage.getWidth(null), nodeImage.getHeight(null), null);
 	}
 

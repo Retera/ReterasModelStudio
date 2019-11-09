@@ -56,6 +56,7 @@ public class StandardObjectData {
 			unitUI.readSLK(source.getResourceAsStream("Units\\UnitUI.slk"));
 
 			unitWeapons.readSLK(source.getResourceAsStream("Units\\UnitWeapons.slk"));
+			profile.readTXT(source.getResourceAsStream("Units\\UnitSkin.txt"), true);
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}

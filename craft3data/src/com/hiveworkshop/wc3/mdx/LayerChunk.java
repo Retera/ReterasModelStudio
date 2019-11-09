@@ -12,32 +12,32 @@ public class LayerChunk {
 
 	public static final String key = "LAYS";
 
-	public void load(final BlizzardDataInputStream in) throws IOException {
+	public void load(final BlizzardDataInputStream in, final int version) throws IOException {
 		MdxUtils.checkId(in, "LAYS");
 		final int nrOfLayers = in.readInt();
 		layer = new Layer[nrOfLayers];
 		for (int i = 0; i < nrOfLayers; i++) {
 			layer[i] = new Layer();
-			layer[i].load(in);
+			layer[i].load(in, version);
 		}
 	}
 
-	public void save(final BlizzardDataOutputStream out) throws IOException {
+	public void save(final BlizzardDataOutputStream out, final int version) throws IOException {
 		final int nrOfLayers = layer.length;
 		out.writeNByteString("LAYS", 4);
 		out.writeInt(nrOfLayers);
 		for (int i = 0; i < layer.length; i++) {
-			layer[i].save(out);
+			layer[i].save(out, version);
 		}
 
 	}
 
-	public int getSize() {
+	public int getSize(final int version) {
 		int a = 0;
 		a += 4;
 		a += 4;
 		for (int i = 0; i < layer.length; i++) {
-			a += layer[i].getSize();
+			a += layer[i].getSize(version);
 		}
 
 		return a;
@@ -50,10 +50,11 @@ public class LayerChunk {
 		public int textureAnimationId;
 		public int unknownNull_CoordID;
 		public float alpha = 1;
+		public float emissive = Float.NaN;
 		public MaterialAlpha materialAlpha;
 		public MaterialTextureId materialTextureId;
 
-		public void load(final BlizzardDataInputStream in) throws IOException {
+		public void load(final BlizzardDataInputStream in, final int version) throws IOException {
 			final int inclusiveSize = in.readInt();
 			filterMode = in.readInt();
 			shadingFlags = in.readInt();
@@ -61,6 +62,9 @@ public class LayerChunk {
 			textureAnimationId = in.readInt();
 			unknownNull_CoordID = in.readInt();
 			alpha = in.readFloat();
+			if (version == 900) {
+				emissive = in.readFloat();
+			}
 			for (int i = 0; i < 2; i++) {
 				if (MdxUtils.checkOptionalId(in, MaterialAlpha.key)) {
 					materialAlpha = new MaterialAlpha();
@@ -73,14 +77,17 @@ public class LayerChunk {
 			}
 		}
 
-		public void save(final BlizzardDataOutputStream out) throws IOException {
-			out.writeInt(getSize());// InclusiveSize
+		public void save(final BlizzardDataOutputStream out, final int version) throws IOException {
+			out.writeInt(getSize(version));// InclusiveSize
 			out.writeInt(filterMode);
 			out.writeInt(shadingFlags);
 			out.writeInt(textureId);
 			out.writeInt(textureAnimationId);
 			out.writeInt(unknownNull_CoordID);
 			out.writeFloat(alpha);
+			if (version == 900) {
+				out.writeFloat(emissive);
+			}
 			if (materialAlpha != null) {
 				materialAlpha.save(out);
 			}
@@ -90,7 +97,7 @@ public class LayerChunk {
 
 		}
 
-		public int getSize() {
+		public int getSize(final int version) {
 			int a = 0;
 			a += 4;
 			a += 4;
@@ -99,6 +106,9 @@ public class LayerChunk {
 			a += 4;
 			a += 4;
 			a += 4;
+			if (version == 900) {
+				a += 4;
+			}
 			if (materialAlpha != null) {
 				a += materialAlpha.getSize();
 			}
@@ -136,6 +146,10 @@ public class LayerChunk {
 					shadingFlags |= 0x80;
 					break;
 				}
+			}
+			double mdlEmissive = layer.getEmissive();
+			if (!Double.isNaN(mdlEmissive)) {
+				emissive = (float) mdlEmissive;
 			}
 			textureAnimationId = layer.getTVertexAnimId();
 			unknownNull_CoordID = layer.getCoordId();
@@ -182,7 +196,7 @@ public class LayerChunk {
 					}
 				}
 			}
-			if (alphaFound || Math.abs(layer.getStaticAlpha() - (-1)) <= 0.001) {
+			if (alphaFound || (Math.abs(layer.getStaticAlpha() - (-1)) <= 0.001)) {
 				alpha = 1.0f;
 			} else {
 				alpha = (float) layer.getStaticAlpha();
