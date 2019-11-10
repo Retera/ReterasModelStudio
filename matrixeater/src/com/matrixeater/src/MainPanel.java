@@ -2990,6 +2990,16 @@ public class MainPanel extends JPanel
 		scaleAnimations.addActionListener(this);
 		scriptsMenu.add(scaleAnimations);
 
+		final JMenuItem version900Toggle = new JMenuItem("Assign FormatVersion 900");
+		version900Toggle.setMnemonic(KeyEvent.VK_A);
+		version900Toggle.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				currentMDL().setFormatVersion(900);
+			}
+		});
+		scriptsMenu.add(version900Toggle);
+
 		aboutMenu = new JMenu("Help");
 		aboutMenu.setMnemonic(KeyEvent.VK_H);
 		menuBar.add(aboutMenu);

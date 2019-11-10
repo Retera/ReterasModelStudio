@@ -328,7 +328,13 @@ public class GeosetChunk {
 				// SKIN: 4
 				// skinLength: 4
 				// this.skin.length
-				a += 100 + (this.tangents.length * 4) + this.skin.length;
+				a += 84;
+				if (this.tangents.length > 0) {
+					a += 8 + (this.tangents.length * 4);
+				}
+				if (this.skin.length > 0) {
+					a += 8 + this.skin.length;
+				}
 			}
 
 			for (int i = 0; i < vertexTexturePositions.length; i++) {

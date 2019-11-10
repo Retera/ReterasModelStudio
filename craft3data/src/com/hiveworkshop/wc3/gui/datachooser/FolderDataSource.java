@@ -49,6 +49,9 @@ public class FolderDataSource implements DataSource {
 
 	@Override
 	public boolean has(final String filepath) {
+		if ("".equals(filepath)) {
+			return false; // special case for folder data source, dont do this
+		}
 		return Files.exists(folderPath.resolve(filepath));
 	}
 

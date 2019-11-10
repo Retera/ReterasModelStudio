@@ -20,7 +20,7 @@ import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.WorldEditorDataTy
 import com.hiveworkshop.wc3.util.IconUtils;
 
 public class WarcraftObjectTreeCellRenderer extends DefaultTreeCellRenderer implements TreeCellRenderer {
-	private static final int ICON_SIZE = 32;
+	private static final int ICON_SIZE = 16;
 	UnitEditorSettings settings = new UnitEditorSettings();
 	private final WorldEditorDataType worldEditorDataType;
 	private Color defaultBackgroundSelectionColor = null;

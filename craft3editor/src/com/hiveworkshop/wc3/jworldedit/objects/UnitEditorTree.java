@@ -78,7 +78,7 @@ public class UnitEditorTree extends JTree {
 				repaint();
 			}
 		});
-		setFont(getFont().deriveFont(24f));
+//		setFont(getFont().deriveFont(24f));
 	}
 
 	public void loadHotkeys() {

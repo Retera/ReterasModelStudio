@@ -188,8 +188,15 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 		makeButton(worldEditorData, toolBar, "aiEditor", "ToolBarIcon_Module_AIEditor", "WESTRING_MENU_MODULE_AI");
 		makeButton(worldEditorData, toolBar, "objectEditor", "ToolBarIcon_Module_ObjectManager",
 				"WESTRING_MENU_OBJECTMANAGER");
-		makeButton(worldEditorData, toolBar, "importEditor", "ToolBarIcon_Module_ImportManager",
-				"WESTRING_MENU_IMPORTMANAGER");
+		final String legacyImportManagerIcon = worldEditorData.get("WorldEditArt")
+				.getField("ToolBarIcon_Module_ImportManager");
+		String importManagerIconPath = "ToolBarIcon_Module_ImportManager";
+		String importManagerMenuName = "WESTRING_MENU_IMPORTMANAGER";
+		if ((legacyImportManagerIcon == null) || "".equals(legacyImportManagerIcon)) {
+			importManagerIconPath = "ToolBarIcon_Module_AssetManager";
+			importManagerMenuName = "WESTRING_MENU_ASSETMANAGER";
+		}
+		makeButton(worldEditorData, toolBar, "importEditor", importManagerIconPath, importManagerMenuName);
 		toolBar.add(Box.createHorizontalStrut(8));
 		makeButton(worldEditorData, toolBar, "testMap",
 				new ImageIcon(IconUtils.worldEditStyleIcon(getIcon(worldEditorData, "ToolBarIcon_TestMap").getImage())),
