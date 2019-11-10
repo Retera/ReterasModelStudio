@@ -226,6 +226,7 @@ public class Layer implements Named, VisibilitySource, LayerView {
 			textureAnim = null;
 		}
 		staticAlpha = other.staticAlpha;
+		emissive = other.emissive;
 		flags = new ArrayList<>(other.flags);
 		anims = new ArrayList<>();
 		textures = new ArrayList<>();
@@ -270,7 +271,10 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		if (MDL.hasFlag(shadingFlags, 0x80)) {
 			add("NoDepthSet");
 		}
-		if (!Float.isNaN(lay.emissive)) {
+		if (lay.materialEmissions != null) {
+			final AnimFlag flag = new AnimFlag(lay.materialEmissions);
+			anims.add(flag);
+		} else if (!Float.isNaN(lay.emissive)) {
 			emissive = lay.emissive;
 		}
 		setTVertexAnimId(lay.textureAnimationId);
@@ -447,8 +451,11 @@ public class Layer implements Named, VisibilitySource, LayerView {
 					lay.texture = mdlr.getTexture(lay.textureId);
 				} else if (line.contains("CoordId")) {
 					lay.CoordId = MDLReader.readInt(line);
-				} else if (line.contains("Emissive")) {
+				} else if (line.contains("static Emissive")) {
 					lay.emissive = MDLReader.readDouble(line);
+				} else if (line.contains("Emissive")) {
+					MDLReader.reset(mdl);
+					lay.anims.add(AnimFlag.read(mdl));
 				} else if (line.contains("TVertexAnimId")) {
 					lay.TVertexAnimId = MDLReader.readInt(line);
 				} else if (line.contains("static Alpha")) {
@@ -513,8 +520,16 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		if (useCoords) {
 			writer.println(tabs + "\tCoordId " + CoordId + ",");
 		}
-		if (!Double.isNaN(emissive)) {
-			writer.println(tabs + "\tEmissive " + MDLReader.doubleToString(emissive) + ",");
+		boolean foundEmissive = false;
+		for (int i = 0; i < anims.size(); i++) {
+			final AnimFlag temp = anims.get(i);
+			if (temp.getName().equals("Emissive")) {
+				temp.printTo(writer, tabHeight + 1);
+				foundEmissive = true;
+			}
+		}
+		if (!Double.isNaN(emissive) && !foundEmissive) {
+			writer.println(tabs + "\tstatic Emissive " + MDLReader.doubleToString(emissive) + ",");
 		}
 		boolean foundAlpha = false;
 		for (int i = 0; i < anims.size(); i++) {

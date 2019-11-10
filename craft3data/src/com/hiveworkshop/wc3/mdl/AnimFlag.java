@@ -30,6 +30,7 @@ import com.hiveworkshop.wc3.mdx.LightColor;
 import com.hiveworkshop.wc3.mdx.LightIntensity;
 import com.hiveworkshop.wc3.mdx.LightVisibility;
 import com.hiveworkshop.wc3.mdx.MaterialAlpha;
+import com.hiveworkshop.wc3.mdx.MaterialEmissions;
 import com.hiveworkshop.wc3.mdx.MaterialTextureId;
 import com.hiveworkshop.wc3.mdx.ParticleEmitter2EmissionRate;
 import com.hiveworkshop.wc3.mdx.ParticleEmitter2Gravity;
@@ -208,6 +209,24 @@ public class AnimFlag {
 				addEntry(track.time, box(track.alpha), box(track.inTan), box(track.outTan));
 			} else {
 				addEntry(track.time, box(track.alpha));
+			}
+		}
+	}
+
+	public AnimFlag(final MaterialEmissions source) {
+		title = "Emissive";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(source.interpolationType));
+		if (source.globalSequenceId >= 0) {
+			setGlobalSeqId(source.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = source.interpolationType > 1;
+		for (final MaterialEmissions.ScalingTrack track : source.scalingTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.emission), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.emission));
 			}
 		}
 	}

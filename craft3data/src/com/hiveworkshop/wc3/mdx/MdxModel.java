@@ -17,6 +17,7 @@ import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
+import com.hiveworkshop.wc3.mdl.PopcornFxEmitter;
 import com.hiveworkshop.wc3.mdl.QuaternionRotation;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
@@ -1055,6 +1056,14 @@ public class MdxModel {
 			ribbonEmitterChunk.ribbonEmitter = new RibbonEmitterChunk.RibbonEmitter[nodes.size()];
 			for (int i = 0; i < nodes.size(); i++) {
 				ribbonEmitterChunk.ribbonEmitter[i] = ribbonEmitterChunk.new RibbonEmitter(nodes.get(i));
+			}
+		}
+		if (mdl.sortedIdObjects(PopcornFxEmitter.class).size() > 0) {
+			cornChunk = new CornChunk();
+			final List<PopcornFxEmitter> nodes = mdl.sortedIdObjects(PopcornFxEmitter.class);
+			cornChunk.corns = new CornChunk.PopcornFxEmitter[nodes.size()];
+			for (int i = 0; i < nodes.size(); i++) {
+				cornChunk.corns[i] = cornChunk.new PopcornFxEmitter(nodes.get(i));
 			}
 		}
 		if (mdl.sortedIdObjects(EventObject.class).size() > 0) {

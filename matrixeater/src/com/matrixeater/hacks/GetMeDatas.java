@@ -37,11 +37,11 @@ public class GetMeDatas {
 //		}
 //		JOptionPane.showMessageDialog(null, new JLabel(new ImageIcon(gameTex)));
 
-		final InputStream footman = MpqCodebase.get().getResourceAsStream("Units\\Human\\Footman\\Footman.mdx");
+		final InputStream footman = MpqCodebase.get().getResourceAsStream("Units\\Undead\\FrostWyrm\\FrostWyrm.mdx");
 		try {
 			final MdxModel footmanMdx = MdxUtils.loadModel(new BlizzardDataInputStream(footman));
 			try (BlizzardDataOutputStream out = new BlizzardDataOutputStream(new File(
-					"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III Beta\\Models\\SoftwareFootman.mdx"))) {
+					"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III Beta\\Models\\SoftwareFrostwyrm.mdx"))) {
 				footmanMdx.save(out);
 			}
 		} catch (final IOException e) {

@@ -156,13 +156,10 @@ public class LayerChunk {
 					break;
 				}
 			}
-			double mdlEmissive = layer.getEmissive();
-			if (!Double.isNaN(mdlEmissive)) {
-				emissive = (float) mdlEmissive;
-			}
 			textureAnimationId = layer.getTVertexAnimId();
 			unknownNull_CoordID = layer.getCoordId();
 			boolean alphaFound = false;
+			boolean emissiveFound = false;
 			for (final AnimFlag af : layer.getAnims()) {
 				if (af.getName().equals("Alpha")) {
 					materialAlpha = new MaterialAlpha();
@@ -182,6 +179,24 @@ public class LayerChunk {
 						}
 					}
 					alphaFound = true;
+				} else if (af.getName().equals("Emissive")) {
+					materialEmissions = new MaterialEmissions();
+					materialEmissions.globalSequenceId = af.getGlobalSeqId();
+					materialEmissions.interpolationType = af.getInterpType();
+					materialEmissions.scalingTrack = new MaterialEmissions.ScalingTrack[af.size()];
+					final boolean hasTans = af.tans();
+					for (int i = 0; i < af.size(); i++) {
+						final MaterialEmissions.ScalingTrack mdxEntry = materialEmissions.new ScalingTrack();
+						materialEmissions.scalingTrack[i] = mdxEntry;
+						final AnimFlag.Entry mdlEntry = af.getEntry(i);
+						mdxEntry.emission = ((Number) mdlEntry.value).floatValue();
+						mdxEntry.time = mdlEntry.time.intValue();
+						if (hasTans) {
+							mdxEntry.inTan = ((Number) mdlEntry.inTan).floatValue();
+							mdxEntry.outTan = ((Number) mdlEntry.outTan).floatValue();
+						}
+					}
+					emissiveFound = true;
 				} else if (af.getName().equals("TextureID")) {
 					materialTextureId = new MaterialTextureId();
 					materialTextureId.globalSequenceId = af.getGlobalSeqId();
@@ -209,6 +224,10 @@ public class LayerChunk {
 				alpha = 1.0f;
 			} else {
 				alpha = (float) layer.getStaticAlpha();
+			}
+			final double mdlEmissive = layer.getEmissive();
+			if (!Double.isNaN(mdlEmissive) && !emissiveFound) {
+				emissive = (float) mdlEmissive;
 			}
 			textureId = layer.getTextureId() == -1 ? 0 : layer.getTextureId();
 		}

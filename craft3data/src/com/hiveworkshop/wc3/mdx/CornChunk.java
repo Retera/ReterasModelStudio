@@ -4,11 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.text.Segment;
-
 import com.hiveworkshop.wc3.mdl.AnimFlag;
-import com.hiveworkshop.wc3.mdl.Vertex;
-import com.hiveworkshop.wc3.mdx.CornAlpha.AlphaTrack;
 
 import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
@@ -34,9 +30,9 @@ public class CornChunk {
 
 	public void save(final BlizzardDataOutputStream out) throws IOException {
 		final int nrOfLights = corns.length;
-		out.writeNByteString("LITE", 4);
+		out.writeNByteString("CORN", 4);
 		out.writeInt(getSize() - 8);// ChunkSize
-		for (int i = 0; i < corns.length; i++) {
+		for (int i = 0; i < nrOfLights; i++) {
 			corns[i].save(out);
 		}
 

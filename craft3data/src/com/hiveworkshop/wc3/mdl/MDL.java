@@ -30,6 +30,7 @@ import com.hiveworkshop.wc3.mdx.BindPoseChunk;
 import com.hiveworkshop.wc3.mdx.BoneChunk;
 import com.hiveworkshop.wc3.mdx.CameraChunk;
 import com.hiveworkshop.wc3.mdx.CollisionShapeChunk;
+import com.hiveworkshop.wc3.mdx.CornChunk;
 import com.hiveworkshop.wc3.mdx.EventObjectChunk;
 import com.hiveworkshop.wc3.mdx.FaceEffectsChunk;
 import com.hiveworkshop.wc3.mdx.GeosetAnimationChunk;
@@ -364,6 +365,12 @@ public class MDL implements Named {
 				add(new RibbonEmitter(emitter));
 			}
 		}
+		// PopcornFxEmitter
+		if (mdx.cornChunk != null) {
+			for (final CornChunk.PopcornFxEmitter emitter : mdx.cornChunk.corns) {
+				add(new PopcornFxEmitter(emitter));
+			}
+		}
 		// EventObject
 		if (mdx.eventObjectChunk != null) {
 			for (final EventObjectChunk.EventObject evtobj : mdx.eventObjectChunk.eventObject) {
@@ -650,10 +657,12 @@ public class MDL implements Named {
 			final List<ParticleEmitter> particleEmitters = sortedIdObjects(ParticleEmitter.class);
 			final List<ParticleEmitter2> particleEmitters2 = sortedIdObjects(ParticleEmitter2.class);
 			final List<RibbonEmitter> ribbonEmitters = sortedIdObjects(RibbonEmitter.class);
+			final List<PopcornFxEmitter> popcornEmitters = sortedIdObjects(PopcornFxEmitter.class);
 			final List<IdObject> emitters = new ArrayList<>();
 			emitters.addAll(particleEmitters2);
 			emitters.addAll(particleEmitters);
 			emitters.addAll(ribbonEmitters);
+			emitters.addAll(popcornEmitters);
 
 			for (final IdObject emitter : emitters) {
 				int talliesFor = 0;
@@ -1054,6 +1063,10 @@ public class MDL implements Named {
 					mdlr.addIdObject(temp);
 					temp.updateMaterialRef(mdlr.materials);
 					MDLReader.mark(mdl);
+				} else if (line.contains("PopcornFxEmitter ")) {
+					MDLReader.reset(mdl);
+					mdlr.addIdObject(PopcornFxEmitter.read(mdl));
+					MDLReader.mark(mdl);
 				} else if (line.contains("Camera ")) {
 					MDLReader.reset(mdl);
 					mdlr.addCamera(Camera.read(mdl));
@@ -1287,6 +1300,10 @@ public class MDL implements Named {
 		if (sz > 0) {
 			writer.println("\tNumRibbonEmitters " + sz + ",");
 		}
+		sz = countIdObjectsOfClass(PopcornFxEmitter.class);
+		if (sz > 0) {
+			writer.println("\tNumPopcornFxEmitters " + sz + ",");
+		}
 		sz = countIdObjectsOfClass(EventObject.class);
 		if (sz > 0) {
 			writer.println("\tNumEvents " + sz + ",");
@@ -1408,9 +1425,10 @@ public class MDL implements Named {
 
 		for (int i = 0; i < idObjects.size(); i++) {
 			final IdObject obj = idObjects.get(i);
-			if (!pivotsPrinted && ((obj.getClass() == ParticleEmitter.class)
-					|| (obj.getClass() == ParticleEmitter2.class) || (obj.getClass() == RibbonEmitter.class)
-					|| (obj.getClass() == EventObject.class) || (obj.getClass() == CollisionShape.class))) {
+			if (!pivotsPrinted
+					&& ((obj.getClass() == ParticleEmitter.class) || (obj.getClass() == ParticleEmitter2.class)
+							|| (obj.getClass() == PopcornFxEmitter.class) || (obj.getClass() == RibbonEmitter.class)
+							|| (obj.getClass() == EventObject.class) || (obj.getClass() == CollisionShape.class))) {
 				writer.println("PivotPoints " + pivots.size() + " {");
 				for (int p = 0; p < pivots.size(); p++) {
 					writer.println("\t" + pivots.get(p).toString() + ",");
@@ -1703,7 +1721,9 @@ public class MDL implements Named {
 		}
 		for (int i = 0; i < cameras.size(); i++) {
 			final Camera camera = cameras.get(i);
-			camera.setBindPose(bindPoseChunk.bindPose[i + idObjects.size()]);
+			if (bindPoseChunk != null) {
+				camera.setBindPose(bindPoseChunk.bindPose[i + idObjects.size()]);
+			}
 		}
 	}
 
@@ -1769,6 +1789,7 @@ public class MDL implements Named {
 		final ArrayList<ParticleEmitter> particleEmitters = sortedIdObjects(ParticleEmitter.class);
 		final ArrayList<ParticleEmitter2> particleEmitter2s = sortedIdObjects(ParticleEmitter2.class);
 		final ArrayList<RibbonEmitter> ribbonEmitters = sortedIdObjects(RibbonEmitter.class);
+		final ArrayList<PopcornFxEmitter> popcornEmitters = sortedIdObjects(PopcornFxEmitter.class);
 		final ArrayList<EventObject> events = sortedIdObjects(EventObject.class);
 		final ArrayList<CollisionShape> colliders = sortedIdObjects(CollisionShape.class);
 
@@ -1779,6 +1800,7 @@ public class MDL implements Named {
 		allObjects.addAll(particleEmitters);
 		allObjects.addAll(particleEmitter2s);
 		allObjects.addAll(ribbonEmitters);
+		allObjects.addAll(popcornEmitters);
 		allObjects.addAll(events);
 		allObjects.addAll(colliders);
 
@@ -1860,6 +1882,10 @@ public class MDL implements Named {
 		for (final RibbonEmitter x : res) {
 			allFlags.addAll(x.animFlags);
 		}
+		final ArrayList<PopcornFxEmitter> corns = sortedIdObjects(PopcornFxEmitter.class);
+		for (final PopcornFxEmitter x : corns) {
+			allFlags.addAll(x.animFlags);
+		}
 		final ArrayList<CollisionShape> cs = sortedIdObjects(CollisionShape.class);
 		for (final CollisionShape x : cs) {
 			allFlags.addAll(x.animFlags);
@@ -1934,6 +1960,12 @@ public class MDL implements Named {
 		}
 		final ArrayList<RibbonEmitter> res = sortedIdObjects(RibbonEmitter.class);
 		for (final RibbonEmitter x : res) {
+			if (x.animFlags.contains(aflg)) {
+				return x;
+			}
+		}
+		final ArrayList<PopcornFxEmitter> pfes = sortedIdObjects(PopcornFxEmitter.class);
+		for (final PopcornFxEmitter x : pfes) {
 			if (x.animFlags.contains(aflg)) {
 				return x;
 			}
@@ -2015,6 +2047,12 @@ public class MDL implements Named {
 		}
 		final ArrayList<RibbonEmitter> res = sortedIdObjects(RibbonEmitter.class);
 		for (final RibbonEmitter x : res) {
+			if (x.animFlags.contains(aflg)) {
+				x.animFlags.add(added);
+			}
+		}
+		final ArrayList<PopcornFxEmitter> pfes = sortedIdObjects(PopcornFxEmitter.class);
+		for (final PopcornFxEmitter x : pfes) {
 			if (x.animFlags.contains(aflg)) {
 				x.animFlags.add(added);
 			}
@@ -2768,6 +2806,16 @@ public class MDL implements Named {
 		}
 		final ArrayList<RibbonEmitter> res = sortedIdObjects(RibbonEmitter.class);
 		for (final RibbonEmitter x : res) {
+			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
+			while (iterator.hasNext()) {
+				final AnimFlag animFlag = iterator.next();
+				if (selectedValue.equals(animFlag.getGlobalSeq())) {
+					iterator.remove();
+				}
+			}
+		}
+		final ArrayList<PopcornFxEmitter> pfes = sortedIdObjects(PopcornFxEmitter.class);
+		for (final PopcornFxEmitter x : pfes) {
 			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
 			while (iterator.hasNext()) {
 				final AnimFlag animFlag = iterator.next();

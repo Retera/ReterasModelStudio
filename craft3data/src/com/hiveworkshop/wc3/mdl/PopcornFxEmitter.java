@@ -83,7 +83,7 @@ public class PopcornFxEmitter extends IdObject implements VisibilitySource {
 
 	public static PopcornFxEmitter read(final BufferedReader mdl) {
 		String line = MDLReader.nextLine(mdl);
-		if (line.contains("ParticleEmitter")) {
+		if (line.contains("PopcornFxEmitter")) {
 			final PopcornFxEmitter pe = new PopcornFxEmitter();
 			pe.setName(MDLReader.readName(line));
 			MDLReader.mark(mdl);
@@ -102,7 +102,7 @@ public class PopcornFxEmitter extends IdObject implements VisibilitySource {
 					pe.path = MDLReader.readName(line);
 					foundType = true;
 				} else if (line.contains("FlagString")) {
-					pe.path = MDLReader.readName(line);
+					pe.flagString = MDLReader.readName(line);
 					foundType = true;
 				} else if (line.contains("Visibility") || line.contains("Rotation") || line.contains("Translation")
 						|| line.contains("Scaling") || line.contains("Alpha") || line.contains("EmissionRate")) {
@@ -110,6 +110,7 @@ public class PopcornFxEmitter extends IdObject implements VisibilitySource {
 					pe.animFlags.add(AnimFlag.read(mdl));
 					foundType = true;
 				} else if (line.contains("SegmentColor")) {
+					pe.maybeColor = new float[8];
 					boolean reading = true;
 					foundType = true;
 					for (int i = 0; reading && (i < 2); i++) {
@@ -140,7 +141,7 @@ public class PopcornFxEmitter extends IdObject implements VisibilitySource {
 
 		{
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse ParticleEmitter: Missing or unrecognized open statement.");
+					"Unable to parse PopcornFxEmitter: Missing or unrecognized open statement.");
 		}
 		return null;
 	}
@@ -192,7 +193,7 @@ public class PopcornFxEmitter extends IdObject implements VisibilitySource {
 			writer.println("\tPath \"" + path + "\",");
 		}
 		if (flagString != null) {
-			writer.println("\tFlagString \"" + path + "\",");
+			writer.println("\tFlagString \"" + flagString + "\",");
 		}
 
 		for (int i = pAnimFlags.size() - 1; i >= 0; i--) {
