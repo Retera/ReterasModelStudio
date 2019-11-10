@@ -1249,13 +1249,13 @@ public class MdxModel {
 		if (ribbonEmitterChunk != null) {
 			ribbonEmitterChunk.save(out);
 		}
-		if (eventObjectChunk != null) {
-			eventObjectChunk.save(out);
-		}
 		if (versionChunk.version == 900) {
 			if (cornChunk != null) {
 				cornChunk.save(out);
 			}
+		}
+		if (eventObjectChunk != null) {
+			eventObjectChunk.save(out);
 		}
 		if (cameraChunk != null) {
 			cameraChunk.save(out);
