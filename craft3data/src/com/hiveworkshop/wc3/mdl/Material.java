@@ -118,6 +118,9 @@ public class Material implements MaterialView {
 		if (MDL.hasFlag(mat.flags, 0x20)) {
 			add("FullResolution");
 		}
+		if ((mdlObject.getFormatVersion() == 900) && MDL.hasFlag(mat.flags, 0x02)) {
+			add("TwoSided");
+		}
 		this.shaderString = mat.shader;
 	}
 

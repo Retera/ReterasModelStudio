@@ -84,4 +84,9 @@ public class ControlledAnimationViewer extends JPanel implements AnimationContro
 	public void setSpawnParticles(final boolean b) {
 		perspectiveViewport.setSpawnParticles(b);
 	}
+
+	@Override
+	public void setLevelOfDetail(final int levelOfDetail) {
+		perspectiveViewport.setLevelOfDetail(levelOfDetail);
+	}
 }

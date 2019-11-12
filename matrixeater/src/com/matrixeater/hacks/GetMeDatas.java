@@ -5,12 +5,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.etheller.collections.SetView;
-import com.hiveworkshop.wc3.mdx.MdxModel;
+import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 
 import de.wc3data.stream.BlizzardDataInputStream;
-import de.wc3data.stream.BlizzardDataOutputStream;
 
 public class GetMeDatas {
 
@@ -37,13 +36,17 @@ public class GetMeDatas {
 //		}
 //		JOptionPane.showMessageDialog(null, new JLabel(new ImageIcon(gameTex)));
 
-		final InputStream footman = MpqCodebase.get().getResourceAsStream("Units\\Undead\\FrostWyrm\\FrostWyrm.mdx");
+		final InputStream footman = MpqCodebase.get().getResourceAsStream("Units\\Orc\\Grunt\\Grunt.mdx");
 		try {
-			final MdxModel footmanMdx = MdxUtils.loadModel(new BlizzardDataInputStream(footman));
-			try (BlizzardDataOutputStream out = new BlizzardDataOutputStream(new File(
-					"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III Beta\\Models\\SoftwareFrostwyrm.mdx"))) {
-				footmanMdx.save(out);
-			}
+//			final MdxModel footmanMdx = MdxUtils.loadModel(new BlizzardDataInputStream(footman));
+//			try (BlizzardDataOutputStream out = new BlizzardDataOutputStream(
+//					new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III Beta\\Models\\SoftwareGruntX.mdx"))) {
+//				footmanMdx.save(out);
+//			}
+
+			final MDL model = new MDL(MdxUtils.loadModel(new BlizzardDataInputStream(footman)));
+			model.printTo(
+					new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III Beta\\Models\\SoftwareGrunt.mdx"));
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}

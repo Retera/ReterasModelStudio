@@ -14,4 +14,6 @@ public interface AnimationControllerListener {
 	}
 
 	void setSpeed(float f);
+
+	void setLevelOfDetail(int levelOfDetail);
 }

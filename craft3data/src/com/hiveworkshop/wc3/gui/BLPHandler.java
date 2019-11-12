@@ -40,6 +40,10 @@ public class BLPHandler {
 	}
 
 	public BufferedImage getTexture(final String workingDirectory, final String filepath, final boolean alpha) {
+		if (filepath.toLowerCase().endsWith("_normal.tif") || filepath.toLowerCase().endsWith("_orm.tif")) {
+			// reforged hack
+			return null;
+		}
 		final BufferedImage image = getGameTex(filepath, alpha);
 		if (image != null) {
 			return image;

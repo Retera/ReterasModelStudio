@@ -103,7 +103,7 @@ public class MaterialChunk {
 
 		}
 
-		public Material(final com.hiveworkshop.wc3.mdl.Material mat) {
+		public Material(final com.hiveworkshop.wc3.mdl.Material mat, final int version) {
 			layerChunk = new LayerChunk();
 			layerChunk.layer = new LayerChunk.Layer[mat.getLayers().size()];
 			for (int i = 0; i < mat.getLayers().size(); i++) {
@@ -119,6 +119,11 @@ public class MaterialChunk {
 				}
 				if (flag.equals("FullResolution")) {
 					flags |= 0x20;
+				}
+				if (version == 900) {
+					if (flag.equals("TwoSided")) {
+						flags |= 0x02;
+					}
 				}
 			}
 			shader = mat.getShaderString();

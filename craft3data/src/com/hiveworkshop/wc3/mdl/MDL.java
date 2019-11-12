@@ -2314,6 +2314,14 @@ public class MDL implements Named {
 		if ((x.pivotPoint != null) && !pivots.contains(x.pivotPoint)) {
 			pivots.add(x.pivotPoint);
 		}
+		if ((formatVersion == 900) && (bindPoseChunk != null)) {
+			if (x instanceof Bone) {
+				final Bone b = (Bone) x;
+				if (b.getBindPose() == null) {
+					b.setBindPose(new float[] { 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 });
+				}
+			}
+		}
 	}
 
 	public void add(final Camera x) {

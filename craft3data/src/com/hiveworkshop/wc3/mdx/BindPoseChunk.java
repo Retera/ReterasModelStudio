@@ -26,7 +26,8 @@ public class BindPoseChunk {
 
 		out.writeInt(bindPose.length);
 		for (int i = 0; i < bindPose.length; i++) {
-			MdxUtils.saveFloatArray(out, bindPose[i]);
+			float[] toSave = bindPose[i];
+			MdxUtils.saveFloatArray(out, toSave);
 		}
 	}
 

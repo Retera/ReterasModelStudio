@@ -271,6 +271,7 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		if (MDL.hasFlag(shadingFlags, 0x80)) {
 			add("NoDepthSet");
 		}
+//		System.err.println("Creating MDL layer from shadingFlags: " + Integer.toBinaryString(lay.shadingFlags));
 		if (lay.materialEmissions != null) {
 			final AnimFlag flag = new AnimFlag(lay.materialEmissions);
 			anims.add(flag);

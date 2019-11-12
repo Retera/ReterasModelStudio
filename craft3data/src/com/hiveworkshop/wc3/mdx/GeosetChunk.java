@@ -142,7 +142,6 @@ public class GeosetChunk {
 			// Comment copied from Ghostwolf's code:
 			// Non-reforged models that come with reforged are saved with version 900,
 			// however they don't have TANG and SKIN.
-			int maxSkin = 0;
 			if (version == 900) {
 				if (MdxUtils.checkOptionalId(in, "TANG")) {
 					in.skip(4);// TANG
@@ -151,26 +150,8 @@ public class GeosetChunk {
 					MdxUtils.checkId(in, "SKIN");
 					final int skinLength = in.readInt();
 					this.skin = MdxUtils.loadByteArray(in, skinLength);
-					for (int i = 0; i < skin.length; i += 8) {
-						for (int j = 0; j < 4; j++) {
-							int skinValue = skin[i + j];
-							if (skinValue < 0) {
-								skinValue += 256;
-							}
-							if (skinValue > maxSkin) {
-								maxSkin = 256;
-							}
-						}
-					}
 				}
 			}
-			System.err.println("maxSkin index: " + maxSkin);
-			System.err.println("nrOfMatrixGroups: " + nrOfMatrixGroups);
-			System.err.println("nrOfMatrixIndexes: " + nrOfMatrixIndexes);
-			for (int i = 0; i < nrOfMatrixIndexes; i++) {
-				System.err.println(matrixIndexs[i]);
-			}
-
 			MdxUtils.checkId(in, "UVAS");
 			nrOfTextureVertexGroups = in.readInt();
 			vertexTexturePositions = new float[nrOfTextureVertexGroups][];

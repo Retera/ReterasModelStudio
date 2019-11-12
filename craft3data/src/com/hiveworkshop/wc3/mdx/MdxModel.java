@@ -946,7 +946,7 @@ public class MdxModel {
 			materialChunk = new MaterialChunk();
 			materialChunk.material = new MaterialChunk.Material[mdl.getMaterials().size()];
 			for (int i = 0; i < mdl.getMaterials().size(); i++) {
-				materialChunk.material[i] = materialChunk.new Material(mdl.getMaterial(i));
+				materialChunk.material[i] = materialChunk.new Material(mdl.getMaterial(i), versionChunk.version);
 			}
 		}
 		if (mdl.getTextures().size() > 0) {
@@ -1147,7 +1147,6 @@ public class MdxModel {
 			} else if (MdxUtils.checkOptionalId(in, PivotPointChunk.key)) {
 				pivotPointChunk = new PivotPointChunk();
 				pivotPointChunk.load(in);
-				System.err.println("nrOfPivotPoints: " + (pivotPointChunk.pivotPoints.length / 3));
 			} else if (MdxUtils.checkOptionalId(in, ParticleEmitterChunk.key)) {
 				particleEmitterChunk = new ParticleEmitterChunk();
 				particleEmitterChunk.load(in);

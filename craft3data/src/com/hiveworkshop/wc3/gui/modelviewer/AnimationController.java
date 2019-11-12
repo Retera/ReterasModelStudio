@@ -17,6 +17,8 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
@@ -140,18 +142,30 @@ public class AnimationController extends JPanel {
 		alwaysLoopButton.addActionListener(setLoopTypeActionListener);
 		neverLoopButton.addActionListener(setLoopTypeActionListener);
 
+		final JLabel levelOfDetailLabel = new JLabel("Level of Detail");
+		final JSpinner levelOfDetailSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 5, 1));
+		levelOfDetailSpinner.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(final ChangeEvent e) {
+				listener.setLevelOfDetail(((Number) levelOfDetailSpinner.getValue()).intValue());
+			}
+		});
+		levelOfDetailSpinner.setMaximumSize(new Dimension(99999, 25));
+
 		groupLayout.setHorizontalGroup(groupLayout.createParallelGroup().addComponent(animationBox)
 				.addGroup(groupLayout.createSequentialGroup().addGap(8)
 						.addGroup(groupLayout.createParallelGroup().addComponent(playAnimationButton)
 								.addComponent(defaultLoopButton).addComponent(alwaysLoopButton)
-								.addComponent(neverLoopButton).addComponent(speedSliderLabel).addComponent(speedSlider))
+								.addComponent(neverLoopButton).addComponent(speedSliderLabel).addComponent(speedSlider)
+								.addComponent(levelOfDetailLabel).addComponent(levelOfDetailSpinner))
 						.addGap(8)
 
 				));
 		groupLayout.setVerticalGroup(groupLayout.createSequentialGroup().addComponent(animationBox).addGap(32)
 				.addComponent(playAnimationButton).addGap(16).addComponent(defaultLoopButton)
 				.addComponent(alwaysLoopButton).addComponent(neverLoopButton).addGap(16).addComponent(speedSliderLabel)
-				.addComponent(speedSlider)
+				.addComponent(speedSlider).addGap(16).addComponent(levelOfDetailLabel)
+				.addComponent(levelOfDetailSpinner)
 
 		);
 		setLayout(groupLayout);
