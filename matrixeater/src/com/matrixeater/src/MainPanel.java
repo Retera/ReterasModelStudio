@@ -15,9 +15,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -206,6 +208,7 @@ import com.hiveworkshop.wc3.user.WarcraftDataSourceChangeListener;
 import com.hiveworkshop.wc3.user.WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier;
 import com.hiveworkshop.wc3.util.Callback;
 import com.hiveworkshop.wc3.util.ModelUtils;
+import com.hiveworkshop.wc3.util.ModelUtils.Mesh;
 import com.matrixeater.imp.AnimationTransfer;
 import com.matrixeaterhayate.TextureManager;
 import com.owens.oobjloader.builder.Build;
@@ -2990,15 +2993,121 @@ public class MainPanel extends JPanel
 		scaleAnimations.addActionListener(this);
 		scriptsMenu.add(scaleAnimations);
 
-		final JMenuItem version900Toggle = new JMenuItem("Assign FormatVersion 900");
-		version900Toggle.setMnemonic(KeyEvent.VK_A);
-		version900Toggle.addActionListener(new ActionListener() {
+		final JMenuItem version800Toggle = new JMenuItem("Assign FormatVersion 800");
+		version800Toggle.setMnemonic(KeyEvent.VK_A);
+		version800Toggle.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				currentMDL().setFormatVersion(900);
+				currentMDL().setFormatVersion(800);
 			}
 		});
-		scriptsMenu.add(version900Toggle);
+		scriptsMenu.add(version800Toggle);
+
+		final JMenuItem version1000Toggle = new JMenuItem("Assign FormatVersion 1000");
+		version1000Toggle.setMnemonic(KeyEvent.VK_A);
+		version1000Toggle.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				currentMDL().setFormatVersion(1000);
+			}
+		});
+		scriptsMenu.add(version1000Toggle);
+
+		final JMenuItem makeItHDItem = new JMenuItem("SD -> HD (highly experimental, requires 900 or 1000)");
+		makeItHDItem.setMnemonic(KeyEvent.VK_A);
+		makeItHDItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				MDL.makeItHD(currentMDL());
+			}
+		});
+		scriptsMenu.add(makeItHDItem);
+
+		final JMenuItem version800EditingToggle = new JMenuItem("HD -> SD (highly experimental, becomes 800)");
+		version800EditingToggle.setMnemonic(KeyEvent.VK_A);
+		version800EditingToggle.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				MDL.convertToV800(1, currentMDL());
+			}
+		});
+		scriptsMenu.add(version800EditingToggle);
+
+		final JMenuItem jokebutton = new JMenuItem("Load Retera Land");
+		jokebutton.setMnemonic(KeyEvent.VK_A);
+		jokebutton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final StringBuilder sb = new StringBuilder();
+				for (final File file : new File(
+						"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\CustomMapData\\LuaFpsMap\\Maps\\MultiplayerFun004")
+								.listFiles()) {
+					if (!file.getName().toLowerCase().endsWith("_init.txt")) {
+						sb.setLength(0);
+						try (final BufferedReader reader = new BufferedReader(new FileReader(file))) {
+							String line;
+							while ((line = reader.readLine()) != null) {
+								if (line.contains("BlzSetAbilityActivatedIcon")) {
+									final int startIndex = line.indexOf('"') + 1;
+									final int endIndex = line.lastIndexOf('"');
+									final String dataString = line.substring(startIndex, endIndex);
+									sb.append(dataString);
+								}
+							}
+						} catch (final FileNotFoundException e1) {
+							e1.printStackTrace();
+						} catch (final IOException e1) {
+							e1.printStackTrace();
+						}
+						final String dataString = sb.toString();
+						for (int i = 0; (i + 23) < dataString.length(); i += 24) {
+							final Geoset geo = new Geoset();
+							currentMDL().addGeoset(geo);
+							geo.setParentModel(currentMDL());
+							geo.setMaterial(new Material(new Layer("Blend", new Bitmap("textures\\white.blp"))));
+							final String data = dataString.substring(i, i + 24);
+							final int x = Integer.parseInt(data.substring(0, 3));
+							final int y = Integer.parseInt(data.substring(3, 6));
+							final int z = Integer.parseInt(data.substring(6, 9));
+							final int sX = Integer.parseInt(data.substring(9, 10));
+							final int sY = Integer.parseInt(data.substring(10, 11));
+							final int sZ = Integer.parseInt(data.substring(11, 12));
+							final int red = Integer.parseInt(data.substring(12, 15));
+							final int green = Integer.parseInt(data.substring(15, 18));
+							final int blue = Integer.parseInt(data.substring(18, 21));
+							final int alpha = Integer.parseInt(data.substring(21, 24));
+							final GeosetAnim forceGetGeosetAnim = geo.forceGetGeosetAnim();
+							forceGetGeosetAnim.setStaticColor(new Vertex(blue / 255.0, green / 255.0, red / 255.0));
+							forceGetGeosetAnim.setStaticAlpha(alpha / 255.0);
+							System.out.println(x + "," + y + "," + z);
+
+							final Mesh mesh = ModelUtils.createBox(new Vertex(x * 10, y * 10, z * 10),
+									new Vertex((x * 10) + (sX * 10), (y * 10) + (sY * 10), (z * 10) + (sZ * 10)), 1, 1,
+									1, geo);
+							geo.getVertices().addAll(mesh.getVertices());
+							geo.getTriangles().addAll(mesh.getTriangles());
+						}
+					}
+
+				}
+				modelStructureChangeListener.geosetsAdded(new ArrayList<>(currentMDL().getGeosets()));
+			}
+		});
+//		scriptsMenu.add(jokebutton);
+
+		final JMenuItem fixReteraLand = new JMenuItem("Fix Retera Land");
+		fixReteraLand.setMnemonic(KeyEvent.VK_A);
+		fixReteraLand.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final MDL currentMDL = currentMDL();
+				for (final Geoset geo : currentMDL.getGeosets()) {
+					final Animation anim = new Animation(new ExtLog(currentMDL.getExtents()));
+					geo.add(anim);
+				}
+			}
+		});
+//		scriptsMenu.add(fixReteraLand);
 
 		aboutMenu = new JMenu("Help");
 		aboutMenu.setMnemonic(KeyEvent.VK_H);

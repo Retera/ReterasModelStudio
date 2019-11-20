@@ -15,6 +15,7 @@ import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.mdl.v2.MaterialView;
 import com.hiveworkshop.wc3.mdx.LayerChunk;
 import com.hiveworkshop.wc3.mdx.MaterialChunk;
+import com.hiveworkshop.wc3.util.ModelUtils;
 
 /**
  * A class for MDL materials.
@@ -118,7 +119,7 @@ public class Material implements MaterialView {
 		if (MDL.hasFlag(mat.flags, 0x20)) {
 			add("FullResolution");
 		}
-		if ((mdlObject.getFormatVersion() == 900) && MDL.hasFlag(mat.flags, 0x02)) {
+		if (ModelUtils.isShaderStringSupported(mdlObject.getFormatVersion()) && MDL.hasFlag(mat.flags, 0x02)) {
 			add("TwoSided");
 		}
 		this.shaderString = mat.shader;

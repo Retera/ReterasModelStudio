@@ -98,6 +98,7 @@ import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.render3d.RenderParticleEmitter2;
 import com.hiveworkshop.wc3.mdl.render3d.RenderResourceAllocator;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import com.hiveworkshop.wc3.util.ModelUtils;
 
 public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements MouseListener, ActionListener,
 		MouseWheelListener, AnimatedRenderEnvironment, RenderResourceAllocator {
@@ -678,13 +679,13 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 				glColor3f(1f, 1f, 3f);
 				// if( wireframe.isSelected() )
 				for (final Geoset geo : modelView.getModel().getGeosets()) {// .getMDL().getGeosets()
-					if ((formatVersion == 900) && (geo.getLevelOfDetailName() != null)
+					if ((ModelUtils.isLevelOfDetailSupported(formatVersion)) && (geo.getLevelOfDetailName() != null)
 							&& (geo.getLevelOfDetailName().length() > 0)) {
 						if (geo.getLevelOfDetail() != levelOfDetail) {
 							return;
 						}
 					}
-					if ((formatVersion == 900) && (geo.getVertices().size() > 0)
+					if ((ModelUtils.isTangentAndSkinSupported(formatVersion)) && (geo.getVertices().size() > 0)
 							&& (geo.getVertex(0).getSkinBones() != null)) {
 						for (final Triangle tri : geo.getTriangles()) {
 							for (final GeosetVertex v : tri.getVerts()) {
@@ -898,7 +899,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	}
 
 	public void render(final Geoset geo, final boolean renderOpaque, final int formatVersion) {
-		if ((formatVersion == 900) && (geo.getLevelOfDetailName() != null)
+		if ((ModelUtils.isLevelOfDetailSupported(formatVersion)) && (geo.getLevelOfDetailName() != null)
 				&& (geo.getLevelOfDetailName().length() > 0)) {
 			if (geo.getLevelOfDetail() != levelOfDetail) {
 				return;
@@ -915,7 +916,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		final Material material = geo.getMaterial();
 		for (int i = 0; i < material.getLayers().size(); i++) {
 			final Layer layer = material.getLayers().get(i);
-			if (formatVersion == 900) {
+			if (ModelUtils.isShaderStringSupported(formatVersion)) {
 				if ((material.getShaderString() != null) && (material.getShaderString().length() > 0)) {
 					if (i > 0) {
 						break;
@@ -957,7 +958,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 				final Integer texture = textureMap.get(tex);
 				bindLayer(layer, tex, texture, formatVersion, material);
 				glBegin(GL11.GL_TRIANGLES);
-				if ((formatVersion == 900) && (geo.getVertices().size() > 0)
+				if ((ModelUtils.isTangentAndSkinSupported(formatVersion)) && (geo.getVertices().size() > 0)
 						&& (geo.getVertex(0).getSkinBones() != null)) {
 					for (final Triangle tri : geo.getTriangles()) {
 						for (final GeosetVertex v : tri.getVerts()) {
@@ -1154,7 +1155,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			depthMask = true;
 			break;
 		}
-		if (layer.isTwoSided() || ((formatVersion == 900) && parent.getFlags().contains("TwoSided"))) {
+		if (layer.isTwoSided()
+				|| ((ModelUtils.isShaderStringSupported(formatVersion)) && parent.getFlags().contains("TwoSided"))) {
 			GL11.glDisable(GL11.GL_CULL_FACE);
 		} else {
 			GL11.glEnable(GL11.GL_CULL_FACE);
@@ -1530,7 +1532,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 
 		// Send texel data to OpenGL
-		if (formatVersion == 900) {
+		if (ModelUtils.isShaderStringSupported(formatVersion)) {
 			GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, image.getWidth(), image.getHeight(), 0,
 					GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
 		} else {

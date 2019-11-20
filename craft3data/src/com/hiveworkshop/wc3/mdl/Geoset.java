@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 import com.hiveworkshop.wc3.mdx.GeosetChunk;
+import com.hiveworkshop.wc3.util.ModelUtils;
 
 public class Geoset implements Named, VisibilitySource {
 	ExtLog extents;
@@ -520,7 +521,7 @@ public class Geoset implements Named, VisibilitySource {
 		}
 		for (int i = 0; i < sz; i++) {
 			final GeosetVertex gv = vertex.get(i);
-			if ((mdlr.getFormatVersion() == 900) && (tangents != null)) {
+			if ((ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion())) && (tangents != null)) {
 				gv.initV900();
 				for (int j = 0; j < 4; j++) {
 					short boneLookupId = skin.get(i)[j];
@@ -553,7 +554,7 @@ public class Geoset implements Named, VisibilitySource {
 				}
 			}
 			Matrix mx;
-			if ((gv.getVertexGroup() == -1) && (mdlr.getFormatVersion() == 900)) {
+			if ((gv.getVertexGroup() == -1) && (ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion()))) {
 				mx = null;
 			} else {
 				mx = getMatrix(gv.getVertexGroup());
@@ -592,7 +593,8 @@ public class Geoset implements Named, VisibilitySource {
 			final GeosetVertex gv = vertex.get(i);
 			gv.clearBoneAttachments();
 			final Matrix mx = getMatrix(gv.getVertexGroup());
-			if (((gv.getVertexGroup() == -1) || (mx == null)) && (mdlr.getFormatVersion() == 900)) {
+			if (((gv.getVertexGroup() == -1) || (mx == null))
+					&& (ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion()))) {
 
 			} else {
 				mx.updateIds(mdlr);
@@ -761,7 +763,8 @@ public class Geoset implements Named, VisibilitySource {
 				geosetVertex.setMatrix(newTemp);
 			}
 		}
-		if ((mdlr.getFormatVersion() == 900) && (vertex.size() > 0) && (vertex.get(0).getTangent() != null)) {
+		if ((ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion())) && (vertex.size() > 0)
+				&& (vertex.get(0).getTangent() != null)) {
 			writer.println("\tTangents " + vertex.size() + " {");
 			final StringBuilder tangentBuilder = new StringBuilder();
 			for (int i = 0; i < vertex.size(); i++) {

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.hiveworkshop.wc3.util.ModelUtils;
+
 import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
 
@@ -58,7 +60,7 @@ public class MaterialChunk {
 			final int inclusiveSize = in.readInt();
 			priorityPlane = in.readInt();
 			flags = in.readInt();
-			if (version == 900) {
+			if (ModelUtils.isShaderStringSupported(version)) {
 				// 900 settings
 				shader = in.readCharsAsString(SHADER_PART_LEN_V900); // todo any special charset to use here?
 			}
@@ -74,7 +76,7 @@ public class MaterialChunk {
 			out.writeInt(priorityPlane);
 			out.writeInt(flags);
 
-			if (version == 900) {
+			if (ModelUtils.isShaderStringSupported(version)) {
 				out.writeNByteString(shader, SHADER_PART_LEN_V900);
 			}
 
@@ -92,7 +94,7 @@ public class MaterialChunk {
 			if (layerChunk != null) {
 				a += layerChunk.getSize(version);
 			}
-			if (version == 900) {
+			if (ModelUtils.isShaderStringSupported(version)) {
 				a += SHADER_PART_LEN_V900;
 			}
 
@@ -120,7 +122,7 @@ public class MaterialChunk {
 				if (flag.equals("FullResolution")) {
 					flags |= 0x20;
 				}
-				if (version == 900) {
+				if (ModelUtils.isShaderStringSupported(version)) {
 					if (flag.equals("TwoSided")) {
 						flags |= 0x02;
 					}

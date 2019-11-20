@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,7 +57,10 @@ public class StandardObjectData {
 			unitUI.readSLK(source.getResourceAsStream("Units\\UnitUI.slk"));
 
 			unitWeapons.readSLK(source.getResourceAsStream("Units\\UnitWeapons.slk"));
-			profile.readTXT(source.getResourceAsStream("Units\\UnitSkin.txt"), true);
+			final InputStream unitSkin = source.getResourceAsStream("Units\\UnitSkin.txt");
+			if (unitSkin != null) {
+				profile.readTXT(unitSkin, true);
+			}
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}

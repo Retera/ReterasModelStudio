@@ -22,6 +22,7 @@ import com.hiveworkshop.wc3.mdl.QuaternionRotation;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdx.SequenceChunk.Sequence;
+import com.hiveworkshop.wc3.util.ModelUtils;
 
 import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
@@ -1090,7 +1091,7 @@ public class MdxModel {
 				collisionShapeChunk.collisionShape[i] = collisionShapeChunk.new CollisionShape(nodes.get(i));
 			}
 		}
-		if (versionChunk.version == 900) {
+		if (ModelUtils.isBindPoseSupported(versionChunk.version)) {
 			bindPoseChunk = mdl.getBindPoseChunk();
 			faceEffectsChunk = mdl.getFaceEffectsChunk();
 		}
@@ -1248,7 +1249,7 @@ public class MdxModel {
 		if (ribbonEmitterChunk != null) {
 			ribbonEmitterChunk.save(out);
 		}
-		if (versionChunk.version == 900) {
+		if (ModelUtils.isCornSupported(versionChunk.version)) {
 			if (cornChunk != null) {
 				cornChunk.save(out);
 			}
@@ -1262,7 +1263,7 @@ public class MdxModel {
 		if (collisionShapeChunk != null) {
 			collisionShapeChunk.save(out);
 		}
-		if (versionChunk.version == 900) {
+		if (ModelUtils.isBindPoseSupported(versionChunk.version)) {
 			if (faceEffectsChunk != null) {
 				faceEffectsChunk.save(out);
 			}
@@ -1330,7 +1331,7 @@ public class MdxModel {
 		if (eventObjectChunk != null) {
 			a += eventObjectChunk.getSize();
 		}
-		if (versionChunk.version == 900) {
+		if (ModelUtils.isCornSupported(versionChunk.version)) {
 			if (cornChunk != null) {
 				a += cornChunk.getSize();
 			}
@@ -1341,7 +1342,7 @@ public class MdxModel {
 		if (collisionShapeChunk != null) {
 			a += collisionShapeChunk.getSize();
 		}
-		if (versionChunk.version == 900) {
+		if (ModelUtils.isBindPoseSupported(versionChunk.version)) {
 			if (faceEffectsChunk != null) {
 				a += faceEffectsChunk.getSize();
 			}

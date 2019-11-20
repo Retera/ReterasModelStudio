@@ -8,6 +8,8 @@ import com.hiveworkshop.wc3.mdl.ExtLog;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Matrix;
 import com.hiveworkshop.wc3.mdl.Triangle;
+import com.hiveworkshop.wc3.util.CharInt;
+import com.hiveworkshop.wc3.util.ModelUtils;
 
 import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
@@ -125,7 +127,7 @@ public class GeosetChunk {
 			materialId = in.readInt();
 			selectionGroup = in.readInt();
 			selectionType = in.readInt();
-			if (version == 900) {
+			if (ModelUtils.isLevelOfDetailSupported(version)) {
 				this.lod = in.readInt();
 				// todo any special charset to use here?
 				this.lodName = in.readCharsAsString(LOD_PART_LEN_V900);
@@ -134,6 +136,7 @@ public class GeosetChunk {
 			minimumExtent = MdxUtils.loadFloatArray(in, 3);
 			maximumExtent = MdxUtils.loadFloatArray(in, 3);
 			final int nrOfExtents = in.readInt();
+			System.err.println(CharInt.toString(nrOfExtents));
 			extent = new Extent[nrOfExtents];
 			for (int i = 0; i < nrOfExtents; i++) {
 				extent[i] = new Extent();
@@ -142,7 +145,7 @@ public class GeosetChunk {
 			// Comment copied from Ghostwolf's code:
 			// Non-reforged models that come with reforged are saved with version 900,
 			// however they don't have TANG and SKIN.
-			if (version == 900) {
+			if (ModelUtils.isTangentAndSkinSupported(version)) {
 				if (MdxUtils.checkOptionalId(in, "TANG")) {
 					in.skip(4);// TANG
 					final int tangentsLength = in.readInt();
@@ -212,7 +215,7 @@ public class GeosetChunk {
 			out.writeInt(selectionGroup);
 			out.writeInt(selectionType);
 
-			if (version == 900) {
+			if (ModelUtils.isLevelOfDetailSupported(version)) {
 				out.writeInt(this.lod);
 				out.writeNByteString(this.lodName, LOD_PART_LEN_V900);
 			}
@@ -235,7 +238,7 @@ public class GeosetChunk {
 				extent[i].save(out);
 			}
 
-			if ((version == 900) && (this.tangents.length > 0)) {
+			if (ModelUtils.isTangentAndSkinSupported(version) && (this.tangents.length > 0)) {
 				out.writeNByteString("TANG", 4);
 				out.writeInt(this.tangents.length / 4);
 				MdxUtils.saveFloatArray(out, this.tangents);
@@ -300,7 +303,7 @@ public class GeosetChunk {
 			a += 4;
 			a += 4;
 
-			if (version == 900) {
+			if (ModelUtils.isTangentAndSkinSupported(version)) {
 				// lod: 4
 				// lodName: 80
 				// TANG: 4

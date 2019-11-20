@@ -45,6 +45,36 @@ public class GeosetVertex extends Vertex {
 		tangent = new float[4];
 	}
 
+	public void un900Heuristic() {
+		if (tangent != null) {
+			tangent = null;
+		}
+		if (skinBones != null) {
+			bones.clear();
+			int index = 0;
+			boolean fallback = false;
+			for (final Bone bone : skinBones) {
+				if (bone != null) {
+					fallback = true;
+					if (skinBoneWeights[index] > 110) {
+						bones.add(bone);
+					}
+				}
+				index++;
+			}
+			if (bones.isEmpty() && fallback) {
+				for (final Bone bone : skinBones) {
+					if (bone != null) {
+						bones.add(bone);
+					}
+				}
+			}
+			skinBones = null;
+			skinBoneWeights = null;
+			skinBoneIndexes = null;
+		}
+	}
+
 	public GeosetVertex(final GeosetVertex old) {
 		super(old.x, old.y, old.z);
 		this.normal = new Normal(old.normal);

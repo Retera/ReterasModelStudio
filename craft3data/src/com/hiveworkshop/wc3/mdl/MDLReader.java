@@ -227,10 +227,10 @@ public class MDLReader {
 		} else {
 			followMarks = 0;
 		}
-		if (followMarks > 30) {
-			throw new RuntimeException(
-					"Program detected infinite loop in file reading sequence. Probably bad model, or error in interpreter!");
-		}
+//		if (followMarks > 30) {
+//			throw new RuntimeException(
+//					"Program detected infinite loop in file reading sequence. Probably bad model, or error in interpreter!");
+//		}
 		try {
 			reader.reset();
 		} catch (final IOException e) {

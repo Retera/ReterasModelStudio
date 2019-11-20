@@ -125,6 +125,9 @@ public class CornChunk {
 		public PopcornFxEmitter(final com.hiveworkshop.wc3.mdl.PopcornFxEmitter light) {
 			node = new Node(light);
 //			node.flags |= 0x200;
+			if (light.isTeamColor()) {
+				node.flags |= Node.NodeFlag.TEAM_COLORED_CORN.getValue();
+			}
 			// more to do here
 			for (final AnimFlag af : light.getAnimFlags()) {
 				if (af.getName().equals("Visibility")) {

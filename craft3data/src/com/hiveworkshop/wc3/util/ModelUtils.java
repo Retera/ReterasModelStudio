@@ -93,16 +93,19 @@ public final class ModelUtils {
 		final List<Triangle> triangles = new ArrayList<>();
 		final double firstDimensionSegmentWidth = (maxFirst - minFirst) / numberOfSegmentsX;
 		final double secondDimensionSegmentWidth = (maxSecond - minSecond) / numberOfSegmentsY;
+		final double segmentWidthUV1 = 1. / numberOfSegmentsX;
+		final double segmentWidthUV2 = 1. / numberOfSegmentsY;
 		GeosetVertex[] previousRow = null;
-		for (int y = 0; y < numberOfSegmentsY + 1; y++) {
+		for (int y = 0; y < (numberOfSegmentsY + 1); y++) {
 			final GeosetVertex[] currentRow = new GeosetVertex[numberOfSegmentsX + 1];
-			for (int x = 0; x < numberOfSegmentsX + 1; x++) {
+			for (int x = 0; x < (numberOfSegmentsX + 1); x++) {
 				final Normal normal = new Normal(facingVector.x, facingVector.y, facingVector.z);
 				final GeosetVertex vertex = new GeosetVertex(0, 0, 0, normal);
 				currentRow[x] = vertex;
 				vertex.setCoord(planeDimension, planeHeight);
-				vertex.setCoord(firstDimension, minFirst + x * firstDimensionSegmentWidth);
-				vertex.setCoord(secondDimension, minSecond + y * secondDimensionSegmentWidth);
+				vertex.setCoord(firstDimension, minFirst + (x * firstDimensionSegmentWidth));
+				vertex.setCoord(secondDimension, minSecond + (y * secondDimensionSegmentWidth));
+				vertex.addTVertex(new TVertex(x * segmentWidthUV1, y * segmentWidthUV2));
 				vertices.add(vertex);
 				if (y > 0) {
 					if (x > 0) {
@@ -196,7 +199,8 @@ public final class ModelUtils {
 	}
 
 	/**
-	 * Creates a box ready to add to the dataGeoset, but does not actually modify the geoset itself
+	 * Creates a box ready to add to the dataGeoset, but does not actually modify
+	 * the geoset itself
 	 *
 	 * @param max
 	 * @param min
@@ -301,6 +305,34 @@ public final class ModelUtils {
 			}
 		}
 		model.add(geoset);
+	}
+
+	public static boolean isLevelOfDetailSupported(final int formatVersion) {
+		return (formatVersion == 900) || (formatVersion == 1000);
+	}
+
+	public static boolean isShaderStringSupported(final int formatVersion) {
+		return (formatVersion == 900) || (formatVersion == 1000);
+	}
+
+	public static boolean isTangentAndSkinSupported(final int formatVersion) {
+		return (formatVersion == 900) || (formatVersion == 1000);
+	}
+
+	public static boolean isBindPoseSupported(final int formatVersion) {
+		return (formatVersion == 900) || (formatVersion == 1000);
+	}
+
+	public static boolean isEmissiveLayerSupported(final int formatVersion) {
+		return (formatVersion == 900) || (formatVersion == 1000);
+	}
+
+	public static boolean isStaticColorLayerSupported(final int formatVersion) {
+		return formatVersion == 1000;
+	}
+
+	public static boolean isCornSupported(final int formatVersion) {
+		return (formatVersion == 900) || (formatVersion == 1000);
 	}
 
 	private ModelUtils() {

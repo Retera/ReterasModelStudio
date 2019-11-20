@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.mdx;
 import java.io.IOException;
 
 import com.hiveworkshop.wc3.mdl.AnimFlag;
+import com.hiveworkshop.wc3.util.ModelUtils;
 
 import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
@@ -51,6 +52,7 @@ public class LayerChunk {
 		public int unknownNull_CoordID;
 		public float alpha = 1;
 		public float emissive = Float.NaN;
+		public float[] mdx1000UnknownData;
 		public MaterialAlpha materialAlpha;
 		public MaterialTextureId materialTextureId;
 		public MaterialEmissions materialEmissions;
@@ -58,13 +60,17 @@ public class LayerChunk {
 		public void load(final BlizzardDataInputStream in, final int version) throws IOException {
 			final int inclusiveSize = in.readInt();
 			filterMode = in.readInt();
+			System.err.println("Filter Mode " + filterMode);
 			shadingFlags = in.readInt();
 			textureId = in.readInt();
 			textureAnimationId = in.readInt();
 			unknownNull_CoordID = in.readInt();
 			alpha = in.readFloat();
-			if (version == 900) {
+			if (ModelUtils.isEmissiveLayerSupported(version)) {
 				emissive = in.readFloat();
+			}
+			if (ModelUtils.isStaticColorLayerSupported(version)) {
+				mdx1000UnknownData = MdxUtils.loadFloatArray(in, 5);
 			}
 			for (int i = 0; i < 3; i++) {
 				if (MdxUtils.checkOptionalId(in, MaterialAlpha.key)) {
@@ -88,8 +94,19 @@ public class LayerChunk {
 			out.writeInt(textureAnimationId);
 			out.writeInt(unknownNull_CoordID);
 			out.writeFloat(alpha);
-			if (version == 900) {
+			if (ModelUtils.isEmissiveLayerSupported(version)) {
 				out.writeFloat(emissive);
+			}
+			if (ModelUtils.isStaticColorLayerSupported(version)) {
+				if (mdx1000UnknownData != null) {
+					MdxUtils.saveFloatArray(out, mdx1000UnknownData);
+				} else {
+					out.writeFloat(1.0f);
+					out.writeFloat(1.0f);
+					out.writeFloat(1.0f);
+					out.writeFloat(0.0f);
+					out.writeFloat(0.0f);
+				}
 			}
 			if (materialAlpha != null) {
 				materialAlpha.save(out);
@@ -112,8 +129,11 @@ public class LayerChunk {
 			a += 4;
 			a += 4;
 			a += 4;
-			if (version == 900) {
+			if (ModelUtils.isEmissiveLayerSupported(version)) {
 				a += 4;
+			}
+			if (ModelUtils.isStaticColorLayerSupported(version)) {
+				a += 20;
 			}
 			if (materialAlpha != null) {
 				a += materialAlpha.getSize();

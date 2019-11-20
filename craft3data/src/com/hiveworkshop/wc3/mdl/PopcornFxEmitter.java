@@ -371,4 +371,8 @@ public class PopcornFxEmitter extends IdObject implements VisibilitySource {
 		}
 		return 0;
 	}
+
+	public boolean isTeamColor() {
+		return flags.contains("TeamColor");
+	}
 }

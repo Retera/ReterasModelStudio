@@ -46,6 +46,10 @@ public class Bitmap {
 		return replaceableId;
 	}
 
+	public void setReplaceableId(final int replaceableId) {
+		this.replaceableId = replaceableId;
+	}
+
 	public Bitmap(final String imagePath, final int replaceableId) {
 		this.imagePath = imagePath;
 		this.replaceableId = replaceableId;
@@ -59,7 +63,7 @@ public class Bitmap {
 
 	public Bitmap(final TextureChunk.Texture tex) {
 		this(tex.fileName, tex.replaceableId);
-		if (replaceableId == 0 && !imagePath.equals("")) {
+		if ((replaceableId == 0) && !imagePath.equals("")) {
 			replaceableId = -1; // nice and tidy it up for the MDL code
 		}
 		setWrapStyle(tex.flags);
@@ -77,9 +81,9 @@ public class Bitmap {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((imagePath == null) ? 0 : imagePath.hashCode());
-		result = prime * result + replaceableId;
-		result = prime * result + wrapStyle;
+		result = (prime * result) + ((imagePath == null) ? 0 : imagePath.hashCode());
+		result = (prime * result) + replaceableId;
+		result = (prime * result) + wrapStyle;
 		return result;
 	}
 
@@ -125,7 +129,7 @@ public class Bitmap {
 	// return does;
 	// }
 	public boolean getWrapHeight() {
-		return wrapStyle == 2 || wrapStyle == 3;
+		return (wrapStyle == 2) || (wrapStyle == 3);
 	}
 
 	public void setWrapHeight(final boolean flag) {
@@ -145,7 +149,7 @@ public class Bitmap {
 	}
 
 	public boolean getWrapWidth() {
-		return wrapStyle == 1 || wrapStyle == 3;
+		return (wrapStyle == 1) || (wrapStyle == 3);
 	}
 
 	public void setWrapWidth(final boolean flag) {
