@@ -186,7 +186,7 @@ public class PopcornFxEmitter extends IdObject implements VisibilitySource {
 		final int maybeColors = maybeColor.length / 4;
 		for (int i = 0; i < maybeColors; i++) {
 			writer.println("\t\tColor " + new QuaternionRotation(maybeColor[(i * 4) + 0], maybeColor[(i * 4) + 1],
-					maybeColor[(i * 4) + 2], maybeColor[(i * 4) + 2]).toString() + ",");
+					maybeColor[(i * 4) + 2], maybeColor[(i * 4) + 3]).toString() + ",");
 		}
 		writer.println("\t},");
 		if (path != null) {
@@ -370,9 +370,5 @@ public class PopcornFxEmitter extends IdObject implements VisibilitySource {
 			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
 		}
 		return 0;
-	}
-
-	public boolean isTeamColor() {
-		return flags.contains("TeamColor");
 	}
 }

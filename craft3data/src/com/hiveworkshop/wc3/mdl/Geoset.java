@@ -536,7 +536,12 @@ public class Geoset implements Named, VisibilitySource {
 					if ((boneLookupId >= mdlr.getIdObjectsSize()) || (boneLookupId < 0)) {
 						bone = null;
 					} else {
-						bone = (Bone) mdlr.getIdObject(boneLookupId);
+						final IdObject idObject = mdlr.getIdObject(boneLookupId);
+						if (idObject instanceof Bone) {
+							bone = (Bone) idObject;
+						} else {
+							bone = null;
+						}
 					}
 					gv.getSkinBones()[j] = bone;
 					gv.getSkinBoneWeights()[j] = boneWeight;

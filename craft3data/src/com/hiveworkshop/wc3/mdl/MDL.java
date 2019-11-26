@@ -1475,14 +1475,14 @@ public class MDL implements Named {
 			}
 		}
 
-		if (faceEffectsChunk != null) {
+		if ((faceEffectsChunk != null) && ModelUtils.isBindPoseSupported(formatVersion)) {
 			writer.println("FaceEffects {");
 			writer.println("\tTarget \"" + faceEffectsChunk.faceEffectTarget + "\",");
 			writer.println("\tPath \"" + faceEffectsChunk.faceEffect + "\",");
 			writer.println("}");
 		}
 
-		if (bindPoseChunk != null) {
+		if ((bindPoseChunk != null) && ModelUtils.isBindPoseSupported(formatVersion)) {
 			writer.println("BindPose " + bindPoseChunk.bindPose.length + " {");
 			final StringBuilder matrixStringBuilder = new StringBuilder();
 			for (int i = 0; i < bindPoseChunk.bindPose.length; i++) {
@@ -2330,11 +2330,8 @@ public class MDL implements Named {
 			pivots.add(x.pivotPoint);
 		}
 		if (ModelUtils.isBindPoseSupported(formatVersion) && (bindPoseChunk != null)) {
-			if (x instanceof Bone) {
-				final Bone b = (Bone) x;
-				if (b.getBindPose() == null) {
-					b.setBindPose(new float[] { 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 });
-				}
+			if (x.getBindPose() == null) {
+				x.setBindPose(new float[] { 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 });
 			}
 		}
 	}
@@ -2345,6 +2342,11 @@ public class MDL implements Named {
 					"Added null Camera component to model, which is really bad. Tell Retera you saw this once you have errors.");
 		}
 		cameras.add(x);
+		if (ModelUtils.isBindPoseSupported(formatVersion) && (bindPoseChunk != null)) {
+			if (x.getBindPose() == null) {
+				x.setBindPose(new float[] { 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 });
+			}
+		}
 	}
 
 	public boolean contains(final Animation x) {

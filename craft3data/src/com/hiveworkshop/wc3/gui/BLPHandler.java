@@ -20,7 +20,6 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 
-import com.hiveworkshop.wc3.gui.dds.DDSFile;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 
 public class BLPHandler {
@@ -40,10 +39,10 @@ public class BLPHandler {
 	}
 
 	public BufferedImage getTexture(final String workingDirectory, final String filepath, final boolean alpha) {
-		if (filepath.toLowerCase().endsWith("_normal.tif") || filepath.toLowerCase().endsWith("_orm.tif")) {
-			// reforged hack
-			return null;
-		}
+//		if (filepath.toLowerCase().endsWith("_normal.tif") || filepath.toLowerCase().endsWith("_orm.tif")) {
+//			// reforged hack
+//			return null;
+//		}
 		final BufferedImage image = getGameTex(filepath, alpha);
 		if (image != null) {
 			return image;
@@ -125,7 +124,7 @@ public class BLPHandler {
 		if (cacheToUse.containsKey(filepath)) {
 			return cacheToUse.get(filepath);
 		}
-		InputStream blpFile = MpqCodebase.get().getResourceAsStream(filepath);
+		final InputStream blpFile = MpqCodebase.get().getResourceAsStream(filepath);
 		if (blpFile == null) {
 			return null;
 		}
@@ -142,24 +141,6 @@ public class BLPHandler {
 //					final List<? extends BufferedImage> thumbnails = next.getThumbnails();
 //					return thumbnails.get(0);
 //				}
-				blpFile = MpqCodebase.get().getResourceAsStream(filepath);
-				if (DDSFile.isValidDDSImage(blpFile)) {
-					final DDSFile image = new DDSFile(filepath);
-					if ((image.getTextureType() == DDSFile.TextureType.CUBEMAP)
-							|| (image.getTextureType() == DDSFile.TextureType.VOLUME)) {
-						System.err.println("Error from DDS: "
-								+ "<html>Error: This programm doesn't support cubemaps or volume textures." + "<br>"
-								+ image.getFile().getName() + " can not be loaded.</html>");
-						return null;
-					}
-					try {
-						image.loadImageData();
-					} catch (final ArrayIndexOutOfBoundsException exc2) {
-						// currently this is the normal maps case, bad dirty handling
-						return null;
-					}
-					return image.getData();
-				}
 				return null;
 			}
 			if (alpha) {

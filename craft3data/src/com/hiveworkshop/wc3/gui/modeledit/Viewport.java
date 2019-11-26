@@ -287,8 +287,15 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		paintComponent(g, 1);
 	}
 
+	long min = Long.MAX_VALUE;
+	long max;
+	long avg;
+	long runningSum;
+	long count;
+
 	public void paintComponent(final Graphics g, final int vertexSize) {
 		super.paintComponent(g);
+		final long renderStart = System.nanoTime();
 		if (programPreferences.isInvertedDisplay()) {
 			final Point2D.Double cameraOrigin = new Point2D.Double(convertX(0), convertY(0));
 
@@ -421,10 +428,37 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		// // JOptionPane.showMessageDialog(null,"Error retrieving mouse
 		// // coordinates. (Probably not a major issue. Due to sleep mode?)");
 		// }
+
+		final long renderEnd = System.nanoTime();
+		final long elapsed = renderEnd - renderStart;
+		if (elapsed < min) {
+			min = elapsed;
+		}
+		if (elapsed > max) {
+			max = elapsed;
+		}
+		runningSum += elapsed;
+		count += 1;
+		if (count >= 100) {
+			final long millis = ((runningSum / count) / 1000000L) + 1;
+			if (millis > paintTimer.getDelay()) {
+				final int millis2 = (int) (millis * 5);
+				System.out.println("delay=" + millis2);
+				paintTimer.setDelay(millis2);
+			} else if (millis < paintTimer.getDelay()) {
+				final int max2 = Math.max(16, (int) (millis * 5));
+				System.out.println("delay=" + max2);
+				paintTimer.setDelay(max2);
+			}
+			min = Long.MAX_VALUE;
+			max = 0;
+			runningSum = 0;
+			count = 0;
+		}
 		final boolean showing = isShowing();
 		final boolean running = paintTimer.isRunning();
 		if (showing && !running) {
-			paintTimer.restart();
+			paintTimer.start();
 		} else if (!showing && running) {
 			paintTimer.stop();
 		}
@@ -471,11 +505,11 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 					// }
 				}
 				final PointerInfo pointerInfo = MouseInfo.getPointerInfo();
-				if (pointerInfo == null) {
+				if ((pointerInfo == null) || (pointerInfo.getLocation() == null)) {
 					return;
 				}
 				final double mx = pointerInfo.getLocation().x - xoff;// MainFrame.frame.getX()-8);
-				final double my = MouseInfo.getPointerInfo().getLocation().y - yoff;// MainFrame.frame.getY()-30);
+				final double my = pointerInfo.getLocation().y - yoff;// MainFrame.frame.getY()-30);
 				// JOptionPane.showMessageDialog(null,mx+","+my+" as mouse,
 				// "+lastClick.x+","+lastClick.y+" as last.");
 				// System.out.println(xoff+" and "+mx);
