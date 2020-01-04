@@ -180,6 +180,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		}
 		loadBackgroundColors();
 		paintTimer = new Timer(16, new ActionListener() {
+
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				repaint();
@@ -187,6 +188,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 					paintTimer.stop();
 				}
 			}
+
 		});
 		paintTimer.start();
 	}
@@ -670,6 +672,9 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			// glEnable(GL_COLOR_MATERIAL);
 			final ArrayList<Geoset> geosets = modelView.getModel().getGeosets();
 			render(geosets, formatVersion);
+			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
+			GL11.glDisable(GL11.GL_TEXTURE_2D);
 			if ((programPreferences != null) && programPreferences.showNormals()) {
 				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
@@ -682,7 +687,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 					if ((ModelUtils.isLevelOfDetailSupported(formatVersion)) && (geo.getLevelOfDetailName() != null)
 							&& (geo.getLevelOfDetailName().length() > 0)) {
 						if (geo.getLevelOfDetail() != levelOfDetail) {
-							return;
+							continue;
 						}
 					}
 					if ((ModelUtils.isTangentAndSkinSupported(formatVersion)) && (geo.getVertices().size() > 0)
@@ -696,10 +701,14 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 								skinBonesMatrixSumHeap.setZero();
 								final Bone[] skinBones = v.getSkinBones();
 								final short[] skinBoneWeights = v.getSkinBoneWeights();
-								vertexSumHeap.set(0, 0, 0, 0);
+								boolean processedBones = false;
 								for (int boneIndex = 0; boneIndex < 4; boneIndex++) {
-									final Matrix4f worldMatrix = renderModel.getRenderNode(skinBones[boneIndex])
-											.getWorldMatrix();
+									final Bone skinBone = skinBones[boneIndex];
+									if (skinBone == null) {
+										continue;
+									}
+									processedBones = true;
+									final Matrix4f worldMatrix = renderModel.getRenderNode(skinBone).getWorldMatrix();
 									skinBonesMatrixHeap.load(worldMatrix);
 
 									skinBonesMatrixSumHeap.m00 += (skinBonesMatrixHeap.m00 * skinBoneWeights[boneIndex])
@@ -735,6 +744,9 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 									skinBonesMatrixSumHeap.m33 += (skinBonesMatrixHeap.m33 * skinBoneWeights[boneIndex])
 											/ 255f;
 								}
+								if (!processedBones) {
+									skinBonesMatrixSumHeap.setIdentity();
+								}
 								Matrix4f.transform(skinBonesMatrixSumHeap, vertexHeap, vertexSumHeap);
 								if (v.getNormal() != null) {
 									normalHeap.x = (float) v.getNormal().x;
@@ -747,6 +759,12 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 										normalSumHeap.normalise();
 									} else {
 										normalSumHeap.set(0, 1, 0, 0);
+									}
+									if (Float.isNaN(normalSumHeap.x) || Float.isNaN(normalSumHeap.y)
+											|| Float.isNaN(normalSumHeap.z) || Float.isNaN(normalSumHeap.w)
+											|| Float.isInfinite(normalSumHeap.x) || Float.isInfinite(normalSumHeap.y)
+											|| Float.isInfinite(normalSumHeap.z) || Float.isInfinite(normalSumHeap.w)) {
+										continue;
 									}
 
 									GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
@@ -834,10 +852,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			// System.out.println("max:
 			// "+GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE));
 
-			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
-			GL11.glDisable(GL11.GL_TEXTURE_2D);
-
 			// glPopMatrix();
 			swapBuffers();
 			final boolean showing = isShowing();
@@ -847,7 +861,9 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			} else if (!showing && running) {
 				paintTimer.stop();
 			}
-		} catch (final Throwable e) {
+		} catch (
+
+		final Throwable e) {
 			e.printStackTrace();
 			lastExceptionTimeMillis = System.currentTimeMillis();
 			if ((lastThrownErrorClass == null) || (lastThrownErrorClass != e.getClass())) {
@@ -970,9 +986,14 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 							final Bone[] skinBones = v.getSkinBones();
 							final short[] skinBoneWeights = v.getSkinBoneWeights();
 							vertexSumHeap.set(0, 0, 0, 0);
+							boolean processedBones = false;
 							for (int boneIndex = 0; boneIndex < 4; boneIndex++) {
-								final Matrix4f worldMatrix = renderModel.getRenderNode(skinBones[boneIndex])
-										.getWorldMatrix();
+								final Bone skinBone = skinBones[boneIndex];
+								if (skinBone == null) {
+									continue;
+								}
+								processedBones = true;
+								final Matrix4f worldMatrix = renderModel.getRenderNode(skinBone).getWorldMatrix();
 								skinBonesMatrixHeap.load(worldMatrix);
 
 								skinBonesMatrixSumHeap.m00 += (skinBonesMatrixHeap.m00 * skinBoneWeights[boneIndex])
@@ -1007,6 +1028,9 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 										/ 255f;
 								skinBonesMatrixSumHeap.m33 += (skinBonesMatrixHeap.m33 * skinBoneWeights[boneIndex])
 										/ 255f;
+							}
+							if (!processedBones) {
+								skinBonesMatrixSumHeap.setIdentity();
 							}
 							Matrix4f.transform(skinBonesMatrixSumHeap, vertexHeap, vertexSumHeap);
 							if (v.getNormal() != null) {

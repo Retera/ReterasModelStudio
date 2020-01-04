@@ -138,6 +138,10 @@ public class DataTable implements ObjectData {
 	public void loadDestructibles() {
 		try {
 			readSLK(MpqCodebase.get().getResourceAsStream("Units\\DestructableData.slk"));
+			final InputStream unitSkin = MpqCodebase.get().getResourceAsStream("Units\\DestructableSkin.txt");
+			if (unitSkin != null) {
+				readTXT(unitSkin, true);
+			}
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
@@ -146,6 +150,10 @@ public class DataTable implements ObjectData {
 	public void loadDoodads() {
 		try {
 			readSLK(MpqCodebase.get().getResourceAsStream("Doodads\\Doodads.slk"));
+			final InputStream unitSkin = MpqCodebase.get().getResourceAsStream("Doodads\\DoodadSkins.txt");
+			if (unitSkin != null) {
+				readTXT(unitSkin, true);
+			}
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
@@ -283,6 +291,10 @@ public class DataTable implements ObjectData {
 		readTXT(MpqCodebase.get().getResourceAsStream("Units\\ItemAbilityFunc.txt"));
 		readTXT(MpqCodebase.get().getResourceAsStream("Units\\ItemAbilityStrings.txt"));
 		readTXT(MpqCodebase.get().getResourceAsStream("Units\\ItemStrings.txt"));
+		final InputStream unitSkin = MpqCodebase.get().getResourceAsStream("Units\\UnitSkin.txt");
+		if (unitSkin != null) {
+			readTXT(unitSkin);
+		}
 		// readTXT(MpqNativeCodebase.get().getGameFile("war3mapMisc.txt"));
 
 		// Specific data edits for tech browser

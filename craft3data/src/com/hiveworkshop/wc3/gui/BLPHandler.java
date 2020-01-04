@@ -22,6 +22,8 @@ import javax.imageio.stream.ImageInputStream;
 
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 
+import de.wc3data.image.TgaFile;
+
 public class BLPHandler {
 
 	public BLPHandler() {
@@ -178,6 +180,9 @@ public class BLPHandler {
 
 		final Iterator iter = ImageIO.getImageReaders(stream);
 		if (!iter.hasNext()) {
+			if (file.getName().toLowerCase().endsWith(".tga")) {
+				return TgaFile.readTGA(file);
+			}
 			return null;
 		}
 

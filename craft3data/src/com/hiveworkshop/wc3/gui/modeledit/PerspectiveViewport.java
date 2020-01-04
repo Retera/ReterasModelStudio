@@ -666,8 +666,6 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 								}
 
 								GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-
-								GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
 								GL11.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
 
 								GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);

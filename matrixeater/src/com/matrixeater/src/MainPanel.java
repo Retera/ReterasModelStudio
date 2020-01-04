@@ -874,6 +874,8 @@ public class MainPanel extends JPanel
 											final ImageIcon icon = new ImageIcon(com.hiveworkshop.wc3.util.IconUtils
 													.getIcon(obj, WorldEditorDataType.DOODADS)
 													.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
+
+											System.out.println(path);
 											loadFile(MpqCodebase.get().getFile(path), true, i == 0, icon);
 											if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
 												loadFile(MpqCodebase.get().getFile(portrait), true, false, icon);
@@ -886,6 +888,7 @@ public class MainPanel extends JPanel
 										final ImageIcon icon = new ImageIcon(com.hiveworkshop.wc3.util.IconUtils
 												.getIcon(obj, WorldEditorDataType.DOODADS)
 												.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
+										System.out.println(path);
 										loadFile(MpqCodebase.get().getFile(path), true, true, icon);
 										if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
 											loadFile(MpqCodebase.get().getFile(portrait), true, false, icon);
@@ -3032,6 +3035,16 @@ public class MainPanel extends JPanel
 			}
 		});
 		scriptsMenu.add(version800EditingToggle);
+
+		final JMenuItem recalculateTangents = new JMenuItem("Recalculate Tangents (requires 900 or 1000)");
+		recalculateTangents.setMnemonic(KeyEvent.VK_A);
+		recalculateTangents.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				MDL.recalculateTangents(currentMDL(), MainPanel.this);
+			}
+		});
+		scriptsMenu.add(recalculateTangents);
 
 		final JMenuItem jokebutton = new JMenuItem("Load Retera Land");
 		jokebutton.setMnemonic(KeyEvent.VK_A);

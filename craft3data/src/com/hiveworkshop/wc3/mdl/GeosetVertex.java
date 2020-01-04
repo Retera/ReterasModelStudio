@@ -246,6 +246,10 @@ public class GeosetVertex extends Vertex {
 		return tangent;
 	}
 
+	public void setTangent(final float[] tangent) {
+		this.tangent = tangent;
+	}
+
 	public void setGeoset(final Geoset geoset) {
 		this.geoset = geoset;
 	}

@@ -28,6 +28,12 @@ public class TVertex {
 		this.y = y;
 	}
 
+	public TVertex subtract(final TVertex other) {
+		this.x -= other.x;
+		this.y -= other.y;
+		return this;
+	}
+
 	/**
 	 * This method was designed late and is not reliable unless updated by an
 	 * outside source.

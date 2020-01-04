@@ -30,6 +30,12 @@ public class Vertex {
 		z = data[2];
 	}
 
+	public Vertex(final double[] data) {
+		x = data[0];
+		y = data[1];
+		z = data[2];
+	}
+
 	public Vertex(final float[] data, final boolean flip) {
 		if (flip) {
 			z = data[0];
@@ -224,10 +230,18 @@ public class Vertex {
 		return new Vertex(other.x - x, other.y - y, other.z - z);
 	}
 
-	public void subtract(final Vertex other) {
+	public Vertex subtract(final Vertex other) {
 		this.x -= other.x;
 		this.y -= other.y;
 		this.z -= other.z;
+		return this;
+	}
+
+	public Vertex add(final Vertex other) {
+		this.x += other.x;
+		this.y += other.y;
+		this.z += other.z;
+		return this;
 	}
 
 	public Vertex crossProduct(final Vertex other) {
@@ -259,6 +273,13 @@ public class Vertex {
 		this.x = centerX + (dx * scaleX);
 		this.y = centerY + (dy * scaleY);
 		this.z = centerZ + (dz * scaleZ);
+	}
+
+	public Vertex scale(final double factor) {
+		this.x *= factor;
+		this.y *= factor;
+		this.z *= factor;
+		return this;
 	}
 
 	public void rotate(final double centerX, final double centerY, final double centerZ, final double radians,
@@ -342,5 +363,13 @@ public class Vertex {
 		if (!Double.isNaN(nextDim)) {
 			vertex.setCoord(secondXYZ, (Math.sin(verAng + radians) * r) + cy);
 		}
+	}
+
+	public Vertex normalize() {
+		final double magnitude = Math.sqrt((x * x) + (y * y) + (z * z));
+		x /= magnitude;
+		y /= magnitude;
+		z /= magnitude;
+		return this;
 	}
 }

@@ -1,5 +1,6 @@
 package com.hiveworkshop.wc3.mdl;
 
+import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -3116,6 +3117,126 @@ public class MDL implements Named {
 			m.getLayers().add(5, new Layer("None", texture2));
 			for (final Layer l : m.getLayers()) {
 				l.setEmissive(1.0);
+			}
+		}
+	}
+
+	public static void recalculateTangents(final MDL currentMDL, final Component parent) {
+		// copied from
+		// https://github.com/TaylorMouse/MaxScripts/blob/master/Warcraft%203%20Reforged/GriffonStudios/GriffonStudios_Warcraft_3_Reforged_Export.ms#L169
+		currentMDL.doSavePreps(); // I wanted to use VertexId on the triangle
+		for (final Geoset theMesh : currentMDL.getGeosets()) {
+			final double[][] tan1 = new double[theMesh.getVertices().size()][];
+			final double[][] tan2 = new double[theMesh.getVertices().size()][];
+			for (int nFace = 0; nFace < theMesh.getTriangles().size(); nFace++) {
+				final Triangle face = theMesh.getTriangle(nFace);
+
+				final GeosetVertex v1 = face.getVerts()[0];
+				final GeosetVertex v2 = face.getVerts()[1];
+				final GeosetVertex v3 = face.getVerts()[2];
+
+				final TVertex w1 = v1.getTVertex(0);
+				final TVertex w2 = v2.getTVertex(0);
+				final TVertex w3 = v3.getTVertex(0);
+
+				final double x1 = v2.x - v1.x;
+				final double x2 = v3.x - v1.x;
+				final double y1 = v2.y - v1.y;
+				final double y2 = v3.y - v1.y;
+				final double z1 = v2.z - v1.z;
+				final double z2 = v3.z - v1.z;
+
+				final double s1 = w2.x - w1.x;
+				final double s2 = w3.x - w1.x;
+				final double t1 = w2.y - w1.y;
+				final double t2 = w3.y - w1.y;
+
+				final double r = 1.0 / ((s1 * t2) - (s2 * t1));
+
+				final double[] sdir = { ((t2 * x1) - (t1 * x2)) * r, ((t2 * y1) - (t1 * y2)) * r,
+						((t2 * z1) - (t1 * z2)) * r };
+				final double[] tdir = { ((s1 * x2) - (s2 * x1)) * r, ((s1 * y2) - (s2 * y1)) * r,
+						((s1 * z2) - (s2 * z1)) * r };
+
+				tan1[face.getId(0)] = sdir;
+				tan1[face.getId(1)] = sdir;
+				tan1[face.getId(2)] = sdir;
+
+				tan2[face.getId(0)] = tdir;
+				tan2[face.getId(1)] = tdir;
+				tan2[face.getId(2)] = tdir;
+			}
+			for (int vertexId = 0; vertexId < theMesh.getVertices().size(); vertexId++) {
+				final GeosetVertex gv = theMesh.getVertex(vertexId);
+				final Normal n = gv.getNormal();
+				final Vertex t = new Vertex(tan1[vertexId]);
+
+				final Vertex v = new Vertex(t).subtract(n).scale(n.dotProduct(t)).normalize();
+				double w = n.crossProduct(t).dotProduct(new Vertex(tan2[vertexId]));
+
+				if (w < 0.0) {
+					w = -1.0;
+				} else {
+					w = 1.0;
+				}
+				gv.setTangent(new float[] { (float) v.x, (float) v.y, (float) v.z, (float) w });
+			}
+		}
+		int goodTangents = 0;
+		int badTangents = 0;
+		for (final Geoset theMesh : currentMDL.getGeosets()) {
+			for (final GeosetVertex gv : theMesh.getVertices()) {
+				final double dotProduct = gv.getNormal().dotProduct(new Vertex(gv.getTangent()));
+				if (Math.abs(dotProduct) <= 0.000001) {
+					goodTangents += 1;
+				} else {
+					System.out.println(dotProduct);
+					badTangents += 1;
+				}
+			}
+		}
+		if (parent != null) {
+			JOptionPane.showMessageDialog(parent,
+					"Tangent generation completed.\nGood tangents: " + goodTangents + ", bad tangents: " + badTangents);
+		} else {
+			System.out.println(
+					"Tangent generation completed.\nGood tangents: " + goodTangents + ", bad tangents: " + badTangents);
+		}
+	}
+
+	public static void recalculateTangentsOld(final MDL currentMDL) {
+		for (final Geoset theMesh : currentMDL.getGeosets()) {
+			for (int nFace = 0; nFace < theMesh.getTriangles().size(); nFace++) {
+				final Triangle face = theMesh.getTriangle(nFace);
+
+				final GeosetVertex v1 = face.getVerts()[0];
+				final GeosetVertex v2 = face.getVerts()[0];
+				final GeosetVertex v3 = face.getVerts()[0];
+
+				final TVertex uv1 = v1.getTVertex(0);
+				final TVertex uv2 = v2.getTVertex(0);
+				final TVertex uv3 = v3.getTVertex(0);
+
+				final Vertex dV1 = new Vertex(v1).subtract(v2);
+				final Vertex dV2 = new Vertex(v1).subtract(v3);
+
+				final TVertex dUV1 = new TVertex(uv1).subtract(uv2);
+				final TVertex dUV2 = new TVertex(uv1).subtract(uv3);
+				final double area = (dUV1.x * dUV2.y) - (dUV1.y * dUV2.x);
+				final int sign = (area < 0) ? -1 : 1;
+				final Vertex tangent = new Vertex(1, 0, 0);
+
+				tangent.x = (dV1.x * dUV2.y) - (dUV1.y * dV2.x);
+				tangent.y = (dV1.y * dUV2.y) - (dUV1.y * dV2.y);
+				tangent.z = (dV1.z * dUV2.y) - (dUV1.y * dV2.z);
+
+				tangent.normalize();
+				tangent.scale(sign);
+
+				final Vertex faceNormal = new Vertex(v1.getNormal());
+				faceNormal.add(v2.getNormal());
+				faceNormal.add(v3.getNormal());
+				faceNormal.normalize();
 			}
 		}
 	}

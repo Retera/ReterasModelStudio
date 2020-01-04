@@ -124,6 +124,10 @@ public class StandardObjectData {
 
 		try {
 			destructableData.readSLK(source.getResourceAsStream("Doodads\\Doodads.slk"));
+			final InputStream unitSkin = source.getResourceAsStream("Doodads\\DoodadSkins.txt");
+			if (unitSkin != null) {
+				destructableData.readTXT(unitSkin, true);
+			}
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
