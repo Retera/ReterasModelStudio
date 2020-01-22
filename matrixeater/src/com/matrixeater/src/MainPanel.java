@@ -5579,7 +5579,7 @@ public class MainPanel extends JPanel
 			newModel.copyHeaders(currentMDL);
 			if (newModel.getFileRef() == null) {
 				newModel.setFileRef(
-						new File(System.getProperty("java.io.tempdir") + "MatrixEaterExtract/matrixeater_anonymousMDL",
+						new File(System.getProperty("java.io.tmpdir") + "MatrixEaterExtract/matrixeater_anonymousMDL",
 								"" + (int) (Math.random() * Integer.MAX_VALUE) + ".mdl"));
 			}
 			while (newModel.getFile().exists()) {
