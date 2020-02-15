@@ -29,6 +29,7 @@ public class MetaDataToJavaClassConverter {
 	}
 
 	public static void main(final String[] args) {
+		generateUnitClassWithFields();
 	}
 
 	private static void generateUnitClassWithTable() {
@@ -54,7 +55,7 @@ public class MetaDataToJavaClassConverter {
 		final List<Element> unitMetaFields = new ArrayList<>();
 		for (final String key : standardUnitMeta.keySet()) {
 			final Element metaField = standardUnitMeta.get(key);
-			if (metaField.getFieldValue("useUnit") == 1 && metaField.getFieldValue("useBuilding") == 1) {
+			if ((metaField.getFieldValue("useUnit") == 1) && (metaField.getFieldValue("useBuilding") == 1)) {
 				System.out.println(WEString.getString(metaField.getField("displayName")));
 				final String type = metaField.getField("type");
 				System.out.println(type);
@@ -94,7 +95,7 @@ public class MetaDataToJavaClassConverter {
 		System.out.println("------------");
 		System.out.println("public class Unit {");
 		for (final Element metaField : unitMetaFields) {
-			if (metaField.getFieldValue("useUnit") == 1 && metaField.getFieldValue("useBuilding") == 1) {
+			if ((metaField.getFieldValue("useUnit") == 1) && (metaField.getFieldValue("useBuilding") == 1)) {
 				final String baseDisplayName = WEString.getString(metaField.getField("displayName"));
 				String displayName = baseDisplayName;
 				displayName = displayName.replace('-', '_');
@@ -142,7 +143,7 @@ public class MetaDataToJavaClassConverter {
 			}
 		}
 		for (final Element metaField : unitMetaFields) {
-			if (metaField.getFieldValue("useUnit") == 1 && metaField.getFieldValue("useBuilding") == 1) {
+			if ((metaField.getFieldValue("useUnit") == 1) && (metaField.getFieldValue("useBuilding") == 1)) {
 				final String baseDisplayName = WEString.getString(metaField.getField("displayName"));
 				String displayName = baseDisplayName;
 				displayName = displayName.replace('-', '_');

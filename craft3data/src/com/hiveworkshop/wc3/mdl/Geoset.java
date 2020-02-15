@@ -568,7 +568,10 @@ public class Geoset implements Named, VisibilitySource {
 				final int szmx = mx.size();
 				gv.clearBoneAttachments();
 				for (int m = 0; m < szmx; m++) {
-					gv.addBoneAttachment((Bone) mdlr.getIdObject(mx.getBoneId(m)));
+					final int boneId = mx.getBoneId(m);
+					if (boneId >= 0) {
+						gv.addBoneAttachment((Bone) mdlr.getIdObject(boneId));
+					}
 				}
 			}
 			if ((normals != null) && (normals.size() > 0)) {

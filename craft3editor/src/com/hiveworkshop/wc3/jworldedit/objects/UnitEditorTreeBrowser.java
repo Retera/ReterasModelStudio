@@ -53,7 +53,7 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 								WorldEditorDataType.UNITS);
 						final ImageIcon icon = iconTexture == null ? null
 								: new ImageIcon(iconTexture.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
-						listener.loadFile(MpqCodebase.get().getFile(path), true, true, icon);
+						listener.loadFile(path, true, true, icon);
 					}
 				}
 			}
@@ -76,7 +76,7 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 								WorldEditorDataType.UNITS);
 						final ImageIcon icon = iconTexture == null ? null
 								: new ImageIcon(iconTexture.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
-						listener.loadFile(MpqCodebase.get().getFile(portrait), true, true, icon);
+						listener.loadFile(portrait, true, true, icon);
 					}
 				}
 			}
@@ -141,9 +141,9 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 									final ImageIcon icon = iconTexture == null ? null
 											: new ImageIcon(iconTexture.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
 									System.err.println("loading: " + path);
-									listener.loadFile(MpqCodebase.get().getFile(path), true, true, icon);
+									listener.loadFile(path, true, true, icon);
 									if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
-										listener.loadFile(MpqCodebase.get().getFile(portrait), true, false, icon);
+										listener.loadFile(portrait, true, false, icon);
 									}
 								}
 							}
@@ -159,7 +159,7 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 	}
 
 	public static interface MDLLoadListener {
-		public void loadFile(File file, boolean b, boolean c, ImageIcon icon);
+		public void loadFile(String filePathMdx, boolean b, boolean c, ImageIcon icon);
 	}
 
 	private String convertPathToMDX(String filepath) {

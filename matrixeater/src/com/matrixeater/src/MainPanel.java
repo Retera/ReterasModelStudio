@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -168,7 +169,6 @@ import com.hiveworkshop.wc3.mdl.Helper;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Layer;
 import com.hiveworkshop.wc3.mdl.MDL;
-import com.hiveworkshop.wc3.mdl.MDXHandler;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.Normal;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
@@ -248,8 +248,7 @@ public class MainPanel extends JPanel
 	JMenuBar menuBar;
 	JMenu fileMenu, recentMenu, editMenu, toolsMenu, mirrorSubmenu, tweaksSubmenu, viewMenu, importMenu, addMenu,
 			scriptsMenu, windowMenu, addParticle, animationMenu, singleAnimationMenu, aboutMenu, fetch;
-	JCheckBoxMenuItem mirrorFlip, fetchPortraitsToo, showNormals, useNativeMDXParser, textureModels,
-			showVertexModifyControls;
+	JCheckBoxMenuItem mirrorFlip, fetchPortraitsToo, showNormals, textureModels, showVertexModifyControls;
 	ArrayList geoItems = new ArrayList();
 	JMenuItem newModel, open, fetchUnit, fetchModel, fetchObject, save, close, exit, revert, mergeGeoset, saveAs,
 			importButton, importUnit, importGameModel, importGameObject, importFromWorkspace, importButtonS,
@@ -812,6 +811,8 @@ public class MainPanel extends JPanel
 						// addTabForView(new View(filepath.substring(filepath.lastIndexOf('\\') + 1),
 						// new ImageIcon(image.getScaledInstance(16, 16, Image.SCALE_DEFAULT)),
 						// new BLPPanel(image)), true);
+					} else if (filepath.toLowerCase().endsWith(".dds")) {
+						loadBLPPathAsModel(filepath, null, 1000);
 					}
 				}
 			});
@@ -876,9 +877,11 @@ public class MainPanel extends JPanel
 													.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
 
 											System.out.println(path);
-											loadFile(MpqCodebase.get().getFile(path), true, i == 0, icon);
+											loadStreamMdx(MpqCodebase.get().getResourceAsStream(path), true, i == 0,
+													icon);
 											if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
-												loadFile(MpqCodebase.get().getFile(portrait), true, false, icon);
+												loadStreamMdx(MpqCodebase.get().getResourceAsStream(portrait), true,
+														false, icon);
 											}
 										}
 									} else {
@@ -889,9 +892,10 @@ public class MainPanel extends JPanel
 												.getIcon(obj, WorldEditorDataType.DOODADS)
 												.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
 										System.out.println(path);
-										loadFile(MpqCodebase.get().getFile(path), true, true, icon);
+										loadStreamMdx(MpqCodebase.get().getResourceAsStream(path), true, true, icon);
 										if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
-											loadFile(MpqCodebase.get().getFile(portrait), true, false, icon);
+											loadStreamMdx(MpqCodebase.get().getResourceAsStream(portrait), true, false,
+													icon);
 										}
 									}
 									toolsMenu.getAccessibleContext().setAccessibleDescription(
@@ -1567,6 +1571,8 @@ public class MainPanel extends JPanel
 					loadBLPPathAsModel(filepath);
 				} else if (filepath.toLowerCase().endsWith(".png")) {
 					loadBLPPathAsModel(filepath);
+				} else if (filepath.toLowerCase().endsWith(".dds")) {
+					loadBLPPathAsModel(filepath, null, 1000);
 				}
 			}
 		});
@@ -1660,8 +1666,9 @@ public class MainPanel extends JPanel
 		final UnitEditorTree unitEditorTree = new UnitEditorTreeBrowser(getUnitData(), new UnitTabTreeBrowserBuilder(),
 				getUnitEditorSettings(), WorldEditorDataType.UNITS, new MDLLoadListener() {
 					@Override
-					public void loadFile(final File file, final boolean b, final boolean c, final ImageIcon icon) {
-						MainPanel.this.loadFile(file, b, c, icon);
+					public void loadFile(final String mdxFilePath, final boolean b, final boolean c,
+							final ImageIcon icon) {
+						MainPanel.this.loadStreamMdx(MpqCodebase.get().getResourceAsStream(mdxFilePath), b, c, icon);
 					}
 				}, prefs);
 		return unitEditorTree;
@@ -2342,7 +2349,6 @@ public class MainPanel extends JPanel
 		showNormals.setSelected(prefs.isShowNormals());
 		// prefs.setLoadPortraits(true);
 		fetchPortraitsToo.setSelected(prefs.isLoadPortraits());
-		useNativeMDXParser.setSelected(prefs.isUseNativeMDXParser());
 		// prefs.setUseNativeMDXParser(useNativeMDXParser.isSelected());
 		switch (prefs.getViewMode()) {
 		case 0:
@@ -3256,11 +3262,6 @@ public class MainPanel extends JPanel
 		showVertexModifyControls.addActionListener(this);
 		viewMenu.add(showVertexModifyControls);
 
-		useNativeMDXParser = new JCheckBoxMenuItem("Use Native MDX Parser", true);
-		useNativeMDXParser.setMnemonic(KeyEvent.VK_M);
-		useNativeMDXParser.addActionListener(this);
-		viewMenu.add(useNativeMDXParser);
-
 		viewMenu.add(new JSeparator());
 
 		showNormals = new JCheckBoxMenuItem("Show Normals", true);
@@ -3778,11 +3779,12 @@ public class MainPanel extends JPanel
 				if (unitFetched != null) {
 					final String filepath = convertPathToMDX(unitFetched.getField("file"));
 					if (filepath != null) {
-						loadFile(MpqCodebase.get().getFile(filepath), true, true, unitFetched.getScaledIcon(0.25f));
+						loadStreamMdx(MpqCodebase.get().getResourceAsStream(filepath), true, true,
+								unitFetched.getScaledIcon(0.25f));
 						final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
 								+ filepath.substring(filepath.lastIndexOf('.'), filepath.length());
 						if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
-							loadFile(MpqCodebase.get().getFile(portrait), true, false,
+							loadStreamMdx(MpqCodebase.get().getResourceAsStream(portrait), true, false,
 									unitFetched.getScaledIcon(0.25f));
 						}
 						toolsMenu.getAccessibleContext().setAccessibleDescription(
@@ -3799,11 +3801,11 @@ public class MainPanel extends JPanel
 						final ImageIcon icon = model.hasCachedIconPath() ? new ImageIcon(BLPHandler.get()
 								.getGameTex(model.getCachedIconPath()).getScaledInstance(16, 16, Image.SCALE_FAST))
 								: MDLIcon;
-						loadFile(MpqCodebase.get().getFile(filepath), true, true, icon);
+						loadStreamMdx(MpqCodebase.get().getResourceAsStream(filepath), true, true, icon);
 						final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
 								+ filepath.substring(filepath.lastIndexOf('.'), filepath.length());
 						if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
-							loadFile(MpqCodebase.get().getFile(portrait), true, false, icon);
+							loadStreamMdx(MpqCodebase.get().getResourceAsStream(portrait), true, false, icon);
 						}
 						toolsMenu.getAccessibleContext().setAccessibleDescription(
 								"Allows the user to control which parts of the model are displayed for editing.");
@@ -3815,14 +3817,14 @@ public class MainPanel extends JPanel
 				if (objectFetched != null) {
 					final String filepath = convertPathToMDX(objectFetched.getFieldAsString(UnitFields.MODEL_FILE, 0));
 					if (filepath != null) {
-						loadFile(MpqCodebase.get().getFile(filepath), true, true,
+						loadStreamMdx(MpqCodebase.get().getResourceAsStream(filepath), true, true,
 								new ImageIcon(BLPHandler.get()
 										.getGameTex(objectFetched.getFieldAsString(UnitFields.INTERFACE_ICON, 0))
 										.getScaledInstance(16, 16, Image.SCALE_FAST)));
 						final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
 								+ filepath.substring(filepath.lastIndexOf('.'), filepath.length());
 						if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
-							loadFile(MpqCodebase.get().getFile(portrait), true, false,
+							loadStreamMdx(MpqCodebase.get().getResourceAsStream(portrait), true, false,
 									new ImageIcon(BLPHandler.get()
 											.getGameTex(objectFetched.getFieldAsString(UnitFields.INTERFACE_ICON, 0))
 											.getScaledInstance(16, 16, Image.SCALE_FAST)));
@@ -4058,10 +4060,6 @@ public class MainPanel extends JPanel
 				prefs.setTextureModels(textureModels.isSelected());
 			} else if (e.getSource() == showNormals) {
 				prefs.setShowNormals(showNormals.isSelected());
-			} else if (e.getSource() == useNativeMDXParser) {
-				final boolean selected = useNativeMDXParser.isSelected();
-				prefs.setUseNativeMDXParser(selected);
-				// SaveProfile.get().setNativeMDXParserEnabled(selected);
 			} else if (e.getSource() == editUVs) {
 				final ModelPanel disp = currentModelPanel();
 				if (disp.getEditUVPanel() == null) {
@@ -4493,7 +4491,7 @@ public class MainPanel extends JPanel
 					profile.setPath(currentFile.getParent());
 					if (ext.equals(".mdl")) {
 						currentMDL().printTo(currentFile);
-					} else if (prefs.isUseNativeMDXParser()) {
+					} else {
 						final MdxModel model = new MdxModel(currentMDL());
 						try (BlizzardDataOutputStream writer = new BlizzardDataOutputStream(currentFile)) {
 							model.save(writer);
@@ -4502,11 +4500,6 @@ public class MainPanel extends JPanel
 						} catch (final IOException e1) {
 							e1.printStackTrace();
 						}
-					} else {
-						final File currentFileMDL = new File(
-								currentFile.getPath().substring(0, currentFile.getPath().length() - 1) + "l");
-						currentMDL().printTo(currentFileMDL);
-						MDXHandler.compile(currentFileMDL);
 					}
 					currentMDL().setFile(currentFile);
 					// currentMDLDisp().resetBeenSaved();
@@ -4553,17 +4546,7 @@ public class MainPanel extends JPanel
 		final int returnValue = fc.showOpenDialog(this);
 
 		if (returnValue == JFileChooser.APPROVE_OPTION) {
-			currentFile = fc.getSelectedFile();
-			profile.setPath(currentFile.getParent());
-			// frontArea.clearGeosets();
-			// sideArea.clearGeosets();
-			// botArea.clearGeosets();
-			toolsMenu.getAccessibleContext().setAccessibleDescription(
-					"Allows the user to control which parts of the model are displayed for editing.");
-			toolsMenu.setEnabled(true);
-			SaveProfile.get().addRecent(currentFile.getPath());
-			updateRecent();
-			loadFile(currentFile);
+			openFile(fc.getSelectedFile());
 		}
 
 		fc.setSelectedFile(null);
@@ -5105,28 +5088,20 @@ public class MainPanel extends JPanel
 		}
 		ModelPanel temp = null;
 		if (f.getPath().toLowerCase().endsWith("mdx")) {
-			if (prefs.isUseNativeMDXParser()) {
-				try (BlizzardDataInputStream in = new BlizzardDataInputStream(new FileInputStream(f))) {
-					final MDL model = new MDL(MdxUtils.loadModel(in));
-					model.setFile(f);
-					temp = new ModelPanel(this, model, prefs, MainPanel.this, selectionItemTypeGroup,
-							selectionModeGroup, modelStructureChangeListener, coordDisplayListener,
-							viewportTransferHandler, activeViewportWatcher, icon, false);
-				} catch (final FileNotFoundException e) {
-					e.printStackTrace();
-					ExceptionPopup.display(e);
-					throw new RuntimeException("Reading mdx failed");
-				} catch (final IOException e) {
-					e.printStackTrace();
-					ExceptionPopup.display(e);
-					throw new RuntimeException("Reading mdx failed");
-				}
-			} else {
-				final File convertedFile = MDXHandler.convert(f);
-				temp = new ModelPanel(this, MDL.read(convertedFile), prefs, MainPanel.this, selectionItemTypeGroup,
-						selectionModeGroup, modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
+			try (BlizzardDataInputStream in = new BlizzardDataInputStream(new FileInputStream(f))) {
+				final MDL model = new MDL(MdxUtils.loadModel(in));
+				model.setFile(f);
+				temp = new ModelPanel(this, model, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
+						modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
 						activeViewportWatcher, icon, false);
-				temp.setFile(convertedFile);
+			} catch (final FileNotFoundException e) {
+				e.printStackTrace();
+				ExceptionPopup.display(e);
+				throw new RuntimeException("Reading mdx failed");
+			} catch (final IOException e) {
+				e.printStackTrace();
+				ExceptionPopup.display(e);
+				throw new RuntimeException("Reading mdx failed");
 			}
 		} else if (f.getPath().toLowerCase().endsWith("obj")) {
 			// final Build builder = new Build();
@@ -5154,12 +5129,38 @@ public class MainPanel extends JPanel
 		loadModel(temporary, selectNewTab, temp);
 	}
 
+	public void loadStreamMdx(final InputStream f, final boolean temporary, final boolean selectNewTab,
+			final ImageIcon icon) {
+		ModelPanel temp = null;
+		try (BlizzardDataInputStream in = new BlizzardDataInputStream(f)) {
+			final MDL model = new MDL(MdxUtils.loadModel(in));
+			model.setFile(null);
+			temp = new ModelPanel(this, model, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
+					modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, activeViewportWatcher,
+					icon, false);
+		} catch (final FileNotFoundException e) {
+			e.printStackTrace();
+			ExceptionPopup.display(e);
+			throw new RuntimeException("Reading mdx failed");
+		} catch (final IOException e) {
+			e.printStackTrace();
+			ExceptionPopup.display(e);
+			throw new RuntimeException("Reading mdx failed");
+		}
+		loadModel(temporary, selectNewTab, temp);
+	}
+
 	public void loadBLPPathAsModel(final String filepath) {
 		loadBLPPathAsModel(filepath, null);
 	}
 
 	public void loadBLPPathAsModel(final String filepath, final File workingDirectory) {
+		loadBLPPathAsModel(filepath, workingDirectory, 800);
+	}
+
+	public void loadBLPPathAsModel(final String filepath, final File workingDirectory, final int version) {
 		final MDL blankTextureModel = new MDL(filepath.substring(filepath.lastIndexOf('\\') + 1));
+		blankTextureModel.setFormatVersion(version);
 		if (workingDirectory != null) {
 			blankTextureModel.setFile(new File(workingDirectory.getPath() + "/" + filepath + ".mdl"));
 		}
@@ -5344,6 +5345,20 @@ public class MainPanel extends JPanel
 
 	public void loadFile(final File f) {
 		loadFile(f, false);
+	}
+
+	public void openFile(final File f) {
+		currentFile = f;
+		profile.setPath(currentFile.getParent());
+		// frontArea.clearGeosets();
+		// sideArea.clearGeosets();
+		// botArea.clearGeosets();
+		toolsMenu.getAccessibleContext().setAccessibleDescription(
+				"Allows the user to control which parts of the model are displayed for editing.");
+		toolsMenu.setEnabled(true);
+		SaveProfile.get().addRecent(currentFile.getPath());
+		updateRecent();
+		loadFile(currentFile);
 	}
 
 	public void importFile(final File f) {

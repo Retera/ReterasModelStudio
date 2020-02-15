@@ -16,7 +16,7 @@ public class ProgramPreferences implements Serializable {
 	private boolean showNormals;
 	private boolean showVertexModifierControls = false;
 	private boolean textureModels = true;
-	private boolean useNativeMDXParser = true;
+	private boolean useNativeMDXParser = true; // left for compat
 	private boolean loadPortraits = true;
 	private transient boolean cloneOn = false;
 	private transient boolean[] dimLocks = new boolean[3];
@@ -366,16 +366,6 @@ public class ProgramPreferences implements Serializable {
 
 	public int getSelectionType() {
 		return selectionType;
-	}
-
-	public boolean isUseNativeMDXParser() {
-		return useNativeMDXParser;
-	}
-
-	public void setUseNativeMDXParser(final boolean useNativeMDXParser) {
-		this.useNativeMDXParser = useNativeMDXParser;
-		SaveProfile.save();
-		firePrefsChanged();
 	}
 
 	public boolean isLoadPortraits() {

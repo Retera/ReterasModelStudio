@@ -466,7 +466,11 @@ public class GeosetChunk {
 				if (matrix.size() <= 0) {
 					matrixIndexs[i++] = -1;
 				}
-				matrixGroups[groupIndex++] = matrix.size();
+				int size = matrix.size();
+				if (size == -1) {
+					size = 1;
+				}
+				matrixGroups[groupIndex++] = size;
 			}
 			lod = mdlGeo.getLevelOfDetail();
 			lodName = mdlGeo.getLevelOfDetailName();

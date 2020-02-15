@@ -64,7 +64,7 @@ public class CascDataSource implements DataSource {
 			filepath = resolvedAlias;
 		}
 		for (final String prefix : prefixes) {
-			final String tempFilepath = prefix + "\\" + filepath;
+			final String tempFilepath = prefix + "\\" + filepath.replace('/', '\\');
 			final InputStream stream = internalGetResourceAsStream(tempFilepath);
 			if (stream != null) {
 				return stream;
@@ -99,7 +99,7 @@ public class CascDataSource implements DataSource {
 			filepath = resolvedAlias;
 		}
 		for (final String prefix : prefixes) {
-			final String tempFilepath = prefix + "\\" + filepath;
+			final String tempFilepath = prefix + "\\" + filepath.replace('/', '\\');
 			final File file = internalGetFile(tempFilepath);
 			if (file != null) {
 				return file;

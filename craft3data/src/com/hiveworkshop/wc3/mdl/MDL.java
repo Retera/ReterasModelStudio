@@ -362,16 +362,16 @@ public class MDL implements Named {
 				add(new ParticleEmitter2(emitter));
 			}
 		}
-		// RibbonEmitter
-		if (mdx.ribbonEmitterChunk != null) {
-			for (final RibbonEmitterChunk.RibbonEmitter emitter : mdx.ribbonEmitterChunk.ribbonEmitter) {
-				add(new RibbonEmitter(emitter));
-			}
-		}
 		// PopcornFxEmitter
 		if (mdx.cornChunk != null) {
 			for (final CornChunk.PopcornFxEmitter emitter : mdx.cornChunk.corns) {
 				add(new PopcornFxEmitter(emitter));
+			}
+		}
+		// RibbonEmitter
+		if (mdx.ribbonEmitterChunk != null) {
+			for (final RibbonEmitterChunk.RibbonEmitter emitter : mdx.ribbonEmitterChunk.ribbonEmitter) {
+				add(new RibbonEmitter(emitter));
 			}
 		}
 		// EventObject
@@ -1804,8 +1804,8 @@ public class MDL implements Named {
 		final ArrayList<Attachment> attachments = sortedIdObjects(Attachment.class);
 		final ArrayList<ParticleEmitter> particleEmitters = sortedIdObjects(ParticleEmitter.class);
 		final ArrayList<ParticleEmitter2> particleEmitter2s = sortedIdObjects(ParticleEmitter2.class);
-		final ArrayList<RibbonEmitter> ribbonEmitters = sortedIdObjects(RibbonEmitter.class);
 		final ArrayList<PopcornFxEmitter> popcornEmitters = sortedIdObjects(PopcornFxEmitter.class);
+		final ArrayList<RibbonEmitter> ribbonEmitters = sortedIdObjects(RibbonEmitter.class);
 		final ArrayList<EventObject> events = sortedIdObjects(EventObject.class);
 		final ArrayList<CollisionShape> colliders = sortedIdObjects(CollisionShape.class);
 
@@ -1815,8 +1815,8 @@ public class MDL implements Named {
 		allObjects.addAll(attachments);
 		allObjects.addAll(particleEmitters);
 		allObjects.addAll(particleEmitter2s);
-		allObjects.addAll(ribbonEmitters);
 		allObjects.addAll(popcornEmitters);
+		allObjects.addAll(ribbonEmitters);
 		allObjects.addAll(events);
 		allObjects.addAll(colliders);
 
@@ -1894,12 +1894,12 @@ public class MDL implements Named {
 		for (final ParticleEmitter x : xpes) {
 			allFlags.addAll(x.animFlags);
 		}
-		final ArrayList<RibbonEmitter> res = sortedIdObjects(RibbonEmitter.class);
-		for (final RibbonEmitter x : res) {
-			allFlags.addAll(x.animFlags);
-		}
 		final ArrayList<PopcornFxEmitter> corns = sortedIdObjects(PopcornFxEmitter.class);
 		for (final PopcornFxEmitter x : corns) {
+			allFlags.addAll(x.animFlags);
+		}
+		final ArrayList<RibbonEmitter> res = sortedIdObjects(RibbonEmitter.class);
+		for (final RibbonEmitter x : res) {
 			allFlags.addAll(x.animFlags);
 		}
 		final ArrayList<CollisionShape> cs = sortedIdObjects(CollisionShape.class);
@@ -1974,14 +1974,14 @@ public class MDL implements Named {
 				return x;
 			}
 		}
-		final ArrayList<RibbonEmitter> res = sortedIdObjects(RibbonEmitter.class);
-		for (final RibbonEmitter x : res) {
+		final ArrayList<PopcornFxEmitter> pfes = sortedIdObjects(PopcornFxEmitter.class);
+		for (final PopcornFxEmitter x : pfes) {
 			if (x.animFlags.contains(aflg)) {
 				return x;
 			}
 		}
-		final ArrayList<PopcornFxEmitter> pfes = sortedIdObjects(PopcornFxEmitter.class);
-		for (final PopcornFxEmitter x : pfes) {
+		final ArrayList<RibbonEmitter> res = sortedIdObjects(RibbonEmitter.class);
+		for (final RibbonEmitter x : res) {
 			if (x.animFlags.contains(aflg)) {
 				return x;
 			}
@@ -2061,14 +2061,14 @@ public class MDL implements Named {
 				x.animFlags.add(added);
 			}
 		}
-		final ArrayList<RibbonEmitter> res = sortedIdObjects(RibbonEmitter.class);
-		for (final RibbonEmitter x : res) {
+		final ArrayList<PopcornFxEmitter> pfes = sortedIdObjects(PopcornFxEmitter.class);
+		for (final PopcornFxEmitter x : pfes) {
 			if (x.animFlags.contains(aflg)) {
 				x.animFlags.add(added);
 			}
 		}
-		final ArrayList<PopcornFxEmitter> pfes = sortedIdObjects(PopcornFxEmitter.class);
-		for (final PopcornFxEmitter x : pfes) {
+		final ArrayList<RibbonEmitter> res = sortedIdObjects(RibbonEmitter.class);
+		for (final RibbonEmitter x : res) {
 			if (x.animFlags.contains(aflg)) {
 				x.animFlags.add(added);
 			}
@@ -2830,8 +2830,8 @@ public class MDL implements Named {
 				}
 			}
 		}
-		final ArrayList<RibbonEmitter> res = sortedIdObjects(RibbonEmitter.class);
-		for (final RibbonEmitter x : res) {
+		final ArrayList<PopcornFxEmitter> pfes = sortedIdObjects(PopcornFxEmitter.class);
+		for (final PopcornFxEmitter x : pfes) {
 			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
 			while (iterator.hasNext()) {
 				final AnimFlag animFlag = iterator.next();
@@ -2840,8 +2840,8 @@ public class MDL implements Named {
 				}
 			}
 		}
-		final ArrayList<PopcornFxEmitter> pfes = sortedIdObjects(PopcornFxEmitter.class);
-		for (final PopcornFxEmitter x : pfes) {
+		final ArrayList<RibbonEmitter> res = sortedIdObjects(RibbonEmitter.class);
+		for (final RibbonEmitter x : res) {
 			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
 			while (iterator.hasNext()) {
 				final AnimFlag animFlag = iterator.next();

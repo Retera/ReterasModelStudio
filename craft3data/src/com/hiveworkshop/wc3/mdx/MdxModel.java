@@ -1246,13 +1246,13 @@ public class MdxModel {
 		if (particleEmitter2Chunk != null) {
 			particleEmitter2Chunk.save(out);
 		}
-		if (ribbonEmitterChunk != null) {
-			ribbonEmitterChunk.save(out);
-		}
 		if (ModelUtils.isCornSupported(versionChunk.version)) {
 			if (cornChunk != null) {
 				cornChunk.save(out);
 			}
+		}
+		if (ribbonEmitterChunk != null) {
+			ribbonEmitterChunk.save(out);
 		}
 		if (eventObjectChunk != null) {
 			eventObjectChunk.save(out);
