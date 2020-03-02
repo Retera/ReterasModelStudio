@@ -29,6 +29,11 @@ public class CascDataSource implements DataSource {
 
 	public CascDataSource(final String warcraft3InstallPath, final String[] prefixes) {
 		this.prefixes = prefixes;
+		for (int i = 0; i < (prefixes.length / 2); i++) {
+			final String temp = prefixes[i];
+			prefixes[i] = prefixes[prefixes.length - i - 1];
+			prefixes[prefixes.length - i - 1] = temp;
+		}
 
 		try {
 			warcraftIIICASC = new WarcraftIIICASC(Paths.get(warcraft3InstallPath), true);

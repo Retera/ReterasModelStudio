@@ -288,7 +288,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 
 		@Override
 		protected String getName(final Geoset item, final ModelViewManager modelViewManager) {
-			if (item.getLevelOfDetailName() != null) {
+			if ((item.getLevelOfDetailName() != null) && (item.getLevelOfDetailName().length() > 0)) {
 				return item.getLevelOfDetailName();
 			}
 			return "Geoset " + (modelViewManager.getModel().getGeosetId(item) + 1);
