@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -20,6 +21,9 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
+import com.hiveworkshop.wc3.gui.datachooser.CompoundDataSource;
+import com.hiveworkshop.wc3.gui.datachooser.DataSource;
+import com.hiveworkshop.wc3.gui.datachooser.FolderDataSource;
 import com.hiveworkshop.wc3.mdl.AnimFlag.Entry;
 import com.hiveworkshop.wc3.mdl.v2.visitor.GeosetVisitor;
 import com.hiveworkshop.wc3.mdl.v2.visitor.MeshVisitor;
@@ -47,6 +51,7 @@ import com.hiveworkshop.wc3.mdx.RibbonEmitterChunk;
 import com.hiveworkshop.wc3.mdx.SequenceChunk.Sequence;
 import com.hiveworkshop.wc3.mdx.TextureAnimationChunk.TextureAnimation;
 import com.hiveworkshop.wc3.mdx.TextureChunk.Texture;
+import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.util.MathUtils;
 import com.hiveworkshop.wc3.util.ModelUtils;
 import com.hiveworkshop.wc3.util.ModelUtils.Mesh;
@@ -95,6 +100,8 @@ public class MDL implements Named {
 	private FaceEffectsChunk faceEffectsChunk;
 	private BindPoseChunk bindPoseChunk;
 
+	private DataSource wrappedDataSource = MpqCodebase.get();
+
 	public static boolean DISABLE_BONE_GEO_ID_VALIDATOR = false;
 
 	public File getFile() {
@@ -106,6 +113,10 @@ public class MDL implements Named {
 			return fileRef.getParentFile();
 		}
 		return null;
+	}
+
+	public DataSource getWrappedDataSource() {
+		return wrappedDataSource;
 	}
 
 	/*
@@ -136,8 +147,14 @@ public class MDL implements Named {
 		return name;
 	}
 
-	public void setFile(final File file) {
+	public void setFileRef(final File file) {
 		fileRef = file;
+		if (fileRef != null) {
+			wrappedDataSource = new CompoundDataSource(
+					Arrays.asList(MpqCodebase.get(), new FolderDataSource(file.getParentFile().toPath())));
+		} else {
+			wrappedDataSource = MpqCodebase.get();
+		}
 	}
 
 	public boolean isTemp() {
@@ -149,7 +166,7 @@ public class MDL implements Named {
 	}
 
 	public void copyHeaders(final MDL other) {
-		fileRef = other.fileRef;
+		setFileRef(other.fileRef);
 		BlendTime = other.BlendTime;
 		if (other.extents != null) {
 			extents = new ExtLog(other.extents);
@@ -173,7 +190,7 @@ public class MDL implements Named {
 			final MDL newModel = MDL.read(temp);
 
 			newModel.setName(newName);
-			newModel.setFile(what.getFile());
+			newModel.setFileRef(what.getFile());
 			temp.deleteOnExit();
 
 			return newModel;
@@ -233,7 +250,7 @@ public class MDL implements Named {
 	}
 
 	public MDL(final MDL other) {
-		fileRef = other.fileRef;
+		setFileRef(other.fileRef);
 		name = other.name;
 		BlendTime = other.BlendTime;
 		extents = new ExtLog(other.extents);
@@ -911,7 +928,7 @@ public class MDL implements Named {
 			// f = MDXHandler.convert(f);
 			try (BlizzardDataInputStream in = new BlizzardDataInputStream(new FileInputStream(f))) {
 				final MDL mdl = new MDL(MdxUtils.loadModel(in));
-				mdl.fileRef = f;
+				mdl.setFileRef(f);
 				return mdl;
 			} catch (final FileNotFoundException e) {
 				throw new RuntimeException(e);
@@ -927,7 +944,7 @@ public class MDL implements Named {
 		}
 		try (final FileInputStream fos = new FileInputStream(f)) {
 			final MDL mdlObject = read(fos);
-			mdlObject.fileRef = f;
+			mdlObject.setFileRef(f);
 			return mdlObject;
 		} catch (final FileNotFoundException e) {
 			JOptionPane.showMessageDialog(null, "The file chosen was not found: " + e.getMessage());
@@ -2406,10 +2423,6 @@ public class MDL implements Named {
 		return fileRef;
 	}
 
-	public void setFileRef(final File fileRef) {
-		this.fileRef = fileRef;
-	}
-
 	public int getBlendTime() {
 		return BlendTime;
 	}
@@ -2527,24 +2540,48 @@ public class MDL implements Named {
 		for (final Geoset geoset : geosets) {
 			final GeosetVisitor geosetRenderer = renderer.beginGeoset(geosetId++, geoset.getMaterial(),
 					geoset.getGeosetAnim());
-			for (final Triangle triangle : geoset.getTriangles()) {
-				final TriangleVisitor triangleRenderer = geosetRenderer.beginTriangle();
-				for (final GeosetVertex vertex : triangle.getVerts()) {
-					final VertexVisitor vertexRenderer;
-					// TODO redesign for nullable normals
-					if (vertex.getNormal() != null) {
-						vertexRenderer = triangleRenderer.vertex(vertex.x, vertex.y, vertex.z, vertex.getNormal().x,
-								vertex.getNormal().y, vertex.getNormal().z, vertex.getBoneAttachments());
-					} else {
-						vertexRenderer = triangleRenderer.vertex(vertex.x, vertex.y, vertex.z, 0, 0, 0,
-								vertex.getBoneAttachments());
+			if ((ModelUtils.isTangentAndSkinSupported(formatVersion)) && (geoset.getVertices().size() > 0)
+					&& (geoset.getVertex(0).getSkinBones() != null)) {
+				for (final Triangle triangle : geoset.getTriangles()) {
+					final TriangleVisitor triangleRenderer = geosetRenderer.beginTriangle();
+					for (final GeosetVertex vertex : triangle.getVerts()) {
+						final VertexVisitor vertexRenderer;
+						// TODO redesign for nullable normals
+						if (vertex.getNormal() != null) {
+							vertexRenderer = triangleRenderer.hdVertex(vertex.x, vertex.y, vertex.z,
+									vertex.getNormal().x, vertex.getNormal().y, vertex.getNormal().z,
+									vertex.getSkinBones(), vertex.getSkinBoneWeights());
+						} else {
+							vertexRenderer = triangleRenderer.hdVertex(vertex.x, vertex.y, vertex.z, 0, 0, 0,
+									vertex.getSkinBones(), vertex.getSkinBoneWeights());
+						}
+						for (final TVertex tvert : vertex.getTverts()) {
+							vertexRenderer.textureCoords(tvert.x, tvert.y);
+						}
+						vertexRenderer.vertexFinished();
 					}
-					for (final TVertex tvert : vertex.getTverts()) {
-						vertexRenderer.textureCoords(tvert.x, tvert.y);
-					}
-					vertexRenderer.vertexFinished();
+					triangleRenderer.triangleFinished();
 				}
-				triangleRenderer.triangleFinished();
+			} else {
+				for (final Triangle triangle : geoset.getTriangles()) {
+					final TriangleVisitor triangleRenderer = geosetRenderer.beginTriangle();
+					for (final GeosetVertex vertex : triangle.getVerts()) {
+						final VertexVisitor vertexRenderer;
+						// TODO redesign for nullable normals
+						if (vertex.getNormal() != null) {
+							vertexRenderer = triangleRenderer.vertex(vertex.x, vertex.y, vertex.z, vertex.getNormal().x,
+									vertex.getNormal().y, vertex.getNormal().z, vertex.getBoneAttachments());
+						} else {
+							vertexRenderer = triangleRenderer.vertex(vertex.x, vertex.y, vertex.z, 0, 0, 0,
+									vertex.getBoneAttachments());
+						}
+						for (final TVertex tvert : vertex.getTverts()) {
+							vertexRenderer.textureCoords(tvert.x, tvert.y);
+						}
+						vertexRenderer.vertexFinished();
+					}
+					triangleRenderer.triangleFinished();
+				}
 			}
 			geosetRenderer.geosetFinished();
 		}

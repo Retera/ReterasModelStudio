@@ -8,12 +8,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import com.etheller.collections.HashSet;
 import com.etheller.collections.Set;
 import com.etheller.collections.SetView;
+import com.etheller.util.CollectionUtils;
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceDescriptor;
 import com.hiveworkshop.wc3.gui.datachooser.MpqDataSourceDescriptor;
@@ -21,7 +21,7 @@ import com.hiveworkshop.wc3.user.SaveProfile;
 
 import mpq.MPQException;
 
-public class MpqCodebase implements Codebase {
+public class MpqCodebase implements Codebase, DataSource {
 	private final List<DataSource> mpqList = new ArrayList<>();
 
 	public MpqCodebase(final List<DataSourceDescriptor> dataSourceDescriptors) {
@@ -52,12 +52,6 @@ public class MpqCodebase implements Codebase {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if (filepath.toLowerCase(Locale.US).endsWith(".blp")) {
-			return getFile(filepath.substring(0, filepath.lastIndexOf(".")) + ".dds");
-		}
-		if (filepath.toLowerCase(Locale.US).endsWith(".tif")) {
-			return getFile(filepath.substring(0, filepath.lastIndexOf(".")) + ".dds");
-		}
 		return null;
 	}
 
@@ -75,12 +69,6 @@ public class MpqCodebase implements Codebase {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if (filepath.toLowerCase(Locale.US).endsWith(".blp")) {
-			return getResourceAsStream(filepath.substring(0, filepath.lastIndexOf(".")) + ".dds");
-		}
-		if (filepath.toLowerCase(Locale.US).endsWith(".tif")) {
-			return getResourceAsStream(filepath.substring(0, filepath.lastIndexOf(".")) + ".dds");
-		}
 		return null;
 	}
 
@@ -94,12 +82,6 @@ public class MpqCodebase implements Codebase {
 			if (mpq.has(filepath)) {
 				return true;
 			}
-		}
-		if (filepath.toLowerCase(Locale.US).endsWith(".blp")) {
-			return has(filepath.substring(0, filepath.lastIndexOf(".")) + ".dds");
-		}
-		if (filepath.toLowerCase(Locale.US).endsWith(".tif")) {
-			return has(filepath.substring(0, filepath.lastIndexOf(".")) + ".dds");
 		}
 		return false;
 	}
@@ -177,5 +159,28 @@ public class MpqCodebase implements Codebase {
 			current = new MpqCodebase(SaveProfile.get().getDataSources());
 		}
 		return current;
+	}
+
+	@Override
+	public boolean allowDownstreamCaching(final String filepath) {
+		for (int i = this.mpqList.size() - 1; i >= 0; i--) {
+			final DataSource mpq = this.mpqList.get(i);
+			if (mpq.has(filepath)) {
+				return mpq.allowDownstreamCaching(filepath);
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public Collection<String> getListfile() {
+		return CollectionUtils.toJava(getMergedListfile());
+	}
+
+	@Override
+	public void close() throws IOException {
+		for (final DataSource mpqGuy : this.mpqList) {
+			mpqGuy.close();
+		}
 	}
 }

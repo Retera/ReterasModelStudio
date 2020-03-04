@@ -100,6 +100,11 @@ public class MpqDataSource implements DataSource {
 	}
 
 	@Override
+	public boolean allowDownstreamCaching(final String filepath) {
+		return true;
+	}
+
+	@Override
 	public Collection<String> getListfile() {
 		try {
 			final Set<String> listfile = new HashSet<>();

@@ -29,6 +29,7 @@ import javax.swing.event.ListSelectionListener;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
+import com.hiveworkshop.wc3.gui.datachooser.DataSource;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.mpqbrowser.BLPPanel;
 import com.hiveworkshop.wc3.mdl.Bitmap;
@@ -157,9 +158,9 @@ public class TextureManager extends JPanel {
 									return;
 								}
 							}
+							final DataSource wrappedDataSource = modelView.getModel().getWrappedDataSource();
 							final File workingDirectory = modelView.getModel().getWorkingDirectory();
-							BufferedImage bufferedImage = BLPHandler.get().getTexture(
-									workingDirectory == null ? "" : workingDirectory.getPath(),
+							BufferedImage bufferedImage = BLPHandler.get().getTexture(wrappedDataSource,
 									selectedValue.getPath());
 							String fileExtension = file.getName().substring(file.getName().lastIndexOf('.') + 1)
 									.toUpperCase();
@@ -313,11 +314,10 @@ public class TextureManager extends JPanel {
 
 	private void loadBitmap(final ModelView modelView, final Bitmap defaultTexture) {
 		if (defaultTexture != null) {
-			final File workingDirectory = modelView.getModel().getWorkingDirectory();
+			final DataSource workingDirectory = modelView.getModel().getWrappedDataSource();
 			panel_1.removeAll();
 			try {
-				panel_1.add(new BLPPanel(BLPHandler.get().getTexture(
-						workingDirectory == null ? "" : workingDirectory.getPath(), defaultTexture.getPath())));
+				panel_1.add(new BLPPanel(BLPHandler.get().getTexture(workingDirectory, defaultTexture.getPath())));
 			} catch (final Exception exc) {
 				final BufferedImage image = new BufferedImage(512, 512, BufferedImage.TYPE_INT_ARGB);
 				final Graphics2D g2 = image.createGraphics();

@@ -240,7 +240,7 @@ public class MDLSnapshot {
 
 	public void initGL() {
 		try {
-			if (programPreferences == null || programPreferences.textureModels()) {
+			if ((programPreferences == null) || programPreferences.textureModels()) {
 				texLoaded = true;
 				for (final Geoset geo : dispMDL.getModel().getGeosets()) {// .getModel().getGeosets()
 					for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
@@ -376,8 +376,8 @@ public class MDLSnapshot {
 							isGoodAnimation = false;
 						}
 					}
-					if (isGoodAnimation
-							&& (bestStandAnim == null || anim.getName().length() < bestStandAnim.getName().length())) {
+					if (isGoodAnimation && ((bestStandAnim == null)
+							|| (anim.getName().length() < bestStandAnim.getName().length()))) {
 						bestStandAnim = anim;
 					}
 				}
@@ -388,7 +388,7 @@ public class MDLSnapshot {
 					if (visibilityFlag != null) {
 						for (int i = 0; i < visibilityFlag.size(); i++) {
 							final Entry entry = visibilityFlag.getEntry(i);
-							if (entry.time == bestStandAnim.getStart() && ((Number) entry.value).intValue() == 0) {
+							if ((entry.time == bestStandAnim.getStart()) && (((Number) entry.value).intValue() == 0)) {
 								mdlDisplay.makeGeosetNotEditable(geo);
 								mdlDisplay.makeGeosetNotVisible(geo);
 							}
@@ -437,14 +437,14 @@ public class MDLSnapshot {
 			varianceGuy /= widthItems;
 			width = Math.sqrt(varianceGuy) * 6;
 		}
-		if (!loadedWidth && exts != null && exts.getMaximumExtent() != null && exts.getMinimumExtent() != null) {
+		if (!loadedWidth && (exts != null) && (exts.getMaximumExtent() != null) && (exts.getMinimumExtent() != null)) {
 			width = (exts.getMaximumExtent().getX()) / 2;
 			depth = (exts.getMaximumExtent().getY()) / 3;
 			loadedWidth = true;
 		}
 		setCameraPosition(new Vertex(0, -20, width));
 		setZoom(Math.min(1,
-				(exts == null && exts.getBoundsRadius() > 0) ? (128 / width) : (32 / exts.getBoundsRadius())));
+				((exts == null) && (exts.getBoundsRadius() > 0)) ? (128 / width) : (32 / exts.getBoundsRadius())));
 	}
 
 	public void zoomToFit() {
@@ -504,7 +504,7 @@ public class MDLSnapshot {
 		for (int i = 0; i < data.length; i++) {
 			final int rgba = data[i];
 			final int a = rgba & 0xFF;
-			data[i] = (rgba >>> 8) | a << 24;
+			data[i] = (rgba >>> 8) | (a << 24);
 		}
 		image.getRaster().setDataElements(0, 0, getWidth(), getHeight(), data);
 		return createFlipped(image);
@@ -567,7 +567,7 @@ public class MDLSnapshot {
 	private boolean drawBackground;
 
 	public boolean renderTextures() {
-		return texLoaded && (programPreferences == null || programPreferences.textureModels());
+		return texLoaded && ((programPreferences == null) || programPreferences.textureModels());
 	}
 
 	public void paintGL() {
@@ -594,19 +594,19 @@ public class MDLSnapshot {
 				e.printStackTrace();
 				ExceptionPopup.display("Error loading new texture:", e);
 			}
-		} else if (!texLoaded && (programPreferences == null || programPreferences.textureModels())) {
+		} else if (!texLoaded && ((programPreferences == null) || programPreferences.textureModels())) {
 			forceReloadTextures();
 			texLoaded = true;
 		}
 		try {
-			if (getWidth() != current_width || getHeight() != current_height) {
+			if ((getWidth() != current_width) || (getHeight() != current_height)) {
 				current_width = getWidth();
 				current_height = getHeight();
 				glViewport(0, 0, current_width, current_height);
 			}
-			if (programPreferences != null && programPreferences.viewMode() == 0) {
+			if ((programPreferences != null) && (programPreferences.viewMode() == 0)) {
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			} else if (programPreferences == null || programPreferences.viewMode() == 1) {
+			} else if ((programPreferences == null) || (programPreferences.viewMode() == 1)) {
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
 			glViewport(0, 0, getWidth(), getHeight());
@@ -646,8 +646,8 @@ public class MDLSnapshot {
 			glLoadIdentity();
 			// GL11.glShadeModel(GL11.GL_SMOOTH);
 
-			glTranslatef(0f + (float) cameraPos.x * (float) zoom, -70f - (float) cameraPos.y * (float) zoom,
-					-200f - (float) cameraPos.z * (float) zoom);
+			glTranslatef(0f + ((float) cameraPos.x * (float) zoom), -70f - ((float) cameraPos.y * (float) zoom),
+					-200f - ((float) cameraPos.z * (float) zoom));
 			glRotatef(yangle, 1f, 0f, 0f);
 			glRotatef(xangle, 0f, 1f, 0f);
 			glScalef((float) zoom, (float) zoom, (float) zoom);
@@ -684,7 +684,7 @@ public class MDLSnapshot {
 			// glRotatef(2*angle, 0f, 0f, -1.0f);
 			// glRectf(-50.0f, -50.0f, 50.0f, 50.0f);
 			for (final Geoset geo : dispMDL.getVisibleGeosets()) {// .getModel().getGeosets()
-				if (!dispMDL.getEditableGeosets().contains(geo) && dispMDL.getHighlightedGeoset() != geo) {
+				if (!dispMDL.getEditableGeosets().contains(geo) && (dispMDL.getHighlightedGeoset() != geo)) {
 					for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
 						final Layer layer = geo.getMaterial().getLayers().get(i);
 						final Bitmap tex = layer.firstTexture();
@@ -840,7 +840,7 @@ public class MDLSnapshot {
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
 			GL11.glDisable(GL11.GL_TEXTURE_2D);
-			if (programPreferences != null && programPreferences.showNormals()) {
+			if ((programPreferences != null) && programPreferences.showNormals()) {
 				glBegin(GL11.GL_LINES);
 				glColor3f(1f, 1f, 3f);
 				// if( wireframe.isSelected() )
@@ -854,9 +854,9 @@ public class MDLSnapshot {
 
 								GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z,
 										(float) v.getNormal().x);
-								GL11.glVertex3f((float) v.y / 1.0f + (float) (v.getNormal().y * 6 / zoom),
-										(float) v.z / 1.0f + (float) (v.getNormal().z * 6 / zoom),
-										(float) v.x / 1.0f + (float) (v.getNormal().x * 6 / zoom));
+								GL11.glVertex3f(((float) v.y / 1.0f) + (float) ((v.getNormal().y * 6) / zoom),
+										((float) v.z / 1.0f) + (float) ((v.getNormal().z * 6) / zoom),
+										((float) v.x / 1.0f) + (float) ((v.getNormal().x * 6) / zoom));
 							}
 						}
 					}
@@ -887,7 +887,7 @@ public class MDLSnapshot {
 
 			// glPopMatrix();
 		} catch (final Throwable e) {
-			if (lastThrownErrorClass == null || lastThrownErrorClass != e.getClass()) {
+			if ((lastThrownErrorClass == null) || (lastThrownErrorClass != e.getClass())) {
 				lastThrownErrorClass = e.getClass();
 				JOptionPane.showMessageDialog(null, "Rendering failed because of this exact reason:\n"
 						+ e.getClass().getSimpleName() + ": " + e.getMessage());
@@ -989,19 +989,19 @@ public class MDLSnapshot {
 	// }
 	// }
 	public double convertX(final double x) {
-		return (x + cameraPos.x) * zoom + getWidth() / 2;
+		return ((x + cameraPos.x) * zoom) + (getWidth() / 2);
 	}
 
 	public double convertY(final double y) {
-		return ((-y + cameraPos.y) * zoom) + getHeight() / 2;
+		return ((-y + cameraPos.y) * zoom) + (getHeight() / 2);
 	}
 
 	public double geomX(final double x) {
-		return (x - getWidth() / 2) / zoom - cameraPos.x;
+		return ((x - (getWidth() / 2)) / zoom) - cameraPos.x;
 	}
 
 	public double geomY(final double y) {
-		return -((y - getHeight() / 2) / zoom - cameraPos.y);
+		return -(((y - (getHeight() / 2)) / zoom) - cameraPos.y);
 	}
 
 	public Rectangle2D.Double pointsToGeomRect(final Point a, final Point b) {
@@ -1056,7 +1056,7 @@ public class MDLSnapshot {
 
 		for (int y = 0; y < image.getHeight(); y++) {
 			for (int x = 0; x < image.getWidth(); x++) {
-				final int pixel = pixels[y * image.getWidth() + x];
+				final int pixel = pixels[(y * image.getWidth()) + x];
 				buffer.put((byte) ((pixel >> 16) & 0xFF)); // Red component
 				buffer.put((byte) ((pixel >> 8) & 0xFF)); // Green component
 				buffer.put((byte) (pixel & 0xFF)); // Blue component

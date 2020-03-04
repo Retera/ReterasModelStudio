@@ -27,7 +27,6 @@ public class Node {
 		objectId = in.readInt();
 		parentId = in.readInt();
 		flags = in.readInt();
-		System.err.println(Integer.toBinaryString(flags));
 		for (int i = 0; i < 3; i++) {
 			if (MdxUtils.checkOptionalId(in, GeosetTranslation.key)) {
 				geosetTranslation = new GeosetTranslation();

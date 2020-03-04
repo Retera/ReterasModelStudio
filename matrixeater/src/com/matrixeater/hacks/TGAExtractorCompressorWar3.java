@@ -6,7 +6,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.hiveworkshop.wc3.gui.BLPHandler;
+import com.hiveworkshop.wc3.gui.OldBLPHandler;
 
 public final class TGAExtractorCompressorWar3 {
 	private static final List<String> failed = new ArrayList<>();
@@ -42,7 +42,7 @@ public final class TGAExtractorCompressorWar3 {
 		} else {
 			if (target.getName().toLowerCase().endsWith(".tga")) {
 				count++;
-				if (count % 300 == 0) {
+				if ((count % 300) == 0) {
 					System.out.println(count);
 				}
 				try {
@@ -52,7 +52,7 @@ public final class TGAExtractorCompressorWar3 {
 					textureTarget.getParentFile().mkdirs();
 					compressTarget.getParentFile().mkdirs();
 					Files.copy(target.toPath(), textureTarget.toPath(), StandardCopyOption.REPLACE_EXISTING);
-					BLPHandler.get().compressTGAHopefullyALot(textureTarget, compressTarget);
+					OldBLPHandler.get().compressTGAHopefullyALot(textureTarget, compressTarget);
 					passed.add(target.getPath());
 				} catch (final Exception e) {
 					failed.add(target.getPath());

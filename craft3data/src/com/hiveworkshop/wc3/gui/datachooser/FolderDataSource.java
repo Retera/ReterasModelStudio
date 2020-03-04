@@ -56,6 +56,11 @@ public class FolderDataSource implements DataSource {
 	}
 
 	@Override
+	public boolean allowDownstreamCaching(final String filepath) {
+		return false;
+	}
+
+	@Override
 	public Collection<String> getListfile() {
 		return listfile;
 	}

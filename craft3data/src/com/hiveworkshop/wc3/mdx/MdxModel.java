@@ -1103,7 +1103,6 @@ public class MdxModel {
 		for (int i = 0; i < 23; i++) {
 			in.mark(8);
 			final String chunk = in.readCharsAsString(4);
-			System.err.println("Parsing: " + chunk);
 			in.reset();
 			if (MdxUtils.checkOptionalId(in, VersionChunk.key)) {
 				versionChunk = new VersionChunk();

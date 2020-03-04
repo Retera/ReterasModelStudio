@@ -4,7 +4,6 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +11,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
+import com.hiveworkshop.wc3.gui.datachooser.DataSource;
 import com.hiveworkshop.wc3.mdl.v2.MaterialView;
 import com.hiveworkshop.wc3.mdx.LayerChunk;
 import com.hiveworkshop.wc3.mdx.MaterialChunk;
@@ -307,7 +307,7 @@ public class Material implements MaterialView {
 		writer.println(tabs + "}");
 	}
 
-	public BufferedImage getBufferedImage(final File workingDirectory) {
+	public BufferedImage getBufferedImage(final DataSource workingDirectory) {
 		BufferedImage theImage = null;
 		for (int i = 0; i < layers.size(); i++) {
 			final Layer lay = layers.get(i);
@@ -315,8 +315,7 @@ public class Material implements MaterialView {
 			final String path = getRenderableTexturePath(tex);
 			BufferedImage newImage;
 			try {
-				newImage = BLPHandler.get().getTexture(workingDirectory == null ? null : workingDirectory.getPath(),
-						path);
+				newImage = BLPHandler.get().getTexture(workingDirectory, path);
 			} catch (final Exception exc) {
 				// newImage = null;
 				newImage = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);

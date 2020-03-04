@@ -60,7 +60,6 @@ public class LayerChunk {
 		public void load(final BlizzardDataInputStream in, final int version) throws IOException {
 			final int inclusiveSize = in.readInt();
 			filterMode = in.readInt();
-			System.err.println("Filter Mode " + filterMode);
 			shadingFlags = in.readInt();
 			textureId = in.readInt();
 			textureAnimationId = in.readInt();

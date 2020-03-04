@@ -6,7 +6,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.hiveworkshop.wc3.gui.BLPHandler;
+import com.hiveworkshop.wc3.gui.OldBLPHandler;
 
 public final class BLPExtractorCompressorWar3 {
 	private static final List<String> failed = new ArrayList<>();
@@ -42,7 +42,7 @@ public final class BLPExtractorCompressorWar3 {
 		} else {
 			if (target.getName().toLowerCase().endsWith(".blp")) {
 				count++;
-				if (count % 300 == 0) {
+				if ((count % 300) == 0) {
 					System.out.println(count);
 				}
 				try {
@@ -68,7 +68,7 @@ public final class BLPExtractorCompressorWar3 {
 					// BlpFile.writePalettedBLP(blpImage, compressTarget,
 					// blpImage.getColorModel().hasAlpha(),
 					// generateMipMaps, false);
-					BLPHandler.get().compressBLPHopefullyALot(textureTarget, compressTarget, generateMipMaps);
+					OldBLPHandler.get().compressBLPHopefullyALot(textureTarget, compressTarget, generateMipMaps);
 					passed.add(target.getPath());
 				} catch (final Exception e) {
 					failed.add(target.getPath());

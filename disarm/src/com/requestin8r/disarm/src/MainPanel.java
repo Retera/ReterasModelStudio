@@ -569,7 +569,7 @@ public class MainPanel extends JPanel implements ActionListener {
 					}
 					// profile.setPath(currentFile.getParent());
 					current.model.getModel().printTo(currentFile);
-					current.model.getModel().setFile(currentFile);
+					current.model.getModel().setFileRef(currentFile);
 					// tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(),currentFile.getName().split("\\.")[0]);
 					// tabbedPane.setToolTipTextAt(tabbedPane.getSelectedIndex(),currentFile.getPath());
 				} else {

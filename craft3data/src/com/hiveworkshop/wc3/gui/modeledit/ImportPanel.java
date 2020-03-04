@@ -197,7 +197,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 	public ImportPanel(final MDL currentModel, final MDL importedModel, final boolean visibleOnStart) {
 		super();
 		if (currentModel.getName().equals(importedModel.getName())) {
-			importedModel.setFile(new File(
+			importedModel.setFileRef(new File(
 					importedModel.getFile().getParent() + "/" + importedModel.getName() + " (Imported)" + ".mdl"));
 			frame = new JFrame("Importing " + currentModel.getName() + " into itself");
 		} else {
@@ -2376,7 +2376,7 @@ class MaterialListCellRenderer extends DefaultListCellRenderer {
 			ImageIcon myIcon = map.get(value);
 			if (myIcon == null) {
 				myIcon = new ImageIcon(Material.mergeImageScaled(ImportPanel.greenIcon.getImage(),
-						((Material) value).getBufferedImage(myModel.getWorkingDirectory()), 64, 64, 48, 48));
+						((Material) value).getBufferedImage(myModel.getWrappedDataSource()), 64, 64, 48, 48));
 				map.put((Material) value, myIcon);
 			}
 
@@ -2386,7 +2386,7 @@ class MaterialListCellRenderer extends DefaultListCellRenderer {
 			ImageIcon myIcon = map.get(value);
 			if (myIcon == null) {
 				myIcon = new ImageIcon(Material.mergeImageScaled(ImportPanel.orangeIcon.getImage(),
-						((Material) value).getBufferedImage(myModel.getWorkingDirectory()), 64, 64, 48, 48));
+						((Material) value).getBufferedImage(myModel.getWrappedDataSource()), 64, 64, 48, 48));
 				map.put((Material) value, myIcon);
 			}
 

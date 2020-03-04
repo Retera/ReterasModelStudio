@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.hiveworkshop.wc3.gui.BLPHandler;
+import com.hiveworkshop.wc3.gui.OldBLPHandler;
 import com.hiveworkshop.wc3.mdl.MDL;
 
 public final class RecompileModelsDirectory {
@@ -12,7 +12,7 @@ public final class RecompileModelsDirectory {
 	private static final List<String> passed = new ArrayList<>();
 
 	public static void main(final String[] args) {
-		BLPHandler.WANT_DESTROY_SAVED_TGAS = false;
+		OldBLPHandler.WANT_DESTROY_SAVED_TGAS = false;
 		if (args.length != 1) {
 			System.err.println("Usage: <mutableModelsDirectory>");
 			System.exit(-1);
@@ -38,7 +38,7 @@ public final class RecompileModelsDirectory {
 					final File blpFile = new File(
 							target.getPath().substring(0, target.getPath().lastIndexOf('.')) + ".blp");
 					blpFile.delete();
-					BLPHandler.get().convertTGAtoBLP(target, blpFile);
+					OldBLPHandler.get().convertTGAtoBLP(target, blpFile);
 					passed.add(target.getPath());
 					target.delete();
 				} catch (final Exception e) {

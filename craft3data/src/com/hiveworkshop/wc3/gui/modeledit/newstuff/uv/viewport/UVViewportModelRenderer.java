@@ -95,6 +95,12 @@ public class UVViewportModelRenderer implements MeshVisitor {
 		}
 
 		@Override
+		public VertexVisitor hdVertex(final double x, final double y, final double z, final double normalX,
+				final double normalY, final double normalZ, final Bone[] skinBones, final short[] skinBoneWeights) {
+			return vertexRenderer.reset();
+		}
+
+		@Override
 		public void triangleFinished() {
 			if (previousVertices.size() > 1) {
 				final Point previousPoint = previousVertices.get(previousVertices.size() - 1);

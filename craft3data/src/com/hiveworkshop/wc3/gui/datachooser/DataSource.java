@@ -37,6 +37,8 @@ public interface DataSource {
 	 */
 	boolean has(String filepath);
 
+	boolean allowDownstreamCaching(String filepath);
+
 	/**
 	 * @return a list of data source contents, or null if no list is provided
 	 */

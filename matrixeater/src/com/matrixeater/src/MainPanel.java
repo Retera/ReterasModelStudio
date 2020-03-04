@@ -4105,7 +4105,7 @@ public class MainPanel extends JPanel
 						try {
 							if (file.getName().lastIndexOf('.') >= 0) {
 								BufferedImage bufferedImage = materialsList.getSelectedValue()
-										.getBufferedImage(currentMDL().getWorkingDirectory());
+										.getBufferedImage(currentMDL().getWrappedDataSource());
 								String fileExtension = file.getName().substring(file.getName().lastIndexOf('.') + 1)
 										.toUpperCase();
 								if (fileExtension.equals("BMP") || fileExtension.equals("JPG")
@@ -4501,7 +4501,7 @@ public class MainPanel extends JPanel
 							e1.printStackTrace();
 						}
 					}
-					currentMDL().setFile(currentFile);
+					currentMDL().setFileRef(currentFile);
 					// currentMDLDisp().resetBeenSaved();
 					// TODO reset been saved
 					currentModelPanel().getMenuItem().setName(currentFile.getName().split("\\.")[0]);
@@ -5090,7 +5090,7 @@ public class MainPanel extends JPanel
 		if (f.getPath().toLowerCase().endsWith("mdx")) {
 			try (BlizzardDataInputStream in = new BlizzardDataInputStream(new FileInputStream(f))) {
 				final MDL model = new MDL(MdxUtils.loadModel(in));
-				model.setFile(f);
+				model.setFileRef(f);
 				temp = new ModelPanel(this, model, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
 						modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
 						activeViewportWatcher, icon, false);
@@ -5134,7 +5134,7 @@ public class MainPanel extends JPanel
 		ModelPanel temp = null;
 		try (BlizzardDataInputStream in = new BlizzardDataInputStream(f)) {
 			final MDL model = new MDL(MdxUtils.loadModel(in));
-			model.setFile(null);
+			model.setFileRef(null);
 			temp = new ModelPanel(this, model, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
 					modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, activeViewportWatcher,
 					icon, false);
@@ -5162,14 +5162,14 @@ public class MainPanel extends JPanel
 		final MDL blankTextureModel = new MDL(filepath.substring(filepath.lastIndexOf('\\') + 1));
 		blankTextureModel.setFormatVersion(version);
 		if (workingDirectory != null) {
-			blankTextureModel.setFile(new File(workingDirectory.getPath() + "/" + filepath + ".mdl"));
+			blankTextureModel.setFileRef(new File(workingDirectory.getPath() + "/" + filepath + ".mdl"));
 		}
 		final Geoset newGeoset = new Geoset();
 		final Layer layer = new Layer("Blend", new Bitmap(filepath));
 		layer.add("Unshaded");
 		final Material material = new Material(layer);
 		newGeoset.setMaterial(material);
-		final BufferedImage bufferedImage = material.getBufferedImage(blankTextureModel.getWorkingDirectory());
+		final BufferedImage bufferedImage = material.getBufferedImage(blankTextureModel.getWrappedDataSource());
 		final int textureWidth = bufferedImage.getWidth();
 		final int textureHeight = bufferedImage.getHeight();
 		final float aspectRatio = textureWidth / (float) textureHeight;
@@ -5255,7 +5255,7 @@ public class MainPanel extends JPanel
 		// tabbedPane.setSelectedComponent(temp);
 		// }
 		if (temporary) {
-			temp.getModelViewManager().getModel().setFile(null);
+			temp.getModelViewManager().getModel().setFileRef(null);
 		}
 		// }
 		// }).start();
@@ -5438,7 +5438,7 @@ public class MainPanel extends JPanel
 								"" + (int) (Math.random() * Integer.MAX_VALUE) + ".mdl"));
 			}
 			while (newModel.getFile().exists()) {
-				newModel.setFile(
+				newModel.setFileRef(
 						new File(currentMDL.getFile().getParent() + "/" + incName(newModel.getName()) + ".mdl"));
 			}
 			importPanel = new ImportPanel(newModel, MDL.deepClone(currentMDL, "CurrentModel"));

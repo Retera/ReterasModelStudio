@@ -63,13 +63,13 @@ public class CascDataSource implements DataSource {
 
 	@Override
 	public InputStream getResourceAsStream(String filepath) {
-		filepath = filepath.toLowerCase(Locale.US);
+		filepath = filepath.toLowerCase(Locale.US).replace('/', '\\');
 		final String resolvedAlias = fileAliases.get(filepath);
 		if (resolvedAlias != null) {
 			filepath = resolvedAlias;
 		}
 		for (final String prefix : prefixes) {
-			final String tempFilepath = prefix + "\\" + filepath.replace('/', '\\');
+			final String tempFilepath = prefix + "\\" + filepath;
 			final InputStream stream = internalGetResourceAsStream(tempFilepath);
 			if (stream != null) {
 				return stream;
@@ -98,13 +98,13 @@ public class CascDataSource implements DataSource {
 
 	@Override
 	public File getFile(String filepath) {
-		filepath = filepath.toLowerCase(Locale.US);
+		filepath = filepath.toLowerCase(Locale.US).replace('/', '\\');
 		final String resolvedAlias = fileAliases.get(filepath);
 		if (resolvedAlias != null) {
 			filepath = resolvedAlias;
 		}
 		for (final String prefix : prefixes) {
-			final String tempFilepath = prefix + "\\" + filepath.replace('/', '\\');
+			final String tempFilepath = prefix + "\\" + filepath;
 			final File file = internalGetFile(tempFilepath);
 			if (file != null) {
 				return file;
@@ -140,7 +140,7 @@ public class CascDataSource implements DataSource {
 
 	@Override
 	public boolean has(String filepath) {
-		filepath = filepath.toLowerCase(Locale.US);
+		filepath = filepath.toLowerCase(Locale.US).replace('/', '\\');
 		final String resolvedAlias = fileAliases.get(filepath);
 		if (resolvedAlias != null) {
 			filepath = resolvedAlias;
@@ -160,6 +160,11 @@ public class CascDataSource implements DataSource {
 		} catch (final IOException e) {
 			throw new RuntimeException("CASC parser error for: " + filepath, e);
 		}
+	}
+
+	@Override
+	public boolean allowDownstreamCaching(final String filepath) {
+		return true;
 	}
 
 	@Override
