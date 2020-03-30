@@ -601,9 +601,11 @@ public class Geoset implements Named, VisibilitySource {
 			final GeosetVertex gv = vertex.get(i);
 			gv.clearBoneAttachments();
 			final Matrix mx = getMatrix(gv.getVertexGroup());
-			if (((gv.getVertexGroup() == -1) || (mx == null))
-					&& (ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion()))) {
-
+			if (((gv.getVertexGroup() == -1) || (mx == null))) {
+				if (!ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion())) {
+					throw new IllegalStateException(
+							"You have empty vertex groupings but FormatVersion is 800. Did you load HD mesh into an SD model?");
+				}
 			} else {
 				mx.updateIds(mdlr);
 				final int szmx = mx.size();

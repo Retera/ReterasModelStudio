@@ -29,8 +29,8 @@ public class Animation implements BasicTimeBoundProvider {
 	}
 
 	public boolean equalsAnim(final Animation other) {
-		return other.name.equals(this.name) && other.intervalStart == intervalStart && other.intervalEnd == intervalEnd
-				&& other.tags.equals(tags);
+		return other.name.equals(this.name) && (other.intervalStart == intervalStart)
+				&& (other.intervalEnd == intervalEnd) && other.tags.equals(tags);
 	}
 
 	public Animation(final String name, final int intervalStart, final int intervalEnd) {
@@ -57,8 +57,7 @@ public class Animation implements BasicTimeBoundProvider {
 	/**
 	 * Construct an Animation from an MDX sequence chunk
 	 *
-	 * @param seq
-	 *            The MDX sequence chunk to convert
+	 * @param seq The MDX sequence chunk to convert
 	 */
 	public Animation(final SequenceChunk.Sequence seq) {
 		this(seq.name, seq.intervalStart, seq.intervalEnd);
@@ -146,8 +145,8 @@ public class Animation implements BasicTimeBoundProvider {
 		}
 		for (final EventObject e : eventObjs) {
 			if (!e.hasGlobalSeq) {
+				e.copyFrom(e.copy(), intervalStart, intervalEnd, start, end);
 			}
-			e.copyFrom(e.copy(), intervalStart, intervalEnd, start, end);
 		}
 	}
 
@@ -169,7 +168,7 @@ public class Animation implements BasicTimeBoundProvider {
 
 	public void reverse(final List<AnimFlag> flags, final List<EventObject> eventObjs) {
 		for (final AnimFlag af : flags) {
-			if (!af.hasGlobalSeq && (af.getTypeId() == 1 || af.getTypeId() == 2 || af.getTypeId() == 3)) {
+			if (!af.hasGlobalSeq && ((af.getTypeId() == 1) || (af.getTypeId() == 2) || (af.getTypeId() == 3))) {
 				af.timeScale(intervalStart, intervalEnd, intervalEnd, intervalStart);
 			}
 		}
@@ -192,7 +191,7 @@ public class Animation implements BasicTimeBoundProvider {
 
 	public void clearData(final List<AnimFlag> flags, final List<EventObject> eventObjs) {
 		for (final AnimFlag af : flags) {
-			if ((af.getTypeId() == 1 || af.getTypeId() == 2 || af.getTypeId() == 3)) {
+			if (((af.getTypeId() == 1) || (af.getTypeId() == 2) || (af.getTypeId() == 3))) {
 				// !af.hasGlobalSeq && was above before
 				af.deleteAnim(this);// timeScale(m_intervalStart, m_intervalEnd,
 									// m_intervalEnd, m_intervalStart);
@@ -342,7 +341,7 @@ public class Animation implements BasicTimeBoundProvider {
 		} else {
 			writer.println(tabs + "Anim {");
 		}
-		if (intervalEnd - intervalStart > 0) {
+		if ((intervalEnd - intervalStart) > 0) {
 			writer.println(tabs + "\tInterval { " + intervalStart + ", " + intervalEnd + " },");
 		}
 		for (int i = 0; i < tags.size(); i++) {

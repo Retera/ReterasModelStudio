@@ -15,6 +15,7 @@ import com.etheller.util.CollectionUtils;
 import com.hiveworkshop.wc3.resources.WEString;
 import com.hiveworkshop.wc3.units.GameObject;
 import com.hiveworkshop.wc3.units.ObjectData;
+import com.hiveworkshop.wc3.user.SaveProfile;
 
 public final class MutableObjectData {
 	private static final War3ID ROC_SUPPORT_URAC = War3ID.fromString("urac");
@@ -712,12 +713,15 @@ public final class MutableObjectData {
 			} else if ((index != -1) && (level > 0)) {
 				index = level - 1;
 			}
+			String editorMetaDataDisplayKey = getEditorMetaDataDisplayKey(level, metaData);
+			if (SaveProfile.get().isHd() && parentWC3Object.keySet().contains(editorMetaDataDisplayKey + ":hd")) {
+				editorMetaDataDisplayKey = editorMetaDataDisplayKey + ":hd";
+			}
 			if (index != -1) {
-				final String fieldStringValue = parentWC3Object.getField(getEditorMetaDataDisplayKey(level, metaData),
-						index);
+				final String fieldStringValue = parentWC3Object.getField(editorMetaDataDisplayKey, index);
 				return fieldStringValue;
 			}
-			final String fieldStringValue = parentWC3Object.getField(getEditorMetaDataDisplayKey(level, metaData));
+			final String fieldStringValue = parentWC3Object.getField(editorMetaDataDisplayKey);
 			return fieldStringValue;
 		}
 

@@ -13,9 +13,10 @@ import com.hiveworkshop.wc3.mdx.GeosetChunk;
  * Eric Theller 11/10/2011
  */
 public class ExtLog {
+	public static final double NO_BOUNDS_RADIUS = -99;
 	private Vertex minimumExtent;
 	private Vertex maximumExtent;
-	private double boundsRadius = -99;
+	private double boundsRadius = NO_BOUNDS_RADIUS;
 	static double DEFAULT_BOUNDSRADIUS = 100.00;
 	static Vertex DEFAULT_MINEXT = new Vertex(-100, -100, -100);
 	static Vertex DEFAULT_MAXEXT = new Vertex(100, 100, 100);
@@ -145,13 +146,13 @@ public class ExtLog {
 		if (maximumExtent != null) {
 			writer.println(tabs + "MaximumExtent " + maximumExtent.toString() + ",");
 		}
-		if (boundsRadius != -99) {
+		if (boundsRadius != NO_BOUNDS_RADIUS) {
 			writer.println(tabs + "BoundsRadius " + MDLReader.doubleToString(boundsRadius) + ",");
 		}
 	}
 
 	public boolean hasBoundsRadius() {
-		return boundsRadius != -99;
+		return boundsRadius != NO_BOUNDS_RADIUS;
 	}
 
 	public Vertex getMinimumExtent() {

@@ -24,6 +24,7 @@ import com.hiveworkshop.wc3.gui.modeledit.activity.DoNothingActivity;
 import com.hiveworkshop.wc3.gui.modeledit.activity.ModelEditorViewportActivityManager;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoManager;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoManagerImpl;
+import com.hiveworkshop.wc3.gui.modeledit.components.ComponentsPanel;
 import com.hiveworkshop.wc3.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.ModelEditorChangeNotifier;
@@ -65,12 +66,14 @@ public class ModelPanel implements ActionListener, MouseListener {
 	private UVPanel editUVPanel;
 
 	private final ModelViewManagingTree modelViewManagingTree;
+	private final ModelComponentBrowserTree modelComponentBrowserTree;
 	private final JComponent parent;
 	private final Icon icon;
 	private JMenuItem menuItem;
 	private final ControlledAnimationViewer animationViewer;
 	private final RenderModel editorRenderModel;
 	private final AnimationController animationController;
+	private final ComponentsPanel componentsPanel;
 
 	public ModelPanel(final JComponent parent, final File input, final ProgramPreferences prefs,
 			final UndoHandler undoHandler, final ToolbarButtonGroup<SelectionItemTypes> notifier,
@@ -107,6 +110,8 @@ public class ModelPanel implements ActionListener, MouseListener {
 				viewportActivityManager, editorRenderModel, modelStructureChangeListener);
 		modelViewManagingTree = new ModelViewManagingTree(modelView, undoManager, modelEditorManager);
 		modelViewManagingTree.setFocusable(false);
+		modelComponentBrowserTree = new ModelComponentBrowserTree(modelView, undoManager, modelEditorManager);
+
 		selectionItemTypeNotifier.addToolbarButtonListener(new ToolbarButtonListener<SelectionItemTypes>() {
 			@Override
 			public void typeChanged(final SelectionItemTypes newType) {
@@ -142,6 +147,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 		sideArea.setControlsVisible(prefs.showVMControls());
 
 		perspArea = new PerspDisplayPanel("Perspective", modelView, prefs, editorRenderModel);
+		componentsPanel = new ComponentsPanel();
 		// perspAreaPanel.setMinimumSize(new Dimension(200,200));
 		// perspAreaPanel.add(Box.createHorizontalStrut(200));
 		// perspAreaPanel.add(Box.createVerticalStrut(200));
@@ -528,5 +534,13 @@ public class ModelPanel implements ActionListener, MouseListener {
 
 	public ModelViewManagingTree getModelViewManagingTree() {
 		return modelViewManagingTree;
+	}
+
+	public ModelComponentBrowserTree getModelComponentBrowserTree() {
+		return modelComponentBrowserTree;
+	}
+
+	public ComponentsPanel getComponentsPanel() {
+		return componentsPanel;
 	}
 }

@@ -266,6 +266,58 @@ public class GeosetVertex extends Vertex {
 		// TODO fix bad design, use interface or something instead of bizarre
 		// override
 		normal.rotate(0, 0, 0, radians, firstXYZ, secondXYZ);
+		if (tangent != null) {
+			rotateTangent(0, 0, 0, radians, firstXYZ, secondXYZ, tangent);
+		}
+	}
+
+	public static void rotateTangent(final double centerX, final double centerY, final double centerZ,
+			final double radians, final byte firstXYZ, final byte secondXYZ, final float[] vertex) {
+		final double x1 = vertex[firstXYZ];
+		final double y1 = vertex[secondXYZ];
+		final double cx;// = coordinateSystem.geomX(centerX);
+		switch (firstXYZ) {
+		case 0:
+			cx = centerX;
+			break;
+		case 1:
+			cx = centerY;
+			break;
+		default:
+		case 2:
+			cx = centerZ;
+			break;
+		}
+		final double dx = x1 - cx;
+		final double cy;// = coordinateSystem.geomY(centerY);
+		switch (secondXYZ) {
+		case 0:
+			cy = centerX;
+			break;
+		case 1:
+			cy = centerY;
+			break;
+		default:
+		case 2:
+			cy = centerZ;
+			break;
+		}
+		final double dy = y1 - cy;
+		final double r = Math.sqrt((dx * dx) + (dy * dy));
+		double verAng = Math.acos(dx / r);
+		if (dy < 0) {
+			verAng = -verAng;
+		}
+		// if( getDimEditable(dim1) )
+		double nextDim = (Math.cos(verAng + radians) * r) + cx;
+		if (!Double.isNaN(nextDim)) {
+			vertex[firstXYZ] = (float) ((Math.cos(verAng + radians) * r) + cx);
+		}
+		// if( getDimEditable(dim2) )
+		nextDim = (Math.sin(verAng + radians) * r) + cy;
+		if (!Double.isNaN(nextDim)) {
+			vertex[secondXYZ] = (float) ((Math.sin(verAng + radians) * r) + cy);
+		}
 	}
 
 	public Vertex createNormal() {

@@ -68,7 +68,7 @@ import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.wc3.gui.modeledit.selection.TVertexSelectionItemTypes;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonListener;
-import com.hiveworkshop.wc3.gui.modeledit.viewport.IconUtils;
+import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportIconUtils;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.MDL;
@@ -424,7 +424,7 @@ public class UVPanel extends JPanel
 		toolbar = new JToolBar(JToolBar.HORIZONTAL);
 		toolbar.setFloatable(false);
 		toolbar.addSeparator();
-		undoAction = new AbstractAction("Undo", IconUtils.loadImageIcon("icons/actions/undo.png")) {
+		undoAction = new AbstractAction("Undo", ViewportIconUtils.loadImageIcon("icons/actions/undo.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -439,7 +439,7 @@ public class UVPanel extends JPanel
 			}
 		};
 		toolbar.add(undoAction);
-		redoAction = new AbstractAction("Redo", IconUtils.loadImageIcon("icons/actions/redo.png")) {
+		redoAction = new AbstractAction("Redo", ViewportIconUtils.loadImageIcon("icons/actions/redo.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -459,7 +459,7 @@ public class UVPanel extends JPanel
 		toolbar.addSeparator();
 		selectionItemTypeGroup = new ToolbarButtonGroup<>(toolbar, TVertexSelectionItemTypes.values());
 		toolbar.addSeparator();
-		selectAndMoveDescriptor = new TVertexToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/move2.png"),
+		selectAndMoveDescriptor = new TVertexToolbarActionButtonType(ViewportIconUtils.loadImageIcon("icons/actions/move2.png"),
 				"Select and Move") {
 			@Override
 			public TVertexEditorViewportActivity createActivity(final TVertexEditorManager modelEditorManager,
@@ -472,7 +472,7 @@ public class UVPanel extends JPanel
 			}
 		};
 		selectAndRotateDescriptor = new TVertexToolbarActionButtonType(
-				IconUtils.loadImageIcon("icons/actions/rotate.png"), "Select and Rotate") {
+				ViewportIconUtils.loadImageIcon("icons/actions/rotate.png"), "Select and Rotate") {
 			@Override
 			public TVertexEditorViewportActivity createActivity(final TVertexEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
@@ -484,7 +484,7 @@ public class UVPanel extends JPanel
 			}
 		};
 		selectAndScaleDescriptor = new TVertexToolbarActionButtonType(
-				IconUtils.loadImageIcon("icons/actions/scale.png"), "Select and Scale") {
+				ViewportIconUtils.loadImageIcon("icons/actions/scale.png"), "Select and Scale") {
 			@Override
 			public TVertexEditorViewportActivity createActivity(final TVertexEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
@@ -499,7 +499,7 @@ public class UVPanel extends JPanel
 				selectAndMoveDescriptor, selectAndRotateDescriptor, selectAndScaleDescriptor });
 		currentActivity = actionTypeGroup.getActiveButtonType();
 		toolbar.addSeparator();
-		snapButton = toolbar.add(new AbstractAction("Snap", IconUtils.loadImageIcon("icons/actions/snap.png")) {
+		snapButton = toolbar.add(new AbstractAction("Snap", ViewportIconUtils.loadImageIcon("icons/actions/snap.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {

@@ -144,7 +144,7 @@ import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarActionButtonType;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonListener;
 import com.hiveworkshop.wc3.gui.modeledit.util.TransferActionListener;
-import com.hiveworkshop.wc3.gui.modeledit.viewport.IconUtils;
+import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportIconUtils;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimationViewer;
 import com.hiveworkshop.wc3.gui.mpqbrowser.BLPPanel;
 import com.hiveworkshop.wc3.gui.mpqbrowser.MPQBrowser;
@@ -286,6 +286,7 @@ public class MainPanel extends JPanel
 	private View creatorView;
 	private View animationControllerView;
 	JScrollPane geoControl;
+	JScrollPane geoControlModelData;
 	JTextField[] mouseCoordDisplay = new JTextField[3];
 	boolean cheatShift = false;
 	boolean cheatAlt = false;
@@ -742,6 +743,12 @@ public class MainPanel extends JPanel
 			return toolView;
 		}
 	});
+	AbstractAction openModelDataContentsViewAction = new OpenViewAction("Model", new OpenViewGetter() {
+		@Override
+		public View getView() {
+			return modelDataView;
+		}
+	});
 	AbstractAction hackerViewAction = new OpenViewAction("Matrix Eater Script", new OpenViewGetter() {
 		@Override
 		public View getView() {
@@ -976,7 +983,7 @@ public class MainPanel extends JPanel
 	private final ViewportTransferHandler viewportTransferHandler;
 	private StringViewMap viewMap;
 	private RootWindow rootWindow;
-	private View viewportControllerWindowView, toolView;
+	private View viewportControllerWindowView, toolView, modelDataView, modelComponentView;
 	private ControllableTimeBoundProvider timeBoundProvider;
 	private ActivityDescriptor currentActivity;
 
@@ -1202,6 +1209,10 @@ public class MainPanel extends JPanel
 //		viewportControllerWindowView.getWindowProperties().setMinimizeEnabled(true);
 //		viewportControllerWindowView.getWindowProperties().setRestoreEnabled(true);
 		toolView = new View("Tools", null, new JPanel());
+		final JPanel contentsDummy = new JPanel();
+		contentsDummy.add(new JLabel("..."));
+		modelDataView = new View("Contents", null, contentsDummy);
+		modelComponentView = new View("Component", null, new JPanel());
 //		toolView.getWindowProperties().setCloseEnabled(false);
 		rootWindow.getWindowProperties().getTabProperties().getTitledTabProperties()
 				.setSizePolicy(TitledTabSizePolicy.EQUAL_SIZE);
@@ -1601,7 +1612,16 @@ public class MainPanel extends JPanel
 			}
 		});
 		viewingTab.getWindowProperties().setCloseEnabled(false);
-		final TabWindow startupTabWindow = new TabWindow(new DockingWindow[] { viewingTab, editingTab });
+
+		final SplitWindow modelTab = new SplitWindow(true, 0.2f, modelDataView, modelComponentView);
+		modelTab.getWindowProperties().setTitleProvider(new DockingWindowTitleProvider() {
+			@Override
+			public String getTitle(final DockingWindow arg0) {
+				return "Model";
+			}
+		});
+
+		final TabWindow startupTabWindow = new TabWindow(new DockingWindow[] { viewingTab, editingTab, modelTab });
 		traverseAndFix(startupTabWindow);
 		return startupTabWindow;
 	}
@@ -1762,6 +1782,7 @@ public class MainPanel extends JPanel
 		geoControl.repaint();
 		display.getModelViewManagingTree().reloadFromModelView();
 		geoControl.setViewportView(display.getModelViewManagingTree());
+		reloadComponentBrowser(display);
 		display.getPerspArea().reloadTextures();// .mpanel.perspArea.reloadTextures();//addGeosets(newGeosets);
 		display.getAnimationViewer().reload();
 		display.getAnimationController().reload();
@@ -1769,6 +1790,12 @@ public class MainPanel extends JPanel
 
 		display.getEditorRenderModel().refreshFromEditor(animatedRenderEnvironment, IDENTITY, IDENTITY, IDENTITY,
 				display.getPerspArea().getViewport());
+	}
+
+	private void reloadComponentBrowser(final ModelPanel display) {
+		geoControlModelData.repaint();
+		display.getModelComponentBrowserTree().reloadFromModelView();
+		geoControlModelData.setViewportView(display.getModelComponentBrowserTree());
 	}
 
 	public void reloadGUI() {
@@ -1827,7 +1854,7 @@ public class MainPanel extends JPanel
 	public JToolBar createJToolBar() {
 		toolbar = new JToolBar(JToolBar.HORIZONTAL);
 		toolbar.setFloatable(false);
-		toolbar.add(new AbstractAction("New", IconUtils.loadImageIcon("icons/actions/new.png")) {
+		toolbar.add(new AbstractAction("New", ViewportIconUtils.loadImageIcon("icons/actions/new.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -1838,7 +1865,7 @@ public class MainPanel extends JPanel
 				}
 			}
 		});
-		toolbar.add(new AbstractAction("Open", IconUtils.loadImageIcon("icons/actions/open.png")) {
+		toolbar.add(new AbstractAction("Open", ViewportIconUtils.loadImageIcon("icons/actions/open.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -1849,7 +1876,7 @@ public class MainPanel extends JPanel
 				}
 			}
 		});
-		toolbar.add(new AbstractAction("Save", IconUtils.loadImageIcon("icons/actions/save.png")) {
+		toolbar.add(new AbstractAction("Save", ViewportIconUtils.loadImageIcon("icons/actions/save.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -1861,7 +1888,7 @@ public class MainPanel extends JPanel
 			}
 		});
 		toolbar.addSeparator();
-		toolbar.add(new AbstractAction("Undo", IconUtils.loadImageIcon("icons/actions/undo.png")) {
+		toolbar.add(new AbstractAction("Undo", ViewportIconUtils.loadImageIcon("icons/actions/undo.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -1875,7 +1902,7 @@ public class MainPanel extends JPanel
 				repaint();
 			}
 		});
-		toolbar.add(new AbstractAction("Redo", IconUtils.loadImageIcon("icons/actions/redo.png")) {
+		toolbar.add(new AbstractAction("Redo", ViewportIconUtils.loadImageIcon("icons/actions/redo.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -1894,8 +1921,8 @@ public class MainPanel extends JPanel
 		toolbar.addSeparator();
 		selectionItemTypeGroup = new ToolbarButtonGroup<>(toolbar, SelectionItemTypes.values());
 		toolbar.addSeparator();
-		selectAndMoveDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/move2.png"),
-				"Select and Move") {
+		selectAndMoveDescriptor = new ToolbarActionButtonType(
+				ViewportIconUtils.loadImageIcon("icons/actions/move2.png"), "Select and Move") {
 			@Override
 			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
@@ -1906,8 +1933,8 @@ public class MainPanel extends JPanel
 						undoActionListener, modelEditorManager.getSelectionView());
 			}
 		};
-		selectAndRotateDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/rotate.png"),
-				"Select and Rotate") {
+		selectAndRotateDescriptor = new ToolbarActionButtonType(
+				ViewportIconUtils.loadImageIcon("icons/actions/rotate.png"), "Select and Rotate") {
 			@Override
 			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
@@ -1918,8 +1945,8 @@ public class MainPanel extends JPanel
 						undoActionListener, modelEditorManager.getSelectionView());
 			}
 		};
-		selectAndScaleDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/scale.png"),
-				"Select and Scale") {
+		selectAndScaleDescriptor = new ToolbarActionButtonType(
+				ViewportIconUtils.loadImageIcon("icons/actions/scale.png"), "Select and Scale") {
 			@Override
 			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
@@ -1930,8 +1957,8 @@ public class MainPanel extends JPanel
 						undoActionListener, modelEditorManager.getSelectionView());
 			}
 		};
-		selectAndExtrudeDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/extrude.png"),
-				"Select and Extrude") {
+		selectAndExtrudeDescriptor = new ToolbarActionButtonType(
+				ViewportIconUtils.loadImageIcon("icons/actions/extrude.png"), "Select and Extrude") {
 			@Override
 			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
@@ -1942,8 +1969,8 @@ public class MainPanel extends JPanel
 						undoActionListener, modelEditorManager.getSelectionView());
 			}
 		};
-		selectAndExtendDescriptor = new ToolbarActionButtonType(IconUtils.loadImageIcon("icons/actions/extend.png"),
-				"Select and Extend") {
+		selectAndExtendDescriptor = new ToolbarActionButtonType(
+				ViewportIconUtils.loadImageIcon("icons/actions/extend.png"), "Select and Extend") {
 			@Override
 			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
@@ -1959,7 +1986,7 @@ public class MainPanel extends JPanel
 						selectAndScaleDescriptor, selectAndExtrudeDescriptor, selectAndExtendDescriptor, });
 		currentActivity = actionTypeGroup.getActiveButtonType();
 		toolbar.addSeparator();
-		snapButton = toolbar.add(new AbstractAction("Snap", IconUtils.loadImageIcon("icons/actions/snap.png")) {
+		snapButton = toolbar.add(new AbstractAction("Snap", ViewportIconUtils.loadImageIcon("icons/actions/snap.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -2520,8 +2547,13 @@ public class MainPanel extends JPanel
 		toolsItem.addActionListener(openToolsAction);
 		viewsMenu.add(toolsItem);
 
+		final JMenuItem contentsItem = new JMenuItem("Contents");
+		contentsItem.setMnemonic(KeyEvent.VK_C);
+		contentsItem.addActionListener(openModelDataContentsViewAction);
+		viewsMenu.add(contentsItem);
+
 		final JMenuItem timeItem = new JMenuItem("Footer");
-		toolsItem.addActionListener(openTimeSliderAction);
+		timeItem.addActionListener(openTimeSliderAction);
 		viewsMenu.add(timeItem);
 
 		final JMenuItem hackerViewItem = new JMenuItem("Matrix Eater Script");
@@ -4906,6 +4938,10 @@ public class MainPanel extends JPanel
 			currentModelPanel().getAnimationViewer().reload();
 			currentModelPanel().getAnimationController().reload();
 			creatorPanel.reloadAnimationList();
+			final ModelPanel display = displayFor(modelReference.getModel());
+			if (display != null) {
+				reloadComponentBrowser(display);
+			}
 		}
 
 		@Override
@@ -4913,6 +4949,10 @@ public class MainPanel extends JPanel
 			currentModelPanel().getAnimationViewer().reload();
 			currentModelPanel().getAnimationController().reload();
 			creatorPanel.reloadAnimationList();
+			final ModelPanel display = displayFor(modelReference.getModel());
+			if (display != null) {
+				reloadComponentBrowser(display);
+			}
 		}
 
 		@Override
@@ -4921,6 +4961,10 @@ public class MainPanel extends JPanel
 			if (modelPanel != null) {
 				modelPanel.getAnimationViewer().reloadAllTextures();
 				modelPanel.getPerspArea().reloadAllTextures();
+			}
+			final ModelPanel display = displayFor(modelReference.getModel());
+			if (display != null) {
+				reloadComponentBrowser(display);
 			}
 		}
 	}
@@ -5246,6 +5290,9 @@ public class MainPanel extends JPanel
 			geoControl = new JScrollPane(temp.getModelViewManagingTree());
 			viewportControllerWindowView.setComponent(geoControl);
 			viewportControllerWindowView.repaint();
+			geoControlModelData = new JScrollPane(temp.getModelComponentBrowserTree());
+			modelDataView.setComponent(geoControlModelData);
+			modelDataView.repaint();
 		}
 		addTabForView(temp, selectNewTab);
 		modelPanels.add(temp);
@@ -5318,6 +5365,7 @@ public class MainPanel extends JPanel
 			creatorPanel.setModelEditorManager(null);
 			creatorPanel.setCurrentModel(null);
 			creatorPanel.setUndoManager(null);
+			geoControlModelData = null;
 		} else {
 			geoControl.setViewportView(currentModelPanel.getModelViewManagingTree());
 			geoControl.repaint();
@@ -5334,6 +5382,9 @@ public class MainPanel extends JPanel
 			creatorPanel.setModelEditorManager(currentModelPanel.getModelEditorManager());
 			creatorPanel.setCurrentModel(currentModelPanel.getModelViewManager());
 			creatorPanel.setUndoManager(currentModelPanel.getUndoManager());
+
+			geoControlModelData.setViewportView(currentModelPanel.getModelComponentBrowserTree());
+			geoControlModelData.repaint();
 		}
 		activeViewportWatcher.viewportChanged(null);
 		timeSliderPanel.revalidateKeyframeDisplay();
@@ -5556,6 +5607,9 @@ public class MainPanel extends JPanel
 		if (geoControl != null) {
 			geoControl.repaint();
 		}
+		if (geoControlModelData != null) {
+			geoControlModelData.repaint();
+		}
 	}
 
 	// @Override
@@ -5712,6 +5766,7 @@ public class MainPanel extends JPanel
 	private void repaintSelfAndChildren(final ModelPanel mpanel) {
 		repaint();
 		geoControl.repaint();
+		geoControlModelData.repaint();
 		mpanel.repaintSelfAndRelatedChildren();
 	}
 

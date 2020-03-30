@@ -24,4 +24,7 @@ public class CompoundDataSourceDescriptor implements DataSourceDescriptor {
 		return "CompoundDataSourceDescriptor";
 	}
 
+	public List<DataSourceDescriptor> getDataSourceDescriptors() {
+		return dataSourceDescriptors;
+	}
 }

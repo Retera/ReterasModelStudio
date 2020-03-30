@@ -2,6 +2,8 @@ package com.hiveworkshop.wc3.mdl;
 
 import java.awt.Component;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -183,18 +185,18 @@ public class MDL implements Named {
 	}
 
 	public static MDL deepClone(final MDL what, final String newName) {
-		File temp;
+		final File temp;
 		try {
-			temp = File.createTempFile("model_clone", "mdl");
-			what.printTo(temp);
-			final MDL newModel = MDL.read(temp);
+			final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+			what.printTo(byteArrayOutputStream);
+			try (ByteArrayInputStream bais = new ByteArrayInputStream(byteArrayOutputStream.toByteArray())) {
+				final MDL newModel = MDL.read(bais);
+				newModel.setName(newName);
+				newModel.setFileRef(what.getFile());
+				return newModel;
+			}
 
-			newModel.setName(newName);
-			newModel.setFileRef(what.getFile());
-			temp.deleteOnExit();
-
-			return newModel;
-		} catch (final IOException e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			ExceptionPopup.display(e);
 		}
