@@ -1,5 +1,6 @@
 package com.hiveworkshop.wc3.gui.modeledit.components;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -13,6 +14,7 @@ import com.hiveworkshop.wc3.mdl.ExtLog;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 public class ExtLogEditor extends JPanel {
+	private static final Dimension MAXIMUM_SIZE = new Dimension(99999, 25);
 	private final JCheckBox minimumExtentBox;
 	private final JSpinner minimumExtentX;
 	private final JSpinner minimumExtentY;
@@ -27,8 +29,11 @@ public class ExtLogEditor extends JPanel {
 	public ExtLogEditor() {
 		minimumExtentBox = new JCheckBox("Minimum Extent");
 		minimumExtentX = new JSpinner(new SpinnerNumberModel(0., -Long.MAX_VALUE, Long.MAX_VALUE, 1.0));
+		minimumExtentX.setMaximumSize(MAXIMUM_SIZE);
 		minimumExtentY = new JSpinner(new SpinnerNumberModel(0., -Long.MAX_VALUE, Long.MAX_VALUE, 1.0));
+		minimumExtentY.setMaximumSize(MAXIMUM_SIZE);
 		minimumExtentZ = new JSpinner(new SpinnerNumberModel(0., -Long.MAX_VALUE, Long.MAX_VALUE, 1.0));
+		minimumExtentZ.setMaximumSize(MAXIMUM_SIZE);
 		minimumExtentBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -37,8 +42,11 @@ public class ExtLogEditor extends JPanel {
 		});
 		maximumExtentBox = new JCheckBox("Maximum Extent");
 		maximumExtentX = new JSpinner(new SpinnerNumberModel(0., -Long.MAX_VALUE, Long.MAX_VALUE, 1.0));
+		maximumExtentX.setMaximumSize(MAXIMUM_SIZE);
 		maximumExtentY = new JSpinner(new SpinnerNumberModel(0., -Long.MAX_VALUE, Long.MAX_VALUE, 1.0));
+		maximumExtentY.setMaximumSize(MAXIMUM_SIZE);
 		maximumExtentZ = new JSpinner(new SpinnerNumberModel(0., -Long.MAX_VALUE, Long.MAX_VALUE, 1.0));
+		maximumExtentZ.setMaximumSize(MAXIMUM_SIZE);
 		maximumExtentBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -47,6 +55,7 @@ public class ExtLogEditor extends JPanel {
 		});
 		boundsRadiusBox = new JCheckBox("Bounds Radius");
 		boundsRadius = new JSpinner(new SpinnerNumberModel(0., -Long.MAX_VALUE, Long.MAX_VALUE, 1.0));
+		boundsRadius.setMaximumSize(MAXIMUM_SIZE);
 		boundsRadiusBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {

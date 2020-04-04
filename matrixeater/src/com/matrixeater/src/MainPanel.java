@@ -5292,6 +5292,7 @@ public class MainPanel extends JPanel
 			viewportControllerWindowView.repaint();
 			geoControlModelData = new JScrollPane(temp.getModelComponentBrowserTree());
 			modelDataView.setComponent(geoControlModelData);
+			modelComponentView.setComponent(temp.getComponentsPanel());
 			modelDataView.repaint();
 		}
 		addTabForView(temp, selectNewTab);
@@ -5365,6 +5366,7 @@ public class MainPanel extends JPanel
 			creatorPanel.setModelEditorManager(null);
 			creatorPanel.setCurrentModel(null);
 			creatorPanel.setUndoManager(null);
+			modelComponentView.setComponent(new JPanel());
 			geoControlModelData = null;
 		} else {
 			geoControl.setViewportView(currentModelPanel.getModelViewManagingTree());
@@ -5384,6 +5386,8 @@ public class MainPanel extends JPanel
 			creatorPanel.setUndoManager(currentModelPanel.getUndoManager());
 
 			geoControlModelData.setViewportView(currentModelPanel.getModelComponentBrowserTree());
+
+			modelComponentView.setComponent(currentModelPanel.getComponentsPanel());
 			geoControlModelData.repaint();
 		}
 		activeViewportWatcher.viewportChanged(null);

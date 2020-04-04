@@ -1,5 +1,7 @@
 package com.hiveworkshop.wc3.gui.modeledit.components;
 
+import java.awt.Dimension;
+
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.JLabel;
@@ -13,6 +15,7 @@ import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.mdl.MDL;
 
 public class ComponentHeaderPanel extends JPanel implements ComponentPanel {
+	private static final Dimension MAXIMUM_SIZE = new Dimension(99999, 25);
 	private final JTextField modelNameField;
 	private final JSpinner formatVersionSpinner;
 	private final JSpinner blendTimeSpinner;
@@ -21,10 +24,13 @@ public class ComponentHeaderPanel extends JPanel implements ComponentPanel {
 	public ComponentHeaderPanel() {
 		final JLabel modelNameLabel = new JLabel("Model Name:");
 		modelNameField = new JTextField();
+		modelNameField.setMaximumSize(MAXIMUM_SIZE);
 		final JLabel versionLabel = new JLabel("Format Version:");
 		formatVersionSpinner = new JSpinner(new SpinnerNumberModel(800, Integer.MIN_VALUE, Integer.MAX_VALUE, 1));
+		formatVersionSpinner.setMaximumSize(MAXIMUM_SIZE);
 		final JLabel blendTimeLabel = new JLabel("Blend Time:");
 		blendTimeSpinner = new JSpinner(new SpinnerNumberModel(150, Integer.MIN_VALUE, Integer.MAX_VALUE, 1));
+		blendTimeSpinner.setMaximumSize(MAXIMUM_SIZE);
 
 		extLogEditor = new ExtLogEditor();
 		extLogEditor.setBorder(BorderFactory.createTitledBorder("Extents"));

@@ -17,5 +17,6 @@ public class ComponentsPanel extends JPanel {
 		add(new ComponentCommentPanel(), COMMENT);
 		add(new ComponentAnimationPanel(), ANIMATION);
 //		add(comp)
+		cardLayout.show(this, HEADER);
 	}
 }
