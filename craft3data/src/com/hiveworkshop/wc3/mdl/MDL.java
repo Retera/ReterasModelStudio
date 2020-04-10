@@ -1426,6 +1426,13 @@ public class MDL implements Named {
 		if (geosets != null) {
 			if (geosets.size() > 0) {
 				for (int i = 0; i < geosets.size(); i++) {
+					geosets.get(i).doSavePrep(this);
+				}
+			}
+		}
+		if (geosets != null) {
+			if (geosets.size() > 0) {
+				for (int i = 0; i < geosets.size(); i++) {
 					geosets.get(i).printTo(writer, this, true);
 				}
 			}

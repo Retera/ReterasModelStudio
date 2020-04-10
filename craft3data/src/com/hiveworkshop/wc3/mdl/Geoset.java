@@ -914,7 +914,7 @@ public class Geoset implements Named, VisibilitySource {
 			if (geosetVertex.getSkinBones() != null) {
 				if (matrix.isEmpty()) {
 					final ArrayList<Bone> bones = mdlr.sortedIdObjects(Bone.class);
-					for (int j = 0; j < bones.size(); j++) {
+					for (int j = 0; (j < bones.size()) && (j < 256); j++) {
 						final ArrayList<Bone> singleBoneList = new ArrayList<Bone>();
 						singleBoneList.add(bones.get(j));
 						final Matrix e = new Matrix(singleBoneList);
