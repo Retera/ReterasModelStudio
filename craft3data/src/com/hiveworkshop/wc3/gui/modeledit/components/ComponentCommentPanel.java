@@ -3,7 +3,6 @@ package com.hiveworkshop.wc3.gui.modeledit.components;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
@@ -21,7 +20,7 @@ public class ComponentCommentPanel extends JPanel implements ComponentPanel {
 		add(textPane, BorderLayout.CENTER);
 	}
 
-	public void setCommentContents(final List<String> headerComment) {
+	public void setCommentContents(final Iterable<String> headerComment) {
 		final StringBuilder sb = new StringBuilder();
 		for (final String line : headerComment) {
 			sb.append(line);

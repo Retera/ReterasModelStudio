@@ -172,9 +172,11 @@ public final class MPQBrowser extends JPanel {
 			@Override
 			public void mouseClicked(final MouseEvent e) {
 				if (e.getClickCount() >= 2) {
-					fileOpenCallback
-							.run(((MPQTreeNode) tree.getPathForLocation(e.getX(), e.getY()).getLastPathComponent())
-									.getPath());
+					final MPQTreeNode lastPathComponent = (MPQTreeNode) tree.getPathForLocation(e.getX(), e.getY())
+							.getLastPathComponent();
+					if (lastPathComponent != null) {
+						fileOpenCallback.run(lastPathComponent.getPath());
+					}
 				}
 			}
 		});

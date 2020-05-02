@@ -23,7 +23,7 @@ import com.hiveworkshop.wc3.util.ModelUtils;
  * Eric Theller 11/5/2011
  */
 public class Material implements MaterialView {
-	public static int teamColor = 06;
+	public static int teamColor = 00;
 	com.etheller.collections.ArrayList<Layer> layers;
 	private int priorityPlane = 0;
 	// "flags" are my way of dealing with all the stuff that I

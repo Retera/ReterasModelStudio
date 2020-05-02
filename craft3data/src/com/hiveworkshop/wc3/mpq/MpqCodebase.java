@@ -26,8 +26,12 @@ public class MpqCodebase implements Codebase, DataSource {
 
 	public MpqCodebase(final List<DataSourceDescriptor> dataSourceDescriptors) {
 		if (dataSourceDescriptors != null) {
-			for (final DataSourceDescriptor descriptor : dataSourceDescriptors) {
-				mpqList.add(descriptor.createDataSource());
+			if (dataSourceDescriptors.isEmpty()) {
+				mpqList.add(new MpqDataSourceDescriptor("Retera.mpq").createDataSource());
+			} else {
+				for (final DataSourceDescriptor descriptor : dataSourceDescriptors) {
+					mpqList.add(descriptor.createDataSource());
+				}
 			}
 		}
 	}

@@ -9,6 +9,7 @@ import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -72,6 +73,7 @@ import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
@@ -2042,6 +2044,10 @@ public class MainPanel extends JPanel
 		root.getActionMap().put("MaximizeSpacebar", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				final Component focusedComponent = getFocusedComponent();
+				if (focusedComponentNeedsTyping(focusedComponent)) {
+					return;
+				}
 				final View focusedView = rootWindow.getFocusedView();
 				if (focusedView.isMaximized()) {
 					rootWindow.setMaximizedWindow(null);
@@ -2056,6 +2062,10 @@ public class MainPanel extends JPanel
 		root.getActionMap().put("PressRight", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				final Component focusedComponent = getFocusedComponent();
+				if (focusedComponentNeedsTyping(focusedComponent)) {
+					return;
+				}
 				if (animationModeState) {
 					timeSliderPanel.jumpRight();
 				}
@@ -2066,6 +2076,10 @@ public class MainPanel extends JPanel
 		root.getActionMap().put("PressLeft", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				final Component focusedComponent = getFocusedComponent();
+				if (focusedComponentNeedsTyping(focusedComponent)) {
+					return;
+				}
 				if (animationModeState) {
 					timeSliderPanel.jumpLeft();
 				}
@@ -2076,6 +2090,10 @@ public class MainPanel extends JPanel
 		root.getActionMap().put("PressUp", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				final Component focusedComponent = getFocusedComponent();
+				if (focusedComponentNeedsTyping(focusedComponent)) {
+					return;
+				}
 				if (animationModeState) {
 					timeSliderPanel.jumpFrames(1);
 				}
@@ -2085,6 +2103,10 @@ public class MainPanel extends JPanel
 		root.getActionMap().put("PressShiftUp", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				final Component focusedComponent = getFocusedComponent();
+				if (focusedComponentNeedsTyping(focusedComponent)) {
+					return;
+				}
 				if (animationModeState) {
 					timeSliderPanel.jumpFrames(10);
 				}
@@ -2095,6 +2117,10 @@ public class MainPanel extends JPanel
 		root.getActionMap().put("PressDown", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				final Component focusedComponent = getFocusedComponent();
+				if (focusedComponentNeedsTyping(focusedComponent)) {
+					return;
+				}
 				if (animationModeState) {
 					timeSliderPanel.jumpFrames(-1);
 				}
@@ -2105,6 +2131,10 @@ public class MainPanel extends JPanel
 		root.getActionMap().put("PressShiftDown", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				final Component focusedComponent = getFocusedComponent();
+				if (focusedComponentNeedsTyping(focusedComponent)) {
+					return;
+				}
 				if (animationModeState) {
 					timeSliderPanel.jumpFrames(-10);
 				}
@@ -2118,6 +2148,10 @@ public class MainPanel extends JPanel
 		root.getActionMap().put("PlayKeyboardKey", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				final Component focusedComponent = getFocusedComponent();
+				if (focusedComponentNeedsTyping(focusedComponent)) {
+					return;
+				}
 				timeSliderPanel.play();
 			}
 		});
@@ -2126,6 +2160,10 @@ public class MainPanel extends JPanel
 		root.getActionMap().put("QKeyboardKey", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				final Component focusedComponent = getFocusedComponent();
+				if (focusedComponentNeedsTyping(focusedComponent)) {
+					return;
+				}
 				actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
 			}
 		});
@@ -2134,6 +2172,10 @@ public class MainPanel extends JPanel
 		root.getActionMap().put("WKeyboardKey", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				final Component focusedComponent = getFocusedComponent();
+				if (focusedComponentNeedsTyping(focusedComponent)) {
+					return;
+				}
 				actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[1]);
 			}
 		});
@@ -2142,6 +2184,10 @@ public class MainPanel extends JPanel
 		root.getActionMap().put("EKeyboardKey", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				final Component focusedComponent = getFocusedComponent();
+				if (focusedComponentNeedsTyping(focusedComponent)) {
+					return;
+				}
 				actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[2]);
 			}
 		});
@@ -2150,6 +2196,10 @@ public class MainPanel extends JPanel
 		root.getActionMap().put("RKeyboardKey", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				final Component focusedComponent = getFocusedComponent();
+				if (focusedComponentNeedsTyping(focusedComponent)) {
+					return;
+				}
 				if (!animationModeState) {
 					actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[3]);
 				}
@@ -2160,6 +2210,10 @@ public class MainPanel extends JPanel
 		root.getActionMap().put("TKeyboardKey", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				final Component focusedComponent = getFocusedComponent();
+				if (focusedComponentNeedsTyping(focusedComponent)) {
+					return;
+				}
 				if (!animationModeState) {
 					actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[4]);
 				}
@@ -2171,6 +2225,10 @@ public class MainPanel extends JPanel
 		root.getActionMap().put("AKeyboardKey", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				final Component focusedComponent = getFocusedComponent();
+				if (focusedComponentNeedsTyping(focusedComponent)) {
+					return;
+				}
 				selectionItemTypeGroup.setToolbarButtonType(selectionItemTypeGroup.getToolbarButtonTypes()[0]);
 			}
 		});
@@ -2179,6 +2237,10 @@ public class MainPanel extends JPanel
 		root.getActionMap().put("SKeyboardKey", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				final Component focusedComponent = getFocusedComponent();
+				if (focusedComponentNeedsTyping(focusedComponent)) {
+					return;
+				}
 				selectionItemTypeGroup.setToolbarButtonType(selectionItemTypeGroup.getToolbarButtonTypes()[1]);
 			}
 		});
@@ -2187,6 +2249,10 @@ public class MainPanel extends JPanel
 		root.getActionMap().put("DKeyboardKey", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				final Component focusedComponent = getFocusedComponent();
+				if (focusedComponentNeedsTyping(focusedComponent)) {
+					return;
+				}
 				selectionItemTypeGroup.setToolbarButtonType(selectionItemTypeGroup.getToolbarButtonTypes()[2]);
 			}
 		});
@@ -2195,6 +2261,10 @@ public class MainPanel extends JPanel
 		root.getActionMap().put("FKeyboardKey", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				final Component focusedComponent = getFocusedComponent();
+				if (focusedComponentNeedsTyping(focusedComponent)) {
+					return;
+				}
 				selectionItemTypeGroup.setToolbarButtonType(selectionItemTypeGroup.getToolbarButtonTypes()[3]);
 			}
 		});
@@ -2203,6 +2273,10 @@ public class MainPanel extends JPanel
 		root.getActionMap().put("GKeyboardKey", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				final Component focusedComponent = getFocusedComponent();
+				if (focusedComponentNeedsTyping(focusedComponent)) {
+					return;
+				}
 				selectionItemTypeGroup.setToolbarButtonType(selectionItemTypeGroup.getToolbarButtonTypes()[4]);
 			}
 		});
@@ -2211,6 +2285,10 @@ public class MainPanel extends JPanel
 		root.getActionMap().put("ZKeyboardKey", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				final Component focusedComponent = getFocusedComponent();
+				if (focusedComponentNeedsTyping(focusedComponent)) {
+					return;
+				}
 				prefs.setViewMode(prefs.getViewMode() == 1 ? 0 : 1);
 			}
 		});
@@ -2219,6 +2297,10 @@ public class MainPanel extends JPanel
 		root.getActionMap().put("CreateFaceShortcut", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				final Component focusedComponent = getFocusedComponent();
+				if (focusedComponentNeedsTyping(focusedComponent)) {
+					return;
+				}
 				if (!animationModeState) {
 					try {
 						final ModelPanel modelPanel = currentModelPanel();
@@ -2266,6 +2348,10 @@ public class MainPanel extends JPanel
 		root.getActionMap().put("shiftSelect", new AbstractAction("shiftSelect") {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				final Component focusedComponent = getFocusedComponent();
+				if (focusedComponentNeedsTyping(focusedComponent)) {
+					return;
+				}
 				// if (prefs.getSelectionType() == 0) {
 				// for (int b = 0; b < 3; b++) {
 				// buttons.get(b).resetColors();
@@ -2309,6 +2395,10 @@ public class MainPanel extends JPanel
 		root.getActionMap().put("unShiftSelect", new AbstractAction("unShiftSelect") {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				final Component focusedComponent = getFocusedComponent();
+				if (focusedComponentNeedsTyping(focusedComponent)) {
+					return;
+				}
 				// if (prefs.getSelectionType() == 1 && cheatShift) {
 				// for (int b = 0; b < 3; b++) {
 				// buttons.get(b).resetColors();
@@ -5861,5 +5951,15 @@ public class MainPanel extends JPanel
 		} else {
 			onClickSaveAs(model);
 		}
+	}
+
+	private Component getFocusedComponent() {
+		final KeyboardFocusManager kfm = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+		final Component focusedComponent = kfm.getFocusOwner();
+		return focusedComponent;
+	}
+
+	private boolean focusedComponentNeedsTyping(final Component focusedComponent) {
+		return (focusedComponent instanceof JTextArea) || (focusedComponent instanceof JTextField);
 	}
 }

@@ -148,6 +148,8 @@ public class ModelPanel implements ActionListener, MouseListener {
 
 		perspArea = new PerspDisplayPanel("Perspective", modelView, prefs, editorRenderModel);
 		componentsPanel = new ComponentsPanel();
+
+		modelComponentBrowserTree.addSelectListener(componentsPanel);
 		// perspAreaPanel.setMinimumSize(new Dimension(200,200));
 		// perspAreaPanel.add(Box.createHorizontalStrut(200));
 		// perspAreaPanel.add(Box.createVerticalStrut(200));

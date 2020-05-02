@@ -9,6 +9,8 @@ import java.util.Enumeration;
 import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
@@ -63,14 +65,10 @@ public final class ModelComponentBrowserTree extends JTree {
 			public Component getTreeCellRendererComponent(final JTree tree, final Object value, final boolean selected,
 					final boolean expanded, final boolean leaf, final int row, final boolean hasFocus) {
 				ImageIcon iconOverride = null;
-				setOpenIcon(new ImageIcon(
-						BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp")));
-				setClosedIcon(new ImageIcon(
-						BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp")));
 				if (value instanceof DefaultMutableTreeNode) {
 					final Object userObject = ((DefaultMutableTreeNode) value).getUserObject();
 					if (userObject instanceof ChooseableDisplayElement) {
-						final ImageIcon icon = ((ChooseableDisplayElement<?>) userObject).getIcon();
+						final ImageIcon icon = ((ChooseableDisplayElement<?>) userObject).getIcon(expanded);
 						if (icon != null) {
 							iconOverride = icon;
 						}
@@ -85,6 +83,24 @@ public final class ModelComponentBrowserTree extends JTree {
 			}
 		});
 		setFocusable(false);
+	}
+
+	public void addSelectListener(final ModelComponentListener selectListener) {
+		addTreeSelectionListener(new TreeSelectionListener() {
+			@Override
+			public void valueChanged(final TreeSelectionEvent e) {
+				final TreePath path = e.getNewLeadSelectionPath();
+				if (path != null) {
+					final Object lastPathComponent = path.getLastPathComponent();
+					if (lastPathComponent instanceof DefaultMutableTreeNode) {
+						final DefaultMutableTreeNode node = (DefaultMutableTreeNode) lastPathComponent;
+						if (node.getUserObject() instanceof ChooseableDisplayElement) {
+							asElement(node.getUserObject()).select(selectListener);
+						}
+					}
+				}
+			}
+		});
 	}
 
 	public void reloadFromModelView() {
@@ -362,7 +378,7 @@ public final class ModelComponentBrowserTree extends JTree {
 			return (other.item == item) || ((item != null) && item.equals(other.item));
 		}
 
-		public ImageIcon getIcon() {
+		public ImageIcon getIcon(final boolean expanded) {
 			return icon;
 		}
 	}
@@ -1044,6 +1060,8 @@ public final class ModelComponentBrowserTree extends JTree {
 	private static final class ChooseableDummyItem extends ChooseableDisplayElement<Void> {
 		private static final ImageIcon GROUP_ICON = new ImageIcon(IconUtils.worldEditStyleIcon(
 				BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp")));
+		private static final ImageIcon GROUP_ICON_EXPANDED = new ImageIcon(IconUtils.worldEditStyleIcon(
+				BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp")));
 		private final String name2;
 
 		public ChooseableDummyItem(final ModelViewManager modelViewManager, final String name) {
@@ -1068,9 +1086,14 @@ public final class ModelComponentBrowserTree extends JTree {
 		@Override
 		public void mouseExited() {
 		}
+
+		@Override
+		public ImageIcon getIcon(final boolean expanded) {
+			return expanded ? GROUP_ICON_EXPANDED : GROUP_ICON;
+		}
 	}
 
-	private static interface ModelComponentListener {
+	public static interface ModelComponentListener {
 		void selected(MDL model);
 
 		void selectedHeaderData(MDL model);

@@ -32,8 +32,8 @@ public class ComponentAnimationPanel extends JPanel {
 		add(new JLabel("End: "), "cell 2 1");
 		add(newAnimTimeEnd, "cell 3 1");
 
-		rarityChooser = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
-		moveSpeedChooser = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
+		rarityChooser = new JSpinner(new SpinnerNumberModel(0d, 0d, Long.MAX_VALUE, 1d));
+		moveSpeedChooser = new JSpinner(new SpinnerNumberModel(0d, 0d, Long.MAX_VALUE, 1d));
 		nonLoopingChooser = new JCheckBox("NonLooping");
 		add(nonLoopingChooser, "cell 0 2");
 		add(new JLabel("Rarity"), "cell 0 3");
@@ -72,10 +72,10 @@ public class ComponentAnimationPanel extends JPanel {
 		for (final String tag : animation.getTags()) {
 			final String lowerCaseTag = tag.trim().toLowerCase();
 			if (lowerCaseTag.startsWith("nonlooping")) {
-				nonLoopingChooser.setEnabled(true);
+				nonLoopingChooser.setSelected(true);
 			} else if (lowerCaseTag.startsWith("rarity ")) {
 				final String rarityString = lowerCaseTag.substring("rarity ".length());
-				final int rarityValue = Integer.parseInt(rarityString);
+				final double rarityValue = Double.parseDouble(rarityString);
 				rarityChooser.setValue(rarityValue);
 			} else if (lowerCaseTag.startsWith("movespeed ")) {
 				final String movespeedValueString = lowerCaseTag.substring("movespeed ".length());
