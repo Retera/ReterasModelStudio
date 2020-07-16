@@ -414,6 +414,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 
 		// Matrices Panel
 		addTab("Matrices", greenIcon, geosetAnimPanel, "Controls which bones geosets are attached to.");
+		addTab("Skin", orangeIcon, new JPanel(), "Edit SKIN chunk");
 
 		final ParentToggleRenderer ptr = new ParentToggleRenderer(displayParents, currentModelManager,
 				importedModelManager);

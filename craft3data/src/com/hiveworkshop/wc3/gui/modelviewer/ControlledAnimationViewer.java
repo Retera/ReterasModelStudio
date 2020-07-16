@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.modelviewer;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -88,5 +89,9 @@ public class ControlledAnimationViewer extends JPanel implements AnimationContro
 	@Override
 	public void setLevelOfDetail(final int levelOfDetail) {
 		perspectiveViewport.setLevelOfDetail(levelOfDetail);
+	}
+
+	public BufferedImage getBufferedImage() {
+		return perspectiveViewport.getBufferedImage();
 	}
 }

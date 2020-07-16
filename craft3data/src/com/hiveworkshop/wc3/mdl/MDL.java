@@ -2416,6 +2416,10 @@ public class MDL implements Named {
 		idObjects.remove(o);
 	}
 
+	public void remove(final Camera camera) {
+		cameras.remove(camera);
+	}
+
 	public void remove(final Geoset g) {
 		geosets.remove(g);
 	}

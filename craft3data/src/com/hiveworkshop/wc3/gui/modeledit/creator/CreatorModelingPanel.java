@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -18,7 +19,10 @@ import javax.swing.JPanel;
 
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.animedit.TimeEnvironmentImpl;
+import com.hiveworkshop.wc3.gui.animedit.TimeSliderTimeSelectionListener;
 import com.hiveworkshop.wc3.gui.animedit.WrongModeException;
+import com.hiveworkshop.wc3.gui.animedit.mdlvisripoff.TSpline;
+import com.hiveworkshop.wc3.gui.animedit.mdlvisripoff.TTan;
 import com.hiveworkshop.wc3.gui.modeledit.ActiveViewportWatcher;
 import com.hiveworkshop.wc3.gui.modeledit.FaceCreationException;
 import com.hiveworkshop.wc3.gui.modeledit.ModeButton;
@@ -35,11 +39,14 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.builder.model.SquatToolWidgetManipulatorBuilder;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarActionButtonType;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
+import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
+import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
-public class CreatorModelingPanel extends JPanel implements ModelEditorChangeActivityListener {
+public class CreatorModelingPanel extends JPanel
+		implements ModelEditorChangeActivityListener, TimeSliderTimeSelectionListener {
 	private static final String ANIMATIONBASICS = "ANIMATIONBASICS";
 
 	private final class ActionListenerImplementation implements ActionListener {
@@ -93,6 +100,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 	private final Map<Object, ChooseableTimeRange> thingToChooseableItem = new HashMap<>();
 	private final CardLayout northCardLayout;
 	private final JPanel northCardPanel;
+	private TSpline tSpline;
 
 	public CreatorModelingPanel(final ModelEditorChangeActivityListener listener,
 			final ProgramPreferences programPreferences,
@@ -303,6 +311,11 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		});
 		putTypeToButton(selectAndSquatDescriptor, squatButton);
 		modeButtons.add(squatButton);
+
+		if (false) {
+			tSpline = new TSpline(new TTan());
+			editToolsPanel.add(tSpline);
+		}
 
 		meshBasicsPanel.add(editToolsPanel, BorderLayout.CENTER);
 	}
@@ -569,4 +582,10 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		}
 
 	}
+
+	@Override
+	public void timeChanged(final int currentTime, final Set<IdObject> objects, final List<AnimFlag> timelines) {
+//		tSpline.setSelection(currentTime);
+	}
+
 }

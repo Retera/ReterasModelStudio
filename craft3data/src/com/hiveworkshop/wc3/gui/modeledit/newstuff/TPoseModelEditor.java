@@ -762,8 +762,15 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 				deletedIdObjects.add(object);
 			}
 		}
+		final List<Camera> deletedCameras = new ArrayList<>();
+		for (final Camera camera : model.getEditableCameras()) {
+			if (selectionManager.getSelection().contains(camera.getPosition())
+					|| selectionManager.getSelection().contains(camera.getTargetPosition())) {
+				deletedCameras.add(camera);
+			}
+		}
 		final DeleteNodesAction deleteNodesAction = new DeleteNodesAction(selectionManager.getSelectedVertices(),
-				deletedIdObjects, structureChangeListener, model, vertexSelectionHelper);
+				deletedIdObjects, deletedCameras, structureChangeListener, model, vertexSelectionHelper);
 		deleteNodesAction.redo();
 		return deleteNodesAction;
 	}

@@ -1194,19 +1194,19 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		revalidateKeyframeDisplay();
 	}
 
-	private final class KeyFrame {
+	public final class KeyFrame {
 		private int time;
 		private final Set<IdObject> objects = new HashSet<>();
 		private final List<AnimFlag> timelines = new ArrayList<>();
 		private final Rectangle renderRect;
 
-		public KeyFrame(final int time) {
+		private KeyFrame(final int time) {
 			this.time = time;
 			final int currentTimePixelX = computeXFromTime(time);
 			this.renderRect = new Rectangle(currentTimePixelX - 4, VERTICAL_SLIDER_HEIGHT, 8, VERTICAL_TICKS_HEIGHT);
 		}
 
-		public void reposition() {
+		protected void reposition() {
 			renderRect.x = computeXFromTime(time) - 4;
 		}
 	}

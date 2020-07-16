@@ -28,11 +28,11 @@ public class ExtLogEditor extends JPanel {
 
 	public ExtLogEditor() {
 		minimumExtentBox = new JCheckBox("Minimum Extent");
-		minimumExtentX = new JSpinner(new SpinnerNumberModel(0., -Long.MAX_VALUE, Long.MAX_VALUE, 1.0));
+		minimumExtentX = new JSpinner(new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
 		minimumExtentX.setMaximumSize(MAXIMUM_SIZE);
-		minimumExtentY = new JSpinner(new SpinnerNumberModel(0., -Long.MAX_VALUE, Long.MAX_VALUE, 1.0));
+		minimumExtentY = new JSpinner(new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
 		minimumExtentY.setMaximumSize(MAXIMUM_SIZE);
-		minimumExtentZ = new JSpinner(new SpinnerNumberModel(0., -Long.MAX_VALUE, Long.MAX_VALUE, 1.0));
+		minimumExtentZ = new JSpinner(new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
 		minimumExtentZ.setMaximumSize(MAXIMUM_SIZE);
 		minimumExtentBox.addActionListener(new ActionListener() {
 			@Override
@@ -41,11 +41,11 @@ public class ExtLogEditor extends JPanel {
 			}
 		});
 		maximumExtentBox = new JCheckBox("Maximum Extent");
-		maximumExtentX = new JSpinner(new SpinnerNumberModel(0., -Long.MAX_VALUE, Long.MAX_VALUE, 1.0));
+		maximumExtentX = new JSpinner(new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
 		maximumExtentX.setMaximumSize(MAXIMUM_SIZE);
-		maximumExtentY = new JSpinner(new SpinnerNumberModel(0., -Long.MAX_VALUE, Long.MAX_VALUE, 1.0));
+		maximumExtentY = new JSpinner(new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
 		maximumExtentY.setMaximumSize(MAXIMUM_SIZE);
-		maximumExtentZ = new JSpinner(new SpinnerNumberModel(0., -Long.MAX_VALUE, Long.MAX_VALUE, 1.0));
+		maximumExtentZ = new JSpinner(new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
 		maximumExtentZ.setMaximumSize(MAXIMUM_SIZE);
 		maximumExtentBox.addActionListener(new ActionListener() {
 			@Override

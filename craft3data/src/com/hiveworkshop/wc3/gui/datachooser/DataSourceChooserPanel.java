@@ -102,9 +102,6 @@ public class DataSourceChooserPanel extends JPanel {
 
 	public DataSourceChooserPanel(final List<DataSourceDescriptor> dataSourceDescriptorDefaults) {
 		dataSourceDescriptors = new ArrayList<>();
-		if (dataSourceDescriptorDefaults != null) {
-			dataSourceDescriptors.addAll(dataSourceDescriptorDefaults);
-		}
 		fileChooser = new JFileChooser();
 
 		wcDirectory = WindowsRegistry.readRegistry("HKEY_CURRENT_USER\\Software\\Blizzard Entertainment\\Warcraft III",
@@ -519,7 +516,9 @@ public class DataSourceChooserPanel extends JPanel {
 				addWarcraft3Installation(Paths.get(wcDirectory), false);
 			}
 		} else {
-			dataSourceDescriptors.addAll(dataSourceDescriptorDefaults);
+			for (final DataSourceDescriptor dataSourceDescriptor : dataSourceDescriptorDefaults) {
+				dataSourceDescriptors.add(dataSourceDescriptor.duplicate());
+			}
 		}
 		reloadTree();
 	}

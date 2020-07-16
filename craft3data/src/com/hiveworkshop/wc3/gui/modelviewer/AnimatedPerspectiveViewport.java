@@ -35,6 +35,7 @@ import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -44,6 +45,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -529,15 +531,40 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			// paintComponent(image.getGraphics(),5);
 			final Pbuffer buffer = new Pbuffer(getWidth(), getHeight(), new PixelFormat(), null, null);
 			buffer.makeCurrent();
-			final ByteBuffer pixels = ByteBuffer.allocate(getWidth() * getHeight() * 4);
+			final ByteBuffer pixels = ByteBuffer.allocateDirect(getWidth() * getHeight() * 4);
 			initGL();
-			paintGL();
-			GL11.glReadPixels(0, 0, getWidth(), getHeight(), 1, GL11.GL_4_BYTES, pixels);
-			image.getRaster().setDataElements(0, 0, getWidth(), getHeight(), pixels);
-			return image;
+			paintGL(false);
+			GL11.glReadPixels(0, 0, getWidth(), getHeight(), GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
+			final int[] array = new int[pixels.capacity() / 4];
+			pixels.asIntBuffer().get(array);
+			for (int i = 0; i < array.length; i++) {
+				final int rgba = array[i];
+				final int a = rgba & 0xFF;
+				array[i] = (rgba >>> 8) | (a << 24);
+			}
+			image.getRaster().setDataElements(0, 0, getWidth(), getHeight(), array);
+			buffer.releaseContext();
+			return createFlipped(image);
 		} catch (final Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	private static BufferedImage createFlipped(final BufferedImage image) {
+		final AffineTransform at = new AffineTransform();
+		at.concatenate(AffineTransform.getScaleInstance(1, -1));
+		at.concatenate(AffineTransform.getTranslateInstance(0, -image.getHeight()));
+		return createTransformed(image, at);
+	}
+
+	private static BufferedImage createTransformed(final BufferedImage image, final AffineTransform at) {
+		final BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(),
+				BufferedImage.TYPE_INT_ARGB);
+		final Graphics2D g = newImage.createGraphics();
+		g.transform(at);
+		g.drawImage(image, 0, 0, null);
+		g.dispose();
+		return newImage;
 	}
 
 	boolean initialized = false;
@@ -565,6 +592,10 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 
 	@Override
 	public void paintGL() {
+		paintGL(true);
+	}
+
+	public void paintGL(final boolean autoRepainting) {
 		setSize(getParent().getSize());
 		if ((System.currentTimeMillis() - lastExceptionTimeMillis) < 5000) {
 			System.err.println("AnimatedPerspectiveViewport omitting frames due to avoid Exception log spam");
@@ -633,7 +664,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			if (renderTextures()) {
 				glEnable(GL11.GL_TEXTURE_2D);
 			}
-			glClearColor(backgroundRed, backgroundGreen, backgroundBlue, 1.0f);
+			glClearColor(backgroundRed, backgroundGreen, backgroundBlue, autoRepainting ? 1.0f : 0.0f);
 			// glClearColor(0f, 0f, 0f, 1.0f);
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
@@ -864,17 +895,17 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			// "+GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE));
 
 			// glPopMatrix();
-			swapBuffers();
-			final boolean showing = isShowing();
-			final boolean running = paintTimer.isRunning();
-			if (showing && !running) {
-				paintTimer.restart();
-			} else if (!showing && running) {
-				paintTimer.stop();
+			if (autoRepainting) {
+				swapBuffers();
+				final boolean showing = isShowing();
+				final boolean running = paintTimer.isRunning();
+				if (showing && !running) {
+					paintTimer.restart();
+				} else if (!showing && running) {
+					paintTimer.stop();
+				}
 			}
-		} catch (
-
-		final Throwable e) {
+		} catch (final Throwable e) {
 			e.printStackTrace();
 			lastExceptionTimeMillis = System.currentTimeMillis();
 			if ((lastThrownErrorClass == null) || (lastThrownErrorClass != e.getClass())) {

@@ -28,13 +28,33 @@ public abstract class IdObject extends AbstractAnimatedNode implements Named {
 	public static enum NodeFlags {
 		DONTINHERIT_TRANSLATION("DontInherit { Translation }"), DONTINHERIT_SCALING("DontInherit { Scaling }"),
 		DONTINHERIT_ROTATION("DontInherit { Rotation }"), BILLBOARDED("Billboarded"),
-		BILLBOARD_LOCK_X("BillboardLockX"), BILLBOARD_LOCK_Y("BillboardLockY"), BILLBOARD_LOCK_Z("BillboardLockZ"),
-		CAMERA_ANCHORED("CameraAnchored");
+		BILLBOARD_LOCK_X("BillboardedLockX", "BillboardLockX"), BILLBOARD_LOCK_Y("BillboardedLockY", "BillboardLockY"),
+		BILLBOARD_LOCK_Z("BillboardedLockZ", "BillboardLockZ"), CAMERA_ANCHORED("CameraAnchored");
 
 		String mdlText;
+		private String[] otherAcceptedStrings;
 
 		NodeFlags(final String str) {
 			this.mdlText = str;
+		}
+
+		NodeFlags(final String str, final String... otherAcceptedStrings) {
+			this.mdlText = str;
+			this.otherAcceptedStrings = otherAcceptedStrings;
+		}
+
+		public boolean matches(final String text) {
+			if (mdlText.equals(text)) {
+				return true;
+			}
+			if (otherAcceptedStrings != null) {
+				for (final String otherAcceptedString : otherAcceptedStrings) {
+					if (otherAcceptedString.equals(text)) {
+						return true;
+					}
+				}
+			}
+			return false;
 		}
 
 		public String getMdlText() {
@@ -146,7 +166,12 @@ public abstract class IdObject extends AbstractAnimatedNode implements Named {
 
 	@Override
 	public boolean hasFlag(final NodeFlags flag) {
-		return getFlags().contains(flag.getMdlText());
+		for (final String flagInThisObject : getFlags()) {
+			if (flag.matches(flagInThisObject)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public abstract void flipOver(byte axis);

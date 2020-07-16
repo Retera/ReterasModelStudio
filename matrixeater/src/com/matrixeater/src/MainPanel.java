@@ -982,6 +982,7 @@ public class MainPanel extends JPanel
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private JMenuItem combineAnims;
 	private JMenuItem exportAnimatedToStaticMesh;
+	private JMenuItem exportAnimatedFramePNG;
 	private final ViewportTransferHandler viewportTransferHandler;
 	private StringViewMap viewMap;
 	private RootWindow rootWindow;
@@ -1027,6 +1028,7 @@ public class MainPanel extends JPanel
 				}
 			}
 		});
+//		timeSliderPanel.addListener(creatorPanel);
 		animatedRenderEnvironment.addChangeListener(new TimeBoundChangeListener() {
 			@Override
 			public void timeBoundsChanged(final int start, final int end) {
@@ -3077,6 +3079,66 @@ public class MainPanel extends JPanel
 		});
 		scriptsMenu.add(exportAnimatedToStaticMesh);
 
+		exportAnimatedFramePNG = new JMenuItem("Export Animated Frame PNG");
+		exportAnimatedFramePNG.setMnemonic(KeyEvent.VK_F);
+		exportAnimatedFramePNG.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final BufferedImage fBufferedImage = currentModelPanel().getAnimationViewer().getBufferedImage();
+
+				if (exportTextureDialog.getCurrentDirectory() == null) {
+					final MDL current = currentMDL();
+					if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
+						fc.setCurrentDirectory(current.getFile().getParentFile());
+					} else if (profile.getPath() != null) {
+						fc.setCurrentDirectory(new File(profile.getPath()));
+					}
+				}
+				if (exportTextureDialog.getCurrentDirectory() == null) {
+					exportTextureDialog
+							.setSelectedFile(new File(exportTextureDialog.getCurrentDirectory() + File.separator));
+				}
+
+				final int x = exportTextureDialog.showSaveDialog(MainPanel.this);
+				if (x == JFileChooser.APPROVE_OPTION) {
+					final File file = exportTextureDialog.getSelectedFile();
+					if (file != null) {
+						try {
+							if (file.getName().lastIndexOf('.') >= 0) {
+								BufferedImage bufferedImage = fBufferedImage;
+								String fileExtension = file.getName().substring(file.getName().lastIndexOf('.') + 1)
+										.toUpperCase();
+								if (fileExtension.equals("BMP") || fileExtension.equals("JPG")
+										|| fileExtension.equals("JPEG")) {
+									JOptionPane.showMessageDialog(MainPanel.this,
+											"Warning: Alpha channel was converted to black. Some data will be lost\nif you convert this texture back to Warcraft BLP.");
+									bufferedImage = removeAlphaChannel(bufferedImage);
+								}
+								if (fileExtension.equals("BLP")) {
+									fileExtension = "blp";
+								}
+								final boolean write = ImageIO.write(bufferedImage, fileExtension, file);
+								if (!write) {
+									JOptionPane.showMessageDialog(MainPanel.this, "File type unknown or unavailable");
+								}
+							} else {
+								JOptionPane.showMessageDialog(MainPanel.this, "No file type was specified");
+							}
+						} catch (final IOException e1) {
+							ExceptionPopup.display(e1);
+							e1.printStackTrace();
+						} catch (final Exception e2) {
+							ExceptionPopup.display(e2);
+							e2.printStackTrace();
+						}
+					} else {
+						JOptionPane.showMessageDialog(MainPanel.this, "No output file was specified");
+					}
+				}
+			}
+		});
+		scriptsMenu.add(exportAnimatedFramePNG);
+
 		combineAnims = new JMenuItem("Create Back2Back Animation");
 		combineAnims.setMnemonic(KeyEvent.VK_P);
 		combineAnims.addActionListener(new ActionListener() {
@@ -3757,16 +3819,6 @@ public class MainPanel extends JPanel
 					} else if (e.getActionCommand().equals(TransferHandler.getPasteAction().getValue(Action.NAME))) {
 						timeSliderPanel.paste();
 					}
-				}
-			}
-		};
-		final ActionListener cutActionListener = new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				if (!animationModeState) {
-					transferActionListener.actionPerformed(e);
-				} else {
-					timeSliderPanel.cut();
 				}
 			}
 		};

@@ -10,6 +10,7 @@ import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.wc3.mdl.Bone;
+import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.IdObject;
@@ -24,12 +25,14 @@ public class DeleteNodesAction implements UndoAction {
 	private final VertexSelectionHelper vertexSelectionHelper;
 	private List<GeosetVertexNodeDeleteOperation> meshLinkDeleteOps;
 	private final Set<IdObject> quickHashSetRemovedObjects;
+	private final List<Camera> deletedCameras;
 
 	public DeleteNodesAction(final Collection<? extends Vertex> selection, final List<IdObject> objects,
-			final ModelStructureChangeListener changeListener, final ModelView model,
+			final List<Camera> deletedCameras, final ModelStructureChangeListener changeListener, final ModelView model,
 			final VertexSelectionHelper vertexSelectionHelper) {
 		this.selection = new ArrayList<>(selection);
 		this.objects = objects;
+		this.deletedCameras = deletedCameras;
 		this.changeListener = changeListener;
 		this.model = model;
 		this.vertexSelectionHelper = vertexSelectionHelper;
@@ -42,10 +45,14 @@ public class DeleteNodesAction implements UndoAction {
 		for (final IdObject object : objects) {
 			model.getModel().add(object);
 		}
+		for (final Camera camera : deletedCameras) {
+			model.getModel().add(camera);
+		}
 		for (int i = meshLinkDeleteOps.size() - 1; i >= 0; i--) {
 			meshLinkDeleteOps.get(i).undo();
 		}
 		changeListener.nodesAdded(objects);
+		changeListener.camerasAdded(deletedCameras);
 		vertexSelectionHelper.selectVertices(selection);
 	}
 
@@ -53,6 +60,9 @@ public class DeleteNodesAction implements UndoAction {
 	public void redo() {
 		for (final IdObject object : objects) {
 			model.getModel().remove(object);
+		}
+		for (final Camera camera : deletedCameras) {
+			model.getModel().remove(camera);
 		}
 		if (meshLinkDeleteOps == null) {
 			meshLinkDeleteOps = new ArrayList<>();
@@ -76,6 +86,7 @@ public class DeleteNodesAction implements UndoAction {
 			}
 		}
 		changeListener.nodesRemoved(objects);
+		changeListener.camerasRemoved(deletedCameras);
 		vertexSelectionHelper.selectVertices(new ArrayList<Vertex>());
 	}
 

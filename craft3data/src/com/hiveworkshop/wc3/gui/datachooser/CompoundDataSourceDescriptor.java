@@ -27,4 +27,9 @@ public class CompoundDataSourceDescriptor implements DataSourceDescriptor {
 	public List<DataSourceDescriptor> getDataSourceDescriptors() {
 		return dataSourceDescriptors;
 	}
+
+	@Override
+	public DataSourceDescriptor duplicate() {
+		return new CompoundDataSourceDescriptor(new ArrayList<>(dataSourceDescriptors));
+	}
 }

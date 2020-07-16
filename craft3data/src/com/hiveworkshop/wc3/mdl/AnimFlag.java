@@ -1359,6 +1359,13 @@ public class AnimFlag {
 			this.time = time;
 			this.value = value;
 		}
+
+		public void set(final Entry other) {
+			time = other.time;
+			value = other.value;
+			inTan = other.inTan;
+			outTan = other.outTan;
+		}
 	}
 
 	public Entry getEntry(final int index) {
@@ -1384,6 +1391,27 @@ public class AnimFlag {
 		} else if (value instanceof QuaternionRotation) {
 			final QuaternionRotation vertex = (QuaternionRotation) value;
 			final QuaternionRotation clonedVertex = new QuaternionRotation(vertex);
+			return clonedVertex;
+		} else {
+			throw new IllegalStateException(value.getClass().getName());
+		}
+	}
+
+	public static Object cloneValueAsEmpty(final Object value) {
+		if (value == null) {
+			return null;
+		}
+		if (value instanceof Integer) {
+			return 0;
+		} else if (value instanceof Double) {
+			return 0.0;
+		} else if (value instanceof Vertex) {
+			final Vertex vertex = (Vertex) value;
+			final Vertex clonedVertex = new Vertex(0, 0, 0);
+			return clonedVertex;
+		} else if (value instanceof QuaternionRotation) {
+			final QuaternionRotation vertex = (QuaternionRotation) value;
+			final QuaternionRotation clonedVertex = new QuaternionRotation(0, 0, 0, 1);
 			return clonedVertex;
 		} else {
 			throw new IllegalStateException(value.getClass().getName());
