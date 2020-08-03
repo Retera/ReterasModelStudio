@@ -194,6 +194,10 @@ public class AnimationController extends JPanel {
 		}
 	}
 
+	public Animation getCurrentAnimation() {
+		return (Animation) animationBox.getSelectedItem();
+	}
+
 	public void setModel(final ModelView modelView) {
 		this.mdlDisp = modelView;
 		reload();

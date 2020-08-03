@@ -1,28 +1,71 @@
 package com.hiveworkshop.wc3.gui.modeledit.components;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 
+import com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.animation.SetAnimationIntervalEndAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.animation.SetAnimationIntervalStartAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.animation.SetAnimationMoveSpeedAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.animation.SetAnimationNameAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.animation.SetAnimationNonLoopingAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.animation.SetAnimationRarityAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
+import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
+import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorJSpinner;
+import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorTextField;
 import com.hiveworkshop.wc3.mdl.Animation;
 
 import net.miginfocom.swing.MigLayout;
 
 public class ComponentAnimationPanel extends JPanel {
-	private final JTextField nameField;
-	private final JSpinner newAnimTimeStart;
-	private final JSpinner newAnimTimeEnd;
-	private final JSpinner rarityChooser;
-	private final JSpinner moveSpeedChooser;
+	private final ComponentEditorTextField nameField;
+	private final ComponentEditorJSpinner newAnimTimeStart;
+	private final ComponentEditorJSpinner newAnimTimeEnd;
+	private final ComponentEditorJSpinner rarityChooser;
+	private final ComponentEditorJSpinner moveSpeedChooser;
 	private final JCheckBox nonLoopingChooser;
+	private Animation animation;
+	private UndoActionListener undoListener;
+	private ModelStructureChangeListener modelStructureChangeListener;
 
 	public ComponentAnimationPanel() {
-		nameField = new JTextField(24);
-		newAnimTimeStart = new JSpinner(new SpinnerNumberModel(300, 0, Integer.MAX_VALUE, 1));
-		newAnimTimeEnd = new JSpinner(new SpinnerNumberModel(1300, 0, Integer.MAX_VALUE, 1));
+		nameField = new ComponentEditorTextField(24);
+		nameField.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final SetAnimationNameAction setAnimationNameAction = new SetAnimationNameAction(animation.getName(),
+						nameField.getText(), animation, modelStructureChangeListener);
+				setAnimationNameAction.redo();
+				undoListener.pushAction(setAnimationNameAction);
+			}
+		});
+		newAnimTimeStart = new ComponentEditorJSpinner(new SpinnerNumberModel(300, 0, Integer.MAX_VALUE, 1));
+		newAnimTimeStart.addActionListener(new Runnable() {
+			@Override
+			public void run() {
+				final SetAnimationIntervalStartAction setAnimationIntervalStartAction = new SetAnimationIntervalStartAction(
+						animation.getIntervalStart(), ((Number) newAnimTimeStart.getValue()).intValue(), animation,
+						modelStructureChangeListener);
+				setAnimationIntervalStartAction.redo();
+				undoListener.pushAction(setAnimationIntervalStartAction);
+			}
+		});
+		newAnimTimeEnd = new ComponentEditorJSpinner(new SpinnerNumberModel(1300, 0, Integer.MAX_VALUE, 1));
+		newAnimTimeEnd.addActionListener(new Runnable() {
+			@Override
+			public void run() {
+				final SetAnimationIntervalEndAction setAnimationIntervalEndAction = new SetAnimationIntervalEndAction(
+						animation.getIntervalEnd(), ((Number) newAnimTimeEnd.getValue()).intValue(), animation,
+						modelStructureChangeListener);
+				setAnimationIntervalEndAction.redo();
+				undoListener.pushAction(setAnimationIntervalEndAction);
+			}
+		});
 
 		setLayout(new MigLayout());
 		add(new JLabel("Name: "), "cell 0 0");
@@ -32,9 +75,40 @@ public class ComponentAnimationPanel extends JPanel {
 		add(new JLabel("End: "), "cell 2 1");
 		add(newAnimTimeEnd, "cell 3 1");
 
-		rarityChooser = new JSpinner(new SpinnerNumberModel(0d, 0d, Long.MAX_VALUE, 1d));
-		moveSpeedChooser = new JSpinner(new SpinnerNumberModel(0d, 0d, Long.MAX_VALUE, 1d));
+		rarityChooser = new ComponentEditorJSpinner(new SpinnerNumberModel(0d, 0d, Long.MAX_VALUE, 1d));
+		rarityChooser.addActionListener(new Runnable() {
+			@Override
+			public void run() {
+				final SetAnimationRarityAction setAnimationRarityAction = new SetAnimationRarityAction(
+						animation.getRarity(), ((Number) rarityChooser.getValue()).floatValue(), animation,
+						modelStructureChangeListener);
+				setAnimationRarityAction.redo();
+				undoListener.pushAction(setAnimationRarityAction);
+			}
+		});
+		moveSpeedChooser = new ComponentEditorJSpinner(new SpinnerNumberModel(0d, 0d, Long.MAX_VALUE, 1d));
+		moveSpeedChooser.addActionListener(new Runnable() {
+			@Override
+			public void run() {
+				final SetAnimationMoveSpeedAction setAnimationMoveSpeedAction = new SetAnimationMoveSpeedAction(
+						animation.getMoveSpeed(), ((Number) moveSpeedChooser.getValue()).floatValue(), animation,
+						modelStructureChangeListener);
+				setAnimationMoveSpeedAction.redo();
+				undoListener.pushAction(setAnimationMoveSpeedAction);
+			}
+		});
 		nonLoopingChooser = new JCheckBox("NonLooping");
+		nonLoopingChooser.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final SetAnimationNonLoopingAction setAnimationNonLoopingAction = new SetAnimationNonLoopingAction(
+						animation.isNonLooping(), nonLoopingChooser.isSelected(), animation,
+						modelStructureChangeListener);
+				setAnimationNonLoopingAction.redo();
+				undoListener.pushAction(setAnimationNonLoopingAction);
+			}
+		});
+
 		add(nonLoopingChooser, "cell 0 2");
 		add(new JLabel("Rarity"), "cell 0 3");
 		add(rarityChooser, "cell 1 3");
@@ -61,13 +135,19 @@ public class ComponentAnimationPanel extends JPanel {
 
 	/**
 	 * @param animation
+	 * @param modelStructureChangeListener
+	 * @param undoListener
 	 */
-	public void setAnimation(final Animation animation) {
+	public void setAnimation(final Animation animation, final UndoActionListener undoListener,
+			final ModelStructureChangeListener modelStructureChangeListener) {
+		this.animation = animation;
+		this.undoListener = undoListener;
+		this.modelStructureChangeListener = modelStructureChangeListener;
 		nameField.setText(animation.getName());
-		newAnimTimeStart.setValue(animation.getStart());
-		newAnimTimeEnd.setValue(animation.getEnd());
-		rarityChooser.setValue(0);
-		moveSpeedChooser.setValue(0);
+		newAnimTimeStart.reloadNewValue(animation.getStart());
+		newAnimTimeEnd.reloadNewValue(animation.getEnd());
+		rarityChooser.reloadNewValue(0);
+		moveSpeedChooser.reloadNewValue(0);
 		nonLoopingChooser.setSelected(false);
 		for (final String tag : animation.getTags()) {
 			final String lowerCaseTag = tag.trim().toLowerCase();
@@ -76,11 +156,11 @@ public class ComponentAnimationPanel extends JPanel {
 			} else if (lowerCaseTag.startsWith("rarity ")) {
 				final String rarityString = lowerCaseTag.substring("rarity ".length());
 				final double rarityValue = Double.parseDouble(rarityString);
-				rarityChooser.setValue(rarityValue);
+				rarityChooser.reloadNewValue(rarityValue);
 			} else if (lowerCaseTag.startsWith("movespeed ")) {
 				final String movespeedValueString = lowerCaseTag.substring("movespeed ".length());
 				final double movespeedValue = Double.parseDouble(movespeedValueString);
-				moveSpeedChooser.setValue(movespeedValue);
+				moveSpeedChooser.reloadNewValue(movespeedValue);
 			}
 		}
 	}

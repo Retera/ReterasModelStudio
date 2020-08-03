@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.components;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.ParseException;
 
 import javax.swing.GroupLayout;
 import javax.swing.JCheckBox;
@@ -10,29 +11,33 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
+import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.wc3.mdl.ExtLog;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 public class ExtLogEditor extends JPanel {
 	private static final Dimension MAXIMUM_SIZE = new Dimension(99999, 25);
 	private final JCheckBox minimumExtentBox;
-	private final JSpinner minimumExtentX;
-	private final JSpinner minimumExtentY;
-	private final JSpinner minimumExtentZ;
+	private final ComponentEditorJSpinner minimumExtentX;
+	private final ComponentEditorJSpinner minimumExtentY;
+	private final ComponentEditorJSpinner minimumExtentZ;
 	private final JCheckBox maximumExtentBox;
-	private final JSpinner maximumExtentX;
-	private final JSpinner maximumExtentY;
-	private final JSpinner maximumExtentZ;
+	private final ComponentEditorJSpinner maximumExtentX;
+	private final ComponentEditorJSpinner maximumExtentY;
+	private final ComponentEditorJSpinner maximumExtentZ;
 	private final JCheckBox boundsRadiusBox;
-	private final JSpinner boundsRadius;
+	private final ComponentEditorJSpinner boundsRadius;
 
 	public ExtLogEditor() {
 		minimumExtentBox = new JCheckBox("Minimum Extent");
-		minimumExtentX = new JSpinner(new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
+		minimumExtentX = new ComponentEditorJSpinner(
+				new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
 		minimumExtentX.setMaximumSize(MAXIMUM_SIZE);
-		minimumExtentY = new JSpinner(new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
+		minimumExtentY = new ComponentEditorJSpinner(
+				new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
 		minimumExtentY.setMaximumSize(MAXIMUM_SIZE);
-		minimumExtentZ = new JSpinner(new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
+		minimumExtentZ = new ComponentEditorJSpinner(
+				new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
 		minimumExtentZ.setMaximumSize(MAXIMUM_SIZE);
 		minimumExtentBox.addActionListener(new ActionListener() {
 			@Override
@@ -41,11 +46,14 @@ public class ExtLogEditor extends JPanel {
 			}
 		});
 		maximumExtentBox = new JCheckBox("Maximum Extent");
-		maximumExtentX = new JSpinner(new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
+		maximumExtentX = new ComponentEditorJSpinner(
+				new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
 		maximumExtentX.setMaximumSize(MAXIMUM_SIZE);
-		maximumExtentY = new JSpinner(new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
+		maximumExtentY = new ComponentEditorJSpinner(
+				new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
 		maximumExtentY.setMaximumSize(MAXIMUM_SIZE);
-		maximumExtentZ = new JSpinner(new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
+		maximumExtentZ = new ComponentEditorJSpinner(
+				new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
 		maximumExtentZ.setMaximumSize(MAXIMUM_SIZE);
 		maximumExtentBox.addActionListener(new ActionListener() {
 			@Override
@@ -54,7 +62,7 @@ public class ExtLogEditor extends JPanel {
 			}
 		});
 		boundsRadiusBox = new JCheckBox("Bounds Radius");
-		boundsRadius = new JSpinner(new SpinnerNumberModel(0., -Long.MAX_VALUE, Long.MAX_VALUE, 1.0));
+		boundsRadius = new ComponentEditorJSpinner(new SpinnerNumberModel(0., -Long.MAX_VALUE, Long.MAX_VALUE, 1.0));
 		boundsRadius.setMaximumSize(MAXIMUM_SIZE);
 		boundsRadiusBox.addActionListener(new ActionListener() {
 			@Override
@@ -86,6 +94,25 @@ public class ExtLogEditor extends JPanel {
 		setLayout(layout);
 	}
 
+	public void addActionListener(final Runnable actionListener) {
+		minimumExtentX.addActionListener(actionListener);
+		minimumExtentY.addActionListener(actionListener);
+		minimumExtentZ.addActionListener(actionListener);
+		maximumExtentX.addActionListener(actionListener);
+		maximumExtentY.addActionListener(actionListener);
+		maximumExtentZ.addActionListener(actionListener);
+		boundsRadius.addActionListener(actionListener);
+		final ActionListener actionAdapter = new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				actionListener.run();
+			}
+		};
+		minimumExtentBox.addActionListener(actionAdapter);
+		maximumExtentBox.addActionListener(actionAdapter);
+		boundsRadiusBox.addActionListener(actionAdapter);
+	}
+
 	private void updateMinExtOptionsAvailable() {
 		final boolean minExtSelected = minimumExtentBox.isSelected();
 		minimumExtentX.setEnabled(minExtSelected);
@@ -106,31 +133,31 @@ public class ExtLogEditor extends JPanel {
 	}
 
 	public void setExtLog(final ExtLog extents) {
-		final Vertex minimumExtent = extents.getMinimumExtent();
+		final Vertex minimumExtent = extents == null ? null : extents.getMinimumExtent();
 		final boolean hasMinExt = minimumExtent != null;
 		minimumExtentBox.setSelected(hasMinExt);
 		updateMinExtOptionsAvailable();
 		if (hasMinExt) {
-			minimumExtentX.setValue(minimumExtent.x);
-			minimumExtentY.setValue(minimumExtent.y);
-			minimumExtentZ.setValue(minimumExtent.z);
+			minimumExtentX.reloadNewValue(minimumExtent.x);
+			minimumExtentY.reloadNewValue(minimumExtent.y);
+			minimumExtentZ.reloadNewValue(minimumExtent.z);
 		}
 
-		final Vertex maximumExtent = extents.getMaximumExtent();
+		final Vertex maximumExtent = extents == null ? null : extents.getMaximumExtent();
 		final boolean hasMaxExt = maximumExtent != null;
 		maximumExtentBox.setSelected(hasMaxExt);
 		updateMaxExtOptionsAvailable();
 		if (hasMaxExt) {
-			maximumExtentX.setValue(maximumExtent.x);
-			maximumExtentY.setValue(maximumExtent.y);
-			maximumExtentZ.setValue(maximumExtent.z);
+			maximumExtentX.reloadNewValue(maximumExtent.x);
+			maximumExtentY.reloadNewValue(maximumExtent.y);
+			maximumExtentZ.reloadNewValue(maximumExtent.z);
 		}
 
-		final boolean hasBoundsRadius = extents.hasBoundsRadius();
+		final boolean hasBoundsRadius = extents == null ? false : extents.hasBoundsRadius();
 		boundsRadiusBox.setSelected(hasBoundsRadius);
 		updateBoundRadiusOptionsAvailable();
 		if (hasBoundsRadius) {
-			boundsRadius.setValue(extents.getBoundsRadius());
+			boundsRadius.reloadNewValue(extents.getBoundsRadius());
 		}
 	}
 
@@ -157,5 +184,38 @@ public class ExtLogEditor extends JPanel {
 
 	private final double val(final JSpinner spinner) {
 		return ((Number) spinner.getValue()).doubleValue();
+	}
+
+	public void commitEdits() {
+		try {
+			minimumExtentX.commitEdit();
+		} catch (final ParseException e) {
+			e.printStackTrace();
+		}
+		try {
+			minimumExtentY.commitEdit();
+		} catch (final ParseException e) {
+			e.printStackTrace();
+		}
+		try {
+			minimumExtentZ.commitEdit();
+		} catch (final ParseException e) {
+			e.printStackTrace();
+		}
+		try {
+			maximumExtentX.commitEdit();
+		} catch (final ParseException e) {
+			e.printStackTrace();
+		}
+		try {
+			maximumExtentY.commitEdit();
+		} catch (final ParseException e) {
+			e.printStackTrace();
+		}
+		try {
+			maximumExtentZ.commitEdit();
+		} catch (final ParseException e) {
+			e.printStackTrace();
+		}
 	}
 }

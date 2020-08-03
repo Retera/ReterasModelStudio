@@ -570,6 +570,34 @@ public class MainPanel extends JPanel
 			repaint();
 		}
 	};
+	AbstractAction recalcExtentsAction = new AbstractAction("RecalculateExtents") {
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			final ModelPanel mpanel = currentModelPanel();
+			if (mpanel != null) {
+				final JPanel messagePanel = new JPanel(new MigLayout());
+				messagePanel.add(new JLabel("This will calculate the extents of all model components. Proceed?"),
+						"wrap");
+				messagePanel.add(new JLabel("(It may destroy existing extents)"), "wrap");
+				final JRadioButton considerAllBtn = new JRadioButton("Consider all geosets for calculation");
+				final JRadioButton considerCurrentBtn = new JRadioButton(
+						"Consider current editable geosets for calculation");
+				final ButtonGroup buttonGroup = new ButtonGroup();
+				buttonGroup.add(considerAllBtn);
+				buttonGroup.add(considerCurrentBtn);
+				considerAllBtn.setSelected(true);
+				messagePanel.add(considerAllBtn, "wrap");
+				messagePanel.add(considerCurrentBtn, "wrap");
+				final int userChoice = JOptionPane.showConfirmDialog(MainPanel.this, messagePanel, "Message",
+						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+				if (userChoice == JOptionPane.YES_OPTION) {
+					mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor()
+							.recalcExtents(considerCurrentBtn.isSelected()));
+				}
+			}
+			repaint();
+		}
+	};
 	AbstractAction flipAllUVsUAction = new AbstractAction("Flip All UVs U") {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
@@ -3803,6 +3831,11 @@ public class MainPanel extends JPanel
 		recalcNormals.addActionListener(recalcNormalsAction);
 		editMenu.add(recalcNormals);
 
+		final JMenuItem recalcExtents = new JMenuItem("Recalculate Extents");
+		recalcExtents.setAccelerator(KeyStroke.getKeyStroke("control shift E"));
+		recalcExtents.addActionListener(recalcExtentsAction);
+		editMenu.add(recalcExtents);
+
 		editMenu.add(new JSeparator());
 
 		final TransferActionListener transferActionListener = new TransferActionListener();
@@ -5104,6 +5137,36 @@ public class MainPanel extends JPanel
 				modelPanel.getAnimationViewer().reloadAllTextures();
 				modelPanel.getPerspArea().reloadAllTextures();
 			}
+			final ModelPanel display = displayFor(modelReference.getModel());
+			if (display != null) {
+				reloadComponentBrowser(display);
+			}
+		}
+
+		@Override
+		public void headerChanged() {
+			final ModelPanel display = displayFor(modelReference.getModel());
+			if (display != null) {
+				reloadComponentBrowser(display);
+			}
+		}
+
+		@Override
+		public void animationParamsChanged(final Animation animation) {
+			currentModelPanel().getAnimationViewer().reload();
+			currentModelPanel().getAnimationController().reload();
+			creatorPanel.reloadAnimationList();
+			final ModelPanel display = displayFor(modelReference.getModel());
+			if (display != null) {
+				reloadComponentBrowser(display);
+			}
+		}
+
+		@Override
+		public void globalSequenceLengthChanged(final int index, final Integer newLength) {
+			currentModelPanel().getAnimationViewer().reload();
+			currentModelPanel().getAnimationController().reload();
+			creatorPanel.reloadAnimationList();
 			final ModelPanel display = displayFor(modelReference.getModel());
 			if (display != null) {
 				reloadComponentBrowser(display);

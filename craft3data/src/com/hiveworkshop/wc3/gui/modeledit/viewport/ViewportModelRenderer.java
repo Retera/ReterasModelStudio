@@ -26,7 +26,7 @@ import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
-import com.hiveworkshop.wc3.mdl.PopcornFxEmitter;
+import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
@@ -129,7 +129,7 @@ public class ViewportModelRenderer implements ModelRenderer {
 	}
 
 	@Override
-	public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+	public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
 		resetIdObjectRendererWithNode(popcornFxEmitter);
 		idObjectRenderer.popcornFxEmitter(popcornFxEmitter);
 	}

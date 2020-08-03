@@ -5,7 +5,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.hiveworkshop.wc3.gui.modeledit.UVPanel;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.UVRemapAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.UVSnapAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
@@ -20,6 +22,7 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.actions.StaticMeshUVScaleA
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.wc3.gui.modeledit.selection.VertexSelectionHelper;
+import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
@@ -52,6 +55,57 @@ public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexE
 		// list
 		mirror.redo();
 		return mirror;
+	}
+
+	@Override
+	public UndoAction remap(final byte xDim, final byte yDim, final UVPanel.UnwrapDirection unwrapDirection) {
+		final ArrayList<TVertex> tVertices = new ArrayList<TVertex>();
+		final ArrayList<TVertex> newValueHolders = new ArrayList<TVertex>();
+		final ArrayList<TVertex> oldValueHolders = new ArrayList<TVertex>();
+		double minX = Double.MAX_VALUE;
+		double minY = Double.MAX_VALUE;
+		double maxX = -Double.MAX_VALUE;
+		double maxY = -Double.MAX_VALUE;
+		for (final Vertex vertex : selectionManager.getSelectedVertices()) {
+			if (vertex instanceof GeosetVertex) {
+				final GeosetVertex geosetVertex = (GeosetVertex) vertex;
+				if (uvLayerIndex < geosetVertex.getTverts().size()) {
+					final TVertex modelDataTVertex = geosetVertex.getTVertex(uvLayerIndex);
+					tVertices.add(modelDataTVertex);
+					oldValueHolders.add(new TVertex(modelDataTVertex.x, modelDataTVertex.y));
+					final TVertex newCoordValue = new TVertex(vertex.getCoord(xDim), vertex.getCoord(yDim));
+					if (newCoordValue.x > maxX) {
+						maxX = newCoordValue.x;
+					}
+					if (newCoordValue.x < minX) {
+						minX = newCoordValue.x;
+					}
+					if (newCoordValue.y > maxY) {
+						maxY = newCoordValue.y;
+					}
+					if (newCoordValue.y < minY) {
+						minY = newCoordValue.y;
+					}
+					newValueHolders.add(newCoordValue);
+				}
+			}
+		}
+		double widthX = (maxX - minX);
+		double widthY = (maxY - minY);
+		if (widthX == 0) {
+			widthX = 0.01;
+		}
+		if (widthY == 0) {
+			widthY = 0.01;
+		}
+		for (final TVertex tv : newValueHolders) {
+			tv.x = (tv.x - minX) / widthX;
+			tv.y = (tv.y - minY) / widthY;
+		}
+		final UVRemapAction uvRemapAction = new UVRemapAction(tVertices, newValueHolders, oldValueHolders,
+				unwrapDirection);
+		uvRemapAction.redo();
+		return uvRemapAction;
 	}
 
 	@Override

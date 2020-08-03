@@ -22,7 +22,7 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
-import com.hiveworkshop.wc3.mdl.PopcornFxEmitter;
+import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.renderer.GeosetRenderer;
@@ -126,7 +126,7 @@ public class AnimatedViewportModelRenderer implements ModelRenderer {
 	}
 
 	@Override
-	public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+	public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
 		resetIdObjectRendererWithNode(popcornFxEmitter);
 		idObjectRenderer.popcornFxEmitter(popcornFxEmitter);
 	}

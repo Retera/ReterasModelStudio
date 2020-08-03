@@ -70,7 +70,7 @@ import com.hiveworkshop.wc3.mdl.Matrix;
 import com.hiveworkshop.wc3.mdl.Named;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
-import com.hiveworkshop.wc3.mdl.PopcornFxEmitter;
+import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.VisibilitySource;
@@ -414,7 +414,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 
 		// Matrices Panel
 		addTab("Matrices", greenIcon, geosetAnimPanel, "Controls which bones geosets are attached to.");
-		addTab("Skin", orangeIcon, new JPanel(), "Edit SKIN chunk");
+//		addTab("Skin", orangeIcon, new JPanel(), "Edit SKIN chunk");
 
 		final ParentToggleRenderer ptr = new ParentToggleRenderer(displayParents, currentModelManager,
 				importedModelManager);
@@ -1446,7 +1446,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				allVisShells.add(vs);
 			}
 		}
-		for (final Object x : model.sortedIdObjects(PopcornFxEmitter.class)) {
+		for (final Object x : model.sortedIdObjects(ParticleEmitterPopcorn.class)) {
 			final VisibilityShell vs = new VisibilityShell((Named) x, model);
 			if (!tempList.contains(x)) {
 				tempList.add(x);
@@ -1505,7 +1505,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				allVisShells.add(vs);
 			}
 		}
-		for (final Object x : model.sortedIdObjects(PopcornFxEmitter.class)) {
+		for (final Object x : model.sortedIdObjects(ParticleEmitterPopcorn.class)) {
 			final VisibilityShell vs = new VisibilityShell((Named) x, model);
 			if (!tempList.contains(x)) {
 				tempList.add(x);
@@ -1596,7 +1596,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				visComponents.addElement(vs);
 			}
 		}
-		for (final Object x : model.sortedIdObjects(PopcornFxEmitter.class)) {
+		for (final Object x : model.sortedIdObjects(ParticleEmitterPopcorn.class)) {
 			final VisibilityPane vs = visPaneFromObject(x);
 			if (!visComponents.contains(vs) && (vs != null)) {
 				visComponents.addElement(vs);

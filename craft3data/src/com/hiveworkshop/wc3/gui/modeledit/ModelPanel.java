@@ -101,7 +101,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 		modelEditorChangeNotifier = new ModelEditorChangeNotifier();
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
 		modelView = new ModelViewManager(input);
-		undoManager = new UndoManagerImpl();
+		undoManager = new UndoManagerImpl(undoHandler);
 		editorRenderModel = new RenderModel(input, modelView);
 		editorRenderModel.setSpawnParticles((prefs.getRenderParticles() == null) || prefs.getRenderParticles());
 		editorRenderModel.setAllowInanimateParticles(
@@ -110,7 +110,8 @@ public class ModelPanel implements ActionListener, MouseListener {
 				viewportActivityManager, editorRenderModel, modelStructureChangeListener);
 		modelViewManagingTree = new ModelViewManagingTree(modelView, undoManager, modelEditorManager);
 		modelViewManagingTree.setFocusable(false);
-		modelComponentBrowserTree = new ModelComponentBrowserTree(modelView, undoManager, modelEditorManager);
+		modelComponentBrowserTree = new ModelComponentBrowserTree(modelView, undoManager, modelEditorManager,
+				modelStructureChangeListener);
 
 		selectionItemTypeNotifier.addToolbarButtonListener(new ToolbarButtonListener<SelectionItemTypes>() {
 			@Override

@@ -9,7 +9,7 @@ import com.hiveworkshop.wc3.mdl.Helper;
 import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
-import com.hiveworkshop.wc3.mdl.PopcornFxEmitter;
+import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 
 public interface IdObjectVisitor {
@@ -26,7 +26,7 @@ public interface IdObjectVisitor {
 
 	void particleEmitter2(ParticleEmitter2 particleEmitter);
 
-	void popcornFxEmitter(PopcornFxEmitter popcornFxEmitter);
+	void popcornFxEmitter(ParticleEmitterPopcorn popcornFxEmitter);
 
 	void ribbonEmitter(RibbonEmitter particleEmitter);
 

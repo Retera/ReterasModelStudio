@@ -191,8 +191,16 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 		}
 		for (int i = 0; i < backgrounds.size(); i++) {
 			if (parent.wrapImage.isSelected()) {
-				for (int y = -15; y < 15; y++) {
-					for (int x = -15; x < 15; x++) {
+				final double geomMinX = geomX(0);
+				final double geomMinY = geomY(0);
+				final double geomMaxX = geomX(getWidth());
+				final double geomMaxY = geomY(getHeight());
+				final int minX = (int) Math.floor(geomMinX);
+				final int minY = (int) Math.floor(geomMinY);
+				final int maxX = (int) Math.ceil(geomMaxX);
+				final int maxY = (int) Math.ceil(geomMaxY);
+				for (int y = minY; y < maxY; y++) {
+					for (int x = minX; x < maxX; x++) {
 						g.drawImage(backgrounds.get(i), (int) convertX(x), (int) convertY(y),
 								(int) (convertX(x + 1) - convertX(x)), (int) (convertY(y + 1) - convertY(y)), null);
 					}

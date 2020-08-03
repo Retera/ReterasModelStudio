@@ -35,4 +35,10 @@ public interface ModelStructureChangeListener {
 	void animationsRemoved(List<Animation> animation);
 
 	void texturesChanged();
+
+	void headerChanged();
+
+	void animationParamsChanged(Animation animation);
+
+	void globalSequenceLengthChanged(int index, Integer newLength);
 }

@@ -10,22 +10,22 @@ import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
 
 public class CornChunk {
-	public PopcornFxEmitter[] corns = new PopcornFxEmitter[0];
+	public ParticleEmitterPopcorn[] corns = new ParticleEmitterPopcorn[0];
 
 	public static final String key = "CORN";
 
 	public void load(final BlizzardDataInputStream in) throws IOException {
 		MdxUtils.checkId(in, "CORN");
 		final int chunkSize = in.readInt();
-		final List<PopcornFxEmitter> cornList = new ArrayList();
+		final List<ParticleEmitterPopcorn> cornList = new ArrayList();
 		int lightCounter = chunkSize;
 		while (lightCounter > 0) {
-			final PopcornFxEmitter tempcorn = new PopcornFxEmitter();
+			final ParticleEmitterPopcorn tempcorn = new ParticleEmitterPopcorn();
 			cornList.add(tempcorn);
 			tempcorn.load(in);
 			lightCounter -= tempcorn.getSize();
 		}
-		corns = cornList.toArray(new PopcornFxEmitter[cornList.size()]);
+		corns = cornList.toArray(new ParticleEmitterPopcorn[cornList.size()]);
 	}
 
 	public void save(final BlizzardDataOutputStream out) throws IOException {
@@ -49,7 +49,7 @@ public class CornChunk {
 		return a;
 	}
 
-	public class PopcornFxEmitter {
+	public class ParticleEmitterPopcorn {
 		public Node node = new Node();
 		public float[] maybeColor = null;
 		public String path;
@@ -118,11 +118,11 @@ public class CornChunk {
 			return a;
 		}
 
-		public PopcornFxEmitter() {
+		public ParticleEmitterPopcorn() {
 
 		}
 
-		public PopcornFxEmitter(final com.hiveworkshop.wc3.mdl.PopcornFxEmitter light) {
+		public ParticleEmitterPopcorn(final com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn light) {
 			node = new Node(light);
 //			node.flags |= 0x200;
 			node.flags |= 0x1000;

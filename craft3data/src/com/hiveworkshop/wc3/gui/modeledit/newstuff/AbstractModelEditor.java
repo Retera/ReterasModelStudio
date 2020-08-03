@@ -16,6 +16,7 @@ import com.hiveworkshop.wc3.gui.animedit.WrongModeException;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.DeleteAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.ExtrudeAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.RecalculateExtentsAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.RecalculateNormalsAction2;
 import com.hiveworkshop.wc3.gui.modeledit.actions.SnapAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.SnapNormalsAction;
@@ -150,6 +151,24 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		final RecalculateNormalsAction2 temp = new RecalculateNormalsAction2(selectedVertices, oldLocations, snapped);
 		temp.redo();// a handy way to do the snapping!
 		return temp;
+	}
+
+	@Override
+	public UndoAction recalcExtents(final boolean onlyIncludeEditableGeosets) {
+		final List<Geoset> geosetsToIncorporate = new ArrayList<>();
+		if (onlyIncludeEditableGeosets) {
+			for (final Geoset geoset : model.getEditableGeosets()) {
+				geosetsToIncorporate.add(geoset);
+			}
+		} else {
+			for (final Geoset geoset : model.getModel().getGeosets()) {
+				geosetsToIncorporate.add(geoset);
+			}
+		}
+		final RecalculateExtentsAction recalculateExtentsAction = new RecalculateExtentsAction(model,
+				geosetsToIncorporate);
+		recalculateExtentsAction.redo();
+		return recalculateExtentsAction;
 	}
 
 	@Override
@@ -747,9 +766,9 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 	public UndoAction rotate(final Vertex center, final double rotateX, final double rotateY, final double rotateZ) {
 
 		final CompoundAction compoundAction = new CompoundAction("rotate",
-				ListView.Util.of(new SimpleRotateAction(this, center, rotateX, (byte) 0, (byte) 2),
-						new SimpleRotateAction(this, center, rotateY, (byte) 1, (byte) 0),
-						new SimpleRotateAction(this, center, rotateZ, (byte) 1, (byte) 2)));
+				ListView.Util.of(new SimpleRotateAction(this, center, rotateX, (byte) 2, (byte) 1),
+						new SimpleRotateAction(this, center, rotateY, (byte) 0, (byte) 2),
+						new SimpleRotateAction(this, center, rotateZ, (byte) 1, (byte) 0)));
 		compoundAction.redo();
 		return compoundAction;
 	}

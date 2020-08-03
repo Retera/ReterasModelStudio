@@ -17,7 +17,7 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
-import com.hiveworkshop.wc3.mdl.PopcornFxEmitter;
+import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
@@ -112,7 +112,7 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 	}
 
 	@Override
-	public void popcornFxEmitter(final PopcornFxEmitter particleEmitter) {
+	public void popcornFxEmitter(final ParticleEmitterPopcorn particleEmitter) {
 		drawNodeImage(particleEmitter, nodeIconPalette.getParticleImage());
 	}
 

@@ -43,7 +43,7 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
-import com.hiveworkshop.wc3.mdl.PopcornFxEmitter;
+import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
@@ -163,7 +163,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 				}
 
 				@Override
-				public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+				public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
 				}
 
 				@Override
@@ -490,7 +490,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		}
 
 		@Override
-		public void popcornFxEmitter(final PopcornFxEmitter particleEmitter) {
+		public void popcornFxEmitter(final ParticleEmitterPopcorn particleEmitter) {
 			handleDefaultNode(point, axes, particleEmitter);
 		}
 
@@ -590,7 +590,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		}
 
 		@Override
-		public void popcornFxEmitter(final PopcornFxEmitter particleEmitter) {
+		public void popcornFxEmitter(final ParticleEmitterPopcorn particleEmitter) {
 			hitTest(selectedItems, area, particleEmitter.getPivotPoint(), coordinateSystem,
 					particleEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem)
 							* 2,
@@ -689,7 +689,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 					}
 
 					@Override
-					public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+					public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
 					}
 
 					@Override

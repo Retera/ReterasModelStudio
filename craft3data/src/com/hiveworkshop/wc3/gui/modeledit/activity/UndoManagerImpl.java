@@ -4,12 +4,15 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
+import com.hiveworkshop.wc3.gui.modeledit.UndoHandler;
 
 public final class UndoManagerImpl implements UndoManager {
 	private final Deque<UndoAction> availableUndoActions;
 	private final Deque<UndoAction> availableRedoActions;
+	private final UndoHandler undoHandler;
 
-	public UndoManagerImpl() {
+	public UndoManagerImpl(final UndoHandler undoHandler) {
+		this.undoHandler = undoHandler;
 		this.availableUndoActions = new ArrayDeque<>();
 		this.availableRedoActions = new ArrayDeque<>();
 	}
@@ -32,6 +35,7 @@ public final class UndoManagerImpl implements UndoManager {
 	public void pushAction(final UndoAction action) {
 		availableUndoActions.push(action);
 		availableRedoActions.clear();
+		undoHandler.refreshUndo();
 	}
 
 	@Override

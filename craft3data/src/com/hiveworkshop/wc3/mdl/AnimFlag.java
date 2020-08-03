@@ -172,6 +172,10 @@ public class AnimFlag {
 		return globalSeq;
 	}
 
+	public void setGlobalSeq(final Integer globalSeq) {
+		this.globalSeq = globalSeq;
+	}
+
 	// begin constructors from ogre-lord's API:
 	private static Double box(final float f) {
 		return new Double(f);

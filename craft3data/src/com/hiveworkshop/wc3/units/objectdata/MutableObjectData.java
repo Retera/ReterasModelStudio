@@ -796,8 +796,10 @@ public final class MutableObjectData {
 
 		public War3ID getCode() {
 			if (customUnitData == null) {
-				if ((worldEditorDataType == WorldEditorDataType.ABILITIES)
-						|| (worldEditorDataType == WorldEditorDataType.BUFFS_EFFECTS)) {
+				if (((worldEditorDataType == WorldEditorDataType.ABILITIES)
+						|| (worldEditorDataType == WorldEditorDataType.BUFFS_EFFECTS))
+						&& ((parentWC3Object.getField("code") != null)
+								&& (parentWC3Object.getField("code").length() > 0))) {
 					return War3ID.fromString(parentWC3Object.getField("code"));
 				} else {
 					return War3ID.fromString(parentWC3Object.getId());

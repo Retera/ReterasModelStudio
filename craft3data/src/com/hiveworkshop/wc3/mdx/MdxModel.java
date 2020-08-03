@@ -17,10 +17,11 @@ import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
-import com.hiveworkshop.wc3.mdl.PopcornFxEmitter;
+import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
 import com.hiveworkshop.wc3.mdl.QuaternionRotation;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.mdx.FaceEffectsChunk.FaceEffect;
 import com.hiveworkshop.wc3.mdx.SequenceChunk.Sequence;
 import com.hiveworkshop.wc3.util.ModelUtils;
 
@@ -1059,12 +1060,12 @@ public class MdxModel {
 				ribbonEmitterChunk.ribbonEmitter[i] = ribbonEmitterChunk.new RibbonEmitter(nodes.get(i));
 			}
 		}
-		if (mdl.sortedIdObjects(PopcornFxEmitter.class).size() > 0) {
+		if (mdl.sortedIdObjects(ParticleEmitterPopcorn.class).size() > 0) {
 			cornChunk = new CornChunk();
-			final List<PopcornFxEmitter> nodes = mdl.sortedIdObjects(PopcornFxEmitter.class);
-			cornChunk.corns = new CornChunk.PopcornFxEmitter[nodes.size()];
+			final List<ParticleEmitterPopcorn> nodes = mdl.sortedIdObjects(ParticleEmitterPopcorn.class);
+			cornChunk.corns = new CornChunk.ParticleEmitterPopcorn[nodes.size()];
 			for (int i = 0; i < nodes.size(); i++) {
-				cornChunk.corns[i] = cornChunk.new PopcornFxEmitter(nodes.get(i));
+				cornChunk.corns[i] = cornChunk.new ParticleEmitterPopcorn(nodes.get(i));
 			}
 		}
 		if (mdl.sortedIdObjects(EventObject.class).size() > 0) {
@@ -1093,7 +1094,13 @@ public class MdxModel {
 		}
 		if (ModelUtils.isBindPoseSupported(versionChunk.version)) {
 			bindPoseChunk = mdl.getBindPoseChunk();
-			faceEffectsChunk = mdl.getFaceEffectsChunk();
+			if (!mdl.getFaceEffects().isEmpty()) {
+				faceEffectsChunk = new FaceEffectsChunk();
+				faceEffectsChunk.faceEffects = new FaceEffect[mdl.getFaceEffects().size()];
+				for (int i = 0; i < mdl.getFaceEffects().size(); i++) {
+					faceEffectsChunk.faceEffects[i] = mdl.getFaceEffects().get(i);
+				}
+			}
 		}
 	}
 

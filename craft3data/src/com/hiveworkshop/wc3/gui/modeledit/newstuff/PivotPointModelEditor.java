@@ -47,7 +47,7 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
-import com.hiveworkshop.wc3.mdl.PopcornFxEmitter;
+import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
@@ -180,7 +180,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 				}
 
 				@Override
-				public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+				public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
 
 				}
 
@@ -256,7 +256,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			}
 
 			@Override
-			public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+			public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
 			}
 
 			@Override
@@ -340,7 +340,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			}
 
 			@Override
-			public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+			public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
 				toggleSelection(invertedSelection, popcornFxEmitter.getPivotPoint());
 			}
 
@@ -422,7 +422,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			}
 
 			@Override
-			public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+			public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
 				allSelection.add(popcornFxEmitter.getPivotPoint());
 			}
 
@@ -576,7 +576,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 						}
 
 						@Override
-						public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+						public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
 
 						}
 
@@ -673,7 +673,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		}
 
 		@Override
-		public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+		public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
 			handleDefaultNode(point, axes, popcornFxEmitter);
 		}
 
@@ -770,7 +770,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		}
 
 		@Override
-		public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+		public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
 			hitTest(selectedItems, area, popcornFxEmitter.getPivotPoint(), coordinateSystem,
 					popcornFxEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem)
 							* 2);
@@ -867,7 +867,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 					}
 
 					@Override
-					public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+					public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
 					}
 
 					@Override

@@ -12,7 +12,7 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
-import com.hiveworkshop.wc3.mdl.PopcornFxEmitter;
+import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.renderer.ModelRenderer;
 import com.hiveworkshop.wc3.mdl.v2.MaterialView;
@@ -86,7 +86,7 @@ public final class RenderByViewModelRenderer implements ModelRenderer {
 	}
 
 	@Override
-	public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+	public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
 		if (isVisibleNode(popcornFxEmitter)) {
 			fullModelRenderer.popcornFxEmitter(popcornFxEmitter);
 		}

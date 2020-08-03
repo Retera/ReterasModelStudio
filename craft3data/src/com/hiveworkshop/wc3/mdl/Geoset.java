@@ -569,7 +569,7 @@ public class Geoset implements Named, VisibilitySource {
 				gv.clearBoneAttachments();
 				for (int m = 0; m < szmx; m++) {
 					final int boneId = mx.getBoneId(m);
-					if (boneId >= 0) {
+					if ((boneId >= 0) && (boneId < mdlr.getIdObjectsSize())) {
 						gv.addBoneAttachment((Bone) mdlr.getIdObject(boneId));
 					}
 				}
@@ -858,7 +858,7 @@ public class Geoset implements Named, VisibilitySource {
 
 		writer.println("\tMaterialID " + materialID + ",");
 		writer.println("\tSelectionGroup " + selectionGroup + ",");
-		if (levelOfDetailName != null) {
+		if ((levelOfDetailName != null) && ModelUtils.isLevelOfDetailSupported(mdlr.getFormatVersion())) {
 			writer.println("\tLevelOfDetail " + levelOfDetail + ",");
 			writer.println("\tLevelOfDetailName \"" + levelOfDetailName + "\",");
 		}
@@ -1109,5 +1109,37 @@ public class Geoset implements Named, VisibilitySource {
 
 	public void remove(final Triangle tri) {
 		this.triangles.remove(tri);
+	}
+
+	public ExtLog calculateExtent() {
+		double maximumDistanceFromCenter = 0;
+		double maxX = -Double.MAX_VALUE, maxY = -Double.MAX_VALUE, maxZ = -Double.MAX_VALUE;
+		double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE, minZ = Double.MAX_VALUE;
+		for (final GeosetVertex geosetVertex : vertex) {
+			if (geosetVertex.x > maxX) {
+				maxX = geosetVertex.x;
+			}
+			if (geosetVertex.y > maxY) {
+				maxY = geosetVertex.y;
+			}
+			if (geosetVertex.z > maxZ) {
+				maxZ = geosetVertex.z;
+			}
+			if (geosetVertex.x < minX) {
+				minX = geosetVertex.x;
+			}
+			if (geosetVertex.y < minY) {
+				minY = geosetVertex.y;
+			}
+			if (geosetVertex.z < minZ) {
+				minZ = geosetVertex.z;
+			}
+			final double distanceFromCenter = Math.sqrt((geosetVertex.x * geosetVertex.x)
+					+ (geosetVertex.y * geosetVertex.y) + (geosetVertex.z * geosetVertex.z));
+			if (distanceFromCenter > maximumDistanceFromCenter) {
+				maximumDistanceFromCenter = distanceFromCenter;
+			}
+		}
+		return new ExtLog(new Vertex(minX, minY, minZ), new Vertex(maxX, maxY, maxZ), maximumDistanceFromCenter);
 	}
 }

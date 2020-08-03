@@ -40,6 +40,7 @@ import com.hiveworkshop.wc3.mdx.CollisionShapeChunk;
 import com.hiveworkshop.wc3.mdx.CornChunk;
 import com.hiveworkshop.wc3.mdx.EventObjectChunk;
 import com.hiveworkshop.wc3.mdx.FaceEffectsChunk;
+import com.hiveworkshop.wc3.mdx.FaceEffectsChunk.FaceEffect;
 import com.hiveworkshop.wc3.mdx.GeosetAnimationChunk;
 import com.hiveworkshop.wc3.mdx.GeosetChunk;
 import com.hiveworkshop.wc3.mdx.HelperChunk;
@@ -80,6 +81,7 @@ public class MDL implements Named {
 	protected ArrayList<Animation> anims = new ArrayList<>();
 	protected ArrayList<Integer> globalSeqs = new ArrayList<>();
 	protected ArrayList<Bitmap> textures = new ArrayList<>();
+	protected ArrayList<SoundFile> sounds = new ArrayList<>();
 	protected ArrayList<Material> materials = new ArrayList<>();
 	protected ArrayList<TextureAnim> texAnims = new ArrayList<>();
 	protected ArrayList<Geoset> geosets = new ArrayList<>();
@@ -99,7 +101,7 @@ public class MDL implements Named {
 	private boolean loading;
 	private boolean temporary;
 
-	private FaceEffectsChunk faceEffectsChunk;
+	private final List<FaceEffectsChunk.FaceEffect> faceEffects = new ArrayList<>();
 	private BindPoseChunk bindPoseChunk;
 
 	private DataSource wrappedDataSource = MpqCodebase.get();
@@ -383,8 +385,8 @@ public class MDL implements Named {
 		}
 		// PopcornFxEmitter
 		if (mdx.cornChunk != null) {
-			for (final CornChunk.PopcornFxEmitter emitter : mdx.cornChunk.corns) {
-				add(new PopcornFxEmitter(emitter));
+			for (final CornChunk.ParticleEmitterPopcorn emitter : mdx.cornChunk.corns) {
+				add(new ParticleEmitterPopcorn(emitter));
 			}
 		}
 		// RibbonEmitter
@@ -433,8 +435,10 @@ public class MDL implements Named {
 			}
 		}
 
-		if (ModelUtils.isBindPoseSupported(formatVersion)) {
-			faceEffectsChunk = mdx.faceEffectsChunk;
+		if ((mdx.faceEffectsChunk != null) && ModelUtils.isBindPoseSupported(formatVersion)) {
+			for (final FaceEffect facefx : mdx.faceEffectsChunk.faceEffects) {
+				addFaceEffect(facefx);
+			}
 			bindPoseChunk = mdx.bindPoseChunk;
 		}
 
@@ -587,6 +591,14 @@ public class MDL implements Named {
 		return materials.get(i);
 	}
 
+	public void addSound(final SoundFile sound) {
+		sounds.add(sound);
+	}
+
+	public SoundFile getSound(final int index) {
+		return sounds.get(index);
+	}
+
 	public void addGeosetAnim(final GeosetAnim x) {
 		geosetAnims.add(x);
 	}
@@ -601,6 +613,10 @@ public class MDL implements Named {
 
 	private void addIdObject(final IdObject x) {
 		idObjects.add(x);
+	}
+
+	public void addFaceEffect(final FaceEffect faceEffect) {
+		faceEffects.add(faceEffect);
 	}
 
 	public IdObject getIdObject(final int index) {
@@ -679,7 +695,7 @@ public class MDL implements Named {
 			final List<ParticleEmitter> particleEmitters = sortedIdObjects(ParticleEmitter.class);
 			final List<ParticleEmitter2> particleEmitters2 = sortedIdObjects(ParticleEmitter2.class);
 			final List<RibbonEmitter> ribbonEmitters = sortedIdObjects(RibbonEmitter.class);
-			final List<PopcornFxEmitter> popcornEmitters = sortedIdObjects(PopcornFxEmitter.class);
+			final List<ParticleEmitterPopcorn> popcornEmitters = sortedIdObjects(ParticleEmitterPopcorn.class);
 			final List<IdObject> emitters = new ArrayList<>();
 			emitters.addAll(particleEmitters2);
 			emitters.addAll(particleEmitters);
@@ -1085,9 +1101,9 @@ public class MDL implements Named {
 					mdlr.addIdObject(temp);
 					temp.updateMaterialRef(mdlr.materials);
 					MDLReader.mark(mdl);
-				} else if (line.contains("PopcornFxEmitter ")) {
+				} else if (line.contains("PopcornFxEmitter ") || line.contains("ParticleEmitterPopcorn ")) {
 					MDLReader.reset(mdl);
-					mdlr.addIdObject(PopcornFxEmitter.read(mdl));
+					mdlr.addIdObject(ParticleEmitterPopcorn.read(mdl));
 					MDLReader.mark(mdl);
 				} else if (line.contains("Camera ")) {
 					MDLReader.reset(mdl);
@@ -1107,15 +1123,23 @@ public class MDL implements Named {
 					}
 					MDLReader.mark(mdl);
 				} else if (line.contains("FaceEffects ")) {
-					mdlr.faceEffectsChunk = new FaceEffectsChunk();
+					// This "FaceEffects " branch is for 2019-2020 RMS MDL format that was not
+					// consistent with Blizzard's format, and was invented to give us a way to edit
+					// models as text prior to obtaining the official version.
+					final FaceEffectsChunk.FaceEffect faceEffect = new FaceEffectsChunk.FaceEffect();
+					mdlr.faceEffects.add(faceEffect);
 					while (!(line = MDLReader.nextLine(mdl)).startsWith("}")) {
 						final String trimmedLine = line.trim();
 						if (trimmedLine.startsWith("Target")) {
-							mdlr.faceEffectsChunk.faceEffectTarget = MDLReader.readName(line);
+							faceEffect.faceEffectTarget = MDLReader.readName(line);
 						} else if (trimmedLine.startsWith("Path")) {
-							mdlr.faceEffectsChunk.faceEffect = MDLReader.readName(line);
+							faceEffect.faceEffect = MDLReader.readName(line);
 						}
 					}
+					MDLReader.mark(mdl);
+				} else if (line.contains("FaceFX ")) {
+					MDLReader.reset(mdl);
+					mdlr.addFaceEffect(FaceEffect.read(mdl));
 					MDLReader.mark(mdl);
 				} else if (line.contains("BindPose ")) {
 					mdlr.bindPoseChunk = new BindPoseChunk();
@@ -1331,17 +1355,21 @@ public class MDL implements Named {
 		if (sz > 0) {
 			writer.println("\tNumParticleEmitters2 " + sz + ",");
 		}
+		sz = countIdObjectsOfClass(ParticleEmitterPopcorn.class);
+		if (sz > 0) {
+			writer.println("\tNumParticleEmittersPopcorn " + sz + ",");
+		}
 		sz = countIdObjectsOfClass(RibbonEmitter.class);
 		if (sz > 0) {
 			writer.println("\tNumRibbonEmitters " + sz + ",");
 		}
-		sz = countIdObjectsOfClass(PopcornFxEmitter.class);
-		if (sz > 0) {
-			writer.println("\tNumPopcornFxEmitters " + sz + ",");
-		}
 		sz = countIdObjectsOfClass(EventObject.class);
 		if (sz > 0) {
 			writer.println("\tNumEvents " + sz + ",");
+		}
+		sz = faceEffects.size();
+		if (sz > 0) {
+			writer.println("\tNumFaceFX " + sz + ",");
 		}
 		writer.println("\tBlendTime " + BlendTime + ",");
 		if (extents != null) {
@@ -1387,7 +1415,7 @@ public class MDL implements Named {
 			if (materials.size() > 0) {
 				writer.println("Materials " + materials.size() + " {");
 				for (int i = 0; i < materials.size(); i++) {
-					materials.get(i).printTo(writer, 1);
+					materials.get(i).printTo(writer, 1, formatVersion);
 				}
 				writer.println("}");
 			}
@@ -1467,10 +1495,10 @@ public class MDL implements Named {
 
 		for (int i = 0; i < idObjects.size(); i++) {
 			final IdObject obj = idObjects.get(i);
-			if (!pivotsPrinted
-					&& ((obj.getClass() == ParticleEmitter.class) || (obj.getClass() == ParticleEmitter2.class)
-							|| (obj.getClass() == PopcornFxEmitter.class) || (obj.getClass() == RibbonEmitter.class)
-							|| (obj.getClass() == EventObject.class) || (obj.getClass() == CollisionShape.class))) {
+			if (!pivotsPrinted && ((obj.getClass() == ParticleEmitter.class)
+					|| (obj.getClass() == ParticleEmitter2.class) || (obj.getClass() == ParticleEmitterPopcorn.class)
+					|| (obj.getClass() == RibbonEmitter.class) || (obj.getClass() == EventObject.class)
+					|| (obj.getClass() == CollisionShape.class))) {
 				writer.println("PivotPoints " + pivots.size() + " {");
 				for (int p = 0; p < pivots.size(); p++) {
 					writer.println("\t" + pivots.get(p).toString() + ",");
@@ -1502,11 +1530,13 @@ public class MDL implements Named {
 			}
 		}
 
-		if ((faceEffectsChunk != null) && ModelUtils.isBindPoseSupported(formatVersion)) {
-			writer.println("FaceEffects {");
-			writer.println("\tTarget \"" + faceEffectsChunk.faceEffectTarget + "\",");
-			writer.println("\tPath \"" + faceEffectsChunk.faceEffect + "\",");
-			writer.println("}");
+		if (ModelUtils.isBindPoseSupported(formatVersion)) {
+			for (int i = 0; i < faceEffects.size(); i++) {
+				final FaceEffect faceEffect = faceEffects.get(i);
+				writer.println("FaceFX \"" + faceEffect.faceEffectTarget + "\" {");
+				writer.println("\tPath \"" + faceEffect.faceEffect + "\",");
+				writer.println("}");
+			}
 		}
 
 		if ((bindPoseChunk != null) && ModelUtils.isBindPoseSupported(formatVersion)) {
@@ -1830,7 +1860,7 @@ public class MDL implements Named {
 		final ArrayList<Attachment> attachments = sortedIdObjects(Attachment.class);
 		final ArrayList<ParticleEmitter> particleEmitters = sortedIdObjects(ParticleEmitter.class);
 		final ArrayList<ParticleEmitter2> particleEmitter2s = sortedIdObjects(ParticleEmitter2.class);
-		final ArrayList<PopcornFxEmitter> popcornEmitters = sortedIdObjects(PopcornFxEmitter.class);
+		final ArrayList<ParticleEmitterPopcorn> popcornEmitters = sortedIdObjects(ParticleEmitterPopcorn.class);
 		final ArrayList<RibbonEmitter> ribbonEmitters = sortedIdObjects(RibbonEmitter.class);
 		final ArrayList<EventObject> events = sortedIdObjects(EventObject.class);
 		final ArrayList<CollisionShape> colliders = sortedIdObjects(CollisionShape.class);
@@ -1920,8 +1950,8 @@ public class MDL implements Named {
 		for (final ParticleEmitter x : xpes) {
 			allFlags.addAll(x.animFlags);
 		}
-		final ArrayList<PopcornFxEmitter> corns = sortedIdObjects(PopcornFxEmitter.class);
-		for (final PopcornFxEmitter x : corns) {
+		final ArrayList<ParticleEmitterPopcorn> corns = sortedIdObjects(ParticleEmitterPopcorn.class);
+		for (final ParticleEmitterPopcorn x : corns) {
 			allFlags.addAll(x.animFlags);
 		}
 		final ArrayList<RibbonEmitter> res = sortedIdObjects(RibbonEmitter.class);
@@ -2000,8 +2030,8 @@ public class MDL implements Named {
 				return x;
 			}
 		}
-		final ArrayList<PopcornFxEmitter> pfes = sortedIdObjects(PopcornFxEmitter.class);
-		for (final PopcornFxEmitter x : pfes) {
+		final ArrayList<ParticleEmitterPopcorn> pfes = sortedIdObjects(ParticleEmitterPopcorn.class);
+		for (final ParticleEmitterPopcorn x : pfes) {
 			if (x.animFlags.contains(aflg)) {
 				return x;
 			}
@@ -2087,8 +2117,8 @@ public class MDL implements Named {
 				x.animFlags.add(added);
 			}
 		}
-		final ArrayList<PopcornFxEmitter> pfes = sortedIdObjects(PopcornFxEmitter.class);
-		for (final PopcornFxEmitter x : pfes) {
+		final ArrayList<ParticleEmitterPopcorn> pfes = sortedIdObjects(ParticleEmitterPopcorn.class);
+		for (final ParticleEmitterPopcorn x : pfes) {
 			if (x.animFlags.contains(aflg)) {
 				x.animFlags.add(added);
 			}
@@ -2880,8 +2910,8 @@ public class MDL implements Named {
 				}
 			}
 		}
-		final ArrayList<PopcornFxEmitter> pfes = sortedIdObjects(PopcornFxEmitter.class);
-		for (final PopcornFxEmitter x : pfes) {
+		final ArrayList<ParticleEmitterPopcorn> pfes = sortedIdObjects(ParticleEmitterPopcorn.class);
+		for (final ParticleEmitterPopcorn x : pfes) {
 			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
 			while (iterator.hasNext()) {
 				final AnimFlag animFlag = iterator.next();
@@ -2966,16 +2996,12 @@ public class MDL implements Named {
 		}
 	}
 
+	public List<FaceEffectsChunk.FaceEffect> getFaceEffects() {
+		return faceEffects;
+	}
+
 	public BindPoseChunk getBindPoseChunk() {
 		return bindPoseChunk;
-	}
-
-	public FaceEffectsChunk getFaceEffectsChunk() {
-		return faceEffectsChunk;
-	}
-
-	public void setFaceEffectsChunk(final FaceEffectsChunk faceEffectsChunk) {
-		this.faceEffectsChunk = faceEffectsChunk;
 	}
 
 	public void setBindPoseChunk(final BindPoseChunk bindPoseChunk) {
@@ -3055,9 +3081,9 @@ public class MDL implements Named {
 		final List<IdObject> incompatibleObjects = new ArrayList<>();
 		for (int idObjIdx = 0; idObjIdx < model.getIdObjectsSize(); idObjIdx++) {
 			final IdObject idObject = model.getIdObject(idObjIdx);
-			if (idObject instanceof PopcornFxEmitter) {
+			if (idObject instanceof ParticleEmitterPopcorn) {
 				incompatibleObjects.add(idObject);
-				if (((PopcornFxEmitter) idObject).getPath().toLowerCase().contains("hero_glow")) {
+				if (((ParticleEmitterPopcorn) idObject).getPath().toLowerCase().contains("hero_glow")) {
 					System.out.println("HERO HERO HERO");
 					final Bone dummyHeroGlowNode = new Bone("hero_reforged");
 					// this model needs hero glow
@@ -3115,7 +3141,7 @@ public class MDL implements Named {
 		}
 
 		model.setBindPoseChunk(null);
-		model.setFaceEffectsChunk(null);
+		model.faceEffects.clear();
 	}
 
 	public static void makeItHD(final MDL model) {
@@ -3288,6 +3314,30 @@ public class MDL implements Named {
 				faceNormal.add(v3.getNormal());
 				faceNormal.normalize();
 			}
+		}
+	}
+
+	public void setGlobalSequenceLength(final int globalSequenceId, final Integer newLength) {
+		if (globalSequenceId < globalSeqs.size()) {
+			final Integer prevLength = globalSeqs.get(globalSequenceId);
+			final List<AnimFlag> allAnimFlags = getAllAnimFlags();
+			for (final AnimFlag af : allAnimFlags) {
+				if ((af.getGlobalSeq() != null) && af.hasGlobalSeq()) {// TODO eliminate redundant structure
+					if (af.getGlobalSeq().equals(prevLength)) {
+						af.setGlobalSeq(newLength);
+					}
+				}
+			}
+			final ArrayList<EventObject> sortedEventObjects = sortedIdObjects(EventObject.class);
+			for (final EventObject eventObject : sortedEventObjects) {
+				// TODO eliminate redundant structure
+				if (eventObject.isHasGlobalSeq() && (eventObject.getGlobalSeq() != null)) {
+					if (eventObject.getGlobalSeq().equals(prevLength)) {
+						eventObject.setGlobalSeq(newLength);
+					}
+				}
+			}
+			globalSeqs.set(globalSequenceId, newLength);
 		}
 	}
 }

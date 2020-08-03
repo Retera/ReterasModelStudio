@@ -68,7 +68,7 @@ public class GeosetAnim implements VisibilitySource, Named {
 		if ((geosetAnim.flags & 2) == 2) {
 			if (geosetAnim.geosetColor == null) {
 				final Vertex coloring = new Vertex(MdlxUtils.flipRGBtoBGR(geosetAnim.color));
-				if (coloring.x != 1.0 || coloring.y != 1.0 || coloring.z != 1.0) {
+				if ((coloring.x != 1.0) || (coloring.y != 1.0) || (coloring.z != 1.0)) {
 					setStaticColor(coloring);
 				}
 			} else {
@@ -186,7 +186,7 @@ public class GeosetAnim implements VisibilitySource, Named {
 	}
 
 	public GeosetAnim getMostVisible(final GeosetAnim partner) {
-		if (getVisibilityFlag() != null && partner != null) {
+		if ((getVisibilityFlag() != null) && (partner != null)) {
 			final AnimFlag thisFlag = getVisibilityFlag();
 			final AnimFlag thatFlag = partner.getVisibilityFlag();
 			if (thatFlag != null) {
@@ -306,5 +306,39 @@ public class GeosetAnim implements VisibilitySource, Named {
 		renderColorVector.y = (float) staticColor.y;
 		renderColorVector.z = (float) staticColor.z;
 		return renderColorVector;
+	}
+
+	public void copyVisibilityFrom(final VisibilitySource other, final MDL mdlr) {
+		final VisibilitySource temp = this;
+		final AnimFlag visFlag = temp.getVisibilityFlag();// might be
+															// null
+		AnimFlag newVisFlag;
+		boolean tans = false;
+		if (visFlag != null) {
+			newVisFlag = AnimFlag.buildEmptyFrom(visFlag);
+			tans = visFlag.tans();
+		} else {
+			newVisFlag = new AnimFlag(temp.visFlagName());
+		}
+		// newVisFlag = new AnimFlag(temp.visFlagName());
+		final AnimFlag flagNew = other.getVisibilityFlag();
+		// this is an element not favoring existing over imported
+		for (final Animation a : mdlr.getAnims()) {
+			if (newVisFlag != null) {
+				if (!newVisFlag.hasGlobalSeq()) {
+					newVisFlag.deleteAnim(a);// All entries for
+												// visibility are
+												// deleted from
+												// original-based
+												// sources during
+												// imported animation
+												// times
+				}
+			}
+		}
+		if (flagNew != null) {
+			newVisFlag.copyFrom(flagNew);
+		}
+		setVisibilityFlag(newVisFlag);
 	}
 }

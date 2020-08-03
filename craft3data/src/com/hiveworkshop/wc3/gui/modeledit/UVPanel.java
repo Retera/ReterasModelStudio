@@ -25,6 +25,7 @@ import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -71,6 +72,7 @@ import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonListener;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportIconUtils;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
+import com.hiveworkshop.wc3.mdl.Layer;
 import com.hiveworkshop.wc3.mdl.MDL;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.TVertex;
@@ -89,7 +91,8 @@ public class UVPanel extends JPanel
 
 	static final ImageIcon UVIcon = new ImageIcon(GlobalIcons.class.getResource("ImageBin/UVMap.png"));
 
-	ModeButton loadImage, selectButton, addButton, deselectButton, moveButton, rotateButton, scaleButton;
+	ModeButton loadImage, selectButton, addButton, deselectButton, moveButton, rotateButton, scaleButton, unwrapButton;
+	private final JComboBox<UnwrapDirection> unwrapDirectionBox;
 	JButton snapButton;
 	JMenuItem selectAll, invertSelect, expandSelection, selFromMain, mirrorX, mirrorY, setAspectRatio;
 	JMenu editMenu, mirrorSubmenu, dispMenu;
@@ -254,6 +257,32 @@ public class UVPanel extends JPanel
 		rotateButton.addActionListener(new ButtonActionChangeListener(1));
 		scaleButton = new ModeButton("Scale");
 		scaleButton.addActionListener(new ButtonActionChangeListener(2));
+		unwrapDirectionBox = new JComboBox<>(UnwrapDirection.values());
+		unwrapButton = new ModeButton("Remap UVs");
+		unwrapButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final UnwrapDirection selectedItem = (UnwrapDirection) unwrapDirectionBox.getSelectedItem();
+				if (selectedItem != null) {
+					switch (selectedItem) {
+					case BOTTOM:
+						remap((byte) 1, (byte) 0, selectedItem);
+						break;
+					case FRONT:
+						remap((byte) 1, (byte) 2, selectedItem);
+						break;
+					case RIGHT:
+						remap((byte) 0, (byte) 2, selectedItem);
+						break;
+					case PERSPECTIVE:
+						break;
+					}
+				} else {
+					JOptionPane.showMessageDialog(UVPanel.this, "Please select a direction", "Error",
+							JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
 
 		typeToButton.put(actionTypeGroup.getToolbarButtonTypes()[0], moveButton);
 		typeToButton.put(actionTypeGroup.getToolbarButtonTypes()[1], rotateButton);
@@ -269,6 +298,11 @@ public class UVPanel extends JPanel
 		buttons.add(rotateButton);
 		buttons.add(scaleButton);
 		buttons.add(loadImage);
+		buttons.add(unwrapButton);
+
+		unwrapDirectionBox.setMaximumSize(new Dimension(100, 35));
+		unwrapDirectionBox.setMinimumSize(new Dimension(90, 15));
+		unwrapDirectionBox.addActionListener(this);
 
 		for (int i = 0; i < buttons.size(); i++) {
 			buttons.get(i).setMaximumSize(new Dimension(100, 35));
@@ -347,7 +381,8 @@ public class UVPanel extends JPanel
 						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(loadImage)
 								.addComponent(divider[0]).addComponent(selectButton).addComponent(addButton)
 								.addComponent(deselectButton).addComponent(divider[1]).addComponent(moveButton)
-								.addComponent(rotateButton).addComponent(scaleButton)));
+								.addComponent(rotateButton).addComponent(scaleButton).addComponent(divider[2])
+								.addComponent(unwrapDirectionBox).addComponent(unwrapButton)));
 		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(toolbar)
 				.addGroup(layout.createParallelGroup()
 						.addGroup(layout.createSequentialGroup().addComponent(vp).addGroup(layout.createParallelGroup()
@@ -367,7 +402,9 @@ public class UVPanel extends JPanel
 								.addComponent(divider[0]).addGap(8).addComponent(selectButton).addGap(8)
 								.addComponent(addButton).addGap(8).addComponent(deselectButton).addGap(8)
 								.addComponent(divider[1]).addGap(8).addComponent(moveButton).addGap(8)
-								.addComponent(rotateButton).addGap(8).addComponent(scaleButton).addGap(8).addGap(8))));
+								.addComponent(rotateButton).addGap(8).addComponent(scaleButton).addGap(8)
+								.addComponent(divider[2]).addGap(8).addComponent(unwrapDirectionBox).addGap(8)
+								.addComponent(unwrapButton).addGap(8).addGap(8))));
 
 		setLayout(layout);
 		selectionModeGroup.addToolbarButtonListener(new ToolbarButtonListener<SelectionMode>() {
@@ -420,6 +457,14 @@ public class UVPanel extends JPanel
 		actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
 	}
 
+	protected void remap(final byte xDim, final byte yDim, final UnwrapDirection direction) {
+		final ModelPanel mpanel = currentModelPanel();
+		if (mpanel != null) {
+			mpanel.getUndoManager().pushAction(modelEditorManager.getModelEditor().remap(xDim, yDim, direction));
+		}
+		repaint();
+	}
+
 	public JToolBar createJToolBar() {
 		toolbar = new JToolBar(JToolBar.HORIZONTAL);
 		toolbar.setFloatable(false);
@@ -459,8 +504,8 @@ public class UVPanel extends JPanel
 		toolbar.addSeparator();
 		selectionItemTypeGroup = new ToolbarButtonGroup<>(toolbar, TVertexSelectionItemTypes.values());
 		toolbar.addSeparator();
-		selectAndMoveDescriptor = new TVertexToolbarActionButtonType(ViewportIconUtils.loadImageIcon("icons/actions/move2.png"),
-				"Select and Move") {
+		selectAndMoveDescriptor = new TVertexToolbarActionButtonType(
+				ViewportIconUtils.loadImageIcon("icons/actions/move2.png"), "Select and Move") {
 			@Override
 			public TVertexEditorViewportActivity createActivity(final TVertexEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
@@ -937,6 +982,14 @@ public class UVPanel extends JPanel
 				if (materialsList.getSelectedValue() != null) {
 					vp.addBackgroundImage(materialsList.getSelectedValue()
 							.getBufferedImage(dispMDL.getModel().getWrappedDataSource()));
+					boolean wrap = false;
+					for (final Layer layer : materialsList.getSelectedValue().getLayers()) {
+						if ((layer.getTextureBitmap() != null) && (layer.getTextureBitmap().getWrapWidth()
+								|| layer.getTextureBitmap().getWrapHeight())) {
+							wrap = true;
+						}
+					}
+					wrapImage.setSelected(wrap);
 				}
 			} else if (x == JOptionPane.NO_OPTION) {
 				final JFileChooser jfc = new JFileChooser();
@@ -1104,6 +1157,21 @@ public class UVPanel extends JPanel
 		@Override
 		public void actionPerformed(final ActionEvent e) {
 			selectionModeGroup.setToolbarButtonType(selectionModeGroup.getToolbarButtonTypes()[buttonIndex]);
+		}
+	}
+
+	public static enum UnwrapDirection {
+		FRONT("Front"), RIGHT("Right"), BOTTOM("Bottom"), PERSPECTIVE("Perspective");
+
+		private final String displayText;
+
+		private UnwrapDirection(final String displayText) {
+			this.displayText = displayText;
+		}
+
+		@Override
+		public String toString() {
+			return displayText;
 		}
 	}
 }

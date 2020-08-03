@@ -12,6 +12,7 @@ import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdl.v2.LayerView;
 import com.hiveworkshop.wc3.mdl.v2.timelines.Animatable;
 import com.hiveworkshop.wc3.mdx.LayerChunk;
+import com.hiveworkshop.wc3.util.ModelUtils;
 
 /**
  * Layers for MDLToolkit/MatrixEater.
@@ -65,7 +66,10 @@ public class Layer implements Named, VisibilitySource, LayerView {
 	private int CoordId = 0;
 	Bitmap texture;
 	TextureAnim textureAnim;
-	private double emissive = Double.NaN;
+	private double emissiveGain = Double.NaN;
+	private Vertex fresnelColor;
+	private double fresnelOpacity;
+	private double fresnelTeamColor;
 	private double staticAlpha = -1;// Amount of static alpha (opacity)
 	private ArrayList<String> flags = new ArrayList<>();// My way of
 	// dealing with
@@ -98,7 +102,11 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		result = (prime * result) + TVertexAnimId;
 		result = (prime * result) + ((anims == null) ? 0 : anims.hashCode());
 		long temp;
-		temp = Double.doubleToLongBits(emissive);
+		temp = Double.doubleToLongBits(emissiveGain);
+		result = (prime * result) + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(fresnelOpacity);
+		result = (prime * result) + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(fresnelTeamColor);
 		result = (prime * result) + (int) (temp ^ (temp >>> 32));
 		result = (prime * result) + ((filterMode == null) ? 0 : filterMode.hashCode());
 		result = (prime * result) + ((flags == null) ? 0 : flags.hashCode());
@@ -108,6 +116,14 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		result = (prime * result) + ((textureAnim == null) ? 0 : textureAnim.hashCode());
 		result = (prime * result) + textureId;
 		result = (prime * result) + ((textures == null) ? 0 : textures.hashCode());
+		if (fresnelColor != null) {
+			temp = Double.doubleToLongBits(fresnelColor.x);
+			result = (prime * result) + (int) (temp ^ (temp >>> 32));
+			temp = Double.doubleToLongBits(fresnelColor.y);
+			result = (prime * result) + (int) (temp ^ (temp >>> 32));
+			temp = Double.doubleToLongBits(fresnelColor.z);
+			result = (prime * result) + (int) (temp ^ (temp >>> 32));
+		}
 		return result;
 	}
 
@@ -136,8 +152,23 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		} else if (!anims.equals(other.anims)) {
 			return false;
 		}
-		if (Double.doubleToLongBits(emissive) != Double.doubleToLongBits(other.emissive)) {
+		if (Double.doubleToLongBits(emissiveGain) != Double.doubleToLongBits(other.emissiveGain)) {
 			return false;
+		}
+		if (Double.doubleToLongBits(fresnelOpacity) != Double.doubleToLongBits(other.fresnelOpacity)) {
+			return false;
+		}
+		if (Double.doubleToLongBits(fresnelTeamColor) != Double.doubleToLongBits(other.fresnelTeamColor)) {
+			return false;
+		}
+		if (fresnelColor == null) {
+			if (other.fresnelColor != null) {
+				return false;
+			}
+		} else {
+			if (!fresnelColor.equalLocs(other.fresnelColor)) {
+				return false;
+			}
 		}
 		if (filterMode == null) {
 			if (other.filterMode != null) {
@@ -226,7 +257,7 @@ public class Layer implements Named, VisibilitySource, LayerView {
 			textureAnim = null;
 		}
 		staticAlpha = other.staticAlpha;
-		emissive = other.emissive;
+		emissiveGain = other.emissiveGain;
 		flags = new ArrayList<>(other.flags);
 		anims = new ArrayList<>();
 		textures = new ArrayList<>();
@@ -276,7 +307,7 @@ public class Layer implements Named, VisibilitySource, LayerView {
 			final AnimFlag flag = new AnimFlag(lay.materialEmissions);
 			anims.add(flag);
 		} else if (!Float.isNaN(lay.emissive)) {
-			emissive = lay.emissive;
+			emissiveGain = lay.emissive;
 		}
 		setTVertexAnimId(lay.textureAnimationId);
 		setCoordId(lay.unknownNull_CoordID); // this isn't an unknown field!
@@ -404,41 +435,6 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		}
 	}
 
-	public static Layer parseText(final String[] line) {
-		if (line[0].contains("Layer")) {
-			final Layer lay = new Layer();
-			for (int i = 1; i < line.length; i++) {
-				if (line[i].contains("FilterMode")) {
-					lay.filterMode = MDLReader.readField(line[i]);
-				} else if (line[i].contains("static TextureId"))// non static?
-				// how did I
-				// handle them?
-				{
-					lay.textureId = MDLReader.readInt(line[i]);
-				} else if (line[i].contains("CoordId")) {
-					lay.CoordId = MDLReader.readInt(line[i]);
-				} else if (line[i].contains("TVertexAnimId")) {
-					lay.TVertexAnimId = MDLReader.readInt(line[i]);
-				} else if (line[i].contains("static Alpha")) {
-					lay.staticAlpha = MDLReader.readDouble(line[i]);
-				} else if (line[i].contains("Alpha")) {
-					final String[] alphaStrings = MDLReader.breakElement(line, i);
-					i += alphaStrings.length - 1;
-					lay.anims.add(AnimFlag.parseText(alphaStrings));
-				} else {
-					lay.flags.add(MDLReader.readFlag(line[i]));
-					// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Error
-					// parsing Layer: Unrecognized statement '"+line[i]+"'.");
-				}
-			}
-			return lay;
-		} else {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse Layer: Missing or unrecognized open statement.");
-		}
-		return null;
-	}
-
 	public static Layer read(final BufferedReader mdl, final MDL mdlr) {
 		String line = MDLReader.nextLine(mdl);
 		if (line.contains("Layer")) {
@@ -453,7 +449,7 @@ public class Layer implements Named, VisibilitySource, LayerView {
 				} else if (line.contains("CoordId")) {
 					lay.CoordId = MDLReader.readInt(line);
 				} else if (line.contains("static Emissive")) {
-					lay.emissive = MDLReader.readDouble(line);
+					lay.emissiveGain = MDLReader.readDouble(line);
 				} else if (line.contains("Emissive")) {
 					MDLReader.reset(mdl);
 					lay.anims.add(AnimFlag.read(mdl));
@@ -496,7 +492,7 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		return TVertexAnimId != -1;
 	}
 
-	public void printTo(final PrintWriter writer, final int tabHeight, final boolean useCoords) {
+	public void printTo(final PrintWriter writer, final int tabHeight, final boolean useCoords, final int version) {
 		String tabs = "";
 		for (int i = 0; i < tabHeight; i++) {
 			tabs = tabs + "\t";
@@ -529,8 +525,8 @@ public class Layer implements Named, VisibilitySource, LayerView {
 				foundEmissive = true;
 			}
 		}
-		if (!Double.isNaN(emissive) && !foundEmissive) {
-			writer.println(tabs + "\tstatic Emissive " + MDLReader.doubleToString(emissive) + ",");
+		if (!Double.isNaN(emissiveGain) && !foundEmissive && ModelUtils.isEmissiveLayerSupported(version)) {
+			writer.println(tabs + "\tstatic Emissive " + MDLReader.doubleToString(emissiveGain) + ",");
 		}
 		boolean foundAlpha = false;
 		for (int i = 0; i < anims.size(); i++) {
@@ -725,11 +721,11 @@ public class Layer implements Named, VisibilitySource, LayerView {
 	}
 
 	public double getEmissive() {
-		return emissive;
+		return emissiveGain;
 	}
 
 	public void setEmissive(final double emissive) {
-		this.emissive = emissive;
+		this.emissiveGain = emissive;
 	}
 
 	@Override

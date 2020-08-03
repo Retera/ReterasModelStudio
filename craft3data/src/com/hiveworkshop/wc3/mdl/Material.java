@@ -279,13 +279,13 @@ public class Material implements MaterialView {
 		return outputs;
 	}
 
-	public void printTo(final PrintWriter writer, final int tabHeight) {
+	public void printTo(final PrintWriter writer, final int tabHeight, final int version) {
 		String tabs = "";
 		for (int i = 0; i < tabHeight; i++) {
 			tabs = tabs + "\t";
 		}
 		writer.println(tabs + "Material {");
-		if (shaderString != null) {
+		if ((shaderString != null) && ModelUtils.isShaderStringSupported(version)) {
 			writer.println(tabs + "\tShader \"" + shaderString + "\",");
 		}
 		if (priorityPlane != 0) {
@@ -302,7 +302,7 @@ public class Material implements MaterialView {
 			}
 		}
 		for (int i = 0; i < layers.size(); i++) {
-			layers.get(i).printTo(writer, tabHeight + 1, useCoords);
+			layers.get(i).printTo(writer, tabHeight + 1, useCoords, version);
 		}
 		writer.println(tabs + "}");
 	}

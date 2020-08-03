@@ -88,4 +88,22 @@ public final class DoNothingModelChangeListener implements ModelStructureChangeL
 		// TODO Auto-generated method stub
 
 	}
+
+	@Override
+	public void headerChanged() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void animationParamsChanged(final Animation animation) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void globalSequenceLengthChanged(final int index, final Integer newLength) {
+		// TODO Auto-generated method stub
+
+	}
 }

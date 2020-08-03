@@ -5,8 +5,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
 import com.hiveworkshop.wc3.gui.animedit.BasicTimeBoundProvider;
 import com.hiveworkshop.wc3.mdx.SequenceChunk;
 
@@ -19,9 +17,9 @@ public class Animation implements BasicTimeBoundProvider {
 	private String name = "";
 	private int intervalStart = 0;
 	private int intervalEnd = -1;
-	private ArrayList tags = new ArrayList();// These are strings tags, i.e.
-												// "MoveSpeed X," "Rarity X,"
-												// "NonLooping," etc.
+	private ArrayList<String> tags = new ArrayList<String>();// These are strings tags, i.e.
+	// "MoveSpeed X," "Rarity X,"
+	// "NonLooping," etc.
 	private ExtLog extents;
 
 	private Animation() {
@@ -73,11 +71,57 @@ public class Animation implements BasicTimeBoundProvider {
 		}
 	}
 
+	public float getRarity() {
+		for (final String tag : tags) {
+			if (tag.startsWith("Rarity")) {
+				return Float.parseFloat(tag.split(" ")[1]);
+			}
+		}
+		return 0.0f;
+	}
+
+	public void setRarity(final float newRarity) {
+		boolean foundTag = false;
+		for (int i = 0; (i < tags.size()) && !foundTag; i++) {
+			final String tag = tags.get(i);
+			if (tag.startsWith("Rarity")) {
+				tags.set(i, "Rarity " + MDLReader.doubleToString(newRarity));
+				foundTag = true;
+			}
+		}
+		if (!foundTag) {
+			tags.add("Rarity " + MDLReader.doubleToString(newRarity));
+		}
+	}
+
+	public void setMoveSpeed(final float newMoveSpeed) {
+		boolean foundTag = false;
+		for (int i = 0; (i < tags.size()) && !foundTag; i++) {
+			final String tag = tags.get(i);
+			if (tag.startsWith("MoveSpeed")) {
+				tags.set(i, "MoveSpeed " + MDLReader.doubleToString(newMoveSpeed));
+				foundTag = true;
+			}
+		}
+		if (!foundTag) {
+			tags.add("MoveSpeed " + MDLReader.doubleToString(newMoveSpeed));
+		}
+	}
+
+	public float getMoveSpeed() {
+		for (final String tag : tags) {
+			if (tag.startsWith("MoveSpeed")) {
+				return Float.parseFloat(tag.split(" ")[1]);
+			}
+		}
+		return 0.0f;
+	}
+
 	public Animation(final Animation other) {
 		this.name = other.name;
 		intervalStart = other.intervalStart;
 		intervalEnd = other.intervalEnd;
-		tags = new ArrayList(other.tags);
+		tags = new ArrayList<String>(other.tags);
 		extents = new ExtLog(other.extents);
 	}
 
@@ -113,6 +157,18 @@ public class Animation implements BasicTimeBoundProvider {
 		return tags.contains("NonLooping");
 	}
 
+	public void setNonLooping(final boolean nonLooping) {
+		if (isNonLooping()) {
+			if (!nonLooping) {
+				tags.remove("NonLooping");
+			}
+		} else {
+			if (nonLooping) {
+				tags.add("NonLooping");
+			}
+		}
+	}
+
 	public int length() {
 		return intervalEnd - intervalStart;
 	}
@@ -120,6 +176,14 @@ public class Animation implements BasicTimeBoundProvider {
 	public void setInterval(final int start, final int end) {
 		intervalStart = start;
 		intervalEnd = end;
+	}
+
+	public void setIntervalStart(final int intervalStart) {
+		this.intervalStart = intervalStart;
+	}
+
+	public void setIntervalEnd(final int intervalEnd) {
+		this.intervalEnd = intervalEnd;
 	}
 
 	public void copyToInterval(final int start, final int end, final List<AnimFlag> flags,
@@ -218,66 +282,6 @@ public class Animation implements BasicTimeBoundProvider {
 		return intervalEnd;
 	}
 
-	public static Animation parseText(final String[] line) {
-		if (line[0].contains("Anim")) {
-			final Animation anim = new Animation();
-			anim.setName(line[0].split("\"")[1]);
-			try {
-				final String[] entries = line[1].split("Interval ")[1].split(",");// Split
-																					// the
-																					// line
-																					// into
-																					// pieces,
-																					// forming
-																					// two
-																					// entries
-																					// that
-																					// are
-																					// before
-																					// and
-																					// after
-																					// the
-																					// comma
-																					// in
-																					// "{
-																					// <number>,
-																					// <number>
-																					// }"
-				entries[0] = entries[0].substring(2, entries[0].length());// Shave
-																			// off
-																			// first
-																			// two
-																			// chars
-																			// "{
-																			// "
-				entries[1] = entries[1].substring(0, entries[1].length() - 2);// Shave
-																				// off
-																				// last
-																				// two
-																				// "
-																				// }"
-				anim.setInterval(Integer.parseInt(entries[0]), Integer.parseInt(entries[1]));
-			} catch (final NumberFormatException e) {
-				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Unable to parse animation: Interval could not be interpreted numerically.");
-			}
-			final ArrayList extLog = new ArrayList();
-			for (int i = 2; i < line.length; i++) {
-				if (line[i].contains("Extent") || line[i].contains("BoundsRadius")) {
-					extLog.add(line[i]);
-				} else {
-					anim.tags.add(line[i]);
-				}
-			}
-			anim.extents = ExtLog.parseText((String[]) extLog.toArray());
-			return anim;
-		} else {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse animation: Missing or unrecognized open statement.");
-		}
-		return null;
-	}
-
 	public static Animation read(final BufferedReader mdl) {
 		final Animation anim = new Animation();
 		boolean limited = false;
@@ -365,4 +369,5 @@ public class Animation implements BasicTimeBoundProvider {
 	public int getIntervalEnd() {
 		return intervalEnd;
 	}
+
 }

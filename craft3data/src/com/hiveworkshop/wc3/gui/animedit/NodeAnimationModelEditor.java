@@ -55,7 +55,7 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
-import com.hiveworkshop.wc3.mdl.PopcornFxEmitter;
+import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
@@ -128,7 +128,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 				}
 
 				@Override
-				public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+				public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
 
 				}
 
@@ -362,7 +362,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		}
 
 		@Override
-		public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+		public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
 			handleDefaultNode(point, axes, popcornFxEmitter);
 		}
 
@@ -462,7 +462,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		}
 
 		@Override
-		public void popcornFxEmitter(final PopcornFxEmitter popcornFxEmitter) {
+		public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
 			hitTest(selectedItems, area, popcornFxEmitter.getPivotPoint(), coordinateSystem,
 					popcornFxEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem)
 							* 2,
@@ -542,6 +542,11 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	@Override
 	public UndoAction recalcNormals() {
 		throw new WrongModeException("Unable to modify normals in Animation Editor");
+	}
+
+	@Override
+	public UndoAction recalcExtents(final boolean onlyIncludeEditableGeosets) {
+		throw new WrongModeException("Unable to modify extents in Animation Editor");
 	}
 
 	@Override

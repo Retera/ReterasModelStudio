@@ -16,22 +16,22 @@ import com.hiveworkshop.wc3.mdx.CornChunk;
  * Popcorn FX is what I am calling the CORN chunk, somebody said that's probably
  * what they represent
  */
-public class PopcornFxEmitter extends IdObject implements VisibilitySource {
+public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource {
 	ArrayList<AnimFlag> animFlags = new ArrayList<>();
 	float[] maybeColor;
 	String path = null;
 	String flagString = null;
 	ArrayList<String> flags = new ArrayList<>();
 
-	private PopcornFxEmitter() {
+	private ParticleEmitterPopcorn() {
 
 	}
 
-	public PopcornFxEmitter(final String name) {
+	public ParticleEmitterPopcorn(final String name) {
 		this.name = name;
 	}
 
-	public PopcornFxEmitter(final CornChunk.PopcornFxEmitter emitter) {
+	public ParticleEmitterPopcorn(final CornChunk.ParticleEmitterPopcorn emitter) {
 		this(emitter.node.name);
 		// debug print:
 
@@ -63,7 +63,7 @@ public class PopcornFxEmitter extends IdObject implements VisibilitySource {
 
 	@Override
 	public IdObject copy() {
-		final PopcornFxEmitter x = new PopcornFxEmitter();
+		final ParticleEmitterPopcorn x = new ParticleEmitterPopcorn();
 
 		x.name = name;
 		x.pivotPoint = new Vertex(pivotPoint);
@@ -81,10 +81,10 @@ public class PopcornFxEmitter extends IdObject implements VisibilitySource {
 		return x;
 	}
 
-	public static PopcornFxEmitter read(final BufferedReader mdl) {
+	public static ParticleEmitterPopcorn read(final BufferedReader mdl) {
 		String line = MDLReader.nextLine(mdl);
-		if (line.contains("PopcornFxEmitter")) {
-			final PopcornFxEmitter pe = new PopcornFxEmitter();
+		if (line.contains("PopcornFxEmitter") || line.contains("PopcornEmitterPopcorn")) {
+			final ParticleEmitterPopcorn pe = new ParticleEmitterPopcorn();
 			pe.setName(MDLReader.readName(line));
 			MDLReader.mark(mdl);
 			line = MDLReader.nextLine(mdl);
