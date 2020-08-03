@@ -1272,6 +1272,7 @@ public class MDL implements Named {
 
 	public void printTo(final File baseFile) {
 		File f = baseFile;
+		baseFile.getParentFile().mkdirs();
 		boolean mdx = false;
 		if (f.getPath().toLowerCase().endsWith(".mdx")) {
 			// String fp = baseFile.getPath();
