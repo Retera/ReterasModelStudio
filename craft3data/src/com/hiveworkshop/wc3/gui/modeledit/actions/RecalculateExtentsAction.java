@@ -81,6 +81,7 @@ public class RecalculateExtentsAction implements UndoAction {
 				final ExtLog extents = animationAndOldExtents.getValue();
 				anim.setExtents(extents);
 			}
+			entry.getKey().setExtents(oldModelExtents);
 		}
 		for (final Map.Entry<Animation, ExtLog> animationAndOldExtents : modelSequenceToOldExtents.entrySet()) {
 			final Animation anim = animationAndOldExtents.getKey();
@@ -99,6 +100,7 @@ public class RecalculateExtentsAction implements UndoAction {
 				final ExtLog extents = animationAndNewExtents.getValue();
 				anim.setExtents(extents);
 			}
+			entry.getKey().setExtents(newModelExtents);
 		}
 		for (final Map.Entry<Animation, ExtLog> animationAndNewExtents : modelSequenceToNewExtents.entrySet()) {
 			final Animation anim = animationAndNewExtents.getKey();
