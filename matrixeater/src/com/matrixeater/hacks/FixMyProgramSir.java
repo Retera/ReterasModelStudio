@@ -31,17 +31,17 @@ public class FixMyProgramSir {
 					for (final MaterialChunk.Material mat : loadModel.materialChunk.material) {
 						int layerId = 0;
 						for (final LayerChunk.Layer lay : mat.layerChunk.layer) {
-							if (lay.mdx1000UnknownData != null) {
-								if ((lay.mdx1000UnknownData[0] != 1.0f) || (lay.mdx1000UnknownData[1] != 1.0f)
-										|| (lay.mdx1000UnknownData[2] != 1.0f) || (lay.mdx1000UnknownData[3] != 0.0f)
-										|| (lay.mdx1000UnknownData[4] != 0.0f)) {
-									System.out.println("Discovered interesting data: ");
-									System.out.println(" - Path: " + file);
-									System.out.println(" - MaterialID: " + materialId);
-									System.out.println(" - LayerID: " + layerId);
-									System.exit(0);
-								}
-							}
+//							if (lay.mdx1000UnknownData != null) {
+//								if ((lay.mdx1000UnknownData[0] != 1.0f) || (lay.mdx1000UnknownData[1] != 1.0f)
+//										|| (lay.mdx1000UnknownData[2] != 1.0f) || (lay.mdx1000UnknownData[3] != 0.0f)
+//										|| (lay.mdx1000UnknownData[4] != 0.0f)) {
+//									System.out.println("Discovered interesting data: ");
+//									System.out.println(" - Path: " + file);
+//									System.out.println(" - MaterialID: " + materialId);
+//									System.out.println(" - LayerID: " + layerId);
+//									System.exit(0);
+//								}
+//							}
 							layerId++;
 						}
 						materialId++;

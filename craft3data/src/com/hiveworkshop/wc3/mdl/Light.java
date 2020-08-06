@@ -136,7 +136,7 @@ public class Light extends IdObject implements VisibilitySource {
 				} else if (line.contains("Parent")) {
 					lit.parentId = MDLReader.splitToInts(line)[0];
 					// lit.parent = mdlr.getIdObject(lit.parentId);
-				} else if (!line.contains("static") && line.contains("{")) {
+				} else if (!line.contains("static") && line.contains("{") && !line.contains("DontInherit")) {
 					MDLReader.reset(mdl);
 					lit.animFlags.add(AnimFlag.read(mdl));
 				} else if (line.contains("AttenuationStart"))// These are

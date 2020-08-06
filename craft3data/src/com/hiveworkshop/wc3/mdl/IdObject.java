@@ -1,6 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -93,10 +92,6 @@ public abstract class IdObject extends AbstractAnimatedNode implements Named {
 		objectId = host.objectId;
 		parentId = host.parentId;
 		setParent(host.parent);
-	}
-
-	public static IdObject read(final BufferedReader mdl) {
-		return null;
 	}
 
 	public abstract void printTo(PrintWriter writer);

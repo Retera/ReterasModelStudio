@@ -157,8 +157,8 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 				} else if (line.contains("Parent")) {
 					pe.parentId = MDLReader.splitToInts(line)[0];
 					foundType = true;
-				} else if (line.contains("Visibility") || line.contains("Rotation") || line.contains("Translation")
-						|| line.contains("Scaling")) {
+				} else if ((line.contains("Visibility") || line.contains("Rotation") || line.contains("Translation")
+						|| line.contains("Scaling")) && !line.contains("DontInherit")) {
 					MDLReader.reset(mdl);
 					pe.animFlags.add(AnimFlag.read(mdl));
 					foundType = true;

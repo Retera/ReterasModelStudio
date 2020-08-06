@@ -69,6 +69,7 @@ import de.wc3data.stream.BlizzardDataOutputStream;
  * Eric Theller 11/5/2011
  */
 public class MDL implements Named {
+	public static boolean RETERA_FORMAT_BPOS_MATRICES = false;
 	// private static String [] tags = {"Model ","Sequences ","GlobalSequences
 	// ","Bitmap ","Material ","Geoset ",};
 
@@ -1153,6 +1154,14 @@ public class MDL implements Named {
 							}
 							MDLReader.nextLine(mdl);
 							bindPoseElements.add(matrix);
+						} else if (trimmedLine.startsWith("Matrices")) {
+							while (!(line = MDLReader.nextLine(mdl)).trim().startsWith("}")) {
+								final float[] matrix = new float[12];
+								parse12FloatBPos(line, matrix);
+								bindPoseElements.add(matrix);
+							}
+						} else {
+							throw new IllegalStateException("Bad tokens in BindPose chunk: " + line);
 						}
 					}
 					mdlr.bindPoseChunk.bindPose = new float[bindPoseElements.size()][];
@@ -1217,6 +1226,30 @@ public class MDL implements Named {
 		}
 		try {
 			output[offset + (3 * 3)] = Float.parseFloat(entries[3].split("}")[0].trim());
+		} catch (final NumberFormatException e) {
+			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
+					"Error {" + input + "}: BindPose Matrix could not be interpreted.");
+		}
+	}
+
+	public static void parse12FloatBPos(final String input, final float[] output) {
+		final String[] entries = input.split(",");
+		try {
+			output[0] = Float.parseFloat(entries[0].split("\\{")[1].trim());
+		} catch (final NumberFormatException e) {
+			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
+					"Error {" + input + "}: BindPose Matrix could not be interpreted.");
+		}
+		for (int i = 1; i < 11; i++) {
+			try {
+				output[i] = Float.parseFloat(entries[i].trim());
+			} catch (final NumberFormatException e) {
+				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
+						"Error {" + input + "}: BindPose Matrix could not be interpreted.");
+			}
+		}
+		try {
+			output[11] = Float.parseFloat(entries[3].split("}")[0].trim());
 		} catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Error {" + input + "}: BindPose Matrix could not be interpreted.");
@@ -1541,36 +1574,59 @@ public class MDL implements Named {
 		}
 
 		if ((bindPoseChunk != null) && ModelUtils.isBindPoseSupported(formatVersion)) {
-			writer.println("BindPose " + bindPoseChunk.bindPose.length + " {");
-			final StringBuilder matrixStringBuilder = new StringBuilder();
-			for (int i = 0; i < bindPoseChunk.bindPose.length; i++) {
-				Named matrixPredictedParent = null;
-				if (i < idObjects.size()) {
-					matrixPredictedParent = idObjects.get(i);
-				} else if (i < (idObjects.size() + cameras.size())) {
-					matrixPredictedParent = cameras.get(i - idObjects.size());
+			if (RETERA_FORMAT_BPOS_MATRICES) {
+				writer.println("BindPose " + bindPoseChunk.bindPose.length + " {");
+				final StringBuilder matrixStringBuilder = new StringBuilder();
+				for (int i = 0; i < bindPoseChunk.bindPose.length; i++) {
+					Named matrixPredictedParent = null;
+					if (i < idObjects.size()) {
+						matrixPredictedParent = idObjects.get(i);
+					} else if (i < (idObjects.size() + cameras.size())) {
+						matrixPredictedParent = cameras.get(i - idObjects.size());
+					}
+					if (matrixPredictedParent != null) {
+						writer.println("\tMatrix { // for \"" + matrixPredictedParent.getName() + "\"");
+					} else {
+						writer.println("\tMatrix {");
+					}
+					final float[] matrix = bindPoseChunk.bindPose[i];
+					for (int j = 0; j < 3; j++) {
+						matrixStringBuilder.setLength(0);
+						matrixStringBuilder.append("{ ");
+						for (int k = 0; k < 4; k++) {
+							if (k > 0) {
+								matrixStringBuilder.append(", ");
+							}
+							matrixStringBuilder.append(MDLReader.doubleToString(matrix[(k * 3) + j]));
+						}
+						matrixStringBuilder.append(" },");
+						writer.println("\t\t" + matrixStringBuilder.toString());
+					}
+					writer.println("\t}");
 				}
-				if (matrixPredictedParent != null) {
-					writer.println("\tMatrix { // for \"" + matrixPredictedParent.getName() + "\"");
-				} else {
-					writer.println("\tMatrix {");
-				}
-				final float[] matrix = bindPoseChunk.bindPose[i];
-				for (int j = 0; j < 3; j++) {
+				writer.println("}");
+			} else {
+				writer.println("BindPose {");
+				writer.println("\tMatrices " + bindPoseChunk.bindPose.length + " {");
+				final StringBuilder matrixStringBuilder = new StringBuilder();
+				for (int i = 0; i < bindPoseChunk.bindPose.length; i++) {
+					final float[] matrix = bindPoseChunk.bindPose[i];
 					matrixStringBuilder.setLength(0);
 					matrixStringBuilder.append("{ ");
-					for (int k = 0; k < 4; k++) {
+					for (int k = 0; k < matrix.length; k++) {
 						if (k > 0) {
 							matrixStringBuilder.append(", ");
 						}
-						matrixStringBuilder.append(MDLReader.doubleToString(matrix[(k * 3) + j]));
+						matrixStringBuilder.append(MDLReader.doubleToString(matrix[k]));
 					}
 					matrixStringBuilder.append(" },");
+//					matrixStringBuilder.append(" // ");
+//					matrixStringBuilder.append(i);
 					writer.println("\t\t" + matrixStringBuilder.toString());
 				}
 				writer.println("\t}");
+				writer.println("}");
 			}
-			writer.println("}");
 		}
 
 		try {

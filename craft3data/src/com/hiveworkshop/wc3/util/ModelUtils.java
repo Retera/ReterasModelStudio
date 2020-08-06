@@ -327,7 +327,7 @@ public final class ModelUtils {
 		return (formatVersion == 900) || (formatVersion == 1000);
 	}
 
-	public static boolean isStaticColorLayerSupported(final int formatVersion) {
+	public static boolean isFresnelColorLayerSupported(final int formatVersion) {
 		return formatVersion == 1000;
 	}
 

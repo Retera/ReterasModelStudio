@@ -15,7 +15,10 @@ import com.hiveworkshop.wc3.mdx.CameraPositionTranslation;
 import com.hiveworkshop.wc3.mdx.CameraRotation;
 import com.hiveworkshop.wc3.mdx.CameraTargetTranslation;
 import com.hiveworkshop.wc3.mdx.CornAlpha;
+import com.hiveworkshop.wc3.mdx.CornColor;
 import com.hiveworkshop.wc3.mdx.CornEmissionRate;
+import com.hiveworkshop.wc3.mdx.CornLifeSpan;
+import com.hiveworkshop.wc3.mdx.CornSpeed;
 import com.hiveworkshop.wc3.mdx.CornVisibility;
 import com.hiveworkshop.wc3.mdx.GeosetAlpha;
 import com.hiveworkshop.wc3.mdx.GeosetColor;
@@ -30,7 +33,10 @@ import com.hiveworkshop.wc3.mdx.LightColor;
 import com.hiveworkshop.wc3.mdx.LightIntensity;
 import com.hiveworkshop.wc3.mdx.LightVisibility;
 import com.hiveworkshop.wc3.mdx.MaterialAlpha;
-import com.hiveworkshop.wc3.mdx.MaterialEmissions;
+import com.hiveworkshop.wc3.mdx.MaterialEmissiveGain;
+import com.hiveworkshop.wc3.mdx.MaterialFresnelColor;
+import com.hiveworkshop.wc3.mdx.MaterialFresnelOpacity;
+import com.hiveworkshop.wc3.mdx.MaterialFresnelTeamColor;
 import com.hiveworkshop.wc3.mdx.MaterialTextureId;
 import com.hiveworkshop.wc3.mdx.ParticleEmitter2EmissionRate;
 import com.hiveworkshop.wc3.mdx.ParticleEmitter2Gravity;
@@ -217,7 +223,7 @@ public class AnimFlag {
 		}
 	}
 
-	public AnimFlag(final MaterialEmissions source) {
+	public AnimFlag(final MaterialEmissiveGain source) {
 		title = "Emissive";
 		generateTypeId();
 		addTag(AnimFlag.getInterpType(source.interpolationType));
@@ -226,11 +232,66 @@ public class AnimFlag {
 			setHasGlobalSeq(true);
 		}
 		final boolean tans = source.interpolationType > 1;
-		for (final MaterialEmissions.ScalingTrack track : source.scalingTrack) {
+		for (final MaterialEmissiveGain.ScalingTrack track : source.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.emission), box(track.inTan), box(track.outTan));
 			} else {
 				addEntry(track.time, box(track.emission));
+			}
+		}
+	}
+
+	public AnimFlag(final MaterialFresnelColor cornColor) {
+		title = "FresnelColor";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(cornColor.interpolationType));
+		if (cornColor.globalSequenceId >= 0) {
+			setGlobalSeqId(cornColor.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = cornColor.interpolationType > 1;
+		// NOTE: autoreplaced from a > 0 check, Linear shouldn't have 'tans'???
+		for (final MaterialFresnelColor.ScalingTrack track : cornColor.scalingTrack) {
+			if (tans) {
+				addEntry(track.time, new Vertex(track.color), new Vertex(track.inTan), new Vertex(track.outTan));
+			} else {
+				addEntry(track.time, new Vertex(track.color));
+			}
+		}
+	}
+
+	public AnimFlag(final MaterialFresnelOpacity source) {
+		title = "FresnelOpacity";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(source.interpolationType));
+		if (source.globalSequenceId >= 0) {
+			setGlobalSeqId(source.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = source.interpolationType > 1;
+		for (final MaterialFresnelOpacity.ScalingTrack track : source.scalingTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.fresnelOpacity), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.fresnelOpacity));
+			}
+		}
+	}
+
+	public AnimFlag(final MaterialFresnelTeamColor source) {
+		title = "FresnelTeamColor";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(source.interpolationType));
+		if (source.globalSequenceId >= 0) {
+			setGlobalSeqId(source.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = source.interpolationType > 1;
+		for (final MaterialFresnelTeamColor.ScalingTrack track : source.scalingTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.fresnelTeamColor), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.fresnelTeamColor));
 			}
 		}
 	}
@@ -985,6 +1046,61 @@ public class AnimFlag {
 				addEntry(track.time, box(track.visibility), box(track.inTan), box(track.outTan));
 			} else {
 				addEntry(track.time, box(track.visibility));
+			}
+		}
+	}
+
+	public AnimFlag(final CornLifeSpan trackData) {
+		title = "LifeSpan";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(trackData.interpolationType));
+		if (trackData.globalSequenceId >= 0) {
+			setGlobalSeqId(trackData.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = trackData.interpolationType > 1;
+		for (final CornLifeSpan.LifeSpanTrack track : trackData.lifeSpanTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.lifeSpan), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.lifeSpan));
+			}
+		}
+	}
+
+	public AnimFlag(final CornSpeed trackData) {
+		title = "Speed";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(trackData.interpolationType));
+		if (trackData.globalSequenceId >= 0) {
+			setGlobalSeqId(trackData.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = trackData.interpolationType > 1;
+		for (final CornSpeed.SpeedTrack track : trackData.speedTrack) {
+			if (tans) {
+				addEntry(track.time, box(track.speed), box(track.inTan), box(track.outTan));
+			} else {
+				addEntry(track.time, box(track.speed));
+			}
+		}
+	}
+
+	public AnimFlag(final CornColor cornColor) {
+		title = "Color";
+		generateTypeId();
+		addTag(AnimFlag.getInterpType(cornColor.interpolationType));
+		if (cornColor.globalSequenceId >= 0) {
+			setGlobalSeqId(cornColor.globalSequenceId);
+			setHasGlobalSeq(true);
+		}
+		final boolean tans = cornColor.interpolationType > 1;
+		// NOTE: autoreplaced from a > 0 check, Linear shouldn't have 'tans'???
+		for (final CornColor.ScalingTrack track : cornColor.scalingTrack) {
+			if (tans) {
+				addEntry(track.time, new Vertex(track.color), new Vertex(track.inTan), new Vertex(track.outTan));
+			} else {
+				addEntry(track.time, new Vertex(track.color));
 			}
 		}
 	}
@@ -2745,5 +2861,9 @@ public class AnimFlag {
 		}
 		times.set(startIndex, endTrackTime);
 		sort();
+	}
+
+	public void setName(final String title) {
+		this.title = title;
 	}
 }

@@ -14,13 +14,20 @@ import com.hiveworkshop.wc3.mdx.CornChunk;
 
 /**
  * Popcorn FX is what I am calling the CORN chunk, somebody said that's probably
- * what they represent
+ * what they represent. 2020-08: Changing the name to ParticleEmitterPopcorn to
+ * match leaked Blizzard MDL. (one of the builds of the game included an MDL by
+ * mistake or something)
  */
 public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource {
 	ArrayList<AnimFlag> animFlags = new ArrayList<>();
-	float[] maybeColor;
+	private int replaceableId;
+	private float alpha;
+	private Vertex color;
+	private float speed;
+	private float emissionRate;
+	private float lifeSpan;
 	String path = null;
-	String flagString = null;
+	String animVisibilityGuide = null;
 	ArrayList<String> flags = new ArrayList<>();
 
 	private ParticleEmitterPopcorn() {
@@ -51,10 +58,29 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 		if (emitter.cornAlpha != null) {
 			add(new AnimFlag(emitter.cornAlpha));
 		}
+		if (emitter.cornLifeSpan != null) {
+			add(new AnimFlag(emitter.cornLifeSpan));
+		}
+		if (emitter.cornSpeed != null) {
+			add(new AnimFlag(emitter.cornSpeed));
+		}
+		if (emitter.cornColor != null) {
+			add(new AnimFlag(emitter.cornColor));
+		}
 
-		setMaybeColor(emitter.maybeColor);
+		lifeSpan = emitter.lifeSpan;
+		emissionRate = emitter.emissionRate;
+		speed = emitter.speed;
+		if (emitter.cornColor == null) {
+			final Vertex coloring = new Vertex(MdlxUtils.flipRGBtoBGR(emitter.color));
+			if ((coloring.x != 1.0) || (coloring.y != 1.0) || (coloring.z != 1.0)) {
+				setColor(coloring);
+			}
+		}
+		alpha = emitter.alpha;
+		replaceableId = emitter.replaceableId;
 		setPath(emitter.path);
-		setFlagString(emitter.flags);
+		setAnimVisibilityGuide(emitter.flags);
 		// if( emitter. != null ) {
 		// mdlEmitter.add(new AnimFlag(emitter.attachmentVisibility));
 		// }
@@ -72,8 +98,13 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 		x.setParent(getParent());
 
 		x.path = path;
-		x.flagString = flagString;
-		x.maybeColor = maybeColor.clone();
+		x.animVisibilityGuide = animVisibilityGuide;
+		x.replaceableId = replaceableId;
+		x.alpha = alpha;
+		x.color = new Vertex(color);
+		x.speed = speed;
+		x.emissionRate = emissionRate;
+		x.lifeSpan = lifeSpan;
 
 		for (final AnimFlag af : animFlags) {
 			x.animFlags.add(new AnimFlag(af));
@@ -83,7 +114,7 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 
 	public static ParticleEmitterPopcorn read(final BufferedReader mdl) {
 		String line = MDLReader.nextLine(mdl);
-		if (line.contains("PopcornFxEmitter") || line.contains("PopcornEmitterPopcorn")) {
+		if (line.contains("PopcornFxEmitter") || line.contains("ParticleEmitterPopcorn")) {
 			final ParticleEmitterPopcorn pe = new ParticleEmitterPopcorn();
 			pe.setName(MDLReader.readName(line));
 			MDLReader.mark(mdl);
@@ -101,16 +132,35 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 				} else if (line.contains("Path")) {
 					pe.path = MDLReader.readName(line);
 					foundType = true;
-				} else if (line.contains("FlagString")) {
-					pe.flagString = MDLReader.readName(line);
+				} else if (line.contains("static LifeSpan")) {
+					pe.lifeSpan = (float) MDLReader.readDouble(line);
 					foundType = true;
-				} else if (line.contains("Visibility") || line.contains("Rotation") || line.contains("Translation")
-						|| line.contains("Scaling") || line.contains("Alpha") || line.contains("EmissionRate")) {
+				} else if (line.contains("static EmissionRate")) {
+					pe.emissionRate = (float) MDLReader.readDouble(line);
+					foundType = true;
+				} else if (line.contains("static Speed")) {
+					pe.speed = (float) MDLReader.readDouble(line);
+					foundType = true;
+				} else if (line.contains("static Color")) {
+					pe.color = Vertex.parseText(line);
+					foundType = true;
+				} else if (line.contains("static Alpha")) {
+					pe.alpha = (float) MDLReader.readDouble(line);
+					foundType = true;
+				} else if (line.contains("ReplaceableId")) {
+					pe.replaceableId = MDLReader.readInt(line);
+					foundType = true;
+				} else if (line.contains("FlagString") || line.contains("AnimVisibilityGuide")) {
+					pe.animVisibilityGuide = MDLReader.readName(line);
+					foundType = true;
+				} else if ((line.contains("Visibility") || line.contains("Rotation") || line.contains("Translation")
+						|| line.contains("Scaling") || line.contains("Alpha") || line.contains("EmissionRate")
+						|| line.contains("Speed") || line.contains("LifeSpan")) && !line.contains("DontInherit")) {
 					MDLReader.reset(mdl);
 					pe.animFlags.add(AnimFlag.read(mdl));
 					foundType = true;
 				} else if (line.contains("SegmentColor")) {
-					pe.maybeColor = new float[8];
+					final float[] maybeColor = new float[8];
 					boolean reading = true;
 					foundType = true;
 					for (int i = 0; reading && (i < 2); i++) {
@@ -118,17 +168,29 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 						if (line.contains("Color")) {
 							// Reuse my quaternion parser, not actually smart
 							final QuaternionRotation quatern = QuaternionRotation.parseText(line);
-							pe.maybeColor[i * 4] = (float) quatern.a;
-							pe.maybeColor[(i * 4) + 1] = (float) quatern.b;
-							pe.maybeColor[(i * 4) + 2] = (float) quatern.c;
-							pe.maybeColor[(i * 4) + 3] = (float) quatern.d;
+							maybeColor[i * 4] = (float) quatern.a;
+							maybeColor[(i * 4) + 1] = (float) quatern.b;
+							maybeColor[(i * 4) + 2] = (float) quatern.c;
+							maybeColor[(i * 4) + 3] = (float) quatern.d;
 						} else {
 							reading = false;
 							MDLReader.reset(mdl);
 							line = MDLReader.nextLine(mdl);
 						}
 					}
+					pe.lifeSpan = maybeColor[0];
+					pe.emissionRate = maybeColor[1];
+					pe.speed = maybeColor[2];
+					pe.color.x = maybeColor[5];
+					pe.color.y = maybeColor[4];
+					pe.color.z = maybeColor[3];
+					pe.alpha = maybeColor[6];
+					pe.replaceableId = (int) maybeColor[7];
 					line = MDLReader.nextLine(mdl);
+				} else if (line.contains("Color")) {
+					foundType = true;
+					MDLReader.reset(mdl);
+					pe.animFlags.add(AnimFlag.read(mdl));
 				}
 				if (!foundType) {
 					pe.flags.add(MDLReader.readFlag(line));
@@ -141,7 +203,7 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 
 		{
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse PopcornFxEmitter: Missing or unrecognized open statement.");
+					"Unable to parse ParticleEmitterPopcorn: Missing or unrecognized open statement.");
 		}
 		return null;
 	}
@@ -160,40 +222,88 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 		if (parentId != -1) {
 			writer.println("\tParent " + parentId + ",\t// \"" + getParent().getName() + "\"");
 		}
+		for (final String s : flags) {
+			writer.println("\t" + s + ",");
+		}
 		String currentFlag = "";
-		currentFlag = "Alpha";
+		boolean foundFlag;
+		currentFlag = "LifeSpan";
+		foundFlag = false;
 		for (int i = 0; i < pAnimFlags.size(); i++) {
 			if (pAnimFlags.get(i).getName().equals(currentFlag)) {
 				pAnimFlags.get(i).printTo(writer, 1);
 				pAnimFlags.remove(i);
+				foundFlag = true;
 			}
+		}
+		if (!foundFlag) {
+			writer.println("\tstatic LifeSpan " + MDLReader.doubleToString(lifeSpan) + ",");
 		}
 		currentFlag = "EmissionRate";
+		foundFlag = false;
 		for (int i = 0; i < pAnimFlags.size(); i++) {
 			if (pAnimFlags.get(i).getName().equals(currentFlag)) {
 				pAnimFlags.get(i).printTo(writer, 1);
 				pAnimFlags.remove(i);
+				foundFlag = true;
 			}
+		}
+		if (!foundFlag) {
+			writer.println("\tstatic EmissionRate " + MDLReader.doubleToString(emissionRate) + ",");
+		}
+		currentFlag = "Speed";
+		foundFlag = false;
+		for (int i = 0; i < pAnimFlags.size(); i++) {
+			if (pAnimFlags.get(i).getName().equals(currentFlag)) {
+				pAnimFlags.get(i).printTo(writer, 1);
+				pAnimFlags.remove(i);
+				foundFlag = true;
+			}
+		}
+		if (!foundFlag) {
+			writer.println("\tstatic Speed " + MDLReader.doubleToString(speed) + ",");
+		}
+		currentFlag = "Color";
+		foundFlag = false;
+		for (int i = 0; i < pAnimFlags.size(); i++) {
+			if (pAnimFlags.get(i).getName().equals(currentFlag)) {
+				pAnimFlags.get(i).printTo(writer, 1);
+				pAnimFlags.remove(i);
+				foundFlag = true;
+			}
+		}
+		if (!foundFlag && (color != null)) {
+			writer.println("\tstatic Color " + color.toString() + ",");
 		}
 		currentFlag = "Visibility";
+		foundFlag = false;
 		for (int i = 0; i < pAnimFlags.size(); i++) {
 			if (pAnimFlags.get(i).getName().equals(currentFlag)) {
 				pAnimFlags.get(i).printTo(writer, 1);
 				pAnimFlags.remove(i);
+				foundFlag = true;
 			}
 		}
-		writer.println("\tSegmentColor {");
-		final int maybeColors = maybeColor.length / 4;
-		for (int i = 0; i < maybeColors; i++) {
-			writer.println("\t\tColor " + new QuaternionRotation(maybeColor[(i * 4) + 0], maybeColor[(i * 4) + 1],
-					maybeColor[(i * 4) + 2], maybeColor[(i * 4) + 3]).toString() + ",");
+		currentFlag = "Alpha";
+		foundFlag = false;
+		for (int i = 0; i < pAnimFlags.size(); i++) {
+			if (pAnimFlags.get(i).getName().equals(currentFlag)) {
+				pAnimFlags.get(i).printTo(writer, 1);
+				pAnimFlags.remove(i);
+				foundFlag = true;
+			}
 		}
-		writer.println("\t},");
+		if (!foundFlag) {
+			writer.println("\tstatic Alpha " + MDLReader.doubleToString(alpha) + ",");
+		}
+		if (replaceableId != 0) {
+			writer.println("\tReplaceableId " + replaceableId + ",");
+		}
 		if (path != null) {
 			writer.println("\tPath \"" + path + "\",");
 		}
-		if (flagString != null) {
-			writer.println("\tFlagString \"" + flagString + "\",");
+		if (animVisibilityGuide != null) {
+			writer.println("\tAnimVisibilityGuide \"" + animVisibilityGuide + "\",");
 		}
 
 		for (int i = pAnimFlags.size() - 1; i >= 0; i--) {
@@ -213,9 +323,6 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 				pAnimFlags.get(i).printTo(writer, 1);
 				pAnimFlags.remove(i);
 			}
-		}
-		for (final String s : flags) {
-			writer.println("\t" + s + ",");
 		}
 		writer.println("}");
 	}
@@ -283,14 +390,6 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 		animFlags.add(af);
 	}
 
-	public void setMaybeColor(final float[] maybeColor) {
-		this.maybeColor = maybeColor;
-	}
-
-	public float[] getMaybeColor() {
-		return maybeColor;
-	}
-
 	public String getPath() {
 		return path;
 	}
@@ -299,12 +398,12 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 		this.path = path;
 	}
 
-	public void setFlagString(final String flagString) {
-		this.flagString = flagString;
+	public void setAnimVisibilityGuide(final String flagString) {
+		this.animVisibilityGuide = flagString;
 	}
 
-	public String getFlagString() {
-		return flagString;
+	public String getAnimVisibilityGuide() {
+		return animVisibilityGuide;
 	}
 
 	@Override
@@ -370,5 +469,53 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
 		}
 		return 0;
+	}
+
+	public Vertex getColor() {
+		return color;
+	}
+
+	public void setColor(final Vertex color) {
+		this.color = color;
+	}
+
+	public float getAlpha() {
+		return alpha;
+	}
+
+	public void setAlpha(final float alpha) {
+		this.alpha = alpha;
+	}
+
+	public float getEmissionRate() {
+		return emissionRate;
+	}
+
+	public void setEmissionRate(final float emissionRate) {
+		this.emissionRate = emissionRate;
+	}
+
+	public float getLifeSpan() {
+		return lifeSpan;
+	}
+
+	public void setLifeSpan(final float lifeSpan) {
+		this.lifeSpan = lifeSpan;
+	}
+
+	public float getSpeed() {
+		return speed;
+	}
+
+	public void setSpeed(final float speed) {
+		this.speed = speed;
+	}
+
+	public int getReplaceableId() {
+		return replaceableId;
+	}
+
+	public void setReplaceableId(final int replaceableId) {
+		this.replaceableId = replaceableId;
 	}
 }

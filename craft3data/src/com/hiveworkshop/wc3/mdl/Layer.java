@@ -258,6 +258,9 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		}
 		staticAlpha = other.staticAlpha;
 		emissiveGain = other.emissiveGain;
+		fresnelColor = new Vertex(other.fresnelColor);
+		fresnelOpacity = other.fresnelOpacity;
+		fresnelTeamColor = other.fresnelTeamColor;
 		flags = new ArrayList<>(other.flags);
 		anims = new ArrayList<>();
 		textures = new ArrayList<>();
@@ -288,7 +291,7 @@ public class Layer implements Named, VisibilitySource, LayerView {
 			add("Unshaded");
 		}
 		if (MDL.hasFlag(shadingFlags, 0x2)) {
-			add("SphereEnvironmentMap");
+			add("SphereEnvMap");
 		}
 		if (MDL.hasFlag(shadingFlags, 0x10)) {
 			add("TwoSided");
@@ -302,15 +305,18 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		if (MDL.hasFlag(shadingFlags, 0x80)) {
 			add("NoDepthSet");
 		}
+		if (MDL.hasFlag(shadingFlags, 0x100)) {
+			add("Unlit");
+		}
 //		System.err.println("Creating MDL layer from shadingFlags: " + Integer.toBinaryString(lay.shadingFlags));
 		if (lay.materialEmissions != null) {
 			final AnimFlag flag = new AnimFlag(lay.materialEmissions);
 			anims.add(flag);
-		} else if (!Float.isNaN(lay.emissive)) {
-			emissiveGain = lay.emissive;
+		} else if (!Float.isNaN(lay.emissiveGain)) {
+			emissiveGain = lay.emissiveGain;
 		}
 		setTVertexAnimId(lay.textureAnimationId);
-		setCoordId(lay.unknownNull_CoordID); // this isn't an unknown field!
+		setCoordId(lay.coordID); // this isn't an unknown field!
 		// it's coordID! don't be like
 		// Magos and forget!
 		// (breaks the volcano model, this is why War3ModelEditor can't open
@@ -324,6 +330,27 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		if (lay.materialTextureId != null) {
 			final AnimFlag flag = new AnimFlag(lay.materialTextureId);
 			anims.add(flag);
+		}
+		if (lay.materialFresnelColor != null) {
+			final AnimFlag flag = new AnimFlag(lay.materialFresnelColor);
+			anims.add(flag);
+		} else {
+			final Vertex coloring = new Vertex(MdlxUtils.flipRGBtoBGR(lay.fresnelColor));
+			if ((coloring.x != 1.0) || (coloring.y != 1.0) || (coloring.z != 1.0)) {
+				setFresnelColor(coloring);
+			}
+		}
+		if (lay.materialFresnelOpacity != null) {
+			final AnimFlag flag = new AnimFlag(lay.materialFresnelOpacity);
+			anims.add(flag);
+		} else if (lay.fresnelOpacity != 0.0f) {
+			fresnelOpacity = lay.fresnelOpacity;
+		}
+		if (lay.materialFresnelTeamColor != null) {
+			final AnimFlag flag = new AnimFlag(lay.materialFresnelTeamColor);
+			anims.add(flag);
+		} else if (lay.fresnelTeamColor != 0.0f) {
+			fresnelTeamColor = lay.fresnelTeamColor;
 		}
 	}
 
@@ -438,6 +465,7 @@ public class Layer implements Named, VisibilitySource, LayerView {
 	public static Layer read(final BufferedReader mdl, final MDL mdlr) {
 		String line = MDLReader.nextLine(mdl);
 		if (line.contains("Layer")) {
+			boolean hasAnimatedFresnelColor = false;
 			final Layer lay = new Layer();
 			MDLReader.mark(mdl);
 			while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
@@ -452,7 +480,27 @@ public class Layer implements Named, VisibilitySource, LayerView {
 					lay.emissiveGain = MDLReader.readDouble(line);
 				} else if (line.contains("Emissive")) {
 					MDLReader.reset(mdl);
+					final AnimFlag emissiveGainAnimFlag = AnimFlag.read(mdl);
+					if (emissiveGainAnimFlag.getName().equals("Emissive")) {
+						emissiveGainAnimFlag.setName("EmissiveGain");
+					}
+					lay.anims.add(emissiveGainAnimFlag);
+				} else if (line.contains("static FresnelOpacity")) {
+					lay.fresnelOpacity = MDLReader.readDouble(line);
+				} else if (line.contains("FresnelOpacity")) {
+					MDLReader.reset(mdl);
 					lay.anims.add(AnimFlag.read(mdl));
+				} else if (line.contains("static FresnelTeamColor")) {
+					lay.fresnelTeamColor = MDLReader.readDouble(line);
+				} else if (line.contains("FresnelTeamColor")) {
+					MDLReader.reset(mdl);
+					lay.anims.add(AnimFlag.read(mdl));
+				} else if (line.contains("static FresnelColor")) {
+					lay.fresnelColor = Vertex.parseText(line);
+				} else if (line.contains("FresnelColor")) {
+					MDLReader.reset(mdl);
+					lay.anims.add(AnimFlag.read(mdl));
+					hasAnimatedFresnelColor = true;
 				} else if (line.contains("TVertexAnimId")) {
 					lay.TVertexAnimId = MDLReader.readInt(line);
 				} else if (line.contains("static Alpha")) {
@@ -470,6 +518,13 @@ public class Layer implements Named, VisibilitySource, LayerView {
 					// parsing Layer: Unrecognized statement '"+line[i]+"'.");
 				}
 				MDLReader.mark(mdl);
+			}
+			if (ModelUtils.isFresnelColorLayerSupported(mdlr.getFormatVersion()) && !hasAnimatedFresnelColor
+					&& (lay.fresnelColor == null)) {
+				lay.fresnelColor = new Vertex(1, 1, 1); // default value
+			}
+			if (ModelUtils.isEmissiveLayerSupported(mdlr.getFormatVersion()) && Double.isNaN(lay.emissiveGain)) {
+				lay.emissiveGain = 1.0;
 			}
 			return lay;
 		} else {
@@ -517,17 +572,6 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		if (useCoords) {
 			writer.println(tabs + "\tCoordId " + CoordId + ",");
 		}
-		boolean foundEmissive = false;
-		for (int i = 0; i < anims.size(); i++) {
-			final AnimFlag temp = anims.get(i);
-			if (temp.getName().equals("Emissive")) {
-				temp.printTo(writer, tabHeight + 1);
-				foundEmissive = true;
-			}
-		}
-		if (!Double.isNaN(emissiveGain) && !foundEmissive && ModelUtils.isEmissiveLayerSupported(version)) {
-			writer.println(tabs + "\tstatic Emissive " + MDLReader.doubleToString(emissiveGain) + ",");
-		}
 		boolean foundAlpha = false;
 		for (int i = 0; i < anims.size(); i++) {
 			final AnimFlag temp = anims.get(i);
@@ -538,6 +582,56 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		}
 		if ((staticAlpha != -1) && !foundAlpha) {
 			writer.println(tabs + "\tstatic Alpha " + staticAlpha + ",");
+		}
+		if (ModelUtils.isEmissiveLayerSupported(version)) {
+			boolean foundEmissive = false;
+			for (int i = 0; i < anims.size(); i++) {
+				final AnimFlag temp = anims.get(i);
+				if (temp.getName().startsWith("Emissive")) {
+					temp.printTo(writer, tabHeight + 1);
+					foundEmissive = true;
+				}
+			}
+			if (!Double.isNaN(emissiveGain) && (emissiveGain != 1.0) && !foundEmissive) {
+				writer.println(tabs + "\tstatic EmissiveGain " + MDLReader.doubleToString(emissiveGain) + ",");
+			}
+		}
+		if (ModelUtils.isFresnelColorLayerSupported(version)) {
+			boolean foundFresnelColor = false;
+			for (int i = 0; i < anims.size(); i++) {
+				final AnimFlag temp = anims.get(i);
+				if (temp.getName().startsWith("FresnelColor")) {
+					temp.printTo(writer, tabHeight + 1);
+					foundFresnelColor = true;
+				}
+			}
+			if ((fresnelColor != null)
+					&& ((fresnelColor.x != 1.0) || (fresnelColor.y != 1.0) || (fresnelColor.z != 1.0))
+					&& !foundFresnelColor) {
+				writer.println(tabs + "\tstatic FresnelColor " + fresnelColor + ",");
+			}
+			boolean foundFresnelOpacity = false;
+			for (int i = 0; i < anims.size(); i++) {
+				final AnimFlag temp = anims.get(i);
+				if (temp.getName().startsWith("FresnelOpacity")) {
+					temp.printTo(writer, tabHeight + 1);
+					foundFresnelOpacity = true;
+				}
+			}
+			if (!Double.isNaN(fresnelOpacity) && (fresnelOpacity != 0) && !foundFresnelOpacity) {
+				writer.println(tabs + "\tstatic FresnelOpacity " + MDLReader.doubleToString(fresnelOpacity) + ",");
+			}
+			boolean foundFresnelTeamColor = false;
+			for (int i = 0; i < anims.size(); i++) {
+				final AnimFlag temp = anims.get(i);
+				if (temp.getName().startsWith("FresnelTeamColor")) {
+					temp.printTo(writer, tabHeight + 1);
+					foundFresnelTeamColor = true;
+				}
+			}
+			if (!Double.isNaN(fresnelTeamColor) && (fresnelTeamColor != 0) && !foundFresnelTeamColor) {
+				writer.println(tabs + "\tstatic FresnelTeamColor " + MDLReader.doubleToString(fresnelTeamColor) + ",");
+			}
 		}
 		writer.println(tabs + "}");
 	}
@@ -736,5 +830,29 @@ public class Layer implements Named, VisibilitySource, LayerView {
 	@Override
 	public Animatable<Double> getAlpha() {
 		throw new UnsupportedOperationException("not yet implemented");
+	}
+
+	public Vertex getFresnelColor() {
+		return fresnelColor;
+	}
+
+	public void setFresnelColor(final Vertex fresnelColor) {
+		this.fresnelColor = fresnelColor;
+	}
+
+	public double getFresnelOpacity() {
+		return fresnelOpacity;
+	}
+
+	public void setFresnelOpacity(final double fresnelOpacity) {
+		this.fresnelOpacity = fresnelOpacity;
+	}
+
+	public double getFresnelTeamColor() {
+		return fresnelTeamColor;
+	}
+
+	public void setFresnelTeamColor(final double fresnelTeamColor) {
+		this.fresnelTeamColor = fresnelTeamColor;
 	}
 }

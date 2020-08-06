@@ -18,7 +18,7 @@ import javax.swing.JOptionPane;
 public class GeosetVertex extends Vertex {
 	Matrix matrixRef;
 	private Normal normal;
-	public int VertexGroup;
+	public int VertexGroup = -1;
 	List<TVertex> tverts = new ArrayList<>();
 	List<Bone> bones = new ArrayList<>();
 	List<Triangle> triangles = new ArrayList<>();

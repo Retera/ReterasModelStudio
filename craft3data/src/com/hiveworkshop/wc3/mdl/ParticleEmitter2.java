@@ -401,8 +401,9 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 						}
 					}
 				}
-				if (!foundType && (line.contains("Visibility") || line.contains("Rotation")
-						|| line.contains("Translation") || line.contains("Scaling"))) {
+				if (!foundType && ((line.contains("Visibility") || line.contains("Rotation")
+						|| line.contains("Translation") || line.contains("Scaling")))
+						&& !line.contains("DontInherit")) {
 					MDLReader.reset(mdl);
 					pe.animFlags.add(AnimFlag.read(mdl));
 					foundType = true;

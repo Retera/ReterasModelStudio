@@ -426,6 +426,17 @@ public class Geoset implements Named, VisibilitySource {
 			while (((line = MDLReader.nextLine(mdl)).contains("TVertices"))) {
 				geo.addUVLayer(UVLayer.read(mdl));
 			}
+			if (!line.contains("VertexGroup")) {
+				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
+						"Error: VertexGroups missing or invalid!");
+			}
+			int i = 0;
+			while (!((line = MDLReader.nextLine(mdl)).contains("\t}"))) {
+				geo.getVertex(i).setVertexGroup(MDLReader.readInt(line));
+				i++;
+			}
+			line = MDLReader.nextLine(mdl);
+
 			if (line.contains("Tangents")) {
 				// If we have v900 tangents:
 				geo.tangents = new ArrayList<>();
@@ -444,16 +455,7 @@ public class Geoset implements Named, VisibilitySource {
 				MDLReader.mark(mdl);
 				line = MDLReader.nextLine(mdl);
 			}
-			if (!line.contains("VertexGroup")) {
-				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Error: VertexGroups missing or invalid!");
-			}
-			int i = 0;
-			while (!((line = MDLReader.nextLine(mdl)).contains("\t}"))) {
-				geo.getVertex(i).setVertexGroup(MDLReader.readInt(line));
-				i++;
-			}
-			line = MDLReader.nextLine(mdl);
+
 			if (!line.contains("Faces")) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "Error: Faces missing or invalid!");
 			}
@@ -489,7 +491,7 @@ public class Geoset implements Named, VisibilitySource {
 				} else if (line.contains("SelectionGroup")) {
 					geo.selectionGroup = MDLReader.readInt(line);
 					MDLReader.mark(mdl);
-				} else if (line.contains("LevelOfDetailName")) {
+				} else if (line.contains("LevelOfDetailName") || line.contains("Name")) {
 					geo.levelOfDetailName = MDLReader.readName(line);
 					MDLReader.mark(mdl);
 				} else if (line.contains("LevelOfDetail")) {
@@ -773,8 +775,17 @@ public class Geoset implements Named, VisibilitySource {
 				geosetVertex.setMatrix(newTemp);
 			}
 		}
-		if ((ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion())) && (vertex.size() > 0)
-				&& (vertex.get(0).getTangent() != null)) {
+		final boolean printTangentsToFile = (ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion()))
+				&& (vertex.size() > 0) && (vertex.get(0).getTangent() != null);
+		writer.println("\tVertexGroup {");
+		if (!printTangentsToFile) {
+			for (int i = 0; i < vertex.size(); i++) {
+				final GeosetVertex geosetVertex = vertex.get(i);
+				writer.println(tabs + geosetVertex.VertexGroup + ",");
+			}
+		}
+		writer.println("\t}");
+		if (printTangentsToFile) {
 			writer.println("\tTangents " + vertex.size() + " {");
 			final StringBuilder tangentBuilder = new StringBuilder();
 			for (int i = 0; i < vertex.size(); i++) {
@@ -787,7 +798,7 @@ public class Geoset implements Named, VisibilitySource {
 				writer.println(tabs + "{ " + tangentBuilder.toString() + " },");
 			}
 			writer.println("\t}");
-			writer.println("\tSkin " + vertex.size() + " {");
+			writer.println("\tSkinWeights " + vertex.size() + " {");
 			final StringBuilder skinBuilder = new StringBuilder();
 			for (int i = 0; i < vertex.size(); i++) {
 				skinBuilder.setLength(0);
@@ -808,12 +819,6 @@ public class Geoset implements Named, VisibilitySource {
 			}
 			writer.println("\t}");
 		}
-		writer.println("\tVertexGroup {");
-		for (int i = 0; i < vertex.size(); i++) {
-			final GeosetVertex geosetVertex = vertex.get(i);
-			writer.println(tabs + geosetVertex.VertexGroup + ",");
-		}
-		writer.println("\t}");
 		if (trianglesTogether) {
 			writer.println("\tFaces 1 " + (triangles.size() * 3) + " {");
 			writer.println("\t\tTriangles {");
@@ -860,7 +865,7 @@ public class Geoset implements Named, VisibilitySource {
 		writer.println("\tSelectionGroup " + selectionGroup + ",");
 		if ((levelOfDetailName != null) && ModelUtils.isLevelOfDetailSupported(mdlr.getFormatVersion())) {
 			writer.println("\tLevelOfDetail " + levelOfDetail + ",");
-			writer.println("\tLevelOfDetailName \"" + levelOfDetailName + "\",");
+			writer.println("\tName \"" + levelOfDetailName + "\",");
 		}
 		for (int i = 0; i < flags.size(); i++) {
 			writer.println("\t" + flags.get(i) + ",");

@@ -453,7 +453,7 @@ public class MDLReader {
 	}
 
 	public static String doubleToString(final double n) {
-		String base = (n + "").toLowerCase();
+		String base = ((float) n + "").toLowerCase();
 		if (base.equals("nan")) {
 			JOptionPane.showMessageDialog(null, "Major problems with numeric data.");
 			new Exception().printStackTrace();
