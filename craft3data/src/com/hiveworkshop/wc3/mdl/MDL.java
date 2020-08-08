@@ -1249,7 +1249,7 @@ public class MDL implements Named {
 			}
 		}
 		try {
-			output[11] = Float.parseFloat(entries[3].split("}")[0].trim());
+			output[11] = Float.parseFloat(entries[11].split("}")[0].trim());
 		} catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Error {" + input + "}: BindPose Matrix could not be interpreted.");

@@ -114,7 +114,13 @@ public class LayerChunk {
 				out.writeFloat(emissiveGain);
 			}
 			if (ModelUtils.isFresnelColorLayerSupported(version)) {
-				MdxUtils.saveFloatArray(out, fresnelColor);
+				if (fresnelColor != null) {
+					MdxUtils.saveFloatArray(out, fresnelColor);
+				} else {
+					out.writeFloat(1f);
+					out.writeFloat(1f);
+					out.writeFloat(1f);
+				}
 				out.writeFloat(fresnelOpacity);
 				out.writeFloat(fresnelTeamColor);
 			}
@@ -345,19 +351,21 @@ public class LayerChunk {
 			if (!Double.isNaN(mdlEmissive) && !emissiveFound) {
 				emissiveGain = (float) mdlEmissive;
 			}
-			if ((layer.getFresnelColor() != null) && !fresnelColorFound) {
-				fresnelColor = layer.getFresnelColor().toFloatArray();
-				final float blue = fresnelColor[0];
-				fresnelColor[0] = fresnelColor[2];
-				fresnelColor[2] = blue;
-				// TODO: COPIED FROM ELSEWHERE, HOPING IT MATCHES REFORGED: this chunk is RGB,
-				// mdl is BGR
-			} else {
-				fresnelColor = new float[] { 1.0f, 1.0f, 1.0f };
+			if ((layer.getFresnelColor() != null)) {
+				if (!fresnelColorFound) {
+					fresnelColor = layer.getFresnelColor().toFloatArray();
+					final float blue = fresnelColor[0];
+					fresnelColor[0] = fresnelColor[2];
+					fresnelColor[2] = blue;
+					// TODO: COPIED FROM ELSEWHERE, HOPING IT MATCHES REFORGED: this chunk is RGB,
+					// mdl is BGR
+				} else {
+					// encode blank data, but keep it valid, for MDX1000
+					fresnelColor = new float[] { 1.0f, 1.0f, 1.0f };
+				}
 			}
 			fresnelOpacity = fresnelOpacityFound ? 0 : (float) layer.getFresnelOpacity();
-			fresnelOpacity = fresnelTeamColorFound ? 0 : (float) layer.getFresnelOpacity();
-			fresnelTeamColor = (float) layer.getFresnelTeamColor();
+			fresnelTeamColor = fresnelTeamColorFound ? 0 : (float) layer.getFresnelTeamColor();
 			textureId = layer.getTextureId() == -1 ? 0 : layer.getTextureId();
 		}
 	}

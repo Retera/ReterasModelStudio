@@ -101,7 +101,11 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 		x.animVisibilityGuide = animVisibilityGuide;
 		x.replaceableId = replaceableId;
 		x.alpha = alpha;
-		x.color = new Vertex(color);
+		if (color != null) {
+			x.color = new Vertex(color);
+		} else {
+			x.color = null;
+		}
 		x.speed = speed;
 		x.emissionRate = emissionRate;
 		x.lifeSpan = lifeSpan;

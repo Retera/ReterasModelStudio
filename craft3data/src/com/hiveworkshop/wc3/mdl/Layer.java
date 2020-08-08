@@ -335,9 +335,11 @@ public class Layer implements Named, VisibilitySource, LayerView {
 			final AnimFlag flag = new AnimFlag(lay.materialFresnelColor);
 			anims.add(flag);
 		} else {
-			final Vertex coloring = new Vertex(MdlxUtils.flipRGBtoBGR(lay.fresnelColor));
-			if ((coloring.x != 1.0) || (coloring.y != 1.0) || (coloring.z != 1.0)) {
-				setFresnelColor(coloring);
+			if (lay.fresnelColor != null) {
+				final Vertex coloring = new Vertex(MdlxUtils.flipRGBtoBGR(lay.fresnelColor));
+				if ((coloring.x != 1.0) || (coloring.y != 1.0) || (coloring.z != 1.0)) {
+					setFresnelColor(coloring);
+				}
 			}
 		}
 		if (lay.materialFresnelOpacity != null) {
