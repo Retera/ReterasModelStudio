@@ -143,7 +143,7 @@ public class ComponentAnimationPanel extends JPanel {
 		this.animation = animation;
 		this.undoListener = undoListener;
 		this.modelStructureChangeListener = modelStructureChangeListener;
-		nameField.setText(animation.getName());
+		nameField.reloadNewValue(animation.getName());
 		newAnimTimeStart.reloadNewValue(animation.getStart());
 		newAnimTimeEnd.reloadNewValue(animation.getEnd());
 		rarityChooser.reloadNewValue(0);

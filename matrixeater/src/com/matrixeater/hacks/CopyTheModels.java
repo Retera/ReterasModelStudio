@@ -3,7 +3,7 @@ package com.matrixeater.hacks;
 import java.io.File;
 
 import com.hiveworkshop.wc3.mdl.Bitmap;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 
 public class CopyTheModels {
 	private static final File input = new File("C:\\Temp\\WarcraftIII\\war3.w3mod");
@@ -21,7 +21,7 @@ public class CopyTheModels {
 		} else {
 			if (file.getPath().endsWith(".mdx")) {
 				System.out.println(file);
-				final MDL model = MDL.read(file);
+				final EditableModel model = EditableModel.read(file);
 				for (final Bitmap b : model.getTextures()) {
 					b.setPath("Textures\\White.blp");
 				}

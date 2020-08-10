@@ -5,7 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdx.MdxModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 
@@ -38,7 +38,7 @@ public class Main {
 			packHorse.save(out);
 			out.close();
 			final MdxModel packHorse2 = MdxUtils.loadModel(new BlizzardDataInputStream(new FileInputStream("PackHorse_modified.mdx")));
-			final MDL model = packHorse.toMDL();
+			final EditableModel model = packHorse.toMDL();
 			model.setName("PackHorse_MDLified");
 			final MdxModel packHorseMdx = new MdxModel(model);
 			final BlizzardDataOutputStream out2 = new BlizzardDataOutputStream(new File("PackHorse_MXfied.mdx"));

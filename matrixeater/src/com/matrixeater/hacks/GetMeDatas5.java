@@ -10,7 +10,7 @@ import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Helper;
 import com.hiveworkshop.wc3.mdl.IdObject;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.QuaternionRotation;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
@@ -28,7 +28,7 @@ public class GetMeDatas5 {
 			final InputStream footman = MpqCodebase.get()
 					.getResourceAsStream("Units\\Human\\TheCaptain\\TheCaptain.mdx");
 			try {
-				final MDL model = new MDL(MdxUtils.loadModel(new BlizzardDataInputStream(footman)));
+				final EditableModel model = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(footman)));
 
 				final Helper rootRotation = new Helper("Bone_Rotation");
 				rootRotation.setPivotPoint(new Vertex(0, 0, 0));

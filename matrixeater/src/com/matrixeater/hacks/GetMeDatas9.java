@@ -9,7 +9,7 @@ import java.util.List;
 
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 
 import de.wc3data.stream.BlizzardDataInputStream;
@@ -22,7 +22,7 @@ public class GetMeDatas9 {
 				"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Requests\\Wazzz\\Generated10.mdx")) {
 			try {
 
-				final MDL model = new MDL(MdxUtils.loadModel(new BlizzardDataInputStream(footman)));
+				final EditableModel model = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(footman)));
 				Animation deathSequence = null;
 				for (final Animation sequence : model.getAnims()) {
 					if (sequence.getName().startsWith("Death")) {

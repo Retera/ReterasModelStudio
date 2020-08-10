@@ -7,7 +7,7 @@ import java.util.Map;
 
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
@@ -15,7 +15,7 @@ public class VertexClusterDefinitions {
 	private final Map<Vertex, Integer> vertexToClusterId = new HashMap<>();
 	private final int maxClusterIdKnown;
 
-	public VertexClusterDefinitions(final MDL model) {
+	public VertexClusterDefinitions(final EditableModel model) {
 		final Map<HashableVector, List<GeosetVertex>> positionToVertices = new HashMap<>();
 		for (final Geoset geoset : model.getGeosets()) {
 			for (final GeosetVertex vertex : geoset.getVertices()) {

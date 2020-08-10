@@ -19,7 +19,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import com.hiveworkshop.wc3.mdl.Bone;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 
@@ -50,9 +50,9 @@ public class MatrixPopup extends JPanel implements ActionListener, ListSelection
 
 	JCheckBox displayParents = new JCheckBox("Display parents", false);
 
-	MDL model;
+	EditableModel model;
 
-	public MatrixPopup(final MDL model) {
+	public MatrixPopup(final EditableModel model) {
 		this.model = model;
 		final ModelView disp = new ModelViewManager(model);
 		final ParentToggleRenderer renderer = new ParentToggleRenderer(displayParents, disp, null);

@@ -46,6 +46,10 @@ public class ComponentEditorTextField extends JTextField {
 
 	public void reloadNewValue(final String value) {
 		setText(value);
+		setColorToSaved();
+	}
+
+	public void setColorToSaved() {
 		setForeground(UnsavedChangesDocumentListener.SAVED_FOREGROUND_COLOR);
 		setBackground(UnsavedChangesDocumentListener.SAVED_BACKGROUND_COLOR);
 	}
@@ -107,13 +111,6 @@ public class ComponentEditorTextField extends JTextField {
 		if (d != null) {
 			d.addDocumentListener(dl);
 		}
-	}
-
-	@Override
-	public void setText(final String t) {
-		super.setText(t);
-		setForeground(UnsavedChangesDocumentListener.SAVED_FOREGROUND_COLOR);
-		setBackground(UnsavedChangesDocumentListener.SAVED_BACKGROUND_COLOR);
 	}
 
 }

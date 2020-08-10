@@ -8,7 +8,7 @@ import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Layer;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.Normal;
 import com.hiveworkshop.wc3.mdl.TVertex;
@@ -134,7 +134,7 @@ public final class ModelUtils {
 	 * @param max
 	 * @param min
 	 */
-	public static void createBox(final MDL model, final Vertex max, final Vertex min, final int segments) {
+	public static void createBox(final EditableModel model, final Vertex max, final Vertex min, final int segments) {
 		final Geoset geoset = new Geoset();
 		geoset.setMaterial(new Material(new Layer("None", new Bitmap("textures\\white.blp"))));
 
@@ -283,7 +283,7 @@ public final class ModelUtils {
 	 * @param max
 	 * @param min
 	 */
-	public static void createGroundPlane(final MDL model, final Vertex max, final Vertex min, final int segments) {
+	public static void createGroundPlane(final EditableModel model, final Vertex max, final Vertex min, final int segments) {
 		final Geoset geoset = new Geoset();
 		geoset.setMaterial(new Material(new Layer("None", new Bitmap("textures\\white.blp"))));
 

@@ -5,7 +5,7 @@ import java.io.File;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Layer.FilterMode;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Normal;
 
 public class MakeVersionsFilterMode {
@@ -15,7 +15,7 @@ public class MakeVersionsFilterMode {
 				"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\ReteraCubes\\Work\\ReteraCube.mdx");
 		final FilterMode[] values = FilterMode.values();
 		for (final FilterMode filterMode : values) {
-			final MDL model = MDL.read(sourceFile);
+			final EditableModel model = EditableModel.read(sourceFile);
 			final Geoset geoset = model.getGeoset(0);
 			for (final GeosetVertex gv : geoset.getVertices()) {
 				double u = 0, v = 0;

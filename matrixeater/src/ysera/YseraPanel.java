@@ -11,7 +11,7 @@ import org.lwjgl.LWJGLException;
 
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.PerspectiveViewport;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 
@@ -20,7 +20,7 @@ public class YseraPanel extends JPanel {
 	public YseraPanel() {
 		setLayout(new BorderLayout());
 		try {
-			final MDL model = new MDL();
+			final EditableModel model = new EditableModel();
 			add(BorderLayout.CENTER, new PerspectiveViewport(new ModelViewManager(model), new ProgramPreferences(),
 					new RenderModel(model, null)));
 			/*

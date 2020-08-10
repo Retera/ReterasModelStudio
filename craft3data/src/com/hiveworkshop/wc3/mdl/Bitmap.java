@@ -128,7 +128,7 @@ public class Bitmap {
 	// && wrapStyle == b.wrapStyle;
 	// return does;
 	// }
-	public boolean getWrapHeight() {
+	public boolean isWrapHeight() {
 		return (wrapStyle == 2) || (wrapStyle == 3);
 	}
 
@@ -148,7 +148,7 @@ public class Bitmap {
 		}
 	}
 
-	public boolean getWrapWidth() {
+	public boolean isWrapWidth() {
 		return (wrapStyle == 1) || (wrapStyle == 3);
 	}
 
@@ -176,37 +176,6 @@ public class Bitmap {
 		this.wrapStyle = wrapStyle;
 	}
 
-	public static Bitmap parseText(final String[] line) {
-		if (line[0].contains("Bitmap")) {
-			final Bitmap tex = new Bitmap();
-			for (int i = 1; i < line.length; i++) {
-				if (line[i].contains("Image")) {
-					tex.imagePath = line[i].split("\"")[1];
-				} else if (line[i].contains("ReplaceableId ")) {
-					try {
-						tex.replaceableId = Integer.parseInt(line[i].substring(
-								line[i].indexOf("ReplaceableId ") + "ReplaceableId ".length(), line[i].length() - 2));
-					} catch (final NumberFormatException e) {
-						JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-								"Error while parsing bitmap: Could not interpret ReplaceableId.");
-					}
-				} else if (line[i].contains("WrapWidth")) {
-					tex.setWrapWidth(true);
-				} else if (line[i].contains("WrapHeight")) {
-					tex.setWrapHeight(true);
-				} else {
-					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-							"Error parsing Bitmap: Unrecognized statement '" + line[i] + "'.");
-				}
-			}
-			return tex;
-		} else {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse Bitmap: Missing or unrecognized open statement.");
-		}
-		return null;
-	}
-
 	public static Bitmap read(final BufferedReader mdl) {
 		String line = "";
 		if ((line = MDLReader.nextLine(mdl)).contains("Bitmap")) {
@@ -216,18 +185,6 @@ public class Bitmap {
 					tex.imagePath = line.split("\"")[1];
 				} else if (line.contains("ReplaceableId ")) {
 					tex.replaceableId = MDLReader.readInt(line);
-					// try
-					// {
-					// tex.replaceableId =
-					// Integer.parseInt(line[i].substring(line[i].indexOf("ReplaceableId
-					// ")+"ReplaceableId ".length(),line[i].length()-2));
-					// }
-					// catch (NumberFormatException e)
-					// {
-					// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Error
-					// while parsing bitmap: Could not interpret
-					// ReplaceableId.");
-					// }
 				} else if (line.contains("WrapWidth")) {
 					tex.setWrapWidth(true);
 				} else if (line.contains("WrapHeight")) {

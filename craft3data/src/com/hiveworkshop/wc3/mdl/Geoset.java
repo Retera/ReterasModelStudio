@@ -23,7 +23,7 @@ public class Geoset implements Named, VisibilitySource {
 	Material material;
 	int selectionGroup = 0;
 
-	MDL parentModel;
+	EditableModel parentModel;
 
 	GeosetAnim geosetAnim = null;
 
@@ -426,6 +426,24 @@ public class Geoset implements Named, VisibilitySource {
 			while (((line = MDLReader.nextLine(mdl)).contains("TVertices"))) {
 				geo.addUVLayer(UVLayer.read(mdl));
 			}
+			if (line.contains("Tangents")) {
+				// If we have v900 tangents:
+				geo.tangents = new ArrayList<>();
+				while (!((line = MDLReader.nextLine(mdl)).contains("\t}"))) {
+					geo.tangents.add(parse4FloatTangent(line));
+				}
+				MDLReader.mark(mdl);
+				line = MDLReader.nextLine(mdl);
+			}
+			if (line.contains("Skin")) {
+				// If we have v900 skin:
+				geo.skin = new ArrayList<>();
+				while (!((line = MDLReader.nextLine(mdl)).contains("\t}"))) {
+					geo.skin.add(parse8ByteSkin(line));
+				}
+				MDLReader.mark(mdl);
+				line = MDLReader.nextLine(mdl);
+			}
 			if (!line.contains("VertexGroup")) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 						"Error: VertexGroups missing or invalid!");
@@ -514,7 +532,7 @@ public class Geoset implements Named, VisibilitySource {
 		return null;
 	}
 
-	public void updateToObjects(final MDL mdlr) {
+	public void updateToObjects(final EditableModel mdlr) {
 		// upload the temporary UVLayer and Matrix objects into the vertices
 		// themselves
 		final int sz = numVerteces();
@@ -597,7 +615,7 @@ public class Geoset implements Named, VisibilitySource {
 		parentModel = mdlr;
 	}
 
-	public void applyMatricesToVertices(final MDL mdlr) {
+	public void applyMatricesToVertices(final EditableModel mdlr) {
 		final int sz = numVerteces();
 		for (int i = 0; i < sz; i++) {
 			final GeosetVertex gv = vertex.get(i);
@@ -618,7 +636,7 @@ public class Geoset implements Named, VisibilitySource {
 		}
 	}
 
-	public void applyVerticesToMatrices(final MDL mdlr) {
+	public void applyVerticesToMatrices(final EditableModel mdlr) {
 		matrix.clear();
 		for (int i = 0; i < vertex.size(); i++) {
 			Matrix newTemp = new Matrix(vertex.get(i).bones);
@@ -665,7 +683,7 @@ public class Geoset implements Named, VisibilitySource {
 		return vertex.size() <= 0;
 	}
 
-	public void printTo(final PrintWriter writer, final MDL mdlr, final boolean trianglesTogether) {
+	public void printTo(final PrintWriter writer, final EditableModel mdlr, final boolean trianglesTogether) {
 		purifyFaces();
 		writer.println("Geoset {");
 		writer.println("\tVertices " + vertex.size() + " {");
@@ -874,7 +892,7 @@ public class Geoset implements Named, VisibilitySource {
 		writer.println("}");
 	}
 
-	public void doSavePrep(final MDL mdlr) {
+	public void doSavePrep(final EditableModel mdlr) {
 		purifyFaces();
 
 		// Normals cleared here, in case that becomes a problem later.
@@ -1096,11 +1114,11 @@ public class Geoset implements Named, VisibilitySource {
 		return levelOfDetailName;
 	}
 
-	public MDL getParentModel() {
+	public EditableModel getParentModel() {
 		return parentModel;
 	}
 
-	public void setParentModel(final MDL parentModel) {
+	public void setParentModel(final EditableModel parentModel) {
 		this.parentModel = parentModel;
 	}
 

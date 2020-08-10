@@ -10,7 +10,7 @@ import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Layer;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.TextureAnim;
 import com.hiveworkshop.wc3.mdl.Vertex;
@@ -22,7 +22,7 @@ public class GenModels2 {
 	public static void main(final String[] args) {
 		final File dest = new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Generated");
 		dest.mkdir();
-		final MDL model = new MDL("ParticleTest");
+		final EditableModel model = new EditableModel("ParticleTest");
 		final Geoset geoset = new Geoset();
 		final Mesh planeMesh = ModelUtils.createPlane((byte) 1, (byte) 2, new Vertex(1, 0, 0), 0, -128, -128, 128, 128,
 				1);

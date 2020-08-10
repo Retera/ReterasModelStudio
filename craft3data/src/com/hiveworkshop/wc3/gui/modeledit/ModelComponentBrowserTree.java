@@ -38,7 +38,7 @@ import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.Helper;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
@@ -88,7 +88,7 @@ public final class ModelComponentBrowserTree extends JTree {
 				return treeCellRendererComponent;
 			}
 		});
-		setFocusable(false);
+//		setFocusable(false);
 	}
 
 	public void addSelectListener(final ModelComponentListener selectListener) {
@@ -96,20 +96,26 @@ public final class ModelComponentBrowserTree extends JTree {
 			@Override
 			public void valueChanged(final TreeSelectionEvent e) {
 				final TreePath path = e.getNewLeadSelectionPath();
+				boolean selected = false;
 				if (path != null) {
 					final Object lastPathComponent = path.getLastPathComponent();
 					if (lastPathComponent instanceof DefaultMutableTreeNode) {
 						final DefaultMutableTreeNode node = (DefaultMutableTreeNode) lastPathComponent;
 						if (node.getUserObject() instanceof ChooseableDisplayElement) {
 							asElement(node.getUserObject()).select(selectListener);
+							selected = true;
 						}
 					}
+				}
+				if (!selected) {
+					selectListener.selectedBlank();
 				}
 			}
 		});
 	}
 
 	public void reloadFromModelView() {
+		System.out.println("Reloading ModelComponentBrowserTree");
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -443,24 +449,24 @@ public final class ModelComponentBrowserTree extends JTree {
 //	final Image ribbonImage = IconUtils.loadImage("icons/nodes/ribbon" + template + ".png");
 //	final Image collisionImage = IconUtils.loadImage("icons/nodes/collision" + template + ".png");
 
-	private static final class ChooseableModelRoot extends ChooseableDisplayElement<MDL> {
+	private static final class ChooseableModelRoot extends ChooseableDisplayElement<EditableModel> {
 		private static final ImageIcon MODEL_ROOT_ICON = new ImageIcon(IconUtils.worldEditStyleIcon(
 				BLPHandler.get().getGameTex("replaceabletextures\\worldeditui\\editor-trigger.blp")));
 
 		public ChooseableModelRoot(final ModelViewManager modelViewManager, final UndoActionListener undoActionListener,
-				final ModelStructureChangeListener modelStructureChangeListener, final MDL item) {
+				final ModelStructureChangeListener modelStructureChangeListener, final EditableModel item) {
 			super(MODEL_ROOT_ICON, modelViewManager, undoActionListener, modelStructureChangeListener, item);
 		}
 
 		@Override
-		protected void select(final MDL item, final ModelViewManager modelViewManager,
+		protected void select(final EditableModel item, final ModelViewManager modelViewManager,
 				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
 				final ModelComponentListener listener) {
 			listener.selected(item);
 		}
 
 		@Override
-		protected String getName(final MDL item, final ModelViewManager modelViewManager) {
+		protected String getName(final EditableModel item, final ModelViewManager modelViewManager) {
 			return "Model \"" + item.getHeaderName() + "\"";
 		}
 
@@ -474,25 +480,25 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	}
 
-	private static final class ChooseableModelComment extends ChooseableDisplayElement<MDL> {
+	private static final class ChooseableModelComment extends ChooseableDisplayElement<EditableModel> {
 		private static final ImageIcon COMMENT_ICON = new ImageIcon(
 				ViewportIconUtils.loadImage("icons/nodes/comment.png"));
 
 		public ChooseableModelComment(final ModelViewManager modelViewManager,
 				final UndoActionListener undoActionListener,
-				final ModelStructureChangeListener modelStructureChangeListener, final MDL item) {
+				final ModelStructureChangeListener modelStructureChangeListener, final EditableModel item) {
 			super(COMMENT_ICON, modelViewManager, undoActionListener, modelStructureChangeListener, item);
 		}
 
 		@Override
-		protected void select(final MDL item, final ModelViewManager modelViewManager,
+		protected void select(final EditableModel item, final ModelViewManager modelViewManager,
 				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
 				final ModelComponentListener listener) {
 			listener.selectedHeaderComment(item.getHeader());
 		}
 
 		@Override
-		protected String getName(final MDL item, final ModelViewManager modelViewManager) {
+		protected String getName(final EditableModel item, final ModelViewManager modelViewManager) {
 			return "Comment";
 		}
 
@@ -506,24 +512,24 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	}
 
-	private static final class ChooseableModelHeader extends ChooseableDisplayElement<MDL> {
+	private static final class ChooseableModelHeader extends ChooseableDisplayElement<EditableModel> {
 		private static final ImageIcon DATA_ICON = new ImageIcon(ViewportIconUtils.loadImage("icons/nodes/model.png"));
 
 		public ChooseableModelHeader(final ModelViewManager modelViewManager,
 				final UndoActionListener undoActionListener,
-				final ModelStructureChangeListener modelStructureChangeListener, final MDL item) {
+				final ModelStructureChangeListener modelStructureChangeListener, final EditableModel item) {
 			super(DATA_ICON, modelViewManager, undoActionListener, modelStructureChangeListener, item);
 		}
 
 		@Override
-		protected void select(final MDL item, final ModelViewManager modelViewManager,
+		protected void select(final EditableModel item, final ModelViewManager modelViewManager,
 				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
 				final ModelComponentListener listener) {
 			listener.selectedHeaderData(item, modelViewManager, undoListener, modelStructureChangeListener);
 		}
 
 		@Override
-		protected String getName(final MDL item, final ModelViewManager modelViewManager) {
+		protected String getName(final EditableModel item, final ModelViewManager modelViewManager) {
 			return "Header";
 		}
 
@@ -623,7 +629,7 @@ public final class ModelComponentBrowserTree extends JTree {
 		protected void select(final Bitmap item, final ModelViewManager modelViewManager,
 				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
 				final ModelComponentListener listener) {
-			listener.selected(item);
+			listener.selected(item, modelViewManager, undoListener, modelStructureChangeListener);
 		}
 
 		@Override
@@ -655,7 +661,7 @@ public final class ModelComponentBrowserTree extends JTree {
 		protected void select(final Material item, final ModelViewManager modelViewManager,
 				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
 				final ModelComponentListener listener) {
-			listener.selected(item);
+			listener.selected(item, modelViewManager, undoListener, modelStructureChangeListener);
 		}
 
 		@Override
@@ -1226,9 +1232,12 @@ public final class ModelComponentBrowserTree extends JTree {
 	}
 
 	public static interface ModelComponentListener {
-		void selected(MDL model);
 
-		void selectedHeaderData(MDL model, ModelViewManager modelViewManager, UndoActionListener undoListener,
+		void selectedBlank();
+
+		void selected(EditableModel model);
+
+		void selectedHeaderData(EditableModel model, ModelViewManager modelViewManager, UndoActionListener undoListener,
 				ModelStructureChangeListener modelStructureChangeListener);
 
 		void selectedHeaderComment(Iterable<String> comment);
@@ -1236,12 +1245,14 @@ public final class ModelComponentBrowserTree extends JTree {
 		void selected(Animation animation, UndoActionListener undoListener,
 				ModelStructureChangeListener modelStructureChangeListener);
 
-		void selected(MDL model, Integer globalSequence, int globalSequenceId, UndoActionListener undoActionListener,
+		void selected(EditableModel model, Integer globalSequence, int globalSequenceId, UndoActionListener undoActionListener,
 				ModelStructureChangeListener modelStructureChangeListener);
 
-		void selected(Bitmap texture);
+		void selected(Bitmap texture, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
+				ModelStructureChangeListener modelStructureChangeListener);
 
-		void selected(Material material);
+		void selected(Material material, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
+				ModelStructureChangeListener modelStructureChangeListener);
 
 		void selected(TextureAnim textureAnim);
 

@@ -17,7 +17,7 @@ import java.util.Set;
 
 import com.hiveworkshop.wc3.mdl.Attachment;
 import com.hiveworkshop.wc3.mdl.Bitmap;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.mpq.MpqCodebase.LoadedMPQ;
 import com.hiveworkshop.wc3.units.GameObject;
@@ -121,7 +121,7 @@ public class ListFileFinder {
 		} else if (mpq.has(extension(fieldAsString, "mdx"))) {
 			usedFileList.add(extension(fieldAsString, "mdx"));
 			try {
-				final MDL modelFile = MDL.read(MpqCodebase.get().getFile(extension(fieldAsString, "mdx")));
+				final EditableModel modelFile = EditableModel.read(MpqCodebase.get().getFile(extension(fieldAsString, "mdx")));
 				for (final Bitmap tex : modelFile.getTextures()) {
 					if ((tex.getPath() != null) && (tex.getPath().length() > 0)) {
 						checkString(usedFileList, mpq, tex.getPath());

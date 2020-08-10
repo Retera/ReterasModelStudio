@@ -24,7 +24,7 @@ import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Layer;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Normal;
 import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
@@ -729,8 +729,8 @@ public class BuildWLists implements BuilderInterface {
 		}
 	}
 
-	public MDL createMDL() {
-		final MDL mdl = new MDL(new File(objFilename).getName());
+	public EditableModel createMDL() {
+		final EditableModel mdl = new EditableModel(new File(objFilename).getName());
 		final Set<Face> processedFaces = new HashSet<>();
 		for (final Map.Entry<String, ArrayList<Face>> entry : groups.entrySet()) {
 			// we want to split group by material
@@ -868,7 +868,7 @@ public class BuildWLists implements BuilderInterface {
 		return mdl;
 	}
 
-	private void convertMesh(final MDL mdl, final Set<Face> processedFaces, final String groupName,
+	private void convertMesh(final EditableModel mdl, final Set<Face> processedFaces, final String groupName,
 			final Map<Material, Subgroup> materialToSubgroup, final ArrayList<Face> faceList) {
 		FaceIteration: for (final Face face : faceList) {
 			if (processedFaces.contains(face)) {

@@ -287,25 +287,25 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		// 0x20: unfogged
 		// 0x30: no depth test
 		// 0x40: no depth set
-		if (MDL.hasFlag(shadingFlags, 0x1)) {
+		if (EditableModel.hasFlag(shadingFlags, 0x1)) {
 			add("Unshaded");
 		}
-		if (MDL.hasFlag(shadingFlags, 0x2)) {
+		if (EditableModel.hasFlag(shadingFlags, 0x2)) {
 			add("SphereEnvMap");
 		}
-		if (MDL.hasFlag(shadingFlags, 0x10)) {
+		if (EditableModel.hasFlag(shadingFlags, 0x10)) {
 			add("TwoSided");
 		}
-		if (MDL.hasFlag(shadingFlags, 0x20)) {
+		if (EditableModel.hasFlag(shadingFlags, 0x20)) {
 			add("Unfogged");
 		}
-		if (MDL.hasFlag(shadingFlags, 0x40)) {
+		if (EditableModel.hasFlag(shadingFlags, 0x40)) {
 			add("NoDepthTest");
 		}
-		if (MDL.hasFlag(shadingFlags, 0x80)) {
+		if (EditableModel.hasFlag(shadingFlags, 0x80)) {
 			add("NoDepthSet");
 		}
-		if (MDL.hasFlag(shadingFlags, 0x100)) {
+		if (EditableModel.hasFlag(shadingFlags, 0x100)) {
 			add("Unlit");
 		}
 //		System.err.println("Creating MDL layer from shadingFlags: " + Integer.toBinaryString(lay.shadingFlags));
@@ -372,7 +372,7 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		}
 	}
 
-	public Bitmap getRenderTexture(final AnimatedRenderEnvironment animatedRenderEnvironment, final MDL model) {
+	public Bitmap getRenderTexture(final AnimatedRenderEnvironment animatedRenderEnvironment, final EditableModel model) {
 		final AnimFlag textureFlag = AnimFlag.find(getAnims(), "TextureID");
 		if ((textureFlag != null) && (animatedRenderEnvironment != null)) {
 			if (animatedRenderEnvironment.getCurrentAnimation() == null) {
@@ -425,7 +425,7 @@ public class Layer implements Named, VisibilitySource, LayerView {
 
 	private transient Map<Integer, Bitmap> ridiculouslyWrongTextureIDToTexture = new HashMap<>();
 
-	public void buildTextureList(final MDL mdlr) {
+	public void buildTextureList(final EditableModel mdlr) {
 		textures = new ArrayList<>();
 		final AnimFlag txFlag = getFlag("TextureID");
 		for (int i = 0; i < txFlag.values.size(); i++) {
@@ -436,7 +436,7 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		}
 	}
 
-	public void updateIds(final MDL mdlr) {
+	public void updateIds(final EditableModel mdlr) {
 		textureId = mdlr.getTextureId(texture);
 		TVertexAnimId = mdlr.getTextureAnimId(textureAnim);
 		if (textures != null) {
@@ -451,7 +451,7 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		}
 	}
 
-	public void updateRefs(final MDL mdlr) {
+	public void updateRefs(final EditableModel mdlr) {
 		if ((textureId >= 0) && (textureId < mdlr.getTextures().size())) {
 			texture = mdlr.getTexture(textureId);
 		}
@@ -464,7 +464,7 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		}
 	}
 
-	public static Layer read(final BufferedReader mdl, final MDL mdlr) {
+	public static Layer read(final BufferedReader mdl, final EditableModel mdlr) {
 		String line = MDLReader.nextLine(mdl);
 		if (line.contains("Layer")) {
 			boolean hasAnimatedFresnelColor = false;
@@ -515,9 +515,15 @@ public class Layer implements Named, VisibilitySource, LayerView {
 					lay.anims.add(AnimFlag.read(mdl));
 					lay.buildTextureList(mdlr);
 				} else {
-					lay.flags.add(MDLReader.readFlag(line));
-					// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Error
-					// parsing Layer: Unrecognized statement '"+line[i]+"'.");
+					String flag = MDLReader.readFlag(line);
+					if ("SphereEnvironmentMap".equals(flag)) {
+						// some versions of this codebase were dumping out MDL models with the token
+						// "SphereEnvironmentMap" which is not correct, for legacy support we need to
+						// convert it to "SphereEnvMap" which is the official Blizzard token to my
+						// knowledge
+						flag = "SphereEnvMap";
+					}
+					lay.flags.add(flag);
 				}
 				MDLReader.mark(mdl);
 			}
@@ -803,7 +809,7 @@ public class Layer implements Named, VisibilitySource, LayerView {
 
 	@Override
 	public boolean isSphereEnvironmentMap() {
-		return flags.contains("SphereEnvironmentMap");
+		return flags.contains("SphereEnvMap");
 	}
 
 	@Override
@@ -814,6 +820,10 @@ public class Layer implements Named, VisibilitySource, LayerView {
 	@Override
 	public boolean isNoDepthSet() {
 		return flags.contains("NoDepthSet");
+	}
+
+	public boolean isUnlit() {
+		return flags.contains("Unlit");
 	}
 
 	public double getEmissive() {

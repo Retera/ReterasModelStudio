@@ -8,7 +8,7 @@ import java.nio.file.StandardCopyOption;
 import javax.imageio.ImageIO;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 
 public class TestMain2 {
 	static File root = new File("F:\\NEEDS_ORGANIZING\\WarCraft_III_Beta\\WarCraft_III_Beta\\War3beta");
@@ -44,7 +44,7 @@ public class TestMain2 {
 				System.out.println(file.getPath());
 				// it's a model
 				try {
-					final MDL model = MDL.read(file);
+					final EditableModel model = EditableModel.read(file);
 					destFile.getParentFile().mkdirs();
 					model.printTo(destFile);
 				} catch (final Exception e) {

@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.io.File;
 
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 public class GenModels {
@@ -13,7 +13,7 @@ public class GenModels {
 		final File dest = new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\WhiteUIElementColors");
 		dest.mkdir();
 		for (int i = 0; i < 36; i++) {
-			final MDL whiteUIModel = MDL
+			final EditableModel whiteUIModel = EditableModel
 					.read(new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\WhiteUIElement.mdl"));
 			final GeosetAnim geosetAnim = whiteUIModel.getGeoset(0).forceGetGeosetAnim();
 			final Color color = colorByAngle(i * 10);

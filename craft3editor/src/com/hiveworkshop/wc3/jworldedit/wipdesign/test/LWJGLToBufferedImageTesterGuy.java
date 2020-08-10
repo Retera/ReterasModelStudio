@@ -11,7 +11,7 @@ import org.lwjgl.LWJGLUtil;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglNativesLoader;
 import com.hiveworkshop.wc3.gui.modeledit.MDLSnapshot;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
@@ -35,7 +35,7 @@ public class LWJGLToBufferedImageTesterGuy {
 			e2.printStackTrace();
 		}
 
-		MDL model;
+		EditableModel model;
 		ModelViewManager mdlDisplay;
 		try {
 			final GameObject unit = UnitOptionPane.show(null);
@@ -46,7 +46,7 @@ public class LWJGLToBufferedImageTesterGuy {
 				field += ".mdx";
 			}
 			System.out.println(field);
-			model = new MDL(
+			model = new EditableModel(
 					MdxUtils.loadModel(new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream(field))));
 			mdlDisplay = MDLSnapshot.createDefaultDisplay(unit);
 			JOptionPane.showMessageDialog(null, new UnitOutlinePanel(unit));

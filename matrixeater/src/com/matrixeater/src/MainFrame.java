@@ -26,7 +26,7 @@ import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceChooserPanel;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceDescriptor;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.resources.Resources;
 import com.hiveworkshop.wc3.resources.WEString;
@@ -62,7 +62,7 @@ public class MainFrame extends JFrame {
 		if (hasArgs) {
 			if ((args.length > 1) && args[0].equals("-convert")) {
 				final String path = args[1];
-				final MDL model = MDL.read(new File(path));
+				final EditableModel model = EditableModel.read(new File(path));
 				if (path.toLowerCase().endsWith(".mdx")) {
 					model.printTo(new File(path.substring(0, path.lastIndexOf('.')) + ".mdl"));
 				} else if (path.toLowerCase().endsWith(".mdl")) {
@@ -72,7 +72,7 @@ public class MainFrame extends JFrame {
 					final Build builder = new Build();
 					try {
 						final Parse obj = new Parse(builder, path);
-						final MDL mdl = builder.createMDL();
+						final EditableModel mdl = builder.createMDL();
 					} catch (final FileNotFoundException e) {
 						ExceptionPopup.display(e);
 						e.printStackTrace();
@@ -302,7 +302,7 @@ public class MainFrame extends JFrame {
 						}
 
 						JPopupMenu.setDefaultLightWeightPopupEnabled(false);
-						frame = new MainFrame("Retera Model Studio v0.04.2020.08.06 Nightly Build");
+						frame = new MainFrame("Retera Model Studio v0.04.2020.08.09 Nightly Build");
 						panel.init();
 						if (!startupModelPaths.isEmpty()) {
 							for (final String path : startupModelPaths) {

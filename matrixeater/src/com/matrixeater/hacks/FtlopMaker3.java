@@ -4,7 +4,7 @@ import java.io.File;
 
 import com.hiveworkshop.wc3.mdl.Attachment;
 import com.hiveworkshop.wc3.mdl.Bitmap;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 
 public class FtlopMaker3 {
@@ -20,7 +20,7 @@ public class FtlopMaker3 {
 			}
 		} else {
 			if (file.getName().toLowerCase().endsWith(".mdx")) {
-				final MDL model = MDL.read(file);
+				final EditableModel model = EditableModel.read(file);
 				for (final Bitmap tex : model.getTextures()) {
 					final String path = tex.getPath();
 					if (path != null) {

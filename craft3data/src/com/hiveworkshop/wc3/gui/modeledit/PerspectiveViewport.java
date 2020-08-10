@@ -771,15 +771,15 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			// texture.bind();
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S,
-					tex.getWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+					tex.isWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T,
-					tex.getWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+					tex.isWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
 		} else if (textureMap.size() > 0) {
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S,
-					tex.getWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+					tex.isWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T,
-					tex.getWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+					tex.isWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
 		}
 		boolean depthMask = false;
 		switch (layer.getFilterMode()) {
@@ -789,10 +789,6 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			break;
 		case ADDITIVE:
-			GL11.glDisable(GL11.GL_ALPHA_TEST);
-			GL11.glEnable(GL11.GL_BLEND);
-			GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
-			break;
 		case ADDALPHA:
 			GL11.glDisable(GL11.GL_ALPHA_TEST);
 			GL11.glEnable(GL11.GL_BLEND);
@@ -847,15 +843,15 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			// texture.bind();
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S,
-					tex.getWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+					tex.isWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T,
-					tex.getWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+					tex.isWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
 		} else if (textureMap.size() > 0) {
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S,
-					tex.getWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+					tex.isWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T,
-					tex.getWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+					tex.isWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
 		}
 		switch (particle2.getFilterModeReallyBadReallySlow()) {
 		case Blend:
@@ -1350,9 +1346,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 
 		// Setup wrap mode
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S,
-				bitmap.getWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+				bitmap.isWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T,
-				bitmap.getWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+				bitmap.isWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
 
 		// Setup texture scaling filtering
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);

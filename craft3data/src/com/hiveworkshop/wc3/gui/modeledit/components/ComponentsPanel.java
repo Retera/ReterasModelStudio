@@ -4,10 +4,12 @@ import java.awt.CardLayout;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import com.hiveworkshop.wc3.gui.modeledit.ModelComponentBrowserTree;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
+import com.hiveworkshop.wc3.gui.modeledit.util.TextureExporter;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Attachment;
 import com.hiveworkshop.wc3.mdl.Bitmap;
@@ -19,7 +21,7 @@ import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.Helper;
 import com.hiveworkshop.wc3.mdl.Light;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
@@ -36,15 +38,19 @@ public class ComponentsPanel extends JPanel implements ModelComponentBrowserTree
 	private static final String COMMENT = "COMMENT";
 	private static final String ANIMATION = "ANIMATION";
 	private static final String GLOBALSEQ = "GLOBALSEQ";
+	private static final String BITMAP = "BITMAP";
+	private static final String MATERIAL = "MATERIAL";
 	private final CardLayout cardLayout;
 	private final JPanel blankPanel;
 	private final ComponentHeaderPanel headerPanel;
 	private final ComponentCommentPanel commentPanel;
 	private final ComponentAnimationPanel animationPanel;
 	private final ComponentGlobalSequencePanel globalSeqPanel;
+	private final ComponentBitmapPanel bitmapPanel;
+	private final ComponentMaterialPanel materialPanel;
 	private ComponentPanel currentPanel;
 
-	public ComponentsPanel() {
+	public ComponentsPanel(final TextureExporter textureExporter) {
 		cardLayout = new CardLayout();
 		setLayout(cardLayout);
 		blankPanel = new JPanel();
@@ -58,15 +64,19 @@ public class ComponentsPanel extends JPanel implements ModelComponentBrowserTree
 		add(animationPanel, ANIMATION);
 		globalSeqPanel = new ComponentGlobalSequencePanel();
 		add(globalSeqPanel, GLOBALSEQ);
+		bitmapPanel = new ComponentBitmapPanel(textureExporter);
+		add(bitmapPanel, BITMAP);
+		materialPanel = new ComponentMaterialPanel();
+		add(new JScrollPane(materialPanel), MATERIAL);
 		cardLayout.show(this, BLANK);
 	}
 
 	@Override
-	public void selected(final MDL model) {
+	public void selected(final EditableModel model) {
 	}
 
 	@Override
-	public void selectedHeaderData(final MDL model, final ModelViewManager modelViewManager,
+	public void selectedHeaderData(final EditableModel model, final ModelViewManager modelViewManager,
 			final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener) {
 		headerPanel.setActiveModel(modelViewManager, undoListener, modelStructureChangeListener);
 		cardLayout.show(this, HEADER);
@@ -89,7 +99,7 @@ public class ComponentsPanel extends JPanel implements ModelComponentBrowserTree
 	}
 
 	@Override
-	public void selected(final MDL model, final Integer globalSequence, final int globalSequenceId,
+	public void selected(final EditableModel model, final Integer globalSequence, final int globalSequenceId,
 			final UndoActionListener undoActionListener,
 			final ModelStructureChangeListener modelStructureChangeListener) {
 		globalSeqPanel.setGlobalSequence(model, globalSequence, globalSequenceId, undoActionListener,
@@ -99,11 +109,21 @@ public class ComponentsPanel extends JPanel implements ModelComponentBrowserTree
 	}
 
 	@Override
-	public void selected(final Bitmap texture) {
+	public void selected(final Bitmap texture, final ModelViewManager modelViewManager,
+			final UndoActionListener undoActionListener,
+			final ModelStructureChangeListener modelStructureChangeListener) {
+		bitmapPanel.setBitmap(texture, modelViewManager, undoActionListener, modelStructureChangeListener);
+		cardLayout.show(this, BITMAP);
+		currentPanel = headerPanel;
 	}
 
 	@Override
-	public void selected(final Material material) {
+	public void selected(final Material material, final ModelViewManager modelViewManager,
+			final UndoActionListener undoActionListener,
+			final ModelStructureChangeListener modelStructureChangeListener) {
+		materialPanel.setMaterial(material, modelViewManager, undoActionListener, modelStructureChangeListener);
+		cardLayout.show(this, MATERIAL);
+		currentPanel = materialPanel;
 	}
 
 	@Override
@@ -168,5 +188,11 @@ public class ComponentsPanel extends JPanel implements ModelComponentBrowserTree
 
 	@Override
 	public void selected(final BindPoseChunk bindPoseChunk) {
+	}
+
+	@Override
+	public void selectedBlank() {
+		cardLayout.show(this, BLANK);
+		currentPanel = null;
 	}
 }

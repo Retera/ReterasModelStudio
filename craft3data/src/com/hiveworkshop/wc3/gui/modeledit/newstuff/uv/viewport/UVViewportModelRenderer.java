@@ -17,7 +17,7 @@ import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.renderer.GeosetRenderer;
@@ -153,7 +153,7 @@ public class UVViewportModelRenderer implements MeshVisitor {
 	 * @param filter
 	 * @param extraHighlightPoint
 	 */
-	public static void drawFittedTriangles(final MDL model, final Graphics g, final Rectangle bounds, final byte a,
+	public static void drawFittedTriangles(final EditableModel model, final Graphics g, final Rectangle bounds, final byte a,
 			final byte b, final VertexFilter<? super GeosetVertex> filter, final Vertex extraHighlightPoint) {
 		final List<Triangle> triangles = new ArrayList<>();
 		double minX = Double.MAX_VALUE;

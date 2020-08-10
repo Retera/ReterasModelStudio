@@ -18,7 +18,7 @@ import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Camera.SourceNode;
 import com.hiveworkshop.wc3.mdl.Camera.TargetNode;
 import com.hiveworkshop.wc3.mdl.IdObject;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
 import com.hiveworkshop.wc3.mdl.QuaternionRotation;
 import com.hiveworkshop.wc3.mdl.Vertex;
@@ -31,7 +31,7 @@ import com.hiveworkshop.wc3.util.MathUtils;
  * @param forced
  */
 public final class RenderModel {
-	private final MDL model;
+	private final EditableModel model;
 	public static final double MAGIC_RENDER_SHOW_CONSTANT = 0.75;
 	private final List<AnimatedNode> sortedNodes = new ArrayList<>();
 	private Quaternion inverseCameraRotation;
@@ -66,7 +66,7 @@ public final class RenderModel {
 			new Vector4f(1, 0, 0, 1) };
 	private final ModelView modelView;
 
-	public RenderModel(final MDL model, final ModelView modelView) {
+	public RenderModel(final EditableModel model, final ModelView modelView) {
 		this.model = model;
 		this.modelView = modelView;
 		this.rootPosition = new RenderNode(this, new Bone("RootPositionHack"));

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Bone;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
 
 public class MakeVersions {
@@ -19,7 +19,7 @@ public class MakeVersions {
 		final File sourceDir = new File(
 				"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\ReteraCubes\\Work\\Animation\\Linear");
 		for (final File linearModel : sourceDir.listFiles()) {
-			final MDL modelData = MDL.read(linearModel);
+			final EditableModel modelData = EditableModel.read(linearModel);
 			String flagName = "None";
 			for (final Bone bone : modelData.sortedIdObjects(Bone.class)) {
 				final ArrayList<AnimFlag> flags = bone.getAnimFlags();

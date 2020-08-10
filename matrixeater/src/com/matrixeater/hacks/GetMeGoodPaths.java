@@ -1,7 +1,7 @@
 package com.matrixeater.hacks;
 
 import com.hiveworkshop.wc3.mdl.Attachment;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 
 import java.io.File;
 
@@ -13,7 +13,7 @@ public class GetMeGoodPaths {
             if(subFile.getName().toLowerCase().endsWith(".mdx")) {
 
                 try {
-                    MDL model = MDL.read(subFile);
+                    EditableModel model = EditableModel.read(subFile);
                     for (Attachment atc : model.sortedIdObjects(Attachment.class)) {
                         if (atc.getPath() != null && atc.getPath().contains("NagaBirth")) {
                             atc.setPath("SharedModels\\" + atc.getPath().substring(atc.getPath().lastIndexOf("\\") + 1));

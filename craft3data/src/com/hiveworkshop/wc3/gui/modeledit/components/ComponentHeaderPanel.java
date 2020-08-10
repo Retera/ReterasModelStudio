@@ -19,7 +19,7 @@ import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeLis
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorTextField;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 
 public class ComponentHeaderPanel extends JPanel implements ComponentPanel {
@@ -104,8 +104,8 @@ public class ComponentHeaderPanel extends JPanel implements ComponentPanel {
 		setLayout(layout);
 	}
 
-	private void setModelHeader(final MDL model) {
-		modelNameField.setText(model.getHeaderName());
+	private void setModelHeader(final EditableModel model) {
+		modelNameField.reloadNewValue(model.getHeaderName());
 		formatVersionSpinner.reloadNewValue(model.getFormatVersion());
 		blendTimeSpinner.reloadNewValue(model.getBlendTime());
 		extLogEditor.setExtLog(model.getExtents());
@@ -136,7 +136,7 @@ public class ComponentHeaderPanel extends JPanel implements ComponentPanel {
 	}
 
 	@Override
-	public void save(final MDL modelOutput, final UndoActionListener undoListener,
+	public void save(final EditableModel modelOutput, final UndoActionListener undoListener,
 			final ModelStructureChangeListener changeListener) {
 		modelOutput.setFormatVersion(((Number) formatVersionSpinner.getValue()).intValue());
 		modelOutput.setBlendTime(((Number) blendTimeSpinner.getValue()).intValue());

@@ -8,10 +8,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import com.hiveworkshop.wc3.mdl.Animation;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 
 public class FaceEffectsAreNotModdableGUI extends JPanel {
-	public FaceEffectsAreNotModdableGUI(final MDL model) {
+	public FaceEffectsAreNotModdableGUI(final EditableModel model) {
 		final JLabel audioFileLabel = new JLabel("Audio File:");
 		final JTextField audioFilePath = new JTextField();
 		final JButton audioFileBrowseBtn = new JButton("Browse");

@@ -38,6 +38,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.modeledit.util.TransferActionListener;
 import com.hiveworkshop.wc3.jworldedit.AbstractWorldEditorPanel;
 import com.hiveworkshop.wc3.jworldedit.objects.better.fields.builders.AbilityFieldBuilder;
@@ -100,8 +101,16 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 				getIcon(worldEditorData, "ToolBarIcon_OE_NewBuff"), createAbilityBuffEditor());
 		tabbedPane.addTab(WEString.getString("WESTRING_OBJTAB_UPGRADES"),
 				getIcon(worldEditorData, "ToolBarIcon_OE_NewUpgr"), createUpgradeEditor());
-		// tabbedPane.addTab("Terrains", getIcon(worldEditorData,
-		// "ToolBarIcon_Module_Terrain"), createUpgradeEditor());
+		tabbedPane.addTab("Terrain", getIcon(worldEditorData, "ToolBarIcon_Module_Terrain"), createUpgradeEditor());
+		tabbedPane.addTab("Lighting Effects",
+				new ImageIcon(IconUtils.worldEditStyleIcon(
+						BLPHandler.get().getGameTex("ReplaceableTextures\\CommandButtons\\BTNChainLightning.blp"))),
+				createUpgradeEditor());
+		tabbedPane.addTab("Weather",
+				new ImageIcon(IconUtils.worldEditStyleIcon(
+						BLPHandler.get().getGameTex("ReplaceableTextures\\CommandButtons\\BTNMonsoon.blp"))),
+				createUpgradeEditor());
+		tabbedPane.addTab("Soundsets", getIcon(worldEditorData, "ToolBarIcon_Module_Sound"), createUpgradeEditor());
 
 		final JToolBar toolBar = createToolbar(worldEditorData);
 		toolBar.setFloatable(false);

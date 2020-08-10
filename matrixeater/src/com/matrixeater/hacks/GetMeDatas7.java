@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import com.etheller.collections.SetView;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Normal;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
@@ -49,7 +49,7 @@ public class GetMeDatas7 {
 //				footmanMdx.save(out);
 //			}
 
-			final MDL model = new MDL(MdxUtils.loadModel(new BlizzardDataInputStream(footman)));
+			final EditableModel model = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(footman)));
 			for (final Geoset geo : model.getGeosets()) {
 				final ArrayList<GeosetVertex> vertices = geo.getVertices();
 				for (final GeosetVertex gv : vertices) {

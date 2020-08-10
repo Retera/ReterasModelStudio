@@ -66,7 +66,7 @@ public class SoundEmitter extends IdObject implements VisibilitySource {
 		return x;
 	}
 
-	public static SoundEmitter read(final BufferedReader mdl, final MDL mdlr) {
+	public static SoundEmitter read(final BufferedReader mdl, final EditableModel mdlr) {
 		String line = MDLReader.nextLine(mdl);
 		if (line.contains("SoundEmitter")) {
 			final SoundEmitter lit = new SoundEmitter();

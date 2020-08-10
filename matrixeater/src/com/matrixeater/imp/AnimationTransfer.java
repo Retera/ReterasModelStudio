@@ -25,7 +25,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.modeledit.ImportPanel;
 import com.hiveworkshop.wc3.mdl.Animation;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.user.SaveProfile;
 import com.matrixeater.src.MainFrame;
 import com.matrixeater.src.MainPanel;
@@ -41,14 +41,14 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 
 	JFileChooser fc = new JFileChooser();
 
-	MDL sourceFile;
-	MDL animFile;
+	EditableModel sourceFile;
+	EditableModel animFile;
 	private final JFrame parentFrame;
 
 	public AnimationTransfer(final JFrame parentFrame) {
 		this.parentFrame = parentFrame;
 		final MainPanel panel = MainFrame.getPanel();
-		final MDL current;// ;
+		final EditableModel current;// ;
 		if (panel != null && (current = panel.currentMDL()) != null && current.getFile() != null) {
 			fc.setCurrentDirectory(current.getFile().getParentFile());
 		} else if (SaveProfile.get().getPath() != null) {
@@ -164,13 +164,13 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 		if (baseFileInput.getText().length() > 0) {
 			if (sourceFile == null || sourceFile.getFile() == null
 					|| !baseFileInput.getText().equals(sourceFile.getFile().getPath())) {
-				sourceFile = MDL.read(new File(baseFileInput.getText()));
+				sourceFile = EditableModel.read(new File(baseFileInput.getText()));
 			}
 		}
 		if (animFileInput.getText().length() > 0) {
 			if (animFile == null || animFile.getFile() == null
 					|| !animFileInput.getText().equals(animFile.getFile().getPath())) {
-				animFile = MDL.read(new File(animFileInput.getText()));
+				animFile = EditableModel.read(new File(animFileInput.getText()));
 			}
 		}
 	}
@@ -178,12 +178,12 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 	public void forceRefreshModels() {
 		// if( (sourceFile == null && !baseFileInput.getText().equals("")) ||
 		// !baseFileInput.getText().equals(sourceFile.getFile().getPath()) ) {
-		sourceFile = MDL.read(new File(baseFileInput.getText()));
+		sourceFile = EditableModel.read(new File(baseFileInput.getText()));
 		// JOptionPane.showMessageDialog(null,"Reloaded base model");
 		// }
 		// if( (animFile == null && !animFileInput.getText().equals("")) ||
 		// !animFileInput.getText().equals(animFile.getFile().getPath()) ) {
-		animFile = MDL.read(new File(animFileInput.getText()));
+		animFile = EditableModel.read(new File(animFileInput.getText()));
 		// JOptionPane.showMessageDialog(null,"Reloaded anim model");
 		// }
 		updateBoxes();
@@ -330,8 +330,8 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 	}
 
 	public void doTransfer(final boolean show) {
-		final MDL sourceFile = MDL.read(new File(baseFileInput.getText()));
-		final MDL animFile = MDL.read(new File(animFileInput.getText()));
+		final EditableModel sourceFile = EditableModel.read(new File(baseFileInput.getText()));
+		final EditableModel animFile = EditableModel.read(new File(animFileInput.getText()));
 
 		if (!transferSingleAnimation.isSelected()) {
 			final ImportPanel importPanel = new ImportPanel(sourceFile, animFile, show);
@@ -437,7 +437,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 						// transfer 99% done!");
 
 						if (importPanel.importSuccessful()) {
-							final ImportPanel importPanel2 = new ImportPanel(sourceFile, MDL.read(sourceFile.getFile()),
+							final ImportPanel importPanel2 = new ImportPanel(sourceFile, EditableModel.read(sourceFile.getFile()),
 									show);
 							importPanel2.animTransferPartTwo(transferSingleAnimation.isSelected(),
 									pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()),

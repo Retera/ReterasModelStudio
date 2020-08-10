@@ -9,7 +9,7 @@ import java.io.InputStream;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.IdObject;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 
 import de.wc3data.stream.BlizzardDataInputStream;
@@ -24,8 +24,8 @@ public class GetMeDatas11 {
 						"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\TCContest14\\UndeadArthasBase.mdx")) {
 			try {
 
-				final MDL model = new MDL(MdxUtils.loadModel(new BlizzardDataInputStream(footman)));
-				final MDL modelBase = new MDL(MdxUtils.loadModel(new BlizzardDataInputStream(footmanBase)));
+				final EditableModel model = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(footman)));
+				final EditableModel modelBase = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(footmanBase)));
 
 				for (final IdObject node : model.getIdObjects()) {
 					IdObject baseNode = null;

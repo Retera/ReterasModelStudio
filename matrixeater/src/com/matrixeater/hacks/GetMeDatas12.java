@@ -15,7 +15,7 @@ import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.IdObject;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 
 import de.wc3data.stream.BlizzardDataInputStream;
@@ -30,8 +30,8 @@ public class GetMeDatas12 {
 						"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Test\\Thrall\\SpiritWolf_Original.mdx")) {
 			try {
 
-				final MDL thrall = new MDL(MdxUtils.loadModel(new BlizzardDataInputStream(thrallStream)));
-				final MDL spiritwolf = new MDL(MdxUtils.loadModel(new BlizzardDataInputStream(spiritwolfStream)));
+				final EditableModel thrall = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(thrallStream)));
+				final EditableModel spiritwolf = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(spiritwolfStream)));
 
 				final int[] spiritwolfGeosets = { 0, 1, 4, 5, 6, 7, 8, 9 };
 

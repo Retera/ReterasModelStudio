@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.hiveworkshop.wc3.mdl.Geoset;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 
 public class ModelChecker {
 	private static List<String> matchingModels = new ArrayList<>();
@@ -28,7 +28,7 @@ public class ModelChecker {
 			if (lowerPath.endsWith(".mdx") || lowerPath.endsWith(".mdl")) {
 				boolean usesSecondLayer = false;
 				try {
-					final MDL model = MDL.read(file);
+					final EditableModel model = EditableModel.read(file);
 					for (final Geoset geoset : model.getGeosets()) {
 						if (geoset.getUVLayers().size() >= 2) {
 							usesSecondLayer = true;

@@ -2,7 +2,7 @@ package com.matrixeater.hacks;
 
 import java.io.File;
 
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 
 public class FixAllTheModelsInMyMapSir {
 	public static void main(final String[] args) {
@@ -17,7 +17,7 @@ public class FixAllTheModelsInMyMapSir {
 				traverse(subFile);
 			}
 		} else if (file.getName().toLowerCase().endsWith(".mdx")) {
-			final MDL model = MDL.read(file);
+			final EditableModel model = EditableModel.read(file);
 			System.out.println(file.getPath());
 			if (model.getFormatVersion() != 900) {
 				model.setFormatVersion(900);

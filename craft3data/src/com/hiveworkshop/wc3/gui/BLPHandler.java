@@ -1,5 +1,7 @@
 package com.hiveworkshop.wc3.gui;
 
+import java.awt.Component;
+import java.awt.Graphics;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
@@ -10,6 +12,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -19,10 +23,14 @@ import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
+import javax.swing.JOptionPane;
 
 import org.lwjgl.BufferUtils;
 
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
+import com.hiveworkshop.wc3.mdl.Bitmap;
+import com.hiveworkshop.wc3.mdl.Material;
+import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 
 import de.wc3data.image.TgaFile;
@@ -269,4 +277,93 @@ public class BLPHandler {
 		return getTexture(MpqCodebase.get(), iconTexturePath);
 	}
 
+	public static BufferedImage removeAlphaChannel(final BufferedImage source) {
+		final BufferedImage combined = new BufferedImage(source.getWidth(), source.getHeight(),
+				BufferedImage.TYPE_INT_RGB);
+
+		final Graphics g = combined.getGraphics();
+		g.drawImage(source, 0, 0, source.getWidth(), source.getHeight(), null);
+
+		return combined;
+	}
+
+	public static void exportBitmapTextureFile(final Component component, final ModelView modelView,
+			final Bitmap selectedValue, final File file) {
+		if (file.exists()) {
+			final int confirmOption = JOptionPane.showConfirmDialog(component,
+					"File \"" + file.getPath() + "\" already exists. Continue?", "Confirm Export",
+					JOptionPane.YES_NO_OPTION);
+			if (confirmOption == JOptionPane.NO_OPTION) {
+				return;
+			}
+		}
+		final DataSource wrappedDataSource = modelView.getModel().getWrappedDataSource();
+		final File workingDirectory = modelView.getModel().getWorkingDirectory();
+		BufferedImage bufferedImage = getImage(selectedValue, wrappedDataSource);
+		String fileExtension = file.getName().substring(file.getName().lastIndexOf('.') + 1).toUpperCase();
+		if (fileExtension.equals("BMP") || fileExtension.equals("JPG") || fileExtension.equals("JPEG")) {
+			JOptionPane.showMessageDialog(component,
+					"Warning: Alpha channel was converted to black. Some data will be lost\nif you convert this texture back to Warcraft BLP.");
+			bufferedImage = removeAlphaChannel(bufferedImage);
+		}
+		if (fileExtension.equals("BLP")) {
+			fileExtension = "blp";
+		}
+		boolean directExport = false;
+		if (selectedValue.getPath().toLowerCase().endsWith(fileExtension)) {
+			final MpqCodebase mpqCodebase = MpqCodebase.get();
+			if (mpqCodebase.has(selectedValue.getPath())) {
+				final InputStream mpqFile = mpqCodebase.getResourceAsStream(selectedValue.getPath());
+				try {
+					Files.copy(mpqFile, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+					directExport = true;
+				} catch (final IOException e) {
+					e.printStackTrace();
+					ExceptionPopup.display(e);
+				}
+			} else {
+				if (workingDirectory != null) {
+					final File wantedFile = new File(
+							workingDirectory.getPath() + File.separatorChar + selectedValue.getPath());
+					if (wantedFile.exists()) {
+						try {
+							Files.copy(wantedFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+							directExport = true;
+						} catch (final IOException e) {
+							e.printStackTrace();
+							ExceptionPopup.display(e);
+						}
+					}
+				}
+
+			}
+		}
+		if (!directExport) {
+			boolean write;
+			try {
+				write = ImageIO.write(bufferedImage, fileExtension, file);
+				if (!write) {
+					JOptionPane.showMessageDialog(component, "File type unknown or unavailable");
+				}
+			} catch (final IOException e) {
+				e.printStackTrace();
+				ExceptionPopup.display(e);
+			}
+		}
+	}
+
+	public static BufferedImage getImage(final Bitmap defaultTexture, final DataSource workingDirectory) {
+		String path = defaultTexture.getPath();
+		if ((path == null) || path.isEmpty()) {
+			if (defaultTexture.getReplaceableId() == 1) {
+				path = "ReplaceableTextures\\TeamColor\\TeamColor" + Material.getTeamColorNumberString() + ".blp";
+			} else if (defaultTexture.getReplaceableId() == 2) {
+				path = "ReplaceableTextures\\TeamGlow\\TeamGlow" + Material.getTeamColorNumberString() + ".blp";
+			} else if (defaultTexture.getReplaceableId() != 0) {
+				path = "replaceabletextures\\lordaerontree\\lordaeronsummertree" + ".blp";
+			}
+		}
+		final BufferedImage texture = BLPHandler.get().getTexture(workingDirectory, path);
+		return texture;
+	}
 }

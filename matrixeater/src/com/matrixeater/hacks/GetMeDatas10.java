@@ -14,7 +14,7 @@ import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.IdObject;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 
@@ -28,7 +28,7 @@ public class GetMeDatas10 {
 				"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Requests\\Wazzz\\WispGrove50.mdx")) {
 			try {
 
-				final MDL model = new MDL(MdxUtils.loadModel(new BlizzardDataInputStream(footman)));
+				final EditableModel model = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(footman)));
 
 				IdObject bad = null;
 				for (final IdObject obj : model.getIdObjects()) {

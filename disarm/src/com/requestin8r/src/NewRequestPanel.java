@@ -15,7 +15,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.units.GameObject;
@@ -106,7 +106,7 @@ public class NewRequestPanel extends JPanel implements ActionListener {
 			final String name = choice.getName();
 			final Image icon = choice.getImage();
 
-			MDL toLoad;
+			EditableModel toLoad;
 			ModelViewManager modelDisp = null;
 			try {
 				if (filepath.endsWith(".mdl")) {
@@ -114,7 +114,7 @@ public class NewRequestPanel extends JPanel implements ActionListener {
 				} else if (!filepath.endsWith(".mdx")) {
 					filepath = filepath.concat(".mdx");
 				}
-				toLoad = MDL.read(MpqCodebase.get().getFile(filepath));
+				toLoad = EditableModel.read(MpqCodebase.get().getFile(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -146,7 +146,7 @@ public class NewRequestPanel extends JPanel implements ActionListener {
 			}
 			final Image icon = IconGet.get("Temp", 64);
 
-			MDL toLoad;
+			EditableModel toLoad;
 			ModelViewManager modelDisp = null;
 			try {
 				if (filepath.endsWith(".mdl")) {
@@ -154,7 +154,7 @@ public class NewRequestPanel extends JPanel implements ActionListener {
 				} else if (!filepath.endsWith(".mdx")) {
 					filepath = filepath.concat(".mdx");
 				}
-				toLoad = MDL.read(MpqCodebase.get().getFile(filepath));
+				toLoad = EditableModel.read(MpqCodebase.get().getFile(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -187,10 +187,10 @@ public class NewRequestPanel extends JPanel implements ActionListener {
 			}
 			final Image icon = IconGet.get("Temp", 64);
 
-			MDL toLoad;
+			EditableModel toLoad;
 			ModelViewManager modelDisp = null;
 			try {
-				toLoad = MDL.read(new File(filepath));
+				toLoad = EditableModel.read(new File(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();

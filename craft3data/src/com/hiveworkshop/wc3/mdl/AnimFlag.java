@@ -1853,13 +1853,13 @@ public class AnimFlag {
 		return aflg;
 	}
 
-	public void updateGlobalSeqRef(final MDL mdlr) {
+	public void updateGlobalSeqRef(final EditableModel mdlr) {
 		if (hasGlobalSeq) {
 			globalSeq = mdlr.getGlobalSeq(globalSeqId);
 		}
 	}
 
-	public void updateGlobalSeqId(final MDL mdlr) {
+	public void updateGlobalSeqId(final EditableModel mdlr) {
 		if (hasGlobalSeq) {
 			globalSeqId = mdlr.getGlobalSeqId(globalSeq);
 		}

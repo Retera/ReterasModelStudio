@@ -9,7 +9,7 @@ import javax.swing.JTextPane;
 
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 
 public class ComponentCommentPanel extends JPanel implements ComponentPanel {
 	private final JTextPane textPane;
@@ -30,7 +30,7 @@ public class ComponentCommentPanel extends JPanel implements ComponentPanel {
 	}
 
 	@Override
-	public void save(final MDL model, final UndoActionListener undoListener,
+	public void save(final EditableModel model, final UndoActionListener undoListener,
 			final ModelStructureChangeListener changeListener) {
 		model.setHeader(getCommentContents());
 	}

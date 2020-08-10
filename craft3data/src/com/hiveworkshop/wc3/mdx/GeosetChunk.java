@@ -8,7 +8,6 @@ import com.hiveworkshop.wc3.mdl.ExtLog;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Matrix;
 import com.hiveworkshop.wc3.mdl.Triangle;
-import com.hiveworkshop.wc3.util.CharInt;
 import com.hiveworkshop.wc3.util.ModelUtils;
 
 import de.wc3data.stream.BlizzardDataInputStream;
@@ -136,7 +135,6 @@ public class GeosetChunk {
 			minimumExtent = MdxUtils.loadFloatArray(in, 3);
 			maximumExtent = MdxUtils.loadFloatArray(in, 3);
 			final int nrOfExtents = in.readInt();
-			System.err.println(CharInt.toString(nrOfExtents));
 			extent = new Extent[nrOfExtents];
 			for (int i = 0; i < nrOfExtents; i++) {
 				extent[i] = new Extent();
@@ -150,7 +148,9 @@ public class GeosetChunk {
 					in.skip(4);// TANG
 					final int tangentsLength = in.readInt();
 					this.tangents = MdxUtils.loadFloatArray(in, tangentsLength * 4);
-					MdxUtils.checkId(in, "SKIN");
+				}
+				if (MdxUtils.checkOptionalId(in, "SKIN")) {
+					in.skip(4);// SKIN
 					final int skinLength = in.readInt();
 					this.skin = MdxUtils.loadByteArray(in, skinLength);
 				}

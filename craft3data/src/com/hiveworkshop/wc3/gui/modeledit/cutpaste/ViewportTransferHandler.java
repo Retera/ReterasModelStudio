@@ -28,7 +28,7 @@ import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.IdObject;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
@@ -42,7 +42,7 @@ public class ViewportTransferHandler extends TransferHandler {
 	@Override
 	public boolean importData(final TransferHandler.TransferSupport info) {
 		String data = null;
-		MDL pastedModel = null;
+		EditableModel pastedModel = null;
 
 		// If we can't handle the import, bail now.
 		if (!canImport(info)) {
@@ -54,7 +54,7 @@ public class ViewportTransferHandler extends TransferHandler {
 		// Fetch the data -- bail if this fails
 		try {
 			data = (String) info.getTransferable().getTransferData(DataFlavor.stringFlavor);
-			pastedModel = MDL.read(new ByteArrayInputStream(data.getBytes()));
+			pastedModel = EditableModel.read(new ByteArrayInputStream(data.getBytes()));
 		} catch (final UnsupportedFlavorException ufe) {
 			System.out.println("importData: unsupported data flavor");
 			return false;
@@ -75,7 +75,7 @@ public class ViewportTransferHandler extends TransferHandler {
 		}
 	}
 
-	private void pasteModelIntoViewport(final MDL pastedModel, final Viewport viewport, final Point dropPoint,
+	private void pasteModelIntoViewport(final EditableModel pastedModel, final Viewport viewport, final Point dropPoint,
 			final ModelStructureChangeListener modelStructureChangeListener) {
 		final ModelViewManager pastedModelView = new ModelViewManager(pastedModel);
 		for (final IdObject object : pastedModel.getIdObjects()) {
@@ -139,7 +139,7 @@ public class ViewportTransferHandler extends TransferHandler {
 	@Override
 	protected Transferable createTransferable(final JComponent c) {
 		final Viewport viewport = (Viewport) c;
-		final MDL stringableModel = new MDL("CopyPastedModelData");
+		final EditableModel stringableModel = new EditableModel("CopyPastedModelData");
 		stringableModel.setFormatVersion(viewport.getModelView().getModel().getFormatVersion());
 
 		final CopiedModelData copySelection = viewport.getModelEditor().copySelection();

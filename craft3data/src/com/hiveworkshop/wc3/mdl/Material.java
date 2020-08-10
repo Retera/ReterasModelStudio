@@ -102,7 +102,7 @@ public class Material implements MaterialView {
 		priorityPlane = other.priorityPlane;
 	}
 
-	public Material(final MaterialChunk.Material mat, final MDL mdlObject) {
+	public Material(final MaterialChunk.Material mat, final EditableModel mdlObject) {
 		this();
 		for (final LayerChunk.Layer lay : mat.layerChunk.layer) {
 			final Layer layer = new Layer(lay);
@@ -110,16 +110,16 @@ public class Material implements MaterialView {
 			layers.add(layer);
 		}
 		setPriorityPlane(mat.priorityPlane);
-		if (MDL.hasFlag(mat.flags, 0x1)) {
+		if (EditableModel.hasFlag(mat.flags, 0x1)) {
 			add("ConstantColor");
 		}
-		if (MDL.hasFlag(mat.flags, 0x10)) {
+		if (EditableModel.hasFlag(mat.flags, 0x10)) {
 			add("SortPrimsFarZ");
 		}
-		if (MDL.hasFlag(mat.flags, 0x20)) {
+		if (EditableModel.hasFlag(mat.flags, 0x20)) {
 			add("FullResolution");
 		}
-		if (ModelUtils.isShaderStringSupported(mdlObject.getFormatVersion()) && MDL.hasFlag(mat.flags, 0x02)) {
+		if (ModelUtils.isShaderStringSupported(mdlObject.getFormatVersion()) && EditableModel.hasFlag(mat.flags, 0x02)) {
 			add("TwoSided");
 		}
 		this.shaderString = mat.shader;
@@ -173,7 +173,7 @@ public class Material implements MaterialView {
 		}
 	}
 
-	public void updateReferenceIds(final MDL mdlr) {
+	public void updateReferenceIds(final EditableModel mdlr) {
 		for (final Layer lay : layers) {
 			lay.updateIds(mdlr);
 		}
@@ -229,7 +229,7 @@ public class Material implements MaterialView {
 		return true;
 	}
 
-	public static Material read(final BufferedReader mdl, final MDL mdlr) {
+	public static Material read(final BufferedReader mdl, final EditableModel mdlr) {
 		String line = MDLReader.nextLine(mdl);
 		if (line.contains("Material")) {
 			final Material mat = new Material();
@@ -259,7 +259,7 @@ public class Material implements MaterialView {
 		return null;
 	}
 
-	public static ArrayList<Material> readAll(final BufferedReader mdl, final MDL mdlr) {
+	public static ArrayList<Material> readAll(final BufferedReader mdl, final EditableModel mdlr) {
 		String line = "";
 		final ArrayList<Material> outputs = new ArrayList<>();
 		MDLReader.mark(mdl);

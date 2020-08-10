@@ -185,9 +185,7 @@ public class ParticleEmitterPopcorn extends IdObject implements VisibilitySource
 					pe.lifeSpan = maybeColor[0];
 					pe.emissionRate = maybeColor[1];
 					pe.speed = maybeColor[2];
-					pe.color.x = maybeColor[5];
-					pe.color.y = maybeColor[4];
-					pe.color.z = maybeColor[3];
+					pe.color = new Vertex(maybeColor[5], maybeColor[4], maybeColor[3]);
 					pe.alpha = maybeColor[6];
 					pe.replaceableId = (int) maybeColor[7];
 					line = MDLReader.nextLine(mdl);

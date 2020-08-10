@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
@@ -145,6 +144,7 @@ import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarActionButtonType;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonListener;
+import com.hiveworkshop.wc3.gui.modeledit.util.TextureExporter;
 import com.hiveworkshop.wc3.gui.modeledit.util.TransferActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportIconUtils;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimationViewer;
@@ -170,7 +170,7 @@ import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Helper;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Layer;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.Normal;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
@@ -1038,7 +1038,7 @@ public class MainPanel extends JPanel
 		}
 		modelStructureChangeListener = new ModelStructureChangeListenerImplementation(new ModelReference() {
 			@Override
-			public MDL getModel() {
+			public EditableModel getModel() {
 				return currentModelPanel().getModel();
 			}
 		});
@@ -2736,7 +2736,7 @@ public class MainPanel extends JPanel
 					particleItem.addActionListener(new ActionListener() {
 						@Override
 						public void actionPerformed(final ActionEvent e) {
-							final ParticleEmitter2 particle = MDL.read(file).sortedIdObjects(ParticleEmitter2.class)
+							final ParticleEmitter2 particle = EditableModel.read(file).sortedIdObjects(ParticleEmitter2.class)
 									.get(0);
 
 							final JPanel particlePanel = new JPanel();
@@ -2988,9 +2988,9 @@ public class MainPanel extends JPanel
 				final Vector4f normalSumHeap = new Vector4f();
 				final ModelPanel modelContext = currentModelPanel();
 				final RenderModel editorRenderModel = modelContext.getEditorRenderModel();
-				final MDL model = modelContext.getModel();
+				final EditableModel model = modelContext.getModel();
 				final ModelViewManager modelViewManager = modelContext.getModelViewManager();
-				final MDL snapshotModel = MDL.deepClone(model, model.getHeaderName() + "At"
+				final EditableModel snapshotModel = EditableModel.deepClone(model, model.getHeaderName() + "At"
 						+ editorRenderModel.getAnimatedRenderEnvironment().getAnimationTime());
 				for (int geosetIndex = 0; geosetIndex < snapshotModel.getGeosets().size(); geosetIndex++) {
 					final Geoset geoset = model.getGeoset(geosetIndex);
@@ -3115,7 +3115,7 @@ public class MainPanel extends JPanel
 				final BufferedImage fBufferedImage = currentModelPanel().getAnimationViewer().getBufferedImage();
 
 				if (exportTextureDialog.getCurrentDirectory() == null) {
-					final MDL current = currentMDL();
+					final EditableModel current = currentMDL();
 					if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 						fc.setCurrentDirectory(current.getFile().getParentFile());
 					} else if (profile.getPath() != null) {
@@ -3140,7 +3140,7 @@ public class MainPanel extends JPanel
 										|| fileExtension.equals("JPEG")) {
 									JOptionPane.showMessageDialog(MainPanel.this,
 											"Warning: Alpha channel was converted to black. Some data will be lost\nif you convert this texture back to Warcraft BLP.");
-									bufferedImage = removeAlphaChannel(bufferedImage);
+									bufferedImage = BLPHandler.removeAlphaChannel(bufferedImage);
 								}
 								if (fileExtension.equals("BLP")) {
 									fileExtension = "blp";
@@ -3189,7 +3189,7 @@ public class MainPanel extends JPanel
 					final int anim2Length = animation2.getEnd() - animation2.getStart();
 					final int totalLength = anim1Length + anim2Length;
 
-					final MDL model = currentMDL();
+					final EditableModel model = currentMDL();
 					final int animTrackEnd = model.animTrackEnd();
 					final int start = animTrackEnd + 1000;
 					animation.copyToInterval(start, start + anim1Length, model.getAllAnimFlags(),
@@ -3239,7 +3239,7 @@ public class MainPanel extends JPanel
 		makeItHDItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				MDL.makeItHD(currentMDL());
+				EditableModel.makeItHD(currentMDL());
 			}
 		});
 		scriptsMenu.add(makeItHDItem);
@@ -3249,7 +3249,7 @@ public class MainPanel extends JPanel
 		version800EditingToggle.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				MDL.convertToV800(1, currentMDL());
+				EditableModel.convertToV800(1, currentMDL());
 			}
 		});
 		scriptsMenu.add(version800EditingToggle);
@@ -3259,7 +3259,7 @@ public class MainPanel extends JPanel
 		recalculateTangents.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				MDL.recalculateTangents(currentMDL(), MainPanel.this);
+				EditableModel.recalculateTangents(currentMDL(), MainPanel.this);
 			}
 		});
 		scriptsMenu.add(recalculateTangents);
@@ -3331,7 +3331,7 @@ public class MainPanel extends JPanel
 		fixReteraLand.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				final MDL currentMDL = currentMDL();
+				final EditableModel currentMDL = currentMDL();
 				for (final Geoset geo : currentMDL.getGeosets()) {
 					final Animation anim = new Animation(new ExtLog(currentMDL.getExtents()));
 					geo.add(anim);
@@ -3731,7 +3731,7 @@ public class MainPanel extends JPanel
 						retainedGeosets.add(geoset);
 					}
 				}
-				final MDL currentMDL = currentMDL();
+				final EditableModel currentMDL = currentMDL();
 				final ArrayList<Geoset> geosets = currentMDL.getGeosets();
 				final List<Geoset> geosetsRemoved = new ArrayList<>();
 				final Iterator<Geoset> iterator = geosets.iterator();
@@ -3794,7 +3794,7 @@ public class MainPanel extends JPanel
 		sortBones.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				final MDL model = currentMDL();
+				final EditableModel model = currentMDL();
 				final List<IdObject> roots = new ArrayList<>();
 				final ArrayList<IdObject> modelList = model.getIdObjects();
 				for (final IdObject object : modelList) {
@@ -3945,6 +3945,8 @@ public class MainPanel extends JPanel
 						if (modelPanel != null) {
 							modelPanel.getAnimationViewer().reloadAllTextures();
 							modelPanel.getPerspArea().reloadAllTextures();
+
+							reloadComponentBrowser(modelPanel);
 						}
 						profile.getPreferences().setTeamColor(teamColorValueNumber);
 					}
@@ -4043,7 +4045,7 @@ public class MainPanel extends JPanel
 				}
 			} else if (e.getSource() == importButton) {
 				fc.setDialogTitle("Import");
-				final MDL current = currentMDL();
+				final EditableModel current = currentMDL();
 				if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 					fc.setCurrentDirectory(current.getFile().getParentFile());
 				} else if (profile.getPath() != null) {
@@ -4110,7 +4112,7 @@ public class MainPanel extends JPanel
 					return;
 				}
 				final String filepath = convertPathToMDX(fetchUnitResult.getField("file"));
-				final MDL current = currentMDL();
+				final EditableModel current = currentMDL();
 				if (filepath != null) {
 					final File animationSource = MpqCodebase.get().getFile(filepath);
 					importFile(animationSource);
@@ -4122,7 +4124,7 @@ public class MainPanel extends JPanel
 					return;
 				}
 				final String filepath = convertPathToMDX(fetchModelResult.getFilepath());
-				final MDL current = currentMDL();
+				final EditableModel current = currentMDL();
 				if (filepath != null) {
 					final File animationSource = MpqCodebase.get().getFile(filepath);
 					importFile(animationSource);
@@ -4134,23 +4136,23 @@ public class MainPanel extends JPanel
 					return;
 				}
 				final String filepath = convertPathToMDX(fetchObjectResult.getFieldAsString(UnitFields.MODEL_FILE, 0));
-				final MDL current = currentMDL();
+				final EditableModel current = currentMDL();
 				if (filepath != null) {
 					final File animationSource = MpqCodebase.get().getFile(filepath);
 					importFile(animationSource);
 				}
 				refreshController();
 			} else if (e.getSource() == importFromWorkspace) {
-				final List<MDL> optionNames = new ArrayList<>();
+				final List<EditableModel> optionNames = new ArrayList<>();
 				for (final ModelPanel modelPanel : modelPanels) {
-					final MDL model = modelPanel.getModel();
+					final EditableModel model = modelPanel.getModel();
 					optionNames.add(model);
 				}
-				final MDL choice = (MDL) JOptionPane.showInputDialog(this,
+				final EditableModel choice = (EditableModel) JOptionPane.showInputDialog(this,
 						"Choose a workspace item to import data from:", "Import from Workspace",
 						JOptionPane.OK_CANCEL_OPTION, null, optionNames.toArray(), optionNames.get(0));
 				if (choice != null) {
-					importFile(MDL.deepClone(choice, choice.getHeaderName()));
+					importFile(EditableModel.deepClone(choice, choice.getHeaderName()));
 				}
 				refreshController();
 			} else if (e.getSource() == importButtonS) {
@@ -4163,7 +4165,7 @@ public class MainPanel extends JPanel
 				frame.setVisible(true);
 			} else if (e.getSource() == mergeGeoset) {
 				fc.setDialogTitle("Merge Single Geoset (Oinker-based)");
-				final MDL current = currentMDL();
+				final EditableModel current = currentMDL();
 				if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 					fc.setCurrentDirectory(current.getFile().getParentFile());
 				} else if (profile.getPath() != null) {
@@ -4173,7 +4175,7 @@ public class MainPanel extends JPanel
 
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
 					currentFile = fc.getSelectedFile();
-					final MDL geoSource = MDL.read(currentFile);
+					final EditableModel geoSource = EditableModel.read(currentFile);
 					profile.setPath(currentFile.getParent());
 					boolean going = true;
 					Geoset host = null;
@@ -4293,7 +4295,7 @@ public class MainPanel extends JPanel
 				JOptionPane.showMessageDialog(this, new JScrollPane(materialsList));
 
 				if (exportTextureDialog.getCurrentDirectory() == null) {
-					final MDL current = currentMDL();
+					final EditableModel current = currentMDL();
 					if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 						fc.setCurrentDirectory(current.getFile().getParentFile());
 					} else if (profile.getPath() != null) {
@@ -4319,7 +4321,7 @@ public class MainPanel extends JPanel
 										|| fileExtension.equals("JPEG")) {
 									JOptionPane.showMessageDialog(this,
 											"Warning: Alpha channel was converted to black. Some data will be lost\nif you convert this texture back to Warcraft BLP.");
-									bufferedImage = removeAlphaChannel(bufferedImage);
+									bufferedImage = BLPHandler.removeAlphaChannel(bufferedImage);
 								}
 								if (fileExtension.equals("BLP")) {
 									fileExtension = "blp";
@@ -4394,7 +4396,7 @@ public class MainPanel extends JPanel
 				}
 			} else if (e.getSource() == riseFallBirth) {
 				final ModelView disp = currentModelPanel().getModelViewManager();
-				final MDL model = disp.getModel();
+				final EditableModel model = disp.getModel();
 				final Animation lastAnim = model.getAnim(model.getAnimsSize() - 1);
 
 				final Animation oldBirth = model.findAnimByName("birth");
@@ -4516,7 +4518,7 @@ public class MainPanel extends JPanel
 				JOptionPane.showMessageDialog(this, "Done!");
 			} else if (e.getSource() == animFromFile) {
 				fc.setDialogTitle("Animation Source");
-				final MDL current = currentMDL();
+				final EditableModel current = currentMDL();
 				if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 					fc.setCurrentDirectory(current.getFile().getParentFile());
 				} else if (profile.getPath() != null) {
@@ -4527,7 +4529,7 @@ public class MainPanel extends JPanel
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
 					currentFile = fc.getSelectedFile();
 					profile.setPath(currentFile.getParent());
-					final MDL animationSourceModel = MDL.read(currentFile);
+					final EditableModel animationSourceModel = EditableModel.read(currentFile);
 					addSingleAnimation(current, animationSourceModel);
 				}
 
@@ -4541,9 +4543,9 @@ public class MainPanel extends JPanel
 					return;
 				}
 				final String filepath = convertPathToMDX(fetchResult.getField("file"));
-				final MDL current = currentMDL();
+				final EditableModel current = currentMDL();
 				if (filepath != null) {
-					final MDL animationSource = MDL.read(MpqCodebase.get().getFile(filepath));
+					final EditableModel animationSource = EditableModel.read(MpqCodebase.get().getFile(filepath));
 					addSingleAnimation(current, animationSource);
 				}
 			} else if (e.getSource() == animFromModel) {
@@ -4553,9 +4555,9 @@ public class MainPanel extends JPanel
 					return;
 				}
 				final String filepath = convertPathToMDX(fetchResult.getFilepath());
-				final MDL current = currentMDL();
+				final EditableModel current = currentMDL();
 				if (filepath != null) {
-					final MDL animationSource = MDL.read(MpqCodebase.get().getFile(filepath));
+					final EditableModel animationSource = EditableModel.read(MpqCodebase.get().getFile(filepath));
 					addSingleAnimation(current, animationSource);
 				}
 			} else if (e.getSource() == animFromObject) {
@@ -4565,9 +4567,9 @@ public class MainPanel extends JPanel
 					return;
 				}
 				final String filepath = convertPathToMDX(fetchResult.getFieldAsString(UnitFields.MODEL_FILE, 0));
-				final MDL current = currentMDL();
+				final EditableModel current = currentMDL();
 				if (filepath != null) {
-					final MDL animationSource = MDL.read(MpqCodebase.get().getFile(filepath));
+					final EditableModel animationSource = EditableModel.read(MpqCodebase.get().getFile(filepath));
 					addSingleAnimation(current, animationSource);
 				}
 			} else if (e.getSource() == creditsButton) {
@@ -4648,16 +4650,16 @@ public class MainPanel extends JPanel
 	}
 
 	private void simplifyKeyframes() {
-		final MDL currentMDL = currentMDL();
+		final EditableModel currentMDL = currentMDL();
 		currentMDL.simplifyKeyframes();
 	}
 
 	private boolean onClickSaveAs() {
-		final MDL current = currentMDL();
+		final EditableModel current = currentMDL();
 		return onClickSaveAs(current);
 	}
 
-	private boolean onClickSaveAs(final MDL current) {
+	private boolean onClickSaveAs(final EditableModel current) {
 		try {
 			fc.setDialogTitle("Save as");
 			if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
@@ -4743,7 +4745,7 @@ public class MainPanel extends JPanel
 
 	private void onClickOpen() {
 		fc.setDialogTitle("Open");
-		final MDL current = currentMDL();
+		final EditableModel current = currentMDL();
 		if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 			fc.setCurrentDirectory(current.getFile().getParentFile());
 		} else if (profile.getPath() != null) {
@@ -4820,7 +4822,7 @@ public class MainPanel extends JPanel
 		final int userDialogResult = JOptionPane.showConfirmDialog(this, newModelPanel, "New Model",
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (userDialogResult == JOptionPane.OK_OPTION) {
-			final MDL mdl = new MDL(newModelNameField.getText());
+			final EditableModel mdl = new EditableModel(newModelNameField.getText());
 			if (createBoxButton.isSelected()) {
 				final SpinnerNumberModel sModel = new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1);
 				final JSpinner spinner = new JSpinner(sModel);
@@ -4844,7 +4846,7 @@ public class MainPanel extends JPanel
 			}
 			final ModelPanel temp = new ModelPanel(this, mdl, prefs, MainPanel.this, selectionItemTypeGroup,
 					selectionModeGroup, modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
-					activeViewportWatcher, GlobalIcons.MDLIcon, false);
+					activeViewportWatcher, GlobalIcons.MDLIcon, false, textureExporter);
 			loadModel(true, true, temp);
 		}
 
@@ -4929,7 +4931,7 @@ public class MainPanel extends JPanel
 		return choice;
 	}
 
-	private void addSingleAnimation(final MDL current, final MDL animationSourceModel) {
+	private void addSingleAnimation(final EditableModel current, final EditableModel animationSourceModel) {
 		Animation choice = null;
 		choice = (Animation) JOptionPane.showInputDialog(this, "Choose an animation!", "Add Animation",
 				JOptionPane.QUESTION_MESSAGE, null, animationSourceModel.getAnims().toArray(),
@@ -4978,7 +4980,7 @@ public class MainPanel extends JPanel
 	}
 
 	private interface ModelReference {
-		MDL getModel();
+		EditableModel getModel();
 	}
 
 	private final class ModelStructureChangeListenerImplementation implements ModelStructureChangeListener {
@@ -4988,10 +4990,10 @@ public class MainPanel extends JPanel
 			this.modelReference = modelReference;
 		}
 
-		public ModelStructureChangeListenerImplementation(final MDL model) {
+		public ModelStructureChangeListenerImplementation(final EditableModel model) {
 			this.modelReference = new ModelReference() {
 				@Override
-				public MDL getModel() {
+				public EditableModel getModel() {
 					return model;
 				}
 			};
@@ -5286,7 +5288,7 @@ public class MainPanel extends JPanel
 		}
 	}
 
-	public MDL currentMDL() {
+	public EditableModel currentMDL() {
 		if (currentModelPanel != null) {
 			return currentModelPanel.getModel();
 		} else {
@@ -5313,7 +5315,7 @@ public class MainPanel extends JPanel
 	 * @param model
 	 * @return
 	 */
-	public ModelPanel displayFor(final MDL model) {
+	public ModelPanel displayFor(final EditableModel model) {
 		ModelPanel output = null;
 		ModelView tempDisplay;
 		for (final ModelPanel modelPanel : modelPanels) {
@@ -5338,11 +5340,11 @@ public class MainPanel extends JPanel
 		ModelPanel temp = null;
 		if (f.getPath().toLowerCase().endsWith("mdx")) {
 			try (BlizzardDataInputStream in = new BlizzardDataInputStream(new FileInputStream(f))) {
-				final MDL model = new MDL(MdxUtils.loadModel(in));
+				final EditableModel model = new EditableModel(MdxUtils.loadModel(in));
 				model.setFileRef(f);
 				temp = new ModelPanel(this, model, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
 						modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
-						activeViewportWatcher, icon, false);
+						activeViewportWatcher, icon, false, textureExporter);
 			} catch (final FileNotFoundException e) {
 				e.printStackTrace();
 				ExceptionPopup.display(e);
@@ -5361,7 +5363,7 @@ public class MainPanel extends JPanel
 				final Parse obj = new Parse(builder, f.getPath());
 				temp = new ModelPanel(this, builder.createMDL(), prefs, MainPanel.this, selectionItemTypeGroup,
 						selectionModeGroup, modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
-						activeViewportWatcher, icon, false);
+						activeViewportWatcher, icon, false, textureExporter);
 			} catch (final FileNotFoundException e) {
 				ExceptionPopup.display(e);
 				e.printStackTrace();
@@ -5370,9 +5372,9 @@ public class MainPanel extends JPanel
 				e.printStackTrace();
 			}
 		} else {
-			temp = new ModelPanel(this, MDL.read(f), prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
+			temp = new ModelPanel(this, EditableModel.read(f), prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
 					modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, activeViewportWatcher,
-					icon, false);
+					icon, false, textureExporter);
 			temp.setFile(f);
 		}
 		loadModel(temporary, selectNewTab, temp);
@@ -5382,11 +5384,11 @@ public class MainPanel extends JPanel
 			final ImageIcon icon) {
 		ModelPanel temp = null;
 		try (BlizzardDataInputStream in = new BlizzardDataInputStream(f)) {
-			final MDL model = new MDL(MdxUtils.loadModel(in));
+			final EditableModel model = new EditableModel(MdxUtils.loadModel(in));
 			model.setFileRef(null);
 			temp = new ModelPanel(this, model, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
 					modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, activeViewportWatcher,
-					icon, false);
+					icon, false, textureExporter);
 		} catch (final FileNotFoundException e) {
 			e.printStackTrace();
 			ExceptionPopup.display(e);
@@ -5408,7 +5410,7 @@ public class MainPanel extends JPanel
 	}
 
 	public void loadBLPPathAsModel(final String filepath, final File workingDirectory, final int version) {
-		final MDL blankTextureModel = new MDL(filepath.substring(filepath.lastIndexOf('\\') + 1));
+		final EditableModel blankTextureModel = new EditableModel(filepath.substring(filepath.lastIndexOf('\\') + 1));
 		blankTextureModel.setFormatVersion(version);
 		if (workingDirectory != null) {
 			blankTextureModel.setFileRef(new File(workingDirectory.getPath() + "/" + filepath + ".mdl"));
@@ -5462,7 +5464,7 @@ public class MainPanel extends JPanel
 		loadModel(workingDirectory == null, true,
 				new ModelPanel(MainPanel.this, blankTextureModel, prefs, MainPanel.this, selectionItemTypeGroup,
 						selectionModeGroup, modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
-						activeViewportWatcher, GlobalIcons.orangeIcon, true));
+						activeViewportWatcher, GlobalIcons.orangeIcon, true, textureExporter));
 	}
 
 	public void loadModel(final boolean temporary, final boolean selectNewTab, final ModelPanel temp) {
@@ -5594,6 +5596,7 @@ public class MainPanel extends JPanel
 
 			modelComponentView.setComponent(currentModelPanel.getComponentsPanel());
 			geoControlModelData.repaint();
+			currentModelPanel.getModelComponentBrowserTree().reloadFromModelView();
 		}
 		activeViewportWatcher.viewportChanged(null);
 		timeSliderPanel.revalidateKeyframeDisplay();
@@ -5622,21 +5625,21 @@ public class MainPanel extends JPanel
 	}
 
 	public void importFile(final File f) {
-		final MDL currentModel = currentMDL();
+		final EditableModel currentModel = currentMDL();
 		if (currentModel != null) {
-			importFile(MDL.read(f));
+			importFile(EditableModel.read(f));
 		}
 	}
 
-	public void importFile(final MDL model) {
-		final MDL currentModel = currentMDL();
+	public void importFile(final EditableModel model) {
+		final EditableModel currentModel = currentMDL();
 		if (currentModel != null) {
 			importPanel = new ImportPanel(currentModel, model);
 			importPanel.setCallback(new ModelStructureChangeListenerImplementation(new ModelReference() {
-				private final MDL model = currentMDL();
+				private final EditableModel model = currentMDL();
 
 				@Override
-				public MDL getModel() {
+				public EditableModel getModel() {
 					return model;
 				}
 			}));
@@ -5688,9 +5691,9 @@ public class MainPanel extends JPanel
 	}
 
 	public void nullmodelFile() {
-		final MDL currentMDL = currentMDL();
+		final EditableModel currentMDL = currentMDL();
 		if (currentMDL != null) {
-			final MDL newModel = new MDL();
+			final EditableModel newModel = new EditableModel();
 			newModel.copyHeaders(currentMDL);
 			if (newModel.getFileRef() == null) {
 				newModel.setFileRef(
@@ -5701,7 +5704,7 @@ public class MainPanel extends JPanel
 				newModel.setFileRef(
 						new File(currentMDL.getFile().getParent() + "/" + incName(newModel.getName()) + ".mdl"));
 			}
-			importPanel = new ImportPanel(newModel, MDL.deepClone(currentMDL, "CurrentModel"));
+			importPanel = new ImportPanel(newModel, EditableModel.deepClone(currentMDL, "CurrentModel"));
 
 			final Thread watcher = new Thread(new Runnable() {
 				@Override
@@ -5979,27 +5982,18 @@ public class MainPanel extends JPanel
 		mpanel.repaintSelfAndRelatedChildren();
 	}
 
-	public static BufferedImage removeAlphaChannel(final BufferedImage source) {
-		final BufferedImage combined = new BufferedImage(source.getWidth(), source.getHeight(),
-				BufferedImage.TYPE_INT_RGB);
+	private final TextureExporterImpl textureExporter = new TextureExporterImpl();
 
-		final Graphics g = combined.getGraphics();
-		g.drawImage(source, 0, 0, source.getWidth(), source.getHeight(), null);
-
-		return combined;
-	}
-
-	private final TextureExporter textureExporter = new TextureExporter();
-
-	public final class TextureExporter {
+	public final class TextureExporterImpl implements TextureExporter {
 		public JFileChooser getFileChooser() {
 			return exportTextureDialog;
 		}
 
-		public void showOpenDialog(final String suggestedName, final Callback<File> fileHandler,
+		@Override
+		public void showOpenDialog(final String suggestedName, final TextureExporterClickListener fileHandler,
 				final Component parent) {
 			if (exportTextureDialog.getCurrentDirectory() == null) {
-				final MDL current = currentMDL();
+				final EditableModel current = currentMDL();
 				if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 					fc.setCurrentDirectory(current.getFile().getParentFile());
 				} else if (profile.getPath() != null) {
@@ -6014,18 +6008,19 @@ public class MainPanel extends JPanel
 			if (showOpenDialog == JFileChooser.APPROVE_OPTION) {
 				final File file = exportTextureDialog.getSelectedFile();
 				if (file != null) {
-					fileHandler.run(file);
+					fileHandler.onClickOK(file, exportTextureDialog.getFileFilter());
 				} else {
 					JOptionPane.showMessageDialog(parent, "No import file was specified");
 				}
 			}
 		}
 
-		public void exportTexture(final String suggestedName, final Callback<File> fileHandler,
+		@Override
+		public void exportTexture(final String suggestedName, final TextureExporterClickListener fileHandler,
 				final Component parent) {
 
 			if (exportTextureDialog.getCurrentDirectory() == null) {
-				final MDL current = currentMDL();
+				final EditableModel current = currentMDL();
 				if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
 					fc.setCurrentDirectory(current.getFile().getParentFile());
 				} else if (profile.getPath() != null) {
@@ -6043,7 +6038,7 @@ public class MainPanel extends JPanel
 				if (file != null) {
 					try {
 						if (file.getName().lastIndexOf('.') >= 0) {
-							fileHandler.run(file);
+							fileHandler.onClickOK(file, exportTextureDialog.getFileFilter());
 						} else {
 							JOptionPane.showMessageDialog(parent, "No file type was specified");
 						}
@@ -6060,7 +6055,7 @@ public class MainPanel extends JPanel
 	}
 
 	@Override
-	public void save(final MDL model) {
+	public void save(final EditableModel model) {
 		if (model.getFile() != null) {
 			model.saveFile();
 		} else {

@@ -64,7 +64,7 @@ import com.hiveworkshop.wc3.mdl.Helper;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Layer;
 import com.hiveworkshop.wc3.mdl.Light;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.Matrix;
 import com.hiveworkshop.wc3.mdl.Named;
@@ -110,8 +110,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 
 	JFrame frame;
 
-	MDL currentModel;
-	MDL importedModel;
+	EditableModel currentModel;
+	EditableModel importedModel;
 
 	// Geosets
 	JPanel geosetsPanel = new JPanel();
@@ -190,11 +190,11 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 
 	private ModelStructureChangeListener callback;
 
-	public ImportPanel(final MDL a, final MDL b) {
+	public ImportPanel(final EditableModel a, final EditableModel b) {
 		this(a, b, true);
 	}
 
-	public ImportPanel(final MDL currentModel, final MDL importedModel, final boolean visibleOnStart) {
+	public ImportPanel(final EditableModel currentModel, final EditableModel importedModel, final boolean visibleOnStart) {
 		super();
 		if (currentModel.getName().equals(importedModel.getName())) {
 			importedModel.setFileRef(new File(
@@ -1393,7 +1393,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		visSourcesOld = new ArrayList();
 		visSourcesNew = new ArrayList();
 		allVisShells = new ArrayList<>();
-		MDL model = currentModel;
+		EditableModel model = currentModel;
 		final ArrayList tempList = new ArrayList();
 		for (final Material mat : model.getMaterials()) {
 			for (final Layer lay : mat.getLayers()) {
@@ -1565,7 +1565,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			}
 		}
 		// The current's
-		final MDL model = currentModel;
+		final EditableModel model = currentModel;
 		for (final Object l : model.sortedIdObjects(Light.class)) {
 			final VisibilityPane vs = visPaneFromObject(l);
 			if (!visComponents.contains(vs) && (vs != null)) {
@@ -2261,7 +2261,7 @@ class GeosetPanel extends JPanel implements ChangeListener {
 	JCheckBox doImport;
 	JLabel geoTitle;
 	JLabel materialText;
-	MDL model;
+	EditableModel model;
 	Geoset geoset;
 	int index;
 	boolean isImported;
@@ -2269,7 +2269,7 @@ class GeosetPanel extends JPanel implements ChangeListener {
 
 	public GeosetPanel(final boolean imported, // Is this Geoset an imported
 												// one, or an original?
-			final MDL model, final int geoIndex, // which geoset is this for?
+			final EditableModel model, final int geoIndex, // which geoset is this for?
 													// (starts with 0)
 			final DefaultListModel materials, final MaterialListCellRenderer renderer) {
 		this.materials = materials;
@@ -2351,12 +2351,12 @@ class GeosetPanel extends JPanel implements ChangeListener {
 }
 
 class MaterialListCellRenderer extends DefaultListCellRenderer {
-	MDL myModel;
+	EditableModel myModel;
 	Object myMaterial;
 	Font theFont = new Font("Arial", Font.BOLD, 32);
 	HashMap<Material, ImageIcon> map = new HashMap<>();
 
-	public MaterialListCellRenderer(final MDL model) {
+	public MaterialListCellRenderer(final EditableModel model) {
 		myModel = model;
 	}
 
@@ -3202,7 +3202,7 @@ class ObjPanelListCellRenderer extends DefaultListCellRenderer {
 
 class GeosetAnimationPanel extends JTabbedPane {
 	// Geoset Animation panel for controlling bone attachments and visibility
-	MDL model;
+	EditableModel model;
 	Geoset geoset;
 	boolean isImported;
 	int index;
@@ -3212,7 +3212,7 @@ class GeosetAnimationPanel extends JTabbedPane {
 	public GeosetAnimationPanel(final boolean imported, // Is this Geoset an
 														// imported one, or an
 														// original?
-			final MDL model, final int geoIndex, final ImportPanel thePanel)// which
+			final EditableModel model, final int geoIndex, final ImportPanel thePanel)// which
 																			// geoset
 																			// is
 																			// this
@@ -3279,10 +3279,10 @@ class BoneAttachmentPane extends JPanel implements ActionListener, ListSelection
 	JScrollPane bonesPane;
 	JButton useBone;
 
-	MDL model;
+	EditableModel model;
 	Geoset geoset;
 
-	public BoneAttachmentPane(final MDL model, final Geoset whichGeoset, final ListCellRenderer renderer,
+	public BoneAttachmentPane(final EditableModel model, final Geoset whichGeoset, final ListCellRenderer renderer,
 			final ImportPanel thePanel) {
 		this.model = model;
 		geoset = whichGeoset;
@@ -3669,18 +3669,18 @@ class MultiObjectPanel extends ObjectPanel implements ChangeListener {
 
 class VisibilityShell {
 	Named source;
-	MDL model;
+	EditableModel model;
 
-	public VisibilityShell(final Named n, final MDL whichModel) {
+	public VisibilityShell(final Named n, final EditableModel whichModel) {
 		source = n;
 		model = whichModel;
 	}
 }
 
 class VisPaneListCellRenderer extends DefaultListCellRenderer {
-	MDL current;
+	EditableModel current;
 
-	public VisPaneListCellRenderer(final MDL whichModel) {
+	public VisPaneListCellRenderer(final EditableModel whichModel) {
 		current = whichModel;
 	}
 

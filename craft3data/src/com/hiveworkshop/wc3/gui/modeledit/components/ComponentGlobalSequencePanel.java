@@ -8,14 +8,14 @@ import com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.globalsequence.S
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorJSpinner;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 
 import net.miginfocom.swing.MigLayout;
 
 public class ComponentGlobalSequencePanel extends JPanel {
 	private final JLabel indexLabel;
 	private final ComponentEditorJSpinner lengthSpinner;
-	private MDL model;
+	private EditableModel model;
 	private UndoActionListener undoActionListener;
 	private ModelStructureChangeListener modelStructureChangeListener;
 	private int globalSequenceId;
@@ -41,7 +41,7 @@ public class ComponentGlobalSequencePanel extends JPanel {
 		add(lengthSpinner, "cell 1 1");
 	}
 
-	public void setGlobalSequence(final MDL model, final Integer value, final int globalSequenceId,
+	public void setGlobalSequence(final EditableModel model, final Integer value, final int globalSequenceId,
 			final UndoActionListener undoActionListener,
 			final ModelStructureChangeListener modelStructureChangeListener) {
 		this.model = model;

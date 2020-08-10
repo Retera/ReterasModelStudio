@@ -43,7 +43,7 @@ public class SoundFile {
 		this.soundChannel = soundChannel;
 	}
 
-	public static SoundFile read(final BufferedReader mdl, final MDL mdlr) {
+	public static SoundFile read(final BufferedReader mdl, final EditableModel mdlr) {
 		String line = MDLReader.nextLine(mdl);
 		if (line.contains("SoundFile")) {
 			final SoundFile lay = new SoundFile();

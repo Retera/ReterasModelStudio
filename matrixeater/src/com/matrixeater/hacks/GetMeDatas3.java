@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import com.etheller.collections.SetView;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 
@@ -24,7 +24,7 @@ public class GetMeDatas3 {
 				"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\ReforgedArtProject\\UndeadArthas3.mdx")) {
 			try {
 
-				final MDL model = new MDL(MdxUtils.loadModel(new BlizzardDataInputStream(footman)));
+				final EditableModel model = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(footman)));
 				int badGuys = 0;
 				int goodGuys = 0;
 				for (final Geoset geo : model.getGeosets()) {

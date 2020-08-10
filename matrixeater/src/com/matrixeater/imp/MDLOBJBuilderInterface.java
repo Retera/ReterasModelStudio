@@ -10,7 +10,7 @@ import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Layer;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.Normal;
 import com.hiveworkshop.wc3.mdl.TVertex;
@@ -19,7 +19,7 @@ import com.owens.oobjloader.parser.BuilderInterface;
 
 public class MDLOBJBuilderInterface implements BuilderInterface {
 
-	private final MDL model;
+	private final EditableModel model;
 	private final List<Vertex> verticesGeometric = new ArrayList<Vertex>();
 	private final List<TVertex> tvertices = new ArrayList<TVertex>();
 	private final List<Normal> normals = new ArrayList<Normal>();
@@ -27,7 +27,7 @@ public class MDLOBJBuilderInterface implements BuilderInterface {
 	private final Geoset currentGeoset = new Geoset();
 
 	public MDLOBJBuilderInterface() {
-		model = new MDL();
+		model = new EditableModel();
 	}
 
 	@Override
@@ -174,7 +174,7 @@ public class MDLOBJBuilderInterface implements BuilderInterface {
 		System.out.println("doneParsingObj(filename=" + filename + ")");
 	}
 
-	public MDL createModel() {
+	public EditableModel createModel() {
 		return model;
 	}
 }

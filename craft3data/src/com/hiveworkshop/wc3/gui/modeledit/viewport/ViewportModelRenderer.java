@@ -23,7 +23,7 @@ import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Helper;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
 import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
@@ -295,7 +295,7 @@ public class ViewportModelRenderer implements ModelRenderer {
 	 * @param filter
 	 * @param extraHighlightPoint
 	 */
-	public static void drawFittedTriangles(final MDL model, final Graphics g, final Rectangle bounds, final byte a,
+	public static void drawFittedTriangles(final EditableModel model, final Graphics g, final Rectangle bounds, final byte a,
 			final byte b, final VertexFilter<? super GeosetVertex> filter, final Vertex extraHighlightPoint) {
 		final List<Triangle> triangles = new ArrayList<>();
 		double minX = Double.MAX_VALUE;

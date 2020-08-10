@@ -5,16 +5,16 @@ import java.util.Map;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 
 public final class EditAnimationLengthsAction implements UndoAction {
-	private final MDL mdl;
+	private final EditableModel mdl;
 	private final Map<Animation, Integer> animationToNewLength;
 	private final Map<Animation, Integer> animationToOldLength;
 	private final int[] newGlobalSeqLengths;
 	private final int[] oldGlobalSeqLengths;
 
-	public EditAnimationLengthsAction(final MDL mdl, final Map<Animation, Integer> animationToNewLength,
+	public EditAnimationLengthsAction(final EditableModel mdl, final Map<Animation, Integer> animationToNewLength,
 			final Map<Animation, Integer> animationToOldLength, final int[] newGlobalSeqLengths,
 			final int[] oldGlobalSeqLengths) {
 		this.mdl = mdl;

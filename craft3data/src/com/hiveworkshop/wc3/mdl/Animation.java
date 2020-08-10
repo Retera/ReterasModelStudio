@@ -266,7 +266,7 @@ public class Animation implements BasicTimeBoundProvider {
 		}
 	}
 
-	public void setInterval(final int start, final int end, final MDL mdlr) {
+	public void setInterval(final int start, final int end, final EditableModel mdlr) {
 		final List<AnimFlag> aniFlags = mdlr.getAllAnimFlags();
 		final ArrayList eventObjs = mdlr.sortedIdObjects(EventObject.class);
 		setInterval(start, end, aniFlags, eventObjs);

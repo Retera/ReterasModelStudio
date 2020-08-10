@@ -6,15 +6,15 @@ import java.util.List;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.Geoset;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 
 public class NewGeosetAction implements UndoAction {
 	private final Geoset geoset;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final List<Geoset> geosetAsList;
-	private final MDL model;
+	private final EditableModel model;
 
-	public NewGeosetAction(final Geoset geoset, final MDL model,
+	public NewGeosetAction(final Geoset geoset, final EditableModel model,
 			final ModelStructureChangeListener modelStructureChangeListener) {
 		this.geoset = geoset;
 		this.model = model;

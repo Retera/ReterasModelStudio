@@ -12,7 +12,7 @@ import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Layer;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.Normal;
 import com.hiveworkshop.wc3.mdl.TVertex;
@@ -27,7 +27,7 @@ public class TestMain {
 		final int int1 = CharInt.toInt("SBLG");
 		System.out.println(int1);
 
-		final MDL myModel = new MDL("TestModel");
+		final EditableModel myModel = new EditableModel("TestModel");
 		myModel.add(new Animation("Stand", 333, 1333));
 		final Bone myRoot = new Bone("Bone_Root");
 		myModel.add(myRoot);
@@ -80,7 +80,7 @@ public class TestMain {
 		myModel.printTo(new File("C:/users/micro/onedrive/documents/warcraft III/models/Generated43Matrices.mdx"));
 //		for(int i = 0; i < )
 
-		final MDL twoCloud = MDL
+		final EditableModel twoCloud = EditableModel
 				.read(new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\TwoCloudB.mdx"));
 		final Map<IdObject, Integer> objToCount = new HashMap<>();
 		for (final Geoset g : twoCloud.getGeosets()) {

@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.hiveworkshop.wc3.mdl.AnimFlag;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
 
 public class CountBezierRotations {
@@ -33,7 +33,7 @@ public class CountBezierRotations {
 			}
 		} else {
 			if (file.getName().toLowerCase().endsWith(".mdx")) {
-				final MDL model = MDL.read(file);
+				final EditableModel model = EditableModel.read(file);
 				final List<AnimFlag> allAnimFlags = model.getAllAnimFlags();
 				for (final AnimFlag flag : allAnimFlags) {
 					final InterpolationType interpTypeAsEnum = flag.getInterpTypeAsEnum();

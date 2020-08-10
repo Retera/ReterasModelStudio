@@ -19,7 +19,7 @@ import javax.swing.SpinnerNumberModel;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools.EditAnimationLengthsAction;
 import com.hiveworkshop.wc3.mdl.Animation;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public class AnimationPanel extends JPanel implements ActionListener {
@@ -96,7 +96,7 @@ public class AnimationPanel extends JPanel implements ActionListener {
 			parentFrame.setVisible(false);
 		}
 		if (e.getSource() == okay) {
-			final MDL mdl = mdlDisp.getModel();
+			final EditableModel mdl = mdlDisp.getModel();
 			int myAnimationsIndex = 0;
 			final Map<Animation, Integer> animationToNewLength = new HashMap<>();
 			final Map<Animation, Integer> animationToOldLength = new HashMap<>();

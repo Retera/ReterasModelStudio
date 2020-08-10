@@ -308,7 +308,7 @@ public class GeosetAnim implements VisibilitySource, Named {
 		return renderColorVector;
 	}
 
-	public void copyVisibilityFrom(final VisibilitySource other, final MDL mdlr) {
+	public void copyVisibilityFrom(final VisibilitySource other, final EditableModel mdlr) {
 		final VisibilitySource temp = this;
 		final AnimFlag visFlag = temp.getVisibilityFlag();// might be
 															// null

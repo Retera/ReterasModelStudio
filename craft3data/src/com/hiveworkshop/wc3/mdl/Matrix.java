@@ -58,7 +58,7 @@ public class Matrix {
 
 	long lastPopupTimeHack = 0;
 
-	public void updateIds(final MDL mdlr) {
+	public void updateIds(final EditableModel mdlr) {
 		final int sz1 = bones.size();
 		if (m_boneIds == null) {
 			m_boneIds = new ArrayList();
@@ -88,7 +88,7 @@ public class Matrix {
 		}
 	}
 
-	public void updateBones(final MDL mdlr) {
+	public void updateBones(final EditableModel mdlr) {
 		if (bones == null) {
 			bones = new ArrayList<>();
 		} else {

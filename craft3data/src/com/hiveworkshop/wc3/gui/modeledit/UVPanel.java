@@ -73,7 +73,7 @@ import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportIconUtils;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Layer;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
@@ -984,8 +984,8 @@ public class UVPanel extends JPanel
 							.getBufferedImage(dispMDL.getModel().getWrappedDataSource()));
 					boolean wrap = false;
 					for (final Layer layer : materialsList.getSelectedValue().getLayers()) {
-						if ((layer.getTextureBitmap() != null) && (layer.getTextureBitmap().getWrapWidth()
-								|| layer.getTextureBitmap().getWrapHeight())) {
+						if ((layer.getTextureBitmap() != null) && (layer.getTextureBitmap().isWrapWidth()
+								|| layer.getTextureBitmap().isWrapHeight())) {
 							wrap = true;
 						}
 					}
@@ -993,7 +993,7 @@ public class UVPanel extends JPanel
 				}
 			} else if (x == JOptionPane.NO_OPTION) {
 				final JFileChooser jfc = new JFileChooser();
-				final MDL current = dispMDL.getModel();
+				final EditableModel current = dispMDL.getModel();
 				final SaveProfile profile = SaveProfile.get();
 				if ((current != null) && (current.getWorkingDirectory() != null)) {
 					jfc.setCurrentDirectory(current.getWorkingDirectory());

@@ -11,7 +11,7 @@ import javax.imageio.ImageIO;
 
 import com.etheller.collections.SetView;
 import com.hiveworkshop.wc3.gui.BLPHandler;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 
@@ -58,9 +58,9 @@ public class FtlopMaker4 {
 						try {
 							final File outputFile = new File(outputDump + item);
 							outputFile.getParentFile().mkdirs();
-							final MDL model = new MDL(MdxUtils.loadModel(
+							final EditableModel model = new EditableModel(MdxUtils.loadModel(
 									new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream(item))));
-							MDL.convertToV800(targetLevelOfDetail, model);
+							EditableModel.convertToV800(targetLevelOfDetail, model);
 							model.printTo(outputFile);
 						} catch (final Exception e) {
 							e.printStackTrace();

@@ -12,7 +12,7 @@ import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Layer;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
 import com.hiveworkshop.wc3.mdl.QuaternionRotation;
@@ -27,7 +27,7 @@ public class GenModels3 {
 	public static void main(final String[] args) {
 		final File source = new File(
 				"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Requests\\Wazzz\\WispGrove43.mdx");
-		final MDL model = MDL.read(source);
+		final EditableModel model = EditableModel.read(source);
 		final List<Particle> particles = new LinkedList<>();
 		final Bone particleRoot = new Bone("Bone_ParticleRoot");
 		final List<Geoset> geosets = new LinkedList<>();

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.hiveworkshop.wc3.gui.OldBLPHandler;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 
 public final class RecompileModelsDirectory {
 	private static final List<String> failed = new ArrayList<>();
@@ -50,7 +50,7 @@ public final class RecompileModelsDirectory {
 					// MDXHandler.compile(target);
 					final File mdxFile = new File(
 							target.getPath().substring(0, target.getPath().lastIndexOf('.')) + ".mdx");
-					MDL.read(target).printTo(mdxFile);
+					EditableModel.read(target).printTo(mdxFile);
 					passed.add(target.getPath());
 					target.delete();
 				} catch (final Exception e) {

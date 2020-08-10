@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.etheller.collections.SetView;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 
@@ -44,7 +44,7 @@ public class GetMeDatas {
 //				footmanMdx.save(out);
 //			}
 
-			final MDL model = new MDL(MdxUtils.loadModel(new BlizzardDataInputStream(footman)));
+			final EditableModel model = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(footman)));
 			model.printTo(
 					new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III Beta\\Models\\SoftwareGrunt.mdx"));
 		} catch (final IOException e) {

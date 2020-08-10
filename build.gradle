@@ -80,6 +80,7 @@ project(":craft3data") {
 		compile "org.lwjgl:lwjgl-platform:${lwjglVersion}:natives-osx"
 		compile "org.lwjgl.lwjgl:lwjgl_util:${lwjglVersion}"
 		compile "net.nikr:dds:1.0.0"
+        compile "com.google.guava:guava:23.5-jre"
 //        compile "com.github.ebourg:infonode:master"
 //        compile "com.github.DrSuperGood:blp-iio-plugin:master"
 		compile files(fileTree(dir:'../jars', includes: ['*.jar']))

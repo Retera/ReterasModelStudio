@@ -68,7 +68,7 @@ import de.wc3data.stream.BlizzardDataOutputStream;
  *
  * Eric Theller 11/5/2011
  */
-public class MDL implements Named {
+public class EditableModel implements Named {
 	public static boolean RETERA_FORMAT_BPOS_MATRICES = false;
 	// private static String [] tags = {"Model ","Sequences ","GlobalSequences
 	// ","Bitmap ","Material ","Geoset ",};
@@ -170,7 +170,7 @@ public class MDL implements Named {
 		temporary = flag;
 	}
 
-	public void copyHeaders(final MDL other) {
+	public void copyHeaders(final EditableModel other) {
 		setFileRef(other.fileRef);
 		BlendTime = other.BlendTime;
 		if (other.extents != null) {
@@ -181,19 +181,19 @@ public class MDL implements Named {
 		name = other.name;
 	}
 
-	public static MDL clone(final MDL what, final String newName) {
-		final MDL newModel = new MDL(what);
+	public static EditableModel clone(final EditableModel what, final String newName) {
+		final EditableModel newModel = new EditableModel(what);
 		newModel.setName(newName);
 		return newModel;
 	}
 
-	public static MDL deepClone(final MDL what, final String newName) {
+	public static EditableModel deepClone(final EditableModel what, final String newName) {
 		final File temp;
 		try {
 			final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 			what.printTo(byteArrayOutputStream);
 			try (ByteArrayInputStream bais = new ByteArrayInputStream(byteArrayOutputStream.toByteArray())) {
-				final MDL newModel = MDL.read(bais);
+				final EditableModel newModel = EditableModel.read(bais);
 				newModel.setName(newName);
 				newModel.setFileRef(what.getFile());
 				return newModel;
@@ -244,17 +244,17 @@ public class MDL implements Named {
 		cameras.clear();
 	}
 
-	public MDL() {
+	public EditableModel() {
 		name = "UnnamedModel";
 		formatVersion = 800;
 	}
 
-	public MDL(final String newName) {
+	public EditableModel(final String newName) {
 		name = newName;
 		formatVersion = 800;
 	}
 
-	public MDL(final MDL other) {
+	public EditableModel(final EditableModel other) {
 		setFileRef(other.fileRef);
 		name = other.name;
 		BlendTime = other.BlendTime;
@@ -284,7 +284,7 @@ public class MDL implements Named {
 		return (flags & mask) != 0;
 	}
 
-	public MDL(final MdxModel mdx) {
+	public EditableModel(final MdxModel mdx) {
 		this();
 		// Step 1: Convert the Model Chunk
 		// For MDL api, this is currently embedded right inside the
@@ -747,10 +747,10 @@ public class MDL implements Named {
 	 *
 	 * @param other
 	 */
-	public void addAnimationsFrom(MDL other) {
+	public void addAnimationsFrom(EditableModel other) {
 		// this process destroys the "other" model inside memory, so destroy
 		// a copy instead
-		other = MDL.deepClone(other, "animation source file");
+		other = EditableModel.deepClone(other, "animation source file");
 
 		final List<AnimFlag> flags = getAllAnimFlags();
 		final List<EventObject> eventObjs = sortedIdObjects(EventObject.class);
@@ -831,10 +831,10 @@ public class MDL implements Named {
 		// i think we're done????
 	}
 
-	public List<Animation> addAnimationsFrom(MDL other, final List<Animation> anims) {
+	public List<Animation> addAnimationsFrom(EditableModel other, final List<Animation> anims) {
 		// this process destroys the "other" model inside memory, so destroy
 		// a copy instead
-		other = MDL.deepClone(other, "animation source file");
+		other = EditableModel.deepClone(other, "animation source file");
 
 		final List<AnimFlag> flags = getAllAnimFlags();
 		final List<EventObject> eventObjs = sortedIdObjects(EventObject.class);
@@ -942,11 +942,11 @@ public class MDL implements Named {
 		return anims.size();
 	}
 
-	public static MDL read(final File f) {
+	public static EditableModel read(final File f) {
 		if (f.getPath().toLowerCase().endsWith(".mdx")) {
 			// f = MDXHandler.convert(f);
 			try (BlizzardDataInputStream in = new BlizzardDataInputStream(new FileInputStream(f))) {
-				final MDL mdl = new MDL(MdxUtils.loadModel(in));
+				final EditableModel mdl = new EditableModel(MdxUtils.loadModel(in));
 				mdl.setFileRef(f);
 				return mdl;
 			} catch (final FileNotFoundException e) {
@@ -962,7 +962,7 @@ public class MDL implements Named {
 			}
 		}
 		try (final FileInputStream fos = new FileInputStream(f)) {
-			final MDL mdlObject = read(fos);
+			final EditableModel mdlObject = read(fos);
 			mdlObject.setFileRef(f);
 			return mdlObject;
 		} catch (final FileNotFoundException e) {
@@ -973,7 +973,7 @@ public class MDL implements Named {
 		return null;
 	}
 
-	public static MDL read(final InputStream f) {
+	public static EditableModel read(final InputStream f) {
 		try {
 			MDLReader.clearLineId();
 			BufferedReader mdl;
@@ -987,7 +987,7 @@ public class MDL implements Named {
 			// to read file, but file was not found.");
 			// return null;
 			// }
-			final MDL mdlr = new MDL();
+			final EditableModel mdlr = new EditableModel();
 			String line = "";
 			while ((line = MDLReader.nextLineSpecial(mdl)).startsWith("//")) {
 				if (!line.contains("// Saved by Retera's MDL Toolkit on ")) {
@@ -2698,7 +2698,7 @@ public class MDL implements Named {
 	}
 
 	public void simplifyKeyframes() {
-		final MDL currentMDL = this;
+		final EditableModel currentMDL = this;
 		final List<AnimFlag> allAnimFlags = currentMDL.getAllAnimFlags();
 		final List<Animation> anims = currentMDL.getAnims();
 
@@ -3071,7 +3071,7 @@ public class MDL implements Named {
 	 * @param targetLevelOfDetail
 	 * @param model
 	 */
-	public static void convertToV800(final int targetLevelOfDetail, final MDL model) {
+	public static void convertToV800(final int targetLevelOfDetail, final EditableModel model) {
 		// Things to fix:
 		// 1.) format version
 		model.setFormatVersion(800);
@@ -3201,7 +3201,7 @@ public class MDL implements Named {
 		model.faceEffects.clear();
 	}
 
-	public static void makeItHD(final MDL model) {
+	public static void makeItHD(final EditableModel model) {
 		for (final Geoset geo : model.getGeosets()) {
 			final ArrayList<GeosetVertex> vertices = geo.getVertices();
 			for (final GeosetVertex gv : vertices) {
@@ -3254,7 +3254,7 @@ public class MDL implements Named {
 		}
 	}
 
-	public static void recalculateTangents(final MDL currentMDL, final Component parent) {
+	public static void recalculateTangents(final EditableModel currentMDL, final Component parent) {
 		// copied from
 		// https://github.com/TaylorMouse/MaxScripts/blob/master/Warcraft%203%20Reforged/GriffonStudios/GriffonStudios_Warcraft_3_Reforged_Export.ms#L169
 		currentMDL.doSavePreps(); // I wanted to use VertexId on the triangle
@@ -3337,7 +3337,7 @@ public class MDL implements Named {
 		}
 	}
 
-	public static void recalculateTangentsOld(final MDL currentMDL) {
+	public static void recalculateTangentsOld(final EditableModel currentMDL) {
 		for (final Geoset theMesh : currentMDL.getGeosets()) {
 			for (int nFace = 0; nFace < theMesh.getTriangles().size(); nFace++) {
 				final Triangle face = theMesh.getTriangle(nFace);

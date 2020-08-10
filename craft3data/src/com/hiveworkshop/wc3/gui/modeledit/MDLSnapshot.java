@@ -71,7 +71,7 @@ import com.hiveworkshop.wc3.mdl.ExtLog;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Layer;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
@@ -349,7 +349,7 @@ public class MDLSnapshot {
 
 	public static ModelViewManager createDefaultDisplay(final GameObject unit) {
 		ModelViewManager mdlDisplay;
-		MDL model;
+		EditableModel model;
 		try {
 			String field = unit.getField("file");
 			if (field.endsWith(".mdl")) {
@@ -357,7 +357,7 @@ public class MDLSnapshot {
 			} else {
 				field += ".mdx";
 			}
-			model = new MDL(
+			model = new EditableModel(
 					MdxUtils.loadModel(new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream(field))));
 			mdlDisplay = new ModelViewManager(model);
 
@@ -407,7 +407,7 @@ public class MDLSnapshot {
 						// (float)(45-model.getExtents().getMaximumExtent().getZ()/400*45));
 		double width = 128;
 		double depth = 64;
-		final MDL model = this.dispMDL.getModel();
+		final EditableModel model = this.dispMDL.getModel();
 		final ExtLog exts = model.getExtents();
 		boolean loadedWidth = false;
 		final List<CollisionShape> sortedIdObjects = model.sortedIdObjects(CollisionShape.class);
@@ -454,7 +454,7 @@ public class MDLSnapshot {
 	public void zoomToFit(final VertexFilter<? super GeosetVertex> filter) {
 
 		setYangle(35);
-		final MDL model = this.dispMDL.getModel();
+		final EditableModel model = this.dispMDL.getModel();
 		final List<Vertex> shapeData = new ArrayList<>();
 		for (final Geoset geo : dispMDL.getVisibleGeosets()) {
 			boolean isOnlyAdditive = true;
