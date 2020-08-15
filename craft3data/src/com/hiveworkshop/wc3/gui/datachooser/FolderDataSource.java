@@ -3,8 +3,10 @@ package com.hiveworkshop.wc3.gui.datachooser;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.HashSet;
@@ -45,6 +47,14 @@ public class FolderDataSource implements DataSource {
 			return null;
 		}
 		return new File(folderPath.toString() + File.separatorChar + filepath);
+	}
+
+	@Override
+	public ByteBuffer read(final String path) throws IOException {
+		if (!has(path)) {
+			return null;
+		}
+		return ByteBuffer.wrap(Files.readAllBytes(Paths.get(path)));
 	}
 
 	@Override

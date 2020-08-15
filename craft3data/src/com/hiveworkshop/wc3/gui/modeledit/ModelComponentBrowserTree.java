@@ -32,13 +32,13 @@ import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.CollisionShape;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.EventObject;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.Helper;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
-import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
@@ -88,7 +88,7 @@ public final class ModelComponentBrowserTree extends JTree {
 				return treeCellRendererComponent;
 			}
 		});
-//		setFocusable(false);
+		setFocusable(false);
 	}
 
 	public void addSelectListener(final ModelComponentListener selectListener) {
@@ -1245,8 +1245,8 @@ public final class ModelComponentBrowserTree extends JTree {
 		void selected(Animation animation, UndoActionListener undoListener,
 				ModelStructureChangeListener modelStructureChangeListener);
 
-		void selected(EditableModel model, Integer globalSequence, int globalSequenceId, UndoActionListener undoActionListener,
-				ModelStructureChangeListener modelStructureChangeListener);
+		void selected(EditableModel model, Integer globalSequence, int globalSequenceId,
+				UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener);
 
 		void selected(Bitmap texture, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
 				ModelStructureChangeListener modelStructureChangeListener);

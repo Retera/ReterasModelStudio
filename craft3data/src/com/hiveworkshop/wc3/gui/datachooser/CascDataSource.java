@@ -97,6 +97,35 @@ public class CascDataSource implements DataSource {
 	}
 
 	@Override
+	public ByteBuffer read(String path) {
+		path = path.toLowerCase(Locale.US).replace('/', '\\');
+		final String resolvedAlias = fileAliases.get(path);
+		if (resolvedAlias != null) {
+			path = resolvedAlias;
+		}
+		for (final String prefix : prefixes) {
+			final String tempFilepath = prefix + "\\" + path;
+			final ByteBuffer stream = internalRead(tempFilepath);
+			if (stream != null) {
+				return stream;
+			}
+		}
+		return internalRead(path);
+	}
+
+	private ByteBuffer internalRead(final String tempFilepath) {
+		try {
+			if (rootFileSystem.isFile(tempFilepath) && rootFileSystem.isFileAvailable(tempFilepath)) {
+				final ByteBuffer buffer = rootFileSystem.readFileData(tempFilepath);
+				return buffer;
+			}
+		} catch (final IOException e) {
+			throw new RuntimeException("CASC parser error for: " + tempFilepath, e);
+		}
+		return null;
+	}
+
+	@Override
 	public File getFile(String filepath) {
 		filepath = filepath.toLowerCase(Locale.US).replace('/', '\\');
 		final String resolvedAlias = fileAliases.get(filepath);

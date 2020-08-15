@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.mpq;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -65,6 +66,23 @@ public class MpqCodebase implements Codebase, DataSource {
 			for (int i = mpqList.size() - 1; i >= 0; i--) {
 				final DataSource mpq = mpqList.get(i);
 				final InputStream resourceAsStream = mpq.getResourceAsStream(filepath);
+				if (resourceAsStream != null) {
+					return resourceAsStream;
+				}
+			}
+		} catch (final IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public ByteBuffer read(final String path) throws IOException {
+		try {
+			for (int i = mpqList.size() - 1; i >= 0; i--) {
+				final DataSource mpq = mpqList.get(i);
+				final ByteBuffer resourceAsStream = mpq.read(path);
 				if (resourceAsStream != null) {
 					return resourceAsStream;
 				}

@@ -1986,42 +1986,8 @@ public class EditableModel implements Named {
 				}
 			}
 		}
-		final ArrayList<Bone> bones = sortedIdObjects(Bone.class);
-		bones.addAll(sortedIdObjects(Helper.class));// Hey, look at that!
-		for (final Bone b : bones) {
-			allFlags.addAll(b.animFlags);
-		}
-		final ArrayList<Light> lights = sortedIdObjects(Light.class);
-		for (final Light l : lights) {
-			allFlags.addAll(l.animFlags);
-		}
-		final ArrayList<Attachment> atcs = sortedIdObjects(Attachment.class);
-		for (final Attachment x : atcs) {
-			allFlags.addAll(x.animFlags);
-		}
-		final ArrayList<ParticleEmitter2> pes = sortedIdObjects(ParticleEmitter2.class);
-		for (final ParticleEmitter2 x : pes) {
-			allFlags.addAll(x.animFlags);
-		}
-		final ArrayList<ParticleEmitter> xpes = sortedIdObjects(ParticleEmitter.class);
-		for (final ParticleEmitter x : xpes) {
-			allFlags.addAll(x.animFlags);
-		}
-		final ArrayList<ParticleEmitterPopcorn> corns = sortedIdObjects(ParticleEmitterPopcorn.class);
-		for (final ParticleEmitterPopcorn x : corns) {
-			allFlags.addAll(x.animFlags);
-		}
-		final ArrayList<RibbonEmitter> res = sortedIdObjects(RibbonEmitter.class);
-		for (final RibbonEmitter x : res) {
-			allFlags.addAll(x.animFlags);
-		}
-		final ArrayList<CollisionShape> cs = sortedIdObjects(CollisionShape.class);
-		for (final CollisionShape x : cs) {
-			allFlags.addAll(x.animFlags);
-		}
-		final ArrayList<EventObject> evt = sortedIdObjects(EventObject.class);
-		for (final EventObject x : evt) {
-			allFlags.addAll(x.animFlags);
+		for (final IdObject idObject : idObjects) {
+			allFlags.addAll(idObject.getAnimFlags());
 		}
 		if (cameras != null) {
 			for (final Camera x : cameras) {

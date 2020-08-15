@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.datachooser;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -64,6 +65,23 @@ public class CompoundDataSource implements DataSource {
 				final InputStream resourceAsStream = mpq.getResourceAsStream(filepath);
 				if (resourceAsStream != null) {
 					return resourceAsStream;
+				}
+			}
+		} catch (final IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public ByteBuffer read(final String path) throws IOException {
+		try {
+			for (int i = this.mpqList.size() - 1; i >= 0; i--) {
+				final DataSource mpq = this.mpqList.get(i);
+				final ByteBuffer buffer = mpq.read(path);
+				if (buffer != null) {
+					return buffer;
 				}
 			}
 		} catch (final IOException e) {
