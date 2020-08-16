@@ -22,7 +22,7 @@ public class MDXHandler {
 					} else {
 						goodTicks = 0;
 					}
-					if (goodTicks > 3 && lastSize > 0) {
+					if ((goodTicks > 3) && (lastSize > 0)) {
 						keepGoing = false;
 					}
 					lastSize = fileMDL.length();
@@ -63,7 +63,7 @@ public class MDXHandler {
 					} else {
 						goodTicks = 0;
 					}
-					if (goodTicks > 3 && lastSize > 0) {
+					if ((goodTicks > 3) && (lastSize > 0)) {
 						keepGoing = false;
 					}
 					lastSize = fileMDX.length();

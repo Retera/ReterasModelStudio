@@ -23,9 +23,10 @@ import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Helper;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
+import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
@@ -125,6 +126,12 @@ public class ViewportModelRenderer implements ModelRenderer {
 	public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
 		resetIdObjectRendererWithNode(particleEmitter);
 		idObjectRenderer.particleEmitter2(particleEmitter);
+	}
+
+	@Override
+	public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
+		resetIdObjectRendererWithNode(popcornFxEmitter);
+		idObjectRenderer.popcornFxEmitter(popcornFxEmitter);
 	}
 
 	@Override
@@ -252,12 +259,18 @@ public class ViewportModelRenderer implements ModelRenderer {
 				graphics.setColor(programPreferences.getNormalsColor());
 				final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
 				final Point endPoint = new Point(
-						(int) coordinateSystem.convertX(firstCoord + firstNormalCoord * 12 / zoom),
-						(int) coordinateSystem.convertY(secondCoord + secondNormalCoord * 12 / zoom));
+						(int) coordinateSystem.convertX(firstCoord + ((firstNormalCoord * 12) / zoom)),
+						(int) coordinateSystem.convertY(secondCoord + ((secondNormalCoord * 12) / zoom)));
 				graphics.drawLine(point.x, point.y, endPoint.x, endPoint.y);
 				graphics.setColor(triangleColor);
 			}
 			return VertexVisitor.NO_ACTION;
+		}
+
+		@Override
+		public VertexVisitor hdVertex(final double x, final double y, final double z, final double normalX,
+				final double normalY, final double normalZ, final Bone[] skinBones, final short[] skinBoneWeights) {
+			return vertex(x, y, z, normalX, normalY, normalZ, null);
 		}
 
 		@Override
@@ -282,7 +295,7 @@ public class ViewportModelRenderer implements ModelRenderer {
 	 * @param filter
 	 * @param extraHighlightPoint
 	 */
-	public static void drawFittedTriangles(final MDL model, final Graphics g, final Rectangle bounds, final byte a,
+	public static void drawFittedTriangles(final EditableModel model, final Graphics g, final Rectangle bounds, final byte a,
 			final byte b, final VertexFilter<? super GeosetVertex> filter, final Vertex extraHighlightPoint) {
 		final List<Triangle> triangles = new ArrayList<>();
 		double minX = Double.MAX_VALUE;

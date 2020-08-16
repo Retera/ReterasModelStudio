@@ -232,29 +232,25 @@ public class TTan {
 	}
 
 	public static Object assignSubscript(final Object value, final int index, final Object newValue) {
-		if (index == 0) {
-			if ((value instanceof Double) || (value instanceof Integer)) {
-				return newValue;
-			} else if (value instanceof Vertex) {
-				((Vertex) value).setCoord((byte) index, ((Number) newValue).doubleValue());
-				return value;
-			} else if (value instanceof QuaternionRotation) {
-				((QuaternionRotation) value).setCoord((byte) index, ((Number) newValue).doubleValue());
-				return value;
-			}
+		if ((value instanceof Double) || (value instanceof Integer)) {
+			return newValue;
+		} else if (value instanceof Vertex) {
+			((Vertex) value).setCoord((byte) index, ((Number) newValue).doubleValue());
+			return value;
+		} else if (value instanceof QuaternionRotation) {
+			((QuaternionRotation) value).setCoord((byte) index, ((Number) newValue).doubleValue());
+			return value;
 		}
 		throw new IllegalArgumentException("Unknown subscripting (set): " + value + ", " + index + ", " + newValue);
 	}
 
 	public static Number getSubscript(final Object value, final int index) {
-		if (index == 0) {
-			if ((value instanceof Number)) {
-				return (Number) value;
-			} else if (value instanceof Vertex) {
-				return ((Vertex) value).getCoord((byte) index);
-			} else if (value instanceof QuaternionRotation) {
-				return ((QuaternionRotation) value).getCoord((byte) index);
-			}
+		if ((value instanceof Number)) {
+			return (Number) value;
+		} else if (value instanceof Vertex) {
+			return ((Vertex) value).getCoord((byte) index);
+		} else if (value instanceof QuaternionRotation) {
+			return ((QuaternionRotation) value).getCoord((byte) index);
 		}
 		throw new IllegalArgumentException("Unknown subscripting (get): " + value + ", " + index);
 	}
@@ -313,5 +309,52 @@ public class TTan {
 		q.a = q.a * divt;
 		q.b = q.b * divt;
 		q.c = q.c * divt;
+	}
+
+	public static void bezInterp(final int frame, final AnimFlag.Entry its, final AnimFlag.Entry itd) {
+		float t, f1, f2, f3, f4;
+		t = (frame - its.time) / (float) (itd.time - its.time);
+
+		f1 = (1 - t) * (1 - t) * (1 - t);
+		f2 = 3 * t * (1 - t) * (1 - t);
+		f3 = 3 * t * t * (1 - t);
+		f4 = t * t * t;
+
+		for (int i = 0; i < 3; i++) {
+			assignSubscript(itd.value, i,
+					(f1 * getSubscript(its.value, i).floatValue()) + (f2 * getSubscript(its.outTan, i).floatValue())
+							+ (f3 * getSubscript(itd.inTan, i).floatValue())
+							+ (f4 * getSubscript(itd.value, i).floatValue()));
+		}
+
+	}
+
+	public static void spline(final int frame, final AnimFlag.Entry its, final AnimFlag.Entry itd) {
+		float t, f1, f2, f3, f4;
+		t = (frame - its.time) / (float) (itd.time - its.time);
+
+		f1 = ((2 * t * t * t) - (3 * t * t)) + 1;
+		f2 = (t * t * t) - (2 * t * t * t);
+		f3 = (-2 * t * t * t) + (3 * t * t);
+		f4 = (t * t * t) - (t * t);
+
+		for (int i = 0; i < 4; i++) {
+			assignSubscript(itd.value, i,
+					(f1 * getSubscript(its.value, i).floatValue()) + (f2 * getSubscript(its.outTan, i).floatValue())
+							+ (f3 * getSubscript(itd.value, i).floatValue())
+							+ (f4 * getSubscript(itd.inTan, i).floatValue()));
+		}
+
+	}
+
+	public static int getSizeOfElement(final Object value) {
+		if ((value instanceof Number)) {
+			return 1;
+		} else if (value instanceof Vertex) {
+			return 3;
+		} else if (value instanceof QuaternionRotation) {
+			return 4;
+		}
+		return -1;
 	}
 }

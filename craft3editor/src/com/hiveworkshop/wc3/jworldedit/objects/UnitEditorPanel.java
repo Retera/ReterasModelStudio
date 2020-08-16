@@ -362,7 +362,9 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 		for (int i = 0; i < behaviorTree.getRowCount(); i++) {
 			behaviorTree.expandRow(i);
 		}
-		splitWithBehaviorEditor.addTab("Behavior", new JScrollPane(behaviorTree));
+//		splitWithBehaviorEditor.addTab("Stats", new JScrollPane(table));
+//		splitWithBehaviorEditor.addTab("Behavior", new JScrollPane(behaviorTree));
+//		setRightComponent((splitWithBehaviorEditor));
 		setRightComponent(new JScrollPane(table));
 
 		tree.addTreeSelectionListener(this);

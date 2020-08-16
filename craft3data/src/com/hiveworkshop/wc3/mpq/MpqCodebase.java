@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.mpq;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,6 +14,7 @@ import java.util.Map;
 import com.etheller.collections.HashSet;
 import com.etheller.collections.Set;
 import com.etheller.collections.SetView;
+import com.etheller.util.CollectionUtils;
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceDescriptor;
 import com.hiveworkshop.wc3.gui.datachooser.MpqDataSourceDescriptor;
@@ -20,13 +22,17 @@ import com.hiveworkshop.wc3.user.SaveProfile;
 
 import mpq.MPQException;
 
-public class MpqCodebase implements Codebase {
+public class MpqCodebase implements Codebase, DataSource {
 	private final List<DataSource> mpqList = new ArrayList<>();
 
 	public MpqCodebase(final List<DataSourceDescriptor> dataSourceDescriptors) {
 		if (dataSourceDescriptors != null) {
-			for (final DataSourceDescriptor descriptor : dataSourceDescriptors) {
-				mpqList.add(descriptor.createDataSource());
+			if (dataSourceDescriptors.isEmpty()) {
+				mpqList.add(new MpqDataSourceDescriptor("Retera.mpq").createDataSource());
+			} else {
+				for (final DataSourceDescriptor descriptor : dataSourceDescriptors) {
+					mpqList.add(descriptor.createDataSource());
+				}
 			}
 		}
 	}
@@ -60,6 +66,23 @@ public class MpqCodebase implements Codebase {
 			for (int i = mpqList.size() - 1; i >= 0; i--) {
 				final DataSource mpq = mpqList.get(i);
 				final InputStream resourceAsStream = mpq.getResourceAsStream(filepath);
+				if (resourceAsStream != null) {
+					return resourceAsStream;
+				}
+			}
+		} catch (final IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public ByteBuffer read(final String path) throws IOException {
+		try {
+			for (int i = mpqList.size() - 1; i >= 0; i--) {
+				final DataSource mpq = mpqList.get(i);
+				final ByteBuffer resourceAsStream = mpq.read(path);
 				if (resourceAsStream != null) {
 					return resourceAsStream;
 				}
@@ -158,5 +181,28 @@ public class MpqCodebase implements Codebase {
 			current = new MpqCodebase(SaveProfile.get().getDataSources());
 		}
 		return current;
+	}
+
+	@Override
+	public boolean allowDownstreamCaching(final String filepath) {
+		for (int i = this.mpqList.size() - 1; i >= 0; i--) {
+			final DataSource mpq = this.mpqList.get(i);
+			if (mpq.has(filepath)) {
+				return mpq.allowDownstreamCaching(filepath);
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public Collection<String> getListfile() {
+		return CollectionUtils.toJava(getMergedListfile());
+	}
+
+	@Override
+	public void close() throws IOException {
+		for (final DataSource mpqGuy : this.mpqList) {
+			mpqGuy.close();
+		}
 	}
 }

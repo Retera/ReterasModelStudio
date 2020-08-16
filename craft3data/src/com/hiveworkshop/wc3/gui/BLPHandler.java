@@ -1,6 +1,7 @@
 package com.hiveworkshop.wc3.gui;
 
-import java.awt.Graphics2D;
+import java.awt.Component;
+import java.awt.Graphics;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
@@ -10,6 +11,9 @@ import java.awt.image.DataBuffer;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -19,8 +23,17 @@ import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
+import javax.swing.JOptionPane;
 
+import org.lwjgl.BufferUtils;
+
+import com.hiveworkshop.wc3.gui.datachooser.DataSource;
+import com.hiveworkshop.wc3.mdl.Bitmap;
+import com.hiveworkshop.wc3.mdl.Material;
+import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
+
+import de.wc3data.image.TgaFile;
 
 public class BLPHandler {
 
@@ -32,36 +45,121 @@ public class BLPHandler {
 	 * images.
 	 */
 	Map<String, BufferedImage> cache = new HashMap<>();
-	Map<String, BufferedImage> rawCache = new HashMap<>();
+	Map<String, GPUReadyTexture> gpuBufferCache = new HashMap<>();
+	private static final int BYTES_PER_PIXEL = 4;
 
-	public BufferedImage getTexture(final String workingDirectory, final String filepath) {
-		return getTexture(workingDirectory, filepath, false);
+	public GPUReadyTexture loadTexture(final DataSource dataSource, final String filepath) {
+		final String lowerFilePath = filepath.toLowerCase();
+		GPUReadyTexture gpuReadyTexture = gpuBufferCache.get(lowerFilePath);
+		if (gpuReadyTexture != null) {
+			return gpuReadyTexture;
+		}
+
+		final BufferedImage javaTexture = getTexture(dataSource, filepath);
+
+		if (javaTexture == null) {
+			return null;
+		}
+
+		final int[] pixels = new int[javaTexture.getWidth() * javaTexture.getHeight()];
+		javaTexture.getRGB(0, 0, javaTexture.getWidth(), javaTexture.getHeight(), pixels, 0, javaTexture.getWidth());
+
+		final ByteBuffer buffer = BufferUtils
+				.createByteBuffer(javaTexture.getWidth() * javaTexture.getHeight() * BYTES_PER_PIXEL);
+		// 4
+		// for
+		// RGBA,
+		// 3
+		// for
+		// RGB
+
+		for (int y = 0; y < javaTexture.getHeight(); y++) {
+			for (int x = 0; x < javaTexture.getWidth(); x++) {
+				final int pixel = pixels[(y * javaTexture.getWidth()) + x];
+				buffer.put((byte) ((pixel >> 16) & 0xFF)); // Red component
+				buffer.put((byte) ((pixel >> 8) & 0xFF)); // Green component
+				buffer.put((byte) (pixel & 0xFF)); // Blue component
+				buffer.put((byte) ((pixel >> 24) & 0xFF)); // Alpha component.
+				// Only for RGBA
+			}
+		}
+
+		buffer.flip();
+
+		gpuReadyTexture = new GPUReadyTexture(buffer, javaTexture.getWidth(), javaTexture.getHeight());
+		if (cache.containsKey(lowerFilePath)) {
+			// In this case, caching is allowed
+			gpuBufferCache.put(lowerFilePath, gpuReadyTexture);
+		}
+		// You now have a ByteBuffer filled with the color data of each pixel.
+		return gpuReadyTexture;
 	}
 
-	public BufferedImage getTexture(final String workingDirectory, final String filepath, final boolean alpha) {
-		final BufferedImage image = getGameTex(filepath, alpha);
-		if (image != null) {
-			return image;
-		}
+	public BufferedImage getTexture(final DataSource dataSource, final String filepath) {
 		try {
-			try {
-				final BufferedImage newImage2 = getCustomTex(workingDirectory + File.separatorChar + filepath, alpha);
-				if (newImage2 != null) {
-					return newImage2;
+			final String lowerCaseFilepath = filepath.toLowerCase();
+			BufferedImage resultImage = cache.get(lowerCaseFilepath);
+			if (resultImage != null) {
+				return resultImage;
+			}
+			if (dataSource.has(filepath)) {
+				resultImage = loadTextureDirectly(dataSource, filepath);
+				if (resultImage != null) {
+					if (dataSource.allowDownstreamCaching(filepath)) {
+						cache.put(lowerCaseFilepath, resultImage);
+					}
+					return resultImage;
 				}
-			} catch (final Exception exc3) {
 			}
-			final String lastHopePath = workingDirectory + File.separator
-					+ filepath.substring(filepath.lastIndexOf(File.separatorChar) + 1);
-			final BufferedImage newImage3 = getCustomTex(lastHopePath, alpha);
-			if (newImage3 != null) {
-				return newImage3;
+			if (lowerCaseFilepath.endsWith(".blp") || lowerCaseFilepath.endsWith(".tif")) {
+				// War3 allows .blp and .tif to actually resolve to dds
+				final String ddsFilepath = filepath.substring(0, filepath.length() - 4) + ".dds";
+				resultImage = loadTextureDirectly(dataSource, ddsFilepath);
+				if (resultImage != null) {
+					if (dataSource.allowDownstreamCaching(ddsFilepath)) {
+						cache.put(lowerCaseFilepath, resultImage);
+					}
+					return resultImage;
+				}
 			}
-			throw new RuntimeException("Failed to load game texture: " + filepath + " (in " + workingDirectory + ")");
-		} catch (final Exception exc2) {
-			throw new RuntimeException("Failed to load game texture: " + filepath + " (in " + workingDirectory + ")",
-					exc2);
+			final String nameOnly = filepath
+					.substring(Math.max(filepath.lastIndexOf("/"), filepath.lastIndexOf("\\")) + 1);
+			resultImage = loadTextureDirectly(dataSource, nameOnly);
+			if (resultImage != null) {
+				if (dataSource.allowDownstreamCaching(nameOnly)) {
+					cache.put(lowerCaseFilepath, resultImage);
+				}
+			}
+			return resultImage;
+		} catch (final IOException exc) {
+			throw new RuntimeException(exc);
 		}
+	}
+
+	private BufferedImage loadTextureDirectly(final DataSource dataSource, final String filepath) throws IOException {
+		BufferedImage resultImage = null;
+		try (final InputStream imageDataStream = dataSource.getResourceAsStream(filepath)) {
+			if (imageDataStream != null) {
+				if (isExtension(filepath, ".tga")) {
+					resultImage = TgaFile.readTGA(filepath, imageDataStream);
+				} else {
+					resultImage = ImageIO.read(imageDataStream);
+					if (resultImage != null) {
+						if (isExtension(filepath, ".blp")) {
+							resultImage = forceBufferedImagesRGB(resultImage);
+						}
+					}
+				}
+			}
+		}
+		return resultImage;
+	}
+
+	private boolean isExtension(final String filepath, final String extension) {
+		if (filepath.length() < extension.length()) {
+			return false;
+		}
+		return filepath.substring(filepath.length() - extension.length()).toLowerCase().equals(extension);
 	}
 
 	/**
@@ -73,9 +171,6 @@ public class BLPHandler {
 	 */
 	public static BufferedImage forceBufferedImagesRGB(final BufferedImage in) {
 		// Resolve input ColorSpace.
-		if (in.getColorModel() == null) {
-			return in;
-		}
 		final ColorSpace inCS = in.getColorModel().getColorSpace();
 		final ColorSpace sRGBCS = ColorSpace.getInstance(ColorSpace.CS_sRGB);
 		if (inCS == sRGBCS) {
@@ -93,11 +188,10 @@ public class BLPHandler {
 				DataBuffer.TYPE_BYTE);
 		final BufferedImage lRGB = new BufferedImage(lRGBModel,
 				lRGBModel.createCompatibleWritableRaster(in.getWidth(), in.getHeight()), false, null);
-		final Graphics2D graphic = lRGB.createGraphics();
-		try {
-			graphic.drawImage(in, 0, 0, null);
-		} finally {
-			graphic.dispose();
+		for (int i = 0; i < in.getWidth(); i++) {
+			for (int j = 0; j < in.getHeight(); j++) {
+				lRGB.setRGB(i, j, in.getRGB(i, j));
+			}
 		}
 
 		// Convert to sRGB.
@@ -106,65 +200,7 @@ public class BLPHandler {
 		return sRGB;
 	}
 
-	/**
-	 * Gets a texture file from BLP format inside the Warcraft archives into a
-	 * BufferedImage you can use, based on a filepath in the Warcraft installation's
-	 * MPQ files.
-	 *
-	 * @param filepath
-	 * @return
-	 */
-	public BufferedImage getGameTex(final String filepath, final boolean alpha) {
-		final Map<String, BufferedImage> cacheToUse = alpha ? rawCache : cache;
-		if (cacheToUse.containsKey(filepath)) {
-			return cacheToUse.get(filepath);
-		}
-		final InputStream blpFile = MpqCodebase.get().getResourceAsStream(filepath);
-		if (blpFile == null) {
-			return null;
-		}
-		try {
-			// final BufferedImage img = BlpFile.read(filepath, blpFile);
-			final BufferedImage rawImage = ImageIO.read(blpFile);
-			if (rawImage == null) {
-//				final BLPReader blpReader = new BLPReader(new BLPReaderSpi());
-//				blpReader.setInput(blpFile);
-//				final Iterator<IIOImage> readAll = blpReader
-//						.readAll(Collections.<ImageReadParam>emptyList().iterator());
-//				while (readAll.hasNext()) {
-//					final IIOImage next = readAll.next();
-//					final List<? extends BufferedImage> thumbnails = next.getThumbnails();
-//					return thumbnails.get(0);
-//				}
-				return null;
-			}
-			if (alpha) {
-				cacheToUse.put(filepath, rawImage);
-				return rawImage;
-			}
-			final BufferedImage img = forceBufferedImagesRGB(rawImage);
-			cacheToUse.put(filepath, img);
-			return img;// ImageIO.read(tga);
-		} catch (final IOException e) {
-			// we return null here, swallow exception, be very careful with this
-		}
-		// final File blpFile = MpqCodebase.get().getFile(filepath);
-		// final File tga = convertBLPtoTGA(blpFile);
-		//
-		// try {
-		// final BufferedImage img = TargaReader.getImage(tga.getPath());
-		// cache.put(filepath, img);
-		// return img;//ImageIO.read(tga);
-		// } catch (final IOException e) {
-		// e.printStackTrace();
-		// }
-		return null;
-	}
-
-	public BufferedImage getGameTex(final String filepath) {
-		return getGameTex(filepath, false);
-	}
-
+// Legacy API
 	public static BufferedImage readCustom(final File file) throws IOException {
 		final ImageInputStream stream = new FileImageInputStream(file);
 		if (stream == null) {
@@ -173,6 +209,9 @@ public class BLPHandler {
 
 		final Iterator iter = ImageIO.getImageReaders(stream);
 		if (!iter.hasNext()) {
+			if (file.getName().toLowerCase().endsWith(".tga")) {
+				return TgaFile.readTGA(file);
+			}
 			return null;
 		}
 
@@ -196,15 +235,12 @@ public class BLPHandler {
 	 * @param filepath
 	 * @return
 	 */
-	public BufferedImage getCustomTex(final String filepath, final boolean alpha) {
+	public BufferedImage getCustomTex(final String filepath) {
 		final File blpFile = new File(filepath);
 		final File tga;
 		try {
 			if (filepath.toLowerCase().endsWith(".blp")) {
 				final BufferedImage rawImage = readCustom(blpFile);
-				if (alpha) {
-					return rawImage;
-				}
 				final BufferedImage img = forceBufferedImagesRGB(rawImage);
 				return img;// BlpFile.read(filepath, new FileInputStream(blpFile));
 				// tga = convertBLPtoTGA(blpFile, File.createTempFile("customtex",
@@ -213,112 +249,13 @@ public class BLPHandler {
 				// //mpqlib.TestMPQ.draw(mpqlib.TargaReader.getImage(tga.getPath()));
 				// return TargaReader.getImage(tga.getPath());//ImageIO.read(tga);
 			} else {
+				if (!blpFile.exists()) {
+					return null;
+				}
 				return ImageIO.read(blpFile);
 			}
 		} catch (final IOException e1) {
 			e1.printStackTrace();
-		}
-		return null;
-	}
-
-	public BufferedImage getCustomTex(final String filepath) {
-		return getCustomTex(filepath, false);
-	}
-
-	public static boolean WANT_DESTROY_SAVED_TGAS = true;
-
-	public File convertBLPtoTGA(final File blpFile) {
-		try {
-			final File fileTGA = new File(blpFile.getPath().substring(0, blpFile.getPath().lastIndexOf(".")) + ".tga");
-			try {
-				Runtime.getRuntime().exec(new String[] { "blplabcl/blplabcl.exe", "\"" + blpFile.getPath() + "\"",
-						"\"" + fileTGA.getPath() + "\"", "-type0", "-q256", "-opt2" }).waitFor();
-			} catch (final InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			// BufferedImage bi =
-			// ImageIO.read(fileTGA);//TargaReader.getImage(fileTGA.getPath());//ImageIO.read(fileTGA);
-
-			// new TestMPQ().drawBlp(bi);//myBLP.getBufferedImage());
-			if (WANT_DESTROY_SAVED_TGAS) {
-				fileTGA.deleteOnExit();
-			}
-			return fileTGA;
-		} catch (final IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	public void compressBLPHopefullyALot(final File blpFile, final File blpOutput, final boolean generateMipMaps) {
-		try {
-			try {
-				Runtime.getRuntime()
-						.exec(new String[] { "blplabcl/blplabcl.exe", "\"" + blpFile.getPath() + "\"",
-								"\"" + blpOutput.getPath() + "\"", "-type0", "-q25", generateMipMaps ? "-mm8" : "",
-								"-opt1", "-opt2" })
-						.waitFor();
-			} catch (final InterruptedException e) {
-				e.printStackTrace();
-			}
-		} catch (final IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void compressTGAHopefullyALot(final File blpFile, final File blpOutput) {
-		try {
-			try {
-				Runtime.getRuntime().exec(new String[] { "blplabcl/blplabcl.exe", "\"" + blpFile.getPath() + "\"",
-						"\"" + blpOutput.getPath() + "\"", "-type0" }).waitFor();
-			} catch (final InterruptedException e) {
-				e.printStackTrace();
-			}
-		} catch (final IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public File convertBLPtoTGA(final File blpFile, final File fileTGA) {
-		try {
-			try {
-				Runtime.getRuntime().exec(new String[] { "blplabcl/blplabcl.exe", "\"" + blpFile.getPath() + "\"",
-						"\"" + fileTGA.getPath() + "\"", "-type0", "-q256", "-opt2" }).waitFor();
-			} catch (final InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			// BufferedImage bi =
-			// ImageIO.read(fileTGA);//TargaReader.getImage(fileTGA.getPath());//ImageIO.read(fileTGA);
-
-			// new TestMPQ().drawBlp(bi);//myBLP.getBufferedImage());
-			if (WANT_DESTROY_SAVED_TGAS) {
-				fileTGA.deleteOnExit();
-			}
-			return fileTGA;
-		} catch (final IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	public File convertTGAtoBLP(final File blpFile, final File fileTGA) {
-		try {
-			try {
-				Runtime.getRuntime().exec(new String[] { "blplabcl/blplabcl.exe", "\"" + blpFile.getPath() + "\"",
-						"\"" + fileTGA.getPath() + "\"", "-type0", "-q100", "-mm8" }).waitFor();
-			} catch (final InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			// BufferedImage bi =
-			// ImageIO.read(fileTGA);//TargaReader.getImage(fileTGA.getPath());//ImageIO.read(fileTGA);
-
-			// new TestMPQ().drawBlp(bi);//myBLP.getBufferedImage());
-			return fileTGA;
-		} catch (final IOException e) {
-			e.printStackTrace();
 		}
 		return null;
 	}
@@ -334,7 +271,99 @@ public class BLPHandler {
 
 	public void dropCache() {
 		cache.clear();
-		rawCache.clear();
 	}
 
+	public BufferedImage getGameTex(final String iconTexturePath) {
+		return getTexture(MpqCodebase.get(), iconTexturePath);
+	}
+
+	public static BufferedImage removeAlphaChannel(final BufferedImage source) {
+		final BufferedImage combined = new BufferedImage(source.getWidth(), source.getHeight(),
+				BufferedImage.TYPE_INT_RGB);
+
+		final Graphics g = combined.getGraphics();
+		g.drawImage(source, 0, 0, source.getWidth(), source.getHeight(), null);
+
+		return combined;
+	}
+
+	public static void exportBitmapTextureFile(final Component component, final ModelView modelView,
+			final Bitmap selectedValue, final File file) {
+		if (file.exists()) {
+			final int confirmOption = JOptionPane.showConfirmDialog(component,
+					"File \"" + file.getPath() + "\" already exists. Continue?", "Confirm Export",
+					JOptionPane.YES_NO_OPTION);
+			if (confirmOption == JOptionPane.NO_OPTION) {
+				return;
+			}
+		}
+		final DataSource wrappedDataSource = modelView.getModel().getWrappedDataSource();
+		final File workingDirectory = modelView.getModel().getWorkingDirectory();
+		BufferedImage bufferedImage = getImage(selectedValue, wrappedDataSource);
+		String fileExtension = file.getName().substring(file.getName().lastIndexOf('.') + 1).toUpperCase();
+		if (fileExtension.equals("BMP") || fileExtension.equals("JPG") || fileExtension.equals("JPEG")) {
+			JOptionPane.showMessageDialog(component,
+					"Warning: Alpha channel was converted to black. Some data will be lost\nif you convert this texture back to Warcraft BLP.");
+			bufferedImage = removeAlphaChannel(bufferedImage);
+		}
+		if (fileExtension.equals("BLP")) {
+			fileExtension = "blp";
+		}
+		boolean directExport = false;
+		if (selectedValue.getPath().toLowerCase().endsWith(fileExtension)) {
+			final MpqCodebase mpqCodebase = MpqCodebase.get();
+			if (mpqCodebase.has(selectedValue.getPath())) {
+				final InputStream mpqFile = mpqCodebase.getResourceAsStream(selectedValue.getPath());
+				try {
+					Files.copy(mpqFile, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+					directExport = true;
+				} catch (final IOException e) {
+					e.printStackTrace();
+					ExceptionPopup.display(e);
+				}
+			} else {
+				if (workingDirectory != null) {
+					final File wantedFile = new File(
+							workingDirectory.getPath() + File.separatorChar + selectedValue.getPath());
+					if (wantedFile.exists()) {
+						try {
+							Files.copy(wantedFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+							directExport = true;
+						} catch (final IOException e) {
+							e.printStackTrace();
+							ExceptionPopup.display(e);
+						}
+					}
+				}
+
+			}
+		}
+		if (!directExport) {
+			boolean write;
+			try {
+				write = ImageIO.write(bufferedImage, fileExtension, file);
+				if (!write) {
+					JOptionPane.showMessageDialog(component, "File type unknown or unavailable");
+				}
+			} catch (final IOException e) {
+				e.printStackTrace();
+				ExceptionPopup.display(e);
+			}
+		}
+	}
+
+	public static BufferedImage getImage(final Bitmap defaultTexture, final DataSource workingDirectory) {
+		String path = defaultTexture.getPath();
+		if ((path == null) || path.isEmpty()) {
+			if (defaultTexture.getReplaceableId() == 1) {
+				path = "ReplaceableTextures\\TeamColor\\TeamColor" + Material.getTeamColorNumberString() + ".blp";
+			} else if (defaultTexture.getReplaceableId() == 2) {
+				path = "ReplaceableTextures\\TeamGlow\\TeamGlow" + Material.getTeamColorNumberString() + ".blp";
+			} else if (defaultTexture.getReplaceableId() != 0) {
+				path = "replaceabletextures\\lordaerontree\\lordaeronsummertree" + ".blp";
+			}
+		}
+		final BufferedImage texture = BLPHandler.get().getTexture(workingDirectory, path);
+		return texture;
+	}
 }

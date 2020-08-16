@@ -18,9 +18,10 @@ import com.hiveworkshop.wc3.mdl.Helper;
 import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
-import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
+import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 
 public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObjectVisitor {
@@ -89,6 +90,15 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 
 	@Override
 	public void particleEmitter(final ParticleEmitter object) {
+		if (object.getParent() != null) {
+			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
+					renderModel.getRenderNode(object).getWorldMatrix(),
+					renderModel.getRenderNode(object.getParent()).getWorldMatrix());
+		}
+	}
+
+	@Override
+	public void popcornFxEmitter(final ParticleEmitterPopcorn object) {
 		if (object.getParent() != null) {
 			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
 					renderModel.getRenderNode(object).getWorldMatrix(),

@@ -86,21 +86,13 @@ public class Node {
 
 	public static enum NodeFlag {
 		DONTINHERIT_TRANSLATION("DontInherit { Translation }", 0x1),
-		DONTINHERIT_SCALING("DontInherit { Scaling }", 0x2),
-		DONTINHERIT_ROTATION("DontInherit { Rotation }", 0x4),
-		BILLBOARDED("Billboarded", 0x8),
-		BILLBOARD_LOCK_X("BillboardLockX", 0x10),
-		BILLBOARD_LOCK_Y("BillboardLockY", 0x20),
-		BILLBOARD_LOCK_Z("BillboardLockZ", 0x40),
-		CAMERA_ANCHORED("CameraAnchored", 0x80),
-		EMITTER_USES_MDL("EmitterUsesMDL", 0x8000),
-		EMITTER_USES_TGA("EmitterUsesTGA", 0x10000),
-		UNSHADED("Unshaded", 0x8000), // deliberate repeat of index
-		SORT_PRIMS_FAR_Z("SortPrimsFarZ", 0x10000),
-		LINE_EMITTER("LineEmitter", 0x20000),
-		UNFOGGED("Unfogged", 0x40000),
-		MODEL_SPACE("ModelSpace", 0x80000),
-		XY_QUAD("XYQuad", 0x100000);
+		DONTINHERIT_SCALING("DontInherit { Scaling }", 0x2), DONTINHERIT_ROTATION("DontInherit { Rotation }", 0x4),
+		BILLBOARDED("Billboarded", 0x8), BILLBOARD_LOCK_X("BillboardLockX", 0x10),
+		BILLBOARD_LOCK_Y("BillboardLockY", 0x20), BILLBOARD_LOCK_Z("BillboardLockZ", 0x40),
+		CAMERA_ANCHORED("CameraAnchored", 0x80), EMITTER_USES_MDL("EmitterUsesMDL", 0x8000),
+		EMITTER_USES_TGA("EmitterUsesTGA", 0x10000), UNSHADED("Unshaded", 0x8000), // deliberate repeat of index
+		SORT_PRIMS_FAR_Z("SortPrimsFarZ", 0x10000), LINE_EMITTER("LineEmitter", 0x20000), UNFOGGED("Unfogged", 0x40000),
+		MODEL_SPACE("ModelSpace", 0x80000), XY_QUAD("XYQuad", 0x100000);
 
 		String mdlText;
 		int value;

@@ -91,6 +91,9 @@ public class MdxUtils {
 	}
 
 	public static int[] loadIntArray(final BlizzardDataInputStream in, final int size) throws IOException {
+		if (size == -1) {
+			return new int[0];
+		}
 		final int array[] = new int[size];
 
 		for (int i = 0; i < size; i++) {

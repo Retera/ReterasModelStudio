@@ -1,9 +1,9 @@
 package ysera;
 
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 
 public interface YseraGUIListener {
-	void openModel(MDL model);
+	void openModel(EditableModel model);
 
 	// probably repaint
 	void stateChanged();

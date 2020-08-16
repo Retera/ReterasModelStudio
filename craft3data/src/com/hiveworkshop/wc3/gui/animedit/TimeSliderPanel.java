@@ -90,6 +90,8 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 
 	private SelectionManager<IdObject> nodeSelectionManager;
 	private final GradientPaint keyframePaint;
+	private final GradientPaint keyframePaintBlue;
+	private final GradientPaint keyframePaintRed;
 	private final Map<Integer, KeyFrame> timeToKey = new LinkedHashMap<>();
 
 	private final JPopupMenu popupMenu;
@@ -448,6 +450,10 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		});
 		keyframePaint = new GradientPaint(new Point(0, 10), new Color(200, 255, 200), new Point(0, getHeight()),
 				new Color(100, 255, 100), true);
+		keyframePaintBlue = new GradientPaint(new Point(0, 10), new Color(200, 200, 255), new Point(0, getHeight()),
+				new Color(100, 100, 255), true);
+		keyframePaintRed = new GradientPaint(new Point(0, 10), new Color(255, 200, 200), new Point(0, getHeight()),
+				new Color(255, 100, 100), true);
 
 		allKF = new JCheckBox("All KF");
 		allKF.addActionListener(new ActionListener() {
@@ -928,9 +934,34 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		for (final Map.Entry<Integer, KeyFrame> timeAndKey : timeToKey.entrySet()) {
 			final int currentTimePixelX = computeXFromTime(timeAndKey.getKey());
 			final boolean mouseOver = timeAndKey.getValue() == mouseOverFrame;
-			((Graphics2D) g).setPaint(keyframePaint);
+			boolean translation = false, rotation = false, scaling = false, other = false;
+			for (final AnimFlag af : timeAndKey.getValue().timelines) {
+				final boolean afTranslation = "Translation".equals(af.getName());
+				translation |= afTranslation;
+				final boolean afRotation = "Rotation".equals(af.getName());
+				rotation |= afRotation;
+				final boolean afScaling = "Scaling".equals(af.getName());
+				scaling |= afScaling;
+				other |= !(afTranslation || afRotation || afScaling);
+			}
+			if (scaling) {
+				((Graphics2D) g).setPaint(keyframePaintRed);
+			} else if (rotation) {
+				((Graphics2D) g).setPaint(keyframePaint);
+			} else if (translation) {
+				((Graphics2D) g).setPaint(keyframePaintBlue);
+			} else {
+				((Graphics2D) g).setPaint(keyframePaint);
+			}
 			g.fillRoundRect(currentTimePixelX - 4, VERTICAL_SLIDER_HEIGHT, 8, VERTICAL_TICKS_HEIGHT, 2, 2);
-			g.setColor(mouseOver ? Color.RED : Color.GREEN);
+			Color color = Color.GREEN;
+			if (scaling) {
+				color = Color.ORANGE;
+			} else if (rotation) {
+			} else if (translation) {
+				color = Color.BLUE;
+			}
+			g.setColor(mouseOver ? Color.RED : color);
 			g.drawRoundRect(currentTimePixelX - 4, VERTICAL_SLIDER_HEIGHT, 8, VERTICAL_TICKS_HEIGHT, 2, 2);
 
 		}
@@ -1163,19 +1194,19 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		revalidateKeyframeDisplay();
 	}
 
-	private final class KeyFrame {
+	public final class KeyFrame {
 		private int time;
 		private final Set<IdObject> objects = new HashSet<>();
 		private final List<AnimFlag> timelines = new ArrayList<>();
 		private final Rectangle renderRect;
 
-		public KeyFrame(final int time) {
+		private KeyFrame(final int time) {
 			this.time = time;
 			final int currentTimePixelX = computeXFromTime(time);
 			this.renderRect = new Rectangle(currentTimePixelX - 4, VERTICAL_SLIDER_HEIGHT, 8, VERTICAL_TICKS_HEIGHT);
 		}
 
-		public void reposition() {
+		protected void reposition() {
 			renderRect.x = computeXFromTime(time) - 4;
 		}
 	}

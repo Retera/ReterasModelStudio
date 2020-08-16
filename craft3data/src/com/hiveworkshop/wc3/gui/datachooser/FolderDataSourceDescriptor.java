@@ -53,4 +53,12 @@ public class FolderDataSourceDescriptor implements DataSourceDescriptor {
 		return true;
 	}
 
+	public String getFolderPath() {
+		return folderPath;
+	}
+
+	@Override
+	public DataSourceDescriptor duplicate() {
+		return new FolderDataSourceDescriptor(folderPath);
+	}
 }

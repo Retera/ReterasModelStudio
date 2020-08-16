@@ -11,7 +11,7 @@ public final class SplitForUVAction<T> implements UndoAction {
 
 	private List<Triangle> trianglesMovedToSeparateGeo;
 	private final List<Geoset> geosetsModified;
-	private final MDL model;
+	private final EditableModel model;
 	private final Collection<Triangle> trisToSeparate;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final SelectionManager<T> selectionManager;
@@ -19,7 +19,7 @@ public final class SplitForUVAction<T> implements UndoAction {
 	private final Collection<Vertex> newVerticesToSelect;
 	private final VertexSelectionHelper vertexSelectionHelper;
 
-	public SplitForUVAction(final Collection<Triangle> trisToSeparate, final MDL model,
+	public SplitForUVAction(final Collection<Triangle> trisToSeparate, final EditableModel model,
                             final ModelStructureChangeListener modelStructureChangeListener, final SelectionManager<T> selectionManager,
                             final VertexSelectionHelper vertexSelectionHelper) {
 		this.trisToSeparate = trisToSeparate;

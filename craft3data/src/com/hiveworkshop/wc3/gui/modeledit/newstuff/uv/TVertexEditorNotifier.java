@@ -10,6 +10,7 @@ import com.etheller.collections.List;
 import com.etheller.collections.ListView;
 import com.etheller.util.SubscriberSetNotifier;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
+import com.hiveworkshop.wc3.gui.modeledit.UVPanel;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.CloneContextHelper;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor.CompoundMoveAction;
@@ -273,5 +274,14 @@ public class TVertexEditorNotifier extends SubscriberSetNotifier<TVertexEditor> 
 			}
 		}
 		return uvLayerIndex;
+	}
+
+	@Override
+	public UndoAction remap(final byte xDim, final byte yDim, final UVPanel.UnwrapDirection unwrapDirection) {
+		final List<UndoAction> actions = new ArrayList<>();
+		for (final TVertexEditor handler : set) {
+			actions.add(handler.remap(xDim, yDim, unwrapDirection));
+		}
+		return mergeActions(actions);
 	}
 }

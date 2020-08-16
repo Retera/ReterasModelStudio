@@ -1,98 +1,69 @@
 package com.matrixeater.hacks;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Paths;
 
-import com.hiveworkshop.wc3.mpq.MpqCodebase;
-import com.hiveworkshop.wc3.mpq.MpqCodebase.LoadedMPQ;
-import com.hiveworkshop.wc3.units.Warcraft3MapObjectData;
+import com.hiveworkshop.wc3.units.DataTable;
+import com.hiveworkshop.wc3.units.StandardObjectData;
+import com.hiveworkshop.wc3.units.StandardObjectData.WarcraftData;
+import com.hiveworkshop.wc3.units.objectdata.MutableObjectData;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.MutableGameObject;
+import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.WorldEditorDataType;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
+import com.hiveworkshop.wc3.units.objectdata.War3ObjectDataChangeset;
 
-import mpq.MPQException;
+import de.wc3data.stream.BlizzardDataInputStream;
+import de.wc3data.stream.BlizzardDataOutputStream;
 
 public class GetMeTheHeroSkills {
-	private static final War3ID HERO_ABIL_LIST = War3ID.fromString("uhab");
-	private static final War3ID UNIT_NAME = War3ID.fromString("unam");
-	private static final War3ID ABILITY_NAME = War3ID.fromString("anam");
-	private static final War3ID CAMPAIGN_UNIT_SETTING = War3ID.fromString("ucam");
-	private static final War3ID UNIT_HERO_PROPER_NAME = War3ID.fromString("upro");
+	private static final War3ID ACQR = War3ID.fromString("uacq");
+	private static final War3ID UA1R = War3ID.fromString("ua1r");
+	private static final War3ID UA2R = War3ID.fromString("ua2r");
+	private static final War3ID UA1W = War3ID.fromString("ua1w");
+	private static final War3ID UA2W = War3ID.fromString("ua2w");
 
 	public static void main(final String[] args) {
-		final LoadedMPQ mpq;
-		try {
-			mpq = MpqCodebase.get()
-					.loadMPQ(Paths.get("C:/Users/micro/OneDrive/Documents/Warcraft III/Maps/HeroAbilityJassTest.w3x"));
-		} catch (final MPQException e1) {
-			e1.printStackTrace();
-			return;
-		} catch (final IOException e1) {
-			e1.printStackTrace();
-			return;
-		}
-		Warcraft3MapObjectData objectData;
-		try {
-			objectData = Warcraft3MapObjectData.load(true);
+		final War3ObjectDataChangeset customUnitChanges = new War3ObjectDataChangeset('u');
+		try (BlizzardDataInputStream blizData = new BlizzardDataInputStream(
+				new FileInputStream(new File("C:\\Temp\\ud.w3u")))) {
+			customUnitChanges.load(blizData, null, false);
+
+		} catch (final FileNotFoundException e) {
+			e.printStackTrace();
 		} catch (final IOException e) {
 			e.printStackTrace();
-			return;
 		}
-		System.out.println("// =========================================================================");
-		System.out.println("// This library code was automatically generated and should not be modified:");
-		System.out.println("library GetHeroAbilities initializer init");
-		System.out.println("\tglobals");
-		System.out.println("\t\thashtable HERO_ABILITY_LISTING = InitHashtable()");
-		System.out
-				.println("\t\t// The game only handles heros with up to 5 abilities, so we use the 6th item to store");
-		System.out.println("\t\t// number of abilities");
-		System.out.println("\t\tconstant integer HERO_ABILITY_COUNT_KEY = 5");
-		System.out.println("\tendglobals");
-		System.out.println();
-		System.out.println("\tfunction LoadGeneratedHeroDataList takes nothing returns nothing");
-		System.out.println("\t\t local integer heroid");
-		for (final War3ID unitId : objectData.getUnits().keySet()) {
-			final MutableGameObject unitType = objectData.getUnits().get(unitId);
-			final String heroAbilityList = unitType.getFieldAsString(HERO_ABIL_LIST, 0);
-			if ((heroAbilityList != null) && (heroAbilityList.length() > 0)) {
-				String heroUnitName = unitType.getFieldAsString(UNIT_NAME, 0);
-				final boolean campaignUnit = unitType.getFieldAsBoolean(CAMPAIGN_UNIT_SETTING, 0);
-				if (campaignUnit) {
-					heroUnitName = unitType.getFieldAsString(UNIT_HERO_PROPER_NAME, 0).split("\\,")[0];
+
+		final WarcraftData standardUnits = StandardObjectData.getStandardUnits();
+		final DataTable standardUnitMeta = StandardObjectData.getStandardUnitMeta();
+		final MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.UNITS, standardUnits,
+				standardUnitMeta, customUnitChanges);
+
+		for (final War3ID unitID : unitData.keySet()) {
+			// for each unit that exists
+			final MutableGameObject unit = unitData.get(unitID);
+			if (customUnitChanges.getCustom().containsKey(unitID)
+					|| customUnitChanges.getOriginal().containsKey(unitID)) {
+				final float attack1Range = unit.getFieldAsInteger(UA1R, 0);
+				final float attack2Range = unit.getFieldAsInteger(UA2R, 0);
+				final float ultimateRangeValue = Math.max(attack1Range, attack2Range);
+
+				if (ultimateRangeValue >= 500) {
+					unit.setField(ACQR, 0, ultimateRangeValue);
 				}
-				System.out.println();
-				System.out.println("\t\t// " + heroUnitName + " ('" + unitId + "')");
-				System.out.println("\t\tset heroid = '" + unitId + "'");
-				int abilityIndex = 0;
-				final String[] heroAbilityIdStrings = heroAbilityList.split("\\,");
-				for (final String abilityIdString : heroAbilityIdStrings) {
-					final War3ID abilityId = War3ID.fromString(abilityIdString);
-					final MutableGameObject abilityType = objectData.getAbilities().get(abilityId);
-					final String abilityName = abilityType.getFieldAsString(ABILITY_NAME, 0);
-					System.out.println("\t\tcall SaveInteger(HERO_ABILITY_LISTING, '" + unitId + "', "
-							+ (abilityIndex++) + ", '" + abilityIdString + "') // " + abilityName);
-				}
-				System.out
-						.println("\t\tcall SaveInteger(HERO_ABILITY_LISTING, '" + unitId + "', HERO_ABILITY_COUNT_KEY, "
-								+ heroAbilityIdStrings.length + ") // " + heroAbilityIdStrings.length + " abilities");
 			}
 		}
-		System.out.println("\tendfunction");
-		System.out.println();
-		System.out.println("\tfunction GetHeroAbilityCount takes integer heroId returns integer");
-		System.out.println("\t\treturn LoadInteger(HERO_ABILITY_LISTING, heroId, HERO_ABILITY_COUNT_KEY)");
-		System.out.println("\tendfunction");
-		System.out.println();
-		System.out.println("\tfunction GetHeroAbility takes integer heroId, integer abilityIndex returns integer");
-		System.out.println("\t\treturn LoadInteger(HERO_ABILITY_LISTING, heroId, abilityIndex)");
-		System.out.println("\tendfunction");
-		System.out.println();
-		System.out.println("\tprivate function init takes nothing returns nothing");
-		System.out.println("\t\t// Use separate 'thread' for startup, so we cannot hit op limit");
-		System.out.println("\t\tcall ExecuteFunc(\"LoadGeneratedHeroDataList\")");
-		System.out.println("\tendfunction");
-		System.out.println("endlibrary");
 
-		mpq.unload();
+		try (BlizzardDataOutputStream outputStream = new BlizzardDataOutputStream(new File("C:\\Temp\\Output.w3u"))) {
+			customUnitChanges.save(outputStream, false);
+		} catch (final FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 }

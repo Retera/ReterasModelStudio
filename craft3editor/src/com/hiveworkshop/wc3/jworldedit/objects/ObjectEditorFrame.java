@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -59,13 +61,13 @@ public class ObjectEditorFrame extends JFrame {
 
 		final ObjectEditorFrame frame = new ObjectEditorFrame();
 		frame.setVisible(true);
-//		final JMenuBar menubar = new JMenuBar();
-//		menubar.add(new JMenu("File"));
-//		menubar.add(new JMenu("Edit"));
-//		menubar.add(new JMenu("View"));
-//		menubar.add(new JMenu("Module"));
-//		menubar.add(new JMenu("Window"));
-//		frame.setJMenuBar(menubar);
+		final JMenuBar menubar = new JMenuBar();
+		menubar.add(new JMenu("File"));
+		menubar.add(new JMenu("Edit"));
+		menubar.add(new JMenu("View"));
+		menubar.add(new JMenu("Module"));
+		menubar.add(new JMenu("Window"));
+		frame.setJMenuBar(menubar);
 		frame.panel.loadHotkeys();
 	}
 

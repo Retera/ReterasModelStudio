@@ -3,8 +3,10 @@ package com.hiveworkshop.wc3.gui.datachooser;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.HashSet;
@@ -23,7 +25,7 @@ public class FolderDataSource implements DataSource {
 			Files.walk(folderPath).filter(Files::isRegularFile).forEach(new Consumer<Path>() {
 				@Override
 				public void accept(final Path t) {
-					listfile.add(t.toString());
+					listfile.add(folderPath.relativize(t).toString());
 				}
 			});
 		} catch (final IOException e) {
@@ -48,8 +50,24 @@ public class FolderDataSource implements DataSource {
 	}
 
 	@Override
+	public ByteBuffer read(final String path) throws IOException {
+		if (!has(path)) {
+			return null;
+		}
+		return ByteBuffer.wrap(Files.readAllBytes(Paths.get(path)));
+	}
+
+	@Override
 	public boolean has(final String filepath) {
+		if ("".equals(filepath)) {
+			return false; // special case for folder data source, dont do this
+		}
 		return Files.exists(folderPath.resolve(filepath));
+	}
+
+	@Override
+	public boolean allowDownstreamCaching(final String filepath) {
+		return false;
 	}
 
 	@Override

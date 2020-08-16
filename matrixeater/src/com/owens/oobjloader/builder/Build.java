@@ -26,7 +26,7 @@ import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Layer;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Normal;
 import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
@@ -733,9 +733,9 @@ public class Build implements BuilderInterface {
 		}
 	}
 
-	public MDL createMDL() {
+	public EditableModel createMDL() {
 		try {
-			final MDL mdl = new MDL(new File(objFilename).getName());
+			final EditableModel mdl = new EditableModel(new File(objFilename).getName());
 			if (faces.size() >= 10000 || verticesG.size() >= 10000) {
 				loadbar.show();
 			}
@@ -926,7 +926,7 @@ public class Build implements BuilderInterface {
 		}
 	}
 
-	private void convertMesh(final MDL mdl, final Set<Face> processedFaces, final String groupName,
+	private void convertMesh(final EditableModel mdl, final Set<Face> processedFaces, final String groupName,
 			final Map<Material, Subgroup> materialToSubgroup, final ArrayList<Face> faceList) {
 		if (loadbar.isVisible()) {
 			loadbar.setText("Converting " + groupName + " ...");

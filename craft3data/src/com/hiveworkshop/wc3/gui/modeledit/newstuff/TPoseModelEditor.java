@@ -43,6 +43,7 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
+import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
@@ -159,6 +160,10 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 				@Override
 				public void particleEmitter(final ParticleEmitter particleEmitter) {
 
+				}
+
+				@Override
+				public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
 				}
 
 				@Override
@@ -485,6 +490,11 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		}
 
 		@Override
+		public void popcornFxEmitter(final ParticleEmitterPopcorn particleEmitter) {
+			handleDefaultNode(point, axes, particleEmitter);
+		}
+
+		@Override
 		public void light(final Light light) {
 			handleDefaultNode(point, axes, light);
 		}
@@ -573,6 +583,14 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 
 		@Override
 		public void particleEmitter(final ParticleEmitter particleEmitter) {
+			hitTest(selectedItems, area, particleEmitter.getPivotPoint(), coordinateSystem,
+					particleEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem)
+							* 2,
+					particleEmitter);
+		}
+
+		@Override
+		public void popcornFxEmitter(final ParticleEmitterPopcorn particleEmitter) {
 			hitTest(selectedItems, area, particleEmitter.getPivotPoint(), coordinateSystem,
 					particleEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem)
 							* 2,
@@ -671,6 +689,10 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 					}
 
 					@Override
+					public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
+					}
+
+					@Override
 					public void light(final Light light) {
 					}
 
@@ -740,8 +762,15 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 				deletedIdObjects.add(object);
 			}
 		}
+		final List<Camera> deletedCameras = new ArrayList<>();
+		for (final Camera camera : model.getEditableCameras()) {
+			if (selectionManager.getSelection().contains(camera.getPosition())
+					|| selectionManager.getSelection().contains(camera.getTargetPosition())) {
+				deletedCameras.add(camera);
+			}
+		}
 		final DeleteNodesAction deleteNodesAction = new DeleteNodesAction(selectionManager.getSelectedVertices(),
-				deletedIdObjects, structureChangeListener, model, vertexSelectionHelper);
+				deletedIdObjects, deletedCameras, structureChangeListener, model, vertexSelectionHelper);
 		deleteNodesAction.redo();
 		return deleteNodesAction;
 	}

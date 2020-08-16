@@ -16,7 +16,7 @@ import com.hiveworkshop.wc3.mdl.ExtLog;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
@@ -24,7 +24,7 @@ public final class SplitGeosetAction<T> implements UndoAction {
 
 	private List<Triangle> trianglesMovedToSeparateGeo;
 	private final List<Geoset> geosetsCreated;
-	private final MDL model;
+	private final EditableModel model;
 	private final Collection<Triangle> trisToSeparate;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final SelectionManager<T> selectionManager;
@@ -32,7 +32,7 @@ public final class SplitGeosetAction<T> implements UndoAction {
 	private final Collection<Vertex> newVerticesToSelect;
 	private final VertexSelectionHelper vertexSelectionHelper;
 
-	public SplitGeosetAction(final Collection<Triangle> trisToSeparate, final MDL model,
+	public SplitGeosetAction(final Collection<Triangle> trisToSeparate, final EditableModel model,
 			final ModelStructureChangeListener modelStructureChangeListener, final SelectionManager<T> selectionManager,
 			final VertexSelectionHelper vertexSelectionHelper) {
 		this.trisToSeparate = trisToSeparate;

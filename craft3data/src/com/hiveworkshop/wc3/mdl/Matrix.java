@@ -58,7 +58,7 @@ public class Matrix {
 
 	long lastPopupTimeHack = 0;
 
-	public void updateIds(final MDL mdlr) {
+	public void updateIds(final EditableModel mdlr) {
 		final int sz1 = bones.size();
 		if (m_boneIds == null) {
 			m_boneIds = new ArrayList();
@@ -71,16 +71,16 @@ public class Matrix {
 				m_boneIds.add(newId);
 			} else {
 				new Exception("Matrix error").printStackTrace();
-				if (System.currentTimeMillis() - lastPopupTimeHack > 2000) {
+				if ((System.currentTimeMillis() - lastPopupTimeHack) > 2000) {
 					JOptionPane.showMessageDialog(null,
 							"Error: A matrix's bone reference was missing in the model!\nDid you move geometry between models and forget to update bones?");
 					lastPopupTimeHack = System.currentTimeMillis();
 				}
 			}
 		}
-		if (m_boneIds.size() < sz1 || sz1 != 0 && m_boneIds.size() == 0) {
+		if ((m_boneIds.size() < sz1) || ((sz1 != 0) && (m_boneIds.size() == 0))) {
 			new Exception("Matrix error").printStackTrace();
-			if (System.currentTimeMillis() - lastPopupTimeHack > 2000) {
+			if ((System.currentTimeMillis() - lastPopupTimeHack) > 2000) {
 				JOptionPane.showMessageDialog(null, "Error: bad sizes in matrix (" + (sz1 - m_boneIds.size())
 						+ " as difference, should be same size)");
 				lastPopupTimeHack = System.currentTimeMillis();
@@ -88,7 +88,7 @@ public class Matrix {
 		}
 	}
 
-	public void updateBones(final MDL mdlr) {
+	public void updateBones(final EditableModel mdlr) {
 		if (bones == null) {
 			bones = new ArrayList<>();
 		} else {
@@ -135,9 +135,9 @@ public class Matrix {
 	}
 
 	public int size() {
-		if (m_boneIds != null && m_boneIds.size() > 0) {
+		if ((m_boneIds != null) && (m_boneIds.size() > 0)) {
 			return m_boneIds.size();
-		} else if (bones != null && bones.size() > 0) {
+		} else if ((bones != null) && (bones.size() > 0)) {
 			return bones.size();
 		}
 		// JOptionPane.showMessageDialog(null,"Warning: A matrix with no
@@ -155,28 +155,28 @@ public class Matrix {
 		// only want the first two (the third being "" after ending comma)
 		if (size == 1) {
 			try {
-				boneId[0] = Integer.parseInt(entries[0].split("\\{")[1].split("}")[0].split(" ")[1]);
+				boneId[0] = (int) Long.parseLong(entries[0].split("\\{")[1].split("}")[0].split(" ")[1]);
 			} catch (final NumberFormatException e) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 						"Error \"" + input + "\": Matrix data could not be interpreted.");
 			}
 		} else {
 			try {
-				boneId[0] = Integer.parseInt(entries[0].split("\\{")[1].split(" ")[1]);
+				boneId[0] = (int) Long.parseLong(entries[0].split("\\{")[1].split(" ")[1]);
 			} catch (final NumberFormatException e) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 						"Error \"" + input + "\": Matrix data could not be interpreted.");
 			}
 			for (int i = 1; i < size; i++) {
 				try {
-					boneId[i] = Integer.parseInt(entries[i].split(" ")[1]);
+					boneId[i] = (int) Long.parseLong(entries[i].split(" ")[1]);
 				} catch (final NumberFormatException e) {
 					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 							"Error \"" + input + "\": Matrix data could not be interpreted.");
 				}
 			}
 		}
-		if (boneId != null && boneId[0] != -1) {
+		if ((boneId != null) && (boneId[0] != -1)) {
 			temp = new Matrix(boneId);
 		} else {
 			temp = new Matrix();
@@ -207,7 +207,7 @@ public class Matrix {
 			return false;
 		}
 		boolean same = true;
-		for (int i = 0; i < size() && same; i++) {
+		for (int i = 0; (i < size()) && same; i++) {
 			if (bones.get(i) != other.bones.get(i)) {
 				same = false;
 			}

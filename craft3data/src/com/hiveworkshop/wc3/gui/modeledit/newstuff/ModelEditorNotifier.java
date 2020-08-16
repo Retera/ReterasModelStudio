@@ -262,6 +262,15 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
+	public UndoAction recalcExtents(final boolean onlyIncludeEditableGeosets) {
+		final List<UndoAction> actions = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			actions.add(handler.recalcExtents(onlyIncludeEditableGeosets));
+		}
+		return mergeActions(actions);
+	}
+
+	@Override
 	public UndoAction mirror(final byte dim, final boolean flipModel, final double centerX, final double centerY,
 			final double centerZ) {
 		final List<UndoAction> actions = new ArrayList<>();

@@ -44,7 +44,7 @@ public final class MirrorModelAction implements UndoAction {
 		// Vertex.centerOfGroup(selection);// Calc center
 		// // of mass
 		for (final Vertex vert : selection) {
-			vert.setCoord(mirrorDim, 2 * center.getCoord(mirrorDim) - vert.getCoord(mirrorDim));
+			vert.setCoord(mirrorDim, (2 * center.getCoord(mirrorDim)) - vert.getCoord(mirrorDim));
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				final Normal normal = gv.getNormal();
@@ -54,6 +54,10 @@ public final class MirrorModelAction implements UndoAction {
 					// this will inverse back if they correctly choose to flip
 					// faces, otherwise we're making an inside out model now
 					normal.inverse();
+				}
+				if (gv.getTangent() != null) {
+					// TODO doesn't support flip yet
+					gv.getTangent()[mirrorDim] = -gv.getTangent()[mirrorDim];
 				}
 			}
 		}

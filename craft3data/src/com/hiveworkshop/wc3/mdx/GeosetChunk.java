@@ -8,6 +8,7 @@ import com.hiveworkshop.wc3.mdl.ExtLog;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Matrix;
 import com.hiveworkshop.wc3.mdl.Triangle;
+import com.hiveworkshop.wc3.util.ModelUtils;
 
 import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
@@ -17,7 +18,7 @@ public class GeosetChunk {
 
 	public static final String key = "GEOS";
 
-	public void load(final BlizzardDataInputStream in) throws IOException {
+	public void load(final BlizzardDataInputStream in, final int version) throws IOException {
 		MdxUtils.checkId(in, "GEOS");
 		final int chunkSize = in.readInt();
 		final List<Geoset> geosetList = new ArrayList();
@@ -25,34 +26,36 @@ public class GeosetChunk {
 		while (geosetCounter > 0) {
 			final Geoset tempgeoset = new Geoset();
 			geosetList.add(tempgeoset);
-			tempgeoset.load(in);
-			geosetCounter -= tempgeoset.getSize();
+			tempgeoset.load(in, version);
+			geosetCounter -= tempgeoset.getSize(version);
 		}
 		geoset = geosetList.toArray(new Geoset[geosetList.size()]);
 	}
 
-	public void save(final BlizzardDataOutputStream out) throws IOException {
+	public void save(final BlizzardDataOutputStream out, final int version) throws IOException {
 		final int nrOfGeosets = geoset.length;
 		out.writeNByteString("GEOS", 4);
-		out.writeInt(getSize() - 8);// ChunkSize
+		out.writeInt(getSize(version) - 8);// ChunkSize
 		for (int i = 0; i < geoset.length; i++) {
-			geoset[i].save(out);
+			geoset[i].save(out, version);
 		}
 
 	}
 
-	public int getSize() {
+	public int getSize(final int version) {
 		int a = 0;
 		a += 4;
 		a += 4;
 		for (int i = 0; i < geoset.length; i++) {
-			a += geoset[i].getSize();
+			a += geoset[i].getSize(version);
 		}
 
 		return a;
 	}
 
 	public class Geoset {
+		private static final int LOD_PART_LEN_V900 = 80;
+
 		public float[] vertexPositions = new float[0];
 		public float[] vertexNormals = new float[0];
 		public int[] faceTypeGroups = new int[0];
@@ -64,16 +67,37 @@ public class GeosetChunk {
 		public int materialId;
 		public int selectionGroup;
 		public int selectionType;
+		public int lod = -1;
+		public String lodName;
 		public float boundsRadius;
 		public float[] minimumExtent = new float[3];
 		public float[] maximumExtent = new float[3];
 		public Extent[] extent = new Extent[0];
+		public float[] tangents = new float[0];
+		/**
+		 * "skin" copied from Ghostwolf. An array of bone indices and weights. Every 8
+		 * consecutive elements describe the following:
+		 *
+		 * <pre>
+		 * [B0, B1, B2, B3, W0, W1, W2, W3]
+		 * </pre>
+		 *
+		 * Where:
+		 *
+		 * <pre>
+		 * 	Bn is a bone index.
+		 *  Wn is a weight, which can be normalized with Wn/255.
+		 * </pre>
+		 *
+		 * @since 900
+		 */
+		public byte[] skin = new byte[0];
 		public int nrOfTextureVertexGroups;
 		public float[][] vertexTexturePositions = new float[0][];
 
 		public static final String key = "VRTX";
 
-		public void load(final BlizzardDataInputStream in) throws IOException {
+		public void load(final BlizzardDataInputStream in, final int version) throws IOException {
 			final int inclusiveSize = in.readInt();
 			MdxUtils.checkId(in, "VRTX");
 			final int nrOfVertexPositions = in.readInt();
@@ -102,6 +126,11 @@ public class GeosetChunk {
 			materialId = in.readInt();
 			selectionGroup = in.readInt();
 			selectionType = in.readInt();
+			if (ModelUtils.isLevelOfDetailSupported(version)) {
+				this.lod = in.readInt();
+				// todo any special charset to use here?
+				this.lodName = in.readCharsAsString(LOD_PART_LEN_V900);
+			}
 			boundsRadius = in.readFloat();
 			minimumExtent = MdxUtils.loadFloatArray(in, 3);
 			maximumExtent = MdxUtils.loadFloatArray(in, 3);
@@ -110,6 +139,21 @@ public class GeosetChunk {
 			for (int i = 0; i < nrOfExtents; i++) {
 				extent[i] = new Extent();
 				extent[i].load(in);
+			}
+			// Comment copied from Ghostwolf's code:
+			// Non-reforged models that come with reforged are saved with version 900,
+			// however they don't have TANG and SKIN.
+			if (ModelUtils.isTangentAndSkinSupported(version)) {
+				if (MdxUtils.checkOptionalId(in, "TANG")) {
+					in.skip(4);// TANG
+					final int tangentsLength = in.readInt();
+					this.tangents = MdxUtils.loadFloatArray(in, tangentsLength * 4);
+				}
+				if (MdxUtils.checkOptionalId(in, "SKIN")) {
+					in.skip(4);// SKIN
+					final int skinLength = in.readInt();
+					this.skin = MdxUtils.loadByteArray(in, skinLength);
+				}
 			}
 			MdxUtils.checkId(in, "UVAS");
 			nrOfTextureVertexGroups = in.readInt();
@@ -121,7 +165,7 @@ public class GeosetChunk {
 			}
 		}
 
-		public void save(final BlizzardDataOutputStream out) throws IOException {
+		public void save(final BlizzardDataOutputStream out, final int version) throws IOException {
 			int nrOfVertexTexturePositions = vertexTexturePositions.length / 2;
 			final int nrOfExtents = extent.length;
 			final int nrOfMatrixIndexes = matrixIndexs.length;
@@ -132,7 +176,7 @@ public class GeosetChunk {
 			final int nrOfFaceTypeGroups = faceTypeGroups.length;
 			final int nrOfVertexNormals = vertexNormals.length / 3;
 			final int nrOfVertexPositions = vertexPositions.length / 3;
-			out.writeInt(getSize());// InclusiveSize
+			out.writeInt(getSize(version));// InclusiveSize
 			out.writeNByteString("VRTX", 4);
 			out.writeInt(nrOfVertexPositions);
 			if ((vertexPositions.length % 3) != 0) {
@@ -170,6 +214,12 @@ public class GeosetChunk {
 			out.writeInt(materialId);
 			out.writeInt(selectionGroup);
 			out.writeInt(selectionType);
+
+			if (ModelUtils.isLevelOfDetailSupported(version)) {
+				out.writeInt(this.lod);
+				out.writeNByteString(this.lodName, LOD_PART_LEN_V900);
+			}
+
 			out.writeFloat(boundsRadius);
 			if ((minimumExtent.length % 3) != 0) {
 				throw new IllegalArgumentException(
@@ -187,6 +237,16 @@ public class GeosetChunk {
 			for (int i = 0; i < extent.length; i++) {
 				extent[i].save(out);
 			}
+
+			if (ModelUtils.isTangentAndSkinSupported(version) && (this.tangents.length > 0)) {
+				out.writeNByteString("TANG", 4);
+				out.writeInt(this.tangents.length / 4);
+				MdxUtils.saveFloatArray(out, this.tangents);
+				out.writeNByteString("SKIN", 4);
+				out.writeInt(this.skin.length);
+				MdxUtils.saveByteArray(out, this.skin);
+			}
+
 			out.writeNByteString("UVAS", 4);
 			out.writeInt(nrOfTextureVertexGroups);
 			for (int i = 0; i < nrOfTextureVertexGroups; i++) {
@@ -203,7 +263,7 @@ public class GeosetChunk {
 
 		}
 
-		public int getSize() {
+		public int getSize(final int version) {
 			int a = 0;
 			a += 4;
 			a += 4;
@@ -242,6 +302,25 @@ public class GeosetChunk {
 			}
 			a += 4;
 			a += 4;
+
+			if (ModelUtils.isTangentAndSkinSupported(version)) {
+				// lod: 4
+				// lodName: 80
+				// TANG: 4
+				// tangentsLength: 4
+				// this.tangents.length * 4
+				// SKIN: 4
+				// skinLength: 4
+				// this.skin.length
+				a += 84;
+				if (this.tangents.length > 0) {
+					a += 8 + (this.tangents.length * 4);
+				}
+				if (this.skin.length > 0) {
+					a += 8 + this.skin.length;
+				}
+			}
+
 			for (int i = 0; i < vertexTexturePositions.length; i++) {
 				a += 4;
 				a += 4;
@@ -387,7 +466,26 @@ public class GeosetChunk {
 				if (matrix.size() <= 0) {
 					matrixIndexs[i++] = -1;
 				}
-				matrixGroups[groupIndex++] = matrix.size();
+				int size = matrix.size();
+				if (size == -1) {
+					size = 1;
+				}
+				matrixGroups[groupIndex++] = size;
+			}
+			lod = mdlGeo.getLevelOfDetail();
+			lodName = mdlGeo.getLevelOfDetailName();
+			if ((numVertices > 0) && (mdlGeo.getVertex(0).getSkinBones() != null)) {
+				// v900
+				skin = new byte[8 * numVertices];
+				tangents = new float[4 * numVertices];
+				for (i = 0; i < numVertices; i++) {
+					for (int j = 0; j < 4; j++) {
+						final GeosetVertex vertex = mdlGeo.getVertex(i);
+						skin[(i * 8) + j] = vertex.getSkinBoneIndexes()[j];
+						skin[(i * 8) + j + 4] = (byte) (vertex.getSkinBoneWeights()[j]);
+						tangents[(i * 4) + j] = vertex.getTangent()[j];
+					}
+				}
 			}
 		}
 	}

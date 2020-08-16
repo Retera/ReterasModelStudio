@@ -102,9 +102,6 @@ public class DataSourceChooserPanel extends JPanel {
 
 	public DataSourceChooserPanel(final List<DataSourceDescriptor> dataSourceDescriptorDefaults) {
 		dataSourceDescriptors = new ArrayList<>();
-		if (dataSourceDescriptorDefaults != null) {
-			dataSourceDescriptors.addAll(dataSourceDescriptorDefaults);
-		}
 		fileChooser = new JFileChooser();
 
 		wcDirectory = WindowsRegistry.readRegistry("HKEY_CURRENT_USER\\Software\\Blizzard Entertainment\\Warcraft III",
@@ -519,7 +516,9 @@ public class DataSourceChooserPanel extends JPanel {
 				addWarcraft3Installation(Paths.get(wcDirectory), false);
 			}
 		} else {
-			dataSourceDescriptors.addAll(dataSourceDescriptorDefaults);
+			for (final DataSourceDescriptor dataSourceDescriptor : dataSourceDescriptorDefaults) {
+				dataSourceDescriptors.add(dataSourceDescriptor.duplicate());
+			}
 		}
 		reloadTree();
 	}
@@ -574,7 +573,7 @@ public class DataSourceChooserPanel extends JPanel {
 	}
 
 	private static enum SupportedCascPatchFormat {
-		PATCH130, PATCH131, UNKNOWN_FUTURE_PATCH;
+		PATCH130, PATCH131, PATCH132, UNKNOWN_FUTURE_PATCH;
 	}
 
 	public static void main(final String[] args) {
@@ -672,6 +671,9 @@ public class DataSourceChooserPanel extends JPanel {
 				final FileSystem rootFileSystem = tempCascReader.getRootFileSystem();
 				if (rootFileSystem.isFile("war3.mpq\\units\\unitdata.slk")) {
 					patchFormat = SupportedCascPatchFormat.PATCH130;
+				} else if (tempCascReader.getRootFileSystem()
+						.isFile("war3.w3mod\\_hd.w3mod\\units\\human\\footman\\footman.mdx")) {
+					patchFormat = SupportedCascPatchFormat.PATCH132;
 				} else if (tempCascReader.getRootFileSystem().isFile("war3.w3mod\\units\\unitdata.slk")) {
 					patchFormat = SupportedCascPatchFormat.PATCH131;
 				} else {
@@ -732,6 +734,7 @@ public class DataSourceChooserPanel extends JPanel {
 							}
 							break;
 						}
+						case PATCH132:
 						case PATCH131: {
 							final String filePathToTest = "war3.w3mod\\_locales\\" + localeOptionString.toLowerCase()
 									+ ".w3mod\\units\\campaignunitstrings.txt";
@@ -784,10 +787,19 @@ public class DataSourceChooserPanel extends JPanel {
 					break;
 				}
 				case PATCH131: {
-					System.out.println("Detected Patch 1.31+");
+					System.out.println("Detected Patch 1.31");
 					// This is what I have right now
 					final String[] prefixes = { "war3.w3mod", "war3.w3mod\\_deprecated.w3mod",
 							"war3.w3mod\\_locales\\" + lowerLocale + ".w3mod" };
+					defaultPrefixes = new ArrayList<>(Arrays.asList(prefixes));
+					break;
+				}
+				case PATCH132: {
+					System.out.println("Detected Patch 1.32+");
+					// This is what I have right now
+					final String[] prefixes = { "war3.w3mod", "war3.w3mod\\_deprecated.w3mod",
+							"war3.w3mod\\_locales\\" + lowerLocale + ".w3mod", "war3.w3mod\\_hd.w3mod",
+							"war3.w3mod\\_hd.w3mod\\_locales\\" + lowerLocale + ".w3mod" };
 					defaultPrefixes = new ArrayList<>(Arrays.asList(prefixes));
 					break;
 				}
@@ -799,7 +811,7 @@ public class DataSourceChooserPanel extends JPanel {
 					JOptionPane.showMessageDialog(DataSourceChooserPanel.this,
 							"The Warcraft III Installation you have selected seems to be too new, or is not a supported version. The suggested prefix list from Patch 1.31 will be used.\nThis will probably fail, and you will need more advanced configuration.",
 							"Error", JOptionPane.ERROR_MESSAGE);
-					defaultPrefixes = new ArrayList<>();
+					defaultPrefixes = new ArrayList<>(Arrays.asList(prefixes));
 					break;
 				}
 				for (final String prefix : defaultPrefixes) {

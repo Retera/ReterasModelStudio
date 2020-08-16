@@ -18,8 +18,8 @@ import com.hiveworkshop.wc3.gui.modeledit.activity.ModelEditorViewportActivity;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public class DrawVertexActivity implements ModelEditorViewportActivity {
@@ -107,7 +107,9 @@ public class DrawVertexActivity implements ModelEditorViewportActivity {
 		selectionView.renderSelection(graphics2dToModelElementRendererAdapter.reset(g, coordinateSystem),
 				coordinateSystem, modelView, preferences);
 		g.setColor(preferences.getVertexColor());
-		g.fillRect(lastMousePoint.x, lastMousePoint.y, 3, 3);
+		if (lastMousePoint != null) {
+			g.fillRect(lastMousePoint.x, lastMousePoint.y, 3, 3);
+		}
 
 	}
 

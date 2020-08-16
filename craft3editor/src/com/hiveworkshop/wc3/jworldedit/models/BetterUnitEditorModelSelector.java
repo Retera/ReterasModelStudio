@@ -26,7 +26,7 @@ import com.hiveworkshop.wc3.gui.modeledit.PerspDisplayPanel;
 import com.hiveworkshop.wc3.jworldedit.objects.UnitEditorSettings;
 import com.hiveworkshop.wc3.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.wc3.jworldedit.objects.UnitTabTreeBrowserBuilder;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
@@ -48,7 +48,7 @@ public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSel
 
 	JLabel debugLabel = new JLabel("debug");
 
-	MDL mdl = new MDL();
+	EditableModel mdl = new EditableModel();
 	// MDL mdl;
 	ModelView modelDisp = new ModelViewManager(mdl);
 	PerspDisplayPanel modelPanel;

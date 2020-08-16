@@ -22,6 +22,7 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
+import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.renderer.GeosetRenderer;
@@ -125,6 +126,12 @@ public class AnimatedViewportModelRenderer implements ModelRenderer {
 	}
 
 	@Override
+	public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
+		resetIdObjectRendererWithNode(popcornFxEmitter);
+		idObjectRenderer.popcornFxEmitter(popcornFxEmitter);
+	}
+
+	@Override
 	public void ribbonEmitter(final RibbonEmitter ribbonEmitter) {
 		resetIdObjectRendererWithNode(ribbonEmitter);
 		idObjectRenderer.ribbonEmitter(ribbonEmitter);
@@ -174,6 +181,8 @@ public class AnimatedViewportModelRenderer implements ModelRenderer {
 	private static final Vector4f normalHeap = new Vector4f();
 	private static final Vector4f appliedNormalHeap = new Vector4f();
 	private static final Vector4f normalSumHeap = new Vector4f();
+	private static final Matrix4f skinBonesMatrixHeap = new Matrix4f();
+	private static final Matrix4f skinBonesMatrixSumHeap = new Matrix4f();
 
 	private final class TriangleRendererImpl implements TriangleRenderer {
 		private final List<Point> previousVertices = new ArrayList<>();
@@ -263,6 +272,136 @@ public class AnimatedViewportModelRenderer implements ModelRenderer {
 				} else {
 					normalSumHeap.set(normalHeap);
 				}
+				final Color triangleColor = graphics.getColor();
+				float firstNormalCoord, secondNormalCoord;
+				switch (xDimension) {
+				case 0:
+					firstNormalCoord = normalSumHeap.x;
+					break;
+				case 1:
+					firstNormalCoord = normalSumHeap.y;
+					break;
+				case 2:
+					firstNormalCoord = normalSumHeap.z;
+					break;
+				default:
+					throw new IllegalStateException("Invalid x dimension");
+				}
+				switch (yDimension) {
+				case 0:
+					secondNormalCoord = normalSumHeap.x;
+					break;
+				case 1:
+					secondNormalCoord = normalSumHeap.y;
+					break;
+				case 2:
+					secondNormalCoord = normalSumHeap.z;
+					break;
+				default:
+					throw new IllegalStateException("Invalid y dimension");
+				}
+				graphics.setColor(programPreferences.getNormalsColor());
+				final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+				final Point endPoint = new Point(
+						(int) coordinateSystem.convertX(firstCoord + ((firstNormalCoord * 12) / zoom)),
+						(int) coordinateSystem.convertY(secondCoord + ((secondNormalCoord * 12) / zoom)));
+				graphics.drawLine(point.x, point.y, endPoint.x, endPoint.y);
+				graphics.setColor(triangleColor);
+			}
+			return VertexVisitor.NO_ACTION;
+		}
+
+		@Override
+		public VertexVisitor hdVertex(final double x, final double y, final double z, final double normalX,
+				final double normalY, final double normalZ, final Bone[] skinBones, final short[] skinBoneWeights) {
+			vertexHeap.x = (float) x;
+			vertexHeap.y = (float) y;
+			vertexHeap.z = (float) z;
+			vertexHeap.w = 1;
+			skinBonesMatrixSumHeap.setZero();
+			vertexSumHeap.set(0, 0, 0, 0);
+			boolean processedBones = false;
+			for (int boneIndex = 0; boneIndex < 4; boneIndex++) {
+				final Bone skinBone = skinBones[boneIndex];
+				if (skinBone == null) {
+					continue;
+				}
+				processedBones = true;
+				final Matrix4f worldMatrix = renderModel.getRenderNode(skinBone).getWorldMatrix();
+				skinBonesMatrixHeap.load(worldMatrix);
+
+				skinBonesMatrixSumHeap.m00 += (skinBonesMatrixHeap.m00 * skinBoneWeights[boneIndex]) / 255f;
+				skinBonesMatrixSumHeap.m01 += (skinBonesMatrixHeap.m01 * skinBoneWeights[boneIndex]) / 255f;
+				skinBonesMatrixSumHeap.m02 += (skinBonesMatrixHeap.m02 * skinBoneWeights[boneIndex]) / 255f;
+				skinBonesMatrixSumHeap.m03 += (skinBonesMatrixHeap.m03 * skinBoneWeights[boneIndex]) / 255f;
+				skinBonesMatrixSumHeap.m10 += (skinBonesMatrixHeap.m10 * skinBoneWeights[boneIndex]) / 255f;
+				skinBonesMatrixSumHeap.m11 += (skinBonesMatrixHeap.m11 * skinBoneWeights[boneIndex]) / 255f;
+				skinBonesMatrixSumHeap.m12 += (skinBonesMatrixHeap.m12 * skinBoneWeights[boneIndex]) / 255f;
+				skinBonesMatrixSumHeap.m13 += (skinBonesMatrixHeap.m13 * skinBoneWeights[boneIndex]) / 255f;
+				skinBonesMatrixSumHeap.m20 += (skinBonesMatrixHeap.m20 * skinBoneWeights[boneIndex]) / 255f;
+				skinBonesMatrixSumHeap.m21 += (skinBonesMatrixHeap.m21 * skinBoneWeights[boneIndex]) / 255f;
+				skinBonesMatrixSumHeap.m22 += (skinBonesMatrixHeap.m22 * skinBoneWeights[boneIndex]) / 255f;
+				skinBonesMatrixSumHeap.m23 += (skinBonesMatrixHeap.m23 * skinBoneWeights[boneIndex]) / 255f;
+				skinBonesMatrixSumHeap.m30 += (skinBonesMatrixHeap.m30 * skinBoneWeights[boneIndex]) / 255f;
+				skinBonesMatrixSumHeap.m31 += (skinBonesMatrixHeap.m31 * skinBoneWeights[boneIndex]) / 255f;
+				skinBonesMatrixSumHeap.m32 += (skinBonesMatrixHeap.m32 * skinBoneWeights[boneIndex]) / 255f;
+				skinBonesMatrixSumHeap.m33 += (skinBonesMatrixHeap.m33 * skinBoneWeights[boneIndex]) / 255f;
+			}
+			if (!processedBones) {
+				skinBonesMatrixSumHeap.setIdentity();
+			}
+			Matrix4f.transform(skinBonesMatrixSumHeap, vertexHeap, vertexSumHeap);
+			normalHeap.x = (float) normalX;
+			normalHeap.y = (float) normalY;
+			normalHeap.z = (float) normalZ;
+			normalHeap.w = 0;
+			Matrix4f.transform(skinBonesMatrixSumHeap, normalHeap, normalSumHeap);
+
+			if (normalSumHeap.length() > 0) {
+				normalSumHeap.normalise();
+			} else {
+				normalSumHeap.set(0, 1, 0, 0);
+			}
+
+			float firstCoord, secondCoord;
+			switch (xDimension) {
+			case 0:
+				firstCoord = vertexSumHeap.x;
+				break;
+			case 1:
+				firstCoord = vertexSumHeap.y;
+				break;
+			case 2:
+				firstCoord = vertexSumHeap.z;
+				break;
+			default:
+				throw new IllegalStateException("Invalid x dimension");
+			}
+			switch (yDimension) {
+			case 0:
+				secondCoord = vertexSumHeap.x;
+				break;
+			case 1:
+				secondCoord = vertexSumHeap.y;
+				break;
+			case 2:
+				secondCoord = vertexSumHeap.z;
+				break;
+			default:
+				throw new IllegalStateException("Invalid y dimension");
+			}
+			final Point point = new Point((int) coordinateSystem.convertX(firstCoord),
+					(int) coordinateSystem.convertY(secondCoord));
+			if (previousVertices.size() > 0) {
+				final Point previousPoint = previousVertices.get(previousVertices.size() - 1);
+				graphics.drawLine(previousPoint.x, previousPoint.y, point.x, point.y);
+			}
+			previousVertices.add(point);
+			if (programPreferences.showNormals()) {
+				normalHeap.x = (float) normalX;
+				normalHeap.y = (float) normalY;
+				normalHeap.z = (float) normalZ;
+				normalHeap.w = 0;
 				final Color triangleColor = graphics.getColor();
 				float firstNormalCoord, secondNormalCoord;
 				switch (xDimension) {

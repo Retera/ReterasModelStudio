@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.datachooser;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.Collection;
 
 public interface DataSource {
@@ -27,6 +28,8 @@ public interface DataSource {
 	 */
 	File getFile(String filepath) throws IOException;
 
+	ByteBuffer read(String path) throws IOException;
+
 	/**
 	 * Returns true if the data source contains a valid entry for a particular file.
 	 * Some data sources (MPQs) may contain files for which this returns true, even
@@ -36,6 +39,8 @@ public interface DataSource {
 	 * @return
 	 */
 	boolean has(String filepath);
+
+	boolean allowDownstreamCaching(String filepath);
 
 	/**
 	 * @return a list of data source contents, or null if no list is provided

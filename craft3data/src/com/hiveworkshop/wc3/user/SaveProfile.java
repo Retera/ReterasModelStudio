@@ -13,7 +13,11 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
+import com.hiveworkshop.wc3.gui.datachooser.CascDataSourceDescriptor;
+import com.hiveworkshop.wc3.gui.datachooser.CompoundDataSourceDescriptor;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceDescriptor;
+import com.hiveworkshop.wc3.gui.datachooser.FolderDataSourceDescriptor;
+import com.hiveworkshop.wc3.gui.datachooser.MpqDataSourceDescriptor;
 import com.hiveworkshop.wc3.user.WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier;
 
 public class SaveProfile implements Serializable {
@@ -26,6 +30,7 @@ public class SaveProfile implements Serializable {
 	private List<DataSourceDescriptor> dataSources;
 
 	private transient WarcraftDataSourceChangeNotifier dataSourceChangeNotifier = new WarcraftDataSourceChangeNotifier();
+	private transient boolean isHD = false;
 
 	public void clearRecent() {
 		getRecent().clear();
@@ -62,6 +67,7 @@ public class SaveProfile implements Serializable {
 
 	public void setDataSources(final List<DataSourceDescriptor> dataSources) {
 		this.dataSources = dataSources;
+		isHD = computeIsHd(dataSources);
 		save();
 		dataSourceChangeNotifier.dataSourcesChanged();
 	}
@@ -118,6 +124,31 @@ public class SaveProfile implements Serializable {
 
 	private void reload() {
 		dataSourceChangeNotifier = new WarcraftDataSourceChangeNotifier();
+		isHD = computeIsHd(dataSources);
+	}
+
+	private boolean computeIsHd(final Iterable<DataSourceDescriptor> dataSources) {
+		boolean hd = false;
+		for (final DataSourceDescriptor desc : dataSources) {
+			if (desc instanceof FolderDataSourceDescriptor) {
+				if (((FolderDataSourceDescriptor) desc).getFolderPath().contains("_hd.w3mod")) {
+					hd = true;
+				}
+			} else if (desc instanceof CascDataSourceDescriptor) {
+				for (final String prefix : ((CascDataSourceDescriptor) desc).getPrefixes()) {
+					if (prefix.contains("_hd.w3mod")) {
+						hd = true;
+					}
+				}
+			} else if (desc instanceof MpqDataSourceDescriptor) {
+				if (((MpqDataSourceDescriptor) desc).getMpqFilePath().contains("_hd")) {
+					hd = true;
+				}
+			} else if (desc instanceof CompoundDataSourceDescriptor) {
+				hd |= computeIsHd(((CompoundDataSourceDescriptor) desc).getDataSourceDescriptors());
+			}
+		}
+		return hd;
 	}
 
 	public static void save() {
@@ -161,5 +192,9 @@ public class SaveProfile implements Serializable {
 			return false;
 		}
 		return true;
+	}
+
+	public boolean isHd() {
+		return isHD;
 	}
 }

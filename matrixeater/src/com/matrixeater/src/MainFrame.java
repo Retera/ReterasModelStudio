@@ -3,6 +3,10 @@ package com.matrixeater.src;
 import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -22,6 +26,7 @@ import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceChooserPanel;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceDescriptor;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.resources.Resources;
 import com.hiveworkshop.wc3.resources.WEString;
@@ -29,6 +34,8 @@ import com.hiveworkshop.wc3.units.DataTable;
 import com.hiveworkshop.wc3.units.ModelOptionPanel;
 import com.hiveworkshop.wc3.units.UnitOptionPanel;
 import com.hiveworkshop.wc3.user.SaveProfile;
+import com.owens.oobjloader.builder.Build;
+import com.owens.oobjloader.parser.Parse;
 
 import net.infonode.gui.laf.InfoNodeLookAndFeel;
 import net.infonode.gui.laf.InfoNodeLookAndFeelTheme;
@@ -50,7 +57,40 @@ public class MainFrame extends JFrame {
 	}
 
 	public static void main(final String[] args) {
-		final boolean dataPromptForced = (args.length >= 1) && args[0].equals("-forcedataprompt");
+		final boolean hasArgs = args.length >= 1;
+		final List<String> startupModelPaths = new ArrayList<>();
+		if (hasArgs) {
+			if ((args.length > 1) && args[0].equals("-convert")) {
+				final String path = args[1];
+				final EditableModel model = EditableModel.read(new File(path));
+				if (path.toLowerCase().endsWith(".mdx")) {
+					model.printTo(new File(path.substring(0, path.lastIndexOf('.')) + ".mdl"));
+				} else if (path.toLowerCase().endsWith(".mdl")) {
+					model.printTo(new File(path.substring(0, path.lastIndexOf('.')) + ".mdx"));
+				} else {
+					// Unfortunately obj convert does popups right now
+					final Build builder = new Build();
+					try {
+						final Parse obj = new Parse(builder, path);
+						final EditableModel mdl = builder.createMDL();
+					} catch (final FileNotFoundException e) {
+						ExceptionPopup.display(e);
+						e.printStackTrace();
+					} catch (final IOException e) {
+						ExceptionPopup.display(e);
+						e.printStackTrace();
+					}
+				}
+			} else {
+				if (args[0].endsWith(".mdx") || args[0].endsWith(".mdl") || args[0].endsWith(".blp")
+						|| args[0].endsWith(".dds") || args[0].endsWith(".obj")) {
+					for (final String arg : args) {
+						startupModelPaths.add(arg);
+					}
+				}
+			}
+		}
+		final boolean dataPromptForced = hasArgs && args[0].equals("-forcedataprompt");
 		try {
 			LwjglNativesLoader.load();
 //		try {
@@ -262,8 +302,13 @@ public class MainFrame extends JFrame {
 						}
 
 						JPopupMenu.setDefaultLightWeightPopupEnabled(false);
-						frame = new MainFrame("Retera Model Studio v0.04 Public Beta");
+						frame = new MainFrame("Retera Model Studio v0.04.2020.08.09 Nightly Build");
 						panel.init();
+						if (!startupModelPaths.isEmpty()) {
+							for (final String path : startupModelPaths) {
+								panel.openFile(new File(path));
+							}
+						}
 					} catch (final Throwable th) {
 						th.printStackTrace();
 						ExceptionPopup.display(th);

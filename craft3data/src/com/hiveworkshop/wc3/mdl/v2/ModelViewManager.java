@@ -3,18 +3,18 @@ package com.hiveworkshop.wc3.mdl.v2;
 import com.etheller.collections.HashSet;
 import com.etheller.collections.Set;
 import com.etheller.collections.SetView;
-import com.etheller.util.CollectionUtils;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.IdObject;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.v2.render.RenderByViewMeshRenderer;
 import com.hiveworkshop.wc3.mdl.v2.render.RenderByViewModelRenderer;
 import com.hiveworkshop.wc3.mdl.v2.visitor.MeshVisitor;
 import com.hiveworkshop.wc3.mdl.v2.visitor.ModelVisitor;
+import com.hiveworkshop.wc3.util.ModelUtils;
 
 public final class ModelViewManager implements ModelView {
-	private final MDL model;
+	private final EditableModel model;
 	private final ModelViewStateNotifier modelViewStateNotifier;
 	private final Set<Geoset> editableGeosets;// TODO should be a set
 	private final Set<Geoset> visibleGeosets;
@@ -25,10 +25,15 @@ public final class ModelViewManager implements ModelView {
 	private final RenderByViewModelRenderer renderByViewModelRenderer;
 	private final RenderByViewMeshRenderer renderByViewMeshRenderer;
 
-	public ModelViewManager(final MDL model) {
+	public ModelViewManager(final EditableModel model) {
 		this.model = model;
 		this.modelViewStateNotifier = new ModelViewStateNotifier();
-		this.editableGeosets = new HashSet<>(CollectionUtils.asSet(model.getGeosets()));
+		this.editableGeosets = new HashSet<>();
+		for (final Geoset geoset : model.getGeosets()) {
+			if (!ModelUtils.isLevelOfDetailSupported(model.getFormatVersion()) || (geoset.getLevelOfDetail() == 0)) {
+				editableGeosets.add(geoset);
+			}
+		}
 		this.visibleGeosets = new HashSet<>();
 		this.editableIdObjects = new HashSet<>();
 		this.editableCameras = new HashSet<>();
@@ -67,7 +72,7 @@ public final class ModelViewManager implements ModelView {
 	}
 
 	@Override
-	public MDL getModel() {
+	public EditableModel getModel() {
 		return model;
 	}
 

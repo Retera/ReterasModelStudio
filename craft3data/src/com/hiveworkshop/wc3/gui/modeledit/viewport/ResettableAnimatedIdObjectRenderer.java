@@ -20,6 +20,7 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
+import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
@@ -120,6 +121,12 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
 	public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
 		drawNodeImage(particleEmitter, nodeIconPalette.getParticle2Image(),
 				renderModel.getRenderNode(particleEmitter).getWorldMatrix());
+	}
+
+	@Override
+	public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
+		drawNodeImage(popcornFxEmitter, nodeIconPalette.getParticleImage(),
+				renderModel.getRenderNode(popcornFxEmitter).getWorldMatrix());
 	}
 
 	@Override

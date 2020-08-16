@@ -70,6 +70,8 @@ public interface ModelEditor extends ComponentVisibilityListener {
 
 	UndoAction recalcNormals();
 
+	UndoAction recalcExtents(boolean onlyIncludeEditableGeosets);
+
 	UndoAction mirror(byte dim, boolean flipModel, double centerX, double centerY, double centerZ);
 
 	UndoAction flipSelectedFaces();

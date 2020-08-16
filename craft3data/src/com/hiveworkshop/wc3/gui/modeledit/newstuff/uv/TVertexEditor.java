@@ -5,6 +5,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
+import com.hiveworkshop.wc3.gui.modeledit.UVPanel;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericRotateAction;
@@ -71,5 +72,7 @@ public interface TVertexEditor extends ComponentVisibilityListener {
 	void setUVLayerIndex(int uvLayerIndex);
 
 	int getUVLayerIndex();
+
+	UndoAction remap(byte xDim, byte yDim, UVPanel.UnwrapDirection unwrapDirection);
 
 }

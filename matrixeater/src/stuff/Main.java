@@ -10,7 +10,7 @@ import javax.swing.JOptionPane;
 import com.badlogic.gdx.backends.lwjgl.LwjglNativesLoader;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.PerspDisplayPanel;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
@@ -21,9 +21,9 @@ import de.wc3data.stream.BlizzardDataInputStream;
 public class Main {
 	public static void main(final String[] args) {
 		LwjglNativesLoader.load();
-		MDL model;
+		EditableModel model;
 		try {
-			model = new MDL(MdxUtils.loadModel(new BlizzardDataInputStream(
+			model = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(
 					MpqCodebase.get().getResourceAsStream("units\\critters\\zergling\\zergling.mdx"))));
 		} catch (final IOException e1) {
 			throw new RuntimeException(e1);

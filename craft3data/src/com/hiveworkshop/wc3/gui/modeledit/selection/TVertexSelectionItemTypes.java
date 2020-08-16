@@ -3,11 +3,11 @@ package com.hiveworkshop.wc3.gui.modeledit.selection;
 import javax.swing.ImageIcon;
 
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonType;
-import com.hiveworkshop.wc3.gui.modeledit.viewport.IconUtils;
+import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportIconUtils;
 
 public enum TVertexSelectionItemTypes implements ToolbarButtonType {
-	VERTEX("Select Vertices", IconUtils.loadImageIcon("icons/actions/vertex.png")),
-	FACE("Select Faces", IconUtils.loadImageIcon("icons/actions/poly.png"));
+	VERTEX("Select Vertices", ViewportIconUtils.loadImageIcon("icons/actions/vertex.png")),
+	FACE("Select Faces", ViewportIconUtils.loadImageIcon("icons/actions/poly.png"));
 
 	private final String name;
 	private final ImageIcon imageIcon;

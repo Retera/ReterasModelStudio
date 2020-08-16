@@ -23,7 +23,7 @@ import javax.swing.event.DocumentListener;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimationViewer;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.mdx.MdxModel;
@@ -1074,7 +1074,7 @@ public class ModelOptionPanel extends JPanel {
 
 	AnimationViewer viewer;
 
-	final MDL blank = new MDL();
+	final EditableModel blank = new EditableModel();
 	final ModelView blankDisp = new ModelViewManager(blank);
 
 	public ModelOptionPanel() {
@@ -1103,7 +1103,7 @@ public class ModelOptionPanel extends JPanel {
 		modelBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				MDL toLoad = blank;
+				EditableModel toLoad = blank;
 				ModelView modelDisp;
 				try {
 					String filepath = ((Model) modelBox.getSelectedItem()).filepath;
@@ -1145,7 +1145,7 @@ public class ModelOptionPanel extends JPanel {
 			}
 
 			void refresh() {
-				MDL toLoad = blank;
+				EditableModel toLoad = blank;
 				ModelView modelDisp;
 				try {
 					String filepath = filePathField.getText();

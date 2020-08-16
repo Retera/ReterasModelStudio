@@ -46,6 +46,10 @@ public class Bitmap {
 		return replaceableId;
 	}
 
+	public void setReplaceableId(final int replaceableId) {
+		this.replaceableId = replaceableId;
+	}
+
 	public Bitmap(final String imagePath, final int replaceableId) {
 		this.imagePath = imagePath;
 		this.replaceableId = replaceableId;
@@ -59,7 +63,7 @@ public class Bitmap {
 
 	public Bitmap(final TextureChunk.Texture tex) {
 		this(tex.fileName, tex.replaceableId);
-		if (replaceableId == 0 && !imagePath.equals("")) {
+		if ((replaceableId == 0) && !imagePath.equals("")) {
 			replaceableId = -1; // nice and tidy it up for the MDL code
 		}
 		setWrapStyle(tex.flags);
@@ -77,9 +81,9 @@ public class Bitmap {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((imagePath == null) ? 0 : imagePath.hashCode());
-		result = prime * result + replaceableId;
-		result = prime * result + wrapStyle;
+		result = (prime * result) + ((imagePath == null) ? 0 : imagePath.hashCode());
+		result = (prime * result) + replaceableId;
+		result = (prime * result) + wrapStyle;
 		return result;
 	}
 
@@ -124,8 +128,8 @@ public class Bitmap {
 	// && wrapStyle == b.wrapStyle;
 	// return does;
 	// }
-	public boolean getWrapHeight() {
-		return wrapStyle == 2 || wrapStyle == 3;
+	public boolean isWrapHeight() {
+		return (wrapStyle == 2) || (wrapStyle == 3);
 	}
 
 	public void setWrapHeight(final boolean flag) {
@@ -144,8 +148,8 @@ public class Bitmap {
 		}
 	}
 
-	public boolean getWrapWidth() {
-		return wrapStyle == 1 || wrapStyle == 3;
+	public boolean isWrapWidth() {
+		return (wrapStyle == 1) || (wrapStyle == 3);
 	}
 
 	public void setWrapWidth(final boolean flag) {
@@ -172,37 +176,6 @@ public class Bitmap {
 		this.wrapStyle = wrapStyle;
 	}
 
-	public static Bitmap parseText(final String[] line) {
-		if (line[0].contains("Bitmap")) {
-			final Bitmap tex = new Bitmap();
-			for (int i = 1; i < line.length; i++) {
-				if (line[i].contains("Image")) {
-					tex.imagePath = line[i].split("\"")[1];
-				} else if (line[i].contains("ReplaceableId ")) {
-					try {
-						tex.replaceableId = Integer.parseInt(line[i].substring(
-								line[i].indexOf("ReplaceableId ") + "ReplaceableId ".length(), line[i].length() - 2));
-					} catch (final NumberFormatException e) {
-						JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-								"Error while parsing bitmap: Could not interpret ReplaceableId.");
-					}
-				} else if (line[i].contains("WrapWidth")) {
-					tex.setWrapWidth(true);
-				} else if (line[i].contains("WrapHeight")) {
-					tex.setWrapHeight(true);
-				} else {
-					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-							"Error parsing Bitmap: Unrecognized statement '" + line[i] + "'.");
-				}
-			}
-			return tex;
-		} else {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse Bitmap: Missing or unrecognized open statement.");
-		}
-		return null;
-	}
-
 	public static Bitmap read(final BufferedReader mdl) {
 		String line = "";
 		if ((line = MDLReader.nextLine(mdl)).contains("Bitmap")) {
@@ -212,18 +185,6 @@ public class Bitmap {
 					tex.imagePath = line.split("\"")[1];
 				} else if (line.contains("ReplaceableId ")) {
 					tex.replaceableId = MDLReader.readInt(line);
-					// try
-					// {
-					// tex.replaceableId =
-					// Integer.parseInt(line[i].substring(line[i].indexOf("ReplaceableId
-					// ")+"ReplaceableId ".length(),line[i].length()-2));
-					// }
-					// catch (NumberFormatException e)
-					// {
-					// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Error
-					// while parsing bitmap: Could not interpret
-					// ReplaceableId.");
-					// }
 				} else if (line.contains("WrapWidth")) {
 					tex.setWrapWidth(true);
 				} else if (line.contains("WrapHeight")) {

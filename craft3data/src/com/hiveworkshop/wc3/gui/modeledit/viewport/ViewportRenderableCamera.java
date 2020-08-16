@@ -13,7 +13,7 @@ import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.QuaternionRotation;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
@@ -23,7 +23,7 @@ import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import de.wc3data.stream.BlizzardDataInputStream;
 
 public class ViewportRenderableCamera {
-	private final MDL cameraModel;
+	private final EditableModel cameraModel;
 	private double cameraLength;
 	private final Matrix4f rotationMatrix = new Matrix4f();
 	private final Matrix4f scaleTranslateMatrix = new Matrix4f();
@@ -44,9 +44,9 @@ public class ViewportRenderableCamera {
 	private static final Vertex quatRotAxisHeap = new Vertex(0, 0, 0);
 
 	public ViewportRenderableCamera() {
-		MDL camera;
+		EditableModel camera;
 		try {
-			camera = new MDL(MdxUtils.loadModel(new BlizzardDataInputStream(
+			camera = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(
 					MpqCodebase.get().getResourceAsStream("Objects\\CameraHelper\\CameraHelper.mdx"))));
 			cameraLength = Math.abs(camera.getIdObject(0).getPivotPoint().x);
 		} catch (final IOException e) {

@@ -1,5 +1,6 @@
 package com.hiveworkshop.wc3.gui.datachooser;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -90,5 +91,10 @@ public class CascDataSourceDescriptor implements DataSourceDescriptor {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public DataSourceDescriptor duplicate() {
+		return new CascDataSourceDescriptor(gameInstallPath, new ArrayList<>(prefixes));
 	}
 }

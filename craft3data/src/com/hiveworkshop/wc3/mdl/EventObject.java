@@ -14,7 +14,8 @@ import com.hiveworkshop.wc3.mdx.EventObjectChunk;
 import com.hiveworkshop.wc3.mdx.Node;
 
 /**
- * A class for EventObjects, which include such things as craters, footprints, splashes, blood spurts, and sounds
+ * A class for EventObjects, which include such things as craters, footprints,
+ * splashes, blood spurts, and sounds
  *
  * Eric Theller 3/10/2012 3:52 PM
  */
@@ -40,7 +41,8 @@ public class EventObject extends IdObject {
 	public EventObject(final EventObjectChunk.EventObject mdxSource) {
 		this.name = mdxSource.node.name;
 		// debug print:
-		// System.out.println(getName() + ": " + Integer.toBinaryString(mdxSource.node.flags));
+		// System.out.println(getName() + ": " +
+		// Integer.toBinaryString(mdxSource.node.flags));
 		if ((mdxSource.node.flags & 1024) != 1024) {
 			System.err.println("MDX -> MDL error: An eventobject '" + mdxSource.node.name
 					+ "' not flagged as eventobject in MDX!");
@@ -117,8 +119,8 @@ public class EventObject extends IdObject {
 				} else if (line.contains("Parent")) {
 					e.parentId = MDLReader.splitToInts(line)[0];
 					// e.parent = mdlr.getIdObject(e.parentId);
-				} else if ((line.contains("Visibility") || line.contains("Rotation") || line.contains("Translation")
-						|| line.contains("Scaling"))) {
+				} else if (((line.contains("Visibility") || line.contains("Rotation") || line.contains("Translation")
+						|| line.contains("Scaling"))) && !line.contains("DontInherit")) {
 					MDLReader.reset(mdl);
 					e.animFlags.add(AnimFlag.read(mdl));
 				} else if (line.contains("GlobalSeqId")) {
@@ -199,7 +201,7 @@ public class EventObject extends IdObject {
 		// the new time "newStart" to "newEnd"
 		for (int index = eventTrack.size() - 1; index >= 0; index--) {
 			final int i = eventTrack.get(index).intValue();
-			if (i >= anim.getStart() && i <= anim.getEnd()) {
+			if ((i >= anim.getStart()) && (i <= anim.getEnd())) {
 				// If this "i" is a part of the anim being removed
 				eventTrack.remove(index);
 			}
@@ -213,7 +215,7 @@ public class EventObject extends IdObject {
 		// the new time "newStart" to "newEnd"
 		for (final Integer inte : eventTrack) {
 			final int i = inte.intValue();
-			if (i >= start && i <= end) {
+			if ((i >= start) && (i <= end)) {
 				// If this "i" is a part of the anim being rescaled
 				final double ratio = (double) (i - start) / (double) (end - start);
 				eventTrack.set(eventTrack.indexOf(inte), new Integer((int) (newStart + (ratio * (newEnd - newStart)))));
@@ -231,7 +233,7 @@ public class EventObject extends IdObject {
 		// the new time "newStart" to "newEnd"
 		for (final Integer inte : source.eventTrack) {
 			final int i = inte.intValue();
-			if (i >= start && i <= end) {
+			if ((i >= start) && (i <= end)) {
 				// If this "i" is a part of the anim being rescaled
 				final double ratio = (double) (i - start) / (double) (end - start);
 				eventTrack.add(new Integer((int) (newStart + (ratio * (newEnd - newStart)))));
@@ -257,7 +259,7 @@ public class EventObject extends IdObject {
 		// look at), found on google
 		// (re-written by Eric "Retera" for use in AnimFlags)
 		int i = low, j = high;
-		final Integer pivot = eventTrack.get(low + (high - low) / 2);
+		final Integer pivot = eventTrack.get(low + ((high - low) / 2));
 
 		while (i <= j) {
 			while (eventTrack.get(i).intValue() < pivot.intValue()) {
@@ -298,13 +300,13 @@ public class EventObject extends IdObject {
 		}
 	}
 
-	public void updateGlobalSeqRef(final MDL mdlr) {
+	public void updateGlobalSeqRef(final EditableModel mdlr) {
 		if (hasGlobalSeq) {
 			globalSeq = mdlr.getGlobalSeq(globalSeqId);
 		}
 	}
 
-	public void updateGlobalSeqId(final MDL mdlr) {
+	public void updateGlobalSeqId(final EditableModel mdlr) {
 		if (hasGlobalSeq) {
 			globalSeqId = mdlr.getGlobalSeqId(globalSeq);
 		}

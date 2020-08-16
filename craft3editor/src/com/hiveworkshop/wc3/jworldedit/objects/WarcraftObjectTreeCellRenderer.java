@@ -20,6 +20,7 @@ import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.WorldEditorDataTy
 import com.hiveworkshop.wc3.util.IconUtils;
 
 public class WarcraftObjectTreeCellRenderer extends DefaultTreeCellRenderer implements TreeCellRenderer {
+	private static final int ICON_SIZE = 16;
 	UnitEditorSettings settings = new UnitEditorSettings();
 	private final WorldEditorDataType worldEditorDataType;
 	private Color defaultBackgroundSelectionColor = null;
@@ -58,10 +59,10 @@ public class WarcraftObjectTreeCellRenderer extends DefaultTreeCellRenderer impl
 				if (img == null) {
 					img = IconUtils.worldEditStyleIcon(
 							BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp")
-									.getScaledInstance(16, 16, Image.SCALE_FAST));
+									.getScaledInstance(ICON_SIZE, ICON_SIZE, Image.SCALE_FAST));
 				}
-				setIcon(new ImageIcon(
-						toBufferedImage(img.getScaledInstance(16, 16, Image.SCALE_DEFAULT)).getSubimage(1, 1, 14, 14)));
+				setIcon(new ImageIcon(toBufferedImage(img.getScaledInstance(ICON_SIZE, ICON_SIZE, Image.SCALE_DEFAULT))
+						.getSubimage(1, 1, ICON_SIZE - 2, ICON_SIZE - 2)));
 			} catch (final Exception exc) {
 				exc.printStackTrace();
 			}

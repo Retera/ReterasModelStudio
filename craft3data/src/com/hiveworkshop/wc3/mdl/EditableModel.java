@@ -1,6 +1,9 @@
 package com.hiveworkshop.wc3.mdl;
 
+import java.awt.Component;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -11,6 +14,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -19,6 +23,9 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
+import com.hiveworkshop.wc3.gui.datachooser.CompoundDataSource;
+import com.hiveworkshop.wc3.gui.datachooser.DataSource;
+import com.hiveworkshop.wc3.gui.datachooser.FolderDataSource;
 import com.hiveworkshop.wc3.mdl.AnimFlag.Entry;
 import com.hiveworkshop.wc3.mdl.v2.visitor.GeosetVisitor;
 import com.hiveworkshop.wc3.mdl.v2.visitor.MeshVisitor;
@@ -26,10 +33,14 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.ModelVisitor;
 import com.hiveworkshop.wc3.mdl.v2.visitor.TriangleVisitor;
 import com.hiveworkshop.wc3.mdl.v2.visitor.VertexVisitor;
 import com.hiveworkshop.wc3.mdx.AttachmentChunk;
+import com.hiveworkshop.wc3.mdx.BindPoseChunk;
 import com.hiveworkshop.wc3.mdx.BoneChunk;
 import com.hiveworkshop.wc3.mdx.CameraChunk;
 import com.hiveworkshop.wc3.mdx.CollisionShapeChunk;
+import com.hiveworkshop.wc3.mdx.CornChunk;
 import com.hiveworkshop.wc3.mdx.EventObjectChunk;
+import com.hiveworkshop.wc3.mdx.FaceEffectsChunk;
+import com.hiveworkshop.wc3.mdx.FaceEffectsChunk.FaceEffect;
 import com.hiveworkshop.wc3.mdx.GeosetAnimationChunk;
 import com.hiveworkshop.wc3.mdx.GeosetChunk;
 import com.hiveworkshop.wc3.mdx.HelperChunk;
@@ -43,7 +54,10 @@ import com.hiveworkshop.wc3.mdx.RibbonEmitterChunk;
 import com.hiveworkshop.wc3.mdx.SequenceChunk.Sequence;
 import com.hiveworkshop.wc3.mdx.TextureAnimationChunk.TextureAnimation;
 import com.hiveworkshop.wc3.mdx.TextureChunk.Texture;
+import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.util.MathUtils;
+import com.hiveworkshop.wc3.util.ModelUtils;
+import com.hiveworkshop.wc3.util.ModelUtils.Mesh;
 
 import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
@@ -54,7 +68,8 @@ import de.wc3data.stream.BlizzardDataOutputStream;
  *
  * Eric Theller 11/5/2011
  */
-public class MDL implements Named {
+public class EditableModel implements Named {
+	public static boolean RETERA_FORMAT_BPOS_MATRICES = false;
 	// private static String [] tags = {"Model ","Sequences ","GlobalSequences
 	// ","Bitmap ","Material ","Geoset ",};
 
@@ -67,6 +82,7 @@ public class MDL implements Named {
 	protected ArrayList<Animation> anims = new ArrayList<>();
 	protected ArrayList<Integer> globalSeqs = new ArrayList<>();
 	protected ArrayList<Bitmap> textures = new ArrayList<>();
+	protected ArrayList<SoundFile> sounds = new ArrayList<>();
 	protected ArrayList<Material> materials = new ArrayList<>();
 	protected ArrayList<TextureAnim> texAnims = new ArrayList<>();
 	protected ArrayList<Geoset> geosets = new ArrayList<>();
@@ -86,6 +102,11 @@ public class MDL implements Named {
 	private boolean loading;
 	private boolean temporary;
 
+	private final List<FaceEffectsChunk.FaceEffect> faceEffects = new ArrayList<>();
+	private BindPoseChunk bindPoseChunk;
+
+	private DataSource wrappedDataSource = MpqCodebase.get();
+
 	public static boolean DISABLE_BONE_GEO_ID_VALIDATOR = false;
 
 	public File getFile() {
@@ -97,6 +118,10 @@ public class MDL implements Named {
 			return fileRef.getParentFile();
 		}
 		return null;
+	}
+
+	public DataSource getWrappedDataSource() {
+		return wrappedDataSource;
 	}
 
 	/*
@@ -127,8 +152,14 @@ public class MDL implements Named {
 		return name;
 	}
 
-	public void setFile(final File file) {
+	public void setFileRef(final File file) {
 		fileRef = file;
+		if (fileRef != null) {
+			wrappedDataSource = new CompoundDataSource(
+					Arrays.asList(MpqCodebase.get(), new FolderDataSource(file.getParentFile().toPath())));
+		} else {
+			wrappedDataSource = MpqCodebase.get();
+		}
 	}
 
 	public boolean isTemp() {
@@ -139,8 +170,8 @@ public class MDL implements Named {
 		temporary = flag;
 	}
 
-	public void copyHeaders(final MDL other) {
-		fileRef = other.fileRef;
+	public void copyHeaders(final EditableModel other) {
+		setFileRef(other.fileRef);
 		BlendTime = other.BlendTime;
 		if (other.extents != null) {
 			extents = new ExtLog(other.extents);
@@ -150,25 +181,25 @@ public class MDL implements Named {
 		name = other.name;
 	}
 
-	public static MDL clone(final MDL what, final String newName) {
-		final MDL newModel = new MDL(what);
+	public static EditableModel clone(final EditableModel what, final String newName) {
+		final EditableModel newModel = new EditableModel(what);
 		newModel.setName(newName);
 		return newModel;
 	}
 
-	public static MDL deepClone(final MDL what, final String newName) {
-		File temp;
+	public static EditableModel deepClone(final EditableModel what, final String newName) {
+		final File temp;
 		try {
-			temp = File.createTempFile("model_clone", "mdl");
-			what.printTo(temp);
-			final MDL newModel = MDL.read(temp);
+			final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+			what.printTo(byteArrayOutputStream);
+			try (ByteArrayInputStream bais = new ByteArrayInputStream(byteArrayOutputStream.toByteArray())) {
+				final EditableModel newModel = EditableModel.read(bais);
+				newModel.setName(newName);
+				newModel.setFileRef(what.getFile());
+				return newModel;
+			}
 
-			newModel.setName(newName);
-			newModel.setFile(what.getFile());
-			temp.deleteOnExit();
-
-			return newModel;
-		} catch (final IOException e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 			ExceptionPopup.display(e);
 		}
@@ -213,18 +244,18 @@ public class MDL implements Named {
 		cameras.clear();
 	}
 
-	public MDL() {
+	public EditableModel() {
 		name = "UnnamedModel";
 		formatVersion = 800;
 	}
 
-	public MDL(final String newName) {
+	public EditableModel(final String newName) {
 		name = newName;
 		formatVersion = 800;
 	}
 
-	public MDL(final MDL other) {
-		fileRef = other.fileRef;
+	public EditableModel(final EditableModel other) {
+		setFileRef(other.fileRef);
 		name = other.name;
 		BlendTime = other.BlendTime;
 		extents = new ExtLog(other.extents);
@@ -253,7 +284,7 @@ public class MDL implements Named {
 		return (flags & mask) != 0;
 	}
 
-	public MDL(final MdxModel mdx) {
+	public EditableModel(final MdxModel mdx) {
 		this();
 		// Step 1: Convert the Model Chunk
 		// For MDL api, this is currently embedded right inside the
@@ -353,6 +384,12 @@ public class MDL implements Named {
 				add(new ParticleEmitter2(emitter));
 			}
 		}
+		// PopcornFxEmitter
+		if (mdx.cornChunk != null) {
+			for (final CornChunk.ParticleEmitterPopcorn emitter : mdx.cornChunk.corns) {
+				add(new ParticleEmitterPopcorn(emitter));
+			}
+		}
 		// RibbonEmitter
 		if (mdx.ribbonEmitterChunk != null) {
 			for (final RibbonEmitterChunk.RibbonEmitter emitter : mdx.ribbonEmitterChunk.ribbonEmitter) {
@@ -397,6 +434,13 @@ public class MDL implements Named {
 						mdx.pivotPointChunk.pivotPoints[(objId * 3) + 1],
 						mdx.pivotPointChunk.pivotPoints[(objId * 3) + 2]));
 			}
+		}
+
+		if ((mdx.faceEffectsChunk != null) && ModelUtils.isBindPoseSupported(formatVersion)) {
+			for (final FaceEffect facefx : mdx.faceEffectsChunk.faceEffects) {
+				addFaceEffect(facefx);
+			}
+			bindPoseChunk = mdx.bindPoseChunk;
 		}
 
 		doPostRead(); // fixes all the things
@@ -548,6 +592,14 @@ public class MDL implements Named {
 		return materials.get(i);
 	}
 
+	public void addSound(final SoundFile sound) {
+		sounds.add(sound);
+	}
+
+	public SoundFile getSound(final int index) {
+		return sounds.get(index);
+	}
+
 	public void addGeosetAnim(final GeosetAnim x) {
 		geosetAnims.add(x);
 	}
@@ -560,8 +612,12 @@ public class MDL implements Named {
 		cameras.add(x);
 	}
 
-	public void addIdObject(final IdObject x) {
+	private void addIdObject(final IdObject x) {
 		idObjects.add(x);
+	}
+
+	public void addFaceEffect(final FaceEffect faceEffect) {
+		faceEffects.add(faceEffect);
 	}
 
 	public IdObject getIdObject(final int index) {
@@ -640,10 +696,12 @@ public class MDL implements Named {
 			final List<ParticleEmitter> particleEmitters = sortedIdObjects(ParticleEmitter.class);
 			final List<ParticleEmitter2> particleEmitters2 = sortedIdObjects(ParticleEmitter2.class);
 			final List<RibbonEmitter> ribbonEmitters = sortedIdObjects(RibbonEmitter.class);
+			final List<ParticleEmitterPopcorn> popcornEmitters = sortedIdObjects(ParticleEmitterPopcorn.class);
 			final List<IdObject> emitters = new ArrayList<>();
 			emitters.addAll(particleEmitters2);
 			emitters.addAll(particleEmitters);
 			emitters.addAll(ribbonEmitters);
+			emitters.addAll(popcornEmitters);
 
 			for (final IdObject emitter : emitters) {
 				int talliesFor = 0;
@@ -689,10 +747,10 @@ public class MDL implements Named {
 	 *
 	 * @param other
 	 */
-	public void addAnimationsFrom(MDL other) {
+	public void addAnimationsFrom(EditableModel other) {
 		// this process destroys the "other" model inside memory, so destroy
 		// a copy instead
-		other = MDL.deepClone(other, "animation source file");
+		other = EditableModel.deepClone(other, "animation source file");
 
 		final List<AnimFlag> flags = getAllAnimFlags();
 		final List<EventObject> eventObjs = sortedIdObjects(EventObject.class);
@@ -773,10 +831,10 @@ public class MDL implements Named {
 		// i think we're done????
 	}
 
-	public List<Animation> addAnimationsFrom(MDL other, final List<Animation> anims) {
+	public List<Animation> addAnimationsFrom(EditableModel other, final List<Animation> anims) {
 		// this process destroys the "other" model inside memory, so destroy
 		// a copy instead
-		other = MDL.deepClone(other, "animation source file");
+		other = EditableModel.deepClone(other, "animation source file");
 
 		final List<AnimFlag> flags = getAllAnimFlags();
 		final List<EventObject> eventObjs = sortedIdObjects(EventObject.class);
@@ -884,12 +942,12 @@ public class MDL implements Named {
 		return anims.size();
 	}
 
-	public static MDL read(final File f) {
+	public static EditableModel read(final File f) {
 		if (f.getPath().toLowerCase().endsWith(".mdx")) {
 			// f = MDXHandler.convert(f);
 			try (BlizzardDataInputStream in = new BlizzardDataInputStream(new FileInputStream(f))) {
-				final MDL mdl = new MDL(MdxUtils.loadModel(in));
-				mdl.fileRef = f;
+				final EditableModel mdl = new EditableModel(MdxUtils.loadModel(in));
+				mdl.setFileRef(f);
 				return mdl;
 			} catch (final FileNotFoundException e) {
 				throw new RuntimeException(e);
@@ -904,8 +962,8 @@ public class MDL implements Named {
 			}
 		}
 		try (final FileInputStream fos = new FileInputStream(f)) {
-			final MDL mdlObject = read(fos);
-			mdlObject.fileRef = f;
+			final EditableModel mdlObject = read(fos);
+			mdlObject.setFileRef(f);
 			return mdlObject;
 		} catch (final FileNotFoundException e) {
 			JOptionPane.showMessageDialog(null, "The file chosen was not found: " + e.getMessage());
@@ -915,7 +973,7 @@ public class MDL implements Named {
 		return null;
 	}
 
-	public static MDL read(final InputStream f) {
+	public static EditableModel read(final InputStream f) {
 		try {
 			MDLReader.clearLineId();
 			BufferedReader mdl;
@@ -929,7 +987,7 @@ public class MDL implements Named {
 			// to read file, but file was not found.");
 			// return null;
 			// }
-			final MDL mdlr = new MDL();
+			final EditableModel mdlr = new EditableModel();
 			String line = "";
 			while ((line = MDLReader.nextLineSpecial(mdl)).startsWith("//")) {
 				if (!line.contains("// Saved by Retera's MDL Toolkit on ")) {
@@ -941,7 +999,7 @@ public class MDL implements Named {
 			}
 			line = MDLReader.nextLine(mdl);
 			mdlr.formatVersion = MDLReader.readInt(line);
-			if (mdlr.formatVersion != 800) {
+			if ((mdlr.formatVersion != 800) && (mdlr.formatVersion != 900) && (mdlr.formatVersion != 1000)) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "The format version was confusing!");
 			}
 			line = MDLReader.nextLine(mdl);// this is "}" for format version
@@ -1044,6 +1102,10 @@ public class MDL implements Named {
 					mdlr.addIdObject(temp);
 					temp.updateMaterialRef(mdlr.materials);
 					MDLReader.mark(mdl);
+				} else if (line.contains("PopcornFxEmitter ") || line.contains("ParticleEmitterPopcorn ")) {
+					MDLReader.reset(mdl);
+					mdlr.addIdObject(ParticleEmitterPopcorn.read(mdl));
+					MDLReader.mark(mdl);
 				} else if (line.contains("Camera ")) {
 					MDLReader.reset(mdl);
 					mdlr.addCamera(Camera.read(mdl));
@@ -1059,6 +1121,52 @@ public class MDL implements Named {
 				} else if (line.contains("PivotPoints ")) {
 					while (!(line = MDLReader.nextLine(mdl)).startsWith("}")) {
 						mdlr.addPivotPoint(Vertex.parseText(line));
+					}
+					MDLReader.mark(mdl);
+				} else if (line.contains("FaceEffects ")) {
+					// This "FaceEffects " branch is for 2019-2020 RMS MDL format that was not
+					// consistent with Blizzard's format, and was invented to give us a way to edit
+					// models as text prior to obtaining the official version.
+					final FaceEffectsChunk.FaceEffect faceEffect = new FaceEffectsChunk.FaceEffect();
+					mdlr.faceEffects.add(faceEffect);
+					while (!(line = MDLReader.nextLine(mdl)).startsWith("}")) {
+						final String trimmedLine = line.trim();
+						if (trimmedLine.startsWith("Target")) {
+							faceEffect.faceEffectTarget = MDLReader.readName(line);
+						} else if (trimmedLine.startsWith("Path")) {
+							faceEffect.faceEffect = MDLReader.readName(line);
+						}
+					}
+					MDLReader.mark(mdl);
+				} else if (line.contains("FaceFX ")) {
+					MDLReader.reset(mdl);
+					mdlr.addFaceEffect(FaceEffect.read(mdl));
+					MDLReader.mark(mdl);
+				} else if (line.contains("BindPose ")) {
+					mdlr.bindPoseChunk = new BindPoseChunk();
+					final List<float[]> bindPoseElements = new ArrayList<>();
+					while (!(line = MDLReader.nextLine(mdl)).startsWith("}")) {
+						final String trimmedLine = line.trim();
+						if (trimmedLine.startsWith("Matrix")) {
+							final float[] matrix = new float[12];
+							for (int i = 0; i < 3; i++) {
+								parse4FloatBPos(MDLReader.nextLine(mdl), matrix, i);
+							}
+							MDLReader.nextLine(mdl);
+							bindPoseElements.add(matrix);
+						} else if (trimmedLine.startsWith("Matrices")) {
+							while (!(line = MDLReader.nextLine(mdl)).trim().startsWith("}")) {
+								final float[] matrix = new float[12];
+								parse12FloatBPos(line, matrix);
+								bindPoseElements.add(matrix);
+							}
+						} else {
+							throw new IllegalStateException("Bad tokens in BindPose chunk: " + line);
+						}
+					}
+					mdlr.bindPoseChunk.bindPose = new float[bindPoseElements.size()][];
+					for (int i = 0; i < bindPoseElements.size(); i++) {
+						mdlr.bindPoseChunk.bindPose[i] = bindPoseElements.get(i);
 					}
 					MDLReader.mark(mdl);
 				}
@@ -1100,16 +1208,77 @@ public class MDL implements Named {
 		return null;
 	}
 
+	public static void parse4FloatBPos(final String input, final float[] output, final int offset) {
+		final String[] entries = input.split(",");
+		try {
+			output[offset] = Float.parseFloat(entries[0].split("\\{")[1].trim());
+		} catch (final NumberFormatException e) {
+			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
+					"Error {" + input + "}: BindPose Matrix could not be interpreted.");
+		}
+		for (int i = 1; i < 3; i++) {
+			try {
+				output[offset + (i * 3)] = Float.parseFloat(entries[i].trim());
+			} catch (final NumberFormatException e) {
+				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
+						"Error {" + input + "}: BindPose Matrix could not be interpreted.");
+			}
+		}
+		try {
+			output[offset + (3 * 3)] = Float.parseFloat(entries[3].split("}")[0].trim());
+		} catch (final NumberFormatException e) {
+			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
+					"Error {" + input + "}: BindPose Matrix could not be interpreted.");
+		}
+	}
+
+	public static void parse12FloatBPos(final String input, final float[] output) {
+		final String[] entries = input.split(",");
+		try {
+			output[0] = Float.parseFloat(entries[0].split("\\{")[1].trim());
+		} catch (final NumberFormatException e) {
+			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
+					"Error {" + input + "}: BindPose Matrix could not be interpreted.");
+		}
+		for (int i = 1; i < 11; i++) {
+			try {
+				output[i] = Float.parseFloat(entries[i].trim());
+			} catch (final NumberFormatException e) {
+				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
+						"Error {" + input + "}: BindPose Matrix could not be interpreted.");
+			}
+		}
+		try {
+			output[11] = Float.parseFloat(entries[11].split("}")[0].trim());
+		} catch (final NumberFormatException e) {
+			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
+					"Error {" + input + "}: BindPose Matrix could not be interpreted.");
+		}
+	}
+
 	public void doPostRead() {
 		updateIdObjectReferences();
 		for (final Geoset geo : geosets) {
 			geo.updateToObjects(this);
 		}
+		final List<GeosetAnim> badAnims = new ArrayList<>();
 		for (final GeosetAnim geoAnim : this.geosetAnims) {
 			if (geoAnim.geosetId != -1) {
-				geoAnim.geoset = this.getGeoset(geoAnim.geosetId);
-				geoAnim.geoset.geosetAnim = geoAnim;// YEAH THIS MAKES SENSE
+				if (geoAnim.geosetId >= this.geosets.size()) {
+					badAnims.add(geoAnim);
+				} else {
+
+					geoAnim.geoset = this.getGeoset(geoAnim.geosetId);
+					geoAnim.geoset.geosetAnim = geoAnim;// YEAH THIS MAKES SENSE
+				}
 			}
+		}
+		if (badAnims.size() > 0) {
+			JOptionPane.showMessageDialog(null,
+					"We discovered GeosetAnim data pointing to an invalid GeosetID! Bad data will be deleted. Please backup your model file.");
+		}
+		for (final GeosetAnim bad : badAnims) {
+			this.geosetAnims.remove(bad);
 		}
 		for (final ParticleEmitter2 temp : sortedIdObjects(ParticleEmitter2.class)) {
 			temp.updateTextureRef(textures);
@@ -1136,6 +1305,7 @@ public class MDL implements Named {
 
 	public void printTo(final File baseFile) {
 		File f = baseFile;
+		baseFile.getParentFile().mkdirs();
 		boolean mdx = false;
 		if (f.getPath().toLowerCase().endsWith(".mdx")) {
 			// String fp = baseFile.getPath();
@@ -1219,6 +1389,10 @@ public class MDL implements Named {
 		if (sz > 0) {
 			writer.println("\tNumParticleEmitters2 " + sz + ",");
 		}
+		sz = countIdObjectsOfClass(ParticleEmitterPopcorn.class);
+		if (sz > 0) {
+			writer.println("\tNumParticleEmittersPopcorn " + sz + ",");
+		}
 		sz = countIdObjectsOfClass(RibbonEmitter.class);
 		if (sz > 0) {
 			writer.println("\tNumRibbonEmitters " + sz + ",");
@@ -1226,6 +1400,10 @@ public class MDL implements Named {
 		sz = countIdObjectsOfClass(EventObject.class);
 		if (sz > 0) {
 			writer.println("\tNumEvents " + sz + ",");
+		}
+		sz = faceEffects.size();
+		if (sz > 0) {
+			writer.println("\tNumFaceFX " + sz + ",");
 		}
 		writer.println("\tBlendTime " + BlendTime + ",");
 		if (extents != null) {
@@ -1271,7 +1449,7 @@ public class MDL implements Named {
 			if (materials.size() > 0) {
 				writer.println("Materials " + materials.size() + " {");
 				for (int i = 0; i < materials.size(); i++) {
-					materials.get(i).printTo(writer, 1);
+					materials.get(i).printTo(writer, 1, formatVersion);
 				}
 				writer.println("}");
 			}
@@ -1310,6 +1488,13 @@ public class MDL implements Named {
 		if (geosets != null) {
 			if (geosets.size() > 0) {
 				for (int i = 0; i < geosets.size(); i++) {
+					geosets.get(i).doSavePrep(this);
+				}
+			}
+		}
+		if (geosets != null) {
+			if (geosets.size() > 0) {
+				for (int i = 0; i < geosets.size(); i++) {
 					geosets.get(i).printTo(writer, this, true);
 				}
 			}
@@ -1345,8 +1530,9 @@ public class MDL implements Named {
 		for (int i = 0; i < idObjects.size(); i++) {
 			final IdObject obj = idObjects.get(i);
 			if (!pivotsPrinted && ((obj.getClass() == ParticleEmitter.class)
-					|| (obj.getClass() == ParticleEmitter2.class) || (obj.getClass() == RibbonEmitter.class)
-					|| (obj.getClass() == EventObject.class) || (obj.getClass() == CollisionShape.class))) {
+					|| (obj.getClass() == ParticleEmitter2.class) || (obj.getClass() == ParticleEmitterPopcorn.class)
+					|| (obj.getClass() == RibbonEmitter.class) || (obj.getClass() == EventObject.class)
+					|| (obj.getClass() == CollisionShape.class))) {
 				writer.println("PivotPoints " + pivots.size() + " {");
 				for (int p = 0; p < pivots.size(); p++) {
 					writer.println("\t" + pivots.get(p).toString() + ",");
@@ -1375,6 +1561,71 @@ public class MDL implements Named {
 		if (!camerasPrinted) {
 			for (int i = 0; i < cameras.size(); i++) {
 				cameras.get(i).printTo(writer);
+			}
+		}
+
+		if (ModelUtils.isBindPoseSupported(formatVersion)) {
+			for (int i = 0; i < faceEffects.size(); i++) {
+				final FaceEffect faceEffect = faceEffects.get(i);
+				writer.println("FaceFX \"" + faceEffect.faceEffectTarget + "\" {");
+				writer.println("\tPath \"" + faceEffect.faceEffect + "\",");
+				writer.println("}");
+			}
+		}
+
+		if ((bindPoseChunk != null) && ModelUtils.isBindPoseSupported(formatVersion)) {
+			if (RETERA_FORMAT_BPOS_MATRICES) {
+				writer.println("BindPose " + bindPoseChunk.bindPose.length + " {");
+				final StringBuilder matrixStringBuilder = new StringBuilder();
+				for (int i = 0; i < bindPoseChunk.bindPose.length; i++) {
+					Named matrixPredictedParent = null;
+					if (i < idObjects.size()) {
+						matrixPredictedParent = idObjects.get(i);
+					} else if (i < (idObjects.size() + cameras.size())) {
+						matrixPredictedParent = cameras.get(i - idObjects.size());
+					}
+					if (matrixPredictedParent != null) {
+						writer.println("\tMatrix { // for \"" + matrixPredictedParent.getName() + "\"");
+					} else {
+						writer.println("\tMatrix {");
+					}
+					final float[] matrix = bindPoseChunk.bindPose[i];
+					for (int j = 0; j < 3; j++) {
+						matrixStringBuilder.setLength(0);
+						matrixStringBuilder.append("{ ");
+						for (int k = 0; k < 4; k++) {
+							if (k > 0) {
+								matrixStringBuilder.append(", ");
+							}
+							matrixStringBuilder.append(MDLReader.doubleToString(matrix[(k * 3) + j]));
+						}
+						matrixStringBuilder.append(" },");
+						writer.println("\t\t" + matrixStringBuilder.toString());
+					}
+					writer.println("\t}");
+				}
+				writer.println("}");
+			} else {
+				writer.println("BindPose {");
+				writer.println("\tMatrices " + bindPoseChunk.bindPose.length + " {");
+				final StringBuilder matrixStringBuilder = new StringBuilder();
+				for (int i = 0; i < bindPoseChunk.bindPose.length; i++) {
+					final float[] matrix = bindPoseChunk.bindPose[i];
+					matrixStringBuilder.setLength(0);
+					matrixStringBuilder.append("{ ");
+					for (int k = 0; k < matrix.length; k++) {
+						if (k > 0) {
+							matrixStringBuilder.append(", ");
+						}
+						matrixStringBuilder.append(MDLReader.doubleToString(matrix[k]));
+					}
+					matrixStringBuilder.append(" },");
+//					matrixStringBuilder.append(" // ");
+//					matrixStringBuilder.append(i);
+					writer.println("\t\t" + matrixStringBuilder.toString());
+				}
+				writer.println("\t}");
+				writer.println("}");
 			}
 		}
 
@@ -1585,6 +1836,9 @@ public class MDL implements Named {
 				pivots.add(new Vertex(0, 0, 0));
 			}
 			obj.setPivotPoint(pivots.get(i));
+			if (bindPoseChunk != null) {
+				obj.bindPose = bindPoseChunk.bindPose[i];
+			}
 		}
 		for (final Bone b : bones) {
 			if ((b.geosetId != -1) && (b.geosetId < geosets.size())) {
@@ -1594,6 +1848,12 @@ public class MDL implements Named {
 				b.geosetAnim = geosetAnims.get(b.geosetAnimId);
 			}
 		}
+		for (int i = 0; i < cameras.size(); i++) {
+			final Camera camera = cameras.get(i);
+			if (bindPoseChunk != null) {
+				camera.setBindPose(bindPoseChunk.bindPose[i + idObjects.size()]);
+			}
+		}
 	}
 
 	public void updateObjectIds() {
@@ -1601,6 +1861,7 @@ public class MDL implements Named {
 
 		// -- Injected in save prep --
 		// Delete empty rotation/translation/scaling
+		bindPoseChunk = null;
 		for (final IdObject obj : idObjects) {
 			final List<AnimFlag> animFlags = obj.getAnimFlags();
 			final List<AnimFlag> bad = new ArrayList<>();
@@ -1624,10 +1885,27 @@ public class MDL implements Named {
 			final IdObject obj = idObjects.get(i);
 			obj.objectId = idObjects.indexOf(obj);
 			obj.parentId = idObjects.indexOf(obj.getParent());
+			if (obj.getBindPose() != null) {
+				if (bindPoseChunk == null) {
+					bindPoseChunk = new BindPoseChunk();
+					bindPoseChunk.bindPose = new float[idObjects.size() + cameras.size()][];
+				}
+				bindPoseChunk.bindPose[i] = obj.getBindPose();
+			}
 		}
 		for (final Bone b : bones) {
 			b.geosetId = geosets.indexOf(b.geoset);
 			b.geosetAnimId = geosetAnims.indexOf(b.geosetAnim);
+		}
+		for (int i = 0; i < cameras.size(); i++) {
+			final Camera obj = cameras.get(i);
+			if (obj.getBindPose() != null) {
+				if (bindPoseChunk == null) {
+					bindPoseChunk = new BindPoseChunk();
+					bindPoseChunk.bindPose = new float[idObjects.size() + cameras.size()][];
+				}
+				bindPoseChunk.bindPose[i + idObjects.size()] = obj.getBindPose();
+			}
 		}
 	}
 
@@ -1639,6 +1917,7 @@ public class MDL implements Named {
 		final ArrayList<Attachment> attachments = sortedIdObjects(Attachment.class);
 		final ArrayList<ParticleEmitter> particleEmitters = sortedIdObjects(ParticleEmitter.class);
 		final ArrayList<ParticleEmitter2> particleEmitter2s = sortedIdObjects(ParticleEmitter2.class);
+		final ArrayList<ParticleEmitterPopcorn> popcornEmitters = sortedIdObjects(ParticleEmitterPopcorn.class);
 		final ArrayList<RibbonEmitter> ribbonEmitters = sortedIdObjects(RibbonEmitter.class);
 		final ArrayList<EventObject> events = sortedIdObjects(EventObject.class);
 		final ArrayList<CollisionShape> colliders = sortedIdObjects(CollisionShape.class);
@@ -1649,6 +1928,7 @@ public class MDL implements Named {
 		allObjects.addAll(attachments);
 		allObjects.addAll(particleEmitters);
 		allObjects.addAll(particleEmitter2s);
+		allObjects.addAll(popcornEmitters);
 		allObjects.addAll(ribbonEmitters);
 		allObjects.addAll(events);
 		allObjects.addAll(colliders);
@@ -1706,38 +1986,8 @@ public class MDL implements Named {
 				}
 			}
 		}
-		final ArrayList<Bone> bones = sortedIdObjects(Bone.class);
-		bones.addAll(sortedIdObjects(Helper.class));// Hey, look at that!
-		for (final Bone b : bones) {
-			allFlags.addAll(b.animFlags);
-		}
-		final ArrayList<Light> lights = sortedIdObjects(Light.class);
-		for (final Light l : lights) {
-			allFlags.addAll(l.animFlags);
-		}
-		final ArrayList<Attachment> atcs = sortedIdObjects(Attachment.class);
-		for (final Attachment x : atcs) {
-			allFlags.addAll(x.animFlags);
-		}
-		final ArrayList<ParticleEmitter2> pes = sortedIdObjects(ParticleEmitter2.class);
-		for (final ParticleEmitter2 x : pes) {
-			allFlags.addAll(x.animFlags);
-		}
-		final ArrayList<ParticleEmitter> xpes = sortedIdObjects(ParticleEmitter.class);
-		for (final ParticleEmitter x : xpes) {
-			allFlags.addAll(x.animFlags);
-		}
-		final ArrayList<RibbonEmitter> res = sortedIdObjects(RibbonEmitter.class);
-		for (final RibbonEmitter x : res) {
-			allFlags.addAll(x.animFlags);
-		}
-		final ArrayList<CollisionShape> cs = sortedIdObjects(CollisionShape.class);
-		for (final CollisionShape x : cs) {
-			allFlags.addAll(x.animFlags);
-		}
-		final ArrayList<EventObject> evt = sortedIdObjects(EventObject.class);
-		for (final EventObject x : evt) {
-			allFlags.addAll(x.animFlags);
+		for (final IdObject idObject : idObjects) {
+			allFlags.addAll(idObject.getAnimFlags());
 		}
 		if (cameras != null) {
 			for (final Camera x : cameras) {
@@ -1799,6 +2049,12 @@ public class MDL implements Named {
 		}
 		final ArrayList<ParticleEmitter> xpes = sortedIdObjects(ParticleEmitter.class);
 		for (final ParticleEmitter x : xpes) {
+			if (x.animFlags.contains(aflg)) {
+				return x;
+			}
+		}
+		final ArrayList<ParticleEmitterPopcorn> pfes = sortedIdObjects(ParticleEmitterPopcorn.class);
+		for (final ParticleEmitterPopcorn x : pfes) {
 			if (x.animFlags.contains(aflg)) {
 				return x;
 			}
@@ -1880,6 +2136,12 @@ public class MDL implements Named {
 		}
 		final ArrayList<ParticleEmitter> xpes = sortedIdObjects(ParticleEmitter.class);
 		for (final ParticleEmitter x : xpes) {
+			if (x.animFlags.contains(aflg)) {
+				x.animFlags.add(added);
+			}
+		}
+		final ArrayList<ParticleEmitterPopcorn> pfes = sortedIdObjects(ParticleEmitterPopcorn.class);
+		for (final ParticleEmitterPopcorn x : pfes) {
 			if (x.animFlags.contains(aflg)) {
 				x.animFlags.add(added);
 			}
@@ -2147,6 +2409,11 @@ public class MDL implements Named {
 		if ((x.pivotPoint != null) && !pivots.contains(x.pivotPoint)) {
 			pivots.add(x.pivotPoint);
 		}
+		if (ModelUtils.isBindPoseSupported(formatVersion) && (bindPoseChunk != null)) {
+			if (x.getBindPose() == null) {
+				x.setBindPose(new float[] { 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 });
+			}
+		}
 	}
 
 	public void add(final Camera x) {
@@ -2155,6 +2422,11 @@ public class MDL implements Named {
 					"Added null Camera component to model, which is really bad. Tell Retera you saw this once you have errors.");
 		}
 		cameras.add(x);
+		if (ModelUtils.isBindPoseSupported(formatVersion) && (bindPoseChunk != null)) {
+			if (x.getBindPose() == null) {
+				x.setBindPose(new float[] { 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 });
+			}
+		}
 	}
 
 	public boolean contains(final Animation x) {
@@ -2197,6 +2469,10 @@ public class MDL implements Named {
 		idObjects.remove(o);
 	}
 
+	public void remove(final Camera camera) {
+		cameras.remove(camera);
+	}
+
 	public void remove(final Geoset g) {
 		geosets.remove(g);
 	}
@@ -2211,10 +2487,6 @@ public class MDL implements Named {
 
 	public File getFileRef() {
 		return fileRef;
-	}
-
-	public void setFileRef(final File fileRef) {
-		this.fileRef = fileRef;
 	}
 
 	public int getBlendTime() {
@@ -2334,24 +2606,48 @@ public class MDL implements Named {
 		for (final Geoset geoset : geosets) {
 			final GeosetVisitor geosetRenderer = renderer.beginGeoset(geosetId++, geoset.getMaterial(),
 					geoset.getGeosetAnim());
-			for (final Triangle triangle : geoset.getTriangles()) {
-				final TriangleVisitor triangleRenderer = geosetRenderer.beginTriangle();
-				for (final GeosetVertex vertex : triangle.getVerts()) {
-					final VertexVisitor vertexRenderer;
-					// TODO redesign for nullable normals
-					if (vertex.getNormal() != null) {
-						vertexRenderer = triangleRenderer.vertex(vertex.x, vertex.y, vertex.z, vertex.getNormal().x,
-								vertex.getNormal().y, vertex.getNormal().z, vertex.getBoneAttachments());
-					} else {
-						vertexRenderer = triangleRenderer.vertex(vertex.x, vertex.y, vertex.z, 0, 0, 0,
-								vertex.getBoneAttachments());
+			if ((ModelUtils.isTangentAndSkinSupported(formatVersion)) && (geoset.getVertices().size() > 0)
+					&& (geoset.getVertex(0).getSkinBones() != null)) {
+				for (final Triangle triangle : geoset.getTriangles()) {
+					final TriangleVisitor triangleRenderer = geosetRenderer.beginTriangle();
+					for (final GeosetVertex vertex : triangle.getVerts()) {
+						final VertexVisitor vertexRenderer;
+						// TODO redesign for nullable normals
+						if (vertex.getNormal() != null) {
+							vertexRenderer = triangleRenderer.hdVertex(vertex.x, vertex.y, vertex.z,
+									vertex.getNormal().x, vertex.getNormal().y, vertex.getNormal().z,
+									vertex.getSkinBones(), vertex.getSkinBoneWeights());
+						} else {
+							vertexRenderer = triangleRenderer.hdVertex(vertex.x, vertex.y, vertex.z, 0, 0, 0,
+									vertex.getSkinBones(), vertex.getSkinBoneWeights());
+						}
+						for (final TVertex tvert : vertex.getTverts()) {
+							vertexRenderer.textureCoords(tvert.x, tvert.y);
+						}
+						vertexRenderer.vertexFinished();
 					}
-					for (final TVertex tvert : vertex.getTverts()) {
-						vertexRenderer.textureCoords(tvert.x, tvert.y);
-					}
-					vertexRenderer.vertexFinished();
+					triangleRenderer.triangleFinished();
 				}
-				triangleRenderer.triangleFinished();
+			} else {
+				for (final Triangle triangle : geoset.getTriangles()) {
+					final TriangleVisitor triangleRenderer = geosetRenderer.beginTriangle();
+					for (final GeosetVertex vertex : triangle.getVerts()) {
+						final VertexVisitor vertexRenderer;
+						// TODO redesign for nullable normals
+						if (vertex.getNormal() != null) {
+							vertexRenderer = triangleRenderer.vertex(vertex.x, vertex.y, vertex.z, vertex.getNormal().x,
+									vertex.getNormal().y, vertex.getNormal().z, vertex.getBoneAttachments());
+						} else {
+							vertexRenderer = triangleRenderer.vertex(vertex.x, vertex.y, vertex.z, 0, 0, 0,
+									vertex.getBoneAttachments());
+						}
+						for (final TVertex tvert : vertex.getTverts()) {
+							vertexRenderer.textureCoords(tvert.x, tvert.y);
+						}
+						vertexRenderer.vertexFinished();
+					}
+					triangleRenderer.triangleFinished();
+				}
 			}
 			geosetRenderer.geosetFinished();
 		}
@@ -2368,7 +2664,7 @@ public class MDL implements Named {
 	}
 
 	public void simplifyKeyframes() {
-		final MDL currentMDL = this;
+		final EditableModel currentMDL = this;
 		final List<AnimFlag> allAnimFlags = currentMDL.getAllAnimFlags();
 		final List<Animation> anims = currentMDL.getAnims();
 
@@ -2637,6 +2933,16 @@ public class MDL implements Named {
 				}
 			}
 		}
+		final ArrayList<ParticleEmitterPopcorn> pfes = sortedIdObjects(ParticleEmitterPopcorn.class);
+		for (final ParticleEmitterPopcorn x : pfes) {
+			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
+			while (iterator.hasNext()) {
+				final AnimFlag animFlag = iterator.next();
+				if (selectedValue.equals(animFlag.getGlobalSeq())) {
+					iterator.remove();
+				}
+			}
+		}
 		final ArrayList<RibbonEmitter> res = sortedIdObjects(RibbonEmitter.class);
 		for (final RibbonEmitter x : res) {
 			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
@@ -2713,4 +3019,348 @@ public class MDL implements Named {
 		}
 	}
 
+	public List<FaceEffectsChunk.FaceEffect> getFaceEffects() {
+		return faceEffects;
+	}
+
+	public BindPoseChunk getBindPoseChunk() {
+		return bindPoseChunk;
+	}
+
+	public void setBindPoseChunk(final BindPoseChunk bindPoseChunk) {
+		this.bindPoseChunk = bindPoseChunk;
+	}
+
+	/**
+	 * Please, for the love of Pete, don't actually do this.
+	 *
+	 * @param targetLevelOfDetail
+	 * @param model
+	 */
+	public static void convertToV800(final int targetLevelOfDetail, final EditableModel model) {
+		// Things to fix:
+		// 1.) format version
+		model.setFormatVersion(800);
+		// 2.) materials: only diffuse
+		for (final Bitmap tex : model.getTextures()) {
+			String path = tex.getPath();
+			if ((path != null) && !path.isEmpty()) {
+				final int dotIndex = path.lastIndexOf('.');
+				if ((dotIndex != -1) && !path.endsWith(".blp")) {
+					path = (path.substring(0, dotIndex));
+				}
+				if (!path.endsWith(".blp")) {
+					path += ".blp";
+				}
+				tex.setPath(path);
+			}
+		}
+		for (final Material material : model.getMaterials()) {
+			if (material.getShaderString() != null) {
+				material.setShaderString(null);
+				final Layer layerZero = material.getLayers().get(0);
+				material.getLayers().clear();
+				material.getLayers().add(layerZero);
+				if (material.getFlags().contains("TwoSided")) {
+					material.getFlags().remove("TwoSided");
+					layerZero.add("TwoSided");
+				}
+			}
+			for (final Layer layer : material.getLayers()) {
+				if (!Double.isNaN(layer.getEmissive())) {
+					layer.setEmissive(Double.NaN);
+				}
+				final AnimFlag flag = layer.getFlag("Emissive");
+				if (flag != null) {
+					layer.getAnims().remove(flag);
+				}
+			}
+		}
+		// 3.) geosets:
+		// - Convert skin to matrices & vertex groups
+		final List<Geoset> wrongLOD = new ArrayList<>();
+		for (final Geoset geo : model.getGeosets()) {
+			for (final GeosetVertex vertex : geo.getVertices()) {
+				vertex.un900Heuristic();
+			}
+			if (geo.getLevelOfDetail() != targetLevelOfDetail) {
+				// wrong lod
+				wrongLOD.add(geo);
+			}
+		}
+		// - Probably overwrite normals with tangents, maybe, or maybe not
+		// - Eradicate anything that isn't LOD==X
+		if (model.getGeosets().size() > wrongLOD.size()) {
+			for (final Geoset wrongLODGeo : wrongLOD) {
+				model.remove(wrongLODGeo);
+				final GeosetAnim geosetAnim = wrongLODGeo.getGeosetAnim();
+				if (geosetAnim != null) {
+					model.remove(geosetAnim);
+				}
+			}
+		}
+		// 4.) remove popcorn
+		// - add hero glow from popcorn if necessary
+		final List<IdObject> incompatibleObjects = new ArrayList<>();
+		for (int idObjIdx = 0; idObjIdx < model.getIdObjectsSize(); idObjIdx++) {
+			final IdObject idObject = model.getIdObject(idObjIdx);
+			if (idObject instanceof ParticleEmitterPopcorn) {
+				incompatibleObjects.add(idObject);
+				if (((ParticleEmitterPopcorn) idObject).getPath().toLowerCase().contains("hero_glow")) {
+					System.out.println("HERO HERO HERO");
+					final Bone dummyHeroGlowNode = new Bone("hero_reforged");
+					// this model needs hero glow
+					final Geoset heroGlow = new Geoset();
+					final Mesh heroGlowPlane = ModelUtils.createPlane((byte) 0, (byte) 1, new Vertex(0, 0, 1), 0, -64,
+							-64, 64, 64, 1);
+					heroGlow.getVertices().addAll(heroGlowPlane.getVertices());
+					for (final GeosetVertex gv : heroGlow.getVertices()) {
+						gv.setGeoset(heroGlow);
+						gv.getBones().clear();
+						gv.getBones().add(dummyHeroGlowNode);
+					}
+					heroGlow.getTriangles().addAll(heroGlowPlane.getTriangles());
+					heroGlow.addFlag("Unselectable");
+					final Bitmap heroGlowBitmap = new Bitmap("");
+					heroGlowBitmap.setReplaceableId(2);
+					final Layer layer = new Layer("Additive", heroGlowBitmap);
+					layer.add("Unshaded");
+					layer.add("Unfogged");
+					heroGlow.setMaterial(new Material(layer));
+					model.add(dummyHeroGlowNode);
+					model.add(heroGlow);
+
+				}
+			}
+		}
+		for (final IdObject incompat : incompatibleObjects) {
+			model.remove(incompat);
+		}
+		// 5.) remove other unsupported stuff
+		for (final IdObject obj : model.getIdObjects()) {
+			obj.setBindPose(null);
+		}
+		for (final Camera camera : model.getCameras()) {
+			camera.setBindPose(null);
+		}
+		// 6.) fix dump bug with paths:
+		for (final Bitmap tex : model.getTextures()) {
+			final String path = tex.getPath();
+			if (path != null) {
+				tex.setPath(path.replace('/', '\\'));
+			}
+		}
+		for (final ParticleEmitter emitter : model.sortedIdObjects(ParticleEmitter.class)) {
+			final String path = emitter.getPath();
+			if (path != null) {
+				emitter.setPath(path.replace('/', '\\'));
+			}
+		}
+		for (final Attachment emitter : model.sortedIdObjects(Attachment.class)) {
+			final String path = emitter.getPath();
+			if (path != null) {
+				emitter.setPath(path.replace('/', '\\'));
+			}
+		}
+
+		model.setBindPoseChunk(null);
+		model.faceEffects.clear();
+	}
+
+	public static void makeItHD(final EditableModel model) {
+		for (final Geoset geo : model.getGeosets()) {
+			final ArrayList<GeosetVertex> vertices = geo.getVertices();
+			for (final GeosetVertex gv : vertices) {
+				final Normal normal = gv.getNormal();
+				if (normal != null) {
+					gv.initV900();
+					final float[] tangent = gv.getTangent();
+					for (int i = 0; i < 3; i++) {
+						tangent[i] = (float) normal.getCoord((byte) i);
+					}
+					tangent[3] = 1;
+				}
+				final int bones = Math.min(4, gv.getBoneAttachments().size());
+				final short weight = (short) (255 / bones);
+				final short offsetWeight = (short) (255 - (weight * bones));
+				for (int i = 0; (i < bones) && (i < 4); i++) {
+					gv.getSkinBones()[i] = gv.getBoneAttachments().get(i);
+					gv.getSkinBoneWeights()[i] = weight;
+					if (i == 0) {
+						gv.getSkinBoneWeights()[i] += offsetWeight;
+					}
+				}
+			}
+		}
+		for (final Material m : model.getMaterials()) {
+			m.setShaderString("Shader_HD_DefaultUnit");
+			if (m.getLayers().size() > 1) {
+				m.getLayers().add(m.getLayers().remove(0));
+			}
+			final Bitmap normTex = new Bitmap("ReplaceableTextures\\TeamColor\\TeamColor09.dds");
+			normTex.setWrapHeight(true);
+			normTex.setWrapWidth(true);
+			final Bitmap ormTex = new Bitmap("ReplaceableTextures\\TeamColor\\TeamColor18.dds");
+			ormTex.setWrapHeight(true);
+			ormTex.setWrapWidth(true);
+			m.getLayers().add(1, new Layer("None", normTex));
+			m.getLayers().add(2, new Layer("None", ormTex));
+			final Bitmap black32 = new Bitmap("Textures\\Black32.dds");
+			black32.setWrapHeight(true);
+			black32.setWrapWidth(true);
+			m.getLayers().add(3, new Layer("None", black32));
+			final Bitmap texture2 = new Bitmap("ReplaceableTextures\\EnvironmentMap.dds");
+			texture2.setWrapHeight(true);
+			texture2.setWrapWidth(true);
+			m.getLayers().add(4, new Layer("None", m.getLayers().get(0).getTextureBitmap()));
+			m.getLayers().add(5, new Layer("None", texture2));
+			for (final Layer l : m.getLayers()) {
+				l.setEmissive(1.0);
+			}
+		}
+	}
+
+	public static void recalculateTangents(final EditableModel currentMDL, final Component parent) {
+		// copied from
+		// https://github.com/TaylorMouse/MaxScripts/blob/master/Warcraft%203%20Reforged/GriffonStudios/GriffonStudios_Warcraft_3_Reforged_Export.ms#L169
+		currentMDL.doSavePreps(); // I wanted to use VertexId on the triangle
+		for (final Geoset theMesh : currentMDL.getGeosets()) {
+			final double[][] tan1 = new double[theMesh.getVertices().size()][];
+			final double[][] tan2 = new double[theMesh.getVertices().size()][];
+			for (int nFace = 0; nFace < theMesh.getTriangles().size(); nFace++) {
+				final Triangle face = theMesh.getTriangle(nFace);
+
+				final GeosetVertex v1 = face.getVerts()[0];
+				final GeosetVertex v2 = face.getVerts()[1];
+				final GeosetVertex v3 = face.getVerts()[2];
+
+				final TVertex w1 = v1.getTVertex(0);
+				final TVertex w2 = v2.getTVertex(0);
+				final TVertex w3 = v3.getTVertex(0);
+
+				final double x1 = v2.x - v1.x;
+				final double x2 = v3.x - v1.x;
+				final double y1 = v2.y - v1.y;
+				final double y2 = v3.y - v1.y;
+				final double z1 = v2.z - v1.z;
+				final double z2 = v3.z - v1.z;
+
+				final double s1 = w2.x - w1.x;
+				final double s2 = w3.x - w1.x;
+				final double t1 = w2.y - w1.y;
+				final double t2 = w3.y - w1.y;
+
+				final double r = 1.0 / ((s1 * t2) - (s2 * t1));
+
+				final double[] sdir = { ((t2 * x1) - (t1 * x2)) * r, ((t2 * y1) - (t1 * y2)) * r,
+						((t2 * z1) - (t1 * z2)) * r };
+				final double[] tdir = { ((s1 * x2) - (s2 * x1)) * r, ((s1 * y2) - (s2 * y1)) * r,
+						((s1 * z2) - (s2 * z1)) * r };
+
+				tan1[face.getId(0)] = sdir;
+				tan1[face.getId(1)] = sdir;
+				tan1[face.getId(2)] = sdir;
+
+				tan2[face.getId(0)] = tdir;
+				tan2[face.getId(1)] = tdir;
+				tan2[face.getId(2)] = tdir;
+			}
+			for (int vertexId = 0; vertexId < theMesh.getVertices().size(); vertexId++) {
+				final GeosetVertex gv = theMesh.getVertex(vertexId);
+				final Normal n = gv.getNormal();
+				final Vertex t = new Vertex(tan1[vertexId]);
+
+				final Vertex v = new Vertex(t).subtract(n).scale(n.dotProduct(t)).normalize();
+				double w = n.crossProduct(t).dotProduct(new Vertex(tan2[vertexId]));
+
+				if (w < 0.0) {
+					w = -1.0;
+				} else {
+					w = 1.0;
+				}
+				gv.setTangent(new float[] { (float) v.x, (float) v.y, (float) v.z, (float) w });
+			}
+		}
+		int goodTangents = 0;
+		int badTangents = 0;
+		for (final Geoset theMesh : currentMDL.getGeosets()) {
+			for (final GeosetVertex gv : theMesh.getVertices()) {
+				final double dotProduct = gv.getNormal().dotProduct(new Vertex(gv.getTangent()));
+				if (Math.abs(dotProduct) <= 0.000001) {
+					goodTangents += 1;
+				} else {
+					System.out.println(dotProduct);
+					badTangents += 1;
+				}
+			}
+		}
+		if (parent != null) {
+			JOptionPane.showMessageDialog(parent,
+					"Tangent generation completed.\nGood tangents: " + goodTangents + ", bad tangents: " + badTangents);
+		} else {
+			System.out.println(
+					"Tangent generation completed.\nGood tangents: " + goodTangents + ", bad tangents: " + badTangents);
+		}
+	}
+
+	public static void recalculateTangentsOld(final EditableModel currentMDL) {
+		for (final Geoset theMesh : currentMDL.getGeosets()) {
+			for (int nFace = 0; nFace < theMesh.getTriangles().size(); nFace++) {
+				final Triangle face = theMesh.getTriangle(nFace);
+
+				final GeosetVertex v1 = face.getVerts()[0];
+				final GeosetVertex v2 = face.getVerts()[0];
+				final GeosetVertex v3 = face.getVerts()[0];
+
+				final TVertex uv1 = v1.getTVertex(0);
+				final TVertex uv2 = v2.getTVertex(0);
+				final TVertex uv3 = v3.getTVertex(0);
+
+				final Vertex dV1 = new Vertex(v1).subtract(v2);
+				final Vertex dV2 = new Vertex(v1).subtract(v3);
+
+				final TVertex dUV1 = new TVertex(uv1).subtract(uv2);
+				final TVertex dUV2 = new TVertex(uv1).subtract(uv3);
+				final double area = (dUV1.x * dUV2.y) - (dUV1.y * dUV2.x);
+				final int sign = (area < 0) ? -1 : 1;
+				final Vertex tangent = new Vertex(1, 0, 0);
+
+				tangent.x = (dV1.x * dUV2.y) - (dUV1.y * dV2.x);
+				tangent.y = (dV1.y * dUV2.y) - (dUV1.y * dV2.y);
+				tangent.z = (dV1.z * dUV2.y) - (dUV1.y * dV2.z);
+
+				tangent.normalize();
+				tangent.scale(sign);
+
+				final Vertex faceNormal = new Vertex(v1.getNormal());
+				faceNormal.add(v2.getNormal());
+				faceNormal.add(v3.getNormal());
+				faceNormal.normalize();
+			}
+		}
+	}
+
+	public void setGlobalSequenceLength(final int globalSequenceId, final Integer newLength) {
+		if (globalSequenceId < globalSeqs.size()) {
+			final Integer prevLength = globalSeqs.get(globalSequenceId);
+			final List<AnimFlag> allAnimFlags = getAllAnimFlags();
+			for (final AnimFlag af : allAnimFlags) {
+				if ((af.getGlobalSeq() != null) && af.hasGlobalSeq()) {// TODO eliminate redundant structure
+					if (af.getGlobalSeq().equals(prevLength)) {
+						af.setGlobalSeq(newLength);
+					}
+				}
+			}
+			final ArrayList<EventObject> sortedEventObjects = sortedIdObjects(EventObject.class);
+			for (final EventObject eventObject : sortedEventObjects) {
+				// TODO eliminate redundant structure
+				if (eventObject.isHasGlobalSeq() && (eventObject.getGlobalSeq() != null)) {
+					if (eventObject.getGlobalSeq().equals(prevLength)) {
+						eventObject.setGlobalSeq(newLength);
+					}
+				}
+			}
+			globalSeqs.set(globalSequenceId, newLength);
+		}
+	}
 }

@@ -31,7 +31,7 @@ public final class HashMap<KEY, VALUE> implements Map<KEY, VALUE> {
 		final int initialCapacity = tableSizeFor(desiredCapacity);
 		table = createTable(initialCapacity);
 		capacityMinusOne = table.length - 1;
-		threshold = (int) (initialCapacity * loadFactor);
+		threshold = Math.max(1, (int) (initialCapacity * loadFactor));
 	}
 
 	private Node<KEY, VALUE>[] createTable(final int size) {
@@ -88,7 +88,7 @@ public final class HashMap<KEY, VALUE> implements Map<KEY, VALUE> {
 	}
 
 	private static boolean matchingValues(final Object value, final Object nodeValue) {
-		return nodeValue == value || (value != null && value.equals(nodeValue));
+		return (nodeValue == value) || ((value != null) && value.equals(nodeValue));
 	}
 
 	@Override
@@ -268,7 +268,7 @@ public final class HashMap<KEY, VALUE> implements Map<KEY, VALUE> {
 		@Override
 		public boolean contains(final MapView.Entry<KEY, VALUE> what) {
 			final Node<KEY, VALUE> node = getNode(what.getKey());
-			return node != null && matchingValues(node.getValue(), what.getValue());
+			return (node != null) && matchingValues(node.getValue(), what.getValue());
 		}
 
 		@Override
@@ -298,12 +298,12 @@ public final class HashMap<KEY, VALUE> implements Map<KEY, VALUE> {
 		}
 
 		@Override
-		public boolean add(Entry<KEY, VALUE> what) {
+		public boolean add(final Entry<KEY, VALUE> what) {
 			return HashMap.this.put(what.getKey(), what.getValue()) != what.getValue();
 		}
 
 		@Override
-		public boolean remove(Entry<KEY, VALUE> what) {
+		public boolean remove(final Entry<KEY, VALUE> what) {
 			return HashMap.this.remove(what.getKey()) != null;
 		}
 
@@ -387,7 +387,7 @@ public final class HashMap<KEY, VALUE> implements Map<KEY, VALUE> {
 		}
 
 		private void advanceIndexAndNode() {
-			while (nextIndex < table.length && (node = table[nextIndex++]) == null) {
+			while ((nextIndex < table.length) && ((node = table[nextIndex++]) == null)) {
 
 			}
 		}
@@ -441,7 +441,7 @@ public final class HashMap<KEY, VALUE> implements Map<KEY, VALUE> {
 		}
 
 		public boolean matches(final int hash, final KEY key) {
-			return hash == this.hash && (this.key == key || (this.key != null && this.key.equals(key)));
+			return (hash == this.hash) && ((this.key == key) || ((this.key != null) && this.key.equals(key)));
 		}
 
 		public int getHash() {

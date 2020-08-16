@@ -56,13 +56,13 @@ public class NodeIconPalette {
 	}
 
 	private static NodeIconPalette createInternal(final String template) {
-		final Image attachmentImage = IconUtils.loadImage("icons/nodes/attachment" + template + ".png");
-		final Image eventImage = IconUtils.loadImage("icons/nodes/event" + template + ".png");
-		final Image lightImage = IconUtils.loadImage("icons/nodes/light" + template + ".png");
-		final Image particleImage = IconUtils.loadImage("icons/nodes/particle1" + template + ".png");
-		final Image particle2Image = IconUtils.loadImage("icons/nodes/particle2" + template + ".png");
-		final Image ribbonImage = IconUtils.loadImage("icons/nodes/ribbon" + template + ".png");
-		final Image collisionImage = IconUtils.loadImage("icons/nodes/collision" + template + ".png");
+		final Image attachmentImage = ViewportIconUtils.loadImage("icons/nodes/attachment" + template + ".png");
+		final Image eventImage = ViewportIconUtils.loadImage("icons/nodes/event" + template + ".png");
+		final Image lightImage = ViewportIconUtils.loadImage("icons/nodes/light" + template + ".png");
+		final Image particleImage = ViewportIconUtils.loadImage("icons/nodes/particle1" + template + ".png");
+		final Image particle2Image = ViewportIconUtils.loadImage("icons/nodes/particle2" + template + ".png");
+		final Image ribbonImage = ViewportIconUtils.loadImage("icons/nodes/ribbon" + template + ".png");
+		final Image collisionImage = ViewportIconUtils.loadImage("icons/nodes/collision" + template + ".png");
 		final NodeIconPalette palette = new NodeIconPalette(attachmentImage, eventImage, lightImage, particleImage,
 				particle2Image, ribbonImage, collisionImage);
 		return palette;

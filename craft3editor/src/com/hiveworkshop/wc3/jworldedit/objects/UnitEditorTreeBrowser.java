@@ -7,8 +7,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
@@ -22,6 +25,7 @@ import com.hiveworkshop.wc3.units.objectdata.MutableObjectData;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.MutableGameObject;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.WorldEditorDataType;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
+import com.hiveworkshop.wc3.user.SaveProfile;
 import com.hiveworkshop.wc3.util.ModelUtils;
 
 public class UnitEditorTreeBrowser extends UnitEditorTree {
@@ -49,7 +53,7 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 								WorldEditorDataType.UNITS);
 						final ImageIcon icon = iconTexture == null ? null
 								: new ImageIcon(iconTexture.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
-						listener.loadFile(MpqCodebase.get().getFile(path), true, true, icon);
+						listener.loadFile(path, true, true, icon);
 					}
 				}
 			}
@@ -72,12 +76,47 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 								WorldEditorDataType.UNITS);
 						final ImageIcon icon = iconTexture == null ? null
 								: new ImageIcon(iconTexture.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
-						listener.loadFile(MpqCodebase.get().getFile(portrait), true, true, icon);
+						listener.loadFile(portrait, true, true, icon);
 					}
 				}
 			}
 		});
 		popupMenu.add(openPortraitItem);
+		popupMenu.addSeparator();
+		final JMenuItem extract = new JMenuItem("Extract");
+		popupMenu.add(extract);
+		extract.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final TreePath currentUnitTreePath = getPathForLocation(rightClickX, rightClickY);
+				if (currentUnitTreePath != null) {
+					final DefaultMutableTreeNode o = (DefaultMutableTreeNode) currentUnitTreePath
+							.getLastPathComponent();
+					if (o.getUserObject() instanceof MutableGameObject) {
+						final MutableGameObject obj = (MutableGameObject) o.getUserObject();
+						final String path = convertPathToMDX(obj.getFieldAsString(War3ID.fromString("umdl"), 0));
+						final BufferedImage iconTexture = com.hiveworkshop.wc3.util.IconUtils.getIcon(obj,
+								WorldEditorDataType.UNITS);
+						final ImageIcon icon = iconTexture == null ? null
+								: new ImageIcon(iconTexture.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
+						try {
+							final JFileChooser jFileChooser = new JFileChooser(SaveProfile.get().getPath());
+							final int response = jFileChooser.showSaveDialog(UnitEditorTreeBrowser.this);
+							if (response == JFileChooser.APPROVE_OPTION) {
+								final File selectedFile = jFileChooser.getSelectedFile();
+								if (selectedFile != null) {
+									Files.copy(MpqCodebase.get().getResourceAsStream(path), selectedFile.toPath());
+								}
+							}
+
+						} catch (final IOException e1) {
+							e1.printStackTrace();
+							ExceptionPopup.display(e1);
+						}
+					}
+				}
+			}
+		});
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(final MouseEvent e) {
@@ -101,9 +140,10 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 											WorldEditorDataType.UNITS);
 									final ImageIcon icon = iconTexture == null ? null
 											: new ImageIcon(iconTexture.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
-									listener.loadFile(MpqCodebase.get().getFile(path), true, true, icon);
+									System.err.println("loading: " + path);
+									listener.loadFile(path, true, true, icon);
 									if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
-										listener.loadFile(MpqCodebase.get().getFile(portrait), true, false, icon);
+										listener.loadFile(portrait, true, false, icon);
 									}
 								}
 							}
@@ -119,7 +159,7 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 	}
 
 	public static interface MDLLoadListener {
-		public void loadFile(File file, boolean b, boolean c, ImageIcon icon);
+		public void loadFile(String filePathMdx, boolean b, boolean c, ImageIcon icon);
 	}
 
 	private String convertPathToMDX(String filepath) {

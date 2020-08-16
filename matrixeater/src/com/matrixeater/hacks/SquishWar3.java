@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.hiveworkshop.wc3.mdl.AnimFlag;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdx.MdxModel;
 
 import de.wc3data.stream.BlizzardDataOutputStream;
@@ -47,7 +47,7 @@ public final class SquishWar3 {
 					// final File copiedTarget = new File(texRoot +
 					// relativePath);
 					// copiedTarget.getParentFile().mkdirs();
-					final MDL model = MDL.read(target);
+					final EditableModel model = EditableModel.read(target);
 					for (final AnimFlag flag : model.getAllAnimFlags()) {
 						flag.linearize();
 					}

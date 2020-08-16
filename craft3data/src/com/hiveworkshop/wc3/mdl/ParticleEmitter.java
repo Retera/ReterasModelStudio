@@ -146,6 +146,7 @@ public class ParticleEmitter extends EmitterIdObject implements VisibilitySource
 		x.timeDoubleData = timeDoubleData.clone();
 		x.MDLEmitter = MDLEmitter;
 		x.path = path;
+		x.flags.addAll(flags);
 
 		for (final AnimFlag af : animFlags) {
 			x.animFlags.add(new AnimFlag(af));
@@ -160,10 +161,10 @@ public class ParticleEmitter extends EmitterIdObject implements VisibilitySource
 			pe.setName(MDLReader.readName(line));
 			MDLReader.mark(mdl);
 			line = MDLReader.nextLine(mdl);
+			boolean inParticle = false;
 			while ((!line.contains("}") || line.contains("},") || line.contains("\t}"))
 					&& !line.equals("COMPLETED PARSING")) {
 				boolean foundType = false;
-				boolean inParticle = false;
 				if (line.contains("ObjectId")) {
 					pe.objectId = MDLReader.readInt(line);
 					foundType = true;
@@ -177,8 +178,8 @@ public class ParticleEmitter extends EmitterIdObject implements VisibilitySource
 				} else if (line.contains("Path")) {
 					pe.path = MDLReader.readName(line);
 					foundType = true;
-				} else if (line.contains("Visibility") || line.contains("Rotation") || line.contains("Translation")
-						|| line.contains("Scaling")) {
+				} else if ((line.contains("Visibility") || line.contains("Rotation") || line.contains("Translation")
+						|| line.contains("Scaling")) && !line.contains("DontInherit")) {
 					MDLReader.reset(mdl);
 					pe.animFlags.add(AnimFlag.read(mdl));
 					foundType = true;
@@ -492,7 +493,7 @@ public class ParticleEmitter extends EmitterIdObject implements VisibilitySource
 		return null;
 	}
 
-	public double getRenderSpeed(AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public double getRenderSpeed(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		final AnimFlag translationFlag = AnimFlag.find(animFlags, "InitVelocity");
 		if (translationFlag != null) {
 			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
@@ -500,7 +501,7 @@ public class ParticleEmitter extends EmitterIdObject implements VisibilitySource
 		return getInitVelocity();
 	}
 
-	public double getRenderLatitude(AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public double getRenderLatitude(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Latitude");
 		if (translationFlag != null) {
 			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
@@ -508,7 +509,7 @@ public class ParticleEmitter extends EmitterIdObject implements VisibilitySource
 		return getLatitude();
 	}
 
-	public double getRenderLongitude(AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public double getRenderLongitude(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Longitude");
 		if (translationFlag != null) {
 			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
@@ -516,7 +517,7 @@ public class ParticleEmitter extends EmitterIdObject implements VisibilitySource
 		return getLongitude();
 	}
 
-	public double getRenderLifeSpan(AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public double getRenderLifeSpan(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		final AnimFlag translationFlag = AnimFlag.find(animFlags, "LifeSpan");
 		if (translationFlag != null) {
 			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
@@ -524,7 +525,7 @@ public class ParticleEmitter extends EmitterIdObject implements VisibilitySource
 		return getLifeSpan();
 	}
 
-	public double getRenderGravity(AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public double getRenderGravity(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Gravity");
 		if (translationFlag != null) {
 			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
@@ -532,7 +533,7 @@ public class ParticleEmitter extends EmitterIdObject implements VisibilitySource
 		return getGravity();
 	}
 
-	public double getRenderEmissionRate(AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public double getRenderEmissionRate(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		final AnimFlag translationFlag = AnimFlag.find(animFlags, "EmissionRate");
 		if (translationFlag != null) {
 			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);

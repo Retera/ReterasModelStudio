@@ -48,7 +48,7 @@ import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Helper;
 import com.hiveworkshop.wc3.mdl.IdObject;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
@@ -160,7 +160,7 @@ public class MainPanel extends JPanel implements ActionListener {
 
 	public MainPanel(final MainFrame parent) {
 		frame = parent;
-		final ModelViewManager blank = new ModelViewManager(new MDL());
+		final ModelViewManager blank = new ModelViewManager(new EditableModel());
 		viewer = new AnimationViewer(blank, new ProgramPreferences(), true);
 		viewer.setModel(blank);// , viewerSize);
 
@@ -259,7 +259,7 @@ public class MainPanel extends JPanel implements ActionListener {
 			final String name = choice.getName();
 			final Image icon = choice.getImage();
 
-			MDL toLoad;
+			EditableModel toLoad;
 			ModelViewManager modelDisp = null;
 			try {
 				if (filepath.endsWith(".mdl")) {
@@ -267,7 +267,7 @@ public class MainPanel extends JPanel implements ActionListener {
 				} else if (!filepath.endsWith(".mdx")) {
 					filepath = filepath.concat(".mdx");
 				}
-				toLoad = MDL.read(MpqCodebase.get().getFile(filepath));
+				toLoad = EditableModel.read(MpqCodebase.get().getFile(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -302,7 +302,7 @@ public class MainPanel extends JPanel implements ActionListener {
 			}
 			final Image icon = IconGet.get("Temp", 64);
 
-			MDL toLoad;
+			EditableModel toLoad;
 			ModelViewManager modelDisp = null;
 			try {
 				if (filepath.endsWith(".mdl")) {
@@ -310,7 +310,7 @@ public class MainPanel extends JPanel implements ActionListener {
 				} else if (!filepath.endsWith(".mdx")) {
 					filepath = filepath.concat(".mdx");
 				}
-				toLoad = MDL.read(MpqCodebase.get().getFile(filepath));
+				toLoad = EditableModel.read(MpqCodebase.get().getFile(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -347,10 +347,10 @@ public class MainPanel extends JPanel implements ActionListener {
 			}
 			final Image icon = IconGet.get("Temp", 64);
 
-			MDL toLoad;
+			EditableModel toLoad;
 			ModelViewManager modelDisp = null;
 			try {
-				toLoad = MDL.read(new File(filepath));
+				toLoad = EditableModel.read(new File(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -379,7 +379,7 @@ public class MainPanel extends JPanel implements ActionListener {
 			final String name = choice.getName();
 			final Image icon = choice.getImage();
 
-			MDL toLoad;
+			EditableModel toLoad;
 			ModelViewManager modelDisp = null;
 			try {
 				if (filepath.endsWith(".mdl")) {
@@ -387,7 +387,7 @@ public class MainPanel extends JPanel implements ActionListener {
 				} else if (!filepath.endsWith(".mdx")) {
 					filepath = filepath.concat(".mdx");
 				}
-				toLoad = MDL.read(MpqCodebase.get().getFile(filepath));
+				toLoad = EditableModel.read(MpqCodebase.get().getFile(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -427,7 +427,7 @@ public class MainPanel extends JPanel implements ActionListener {
 			}
 			final Image icon = IconGet.get("Temp", 64);
 
-			MDL toLoad;
+			EditableModel toLoad;
 			ModelViewManager modelDisp = null;
 			try {
 				if (filepath.endsWith(".mdl")) {
@@ -435,7 +435,7 @@ public class MainPanel extends JPanel implements ActionListener {
 				} else if (!filepath.endsWith(".mdx")) {
 					filepath = filepath.concat(".mdx");
 				}
-				toLoad = MDL.read(MpqCodebase.get().getFile(filepath));
+				toLoad = EditableModel.read(MpqCodebase.get().getFile(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -476,10 +476,10 @@ public class MainPanel extends JPanel implements ActionListener {
 			}
 			final Image icon = IconGet.get("Temp", 64);
 
-			MDL toLoad;
+			EditableModel toLoad;
 			ModelViewManager modelDisp = null;
 			try {
-				toLoad = MDL.read(new File(filepath));
+				toLoad = EditableModel.read(new File(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -569,7 +569,7 @@ public class MainPanel extends JPanel implements ActionListener {
 					}
 					// profile.setPath(currentFile.getParent());
 					current.model.getModel().printTo(currentFile);
-					current.model.getModel().setFile(currentFile);
+					current.model.getModel().setFileRef(currentFile);
 					// tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(),currentFile.getName().split("\\.")[0]);
 					// tabbedPane.setToolTipTextAt(tabbedPane.getSelectedIndex(),currentFile.getPath());
 				} else {
@@ -735,8 +735,8 @@ public class MainPanel extends JPanel implements ActionListener {
 
 			final Bone yoBone = getBoneFromKeywords(source, keywords);
 
-			final MDL model = current.model.getModel();
-			final MDL sourceModel = source.model.getModel();
+			final EditableModel model = current.model.getModel();
+			final EditableModel sourceModel = source.model.getModel();
 			// for( Bone bone: sourceModel.sortedIdObjects(Bone.class) ) {
 			// boolean match = false;
 			// for( String str: keywords ) {
@@ -911,7 +911,7 @@ public class MainPanel extends JPanel implements ActionListener {
 
 	public Bone getBoneFromKeywords(final Project current, final String[] keywords) {
 		if (current != null) {
-			final MDL model = current.model.getModel();
+			final EditableModel model = current.model.getModel();
 			if (model == null) {
 				// JOptionPane.showMessageDialog(frame, "No suitable model
 				// loaded!", "ERROR", JOptionPane.ERROR_MESSAGE);
@@ -1013,7 +1013,7 @@ public class MainPanel extends JPanel implements ActionListener {
 			System.err.println(str);
 		}
 		if (current != null) {
-			final MDL model = current.model.getModel();
+			final EditableModel model = current.model.getModel();
 			if (model == null) {
 				JOptionPane.showMessageDialog(frame, "No suitable model loaded!", "ERROR", JOptionPane.ERROR_MESSAGE);
 				return null;
@@ -1150,7 +1150,7 @@ public class MainPanel extends JPanel implements ActionListener {
 	}
 
 	public void addNeighbors(final ArrayList<Vertex> selection, final ArrayList<Vertex> enlargedBadPool,
-			final GeosetVertex gv, final MDL model, final boolean checkSel) {
+			final GeosetVertex gv, final EditableModel model, final boolean checkSel) {
 		enlargedBadPool.add(gv);
 		for (int i = 0; i < model.getGeosetsSize(); i++) {
 			final Geoset geo = model.getGeoset(i);

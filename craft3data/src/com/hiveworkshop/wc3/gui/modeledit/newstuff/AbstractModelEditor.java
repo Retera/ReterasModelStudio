@@ -1,6 +1,7 @@
 package com.hiveworkshop.wc3.gui.modeledit.newstuff;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -15,6 +16,7 @@ import com.hiveworkshop.wc3.gui.animedit.WrongModeException;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.DeleteAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.ExtrudeAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.RecalculateExtentsAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.RecalculateNormalsAction2;
 import com.hiveworkshop.wc3.gui.modeledit.actions.SnapAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.SnapNormalsAction;
@@ -83,15 +85,34 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 			mx.add(bone);
 		}
 		final Map<GeosetVertex, List<Bone>> vertexToOldBoneReferences = new HashMap<>();
+		final Map<GeosetVertex, Bone[]> vertexToOldSkinBoneReferences = new HashMap<>();
+		final Map<GeosetVertex, short[]> vertexToOldSkinBoneWeightReferences = new HashMap<>();
 		for (final Vertex vert : selectionManager.getSelectedVertices()) {
 			if (vert instanceof GeosetVertex) {
 				final GeosetVertex gv = (GeosetVertex) vert;
-				vertexToOldBoneReferences.put(gv, new ArrayList<>(gv.getBoneAttachments()));
-				gv.clearBoneAttachments();
-				gv.addBoneAttachments(mx.getBones());
+				if (gv.getSkinBones() != null) {
+					vertexToOldSkinBoneReferences.put(gv, gv.getSkinBones().clone());
+					vertexToOldSkinBoneWeightReferences.put(gv, gv.getSkinBoneWeights().clone());
+					Arrays.fill(gv.getSkinBones(), null);
+					Arrays.fill(gv.getSkinBoneWeights(), (short) 0);
+					final int basicWeighting = 255 / bones.size();
+					final int offset = 255 - (basicWeighting * bones.size());
+					for (int i = 0; (i < bones.size()) && (i < 4); i++) {
+						gv.getSkinBones()[i] = mx.getBones().get(i);
+						gv.getSkinBoneWeights()[i] = (short) basicWeighting;
+						if (i == 0) {
+							gv.getSkinBoneWeights()[i] += offset;
+						}
+					}
+				} else {
+					vertexToOldBoneReferences.put(gv, new ArrayList<>(gv.getBoneAttachments()));
+					gv.clearBoneAttachments();
+					gv.addBoneAttachments(mx.getBones());
+				}
 			}
 		}
-		return new SetMatrixAction(vertexToOldBoneReferences, bones);
+		return new SetMatrixAction(vertexToOldBoneReferences, vertexToOldSkinBoneReferences,
+				vertexToOldSkinBoneWeightReferences, bones);
 	}
 
 	@Override
@@ -130,6 +151,24 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		final RecalculateNormalsAction2 temp = new RecalculateNormalsAction2(selectedVertices, oldLocations, snapped);
 		temp.redo();// a handy way to do the snapping!
 		return temp;
+	}
+
+	@Override
+	public UndoAction recalcExtents(final boolean onlyIncludeEditableGeosets) {
+		final List<Geoset> geosetsToIncorporate = new ArrayList<>();
+		if (onlyIncludeEditableGeosets) {
+			for (final Geoset geoset : model.getEditableGeosets()) {
+				geosetsToIncorporate.add(geoset);
+			}
+		} else {
+			for (final Geoset geoset : model.getModel().getGeosets()) {
+				geosetsToIncorporate.add(geoset);
+			}
+		}
+		final RecalculateExtentsAction recalculateExtentsAction = new RecalculateExtentsAction(model,
+				geosetsToIncorporate);
+		recalculateExtentsAction.redo();
+		return recalculateExtentsAction;
 	}
 
 	@Override
@@ -727,9 +766,9 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 	public UndoAction rotate(final Vertex center, final double rotateX, final double rotateY, final double rotateZ) {
 
 		final CompoundAction compoundAction = new CompoundAction("rotate",
-				ListView.Util.of(new SimpleRotateAction(this, center, rotateX, (byte) 0, (byte) 2),
-						new SimpleRotateAction(this, center, rotateY, (byte) 1, (byte) 0),
-						new SimpleRotateAction(this, center, rotateZ, (byte) 1, (byte) 2)));
+				ListView.Util.of(new SimpleRotateAction(this, center, rotateX, (byte) 2, (byte) 1),
+						new SimpleRotateAction(this, center, rotateY, (byte) 0, (byte) 2),
+						new SimpleRotateAction(this, center, rotateZ, (byte) 1, (byte) 0)));
 		compoundAction.redo();
 		return compoundAction;
 	}

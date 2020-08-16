@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -138,6 +139,10 @@ public class DataTable implements ObjectData {
 	public void loadDestructibles() {
 		try {
 			readSLK(MpqCodebase.get().getResourceAsStream("Units\\DestructableData.slk"));
+			final InputStream unitSkin = MpqCodebase.get().getResourceAsStream("Units\\DestructableSkin.txt");
+			if (unitSkin != null) {
+				readTXT(unitSkin, true);
+			}
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
@@ -146,6 +151,10 @@ public class DataTable implements ObjectData {
 	public void loadDoodads() {
 		try {
 			readSLK(MpqCodebase.get().getResourceAsStream("Doodads\\Doodads.slk"));
+			final InputStream unitSkin = MpqCodebase.get().getResourceAsStream("Doodads\\DoodadSkins.txt");
+			if (unitSkin != null) {
+				readTXT(unitSkin, true);
+			}
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
@@ -283,6 +292,10 @@ public class DataTable implements ObjectData {
 		readTXT(MpqCodebase.get().getResourceAsStream("Units\\ItemAbilityFunc.txt"));
 		readTXT(MpqCodebase.get().getResourceAsStream("Units\\ItemAbilityStrings.txt"));
 		readTXT(MpqCodebase.get().getResourceAsStream("Units\\ItemStrings.txt"));
+		final InputStream unitSkin = MpqCodebase.get().getResourceAsStream("Units\\UnitSkin.txt");
+		if (unitSkin != null) {
+			readTXT(unitSkin);
+		}
 		// readTXT(MpqNativeCodebase.get().getGameFile("war3mapMisc.txt"));
 
 		// Specific data edits for tech browser
@@ -437,7 +450,7 @@ public class DataTable implements ObjectData {
 					if (c == '\"') {
 						withinQuotedString = !withinQuotedString;
 					} else if (!withinQuotedString && (c == ',')) {
-						currentUnit.setField(fieldName, builder.toString(), fieldIndex++);
+						currentUnit.setField(fieldName, builder.toString().trim(), fieldIndex++);
 						builder.setLength(0); // empty buffer
 					} else {
 						builder.append(c);
@@ -447,7 +460,7 @@ public class DataTable implements ObjectData {
 					if (currentUnit == null) {
 						System.out.println("null for " + input);
 					}
-					currentUnit.setField(fieldName, builder.toString(), fieldIndex++);
+					currentUnit.setField(fieldName, builder.toString().trim(), fieldIndex++);
 				}
 			}
 		}
@@ -482,7 +495,7 @@ public class DataTable implements ObjectData {
 			flipMode = true;
 		}
 		int rowStartCount = 0;
-		final String[] dataNames = new String[colCount];
+		String[] dataNames = new String[colCount];
 		// for( int i = 0; i < colCount && rowStartCount <= 1; i++ ) {
 		// input = reader.readLine();
 		// dataNames[i] = input.substring(input.indexOf("\"")+1,
@@ -536,6 +549,9 @@ public class DataTable implements ObjectData {
 					}
 
 					final int quotationIndex = kInput.indexOf("\"");
+					if ((fieldId - 1) >= dataNames.length) {
+						dataNames = Arrays.copyOf(dataNames, fieldId);
+					}
 					if (quotationIndex == -1) {
 						dataNames[fieldId - 1] = kInput.substring(eIndex + 1);
 					} else {
@@ -563,6 +579,9 @@ public class DataTable implements ObjectData {
 					}
 
 					final int quotationIndex = kInput.indexOf("\"");
+					if ((fieldId - 1) >= dataNames.length) {
+						dataNames = Arrays.copyOf(dataNames, fieldId);
+					}
 					if (quotationIndex == -1) {
 						dataNames[fieldId - 1] = kInput.substring(eIndex + 1);
 					} else {

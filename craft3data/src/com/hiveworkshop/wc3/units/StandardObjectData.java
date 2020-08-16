@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,6 +33,7 @@ public class StandardObjectData {
 		final DataTable unitData = new DataTable();
 		final DataTable unitUI = new DataTable();
 		final DataTable unitWeapons = new DataTable();
+		final DataTable skin = new DataTable();
 
 		try {
 			profile.readTXT(source.getResourceAsStream("Units\\CampaignUnitFunc.txt"), true);
@@ -56,6 +58,10 @@ public class StandardObjectData {
 			unitUI.readSLK(source.getResourceAsStream("Units\\UnitUI.slk"));
 
 			unitWeapons.readSLK(source.getResourceAsStream("Units\\UnitWeapons.slk"));
+			final InputStream unitSkin = source.getResourceAsStream("Units\\UnitSkin.txt");
+			if (unitSkin != null) {
+				skin.readTXT(unitSkin, true);
+			}
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
@@ -68,6 +74,15 @@ public class StandardObjectData {
 		units.add(unitData, "UnitData", true);
 		units.add(unitUI, "UnitUI", true);
 		units.add(unitWeapons, "UnitWeapons", true);
+		// TODO: The actual War3 game engine does not use this string, "ProfileSkin",
+		// it appears that their architecture for handling this data is quite different.
+		// They give the skin data a lower load priority than UnitUI, which has a lower
+		// load priority than old profile data. However, they still use the
+		// string "Profile" for the skin data. By putting the invented string
+		// "ProfileSkin" here, my custom object editor will be unable to modify skin
+		// data until further notice. But the model studio will work nicely with the
+		// data being formatted visually the same as the game.
+		units.add(skin, "ProfileSkin", false);
 
 		return units;
 	}
@@ -119,6 +134,10 @@ public class StandardObjectData {
 
 		try {
 			destructableData.readSLK(source.getResourceAsStream("Doodads\\Doodads.slk"));
+			final InputStream unitSkin = source.getResourceAsStream("Doodads\\DoodadSkins.txt");
+			if (unitSkin != null) {
+				destructableData.readTXT(unitSkin, true);
+			}
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
@@ -670,7 +689,10 @@ public class StandardObjectData {
 		public Set<String> keySet() {
 			final Set<String> keySet = new HashSet<>();
 			for (final DataTable table : dataSource.tables) {
-				keySet.addAll(table.get(id).keySet());
+				final Element element = table.get(id);
+				if (element != null) {
+					keySet.addAll(element.keySet());
+				}
 			}
 			return keySet;
 		}

@@ -2,8 +2,6 @@ package com.hiveworkshop.wc3.mdl;
 
 import java.util.List;
 
-import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
-import com.hiveworkshop.wc3.mdl.render3d.RenderNode;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
@@ -13,6 +11,8 @@ import com.hiveworkshop.wc3.gui.animedit.TimeEnvironmentImpl;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.animation.AddKeyframeAction;
+import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
+import com.hiveworkshop.wc3.mdl.render3d.RenderNode;
 
 public abstract class AbstractAnimatedNode implements AnimatedNode {
 	private static final Vector4f translationHeap = new Vector4f();
@@ -25,7 +25,7 @@ public abstract class AbstractAnimatedNode implements AnimatedNode {
 
 	@Override
 	public AddKeyframeAction createTranslationKeyframe(final RenderModel renderModel, final AnimFlag translationFlag,
-                                                       final ModelStructureChangeListener structureChangeListener) {
+			final ModelStructureChangeListener structureChangeListener) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
 		final int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
@@ -37,12 +37,12 @@ public abstract class AbstractAnimatedNode implements AnimatedNode {
 		final int floorIndex = translationFlag.floorIndex(trackTime);
 		final RenderNode renderNode = renderModel.getRenderNode(this);
 
-		if (translationFlag.getTimes().size() > 0 && translationFlag.getTimes().get(floorIndex) == trackTime) {
+		if ((translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
 			return null;
 		} else {
 			final Vector3f localLocation = renderNode.getLocalLocation();
-			final int insertIndex = (translationFlag.getTimes().size() == 0
-					|| translationFlag.getTimes().get(0) > trackTime) ? 0 : floorIndex + 1;
+			final int insertIndex = ((translationFlag.getTimes().size() == 0)
+					|| (translationFlag.getTimes().get(0) > trackTime)) ? 0 : floorIndex + 1;
 			translationFlag.getTimes().add(insertIndex, trackTime);
 			final Vertex keyframeValue = new Vertex(localLocation.x, localLocation.y, localLocation.z);
 			translationFlag.getValues().add(insertIndex, keyframeValue);
@@ -75,12 +75,12 @@ public abstract class AbstractAnimatedNode implements AnimatedNode {
 		final int floorIndex = rotationTimeline.floorIndex(trackTime);
 		final RenderNode renderNode = renderModel.getRenderNode(this);
 
-		if (rotationTimeline.getTimes().size() > 0 && rotationTimeline.getTimes().get(floorIndex) == trackTime) {
+		if ((rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex) == trackTime)) {
 			return null;
 		} else {
 			final Quaternion localRotation = renderNode.getLocalRotation();
-			final int insertIndex = (rotationTimeline.getTimes().size() == 0
-					|| rotationTimeline.getTimes().get(0) > trackTime) ? 0 : floorIndex + 1;
+			final int insertIndex = ((rotationTimeline.getTimes().size() == 0)
+					|| (rotationTimeline.getTimes().get(0) > trackTime)) ? 0 : floorIndex + 1;
 			rotationTimeline.getTimes().add(insertIndex, trackTime);
 			final QuaternionRotation keyframeValue = new QuaternionRotation(localRotation.x, localRotation.y,
 					localRotation.z, localRotation.w);
@@ -116,12 +116,12 @@ public abstract class AbstractAnimatedNode implements AnimatedNode {
 		final int floorIndex = scalingTimeline.floorIndex(trackTime);
 		final RenderNode renderNode = renderModel.getRenderNode(this);
 
-		if (scalingTimeline.getTimes().size() > 0 && scalingTimeline.getTimes().get(floorIndex) == trackTime) {
+		if ((scalingTimeline.getTimes().size() > 0) && (scalingTimeline.getTimes().get(floorIndex) == trackTime)) {
 			return null;
 		} else {
 			final Vector3f localScale = renderNode.getLocalScale();
-			final int insertIndex = (scalingTimeline.getTimes().size() == 0
-					|| scalingTimeline.getTimes().get(0) > trackTime) ? 0 : floorIndex + 1;
+			final int insertIndex = ((scalingTimeline.getTimes().size() == 0)
+					|| (scalingTimeline.getTimes().get(0) > trackTime)) ? 0 : floorIndex + 1;
 			scalingTimeline.getTimes().add(insertIndex, trackTime);
 			final Vertex keyframeValue = new Vertex(localScale.x, localScale.y, localScale.z);
 			scalingTimeline.getValues().add(insertIndex, keyframeValue);
@@ -148,8 +148,10 @@ public abstract class AbstractAnimatedNode implements AnimatedNode {
 
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
-		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from
-		// a TimeEnvironmentImpl render environment, and never from the anim previewer impl
+		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be
+		// constructed from
+		// a TimeEnvironmentImpl render environment, and never from the anim previewer
+		// impl
 		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
 				.getAnimatedRenderEnvironment();
 		final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), "Translation",
@@ -190,7 +192,7 @@ public abstract class AbstractAnimatedNode implements AnimatedNode {
 			translationHeap.w = 1;
 		}
 
-		if (translationFlag.getTimes().size() > 0 && translationFlag.getTimes().get(floorIndex) == trackTime) {
+		if ((translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
 			// we must change it
 			final Vertex oldTranslationValue = (Vertex) translationFlag.getValues().get(floorIndex);
 			oldTranslationValue.x += translationHeap.x;
@@ -227,8 +229,10 @@ public abstract class AbstractAnimatedNode implements AnimatedNode {
 
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
-		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from
-		// a TimeEnvironmentImpl render environment, and never from the anim previewer impl
+		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be
+		// constructed from
+		// a TimeEnvironmentImpl render environment, and never from the anim previewer
+		// impl
 		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
 				.getAnimatedRenderEnvironment();
 		final AnimFlag rotationTimeline = AnimFlag.find(getAnimFlags(), "Rotation", timeEnvironmentImpl.getGlobalSeq());
@@ -298,7 +302,7 @@ public abstract class AbstractAnimatedNode implements AnimatedNode {
 		axisAngleHeap.w = (float) radians;
 		rotationDeltaHeap.setFromAxisAngle(axisAngleHeap);
 
-		if (rotationTimeline.getTimes().size() > 0 && rotationTimeline.getTimes().get(floorIndex) == trackTime) {
+		if ((rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex) == trackTime)) {
 			// we must change it
 			final QuaternionRotation oldTranslationValue = (QuaternionRotation) rotationTimeline.getValues()
 					.get(floorIndex);
@@ -351,8 +355,10 @@ public abstract class AbstractAnimatedNode implements AnimatedNode {
 
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
-		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from
-		// a TimeEnvironmentImpl render environment, and never from the anim previewer impl
+		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be
+		// constructed from
+		// a TimeEnvironmentImpl render environment, and never from the anim previewer
+		// impl
 		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
 				.getAnimatedRenderEnvironment();
 		final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), "Scaling", timeEnvironmentImpl.getGlobalSeq());
@@ -369,9 +375,12 @@ public abstract class AbstractAnimatedNode implements AnimatedNode {
 		// final RenderNode renderNode = renderModel.getRenderNode(this);
 		// if (parent != null) {
 		// final RenderNode parentRenderNode = renderModel.getRenderNode(parent);
-		// translationHeap.x = (float)scaleX * parentRenderNode.getInverseWorldScale().x;
-		// translationHeap.y = (float)scaleY * parentRenderNode.getInverseWorldScale().y;
-		// translationHeap.z = (float)scaleZ * parentRenderNode.getInverseWorldScale().z;
+		// translationHeap.x = (float)scaleX *
+		// parentRenderNode.getInverseWorldScale().x;
+		// translationHeap.y = (float)scaleY *
+		// parentRenderNode.getInverseWorldScale().y;
+		// translationHeap.z = (float)scaleZ *
+		// parentRenderNode.getInverseWorldScale().z;
 		// translationHeap.w = 1;
 		// } else {
 		translationHeap.x = (float) scaleX;
@@ -380,7 +389,7 @@ public abstract class AbstractAnimatedNode implements AnimatedNode {
 		// translationHeap.w = 1;
 		// }
 
-		if (translationFlag.getTimes().size() > 0 && translationFlag.getTimes().get(floorIndex) == trackTime) {
+		if ((translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
 			// we must change it
 			final Vertex oldTranslationValue = (Vertex) translationFlag.getValues().get(floorIndex);
 			oldTranslationValue.x *= translationHeap.x;
@@ -421,7 +430,7 @@ public abstract class AbstractAnimatedNode implements AnimatedNode {
 		}
 		final int floorIndex = rotationTimeline.floorIndex(trackTime);
 
-		if (rotationTimeline.getTimes().size() > 0 && rotationTimeline.getTimes().get(floorIndex) == trackTime) {
+		if ((rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex) == trackTime)) {
 			// we must change it
 			final QuaternionRotation oldTranslationValue = (QuaternionRotation) rotationTimeline.getValues()
 					.get(floorIndex);
@@ -476,7 +485,7 @@ public abstract class AbstractAnimatedNode implements AnimatedNode {
 		}
 		final int floorIndex = rotationTimeline.floorIndex(trackTime);
 
-		if (rotationTimeline.getTimes().size() > 0 && rotationTimeline.getTimes().get(floorIndex) == trackTime) {
+		if ((rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex) == trackTime)) {
 			// we must change it
 			final QuaternionRotation oldTranslationValue = (QuaternionRotation) rotationTimeline.getValues()
 					.get(floorIndex);
@@ -534,7 +543,7 @@ public abstract class AbstractAnimatedNode implements AnimatedNode {
 		}
 		final int floorIndex = translationFlag.floorIndex(trackTime);
 
-		if (translationFlag.getTimes().size() > 0 && translationFlag.getTimes().get(floorIndex) == trackTime) {
+		if ((translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
 			// we must change it
 			final Vertex oldTranslationValue = (Vertex) translationFlag.getValues().get(floorIndex);
 			oldTranslationValue.x += newDeltaX;
@@ -567,7 +576,7 @@ public abstract class AbstractAnimatedNode implements AnimatedNode {
 		}
 		final int floorIndex = translationFlag.floorIndex(trackTime);
 
-		if (translationFlag.getTimes().size() > 0 && translationFlag.getTimes().get(floorIndex) == trackTime) {
+		if ((translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
 			// we must change it
 			final Vertex oldTranslationValue = (Vertex) translationFlag.getValues().get(floorIndex);
 			oldTranslationValue.x *= localScaling.x;

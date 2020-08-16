@@ -47,6 +47,7 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
+import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
@@ -179,6 +180,11 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 				}
 
 				@Override
+				public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
+
+				}
+
+				@Override
 				public void light(final Light light) {
 
 				}
@@ -247,6 +253,10 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			@Override
 			public void particleEmitter(final ParticleEmitter particleEmitter) {
 
+			}
+
+			@Override
+			public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
 			}
 
 			@Override
@@ -330,6 +340,11 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			}
 
 			@Override
+			public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
+				toggleSelection(invertedSelection, popcornFxEmitter.getPivotPoint());
+			}
+
+			@Override
 			public void light(final Light light) {
 				toggleSelection(invertedSelection, light.getPivotPoint());
 			}
@@ -404,6 +419,11 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			@Override
 			public void particleEmitter(final ParticleEmitter particleEmitter) {
 				allSelection.add(particleEmitter.getPivotPoint());
+			}
+
+			@Override
+			public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
+				allSelection.add(popcornFxEmitter.getPivotPoint());
 			}
 
 			@Override
@@ -556,6 +576,11 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 						}
 
 						@Override
+						public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
+
+						}
+
+						@Override
 						public void light(final Light light) {
 
 						}
@@ -645,6 +670,11 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		@Override
 		public void particleEmitter(final ParticleEmitter particleEmitter) {
 			handleDefaultNode(point, axes, particleEmitter);
+		}
+
+		@Override
+		public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
+			handleDefaultNode(point, axes, popcornFxEmitter);
 		}
 
 		@Override
@@ -740,6 +770,13 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		}
 
 		@Override
+		public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
+			hitTest(selectedItems, area, popcornFxEmitter.getPivotPoint(), coordinateSystem,
+					popcornFxEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem)
+							* 2);
+		}
+
+		@Override
 		public void light(final Light light) {
 			hitTest(selectedItems, area, light.getPivotPoint(), coordinateSystem,
 					light.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2);
@@ -830,6 +867,10 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 					}
 
 					@Override
+					public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
+					}
+
+					@Override
 					public void light(final Light light) {
 					}
 
@@ -899,8 +940,15 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 				deletedIdObjects.add(object);
 			}
 		}
+		final List<Camera> deletedCameras = new ArrayList<>();
+		for (final Camera camera : model.getEditableCameras()) {
+			if (selectionManager.getSelection().contains(camera.getPosition())
+					|| selectionManager.getSelection().contains(camera.getTargetPosition())) {
+				deletedCameras.add(camera);
+			}
+		}
 		final DeleteNodesAction deleteNodesAction = new DeleteNodesAction(selectionManager.getSelection(),
-				deletedIdObjects, structureChangeListener, model, vertexSelectionHelper);
+				deletedIdObjects, deletedCameras, structureChangeListener, model, vertexSelectionHelper);
 		deleteNodesAction.redo();
 		return deleteNodesAction;
 	}

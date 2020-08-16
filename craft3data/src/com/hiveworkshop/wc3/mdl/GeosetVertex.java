@@ -18,10 +18,14 @@ import javax.swing.JOptionPane;
 public class GeosetVertex extends Vertex {
 	Matrix matrixRef;
 	private Normal normal;
-	public int VertexGroup;
+	public int VertexGroup = -1;
 	List<TVertex> tverts = new ArrayList<>();
 	List<Bone> bones = new ArrayList<>();
 	List<Triangle> triangles = new ArrayList<>();
+	private byte[] skinBoneIndexes;
+	private Bone[] skinBones;
+	private short[] skinBoneWeights;
+	private float[] tangent;
 
 	Geoset geoset;
 
@@ -32,6 +36,43 @@ public class GeosetVertex extends Vertex {
 	public GeosetVertex(final double x, final double y, final double z, final Normal n) {
 		super(x, y, z);
 		normal = n;
+	}
+
+	public void initV900() {
+		skinBoneIndexes = new byte[4];
+		skinBones = new Bone[4];
+		skinBoneWeights = new short[4];
+		tangent = new float[4];
+	}
+
+	public void un900Heuristic() {
+		if (tangent != null) {
+			tangent = null;
+		}
+		if (skinBones != null) {
+			bones.clear();
+			int index = 0;
+			boolean fallback = false;
+			for (final Bone bone : skinBones) {
+				if (bone != null) {
+					fallback = true;
+					if (skinBoneWeights[index] > 110) {
+						bones.add(bone);
+					}
+				}
+				index++;
+			}
+			if (bones.isEmpty() && fallback) {
+				for (final Bone bone : skinBones) {
+					if (bone != null) {
+						bones.add(bone);
+					}
+				}
+			}
+			skinBones = null;
+			skinBoneWeights = null;
+			skinBoneIndexes = null;
+		}
 	}
 
 	public GeosetVertex(final GeosetVertex old) {
@@ -45,6 +86,18 @@ public class GeosetVertex extends Vertex {
 		// odd, but when writing
 		this.geoset = old.geoset;
 		// TODO copy triangles???????
+		if (old.skinBoneIndexes != null) {
+			this.skinBoneIndexes = old.skinBoneIndexes.clone();
+		}
+		if (old.skinBones != null) {
+			this.skinBones = old.skinBones.clone();
+		}
+		if (old.skinBoneWeights != null) {
+			this.skinBoneWeights = old.skinBoneWeights.clone();
+		}
+		if (old.tangent != null) {
+			this.tangent = old.tangent.clone();
+		}
 	}
 
 	public void addTVertex(final TVertex v) {
@@ -164,6 +217,39 @@ public class GeosetVertex extends Vertex {
 		return geoset;
 	}
 
+	/**
+	 * @return
+	 * @deprecated for use only with saving functionalities inside the system
+	 */
+	@Deprecated
+	public byte[] getSkinBoneIndexes() {
+		return skinBoneIndexes;
+	}
+
+	public Bone[] getSkinBones() {
+		return skinBones;
+	}
+
+	public void setSkinBones(final Bone[] skinBones) {
+		this.skinBones = skinBones;
+	}
+
+	public short[] getSkinBoneWeights() {
+		return skinBoneWeights;
+	}
+
+	public void setSkinBoneWeights(final short[] skinBoneWeights) {
+		this.skinBoneWeights = skinBoneWeights;
+	}
+
+	public float[] getTangent() {
+		return tangent;
+	}
+
+	public void setTangent(final float[] tangent) {
+		this.tangent = tangent;
+	}
+
 	public void setGeoset(final Geoset geoset) {
 		this.geoset = geoset;
 	}
@@ -180,6 +266,58 @@ public class GeosetVertex extends Vertex {
 		// TODO fix bad design, use interface or something instead of bizarre
 		// override
 		normal.rotate(0, 0, 0, radians, firstXYZ, secondXYZ);
+		if (tangent != null) {
+			rotateTangent(0, 0, 0, radians, firstXYZ, secondXYZ, tangent);
+		}
+	}
+
+	public static void rotateTangent(final double centerX, final double centerY, final double centerZ,
+			final double radians, final byte firstXYZ, final byte secondXYZ, final float[] vertex) {
+		final double x1 = vertex[firstXYZ];
+		final double y1 = vertex[secondXYZ];
+		final double cx;// = coordinateSystem.geomX(centerX);
+		switch (firstXYZ) {
+		case 0:
+			cx = centerX;
+			break;
+		case 1:
+			cx = centerY;
+			break;
+		default:
+		case 2:
+			cx = centerZ;
+			break;
+		}
+		final double dx = x1 - cx;
+		final double cy;// = coordinateSystem.geomY(centerY);
+		switch (secondXYZ) {
+		case 0:
+			cy = centerX;
+			break;
+		case 1:
+			cy = centerY;
+			break;
+		default:
+		case 2:
+			cy = centerZ;
+			break;
+		}
+		final double dy = y1 - cy;
+		final double r = Math.sqrt((dx * dx) + (dy * dy));
+		double verAng = Math.acos(dx / r);
+		if (dy < 0) {
+			verAng = -verAng;
+		}
+		// if( getDimEditable(dim1) )
+		double nextDim = (Math.cos(verAng + radians) * r) + cx;
+		if (!Double.isNaN(nextDim)) {
+			vertex[firstXYZ] = (float) ((Math.cos(verAng + radians) * r) + cx);
+		}
+		// if( getDimEditable(dim2) )
+		nextDim = (Math.sin(verAng + radians) * r) + cy;
+		if (!Double.isNaN(nextDim)) {
+			vertex[secondXYZ] = (float) ((Math.sin(verAng + radians) * r) + cy);
+		}
 	}
 
 	public Vertex createNormal() {

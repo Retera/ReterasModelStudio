@@ -1,16 +1,16 @@
 package com.hiveworkshop.wc3.mdl.render3d;
 
-import com.hiveworkshop.wc3.mdl.AnimatedNode;
-import com.hiveworkshop.wc3.mdl.IdObject;
-import com.hiveworkshop.wc3.mdl.QuaternionRotation;
-import com.hiveworkshop.wc3.mdl.Vertex;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
-
-import com.hiveworkshop.wc3.mdl.IdObject.NodeFlags;
-import com.hiveworkshop.wc3.util.MathUtils;
 import org.lwjgl.util.vector.Vector4f;
+
+import com.hiveworkshop.wc3.mdl.AnimatedNode;
+import com.hiveworkshop.wc3.mdl.IdObject;
+import com.hiveworkshop.wc3.mdl.IdObject.NodeFlags;
+import com.hiveworkshop.wc3.mdl.QuaternionRotation;
+import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.util.MathUtils;
 
 public final class RenderNode {
 	private final AnimatedNode idObject;
@@ -34,6 +34,8 @@ public final class RenderNode {
 	private final Quaternion worldRotation = new Quaternion();
 	private final Vector3f worldScale = new Vector3f(1, 1, 1);
 	private final Matrix4f worldMatrix = new Matrix4f();
+	private final Matrix4f finalMatrix;
+	private Matrix4f bindPose;
 
 	protected final Vector3f inverseWorldLocation = new Vector3f();
 	protected final Quaternion inverseWorldRotation = new Quaternion();
@@ -46,6 +48,30 @@ public final class RenderNode {
 	public RenderNode(final RenderModel model, final AnimatedNode idObject) {
 		this.model = model;
 		this.idObject = idObject;
+		if (idObject instanceof IdObject) {
+			final float[] bindPose = ((IdObject) idObject).getBindPose();
+			if (bindPose != null) {
+				finalMatrix = new Matrix4f();
+				this.bindPose = new Matrix4f();
+				this.bindPose.m00 = bindPose[0];
+				this.bindPose.m01 = bindPose[1];
+				this.bindPose.m02 = bindPose[2];
+				this.bindPose.m10 = bindPose[3];
+				this.bindPose.m11 = bindPose[4];
+				this.bindPose.m12 = bindPose[5];
+				this.bindPose.m20 = bindPose[6];
+				this.bindPose.m21 = bindPose[7];
+				this.bindPose.m22 = bindPose[8];
+				this.bindPose.m30 = bindPose[9];
+				this.bindPose.m31 = bindPose[10];
+				this.bindPose.m32 = bindPose[11];
+				this.bindPose.m33 = 1;
+			} else {
+				finalMatrix = worldMatrix;
+			}
+		} else {
+			finalMatrix = worldMatrix;
+		}
 	}
 
 	public void refreshFromEditor() {
@@ -110,6 +136,9 @@ public final class RenderNode {
 				worldRotation.set(localRotation);
 				worldScale.set(localScale);
 			}
+			if (worldMatrix != finalMatrix) {
+				Matrix4f.mul(worldMatrix, bindPose, finalMatrix);
+			}
 
 			// Inverse world rotation
 			inverseWorldRotation.x = -worldRotation.x;
@@ -136,7 +165,7 @@ public final class RenderNode {
 
 	public void update() {
 		final AnimatedNode parent = idObject.getParent();
-		if (this.dirty || (parent != null && model.getRenderNode(idObject.getParent()).wasDirty)) {
+		if (this.dirty || ((parent != null) && model.getRenderNode(idObject.getParent()).wasDirty)) {
 			this.dirty = true;
 			this.wasDirty = true;
 			this.recalculateTransformation();
@@ -188,6 +217,17 @@ public final class RenderNode {
 
 	public Matrix4f getWorldMatrix() {
 		return worldMatrix;
+	}
+
+	/**
+	 * Supposedly returns final matrix based on bind pose, but don't actually use
+	 * this yet, I'm not even sure it's computed correctly. Graphically, based on my
+	 * tests, it looked like maybe we do not need it.
+	 * 
+	 * @return
+	 */
+	public Matrix4f getFinalMatrix() {
+		return finalMatrix;
 	}
 
 	public Quaternion getInverseWorldRotation() {

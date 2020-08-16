@@ -29,6 +29,11 @@ public class CascDataSource implements DataSource {
 
 	public CascDataSource(final String warcraft3InstallPath, final String[] prefixes) {
 		this.prefixes = prefixes;
+		for (int i = 0; i < (prefixes.length / 2); i++) {
+			final String temp = prefixes[i];
+			prefixes[i] = prefixes[prefixes.length - i - 1];
+			prefixes[prefixes.length - i - 1] = temp;
+		}
 
 		try {
 			warcraftIIICASC = new WarcraftIIICASC(Paths.get(warcraft3InstallPath), true);
@@ -58,7 +63,7 @@ public class CascDataSource implements DataSource {
 
 	@Override
 	public InputStream getResourceAsStream(String filepath) {
-		filepath = filepath.toLowerCase(Locale.US);
+		filepath = filepath.toLowerCase(Locale.US).replace('/', '\\');
 		final String resolvedAlias = fileAliases.get(filepath);
 		if (resolvedAlias != null) {
 			filepath = resolvedAlias;
@@ -92,8 +97,37 @@ public class CascDataSource implements DataSource {
 	}
 
 	@Override
+	public ByteBuffer read(String path) {
+		path = path.toLowerCase(Locale.US).replace('/', '\\');
+		final String resolvedAlias = fileAliases.get(path);
+		if (resolvedAlias != null) {
+			path = resolvedAlias;
+		}
+		for (final String prefix : prefixes) {
+			final String tempFilepath = prefix + "\\" + path;
+			final ByteBuffer stream = internalRead(tempFilepath);
+			if (stream != null) {
+				return stream;
+			}
+		}
+		return internalRead(path);
+	}
+
+	private ByteBuffer internalRead(final String tempFilepath) {
+		try {
+			if (rootFileSystem.isFile(tempFilepath) && rootFileSystem.isFileAvailable(tempFilepath)) {
+				final ByteBuffer buffer = rootFileSystem.readFileData(tempFilepath);
+				return buffer;
+			}
+		} catch (final IOException e) {
+			throw new RuntimeException("CASC parser error for: " + tempFilepath, e);
+		}
+		return null;
+	}
+
+	@Override
 	public File getFile(String filepath) {
-		filepath = filepath.toLowerCase(Locale.US);
+		filepath = filepath.toLowerCase(Locale.US).replace('/', '\\');
 		final String resolvedAlias = fileAliases.get(filepath);
 		if (resolvedAlias != null) {
 			filepath = resolvedAlias;
@@ -135,7 +169,7 @@ public class CascDataSource implements DataSource {
 
 	@Override
 	public boolean has(String filepath) {
-		filepath = filepath.toLowerCase(Locale.US);
+		filepath = filepath.toLowerCase(Locale.US).replace('/', '\\');
 		final String resolvedAlias = fileAliases.get(filepath);
 		if (resolvedAlias != null) {
 			filepath = resolvedAlias;
@@ -155,6 +189,11 @@ public class CascDataSource implements DataSource {
 		} catch (final IOException e) {
 			throw new RuntimeException("CASC parser error for: " + filepath, e);
 		}
+	}
+
+	@Override
+	public boolean allowDownstreamCaching(final String filepath) {
+		return true;
 	}
 
 	@Override

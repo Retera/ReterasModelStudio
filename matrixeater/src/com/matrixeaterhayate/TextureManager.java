@@ -8,12 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 
-import javax.imageio.ImageIO;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -26,17 +21,16 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileFilter;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
-import com.hiveworkshop.wc3.gui.ExceptionPopup;
+import com.hiveworkshop.wc3.gui.datachooser.DataSource;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
+import com.hiveworkshop.wc3.gui.modeledit.util.TextureExporter;
+import com.hiveworkshop.wc3.gui.modeledit.util.TextureExporter.TextureExporterClickListener;
 import com.hiveworkshop.wc3.gui.mpqbrowser.BLPPanel;
 import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
-import com.hiveworkshop.wc3.mpq.MpqCodebase;
-import com.hiveworkshop.wc3.util.Callback;
-import com.matrixeater.src.MainPanel;
-import com.matrixeater.src.MainPanel.TextureExporter;
 
 public class TextureManager extends JPanel {
 	private final JTextField pathField;
@@ -120,9 +114,10 @@ public class TextureManager extends JPanel {
 		importButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				textureExporter.showOpenDialog("", new Callback<File>() {
+				textureExporter.showOpenDialog("", new TextureExporterClickListener() {
+
 					@Override
-					public void run(final File file) {
+					public void onClickOK(final File file, final FileFilter filter) {
 						final Bitmap newBitmap = new Bitmap(file.getName());
 						modelView.getModel().add(newBitmap);
 						bitmapListModel.addElement(newBitmap);
@@ -145,78 +140,13 @@ public class TextureManager extends JPanel {
 				if (selectedValue != null) {
 					String selectedPath = selectedValue.getPath();
 					selectedPath = selectedPath.substring(selectedPath.lastIndexOf("\\") + 1);
-					textureExporter.exportTexture(selectedPath, new Callback<File>() {
+					textureExporter.exportTexture(selectedPath, new TextureExporterClickListener() {
 
 						@Override
-						public void run(final File file) {
-							if (file.exists()) {
-								final int confirmOption = JOptionPane.showConfirmDialog(TextureManager.this,
-										"File \"" + file.getPath() + "\" already exists. Continue?", "Confirm Export",
-										JOptionPane.YES_NO_OPTION);
-								if (confirmOption == JOptionPane.NO_OPTION) {
-									return;
-								}
-							}
-							final File workingDirectory = modelView.getModel().getWorkingDirectory();
-							BufferedImage bufferedImage = BLPHandler.get().getTexture(
-									workingDirectory == null ? "" : workingDirectory.getPath(),
-									selectedValue.getPath());
-							String fileExtension = file.getName().substring(file.getName().lastIndexOf('.') + 1)
-									.toUpperCase();
-							if (fileExtension.equals("BMP") || fileExtension.equals("JPG")
-									|| fileExtension.equals("JPEG")) {
-								JOptionPane.showMessageDialog(TextureManager.this,
-										"Warning: Alpha channel was converted to black. Some data will be lost\nif you convert this texture back to Warcraft BLP.");
-								bufferedImage = MainPanel.removeAlphaChannel(bufferedImage);
-							}
-							if (fileExtension.equals("BLP")) {
-								fileExtension = "blp";
-							}
-							boolean directExport = false;
-							if (selectedValue.getPath().toLowerCase().endsWith(fileExtension)) {
-								final MpqCodebase mpqCodebase = MpqCodebase.get();
-								if (mpqCodebase.has(selectedValue.getPath())) {
-									final InputStream mpqFile = mpqCodebase
-											.getResourceAsStream(selectedValue.getPath());
-									try {
-										Files.copy(mpqFile, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-										directExport = true;
-									} catch (final IOException e) {
-										e.printStackTrace();
-										ExceptionPopup.display(e);
-									}
-								} else {
-									if (workingDirectory != null) {
-										final File wantedFile = new File(workingDirectory.getPath() + File.separatorChar
-												+ selectedValue.getPath());
-										if (wantedFile.exists()) {
-											try {
-												Files.copy(wantedFile.toPath(), file.toPath(),
-														StandardCopyOption.REPLACE_EXISTING);
-												directExport = true;
-											} catch (final IOException e) {
-												e.printStackTrace();
-												ExceptionPopup.display(e);
-											}
-										}
-									}
-
-								}
-							}
-							if (!directExport) {
-								boolean write;
-								try {
-									write = ImageIO.write(bufferedImage, fileExtension, file);
-									if (!write) {
-										JOptionPane.showMessageDialog(TextureManager.this,
-												"File type unknown or unavailable");
-									}
-								} catch (final IOException e) {
-									e.printStackTrace();
-									ExceptionPopup.display(e);
-								}
-							}
+						public void onClickOK(final File file, final FileFilter filter) {
+							BLPHandler.exportBitmapTextureFile(TextureManager.this, modelView, selectedValue, file);
 						}
+
 					}, TextureManager.this);
 				}
 			}
@@ -228,9 +158,9 @@ public class TextureManager extends JPanel {
 			public void actionPerformed(final ActionEvent e) {
 				final Bitmap selectedValue = list.getSelectedValue();
 				if (selectedValue != null) {
-					textureExporter.showOpenDialog("", new Callback<File>() {
+					textureExporter.showOpenDialog("", new TextureExporterClickListener() {
 						@Override
-						public void run(final File file) {
+						public void onClickOK(final File file, final FileFilter filter) {
 							selectedValue.setPath(file.getName());
 							list.repaint();
 							loadBitmap(modelView, selectedValue);
@@ -313,11 +243,10 @@ public class TextureManager extends JPanel {
 
 	private void loadBitmap(final ModelView modelView, final Bitmap defaultTexture) {
 		if (defaultTexture != null) {
-			final File workingDirectory = modelView.getModel().getWorkingDirectory();
+			final DataSource workingDirectory = modelView.getModel().getWrappedDataSource();
 			panel_1.removeAll();
 			try {
-				panel_1.add(new BLPPanel(BLPHandler.get().getTexture(
-						workingDirectory == null ? "" : workingDirectory.getPath(), defaultTexture.getPath())));
+				panel_1.add(new BLPPanel(BLPHandler.get().getTexture(workingDirectory, defaultTexture.getPath())));
 			} catch (final Exception exc) {
 				final BufferedImage image = new BufferedImage(512, 512, BufferedImage.TYPE_INT_ARGB);
 				final Graphics2D g2 = image.createGraphics();

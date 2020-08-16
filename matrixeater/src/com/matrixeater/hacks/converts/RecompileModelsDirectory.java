@@ -4,15 +4,15 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.hiveworkshop.wc3.gui.BLPHandler;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.gui.OldBLPHandler;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 
 public final class RecompileModelsDirectory {
 	private static final List<String> failed = new ArrayList<>();
 	private static final List<String> passed = new ArrayList<>();
 
 	public static void main(final String[] args) {
-		BLPHandler.WANT_DESTROY_SAVED_TGAS = false;
+		OldBLPHandler.WANT_DESTROY_SAVED_TGAS = false;
 		if (args.length != 1) {
 			System.err.println("Usage: <mutableModelsDirectory>");
 			System.exit(-1);
@@ -38,7 +38,7 @@ public final class RecompileModelsDirectory {
 					final File blpFile = new File(
 							target.getPath().substring(0, target.getPath().lastIndexOf('.')) + ".blp");
 					blpFile.delete();
-					BLPHandler.get().convertTGAtoBLP(target, blpFile);
+					OldBLPHandler.get().convertTGAtoBLP(target, blpFile);
 					passed.add(target.getPath());
 					target.delete();
 				} catch (final Exception e) {
@@ -50,7 +50,7 @@ public final class RecompileModelsDirectory {
 					// MDXHandler.compile(target);
 					final File mdxFile = new File(
 							target.getPath().substring(0, target.getPath().lastIndexOf('.')) + ".mdx");
-					MDL.read(target).printTo(mdxFile);
+					EditableModel.read(target).printTo(mdxFile);
 					passed.add(target.getPath());
 					target.delete();
 				} catch (final Exception e) {

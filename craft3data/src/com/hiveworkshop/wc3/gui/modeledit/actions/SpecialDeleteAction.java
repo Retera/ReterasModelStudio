@@ -6,18 +6,18 @@ import java.util.List;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.wc3.mdl.Geoset;
-import com.hiveworkshop.wc3.mdl.MDL;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
 public class SpecialDeleteAction extends DeleteAction {
 
 	private final List<Geoset> deletedGeosets;
-	private final MDL parent;
+	private final EditableModel parent;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 
 	public SpecialDeleteAction(final Collection<? extends Vertex> selection, final List<Triangle> deletedTris,
-			final VertexSelectionHelper vertexSelectionHelper, final List<Geoset> deletedGs, final MDL parentModel,
+			final VertexSelectionHelper vertexSelectionHelper, final List<Geoset> deletedGs, final EditableModel parentModel,
 			final ModelStructureChangeListener modelStructureChangeListener) {
 		super(selection, deletedTris, vertexSelectionHelper);
 		deletedGeosets = deletedGs;
