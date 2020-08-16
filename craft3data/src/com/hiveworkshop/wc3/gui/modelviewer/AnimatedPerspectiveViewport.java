@@ -38,6 +38,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.PointerInfo;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -1388,48 +1389,51 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			// temp = temp.getParent();
 			// }
 			// }
-			final double mx = MouseInfo.getPointerInfo().getLocation().x - xoff;// MainFrame.frame.getX()-8);
-			final double my = MouseInfo.getPointerInfo().getLocation().y - yoff;// MainFrame.frame.getY()-30);
-			// JOptionPane.showMessageDialog(null,mx+","+my+" as mouse,
-			// "+lastClick.x+","+lastClick.y+" as last.");
-			// System.out.println(xoff+" and "+mx);
-			if (lastClick != null) {
+			final PointerInfo pointerInfo = MouseInfo.getPointerInfo();
+			if (pointerInfo != null) {
+				final double mx = pointerInfo.getLocation().x - xoff;// MainFrame.frame.getX()-8);
+				final double my = pointerInfo.getLocation().y - yoff;// MainFrame.frame.getY()-30);
+				// JOptionPane.showMessageDialog(null,mx+","+my+" as mouse,
+				// "+lastClick.x+","+lastClick.y+" as last.");
+				// System.out.println(xoff+" and "+mx);
+				if (lastClick != null) {
 
-				cameraPos.x += ((int) mx - lastClick.x) / m_zoom;
-				cameraPos.y += ((int) my - lastClick.y) / m_zoom;
-				lastClick.x = (int) mx;
-				lastClick.y = (int) my;
-			}
-			if (leftClickStart != null) {
+					cameraPos.x += ((int) mx - lastClick.x) / m_zoom;
+					cameraPos.y += ((int) my - lastClick.y) / m_zoom;
+					lastClick.x = (int) mx;
+					lastClick.y = (int) my;
+				}
+				if (leftClickStart != null) {
 
-				xangle += mx - leftClickStart.x;
-				yangle += my - leftClickStart.y;
+					xangle += mx - leftClickStart.x;
+					yangle += my - leftClickStart.y;
 
-				axisHeap.set(0, 1, 0, (float) Math.toRadians(yangle));
-				inverseCameraRotationYSpin.setFromAxisAngle(axisHeap);
-				axisHeap.set(0, 0, 1, (float) Math.toRadians(xangle));
-				inverseCameraRotationZSpin.setFromAxisAngle(axisHeap);
-				Quaternion.mul(inverseCameraRotationYSpin, inverseCameraRotationZSpin, inverseCameraRotationQuat);
-				inverseCameraRotationQuat.x = -inverseCameraRotationQuat.x;
-				inverseCameraRotationQuat.y = -inverseCameraRotationQuat.y;
-				inverseCameraRotationQuat.z = -inverseCameraRotationQuat.z;
-				inverseCameraRotationYSpin.x = -inverseCameraRotationYSpin.x;
-				inverseCameraRotationYSpin.y = -inverseCameraRotationYSpin.y;
-				inverseCameraRotationYSpin.z = -inverseCameraRotationYSpin.z;
-				inverseCameraRotationZSpin.x = -inverseCameraRotationZSpin.x;
-				inverseCameraRotationZSpin.y = -inverseCameraRotationZSpin.y;
-				inverseCameraRotationZSpin.z = -inverseCameraRotationZSpin.z;
-				leftClickStart.x = (int) mx;
-				leftClickStart.y = (int) my;
-			}
-			// MainFrame.panel.setMouseCoordDisplay(m_d1,m_d2,((mx-getWidth()/2)/m_zoom)-m_a,-(((my-getHeight()/2)/m_zoom)-m_b));
+					axisHeap.set(0, 1, 0, (float) Math.toRadians(yangle));
+					inverseCameraRotationYSpin.setFromAxisAngle(axisHeap);
+					axisHeap.set(0, 0, 1, (float) Math.toRadians(xangle));
+					inverseCameraRotationZSpin.setFromAxisAngle(axisHeap);
+					Quaternion.mul(inverseCameraRotationYSpin, inverseCameraRotationZSpin, inverseCameraRotationQuat);
+					inverseCameraRotationQuat.x = -inverseCameraRotationQuat.x;
+					inverseCameraRotationQuat.y = -inverseCameraRotationQuat.y;
+					inverseCameraRotationQuat.z = -inverseCameraRotationQuat.z;
+					inverseCameraRotationYSpin.x = -inverseCameraRotationYSpin.x;
+					inverseCameraRotationYSpin.y = -inverseCameraRotationYSpin.y;
+					inverseCameraRotationYSpin.z = -inverseCameraRotationYSpin.z;
+					inverseCameraRotationZSpin.x = -inverseCameraRotationZSpin.x;
+					inverseCameraRotationZSpin.y = -inverseCameraRotationZSpin.y;
+					inverseCameraRotationZSpin.z = -inverseCameraRotationZSpin.z;
+					leftClickStart.x = (int) mx;
+					leftClickStart.y = (int) my;
+				}
+				// MainFrame.panel.setMouseCoordDisplay(m_d1,m_d2,((mx-getWidth()/2)/m_zoom)-m_a,-(((my-getHeight()/2)/m_zoom)-m_b));
 
-			if (actStart != null) {
-				final Point actEnd = new Point((int) mx, (int) my);
-				final Point2D.Double convertedStart = new Point2D.Double(geomX(actStart.x), geomY(actStart.y));
-				final Point2D.Double convertedEnd = new Point2D.Double(geomX(actEnd.x), geomY(actEnd.y));
-				// dispMDL.updateAction(convertedStart,convertedEnd,m_d1,m_d2);
-				actStart = actEnd;
+				if (actStart != null) {
+					final Point actEnd = new Point((int) mx, (int) my);
+					final Point2D.Double convertedStart = new Point2D.Double(geomX(actStart.x), geomY(actStart.y));
+					final Point2D.Double convertedEnd = new Point2D.Double(geomX(actEnd.x), geomY(actEnd.y));
+					// dispMDL.updateAction(convertedStart,convertedEnd,m_d1,m_d2);
+					actStart = actEnd;
+				}
 			}
 		}
 	}

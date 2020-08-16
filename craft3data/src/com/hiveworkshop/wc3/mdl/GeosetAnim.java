@@ -12,7 +12,7 @@ import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdx.GeosetAnimationChunk;
 
 /**
- * The geoset anims, heaven forbit they be forgotten.
+ * The geoset anims, heaven forbid they be forgotten.
  *
  * Eric Theller 11/10/2011
  */
@@ -101,7 +101,6 @@ public class GeosetAnim implements VisibilitySource, Named {
 				}
 				MDLReader.mark(mdl);
 			}
-			// MDLReader.reset(mdl);
 			return geo;
 		} else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),

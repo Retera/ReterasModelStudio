@@ -1,6 +1,7 @@
 package com.matrixeater.src;
 
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -48,6 +49,8 @@ import net.infonode.gui.laf.InfoNodeLookAndFeelThemes;
  * @version (a version number or a date)
  */
 public class MainFrame extends JFrame {
+	public static final Image MAIN_PROGRAM_ICON = new ImageIcon(MainFrame.class.getResource("ImageBin/retera.jpg"))
+			.getImage();
 	static MainFrame frame;
 	static MainPanel panel;
 	static JMenuBar menuBar;
@@ -276,8 +279,7 @@ public class MainFrame extends JFrame {
 							jFrame.pack();
 							jFrame.setSize(0, 0);
 							jFrame.setLocationRelativeTo(null);
-							jFrame.setIconImage(
-									new ImageIcon(MainFrame.class.getResource("ImageBin/retera.jpg")).getImage());
+							jFrame.setIconImage(MAIN_PROGRAM_ICON);
 							jFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 							jFrame.setVisible(true);
 							try {
@@ -361,7 +363,7 @@ public class MainFrame extends JFrame {
 		setContentPane(panel);
 		menuBar = panel.createMenuBar();
 		setJMenuBar(menuBar);// MainFrame.class.getResource("ImageBin/DDChicken2.png")
-		setIconImage(new ImageIcon(MainFrame.class.getResource("ImageBin/retera.jpg")).getImage());
+		setIconImage(MAIN_PROGRAM_ICON);
 
 		addWindowListener(new WindowAdapter() {
 			@Override

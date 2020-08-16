@@ -162,6 +162,7 @@ import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Camera;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.EventObject;
 import com.hiveworkshop.wc3.mdl.ExtLog;
 import com.hiveworkshop.wc3.mdl.Geoset;
@@ -170,7 +171,6 @@ import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Helper;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Layer;
-import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.Normal;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
@@ -821,50 +821,7 @@ public class MainPanel extends JPanel
 	AbstractAction openMPQViewerAction = new AbstractAction("Open MPQ Browser") {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
-			final MPQBrowser mpqBrowser = new MPQBrowser(MpqCodebase.get(), new Callback<String>() {
-				@Override
-				public void run(final String filepath) {
-					if (filepath.toLowerCase().endsWith(".mdx")) {
-						loadFile(MpqCodebase.get().getFile(filepath), true);
-					} else if (filepath.toLowerCase().endsWith(".blp")) {
-						// try {
-						// final BufferedImage image =
-						// ImageIO.read(MpqCodebase.get().getResourceAsStream(filepath));
-						loadBLPPathAsModel(filepath);
-
-						// final BufferedImage image = BLPHandler.get().getGameTex(filepath);
-						//
-						// addTabForView(new View(filepath.substring(filepath.lastIndexOf('\\') + 1),
-						// new ImageIcon(image.getScaledInstance(16, 16, Image.SCALE_DEFAULT)),
-						// new BLPPanel(image)), true);
-					} else if (filepath.toLowerCase().endsWith(".png")) {
-						// try {
-						// final BufferedImage image =
-						// ImageIO.read(MpqCodebase.get().getResourceAsStream(filepath));
-						loadBLPPathAsModel(filepath);
-
-						// final BufferedImage image = BLPHandler.get().getGameTex(filepath);
-						//
-						// addTabForView(new View(filepath.substring(filepath.lastIndexOf('\\') + 1),
-						// new ImageIcon(image.getScaledInstance(16, 16, Image.SCALE_DEFAULT)),
-						// new BLPPanel(image)), true);
-					} else if (filepath.toLowerCase().endsWith(".dds")) {
-						loadBLPPathAsModel(filepath, null, 1000);
-					}
-				}
-			});
-			// final FloatingWindow floatingWindow =
-			// rootWindow.createFloatingWindow(rootWindow.getLocation(),
-			// mpqBrowser.getPreferredSize(),
-			// new View("MPQ Browser",
-			// new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16,
-			// Image.SCALE_FAST)),
-			// mpqBrowser));
-			// floatingWindow.getTopLevelAncestor().setVisible(true);
-			final View view = new View("Data Browser",
-					new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
-					mpqBrowser);
-			view.getWindowProperties().setCloseEnabled(true);
+			final View view = createMPQBrowser();
 			rootWindow.setWindow(new SplitWindow(true, 0.75f, rootWindow.getWindow(), view));
 		}
 	};
@@ -1604,36 +1561,14 @@ public class MainPanel extends JPanel
 				return "Edit";
 			}
 		});
-
-		final MPQBrowser mpqBrowser = new MPQBrowser(MpqCodebase.get(), new Callback<String>() {
-			@Override
-			public void run(final String filepath) {
-				if (filepath.toLowerCase().endsWith(".mdx")) {
-					loadFile(MpqCodebase.get().getFile(filepath), true);
-				} else if (filepath.toLowerCase().endsWith(".blp")) {
-					loadBLPPathAsModel(filepath);
-				} else if (filepath.toLowerCase().endsWith(".png")) {
-					loadBLPPathAsModel(filepath);
-				} else if (filepath.toLowerCase().endsWith(".dds")) {
-					loadBLPPathAsModel(filepath, null, 1000);
-				}
-			}
-		});
 		ImageIcon imageIcon;
-		try {
-			imageIcon = new ImageIcon(ImageIO.read(MainFrame.class.getResource("ImageBin/retera.jpg"))
-					.getScaledInstance(16, 16, Image.SCALE_FAST));
-		} catch (final IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-			imageIcon = null;
-		}
-		final View view = new View("Data Browser", imageIcon, mpqBrowser);
-		view.getWindowProperties().setCloseEnabled(true);
+		imageIcon = new ImageIcon(MainFrame.MAIN_PROGRAM_ICON.getScaledInstance(16, 16, Image.SCALE_FAST));
+
+		final View mpqBrowserView = createMPQBrowser(imageIcon);
 
 		final UnitEditorTree unitEditorTree = createUnitEditorTree();
-		final TabWindow tabWindow = new TabWindow(
-				new DockingWindow[] { new View("Unit Browser", imageIcon, new JScrollPane(unitEditorTree)), view });
+		final TabWindow tabWindow = new TabWindow(new DockingWindow[] {
+				new View("Unit Browser", imageIcon, new JScrollPane(unitEditorTree)), mpqBrowserView });
 		tabWindow.setSelectedTab(0);
 		final SplitWindow viewingTab = new SplitWindow(true, 0.8f,
 				new SplitWindow(true, 0.8f, previewView, animationControllerView), tabWindow);
@@ -1656,6 +1591,50 @@ public class MainPanel extends JPanel
 		final TabWindow startupTabWindow = new TabWindow(new DockingWindow[] { viewingTab, editingTab, modelTab });
 		traverseAndFix(startupTabWindow);
 		return startupTabWindow;
+	}
+
+	private View createMPQBrowser(final ImageIcon imageIcon) {
+		final MPQBrowser mpqBrowser = new MPQBrowser(MpqCodebase.get(), new Callback<String>() {
+			@Override
+			public void run(final String filepath) {
+				if (filepath.toLowerCase().endsWith(".mdx")) {
+					loadFile(MpqCodebase.get().getFile(filepath), true);
+				} else if (filepath.toLowerCase().endsWith(".blp")) {
+					loadBLPPathAsModel(filepath);
+				} else if (filepath.toLowerCase().endsWith(".png")) {
+					loadBLPPathAsModel(filepath);
+				} else if (filepath.toLowerCase().endsWith(".dds")) {
+					loadBLPPathAsModel(filepath, null, 1000);
+				}
+			}
+		}, new Callback<String>() {
+			@Override
+			public void run(final String path) {
+				final int modIndex = Math.max(path.lastIndexOf(".w3mod/"), path.lastIndexOf(".w3mod\\"));
+				String finalPath;
+				if (modIndex == -1) {
+					finalPath = path;
+				} else {
+					finalPath = path.substring(modIndex + ".w3mod/".length());
+				}
+				final ModelPanel modelPanel = currentModelPanel();
+				if (modelPanel != null) {
+					if (modelPanel.getModel().getFormatVersion() > 800) {
+						finalPath = finalPath.replace("\\", "/"); // Reforged prefers forward slash
+					}
+					modelPanel.getModel().add(new Bitmap(finalPath));
+					modelStructureChangeListener.texturesChanged();
+				}
+			}
+		});
+		final View view = new View("Data Browser", imageIcon, mpqBrowser);
+		view.getWindowProperties().setCloseEnabled(true);
+		return view;
+	}
+
+	private View createMPQBrowser() {
+		return createMPQBrowser(
+				new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)));
 	}
 
 	private void traverseAndFix(final DockingWindow window) {
@@ -1724,22 +1703,6 @@ public class MainPanel extends JPanel
 					}
 				}, prefs);
 		return unitEditorTree;
-	}
-
-	public void defaultModelStartupHack() {
-
-		final String filepath = "units\\other\\DranaiAkama\\DranaiAkama.mdx";
-		if (filepath != null) {
-			loadFile(MpqCodebase.get().getFile(filepath), true, true, GlobalIcons.greenIcon);
-			final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
-					+ filepath.substring(filepath.lastIndexOf('.'), filepath.length());
-			if (prefs.isLoadPortraits() && MpqCodebase.get().has(portrait)) {
-				loadFile(MpqCodebase.get().getFile(portrait), true, false, GlobalIcons.greenIcon);
-			}
-			toolsMenu.getAccessibleContext().setAccessibleDescription(
-					"Allows the user to control which parts of the model are displayed for editing.");
-			toolsMenu.setEnabled(true);
-		}
 	}
 
 	@Override
@@ -2736,8 +2699,8 @@ public class MainPanel extends JPanel
 					particleItem.addActionListener(new ActionListener() {
 						@Override
 						public void actionPerformed(final ActionEvent e) {
-							final ParticleEmitter2 particle = EditableModel.read(file).sortedIdObjects(ParticleEmitter2.class)
-									.get(0);
+							final ParticleEmitter2 particle = EditableModel.read(file)
+									.sortedIdObjects(ParticleEmitter2.class).get(0);
 
 							final JPanel particlePanel = new JPanel();
 							final List<IdObject> idObjects = new ArrayList<>(currentMDL().getIdObjects());
@@ -3405,6 +3368,7 @@ public class MainPanel extends JPanel
 
 		rigButton = new JMenuItem("Rig Selection");
 		rigButton.setMnemonic(KeyEvent.VK_R);
+		rigButton.setAccelerator(KeyStroke.getKeyStroke("control W"));
 		rigButton.addActionListener(rigAction);
 		toolsMenu.add(rigButton);
 
@@ -3882,7 +3846,7 @@ public class MainPanel extends JPanel
 		editMenu.add(new JSeparator());
 
 		snapVertices = new JMenuItem("Snap Vertices");
-		snapVertices.setAccelerator(KeyStroke.getKeyStroke("control W"));
+		snapVertices.setAccelerator(KeyStroke.getKeyStroke("control shift W"));
 		snapVertices.addActionListener(snapVerticesAction);
 		editMenu.add(snapVertices);
 
@@ -5372,9 +5336,9 @@ public class MainPanel extends JPanel
 				e.printStackTrace();
 			}
 		} else {
-			temp = new ModelPanel(this, EditableModel.read(f), prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
-					modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, activeViewportWatcher,
-					icon, false, textureExporter);
+			temp = new ModelPanel(this, EditableModel.read(f), prefs, MainPanel.this, selectionItemTypeGroup,
+					selectionModeGroup, modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
+					activeViewportWatcher, icon, false, textureExporter);
 			temp.setFile(f);
 		}
 		loadModel(temporary, selectNewTab, temp);

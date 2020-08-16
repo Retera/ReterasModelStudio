@@ -53,6 +53,21 @@ public class CascDataSource implements DataSource {
 						final String dest = alias.getString("dest");
 						fileAliases.put(src.toLowerCase(Locale.US).replace('/', '\\'),
 								dest.toLowerCase(Locale.US).replace('/', '\\'));
+						if ((src.toLowerCase(Locale.US).contains(".blp")
+								|| dest.toLowerCase(Locale.US).contains(".blp"))
+								&& (!alias.has("assetType") || "Texture".equals(alias.getString("assetType")))) {
+							// This case: I saw a texture that resolves in game but was failing in our code
+							// here, because of this entry:
+							// {"src":"Units/Human/WarWagon/SiegeEngine.blp",
+							// "dest":"Textures/Steamtank.blp", "assetType": "Texture"},
+							// Our repo here checks BLP then DDS at a high-up application level thing, and
+							// the problem is that this entry is written using .BLP but we must be able to
+							// resolve .DDS when we go to look it up. The actual model is .BLP so maybe
+							// that's how the game does it, but my alias mapping is happening after the
+							// .BLP->.DDS dynamic fix, and not before.
+							fileAliases.put(src.toLowerCase(Locale.US).replace('/', '\\').replace(".blp", ".dds"),
+									dest.toLowerCase(Locale.US).replace('/', '\\').replace(".blp", ".dds"));
+						}
 					}
 				}
 			}
