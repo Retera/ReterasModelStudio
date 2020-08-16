@@ -41,6 +41,9 @@ If all is well, this should launch a locally compiled build of Retera Model Stud
  
 ## seanrowens (https://github.com/seanrowens)
  - OBJ parser for java
+ 
+## BogdanW3
+ - Some bugfixes (see GitHub Contributors)
 
 ## Testers & Idea Guys
 Hayate, CanFight, Unryze, Rigborn, Jaccouille, Max, Mayday, Deolrin, Templier777, Macadamia, Mechanic, Moonman, P4RI4H, and the growing list of people who joined the Retera Model Studio Users Group discord server that I created to motivate myself to start getting more bugs fixed.
