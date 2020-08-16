@@ -75,7 +75,8 @@ public final class MPQBrowser extends JPanel {
 	private final Map<String, Filter> extensionToFilter = new HashMap<>();
 	private Filter otherFilter;
 
-	public MPQBrowser(final MpqCodebase mpqCodebase, final Callback<String> fileOpenCallback) {
+	public MPQBrowser(final MpqCodebase mpqCodebase, final Callback<String> fileOpenCallback,
+			final Callback<String> useAsTextureCallback) {
 		this.mpqCodebase = mpqCodebase;
 		final JMenuBar menuBar = new JMenuBar();
 		final JMenu fileMenu = new JMenu("File");
@@ -243,6 +244,15 @@ public final class MPQBrowser extends JPanel {
 		contextMenu.add(extractItem);
 		contextMenu.addSeparator();
 		contextMenu.add(copyPathToClipboardItem);
+		final JMenuItem useAsTextureItem = new JMenuItem("Use as Texture");
+		useAsTextureItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				useAsTextureCallback
+						.run(((MPQTreeNode) mouseAdapterExtension.getClickedPath().getLastPathComponent()).getPath());
+			}
+		});
+		contextMenu.add(useAsTextureItem);
 		mouseAdapterExtension = new MouseAdapterExtension(contextMenu);
 		tree.addMouseListener(mouseAdapterExtension);
 	}

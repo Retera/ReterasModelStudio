@@ -241,6 +241,11 @@ public class BlpConverterPanel extends JPanel {
 					ExceptionPopup.display(e);
 				}
 			}
+		}, new Callback<String>() {
+			@Override
+			public void run(final String object) {
+				JOptionPane.showMessageDialog(leftHandCardPanel, "Not yet implemented for this application.");
+			}
 		});
 		final JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftHandCardPanel, mpqBrowser);
 
