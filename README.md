@@ -46,7 +46,7 @@ If all is well, this should launch a locally compiled build of Retera Model Stud
  - Some bugfixes (see GitHub Contributors)
 
 ## Testers & Idea Guys
-Hayate, CanFight, Unryze, Rigborn, Jaccouille, Max, Mayday, Deolrin, Templier777, Macadamia, Mechanic, Moonman, P4RI4H, and the growing list of people who joined the Retera Model Studio Users Group discord server that I created to motivate myself to start getting more bugs fixed.
+Hayate, CanFight, Unryze, Rigborn, Jaccouille, Max, Mayday, Deolrin, Templier777, Macadamia, Mechanic, Moonman, P4RI4H, Razorclaw_X, all the people who posted on the Retera Model Studio Reforged thread on Hiveworkshop, and the growing list of people who joined the Retera Model Studio Users Group discord server that I created to motivate myself to start getting more bugs fixed.
 
 ## Special Mentions
 Shadow Daemon: BLP lab command line version for certain automated tasks (now mostly phased out and replaced with DrSuperGood BLP plugin)
