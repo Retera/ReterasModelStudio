@@ -4,6 +4,18 @@ This repository contains the sourcecode for the Reteras Model Studio application
 
 Reteras Model Studio is a Java-based Warcraft III model file editor that supports both the legacy 2003 MDX model format and game as well as the new Warcraft III Reforged MDX model files.
 
+# Building
+1. Download an IDE that supports gradle. For this project I suggest Eclipse 2018-09. (https://www.eclipse.org/downloads/packages/release/2018-09/r)
+2. Clone the repository from https://github.com/Retera/ReterasModelStudio.git (you can either download the ZIP, or use git)
+3. Launch the downloaded Eclipse and follow the prompt to create an Eclipse workspace on any location on your hard drive separate from the ReterasModelStudio repository
+4. In Eclipse, close the Welcome popup and go to File -> Import -> Gradle
+5. This launches a wizard where you can choose to import the ReterasModelStudio project. In general it should be fine to use the default settings, including the project's own gradle wrapper.
+6. Press finish on the gradle import when you are ready. This should load a view with the code on the left. After a few seconds, if all is well, indications of any red X boxes or other compile errors should go away.
+8. Find the file in the retera-jwc3-matrixeater sub project located at src/com.matrixeater.src called MainFrame.java and double click this to open it.
+9. Press the green play button in the top toolbar, and choose "Java Application" in the popup window.
+
+If all is well, this should launch a locally compiled build of Retera Model Studio where you have full code access and can change any program behavior that you would like.
+
 # Credits
 (More details are available in Help -> About inside the program itself)
 
