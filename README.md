@@ -53,4 +53,5 @@ Shadow Daemon: BLP lab command line version for certain automated tasks (now mos
 Terai Atsuhiro and Jay Warrick: Original Matrix Eater's tabbing system, which I originally found on a StackOverflow post they had made (now replaced by InfoNode Docking Windows)
 LWJGL: Used for java OpenGL bindings
 TimoHanisch, Deaod, and contributors to JStormLib on GitHub: used for MPQ parsing in past versions of the program (now phased out and replaced with DrSuperGood MPQ)
+Deaod: Warcraft III unit data parser made for his ODE JNGP plugin, which was used for the unit previewing logic (now mostly phased out and replaced with Java port of PitzerMike's code)
 
