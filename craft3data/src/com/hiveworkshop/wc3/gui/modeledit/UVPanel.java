@@ -1,5 +1,6 @@
 package com.hiveworkshop.wc3.gui.modeledit;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -70,15 +71,18 @@ import com.hiveworkshop.wc3.gui.modeledit.selection.TVertexSelectionItemTypes;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonListener;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportIconUtils;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Layer;
-import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.user.SaveProfile;
+import com.hiveworkshop.wc3.util.IconUtils;
+
+import net.infonode.docking.View;
 
 /**
  * Write a description of class DisplayPanel here.
@@ -89,7 +93,15 @@ import com.hiveworkshop.wc3.user.SaveProfile;
 public class UVPanel extends JPanel
 		implements ActionListener, CoordDisplayListener, TVertexEditorChangeActivityListener {
 
-	static final ImageIcon UVIcon = new ImageIcon(GlobalIcons.class.getResource("ImageBin/UVMap.png"));
+	static final ImageIcon UVIcon;
+	static {
+		try {
+			UVIcon = new ImageIcon(IconUtils
+					.worldEditStyleIcon(ImageIO.read(GlobalIcons.class.getResourceAsStream("ImageBin/UVMap.png"))));
+		} catch (final IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	ModeButton loadImage, selectButton, addButton, deselectButton, moveButton, rotateButton, scaleButton, unwrapButton;
 	private final JComboBox<UnwrapDirection> unwrapDirectionBox;
@@ -113,7 +125,7 @@ public class UVPanel extends JPanel
 	boolean cheatAlt = false;
 	ModelEditorActionType actionType;
 
-	JFrame frame;
+	View view;
 	AbstractAction selectAllAction = new AbstractAction("Select All") {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
@@ -208,8 +220,6 @@ public class UVPanel extends JPanel
 
 	public UVPanel(final ModelPanel dispMDL, final ProgramPreferences prefs,
 			final ModelStructureChangeListener modelStructureChangeListener) {
-		super();
-
 		add(createJToolBar());
 
 		viewportActivityManager = new TVertexEditorViewportActivityManager(new DoNothingTVertexActivity());
@@ -455,6 +465,12 @@ public class UVPanel extends JPanel
 			}
 		});
 		actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
+
+		final JPanel menuHolderPanel = new JPanel(new BorderLayout());
+		menuHolderPanel.add(this, BorderLayout.CENTER);
+		menuHolderPanel.add(createMenuBar(), BorderLayout.BEFORE_FIRST_LINE);
+		view = new View("Texture Coordinate Editor: " + currentModelPanel().getModel().getName(), UVIcon,
+				menuHolderPanel);
 	}
 
 	protected void remap(final byte xDim, final byte yDim, final UnwrapDirection direction) {
@@ -688,6 +704,11 @@ public class UVPanel extends JPanel
 		minusZoom.setVisible(flag);
 	}
 
+	public void initViewport() {
+		vp.setAspectRatio(1);
+		vp.revalidate();
+	}
+
 	public void init() {
 		vp.init();
 		buttons.get(0).setColors(prefs.getActiveColor1(), prefs.getActiveColor2());
@@ -876,29 +897,19 @@ public class UVPanel extends JPanel
 	}
 
 	public boolean frameVisible() {
-		return frame.isVisible();
+		return view.isVisible() && view.isShowing() && (view.getWindowParent() != null);
 	}
 
-	public void showFrame() {
-		if (frame == null) {
-			frame = new JFrame("Texture Coordinate Editor: " + currentModelPanel().getModel().getName());
-			frame.setContentPane(this);
-			frame.setIconImage(UVIcon.getImage());
-			// frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-			frame.setJMenuBar(createMenuBar());
-			frame.pack();
-			frame.setLocationRelativeTo(null);
-			init();
-		}
-		frame.setVisible(true);
-		// frame.setExtendedState(frame.getExtendedState() |
-		// JFrame.MAXIMIZED_BOTH);
-		frame.toFront();
+	public View getView() {
+		return view;
 	}
 
 	public void packFrame() {
-		frame.pack();
-		frame.setLocationRelativeTo(null);
+		final JFrame frame = (JFrame) view.getTopLevelAncestor();
+		if (frame != null) {
+			frame.pack();
+			frame.setLocationRelativeTo(null);
+		}
 	}
 
 	public void setMouseCoordDisplay(final double x, final double y) {

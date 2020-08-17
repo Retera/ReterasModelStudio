@@ -36,8 +36,8 @@ import com.hiveworkshop.wc3.gui.modeledit.util.TextureExporter;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimationController;
 import com.hiveworkshop.wc3.gui.modelviewer.ControlledAnimationViewer;
 import com.hiveworkshop.wc3.mdl.Bone;
-import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.EditableModel;
+import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
@@ -83,9 +83,9 @@ public class ModelPanel implements ActionListener, MouseListener {
 			final CoordDisplayListener coordDisplayListener, final ViewportTransferHandler viewportTransferHandler,
 			final ViewportListener viewportListener, final Icon icon, final boolean specialBLPModel,
 			final TextureExporter textureExporter) {
-		this(parent, EditableModel.read(input), prefs, undoHandler, notifier, modeNotifier, modelStructureChangeListener,
-				coordDisplayListener, viewportTransferHandler, viewportListener, icon, specialBLPModel,
-				textureExporter);
+		this(parent, EditableModel.read(input), prefs, undoHandler, notifier, modeNotifier,
+				modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, viewportListener, icon,
+				specialBLPModel, textureExporter);
 		file = input;
 	}
 
@@ -398,13 +398,13 @@ public class ModelPanel implements ActionListener, MouseListener {
 				listener.save(model);
 				// parent.tabbedPane.remove(myIndex);
 				if (editUVPanel != null) {
-					editUVPanel.frame.setVisible(false);
+					editUVPanel.view.setVisible(false);
 				}
 				break;
 			case JOptionPane.NO_OPTION:
 				// parent.tabbedPane.remove(myIndex);
 				if (editUVPanel != null) {
-					editUVPanel.frame.setVisible(false);
+					editUVPanel.view.setVisible(false);
 				}
 				break;
 			case JOptionPane.CANCEL_OPTION:
@@ -414,7 +414,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 		} else {
 			// parent.tabbedPane.remove(myIndex);
 			if (editUVPanel != null) {
-				editUVPanel.frame.setVisible(false);
+				editUVPanel.view.setVisible(false);
 			}
 		}
 		return !canceled;

@@ -1,5 +1,8 @@
 package com.hiveworkshop.wc3.gui.modeledit.components.material;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -10,6 +13,9 @@ import javax.swing.SpinnerNumberModel;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
+import com.hiveworkshop.wc3.gui.modeledit.actions.componenttree.material.SetLayerFilterModeAction;
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
+import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.ColorValuePanel;
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.FloatValuePanel;
@@ -32,6 +38,8 @@ public class ComponentLayerPanel extends JPanel {
 	private final FloatValuePanel fresnelOpacityPanel;
 	private final FloatValuePanel fresnelTeamColor;
 	private final ColorValuePanel fresnelColorPanel;
+	private UndoActionListener undoActionListener;
+	private ModelStructureChangeListener modelStructureChangeListener;
 
 	public ComponentLayerPanel() {
 		setLayout(new MigLayout("fill", "", "[fill][fill]"));
@@ -43,9 +51,25 @@ public class ComponentLayerPanel extends JPanel {
 		leftHandSettingsPanel.setLayout(new MigLayout());
 		leftHandSettingsPanel.add(new JLabel("Filter Mode:"));
 		filterModeDropdown = new JComboBox<Layer.FilterMode>(Layer.FilterMode.values());
+		filterModeDropdown.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final SetLayerFilterModeAction setLayerFilterModeAction = new SetLayerFilterModeAction(layer,
+						layer.getFilterMode(), ((FilterMode) filterModeDropdown.getSelectedItem()),
+						modelStructureChangeListener);
+				setLayerFilterModeAction.redo();
+				undoActionListener.pushAction(setLayerFilterModeAction);
+			}
+		});
 		leftHandSettingsPanel.add(filterModeDropdown, "wrap, growx");
 		leftHandSettingsPanel.add(new JLabel("Texture:"));
 		textureButton = new JButton("Choose Texture");
+		textureButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+
+			}
+		});
 		leftHandSettingsPanel.add(textureButton, "wrap, growx");
 		coordIdSpinner = new ComponentEditorJSpinner(
 				new SpinnerNumberModel(0, Integer.MIN_VALUE, Integer.MAX_VALUE, 1));
@@ -69,8 +93,11 @@ public class ComponentLayerPanel extends JPanel {
 	}
 
 	public void setLayer(final DataSource workingDirectory, final Layer layer, final int formatVersion,
-			final boolean hdShader) {
+			final boolean hdShader, final UndoActionListener undoActionListener,
+			final ModelStructureChangeListener modelStructureChangeListener) {
 		this.layer = layer;
+		this.undoActionListener = undoActionListener;
+		this.modelStructureChangeListener = modelStructureChangeListener;
 		layerFlagsPanel.setLayer(layer);
 		filterModeDropdown.setSelectedItem(layer.getFilterMode());
 		textureButton.setIcon(new ImageIcon(

@@ -17,7 +17,7 @@ public class YseraFrame extends JFrame {
 		final YseraPanel contentPane = new YseraPanel();
 		setContentPane(contentPane);
 		// setIconImage(GlobalIcons.bigGeoIcon.getImage());
-		setIconImage(BLPHandler.get().getGameTex("ReplaceableTextures\\CommandButtons\\BTNGreenDragon.blp"));
+		setIconImage(BLPHandler.get().getGameTex("war3.w3mod/ReplaceableTextures\\CommandButtons\\BTNGreenDragon.blp"));
 		setJMenuBar(contentPane.createJMenuBar());
 		pack();
 		setLocationRelativeTo(null);

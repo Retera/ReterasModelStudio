@@ -9,6 +9,7 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -25,7 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -43,7 +43,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
@@ -209,6 +208,7 @@ import com.hiveworkshop.wc3.user.SaveProfile;
 import com.hiveworkshop.wc3.user.WarcraftDataSourceChangeListener;
 import com.hiveworkshop.wc3.user.WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier;
 import com.hiveworkshop.wc3.util.Callback;
+import com.hiveworkshop.wc3.util.IconUtils;
 import com.hiveworkshop.wc3.util.ModelUtils;
 import com.hiveworkshop.wc3.util.ModelUtils.Mesh;
 import com.matrixeater.imp.AnimationTransfer;
@@ -333,71 +333,9 @@ public class MainPanel extends JPanel
 	JMenuItem contextClose, contextCloseAll, contextCloseOthers;
 	int contextClickedTab = 0;
 	JPopupMenu contextMenu;
-	AbstractAction undoAction = new AbstractAction("Undo") {
-		@Override
-		public void actionPerformed(final ActionEvent e) {
-			final ModelPanel mpanel = currentModelPanel();
-			if (mpanel != null) {
-				try {
-					mpanel.getUndoManager().undo();
-				} catch (final NoSuchElementException exc) {
-					JOptionPane.showMessageDialog(MainPanel.this, "Nothing to undo!");
-				} catch (final Exception exc) {
-					ExceptionPopup.display(exc);
-				}
-			}
-			refreshUndo();
-			repaintSelfAndChildren(mpanel);
-		}
-	};
-	AbstractAction redoAction = new AbstractAction("Redo") {
-		@Override
-		public void actionPerformed(final ActionEvent e) {
-			final ModelPanel mpanel = currentModelPanel();
-			if (mpanel != null) {
-				try {
-					mpanel.getUndoManager().redo();
-				} catch (final NoSuchElementException exc) {
-					JOptionPane.showMessageDialog(MainPanel.this, "Nothing to redo!");
-				} catch (final Exception exc) {
-					ExceptionPopup.display(exc);
-				}
-			}
-			refreshUndo();
-			repaintSelfAndChildren(mpanel);
-		}
-	};
-	ClonedNodeNamePicker namePicker = new ClonedNodeNamePicker() {
-		@Override
-		public Map<IdObject, String> pickNames(final Collection<IdObject> clonedNodes) {
-			final JPanel panel = new JPanel();
-			panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-			final Map<JTextField, IdObject> textFieldToObject = new HashMap<>();
-			for (final IdObject object : clonedNodes) {
-				final JTextField textField = new JTextField(object.getName() + " copy");
-				final JLabel oldNameLabel = new JLabel("Enter name for clone of \"" + object.getName() + "\":");
-				panel.add(oldNameLabel);
-				panel.add(textField);
-				textFieldToObject.put(textField, object);
-			}
-			final JPanel dumbPanel = new JPanel();
-			dumbPanel.add(panel);
-			final JScrollPane scrollPane = new JScrollPane(dumbPanel);
-			scrollPane.setPreferredSize(new Dimension(450, 300));
-			final int x = JOptionPane.showConfirmDialog(MainPanel.this, scrollPane, "Choose Node Names",
-					JOptionPane.OK_CANCEL_OPTION);
-			if (x != JOptionPane.OK_OPTION) {
-				return null;
-			}
-			final Map<IdObject, String> objectToName = new HashMap<>();
-			for (final JTextField field : textFieldToObject.keySet()) {
-				final IdObject idObject = textFieldToObject.get(field);
-				objectToName.put(idObject, field.getText());
-			}
-			return objectToName;
-		}
-
-	};
+	AbstractAction undoAction = new UndoActionImplementation("Undo", this);
+	AbstractAction redoAction = new RedoActionImplementation("Redo", this);
+	ClonedNodeNamePicker namePicker = new ClonedNodeNamePickerImplementation(this);
 	AbstractAction cloneAction = new AbstractAction("CloneSelection") {
 		@Override
 		public void actionPerformed(final ActionEvent e) {
@@ -650,7 +588,7 @@ public class MainPanel extends JPanel
 			final ModelPanel mpanel = currentModelPanel();
 			if (mpanel != null) {
 				final Vertex selectionCenter = mpanel.getModelEditorManager().getModelEditor().getSelectionCenter();
-				mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().mirror((byte) 1,
+				mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().mirror((byte) 0,
 						mirrorFlip.isSelected(), selectionCenter.x, selectionCenter.y, selectionCenter.z));
 			}
 			repaint();
@@ -663,7 +601,7 @@ public class MainPanel extends JPanel
 			if (mpanel != null) {
 				final Vertex selectionCenter = mpanel.getModelEditorManager().getModelEditor().getSelectionCenter();
 
-				mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().mirror((byte) 2,
+				mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().mirror((byte) 1,
 						mirrorFlip.isSelected(), selectionCenter.x, selectionCenter.y, selectionCenter.z));
 			}
 			repaint();
@@ -676,7 +614,7 @@ public class MainPanel extends JPanel
 			if (mpanel != null) {
 				final Vertex selectionCenter = mpanel.getModelEditorManager().getModelEditor().getSelectionCenter();
 
-				mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().mirror((byte) 0,
+				mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().mirror((byte) 2,
 						mirrorFlip.isSelected(), selectionCenter.x, selectionCenter.y, selectionCenter.z));
 			}
 			repaint();
@@ -2042,10 +1980,12 @@ public class MainPanel extends JPanel
 					return;
 				}
 				final View focusedView = rootWindow.getFocusedView();
-				if (focusedView.isMaximized()) {
-					rootWindow.setMaximizedWindow(null);
-				} else {
-					focusedView.maximize();
+				if (focusedView != null) {
+					if (focusedView.isMaximized()) {
+						rootWindow.setMaximizedWindow(null);
+					} else {
+						focusedView.maximize();
+					}
 				}
 			}
 		});
@@ -2776,7 +2716,7 @@ public class MainPanel extends JPanel
 										(int) (colorValues.x * 255));
 
 								final JButton button = new JButton("Color " + (i + 1),
-										new ImageIcon(ImageUtils.createBlank(color, 32, 32)));
+										new ImageIcon(IconUtils.createBlank(color, 32, 32)));
 								colors[i] = color;
 								final int index = i;
 								button.addActionListener(new ActionListener() {
@@ -2786,8 +2726,7 @@ public class MainPanel extends JPanel
 												"Chooser Color", colors[index]);
 										if (colorChoice != null) {
 											colors[index] = colorChoice;
-											button.setIcon(
-													new ImageIcon(ImageUtils.createBlank(colors[index], 32, 32)));
+											button.setIcon(new ImageIcon(IconUtils.createBlank(colors[index], 32, 32)));
 										}
 									}
 								});
@@ -4238,9 +4177,18 @@ public class MainPanel extends JPanel
 				if (disp.getEditUVPanel() == null) {
 					final UVPanel panel = new UVPanel(disp, prefs, modelStructureChangeListener);
 					disp.setEditUVPanel(panel);
-					panel.showFrame();
+
+					panel.initViewport();
+					final FloatingWindow floatingWindow = rootWindow.createFloatingWindow(
+							new Point(getX() + (getWidth() / 2), getY() + (getHeight() / 2)), panel.getSize(),
+							panel.getView());
+					panel.init();
+					floatingWindow.getTopLevelAncestor().setVisible(true);
 				} else if (!disp.getEditUVPanel().frameVisible()) {
-					disp.getEditUVPanel().showFrame();
+					final FloatingWindow floatingWindow = rootWindow.createFloatingWindow(
+							new Point(getX() + (getWidth() / 2), getY() + (getHeight() / 2)),
+							disp.getEditUVPanel().getSize(), disp.getEditUVPanel().getView());
+					floatingWindow.getTopLevelAncestor().setVisible(true);
 				}
 			} else if (e.getSource() == exportTextures) {
 				final DefaultListModel<Material> materials = new DefaultListModel<>();
@@ -5939,7 +5887,7 @@ public class MainPanel extends JPanel
 		return success;
 	}
 
-	private void repaintSelfAndChildren(final ModelPanel mpanel) {
+	protected void repaintSelfAndChildren(final ModelPanel mpanel) {
 		repaint();
 		geoControl.repaint();
 		geoControlModelData.repaint();

@@ -2,32 +2,45 @@ package ysera;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.io.IOException;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 
 import org.lwjgl.LWJGLException;
+import org.lwjgl.util.vector.Quaternion;
 
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
-import com.hiveworkshop.wc3.gui.modeledit.PerspectiveViewport;
+import com.hiveworkshop.wc3.gui.modelviewer.AnimatedPerspectiveViewport;
 import com.hiveworkshop.wc3.mdl.EditableModel;
-import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
+import com.hiveworkshop.wc3.mdx.MdxModel;
+import com.hiveworkshop.wc3.mdx.MdxUtils;
+import com.hiveworkshop.wc3.mpq.MpqCodebase;
+
+import de.wc3data.stream.BlizzardDataInputStream;
 
 public class YseraPanel extends JPanel {
+	private static final Quaternion IDENTITY = new Quaternion();
 
 	public YseraPanel() {
 		setLayout(new BorderLayout());
 		try {
-			final EditableModel model = new EditableModel();
-			add(BorderLayout.CENTER, new PerspectiveViewport(new ModelViewManager(model), new ProgramPreferences(),
-					new RenderModel(model, null)));
-			/*
-			 * MdxUtils.loadModel(new BlizzardDataInputStream(
-			 * MpqCodebase.get().getResourceAsStream("Units\\Human\\Footman\\Footman.mdx")))
-			 */
+			final MdxModel footman = MdxUtils.loadModel(new BlizzardDataInputStream(
+					MpqCodebase.get().getResourceAsStream("Units\\Human\\Footman\\Footman.mdx")));
+			final EditableModel footmanMDL = new EditableModel(footman);
+			final AnimatedPerspectiveViewport perspectiveViewport = new AnimatedPerspectiveViewport(
+					new ModelViewManager(footmanMDL), new ProgramPreferences(), true);
+			perspectiveViewport.setAnimationTime(0);
+			perspectiveViewport.setLive(true);
+			perspectiveViewport.setAnimation(footmanMDL.getAnim(0));
+			add(BorderLayout.CENTER, perspectiveViewport);
+
 		} catch (final LWJGLException e) {
+			e.printStackTrace();
+		} catch (final IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		setPreferredSize(new Dimension(640, 480));
