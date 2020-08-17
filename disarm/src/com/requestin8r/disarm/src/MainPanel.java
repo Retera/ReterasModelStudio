@@ -52,6 +52,7 @@ import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
+import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.units.GameObject;
 import com.hiveworkshop.wc3.units.ModelOptionPane;
@@ -267,7 +268,7 @@ public class MainPanel extends JPanel implements ActionListener {
 				} else if (!filepath.endsWith(".mdx")) {
 					filepath = filepath.concat(".mdx");
 				}
-				toLoad = EditableModel.read(MpqCodebase.get().getFile(filepath));
+				toLoad = MdxUtils.loadEditableModel(MpqCodebase.get().getFile(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -310,7 +311,7 @@ public class MainPanel extends JPanel implements ActionListener {
 				} else if (!filepath.endsWith(".mdx")) {
 					filepath = filepath.concat(".mdx");
 				}
-				toLoad = EditableModel.read(MpqCodebase.get().getFile(filepath));
+				toLoad = MdxUtils.loadEditableModel(MpqCodebase.get().getFile(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -350,7 +351,7 @@ public class MainPanel extends JPanel implements ActionListener {
 			EditableModel toLoad;
 			ModelViewManager modelDisp = null;
 			try {
-				toLoad = EditableModel.read(new File(filepath));
+				toLoad = MdxUtils.loadEditableModel(new File(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -387,7 +388,7 @@ public class MainPanel extends JPanel implements ActionListener {
 				} else if (!filepath.endsWith(".mdx")) {
 					filepath = filepath.concat(".mdx");
 				}
-				toLoad = EditableModel.read(MpqCodebase.get().getFile(filepath));
+				toLoad = MdxUtils.loadEditableModel(MpqCodebase.get().getFile(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -435,7 +436,7 @@ public class MainPanel extends JPanel implements ActionListener {
 				} else if (!filepath.endsWith(".mdx")) {
 					filepath = filepath.concat(".mdx");
 				}
-				toLoad = EditableModel.read(MpqCodebase.get().getFile(filepath));
+				toLoad = MdxUtils.loadEditableModel(MpqCodebase.get().getFile(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -479,7 +480,7 @@ public class MainPanel extends JPanel implements ActionListener {
 			EditableModel toLoad;
 			ModelViewManager modelDisp = null;
 			try {
-				toLoad = EditableModel.read(new File(filepath));
+				toLoad = MdxUtils.loadEditableModel(new File(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -568,7 +569,12 @@ public class MainPanel extends JPanel implements ActionListener {
 						}
 					}
 					// profile.setPath(currentFile.getParent());
-					current.model.getModel().printTo(currentFile);
+					try {
+						MdxUtils.saveEditableModel(current.model.getModel(), currentFile);
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					current.model.getModel().setFileRef(currentFile);
 					// tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(),currentFile.getName().split("\\.")[0]);
 					// tabbedPane.setToolTipTextAt(tabbedPane.getSelectedIndex(),currentFile.getPath());

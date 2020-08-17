@@ -20,18 +20,16 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import com.etheller.warsmash.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimationViewer;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
-import com.hiveworkshop.wc3.mdx.MdxModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.resources.WEString;
-
-import de.wc3data.stream.BlizzardDataInputStream;
 
 public class ModelOptionPanel extends JPanel {
 
@@ -1115,8 +1113,8 @@ public class ModelOptionPanel extends JPanel {
 						filepath = filepath.concat(".mdx");
 					}
 					final InputStream modelStream = MpqCodebase.get().getResourceAsStream(filepath);
-					final MdxModel model = MdxUtils.loadModel(new BlizzardDataInputStream(modelStream));
-					toLoad = model.toMDL();// MDL.read(modelStream);
+					final MdlxModel model = MdxUtils.loadModel(modelStream);
+					toLoad = new EditableModel(model);
 					modelDisp = new ModelViewManager(toLoad);
 				} catch (final Exception exc) {
 					exc.printStackTrace();
@@ -1155,8 +1153,8 @@ public class ModelOptionPanel extends JPanel {
 						filepath = filepath.concat(".mdx");
 					}
 					final InputStream modelStream = MpqCodebase.get().getResourceAsStream(filepath);
-					final MdxModel model = MdxUtils.loadModel(new BlizzardDataInputStream(modelStream));
-					toLoad = model.toMDL();// MDL.read(modelStream);
+					final MdlxModel model = MdxUtils.loadModel(modelStream);
+					toLoad = new EditableModel(model);
 					modelDisp = new ModelViewManager(toLoad);
 					cachedIconPath = null;
 				} catch (final Exception exc) {

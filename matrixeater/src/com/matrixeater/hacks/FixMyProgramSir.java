@@ -4,13 +4,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 
-import com.hiveworkshop.wc3.mdx.LayerChunk;
-import com.hiveworkshop.wc3.mdx.MaterialChunk;
-import com.hiveworkshop.wc3.mdx.MdxModel;
+import com.etheller.warsmash.parsers.mdlx.MdlxLayer;
+import com.etheller.warsmash.parsers.mdlx.MdlxMaterial;
+import com.etheller.warsmash.parsers.mdlx.MdlxModel;
+
 import com.hiveworkshop.wc3.mdx.MdxUtils;
-
-import de.wc3data.stream.BlizzardDataInputStream;
 
 public class FixMyProgramSir {
 	public static void main(final String[] args) {
@@ -24,13 +24,12 @@ public class FixMyProgramSir {
 				traverse(subFile);
 			}
 		} else if (file.getName().toLowerCase().endsWith(".mdx")) {
-			try (BlizzardDataInputStream is = new BlizzardDataInputStream(new FileInputStream(file))) {
-				final MdxModel loadModel = MdxUtils.loadModel(is);
+			try (InputStream is = new FileInputStream(file)) {
+				final MdlxModel loadModel = MdxUtils.loadModel(is);
 				int materialId = 0;
-				if (loadModel.materialChunk != null) {
-					for (final MaterialChunk.Material mat : loadModel.materialChunk.material) {
-						int layerId = 0;
-						for (final LayerChunk.Layer lay : mat.layerChunk.layer) {
+				for (final MdlxMaterial mat : loadModel.materials) {
+					int layerId = 0;
+					for (final MdlxLayer lay : mat.layers) {
 //							if (lay.mdx1000UnknownData != null) {
 //								if ((lay.mdx1000UnknownData[0] != 1.0f) || (lay.mdx1000UnknownData[1] != 1.0f)
 //										|| (lay.mdx1000UnknownData[2] != 1.0f) || (lay.mdx1000UnknownData[3] != 0.0f)
@@ -42,10 +41,9 @@ public class FixMyProgramSir {
 //									System.exit(0);
 //								}
 //							}
-							layerId++;
-						}
-						materialId++;
+						layerId++;
 					}
+					materialId++;
 				}
 			} catch (final FileNotFoundException e) {
 				// TODO Auto-generated catch block

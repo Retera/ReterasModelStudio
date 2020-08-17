@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.jworldedit.models;
 import java.awt.Dimension;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -102,9 +103,8 @@ public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSel
 			} else if (!filepath.endsWith(".mdx")) {
 				filepath = filepath.concat(".mdx");
 			}
-			try (BlizzardDataInputStream reader = new BlizzardDataInputStream(
-					MpqCodebase.get().getResourceAsStream(filepath))) {
-				mdl = MdxUtils.loadModel(reader).toMDL();
+			try (InputStream reader = MpqCodebase.get().getResourceAsStream(filepath)) {
+				mdl = new EditableModel(MdxUtils.loadModel(reader));
 				modelDisp = new ModelViewManager(mdl);
 				modelPanel.setViewport(modelDisp);
 				modelPanel.setTitle(currentUnit.getName());

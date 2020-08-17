@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
@@ -26,6 +27,7 @@ import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.modeledit.ImportPanel;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.EditableModel;
+import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.user.SaveProfile;
 import com.matrixeater.src.MainFrame;
 import com.matrixeater.src.MainPanel;
@@ -112,11 +114,13 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 				"Opens the traditional MatrixEater Import window responsible for this Simple Import, so that you can micro-manage particular settings before finishing the operation.");
 
 		final GroupLayout layout = new GroupLayout(this);
-		layout.setHorizontalGroup(
-				layout.createSequentialGroup().addGap(12)
-						.addGroup(
-								layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-										.addGroup(layout.createParallelGroup().addGroup(layout.createSequentialGroup()
+		layout.setHorizontalGroup(layout.createSequentialGroup().addGap(12).addGroup(layout
+				.createParallelGroup(
+						GroupLayout.Alignment.CENTER)
+				.addGroup(
+						layout.createParallelGroup()
+								.addGroup(
+										layout.createSequentialGroup()
 												.addGroup(layout.createParallelGroup().addComponent(baseFileLabel)
 														.addComponent(animFileLabel).addComponent(outFileLabel))
 												.addGap(16)
@@ -125,18 +129,14 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 												.addGap(16)
 												.addGroup(layout.createParallelGroup().addComponent(baseBrowse)
 														.addComponent(animBrowse).addComponent(outBrowse)))
-												.addGroup(layout.createSequentialGroup().addComponent(transSingleLabel)
-														.addComponent(transferSingleAnimation)))
-										.addGroup(layout.createSequentialGroup().addGap(48)
-												.addGroup(layout.createParallelGroup().addComponent(pickAnimLabel)
-														.addComponent(visFromLabel))
-												.addGap(16)
-												.addGroup(layout.createParallelGroup().addComponent(pickAnimBox)
-														.addComponent(visFromBox)))
-										.addGroup(layout.createSequentialGroup().addComponent(transfer)
-												.addComponent(done))
-										.addComponent(goAdvanced))
-						.addGap(12));
+								.addGroup(layout.createSequentialGroup().addComponent(transSingleLabel).addComponent(
+										transferSingleAnimation)))
+				.addGroup(layout.createSequentialGroup().addGap(48)
+						.addGroup(layout.createParallelGroup().addComponent(pickAnimLabel).addComponent(visFromLabel))
+						.addGap(16)
+						.addGroup(layout.createParallelGroup().addComponent(pickAnimBox).addComponent(visFromBox)))
+				.addGroup(layout.createSequentialGroup().addComponent(transfer).addComponent(done))
+				.addComponent(goAdvanced)).addGap(12));
 		layout.setVerticalGroup(layout.createSequentialGroup().addGap(12)
 				.addGroup(layout.createSequentialGroup()
 						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(baseFileLabel)
@@ -160,30 +160,30 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 		setLayout(layout);
 	}
 
-	public void refreshModels() {
+	public void refreshModels() throws IOException {
 		if (baseFileInput.getText().length() > 0) {
 			if (sourceFile == null || sourceFile.getFile() == null
 					|| !baseFileInput.getText().equals(sourceFile.getFile().getPath())) {
-				sourceFile = EditableModel.read(new File(baseFileInput.getText()));
+				sourceFile = MdxUtils.loadEditableModel(new File(baseFileInput.getText()));
 			}
 		}
 		if (animFileInput.getText().length() > 0) {
 			if (animFile == null || animFile.getFile() == null
 					|| !animFileInput.getText().equals(animFile.getFile().getPath())) {
-				animFile = EditableModel.read(new File(animFileInput.getText()));
+				animFile = MdxUtils.loadEditableModel(new File(animFileInput.getText()));
 			}
 		}
 	}
 
-	public void forceRefreshModels() {
+	public void forceRefreshModels() throws IOException {
 		// if( (sourceFile == null && !baseFileInput.getText().equals("")) ||
 		// !baseFileInput.getText().equals(sourceFile.getFile().getPath()) ) {
-		sourceFile = EditableModel.read(new File(baseFileInput.getText()));
+		sourceFile = MdxUtils.loadEditableModel(new File(baseFileInput.getText()));
 		// JOptionPane.showMessageDialog(null,"Reloaded base model");
 		// }
 		// if( (animFile == null && !animFileInput.getText().equals("")) ||
 		// !animFileInput.getText().equals(animFile.getFile().getPath()) ) {
-		animFile = EditableModel.read(new File(animFileInput.getText()));
+		animFile = MdxUtils.loadEditableModel(new File(animFileInput.getText()));
 		// JOptionPane.showMessageDialog(null,"Reloaded anim model");
 		// }
 		updateBoxes();
@@ -248,7 +248,12 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 					filepath += ".mdl";
 				}
 				baseFileInput.setText(filepath);
-				refreshModels();
+				try {
+					refreshModels();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				updateBoxes();
 			}
 		} else if (e.getSource() == animBrowse) {
@@ -261,7 +266,12 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 					filepath += ".mdl";
 				}
 				animFileInput.setText(filepath);
-				refreshModels();
+				try {
+					refreshModels();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				updateBoxes();
 			}
 		} else if (e.getSource() == outBrowse) {
@@ -320,18 +330,28 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 			// });
 			// watcher.start();
 			// }
-			doTransfer(false);
+			try {
+				doTransfer(false);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		} else if (e.getSource() == goAdvanced) {
-			doTransfer(true);
+			try {
+				doTransfer(true);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		} else if (e.getSource() == done) {
 			parentFrame.setVisible(false);
 			parentFrame.dispose();
 		}
 	}
 
-	public void doTransfer(final boolean show) {
-		final EditableModel sourceFile = EditableModel.read(new File(baseFileInput.getText()));
-		final EditableModel animFile = EditableModel.read(new File(animFileInput.getText()));
+	public void doTransfer(final boolean show) throws IOException {
+		final EditableModel sourceFile = MdxUtils.loadEditableModel(new File(baseFileInput.getText()));
+		final EditableModel animFile = MdxUtils.loadEditableModel(new File(animFileInput.getText()));
 
 		if (!transferSingleAnimation.isSelected()) {
 			final ImportPanel importPanel = new ImportPanel(sourceFile, animFile, show);
@@ -381,7 +401,12 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 							if (!filepath.toLowerCase().endsWith(".mdl") && !filepath.toLowerCase().endsWith(".mdx")) {
 								filepath += ".mdl";
 							}
-							sourceFile.printTo(new File(filepath));
+							try {
+								MdxUtils.saveEditableModel(sourceFile, new File(filepath));
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
 							JOptionPane.showMessageDialog(null, "Animation transfer done!");
 						}
 					}
@@ -437,8 +462,15 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 						// transfer 99% done!");
 
 						if (importPanel.importSuccessful()) {
-							final ImportPanel importPanel2 = new ImportPanel(sourceFile, EditableModel.read(sourceFile.getFile()),
-									show);
+							ImportPanel importPanel2;
+							try {
+								importPanel2 = new ImportPanel(sourceFile,
+										MdxUtils.loadEditableModel(sourceFile.getFile()), show);
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+								return;
+							}
 							importPanel2.animTransferPartTwo(transferSingleAnimation.isSelected(),
 									pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()),
 									visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
@@ -483,7 +515,12 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 
 								if (importPanel2.importSuccessful()) {
 									JOptionPane.showMessageDialog(null, "Animation transfer done!");
-									sourceFile.printTo(new File(outFileInput.getText()));
+									try {
+										MdxUtils.saveEditableModel(sourceFile, new File(outFileInput.getText()));
+									} catch (IOException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
 
 									// forceRefreshModels();
 								}

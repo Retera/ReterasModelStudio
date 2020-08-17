@@ -1,12 +1,6 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.io.BufferedReader;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-
-import javax.swing.JOptionPane;
-
-import com.hiveworkshop.wc3.mdx.TextureChunk;
+import com.etheller.warsmash.parsers.mdlx.MdlxTexture;
 
 /**
  * A class to represent MDL texture references. (Not materials)
@@ -15,7 +9,7 @@ import com.hiveworkshop.wc3.mdx.TextureChunk;
  */
 public class Bitmap {
 	private String imagePath = "";
-	private int replaceableId = -1;
+	private int replaceableId = 0;
 	private int wrapStyle;// 0 = nothing, 1 = WrapWidth, 2 = WrapHeight, 3 =
 							// both
 
@@ -61,14 +55,22 @@ public class Bitmap {
 		wrapStyle = other.wrapStyle;
 	}
 
-	public Bitmap(final TextureChunk.Texture tex) {
-		this(tex.fileName, tex.replaceableId);
-		if ((replaceableId == 0) && !imagePath.equals("")) {
-			replaceableId = -1; // nice and tidy it up for the MDL code
-		}
-		setWrapStyle(tex.flags);
+	public Bitmap(final MdlxTexture texture) {
+		imagePath = texture.path;
+		replaceableId = texture.replaceableId;
+		setWrapStyle(texture.flags);
 	}
 
+	public MdlxTexture toMdlx() {
+		MdlxTexture texture = new MdlxTexture();
+
+		texture.path = imagePath;
+		texture.replaceableId = replaceableId;
+		texture.flags = wrapStyle;
+
+		return texture;
+	}
+	
 	public Bitmap(final String imagePath) {
 		this.imagePath = imagePath;
 	}
@@ -115,19 +117,6 @@ public class Bitmap {
 		return true;
 	}
 
-	// @Override
-	// public boolean equals(Object o)
-	// {
-	// if( !(o instanceof Bitmap ) )
-	// {
-	// return false;
-	// }
-	// Bitmap b = (Bitmap)o;
-	// boolean does = imagePath.equals(b.imagePath)
-	// && replaceableId == b.replaceableId
-	// && wrapStyle == b.wrapStyle;
-	// return does;
-	// }
 	public boolean isWrapHeight() {
 		return (wrapStyle == 2) || (wrapStyle == 3);
 	}
@@ -174,79 +163,6 @@ public class Bitmap {
 
 	public void setWrapStyle(final int wrapStyle) {
 		this.wrapStyle = wrapStyle;
-	}
-
-	public static Bitmap read(final BufferedReader mdl) {
-		String line = "";
-		if ((line = MDLReader.nextLine(mdl)).contains("Bitmap")) {
-			final Bitmap tex = new Bitmap();
-			while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
-				if (line.contains("Image")) {
-					tex.imagePath = line.split("\"")[1];
-				} else if (line.contains("ReplaceableId ")) {
-					tex.replaceableId = MDLReader.readInt(line);
-				} else if (line.contains("WrapWidth")) {
-					tex.setWrapWidth(true);
-				} else if (line.contains("WrapHeight")) {
-					tex.setWrapHeight(true);
-				} else {
-					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-							"Error parsing Bitmap: Unrecognized statement '" + line + "'.");
-				}
-			}
-			return tex;
-		} else {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse Bitmap: Missing or unrecognized open statement.");
-		}
-		return null;
-	}
-
-	public static ArrayList<Bitmap> readAll(final BufferedReader mdl) {
-		String line = "";
-		final ArrayList<Bitmap> outputs = new ArrayList<>();
-		MDLReader.mark(mdl);
-		if ((line = MDLReader.nextLine(mdl)).contains("Textures")) {
-			MDLReader.mark(mdl);
-			while (!(line = MDLReader.nextLine(mdl)).startsWith("}")) {
-				MDLReader.reset(mdl);
-				outputs.add(read(mdl));
-				MDLReader.mark(mdl);
-			}
-			return outputs;
-		} else {
-			MDLReader.reset(mdl);
-			// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Unable
-			// to parse Textures: Missing or unrecognized open statement.");
-		}
-		return outputs;
-	}
-
-	public void printTo(final PrintWriter writer, final int tabHeight) {
-		String tabs = "";
-		for (int i = 0; i < tabHeight; i++) {
-			tabs = tabs + "\t";
-		}
-		writer.println(tabs + "Bitmap {");
-		writer.println(tabs + "\tImage \"" + imagePath + "\",");
-		if (replaceableId != -1) {
-			writer.println(tabs + "\tReplaceableId " + replaceableId + ",");
-		}
-		switch (wrapStyle) {
-		case 0:
-			break;
-		case 1:
-			writer.println(tabs + "\tWrapWidth,");
-			break;
-		case 2:
-			writer.println(tabs + "\tWrapHeight,");
-			break;
-		case 3:
-			writer.println(tabs + "\tWrapWidth,");
-			writer.println(tabs + "\tWrapHeight,");
-			break;
-		}
-		writer.println(tabs + "}");
 	}
 
 	public void setPath(final String imagePath) {

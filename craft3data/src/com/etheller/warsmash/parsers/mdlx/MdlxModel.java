@@ -10,8 +10,8 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.etheller.warsmash.parsers.mdlx.mdl.GhostwolfTokenInputStream;
-import com.etheller.warsmash.parsers.mdlx.mdl.GhostwolfTokenOutputStream;
+import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
+import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
 import com.etheller.warsmash.util.ParseUtils;
 import com.google.common.io.LittleEndianDataInputStream;
@@ -48,12 +48,16 @@ public class MdlxModel {
 	private static final int PIVT = ('P' << 24) | ('I' << 16) | ('V' << 8) | ('T');// War3ID.fromString("PIVT").getValue();
 	private static final int PREM = ('P' << 24) | ('R' << 16) | ('E' << 8) | ('M');// War3ID.fromString("PREM").getValue();
 	private static final int PRE2 = ('P' << 24) | ('R' << 16) | ('E' << 8) | ('2');// War3ID.fromString("PRE2").getValue();
+	private static final int CORN = ('C' << 24) | ('O' << 16) | ('R' << 8) | ('N');// War3ID.fromString("CORN").getValue();
 	private static final int RIBB = ('R' << 24) | ('I' << 16) | ('B' << 8) | ('B');// War3ID.fromString("RIBB").getValue();
 	private static final int CAMS = ('C' << 24) | ('A' << 16) | ('M' << 8) | ('S');// War3ID.fromString("CAMS").getValue();
 	private static final int EVTS = ('E' << 24) | ('V' << 16) | ('T' << 8) | ('S');// War3ID.fromString("EVTS").getValue();
 	private static final int CLID = ('C' << 24) | ('L' << 16) | ('I' << 8) | ('D');// War3ID.fromString("CLID").getValue();
-	private int version = 800;
-	private String name = "";
+	private static final int FAFX = ('F' << 24) | ('A' << 16) | ('F' << 8) | ('X');// War3ID.fromString("FAFX").getValue();
+	private static final int BPOS = ('B' << 24) | ('P' << 16) | ('O' << 8) | ('S');// War3ID.fromString("BPOS").getValue();
+	
+	public int version = 800;
+	public String name = "";
 	/**
 	 * (Comment copied from Ghostwolf JS) To the best of my knowledge, this should
 	 * always be left empty. This is probably a leftover from the Warcraft 3 beta.
@@ -62,36 +66,57 @@ public class MdlxModel {
 	 *
 	 * @member {string}
 	 */
-	private String animationFile = "";
-	private final Extent extent = new Extent();
-	private long blendTime = 0;
-	private final List<Sequence> sequences = new ArrayList<Sequence>();
-	private final List<Long /* UInt32 */> globalSequences = new ArrayList<>();
-	private final List<Material> materials = new ArrayList<>();
-	private final List<Texture> textures = new ArrayList<>();
-	private final List<TextureAnimation> textureAnimations = new ArrayList<>();
-	private final List<Geoset> geosets = new ArrayList<>();
-	private final List<GeosetAnimation> geosetAnimations = new ArrayList<>();
-	private final List<Bone> bones = new ArrayList<>();
-	private final List<Light> lights = new ArrayList<>();
-	private final List<Helper> helpers = new ArrayList<>();
-	private final List<Attachment> attachments = new ArrayList<>();
-	private final List<float[]> pivotPoints = new ArrayList<>();
-	private final List<ParticleEmitter> particleEmitters = new ArrayList<>();
-	private final List<ParticleEmitter2> particleEmitters2 = new ArrayList<>();
-	private final List<RibbonEmitter> ribbonEmitters = new ArrayList<>();
-	private final List<Camera> cameras = new ArrayList<>();
-	private final List<EventObject> eventObjects = new ArrayList<>();
-	private final List<CollisionShape> collisionShapes = new ArrayList<>();
-	private final List<UnknownChunk> unknownChunks = new ArrayList<>();
+	public String animationFile = "";
+	public MdlxExtent extent = new MdlxExtent();
+	public long blendTime = 0;
+	public List<MdlxSequence> sequences = new ArrayList<MdlxSequence>();
+	public List<Long /* UInt32 */> globalSequences = new ArrayList<>();
+	public List<MdlxMaterial> materials = new ArrayList<>();
+	public List<MdlxTexture> textures = new ArrayList<>();
+	public List<MdlxTextureAnimation> textureAnimations = new ArrayList<>();
+	public List<MdlxGeoset> geosets = new ArrayList<>();
+	public List<MdlxGeosetAnimation> geosetAnimations = new ArrayList<>();
+	public List<MdlxBone> bones = new ArrayList<>();
+	public List<MdlxLight> lights = new ArrayList<>();
+	public List<MdlxHelper> helpers = new ArrayList<>();
+	public List<MdlxAttachment> attachments = new ArrayList<>();
+	public List<float[]> pivotPoints = new ArrayList<>();
+	public List<MdlxParticleEmitter> particleEmitters = new ArrayList<>();
+	public List<MdlxParticleEmitter2> particleEmitters2 = new ArrayList<>();
+	public List<MdlxParticleEmitterPopcorn> particleEmittersPopcorn = new ArrayList<>();
+	public List<MdlxRibbonEmitter> ribbonEmitters = new ArrayList<>();
+	public List<MdlxCamera> cameras = new ArrayList<>();
+	public List<MdlxEventObject> eventObjects = new ArrayList<>();
+	public List<MdlxCollisionShape> collisionShapes = new ArrayList<>();
+	/**
+	 * @since 900
+	 */
+	public String faceEffectTarget = "";
+	/**
+	 * @since 900
+	 */
+	public String faceEffect = "";
+	/**
+	 * @since 900
+	 */
+	public List<float[]> bindPose = new ArrayList<>();
+	public List<MdlxUnknownChunk> unknownChunks = new ArrayList<>();
+
+	public MdlxModel() {
+
+	}
 
 	public MdlxModel(final InputStream buffer) throws IOException {
-		if (buffer != null) {
-			// In ghostwolf JS, this function called load()
-			// which decided whether the buffer was an MDL.
-			loadMdx(buffer);
-		}
+		loadMdx(buffer);
 	}
+
+	// public MdlxModel(final InputStream buffer) throws IOException {
+	// 	if (buffer != null) {
+	// 		// In ghostwolf JS, this function called load()
+	// 		// which decided whether the buffer was an MDL.
+	// 		loadMdx(buffer);
+	// 	}
+	// }
 
 	public void loadMdx(final InputStream buffer) throws IOException {
 		final LittleEndianDataInputStream stream = new LittleEndianDataInputStream(buffer);
@@ -152,6 +177,9 @@ public class MdlxModel {
 			case PRE2:
 				loadDynamicObjects(this.particleEmitters2, MdlxBlockDescriptor.PARTICLE_EMITTER2, stream, size);
 				break;
+			case CORN:
+				loadDynamicObjects(this.particleEmittersPopcorn, MdlxBlockDescriptor.PARTICLE_EMITTER_POPCORN, stream, size);
+				break;
 			case RIBB:
 				loadDynamicObjects(this.ribbonEmitters, MdlxBlockDescriptor.RIBBON_EMITTER, stream, size);
 				break;
@@ -164,11 +192,16 @@ public class MdlxModel {
 			case CLID:
 				loadDynamicObjects(this.collisionShapes, MdlxBlockDescriptor.COLLISION_SHAPE, stream, size);
 				break;
+			case FAFX:
+				loadFaceEffectChunk(stream);
+				break;
+			case BPOS:
+				loadBindPoseChunk(stream, size);
+				break;
 			default:
-				this.unknownChunks.add(new UnknownChunk(stream, size, new War3ID(tag)));
+				this.unknownChunks.add(new MdlxUnknownChunk(stream, size, new War3ID(tag)));
 			}
 		}
-
 	}
 
 	private void loadVersionChunk(final LittleEndianDataInputStream stream) throws IOException {
@@ -194,7 +227,7 @@ public class MdlxModel {
 		for (int i = 0; i < count; i++) {
 			final E object = constructor.create();
 
-			object.readMdx(stream);
+			object.readMdx(stream, version);
 
 			out.add(object);
 		}
@@ -206,16 +239,16 @@ public class MdlxModel {
 		}
 	}
 
-	private <E extends MdlxBlock & Chunk> void loadDynamicObjects(final List<E> out,
+	private <E extends MdlxBlock & MdlxChunk> void loadDynamicObjects(final List<E> out,
 			final MdlxBlockDescriptor<E> constructor, final LittleEndianDataInputStream stream, final long size)
 			throws IOException {
 		long totalSize = 0;
 		while (totalSize < size) {
 			final E object = constructor.create();
 
-			object.readMdx(stream);
+			object.readMdx(stream, version);
 
-			totalSize += object.getByteLength();
+			totalSize += object.getByteLength(version);
 
 			out.add(object);
 		}
@@ -224,6 +257,17 @@ public class MdlxModel {
 	private void loadPivotPointChunk(final LittleEndianDataInputStream stream, final long size) throws IOException {
 		for (long i = 0, l = size / 12; i < l; i++) {
 			this.pivotPoints.add(ParseUtils.readFloatArray(stream, 3));
+		}
+	}
+
+	private void loadFaceEffectChunk(final LittleEndianDataInputStream stream) throws IOException {
+		faceEffectTarget = ParseUtils.readString(stream, NAME_BYTES_HEAP);
+		faceEffect = ParseUtils.readString(stream, ANIMATION_FILE_BYTES_HEAP);
+	}
+
+	private void loadBindPoseChunk(final LittleEndianDataInputStream stream, final long size) throws IOException {
+		for (int i = 0, l = stream.readInt(); i < l; i++) {
+			bindPose.add(ParseUtils.readFloatArray(stream, 12));
 		}
 	}
 
@@ -246,13 +290,23 @@ public class MdlxModel {
 		this.savePivotPointChunk(stream);
 		this.saveDynamicObjectChunk(stream, PREM, this.particleEmitters);
 		this.saveDynamicObjectChunk(stream, PRE2, this.particleEmitters2);
+
+		if (version > 800) {
+			this.saveDynamicObjectChunk(stream, CORN, this.particleEmittersPopcorn);
+		}
+
 		this.saveDynamicObjectChunk(stream, RIBB, this.ribbonEmitters);
 		this.saveDynamicObjectChunk(stream, CAMS, this.cameras);
 		this.saveDynamicObjectChunk(stream, EVTS, this.eventObjects);
 		this.saveDynamicObjectChunk(stream, CLID, this.collisionShapes);
 
-		for (final UnknownChunk chunk : this.unknownChunks) {
-			chunk.writeMdx(stream);
+		if (version > 800) {
+			saveFaceEffectChunk(stream);
+			saveBindPoseChunk(stream);
+		}
+
+		for (final MdlxUnknownChunk chunk : this.unknownChunks) {
+			chunk.writeMdx(stream, version);
 		}
 	}
 
@@ -286,7 +340,7 @@ public class MdlxModel {
 			ParseUtils.writeUInt32(stream, objects.size() * size);
 
 			for (final E object : objects) {
-				object.writeMdx(stream);
+				object.writeMdx(stream, version);
 			}
 		}
 	}
@@ -302,14 +356,14 @@ public class MdlxModel {
 		}
 	}
 
-	private <E extends MdlxBlock & Chunk> void saveDynamicObjectChunk(final LittleEndianDataOutputStream stream,
+	private <E extends MdlxBlock & MdlxChunk> void saveDynamicObjectChunk(final LittleEndianDataOutputStream stream,
 			final int name, final List<E> objects) throws IOException {
 		if (!objects.isEmpty()) {
 			stream.writeInt(Integer.reverseBytes(name));
 			ParseUtils.writeUInt32(stream, getObjectsByteLength(objects));
 
 			for (final E object : objects) {
-				object.writeMdx(stream);
+				object.writeMdx(stream, version);
 			}
 		}
 	}
@@ -325,6 +379,29 @@ public class MdlxModel {
 		}
 	}
 
+	private void saveFaceEffectChunk(final LittleEndianDataOutputStream stream) throws IOException {
+		if (faceEffectTarget.length() > 0 || faceEffect.length() > 0) {
+			stream.writeInt(Integer.reverseBytes(FAFX));
+			ParseUtils.writeUInt32(stream, 340);
+			ParseUtils.writeString(stream, faceEffectTarget, 80);
+			ParseUtils.writeString(stream, faceEffect, 260);
+		}
+	}
+
+
+	private void saveBindPoseChunk(final LittleEndianDataOutputStream stream) throws IOException {
+		if (bindPose.size() > 0) {
+			stream.writeInt(Integer.reverseBytes(BPOS));
+			ParseUtils.writeUInt32(stream, 4 + bindPose.size() * 48);
+			ParseUtils.writeUInt32(stream, bindPose.size());
+
+			for (final float[] matrix : bindPose) {
+				ParseUtils.writeFloatArray(stream, matrix);
+			}
+		}
+	}
+
+
 	public void loadMdl(final InputStream inputStream) throws IOException {
 		// TODO change this to use LibGDX StreamUtils once LibGDX is on the classpath
 		// again!
@@ -334,7 +411,7 @@ public class MdlxModel {
 
 	public void loadMdl(final ByteBuffer inputStream) throws IOException {
 		String token;
-		final MdlTokenInputStream stream = new GhostwolfTokenInputStream(inputStream);
+		final MdlTokenInputStream stream = new MdlTokenInputStream(inputStream);
 
 		while ((token = stream.read()) != null) {
 			switch (token) {
@@ -388,6 +465,9 @@ public class MdlxModel {
 			case MdlUtils.TOKEN_PARTICLE_EMITTER2:
 				this.loadObject(this.particleEmitters2, MdlxBlockDescriptor.PARTICLE_EMITTER2, stream);
 				break;
+			case "ParticleEmitterPopcorn":
+				this.loadObject(this.particleEmittersPopcorn, MdlxBlockDescriptor.PARTICLE_EMITTER_POPCORN, stream);
+				break;
 			case MdlUtils.TOKEN_RIBBON_EMITTER:
 				this.loadObject(this.ribbonEmitters, MdlxBlockDescriptor.RIBBON_EMITTER, stream);
 				break;
@@ -399,6 +479,12 @@ public class MdlxModel {
 				break;
 			case MdlUtils.TOKEN_COLLISION_SHAPE:
 				this.loadObject(this.collisionShapes, MdlxBlockDescriptor.COLLISION_SHAPE, stream);
+				break;
+			case "FaceFX":
+				loadFaceEffectBlock(stream);
+				break;
+			case "BindPose":
+				loadBindPoseBlock(stream);
 				break;
 			default:
 				throw new IllegalStateException("Unsupported block: " + token);
@@ -467,7 +553,7 @@ public class MdlxModel {
 			if (token.equals(name)) {
 				final E object = constructor.create();
 
-				object.readMdl(stream);
+				object.readMdl(stream, version);
 
 				out.add(object);
 			} else {
@@ -492,7 +578,7 @@ public class MdlxModel {
 			final MdlTokenInputStream stream) throws IOException {
 		final E object = descriptor.create();
 
-		object.readMdl(stream);
+		object.readMdl(stream, version);
 
 		out.add(object);
 	}
@@ -509,9 +595,39 @@ public class MdlxModel {
 		stream.read(); // }
 	}
 
+	private void loadFaceEffectBlock(MdlTokenInputStream stream) {
+		this.faceEffectTarget = stream.read();
+	
+		for (final String token : stream.readBlock()) {
+			if (token.equals("Path")) {
+				this.faceEffect = stream.read();
+			} else {
+				throw new IllegalStateException("Unknown token in GlobalSequences: " + token);
+			}
+		}
+	  }
+	
+	private void loadBindPoseBlock(MdlTokenInputStream stream) {
+		for (final String token : stream.readBlock()) {
+			if (token.equals("Matrices")) {
+				final int matrices = stream.readInt();
+
+				stream.read(); // {
+
+				for (int i = 0; i < matrices; i++) {
+					bindPose.add(stream.readFloatArray(new float[12]));
+				}
+
+				stream.read(); // }
+			} else {
+				throw new IllegalStateException("Unknown token in BindPose: " + token);
+			}
+		}
+	}
+
 	public void saveMdl(final OutputStream outputStream) throws IOException {
 		try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream))) {
-			final MdlTokenOutputStream stream = new GhostwolfTokenOutputStream(writer);
+			final MdlTokenOutputStream stream = new MdlTokenOutputStream(writer);
 			this.saveVersionBlock(stream);
 			this.saveModelBlock(stream);
 			this.saveStaticObjectsBlock(stream, MdlUtils.TOKEN_SEQUENCES, this.sequences);
@@ -528,10 +644,20 @@ public class MdlxModel {
 			this.savePivotPointBlock(stream);
 			this.saveObjects(stream, this.particleEmitters);
 			this.saveObjects(stream, this.particleEmitters2);
+
+			if (version > 800) {
+				saveObjects(stream, particleEmittersPopcorn);
+			}
+
 			this.saveObjects(stream, this.ribbonEmitters);
 			this.saveObjects(stream, this.cameras);
 			this.saveObjects(stream, this.eventObjects);
 			this.saveObjects(stream, this.collisionShapes);
+
+			if (version > 800) {
+				saveFaceEffectBlock(stream);
+				saveBindPoseBlock(stream);
+			}
 		}
 	}
 
@@ -554,7 +680,7 @@ public class MdlxModel {
 			stream.startBlock(name, objects.size());
 
 			for (final MdlxBlock object : objects) {
-				object.writeMdl(stream);
+				object.writeMdl(stream, version);
 			}
 
 			stream.endBlock();
@@ -576,7 +702,7 @@ public class MdlxModel {
 	private void saveObjects(final MdlTokenOutputStream stream, final List<? extends MdlxBlock> objects)
 			throws IOException {
 		for (final MdlxBlock object : objects) {
-			object.writeMdl(stream);
+			object.writeMdl(stream, version);
 		}
 	}
 
@@ -587,6 +713,32 @@ public class MdlxModel {
 			for (final float[] pivotPoint : this.pivotPoints) {
 				stream.writeFloatArray(pivotPoint);
 			}
+
+			stream.endBlock();
+		}
+	}
+
+	private void saveFaceEffectBlock(final MdlTokenOutputStream stream) {
+		if (faceEffectTarget.length() > 0 && faceEffect.length() > 0) {
+			stream.startObjectBlock("FaceFX", faceEffectTarget);
+
+			stream.writeStringAttrib("Path", faceEffect);
+
+			stream.endBlock();
+		}
+	}
+
+	private void saveBindPoseBlock(final MdlTokenOutputStream stream) {
+		if (!bindPose.isEmpty()) {
+			stream.startBlock("BindPose");
+
+			stream.startBlock("Matrices", bindPose.size());
+
+			for (final float[] matrix : bindPose) {
+				stream.writeFloatArray(matrix);
+			}
+
+			stream.endBlock();
 
 			stream.endBlock();
 		}
@@ -609,24 +761,34 @@ public class MdlxModel {
 		size += this.getStaticObjectsChunkByteLength(this.pivotPoints, 12);
 		size += this.getDynamicObjectsChunkByteLength(this.particleEmitters);
 		size += this.getDynamicObjectsChunkByteLength(this.particleEmitters2);
+
+		if (version > 800) {
+			size += this.getDynamicObjectsChunkByteLength(this.particleEmittersPopcorn);
+		}
+
 		size += this.getDynamicObjectsChunkByteLength(this.ribbonEmitters);
 		size += this.getDynamicObjectsChunkByteLength(this.cameras);
 		size += this.getDynamicObjectsChunkByteLength(this.eventObjects);
 		size += this.getDynamicObjectsChunkByteLength(this.collisionShapes);
 		size += this.getObjectsByteLength(this.unknownChunks);
 
+		if (version > 800) {
+			size += this.getFaceEffectChunkByteLength();
+			size += this.getBindPoseChunkByteLength();
+		}
+
 		return size;
 	}
 
-	private <E extends Chunk> long getObjectsByteLength(final List<E> objects) {
+	private <E extends MdlxChunk> long getObjectsByteLength(final List<E> objects) {
 		long size = 0;
 		for (final E object : objects) {
-			size += object.getByteLength();
+			size += object.getByteLength(version);
 		}
 		return size;
 	}
 
-	private <E extends Chunk> long getDynamicObjectsChunkByteLength(final List<E> objects) {
+	private <E extends MdlxChunk> long getDynamicObjectsChunkByteLength(final List<E> objects) {
 		if (!objects.isEmpty()) {
 			return 8 + this.getObjectsByteLength(objects);
 		}
@@ -642,100 +804,20 @@ public class MdlxModel {
 		return 0;
 	}
 
-	public List<Long> getGlobalSequences() {
-		return this.globalSequences;
+	private long getFaceEffectChunkByteLength() {
+		if (faceEffectTarget.length() > 0 || faceEffect.length() > 0) {
+			return 348;
+		}
+	
+		return 0;
 	}
-
-	public List<Sequence> getSequences() {
-		return this.sequences;
-	}
-
-	public List<float[]> getPivotPoints() {
-		return this.pivotPoints;
-	}
-
-	public int getVersion() {
-		return this.version;
-	}
-
-	public String getName() {
-		return this.name;
-	}
-
-	public String getAnimationFile() {
-		return this.animationFile;
-	}
-
-	public Extent getExtent() {
-		return this.extent;
-	}
-
-	public long getBlendTime() {
-		return this.blendTime;
-	}
-
-	public List<Material> getMaterials() {
-		return this.materials;
-	}
-
-	public List<Texture> getTextures() {
-		return this.textures;
-	}
-
-	public List<TextureAnimation> getTextureAnimations() {
-		return this.textureAnimations;
-	}
-
-	public List<Geoset> getGeosets() {
-		return this.geosets;
-	}
-
-	public List<GeosetAnimation> getGeosetAnimations() {
-		return this.geosetAnimations;
-	}
-
-	public List<Bone> getBones() {
-		return this.bones;
-	}
-
-	public List<Light> getLights() {
-		return this.lights;
-	}
-
-	public List<Helper> getHelpers() {
-		return this.helpers;
-	}
-
-	public List<Attachment> getAttachments() {
-		return this.attachments;
-	}
-
-	public List<ParticleEmitter> getParticleEmitters() {
-		return this.particleEmitters;
-	}
-
-	public List<ParticleEmitter2> getParticleEmitters2() {
-		return this.particleEmitters2;
-	}
-
-	public List<RibbonEmitter> getRibbonEmitters() {
-		return this.ribbonEmitters;
-	}
-
-	public List<Camera> getCameras() {
-		return this.cameras;
-	}
-
-	public List<EventObject> getEventObjects() {
-		return this.eventObjects;
-	}
-
-	public List<CollisionShape> getCollisionShapes() {
-		return this.collisionShapes;
-	}
-
-	public List<UnknownChunk> getUnknownChunks() {
-		return this.unknownChunks;
+	
+	private long getBindPoseChunkByteLength() {
+		if (bindPose.size() > 0) {
+		  	return 12 + bindPose.size() * 48;
+		}
+	
+		return 0;
 	}
 
 	private static final class PortedFromLibGDXStreamUtils {

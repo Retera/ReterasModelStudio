@@ -33,6 +33,7 @@ import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
+import com.hiveworkshop.wc3.mdx.MdxUtils;
 
 public class ViewportTransferHandler extends TransferHandler {
 
@@ -54,7 +55,7 @@ public class ViewportTransferHandler extends TransferHandler {
 		// Fetch the data -- bail if this fails
 		try {
 			data = (String) info.getTransferable().getTransferData(DataFlavor.stringFlavor);
-			pastedModel = EditableModel.read(new ByteArrayInputStream(data.getBytes()));
+			pastedModel = MdxUtils.loadEditableModel(new ByteArrayInputStream(data.getBytes()));
 		} catch (final UnsupportedFlavorException ufe) {
 			System.out.println("importData: unsupported data flavor");
 			return false;
@@ -174,7 +175,12 @@ public class ViewportTransferHandler extends TransferHandler {
 		}
 		dummyBone.setPivotPoint(Vertex.centerOfGroup(verticesInNewMesh));
 		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		stringableModel.printTo(outputStream);
+		try {
+			MdxUtils.saveEditableModel(stringableModel, outputStream);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		final byte[] byteArray = outputStream.toByteArray();
 		final String value = new String(byteArray);
 		return new StringSelection(value);

@@ -16,14 +16,18 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -98,6 +102,7 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector4f;
 
+import com.etheller.warsmash.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.GlobalIcons;
@@ -185,7 +190,6 @@ import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewStateListener;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
-import com.hiveworkshop.wc3.mdx.MdxModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.resources.Resources;
@@ -2699,8 +2703,15 @@ public class MainPanel extends JPanel
 					particleItem.addActionListener(new ActionListener() {
 						@Override
 						public void actionPerformed(final ActionEvent e) {
-							final ParticleEmitter2 particle = EditableModel.read(file)
-									.sortedIdObjects(ParticleEmitter2.class).get(0);
+							ParticleEmitter2 particle;
+							try {
+								particle = MdxUtils.loadEditableModel(file).sortedIdObjects(ParticleEmitter2.class)
+										.get(0);
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+								return;
+							}
 
 							final JPanel particlePanel = new JPanel();
 							final List<IdObject> idObjects = new ArrayList<>(currentMDL().getIdObjects());
@@ -3062,7 +3073,12 @@ public class MainPanel extends JPanel
 						if (!selectedFile.getPath().toLowerCase().endsWith(".mdx")) {
 							selectedFile = new File(selectedFile.getPath() + ".mdx");
 						}
-						snapshotModel.printTo(selectedFile);
+						try {
+							MdxUtils.saveEditableModel(snapshotModel, selectedFile);
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 					}
 				}
 
@@ -4139,7 +4155,7 @@ public class MainPanel extends JPanel
 
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
 					currentFile = fc.getSelectedFile();
-					final EditableModel geoSource = EditableModel.read(currentFile);
+					final EditableModel geoSource = MdxUtils.loadEditableModel(currentFile);
 					profile.setPath(currentFile.getParent());
 					boolean going = true;
 					Geoset host = null;
@@ -4493,7 +4509,7 @@ public class MainPanel extends JPanel
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
 					currentFile = fc.getSelectedFile();
 					profile.setPath(currentFile.getParent());
-					final EditableModel animationSourceModel = EditableModel.read(currentFile);
+					final EditableModel animationSourceModel = MdxUtils.loadEditableModel(currentFile);
 					addSingleAnimation(current, animationSourceModel);
 				}
 
@@ -4509,7 +4525,7 @@ public class MainPanel extends JPanel
 				final String filepath = convertPathToMDX(fetchResult.getField("file"));
 				final EditableModel current = currentMDL();
 				if (filepath != null) {
-					final EditableModel animationSource = EditableModel.read(MpqCodebase.get().getFile(filepath));
+					final EditableModel animationSource = MdxUtils.loadEditableModel(MpqCodebase.get().getFile(filepath));
 					addSingleAnimation(current, animationSource);
 				}
 			} else if (e.getSource() == animFromModel) {
@@ -4521,7 +4537,7 @@ public class MainPanel extends JPanel
 				final String filepath = convertPathToMDX(fetchResult.getFilepath());
 				final EditableModel current = currentMDL();
 				if (filepath != null) {
-					final EditableModel animationSource = EditableModel.read(MpqCodebase.get().getFile(filepath));
+					final EditableModel animationSource = MdxUtils.loadEditableModel(MpqCodebase.get().getFile(filepath));
 					addSingleAnimation(current, animationSource);
 				}
 			} else if (e.getSource() == animFromObject) {
@@ -4533,7 +4549,7 @@ public class MainPanel extends JPanel
 				final String filepath = convertPathToMDX(fetchResult.getFieldAsString(UnitFields.MODEL_FILE, 0));
 				final EditableModel current = currentMDL();
 				if (filepath != null) {
-					final EditableModel animationSource = EditableModel.read(MpqCodebase.get().getFile(filepath));
+					final EditableModel animationSource = MdxUtils.loadEditableModel(MpqCodebase.get().getFile(filepath));
 					addSingleAnimation(current, animationSource);
 				}
 			} else if (e.getSource() == creditsButton) {
@@ -4662,17 +4678,24 @@ public class MainPanel extends JPanel
 						}
 					}
 					profile.setPath(currentFile.getParent());
+
+					
+					MdlxModel mdlx = currentMDL().toMdlx();
+					FileOutputStream stream = new FileOutputStream(currentFile);
+
 					if (ext.equals(".mdl")) {
-						currentMDL().printTo(currentFile);
+						//currentMDL().printTo(currentFile);
+						mdlx.saveMdl(stream);
 					} else {
-						final MdxModel model = new MdxModel(currentMDL());
-						try (BlizzardDataOutputStream writer = new BlizzardDataOutputStream(currentFile)) {
-							model.save(writer);
-						} catch (final FileNotFoundException e1) {
-							e1.printStackTrace();
-						} catch (final IOException e1) {
-							e1.printStackTrace();
-						}
+						// final MdxModel model = new MdxModel(currentMDL());
+						// try (BlizzardDataOutputStream writer = new BlizzardDataOutputStream(currentFile)) {
+						// 	model.save(writer);
+						// } catch (final FileNotFoundException e1) {
+						// 	e1.printStackTrace();
+						// } catch (final IOException e1) {
+						// 	e1.printStackTrace();
+						// }
+						mdlx.saveMdx(stream);
 					}
 					currentMDL().setFileRef(currentFile);
 					// currentMDLDisp().resetBeenSaved();
@@ -4696,7 +4719,7 @@ public class MainPanel extends JPanel
 	private void onClickSave() {
 		try {
 			if (currentMDL() != null) {
-				currentMDL().saveFile();
+				MdxUtils.saveEditableModel(currentMDL(), currentMDL().getFile());
 				profile.setPath(currentMDL().getFile().getParent());
 				// currentMDLDisp().resetBeenSaved();
 				// TODO reset been saved
@@ -5302,9 +5325,17 @@ public class MainPanel extends JPanel
 			return;
 		}
 		ModelPanel temp = null;
-		if (f.getPath().toLowerCase().endsWith("mdx")) {
-			try (BlizzardDataInputStream in = new BlizzardDataInputStream(new FileInputStream(f))) {
-				final EditableModel model = new EditableModel(MdxUtils.loadModel(in));
+		if (f.getPath().toLowerCase().endsWith("mdx") || f.getPath().toLowerCase().endsWith("mdl")) {
+			try {
+				final MdlxModel mdlx = new MdlxModel();
+
+				if (f.getPath().toLowerCase().endsWith("mdx")) {
+					mdlx.loadMdx(new FileInputStream(f));
+				} else {
+					mdlx.loadMdl(new FileInputStream(f));
+				}
+
+				final EditableModel model = new EditableModel(mdlx);
 				model.setFileRef(f);
 				temp = new ModelPanel(this, model, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
 						modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
@@ -5335,11 +5366,6 @@ public class MainPanel extends JPanel
 				ExceptionPopup.display(e);
 				e.printStackTrace();
 			}
-		} else {
-			temp = new ModelPanel(this, EditableModel.read(f), prefs, MainPanel.this, selectionItemTypeGroup,
-					selectionModeGroup, modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
-					activeViewportWatcher, icon, false, textureExporter);
-			temp.setFile(f);
 		}
 		loadModel(temporary, selectNewTab, temp);
 	}
@@ -5347,8 +5373,8 @@ public class MainPanel extends JPanel
 	public void loadStreamMdx(final InputStream f, final boolean temporary, final boolean selectNewTab,
 			final ImageIcon icon) {
 		ModelPanel temp = null;
-		try (BlizzardDataInputStream in = new BlizzardDataInputStream(f)) {
-			final EditableModel model = new EditableModel(MdxUtils.loadModel(in));
+		try {
+			final EditableModel model = new EditableModel(MdxUtils.loadModel(f));
 			model.setFileRef(null);
 			temp = new ModelPanel(this, model, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
 					modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, activeViewportWatcher,
@@ -5588,10 +5614,10 @@ public class MainPanel extends JPanel
 		loadFile(currentFile);
 	}
 
-	public void importFile(final File f) {
+	public void importFile(final File f) throws IOException {
 		final EditableModel currentModel = currentMDL();
 		if (currentModel != null) {
-			importFile(EditableModel.read(f));
+			importFile(MdxUtils.loadEditableModel(f));
 		}
 	}
 
@@ -5704,7 +5730,12 @@ public class MainPanel extends JPanel
 						}
 
 						if (importPanel.importSuccessful()) {
-							newModel.saveFile();
+							try {
+								MdxUtils.saveEditableModel(newModel, newModel.getFile());
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
 							loadFile(newModel.getFile());
 						}
 					}
@@ -6021,7 +6052,12 @@ public class MainPanel extends JPanel
 	@Override
 	public void save(final EditableModel model) {
 		if (model.getFile() != null) {
-			model.saveFile();
+			try {
+				MdxUtils.saveEditableModel(model, model.getFile());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} else {
 			onClickSaveAs(model);
 		}

@@ -1,6 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,10 +9,12 @@ import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
+import com.etheller.warsmash.parsers.mdlx.MdlxGenericObject;
+
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
+
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
-import com.hiveworkshop.wc3.mdx.Node;
 
 /**
  * Write a description of class ObjectId here.
@@ -21,7 +22,7 @@ import com.hiveworkshop.wc3.mdx.Node;
  * @author (your name)
  * @version (a version number or a date)
  */
-public abstract class IdObject extends AbstractAnimatedNode implements Named {
+public abstract class IdObject extends AnimatedNode implements Named {
 	public static final int DEFAULT_CLICK_RADIUS = 8;
 
 	public static enum NodeFlags {
@@ -93,8 +94,6 @@ public abstract class IdObject extends AbstractAnimatedNode implements Named {
 		parentId = host.parentId;
 		setParent(host.parent);
 	}
-
-	public abstract void printTo(PrintWriter writer);
 
 	public void setPivotPoint(final Vertex p) {
 		pivotPoint = p;
@@ -169,8 +168,6 @@ public abstract class IdObject extends AbstractAnimatedNode implements Named {
 		return false;
 	}
 
-	public abstract void flipOver(byte axis);
-
 	/**
 	 *
 	 *
@@ -210,29 +207,50 @@ public abstract class IdObject extends AbstractAnimatedNode implements Named {
 		this.parentId = parentId;
 	}
 
-	protected void loadFrom(final Node node) {
-		// ----- Convert Base NODE to "IDOBJECT" -----
-		name = node.name;
-		parentId = node.parentId;
-		objectId = node.objectId;
+	public void loadObject(final MdlxGenericObject object) {
+		name = object.name;
+		objectId = object.objectId;
+		parentId = object.parentId;
+
+		int flags = object.flags;
 		int shift = 0;
 		for (final IdObject.NodeFlags flag : IdObject.NodeFlags.values()) {
-			if (((node.flags >>> shift) & 1) == 1) {
+			if (((flags >>> shift) & 1) == 1) {
 				add(flag.getMdlText());
 			}
+
 			shift++;
 		}
-		// translations next
-		if (node.geosetTranslation != null) {
-			add(new AnimFlag(node.geosetTranslation));
+
+		loadTimelines(object);
+	}
+
+	public void objectToMdlx(final MdlxGenericObject object) {
+		object.name = getName();
+		object.objectId = getObjectId();
+		object.parentId = getParentId();
+		
+		for (final String flag : getFlags()) {
+			if (flag.equals("BillboardedLockZ")) {
+				object.flags |= 0x40;
+			} else if (flag.equals("BillboardedLockY")) {
+				object.flags |= 0x20;
+			} else if (flag.equals("BillboardedLockX")) {
+				object.flags |= 0x10;
+			} else if (flag.equals("Billboarded")) {
+				object.flags |= 0x8;
+			} else if (flag.equals("CameraAnchored")) {
+				object.flags |= 0x80;
+			} else if (flag.equals("DontInherit { Rotation }")) {
+				object.flags |= 0x2;
+			} else if (flag.equals("DontInherit { Translation }")) {
+				object.flags |= 0x1;
+			} else if (flag.equals("DontInherit { Scaling }")) {
+				object.flags |= 0x4;
+			}
 		}
-		if (node.geosetScaling != null) {
-			add(new AnimFlag(node.geosetScaling));
-		}
-		if (node.geosetRotation != null) {
-			add(new AnimFlag(node.geosetRotation));
-		}
-		// ----- End Base NODE to "IDOBJECT" -----
+
+		timelinesToMdlx(object);
 	}
 
 	@Override
@@ -245,33 +263,18 @@ public abstract class IdObject extends AbstractAnimatedNode implements Named {
 		return parent;
 	}
 
-	@Override
-	public abstract void add(AnimFlag af);
-
-	public abstract void add(String flag);
-
-	public abstract List<String> getFlags();
-
-	@Override
-	public abstract List<AnimFlag> getAnimFlags();
-
 	public abstract void apply(IdObjectVisitor visitor);
 
-	@Override
-	public abstract float getRenderVisibility(AnimatedRenderEnvironment animatedRenderEnvironment);
+	public Vertex getRenderTranslation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		return getInterpolatedVector(animatedRenderEnvironment, "Translation", null);
+	}
 
-	@Override
-	public abstract Vertex getRenderTranslation(AnimatedRenderEnvironment animatedRenderEnvironment);
+	public QuaternionRotation getRenderRotation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		return getInterpolatedQuat(animatedRenderEnvironment, "Rotation", null);
+	}
 
-	@Override
-	public abstract QuaternionRotation getRenderRotation(AnimatedRenderEnvironment animatedRenderEnvironment);
-
-	@Override
-	public abstract Vertex getRenderScale(AnimatedRenderEnvironment animatedRenderEnvironment);
-
-	@Override
-	public void remove(final AnimFlag af) {
-		getAnimFlags().remove(af);
+	public Vertex getRenderScale(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		return getInterpolatedVector(animatedRenderEnvironment, "Scaling", null);
 	}
 
 	@Override

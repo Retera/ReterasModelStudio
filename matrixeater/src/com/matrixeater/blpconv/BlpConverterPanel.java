@@ -230,8 +230,7 @@ public class BlpConverterPanel extends JPanel {
 					if (object.toLowerCase().endsWith("mdx")) {
 						cardLayout.show(leftHandCardPanel, "model");
 						modelViewport.setViewport(new ModelViewManager(
-								MdxUtils.loadModel(new BlizzardDataInputStream(mpqCodebase.getResourceAsStream(object)))
-										.toMDL()));
+							new EditableModel(MdxUtils.loadModel(mpqCodebase.getResourceAsStream(object)))));
 					} else {
 						cardLayout.show(leftHandCardPanel, "tex");
 						converterPanel.setCurrentImage(BlpFile.read(object, mpqCodebase.getResourceAsStream(object)));

@@ -58,10 +58,9 @@ public class FtlopMaker4 {
 						try {
 							final File outputFile = new File(outputDump + item);
 							outputFile.getParentFile().mkdirs();
-							final EditableModel model = new EditableModel(MdxUtils.loadModel(
-									new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream(item))));
+							final EditableModel model = new EditableModel(MdxUtils.loadModel(MpqCodebase.get().getResourceAsStream(item)));
 							EditableModel.convertToV800(targetLevelOfDetail, model);
-							model.printTo(outputFile);
+							MdxUtils.saveEditableModel(model, outputFile);
 						} catch (final Exception e) {
 							e.printStackTrace();
 						}

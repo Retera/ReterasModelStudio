@@ -1,16 +1,14 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.io.BufferedReader;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.JOptionPane;
+import com.etheller.warsmash.parsers.mdlx.MdlxCamera;
 
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
+
 import com.hiveworkshop.wc3.mdl.IdObject.NodeFlags;
-import com.hiveworkshop.wc3.mdx.CameraChunk;
 
 /**
  * Camera class, these are the things most people would think of as a particle
@@ -20,7 +18,7 @@ import com.hiveworkshop.wc3.mdx.CameraChunk;
  *
  * Eric Theller 3/10/2012 3:32 PM
  */
-public class Camera implements Named {
+public class Camera extends TimelineContainer implements Named {
 	String name;
 
 	Vertex Position;
@@ -28,8 +26,6 @@ public class Camera implements Named {
 	double FieldOfView;
 	double FarClip;
 	double NearClip;
-
-	ArrayList<AnimFlag> animFlags = new ArrayList<>();
 
 	Vertex targetPosition;
 	ArrayList<AnimFlag> targetAnimFlags = new ArrayList<>();
@@ -49,22 +45,30 @@ public class Camera implements Named {
 
 	}
 
-	public Camera(final CameraChunk.Camera mdxSource) {
-		this.name = mdxSource.name;
-		Position = new Vertex(mdxSource.position);
-		FieldOfView = mdxSource.fieldOfView;
-		FarClip = mdxSource.farClippingPlane;
-		NearClip = mdxSource.nearClippingPlane;
-		targetPosition = new Vertex(mdxSource.targetPosition);
-		if (mdxSource.cameraPositionTranslation != null) {
-			add(new AnimFlag(mdxSource.cameraPositionTranslation));
-		}
-		if (mdxSource.cameraTargetTranslation != null) {
-			targetAnimFlags.add(new AnimFlag(mdxSource.cameraTargetTranslation));
-		}
-		if (mdxSource.cameraRotation != null) {
-			add(new AnimFlag(mdxSource.cameraRotation));
-		}
+	public Camera(final MdlxCamera camera) {
+		name = camera.name;
+		Position = new Vertex(camera.position);
+		FieldOfView = camera.fieldOfView;
+		FarClip = camera.farClippingPlane;
+		NearClip = camera.nearClippingPlane;
+		targetPosition = new Vertex(camera.targetPosition);
+
+		loadTimelines(camera);
+	}
+
+	public MdlxCamera toMdlx() {
+		MdlxCamera camera = new MdlxCamera();
+
+		camera.name = getName();
+		camera.position = getPosition().toFloatArray();
+		camera.fieldOfView = (float)getFieldOfView();
+		camera.farClippingPlane = (float)getFarClip();
+		camera.nearClippingPlane = (float)getNearClip();
+		camera.targetPosition = getTargetPosition().toFloatArray();
+
+		timelinesToMdlx(camera);
+
+		return camera;
 	}
 
 	public void setName(final String text) {
@@ -74,91 +78,6 @@ public class Camera implements Named {
 	@Override
 	public String getName() {
 		return name;
-	}
-
-	public static Camera read(final BufferedReader mdl) {
-		String line = MDLReader.nextLine(mdl);
-		if (line.contains("Camera")) {
-			final Camera c = new Camera();
-			c.setName(MDLReader.readName(line));
-			MDLReader.mark(mdl);
-			line = MDLReader.nextLine(mdl);
-			while ((!line.contains("}") || line.contains("},") || line.contains("\t}"))
-					&& !line.equals("COMPLETED PARSING")) {
-				if (line.contains("Position")) {
-					c.Position = Vertex.parseText(line);
-				} else if (line.contains("Rotation") || line.contains("Translation")) {
-					MDLReader.reset(mdl);
-					c.animFlags.add(AnimFlag.read(mdl));
-				} else if (line.contains("FieldOfView")) {
-					c.FieldOfView = MDLReader.readDouble(line);
-				} else if (line.contains("FarClip")) {
-					c.FarClip = MDLReader.readDouble(line);
-				} else if (line.contains("NearClip")) {
-					c.NearClip = MDLReader.readDouble(line);
-				} else if (line.contains("Target")) {
-					MDLReader.mark(mdl);
-					line = MDLReader.nextLine(mdl);
-					while (!line.startsWith("\t}")) {
-						if (line.contains("Position")) {
-							c.targetPosition = Vertex.parseText(line);
-						} else if (line.contains("Translation")) {
-							MDLReader.reset(mdl);
-							c.targetAnimFlags.add(AnimFlag.read(mdl));
-						} else {
-							JOptionPane.showMessageDialog(null, "Camera target did not recognize data at: " + line
-									+ "\nThis is probably not a major issue?");
-						}
-						MDLReader.mark(mdl);
-						line = MDLReader.nextLine(mdl);
-					}
-				} else {
-					JOptionPane.showMessageDialog(null,
-							"Camera did not recognize data at: " + line + "\nThis is probably not a major issue?");
-				}
-
-				MDLReader.mark(mdl);
-				line = MDLReader.nextLine(mdl);
-			}
-			return c;
-		} else {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse Camera: Missing or unrecognized open statement.");
-		}
-		return null;
-	}
-
-	public void printTo(final PrintWriter writer) {
-		// Remember to update the ids of things before using this
-		// -- uses objectId value of idObject superclass
-		// -- uses parentId value of idObject superclass
-		// -- uses the parent (java Object reference) of idObject superclass
-		writer.println(MDLReader.getClassName(this.getClass()) + " \"" + getName() + "\" {");
-		writer.println("\tPosition " + Position.toString() + ",");
-		for (int i = 0; i < animFlags.size(); i++) {
-			if (animFlags.get(i).getName().equals("Translation")) {
-				animFlags.get(i).printTo(writer, 1);
-			}
-		}
-		for (int i = 0; i < animFlags.size(); i++) {
-			if (animFlags.get(i).getName().equals("Rotation")) {
-				animFlags.get(i).printTo(writer, 1);
-			}
-		}
-		writer.println("\tFieldOfView " + MDLReader.doubleToString(FieldOfView) + ",");
-		writer.println("\tFarClip " + MDLReader.doubleToString(FarClip) + ",");
-		writer.println("\tNearClip " + MDLReader.doubleToString(NearClip) + ",");
-		writer.println("\tTarget {");
-		writer.println("\t\tPosition " + targetPosition.toString() + ",");
-		for (int i = 0; i < targetAnimFlags.size(); i++) {
-			targetAnimFlags.get(i).printTo(writer, 2);
-		}
-		writer.println("\t}");
-		writer.println("}");
-	}
-
-	public void add(final AnimFlag af) {
-		animFlags.add(af);
 	}
 
 	public Vertex getPosition() {
@@ -193,14 +112,6 @@ public class Camera implements Named {
 		NearClip = nearClip;
 	}
 
-	public ArrayList<AnimFlag> getAnimFlags() {
-		return animFlags;
-	}
-
-	public void setAnimFlags(final ArrayList<AnimFlag> animFlags) {
-		this.animFlags = animFlags;
-	}
-
 	public Vertex getTargetPosition() {
 		return targetPosition;
 	}
@@ -217,11 +128,7 @@ public class Camera implements Named {
 		this.targetAnimFlags = targetAnimFlags;
 	}
 
-	public void remove(final AnimFlag timeline) {
-		animFlags.remove(timeline);
-	}
-
-	public static final class SourceNode extends AbstractAnimatedNode {
+	public static final class SourceNode extends AnimatedNode {
 		private final Camera parent;
 		private static final QuaternionRotation rotationHeap = new QuaternionRotation(0, 0, 0, 1);
 		private final Vertex axisHeap = new Vertex(0, 0, 0);
@@ -327,7 +234,7 @@ public class Camera implements Named {
 		}
 	}
 
-	public static final class TargetNode extends AbstractAnimatedNode {
+	public static final class TargetNode extends AnimatedNode {
 		private final Camera parent;
 
 		private TargetNode(final Camera parent) {

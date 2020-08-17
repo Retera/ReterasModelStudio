@@ -22,6 +22,24 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import com.etheller.warsmash.parsers.mdlx.MdlxAttachment;
+import com.etheller.warsmash.parsers.mdlx.MdlxBone;
+import com.etheller.warsmash.parsers.mdlx.MdlxCamera;
+import com.etheller.warsmash.parsers.mdlx.MdlxCollisionShape;
+import com.etheller.warsmash.parsers.mdlx.MdlxEventObject;
+import com.etheller.warsmash.parsers.mdlx.MdlxGeoset;
+import com.etheller.warsmash.parsers.mdlx.MdlxGeosetAnimation;
+import com.etheller.warsmash.parsers.mdlx.MdlxHelper;
+import com.etheller.warsmash.parsers.mdlx.MdlxLight;
+import com.etheller.warsmash.parsers.mdlx.MdlxMaterial;
+import com.etheller.warsmash.parsers.mdlx.MdlxModel;
+import com.etheller.warsmash.parsers.mdlx.MdlxParticleEmitter;
+import com.etheller.warsmash.parsers.mdlx.MdlxParticleEmitter2;
+import com.etheller.warsmash.parsers.mdlx.MdlxParticleEmitterPopcorn;
+import com.etheller.warsmash.parsers.mdlx.MdlxRibbonEmitter;
+import com.etheller.warsmash.parsers.mdlx.MdlxSequence;
+import com.etheller.warsmash.parsers.mdlx.MdlxTexture;
+import com.etheller.warsmash.parsers.mdlx.MdlxTextureAnimation;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.datachooser.CompoundDataSource;
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
@@ -32,34 +50,12 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.MeshVisitor;
 import com.hiveworkshop.wc3.mdl.v2.visitor.ModelVisitor;
 import com.hiveworkshop.wc3.mdl.v2.visitor.TriangleVisitor;
 import com.hiveworkshop.wc3.mdl.v2.visitor.VertexVisitor;
-import com.hiveworkshop.wc3.mdx.AttachmentChunk;
-import com.hiveworkshop.wc3.mdx.BindPoseChunk;
-import com.hiveworkshop.wc3.mdx.BoneChunk;
-import com.hiveworkshop.wc3.mdx.CameraChunk;
-import com.hiveworkshop.wc3.mdx.CollisionShapeChunk;
-import com.hiveworkshop.wc3.mdx.CornChunk;
-import com.hiveworkshop.wc3.mdx.EventObjectChunk;
-import com.hiveworkshop.wc3.mdx.FaceEffectsChunk;
-import com.hiveworkshop.wc3.mdx.FaceEffectsChunk.FaceEffect;
-import com.hiveworkshop.wc3.mdx.GeosetAnimationChunk;
-import com.hiveworkshop.wc3.mdx.GeosetChunk;
-import com.hiveworkshop.wc3.mdx.HelperChunk;
-import com.hiveworkshop.wc3.mdx.LightChunk;
-import com.hiveworkshop.wc3.mdx.MaterialChunk;
-import com.hiveworkshop.wc3.mdx.MdxModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
-import com.hiveworkshop.wc3.mdx.ParticleEmitter2Chunk;
-import com.hiveworkshop.wc3.mdx.ParticleEmitterChunk;
-import com.hiveworkshop.wc3.mdx.RibbonEmitterChunk;
-import com.hiveworkshop.wc3.mdx.SequenceChunk.Sequence;
-import com.hiveworkshop.wc3.mdx.TextureAnimationChunk.TextureAnimation;
-import com.hiveworkshop.wc3.mdx.TextureChunk.Texture;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.util.MathUtils;
 import com.hiveworkshop.wc3.util.ModelUtils;
 import com.hiveworkshop.wc3.util.ModelUtils.Mesh;
 
-import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
 
 /**
@@ -102,8 +98,8 @@ public class EditableModel implements Named {
 	private boolean loading;
 	private boolean temporary;
 
-	private final List<FaceEffectsChunk.FaceEffect> faceEffects = new ArrayList<>();
-	private BindPoseChunk bindPoseChunk;
+	private final List<FaceEffect> faceEffects = new ArrayList<>();
+	private BindPose bindPoseChunk;
 
 	private DataSource wrappedDataSource = MpqCodebase.get();
 
@@ -191,9 +187,11 @@ public class EditableModel implements Named {
 		final File temp;
 		try {
 			final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-			what.printTo(byteArrayOutputStream);
+
+			what.toMdlx().saveMdx(byteArrayOutputStream);
+
 			try (ByteArrayInputStream bais = new ByteArrayInputStream(byteArrayOutputStream.toByteArray())) {
-				final EditableModel newModel = EditableModel.read(bais);
+				final EditableModel newModel = new EditableModel(new MdlxModel((InputStream)bais));
 				newModel.setName(newName);
 				newModel.setFileRef(what.getFile());
 				return newModel;
@@ -203,30 +201,6 @@ public class EditableModel implements Named {
 			e.printStackTrace();
 			ExceptionPopup.display(e);
 		}
-		// Write some legit deep clone code later
-
-		// MDL newModel = new MDL(what);
-		//
-		// newModel.m_anims.clear();
-		// for( Animation anim: what.m_anims )
-		// {
-		// newModel.add(new Animation(anim));
-		// }
-		// newModel.m_textures.clear();
-		// for( Bitmap tex: what.m_textures )
-		// {
-		// newModel.add(new Bitmap(tex));
-		// }
-		// newModel.m_materials.clear();
-		// for(Material mat: what.m_materials)
-		// {
-		// newModel.add(new Material(mat));
-		// }
-		// m_geosets = new ArrayList(other.m_geosets);
-		// m_geosetanims = new ArrayList(other.m_geosetanims);
-		// m_idobjects = new ArrayList(other.m_idobjects);
-		// m_pivots = new ArrayList(other.m_pivots);
-		// m_cameras = new ArrayList(other.m_cameras);
 
 		return null;
 	}
@@ -284,64 +258,50 @@ public class EditableModel implements Named {
 		return (flags & mask) != 0;
 	}
 
-	public EditableModel(final MdxModel mdx) {
+	public EditableModel(final MdlxModel model) {
 		this();
+
 		// Step 1: Convert the Model Chunk
 		// For MDL api, this is currently embedded right inside the
 		// MDL class
-		setName(mdx.modelChunk.name);
-		addToHeader("//This model was converted from MDX by ogre-lord's Java MDX API and Retera's Java MDL API");
-		setBlendTime(mdx.modelChunk.blendTime);
-		setExtents(new ExtLog(mdx.modelChunk.minimumExtent, mdx.modelChunk.maximumExtent, mdx.modelChunk.boundsRadius));
-		setFormatVersion(mdx.versionChunk.version);
+		setFormatVersion(model.version);
+		setName(model.name);
+		setBlendTime((int)model.blendTime);
+		setExtents(new ExtLog(model.extent));
 
 		// Step 2: Convert the Sequences
-		if (mdx.sequenceChunk != null) {
-			for (final Sequence seq : mdx.sequenceChunk.sequence) {
-				add(new Animation(seq));
-			}
+		for (final MdlxSequence sequence : model.sequences) {
+			add(new Animation(sequence));
 		}
 
 		// Step 3: Convert any global sequences
-		if (mdx.globalSequenceChunk != null) {
-			for (int i = 0; i < mdx.globalSequenceChunk.globalSequences.length; i++) {
-				add(new Integer(mdx.globalSequenceChunk.globalSequences[i]));
-			}
+		for (final long sequence : model.globalSequences) {
+			add(Integer.valueOf((int)sequence));
 		}
 
 		// Step 4: Convert Texture refs
-		if (mdx.textureChunk != null) {
-			for (final Texture tex : mdx.textureChunk.texture) {
-				add(new Bitmap(tex));
-			}
+		for (final MdlxTexture texture : model.textures) {
+			add(new Bitmap(texture));
 		}
 
 		// Step 6: Convert TVertexAnims
-		if (mdx.textureAnimationChunk != null) {
-			for (final TextureAnimation txa : mdx.textureAnimationChunk.textureAnimation) {
-				add(new TextureAnim(txa));
-			}
+		for (final MdlxTextureAnimation animation : model.textureAnimations) {
+			add(new TextureAnim(animation));
 		}
 
 		// Step 5: Convert Material refs
-		if (mdx.materialChunk != null) {
-			for (final MaterialChunk.Material mat : mdx.materialChunk.material) {
-				add(new Material(mat, this));
-			}
+		for (final MdlxMaterial material : model.materials) {
+			add(new Material(material, this));
 		}
-
+		
 		// Step 7: Geoset
-		if (mdx.geosetChunk != null) {
-			for (final GeosetChunk.Geoset mdxGeo : mdx.geosetChunk.geoset) {
-				add(new Geoset(mdxGeo));
-			}
+		for (final MdlxGeoset geoset : model.geosets) {
+			add(new Geoset(geoset));
 		}
 
 		// Step 8: GeosetAnims
-		if (mdx.geosetAnimationChunk != null) {
-			for (final GeosetAnimationChunk.GeosetAnimation geosetAnim : mdx.geosetAnimationChunk.geosetAnimation) {
-				add(new GeosetAnim(geosetAnim));
-			}
+		for (final MdlxGeosetAnimation animation : model.geosetAnimations) {
+			add(new GeosetAnim(animation));
 		}
 
 		// Step 9:
@@ -349,150 +309,197 @@ public class EditableModel implements Named {
 		// (nodes)
 
 		// Bones
-		if (mdx.boneChunk != null) {
-			for (final BoneChunk.Bone bone : mdx.boneChunk.bone) {
-				add(new Bone(bone));
-			}
+		for (final MdlxBone bone : model.bones) {
+			add(new Bone(bone));
 		}
+		
 		// Lights
-		if (mdx.lightChunk != null) {
-			for (final LightChunk.Light light : mdx.lightChunk.light) {
-				add(new Light(light));
-			}
+		for (final MdlxLight light : model.lights) {
+			add(new Light(light));
 		}
+
 		// Helpers
-		if (mdx.helperChunk != null) {
-			for (final HelperChunk.Helper helper : mdx.helperChunk.helper) {
-				add(new Helper(helper));
-			}
+		for (final MdlxHelper helper : model.helpers) {
+			add(new Helper(helper));
 		}
+
 		// Attachment
-		if (mdx.attachmentChunk != null) {
-			for (final AttachmentChunk.Attachment attachment : mdx.attachmentChunk.attachment) {
-				add(new Attachment(attachment));
-			}
+		for (final MdlxAttachment attachment : model.attachments) {
+			add(new Attachment(attachment));
 		}
+
 		// ParticleEmitter (number 1 kind)
-		if (mdx.particleEmitterChunk != null) {
-			for (final ParticleEmitterChunk.ParticleEmitter emitter : mdx.particleEmitterChunk.particleEmitter) {
-				add(new ParticleEmitter(emitter));
-			}
+		for (final MdlxParticleEmitter emitter : model.particleEmitters) {
+			add(new ParticleEmitter(emitter));
 		}
+
 		// ParticleEmitter2
-		if (mdx.particleEmitter2Chunk != null) {
-			for (final ParticleEmitter2Chunk.ParticleEmitter2 emitter : mdx.particleEmitter2Chunk.particleEmitter2) {
-				add(new ParticleEmitter2(emitter));
-			}
+		for (final MdlxParticleEmitter2 emitter : model.particleEmitters2) {
+			add(new ParticleEmitter2(emitter));
 		}
+
 		// PopcornFxEmitter
-		if (mdx.cornChunk != null) {
-			for (final CornChunk.ParticleEmitterPopcorn emitter : mdx.cornChunk.corns) {
-				add(new ParticleEmitterPopcorn(emitter));
-			}
+		for (final MdlxParticleEmitterPopcorn emitter : model.particleEmittersPopcorn) {
+			add(new ParticleEmitterPopcorn(emitter));
 		}
+
 		// RibbonEmitter
-		if (mdx.ribbonEmitterChunk != null) {
-			for (final RibbonEmitterChunk.RibbonEmitter emitter : mdx.ribbonEmitterChunk.ribbonEmitter) {
-				add(new RibbonEmitter(emitter));
-			}
+		for (final MdlxRibbonEmitter emitter : model.ribbonEmitters) {
+			add(new RibbonEmitter(emitter));
 		}
+
 		// EventObject
-		if (mdx.eventObjectChunk != null) {
-			for (final EventObjectChunk.EventObject evtobj : mdx.eventObjectChunk.eventObject) {
-				final EventObject mdlEvtObj = new EventObject(evtobj);
-				add(mdlEvtObj);
-			}
+		for (final MdlxEventObject object : model.eventObjects) {
+			add(new EventObject(object));
 		}
+
 		boolean corruptedCameraWarningGiven = false;
-		// Camera
-		if (mdx.cameraChunk != null) {
-			for (final CameraChunk.Camera cam : mdx.cameraChunk.camera) {
-				final Camera mdlCam = new Camera(cam);
-				if (!corruptedCameraWarningGiven && (mdlCam.getName().contains("????????")
-						|| (mdlCam.getName().length() > 20) || (mdlCam.getName().length() <= 0))) {
-					corruptedCameraWarningGiven = true;
-					JOptionPane.showMessageDialog(null, "--- " + this.getName()
-							+ " ---\nWARNING: Java Warcraft Libraries thinks we are loading a camera with corrupted data due to bug in Native MDX Parser.\nPlease DISABLE \"View > Use Native MDX Parser\" if you want to correctly edit \""
-							+ getName()
-							+ "\".\nYou may continue to work, but portions of the model's data have been lost, and will be missing if you save.",
-							"Warning", JOptionPane.WARNING_MESSAGE);
-				}
-				add(mdlCam);
+		for (final MdlxCamera camera : model.cameras) {
+			final Camera mdlCam = new Camera(camera);
+
+			if (!corruptedCameraWarningGiven && (mdlCam.getName().contains("????????")
+					|| (mdlCam.getName().length() > 20) || (mdlCam.getName().length() <= 0))) {
+				corruptedCameraWarningGiven = true;
+				JOptionPane.showMessageDialog(null, "--- " + this.getName()
+						+ " ---\nWARNING: Java Warcraft Libraries thinks we are loading a camera with corrupted data due to bug in Native MDX Parser.\nPlease DISABLE \"View > Use Native MDX Parser\" if you want to correctly edit \""
+						+ getName()
+						+ "\".\nYou may continue to work, but portions of the model's data have been lost, and will be missing if you save.",
+						"Warning", JOptionPane.WARNING_MESSAGE);
 			}
+
+			add(mdlCam);
 		}
+
 		// CollisionShape
-		if (mdx.collisionShapeChunk != null) {
-			for (final CollisionShapeChunk.CollisionShape collision : mdx.collisionShapeChunk.collisionShape) {
-				final CollisionShape mdlCollision = new CollisionShape(collision);
-				add(mdlCollision);
-			}
+		for (final MdlxCollisionShape shape : model.collisionShapes) {
+			add(new CollisionShape(shape));
 		}
 
-		if (mdx.pivotPointChunk != null) {
-			for (int objId = 0; objId < (mdx.pivotPointChunk.pivotPoints.length / 3); objId++) {
-				addPivotPoint(new Vertex(mdx.pivotPointChunk.pivotPoints[(objId * 3) + 0],
-						mdx.pivotPointChunk.pivotPoints[(objId * 3) + 1],
-						mdx.pivotPointChunk.pivotPoints[(objId * 3) + 2]));
-			}
+		for (final float[] point : model.pivotPoints) {
+			addPivotPoint(new Vertex(point));
 		}
 
-		if ((mdx.faceEffectsChunk != null) && ModelUtils.isBindPoseSupported(formatVersion)) {
-			for (final FaceEffect facefx : mdx.faceEffectsChunk.faceEffects) {
-				addFaceEffect(facefx);
-			}
-			bindPoseChunk = mdx.bindPoseChunk;
+		if (model.faceEffect.length() > 0) {
+			addFaceEffect(new FaceEffect(model.faceEffectTarget, model.faceEffect));
+		}
+
+		if (model.bindPose.size() > 0) {
+			bindPoseChunk = new BindPose(model.bindPose);
 		}
 
 		doPostRead(); // fixes all the things
 	}
 
-	public void parseVertex(final String input, final Geoset geoset) {
-		final String[] entries = input.split(",");
-		try {
-			geoset.addVertex(new GeosetVertex(Double.parseDouble(entries[0].substring(4, entries[0].length())),
-					Double.parseDouble(entries[1]),
-					Double.parseDouble(entries[2].substring(0, entries[2].length() - 1))));
-		} catch (final NumberFormatException e) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error (on line " + c + "): Vertex coordinates could not be interpreted.");
-		}
-	}
+	public MdlxModel toMdlx() {
+		doSavePreps(); // restores all GeosetID, ObjectID, TextureID,
+		// MaterialID stuff all based on object references
+		// in the Java
+		// (this is so that you can write a program that does something like
+		// "mdl.add(new Bone())" without
+		// a problem, or even "mdl.add(otherMdl.getGeoset(5))" and have the
+		// geoset's textures and materials
+		// all be carried over with it via object references in java
 
-	public void parseTriangles(final String input, final Geoset g) {
-		// Loading triangles to a geoset requires verteces to be loaded first
-		final String[] s = input.split(",");
-		s[0] = s[0].substring(4, s[0].length());
-		final int s_size = countContainsString(input, ",");
-		s[s_size - 1] = s[s_size - 1].substring(0, s[s_size - 1].length() - 2);
-		for (int t = 0; t < (s_size - 1); t += 3)// s[t+3].equals("")||
-		{
-			for (int i = 0; i < 3; i++) {
-				s[t + i] = s[t + i].substring(1);
-			}
-			try {
-				g.addTriangle(new Triangle(Integer.parseInt(s[t]), Integer.parseInt(s[t + 1]),
-						Integer.parseInt(s[t + 2]), g));
-			} catch (final NumberFormatException e) {
-				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Error: Unable to interpret information in Triangles: " + s[t] + ", " + s[t + 1] + ", or "
-								+ s[t + 2]);
-			}
-		}
-	}
+		// also this re-creates all matrices, which are consumed by the
+		// MatrixEater at runtime in doPostRead()
+		// in favor of each vertex having its own attachments list, no vertex
+		// groups)
 
-	public String nextLine(final BufferedReader reader) {
-		String output = "";
-		try {
-			output = reader.readLine();
-		} catch (final IOException e) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "Error reading file.");
+		final MdlxModel model = new MdlxModel();
+
+		model.version = getFormatVersion();
+		model.name = getName();
+		model.blendTime = getBlendTime();
+		model.extent = getExtents().toMdlx();
+
+		for (final Animation sequence : getAnims()) {
+			model.sequences.add(sequence.toMdlx());
 		}
-		c++;
-		if (output == null) {
-			loading = false;
-			output = "COMPLETED PARSING";
+
+		for (final Integer sequence : globalSeqs) {
+			model.globalSequences.add(sequence.longValue());
 		}
-		return output;
+
+		for (final Bitmap texture : textures) {
+			model.textures.add(texture.toMdlx());
+		}
+
+		for (final TextureAnim animation : texAnims) {
+			model.textureAnimations.add(animation.toMdlx());
+		}
+
+		for (final Material material : materials) {
+			model.materials.add(material.toMdlx());
+		}
+
+		for (final Geoset geoset : geosets) {
+			model.geosets.add(geoset.toMdlx());
+		}
+
+		for (final GeosetAnim animation : geosetAnims) {
+			model.geosetAnimations.add(animation.toMdlx());
+		}
+
+		for (final Bone bone : sortedIdObjects(Bone.class)) {
+			model.bones.add(bone.toMdlx());
+		}
+
+		for (final Light light : sortedIdObjects(Light.class)) {
+			model.lights.add(light.toMdlx());
+		}
+
+		for (final Helper helper : sortedIdObjects(Helper.class)) {
+			model.helpers.add(helper.toMdlxHelper());
+		}
+
+		for (final Attachment attachment : sortedIdObjects(Attachment.class)) {
+			model.attachments.add(attachment.toMdlx());
+		}
+
+		for (final ParticleEmitter emitter : sortedIdObjects(ParticleEmitter.class)) {
+			model.particleEmitters.add(emitter.toMdlx());
+		}
+
+		for (final ParticleEmitter2 emitter : sortedIdObjects(ParticleEmitter2.class)) {
+			model.particleEmitters2.add(emitter.toMdlx());
+		}
+
+		for (final ParticleEmitterPopcorn emitter : sortedIdObjects(ParticleEmitterPopcorn.class)) {
+			model.particleEmittersPopcorn.add(emitter.toMdlx());
+		}
+
+		for (final RibbonEmitter emitter : sortedIdObjects(RibbonEmitter.class)) {
+			model.ribbonEmitters.add(emitter.toMdlx());
+		}
+
+		for (final EventObject object : sortedIdObjects(EventObject.class)) {
+			model.eventObjects.add(object.toMdlx());
+		}
+
+		for (final Camera camera : sortedIdObjects(Camera.class)) {
+			model.cameras.add(camera.toMdlx());
+		}
+
+		for (final CollisionShape shape : sortedIdObjects(CollisionShape.class)) {
+			model.collisionShapes.add(shape.toMdlx());
+		}
+
+		for (final Vertex point : getPivots()) {
+			model.pivotPoints.add(point.toFloatArray());
+		}
+
+		if (faceEffects.size() > 0) {
+			FaceEffect effect = faceEffects.get(0);
+
+			model.faceEffectTarget = effect.faceEffectTarget;
+			model.faceEffect = effect.faceEffect;
+		}
+
+		if (bindPoseChunk != null) {
+			model.bindPose = bindPoseChunk.toMdlx();
+		}
+
+		return model;
 	}
 
 	public boolean doesContainString(final String a, final String b)// see if a
@@ -942,320 +949,6 @@ public class EditableModel implements Named {
 		return anims.size();
 	}
 
-	public static EditableModel read(final File f) {
-		if (f.getPath().toLowerCase().endsWith(".mdx")) {
-			// f = MDXHandler.convert(f);
-			try (BlizzardDataInputStream in = new BlizzardDataInputStream(new FileInputStream(f))) {
-				final EditableModel mdl = new EditableModel(MdxUtils.loadModel(in));
-				mdl.setFileRef(f);
-				return mdl;
-			} catch (final FileNotFoundException e) {
-				throw new RuntimeException(e);
-				// e.printStackTrace();
-				// f = MDXHandler.convert(f);
-				// // return null;
-			} catch (final IOException e) {
-				throw new RuntimeException(e);
-				// e.printStackTrace();
-				// f = MDXHandler.convert(f);
-				// // return null;
-			}
-		}
-		try (final FileInputStream fos = new FileInputStream(f)) {
-			final EditableModel mdlObject = read(fos);
-			mdlObject.setFileRef(f);
-			return mdlObject;
-		} catch (final FileNotFoundException e) {
-			JOptionPane.showMessageDialog(null, "The file chosen was not found: " + e.getMessage());
-		} catch (final IOException e) {
-			JOptionPane.showMessageDialog(null, "The file chosen could not be read: " + e.getMessage());
-		}
-		return null;
-	}
-
-	public static EditableModel read(final InputStream f) {
-		try {
-			MDLReader.clearLineId();
-			BufferedReader mdl;
-			// try
-			// {
-			mdl = new BufferedReader(new InputStreamReader(f));
-			// }
-			// catch (final IOException e)
-			// {
-			// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Attempted
-			// to read file, but file was not found.");
-			// return null;
-			// }
-			final EditableModel mdlr = new EditableModel();
-			String line = "";
-			while ((line = MDLReader.nextLineSpecial(mdl)).startsWith("//")) {
-				if (!line.contains("// Saved by Retera's MDL Toolkit on ")) {
-					mdlr.addToHeader(line);
-				}
-			}
-			if (!line.contains("Version")) {
-				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "The file version is missing!");
-			}
-			line = MDLReader.nextLine(mdl);
-			mdlr.formatVersion = MDLReader.readInt(line);
-			if ((mdlr.formatVersion != 800) && (mdlr.formatVersion != 900) && (mdlr.formatVersion != 1000)) {
-				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "The format version was confusing!");
-			}
-			line = MDLReader.nextLine(mdl);// this is "}" for format version
-			if (!line.startsWith("}")) // now I'll prove it
-			{ // gotta have that sense of humor, right?
-				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Model could not be understood. Program does not understand this type of file.");
-			}
-			line = MDLReader.nextLine(mdl);
-			mdlr.setName(MDLReader.readName(line));
-			MDLReader.mark(mdl);
-			while (!(line = MDLReader.nextLine(mdl)).startsWith("}")) {
-				if (line.contains("BlendTime")) {
-					mdlr.BlendTime = MDLReader.readInt(line);
-				} else if (line.contains("Extent")) {
-					MDLReader.reset(mdl);
-					mdlr.extents = ExtLog.read(mdl);
-				}
-				MDLReader.mark(mdl);
-			}
-			MDLReader.mark(mdl);
-			mdlr.anims = Sequences.read(mdl);
-
-			// GlobalSequences
-			if (mdlr.anims.size() < 1) {
-				MDLReader.reset(mdl);
-			}
-			MDLReader.mark(mdl);
-			if ((line = MDLReader.nextLine(mdl)).contains("GlobalSequences")) {
-				while (!(line = MDLReader.nextLine(mdl)).startsWith("}")) {
-					if (line.contains("Duration")) {
-						mdlr.globalSeqs.add(new Integer(MDLReader.readInt(line)));
-					}
-				}
-			} else {
-				MDLReader.reset(mdl);
-			}
-			mdlr.textures = Bitmap.readAll(mdl);
-			mdlr.materials = Material.readAll(mdl, mdlr);
-			mdlr.texAnims = TextureAnim.readAll(mdl);
-			if (mdlr.materials != null) {
-				final int sz = mdlr.materials.size();
-				for (int i = 0; i < sz; i++) {
-					mdlr.materials.get(i).updateTextureAnims(mdlr.texAnims);
-				}
-			}
-			MDLReader.mark(mdl);
-			boolean hadGeosets = false;
-			line = MDLReader.nextLine(mdl);
-			while (line.contains("Geoset ")) {
-				hadGeosets = true;
-				MDLReader.reset(mdl);
-				mdlr.addGeoset(Geoset.read(mdl));
-				MDLReader.mark(mdl);
-				line = MDLReader.nextLine(mdl);
-			}
-			// if( hadGeosets )
-			MDLReader.reset(mdl);
-			MDLReader.mark(mdl);
-			boolean hadGeosetAnims = false;
-			while ((line = MDLReader.nextLine(mdl)).contains("GeosetAnim ")) {
-				hadGeosetAnims = true;
-				MDLReader.reset(mdl);
-				mdlr.addGeosetAnim(GeosetAnim.read(mdl));
-				MDLReader.mark(mdl);
-			}
-			// if( hadGeosetAnims )
-			MDLReader.reset(mdl);
-			line = MDLReader.nextLine(mdl);
-			while ((line.length() > 1) && !line.equals("COMPLETED PARSING")) {
-				if (line.startsWith("Bone ")) {
-					MDLReader.reset(mdl);
-					mdlr.addIdObject(Bone.read(mdl));
-					MDLReader.mark(mdl);
-				} else if (line.contains("Light ")) {
-					MDLReader.reset(mdl);
-					mdlr.addIdObject(Light.read(mdl));
-					MDLReader.mark(mdl);
-				} else if (line.contains("Helper ")) {
-					MDLReader.reset(mdl);
-					mdlr.addIdObject(Helper.read(mdl));
-					MDLReader.mark(mdl);
-				} else if (line.contains("Attachment ")) {
-					MDLReader.reset(mdl);
-					mdlr.addIdObject(Attachment.read(mdl));
-					MDLReader.mark(mdl);
-				} else if (line.contains("ParticleEmitter ")) {
-					MDLReader.reset(mdl);
-					mdlr.addIdObject(ParticleEmitter.read(mdl));
-					MDLReader.mark(mdl);
-				} else if (line.contains("ParticleEmitter2 ")) {
-					MDLReader.reset(mdl);
-					final ParticleEmitter2 temp = ParticleEmitter2.read(mdl);
-					mdlr.addIdObject(temp);
-					temp.updateTextureRef(mdlr.textures);
-					MDLReader.mark(mdl);
-				} else if (line.contains("RibbonEmitter ")) {
-					MDLReader.reset(mdl);
-					final RibbonEmitter temp = RibbonEmitter.read(mdl);
-					mdlr.addIdObject(temp);
-					temp.updateMaterialRef(mdlr.materials);
-					MDLReader.mark(mdl);
-				} else if (line.contains("PopcornFxEmitter ") || line.contains("ParticleEmitterPopcorn ")) {
-					MDLReader.reset(mdl);
-					mdlr.addIdObject(ParticleEmitterPopcorn.read(mdl));
-					MDLReader.mark(mdl);
-				} else if (line.contains("Camera ")) {
-					MDLReader.reset(mdl);
-					mdlr.addCamera(Camera.read(mdl));
-					MDLReader.mark(mdl);
-				} else if (line.contains("EventObject ")) {
-					MDLReader.reset(mdl);
-					mdlr.addIdObject(EventObject.read(mdl));
-					MDLReader.mark(mdl);
-				} else if (line.contains("CollisionShape ")) {
-					MDLReader.reset(mdl);
-					mdlr.addIdObject(CollisionShape.read(mdl));
-					MDLReader.mark(mdl);
-				} else if (line.contains("PivotPoints ")) {
-					while (!(line = MDLReader.nextLine(mdl)).startsWith("}")) {
-						mdlr.addPivotPoint(Vertex.parseText(line));
-					}
-					MDLReader.mark(mdl);
-				} else if (line.contains("FaceEffects ")) {
-					// This "FaceEffects " branch is for 2019-2020 RMS MDL format that was not
-					// consistent with Blizzard's format, and was invented to give us a way to edit
-					// models as text prior to obtaining the official version.
-					final FaceEffectsChunk.FaceEffect faceEffect = new FaceEffectsChunk.FaceEffect();
-					mdlr.faceEffects.add(faceEffect);
-					while (!(line = MDLReader.nextLine(mdl)).startsWith("}")) {
-						final String trimmedLine = line.trim();
-						if (trimmedLine.startsWith("Target")) {
-							faceEffect.faceEffectTarget = MDLReader.readName(line);
-						} else if (trimmedLine.startsWith("Path")) {
-							faceEffect.faceEffect = MDLReader.readName(line);
-						}
-					}
-					MDLReader.mark(mdl);
-				} else if (line.contains("FaceFX ")) {
-					MDLReader.reset(mdl);
-					mdlr.addFaceEffect(FaceEffect.read(mdl));
-					MDLReader.mark(mdl);
-				} else if (line.contains("BindPose ")) {
-					mdlr.bindPoseChunk = new BindPoseChunk();
-					final List<float[]> bindPoseElements = new ArrayList<>();
-					while (!(line = MDLReader.nextLine(mdl)).startsWith("}")) {
-						final String trimmedLine = line.trim();
-						if (trimmedLine.startsWith("Matrix")) {
-							final float[] matrix = new float[12];
-							for (int i = 0; i < 3; i++) {
-								parse4FloatBPos(MDLReader.nextLine(mdl), matrix, i);
-							}
-							MDLReader.nextLine(mdl);
-							bindPoseElements.add(matrix);
-						} else if (trimmedLine.startsWith("Matrices")) {
-							while (!(line = MDLReader.nextLine(mdl)).trim().startsWith("}")) {
-								final float[] matrix = new float[12];
-								parse12FloatBPos(line, matrix);
-								bindPoseElements.add(matrix);
-							}
-						} else {
-							throw new IllegalStateException("Bad tokens in BindPose chunk: " + line);
-						}
-					}
-					mdlr.bindPoseChunk.bindPose = new float[bindPoseElements.size()][];
-					for (int i = 0; i < bindPoseElements.size(); i++) {
-						mdlr.bindPoseChunk.bindPose[i] = bindPoseElements.get(i);
-					}
-					MDLReader.mark(mdl);
-				}
-				line = MDLReader.nextLine(mdl);
-			}
-			mdlr.updateIdObjectReferences();
-			for (final Geoset geo : mdlr.geosets) {
-				geo.updateToObjects(mdlr);
-			}
-			for (final GeosetAnim geoAnim : mdlr.geosetAnims) {
-				if (geoAnim.geosetId != -1) {
-					geoAnim.geoset = mdlr.getGeoset(geoAnim.geosetId);
-					geoAnim.geoset.geosetAnim = geoAnim;// YEAH THIS MAKES SENSE
-				}
-			}
-			final List<AnimFlag> animFlags = mdlr.getAllAnimFlags();// laggggg!
-			for (final AnimFlag af : animFlags) {
-				af.updateGlobalSeqRef(mdlr);
-				if (!af.getName().equals("Scaling") && !af.getName().equals("Translation")
-						&& !af.getName().equals("Rotation")) {
-				}
-			}
-			final List<EventObject> evtObjs = mdlr.sortedIdObjects(EventObject.class);
-			for (final EventObject af : evtObjs) {
-				af.updateGlobalSeqRef(mdlr);
-			}
-			try {
-				mdl.close();
-			} catch (final Exception e) {
-
-			}
-			return mdlr;
-		} catch (final Exception e) {
-			e.printStackTrace();
-			ExceptionPopup.display(e);
-			// pane.getStyledDocument().
-			// JOptionPane.showMessageDialog(null,newJTextPane(e));
-		}
-		return null;
-	}
-
-	public static void parse4FloatBPos(final String input, final float[] output, final int offset) {
-		final String[] entries = input.split(",");
-		try {
-			output[offset] = Float.parseFloat(entries[0].split("\\{")[1].trim());
-		} catch (final NumberFormatException e) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: BindPose Matrix could not be interpreted.");
-		}
-		for (int i = 1; i < 3; i++) {
-			try {
-				output[offset + (i * 3)] = Float.parseFloat(entries[i].trim());
-			} catch (final NumberFormatException e) {
-				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Error {" + input + "}: BindPose Matrix could not be interpreted.");
-			}
-		}
-		try {
-			output[offset + (3 * 3)] = Float.parseFloat(entries[3].split("}")[0].trim());
-		} catch (final NumberFormatException e) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: BindPose Matrix could not be interpreted.");
-		}
-	}
-
-	public static void parse12FloatBPos(final String input, final float[] output) {
-		final String[] entries = input.split(",");
-		try {
-			output[0] = Float.parseFloat(entries[0].split("\\{")[1].trim());
-		} catch (final NumberFormatException e) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: BindPose Matrix could not be interpreted.");
-		}
-		for (int i = 1; i < 11; i++) {
-			try {
-				output[i] = Float.parseFloat(entries[i].trim());
-			} catch (final NumberFormatException e) {
-				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Error {" + input + "}: BindPose Matrix could not be interpreted.");
-			}
-		}
-		try {
-			output[11] = Float.parseFloat(entries[11].split("}")[0].trim());
-		} catch (final NumberFormatException e) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: BindPose Matrix could not be interpreted.");
-		}
-	}
-
 	public void doPostRead() {
 		updateIdObjectReferences();
 		for (final Geoset geo : geosets) {
@@ -1296,344 +989,6 @@ public class EditableModel implements Named {
 		}
 		for (final RibbonEmitter emitter : sortedIdObjects(RibbonEmitter.class)) {
 			emitter.updateMaterialRef(materials);
-		}
-	}
-
-	public void saveFile() {
-		printTo(fileRef);
-	}
-
-	public void printTo(final File baseFile) {
-		File f = baseFile;
-		baseFile.getParentFile().mkdirs();
-		boolean mdx = false;
-		if (f.getPath().toLowerCase().endsWith(".mdx")) {
-			// String fp = baseFile.getPath();
-			// f = new File(fp.substring(0,fp.length()-1) + "l");
-			// mdx = true;
-			try (BlizzardDataOutputStream out = new BlizzardDataOutputStream(baseFile)) {
-				new MdxModel(this).save(out);
-				return;
-			} catch (final FileNotFoundException e) {
-				e.printStackTrace();
-				final String fp = baseFile.getPath();
-				f = new File(fp.substring(0, fp.length() - 1) + "l");
-				mdx = true;
-			} catch (final IOException e) {
-				e.printStackTrace();
-				final String fp = baseFile.getPath();
-				f = new File(fp.substring(0, fp.length() - 1) + "l");
-				mdx = true;
-			}
-		}
-		try {
-			printTo(new FileOutputStream(baseFile));
-		} catch (final FileNotFoundException e) {
-			throw new RuntimeException(e);
-		}
-
-		if (mdx) {
-			MDXHandler.compile(f);
-		}
-	}
-
-	public void printTo(final OutputStream outputStream) {
-		rebuildLists();
-		// If rebuilding the lists is to crash, then we want to crash the thread
-		// BEFORE clearing the file
-
-		PrintWriter writer = null;
-		try {
-			writer = new PrintWriter(outputStream);
-		} catch (final Exception e) {
-			JOptionPane.showMessageDialog(null, "Unable to save MDL to file.");
-		}
-
-		for (final String s : header) {
-			writer.println(s);
-		}
-		writer.println("// Saved by Retera's MDL Toolkit on " + new Date(System.currentTimeMillis()).toString());
-		writer.println("Version {");
-		writer.println("\tFormatVersion " + formatVersion + ",");
-		writer.println("}");
-		writer.println("Model \"" + name + "\" {");
-		int sz = geosets.size();
-		if (sz > 0) {
-			writer.println("\tNumGeosets " + sz + ",");
-		}
-		sz = geosetAnims.size();
-		if (sz > 0) {
-			writer.println("\tNumGeosetAnims " + sz + ",");
-		}
-		sz = countIdObjectsOfClass(Helper.class);
-		if (sz > 0) {
-			writer.println("\tNumHelpers " + sz + ",");
-		}
-		sz = countIdObjectsOfClass(Light.class);
-		if (sz > 0) {
-			writer.println("\tNumLights " + sz + ",");
-		}
-		sz = countIdObjectsOfClass(Bone.class);
-		if (sz > 0) {
-			writer.println("\tNumBones " + sz + ",");
-		}
-		sz = countIdObjectsOfClass(Attachment.class);
-		if (sz > 0) {
-			writer.println("\tNumAttachments " + sz + ",");
-		}
-		sz = countIdObjectsOfClass(ParticleEmitter.class);
-		if (sz > 0) {
-			writer.println("\tNumParticleEmitters " + sz + ",");
-		}
-		sz = countIdObjectsOfClass(ParticleEmitter2.class);
-		if (sz > 0) {
-			writer.println("\tNumParticleEmitters2 " + sz + ",");
-		}
-		sz = countIdObjectsOfClass(ParticleEmitterPopcorn.class);
-		if (sz > 0) {
-			writer.println("\tNumParticleEmittersPopcorn " + sz + ",");
-		}
-		sz = countIdObjectsOfClass(RibbonEmitter.class);
-		if (sz > 0) {
-			writer.println("\tNumRibbonEmitters " + sz + ",");
-		}
-		sz = countIdObjectsOfClass(EventObject.class);
-		if (sz > 0) {
-			writer.println("\tNumEvents " + sz + ",");
-		}
-		sz = faceEffects.size();
-		if (sz > 0) {
-			writer.println("\tNumFaceFX " + sz + ",");
-		}
-		writer.println("\tBlendTime " + BlendTime + ",");
-		if (extents != null) {
-			extents.printTo(writer, 1);
-		}
-		writer.println("}");
-
-		// Animations
-		if (anims != null) {
-			if (anims.size() > 0) {
-				writer.println("Sequences " + anims.size() + " {");
-				for (int i = 0; i < anims.size(); i++) {
-					anims.get(i).printTo(writer, 1);
-				}
-				writer.println("}");
-			}
-		}
-
-		// Global Sequences
-		if (globalSeqs != null) {
-			if (globalSeqs.size() > 0) {
-				writer.println("GlobalSequences " + globalSeqs.size() + " {");
-				for (int i = 0; i < globalSeqs.size(); i++) {
-					writer.println("\tDuration " + globalSeqs.get(i).toString() + ",");
-				}
-				writer.println("}");
-			}
-		}
-
-		// Textures
-		if (textures != null) {
-			if (textures.size() > 0) {
-				writer.println("Textures " + textures.size() + " {");
-				for (int i = 0; i < textures.size(); i++) {
-					textures.get(i).printTo(writer, 1);
-				}
-				writer.println("}");
-			}
-		}
-
-		// Materials
-		if (materials != null) {
-			if (materials.size() > 0) {
-				writer.println("Materials " + materials.size() + " {");
-				for (int i = 0; i < materials.size(); i++) {
-					materials.get(i).printTo(writer, 1, formatVersion);
-				}
-				writer.println("}");
-			}
-		}
-
-		// TextureAnims
-		if (texAnims != null) {
-			if (texAnims.size() > 0) {
-				writer.println("TextureAnims " + texAnims.size() + " {");
-				for (int i = 0; i < texAnims.size(); i++) {
-					texAnims.get(i).printTo(writer, 1);
-				}
-				writer.println("}");
-			}
-		}
-
-		// Geosets -- delete if empty
-		if (geosets != null) {
-			if (geosets.size() > 0) {
-				for (int i = geosets.size() - 1; i >= 0; i--) {
-					if (geosets.get(i).isEmpty()) {
-						if (geosets.get(i).geosetAnim != null) {
-							geosetAnims.remove(geosets.get(i).geosetAnim);
-						}
-						geosets.remove(i);
-					}
-				}
-			}
-		}
-
-		cureBoneGeoAnimIds();
-		updateObjectIds();
-		// We want to print out the right ObjectIds!
-
-		// Geosets
-		if (geosets != null) {
-			if (geosets.size() > 0) {
-				for (int i = 0; i < geosets.size(); i++) {
-					geosets.get(i).doSavePrep(this);
-				}
-			}
-		}
-		if (geosets != null) {
-			if (geosets.size() > 0) {
-				for (int i = 0; i < geosets.size(); i++) {
-					geosets.get(i).printTo(writer, this, true);
-				}
-			}
-		}
-
-		// GeosetAnims
-		for (final GeosetAnim geoAnim : geosetAnims) {
-			geoAnim.geosetId = geosets.indexOf(geoAnim.geoset);
-		}
-		if (geosetAnims != null) {
-			if (geosetAnims.size() > 0) {
-				for (int i = 0; i < geosetAnims.size(); i++) {
-					geosetAnims.get(i).printTo(writer, 0);
-				}
-			}
-		}
-
-		// Clearing pivot points
-		pivots.clear();
-		for (int i = 0; i < idObjects.size(); i++) {
-			pivots.add(idObjects.get(i).pivotPoint);
-		}
-
-		boolean pivotsPrinted = false;
-		if (pivots.size() == 0) {
-			pivotsPrinted = true;
-		}
-		boolean camerasPrinted = false;
-		if (cameras.size() == 0) {
-			camerasPrinted = true;
-		}
-
-		for (int i = 0; i < idObjects.size(); i++) {
-			final IdObject obj = idObjects.get(i);
-			if (!pivotsPrinted && ((obj.getClass() == ParticleEmitter.class)
-					|| (obj.getClass() == ParticleEmitter2.class) || (obj.getClass() == ParticleEmitterPopcorn.class)
-					|| (obj.getClass() == RibbonEmitter.class) || (obj.getClass() == EventObject.class)
-					|| (obj.getClass() == CollisionShape.class))) {
-				writer.println("PivotPoints " + pivots.size() + " {");
-				for (int p = 0; p < pivots.size(); p++) {
-					writer.println("\t" + pivots.get(p).toString() + ",");
-				}
-				writer.println("}");
-				pivotsPrinted = true;
-			}
-			if (!camerasPrinted
-					&& ((obj.getClass() == EventObject.class) || (obj.getClass() == CollisionShape.class))) {
-				camerasPrinted = true;
-				for (int c = 0; c < cameras.size(); c++) {
-					cameras.get(c).printTo(writer);
-				}
-			}
-			obj.printTo(writer);
-		}
-
-		if (!pivotsPrinted) {
-			writer.println("PivotPoints " + pivots.size() + " {");
-			for (int p = 0; p < pivots.size(); p++) {
-				writer.println("\t" + pivots.get(p).toString() + ",");
-			}
-			writer.println("}");
-		}
-
-		if (!camerasPrinted) {
-			for (int i = 0; i < cameras.size(); i++) {
-				cameras.get(i).printTo(writer);
-			}
-		}
-
-		if (ModelUtils.isBindPoseSupported(formatVersion)) {
-			for (int i = 0; i < faceEffects.size(); i++) {
-				final FaceEffect faceEffect = faceEffects.get(i);
-				writer.println("FaceFX \"" + faceEffect.faceEffectTarget + "\" {");
-				writer.println("\tPath \"" + faceEffect.faceEffect + "\",");
-				writer.println("}");
-			}
-		}
-
-		if ((bindPoseChunk != null) && ModelUtils.isBindPoseSupported(formatVersion)) {
-			if (RETERA_FORMAT_BPOS_MATRICES) {
-				writer.println("BindPose " + bindPoseChunk.bindPose.length + " {");
-				final StringBuilder matrixStringBuilder = new StringBuilder();
-				for (int i = 0; i < bindPoseChunk.bindPose.length; i++) {
-					Named matrixPredictedParent = null;
-					if (i < idObjects.size()) {
-						matrixPredictedParent = idObjects.get(i);
-					} else if (i < (idObjects.size() + cameras.size())) {
-						matrixPredictedParent = cameras.get(i - idObjects.size());
-					}
-					if (matrixPredictedParent != null) {
-						writer.println("\tMatrix { // for \"" + matrixPredictedParent.getName() + "\"");
-					} else {
-						writer.println("\tMatrix {");
-					}
-					final float[] matrix = bindPoseChunk.bindPose[i];
-					for (int j = 0; j < 3; j++) {
-						matrixStringBuilder.setLength(0);
-						matrixStringBuilder.append("{ ");
-						for (int k = 0; k < 4; k++) {
-							if (k > 0) {
-								matrixStringBuilder.append(", ");
-							}
-							matrixStringBuilder.append(MDLReader.doubleToString(matrix[(k * 3) + j]));
-						}
-						matrixStringBuilder.append(" },");
-						writer.println("\t\t" + matrixStringBuilder.toString());
-					}
-					writer.println("\t}");
-				}
-				writer.println("}");
-			} else {
-				writer.println("BindPose {");
-				writer.println("\tMatrices " + bindPoseChunk.bindPose.length + " {");
-				final StringBuilder matrixStringBuilder = new StringBuilder();
-				for (int i = 0; i < bindPoseChunk.bindPose.length; i++) {
-					final float[] matrix = bindPoseChunk.bindPose[i];
-					matrixStringBuilder.setLength(0);
-					matrixStringBuilder.append("{ ");
-					for (int k = 0; k < matrix.length; k++) {
-						if (k > 0) {
-							matrixStringBuilder.append(", ");
-						}
-						matrixStringBuilder.append(MDLReader.doubleToString(matrix[k]));
-					}
-					matrixStringBuilder.append(" },");
-//					matrixStringBuilder.append(" // ");
-//					matrixStringBuilder.append(i);
-					writer.println("\t\t" + matrixStringBuilder.toString());
-				}
-				writer.println("\t}");
-				writer.println("}");
-			}
-		}
-
-		try {
-			writer.close();
-		} catch (final Exception e) {
-			JOptionPane.showMessageDialog(null, "Unable to close MDL writer -- did you run out of hard drive space?");
-			ExceptionPopup.display(e);
 		}
 	}
 
@@ -1887,8 +1242,7 @@ public class EditableModel implements Named {
 			obj.parentId = idObjects.indexOf(obj.getParent());
 			if (obj.getBindPose() != null) {
 				if (bindPoseChunk == null) {
-					bindPoseChunk = new BindPoseChunk();
-					bindPoseChunk.bindPose = new float[idObjects.size() + cameras.size()][];
+					bindPoseChunk = new BindPose(idObjects.size() + cameras.size());
 				}
 				bindPoseChunk.bindPose[i] = obj.getBindPose();
 			}
@@ -1901,8 +1255,7 @@ public class EditableModel implements Named {
 			final Camera obj = cameras.get(i);
 			if (obj.getBindPose() != null) {
 				if (bindPoseChunk == null) {
-					bindPoseChunk = new BindPoseChunk();
-					bindPoseChunk.bindPose = new float[idObjects.size() + cameras.size()][];
+					bindPoseChunk = new BindPose(idObjects.size() + cameras.size());
 				}
 				bindPoseChunk.bindPose[i + idObjects.size()] = obj.getBindPose();
 			}
@@ -1963,7 +1316,7 @@ public class EditableModel implements Named {
 		final List<AnimFlag> allFlags = Collections.synchronizedList(new ArrayList<AnimFlag>());
 		for (final Material m : materials) {
 			for (final Layer lay : m.layers) {
-				allFlags.addAll(lay.anims);
+				allFlags.addAll(lay.animFlags);
 			}
 		}
 		if (texAnims != null) {
@@ -2003,7 +1356,7 @@ public class EditableModel implements Named {
 		// Probably will cause a bunch of lag, be wary
 		for (final Material m : materials) {
 			for (final Layer lay : m.layers) {
-				if (lay.anims.contains(aflg)) {
+				if (lay.animFlags.contains(aflg)) {
 					return lay;
 				}
 			}
@@ -2090,8 +1443,8 @@ public class EditableModel implements Named {
 		// ADDS "added" TO THE PARENT OF "aflg"
 		for (final Material m : materials) {
 			for (final Layer lay : m.layers) {
-				if (lay.anims.contains(aflg)) {
-					lay.anims.add(added);
+				if (lay.animFlags.contains(aflg)) {
+					lay.animFlags.add(added);
 				}
 			}
 		}
@@ -2841,7 +2194,7 @@ public class EditableModel implements Named {
 	public void removeAllTimelinesForGlobalSeq(final Integer selectedValue) {
 		for (final Material m : materials) {
 			for (final Layer lay : m.layers) {
-				final Iterator<AnimFlag> iterator = lay.anims.iterator();
+				final Iterator<AnimFlag> iterator = lay.animFlags.iterator();
 				while (iterator.hasNext()) {
 					final AnimFlag animFlag = iterator.next();
 					if (selectedValue.equals(animFlag.getGlobalSeq())) {
@@ -3019,15 +2372,15 @@ public class EditableModel implements Named {
 		}
 	}
 
-	public List<FaceEffectsChunk.FaceEffect> getFaceEffects() {
+	public List<FaceEffect> getFaceEffects() {
 		return faceEffects;
 	}
 
-	public BindPoseChunk getBindPoseChunk() {
+	public BindPose getBindPoseChunk() {
 		return bindPoseChunk;
 	}
 
-	public void setBindPoseChunk(final BindPoseChunk bindPoseChunk) {
+	public void setBindPoseChunk(final BindPose bindPoseChunk) {
 		this.bindPoseChunk = bindPoseChunk;
 	}
 
@@ -3072,7 +2425,7 @@ public class EditableModel implements Named {
 				}
 				final AnimFlag flag = layer.getFlag("Emissive");
 				if (flag != null) {
-					layer.getAnims().remove(flag);
+					layer.remove(flag);
 				}
 			}
 		}

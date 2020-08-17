@@ -7,11 +7,12 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import com.etheller.warsmash.parsers.mdlx.MdlxEventObject;
+
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
+
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
-import com.hiveworkshop.wc3.mdx.EventObjectChunk;
-import com.hiveworkshop.wc3.mdx.Node;
 
 /**
  * A class for EventObjects, which include such things as craters, footprints,
@@ -21,7 +22,6 @@ import com.hiveworkshop.wc3.mdx.Node;
  */
 public class EventObject extends IdObject {
 	ArrayList<Integer> eventTrack = new ArrayList<>();
-	ArrayList<AnimFlag> animFlags = new ArrayList<>();
 	Integer globalSeq;
 	int globalSeqId = -1;
 	boolean hasGlobalSeq;
@@ -38,41 +38,44 @@ public class EventObject extends IdObject {
 		this.name = name;
 	}
 
-	public EventObject(final EventObjectChunk.EventObject mdxSource) {
-		this.name = mdxSource.node.name;
-		// debug print:
-		// System.out.println(getName() + ": " +
-		// Integer.toBinaryString(mdxSource.node.flags));
-		if ((mdxSource.node.flags & 1024) != 1024) {
-			System.err.println("MDX -> MDL error: An eventobject '" + mdxSource.node.name
+	public EventObject(final MdlxEventObject object) {
+		if ((object.flags & 1024) != 1024) {
+			System.err.println("MDX -> MDL error: An eventobject '" + object.name
 					+ "' not flagged as eventobject in MDX!");
 		}
-		// System.out.println(emitter.node.name + ": " +
-		// Integer.toBinaryString(emitter.node.flags));
-		// ----- Convert Base NODE to "IDOBJECT" -----
 
-		// (Doesn't use LOADFROM, has no flags)
-		setParentId(mdxSource.node.parentId);
-		setObjectId(mdxSource.node.objectId);
-		final Node node = mdxSource.node;
-		if (node.geosetTranslation != null) {
-			add(new AnimFlag(node.geosetTranslation));
-		}
-		if (node.geosetScaling != null) {
-			add(new AnimFlag(node.geosetScaling));
-		}
-		if (node.geosetRotation != null) {
-			add(new AnimFlag(node.geosetRotation));
-		}
-		// ----- End Base NODE to "IDOBJECT" -----
+		loadObject((object));
 
-		if (mdxSource.tracks.globalSequenceId >= 0) {
-			globalSeqId = mdxSource.tracks.globalSequenceId;
+		int globalSequenceId = object.globalSequenceId;
+
+		if (globalSequenceId >= 0) {
+			globalSeqId = globalSequenceId;
 			hasGlobalSeq = true;
 		}
-		for (final int val : mdxSource.tracks.tracks) {
-			eventTrack.add(new Integer(val));
+
+		for (final long val : object.keyFrames) {
+			eventTrack.add(Integer.valueOf((int)val));
 		}
+	}
+
+	public MdlxEventObject toMdlx() {
+		MdlxEventObject object = new MdlxEventObject();
+
+		objectToMdlx(object);
+
+		if (isHasGlobalSeq()) {
+			object.globalSequenceId = getGlobalSeqId();
+		}
+
+		ArrayList<Integer> keyframes = getEventTrack();
+
+		object.keyFrames = new long[keyframes.size()];
+
+		for (int i = 0, l = keyframes.size(); i < l; i++) {
+			object.keyFrames[i] = keyframes.get(i).longValue();
+		}
+
+		return object;
 	}
 
 	@Override
@@ -103,97 +106,6 @@ public class EventObject extends IdObject {
 
 	public void setValuesTo(final EventObject source) {
 		eventTrack = source.eventTrack;
-	}
-
-	public static EventObject read(final BufferedReader mdl) {
-		String line = MDLReader.nextLine(mdl);
-		if (line.contains("EventObject")) {
-			final EventObject e = new EventObject();
-			e.setName(MDLReader.readName(line));
-			MDLReader.mark(mdl);
-			line = MDLReader.nextLine(mdl);
-			while ((!line.contains("}") || line.contains("},") || line.contains("\t}"))
-					&& !line.equals("COMPLETED PARSING")) {
-				if (line.contains("ObjectId")) {
-					e.objectId = MDLReader.readInt(line);
-				} else if (line.contains("Parent")) {
-					e.parentId = MDLReader.splitToInts(line)[0];
-					// e.parent = mdlr.getIdObject(e.parentId);
-				} else if (((line.contains("Visibility") || line.contains("Rotation") || line.contains("Translation")
-						|| line.contains("Scaling"))) && !line.contains("DontInherit")) {
-					MDLReader.reset(mdl);
-					e.animFlags.add(AnimFlag.read(mdl));
-				} else if (line.contains("GlobalSeqId")) {
-					if (!e.hasGlobalSeq) {
-						e.globalSeqId = MDLReader.readInt(line);
-						e.hasGlobalSeq = true;
-					} else {
-						JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-								"Error while parsing event object: More than one Global Sequence Id is present in the same object!");
-					}
-				} else if (!line.contains("{") && !line.contains("}")) {
-					e.eventTrack.add(new Integer(MDLReader.readInt(line)));
-				}
-				MDLReader.mark(mdl);
-				line = MDLReader.nextLine(mdl);
-			}
-			return e;
-		} else {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse EventObject: Missing or unrecognized open statement.");
-		}
-		return null;
-	}
-
-	@Override
-	public void printTo(final PrintWriter writer) {
-		// Remember to update the ids of things before using this
-		// -- uses objectId value of idObject superclass
-		// -- uses parentId value of idObject superclass
-		// -- uses the parent (java Object reference) of idObject superclass
-		final ArrayList<AnimFlag> pAnimFlags = new ArrayList<>(this.animFlags);
-		writer.println(MDLReader.getClassName(this.getClass()) + " \"" + getName() + "\" {");
-		if (objectId != -1) {
-			writer.println("\tObjectId " + objectId + ",");
-		}
-		if (parentId != -1) {
-			writer.println("\tParent " + parentId + ",\t// \"" + getParent().getName() + "\"");
-		}
-		if (eventTrack.size() <= 0) {
-			writer.println("\tEventTrack " + 1 + " {");
-			if (hasGlobalSeq) {
-				writer.println("\t\tGlobalSeqId " + globalSeqId + ",");
-			}
-			writer.println("\t\t" + 0 + ",");
-		} else {
-			writer.println("\tEventTrack " + eventTrack.size() + " {");
-			if (hasGlobalSeq) {
-				writer.println("\t\tGlobalSeqId " + globalSeqId + ",");
-			}
-			for (int i = 0; i < eventTrack.size(); i++) {
-				writer.println("\t\t" + eventTrack.get(i).toString() + ",");
-			}
-		}
-		writer.println("\t}");
-		for (int i = pAnimFlags.size() - 1; i >= 0; i--) {
-			if (pAnimFlags.get(i).getName().equals("Translation")) {
-				pAnimFlags.get(i).printTo(writer, 1);
-				pAnimFlags.remove(i);
-			}
-		}
-		for (int i = pAnimFlags.size() - 1; i >= 0; i--) {
-			if (pAnimFlags.get(i).getName().equals("Rotation")) {
-				pAnimFlags.get(i).printTo(writer, 1);
-				pAnimFlags.remove(i);
-			}
-		}
-		for (int i = pAnimFlags.size() - 1; i >= 0; i--) {
-			if (pAnimFlags.get(i).getName().equals("Scaling")) {
-				pAnimFlags.get(i).printTo(writer, 1);
-				pAnimFlags.remove(i);
-			}
-		}
-		writer.println("}");
 	}
 
 	public void deleteAnim(final Animation anim) {
@@ -291,15 +203,6 @@ public class EventObject extends IdObject {
 		eventTrack.set(j, iTime);
 	}
 
-	@Override
-	public void flipOver(final byte axis) {
-		final String currentFlag = "Rotation";
-		for (int i = 0; i < animFlags.size(); i++) {
-			final AnimFlag flag = animFlags.get(i);
-			flag.flipOver(axis);
-		}
-	}
-
 	public void updateGlobalSeqRef(final EditableModel mdlr) {
 		if (hasGlobalSeq) {
 			globalSeq = mdlr.getGlobalSeq(globalSeqId);
@@ -313,11 +216,6 @@ public class EventObject extends IdObject {
 	}
 
 	@Override
-	public void add(final AnimFlag af) {
-		animFlags.add(af);
-	}
-
-	@Override
 	public void add(final String flag) {
 		System.err.println("ERROR: EventObject given unknown flag: " + flag);
 	}
@@ -326,11 +224,6 @@ public class EventObject extends IdObject {
 	public List<String> getFlags() {
 		return new ArrayList<>();// Current eventobject implementation
 									// uses no flags!
-	}
-
-	@Override
-	public ArrayList<AnimFlag> getAnimFlags() {
-		return animFlags;
 	}
 
 	/**
@@ -388,32 +281,5 @@ public class EventObject extends IdObject {
 	@Override
 	public float getRenderVisibility(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		return 1;
-	}
-
-	@Override
-	public Vertex getRenderTranslation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Translation");
-		if (translationFlag != null) {
-			return (Vertex) translationFlag.interpolateAt(animatedRenderEnvironment);
-		}
-		return null;
-	}
-
-	@Override
-	public QuaternionRotation getRenderRotation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Rotation");
-		if (translationFlag != null) {
-			return (QuaternionRotation) translationFlag.interpolateAt(animatedRenderEnvironment);
-		}
-		return null;
-	}
-
-	@Override
-	public Vertex getRenderScale(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Scaling");
-		if (translationFlag != null) {
-			return (Vertex) translationFlag.interpolateAt(animatedRenderEnvironment);
-		}
-		return null;
 	}
 }

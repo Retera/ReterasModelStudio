@@ -11,7 +11,8 @@ public class MdlxTest {
 	public static void main(final String[] args) {
 		try (FileInputStream stream = new FileInputStream(
 				new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\ArcaneEpic13.mdx"))) {
-			final MdlxModel model = new MdlxModel(stream);
+			final MdlxModel model = new MdlxModel();
+			model.loadMdx(stream);
 			try (FileOutputStream mdlStream = new FileOutputStream(new File(
 					"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Test\\MyOutAutomated.mdl"))) {
 
@@ -29,7 +30,7 @@ public class MdlxTest {
 
 		try (FileInputStream stream = new FileInputStream(
 				new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Test\\MyOutAutomated.mdl"))) {
-			final MdlxModel model = new MdlxModel(null);
+			final MdlxModel model = new MdlxModel();
 			model.loadMdl(stream);
 			try (FileOutputStream mdlStream = new FileOutputStream(new File(
 					"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Test\\MyOutAutomatedMDX.mdx"))) {
@@ -46,7 +47,8 @@ public class MdlxTest {
 
 		try (FileInputStream stream = new FileInputStream(
 				new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Test\\MyOutAutomatedMDX.mdx"))) {
-			final MdlxModel model = new MdlxModel(stream);
+			final MdlxModel model = new MdlxModel();
+			model.loadMdx(stream);
 			try (FileOutputStream mdlStream = new FileOutputStream(new File(
 					"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Test\\MyOutAutomatedMDXBack2MDL.mdl"))) {
 

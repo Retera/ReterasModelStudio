@@ -1,6 +1,7 @@
 package com.matrixeater.hacks;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,15 +20,16 @@ import com.hiveworkshop.wc3.mdl.QuaternionRotation;
 import com.hiveworkshop.wc3.mdl.TextureAnim;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
+import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.util.ModelUtils;
 import com.hiveworkshop.wc3.util.ModelUtils.Mesh;
 
 public class GenModels3 {
 
-	public static void main(final String[] args) {
+	public static void main(final String[] args) throws IOException {
 		final File source = new File(
 				"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Requests\\Wazzz\\WispGrove43.mdx");
-		final EditableModel model = EditableModel.read(source);
+		final EditableModel model = MdxUtils.loadEditableModel(source);
 		final List<Particle> particles = new LinkedList<>();
 		final Bone particleRoot = new Bone("Bone_ParticleRoot");
 		final List<Geoset> geosets = new LinkedList<>();
@@ -141,7 +143,7 @@ public class GenModels3 {
 					alphaData.addEntry(anim.getStart(), 0);
 				}
 			}
-			geoset.forceGetGeosetAnim().addAnimFlag(alphaData);
+			geoset.forceGetGeosetAnim().add(alphaData);
 		}
 
 		final AnimFlag spinData = new AnimFlag("Rotation");
@@ -152,7 +154,7 @@ public class GenModels3 {
 		}
 		particleRoot.add(spinData);
 
-		model.printTo(new File(source.getParentFile().getPath() + "\\Generated.mdx"));
+		MdxUtils.saveEditableModel(model, new File(source.getParentFile().getPath() + "\\Generated.mdx"));
 	}
 
 	private static class Particle {

@@ -6,7 +6,7 @@ package com.hiveworkshop.wc3.mdl;
  * Eric Theller
  * 6/28/2012
  */
-public interface VisibilitySource extends Named
+public interface VisibilitySource
 {
     public AnimFlag getVisibilityFlag();
     public void setVisibilityFlag(AnimFlag what);

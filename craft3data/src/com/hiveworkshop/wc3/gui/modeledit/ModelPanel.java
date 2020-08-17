@@ -6,6 +6,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.Icon;
@@ -17,6 +20,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import com.etheller.warsmash.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.ActivityDescriptor;
@@ -41,6 +45,7 @@ import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
+import com.hiveworkshop.wc3.mdx.MdxUtils;
 
 /**
  * The ModelPanel is a pane holding the display of a given MDL model. I plan to
@@ -82,10 +87,10 @@ public class ModelPanel implements ActionListener, MouseListener {
 			final ModelStructureChangeListener modelStructureChangeListener,
 			final CoordDisplayListener coordDisplayListener, final ViewportTransferHandler viewportTransferHandler,
 			final ViewportListener viewportListener, final Icon icon, final boolean specialBLPModel,
-			final TextureExporter textureExporter) {
-		this(parent, EditableModel.read(input), prefs, undoHandler, notifier, modeNotifier, modelStructureChangeListener,
-				coordDisplayListener, viewportTransferHandler, viewportListener, icon, specialBLPModel,
-				textureExporter);
+			final TextureExporter textureExporter) throws IOException {
+		this(parent, MdxUtils.loadEditableModel(input), prefs, undoHandler, notifier, modeNotifier,
+				modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, viewportListener, icon,
+				specialBLPModel, textureExporter);
 		file = input;
 	}
 
@@ -236,11 +241,10 @@ public class ModelPanel implements ActionListener, MouseListener {
 		this.editUVPanel = editUVPanel;
 	}
 
-	public void loadModel(final File input) {
+	public void loadModel(final File input) throws FileNotFoundException, IOException {
 		file = input;
 		if (file != null) {
-			model = EditableModel.read(file);
-			loadModel(model);
+			model = new EditableModel(new MdlxModel(new FileInputStream(input)));
 		}
 	}
 

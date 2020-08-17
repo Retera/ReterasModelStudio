@@ -1,6 +1,7 @@
 package com.matrixeater.hacks;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,11 +10,12 @@ import java.util.Set;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
+import com.hiveworkshop.wc3.mdx.MdxUtils;
 
 public class CountBezierRotations {
 	private static final Map<String, Map<String, Integer>> bigTreeMap = new HashMap<>();
 
-	public static void main(final String[] args) {
+	public static void main(final String[] args) throws IOException {
 		traverse(new File("C:\\MPQBuild"));
 
 		for (final String key : bigTreeMap.keySet()) {
@@ -26,14 +28,14 @@ public class CountBezierRotations {
 		}
 	}
 
-	public static void traverse(final File file) {
+	public static void traverse(final File file) throws IOException {
 		if (file.isDirectory()) {
 			for (final File subFile : file.listFiles()) {
 				traverse(subFile);
 			}
 		} else {
 			if (file.getName().toLowerCase().endsWith(".mdx")) {
-				final EditableModel model = EditableModel.read(file);
+				final EditableModel model = MdxUtils.loadEditableModel(file);
 				final List<AnimFlag> allAnimFlags = model.getAllAnimFlags();
 				for (final AnimFlag flag : allAnimFlags) {
 					final InterpolationType interpTypeAsEnum = flag.getInterpTypeAsEnum();

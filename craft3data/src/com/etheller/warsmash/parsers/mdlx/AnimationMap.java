@@ -18,6 +18,10 @@ public enum AnimationMap {
 	// Layer
 	KMTF(MdlUtils.TOKEN_TEXTURE_ID, TimelineDescriptor.UINT32_TIMELINE),
 	KMTA(MdlUtils.TOKEN_ALPHA, TimelineDescriptor.FLOAT_TIMELINE),
+	KMTE("EmissiveGain", TimelineDescriptor.FLOAT_TIMELINE),
+	KFC3("FresnelColor", TimelineDescriptor.VECTOR3_TIMELINE),
+	KFCA("FresnelOpacity", TimelineDescriptor.FLOAT_TIMELINE),
+	KFTC("FresnelTeamColor", TimelineDescriptor.UINT32_TIMELINE),
 	// TextureAnimation
 	KTAT(MdlUtils.TOKEN_TRANSLATION, TimelineDescriptor.VECTOR3_TIMELINE),
 	KTAR(MdlUtils.TOKEN_ROTATION, TimelineDescriptor.VECTOR4_TIMELINE),
@@ -52,6 +56,13 @@ public enum AnimationMap {
 	KP2N("Length", TimelineDescriptor.FLOAT_TIMELINE),
 	KP2W("Width", TimelineDescriptor.FLOAT_TIMELINE),
 	KP2V("Visibility", TimelineDescriptor.FLOAT_TIMELINE),
+	 // ParticleEmitterCorn
+	 KPPA("Alpha", TimelineDescriptor.FLOAT_TIMELINE),
+	 KPPC("Color", TimelineDescriptor.VECTOR3_TIMELINE),
+	 KPPE("EmissionRate", TimelineDescriptor.FLOAT_TIMELINE),
+	 KPPL("LifeSpan", TimelineDescriptor.FLOAT_TIMELINE),
+	 KPPS("Speed", TimelineDescriptor.FLOAT_TIMELINE),
+	 KPPV("Visibility", TimelineDescriptor.FLOAT_TIMELINE),
 	// RibbonEmitter
 	KRHA("HeightAbove", TimelineDescriptor.FLOAT_TIMELINE),
 	KRHB("HeightBelow", TimelineDescriptor.FLOAT_TIMELINE),

@@ -13,8 +13,6 @@ import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 
-import de.wc3data.stream.BlizzardDataInputStream;
-
 public class GetMeDatas3 {
 
 	public static void main(final String[] args) {
@@ -24,7 +22,7 @@ public class GetMeDatas3 {
 				"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\ReforgedArtProject\\UndeadArthas3.mdx")) {
 			try {
 
-				final EditableModel model = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(footman)));
+				final EditableModel model = new EditableModel(MdxUtils.loadModel(footman));
 				int badGuys = 0;
 				int goodGuys = 0;
 				for (final Geoset geo : model.getGeosets()) {

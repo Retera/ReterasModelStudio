@@ -2,8 +2,6 @@ package de.wc3data.stream;
 
 import java.io.IOException;
 
-import com.hiveworkshop.wc3.mdx.MdxModel;
-
 public class StreamUtils {
 
 	/*
@@ -18,14 +16,7 @@ public class StreamUtils {
 	 * }
 	 */
 
-	public static MdxModel loadModel(final BlizzardDataInputStream in)
-			throws IOException {
-		final MdxModel model = new MdxModel();
-		model.load(in);
-		return model;
-	}
-
-        public static boolean checkOptionalId(final BlizzardDataInputStream in,
+    public static boolean checkOptionalId(final BlizzardDataInputStream in,
 			final String name) throws IOException {
 
 		in.mark(8);

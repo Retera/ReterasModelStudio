@@ -1,7 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
 
-import javax.swing.JOptionPane;
-
 /**
  * Quaternions are the most useless thing I've ever heard of. Nevertheless, I
  * wanted a simple object to encompass four quaternion values for rotation (this
@@ -10,7 +8,11 @@ import javax.swing.JOptionPane;
  * Eric Theller 3/8/2012
  */
 public class QuaternionRotation {
-	public double a, b, c, d;
+	public double a = 0, b = 0, c = 0, d = 0;
+
+	public QuaternionRotation() {
+
+	}
 
 	public QuaternionRotation(final double a, final double b, final double c, final double d) {
 		this.a = a;
@@ -236,75 +238,6 @@ public class QuaternionRotation {
 		return new QuaternionRotation(a, -b, -c, -d);
 	}
 
-	public static QuaternionRotation parseText(final String input) {
-		final String[] entries = input.split(",");
-		QuaternionRotation temp = null;
-		double a = 0;
-		double b = 0;
-		double c = 0;
-		double d = 0;
-		final String[] str = entries[0].split("\\{");
-		try {
-			a = Double.parseDouble(str[1]);
-		} catch (final NumberFormatException e) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: QuaternionRotation coordinates could not be interpreted.");
-		}
-		try {
-			b = Double.parseDouble(entries[1]);
-		} catch (final NumberFormatException e) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: QuaternionRotation coordinates could not be interpreted.");
-		}
-		try {
-			c = Double.parseDouble(entries[2]);
-		} catch (final NumberFormatException e) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: QuaternionRotation coordinates could not be interpreted.");
-		}
-		try {
-			d = Double.parseDouble(entries[3].split("}")[0]);
-		} catch (final NumberFormatException e) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: QuaternionRotation coordinates could not be interpreted.");
-		}
-		temp = new QuaternionRotation(a, b, c, d);
-		return temp;
-	}
-
-	public static QuaternionRotation ghostwolfNlerp(final QuaternionRotation out,
-			final QuaternionRotation startingValue, final QuaternionRotation endingValue,
-			final float interpolationFactor) {
-		final double ax = startingValue.a, ay = startingValue.b, az = startingValue.c, aw = startingValue.d;
-		final double bx = endingValue.a, by = endingValue.b, bz = endingValue.c, bw = endingValue.d;
-		final float inverseFactor = 1 - interpolationFactor;
-		final double x1 = inverseFactor * ax;
-		final double y1 = inverseFactor * ay;
-		final double z1 = inverseFactor * az;
-		final double w1 = inverseFactor * aw;
-		final double x2 = interpolationFactor * bx;
-		final double y2 = interpolationFactor * by;
-		final double z2 = interpolationFactor * bz;
-		final double w2 = interpolationFactor * bw;
-
-		// Dot product
-		if (((ax * bx) + (ay * by) + (az * bz) + (aw * bw)) < 0) {
-			out.a = x1 - x2;
-			out.b = y1 - y2;
-			out.c = z1 - z2;
-			out.d = w1 - w2;
-		} else {
-			out.a = x1 + x2;
-			out.b = y1 + y2;
-			out.c = z1 + z2;
-			out.d = w1 + w2;
-		}
-
-		// Super slow and generally not needed.
-		// quat.normalize(out, out);
-		return out;
-	}
-
 	public static QuaternionRotation slerp(final QuaternionRotation out, final QuaternionRotation startingValue,
 			final QuaternionRotation endingValue, final float interpolationFactor) {
 		final double ax = startingValue.a, ay = startingValue.b, az = startingValue.c, aw = startingValue.d;
@@ -349,15 +282,6 @@ public class QuaternionRotation {
 	private static QuaternionRotation temp1 = new QuaternionRotation(0, 0, 0, 0);
 	private static QuaternionRotation temp2 = new QuaternionRotation(0, 0, 0, 0);
 
-	public static QuaternionRotation ghostwolfNquad(final QuaternionRotation out, final QuaternionRotation a,
-			final QuaternionRotation aOutTan, final QuaternionRotation bInTan, final QuaternionRotation b,
-			final float t) {
-		ghostwolfNlerp(temp1, a, b, t);
-		ghostwolfNlerp(temp2, aOutTan, bInTan, t);
-		ghostwolfNlerp(out, temp1, temp2, 2 * t * (1 - t));
-		return out;
-	}
-
 	public static QuaternionRotation ghostwolfSquad(final QuaternionRotation out, final QuaternionRotation a,
 			final QuaternionRotation aOutTan, final QuaternionRotation bInTan, final QuaternionRotation b,
 			final float t) {
@@ -369,8 +293,7 @@ public class QuaternionRotation {
 
 	@Override
 	public String toString() {
-		return "{ " + MDLReader.doubleToString(a) + ", " + MDLReader.doubleToString(b) + ", "
-				+ MDLReader.doubleToString(c) + ", " + MDLReader.doubleToString(d) + " }";
+		return "{ " + a + ", " + b + ", " + c + ", " + d + " }";
 	}
 
 	public static void main(final String[] args) {

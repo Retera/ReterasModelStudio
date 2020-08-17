@@ -2,8 +2,8 @@ package com.etheller.warsmash.parsers.mdlx.timeline;
 
 import java.io.IOException;
 
-import com.etheller.warsmash.parsers.mdlx.MdlTokenInputStream;
-import com.etheller.warsmash.parsers.mdlx.MdlTokenOutputStream;
+import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
+import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
 

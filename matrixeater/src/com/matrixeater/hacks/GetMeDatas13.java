@@ -1,14 +1,15 @@
 package com.matrixeater.hacks;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 
-import com.hiveworkshop.wc3.mdx.MaterialChunk;
-import com.hiveworkshop.wc3.mdx.MdxModel;
-import com.hiveworkshop.wc3.mdx.MdxUtils;
-import com.hiveworkshop.wc3.mpq.MpqCodebase;
+import com.etheller.warsmash.parsers.mdlx.MdlxMaterial;
+import com.etheller.warsmash.parsers.mdlx.MdlxModel;
 
-import de.wc3data.stream.BlizzardDataInputStream;
+import com.hiveworkshop.wc3.mdx.MdxUtils;
+
+import com.hiveworkshop.wc3.mpq.MpqCodebase;
 
 public class GetMeDatas13 {
 
@@ -21,13 +22,12 @@ public class GetMeDatas13 {
 		final int listFileSize = listfile.size();
 		for (final String entry : listfile) {
 			if (entry.toLowerCase().endsWith(".mdx")) {
-				try (BlizzardDataInputStream stream = new BlizzardDataInputStream(
-						mpqCodebase.getResourceAsStream(entry))) {
-					final MdxModel model = MdxUtils.loadModel(stream);
-					if ((model != null) && (model.materialChunk != null) && (model.materialChunk.material != null)) {
-						for (final MaterialChunk.Material material : model.materialChunk.material) {
+				try (InputStream stream = mpqCodebase.getResourceAsStream(entry)) {
+					final MdlxModel model = MdxUtils.loadModel(stream);
+					if (model != null) {
+						for (final MdlxMaterial material : model.materials) {
 							if ("Shader_HD_DefaultUnit".equals(material.shader)) {
-								final int layers = material.layerChunk.layer.length;
+								final int layers = material.layers.size();
 								if (layers >= tallies.length) {
 									crazyOutliers++;
 								} else {

@@ -1,6 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -144,62 +143,6 @@ public class Matrix {
 		// contents was used!");
 		// System.out.println("Warning: A matrix with no contents was used!");
 		return -1;// bad stuff
-	}
-
-	public static Matrix parseText(final String input) {
-		final String[] entries = input.split(",");
-		Matrix temp = null;
-		final int size = entries.length;
-		final int[] boneId = new int[size];
-		// When { 4, 2 }, splits around commas, it has 3 segments and we
-		// only want the first two (the third being "" after ending comma)
-		if (size == 1) {
-			try {
-				boneId[0] = (int) Long.parseLong(entries[0].split("\\{")[1].split("}")[0].split(" ")[1]);
-			} catch (final NumberFormatException e) {
-				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Error \"" + input + "\": Matrix data could not be interpreted.");
-			}
-		} else {
-			try {
-				boneId[0] = (int) Long.parseLong(entries[0].split("\\{")[1].split(" ")[1]);
-			} catch (final NumberFormatException e) {
-				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-						"Error \"" + input + "\": Matrix data could not be interpreted.");
-			}
-			for (int i = 1; i < size; i++) {
-				try {
-					boneId[i] = (int) Long.parseLong(entries[i].split(" ")[1]);
-				} catch (final NumberFormatException e) {
-					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-							"Error \"" + input + "\": Matrix data could not be interpreted.");
-				}
-			}
-		}
-		if ((boneId != null) && (boneId[0] != -1)) {
-			temp = new Matrix(boneId);
-		} else {
-			temp = new Matrix();
-		}
-		return temp;
-	}
-
-	public void printTo(final PrintWriter writer, final int tabHeight) {
-		String tabs = "";
-		for (int i = 0; i < tabHeight; i++) {
-			tabs = tabs + "\t";
-		}
-		if (m_boneIds.size() > 0) {
-			writer.print(tabs + "Matrices { " + m_boneIds.get(0).toString());
-		} else {
-			writer.print(tabs + "Matrices { -1");
-		}
-		// writer.print(tabs+"Matrices { "+bones.get(0).getClass().getName());
-		for (int i = 1; i < bones.size(); i++) {
-			writer.print(", " + m_boneIds.get(i));
-			// writer.print(", "+bones.get(i).getClass().getName());
-		}
-		writer.println(" },");
 	}
 
 	public boolean equals(final Matrix other) {

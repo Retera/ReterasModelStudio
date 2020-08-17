@@ -1,26 +1,28 @@
 package com.matrixeater.hacks;
 
 import java.io.File;
+import java.io.IOException;
 
 import com.hiveworkshop.wc3.mdl.Attachment;
 import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
+import com.hiveworkshop.wc3.mdx.MdxUtils;
 
 public class FtlopMaker3 {
 
-	public static void main(final String[] args) {
+	public static void main(final String[] args) throws IOException {
 		traverse(new File("E:\\Games\\FtlopMod\\_dev\\BuildArchive"));
 	}
 
-	public static void traverse(final File file) {
+	public static void traverse(final File file) throws IOException {
 		if (file.isDirectory()) {
 			for (final File subFile : file.listFiles()) {
 				traverse(subFile);
 			}
 		} else {
 			if (file.getName().toLowerCase().endsWith(".mdx")) {
-				final EditableModel model = EditableModel.read(file);
+				final EditableModel model = MdxUtils.loadEditableModel(file);
 				for (final Bitmap tex : model.getTextures()) {
 					final String path = tex.getPath();
 					if (path != null) {
@@ -39,7 +41,7 @@ public class FtlopMaker3 {
 						emitter.setPath(path.replace('/', '\\'));
 					}
 				}
-				model.printTo(file);
+				MdxUtils.saveEditableModel(model, file);
 			}
 		}
 	}

@@ -5,7 +5,7 @@ import java.io.PrintWriter;
 
 import javax.swing.JOptionPane;
 
-import com.hiveworkshop.wc3.mdx.GeosetChunk;
+import com.etheller.warsmash.parsers.mdlx.MdlxExtent;
 
 /**
  * MinimumExt,MaximumExt,BoundsRad
@@ -28,10 +28,20 @@ public class ExtLog {
 		this.boundsRadius = boundsRadius;
 	}
 
-	public ExtLog(final GeosetChunk.Geoset.Extent source) {
-		minimumExtent = new Vertex(source.minimumExtent);
-		maximumExtent = new Vertex(source.maximumExtent);
-		boundsRadius = source.bounds;
+	public ExtLog(final MdlxExtent extent) {
+		boundsRadius = extent.boundsRadius;
+		minimumExtent = new Vertex(extent.min);
+		maximumExtent = new Vertex(extent.max);
+	}
+
+	public MdlxExtent toMdlx() {
+		MdlxExtent extent = new MdlxExtent();
+
+		extent.boundsRadius = (float)boundsRadius;
+		extent.min = minimumExtent.toFloatArray();
+		extent.max = maximumExtent.toFloatArray();
+
+		return extent;
 	}
 
 	public ExtLog(final Vertex minE, final Vertex maxE) {
@@ -67,88 +77,6 @@ public class ExtLog {
 
 	public void setBounds(final double b) {
 		boundsRadius = b;
-	}
-
-	public static ExtLog parseText(final String[] line) {
-		if (line[0].contains("Extent") || line[0].contains("BoundsRadius")) {
-			final ExtLog extLog = new ExtLog();
-			for (int i = 0; i < line.length; i++) {
-				if (line[i].contains("MinimumExtent")) {
-					extLog.setMinExt(Vertex.parseText(line[i].split("MinimumExtent ")[1]));
-				} else if (line[i].contains("MaximumExtent")) {
-					extLog.setMinExt(Vertex.parseText(line[i].split("MaximumExtent ")[1]));
-				} else if (line[i].contains("BoundsRadius")) {
-					String s = line[i].split("BoundsRadius ")[1];
-					s = s.substring(0, s.length() - 1);
-					try {
-						extLog.setBounds(Double.parseDouble(s));
-					} catch (final NumberFormatException e) {
-						JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-								"Error {" + s + "}: BoundsRadius could not be interpreted.");
-					}
-				} else {
-					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-							"Unable to parse ExtLog; unrecognized input: " + line[i]);
-				}
-			}
-			return extLog;
-		} else {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse ExtLog: Missing or unrecognized open statement.");
-		}
-		return null;
-	}
-
-	public static ExtLog read(final BufferedReader mdl) {
-		String line = MDLReader.nextLine(mdl);
-		// System.out.println("Starting ExtLog with :"+line);
-		if (line.contains("Extent") || line.contains("BoundsRadius")) {
-			final ExtLog extLog = new ExtLog();
-			MDLReader.mark(mdl);
-			while (!((line).contains("\t}")) && (line.contains("Extent") || line.contains("BoundsRadius"))) {
-				if (line.contains("MinimumExtent")) {
-					extLog.setMinExt(Vertex.parseText(line.split("MinimumExtent ")[1]));
-				} else if (line.contains("MaximumExtent")) {
-					extLog.setMaxExt(Vertex.parseText(line.split("MaximumExtent ")[1]));
-				} else if (line.contains("BoundsRadius")) {
-					String s = line.split("BoundsRadius ")[1];
-					s = s.substring(0, s.length() - 1);
-					try {
-						extLog.setBounds(Double.parseDouble(s));
-					} catch (final NumberFormatException e) {
-						JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-								"Error {" + s + "}: BoundsRadius could not be interpreted.");
-					}
-				} else {
-					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-							"Unable to parse ExtLog; unrecognized input: " + line);
-				}
-				MDLReader.mark(mdl);
-				line = MDLReader.nextLine(mdl);
-			}
-			MDLReader.reset(mdl);
-			return extLog;
-		} else {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse ExtLog: Missing or unrecognized open statement: " + line);
-		}
-		return null;
-	}
-
-	public void printTo(final PrintWriter writer, final int tabHeight) {
-		String tabs = "";
-		for (int i = 0; i < tabHeight; i++) {
-			tabs = tabs + "\t";
-		}
-		if (minimumExtent != null) {
-			writer.println(tabs + "MinimumExtent " + minimumExtent.toString() + ",");
-		}
-		if (maximumExtent != null) {
-			writer.println(tabs + "MaximumExtent " + maximumExtent.toString() + ",");
-		}
-		if (boundsRadius != NO_BOUNDS_RADIUS) {
-			writer.println(tabs + "BoundsRadius " + MDLReader.doubleToString(boundsRadius) + ",");
-		}
 	}
 
 	public boolean hasBoundsRadius() {

@@ -1,5 +1,18 @@
 package com.matrixeater.src;
 
+/*
+<classpathentry kind="lib" path="jars/idw-gpl.jar"/>
+	<classpathentry kind="lib" path="jars/lwjgl-2.9.3.jar"/>
+	<classpathentry kind="lib" path="jars/lwjgl_util-2.9.3.jar"/>
+	<classpathentry kind="lib" path="jars/lwjgl-platform-2.9.3-natives-windows.jar"/>
+	<classpathentry kind="lib" path="jars/JTattoo-1.6.11.jar"/>
+	<classpathentry kind="lib" path="jars/rsyntaxtextarea-3.0.2.jar"/>
+	<classpathentry kind="lib" path="jars/miglayout-core-4.2.jar"/>
+	<classpathentry kind="lib" path="jars/miglayout-swing-4.2.jar"/>
+	<classpathentry kind="lib" path="jars/blp-iio-plugin.jar"/>
+	<classpathentry kind="lib" path="jars/guava-23.5-jre.jar"/>
+*/
+
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.event.WindowAdapter;
@@ -28,6 +41,7 @@ import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceChooserPanel;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceDescriptor;
 import com.hiveworkshop.wc3.mdl.EditableModel;
+import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.resources.Resources;
 import com.hiveworkshop.wc3.resources.WEString;
@@ -59,17 +73,17 @@ public class MainFrame extends JFrame {
 		return panel;
 	}
 
-	public static void main(final String[] args) {
+	public static void main(final String[] args) throws IOException {
 		final boolean hasArgs = args.length >= 1;
 		final List<String> startupModelPaths = new ArrayList<>();
 		if (hasArgs) {
 			if ((args.length > 1) && args[0].equals("-convert")) {
 				final String path = args[1];
-				final EditableModel model = EditableModel.read(new File(path));
+				final EditableModel model = MdxUtils.loadEditableModel(new File(path));
 				if (path.toLowerCase().endsWith(".mdx")) {
-					model.printTo(new File(path.substring(0, path.lastIndexOf('.')) + ".mdl"));
+					MdxUtils.saveEditableModel(model, new File(path.substring(0, path.lastIndexOf('.')) + ".mdl"));
 				} else if (path.toLowerCase().endsWith(".mdl")) {
-					model.printTo(new File(path.substring(0, path.lastIndexOf('.')) + ".mdx"));
+					MdxUtils.saveEditableModel(model, new File(path.substring(0, path.lastIndexOf('.')) + ".mdx"));
 				} else {
 					// Unfortunately obj convert does popups right now
 					final Build builder = new Build();
@@ -318,7 +332,12 @@ public class MainFrame extends JFrame {
 							new Thread(new Runnable() {
 								@Override
 								public void run() {
-									main(new String[] { "-forcedataprompt" });
+									try {
+										main(new String[] { "-forcedataprompt" });
+									} catch (IOException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
 								}
 							}).start();
 						} else {

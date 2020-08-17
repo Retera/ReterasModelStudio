@@ -12,6 +12,10 @@ public class Vertex {
 	public double y = 0;
 	public double z = 0;
 
+	public Vertex() {
+
+	}
+	
 	public Vertex(final double x, final double y, final double z) {
 		this.x = x;
 		this.y = y;
@@ -131,43 +135,13 @@ public class Vertex {
 		return z;
 	}
 
-	public static Vertex parseText(final String input) {
-		final String[] entries = input.split(",");
-		Vertex temp = null;
-		double x = 0;
-		double y = 0;
-		double z = 0;
-		try {
-			x = Double.parseDouble(entries[0].split("\\{")[1]);
-		} catch (final NumberFormatException e) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: Vertex coordinates could not be interpreted.");
-		}
-		try {
-			y = Double.parseDouble(entries[1]);
-		} catch (final NumberFormatException e) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: Vertex coordinates could not be interpreted.");
-		}
-		try {
-			z = Double.parseDouble(entries[2].split("}")[0]);
-		} catch (final NumberFormatException e) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: Vertex coordinates could not be interpreted.");
-		}
-		temp = new Vertex(x, y, z);
-		return temp;
-	}
-
 	@Override
 	public String toString() {
-		return "{ " + MDLReader.doubleToString(x) + ", " + MDLReader.doubleToString(y) + ", "
-				+ MDLReader.doubleToString(z) + " }";
+		return "{ " + x + ", " + y + ", " + z + " }";
 	}
 
 	public String toStringLessSpace() {
-		return "{" + MDLReader.doubleToString(x) + ", " + MDLReader.doubleToString(y) + ", "
-				+ MDLReader.doubleToString(z) + "}";
+		return "{" + x + ", " + y + ", " + z + "}";
 	}
 
 	public double[] toArray() {
@@ -176,6 +150,14 @@ public class Vertex {
 
 	public float[] toFloatArray() {
 		return new float[] { (float) x, (float) y, (float) z };
+	}
+
+	public short[] toShortArray() {
+		return new short[] { (short)x, (short)y, (short)z };
+	}
+
+	public long[] toLongArray() {
+		return new long[] { (long)x, (long)y, (long)z };
 	}
 
 	public static Vertex centerOfGroup(final Collection<? extends Vertex> group) {

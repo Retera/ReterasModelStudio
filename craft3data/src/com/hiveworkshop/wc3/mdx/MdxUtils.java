@@ -1,6 +1,14 @@
 package com.hiveworkshop.wc3.mdx;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import com.etheller.warsmash.parsers.mdlx.MdlxModel;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 
 import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
@@ -19,10 +27,24 @@ public class MdxUtils {
 	 * }
 	 */
 
-	public static MdxModel loadModel(final BlizzardDataInputStream in) throws IOException {
-		final MdxModel model = new MdxModel();
-		model.load(in);
-		return model;
+	public static MdlxModel loadModel(final InputStream in) throws IOException {
+		return new MdlxModel(in);
+	}
+
+	public static EditableModel loadEditableModel(final InputStream in) throws IOException {
+		return new EditableModel(new MdlxModel(in));
+	}
+
+	public static EditableModel loadEditableModel(final File in) throws IOException {
+		return new EditableModel(new MdlxModel(new FileInputStream(in)));
+	}
+
+	public static void saveEditableModel(final EditableModel editableModel, final OutputStream out) throws IOException {
+		editableModel.toMdlx().saveMdx(out);
+	}
+
+	public static void saveEditableModel(final EditableModel editableModel, final File out) throws IOException {
+		saveEditableModel(editableModel, new FileOutputStream(out));
 	}
 
 	public static boolean checkOptionalId(final BlizzardDataInputStream in, final String name) throws IOException {

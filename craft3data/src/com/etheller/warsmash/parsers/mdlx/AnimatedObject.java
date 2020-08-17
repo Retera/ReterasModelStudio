@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
+import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.parsers.mdlx.timeline.Timeline;
 import com.etheller.warsmash.util.MdlUtils;
 import com.google.common.io.LittleEndianDataInputStream;
@@ -15,11 +17,11 @@ import com.hiveworkshop.wc3.units.objectdata.War3ID;
  * Based on the works of Chananya Freiman.
  *
  */
-public abstract class AnimatedObject implements Chunk, MdlxBlock {
-	protected final List<Timeline<?>> timelines;
+public abstract class AnimatedObject implements MdlxChunk, MdlxBlock {
+	public List<Timeline<?>> timelines = new ArrayList<>();
 
 	public AnimatedObject() {
-		this.timelines = new ArrayList<>();
+		
 	}
 
 	public void readTimelines(final LittleEndianDataInputStream stream, long size) throws IOException {
@@ -64,7 +66,7 @@ public abstract class AnimatedObject implements Chunk, MdlxBlock {
 	}
 
 	@Override
-	public long getByteLength() {
+	public long getByteLength(final int version) {
 		long size = 0;
 		for (final Timeline<?> timeline : this.timelines) {
 			size += timeline.getByteLength();
@@ -99,10 +101,5 @@ public abstract class AnimatedObject implements Chunk, MdlxBlock {
 			}
 			return token;
 		}
-
-	}
-
-	public List<Timeline<?>> getTimelines() {
-		return this.timelines;
 	}
 }

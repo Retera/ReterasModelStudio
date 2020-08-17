@@ -3,18 +3,17 @@ package com.hiveworkshop.wc3.mdl;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JOptionPane;
+import com.etheller.warsmash.parsers.mdlx.MdlxLayer;
+import com.etheller.warsmash.parsers.mdlx.MdlxMaterial;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
+
 import com.hiveworkshop.wc3.mdl.v2.MaterialView;
-import com.hiveworkshop.wc3.mdx.LayerChunk;
-import com.hiveworkshop.wc3.mdx.MaterialChunk;
+
 import com.hiveworkshop.wc3.util.ModelUtils;
 
 /**
@@ -102,27 +101,61 @@ public class Material implements MaterialView {
 		priorityPlane = other.priorityPlane;
 	}
 
-	public Material(final MaterialChunk.Material mat, final EditableModel mdlObject) {
+	public Material(final MdlxMaterial material, final EditableModel editableModel) {
 		this();
-		for (final LayerChunk.Layer lay : mat.layerChunk.layer) {
-			final Layer layer = new Layer(lay);
-			layer.updateRefs(mdlObject);
+
+		for (final MdlxLayer mdlxLayer : material.layers) {
+			final Layer layer = new Layer(mdlxLayer);
+
+			layer.updateRefs(editableModel);
+
 			layers.add(layer);
 		}
-		setPriorityPlane(mat.priorityPlane);
-		if (EditableModel.hasFlag(mat.flags, 0x1)) {
+		
+		setPriorityPlane(material.priorityPlane);
+
+		int flags = material.flags;
+
+		if (EditableModel.hasFlag(flags, 0x1)) {
 			add("ConstantColor");
 		}
-		if (EditableModel.hasFlag(mat.flags, 0x10)) {
+		if (EditableModel.hasFlag(flags, 0x10)) {
 			add("SortPrimsFarZ");
 		}
-		if (EditableModel.hasFlag(mat.flags, 0x20)) {
+		if (EditableModel.hasFlag(flags, 0x20)) {
 			add("FullResolution");
 		}
-		if (ModelUtils.isShaderStringSupported(mdlObject.getFormatVersion()) && EditableModel.hasFlag(mat.flags, 0x02)) {
+		if (ModelUtils.isShaderStringSupported(editableModel.getFormatVersion()) && EditableModel.hasFlag(flags, 0x02)) {
 			add("TwoSided");
 		}
-		this.shaderString = mat.shader;
+
+		shaderString = material.shader;
+	}
+
+	public MdlxMaterial toMdlx() {
+		MdlxMaterial material = new MdlxMaterial();
+
+		for (final Layer layer : getLayers()) {
+			material.layers.add(layer.toMdlx());
+		}
+
+		material.priorityPlane = getPriorityPlane();
+
+		for (final String tag : getFlags()) {
+			if (tag.startsWith("ConstantColor")) {
+				material.flags |= 0x1;
+			} else if (tag.startsWith("SortPrimsFarZ")) {
+				material.flags |= 0x2;
+			} else if (tag.startsWith("Rarity")) {
+				material.flags |= 0x10;
+			} else if (tag.startsWith("FullResolution")) {
+				material.flags |= 0x20;
+			}
+		}
+
+		material.shader = shaderString;
+
+		return material;
 	}
 
 	public void add(final String flag) {
@@ -229,84 +262,6 @@ public class Material implements MaterialView {
 		return true;
 	}
 
-	public static Material read(final BufferedReader mdl, final EditableModel mdlr) {
-		String line = MDLReader.nextLine(mdl);
-		if (line.contains("Material")) {
-			final Material mat = new Material();
-			MDLReader.mark(mdl);
-			while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
-				if (line.contains("Layer")) {
-					MDLReader.reset(mdl);
-					mat.layers.add(Layer.read(mdl, mdlr));
-					MDLReader.mark(mdl);
-				} else if (line.contains("PriorityPlane")) {
-					mat.priorityPlane = MDLReader.readInt(line);
-				} else if (line.contains("Shader")) {
-					mat.shaderString = MDLReader.readName(line);
-				} else {
-					mat.flags.add(MDLReader.readFlag(line));
-					// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Error
-					// parsing Material: Unrecognized statement
-					// '"+line[i]+"'.");
-				}
-				MDLReader.mark(mdl);
-			}
-			return mat;
-		} else {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse Material: Missing or unrecognized open statement.");
-		}
-		return null;
-	}
-
-	public static ArrayList<Material> readAll(final BufferedReader mdl, final EditableModel mdlr) {
-		String line = "";
-		final ArrayList<Material> outputs = new ArrayList<>();
-		MDLReader.mark(mdl);
-		if ((line = MDLReader.nextLine(mdl)).contains("Materials")) {
-			MDLReader.mark(mdl);
-			while (!(line = MDLReader.nextLine(mdl)).startsWith("}")) {
-				MDLReader.reset(mdl);
-				outputs.add(read(mdl, mdlr));
-				MDLReader.mark(mdl);
-			}
-			return outputs;
-		} else {
-			MDLReader.reset(mdl);
-			// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Unable
-			// to parse Materials: Missing or unrecognized open statement.");
-		}
-		return outputs;
-	}
-
-	public void printTo(final PrintWriter writer, final int tabHeight, final int version) {
-		String tabs = "";
-		for (int i = 0; i < tabHeight; i++) {
-			tabs = tabs + "\t";
-		}
-		writer.println(tabs + "Material {");
-		if ((shaderString != null) && ModelUtils.isShaderStringSupported(version)) {
-			writer.println(tabs + "\tShader \"" + shaderString + "\",");
-		}
-		if (priorityPlane != 0) {
-			writer.println(tabs + "\tPriorityPlane " + priorityPlane + ",");
-		}
-		for (int i = 0; i < flags.size(); i++) {
-			writer.println(tabs + "\t" + flags.get(i) + ",");
-		}
-		boolean useCoords = false;
-		for (int i = 0; i < layers.size(); i++) {
-			useCoords = layers.get(i).hasCoordId();
-			if (useCoords) {
-				break;
-			}
-		}
-		for (int i = 0; i < layers.size(); i++) {
-			layers.get(i).printTo(writer, tabHeight + 1, useCoords, version);
-		}
-		writer.println(tabs + "}");
-	}
-
 	public BufferedImage getBufferedImage(final DataSource workingDirectory) {
 		BufferedImage theImage = null;
 		for (int i = 0; i < layers.size(); i++) {
@@ -376,53 +331,6 @@ public class Material implements MaterialView {
 
 		return combined;
 	}
-	// public BufferedImage getBufferedImage()
-	// {
-	// BufferedImage theImage = null;
-	// for(int i = 0; i < layers.size(); i++ )
-	// {
-	// Layer lay = layers.get(i);
-	// Bitmap tex = lay.firstTexture();
-	// String path = tex.getPath();
-	// if( path.length() == 0 )
-	// {
-	// System.err.println("sup homes");
-	// if( tex.getReplaceableId() == 1 )
-	// {
-	// path = "ReplaceableTextures\\TeamColor\\TeamColor0"+teamColor+".blp";
-	// }
-	// else if( tex.getReplaceableId() == 2 )
-	// {
-	// path = "ReplaceableTextures\\TeamGlow\\TeamGlow0"+teamColor+".blp";
-	// }
-	// }
-	// try {
-	// BufferedImage newImage = BLPHandler.get().getGameTex(path);
-	// if( theImage == null )
-	// theImage = newImage;
-	// else
-	// theImage = mergeImage(theImage, newImage);
-	// }
-	// catch (Exception exc)
-	// {
-	// exc.printStackTrace();
-	// try {
-	// BufferedImage newImage =
-	// BLPHandler.get().getCustomTex(MDLReader.getDefaultContainer().currentMDL().getFile().getParent()+"\\"+path);
-	// if( theImage == null )
-	// theImage = newImage;
-	// else
-	// theImage = mergeImage(theImage, newImage);
-	// }
-	// catch (Exception exc2)
-	// {
-	// exc2.printStackTrace();
-	// JOptionPane.showMessageDialog(null, "BLP texture-loader failed.");
-	// }
-	// }
-	// }
-	// return theImage;
-	// }
 
 	@Override
 	public boolean isConstantColor() {

@@ -1,9 +1,14 @@
 package com.hiveworkshop.wc3.jworldedit;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.etheller.warsmash.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Bitmap;
@@ -23,7 +28,7 @@ import com.hiveworkshop.wc3.util.CharInt;
 
 public class TestMain {
 
-	public static void main(final String[] args) {
+	public static void main(final String[] args) throws FileNotFoundException, IOException {
 		final int int1 = CharInt.toInt("SBLG");
 		System.out.println(int1);
 
@@ -77,11 +82,11 @@ public class TestMain {
 		}
 		myModel.add(geoset);
 
-		myModel.printTo(new File("C:/users/micro/onedrive/documents/warcraft III/models/Generated43Matrices.mdx"));
+		myModel.toMdlx().saveMdx(new FileOutputStream(new File("C:/users/micro/onedrive/documents/warcraft III/models/Generated43Matrices.mdx")));
 //		for(int i = 0; i < )
 
-		final EditableModel twoCloud = EditableModel
-				.read(new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\TwoCloudB.mdx"));
+		final EditableModel twoCloud = new EditableModel(new MdlxModel(new FileInputStream(new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\TwoCloudB.mdx"))));
+		
 		final Map<IdObject, Integer> objToCount = new HashMap<>();
 		for (final Geoset g : twoCloud.getGeosets()) {
 			for (final GeosetVertex gv : g.getVertices()) {

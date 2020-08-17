@@ -18,8 +18,6 @@ import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 
-import de.wc3data.stream.BlizzardDataInputStream;
-
 public class GetMeDatas10 {
 
 	public static void main(final String[] args) {
@@ -28,7 +26,7 @@ public class GetMeDatas10 {
 				"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Requests\\Wazzz\\WispGrove50.mdx")) {
 			try {
 
-				final EditableModel model = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(footman)));
+				final EditableModel model = new EditableModel(MdxUtils.loadModel(footman));
 
 				IdObject bad = null;
 				for (final IdObject obj : model.getIdObjects()) {
@@ -56,8 +54,7 @@ public class GetMeDatas10 {
 					}
 				}
 
-				model.printTo(new File(
-						"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Requests\\Wazzz\\WispGrove51.mdx"));
+				MdxUtils.saveEditableModel(model, new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Requests\\Wazzz\\WispGrove51.mdx"));
 			} catch (final IOException e) {
 				e.printStackTrace();
 			}

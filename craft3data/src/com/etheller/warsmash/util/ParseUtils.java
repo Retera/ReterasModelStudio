@@ -160,6 +160,17 @@ public class ParseUtils {
 		return name;
 	}
 
+	public static void writeString(final LittleEndianDataOutputStream stream, final String s, final int totalSize)
+			throws IOException {
+		final byte[] bytes = s.getBytes(UTF8);
+
+		stream.write(bytes);
+
+		for (int i = 0; i < (totalSize - bytes.length); i++) {
+			stream.write((byte) 0);
+		}
+	}
+
 	public static String readUntilNull(final LittleEndianDataInputStream stream) throws IOException {
 
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream();

@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.EditableModel;
-import com.hiveworkshop.wc3.mdx.MdxModel;
+import com.hiveworkshop.wc3.mdx.MdxUtils;
 
 import de.wc3data.stream.BlizzardDataOutputStream;
 import de.wc3data.stream.SquishingBlizzardDataOutputStream;
@@ -47,14 +47,14 @@ public final class SquishWar3 {
 					// final File copiedTarget = new File(texRoot +
 					// relativePath);
 					// copiedTarget.getParentFile().mkdirs();
-					final EditableModel model = EditableModel.read(target);
+					final EditableModel model = MdxUtils.loadEditableModel(target);
 					for (final AnimFlag flag : model.getAllAnimFlags()) {
 						flag.linearize();
 					}
 					model.simplifyKeyframes();
 					// model.printTo(target);
 					try (BlizzardDataOutputStream out = new SquishingBlizzardDataOutputStream(target)) {
-						new MdxModel(model).save(out);
+						model.toMdlx().saveMdx(out);
 					} catch (final Exception e) {
 						throw new RuntimeException(e);
 					}

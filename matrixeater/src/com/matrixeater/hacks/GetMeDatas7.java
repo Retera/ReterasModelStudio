@@ -13,8 +13,6 @@ import com.hiveworkshop.wc3.mdl.Normal;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 
-import de.wc3data.stream.BlizzardDataInputStream;
-
 public class GetMeDatas7 {
 
 	public static void main(final String[] args) {
@@ -49,7 +47,7 @@ public class GetMeDatas7 {
 //				footmanMdx.save(out);
 //			}
 
-			final EditableModel model = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(footman)));
+			final EditableModel model = new EditableModel(MdxUtils.loadModel(footman));
 			for (final Geoset geo : model.getGeosets()) {
 				final ArrayList<GeosetVertex> vertices = geo.getVertices();
 				for (final GeosetVertex gv : vertices) {
@@ -86,7 +84,7 @@ public class GetMeDatas7 {
 //					l.setEmissive(1.0);
 //				}
 //			}
-			model.printTo(new File("D:\\NEEDS_ORGANIZING\\Scratch\\Gimli_by_Jhotam\\Gimli_LOTR_ByJhotam_900_bxd.mdx"));
+			MdxUtils.saveEditableModel(model, new File("D:\\NEEDS_ORGANIZING\\Scratch\\Gimli_by_Jhotam\\Gimli_LOTR_ByJhotam_900_bxd.mdx"));
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}

@@ -1,6 +1,7 @@
 package com.matrixeater.hacks;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import com.hiveworkshop.wc3.mdl.AnimFlag;
@@ -14,12 +15,13 @@ import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.TextureAnim;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.util.ModelUtils;
 import com.hiveworkshop.wc3.util.ModelUtils.Mesh;
 
 public class GenModels2 {
 
-	public static void main(final String[] args) {
+	public static void main(final String[] args) throws IOException {
 		final File dest = new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Generated");
 		dest.mkdir();
 		final EditableModel model = new EditableModel("ParticleTest");
@@ -57,6 +59,6 @@ public class GenModels2 {
 		final TextureAnim textureAnim = new TextureAnim(flags);
 		material.getLayers().get(0).setTextureAnim(textureAnim);
 
-		model.printTo(new File(dest.getPath() + "\\ParticleTest.mdl"));
+		MdxUtils.saveEditableModel(model, new File(dest.getPath() + "\\ParticleTest.mdl"));
 	}
 }

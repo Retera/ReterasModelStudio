@@ -7,11 +7,12 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import com.etheller.warsmash.parsers.mdlx.MdlxCollisionShape;
+
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
+
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
-import com.hiveworkshop.wc3.mdx.CollisionShapeChunk;
-import com.hiveworkshop.wc3.mdx.Node;
 
 /**
  * A class for CollisionShapes, which handle unit selection and related matters
@@ -19,51 +20,69 @@ import com.hiveworkshop.wc3.mdx.Node;
  * Eric Theller 3/10/2012 3:52 PM
  */
 public class CollisionShape extends IdObject {
-	ArrayList<String> flags = new ArrayList<>();
 	ExtLog extents;
 	ArrayList<Vertex> vertices = new ArrayList<>();
-	ArrayList<AnimFlag> animFlags = new ArrayList<>();
 
-	public CollisionShape(final CollisionShapeChunk.CollisionShape mdxSource) {
-		this.name = mdxSource.node.name;
-		if ((mdxSource.node.flags & 8192) != 8192) {
-			System.err.println("MDX -> MDL error: A collisionshape '" + mdxSource.node.name
+	public CollisionShape(final MdlxCollisionShape shape) {
+		if ((shape.flags & 8192) != 8192) {
+			System.err.println("MDX -> MDL error: A collisionshape '" + shape.name
 					+ "' not flagged as collisionshape in MDX!");
 		}
-		if (mdxSource.type == 0) {
+
+		loadObject(shape);
+
+		MdlxCollisionShape.Type type = shape.type;
+		float[][] vertices = shape.vertices;
+
+		if (type == MdlxCollisionShape.Type.BOX) {
 			add("Box");
-			for (int i = 0; i < mdxSource.vertexs.length; i += 3) {
-				vertices.add(new Vertex(mdxSource.vertexs[i + 0], mdxSource.vertexs[i + 1], mdxSource.vertexs[i + 2]));
-			}
-		} else if (mdxSource.type == 1) {
+		} else if (type == MdlxCollisionShape.Type.PLANE) {
 			add("Plane");
-			for (int i = 0; i < mdxSource.vertexs.length; i += 3) {
-				vertices.add(new Vertex(mdxSource.vertexs[i + 0], mdxSource.vertexs[i + 1], mdxSource.vertexs[i + 2]));
-			}
-		} else if (mdxSource.type == 2) {
+		} else if (type == MdlxCollisionShape.Type.SPHERE) {
 			add("Sphere");
-			extents = new ExtLog(mdxSource.boundsRadius);
-			vertices.add(new Vertex(mdxSource.vertexs));
-		} else if (mdxSource.type == 3) {
+		} else if (type == MdlxCollisionShape.Type.CYLINDER) {
 			add("Cylinder");
-			for (int i = 0; i < mdxSource.vertexs.length; i += 3) {
-				vertices.add(new Vertex(mdxSource.vertexs[i + 0], mdxSource.vertexs[i + 1], mdxSource.vertexs[i + 2]));
+		}
+
+		this.vertices.add(new Vertex(vertices[0]));
+
+		if (type != MdlxCollisionShape.Type.SPHERE) {
+			this.vertices.add(new Vertex(vertices[1]));
+		}
+
+		if (type == MdlxCollisionShape.Type.SPHERE || type == MdlxCollisionShape.Type.CYLINDER) {
+			extents = new ExtLog(shape.boundsRadius);
+		}
+	}
+
+	public MdlxCollisionShape toMdlx() {
+		MdlxCollisionShape shape = new MdlxCollisionShape();
+		
+		objectToMdlx(shape);
+
+		for (final String flag : getFlags()) {
+			if (flag.equals("Box")) {
+				shape.type = MdlxCollisionShape.Type.BOX;
+			} else if (flag.equals("Plane")) {
+				shape.type = MdlxCollisionShape.Type.PLANE;
+			} else if (flag.equals("Sphere")) {
+				shape.type = MdlxCollisionShape.Type.SPHERE;
+			} else if (flag.equals("Cylinder")) {
+				shape.type = MdlxCollisionShape.Type.CYLINDER;
 			}
 		}
-		// ----- Convert Base NODE to "IDOBJECT" -----
-		setParentId(mdxSource.node.parentId);
-		setObjectId(mdxSource.node.objectId);
-		final Node node = mdxSource.node;
-		if (node.geosetTranslation != null) {
-			add(new AnimFlag(node.geosetTranslation));
+
+		shape.vertices[0] = getVertex(0).toFloatArray();
+
+		if (shape.type != MdlxCollisionShape.Type.SPHERE) {
+			shape.vertices[1] = getVertex(1).toFloatArray();
 		}
-		if (node.geosetScaling != null) {
-			add(new AnimFlag(node.geosetScaling));
+
+		if (shape.type == MdlxCollisionShape.Type.SPHERE || shape.type == MdlxCollisionShape.Type.CYLINDER) {
+			shape.boundsRadius = (float)getExtents().getBoundsRadius();
 		}
-		if (node.geosetRotation != null) {
-			add(new AnimFlag(node.geosetRotation));
-		}
-		// ----- End Base NODE to "IDOBJECT" -----
+
+		return shape;
 	}
 
 	@Override
@@ -103,104 +122,6 @@ public class CollisionShape extends IdObject {
 
 	}
 
-	public static CollisionShape read(final BufferedReader mdl) {
-		String line = MDLReader.nextLine(mdl);
-		if (line.contains("CollisionShape")) {
-			final CollisionShape e = new CollisionShape();
-			e.setName(MDLReader.readName(line));
-			MDLReader.mark(mdl);
-			line = MDLReader.nextLine(mdl);
-			while ((!line.contains("}") || line.contains("},") || line.contains("\t}"))
-					&& !line.equals("COMPLETED PARSING")) {
-				if (line.contains("ObjectId")) {
-					e.objectId = MDLReader.readInt(line);
-				} else if (line.contains("Parent")) {
-					e.parentId = MDLReader.splitToInts(line)[0];
-					// e.parent = mdlr.getIdObject(e.parentId);
-				} else if (line.contains("Extent") || line.contains("BoundsRadius")) {
-					MDLReader.reset(mdl);
-					e.extents = ExtLog.read(mdl);
-				} else if (line.contains("Vertices")) {
-					while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
-						e.addVertex(Vertex.parseText(line));
-					}
-				} else if ((line.contains("Scaling") || line.contains("Rotation") || line.contains("Translation"))
-						&& !line.contains("DontInherit")) {
-					MDLReader.reset(mdl);
-					e.animFlags.add(AnimFlag.read(mdl));
-				} else {
-					e.flags.add(MDLReader.readFlag(line));
-				}
-				MDLReader.mark(mdl);
-				line = MDLReader.nextLine(mdl);
-			}
-			return e;
-		} else {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse CollisionShape: Missing or unrecognized open statement.");
-		}
-		return null;
-	}
-
-	@Override
-	public void printTo(final PrintWriter writer) {
-		// Remember to update the ids of things before using this
-		// -- uses objectId value of idObject superclass
-		// -- uses parentId value of idObject superclass
-		// -- uses the parent (java Object reference) of idObject superclass
-		writer.println(MDLReader.getClassName(this.getClass()) + " \"" + getName() + "\" {");
-		if (objectId != -1) {
-			writer.println("\tObjectId " + objectId + ",");
-		}
-		if (parentId != -1) {
-			writer.println("\tParent " + parentId + ",\t// \"" + getParent().getName() + "\"");
-		}
-		for (final String s : flags) {
-			writer.println("\t" + s + ",");
-		}
-		writer.println("\tVertices " + vertices.size() + " {");
-		for (final Vertex v : vertices) {
-			writer.println("\t\t" + v.toString() + ",");
-		}
-		writer.println("\t}");
-		if (extents != null) {
-			extents.printTo(writer, 1);
-		}
-		for (int i = 0; i < animFlags.size(); i++) {
-			animFlags.get(i).printTo(writer, 1);
-		}
-		writer.println("}");
-	}
-
-	@Override
-	public void flipOver(final byte axis) {
-		final String currentFlag = "Rotation";
-		for (int i = 0; i < animFlags.size(); i++) {
-			final AnimFlag flag = animFlags.get(i);
-			flag.flipOver(axis);
-		}
-	}
-
-	@Override
-	public void add(final AnimFlag af) {
-		animFlags.add(af);
-	}
-
-	@Override
-	public void add(final String flag) {
-		flags.add(flag);
-	}
-
-	@Override
-	public List<String> getFlags() {
-		return flags;
-	}
-
-	@Override
-	public ArrayList<AnimFlag> getAnimFlags() {
-		return animFlags;
-	}
-
 	public ExtLog getExtents() {
 		return extents;
 	}
@@ -215,14 +136,6 @@ public class CollisionShape extends IdObject {
 
 	public void setVertices(final ArrayList<Vertex> vertices) {
 		this.vertices = vertices;
-	}
-
-	public void setFlags(final ArrayList<String> flags) {
-		this.flags = flags;
-	}
-
-	public void setAnimFlags(final ArrayList<AnimFlag> animFlags) {
-		this.animFlags = animFlags;
 	}
 
 	@Override
@@ -263,32 +176,5 @@ public class CollisionShape extends IdObject {
 	@Override
 	public float getRenderVisibility(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		return 1;
-	}
-
-	@Override
-	public Vertex getRenderTranslation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Translation");
-		if (translationFlag != null) {
-			return (Vertex) translationFlag.interpolateAt(animatedRenderEnvironment);
-		}
-		return null;
-	}
-
-	@Override
-	public QuaternionRotation getRenderRotation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Rotation");
-		if (translationFlag != null) {
-			return (QuaternionRotation) translationFlag.interpolateAt(animatedRenderEnvironment);
-		}
-		return null;
-	}
-
-	@Override
-	public Vertex getRenderScale(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Scaling");
-		if (translationFlag != null) {
-			return (Vertex) translationFlag.interpolateAt(animatedRenderEnvironment);
-		}
-		return null;
 	}
 }

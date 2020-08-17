@@ -80,8 +80,6 @@ import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.units.GameObject;
 
-import de.wc3data.stream.BlizzardDataInputStream;
-
 public class MDLSnapshot {
 
 	ModelView dispMDL;
@@ -358,7 +356,7 @@ public class MDLSnapshot {
 				field += ".mdx";
 			}
 			model = new EditableModel(
-					MdxUtils.loadModel(new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream(field))));
+					MdxUtils.loadModel(MpqCodebase.get().getResourceAsStream(field)));
 			mdlDisplay = new ModelViewManager(model);
 
 			Animation bestStandAnim = null;

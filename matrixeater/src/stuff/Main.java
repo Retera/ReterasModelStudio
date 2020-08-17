@@ -16,15 +16,12 @@ import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 
-import de.wc3data.stream.BlizzardDataInputStream;
-
 public class Main {
 	public static void main(final String[] args) {
 		LwjglNativesLoader.load();
 		EditableModel model;
 		try {
-			model = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(
-					MpqCodebase.get().getResourceAsStream("units\\critters\\zergling\\zergling.mdx"))));
+			model = new EditableModel(MdxUtils.loadModel(MpqCodebase.get().getResourceAsStream("units\\critters\\zergling\\zergling.mdx")));
 		} catch (final IOException e1) {
 			throw new RuntimeException(e1);
 		}

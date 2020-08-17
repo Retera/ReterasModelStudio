@@ -5,6 +5,7 @@ import static java.util.logging.Level.SEVERE;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,6 +31,7 @@ import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.UVLayer;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.mdx.MdxUtils;
 // This code was written by myself, Sean R. Owens, sean at guild dot net,
 // and is released to the public domain. Share and enjoy. Since some
 // people argue that it is impossible to release software to the public
@@ -595,16 +597,15 @@ public class BuildWLists implements BuilderInterface {
 
 	/**
 	 * The code for this part looks ridiculous, but the point is that we want to
-	 * make sure when we convert to MDL that regardless of how data was stored
-	 * in the OBJ, the MDL will have the existence of two vertices at the same
-	 * world position only when they have different normals or different texture
+	 * make sure when we convert to MDL that regardless of how data was stored in
+	 * the OBJ, the MDL will have the existence of two vertices at the same world
+	 * position only when they have different normals or different texture
 	 * coordinates.
 	 *
-	 * So, I am accomplishing that by hashing based on a set of the 8 values
-	 * below as the key. Two faces that reference a vertex in exactly the same
-	 * place with exactly the same additional data will end up hashing to the
-	 * same key and therefore linking to the same physical vertex ID inside the
-	 * MDL.
+	 * So, I am accomplishing that by hashing based on a set of the 8 values below
+	 * as the key. Two faces that reference a vertex in exactly the same place with
+	 * exactly the same additional data will end up hashing to the same key and
+	 * therefore linking to the same physical vertex ID inside the MDL.
 	 *
 	 * @author Eric "Retera"
 	 *
@@ -863,7 +864,12 @@ public class BuildWLists implements BuilderInterface {
 			}
 		}
 		if (userWantsSwapToBLP) {
-			mdl.saveFile();
+			try {
+				MdxUtils.saveEditableModel(mdl, mdl.getFile());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		return mdl;
 	}

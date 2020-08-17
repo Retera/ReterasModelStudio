@@ -1,7 +1,12 @@
 package com.hiveworkshop.wc3.gui.modeledit;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
+import com.etheller.warsmash.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Camera;
@@ -14,13 +19,13 @@ import com.hiveworkshop.wc3.mdl.Vertex;
 
 public class ModelScale {
 
-	public static void main(final String[] args) {
+	public static void main(final String[] args) throws FileNotFoundException, IOException {
 		final File santaFile = new File(
 				"C:\\Users\\Eric\\Documents\\Warcraft\\Models\\Hayate\\Warcraft_Santa\\Warcraft Santa\\SantaClausFull.mdx");
-		final EditableModel model = EditableModel.read(santaFile);
+		final EditableModel model = new EditableModel(new MdlxModel(new FileInputStream(santaFile)));
 		scale(model, 0.35, 0.35, 0.35);
-		model.printTo(new File(
-				"C:\\Users\\Eric\\Documents\\Warcraft\\Models\\Hayate\\Warcraft_Santa\\Warcraft Santa\\SantaClausFull_scaled.mdx"));
+		model.toMdlx().saveMdx(new FileOutputStream(new File(
+				"C:\\Users\\Eric\\Documents\\Warcraft\\Models\\Hayate\\Warcraft_Santa\\Warcraft Santa\\SantaClausFull_scaled.mdx")));
 	}
 
 	public static void scale(final EditableModel mdl, final double x, final double y, final double z) {

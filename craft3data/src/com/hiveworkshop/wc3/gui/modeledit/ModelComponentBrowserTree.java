@@ -28,12 +28,14 @@ import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
 import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportIconUtils;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Attachment;
+import com.hiveworkshop.wc3.mdl.BindPose;
 import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.CollisionShape;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.EventObject;
+import com.hiveworkshop.wc3.mdl.FaceEffect;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.Helper;
@@ -47,8 +49,6 @@ import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.TextureAnim;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
-import com.hiveworkshop.wc3.mdx.BindPoseChunk;
-import com.hiveworkshop.wc3.mdx.FaceEffectsChunk.FaceEffect;
 import com.hiveworkshop.wc3.util.IconUtils;
 
 public final class ModelComponentBrowserTree extends JTree {
@@ -1157,26 +1157,26 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 	}
 
-	private static final class ChooseableBindPoseChunkItem extends ChooseableDisplayElement<BindPoseChunk> {
+	private static final class ChooseableBindPoseChunkItem extends ChooseableDisplayElement<BindPose> {
 		private static final ImageIcon BINDPOSE_ICON = new ImageIcon(
 				IconUtils.worldEditStyleIcon(ViewportIconUtils.loadImage("icons/nodes/bindpos.png")));
 
 		public ChooseableBindPoseChunkItem(final ModelViewManager modelViewManager,
 				final UndoActionListener undoActionListener,
-				final ModelStructureChangeListener modelStructureChangeListener, final BindPoseChunk item) {
+				final ModelStructureChangeListener modelStructureChangeListener, final BindPose item) {
 			super(BINDPOSE_ICON, modelViewManager, undoActionListener, modelStructureChangeListener, item);
 		}
 
 		@Override
-		protected void select(final BindPoseChunk item, final ModelViewManager modelViewManager,
+		protected void select(final BindPose item, final ModelViewManager modelViewManager,
 				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
 				final ModelComponentListener listener) {
 			listener.selected(item);
 		}
 
 		@Override
-		protected String getName(final BindPoseChunk item, final ModelViewManager modelViewManager) {
-			return "BindPoseChunk";
+		protected String getName(final BindPose item, final ModelViewManager modelViewManager) {
+			return "BindPose";
 		}
 
 		@Override
@@ -1284,7 +1284,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		void selected(FaceEffect faceEffectsChunk);
 
-		void selected(BindPoseChunk bindPoseChunk);
+		void selected(BindPose bindPoseChunk);
 	}
 
 	private static final class IdObjectToChooseableElementWrappingConverter implements IdObjectVisitor {

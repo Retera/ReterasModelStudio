@@ -18,8 +18,6 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 
-import de.wc3data.stream.BlizzardDataInputStream;
-
 public class GetMeDatas12 {
 
 	public static void main(final String[] args) {
@@ -30,8 +28,8 @@ public class GetMeDatas12 {
 						"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Test\\Thrall\\SpiritWolf_Original.mdx")) {
 			try {
 
-				final EditableModel thrall = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(thrallStream)));
-				final EditableModel spiritwolf = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(spiritwolfStream)));
+				final EditableModel thrall = new EditableModel(MdxUtils.loadModel(thrallStream));
+				final EditableModel spiritwolf = new EditableModel(MdxUtils.loadModel(spiritwolfStream));
 
 				final int[] spiritwolfGeosets = { 0, 1, 4, 5, 6, 7, 8, 9 };
 
@@ -82,8 +80,7 @@ public class GetMeDatas12 {
 					geosetAnim.copyVisibilityFrom(thrall.getGeoset(3).getGeosetAnim(), thrall);
 				}
 
-				thrall.printTo(new File(
-						"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Test\\Thrall\\Thrall_Output.mdx"));
+				MdxUtils.saveEditableModel(thrall, new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Test\\Thrall\\Thrall_Output.mdx"));
 			} catch (final IOException e) {
 				e.printStackTrace();
 			}

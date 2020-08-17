@@ -3,12 +3,12 @@ package com.hiveworkshop.wc3.mdlx;
 import java.io.IOException;
 
 import com.etheller.collections.SetView;
-import com.hiveworkshop.wc3.mdx.GeosetChunk;
-import com.hiveworkshop.wc3.mdx.MdxModel;
-import com.hiveworkshop.wc3.mdx.MdxUtils;
-import com.hiveworkshop.wc3.mpq.MpqCodebase;
+import com.etheller.warsmash.parsers.mdlx.MdlxGeoset;
+import com.etheller.warsmash.parsers.mdlx.MdlxModel;
 
-import de.wc3data.stream.BlizzardDataInputStream;
+import com.hiveworkshop.wc3.mdx.MdxUtils;
+
+import com.hiveworkshop.wc3.mpq.MpqCodebase;
 
 public class ParseEveryModel {
 
@@ -20,13 +20,12 @@ public class ParseEveryModel {
 			if (str.toLowerCase().endsWith(".mdx")) {
 //				System.err.println(str);
 				try {
-					final MdxModel loadModel = MdxUtils
-							.loadModel(new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream(str)));
-					if ((loadModel != null) && (loadModel.geosetChunk != null)) {
-						for (final GeosetChunk.Geoset geosetChunk : loadModel.geosetChunk.geoset) {
-							for (final int matrixGroup : geosetChunk.matrixGroups) {
+					final MdlxModel loadModel = MdxUtils.loadModel(MpqCodebase.get().getResourceAsStream(str));
+					if (loadModel != null) {
+						for (final MdlxGeoset geosetChunk : loadModel.geosets) {
+							for (final long matrixGroup : geosetChunk.matrixGroups) {
 								if (matrixGroup > maxVertexGroup) {
-									maxVertexGroup = matrixGroup;
+									maxVertexGroup = (int)matrixGroup;
 								}
 							}
 						}

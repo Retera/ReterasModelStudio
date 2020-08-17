@@ -1,67 +1,19 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.io.BufferedReader;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import com.etheller.warsmash.parsers.mdlx.AnimationMap;
+import com.etheller.warsmash.parsers.mdlx.timeline.FloatArrayTimeline;
+import com.etheller.warsmash.parsers.mdlx.timeline.FloatTimeline;
+import com.etheller.warsmash.parsers.mdlx.timeline.Timeline;
+import com.etheller.warsmash.parsers.mdlx.timeline.UInt32Timeline;
 import com.hiveworkshop.wc3.gui.animedit.BasicTimeBoundProvider;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
-import com.hiveworkshop.wc3.mdx.AttachmentVisibility;
-import com.hiveworkshop.wc3.mdx.CameraPositionTranslation;
-import com.hiveworkshop.wc3.mdx.CameraRotation;
-import com.hiveworkshop.wc3.mdx.CameraTargetTranslation;
-import com.hiveworkshop.wc3.mdx.CornAlpha;
-import com.hiveworkshop.wc3.mdx.CornColor;
-import com.hiveworkshop.wc3.mdx.CornEmissionRate;
-import com.hiveworkshop.wc3.mdx.CornLifeSpan;
-import com.hiveworkshop.wc3.mdx.CornSpeed;
-import com.hiveworkshop.wc3.mdx.CornVisibility;
-import com.hiveworkshop.wc3.mdx.GeosetAlpha;
-import com.hiveworkshop.wc3.mdx.GeosetColor;
-import com.hiveworkshop.wc3.mdx.GeosetRotation;
-import com.hiveworkshop.wc3.mdx.GeosetScaling;
-import com.hiveworkshop.wc3.mdx.GeosetTranslation;
-import com.hiveworkshop.wc3.mdx.LightAmbientColor;
-import com.hiveworkshop.wc3.mdx.LightAmbientIntensity;
-import com.hiveworkshop.wc3.mdx.LightAttenuationEnd;
-import com.hiveworkshop.wc3.mdx.LightAttenuationStart;
-import com.hiveworkshop.wc3.mdx.LightColor;
-import com.hiveworkshop.wc3.mdx.LightIntensity;
-import com.hiveworkshop.wc3.mdx.LightVisibility;
-import com.hiveworkshop.wc3.mdx.MaterialAlpha;
-import com.hiveworkshop.wc3.mdx.MaterialEmissiveGain;
-import com.hiveworkshop.wc3.mdx.MaterialFresnelColor;
-import com.hiveworkshop.wc3.mdx.MaterialFresnelOpacity;
-import com.hiveworkshop.wc3.mdx.MaterialFresnelTeamColor;
-import com.hiveworkshop.wc3.mdx.MaterialTextureId;
-import com.hiveworkshop.wc3.mdx.ParticleEmitter2EmissionRate;
-import com.hiveworkshop.wc3.mdx.ParticleEmitter2Gravity;
-import com.hiveworkshop.wc3.mdx.ParticleEmitter2Latitude;
-import com.hiveworkshop.wc3.mdx.ParticleEmitter2Length;
-import com.hiveworkshop.wc3.mdx.ParticleEmitter2Speed;
-import com.hiveworkshop.wc3.mdx.ParticleEmitter2Variation;
-import com.hiveworkshop.wc3.mdx.ParticleEmitter2Visibility;
-import com.hiveworkshop.wc3.mdx.ParticleEmitter2Width;
-import com.hiveworkshop.wc3.mdx.ParticleEmitterEmissionRate;
-import com.hiveworkshop.wc3.mdx.ParticleEmitterGravity;
-import com.hiveworkshop.wc3.mdx.ParticleEmitterLatitude;
-import com.hiveworkshop.wc3.mdx.ParticleEmitterLifeSpan;
-import com.hiveworkshop.wc3.mdx.ParticleEmitterLongitude;
-import com.hiveworkshop.wc3.mdx.ParticleEmitterSpeed;
-import com.hiveworkshop.wc3.mdx.ParticleEmitterVisibility;
-import com.hiveworkshop.wc3.mdx.RibbonEmitterAlpha;
-import com.hiveworkshop.wc3.mdx.RibbonEmitterColor;
-import com.hiveworkshop.wc3.mdx.RibbonEmitterHeightAbove;
-import com.hiveworkshop.wc3.mdx.RibbonEmitterHeightBelow;
-import com.hiveworkshop.wc3.mdx.RibbonEmitterTextureSlot;
-import com.hiveworkshop.wc3.mdx.RibbonEmitterVisibility;
-import com.hiveworkshop.wc3.mdx.TextureRotation;
-import com.hiveworkshop.wc3.mdx.TextureScaling;
-import com.hiveworkshop.wc3.mdx.TextureTranslation;
+import com.hiveworkshop.wc3.units.objectdata.War3ID;
 import com.hiveworkshop.wc3.util.MathUtils;
 
 /**
@@ -143,6 +95,7 @@ public class AnimFlag {
 	 */
 	public static final int OTHER_TYPE = 0;
 
+	War3ID id;
 	ArrayList<String> tags = new ArrayList<>();
 	String title;
 	Integer globalSeq;
@@ -153,6 +106,8 @@ public class AnimFlag {
 	ArrayList inTans = new ArrayList();
 	ArrayList outTans = new ArrayList();
 	int typeid = 0;
+	int vectorSize = 1;
+	boolean isFloat = true;
 
 	public boolean equals(final AnimFlag o) {
 		boolean does = o instanceof AnimFlag;
@@ -186,1121 +141,170 @@ public class AnimFlag {
 	private static Double box(final float f) {
 		return new Double(f);
 	}
-
-	public AnimFlag(final MaterialTextureId source) {
-		title = "TextureID";
+	
+	public AnimFlag(final Timeline timeline) {
+		id = timeline.getName();
+		title = AnimationMap.ID_TO_TAG.get(id).getMdlToken();
 		generateTypeId();
-		addTag(AnimFlag.getInterpType(source.interpolationType));
-		if (source.globalSequenceId >= 0) {
-			setGlobalSeqId(source.globalSequenceId);
+
+		int interpolationType = timeline.interpolationType.getValue();
+		addTag(AnimFlag.getInterpType(interpolationType));
+
+		int globalSequenceId = timeline.globalSequenceId;
+		if (globalSequenceId >= 0) {
+			setGlobalSeqId(globalSequenceId);
 			setHasGlobalSeq(true);
 		}
-		final boolean tans = source.interpolationType > 1;
-		for (final MaterialTextureId.ScalingTrack track : source.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, track.textureId, track.inTan, track.outTan);
+
+		long[] frames = timeline.frames;
+		Object[] values = timeline.values;
+		Object[] inTans = timeline.inTans;
+		Object[] outTans = timeline.outTans;
+
+		if (frames.length > 0) {
+			final boolean hasTangents = interpolationType > 1;
+
+			Object firstValue = values[0];
+
+			if (firstValue instanceof float[]) {
+				vectorSize = ((float[])firstValue).length;
 			} else {
-				addEntry(track.time, track.textureId);
+				isFloat = false;
+				vectorSize = ((long[])firstValue).length;
+			}
+
+			for (int i = 0, l = frames.length; i < l; i++) {
+				Object value = values[i];
+				Object valueAsObject;
+				Object inTanAsObject = null;
+				Object outTanAsObject = null;
+
+				if (isFloat) {
+					float[] valueAsArray = (float[])value;
+
+					if (vectorSize == 1) {
+						valueAsObject = box(valueAsArray[0]);
+
+						if (hasTangents) {
+							inTanAsObject = box(((float[])inTans[i])[0]);
+							outTanAsObject = box(((float[])outTans[i])[0]);
+						}
+					} else if (vectorSize == 3) {
+						valueAsObject = new Vertex(valueAsArray);
+
+						if (hasTangents) {
+							inTanAsObject = new Vertex((float[])inTans[i]);
+							outTanAsObject = new Vertex((float[])outTans[i]);
+						}
+					} else {
+						valueAsObject = new QuaternionRotation(valueAsArray);
+
+						if (hasTangents) {
+							inTanAsObject = new QuaternionRotation((float[])inTans[i]);
+							outTanAsObject = new QuaternionRotation((float[])outTans[i]);
+						}
+					}
+				} else {
+					valueAsObject = Integer.valueOf((int)((long[])value)[0]);
+
+					if (hasTangents) {
+						inTanAsObject = Integer.valueOf((int)((long[])inTans[i])[0]);
+						outTanAsObject = Integer.valueOf((int)((long[])outTans[i])[0]);
+					}
+				}
+
+				addEntry((int)frames[i], valueAsObject, inTanAsObject, outTanAsObject);
 			}
 		}
 	}
 
-	public AnimFlag(final MaterialAlpha source) {
-		title = "Alpha";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(source.interpolationType));
-		if (source.globalSequenceId >= 0) {
-			setGlobalSeqId(source.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = source.interpolationType > 1;
-		for (final MaterialAlpha.ScalingTrack track : source.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.alpha), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.alpha));
-			}
-		}
-	}
+	public Timeline toMdlx() {
+		Timeline timeline;
 
-	public AnimFlag(final MaterialEmissiveGain source) {
-		title = "Emissive";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(source.interpolationType));
-		if (source.globalSequenceId >= 0) {
-			setGlobalSeqId(source.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = source.interpolationType > 1;
-		for (final MaterialEmissiveGain.ScalingTrack track : source.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.emission), box(track.inTan), box(track.outTan));
+		if (isFloat) {
+			if (vectorSize == 1) {
+				timeline = new FloatTimeline();
+			} else if (vectorSize == 3) {
+				timeline = new FloatArrayTimeline(3);
 			} else {
-				addEntry(track.time, box(track.emission));
+				timeline = new FloatArrayTimeline(4);
 			}
+		} else {
+			timeline = new UInt32Timeline();
 		}
-	}
 
-	public AnimFlag(final MaterialFresnelColor cornColor) {
-		title = "FresnelColor";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(cornColor.interpolationType));
-		if (cornColor.globalSequenceId >= 0) {
-			setGlobalSeqId(cornColor.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = cornColor.interpolationType > 1;
-		// NOTE: autoreplaced from a > 0 check, Linear shouldn't have 'tans'???
-		for (final MaterialFresnelColor.ScalingTrack track : cornColor.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, new Vertex(track.color), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
-				addEntry(track.time, new Vertex(track.color));
-			}
-		}
-	}
+		timeline.name = id;
+		timeline.interpolationType = com.etheller.warsmash.parsers.mdlx.InterpolationType.getType(getInterpType());
+		timeline.globalSequenceId = getGlobalSeqId();
 
-	public AnimFlag(final MaterialFresnelOpacity source) {
-		title = "FresnelOpacity";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(source.interpolationType));
-		if (source.globalSequenceId >= 0) {
-			setGlobalSeqId(source.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = source.interpolationType > 1;
-		for (final MaterialFresnelOpacity.ScalingTrack track : source.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.fresnelOpacity), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.fresnelOpacity));
-			}
-		}
-	}
+		ArrayList<Integer> times = getTimes();
+		ArrayList<Object> values = getValues();
+		ArrayList<Object> inTans = getInTans();
+		ArrayList<Object> outTans = getOutTans();
 
-	public AnimFlag(final MaterialFresnelTeamColor source) {
-		title = "FresnelTeamColor";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(source.interpolationType));
-		if (source.globalSequenceId >= 0) {
-			setGlobalSeqId(source.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = source.interpolationType > 1;
-		for (final MaterialFresnelTeamColor.ScalingTrack track : source.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.fresnelTeamColor), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.fresnelTeamColor));
-			}
-		}
-	}
+		long[] tempFrames = new long[times.size()];
+		Object[] tempValues = new Object[times.size()];
+		Object[] tempInTans = new Object[times.size()];
+		Object[] tempOutTans = new Object[times.size()];
 
-	public AnimFlag(final TextureRotation textureData) {
-		title = "Rotation";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(textureData.interpolationType));
-		if (textureData.globalSequenceId >= 0) {
-			setGlobalSeqId(textureData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = textureData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???;
-		for (final TextureRotation.TranslationTrack track : textureData.translationTrack) {
-			if (tans) {
-				addEntry(track.time, new QuaternionRotation(track.rotation), new QuaternionRotation(track.inTan),
-						new QuaternionRotation(track.outTan));
-			} else {
-				addEntry(track.time, new QuaternionRotation(track.rotation));
-			}
-		}
-	}
+		final boolean hasTangents = getInterpType() > 1;
 
-	public AnimFlag(final TextureScaling textureData) {
-		title = "Scaling";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(textureData.interpolationType));
-		if (textureData.globalSequenceId >= 0) {
-			setGlobalSeqId(textureData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = textureData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final TextureScaling.TranslationTrack track : textureData.translationTrack) {
-			if (tans) {
-				addEntry(track.time, new Vertex(track.scaling), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
-				addEntry(track.time, new Vertex(track.scaling));
-			}
-		}
-	}
+		for (int i = 0, l = times.size(); i < l; i++) {
+			Object value = values.get(i);
 
-	public AnimFlag(final TextureTranslation textureData) {
-		title = "Translation";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(textureData.interpolationType));
-		if (textureData.globalSequenceId >= 0) {
-			setGlobalSeqId(textureData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = textureData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final TextureTranslation.TranslationTrack track : textureData.translationTrack) {
-			if (tans) {
-				addEntry(track.time, new Vertex(track.translation), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
-				addEntry(track.time, new Vertex(track.translation));
-			}
-		}
-	}
+			tempFrames[i] = times.get(i).longValue();
+			
+			if (isFloat) {
+				if (vectorSize == 1) {
+					tempValues[i] = new float[] { ((Double)value).floatValue() };
 
-	public AnimFlag(final GeosetAlpha geosetAlpha) {
-		title = "Alpha";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(geosetAlpha.interpolationType));
-		if (geosetAlpha.globalSequenceId >= 0) {
-			setGlobalSeqId(geosetAlpha.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = geosetAlpha.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final GeosetAlpha.ScalingTrack track : geosetAlpha.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.alpha), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.alpha));
-			}
-		}
-	}
+					if (hasTangents) {
+						tempInTans[i] = new float[] { ((Double)inTans.get(i)).floatValue() };
+						tempOutTans[i] = new float[] { ((Double)outTans.get(i)).floatValue() };
+					} else {
+						tempInTans[i] = new float[] { 0 };
+						tempOutTans[i] = new float[] { 0 };
+					}
+				} else if (vectorSize == 3) {
+					tempValues[i] = ((Vertex)value).toFloatArray();
 
-	public AnimFlag(final GeosetColor geosetColor) {
-		title = "Color";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(geosetColor.interpolationType));
-		if (geosetColor.globalSequenceId >= 0) {
-			setGlobalSeqId(geosetColor.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = geosetColor.interpolationType > 1;
-		// NOTE: autoreplaced from a > 0 check, Linear shouldn't have 'tans'???
-		for (final GeosetColor.ScalingTrack track : geosetColor.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, new Vertex(track.color), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
-				addEntry(track.time, new Vertex(track.color));
-			}
-		}
-	}
+					if (hasTangents) {
+						tempInTans[i] = ((Vertex)inTans.get(i)).toFloatArray();
+						tempOutTans[i] = ((Vertex)outTans.get(i)).toFloatArray();
+					} else {
+						tempInTans[i] = (new Vertex()).toFloatArray();
+						tempOutTans[i] = (new Vertex()).toFloatArray();
+					}
+				} else {
+					tempValues[i] = ((QuaternionRotation)value).toFloatArray();
 
-	public AnimFlag(final GeosetTranslation geosetTranslation) {
-		title = "Translation";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(geosetTranslation.interpolationType));
-		if (geosetTranslation.globalSequenceId >= 0) {
-			setGlobalSeqId(geosetTranslation.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = geosetTranslation.interpolationType > 1;
-		// NOTE: autoreplaced from a > 0 check, Linear shouldn't have 'tans'???
-		for (final GeosetTranslation.TranslationTrack track : geosetTranslation.translationTrack) {
-			if (tans) {
-				addEntry(track.time, new Vertex(track.translation), new Vertex(track.inTan), new Vertex(track.outTan));
+					if (hasTangents) {
+						tempInTans[i] = ((QuaternionRotation)inTans.get(i)).toFloatArray();
+						tempOutTans[i] = ((QuaternionRotation)outTans.get(i)).toFloatArray();
+					} else {
+						tempInTans[i] = (new QuaternionRotation()).toFloatArray();
+						tempOutTans[i] = (new QuaternionRotation()).toFloatArray();
+					}
+				}
 			} else {
-				addEntry(track.time, new Vertex(track.translation));
-			}
-		}
-	}
+				tempValues[i] = (new long[] { ((Integer)value).longValue() });
 
-	public AnimFlag(final GeosetRotation geosetData) {
-		title = "Rotation";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(geosetData.interpolationType));
-		if (geosetData.globalSequenceId >= 0) {
-			setGlobalSeqId(geosetData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = geosetData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final GeosetRotation.RotationTrack track : geosetData.rotationTrack) {
-			if (tans) {
-				addEntry(track.time, new QuaternionRotation(track.rotation), new QuaternionRotation(track.inTan),
-						new QuaternionRotation(track.outTan));
-			} else {
-				addEntry(track.time, new QuaternionRotation(track.rotation));
+				if (hasTangents) {
+					tempInTans[i] = new long[] { ((Integer)inTans.get(i)).longValue() };
+					tempOutTans[i] = new long[] { ((Integer)outTans.get(i)).longValue() };
+				} else {
+					tempInTans[i] = new long[] { 0 };
+					tempOutTans[i] = new long[] { 0 };
+				}
 			}
 		}
-	}
 
-	public AnimFlag(final GeosetScaling geosetData) {
-		title = "Scaling";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(geosetData.interpolationType));
-		if (geosetData.globalSequenceId >= 0) {
-			setGlobalSeqId(geosetData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = geosetData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final GeosetScaling.ScalingTrack track : geosetData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, new Vertex(track.scaling), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
-				addEntry(track.time, new Vertex(track.scaling));
-			}
-		}
-	}
+		timeline.frames = tempFrames;
+		timeline.values = tempValues;
+		timeline.inTans = tempInTans;
+		timeline.outTans = tempOutTans;
 
-	public AnimFlag(final LightVisibility trackData) {
-		title = "Visibility";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final LightVisibility.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.visibility), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.visibility));
-			}
-		}
-	}
-
-	public AnimFlag(final LightColor trackData) {
-		title = "Color";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final LightColor.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, new Vertex(track.color), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
-				addEntry(track.time, new Vertex(track.color));
-			}
-		}
-	}
-
-	public AnimFlag(final LightIntensity trackData) {
-		title = "Intensity";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final LightIntensity.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.intensity), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.intensity));
-			}
-		}
-	}
-
-	public AnimFlag(final LightAmbientIntensity trackData) {
-		title = "AmbIntensity";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final LightAmbientIntensity.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.ambientIntensity), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.ambientIntensity));
-			}
-		}
-	}
-
-	public AnimFlag(final LightAttenuationStart trackData) {
-		title = "AttenuationStart";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final LightAttenuationStart.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.attenuationStart), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.attenuationStart));
-			}
-		}
-	}
-
-	public AnimFlag(final LightAttenuationEnd trackData) {
-		title = "AttenuationEnd";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final LightAttenuationEnd.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.attenuationEnd), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.attenuationEnd));
-			}
-		}
-	}
-
-	public AnimFlag(final LightAmbientColor trackData) {
-		title = "AmbColor";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final LightAmbientColor.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, new Vertex(track.ambientColor), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
-				addEntry(track.time, new Vertex(track.ambientColor));
-			}
-		}
-	}
-
-	public AnimFlag(final AttachmentVisibility trackData) {
-		title = "Visibility";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final AttachmentVisibility.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.visibility), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.visibility));
-			}
-		}
-	}
-
-	public AnimFlag(final ParticleEmitterEmissionRate trackData) {
-		title = "EmissionRate";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1;
-		for (final ParticleEmitterEmissionRate.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.emissionRate), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.emissionRate));
-			}
-		}
-	}
-
-	public AnimFlag(final ParticleEmitterGravity trackData) {
-		title = "Gravity";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1;
-		for (final ParticleEmitterGravity.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.gravity), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.gravity));
-			}
-		}
-	}
-
-	public AnimFlag(final ParticleEmitterLatitude trackData) {
-		title = "Latitude";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1;
-		for (final ParticleEmitterLatitude.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.latitude), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.latitude));
-			}
-		}
-	}
-
-	public AnimFlag(final ParticleEmitterLifeSpan trackData) {
-		title = "LifeSpan";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1;
-		for (final ParticleEmitterLifeSpan.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.lifeSpan), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.lifeSpan));
-			}
-		}
-	}
-
-	public AnimFlag(final ParticleEmitterLongitude trackData) {
-		title = "Longitude";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1;
-		for (final ParticleEmitterLongitude.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.longitude), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.longitude));
-			}
-		}
-	}
-
-	public AnimFlag(final ParticleEmitterSpeed trackData) {
-		title = "InitVelocity";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1;
-		for (final ParticleEmitterSpeed.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.speed), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.speed));
-			}
-		}
-	}
-
-	public AnimFlag(final ParticleEmitterVisibility trackData) {
-		title = "Visibility";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final ParticleEmitterVisibility.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.visibility), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.visibility));
-			}
-		}
-	}
-
-	public AnimFlag(final ParticleEmitter2Visibility trackData) {
-		title = "Visibility";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final ParticleEmitter2Visibility.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.visibility), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.visibility));
-			}
-		}
-	}
-
-	public AnimFlag(final ParticleEmitter2Variation trackData) {
-		title = "Variation";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final ParticleEmitter2Variation.VariationTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.variation), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.variation));
-			}
-		}
-	}
-
-	public AnimFlag(final ParticleEmitter2Gravity trackData) {
-		title = "Gravity";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final ParticleEmitter2Gravity.VariationTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.gravity), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.gravity));
-			}
-		}
-	}
-
-	public AnimFlag(final ParticleEmitter2EmissionRate trackData) {
-		title = "EmissionRate";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final ParticleEmitter2EmissionRate.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.emissionRate), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.emissionRate));
-			}
-		}
-	}
-
-	public AnimFlag(final ParticleEmitter2Latitude trackData) {
-		title = "Latitude";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final ParticleEmitter2Latitude.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.speed), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.speed));
-			}
-		}
-	}
-
-	public AnimFlag(final ParticleEmitter2Length trackData) {
-		title = "Length";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final ParticleEmitter2Length.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.length), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.length));
-			}
-		}
-	}
-
-	public AnimFlag(final ParticleEmitter2Speed trackData) {
-		title = "Speed";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final ParticleEmitter2Speed.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.speed), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.speed));
-			}
-		}
-	}
-
-	public AnimFlag(final ParticleEmitter2Width trackData) {
-		title = "Width";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final ParticleEmitter2Width.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.width), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.width));
-			}
-		}
-	}
-
-	public AnimFlag(final CornEmissionRate trackData) {
-		title = "EmissionRate";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1;
-		for (final CornEmissionRate.EmissionRateTrack track : trackData.emissionRateTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.emissionRate), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.emissionRate));
-			}
-		}
-	}
-
-	public AnimFlag(final CornAlpha trackData) {
-		title = "Alpha";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1;
-		for (final CornAlpha.AlphaTrack track : trackData.alphaTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.alpha), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.alpha));
-			}
-		}
-	}
-
-	public AnimFlag(final CornVisibility trackData) {
-		title = "Visibility";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1;
-		for (final CornVisibility.VisibilityTrack track : trackData.visibilityTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.visibility), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.visibility));
-			}
-		}
-	}
-
-	public AnimFlag(final CornLifeSpan trackData) {
-		title = "LifeSpan";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1;
-		for (final CornLifeSpan.LifeSpanTrack track : trackData.lifeSpanTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.lifeSpan), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.lifeSpan));
-			}
-		}
-	}
-
-	public AnimFlag(final CornSpeed trackData) {
-		title = "Speed";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1;
-		for (final CornSpeed.SpeedTrack track : trackData.speedTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.speed), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.speed));
-			}
-		}
-	}
-
-	public AnimFlag(final CornColor cornColor) {
-		title = "Color";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(cornColor.interpolationType));
-		if (cornColor.globalSequenceId >= 0) {
-			setGlobalSeqId(cornColor.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = cornColor.interpolationType > 1;
-		// NOTE: autoreplaced from a > 0 check, Linear shouldn't have 'tans'???
-		for (final CornColor.ScalingTrack track : cornColor.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, new Vertex(track.color), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
-				addEntry(track.time, new Vertex(track.color));
-			}
-		}
-	}
-
-	public AnimFlag(final RibbonEmitterVisibility trackData) {
-		title = "Visibility";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final RibbonEmitterVisibility.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.visibility), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.visibility));
-			}
-		}
-	}
-
-	public AnimFlag(final RibbonEmitterHeightAbove trackData) {
-		title = "HeightAbove";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final RibbonEmitterHeightAbove.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.heightAbove), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.heightAbove));
-			}
-		}
-	}
-
-	public AnimFlag(final RibbonEmitterHeightBelow trackData) {
-		title = "HeightBelow";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final RibbonEmitterHeightBelow.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.heightBelow), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.heightBelow));
-			}
-		}
-	}
-
-	public AnimFlag(final RibbonEmitterAlpha trackData) {
-		title = "Alpha";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1;
-		for (final RibbonEmitterAlpha.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.alpha), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.alpha));
-			}
-		}
-	}
-
-	public AnimFlag(final RibbonEmitterColor trackData) {
-		title = "Color";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1;
-		for (final RibbonEmitterColor.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, new Vertex(track.color), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
-				addEntry(track.time, new Vertex(track.color));
-			}
-		}
-	}
-
-	public AnimFlag(final RibbonEmitterTextureSlot trackData) {
-		title = "TextureSlot";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(trackData.interpolationType));
-		if (trackData.globalSequenceId >= 0) {
-			setGlobalSeqId(trackData.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = trackData.interpolationType > 1;
-		for (final RibbonEmitterTextureSlot.ScalingTrack track : trackData.scalingTrack) {
-			if (tans) {
-				addEntry(track.time, track.textureSlot, track.inTan, track.outTan);
-			} else {
-				addEntry(track.time, track.textureSlot);
-			}
-		}
-	}
-
-	public AnimFlag(final CameraPositionTranslation translation) {
-		title = "Translation";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(translation.interpolationType));
-		if (translation.globalSequenceId >= 0) {
-			setGlobalSeqId(translation.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = translation.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final CameraPositionTranslation.TranslationTrack track : translation.translationTrack) {
-			if (tans) {
-				addEntry(track.time, new Vertex(track.translation), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
-				addEntry(track.time, new Vertex(track.translation));
-			}
-		}
-	}
-
-	public AnimFlag(final CameraTargetTranslation translation) {
-		title = "Translation";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(translation.interpolationType));
-		if (translation.globalSequenceId >= 0) {
-			setGlobalSeqId(translation.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = translation.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final CameraTargetTranslation.TranslationTrack track : translation.translationTrack) {
-			if (tans) {
-				addEntry(track.time, new Vertex(track.translation), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
-				addEntry(track.time, new Vertex(track.translation));
-			}
-		}
-	}
-
-	public AnimFlag(final CameraRotation translation) {
-		title = "Rotation";
-		generateTypeId();
-		addTag(AnimFlag.getInterpType(translation.interpolationType));
-		if (translation.globalSequenceId >= 0) {
-			setGlobalSeqId(translation.globalSequenceId);
-			setHasGlobalSeq(true);
-		}
-		final boolean tans = translation.interpolationType > 1; // NOTE:
-																// autoreplaced
-																// from a > 0
-																// check, Linear
-																// shouldn't
-																// have
-																// 'tans'???
-		for (final CameraRotation.TranslationTrack track : translation.translationTrack) {
-			if (tans) {
-				addEntry(track.time, box(track.rotation), box(track.inTan), box(track.outTan));
-			} else {
-				addEntry(track.time, box(track.rotation));
-			}
-		}
+		return timeline;
 	}
 
 	// end special constructors
@@ -1438,8 +442,11 @@ public class AnimFlag {
 	public void addEntry(final Integer time, final Object value, final Object inTan, final Object outTan) {
 		times.add(time);
 		values.add(value);
-		inTans.add(inTan);
-		outTans.add(outTan);
+
+		if (inTan != null && outTan != null) {
+			inTans.add(inTan);
+			outTans.add(outTan);
+		}
 	}
 
 	public void setEntry(final Integer time, final Object value) {
@@ -1630,229 +637,6 @@ public class AnimFlag {
 		return null;
 	}
 
-	public static AnimFlag parseText(final String[] line) {
-
-		final AnimFlag aflg = new AnimFlag();
-		aflg.title = MDLReader.readIntTitle(line[0]);
-		// Types of AnimFlags:
-		// 0 Alpha
-		// 1 Scaling
-		// 2 Rotation
-		// 3 Translation
-		int typeid = 0;
-		if (aflg.title.equals("Scaling")) {
-			typeid = 1;
-		} else if (aflg.title.equals("Rotation")) {
-			typeid = 2;
-		} else if (aflg.title.equals("Translation")) {
-			typeid = 3;
-		} else if (!aflg.title.equals("Alpha")) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse \"" + aflg.title + "\": Missing or unrecognized open statement.");
-		}
-		aflg.typeid = typeid;
-		for (int i = 1; i < line.length; i++) {
-			if (line[i].contains("Tan")) {
-				ArrayList target = null;
-				if (line[i].contains("In"))// InTan
-				{
-					target = aflg.inTans;
-				} else// OutTan
-				{
-					target = aflg.outTans;
-				}
-				switch (typeid) {
-				case 0: // Alpha
-					// A single double is used to store alpha data
-					target.add(new Double(MDLReader.readDouble(line[i])));
-					break;
-				case 1: // Scaling
-					// A vertex is used to store scaling data
-					target.add(Vertex.parseText(line[i]));
-					break;
-				case 2: // Rotation
-					// A quaternion set of four values is used to store rotation
-					// data
-					target.add(QuaternionRotation.parseText(line[i]));
-					break;
-				case 3: // Translation
-					// A vertex is used to store translation data
-					target.add(Vertex.parseText(line[i]));
-					break;
-				}
-			} else if (line[i].contains(":")) {
-				switch (typeid) {
-				case 0: // Alpha
-					// A single double is used to store alpha data
-					aflg.times.add(new Integer(MDLReader.readBeforeColon(line[i])));
-					aflg.values.add(new Double(MDLReader.readDouble(line[i])));
-					break;
-				case 1: // Scaling
-					// A vertex is used to store scaling data
-					aflg.times.add(new Integer(MDLReader.readBeforeColon(line[i])));
-					aflg.values.add(Vertex.parseText(line[i]));
-					break;
-				case 2: // Rotation
-					// A quaternion set of four values is used to store rotation
-					// data
-					aflg.times.add(new Integer(MDLReader.readBeforeColon(line[i])));
-					aflg.values.add(QuaternionRotation.parseText(line[i]));
-					break;
-				case 3: // Translation
-					// A vertex is used to store translation data
-					aflg.times.add(new Integer(MDLReader.readBeforeColon(line[i])));
-					aflg.values.add(Vertex.parseText(line[i]));
-					break;
-				}
-			} else if (line[i].contains("GlobalSeqId")) {
-				if (!aflg.hasGlobalSeq) {
-					aflg.globalSeqId = MDLReader.readInt(line[i]);
-					aflg.hasGlobalSeq = true;
-				} else {
-					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "Error while parsing " + aflg.title
-							+ ": More than one Global Sequence Id is present in the same " + aflg.title + "!");
-				}
-			} else {
-				aflg.tags.add(MDLReader.readFlag(line[i]));
-			}
-		}
-		return aflg;
-	}
-
-	public static AnimFlag read(final BufferedReader mdl) {
-
-		final AnimFlag aflg = new AnimFlag();
-		aflg.title = MDLReader.readIntTitle(MDLReader.nextLine(mdl));
-		// Types of AnimFlags:
-		// 0 Alpha
-		// 1 Scaling
-		// 2 Rotation
-		// 3 Translation
-		int typeid = 0;
-		if (aflg.title.equals("Scaling")) {
-			typeid = 1;
-		} else if (aflg.title.equals("Rotation")) {
-			typeid = 2;
-		} else if (aflg.title.equals("Translation")) {
-			typeid = 3;
-		} else if (aflg.title.equals("TextureID"))// aflg.title.equals("Visibility")
-													// || -- 100.088% visible in
-													// UndeadCampaign3D OutTans!
-													// Go look!
-		{
-			typeid = 5;
-		} else if (aflg.title.contains("Color"))// AmbColor
-		{
-			typeid = 4;
-		} else if (!aflg.title.equals("Alpha")) {
-			// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Unable
-			// to parse \""+aflg.title+"\": Missing or unrecognized open
-			// statement.");
-			// Having BS random AnimFlags is okay now, they all use double
-			// entries
-		}
-		aflg.typeid = typeid;
-		String line = "";
-		while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
-			if (line.contains("Tan")) {
-				ArrayList target = null;
-				if (line.contains("In"))// InTan
-				{
-					target = aflg.inTans;
-				} else// OutTan
-				{
-					target = aflg.outTans;
-				}
-				switch (typeid) {
-				case 0: // Alpha
-					// A single double is used to store alpha data
-					target.add(new Double(MDLReader.readDouble(line)));
-					break;
-				case 1: // Scaling
-					// A vertex is used to store scaling data
-					target.add(Vertex.parseText(line));
-					break;
-				case 2: // Rotation
-					// A quaternion set of four values is used to store rotation
-					// data
-					try {
-						target.add(QuaternionRotation.parseText(line));
-					} catch (final Exception e) {
-						// typeid = 0;//Yay! random bad model.
-						target.add(new Double(MDLReader.readDouble(line)));
-					}
-					break;
-				case 3: // Translation
-					// A vertex is used to store translation data
-					target.add(Vertex.parseText(line));
-					break;
-				case 4: // Translation
-					// A vertex is used to store translation data
-					target.add(Vertex.parseText(line));
-					break;
-				case 5: // Alpha
-					// A single double is used to store alpha data
-					target.add(new Integer(MDLReader.readInt(line)));
-					break;
-				}
-			} else if (line.contains(":")) {
-				switch (typeid) {
-				case 0: // Alpha
-					// A single double is used to store alpha data
-					aflg.times.add(new Integer(MDLReader.readBeforeColon(line)));
-					aflg.values.add(new Double(MDLReader.readDouble(line)));
-					break;
-				case 1: // Scaling
-					// A vertex is used to store scaling data
-					aflg.times.add(new Integer(MDLReader.readBeforeColon(line)));
-					aflg.values.add(Vertex.parseText(line));
-					break;
-				case 2: // Rotation
-					// A quaternion set of four values is used to store rotation
-					// data
-					try {
-
-						aflg.times.add(new Integer(MDLReader.readBeforeColon(line)));
-						aflg.values.add(QuaternionRotation.parseText(line));
-					} catch (final Exception e) {
-						// JOptionPane.showMessageDialog(null,e.getStackTrace());
-						// typeid = 0;
-						// aflg.times.add(new
-						// Integer(MDLReader.readBeforeColon(line)));
-						aflg.values.add(new Double(MDLReader.readDouble(line)));
-					}
-					break;
-				case 3: // Translation
-					// A vertex is used to store translation data
-					aflg.times.add(new Integer(MDLReader.readBeforeColon(line)));
-					aflg.values.add(Vertex.parseText(line));
-					break;
-				case 4: // Color
-					// A vertex is used to store translation data
-					aflg.times.add(new Integer(MDLReader.readBeforeColon(line)));
-					aflg.values.add(Vertex.parseText(line));
-					break;
-				case 5: // Visibility
-					// A vertex is used to store translation data
-					aflg.times.add(new Integer(MDLReader.readBeforeColon(line)));
-					aflg.values.add(new Integer(MDLReader.readInt(line)));
-					break;
-				}
-			} else if (line.contains("GlobalSeqId")) {
-				if (!aflg.hasGlobalSeq) {
-					aflg.globalSeqId = MDLReader.readInt(line);
-					aflg.hasGlobalSeq = true;
-				} else {
-					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "Error while parsing " + aflg.title
-							+ ": More than one Global Sequence Id is present in the same " + aflg.title + "!");
-				}
-			} else {
-				aflg.tags.add(MDLReader.readFlag(line));
-			}
-		}
-		return aflg;
-	}
-
 	public void updateGlobalSeqRef(final EditableModel mdlr) {
 		if (hasGlobalSeq) {
 			globalSeq = mdlr.getGlobalSeq(globalSeqId);
@@ -1867,9 +651,9 @@ public class AnimFlag {
 
 	public String flagToString(final Object o) {
 		if (o.getClass() == double.class) {
-			return MDLReader.doubleToString((Double) o);
+			return ((Double)o).toString();
 		} else if (o.getClass() == Double.class) {
-			return MDLReader.doubleToString(((Double) o).doubleValue());
+			return ((Double)o).toString();
 		} else {
 			return o.toString();
 		}
@@ -2009,88 +793,6 @@ public class AnimFlag {
 					break;
 				}
 			}
-		}
-	}
-
-	public void printTo(final PrintWriter writer, final int tabHeight) {
-		if (size() > 0) {
-			sort();
-			String tabs = "";
-			for (int i = 0; i < tabHeight; i++) {
-				tabs = tabs + "\t";
-			}
-			writer.println(tabs + title + " " + times.size() + " {");
-			for (int i = 0; i < tags.size(); i++) {
-				writer.println(tabs + "\t" + tags.get(i) + ",");
-			}
-			if (hasGlobalSeq) {
-				writer.println(tabs + "\tGlobalSeqId " + globalSeqId + ",");
-			}
-			boolean tans = false;
-			if (inTans.size() > 0) {
-				tans = true;
-			}
-			for (int i = 0; i < times.size(); i++) {
-				writer.println(tabs + "\t" + times.get(i) + ": " + flagToString(values.get(i)) + ",");
-				if (tans) {
-					writer.println(tabs + "\t\tInTan " + flagToString(inTans.get(i)) + ",");
-					writer.println(tabs + "\t\tOutTan " + flagToString(outTans.get(i)) + ",");
-				}
-			}
-			// switch (typeid )
-			// {
-			// case 0: //Alpha
-			// //A single double is used to store alpha data
-			// for( int i = 0; i < times.size(); i++ )
-			// {
-			// writer.println(tabs+"\t"+times.get(i)+":
-			// "+((Double)values.get(i)).doubleValue()+",");
-			// if( tans )
-			// {
-			// writer.println(tabs+"\t\tInTan
-			// "+((Double)inTans.get(i)).doubleValue()+",");
-			// writer.println(tabs+"\t\tOutTan
-			// "+((Double)outTans.get(i)).doubleValue()+",");
-			// }
-			// }
-			// break;
-			// case 1: //Scaling
-			// //A vertex is used to store scaling data
-			// for( int i = 0; i < times.size(); i++ )
-			// {
-			// writer.println(tabs+"\t"+times.get(i)+":
-			// "+((Vertex)values.get(i)).toString()+",");
-			// if( tans )
-			// {
-			// writer.println(tabs+"\t\tInTan
-			// "+((Vertex)inTans.get(i)).toString()+",");
-			// writer.println(tabs+"\t\tOutTan
-			// "+((Double)outTans.get(i)).doubleValue()+",");
-			// }
-			// }
-			// break;
-			// case 2: //Rotation
-			// //A quaternion set of four values is used to store rotation data
-			// aflg.times.add(new Integer(MDLReader.readBeforeColon(line)));
-			// aflg.values.add(QuaternionRotation.parseText(line));
-			// break;
-			// case 3: //Translation
-			// //A vertex is used to store translation data
-			// aflg.times.add(new Integer(MDLReader.readBeforeColon(line)));
-			// aflg.values.add(Vertex.parseText(line));
-			// break;
-			// case 4: //Color
-			// //A vertex is used to store translation data
-			// aflg.times.add(new Integer(MDLReader.readBeforeColon(line)));
-			// aflg.values.add(Vertex.parseText(line));
-			// break;
-			// case 5: //Visibility
-			// //A vertex is used to store translation data
-			// aflg.times.add(new Integer(MDLReader.readBeforeColon(line)));
-			// aflg.values.add(new Integer(MDLReader.readInt(line)));
-			// break;
-			// }
-			writer.println(tabs + "}");
 		}
 	}
 

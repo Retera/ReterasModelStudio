@@ -3,15 +3,16 @@ package com.hiveworkshop.wc3.mdlx;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import com.etheller.warsmash.parsers.mdlx.MdlxModel;
 
 import com.hiveworkshop.wc3.mdl.EditableModel;
-import com.hiveworkshop.wc3.mdx.MdxModel;
+
 import com.hiveworkshop.wc3.mdx.MdxUtils;
-
-import de.wc3data.stream.BlizzardDataInputStream;
-import de.wc3data.stream.BlizzardDataOutputStream;
-
 
 public class Main {
 
@@ -27,22 +28,22 @@ public class Main {
 //		System.out.println(Integer.toBinaryString(0x20));
 //		System.out.println(Integer.toBinaryString(0x40));
 //		System.out.println(Integer.toBinaryString(0x80));
-		try (BlizzardDataInputStream bdis = new BlizzardDataInputStream(new FileInputStream("PackHorse.mdx"))) {
-			final MdxModel packHorse = MdxUtils.loadModel(bdis);
+		try (InputStream bdis = new FileInputStream("PackHorse.mdx")) {
+			final MdlxModel packHorse = MdxUtils.loadModel(bdis);
 //			for( MaterialChunk.Material mat: packHorse.materialChunk.material ) {
 //				mat.layerChunk.layer[0].shadingFlags |= 0x4;
 //				mat.layerChunk.layer[0].shadingFlags |= 0x8;
 //				mat.layerChunk.layer[0].shadingFlags |= 0x10;
 //			}
-			final BlizzardDataOutputStream out = new BlizzardDataOutputStream(new File("PackHorse_modified.mdx"));
-			packHorse.save(out);
+			final OutputStream out = new FileOutputStream(new File("PackHorse_modified.mdx"));
+			packHorse.saveMdx(out);
 			out.close();
-			final MdxModel packHorse2 = MdxUtils.loadModel(new BlizzardDataInputStream(new FileInputStream("PackHorse_modified.mdx")));
-			final EditableModel model = packHorse.toMDL();
+			final MdlxModel packHorse2 = MdxUtils.loadModel(new FileInputStream("PackHorse_modified.mdx"));
+			final EditableModel model = new EditableModel(packHorse);
 			model.setName("PackHorse_MDLified");
-			final MdxModel packHorseMdx = new MdxModel(model);
-			final BlizzardDataOutputStream out2 = new BlizzardDataOutputStream(new File("PackHorse_MXfied.mdx"));
-			packHorseMdx.save(out2);
+			final MdlxModel packHorseMdx = model.toMdlx();
+			final OutputStream out2 = new FileOutputStream(new File("PackHorse_MXfied.mdx"));
+			packHorseMdx.saveMdx(out2);
 			out2.close();
 		} catch (final FileNotFoundException e) {
 			e.printStackTrace();

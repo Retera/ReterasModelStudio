@@ -1,9 +1,6 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.io.BufferedReader;
 import java.util.ArrayList;
-
-import javax.swing.JOptionPane;
 
 public class Triangle {
 	GeosetVertex[] verts = new GeosetVertex[3];
@@ -193,93 +190,6 @@ public class Triangle {
 		final double[] output = new double[3];
 		for (int i = 0; i < 3; i++) {
 			output[i] = (verts[i].getTVertex(layerId).getCoord(dim));
-		}
-		return output;
-	}
-
-	public static ArrayList<Triangle> parseText(final String[] input) {
-		// Usually triangles come in a single entry with all of them, so we
-		// parse the input into an ArrayList
-		final ArrayList<Triangle> output = new ArrayList<>();
-		for (int l = 1; l < input.length; l++) {
-			final String[] s = input[l].split(",");
-			s[0] = s[0].substring(4, s[0].length());
-			final int s_size = MDLReader.occurrencesIn(input[l], ",");
-			s[s_size - 1] = s[s_size - 1].substring(0, s[s_size - 1].length() - 2);
-			for (int t = 0; t < s_size - 1; t += 3)// s[t+3].equals("")||
-			{
-				for (int i = 0; i < 3; i++) {
-					s[t + i] = s[t + i].substring(1);
-				}
-				try {
-					output.add(new Triangle(Integer.parseInt(s[t]), Integer.parseInt(s[t + 1]),
-							Integer.parseInt(s[t + 2])));
-				} catch (final NumberFormatException e) {
-					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-							"Error: Unable to interpret information in Triangles: " + s[t] + ", " + s[t + 1] + ", or "
-									+ s[t + 2]);
-				}
-			}
-		}
-		return output;
-	}
-
-	public static ArrayList<Triangle> read(final BufferedReader mdl) {
-		// Usually triangles come in a single entry with all of them, so we
-		// parse the input into an ArrayList
-		final ArrayList<Triangle> output = new ArrayList<>();
-		String line = "";
-		while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
-			// System.out.println("Interpreting "+line+" for Triangles");
-			final String[] s = line.split(",");
-			s[0] = s[0].substring(4, s[0].length());
-			final int s_size = MDLReader.occurrencesIn(",", line);
-			// System.out.println("We broke it into "+s_size+" parts.");
-			s[s_size - 1] = s[s_size - 1].substring(0, s[s_size - 1].length() - 2);
-			for (int t = 0; t < s_size - 1; t += 3)// s[t+3].equals("")||
-			{
-				for (int i = 0; i < 3; i++) {
-					s[t + i] = s[t + i].substring(1);
-				}
-				try {
-					output.add(new Triangle(Integer.parseInt(s[t]), Integer.parseInt(s[t + 1]),
-							Integer.parseInt(s[t + 2])));
-				} catch (final NumberFormatException e) {
-					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-							"Error: Unable to interpret information in Triangles: " + s[t] + ", " + s[t + 1] + ", or "
-									+ s[t + 2]);
-				}
-			}
-		}
-		return output;
-	}
-
-	public static ArrayList<Triangle> read(final BufferedReader mdl, final Geoset geoRef) {
-		// Usually triangles come in a single entry with all of them, so we
-		// parse the input into an ArrayList
-		final ArrayList<Triangle> output = new ArrayList<>();
-		String line = "";
-		while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
-			// System.out.println("Interpreting "+line+" for Triangles");
-			final String[] s = line.split(",");
-			s[0] = s[0].substring(4, s[0].length());
-			final int s_size = MDLReader.occurrencesIn(",", line);
-			// System.out.println("We broke it into "+s_size+" parts.");
-			s[s_size - 1] = s[s_size - 1].substring(0, s[s_size - 1].length() - 2);
-			for (int t = 0; t < s_size - 1; t += 3)// s[t+3].equals("")||
-			{
-				for (int i = 0; i < 3; i++) {
-					s[t + i] = s[t + i].substring(1);
-				}
-				try {
-					output.add(new Triangle(Integer.parseInt(s[t]), Integer.parseInt(s[t + 1]),
-							Integer.parseInt(s[t + 2]), geoRef));
-				} catch (final NumberFormatException e) {
-					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-							"Error: Unable to interpret information in Triangles: " + s[t] + ", " + s[t + 1] + ", or "
-									+ s[t + 2]);
-				}
-			}
 		}
 		return output;
 	}

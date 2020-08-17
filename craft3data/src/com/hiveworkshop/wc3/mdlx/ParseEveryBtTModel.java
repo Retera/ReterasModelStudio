@@ -6,13 +6,14 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-import com.hiveworkshop.wc3.mdx.MdxModel;
+import com.etheller.warsmash.parsers.mdlx.MdlxModel;
+import com.etheller.warsmash.parsers.mdlx.MdlxSequence;
+
 import com.hiveworkshop.wc3.mdx.MdxUtils;
-import com.hiveworkshop.wc3.mdx.SequenceChunk.Sequence;
+
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.mpq.MpqCodebase.LoadedMPQ;
 
-import de.wc3data.stream.BlizzardDataInputStream;
 import mpq.MPQException;
 
 public class ParseEveryBtTModel {
@@ -29,14 +30,11 @@ public class ParseEveryBtTModel {
 				if (str.toLowerCase().endsWith(".mdx")) {
 //				System.err.println(str);
 					try {
-						final MdxModel loadModel = MdxUtils
-								.loadModel(new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream(str)));
-						if (loadModel.sequenceChunk != null) {
-							for (int seq = 0; seq < loadModel.sequenceChunk.sequence.length; seq++) {
-								final Sequence sequence = loadModel.sequenceChunk.sequence[seq];
-								if (sequence.syncPoint != 0) {
-									System.err.println("SYNC POINT NONZERO: " + sequence.syncPoint + " in " + str);
-								}
+						final MdlxModel loadModel = MdxUtils.loadModel(MpqCodebase.get().getResourceAsStream(str));
+						for (int seq = 0; seq < loadModel.sequences.size(); seq++) {
+							final MdlxSequence sequence = loadModel.sequences.get(seq);
+							if (sequence.syncPoint != 0) {
+								System.err.println("SYNC POINT NONZERO: " + sequence.syncPoint + " in " + str);
 							}
 						}
 						parsed++;

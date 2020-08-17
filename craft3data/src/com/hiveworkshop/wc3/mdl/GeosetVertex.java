@@ -140,15 +140,6 @@ public class GeosetVertex extends Vertex {
 		return bones;
 	}
 
-	public void updateMatrixRef(final ArrayList<Matrix> list) {
-		try {
-			matrixRef = list.get(VertexGroup);
-		} catch (final Exception e) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error in Matrices: VertexGroup does not reference a real matrix id!");
-		}
-	}
-
 	public void setMatrix(final Matrix ref) {
 		matrixRef = ref;
 	}
@@ -159,34 +150,6 @@ public class GeosetVertex extends Vertex {
 
 	public Normal getNormal() {
 		return normal;
-	}
-
-	public static GeosetVertex parseText(final String input) {
-		final String[] entries = input.split(",");
-		GeosetVertex temp = null;
-		double x = 0;
-		double y = 0;
-		double z = 0;
-		try {
-			x = Double.parseDouble(entries[0].split("\\{")[1]);
-		} catch (final NumberFormatException e) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: Vertex coordinates could not be interpreted.");
-		}
-		try {
-			y = Double.parseDouble(entries[1]);
-		} catch (final NumberFormatException e) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: Vertex coordinates could not be interpreted.");
-		}
-		try {
-			z = Double.parseDouble(entries[2].split("}")[0]);
-		} catch (final NumberFormatException e) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: Vertex coordinates could not be interpreted.");
-		}
-		temp = new GeosetVertex(x, y, z);
-		return temp;
 	}
 
 	public List<TVertex> getTverts() {

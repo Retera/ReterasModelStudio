@@ -2,8 +2,6 @@ package com.hiveworkshop.wc3.mdl;
 
 import java.util.Collection;
 
-import javax.swing.JOptionPane;
-
 public class TVertex {
 	public static final TVertex ORIGIN = new TVertex(0, 0);
 	GeosetVertex parent;
@@ -168,30 +166,9 @@ public class TVertex {
 		}
 	}
 
-	public static TVertex parseText(final String input) {
-		final String[] entries = input.split(",");
-		TVertex temp = null;
-		double x = 0;
-		double y = 0;
-		try {
-			x = Double.parseDouble(entries[0].split("\\{")[1]);
-		} catch (final NumberFormatException e) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: Vertex coordinates could not be interpreted.");
-		}
-		try {
-			y = Double.parseDouble(entries[1].split("}")[0]);
-		} catch (final NumberFormatException e) {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Error {" + input + "}: Vertex coordinates could not be interpreted.");
-		}
-		temp = new TVertex(x, y);
-		return temp;
-	}
-
 	@Override
 	public String toString() {
-		return "{ " + MDLReader.doubleToString(x) + ", " + MDLReader.doubleToString(y) + " }";
+		return "{ " + x + ", " + y + " }";
 	}
 
 	public static TVertex centerOfGroup(final Collection<? extends TVertex> group) {

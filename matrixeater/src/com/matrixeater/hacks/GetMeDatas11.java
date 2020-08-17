@@ -12,8 +12,6 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 
-import de.wc3data.stream.BlizzardDataInputStream;
-
 public class GetMeDatas11 {
 
 	public static void main(final String[] args) {
@@ -24,8 +22,8 @@ public class GetMeDatas11 {
 						"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\TCContest14\\UndeadArthasBase.mdx")) {
 			try {
 
-				final EditableModel model = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(footman)));
-				final EditableModel modelBase = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(footmanBase)));
+				final EditableModel model = new EditableModel(MdxUtils.loadModel(footman));
+				final EditableModel modelBase = new EditableModel(MdxUtils.loadModel(footmanBase));
 
 				for (final IdObject node : model.getIdObjects()) {
 					IdObject baseNode = null;
@@ -45,8 +43,7 @@ public class GetMeDatas11 {
 					}
 				}
 
-				model.printTo(new File(
-						"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\TCContest14\\UndeadArthas4.mdx"));
+				MdxUtils.saveEditableModel(model, new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\TCContest14\\UndeadArthas4.mdx"));
 			} catch (final IOException e) {
 				e.printStackTrace();
 			}

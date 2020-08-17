@@ -8,10 +8,13 @@ import java.util.Map;
 
 import javax.swing.JOptionPane;
 
+import com.etheller.warsmash.parsers.mdlx.MdlxLayer;
+
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
+
 import com.hiveworkshop.wc3.mdl.v2.LayerView;
 import com.hiveworkshop.wc3.mdl.v2.timelines.Animatable;
-import com.hiveworkshop.wc3.mdx.LayerChunk;
+
 import com.hiveworkshop.wc3.util.ModelUtils;
 
 /**
@@ -19,7 +22,7 @@ import com.hiveworkshop.wc3.util.ModelUtils;
  * <p>
  * Eric Theller 3/8/2012
  */
-public class Layer implements Named, VisibilitySource, LayerView {
+public class Layer extends TimelineContainer implements Named, VisibilitySource, LayerView {
 	// 0: none
 	// 1: transparent
 	// 2: blend
@@ -70,7 +73,7 @@ public class Layer implements Named, VisibilitySource, LayerView {
 	private Vertex fresnelColor;
 	private double fresnelOpacity;
 	private double fresnelTeamColor;
-	private double staticAlpha = -1;// Amount of static alpha (opacity)
+	private double staticAlpha = 1;// Amount of static alpha (opacity)
 	private ArrayList<String> flags = new ArrayList<>();// My way of
 	// dealing with
 	// all the stuff
@@ -85,9 +88,6 @@ public class Layer implements Named, VisibilitySource, LayerView {
 	// CoordId was
 	// moved into
 	// its own field
-	ArrayList<AnimFlag> anims = new ArrayList<>();// Used instead of
-	// static alpha for
-	// animated alpha
 	ArrayList<Bitmap> textures;
 
 	public String getFilterModeString() {
@@ -100,7 +100,7 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		int result = 1;
 		result = (prime * result) + CoordId;
 		result = (prime * result) + TVertexAnimId;
-		result = (prime * result) + ((anims == null) ? 0 : anims.hashCode());
+		result = (prime * result) + ((animFlags == null) ? 0 : animFlags.hashCode());
 		long temp;
 		temp = Double.doubleToLongBits(emissiveGain);
 		result = (prime * result) + (int) (temp ^ (temp >>> 32));
@@ -145,11 +145,11 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		if (TVertexAnimId != other.TVertexAnimId) {
 			return false;
 		}
-		if (anims == null) {
-			if (other.anims != null) {
+		if (animFlags == null) {
+			if (other.animFlags != null) {
 				return false;
 			}
-		} else if (!anims.equals(other.anims)) {
+		} else if (!animFlags.equals(other.animFlags)) {
 			return false;
 		}
 		if (Double.doubleToLongBits(emissiveGain) != Double.doubleToLongBits(other.emissiveGain)) {
@@ -262,10 +262,10 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		fresnelOpacity = other.fresnelOpacity;
 		fresnelTeamColor = other.fresnelTeamColor;
 		flags = new ArrayList<>(other.flags);
-		anims = new ArrayList<>();
+		animFlags = new ArrayList<>();
 		textures = new ArrayList<>();
-		for (final AnimFlag af : other.anims) {
-			anims.add(new AnimFlag(af));
+		for (final AnimFlag af : other.animFlags) {
+			animFlags.add(new AnimFlag(af));
 		}
 		if (other.textures != null) {
 			for (final Bitmap bmp : other.textures) {
@@ -276,9 +276,10 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		}
 	}
 
-	public Layer(final LayerChunk.Layer lay) {
-		this(FilterMode.fromId(lay.filterMode).getMdlText(), lay.textureId);
-		final int shadingFlags = lay.shadingFlags;
+	public Layer(final MdlxLayer layer) {
+		this(layer.filterMode.getMdlText(), layer.textureId);
+
+		final int shadingFlags = layer.flags;
 		// 0x1: unshaded
 		// 0x2: sphere environment map
 		// 0x4: ?
@@ -308,57 +309,73 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		if (EditableModel.hasFlag(shadingFlags, 0x100)) {
 			add("Unlit");
 		}
-//		System.err.println("Creating MDL layer from shadingFlags: " + Integer.toBinaryString(lay.shadingFlags));
-		if (lay.materialEmissions != null) {
-			final AnimFlag flag = new AnimFlag(lay.materialEmissions);
-			anims.add(flag);
-		} else if (!Float.isNaN(lay.emissiveGain)) {
-			emissiveGain = lay.emissiveGain;
-		}
-		setTVertexAnimId(lay.textureAnimationId);
-		setCoordId(lay.coordID); // this isn't an unknown field!
-		// it's coordID! don't be like
-		// Magos and forget!
-		// (breaks the volcano model, this is why War3ModelEditor can't open
-		// volcano!)
-		if (lay.materialAlpha != null) {
-			final AnimFlag flag = new AnimFlag(lay.materialAlpha);
-			anims.add(flag);
-		} else if (lay.alpha != 1.0f) {
-			setStaticAlpha(lay.alpha);
-		}
-		if (lay.materialTextureId != null) {
-			final AnimFlag flag = new AnimFlag(lay.materialTextureId);
-			anims.add(flag);
-		}
-		if (lay.materialFresnelColor != null) {
-			final AnimFlag flag = new AnimFlag(lay.materialFresnelColor);
-			anims.add(flag);
-		} else {
-			if (lay.fresnelColor != null) {
-				final Vertex coloring = new Vertex(MdlxUtils.flipRGBtoBGR(lay.fresnelColor));
-				if ((coloring.x != 1.0) || (coloring.y != 1.0) || (coloring.z != 1.0)) {
-					setFresnelColor(coloring);
-				}
+
+		setTVertexAnimId(layer.textureAnimationId);
+		setCoordId((int)layer.coordId);
+		setStaticAlpha(layer.alpha);
+
+		// > 800
+		emissiveGain = layer.emissiveGain;
+		// > 900
+		setFresnelColor(new Vertex(MdlxUtils.flipRGBtoBGR(layer.fresnelColor)));
+		fresnelOpacity = layer.fresnelOpacity;
+		fresnelTeamColor = layer.fresnelTeamColor;
+
+		loadTimelines(layer);
+	}
+
+	public MdlxLayer toMdlx() {
+		final MdlxLayer layer = new MdlxLayer();
+
+		layer.filterMode = MdlxLayer.FilterMode.fromId(com.hiveworkshop.wc3.mdl.Layer.FilterMode.nameToId(getFilterModeString()));
+
+		for (final String flag : getFlags()) {
+			switch (flag) {
+			case "Unshaded":
+				layer.flags |= 0x1;
+				break;
+			case "SphereEnvironmentMap":
+			case "SphereEnvMap":
+				layer.flags |= 0x2;
+				break;
+			case "TwoSided":
+				layer.flags |= 0x10;
+				break;
+			case "Unfogged":
+				layer.flags |= 0x20;
+				break;
+			case "NoDepthTest":
+				layer.flags |= 0x40;
+				break;
+			case "NoDepthSet":
+				layer.flags |= 0x80;
+				break;
+			case "Unlit":
+				layer.flags |= 0x100;
+				break;
 			}
 		}
-		if (lay.materialFresnelOpacity != null) {
-			final AnimFlag flag = new AnimFlag(lay.materialFresnelOpacity);
-			anims.add(flag);
-		} else if (lay.fresnelOpacity != 0.0f) {
-			fresnelOpacity = lay.fresnelOpacity;
-		}
-		if (lay.materialFresnelTeamColor != null) {
-			final AnimFlag flag = new AnimFlag(lay.materialFresnelTeamColor);
-			anims.add(flag);
-		} else if (lay.fresnelTeamColor != 0.0f) {
-			fresnelTeamColor = lay.fresnelTeamColor;
-		}
+
+		layer.textureId = getTextureId();
+		layer.textureAnimationId = getTVertexAnimId();
+		layer.coordId = getCoordId();
+		layer.alpha = (float)getStaticAlpha();
+
+		// > 800
+		layer.emissiveGain = layer.emissiveGain;
+		// > 900
+		layer.fresnelColor = MdlxUtils.flipRGBtoBGR(fresnelColor.toFloatArray());
+		layer.fresnelOpacity = (float)fresnelOpacity;
+		layer.fresnelTeamColor = (float)fresnelTeamColor;
+
+		timelinesToMdlx(layer);
+
+		return layer;
 	}
 
 	private Layer() {
 		flags = new ArrayList<>();
-		anims = new ArrayList<>();
+		animFlags = new ArrayList<>();
 	}
 
 	public Bitmap firstTexture() {
@@ -373,7 +390,7 @@ public class Layer implements Named, VisibilitySource, LayerView {
 	}
 
 	public Bitmap getRenderTexture(final AnimatedRenderEnvironment animatedRenderEnvironment, final EditableModel model) {
-		final AnimFlag textureFlag = AnimFlag.find(getAnims(), "TextureID");
+		final AnimFlag textureFlag = AnimFlag.find(animFlags, "TextureID");
 		if ((textureFlag != null) && (animatedRenderEnvironment != null)) {
 			if (animatedRenderEnvironment.getCurrentAnimation() == null) {
 				if (textures.size() > 0) {
@@ -393,17 +410,9 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		}
 	}
 
+	@Override
 	public float getRenderVisibility(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		final AnimFlag visibilityFlag = getVisibilityFlag();
-		if (visibilityFlag != null) {
-			final Number alpha = (Number) visibilityFlag.interpolateAt(animatedRenderEnvironment);
-			if (alpha == null) {
-				return staticAlpha < 0 ? 1 : (float) staticAlpha;
-			}
-			final float alphaFloatValue = alpha.floatValue();
-			return alphaFloatValue;
-		}
-		return staticAlpha < 0 ? 1 : (float) staticAlpha;
+		return getRenderVisibility(animatedRenderEnvironment, (float)staticAlpha);
 	}
 
 	public void setTextureAnim(final TextureAnim texa) {
@@ -464,84 +473,6 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		}
 	}
 
-	public static Layer read(final BufferedReader mdl, final EditableModel mdlr) {
-		String line = MDLReader.nextLine(mdl);
-		if (line.contains("Layer")) {
-			boolean hasAnimatedFresnelColor = false;
-			final Layer lay = new Layer();
-			MDLReader.mark(mdl);
-			while (!(line = MDLReader.nextLine(mdl)).contains("\t}")) {
-				if (line.contains("FilterMode")) {
-					lay.filterMode = MDLReader.readField(line);
-				} else if (line.contains("static TextureID")) {
-					lay.textureId = MDLReader.readInt(line);
-					lay.texture = mdlr.getTexture(lay.textureId);
-				} else if (line.contains("CoordId")) {
-					lay.CoordId = MDLReader.readInt(line);
-				} else if (line.contains("static Emissive")) {
-					lay.emissiveGain = MDLReader.readDouble(line);
-				} else if (line.contains("Emissive")) {
-					MDLReader.reset(mdl);
-					final AnimFlag emissiveGainAnimFlag = AnimFlag.read(mdl);
-					if (emissiveGainAnimFlag.getName().equals("Emissive")) {
-						emissiveGainAnimFlag.setName("EmissiveGain");
-					}
-					lay.anims.add(emissiveGainAnimFlag);
-				} else if (line.contains("static FresnelOpacity")) {
-					lay.fresnelOpacity = MDLReader.readDouble(line);
-				} else if (line.contains("FresnelOpacity")) {
-					MDLReader.reset(mdl);
-					lay.anims.add(AnimFlag.read(mdl));
-				} else if (line.contains("static FresnelTeamColor")) {
-					lay.fresnelTeamColor = MDLReader.readDouble(line);
-				} else if (line.contains("FresnelTeamColor")) {
-					MDLReader.reset(mdl);
-					lay.anims.add(AnimFlag.read(mdl));
-				} else if (line.contains("static FresnelColor")) {
-					lay.fresnelColor = Vertex.parseText(line);
-				} else if (line.contains("FresnelColor")) {
-					MDLReader.reset(mdl);
-					lay.anims.add(AnimFlag.read(mdl));
-					hasAnimatedFresnelColor = true;
-				} else if (line.contains("TVertexAnimId")) {
-					lay.TVertexAnimId = MDLReader.readInt(line);
-				} else if (line.contains("static Alpha")) {
-					lay.staticAlpha = MDLReader.readDouble(line);
-				} else if (line.contains("Alpha")) {
-					MDLReader.reset(mdl);
-					lay.anims.add(AnimFlag.read(mdl));
-				} else if (line.contains("TextureID")) {
-					MDLReader.reset(mdl);
-					lay.anims.add(AnimFlag.read(mdl));
-					lay.buildTextureList(mdlr);
-				} else {
-					String flag = MDLReader.readFlag(line);
-					if ("SphereEnvironmentMap".equals(flag)) {
-						// some versions of this codebase were dumping out MDL models with the token
-						// "SphereEnvironmentMap" which is not correct, for legacy support we need to
-						// convert it to "SphereEnvMap" which is the official Blizzard token to my
-						// knowledge
-						flag = "SphereEnvMap";
-					}
-					lay.flags.add(flag);
-				}
-				MDLReader.mark(mdl);
-			}
-			if (ModelUtils.isFresnelColorLayerSupported(mdlr.getFormatVersion()) && !hasAnimatedFresnelColor
-					&& (lay.fresnelColor == null)) {
-				lay.fresnelColor = new Vertex(1, 1, 1); // default value
-			}
-			if (ModelUtils.isEmissiveLayerSupported(mdlr.getFormatVersion()) && Double.isNaN(lay.emissiveGain)) {
-				lay.emissiveGain = 1.0;
-			}
-			return lay;
-		} else {
-			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
-					"Unable to parse Layer: Missing or unrecognized open statement.");
-		}
-		return null;
-	}
-
 	public boolean hasCoordId() {
 		return CoordId != 0;
 	}
@@ -555,95 +486,6 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		return TVertexAnimId != -1;
 	}
 
-	public void printTo(final PrintWriter writer, final int tabHeight, final boolean useCoords, final int version) {
-		String tabs = "";
-		for (int i = 0; i < tabHeight; i++) {
-			tabs = tabs + "\t";
-		}
-		writer.println(tabs + "Layer {");
-		writer.println(tabs + "\tFilterMode " + filterMode + ",");
-		for (int i = 0; i < flags.size(); i++) {
-			writer.println(tabs + "\t" + flags.get(i) + ",");
-		}
-		if (textureId != -1) {
-			writer.println(tabs + "\tstatic TextureID " + textureId + ",");
-		}
-		for (int i = 0; i < anims.size(); i++) {
-			final AnimFlag temp = anims.get(i);
-			if (temp.getName().equals("TextureID")) {
-				temp.printTo(writer, tabHeight + 1);
-			}
-		}
-		if (hasTexAnim()) {
-			writer.println(tabs + "\tTVertexAnimId " + TVertexAnimId + ",");
-		}
-		if (useCoords) {
-			writer.println(tabs + "\tCoordId " + CoordId + ",");
-		}
-		boolean foundAlpha = false;
-		for (int i = 0; i < anims.size(); i++) {
-			final AnimFlag temp = anims.get(i);
-			if (temp.getName().equals("Alpha")) {
-				temp.printTo(writer, tabHeight + 1);
-				foundAlpha = true;
-			}
-		}
-		if ((staticAlpha != -1) && !foundAlpha) {
-			writer.println(tabs + "\tstatic Alpha " + staticAlpha + ",");
-		}
-		if (ModelUtils.isEmissiveLayerSupported(version)) {
-			boolean foundEmissive = false;
-			for (int i = 0; i < anims.size(); i++) {
-				final AnimFlag temp = anims.get(i);
-				if (temp.getName().startsWith("Emissive")) {
-					temp.printTo(writer, tabHeight + 1);
-					foundEmissive = true;
-				}
-			}
-			if (!Double.isNaN(emissiveGain) && (emissiveGain != 1.0) && !foundEmissive) {
-				writer.println(tabs + "\tstatic EmissiveGain " + MDLReader.doubleToString(emissiveGain) + ",");
-			}
-		}
-		if (ModelUtils.isFresnelColorLayerSupported(version)) {
-			boolean foundFresnelColor = false;
-			for (int i = 0; i < anims.size(); i++) {
-				final AnimFlag temp = anims.get(i);
-				if (temp.getName().startsWith("FresnelColor")) {
-					temp.printTo(writer, tabHeight + 1);
-					foundFresnelColor = true;
-				}
-			}
-			if ((fresnelColor != null)
-					&& ((fresnelColor.x != 1.0) || (fresnelColor.y != 1.0) || (fresnelColor.z != 1.0))
-					&& !foundFresnelColor) {
-				writer.println(tabs + "\tstatic FresnelColor " + fresnelColor + ",");
-			}
-			boolean foundFresnelOpacity = false;
-			for (int i = 0; i < anims.size(); i++) {
-				final AnimFlag temp = anims.get(i);
-				if (temp.getName().startsWith("FresnelOpacity")) {
-					temp.printTo(writer, tabHeight + 1);
-					foundFresnelOpacity = true;
-				}
-			}
-			if (!Double.isNaN(fresnelOpacity) && (fresnelOpacity != 0) && !foundFresnelOpacity) {
-				writer.println(tabs + "\tstatic FresnelOpacity " + MDLReader.doubleToString(fresnelOpacity) + ",");
-			}
-			boolean foundFresnelTeamColor = false;
-			for (int i = 0; i < anims.size(); i++) {
-				final AnimFlag temp = anims.get(i);
-				if (temp.getName().startsWith("FresnelTeamColor")) {
-					temp.printTo(writer, tabHeight + 1);
-					foundFresnelTeamColor = true;
-				}
-			}
-			if (!Double.isNaN(fresnelTeamColor) && (fresnelTeamColor != 0) && !foundFresnelTeamColor) {
-				writer.println(tabs + "\tstatic FresnelTeamColor " + MDLReader.doubleToString(fresnelTeamColor) + ",");
-			}
-		}
-		writer.println(tabs + "}");
-	}
-
 	@Override
 	public String getName() {
 		if (texture != null) {
@@ -655,46 +497,8 @@ public class Layer implements Named, VisibilitySource, LayerView {
 	public AnimFlag getFlag(final String what) {
 		int count = 0;
 		AnimFlag output = null;
-		for (final AnimFlag af : anims) {
+		for (final AnimFlag af : animFlags) {
 			if (af.getName().equals(what)) {
-				count++;
-				output = af;
-			}
-		}
-		if (count > 1) {
-			JOptionPane.showMessageDialog(null,
-					"Some visiblity animation data was lost unexpectedly during retrieval in " + getName() + ".");
-		}
-		return output;
-	}
-
-	@Override
-	public void setVisibilityFlag(final AnimFlag flag) {
-		int count = 0;
-		int index = 0;
-		for (int i = 0; i < anims.size(); i++) {
-			final AnimFlag af = anims.get(i);
-			if (af.getName().equals("Visibility") || af.getName().equals("Alpha")) {
-				count++;
-				index = i;
-				anims.remove(af);
-			}
-		}
-		if (flag != null) {
-			anims.add(index, flag);
-		}
-		if (count > 1) {
-			JOptionPane.showMessageDialog(null,
-					"Some visiblity animation data was lost unexpectedly during overwrite in " + getName() + ".");
-		}
-	}
-
-	@Override
-	public AnimFlag getVisibilityFlag() {
-		int count = 0;
-		AnimFlag output = null;
-		for (final AnimFlag af : anims) {
-			if (af.getName().equals("Visibility") || af.getName().equals("Alpha")) {
 				count++;
 				output = af;
 			}
@@ -741,26 +545,6 @@ public class Layer implements Named, VisibilitySource, LayerView {
 
 	public void setStaticAlpha(final double staticAlpha) {
 		this.staticAlpha = staticAlpha;
-	}
-
-	public ArrayList<String> getFlags() {
-		return flags;
-	}
-
-	public void setFlags(final ArrayList<String> flags) {
-		this.flags = flags;
-	}
-
-	public void add(final String flag) {
-		flags.add(flag);
-	}
-
-	public ArrayList<AnimFlag> getAnims() {
-		return anims;
-	}
-
-	public void setAnims(final ArrayList<AnimFlag> anims) {
-		this.anims = anims;
 	}
 
 	public ArrayList<Bitmap> getTextures() {

@@ -5,6 +5,7 @@ import static java.util.logging.Level.SEVERE;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,6 +33,7 @@ import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.UVLayer;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.mdx.MdxUtils;
 // This code was written by myself, Sean R. Owens, sean at guild dot net,
 // and is released to the public domain. Share and enjoy. Since some
 // people argue that it is impossible to release software to the public
@@ -733,7 +735,7 @@ public class Build implements BuilderInterface {
 		}
 	}
 
-	public EditableModel createMDL() {
+	public EditableModel createMDL() throws IOException {
 		try {
 			final EditableModel mdl = new EditableModel(new File(objFilename).getName());
 			if (faces.size() >= 10000 || verticesG.size() >= 10000) {
@@ -916,9 +918,11 @@ public class Build implements BuilderInterface {
 					loadbar.setPercent(0);
 					loadbar.setText("Saving file...");
 				}
-				mdl.saveFile();
+				MdxUtils.saveEditableModel(mdl, mdl.getFile());
 			}
 			return mdl;
+		} catch (final IOException e) {
+			throw e;
 		} catch (final Exception e) {
 			throw e;
 		} finally {

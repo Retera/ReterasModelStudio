@@ -3,25 +3,24 @@ package com.etheller.warsmash.parsers.mdlx.timeline;
 import java.io.IOException;
 
 import com.etheller.warsmash.parsers.mdlx.AnimationMap;
-import com.etheller.warsmash.parsers.mdlx.Chunk;
 import com.etheller.warsmash.parsers.mdlx.InterpolationType;
-import com.etheller.warsmash.parsers.mdlx.MdlTokenInputStream;
-import com.etheller.warsmash.parsers.mdlx.MdlTokenOutputStream;
+import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
+import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
 import com.etheller.warsmash.util.ParseUtils;
 import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
 
-public abstract class Timeline<TYPE> implements Chunk {
-	private War3ID name;
-	private InterpolationType interpolationType;
-	private int globalSequenceId = -1;
+public abstract class Timeline<TYPE> {
+	public War3ID name;
+	public InterpolationType interpolationType;
+	public int globalSequenceId = -1;
 
-	private long[] frames;
-	private TYPE[] values;
-	private TYPE[] inTans;
-	private TYPE[] outTans;
+	public long[] frames;
+	public TYPE[] values;
+	public TYPE[] inTans;
+	public TYPE[] outTans;
 
 	/**
 	 * Restricts us to only be able to parse models on one thread at a time, in
@@ -180,7 +179,6 @@ public abstract class Timeline<TYPE> implements Chunk {
 		stream.endBlock();
 	}
 
-	@Override
 	public long getByteLength() {
 		final int tracksCount = this.frames.length;
 		int size = 16;
@@ -206,28 +204,4 @@ public abstract class Timeline<TYPE> implements Chunk {
 	protected abstract void writeMdxValue(LittleEndianDataOutputStream stream, TYPE value) throws IOException;
 
 	protected abstract void writeMdlValue(MdlTokenOutputStream stream, String prefix, TYPE value);
-
-	public int getGlobalSequenceId() {
-		return this.globalSequenceId;
-	}
-
-	public InterpolationType getInterpolationType() {
-		return this.interpolationType;
-	}
-
-	public long[] getFrames() {
-		return this.frames;
-	}
-
-	public TYPE[] getValues() {
-		return this.values;
-	}
-
-	public TYPE[] getInTans() {
-		return this.inTans;
-	}
-
-	public TYPE[] getOutTans() {
-		return this.outTans;
-	}
 }

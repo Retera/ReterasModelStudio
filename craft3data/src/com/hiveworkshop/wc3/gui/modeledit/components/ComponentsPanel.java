@@ -12,11 +12,13 @@ import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.util.TextureExporter;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Attachment;
+import com.hiveworkshop.wc3.mdl.BindPose;
 import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.CollisionShape;
 import com.hiveworkshop.wc3.mdl.EventObject;
+import com.hiveworkshop.wc3.mdl.FaceEffect;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.Helper;
@@ -29,8 +31,6 @@ import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.TextureAnim;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
-import com.hiveworkshop.wc3.mdx.BindPoseChunk;
-import com.hiveworkshop.wc3.mdx.FaceEffectsChunk.FaceEffect;
 
 public class ComponentsPanel extends JPanel implements ModelComponentBrowserTree.ModelComponentListener {
 	private static final String BLANK = "BLANK";
@@ -187,7 +187,7 @@ public class ComponentsPanel extends JPanel implements ModelComponentBrowserTree
 	}
 
 	@Override
-	public void selected(final BindPoseChunk bindPoseChunk) {
+	public void selected(final BindPose bindPoseChunk) {
 	}
 
 	@Override

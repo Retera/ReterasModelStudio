@@ -17,6 +17,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
+import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.units.GameObject;
 import com.hiveworkshop.wc3.units.ModelOptionPane;
@@ -114,7 +115,7 @@ public class NewRequestPanel extends JPanel implements ActionListener {
 				} else if (!filepath.endsWith(".mdx")) {
 					filepath = filepath.concat(".mdx");
 				}
-				toLoad = EditableModel.read(MpqCodebase.get().getFile(filepath));
+				toLoad = MdxUtils.loadEditableModel(MpqCodebase.get().getFile(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -154,7 +155,7 @@ public class NewRequestPanel extends JPanel implements ActionListener {
 				} else if (!filepath.endsWith(".mdx")) {
 					filepath = filepath.concat(".mdx");
 				}
-				toLoad = EditableModel.read(MpqCodebase.get().getFile(filepath));
+				toLoad = MdxUtils.loadEditableModel(MpqCodebase.get().getFile(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -190,7 +191,7 @@ public class NewRequestPanel extends JPanel implements ActionListener {
 			EditableModel toLoad;
 			ModelViewManager modelDisp = null;
 			try {
-				toLoad = EditableModel.read(new File(filepath));
+				toLoad = MdxUtils.loadEditableModel(new File(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();

@@ -20,8 +20,6 @@ import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 
-import de.wc3data.stream.BlizzardDataInputStream;
-
 public class ViewportRenderableCamera {
 	private final EditableModel cameraModel;
 	private double cameraLength;
@@ -46,8 +44,7 @@ public class ViewportRenderableCamera {
 	public ViewportRenderableCamera() {
 		EditableModel camera;
 		try {
-			camera = new EditableModel(MdxUtils.loadModel(new BlizzardDataInputStream(
-					MpqCodebase.get().getResourceAsStream("Objects\\CameraHelper\\CameraHelper.mdx"))));
+			camera = new EditableModel(MdxUtils.loadModel(MpqCodebase.get().getResourceAsStream("Objects\\CameraHelper\\CameraHelper.mdx")));
 			cameraLength = Math.abs(camera.getIdObject(0).getPivotPoint().x);
 		} catch (final IOException e) {
 			camera = null;
