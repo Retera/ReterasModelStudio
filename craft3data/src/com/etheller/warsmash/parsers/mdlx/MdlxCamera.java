@@ -6,40 +6,28 @@ import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
 import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
+import com.hiveworkshop.util.BinaryReader;
 
-public class MdlxCamera extends AnimatedObject {
-	public String name;
-	public float[] position;
-	public float fieldOfView;
-	public float farClippingPlane;
-	public float nearClippingPlane;
-	public float[] targetPosition;
+public class MdlxCamera extends MdlxAnimatedObject {
+	public String name = "";
+	public float[] position = new float[3];
+	public float fieldOfView = 0;
+	public float farClippingPlane = 0;
+	public float nearClippingPlane = 0;
+	public float[] targetPosition = new float[3];
 
-	public MdlxCamera() {
-		this.position = new float[3];
-		this.targetPosition = new float[3];
-	}
+	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+		final long size = reader.readUInt32();
 
-	/**
-	 * Restricts us to only be able to parse models on one thread at a time, in
-	 * return for high performance.
-	 */
-	private static final byte[] NAME_BYTES_HEAP = new byte[80];
+		this.name = reader.read(80);
+		reader.readFloat32Array(this.position);
+		this.fieldOfView = reader.readFloat32();
+		this.farClippingPlane = reader.readFloat32();
+		this.nearClippingPlane = reader.readFloat32();
+		reader.readFloat32Array(this.targetPosition);
 
-	@Override
-	public void readMdx(final LittleEndianDataInputStream stream, final int version) throws IOException {
-		final long size = ParseUtils.readUInt32(stream);
-
-		this.name = ParseUtils.readString(stream, NAME_BYTES_HEAP);
-		ParseUtils.readFloatArray(stream, this.position);
-		this.fieldOfView = stream.readFloat();
-		this.farClippingPlane = stream.readFloat();
-		this.nearClippingPlane = stream.readFloat();
-		ParseUtils.readFloatArray(stream, this.targetPosition);
-
-		readTimelines(stream, size - 120);
+		readTimelines(reader, size - 120);
 	}
 
 	@Override

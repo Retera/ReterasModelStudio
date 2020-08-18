@@ -27,6 +27,7 @@ import com.etheller.warsmash.parsers.mdlx.MdlxBone;
 import com.etheller.warsmash.parsers.mdlx.MdlxCamera;
 import com.etheller.warsmash.parsers.mdlx.MdlxCollisionShape;
 import com.etheller.warsmash.parsers.mdlx.MdlxEventObject;
+import com.etheller.warsmash.parsers.mdlx.MdlxFaceEffect;
 import com.etheller.warsmash.parsers.mdlx.MdlxGeoset;
 import com.etheller.warsmash.parsers.mdlx.MdlxGeosetAnimation;
 import com.etheller.warsmash.parsers.mdlx.MdlxHelper;
@@ -191,7 +192,7 @@ public class EditableModel implements Named {
 			what.toMdlx().saveMdx(byteArrayOutputStream);
 
 			try (ByteArrayInputStream bais = new ByteArrayInputStream(byteArrayOutputStream.toByteArray())) {
-				final EditableModel newModel = new EditableModel(new MdlxModel((InputStream)bais));
+				final EditableModel newModel = MdxUtils.loadEditableModel(bais);
 				newModel.setName(newName);
 				newModel.setFileRef(what.getFile());
 				return newModel;
@@ -379,8 +380,8 @@ public class EditableModel implements Named {
 			addPivotPoint(new Vertex(point));
 		}
 
-		if (model.faceEffect.length() > 0) {
-			addFaceEffect(new FaceEffect(model.faceEffectTarget, model.faceEffect));
+		for (final MdlxFaceEffect effect : model.faceEffects) {
+			addFaceEffect(new FaceEffect(effect.type, effect.path));
 		}
 
 		if (model.bindPose.size() > 0) {
@@ -488,11 +489,8 @@ public class EditableModel implements Named {
 			model.pivotPoints.add(point.toFloatArray());
 		}
 
-		if (faceEffects.size() > 0) {
-			FaceEffect effect = faceEffects.get(0);
-
-			model.faceEffectTarget = effect.faceEffectTarget;
-			model.faceEffect = effect.faceEffect;
+		for (final FaceEffect effect : faceEffects) {
+			model.faceEffects.add(effect.toMdlx());
 		}
 
 		if (bindPoseChunk != null) {

@@ -10,8 +10,8 @@ import com.etheller.warsmash.util.ParseUtils;
 import com.etheller.warsmash.viewer5.handlers.w3x.AnimationTokens;
 import com.etheller.warsmash.viewer5.handlers.w3x.AnimationTokens.PrimaryTag;
 import com.etheller.warsmash.viewer5.handlers.w3x.AnimationTokens.SecondaryTag;
-import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
+import com.hiveworkshop.util.BinaryReader;
 
 public class MdlxSequence implements MdlxBlock {
 	public String name = "";
@@ -31,16 +31,15 @@ public class MdlxSequence implements MdlxBlock {
 	 * return for high performance.
 	 */
 	private static final byte[] NAME_BYTES_HEAP = new byte[80];
-
-	@Override
-	public void readMdx(final LittleEndianDataInputStream stream, final int version) throws IOException {
-		this.name = ParseUtils.readString(stream, NAME_BYTES_HEAP);
-		ParseUtils.readUInt32Array(stream, this.interval);
-		this.moveSpeed = stream.readFloat();
-		this.flags = (int) ParseUtils.readUInt32(stream);
-		this.rarity = stream.readFloat();
-		this.syncPoint = ParseUtils.readUInt32(stream);
-		this.extent.readMdx(stream);
+	
+	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+		this.name = reader.read(80);
+		reader.readUInt32Array(this.interval);
+		this.moveSpeed = reader.readFloat32();
+		this.flags = reader.readInt32();
+		this.rarity = reader.readFloat32();
+		this.syncPoint = reader.readUInt32();
+		this.extent.readMdx(reader);
 		populateTags();
 	}
 

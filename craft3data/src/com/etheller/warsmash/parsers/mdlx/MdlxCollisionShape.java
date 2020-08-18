@@ -6,8 +6,8 @@ import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
 import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
+import com.hiveworkshop.util.BinaryReader;
 
 public class MdlxCollisionShape extends MdlxGenericObject {
 	public static enum Type {
@@ -37,27 +37,26 @@ public class MdlxCollisionShape extends MdlxGenericObject {
 		}
 	}
 
-	public MdlxCollisionShape.Type type;
+	public MdlxCollisionShape.Type type = Type.SPHERE;
 	public final float[][] vertices = { new float[3], new float[3] };
-	public float boundsRadius;
+	public float boundsRadius = 0;
 
 	public MdlxCollisionShape() {
 		super(0x2000);
 	}
 
-	@Override
-	public void readMdx(final LittleEndianDataInputStream stream, final int version) throws IOException {
-		super.readMdx(stream, version);
+	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+		super.readMdx(reader, version);
 
-		final long typeIndex = ParseUtils.readUInt32(stream);
-		this.type = MdlxCollisionShape.Type.from((int) typeIndex);
-		ParseUtils.readFloatArray(stream, this.vertices[0]);
+		this.type = MdlxCollisionShape.Type.from(reader.readInt32());
+		reader.readFloat32Array(this.vertices[0]);
 
 		if (this.type != Type.SPHERE) {
-			ParseUtils.readFloatArray(stream, this.vertices[1]);
+			reader.readFloat32Array(this.vertices[1]);
 		}
+
 		if ((this.type == Type.SPHERE) || (this.type == Type.CYLINDER)) {
-			this.boundsRadius = stream.readFloat();
+			this.boundsRadius = reader.readFloat32();
 		}
 	}
 

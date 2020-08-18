@@ -7,10 +7,10 @@ import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
 import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
+import com.hiveworkshop.util.BinaryReader;
 
-public class MdlxLayer extends AnimatedObject {
+public class MdlxLayer extends MdlxAnimatedObject {
 	// 0: none
 	// 1: transparent
 	// 2: blend
@@ -79,32 +79,28 @@ public class MdlxLayer extends AnimatedObject {
 	 */
 	public float fresnelTeamColor = 0;
 
-	@Override
-	public void readMdx(final LittleEndianDataInputStream stream, final int version) throws IOException {
-		long size = ParseUtils.readUInt32(stream);
+	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+		final int position = reader.position();
+		final long size = reader.readUInt32();
 
-		this.filterMode = FilterMode.fromId((int) ParseUtils.readUInt32(stream));
-		this.flags = stream.readInt(); // UInt32 in JS
-		this.textureId = stream.readInt();
-		this.textureAnimationId = stream.readInt();
-		this.coordId = ParseUtils.readUInt32(stream);
-		this.alpha = stream.readFloat();
+		this.filterMode = FilterMode.fromId(reader.readInt32());
+		this.flags = reader.readInt32(); // UInt32 in JS
+		this.textureId = reader.readInt32();
+		this.textureAnimationId = reader.readInt32();
+		this.coordId = reader.readInt32();
+		this.alpha = reader.readFloat32();
 
 		if (version > 800) {
-			emissiveGain = stream.readFloat();
+			emissiveGain = reader.readFloat32();
 
 			if (version > 900) {
-				fresnelColor = ParseUtils.readFloatArray(stream, 3);
-				fresnelOpacity = stream.readFloat();
-				fresnelTeamColor = stream.readFloat();
-
-				size -= 20;
+				reader.readFloat32Array(fresnelColor);
+				fresnelOpacity = reader.readFloat32();
+				fresnelTeamColor = reader.readFloat32();
 			}
-
-			size -= 4;
 		}
 
-		readTimelines(stream, size - 28);
+		readTimelines(reader, size - (reader.position() - position));
 	}
 
 	@Override

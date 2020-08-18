@@ -5,18 +5,18 @@ import java.io.IOException;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
 import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
+import com.hiveworkshop.util.BinaryReader;
 
 public class MdlxExtent {
 	public float boundsRadius = 0;
 	public float[] min = new float[3];
 	public float[] max = new float[3];
 
-	public void readMdx(final LittleEndianDataInputStream stream) throws IOException {
-		this.boundsRadius = stream.readFloat();
-		ParseUtils.readFloatArray(stream, this.min);
-		ParseUtils.readFloatArray(stream, this.max);
+	public void readMdx(final BinaryReader reader) throws IOException {
+		this.boundsRadius = reader.readFloat32();
+		reader.readFloat32Array(this.min);
+		reader.readFloat32Array(this.max);
 	}
 
 	public void writeMdx(final LittleEndianDataOutputStream stream) throws IOException {

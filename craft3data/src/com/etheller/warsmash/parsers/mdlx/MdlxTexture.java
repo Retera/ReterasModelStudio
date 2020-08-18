@@ -6,8 +6,8 @@ import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
 import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
+import com.hiveworkshop.util.BinaryReader;
 
 public class MdlxTexture implements MdlxBlock {
 	public int replaceableId = 0;
@@ -20,11 +20,10 @@ public class MdlxTexture implements MdlxBlock {
 	 */
 	private static final byte[] PATH_BYTES_HEAP = new byte[260];
 
-	@Override
-	public void readMdx(final LittleEndianDataInputStream stream, final int version) throws IOException {
-		this.replaceableId = (int) ParseUtils.readUInt32(stream);
-		this.path = ParseUtils.readString(stream, PATH_BYTES_HEAP);
-		this.flags = (int) ParseUtils.readUInt32(stream);
+	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+		this.replaceableId = reader.readInt32();
+		this.path = reader.read(260);
+		this.flags = reader.readInt32();
 	}
 
 	@Override

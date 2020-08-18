@@ -5,8 +5,8 @@ import java.io.IOException;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
+import com.hiveworkshop.util.BinaryReader;
 
 public final class FloatArrayTimeline extends Timeline<float[]> {
 	private final int arraySize;
@@ -21,8 +21,8 @@ public final class FloatArrayTimeline extends Timeline<float[]> {
 	}
 
 	@Override
-	protected float[] readMdxValue(final LittleEndianDataInputStream stream) throws IOException {
-		return ParseUtils.readFloatArray(stream, this.arraySize);
+	protected float[] readMdxValue(final BinaryReader reader) throws IOException {
+		return reader.readFloat32Array(this.arraySize);
 	}
 
 	@Override

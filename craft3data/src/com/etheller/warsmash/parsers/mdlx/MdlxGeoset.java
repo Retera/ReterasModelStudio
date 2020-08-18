@@ -9,8 +9,8 @@ import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
 import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
+import com.hiveworkshop.util.BinaryReader;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
 
 public class MdlxGeoset implements MdlxBlock, MdlxChunk {
@@ -58,71 +58,65 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 	public short[] skin;
 	public float[][] uvSets;
 
-	/**
-	 * Restricts us to only be able to parse models on one thread at a time, in
-	 * return for high performance.
-	 */
-	private static final byte[] LOD_NAME_BYTES_HEAP = new byte[80];
+	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+		final long size = reader.readUInt32();
 
-	@Override
-	public void readMdx(final LittleEndianDataInputStream stream, final int version) throws IOException {
-		final long mySize = ParseUtils.readUInt32(stream);
-		final int vrtx = stream.readInt(); // skip VRTX
-		this.vertices = ParseUtils.readFloatArray(stream, (int) (ParseUtils.readUInt32(stream) * 3));
-		final int nrms = stream.readInt(); // skip NRMS
-		this.normals = ParseUtils.readFloatArray(stream, (int) (ParseUtils.readUInt32(stream) * 3));
-		final int ptyp = stream.readInt(); // skip PTYP
-		this.faceTypeGroups = ParseUtils.readUInt32Array(stream, (int) ParseUtils.readUInt32(stream));
-		stream.readInt(); // skip PCNT
-		this.faceGroups = ParseUtils.readUInt32Array(stream, (int) ParseUtils.readUInt32(stream));
-		stream.readInt(); // skip PVTX
-		this.faces = ParseUtils.readUInt16Array(stream, (int) ParseUtils.readUInt32(stream));
-		stream.readInt(); // skip GNDX
-		this.vertexGroups = ParseUtils.readUInt8Array(stream, (int) ParseUtils.readUInt32(stream));
-		stream.readInt(); // skip MTGC
-		this.matrixGroups = ParseUtils.readUInt32Array(stream, (int) ParseUtils.readUInt32(stream));
-		stream.readInt(); // skip MATS
-		this.matrixIndices = ParseUtils.readUInt32Array(stream, (int) ParseUtils.readUInt32(stream));
-		this.materialId = ParseUtils.readUInt32(stream);
-		this.selectionGroup = ParseUtils.readUInt32(stream);
-		this.selectionFlags = ParseUtils.readUInt32(stream);
+		reader.readInt32(); // skip VRTX
+		this.vertices = reader.readFloat32Array(reader.readInt32() * 3);
+		reader.readInt32(); // skip NRMS
+		this.normals = reader.readFloat32Array(reader.readInt32() * 3);
+		reader.readInt32(); // skip PTYP
+		this.faceTypeGroups = reader.readUInt32Array(reader.readInt32());
+		reader.readInt32(); // skip PCNT
+		this.faceGroups = reader.readUInt32Array(reader.readInt32());
+		reader.readInt32(); // skip PVTX
+		this.faces = reader.readUInt16Array(reader.readInt32());
+		reader.readInt32(); // skip GNDX
+		this.vertexGroups = reader.readUInt8Array(reader.readInt32());
+		reader.readInt32(); // skip MTGC
+		this.matrixGroups = reader.readUInt32Array(reader.readInt32());
+		reader.readInt32(); // skip MATS
+		this.matrixIndices = reader.readUInt32Array(reader.readInt32());
+		this.materialId = reader.readUInt32();
+		this.selectionGroup = reader.readUInt32();
+		this.selectionFlags = reader.readUInt32();
 
 		if (version > 800) {
-			lod = stream.readInt();
-			lodName = ParseUtils.readString(stream, LOD_NAME_BYTES_HEAP);
+			lod = reader.readInt32();
+			lodName = reader.read(80);
 		}
 
-		this.extent.readMdx(stream);
+		this.extent.readMdx(reader);
 
-		final long numExtents = ParseUtils.readUInt32(stream);
+		final long numExtents = reader.readUInt32();
 		this.sequenceExtents = new MdlxExtent[(int) numExtents];
 		for (int i = 0; i < numExtents; i++) {
 			final MdlxExtent extent = new MdlxExtent();
-			extent.readMdx(stream);
+			extent.readMdx(reader);
 			this.sequenceExtents[i] = extent;
 		}
 
-		War3ID id = ParseUtils.readWar3ID(stream);
+		int id = reader.readTag(); // TANG or SKIN or UVAS
 
-		if (version > 800 && !id.equals(UVAS)) {
-			if (id.equals(TANG)) {
-				this.tangents = ParseUtils.readFloatArray(stream, (int) (ParseUtils.readUInt32(stream) * 4));
+		if (version > 800 && id != UVAS.getValue()) {
+			if (id == TANG.getValue()) {
+				this.tangents = reader.readFloat32Array(reader.readInt32() * 4);
 
-				id = ParseUtils.readWar3ID(stream);
+				id = reader.readTag(); // SKIN or UVAS
 			}
 
-			if (id.equals(SKIN)) {
-				this.skin = ParseUtils.readUInt8Array(stream, (int) (ParseUtils.readUInt32(stream)));
+			if (id == SKIN.getValue()) {
+				this.skin = reader.readUInt8Array(reader.readInt32());
 
-				id = ParseUtils.readWar3ID(stream);
+				id = reader.readInt32(); // UVAS
 			}
 		}
 
-		final long numUVLayers = ParseUtils.readUInt32(stream);
+		final long numUVLayers = reader.readUInt32();
 		this.uvSets = new float[(int) numUVLayers][];
 		for (int i = 0; i < numUVLayers; i++) {
-			stream.readInt(); // skip UVBS
-			this.uvSets[i] = ParseUtils.readFloatArray(stream, (int) (ParseUtils.readUInt32(stream) * 2));
+			reader.readInt32(); // skip UVBS
+			this.uvSets[i] = reader.readFloat32Array(reader.readInt32() * 2);
 		}
 	}
 

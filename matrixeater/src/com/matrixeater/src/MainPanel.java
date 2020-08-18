@@ -5327,15 +5327,7 @@ public class MainPanel extends JPanel
 		ModelPanel temp = null;
 		if (f.getPath().toLowerCase().endsWith("mdx") || f.getPath().toLowerCase().endsWith("mdl")) {
 			try {
-				final MdlxModel mdlx = new MdlxModel();
-
-				if (f.getPath().toLowerCase().endsWith("mdx")) {
-					mdlx.loadMdx(new FileInputStream(f));
-				} else {
-					mdlx.loadMdl(new FileInputStream(f));
-				}
-
-				final EditableModel model = new EditableModel(mdlx);
+				final EditableModel model = MdxUtils.loadEditableModel(f);
 				model.setFileRef(f);
 				temp = new ModelPanel(this, model, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
 						modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,

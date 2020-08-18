@@ -6,13 +6,14 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import com.hiveworkshop.wc3.mdx.MdxUtils;
+
 public class MdlxTest {
 
 	public static void main(final String[] args) {
 		try (FileInputStream stream = new FileInputStream(
 				new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\ArcaneEpic13.mdx"))) {
-			final MdlxModel model = new MdlxModel();
-			model.loadMdx(stream);
+			final MdlxModel model = MdxUtils.loadModel(stream);
 			try (FileOutputStream mdlStream = new FileOutputStream(new File(
 					"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Test\\MyOutAutomated.mdl"))) {
 
@@ -30,8 +31,7 @@ public class MdlxTest {
 
 		try (FileInputStream stream = new FileInputStream(
 				new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Test\\MyOutAutomated.mdl"))) {
-			final MdlxModel model = new MdlxModel();
-			model.loadMdl(stream);
+			final MdlxModel model = MdxUtils.loadModel(stream);
 			try (FileOutputStream mdlStream = new FileOutputStream(new File(
 					"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Test\\MyOutAutomatedMDX.mdx"))) {
 
@@ -47,8 +47,7 @@ public class MdlxTest {
 
 		try (FileInputStream stream = new FileInputStream(
 				new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Test\\MyOutAutomatedMDX.mdx"))) {
-			final MdlxModel model = new MdlxModel();
-			model.loadMdx(stream);
+			final MdlxModel model = MdxUtils.loadModel(stream);
 			try (FileOutputStream mdlStream = new FileOutputStream(new File(
 					"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Test\\MyOutAutomatedMDXBack2MDL.mdl"))) {
 

@@ -14,8 +14,8 @@ import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
 import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
+import com.hiveworkshop.util.BinaryReader;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
 
 /**
@@ -91,11 +91,7 @@ public class MdlxModel {
 	/**
 	 * @since 900
 	 */
-	public String faceEffectTarget = "";
-	/**
-	 * @since 900
-	 */
-	public String faceEffect = "";
+	public List<MdlxFaceEffect> faceEffects = new ArrayList<>();
 	/**
 	 * @since 900
 	 */
@@ -106,147 +102,142 @@ public class MdlxModel {
 
 	}
 
-	public MdlxModel(final InputStream buffer) throws IOException {
-		loadMdx(buffer);
+	public MdlxModel(final ByteBuffer buffer) throws IOException {
+		load(buffer);
 	}
 
-	// public MdlxModel(final InputStream buffer) throws IOException {
-	// 	if (buffer != null) {
-	// 		// In ghostwolf JS, this function called load()
-	// 		// which decided whether the buffer was an MDL.
-	// 		loadMdx(buffer);
-	// 	}
-	// }
+	public void load(final ByteBuffer buffer) throws IOException {
+		// MDX files start with "MDLX".
+		if (buffer.get(0) == 77 && buffer.get(1) == 68 && buffer.get(2) == 76 && buffer.get(3) == 88) {
+			loadMdx(buffer);
+		} else {
+			loadMdl(buffer);
+		}
+	}
 
-	public void loadMdx(final InputStream buffer) throws IOException {
-		final LittleEndianDataInputStream stream = new LittleEndianDataInputStream(buffer);
-		if (Integer.reverseBytes(stream.readInt()) != MDLX) {
+	private void loadMdx(final ByteBuffer buffer) throws IOException {
+		final BinaryReader reader = new BinaryReader(buffer);
+
+		if (reader.readTag() != MDLX) {
 			throw new IllegalStateException("WrongMagicNumber");
 		}
 
-		while (stream.available() > 0) {
-			final int tag = Integer.reverseBytes(stream.readInt());
-			final long size = ParseUtils.readUInt32(stream);
+		while (reader.remaining() > 0) {
+			final int tag = reader.readTag();
+			final int size = reader.readInt32();
 
 			switch (tag) {
 			case VERS:
-				loadVersionChunk(stream);
+				loadVersionChunk(reader);
 				break;
 			case MODL:
-				loadModelChunk(stream);
+				loadModelChunk(reader);
 				break;
 			case SEQS:
-				loadStaticObjects(this.sequences, MdlxBlockDescriptor.SEQUENCE, stream, size / 132);
+				loadStaticObjects(this.sequences, MdlxBlockDescriptor.SEQUENCE, reader, size / 132);
 				break;
 			case GLBS:
-				loadGlobalSequenceChunk(stream, size);
+				loadGlobalSequenceChunk(reader, size);
 				break;
 			case MTLS:
-				loadDynamicObjects(this.materials, MdlxBlockDescriptor.MATERIAL, stream, size);
+				loadDynamicObjects(this.materials, MdlxBlockDescriptor.MATERIAL, reader, size);
 				break;
 			case TEXS:
-				loadStaticObjects(this.textures, MdlxBlockDescriptor.TEXTURE, stream, size / 268);
+				loadStaticObjects(this.textures, MdlxBlockDescriptor.TEXTURE, reader, size / 268);
 				break;
 			case TXAN:
-				loadDynamicObjects(this.textureAnimations, MdlxBlockDescriptor.TEXTURE_ANIMATION, stream, size);
+				loadDynamicObjects(this.textureAnimations, MdlxBlockDescriptor.TEXTURE_ANIMATION, reader, size);
 				break;
 			case GEOS:
-				loadDynamicObjects(this.geosets, MdlxBlockDescriptor.GEOSET, stream, size);
+				loadDynamicObjects(this.geosets, MdlxBlockDescriptor.GEOSET, reader, size);
 				break;
 			case GEOA:
-				loadDynamicObjects(this.geosetAnimations, MdlxBlockDescriptor.GEOSET_ANIMATION, stream, size);
+				loadDynamicObjects(this.geosetAnimations, MdlxBlockDescriptor.GEOSET_ANIMATION, reader, size);
 				break;
 			case BONE:
-				loadDynamicObjects(this.bones, MdlxBlockDescriptor.BONE, stream, size);
+				loadDynamicObjects(this.bones, MdlxBlockDescriptor.BONE, reader, size);
 				break;
 			case LITE:
-				loadDynamicObjects(this.lights, MdlxBlockDescriptor.LIGHT, stream, size);
+				loadDynamicObjects(this.lights, MdlxBlockDescriptor.LIGHT, reader, size);
 				break;
 			case HELP:
-				loadDynamicObjects(this.helpers, MdlxBlockDescriptor.HELPER, stream, size);
+				loadDynamicObjects(this.helpers, MdlxBlockDescriptor.HELPER, reader, size);
 				break;
 			case ATCH:
-				loadDynamicObjects(this.attachments, MdlxBlockDescriptor.ATTACHMENT, stream, size);
+				loadDynamicObjects(this.attachments, MdlxBlockDescriptor.ATTACHMENT, reader, size);
 				break;
 			case PIVT:
-				loadPivotPointChunk(stream, size);
+				loadPivotPointChunk(reader, size);
 				break;
 			case PREM:
-				loadDynamicObjects(this.particleEmitters, MdlxBlockDescriptor.PARTICLE_EMITTER, stream, size);
+				loadDynamicObjects(this.particleEmitters, MdlxBlockDescriptor.PARTICLE_EMITTER, reader, size);
 				break;
 			case PRE2:
-				loadDynamicObjects(this.particleEmitters2, MdlxBlockDescriptor.PARTICLE_EMITTER2, stream, size);
+				loadDynamicObjects(this.particleEmitters2, MdlxBlockDescriptor.PARTICLE_EMITTER2, reader, size);
 				break;
 			case CORN:
-				loadDynamicObjects(this.particleEmittersPopcorn, MdlxBlockDescriptor.PARTICLE_EMITTER_POPCORN, stream, size);
+				loadDynamicObjects(this.particleEmittersPopcorn, MdlxBlockDescriptor.PARTICLE_EMITTER_POPCORN, reader, size);
 				break;
 			case RIBB:
-				loadDynamicObjects(this.ribbonEmitters, MdlxBlockDescriptor.RIBBON_EMITTER, stream, size);
+				loadDynamicObjects(this.ribbonEmitters, MdlxBlockDescriptor.RIBBON_EMITTER, reader, size);
 				break;
 			case CAMS:
-				loadDynamicObjects(this.cameras, MdlxBlockDescriptor.CAMERA, stream, size);
+				loadDynamicObjects(this.cameras, MdlxBlockDescriptor.CAMERA, reader, size);
 				break;
 			case EVTS:
-				loadDynamicObjects(this.eventObjects, MdlxBlockDescriptor.EVENT_OBJECT, stream, size);
+				loadDynamicObjects(this.eventObjects, MdlxBlockDescriptor.EVENT_OBJECT, reader, size);
 				break;
 			case CLID:
-				loadDynamicObjects(this.collisionShapes, MdlxBlockDescriptor.COLLISION_SHAPE, stream, size);
+				loadDynamicObjects(this.collisionShapes, MdlxBlockDescriptor.COLLISION_SHAPE, reader, size);
 				break;
 			case FAFX:
-				loadFaceEffectChunk(stream);
+				loadStaticObjects(this.faceEffects, MdlxBlockDescriptor.FACE_EFFECT, reader, size / 340);
 				break;
 			case BPOS:
-				loadBindPoseChunk(stream, size);
+				loadBindPoseChunk(reader, size);
 				break;
 			default:
-				this.unknownChunks.add(new MdlxUnknownChunk(stream, size, new War3ID(tag)));
+				this.unknownChunks.add(new MdlxUnknownChunk(reader, size, new War3ID(tag)));
 			}
 		}
 	}
 
-	private void loadVersionChunk(final LittleEndianDataInputStream stream) throws IOException {
-		this.version = (int) ParseUtils.readUInt32(stream);
+	private void loadVersionChunk(final BinaryReader reader) throws IOException {
+		this.version = reader.readInt32();
 	}
 
-	/**
-	 * Restricts us to only be able to parse models on one thread at a time, in
-	 * return for high performance.
-	 */
-	private static final byte[] NAME_BYTES_HEAP = new byte[80];
-	private static final byte[] ANIMATION_FILE_BYTES_HEAP = new byte[260];
-
-	private void loadModelChunk(final LittleEndianDataInputStream stream) throws IOException {
-		this.name = ParseUtils.readString(stream, NAME_BYTES_HEAP);
-		this.animationFile = ParseUtils.readString(stream, ANIMATION_FILE_BYTES_HEAP);
-		this.extent.readMdx(stream);
-		this.blendTime = ParseUtils.readUInt32(stream);
+	private void loadModelChunk(final BinaryReader reader) throws IOException {
+		this.name = reader.read(80);
+		this.animationFile = reader.read(260);
+		this.extent.readMdx(reader);
+		this.blendTime = reader.readInt32();
 	}
 
 	private <E extends MdlxBlock> void loadStaticObjects(final List<E> out, final MdlxBlockDescriptor<E> constructor,
-			final LittleEndianDataInputStream stream, final long count) throws IOException {
+			final BinaryReader reader, final long count) throws IOException {
 		for (int i = 0; i < count; i++) {
 			final E object = constructor.create();
 
-			object.readMdx(stream, version);
+			object.readMdx(reader, version);
 
 			out.add(object);
 		}
 	}
 
-	private void loadGlobalSequenceChunk(final LittleEndianDataInputStream stream, final long size) throws IOException {
+	private void loadGlobalSequenceChunk(final BinaryReader reader, final long size) throws IOException {
 		for (long i = 0, l = size / 4; i < l; i++) {
-			this.globalSequences.add(ParseUtils.readUInt32(stream));
+			this.globalSequences.add(reader.readUInt32());
 		}
 	}
 
 	private <E extends MdlxBlock & MdlxChunk> void loadDynamicObjects(final List<E> out,
-			final MdlxBlockDescriptor<E> constructor, final LittleEndianDataInputStream stream, final long size)
+			final MdlxBlockDescriptor<E> constructor, final BinaryReader reader, final long size)
 			throws IOException {
 		long totalSize = 0;
 		while (totalSize < size) {
 			final E object = constructor.create();
 
-			object.readMdx(stream, version);
+			object.readMdx(reader, version);
 
 			totalSize += object.getByteLength(version);
 
@@ -254,20 +245,15 @@ public class MdlxModel {
 		}
 	}
 
-	private void loadPivotPointChunk(final LittleEndianDataInputStream stream, final long size) throws IOException {
+	private void loadPivotPointChunk(final BinaryReader reader, final long size) throws IOException {
 		for (long i = 0, l = size / 12; i < l; i++) {
-			this.pivotPoints.add(ParseUtils.readFloatArray(stream, 3));
+			this.pivotPoints.add(reader.readFloat32Array(3));
 		}
 	}
 
-	private void loadFaceEffectChunk(final LittleEndianDataInputStream stream) throws IOException {
-		faceEffectTarget = ParseUtils.readString(stream, NAME_BYTES_HEAP);
-		faceEffect = ParseUtils.readString(stream, ANIMATION_FILE_BYTES_HEAP);
-	}
-
-	private void loadBindPoseChunk(final LittleEndianDataInputStream stream, final long size) throws IOException {
-		for (int i = 0, l = stream.readInt(); i < l; i++) {
-			bindPose.add(ParseUtils.readFloatArray(stream, 12));
+	private void loadBindPoseChunk(final BinaryReader reader, final long size) throws IOException {
+		for (int i = 0, l = reader.readInt32(); i < l; i++) {
+			bindPose.add(reader.readFloat32Array(12));
 		}
 	}
 
@@ -301,7 +287,7 @@ public class MdlxModel {
 		this.saveDynamicObjectChunk(stream, CLID, this.collisionShapes);
 
 		if (version > 800) {
-			saveFaceEffectChunk(stream);
+			this.saveStaticObjectChunk(stream, FAFX, this.faceEffects, 340);
 			saveBindPoseChunk(stream);
 		}
 
@@ -321,12 +307,12 @@ public class MdlxModel {
 		ParseUtils.writeUInt32(stream, 372);
 		final byte[] bytes = this.name.getBytes(ParseUtils.UTF8);
 		stream.write(bytes);
-		for (int i = 0; i < (NAME_BYTES_HEAP.length - bytes.length); i++) {
+		for (int i = 0; i < (80 - bytes.length); i++) {
 			stream.write((byte) 0);
 		}
 		final byte[] animationFileBytes = this.animationFile.getBytes(ParseUtils.UTF8);
 		stream.write(animationFileBytes);
-		for (int i = 0; i < (ANIMATION_FILE_BYTES_HEAP.length - animationFileBytes.length); i++) {
+		for (int i = 0; i < (260 - animationFileBytes.length); i++) {
 			stream.write((byte) 0);
 		}
 		this.extent.writeMdx(stream);
@@ -379,16 +365,6 @@ public class MdlxModel {
 		}
 	}
 
-	private void saveFaceEffectChunk(final LittleEndianDataOutputStream stream) throws IOException {
-		if (faceEffectTarget.length() > 0 || faceEffect.length() > 0) {
-			stream.writeInt(Integer.reverseBytes(FAFX));
-			ParseUtils.writeUInt32(stream, 340);
-			ParseUtils.writeString(stream, faceEffectTarget, 80);
-			ParseUtils.writeString(stream, faceEffect, 260);
-		}
-	}
-
-
 	private void saveBindPoseChunk(final LittleEndianDataOutputStream stream) throws IOException {
 		if (bindPose.size() > 0) {
 			stream.writeInt(Integer.reverseBytes(BPOS));
@@ -401,15 +377,7 @@ public class MdlxModel {
 		}
 	}
 
-
-	public void loadMdl(final InputStream inputStream) throws IOException {
-		// TODO change this to use LibGDX StreamUtils once LibGDX is on the classpath
-		// again!
-		final byte[] array = PortedFromLibGDXStreamUtils.copyStreamToByteArray(inputStream);
-		loadMdl(ByteBuffer.wrap(array));
-	}
-
-	public void loadMdl(final ByteBuffer inputStream) throws IOException {
+	private void loadMdl(final ByteBuffer inputStream) throws IOException {
 		String token;
 		final MdlTokenInputStream stream = new MdlTokenInputStream(inputStream);
 
@@ -481,7 +449,7 @@ public class MdlxModel {
 				this.loadObject(this.collisionShapes, MdlxBlockDescriptor.COLLISION_SHAPE, stream);
 				break;
 			case "FaceFX":
-				loadFaceEffectBlock(stream);
+				loadObject(this.faceEffects, MdlxBlockDescriptor.FACE_EFFECT, stream);
 				break;
 			case "BindPose":
 				loadBindPoseBlock(stream);
@@ -594,18 +562,6 @@ public class MdlxModel {
 
 		stream.read(); // }
 	}
-
-	private void loadFaceEffectBlock(MdlTokenInputStream stream) {
-		this.faceEffectTarget = stream.read();
-	
-		for (final String token : stream.readBlock()) {
-			if (token.equals("Path")) {
-				this.faceEffect = stream.read();
-			} else {
-				throw new IllegalStateException("Unknown token in GlobalSequences: " + token);
-			}
-		}
-	  }
 	
 	private void loadBindPoseBlock(MdlTokenInputStream stream) {
 		for (final String token : stream.readBlock()) {
@@ -655,7 +611,7 @@ public class MdlxModel {
 			this.saveObjects(stream, this.collisionShapes);
 
 			if (version > 800) {
-				saveFaceEffectBlock(stream);
+				this.saveObjects(stream, this.faceEffects);
 				saveBindPoseBlock(stream);
 			}
 		}
@@ -718,16 +674,6 @@ public class MdlxModel {
 		}
 	}
 
-	private void saveFaceEffectBlock(final MdlTokenOutputStream stream) {
-		if (faceEffectTarget.length() > 0 && faceEffect.length() > 0) {
-			stream.startObjectBlock("FaceFX", faceEffectTarget);
-
-			stream.writeStringAttrib("Path", faceEffect);
-
-			stream.endBlock();
-		}
-	}
-
 	private void saveBindPoseBlock(final MdlTokenOutputStream stream) {
 		if (!bindPose.isEmpty()) {
 			stream.startBlock("BindPose");
@@ -744,7 +690,7 @@ public class MdlxModel {
 		}
 	}
 
-	private long getByteLength() {
+	public long getByteLength() {
 		long size = 396;
 
 		size += getStaticObjectsChunkByteLength(this.sequences, 132);
@@ -773,7 +719,7 @@ public class MdlxModel {
 		size += this.getObjectsByteLength(this.unknownChunks);
 
 		if (version > 800) {
-			size += this.getFaceEffectChunkByteLength();
+			size += this.getStaticObjectsChunkByteLength(this.faceEffects, 340);
 			size += this.getBindPoseChunkByteLength();
 		}
 
@@ -803,14 +749,6 @@ public class MdlxModel {
 
 		return 0;
 	}
-
-	private long getFaceEffectChunkByteLength() {
-		if (faceEffectTarget.length() > 0 || faceEffect.length() > 0) {
-			return 348;
-		}
-	
-		return 0;
-	}
 	
 	private long getBindPoseChunkByteLength() {
 		if (bindPose.size() > 0) {
@@ -818,73 +756,5 @@ public class MdlxModel {
 		}
 	
 		return 0;
-	}
-
-	private static final class PortedFromLibGDXStreamUtils {
-		public static final int DEFAULT_BUFFER_SIZE = 4096;
-		public static final byte[] EMPTY_BYTES = new byte[0];
-
-		/**
-		 * Allocates a {@value #DEFAULT_BUFFER_SIZE} byte[] for use as a temporary
-		 * buffer and calls {@link #copyStream(InputStream, OutputStream, byte[])}.
-		 */
-		public static void copyStream(final InputStream input, final OutputStream output) throws IOException {
-			copyStream(input, output, new byte[DEFAULT_BUFFER_SIZE]);
-		}
-
-		/**
-		 * Copy the data from an {@link InputStream} to an {@link OutputStream}, using
-		 * the specified byte[] as a temporary buffer. The stream is not closed.
-		 */
-		public static void copyStream(final InputStream input, final OutputStream output, final byte[] buffer)
-				throws IOException {
-			int bytesRead;
-			while ((bytesRead = input.read(buffer)) != -1) {
-				output.write(buffer, 0, bytesRead);
-			}
-		}
-
-		/**
-		 * Copy the data from an {@link InputStream} to a byte array. The stream is not
-		 * closed.
-		 */
-		public static byte[] copyStreamToByteArray(final InputStream input) throws IOException {
-			return copyStreamToByteArray(input, input.available());
-		}
-
-		/**
-		 * Copy the data from an {@link InputStream} to a byte array. The stream is not
-		 * closed.
-		 *
-		 * @param estimatedSize Used to allocate the output byte[] to possibly avoid an
-		 *                      array copy.
-		 */
-		public static byte[] copyStreamToByteArray(final InputStream input, final int estimatedSize)
-				throws IOException {
-			final ByteArrayOutputStream baos = new OptimizedByteArrayOutputStream(Math.max(0, estimatedSize));
-			copyStream(input, baos);
-			return baos.toByteArray();
-		}
-
-		/**
-		 * A ByteArrayOutputStream which avoids copying of the byte array if possible.
-		 */
-		static public class OptimizedByteArrayOutputStream extends ByteArrayOutputStream {
-			public OptimizedByteArrayOutputStream(final int initialSize) {
-				super(initialSize);
-			}
-
-			@Override
-			public synchronized byte[] toByteArray() {
-				if (count == buf.length) {
-					return buf;
-				}
-				return super.toByteArray();
-			}
-
-			public byte[] getBuffer() {
-				return buf;
-			}
-		}
 	}
 }

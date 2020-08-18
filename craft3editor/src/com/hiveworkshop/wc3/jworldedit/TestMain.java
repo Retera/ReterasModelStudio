@@ -24,6 +24,7 @@ import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Triangle;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
+import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.util.CharInt;
 
 public class TestMain {
@@ -85,8 +86,8 @@ public class TestMain {
 		myModel.toMdlx().saveMdx(new FileOutputStream(new File("C:/users/micro/onedrive/documents/warcraft III/models/Generated43Matrices.mdx")));
 //		for(int i = 0; i < )
 
-		final EditableModel twoCloud = new EditableModel(new MdlxModel(new FileInputStream(new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\TwoCloudB.mdx"))));
-		
+		final EditableModel twoCloud = MdxUtils.loadEditableModel(new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\TwoCloudB.mdx"));
+
 		final Map<IdObject, Integer> objToCount = new HashMap<>();
 		for (final Geoset g : twoCloud.getGeosets()) {
 			for (final GeosetVertex gv : g.getVertices()) {

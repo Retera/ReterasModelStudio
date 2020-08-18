@@ -6,14 +6,14 @@ import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
 import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
+import com.hiveworkshop.util.BinaryReader;
 
-public class MdlxTextureAnimation extends AnimatedObject {
-	@Override
-	public void readMdx(final LittleEndianDataInputStream stream, final int version) throws IOException {
-		final long size = ParseUtils.readUInt32(stream);
-		this.readTimelines(stream, size - 4);
+public class MdlxTextureAnimation extends MdlxAnimatedObject {
+	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+		final long size = reader.readUInt32();
+
+		this.readTimelines(reader, size - 4);
 	}
 
 	@Override

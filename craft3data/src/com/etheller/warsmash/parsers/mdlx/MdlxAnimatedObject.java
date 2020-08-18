@@ -9,27 +9,23 @@ import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.parsers.mdlx.timeline.Timeline;
 import com.etheller.warsmash.util.MdlUtils;
-import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
+import com.hiveworkshop.util.BinaryReader;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
 
 /**
  * Based on the works of Chananya Freiman.
  *
  */
-public abstract class AnimatedObject implements MdlxChunk, MdlxBlock {
-	public List<Timeline<?>> timelines = new ArrayList<>();
+public abstract class MdlxAnimatedObject implements MdlxChunk, MdlxBlock {
+	public final List<Timeline<?>> timelines = new ArrayList<>();
 
-	public AnimatedObject() {
-		
-	}
-
-	public void readTimelines(final LittleEndianDataInputStream stream, long size) throws IOException {
+	public void readTimelines(final BinaryReader reader, long size) throws IOException {
 		while (size > 0) {
-			final War3ID name = new War3ID(Integer.reverseBytes(stream.readInt()));
+			final War3ID name = new War3ID(reader.readTag());
 			final Timeline<?> timeline = AnimationMap.ID_TO_TAG.get(name).getImplementation().createTimeline();
 
-			timeline.readMdx(stream, name);
+			timeline.readMdx(reader, name);
 
 			size -= timeline.getByteLength();
 

@@ -6,8 +6,8 @@ import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
 import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
+import com.hiveworkshop.util.BinaryReader;
 
 public class MdlxLight extends MdlxGenericObject {
 	public int type = -1;
@@ -21,20 +21,20 @@ public class MdlxLight extends MdlxGenericObject {
 		super(0x200);
 	}
 
-	@Override
-	public void readMdx(final LittleEndianDataInputStream stream, final int version) throws IOException {
-		final long size = ParseUtils.readUInt32(stream);
+	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+		final int position = reader.position();
+		final long size = reader.readUInt32();
 
-		super.readMdx(stream, version);
+		super.readMdx(reader, version);
 
-		this.type = stream.readInt(); // UInt32 in JS
-		ParseUtils.readFloatArray(stream, this.attenuation);
-		ParseUtils.readFloatArray(stream, this.color);
-		this.intensity = stream.readFloat();
-		ParseUtils.readFloatArray(stream, this.ambientColor);
-		this.ambientIntensity = stream.readFloat();
+		this.type = reader.readInt32();
+		reader.readFloat32Array(this.attenuation);
+		reader.readFloat32Array(this.color);
+		this.intensity = reader.readFloat32();
+		reader.readFloat32Array(this.ambientColor);
+		this.ambientIntensity = reader.readFloat32();
 
-		readTimelines(stream, size - this.getByteLength(version));
+		readTimelines(reader, size - (reader.position() - position));
 	}
 
 	@Override

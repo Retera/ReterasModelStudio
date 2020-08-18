@@ -3,18 +3,18 @@ package com.etheller.warsmash.parsers.mdlx;
 import java.io.IOException;
 
 import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
+import com.hiveworkshop.util.BinaryReader;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
 
 public class MdlxUnknownChunk implements MdlxChunk {
 	public final short[] chunk;
 	public final War3ID tag;
 
-	public MdlxUnknownChunk(final LittleEndianDataInputStream stream, final long size, final War3ID tag)
+	public MdlxUnknownChunk(final BinaryReader reader, final long size, final War3ID tag)
 			throws IOException {
 		System.err.println("Loading unknown chunk: " + tag);
-		this.chunk = ParseUtils.readUInt8Array(stream, (int) size);
+		this.chunk = reader.readUInt8Array((int)size);
 		this.tag = tag;
 	}
 

@@ -244,7 +244,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 	public void loadModel(final File input) throws FileNotFoundException, IOException {
 		file = input;
 		if (file != null) {
-			model = new EditableModel(new MdlxModel(new FileInputStream(input)));
+			model = MdxUtils.loadEditableModel(input);
 		}
 	}
 

@@ -6,8 +6,8 @@ import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
 import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
+import com.hiveworkshop.util.BinaryReader;
 
 public class MdlxRibbonEmitter extends MdlxGenericObject {
 	public float heightAbove = 0;
@@ -26,25 +26,25 @@ public class MdlxRibbonEmitter extends MdlxGenericObject {
 		super(0x4000);
 	}
 
-	@Override
-	public void readMdx(final LittleEndianDataInputStream stream, final int version) throws IOException {
-		final long size = ParseUtils.readUInt32(stream);
+	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+		final int position = reader.position();
+		final long size = reader.readUInt32();
+		
+		super.readMdx(reader, version);
 
-		super.readMdx(stream, version);
+		this.heightAbove = reader.readFloat32();
+		this.heightBelow = reader.readFloat32();
+		this.alpha = reader.readFloat32();
+		reader.readFloat32Array(this.color);
+		this.lifeSpan = reader.readFloat32();
+		this.textureSlot = reader.readUInt32();
+		this.emissionRate = reader.readUInt32();
+		this.rows = reader.readUInt32();
+		this.columns = reader.readUInt32();
+		this.materialId = reader.readInt32();
+		this.gravity = reader.readFloat32();
 
-		this.heightAbove = stream.readFloat();
-		this.heightBelow = stream.readFloat();
-		this.alpha = stream.readFloat();
-		ParseUtils.readFloatArray(stream, this.color);
-		this.lifeSpan = stream.readFloat();
-		this.textureSlot = ParseUtils.readUInt32(stream);
-		this.emissionRate = ParseUtils.readUInt32(stream);
-		this.rows = ParseUtils.readUInt32(stream);
-		this.columns = ParseUtils.readUInt32(stream);
-		this.materialId = stream.readInt();
-		this.gravity = stream.readFloat();
-
-		readTimelines(stream, size - getByteLength(version));
+		readTimelines(reader, size - (reader.position() - position));
 	}
 
 	@Override

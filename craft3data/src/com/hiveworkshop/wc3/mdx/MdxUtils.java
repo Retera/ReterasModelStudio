@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 
 import com.etheller.warsmash.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.wc3.mdl.EditableModel;
@@ -28,15 +29,15 @@ public class MdxUtils {
 	 */
 
 	public static MdlxModel loadModel(final InputStream in) throws IOException {
-		return new MdlxModel(in);
+		return new MdlxModel(ByteBuffer.wrap(in.readAllBytes()));
 	}
 
 	public static EditableModel loadEditableModel(final InputStream in) throws IOException {
-		return new EditableModel(new MdlxModel(in));
+		return new EditableModel(loadModel(in));
 	}
 
 	public static EditableModel loadEditableModel(final File in) throws IOException {
-		return new EditableModel(new MdlxModel(new FileInputStream(in)));
+		return new EditableModel(loadModel(new FileInputStream(in)));
 	}
 
 	public static void saveEditableModel(final EditableModel editableModel, final OutputStream out) throws IOException {

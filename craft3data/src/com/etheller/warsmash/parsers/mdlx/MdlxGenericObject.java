@@ -9,8 +9,8 @@ import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.parsers.mdlx.timeline.Timeline;
 import com.etheller.warsmash.util.MdlUtils;
 import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
+import com.hiveworkshop.util.BinaryReader;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
 
 /**
@@ -22,33 +22,25 @@ import com.hiveworkshop.wc3.units.objectdata.War3ID;
  *
  * Based on the works of Chananya Freiman.
  */
-public abstract class MdlxGenericObject extends AnimatedObject implements MdlxChunk {
-	public String name;
-	public int objectId;
-	public int parentId;
-	public int flags;
-
-	/**
-	 * Restricts us to only be able to parse models on one thread at a time, in
-	 * return for high performance.
-	 */
-	private static final byte[] NAME_BYTES_HEAP = new byte[80];
+public abstract class MdlxGenericObject extends MdlxAnimatedObject {
+	public String name = "";
+	public int objectId = -1;
+	public int parentId = -1;
+	public int flags = 0;
 
 	public MdlxGenericObject(final int flags) {
-		this.name = "";
-		this.objectId = -1;
-		this.parentId = -1;
 		this.flags = flags;
 	}
 
-	@Override
-	public void readMdx(final LittleEndianDataInputStream stream, final int version) throws IOException {
-		final long size = ParseUtils.readUInt32(stream);
-		this.name = ParseUtils.readString(stream, NAME_BYTES_HEAP);
-		this.objectId = stream.readInt();
-		this.parentId = stream.readInt();
-		this.flags = stream.readInt(); // Used to be Int32 in JS
-		readTimelines(stream, size - 96);
+	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+		final long size = reader.readUInt32();
+
+		this.name = reader.read(80);
+		this.objectId = reader.readInt32();
+		this.parentId = reader.readInt32();
+		this.flags = reader.readInt32();
+
+		readTimelines(reader, size - 96);
 	}
 
 	@Override

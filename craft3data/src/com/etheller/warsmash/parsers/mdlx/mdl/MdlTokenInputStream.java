@@ -6,14 +6,10 @@ import java.util.Iterator;
 public class MdlTokenInputStream {
 	private final ByteBuffer buffer;
 	private int index;
-	private final int ident;
-	private final int fractionDigits;
 
 	public MdlTokenInputStream(final ByteBuffer buffer) {
 		this.buffer = buffer;
 		this.index = 0;
-		this.ident = 0; // Used for writing blocks nicely.
-		this.fractionDigits = 6; // The number of fraction digits when writing floats.
 	}
 
 	public String read() {

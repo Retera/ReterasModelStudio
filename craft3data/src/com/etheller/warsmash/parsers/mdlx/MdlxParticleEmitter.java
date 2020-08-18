@@ -7,8 +7,8 @@ import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
 import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
+import com.hiveworkshop.util.BinaryReader;
 
 public class MdlxParticleEmitter extends MdlxGenericObject {
 	public float emissionRate = 0;
@@ -29,21 +29,21 @@ public class MdlxParticleEmitter extends MdlxGenericObject {
 	 */
 	private static final byte[] PATH_BYTES_HEAP = new byte[260];
 
-	@Override
-	public void readMdx(final LittleEndianDataInputStream stream, final int version) throws IOException {
-		final long size = ParseUtils.readUInt32(stream);
+	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+		final int position = reader.position();
+		final long size = reader.readUInt32();
 
-		super.readMdx(stream, version);
+		super.readMdx(reader, version);
 
-		this.emissionRate = stream.readFloat();
-		this.gravity = stream.readFloat();
-		this.longitude = stream.readFloat();
-		this.latitude = stream.readFloat();
-		this.path = ParseUtils.readString(stream, PATH_BYTES_HEAP);
-		this.lifeSpan = stream.readFloat();
-		this.speed = stream.readFloat();
+		this.emissionRate = reader.readFloat32();
+		this.gravity = reader.readFloat32();
+		this.longitude = reader.readFloat32();
+		this.latitude = reader.readFloat32();
+		this.path = reader.read(260);
+		this.lifeSpan = reader.readFloat32();
+		this.speed = reader.readFloat32();
 
-		readTimelines(stream, size - this.getByteLength(version));
+		readTimelines(reader, size - (reader.position() - position));
 	}
 
 	@Override

@@ -7,25 +7,24 @@ import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
 import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
+import com.hiveworkshop.util.BinaryReader;
 
-public class MdlxGeosetAnimation extends AnimatedObject {
+public class MdlxGeosetAnimation extends MdlxAnimatedObject {
 	public float alpha = 1;
 	public int flags = 0;
 	public float[] color = { 1, 1, 1 };
 	public int geosetId = -1;
 
-	@Override
-	public void readMdx(final LittleEndianDataInputStream stream, final int version) throws IOException {
-		final long size = ParseUtils.readUInt32(stream);
+	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+		final long size = reader.readUInt32();
 
-		this.alpha = stream.readFloat();
-		this.flags = stream.readInt();// ParseUtils.readUInt32(stream);
-		ParseUtils.readFloatArray(stream, this.color);
-		this.geosetId = stream.readInt();
+		this.alpha = reader.readFloat32();
+		this.flags = reader.readInt32();
+		reader.readFloat32Array(this.color);
+		this.geosetId = reader.readInt32();
 
-		readTimelines(stream, size - 28);
+		readTimelines(reader, size - 28);
 	}
 
 	@Override

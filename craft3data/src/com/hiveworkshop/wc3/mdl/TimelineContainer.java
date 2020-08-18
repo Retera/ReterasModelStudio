@@ -3,7 +3,7 @@ package com.hiveworkshop.wc3.mdl;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.etheller.warsmash.parsers.mdlx.AnimatedObject;
+import com.etheller.warsmash.parsers.mdlx.MdlxAnimatedObject;
 import com.etheller.warsmash.parsers.mdlx.timeline.Timeline;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 
@@ -11,13 +11,13 @@ public abstract class TimelineContainer implements VisibilitySource {
 	public List<AnimFlag> animFlags = new ArrayList<>();
 	protected List<String> flags = new ArrayList<>();
 
-	public void loadTimelines(final AnimatedObject object) {
+	public void loadTimelines(final MdlxAnimatedObject object) {
 		for (final Timeline<?> timeline : object.timelines) {
 			add(new AnimFlag(timeline));
 		}
 	}
 
-	public void timelinesToMdlx(AnimatedObject object) {
+	public void timelinesToMdlx(MdlxAnimatedObject object) {
 		for (final AnimFlag timeline : animFlags) {
 			object.timelines.add(timeline.toMdlx());
 		}

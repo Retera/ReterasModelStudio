@@ -16,13 +16,14 @@ import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.mdx.MdxUtils;
 
 public class ModelScale {
 
 	public static void main(final String[] args) throws FileNotFoundException, IOException {
 		final File santaFile = new File(
 				"C:\\Users\\Eric\\Documents\\Warcraft\\Models\\Hayate\\Warcraft_Santa\\Warcraft Santa\\SantaClausFull.mdx");
-		final EditableModel model = new EditableModel(new MdlxModel(new FileInputStream(santaFile)));
+		final EditableModel model = MdxUtils.loadEditableModel(santaFile);
 		scale(model, 0.35, 0.35, 0.35);
 		model.toMdlx().saveMdx(new FileOutputStream(new File(
 				"C:\\Users\\Eric\\Documents\\Warcraft\\Models\\Hayate\\Warcraft_Santa\\Warcraft Santa\\SantaClausFull_scaled.mdx")));

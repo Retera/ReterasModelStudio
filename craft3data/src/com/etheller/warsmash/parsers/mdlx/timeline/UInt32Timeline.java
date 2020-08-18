@@ -3,10 +3,10 @@ package com.etheller.warsmash.parsers.mdlx.timeline;
 import java.io.IOException;
 
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
-import com.etheller.warsmash.parsers.mdlx.mdl .MdlTokenOutputStream;
+import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
+import com.hiveworkshop.util.BinaryReader;
 
 public final class UInt32Timeline extends Timeline<long[]> {
 
@@ -16,8 +16,8 @@ public final class UInt32Timeline extends Timeline<long[]> {
 	}
 
 	@Override
-	protected long[] readMdxValue(final LittleEndianDataInputStream stream) throws IOException {
-		return new long[] { ParseUtils.readUInt32(stream) };
+	protected long[] readMdxValue(final BinaryReader reader) throws IOException {
+		return new long[] { reader.readUInt32() };
 	}
 
 	@Override

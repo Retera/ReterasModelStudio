@@ -6,8 +6,8 @@ import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
 import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
+import com.hiveworkshop.util.BinaryReader;
 
 public class MdlxParticleEmitter2 extends MdlxGenericObject {
 	// 0: blend
@@ -63,15 +63,15 @@ public class MdlxParticleEmitter2 extends MdlxGenericObject {
 	public float gravity = 0;
 	public float lifeSpan = 0;
 	public float emissionRate = 0;
-	public float length;
-	public float width;
+	public float length = 0;
+	public float width = 0;
 	public FilterMode filterMode = FilterMode.BLEND;
 	public long rows = 0;
 	public long columns = 0;
 	public long headOrTail = 0;
 	public float tailLength = 0;
 	public float timeMiddle = 0;
-	public float[][] segmentColors = new float[3][3];
+	public final float[][] segmentColors = new float[3][3];
 	public short[] segmentAlphas = new short[3]; // unsigned byte[]
 	public float[] segmentScaling = new float[3];
 	public long[][] headIntervals = new long[2][3];
@@ -85,41 +85,41 @@ public class MdlxParticleEmitter2 extends MdlxGenericObject {
 		super(0x1000);
 	}
 
-	@Override
-	public void readMdx(final LittleEndianDataInputStream stream, final int version) throws IOException {
-		final long size = ParseUtils.readUInt32(stream);
+	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+		final int position = reader.position();
+		final long size = reader.readUInt32();
 
-		super.readMdx(stream, version);
+		super.readMdx(reader, version);
 
-		this.speed = stream.readFloat();
-		this.variation = stream.readFloat();
-		this.latitude = stream.readFloat();
-		this.gravity = stream.readFloat();
-		this.lifeSpan = stream.readFloat();
-		this.emissionRate = stream.readFloat();
-		this.length = stream.readFloat();
-		this.width = stream.readFloat();
-		this.filterMode = FilterMode.fromId((int) (ParseUtils.readUInt32(stream)));
-		this.rows = ParseUtils.readUInt32(stream);
-		this.columns = ParseUtils.readUInt32(stream);
-		this.headOrTail = ParseUtils.readUInt32(stream);
-		this.tailLength = stream.readFloat();
-		this.timeMiddle = stream.readFloat();
-		ParseUtils.readFloatArray(stream, this.segmentColors[0]);
-		ParseUtils.readFloatArray(stream, this.segmentColors[1]);
-		ParseUtils.readFloatArray(stream, this.segmentColors[2]);
-		ParseUtils.readUInt8Array(stream, this.segmentAlphas);
-		ParseUtils.readFloatArray(stream, this.segmentScaling);
-		ParseUtils.readUInt32Array(stream, this.headIntervals[0]);
-		ParseUtils.readUInt32Array(stream, this.headIntervals[1]);
-		ParseUtils.readUInt32Array(stream, this.tailIntervals[0]);
-		ParseUtils.readUInt32Array(stream, this.tailIntervals[1]);
-		this.textureId = stream.readInt();
-		this.squirt = ParseUtils.readUInt32(stream);
-		this.priorityPlane = stream.readInt();
-		this.replaceableId = ParseUtils.readUInt32(stream);
+		this.speed = reader.readFloat32();
+		this.variation = reader.readFloat32();
+		this.latitude = reader.readFloat32();
+		this.gravity = reader.readFloat32();
+		this.lifeSpan = reader.readFloat32();
+		this.emissionRate = reader.readFloat32();
+		this.length = reader.readFloat32();
+		this.width = reader.readFloat32();
+		this.filterMode = FilterMode.fromId(reader.readInt32());
+		this.rows = reader.readUInt32();
+		this.columns = reader.readUInt32();
+		this.headOrTail = reader.readUInt32();
+		this.tailLength = reader.readFloat32();
+		this.timeMiddle = reader.readFloat32();
+		reader.readFloat32Array(this.segmentColors[0]);
+		reader.readFloat32Array(this.segmentColors[1]);
+		reader.readFloat32Array(this.segmentColors[2]);
+		reader.readUInt8Array(this.segmentAlphas);
+		reader.readFloat32Array(this.segmentScaling);
+		reader.readUInt32Array(this.headIntervals[0]);
+		reader.readUInt32Array(this.headIntervals[1]);
+		reader.readUInt32Array(this.tailIntervals[0]);
+		reader.readUInt32Array(this.tailIntervals[1]);
+		this.textureId = reader.readInt32();
+		this.squirt = reader.readUInt32();
+		this.priorityPlane = reader.readInt32();
+		this.replaceableId = reader.readUInt32();
 
-		readTimelines(stream, size - this.getByteLength(version));
+		readTimelines(reader, size - (reader.position() - position));
 	}
 
 	@Override

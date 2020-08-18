@@ -7,9 +7,8 @@ import com.etheller.warsmash.parsers.mdlx.InterpolationType;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
-import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
+import com.hiveworkshop.util.BinaryReader;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
 
 public abstract class Timeline<TYPE> {
@@ -35,13 +34,13 @@ public abstract class Timeline<TYPE> {
 	public Timeline() {
 	}
 
-	public void readMdx(final LittleEndianDataInputStream stream, final War3ID name) throws IOException {
+	public void readMdx(final BinaryReader reader, final War3ID name) throws IOException {
 		this.name = name;
 
-		final long keyFrameCount = ParseUtils.readUInt32(stream);
+		final long keyFrameCount = reader.readUInt32();
 
-		this.interpolationType = InterpolationType.VALUES[stream.readInt()];
-		this.globalSequenceId = stream.readInt();
+		this.interpolationType = InterpolationType.VALUES[reader.readInt32()];
+		this.globalSequenceId = reader.readInt32();
 
 		this.frames = new long[(int) keyFrameCount];
 		this.values = (TYPE[]) new Object[(int) keyFrameCount];
@@ -51,12 +50,12 @@ public abstract class Timeline<TYPE> {
 		}
 
 		for (int i = 0; i < keyFrameCount; i++) {
-			this.frames[i] = (stream.readInt()); // TODO autoboxing is slow
-			this.values[i] = (this.readMdxValue(stream));
+			this.frames[i] = reader.readInt32();
+			this.values[i] = (this.readMdxValue(reader));
 
 			if (this.interpolationType.tangential()) {
-				this.inTans[i] = (this.readMdxValue(stream));
-				this.outTans[i] = (this.readMdxValue(stream));
+				this.inTans[i] = (this.readMdxValue(reader));
+				this.outTans[i] = (this.readMdxValue(reader));
 			}
 		}
 	}
@@ -197,7 +196,7 @@ public abstract class Timeline<TYPE> {
 
 	protected abstract int size();
 
-	protected abstract TYPE readMdxValue(LittleEndianDataInputStream stream) throws IOException;
+	protected abstract TYPE readMdxValue(BinaryReader reader) throws IOException;
 
 	protected abstract TYPE readMdlValue(MdlTokenInputStream stream);
 

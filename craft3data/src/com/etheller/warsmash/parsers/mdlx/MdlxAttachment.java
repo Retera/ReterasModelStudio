@@ -6,33 +6,27 @@ import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
 import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
+import com.hiveworkshop.util.BinaryReader;
 
 public class MdlxAttachment extends MdlxGenericObject {
 	public String path = "";
-	public int attachmentId;
+	public int attachmentId = 0;
 
 	public MdlxAttachment() {
 		super(0x800);
 	}
 
-	/**
-	 * Restricts us to only be able to parse models on one thread at a time, in
-	 * return for high performance.
-	 */
-	private static final byte[] PATH_BYTES_HEAP = new byte[260];
+	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+		final int position = reader.position();
+		final long size = reader.readUInt32();
 
-	@Override
-	public void readMdx(final LittleEndianDataInputStream stream, final int version) throws IOException {
-		final long size = ParseUtils.readUInt32(stream);
+		super.readMdx(reader, version);
 
-		super.readMdx(stream, version);
+		this.path = reader.read(260);
+		this.attachmentId = reader.readInt32();
 
-		this.path = ParseUtils.readString(stream, PATH_BYTES_HEAP);
-		this.attachmentId = stream.readInt();
-
-		this.readTimelines(stream, size - this.getByteLength(version));
+		this.readTimelines(reader, size - (reader.position() - position));
 	}
 
 	@Override

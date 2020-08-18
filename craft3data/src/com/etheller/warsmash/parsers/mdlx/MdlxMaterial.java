@@ -8,8 +8,8 @@ import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
 import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
+import com.hiveworkshop.util.BinaryReader;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
 
 public class MdlxMaterial implements MdlxBlock, MdlxChunk {
@@ -28,23 +28,22 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 	 */
 	private static final byte[] SHADER_BYTES_HEAP = new byte[80];
 
-	@Override
-	public void readMdx(final LittleEndianDataInputStream stream, final int version) throws IOException {
-		ParseUtils.readUInt32(stream); // Don't care about the size
+	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+		reader.readUInt32(); // Don't care about the size
 
-		this.priorityPlane = stream.readInt();// ParseUtils.readUInt32(stream);
-		this.flags = stream.readInt();// ParseUtils.readUInt32(stream);
+		this.priorityPlane = reader.readInt32();
+		this.flags = reader.readInt32();
 
 		if (version > 800) {
-			this.shader = ParseUtils.readString(stream, SHADER_BYTES_HEAP);
+			this.shader = reader.read(80);
 		}
 
-		stream.readInt(); // skip LAYS
+		reader.readInt32(); // skip LAYS
 
-		final long layerCount = ParseUtils.readUInt32(stream);
+		final long layerCount = reader.readUInt32();
 		for (int i = 0; i < layerCount; i++) {
 			final MdlxLayer layer = new MdlxLayer();
-			layer.readMdx(stream, version);
+			layer.readMdx(reader, version);
 			this.layers.add(layer);
 		}
 	}

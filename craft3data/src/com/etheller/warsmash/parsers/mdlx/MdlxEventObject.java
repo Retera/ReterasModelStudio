@@ -6,8 +6,8 @@ import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
 import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
+import com.hiveworkshop.util.BinaryReader;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
 
 public class MdlxEventObject extends MdlxGenericObject {
@@ -20,16 +20,19 @@ public class MdlxEventObject extends MdlxGenericObject {
 		super(0x400);
 	}
 
-	@Override
-	public void readMdx(final LittleEndianDataInputStream stream, final int version) throws IOException {
-		super.readMdx(stream, version);
-		stream.readInt(); // KEVT skipped
-		final long count = ParseUtils.readUInt32(stream);
-		this.globalSequenceId = stream.readInt();
+	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+		super.readMdx(reader, version);
+
+		reader.readInt32(); // KEVT skipped
+
+		final long count = reader.readUInt32();
+
+		this.globalSequenceId = reader.readInt32();
 
 		this.keyFrames = new long[(int) count];
+
 		for (int i = 0; i < count; i++) {
-			this.keyFrames[i] = stream.readInt();
+			this.keyFrames[i] = reader.readInt32();
 		}
 	}
 

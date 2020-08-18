@@ -6,8 +6,8 @@ import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
 import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataInputStream;
 import com.google.common.io.LittleEndianDataOutputStream;
+import com.hiveworkshop.util.BinaryReader;
 
 public class MdlxParticleEmitterPopcorn extends MdlxGenericObject {
 	public float lifeSpan = 0;
@@ -19,32 +19,26 @@ public class MdlxParticleEmitterPopcorn extends MdlxGenericObject {
 	public String path = "";
 	public String animationVisiblityGuide = "";
 
-	/**
-	 * Restricts us to only be able to parse models on one thread at a time, in
-	 * return for high performance.
-	 */
-	private static final byte[] BYTES_HEAP = new byte[260];
-
 	public MdlxParticleEmitterPopcorn() {
 		super(0);
 	}
 
-	@Override
-	public void readMdx(final LittleEndianDataInputStream stream, final int version) throws IOException {
-		final long size = ParseUtils.readUInt32(stream);
+	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+		final int position = reader.position();
+		final long size = reader.readUInt32();
 
-		super.readMdx(stream, version);
+		super.readMdx(reader, version);
 
-		lifeSpan = stream.readFloat();
-		emissionRate = stream.readFloat();
-		speed = stream.readFloat();
-		ParseUtils.readFloatArray(stream, color);
-		alpha = stream.readFloat();
-		replaceableId = stream.readInt();
-		path = ParseUtils.readString(stream, BYTES_HEAP);
-		animationVisiblityGuide = ParseUtils.readString(stream, BYTES_HEAP);
+		lifeSpan = reader.readFloat32();
+		emissionRate = reader.readFloat32();
+		speed = reader.readFloat32();
+		reader.readFloat32Array(color);
+		alpha = reader.readFloat32();
+		replaceableId = reader.readInt32();
+		path = reader.read(260);
+		animationVisiblityGuide = reader.read(260);
 
-		readTimelines(stream, size - this.getByteLength(version));
+		readTimelines(reader, size - (reader.position() - position));
 	}
 
 	@Override
@@ -183,6 +177,6 @@ public class MdlxParticleEmitterPopcorn extends MdlxGenericObject {
 
 	@Override
 	public long getByteLength(final int version) {
-		return 175 + super.getByteLength(version);
+		return 556 + super.getByteLength(version);
 	}
 }

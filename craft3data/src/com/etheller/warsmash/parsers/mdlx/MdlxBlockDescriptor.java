@@ -129,4 +129,11 @@ public interface MdlxBlockDescriptor<E> extends Descriptor<E> {
 			return new MdlxTextureAnimation();
 		}
 	};
+
+	public static final MdlxBlockDescriptor<MdlxFaceEffect> FACE_EFFECT = new MdlxBlockDescriptor<MdlxFaceEffect>() {
+		@Override
+		public MdlxFaceEffect create() {
+			return new MdlxFaceEffect();
+		}
+	};
 }
