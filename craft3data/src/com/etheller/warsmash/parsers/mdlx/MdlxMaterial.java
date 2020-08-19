@@ -1,15 +1,13 @@
 package com.etheller.warsmash.parsers.mdlx;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
-import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataOutputStream;
 import com.hiveworkshop.util.BinaryReader;
+import com.hiveworkshop.util.BinaryWriter;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
 
 public class MdlxMaterial implements MdlxBlock, MdlxChunk {
@@ -22,13 +20,7 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 	public String shader = "";
 	public final List<MdlxLayer> layers = new ArrayList<>();
 
-	/**
-	 * Restricts us to only be able to parse models on one thread at a time, in
-	 * return for high performance.
-	 */
-	private static final byte[] SHADER_BYTES_HEAP = new byte[80];
-
-	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+	public void readMdx(final BinaryReader reader, final int version) {
 		reader.readUInt32(); // Don't care about the size
 
 		this.priorityPlane = reader.readInt32();
@@ -49,29 +41,25 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 	}
 
 	@Override
-	public void writeMdx(final LittleEndianDataOutputStream stream, final int version) throws IOException {
-		ParseUtils.writeUInt32(stream, getByteLength(version));
-		stream.writeInt(this.priorityPlane); // was UInt32 in JS, but I *really* thought I used -1 in a past model
-		stream.writeInt(this.flags); // UInt32 in JS
+	public void writeMdx(final BinaryWriter writer, final int version) {
+		writer.writeUInt32(getByteLength(version));
+		writer.writeInt32(this.priorityPlane);
+		writer.writeInt32(this.flags);
 
 		if (version > 800) {
-			final byte[] bytes = this.shader.getBytes(ParseUtils.UTF8);
-			stream.write(bytes);
-			for (int i = 0; i < (SHADER_BYTES_HEAP.length - bytes.length); i++) {
-				stream.write((byte) 0);
-			}
+			writer.writeWithNulls(shader, 80);
 		}
 
-		ParseUtils.writeWar3ID(stream, LAYS);
-		ParseUtils.writeUInt32(stream, this.layers.size());
+		writer.writeTag(LAYS.getValue());
+		writer.writeUInt32(this.layers.size());
 
 		for (final MdlxLayer layer : this.layers) {
-			layer.writeMdx(stream, version);
+			layer.writeMdx(writer, version);
 		}
 	}
 
 	@Override
-	public void readMdl(final MdlTokenInputStream stream, final int version) throws IOException {
+	public void readMdl(final MdlTokenInputStream stream, final int version) {
 		for (final String token : stream.readBlock()) {
 			switch (token) {
 			case MdlUtils.TOKEN_CONSTANT_COLOR:
@@ -99,13 +87,13 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 				break;
 			}
 			default:
-				throw new IllegalStateException("Unknown token in Material: " + token);
+				throw new RuntimeException("Unknown token in Material: " + token);
 			}
 		}
 	}
 
 	@Override
-	public void writeMdl(final MdlTokenOutputStream stream, final int version) throws IOException {
+	public void writeMdl(final MdlTokenOutputStream stream, final int version) {
 		stream.startBlock(MdlUtils.TOKEN_MATERIAL);
 
 		if ((this.flags & 0x1) != 0) {

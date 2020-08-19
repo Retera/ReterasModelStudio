@@ -1,16 +1,17 @@
 package com.hiveworkshop.blizzard.casc.info;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
-import com.hiveworkshop.nio.ByteBufferInputStream;
 
 /**
  * Top level CASC information file containing configuration information and
@@ -44,9 +45,9 @@ public class Info {
 		return encodedLine.split(FIELD_SEPARATOR_REGEX);
 	}
 
-	private final ArrayList<FieldDescriptor> fieldDescriptors = new ArrayList<>();
+	private final List<FieldDescriptor> fieldDescriptors = new ArrayList<>();
 
-	private final ArrayList<ArrayList<String>> records = new ArrayList<>();
+	private final List<ArrayList<String>> records = new ArrayList<>();
 
 	/**
 	 * Construct an info file from an array of encoded lines.
@@ -55,7 +56,7 @@ public class Info {
 	 * @throws IOException
 	 */
 	public Info(final ByteBuffer fileBuffer) throws IOException {
-		try (final ByteBufferInputStream fileStream = new ByteBufferInputStream(fileBuffer);
+		try (final ByteArrayInputStream fileStream = new ByteArrayInputStream(fileBuffer.array());
 				final Scanner lineScanner = new Scanner(new InputStreamReader(fileStream, FILE_ENCODING))) {
 			final String[] encodedFieldDescriptors = separateFields(lineScanner.nextLine());
 			for (final String encodedFieldDescriptor : encodedFieldDescriptors) {

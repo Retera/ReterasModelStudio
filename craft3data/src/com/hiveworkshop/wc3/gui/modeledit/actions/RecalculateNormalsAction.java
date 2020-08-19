@@ -1,6 +1,7 @@
 package com.hiveworkshop.wc3.gui.modeledit.actions;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
@@ -12,11 +13,11 @@ import com.hiveworkshop.wc3.mdl.Vertex;
  * Eric Theller 6/11/2012
  */
 public class RecalculateNormalsAction implements UndoAction {
-	ArrayList<Vertex> oldSelLocs;
-	ArrayList<GeosetVertex> selection;
+	List<Vertex> oldSelLocs;
+	List<GeosetVertex> selection;
 	Vertex snapPoint;
 
-	public RecalculateNormalsAction(final ArrayList<GeosetVertex> selection, final ArrayList<Vertex> oldSelLocs,
+	public RecalculateNormalsAction(final List<GeosetVertex> selection, final List<Vertex> oldSelLocs,
 			final Vertex snapPoint) {
 		this.selection = new ArrayList<>(selection);
 		this.oldSelLocs = oldSelLocs;

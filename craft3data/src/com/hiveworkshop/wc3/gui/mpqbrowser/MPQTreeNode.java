@@ -1,16 +1,16 @@
 package com.hiveworkshop.wc3.gui.mpqbrowser;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.tree.TreeNode;
-
-import com.etheller.collections.ArrayList;
-import com.etheller.collections.HashMap;
-import com.etheller.collections.List;
-import com.etheller.collections.ListView;
-import com.etheller.collections.Map;
 
 public class MPQTreeNode implements TreeNode {
 	private final MPQTreeNode parent;
@@ -90,7 +90,8 @@ public class MPQTreeNode implements TreeNode {
 		if (!(node instanceof MPQTreeNode)) {
 			return -1;
 		}
-		return ListView.Util.indexOf(childrenKeys, ((MPQTreeNode) node).getPath());
+
+		return childrenKeys.indexOf(((MPQTreeNode)node).getPath());
 	}
 
 	@Override
@@ -109,7 +110,7 @@ public class MPQTreeNode implements TreeNode {
 	}
 
 	public void sort() {
-		List.Util.sort(childrenKeys, new Comparator<String>() {
+		Collections.sort(childrenKeys, new Comparator<String>() {
 			@Override
 			public int compare(final String o1, final String o2) {
 				final MPQTreeNode child1 = children.get(o1);

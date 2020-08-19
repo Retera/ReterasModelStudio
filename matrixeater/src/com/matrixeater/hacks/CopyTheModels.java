@@ -23,14 +23,14 @@ public class CopyTheModels {
 		} else {
 			if (file.getPath().endsWith(".mdx")) {
 				System.out.println(file);
-				final EditableModel model = MdxUtils.loadEditableModel(file);
+				final EditableModel model = MdxUtils.loadEditable(file);
 				for (final Bitmap b : model.getTextures()) {
 					b.setPath("Textures\\White.blp");
 				}
 				final String wc3Path = file.getPath().substring(input.getPath().length());
 				final File outputMDX = new File(output.getPath() + wc3Path);
 				outputMDX.getParentFile().mkdirs();
-				MdxUtils.saveEditableModel(model, outputMDX);
+				MdxUtils.saveMdx(model, outputMDX);
 			}
 		}
 	}

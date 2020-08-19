@@ -1,13 +1,10 @@
 package com.etheller.warsmash.parsers.mdlx;
 
-import java.io.IOException;
-
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
-import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataOutputStream;
 import com.hiveworkshop.util.BinaryReader;
+import com.hiveworkshop.util.BinaryWriter;
 
 public class MdlxLight extends MdlxGenericObject {
 	public int type = -1;
@@ -21,7 +18,7 @@ public class MdlxLight extends MdlxGenericObject {
 		super(0x200);
 	}
 
-	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+	public void readMdx(final BinaryReader reader, final int version) {
 		final int position = reader.position();
 		final long size = reader.readUInt32();
 
@@ -38,23 +35,23 @@ public class MdlxLight extends MdlxGenericObject {
 	}
 
 	@Override
-	public void writeMdx(final LittleEndianDataOutputStream stream, final int version) throws IOException {
-		ParseUtils.writeUInt32(stream, getByteLength(version));
+	public void writeMdx(final BinaryWriter writer, final int version) {
+		writer.writeUInt32(getByteLength(version));
 
-		super.writeMdx(stream, version);
+		super.writeMdx(writer, version);
 
-		ParseUtils.writeUInt32(stream, this.type);
-		ParseUtils.writeFloatArray(stream, this.attenuation);
-		ParseUtils.writeFloatArray(stream, this.color);
-		stream.writeFloat(this.intensity);
-		ParseUtils.writeFloatArray(stream, this.ambientColor);
-		stream.writeFloat(this.ambientIntensity);
+		writer.writeUInt32(this.type);
+		writer.writeFloat32Array(this.attenuation);
+		writer.writeFloat32Array(this.color);
+		writer.writeFloat32(this.intensity);
+		writer.writeFloat32Array(this.ambientColor);
+		writer.writeFloat32(this.ambientIntensity);
 
-		writeNonGenericAnimationChunks(stream);
+		writeNonGenericAnimationChunks(writer);
 	}
 
 	@Override
-	public void readMdl(final MdlTokenInputStream stream, final int version) throws IOException {
+	public void readMdl(final MdlTokenInputStream stream, final int version) {
 		for (final String token : super.readMdlGeneric(stream)) {
 			switch (token) {
 			case MdlUtils.TOKEN_OMNIDIRECTIONAL:
@@ -106,13 +103,13 @@ public class MdlxLight extends MdlxGenericObject {
 				readTimeline(stream, AnimationMap.KLAV);
 				break;
 			default:
-				throw new IllegalStateException("Unknown token in Light: " + token);
+				throw new RuntimeException("Unknown token in Light: " + token);
 			}
 		}
 	}
 
 	@Override
-	public void writeMdl(final MdlTokenOutputStream stream, final int version) throws IOException {
+	public void writeMdl(final MdlTokenOutputStream stream, final int version) {
 		stream.startObjectBlock(MdlUtils.TOKEN_LIGHT, this.name);
 		writeGenericHeader(stream);
 

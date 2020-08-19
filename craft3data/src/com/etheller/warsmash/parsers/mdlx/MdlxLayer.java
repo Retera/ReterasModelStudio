@@ -1,14 +1,12 @@
 package com.etheller.warsmash.parsers.mdlx;
 
-import java.io.IOException;
 import java.util.Iterator;
 
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
-import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataOutputStream;
 import com.hiveworkshop.util.BinaryReader;
+import com.hiveworkshop.util.BinaryWriter;
 
 public class MdlxLayer extends MdlxAnimatedObject {
 	// 0: none
@@ -79,7 +77,7 @@ public class MdlxLayer extends MdlxAnimatedObject {
 	 */
 	public float fresnelTeamColor = 0;
 
-	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+	public void readMdx(final BinaryReader reader, final int version) {
 		final int position = reader.position();
 		final long size = reader.readUInt32();
 
@@ -104,30 +102,30 @@ public class MdlxLayer extends MdlxAnimatedObject {
 	}
 
 	@Override
-	public void writeMdx(final LittleEndianDataOutputStream stream, final int version) throws IOException {
-		ParseUtils.writeUInt32(stream, getByteLength(version));
-		ParseUtils.writeUInt32(stream, this.filterMode.ordinal());
-		ParseUtils.writeUInt32(stream, this.flags);
-		stream.writeInt(this.textureId);
-		stream.writeInt(this.textureAnimationId);
-		ParseUtils.writeUInt32(stream, this.coordId);
-		stream.writeFloat(this.alpha);
+	public void writeMdx(final BinaryWriter writer, final int version) {
+		writer.writeUInt32(getByteLength(version));
+		writer.writeUInt32(this.filterMode.ordinal());
+		writer.writeUInt32(this.flags);
+		writer.writeInt32(this.textureId);
+		writer.writeInt32(this.textureAnimationId);
+		writer.writeUInt32(this.coordId);
+		writer.writeFloat32(this.alpha);
 
 		if (version > 800) {
-			stream.writeFloat(emissiveGain);
+			writer.writeFloat32(emissiveGain);
 
 			if (version > 900) {
-				ParseUtils.writeFloatArray(stream, fresnelColor);
-				stream.writeFloat(fresnelOpacity);
-				stream.writeFloat(fresnelTeamColor);
+				writer.writeFloat32Array(fresnelColor);
+				writer.writeFloat32(fresnelOpacity);
+				writer.writeFloat32(fresnelTeamColor);
 			}
 		}
 
-		writeTimelines(stream);
+		writeTimelines(writer);
 	}
 
 	@Override
-	public void readMdl(final MdlTokenInputStream stream, final int version) throws IOException {
+	public void readMdl(final MdlTokenInputStream stream, final int version) {
 		final Iterator<String> iterator = readAnimatedBlock(stream);
 		while (iterator.hasNext()) {
 			final String token = iterator.next();
@@ -198,13 +196,13 @@ public class MdlxLayer extends MdlxAnimatedObject {
 				readTimeline(stream, AnimationMap.KFTC);
 				break;
 			default:
-				throw new IllegalStateException("Unknown token in Layer: " + token);
+				throw new RuntimeException("Unknown token in Layer: " + token);
 			}
 		}
 	}
 
 	@Override
-	public void writeMdl(final MdlTokenOutputStream stream, final int version) throws IOException {
+	public void writeMdl(final MdlTokenOutputStream stream, final int version) {
 		stream.startBlock(MdlUtils.TOKEN_LAYER);
 
 		stream.writeAttrib(MdlUtils.TOKEN_FILTER_MODE, this.filterMode.getMdlText());

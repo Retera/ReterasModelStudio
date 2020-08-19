@@ -1,6 +1,6 @@
 package com.hiveworkshop.wc3.gui.modeledit.actions;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import com.hiveworkshop.wc3.gui.modeledit.UVPanel;
 import com.hiveworkshop.wc3.gui.modeledit.UVPanel.UnwrapDirection;
@@ -9,13 +9,13 @@ import com.hiveworkshop.wc3.mdl.TVertex;
 
 public class UVRemapAction implements UndoAction {
 
-	private final ArrayList<TVertex> tVertices;
-	private final ArrayList<TVertex> newValueHolders;
-	private final ArrayList<TVertex> oldValueHolders;
+	private final List<TVertex> tVertices;
+	private final List<TVertex> newValueHolders;
+	private final List<TVertex> oldValueHolders;
 	private final UnwrapDirection direction;
 
-	public UVRemapAction(final ArrayList<TVertex> tVertices, final ArrayList<TVertex> newValueHolders,
-			final ArrayList<TVertex> oldValueHolders, final UVPanel.UnwrapDirection direction) {
+	public UVRemapAction(final List<TVertex> tVertices, final List<TVertex> newValueHolders,
+			final List<TVertex> oldValueHolders, final UVPanel.UnwrapDirection direction) {
 		this.tVertices = tVertices;
 		this.newValueHolders = newValueHolders;
 		this.oldValueHolders = oldValueHolders;

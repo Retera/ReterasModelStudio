@@ -22,7 +22,7 @@ public class FtlopMaker3 {
 			}
 		} else {
 			if (file.getName().toLowerCase().endsWith(".mdx")) {
-				final EditableModel model = MdxUtils.loadEditableModel(file);
+				final EditableModel model = MdxUtils.loadEditable(file);
 				for (final Bitmap tex : model.getTextures()) {
 					final String path = tex.getPath();
 					if (path != null) {
@@ -41,7 +41,7 @@ public class FtlopMaker3 {
 						emitter.setPath(path.replace('/', '\\'));
 					}
 				}
-				MdxUtils.saveEditableModel(model, file);
+				MdxUtils.saveMdx(model, file);
 			}
 		}
 	}

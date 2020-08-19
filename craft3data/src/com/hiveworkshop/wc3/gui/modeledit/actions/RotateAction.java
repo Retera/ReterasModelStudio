@@ -16,7 +16,7 @@ public class RotateAction extends MoveAction {
 	ArrayList<Normal> normals;
 	ArrayList<Vertex> normalMoveVectors;
 
-	public RotateAction(final ArrayList<Vertex> selection, final ArrayList<Vertex> moveVectors,
+	public RotateAction(final List<Vertex> selection, final List<Vertex> moveVectors,
 			final VertexActionType actionType) {
 		super(selection, moveVectors, actionType);
 		normals = new ArrayList<>();

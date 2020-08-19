@@ -26,7 +26,7 @@ public class GetMeDatas10 {
 				"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Requests\\Wazzz\\WispGrove50.mdx")) {
 			try {
 
-				final EditableModel model = new EditableModel(MdxUtils.loadModel(footman));
+				final EditableModel model = new EditableModel(MdxUtils.loadMdlx(footman));
 
 				IdObject bad = null;
 				for (final IdObject obj : model.getIdObjects()) {
@@ -54,7 +54,7 @@ public class GetMeDatas10 {
 					}
 				}
 
-				MdxUtils.saveEditableModel(model, new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Requests\\Wazzz\\WispGrove51.mdx"));
+				MdxUtils.saveMdx(model, new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Requests\\Wazzz\\WispGrove51.mdx"));
 			} catch (final IOException e) {
 				e.printStackTrace();
 			}

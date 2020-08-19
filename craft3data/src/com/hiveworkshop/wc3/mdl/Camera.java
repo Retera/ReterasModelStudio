@@ -28,7 +28,7 @@ public class Camera extends TimelineContainer implements Named {
 	double NearClip;
 
 	Vertex targetPosition;
-	ArrayList<AnimFlag> targetAnimFlags = new ArrayList<>();
+	List<AnimFlag> targetAnimFlags = new ArrayList<>();
 	private final SourceNode sourceNode = new SourceNode(this);
 	private final TargetNode targetNode = new TargetNode(this);
 	protected float[] bindPose;
@@ -39,10 +39,6 @@ public class Camera extends TimelineContainer implements Named {
 
 	public TargetNode getTargetNode() {
 		return targetNode;
-	}
-
-	private Camera() {
-
 	}
 
 	public Camera(final MdlxCamera camera) {
@@ -120,11 +116,11 @@ public class Camera extends TimelineContainer implements Named {
 		this.targetPosition = targetPosition;
 	}
 
-	public ArrayList<AnimFlag> getTargetAnimFlags() {
+	public List<AnimFlag> getTargetAnimFlags() {
 		return targetAnimFlags;
 	}
 
-	public void setTargetAnimFlags(final ArrayList<AnimFlag> targetAnimFlags) {
+	public void setTargetAnimFlags(final List<AnimFlag> targetAnimFlags) {
 		this.targetAnimFlags = targetAnimFlags;
 	}
 
@@ -184,7 +180,7 @@ public class Camera extends TimelineContainer implements Named {
 
 		@Override
 		public Vertex getRenderTranslation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-			final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), "Translation");
+			final AnimFlag translationFlag = find("Translation");
 			if (translationFlag != null) {
 				return (Vertex) translationFlag.interpolateAt(animatedRenderEnvironment);
 			}
@@ -193,7 +189,7 @@ public class Camera extends TimelineContainer implements Named {
 
 		@Override
 		public QuaternionRotation getRenderRotation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-			final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), "Rotation");
+			final AnimFlag translationFlag = find("Rotation");
 			if (translationFlag != null) {
 				final Object interpolated = translationFlag.interpolateAt(animatedRenderEnvironment);
 				if (interpolated instanceof Double) {
@@ -215,7 +211,7 @@ public class Camera extends TimelineContainer implements Named {
 		}
 
 		public Double getRenderRotationScalar(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-			final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), "Rotation");
+			final AnimFlag translationFlag = find("Rotation");
 			if (translationFlag != null) {
 				final Object interpolated = translationFlag.interpolateAt(animatedRenderEnvironment);
 				if (interpolated instanceof Double) {
@@ -288,7 +284,7 @@ public class Camera extends TimelineContainer implements Named {
 
 		@Override
 		public Vertex getRenderTranslation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-			final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), "Translation");
+			final AnimFlag translationFlag = find("Translation");
 			if (translationFlag != null) {
 				return (Vertex) translationFlag.interpolateAt(animatedRenderEnvironment);
 			}

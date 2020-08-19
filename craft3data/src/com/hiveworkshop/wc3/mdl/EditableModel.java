@@ -1,22 +1,10 @@
 package com.hiveworkshop.wc3.mdl;
 
 import java.awt.Component;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -41,7 +29,6 @@ import com.etheller.warsmash.parsers.mdlx.MdlxRibbonEmitter;
 import com.etheller.warsmash.parsers.mdlx.MdlxSequence;
 import com.etheller.warsmash.parsers.mdlx.MdlxTexture;
 import com.etheller.warsmash.parsers.mdlx.MdlxTextureAnimation;
-import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.datachooser.CompoundDataSource;
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
 import com.hiveworkshop.wc3.gui.datachooser.FolderDataSource;
@@ -51,13 +38,10 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.MeshVisitor;
 import com.hiveworkshop.wc3.mdl.v2.visitor.ModelVisitor;
 import com.hiveworkshop.wc3.mdl.v2.visitor.TriangleVisitor;
 import com.hiveworkshop.wc3.mdl.v2.visitor.VertexVisitor;
-import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.util.MathUtils;
 import com.hiveworkshop.wc3.util.ModelUtils;
 import com.hiveworkshop.wc3.util.ModelUtils.Mesh;
-
-import de.wc3data.stream.BlizzardDataOutputStream;
 
 /**
  * A java object to represent and store an MDL 3d model (Warcraft III file
@@ -67,166 +51,36 @@ import de.wc3data.stream.BlizzardDataOutputStream;
  */
 public class EditableModel implements Named {
 	public static boolean RETERA_FORMAT_BPOS_MATRICES = false;
-	// private static String [] tags = {"Model ","Sequences ","GlobalSequences
-	// ","Bitmap ","Material ","Geoset ",};
+	public static boolean DISABLE_BONE_GEO_ID_VALIDATOR = false;
 
 	private File fileRef;
-	private String name;
+	private String name = "UnnamedModel";
 	private int BlendTime;
 	private ExtLog extents;
 	private int formatVersion = 800;
-	protected ArrayList<String> header = new ArrayList<>();
-	protected ArrayList<Animation> anims = new ArrayList<>();
-	protected ArrayList<Integer> globalSeqs = new ArrayList<>();
-	protected ArrayList<Bitmap> textures = new ArrayList<>();
-	protected ArrayList<SoundFile> sounds = new ArrayList<>();
-	protected ArrayList<Material> materials = new ArrayList<>();
-	protected ArrayList<TextureAnim> texAnims = new ArrayList<>();
-	protected ArrayList<Geoset> geosets = new ArrayList<>();
-	protected ArrayList<GeosetAnim> geosetAnims = new ArrayList<>();
-	protected ArrayList<IdObject> idObjects = new ArrayList<>();
-	protected ArrayList<Vertex> pivots = new ArrayList<>();
-	protected ArrayList<Camera> cameras = new ArrayList<>();
-
-	protected ArrayList m_junkCode = new ArrayList();// A series of
-														// UnrecognizedElements
-
-	protected ArrayList m_allParts = new ArrayList();// A compilation of array
-														// list components in
-														// the model, to contain
-														// all parts
-	private int c;
-	private boolean loading;
+	protected List<String> header = new ArrayList<>();
+	protected List<Animation> anims = new ArrayList<>();
+	protected List<Integer> globalSeqs = new ArrayList<>();
+	protected List<Bitmap> textures = new ArrayList<>();
+	protected List<SoundFile> sounds = new ArrayList<>();
+	protected List<Material> materials = new ArrayList<>();
+	protected List<TextureAnim> texAnims = new ArrayList<>();
+	protected List<Geoset> geosets = new ArrayList<>();
+	protected List<GeosetAnim> geosetAnims = new ArrayList<>();
+	protected List<IdObject> idObjects = new ArrayList<>();
+	protected List<Vertex> pivots = new ArrayList<>();
+	protected List<Camera> cameras = new ArrayList<>();
+	private List<FaceEffect> faceEffects = new ArrayList<>();
+	private BindPose bindPose;
 	private boolean temporary;
-
-	private final List<FaceEffect> faceEffects = new ArrayList<>();
-	private BindPose bindPoseChunk;
-
 	private DataSource wrappedDataSource = MpqCodebase.get();
 
-	public static boolean DISABLE_BONE_GEO_ID_VALIDATOR = false;
-
-	public File getFile() {
-		return fileRef;
-	}
-
-	public File getWorkingDirectory() {
-		if (fileRef != null) {
-			return fileRef.getParentFile();
-		}
-		return null;
-	}
-
-	public DataSource getWrappedDataSource() {
-		return wrappedDataSource;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.hiveworkshop.wc3.mdl.Named#getName()
-	 */
-	@Override
-	public String getName() {
-		if (fileRef == null) {
-			return getHeaderName();
-		}
-		return fileRef.getName().split("\\.")[0];
-	}
-
-	@Override
-	public String toString() {
-		return getName() + " (\"" + getHeaderName() + "\")";
-	}
-
-	/**
-	 * IMPORTANT: This is the only way to retrieve the true header name from the top
-	 * of the "model chunk", the same one set by {@link #setName(String)} function.
-	 *
-	 * @return
-	 */
-	public String getHeaderName() {
-		return name;
-	}
-
-	public void setFileRef(final File file) {
-		fileRef = file;
-		if (fileRef != null) {
-			wrappedDataSource = new CompoundDataSource(
-					Arrays.asList(MpqCodebase.get(), new FolderDataSource(file.getParentFile().toPath())));
-		} else {
-			wrappedDataSource = MpqCodebase.get();
-		}
-	}
-
-	public boolean isTemp() {
-		return temporary;
-	}
-
-	public void setTemp(final boolean flag) {
-		temporary = flag;
-	}
-
-	public void copyHeaders(final EditableModel other) {
-		setFileRef(other.fileRef);
-		BlendTime = other.BlendTime;
-		if (other.extents != null) {
-			extents = new ExtLog(other.extents);
-		}
-		formatVersion = other.formatVersion;
-		header = new ArrayList<>(other.header);
-		name = other.name;
-	}
-
-	public static EditableModel clone(final EditableModel what, final String newName) {
-		final EditableModel newModel = new EditableModel(what);
-		newModel.setName(newName);
-		return newModel;
-	}
-
-	public static EditableModel deepClone(final EditableModel what, final String newName) {
-		final File temp;
-		try {
-			final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-
-			what.toMdlx().saveMdx(byteArrayOutputStream);
-
-			try (ByteArrayInputStream bais = new ByteArrayInputStream(byteArrayOutputStream.toByteArray())) {
-				final EditableModel newModel = MdxUtils.loadEditableModel(bais);
-				newModel.setName(newName);
-				newModel.setFileRef(what.getFile());
-				return newModel;
-			}
-
-		} catch (final Exception e) {
-			e.printStackTrace();
-			ExceptionPopup.display(e);
-		}
-
-		return null;
-	}
-
-	public void clearToHeader() {
-		anims.clear();
-		globalSeqs.clear();
-		textures.clear();
-		materials.clear();
-		texAnims.clear();
-		geosets.clear();
-		geosetAnims.clear();
-		idObjects.clear();
-		pivots.clear();
-		cameras.clear();
-	}
-
 	public EditableModel() {
-		name = "UnnamedModel";
-		formatVersion = 800;
-	}
 
+	}
+	
 	public EditableModel(final String newName) {
 		name = newName;
-		formatVersion = 800;
 	}
 
 	public EditableModel(final EditableModel other) {
@@ -246,17 +100,6 @@ public class EditableModel implements Named {
 		idObjects = new ArrayList(other.idObjects);
 		pivots = new ArrayList(other.pivots);
 		cameras = new ArrayList(other.cameras);
-	}
-
-	/**
-	 * Used for checking MDX conversions.
-	 *
-	 * @param flags An int representing a set of booleans with its bits
-	 * @param mask  A bit to check against
-	 * @return Whether the specified bit was "true" (=1)
-	 */
-	public static boolean hasFlag(final int flags, final int mask) {
-		return (flags & mask) != 0;
 	}
 
 	public EditableModel(final MdlxModel model) {
@@ -385,7 +228,7 @@ public class EditableModel implements Named {
 		}
 
 		if (model.bindPose.size() > 0) {
-			bindPoseChunk = new BindPose(model.bindPose);
+			bindPose = new BindPose(model.bindPose);
 		}
 
 		doPostRead(); // fixes all the things
@@ -493,11 +336,114 @@ public class EditableModel implements Named {
 			model.faceEffects.add(effect.toMdlx());
 		}
 
-		if (bindPoseChunk != null) {
-			model.bindPose = bindPoseChunk.toMdlx();
+		if (bindPose != null) {
+			model.bindPose = bindPose.toMdlx();
 		}
 
 		return model;
+	}
+
+	public File getFile() {
+		return fileRef;
+	}
+
+	public File getWorkingDirectory() {
+		if (fileRef != null) {
+			return fileRef.getParentFile();
+		}
+
+		return null;
+	}
+
+	public DataSource getWrappedDataSource() {
+		return wrappedDataSource;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.hiveworkshop.wc3.mdl.Named#getName()
+	 */
+	@Override
+	public String getName() {
+		if (fileRef == null) {
+			return getHeaderName();
+		}
+		return fileRef.getName().split("\\.")[0];
+	}
+
+	@Override
+	public String toString() {
+		return getName() + " (\"" + getHeaderName() + "\")";
+	}
+
+	/**
+	 * IMPORTANT: This is the only way to retrieve the true header name from the top
+	 * of the "model chunk", the same one set by {@link #setName(String)} function.
+	 *
+	 * @return
+	 */
+	public String getHeaderName() {
+		return name;
+	}
+
+	public void setFileRef(final File file) {
+		fileRef = file;
+		if (fileRef != null) {
+			wrappedDataSource = new CompoundDataSource(
+					Arrays.asList(MpqCodebase.get(), new FolderDataSource(file.getParentFile().toPath())));
+		} else {
+			wrappedDataSource = MpqCodebase.get();
+		}
+	}
+
+	public boolean isTemp() {
+		return temporary;
+	}
+
+	public void setTemp(final boolean flag) {
+		temporary = flag;
+	}
+
+	public void copyHeaders(final EditableModel other) {
+		setFileRef(other.fileRef);
+		BlendTime = other.BlendTime;
+		if (other.extents != null) {
+			extents = new ExtLog(other.extents);
+		}
+		formatVersion = other.formatVersion;
+		header = new ArrayList<>(other.header);
+		name = other.name;
+	}
+
+	public static EditableModel clone(final EditableModel what, final String newName) {
+		final EditableModel newModel = new EditableModel(what);
+
+		newModel.setName(newName);
+		
+		return newModel;
+	}
+
+	public static EditableModel deepClone(final EditableModel what, final String newName) {
+		final EditableModel newModel = new EditableModel(what.toMdlx());
+		
+		newModel.setName(newName);
+		newModel.setFileRef(what.getFile());
+
+		return newModel;
+	}
+
+	public void clearToHeader() {
+		anims.clear();
+		globalSeqs.clear();
+		textures.clear();
+		materials.clear();
+		texAnims.clear();
+		geosets.clear();
+		geosetAnims.clear();
+		idObjects.clear();
+		pivots.clear();
+		cameras.clear();
 	}
 
 	public boolean doesContainString(final String a, final String b)// see if a
@@ -769,7 +715,7 @@ public class EditableModel implements Named {
 		// the information specific to each node about how it will
 		// move if it gets translated into or onto the current model
 
-		final ArrayList<AnimFlag> newImpFlags = new ArrayList<>();
+		final List<AnimFlag> newImpFlags = new ArrayList<>();
 		for (final AnimFlag af : othersFlags) {
 			if (!af.hasGlobalSeq) {
 				newImpFlags.add(AnimFlag.buildEmptyFrom(af));
@@ -777,7 +723,7 @@ public class EditableModel implements Named {
 				newImpFlags.add(new AnimFlag(af));
 			}
 		}
-		final ArrayList<EventObject> newImpEventObjs = new ArrayList<>();
+		final List<EventObject> newImpEventObjs = new ArrayList<>();
 		for (final Object e : othersEventObjs) {
 			newImpEventObjs.add(EventObject.buildEmptyFrom((EventObject) e));
 		}
@@ -855,7 +801,7 @@ public class EditableModel implements Named {
 		// the information specific to each node about how it will
 		// move if it gets translated into or onto the current model
 
-		final ArrayList<AnimFlag> newImpFlags = new ArrayList<>();
+		final List<AnimFlag> newImpFlags = new ArrayList<>();
 		for (final AnimFlag af : othersFlags) {
 			if (!af.hasGlobalSeq) {
 				newImpFlags.add(AnimFlag.buildEmptyFrom(af));
@@ -863,7 +809,7 @@ public class EditableModel implements Named {
 				newImpFlags.add(new AnimFlag(af));
 			}
 		}
-		final ArrayList<EventObject> newImpEventObjs = new ArrayList<>();
+		final List<EventObject> newImpEventObjs = new ArrayList<>();
 		for (final Object e : othersEventObjs) {
 			newImpEventObjs.add(EventObject.buildEmptyFrom((EventObject) e));
 		}
@@ -925,7 +871,7 @@ public class EditableModel implements Named {
 	}
 
 	public void copyVisibility(final Animation visibilitySource, final Animation target) {
-		final ArrayList<VisibilitySource> allVisibilitySources = getAllVisibilitySources();
+		final List<VisibilitySource> allVisibilitySources = getAllVisibilitySources();
 		for (final VisibilitySource source : allVisibilitySources) {
 			final AnimFlag visibilityFlag = source.getVisibilityFlag();
 			final AnimFlag copyFlag = new AnimFlag(visibilityFlag);
@@ -1054,7 +1000,7 @@ public class EditableModel implements Named {
 			}
 			g.setMaterialId(materials.indexOf(g.material)); // -1 if null
 		}
-		final ArrayList<RibbonEmitter> ribbons = sortedIdObjects(RibbonEmitter.class);
+		final List<RibbonEmitter> ribbons = sortedIdObjects(RibbonEmitter.class);
 		for (final RibbonEmitter r : ribbons) {
 			if ((r.material != null) && !materials.contains(r.material)) {
 				materials.add(r.material);
@@ -1120,7 +1066,7 @@ public class EditableModel implements Named {
 									// null
 			}
 		}
-		final ArrayList<ParticleEmitter2> particles = sortedIdObjects(ParticleEmitter2.class);
+		final List<ParticleEmitter2> particles = sortedIdObjects(ParticleEmitter2.class);
 		for (final ParticleEmitter2 pe : particles) {
 			boolean good = true;
 			if ((pe.texture != null) && !textures.contains(pe.texture)) {
@@ -1174,8 +1120,8 @@ public class EditableModel implements Named {
 	// }
 	// }
 	public void updateIdObjectReferences() {
-		final ArrayList<Bone> bones = sortedIdObjects(Bone.class);
-		final ArrayList<? extends Bone> helpers = sortedIdObjects(Helper.class);
+		final List<Bone> bones = sortedIdObjects(Bone.class);
+		final List<? extends Bone> helpers = sortedIdObjects(Helper.class);
 		bones.addAll(helpers);
 
 		for (int i = 0; i < idObjects.size(); i++) {
@@ -1189,8 +1135,8 @@ public class EditableModel implements Named {
 				pivots.add(new Vertex(0, 0, 0));
 			}
 			obj.setPivotPoint(pivots.get(i));
-			if (bindPoseChunk != null) {
-				obj.bindPose = bindPoseChunk.bindPose[i];
+			if (bindPose != null) {
+				obj.bindPose = bindPose.bindPose[i];
 			}
 		}
 		for (final Bone b : bones) {
@@ -1203,8 +1149,8 @@ public class EditableModel implements Named {
 		}
 		for (int i = 0; i < cameras.size(); i++) {
 			final Camera camera = cameras.get(i);
-			if (bindPoseChunk != null) {
-				camera.setBindPose(bindPoseChunk.bindPose[i + idObjects.size()]);
+			if (bindPose != null) {
+				camera.setBindPose(bindPose.bindPose[i + idObjects.size()]);
 			}
 		}
 	}
@@ -1214,7 +1160,7 @@ public class EditableModel implements Named {
 
 		// -- Injected in save prep --
 		// Delete empty rotation/translation/scaling
-		bindPoseChunk = null;
+		bindPose = null;
 		for (final IdObject obj : idObjects) {
 			final List<AnimFlag> animFlags = obj.getAnimFlags();
 			final List<AnimFlag> bad = new ArrayList<>();
@@ -1230,8 +1176,8 @@ public class EditableModel implements Named {
 		}
 		// -- end injected ---
 
-		final ArrayList<Bone> bones = sortedIdObjects(Bone.class);
-		final ArrayList<? extends Bone> helpers = sortedIdObjects(Helper.class);
+		final List<Bone> bones = sortedIdObjects(Bone.class);
+		final List<? extends Bone> helpers = sortedIdObjects(Helper.class);
 		bones.addAll(helpers);
 
 		for (int i = 0; i < idObjects.size(); i++) {
@@ -1239,10 +1185,10 @@ public class EditableModel implements Named {
 			obj.objectId = idObjects.indexOf(obj);
 			obj.parentId = idObjects.indexOf(obj.getParent());
 			if (obj.getBindPose() != null) {
-				if (bindPoseChunk == null) {
-					bindPoseChunk = new BindPose(idObjects.size() + cameras.size());
+				if (bindPose == null) {
+					bindPose = new BindPose(idObjects.size() + cameras.size());
 				}
-				bindPoseChunk.bindPose[i] = obj.getBindPose();
+				bindPose.bindPose[i] = obj.getBindPose();
 			}
 		}
 		for (final Bone b : bones) {
@@ -1252,26 +1198,26 @@ public class EditableModel implements Named {
 		for (int i = 0; i < cameras.size(); i++) {
 			final Camera obj = cameras.get(i);
 			if (obj.getBindPose() != null) {
-				if (bindPoseChunk == null) {
-					bindPoseChunk = new BindPose(idObjects.size() + cameras.size());
+				if (bindPose == null) {
+					bindPose = new BindPose(idObjects.size() + cameras.size());
 				}
-				bindPoseChunk.bindPose[i + idObjects.size()] = obj.getBindPose();
+				bindPose.bindPose[i + idObjects.size()] = obj.getBindPose();
 			}
 		}
 	}
 
 	public void sortIdObjects() {
-		final ArrayList<IdObject> allObjects = new ArrayList<>();
-		final ArrayList<Bone> bones = sortedIdObjects(Bone.class);
-		final ArrayList<Light> lights = sortedIdObjects(Light.class);
-		final ArrayList<Helper> helpers = sortedIdObjects(Helper.class);
-		final ArrayList<Attachment> attachments = sortedIdObjects(Attachment.class);
-		final ArrayList<ParticleEmitter> particleEmitters = sortedIdObjects(ParticleEmitter.class);
-		final ArrayList<ParticleEmitter2> particleEmitter2s = sortedIdObjects(ParticleEmitter2.class);
-		final ArrayList<ParticleEmitterPopcorn> popcornEmitters = sortedIdObjects(ParticleEmitterPopcorn.class);
-		final ArrayList<RibbonEmitter> ribbonEmitters = sortedIdObjects(RibbonEmitter.class);
-		final ArrayList<EventObject> events = sortedIdObjects(EventObject.class);
-		final ArrayList<CollisionShape> colliders = sortedIdObjects(CollisionShape.class);
+		final List<IdObject> allObjects = new ArrayList<>();
+		final List<Bone> bones = sortedIdObjects(Bone.class);
+		final List<Light> lights = sortedIdObjects(Light.class);
+		final List<Helper> helpers = sortedIdObjects(Helper.class);
+		final List<Attachment> attachments = sortedIdObjects(Attachment.class);
+		final List<ParticleEmitter> particleEmitters = sortedIdObjects(ParticleEmitter.class);
+		final List<ParticleEmitter2> particleEmitter2s = sortedIdObjects(ParticleEmitter2.class);
+		final List<ParticleEmitterPopcorn> popcornEmitters = sortedIdObjects(ParticleEmitterPopcorn.class);
+		final List<RibbonEmitter> ribbonEmitters = sortedIdObjects(RibbonEmitter.class);
+		final List<EventObject> events = sortedIdObjects(EventObject.class);
+		final List<CollisionShape> colliders = sortedIdObjects(CollisionShape.class);
 
 		allObjects.addAll(bones);
 		allObjects.addAll(lights);
@@ -1287,8 +1233,8 @@ public class EditableModel implements Named {
 		idObjects = allObjects;
 	}
 
-	public <T> ArrayList<T> sortedIdObjects(final Class<T> objectClass) {
-		final ArrayList<T> objects = new ArrayList<>();
+	public <T> List<T> sortedIdObjects(final Class<T> objectClass) {
+		final List<T> objects = new ArrayList<>();
 		for (final IdObject obj : idObjects) {
 			if (obj.getClass() == objectClass) {
 				objects.add((T) obj);
@@ -1297,18 +1243,6 @@ public class EditableModel implements Named {
 		return objects;
 	}
 
-	// public ArrayList sortedIdObjects(final Class kind)
-	// {
-	// final ArrayList objects = new ArrayList();
-	// for( final IdObject obj: idObjects )
-	// {
-	// if( obj.getClass() == kind )
-	// {
-	// objects.add(obj);
-	// }
-	// }
-	// return objects;
-	// }
 	public List<AnimFlag> getAllAnimFlags() {
 		// Probably will cause a bunch of lag, be wary
 		final List<AnimFlag> allFlags = Collections.synchronizedList(new ArrayList<AnimFlag>());
@@ -1373,55 +1307,13 @@ public class EditableModel implements Named {
 				}
 			}
 		}
-		final ArrayList<Bone> bones = sortedIdObjects(Bone.class);
-		bones.addAll(sortedIdObjects(Helper.class));// Hey, look at that!
-		for (final Bone b : bones) {
-			if (b.animFlags.contains(aflg)) {
-				return b;
+
+		for (final IdObject object : idObjects) {
+			if (object.animFlags.contains(aflg)) {
+				return object;
 			}
 		}
-		final ArrayList<Light> lights = sortedIdObjects(Light.class);
-		for (final Light l : lights) {
-			if (l.animFlags.contains(aflg)) {
-				return l;
-			}
-		}
-		final ArrayList<Attachment> atcs = sortedIdObjects(Attachment.class);
-		for (final Attachment x : atcs) {
-			if (x.animFlags.contains(aflg)) {
-				return x;
-			}
-		}
-		final ArrayList<ParticleEmitter2> pes = sortedIdObjects(ParticleEmitter2.class);
-		for (final ParticleEmitter2 x : pes) {
-			if (x.animFlags.contains(aflg)) {
-				return x;
-			}
-		}
-		final ArrayList<ParticleEmitter> xpes = sortedIdObjects(ParticleEmitter.class);
-		for (final ParticleEmitter x : xpes) {
-			if (x.animFlags.contains(aflg)) {
-				return x;
-			}
-		}
-		final ArrayList<ParticleEmitterPopcorn> pfes = sortedIdObjects(ParticleEmitterPopcorn.class);
-		for (final ParticleEmitterPopcorn x : pfes) {
-			if (x.animFlags.contains(aflg)) {
-				return x;
-			}
-		}
-		final ArrayList<RibbonEmitter> res = sortedIdObjects(RibbonEmitter.class);
-		for (final RibbonEmitter x : res) {
-			if (x.animFlags.contains(aflg)) {
-				return x;
-			}
-		}
-		final ArrayList<CollisionShape> cs = sortedIdObjects(CollisionShape.class);
-		for (final CollisionShape x : cs) {
-			if (x.animFlags.contains(aflg)) {
-				return x;
-			}
-		}
+
 		if (cameras != null) {
 			for (final Camera x : cameras) {
 				if (x.animFlags.contains(aflg) || x.targetAnimFlags.contains(aflg)) {
@@ -1446,6 +1338,7 @@ public class EditableModel implements Named {
 				}
 			}
 		}
+
 		if (texAnims != null) {
 			for (final TextureAnim texa : texAnims) {
 				if (texa.animFlags.contains(aflg)) {
@@ -1453,6 +1346,7 @@ public class EditableModel implements Named {
 				}
 			}
 		}
+
 		if (geosetAnims != null) {
 			for (final GeosetAnim ga : geosetAnims) {
 				if (ga.animFlags.contains(aflg)) {
@@ -1460,55 +1354,13 @@ public class EditableModel implements Named {
 				}
 			}
 		}
-		final ArrayList<Bone> bones = sortedIdObjects(Bone.class);
-		bones.addAll(sortedIdObjects(Helper.class));// Hey, look at that!
-		for (final Bone b : bones) {
-			if (b.animFlags.contains(aflg)) {
-				b.animFlags.add(added);
+
+		for (final IdObject object : idObjects) {
+			if (object.animFlags.contains(aflg)) {
+				object.animFlags.add(added);
 			}
 		}
-		final ArrayList<Light> lights = sortedIdObjects(Light.class);
-		for (final Light l : lights) {
-			if (l.animFlags.contains(aflg)) {
-				l.animFlags.add(added);
-			}
-		}
-		final ArrayList<Attachment> atcs = sortedIdObjects(Attachment.class);
-		for (final Attachment x : atcs) {
-			if (x.animFlags.contains(aflg)) {
-				x.animFlags.add(added);
-			}
-		}
-		final ArrayList<ParticleEmitter2> pes = sortedIdObjects(ParticleEmitter2.class);
-		for (final ParticleEmitter2 x : pes) {
-			if (x.animFlags.contains(aflg)) {
-				x.animFlags.add(added);
-			}
-		}
-		final ArrayList<ParticleEmitter> xpes = sortedIdObjects(ParticleEmitter.class);
-		for (final ParticleEmitter x : xpes) {
-			if (x.animFlags.contains(aflg)) {
-				x.animFlags.add(added);
-			}
-		}
-		final ArrayList<ParticleEmitterPopcorn> pfes = sortedIdObjects(ParticleEmitterPopcorn.class);
-		for (final ParticleEmitterPopcorn x : pfes) {
-			if (x.animFlags.contains(aflg)) {
-				x.animFlags.add(added);
-			}
-		}
-		final ArrayList<RibbonEmitter> res = sortedIdObjects(RibbonEmitter.class);
-		for (final RibbonEmitter x : res) {
-			if (x.animFlags.contains(aflg)) {
-				x.animFlags.add(added);
-			}
-		}
-		final ArrayList<CollisionShape> cs = sortedIdObjects(CollisionShape.class);
-		for (final CollisionShape x : cs) {
-			if (x.animFlags.contains(aflg)) {
-				x.animFlags.add(added);
-			}
-		}
+	
 		if (cameras != null) {
 			for (final Camera x : cameras) {
 				if (x.animFlags.contains(aflg) || x.targetAnimFlags.contains(aflg)) {
@@ -1567,7 +1419,7 @@ public class EditableModel implements Named {
 		if (DISABLE_BONE_GEO_ID_VALIDATOR) {
 			return;
 		}
-		final ArrayList<Bone> bones = sortedIdObjects(Bone.class);
+		final List<Bone> bones = sortedIdObjects(Bone.class);
 		for (final Bone b : bones) {
 			b.multiGeoId = false;
 			b.geoset = null;
@@ -1643,9 +1495,9 @@ public class EditableModel implements Named {
 		}
 	}
 
-	public ArrayList<VisibilitySource> getAllVisibilitySources() {
+	public List<VisibilitySource> getAllVisibilitySources() {
 		final List<AnimFlag> animFlags = getAllAnimFlags();// laggggg!
-		final ArrayList<VisibilitySource> out = new ArrayList<>();
+		final List<VisibilitySource> out = new ArrayList<>();
 		for (final AnimFlag af : animFlags) {
 			if (af.getName().equals("Visibility") || af.getName().equals("Alpha")) {
 				out.add((VisibilitySource) getAnimFlagSource(af));
@@ -1760,7 +1612,7 @@ public class EditableModel implements Named {
 		if ((x.pivotPoint != null) && !pivots.contains(x.pivotPoint)) {
 			pivots.add(x.pivotPoint);
 		}
-		if (ModelUtils.isBindPoseSupported(formatVersion) && (bindPoseChunk != null)) {
+		if (ModelUtils.isBindPoseSupported(formatVersion) && (bindPose != null)) {
 			if (x.getBindPose() == null) {
 				x.setBindPose(new float[] { 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 });
 			}
@@ -1773,7 +1625,7 @@ public class EditableModel implements Named {
 					"Added null Camera component to model, which is really bad. Tell Retera you saw this once you have errors.");
 		}
 		cameras.add(x);
-		if (ModelUtils.isBindPoseSupported(formatVersion) && (bindPoseChunk != null)) {
+		if (ModelUtils.isBindPoseSupported(formatVersion) && (bindPose != null)) {
 			if (x.getBindPose() == null) {
 				x.setBindPose(new float[] { 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 });
 			}
@@ -1864,91 +1716,91 @@ public class EditableModel implements Named {
 		this.formatVersion = formatVersion;
 	}
 
-	public ArrayList<String> getHeader() {
+	public List<String> getHeader() {
 		return header;
 	}
 
-	public void setHeader(final ArrayList<String> header) {
+	public void setHeader(final List<String> header) {
 		this.header = header;
 	}
 
-	public ArrayList<Animation> getAnims() {
+	public List<Animation> getAnims() {
 		return anims;
 	}
 
-	public void setAnims(final ArrayList<Animation> anims) {
+	public void setAnims(final List<Animation> anims) {
 		this.anims = anims;
 	}
 
-	public ArrayList<Integer> getGlobalSeqs() {
+	public List<Integer> getGlobalSeqs() {
 		return globalSeqs;
 	}
 
-	public void setGlobalSeqs(final ArrayList<Integer> globalSeqs) {
+	public void setGlobalSeqs(final List<Integer> globalSeqs) {
 		this.globalSeqs = globalSeqs;
 	}
 
-	public ArrayList<Bitmap> getTextures() {
+	public List<Bitmap> getTextures() {
 		return textures;
 	}
 
-	public void setTextures(final ArrayList<Bitmap> textures) {
+	public void setTextures(final List<Bitmap> textures) {
 		this.textures = textures;
 	}
 
-	public ArrayList<Material> getMaterials() {
+	public List<Material> getMaterials() {
 		return materials;
 	}
 
-	public void setMaterials(final ArrayList<Material> materials) {
+	public void setMaterials(final List<Material> materials) {
 		this.materials = materials;
 	}
 
-	public ArrayList<TextureAnim> getTexAnims() {
+	public List<TextureAnim> getTexAnims() {
 		return texAnims;
 	}
 
-	public void setTexAnims(final ArrayList<TextureAnim> texAnims) {
+	public void setTexAnims(final List<TextureAnim> texAnims) {
 		this.texAnims = texAnims;
 	}
 
-	public ArrayList<Geoset> getGeosets() {
+	public List<Geoset> getGeosets() {
 		return geosets;
 	}
 
-	public void setGeosets(final ArrayList<Geoset> geosets) {
+	public void setGeosets(final List<Geoset> geosets) {
 		this.geosets = geosets;
 	}
 
-	public ArrayList<GeosetAnim> getGeosetAnims() {
+	public List<GeosetAnim> getGeosetAnims() {
 		return geosetAnims;
 	}
 
-	public void setGeosetAnims(final ArrayList<GeosetAnim> geosetAnims) {
+	public void setGeosetAnims(final List<GeosetAnim> geosetAnims) {
 		this.geosetAnims = geosetAnims;
 	}
 
-	public ArrayList<IdObject> getIdObjects() {
+	public List<IdObject> getIdObjects() {
 		return idObjects;
 	}
 
-	public void setIdObjects(final ArrayList<IdObject> idObjects) {
+	public void setIdObjects(final List<IdObject> idObjects) {
 		this.idObjects = idObjects;
 	}
 
-	public ArrayList<Vertex> getPivots() {
+	public List<Vertex> getPivots() {
 		return pivots;
 	}
 
-	public void setPivots(final ArrayList<Vertex> pivots) {
+	public void setPivots(final List<Vertex> pivots) {
 		this.pivots = pivots;
 	}
 
-	public ArrayList<Camera> getCameras() {
+	public List<Camera> getCameras() {
 		return cameras;
 	}
 
-	public void setCameras(final ArrayList<Camera> cameras) {
+	public void setCameras(final List<Camera> cameras) {
 		this.cameras = cameras;
 	}
 
@@ -2233,7 +2085,7 @@ public class EditableModel implements Named {
 				}
 			}
 		}
-		final ArrayList<Bone> bones = sortedIdObjects(Bone.class);
+		final List<Bone> bones = sortedIdObjects(Bone.class);
 		bones.addAll(sortedIdObjects(Helper.class));// Hey, look at that!
 		for (final Bone b : bones) {
 			final Iterator<AnimFlag> iterator = b.animFlags.iterator();
@@ -2244,7 +2096,7 @@ public class EditableModel implements Named {
 				}
 			}
 		}
-		final ArrayList<Light> lights = sortedIdObjects(Light.class);
+		final List<Light> lights = sortedIdObjects(Light.class);
 		for (final Light l : lights) {
 			final Iterator<AnimFlag> iterator = l.animFlags.iterator();
 			while (iterator.hasNext()) {
@@ -2254,7 +2106,7 @@ public class EditableModel implements Named {
 				}
 			}
 		}
-		final ArrayList<Attachment> atcs = sortedIdObjects(Attachment.class);
+		final List<Attachment> atcs = sortedIdObjects(Attachment.class);
 		for (final Attachment x : atcs) {
 			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
 			while (iterator.hasNext()) {
@@ -2264,7 +2116,7 @@ public class EditableModel implements Named {
 				}
 			}
 		}
-		final ArrayList<ParticleEmitter2> pes = sortedIdObjects(ParticleEmitter2.class);
+		final List<ParticleEmitter2> pes = sortedIdObjects(ParticleEmitter2.class);
 		for (final ParticleEmitter2 x : pes) {
 			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
 			while (iterator.hasNext()) {
@@ -2274,7 +2126,7 @@ public class EditableModel implements Named {
 				}
 			}
 		}
-		final ArrayList<ParticleEmitter> xpes = sortedIdObjects(ParticleEmitter.class);
+		final List<ParticleEmitter> xpes = sortedIdObjects(ParticleEmitter.class);
 		for (final ParticleEmitter x : xpes) {
 			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
 			while (iterator.hasNext()) {
@@ -2284,7 +2136,7 @@ public class EditableModel implements Named {
 				}
 			}
 		}
-		final ArrayList<ParticleEmitterPopcorn> pfes = sortedIdObjects(ParticleEmitterPopcorn.class);
+		final List<ParticleEmitterPopcorn> pfes = sortedIdObjects(ParticleEmitterPopcorn.class);
 		for (final ParticleEmitterPopcorn x : pfes) {
 			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
 			while (iterator.hasNext()) {
@@ -2294,7 +2146,7 @@ public class EditableModel implements Named {
 				}
 			}
 		}
-		final ArrayList<RibbonEmitter> res = sortedIdObjects(RibbonEmitter.class);
+		final List<RibbonEmitter> res = sortedIdObjects(RibbonEmitter.class);
 		for (final RibbonEmitter x : res) {
 			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
 			while (iterator.hasNext()) {
@@ -2304,7 +2156,7 @@ public class EditableModel implements Named {
 				}
 			}
 		}
-		final ArrayList<CollisionShape> cs = sortedIdObjects(CollisionShape.class);
+		final List<CollisionShape> cs = sortedIdObjects(CollisionShape.class);
 		for (final CollisionShape x : cs) {
 			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
 			while (iterator.hasNext()) {
@@ -2314,7 +2166,7 @@ public class EditableModel implements Named {
 				}
 			}
 		}
-		final ArrayList<EventObject> evt = sortedIdObjects(EventObject.class);
+		final List<EventObject> evt = sortedIdObjects(EventObject.class);
 		for (final EventObject x : evt) {
 			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
 			while (iterator.hasNext()) {
@@ -2375,11 +2227,11 @@ public class EditableModel implements Named {
 	}
 
 	public BindPose getBindPoseChunk() {
-		return bindPoseChunk;
+		return bindPose;
 	}
 
 	public void setBindPoseChunk(final BindPose bindPoseChunk) {
-		this.bindPoseChunk = bindPoseChunk;
+		this.bindPose = bindPoseChunk;
 	}
 
 	/**
@@ -2520,7 +2372,7 @@ public class EditableModel implements Named {
 
 	public static void makeItHD(final EditableModel model) {
 		for (final Geoset geo : model.getGeosets()) {
-			final ArrayList<GeosetVertex> vertices = geo.getVertices();
+			final List<GeosetVertex> vertices = geo.getVertices();
 			for (final GeosetVertex gv : vertices) {
 				final Normal normal = gv.getNormal();
 				if (normal != null) {
@@ -2702,7 +2554,7 @@ public class EditableModel implements Named {
 					}
 				}
 			}
-			final ArrayList<EventObject> sortedEventObjects = sortedIdObjects(EventObject.class);
+			final List<EventObject> sortedEventObjects = sortedIdObjects(EventObject.class);
 			for (final EventObject eventObject : sortedEventObjects) {
 				// TODO eliminate redundant structure
 				if (eventObject.isHasGlobalSeq() && (eventObject.getGlobalSeq() != null)) {

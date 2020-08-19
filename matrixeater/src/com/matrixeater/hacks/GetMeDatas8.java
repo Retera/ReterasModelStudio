@@ -16,10 +16,10 @@ public class GetMeDatas8 {
 		try {
 			final InputStream footman = new FileInputStream(new File(
 					"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III Beta\\Models\\Footman_SD_Reforged.mdx"));
-			final MdlxModel footmanMdx = MdxUtils.loadModel(footman);
+			final MdlxModel footmanMdx = MdxUtils.loadMdlx(footman);
 			try (OutputStream out = new FileOutputStream(new File(
 					"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III Beta\\Models\\SoftwareStandardFootman.mdx"))) {
-				footmanMdx.saveMdx(out);
+				MdxUtils.saveMdx(footmanMdx, out);
 			}
 		} catch (final IOException e) {
 			e.printStackTrace();

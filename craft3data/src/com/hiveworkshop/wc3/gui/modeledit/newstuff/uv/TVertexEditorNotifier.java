@@ -2,12 +2,11 @@ package com.hiveworkshop.wc3.gui.modeledit.newstuff.uv;
 
 import java.awt.Point;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-import com.etheller.collections.ArrayList;
-import com.etheller.collections.List;
-import com.etheller.collections.ListView;
 import com.etheller.util.SubscriberSetNotifier;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UVPanel;
@@ -42,7 +41,7 @@ public class TVertexEditorNotifier extends SubscriberSetNotifier<TVertexEditor> 
 		return mergeActions(actions);
 	}
 
-	private CompoundAction mergeActions(final List<UndoAction> actions) {
+	private CompoundAction mergeActions(final List<? extends UndoAction> actions) {
 		return new CompoundAction(actions.get(0).actionName(), actions);
 	}
 
@@ -104,7 +103,7 @@ public class TVertexEditorNotifier extends SubscriberSetNotifier<TVertexEditor> 
 	}
 
 	@Override
-	public UndoAction hideComponent(final ListView<? extends SelectableComponent> selectableComponents,
+	public UndoAction hideComponent(final List<? extends SelectableComponent> selectableComponents,
 			final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
 		final List<UndoAction> actions = new ArrayList<>();
 		for (final TVertexEditor handler : set) {

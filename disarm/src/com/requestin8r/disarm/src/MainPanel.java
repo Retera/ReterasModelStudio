@@ -268,7 +268,7 @@ public class MainPanel extends JPanel implements ActionListener {
 				} else if (!filepath.endsWith(".mdx")) {
 					filepath = filepath.concat(".mdx");
 				}
-				toLoad = MdxUtils.loadEditableModel(MpqCodebase.get().getFile(filepath));
+				toLoad = MdxUtils.loadEditable(MpqCodebase.get().getFile(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -311,7 +311,7 @@ public class MainPanel extends JPanel implements ActionListener {
 				} else if (!filepath.endsWith(".mdx")) {
 					filepath = filepath.concat(".mdx");
 				}
-				toLoad = MdxUtils.loadEditableModel(MpqCodebase.get().getFile(filepath));
+				toLoad = MdxUtils.loadEditable(MpqCodebase.get().getFile(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -351,7 +351,7 @@ public class MainPanel extends JPanel implements ActionListener {
 			EditableModel toLoad;
 			ModelViewManager modelDisp = null;
 			try {
-				toLoad = MdxUtils.loadEditableModel(new File(filepath));
+				toLoad = MdxUtils.loadEditable(new File(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -388,7 +388,7 @@ public class MainPanel extends JPanel implements ActionListener {
 				} else if (!filepath.endsWith(".mdx")) {
 					filepath = filepath.concat(".mdx");
 				}
-				toLoad = MdxUtils.loadEditableModel(MpqCodebase.get().getFile(filepath));
+				toLoad = MdxUtils.loadEditable(MpqCodebase.get().getFile(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -436,7 +436,7 @@ public class MainPanel extends JPanel implements ActionListener {
 				} else if (!filepath.endsWith(".mdx")) {
 					filepath = filepath.concat(".mdx");
 				}
-				toLoad = MdxUtils.loadEditableModel(MpqCodebase.get().getFile(filepath));
+				toLoad = MdxUtils.loadEditable(MpqCodebase.get().getFile(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -480,7 +480,7 @@ public class MainPanel extends JPanel implements ActionListener {
 			EditableModel toLoad;
 			ModelViewManager modelDisp = null;
 			try {
-				toLoad = MdxUtils.loadEditableModel(new File(filepath));
+				toLoad = MdxUtils.loadEditable(new File(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -570,7 +570,7 @@ public class MainPanel extends JPanel implements ActionListener {
 					}
 					// profile.setPath(currentFile.getParent());
 					try {
-						MdxUtils.saveEditableModel(current.model.getModel(), currentFile);
+						MdxUtils.saveMdx(current.model.getModel(), currentFile);
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -724,7 +724,7 @@ public class MainPanel extends JPanel implements ActionListener {
 
 	public void addFrom(final Project source, final String[] keywords, final String[] atchKeys, final boolean group) {
 		if (current != null) {
-			final ArrayList<Vertex> selection = selectGroup(source, keywords, group);
+			final List<Vertex> selection = selectGroup(source, keywords, group);
 			// ArrayList<Vertex> mainGroup = selectGroup(current, keywords,
 			// group);
 			if (selection == null) {
@@ -904,7 +904,7 @@ public class MainPanel extends JPanel implements ActionListener {
 
 	public void disarm(final String[] keywords, final boolean group, final boolean inverse) {
 		if (current != null) {
-			final ArrayList<Vertex> selection = selectGroup(keywords, group);
+			final List<Vertex> selection = selectGroup(keywords, group);
 			if (selection != null) {
 				current.editor.selectByVertices(selection);
 				if (inverse) {
@@ -1010,11 +1010,11 @@ public class MainPanel extends JPanel implements ActionListener {
 		return null;
 	}
 
-	public ArrayList<Vertex> selectGroup(final String[] keywords, final boolean group) {
+	public List<Vertex> selectGroup(final String[] keywords, final boolean group) {
 		return selectGroup(current, keywords, group);
 	}
 
-	public ArrayList<Vertex> selectGroup(final Project current, final String[] keywords, final boolean group) {
+	public List<Vertex> selectGroup(final Project current, final String[] keywords, final boolean group) {
 		for (final String str : keywords) {
 			System.err.println(str);
 		}
@@ -1047,7 +1047,7 @@ public class MainPanel extends JPanel implements ActionListener {
 				return null;
 			}
 
-			final ArrayList<Vertex> selection = new ArrayList<>();
+			final List<Vertex> selection = new ArrayList<>();
 			for (final IdObject weap : weaps) {
 				IdObject weapHeadNode = weap.getParent();
 				if (!group) {
@@ -1097,7 +1097,7 @@ public class MainPanel extends JPanel implements ActionListener {
 
 			// Backcheck
 
-			final ArrayList<Vertex> badPool = new ArrayList<>();
+			final List<Vertex> badPool = new ArrayList<>();
 			for (final Vertex v : selection) {
 				for (int i = 0; i < model.getGeosetsSize(); i++) {
 					final Geoset geo = model.getGeoset(i);
@@ -1123,13 +1123,13 @@ public class MainPanel extends JPanel implements ActionListener {
 					}
 				}
 			}
-			final ArrayList<Vertex> enlargedBadPool = new ArrayList<>();
+			final List<Vertex> enlargedBadPool = new ArrayList<>();
 			for (final Vertex v : badPool) {
 				final GeosetVertex gv = (GeosetVertex) v;
 				addNeighbors(selection, enlargedBadPool, gv, model, true);
 				// for( GeosetVertex)
 			}
-			final ArrayList<Vertex> allConnectionsPool = new ArrayList<>();
+			final List<Vertex> allConnectionsPool = new ArrayList<>();
 			for (final Vertex v : badPool) {
 				final GeosetVertex gv = (GeosetVertex) v;
 				addNeighbors(selection, allConnectionsPool, gv, model, false);
@@ -1155,7 +1155,7 @@ public class MainPanel extends JPanel implements ActionListener {
 		return null;
 	}
 
-	public void addNeighbors(final ArrayList<Vertex> selection, final ArrayList<Vertex> enlargedBadPool,
+	public void addNeighbors(final List<Vertex> selection, final List<Vertex> enlargedBadPool,
 			final GeosetVertex gv, final EditableModel model, final boolean checkSel) {
 		enlargedBadPool.add(gv);
 		for (int i = 0; i < model.getGeosetsSize(); i++) {

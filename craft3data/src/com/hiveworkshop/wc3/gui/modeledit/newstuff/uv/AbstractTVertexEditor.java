@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.newstuff.uv;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.hiveworkshop.wc3.gui.modeledit.UVPanel;
@@ -27,7 +28,7 @@ import com.hiveworkshop.wc3.mdl.TVertex;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
-public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexEditor<T> implements TVertexEditor {
+public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexEditor<T> {
 	protected final ModelView model;
 	protected final VertexSelectionHelper vertexSelectionHelper;
 	protected final ModelStructureChangeListener structureChangeListener;
@@ -59,9 +60,9 @@ public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexE
 
 	@Override
 	public UndoAction remap(final byte xDim, final byte yDim, final UVPanel.UnwrapDirection unwrapDirection) {
-		final ArrayList<TVertex> tVertices = new ArrayList<TVertex>();
-		final ArrayList<TVertex> newValueHolders = new ArrayList<TVertex>();
-		final ArrayList<TVertex> oldValueHolders = new ArrayList<TVertex>();
+		final List<TVertex> tVertices = new ArrayList<TVertex>();
+		final List<TVertex> newValueHolders = new ArrayList<TVertex>();
+		final List<TVertex> oldValueHolders = new ArrayList<TVertex>();
 		double minX = Double.MAX_VALUE;
 		double minY = Double.MAX_VALUE;
 		double maxX = -Double.MAX_VALUE;
@@ -112,7 +113,7 @@ public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexE
 	public UndoAction snapSelectedVertices() {
 		final Collection<? extends TVertex> selection = TVertexUtils
 				.getTVertices(selectionManager.getSelectedVertices(), uvLayerIndex);
-		final ArrayList<TVertex> oldLocations = new ArrayList<>();
+		final List<TVertex> oldLocations = new ArrayList<>();
 		final TVertex cog = TVertex.centerOfGroup(selection);
 		for (final TVertex vertex : selection) {
 			oldLocations.add(new TVertex(vertex));

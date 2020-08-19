@@ -47,14 +47,14 @@ public final class SquishWar3 {
 					// final File copiedTarget = new File(texRoot +
 					// relativePath);
 					// copiedTarget.getParentFile().mkdirs();
-					final EditableModel model = MdxUtils.loadEditableModel(target);
+					final EditableModel model = MdxUtils.loadEditable(target);
 					for (final AnimFlag flag : model.getAllAnimFlags()) {
 						flag.linearize();
 					}
 					model.simplifyKeyframes();
 					// model.printTo(target);
 					try (BlizzardDataOutputStream out = new SquishingBlizzardDataOutputStream(target)) {
-						model.toMdlx().saveMdx(out);
+						MdxUtils.saveMdx(model, out);
 					} catch (final Exception e) {
 						throw new RuntimeException(e);
 					}

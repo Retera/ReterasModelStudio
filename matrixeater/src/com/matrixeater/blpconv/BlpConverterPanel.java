@@ -43,7 +43,6 @@ import com.matrixeater.src.EditorDisplayManager;
 
 import de.wc3data.image.BlpFile;
 import de.wc3data.image.TgaFile;
-import de.wc3data.stream.BlizzardDataInputStream;
 
 public class BlpConverterPanel extends JPanel {
 	private final JButton loadFile;
@@ -230,7 +229,7 @@ public class BlpConverterPanel extends JPanel {
 					if (object.toLowerCase().endsWith("mdx")) {
 						cardLayout.show(leftHandCardPanel, "model");
 						modelViewport.setViewport(new ModelViewManager(
-							new EditableModel(MdxUtils.loadModel(mpqCodebase.getResourceAsStream(object)))));
+							new EditableModel(MdxUtils.loadMdlx(mpqCodebase.getResourceAsStream(object)))));
 					} else {
 						cardLayout.show(leftHandCardPanel, "tex");
 						converterPanel.setCurrentImage(BlpFile.read(object, mpqCodebase.getResourceAsStream(object)));

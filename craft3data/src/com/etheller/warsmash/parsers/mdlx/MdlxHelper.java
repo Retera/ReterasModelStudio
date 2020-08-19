@@ -1,7 +1,5 @@
 package com.etheller.warsmash.parsers.mdlx;
 
-import java.io.IOException;
-
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
@@ -16,12 +14,12 @@ public class MdlxHelper extends MdlxGenericObject {
 	@Override
 	public void readMdl(final MdlTokenInputStream stream, final int version) {
 		for (final String token : readMdlGeneric(stream)) {
-			throw new IllegalStateException("Unknown token in Helper: " + token);
+			throw new RuntimeException("Unknown token in Helper: " + token);
 		}
 	}
 
 	@Override
-	public void writeMdl(final MdlTokenOutputStream stream, final int version) throws IOException {
+	public void writeMdl(final MdlTokenOutputStream stream, final int version) {
 		stream.startObjectBlock(MdlUtils.TOKEN_HELPER, this.name);
 		writeGenericHeader(stream);
 		writeGenericTimelines(stream);

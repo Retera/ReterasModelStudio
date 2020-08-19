@@ -55,7 +55,7 @@ public class ViewportTransferHandler extends TransferHandler {
 		// Fetch the data -- bail if this fails
 		try {
 			data = (String) info.getTransferable().getTransferData(DataFlavor.stringFlavor);
-			pastedModel = MdxUtils.loadEditableModel(new ByteArrayInputStream(data.getBytes()));
+			pastedModel = MdxUtils.loadEditable(new ByteArrayInputStream(data.getBytes()));
 		} catch (final UnsupportedFlavorException ufe) {
 			System.out.println("importData: unsupported data flavor");
 			return false;
@@ -176,7 +176,7 @@ public class ViewportTransferHandler extends TransferHandler {
 		dummyBone.setPivotPoint(Vertex.centerOfGroup(verticesInNewMesh));
 		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		try {
-			MdxUtils.saveEditableModel(stringableModel, outputStream);
+			MdxUtils.saveMdx(stringableModel, outputStream);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

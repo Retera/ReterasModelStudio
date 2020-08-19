@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.selection.AddSelectionAction;
@@ -61,11 +60,11 @@ public abstract class AbstractSelectingEditor<T> implements ModelEditor {
 
 	protected abstract List<T> genericSelect(final Rectangle2D region, final CoordinateSystem coordinateSystem);
 
-	protected abstract UndoAction buildHideComponentAction(ListView<? extends SelectableComponent> selectableComponents,
+	protected abstract UndoAction buildHideComponentAction(List<? extends SelectableComponent> selectableComponents,
 			EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable);
 
 	@Override
-	public UndoAction hideComponent(final ListView<? extends SelectableComponent> selectableComponent,
+	public UndoAction hideComponent(final List<? extends SelectableComponent> selectableComponent,
 			final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
 		final UndoAction hideComponentAction = buildHideComponentAction(selectableComponent, editabilityToggleHandler,
 				refreshGUIRunnable);

@@ -1,11 +1,7 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.io.BufferedReader;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JOptionPane;
 
 import com.etheller.warsmash.parsers.mdlx.MdlxCollisionShape;
 
@@ -21,7 +17,7 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
  */
 public class CollisionShape extends IdObject {
 	ExtLog extents;
-	ArrayList<Vertex> vertices = new ArrayList<>();
+	List<Vertex> vertices = new ArrayList<>();
 
 	public CollisionShape(final MdlxCollisionShape shape) {
 		if ((shape.flags & 8192) != 8192) {
@@ -130,11 +126,11 @@ public class CollisionShape extends IdObject {
 		this.extents = extents;
 	}
 
-	public ArrayList<Vertex> getVertices() {
+	public List<Vertex> getVertices() {
 		return vertices;
 	}
 
-	public void setVertices(final ArrayList<Vertex> vertices) {
+	public void setVertices(final List<Vertex> vertices) {
 		this.vertices = vertices;
 	}
 

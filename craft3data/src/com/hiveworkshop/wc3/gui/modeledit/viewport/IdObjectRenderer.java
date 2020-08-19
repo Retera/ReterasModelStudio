@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.mdl.Attachment;
@@ -219,7 +220,7 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 			final CoordinateSystem coordinateSystem, final byte xDimension, final byte yDimension, final int vertexSize,
 			final CollisionShape collisionShape, final Image collisionImage) {
 		final Vertex pivotPoint = collisionShape.getPivotPoint();
-		final ArrayList<Vertex> vertices = collisionShape.getVertices();
+		final List<Vertex> vertices = collisionShape.getVertices();
 		graphics.setColor(color);
 		final int xCoord = (int) coordinateSystem.convertX(pivotPoint.getCoord(xDimension));
 		final int yCoord = (int) coordinateSystem.convertY(pivotPoint.getCoord(yDimension));

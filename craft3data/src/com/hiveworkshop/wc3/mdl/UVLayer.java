@@ -1,6 +1,7 @@
 package com.hiveworkshop.wc3.mdl;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A layer of TVertices (UV Mapping)
@@ -10,7 +11,7 @@ import java.util.ArrayList;
  */
 public class UVLayer
 {
-    ArrayList<TVertex> tverts;
+    List<TVertex> tverts;
     public UVLayer()
     {
         tverts = new ArrayList<TVertex>();

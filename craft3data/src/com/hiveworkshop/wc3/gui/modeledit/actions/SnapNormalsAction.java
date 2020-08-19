@@ -1,6 +1,7 @@
 package com.hiveworkshop.wc3.gui.modeledit.actions;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.Vertex;
@@ -11,11 +12,11 @@ import com.hiveworkshop.wc3.mdl.Vertex;
  * Eric Theller 6/11/2012
  */
 public class SnapNormalsAction implements UndoAction {
-	ArrayList<Vertex> oldSelLocs;
-	ArrayList<Vertex> selection;
+	List<Vertex> oldSelLocs;
+	List<Vertex> selection;
 	Vertex snapPoint;
 
-	public SnapNormalsAction(final ArrayList<Vertex> selection, final ArrayList<Vertex> oldSelLocs,
+	public SnapNormalsAction(final List<Vertex> selection, final List<Vertex> oldSelLocs,
 			final Vertex snapPoint) {
 		this.selection = new ArrayList<Vertex>(selection);
 		this.oldSelLocs = oldSelLocs;

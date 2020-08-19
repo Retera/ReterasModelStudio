@@ -4,21 +4,19 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 
-import com.etheller.collections.SetView;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 
-import de.wc3data.stream.BlizzardDataInputStream;
-
 public class FtlopMaker {
 
 	public static void main(final String[] args) {
-		final SetView<String> mergedListfile = MpqCodebase.get().getMergedListfile();
+		final Set<String> mergedListfile = MpqCodebase.get().getMergedListfile();
 		final List<String> betterList = new ArrayList<>();
 		for (final String s : mergedListfile) {
 			if (!s.startsWith("_hd.w3mod") && !s.startsWith("_locales")) {
@@ -51,9 +49,9 @@ public class FtlopMaker {
 				try {
 					final File outputFile = new File(outputDump + item);
 					outputFile.getParentFile().mkdirs();
-					final EditableModel model = new EditableModel(MdxUtils.loadModel(MpqCodebase.get().getResourceAsStream(item)));
+					final EditableModel model = new EditableModel(MdxUtils.loadMdlx(MpqCodebase.get().getResourceAsStream(item)));
 					EditableModel.convertToV800(targetLevelOfDetail, model);
-					MdxUtils.saveEditableModel(model, outputFile);
+					MdxUtils.saveMdx(model, outputFile);
 				} catch (final Exception e) {
 					e.printStackTrace();
 				}

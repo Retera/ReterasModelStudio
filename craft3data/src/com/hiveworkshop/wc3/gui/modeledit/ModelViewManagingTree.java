@@ -3,17 +3,17 @@ package com.hiveworkshop.wc3.gui.modeledit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
-import com.etheller.collections.ArrayList;
-import com.etheller.collections.Collection;
-import com.etheller.collections.HashMap;
-import com.etheller.collections.List;
-import com.etheller.collections.Map;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
@@ -164,7 +164,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 			}
 			final List<JCheckBoxTreeNode> childrenNeedingLinkToCurrentNode = nodeToChildrenAwaitingLink.get(object);
 			if ((childrenNeedingLinkToCurrentNode != null)
-					&& !Collection.Util.isEmpty(childrenNeedingLinkToCurrentNode)) {
+					&& childrenNeedingLinkToCurrentNode.size() > 0) {
 				for (final JCheckBoxTreeNode child : childrenNeedingLinkToCurrentNode) {
 					treeNode.add(child);
 				}

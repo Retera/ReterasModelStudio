@@ -46,7 +46,7 @@ public class LWJGLToBufferedImageTesterGuy {
 				field += ".mdx";
 			}
 			System.out.println(field);
-			model = new EditableModel(MdxUtils.loadModel(MpqCodebase.get().getResourceAsStream(field)));
+			model = new EditableModel(MdxUtils.loadMdlx(MpqCodebase.get().getResourceAsStream(field)));
 			mdlDisplay = MDLSnapshot.createDefaultDisplay(unit);
 			JOptionPane.showMessageDialog(null, new UnitOutlinePanel(unit));
 		} catch (final IOException e1) {

@@ -1,17 +1,15 @@
 package com.etheller.warsmash.parsers.mdlx;
 
-import java.io.IOException;
 import java.util.EnumSet;
 
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
-import com.etheller.warsmash.util.ParseUtils;
 import com.etheller.warsmash.viewer5.handlers.w3x.AnimationTokens;
 import com.etheller.warsmash.viewer5.handlers.w3x.AnimationTokens.PrimaryTag;
 import com.etheller.warsmash.viewer5.handlers.w3x.AnimationTokens.SecondaryTag;
-import com.google.common.io.LittleEndianDataOutputStream;
 import com.hiveworkshop.util.BinaryReader;
+import com.hiveworkshop.util.BinaryWriter;
 
 public class MdlxSequence implements MdlxBlock {
 	public String name = "";
@@ -25,14 +23,8 @@ public class MdlxSequence implements MdlxBlock {
 	public final EnumSet<AnimationTokens.PrimaryTag> primaryTags = EnumSet.noneOf(AnimationTokens.PrimaryTag.class);
 	public final EnumSet<AnimationTokens.SecondaryTag> secondaryTags = EnumSet
 			.noneOf(AnimationTokens.SecondaryTag.class);
-
-	/**
-	 * Restricts us to only be able to parse models on one thread at a time, in
-	 * return for high performance.
-	 */
-	private static final byte[] NAME_BYTES_HEAP = new byte[80];
 	
-	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+	public void readMdx(final BinaryReader reader, final int version) {
 		this.name = reader.read(80);
 		reader.readUInt32Array(this.interval);
 		this.moveSpeed = reader.readFloat32();
@@ -44,18 +36,14 @@ public class MdlxSequence implements MdlxBlock {
 	}
 
 	@Override
-	public void writeMdx(final LittleEndianDataOutputStream stream, final int version) throws IOException {
-		final byte[] bytes = this.name.getBytes(ParseUtils.UTF8);
-		stream.write(bytes);
-		for (int i = 0; i < (NAME_BYTES_HEAP.length - bytes.length); i++) {
-			stream.write((byte) 0);
-		}
-		ParseUtils.writeUInt32Array(stream, this.interval);
-		stream.writeFloat(this.moveSpeed);
-		ParseUtils.writeUInt32(stream, this.flags);
-		stream.writeFloat(this.rarity);
-		ParseUtils.writeUInt32(stream, this.syncPoint);
-		this.extent.writeMdx(stream);
+	public void writeMdx(final BinaryWriter writer, final int version) {
+		writer.writeWithNulls(name, 80);
+		writer.writeUInt32Array(this.interval);
+		writer.writeFloat32(this.moveSpeed);
+		writer.writeUInt32(this.flags);
+		writer.writeFloat32(this.rarity);
+		writer.writeUInt32(this.syncPoint);
+		this.extent.writeMdx(writer);
 	}
 
 	@Override

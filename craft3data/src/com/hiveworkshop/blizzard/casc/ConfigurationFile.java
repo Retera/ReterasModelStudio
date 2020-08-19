@@ -1,5 +1,6 @@
 package com.hiveworkshop.blizzard.casc;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
@@ -11,7 +12,6 @@ import java.util.Map;
 import java.util.Scanner;
 
 import com.hiveworkshop.blizzard.casc.nio.MalformedCASCStructureException;
-import com.hiveworkshop.nio.ByteBufferInputStream;
 
 /**
  * File containing CASC configuration information. This is basically a
@@ -75,7 +75,7 @@ public class ConfigurationFile {
 	 * @throws IOException If one or more IO errors occur.
 	 */
 	public ConfigurationFile(final ByteBuffer fileBuffer) throws IOException {
-		try (final ByteBufferInputStream fileStream = new ByteBufferInputStream(fileBuffer);
+		try (final ByteArrayInputStream fileStream = new ByteArrayInputStream(fileBuffer.array());
 				final Scanner lineScanner = new Scanner(new InputStreamReader(fileStream, FILE_ENCODING))) {
 			while (lineScanner.hasNextLine()) {
 				final String line = lineScanner.nextLine().trim();

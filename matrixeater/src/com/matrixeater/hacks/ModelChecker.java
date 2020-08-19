@@ -29,7 +29,7 @@ public class ModelChecker {
 			if (lowerPath.endsWith(".mdx") || lowerPath.endsWith(".mdl")) {
 				boolean usesSecondLayer = false;
 				try {
-					final EditableModel model = MdxUtils.loadEditableModel(file);
+					final EditableModel model = MdxUtils.loadEditable(file);
 					for (final Geoset geoset : model.getGeosets()) {
 						if (geoset.getUVLayers().size() >= 2) {
 							usesSecondLayer = true;

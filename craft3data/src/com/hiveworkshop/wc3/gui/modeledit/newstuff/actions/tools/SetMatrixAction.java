@@ -2,11 +2,10 @@ package com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import com.etheller.collections.HashMap;
-import com.etheller.collections.Map;
-import com.etheller.collections.MapView;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
@@ -29,36 +28,36 @@ public final class SetMatrixAction implements UndoAction {
 		this.newBoneReferences = newBoneReferences;
 		vertexToNewSkinBoneReferences = new HashMap<>();
 		vertexToNewSkinBoneWeightReferences = new HashMap<>();
-		for (final MapView.Entry<GeosetVertex, Bone[]> entry : vertexToOldSkinBoneReferences) {
+		for (final Map.Entry<GeosetVertex, Bone[]> entry : vertexToOldSkinBoneReferences.entrySet()) {
 			vertexToNewSkinBoneReferences.put(entry.getKey(), entry.getKey().getSkinBones().clone());
 		}
-		for (final MapView.Entry<GeosetVertex, short[]> entry : vertexToOldSkinBoneWeightReferences) {
+		for (final Map.Entry<GeosetVertex, short[]> entry : vertexToOldSkinBoneWeightReferences.entrySet()) {
 			vertexToNewSkinBoneWeightReferences.put(entry.getKey(), entry.getKey().getSkinBoneWeights().clone());
 		}
 	}
 
 	@Override
 	public void undo() {
-		for (final MapView.Entry<GeosetVertex, List<Bone>> entry : vertexToOldBoneReferences) {
+		for (final Map.Entry<GeosetVertex, List<Bone>> entry : vertexToOldBoneReferences.entrySet()) {
 			entry.getKey().setBones(new ArrayList<>(entry.getValue()));
 		}
-		for (final MapView.Entry<GeosetVertex, Bone[]> entry : vertexToOldSkinBoneReferences) {
+		for (final Map.Entry<GeosetVertex, Bone[]> entry : vertexToOldSkinBoneReferences.entrySet()) {
 			entry.getKey().setSkinBones(entry.getValue());
 		}
-		for (final MapView.Entry<GeosetVertex, short[]> entry : vertexToOldSkinBoneWeightReferences) {
+		for (final Map.Entry<GeosetVertex, short[]> entry : vertexToOldSkinBoneWeightReferences.entrySet()) {
 			entry.getKey().setSkinBoneWeights(entry.getValue());
 		}
 	}
 
 	@Override
 	public void redo() {
-		for (final MapView.Entry<GeosetVertex, List<Bone>> entry : vertexToOldBoneReferences) {
+		for (final Map.Entry<GeosetVertex, List<Bone>> entry : vertexToOldBoneReferences.entrySet()) {
 			entry.getKey().setBones(new ArrayList<>(newBoneReferences));
 		}
-		for (final MapView.Entry<GeosetVertex, Bone[]> entry : vertexToNewSkinBoneReferences) {
+		for (final Map.Entry<GeosetVertex, Bone[]> entry : vertexToNewSkinBoneReferences.entrySet()) {
 			entry.getKey().setSkinBones(entry.getValue());
 		}
-		for (final MapView.Entry<GeosetVertex, short[]> entry : vertexToNewSkinBoneWeightReferences) {
+		for (final Map.Entry<GeosetVertex, short[]> entry : vertexToNewSkinBoneWeightReferences.entrySet()) {
 			entry.getKey().setSkinBoneWeights(entry.getValue());
 		}
 	}

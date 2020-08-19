@@ -1,11 +1,11 @@
 package com.hiveworkshop.wc3.mdl;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
-import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 
 /**
@@ -36,9 +36,9 @@ SoundEmitter {
  * https://www.hiveworkshop.com/threads/mdx-secrets-discussion.238635/page-3
  */
 public class SoundEmitter extends IdObject {
-	private static final ArrayList<String> EMPTY = new ArrayList<>();
-	ArrayList<AnimFlag> animFlags = new ArrayList<>();
-	ArrayList<SoundFile> soundFiles;
+	private static final List<String> EMPTY = new ArrayList<>();
+	List<AnimFlag> animFlags = new ArrayList<>();
+	List<SoundFile> soundFiles;
 
 	private SoundEmitter() {
 
@@ -100,7 +100,7 @@ public class SoundEmitter extends IdObject {
 	// 	// -- uses objectId value of idObject superclass
 	// 	// -- uses parentId value of idObject superclass
 	// 	// -- uses the parent (java Object reference) of idObject superclass
-	// 	final ArrayList<AnimFlag> pAnimFlags = new ArrayList<>(this.animFlags);
+	// 	final List<AnimFlag> pAnimFlags = new ArrayList<>(this.animFlags);
 	// 	writer.println(MDLReader.getClassName(this.getClass()) + " \"" + getName() + "\" {");
 	// 	if (objectId != -1) {
 	// 		writer.println("\tObjectId " + objectId + ",");

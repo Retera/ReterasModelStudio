@@ -1,14 +1,15 @@
 package com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor;
 
-import com.etheller.collections.ListView;
+import java.util.List;
+
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 
 public final class CompoundRotateAction implements GenericRotateAction {
-	private final ListView<? extends GenericRotateAction> actions;
+	private final List<? extends GenericRotateAction> actions;
 	private final String name;
 
-	public CompoundRotateAction(final String name, final ListView<? extends GenericRotateAction> actions) {
+	public CompoundRotateAction(final String name, final List<? extends GenericRotateAction> actions) {
 		this.name = name;
 		this.actions = actions;
 	}

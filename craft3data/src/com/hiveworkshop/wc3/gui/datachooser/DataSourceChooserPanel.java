@@ -10,6 +10,7 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -57,7 +58,6 @@ import javax.swing.tree.TreeSelectionModel;
 
 import com.hiveworkshop.blizzard.casc.io.WarcraftIIICASC;
 import com.hiveworkshop.blizzard.casc.io.WarcraftIIICASC.FileSystem;
-import com.hiveworkshop.nio.ByteBufferInputStream;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.user.WindowsRegistry;
 import com.jtattoo.plaf.acryl.AcrylLookAndFeel;
@@ -687,7 +687,7 @@ public class DataSourceChooserPanel extends JPanel {
 						final ByteBuffer buffer = rootFileSystem.readFileData("index");
 						final Set<String> categories = new HashSet<>();
 						try (BufferedReader reader = new BufferedReader(
-								new InputStreamReader(new ByteBufferInputStream(buffer)))) {
+								new InputStreamReader(new ByteArrayInputStream(buffer.array())))) {
 							String line;
 							while ((line = reader.readLine()) != null) {
 								final String[] splitLine = line.split("\\|");
@@ -783,7 +783,7 @@ public class DataSourceChooserPanel extends JPanel {
 					System.out.println("Detected Patch 1.30");
 					// We used to have this, maybe some people still do?
 					final String[] prefixes = { "war3.mpq", "deprecated.mpq", lowerLocale + "-war3local.mpq" };
-					defaultPrefixes = new ArrayList<>(Arrays.asList(prefixes));
+					defaultPrefixes = Arrays.asList(prefixes);
 					break;
 				}
 				case PATCH131: {
@@ -791,7 +791,7 @@ public class DataSourceChooserPanel extends JPanel {
 					// This is what I have right now
 					final String[] prefixes = { "war3.w3mod", "war3.w3mod\\_deprecated.w3mod",
 							"war3.w3mod\\_locales\\" + lowerLocale + ".w3mod" };
-					defaultPrefixes = new ArrayList<>(Arrays.asList(prefixes));
+					defaultPrefixes = Arrays.asList(prefixes);
 					break;
 				}
 				case PATCH132: {
@@ -800,7 +800,7 @@ public class DataSourceChooserPanel extends JPanel {
 					final String[] prefixes = { "war3.w3mod", "war3.w3mod\\_deprecated.w3mod",
 							"war3.w3mod\\_locales\\" + lowerLocale + ".w3mod", "war3.w3mod\\_hd.w3mod",
 							"war3.w3mod\\_hd.w3mod\\_locales\\" + lowerLocale + ".w3mod" };
-					defaultPrefixes = new ArrayList<>(Arrays.asList(prefixes));
+					defaultPrefixes = Arrays.asList(prefixes);
 					break;
 				}
 				default:
@@ -811,7 +811,7 @@ public class DataSourceChooserPanel extends JPanel {
 					JOptionPane.showMessageDialog(DataSourceChooserPanel.this,
 							"The Warcraft III Installation you have selected seems to be too new, or is not a supported version. The suggested prefix list from Patch 1.31 will be used.\nThis will probably fail, and you will need more advanced configuration.",
 							"Error", JOptionPane.ERROR_MESSAGE);
-					defaultPrefixes = new ArrayList<>(Arrays.asList(prefixes));
+					defaultPrefixes = Arrays.asList(prefixes);
 					break;
 				}
 				for (final String prefix : defaultPrefixes) {

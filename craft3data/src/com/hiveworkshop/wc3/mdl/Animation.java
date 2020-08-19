@@ -1,7 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.io.BufferedReader;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,14 +16,10 @@ public class Animation implements BasicTimeBoundProvider {
 	private String name = "";
 	private int intervalStart = 0;
 	private int intervalEnd = -1;
-	private ArrayList<String> tags = new ArrayList<String>();// These are strings tags, i.e.
+	private List<String> tags = new ArrayList<String>();// These are strings tags, i.e.
 	// "MoveSpeed X," "Rarity X,"
 	// "NonLooping," etc.
 	private ExtLog extents;
-
-	private Animation() {
-
-	}
 
 	public boolean equalsAnim(final Animation other) {
 		return other.name.equals(this.name) && (other.intervalStart == intervalStart)
@@ -161,7 +155,7 @@ public class Animation implements BasicTimeBoundProvider {
 		return tags;
 	}
 
-	public void setTags(final ArrayList<String> tags) {
+	public void setTags(final List<String> tags) {
 		this.tags = tags;
 	}
 
@@ -296,7 +290,7 @@ public class Animation implements BasicTimeBoundProvider {
 
 	public void setInterval(final int start, final int end, final EditableModel mdlr) {
 		final List<AnimFlag> aniFlags = mdlr.getAllAnimFlags();
-		final ArrayList eventObjs = mdlr.sortedIdObjects(EventObject.class);
+		final List<EventObject> eventObjs = mdlr.sortedIdObjects(EventObject.class);
 		setInterval(start, end, aniFlags, eventObjs);
 	}
 

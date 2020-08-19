@@ -26,7 +26,7 @@ public class GetMeDatas5 {
 			final InputStream footman = MpqCodebase.get()
 					.getResourceAsStream("Units\\Human\\TheCaptain\\TheCaptain.mdx");
 			try {
-				final EditableModel model = new EditableModel(MdxUtils.loadModel(footman));
+				final EditableModel model = new EditableModel(MdxUtils.loadMdlx(footman));
 
 				final Helper rootRotation = new Helper("Bone_Rotation");
 				rootRotation.setPivotPoint(new Vertex(0, 0, 0));
@@ -46,7 +46,7 @@ public class GetMeDatas5 {
 
 				model.add(rootRotation);
 
-				MdxUtils.saveEditableModel(model, new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\CaptainOutput" + ang + ".mdx"));
+				MdxUtils.saveMdx(model, new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\CaptainOutput" + ang + ".mdx"));
 			} catch (final IOException e) {
 				e.printStackTrace();
 			}

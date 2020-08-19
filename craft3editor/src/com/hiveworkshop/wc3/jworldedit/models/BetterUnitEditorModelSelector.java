@@ -104,7 +104,7 @@ public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSel
 				filepath = filepath.concat(".mdx");
 			}
 			try (InputStream reader = MpqCodebase.get().getResourceAsStream(filepath)) {
-				mdl = new EditableModel(MdxUtils.loadModel(reader));
+				mdl = new EditableModel(MdxUtils.loadMdlx(reader));
 				modelDisp = new ModelViewManager(mdl);
 				modelPanel.setViewport(modelDisp);
 				modelPanel.setTitle(currentUnit.getName());

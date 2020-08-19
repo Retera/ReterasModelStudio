@@ -2,13 +2,8 @@ package com.hiveworkshop.wc3.mdl;
 
 import java.util.ArrayList;
 
-import javax.swing.JOptionPane;
-
 import com.etheller.warsmash.parsers.mdlx.MdlxLight;
-
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
-import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
-
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 
 /**

@@ -13,7 +13,7 @@ public class VirtualFileSystem {
 
 	private static final ByteBuffer IDENTIFIER = ByteBuffer.wrap(new byte[] { 'T', 'V', 'F', 'S' });
 
-	// private final ArrayList<Node> root;
+	// private final List<Node> root;
 
 	public VirtualFileSystem(final ByteBuffer fileBuffer) throws IOException {
 		final ByteBuffer localBuffer = fileBuffer.slice();

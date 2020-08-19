@@ -72,8 +72,8 @@ public class Build implements BuilderInterface {
 	private int currentSmoothingGroupNumber = NO_SMOOTHING_GROUP;
 	private ArrayList<Face> currentSmoothingGroup = null;
 	public HashMap<String, ArrayList<Face>> groups = new HashMap<>();
-	private final ArrayList<String> currentGroups = new ArrayList<>();
-	private final ArrayList<ArrayList<Face>> currentGroupFaceLists = new ArrayList<>();
+	private final List<String> currentGroups = new ArrayList<>();
+	private final List<ArrayList<Face>> currentGroupFaceLists = new ArrayList<>();
 	public String objectName = null;
 	private Material currentMaterial = null;
 	private Material currentMap = null;
@@ -751,7 +751,7 @@ public class Build implements BuilderInterface {
 				// final Map<VertexKey,GeosetVertex> builderVertexToMdlVertex =
 				// new HashMap<VertexKey,GeosetVertex>();
 				// Map
-				final ArrayList<Face> faceList = entry.getValue();
+				final List<Face> faceList = entry.getValue();
 				if (faceList.size() >= 10000) {
 					loadbar.show();
 				}
@@ -918,7 +918,7 @@ public class Build implements BuilderInterface {
 					loadbar.setPercent(0);
 					loadbar.setText("Saving file...");
 				}
-				MdxUtils.saveEditableModel(mdl, mdl.getFile());
+				MdxUtils.saveMdx(mdl, mdl.getFile());
 			}
 			return mdl;
 		} catch (final IOException e) {
@@ -931,7 +931,7 @@ public class Build implements BuilderInterface {
 	}
 
 	private void convertMesh(final EditableModel mdl, final Set<Face> processedFaces, final String groupName,
-			final Map<Material, Subgroup> materialToSubgroup, final ArrayList<Face> faceList) {
+			final Map<Material, Subgroup> materialToSubgroup, final List<Face> faceList) {
 		if (loadbar.isVisible()) {
 			loadbar.setText("Converting " + groupName + " ...");
 		}
@@ -1001,7 +1001,7 @@ public class Build implements BuilderInterface {
 			// }
 
 			for (final VertexKey key : vertexKeys) {
-				final ArrayList<TVertex> tverts = new ArrayList<>();
+				final List<TVertex> tverts = new ArrayList<>();
 				final TVertex createdTVertex = key.createTVertex();
 
 				if (createdTVertex.getX() > 1.0 || createdTVertex.getX() < 0 || createdTVertex.getY() > 1.0

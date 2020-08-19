@@ -1,11 +1,10 @@
 package com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor;
 
-import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.wc3.mdl.Vertex;
 
-public final class StaticMeshMoveAction implements UndoAction, GenericMoveAction {
+public final class StaticMeshMoveAction implements GenericMoveAction {
 	private final ModelEditor modelEditor;
 	private final Vertex moveVector;
 

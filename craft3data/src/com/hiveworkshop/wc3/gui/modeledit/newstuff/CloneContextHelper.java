@@ -41,11 +41,11 @@ public class CloneContextHelper {
 	public AdvancedCloneAction cloneSelectedComponents(final ClonedNodeNamePicker clonedNodeNamePicker) {
 		final List<Vertex> sourceNonPivots = new ArrayList<>(stuffSelectionManager.getSelectedVertices());
 		final List<Vertex> sourcePivots = new ArrayList<>(pivotPointSelectionManager.getSelectedVertices());
-		final ArrayList<Triangle> selTris = new ArrayList<>();
-		final ArrayList<IdObject> selBones = new ArrayList<>();
-		final ArrayList<IdObject> newBones = new ArrayList<>();
-		final ArrayList<GeosetVertex> newVertices = new ArrayList<>();
-		final ArrayList<Triangle> newTriangles = new ArrayList<>();
+		final List<Triangle> selTris = new ArrayList<>();
+		final List<IdObject> selBones = new ArrayList<>();
+		final List<IdObject> newBones = new ArrayList<>();
+		final List<GeosetVertex> newVertices = new ArrayList<>();
+		final List<Triangle> newTriangles = new ArrayList<>();
 		for (int i = 0; i < sourceNonPivots.size(); i++) {
 			final Vertex vert = sourceNonPivots.get(i);
 			if (vert.getClass() == GeosetVertex.class) {
@@ -75,7 +75,7 @@ public class CloneContextHelper {
 			final Vertex vert = sourceNonPivots.get(k);
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
-				final ArrayList<Triangle> gvTriangles = new ArrayList<>();// gv.getTriangles());
+				final List<Triangle> gvTriangles = new ArrayList<>();// gv.getTriangles());
 				for (final Triangle tri : gv.getGeoset().getTriangles()) {
 					if (tri.contains(gv)) {
 						boolean good = true;

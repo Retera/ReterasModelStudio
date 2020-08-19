@@ -1,44 +1,31 @@
 package com.etheller.warsmash.parsers.mdlx;
 
-import java.io.IOException;
-
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
-import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataOutputStream;
 import com.hiveworkshop.util.BinaryReader;
+import com.hiveworkshop.util.BinaryWriter;
 
 public class MdlxTexture implements MdlxBlock {
 	public int replaceableId = 0;
 	public String path = "";
 	public int flags = 0;
 
-	/**
-	 * Restricts us to only be able to parse models on one thread at a time, in
-	 * return for high performance.
-	 */
-	private static final byte[] PATH_BYTES_HEAP = new byte[260];
-
-	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+	public void readMdx(final BinaryReader reader, final int version) {
 		this.replaceableId = reader.readInt32();
 		this.path = reader.read(260);
 		this.flags = reader.readInt32();
 	}
 
 	@Override
-	public void writeMdx(final LittleEndianDataOutputStream stream, final int version) throws IOException {
-		ParseUtils.writeUInt32(stream, this.replaceableId);
-		final byte[] bytes = this.path.getBytes(ParseUtils.UTF8);
-		stream.write(bytes);
-		for (int i = 0; i < (PATH_BYTES_HEAP.length - bytes.length); i++) {
-			stream.write((byte) 0);
-		}
-		ParseUtils.writeUInt32(stream, this.flags);
+	public void writeMdx(final BinaryWriter writer, final int version) {
+		writer.writeInt32(this.replaceableId);
+		writer.writeWithNulls(path, 260);
+		writer.writeInt32(this.flags);
 	}
 
 	@Override
-	public void readMdl(final MdlTokenInputStream stream, final int version) throws IOException {
+	public void readMdl(final MdlTokenInputStream stream, final int version) {
 		for (final String token : stream.readBlock()) {
 			switch (token) {
 			case MdlUtils.TOKEN_IMAGE:
@@ -54,13 +41,13 @@ public class MdlxTexture implements MdlxBlock {
 				this.flags |= 0x2;
 				break;
 			default:
-				throw new IllegalStateException("Unknown token in Texture: " + token);
+				throw new RuntimeException("Unknown token in Texture: " + token);
 			}
 		}
 	}
 
 	@Override
-	public void writeMdl(final MdlTokenOutputStream stream, final int version) throws IOException {
+	public void writeMdl(final MdlTokenOutputStream stream, final int version) {
 		stream.startBlock(MdlUtils.TOKEN_BITMAP);
 		stream.writeStringAttrib(MdlUtils.TOKEN_IMAGE, this.path);
 

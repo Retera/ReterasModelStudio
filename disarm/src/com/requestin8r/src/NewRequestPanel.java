@@ -115,7 +115,7 @@ public class NewRequestPanel extends JPanel implements ActionListener {
 				} else if (!filepath.endsWith(".mdx")) {
 					filepath = filepath.concat(".mdx");
 				}
-				toLoad = MdxUtils.loadEditableModel(MpqCodebase.get().getFile(filepath));
+				toLoad = MdxUtils.loadEditable(MpqCodebase.get().getFile(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -155,7 +155,7 @@ public class NewRequestPanel extends JPanel implements ActionListener {
 				} else if (!filepath.endsWith(".mdx")) {
 					filepath = filepath.concat(".mdx");
 				}
-				toLoad = MdxUtils.loadEditableModel(MpqCodebase.get().getFile(filepath));
+				toLoad = MdxUtils.loadEditable(MpqCodebase.get().getFile(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
@@ -191,7 +191,7 @@ public class NewRequestPanel extends JPanel implements ActionListener {
 			EditableModel toLoad;
 			ModelViewManager modelDisp = null;
 			try {
-				toLoad = MdxUtils.loadEditableModel(new File(filepath));
+				toLoad = MdxUtils.loadEditable(new File(filepath));
 				modelDisp = new ModelViewManager(toLoad);
 			} catch (final Exception exc) {
 				exc.printStackTrace();

@@ -1,13 +1,10 @@
 package com.etheller.warsmash.parsers.mdlx;
 
-import java.io.IOException;
-
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
-import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataOutputStream;
 import com.hiveworkshop.util.BinaryReader;
+import com.hiveworkshop.util.BinaryWriter;
 
 public class MdlxCollisionShape extends MdlxGenericObject {
 	public static enum Type {
@@ -45,7 +42,7 @@ public class MdlxCollisionShape extends MdlxGenericObject {
 		super(0x2000);
 	}
 
-	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+	public void readMdx(final BinaryReader reader, final int version) {
 		super.readMdx(reader, version);
 
 		this.type = MdlxCollisionShape.Type.from(reader.readInt32());
@@ -61,16 +58,18 @@ public class MdlxCollisionShape extends MdlxGenericObject {
 	}
 
 	@Override
-	public void writeMdx(final LittleEndianDataOutputStream stream, final int version) throws IOException {
-		super.writeMdx(stream, version);
+	public void writeMdx(final BinaryWriter writer, final int version) {
+		super.writeMdx(writer, version);
 
-		ParseUtils.writeUInt32(stream, this.type == null ? -1 : this.type.ordinal());
-		ParseUtils.writeFloatArray(stream, this.vertices[0]);
+		writer.writeInt32(this.type.ordinal());
+		writer.writeFloat32Array(this.vertices[0]);
+
 		if (this.type != MdlxCollisionShape.Type.SPHERE) {
-			ParseUtils.writeFloatArray(stream, this.vertices[1]);
+			writer.writeFloat32Array(this.vertices[1]);
 		}
+
 		if ((this.type == Type.SPHERE) || (this.type == Type.CYLINDER)) {
-			stream.writeFloat(this.boundsRadius);
+			writer.writeFloat32(this.boundsRadius);
 		}
 	}
 
@@ -111,7 +110,7 @@ public class MdlxCollisionShape extends MdlxGenericObject {
 	}
 
 	@Override
-	public void writeMdl(final MdlTokenOutputStream stream, final int version) throws IOException {
+	public void writeMdl(final MdlTokenOutputStream stream, final int version) {
 		stream.startObjectBlock(MdlUtils.TOKEN_COLLISION_SHAPE, this.name);
 		writeGenericHeader(stream);
 		String type;

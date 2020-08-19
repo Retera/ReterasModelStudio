@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.etheller.warsmash.parsers.mdlx.MdlxAnimatedObject;
-import com.etheller.warsmash.parsers.mdlx.timeline.Timeline;
+import com.etheller.warsmash.parsers.mdlx.timeline.MdlxTimeline;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 
 public abstract class TimelineContainer implements VisibilitySource {
@@ -12,7 +12,7 @@ public abstract class TimelineContainer implements VisibilitySource {
 	protected List<String> flags = new ArrayList<>();
 
 	public void loadTimelines(final MdlxAnimatedObject object) {
-		for (final Timeline<?> timeline : object.timelines) {
+		for (final MdlxTimeline<?> timeline : object.timelines) {
 			add(new AnimFlag(timeline));
 		}
 	}
@@ -39,15 +39,37 @@ public abstract class TimelineContainer implements VisibilitySource {
 		return animFlags;
 	}
 
-	public void setAnimFlags(final ArrayList<AnimFlag> timelines) {
+	public void setAnimFlags(final List<AnimFlag> timelines) {
 		this.animFlags = timelines;
 	}
 
+	public AnimFlag find(final String name, final Integer globalSeq) {
+		// TODO make flags be a map and remove this method, this is 2018
+		// not 2012 anymore, and I learned basic software dev
+		for (final AnimFlag timeline : animFlags) {
+			if (timeline.getName().equals(name) && (((globalSeq == null) && (timeline.globalSeq == null))
+					|| ((globalSeq != null) && globalSeq.equals(timeline.globalSeq)))) {
+				return timeline;
+			}
+		}
+		return null;
+	}
+
+	public AnimFlag find(final String name) {
+		// TODO make flags be a map and remove this method, this is 2018
+		// not 2012 anymore, and I learned basic software dev
+		for (final AnimFlag timeline : animFlags) {
+			if (timeline.getName().equals(name)) {
+				return timeline;
+			}
+		}
+		return null;
+	}
+
 	public int getInterpolatedInteger(final AnimatedRenderEnvironment animatedRenderEnvironment, final String tag, final int defaultValue) {
-		final AnimFlag timeline = AnimFlag.find(animFlags, tag);
+		final AnimFlag timeline = find(tag);
 
 		if (timeline != null) {
-			//return (int)timeline.interpolateAt(animatedRenderEnvironment);
 			return ((Integer)timeline.interpolateAt(animatedRenderEnvironment)).intValue();
 		}
 		
@@ -55,7 +77,7 @@ public abstract class TimelineContainer implements VisibilitySource {
 	}
 
 	public float getInterpolatedFloat(final AnimatedRenderEnvironment animatedRenderEnvironment, final String tag, final float defaultValue) {
-		final AnimFlag timeline = AnimFlag.find(animFlags, tag);
+		final AnimFlag timeline = find(tag);
 
 		if (timeline != null) {
 			return ((Double)timeline.interpolateAt(animatedRenderEnvironment)).floatValue();
@@ -65,7 +87,7 @@ public abstract class TimelineContainer implements VisibilitySource {
 	}
 
 	public Vertex getInterpolatedVector(final AnimatedRenderEnvironment animatedRenderEnvironment, final String tag, final Vertex defaultValue) {
-		final AnimFlag timeline = AnimFlag.find(animFlags, tag);
+		final AnimFlag timeline = find(tag);
 
 		if (timeline != null) {
 			return (Vertex)timeline.interpolateAt(animatedRenderEnvironment);
@@ -75,7 +97,7 @@ public abstract class TimelineContainer implements VisibilitySource {
 	}
 
 	public QuaternionRotation getInterpolatedQuat(final AnimatedRenderEnvironment animatedRenderEnvironment, final String tag, final QuaternionRotation defaultValue) {
-		final AnimFlag timeline = AnimFlag.find(animFlags, tag);
+		final AnimFlag timeline = find(tag);
 
 		if (timeline != null) {
 			return (QuaternionRotation)timeline.interpolateAt(animatedRenderEnvironment);
@@ -141,7 +163,7 @@ public abstract class TimelineContainer implements VisibilitySource {
 		return flags;
 	}
 
-	public void setFlags(final ArrayList<String> newFlags) {
+	public void setFlags(final List<String> newFlags) {
 		flags = newFlags;
 	}
 }

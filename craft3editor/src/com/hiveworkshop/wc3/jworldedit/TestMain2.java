@@ -45,9 +45,9 @@ public class TestMain2 {
 				System.out.println(file.getPath());
 				// it's a model
 				try {
-					final EditableModel model = MdxUtils.loadEditableModel(file);
+					final EditableModel model = MdxUtils.loadEditable(file);
 					destFile.getParentFile().mkdirs();
-					MdxUtils.saveEditableModel(model, destFile);
+					MdxUtils.saveMdx(model, destFile);
 				} catch (final Exception e) {
 					e.printStackTrace();
 				}

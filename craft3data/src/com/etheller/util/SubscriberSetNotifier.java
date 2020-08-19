@@ -1,7 +1,7 @@
 package com.etheller.util;
 
-import com.etheller.collections.HashSet;
-import com.etheller.collections.Set;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class SubscriberSetNotifier<LISTENER_TYPE> {
 	protected final Set<LISTENER_TYPE> set; // bad for iteration but there

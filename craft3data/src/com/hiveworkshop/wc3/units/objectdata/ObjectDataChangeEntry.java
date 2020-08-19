@@ -1,7 +1,7 @@
 package com.hiveworkshop.wc3.units.objectdata;
 
-import com.etheller.collections.List;
-import com.etheller.collections.MapView;
+import java.util.List;
+import java.util.Map;
 
 public final class ObjectDataChangeEntry {
 	private War3ID oldId;
@@ -17,7 +17,7 @@ public final class ObjectDataChangeEntry {
 	@Override
 	public ObjectDataChangeEntry clone() {
 		final ObjectDataChangeEntry objectDataChangeEntry = new ObjectDataChangeEntry(oldId, newId);
-		for (final MapView.Entry<War3ID, List<Change>> entry : changes) {
+		for (final Map.Entry<War3ID, List<Change>> entry : changes) {
 			objectDataChangeEntry.getChanges().add(entry.getKey(), entry.getValue());
 		}
 		return objectDataChangeEntry;

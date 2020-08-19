@@ -17,7 +17,7 @@ public class MakeVersionsFilterMode {
 				"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\ReteraCubes\\Work\\ReteraCube.mdx");
 		final FilterMode[] values = FilterMode.values();
 		for (final FilterMode filterMode : values) {
-			final EditableModel model = MdxUtils.loadEditableModel(sourceFile);
+			final EditableModel model = MdxUtils.loadEditable(sourceFile);
 			final Geoset geoset = model.getGeoset(0);
 			for (final GeosetVertex gv : geoset.getVertices()) {
 				double u = 0, v = 0;
@@ -40,7 +40,7 @@ public class MakeVersionsFilterMode {
 			}
 			model.getMaterial(0).getLayers().get(0).setFilterMode(filterMode);
 			model.getTexture(0).setPath("Textures\\Doodads0.blp");
-			MdxUtils.saveEditableModel(model, new File(
+			MdxUtils.saveMdx(model, new File(
 					"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\ReteraCubes\\Work\\ReteraCube_"
 							+ filterMode.getMdlText() + ".mdx"));
 		}

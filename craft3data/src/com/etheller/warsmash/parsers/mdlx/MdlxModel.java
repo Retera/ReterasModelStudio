@@ -1,11 +1,5 @@
 package com.etheller.warsmash.parsers.mdlx;
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,9 +7,8 @@ import java.util.List;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
-import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataOutputStream;
 import com.hiveworkshop.util.BinaryReader;
+import com.hiveworkshop.util.BinaryWriter;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
 
 /**
@@ -102,11 +95,11 @@ public class MdlxModel {
 
 	}
 
-	public MdlxModel(final ByteBuffer buffer) throws IOException {
+	public MdlxModel(final ByteBuffer buffer) {
 		load(buffer);
 	}
 
-	public void load(final ByteBuffer buffer) throws IOException {
+	public void load(final ByteBuffer buffer) {
 		// MDX files start with "MDLX".
 		if (buffer.get(0) == 77 && buffer.get(1) == 68 && buffer.get(2) == 76 && buffer.get(3) == 88) {
 			loadMdx(buffer);
@@ -115,7 +108,7 @@ public class MdlxModel {
 		}
 	}
 
-	private void loadMdx(final ByteBuffer buffer) throws IOException {
+	public void loadMdx(final ByteBuffer buffer) {
 		final BinaryReader reader = new BinaryReader(buffer);
 
 		if (reader.readTag() != MDLX) {
@@ -202,11 +195,11 @@ public class MdlxModel {
 		}
 	}
 
-	private void loadVersionChunk(final BinaryReader reader) throws IOException {
+	private void loadVersionChunk(final BinaryReader reader) {
 		this.version = reader.readInt32();
 	}
 
-	private void loadModelChunk(final BinaryReader reader) throws IOException {
+	private void loadModelChunk(final BinaryReader reader) {
 		this.name = reader.read(80);
 		this.animationFile = reader.read(260);
 		this.extent.readMdx(reader);
@@ -214,7 +207,7 @@ public class MdlxModel {
 	}
 
 	private <E extends MdlxBlock> void loadStaticObjects(final List<E> out, final MdlxBlockDescriptor<E> constructor,
-			final BinaryReader reader, final long count) throws IOException {
+			final BinaryReader reader, final long count) {
 		for (int i = 0; i < count; i++) {
 			final E object = constructor.create();
 
@@ -224,15 +217,14 @@ public class MdlxModel {
 		}
 	}
 
-	private void loadGlobalSequenceChunk(final BinaryReader reader, final long size) throws IOException {
+	private void loadGlobalSequenceChunk(final BinaryReader reader, final long size) {
 		for (long i = 0, l = size / 4; i < l; i++) {
 			this.globalSequences.add(reader.readUInt32());
 		}
 	}
 
 	private <E extends MdlxBlock & MdlxChunk> void loadDynamicObjects(final List<E> out,
-			final MdlxBlockDescriptor<E> constructor, final BinaryReader reader, final long size)
-			throws IOException {
+			final MdlxBlockDescriptor<E> constructor, final BinaryReader reader, final long size) {
 		long totalSize = 0;
 		while (totalSize < size) {
 			final E object = constructor.create();
@@ -245,141 +237,136 @@ public class MdlxModel {
 		}
 	}
 
-	private void loadPivotPointChunk(final BinaryReader reader, final long size) throws IOException {
+	private void loadPivotPointChunk(final BinaryReader reader, final long size) {
 		for (long i = 0, l = size / 12; i < l; i++) {
 			this.pivotPoints.add(reader.readFloat32Array(3));
 		}
 	}
 
-	private void loadBindPoseChunk(final BinaryReader reader, final long size) throws IOException {
+	private void loadBindPoseChunk(final BinaryReader reader, final long size) {
 		for (int i = 0, l = reader.readInt32(); i < l; i++) {
 			bindPose.add(reader.readFloat32Array(12));
 		}
 	}
 
-	public void saveMdx(final OutputStream outputStream) throws IOException {
-		final LittleEndianDataOutputStream stream = new LittleEndianDataOutputStream(outputStream);
-		stream.writeInt(Integer.reverseBytes(MDLX));
-		this.saveVersionChunk(stream);
-		this.saveModelChunk(stream);
-		this.saveStaticObjectChunk(stream, SEQS, this.sequences, 132);
-		this.saveGlobalSequenceChunk(stream);
-		this.saveDynamicObjectChunk(stream, MTLS, this.materials);
-		this.saveStaticObjectChunk(stream, TEXS, this.textures, 268);
-		this.saveDynamicObjectChunk(stream, TXAN, this.textureAnimations);
-		this.saveDynamicObjectChunk(stream, GEOS, this.geosets);
-		this.saveDynamicObjectChunk(stream, GEOA, this.geosetAnimations);
-		this.saveDynamicObjectChunk(stream, BONE, this.bones);
-		this.saveDynamicObjectChunk(stream, LITE, this.lights);
-		this.saveDynamicObjectChunk(stream, HELP, this.helpers);
-		this.saveDynamicObjectChunk(stream, ATCH, this.attachments);
-		this.savePivotPointChunk(stream);
-		this.saveDynamicObjectChunk(stream, PREM, this.particleEmitters);
-		this.saveDynamicObjectChunk(stream, PRE2, this.particleEmitters2);
+	public ByteBuffer saveMdx() {
+		final BinaryWriter writer = new BinaryWriter(getByteLength());
+
+		writer.writeTag(MDLX);
+		this.saveVersionChunk(writer);
+		this.saveModelChunk(writer);
+		this.saveStaticObjectChunk(writer, SEQS, this.sequences, 132);
+		this.saveGlobalSequenceChunk(writer);
+		this.saveDynamicObjectChunk(writer, MTLS, this.materials);
+		this.saveStaticObjectChunk(writer, TEXS, this.textures, 268);
+		this.saveDynamicObjectChunk(writer, TXAN, this.textureAnimations);
+		this.saveDynamicObjectChunk(writer, GEOS, this.geosets);
+		this.saveDynamicObjectChunk(writer, GEOA, this.geosetAnimations);
+		this.saveDynamicObjectChunk(writer, BONE, this.bones);
+		this.saveDynamicObjectChunk(writer, LITE, this.lights);
+		this.saveDynamicObjectChunk(writer, HELP, this.helpers);
+		this.saveDynamicObjectChunk(writer, ATCH, this.attachments);
+		this.savePivotPointChunk(writer);
+		this.saveDynamicObjectChunk(writer, PREM, this.particleEmitters);
+		this.saveDynamicObjectChunk(writer, PRE2, this.particleEmitters2);
 
 		if (version > 800) {
-			this.saveDynamicObjectChunk(stream, CORN, this.particleEmittersPopcorn);
+			this.saveDynamicObjectChunk(writer, CORN, this.particleEmittersPopcorn);
 		}
 
-		this.saveDynamicObjectChunk(stream, RIBB, this.ribbonEmitters);
-		this.saveDynamicObjectChunk(stream, CAMS, this.cameras);
-		this.saveDynamicObjectChunk(stream, EVTS, this.eventObjects);
-		this.saveDynamicObjectChunk(stream, CLID, this.collisionShapes);
+		this.saveDynamicObjectChunk(writer, RIBB, this.ribbonEmitters);
+		this.saveDynamicObjectChunk(writer, CAMS, this.cameras);
+		this.saveDynamicObjectChunk(writer, EVTS, this.eventObjects);
+		this.saveDynamicObjectChunk(writer, CLID, this.collisionShapes);
 
 		if (version > 800) {
-			this.saveStaticObjectChunk(stream, FAFX, this.faceEffects, 340);
-			saveBindPoseChunk(stream);
+			this.saveStaticObjectChunk(writer, FAFX, this.faceEffects, 340);
+			saveBindPoseChunk(writer);
 		}
 
 		for (final MdlxUnknownChunk chunk : this.unknownChunks) {
-			chunk.writeMdx(stream, version);
+			chunk.writeMdx(writer, version);
 		}
+
+		return writer.buffer;
 	}
 
-	private void saveVersionChunk(final LittleEndianDataOutputStream stream) throws IOException {
-		stream.writeInt(Integer.reverseBytes(VERS));
-		ParseUtils.writeUInt32(stream, 4);
-		ParseUtils.writeUInt32(stream, this.version);
+	private void saveVersionChunk(final BinaryWriter writer) {
+		writer.writeTag(VERS);
+		writer.writeUInt32(4);
+		writer.writeUInt32(this.version);
 	}
 
-	private void saveModelChunk(final LittleEndianDataOutputStream stream) throws IOException {
-		stream.writeInt(Integer.reverseBytes(MODL));
-		ParseUtils.writeUInt32(stream, 372);
-		final byte[] bytes = this.name.getBytes(ParseUtils.UTF8);
-		stream.write(bytes);
-		for (int i = 0; i < (80 - bytes.length); i++) {
-			stream.write((byte) 0);
-		}
-		final byte[] animationFileBytes = this.animationFile.getBytes(ParseUtils.UTF8);
-		stream.write(animationFileBytes);
-		for (int i = 0; i < (260 - animationFileBytes.length); i++) {
-			stream.write((byte) 0);
-		}
-		this.extent.writeMdx(stream);
-		ParseUtils.writeUInt32(stream, this.blendTime);
+	private void saveModelChunk(final BinaryWriter writer) {
+		writer.writeTag(MODL);
+		writer.writeUInt32(372);
+		writer.writeWithNulls(name, 80);
+		writer.writeWithNulls(animationFile, 260);
+		this.extent.writeMdx(writer);
+		writer.writeUInt32(this.blendTime);
 	}
 
-	private <E extends MdlxBlock> void saveStaticObjectChunk(final LittleEndianDataOutputStream stream, final int name,
-			final List<E> objects, final long size) throws IOException {
+	private <E extends MdlxBlock> void saveStaticObjectChunk(final BinaryWriter writer, final int name,
+			final List<E> objects, final long size) {
 		if (!objects.isEmpty()) {
-			stream.writeInt(Integer.reverseBytes(name));
-			ParseUtils.writeUInt32(stream, objects.size() * size);
+			writer.writeTag(name);
+			writer.writeUInt32(objects.size() * size);
 
 			for (final E object : objects) {
-				object.writeMdx(stream, version);
+				object.writeMdx(writer, version);
 			}
 		}
 	}
 
-	private void saveGlobalSequenceChunk(final LittleEndianDataOutputStream stream) throws IOException {
+	private void saveGlobalSequenceChunk(final BinaryWriter writer) {
 		if (!this.globalSequences.isEmpty()) {
-			stream.writeInt(Integer.reverseBytes(GLBS));
-			ParseUtils.writeUInt32(stream, this.globalSequences.size() * 4);
+			writer.writeTag(GLBS);
+			writer.writeUInt32(this.globalSequences.size() * 4);
 
 			for (final Long globalSequence : this.globalSequences) {
-				ParseUtils.writeUInt32(stream, globalSequence);
+				writer.writeUInt32(globalSequence);
 			}
 		}
 	}
 
-	private <E extends MdlxBlock & MdlxChunk> void saveDynamicObjectChunk(final LittleEndianDataOutputStream stream,
-			final int name, final List<E> objects) throws IOException {
+	private <E extends MdlxBlock & MdlxChunk> void saveDynamicObjectChunk(final BinaryWriter writer,
+			final int name, final List<E> objects) {
 		if (!objects.isEmpty()) {
-			stream.writeInt(Integer.reverseBytes(name));
-			ParseUtils.writeUInt32(stream, getObjectsByteLength(objects));
+			writer.writeTag(name);
+			writer.writeUInt32(getObjectsByteLength(objects));
 
 			for (final E object : objects) {
-				object.writeMdx(stream, version);
+				object.writeMdx(writer, version);
 			}
 		}
 	}
 
-	private void savePivotPointChunk(final LittleEndianDataOutputStream stream) throws IOException {
+	private void savePivotPointChunk(final BinaryWriter writer) {
 		if (this.pivotPoints.size() > 0) {
-			stream.writeInt(Integer.reverseBytes(PIVT));
-			ParseUtils.writeUInt32(stream, this.pivotPoints.size() * 12);
+			writer.writeTag(PIVT);
+			writer.writeUInt32(this.pivotPoints.size() * 12);
 
 			for (final float[] pivotPoint : this.pivotPoints) {
-				ParseUtils.writeFloatArray(stream, pivotPoint);
+				writer.writeFloat32Array(pivotPoint);
 			}
 		}
 	}
 
-	private void saveBindPoseChunk(final LittleEndianDataOutputStream stream) throws IOException {
+	private void saveBindPoseChunk(final BinaryWriter writer) {
 		if (bindPose.size() > 0) {
-			stream.writeInt(Integer.reverseBytes(BPOS));
-			ParseUtils.writeUInt32(stream, 4 + bindPose.size() * 48);
-			ParseUtils.writeUInt32(stream, bindPose.size());
+			writer.writeTag(BPOS);
+			writer.writeUInt32(4 + bindPose.size() * 48);
+			writer.writeUInt32(bindPose.size());
 
 			for (final float[] matrix : bindPose) {
-				ParseUtils.writeFloatArray(stream, matrix);
+				writer.writeFloat32Array(matrix);
 			}
 		}
 	}
 
-	private void loadMdl(final ByteBuffer inputStream) throws IOException {
+	public void loadMdl(final ByteBuffer buffer) {
 		String token;
-		final MdlTokenInputStream stream = new MdlTokenInputStream(inputStream);
+		final MdlTokenInputStream stream = new MdlTokenInputStream(buffer);
 
 		while ((token = stream.read()) != null) {
 			switch (token) {
@@ -513,8 +500,7 @@ public class MdlxModel {
 	}
 
 	private <E extends MdlxBlock> void loadNumberedObjectBlock(final List<E> out,
-			final MdlxBlockDescriptor<E> constructor, final String name, final MdlTokenInputStream stream)
-			throws IOException {
+			final MdlxBlockDescriptor<E> constructor, final String name, final MdlTokenInputStream stream) {
 		stream.read(); // Don't care about the number, the array will grow
 
 		for (final String token : stream.readBlock()) {
@@ -543,7 +529,7 @@ public class MdlxModel {
 	}
 
 	private <E extends MdlxBlock> void loadObject(final List<E> out, final MdlxBlockDescriptor<E> descriptor,
-			final MdlTokenInputStream stream) throws IOException {
+			final MdlTokenInputStream stream) {
 		final E object = descriptor.create();
 
 		object.readMdl(stream, version);
@@ -581,40 +567,41 @@ public class MdlxModel {
 		}
 	}
 
-	public void saveMdl(final OutputStream outputStream) throws IOException {
-		try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream))) {
-			final MdlTokenOutputStream stream = new MdlTokenOutputStream(writer);
-			this.saveVersionBlock(stream);
-			this.saveModelBlock(stream);
-			this.saveStaticObjectsBlock(stream, MdlUtils.TOKEN_SEQUENCES, this.sequences);
-			this.saveGlobalSequenceBlock(stream);
-			this.saveStaticObjectsBlock(stream, MdlUtils.TOKEN_TEXTURES, this.textures);
-			this.saveStaticObjectsBlock(stream, MdlUtils.TOKEN_MATERIALS, this.materials);
-			this.saveStaticObjectsBlock(stream, MdlUtils.TOKEN_TEXTURE_ANIMS, this.textureAnimations);
-			this.saveObjects(stream, this.geosets);
-			this.saveObjects(stream, this.geosetAnimations);
-			this.saveObjects(stream, this.bones);
-			this.saveObjects(stream, this.lights);
-			this.saveObjects(stream, this.helpers);
-			this.saveObjects(stream, this.attachments);
-			this.savePivotPointBlock(stream);
-			this.saveObjects(stream, this.particleEmitters);
-			this.saveObjects(stream, this.particleEmitters2);
+	public ByteBuffer saveMdl() {
+		final MdlTokenOutputStream stream = new MdlTokenOutputStream();
+		
+		this.saveVersionBlock(stream);
+		this.saveModelBlock(stream);
+		this.saveStaticObjectsBlock(stream, MdlUtils.TOKEN_SEQUENCES, this.sequences);
+		this.saveGlobalSequenceBlock(stream);
+		this.saveStaticObjectsBlock(stream, MdlUtils.TOKEN_TEXTURES, this.textures);
+		this.saveStaticObjectsBlock(stream, MdlUtils.TOKEN_MATERIALS, this.materials);
+		this.saveStaticObjectsBlock(stream, MdlUtils.TOKEN_TEXTURE_ANIMS, this.textureAnimations);
+		this.saveObjects(stream, this.geosets);
+		this.saveObjects(stream, this.geosetAnimations);
+		this.saveObjects(stream, this.bones);
+		this.saveObjects(stream, this.lights);
+		this.saveObjects(stream, this.helpers);
+		this.saveObjects(stream, this.attachments);
+		this.savePivotPointBlock(stream);
+		this.saveObjects(stream, this.particleEmitters);
+		this.saveObjects(stream, this.particleEmitters2);
 
-			if (version > 800) {
-				saveObjects(stream, particleEmittersPopcorn);
-			}
-
-			this.saveObjects(stream, this.ribbonEmitters);
-			this.saveObjects(stream, this.cameras);
-			this.saveObjects(stream, this.eventObjects);
-			this.saveObjects(stream, this.collisionShapes);
-
-			if (version > 800) {
-				this.saveObjects(stream, this.faceEffects);
-				saveBindPoseBlock(stream);
-			}
+		if (version > 800) {
+			saveObjects(stream, particleEmittersPopcorn);
 		}
+
+		this.saveObjects(stream, this.ribbonEmitters);
+		this.saveObjects(stream, this.cameras);
+		this.saveObjects(stream, this.eventObjects);
+		this.saveObjects(stream, this.collisionShapes);
+
+		if (version > 800) {
+			this.saveObjects(stream, this.faceEffects);
+			saveBindPoseBlock(stream);
+		}
+
+		return ByteBuffer.wrap(stream.buffer.toString().getBytes());
 	}
 
 	private void saveVersionBlock(final MdlTokenOutputStream stream) {
@@ -631,7 +618,7 @@ public class MdlxModel {
 	}
 
 	private void saveStaticObjectsBlock(final MdlTokenOutputStream stream, final String name,
-			final List<? extends MdlxBlock> objects) throws IOException {
+			final List<? extends MdlxBlock> objects) {
 		if (!objects.isEmpty()) {
 			stream.startBlock(name, objects.size());
 
@@ -655,8 +642,7 @@ public class MdlxModel {
 		}
 	}
 
-	private void saveObjects(final MdlTokenOutputStream stream, final List<? extends MdlxBlock> objects)
-			throws IOException {
+	private void saveObjects(final MdlTokenOutputStream stream, final List<? extends MdlxBlock> objects) {
 		for (final MdlxBlock object : objects) {
 			object.writeMdl(stream, version);
 		}
@@ -690,8 +676,8 @@ public class MdlxModel {
 		}
 	}
 
-	public long getByteLength() {
-		long size = 396;
+	public int getByteLength() {
+		int size = 396;
 
 		size += getStaticObjectsChunkByteLength(this.sequences, 132);
 		size += this.getStaticObjectsChunkByteLength(this.globalSequences, 4);

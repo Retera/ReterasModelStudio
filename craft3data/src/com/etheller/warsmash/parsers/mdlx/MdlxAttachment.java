@@ -1,13 +1,10 @@
 package com.etheller.warsmash.parsers.mdlx;
 
-import java.io.IOException;
-
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
-import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataOutputStream;
 import com.hiveworkshop.util.BinaryReader;
+import com.hiveworkshop.util.BinaryWriter;
 
 public class MdlxAttachment extends MdlxGenericObject {
 	public String path = "";
@@ -17,7 +14,8 @@ public class MdlxAttachment extends MdlxGenericObject {
 		super(0x800);
 	}
 
-	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+	@Override
+	public void readMdx(final BinaryReader reader, final int version) {
 		final int position = reader.position();
 		final long size = reader.readUInt32();
 
@@ -30,23 +28,19 @@ public class MdlxAttachment extends MdlxGenericObject {
 	}
 
 	@Override
-	public void writeMdx(final LittleEndianDataOutputStream stream, final int version) throws IOException {
-		ParseUtils.writeUInt32(stream, getByteLength(version));
+	public void writeMdx(final BinaryWriter writer, final int version) {
+		writer.writeUInt32(getByteLength(version));
 
-		super.writeMdx(stream, version);
+		super.writeMdx(writer, version);
 
-		final byte[] bytes = this.path.getBytes(ParseUtils.UTF8);
-		stream.write(bytes);
-		for (int i = 0; i < (260 - bytes.length); i++) {
-			stream.write((byte) 0);
-		}
-		stream.writeInt(this.attachmentId); // Used to be Int32 in JS
+		writer.writeWithNulls(path, 260);
+		writer.writeInt32(this.attachmentId);
 		
-		this.writeNonGenericAnimationChunks(stream);
+		this.writeNonGenericAnimationChunks(writer);
 	}
 
 	@Override
-	public void readMdl(final MdlTokenInputStream stream, final int version) throws IOException {
+	public void readMdl(final MdlTokenInputStream stream, final int version) {
 		for (final String token : super.readMdlGeneric(stream)) {
 			if (MdlUtils.TOKEN_ATTACHMENT_ID.equals(token)) {
 				this.attachmentId = stream.readInt();
@@ -58,13 +52,13 @@ public class MdlxAttachment extends MdlxGenericObject {
 				this.readTimeline(stream, AnimationMap.KATV);
 			}
 			else {
-				throw new IOException("Unknown token in Attachment " + this.name + ": " + token);
+				throw new RuntimeException("Unknown token in Attachment " + this.name + ": " + token);
 			}
 		}
 	}
 
 	@Override
-	public void writeMdl(final MdlTokenOutputStream stream, final int version) throws IOException {
+	public void writeMdl(final MdlTokenOutputStream stream, final int version) {
 		stream.startObjectBlock(MdlUtils.TOKEN_ATTACHMENT, this.name);
 		this.writeGenericHeader(stream);
 

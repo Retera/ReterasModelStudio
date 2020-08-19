@@ -3,8 +3,8 @@ package com.hiveworkshop.wc3.gui.modeledit.newstuff;
 import java.awt.Point;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
+import java.util.List;
 
-import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.cutpaste.CopiedModelData;
@@ -103,7 +103,7 @@ public interface ModelEditor extends ComponentVisibilityListener {
 	UndoAction selectAll();
 
 	@Override
-	UndoAction hideComponent(ListView<? extends SelectableComponent> selectableComponents,
+	UndoAction hideComponent(List<? extends SelectableComponent> selectableComponents,
 			EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable);
 
 	@Override

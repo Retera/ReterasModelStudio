@@ -6,10 +6,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import com.etheller.collections.List;
-import com.etheller.collections.MapView.Entry;
-import com.etheller.collections.SetView;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.mpq.MpqCodebase.LoadedMPQ;
@@ -44,7 +44,7 @@ public class ReignOfChaosMissionFixerTool {
 	}
 
 	public static void main(final String[] args) {
-		final SetView<String> mergedListfile = MpqCodebase.get().getMergedListfile();
+		final Set<String> mergedListfile = MpqCodebase.get().getMergedListfile();
 		for (String gameFile : mergedListfile) {
 			gameFile = gameFile.toLowerCase();
 			if (gameFile.contains("campaign") && gameFile.endsWith(".w3m")) {
@@ -64,11 +64,11 @@ public class ReignOfChaosMissionFixerTool {
 					changeset.load(new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream("war3map.w3u")),
 							null, false);
 					final ObjectMap original = changeset.getOriginal();
-					SetView<Entry<War3ID, ObjectDataChangeEntry>> entrySet = original.entrySet();
-					for (final Entry<War3ID, ObjectDataChangeEntry> entry : entrySet) {
+					Set<Map.Entry<War3ID, ObjectDataChangeEntry>> entrySet = original.entrySet();
+					for (final Map.Entry<War3ID, ObjectDataChangeEntry> entry : entrySet) {
 						if (Character.isUpperCase(entry.getKey().asStringValue().charAt(0))) {
 							final ChangeMap changes = entry.getValue().getChanges();
-							for (final Entry<War3ID, List<Change>> changeEntry : changes) {
+							for (final Map.Entry<War3ID, List<Change>> changeEntry : changes) {
 								if (changeEntry.getKey().equals(UABI)) {
 									for (final Change change : changeEntry.getValue()) {
 										System.out.println("adding to hero: " + entry.getKey() + "   "
@@ -80,10 +80,10 @@ public class ReignOfChaosMissionFixerTool {
 						}
 					}
 					entrySet = changeset.getCustom().entrySet();
-					for (final Entry<War3ID, ObjectDataChangeEntry> entry : entrySet) {
+					for (final Map.Entry<War3ID, ObjectDataChangeEntry> entry : entrySet) {
 						if (Character.isUpperCase(entry.getKey().asStringValue().charAt(0))) {
 							final ChangeMap changes = entry.getValue().getChanges();
-							for (final Entry<War3ID, List<Change>> changeEntry : changes) {
+							for (final Map.Entry<War3ID, List<Change>> changeEntry : changes) {
 								if (changeEntry.getKey().equals(UABI)) {
 									for (final Change change : changeEntry.getValue()) {
 										change.setStrval(change.getStrval() + ",AInv");

@@ -27,7 +27,7 @@ public final class FlipFacesAction implements UndoAction {
 	}
 
 	private void doFlip() {
-		final ArrayList<Triangle> selTris = new ArrayList<>();
+		final List<Triangle> selTris = new ArrayList<>();
 		for (int i = 0; i < selection.size(); i++) {
 			final Vertex vert = selection.get(i);
 			if (vert.getClass() == GeosetVertex.class) {

@@ -1,17 +1,11 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.io.BufferedReader;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
 import com.etheller.warsmash.parsers.mdlx.MdlxEventObject;
-
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
-
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 
 /**
@@ -21,7 +15,7 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
  * Eric Theller 3/10/2012 3:52 PM
  */
 public class EventObject extends IdObject {
-	ArrayList<Integer> eventTrack = new ArrayList<>();
+	List<Integer> eventTrack = new ArrayList<>();
 	Integer globalSeq;
 	int globalSeqId = -1;
 	boolean hasGlobalSeq;
@@ -67,7 +61,7 @@ public class EventObject extends IdObject {
 			object.globalSequenceId = getGlobalSeqId();
 		}
 
-		ArrayList<Integer> keyframes = getEventTrack();
+		List<Integer> keyframes = getEventTrack();
 
 		object.keyFrames = new long[keyframes.size()];
 
@@ -130,7 +124,7 @@ public class EventObject extends IdObject {
 			if ((i >= start) && (i <= end)) {
 				// If this "i" is a part of the anim being rescaled
 				final double ratio = (double) (i - start) / (double) (end - start);
-				eventTrack.set(eventTrack.indexOf(inte), new Integer((int) (newStart + (ratio * (newEnd - newStart)))));
+				eventTrack.set(eventTrack.indexOf(inte), Integer.valueOf((int) (newStart + (ratio * (newEnd - newStart)))));
 			}
 		}
 
@@ -148,7 +142,7 @@ public class EventObject extends IdObject {
 			if ((i >= start) && (i <= end)) {
 				// If this "i" is a part of the anim being rescaled
 				final double ratio = (double) (i - start) / (double) (end - start);
-				eventTrack.add(new Integer((int) (newStart + (ratio * (newEnd - newStart)))));
+				eventTrack.add(Integer.valueOf((int) (newStart + (ratio * (newEnd - newStart)))));
 			}
 		}
 
@@ -260,11 +254,11 @@ public class EventObject extends IdObject {
 		this.globalSeq = globalSeq;
 	}
 
-	public ArrayList<Integer> getEventTrack() {
+	public List<Integer> getEventTrack() {
 		return eventTrack;
 	}
 
-	public void setEventTrack(final ArrayList<Integer> eventTrack) {
+	public void setEventTrack(final List<Integer> eventTrack) {
 		this.eventTrack = eventTrack;
 	}
 

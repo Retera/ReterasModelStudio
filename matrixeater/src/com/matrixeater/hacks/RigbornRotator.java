@@ -96,7 +96,7 @@ public class RigbornRotator extends JPanel {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
-					final EditableModel model = MdxUtils.loadEditableModel(new File(inputField.getText()));
+					final EditableModel model = MdxUtils.loadEditable(new File(inputField.getText()));
 					final Helper rootRotation = new Helper("Bone_Rotation");
 					rootRotation.setPivotPoint(new Vertex(0, 0, 0));
 					final AnimFlag rotationAnimation = new AnimFlag("Rotation");
@@ -119,7 +119,7 @@ public class RigbornRotator extends JPanel {
 
 					model.add(rootRotation);
 
-					MdxUtils.saveEditableModel(model, new File(outputField.getText()));
+					MdxUtils.saveMdx(model, new File(outputField.getText()));
 				} catch (final Exception exc) {
 					exc.printStackTrace();
 					ExceptionPopup.display(exc);
@@ -163,7 +163,7 @@ public class RigbornRotator extends JPanel {
 			final InputStream footman = MpqCodebase.get()
 					.getResourceAsStream("Units\\Human\\TheCaptain\\TheCaptain.mdx");
 			try {
-				final EditableModel model = new EditableModel(MdxUtils.loadModel(footman));
+				final EditableModel model = new EditableModel(MdxUtils.loadMdlx(footman));
 
 				final Helper rootRotation = new Helper("Bone_Rotation");
 				rootRotation.setPivotPoint(new Vertex(0, 0, 0));
@@ -183,7 +183,7 @@ public class RigbornRotator extends JPanel {
 
 				model.add(rootRotation);
 
-				MdxUtils.saveEditableModel(model, new File(
+				MdxUtils.saveMdx(model, new File(
 						"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\CaptainOutput" + ang + ".mdx"));
 			} catch (final IOException e) {
 				e.printStackTrace();

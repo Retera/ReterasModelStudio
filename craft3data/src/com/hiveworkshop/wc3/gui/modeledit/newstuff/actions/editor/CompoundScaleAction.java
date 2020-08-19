@@ -1,14 +1,15 @@
 package com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor;
 
-import com.etheller.collections.ListView;
+import java.util.List;
+
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 
 public final class CompoundScaleAction implements GenericScaleAction {
-	private final ListView<? extends GenericScaleAction> actions;
+	private final List<? extends GenericScaleAction> actions;
 	private final String name;
 
-	public CompoundScaleAction(final String name, final ListView<? extends GenericScaleAction> actions) {
+	public CompoundScaleAction(final String name, final List<? extends GenericScaleAction> actions) {
 		this.name = name;
 		this.actions = actions;
 	}

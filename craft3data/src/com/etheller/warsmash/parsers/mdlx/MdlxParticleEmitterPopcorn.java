@@ -1,13 +1,10 @@
 package com.etheller.warsmash.parsers.mdlx;
 
-import java.io.IOException;
-
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
-import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataOutputStream;
 import com.hiveworkshop.util.BinaryReader;
+import com.hiveworkshop.util.BinaryWriter;
 
 public class MdlxParticleEmitterPopcorn extends MdlxGenericObject {
 	public float lifeSpan = 0;
@@ -23,7 +20,7 @@ public class MdlxParticleEmitterPopcorn extends MdlxGenericObject {
 		super(0);
 	}
 
-	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+	public void readMdx(final BinaryReader reader, final int version) {
 		final int position = reader.position();
 		final long size = reader.readUInt32();
 
@@ -42,25 +39,25 @@ public class MdlxParticleEmitterPopcorn extends MdlxGenericObject {
 	}
 
 	@Override
-	public void writeMdx(final LittleEndianDataOutputStream stream, final int version) throws IOException {
-		ParseUtils.writeUInt32(stream, getByteLength(version));
+	public void writeMdx(final BinaryWriter writer, final int version) {
+		writer.writeUInt32(getByteLength(version));
 
-		super.writeMdx(stream, version);
+		super.writeMdx(writer, version);
 
-		stream.writeFloat(lifeSpan);
-		stream.writeFloat(emissionRate);
-		stream.writeFloat(speed);
-		ParseUtils.writeFloatArray(stream, color);
-		stream.writeFloat(alpha);
-		stream.writeInt(replaceableId);
-		ParseUtils.writeString(stream, path, 260);
-		ParseUtils.writeString(stream, animationVisiblityGuide, 260);
+		writer.writeFloat32(lifeSpan);
+		writer.writeFloat32(emissionRate);
+		writer.writeFloat32(speed);
+		writer.writeFloat32Array(color);
+		writer.writeFloat32(alpha);
+		writer.writeInt32(replaceableId);
+		writer.writeWithNulls(path, 260);
+		writer.writeWithNulls(animationVisiblityGuide, 260);
 
-		writeNonGenericAnimationChunks(stream);
+		writeNonGenericAnimationChunks(writer);
 	}
 
 	@Override
-	public void readMdl(final MdlTokenInputStream stream, final int version) throws IOException {
+	public void readMdl(final MdlTokenInputStream stream, final int version) {
 		for (final String token : super.readMdlGeneric(stream)) {
 			switch (token) {
 			case "SortPrimsFarZ":
@@ -115,13 +112,13 @@ public class MdlxParticleEmitterPopcorn extends MdlxGenericObject {
 				animationVisiblityGuide = stream.read();
 				break;
 			default:
-				throw new IllegalStateException("Unknown token in MdlxParticleEmitterPopcorn " + this.name + ": " + token);
+				throw new RuntimeException("Unknown token in MdlxParticleEmitterPopcorn " + this.name + ": " + token);
 			}
 		}
 	}
 
 	@Override
-	public void writeMdl(final MdlTokenOutputStream stream, final int version) throws IOException {
+	public void writeMdl(final MdlTokenOutputStream stream, final int version) {
 		stream.startObjectBlock(MdlUtils.TOKEN_PARTICLE_EMITTER2, this.name);
 		writeGenericHeader(stream);
 

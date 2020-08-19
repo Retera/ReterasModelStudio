@@ -1,13 +1,10 @@
 package com.etheller.warsmash.parsers.mdlx;
 
-import java.io.IOException;
-
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
-import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataOutputStream;
 import com.hiveworkshop.util.BinaryReader;
+import com.hiveworkshop.util.BinaryWriter;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
 
 public class MdlxEventObject extends MdlxGenericObject {
@@ -20,7 +17,7 @@ public class MdlxEventObject extends MdlxGenericObject {
 		super(0x400);
 	}
 
-	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+	public void readMdx(final BinaryReader reader, final int version) {
 		super.readMdx(reader, version);
 
 		reader.readInt32(); // KEVT skipped
@@ -37,13 +34,15 @@ public class MdlxEventObject extends MdlxGenericObject {
 	}
 
 	@Override
-	public void writeMdx(final LittleEndianDataOutputStream stream, final int version) throws IOException {
-		super.writeMdx(stream, version);
-		ParseUtils.writeWar3ID(stream, KEVT);
-		ParseUtils.writeUInt32(stream, this.keyFrames.length);
-		stream.writeInt(this.globalSequenceId);
+	public void writeMdx(final BinaryWriter writer, final int version) {
+		super.writeMdx(writer, version);
+
+		writer.writeTag(KEVT.getValue());
+		writer.writeUInt32(this.keyFrames.length);
+		writer.writeInt32(this.globalSequenceId);
+
 		for (int i = 0; i < this.keyFrames.length; i++) {
-			ParseUtils.writeUInt32(stream, this.keyFrames[i]);
+			writer.writeUInt32(this.keyFrames[i]);
 		}
 	}
 
@@ -61,7 +60,7 @@ public class MdlxEventObject extends MdlxGenericObject {
 	}
 
 	@Override
-	public void writeMdl(final MdlTokenOutputStream stream, final int version) throws IOException {
+	public void writeMdl(final MdlTokenOutputStream stream, final int version) {
 		stream.startObjectBlock(MdlUtils.TOKEN_EVENT_OBJECT, this.name);
 		writeGenericHeader(stream);
 		stream.startBlock(MdlUtils.TOKEN_EVENT_TRACK, this.keyFrames.length);

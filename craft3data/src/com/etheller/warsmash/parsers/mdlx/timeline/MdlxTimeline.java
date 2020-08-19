@@ -1,17 +1,15 @@
 package com.etheller.warsmash.parsers.mdlx.timeline;
 
-import java.io.IOException;
-
 import com.etheller.warsmash.parsers.mdlx.AnimationMap;
 import com.etheller.warsmash.parsers.mdlx.InterpolationType;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
-import com.google.common.io.LittleEndianDataOutputStream;
 import com.hiveworkshop.util.BinaryReader;
+import com.hiveworkshop.util.BinaryWriter;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
 
-public abstract class Timeline<TYPE> {
+public abstract class MdlxTimeline<TYPE> {
 	public War3ID name;
 	public InterpolationType interpolationType;
 	public int globalSequenceId = -1;
@@ -27,14 +25,11 @@ public abstract class Timeline<TYPE> {
 	 */
 	private static StringBuffer STRING_BUFFER_HEAP = new StringBuffer();
 
-	public War3ID getName() {
-		return this.name;
+	public MdlxTimeline() {
+		
 	}
 
-	public Timeline() {
-	}
-
-	public void readMdx(final BinaryReader reader, final War3ID name) throws IOException {
+	public void readMdx(final BinaryReader reader, final War3ID name) {
 		this.name = name;
 
 		final long keyFrameCount = reader.readUInt32();
@@ -60,24 +55,27 @@ public abstract class Timeline<TYPE> {
 		}
 	}
 
-	public void writeMdx(final LittleEndianDataOutputStream stream) throws IOException {
-		stream.writeInt(Integer.reverseBytes(this.name.getValue()));
+	public void writeMdx(final BinaryWriter writer) {
+		writer.writeTag(this.name.getValue());
+
 		final int keyframeCount = this.frames.length;
-		stream.writeInt(keyframeCount);
-		stream.writeInt(this.interpolationType.ordinal());
-		stream.writeInt(this.globalSequenceId);
+
+		writer.writeInt32(keyframeCount);
+		writer.writeInt32(this.interpolationType.ordinal());
+		writer.writeInt32(this.globalSequenceId);
 
 		for (int i = 0; i < keyframeCount; i++) {
-			stream.writeInt((int) this.frames[i]);
-			writeMdxValue(stream, this.values[i]);
+			writer.writeInt32((int) this.frames[i]);
+			writeMdxValue(writer, this.values[i]);
+
 			if (this.interpolationType.tangential()) {
-				writeMdxValue(stream, this.inTans[i]);
-				writeMdxValue(stream, this.outTans[i]);
+				writeMdxValue(writer, this.inTans[i]);
+				writeMdxValue(writer, this.outTans[i]);
 			}
 		}
 	}
 
-	public void readMdl(final MdlTokenInputStream stream, final War3ID name) throws IOException {
+	public void readMdl(final MdlTokenInputStream stream, final War3ID name) {
 		this.name = name;
 
 		final int keyFrameCount = stream.readInt();
@@ -133,7 +131,7 @@ public abstract class Timeline<TYPE> {
 		stream.read(); // }
 	}
 
-	public void writeMdl(final MdlTokenOutputStream stream) throws IOException {
+	public void writeMdl(final MdlTokenOutputStream stream) {
 		final int tracksCount = this.frames.length;
 		stream.startBlock(AnimationMap.ID_TO_TAG.get(this.name).getMdlToken(), tracksCount);
 
@@ -196,11 +194,11 @@ public abstract class Timeline<TYPE> {
 
 	protected abstract int size();
 
-	protected abstract TYPE readMdxValue(BinaryReader reader) throws IOException;
+	protected abstract TYPE readMdxValue(BinaryReader reader);
 
 	protected abstract TYPE readMdlValue(MdlTokenInputStream stream);
 
-	protected abstract void writeMdxValue(LittleEndianDataOutputStream stream, TYPE value) throws IOException;
+	protected abstract void writeMdxValue(BinaryWriter writer, TYPE value);
 
 	protected abstract void writeMdlValue(MdlTokenOutputStream stream, String prefix, TYPE value);
 }

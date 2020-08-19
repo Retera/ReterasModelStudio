@@ -2,6 +2,7 @@ package com.hiveworkshop.wc3.gui.modeledit.newstuff.uv;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.TVertex;
@@ -12,7 +13,7 @@ public enum TVertexUtils {
 
 	public static Collection<? extends TVertex> getTVertices(final Collection<? extends Vertex> vertexSelection,
 			final int uvLayerIndex) {
-		final ArrayList<TVertex> tVertices = new ArrayList<TVertex>();
+		final List<TVertex> tVertices = new ArrayList<TVertex>();
 		for (final Vertex vertex : vertexSelection) {
 			if (vertex instanceof GeosetVertex) {
 				final GeosetVertex geosetVertex = (GeosetVertex) vertex;

@@ -22,8 +22,8 @@ public class GetMeDatas11 {
 						"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\TCContest14\\UndeadArthasBase.mdx")) {
 			try {
 
-				final EditableModel model = new EditableModel(MdxUtils.loadModel(footman));
-				final EditableModel modelBase = new EditableModel(MdxUtils.loadModel(footmanBase));
+				final EditableModel model = new EditableModel(MdxUtils.loadMdlx(footman));
+				final EditableModel modelBase = new EditableModel(MdxUtils.loadMdlx(footmanBase));
 
 				for (final IdObject node : model.getIdObjects()) {
 					IdObject baseNode = null;
@@ -43,7 +43,7 @@ public class GetMeDatas11 {
 					}
 				}
 
-				MdxUtils.saveEditableModel(model, new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\TCContest14\\UndeadArthas4.mdx"));
+				MdxUtils.saveMdx(model, new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\TCContest14\\UndeadArthas4.mdx"));
 			} catch (final IOException e) {
 				e.printStackTrace();
 			}

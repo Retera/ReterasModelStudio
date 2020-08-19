@@ -356,7 +356,7 @@ public class MDLSnapshot {
 				field += ".mdx";
 			}
 			model = new EditableModel(
-					MdxUtils.loadModel(MpqCodebase.get().getResourceAsStream(field)));
+					MdxUtils.loadMdlx(MpqCodebase.get().getResourceAsStream(field)));
 			mdlDisplay = new ModelViewManager(model);
 
 			Animation bestStandAnim = null;

@@ -1,11 +1,6 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.io.BufferedReader;
-
-import javax.swing.JOptionPane;
-
 import com.etheller.warsmash.parsers.mdlx.MdlxHelper;
-
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 
 /**
@@ -14,13 +9,7 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
  * @author (your name)
  * @version (a version number or a date)
  */
-public class Helper extends Bone// Haha blizz
-{
-	// Level 80 Tauren Helpers make code run smoothly
-	private Helper() {
-		super();
-	}
-
+public class Helper extends Bone { // Haha blizz
 	public Helper(final String name) {
 		super(name);
 	}

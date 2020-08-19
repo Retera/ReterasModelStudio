@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
@@ -56,7 +55,7 @@ public class GeosetVertexTVertexEditor extends AbstractTVertexEditor<GeosetVerte
 	@Override
 	public UndoAction expandSelection() {
 		final Set<GeosetVertex> expandedSelection = new HashSet<>(selectionManager.getSelection());
-		final ArrayList<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
+		final List<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
 		for (final GeosetVertex v : oldSelection) {
 			expandSelection(v, expandedSelection);
 		}
@@ -77,7 +76,7 @@ public class GeosetVertexTVertexEditor extends AbstractTVertexEditor<GeosetVerte
 
 	@Override
 	public UndoAction invertSelection() {
-		final ArrayList<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
+		final List<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
 		final Set<GeosetVertex> invertedSelection = new HashSet<>(selectionManager.getSelection());
 		for (final Geoset geo : model.getEditableGeosets()) {
 			for (final GeosetVertex geosetVertex : geo.getVertices()) {
@@ -98,7 +97,7 @@ public class GeosetVertexTVertexEditor extends AbstractTVertexEditor<GeosetVerte
 
 	@Override
 	public UndoAction selectAll() {
-		final ArrayList<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
+		final List<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
 		final Set<GeosetVertex> allSelection = new HashSet<>();
 		for (final Geoset geo : model.getEditableGeosets()) {
 			for (final GeosetVertex geosetVertex : geo.getVertices()) {
@@ -184,7 +183,7 @@ public class GeosetVertexTVertexEditor extends AbstractTVertexEditor<GeosetVerte
 	}
 
 	@Override
-	protected UndoAction buildHideComponentAction(final ListView<? extends SelectableComponent> selectableComponents,
+	protected UndoAction buildHideComponentAction(final List<? extends SelectableComponent> selectableComponents,
 			final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
 		final List<GeosetVertex> previousSelection = new ArrayList<>(selectionManager.getSelection());
 		final List<GeosetVertex> possibleVerticesToTruncate = new ArrayList<>();

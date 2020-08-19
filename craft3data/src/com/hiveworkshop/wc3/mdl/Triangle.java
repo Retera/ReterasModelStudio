@@ -1,6 +1,7 @@
 package com.hiveworkshop.wc3.mdl;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Triangle {
 	GeosetVertex[] verts = new GeosetVertex[3];
@@ -79,7 +80,7 @@ public class Triangle {
 		updateVertexIds();
 	}
 
-	public void updateVertexRefs(final ArrayList<GeosetVertex> list) {
+	public void updateVertexRefs(final List<GeosetVertex> list) {
 		verts[0] = list.get(vertIds[0]);
 		verts[1] = list.get(vertIds[1]);
 		verts[2] = list.get(vertIds[2]);

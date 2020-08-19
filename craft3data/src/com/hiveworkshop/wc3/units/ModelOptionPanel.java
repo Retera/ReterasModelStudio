@@ -1113,7 +1113,7 @@ public class ModelOptionPanel extends JPanel {
 						filepath = filepath.concat(".mdx");
 					}
 					final InputStream modelStream = MpqCodebase.get().getResourceAsStream(filepath);
-					final MdlxModel model = MdxUtils.loadModel(modelStream);
+					final MdlxModel model = MdxUtils.loadMdlx(modelStream);
 					toLoad = new EditableModel(model);
 					modelDisp = new ModelViewManager(toLoad);
 				} catch (final Exception exc) {
@@ -1153,7 +1153,7 @@ public class ModelOptionPanel extends JPanel {
 						filepath = filepath.concat(".mdx");
 					}
 					final InputStream modelStream = MpqCodebase.get().getResourceAsStream(filepath);
-					final MdlxModel model = MdxUtils.loadModel(modelStream);
+					final MdlxModel model = MdxUtils.loadMdlx(modelStream);
 					toLoad = new EditableModel(model);
 					modelDisp = new ModelViewManager(toLoad);
 					cachedIconPath = null;

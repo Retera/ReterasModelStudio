@@ -1,6 +1,7 @@
 package com.hiveworkshop.wc3.gui.datachooser;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
@@ -10,7 +11,6 @@ import java.util.Set;
 
 import com.hiveworkshop.blizzard.casc.io.WarcraftIIICASC;
 import com.hiveworkshop.blizzard.casc.io.WarcraftIIICASC.FileSystem;
-import com.hiveworkshop.nio.ByteBufferInputStream;
 
 public class GetCascLanguageList {
 	public static void main(final String[] args) {
@@ -21,7 +21,7 @@ public class GetCascLanguageList {
 				final ByteBuffer buffer = rootFileSystem.readFileData("index");
 				final Set<String> categories = new HashSet<>();
 				try (BufferedReader reader = new BufferedReader(
-						new InputStreamReader(new ByteBufferInputStream(buffer)))) {
+						new InputStreamReader(new ByteArrayInputStream(buffer.array())))) {
 					String line;
 					while ((line = reader.readLine()) != null) {
 						final String[] splitLine = line.split("\\|");

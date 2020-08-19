@@ -15,12 +15,12 @@ public class GenModels {
 		final File dest = new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\WhiteUIElementColors");
 		dest.mkdir();
 		for (int i = 0; i < 36; i++) {
-			final EditableModel whiteUIModel = MdxUtils.loadEditableModel(new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\WhiteUIElement.mdl"));
+			final EditableModel whiteUIModel = MdxUtils.loadEditable(new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\WhiteUIElement.mdl"));
 			final GeosetAnim geosetAnim = whiteUIModel.getGeoset(0).forceGetGeosetAnim();
 			final Color color = colorByAngle(i * 10);
 			geosetAnim
 					.setStaticColor(new Vertex(color.getBlue() / 255., color.getGreen() / 255., color.getRed() / 255.));
-			MdxUtils.saveEditableModel(whiteUIModel, new File(dest.getPath() + "\\ColoredElement" + i + ".mdx"));
+			MdxUtils.saveMdx(whiteUIModel, new File(dest.getPath() + "\\ColoredElement" + i + ".mdx"));
 		}
 	}
 

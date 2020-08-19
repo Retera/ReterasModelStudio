@@ -1,8 +1,8 @@
 package com.hiveworkshop.wc3.mdl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Quaternion;
@@ -126,8 +126,8 @@ public abstract class IdObject extends AnimatedNode implements Named {
 
 	public abstract double getClickRadius(CoordinateSystem coordinateSystem);
 
-	public boolean parentOf(final IdObject other, final HashMap<IdObject, ArrayList<IdObject>> childMap) {
-		final ArrayList<IdObject> children = childMap.get(this);
+	public boolean parentOf(final IdObject other, final Map<IdObject, List<IdObject>> childMap) {
+		final List<IdObject> children = childMap.get(this);
 		if (children != null) {
 			if (children.contains(other)) {
 				return true;
@@ -142,9 +142,9 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return false;
 	}
 
-	public ArrayList<IdObject> getAllChildren(final HashMap<IdObject, ArrayList<IdObject>> childMap) {
-		final ArrayList<IdObject> children = childMap.get(this);
-		final ArrayList<IdObject> allChildren = new ArrayList<>();
+	public List<IdObject> getAllChildren(final Map<IdObject, List<IdObject>> childMap) {
+		final List<IdObject> children = childMap.get(this);
+		final List<IdObject> allChildren = new ArrayList<>();
 		if (children != null) {
 			for (int i = 0; i < children.size(); i++) {
 				final IdObject child = children.get(i);

@@ -1,15 +1,10 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.io.BufferedReader;
-import java.io.PrintWriter;
 import java.util.ArrayList;
-
-import javax.swing.JOptionPane;
+import java.util.List;
 
 import org.lwjgl.util.vector.Vector3f;
-
 import com.etheller.warsmash.parsers.mdlx.MdlxGeosetAnimation;
-
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 
 /**
@@ -17,7 +12,7 @@ import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
  *
  * Eric Theller 11/10/2011
  */
-public class GeosetAnim extends TimelineContainer implements VisibilitySource, Named {
+public class GeosetAnim extends TimelineContainer implements Named {
 	double staticAlpha = -1;
 	Vertex staticColor = null;
 	int geosetId = -1;
@@ -28,7 +23,7 @@ public class GeosetAnim extends TimelineContainer implements VisibilitySource, N
 		animFlags.add(flag);
 	}
 
-	public GeosetAnim(final ArrayList<AnimFlag> flags) {
+	public GeosetAnim(final List<AnimFlag> flags) {
 		animFlags = flags;
 	}
 
@@ -46,15 +41,6 @@ public class GeosetAnim extends TimelineContainer implements VisibilitySource, N
 		geosetId = other.geosetId;
 		this.geoset = geoset;
 		dropShadow = other.dropShadow;
-	}
-
-	/**
-	 * @param geosetId
-	 * @deprecated GeosetIds are regenerated on save, this is here for MDX converter
-	 */
-	@Deprecated
-	public GeosetAnim(final int geosetId) {
-		this.geosetId = geosetId;
 	}
 
 	public GeosetAnim(final MdlxGeosetAnimation animation) {
@@ -84,10 +70,6 @@ public class GeosetAnim extends TimelineContainer implements VisibilitySource, N
 		 timelinesToMdlx(animation);
 
 		return animation;
-	}
-
-	private GeosetAnim() {
-
 	}
 
 	public String getVisTagname() {

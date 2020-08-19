@@ -1,14 +1,12 @@
 package com.etheller.warsmash.parsers.mdlx;
 
-import java.io.IOException;
 import java.util.Iterator;
 
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
-import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataOutputStream;
 import com.hiveworkshop.util.BinaryReader;
+import com.hiveworkshop.util.BinaryWriter;
 
 public class MdlxGeosetAnimation extends MdlxAnimatedObject {
 	public float alpha = 1;
@@ -16,7 +14,7 @@ public class MdlxGeosetAnimation extends MdlxAnimatedObject {
 	public float[] color = { 1, 1, 1 };
 	public int geosetId = -1;
 
-	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+	public void readMdx(final BinaryReader reader, final int version) {
 		final long size = reader.readUInt32();
 
 		this.alpha = reader.readFloat32();
@@ -28,18 +26,18 @@ public class MdlxGeosetAnimation extends MdlxAnimatedObject {
 	}
 
 	@Override
-	public void writeMdx(final LittleEndianDataOutputStream stream, final int version) throws IOException {
-		ParseUtils.writeUInt32(stream, getByteLength(version));
-		stream.writeFloat(this.alpha);
-		stream.writeInt(this.flags);// ParseUtils.writeUInt32(stream, this.flags);
-		ParseUtils.writeFloatArray(stream, this.color);
-		stream.writeInt(this.geosetId);
+	public void writeMdx(final BinaryWriter writer, final int version) {
+		writer.writeUInt32(getByteLength(version));
+		writer.writeFloat32(this.alpha);
+		writer.writeInt32(this.flags);
+		writer.writeFloat32Array(this.color);
+		writer.writeInt32(this.geosetId);
 
-		writeTimelines(stream);
+		writeTimelines(writer);
 	}
 
 	@Override
-	public void readMdl(final MdlTokenInputStream stream, final int version) throws IOException {
+	public void readMdl(final MdlTokenInputStream stream, final int version) {
 		final Iterator<String> blockIterator = readAnimatedBlock(stream);
 		while (blockIterator.hasNext()) {
 			final String token = blockIterator.next();
@@ -65,13 +63,13 @@ public class MdlxGeosetAnimation extends MdlxAnimatedObject {
 				this.geosetId = stream.readInt();
 				break;
 			default:
-				throw new IllegalStateException("Unknown token in GeosetAnimation: " + token);
+				throw new RuntimeException("Unknown token in GeosetAnimation: " + token);
 			}
 		}
 	}
 
 	@Override
-	public void writeMdl(final MdlTokenOutputStream stream, final int version) throws IOException {
+	public void writeMdl(final MdlTokenOutputStream stream, final int version) {
 		stream.startBlock(MdlUtils.TOKEN_GEOSETANIM);
 
 		if ((this.flags & 0x1) != 0) {

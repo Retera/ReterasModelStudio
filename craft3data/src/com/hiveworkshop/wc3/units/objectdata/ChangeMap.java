@@ -1,17 +1,13 @@
 package com.hiveworkshop.wc3.units.objectdata;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
-import com.etheller.collections.ArrayList;
-import com.etheller.collections.CollectionView;
-import com.etheller.collections.LinkedHashMap;
-import com.etheller.collections.List;
-import com.etheller.collections.Map;
-import com.etheller.collections.MapView;
-import com.etheller.collections.MapView.Entry;
-
-public final class ChangeMap implements Iterable<MapView.Entry<War3ID, List<Change>>> {
-	private final Map<War3ID, List<Change>> idToChanges = new LinkedHashMap<>();
+public final class ChangeMap implements Iterable<Map.Entry<War3ID, List<Change>>> {
+	private final Map<War3ID, List<Change>> idToChanges = new HashMap<>();
 
 	public void add(final War3ID war3Id, final Change change) {
 		List<Change> list = idToChanges.get(war3Id);
@@ -36,15 +32,15 @@ public final class ChangeMap implements Iterable<MapView.Entry<War3ID, List<Chan
 		if (idToChanges.containsKey(war3ID)) {
 			final List<Change> changeList = idToChanges.get(war3ID);
 			changeList.remove(change);
-			if (CollectionView.Util.isEmpty(changeList)) {
+			if (changeList.size() == 0) {
 				idToChanges.remove(war3ID);
 			}
 		}
 	}
 
 	@Override
-	public Iterator<Entry<War3ID, List<Change>>> iterator() {
-		return idToChanges.iterator();
+	public Iterator<Map.Entry<War3ID, List<Change>>> iterator() {
+		return idToChanges.entrySet().iterator();
 	}
 
 	public int size() {

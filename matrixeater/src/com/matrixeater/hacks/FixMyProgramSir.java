@@ -25,7 +25,7 @@ public class FixMyProgramSir {
 			}
 		} else if (file.getName().toLowerCase().endsWith(".mdx")) {
 			try (InputStream is = new FileInputStream(file)) {
-				final MdlxModel loadModel = MdxUtils.loadModel(is);
+				final MdlxModel loadModel = MdxUtils.loadMdlx(is);
 				int materialId = 0;
 				for (final MdlxMaterial mat : loadModel.materials) {
 					int layerId = 0;

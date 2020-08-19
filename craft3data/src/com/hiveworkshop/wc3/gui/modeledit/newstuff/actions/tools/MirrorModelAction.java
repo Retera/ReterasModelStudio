@@ -61,7 +61,7 @@ public final class MirrorModelAction implements UndoAction {
 				}
 			}
 		}
-		final ArrayList<IdObject> selBones = new ArrayList<>();
+		final List<IdObject> selBones = new ArrayList<>();
 		for (final IdObject b : idObjects) {
 			if (selection.contains(b.getPivotPoint()) && !selBones.contains(b)) {
 				selBones.add(b);

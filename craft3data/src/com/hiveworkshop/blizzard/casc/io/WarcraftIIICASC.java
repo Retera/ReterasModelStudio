@@ -41,7 +41,7 @@ public class WarcraftIIICASC implements AutoCloseable {
 		 */
 		public List<String> enumerateFiles() throws IOException {
 			final List<PathResult> pathResults = vfs.getAllFiles();
-			final ArrayList<String> filePathStrings = new ArrayList<String>(pathResults.size());
+			final List<String> filePathStrings = new ArrayList<String>(pathResults.size());
 
 			for (final PathResult pathResult : pathResults) {
 				filePathStrings.add(pathResult.getPath());

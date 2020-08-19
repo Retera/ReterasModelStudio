@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 public class BinaryWriter {
-    ByteBuffer buffer;
+    public ByteBuffer buffer;
 
     public BinaryWriter(final int capacity) {
         buffer = ByteBuffer.allocate(capacity);

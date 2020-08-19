@@ -1,12 +1,10 @@
 package com.etheller.warsmash.parsers.mdlx;
 
-import java.io.IOException;
-
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
-import com.google.common.io.LittleEndianDataOutputStream;
 import com.hiveworkshop.util.BinaryReader;
+import com.hiveworkshop.util.BinaryWriter;
 
 public class MdlxBone extends MdlxGenericObject {
 	public int geosetId = -1;
@@ -16,7 +14,8 @@ public class MdlxBone extends MdlxGenericObject {
 		super(0x100);
 	}
 
-	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+	@Override
+	public void readMdx(final BinaryReader reader, final int version) {
 		super.readMdx(reader, version);
 
 		this.geosetId = reader.readInt32();
@@ -24,10 +23,11 @@ public class MdlxBone extends MdlxGenericObject {
 	}
 
 	@Override
-	public void writeMdx(final LittleEndianDataOutputStream stream, final int version) throws IOException {
-		super.writeMdx(stream, version);
-		stream.writeInt(this.geosetId);
-		stream.writeInt(this.geosetAnimationId);
+	public void writeMdx(final BinaryWriter writer, final int version) {
+		super.writeMdx(writer, version);
+
+		writer.writeInt32(this.geosetId);
+		writer.writeInt32(this.geosetAnimationId);
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public class MdlxBone extends MdlxGenericObject {
 	}
 
 	@Override
-	public void writeMdl(final MdlTokenOutputStream stream, final int version) throws IOException {
+	public void writeMdl(final MdlTokenOutputStream stream, final int version) {
 		stream.startObjectBlock(MdlUtils.TOKEN_BONE, this.name);
 		this.writeGenericHeader(stream);
 

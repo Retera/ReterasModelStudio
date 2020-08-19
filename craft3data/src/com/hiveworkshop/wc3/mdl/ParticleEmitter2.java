@@ -128,7 +128,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 
 	Vertex[] segmentColor = new Vertex[3];
 
-	ArrayList<String> unknownFlags = new ArrayList<>();
+	List<String> unknownFlags = new ArrayList<>();
 
 	Bitmap texture;
 
@@ -348,7 +348,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return x;
 	}
 
-	public void updateTextureRef(final ArrayList<Bitmap> textures) {
+	public void updateTextureRef(final List<Bitmap> textures) {
 		texture = textures.get(getTextureId());
 	}
 

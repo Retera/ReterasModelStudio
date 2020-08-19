@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit.components;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
@@ -35,7 +36,7 @@ public class ComponentCommentPanel extends JPanel implements ComponentPanel {
 		model.setHeader(getCommentContents());
 	}
 
-	public ArrayList<String> getCommentContents() {
-		return new ArrayList<>(Arrays.asList(textPane.getText().split("\n")));
+	public List<String> getCommentContents() {
+		return Arrays.asList(textPane.getText().split("\n"));
 	}
 }

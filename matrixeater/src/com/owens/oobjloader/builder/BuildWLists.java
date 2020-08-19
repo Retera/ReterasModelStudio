@@ -70,8 +70,8 @@ public class BuildWLists implements BuilderInterface {
 	private int currentSmoothingGroupNumber = NO_SMOOTHING_GROUP;
 	private ArrayList<Face> currentSmoothingGroup = null;
 	public HashMap<String, ArrayList<Face>> groups = new HashMap<>();
-	private final ArrayList<String> currentGroups = new ArrayList<>();
-	private final ArrayList<ArrayList<Face>> currentGroupFaceLists = new ArrayList<>();
+	private final List<String> currentGroups = new ArrayList<>();
+	private final List<ArrayList<Face>> currentGroupFaceLists = new ArrayList<>();
 	public String objectName = null;
 	private Material currentMaterial = null;
 	private Material currentMap = null;
@@ -742,7 +742,7 @@ public class BuildWLists implements BuilderInterface {
 			// final Map<VertexKey,GeosetVertex> builderVertexToMdlVertex = new
 			// HashMap<VertexKey,GeosetVertex>();
 			// Map
-			final ArrayList<Face> faceList = entry.getValue();
+			final List<Face> faceList = entry.getValue();
 			convertMesh(mdl, processedFaces, entry.getKey(), materialToSubgroup, faceList);
 		}
 		// ==================== second run for "face" global
@@ -865,7 +865,7 @@ public class BuildWLists implements BuilderInterface {
 		}
 		if (userWantsSwapToBLP) {
 			try {
-				MdxUtils.saveEditableModel(mdl, mdl.getFile());
+				MdxUtils.saveMdx(mdl, mdl.getFile());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -875,7 +875,7 @@ public class BuildWLists implements BuilderInterface {
 	}
 
 	private void convertMesh(final EditableModel mdl, final Set<Face> processedFaces, final String groupName,
-			final Map<Material, Subgroup> materialToSubgroup, final ArrayList<Face> faceList) {
+			final Map<Material, Subgroup> materialToSubgroup, final List<Face> faceList) {
 		FaceIteration: for (final Face face : faceList) {
 			if (processedFaces.contains(face)) {
 				continue;
@@ -930,7 +930,7 @@ public class BuildWLists implements BuilderInterface {
 																					// ArrayList<VertexKey>();
 
 			for (final VertexKey key : vertexKeys) {
-				final ArrayList<TVertex> tverts = new ArrayList<>();
+				final List<TVertex> tverts = new ArrayList<>();
 				final TVertex createdTVertex = key.createTVertex();
 
 				if (createdTVertex.getX() > 1.0 || createdTVertex.getX() < 0 || createdTVertex.getY() > 1.0

@@ -1,8 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.etheller.warsmash.parsers.mdlx.MdlxParticleEmitter;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
@@ -56,7 +53,6 @@ public class ParticleEmitter extends EmitterIdObject {
 	boolean MDLEmitter = true;
 
 	String path = null;
-	List<String> flags = new ArrayList<>();
 
 	private ParticleEmitter() {
 

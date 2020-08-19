@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.animedit.WrongModeException;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
@@ -228,7 +227,7 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 	}
 
 	@Override
-	protected UndoAction buildHideComponentAction(final ListView<? extends SelectableComponent> selectableComponents,
+	protected UndoAction buildHideComponentAction(final List<? extends SelectableComponent> selectableComponents,
 			final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
 		final List<VertexGroupBundle> previousSelection = new ArrayList<>(selectionManager.getSelection());
 		final List<VertexGroupBundle> vertexBundlesToTruncate = new ArrayList<>(selectionManager.getSelection());

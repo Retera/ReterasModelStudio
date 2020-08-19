@@ -1,8 +1,8 @@
 package com.hiveworkshop.wc3.mdl.v2;
 
-import com.etheller.collections.HashSet;
-import com.etheller.collections.Set;
-import com.etheller.collections.SetView;
+import java.util.HashSet;
+import java.util.Set;
+
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.IdObject;
@@ -52,22 +52,22 @@ public final class ModelViewManager implements ModelView {
 	}
 
 	@Override
-	public SetView<Geoset> getVisibleGeosets() {
+	public Set<Geoset> getVisibleGeosets() {
 		return visibleGeosets;
 	}
 
 	@Override
-	public SetView<Geoset> getEditableGeosets() {
+	public Set<Geoset> getEditableGeosets() {
 		return editableGeosets;
 	}
 
 	@Override
-	public SetView<IdObject> getEditableIdObjects() {
+	public Set<IdObject> getEditableIdObjects() {
 		return editableIdObjects;
 	}
 
 	@Override
-	public SetView<Camera> getEditableCameras() {
+	public Set<Camera> getEditableCameras() {
 		return editableCameras;
 	}
 

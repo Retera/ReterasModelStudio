@@ -35,7 +35,7 @@ public class CountBezierRotations {
 			}
 		} else {
 			if (file.getName().toLowerCase().endsWith(".mdx")) {
-				final EditableModel model = MdxUtils.loadEditableModel(file);
+				final EditableModel model = MdxUtils.loadEditable(file);
 				final List<AnimFlag> allAnimFlags = model.getAllAnimFlags();
 				for (final AnimFlag flag : allAnimFlags) {
 					final InterpolationType interpTypeAsEnum = flag.getInterpTypeAsEnum();

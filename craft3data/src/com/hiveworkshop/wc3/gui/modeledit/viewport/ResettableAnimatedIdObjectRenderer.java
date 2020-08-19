@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector4f;
@@ -260,7 +261,7 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
 			final CollisionShape collisionShape, final Image collisionImage, final Matrix4f worldMatrix,
 			final boolean crosshairIsBox) {
 		final Vertex pivotPoint = collisionShape.getPivotPoint();
-		final ArrayList<Vertex> vertices = collisionShape.getVertices();
+		final List<Vertex> vertices = collisionShape.getVertices();
 		graphics.setColor(color);
 		loadPivotInVertexHeap(pivotPoint, worldMatrix, vertexHeap);
 		final int xCoord = (int) coordinateSystem.convertX(Vertex.getCoord(vertexHeap, xDimension));

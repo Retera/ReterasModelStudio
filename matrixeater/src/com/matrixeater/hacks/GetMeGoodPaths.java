@@ -14,13 +14,13 @@ public class GetMeGoodPaths {
             if(subFile.getName().toLowerCase().endsWith(".mdx")) {
 
                 try {
-                    EditableModel model = MdxUtils.loadEditableModel(subFile);
+                    EditableModel model = MdxUtils.loadEditable(subFile);
                     for (Attachment atc : model.sortedIdObjects(Attachment.class)) {
                         if (atc.getPath() != null && atc.getPath().contains("NagaBirth")) {
                             atc.setPath("SharedModels\\" + atc.getPath().substring(atc.getPath().lastIndexOf("\\") + 1));
                         }
                     }
-                    MdxUtils.saveEditableModel(model, model.getFileRef());
+                    MdxUtils.saveMdx(model, model.getFileRef());
                 } catch (Exception e) {
                     System.err.println(subFile);
                     e.printStackTrace();

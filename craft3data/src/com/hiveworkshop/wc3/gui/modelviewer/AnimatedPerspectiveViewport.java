@@ -52,7 +52,6 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -198,7 +197,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 
 	private void loadDefaultCameraFor(final ModelView modelView) {
 		ExtLog extents = null;
-		final ArrayList<CollisionShape> collisionShapes = modelView.getModel().sortedIdObjects(CollisionShape.class);
+		final List<CollisionShape> collisionShapes = modelView.getModel().sortedIdObjects(CollisionShape.class);
 		if (collisionShapes.size() > 0) {
 			for (final CollisionShape shape : collisionShapes) {
 				if ((shape != null) && (shape.getExtents() != null) && shape.getExtents().hasBoundsRadius()) {
@@ -713,7 +712,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			// glColor3f(1f,1f,0f);
 			// glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE ) ;
 			// glEnable(GL_COLOR_MATERIAL);
-			final ArrayList<Geoset> geosets = modelView.getModel().getGeosets();
+			final List<Geoset> geosets = modelView.getModel().getGeosets();
 			render(geosets, formatVersion);
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
@@ -948,7 +947,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	// }
 	// }
 
-	public void render(final ArrayList<Geoset> geosets, final int formatVersion) {
+	public void render(final List<Geoset> geosets, final int formatVersion) {
 		for (final Geoset geo : geosets) {// .getMDL().getGeosets()
 			render(geo, true, formatVersion);
 		}

@@ -1,14 +1,12 @@
 package com.etheller.warsmash.parsers.mdlx;
 
-import java.io.IOException;
 import java.util.Iterator;
 
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
-import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataOutputStream;
 import com.hiveworkshop.util.BinaryReader;
+import com.hiveworkshop.util.BinaryWriter;
 
 public class MdlxParticleEmitter extends MdlxGenericObject {
 	public float emissionRate = 0;
@@ -23,13 +21,7 @@ public class MdlxParticleEmitter extends MdlxGenericObject {
 		super(0x1000);
 	}
 
-	/**
-	 * Restricts us to only be able to parse models on one thread at a time, in
-	 * return for high performance.
-	 */
-	private static final byte[] PATH_BYTES_HEAP = new byte[260];
-
-	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+	public void readMdx(final BinaryReader reader, final int version) {
 		final int position = reader.position();
 		final long size = reader.readUInt32();
 
@@ -47,28 +39,24 @@ public class MdlxParticleEmitter extends MdlxGenericObject {
 	}
 
 	@Override
-	public void writeMdx(final LittleEndianDataOutputStream stream, final int version) throws IOException {
-		ParseUtils.writeUInt32(stream, getByteLength(version));
+	public void writeMdx(final BinaryWriter writer, final int version) {
+		writer.writeUInt32(getByteLength(version));
 
-		super.writeMdx(stream, version);
+		super.writeMdx(writer, version);
 
-		stream.writeFloat(this.emissionRate);
-		stream.writeFloat(this.gravity);
-		stream.writeFloat(this.longitude);
-		stream.writeFloat(this.latitude);
-		final byte[] bytes = this.path.getBytes(ParseUtils.UTF8);
-		stream.write(bytes);
-		for (int i = 0; i < (PATH_BYTES_HEAP.length - bytes.length); i++) {
-			stream.write((byte) 0);
-		}
-		stream.writeFloat(this.lifeSpan);
-		stream.writeFloat(this.speed);
+		writer.writeFloat32(this.emissionRate);
+		writer.writeFloat32(this.gravity);
+		writer.writeFloat32(this.longitude);
+		writer.writeFloat32(this.latitude);
+		writer.writeWithNulls(path, 260);
+		writer.writeFloat32(this.lifeSpan);
+		writer.writeFloat32(this.speed);
 
-		writeNonGenericAnimationChunks(stream);
+		writeNonGenericAnimationChunks(writer);
 	}
 
 	@Override
-	public void readMdl(final MdlTokenInputStream stream, final int version) throws IOException {
+	public void readMdl(final MdlTokenInputStream stream, final int version) {
 		for (final String token : super.readMdlGeneric(stream)) {
 			switch (token) {
 			case MdlUtils.TOKEN_EMITTER_USES_MDL:
@@ -125,19 +113,19 @@ public class MdlxParticleEmitter extends MdlxGenericObject {
 						this.path = stream.read();
 						break;
 					default:
-						throw new IllegalStateException(
+						throw new RuntimeException(
 								"Unknown token in ParticleEmitter " + this.name + "'s Particle: " + subToken);
 					}
 				}
 				break;
 			default:
-				throw new IllegalStateException("Unknown token in ParticleEmitter " + this.name + ": " + token);
+				throw new RuntimeException("Unknown token in ParticleEmitter " + this.name + ": " + token);
 			}
 		}
 	}
 
 	@Override
-	public void writeMdl(final MdlTokenOutputStream stream, final int version) throws IOException {
+	public void writeMdl(final MdlTokenOutputStream stream, final int version) {
 		stream.startObjectBlock(MdlUtils.TOKEN_PARTICLE_EMITTER, this.name);
 		writeGenericHeader(stream);
 

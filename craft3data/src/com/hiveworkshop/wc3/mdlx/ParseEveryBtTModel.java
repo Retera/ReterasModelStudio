@@ -30,7 +30,7 @@ public class ParseEveryBtTModel {
 				if (str.toLowerCase().endsWith(".mdx")) {
 //				System.err.println(str);
 					try {
-						final MdlxModel loadModel = MdxUtils.loadModel(MpqCodebase.get().getResourceAsStream(str));
+						final MdlxModel loadModel = MdxUtils.loadMdlx(MpqCodebase.get().getResourceAsStream(str));
 						for (int seq = 0; seq < loadModel.sequences.size(); seq++) {
 							final MdlxSequence sequence = loadModel.sequences.get(seq);
 							if (sequence.syncPoint != 0) {

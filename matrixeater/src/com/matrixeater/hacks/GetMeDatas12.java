@@ -28,8 +28,8 @@ public class GetMeDatas12 {
 						"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Test\\Thrall\\SpiritWolf_Original.mdx")) {
 			try {
 
-				final EditableModel thrall = new EditableModel(MdxUtils.loadModel(thrallStream));
-				final EditableModel spiritwolf = new EditableModel(MdxUtils.loadModel(spiritwolfStream));
+				final EditableModel thrall = new EditableModel(MdxUtils.loadMdlx(thrallStream));
+				final EditableModel spiritwolf = new EditableModel(MdxUtils.loadMdlx(spiritwolfStream));
 
 				final int[] spiritwolfGeosets = { 0, 1, 4, 5, 6, 7, 8, 9 };
 
@@ -80,7 +80,7 @@ public class GetMeDatas12 {
 					geosetAnim.copyVisibilityFrom(thrall.getGeoset(3).getGeosetAnim(), thrall);
 				}
 
-				MdxUtils.saveEditableModel(thrall, new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Test\\Thrall\\Thrall_Output.mdx"));
+				MdxUtils.saveMdx(thrall, new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Test\\Thrall\\Thrall_Output.mdx"));
 			} catch (final IOException e) {
 				e.printStackTrace();
 			}

@@ -1,13 +1,14 @@
 package com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util;
 
-import com.etheller.collections.ListView;
+import java.util.List;
+
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 
 public final class CompoundAction implements UndoAction {
-	private final ListView<? extends UndoAction> actions;
+	private final List<? extends UndoAction> actions;
 	private final String name;
 
-	public CompoundAction(final String name, final ListView<? extends UndoAction> actions) {
+	public CompoundAction(final String name, final List<? extends UndoAction> actions) {
 		this.name = name;
 		this.actions = actions;
 	}

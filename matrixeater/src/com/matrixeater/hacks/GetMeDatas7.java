@@ -3,9 +3,9 @@ package com.matrixeater.hacks;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
-import com.etheller.collections.SetView;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.EditableModel;
@@ -16,7 +16,7 @@ import com.hiveworkshop.wc3.mpq.MpqCodebase;
 public class GetMeDatas7 {
 
 	public static void main(final String[] args) {
-		final SetView<String> mergedListfile = MpqCodebase.get().getMergedListfile();
+		final Set<String> mergedListfile = MpqCodebase.get().getMergedListfile();
 //		for (final String file : mergedListfile) {
 //			System.out.println(file);
 //		}
@@ -47,9 +47,9 @@ public class GetMeDatas7 {
 //				footmanMdx.save(out);
 //			}
 
-			final EditableModel model = new EditableModel(MdxUtils.loadModel(footman));
+			final EditableModel model = new EditableModel(MdxUtils.loadMdlx(footman));
 			for (final Geoset geo : model.getGeosets()) {
-				final ArrayList<GeosetVertex> vertices = geo.getVertices();
+				final List<GeosetVertex> vertices = geo.getVertices();
 				for (final GeosetVertex gv : vertices) {
 					final Normal normal = gv.getNormal();
 					if (normal != null) {
@@ -84,7 +84,7 @@ public class GetMeDatas7 {
 //					l.setEmissive(1.0);
 //				}
 //			}
-			MdxUtils.saveEditableModel(model, new File("D:\\NEEDS_ORGANIZING\\Scratch\\Gimli_by_Jhotam\\Gimli_LOTR_ByJhotam_900_bxd.mdx"));
+			MdxUtils.saveMdx(model, new File("D:\\NEEDS_ORGANIZING\\Scratch\\Gimli_by_Jhotam\\Gimli_LOTR_ByJhotam_900_bxd.mdx"));
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}

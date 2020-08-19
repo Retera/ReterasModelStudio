@@ -1,16 +1,14 @@
 package com.etheller.warsmash.parsers.mdlx;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
-import com.etheller.warsmash.parsers.mdlx.timeline.Timeline;
+import com.etheller.warsmash.parsers.mdlx.timeline.MdlxTimeline;
 import com.etheller.warsmash.util.MdlUtils;
-import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataOutputStream;
 import com.hiveworkshop.util.BinaryReader;
+import com.hiveworkshop.util.BinaryWriter;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
 
 /**
@@ -32,7 +30,7 @@ public abstract class MdlxGenericObject extends MdlxAnimatedObject {
 		this.flags = flags;
 	}
 
-	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+	public void readMdx(final BinaryReader reader, final int version) {
 		final long size = reader.readUInt32();
 
 		this.name = reader.read(80);
@@ -43,26 +41,21 @@ public abstract class MdlxGenericObject extends MdlxAnimatedObject {
 		readTimelines(reader, size - 96);
 	}
 
-	@Override
-	public void writeMdx(final LittleEndianDataOutputStream stream, final int version) throws IOException {
-		ParseUtils.writeUInt32(stream, getGenericByteLength(version));
-		final byte[] bytes = this.name.getBytes(ParseUtils.UTF8);
-		stream.write(bytes);
-		for (int i = 0; i < (80 - bytes.length); i++) {
-			stream.write((byte) 0);
-		}
-		stream.writeInt(this.objectId);
-		stream.writeInt(this.parentId);
-		stream.writeInt(this.flags); // UInt32 in ghostwolf JS, shouldn't matter for Java
+	public void writeMdx(final BinaryWriter writer, final int version) {
+		writer.writeUInt32(getGenericByteLength(version));
+		writer.writeWithNulls(name, 80);
+		writer.writeInt32(this.objectId);
+		writer.writeInt32(this.parentId);
+		writer.writeInt32(this.flags);
 
-		for (final Timeline<?> timeline : eachTimeline(true)) {
-			timeline.writeMdx(stream);
+		for (final MdlxTimeline<?> timeline : eachTimeline(true)) {
+			timeline.writeMdx(writer);
 		}
 	}
 
-	public void writeNonGenericAnimationChunks(final LittleEndianDataOutputStream stream) throws IOException {
-		for (final Timeline<?> timeline : eachTimeline(false)) {
-			timeline.writeMdx(stream);
+	public void writeNonGenericAnimationChunks(final BinaryWriter writer) {
+		for (final MdlxTimeline<?> timeline : eachTimeline(false)) {
+			timeline.writeMdx(writer);
 		}
 	}
 
@@ -117,19 +110,19 @@ public abstract class MdlxGenericObject extends MdlxAnimatedObject {
 		}
 	}
 
-	public void writeGenericTimelines(final MdlTokenOutputStream stream) throws IOException {
+	public void writeGenericTimelines(final MdlTokenOutputStream stream) {
 		this.writeTimeline(stream, AnimationMap.KGTR);
 		this.writeTimeline(stream, AnimationMap.KGRT);
 		this.writeTimeline(stream, AnimationMap.KGSC);
 	}
 
-	public Iterable<Timeline<?>> eachTimeline(final boolean generic) {
+	public Iterable<MdlxTimeline<?>> eachTimeline(final boolean generic) {
 		return new TimelineMaskingIterable(generic);
 	}
 
 	public long getGenericByteLength(final int version) {
 		long size = 96;
-		for (final Timeline<?> animation : eachTimeline(true)) {
+		for (final MdlxTimeline<?> animation : eachTimeline(true)) {
 			size += animation.getByteLength();
 		}
 		return size;
@@ -140,7 +133,7 @@ public abstract class MdlxGenericObject extends MdlxAnimatedObject {
 		return 96 + super.getByteLength(version);
 	}
 
-	private final class TimelineMaskingIterable implements Iterable<Timeline<?>> {
+	private final class TimelineMaskingIterable implements Iterable<MdlxTimeline<?>> {
 		private final boolean generic;
 
 		private TimelineMaskingIterable(final boolean generic) {
@@ -148,25 +141,25 @@ public abstract class MdlxGenericObject extends MdlxAnimatedObject {
 		}
 
 		@Override
-		public Iterator<Timeline<?>> iterator() {
+		public Iterator<MdlxTimeline<?>> iterator() {
 			return new TimelineMaskingIterator(this.generic, MdlxGenericObject.this.timelines);
 		}
 	}
 
-	private static final class TimelineMaskingIterator implements Iterator<Timeline<?>> {
+	private static final class TimelineMaskingIterator implements Iterator<MdlxTimeline<?>> {
 		private final boolean wantGeneric;
-		private final Iterator<Timeline<?>> delegate;
+		private final Iterator<MdlxTimeline<?>> delegate;
 		private boolean hasNext;
-		private Timeline<?> next;
+		private MdlxTimeline<?> next;
 
-		public TimelineMaskingIterator(final boolean wantGeneric, final List<Timeline<?>> timelines) {
+		public TimelineMaskingIterator(final boolean wantGeneric, final List<MdlxTimeline<?>> timelines) {
 			this.wantGeneric = wantGeneric;
 			this.delegate = timelines.iterator();
 			scanUntilNext();
 		}
 
-		private boolean isGeneric(final Timeline<?> timeline) {
-			final War3ID name = timeline.getName();
+		private boolean isGeneric(final MdlxTimeline<?> timeline) {
+			final War3ID name = timeline.name;
 			final boolean generic = AnimationMap.KGTR.getWar3id().equals(name)
 					|| AnimationMap.KGRT.getWar3id().equals(name) || AnimationMap.KGSC.getWar3id().equals(name);
 			return generic;
@@ -191,8 +184,8 @@ public abstract class MdlxGenericObject extends MdlxAnimatedObject {
 		}
 
 		@Override
-		public Timeline<?> next() {
-			final Timeline<?> last = this.next;
+		public MdlxTimeline<?> next() {
+			final MdlxTimeline<?> last = this.next;
 			scanUntilNext();
 			return last;
 		}
@@ -290,30 +283,15 @@ public abstract class MdlxGenericObject extends MdlxAnimatedObject {
 					token = null;
 					break;
 				case MdlUtils.TOKEN_TRANSLATION:
-					try {
-						this.updatingObject.readTimeline(this.stream, AnimationMap.KGTR);
-					}
-					catch (final IOException e) {
-						throw new RuntimeException(e);
-					}
+					this.updatingObject.readTimeline(this.stream, AnimationMap.KGTR);
 					token = null;
 					break;
 				case MdlUtils.TOKEN_ROTATION:
-					try {
-						this.updatingObject.readTimeline(this.stream, AnimationMap.KGRT);
-					}
-					catch (final IOException e) {
-						throw new RuntimeException(e);
-					}
+					this.updatingObject.readTimeline(this.stream, AnimationMap.KGRT);
 					token = null;
 					break;
 				case MdlUtils.TOKEN_SCALING:
-					try {
-						this.updatingObject.readTimeline(this.stream, AnimationMap.KGSC);
-					}
-					catch (final IOException e) {
-						throw new RuntimeException(e);
-					}
+					this.updatingObject.readTimeline(this.stream, AnimationMap.KGSC);
 					token = null;
 					break;
 				default:

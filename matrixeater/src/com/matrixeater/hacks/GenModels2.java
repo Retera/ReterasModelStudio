@@ -3,6 +3,7 @@ package com.matrixeater.hacks;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
@@ -45,12 +46,12 @@ public class GenModels2 {
 		model.add(animation);
 
 		System.out.println(geoset.getVertices().size());
-		final ArrayList<GeosetVertex> vertices = geoset.getVertices();
+		final List<GeosetVertex> vertices = geoset.getVertices();
 		for (int i = 0; i < vertices.size(); i++) {
 			vertices.get(i).getTVertex(0).scale(0, 0, 1 / 4f, 1 / 4f);
 			System.out.println(vertices.get(i).getTVertex(0));
 		}
-		final ArrayList<AnimFlag> flags = new ArrayList<>();
+		final List<AnimFlag> flags = new ArrayList<>();
 		final AnimFlag translationData = new AnimFlag("Translation");
 		for (int i = 0; i < 16; i++) {
 			translationData.addEntry(333 + (i * 1000), new Vertex((i % 4) * 0.25, (i / 4) * 0.25, 0));
@@ -59,6 +60,6 @@ public class GenModels2 {
 		final TextureAnim textureAnim = new TextureAnim(flags);
 		material.getLayers().get(0).setTextureAnim(textureAnim);
 
-		MdxUtils.saveEditableModel(model, new File(dest.getPath() + "\\ParticleTest.mdl"));
+		MdxUtils.saveMdx(model, new File(dest.getPath() + "\\ParticleTest.mdl"));
 	}
 }

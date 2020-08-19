@@ -122,7 +122,7 @@ public class ListFileFinder {
 		} else if (mpq.has(extension(fieldAsString, "mdx"))) {
 			usedFileList.add(extension(fieldAsString, "mdx"));
 			try {
-				final EditableModel modelFile = MdxUtils.loadEditableModel(MpqCodebase.get().getFile(extension(fieldAsString, "mdx")));
+				final EditableModel modelFile = MdxUtils.loadEditable(MpqCodebase.get().getFile(extension(fieldAsString, "mdx")));
 				for (final Bitmap tex : modelFile.getTextures()) {
 					if ((tex.getPath() != null) && (tex.getPath().length() > 0)) {
 						checkString(usedFileList, mpq, tex.getPath());

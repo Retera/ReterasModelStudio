@@ -1,8 +1,8 @@
 package com.hiveworkshop.wc3.gui.modeledit.newstuff;
 
+import java.util.Arrays;
 import java.util.Collection;
 
-import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.animedit.NodeAnimationModelEditor;
 import com.hiveworkshop.wc3.gui.animedit.NodeAnimationSelectionManager;
@@ -69,8 +69,7 @@ public final class ModelEditorManager {
 			}
 			viewportSelectionHandler.setSelectingEventHandler(modelEditor);
 			modelEditorChangeListener.modelEditorChanged(modelEditor);
-			selectionView = new MultiPartSelectionView(
-					ListView.Util.<SelectionView> of(selectionManager, pivotSelectionManager));
+			selectionView = new MultiPartSelectionView(Arrays.asList(selectionManager, pivotSelectionManager));
 			selectionListener.onSelectionChanged(selectionView);
 			nodeAnimationSelectionManager = null;
 			modelEditorNotifier.setCloneContextHelper(new CloneContextHelper(model, structureChangeListener,
@@ -94,8 +93,7 @@ public final class ModelEditorManager {
 			}
 			viewportSelectionHandler.setSelectingEventHandler(modelEditor);
 			modelEditorChangeListener.modelEditorChanged(modelEditor);
-			selectionView = new MultiPartSelectionView(
-					ListView.Util.<SelectionView> of(selectionManager, pivotSelectionManager));
+			selectionView = new MultiPartSelectionView(Arrays.asList(selectionManager, pivotSelectionManager));
 			selectionListener.onSelectionChanged(selectionView);
 			nodeAnimationSelectionManager = null;
 			modelEditorNotifier.setCloneContextHelper(new CloneContextHelper(model, structureChangeListener,
@@ -150,8 +148,7 @@ public final class ModelEditorManager {
 			}
 			viewportSelectionHandler.setSelectingEventHandler(modelEditor);
 			modelEditorChangeListener.modelEditorChanged(modelEditor);
-			selectionView = new MultiPartSelectionView(
-					ListView.Util.<SelectionView> of(selectionManager, pivotSelectionManager));
+			selectionView = new MultiPartSelectionView(Arrays.asList(selectionManager, pivotSelectionManager));
 			selectionListener.onSelectionChanged(selectionView);
 			nodeAnimationSelectionManager = null;
 			modelEditorNotifier.setCloneContextHelper(new CloneContextHelper(model, structureChangeListener,
@@ -176,8 +173,7 @@ public final class ModelEditorManager {
 			}
 			viewportSelectionHandler.setSelectingEventHandler(modelEditor);
 			modelEditorChangeListener.modelEditorChanged(modelEditor);
-			selectionView = new MultiPartSelectionView(
-					ListView.Util.<SelectionView> of(selectionManager, pivotSelectionManager));
+			selectionView = new MultiPartSelectionView(Arrays.asList(selectionManager, pivotSelectionManager));
 			selectionListener.onSelectionChanged(selectionView);
 			nodeAnimationSelectionManager = null;
 			modelEditorNotifier.setCloneContextHelper(new CloneContextHelper(model, structureChangeListener,

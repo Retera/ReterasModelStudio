@@ -1,6 +1,6 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import com.etheller.warsmash.parsers.mdlx.MdlxTextureAnimation;
 
@@ -17,7 +17,7 @@ public class TextureAnim extends TimelineContainer {
 		animFlags.add(flag);
 	}
 
-	public TextureAnim(final ArrayList<AnimFlag> flags) {
+	public TextureAnim(final List<AnimFlag> flags) {
 		animFlags = flags;
 	}
 
@@ -37,9 +37,5 @@ public class TextureAnim extends TimelineContainer {
 		timelinesToMdlx(animation);
 
 		return animation;
-	}
-
-	private TextureAnim() {
-
 	}
 }

@@ -6,10 +6,10 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import com.etheller.warsmash.parsers.mdlx.AnimationMap;
-import com.etheller.warsmash.parsers.mdlx.timeline.FloatArrayTimeline;
-import com.etheller.warsmash.parsers.mdlx.timeline.FloatTimeline;
-import com.etheller.warsmash.parsers.mdlx.timeline.Timeline;
-import com.etheller.warsmash.parsers.mdlx.timeline.UInt32Timeline;
+import com.etheller.warsmash.parsers.mdlx.timeline.MdlxFloatArrayTimeline;
+import com.etheller.warsmash.parsers.mdlx.timeline.MdlxFloatTimeline;
+import com.etheller.warsmash.parsers.mdlx.timeline.MdlxTimeline;
+import com.etheller.warsmash.parsers.mdlx.timeline.MdlxUInt32Timeline;
 import com.hiveworkshop.wc3.gui.animedit.BasicTimeBoundProvider;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
@@ -96,15 +96,15 @@ public class AnimFlag {
 	public static final int OTHER_TYPE = 0;
 
 	War3ID id;
-	ArrayList<String> tags = new ArrayList<>();
+	List<String> tags = new ArrayList<>();
 	String title;
 	Integer globalSeq;
 	int globalSeqId = -1;
 	boolean hasGlobalSeq = false;
-	ArrayList<Integer> times = new ArrayList<>();
-	ArrayList values = new ArrayList();
-	ArrayList inTans = new ArrayList();
-	ArrayList outTans = new ArrayList();
+	List<Integer> times = new ArrayList<>();
+	List values = new ArrayList();
+	List inTans = new ArrayList();
+	List outTans = new ArrayList();
 	int typeid = 0;
 	int vectorSize = 1;
 	boolean isFloat = true;
@@ -136,14 +136,9 @@ public class AnimFlag {
 	public void setGlobalSeq(final Integer globalSeq) {
 		this.globalSeq = globalSeq;
 	}
-
-	// begin constructors from ogre-lord's API:
-	private static Double box(final float f) {
-		return new Double(f);
-	}
 	
-	public AnimFlag(final Timeline timeline) {
-		id = timeline.getName();
+	public AnimFlag(final MdlxTimeline<?> timeline) {
+		id = timeline.name;
 		title = AnimationMap.ID_TO_TAG.get(id).getMdlToken();
 		generateTypeId();
 
@@ -183,11 +178,11 @@ public class AnimFlag {
 					float[] valueAsArray = (float[])value;
 
 					if (vectorSize == 1) {
-						valueAsObject = box(valueAsArray[0]);
+						valueAsObject = Double.valueOf(valueAsArray[0]);
 
 						if (hasTangents) {
-							inTanAsObject = box(((float[])inTans[i])[0]);
-							outTanAsObject = box(((float[])outTans[i])[0]);
+							inTanAsObject = Double.valueOf(((float[])inTans[i])[0]);
+							outTanAsObject = Double.valueOf(((float[])outTans[i])[0]);
 						}
 					} else if (vectorSize == 3) {
 						valueAsObject = new Vertex(valueAsArray);
@@ -218,29 +213,29 @@ public class AnimFlag {
 		}
 	}
 
-	public Timeline toMdlx() {
-		Timeline timeline;
+	public MdlxTimeline toMdlx() {
+		MdlxTimeline timeline;
 
 		if (isFloat) {
 			if (vectorSize == 1) {
-				timeline = new FloatTimeline();
+				timeline = new MdlxFloatTimeline();
 			} else if (vectorSize == 3) {
-				timeline = new FloatArrayTimeline(3);
+				timeline = new MdlxFloatArrayTimeline(3);
 			} else {
-				timeline = new FloatArrayTimeline(4);
+				timeline = new MdlxFloatArrayTimeline(4);
 			}
 		} else {
-			timeline = new UInt32Timeline();
+			timeline = new MdlxUInt32Timeline();
 		}
 
 		timeline.name = id;
 		timeline.interpolationType = com.etheller.warsmash.parsers.mdlx.InterpolationType.getType(getInterpType());
 		timeline.globalSequenceId = getGlobalSeqId();
 
-		ArrayList<Integer> times = getTimes();
-		ArrayList<Object> values = getValues();
-		ArrayList<Object> inTans = getInTans();
-		ArrayList<Object> outTans = getOutTans();
+		List<Integer> times = getTimes();
+		List<Object> values = getValues();
+		List<Object> inTans = getInTans();
+		List<Object> outTans = getOutTans();
 
 		long[] tempFrames = new long[times.size()];
 		Object[] tempValues = new Object[times.size()];
@@ -308,7 +303,7 @@ public class AnimFlag {
 	}
 
 	// end special constructors
-	public AnimFlag(final String title, final ArrayList<Integer> times, final ArrayList values) {
+	public AnimFlag(final String title, final List<Integer> times, final List values) {
 		this.title = title;
 		this.times = times;
 		this.values = values;
@@ -585,9 +580,9 @@ public class AnimFlag {
 		outTans = deepCopy(af.outTans);
 	}
 
-	private <T> ArrayList<T> deepCopy(final ArrayList<T> source) {
+	private <T> List<T> deepCopy(final List<T> source) {
 
-		final ArrayList<T> copy = new ArrayList<>();
+		final List<T> copy = new ArrayList<>();
 		for (final T item : source) {
 			T toAdd = item;
 			if (item instanceof Vertex) {
@@ -612,29 +607,6 @@ public class AnimFlag {
 
 	private AnimFlag() {
 
-	}
-
-	public static AnimFlag find(final List<AnimFlag> flags, final String name, final Integer globalSeq) {
-		// TODO make flags be a map and remove this method, this is 2018
-		// not 2012 anymore, and I learned basic software dev
-		for (final AnimFlag flag : flags) {
-			if (flag.getName().equals(name) && (((globalSeq == null) && (flag.globalSeq == null))
-					|| ((globalSeq != null) && globalSeq.equals(flag.globalSeq)))) {
-				return flag;
-			}
-		}
-		return null;
-	}
-
-	public static AnimFlag find(final List<AnimFlag> flags, final String name) {
-		// TODO make flags be a map and remove this method, this is 2018
-		// not 2012 anymore, and I learned basic software dev
-		for (final AnimFlag flag : flags) {
-			if (flag.getName().equals(name)) {
-				return flag;
-			}
-		}
-		return null;
 	}
 
 	public void updateGlobalSeqRef(final EditableModel mdlr) {
@@ -799,10 +771,10 @@ public class AnimFlag {
 	public AnimFlag getMostVisible(final AnimFlag partner) {
 		if (partner != null) {
 			if ((typeid == 0) && (partner.typeid == 0)) {
-				final ArrayList<Integer> atimes = new ArrayList<>(times);
-				final ArrayList<Integer> btimes = new ArrayList<>(partner.times);
-				final ArrayList<Double> avalues = new ArrayList(values);
-				final ArrayList<Double> bvalues = new ArrayList(partner.values);
+				final List<Integer> atimes = new ArrayList<>(times);
+				final List<Integer> btimes = new ArrayList<>(partner.times);
+				final List<Double> avalues = new ArrayList(values);
+				final List<Double> bvalues = new ArrayList(partner.values);
 				AnimFlag mostVisible = null;
 				for (int i = atimes.size() - 1; i >= 0; i--)
 				// count down from top, meaning that removing the current value
@@ -1096,19 +1068,19 @@ public class AnimFlag {
 		}
 	}
 
-	public ArrayList getValues() {
+	public List getValues() {
 		return values;
 	}
 
-	public ArrayList<Integer> getTimes() {
+	public List<Integer> getTimes() {
 		return times;
 	}
 
-	public ArrayList getInTans() {
+	public List getInTans() {
 		return inTans;
 	}
 
-	public ArrayList getOutTans() {
+	public List getOutTans() {
 		return outTans;
 	}
 

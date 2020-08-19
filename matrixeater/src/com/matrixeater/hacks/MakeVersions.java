@@ -21,7 +21,7 @@ public class MakeVersions {
 		final File sourceDir = new File(
 				"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\ReteraCubes\\Work\\Animation\\Linear");
 		for (final File linearModel : sourceDir.listFiles()) {
-			final EditableModel modelData = MdxUtils.loadEditableModel(linearModel);
+			final EditableModel modelData = MdxUtils.loadEditable(linearModel);
 			String flagName = "None";
 			for (final Bone bone : modelData.sortedIdObjects(Bone.class)) {
 				final List<AnimFlag> flags = bone.getAnimFlags();
@@ -43,7 +43,7 @@ public class MakeVersions {
 							+ "\\ReteraCube_" + interpType.name().charAt(0)
 							+ interpType.name().toLowerCase().substring(1) + flagName + ".mdx");
 			outputFile.getParentFile().mkdirs();
-			MdxUtils.saveEditableModel(modelData, outputFile);
+			MdxUtils.saveMdx(modelData, outputFile);
 		}
 	}
 

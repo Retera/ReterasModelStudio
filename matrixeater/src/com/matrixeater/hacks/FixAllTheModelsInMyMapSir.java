@@ -19,11 +19,11 @@ public class FixAllTheModelsInMyMapSir {
 				traverse(subFile);
 			}
 		} else if (file.getName().toLowerCase().endsWith(".mdx")) {
-			final EditableModel model = MdxUtils.loadEditableModel(file);
+			final EditableModel model = MdxUtils.loadEditable(file);
 			System.out.println(file.getPath());
 			if (model.getFormatVersion() != 900) {
 				model.setFormatVersion(900);
-				MdxUtils.saveEditableModel(model, file);
+				MdxUtils.saveMdx(model, file);
 			}
 		}
 	}

@@ -4,13 +4,13 @@ import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.FaceCreationException;
@@ -103,7 +103,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	@Override
 	public UndoAction expandSelection() {
 		final Set<GeosetVertex> expandedSelection = new HashSet<>(selectionManager.getSelection());
-		final ArrayList<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
+		final List<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
 		for (final GeosetVertex v : oldSelection) {
 			expandSelection(v, expandedSelection);
 		}
@@ -124,7 +124,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 
 	@Override
 	public UndoAction invertSelection() {
-		final ArrayList<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
+		final List<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
 		final Set<GeosetVertex> invertedSelection = new HashSet<>(selectionManager.getSelection());
 		for (final Geoset geo : model.getEditableGeosets()) {
 			for (final GeosetVertex geosetVertex : geo.getVertices()) {
@@ -145,7 +145,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 
 	@Override
 	public UndoAction selectAll() {
-		final ArrayList<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
+		final List<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
 		final Set<GeosetVertex> allSelection = new HashSet<>();
 		for (final Geoset geo : model.getEditableGeosets()) {
 			for (final GeosetVertex geosetVertex : geo.getVertices()) {
@@ -225,7 +225,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	}
 
 	@Override
-	protected UndoAction buildHideComponentAction(final ListView<? extends SelectableComponent> selectableComponents,
+	protected UndoAction buildHideComponentAction(final List<? extends SelectableComponent> selectableComponents,
 			final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
 		final List<GeosetVertex> previousSelection = new ArrayList<>(selectionManager.getSelection());
 		final List<GeosetVertex> possibleVerticesToTruncate = new ArrayList<>();
@@ -307,7 +307,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	@Override
 	public UndoAction addVertex(final double x, final double y, final double z,
 			final Vertex preferredNormalFacingVector) {
-		final ArrayList<Geoset> geosets = model.getModel().getGeosets();
+		final List<Geoset> geosets = model.getModel().getGeosets();
 		Geoset solidWhiteGeoset = null;
 		for (final Geoset geoset : geosets) {
 			final Layer firstLayer = geoset.getMaterial().firstLayer();
@@ -332,7 +332,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 		if (needsGeosetAction) {
 			final NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, model.getModel(),
 					structureChangeListener);
-			action = new CompoundAction("add vertex", ListView.Util.of(newGeosetAction, drawVertexAction));
+			action = new CompoundAction("add vertex", Arrays.asList(newGeosetAction, drawVertexAction));
 		} else {
 			action = drawVertexAction;
 		}

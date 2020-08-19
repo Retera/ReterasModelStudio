@@ -4,10 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.etheller.warsmash.parsers.mdlx.MdlxRibbonEmitter;
-
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
-import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
-
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 
 /**
@@ -111,7 +108,7 @@ public class RibbonEmitter extends IdObject {
 		return x;
 	}
 
-	public void updateMaterialRef(final ArrayList<Material> mats) {
+	public void updateMaterialRef(final List<Material> mats) {
 		if (getMaterialId() == -1) {
 			material = null;
 			return;

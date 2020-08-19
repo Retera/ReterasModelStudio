@@ -5,13 +5,12 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import com.etheller.collections.HashMap;
-import com.etheller.collections.ListView;
-import com.etheller.collections.Map;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.animedit.WrongModeException;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
@@ -65,7 +64,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 
 	@Override
 	public UndoAction setParent(final IdObject node) {
-		final HashMap<IdObject, IdObject> nodeToOldParent = new HashMap<>();
+		final Map<IdObject, IdObject> nodeToOldParent = new HashMap<>();
 		for (final IdObject b : model.getEditableIdObjects()) {
 			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
 				nodeToOldParent.put(b, b.getParent());
@@ -89,7 +88,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		for (final IdObject obj : selBones) {
 			if (Bone.class.isAssignableFrom(obj.getClass())) {
 				final Bone bone = (Bone) obj;
-				final ArrayList<GeosetVertex> childVerts = new ArrayList<>();
+				final List<GeosetVertex> childVerts = new ArrayList<>();
 				for (final Geoset geo : model.getModel().getGeosets()) {
 					childVerts.addAll(geo.getChildrenOf(bone));
 				}
@@ -120,7 +119,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	@Override
 	public UndoAction addSelectedBoneSuffix(final String name) {
 		final Set<IdObject> selection = selectionManager.getSelection();
-		final com.etheller.collections.List<RenameBoneAction> actions = new com.etheller.collections.ArrayList<>();
+		final List<RenameBoneAction> actions = new ArrayList<>();
 		for (final IdObject bone : selection) {
 			final RenameBoneAction renameBoneAction = new RenameBoneAction(bone.getName(), bone.getName() + name, bone);
 			renameBoneAction.redo();
@@ -217,7 +216,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	@Override
 	public UndoAction invertSelection() {
 		throw new WrongModeException("Not supported in T-Pose mode");
-		// final ArrayList<Vertex> oldSelection = new
+		// final List<Vertex> oldSelection = new
 		// ArrayList<>(selectionManager.getSelection());
 		// final Set<Vertex> invertedSelection = new
 		// HashSet<>(selectionManager.getSelection());
@@ -298,7 +297,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	@Override
 	public UndoAction selectAll() {
 		throw new WrongModeException("Not supported in T-Pose mode");
-		// final ArrayList<Vertex> oldSelection = new
+		// final List<Vertex> oldSelection = new
 		// ArrayList<>(selectionManager.getSelection());
 		// final Set<Vertex> allSelection = new HashSet<>();
 		// final IdObjectVisitor visitor = new IdObjectVisitor() {
@@ -436,7 +435,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	}
 
 	@Override
-	protected UndoAction buildHideComponentAction(final ListView<? extends SelectableComponent> selectableComponents,
+	protected UndoAction buildHideComponentAction(final List<? extends SelectableComponent> selectableComponents,
 			final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
 		final List<IdObject> previousSelection = new ArrayList<>(selectionManager.getSelection());
 		final Runnable truncateSelectionRunnable = new Runnable() {
@@ -698,7 +697,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 
 					@Override
 					public void helper(final Helper object) {
-						final AnimFlag translation = AnimFlag.find(object.getAnimFlags(), "Translation");
+						final AnimFlag translation = object.find("Translation");
 						if (translation != null) {
 							for (int i = 0; i < translation.size(); i++) {
 								final Vertex scaleData = (Vertex) translation.getValues().get(i);
@@ -731,7 +730,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 
 					@Override
 					public void bone(final Bone object) {
-						final AnimFlag translation = AnimFlag.find(object.getAnimFlags(), "Translation");
+						final AnimFlag translation = object.find("Translation");
 						if (translation != null) {
 							for (int i = 0; i < translation.size(); i++) {
 								final Vertex scaleData = (Vertex) translation.getValues().get(i);

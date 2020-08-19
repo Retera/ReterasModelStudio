@@ -1,13 +1,10 @@
 package com.etheller.warsmash.parsers.mdlx;
 
-import java.io.IOException;
-
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
-import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataOutputStream;
 import com.hiveworkshop.util.BinaryReader;
+import com.hiveworkshop.util.BinaryWriter;
 
 public class MdlxParticleEmitter2 extends MdlxGenericObject {
 	// 0: blend
@@ -85,7 +82,7 @@ public class MdlxParticleEmitter2 extends MdlxGenericObject {
 		super(0x1000);
 	}
 
-	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+	public void readMdx(final BinaryReader reader, final int version) {
 		final int position = reader.position();
 		final long size = reader.readUInt32();
 
@@ -123,44 +120,44 @@ public class MdlxParticleEmitter2 extends MdlxGenericObject {
 	}
 
 	@Override
-	public void writeMdx(final LittleEndianDataOutputStream stream, final int version) throws IOException {
-		ParseUtils.writeUInt32(stream, getByteLength(version));
+	public void writeMdx(final BinaryWriter writer, final int version) {
+		writer.writeUInt32(getByteLength(version));
 
-		super.writeMdx(stream, version);
+		super.writeMdx(writer, version);
 
-		stream.writeFloat(this.speed);
-		stream.writeFloat(this.variation);
-		stream.writeFloat(this.latitude);
-		stream.writeFloat(this.gravity);
-		stream.writeFloat(this.lifeSpan);
-		stream.writeFloat(this.emissionRate);
-		stream.writeFloat(this.length);
-		stream.writeFloat(this.width);
-		ParseUtils.writeUInt32(stream, this.filterMode.ordinal());
-		ParseUtils.writeUInt32(stream, this.rows);
-		ParseUtils.writeUInt32(stream, this.columns);
-		ParseUtils.writeUInt32(stream, this.headOrTail);
-		stream.writeFloat(this.tailLength);
-		stream.writeFloat(this.timeMiddle);
-		ParseUtils.writeFloatArray(stream, this.segmentColors[0]);
-		ParseUtils.writeFloatArray(stream, this.segmentColors[1]);
-		ParseUtils.writeFloatArray(stream, this.segmentColors[2]);
-		ParseUtils.writeUInt8Array(stream, this.segmentAlphas);
-		ParseUtils.writeFloatArray(stream, this.segmentScaling);
-		ParseUtils.writeUInt32Array(stream, this.headIntervals[0]);
-		ParseUtils.writeUInt32Array(stream, this.headIntervals[1]);
-		ParseUtils.writeUInt32Array(stream, this.tailIntervals[0]);
-		ParseUtils.writeUInt32Array(stream, this.tailIntervals[1]);
-		stream.writeInt(this.textureId);
-		ParseUtils.writeUInt32(stream, this.squirt);
-		stream.writeInt(this.priorityPlane);
-		ParseUtils.writeUInt32(stream, this.replaceableId);
+		writer.writeFloat32(this.speed);
+		writer.writeFloat32(this.variation);
+		writer.writeFloat32(this.latitude);
+		writer.writeFloat32(this.gravity);
+		writer.writeFloat32(this.lifeSpan);
+		writer.writeFloat32(this.emissionRate);
+		writer.writeFloat32(this.length);
+		writer.writeFloat32(this.width);
+		writer.writeUInt32(this.filterMode.ordinal());
+		writer.writeUInt32(this.rows);
+		writer.writeUInt32(this.columns);
+		writer.writeUInt32(this.headOrTail);
+		writer.writeFloat32(this.tailLength);
+		writer.writeFloat32(this.timeMiddle);
+		writer.writeFloat32Array(this.segmentColors[0]);
+		writer.writeFloat32Array(this.segmentColors[1]);
+		writer.writeFloat32Array(this.segmentColors[2]);
+		writer.writeUInt8Array(this.segmentAlphas);
+		writer.writeFloat32Array(this.segmentScaling);
+		writer.writeUInt32Array(this.headIntervals[0]);
+		writer.writeUInt32Array(this.headIntervals[1]);
+		writer.writeUInt32Array(this.tailIntervals[0]);
+		writer.writeUInt32Array(this.tailIntervals[1]);
+		writer.writeInt32(this.textureId);
+		writer.writeUInt32(this.squirt);
+		writer.writeInt32(this.priorityPlane);
+		writer.writeUInt32(this.replaceableId);
 
-		writeNonGenericAnimationChunks(stream);
+		writeNonGenericAnimationChunks(writer);
 	}
 
 	@Override
-	public void readMdl(final MdlTokenInputStream stream, final int version) throws IOException {
+	public void readMdl(final MdlTokenInputStream stream, final int version) {
 		for (final String token : super.readMdlGeneric(stream)) {
 			switch (token) {
 			case MdlUtils.TOKEN_SORT_PRIMS_FAR_Z:
@@ -305,15 +302,14 @@ public class MdlxParticleEmitter2 extends MdlxGenericObject {
 			case MdlUtils.TOKEN_PRIORITY_PLANE:
 				this.priorityPlane = stream.readInt();
 				break;
-
 			default:
-				throw new IllegalStateException("Unknown token in ParticleEmitter2 " + this.name + ": " + token);
+				throw new RuntimeException("Unknown token in ParticleEmitter2 " + this.name + ": " + token);
 			}
 		}
 	}
 
 	@Override
-	public void writeMdl(final MdlTokenOutputStream stream, final int version) throws IOException {
+	public void writeMdl(final MdlTokenOutputStream stream, final int version) {
 		stream.startObjectBlock(MdlUtils.TOKEN_PARTICLE_EMITTER2, this.name);
 		writeGenericHeader(stream);
 

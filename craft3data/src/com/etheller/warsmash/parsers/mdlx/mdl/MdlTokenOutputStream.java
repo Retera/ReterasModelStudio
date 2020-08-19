@@ -3,17 +3,9 @@ package com.etheller.warsmash.parsers.mdlx.mdl;
 import java.io.IOException;
 
 public class MdlTokenOutputStream {
-	private final Appendable buffer;
-	private final int index;
-	private int ident;
-	private final int fractionDigits;
-
-	public MdlTokenOutputStream(final Appendable appendable) {
-		this.buffer = appendable;
-		this.index = 0;
-		this.ident = 0; // Used for writing blocks nicely.
-		this.fractionDigits = 6; // The number of fraction digits when writing floats.
-	}
+	public final StringBuilder buffer = new StringBuilder();
+	public int ident = 0;
+	public int fractionDigits = 6;
 
 	public void writeKeyframe(final String prefix, final long uInt32Value) {
 		writeAttribUInt32(prefix, uInt32Value);
@@ -92,8 +84,8 @@ public class MdlTokenOutputStream {
 		this.writeLine("{ " + formatFloatArray(floatArray) + " },");
 	}
 
-	public void writeShortArray(final short[] shortArray) {
-		this.writeLine("{ " + formatShortArray(shortArray) + " },");
+	public void writeShortArrayRaw(final short[] shortArray) {
+		this.writeLine(formatShortArray(shortArray) + ",");
 	}
 
 	public void writeFloatSubArray(final float[] floatArray, final int startIndexInclusive,
@@ -122,16 +114,12 @@ public class MdlTokenOutputStream {
 	}
 
 	public void writeLine(final String string) {
-		try {
-			for (int i = 0; i < this.ident; i++) {
-				this.buffer.append('\t');
-			}
-			this.buffer.append(string);
-			this.buffer.append('\n');
+		for (int i = 0; i < this.ident; i++) {
+			this.buffer.append('\t');
 		}
-		catch (final IOException e) {
-			throw new RuntimeException(e);
-		}
+
+		this.buffer.append(string);
+		this.buffer.append('\n');
 	}
 
 	public void startBlock(final String tokenFaces, final int sizeNumberProbably, final int length) {

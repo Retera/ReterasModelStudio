@@ -69,7 +69,7 @@ public class TVFSDecoder {
 	}
 
 	private List<PathNode> decodeContainer(final ByteBuffer pathBuffer) throws MalformedCASCStructureException {
-		final ArrayList<PathNode> nodes = new ArrayList<PathNode>();
+		final List<PathNode> nodes = new ArrayList<PathNode>();
 
 		while (pathBuffer.hasRemaining()) {
 			final PathNode node = decodeNode(pathBuffer);
@@ -80,7 +80,7 @@ public class TVFSDecoder {
 	}
 
 	private PathNode decodeNode(final ByteBuffer pathBuffer) throws MalformedCASCStructureException {
-		final ArrayList<byte[]> pathFragments = new ArrayList<byte[]>();
+		final List<byte[]> pathFragments = new ArrayList<byte[]>();
 
 		PathNode node;
 		try {

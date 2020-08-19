@@ -151,8 +151,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		// impl
 		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
 				.getAnimatedRenderEnvironment();
-		final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), "Translation",
-				timeEnvironmentImpl.getGlobalSeq());
+		final AnimFlag translationFlag = find("Translation", timeEnvironmentImpl.getGlobalSeq());
 		if (translationFlag == null) {
 			return;
 		}
@@ -231,7 +230,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		// impl
 		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
 				.getAnimatedRenderEnvironment();
-		final AnimFlag rotationTimeline = AnimFlag.find(getAnimFlags(), "Rotation", timeEnvironmentImpl.getGlobalSeq());
+		final AnimFlag rotationTimeline = find("Rotation", timeEnvironmentImpl.getGlobalSeq());
 		if (rotationTimeline == null) {
 			return;
 		}
@@ -356,7 +355,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		// impl
 		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
 				.getAnimatedRenderEnvironment();
-		final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), "Scaling", timeEnvironmentImpl.getGlobalSeq());
+		final AnimFlag translationFlag = find("Scaling", timeEnvironmentImpl.getGlobalSeq());
 		if (translationFlag == null) {
 			return;
 		}
@@ -418,7 +417,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
-		final AnimFlag rotationTimeline = AnimFlag.find(getAnimFlags(), "Rotation", trackGlobalSeq);
+		final AnimFlag rotationTimeline = find("Rotation", trackGlobalSeq);
 		if (rotationTimeline == null) {
 			return;
 		}
@@ -472,7 +471,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
-		final AnimFlag rotationTimeline = AnimFlag.find(getAnimFlags(), "Rotation", trackGlobalSeq);
+		final AnimFlag rotationTimeline = find("Rotation", trackGlobalSeq);
 		if (rotationTimeline == null) {
 			return;
 		}
@@ -529,7 +528,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 			final double newDeltaX, final double newDeltaY, final double newDeltaZ) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
-		final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), "Translation", trackGlobalSeq);
+		final AnimFlag translationFlag = find("Translation", trackGlobalSeq);
 		if (translationFlag == null) {
 			return;
 		}
@@ -561,7 +560,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 			final Vector3f localScaling) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
-		final AnimFlag translationFlag = AnimFlag.find(getAnimFlags(), "Scaling", trackGlobalSeq);
+		final AnimFlag translationFlag = find("Scaling", trackGlobalSeq);
 		if (translationFlag == null) {
 			return;
 		}

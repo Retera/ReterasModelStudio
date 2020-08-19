@@ -1,14 +1,15 @@
 package com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.editor;
 
-import com.etheller.collections.ListView;
+import java.util.List;
+
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 
 public final class CompoundMoveAction implements GenericMoveAction {
-	private final ListView<? extends GenericMoveAction> actions;
+	private final List<? extends GenericMoveAction> actions;
 	private final String name;
 
-	public CompoundMoveAction(final String name, final ListView<? extends GenericMoveAction> actions) {
+	public CompoundMoveAction(final String name, final List<? extends GenericMoveAction> actions) {
 		this.name = name;
 		this.actions = actions;
 	}

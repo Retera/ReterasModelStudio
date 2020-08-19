@@ -6,13 +6,12 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import com.etheller.collections.HashMap;
-import com.etheller.collections.ListView;
-import com.etheller.collections.Map;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
@@ -69,7 +68,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 
 	@Override
 	public UndoAction setParent(final IdObject node) {
-		final HashMap<IdObject, IdObject> nodeToOldParent = new HashMap<>();
+		final Map<IdObject, IdObject> nodeToOldParent = new HashMap<>();
 		for (final IdObject b : model.getEditableIdObjects()) {
 			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
 				nodeToOldParent.put(b, b.getParent());
@@ -93,7 +92,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		for (final IdObject obj : selBones) {
 			if (Bone.class.isAssignableFrom(obj.getClass())) {
 				final Bone bone = (Bone) obj;
-				final ArrayList<GeosetVertex> childVerts = new ArrayList<>();
+				final List<GeosetVertex> childVerts = new ArrayList<>();
 				for (final Geoset geo : model.getModel().getGeosets()) {
 					childVerts.addAll(geo.getChildrenOf(bone));
 				}
@@ -134,7 +133,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 	@Override
 	public UndoAction addSelectedBoneSuffix(final String name) {
 		final Set<Vertex> selection = selectionManager.getSelection();
-		final com.etheller.collections.List<RenameBoneAction> actions = new com.etheller.collections.ArrayList<>();
+		final List<RenameBoneAction> actions = new ArrayList<>();
 		for (final IdObject bone : this.model.getEditableIdObjects()) {
 			if (selection.contains(bone.getPivotPoint())) {
 				final RenameBoneAction renameBoneAction = new RenameBoneAction(bone.getName(), bone.getName() + name,
@@ -321,7 +320,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 
 	@Override
 	public UndoAction invertSelection() {
-		final ArrayList<Vertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
+		final List<Vertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
 		final Set<Vertex> invertedSelection = new HashSet<>(selectionManager.getSelection());
 		final IdObjectVisitor visitor = new IdObjectVisitor() {
 			@Override
@@ -403,7 +402,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 
 	@Override
 	public UndoAction selectAll() {
-		final ArrayList<Vertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
+		final List<Vertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
 		final Set<Vertex> allSelection = new HashSet<>();
 		final IdObjectVisitor visitor = new IdObjectVisitor() {
 			@Override
@@ -544,7 +543,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 	}
 
 	@Override
-	protected UndoAction buildHideComponentAction(final ListView<? extends SelectableComponent> selectableComponents,
+	protected UndoAction buildHideComponentAction(final List<? extends SelectableComponent> selectableComponents,
 			final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
 		final List<Vertex> previousSelection = new ArrayList<>(selectionManager.getSelection());
 		final List<Vertex> possibleVerticesToTruncate = new ArrayList<>();
@@ -876,7 +875,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 
 					@Override
 					public void helper(final Helper object) {
-						final AnimFlag translation = AnimFlag.find(object.getAnimFlags(), "Translation");
+						final AnimFlag translation = object.find("Translation");
 						if (translation != null) {
 							for (int i = 0; i < translation.size(); i++) {
 								final Vertex scaleData = (Vertex) translation.getValues().get(i);
@@ -909,7 +908,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 
 					@Override
 					public void bone(final Bone object) {
-						final AnimFlag translation = AnimFlag.find(object.getAnimFlags(), "Translation");
+						final AnimFlag translation = object.find("Translation");
 						if (translation != null) {
 							for (int i = 0; i < translation.size(); i++) {
 								final Vertex scaleData = (Vertex) translation.getValues().get(i);

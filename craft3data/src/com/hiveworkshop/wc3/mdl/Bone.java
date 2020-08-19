@@ -66,8 +66,8 @@ public class Bone extends IdObject {
 
 		objectToMdlx(bone);
 		
-		bone.geosetId = getGeosetId();
-		bone.geosetAnimationId = getGeosetAnimId();
+		bone.geosetId = geosetId;
+		bone.geosetAnimationId = geosetAnimId;
 
 		return bone;
 	}
@@ -118,98 +118,6 @@ public class Bone extends IdObject {
 	@Override
 	public IdObject copy() {
 		return new Bone(this);
-	}
-
-	/**
-	 * @return
-	 * @deprecated Recalculated on save
-	 */
-	@Deprecated
-	public void setGeoset(final Geoset geoset) {
-		this.geoset = geoset;
-	}
-
-	/**
-	 * @return
-	 * @deprecated Recalculated on save
-	 */
-	@Deprecated
-	public void setGeosetAnim(final GeosetAnim geosetAnim) {
-		this.geosetAnim = geosetAnim;
-	}
-
-	/**
-	 * @return
-	 * @deprecated Recalculated on save
-	 */
-	@Deprecated
-	public int getGeosetId() {
-		return geosetId;
-	}
-
-	/**
-	 * @param geosetId
-	 * @deprecated Recalculated on save
-	 */
-	@Deprecated
-	public void setGeosetId(final int geosetId) {
-		this.geosetId = geosetId;
-		setMultiGeoId(geosetId == -1);
-	}
-
-	/**
-	 * @return
-	 * @deprecated Recalculated on save
-	 */
-	@Deprecated
-	public boolean isMultiGeoId() {
-		return multiGeoId;
-	}
-
-	/**
-	 * @param multiGeoId
-	 * @deprecated Recalculated on save
-	 */
-	@Deprecated
-	public void setMultiGeoId(final boolean multiGeoId) {
-		this.multiGeoId = multiGeoId;
-	}
-
-	/**
-	 * @return
-	 * @deprecated Recalculated on save
-	 */
-	@Deprecated
-	public int getGeosetAnimId() {
-		return geosetAnimId;
-	}
-
-	/**
-	 * @param geosetAnimId
-	 * @deprecated Recalculated on save
-	 */
-	@Deprecated
-	public void setGeosetAnimId(final int geosetAnimId) {
-		this.geosetAnimId = geosetAnimId;
-		setHasGeoAnim(geosetAnimId != -1);
-	}
-
-	/**
-	 * @return
-	 * @deprecated Recalculated on save
-	 */
-	@Deprecated
-	public boolean isHasGeoAnim() {
-		return hasGeoAnim;
-	}
-
-	/**
-	 * @param hasGeoAnim
-	 * @deprecated Recalculated on save
-	 */
-	@Deprecated
-	public void setHasGeoAnim(final boolean hasGeoAnim) {
-		this.hasGeoAnim = hasGeoAnim;
 	}
 
 	@Override

@@ -2,15 +2,15 @@ package com.matrixeater.src;
 
 /*
 <classpathentry kind="lib" path="jars/idw-gpl.jar"/>
-	<classpathentry kind="lib" path="jars/lwjgl-2.9.3.jar"/>
-	<classpathentry kind="lib" path="jars/lwjgl_util-2.9.3.jar"/>
-	<classpathentry kind="lib" path="jars/lwjgl-platform-2.9.3-natives-windows.jar"/>
-	<classpathentry kind="lib" path="jars/JTattoo-1.6.11.jar"/>
-	<classpathentry kind="lib" path="jars/rsyntaxtextarea-3.0.2.jar"/>
-	<classpathentry kind="lib" path="jars/miglayout-core-4.2.jar"/>
-	<classpathentry kind="lib" path="jars/miglayout-swing-4.2.jar"/>
-	<classpathentry kind="lib" path="jars/blp-iio-plugin.jar"/>
-	<classpathentry kind="lib" path="jars/guava-23.5-jre.jar"/>
+<classpathentry kind="lib" path="jars/lwjgl-2.9.3.jar"/>
+<classpathentry kind="lib" path="jars/lwjgl_util-2.9.3.jar"/>
+<classpathentry kind="lib" path="jars/lwjgl-platform-2.9.3-natives-windows.jar"/>
+<classpathentry kind="lib" path="jars/JTattoo-1.6.11.jar"/>
+<classpathentry kind="lib" path="jars/rsyntaxtextarea-3.0.2.jar"/>
+<classpathentry kind="lib" path="jars/miglayout-core-4.2.jar"/>
+<classpathentry kind="lib" path="jars/miglayout-swing-4.2.jar"/>
+<classpathentry kind="lib" path="jars/blp-iio-plugin.jar"/>
+<classpathentry kind="lib" path="jars/guava-23.5-jre.jar"/>
 */
 
 import java.awt.Color;
@@ -79,11 +79,11 @@ public class MainFrame extends JFrame {
 		if (hasArgs) {
 			if ((args.length > 1) && args[0].equals("-convert")) {
 				final String path = args[1];
-				final EditableModel model = MdxUtils.loadEditableModel(new File(path));
+				final EditableModel model = MdxUtils.loadEditable(new File(path));
 				if (path.toLowerCase().endsWith(".mdx")) {
-					MdxUtils.saveEditableModel(model, new File(path.substring(0, path.lastIndexOf('.')) + ".mdl"));
+					MdxUtils.saveMdx(model, new File(path.substring(0, path.lastIndexOf('.')) + ".mdl"));
 				} else if (path.toLowerCase().endsWith(".mdl")) {
-					MdxUtils.saveEditableModel(model, new File(path.substring(0, path.lastIndexOf('.')) + ".mdx"));
+					MdxUtils.saveMdx(model, new File(path.substring(0, path.lastIndexOf('.')) + ".mdx"));
 				} else {
 					// Unfortunately obj convert does popups right now
 					final Build builder = new Build();

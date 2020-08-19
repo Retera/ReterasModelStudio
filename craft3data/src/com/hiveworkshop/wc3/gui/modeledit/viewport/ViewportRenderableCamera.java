@@ -44,7 +44,7 @@ public class ViewportRenderableCamera {
 	public ViewportRenderableCamera() {
 		EditableModel camera;
 		try {
-			camera = new EditableModel(MdxUtils.loadModel(MpqCodebase.get().getResourceAsStream("Objects\\CameraHelper\\CameraHelper.mdx")));
+			camera = new EditableModel(MdxUtils.loadMdlx(MpqCodebase.get().getResourceAsStream("Objects\\CameraHelper\\CameraHelper.mdx")));
 			cameraLength = Math.abs(camera.getIdObject(0).getPivotPoint().x);
 		} catch (final IOException e) {
 			camera = null;

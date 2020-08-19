@@ -1,9 +1,9 @@
 package com.hiveworkshop.wc3.mdl.v2.timelines;
 
-import com.etheller.collections.SortedMapView;
+import java.util.HashMap;
 
 public interface Timeline<KEY_TYPE> {
 	InterpolationType getInterpolationType();
 
-	SortedMapView<Integer, KEY_TYPE> getTimeToKey();
+	HashMap<Integer, KEY_TYPE> getTimeToKey();
 }

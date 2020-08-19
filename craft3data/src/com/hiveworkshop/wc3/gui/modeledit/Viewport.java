@@ -23,7 +23,8 @@ import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -42,7 +43,6 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.Timer;
 import javax.swing.TransferHandler;
 
-import com.etheller.util.CollectionUtils;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.ProgramPreferencesChangeListener;
@@ -548,7 +548,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 						JOptionPane.PLAIN_MESSAGE, JOptionPane.YES_NO_OPTION, null, words, words[1]);
 				if (i == 0) {
 					// JOptionPane.showMessageDialog(null,"action approved");
-					modelEditor.setMatrix(BoneShell.toBonesList(CollectionUtils.asList(matrixPopup.newRefs)));
+					modelEditor.setMatrix(BoneShell.toBonesList(Collections.list(matrixPopup.newRefs.elements())));
 				}
 			} else if (e.getSource() == setParent) {
 				class NodeShell {
@@ -571,7 +571,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 					}
 				}
 
-				final ArrayList<IdObject> idObjects = modelView.getModel().getIdObjects();
+				final List<IdObject> idObjects = modelView.getModel().getIdObjects();
 				final NodeShell[] nodeOptions = new NodeShell[idObjects.size() + 1];
 				nodeOptions[0] = new NodeShell(null);
 				final NodeShell defaultChoice = nodeOptions[0];

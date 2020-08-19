@@ -481,7 +481,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 
 	private void deleteKeyframes(final String actionName, final ModelStructureChangeListener structureChangeListener,
 			final int trackTime, final Collection<IdObject> objects) {
-		final com.etheller.collections.List<UndoAction> actions = new com.etheller.collections.ArrayList<>();
+		final List<UndoAction> actions = new ArrayList<>();
 		for (final IdObject object : objects) {
 			for (final AnimFlag flag : object.getAnimFlags()) {
 				final int flooredTimeIndex = flag.floorIndex(trackTime);
@@ -1072,7 +1072,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	}
 
 	private void pasteToAllSelected(final ModelStructureChangeListener structureChangeListener, final int trackTime) {
-		final com.etheller.collections.List<UndoAction> actions = new com.etheller.collections.ArrayList<>();
+		final List<UndoAction> actions = new ArrayList<>();
 		for (final CopiedKeyFrame frame : copiedKeyframes) {
 			if (getSelectionToUse().contains(frame.node) || useAllCopiedKeyframes) {
 				// only paste to selected nodes

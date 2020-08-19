@@ -1,28 +1,23 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.io.BufferedReader;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JOptionPane;
 
 import com.etheller.warsmash.parsers.mdlx.MdlxLayer;
-
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
-
 import com.hiveworkshop.wc3.mdl.v2.LayerView;
 import com.hiveworkshop.wc3.mdl.v2.timelines.Animatable;
-
-import com.hiveworkshop.wc3.util.ModelUtils;
 
 /**
  * Layers for MDLToolkit/MatrixEater.
  * <p>
  * Eric Theller 3/8/2012
  */
-public class Layer extends TimelineContainer implements Named, VisibilitySource, LayerView {
+public class Layer extends TimelineContainer implements Named, LayerView {
 	// 0: none
 	// 1: transparent
 	// 2: blend
@@ -44,17 +39,13 @@ public class Layer extends TimelineContainer implements Named, VisibilitySource,
 			return mdlText;
 		}
 
-		public static FilterMode fromId(final int id) {
-			return values()[id];
-		}
-
-		public static int nameToId(final String name) {
+		public static FilterMode nameToFilter(final String name) {
 			for (final FilterMode mode : values()) {
 				if (mode.getMdlText().equals(name)) {
-					return mode.ordinal();
+					return mode;
 				}
 			}
-			return -1;
+			return null;
 		}
 
 		@Override
@@ -63,7 +54,7 @@ public class Layer extends TimelineContainer implements Named, VisibilitySource,
 		}
 	}
 
-	private String filterMode = "None";//
+	private FilterMode filterMode = FilterMode.NONE;
 	int textureId = -1;
 	int TVertexAnimId = -1;
 	private int CoordId = 0;
@@ -74,24 +65,10 @@ public class Layer extends TimelineContainer implements Named, VisibilitySource,
 	private double fresnelOpacity;
 	private double fresnelTeamColor;
 	private double staticAlpha = 1;// Amount of static alpha (opacity)
-	private ArrayList<String> flags = new ArrayList<>();// My way of
-	// dealing with
-	// all the stuff
-	// that I
-	// forget/don't
-	// bother with:
-	// "Unshaded,"
-	// "Unfogged,"
-	// "TwoSided,"
-	// "CoordId X,"
-	// actually
-	// CoordId was
-	// moved into
-	// its own field
-	ArrayList<Bitmap> textures;
+	List<Bitmap> textures;
 
 	public String getFilterModeString() {
-		return filterMode;
+		return filterMode.getMdlText();
 	}
 
 	@Override
@@ -236,12 +213,12 @@ public class Layer extends TimelineContainer implements Named, VisibilitySource,
 	// return does;
 	// }
 	public Layer(final String filterMode, final int textureId) {
-		this.filterMode = filterMode;
+		this.filterMode = FilterMode.nameToFilter(filterMode);
 		this.textureId = textureId;
 	}
 
 	public Layer(final String filterMode, final Bitmap texture) {
-		this.filterMode = filterMode;
+		this.filterMode = FilterMode.nameToFilter(filterMode);
 		this.texture = texture;
 	}
 
@@ -288,25 +265,25 @@ public class Layer extends TimelineContainer implements Named, VisibilitySource,
 		// 0x20: unfogged
 		// 0x30: no depth test
 		// 0x40: no depth set
-		if (EditableModel.hasFlag(shadingFlags, 0x1)) {
+		if ((shadingFlags & 0x1) != 0) {
 			add("Unshaded");
 		}
-		if (EditableModel.hasFlag(shadingFlags, 0x2)) {
+		if ((shadingFlags & 0x2) != 0) {
 			add("SphereEnvMap");
 		}
-		if (EditableModel.hasFlag(shadingFlags, 0x10)) {
+		if ((shadingFlags & 0x10) != 0) {
 			add("TwoSided");
 		}
-		if (EditableModel.hasFlag(shadingFlags, 0x20)) {
+		if ((shadingFlags & 0x20) != 0) {
 			add("Unfogged");
 		}
-		if (EditableModel.hasFlag(shadingFlags, 0x40)) {
+		if ((shadingFlags & 0x40) != 0) {
 			add("NoDepthTest");
 		}
-		if (EditableModel.hasFlag(shadingFlags, 0x80)) {
+		if ((shadingFlags & 0x80) != 0) {
 			add("NoDepthSet");
 		}
-		if (EditableModel.hasFlag(shadingFlags, 0x100)) {
+		if ((shadingFlags & 0x100) != 0) {
 			add("Unlit");
 		}
 
@@ -327,7 +304,7 @@ public class Layer extends TimelineContainer implements Named, VisibilitySource,
 	public MdlxLayer toMdlx() {
 		final MdlxLayer layer = new MdlxLayer();
 
-		layer.filterMode = MdlxLayer.FilterMode.fromId(com.hiveworkshop.wc3.mdl.Layer.FilterMode.nameToId(getFilterModeString()));
+		layer.filterMode = MdlxLayer.FilterMode.fromId(filterMode.ordinal());
 
 		for (final String flag : getFlags()) {
 			switch (flag) {
@@ -373,11 +350,6 @@ public class Layer extends TimelineContainer implements Named, VisibilitySource,
 		return layer;
 	}
 
-	private Layer() {
-		flags = new ArrayList<>();
-		animFlags = new ArrayList<>();
-	}
-
 	public Bitmap firstTexture() {
 		if (texture != null) {
 			return texture;
@@ -390,7 +362,7 @@ public class Layer extends TimelineContainer implements Named, VisibilitySource,
 	}
 
 	public Bitmap getRenderTexture(final AnimatedRenderEnvironment animatedRenderEnvironment, final EditableModel model) {
-		final AnimFlag textureFlag = AnimFlag.find(animFlags, "TextureID");
+		final AnimFlag textureFlag = find("TextureID");
 		if ((textureFlag != null) && (animatedRenderEnvironment != null)) {
 			if (animatedRenderEnvironment.getCurrentAnimation() == null) {
 				if (textures.size() > 0) {
@@ -419,7 +391,7 @@ public class Layer extends TimelineContainer implements Named, VisibilitySource,
 		textureAnim = texa;
 	}
 
-	public void setTextureAnim(final ArrayList<TextureAnim> list) { // Sets the
+	public void setTextureAnim(final List<TextureAnim> list) { // Sets the
 		// texture
 		// anim
 		// reference
@@ -547,11 +519,11 @@ public class Layer extends TimelineContainer implements Named, VisibilitySource,
 		this.staticAlpha = staticAlpha;
 	}
 
-	public ArrayList<Bitmap> getTextures() {
+	public List<Bitmap> getTextures() {
 		return textures;
 	}
 
-	public void setTextures(final ArrayList<Bitmap> textures) {
+	public void setTextures(final List<Bitmap> textures) {
 		this.textures = textures;
 	}
 
@@ -560,11 +532,11 @@ public class Layer extends TimelineContainer implements Named, VisibilitySource,
 	}
 
 	public void setFilterMode(final String filterMode) {
-		this.filterMode = filterMode;
+		this.filterMode = FilterMode.nameToFilter(filterMode);
 	}
 
 	public void setFilterMode(final FilterMode mode) {
-		this.filterMode = mode.getMdlText();
+		this.filterMode = mode;
 	}
 
 	public void setCoordId(final int coordId) {
@@ -573,7 +545,7 @@ public class Layer extends TimelineContainer implements Named, VisibilitySource,
 
 	@Override
 	public FilterMode getFilterMode() {
-		return FilterMode.fromId(FilterMode.nameToId(filterMode));
+		return filterMode;
 	}
 
 	@Override

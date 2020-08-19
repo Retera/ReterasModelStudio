@@ -1,8 +1,9 @@
 package com.hiveworkshop.wc3.gui.modeledit.newstuff.manipulator;
 
 import java.awt.geom.Point2D.Double;
+import java.util.ArrayList;
+import java.util.Arrays;
 
-import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.util.CompoundAction;
@@ -23,8 +24,7 @@ public abstract class AbstractExtrudeManipulator extends AbstractMoveManipulator
 
 	@Override
 	public UndoAction finish(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
-		return new CompoundAction("extrude",
-				ListView.Util.of(beginExtrudingSelection, super.finish(mouseStart, mouseEnd, dim1, dim2)));
+		return new CompoundAction("extrude", Arrays.asList(beginExtrudingSelection, super.finish(mouseStart, mouseEnd, dim1, dim2)));
 	}
 
 	@Override

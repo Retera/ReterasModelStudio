@@ -431,7 +431,7 @@ public final class VirtualFileSystem {
 	 *                     decoding path fragments into a path string.
 	 */
 	public List<PathResult> getAllFiles() throws IOException {
-		final ArrayList<PathResult> pathStringList = new ArrayList<PathResult>();
+		final List<PathResult> pathStringList = new ArrayList<PathResult>();
 
 		final int rootCount = tvfsRoot.getRootNodeCount();
 		for (int rootIndex = 0; rootIndex < rootCount; rootIndex += 1) {
@@ -451,7 +451,7 @@ public final class VirtualFileSystem {
 	 * @param currentNode         The child node to process.
 	 * @throws IOException If an exception occurs when processing the node.
 	 */
-	private void recursiveFilePathRetrieve(final byte[][] parentPathFragments, final ArrayList<PathResult> resultList,
+	private void recursiveFilePathRetrieve(final byte[][] parentPathFragments, final List<PathResult> resultList,
 			final PathNode currentNode) throws IOException {
 		byte[][] currentPathFragments = parentPathFragments;
 

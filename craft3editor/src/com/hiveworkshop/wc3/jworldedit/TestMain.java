@@ -1,14 +1,11 @@
 package com.hiveworkshop.wc3.jworldedit;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.etheller.warsmash.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Bitmap;
@@ -83,10 +80,10 @@ public class TestMain {
 		}
 		myModel.add(geoset);
 
-		myModel.toMdlx().saveMdx(new FileOutputStream(new File("C:/users/micro/onedrive/documents/warcraft III/models/Generated43Matrices.mdx")));
+		MdxUtils.saveMdx(myModel, new File("C:/users/micro/onedrive/documents/warcraft III/models/Generated43Matrices.mdx"));
 //		for(int i = 0; i < )
 
-		final EditableModel twoCloud = MdxUtils.loadEditableModel(new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\TwoCloudB.mdx"));
+		final EditableModel twoCloud = MdxUtils.loadEditable(new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\TwoCloudB.mdx"));
 
 		final Map<IdObject, Integer> objToCount = new HashMap<>();
 		for (final Geoset g : twoCloud.getGeosets()) {

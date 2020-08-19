@@ -20,7 +20,7 @@ public class GetMeDatas9 {
 				"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Requests\\Wazzz\\Generated10.mdx")) {
 			try {
 
-				final EditableModel model = new EditableModel(MdxUtils.loadModel(footman));
+				final EditableModel model = new EditableModel(MdxUtils.loadMdlx(footman));
 				Animation deathSequence = null;
 				for (final Animation sequence : model.getAnims()) {
 					if (sequence.getName().startsWith("Death")) {
@@ -33,7 +33,7 @@ public class GetMeDatas9 {
 					fix(af, deathSequence);
 				}
 
-				MdxUtils.saveEditableModel(model, new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Requests\\Wazzz\\WispGrove50.mdx"));
+				MdxUtils.saveMdx(model, new File("C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Requests\\Wazzz\\WispGrove50.mdx"));
 			} catch (final IOException e) {
 				e.printStackTrace();
 			}

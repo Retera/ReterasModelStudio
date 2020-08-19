@@ -1,13 +1,10 @@
 package com.etheller.warsmash.parsers.mdlx;
 
-import java.io.IOException;
-
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
-import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataOutputStream;
 import com.hiveworkshop.util.BinaryReader;
+import com.hiveworkshop.util.BinaryWriter;
 
 public class MdlxCamera extends MdlxAnimatedObject {
 	public String name = "";
@@ -17,7 +14,7 @@ public class MdlxCamera extends MdlxAnimatedObject {
 	public float nearClippingPlane = 0;
 	public float[] targetPosition = new float[3];
 
-	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+	public void readMdx(final BinaryReader reader, final int version) {
 		final long size = reader.readUInt32();
 
 		this.name = reader.read(80);
@@ -31,24 +28,20 @@ public class MdlxCamera extends MdlxAnimatedObject {
 	}
 
 	@Override
-	public void writeMdx(final LittleEndianDataOutputStream stream, final int version) throws IOException {
-		ParseUtils.writeUInt32(stream, getByteLength(version));
-		final byte[] bytes = this.name.getBytes(ParseUtils.UTF8);
-		stream.write(bytes);
-		for (int i = 0; i < (80 - bytes.length); i++) {
-			stream.write((byte) 0);
-		}
-		ParseUtils.writeFloatArray(stream, this.position);
-		stream.writeFloat(this.fieldOfView);
-		stream.writeFloat(this.farClippingPlane);
-		stream.writeFloat(this.nearClippingPlane);
-		ParseUtils.writeFloatArray(stream, this.targetPosition);
+	public void writeMdx(final BinaryWriter writer, final int version) {
+		writer.writeUInt32(getByteLength(version));
+		writer.writeWithNulls(name, 80);
+		writer.writeFloat32Array(this.position);
+		writer.writeFloat32(this.fieldOfView);
+		writer.writeFloat32(this.farClippingPlane);
+		writer.writeFloat32(this.nearClippingPlane);
+		writer.writeFloat32Array(this.targetPosition);
 
-		writeTimelines(stream);
+		writeTimelines(writer);
 	}
 
 	@Override
-	public void readMdl(final MdlTokenInputStream stream, final int version) throws IOException {
+	public void readMdl(final MdlTokenInputStream stream, final int version) {
 		this.name = stream.read();
 
 		for (final String token : stream.readBlock()) {
@@ -87,13 +80,13 @@ public class MdlxCamera extends MdlxAnimatedObject {
 				}
 				break;
 			default:
-				throw new IllegalStateException("Unknown token in Camera " + this.name + ": " + token);
+				throw new RuntimeException("Unknown token in Camera " + this.name + ": " + token);
 			}
 		}
 	}
 
 	@Override
-	public void writeMdl(final MdlTokenOutputStream stream, final int version) throws IOException {
+	public void writeMdl(final MdlTokenOutputStream stream, final int version) {
 		stream.startObjectBlock(MdlUtils.TOKEN_CAMERA, this.name);
 
 		stream.writeFloatArrayAttrib(MdlUtils.TOKEN_POSITION, this.position);

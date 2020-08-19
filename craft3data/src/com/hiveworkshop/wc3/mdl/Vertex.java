@@ -2,8 +2,6 @@ package com.hiveworkshop.wc3.mdl;
 
 import java.util.Collection;
 
-import javax.swing.JOptionPane;
-
 import org.lwjgl.util.vector.Vector4f;
 
 public class Vertex {
@@ -161,21 +159,6 @@ public class Vertex {
 	}
 
 	public static Vertex centerOfGroup(final Collection<? extends Vertex> group) {
-		double xTot = 0;
-		double yTot = 0;
-		double zTot = 0;
-		for (final Vertex v : group) {
-			xTot += v.getX();
-			yTot += v.getY();
-			zTot += v.getZ();
-		}
-		xTot /= group.size();
-		yTot /= group.size();
-		zTot /= group.size();
-		return new Vertex(xTot, yTot, zTot);
-	}
-
-	public static Vertex centerOfGroup(final com.etheller.collections.Collection<? extends Vertex> group) {
 		double xTot = 0;
 		double yTot = 0;
 		double zTot = 0;

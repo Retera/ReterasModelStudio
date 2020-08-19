@@ -2,13 +2,11 @@ package com.hiveworkshop.wc3.gui.modeledit.newstuff;
 
 import java.awt.Point;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-import com.etheller.collections.ArrayList;
-import com.etheller.collections.Collection;
-import com.etheller.collections.List;
-import com.etheller.collections.ListView;
 import com.etheller.util.SubscriberSetNotifier;
 import com.hiveworkshop.wc3.gui.animedit.WrongModeException;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
@@ -49,7 +47,7 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	private CompoundAction mergeActions(final List<UndoAction> actions) {
-		return new CompoundAction(actions.get(0).actionName(), actions);
+		return new CompoundAction(actions.get(0).actionName(), (java.util.List<? extends UndoAction>) actions);
 	}
 
 	private CompoundMoveAction mergeMoveActions(final List<GenericMoveAction> actions) {
@@ -110,7 +108,7 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
-	public UndoAction hideComponent(final ListView<? extends SelectableComponent> selectableComponents,
+	public UndoAction hideComponent(final List<? extends SelectableComponent> selectableComponents,
 			final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
 		final List<UndoAction> actions = new ArrayList<>();
 		for (final ModelEditor handler : set) {
@@ -405,9 +403,10 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 		final List<Camera> allCamerasCreated = new ArrayList<>();
 		for (final ModelEditor handler : set) {
 			final CopiedModelData copySelection = handler.copySelection();
-			Collection.Util.addAll(allGeosetsCreated, copySelection.getGeosets());
-			Collection.Util.addAll(allNodesCreated, copySelection.getIdObjects());
-			Collection.Util.addAll(allCamerasCreated, copySelection.getCameras());
+
+			allGeosetsCreated.addAll(copySelection.getGeosets());
+			allNodesCreated.addAll(copySelection.getIdObjects());
+			allCamerasCreated.addAll(copySelection.getCameras());
 		}
 		return new CopiedModelData(allGeosetsCreated, allNodesCreated, allCamerasCreated);
 	}

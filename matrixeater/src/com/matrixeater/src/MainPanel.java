@@ -16,10 +16,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -27,7 +24,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -220,8 +216,8 @@ import com.matrixeaterhayate.TextureManager;
 import com.owens.oobjloader.builder.Build;
 import com.owens.oobjloader.parser.Parse;
 
+import de.wc3data.image.ImageUtils;
 import de.wc3data.stream.BlizzardDataInputStream;
-import de.wc3data.stream.BlizzardDataOutputStream;
 import net.infonode.docking.DockingWindow;
 import net.infonode.docking.DockingWindowListener;
 import net.infonode.docking.FloatingWindow;
@@ -274,8 +270,6 @@ public class MainPanel extends JPanel
 	ButtonGroup viewModes;
 
 	JFileChooser fc, exportTextureDialog;
-	FileFilter filter;
-	File filterFile;
 	File currentFile;
 	ImportPanel importPanel;
 	static final ImageIcon MDLIcon = new ImageIcon(MainPanel.class.getResource("ImageBin/MDLIcon_16.png"));
@@ -1476,13 +1470,11 @@ public class MainPanel extends JPanel
 		setLayout(layout);
 		// Create a file chooser
 		fc = new JFileChooser();
-		filterFile = new File("", ".mdl");
-		filter = new MDLFilter();
 		fc.setAcceptAllFileFilterUsed(false);
 		fc.addChoosableFileFilter(new FileNameExtensionFilter("Warcraft III Binary Model '-.mdx'", "mdx"));
 		fc.addChoosableFileFilter(new FileNameExtensionFilter("Warcraft III Texture '-.blp'", "blp"));
 		fc.addChoosableFileFilter(new FileNameExtensionFilter("PNG Image '-.png'", "png"));
-		fc.addChoosableFileFilter(filter);
+		fc.addChoosableFileFilter(new FileNameExtensionFilter("Warcraft III Text Model '-.mdl'", "mdl"));
 		fc.addChoosableFileFilter(new FileNameExtensionFilter("Wavefront OBJ '-.obj'", "obj"));
 		exportTextureDialog = new JFileChooser();
 		exportTextureDialog.setDialogTitle("Export Texture");
@@ -2705,7 +2697,7 @@ public class MainPanel extends JPanel
 						public void actionPerformed(final ActionEvent e) {
 							ParticleEmitter2 particle;
 							try {
-								particle = MdxUtils.loadEditableModel(file).sortedIdObjects(ParticleEmitter2.class)
+								particle = MdxUtils.loadEditable(file).sortedIdObjects(ParticleEmitter2.class)
 										.get(0);
 							} catch (IOException e1) {
 								// TODO Auto-generated catch block
@@ -3074,7 +3066,7 @@ public class MainPanel extends JPanel
 							selectedFile = new File(selectedFile.getPath() + ".mdx");
 						}
 						try {
-							MdxUtils.saveEditableModel(snapshotModel, selectedFile);
+							MdxUtils.saveMdx(snapshotModel, selectedFile);
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
@@ -3151,7 +3143,7 @@ public class MainPanel extends JPanel
 		combineAnims.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				final ArrayList<Animation> anims = currentMDL().getAnims();
+				final List<Animation> anims = currentMDL().getAnims();
 				final Animation[] array = anims.toArray(new Animation[0]);
 				final Object choice = JOptionPane.showInputDialog(MainPanel.this, "Pick the first animation",
 						"Choose 1st Anim", JOptionPane.PLAIN_MESSAGE, null, array, array[0]);
@@ -3712,7 +3704,7 @@ public class MainPanel extends JPanel
 					}
 				}
 				final EditableModel currentMDL = currentMDL();
-				final ArrayList<Geoset> geosets = currentMDL.getGeosets();
+				final List<Geoset> geosets = currentMDL.getGeosets();
 				final List<Geoset> geosetsRemoved = new ArrayList<>();
 				final Iterator<Geoset> iterator = geosets.iterator();
 				while (iterator.hasNext()) {
@@ -3756,8 +3748,8 @@ public class MainPanel extends JPanel
 				if ((first.getStaticColor() != null) && !first.getStaticColor().equalLocs(second.getStaticColor())) {
 					return false;
 				}
-				final AnimFlag firstAnimatedColor = AnimFlag.find(first.getAnimFlags(), "Color");
-				final AnimFlag secondAnimatedColor = AnimFlag.find(second.getAnimFlags(), "Color");
+				final AnimFlag firstAnimatedColor = first.find("Color");
+				final AnimFlag secondAnimatedColor = second.find("Color");
 				if ((firstAnimatedColor == null) != (secondAnimatedColor == null)) {
 					return false;
 				}
@@ -3776,7 +3768,7 @@ public class MainPanel extends JPanel
 			public void actionPerformed(final ActionEvent e) {
 				final EditableModel model = currentMDL();
 				final List<IdObject> roots = new ArrayList<>();
-				final ArrayList<IdObject> modelList = model.getIdObjects();
+				final List<IdObject> modelList = model.getIdObjects();
 				for (final IdObject object : modelList) {
 					if (object.getParent() == null) {
 						roots.add(object);
@@ -4155,7 +4147,7 @@ public class MainPanel extends JPanel
 
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
 					currentFile = fc.getSelectedFile();
-					final EditableModel geoSource = MdxUtils.loadEditableModel(currentFile);
+					final EditableModel geoSource = MdxUtils.loadEditable(currentFile);
 					profile.setPath(currentFile.getParent());
 					boolean going = true;
 					Geoset host = null;
@@ -4456,8 +4448,8 @@ public class MainPanel extends JPanel
 							continue;
 						}
 						if (trans == null) {
-							final ArrayList<Integer> times = new ArrayList<>();
-							final ArrayList<Integer> values = new ArrayList<>();
+							final List<Integer> times = new ArrayList<>();
+							final List<Integer> values = new ArrayList<>();
 							trans = new AnimFlag("Translation", times, values);
 							trans.addTag("Linear");
 							b.getAnimFlags().add(trans);
@@ -4509,7 +4501,7 @@ public class MainPanel extends JPanel
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
 					currentFile = fc.getSelectedFile();
 					profile.setPath(currentFile.getParent());
-					final EditableModel animationSourceModel = MdxUtils.loadEditableModel(currentFile);
+					final EditableModel animationSourceModel = MdxUtils.loadEditable(currentFile);
 					addSingleAnimation(current, animationSourceModel);
 				}
 
@@ -4525,7 +4517,7 @@ public class MainPanel extends JPanel
 				final String filepath = convertPathToMDX(fetchResult.getField("file"));
 				final EditableModel current = currentMDL();
 				if (filepath != null) {
-					final EditableModel animationSource = MdxUtils.loadEditableModel(MpqCodebase.get().getFile(filepath));
+					final EditableModel animationSource = MdxUtils.loadEditable(MpqCodebase.get().getFile(filepath));
 					addSingleAnimation(current, animationSource);
 				}
 			} else if (e.getSource() == animFromModel) {
@@ -4537,7 +4529,7 @@ public class MainPanel extends JPanel
 				final String filepath = convertPathToMDX(fetchResult.getFilepath());
 				final EditableModel current = currentMDL();
 				if (filepath != null) {
-					final EditableModel animationSource = MdxUtils.loadEditableModel(MpqCodebase.get().getFile(filepath));
+					final EditableModel animationSource = MdxUtils.loadEditable(MpqCodebase.get().getFile(filepath));
 					addSingleAnimation(current, animationSource);
 				}
 			} else if (e.getSource() == animFromObject) {
@@ -4549,7 +4541,7 @@ public class MainPanel extends JPanel
 				final String filepath = convertPathToMDX(fetchResult.getFieldAsString(UnitFields.MODEL_FILE, 0));
 				final EditableModel current = currentMDL();
 				if (filepath != null) {
-					final EditableModel animationSource = MdxUtils.loadEditableModel(MpqCodebase.get().getFile(filepath));
+					final EditableModel animationSource = MdxUtils.loadEditable(MpqCodebase.get().getFile(filepath));
 					addSingleAnimation(current, animationSource);
 				}
 			} else if (e.getSource() == creditsButton) {
@@ -4684,18 +4676,9 @@ public class MainPanel extends JPanel
 					FileOutputStream stream = new FileOutputStream(currentFile);
 
 					if (ext.equals(".mdl")) {
-						//currentMDL().printTo(currentFile);
-						mdlx.saveMdl(stream);
+						MdxUtils.saveMdl(mdlx, stream);
 					} else {
-						// final MdxModel model = new MdxModel(currentMDL());
-						// try (BlizzardDataOutputStream writer = new BlizzardDataOutputStream(currentFile)) {
-						// 	model.save(writer);
-						// } catch (final FileNotFoundException e1) {
-						// 	e1.printStackTrace();
-						// } catch (final IOException e1) {
-						// 	e1.printStackTrace();
-						// }
-						mdlx.saveMdx(stream);
+						MdxUtils.saveMdx(mdlx, stream);
 					}
 					currentMDL().setFileRef(currentFile);
 					// currentMDLDisp().resetBeenSaved();
@@ -4719,7 +4702,7 @@ public class MainPanel extends JPanel
 	private void onClickSave() {
 		try {
 			if (currentMDL() != null) {
-				MdxUtils.saveEditableModel(currentMDL(), currentMDL().getFile());
+				MdxUtils.saveMdx(currentMDL(), currentMDL().getFile());
 				profile.setPath(currentMDL().getFile().getParent());
 				// currentMDLDisp().resetBeenSaved();
 				// TODO reset been saved
@@ -5327,7 +5310,7 @@ public class MainPanel extends JPanel
 		ModelPanel temp = null;
 		if (f.getPath().toLowerCase().endsWith("mdx") || f.getPath().toLowerCase().endsWith("mdl")) {
 			try {
-				final EditableModel model = MdxUtils.loadEditableModel(f);
+				final EditableModel model = MdxUtils.loadEditable(f);
 				model.setFileRef(f);
 				temp = new ModelPanel(this, model, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
 						modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
@@ -5366,7 +5349,7 @@ public class MainPanel extends JPanel
 			final ImageIcon icon) {
 		ModelPanel temp = null;
 		try {
-			final EditableModel model = new EditableModel(MdxUtils.loadModel(f));
+			final EditableModel model = new EditableModel(MdxUtils.loadMdlx(f));
 			model.setFileRef(null);
 			temp = new ModelPanel(this, model, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
 					modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, activeViewportWatcher,
@@ -5609,7 +5592,7 @@ public class MainPanel extends JPanel
 	public void importFile(final File f) throws IOException {
 		final EditableModel currentModel = currentMDL();
 		if (currentModel != null) {
-			importFile(MdxUtils.loadEditableModel(f));
+			importFile(MdxUtils.loadEditable(f));
 		}
 	}
 
@@ -5723,7 +5706,7 @@ public class MainPanel extends JPanel
 
 						if (importPanel.importSuccessful()) {
 							try {
-								MdxUtils.saveEditableModel(newModel, newModel.getFile());
+								MdxUtils.saveMdx(newModel, newModel.getFile());
 							} catch (IOException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
@@ -6045,7 +6028,7 @@ public class MainPanel extends JPanel
 	public void save(final EditableModel model) {
 		if (model.getFile() != null) {
 			try {
-				MdxUtils.saveEditableModel(model, model.getFile());
+				MdxUtils.saveMdx(model, model.getFile());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

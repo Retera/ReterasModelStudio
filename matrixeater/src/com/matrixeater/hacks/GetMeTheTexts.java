@@ -4,10 +4,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import com.etheller.collections.List;
 import com.hiveworkshop.wc3.units.DataTable;
 import com.hiveworkshop.wc3.units.Element;
 import com.hiveworkshop.wc3.units.StandardObjectData;

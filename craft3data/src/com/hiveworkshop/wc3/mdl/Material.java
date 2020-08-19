@@ -23,13 +23,13 @@ import com.hiveworkshop.wc3.util.ModelUtils;
  */
 public class Material implements MaterialView {
 	public static int teamColor = 00;
-	com.etheller.collections.ArrayList<Layer> layers;
+	List<Layer> layers;
 	private int priorityPlane = 0;
 	// "flags" are my way of dealing with all the stuff that I
 	// forget/don't bother with: "Unshaded," "Unfogged,"
 	// "TwoSided," "CoordId X," actually CoordId was
 	// moved into its own field
-	private ArrayList<String> flags = new ArrayList<>();
+	private List<String> flags = new ArrayList<>();
 	private String shaderString;
 
 	public static String getTeamColorNumberString() {
@@ -74,13 +74,13 @@ public class Material implements MaterialView {
 	}
 
 	public Material(final Layer lay) {
-		layers = new com.etheller.collections.ArrayList<>();
+		layers = new ArrayList<>();
 		flags = new ArrayList<>();
 		layers.add(lay);
 	}
 
 	public Material(final List<Layer> layers) {
-		this.layers = new com.etheller.collections.ArrayList<>();
+		this.layers = new ArrayList<>();
 		for (final Layer layer : layers) {
 			this.layers.add(layer);
 		}
@@ -88,12 +88,12 @@ public class Material implements MaterialView {
 	}
 
 	private Material() {
-		layers = new com.etheller.collections.ArrayList<>();
+		layers = new ArrayList<>();
 		flags = new ArrayList<>();
 	}
 
 	public Material(final Material other) {
-		layers = new com.etheller.collections.ArrayList<>();
+		layers = new ArrayList<>();
 		flags = new ArrayList<>(other.flags);
 		for (final Layer lay : other.layers) {
 			layers.add(new Layer(lay));
@@ -116,16 +116,16 @@ public class Material implements MaterialView {
 
 		int flags = material.flags;
 
-		if (EditableModel.hasFlag(flags, 0x1)) {
+		if ((flags & 0x1) != 0) {
 			add("ConstantColor");
 		}
-		if (EditableModel.hasFlag(flags, 0x10)) {
+		if ((flags & 0x10) != 0) {
 			add("SortPrimsFarZ");
 		}
-		if (EditableModel.hasFlag(flags, 0x20)) {
+		if ((flags & 0x20) != 0) {
 			add("FullResolution");
 		}
-		if (ModelUtils.isShaderStringSupported(editableModel.getFormatVersion()) && EditableModel.hasFlag(flags, 0x02)) {
+		if (ModelUtils.isShaderStringSupported(editableModel.getFormatVersion()) && (flags & 0x2) != 0) {
 			add("TwoSided");
 		}
 
@@ -171,11 +171,11 @@ public class Material implements MaterialView {
 	}
 
 	@Override
-	public com.etheller.collections.ArrayList<Layer> getLayers() {
+	public List<Layer> getLayers() {
 		return layers;
 	}
 
-	public void setLayers(final com.etheller.collections.ArrayList<Layer> layers) {
+	public void setLayers(final List<Layer> layers) {
 		this.layers = layers;
 	}
 
@@ -188,15 +188,15 @@ public class Material implements MaterialView {
 		this.priorityPlane = priorityPlane;
 	}
 
-	public ArrayList<String> getFlags() {
+	public List<String> getFlags() {
 		return flags;
 	}
 
-	public void setFlags(final ArrayList<String> flags) {
+	public void setFlags(final List<String> flags) {
 		this.flags = flags;
 	}
 
-	public void updateTextureAnims(final ArrayList<TextureAnim> list) {
+	public void updateTextureAnims(final List<TextureAnim> list) {
 		final int sz = layers.size();
 		for (int i = 0; i < sz; i++) {
 			final Layer lay = layers.get(i);

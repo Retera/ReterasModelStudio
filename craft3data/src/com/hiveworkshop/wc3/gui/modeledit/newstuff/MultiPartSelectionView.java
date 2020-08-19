@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.uv.TVertexModelElementRenderer;
@@ -15,9 +14,9 @@ import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public class MultiPartSelectionView implements SelectionView {
-	private final ListView<SelectionView> selectionViews;
+	private final List<SelectionView> selectionViews;
 
-	public MultiPartSelectionView(final ListView<SelectionView> selectionViews) {
+	public MultiPartSelectionView(final List<SelectionView> selectionViews) {
 		this.selectionViews = selectionViews;
 	}
 

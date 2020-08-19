@@ -1,8 +1,8 @@
 package com.hiveworkshop.wc3.gui.modeledit.newstuff;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
@@ -61,7 +61,7 @@ public final class GeosetVertexSelectionManager extends AbstractSelectionManager
 	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem,
 			final ModelView model, final ProgramPreferences programPreferences) {
 		for (final Geoset geo : model.getEditableGeosets()) {
-			final ArrayList<GeosetVertex> vertices = geo.getVertices();
+			final List<GeosetVertex> vertices = geo.getVertices();
 			for (final GeosetVertex geosetVertex : vertices) {
 				if (model.getHighlightedGeoset() == geo) {
 					renderer.renderVertex(programPreferences.getHighlighVertexColor(), geosetVertex);
@@ -113,7 +113,7 @@ public final class GeosetVertexSelectionManager extends AbstractSelectionManager
 	public void renderUVSelection(final TVertexModelElementRenderer renderer, final ModelView modelView,
 			final ProgramPreferences programPreferences, final int tvertexLayerId) {
 		for (final Geoset geo : modelView.getEditableGeosets()) {
-			final ArrayList<GeosetVertex> vertices = geo.getVertices();
+			final List<GeosetVertex> vertices = geo.getVertices();
 			for (final GeosetVertex geosetVertex : vertices) {
 				if (tvertexLayerId >= geosetVertex.getTverts().size()) {
 					continue;

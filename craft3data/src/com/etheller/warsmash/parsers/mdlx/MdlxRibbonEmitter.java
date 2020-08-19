@@ -1,13 +1,10 @@
 package com.etheller.warsmash.parsers.mdlx;
 
-import java.io.IOException;
-
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
-import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataOutputStream;
 import com.hiveworkshop.util.BinaryReader;
+import com.hiveworkshop.util.BinaryWriter;
 
 public class MdlxRibbonEmitter extends MdlxGenericObject {
 	public float heightAbove = 0;
@@ -26,7 +23,7 @@ public class MdlxRibbonEmitter extends MdlxGenericObject {
 		super(0x4000);
 	}
 
-	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+	public void readMdx(final BinaryReader reader, final int version) {
 		final int position = reader.position();
 		final long size = reader.readUInt32();
 		
@@ -48,28 +45,28 @@ public class MdlxRibbonEmitter extends MdlxGenericObject {
 	}
 
 	@Override
-	public void writeMdx(final LittleEndianDataOutputStream stream, final int version) throws IOException {
-		ParseUtils.writeUInt32(stream, getByteLength(version));
+	public void writeMdx(final BinaryWriter writer, final int version) {
+		writer.writeUInt32(getByteLength(version));
 
-		super.writeMdx(stream, version);
+		super.writeMdx(writer, version);
 
-		stream.writeFloat(this.heightAbove);
-		stream.writeFloat(this.heightBelow);
-		stream.writeFloat(this.alpha);
-		ParseUtils.writeFloatArray(stream, this.color);
-		stream.writeFloat(this.lifeSpan);
-		ParseUtils.writeUInt32(stream, this.textureSlot);
-		ParseUtils.writeUInt32(stream, this.emissionRate);
-		ParseUtils.writeUInt32(stream, this.rows);
-		ParseUtils.writeUInt32(stream, this.columns);
-		stream.writeInt(this.materialId);
-		stream.writeFloat(this.gravity);
+		writer.writeFloat32(this.heightAbove);
+		writer.writeFloat32(this.heightBelow);
+		writer.writeFloat32(this.alpha);
+		writer.writeFloat32Array(this.color);
+		writer.writeFloat32(this.lifeSpan);
+		writer.writeUInt32(this.textureSlot);
+		writer.writeUInt32(this.emissionRate);
+		writer.writeUInt32(this.rows);
+		writer.writeUInt32(this.columns);
+		writer.writeInt32(this.materialId);
+		writer.writeFloat32(this.gravity);
 
-		writeNonGenericAnimationChunks(stream);
+		writeNonGenericAnimationChunks(writer);
 	}
 
 	@Override
-	public void readMdl(final MdlTokenInputStream stream, final int version) throws IOException {
+	public void readMdl(final MdlTokenInputStream stream, final int version) {
 		for (final String token : super.readMdlGeneric(stream)) {
 			switch (token) {
 			case MdlUtils.TOKEN_STATIC_HEIGHT_ABOVE:
@@ -124,13 +121,13 @@ public class MdlxRibbonEmitter extends MdlxGenericObject {
 				this.materialId = stream.readInt();
 				break;
 			default:
-				throw new IllegalStateException("Unknown token in RibbonEmitter " + this.name + ": " + token);
+				throw new RuntimeException("Unknown token in RibbonEmitter " + this.name + ": " + token);
 			}
 		}
 	}
 
 	@Override
-	public void writeMdl(final MdlTokenOutputStream stream, final int version) throws IOException {
+	public void writeMdl(final MdlTokenOutputStream stream, final int version) {
 		stream.startObjectBlock(MdlUtils.TOKEN_RIBBON_EMITTER, this.name);
 		writeGenericHeader(stream);
 

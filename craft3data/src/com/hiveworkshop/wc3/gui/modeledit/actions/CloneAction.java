@@ -35,7 +35,7 @@ public class CloneAction implements UndoAction {
 
 	}
 
-	public void storeSelection(final ArrayList<Vertex> selection) {
+	public void storeSelection(final List<Vertex> selection) {
 		this.selection = new ArrayList<Vertex>(selection);
 	}
 
@@ -62,7 +62,7 @@ public class CloneAction implements UndoAction {
 					}
 				}
 				if (good) {
-					final ArrayList<Triangle> tris = new ArrayList<Triangle>(gv.getTriangles());
+					final List<Triangle> tris = new ArrayList<Triangle>(gv.getTriangles());
 					for (final Triangle t : tris) {
 						if (!selection.contains(t.get(0)) || !selection.contains(t.get(1))
 								|| !selection.contains(t.get(2))) {
@@ -141,7 +141,7 @@ public class CloneAction implements UndoAction {
 				final GeosetVertex cgv = addedVerts.get(i);
 				if (cgv != null) {
 					final GeosetVertex gv = (GeosetVertex) selection.get(addedVerts.indexOf(cgv));
-					final ArrayList<Triangle> ctris = new ArrayList<Triangle>(cgv.getTriangles());
+					final List<Triangle> ctris = new ArrayList<Triangle>(cgv.getTriangles());
 					for (final Triangle t : ctris) {
 						t.set(t.indexOf(cgv), gv);
 						cgv.getTriangles().remove(t);
@@ -166,7 +166,7 @@ public class CloneAction implements UndoAction {
 				final GeosetVertex cgv = addedVerts.get(i);
 				if (cgv != null) {
 					final GeosetVertex gv = copiedGroup.get(addedVerts.indexOf(cgv));
-					final ArrayList<Triangle> ctris = new ArrayList<Triangle>(cgv.getTriangles());
+					final List<Triangle> ctris = new ArrayList<Triangle>(cgv.getTriangles());
 					for (final Triangle t : ctris) {
 						t.set(t.indexOf(cgv), gv);
 						cgv.getTriangles().remove(t);

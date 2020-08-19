@@ -29,7 +29,7 @@ public class GenModels3 {
 	public static void main(final String[] args) throws IOException {
 		final File source = new File(
 				"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\Requests\\Wazzz\\WispGrove43.mdx");
-		final EditableModel model = MdxUtils.loadEditableModel(source);
+		final EditableModel model = MdxUtils.loadEditable(source);
 		final List<Particle> particles = new LinkedList<>();
 		final Bone particleRoot = new Bone("Bone_ParticleRoot");
 		final List<Geoset> geosets = new LinkedList<>();
@@ -118,12 +118,12 @@ public class GenModels3 {
 			material.setShaderString("Shader_SD_FixedFunction");
 			geoset.setMaterial(material);
 			System.out.println(geoset.getVertices().size());
-			final ArrayList<GeosetVertex> vertices = geoset.getVertices();
+			final List<GeosetVertex> vertices = geoset.getVertices();
 			for (int i = 0; i < vertices.size(); i++) {
 				vertices.get(i).getTVertex(0).scale(0, 0, 1 / 4f, 1 / 4f);
 				System.out.println(vertices.get(i).getTVertex(0));
 			}
-			final ArrayList<AnimFlag> flags = new ArrayList<>();
+			final List<AnimFlag> flags = new ArrayList<>();
 			final AnimFlag translationData = new AnimFlag("Translation");
 			for (int i = 0; i < 16; i++) {
 				translationData.addEntry(0 + (i * 100),
@@ -154,7 +154,7 @@ public class GenModels3 {
 		}
 		particleRoot.add(spinData);
 
-		MdxUtils.saveEditableModel(model, new File(source.getParentFile().getPath() + "\\Generated.mdx"));
+		MdxUtils.saveMdx(model, new File(source.getParentFile().getPath() + "\\Generated.mdx"));
 	}
 
 	private static class Particle {

@@ -15,11 +15,11 @@ import com.hiveworkshop.wc3.mdl.Vertex;
  * Eric Theller 6/11/2012
  */
 public class RecalculateNormalsAction2 implements UndoAction {
-	ArrayList<Vertex> oldSelLocs;
-	ArrayList<GeosetVertex> selection;
+	List<Vertex> oldSelLocs;
+	List<GeosetVertex> selection;
 	Vertex snapPoint;
 
-	public RecalculateNormalsAction2(final ArrayList<GeosetVertex> selection, final ArrayList<Vertex> oldSelLocs,
+	public RecalculateNormalsAction2(final List<GeosetVertex> selection, final List<Vertex> oldSelLocs,
 			final Vertex snapPoint) {
 		this.selection = new ArrayList<>(selection);
 		this.oldSelLocs = oldSelLocs;

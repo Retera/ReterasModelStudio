@@ -1,16 +1,15 @@
 package com.etheller.warsmash.parsers.mdlx;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
-import com.etheller.warsmash.parsers.mdlx.timeline.Timeline;
+import com.etheller.warsmash.parsers.mdlx.timeline.MdlxTimeline;
 import com.etheller.warsmash.util.MdlUtils;
-import com.google.common.io.LittleEndianDataOutputStream;
 import com.hiveworkshop.util.BinaryReader;
+import com.hiveworkshop.util.BinaryWriter;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
 
 /**
@@ -18,12 +17,12 @@ import com.hiveworkshop.wc3.units.objectdata.War3ID;
  *
  */
 public abstract class MdlxAnimatedObject implements MdlxChunk, MdlxBlock {
-	public final List<Timeline<?>> timelines = new ArrayList<>();
+	public final List<MdlxTimeline<?>> timelines = new ArrayList<>();
 
-	public void readTimelines(final BinaryReader reader, long size) throws IOException {
+	public void readTimelines(final BinaryReader reader, long size) {
 		while (size > 0) {
 			final War3ID name = new War3ID(reader.readTag());
-			final Timeline<?> timeline = AnimationMap.ID_TO_TAG.get(name).getImplementation().createTimeline();
+			final MdlxTimeline<?> timeline = AnimationMap.ID_TO_TAG.get(name).getImplementation().createTimeline();
 
 			timeline.readMdx(reader, name);
 
@@ -33,9 +32,9 @@ public abstract class MdlxAnimatedObject implements MdlxChunk, MdlxBlock {
 		}
 	}
 
-	public void writeTimelines(final LittleEndianDataOutputStream stream) throws IOException {
-		for (final Timeline<?> timeline : this.timelines) {
-			timeline.writeMdx(stream);
+	public void writeTimelines(final BinaryWriter writer) {
+		for (final MdlxTimeline<?> timeline : this.timelines) {
+			timeline.writeMdx(writer);
 		}
 	}
 
@@ -43,17 +42,17 @@ public abstract class MdlxAnimatedObject implements MdlxChunk, MdlxBlock {
 		return new TransformedAnimatedBlockIterator(stream.readBlock().iterator());
 	}
 
-	public void readTimeline(final MdlTokenInputStream stream, final AnimationMap name) throws IOException {
-		final Timeline<?> timeline = name.getImplementation().createTimeline();
+	public void readTimeline(final MdlTokenInputStream stream, final AnimationMap name) {
+		final MdlxTimeline<?> timeline = name.getImplementation().createTimeline();
 
 		timeline.readMdl(stream, name.getWar3id());
 
 		this.timelines.add(timeline);
 	}
 
-	public boolean writeTimeline(final MdlTokenOutputStream stream, final AnimationMap name) throws IOException {
-		for (final Timeline<?> timeline : this.timelines) {
-			if (timeline.getName().equals(name.getWar3id())) {
+	public boolean writeTimeline(final MdlTokenOutputStream stream, final AnimationMap name) {
+		for (final MdlxTimeline<?> timeline : this.timelines) {
+			if (timeline.name.equals(name.getWar3id())) {
 				timeline.writeMdl(stream);
 				return true;
 			}
@@ -64,7 +63,7 @@ public abstract class MdlxAnimatedObject implements MdlxChunk, MdlxBlock {
 	@Override
 	public long getByteLength(final int version) {
 		long size = 0;
-		for (final Timeline<?> timeline : this.timelines) {
+		for (final MdlxTimeline<?> timeline : this.timelines) {
 			size += timeline.getByteLength();
 		}
 		return size;

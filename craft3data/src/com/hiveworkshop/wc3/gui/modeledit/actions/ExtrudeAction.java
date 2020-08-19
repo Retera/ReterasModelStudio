@@ -61,7 +61,7 @@ public class ExtrudeAction implements UndoAction {
 					}
 				}
 				if (good) {
-					final ArrayList<Triangle> tris = new ArrayList<>(gv.getTriangles());
+					final List<Triangle> tris = new ArrayList<>(gv.getTriangles());
 					for (final Triangle t : tris) {
 						if (!selection.contains(t.get(0)) || !selection.contains(t.get(1))
 								|| !selection.contains(t.get(2))) {
@@ -138,7 +138,7 @@ public class ExtrudeAction implements UndoAction {
 				final GeosetVertex cgv = addedVerts.get(i);
 				if (cgv != null) {
 					final GeosetVertex gv = (GeosetVertex) selection.get(addedVerts.indexOf(cgv));
-					final ArrayList<Triangle> ctris = new ArrayList<>(cgv.getTriangles());
+					final List<Triangle> ctris = new ArrayList<>(cgv.getTriangles());
 					for (final Triangle t : ctris) {
 						t.set(t.indexOf(cgv), gv);
 						cgv.getTriangles().remove(t);
@@ -163,7 +163,7 @@ public class ExtrudeAction implements UndoAction {
 				final GeosetVertex cgv = addedVerts.get(i);
 				if (cgv != null) {
 					final GeosetVertex gv = copiedGroup.get(addedVerts.indexOf(cgv));
-					final ArrayList<Triangle> ctris = new ArrayList<>(cgv.getTriangles());
+					final List<Triangle> ctris = new ArrayList<>(cgv.getTriangles());
 					for (final Triangle t : ctris) {
 						t.set(t.indexOf(cgv), gv);
 						cgv.getTriangles().remove(t);

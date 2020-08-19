@@ -2,9 +2,8 @@ package com.hiveworkshop.wc3.gui.modeledit.newstuff.actions.tools;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-import com.etheller.collections.Map;
-import com.etheller.collections.MapView;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.IdObject;
@@ -21,14 +20,14 @@ public final class SetParentAction implements UndoAction {
 		this.newParent = newParent;
 		this.changeListener = changeListener;
 		this.nodes = new ArrayList<>();
-		for (final MapView.Entry<IdObject, IdObject> entry : nodeToOldParent) {
+		for (final Map.Entry<IdObject, IdObject> entry : nodeToOldParent.entrySet()) {
 			nodes.add(entry.getKey());
 		}
 	}
 
 	@Override
 	public void undo() {
-		for (final MapView.Entry<IdObject, IdObject> entry : nodeToOldParent) {
+		for (final Map.Entry<IdObject, IdObject> entry : nodeToOldParent.entrySet()) {
 			entry.getKey().setParent(entry.getValue());
 		}
 		changeListener.nodesRemoved(nodes);
@@ -37,7 +36,7 @@ public final class SetParentAction implements UndoAction {
 
 	@Override
 	public void redo() {
-		for (final MapView.Entry<IdObject, IdObject> entry : nodeToOldParent) {
+		for (final Map.Entry<IdObject, IdObject> entry : nodeToOldParent.entrySet()) {
 			entry.getKey().setParent(newParent);
 		}
 		changeListener.nodesRemoved(nodes);

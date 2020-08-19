@@ -1,8 +1,6 @@
 package com.hiveworkshop.wc3.mdl;
 
 import java.awt.geom.Rectangle2D;
-import java.io.BufferedReader;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,13 +13,13 @@ import com.hiveworkshop.wc3.util.ModelUtils;
 
 public class Geoset implements Named, VisibilitySource {
 	ExtLog extents;
-	ArrayList<GeosetVertex> vertex;
-	ArrayList<Normal> normals;
-	ArrayList<UVLayer> uvlayers;
-	ArrayList<Triangle> triangles;
-	ArrayList<Matrix> matrix;
-	ArrayList<Animation> anims;
-	ArrayList<String> flags;
+	List<GeosetVertex> vertex;
+	List<Normal> normals;
+	List<UVLayer> uvlayers;
+	List<Triangle> triangles;
+	List<Matrix> matrix;
+	List<Animation> anims;
+	List<String> flags;
 	int materialID = 0;
 	Material material;
 	int selectionGroup = 0;
@@ -32,8 +30,8 @@ public class Geoset implements Named, VisibilitySource {
 
 	int levelOfDetail = -1;
 	String levelOfDetailName;
-	ArrayList<short[]> skin;
-	ArrayList<float[]> tangents;
+	List<short[]> skin;
+	List<float[]> tangents;
 
 	public Geoset() {
 		vertex = new ArrayList();
@@ -59,7 +57,7 @@ public class Geoset implements Named, VisibilitySource {
 
 		float[][] uvSets = geoset.uvSets;
 
-		final ArrayList<UVLayer> uv = new ArrayList<>();
+		final List<UVLayer> uv = new ArrayList<>();
 		for (int i = 0; i < geoset.uvSets.length; i++) {
 			final UVLayer layer = new UVLayer();
 			uv.add(layer);
@@ -350,7 +348,7 @@ public class Geoset implements Named, VisibilitySource {
 		return uvlayers.size();
 	}
 
-	public void setTriangles(final ArrayList<Triangle> list) {
+	public void setTriangles(final List<Triangle> list) {
 		triangles = list;
 	}
 
@@ -382,8 +380,8 @@ public class Geoset implements Named, VisibilitySource {
 	 * @param parent
 	 * @return
 	 */
-	public ArrayList<GeosetVertex> getChildrenOf(final Bone parent) {
-		final ArrayList<GeosetVertex> children = new ArrayList<>();
+	public List<GeosetVertex> getChildrenOf(final Bone parent) {
+		final List<GeosetVertex> children = new ArrayList<>();
 		for (final GeosetVertex gv : vertex) {
 			if (gv.bones.contains(parent)) {
 				children.add(gv);
@@ -462,8 +460,8 @@ public class Geoset implements Named, VisibilitySource {
 		return flags.size();
 	}
 
-	public ArrayList<TVertex> getTVertecesInArea(final Rectangle2D.Double area, final int layerId) {
-		final ArrayList<TVertex> temp = new ArrayList<>();
+	public List<TVertex> getTVertecesInArea(final Rectangle2D.Double area, final int layerId) {
+		final List<TVertex> temp = new ArrayList<>();
 		for (int i = 0; i < vertex.size(); i++) {
 			final TVertex ver = vertex.get(i).getTVertex(layerId);
 			// Point2D.Double p = new
@@ -475,8 +473,8 @@ public class Geoset implements Named, VisibilitySource {
 		return temp;
 	}
 
-	public ArrayList<Vertex> getVertecesInArea(final Rectangle2D.Double area, final byte dim1, final byte dim2) {
-		final ArrayList<Vertex> temp = new ArrayList<>();
+	public List<Vertex> getVertecesInArea(final Rectangle2D.Double area, final byte dim1, final byte dim2) {
+		final List<Vertex> temp = new ArrayList<>();
 		for (final Vertex ver : vertex) {
 			// Point2D.Double p = new
 			// Point(ver.getCoords(dim1),ver.getCoords(dim2))
@@ -682,9 +680,9 @@ public class Geoset implements Named, VisibilitySource {
 			final GeosetVertex geosetVertex = vertex.get(i);
 			if (geosetVertex.getSkinBones() != null) {
 				if (matrix.isEmpty()) {
-					final ArrayList<Bone> bones = mdlr.sortedIdObjects(Bone.class);
+					final List<Bone> bones = mdlr.sortedIdObjects(Bone.class);
 					for (int j = 0; (j < bones.size()) && (j < 256); j++) {
-						final ArrayList<Bone> singleBoneList = new ArrayList<Bone>();
+						final List<Bone> singleBoneList = new ArrayList<Bone>();
 						singleBoneList.add(bones.get(j));
 						final Matrix e = new Matrix(singleBoneList);
 						e.updateIds(mdlr);
@@ -694,7 +692,7 @@ public class Geoset implements Named, VisibilitySource {
 				int skinIndex = 0;
 				for (final Bone bone : geosetVertex.getSkinBones()) {
 					if (bone != null) {
-						final ArrayList<Bone> singleBoneList = new ArrayList<Bone>();
+						final List<Bone> singleBoneList = new ArrayList<Bone>();
 						singleBoneList.add(bone);
 						final Matrix newTemp = new Matrix(singleBoneList);
 						int index = -1;
@@ -772,59 +770,59 @@ public class Geoset implements Named, VisibilitySource {
 		this.extents = extents;
 	}
 
-	public ArrayList<GeosetVertex> getVertices() {
+	public List<GeosetVertex> getVertices() {
 		return vertex;
 	}
 
-	public void setVertex(final ArrayList<GeosetVertex> vertex) {
+	public void setVertex(final List<GeosetVertex> vertex) {
 		this.vertex = vertex;
 	}
 
-	public ArrayList<Normal> getNormals() {
+	public List<Normal> getNormals() {
 		return normals;
 	}
 
-	public void setNormals(final ArrayList<Normal> normals) {
+	public void setNormals(final List<Normal> normals) {
 		this.normals = normals;
 	}
 
-	public ArrayList<UVLayer> getUVLayers() {
+	public List<UVLayer> getUVLayers() {
 		return uvlayers;
 	}
 
-	public void setUvlayers(final ArrayList<UVLayer> uvlayers) {
+	public void setUvlayers(final List<UVLayer> uvlayers) {
 		this.uvlayers = uvlayers;
 	}
 
-	public ArrayList<Triangle> getTriangles() {
+	public List<Triangle> getTriangles() {
 		return triangles;
 	}
 
-	public void setTriangle(final ArrayList<Triangle> triangle) {
+	public void setTriangle(final List<Triangle> triangle) {
 		this.triangles = triangle;
 	}
 
-	public ArrayList<Matrix> getMatrix() {
+	public List<Matrix> getMatrix() {
 		return matrix;
 	}
 
-	public void setMatrix(final ArrayList<Matrix> matrix) {
+	public void setMatrix(final List<Matrix> matrix) {
 		this.matrix = matrix;
 	}
 
-	public ArrayList<Animation> getAnims() {
+	public List<Animation> getAnims() {
 		return anims;
 	}
 
-	public void setAnims(final ArrayList<Animation> anims) {
+	public void setAnims(final List<Animation> anims) {
 		this.anims = anims;
 	}
 
-	public ArrayList<String> getFlags() {
+	public List<String> getFlags() {
 		return flags;
 	}
 
-	public void setFlags(final ArrayList<String> flags) {
+	public void setFlags(final List<String> flags) {
 		this.flags = flags;
 	}
 

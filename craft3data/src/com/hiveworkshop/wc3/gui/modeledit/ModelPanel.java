@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -88,7 +89,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 			final CoordDisplayListener coordDisplayListener, final ViewportTransferHandler viewportTransferHandler,
 			final ViewportListener viewportListener, final Icon icon, final boolean specialBLPModel,
 			final TextureExporter textureExporter) throws IOException {
-		this(parent, MdxUtils.loadEditableModel(input), prefs, undoHandler, notifier, modeNotifier,
+		this(parent, MdxUtils.loadEditable(input), prefs, undoHandler, notifier, modeNotifier,
 				modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, viewportListener, icon,
 				specialBLPModel, textureExporter);
 		file = input;
@@ -244,7 +245,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 	public void loadModel(final File input) throws FileNotFoundException, IOException {
 		file = input;
 		if (file != null) {
-			model = MdxUtils.loadEditableModel(input);
+			model = MdxUtils.loadEditable(input);
 		}
 	}
 
@@ -499,7 +500,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 	}
 
 	public void viewMatrices() {
-		final ArrayList<Bone> boneRefs = new ArrayList<>();
+		final List<Bone> boneRefs = new ArrayList<>();
 		for (final Vertex ver : modelEditorManager.getSelectionView().getSelectedVertices()) {
 			if (ver instanceof GeosetVertex) {
 				final GeosetVertex gv = (GeosetVertex) ver;

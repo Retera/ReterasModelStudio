@@ -1,22 +1,18 @@
 package com.hiveworkshop.wc3.units.objectdata;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
-import com.etheller.collections.CollectionView;
-import com.etheller.collections.HashSet;
-import com.etheller.collections.LinkedHashMap;
-import com.etheller.collections.Map;
-import com.etheller.collections.MapView.Entry;
-import com.etheller.collections.MapView.ForEach;
-import com.etheller.collections.Set;
-import com.etheller.collections.SetView;
-
-public final class ObjectMap implements Iterable<Entry<War3ID, ObjectDataChangeEntry>> {
+public final class ObjectMap implements Iterable<Map.Entry<War3ID, ObjectDataChangeEntry>> {
 	private final Map<War3ID, ObjectDataChangeEntry> idToDataChangeEntry;
 	private final Set<War3ID> lowerCaseKeySet;
 
 	public ObjectMap() {
-		idToDataChangeEntry = new LinkedHashMap<>();
+		idToDataChangeEntry = new HashMap<>();
 		lowerCaseKeySet = new HashSet<>();
 	}
 
@@ -30,7 +26,7 @@ public final class ObjectMap implements Iterable<Entry<War3ID, ObjectDataChangeE
 		return idToDataChangeEntry.remove(key);
 	}
 
-	public SetView<War3ID> keySet() {
+	public Set<War3ID> keySet() {
 		return idToDataChangeEntry.keySet();
 	}
 
@@ -39,7 +35,7 @@ public final class ObjectMap implements Iterable<Entry<War3ID, ObjectDataChangeE
 		return idToDataChangeEntry.put(key, value);
 	}
 
-	public SetView<Entry<War3ID, ObjectDataChangeEntry>> entrySet() {
+	public Set<Map.Entry<War3ID, ObjectDataChangeEntry>> entrySet() {
 		return idToDataChangeEntry.entrySet();
 	}
 
@@ -59,7 +55,7 @@ public final class ObjectMap implements Iterable<Entry<War3ID, ObjectDataChangeE
 		return idToDataChangeEntry.containsValue(value);
 	}
 
-	public CollectionView<ObjectDataChangeEntry> values() {
+	public Collection<ObjectDataChangeEntry> values() {
 		return idToDataChangeEntry.values();
 	}
 
@@ -67,25 +63,19 @@ public final class ObjectMap implements Iterable<Entry<War3ID, ObjectDataChangeE
 		return idToDataChangeEntry.size();
 	}
 
-	public void forEach(final ForEach<? super War3ID, ? super ObjectDataChangeEntry> forEach) {
-		idToDataChangeEntry.forEach(forEach);
-	}
-
 	@Override
-	public Iterator<Entry<War3ID, ObjectDataChangeEntry>> iterator() {
-		return idToDataChangeEntry.iterator();
+	public Iterator<Map.Entry<War3ID, ObjectDataChangeEntry>> iterator() {
+		return idToDataChangeEntry.entrySet().iterator();
 	}
 
 	@Override
 	public ObjectMap clone() {
 		final ObjectMap clone = new ObjectMap();
-		forEach(new ForEach<War3ID, ObjectDataChangeEntry>() {
-			@Override
-			public boolean onEntry(final War3ID key, final ObjectDataChangeEntry value) {
-				clone.put(key, value);
-				return true;
-			}
-		});
+
+		for (Map.Entry<War3ID, ObjectDataChangeEntry> entry : idToDataChangeEntry.entrySet()) {
+			clone.put(entry.getKey(), entry.getValue());
+		}
+
 		return clone;
 	}
 }

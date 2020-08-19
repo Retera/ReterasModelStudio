@@ -1,13 +1,14 @@
 package com.hiveworkshop.wc3.mdl.v2;
 
-import com.etheller.collections.ListView;
+import java.util.List;
+
 import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.v2.timelines.AnimatableVisitor;
 import com.hiveworkshop.wc3.mdl.v2.timelines.TangentialKeyFrame;
 import com.hiveworkshop.wc3.mdl.v2.timelines.Timeline;
 
 public interface MaterialView {
-	ListView<? extends LayerView> getLayers();
+	List<? extends LayerView> getLayers();
 
 	int getPriorityPlane();
 
@@ -23,7 +24,7 @@ public interface MaterialView {
 
 		public static String createDefaultName(final MaterialView materialView) {
 			final StringBuilder name = new StringBuilder();
-			final ListView<? extends LayerView> layers = materialView.getLayers();
+			final List<? extends LayerView> layers = materialView.getLayers();
 			for (int i = layers.size() - 1; i >= 0; i--) {
 				final LayerView layer = layers.get(i);
 				if (name.length() > 0) {

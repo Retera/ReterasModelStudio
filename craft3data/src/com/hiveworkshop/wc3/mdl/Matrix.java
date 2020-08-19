@@ -11,24 +11,16 @@ import javax.swing.JOptionPane;
  * Eric Theller 11/10/2011
  */
 public class Matrix {
-	ArrayList m_boneIds;
-	ArrayList<Bone> bones;
+	List<Integer> m_boneIds;
+	List<Bone> bones;
 
 	public Matrix() {
-		m_boneIds = new ArrayList();
+		m_boneIds = new ArrayList<>();
 	}
 
 	public Matrix(final int id) {
-		m_boneIds = new ArrayList();
+		m_boneIds = new ArrayList<>();
 		m_boneIds.add(id);
-	}
-
-	public Matrix(final ArrayList boneIds, final boolean useIds) {
-		if (useIds) {
-			m_boneIds = boneIds;
-		} else {
-			bones = boneIds;
-		}
 	}
 
 	public String getName() {
@@ -60,7 +52,7 @@ public class Matrix {
 	public void updateIds(final EditableModel mdlr) {
 		final int sz1 = bones.size();
 		if (m_boneIds == null) {
-			m_boneIds = new ArrayList();
+			m_boneIds = new ArrayList<>();
 		} else {
 			m_boneIds.clear();
 		}
@@ -115,7 +107,7 @@ public class Matrix {
 	}
 
 	public Matrix(final int[] boneIds) {
-		m_boneIds = new ArrayList();
+		m_boneIds = new ArrayList<>();
 		for (int i = 0; i < boneIds.length; i++) {
 			m_boneIds.add(boneIds[i]);
 		}
@@ -158,11 +150,11 @@ public class Matrix {
 		return same;
 	}
 
-	public ArrayList<Bone> getBones() {
+	public List<Bone> getBones() {
 		return bones;
 	}
 
-	public void setBones(final ArrayList<Bone> bones) {
+	public void setBones(final List<Bone> bones) {
 		this.bones = bones;
 	}
 }

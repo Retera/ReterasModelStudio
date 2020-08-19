@@ -1,6 +1,5 @@
 package com.etheller.warsmash.parsers.mdlx;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -8,9 +7,8 @@ import java.util.List;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.etheller.warsmash.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.etheller.warsmash.util.MdlUtils;
-import com.etheller.warsmash.util.ParseUtils;
-import com.google.common.io.LittleEndianDataOutputStream;
 import com.hiveworkshop.util.BinaryReader;
+import com.hiveworkshop.util.BinaryWriter;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
 
 public class MdlxGeoset implements MdlxBlock, MdlxChunk {
@@ -58,7 +56,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 	public short[] skin;
 	public float[][] uvSets;
 
-	public void readMdx(final BinaryReader reader, final int version) throws IOException {
+	public void readMdx(final BinaryReader reader, final int version) {
 		final long size = reader.readUInt32();
 
 		reader.readInt32(); // skip VRTX
@@ -121,68 +119,69 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 	}
 
 	@Override
-	public void writeMdx(final LittleEndianDataOutputStream stream, final int version) throws IOException {
-		ParseUtils.writeUInt32(stream, this.getByteLength(version));
-		ParseUtils.writeWar3ID(stream, VRTX);
-		ParseUtils.writeUInt32(stream, this.vertices.length / 3);
-		ParseUtils.writeFloatArray(stream, this.vertices);
-		ParseUtils.writeWar3ID(stream, NRMS);
-		ParseUtils.writeUInt32(stream, this.normals.length / 3);
-		ParseUtils.writeFloatArray(stream, this.normals);
-		ParseUtils.writeWar3ID(stream, PTYP);
-		ParseUtils.writeUInt32(stream, this.faceTypeGroups.length);
-		ParseUtils.writeUInt32Array(stream, this.faceTypeGroups);
-		ParseUtils.writeWar3ID(stream, PCNT);
-		ParseUtils.writeUInt32(stream, this.faceGroups.length);
-		ParseUtils.writeUInt32Array(stream, this.faceGroups);
-		ParseUtils.writeWar3ID(stream, PVTX);
-		ParseUtils.writeUInt32(stream, this.faces.length);
-		ParseUtils.writeUInt16Array(stream, this.faces);
-		ParseUtils.writeWar3ID(stream, GNDX);
-		ParseUtils.writeUInt32(stream, this.vertexGroups.length);
-		ParseUtils.writeUInt8Array(stream, this.vertexGroups);
-		ParseUtils.writeWar3ID(stream, MTGC);
-		ParseUtils.writeUInt32(stream, this.matrixGroups.length);
-		ParseUtils.writeUInt32Array(stream, this.matrixGroups);
-		ParseUtils.writeWar3ID(stream, MATS);
-		ParseUtils.writeUInt32(stream, this.matrixIndices.length);
-		ParseUtils.writeUInt32Array(stream, this.matrixIndices);
-		ParseUtils.writeUInt32(stream, this.materialId);
-		ParseUtils.writeUInt32(stream, this.selectionGroup);
-		ParseUtils.writeUInt32(stream, this.selectionFlags);
+	public void writeMdx(final BinaryWriter writer, final int version) {
+		writer.writeUInt32(this.getByteLength(version));
+		writer.writeTag(VRTX.getValue());
+		writer.writeUInt32(this.vertices.length / 3);
+		writer.writeFloat32Array(this.vertices);
+		writer.writeTag(NRMS.getValue());
+		writer.writeUInt32(this.normals.length / 3);
+		writer.writeFloat32Array(this.normals);
+		writer.writeTag(PTYP.getValue());
+		writer.writeUInt32(this.faceTypeGroups.length);
+		writer.writeUInt32Array(this.faceTypeGroups);
+		writer.writeTag(PCNT.getValue());
+		writer.writeUInt32(this.faceGroups.length);
+		writer.writeUInt32Array(this.faceGroups);
+		writer.writeTag(PVTX.getValue());
+		writer.writeUInt32(this.faces.length);
+		writer.writeUInt16Array(this.faces);
+		writer.writeTag(GNDX.getValue());
+		writer.writeUInt32(this.vertexGroups.length);
+		writer.writeUInt8Array(this.vertexGroups);
+		writer.writeTag(MTGC.getValue());
+		writer.writeUInt32(this.matrixGroups.length);
+		writer.writeUInt32Array(this.matrixGroups);
+		writer.writeTag(MATS.getValue());
+		writer.writeUInt32(this.matrixIndices.length);
+		writer.writeUInt32Array(this.matrixIndices);
+		writer.writeUInt32(this.materialId);
+		writer.writeUInt32(this.selectionGroup);
+		writer.writeUInt32(this.selectionFlags);
 
 		if (version > 800) {
-			stream.writeInt(lod);
-			ParseUtils.writeString(stream, lodName, 80);
+			writer.writeInt32(lod);
+			writer.writeWithNulls(lodName, 80);
 		}
 
-		this.extent.writeMdx(stream);
-		ParseUtils.writeUInt32(stream, this.sequenceExtents.length);
+		this.extent.writeMdx(writer);
+		writer.writeUInt32(this.sequenceExtents.length);
 
 		for (final MdlxExtent sequenceExtent : this.sequenceExtents) {
-			sequenceExtent.writeMdx(stream);
+			sequenceExtent.writeMdx(writer);
 		}
 
 		if (version > 800) {
 			if (tangents != null) {
-				ParseUtils.writeWar3ID(stream, TANG);
-				ParseUtils.writeUInt32(stream, tangents.length / 4);
-				ParseUtils.writeFloatArray(stream, tangents);
+				writer.writeTag(TANG.getValue());
+				writer.writeUInt32(tangents.length / 4);
+				writer.writeFloat32Array(tangents);
 			}
 
 			if (skin != null) {
-				ParseUtils.writeWar3ID(stream, SKIN);
-				ParseUtils.writeUInt32(stream, skin.length);
-				ParseUtils.writeUInt8Array(stream, skin);
+				writer.writeTag(SKIN.getValue());
+				writer.writeUInt32(skin.length);
+				writer.writeUInt8Array(skin);
 			}
 		}
 
-		ParseUtils.writeWar3ID(stream, UVAS);
-		ParseUtils.writeUInt32(stream, this.uvSets.length);
+		writer.writeTag(UVAS.getValue());
+		writer.writeUInt32(this.uvSets.length);
+		
 		for (final float[] uvSet : this.uvSets) {
-			ParseUtils.writeWar3ID(stream, UVBS);
-			ParseUtils.writeUInt32(stream, uvSet.length / 2);
-			ParseUtils.writeFloatArray(stream, uvSet);
+			writer.writeTag(UVBS.getValue());
+			writer.writeUInt32(uvSet.length / 2);
+			writer.writeFloat32Array(uvSet);
 		}
 	}
 
@@ -194,7 +193,6 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 			switch (token) {
 			case MdlUtils.TOKEN_VERTICES:
 				this.vertices = stream.readVectorArray(new float[stream.readInt() * 3], 3);
-				System.out.println(vertices.length);
 				break;
 			case MdlUtils.TOKEN_NORMALS:
 				this.normals = stream.readVectorArray(new float[stream.readInt() * 3], 3);
@@ -362,10 +360,10 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 			}
 
 			if (skin != null) {
-				stream.startBlock("SkinWeights");
+				stream.startBlock("SkinWeights", skin.length / 8);
 
 				for (int i = 0, l = skin.length; i < l; i += 8) {
-					stream.writeShortArray(Arrays.copyOfRange(skin, i, i + 8));
+					stream.writeShortArrayRaw(Arrays.copyOfRange(skin, i, i + 8));
 				}
 
 				stream.endBlock();

@@ -164,13 +164,13 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 		if (baseFileInput.getText().length() > 0) {
 			if (sourceFile == null || sourceFile.getFile() == null
 					|| !baseFileInput.getText().equals(sourceFile.getFile().getPath())) {
-				sourceFile = MdxUtils.loadEditableModel(new File(baseFileInput.getText()));
+				sourceFile = MdxUtils.loadEditable(new File(baseFileInput.getText()));
 			}
 		}
 		if (animFileInput.getText().length() > 0) {
 			if (animFile == null || animFile.getFile() == null
 					|| !animFileInput.getText().equals(animFile.getFile().getPath())) {
-				animFile = MdxUtils.loadEditableModel(new File(animFileInput.getText()));
+				animFile = MdxUtils.loadEditable(new File(animFileInput.getText()));
 			}
 		}
 	}
@@ -178,12 +178,12 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 	public void forceRefreshModels() throws IOException {
 		// if( (sourceFile == null && !baseFileInput.getText().equals("")) ||
 		// !baseFileInput.getText().equals(sourceFile.getFile().getPath()) ) {
-		sourceFile = MdxUtils.loadEditableModel(new File(baseFileInput.getText()));
+		sourceFile = MdxUtils.loadEditable(new File(baseFileInput.getText()));
 		// JOptionPane.showMessageDialog(null,"Reloaded base model");
 		// }
 		// if( (animFile == null && !animFileInput.getText().equals("")) ||
 		// !animFileInput.getText().equals(animFile.getFile().getPath()) ) {
-		animFile = MdxUtils.loadEditableModel(new File(animFileInput.getText()));
+		animFile = MdxUtils.loadEditable(new File(animFileInput.getText()));
 		// JOptionPane.showMessageDialog(null,"Reloaded anim model");
 		// }
 		updateBoxes();
@@ -350,8 +350,8 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 	}
 
 	public void doTransfer(final boolean show) throws IOException {
-		final EditableModel sourceFile = MdxUtils.loadEditableModel(new File(baseFileInput.getText()));
-		final EditableModel animFile = MdxUtils.loadEditableModel(new File(animFileInput.getText()));
+		final EditableModel sourceFile = MdxUtils.loadEditable(new File(baseFileInput.getText()));
+		final EditableModel animFile = MdxUtils.loadEditable(new File(animFileInput.getText()));
 
 		if (!transferSingleAnimation.isSelected()) {
 			final ImportPanel importPanel = new ImportPanel(sourceFile, animFile, show);
@@ -402,7 +402,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 								filepath += ".mdl";
 							}
 							try {
-								MdxUtils.saveEditableModel(sourceFile, new File(filepath));
+								MdxUtils.saveMdx(sourceFile, new File(filepath));
 							} catch (IOException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
@@ -465,7 +465,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 							ImportPanel importPanel2;
 							try {
 								importPanel2 = new ImportPanel(sourceFile,
-										MdxUtils.loadEditableModel(sourceFile.getFile()), show);
+										MdxUtils.loadEditable(sourceFile.getFile()), show);
 							} catch (IOException e1) {
 								// TODO Auto-generated catch block
 								e1.printStackTrace();
@@ -516,7 +516,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 								if (importPanel2.importSuccessful()) {
 									JOptionPane.showMessageDialog(null, "Animation transfer done!");
 									try {
-										MdxUtils.saveEditableModel(sourceFile, new File(outFileInput.getText()));
+										MdxUtils.saveMdx(sourceFile, new File(outFileInput.getText()));
 									} catch (IOException e) {
 										// TODO Auto-generated catch block
 										e.printStackTrace();

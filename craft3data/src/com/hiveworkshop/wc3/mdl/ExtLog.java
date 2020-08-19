@@ -1,10 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.io.BufferedReader;
-import java.io.PrintWriter;
-
-import javax.swing.JOptionPane;
-
 import com.etheller.warsmash.parsers.mdlx.MdlxExtent;
 
 /**
@@ -20,9 +15,6 @@ public class ExtLog {
 	static double DEFAULT_BOUNDSRADIUS = 100.00;
 	static Vertex DEFAULT_MINEXT = new Vertex(-100, -100, -100);
 	static Vertex DEFAULT_MAXEXT = new Vertex(100, 100, 100);
-
-	private ExtLog() {
-	}
 
 	public ExtLog(final double boundsRadius) {
 		this.boundsRadius = boundsRadius;

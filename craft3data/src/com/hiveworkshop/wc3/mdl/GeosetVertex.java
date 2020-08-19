@@ -3,8 +3,6 @@ package com.hiveworkshop.wc3.mdl;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
 /**
  * GeosetVertex is a extended version of the Vertex class, for use strictly
  * inside of Geosets. The idea is that a Vertex object is used all over this
@@ -132,7 +130,7 @@ public class GeosetVertex extends Vertex {
 		bones.add(b);
 	}
 
-	public void addBoneAttachments(final ArrayList<Bone> b) {
+	public void addBoneAttachments(final List<Bone> b) {
 		bones.addAll(b);
 	}
 
@@ -156,7 +154,7 @@ public class GeosetVertex extends Vertex {
 		return tverts;
 	}
 
-	public void setTverts(final ArrayList<TVertex> tverts) {
+	public void setTverts(final List<TVertex> tverts) {
 		this.tverts = tverts;
 	}
 
@@ -172,7 +170,7 @@ public class GeosetVertex extends Vertex {
 		return triangles;
 	}
 
-	public void setTriangles(final ArrayList<Triangle> triangles) {
+	public void setTriangles(final List<Triangle> triangles) {
 		this.triangles = triangles;
 	}
 

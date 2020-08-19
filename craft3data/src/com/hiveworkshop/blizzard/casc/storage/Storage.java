@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.hiveworkshop.blizzard.casc.Key;
@@ -115,7 +116,7 @@ public class Storage implements AutoCloseable {
 		folder = dataFolder.resolve(DATA_FOLDER_NAME);
 		this.useMemoryMapping = useMemoryMapping;
 
-		final ArrayList<Path> indexFiles = new ArrayList<Path>(INDEX_COUNT * INDEX_COPIES);
+		final List<Path> indexFiles = new ArrayList<Path>(INDEX_COUNT * INDEX_COPIES);
 		try (final DirectoryStream<Path> indexFileIterator = Files.newDirectoryStream(folder,
 				"*." + INDEX_FILE_EXTENSION)) {
 			for (final Path indexFile : indexFileIterator) {
@@ -129,7 +130,7 @@ public class Storage implements AutoCloseable {
 			private long version;
 		}
 
-		final HashMap<Integer, ArrayList<IndexFileNameMeta>> metaMap = new HashMap<Integer, ArrayList<IndexFileNameMeta>>(
+		final Map<Integer, List<IndexFileNameMeta>> metaMap = new HashMap<Integer, List<IndexFileNameMeta>>(
 				INDEX_COUNT);
 
 		for (final Path indexFile : indexFiles) {
@@ -140,7 +141,7 @@ public class Storage implements AutoCloseable {
 			fileMeta.index = Integer.parseUnsignedInt(fileName.substring(0, 2), 16);
 			fileMeta.version = Long.parseUnsignedLong(fileName.substring(2, 10), 16);
 
-			ArrayList<IndexFileNameMeta> bucketList = metaMap.get(fileMeta.index);
+			List<IndexFileNameMeta> bucketList = metaMap.get(fileMeta.index);
 			if (bucketList == null) {
 				bucketList = new ArrayList<>();
 				metaMap.put(fileMeta.index, bucketList);
@@ -157,7 +158,7 @@ public class Storage implements AutoCloseable {
 		}
 
 		for (int index = 0; index < indicies.length; index += 1) {
-			final ArrayList<IndexFileNameMeta> bucketList = metaMap.get(index);
+			final List<IndexFileNameMeta> bucketList = metaMap.get(index);
 			if (bucketList == null) {
 				throw new MalformedCASCStructureException("storage index file missing");
 			}

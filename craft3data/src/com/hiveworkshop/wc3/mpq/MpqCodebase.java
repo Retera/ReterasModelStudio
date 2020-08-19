@@ -8,13 +8,11 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import com.etheller.collections.HashSet;
-import com.etheller.collections.Set;
-import com.etheller.collections.SetView;
-import com.etheller.util.CollectionUtils;
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceDescriptor;
 import com.hiveworkshop.wc3.gui.datachooser.MpqDataSourceDescriptor;
@@ -161,7 +159,7 @@ public class MpqCodebase implements Codebase, DataSource {
 		boolean has(String path);
 	}
 
-	public SetView<String> getMergedListfile() {
+	public Set<String> getMergedListfile() {
 		final Set<String> listfile = new HashSet<>();
 		for (final DataSource mpqGuy : mpqList) {
 			final Collection<String> dataSourceListfile = mpqGuy.getListfile();
@@ -196,7 +194,7 @@ public class MpqCodebase implements Codebase, DataSource {
 
 	@Override
 	public Collection<String> getListfile() {
-		return CollectionUtils.toJava(getMergedListfile());
+		return getMergedListfile();
 	}
 
 	@Override

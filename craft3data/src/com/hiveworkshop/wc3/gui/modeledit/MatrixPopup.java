@@ -3,7 +3,7 @@ package com.hiveworkshop.wc3.gui.modeledit;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.GroupLayout;
@@ -227,7 +227,7 @@ public class MatrixPopup extends JPanel implements ActionListener, ListSelection
 
 	public void buildBonesList() {
 		bones = new DefaultListModel<>();
-		final ArrayList<Bone> modelBones = model.sortedIdObjects(Bone.class);
+		final List<Bone> modelBones = model.sortedIdObjects(Bone.class);
 		// ArrayList<Bone> modelHelpers = model.sortedIdObjects(Bone.class);
 		for (final Bone b : modelBones) {
 			bones.addElement(new BoneShell(b));

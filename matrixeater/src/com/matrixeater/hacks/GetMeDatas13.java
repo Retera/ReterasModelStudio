@@ -23,7 +23,7 @@ public class GetMeDatas13 {
 		for (final String entry : listfile) {
 			if (entry.toLowerCase().endsWith(".mdx")) {
 				try (InputStream stream = mpqCodebase.getResourceAsStream(entry)) {
-					final MdlxModel model = MdxUtils.loadModel(stream);
+					final MdlxModel model = MdxUtils.loadMdlx(stream);
 					if (model != null) {
 						for (final MdlxMaterial material : model.materials) {
 							if ("Shader_HD_DefaultUnit".equals(material.shader)) {

@@ -75,10 +75,6 @@ public class Bitmap {
 		this.imagePath = imagePath;
 	}
 
-	private Bitmap() {
-
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
