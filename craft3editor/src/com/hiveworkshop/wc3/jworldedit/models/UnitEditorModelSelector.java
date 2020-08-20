@@ -49,8 +49,6 @@ import com.hiveworkshop.wc3.units.StandardObjectData.WarcraftObject;
 import com.hiveworkshop.wc3.units.UnitComparator;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.WorldEditorDataType;
 
-import de.wc3data.stream.BlizzardDataInputStream;
-
 @Deprecated
 public class UnitEditorModelSelector extends JSplitPane implements TreeSelectionListener {
 	WarcraftData unitData = StandardObjectData.getStandardUnits();
@@ -268,11 +266,6 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 		public UnitEditorTreeModel(final DefaultMutableTreeNode root) {
 			super(root);
 		}
-
-		/**
-		 *
-		 */
-		private static final long serialVersionUID = 1L;
 
 	}
 

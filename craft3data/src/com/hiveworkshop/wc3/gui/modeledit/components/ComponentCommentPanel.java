@@ -1,7 +1,6 @@
 package com.hiveworkshop.wc3.gui.modeledit.components;
 
 import java.awt.BorderLayout;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

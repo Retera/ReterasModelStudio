@@ -17,8 +17,8 @@ public class MutableGameUnitComparator implements Comparator<MutableGameObject> 
 		}
 		final int comp1 = a.readSLKTag("unitClass").compareTo(b.readSLKTag("unitClass"));
 		if (comp1 == 0) {
-			final int comp2 = new Integer(a.getFieldAsInteger(UNIT_LEVEL, 0))
-					.compareTo(new Integer(b.getFieldAsInteger(UNIT_LEVEL, 0)));
+			final int comp2 = Integer.valueOf(a.getFieldAsInteger(UNIT_LEVEL, 0))
+					.compareTo(Integer.valueOf(b.getFieldAsInteger(UNIT_LEVEL, 0)));
 			if (comp2 == 0) {
 				return a.getName().compareTo(b.getName());
 			}

@@ -35,7 +35,7 @@ public class UnitEditorTreeModel extends DefaultTreeModel {
 	}
 
 	private void init(final DefaultMutableTreeNode root) {
-		final Enumeration depthFirstEnumeration = root.depthFirstEnumeration();
+		final Enumeration<TreeNode> depthFirstEnumeration = root.depthFirstEnumeration();
 		while (depthFirstEnumeration.hasMoreElements()) {
 			final Object nextElement = depthFirstEnumeration.nextElement();
 			if (nextElement instanceof DefaultMutableTreeNode) {

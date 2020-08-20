@@ -10,6 +10,7 @@ import com.etheller.warsmash.parsers.mdlx.timeline.MdlxFloatArrayTimeline;
 import com.etheller.warsmash.parsers.mdlx.timeline.MdlxFloatTimeline;
 import com.etheller.warsmash.parsers.mdlx.timeline.MdlxTimeline;
 import com.etheller.warsmash.parsers.mdlx.timeline.MdlxUInt32Timeline;
+import com.etheller.warsmash.util.MdlUtils;
 import com.hiveworkshop.wc3.gui.animedit.BasicTimeBoundProvider;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
@@ -95,9 +96,8 @@ public class AnimFlag {
 	 */
 	public static final int OTHER_TYPE = 0;
 
-	War3ID id;
+	String name;
 	List<String> tags = new ArrayList<>();
-	String title;
 	Integer globalSeq;
 	int globalSeqId = -1;
 	boolean hasGlobalSeq = false;
@@ -115,12 +115,12 @@ public class AnimFlag {
 			return false;
 		}
 		final AnimFlag af = o;
-		does = title.equals(af.title);
-		does = hasGlobalSeq == af.hasGlobalSeq;
-		does = values.equals(af.values) && (globalSeq == null ? af.globalSeq == null : globalSeq.equals(af.globalSeq))
+		does = (name.equals(af.getName())) ||
+			   (hasGlobalSeq == af.hasGlobalSeq) ||
+			   (values.equals(af.values) && (globalSeq == null ? af.globalSeq == null : globalSeq.equals(af.globalSeq))
 				&& (tags == null ? af.tags == null : tags.equals(af.tags))
 				&& (inTans == null ? af.inTans == null : inTans.equals(af.inTans))
-				&& (outTans == null ? af.outTans == null : outTans.equals(af.outTans)) && (typeid == af.typeid);
+				&& (outTans == null ? af.outTans == null : outTans.equals(af.outTans)) && (typeid == af.typeid));
 		return does;
 	}
 
@@ -138,8 +138,7 @@ public class AnimFlag {
 	}
 	
 	public AnimFlag(final MdlxTimeline<?> timeline) {
-		id = timeline.name;
-		title = AnimationMap.ID_TO_TAG.get(id).getMdlToken();
+		name = AnimationMap.ID_TO_TAG.get(timeline.name).getMdlToken();
 		generateTypeId();
 
 		int interpolationType = timeline.interpolationType.getValue();
@@ -213,7 +212,7 @@ public class AnimFlag {
 		}
 	}
 
-	public MdlxTimeline toMdlx() {
+	public MdlxTimeline toMdlx(final TimelineContainer container) {
 		MdlxTimeline timeline;
 
 		if (isFloat) {
@@ -228,7 +227,7 @@ public class AnimFlag {
 			timeline = new MdlxUInt32Timeline();
 		}
 
-		timeline.name = id;
+		timeline.name = getWar3ID(container);
 		timeline.interpolationType = com.etheller.warsmash.parsers.mdlx.InterpolationType.getType(getInterpType());
 		timeline.globalSequenceId = getGlobalSeqId();
 
@@ -304,20 +303,126 @@ public class AnimFlag {
 
 	// end special constructors
 	public AnimFlag(final String title, final List<Integer> times, final List values) {
-		this.title = title;
+		this.name = title;
 		this.times = times;
 		this.values = values;
 	}
 
 	public AnimFlag(final String title) {
-		this.title = title;
+		this.name = title;
 		tags.add("DontInterp");
+	}
+
+	public War3ID getWar3ID(final TimelineContainer container) {
+		AnimationMap id = getAnimationMap(container);
+
+		if (id == null) {
+			throw new RuntimeException("Got an unknown timeline name: " + name);
+		}
+
+		return id.getWar3id();
+	}
+
+	public AnimationMap getAnimationMap(final TimelineContainer container) {
+		if (container instanceof Layer) {
+			switch (name) {
+			case MdlUtils.TOKEN_TEXTURE_ID: return AnimationMap.KMTF;
+			case MdlUtils.TOKEN_ALPHA: return AnimationMap.KMTA;
+			case "EmissiveGain": return AnimationMap.KMTE;
+			case "FresnelColor": return AnimationMap.KFC3;
+			case "FresnelOpacity": return AnimationMap.KFCA;
+			case "FresnelTeamColor": return AnimationMap.KFTC;
+			}
+		} else if (container instanceof TextureAnim) {
+			switch (name) {
+			case MdlUtils.TOKEN_TRANSLATION: return AnimationMap.KTAT;
+			case MdlUtils.TOKEN_ROTATION: return AnimationMap.KTAR;
+			case MdlUtils.TOKEN_SCALING: return AnimationMap.KTAS;
+			}
+		} else if (container instanceof GeosetAnim) {
+			switch (name) {
+			case MdlUtils.TOKEN_ALPHA: return AnimationMap.KGAO;
+			case MdlUtils.TOKEN_COLOR: return AnimationMap.KGAC;
+			}
+		} else if (container instanceof Light) {
+			switch (name) {
+			case MdlUtils.TOKEN_ATTENUATION_START: return AnimationMap.KLAS;
+			case MdlUtils.TOKEN_ATTENUATION_END: return AnimationMap.KLAE;
+			case MdlUtils.TOKEN_COLOR: return AnimationMap.KLAC;
+			case MdlUtils.TOKEN_INTENSITY: return AnimationMap.KLAI;
+			case MdlUtils.TOKEN_AMB_INTENSITY: return AnimationMap.KLBI;
+			case MdlUtils.TOKEN_AMB_COLOR: return AnimationMap.KLBC;
+			case MdlUtils.TOKEN_VISIBILITY: return AnimationMap.KLAV;
+			}
+		} else if (container instanceof Attachment) {
+			switch (name) {
+			case MdlUtils.TOKEN_VISIBILITY: return AnimationMap.KATV;
+			}
+		} else if (container instanceof ParticleEmitter) {
+			switch (name) {
+			case MdlUtils.TOKEN_EMISSION_RATE: return AnimationMap.KPEE;
+			case MdlUtils.TOKEN_GRAVITY: return AnimationMap.KPEG;
+			case MdlUtils.TOKEN_LONGITUDE: return AnimationMap.KPLN;
+			case MdlUtils.TOKEN_LATITUDE: return AnimationMap.KPLT;
+			case MdlUtils.TOKEN_LIFE_SPAN: return AnimationMap.KPEL;
+			case MdlUtils.TOKEN_INIT_VELOCITY: return AnimationMap.KPES;
+			case MdlUtils.TOKEN_VISIBILITY: return AnimationMap.KPEV;
+			}
+		} else if (container instanceof ParticleEmitter2) {
+			switch (name) {
+			case MdlUtils.TOKEN_SPEED: return AnimationMap.KP2S;
+			case MdlUtils.TOKEN_VARIATION: return AnimationMap.KP2R;
+			case MdlUtils.TOKEN_LATITUDE: return AnimationMap.KP2L;
+			case MdlUtils.TOKEN_GRAVITY: return AnimationMap.KP2G;
+			case MdlUtils.TOKEN_EMISSION_RATE: return AnimationMap.KP2E;
+			case MdlUtils.TOKEN_LENGTH: return AnimationMap.KP2N;
+			case MdlUtils.TOKEN_WIDTH: return AnimationMap.KP2W;
+			case MdlUtils.TOKEN_VISIBILITY: return AnimationMap.KP2V;
+			}
+		} else if (container instanceof ParticleEmitterPopcorn) {
+			switch (name) {
+			case MdlUtils.TOKEN_ALPHA: return AnimationMap.KPPA;
+			case MdlUtils.TOKEN_COLOR: return AnimationMap.KPPC;
+			case MdlUtils.TOKEN_EMISSION_RATE: return AnimationMap.KPPE;
+			case MdlUtils.TOKEN_LIFE_SPAN: return AnimationMap.KPPL;
+			case MdlUtils.TOKEN_SPEED: return AnimationMap.KPPS;
+			case MdlUtils.TOKEN_VISIBILITY: return AnimationMap.KPPV;
+			}
+		} else if (container instanceof RibbonEmitter) {
+			switch (name) {
+			case MdlUtils.TOKEN_HEIGHT_ABOVE: return AnimationMap.KRHA;
+			case MdlUtils.TOKEN_HEIGHT_BELOW: return AnimationMap.KRHB;
+			case MdlUtils.TOKEN_ALPHA: return AnimationMap.KRAL;
+			case MdlUtils.TOKEN_COLOR: return AnimationMap.KRCO;
+			case MdlUtils.TOKEN_TEXTURE_SLOT: return AnimationMap.KRTX;
+			case MdlUtils.TOKEN_VISIBILITY: return AnimationMap.KRVS;
+			}
+		} else if (container instanceof Camera.SourceNode) {
+			switch (name) {
+			case MdlUtils.TOKEN_TRANSLATION: return AnimationMap.KCTR;
+			case MdlUtils.TOKEN_ROTATION: return AnimationMap.KCRL;
+			}
+		} else if (container instanceof Camera.TargetNode) {
+			switch (name) {
+			case MdlUtils.TOKEN_TRANSLATION: return AnimationMap.KTTR;
+			}
+		} 
+	
+		if (container instanceof IdObject) {
+			switch (name) {
+			case MdlUtils.TOKEN_TRANSLATION: return AnimationMap.KGTR;
+			case MdlUtils.TOKEN_ROTATION: return AnimationMap.KGRT;
+			case MdlUtils.TOKEN_SCALING: return AnimationMap.KGSC;
+			}
+		}
+
+		return null;
 	}
 
 	public static AnimFlag createEmpty2018(final String title, final InterpolationType interpolationType,
 			final Integer globalSeq) {
 		final AnimFlag flag = new AnimFlag();
-		flag.title = title;
+		flag.name = title;
 		switch (interpolationType) {
 		case BEZIER:
 			flag.tags.add("Bezier");
@@ -367,7 +472,7 @@ public class AnimFlag {
 	}
 
 	public AnimFlag(final AnimFlag af) {
-		title = af.title;
+		name = af.name;
 		tags = af.tags;
 		globalSeq = af.globalSeq;
 		globalSeqId = af.globalSeqId;
@@ -380,7 +485,7 @@ public class AnimFlag {
 	}
 
 	public static AnimFlag buildEmptyFrom(final AnimFlag af) {
-		final AnimFlag na = new AnimFlag(af.title);
+		final AnimFlag na = new AnimFlag(af.name);
 		na.tags = af.tags;
 		na.globalSeq = af.globalSeq;
 		na.globalSeqId = af.globalSeqId;
@@ -395,19 +500,19 @@ public class AnimFlag {
 
 	public void generateTypeId() {
 		typeid = 0;
-		if (title.equals("Scaling")) {
+		if (name.equals("Scaling")) {
 			typeid = 1;
-		} else if (title.equals("Rotation")) {
+		} else if (name.equals("Rotation")) {
 			typeid = 2;
-		} else if (title.equals("Translation")) {
+		} else if (name.equals("Translation")) {
 			typeid = 3;
-		} else if (title.equals("TextureID"))// aflg.title.equals("Visibility")
+		} else if (name.equals("TextureID"))// aflg.title.equals("Visibility")
 												// || -- 100.088% visible in
 												// UndeadCampaign3D OutTans! Go
 												// look!
 		{
 			typeid = 5;
-		} else if (title.contains("Color"))// AmbColor
+		} else if (name.contains("Color"))// AmbColor
 		{
 			typeid = 4;
 		}
@@ -568,7 +673,7 @@ public class AnimFlag {
 	}
 
 	public void setValuesTo(final AnimFlag af) {
-		title = af.title;
+		name = af.name;
 		tags = af.tags;
 		globalSeq = af.globalSeq;
 		globalSeqId = af.globalSeqId;
@@ -598,7 +703,7 @@ public class AnimFlag {
 	}
 
 	public String getName() {
-		return title;
+		return name;
 	}
 
 	public int getTypeId() {
@@ -950,7 +1055,7 @@ public class AnimFlag {
 			if ((i >= sourceStart) && (i <= sourceEnd)) {
 				// If this "i" is a part of the anim being rescaled
 				final double ratio = (double) (i - sourceStart) / (double) (sourceEnd - sourceStart);
-				times.add(new Integer((int) (newStart + (ratio * (newEnd - newStart)))));
+				times.add(Integer.valueOf((int) (newStart + (ratio * (newEnd - newStart)))));
 				values.add(cloneValue(source.values.get(index)));
 				if (tans) {
 					inTans.add(cloneValue(source.inTans.get(index)));
@@ -976,7 +1081,7 @@ public class AnimFlag {
 			if ((i >= start) && (i <= end)) {
 				// If this "i" is a part of the anim being rescaled
 				final double ratio = (double) (i - start) / (double) (end - start);
-				times.set(z, new Integer((int) (newStart + (ratio * (newEnd - newStart)))));
+				times.set(z, Integer.valueOf((int) (newStart + (ratio * (newEnd - newStart)))));
 			}
 		}
 		// }
@@ -989,7 +1094,7 @@ public class AnimFlag {
 		// {
 		// //If this "i" is a part of the anim being rescaled
 		// double ratio = (double)(i-start)/(double)(end-start);
-		// times.set(times.indexOf(inte),new Integer((int)(newStart + ( ratio *
+		// times.set(times.indexOf(inte),Integer.valueOf((int)(newStart + ( ratio *
 		// ( newStart - newEnd ) ) ) ) );
 		// }
 		// }
@@ -1538,6 +1643,6 @@ public class AnimFlag {
 	}
 
 	public void setName(final String title) {
-		this.title = title;
+		this.name = title;
 	}
 }

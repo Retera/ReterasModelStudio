@@ -35,7 +35,7 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 	protected abstract ResettableVertexFilter<TYPE> createFilter();
 
 	@Override
-	public Component getListCellRendererComponent(final JList list, final Object value, final int index,
+	public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index,
 			final boolean iss, final boolean chf) {
 		final Color backgroundColor = getBackground();
 		setBackground(null);

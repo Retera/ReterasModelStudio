@@ -10,7 +10,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.TreeCellRenderer;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.jworldedit.objects.sorting.SortingFolderTreeNode;
@@ -19,7 +18,7 @@ import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.MutableGameObject
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.WorldEditorDataType;
 import com.hiveworkshop.wc3.util.IconUtils;
 
-public class WarcraftObjectTreeCellRenderer extends DefaultTreeCellRenderer implements TreeCellRenderer {
+public class WarcraftObjectTreeCellRenderer extends DefaultTreeCellRenderer {
 	private static final int ICON_SIZE = 16;
 	UnitEditorSettings settings = new UnitEditorSettings();
 	private final WorldEditorDataType worldEditorDataType;

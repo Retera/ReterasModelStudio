@@ -158,8 +158,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return allChildren;
 	}
 
-	@Override
-	public boolean hasFlag(final NodeFlags flag) {
+	public boolean hasNodeFlag(final NodeFlags flag) {
 		for (final String flagInThisObject : getFlags()) {
 			if (flag.matches(flagInThisObject)) {
 				return true;
@@ -264,18 +263,6 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	}
 
 	public abstract void apply(IdObjectVisitor visitor);
-
-	public Vertex getRenderTranslation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		return getInterpolatedVector(animatedRenderEnvironment, "Translation", null);
-	}
-
-	public QuaternionRotation getRenderRotation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		return getInterpolatedQuat(animatedRenderEnvironment, "Rotation", null);
-	}
-
-	public Vertex getRenderScale(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		return getInterpolatedVector(animatedRenderEnvironment, "Scaling", null);
-	}
 
 	@Override
 	public List<IdObject> getChildrenNodes() {

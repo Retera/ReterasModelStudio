@@ -1,6 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Triangle {

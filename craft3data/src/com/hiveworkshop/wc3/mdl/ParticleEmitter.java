@@ -17,41 +17,13 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
  * Eric Theller 3/10/2012 3:32 PM
  */
 public class ParticleEmitter extends EmitterIdObject {
-	@Override
-	public int getBlendSrc() {
-		return 0;
-	}
-
-	@Override
-	public int getBlendDst() {
-		return 0;
-	}
-
-	@Override
-	public int getRows() {
-		return 0;
-	}
-
-	@Override
-	public int getCols() {
-		return 0;
-	}
-
-	@Override
-	public boolean isRibbonEmitter() {
-		return false;
-	}
-
-	public static enum TimeDoubles {
-		EmissionRate, Gravity, Longitude, Latitude, LifeSpan, InitVelocity;
-	}
-
-	static final String[] timeDoubleNames = { "EmissionRate", "Gravity", "Longitude", "Latitude", "LifeSpan",
-			"InitVelocity" };
-	double[] timeDoubleData = new double[timeDoubleNames.length];
-
+	double emissionRate = 0;
+	double gravity = 0;
+	double longitude = 0;
+	double latitude = 0;
+	double lifeSpan = 0;
+	double initVelocity = 0;
 	boolean MDLEmitter = true;
-
 	String path = null;
 
 	private ParticleEmitter() {
@@ -63,7 +35,6 @@ public class ParticleEmitter extends EmitterIdObject {
 	}
 
 	public ParticleEmitter(final MdlxParticleEmitter emitter) {
-		// debug print:
 		if ((emitter.flags & 4096) != 4096) {
 			System.err.println("MDX -> MDL error: A particle emitter '" + emitter.name
 					+ "' not flagged as particle emitter in MDX!");
@@ -118,63 +89,90 @@ public class ParticleEmitter extends EmitterIdObject {
 		x.parentId = parentId;
 		x.setParent(getParent());
 
-		x.timeDoubleData = timeDoubleData.clone();
+		x.emissionRate = emissionRate;
+		x.gravity = gravity;
+		x.longitude = longitude;
+		x.latitude = latitude;
+		x.lifeSpan = lifeSpan;
+		x.initVelocity = initVelocity;
 		x.MDLEmitter = MDLEmitter;
 		x.path = path;
 		x.flags.addAll(flags);
-
-		for (final AnimFlag af : animFlags) {
-			x.animFlags.add(new AnimFlag(af));
-		}
+		x.addAll(getAnimFlags());
 		return x;
 	}
 
+	@Override
+	public int getBlendSrc() {
+		return 0;
+	}
+
+	@Override
+	public int getBlendDst() {
+		return 0;
+	}
+
+	@Override
+	public int getRows() {
+		return 0;
+	}
+
+	@Override
+	public int getCols() {
+		return 0;
+	}
+
+	@Override
+	public boolean isRibbonEmitter() {
+		return false;
+	}
+
 	public double getEmissionRate() {
-		return timeDoubleData[TimeDoubles.EmissionRate.ordinal()];
+		return emissionRate;
 	}
 
 	public void setEmissionRate(final double emissionRate) {
-		timeDoubleData[TimeDoubles.EmissionRate.ordinal()] = emissionRate;
+		this.emissionRate = emissionRate;
 	}
 
 	public double getGravity() {
-		return timeDoubleData[TimeDoubles.Gravity.ordinal()];
+		return gravity;
 	}
 
 	public void setGravity(final double gravity) {
-		timeDoubleData[TimeDoubles.Gravity.ordinal()] = gravity;
+		this.gravity = gravity;
 	}
 
 	public double getLongitude() {
-		return timeDoubleData[TimeDoubles.Longitude.ordinal()];
+		return longitude;
 	}
 
 	public void setLongitude(final double longitude) {
-		timeDoubleData[TimeDoubles.Longitude.ordinal()] = longitude;
+		this.longitude = longitude;
 	}
 
 	public double getLatitude() {
-		return timeDoubleData[TimeDoubles.Latitude.ordinal()];
+		return latitude;
 	}
 
 	public void setLatitude(final double latitude) {
-		timeDoubleData[TimeDoubles.Latitude.ordinal()] = latitude;
+		this.latitude = latitude;
 	}
 
 	public double getLifeSpan() {
-		return timeDoubleData[TimeDoubles.LifeSpan.ordinal()];
+		return getLifeSpan();
 	}
 
 	public void setLifeSpan(final double lifeSpan) {
-		timeDoubleData[TimeDoubles.LifeSpan.ordinal()] = lifeSpan;
+		this.lifeSpan = lifeSpan;
 	}
 
 	public double getInitVelocity() {
-		return timeDoubleData[TimeDoubles.InitVelocity.ordinal()];
+		return initVelocity;
 	}
 
 	public void setInitVelocity(final double initVelocity) {
-		timeDoubleData[TimeDoubles.InitVelocity.ordinal()] = initVelocity;
+		this.initVelocity = initVelocity;
 	}
 
 	public boolean isMDLEmitter() {

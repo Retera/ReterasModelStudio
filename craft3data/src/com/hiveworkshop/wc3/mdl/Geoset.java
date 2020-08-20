@@ -13,38 +13,28 @@ import com.hiveworkshop.wc3.util.ModelUtils;
 
 public class Geoset implements Named, VisibilitySource {
 	ExtLog extents;
-	List<GeosetVertex> vertex;
-	List<Normal> normals;
-	List<UVLayer> uvlayers;
-	List<Triangle> triangles;
-	List<Matrix> matrix;
-	List<Animation> anims;
-	List<String> flags;
+	List<GeosetVertex> vertex = new ArrayList<>();
+	List<Normal> normals = new ArrayList<>();
+	List<UVLayer> uvlayers = new ArrayList<>();
+	List<Triangle> triangles = new ArrayList<>();
+	List<Matrix> matrix = new ArrayList<>();
+	List<Animation> anims = new ArrayList<>();
+	List<String> flags = new ArrayList<>();
 	int materialID = 0;
 	Material material;
 	int selectionGroup = 0;
-
 	EditableModel parentModel;
-
 	GeosetAnim geosetAnim = null;
-
 	int levelOfDetail = -1;
 	String levelOfDetailName;
 	List<short[]> skin;
 	List<float[]> tangents;
 
 	public Geoset() {
-		vertex = new ArrayList();
-		matrix = new ArrayList();
-		triangles = new ArrayList();
-		normals = new ArrayList();
-		uvlayers = new ArrayList();
-		anims = new ArrayList();
-		flags = new ArrayList();
+
 	}
 
 	public Geoset(final MdlxGeoset geoset) {
-		this();
 		setExtLog(new ExtLog(geoset.extent));
 
 		for (final MdlxExtent extent : geoset.sequenceExtents) {

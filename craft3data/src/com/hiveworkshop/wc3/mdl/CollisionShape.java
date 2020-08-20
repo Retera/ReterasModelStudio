@@ -1,6 +1,7 @@
 package com.hiveworkshop.wc3.mdl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import com.etheller.warsmash.parsers.mdlx.MdlxCollisionShape;
@@ -91,14 +92,12 @@ public class CollisionShape extends IdObject {
 		x.parentId = parentId;
 		x.setParent(getParent());
 
-		x.flags = new ArrayList<>(flags);
+		x.flags = new HashSet<>(flags);
 		x.vertices = new ArrayList<>(vertices);
 		if (extents != null) {
 			x.extents = new ExtLog(extents);
 		}
-		for (final AnimFlag af : animFlags) {
-			x.animFlags.add(new AnimFlag(af));
-		}
+		x.addAll(getAnimFlags());
 		return x;
 	}
 

@@ -8,24 +8,24 @@ package com.hiveworkshop.wc3.mdl;
  * Eric Theller 3/8/2012
  */
 public class QuaternionRotation {
-	public double a = 0, b = 0, c = 0, d = 0;
+	public double x = 0, y = 0, z = 0, w = 0;
 
 	public QuaternionRotation() {
 
 	}
 
 	public QuaternionRotation(final double a, final double b, final double c, final double d) {
-		this.a = a;
-		this.b = b;
-		this.c = c;
-		this.d = d;
+		this.x = a;
+		this.y = b;
+		this.z = c;
+		this.w = d;
 	}
 
 	public QuaternionRotation(final QuaternionRotation other) {
-		this.a = other.a;
-		this.b = other.b;
-		this.c = other.c;
-		this.d = other.d;
+		this.x = other.x;
+		this.y = other.y;
+		this.z = other.z;
+		this.w = other.w;
 	}
 
 	public QuaternionRotation(final Vertex eulerRotation) {
@@ -46,26 +46,26 @@ public class QuaternionRotation {
 		// }
 		// eulerRotation.z = yaw;
 		// eulerRotation.y = -eulerRotation.y;
-		a = (Math.cos(eulerRotation.x / 2) * Math.cos(eulerRotation.y / 2) * Math.cos(eulerRotation.z / 2))
+		x = (Math.cos(eulerRotation.x / 2) * Math.cos(eulerRotation.y / 2) * Math.cos(eulerRotation.z / 2))
 				+ (Math.sin(eulerRotation.x / 2) * Math.sin(eulerRotation.y / 2) * Math.sin(eulerRotation.z / 2));
-		b = (Math.sin(eulerRotation.x / 2) * Math.cos(eulerRotation.y / 2) * Math.cos(eulerRotation.z / 2))
+		y = (Math.sin(eulerRotation.x / 2) * Math.cos(eulerRotation.y / 2) * Math.cos(eulerRotation.z / 2))
 				- (Math.cos(eulerRotation.x / 2) * Math.sin(eulerRotation.y / 2) * Math.sin(eulerRotation.z / 2));
-		c = (Math.cos(eulerRotation.x / 2) * Math.sin(eulerRotation.y / 2) * Math.cos(eulerRotation.z / 2))
+		z = (Math.cos(eulerRotation.x / 2) * Math.sin(eulerRotation.y / 2) * Math.cos(eulerRotation.z / 2))
 				+ (Math.sin(eulerRotation.x / 2) * Math.cos(eulerRotation.y / 2) * Math.sin(eulerRotation.z / 2));
-		d = (Math.cos(eulerRotation.x / 2) * Math.cos(eulerRotation.y / 2) * Math.sin(eulerRotation.z / 2))
+		w = (Math.cos(eulerRotation.x / 2) * Math.cos(eulerRotation.y / 2) * Math.sin(eulerRotation.z / 2))
 				- (Math.sin(eulerRotation.x / 2) * Math.sin(eulerRotation.y / 2) * Math.cos(eulerRotation.z / 2));
 
-		if (Math.abs(a) < 1E-15) {
-			a = 0;
+		if (Math.abs(x) < 1E-15) {
+			x = 0;
 		}
-		if (Math.abs(b) < 1E-15) {
-			b = 0;
+		if (Math.abs(y) < 1E-15) {
+			y = 0;
 		}
-		if (Math.abs(c) < 1E-15) {
-			c = 0;
+		if (Math.abs(z) < 1E-15) {
+			z = 0;
 		}
-		if (Math.abs(d) < 1E-15) {
-			d = 0;
+		if (Math.abs(w) < 1E-15) {
+			w = 0;
 		}
 		// b = -b;
 		// c = -c;
@@ -96,10 +96,10 @@ public class QuaternionRotation {
 	}
 
 	public QuaternionRotation(final float[] data) {
-		a = data[0];
-		b = data[1];
-		c = data[2];
-		d = data[3];
+		x = data[0];
+		y = data[1];
+		z = data[2];
+		w = data[3];
 	}
 
 	public QuaternionRotation(final Vertex axis, final double angle) {
@@ -109,67 +109,67 @@ public class QuaternionRotation {
 	public void set(final Vertex axis, final double angle) {
 		final double halfAngle = angle / 2;
 		final double sinOfHalfAngle = Math.sin(halfAngle);
-		a = axis.x * sinOfHalfAngle;
-		b = axis.y * sinOfHalfAngle;
-		c = axis.z * sinOfHalfAngle;
-		d = Math.cos(halfAngle);
+		x = axis.x * sinOfHalfAngle;
+		y = axis.y * sinOfHalfAngle;
+		z = axis.z * sinOfHalfAngle;
+		w = Math.cos(halfAngle);
 	}
 
 	public void normalize() {
-		final double sumSq = Math.sqrt((a * a) + (b * b) + (c * c) + (d * d));
-		a /= sumSq;
-		b /= sumSq;
-		c /= sumSq;
-		d /= sumSq;
+		final double sumSq = Math.sqrt((x * x) + (y * y) + (z * z) + (w * w));
+		x /= sumSq;
+		y /= sumSq;
+		z /= sumSq;
+		w /= sumSq;
 	}
 
 	public double[] toArray() {
-		return new double[] { a, b, c, d };
+		return new double[] { x, y, z, w };
 	}
 
 	public float[] toFloatArray() {
-		return new float[] { (float) a, (float) b, (float) c, (float) d };
+		return new float[] { (float) x, (float) y, (float) z, (float) w };
 	}
 
 	public double getA() {
-		return a;
+		return x;
 	}
 
 	public double getB() {
-		return b;
+		return y;
 	}
 
 	public double getC() {
-		return c;
+		return z;
 	}
 
 	public double getD() {
-		return d;
+		return w;
 	}
 
 	public Vertex getAxisOfRotation() {
-		final double sqrt = Math.sqrt(1 - (d * d));
+		final double sqrt = Math.sqrt(1 - (w * w));
 		if (sqrt == 0) {
 			return new Vertex(0, 0, 0);
 		}
-		return new Vertex(a / sqrt, b / sqrt, c / sqrt);
+		return new Vertex(x / sqrt, y / sqrt, z / sqrt);
 	}
 
 	public double getAngleAroundAxis() {
-		return 2 * Math.acos(d);
+		return 2 * Math.acos(w);
 	}
 
 	public Vertex toEuler() {
 		// Wikipedia formula
-		double roll = (Math.atan2(2.0 * ((a * b) + (c * d)), 1 - (2.0 * ((b * b) + (c * c)))));
-		double stuff = (a * c) - (d * b);
+		double roll = (Math.atan2(2.0 * ((x * y) + (z * w)), 1 - (2.0 * ((y * y) + (z * z)))));
+		double stuff = (x * z) - (w * y);
 		if (stuff > 0.5) {
 			stuff = 0.5;
 		} else if (stuff < -0.5) {
 			stuff = -0.5;
 		}
 		double pitch = (Math.asin(2.0 * (stuff)));
-		final double yaw = (Math.atan2(2.0 * ((a * d) + (b * c)), 1 - (2.0 * ((c * c) + (d * d)))));
+		final double yaw = (Math.atan2(2.0 * ((x * w) + (y * z)), 1 - (2.0 * ((z * z) + (w * w)))));
 
 		// yaw = Math.PI - yaw;
 		// if( yaw > Math.PI )
@@ -204,11 +204,11 @@ public class QuaternionRotation {
 		// bank = 0;
 		// }
 
-		if (((b * c) + (d * a)) == 0.5) {
-			roll = 2 * Math.atan2(b, a);
+		if (((y * z) + (w * x)) == 0.5) {
+			roll = 2 * Math.atan2(y, x);
 			pitch = 0;
-		} else if (((b * c) + (d * a)) == -0.5) {
-			roll = -2 * Math.atan2(b, a);
+		} else if (((y * z) + (w * x)) == -0.5) {
+			roll = -2 * Math.atan2(y, x);
 			pitch = 0;
 		}
 
@@ -222,26 +222,26 @@ public class QuaternionRotation {
 				target.y - originOfRotation.y, target.z - originOfRotation.z);
 		final QuaternionRotation conjugate = conjugate();
 		final QuaternionRotation result = hamiltonianProduct(vector).hamiltonianProduct(conjugate);
-		final Vertex resultInPosition = new Vertex(originOfRotation.x + result.b, originOfRotation.y + result.c,
-				originOfRotation.z + result.d);
+		final Vertex resultInPosition = new Vertex(originOfRotation.x + result.y, originOfRotation.y + result.z,
+				originOfRotation.z + result.w);
 		return resultInPosition;
 	}
 
 	public QuaternionRotation hamiltonianProduct(final QuaternionRotation other) {
-		return new QuaternionRotation((other.a * a) - (other.b * b) - (other.c * c) - (other.d * d),
-				(((other.a * b) + (other.b * a)) - (other.c * d)) + (other.d * c),
-				((other.a * c) + (other.b * d) + (other.c * a)) - (other.d * b),
-				((other.a * d) - (other.b * c)) + (other.c * b) + (other.d * a));
+		return new QuaternionRotation((other.x * x) - (other.y * y) - (other.z * z) - (other.w * w),
+				(((other.x * y) + (other.y * x)) - (other.z * w)) + (other.w * z),
+				((other.x * z) + (other.y * w) + (other.z * x)) - (other.w * y),
+				((other.x * w) - (other.y * z)) + (other.z * y) + (other.w * x));
 	}
 
 	public QuaternionRotation conjugate() {
-		return new QuaternionRotation(a, -b, -c, -d);
+		return new QuaternionRotation(x, -y, -z, -w);
 	}
 
 	public static QuaternionRotation slerp(final QuaternionRotation out, final QuaternionRotation startingValue,
 			final QuaternionRotation endingValue, final float interpolationFactor) {
-		final double ax = startingValue.a, ay = startingValue.b, az = startingValue.c, aw = startingValue.d;
-		double bx = endingValue.a, by = endingValue.b, bz = endingValue.c, bw = endingValue.d;
+		final double ax = startingValue.x, ay = startingValue.y, az = startingValue.z, aw = startingValue.w;
+		double bx = endingValue.x, by = endingValue.y, bz = endingValue.z, bw = endingValue.w;
 		final double omega;
 		double cosom;
 		final double sinom, scale0, scale1;
@@ -269,10 +269,10 @@ public class QuaternionRotation {
 			scale1 = interpolationFactor;
 		}
 
-		out.a = (scale0 * ax) + (scale1 * bx);
-		out.b = (scale0 * ay) + (scale1 * by);
-		out.c = (scale0 * az) + (scale1 * bz);
-		out.d = (scale0 * aw) + (scale1 * bw);
+		out.x = (scale0 * ax) + (scale1 * bx);
+		out.y = (scale0 * ay) + (scale1 * by);
+		out.z = (scale0 * az) + (scale1 * bz);
+		out.w = (scale0 * aw) + (scale1 * bw);
 
 		// Super slow and generally not needed.
 		// quat.normalize(out, out);
@@ -293,7 +293,7 @@ public class QuaternionRotation {
 
 	@Override
 	public String toString() {
-		return "{ " + a + ", " + b + ", " + c + ", " + d + " }";
+		return "{ " + x + ", " + y + ", " + z + ", " + w + " }";
 	}
 
 	public static void main(final String[] args) {
@@ -360,16 +360,16 @@ public class QuaternionRotation {
 		if (!Double.isNaN(value)) {
 			switch (index) {
 			case 0:
-				a = value;
+				x = value;
 				break;
 			case 1:
-				b = value;
+				y = value;
 				break;
 			case 2:
-				c = value;
+				z = value;
 				break;
 			case 3:
-				d = value;
+				w = value;
 				break;
 			}
 		}
@@ -378,13 +378,13 @@ public class QuaternionRotation {
 	public double getCoord(final byte index) {
 		switch (index) {
 		case 0:
-			return a;
+			return x;
 		case 1:
-			return b;
+			return y;
 		case 2:
-			return c;
+			return z;
 		case 3:
-			return d;
+			return w;
 		}
 		return 0;
 	}

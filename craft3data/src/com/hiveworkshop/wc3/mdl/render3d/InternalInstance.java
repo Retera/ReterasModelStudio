@@ -2,7 +2,6 @@ package com.hiveworkshop.wc3.mdl.render3d;
 
 import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
 
 public interface InternalInstance {
     void setTransformation(Vector3f worldLocation, Quaternion rotation, Vector3f worldScale);

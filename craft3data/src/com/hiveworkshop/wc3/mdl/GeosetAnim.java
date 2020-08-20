@@ -1,6 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.lwjgl.util.vector.Vector3f;
@@ -20,11 +19,11 @@ public class GeosetAnim extends TimelineContainer implements Named {
 	boolean dropShadow = false;
 
 	public GeosetAnim(final AnimFlag flag) {
-		animFlags.add(flag);
+		add(flag);
 	}
 
 	public GeosetAnim(final List<AnimFlag> flags) {
-		animFlags = flags;
+		setAnimFlags(flags);
 	}
 
 	public GeosetAnim(final Geoset g) {
@@ -32,10 +31,7 @@ public class GeosetAnim extends TimelineContainer implements Named {
 	}
 
 	public GeosetAnim(final Geoset geoset, final GeosetAnim other) {
-		animFlags = new ArrayList<>();
-		for (final AnimFlag flag : other.getAnimFlags()) {
-			animFlags.add(new AnimFlag(flag));
-		}
+		addAll(other.getAnimFlags());
 		staticAlpha = other.staticAlpha;
 		staticColor = other.staticColor;
 		geosetId = other.geosetId;
@@ -67,7 +63,7 @@ public class GeosetAnim extends TimelineContainer implements Named {
 
 		animation.color = MdlxUtils.flipRGBtoBGR(getStaticColor().toFloatArray());
 
-		 timelinesToMdlx(animation);
+		timelinesToMdlx(animation);
 
 		return animation;
 	}

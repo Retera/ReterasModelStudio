@@ -154,7 +154,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 			firstColor = 0;
 
 			if (head) {
-				interval = modelObject.getLifeSpanUVAnim();
+				interval = modelObject.getHeadUVAnim();
 			} else {
 				interval = modelObject.getTailUVAnim();
 			}
@@ -164,7 +164,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 			firstColor = 1;
 
 			if (head) {
-				interval = modelObject.getDecayUVAnim();
+				interval = modelObject.getHeadDecayUVAnim();
 			} else {
 				interval = modelObject.getTailDecayUVAnim();
 			}

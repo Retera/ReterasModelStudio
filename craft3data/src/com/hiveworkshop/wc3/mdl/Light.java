@@ -1,6 +1,6 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 import com.etheller.warsmash.parsers.mdlx.MdlxLight;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
@@ -100,10 +100,8 @@ public class Light extends IdObject {
 		x.staticColor = staticColor;
 		x.AmbIntensity = AmbIntensity;
 		x.staticAmbColor = staticAmbColor;
-		for (final AnimFlag af : animFlags) {
-			x.animFlags.add(new AnimFlag(af));
-		}
-		flags = new ArrayList<>(x.flags);
+		x.addAll(getAnimFlags());
+		flags = new HashSet<>(x.flags);
 		return x;
 	}
 

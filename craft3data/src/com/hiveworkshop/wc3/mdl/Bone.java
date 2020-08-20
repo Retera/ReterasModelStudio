@@ -1,6 +1,6 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 import com.etheller.warsmash.parsers.mdlx.MdlxBone;
 
@@ -44,10 +44,10 @@ public class Bone extends IdObject {
 		geosetAnimId = b.geosetAnimId;
 		geosetAnim = b.geosetAnim;
 		hasGeoAnim = b.hasGeoAnim;
-		for (final AnimFlag af : b.animFlags) {
-			animFlags.add(new AnimFlag(af));
+		for (final AnimFlag af : b.animFlags.values()) {
+			add(new AnimFlag(af));
 		}
-		flags = new ArrayList<>(b.flags);
+		flags = new HashSet<>(b.flags);
 	}
 
 	public Bone(final MdlxBone bone) {
@@ -73,9 +73,9 @@ public class Bone extends IdObject {
 	}
 
 	public void copyMotionFrom(final Bone b) {
-		for (final AnimFlag baf : b.animFlags) {
+		for (final AnimFlag baf : b.animFlags.values()) {
 			boolean foundMatch = false;
-			for (final AnimFlag af : animFlags) {
+			for (final AnimFlag af : animFlags.values()) {
 				boolean sameSeq = false;
 				if (baf.globalSeq == null && af.globalSeq == null) {
 					sameSeq = true;
@@ -89,13 +89,13 @@ public class Bone extends IdObject {
 				}
 			}
 			if (!foundMatch) {
-				animFlags.add(baf);
+				add(baf);
 			}
 		}
 	}
 
 	public void clearAnimation(final Animation a) {
-		for (final AnimFlag af : animFlags) {
+		for (final AnimFlag af : animFlags.values()) {
 			af.deleteAnim(a);
 		}
 	}
@@ -107,7 +107,7 @@ public class Bone extends IdObject {
 	 * @return
 	 */
 	public boolean animates() {
-		for (final AnimFlag af : animFlags) {
+		for (final AnimFlag af : animFlags.values()) {
 			if (af.size() > 1) {
 				return true;
 			}

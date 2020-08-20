@@ -4,11 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.etheller.warsmash.parsers.mdlx.AnimationMap;
 import com.etheller.warsmash.parsers.mdlx.MdlxCamera;
-
+import com.etheller.warsmash.parsers.mdlx.timeline.MdlxTimeline;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
-
-import com.hiveworkshop.wc3.mdl.IdObject.NodeFlags;
 
 /**
  * Camera class, these are the things most people would think of as a particle
@@ -18,20 +17,17 @@ import com.hiveworkshop.wc3.mdl.IdObject.NodeFlags;
  *
  * Eric Theller 3/10/2012 3:32 PM
  */
-public class Camera extends TimelineContainer implements Named {
+public class Camera implements Named {
 	String name;
-
 	Vertex Position;
-
 	double FieldOfView;
 	double FarClip;
 	double NearClip;
-
 	Vertex targetPosition;
 	List<AnimFlag> targetAnimFlags = new ArrayList<>();
-	private final SourceNode sourceNode = new SourceNode(this);
-	private final TargetNode targetNode = new TargetNode(this);
-	protected float[] bindPose;
+	final SourceNode sourceNode = new SourceNode(this);
+	final TargetNode targetNode = new TargetNode(this);
+	float[] bindPose;
 
 	public SourceNode getSourceNode() {
 		return sourceNode;
@@ -49,7 +45,13 @@ public class Camera extends TimelineContainer implements Named {
 		NearClip = camera.nearClippingPlane;
 		targetPosition = new Vertex(camera.targetPosition);
 
-		loadTimelines(camera);
+		for (final MdlxTimeline<?> timeline : camera.timelines) {
+			if (timeline.name == AnimationMap.KTTR.getWar3id()) {
+				targetNode.add(new AnimFlag(timeline));
+			} else {
+				sourceNode.add(new AnimFlag(timeline));
+			}
+		}
 	}
 
 	public MdlxCamera toMdlx() {
@@ -62,7 +64,8 @@ public class Camera extends TimelineContainer implements Named {
 		camera.nearClippingPlane = (float)getNearClip();
 		camera.targetPosition = getTargetPosition().toFloatArray();
 
-		timelinesToMdlx(camera);
+		sourceNode.timelinesToMdlx(camera);
+		targetNode.timelinesToMdlx(camera);
 
 		return camera;
 	}
@@ -116,14 +119,6 @@ public class Camera extends TimelineContainer implements Named {
 		this.targetPosition = targetPosition;
 	}
 
-	public List<AnimFlag> getTargetAnimFlags() {
-		return targetAnimFlags;
-	}
-
-	public void setTargetAnimFlags(final List<AnimFlag> targetAnimFlags) {
-		this.targetAnimFlags = targetAnimFlags;
-	}
-
 	public static final class SourceNode extends AnimatedNode {
 		private final Camera parent;
 		private static final QuaternionRotation rotationHeap = new QuaternionRotation(0, 0, 0, 1);
@@ -131,26 +126,6 @@ public class Camera extends TimelineContainer implements Named {
 
 		private SourceNode(final Camera parent) {
 			this.parent = parent;
-		}
-
-		@Override
-		public void add(final AnimFlag timeline) {
-			parent.animFlags.add(timeline);
-		}
-
-		@Override
-		public void remove(final AnimFlag timeline) {
-			parent.animFlags.remove(timeline);
-		}
-
-		@Override
-		public List<AnimFlag> getAnimFlags() {
-			return parent.animFlags;
-		}
-
-		@Override
-		public boolean hasFlag(final NodeFlags flag) {
-			return false;
 		}
 
 		@Override
@@ -179,15 +154,6 @@ public class Camera extends TimelineContainer implements Named {
 		}
 
 		@Override
-		public Vertex getRenderTranslation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-			final AnimFlag translationFlag = find("Translation");
-			if (translationFlag != null) {
-				return (Vertex) translationFlag.interpolateAt(animatedRenderEnvironment);
-			}
-			return null;
-		}
-
-		@Override
 		public QuaternionRotation getRenderRotation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 			final AnimFlag translationFlag = find("Rotation");
 			if (translationFlag != null) {
@@ -210,18 +176,8 @@ public class Camera extends TimelineContainer implements Named {
 			return null;
 		}
 
-		public Double getRenderRotationScalar(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-			final AnimFlag translationFlag = find("Rotation");
-			if (translationFlag != null) {
-				final Object interpolated = translationFlag.interpolateAt(animatedRenderEnvironment);
-				if (interpolated instanceof Double) {
-					final Double angle = (Double) interpolated;
-					return angle;
-				} else {
-					return null;
-				}
-			}
-			return null;
+		public float getRenderRotationScalar(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+			return getInterpolatedFloat(animatedRenderEnvironment, "Rotation", 0);
 		}
 
 		@Override
@@ -235,26 +191,6 @@ public class Camera extends TimelineContainer implements Named {
 
 		private TargetNode(final Camera parent) {
 			this.parent = parent;
-		}
-
-		@Override
-		public void add(final AnimFlag timeline) {
-			parent.targetAnimFlags.add(timeline);
-		}
-
-		@Override
-		public void remove(final AnimFlag timeline) {
-			parent.targetAnimFlags.remove(timeline);
-		}
-
-		@Override
-		public List<AnimFlag> getAnimFlags() {
-			return parent.animFlags;
-		}
-
-		@Override
-		public boolean hasFlag(final NodeFlags flag) {
-			return false;
 		}
 
 		@Override
@@ -280,15 +216,6 @@ public class Camera extends TimelineContainer implements Named {
 		@Override
 		public float getRenderVisibility(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 			return 1;
-		}
-
-		@Override
-		public Vertex getRenderTranslation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-			final AnimFlag translationFlag = find("Translation");
-			if (translationFlag != null) {
-				return (Vertex) translationFlag.interpolateAt(animatedRenderEnvironment);
-			}
-			return null;
 		}
 
 		@Override

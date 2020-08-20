@@ -1986,10 +1986,10 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 						for (final Animation a : oldAnims) {
 							test = true;
 							if (tans) {
-								flagOld.addEntry(new Integer(a.getStart()), new Double(0), new Double(0),
-										new Double(0));
+								flagOld.addEntry(Integer.valueOf(a.getStart()), Double.valueOf(0), Double.valueOf(0),
+										Double.valueOf(0));
 							} else {
-								flagOld.addEntry(new Integer(a.getStart()), new Double(0));
+								flagOld.addEntry(Integer.valueOf(a.getStart()), Double.valueOf(0));
 							}
 						}
 					}
@@ -2005,17 +2005,17 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 						flagNew = new AnimFlag("temp");
 						for (final Animation a : newAnims) {
 							if (tans) {
-								flagNew.addEntry(new Integer(a.getStart()), new Double(0), new Double(0),
-										new Double(0));
+								flagNew.addEntry(Integer.valueOf(a.getStart()), Double.valueOf(0), Double.valueOf(0),
+										Double.valueOf(0));
 							} else {
-								flagNew.addEntry(new Integer(a.getStart()), new Double(0));
+								flagNew.addEntry(Integer.valueOf(a.getStart()), Double.valueOf(0));
 							}
-							// flagNew.times.add(new Integer(a.getStart()));
-							// flagNew.values.add(new Double(0));
+							// flagNew.times.add(Integer.valueOf(a.getStart()));
+							// flagNew.values.add(Double.valueOf(0));
 							// if( tans )
 							// {
-							// flagNew.inTans.add(new Double(0));
-							// flagNew.outTans.add(new Double(0));
+							// flagNew.inTans.add(Double.valueOf(0));
+							// flagNew.outTans.add(Double.valueOf(0));
 							// }
 						}
 					}

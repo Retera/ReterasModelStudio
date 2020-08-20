@@ -207,7 +207,7 @@ public class BLPHandler {
 			throw new IllegalArgumentException("stream == null!");
 		}
 
-		final Iterator iter = ImageIO.getImageReaders(stream);
+		final Iterator<ImageReader> iter = ImageIO.getImageReaders(stream);
 		if (!iter.hasNext()) {
 			if (file.getName().toLowerCase().endsWith(".tga")) {
 				return TgaFile.readTGA(file);

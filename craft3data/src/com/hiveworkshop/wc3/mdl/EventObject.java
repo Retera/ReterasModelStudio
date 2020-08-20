@@ -81,11 +81,9 @@ public class EventObject extends IdObject {
 		x.objectId = objectId;
 		x.parentId = parentId;
 		x.setParent(getParent());
-
 		x.eventTrack = new ArrayList<>(eventTrack);
-		for (final AnimFlag af : animFlags) {
-			x.animFlags.add(new AnimFlag(af));
-		}
+		x.addAll(getAnimFlags());
+		
 		return x;
 	}
 
@@ -212,12 +210,6 @@ public class EventObject extends IdObject {
 	@Override
 	public void add(final String flag) {
 		System.err.println("ERROR: EventObject given unknown flag: " + flag);
-	}
-
-	@Override
-	public List<String> getFlags() {
-		return new ArrayList<>();// Current eventobject implementation
-									// uses no flags!
 	}
 
 	/**

@@ -2,7 +2,6 @@ package com.matrixeater.hacks;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Bone;
@@ -24,8 +23,7 @@ public class MakeVersions {
 			final EditableModel modelData = MdxUtils.loadEditable(linearModel);
 			String flagName = "None";
 			for (final Bone bone : modelData.sortedIdObjects(Bone.class)) {
-				final List<AnimFlag> flags = bone.getAnimFlags();
-				for (final AnimFlag flag : flags) {
+				for (final AnimFlag flag : bone.getAnimFlags()) {
 					flag.setInterpType(interpType);
 					if (flag.tans()) {
 						for (int i = 0; i < flag.size(); i++) {

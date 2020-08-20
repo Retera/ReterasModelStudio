@@ -4,12 +4,14 @@ import java.awt.Component;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import com.etheller.warsmash.parsers.mdlx.AnimationMap;
 import com.etheller.warsmash.parsers.mdlx.MdlxAttachment;
 import com.etheller.warsmash.parsers.mdlx.MdlxBone;
 import com.etheller.warsmash.parsers.mdlx.MdlxCamera;
@@ -90,16 +92,16 @@ public class EditableModel implements Named {
 		extents = new ExtLog(other.extents);
 		formatVersion = other.formatVersion;
 		header = new ArrayList<>(other.header);
-		anims = new ArrayList(other.anims);
-		globalSeqs = new ArrayList(other.globalSeqs);
-		textures = new ArrayList(other.textures);
-		materials = new ArrayList(other.materials);
-		texAnims = new ArrayList(other.texAnims);
-		geosets = new ArrayList(other.geosets);
-		geosetAnims = new ArrayList(other.geosetAnims);
-		idObjects = new ArrayList(other.idObjects);
-		pivots = new ArrayList(other.pivots);
-		cameras = new ArrayList(other.cameras);
+		anims = new ArrayList<>(other.anims);
+		globalSeqs = new ArrayList<>(other.globalSeqs);
+		textures = new ArrayList<>(other.textures);
+		materials = new ArrayList<>(other.materials);
+		texAnims = new ArrayList<>(other.texAnims);
+		geosets = new ArrayList<>(other.geosets);
+		geosetAnims = new ArrayList<>(other.geosetAnims);
+		idObjects = new ArrayList<>(other.idObjects);
+		pivots = new ArrayList<>(other.pivots);
+		cameras = new ArrayList<>(other.cameras);
 	}
 
 	public EditableModel(final MdlxModel model) {
@@ -425,7 +427,9 @@ public class EditableModel implements Named {
 	}
 
 	public static EditableModel deepClone(final EditableModel what, final String newName) {
-		final EditableModel newModel = new EditableModel(what.toMdlx());
+		// Need to do a real save, because of strings being passed by reference.
+		// Maybe other objects I didn't think about (or the code does by mistake).
+		final EditableModel newModel = new EditableModel(new MdlxModel(what.toMdlx().saveMdx()));
 		
 		newModel.setName(newName);
 		newModel.setFileRef(what.getFile());
@@ -1047,7 +1051,7 @@ public class EditableModel implements Named {
 						textures.add(lay.texture);
 					}
 				} else {
-					final AnimFlag af = lay.getFlag("TextureID");
+					final AnimFlag af = lay.find("TextureID");
 					if (af != null) {
 						for (final Bitmap temp : lay.textures) {
 							boolean good = true;
@@ -1162,7 +1166,7 @@ public class EditableModel implements Named {
 		// Delete empty rotation/translation/scaling
 		bindPose = null;
 		for (final IdObject obj : idObjects) {
-			final List<AnimFlag> animFlags = obj.getAnimFlags();
+			final Collection<AnimFlag> animFlags = obj.getAnimFlags();
 			final List<AnimFlag> bad = new ArrayList<>();
 			for (final AnimFlag flag : animFlags) {
 				if (flag.length() <= 0) {
@@ -1248,13 +1252,13 @@ public class EditableModel implements Named {
 		final List<AnimFlag> allFlags = Collections.synchronizedList(new ArrayList<AnimFlag>());
 		for (final Material m : materials) {
 			for (final Layer lay : m.layers) {
-				allFlags.addAll(lay.animFlags);
+				allFlags.addAll(lay.animFlags.values());
 			}
 		}
 		if (texAnims != null) {
 			for (final TextureAnim texa : texAnims) {
 				if (texa != null) {
-					allFlags.addAll(texa.animFlags);
+					allFlags.addAll(texa.animFlags.values());
 				} else {
 					JOptionPane.showMessageDialog(null,
 							"WARNING: Error with processing time-scale from TextureAnims! Program will attempt to proceed.");
@@ -1264,7 +1268,7 @@ public class EditableModel implements Named {
 		if (geosetAnims != null) {
 			for (final GeosetAnim ga : geosetAnims) {
 				if (ga != null) {
-					allFlags.addAll(ga.animFlags);
+					allFlags.addAll(ga.animFlags.values());
 				} else {
 					JOptionPane.showMessageDialog(null,
 							"WARNING: Error with processing time-scale from GeosetAnims! Program will attempt to proceed.");
@@ -1276,8 +1280,8 @@ public class EditableModel implements Named {
 		}
 		if (cameras != null) {
 			for (final Camera x : cameras) {
-				allFlags.addAll(x.animFlags);
-				allFlags.addAll(x.targetAnimFlags);
+				allFlags.addAll(x.getSourceNode().getAnimFlags());
+				allFlags.addAll(x.getTargetNode().getAnimFlags());
 			}
 		}
 
@@ -1288,35 +1292,45 @@ public class EditableModel implements Named {
 		// Probably will cause a bunch of lag, be wary
 		for (final Material m : materials) {
 			for (final Layer lay : m.layers) {
-				if (lay.animFlags.contains(aflg)) {
+				AnimFlag timeline = lay.find(aflg.getName());
+				if (timeline != null) {
 					return lay;
 				}
 			}
 		}
 		if (texAnims != null) {
 			for (final TextureAnim texa : texAnims) {
-				if (texa.animFlags.contains(aflg)) {
+				AnimFlag timeline = texa.find(aflg.getName());
+				if (timeline != null) {
 					return texa;
 				}
 			}
 		}
 		if (geosetAnims != null) {
 			for (final GeosetAnim ga : geosetAnims) {
-				if (ga.animFlags.contains(aflg)) {
+				AnimFlag timeline = ga.find(aflg.getName());
+				if (timeline != null) {
 					return ga;
 				}
 			}
 		}
 
 		for (final IdObject object : idObjects) {
-			if (object.animFlags.contains(aflg)) {
+			AnimFlag timeline = object.find(aflg.getName());
+			if (timeline != null) {
 				return object;
 			}
 		}
 
 		if (cameras != null) {
 			for (final Camera x : cameras) {
-				if (x.animFlags.contains(aflg) || x.targetAnimFlags.contains(aflg)) {
+				AnimFlag timeline = x.getSourceNode().find(aflg.getName());
+				if (timeline != null) {
+					return x;
+				}
+
+				timeline = x.getTargetNode().find(aflg.getName());
+				if (timeline != null) {
 					return x;
 				}
 			}
@@ -1333,45 +1347,45 @@ public class EditableModel implements Named {
 		// ADDS "added" TO THE PARENT OF "aflg"
 		for (final Material m : materials) {
 			for (final Layer lay : m.layers) {
-				if (lay.animFlags.contains(aflg)) {
-					lay.animFlags.add(added);
+				if (lay.has(aflg.getName())) {
+					lay.add(added);
 				}
 			}
 		}
 
 		if (texAnims != null) {
 			for (final TextureAnim texa : texAnims) {
-				if (texa.animFlags.contains(aflg)) {
-					texa.animFlags.add(added);
+				if (texa.has(aflg.getName())) {
+					texa.add(added);
 				}
 			}
 		}
 
 		if (geosetAnims != null) {
 			for (final GeosetAnim ga : geosetAnims) {
-				if (ga.animFlags.contains(aflg)) {
-					ga.animFlags.add(added);
+				if (ga.has(aflg.getName())) {
+					ga.add(added);
 				}
 			}
 		}
 
 		for (final IdObject object : idObjects) {
-			if (object.animFlags.contains(aflg)) {
-				object.animFlags.add(added);
+			if (object.has(aflg.getName())) {
+				object.add(added);
 			}
 		}
 	
 		if (cameras != null) {
 			for (final Camera x : cameras) {
-				if (x.animFlags.contains(aflg) || x.targetAnimFlags.contains(aflg)) {
-					x.animFlags.add(added);
+				if (x.getSourceNode().has(aflg.getName()) || x.targetAnimFlags.contains(aflg)) {
+					x.getSourceNode().add(added);
 				}
 			}
 		}
 	}
 
 	public void buildGlobSeqFrom(final Animation anim, final List<AnimFlag> flags) {
-		final Integer newSeq = new Integer(anim.length());
+		final Integer newSeq = Integer.valueOf(anim.length());
 		for (final AnimFlag af : flags) {
 			if (!af.hasGlobalSeq) {
 				final AnimFlag copy = new AnimFlag(af);
@@ -1877,7 +1891,7 @@ public class EditableModel implements Named {
 			for (int i = 0; i < flag.length(); i++) {
 				final Entry entry = flag.getEntry(i);
 				if ((lastEntry != null) && (lastEntry.time == entry.time)) {
-					indicesForDeletion.add(new Integer(i));
+					indicesForDeletion.add(Integer.valueOf(i));
 				}
 				lastEntry = entry;
 			}
@@ -1913,7 +1927,7 @@ public class EditableModel implements Named {
 								final Double older = (Double) olderKeyframe;
 								final Double old = (Double) oldKeyframe;
 								if ((older != null) && (old != null) && MathUtils.isBetween(older, old, d)) {
-									indicesForDeletion.add(new Integer(i - 1));
+									indicesForDeletion.add(Integer.valueOf(i - 1));
 								}
 							} else if (entry.value instanceof Vertex) {
 								final Vertex current = (Vertex) entry.value;
@@ -1922,7 +1936,7 @@ public class EditableModel implements Named {
 								if ((older != null) && (old != null) && MathUtils.isBetween(older.x, old.x, current.x)
 										&& MathUtils.isBetween(older.y, old.y, current.y)
 										&& MathUtils.isBetween(older.z, old.z, current.z)) {
-									indicesForDeletion.add(new Integer(i - 1));
+									indicesForDeletion.add(Integer.valueOf(i - 1));
 								}
 							} else if (entry.value instanceof QuaternionRotation) {
 								final QuaternionRotation current = (QuaternionRotation) entry.value;
@@ -1947,7 +1961,7 @@ public class EditableModel implements Named {
 										// &&
 										// MathUtils.isBetween(older.d,
 										// old.d, current.d)) {
-										indicesForDeletion.add(new Integer(i - 1));
+										indicesForDeletion.add(Integer.valueOf(i - 1));
 									}
 								}
 							}
@@ -1988,7 +2002,7 @@ public class EditableModel implements Named {
 							final Double older = (Double) olderKeyframe;
 							final Double old = (Double) oldKeyframe;
 							if ((older != null) && (old != null) && MathUtils.isBetween(older, old, d)) {
-								indicesForDeletion.add(new Integer(i - 1));
+								indicesForDeletion.add(Integer.valueOf(i - 1));
 							}
 						} else if (entry.value instanceof Vertex) {
 							final Vertex current = (Vertex) entry.value;
@@ -1997,7 +2011,7 @@ public class EditableModel implements Named {
 							if ((older != null) && (old != null) && MathUtils.isBetween(older.x, old.x, current.x)
 									&& MathUtils.isBetween(older.y, old.y, current.y)
 									&& MathUtils.isBetween(older.z, old.z, current.z)) {
-								indicesForDeletion.add(new Integer(i - 1));
+								indicesForDeletion.add(Integer.valueOf(i - 1));
 							}
 						} else if (entry.value instanceof QuaternionRotation) {
 							final QuaternionRotation current = (QuaternionRotation) entry.value;
@@ -2018,7 +2032,7 @@ public class EditableModel implements Named {
 									// old.c, current.c)
 									// && MathUtils.isBetween(older.d,
 									// old.d, current.d)) {
-									indicesForDeletion.add(new Integer(i - 1));
+									indicesForDeletion.add(Integer.valueOf(i - 1));
 								}
 							}
 						}
@@ -2044,25 +2058,13 @@ public class EditableModel implements Named {
 	public void removeAllTimelinesForGlobalSeq(final Integer selectedValue) {
 		for (final Material m : materials) {
 			for (final Layer lay : m.layers) {
-				final Iterator<AnimFlag> iterator = lay.animFlags.iterator();
-				while (iterator.hasNext()) {
-					final AnimFlag animFlag = iterator.next();
-					if (selectedValue.equals(animFlag.getGlobalSeq())) {
-						iterator.remove();
-					}
-				}
+				lay.removeAllTimelinesForGlobalSeq(selectedValue);
 			}
 		}
 		if (texAnims != null) {
 			for (final TextureAnim texa : texAnims) {
 				if (texa != null) {
-					final Iterator<AnimFlag> iterator = texa.animFlags.iterator();
-					while (iterator.hasNext()) {
-						final AnimFlag animFlag = iterator.next();
-						if (selectedValue.equals(animFlag.getGlobalSeq())) {
-							iterator.remove();
-						}
-					}
+					texa.removeAllTimelinesForGlobalSeq(selectedValue);
 				} else {
 					JOptionPane.showMessageDialog(null,
 							"WARNING: Error with processing time-scale from TextureAnims! Program will attempt to proceed.");
@@ -2072,126 +2074,22 @@ public class EditableModel implements Named {
 		if (geosetAnims != null) {
 			for (final GeosetAnim ga : geosetAnims) {
 				if (ga != null) {
-					final Iterator<AnimFlag> iterator = ga.animFlags.iterator();
-					while (iterator.hasNext()) {
-						final AnimFlag animFlag = iterator.next();
-						if (selectedValue.equals(animFlag.getGlobalSeq())) {
-							iterator.remove();
-						}
-					}
+					ga.removeAllTimelinesForGlobalSeq(selectedValue);
 				} else {
 					JOptionPane.showMessageDialog(null,
 							"WARNING: Error with processing time-scale from GeosetAnims! Program will attempt to proceed.");
 				}
 			}
 		}
-		final List<Bone> bones = sortedIdObjects(Bone.class);
-		bones.addAll(sortedIdObjects(Helper.class));// Hey, look at that!
-		for (final Bone b : bones) {
-			final Iterator<AnimFlag> iterator = b.animFlags.iterator();
-			while (iterator.hasNext()) {
-				final AnimFlag animFlag = iterator.next();
-				if (selectedValue.equals(animFlag.getGlobalSeq())) {
-					iterator.remove();
-				}
-			}
+
+		for (final IdObject object : idObjects) {
+			object.removeAllTimelinesForGlobalSeq(selectedValue);
 		}
-		final List<Light> lights = sortedIdObjects(Light.class);
-		for (final Light l : lights) {
-			final Iterator<AnimFlag> iterator = l.animFlags.iterator();
-			while (iterator.hasNext()) {
-				final AnimFlag animFlag = iterator.next();
-				if (selectedValue.equals(animFlag.getGlobalSeq())) {
-					iterator.remove();
-				}
-			}
-		}
-		final List<Attachment> atcs = sortedIdObjects(Attachment.class);
-		for (final Attachment x : atcs) {
-			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
-			while (iterator.hasNext()) {
-				final AnimFlag animFlag = iterator.next();
-				if (selectedValue.equals(animFlag.getGlobalSeq())) {
-					iterator.remove();
-				}
-			}
-		}
-		final List<ParticleEmitter2> pes = sortedIdObjects(ParticleEmitter2.class);
-		for (final ParticleEmitter2 x : pes) {
-			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
-			while (iterator.hasNext()) {
-				final AnimFlag animFlag = iterator.next();
-				if (selectedValue.equals(animFlag.getGlobalSeq())) {
-					iterator.remove();
-				}
-			}
-		}
-		final List<ParticleEmitter> xpes = sortedIdObjects(ParticleEmitter.class);
-		for (final ParticleEmitter x : xpes) {
-			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
-			while (iterator.hasNext()) {
-				final AnimFlag animFlag = iterator.next();
-				if (selectedValue.equals(animFlag.getGlobalSeq())) {
-					iterator.remove();
-				}
-			}
-		}
-		final List<ParticleEmitterPopcorn> pfes = sortedIdObjects(ParticleEmitterPopcorn.class);
-		for (final ParticleEmitterPopcorn x : pfes) {
-			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
-			while (iterator.hasNext()) {
-				final AnimFlag animFlag = iterator.next();
-				if (selectedValue.equals(animFlag.getGlobalSeq())) {
-					iterator.remove();
-				}
-			}
-		}
-		final List<RibbonEmitter> res = sortedIdObjects(RibbonEmitter.class);
-		for (final RibbonEmitter x : res) {
-			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
-			while (iterator.hasNext()) {
-				final AnimFlag animFlag = iterator.next();
-				if (selectedValue.equals(animFlag.getGlobalSeq())) {
-					iterator.remove();
-				}
-			}
-		}
-		final List<CollisionShape> cs = sortedIdObjects(CollisionShape.class);
-		for (final CollisionShape x : cs) {
-			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
-			while (iterator.hasNext()) {
-				final AnimFlag animFlag = iterator.next();
-				if (selectedValue.equals(animFlag.getGlobalSeq())) {
-					iterator.remove();
-				}
-			}
-		}
-		final List<EventObject> evt = sortedIdObjects(EventObject.class);
-		for (final EventObject x : evt) {
-			final Iterator<AnimFlag> iterator = x.animFlags.iterator();
-			while (iterator.hasNext()) {
-				final AnimFlag animFlag = iterator.next();
-				if (selectedValue.equals(animFlag.getGlobalSeq())) {
-					iterator.remove();
-				}
-			}
-		}
+	
 		if (cameras != null) {
 			for (final Camera x : cameras) {
-				Iterator<AnimFlag> iterator = x.animFlags.iterator();
-				while (iterator.hasNext()) {
-					final AnimFlag animFlag = iterator.next();
-					if (selectedValue.equals(animFlag.getGlobalSeq())) {
-						iterator.remove();
-					}
-				}
-				iterator = x.targetAnimFlags.iterator();
-				while (iterator.hasNext()) {
-					final AnimFlag animFlag = iterator.next();
-					if (selectedValue.equals(animFlag.getGlobalSeq())) {
-						iterator.remove();
-					}
-				}
+				x.getSourceNode().removeAllTimelinesForGlobalSeq(selectedValue);
+				x.getTargetNode().removeAllTimelinesForGlobalSeq(selectedValue);
 			}
 		}
 	}
@@ -2273,7 +2171,7 @@ public class EditableModel implements Named {
 				if (!Double.isNaN(layer.getEmissive())) {
 					layer.setEmissive(Double.NaN);
 				}
-				final AnimFlag flag = layer.getFlag("Emissive");
+				final AnimFlag flag = layer.find("Emissive");
 				if (flag != null) {
 					layer.remove(flag);
 				}

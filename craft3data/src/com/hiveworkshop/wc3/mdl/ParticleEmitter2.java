@@ -1,7 +1,9 @@
 package com.hiveworkshop.wc3.mdl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.lwjgl.opengl.GL11;
 
@@ -22,114 +24,34 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
  * Eric Theller 3/10/2012 3:32 PM
  */
 public class ParticleEmitter2 extends EmitterIdObject {
-	public static enum TimeDoubles {
-		Speed, Variation, Latitude, Gravity, EmissionRate, Width, Length;
-	}
-
-	public static enum LoneDoubles {
-		LifeSpan, TailLength, Time;
-	}
-
-	public static enum LoneInts {
-		Rows, Columns, TextureID, ReplaceableId, PriorityPlane;
-	}
-
-	public static enum VertexData {
-		Alpha, ParticleScaling, LifeSpanUVAnim, DecayUVAnim, TailUVAnim, TailDecayUVAnim;
-	}
-
-	static final String[] timeDoubleNames = { "Speed", "Variation", "Latitude", "Gravity", "EmissionRate", "Width",
-			"Length" };
-	double[] timeDoubleData = new double[timeDoubleNames.length];
-	static final String[] loneDoubleNames = { "LifeSpan", "TailLength", "Time" };
-	double[] loneDoubleData = new double[loneDoubleNames.length];
-	static final String[] loneIntNames = { "Rows", "Columns", "TextureID", "ReplaceableId", "PriorityPlane" };
-	int[] loneIntData = new int[loneIntNames.length];
 	static final String[] knownFlagNames = { "DontInherit { Rotation }", "DontInherit { Translation }",
 			"DontInherit { Scaling }", "SortPrimsFarZ", "Unshaded", "LineEmitter", "Unfogged", "ModelSpace", "XYQuad",
 			"Squirt", "Additive", "Modulate2x", "Modulate", "AlphaKey", "Blend", "Tail", "Head", "Both" };
 	boolean[] knownFlags = new boolean[knownFlagNames.length];
 
-	public boolean isDontInheritRotation() {
-		return knownFlags[0];
-	}
-
-	public boolean isDontInheritTranslation() {
-		return knownFlags[1];
-	}
-
-	public boolean isDontInheritScaling() {
-		return knownFlags[2];
-	}
-
-	public boolean isSortPrimsFarZ() {
-		return knownFlags[3];
-	}
-
-	public boolean isUnshaded() {
-		return knownFlags[4];
-	}
-
-	public boolean isLineEmitter() {
-		return knownFlags[5];
-	}
-
-	public boolean isUnfogged() {
-		return knownFlags[6];
-	}
-
-	public boolean isModelSpace() {
-		return knownFlags[7];
-	}
-
-	public boolean isXYQuad() {
-		return knownFlags[8];
-	}
-
-	public boolean isSquirt() {
-		return knownFlags[9];
-	}
-
-	public boolean isAdditive() {
-		return knownFlags[10];
-	}
-
-	public boolean isModulate2x() {
-		return knownFlags[11];
-	}
-
-	public boolean isModulate() {
-		return knownFlags[12];
-	}
-
-	public boolean isAlphaKey() {
-		return knownFlags[13];
-	}
-
-	public boolean isBlend() {
-		return knownFlags[14];
-	}
-
-	public boolean isTail() {
-		return knownFlags[15] || isBoth();
-	}
-
-	public boolean isHead() {
-		return knownFlags[16] || isBoth();
-	}
-
-	public boolean isBoth() {
-		return knownFlags[17];
-	}
-
-	static final String[] vertexDataNames = { "Alpha", "ParticleScaling", "LifeSpanUVAnim", "DecayUVAnim", "TailUVAnim",
-			"TailDecayUVAnim" };
-	Vertex[] vertexData = new Vertex[vertexDataNames.length];
-
+	double speed = 0;
+	double variation = 0;
+	double latitude = 0;
+	double gravity = 0;
+	double emissionRate = 0;
+	double width = 0;
+	double length = 0;
+	double lifeSpan = 0;
+	double tailLength = 0;
+	double time = 0;
+	int rows = 0;
+	int columns = 0;
+	int textureID = 0;
+	int replaceableId = 0;
+	int priorityPlane = 0;
 	Vertex[] segmentColor = new Vertex[3];
-
+	Vertex alphas = new Vertex();
+	Vertex particleScaling = new Vertex();
+	Vertex headUVAnim = new Vertex();
+	Vertex headDecayUVAnim = new Vertex();
+	Vertex tailUVAnim = new Vertex();
+	Vertex tailDecayUVAnim = new Vertex();
 	List<String> unknownFlags = new ArrayList<>();
-
 	Bitmap texture;
 
 	private ParticleEmitter2() {
@@ -236,8 +158,8 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		long[][] head = emitter.headIntervals;
 		long[][] tail = emitter.tailIntervals;
 
-		setLifeSpanUVAnim(new Vertex(head[0][0], head[0][1], head[0][2]));
-		setDecayUVAnim(new Vertex(head[1][0], head[1][1], head[1][2]));
+		setHeadUVAnim(new Vertex(head[0][0], head[0][1], head[0][2]));
+		setHeadDecayUVAnim(new Vertex(head[1][0], head[1][1], head[1][2]));
 		setTailUVAnim(new Vertex(tail[0][0], tail[0][1], tail[0][2]));
 		setTailDecayUVAnim(new Vertex(tail[1][0], tail[1][1], tail[1][2]));
 
@@ -260,15 +182,15 @@ public class ParticleEmitter2 extends EmitterIdObject {
 			if (flag.equals("Unshaded")) {
 				emitter.flags |= 0x8000;
 			} else if (flag.equals("SortPrimsFarZ")) {
-				emitter.flags |= 10000;
+				emitter.flags |= 0x10000;
 			} else if (flag.equals("LineEmitter")) {
-				emitter.flags |= 20000;
+				emitter.flags |= 0x20000;
 			} else if (flag.equals("Unfogged")) {
-				emitter.flags |= 40000;
+				emitter.flags |= 0x40000;
 			} else if (flag.equals("ModelSpace")) {
-				emitter.flags |= 80000;
+				emitter.flags |= 0x80000;
 			} else if (flag.equals("XYQuad")) {
-				emitter.flags |= 100000;
+				emitter.flags |= 0x100000;
 			} else if (flag.equals("Blend")) {
 				emitter.filterMode = MdlxParticleEmitter2.FilterMode.BLEND;
 			} else if (flag.equals("Additive")) {
@@ -310,8 +232,8 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		emitter.segmentAlphas = getAlpha().toShortArray();
 		emitter.segmentScaling = getParticleScaling().toFloatArray();
 
-		emitter.headIntervals[0] = (long[])getLifeSpanUVAnim().toLongArray();
-		emitter.headIntervals[1] = (long[])getDecayUVAnim().toLongArray();
+		emitter.headIntervals[0] = (long[])getHeadUVAnim().toLongArray();
+		emitter.headIntervals[1] = (long[])getHeadDecayUVAnim().toLongArray();
 		emitter.tailIntervals[0] = (long[])getTailUVAnim().toLongArray();
 		emitter.tailIntervals[1] = (long[])getTailDecayUVAnim().toLongArray();
 
@@ -332,20 +254,107 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		x.parentId = parentId;
 		x.setParent(getParent());
 
-		x.timeDoubleData = timeDoubleData.clone();
-		x.loneDoubleData = loneDoubleData.clone();
-		x.loneIntData = loneIntData.clone();
-		x.knownFlags = knownFlags.clone();
-		x.vertexData = vertexData.clone();
-		x.segmentColor = segmentColor.clone();
+		x.speed = speed;
+		x.variation = variation;
+		x.latitude = latitude;
+		x.gravity = gravity;
+		x.emissionRate = emissionRate;
+		x.width = width;
+		x.length = length;
+		x.lifeSpan = lifeSpan;
+		x.tailLength = tailLength;
+		x.time = time;
+		x.rows = rows;
+		x.columns = columns;
+		x.textureID = textureID;
+		x.replaceableId = replaceableId;
+		x.priorityPlane = priorityPlane;
 
-		for (final AnimFlag af : animFlags) {
-			x.animFlags.add(new AnimFlag(af));
-		}
-		unknownFlags = new ArrayList<>(x.unknownFlags);
+		x.knownFlags = knownFlags.clone();
+		x.segmentColor = segmentColor.clone();
+		x.alphas = new Vertex(alphas);
+		x.particleScaling = new Vertex(particleScaling);
+		x.headUVAnim = new Vertex(headUVAnim);
+		x.headDecayUVAnim = new Vertex(headDecayUVAnim);
+		x.tailUVAnim = new Vertex(tailUVAnim);
+		x.tailDecayUVAnim = new Vertex(tailDecayUVAnim);
+		x.addAll(getAnimFlags());
+		x.unknownFlags = new ArrayList<>(unknownFlags);
 
 		x.texture = texture;
 		return x;
+	}
+
+	public boolean isDontInheritRotation() {
+		return knownFlags[0];
+	}
+
+	public boolean isDontInheritTranslation() {
+		return knownFlags[1];
+	}
+
+	public boolean isDontInheritScaling() {
+		return knownFlags[2];
+	}
+
+	public boolean isSortPrimsFarZ() {
+		return knownFlags[3];
+	}
+
+	public boolean isUnshaded() {
+		return knownFlags[4];
+	}
+
+	public boolean isLineEmitter() {
+		return knownFlags[5];
+	}
+
+	public boolean isUnfogged() {
+		return knownFlags[6];
+	}
+
+	public boolean isModelSpace() {
+		return knownFlags[7];
+	}
+
+	public boolean isXYQuad() {
+		return knownFlags[8];
+	}
+
+	public boolean isSquirt() {
+		return knownFlags[9];
+	}
+
+	public boolean isAdditive() {
+		return knownFlags[10];
+	}
+
+	public boolean isModulate2x() {
+		return knownFlags[11];
+	}
+
+	public boolean isModulate() {
+		return knownFlags[12];
+	}
+
+	public boolean isAlphaKey() {
+		return knownFlags[13];
+	}
+
+	public boolean isBlend() {
+		return knownFlags[14];
+	}
+
+	public boolean isTail() {
+		return knownFlags[15] || isBoth();
+	}
+
+	public boolean isHead() {
+		return knownFlags[16] || isBoth();
+	}
+
+	public boolean isBoth() {
+		return knownFlags[17];
 	}
 
 	public void updateTextureRef(final List<Bitmap> textures) {
@@ -353,91 +362,91 @@ public class ParticleEmitter2 extends EmitterIdObject {
 	}
 
 	public int getTextureId() {
-		return loneIntData[2];
+		return textureID;
 	}
 
-	public void setTextureId(final int id) {
-		loneIntData[2] = id;
+	public void setTextureId(final int textureId) {
+		this.textureID = textureId;
 	}
 
 	public double getSpeed() {
-		return timeDoubleData[TimeDoubles.Speed.ordinal()];
+		return speed;
 	}
 
 	public void setSpeed(final double speed) {
-		timeDoubleData[TimeDoubles.Speed.ordinal()] = speed;
+		this.speed = speed;
 	}
 
 	public double getVariation() {
-		return timeDoubleData[TimeDoubles.Variation.ordinal()];
+		return variation;
 	}
 
 	public void setVariation(final double variation) {
-		timeDoubleData[TimeDoubles.Variation.ordinal()] = variation;
+		this.variation = variation;
 	}
 
 	public double getLatitude() {
-		return timeDoubleData[TimeDoubles.Latitude.ordinal()];
+		return latitude;
 	}
 
 	public void setLatitude(final double latitude) {
-		timeDoubleData[TimeDoubles.Latitude.ordinal()] = latitude;
+		this.latitude = latitude;
 	}
 
 	public double getGravity() {
-		return timeDoubleData[TimeDoubles.Gravity.ordinal()];
+		return gravity;
 	}
 
 	public void setGravity(final double gravity) {
-		timeDoubleData[TimeDoubles.Gravity.ordinal()] = gravity;
+		this.gravity = gravity;
 	}
 
 	public double getEmissionRate() {
-		return timeDoubleData[TimeDoubles.EmissionRate.ordinal()];
+		return emissionRate;
 	}
 
 	public void setEmissionRate(final double emissionRate) {
-		timeDoubleData[TimeDoubles.EmissionRate.ordinal()] = emissionRate;
+		this.emissionRate = emissionRate;
 	}
 
 	public double getWidth() {
-		return timeDoubleData[TimeDoubles.Width.ordinal()];
+		return width;
 	}
 
 	public void setWidth(final double width) {
-		timeDoubleData[TimeDoubles.Width.ordinal()] = width;
+		this.width = width;
 	}
 
 	public double getLength() {
-		return timeDoubleData[TimeDoubles.Length.ordinal()];
+		return length;
 	}
 
 	public void setLength(final double length) {
-		timeDoubleData[TimeDoubles.Length.ordinal()] = length;
+		this.length = length;
 	}
 
 	public double getLifeSpan() {
-		return loneDoubleData[LoneDoubles.LifeSpan.ordinal()];
+		return lifeSpan;
 	}
 
 	public void setLifeSpan(final double lifeSpan) {
-		loneDoubleData[LoneDoubles.LifeSpan.ordinal()] = lifeSpan;
+		this.lifeSpan = lifeSpan;
 	}
 
 	public double getTailLength() {
-		return loneDoubleData[LoneDoubles.TailLength.ordinal()];
+		return tailLength;
 	}
 
 	public void setTailLength(final double tailLength) {
-		loneDoubleData[LoneDoubles.TailLength.ordinal()] = tailLength;
+		this.tailLength = tailLength;
 	}
 
 	public double getTime() {
-		return loneDoubleData[LoneDoubles.Time.ordinal()];
+		return time;
 	}
 
 	public void setTime(final double time) {
-		loneDoubleData[LoneDoubles.Time.ordinal()] = time;
+		this.time = time;
 	}
 
 	@Override
@@ -476,12 +485,12 @@ public class ParticleEmitter2 extends EmitterIdObject {
 
 	@Override
 	public int getRows() {
-		return loneIntData[LoneInts.Rows.ordinal()];
+		return rows;
 	}
 
 	@Override
 	public int getCols() {
-		return loneIntData[LoneInts.Columns.ordinal()];
+		return columns;
 	}
 
 	@Override
@@ -490,27 +499,27 @@ public class ParticleEmitter2 extends EmitterIdObject {
 	}
 
 	public void setRows(final int rows) {
-		loneIntData[LoneInts.Rows.ordinal()] = rows;
+		this.rows = rows;
 	}
 
 	public int getColumns() {
-		return loneIntData[LoneInts.Columns.ordinal()];
+		return columns;
 	}
 
 	public void setColumns(final int columns) {
-		loneIntData[LoneInts.Columns.ordinal()] = columns;
+		this.columns = columns;
 	}
 
 	public int getTextureID() {
-		return loneIntData[LoneInts.TextureID.ordinal()];
+		return textureID;
 	}
 
 	public void setTextureID(final int textureID) {
-		loneIntData[LoneInts.TextureID.ordinal()] = textureID;
+		this.textureID = textureID;
 	}
 
 	public int getReplaceableId() {
-		return loneIntData[LoneInts.ReplaceableId.ordinal()];
+		return replaceableId;
 	}
 
 	public boolean isTeamColored() {
@@ -518,63 +527,63 @@ public class ParticleEmitter2 extends EmitterIdObject {
 	}
 
 	public void setReplaceableId(final int replaceableId) {
-		loneIntData[LoneInts.ReplaceableId.ordinal()] = replaceableId;
+		this.replaceableId = replaceableId;
 	}
 
 	public int getPriorityPlane() {
-		return loneIntData[LoneInts.PriorityPlane.ordinal()];
+		return priorityPlane;
 	}
 
 	public void setPriorityPlane(final int priorityPlane) {
-		loneIntData[LoneInts.PriorityPlane.ordinal()] = priorityPlane;
+		this.priorityPlane = priorityPlane;
 	}
 
 	public Vertex getAlpha() {
-		return vertexData[VertexData.Alpha.ordinal()];
+		return alphas;
 	}
 
-	public void setAlpha(final Vertex alpha) {
-		vertexData[VertexData.Alpha.ordinal()] = alpha;
+	public void setAlpha(final Vertex alphas) {
+		this.alphas = alphas;
 	}
 
 	public Vertex getParticleScaling() {
-		return vertexData[VertexData.ParticleScaling.ordinal()];
+		return particleScaling;
 	}
 
 	public void setParticleScaling(final Vertex particleScaling) {
-		vertexData[VertexData.ParticleScaling.ordinal()] = particleScaling;
+		this.particleScaling = particleScaling;
 	}
 
-	public Vertex getLifeSpanUVAnim() {
-		return vertexData[VertexData.LifeSpanUVAnim.ordinal()];
+	public Vertex getHeadUVAnim() {
+		return headUVAnim;
 	}
 
-	public void setLifeSpanUVAnim(final Vertex lifeSpanUVAnim) {
-		vertexData[VertexData.LifeSpanUVAnim.ordinal()] = lifeSpanUVAnim;
+	public void setHeadUVAnim(final Vertex headUVAnim) {
+		this.headUVAnim = headUVAnim;
 	}
 
-	public Vertex getDecayUVAnim() {
-		return vertexData[VertexData.DecayUVAnim.ordinal()];
+	public Vertex getHeadDecayUVAnim() {
+		return headDecayUVAnim;
 	}
 
-	public void setDecayUVAnim(final Vertex decayUVAnim) {
-		vertexData[VertexData.DecayUVAnim.ordinal()] = decayUVAnim;
+	public void setHeadDecayUVAnim(final Vertex headDecayUVAnim) {
+		this.headDecayUVAnim = headDecayUVAnim;
 	}
 
 	public Vertex getTailUVAnim() {
-		return vertexData[VertexData.TailUVAnim.ordinal()];
+		return tailUVAnim;
 	}
 
 	public void setTailUVAnim(final Vertex tailUVAnim) {
-		vertexData[VertexData.TailUVAnim.ordinal()] = tailUVAnim;
+		this.tailUVAnim = tailUVAnim;
 	}
 
 	public Vertex getTailDecayUVAnim() {
-		return vertexData[VertexData.TailDecayUVAnim.ordinal()];
+		return tailDecayUVAnim;
 	}
 
 	public void setTailDecayUVAnim(final Vertex tailDecayUVAnim) {
-		vertexData[VertexData.TailDecayUVAnim.ordinal()] = tailDecayUVAnim;
+		this.tailDecayUVAnim = tailDecayUVAnim;
 	}
 
 	@Override
@@ -616,8 +625,8 @@ public class ParticleEmitter2 extends EmitterIdObject {
 	}
 
 	@Override
-	public List<String> getFlags() {
-		final List<String> flags = new ArrayList<>(unknownFlags);
+	public Set<String> getFlags() {
+		final Set<String> flags = new HashSet<>(unknownFlags);
 		for (int i = 0; i < knownFlags.length; i++) {
 			if (knownFlags[i]) {
 				flags.add(knownFlagNames[i]);

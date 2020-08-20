@@ -75,12 +75,16 @@ public final class RenderNode {
 	}
 
 	public void refreshFromEditor() {
-		dontInheritScaling = idObject.hasFlag(NodeFlags.DONTINHERIT_SCALING); // hasFlag is idiot code with string
-																				// compare
-		billboarded = idObject.hasFlag(NodeFlags.BILLBOARDED);
-		billboardedX = idObject.hasFlag(NodeFlags.BILLBOARD_LOCK_X);
-		billboardedY = idObject.hasFlag(NodeFlags.BILLBOARD_LOCK_Y);
-		billboardedZ = idObject.hasFlag(NodeFlags.BILLBOARD_LOCK_Z);
+		if (idObject instanceof IdObject) {
+			IdObject actualIdObject = (IdObject)idObject;
+
+			dontInheritScaling = actualIdObject.hasNodeFlag(NodeFlags.DONTINHERIT_SCALING); // hasFlag is idiot code with string
+																					// compare
+			billboarded = actualIdObject.hasNodeFlag(NodeFlags.BILLBOARDED);
+			billboardedX = actualIdObject.hasNodeFlag(NodeFlags.BILLBOARD_LOCK_X);
+			billboardedY = actualIdObject.hasNodeFlag(NodeFlags.BILLBOARD_LOCK_Y);
+			billboardedZ = actualIdObject.hasNodeFlag(NodeFlags.BILLBOARD_LOCK_Z);
+		}
 	}
 
 	boolean dirty = false;
@@ -203,10 +207,10 @@ public final class RenderNode {
 		localLocation.y = (float) location.y;
 		localLocation.z = (float) location.z;
 
-		localRotation.x = (float) rotation.a;
-		localRotation.y = (float) rotation.b;
-		localRotation.z = (float) rotation.c;
-		localRotation.w = (float) rotation.d;
+		localRotation.x = (float) rotation.x;
+		localRotation.y = (float) rotation.y;
+		localRotation.z = (float) rotation.z;
+		localRotation.w = (float) rotation.w;
 
 		localScale.x = (float) scale.x;
 		localScale.y = (float) scale.y;

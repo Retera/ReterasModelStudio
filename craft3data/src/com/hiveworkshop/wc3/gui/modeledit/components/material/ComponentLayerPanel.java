@@ -77,15 +77,15 @@ public class ComponentLayerPanel extends JPanel {
 				IconUtils.worldEditStyleIcon(BLPHandler.getImage(layer.getTextureBitmap(), workingDirectory))));
 		coordIdSpinner.reloadNewValue(layer.getCoordId());
 		tVertexAnimButton.setText(layer.getTextureAnim() == null ? "None" : layer.getTextureAnim().toString());
-		alphaPanel.reloadNewValue((float) layer.getStaticAlpha(), layer.getFlag("Alpha"));
+		alphaPanel.reloadNewValue((float) layer.getStaticAlpha(), layer.find("Alpha"));
 		emissiveGainPanel.setVisible(ModelUtils.isEmissiveLayerSupported(formatVersion) && hdShader);
-		emissiveGainPanel.reloadNewValue((float) layer.getEmissive(), layer.getFlag("EmissiveGain"));
+		emissiveGainPanel.reloadNewValue((float) layer.getEmissive(), layer.find("EmissiveGain"));
 		final boolean fresnelColorLayerSupported = ModelUtils.isFresnelColorLayerSupported(formatVersion) && hdShader;
 		fresnelColorPanel.setVisible(fresnelColorLayerSupported);
-		fresnelColorPanel.reloadNewValue(layer.getFresnelColor(), layer.getFlag("FresnelColor"));
+		fresnelColorPanel.reloadNewValue(layer.getFresnelColor(), layer.find("FresnelColor"));
 		fresnelOpacityPanel.setVisible(fresnelColorLayerSupported);
-		fresnelOpacityPanel.reloadNewValue((float) layer.getFresnelOpacity(), layer.getFlag("FresnelOpacity"));
+		fresnelOpacityPanel.reloadNewValue((float) layer.getFresnelOpacity(), layer.find("FresnelOpacity"));
 		fresnelTeamColor.setVisible(fresnelColorLayerSupported);
-		fresnelTeamColor.reloadNewValue((float) layer.getFresnelTeamColor(), layer.getFlag("FresnelTeamColor"));
+		fresnelTeamColor.reloadNewValue((float) layer.getFresnelTeamColor(), layer.find("FresnelTeamColor"));
 	}
 }

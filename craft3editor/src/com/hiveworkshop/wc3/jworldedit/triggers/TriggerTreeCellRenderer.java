@@ -9,7 +9,6 @@ import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.TreeCellRenderer;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.jworldedit.WorldEditArt;
@@ -21,7 +20,7 @@ import com.hiveworkshop.wc3.jworldedit.triggers.impl.Trigger;
 import com.hiveworkshop.wc3.jworldedit.triggers.impl.TriggerCategory;
 import com.hiveworkshop.wc3.jworldedit.triggers.impl.TriggerEnvironment;
 
-public class TriggerTreeCellRenderer extends DefaultTreeCellRenderer implements TreeCellRenderer {
+public class TriggerTreeCellRenderer extends DefaultTreeCellRenderer {
 	private final WorldEditorSettings settings;
 	private Color defaultBackgroundSelectionColor = null;
 	private final WorldEditArt worldEditArt;

@@ -1,8 +1,6 @@
 package com.hiveworkshop.wc3.mdl.render3d;
 
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
-import com.hiveworkshop.wc3.mdl.ParticleEmitter;
-import com.hiveworkshop.wc3.mdl.QuaternionRotation;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.util.MathUtils;
 import org.lwjgl.util.vector.Matrix4f;

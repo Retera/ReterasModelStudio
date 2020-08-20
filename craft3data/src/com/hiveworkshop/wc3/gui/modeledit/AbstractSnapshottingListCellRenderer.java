@@ -31,7 +31,7 @@ public abstract class AbstractSnapshottingListCellRenderer<TYPE> extends Default
 	protected abstract ResettableVertexFilter<TYPE> createFilter();
 
 	@Override
-	public Component getListCellRendererComponent(final JList list, final Object value, final int index,
+	public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index,
 			final boolean iss, final boolean chf) {
 		final TYPE matrixShell = valueToType(value);
 		ImageIcon myIcon = matrixShellToCachedRenderer.get(matrixShell);

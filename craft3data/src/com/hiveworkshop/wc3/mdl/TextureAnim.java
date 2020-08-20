@@ -14,17 +14,15 @@ public class TextureAnim extends TimelineContainer {
 	 * Constructor for objects of class TextureAnim
 	 */
 	public TextureAnim(final AnimFlag flag) {
-		animFlags.add(flag);
+		add(flag);
 	}
 
 	public TextureAnim(final List<AnimFlag> flags) {
-		animFlags = flags;
+		setAnimFlags(flags);
 	}
 
 	public TextureAnim(final TextureAnim other) {
-		for (final AnimFlag af : other.animFlags) {
-			animFlags.add(new AnimFlag(af));
-		}
+		setAnimFlags(other.getAnimFlags());
 	}
 
 	public TextureAnim(final MdlxTextureAnimation animation) {

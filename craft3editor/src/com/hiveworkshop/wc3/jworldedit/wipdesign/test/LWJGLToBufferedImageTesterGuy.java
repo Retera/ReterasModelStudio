@@ -7,8 +7,6 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import org.lwjgl.LWJGLUtil;
-
 import com.badlogic.gdx.backends.lwjgl.LwjglNativesLoader;
 import com.hiveworkshop.wc3.gui.modeledit.MDLSnapshot;
 import com.hiveworkshop.wc3.mdl.EditableModel;
@@ -17,8 +15,6 @@ import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.units.GameObject;
 import com.hiveworkshop.wc3.units.UnitOptionPane;
-
-import de.wc3data.stream.BlizzardDataInputStream;
 
 public class LWJGLToBufferedImageTesterGuy {
 	public static void main(final String[] args) {

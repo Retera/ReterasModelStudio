@@ -1,6 +1,6 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 import com.etheller.warsmash.parsers.mdlx.MdlxAttachment;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
@@ -60,10 +60,10 @@ public class Attachment extends IdObject {
 		x.setParent(getParent());
 
 		x.path = path;
-		for (final AnimFlag af : animFlags) {
-			x.animFlags.add(new AnimFlag(af));
+		for (final AnimFlag af : animFlags.values()) {
+			x.add(new AnimFlag(af));
 		}
-		flags = new ArrayList<>(x.flags);
+		x.flags = new HashSet<>(x.flags);
 		return x;
 	}
 

@@ -2,7 +2,6 @@ package com.matrixeater.hacks;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglNativesLoader;
 import com.hiveworkshop.wc3.units.GameObject;
-import com.hiveworkshop.wc3.units.ModelOptionPane;
 import com.hiveworkshop.wc3.units.UnitOptionPane;
 
 public class ExampleForGohagga {

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.hiveworkshop.wc3.gui.OldBLPHandler;
-import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 
 public final class RecompileModelsDirectory {

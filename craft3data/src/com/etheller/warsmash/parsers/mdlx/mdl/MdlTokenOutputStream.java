@@ -1,7 +1,5 @@
 package com.etheller.warsmash.parsers.mdlx.mdl;
 
-import java.io.IOException;
-
 public class MdlTokenOutputStream {
 	public final StringBuilder buffer = new StringBuilder();
 	public int ident = 0;

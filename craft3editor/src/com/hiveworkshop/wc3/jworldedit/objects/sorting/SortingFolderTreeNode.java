@@ -41,7 +41,7 @@ public abstract class SortingFolderTreeNode extends DefaultMutableTreeNode imple
 		int count = 0;
 
 		TreeNode node;
-		final Enumeration enum_ = breadthFirstEnumeration(); // order matters not
+		final Enumeration<TreeNode> enum_ = breadthFirstEnumeration(); // order matters not
 
 		while (enum_.hasMoreElements()) {
 			node = (TreeNode) enum_.nextElement();
@@ -55,10 +55,8 @@ public abstract class SortingFolderTreeNode extends DefaultMutableTreeNode imple
 	}
 
 	public boolean hasEditedChildren() {
-		final int count = 0;
-
 		TreeNode node;
-		final Enumeration enum_ = breadthFirstEnumeration(); // order matters not
+		final Enumeration<TreeNode> enum_ = breadthFirstEnumeration(); // order matters not
 
 		while (enum_.hasMoreElements()) {
 			node = (TreeNode) enum_.nextElement();

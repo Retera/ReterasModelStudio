@@ -2,12 +2,13 @@ package com.hiveworkshop.wc3.mdl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JOptionPane;
-
+import com.etheller.warsmash.parsers.mdlx.AnimationMap;
 import com.etheller.warsmash.parsers.mdlx.MdlxLayer;
+import com.etheller.warsmash.util.MdlUtils;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdl.v2.LayerView;
 import com.hiveworkshop.wc3.mdl.v2.timelines.Animatable;
@@ -238,12 +239,9 @@ public class Layer extends TimelineContainer implements Named, LayerView {
 		fresnelColor = new Vertex(other.fresnelColor);
 		fresnelOpacity = other.fresnelOpacity;
 		fresnelTeamColor = other.fresnelTeamColor;
-		flags = new ArrayList<>(other.flags);
-		animFlags = new ArrayList<>();
+		flags = new HashSet<>(other.flags);
 		textures = new ArrayList<>();
-		for (final AnimFlag af : other.animFlags) {
-			animFlags.add(new AnimFlag(af));
-		}
+		addAll(other.getAnimFlags());
 		if (other.textures != null) {
 			for (final Bitmap bmp : other.textures) {
 				textures.add(new Bitmap(bmp));
@@ -362,7 +360,7 @@ public class Layer extends TimelineContainer implements Named, LayerView {
 	}
 
 	public Bitmap getRenderTexture(final AnimatedRenderEnvironment animatedRenderEnvironment, final EditableModel model) {
-		final AnimFlag textureFlag = find("TextureID");
+		final AnimFlag textureFlag = find(MdlUtils.TOKEN_TEXTURE_ID);
 		if ((textureFlag != null) && (animatedRenderEnvironment != null)) {
 			if (animatedRenderEnvironment.getCurrentAnimation() == null) {
 				if (textures.size() > 0) {
@@ -408,7 +406,7 @@ public class Layer extends TimelineContainer implements Named, LayerView {
 
 	public void buildTextureList(final EditableModel mdlr) {
 		textures = new ArrayList<>();
-		final AnimFlag txFlag = getFlag("TextureID");
+		final AnimFlag txFlag = find(MdlUtils.TOKEN_TEXTURE_ID);
 		for (int i = 0; i < txFlag.values.size(); i++) {
 			final int txId = ((Integer) txFlag.values.get(i)).intValue();
 			final Bitmap texture2 = mdlr.getTexture(txId);
@@ -421,7 +419,7 @@ public class Layer extends TimelineContainer implements Named, LayerView {
 		textureId = mdlr.getTextureId(texture);
 		TVertexAnimId = mdlr.getTextureAnimId(textureAnim);
 		if (textures != null) {
-			final AnimFlag txFlag = getFlag("TextureID");
+			final AnimFlag txFlag = find(MdlUtils.TOKEN_TEXTURE_ID);
 			for (int i = 0; i < txFlag.values.size(); i++) {
 				final Bitmap textureFoundFromDirtyId = ridiculouslyWrongTextureIDToTexture
 						.get(((Integer) txFlag.values.get(i)).intValue());
@@ -439,7 +437,7 @@ public class Layer extends TimelineContainer implements Named, LayerView {
 		if ((TVertexAnimId >= 0) && (TVertexAnimId < mdlr.texAnims.size())) {
 			textureAnim = mdlr.texAnims.get(TVertexAnimId);
 		}
-		final AnimFlag txFlag = getFlag("TextureID");
+		final AnimFlag txFlag = find(MdlUtils.TOKEN_TEXTURE_ID);
 		if (txFlag != null) {
 			buildTextureList(mdlr);
 		}
@@ -464,22 +462,6 @@ public class Layer extends TimelineContainer implements Named, LayerView {
 			return texture.getName() + " layer (mode " + filterMode + ") ";
 		}
 		return "multi-textured layer (mode " + filterMode + ") ";
-	}
-
-	public AnimFlag getFlag(final String what) {
-		int count = 0;
-		AnimFlag output = null;
-		for (final AnimFlag af : animFlags) {
-			if (af.getName().equals(what)) {
-				count++;
-				output = af;
-			}
-		}
-		if (count > 1) {
-			JOptionPane.showMessageDialog(null,
-					"Some visiblity animation data was lost unexpectedly during retrieval in " + getName() + ".");
-		}
-		return output;
 	}
 
 	@Override

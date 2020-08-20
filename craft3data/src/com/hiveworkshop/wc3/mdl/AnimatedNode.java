@@ -301,16 +301,16 @@ public abstract class AnimatedNode extends TimelineContainer {
 			// we must change it
 			final QuaternionRotation oldTranslationValue = (QuaternionRotation) rotationTimeline.getValues()
 					.get(floorIndex);
-			rotationHeap.x = (float) oldTranslationValue.a;
-			rotationHeap.y = (float) oldTranslationValue.b;
-			rotationHeap.z = (float) oldTranslationValue.c;
-			rotationHeap.w = (float) oldTranslationValue.d;
+			rotationHeap.x = (float) oldTranslationValue.x;
+			rotationHeap.y = (float) oldTranslationValue.y;
+			rotationHeap.z = (float) oldTranslationValue.z;
+			rotationHeap.w = (float) oldTranslationValue.w;
 			Quaternion.mul(rotationDeltaHeap, rotationHeap, rotationHeap);
 
-			oldTranslationValue.a = rotationHeap.x;
-			oldTranslationValue.b = rotationHeap.y;
-			oldTranslationValue.c = rotationHeap.z;
-			oldTranslationValue.d = rotationHeap.w;
+			oldTranslationValue.x = rotationHeap.x;
+			oldTranslationValue.y = rotationHeap.y;
+			oldTranslationValue.z = rotationHeap.z;
+			oldTranslationValue.w = rotationHeap.w;
 
 			if (savedLocalRotation != null) {
 				Quaternion.mul(savedLocalRotation, rotationDeltaHeap, savedLocalRotation);
@@ -318,26 +318,26 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 			if (rotationTimeline.tans()) {
 				final QuaternionRotation oldInTan = (QuaternionRotation) rotationTimeline.getInTans().get(floorIndex);
-				rotationHeap.x = (float) oldInTan.a;
-				rotationHeap.y = (float) oldInTan.b;
-				rotationHeap.z = (float) oldInTan.c;
-				rotationHeap.w = (float) oldInTan.d;
+				rotationHeap.x = (float) oldInTan.x;
+				rotationHeap.y = (float) oldInTan.y;
+				rotationHeap.z = (float) oldInTan.z;
+				rotationHeap.w = (float) oldInTan.w;
 				Quaternion.mul(rotationDeltaHeap, rotationHeap, rotationHeap);
-				oldInTan.a = rotationHeap.x;
-				oldInTan.b = rotationHeap.y;
-				oldInTan.c = rotationHeap.z;
-				oldInTan.d = rotationHeap.w;
+				oldInTan.x = rotationHeap.x;
+				oldInTan.y = rotationHeap.y;
+				oldInTan.z = rotationHeap.z;
+				oldInTan.w = rotationHeap.w;
 
 				final QuaternionRotation oldOutTan = (QuaternionRotation) rotationTimeline.getOutTans().get(floorIndex);
-				rotationHeap.x = (float) oldOutTan.a;
-				rotationHeap.y = (float) oldOutTan.b;
-				rotationHeap.z = (float) oldOutTan.c;
-				rotationHeap.w = (float) oldOutTan.d;
+				rotationHeap.x = (float) oldOutTan.x;
+				rotationHeap.y = (float) oldOutTan.y;
+				rotationHeap.z = (float) oldOutTan.z;
+				rotationHeap.w = (float) oldOutTan.w;
 				Quaternion.mul(rotationDeltaHeap, rotationHeap, rotationHeap);
-				oldOutTan.a = rotationHeap.x;
-				oldOutTan.b = rotationHeap.y;
-				oldOutTan.c = rotationHeap.z;
-				oldOutTan.d = rotationHeap.w;
+				oldOutTan.x = rotationHeap.x;
+				oldOutTan.y = rotationHeap.y;
+				oldOutTan.z = rotationHeap.z;
+				oldOutTan.w = rotationHeap.w;
 			}
 		}
 	}
@@ -427,39 +427,39 @@ public abstract class AnimatedNode extends TimelineContainer {
 			// we must change it
 			final QuaternionRotation oldTranslationValue = (QuaternionRotation) rotationTimeline.getValues()
 					.get(floorIndex);
-			rotationHeap.x = (float) oldTranslationValue.a;
-			rotationHeap.y = (float) oldTranslationValue.b;
-			rotationHeap.z = (float) oldTranslationValue.c;
-			rotationHeap.w = (float) oldTranslationValue.d;
+			rotationHeap.x = (float) oldTranslationValue.x;
+			rotationHeap.y = (float) oldTranslationValue.y;
+			rotationHeap.z = (float) oldTranslationValue.z;
+			rotationHeap.w = (float) oldTranslationValue.w;
 			Quaternion.mul(localRotation, rotationHeap, rotationHeap);
 
-			oldTranslationValue.a = rotationHeap.x;
-			oldTranslationValue.b = rotationHeap.y;
-			oldTranslationValue.c = rotationHeap.z;
-			oldTranslationValue.d = rotationHeap.w;
+			oldTranslationValue.x = rotationHeap.x;
+			oldTranslationValue.y = rotationHeap.y;
+			oldTranslationValue.z = rotationHeap.z;
+			oldTranslationValue.w = rotationHeap.w;
 
 			if (rotationTimeline.tans()) {
 				final QuaternionRotation oldInTan = (QuaternionRotation) rotationTimeline.getInTans().get(floorIndex);
-				rotationHeap.x = (float) oldInTan.a;
-				rotationHeap.y = (float) oldInTan.b;
-				rotationHeap.z = (float) oldInTan.c;
-				rotationHeap.w = (float) oldInTan.d;
+				rotationHeap.x = (float) oldInTan.x;
+				rotationHeap.y = (float) oldInTan.y;
+				rotationHeap.z = (float) oldInTan.z;
+				rotationHeap.w = (float) oldInTan.w;
 				Quaternion.mul(localRotation, rotationHeap, rotationHeap);
-				oldInTan.a = rotationHeap.x;
-				oldInTan.b = rotationHeap.y;
-				oldInTan.c = rotationHeap.z;
-				oldInTan.d = rotationHeap.w;
+				oldInTan.x = rotationHeap.x;
+				oldInTan.y = rotationHeap.y;
+				oldInTan.z = rotationHeap.z;
+				oldInTan.w = rotationHeap.w;
 
 				final QuaternionRotation oldOutTan = (QuaternionRotation) rotationTimeline.getOutTans().get(floorIndex);
-				rotationHeap.x = (float) oldOutTan.a;
-				rotationHeap.y = (float) oldOutTan.b;
-				rotationHeap.z = (float) oldOutTan.c;
-				rotationHeap.w = (float) oldOutTan.d;
+				rotationHeap.x = (float) oldOutTan.x;
+				rotationHeap.y = (float) oldOutTan.y;
+				rotationHeap.z = (float) oldOutTan.z;
+				rotationHeap.w = (float) oldOutTan.w;
 				Quaternion.mul(localRotation, rotationHeap, rotationHeap);
-				oldOutTan.a = rotationHeap.x;
-				oldOutTan.b = rotationHeap.y;
-				oldOutTan.c = rotationHeap.z;
-				oldOutTan.d = rotationHeap.w;
+				oldOutTan.x = rotationHeap.x;
+				oldOutTan.y = rotationHeap.y;
+				oldOutTan.z = rotationHeap.z;
+				oldOutTan.w = rotationHeap.w;
 			}
 		}
 	}
@@ -481,45 +481,45 @@ public abstract class AnimatedNode extends TimelineContainer {
 			// we must change it
 			final QuaternionRotation oldTranslationValue = (QuaternionRotation) rotationTimeline.getValues()
 					.get(floorIndex);
-			rotationHeap.x = (float) oldTranslationValue.a;
-			rotationHeap.y = (float) oldTranslationValue.b;
-			rotationHeap.z = (float) oldTranslationValue.c;
-			rotationHeap.w = (float) oldTranslationValue.d;
+			rotationHeap.x = (float) oldTranslationValue.x;
+			rotationHeap.y = (float) oldTranslationValue.y;
+			rotationHeap.z = (float) oldTranslationValue.z;
+			rotationHeap.w = (float) oldTranslationValue.w;
 			rotationDeltaHeap.setIdentity();
 			Quaternion.mulInverse(rotationDeltaHeap, localRotation, rotationDeltaHeap);
 			Quaternion.mul(rotationDeltaHeap, rotationHeap, rotationHeap);
 
-			oldTranslationValue.a = rotationHeap.x;
-			oldTranslationValue.b = rotationHeap.y;
-			oldTranslationValue.c = rotationHeap.z;
-			oldTranslationValue.d = rotationHeap.w;
+			oldTranslationValue.x = rotationHeap.x;
+			oldTranslationValue.y = rotationHeap.y;
+			oldTranslationValue.z = rotationHeap.z;
+			oldTranslationValue.w = rotationHeap.w;
 
 			if (rotationTimeline.tans()) {
 				final QuaternionRotation oldInTan = (QuaternionRotation) rotationTimeline.getInTans().get(floorIndex);
-				rotationHeap.x = (float) oldInTan.a;
-				rotationHeap.y = (float) oldInTan.b;
-				rotationHeap.z = (float) oldInTan.c;
-				rotationHeap.w = (float) oldInTan.d;
+				rotationHeap.x = (float) oldInTan.x;
+				rotationHeap.y = (float) oldInTan.y;
+				rotationHeap.z = (float) oldInTan.z;
+				rotationHeap.w = (float) oldInTan.w;
 				rotationDeltaHeap.setIdentity();
 				Quaternion.mulInverse(rotationDeltaHeap, localRotation, rotationDeltaHeap);
 				Quaternion.mul(rotationDeltaHeap, rotationHeap, rotationHeap);
-				oldInTan.a = rotationHeap.x;
-				oldInTan.b = rotationHeap.y;
-				oldInTan.c = rotationHeap.z;
-				oldInTan.d = rotationHeap.w;
+				oldInTan.x = rotationHeap.x;
+				oldInTan.y = rotationHeap.y;
+				oldInTan.z = rotationHeap.z;
+				oldInTan.w = rotationHeap.w;
 
 				final QuaternionRotation oldOutTan = (QuaternionRotation) rotationTimeline.getOutTans().get(floorIndex);
-				rotationHeap.x = (float) oldOutTan.a;
-				rotationHeap.y = (float) oldOutTan.b;
-				rotationHeap.z = (float) oldOutTan.c;
-				rotationHeap.w = (float) oldOutTan.d;
+				rotationHeap.x = (float) oldOutTan.x;
+				rotationHeap.y = (float) oldOutTan.y;
+				rotationHeap.z = (float) oldOutTan.z;
+				rotationHeap.w = (float) oldOutTan.w;
 				rotationDeltaHeap.setIdentity();
 				Quaternion.mulInverse(rotationDeltaHeap, localRotation, rotationDeltaHeap);
 				Quaternion.mul(rotationDeltaHeap, rotationHeap, rotationHeap);
-				oldOutTan.a = rotationHeap.x;
-				oldOutTan.b = rotationHeap.y;
-				oldOutTan.c = rotationHeap.z;
-				oldOutTan.d = rotationHeap.w;
+				oldOutTan.x = rotationHeap.x;
+				oldOutTan.y = rotationHeap.y;
+				oldOutTan.z = rotationHeap.z;
+				oldOutTan.w = rotationHeap.w;
 			}
 		}
 	}
@@ -588,7 +588,17 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 	}
 
-	abstract public boolean hasFlag(IdObject.NodeFlags flag);
+	public Vertex getRenderTranslation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		return getInterpolatedVector(animatedRenderEnvironment, "Translation", null);
+	}
+
+	public QuaternionRotation getRenderRotation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		return getInterpolatedQuat(animatedRenderEnvironment, "Rotation", null);
+	}
+
+	public Vertex getRenderScale(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		return getInterpolatedVector(animatedRenderEnvironment, "Scaling", null);
+	}
 
 	abstract public AnimatedNode getParent();
 
@@ -597,10 +607,4 @@ public abstract class AnimatedNode extends TimelineContainer {
 	abstract public List<? extends AnimatedNode> getChildrenNodes();
 
 	abstract public String getName();
-
-	abstract public Vertex getRenderTranslation(AnimatedRenderEnvironment animatedRenderEnvironment);
-
-	abstract public QuaternionRotation getRenderRotation(AnimatedRenderEnvironment animatedRenderEnvironment);
-
-	abstract public Vertex getRenderScale(AnimatedRenderEnvironment animatedRenderEnvironment);
 }

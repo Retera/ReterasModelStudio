@@ -251,7 +251,7 @@ public class MainPanel extends JPanel
 	JMenu fileMenu, recentMenu, editMenu, toolsMenu, mirrorSubmenu, tweaksSubmenu, viewMenu, importMenu, addMenu,
 			scriptsMenu, windowMenu, addParticle, animationMenu, singleAnimationMenu, aboutMenu, fetch;
 	JCheckBoxMenuItem mirrorFlip, fetchPortraitsToo, showNormals, textureModels, showVertexModifyControls;
-	ArrayList geoItems = new ArrayList();
+	List<JMenuItem> geoItems = new ArrayList<>();
 	JMenuItem newModel, open, fetchUnit, fetchModel, fetchObject, save, close, exit, revert, mergeGeoset, saveAs,
 			importButton, importUnit, importGameModel, importGameObject, importFromWorkspace, importButtonS,
 			newDirectory, creditsButton, changelogButton, clearRecent, nullmodelButton, selectAll, invertSelect,
@@ -2712,7 +2712,7 @@ public class MainPanel extends JPanel
 							final JComboBox<IdObject> parent = new JComboBox<>(idObjects.toArray(new IdObject[0]));
 							parent.setRenderer(new BasicComboBoxRenderer() {
 								@Override
-								public Component getListCellRendererComponent(final JList list, final Object value,
+								public Component getListCellRendererComponent(final JList<?> list, final Object value,
 										final int index, final boolean isSelected, final boolean cellHasFocus) {
 									final IdObject idObject = (IdObject) value;
 									if (idObject == nullBone) {
@@ -2861,7 +2861,7 @@ public class MainPanel extends JPanel
 								animIndex = 0;
 								for (final Animation anim : anims) {
 									if (!checkBoxes[animIndex].isSelected()) {
-										visFlag.addEntry(anim.getStart(), new Integer(0));
+										visFlag.addEntry(anim.getStart(), Integer.valueOf(0));
 									}
 									animIndex++;
 								}
@@ -4470,7 +4470,7 @@ public class MainPanel extends JPanel
 					af.deleteAnim(death);
 					af.copyFrom(dummy, stand.getStart(), stand.getEnd(), birth.getStart(), birth.getEnd());
 					af.copyFrom(dummy, stand.getStart(), stand.getEnd(), death.getStart(), death.getEnd());
-					af.setEntry(death.getEnd(), new Integer(0));
+					af.setEntry(death.getEnd(), Integer.valueOf(0));
 				}
 
 				if (!birth.getTags().contains("NonLooping")) {

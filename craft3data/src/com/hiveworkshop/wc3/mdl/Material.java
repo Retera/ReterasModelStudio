@@ -45,7 +45,7 @@ public class Material implements MaterialView {
 		if (layers.size() > 0) {
 			if (layers.get(layers.size() - 1).texture != null) {
 				name = layers.get(layers.size() - 1).texture.getName();
-				if (layers.get(layers.size() - 1).getFlag("Alpha") != null) {
+				if (layers.get(layers.size() - 1).find("Alpha") != null) {
 					name = name + " (animated Alpha)";
 				}
 			} else {
@@ -54,7 +54,7 @@ public class Material implements MaterialView {
 			for (int i = layers.size() - 2; i >= 0; i--) {
 				try {
 					name = name + " over " + layers.get(i).texture.getName();
-					if (layers.get(i).getFlag("Alpha") != null) {
+					if (layers.get(i).find("Alpha") != null) {
 						name = name + " (animated Alpha)";
 					}
 				} catch (final NullPointerException e) {

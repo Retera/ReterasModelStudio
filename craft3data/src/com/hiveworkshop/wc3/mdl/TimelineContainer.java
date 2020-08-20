@@ -1,15 +1,19 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import com.etheller.warsmash.parsers.mdlx.MdlxAnimatedObject;
 import com.etheller.warsmash.parsers.mdlx.timeline.MdlxTimeline;
+import com.etheller.warsmash.util.MdlUtils;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 
 public abstract class TimelineContainer implements VisibilitySource {
-	public List<AnimFlag> animFlags = new ArrayList<>();
-	protected List<String> flags = new ArrayList<>();
+	public Map<String, AnimFlag> animFlags = new HashMap<>();
+	protected Set<String> flags = new HashSet<>();
 
 	public void loadTimelines(final MdlxAnimatedObject object) {
 		for (final MdlxTimeline<?> timeline : object.timelines) {
@@ -18,52 +22,70 @@ public abstract class TimelineContainer implements VisibilitySource {
 	}
 
 	public void timelinesToMdlx(MdlxAnimatedObject object) {
-		for (final AnimFlag timeline : animFlags) {
-			object.timelines.add(timeline.toMdlx());
+		for (final AnimFlag timeline : animFlags.values()) {
+			object.timelines.add(timeline.toMdlx(this));
 		}
 	}
 
 	public void add(final AnimFlag timeline) {
-		animFlags.add(timeline);
+		animFlags.put(timeline.getName(), timeline);
+	}
+
+	public void addAll(final Collection<AnimFlag> timelines) {
+		for (final AnimFlag timeline : timelines) {
+			add(timeline);
+		}
+	}
+
+	public boolean has(final String name) {
+		return animFlags.containsKey(name);
 	}
 
 	public void remove(final AnimFlag timeline) {
-		animFlags.remove(timeline);
+		animFlags.remove(timeline.getName());
 	}
 
-	public AnimFlag get(final int i) {
-		return animFlags.get(i);
-	}
+	public void remove(final String name) {
+		AnimFlag timeline = animFlags.get(name);
 
-	public List<AnimFlag> getAnimFlags() {
-		return animFlags;
-	}
-
-	public void setAnimFlags(final List<AnimFlag> timelines) {
-		this.animFlags = timelines;
-	}
-
-	public AnimFlag find(final String name, final Integer globalSeq) {
-		// TODO make flags be a map and remove this method, this is 2018
-		// not 2012 anymore, and I learned basic software dev
-		for (final AnimFlag timeline : animFlags) {
-			if (timeline.getName().equals(name) && (((globalSeq == null) && (timeline.globalSeq == null))
-					|| ((globalSeq != null) && globalSeq.equals(timeline.globalSeq)))) {
-				return timeline;
-			}
+		if (timeline != null) {
+			animFlags.remove(name);
 		}
-		return null;
+	}
+
+	public Collection<AnimFlag> getAnimFlags() {
+		return animFlags.values();
+	}
+
+	public void setAnimFlags(final Collection<AnimFlag> timelines) {
+		animFlags.clear();
+
+		for (final AnimFlag timeline : timelines) {
+			add(timeline);
+		}
 	}
 
 	public AnimFlag find(final String name) {
-		// TODO make flags be a map and remove this method, this is 2018
-		// not 2012 anymore, and I learned basic software dev
-		for (final AnimFlag timeline : animFlags) {
-			if (timeline.getName().equals(name)) {
-				return timeline;
+		return animFlags.get(name);
+	}
+
+	public AnimFlag find(final String name, final Integer globalSeq) {
+		AnimFlag timeline = animFlags.get(name);
+
+		if (timeline != null && (((globalSeq == null) && (timeline.globalSeq == null))
+				|| ((globalSeq != null) && globalSeq.equals(timeline.globalSeq)))) {
+			return timeline;
+		}
+
+		return null;
+	}
+
+	public void removeAllTimelinesForGlobalSeq(final Integer selectedValue) {
+		for (final AnimFlag timeline : animFlags.values()) {
+			if (selectedValue.equals(timeline.getGlobalSeq())) {
+				remove(timeline);
 			}
 		}
-		return null;
 	}
 
 	public int getInterpolatedInteger(final AnimatedRenderEnvironment animatedRenderEnvironment, final String tag, final int defaultValue) {
@@ -107,39 +129,29 @@ public abstract class TimelineContainer implements VisibilitySource {
 	}
 
 	public void flipOver(final byte axis) {
-		for (int i = 0; i < animFlags.size(); i++) {
-			final AnimFlag flag = animFlags.get(i);
-			flag.flipOver(axis);
+		for (final AnimFlag timeline : animFlags.values()) {
+			timeline.flipOver(axis);
 		}
 	}
 
 	// VisibilitySource methods
-	@Override
 	public void setVisibilityFlag(final AnimFlag flag) {
-		for (final AnimFlag timeline : animFlags) {
-			String name = timeline.getName();
-
-			if (name.equals("Visibility") || name.equals("Alpha")) {
-				animFlags.remove(timeline);
-			}
-		}
+		remove(MdlUtils.TOKEN_VISIBILITY);
+		remove(MdlUtils.TOKEN_ALPHA);
 
 		if (flag != null) {
-			animFlags.add(flag);
+			add(flag);
 		}
 	}
 
-	@Override
 	public AnimFlag getVisibilityFlag() {
-		for (final AnimFlag timeline : animFlags) {
-			String name = timeline.getName();
-
-			if (name.equals("Visibility") || name.equals("Alpha")) {
-				return timeline;
-			}
+		AnimFlag timeline = find(MdlUtils.TOKEN_VISIBILITY);
+		
+		if (timeline == null) {
+			timeline = find(MdlUtils.TOKEN_ALPHA);
 		}
 
-		return null;
+		return timeline;
 	}
 
 	public float getRenderVisibility(final AnimatedRenderEnvironment animatedRenderEnvironment) {
@@ -159,11 +171,15 @@ public abstract class TimelineContainer implements VisibilitySource {
 		flags.add(flag);
 	}
 
-	public List<String> getFlags() {
+	public Set<String> getFlags() {
 		return flags;
 	}
 
-	public void setFlags(final List<String> newFlags) {
-		flags = newFlags;
+	public void setFlags(final Set<String> flags) {
+		this.flags = flags;
+	}
+
+	public boolean hasFlag(final String flag) {
+		return flags.contains(flag);
 	}
 }

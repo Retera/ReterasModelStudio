@@ -1,6 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.etheller.warsmash.parsers.mdlx.MdlxRibbonEmitter;
@@ -16,25 +15,17 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
  * Eric Theller 3/10/2012 3:32 PM
  */
 public class RibbonEmitter extends IdObject {
-	public static enum TimeDoubles {
-		HeightAbove, HeightBelow, Alpha, TextureSlot;
-	}
-
-	public static enum LoneDoubles {
-		LifeSpan, Gravity;
-	}
-
-	public static enum LoneInts {
-		EmissionRate, Rows, Columns, MaterialID;
-	}
-
-	static final String[] timeDoubleNames = { "HeightAbove", "HeightBelow", "Alpha", "TextureSlot" };
-	double[] timeDoubleData = new double[timeDoubleNames.length];
-	static final String[] loneDoubleNames = { "LifeSpan", "Gravity" };
-	double[] loneDoubleData = new double[loneDoubleNames.length];
-	static final String[] loneIntNames = { "EmissionRate", "Rows", "Columns", "MaterialID" };
+	double heightAbove;
+	double heightBelow;
+	double alpha;
+	double textureSlot;
+	double lifeSpan = 0;
+	double gravity = 0;
+	int emissionRate = 0;
+	int rows = 0;
+	int columns = 0;
+	int materialID = 0;
 	Material material;
-	int[] loneIntData = new int[loneIntNames.length];
 	Vertex staticColor;
 
 	private RibbonEmitter() {
@@ -96,15 +87,19 @@ public class RibbonEmitter extends IdObject {
 		x.parentId = parentId;
 		x.setParent(getParent());
 
-		x.timeDoubleData = timeDoubleData.clone();
-		x.loneDoubleData = loneDoubleData.clone();
-		x.loneIntData = loneIntData.clone();
+		x.heightAbove = heightAbove;
+		x.heightBelow = heightBelow;
+		x.alpha = alpha;
+		x.textureSlot = textureSlot;
+		x.lifeSpan = lifeSpan;
+		x.gravity = gravity;
+		x.emissionRate = emissionRate;
+		x.rows = rows;
+		x.columns = columns;
+		x.materialID = materialID;
 		x.material = material;
 		x.staticColor = new Vertex(staticColor);
-
-		for (final AnimFlag af : animFlags) {
-			x.animFlags.add(new AnimFlag(af));
-		}
+		x.addAll(getAnimFlags());
 		return x;
 	}
 
@@ -117,83 +112,83 @@ public class RibbonEmitter extends IdObject {
 	}
 
 	public int getMaterialId() {
-		return loneIntData[3];
+		return materialID;
 	}
 
-	public void setMaterialId(final int i) {
-		loneIntData[3] = i;
+	public void setMaterialId(final int materialID) {
+		this.materialID = materialID;
 	}
 
 	public double getHeightAbove() {
-		return timeDoubleData[TimeDoubles.HeightAbove.ordinal()];
+		return heightAbove;
 	}
 
 	public void setHeightAbove(final double heightAbove) {
-		timeDoubleData[TimeDoubles.HeightAbove.ordinal()] = heightAbove;
+		this.heightAbove = heightAbove;
 	}
 
 	public double getHeightBelow() {
-		return timeDoubleData[TimeDoubles.HeightBelow.ordinal()];
+		return heightBelow;
 	}
 
 	public void setHeightBelow(final double heightBelow) {
-		timeDoubleData[TimeDoubles.HeightBelow.ordinal()] = heightBelow;
+		this.heightBelow = heightBelow;
 	}
 
 	public double getAlpha() {
-		return timeDoubleData[TimeDoubles.Alpha.ordinal()];
+		return alpha;
 	}
 
 	public void setAlpha(final double alpha) {
-		timeDoubleData[TimeDoubles.Alpha.ordinal()] = alpha;
+		this.alpha = alpha;
 	}
 
 	public double getTextureSlot() {
-		return timeDoubleData[TimeDoubles.TextureSlot.ordinal()];
+		return textureSlot;
 	}
 
 	public void setTextureSlot(final double textureSlot) {
-		timeDoubleData[TimeDoubles.TextureSlot.ordinal()] = textureSlot;
+		this.textureSlot = textureSlot;
 	}
 
 	public double getLifeSpan() {
-		return loneDoubleData[LoneDoubles.LifeSpan.ordinal()];
+		return lifeSpan;
 	}
 
 	public void setLifeSpan(final double lifeSpan) {
-		loneDoubleData[LoneDoubles.LifeSpan.ordinal()] = lifeSpan;
+		this.lifeSpan = lifeSpan;
 	}
 
 	public double getGravity() {
-		return loneDoubleData[LoneDoubles.Gravity.ordinal()];
+		return gravity;
 	}
 
 	public void setGravity(final double gravity) {
-		loneDoubleData[LoneDoubles.Gravity.ordinal()] = gravity;
+		this.gravity = gravity;
 	}
 
 	public int getEmissionRate() {
-		return loneIntData[LoneInts.EmissionRate.ordinal()];
+		return emissionRate;
 	}
 
 	public void setEmissionRate(final int emissionRate) {
-		loneIntData[LoneInts.EmissionRate.ordinal()] = emissionRate;
+		this.emissionRate = emissionRate;
 	}
 
 	public int getRows() {
-		return loneIntData[LoneInts.Rows.ordinal()];
+		return rows;
 	}
 
 	public void setRows(final int rows) {
-		loneIntData[LoneInts.Rows.ordinal()] = rows;
+		this.rows = rows;
 	}
 
 	public int getColumns() {
-		return loneIntData[LoneInts.Columns.ordinal()];
+		return columns;
 	}
 
 	public void setColumns(final int columns) {
-		loneIntData[LoneInts.Columns.ordinal()] = columns;
+		this.columns = columns;
 	}
 
 	public Material getMaterial() {
@@ -215,12 +210,6 @@ public class RibbonEmitter extends IdObject {
 	@Override
 	public void add(final String flag) {
 		System.err.println("ERROR: RibbonEmitter given unknown flag: " + flag);
-	}
-
-	@Override
-	public List<String> getFlags() {
-		return new ArrayList<>();// Current ribbon implementation uses no
-									// flags!
 	}
 
 	@Override

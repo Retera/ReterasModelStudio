@@ -41,8 +41,6 @@ import com.hiveworkshop.wc3.units.objectdata.MutableObjectData;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.MutableGameObject;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.WorldEditorDataType;
 
-import de.wc3data.stream.BlizzardDataInputStream;
-
 public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSelectionListener {
 	MutableGameObject currentUnit = null;
 	UnitEditorTreeModel model;
@@ -133,12 +131,6 @@ public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSel
 		public UnitEditorTreeModel(final DefaultMutableTreeNode root) {
 			super(root);
 		}
-
-		/**
-		 *
-		 */
-		private static final long serialVersionUID = 1L;
-
 	}
 
 	public void loadRaceData(final DefaultMutableTreeNode folder, final RaceData data) {

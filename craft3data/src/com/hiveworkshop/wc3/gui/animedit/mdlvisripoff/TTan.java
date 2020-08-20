@@ -171,20 +171,20 @@ public class TTan {
 				q = new QuaternionRotation(0, 0, 0, 0);
 		final float g1, g2, g3, g4;
 		if (!isLogsReady) {
-			qcur.a = getSubscript(cur.value, 0).doubleValue();
-			qcur.b = getSubscript(cur.value, 1).doubleValue();
-			qcur.c = getSubscript(cur.value, 2).doubleValue();
-			qcur.d = getSubscript(cur.value, 3).doubleValue();
+			qcur.x = getSubscript(cur.value, 0).doubleValue();
+			qcur.y = getSubscript(cur.value, 1).doubleValue();
+			qcur.z = getSubscript(cur.value, 2).doubleValue();
+			qcur.w = getSubscript(cur.value, 3).doubleValue();
 
-			qprev.a = getSubscript(prev.value, 0).doubleValue();
-			qprev.b = getSubscript(prev.value, 1).doubleValue();
-			qprev.c = getSubscript(prev.value, 2).doubleValue();
-			qprev.d = getSubscript(prev.value, 3).doubleValue();
+			qprev.x = getSubscript(prev.value, 0).doubleValue();
+			qprev.y = getSubscript(prev.value, 1).doubleValue();
+			qprev.z = getSubscript(prev.value, 2).doubleValue();
+			qprev.w = getSubscript(prev.value, 3).doubleValue();
 
-			qnext.a = getSubscript(next.value, 0).doubleValue();
-			qnext.b = getSubscript(next.value, 1).doubleValue();
-			qnext.c = getSubscript(next.value, 2).doubleValue();
-			qnext.d = getSubscript(next.value, 3).doubleValue();
+			qnext.x = getSubscript(next.value, 0).doubleValue();
+			qnext.y = getSubscript(next.value, 1).doubleValue();
+			qnext.z = getSubscript(next.value, 2).doubleValue();
+			qnext.w = getSubscript(next.value, 3).doubleValue();
 
 			getInverseQuaternion(qcur, logNNP);
 			mulQuaternions(logNNP, qnext, logNNP);
@@ -202,32 +202,32 @@ public class TTan {
 		g2 = (1 - tension) * (1 - continuity) * (1 + bias) * 0.5f;
 		g3 = (1 - tension) * (1 - continuity) * (1 - bias) * 0.5f;
 		g4 = (1 - tension) * (1 + continuity) * (1 + bias) * 0.5f;
-		((QuaternionRotation) tang.inTan).a = (g1 * logNNP.a) + (g2 * logNMN.a);
-		((QuaternionRotation) tang.outTan).a = (g3 * logNNP.a) + (g4 * logNMN.a);
-		((QuaternionRotation) tang.inTan).b = (g1 * logNNP.b) + (g2 * logNMN.b);
-		((QuaternionRotation) tang.outTan).b = (g3 * logNNP.b) + (g4 * logNMN.b);
-		((QuaternionRotation) tang.inTan).c = (g1 * logNNP.c) + (g2 * logNMN.c);
-		((QuaternionRotation) tang.outTan).c = (g3 * logNNP.c) + (g4 * logNMN.c);
+		((QuaternionRotation) tang.inTan).x = (g1 * logNNP.x) + (g2 * logNMN.x);
+		((QuaternionRotation) tang.outTan).x = (g3 * logNNP.x) + (g4 * logNMN.x);
+		((QuaternionRotation) tang.inTan).y = (g1 * logNNP.y) + (g2 * logNMN.y);
+		((QuaternionRotation) tang.outTan).y = (g3 * logNNP.y) + (g4 * logNMN.y);
+		((QuaternionRotation) tang.inTan).z = (g1 * logNNP.z) + (g2 * logNMN.z);
+		((QuaternionRotation) tang.outTan).z = (g3 * logNNP.z) + (g4 * logNMN.z);
 
-		q.a = 0.5 * (((QuaternionRotation) tang.outTan).a - logNNP.a);
-		q.b = 0.5 * (((QuaternionRotation) tang.outTan).b - logNNP.b);
-		q.c = 0.5 * (((QuaternionRotation) tang.outTan).c - logNNP.c);
+		q.x = 0.5 * (((QuaternionRotation) tang.outTan).x - logNNP.x);
+		q.y = 0.5 * (((QuaternionRotation) tang.outTan).y - logNNP.y);
+		q.z = 0.5 * (((QuaternionRotation) tang.outTan).z - logNNP.z);
 		calcExpQ(q);
 		mulQuaternions(qcur, q, q);
-		((QuaternionRotation) tang.outTan).a = q.a;
-		((QuaternionRotation) tang.outTan).b = q.b;
-		((QuaternionRotation) tang.outTan).c = q.c;
-		((QuaternionRotation) tang.outTan).d = q.d;
+		((QuaternionRotation) tang.outTan).x = q.x;
+		((QuaternionRotation) tang.outTan).y = q.y;
+		((QuaternionRotation) tang.outTan).z = q.z;
+		((QuaternionRotation) tang.outTan).w = q.w;
 
-		q.a = 0.5 * (logNMN.a - ((QuaternionRotation) tang.inTan).a);
-		q.b = 0.5 * (logNMN.b - ((QuaternionRotation) tang.inTan).b);
-		q.c = 0.5 * (logNMN.c - ((QuaternionRotation) tang.inTan).c);
+		q.x = 0.5 * (logNMN.x - ((QuaternionRotation) tang.inTan).x);
+		q.y = 0.5 * (logNMN.y - ((QuaternionRotation) tang.inTan).y);
+		q.z = 0.5 * (logNMN.z - ((QuaternionRotation) tang.inTan).z);
 		calcExpQ(q);
 		mulQuaternions(qcur, q, q);
-		((QuaternionRotation) tang.inTan).a = q.a;
-		((QuaternionRotation) tang.inTan).b = q.b;
-		((QuaternionRotation) tang.inTan).c = q.c;
-		((QuaternionRotation) tang.inTan).d = q.d;
+		((QuaternionRotation) tang.inTan).x = q.x;
+		((QuaternionRotation) tang.inTan).y = q.y;
+		((QuaternionRotation) tang.inTan).z = q.z;
+		((QuaternionRotation) tang.inTan).w = q.w;
 
 	}
 
@@ -257,58 +257,58 @@ public class TTan {
 
 	private static void getInverseQuaternion(final QuaternionRotation qsrc, final QuaternionRotation qdest) {
 		double bigN;
-		bigN = 1 / ((qsrc.a * qsrc.a) + (qsrc.b * qsrc.b) + (qsrc.c * qsrc.c) + (qsrc.d * qsrc.d));
-		qdest.a = -qsrc.a * bigN;
-		qdest.b = -qsrc.b * bigN;
-		qdest.c = -qsrc.c * bigN;
-		qdest.d = qsrc.d * bigN;
+		bigN = 1 / ((qsrc.x * qsrc.x) + (qsrc.y * qsrc.y) + (qsrc.z * qsrc.z) + (qsrc.w * qsrc.w));
+		qdest.x = -qsrc.x * bigN;
+		qdest.y = -qsrc.y * bigN;
+		qdest.z = -qsrc.z * bigN;
+		qdest.w = qsrc.w * bigN;
 	}
 
 	private static void mulQuaternions(final QuaternionRotation q1, final QuaternionRotation q2,
 			final QuaternionRotation qdest) {
 		double a, b, c, d, e, f, g, h;
-		a = (q1.d + q1.a) * (q2.d + q2.a);
-		b = (q1.c - q1.b) * (q2.b - q2.c);
-		c = (q1.a - q1.d) * (q2.b + q2.c);
-		d = (q1.b + q1.c) * (q2.a - q2.d);
-		e = (q1.a + q1.c) * (q2.a + q2.b);
-		f = (q1.a - q1.c) * (q2.a - q2.b);
-		g = (q1.d + q1.b) * (q2.d - q2.c);
-		h = (q1.d - q1.b) * (q2.d + q2.c);
+		a = (q1.w + q1.x) * (q2.w + q2.x);
+		b = (q1.z - q1.y) * (q2.y - q2.z);
+		c = (q1.x - q1.w) * (q2.y + q2.z);
+		d = (q1.y + q1.z) * (q2.x - q2.w);
+		e = (q1.x + q1.z) * (q2.x + q2.y);
+		f = (q1.x - q1.z) * (q2.x - q2.y);
+		g = (q1.w + q1.y) * (q2.w - q2.z);
+		h = (q1.w - q1.y) * (q2.w + q2.z);
 
-		qdest.d = b + (((-e - f) + g + h) * 0.5);
-		qdest.a = a - ((e + f + g + h) * 0.5);
-		qdest.b = -c + ((((e - f) + g) - h) * 0.5);
-		qdest.c = -d + (((e - f - g) + h) * 0.5);
+		qdest.w = b + (((-e - f) + g + h) * 0.5);
+		qdest.x = a - ((e + f + g + h) * 0.5);
+		qdest.y = -c + ((((e - f) + g) - h) * 0.5);
+		qdest.z = -d + (((e - f - g) + h) * 0.5);
 	}
 
 	private void calcLogQ(final QuaternionRotation q) {
 		double sint;
-		if (q.d > 0.99999) {
-			q.d = 0.99999;
+		if (q.w > 0.99999) {
+			q.w = 0.99999;
 		}
-		sint = Math.acos(q.d) / Math.sqrt(1 - (q.d * q.d));
-		q.a = q.a * sint;
-		q.b = q.b * sint;
-		q.c = q.c * sint;
-		q.d = 0;
+		sint = Math.acos(q.w) / Math.sqrt(1 - (q.w * q.w));
+		q.x = q.x * sint;
+		q.y = q.y * sint;
+		q.z = q.z * sint;
+		q.w = 0;
 	}
 
 	private void calcExpQ(final QuaternionRotation q) {
 		double t, divt;
-		t = Math.sqrt((q.a * q.a) + (q.b * q.b) + (q.c * q.c));
+		t = Math.sqrt((q.x * q.x) + (q.y * q.y) + (q.z * q.z));
 		if (t < 1e-5) {
-			q.a = 1;
-			q.b = 0;
-			q.c = 0;
-			q.d = 0;
+			q.x = 1;
+			q.y = 0;
+			q.z = 0;
+			q.w = 0;
 			return;
 		}
 		divt = Math.sin(t) / t;
-		q.d = Math.cos(t);
-		q.a = q.a * divt;
-		q.b = q.b * divt;
-		q.c = q.c * divt;
+		q.w = Math.cos(t);
+		q.x = q.x * divt;
+		q.y = q.y * divt;
+		q.z = q.z * divt;
 	}
 
 	public static void bezInterp(final int frame, final AnimFlag.Entry its, final AnimFlag.Entry itd) {

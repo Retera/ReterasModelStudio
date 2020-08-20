@@ -12,7 +12,7 @@ public class GameObjectComparator implements Comparator<GameObject> {
 		}
 		final int comp1 = a.getField("unitClass").compareTo(b.getField("unitClass"));
 		if (comp1 == 0) {
-			final int comp2 = new Integer(a.getFieldValue("level")).compareTo(new Integer(b.getFieldValue("level")));
+			final int comp2 = Integer.valueOf(a.getFieldValue("level")).compareTo(Integer.valueOf(b.getFieldValue("level")));
 			if (comp2 == 0) {
 				return a.getName().compareTo(b.getName());
 			}

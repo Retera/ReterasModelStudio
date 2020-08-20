@@ -120,7 +120,7 @@ public class UnitEditorTree extends JTree {
 		final DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) getLastSelectedPathComponent();
 
 		boolean foundSelection = selectedNode == null;
-		Enumeration depthFirstEnum = root.depthFirstEnumeration();
+		Enumeration<TreeNode> depthFirstEnum = root.depthFirstEnumeration();
 		while (depthFirstEnum.hasMoreElements()) {
 			final Object nextElement = depthFirstEnum.nextElement();
 			if (foundSelection) {

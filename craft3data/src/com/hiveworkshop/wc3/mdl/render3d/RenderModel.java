@@ -221,10 +221,10 @@ public final class RenderModel {
 					if (forced || true /* variants */) {
 						final QuaternionRotation renderRotation = idObject.getRenderRotation(animatedRenderEnvironment);
 						if (renderRotation != null) {
-							localRotation.x = (float) renderRotation.a;
-							localRotation.y = (float) renderRotation.b;
-							localRotation.z = (float) renderRotation.c;
-							localRotation.w = (float) renderRotation.d;
+							localRotation.x = (float) renderRotation.x;
+							localRotation.y = (float) renderRotation.y;
+							localRotation.z = (float) renderRotation.z;
+							localRotation.w = (float) renderRotation.w;
 						} else {
 							localRotation.set(0, 0, 0, 1);
 						}
