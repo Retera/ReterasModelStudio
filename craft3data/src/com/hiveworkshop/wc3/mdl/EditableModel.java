@@ -55,7 +55,7 @@ public class EditableModel implements Named {
 
 	private File fileRef;
 	private String name = "UnnamedModel";
-	private int BlendTime;
+	private int blendTime = 0;
 	private ExtLog extents;
 	private int formatVersion = 800;
 	protected List<String> header = new ArrayList<>();
@@ -86,7 +86,7 @@ public class EditableModel implements Named {
 	public EditableModel(final EditableModel other) {
 		setFileRef(other.fileRef);
 		name = other.name;
-		BlendTime = other.BlendTime;
+		blendTime = other.blendTime;
 		extents = new ExtLog(other.extents);
 		formatVersion = other.formatVersion;
 		header = new ArrayList<>(other.header);
@@ -407,7 +407,7 @@ public class EditableModel implements Named {
 
 	public void copyHeaders(final EditableModel other) {
 		setFileRef(other.fileRef);
-		BlendTime = other.BlendTime;
+		blendTime = other.blendTime;
 		if (other.extents != null) {
 			extents = new ExtLog(other.extents);
 		}
@@ -446,33 +446,6 @@ public class EditableModel implements Named {
 		idObjects.clear();
 		pivots.clear();
 		cameras.clear();
-	}
-
-	public boolean doesContainString(final String a, final String b)// see if a
-																	// contains
-																	// b
-	{
-		final int l = a.length();
-		for (int i = 0; i < l; i++) {
-			if (a.startsWith(b, i)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public int countContainsString(final String a, final String b)// see if a
-																	// contains
-																	// b
-	{
-		final int l = a.length();
-		int x = 0;
-		for (int i = 0; i < l; i++) {
-			if (a.startsWith(b, i)) {
-				x++;
-			}
-		}
-		return x;
 	}
 
 	// INTERNAL PARTS CODING
@@ -1701,11 +1674,11 @@ public class EditableModel implements Named {
 	}
 
 	public int getBlendTime() {
-		return BlendTime;
+		return blendTime;
 	}
 
 	public void setBlendTime(final int blendTime) {
-		BlendTime = blendTime;
+		this.blendTime = blendTime;
 	}
 
 	public ExtLog getExtents() {

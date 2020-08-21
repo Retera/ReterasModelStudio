@@ -13,7 +13,6 @@ import java.util.Set;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.mpq.MpqCodebase.LoadedMPQ;
-import com.hiveworkshop.wc3.resources.Resources;
 import com.hiveworkshop.wc3.resources.WEString;
 import com.hiveworkshop.wc3.units.DataTable;
 import com.hiveworkshop.wc3.units.ModelOptionPanel;
@@ -37,7 +36,6 @@ public class ReignOfChaosMissionFixerTool {
 		DataTable.dropCache();
 		ModelOptionPanel.dropCache();
 		WEString.dropCache();
-		Resources.dropCache();
 		BLPHandler.get().dropCache();
 //		teamColorMenu.removeAll();
 //		createTeamColorMenuItems();

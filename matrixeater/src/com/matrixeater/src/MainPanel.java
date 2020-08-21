@@ -188,7 +188,6 @@ import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewStateListener;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
-import com.hiveworkshop.wc3.resources.Resources;
 import com.hiveworkshop.wc3.resources.WEString;
 import com.hiveworkshop.wc3.units.DataTable;
 import com.hiveworkshop.wc3.units.GameObject;
@@ -2524,7 +2523,6 @@ public class MainPanel extends JPanel
 				DataTable.dropCache();
 				ModelOptionPanel.dropCache();
 				WEString.dropCache();
-				Resources.dropCache();
 				BLPHandler.get().dropCache();
 				teamColorMenu.removeAll();
 				createTeamColorMenuItems();
@@ -5348,7 +5346,7 @@ public class MainPanel extends JPanel
 			final ImageIcon icon) {
 		ModelPanel temp = null;
 		try {
-			final EditableModel model = new EditableModel(MdxUtils.loadMdlx(f));
+			final EditableModel model = MdxUtils.loadEditable(f);
 			model.setFileRef(null);
 			temp = new ModelPanel(this, model, prefs, MainPanel.this, selectionItemTypeGroup, selectionModeGroup,
 					modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, activeViewportWatcher,
@@ -5717,65 +5715,6 @@ public class MainPanel extends JPanel
 			});
 			watcher.start();
 		}
-	}
-
-	public void parseTriangles(final String input, final Geoset g) {
-		// Loading triangles to a geoset requires verteces to be loaded first
-		final String[] s = input.split(",");
-		s[0] = s[0].substring(4, s[0].length());
-		final int s_size = countContainsString(input, ",");
-		s[s_size - 1] = s[s_size - 1].substring(0, s[s_size - 1].length() - 2);
-		for (int t = 0; t < (s_size - 1); t += 3)// s[t+3].equals("")||
-		{
-			for (int i = 0; i < 3; i++) {
-				s[t + i] = s[t + i].substring(1);
-			}
-			try {
-				g.addTriangle(new Triangle(Integer.parseInt(s[t]), Integer.parseInt(s[t + 1]),
-						Integer.parseInt(s[t + 2]), g));
-			} catch (final NumberFormatException e) {
-				JOptionPane.showMessageDialog(this, "Error: Unable to interpret information in Triangles: " + s[t]
-						+ ", " + s[t + 1] + ", or " + s[t + 2]);
-			}
-		}
-		// try
-		// {
-		// g.addTriangle(new Triangle(g.getVertex( Integer.parseInt(s[t])
-		// ),g.getVertex( Integer.parseInt(s[t+1])),g.getVertex(
-		// Integer.parseInt(s[t+2])),g) );
-		// }
-		// catch (NumberFormatException e)
-		// {
-		// JOptionPane.showMessageDialog(this,"Error: Unable to interpret
-		// information in Triangles.");
-		// }
-	}
-
-	public boolean doesContainString(final String a, final String b)// see if a
-																	// contains
-																	// b
-	{
-		final int l = a.length();
-		for (int i = 0; i < l; i++) {
-			if (a.startsWith(b, i)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public int countContainsString(final String a, final String b)// see if a
-																	// contains
-																	// b
-	{
-		final int l = a.length();
-		int x = 0;
-		for (int i = 0; i < l; i++) {
-			if (a.startsWith(b, i)) {
-				x++;
-			}
-		}
-		return x;
 	}
 
 	@Override
