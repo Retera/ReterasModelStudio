@@ -23,6 +23,7 @@ import com.hiveworkshop.wc3.util.ModelUtils;
  * Eric Theller 11/5/2011
  */
 public class Material implements MaterialView {
+	public static final String SHADER_HD_DEFAULT_UNIT = "Shader_HD_DefaultUnit";
 	public static int teamColor = 00;
 	com.etheller.collections.ArrayList<Layer> layers;
 	private int priorityPlane = 0;
@@ -44,23 +45,35 @@ public class Material implements MaterialView {
 	public String getName() {
 		String name = "";
 		if (layers.size() > 0) {
-			if (layers.get(layers.size() - 1).texture != null) {
-				name = layers.get(layers.size() - 1).texture.getName();
-				if (layers.get(layers.size() - 1).getFlag("Alpha") != null) {
-					name = name + " (animated Alpha)";
-				}
-			} else {
-				name = "animated texture layers";
-			}
-			for (int i = layers.size() - 2; i >= 0; i--) {
+			if (SHADER_HD_DEFAULT_UNIT.equals(shaderString)) {
 				try {
-					name = name + " over " + layers.get(i).texture.getName();
-					if (layers.get(i).getFlag("Alpha") != null) {
+					name = name + " over " + layers.get(0).texture.getName();
+					if (layers.get(0).getFlag("Alpha") != null) {
 						name = name + " (animated Alpha)";
 					}
 				} catch (final NullPointerException e) {
-					name = name + " over " + "animated texture layers (" + layers.get(i).textures.get(0).getName()
+					name = name + " over " + "animated texture layers (" + layers.get(0).textures.get(0).getName()
 							+ ")";
+				}
+			} else {
+				if (layers.get(layers.size() - 1).texture != null) {
+					name = layers.get(layers.size() - 1).texture.getName();
+					if (layers.get(layers.size() - 1).getFlag("Alpha") != null) {
+						name = name + " (animated Alpha)";
+					}
+				} else {
+					name = "animated texture layers";
+				}
+				for (int i = layers.size() - 2; i >= 0; i--) {
+					try {
+						name = name + " over " + layers.get(i).texture.getName();
+						if (layers.get(i).getFlag("Alpha") != null) {
+							name = name + " (animated Alpha)";
+						}
+					} catch (final NullPointerException e) {
+						name = name + " over " + "animated texture layers (" + layers.get(i).textures.get(0).getName()
+								+ ")";
+					}
 				}
 			}
 		}
@@ -119,7 +132,8 @@ public class Material implements MaterialView {
 		if (EditableModel.hasFlag(mat.flags, 0x20)) {
 			add("FullResolution");
 		}
-		if (ModelUtils.isShaderStringSupported(mdlObject.getFormatVersion()) && EditableModel.hasFlag(mat.flags, 0x02)) {
+		if (ModelUtils.isShaderStringSupported(mdlObject.getFormatVersion())
+				&& EditableModel.hasFlag(mat.flags, 0x02)) {
 			add("TwoSided");
 		}
 		this.shaderString = mat.shader;
@@ -309,9 +323,9 @@ public class Material implements MaterialView {
 
 	public BufferedImage getBufferedImage(final DataSource workingDirectory) {
 		BufferedImage theImage = null;
-		for (int i = 0; i < layers.size(); i++) {
-			final Layer lay = layers.get(i);
-			final Bitmap tex = lay.firstTexture();
+		if (SHADER_HD_DEFAULT_UNIT.equals(shaderString) && (layers.size() > 0)) {
+			final Layer firstLayer = layers.get(0);
+			final Bitmap tex = firstLayer.firstTexture();
 			final String path = getRenderableTexturePath(tex);
 			BufferedImage newImage;
 			try {
@@ -320,14 +334,29 @@ public class Material implements MaterialView {
 				// newImage = null;
 				newImage = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
 			}
-			if (theImage == null) {
-				theImage = newImage;
-			} else {
-				if (newImage != null) {
-					theImage = mergeImage(theImage, newImage);
+			return newImage;
+		} else {
+			for (int i = 0; i < layers.size(); i++) {
+				final Layer lay = layers.get(i);
+				final Bitmap tex = lay.firstTexture();
+				final String path = getRenderableTexturePath(tex);
+				BufferedImage newImage;
+				try {
+					newImage = BLPHandler.get().getTexture(workingDirectory, path);
+				} catch (final Exception exc) {
+					// newImage = null;
+					newImage = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
+				}
+				if (theImage == null) {
+					theImage = newImage;
+				} else {
+					if (newImage != null) {
+						theImage = mergeImage(theImage, newImage);
+					}
 				}
 			}
 		}
+
 		return theImage;
 	}
 

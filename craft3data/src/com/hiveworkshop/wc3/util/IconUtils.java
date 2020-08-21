@@ -1,10 +1,12 @@
 package com.hiveworkshop.wc3.util;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
+import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.units.DataTable;
 import com.hiveworkshop.wc3.units.Element;
 import com.hiveworkshop.wc3.units.objectdata.MutableObjectData.MutableGameObject;
@@ -102,6 +104,20 @@ public final class IconUtils {
 		}
 		final BufferedImage gameTex = BLPHandler.get().getGameTex(iconPath);
 		return gameTex;
+	}
+
+	public static BufferedImage createBlank(final Color color, final int width, final int height) {
+		final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		final Graphics graphics = image.getGraphics();
+		graphics.setColor(color);
+		graphics.fillRect(0, 0, width, height);
+		graphics.dispose();
+		return image;
+	}
+
+	public static BufferedImage createColorImage(final Vertex color, final int width, final int height) {
+		final Color awtColor = new Color((float) color.z, (float) color.y, (float) color.z);
+		return createBlank(awtColor, width, height);
 	}
 
 	private IconUtils() {

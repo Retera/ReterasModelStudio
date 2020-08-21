@@ -1,9 +1,5 @@
 package com.hiveworkshop.wc3.gui.modeledit.components.editors;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -19,6 +15,7 @@ import com.hiveworkshop.wc3.gui.modeledit.components.material.FloatTrackTableMod
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
+import com.hiveworkshop.wc3.util.IconUtils;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -67,19 +64,11 @@ public class ColorValuePanel extends JPanel {
 			dynamicButton.setSelected(true);
 		}
 		if (color != null) {
-			staticColorButton.setIcon(new ImageIcon(createColorImage(color)));
+			staticColorButton.setIcon(new ImageIcon(IconUtils.createColorImage(color, 48, 48)));
 		} else {
-			staticColorButton.setIcon(new ImageIcon(createColorImage(DEFAULT_COLOR)));
+			staticColorButton.setIcon(new ImageIcon(IconUtils.createColorImage(DEFAULT_COLOR, 48, 48)));
 		}
 		floatTrackTableModel.setTrack(colorTrack);
 	}
 
-	private BufferedImage createColorImage(final Vertex color) {
-		final BufferedImage bufferedImage = new BufferedImage(48, 48, BufferedImage.TYPE_INT_RGB);
-		final Graphics2D g = bufferedImage.createGraphics();
-		g.setColor(new Color((float) color.z, (float) color.y, (float) color.z));
-		g.fillRect(0, 0, bufferedImage.getWidth(), bufferedImage.getHeight());
-		g.dispose();
-		return bufferedImage;
-	}
 }
