@@ -40,6 +40,7 @@ public class ComponentLayerPanel extends JPanel {
 	private final ColorValuePanel fresnelColorPanel;
 	private UndoActionListener undoActionListener;
 	private ModelStructureChangeListener modelStructureChangeListener;
+	private boolean listenersEnabled = true;
 
 	public ComponentLayerPanel() {
 		setLayout(new MigLayout("fill", "", "[fill][fill]"));
@@ -54,11 +55,13 @@ public class ComponentLayerPanel extends JPanel {
 		filterModeDropdown.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				final SetLayerFilterModeAction setLayerFilterModeAction = new SetLayerFilterModeAction(layer,
-						layer.getFilterMode(), ((FilterMode) filterModeDropdown.getSelectedItem()),
-						modelStructureChangeListener);
-				setLayerFilterModeAction.redo();
-				undoActionListener.pushAction(setLayerFilterModeAction);
+				if (listenersEnabled) {
+					final SetLayerFilterModeAction setLayerFilterModeAction = new SetLayerFilterModeAction(layer,
+							layer.getFilterMode(), ((FilterMode) filterModeDropdown.getSelectedItem()),
+							modelStructureChangeListener);
+					setLayerFilterModeAction.redo();
+					undoActionListener.pushAction(setLayerFilterModeAction);
+				}
 			}
 		});
 		leftHandSettingsPanel.add(filterModeDropdown, "wrap, growx");
@@ -95,6 +98,7 @@ public class ComponentLayerPanel extends JPanel {
 	public void setLayer(final DataSource workingDirectory, final Layer layer, final int formatVersion,
 			final boolean hdShader, final UndoActionListener undoActionListener,
 			final ModelStructureChangeListener modelStructureChangeListener) {
+		listenersEnabled = false;
 		this.layer = layer;
 		this.undoActionListener = undoActionListener;
 		this.modelStructureChangeListener = modelStructureChangeListener;
@@ -114,5 +118,6 @@ public class ComponentLayerPanel extends JPanel {
 		fresnelOpacityPanel.reloadNewValue((float) layer.getFresnelOpacity(), layer.getFlag("FresnelOpacity"));
 		fresnelTeamColor.setVisible(fresnelColorLayerSupported);
 		fresnelTeamColor.reloadNewValue((float) layer.getFresnelTeamColor(), layer.getFlag("FresnelTeamColor"));
+		listenersEnabled = true;
 	}
 }

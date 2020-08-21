@@ -166,6 +166,9 @@ public class Layer implements Named, VisibilitySource, LayerView {
 				return false;
 			}
 		} else {
+			if (other.fresnelColor == null) {
+				return false;
+			}
 			if (!fresnelColor.equalLocs(other.fresnelColor)) {
 				return false;
 			}
@@ -372,7 +375,8 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		}
 	}
 
-	public Bitmap getRenderTexture(final AnimatedRenderEnvironment animatedRenderEnvironment, final EditableModel model) {
+	public Bitmap getRenderTexture(final AnimatedRenderEnvironment animatedRenderEnvironment,
+			final EditableModel model) {
 		final AnimFlag textureFlag = AnimFlag.find(getAnims(), "TextureID");
 		if ((textureFlag != null) && (animatedRenderEnvironment != null)) {
 			if (animatedRenderEnvironment.getCurrentAnimation() == null) {
