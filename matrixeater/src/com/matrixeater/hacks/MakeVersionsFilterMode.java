@@ -5,8 +5,8 @@ import java.io.IOException;
 
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
-import com.hiveworkshop.wc3.mdl.Layer.FilterMode;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
+import com.etheller.warsmash.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Normal;
 
@@ -42,7 +42,7 @@ public class MakeVersionsFilterMode {
 			model.getTexture(0).setPath("Textures\\Doodads0.blp");
 			MdxUtils.saveMdx(model, new File(
 					"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\Models\\ReteraCubes\\Work\\ReteraCube_"
-							+ filterMode.getMdlText() + ".mdx"));
+							+ filterMode.toString() + ".mdx"));
 		}
 
 	}

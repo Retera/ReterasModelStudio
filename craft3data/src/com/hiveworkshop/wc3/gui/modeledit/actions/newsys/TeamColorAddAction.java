@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.etheller.warsmash.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.wc3.gui.modeledit.selection.VertexSelectionHelper;
@@ -18,7 +19,6 @@ import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Layer;
-import com.hiveworkshop.wc3.mdl.Layer.FilterMode;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.Triangle;
@@ -64,9 +64,7 @@ public final class TeamColorAddAction<T> implements UndoAction {
 			for (final Animation anim : geoset.getAnims()) {
 				geosetCreated.add(new Animation(anim));
 			}
-			for (final String flag : geoset.getFlags()) {
-				geosetCreated.addFlag(flag);
-			}
+			geosetCreated.setUnselectable(geoset.getUnselectable());
 			geosetCreated.setSelectionGroup(geoset.getSelectionGroup());
 			final GeosetAnim geosetAnim = geoset.getGeosetAnim();
 			if (geosetAnim != null) {
@@ -77,10 +75,10 @@ public final class TeamColorAddAction<T> implements UndoAction {
 			if (newMaterial.getLayers().get(0).getFilterMode() == FilterMode.NONE) {
 				newMaterial.getLayers().get(0).setFilterMode(FilterMode.BLEND);
 			}
-			final Layer teamColorLayer = new Layer(FilterMode.NONE.getMdlText(), new Bitmap("", 1));
-			teamColorLayer.add("Unshaded");
-			if (geoset.getMaterial().firstLayer().getFlags().contains("TwoSided")) {
-				teamColorLayer.add("TwoSided");
+			final Layer teamColorLayer = new Layer(FilterMode.NONE.toString(), new Bitmap("", 1));
+			teamColorLayer.setUnshaded(true);
+			if (geoset.getMaterial().firstLayer().getTwoSided()) {
+				teamColorLayer.setTwoSided(true);
 			}
 			newMaterial.getLayers().add(0, teamColorLayer);
 			geosetCreated.setMaterial(newMaterial);

@@ -1,18 +1,14 @@
 package com.etheller.warsmash.parsers.mdlx;
 
 public enum InterpolationType {
-	DONT_INTERP(0), LINEAR(1), BEZIER(2), HERMITE(3);
+	DONT_INTERP("DontInterp"), LINEAR("Linear"), HERMITE("Hermite"), BEZIER("Bezier");
 
 	public static final InterpolationType[] VALUES = values();
 
-	private int value;
+	private String token;
 
-    private InterpolationType(int whichValue) {
-        value = whichValue;
-	}
-	
-	public int getValue() {
-		return value;
+    private InterpolationType(String token) {
+		this.token = token;
 	}
 
 	public static InterpolationType getType(int whichValue) {
@@ -21,5 +17,9 @@ public enum InterpolationType {
 
 	public boolean tangential() {
 		return ordinal() > 1;
+	}
+
+	public String toString() {
+		return token;
 	}
 }

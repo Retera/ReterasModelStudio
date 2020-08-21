@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.etheller.warsmash.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.EditableModel;
-import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 
 public class CountBezierRotations {
@@ -38,7 +38,7 @@ public class CountBezierRotations {
 				final EditableModel model = MdxUtils.loadEditable(file);
 				final List<AnimFlag> allAnimFlags = model.getAllAnimFlags();
 				for (final AnimFlag flag : allAnimFlags) {
-					final InterpolationType interpTypeAsEnum = flag.getInterpTypeAsEnum();
+					final InterpolationType interpTypeAsEnum = flag.getInterpType();
 					final String flagName = flag.getName();
 					Map<String, Integer> interpMap = bigTreeMap.get(flagName);
 					if (interpMap == null) {

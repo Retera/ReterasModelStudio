@@ -219,7 +219,7 @@ public class StringUtils {
         //	log.log(INFO, "found "+vertexStrings.length+" strings in parseWhitespaceList");
 
         ArrayList<Integer> returnList = new ArrayList<Integer>();
-        Integer emptyMarker = new Integer(BuilderInterface.EMPTY_VERTEX_VALUE);
+        Integer emptyMarker = Integer.valueOf(BuilderInterface.EMPTY_VERTEX_VALUE);
 
         for (int loopi = 0; loopi < vertexStrings.length; loopi++) {
             //	    log.log(INFO, "parsing vertexStrings["+loopi+"]=|"+vertexStrings[loopi]+"|");

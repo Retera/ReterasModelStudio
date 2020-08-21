@@ -250,13 +250,13 @@ public class TimeBoundChooserPanel extends JPanel {
 						structureChangeListener.animationsAdded(Collections.singletonList(newAnimation));
 						animations.addElement(newAnimation);
 						if (rarityValue != 0) {
-							newAnimation.addTag("Rarity " + rarityValue);
+							newAnimation.setRarity(rarityValue);
 						}
 						if (moveValue != 0) {
-							newAnimation.addTag("MoveSpeed " + moveValue);
+							newAnimation.setMoveSpeed(moveValue);
 						}
 						if (nonLoopingChooser.isSelected()) {
-							newAnimation.addTag("NonLooping");
+							newAnimation.setNonLooping(true);
 						}
 					}
 				}
@@ -348,13 +348,13 @@ public class TimeBoundChooserPanel extends JPanel {
 					structureChangeListener.animationsAdded(Collections.singletonList(newAnimation));
 					animations.addElement(newAnimation);
 					if (rarityValue != 0) {
-						newAnimation.addTag("Rarity " + rarityValue);
+						newAnimation.setRarity(rarityValue);
 					}
 					if (moveValue != 0) {
-						newAnimation.addTag("MoveSpeed " + moveValue);
+						newAnimation.setMoveSpeed(moveValue);
 					}
 					if (nonLoopingChooser.isSelected()) {
-						newAnimation.addTag("NonLooping");
+						newAnimation.setNonLooping(true);
 					}
 				}
 

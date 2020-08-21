@@ -3,7 +3,7 @@ package com.hiveworkshop.wc3.mdl.v2.render;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.IdObject;
-import com.hiveworkshop.wc3.mdl.v2.MaterialView;
+import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.visitor.GeosetVisitor;
 import com.hiveworkshop.wc3.mdl.v2.visitor.MeshVisitor;
@@ -23,7 +23,7 @@ public final class RenderByViewMeshRenderer implements MeshVisitor {
 	}
 
 	@Override
-	public GeosetVisitor beginGeoset(final int geosetId, final MaterialView material, final GeosetAnim geosetAnim) {
+	public GeosetVisitor beginGeoset(final int geosetId, final Material material, final GeosetAnim geosetAnim) {
 		final Geoset geoset = modelView.getModel().getGeoset(geosetId);
 		if (modelView.getEditableGeosets().contains(geoset) || modelView.getHighlightedGeoset() == geoset) {
 			return fullModelRenderer.beginGeoset(geosetId, material, geosetAnim);

@@ -20,6 +20,7 @@ import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.Helper;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
+import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
 import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
@@ -28,7 +29,6 @@ import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.renderer.GeosetRenderer;
 import com.hiveworkshop.wc3.mdl.renderer.ModelRenderer;
 import com.hiveworkshop.wc3.mdl.renderer.TriangleRenderer;
-import com.hiveworkshop.wc3.mdl.v2.MaterialView;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.visitor.VertexVisitor;
 
@@ -71,7 +71,7 @@ public class AnimatedViewportModelRenderer implements ModelRenderer {
 	}
 
 	@Override
-	public GeosetRenderer beginGeoset(final int geosetId, final MaterialView material, final GeosetAnim geosetAnim) {
+	public GeosetRenderer beginGeoset(final int geosetId, final Material material, final GeosetAnim geosetAnim) {
 		graphics.setColor(programPreferences.getTriangleColor());
 		if (modelView.getHighlightedGeoset() == modelView.getModel().getGeoset(geosetId)) {
 			graphics.setColor(programPreferences.getHighlighTriangleColor());

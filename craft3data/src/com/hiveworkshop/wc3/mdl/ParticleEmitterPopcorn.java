@@ -1,8 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.etheller.warsmash.parsers.mdlx.MdlxParticleEmitterPopcorn;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
@@ -17,23 +14,30 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
  * mistake or something)
  */
 public class ParticleEmitterPopcorn extends IdObject {
-	List<AnimFlag> animFlags = new ArrayList<>();
-	private int replaceableId;
-	private float alpha;
-	private Vertex color;
-	private float speed;
-	private float emissionRate;
-	private float lifeSpan;
-	String path = null;
-	String animVisibilityGuide = null;
-	List<String> flags = new ArrayList<>();
-
-	private ParticleEmitterPopcorn() {
-
-	}
+	int replaceableId = 0;
+	float alpha = 0;
+	Vertex color = new Vertex();
+	float speed = 0;
+	float emissionRate = 0;
+	float lifeSpan = 0;
+	String path = "";
+	String animVisibilityGuide = "";
 
 	public ParticleEmitterPopcorn(final String name) {
 		this.name = name;
+	}
+
+	public ParticleEmitterPopcorn(final ParticleEmitterPopcorn emitter) {
+		copyObject(emitter);
+
+		replaceableId = emitter.replaceableId;
+		alpha = emitter.alpha;
+		color = new Vertex(emitter.color);
+		speed = emitter.speed;
+		emissionRate = emitter.emissionRate;
+		lifeSpan = emitter.lifeSpan;
+		path = emitter.path;
+		animVisibilityGuide = emitter.animVisibilityGuide;
 	}
 
 	public ParticleEmitterPopcorn(final MdlxParticleEmitterPopcorn emitter) {
@@ -67,32 +71,8 @@ public class ParticleEmitterPopcorn extends IdObject {
 	}
 
 	@Override
-	public IdObject copy() {
-		final ParticleEmitterPopcorn x = new ParticleEmitterPopcorn();
-
-		x.name = name;
-		x.pivotPoint = new Vertex(pivotPoint);
-		x.objectId = objectId;
-		x.parentId = parentId;
-		x.setParent(getParent());
-
-		x.path = path;
-		x.animVisibilityGuide = animVisibilityGuide;
-		x.replaceableId = replaceableId;
-		x.alpha = alpha;
-		if (color != null) {
-			x.color = new Vertex(color);
-		} else {
-			x.color = null;
-		}
-		x.speed = speed;
-		x.emissionRate = emissionRate;
-		x.lifeSpan = lifeSpan;
-
-		for (final AnimFlag af : animFlags) {
-			x.animFlags.add(new AnimFlag(af));
-		}
-		return x;
+	public ParticleEmitterPopcorn copy() {
+		return new ParticleEmitterPopcorn(this);
 	}
 
 	public String getPath() {

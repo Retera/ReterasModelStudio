@@ -1,14 +1,12 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.lwjgl.opengl.GL11;
 
 import com.etheller.warsmash.parsers.mdlx.MdlxParticleEmitter2;
-
+import com.etheller.warsmash.parsers.mdlx.MdlxParticleEmitter2.FilterMode;
+import com.etheller.warsmash.parsers.mdlx.MdlxParticleEmitter2.HeadOrTail;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 
@@ -24,11 +22,15 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
  * Eric Theller 3/10/2012 3:32 PM
  */
 public class ParticleEmitter2 extends EmitterIdObject {
-	static final String[] knownFlagNames = { "DontInherit { Rotation }", "DontInherit { Translation }",
-			"DontInherit { Scaling }", "SortPrimsFarZ", "Unshaded", "LineEmitter", "Unfogged", "ModelSpace", "XYQuad",
-			"Squirt", "Additive", "Modulate2x", "Modulate", "AlphaKey", "Blend", "Tail", "Head", "Both" };
-	boolean[] knownFlags = new boolean[knownFlagNames.length];
-
+	FilterMode filterMode = FilterMode.BLEND;
+	HeadOrTail headOrTail = HeadOrTail.HEAD;
+	boolean unshaded = false;
+	boolean sortPrimsFarZ = false;
+	boolean lineEmitter = false;
+	boolean unfogged = false;
+	boolean modelSpace = false;
+	boolean xYQuad = false;
+	boolean squirt = false;
 	double speed = 0;
 	double variation = 0;
 	double latitude = 0;
@@ -45,21 +47,60 @@ public class ParticleEmitter2 extends EmitterIdObject {
 	int replaceableId = 0;
 	int priorityPlane = 0;
 	Vertex[] segmentColor = new Vertex[3];
-	Vertex alphas = new Vertex();
-	Vertex particleScaling = new Vertex();
-	Vertex headUVAnim = new Vertex();
-	Vertex headDecayUVAnim = new Vertex();
-	Vertex tailUVAnim = new Vertex();
-	Vertex tailDecayUVAnim = new Vertex();
-	List<String> unknownFlags = new ArrayList<>();
+	Vertex alphas = new Vertex(1, 1, 1);
+	Vertex particleScaling = new Vertex(1, 1, 1);
+	Vertex headUVAnim = new Vertex(0, 0, 1);
+	Vertex headDecayUVAnim = new Vertex(0, 0, 1);
+	Vertex tailUVAnim = new Vertex(0, 0, 1);
+	Vertex tailDecayUVAnim = new Vertex(0, 0, 1);
 	Bitmap texture;
 
-	private ParticleEmitter2() {
+	public ParticleEmitter2() {
 
 	}
 
 	public ParticleEmitter2(final String name) {
 		this.name = name;
+	}
+
+	public ParticleEmitter2(final ParticleEmitter2 emitter) {
+		copyObject(emitter);
+		
+		filterMode = emitter.filterMode;
+		headOrTail = emitter.headOrTail;
+		unshaded = emitter.unshaded;
+		sortPrimsFarZ = emitter.sortPrimsFarZ;
+		lineEmitter = emitter.lineEmitter;
+		unfogged = emitter.unfogged;
+		modelSpace = emitter.modelSpace;
+		xYQuad = emitter.xYQuad;
+		squirt = emitter.squirt;
+
+		speed = emitter.speed;
+		variation = emitter.variation;
+		latitude = emitter.latitude;
+		gravity = emitter.gravity;
+		emissionRate = emitter.emissionRate;
+		width = emitter.width;
+		length = emitter.length;
+		lifeSpan = emitter.lifeSpan;
+		tailLength = emitter.tailLength;
+		time = emitter.time;
+		rows = emitter.rows;
+		columns = emitter.columns;
+		textureID = emitter.textureID;
+		replaceableId = emitter.replaceableId;
+		priorityPlane = emitter.priorityPlane;
+	
+		segmentColor = emitter.segmentColor.clone();
+		alphas = new Vertex(emitter.alphas);
+		particleScaling = new Vertex(emitter.particleScaling);
+		headUVAnim = new Vertex(emitter.headUVAnim);
+		headDecayUVAnim = new Vertex(emitter.headDecayUVAnim);
+		tailUVAnim = new Vertex(emitter.tailUVAnim);
+		tailDecayUVAnim = new Vertex(emitter.tailDecayUVAnim);
+
+		texture = emitter.texture;
 	}
 
 	public ParticleEmitter2(final MdlxParticleEmitter2 emitter) {
@@ -70,25 +111,23 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		
 		loadObject(emitter);
 
-		int flags = emitter.flags;
-
-		if (((flags >> 15) & 1) == 1) {
-			add("Unshaded");
+		if ((emitter.flags & 0x8000) != 0) {
+			unshaded = true;
 		}
-		if (((flags >> 16) & 1) == 1) {
-			add("SortPrimsFarZ");
+		if ((emitter.flags & 0x10000) != 0) {
+			sortPrimsFarZ = true;
 		}
-		if (((flags >> 17) & 1) == 1) {
-			add("LineEmitter");
+		if ((emitter.flags & 0x20000) != 0) {
+			lineEmitter = true;
 		}
-		if (((flags >> 18) & 1) == 1) {
-			add("Unfogged");
+		if ((emitter.flags & 0x40000) != 0) {
+			unfogged = true;
 		}
-		if (((flags >> 19) & 1) == 1) {
-			add("ModelSpace");
+		if ((emitter.flags & 0x80000) != 0) {
+			modelSpace = true;
 		}
-		if (((flags >> 20) & 1) == 1) {
-			add("XYQuad");
+		if ((emitter.flags & 0x100000) != 0) {
+			xYQuad = true;
 		}
 
 		setSpeed(emitter.speed);
@@ -99,47 +138,12 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		setEmissionRate(emitter.emissionRate);
 		setLength(emitter.length);
 		setWidth(emitter.width);
-
-		switch (emitter.filterMode.getValue()) {
-		case 0:
-			add("Blend");
-			break;
-		case 1:
-			add("Additive");
-			break;
-		case 2:
-			add("Modulate");
-			break;
-		case 3:
-			add("Modulate2x");
-			break;
-		case 4:
-			add("AlphaKey");
-			break;
-		default:
-			System.err.println("Unkown filter mode error");
-			add("UnknownFilterMode");
-			break;
-		}
+		filterMode = emitter.filterMode;
 
 		setRows((int)emitter.rows);
 		setColumns((int)emitter.columns);
 
-		switch ((int)emitter.headOrTail) {
-		case 0:
-			add("Head");
-			break;
-		case 1:
-			add("Tail");
-			break;
-		case 2:
-			add("Both");
-			break;
-		default:
-			System.err.println("Unkown head or tail error");
-			add("UnknownHeadOrTail");
-			break;
-		}
+		headOrTail = emitter.headOrTail;
 
 		setTailLength(emitter.tailLength);
 		setTime(emitter.timeMiddle);
@@ -166,7 +170,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		setTextureID(emitter.textureId);
 
 		if (emitter.squirt == 1) {
-			add("Squirt");
+			squirt = true;
 		}
 
 		setPriorityPlane(emitter.priorityPlane);
@@ -178,39 +182,36 @@ public class ParticleEmitter2 extends EmitterIdObject {
 	
 		objectToMdlx(emitter);
 
-		for (final String flag : getFlags()) {
-			if (flag.equals("Unshaded")) {
-				emitter.flags |= 0x8000;
-			} else if (flag.equals("SortPrimsFarZ")) {
-				emitter.flags |= 0x10000;
-			} else if (flag.equals("LineEmitter")) {
-				emitter.flags |= 0x20000;
-			} else if (flag.equals("Unfogged")) {
-				emitter.flags |= 0x40000;
-			} else if (flag.equals("ModelSpace")) {
-				emitter.flags |= 0x80000;
-			} else if (flag.equals("XYQuad")) {
-				emitter.flags |= 0x100000;
-			} else if (flag.equals("Blend")) {
-				emitter.filterMode = MdlxParticleEmitter2.FilterMode.BLEND;
-			} else if (flag.equals("Additive")) {
-				emitter.filterMode = MdlxParticleEmitter2.FilterMode.ADDITIVE;
-			} else if (flag.equals("Modulate")) {
-				emitter.filterMode = MdlxParticleEmitter2.FilterMode.MODULATE;
-			} else if (flag.equals("Modulate2x")) {
-				emitter.filterMode = MdlxParticleEmitter2.FilterMode.MODULATE2X;
-			} else if (flag.equals("AlphaKey")) {
-				emitter.filterMode = MdlxParticleEmitter2.FilterMode.ALPHAKEY;
-			} else if (flag.equals("Head")) {
-				emitter.headOrTail = 0;
-			} else if (flag.equals("Tail")) {
-				emitter.headOrTail = 1;
-			} else if (flag.equals("Both")) {
-				emitter.headOrTail = 2;
-			} else if (flag.equals("Squirt")) {
-				emitter.squirt = 1;
-			}
+		if (unshaded) {
+			emitter.flags |= 0x8000;
 		}
+
+		if (sortPrimsFarZ) {
+			emitter.flags |= 0x10000;
+		}
+
+		if (lineEmitter) {
+			emitter.flags |= 0x20000;
+		}
+
+		if (unfogged) {
+			emitter.flags |= 0x40000;
+		}
+
+		if (modelSpace) {
+			emitter.flags |= 0x80000;
+		}
+
+		if (xYQuad) {
+			emitter.flags |= 0x100000;
+		}
+
+		if (squirt) {
+			emitter.squirt = 1;
+		}
+
+		emitter.filterMode = filterMode;
+		emitter.headOrTail = headOrTail;
 
 		emitter.speed = (float)getSpeed();
 		emitter.variation = (float)getVariation();
@@ -245,116 +246,112 @@ public class ParticleEmitter2 extends EmitterIdObject {
 	}
 
 	@Override
-	public IdObject copy() {
-		final ParticleEmitter2 x = new ParticleEmitter2();
-
-		x.name = name;
-		x.pivotPoint = new Vertex(pivotPoint);
-		x.objectId = objectId;
-		x.parentId = parentId;
-		x.setParent(getParent());
-
-		x.speed = speed;
-		x.variation = variation;
-		x.latitude = latitude;
-		x.gravity = gravity;
-		x.emissionRate = emissionRate;
-		x.width = width;
-		x.length = length;
-		x.lifeSpan = lifeSpan;
-		x.tailLength = tailLength;
-		x.time = time;
-		x.rows = rows;
-		x.columns = columns;
-		x.textureID = textureID;
-		x.replaceableId = replaceableId;
-		x.priorityPlane = priorityPlane;
-
-		x.knownFlags = knownFlags.clone();
-		x.segmentColor = segmentColor.clone();
-		x.alphas = new Vertex(alphas);
-		x.particleScaling = new Vertex(particleScaling);
-		x.headUVAnim = new Vertex(headUVAnim);
-		x.headDecayUVAnim = new Vertex(headDecayUVAnim);
-		x.tailUVAnim = new Vertex(tailUVAnim);
-		x.tailDecayUVAnim = new Vertex(tailDecayUVAnim);
-		x.addAll(getAnimFlags());
-		x.unknownFlags = new ArrayList<>(unknownFlags);
-
-		x.texture = texture;
-		return x;
+	public ParticleEmitter2 copy() {
+		return new ParticleEmitter2(this);
 	}
 
-	public boolean isDontInheritRotation() {
-		return knownFlags[0];
+	public boolean getUnshaded() {
+		return unshaded;
 	}
 
-	public boolean isDontInheritTranslation() {
-		return knownFlags[1];
+	public void setUnshaded(final boolean unshaded) {
+		this.unshaded = unshaded;
 	}
 
-	public boolean isDontInheritScaling() {
-		return knownFlags[2];
+	public boolean getSortPrimsFarZ() {
+		return sortPrimsFarZ;
 	}
 
-	public boolean isSortPrimsFarZ() {
-		return knownFlags[3];
+	public void setSortPrimsFarZ(final boolean sortPrimsFarZ) {
+		this.sortPrimsFarZ = sortPrimsFarZ;
 	}
 
-	public boolean isUnshaded() {
-		return knownFlags[4];
+	public boolean getLineEmitter() {
+		return lineEmitter;
 	}
 
-	public boolean isLineEmitter() {
-		return knownFlags[5];
+	public void setLineEmitter(final boolean lineEmitter) {
+		this.lineEmitter = lineEmitter;
 	}
 
-	public boolean isUnfogged() {
-		return knownFlags[6];
+	public boolean getUnfogged() {
+		return unfogged;
 	}
 
-	public boolean isModelSpace() {
-		return knownFlags[7];
+	public void setUnfogged(final boolean unfogged) {
+		this.unfogged = unfogged;
 	}
 
-	public boolean isXYQuad() {
-		return knownFlags[8];
+	public boolean getModelSpace() {
+		return modelSpace;
 	}
 
-	public boolean isSquirt() {
-		return knownFlags[9];
+	public void setModelSpace(final boolean modelSpace) {
+		this.modelSpace = modelSpace;
+	}
+
+	public boolean getXYQuad() {
+		return xYQuad;
+	}
+
+	public void setXYQuad(final boolean xYQuad) {
+		this.xYQuad = xYQuad;
+	}
+
+	public boolean getSquirt() {
+		return squirt;
+	}
+
+	public void setSquirt(final boolean squirt) {
+		this.squirt = squirt;
 	}
 
 	public boolean isAdditive() {
-		return knownFlags[10];
+		return filterMode == FilterMode.ADDITIVE;
 	}
 
 	public boolean isModulate2x() {
-		return knownFlags[11];
+		return filterMode == FilterMode.MODULATE2X;
 	}
 
 	public boolean isModulate() {
-		return knownFlags[12];
+		return filterMode == FilterMode.MODULATE;
 	}
 
 	public boolean isAlphaKey() {
-		return knownFlags[13];
+		return filterMode == FilterMode.ALPHAKEY;
 	}
 
 	public boolean isBlend() {
-		return knownFlags[14];
+		return filterMode == FilterMode.BLEND;
 	}
 
 	public boolean isTail() {
-		return knownFlags[15] || isBoth();
+		return headOrTail == HeadOrTail.TAIL;
 	}
 
 	public boolean isHead() {
-		return knownFlags[16] || isBoth();
+		return headOrTail == HeadOrTail.HEAD;
 	}
 
 	public boolean isBoth() {
-		return knownFlags[17];
+		return headOrTail == HeadOrTail.BOTH;
+	}
+
+	public HeadOrTail getHeadOrTail() {
+		return headOrTail;
+	}
+
+	public void setHeadOrTail(final HeadOrTail headOrTail) {
+		this.headOrTail = headOrTail;
+	}
+
+	public FilterMode getFilterMode() {
+		return filterMode;
+	}
+
+	public void setFilterMode(final FilterMode filterMode) {
+		this.filterMode = filterMode;
 	}
 
 	public void updateTextureRef(final List<Bitmap> textures) {
@@ -451,35 +448,37 @@ public class ParticleEmitter2 extends EmitterIdObject {
 
 	@Override
 	public int getBlendSrc() {
-		switch (getFilterModeReallyBadReallySlow()) {
-		case Blend:
+		switch (filterMode) {
+		case BLEND:
 			return GL11.GL_SRC_ALPHA;
-		case Additive:
+		case ADDITIVE:
 			return GL11.GL_SRC_ALPHA;
-		case AlphaKey:
+		case ALPHAKEY:
 			return GL11.GL_SRC_ALPHA;
-		case Modulate:
+		case MODULATE:
 			return GL11.GL_ZERO;
-		case Modulate2x:
+		case MODULATE2X:
 			return GL11.GL_DST_COLOR;
 		}
+
 		return GL11.GL_ONE;
 	}
 
 	@Override
 	public int getBlendDst() {
-		switch (getFilterModeReallyBadReallySlow()) {
-		case Blend:
+		switch (filterMode) {
+		case BLEND:
 			return GL11.GL_ONE_MINUS_SRC_ALPHA;
-		case Additive:
+		case ADDITIVE:
 			return GL11.GL_ONE;
-		case AlphaKey:
+		case ALPHAKEY:
 			return GL11.GL_ONE;
-		case Modulate:
+		case MODULATE:
 			return GL11.GL_SRC_COLOR;
-		case Modulate2x:
+		case MODULATE2X:
 			return GL11.GL_SRC_COLOR;
 		}
+
 		return GL11.GL_ONE;
 	}
 
@@ -586,20 +585,6 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		this.tailDecayUVAnim = tailDecayUVAnim;
 	}
 
-	@Override
-	public void add(final String flag) {
-		boolean isKnownFlag = false;
-		for (int i = 0; (i < knownFlagNames.length) && !isKnownFlag; i++) {
-			if (knownFlagNames[i].equals(flag)) {
-				knownFlags[i] = true;
-				isKnownFlag = true;
-			}
-		}
-		if (!isKnownFlag) {
-			unknownFlags.add(flag);
-		}
-	}
-
 	public void setSegmentColor(final int index, final Vertex color) {
 		segmentColor[index] = color;
 	}
@@ -622,17 +607,6 @@ public class ParticleEmitter2 extends EmitterIdObject {
 
 	public Bitmap getTexture() {
 		return texture;
-	}
-
-	@Override
-	public Set<String> getFlags() {
-		final Set<String> flags = new HashSet<>(unknownFlags);
-		for (int i = 0; i < knownFlags.length; i++) {
-			if (knownFlags[i]) {
-				flags.add(knownFlagNames[i]);
-			}
-		}
-		return flags;
 	}
 
 	@Override
@@ -671,44 +645,5 @@ public class ParticleEmitter2 extends EmitterIdObject {
 
 	public double getRenderEmissionRate(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		return getInterpolatedFloat(animatedRenderEnvironment, "EmissionRate", (float)getEmissionRate());
-	}
-
-	public static enum FilterMode {
-		Blend, Additive, Modulate, Modulate2x, AlphaKey;
-	};
-
-	public FilterMode getFilterModeReallyBadReallySlow() {
-		FilterMode filterMode = FilterMode.Blend;
-		for (final String flag : getFlags()) {
-			switch (flag) {
-			case "Head":
-				break;
-			case "Tail":
-				break;
-			case "Both":
-				break;
-			case "Blend":
-				filterMode = FilterMode.Blend;
-				break;
-			case "Additive":
-				filterMode = FilterMode.Additive;
-				break;
-			case "Modulate":
-				filterMode = FilterMode.Modulate;
-				break;
-			case "Modulate2x":
-				filterMode = FilterMode.Modulate2x;
-				break;
-			case "AlphaKey":
-				filterMode = FilterMode.AlphaKey;
-				break;
-			case "Squirt":
-				break;
-			default:
-				break;
-			// do nothing for the other flags, there will be many
-			}
-		}
-		return filterMode;
 	}
 }

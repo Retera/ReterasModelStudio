@@ -8,13 +8,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpinnerNumberModel;
 
+import com.etheller.warsmash.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.ColorValuePanel;
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.wc3.gui.modeledit.components.editors.FloatValuePanel;
 import com.hiveworkshop.wc3.mdl.Layer;
-import com.hiveworkshop.wc3.mdl.Layer.FilterMode;
 import com.hiveworkshop.wc3.util.IconUtils;
 import com.hiveworkshop.wc3.util.ModelUtils;
 
@@ -42,7 +42,7 @@ public class ComponentLayerPanel extends JPanel {
 		add(layerFlagsPanel);
 		leftHandSettingsPanel.setLayout(new MigLayout());
 		leftHandSettingsPanel.add(new JLabel("Filter Mode:"));
-		filterModeDropdown = new JComboBox<Layer.FilterMode>(Layer.FilterMode.values());
+		filterModeDropdown = new JComboBox<FilterMode>(FilterMode.values());
 		leftHandSettingsPanel.add(filterModeDropdown, "wrap, growx");
 		leftHandSettingsPanel.add(new JLabel("Texture:"));
 		textureButton = new JButton("Choose Texture");

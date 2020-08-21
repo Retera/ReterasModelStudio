@@ -195,4 +195,10 @@ public class MdlUtils {
 	public static final String TOKEN_PARTICLE_EMITTER2 = "ParticleEmitter2";
 	public static final String TOKEN_RIBBON_EMITTER = "RibbonEmitter";
 
+	// > 800
+
+	public static final String TOKEN_EMISSIVE_GAIN = "EmissiveGain";
+	public static final String TOKEN_FRESNEL_COLOR  = "FresnelColor";
+	public static final String TOKEN_FRESNEL_OPACITY = "FresnelOpacity";
+	public static final String TOKEN_FRESNEL_TEAM_COLOR = "FresnelTeamColor";
 }

@@ -12,8 +12,6 @@ import com.etheller.warsmash.parsers.mdlx.MdlxMaterial;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
 
-import com.hiveworkshop.wc3.mdl.v2.MaterialView;
-
 import com.hiveworkshop.wc3.util.ModelUtils;
 
 /**
@@ -21,16 +19,99 @@ import com.hiveworkshop.wc3.util.ModelUtils;
  *
  * Eric Theller 11/5/2011
  */
-public class Material implements MaterialView {
-	public static int teamColor = 00;
-	List<Layer> layers;
-	private int priorityPlane = 0;
-	// "flags" are my way of dealing with all the stuff that I
-	// forget/don't bother with: "Unshaded," "Unfogged,"
-	// "TwoSided," "CoordId X," actually CoordId was
-	// moved into its own field
-	private List<String> flags = new ArrayList<>();
-	private String shaderString;
+public class Material {
+	public static int teamColor = 0;
+	List<Layer> layers = new ArrayList<>();
+	int priorityPlane = 0;
+	String shaderString = "";
+	boolean constantColor = false;
+	boolean sortPrimsFarZ = false;
+	boolean fullResolution = false;
+	boolean twoSided = false;
+
+	public Material() {
+
+	}
+
+	public Material(final Layer layer) {
+		layers.add(layer);
+	}
+
+	public Material(final List<Layer> layers) {
+		this.layers.addAll(layers);
+	}
+
+	public Material(final Material material) {
+		layers.addAll(material.layers);
+		priorityPlane = material.priorityPlane;
+		shaderString = material.shaderString;
+		constantColor = material.constantColor;
+		sortPrimsFarZ = material.sortPrimsFarZ;
+		fullResolution = material.fullResolution;
+		twoSided = material.twoSided;
+	}
+
+	public Material(final MdlxMaterial material, final EditableModel editableModel) {
+		this();
+
+		for (final MdlxLayer mdlxLayer : material.layers) {
+			final Layer layer = new Layer(mdlxLayer);
+
+			layer.updateRefs(editableModel);
+
+			layers.add(layer);
+		}
+		
+		setPriorityPlane(material.priorityPlane);
+
+		if ((material.flags & 0x1) != 0) {
+			constantColor = true;
+		}
+
+		if ((material.flags & 0x10) != 0) {
+			sortPrimsFarZ = true;
+		}
+
+		if ((material.flags & 0x20) != 0) {
+			fullResolution = true;
+		}
+
+		if (ModelUtils.isShaderStringSupported(editableModel.getFormatVersion()) && (material.flags & 0x2) != 0) {
+			twoSided = true;
+		}
+
+		shaderString = material.shader;
+	}
+
+	public MdlxMaterial toMdlx() {
+		MdlxMaterial material = new MdlxMaterial();
+
+		for (final Layer layer : getLayers()) {
+			material.layers.add(layer.toMdlx());
+		}
+
+		material.priorityPlane = getPriorityPlane();
+
+		if (constantColor) {
+			material.flags |= 0x1;
+		}
+
+		if (sortPrimsFarZ) {
+			material.flags |= 0x10;
+		}
+
+		if (fullResolution) {
+			material.flags |= 0x20;
+		}
+
+		if (twoSided) {
+			material.flags |= 0x2;
+		}
+
+		material.shader = shaderString;
+
+		return material;
+	}
 
 	public static String getTeamColorNumberString() {
 		final String string = Integer.toString(teamColor);
@@ -73,95 +154,6 @@ public class Material implements MaterialView {
 		return null;
 	}
 
-	public Material(final Layer lay) {
-		layers = new ArrayList<>();
-		flags = new ArrayList<>();
-		layers.add(lay);
-	}
-
-	public Material(final List<Layer> layers) {
-		this.layers = new ArrayList<>();
-		for (final Layer layer : layers) {
-			this.layers.add(layer);
-		}
-		// this.layers.addAll(layers);
-	}
-
-	private Material() {
-		layers = new ArrayList<>();
-		flags = new ArrayList<>();
-	}
-
-	public Material(final Material other) {
-		layers = new ArrayList<>();
-		flags = new ArrayList<>(other.flags);
-		for (final Layer lay : other.layers) {
-			layers.add(new Layer(lay));
-		}
-		priorityPlane = other.priorityPlane;
-	}
-
-	public Material(final MdlxMaterial material, final EditableModel editableModel) {
-		this();
-
-		for (final MdlxLayer mdlxLayer : material.layers) {
-			final Layer layer = new Layer(mdlxLayer);
-
-			layer.updateRefs(editableModel);
-
-			layers.add(layer);
-		}
-		
-		setPriorityPlane(material.priorityPlane);
-
-		int flags = material.flags;
-
-		if ((flags & 0x1) != 0) {
-			add("ConstantColor");
-		}
-		if ((flags & 0x10) != 0) {
-			add("SortPrimsFarZ");
-		}
-		if ((flags & 0x20) != 0) {
-			add("FullResolution");
-		}
-		if (ModelUtils.isShaderStringSupported(editableModel.getFormatVersion()) && (flags & 0x2) != 0) {
-			add("TwoSided");
-		}
-
-		shaderString = material.shader;
-	}
-
-	public MdlxMaterial toMdlx() {
-		MdlxMaterial material = new MdlxMaterial();
-
-		for (final Layer layer : getLayers()) {
-			material.layers.add(layer.toMdlx());
-		}
-
-		material.priorityPlane = getPriorityPlane();
-
-		for (final String tag : getFlags()) {
-			if (tag.startsWith("ConstantColor")) {
-				material.flags |= 0x1;
-			} else if (tag.startsWith("SortPrimsFarZ")) {
-				material.flags |= 0x2;
-			} else if (tag.startsWith("Rarity")) {
-				material.flags |= 0x10;
-			} else if (tag.startsWith("FullResolution")) {
-				material.flags |= 0x20;
-			}
-		}
-
-		material.shader = shaderString;
-
-		return material;
-	}
-
-	public void add(final String flag) {
-		flags.add(flag);
-	}
-
 	public String getShaderString() {
 		return shaderString;
 	}
@@ -170,7 +162,6 @@ public class Material implements MaterialView {
 		this.shaderString = shaderString;
 	}
 
-	@Override
 	public List<Layer> getLayers() {
 		return layers;
 	}
@@ -179,21 +170,12 @@ public class Material implements MaterialView {
 		this.layers = layers;
 	}
 
-	@Override
 	public int getPriorityPlane() {
 		return priorityPlane;
 	}
 
 	public void setPriorityPlane(final int priorityPlane) {
 		this.priorityPlane = priorityPlane;
-	}
-
-	public List<String> getFlags() {
-		return flags;
-	}
-
-	public void setFlags(final List<String> flags) {
-		this.flags = flags;
 	}
 
 	public void updateTextureAnims(final List<TextureAnim> list) {
@@ -216,7 +198,6 @@ public class Material implements MaterialView {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = (prime * result) + ((flags == null) ? 0 : flags.hashCode());
 		result = (prime * result) + ((layers == null) ? 0 : layers.hashCode());
 		result = (prime * result) + priorityPlane;
 		result = (prime * result) + ((shaderString == null) ? 0 : shaderString.hashCode());
@@ -235,11 +216,9 @@ public class Material implements MaterialView {
 			return false;
 		}
 		final Material other = (Material) obj;
-		if (flags == null) {
-			if (other.flags != null) {
-				return false;
-			}
-		} else if (!flags.equals(other.flags)) {
+
+		if ((constantColor != other.constantColor) || (sortPrimsFarZ != other.sortPrimsFarZ) || 
+			(fullResolution != other.fullResolution) || (twoSided != other.twoSided)) {
 			return false;
 		}
 		if (layers == null) {
@@ -260,6 +239,38 @@ public class Material implements MaterialView {
 			return false;
 		}
 		return true;
+	}
+
+	public boolean getConstantColor() {
+		return constantColor;
+	}
+
+	public void setConstantColor(final boolean constantColor) {
+		this.constantColor = constantColor;
+	}
+
+	public boolean getSortPrimsFarZ() {
+		return sortPrimsFarZ;
+	}
+
+	public void setSortPrimsFarZ(final boolean sortPrimsFarZ) {
+		this.sortPrimsFarZ = sortPrimsFarZ;
+	}
+
+	public boolean getFullResolution() {
+		return fullResolution;
+	}
+
+	public void setFullResolution(final boolean fullResolution) {
+		this.fullResolution = fullResolution;
+	}
+
+	public boolean getTwoSided() {
+		return twoSided;
+	}
+
+	public void setTwoSided(final boolean twoSided) {
+		this.twoSided = twoSided;
 	}
 
 	public BufferedImage getBufferedImage(final DataSource workingDirectory) {
@@ -330,20 +341,5 @@ public class Material implements MaterialView {
 		g.drawImage(overlay, (w1 - w2) / 2, (h1 - h2) / 2, w2, h2, null);
 
 		return combined;
-	}
-
-	@Override
-	public boolean isConstantColor() {
-		return flags.contains("ConstantColor");
-	}
-
-	@Override
-	public boolean isSortPrimsFarZ() {
-		return flags.contains("SortPrimsFarZ");
-	}
-
-	@Override
-	public boolean isFullResolution() {
-		return flags.contains("FullResolution");
 	}
 }

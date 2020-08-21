@@ -6,12 +6,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import com.etheller.warsmash.parsers.mdlx.AnimationMap;
 import com.etheller.warsmash.parsers.mdlx.MdlxAttachment;
 import com.etheller.warsmash.parsers.mdlx.MdlxBone;
 import com.etheller.warsmash.parsers.mdlx.MdlxCamera;
@@ -527,11 +525,7 @@ public class EditableModel implements Named {
 		if (b == null) {
 			return -1;
 		}
-		for (final Bitmap btm : textures) {
-			if (b.equals(btm)) {
-				return textures.indexOf(btm);
-			}
-		}
+		
 		return textures.indexOf(b);
 	}
 
@@ -2162,9 +2156,9 @@ public class EditableModel implements Named {
 				final Layer layerZero = material.getLayers().get(0);
 				material.getLayers().clear();
 				material.getLayers().add(layerZero);
-				if (material.getFlags().contains("TwoSided")) {
-					material.getFlags().remove("TwoSided");
-					layerZero.add("TwoSided");
+				if (material.getTwoSided()) {
+					material.setTwoSided(false);
+					layerZero.setTwoSided(true);
 				}
 			}
 			for (final Layer layer : material.getLayers()) {
@@ -2221,12 +2215,12 @@ public class EditableModel implements Named {
 						gv.getBones().add(dummyHeroGlowNode);
 					}
 					heroGlow.getTriangles().addAll(heroGlowPlane.getTriangles());
-					heroGlow.addFlag("Unselectable");
+					heroGlow.setUnselectable(true);
 					final Bitmap heroGlowBitmap = new Bitmap("");
 					heroGlowBitmap.setReplaceableId(2);
 					final Layer layer = new Layer("Additive", heroGlowBitmap);
-					layer.add("Unshaded");
-					layer.add("Unfogged");
+					layer.setUnshaded(true);
+					layer.setUnfogged(true);
 					heroGlow.setMaterial(new Material(layer));
 					model.add(dummyHeroGlowNode);
 					model.add(heroGlow);

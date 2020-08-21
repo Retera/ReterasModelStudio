@@ -49,7 +49,7 @@ public class ComponentAnimationPanel extends JPanel {
 			@Override
 			public void run() {
 				final SetAnimationIntervalStartAction setAnimationIntervalStartAction = new SetAnimationIntervalStartAction(
-						animation.getIntervalStart(), ((Number) newAnimTimeStart.getValue()).intValue(), animation,
+						animation.getStart(), ((Number) newAnimTimeStart.getValue()).intValue(), animation,
 						modelStructureChangeListener);
 				setAnimationIntervalStartAction.redo();
 				undoListener.pushAction(setAnimationIntervalStartAction);
@@ -60,7 +60,7 @@ public class ComponentAnimationPanel extends JPanel {
 			@Override
 			public void run() {
 				final SetAnimationIntervalEndAction setAnimationIntervalEndAction = new SetAnimationIntervalEndAction(
-						animation.getIntervalEnd(), ((Number) newAnimTimeEnd.getValue()).intValue(), animation,
+						animation.getEnd(), ((Number) newAnimTimeEnd.getValue()).intValue(), animation,
 						modelStructureChangeListener);
 				setAnimationIntervalEndAction.redo();
 				undoListener.pushAction(setAnimationIntervalEndAction);
@@ -122,13 +122,13 @@ public class ComponentAnimationPanel extends JPanel {
 		final int rarityValue = ((Number) rarityChooser.getValue()).intValue();
 		final int moveValue = ((Number) moveSpeedChooser.getValue()).intValue();
 		if (rarityValue != 0) {
-			newAnimation.addTag("Rarity " + rarityValue);
+			newAnimation.setRarity(rarityValue);
 		}
 		if (moveValue != 0) {
-			newAnimation.addTag("MoveSpeed " + moveValue);
+			newAnimation.setMoveSpeed(moveValue);
 		}
 		if (nonLoopingChooser.isSelected()) {
-			newAnimation.addTag("NonLooping");
+			newAnimation.setNonLooping(true);
 		}
 		return newAnimation;
 	}
@@ -148,20 +148,8 @@ public class ComponentAnimationPanel extends JPanel {
 		newAnimTimeEnd.reloadNewValue(animation.getEnd());
 		rarityChooser.reloadNewValue(0);
 		moveSpeedChooser.reloadNewValue(0);
-		nonLoopingChooser.setSelected(false);
-		for (final String tag : animation.getTags()) {
-			final String lowerCaseTag = tag.trim().toLowerCase();
-			if (lowerCaseTag.startsWith("nonlooping")) {
-				nonLoopingChooser.setSelected(true);
-			} else if (lowerCaseTag.startsWith("rarity ")) {
-				final String rarityString = lowerCaseTag.substring("rarity ".length());
-				final double rarityValue = Double.parseDouble(rarityString);
-				rarityChooser.reloadNewValue(rarityValue);
-			} else if (lowerCaseTag.startsWith("movespeed ")) {
-				final String movespeedValueString = lowerCaseTag.substring("movespeed ".length());
-				final double movespeedValue = Double.parseDouble(movespeedValueString);
-				moveSpeedChooser.reloadNewValue(movespeedValue);
-			}
-		}
+		nonLoopingChooser.setSelected(animation.isNonLooping());
+		rarityChooser.reloadNewValue(animation.getRarity());
+		moveSpeedChooser.reloadNewValue(animation.getMoveSpeed());
 	}
 }

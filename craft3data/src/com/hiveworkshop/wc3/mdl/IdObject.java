@@ -4,16 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Quaternion;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
-
 import com.etheller.warsmash.parsers.mdlx.MdlxGenericObject;
-
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
-import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
-
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 
 /**
@@ -25,55 +17,101 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 public abstract class IdObject extends AnimatedNode implements Named {
 	public static final int DEFAULT_CLICK_RADIUS = 8;
 
-	public static enum NodeFlags {
-		DONTINHERIT_TRANSLATION("DontInherit { Translation }"), DONTINHERIT_SCALING("DontInherit { Scaling }"),
-		DONTINHERIT_ROTATION("DontInherit { Rotation }"), BILLBOARDED("Billboarded"),
-		BILLBOARD_LOCK_X("BillboardedLockX", "BillboardLockX"), BILLBOARD_LOCK_Y("BillboardedLockY", "BillboardLockY"),
-		BILLBOARD_LOCK_Z("BillboardedLockZ", "BillboardLockZ"), CAMERA_ANCHORED("CameraAnchored");
-
-		String mdlText;
-		private String[] otherAcceptedStrings;
-
-		NodeFlags(final String str) {
-			this.mdlText = str;
-		}
-
-		NodeFlags(final String str, final String... otherAcceptedStrings) {
-			this.mdlText = str;
-			this.otherAcceptedStrings = otherAcceptedStrings;
-		}
-
-		public boolean matches(final String text) {
-			if (mdlText.equals(text)) {
-				return true;
-			}
-			if (otherAcceptedStrings != null) {
-				for (final String otherAcceptedString : otherAcceptedStrings) {
-					if (otherAcceptedString.equals(text)) {
-						return true;
-					}
-				}
-			}
-			return false;
-		}
-
-		public String getMdlText() {
-			return mdlText;
-		}
-
-		public static NodeFlags fromId(final int id) {
-			return values()[id];
-		}
-	}
-
-	protected String name;
-	protected Vertex pivotPoint;
+	protected String name = "";
 	protected int objectId = -1;
 	protected int parentId = -1;
+	protected boolean dontInheritTranslation = false;
+	protected boolean dontInheritRotation = false;
+	protected boolean dontInheritScaling = false;
+	protected boolean billboarded = false;
+	protected boolean billboardLockX = false;
+	protected boolean billboardLockY = false;
+	protected boolean billboardLockZ = false;
+	protected Vertex pivotPoint;
 	protected IdObject parent;
-	private final List<IdObject> childrenNodes = new ArrayList<>();
+	protected final List<IdObject> childrenNodes = new ArrayList<>();
 	protected float[] bindPose;
 
+	public IdObject() {
+
+	}
+
+	public IdObject(final IdObject host) {
+		copyObject(host);
+	}
+
+	public void loadObject(final MdlxGenericObject object) {
+		name = object.name;
+		objectId = object.objectId;
+		parentId = object.parentId;
+
+		if ((object.flags & 0x1) != 0) {
+			dontInheritTranslation = true;
+		}
+
+		if ((object.flags & 0x2) != 0) {
+			dontInheritRotation = true;
+		}
+
+		if ((object.flags & 0x4) != 0) {
+			dontInheritScaling = true;
+		}
+
+		if ((object.flags & 0x8) != 0) {
+			billboarded = true;
+		}
+
+		if ((object.flags & 0x10) != 0) {
+			billboardLockX = true;
+		}
+
+		if ((object.flags & 0x20) != 0) {
+			billboardLockY = true;
+		}
+
+		if ((object.flags & 0x40) != 0) {
+			billboardLockZ = true;
+		}
+
+		loadTimelines(object);
+	}
+
+	public void objectToMdlx(final MdlxGenericObject object) {
+		object.name = getName();
+		object.objectId = getObjectId();
+		object.parentId = getParentId();
+		
+		if (dontInheritTranslation) {
+			object.flags |= 0x1;
+		}
+
+		if (dontInheritRotation) {
+			object.flags |= 0x2;
+		}
+
+		if (dontInheritScaling) {
+			object.flags |= 0x4;
+		}
+
+		if (billboarded) {
+			object.flags |= 0x8;
+		}
+
+		if (billboardLockX) {
+			object.flags |= 0x10;
+		}
+
+		if (billboardLockY) {
+			object.flags |= 0x20;
+		}
+
+		if (billboardLockZ) {
+			object.flags |= 0x40;
+		}
+
+		timelinesToMdlx(object);
+	}
+	
 	public void setName(final String text) {
 		name = text;
 	}
@@ -81,18 +119,6 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	@Override
 	public String getName() {
 		return name;
-	}
-
-	public IdObject() {
-
-	}
-
-	public IdObject(final IdObject host) {
-		name = host.name;
-		pivotPoint = host.pivotPoint;
-		objectId = host.objectId;
-		parentId = host.parentId;
-		setParent(host.parent);
 	}
 
 	public void setPivotPoint(final Vertex p) {
@@ -111,6 +137,22 @@ public abstract class IdObject extends AnimatedNode implements Named {
 
 	public IdObject copy() {
 		return null;
+	}
+
+	public void copyObject(final IdObject other) {
+		name = other.name;
+		objectId = other.objectId;
+		parentId = other.parentId;
+		dontInheritTranslation = other.dontInheritTranslation;
+		dontInheritRotation = other.dontInheritRotation;
+		dontInheritScaling = other.dontInheritScaling;
+		billboarded = other.billboarded;
+		billboardLockX = other.billboardLockX;
+		billboardLockY = other.billboardLockY;
+		billboardLockZ = other.billboardLockZ;
+		pivotPoint = new Vertex(other.getPivotPoint());
+		setParent(other.getParent());
+		addAll(other.getAnimFlags());
 	}
 
 	public boolean childOf(final IdObject other) {
@@ -158,15 +200,6 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return allChildren;
 	}
 
-	public boolean hasNodeFlag(final NodeFlags flag) {
-		for (final String flagInThisObject : getFlags()) {
-			if (flag.matches(flagInThisObject)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	/**
 	 *
 	 *
@@ -206,50 +239,60 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		this.parentId = parentId;
 	}
 
-	public void loadObject(final MdlxGenericObject object) {
-		name = object.name;
-		objectId = object.objectId;
-		parentId = object.parentId;
-
-		int flags = object.flags;
-		int shift = 0;
-		for (final IdObject.NodeFlags flag : IdObject.NodeFlags.values()) {
-			if (((flags >>> shift) & 1) == 1) {
-				add(flag.getMdlText());
-			}
-
-			shift++;
-		}
-
-		loadTimelines(object);
+	public void setDontInheritTranslation(boolean dontInheritTranslation) {
+		this.dontInheritTranslation = dontInheritTranslation;
 	}
 
-	public void objectToMdlx(final MdlxGenericObject object) {
-		object.name = getName();
-		object.objectId = getObjectId();
-		object.parentId = getParentId();
-		
-		for (final String flag : getFlags()) {
-			if (flag.equals("BillboardedLockZ")) {
-				object.flags |= 0x40;
-			} else if (flag.equals("BillboardedLockY")) {
-				object.flags |= 0x20;
-			} else if (flag.equals("BillboardedLockX")) {
-				object.flags |= 0x10;
-			} else if (flag.equals("Billboarded")) {
-				object.flags |= 0x8;
-			} else if (flag.equals("CameraAnchored")) {
-				object.flags |= 0x80;
-			} else if (flag.equals("DontInherit { Rotation }")) {
-				object.flags |= 0x2;
-			} else if (flag.equals("DontInherit { Translation }")) {
-				object.flags |= 0x1;
-			} else if (flag.equals("DontInherit { Scaling }")) {
-				object.flags |= 0x4;
-			}
-		}
+	public boolean getDontInheritTranslation() {
+		return dontInheritTranslation;
+	}
 
-		timelinesToMdlx(object);
+	public void setDontInheritRotation(boolean dontInheritRotation) {
+		this.dontInheritRotation = dontInheritRotation;
+	}
+
+	public boolean getDontInheritRotation() {
+		return dontInheritRotation;
+	}
+
+	public void setDontInheritScaling(boolean dontInheritScaling) {
+		this.dontInheritScaling = dontInheritScaling;
+	}
+
+	public boolean getDontInheritScaling() {
+		return dontInheritScaling;
+	}
+
+	public void setBillboarded(boolean billboarded) {
+		this.billboarded = billboarded;
+	}
+
+	public boolean getBillboarded() {
+		return billboarded;
+	}
+
+	public void setBillboardLockX(boolean billboardLockX) {
+		this.billboardLockX = billboardLockX;
+	}
+
+	public boolean getBillboardLockX() {
+		return billboardLockX;
+	}
+
+	public void setBillboardLockY(boolean billboardLockY) {
+		this.billboardLockY = billboardLockY;
+	}
+
+	public boolean getBillboardLockY() {
+		return billboardLockY;
+	}
+
+	public void setBillboardLockZ(boolean billboardLockZ) {
+		this.billboardLockZ = billboardLockZ;
+	}
+
+	public boolean getBillboardLockZ() {
+		return billboardLockZ;
 	}
 
 	@Override
@@ -276,12 +319,4 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	public void setBindPose(final float[] bindPose) {
 		this.bindPose = bindPose;
 	}
-
-	private static final Vector4f translationHeap = new Vector4f();
-	private static final Matrix4f matrixHeap = new Matrix4f();
-	private static final Quaternion rotationHeap = new Quaternion();
-	private static final Quaternion rotationDeltaHeap = new Quaternion();
-	private static final Vector4f axisAngleHeap = new Vector4f();
-
-	private static final Vector3f IDENTITY = new Vector3f(0, 0, 0);
 }

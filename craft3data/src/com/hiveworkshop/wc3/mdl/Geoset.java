@@ -19,16 +19,16 @@ public class Geoset implements Named, VisibilitySource {
 	List<Triangle> triangles = new ArrayList<>();
 	List<Matrix> matrix = new ArrayList<>();
 	List<Animation> anims = new ArrayList<>();
-	List<String> flags = new ArrayList<>();
 	int materialID = 0;
 	Material material;
 	int selectionGroup = 0;
 	EditableModel parentModel;
 	GeosetAnim geosetAnim = null;
 	int levelOfDetail = -1;
-	String levelOfDetailName;
+	String levelOfDetailName = "";
 	List<short[]> skin;
 	List<float[]> tangents;
+	boolean unselectable = false;
 
 	public Geoset() {
 
@@ -97,7 +97,7 @@ public class Geoset implements Named, VisibilitySource {
 		}
 
 		if (geoset.selectionFlags == 4) {
-			addFlag("Unselectable");
+			unselectable = true;
 		}
 
 		setSelectionGroup((int)geoset.selectionGroup);
@@ -191,7 +191,7 @@ public class Geoset implements Named, VisibilitySource {
 			}
 		}
 
-		if (getFlags().contains("Unselectable")) {
+		if (unselectable) {
 			geoset.selectionFlags = 4;
 		}
 
@@ -436,18 +436,6 @@ public class Geoset implements Named, VisibilitySource {
 
 	public int numAnims() {
 		return anims.size();
-	}
-
-	public void addFlag(final String a) {
-		flags.add(a);
-	}
-
-	public String getFlag(final int id) {
-		return flags.get(id);
-	}
-
-	public int numFlags() {
-		return flags.size();
 	}
 
 	public List<TVertex> getTVertecesInArea(final Rectangle2D.Double area, final int layerId) {
@@ -808,14 +796,6 @@ public class Geoset implements Named, VisibilitySource {
 		this.anims = anims;
 	}
 
-	public List<String> getFlags() {
-		return flags;
-	}
-
-	public void setFlags(final List<String> flags) {
-		this.flags = flags;
-	}
-
 	public int getMaterialID() {
 		return materialID;
 	}
@@ -830,6 +810,14 @@ public class Geoset implements Named, VisibilitySource {
 
 	public void setSelectionGroup(final int selectionGroup) {
 		this.selectionGroup = selectionGroup;
+	}
+
+	public boolean getUnselectable() {
+		return unselectable;
+	}
+
+	public void setUnselectable(final boolean unselectable) {
+		this.unselectable = unselectable;
 	}
 
 	public void setLevelOfDetail(final int levelOfDetail) {

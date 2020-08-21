@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
+import com.etheller.warsmash.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.modeledit.TargaReader;
 import com.hiveworkshop.wc3.mdl.Animation;
@@ -1124,10 +1125,10 @@ public class Build implements BuilderInterface {
 		}
 		for (final Layer layer : layers) {
 			if (transparent) {
-				if (layer.getFilterModeString().equals("Additive")) {
-					layer.setFilterMode("AddAlpha");
+				if (layer.getFilterMode() == FilterMode.ADDITIVE) {
+					layer.setFilterMode(FilterMode.ADDALPHA);
 				} else {
-					layer.setFilterMode("Transparent");
+					layer.setFilterMode(FilterMode.TRANSPARENT);
 				}
 			}
 			final double staticAlpha = material.dFactor;
@@ -1137,7 +1138,7 @@ public class Build implements BuilderInterface {
 		}
 		final com.hiveworkshop.wc3.mdl.Material mdlMaterial = new com.hiveworkshop.wc3.mdl.Material(layers);
 		if (colorOn) {
-			mdlMaterial.add("ConstantColor");
+			mdlMaterial.setConstantColor(true);
 			final List<ReflectivityTransmiss> transmisses = new ArrayList<>();
 			ReflectivityTransmiss max = null;
 			for (final ReflectivityTransmiss transmiss : transmisses) {

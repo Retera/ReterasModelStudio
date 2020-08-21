@@ -34,7 +34,7 @@ public abstract class MdlxTimeline<TYPE> {
 
 		final long keyFrameCount = reader.readUInt32();
 
-		this.interpolationType = InterpolationType.VALUES[reader.readInt32()];
+		this.interpolationType = InterpolationType.getType(reader.readInt32());
 		this.globalSequenceId = reader.readInt32();
 
 		this.frames = new long[(int) keyFrameCount];
@@ -135,26 +135,7 @@ public abstract class MdlxTimeline<TYPE> {
 		final int tracksCount = this.frames.length;
 		stream.startBlock(AnimationMap.ID_TO_TAG.get(this.name).getMdlToken(), tracksCount);
 
-		String token;
-		switch (this.interpolationType) {
-		case DONT_INTERP:
-			token = MdlUtils.TOKEN_DONT_INTERP;
-			break;
-		case LINEAR:
-			token = MdlUtils.TOKEN_LINEAR;
-			break;
-		case HERMITE:
-			token = MdlUtils.TOKEN_HERMITE;
-			break;
-		case BEZIER:
-			token = MdlUtils.TOKEN_BEZIER;
-			break;
-		default:
-			token = MdlUtils.TOKEN_DONT_INTERP;
-			break;
-		}
-
-		stream.writeFlag(token);
+		stream.writeFlag(interpolationType.toString());
 
 		if (this.globalSequenceId != -1) {
 			stream.writeAttrib(MdlUtils.TOKEN_GLOBAL_SEQ_ID, this.globalSequenceId);

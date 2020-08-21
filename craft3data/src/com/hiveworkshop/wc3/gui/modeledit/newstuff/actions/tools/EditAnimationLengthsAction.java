@@ -50,19 +50,19 @@ public final class EditAnimationLengthsAction implements UndoAction {
 				// function)
 				for (int index = mdl.getAnimsSize() - 1; index > myAnimationsIndex; index--) {
 					final Animation anim = mdl.getAnim(index);
-					final int startOfAnim = anim.getIntervalStart();
+					final int startOfAnim = anim.getStart();
 					// I didn't know eclipse is smart enough to write
 					// functions like this one for me, so I haven't pushed
 					// "generate getters and setters" to auto-write this
 					// function, but it could exist
-					final int endOfAnim = anim.getIntervalEnd();
+					final int endOfAnim = anim.getEnd();
 					// same
 					anim.setInterval(startOfAnim + lengthIncrease, endOfAnim + lengthIncrease, mdl);
 				}
 			}
 
 			// now actually scale animation
-			myAnimation.setInterval(myAnimation.getIntervalStart(), myAnimation.getIntervalStart() + newLength, mdl);
+			myAnimation.setInterval(myAnimation.getStart(), myAnimation.getStart() + newLength, mdl);
 
 			if (lengthIncrease < 0) {
 				// afterwards move all the animations after it, so that they're
@@ -72,12 +72,12 @@ public final class EditAnimationLengthsAction implements UndoAction {
 				// function)
 				for (int index = myAnimationsIndex + 1; index < mdl.getAnimsSize(); index++) {
 					final Animation anim = mdl.getAnim(index);
-					final int startOfAnim = anim.getIntervalStart();
+					final int startOfAnim = anim.getStart();
 					// I didn't know eclipse is smart enough to write
 					// functions like this one for me, so I haven't pushed
 					// "generate getters and setters" to auto-write this
 					// function, but it could exist
-					final int endOfAnim = anim.getIntervalEnd();
+					final int endOfAnim = anim.getEnd();
 					// same
 					anim.setInterval(startOfAnim + lengthIncrease, endOfAnim + lengthIncrease, mdl);
 				}

@@ -15,6 +15,11 @@ public class FaceEffect {
 		this.faceEffect = faceEffect;
 	}
 
+	public FaceEffect(final FaceEffect effect) {
+		this.faceEffectTarget = effect.faceEffectTarget;
+		this.faceEffect = effect.faceEffect;
+	}
+
 	public FaceEffect(final MdlxFaceEffect effect) {
 		faceEffectTarget = effect.type;
 		faceEffect = effect.path;
@@ -27,5 +32,9 @@ public class FaceEffect {
 		effect.path = faceEffect;
 
 		return effect;
+	}
+
+	public FaceEffect copy() {
+		return new FaceEffect(this);
 	}
 }

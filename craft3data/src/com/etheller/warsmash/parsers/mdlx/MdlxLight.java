@@ -7,7 +7,27 @@ import com.hiveworkshop.util.BinaryReader;
 import com.hiveworkshop.util.BinaryWriter;
 
 public class MdlxLight extends MdlxGenericObject {
-	public int type = -1;
+	public static enum Type {
+		OMNIDIRECTIONAL("Omnidirectional"),
+		DIRECTIONAL("Directional"),
+		AMBIENT("Ambient");
+
+		String token;
+
+		Type(final String token) {
+			this.token = token;
+		}
+
+		public static Type fromId(final int id) {
+			return values()[id];
+		}
+
+		public String toString() {
+			return token;
+		}
+	}
+
+	public Type type = Type.OMNIDIRECTIONAL;
 	public float[] attenuation = new float[2];
 	public float[] color = new float[3];
 	public float intensity = 0;
@@ -24,7 +44,7 @@ public class MdlxLight extends MdlxGenericObject {
 
 		super.readMdx(reader, version);
 
-		this.type = reader.readInt32();
+		this.type = Type.fromId(reader.readInt32());
 		reader.readFloat32Array(this.attenuation);
 		reader.readFloat32Array(this.color);
 		this.intensity = reader.readFloat32();
@@ -40,7 +60,7 @@ public class MdlxLight extends MdlxGenericObject {
 
 		super.writeMdx(writer, version);
 
-		writer.writeUInt32(this.type);
+		writer.writeUInt32(this.type.ordinal());
 		writer.writeFloat32Array(this.attenuation);
 		writer.writeFloat32Array(this.color);
 		writer.writeFloat32(this.intensity);
@@ -55,13 +75,13 @@ public class MdlxLight extends MdlxGenericObject {
 		for (final String token : super.readMdlGeneric(stream)) {
 			switch (token) {
 			case MdlUtils.TOKEN_OMNIDIRECTIONAL:
-				this.type = 0;
+				this.type = Type.OMNIDIRECTIONAL;
 				break;
 			case MdlUtils.TOKEN_DIRECTIONAL:
-				this.type = 1;
+				this.type = Type.DIRECTIONAL;
 				break;
 			case MdlUtils.TOKEN_AMBIENT:
-				this.type = 2;
+				this.type = Type.AMBIENT;
 				break;
 			case MdlUtils.TOKEN_STATIC_ATTENUATION_START:
 				this.attenuation[0] = stream.readFloat();
@@ -113,19 +133,7 @@ public class MdlxLight extends MdlxGenericObject {
 		stream.startObjectBlock(MdlUtils.TOKEN_LIGHT, this.name);
 		writeGenericHeader(stream);
 
-		switch (this.type) {
-		case 0:
-			stream.writeFlag(MdlUtils.TOKEN_OMNIDIRECTIONAL);
-			break;
-		case 1:
-			stream.writeFlag(MdlUtils.TOKEN_DIRECTIONAL);
-			break;
-		case 2:
-			stream.writeFlag(MdlUtils.TOKEN_AMBIENT);
-			break;
-		default:
-			throw new IllegalStateException("Unable to save Light of type: " + this.type);
-		}
+		stream.writeFlag(this.type.toString());
 
 		if (!writeTimeline(stream, AnimationMap.KLAS)) {
 			stream.writeFloatAttrib(MdlUtils.TOKEN_STATIC_ATTENUATION_START, this.attenuation[0]);

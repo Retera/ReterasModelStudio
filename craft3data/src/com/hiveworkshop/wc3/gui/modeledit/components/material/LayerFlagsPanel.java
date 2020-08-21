@@ -35,12 +35,12 @@ public class LayerFlagsPanel extends JPanel {
 	}
 
 	public void setLayer(final Layer layer) {
-		unshaded.setSelected(layer.isUnshaded());
-		sphereEnvMap.setSelected(layer.isSphereEnvironmentMap());
-		twoSided.setSelected(layer.isTwoSided());
-		unfogged.setSelected(layer.isUnfogged());
-		noDepthTest.setSelected(layer.isNoDepthTest());
-		noDepthSet.setSelected(layer.isNoDepthSet());
-		unlit.setSelected(layer.isUnlit());
+		unshaded.setSelected(layer.getUnshaded());
+		sphereEnvMap.setSelected(layer.getSphereEnvMap());
+		twoSided.setSelected(layer.getTwoSided());
+		unfogged.setSelected(layer.getUnfogged());
+		noDepthTest.setSelected(layer.getNoDepthTest());
+		noDepthSet.setSelected(layer.getNoDepthSet());
+		unlit.setSelected(layer.getUnlit());
 	}
 }

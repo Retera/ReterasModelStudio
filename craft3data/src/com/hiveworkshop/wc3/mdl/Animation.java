@@ -1,6 +1,5 @@
 package com.hiveworkshop.wc3.mdl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.etheller.warsmash.parsers.mdlx.MdlxSequence;
@@ -16,15 +15,10 @@ public class Animation implements BasicTimeBoundProvider {
 	private String name = "";
 	private int intervalStart = 0;
 	private int intervalEnd = -1;
-	private List<String> tags = new ArrayList<String>();// These are strings tags, i.e.
-	// "MoveSpeed X," "Rarity X,"
-	// "NonLooping," etc.
 	private ExtLog extents;
-
-	public boolean equalsAnim(final Animation other) {
-		return other.name.equals(this.name) && (other.intervalStart == intervalStart)
-				&& (other.intervalEnd == intervalEnd) && other.tags.equals(tags);
-	}
+	float moveSpeed = 0;
+	boolean nonLooping = false;
+	float rarity = 0;
 
 	public Animation(final String name, final int intervalStart, final int intervalEnd) {
 		this.name = name;
@@ -47,6 +41,16 @@ public class Animation implements BasicTimeBoundProvider {
 		this.extents = extents;
 	}
 
+	public Animation(final Animation other) {
+		this.name = other.name;
+		intervalStart = other.intervalStart;
+		intervalEnd = other.intervalEnd;
+		moveSpeed = other.moveSpeed;
+		nonLooping = other.nonLooping;
+		rarity = other.rarity;
+		extents = new ExtLog(other.extents);
+	}
+
 	public Animation(final MdlxSequence sequence) {
 		long[] interval = sequence.interval;
 
@@ -54,22 +58,13 @@ public class Animation implements BasicTimeBoundProvider {
 		intervalStart = (int)interval[0];
 		intervalEnd = (int)interval[1];
 		extents = new ExtLog(sequence.extent);
-
-		float moveSpeed = sequence.moveSpeed;
-
-		if (moveSpeed != 0) {
-			addTag("MoveSpeed " + moveSpeed);
-		}
+		moveSpeed = sequence.moveSpeed;
 
 		if (sequence.flags == 1) {
-			addTag("NonLooping");
+			nonLooping = true;
 		}
 
-		float rarity = sequence.rarity;
-
-		if (rarity > 0) {
-			addTag("Rarity " + rarity);
-		}
+		rarity = sequence.rarity;
 	}
 
 	public MdlxSequence toMdlx() {
@@ -79,84 +74,37 @@ public class Animation implements BasicTimeBoundProvider {
 		sequence.interval[0] = intervalStart;
 		sequence.interval[1] = intervalEnd;
 		sequence.extent = extents.toMdlx();
+		sequence.moveSpeed = moveSpeed;
 
-		for (final String tag : getTags()) {
-			if (tag.startsWith("MoveSpeed")) {
-				sequence.moveSpeed = Float.parseFloat(tag.split(" ")[1]);
-			} else if (tag.startsWith("NonLooping")) {
-				sequence.flags = 1;
-			} else if (tag.startsWith("Rarity")) {
-				sequence.rarity = Float.parseFloat(tag.split(" ")[1]);
-			}
+		if (nonLooping) {
+			sequence.flags = 1;
 		}
+
+		sequence.rarity = rarity;
 
 		return sequence;
 	}
 
+	public boolean equals(final Animation other) {
+		return other.name.equals(name) && (other.intervalStart == intervalStart)
+				&& (other.intervalEnd == intervalEnd) && (other.moveSpeed == moveSpeed)
+				&& (other.nonLooping == nonLooping) && (other.rarity == rarity);
+	}
+
 	public float getRarity() {
-		for (final String tag : tags) {
-			if (tag.startsWith("Rarity")) {
-				return Float.parseFloat(tag.split(" ")[1]);
-			}
-		}
-		return 0.0f;
+		return rarity;
 	}
 
-	public void setRarity(final float newRarity) {
-		boolean foundTag = false;
-		for (int i = 0; (i < tags.size()) && !foundTag; i++) {
-			final String tag = tags.get(i);
-			if (tag.startsWith("Rarity")) {
-				tags.set(i, "Rarity " + newRarity);
-				foundTag = true;
-			}
-		}
-		if (!foundTag) {
-			tags.add("Rarity " + newRarity);
-		}
+	public void setRarity(final float rarity) {
+		this.rarity = rarity;
 	}
 
-	public void setMoveSpeed(final float newMoveSpeed) {
-		boolean foundTag = false;
-		for (int i = 0; (i < tags.size()) && !foundTag; i++) {
-			final String tag = tags.get(i);
-			if (tag.startsWith("MoveSpeed")) {
-				tags.set(i, "MoveSpeed " + newMoveSpeed);
-				foundTag = true;
-			}
-		}
-		if (!foundTag) {
-			tags.add("MoveSpeed " + newMoveSpeed);
-		}
+	public void setMoveSpeed(final float moveSpeed) {
+		this.moveSpeed = moveSpeed;
 	}
 
 	public float getMoveSpeed() {
-		for (final String tag : tags) {
-			if (tag.startsWith("MoveSpeed")) {
-				return Float.parseFloat(tag.split(" ")[1]);
-			}
-		}
-		return 0.0f;
-	}
-
-	public Animation(final Animation other) {
-		this.name = other.name;
-		intervalStart = other.intervalStart;
-		intervalEnd = other.intervalEnd;
-		tags = new ArrayList<String>(other.tags);
-		extents = new ExtLog(other.extents);
-	}
-
-	public void addTag(final String tag) {
-		tags.add(tag);
-	}
-
-	public List<String> getTags() {
-		return tags;
-	}
-
-	public void setTags(final List<String> tags) {
-		this.tags = tags;
+		return moveSpeed;
 	}
 
 	public ExtLog getExtents() {
@@ -176,19 +124,11 @@ public class Animation implements BasicTimeBoundProvider {
 	}
 
 	public boolean isNonLooping() {
-		return tags.contains("NonLooping");
+		return nonLooping;
 	}
 
 	public void setNonLooping(final boolean nonLooping) {
-		if (isNonLooping()) {
-			if (!nonLooping) {
-				tags.remove("NonLooping");
-			}
-		} else {
-			if (nonLooping) {
-				tags.add("NonLooping");
-			}
-		}
+		this.nonLooping = nonLooping;
 	}
 
 	public int length() {
@@ -307,13 +247,5 @@ public class Animation implements BasicTimeBoundProvider {
 	@Override
 	public String toString() {
 		return getName();
-	}
-
-	public int getIntervalStart() {
-		return intervalStart;
-	}
-
-	public int getIntervalEnd() {
-		return intervalEnd;
 	}
 }

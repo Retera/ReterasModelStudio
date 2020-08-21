@@ -6,6 +6,7 @@ import java.io.InputStream;
 
 import javax.swing.JFrame;
 
+import com.etheller.warsmash.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Helper;
@@ -13,7 +14,6 @@ import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.QuaternionRotation;
 import com.hiveworkshop.wc3.mdl.Vertex;
-import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 
@@ -33,7 +33,7 @@ public class GetMeDatas5 {
 				final AnimFlag rotationAnimation = new AnimFlag("Rotation");
 				rotationAnimation.setInterpType(InterpolationType.LINEAR);
 				for (final Animation anim : model.getAnims()) {
-					rotationAnimation.addKeyframe(anim.getIntervalStart(),
+					rotationAnimation.addKeyframe(anim.getStart(),
 							new QuaternionRotation(new Vertex(0, 0, 1), ang * ((2 * Math.PI) / 36)));
 				}
 

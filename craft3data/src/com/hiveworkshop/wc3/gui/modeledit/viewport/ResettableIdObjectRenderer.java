@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
@@ -22,6 +21,7 @@ import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
+import com.etheller.warsmash.parsers.mdlx.MdlxCollisionShape;
 
 public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 	private CoordinateSystem coordinateSystem;
@@ -248,7 +248,7 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 		graphics.setColor(color);
 		final int xCoord = (int) coordinateSystem.convertX(pivotPoint.getCoord(xDimension));
 		final int yCoord = (int) coordinateSystem.convertY(pivotPoint.getCoord(yDimension));
-		if (collisionShape.getFlags().contains("Box")) {
+		if (collisionShape.getType() == MdlxCollisionShape.Type.BOX) {
 			if (vertices.size() > 1) {
 				final Vertex vertex = vertices.get(0);
 				final Vertex vertex2 = vertices.get(1);

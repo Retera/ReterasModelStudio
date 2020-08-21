@@ -31,7 +31,7 @@ public class RenderParticleEmitter2View extends EmitterView {
 		if (this.instance.allowParticleSpawn()) {
 			final double emissionRate = this.getEmissionRate();
 
-			if (this.emitter.isSquirt()) {
+			if (this.emitter.getSquirt()) {
 				// TODO TODO TODO not correct for any interp type other than "DontInterp",
 				// ghostwolf did this differently
 				if (emissionRate != lastEmissionRate) {

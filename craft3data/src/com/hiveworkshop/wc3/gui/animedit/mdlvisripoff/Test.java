@@ -1,7 +1,7 @@
 package com.hiveworkshop.wc3.gui.animedit.mdlvisripoff;
 
+import com.etheller.warsmash.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
-import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
 
 public class Test {
 	public static void main(final String[] args) {

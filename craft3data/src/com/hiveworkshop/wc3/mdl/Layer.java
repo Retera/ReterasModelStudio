@@ -2,15 +2,13 @@ package com.hiveworkshop.wc3.mdl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import com.etheller.warsmash.parsers.mdlx.AnimationMap;
 import com.etheller.warsmash.parsers.mdlx.MdlxLayer;
+import com.etheller.warsmash.parsers.mdlx.MdlxLayer.FilterMode;
 import com.etheller.warsmash.util.MdlUtils;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
-import com.hiveworkshop.wc3.mdl.v2.LayerView;
 import com.hiveworkshop.wc3.mdl.v2.timelines.Animatable;
 
 /**
@@ -18,65 +16,32 @@ import com.hiveworkshop.wc3.mdl.v2.timelines.Animatable;
  * <p>
  * Eric Theller 3/8/2012
  */
-public class Layer extends TimelineContainer implements Named, LayerView {
-	// 0: none
-	// 1: transparent
-	// 2: blend
-	// 3: additive
-	// 4: add alpha
-	// 5: modulate
-	// 6: modulate 2x
-	public static enum FilterMode {
-		NONE("None"), TRANSPARENT("Transparent"), BLEND("Blend"), ADDITIVE("Additive"), ADDALPHA("AddAlpha"),
-		MODULATE("Modulate"), MODULATE2X("Modulate2x");
-
-		String mdlText;
-
-		FilterMode(final String str) {
-			this.mdlText = str;
-		}
-
-		public String getMdlText() {
-			return mdlText;
-		}
-
-		public static FilterMode nameToFilter(final String name) {
-			for (final FilterMode mode : values()) {
-				if (mode.getMdlText().equals(name)) {
-					return mode;
-				}
-			}
-			return null;
-		}
-
-		@Override
-		public String toString() {
-			return getMdlText();
-		}
-	}
-
+public class Layer extends TimelineContainer implements Named {
 	private FilterMode filterMode = FilterMode.NONE;
 	int textureId = -1;
 	int TVertexAnimId = -1;
-	private int CoordId = 0;
+	private int coordId = 0;
 	Bitmap texture;
 	TextureAnim textureAnim;
-	private double emissiveGain = Double.NaN;
-	private Vertex fresnelColor;
-	private double fresnelOpacity;
-	private double fresnelTeamColor;
+	private double emissiveGain = 0;
+	private Vertex fresnelColor = new Vertex(1, 1, 1);
+	private double fresnelOpacity = 0;
+	private double fresnelTeamColor = 0;
 	private double staticAlpha = 1;// Amount of static alpha (opacity)
 	List<Bitmap> textures;
-
-	public String getFilterModeString() {
-		return filterMode.getMdlText();
-	}
-
+	boolean unshaded = false;
+	boolean sphereEnvMap = false;
+	boolean twoSided = false;
+	boolean unfogged = false;
+	boolean noDepthTest = false;
+	boolean noDepthSet = false;
+	boolean unlit = false;
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = (prime * result) + CoordId;
+		result = (prime * result) + coordId;
 		result = (prime * result) + TVertexAnimId;
 		result = (prime * result) + ((animFlags == null) ? 0 : animFlags.hashCode());
 		long temp;
@@ -87,7 +52,7 @@ public class Layer extends TimelineContainer implements Named, LayerView {
 		temp = Double.doubleToLongBits(fresnelTeamColor);
 		result = (prime * result) + (int) (temp ^ (temp >>> 32));
 		result = (prime * result) + ((filterMode == null) ? 0 : filterMode.hashCode());
-		result = (prime * result) + ((flags == null) ? 0 : flags.hashCode());
+		//result = (prime * result) + ((flags == null) ? 0 : flags.hashCode());
 		temp = Double.doubleToLongBits(staticAlpha);
 		result = (prime * result) + (int) (temp ^ (temp >>> 32));
 		result = (prime * result) + ((texture == null) ? 0 : texture.hashCode());
@@ -117,7 +82,7 @@ public class Layer extends TimelineContainer implements Named, LayerView {
 			return false;
 		}
 		final Layer other = (Layer) obj;
-		if (CoordId != other.CoordId) {
+		if (coordId != other.coordId) {
 			return false;
 		}
 		if (TVertexAnimId != other.TVertexAnimId) {
@@ -155,13 +120,29 @@ public class Layer extends TimelineContainer implements Named, LayerView {
 		} else if (!filterMode.equals(other.filterMode)) {
 			return false;
 		}
-		if (flags == null) {
-			if (other.flags != null) {
-				return false;
-			}
-		} else if (!flags.equals(other.flags)) {
+
+		if (emissiveGain != other.emissiveGain) {
 			return false;
 		}
+
+		if (!fresnelColor.equalLocs(other.fresnelColor)) {
+			return false;
+		}
+
+		if (fresnelOpacity != other.fresnelOpacity) {
+			return false;
+		}
+
+		if (fresnelTeamColor != other.fresnelTeamColor) {
+			return false;
+		}
+
+		if ((unshaded != other.unshaded) || (sphereEnvMap != other.sphereEnvMap) || (twoSided != other.twoSided)
+			|| (unfogged != other.unfogged) || (noDepthTest != other.noDepthTest) || (noDepthSet != other.noDepthSet)
+			|| (unlit != other.unlit)) {
+			return false;
+		}
+		
 		if (Double.doubleToLongBits(staticAlpha) != Double.doubleToLongBits(other.staticAlpha)) {
 			return false;
 		}
@@ -192,27 +173,6 @@ public class Layer extends TimelineContainer implements Named, LayerView {
 		return true;
 	}
 
-	// @Override
-	// public boolean equals( Object o )
-	// {
-	// if( !( o instanceof Layer ) )
-	// {
-	// return false;
-	// }
-	// Layer lay = (Layer)o;
-	// boolean does =staticAlpha == lay.staticAlpha
-	// && CoordId == lay.CoordId
-	// && (texture == null ? lay.texture == null : texture.equals(lay.texture) )
-	// && (textureAnim == null ? lay.textureAnim == null :
-	// textureAnim.equals(lay.textureAnim) )
-	// && (filterMode == null ? lay.filterMode == null :
-	// filterMode.equals(lay.filterMode) )
-	// && (textures == null ? lay.textures == null :
-	// textures.equals(lay.textures) )
-	// && (flags == null ? lay.flags == null : flags.equals(lay.flags) )
-	// && (anims == null ? lay.anims == null : anims.equals(lay.anims) );
-	// return does;
-	// }
 	public Layer(final String filterMode, final int textureId) {
 		this.filterMode = FilterMode.nameToFilter(filterMode);
 		this.textureId = textureId;
@@ -227,7 +187,7 @@ public class Layer extends TimelineContainer implements Named, LayerView {
 		filterMode = other.filterMode;
 		textureId = other.textureId;
 		TVertexAnimId = other.TVertexAnimId;
-		CoordId = other.CoordId;
+		coordId = other.coordId;
 		texture = new Bitmap(other.texture);
 		if (other.textureAnim != null) {
 			textureAnim = new TextureAnim(other.textureAnim);
@@ -239,7 +199,14 @@ public class Layer extends TimelineContainer implements Named, LayerView {
 		fresnelColor = new Vertex(other.fresnelColor);
 		fresnelOpacity = other.fresnelOpacity;
 		fresnelTeamColor = other.fresnelTeamColor;
-		flags = new HashSet<>(other.flags);
+		unshaded = other.unshaded;
+		sphereEnvMap = other.sphereEnvMap;
+		twoSided = other.twoSided;
+		unfogged = other.unfogged;
+		noDepthTest = other.noDepthTest;
+		noDepthSet = other.noDepthSet;
+		unshaded = other.unshaded;
+		unlit = other.unlit;
 		textures = new ArrayList<>();
 		addAll(other.getAnimFlags());
 		if (other.textures != null) {
@@ -252,37 +219,29 @@ public class Layer extends TimelineContainer implements Named, LayerView {
 	}
 
 	public Layer(final MdlxLayer layer) {
-		this(layer.filterMode.getMdlText(), layer.textureId);
+		this(layer.filterMode.toString(), layer.textureId);
 
 		final int shadingFlags = layer.flags;
-		// 0x1: unshaded
-		// 0x2: sphere environment map
-		// 0x4: ?
-		// 0x8: ?
-		// 0x10: two sided
-		// 0x20: unfogged
-		// 0x30: no depth test
-		// 0x40: no depth set
 		if ((shadingFlags & 0x1) != 0) {
-			add("Unshaded");
+			unshaded = true;
 		}
 		if ((shadingFlags & 0x2) != 0) {
-			add("SphereEnvMap");
+			sphereEnvMap = true;
 		}
 		if ((shadingFlags & 0x10) != 0) {
-			add("TwoSided");
+			twoSided = true;
 		}
 		if ((shadingFlags & 0x20) != 0) {
-			add("Unfogged");
+			unfogged = true;
 		}
 		if ((shadingFlags & 0x40) != 0) {
-			add("NoDepthTest");
+			noDepthTest = true;
 		}
 		if ((shadingFlags & 0x80) != 0) {
-			add("NoDepthSet");
+			noDepthSet = true;
 		}
 		if ((shadingFlags & 0x100) != 0) {
-			add("Unlit");
+			unlit = true;
 		}
 
 		setTVertexAnimId(layer.textureAnimationId);
@@ -302,33 +261,34 @@ public class Layer extends TimelineContainer implements Named, LayerView {
 	public MdlxLayer toMdlx() {
 		final MdlxLayer layer = new MdlxLayer();
 
-		layer.filterMode = MdlxLayer.FilterMode.fromId(filterMode.ordinal());
+		layer.filterMode = filterMode;
 
-		for (final String flag : getFlags()) {
-			switch (flag) {
-			case "Unshaded":
-				layer.flags |= 0x1;
-				break;
-			case "SphereEnvironmentMap":
-			case "SphereEnvMap":
-				layer.flags |= 0x2;
-				break;
-			case "TwoSided":
-				layer.flags |= 0x10;
-				break;
-			case "Unfogged":
-				layer.flags |= 0x20;
-				break;
-			case "NoDepthTest":
-				layer.flags |= 0x40;
-				break;
-			case "NoDepthSet":
-				layer.flags |= 0x80;
-				break;
-			case "Unlit":
-				layer.flags |= 0x100;
-				break;
-			}
+		if (unshaded) {
+			layer.flags |= 0x1;
+		}
+
+		if (sphereEnvMap) {
+			layer.flags |= 0x2;
+		}
+
+		if (twoSided) {
+			layer.flags |= 0x10;
+		}
+
+		if (unfogged) {
+			layer.flags |= 0x20;
+		}
+
+		if (noDepthTest) {
+			layer.flags |= 0x40;
+		}
+
+		if (noDepthSet) {
+			layer.flags |= 0x80;
+		}
+
+		if (unlit) {
+			layer.flags |= 0x100;
 		}
 
 		layer.textureId = getTextureId();
@@ -444,12 +404,7 @@ public class Layer extends TimelineContainer implements Named, LayerView {
 	}
 
 	public boolean hasCoordId() {
-		return CoordId != 0;
-	}
-
-	@Override
-	public int getCoordId() {
-		return CoordId;
+		return coordId != 0;
 	}
 
 	public boolean hasTexAnim() {
@@ -513,55 +468,20 @@ public class Layer extends TimelineContainer implements Named, LayerView {
 		return textureAnim;
 	}
 
-	public void setFilterMode(final String filterMode) {
-		this.filterMode = FilterMode.nameToFilter(filterMode);
+	public void setFilterMode(final FilterMode filterMode) {
+		this.filterMode = filterMode;
 	}
 
-	public void setFilterMode(final FilterMode mode) {
-		this.filterMode = mode;
-	}
-
-	public void setCoordId(final int coordId) {
-		CoordId = coordId;
-	}
-
-	@Override
 	public FilterMode getFilterMode() {
 		return filterMode;
 	}
 
-	@Override
-	public boolean isUnshaded() {
-		return flags.contains("Unshaded");
+	public void setCoordId(final int coordId) {
+		this.coordId = coordId;
 	}
 
-	@Override
-	public boolean isUnfogged() {
-		return flags.contains("Unfogged");
-	}
-
-	@Override
-	public boolean isTwoSided() {
-		return flags.contains("TwoSided");
-	}
-
-	@Override
-	public boolean isSphereEnvironmentMap() {
-		return flags.contains("SphereEnvMap");
-	}
-
-	@Override
-	public boolean isNoDepthTest() {
-		return flags.contains("NoDepthTest");
-	}
-
-	@Override
-	public boolean isNoDepthSet() {
-		return flags.contains("NoDepthSet");
-	}
-
-	public boolean isUnlit() {
-		return flags.contains("Unlit");
+	public int getCoordId() {
+		return coordId;
 	}
 
 	public double getEmissive() {
@@ -572,12 +492,10 @@ public class Layer extends TimelineContainer implements Named, LayerView {
 		this.emissiveGain = emissive;
 	}
 
-	@Override
 	public Animatable<Bitmap> getTexture() {
 		throw new UnsupportedOperationException("not yet implemented");
 	}
 
-	@Override
 	public Animatable<Double> getAlpha() {
 		throw new UnsupportedOperationException("not yet implemented");
 	}
@@ -604,5 +522,61 @@ public class Layer extends TimelineContainer implements Named, LayerView {
 
 	public void setFresnelTeamColor(final double fresnelTeamColor) {
 		this.fresnelTeamColor = fresnelTeamColor;
+	}
+
+	public boolean getUnshaded() {
+		return unshaded;
+	}
+
+	public void setUnshaded(final boolean unshaded) {
+		this.unshaded = unshaded;
+	}
+
+	public boolean getSphereEnvMap() {
+		return sphereEnvMap;
+	}
+
+	public void setSphereEnvMap(final boolean sphereEnvMap) {
+		this.sphereEnvMap = sphereEnvMap;
+	}
+
+	public boolean getTwoSided() {
+		return twoSided;
+	}
+
+	public void setTwoSided(final boolean twoSided) {
+		this.twoSided = twoSided;
+	}
+
+	public boolean getUnfogged() {
+		return unfogged;
+	}
+
+	public void setUnfogged(final boolean unfogged) {
+		this.unfogged = unfogged;
+	}
+
+	public boolean getNoDepthTest() {
+		return noDepthTest;
+	}
+
+	public void setNoDepthTest(final boolean noDepthTest) {
+		this.noDepthTest = noDepthTest;
+	}
+
+	public boolean getNoDepthSet() {
+		return noDepthSet;
+	}
+
+	public void setNoDepthSet(final boolean noDepthSet) {
+		this.noDepthSet = noDepthSet;
+	}
+
+	public boolean getUnlit() {
+		return unlit;
+	}
+
+	public void setUnlit(final boolean unlit) {
+		this.unlit = unlit;
 	}
 }

@@ -60,9 +60,7 @@ public final class SplitGeosetAction<T> implements UndoAction {
 			for (final Animation anim : geoset.getAnims()) {
 				geosetCreated.add(new Animation(anim));
 			}
-			for (final String flag : geoset.getFlags()) {
-				geosetCreated.addFlag(flag);
-			}
+			geosetCreated.setUnselectable(geoset.getUnselectable());
 			geosetCreated.setSelectionGroup(geoset.getSelectionGroup());
 			final GeosetAnim geosetAnim = geoset.getGeosetAnim();
 			if (geosetAnim != null) {

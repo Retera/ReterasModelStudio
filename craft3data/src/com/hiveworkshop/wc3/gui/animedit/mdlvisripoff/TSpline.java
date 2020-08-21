@@ -10,9 +10,9 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
+import com.etheller.warsmash.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.QuaternionRotation;
-import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -62,7 +62,7 @@ public class TSpline extends JPanel {
 		int len, num;
 		len = timeline.size();
 		num = timeline.ceilIndex(currentFrame);
-		if ((num == 0) || (num >= (len - 1)) || (timeline.getInterpTypeAsEnum() != InterpolationType.HERMITE)) {
+		if ((num == 0) || (num >= (len - 1)) || (timeline.getInterpType() != InterpolationType.HERMITE)) {
 			setVisible(false);
 			return;
 		}
@@ -145,7 +145,7 @@ public class TSpline extends JPanel {
 			der.calcDerivativeXD(1);
 			g.setColor(Color.BLACK);
 			i = 0;
-			final InterpolationType interpType = timeline.getInterpTypeAsEnum();
+			final InterpolationType interpType = timeline.getInterpType();
 			do {
 				itd.set(der.tang);
 				TTan.assignSubscript(itd.value, 0, 100);

@@ -9,13 +9,6 @@ import com.hiveworkshop.util.BinaryReader;
 import com.hiveworkshop.util.BinaryWriter;
 
 public class MdlxLayer extends MdlxAnimatedObject {
-	// 0: none
-	// 1: transparent
-	// 2: blend
-	// 3: additive
-	// 4: add alpha
-	// 5: modulate
-	// 6: modulate 2x
 	public static enum FilterMode {
 		NONE("None"),
 		TRANSPARENT("Transparent"),
@@ -25,14 +18,10 @@ public class MdlxLayer extends MdlxAnimatedObject {
 		MODULATE("Modulate"),
 		MODULATE2X("Modulate2x");
 
-		String mdlText;
+		String token;
 
-		FilterMode(final String str) {
-			this.mdlText = str;
-		}
-
-		public String getMdlText() {
-			return this.mdlText;
+		FilterMode(final String token) {
+			this.token = token;
 		}
 
 		public static FilterMode fromId(final int id) {
@@ -41,16 +30,24 @@ public class MdlxLayer extends MdlxAnimatedObject {
 
 		public static int nameToId(final String name) {
 			for (final FilterMode mode : values()) {
-				if (mode.getMdlText().equals(name)) {
+				if (mode.token.equals(name)) {
 					return mode.ordinal();
 				}
 			}
 			return -1;
 		}
 
-		@Override
+		public static FilterMode nameToFilter(final String name) {
+			for (final FilterMode mode : values()) {
+				if (mode.token.equals(name)) {
+					return mode;
+				}
+			}
+			return null;
+		}
+
 		public String toString() {
-			return getMdlText();
+			return token;
 		}
 	}
 
@@ -205,7 +202,7 @@ public class MdlxLayer extends MdlxAnimatedObject {
 	public void writeMdl(final MdlTokenOutputStream stream, final int version) {
 		stream.startBlock(MdlUtils.TOKEN_LAYER);
 
-		stream.writeAttrib(MdlUtils.TOKEN_FILTER_MODE, this.filterMode.getMdlText());
+		stream.writeAttrib(MdlUtils.TOKEN_FILTER_MODE, this.filterMode.toString());
 
 		if ((this.flags & 0x1) != 0) {
 			stream.writeFlag(MdlUtils.TOKEN_UNSHADED);

@@ -22,7 +22,25 @@ public abstract class AnimatedNode extends TimelineContainer {
 	private static final Quaternion rotationDeltaHeap = new Quaternion();
 	private static final Vector4f axisAngleHeap = new Vector4f();
 
-	private static final Vector3f IDENTITY = new Vector3f(0, 0, 0);
+	abstract public AnimatedNode getParent();
+
+	abstract public Vertex getPivotPoint();
+
+	abstract public List<? extends AnimatedNode> getChildrenNodes();
+
+	abstract public String getName();
+	
+	public Vertex getRenderTranslation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		return getInterpolatedVector(animatedRenderEnvironment, "Translation", null);
+	}
+
+	public QuaternionRotation getRenderRotation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		return getInterpolatedQuat(animatedRenderEnvironment, "Rotation", null);
+	}
+
+	public Vertex getRenderScale(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		return getInterpolatedVector(animatedRenderEnvironment, "Scaling", null);
+	}
 
 	public AddKeyframeAction createTranslationKeyframe(final RenderModel renderModel, final AnimFlag translationFlag,
 			final ModelStructureChangeListener structureChangeListener) {
@@ -587,24 +605,4 @@ public abstract class AnimatedNode extends TimelineContainer {
 		}
 
 	}
-
-	public Vertex getRenderTranslation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		return getInterpolatedVector(animatedRenderEnvironment, "Translation", null);
-	}
-
-	public QuaternionRotation getRenderRotation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		return getInterpolatedQuat(animatedRenderEnvironment, "Rotation", null);
-	}
-
-	public Vertex getRenderScale(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		return getInterpolatedVector(animatedRenderEnvironment, "Scaling", null);
-	}
-
-	abstract public AnimatedNode getParent();
-
-	abstract public Vertex getPivotPoint();
-
-	abstract public List<? extends AnimatedNode> getChildrenNodes();
-
-	abstract public String getName();
 }

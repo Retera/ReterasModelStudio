@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.etheller.warsmash.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Bitmap;
@@ -19,7 +20,6 @@ import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
 import com.hiveworkshop.wc3.mdl.QuaternionRotation;
 import com.hiveworkshop.wc3.mdl.TextureAnim;
 import com.hiveworkshop.wc3.mdl.Vertex;
-import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.util.ModelUtils;
 import com.hiveworkshop.wc3.util.ModelUtils.Mesh;
@@ -55,7 +55,7 @@ public class GenModels3 {
 		for (int i = 0; i < 100; i++) {
 			final Particle part = new Particle();
 			final Bone particleBone = new Bone("Bone_Particle" + i);
-			particleBone.add("Billboarded");
+			particleBone.setBillboarded(true);
 			particleBone.setParent(particleRoot);
 			final int leafSize = 6 + (int) (Math.random() * 3);
 			final Mesh planeMesh = ModelUtils.createPlane((byte) 1, (byte) 2, new Vertex(1, 0, 0), 0, -leafSize,

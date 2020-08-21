@@ -7,6 +7,7 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.etheller.warsmash.parsers.mdlx.MdlxCollisionShape;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.mdl.Attachment;
 import com.hiveworkshop.wc3.mdl.Bone;
@@ -224,7 +225,7 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 		graphics.setColor(color);
 		final int xCoord = (int) coordinateSystem.convertX(pivotPoint.getCoord(xDimension));
 		final int yCoord = (int) coordinateSystem.convertY(pivotPoint.getCoord(yDimension));
-		if (collisionShape.getFlags().contains("Box")) {
+		if (collisionShape.getType() == MdlxCollisionShape.Type.BOX) {
 			if (vertices.size() > 1) {
 				final Vertex vertex = vertices.get(0);
 				final Vertex vertex2 = vertices.get(1);

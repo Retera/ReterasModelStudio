@@ -2,9 +2,7 @@ package com.hiveworkshop.wc3.mdl;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import com.etheller.warsmash.parsers.mdlx.MdlxAnimatedObject;
 import com.etheller.warsmash.parsers.mdlx.timeline.MdlxTimeline;
@@ -13,7 +11,6 @@ import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 
 public abstract class TimelineContainer implements VisibilitySource {
 	public Map<String, AnimFlag> animFlags = new HashMap<>();
-	protected Set<String> flags = new HashSet<>();
 
 	public void loadTimelines(final MdlxAnimatedObject object) {
 		for (final MdlxTimeline<?> timeline : object.timelines) {
@@ -165,21 +162,5 @@ public abstract class TimelineContainer implements VisibilitySource {
 	@Override
 	public String visFlagName() {
 		return "Visibility";
-	}
-
-	public void add(final String flag) {
-		flags.add(flag);
-	}
-
-	public Set<String> getFlags() {
-		return flags;
-	}
-
-	public void setFlags(final Set<String> flags) {
-		this.flags = flags;
-	}
-
-	public boolean hasFlag(final String flag) {
-		return flags.contains(flag);
 	}
 }

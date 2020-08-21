@@ -83,7 +83,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		location.z = (float) (pivotPoint.z);
 
 		// World location
-		if (!modelObject.isModelSpace()) {
+		if (!modelObject.getModelSpace()) {
 			vector4Heap.set(location.x, location.y, location.z, 1);
 			Matrix4f.transform(node.getWorldMatrix(), vector4Heap, vector4Heap);
 			location.set(vector4Heap);
@@ -98,14 +98,14 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		Quaternion.mul(rotationYHeap, rotationZHeap, rotationYHeap);
 
 		// If this is not a line emitter, emit in a sphere rather than a circle
-		if (!modelObject.isLineEmitter()) {
+		if (!modelObject.getLineEmitter()) {
 			vector4Heap.set(0, 1, 0, MathUtils.randomInRange(-latitude, latitude));
 			rotationXHeap.setFromAxisAngle(vector4Heap);
 			Quaternion.mul(rotationXHeap, rotationYHeap, rotationYHeap);
 		}
 
 		// World rotation
-		if (!modelObject.isModelSpace()) {
+		if (!modelObject.getModelSpace()) {
 			Quaternion.mul(node.getWorldRotation(), rotationYHeap, rotationYHeap);
 		}
 
@@ -229,7 +229,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		final Vector4f[] vectors;
 
 		// Choose between a default rectangle or a billboarded one
-		if (modelObject.isXYQuad()) {
+		if (modelObject.getXYQuad()) {
 			vectors = instance.getSpacialVectors();
 		} else {
 			vectors = instance.getBillboardVectors();
@@ -245,7 +245,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		if (head) {
 			// If this is a model space emitter, the particle location is in local space, so
 			// convert it now to world space.
-			if (modelObject.isModelSpace()) {
+			if (modelObject.getModelSpace()) {
 				Matrix4f.transform(this.node.getWorldMatrix(), worldLocation4f, worldLocation4f);
 			}
 
@@ -283,7 +283,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 
 			// If this is a model space emitter, the start and end are in local space, so
 			// convert them to world space.
-			if (modelObject.isModelSpace()) {
+			if (modelObject.getModelSpace()) {
 				Matrix4f.transform(this.node.getWorldMatrix(), startHeap, startHeap);
 				Matrix4f.transform(this.node.getWorldMatrix(), endHeap, endHeap);
 			}

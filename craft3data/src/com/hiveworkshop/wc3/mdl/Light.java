@@ -3,6 +3,7 @@ package com.hiveworkshop.wc3.mdl;
 import java.util.HashSet;
 
 import com.etheller.warsmash.parsers.mdlx.MdlxLight;
+import com.etheller.warsmash.parsers.mdlx.MdlxLight.Type;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 
@@ -13,19 +14,32 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
  * @version (a version number or a date)
  */
 public class Light extends IdObject {
-	int AttenuationStart = -1;
-	int AttenuationEnd = -1;
-	double Intensity = -1;
-	Vertex staticColor;
-	double AmbIntensity = -1;
-	Vertex staticAmbColor;
+	Type type = Type.OMNIDIRECTIONAL;
+	int attenuationStart = 0;
+	int attenuationEnd = 0;
+	double intensity = 0;
+	Vertex staticColor = new Vertex();
+	double ambIntensity = 0;
+	Vertex staticAmbColor = new Vertex();
 
-	private Light() {
+	public Light() {
 
 	}
 
 	public Light(final String name) {
 		this.name = name;
+	}
+
+	public Light(final Light light) {
+		copyObject(light);
+
+		type = light.type;
+		attenuationStart = light.attenuationStart;
+		attenuationEnd = light.attenuationEnd;
+		intensity = light.intensity;
+		staticColor = light.staticColor;
+		ambIntensity = light.ambIntensity;
+		staticAmbColor = light.staticAmbColor;
 	}
 
 	public Light(final MdlxLight light) {
@@ -35,22 +49,7 @@ public class Light extends IdObject {
 
 		loadObject(light);
 
-		switch (light.type) {
-		case 0:
-			add("Omnidirectional");
-			break;
-		case 1:
-			add("Directional");
-			break;
-		case 2:
-			add("Ambient"); // I'm not 100% that Ambient is supposed to be a
-							// possible flag type
-			break; // --- Is it for Ambient only? All lights have the Amb values
-		default:
-			add("Omnidirectional");
-			break;
-		}
-
+		type = light.type;
 		setAttenuationStart((int)light.attenuation[0]);
 		setAttenuationEnd((int)light.attenuation[1]);
 		setStaticColor(new Vertex(light.color, true));
@@ -64,16 +63,7 @@ public class Light extends IdObject {
 
 		objectToMdlx(light);
 
-		for (final String flag : getFlags()) {
-			if (flag.equals("Omnidirectional")) {
-				light.type = 0;
-			} else if (flag.equals("Directional")) {
-				light.type = 1;
-			} else if (flag.equals("Ambient")) {
-				light.type = 2;
-			}
-		}
-
+		light.type = type;
 		light.attenuation[0] = getAttenuationStart();
 		light.attenuation[1] = getAttenuationEnd();
 		light.color = MdlxUtils.flipRGBtoBGR(getStaticColor().toFloatArray());
@@ -85,24 +75,8 @@ public class Light extends IdObject {
 	}
 
 	@Override
-	public IdObject copy() {
-		final Light x = new Light();
-
-		x.name = name;
-		x.pivotPoint = new Vertex(pivotPoint);
-		x.objectId = objectId;
-		x.parentId = parentId;
-		x.setParent(getParent());
-
-		x.AttenuationStart = AttenuationStart;
-		x.AttenuationEnd = AttenuationEnd;
-		x.Intensity = Intensity;
-		x.staticColor = staticColor;
-		x.AmbIntensity = AmbIntensity;
-		x.staticAmbColor = staticAmbColor;
-		x.addAll(getAnimFlags());
-		flags = new HashSet<>(x.flags);
-		return x;
+	public Light copy() {
+		return new Light(this);
 	}
 
 	public String getVisTagname() {
@@ -110,27 +84,27 @@ public class Light extends IdObject {
 	}
 
 	public int getAttenuationStart() {
-		return AttenuationStart;
+		return attenuationStart;
 	}
 
 	public void setAttenuationStart(final int attenuationStart) {
-		AttenuationStart = attenuationStart;
+		this.attenuationStart = attenuationStart;
 	}
 
 	public int getAttenuationEnd() {
-		return AttenuationEnd;
+		return attenuationEnd;
 	}
 
 	public void setAttenuationEnd(final int attenuationEnd) {
-		AttenuationEnd = attenuationEnd;
+		this.attenuationEnd = attenuationEnd;
 	}
 
 	public double getIntensity() {
-		return Intensity;
+		return intensity;
 	}
 
 	public void setIntensity(final double intensity) {
-		Intensity = intensity;
+		this.intensity = intensity;
 	}
 
 	public Vertex getStaticColor() {
@@ -142,11 +116,11 @@ public class Light extends IdObject {
 	}
 
 	public double getAmbIntensity() {
-		return AmbIntensity;
+		return ambIntensity;
 	}
 
 	public void setAmbIntensity(final double ambIntensity) {
-		AmbIntensity = ambIntensity;
+		this.ambIntensity = ambIntensity;
 	}
 
 	public Vertex getStaticAmbColor() {

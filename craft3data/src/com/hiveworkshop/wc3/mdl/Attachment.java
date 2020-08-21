@@ -14,7 +14,7 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
  */
 public class Attachment extends IdObject {
 	String path = null;
-	int AttachmentID = 0;
+	int attachmentID = 0;
 
 	private Attachment() {
 
@@ -22,6 +22,13 @@ public class Attachment extends IdObject {
 
 	public Attachment(final String name) {
 		this.name = name;
+	}
+
+	public Attachment(final Attachment attachment) {
+		copyObject(attachment);
+	
+		path = attachment.path;
+		attachmentID = attachment.attachmentID;
 	}
 
 	public Attachment(final MdlxAttachment attachment) {
@@ -50,21 +57,8 @@ public class Attachment extends IdObject {
 	}
 
 	@Override
-	public IdObject copy() {
-		final Attachment x = new Attachment();
-
-		x.name = name;
-		x.pivotPoint = new Vertex(pivotPoint);
-		x.objectId = objectId;
-		x.parentId = parentId;
-		x.setParent(getParent());
-
-		x.path = path;
-		for (final AnimFlag af : animFlags.values()) {
-			x.add(new AnimFlag(af));
-		}
-		x.flags = new HashSet<>(x.flags);
-		return x;
+	public Attachment copy() {
+		return new Attachment(this);
 	}
 
 	public String getPath() {
@@ -78,11 +72,11 @@ public class Attachment extends IdObject {
 	}
 
 	public int getAttachmentID() {
-		return AttachmentID;
+		return attachmentID;
 	}
 
 	public void setAttachmentID(final int attachmentID) {
-		AttachmentID = attachmentID;
+		this.attachmentID = attachmentID;
 	}
 
 	@Override

@@ -7,50 +7,64 @@ import com.hiveworkshop.util.BinaryReader;
 import com.hiveworkshop.util.BinaryWriter;
 
 public class MdlxParticleEmitter2 extends MdlxGenericObject {
-	// 0: blend
-	// 1: additive
-	// 2: modulate
-	// 3: modulate 2x
-	// 4: alphakey
 	public static enum FilterMode {
-		BLEND(0, "Blend"),
-		ADDITIVE(1, "Additive"),
-		MODULATE(2, "Modulate"),
-		MODULATE2X(3, "Modulate2x"),
-		ALPHAKEY(4, "AlphaKey");
+		BLEND("Blend"),
+		ADDITIVE("Additive"),
+		MODULATE("Modulate"),
+		MODULATE2X("Modulate2x"),
+		ALPHAKEY("AlphaKey");
 
-		int value;
-		String mdlText;
+		String token;
 
-		FilterMode(final int value, final String str) {
-			this.value = value;
-			this.mdlText = str;
-		}
-
-		public int getValue() {
-			return value;
+		FilterMode(final String token) {
+			this.token = token;
 		}
 		
-		public String getMdlText() {
-			return this.mdlText;
-		}
-
 		public static FilterMode fromId(final int id) {
 			return values()[id];
 		}
 
 		public static int nameToId(final String name) {
 			for (final FilterMode mode : values()) {
-				if (mode.getMdlText().equals(name)) {
+				if (mode.token.equals(name)) {
 					return mode.ordinal();
 				}
 			}
 			return -1;
 		}
 
-		@Override
 		public String toString() {
-			return getMdlText();
+			return token;
+		}
+	}
+
+	public static enum HeadOrTail {
+		HEAD("Head"),
+		TAIL("Tail"),
+		BOTH("Both");
+
+		String token;
+
+		HeadOrTail(final String token) {
+			this.token = token;
+		}
+
+		public static HeadOrTail fromId(final int id) {
+			return values()[id];
+		}
+
+		public static int nameToId(final String name) {
+			for (final HeadOrTail mode : values()) {
+				if (mode.token.equals(name)) {
+					return mode.ordinal();
+				}
+			}
+
+			return -1;
+		}
+		
+		public String toString() {
+			return token;
 		}
 	}
 
@@ -65,7 +79,7 @@ public class MdlxParticleEmitter2 extends MdlxGenericObject {
 	public FilterMode filterMode = FilterMode.BLEND;
 	public long rows = 0;
 	public long columns = 0;
-	public long headOrTail = 0;
+	public HeadOrTail headOrTail = HeadOrTail.HEAD;
 	public float tailLength = 0;
 	public float timeMiddle = 0;
 	public final float[][] segmentColors = new float[3][3];
@@ -99,7 +113,7 @@ public class MdlxParticleEmitter2 extends MdlxGenericObject {
 		this.filterMode = FilterMode.fromId(reader.readInt32());
 		this.rows = reader.readUInt32();
 		this.columns = reader.readUInt32();
-		this.headOrTail = reader.readUInt32();
+		this.headOrTail = HeadOrTail.fromId(reader.readInt32());
 		this.tailLength = reader.readFloat32();
 		this.timeMiddle = reader.readFloat32();
 		reader.readFloat32Array(this.segmentColors[0]);
@@ -133,10 +147,10 @@ public class MdlxParticleEmitter2 extends MdlxGenericObject {
 		writer.writeFloat32(this.emissionRate);
 		writer.writeFloat32(this.length);
 		writer.writeFloat32(this.width);
-		writer.writeUInt32(this.filterMode.ordinal());
+		writer.writeInt32(this.filterMode.ordinal());
 		writer.writeUInt32(this.rows);
 		writer.writeUInt32(this.columns);
-		writer.writeUInt32(this.headOrTail);
+		writer.writeInt32(this.headOrTail.ordinal());
 		writer.writeFloat32(this.tailLength);
 		writer.writeFloat32(this.timeMiddle);
 		writer.writeFloat32Array(this.segmentColors[0]);
@@ -251,13 +265,13 @@ public class MdlxParticleEmitter2 extends MdlxGenericObject {
 				this.columns = stream.readUInt32();
 				break;
 			case MdlUtils.TOKEN_HEAD:
-				this.headOrTail = 0;
+				this.headOrTail = HeadOrTail.HEAD;
 				break;
 			case MdlUtils.TOKEN_TAIL:
-				this.headOrTail = 1;
+				this.headOrTail = HeadOrTail.TAIL;
 				break;
 			case MdlUtils.TOKEN_BOTH:
-				this.headOrTail = 2;
+				this.headOrTail = HeadOrTail.BOTH;
 				break;
 			case MdlUtils.TOKEN_TAIL_LENGTH:
 				this.tailLength = stream.readFloat();
@@ -373,25 +387,10 @@ public class MdlxParticleEmitter2 extends MdlxGenericObject {
 			stream.writeFloatAttrib(MdlUtils.TOKEN_STATIC_LENGTH, this.length);
 		}
 
-		stream.writeFlag(this.filterMode.getMdlText());
-
+		stream.writeFlag(this.filterMode.toString());
 		stream.writeAttribUInt32(MdlUtils.TOKEN_ROWS, this.rows);
 		stream.writeAttribUInt32(MdlUtils.TOKEN_COLUMNS, this.columns);
-
-		switch ((int) this.headOrTail) {
-		case 0:
-			stream.writeFlag(MdlUtils.TOKEN_HEAD);
-			break;
-		case 1:
-			stream.writeFlag(MdlUtils.TOKEN_TAIL);
-			break;
-		case 2:
-			stream.writeFlag(MdlUtils.TOKEN_BOTH);
-			break;
-		default:
-			throw new IllegalStateException("Bad headOrTail value when saving MDL: " + this.headOrTail);
-		}
-
+		stream.writeFlag(headOrTail.toString());
 		stream.writeFloatAttrib(MdlUtils.TOKEN_TAIL_LENGTH, this.tailLength);
 		stream.writeFloatAttrib(MdlUtils.TOKEN_TIME, this.timeMiddle);
 

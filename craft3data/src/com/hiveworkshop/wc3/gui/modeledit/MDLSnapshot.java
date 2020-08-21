@@ -59,6 +59,7 @@ import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.Pbuffer;
 import org.lwjgl.opengl.PixelFormat;
 
+import com.etheller.warsmash.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
@@ -698,13 +699,13 @@ public class MDLSnapshot {
 							GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_COLOR);
 							GL11.glDisable(GL11.GL_TEXTURE_2D);
 						}
-						if (layer.getFilterModeString().equals("Additive")) {
+						if (layer.getFilterMode() == FilterMode.ADDITIVE) {
 							// GL11.glDisable(GL11.GL_DEPTH_TEST);
 							GL11.glDepthMask(false);
 							GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
 							// GL11.glBlendFunc(GL11.GL_SRC_ALPHA,
 							// GL11.GL_ONE_MINUS_SRC_ALPHA);
-						} else if (layer.getFilterModeString().equals("AddAlpha")) {
+						} else if (layer.getFilterMode() == FilterMode.ADDALPHA) {
 							// GL11.glDisable(GL11.GL_DEPTH_TEST);
 							GL11.glDepthMask(false);
 							GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
@@ -747,13 +748,13 @@ public class MDLSnapshot {
 							// texture.bind();
 							GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
 						}
-						if (layer.getFilterModeString().equals("Additive")) {
+						if (layer.getFilterMode() == FilterMode.ADDITIVE) {
 							// GL11.glDisable(GL11.GL_DEPTH_TEST);
 							GL11.glDepthMask(false);
 							// GL11.glBlendFunc(GL11.GL_SRC_ALPHA,
 							// GL11.GL_ONE_MINUS_SRC_ALPHA);
 							GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
-						} else if (layer.getFilterModeString().equals("AddAlpha")) {
+						} else if (layer.getFilterMode() == FilterMode.ADDALPHA) {
 							// GL11.glDisable(GL11.GL_DEPTH_TEST);
 							GL11.glDepthMask(false);
 							GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);

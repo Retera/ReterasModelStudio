@@ -6,6 +6,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import com.etheller.warsmash.parsers.mdlx.AnimationMap;
+import com.etheller.warsmash.parsers.mdlx.InterpolationType;
 import com.etheller.warsmash.parsers.mdlx.timeline.MdlxFloatArrayTimeline;
 import com.etheller.warsmash.parsers.mdlx.timeline.MdlxFloatTimeline;
 import com.etheller.warsmash.parsers.mdlx.timeline.MdlxTimeline;
@@ -13,7 +14,6 @@ import com.etheller.warsmash.parsers.mdlx.timeline.MdlxUInt32Timeline;
 import com.etheller.warsmash.util.MdlUtils;
 import com.hiveworkshop.wc3.gui.animedit.BasicTimeBoundProvider;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
-import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
 import com.hiveworkshop.wc3.units.objectdata.War3ID;
 import com.hiveworkshop.wc3.util.MathUtils;
 
@@ -25,57 +25,6 @@ import com.hiveworkshop.wc3.util.MathUtils;
  * Eric Theller 11/5/2011
  */
 public class AnimFlag {
-	public static String getInterpType(final int id) {
-		switch (id) {
-		case 0:
-			return "DontInterp";
-		case 1:
-			return "Linear";
-		case 2:
-			return "Hermite";
-		case 3:
-			return "Bezier";
-		default:
-			return "DontInterp";
-		}
-	}
-
-	public int getInterpType() {
-		for (final String tag : tags) {
-			switch (tag) {
-			case "DontInterp":
-				return 0;
-			case "Linear":
-				return 1;
-			case "Hermite":
-				return 2;
-			case "Bezier":
-				return 3;
-			default:
-				break;
-			}
-		}
-		return 0;
-	}
-
-	public InterpolationType getInterpTypeAsEnum() {
-		switch (getInterpType()) {
-		case 0:
-			return InterpolationType.DONT_INTERP;
-		case 1:
-			return InterpolationType.LINEAR;
-		case 2:
-			return InterpolationType.HERMITE;
-		case 3:
-			return InterpolationType.BEZIER;
-		}
-		throw new IllegalStateException();
-	}
-	// 0: none
-	// 1: linear
-	// 2: hermite
-	// 3: bezier
-
 	// Types of AnimFlags:
 	// 0 Alpha
 	public static final int ALPHA = 0;
@@ -97,14 +46,14 @@ public class AnimFlag {
 	public static final int OTHER_TYPE = 0;
 
 	String name;
-	List<String> tags = new ArrayList<>();
+	InterpolationType interpolationType = InterpolationType.DONT_INTERP;
 	Integer globalSeq;
 	int globalSeqId = -1;
 	boolean hasGlobalSeq = false;
 	List<Integer> times = new ArrayList<>();
-	List values = new ArrayList();
-	List inTans = new ArrayList();
-	List outTans = new ArrayList();
+	List<Object> values = new ArrayList<>();
+	List<Object> inTans = new ArrayList<>();
+	List<Object> outTans = new ArrayList<>();
 	int typeid = 0;
 	int vectorSize = 1;
 	boolean isFloat = true;
@@ -118,7 +67,7 @@ public class AnimFlag {
 		does = (name.equals(af.getName())) ||
 			   (hasGlobalSeq == af.hasGlobalSeq) ||
 			   (values.equals(af.values) && (globalSeq == null ? af.globalSeq == null : globalSeq.equals(af.globalSeq))
-				&& (tags == null ? af.tags == null : tags.equals(af.tags))
+				&& (interpolationType == af.interpolationType)
 				&& (inTans == null ? af.inTans == null : inTans.equals(af.inTans))
 				&& (outTans == null ? af.outTans == null : outTans.equals(af.outTans)) && (typeid == af.typeid));
 		return does;
@@ -141,8 +90,7 @@ public class AnimFlag {
 		name = AnimationMap.ID_TO_TAG.get(timeline.name).getMdlToken();
 		generateTypeId();
 
-		int interpolationType = timeline.interpolationType.getValue();
-		addTag(AnimFlag.getInterpType(interpolationType));
+		interpolationType = timeline.interpolationType;
 
 		int globalSequenceId = timeline.globalSequenceId;
 		if (globalSequenceId >= 0) {
@@ -156,7 +104,7 @@ public class AnimFlag {
 		Object[] outTans = timeline.outTans;
 
 		if (frames.length > 0) {
-			final boolean hasTangents = interpolationType > 1;
+			final boolean hasTangents = interpolationType.tangential();
 
 			Object firstValue = values[0];
 
@@ -212,7 +160,7 @@ public class AnimFlag {
 		}
 	}
 
-	public MdlxTimeline toMdlx(final TimelineContainer container) {
+	public MdlxTimeline<Object> toMdlx(final TimelineContainer container) {
 		MdlxTimeline timeline;
 
 		if (isFloat) {
@@ -228,7 +176,7 @@ public class AnimFlag {
 		}
 
 		timeline.name = getWar3ID(container);
-		timeline.interpolationType = com.etheller.warsmash.parsers.mdlx.InterpolationType.getType(getInterpType());
+		timeline.interpolationType = interpolationType;
 		timeline.globalSequenceId = getGlobalSeqId();
 
 		List<Integer> times = getTimes();
@@ -241,7 +189,7 @@ public class AnimFlag {
 		Object[] tempInTans = new Object[times.size()];
 		Object[] tempOutTans = new Object[times.size()];
 
-		final boolean hasTangents = getInterpType() > 1;
+		final boolean hasTangents = timeline.interpolationType.tangential();
 
 		for (int i = 0, l = times.size(); i < l; i++) {
 			Object value = values.get(i);
@@ -310,7 +258,6 @@ public class AnimFlag {
 
 	public AnimFlag(final String title) {
 		this.name = title;
-		tags.add("DontInterp");
 	}
 
 	public War3ID getWar3ID(final TimelineContainer container) {
@@ -328,10 +275,10 @@ public class AnimFlag {
 			switch (name) {
 			case MdlUtils.TOKEN_TEXTURE_ID: return AnimationMap.KMTF;
 			case MdlUtils.TOKEN_ALPHA: return AnimationMap.KMTA;
-			case "EmissiveGain": return AnimationMap.KMTE;
-			case "FresnelColor": return AnimationMap.KFC3;
-			case "FresnelOpacity": return AnimationMap.KFCA;
-			case "FresnelTeamColor": return AnimationMap.KFTC;
+			case MdlUtils.TOKEN_EMISSIVE_GAIN: return AnimationMap.KMTE;
+			case MdlUtils.TOKEN_FRESNEL_COLOR: return AnimationMap.KFC3;
+			case MdlUtils.TOKEN_FRESNEL_OPACITY: return AnimationMap.KFCA;
+			case MdlUtils.TOKEN_FRESNEL_TEAM_COLOR: return AnimationMap.KFTC;
 			}
 		} else if (container instanceof TextureAnim) {
 			switch (name) {
@@ -423,44 +370,18 @@ public class AnimFlag {
 			final Integer globalSeq) {
 		final AnimFlag flag = new AnimFlag();
 		flag.name = title;
-		switch (interpolationType) {
-		case BEZIER:
-			flag.tags.add("Bezier");
-			break;
-		case HERMITE:
-			flag.tags.add("Hermite");
-			break;
-		case LINEAR:
-			flag.tags.add("Linear");
-			break;
-		default:
-		case DONT_INTERP:
-			flag.tags.add("DontInterp");
-			break;
-		}
+		flag.interpolationType = interpolationType;
 		flag.generateTypeId();
 		flag.setGlobSeq(globalSeq);
 		return flag;
 	}
 
 	public void setInterpType(final InterpolationType interpolationType) {
-		System.err.println("Unsafe call to setInterpType, please rewrite code in AnimFlag class");
-		tags.clear();// we're pretty sure this is just interp type now
-		switch (interpolationType) {
-		case BEZIER:
-			tags.add("Bezier");
-			break;
-		case HERMITE:
-			tags.add("Hermite");
-			break;
-		case LINEAR:
-			tags.add("Linear");
-			break;
-		default:
-		case DONT_INTERP:
-			tags.add("DontInterp");
-			break;
-		}
+		this.interpolationType = interpolationType;
+	}
+
+	public InterpolationType getInterpType() {
+		return interpolationType;
 	}
 
 	public int size() {
@@ -473,10 +394,10 @@ public class AnimFlag {
 
 	public AnimFlag(final AnimFlag af) {
 		name = af.name;
-		tags = af.tags;
 		globalSeq = af.globalSeq;
 		globalSeqId = af.globalSeqId;
 		hasGlobalSeq = af.hasGlobalSeq;
+		interpolationType = af.interpolationType;
 		typeid = af.typeid;
 		times = new ArrayList<>(af.times);
 		values = deepCopy(af.values);
@@ -486,16 +407,11 @@ public class AnimFlag {
 
 	public static AnimFlag buildEmptyFrom(final AnimFlag af) {
 		final AnimFlag na = new AnimFlag(af.name);
-		na.tags = af.tags;
 		na.globalSeq = af.globalSeq;
 		na.globalSeqId = af.globalSeqId;
 		na.hasGlobalSeq = af.hasGlobalSeq;
 		na.typeid = af.typeid;
 		return na;
-	}
-
-	public void addTag(final String tag) {
-		tags.add(tag);
 	}
 
 	public void generateTypeId() {
@@ -674,10 +590,10 @@ public class AnimFlag {
 
 	public void setValuesTo(final AnimFlag af) {
 		name = af.name;
-		tags = af.tags;
 		globalSeq = af.globalSeq;
 		globalSeqId = af.globalSeqId;
 		hasGlobalSeq = af.hasGlobalSeq;
+		interpolationType = af.interpolationType;
 		typeid = af.typeid;
 		times = new ArrayList<>(af.times);
 		values = deepCopy(af.values);
@@ -959,12 +875,12 @@ public class AnimFlag {
 	}
 
 	public boolean tans() {
-		return tags.contains("Bezier") || tags.contains("Hermite") || (inTans.size() > 0);
+		return interpolationType.tangential() && inTans.size() > 0;
 	}
 
 	public void linearize() {
-		if (tags.remove("Bezier") || tags.remove("Hermite")) {
-			tags.add("Linear");
+		if (interpolationType.tangential()) {
+			interpolationType = InterpolationType.LINEAR;
 			inTans.clear();
 			outTans.clear();
 		}
@@ -983,7 +899,7 @@ public class AnimFlag {
 					"Some animations will lose complexity due to transfer incombatibility. There will probably be no visible change.");
 			inTans.clear();
 			outTans.clear();
-			tags = source.tags;
+			interpolationType = InterpolationType.LINEAR;
 			// Probably makes this flag linear, but certainly makes it more like
 			// the copy source
 		}
@@ -1040,7 +956,7 @@ public class AnimFlag {
 		// Timescales a part of the AnimFlag from the source into the new time
 		// "newStart" to "newEnd"
 		boolean tans = source.tans();
-		if (tans && tags.contains("Linear")) {
+		if (tans && interpolationType == InterpolationType.LINEAR) {
 			final int x = JOptionPane.showConfirmDialog(null,
 					"ERROR! A source was found to have Linear and Nonlinear motion simultaneously. Does the following have non-zero data? "
 							+ source.inTans,
@@ -1173,19 +1089,19 @@ public class AnimFlag {
 		}
 	}
 
-	public List getValues() {
-		return values;
-	}
-
 	public List<Integer> getTimes() {
 		return times;
 	}
 
-	public List getInTans() {
+	public List<Object> getValues() {
+		return values;
+	}
+
+	public List<Object> getInTans() {
 		return inTans;
 	}
 
-	public List getOutTans() {
+	public List<Object> getOutTans() {
 		return outTans;
 	}
 
@@ -1433,7 +1349,7 @@ public class AnimFlag {
 			// Double
 			final Double previous = (Double) floorValue;
 			final Double next = (Double) ceilValue;
-			switch (getInterpTypeAsEnum()) {
+			switch (interpolationType) {
 			case BEZIER: {
 				final Double previousOutTan = (Double) floorOutTan;
 				final Double nextInTan = (Double) inTans.get(ceilIndex);
@@ -1470,7 +1386,7 @@ public class AnimFlag {
 			// Vertex
 			final Vertex previous = (Vertex) floorValue;
 			final Vertex next = (Vertex) ceilValue;
-			switch (getInterpTypeAsEnum()) {
+			switch (interpolationType) {
 			case BEZIER: {
 				final Vertex previousOutTan = (Vertex) floorOutTan;
 				final Vertex nextInTan = (Vertex) inTans.get(ceilIndex);
@@ -1512,7 +1428,7 @@ public class AnimFlag {
 			// Quat
 			final QuaternionRotation previous = (QuaternionRotation) floorValue;
 			final QuaternionRotation next = (QuaternionRotation) ceilValue;
-			switch (getInterpTypeAsEnum()) {
+			switch (interpolationType) {
 			case BEZIER: {
 				final QuaternionRotation previousOutTan = (QuaternionRotation) floorOutTan;
 				final QuaternionRotation nextInTan = (QuaternionRotation) inTans.get(ceilIndex);
@@ -1547,7 +1463,7 @@ public class AnimFlag {
 		// Integer
 		{
 			final Integer previous = (Integer) floorValue;
-			switch (getInterpTypeAsEnum()) {
+			switch (interpolationType) {
 			case DONT_INTERP:
 			case BEZIER: // dont use bezier on these, does that even make any sense?
 			case HERMITE: // dont use hermite on these, does that even make any sense?

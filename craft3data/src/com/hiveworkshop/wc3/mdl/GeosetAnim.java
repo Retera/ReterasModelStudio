@@ -12,8 +12,8 @@ import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
  * Eric Theller 11/10/2011
  */
 public class GeosetAnim extends TimelineContainer implements Named {
-	double staticAlpha = -1;
-	Vertex staticColor = null;
+	double staticAlpha = 1;
+	Vertex staticColor = new Vertex(1, 1, 1);
 	int geosetId = -1;
 	Geoset geoset;
 	boolean dropShadow = false;

@@ -72,6 +72,7 @@ import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
+import com.etheller.warsmash.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.GPUReadyTexture;
@@ -89,7 +90,6 @@ import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Layer;
-import com.hiveworkshop.wc3.mdl.Layer.FilterMode;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
 import com.hiveworkshop.wc3.mdl.Triangle;
@@ -101,6 +101,7 @@ import com.hiveworkshop.wc3.mdl.render3d.RenderParticleEmitter2;
 import com.hiveworkshop.wc3.mdl.render3d.RenderResourceAllocator;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.util.ModelUtils;
+import com.etheller.warsmash.parsers.mdlx.MdlxParticleEmitter2;
 
 public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements MouseListener, ActionListener,
 		MouseWheelListener, AnimatedRenderEnvironment, RenderResourceAllocator {
@@ -1217,25 +1218,25 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			depthMask = true;
 			break;
 		}
-		if (layer.isTwoSided()
-				|| ((ModelUtils.isShaderStringSupported(formatVersion)) && parent.getFlags().contains("TwoSided"))) {
+		if (layer.getTwoSided()
+				|| ((ModelUtils.isShaderStringSupported(formatVersion)) && parent.getTwoSided())) {
 			GL11.glDisable(GL11.GL_CULL_FACE);
 		} else {
 			GL11.glEnable(GL11.GL_CULL_FACE);
 		}
-		if (layer.isNoDepthTest()) {
+		if (layer.getNoDepthTest()) {
 			GL11.glDisable(GL11.GL_DEPTH_TEST);
 		} else {
 			GL11.glEnable(GL11.GL_DEPTH_TEST);
 		}
-		if (layer.isNoDepthSet()) {
+		if (layer.getNoDepthSet()) {
 			GL11.glDepthMask(false);
 		} else {
 			GL11.glDepthMask(depthMask);
 		}
 //		GL11.glColorMask(layer.getFilterMode() == FilterMode.ADDITIVE, layer.getFilterMode() == FilterMode.ADDITIVE,
 //				layer.getFilterMode() == FilterMode.ADDITIVE, layer.getFilterMode() == FilterMode.ADDITIVE);
-		if (layer.isUnshaded()) {
+		if (layer.getUnshaded()) {
 			GL11.glDisable(GL_LIGHTING);
 		} else {
 			glEnable(GL_LIGHTING);
@@ -1257,34 +1258,34 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T,
 					tex.isWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
 		}
-		switch (particle2.getFilterModeReallyBadReallySlow()) {
-		case Blend:
+		switch (particle2.getFilterMode()) {
+		case BLEND:
 			GL11.glDisable(GL11.GL_ALPHA_TEST);
 			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			break;
-		case Additive:
+		case ADDITIVE:
 			GL11.glDisable(GL11.GL_ALPHA_TEST);
 			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
 			break;
-		case AlphaKey:
+		case ALPHAKEY:
 			GL11.glDisable(GL11.GL_ALPHA_TEST);
 			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
 			break;
-		case Modulate:
+		case MODULATE:
 			GL11.glDisable(GL11.GL_ALPHA_TEST);
 			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glBlendFunc(GL11.GL_ZERO, GL11.GL_SRC_COLOR);
 			break;
-		case Modulate2x:
+		case MODULATE2X:
 			GL11.glDisable(GL11.GL_ALPHA_TEST);
 			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glBlendFunc(GL11.GL_DST_COLOR, GL11.GL_SRC_COLOR);
 			break;
 		}
-		if (particle2.isUnshaded()) {
+		if (particle2.getUnshaded()) {
 			GL11.glDisable(GL_LIGHTING);
 		} else {
 			glEnable(GL_LIGHTING);
@@ -1661,8 +1662,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		@Override
 		public void bind() {
 			if (!loaded) {
-				loadToTexMap((particle.getFilterModeReallyBadReallySlow() == ParticleEmitter2.FilterMode.Modulate)
-						&& (particle.getFilterModeReallyBadReallySlow() == ParticleEmitter2.FilterMode.Modulate2x),
+				loadToTexMap((particle.getFilterMode() == MdlxParticleEmitter2.FilterMode.MODULATE)
+						&& (particle.getFilterMode() == MdlxParticleEmitter2.FilterMode.MODULATE2X),
 						bitmap);
 				loaded = true;
 			}

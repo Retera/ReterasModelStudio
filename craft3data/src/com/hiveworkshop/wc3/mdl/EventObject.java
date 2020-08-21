@@ -18,18 +18,23 @@ public class EventObject extends IdObject {
 	List<Integer> eventTrack = new ArrayList<>();
 	Integer globalSeq;
 	int globalSeqId = -1;
-	boolean hasGlobalSeq;
+	boolean hasGlobalSeq = false;
 
-	private EventObject() {
-
-	}
-
-	protected EventObject(final EventObject source) {
+	public EventObject() {
 
 	}
-
+	
 	public EventObject(final String name) {
 		this.name = name;
+	}
+
+	public EventObject(final EventObject object) {
+		copyObject(object);
+	
+		eventTrack = new ArrayList<>(object.eventTrack);
+		globalSeq = object.globalSeq;
+		globalSeqId = object.globalSeqId;
+		hasGlobalSeq = object.hasGlobalSeq;
 	}
 
 	public EventObject(final MdlxEventObject object) {
@@ -74,17 +79,7 @@ public class EventObject extends IdObject {
 
 	@Override
 	public EventObject copy() {
-		final EventObject x = new EventObject();
-
-		x.name = name;
-		x.pivotPoint = new Vertex(pivotPoint);
-		x.objectId = objectId;
-		x.parentId = parentId;
-		x.setParent(getParent());
-		x.eventTrack = new ArrayList<>(eventTrack);
-		x.addAll(getAnimFlags());
-		
-		return x;
+		return new EventObject(this);
 	}
 
 	public int size() {
@@ -205,11 +200,6 @@ public class EventObject extends IdObject {
 		if (hasGlobalSeq) {
 			globalSeqId = mdlr.getGlobalSeqId(globalSeq);
 		}
-	}
-
-	@Override
-	public void add(final String flag) {
-		System.err.println("ERROR: EventObject given unknown flag: " + flag);
 	}
 
 	/**

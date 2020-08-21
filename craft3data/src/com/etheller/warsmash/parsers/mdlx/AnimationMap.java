@@ -17,221 +17,221 @@ import com.hiveworkshop.wc3.units.objectdata.War3ID;
 public enum AnimationMap {
 	// Layer
 	/**
-	 * Layer Texture ID
+	 * Layer texture ID
 	 */
 	KMTF(MdlUtils.TOKEN_TEXTURE_ID, MdlxTimelineDescriptor.UINT32_TIMELINE),
 	/**
-	 * Layer Alpha
+	 * Layer alpha
 	 */
 	KMTA(MdlUtils.TOKEN_ALPHA, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
-	 * Layer Emissive Gain
+	 * Layer emissive gain
 	 */
 	KMTE("EmissiveGain", MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
-	 * Layer Fresnel Color
+	 * Layer fresnel color
 	 */
 	KFC3("FresnelColor", MdlxTimelineDescriptor.VECTOR3_TIMELINE),
 	/**
-	 * Layer Fresnel Opacity
+	 * Layer fresnel opacity
 	 */
 	KFCA("FresnelOpacity", MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
-	 * Layer Fresnel Team Color
+	 * Layer fresnel team color
 	 */
 	KFTC("FresnelTeamColor", MdlxTimelineDescriptor.UINT32_TIMELINE),
 	// TextureAnimation
 	/**
-	 * Texture Animation Translation
+	 * Texture animation translation
 	 */
 	KTAT(MdlUtils.TOKEN_TRANSLATION, MdlxTimelineDescriptor.VECTOR3_TIMELINE),
 	/**
-	 * Texture Animation Rotation
+	 * Texture animation rotation
 	 */
 	KTAR(MdlUtils.TOKEN_ROTATION, MdlxTimelineDescriptor.VECTOR4_TIMELINE),
 	/**
-	 * Texture Animation Scaling
+	 * Texture animation scaling
 	 */
 	KTAS(MdlUtils.TOKEN_SCALING, MdlxTimelineDescriptor.VECTOR3_TIMELINE),
 	// GeosetAnimation
 	/**
-	 * Geoset Animation Alpha
+	 * Geoset animation alpha
 	 */
 	KGAO(MdlUtils.TOKEN_ALPHA, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
-	 * Geoset Animation Color
+	 * Geoset animation color
 	 */
 	KGAC(MdlUtils.TOKEN_COLOR, MdlxTimelineDescriptor.VECTOR3_TIMELINE),
 	// Light
 	/**
-	 * Light Attenuation Start
+	 * Light attenuation start
 	 */
 	KLAS(MdlUtils.TOKEN_ATTENUATION_START, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
-	 * Light Attenuation End
+	 * Light attenuation end
 	 */
 	KLAE(MdlUtils.TOKEN_ATTENUATION_END, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
-	 * Light Color
+	 * Light color
 	 */
 	KLAC(MdlUtils.TOKEN_COLOR, MdlxTimelineDescriptor.VECTOR3_TIMELINE),
 	/**
-	 * Light Intensity
+	 * Light intensity
 	 */
 	KLAI(MdlUtils.TOKEN_INTENSITY, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
-	 * Light Ambient Intensity
+	 * Light ambient intensity
 	 */
 	KLBI(MdlUtils.TOKEN_AMB_INTENSITY, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
-	 * Light Ambient Color
+	 * Light ambient color
 	 */
 	KLBC(MdlUtils.TOKEN_AMB_COLOR, MdlxTimelineDescriptor.VECTOR3_TIMELINE),
 	/**
-	 * Light Visibility
+	 * Light visibility
 	 */
 	KLAV(MdlUtils.TOKEN_VISIBILITY, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	// Attachment
 	/**
-	 * Attachment Visibility
+	 * Attachment visibility
 	 */
 	KATV(MdlUtils.TOKEN_VISIBILITY, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	// ParticleEmitter
 	/**
-	 * Particle Emitter Emission Rate
+	 * Particle emitter emission rate
 	 */
 	KPEE(MdlUtils.TOKEN_EMISSION_RATE, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
-	 * Particle Emitter Gravity
+	 * Particle emitter gravity
 	 */
 	KPEG(MdlUtils.TOKEN_GRAVITY, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
-	 * Particle Emitter Longitude
+	 * Particle emitter longitude
 	 */
 	KPLN(MdlUtils.TOKEN_LONGITUDE, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
-	 * Particle Emitter Latitude
+	 * Particle emitter latitude
 	 */
 	KPLT(MdlUtils.TOKEN_LATITUDE, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
-	 * Particle Emitter Lifespan
+	 * Particle emitter lifespan
 	 */
 	KPEL(MdlUtils.TOKEN_LIFE_SPAN, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
-	 * Particle Emitter Initial Velocity
+	 * Particle emitter initial velocity
 	 */
 	KPES(MdlUtils.TOKEN_INIT_VELOCITY, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
-	 * Particle Emitter Visibility
+	 * Particle emitter visibility
 	 */
 	KPEV(MdlUtils.TOKEN_VISIBILITY, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	// ParticleEmitter2
 	/**
-	 * Particle Emitter 2 Speed
+	 * Particle emitter 2 speed
 	 */
 	KP2S("Speed", MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
-	 * Particle Emitter 2 Variation
+	 * Particle emitter 2 variation
 	 */
 	KP2R("Variation", MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
-	 * Particle Emitter 2 Latitude
+	 * Particle emitter 2 latitude
 	 */
 	KP2L("Latitude", MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
-	 * Particle Emitter 2 Gravity
+	 * Particle emitter 2 gravity
 	 */
 	KP2G("Gravity", MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
-	 * Particle Emitter 2 Emission Rate
+	 * Particle emitter 2 emission rate
 	 */
 	KP2E("EmissionRate", MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
-	 * Particle Emitter 2 Length
+	 * Particle emitter 2 length
 	 */
 	KP2N("Length", MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
-	 * Particle Emitter 2 Width
+	 * Particle emitter 2 width
 	 */
 	KP2W("Width", MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
-	 * Particle Emitter 2 Visibility
+	 * Particle emitter 2 visibility
 	 */
 	KP2V("Visibility", MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	 // ParticleEmitterCorn
 	 /**
-	 * Particle Emitter Popcorn Emission
+	 * Popcorn emitter alpha
 	 */
 	 KPPA("Alpha", MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	 /**
-	 * Particle Emitter Popcorn Emission
+	 * Popcorn emitter color
 	 */
 	 KPPC("Color", MdlxTimelineDescriptor.VECTOR3_TIMELINE),
 	 /**
-	 * Particle Emitter Popcorn Emission
+	 * Popcorn emitter emission rate
 	 */
 	 KPPE("EmissionRate", MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	 /**
-	 * Particle Emitter Popcorn Emission
+	 * Popcorn emitter lifespan
 	 */
 	 KPPL("LifeSpan", MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	 /**
-	 * Particle Emitter Popcorn Emission
+	 * Popcorn emitter speed
 	 */
 	 KPPS("Speed", MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	 /**
-	 * Particle Emitter Popcorn Emission
+	 * Popcorn emitter visibility
 	 */
 	 KPPV("Visibility", MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	// RibbonEmitter
 	/**
-	 * Ribbon Emitter Emission
+	 * Ribbon emitter height above
 	 */
 	KRHA("HeightAbove", MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
-	 * Ribbon Emitter Emission
+	 * Ribbon emitter height below
 	 */
 	KRHB("HeightBelow", MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
-	 * Ribbon Emitter Emission
+	 * Ribbon emitter alpha
 	 */
 	KRAL("Alpha", MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
-	 * Ribbon Emitter Emission
+	 * Ribbon emitter color
 	 */
 	KRCO("Color", MdlxTimelineDescriptor.VECTOR3_TIMELINE),
 	/**
-	 * Ribbon Emitter Emission
+	 * Ribbon emitter texture slot
 	 */
 	KRTX("TextureSlot", MdlxTimelineDescriptor.UINT32_TIMELINE),
 	/**
-	 * Ribbon Emitter Emission
+	 * Ribbon emitter visibility
 	 */
 	KRVS("Visibility", MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	// Camera
 	/**
-	 * Camera Source Translation
+	 * Camera source translation
 	 */
 	KCTR(MdlUtils.TOKEN_TRANSLATION, MdlxTimelineDescriptor.VECTOR3_TIMELINE),
 	/**
-	 * Camera Target Translation
+	 * Camera target translation
 	 */
 	KTTR(MdlUtils.TOKEN_TRANSLATION, MdlxTimelineDescriptor.VECTOR3_TIMELINE),
 	/**
-	 * Camera Source Rotation
+	 * Camera source rotation
 	 */
 	KCRL(MdlUtils.TOKEN_ROTATION, MdlxTimelineDescriptor.UINT32_TIMELINE),
 	// GenericObject
 	/**
-	 * Generic object Translation
+	 * Generic object translation
 	 */
 	KGTR(MdlUtils.TOKEN_TRANSLATION, MdlxTimelineDescriptor.VECTOR3_TIMELINE),
 	/**
-	 * Generic object Rotation
+	 * Generic object rotation
 	 */
 	KGRT(MdlUtils.TOKEN_ROTATION, MdlxTimelineDescriptor.VECTOR4_TIMELINE),
 	/**
-	 * Generic Object Scaling
+	 * Generic object scaling
 	 */
 	KGSC(MdlUtils.TOKEN_SCALING, MdlxTimelineDescriptor.VECTOR3_TIMELINE);
 

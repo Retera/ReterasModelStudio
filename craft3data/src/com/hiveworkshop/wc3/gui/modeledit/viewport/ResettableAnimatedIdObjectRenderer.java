@@ -10,6 +10,7 @@ import java.util.List;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector4f;
 
+import com.etheller.warsmash.parsers.mdlx.MdlxCollisionShape;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.mdl.Attachment;
 import com.hiveworkshop.wc3.mdl.Bone;
@@ -266,7 +267,7 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
 		loadPivotInVertexHeap(pivotPoint, worldMatrix, vertexHeap);
 		final int xCoord = (int) coordinateSystem.convertX(Vertex.getCoord(vertexHeap, xDimension));
 		final int yCoord = (int) coordinateSystem.convertY(Vertex.getCoord(vertexHeap, yDimension));
-		if (collisionShape.getFlags().contains("Box")) {
+		if (collisionShape.getType() == MdlxCollisionShape.Type.BOX) {
 			if (vertices.size() > 1) {
 				final Vertex vertex = vertices.get(0);
 				final Vertex vertex2 = vertices.get(1);

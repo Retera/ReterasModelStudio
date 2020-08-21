@@ -10,7 +10,7 @@ import com.etheller.warsmash.parsers.mdlx.MdlxTexture;
 public class Bitmap {
 	private String imagePath = "";
 	private int replaceableId = 0;
-	private int wrapStyle;// 0 = nothing, 1 = WrapWidth, 2 = WrapHeight, 3 =
+	private int wrapStyle = 0;// 0 = nothing, 1 = WrapWidth, 2 = WrapHeight, 3 =
 							// both
 
 	public String getPath() {

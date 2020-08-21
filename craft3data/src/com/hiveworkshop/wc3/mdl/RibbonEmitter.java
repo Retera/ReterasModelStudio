@@ -15,10 +15,10 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
  * Eric Theller 3/10/2012 3:32 PM
  */
 public class RibbonEmitter extends IdObject {
-	double heightAbove;
-	double heightBelow;
-	double alpha;
-	double textureSlot;
+	double heightAbove = 0;
+	double heightBelow = 0;
+	double alpha = 0;
+	double textureSlot = 0;
 	double lifeSpan = 0;
 	double gravity = 0;
 	int emissionRate = 0;
@@ -26,14 +26,31 @@ public class RibbonEmitter extends IdObject {
 	int columns = 0;
 	int materialID = 0;
 	Material material;
-	Vertex staticColor;
+	Vertex staticColor = new Vertex(1, 1, 1);
 
-	private RibbonEmitter() {
+	public RibbonEmitter() {
 
 	}
 
 	public RibbonEmitter(final String name) {
 		this.name = name;
+	}
+
+	public RibbonEmitter(final RibbonEmitter emitter) {
+		copyObject(emitter);
+		
+		heightAbove = emitter.heightAbove;
+		heightBelow = emitter.heightBelow;
+		alpha = emitter.alpha;
+		textureSlot = emitter.textureSlot;
+		lifeSpan = emitter.lifeSpan;
+		gravity = emitter.gravity;
+		emissionRate = emitter.emissionRate;
+		rows = emitter.rows;
+		columns = emitter.columns;
+		materialID = emitter.materialID;
+		material = emitter.material;
+		staticColor = new Vertex(emitter.staticColor);
 	}
 
 	public RibbonEmitter(final MdlxRibbonEmitter emitter) {
@@ -78,29 +95,8 @@ public class RibbonEmitter extends IdObject {
 	}
 
 	@Override
-	public IdObject copy() {
-		final RibbonEmitter x = new RibbonEmitter();
-
-		x.name = name;
-		x.pivotPoint = new Vertex(pivotPoint);
-		x.objectId = objectId;
-		x.parentId = parentId;
-		x.setParent(getParent());
-
-		x.heightAbove = heightAbove;
-		x.heightBelow = heightBelow;
-		x.alpha = alpha;
-		x.textureSlot = textureSlot;
-		x.lifeSpan = lifeSpan;
-		x.gravity = gravity;
-		x.emissionRate = emissionRate;
-		x.rows = rows;
-		x.columns = columns;
-		x.materialID = materialID;
-		x.material = material;
-		x.staticColor = new Vertex(staticColor);
-		x.addAll(getAnimFlags());
-		return x;
+	public RibbonEmitter copy() {
+		return new RibbonEmitter(this);
 	}
 
 	public void updateMaterialRef(final List<Material> mats) {
@@ -205,11 +201,6 @@ public class RibbonEmitter extends IdObject {
 
 	public void setStaticColor(final Vertex staticColor) {
 		this.staticColor = staticColor;
-	}
-
-	@Override
-	public void add(final String flag) {
-		System.err.println("ERROR: RibbonEmitter given unknown flag: " + flag);
 	}
 
 	@Override

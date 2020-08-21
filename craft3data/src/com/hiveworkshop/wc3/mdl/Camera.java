@@ -19,30 +19,22 @@ import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
  */
 public class Camera implements Named {
 	String name;
-	Vertex Position;
-	double FieldOfView;
-	double FarClip;
-	double NearClip;
+	Vertex position;
+	double fieldOfView;
+	double farClip;
+	double nearClip;
 	Vertex targetPosition;
 	List<AnimFlag> targetAnimFlags = new ArrayList<>();
 	final SourceNode sourceNode = new SourceNode(this);
 	final TargetNode targetNode = new TargetNode(this);
 	float[] bindPose;
 
-	public SourceNode getSourceNode() {
-		return sourceNode;
-	}
-
-	public TargetNode getTargetNode() {
-		return targetNode;
-	}
-
 	public Camera(final MdlxCamera camera) {
 		name = camera.name;
-		Position = new Vertex(camera.position);
-		FieldOfView = camera.fieldOfView;
-		FarClip = camera.farClippingPlane;
-		NearClip = camera.nearClippingPlane;
+		position = new Vertex(camera.position);
+		fieldOfView = camera.fieldOfView;
+		farClip = camera.farClippingPlane;
+		nearClip = camera.nearClippingPlane;
 		targetPosition = new Vertex(camera.targetPosition);
 
 		for (final MdlxTimeline<?> timeline : camera.timelines) {
@@ -74,41 +66,40 @@ public class Camera implements Named {
 		name = text;
 	}
 
-	@Override
 	public String getName() {
 		return name;
 	}
 
 	public Vertex getPosition() {
-		return Position;
+		return position;
 	}
 
 	public void setPosition(final Vertex position) {
-		Position = position;
+		this.position = position;
 	}
 
 	public double getFieldOfView() {
-		return FieldOfView;
+		return fieldOfView;
 	}
 
 	public void setFieldOfView(final double fieldOfView) {
-		FieldOfView = fieldOfView;
+		this.fieldOfView = fieldOfView;
 	}
 
 	public double getFarClip() {
-		return FarClip;
+		return farClip;
 	}
 
 	public void setFarClip(final double farClip) {
-		FarClip = farClip;
+		this.farClip = farClip;
 	}
 
 	public double getNearClip() {
-		return NearClip;
+		return nearClip;
 	}
 
 	public void setNearClip(final double nearClip) {
-		NearClip = nearClip;
+		this.nearClip = nearClip;
 	}
 
 	public Vertex getTargetPosition() {
@@ -119,9 +110,18 @@ public class Camera implements Named {
 		this.targetPosition = targetPosition;
 	}
 
+	public SourceNode getSourceNode() {
+		return sourceNode;
+	}
+
+	public TargetNode getTargetNode() {
+		return targetNode;
+	}
+
 	public static final class SourceNode extends AnimatedNode {
-		private final Camera parent;
 		private static final QuaternionRotation rotationHeap = new QuaternionRotation(0, 0, 0, 1);
+		
+		private final Camera parent;
 		private final Vertex axisHeap = new Vertex(0, 0, 0);
 
 		private SourceNode(final Camera parent) {
@@ -135,12 +135,12 @@ public class Camera implements Named {
 
 		@Override
 		public Vertex getPivotPoint() {
-			return parent.Position;
+			return parent.position;
 		}
 
 		@Override
 		public List<? extends AnimatedNode> getChildrenNodes() {
-			return Collections.EMPTY_LIST;
+			return Collections.emptyList();
 		}
 
 		@Override
@@ -163,7 +163,7 @@ public class Camera implements Named {
 					final Vertex targetTranslation = parent.targetNode.getRenderTranslation(animatedRenderEnvironment);
 					final Vertex targetPosition = parent.targetPosition;
 					final Vertex sourceTranslation = getRenderTranslation(animatedRenderEnvironment);
-					final Vertex sourcePosition = parent.Position;
+					final Vertex sourcePosition = parent.position;
 					axisHeap.x = (targetPosition.x + targetTranslation.x) - (sourcePosition.x + sourceTranslation.x);
 					axisHeap.y = (targetPosition.y + targetTranslation.y) - (sourcePosition.y + sourceTranslation.y);
 					axisHeap.z = (targetPosition.z + targetTranslation.z) - (sourcePosition.z + sourceTranslation.z);
@@ -205,7 +205,7 @@ public class Camera implements Named {
 
 		@Override
 		public List<? extends AnimatedNode> getChildrenNodes() {
-			return Collections.EMPTY_LIST;
+			return Collections.emptyList();
 		}
 
 		@Override

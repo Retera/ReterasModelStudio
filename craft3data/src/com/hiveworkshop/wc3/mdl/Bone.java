@@ -32,22 +32,14 @@ public class Bone extends IdObject {
 	}
 
 	public Bone(final Bone b) {
-		name = b.name;
-		pivotPoint = new Vertex(b.pivotPoint);
-		objectId = b.objectId;
-		parentId = b.parentId;
-		setParent(b.getParent());
-
+		copyObject(b);
+		
 		geosetId = b.geosetId;
 		multiGeoId = b.multiGeoId;
 		geoset = b.geoset;
 		geosetAnimId = b.geosetAnimId;
 		geosetAnim = b.geosetAnim;
 		hasGeoAnim = b.hasGeoAnim;
-		for (final AnimFlag af : b.animFlags.values()) {
-			add(new AnimFlag(af));
-		}
-		flags = new HashSet<>(b.flags);
 	}
 
 	public Bone(final MdlxBone bone) {
@@ -72,6 +64,11 @@ public class Bone extends IdObject {
 		return bone;
 	}
 
+	@Override
+	public Bone copy() {
+		return new Bone(this);
+	}
+	
 	public void copyMotionFrom(final Bone b) {
 		for (final AnimFlag baf : b.animFlags.values()) {
 			boolean foundMatch = false;
@@ -113,11 +110,6 @@ public class Bone extends IdObject {
 			}
 		}
 		return false;
-	}
-
-	@Override
-	public IdObject copy() {
-		return new Bone(this);
 	}
 
 	@Override

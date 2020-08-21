@@ -7,7 +7,6 @@ import org.lwjgl.util.vector.Vector4f;
 
 import com.hiveworkshop.wc3.mdl.AnimatedNode;
 import com.hiveworkshop.wc3.mdl.IdObject;
-import com.hiveworkshop.wc3.mdl.IdObject.NodeFlags;
 import com.hiveworkshop.wc3.mdl.QuaternionRotation;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.util.MathUtils;
@@ -78,12 +77,11 @@ public final class RenderNode {
 		if (idObject instanceof IdObject) {
 			IdObject actualIdObject = (IdObject)idObject;
 
-			dontInheritScaling = actualIdObject.hasNodeFlag(NodeFlags.DONTINHERIT_SCALING); // hasFlag is idiot code with string
-																					// compare
-			billboarded = actualIdObject.hasNodeFlag(NodeFlags.BILLBOARDED);
-			billboardedX = actualIdObject.hasNodeFlag(NodeFlags.BILLBOARD_LOCK_X);
-			billboardedY = actualIdObject.hasNodeFlag(NodeFlags.BILLBOARD_LOCK_Y);
-			billboardedZ = actualIdObject.hasNodeFlag(NodeFlags.BILLBOARD_LOCK_Z);
+			dontInheritScaling = actualIdObject.getDontInheritScaling();
+			billboarded = actualIdObject.getBillboarded();
+			billboardedX = actualIdObject.getBillboardLockX();
+			billboardedY = actualIdObject.getBillboardLockY();
+			billboardedZ = actualIdObject.getBillboardLockZ();
 		}
 	}
 

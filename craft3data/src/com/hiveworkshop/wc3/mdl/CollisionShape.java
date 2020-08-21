@@ -1,10 +1,10 @@
 package com.hiveworkshop.wc3.mdl;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import com.etheller.warsmash.parsers.mdlx.MdlxCollisionShape;
+import com.etheller.warsmash.parsers.mdlx.MdlxCollisionShape.Type;
 
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
@@ -18,7 +18,18 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
  */
 public class CollisionShape extends IdObject {
 	ExtLog extents;
+	Type type = Type.BOX;
 	List<Vertex> vertices = new ArrayList<>();
+
+	public CollisionShape(final CollisionShape shape) {
+		copyObject(shape);
+	
+		vertices = new ArrayList<>(shape.vertices);
+
+		if (shape.extents != null) {
+			extents = new ExtLog(shape.extents);
+		}
+	}
 
 	public CollisionShape(final MdlxCollisionShape shape) {
 		if ((shape.flags & 8192) != 8192) {
@@ -28,26 +39,17 @@ public class CollisionShape extends IdObject {
 
 		loadObject(shape);
 
-		MdlxCollisionShape.Type type = shape.type;
-		float[][] vertices = shape.vertices;
+		type = shape.type;
 
-		if (type == MdlxCollisionShape.Type.BOX) {
-			add("Box");
-		} else if (type == MdlxCollisionShape.Type.PLANE) {
-			add("Plane");
-		} else if (type == MdlxCollisionShape.Type.SPHERE) {
-			add("Sphere");
-		} else if (type == MdlxCollisionShape.Type.CYLINDER) {
-			add("Cylinder");
-		}
+		float[][] vertices = shape.vertices;
 
 		this.vertices.add(new Vertex(vertices[0]));
 
-		if (type != MdlxCollisionShape.Type.SPHERE) {
+		if (type != Type.SPHERE) {
 			this.vertices.add(new Vertex(vertices[1]));
 		}
 
-		if (type == MdlxCollisionShape.Type.SPHERE || type == MdlxCollisionShape.Type.CYLINDER) {
+		if (type == Type.SPHERE || type == Type.CYLINDER) {
 			extents = new ExtLog(shape.boundsRadius);
 		}
 	}
@@ -57,17 +59,7 @@ public class CollisionShape extends IdObject {
 		
 		objectToMdlx(shape);
 
-		for (final String flag : getFlags()) {
-			if (flag.equals("Box")) {
-				shape.type = MdlxCollisionShape.Type.BOX;
-			} else if (flag.equals("Plane")) {
-				shape.type = MdlxCollisionShape.Type.PLANE;
-			} else if (flag.equals("Sphere")) {
-				shape.type = MdlxCollisionShape.Type.SPHERE;
-			} else if (flag.equals("Cylinder")) {
-				shape.type = MdlxCollisionShape.Type.CYLINDER;
-			}
-		}
+		shape.type = type;
 
 		shape.vertices[0] = getVertex(0).toFloatArray();
 
@@ -83,22 +75,16 @@ public class CollisionShape extends IdObject {
 	}
 
 	@Override
-	public IdObject copy() {
-		final CollisionShape x = new CollisionShape();
+	public CollisionShape copy() {
+		return new CollisionShape(this);
+	}
 
-		x.name = name;
-		x.pivotPoint = new Vertex(pivotPoint);
-		x.objectId = objectId;
-		x.parentId = parentId;
-		x.setParent(getParent());
+	public Type getType() {
+		return type;
+	}
 
-		x.flags = new HashSet<>(flags);
-		x.vertices = new ArrayList<>(vertices);
-		if (extents != null) {
-			x.extents = new ExtLog(extents);
-		}
-		x.addAll(getAnimFlags());
-		return x;
+	public void setType(Type type) {
+		this.type = type;
 	}
 
 	public void addVertex(final Vertex v) {
@@ -111,10 +97,6 @@ public class CollisionShape extends IdObject {
 
 	public int numVerteces() {
 		return vertices.size();
-	}
-
-	private CollisionShape() {
-
 	}
 
 	public ExtLog getExtents() {
@@ -144,7 +126,7 @@ public class CollisionShape extends IdObject {
 		final byte yDimension = coordinateSystem.getPortSecondXYZ();
 		final int xCoord = (int) coordinateSystem.convertX(pivotPoint.getCoord(xDimension));
 		final int yCoord = (int) coordinateSystem.convertY(pivotPoint.getCoord(yDimension));
-		if (flags.contains("Box")) {
+		if (type == Type.BOX) {
 			if (vertices.size() > 0) {
 				// final Vertex vertex = vertices.get(0);
 				// final int secondXCoord = (int)

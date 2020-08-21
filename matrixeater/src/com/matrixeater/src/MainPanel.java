@@ -98,6 +98,7 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector4f;
 
+import com.etheller.warsmash.parsers.mdlx.InterpolationType;
 import com.etheller.warsmash.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
@@ -185,7 +186,6 @@ import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewStateListener;
-import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.resources.Resources;
@@ -3170,7 +3170,7 @@ public class MainPanel extends JPanel
 
 					final Animation newAnimation = new Animation(nameChoice, start, start + totalLength);
 					model.add(newAnimation);
-					newAnimation.getTags().add("NonLooping");
+					newAnimation.setNonLooping(true);
 					newAnimation.setExtents(new ExtLog(animation.getExtents()));
 					JOptionPane.showMessageDialog(MainPanel.this,
 							"DONE! Made a combined animation called " + newAnimation.getName(), "Success",
@@ -3686,8 +3686,7 @@ public class MainPanel extends JPanel
 					for (final Geoset retainedGeoset : retainedGeosets) {
 						if (retainedGeoset.getMaterial().equals(geoset.getMaterial())
 								&& (retainedGeoset.getSelectionGroup() == geoset.getSelectionGroup())
-								&& (retainedGeoset.getFlags().contains("Unselectable") == geoset.getFlags()
-										.contains("Unselectable"))
+								&& (retainedGeoset.getUnselectable() == geoset.getUnselectable())
 								&& mergableGeosetAnims(retainedGeoset.getGeosetAnim(), geoset.getGeosetAnim())) {
 							alreadyRetained = true;
 							for (final GeosetVertex gv : geoset.getVertices()) {
@@ -4451,7 +4450,7 @@ public class MainPanel extends JPanel
 							final List<Integer> times = new ArrayList<>();
 							final List<Integer> values = new ArrayList<>();
 							trans = new AnimFlag("Translation", times, values);
-							trans.addTag("Linear");
+							trans.setInterpType(InterpolationType.LINEAR);
 							b.getAnimFlags().add(trans);
 						}
 						trans.addEntry(birth.getStart(), new Vertex(0, 0, -300));
@@ -4473,11 +4472,11 @@ public class MainPanel extends JPanel
 					af.setEntry(death.getEnd(), Integer.valueOf(0));
 				}
 
-				if (!birth.getTags().contains("NonLooping")) {
-					birth.addTag("NonLooping");
+				if (!birth.isNonLooping()) {
+					birth.setNonLooping(true);
 				}
-				if (!death.getTags().contains("NonLooping")) {
-					death.addTag("NonLooping");
+				if (!death.isNonLooping()) {
+					death.setNonLooping(true);
 				}
 
 				if (!model.contains(birth)) {
@@ -5382,7 +5381,7 @@ public class MainPanel extends JPanel
 		}
 		final Geoset newGeoset = new Geoset();
 		final Layer layer = new Layer("Blend", new Bitmap(filepath));
-		layer.add("Unshaded");
+		layer.setUnshaded(true);
 		final Material material = new Material(layer);
 		newGeoset.setMaterial(material);
 		final BufferedImage bufferedImage = material.getBufferedImage(blankTextureModel.getWrappedDataSource());

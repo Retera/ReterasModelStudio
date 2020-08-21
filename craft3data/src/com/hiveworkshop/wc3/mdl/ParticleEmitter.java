@@ -24,14 +24,27 @@ public class ParticleEmitter extends EmitterIdObject {
 	double lifeSpan = 0;
 	double initVelocity = 0;
 	boolean MDLEmitter = true;
-	String path = null;
+	String path = "";
 
-	private ParticleEmitter() {
+	public ParticleEmitter() {
 
 	}
 
 	public ParticleEmitter(final String name) {
 		this.name = name;
+	}
+
+	public ParticleEmitter(final ParticleEmitter emitter) {
+		copyObject(emitter);
+
+		emissionRate = emitter.emissionRate;
+		gravity = emitter.gravity;
+		longitude = emitter.longitude;
+		latitude = emitter.latitude;
+		lifeSpan = emitter.lifeSpan;
+		initVelocity = emitter.initVelocity;
+		MDLEmitter = emitter.MDLEmitter;
+		path = emitter.path;
 	}
 
 	public ParticleEmitter(final MdlxParticleEmitter emitter) {
@@ -80,26 +93,8 @@ public class ParticleEmitter extends EmitterIdObject {
 	}
 
 	@Override
-	public IdObject copy() {
-		final ParticleEmitter x = new ParticleEmitter();
-
-		x.name = name;
-		x.pivotPoint = new Vertex(pivotPoint);
-		x.objectId = objectId;
-		x.parentId = parentId;
-		x.setParent(getParent());
-
-		x.emissionRate = emissionRate;
-		x.gravity = gravity;
-		x.longitude = longitude;
-		x.latitude = latitude;
-		x.lifeSpan = lifeSpan;
-		x.initVelocity = initVelocity;
-		x.MDLEmitter = MDLEmitter;
-		x.path = path;
-		x.flags.addAll(flags);
-		x.addAll(getAnimFlags());
-		return x;
+	public ParticleEmitter copy() {
+		return new ParticleEmitter(this);
 	}
 
 	@Override

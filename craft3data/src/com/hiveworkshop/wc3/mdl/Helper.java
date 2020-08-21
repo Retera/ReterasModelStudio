@@ -41,7 +41,7 @@ public class Helper extends Bone { // Haha blizz
 	// printTo is already written as a part of bone; these two things are
 	// stupidly the same
 	@Override
-	public IdObject copy() {
+	public Helper copy() {
 		return new Helper(this);
 	}
 
