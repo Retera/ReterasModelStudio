@@ -4184,6 +4184,7 @@ public class MainPanel extends JPanel
 							panel.getView());
 					panel.init();
 					floatingWindow.getTopLevelAncestor().setVisible(true);
+					panel.packFrame();
 				} else if (!disp.getEditUVPanel().frameVisible()) {
 					final FloatingWindow floatingWindow = rootWindow.createFloatingWindow(
 							new Point(getX() + (getWidth() / 2), getY() + (getHeight() / 2)),
