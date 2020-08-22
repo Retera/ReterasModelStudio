@@ -8,10 +8,8 @@ import java.util.List;
 
 import com.etheller.warsmash.parsers.mdlx.MdlxLayer;
 import com.etheller.warsmash.parsers.mdlx.MdlxMaterial;
-
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
-
 import com.hiveworkshop.wc3.util.ModelUtils;
 
 /**
@@ -20,6 +18,7 @@ import com.hiveworkshop.wc3.util.ModelUtils;
  * Eric Theller 11/5/2011
  */
 public class Material {
+	public static final String SHADER_HD_DEFAULT_UNIT = "Shader_HD_DefaultUnit";
 	public static int teamColor = 0;
 	List<Layer> layers = new ArrayList<>();
 	int priorityPlane = 0;
@@ -34,7 +33,7 @@ public class Material {
 	}
 
 	public Material(final Layer layer) {
-		layers.add(layer);
+		this.layers.add(layer);
 	}
 
 	public Material(final List<Layer> layers) {
@@ -42,13 +41,13 @@ public class Material {
 	}
 
 	public Material(final Material material) {
-		layers.addAll(material.layers);
-		priorityPlane = material.priorityPlane;
-		shaderString = material.shaderString;
-		constantColor = material.constantColor;
-		sortPrimsFarZ = material.sortPrimsFarZ;
-		fullResolution = material.fullResolution;
-		twoSided = material.twoSided;
+		this.layers.addAll(material.layers);
+		this.priorityPlane = material.priorityPlane;
+		this.shaderString = material.shaderString;
+		this.constantColor = material.constantColor;
+		this.sortPrimsFarZ = material.sortPrimsFarZ;
+		this.fullResolution = material.fullResolution;
+		this.twoSided = material.twoSided;
 	}
 
 	public Material(final MdlxMaterial material, final EditableModel editableModel) {
@@ -59,32 +58,32 @@ public class Material {
 
 			layer.updateRefs(editableModel);
 
-			layers.add(layer);
+			this.layers.add(layer);
 		}
-		
+
 		setPriorityPlane(material.priorityPlane);
 
 		if ((material.flags & 0x1) != 0) {
-			constantColor = true;
+			this.constantColor = true;
 		}
 
 		if ((material.flags & 0x10) != 0) {
-			sortPrimsFarZ = true;
+			this.sortPrimsFarZ = true;
 		}
 
 		if ((material.flags & 0x20) != 0) {
-			fullResolution = true;
+			this.fullResolution = true;
 		}
 
-		if (ModelUtils.isShaderStringSupported(editableModel.getFormatVersion()) && (material.flags & 0x2) != 0) {
-			twoSided = true;
+		if (ModelUtils.isShaderStringSupported(editableModel.getFormatVersion()) && ((material.flags & 0x2) != 0)) {
+			this.twoSided = true;
 		}
 
-		shaderString = material.shader;
+		this.shaderString = material.shader;
 	}
 
 	public MdlxMaterial toMdlx() {
-		MdlxMaterial material = new MdlxMaterial();
+		final MdlxMaterial material = new MdlxMaterial();
 
 		for (final Layer layer : getLayers()) {
 			material.layers.add(layer.toMdlx());
@@ -92,23 +91,23 @@ public class Material {
 
 		material.priorityPlane = getPriorityPlane();
 
-		if (constantColor) {
+		if (this.constantColor) {
 			material.flags |= 0x1;
 		}
 
-		if (sortPrimsFarZ) {
+		if (this.sortPrimsFarZ) {
 			material.flags |= 0x10;
 		}
 
-		if (fullResolution) {
+		if (this.fullResolution) {
 			material.flags |= 0x20;
 		}
 
-		if (twoSided) {
+		if (this.twoSided) {
 			material.flags |= 0x2;
 		}
 
-		material.shader = shaderString;
+		material.shader = this.shaderString;
 
 		return material;
 	}
@@ -123,24 +122,36 @@ public class Material {
 
 	public String getName() {
 		String name = "";
-		if (layers.size() > 0) {
-			if (layers.get(layers.size() - 1).texture != null) {
-				name = layers.get(layers.size() - 1).texture.getName();
-				if (layers.get(layers.size() - 1).find("Alpha") != null) {
-					name = name + " (animated Alpha)";
-				}
-			} else {
-				name = "animated texture layers";
-			}
-			for (int i = layers.size() - 2; i >= 0; i--) {
+		if (this.layers.size() > 0) {
+			if (SHADER_HD_DEFAULT_UNIT.equals(this.shaderString)) {
 				try {
-					name = name + " over " + layers.get(i).texture.getName();
-					if (layers.get(i).find("Alpha") != null) {
+					name = name + " over " + this.layers.get(0).texture.getName();
+					if (this.layers.get(0).find("Alpha") != null) {
 						name = name + " (animated Alpha)";
 					}
 				} catch (final NullPointerException e) {
-					name = name + " over " + "animated texture layers (" + layers.get(i).textures.get(0).getName()
+					name = name + " over " + "animated texture layers (" + this.layers.get(0).textures.get(0).getName()
 							+ ")";
+				}
+			} else {
+				if (this.layers.get(this.layers.size() - 1).texture != null) {
+					name = this.layers.get(this.layers.size() - 1).texture.getName();
+					if (this.layers.get(this.layers.size() - 1).find("Alpha") != null) {
+						name = name + " (animated Alpha)";
+					}
+				} else {
+					name = "animated texture layers";
+				}
+				for (int i = this.layers.size() - 2; i >= 0; i--) {
+					try {
+						name = name + " over " + this.layers.get(i).texture.getName();
+						if (this.layers.get(i).find("Alpha") != null) {
+							name = name + " (animated Alpha)";
+						}
+					} catch (final NullPointerException e) {
+						name = name + " over " + "animated texture layers ("
+								+ this.layers.get(i).textures.get(0).getName() + ")";
+					}
 				}
 			}
 		}
@@ -148,14 +159,14 @@ public class Material {
 	}
 
 	public Layer firstLayer() {
-		if (layers.size() > 0) {
-			return layers.get(layers.size() - 1);
+		if (this.layers.size() > 0) {
+			return this.layers.get(this.layers.size() - 1);
 		}
 		return null;
 	}
 
 	public String getShaderString() {
-		return shaderString;
+		return this.shaderString;
 	}
 
 	public void setShaderString(final String shaderString) {
@@ -163,7 +174,7 @@ public class Material {
 	}
 
 	public List<Layer> getLayers() {
-		return layers;
+		return this.layers;
 	}
 
 	public void setLayers(final List<Layer> layers) {
@@ -171,7 +182,7 @@ public class Material {
 	}
 
 	public int getPriorityPlane() {
-		return priorityPlane;
+		return this.priorityPlane;
 	}
 
 	public void setPriorityPlane(final int priorityPlane) {
@@ -179,9 +190,9 @@ public class Material {
 	}
 
 	public void updateTextureAnims(final List<TextureAnim> list) {
-		final int sz = layers.size();
+		final int sz = this.layers.size();
 		for (int i = 0; i < sz; i++) {
-			final Layer lay = layers.get(i);
+			final Layer lay = this.layers.get(i);
 			if (lay.hasTexAnim()) {
 				lay.setTextureAnim(list);
 			}
@@ -189,7 +200,7 @@ public class Material {
 	}
 
 	public void updateReferenceIds(final EditableModel mdlr) {
-		for (final Layer lay : layers) {
+		for (final Layer lay : this.layers) {
 			lay.updateIds(mdlr);
 		}
 	}
@@ -198,9 +209,9 @@ public class Material {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = (prime * result) + ((layers == null) ? 0 : layers.hashCode());
-		result = (prime * result) + priorityPlane;
-		result = (prime * result) + ((shaderString == null) ? 0 : shaderString.hashCode());
+		result = (prime * result) + ((this.layers == null) ? 0 : this.layers.hashCode());
+		result = (prime * result) + this.priorityPlane;
+		result = (prime * result) + ((this.shaderString == null) ? 0 : this.shaderString.hashCode());
 		return result;
 	}
 
@@ -217,32 +228,32 @@ public class Material {
 		}
 		final Material other = (Material) obj;
 
-		if ((constantColor != other.constantColor) || (sortPrimsFarZ != other.sortPrimsFarZ) || 
-			(fullResolution != other.fullResolution) || (twoSided != other.twoSided)) {
+		if ((this.constantColor != other.constantColor) || (this.sortPrimsFarZ != other.sortPrimsFarZ)
+				|| (this.fullResolution != other.fullResolution) || (this.twoSided != other.twoSided)) {
 			return false;
 		}
-		if (layers == null) {
+		if (this.layers == null) {
 			if (other.layers != null) {
 				return false;
 			}
-		} else if (!layers.equals(other.layers)) {
+		} else if (!this.layers.equals(other.layers)) {
 			return false;
 		}
-		if (priorityPlane != other.priorityPlane) {
+		if (this.priorityPlane != other.priorityPlane) {
 			return false;
 		}
-		if (shaderString == null) {
+		if (this.shaderString == null) {
 			if (other.shaderString != null) {
 				return false;
 			}
-		} else if (!shaderString.equals(other.shaderString)) {
+		} else if (!this.shaderString.equals(other.shaderString)) {
 			return false;
 		}
 		return true;
 	}
 
 	public boolean getConstantColor() {
-		return constantColor;
+		return this.constantColor;
 	}
 
 	public void setConstantColor(final boolean constantColor) {
@@ -250,7 +261,7 @@ public class Material {
 	}
 
 	public boolean getSortPrimsFarZ() {
-		return sortPrimsFarZ;
+		return this.sortPrimsFarZ;
 	}
 
 	public void setSortPrimsFarZ(final boolean sortPrimsFarZ) {
@@ -258,7 +269,7 @@ public class Material {
 	}
 
 	public boolean getFullResolution() {
-		return fullResolution;
+		return this.fullResolution;
 	}
 
 	public void setFullResolution(final boolean fullResolution) {
@@ -266,7 +277,7 @@ public class Material {
 	}
 
 	public boolean getTwoSided() {
-		return twoSided;
+		return this.twoSided;
 	}
 
 	public void setTwoSided(final boolean twoSided) {
@@ -275,9 +286,9 @@ public class Material {
 
 	public BufferedImage getBufferedImage(final DataSource workingDirectory) {
 		BufferedImage theImage = null;
-		for (int i = 0; i < layers.size(); i++) {
-			final Layer lay = layers.get(i);
-			final Bitmap tex = lay.firstTexture();
+		if (SHADER_HD_DEFAULT_UNIT.equals(this.shaderString) && (this.layers.size() > 0)) {
+			final Layer firstLayer = this.layers.get(0);
+			final Bitmap tex = firstLayer.firstTexture();
 			final String path = getRenderableTexturePath(tex);
 			BufferedImage newImage;
 			try {
@@ -286,14 +297,29 @@ public class Material {
 				// newImage = null;
 				newImage = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
 			}
-			if (theImage == null) {
-				theImage = newImage;
-			} else {
-				if (newImage != null) {
-					theImage = mergeImage(theImage, newImage);
+			return newImage;
+		} else {
+			for (int i = 0; i < this.layers.size(); i++) {
+				final Layer lay = this.layers.get(i);
+				final Bitmap tex = lay.firstTexture();
+				final String path = getRenderableTexturePath(tex);
+				BufferedImage newImage;
+				try {
+					newImage = BLPHandler.get().getTexture(workingDirectory, path);
+				} catch (final Exception exc) {
+					// newImage = null;
+					newImage = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
+				}
+				if (theImage == null) {
+					theImage = newImage;
+				} else {
+					if (newImage != null) {
+						theImage = mergeImage(theImage, newImage);
+					}
 				}
 			}
 		}
+
 		return theImage;
 	}
 

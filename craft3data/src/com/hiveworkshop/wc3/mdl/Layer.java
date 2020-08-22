@@ -36,35 +36,35 @@ public class Layer extends TimelineContainer implements Named {
 	boolean noDepthTest = false;
 	boolean noDepthSet = false;
 	boolean unlit = false;
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = (prime * result) + coordId;
-		result = (prime * result) + TVertexAnimId;
-		result = (prime * result) + ((animFlags == null) ? 0 : animFlags.hashCode());
+		result = (prime * result) + this.coordId;
+		result = (prime * result) + this.TVertexAnimId;
+		result = (prime * result) + ((this.animFlags == null) ? 0 : this.animFlags.hashCode());
 		long temp;
-		temp = Double.doubleToLongBits(emissiveGain);
+		temp = Double.doubleToLongBits(this.emissiveGain);
 		result = (prime * result) + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(fresnelOpacity);
+		temp = Double.doubleToLongBits(this.fresnelOpacity);
 		result = (prime * result) + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(fresnelTeamColor);
+		temp = Double.doubleToLongBits(this.fresnelTeamColor);
 		result = (prime * result) + (int) (temp ^ (temp >>> 32));
-		result = (prime * result) + ((filterMode == null) ? 0 : filterMode.hashCode());
-		//result = (prime * result) + ((flags == null) ? 0 : flags.hashCode());
-		temp = Double.doubleToLongBits(staticAlpha);
+		result = (prime * result) + ((this.filterMode == null) ? 0 : this.filterMode.hashCode());
+		// result = (prime * result) + ((flags == null) ? 0 : flags.hashCode());
+		temp = Double.doubleToLongBits(this.staticAlpha);
 		result = (prime * result) + (int) (temp ^ (temp >>> 32));
-		result = (prime * result) + ((texture == null) ? 0 : texture.hashCode());
-		result = (prime * result) + ((textureAnim == null) ? 0 : textureAnim.hashCode());
-		result = (prime * result) + textureId;
-		result = (prime * result) + ((textures == null) ? 0 : textures.hashCode());
-		if (fresnelColor != null) {
-			temp = Double.doubleToLongBits(fresnelColor.x);
+		result = (prime * result) + ((this.texture == null) ? 0 : this.texture.hashCode());
+		result = (prime * result) + ((this.textureAnim == null) ? 0 : this.textureAnim.hashCode());
+		result = (prime * result) + this.textureId;
+		result = (prime * result) + ((this.textures == null) ? 0 : this.textures.hashCode());
+		if (this.fresnelColor != null) {
+			temp = Double.doubleToLongBits(this.fresnelColor.x);
 			result = (prime * result) + (int) (temp ^ (temp >>> 32));
-			temp = Double.doubleToLongBits(fresnelColor.y);
+			temp = Double.doubleToLongBits(this.fresnelColor.y);
 			result = (prime * result) + (int) (temp ^ (temp >>> 32));
-			temp = Double.doubleToLongBits(fresnelColor.z);
+			temp = Double.doubleToLongBits(this.fresnelColor.z);
 			result = (prime * result) + (int) (temp ^ (temp >>> 32));
 		}
 		return result;
@@ -82,92 +82,96 @@ public class Layer extends TimelineContainer implements Named {
 			return false;
 		}
 		final Layer other = (Layer) obj;
-		if (coordId != other.coordId) {
+		if (this.coordId != other.coordId) {
 			return false;
 		}
-		if (TVertexAnimId != other.TVertexAnimId) {
+		if (this.TVertexAnimId != other.TVertexAnimId) {
 			return false;
 		}
-		if (animFlags == null) {
+		if (this.animFlags == null) {
 			if (other.animFlags != null) {
 				return false;
 			}
-		} else if (!animFlags.equals(other.animFlags)) {
+		} else if (!this.animFlags.equals(other.animFlags)) {
 			return false;
 		}
-		if (Double.doubleToLongBits(emissiveGain) != Double.doubleToLongBits(other.emissiveGain)) {
+		if (Double.doubleToLongBits(this.emissiveGain) != Double.doubleToLongBits(other.emissiveGain)) {
 			return false;
 		}
-		if (Double.doubleToLongBits(fresnelOpacity) != Double.doubleToLongBits(other.fresnelOpacity)) {
+		if (Double.doubleToLongBits(this.fresnelOpacity) != Double.doubleToLongBits(other.fresnelOpacity)) {
 			return false;
 		}
-		if (Double.doubleToLongBits(fresnelTeamColor) != Double.doubleToLongBits(other.fresnelTeamColor)) {
+		if (Double.doubleToLongBits(this.fresnelTeamColor) != Double.doubleToLongBits(other.fresnelTeamColor)) {
 			return false;
 		}
-		if (fresnelColor == null) {
+		if (this.fresnelColor == null) {
 			if (other.fresnelColor != null) {
 				return false;
 			}
 		} else {
-			if (!fresnelColor.equalLocs(other.fresnelColor)) {
+			if (other.fresnelColor == null) {
+				return false;
+			}
+			if (!this.fresnelColor.equalLocs(other.fresnelColor)) {
 				return false;
 			}
 		}
-		if (filterMode == null) {
+		if (this.filterMode == null) {
 			if (other.filterMode != null) {
 				return false;
 			}
-		} else if (!filterMode.equals(other.filterMode)) {
+		} else if (!this.filterMode.equals(other.filterMode)) {
 			return false;
 		}
 
-		if (emissiveGain != other.emissiveGain) {
+		if (this.emissiveGain != other.emissiveGain) {
 			return false;
 		}
 
-		if (!fresnelColor.equalLocs(other.fresnelColor)) {
+		if (!this.fresnelColor.equalLocs(other.fresnelColor)) {
 			return false;
 		}
 
-		if (fresnelOpacity != other.fresnelOpacity) {
+		if (this.fresnelOpacity != other.fresnelOpacity) {
 			return false;
 		}
 
-		if (fresnelTeamColor != other.fresnelTeamColor) {
+		if (this.fresnelTeamColor != other.fresnelTeamColor) {
 			return false;
 		}
 
-		if ((unshaded != other.unshaded) || (sphereEnvMap != other.sphereEnvMap) || (twoSided != other.twoSided)
-			|| (unfogged != other.unfogged) || (noDepthTest != other.noDepthTest) || (noDepthSet != other.noDepthSet)
-			|| (unlit != other.unlit)) {
+		if ((this.unshaded != other.unshaded) || (this.sphereEnvMap != other.sphereEnvMap)
+				|| (this.twoSided != other.twoSided) || (this.unfogged != other.unfogged)
+				|| (this.noDepthTest != other.noDepthTest) || (this.noDepthSet != other.noDepthSet)
+				|| (this.unlit != other.unlit)) {
 			return false;
 		}
-		
-		if (Double.doubleToLongBits(staticAlpha) != Double.doubleToLongBits(other.staticAlpha)) {
+
+		if (Double.doubleToLongBits(this.staticAlpha) != Double.doubleToLongBits(other.staticAlpha)) {
 			return false;
 		}
-		if (texture == null) {
+		if (this.texture == null) {
 			if (other.texture != null) {
 				return false;
 			}
-		} else if (!texture.equals(other.texture)) {
+		} else if (!this.texture.equals(other.texture)) {
 			return false;
 		}
-		if (textureAnim == null) {
+		if (this.textureAnim == null) {
 			if (other.textureAnim != null) {
 				return false;
 			}
-		} else if (!textureAnim.equals(other.textureAnim)) {
+		} else if (!this.textureAnim.equals(other.textureAnim)) {
 			return false;
 		}
-		if (textureId != other.textureId) {
+		if (this.textureId != other.textureId) {
 			return false;
 		}
-		if (textures == null) {
+		if (this.textures == null) {
 			if (other.textures != null) {
 				return false;
 			}
-		} else if (!textures.equals(other.textures)) {
+		} else if (!this.textures.equals(other.textures)) {
 			return false;
 		}
 		return true;
@@ -184,37 +188,37 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public Layer(final Layer other) {
-		filterMode = other.filterMode;
-		textureId = other.textureId;
-		TVertexAnimId = other.TVertexAnimId;
-		coordId = other.coordId;
-		texture = new Bitmap(other.texture);
+		this.filterMode = other.filterMode;
+		this.textureId = other.textureId;
+		this.TVertexAnimId = other.TVertexAnimId;
+		this.coordId = other.coordId;
+		this.texture = new Bitmap(other.texture);
 		if (other.textureAnim != null) {
-			textureAnim = new TextureAnim(other.textureAnim);
+			this.textureAnim = new TextureAnim(other.textureAnim);
 		} else {
-			textureAnim = null;
+			this.textureAnim = null;
 		}
-		staticAlpha = other.staticAlpha;
-		emissiveGain = other.emissiveGain;
-		fresnelColor = new Vertex(other.fresnelColor);
-		fresnelOpacity = other.fresnelOpacity;
-		fresnelTeamColor = other.fresnelTeamColor;
-		unshaded = other.unshaded;
-		sphereEnvMap = other.sphereEnvMap;
-		twoSided = other.twoSided;
-		unfogged = other.unfogged;
-		noDepthTest = other.noDepthTest;
-		noDepthSet = other.noDepthSet;
-		unshaded = other.unshaded;
-		unlit = other.unlit;
-		textures = new ArrayList<>();
+		this.staticAlpha = other.staticAlpha;
+		this.emissiveGain = other.emissiveGain;
+		this.fresnelColor = new Vertex(other.fresnelColor);
+		this.fresnelOpacity = other.fresnelOpacity;
+		this.fresnelTeamColor = other.fresnelTeamColor;
+		this.unshaded = other.unshaded;
+		this.sphereEnvMap = other.sphereEnvMap;
+		this.twoSided = other.twoSided;
+		this.unfogged = other.unfogged;
+		this.noDepthTest = other.noDepthTest;
+		this.noDepthSet = other.noDepthSet;
+		this.unshaded = other.unshaded;
+		this.unlit = other.unlit;
+		this.textures = new ArrayList<>();
 		addAll(other.getAnimFlags());
 		if (other.textures != null) {
 			for (final Bitmap bmp : other.textures) {
-				textures.add(new Bitmap(bmp));
+				this.textures.add(new Bitmap(bmp));
 			}
 		} else {
-			textures = null;
+			this.textures = null;
 		}
 	}
 
@@ -223,37 +227,37 @@ public class Layer extends TimelineContainer implements Named {
 
 		final int shadingFlags = layer.flags;
 		if ((shadingFlags & 0x1) != 0) {
-			unshaded = true;
+			this.unshaded = true;
 		}
 		if ((shadingFlags & 0x2) != 0) {
-			sphereEnvMap = true;
+			this.sphereEnvMap = true;
 		}
 		if ((shadingFlags & 0x10) != 0) {
-			twoSided = true;
+			this.twoSided = true;
 		}
 		if ((shadingFlags & 0x20) != 0) {
-			unfogged = true;
+			this.unfogged = true;
 		}
 		if ((shadingFlags & 0x40) != 0) {
-			noDepthTest = true;
+			this.noDepthTest = true;
 		}
 		if ((shadingFlags & 0x80) != 0) {
-			noDepthSet = true;
+			this.noDepthSet = true;
 		}
 		if ((shadingFlags & 0x100) != 0) {
-			unlit = true;
+			this.unlit = true;
 		}
 
 		setTVertexAnimId(layer.textureAnimationId);
-		setCoordId((int)layer.coordId);
+		setCoordId((int) layer.coordId);
 		setStaticAlpha(layer.alpha);
 
 		// > 800
-		emissiveGain = layer.emissiveGain;
+		this.emissiveGain = layer.emissiveGain;
 		// > 900
 		setFresnelColor(new Vertex(MdlxUtils.flipRGBtoBGR(layer.fresnelColor)));
-		fresnelOpacity = layer.fresnelOpacity;
-		fresnelTeamColor = layer.fresnelTeamColor;
+		this.fresnelOpacity = layer.fresnelOpacity;
+		this.fresnelTeamColor = layer.fresnelTeamColor;
 
 		loadTimelines(layer);
 	}
@@ -261,47 +265,47 @@ public class Layer extends TimelineContainer implements Named {
 	public MdlxLayer toMdlx() {
 		final MdlxLayer layer = new MdlxLayer();
 
-		layer.filterMode = filterMode;
+		layer.filterMode = this.filterMode;
 
-		if (unshaded) {
+		if (this.unshaded) {
 			layer.flags |= 0x1;
 		}
 
-		if (sphereEnvMap) {
+		if (this.sphereEnvMap) {
 			layer.flags |= 0x2;
 		}
 
-		if (twoSided) {
+		if (this.twoSided) {
 			layer.flags |= 0x10;
 		}
 
-		if (unfogged) {
+		if (this.unfogged) {
 			layer.flags |= 0x20;
 		}
 
-		if (noDepthTest) {
+		if (this.noDepthTest) {
 			layer.flags |= 0x40;
 		}
 
-		if (noDepthSet) {
+		if (this.noDepthSet) {
 			layer.flags |= 0x80;
 		}
 
-		if (unlit) {
+		if (this.unlit) {
 			layer.flags |= 0x100;
 		}
 
 		layer.textureId = getTextureId();
 		layer.textureAnimationId = getTVertexAnimId();
 		layer.coordId = getCoordId();
-		layer.alpha = (float)getStaticAlpha();
+		layer.alpha = (float) getStaticAlpha();
 
 		// > 800
 		layer.emissiveGain = layer.emissiveGain;
 		// > 900
-		layer.fresnelColor = MdlxUtils.flipRGBtoBGR(fresnelColor.toFloatArray());
-		layer.fresnelOpacity = (float)fresnelOpacity;
-		layer.fresnelTeamColor = (float)fresnelTeamColor;
+		layer.fresnelColor = MdlxUtils.flipRGBtoBGR(this.fresnelColor.toFloatArray());
+		layer.fresnelOpacity = (float) this.fresnelOpacity;
+		layer.fresnelTeamColor = (float) this.fresnelTeamColor;
 
 		timelinesToMdlx(layer);
 
@@ -309,44 +313,45 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public Bitmap firstTexture() {
-		if (texture != null) {
-			return texture;
+		if (this.texture != null) {
+			return this.texture;
 		} else {
-			if ((textures != null) && (textures.size() > 0)) {
-				return textures.get(0);
+			if ((this.textures != null) && (this.textures.size() > 0)) {
+				return this.textures.get(0);
 			}
 			return null;
 		}
 	}
 
-	public Bitmap getRenderTexture(final AnimatedRenderEnvironment animatedRenderEnvironment, final EditableModel model) {
+	public Bitmap getRenderTexture(final AnimatedRenderEnvironment animatedRenderEnvironment,
+			final EditableModel model) {
 		final AnimFlag textureFlag = find(MdlUtils.TOKEN_TEXTURE_ID);
 		if ((textureFlag != null) && (animatedRenderEnvironment != null)) {
 			if (animatedRenderEnvironment.getCurrentAnimation() == null) {
-				if (textures.size() > 0) {
-					return textures.get(0);
+				if (this.textures.size() > 0) {
+					return this.textures.get(0);
 				} else {
-					return texture;
+					return this.texture;
 				}
 			}
 			final Integer textureIdAtTime = (Integer) textureFlag.interpolateAt(animatedRenderEnvironment);
 			if (textureIdAtTime >= model.getTextures().size()) {
-				return texture;
+				return this.texture;
 			}
 			final Bitmap textureAtTime = model.getTextures().get(textureIdAtTime);
 			return textureAtTime;
 		} else {
-			return texture;
+			return this.texture;
 		}
 	}
 
 	@Override
 	public float getRenderVisibility(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		return getRenderVisibility(animatedRenderEnvironment, (float)staticAlpha);
+		return getRenderVisibility(animatedRenderEnvironment, (float) this.staticAlpha);
 	}
 
 	public void setTextureAnim(final TextureAnim texa) {
-		textureAnim = texa;
+		this.textureAnim = texa;
 	}
 
 	public void setTextureAnim(final List<TextureAnim> list) { // Sets the
@@ -359,43 +364,43 @@ public class Layer extends TimelineContainer implements Named {
 		// corresponding
 		// to the
 		// TVertexAnimId
-		textureAnim = list.get(TVertexAnimId);
+		this.textureAnim = list.get(this.TVertexAnimId);
 	}
 
 	private transient Map<Integer, Bitmap> ridiculouslyWrongTextureIDToTexture = new HashMap<>();
 
 	public void buildTextureList(final EditableModel mdlr) {
-		textures = new ArrayList<>();
+		this.textures = new ArrayList<>();
 		final AnimFlag txFlag = find(MdlUtils.TOKEN_TEXTURE_ID);
 		for (int i = 0; i < txFlag.values.size(); i++) {
 			final int txId = ((Integer) txFlag.values.get(i)).intValue();
 			final Bitmap texture2 = mdlr.getTexture(txId);
-			textures.add(texture2);
-			ridiculouslyWrongTextureIDToTexture.put(txId, texture2);
+			this.textures.add(texture2);
+			this.ridiculouslyWrongTextureIDToTexture.put(txId, texture2);
 		}
 	}
 
 	public void updateIds(final EditableModel mdlr) {
-		textureId = mdlr.getTextureId(texture);
-		TVertexAnimId = mdlr.getTextureAnimId(textureAnim);
-		if (textures != null) {
+		this.textureId = mdlr.getTextureId(this.texture);
+		this.TVertexAnimId = mdlr.getTextureAnimId(this.textureAnim);
+		if (this.textures != null) {
 			final AnimFlag txFlag = find(MdlUtils.TOKEN_TEXTURE_ID);
 			for (int i = 0; i < txFlag.values.size(); i++) {
-				final Bitmap textureFoundFromDirtyId = ridiculouslyWrongTextureIDToTexture
+				final Bitmap textureFoundFromDirtyId = this.ridiculouslyWrongTextureIDToTexture
 						.get(((Integer) txFlag.values.get(i)).intValue());
 				final int newerTextureId = mdlr.getTextureId(textureFoundFromDirtyId);
 				txFlag.values.set(i, newerTextureId);
-				ridiculouslyWrongTextureIDToTexture.put(newerTextureId, textureFoundFromDirtyId);
+				this.ridiculouslyWrongTextureIDToTexture.put(newerTextureId, textureFoundFromDirtyId);
 			}
 		}
 	}
 
 	public void updateRefs(final EditableModel mdlr) {
-		if ((textureId >= 0) && (textureId < mdlr.getTextures().size())) {
-			texture = mdlr.getTexture(textureId);
+		if ((this.textureId >= 0) && (this.textureId < mdlr.getTextures().size())) {
+			this.texture = mdlr.getTexture(this.textureId);
 		}
-		if ((TVertexAnimId >= 0) && (TVertexAnimId < mdlr.texAnims.size())) {
-			textureAnim = mdlr.texAnims.get(TVertexAnimId);
+		if ((this.TVertexAnimId >= 0) && (this.TVertexAnimId < mdlr.texAnims.size())) {
+			this.textureAnim = mdlr.texAnims.get(this.TVertexAnimId);
 		}
 		final AnimFlag txFlag = find(MdlUtils.TOKEN_TEXTURE_ID);
 		if (txFlag != null) {
@@ -404,19 +409,19 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public boolean hasCoordId() {
-		return coordId != 0;
+		return this.coordId != 0;
 	}
 
 	public boolean hasTexAnim() {
-		return TVertexAnimId != -1;
+		return this.TVertexAnimId != -1;
 	}
 
 	@Override
 	public String getName() {
-		if (texture != null) {
-			return texture.getName() + " layer (mode " + filterMode + ") ";
+		if (this.texture != null) {
+			return this.texture.getName() + " layer (mode " + this.filterMode + ") ";
 		}
-		return "multi-textured layer (mode " + filterMode + ") ";
+		return "multi-textured layer (mode " + this.filterMode + ") ";
 	}
 
 	@Override
@@ -425,7 +430,7 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public int getTextureId() {
-		return textureId;
+		return this.textureId;
 	}
 
 	public void setTextureId(final int textureId) {
@@ -433,15 +438,15 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public int getTVertexAnimId() {
-		return TVertexAnimId;
+		return this.TVertexAnimId;
 	}
 
 	public void setTVertexAnimId(final int tVertexAnimId) {
-		TVertexAnimId = tVertexAnimId;
+		this.TVertexAnimId = tVertexAnimId;
 	}
 
 	public Bitmap getTextureBitmap() {
-		return texture;
+		return this.texture;
 	}
 
 	public void setTexture(final Bitmap texture) {
@@ -449,7 +454,7 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public double getStaticAlpha() {
-		return staticAlpha;
+		return this.staticAlpha;
 	}
 
 	public void setStaticAlpha(final double staticAlpha) {
@@ -457,7 +462,7 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public List<Bitmap> getTextures() {
-		return textures;
+		return this.textures;
 	}
 
 	public void setTextures(final List<Bitmap> textures) {
@@ -465,7 +470,7 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public TextureAnim getTextureAnim() {
-		return textureAnim;
+		return this.textureAnim;
 	}
 
 	public void setFilterMode(final FilterMode filterMode) {
@@ -473,7 +478,7 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public FilterMode getFilterMode() {
-		return filterMode;
+		return this.filterMode;
 	}
 
 	public void setCoordId(final int coordId) {
@@ -481,11 +486,11 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public int getCoordId() {
-		return coordId;
+		return this.coordId;
 	}
 
 	public double getEmissive() {
-		return emissiveGain;
+		return this.emissiveGain;
 	}
 
 	public void setEmissive(final double emissive) {
@@ -501,7 +506,7 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public Vertex getFresnelColor() {
-		return fresnelColor;
+		return this.fresnelColor;
 	}
 
 	public void setFresnelColor(final Vertex fresnelColor) {
@@ -509,7 +514,7 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public double getFresnelOpacity() {
-		return fresnelOpacity;
+		return this.fresnelOpacity;
 	}
 
 	public void setFresnelOpacity(final double fresnelOpacity) {
@@ -517,7 +522,7 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public double getFresnelTeamColor() {
-		return fresnelTeamColor;
+		return this.fresnelTeamColor;
 	}
 
 	public void setFresnelTeamColor(final double fresnelTeamColor) {
@@ -525,7 +530,7 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public boolean getUnshaded() {
-		return unshaded;
+		return this.unshaded;
 	}
 
 	public void setUnshaded(final boolean unshaded) {
@@ -533,7 +538,7 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public boolean getSphereEnvMap() {
-		return sphereEnvMap;
+		return this.sphereEnvMap;
 	}
 
 	public void setSphereEnvMap(final boolean sphereEnvMap) {
@@ -541,7 +546,7 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public boolean getTwoSided() {
-		return twoSided;
+		return this.twoSided;
 	}
 
 	public void setTwoSided(final boolean twoSided) {
@@ -549,7 +554,7 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public boolean getUnfogged() {
-		return unfogged;
+		return this.unfogged;
 	}
 
 	public void setUnfogged(final boolean unfogged) {
@@ -557,7 +562,7 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public boolean getNoDepthTest() {
-		return noDepthTest;
+		return this.noDepthTest;
 	}
 
 	public void setNoDepthTest(final boolean noDepthTest) {
@@ -565,7 +570,7 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public boolean getNoDepthSet() {
-		return noDepthSet;
+		return this.noDepthSet;
 	}
 
 	public void setNoDepthSet(final boolean noDepthSet) {
@@ -573,7 +578,7 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	public boolean getUnlit() {
-		return unlit;
+		return this.unlit;
 	}
 
 	public void setUnlit(final boolean unlit) {

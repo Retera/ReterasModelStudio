@@ -303,7 +303,10 @@ public class GeosetVertex extends Vertex {
 			for (final Triangle triangle : match.triangles) {
 				final Vertex perpendicular = triangle.verts[0].delta(triangle.verts[1])
 						.crossProduct(triangle.verts[1].delta(triangle.verts[2]));
-				final double vectorMagnitude = perpendicular.vectorMagnitude();
+				double vectorMagnitude = perpendicular.vectorMagnitude();
+				if (vectorMagnitude == 0) {
+					vectorMagnitude = 0.00001;
+				}
 				perpendicular.x /= vectorMagnitude;
 				perpendicular.y /= vectorMagnitude;
 				perpendicular.z /= vectorMagnitude;
@@ -312,7 +315,10 @@ public class GeosetVertex extends Vertex {
 				sum.z += perpendicular.z;
 			}
 		}
-		final double vectorMagnitude = sum.vectorMagnitude();
+		double vectorMagnitude = sum.vectorMagnitude();
+		if (vectorMagnitude == 0) {
+			vectorMagnitude = 0.00001;
+		}
 		for (int i = 0; i < 3; i++) {
 			sum.setCoord((byte) i, sum.getCoord((byte) i) / vectorMagnitude);
 		}

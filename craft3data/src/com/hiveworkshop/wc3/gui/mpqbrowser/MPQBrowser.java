@@ -91,7 +91,7 @@ public final class MPQBrowser extends JPanel {
 		filters.add(new Filter("Script", new String[] { ".ai", ".wai", ".j", ".js", ".pld" }));
 		filters.add(new Filter("Html", new String[] { ".htm", ".html" }));
 		filters.add(new Filter("Models", new String[] { ".mdl", ".mdx" }));
-		filters.add(new Filter("Images", new String[] { ".bmp", ".tga", ".jpg", ".jpeg", ".pcx", ".blp" }));
+		filters.add(new Filter("Images", new String[] { ".bmp", ".tga", ".jpg", ".jpeg", ".pcx", ".blp", ".dds" }));
 		filters.add(new Filter("Maps", new String[] { ".w3m", ".w3x", ".w3n" }));
 		filters.add(new Filter("Sounds", new String[] { ".wav" }));
 		filters.add(new Filter("Music", new String[] { ".mp3", ".mid" }));

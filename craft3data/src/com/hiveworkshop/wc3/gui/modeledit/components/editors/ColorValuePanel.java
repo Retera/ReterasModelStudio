@@ -1,9 +1,5 @@
 package com.hiveworkshop.wc3.gui.modeledit.components.editors;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -19,6 +15,7 @@ import com.etheller.warsmash.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.wc3.gui.modeledit.components.material.FloatTrackTableModel;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Vertex;
+import com.hiveworkshop.wc3.util.IconUtils;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -34,52 +31,44 @@ public class ColorValuePanel extends JPanel {
 		setBorder(BorderFactory.createTitledBorder(title));
 		setLayout(new MigLayout());
 		final ButtonGroup staticDynamicGroup = new ButtonGroup();
-		staticButton = new JRadioButton("Static");
-		dynamicButton = new JRadioButton("Dynamic");
-		staticDynamicGroup.add(staticButton);
-		staticDynamicGroup.add(dynamicButton);
-		add(staticButton);
-		staticColorButton = new JButton("Choose Color");
-		add(staticColorButton, "wrap");
-		add(dynamicButton);
-		interpTypeBox = new JComboBox<InterpolationType>(InterpolationType.values());
-		add(interpTypeBox, "wrap");
+		this.staticButton = new JRadioButton("Static");
+		this.dynamicButton = new JRadioButton("Dynamic");
+		staticDynamicGroup.add(this.staticButton);
+		staticDynamicGroup.add(this.dynamicButton);
+		add(this.staticButton);
+		this.staticColorButton = new JButton("Choose Color");
+		add(this.staticColorButton, "wrap");
+		add(this.dynamicButton);
+		this.interpTypeBox = new JComboBox<InterpolationType>(InterpolationType.values());
+		add(this.interpTypeBox, "wrap");
 
-		floatTrackTableModel = new FloatTrackTableModel(null);
-		final JTable keyframeTable = new JTable(floatTrackTableModel);
+		this.floatTrackTableModel = new FloatTrackTableModel(null);
+		final JTable keyframeTable = new JTable(this.floatTrackTableModel);
 		add(keyframeTable, "span 2, wrap, grow");
 		final ChangeListener l = new ChangeListener() {
 			@Override
 			public void stateChanged(final ChangeEvent e) {
-				staticColorButton.setEnabled(staticButton.isSelected());
-				interpTypeBox.setEnabled(dynamicButton.isSelected());
-				keyframeTable.setVisible(dynamicButton.isSelected());
+				ColorValuePanel.this.staticColorButton.setEnabled(ColorValuePanel.this.staticButton.isSelected());
+				ColorValuePanel.this.interpTypeBox.setEnabled(ColorValuePanel.this.dynamicButton.isSelected());
+				keyframeTable.setVisible(ColorValuePanel.this.dynamicButton.isSelected());
 			}
 		};
-		staticButton.addChangeListener(l);
-		dynamicButton.addChangeListener(l);
+		this.staticButton.addChangeListener(l);
+		this.dynamicButton.addChangeListener(l);
 	}
 
 	public void reloadNewValue(final Vertex color, final AnimFlag colorTrack) {
 		if (colorTrack == null) {
-			staticButton.setSelected(true);
+			this.staticButton.setSelected(true);
 		} else {
-			dynamicButton.setSelected(true);
+			this.dynamicButton.setSelected(true);
 		}
 		if (color != null) {
-			staticColorButton.setIcon(new ImageIcon(createColorImage(color)));
+			this.staticColorButton.setIcon(new ImageIcon(IconUtils.createColorImage(color, 48, 48)));
 		} else {
-			staticColorButton.setIcon(new ImageIcon(createColorImage(DEFAULT_COLOR)));
+			this.staticColorButton.setIcon(new ImageIcon(IconUtils.createColorImage(DEFAULT_COLOR, 48, 48)));
 		}
-		floatTrackTableModel.setTrack(colorTrack);
+		this.floatTrackTableModel.setTrack(colorTrack);
 	}
 
-	private BufferedImage createColorImage(final Vertex color) {
-		final BufferedImage bufferedImage = new BufferedImage(48, 48, BufferedImage.TYPE_INT_RGB);
-		final Graphics2D g = bufferedImage.createGraphics();
-		g.setColor(new Color((float) color.z, (float) color.y, (float) color.z));
-		g.fillRect(0, 0, bufferedImage.getWidth(), bufferedImage.getHeight());
-		g.dispose();
-		return bufferedImage;
-	}
 }
