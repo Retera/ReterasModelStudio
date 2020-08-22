@@ -28,6 +28,10 @@ public class MdxUtils {
 		saveMdl(model, new FileOutputStream(out));
 	}
 
+	public static void saveMdl(final EditableModel model, final File out) throws IOException {
+		saveMdl(model.toMdlx(), new FileOutputStream(out));
+	}
+
 	public static EditableModel loadEditable(final InputStream in) throws IOException {
 		return new EditableModel(loadMdlx(in));
 	}

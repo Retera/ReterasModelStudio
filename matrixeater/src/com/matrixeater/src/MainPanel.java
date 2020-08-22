@@ -211,7 +211,6 @@ import com.hiveworkshop.wc3.util.Callback;
 import com.hiveworkshop.wc3.util.ModelUtils;
 import com.hiveworkshop.wc3.util.ModelUtils.Mesh;
 import com.matrixeater.imp.AnimationTransfer;
-import com.matrixeaterhayate.TextureManager;
 import com.owens.oobjloader.builder.Build;
 import com.owens.oobjloader.parser.Parse;
 

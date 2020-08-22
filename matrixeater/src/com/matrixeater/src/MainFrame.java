@@ -10,7 +10,6 @@ package com.matrixeater.src;
 <classpathentry kind="lib" path="jars/miglayout-core-4.2.jar"/>
 <classpathentry kind="lib" path="jars/miglayout-swing-4.2.jar"/>
 <classpathentry kind="lib" path="jars/blp-iio-plugin.jar"/>
-<classpathentry kind="lib" path="jars/guava-23.5-jre.jar"/>
 */
 
 import java.awt.Color;
@@ -43,7 +42,6 @@ import com.hiveworkshop.wc3.gui.datachooser.DataSourceDescriptor;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
-import com.hiveworkshop.wc3.resources.Resources;
 import com.hiveworkshop.wc3.resources.WEString;
 import com.hiveworkshop.wc3.units.DataTable;
 import com.hiveworkshop.wc3.units.ModelOptionPanel;
@@ -81,7 +79,7 @@ public class MainFrame extends JFrame {
 				final String path = args[1];
 				final EditableModel model = MdxUtils.loadEditable(new File(path));
 				if (path.toLowerCase().endsWith(".mdx")) {
-					MdxUtils.saveMdx(model, new File(path.substring(0, path.lastIndexOf('.')) + ".mdl"));
+					MdxUtils.saveMdl(model, new File(path.substring(0, path.lastIndexOf('.')) + ".mdl"));
 				} else if (path.toLowerCase().endsWith(".mdl")) {
 					MdxUtils.saveMdx(model, new File(path.substring(0, path.lastIndexOf('.')) + ".mdx"));
 				} else {
@@ -313,7 +311,6 @@ public class MainFrame extends JFrame {
 							DataTable.dropCache();
 							ModelOptionPanel.dropCache();
 							WEString.dropCache();
-							Resources.dropCache();
 							BLPHandler.get().dropCache();
 						}
 
