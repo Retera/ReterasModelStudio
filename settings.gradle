@@ -1,1 +1,1 @@
-include 'craft3data', 'craft3editor', 'matrixeater', 'disarm'
+include 'modelstudio', 'thirdparty'

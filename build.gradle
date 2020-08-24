@@ -35,55 +35,41 @@ allprojects {
     }
 }
 
-project(":matrixeater") {
+project(":modelstudio") {
     apply plugin: "java"
 
 
     dependencies {
-        compile project(":craft3data")
-        compile project(":craft3editor")
+        compile project(":thirdparty")
         compile "com.fifesoft:rsyntaxtextarea:$rsyntaxtextareaVersion"
-    }
-}
-
-project(":disarm") {
-    apply plugin: "java"
-
-
-    dependencies {
-        compile project(":craft3data")
-        compile project(":craft3editor")
-        compile project(":matrixeater")
-    }
-}
-
-project(":craft3editor") {
-    apply plugin: "java"
-
-
-    dependencies {
-        compile project(":craft3data")
         compile "org.jclarion:image4j:$image4jVersion"
     }
 }
 
-project(":craft3data") {
+
+project(":thirdparty") {
     apply plugin: "java"
 
 
     dependencies {
         compile "com.jtattoo:JTattoo:$jtattooVersion"
         compile "com.miglayout:miglayout-swing:$miglayoutVersion"
-		compile "org.lwjgl:lwjgl:${lwjglVersion}"
-		compile "org.lwjgl:lwjgl-platform:${lwjglVersion}:natives-windows"
-		compile "org.lwjgl:lwjgl-platform:${lwjglVersion}:natives-linux"
-		compile "org.lwjgl:lwjgl-platform:${lwjglVersion}:natives-osx"
-		compile "org.lwjgl.lwjgl:lwjgl_util:${lwjglVersion}"
-		compile "net.nikr:dds:1.0.0"
+        compile "org.lwjgl.lwjgl:lwjgl:${lwjglVersion}"
+        compile "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-windows"
+        compile "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-linux"
+        compile "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-osx"
+        compile "org.lwjgl.lwjgl:lwjgl_util:${lwjglVersion}"
+        compile "net.nikr:dds:1.0.0"
         compile "com.google.guava:guava:23.5-jre"
 //        compile "com.github.ebourg:infonode:master"
 //        compile "com.github.DrSuperGood:blp-iio-plugin:master"
-		compile files(fileTree(dir:'../jars', includes: ['*.jar']))
+        compile files(fileTree(dir: '../jars', includes: ['*.jar']))
+
+        implementation "org.lwjgl.lwjgl:lwjgl:${lwjglVersion}"
+        implementation "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-windows"
+        implementation "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-linux"
+        implementation "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-osx"
+        implementation "org.lwjgl.lwjgl:lwjgl_util:${lwjglVersion}"
     }
 }
 
