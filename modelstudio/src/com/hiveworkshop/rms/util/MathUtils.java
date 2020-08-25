@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.editor.model.Matrix4;
 import com.hiveworkshop.rms.editor.model.QuaternionRotation;
 import com.hiveworkshop.rms.editor.model.Vertex;
 
-import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 public class MathUtils {
@@ -63,8 +62,8 @@ public class MathUtils {
 
 	// copied from ghostwolf and
 	// https://www.blend4web.com/api_doc/libs_gl-matrix2.js.html
-	public static void fromRotationTranslationScaleOrigin(final QuaternionRotation q, final Vector3f v, final Vector3f s,
-			final Matrix4 out, final Vector3f pivot) {
+	public static void fromRotationTranslationScaleOrigin(final QuaternionRotation q, final Vertex v, final Vertex s,
+			final Matrix4 out, final Vertex pivot) {
 		final float x = q.x;
 		final float y = q.y;
 		final float z = q.z;
@@ -104,7 +103,7 @@ public class MathUtils {
 
 	// copied from
 	// https://www.blend4web.com/api_doc/libs_gl-matrix2.js.html
-	public static void fromRotationTranslationScale(final QuaternionRotation q, final Vector3f v, final Vector3f s,
+	public static void fromRotationTranslationScale(final QuaternionRotation q, final Vertex v, final Vertex s,
 			final Matrix4 out) {
 		final float x = q.x;
 		final float y = q.y;

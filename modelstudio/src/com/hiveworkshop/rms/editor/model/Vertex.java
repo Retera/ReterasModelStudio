@@ -111,6 +111,12 @@ public class Vertex {
 		z = v.z;
 	}
 
+	public void set(final Vector4f v) {
+		x = v.x;
+		y = v.y;
+		z = v.z;
+	}
+
 	public void set(final double vx, final double vy, final double vz) {
 		x = (float) vx;
 		y = (float) vy;
@@ -336,5 +342,47 @@ public class Vertex {
 		y /= magnitude;
 		z /= magnitude;
 		return this;
+	}
+
+	public Vertex cross(final Vertex other) {
+		return cross(this, other, new Vertex());
+	}
+
+	public static Vertex cross(final Vertex a, final Vertex b, final Vertex out) {
+		final float ax = a.x;
+		final float ay = a.y;
+		final float az = a.z;
+		final float bx = b.x;
+		final float by = b.y;
+		final float bz = b.z;
+
+		out.x = (ay * bz) - (by * az);
+		out.y = (bx * az) - (ax * bz);
+		out.z = (ax * by) - (bx * ay);
+
+		return out;
+	}
+
+	public float lengthSquared() {
+		return (x * x) + (y * y) + (z * z);
+	}
+
+	public float length() {
+		return (float) Math.sqrt(lengthSquared());
+	}
+
+	public Vertex sub(final Vertex other) {
+		this.x -= other.x;
+		this.y -= other.y;
+		this.z -= other.z;
+		return this;
+	}
+
+	public static Vertex sub(final Vertex a, final Vertex b, final Vertex out) {
+		out.x = a.x - b.x;
+		out.y = a.y - b.y;
+		out.z = a.z - b.z;
+
+		return out;
 	}
 }

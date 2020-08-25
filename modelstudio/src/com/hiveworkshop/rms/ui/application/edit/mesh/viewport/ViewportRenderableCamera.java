@@ -1,15 +1,22 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
-import com.hiveworkshop.rms.editor.model.*;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.io.IOException;
+
+import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.Matrix4;
+import com.hiveworkshop.rms.editor.model.QuaternionRotation;
+import com.hiveworkshop.rms.editor.model.Triangle;
+import com.hiveworkshop.rms.editor.model.Vertex;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
 
-import java.awt.*;
-import java.io.IOException;
+import org.lwjgl.util.vector.Vector4f;
 
 public class ViewportRenderableCamera {
 	private final EditableModel cameraModel;
@@ -17,21 +24,21 @@ public class ViewportRenderableCamera {
 	private final Matrix4 rotationMatrix = new Matrix4();
 	private final Matrix4 scaleTranslateMatrix = new Matrix4();
 	private final Matrix4 translateMatrix = new Matrix4();
-	private static final Vector3f f = new Vector3f();
-	private static final Vector3f u = new Vector3f();
-	private static final Vector3f s = new Vector3f();
+	private static final Vertex f = new Vertex();
+	private static final Vertex u = new Vertex();
+	private static final Vertex s = new Vertex();
 	private static final Vertex start = new Vertex(0, 0, 0);
 	private static final Vertex end = new Vertex(0, 0, 0);
-	private static final Vector3f startVector = new Vector3f(0, 0, 0);
-	private static final Vector3f endVector = new Vector3f(0, 0, 0);
-	private static final Vector3f delta = new Vector3f(0, 0, 0);
-	private static final Vector3f vector3heap = new Vector3f(0, 0, 0);
-	private static final Vector3f Z_DIMENSION = new Vector3f(0, 0, 1);
+	private static final Vertex startVector = new Vertex(0, 0, 0);
+	private static final Vertex endVector = new Vertex(0, 0, 0);
+	private static final Vertex delta = new Vertex(0, 0, 0);
+	private static final Vertex vector3heap = new Vertex(0, 0, 0);
+	private static final Vertex Z_DIMENSION = new Vertex(0, 0, 1);
 	private static final QuaternionRotation quatHeap = new QuaternionRotation();
 	private static final QuaternionRotation quatRotHeap = new QuaternionRotation(0, 0, 0, 0);
 	private static final Vector4f vectorHeap = new Vector4f();
-	private static final Vector3f ZEROES = new Vector3f(0, 0, 0);
-	private static final Vector3f ONES = new Vector3f(1, 1, 1);
+	private static final Vertex ZEROES = new Vertex(0, 0, 0);
+	private static final Vertex ONES = new Vertex(1, 1, 1);
 	private static final Vertex quatRotAxisHeap = new Vertex(0, 0, 0);
 
 	public ViewportRenderableCamera() {
@@ -47,14 +54,14 @@ public class ViewportRenderableCamera {
 		cameraModel = camera;
 	}
 
-	private void lookAt(final Vector3f eye, final Vector3f center, final Vector3f up) {
-		Vector3f.sub(center, eye, f);
-		f.normalise(f);
+	private void lookAt(final Vertex eye, final Vertex center, final Vertex up) {
+		Vertex.sub(center, eye, f);
+		f.normalize();
 		u.set(up);
-		u.normalise();
-		Vector3f.cross(f, u, s);
-		s.normalise();
-		Vector3f.cross(s, f, u);
+		u.normalize();
+		Vertex.cross(f, u, s);
+		s.normalize();
+		Vertex.cross(s, f, u);
 
 		rotationMatrix.setIdentity();
 		rotationMatrix.m00 = f.x;

@@ -1,11 +1,10 @@
 package com.hiveworkshop.rms.editor.model;
 
+import java.util.List;
+
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxGeosetAnimation;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
-import org.lwjgl.util.vector.Vector3f;
-
-import java.util.List;
 
 /**
  * The geoset anims, heaven forbid they be forgotten.
@@ -154,9 +153,9 @@ public class GeosetAnim extends TimelineContainer implements Named {
 		return getRenderVisibility(animatedRenderEnvironment, (float) staticAlpha);
 	}
 
-	private static final Vector3f renderColorVector = new Vector3f();
+	private static final Vertex renderColorVector = new Vertex();
 
-	public Vector3f getRenderColor(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public Vertex getRenderColor(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		final Vertex c = getInterpolatedVector(animatedRenderEnvironment, "Color", staticColor);
 
 		renderColorVector.x = (float) c.x;

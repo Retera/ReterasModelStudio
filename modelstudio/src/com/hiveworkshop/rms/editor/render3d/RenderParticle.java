@@ -6,14 +6,13 @@ import com.hiveworkshop.rms.editor.model.Vertex;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.MathUtils;
 
-import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 public class RenderParticle {
     private static final Vertex UP = new Vertex(0, 0, 1);
 
     private final RenderParticleEmitter emitter;
-    private final Vector3f velocity;
+    private final Vertex velocity;
     private float gravity;
     private RenderParticleEmitterView emitterView;
     private final InternalInstance internalInstance;
@@ -23,21 +22,21 @@ public class RenderParticle {
     private static final QuaternionRotation rotationYHeap = new QuaternionRotation();
     private static final Vector4f vector4Heap = new Vector4f();
     private static final Matrix4 matrixHeap = new Matrix4();
-    private static final Vector3f velocityTimeHeap = new Vector3f();
+    private static final Vertex velocityTimeHeap = new Vertex();
 
     public RenderParticle(final RenderParticleEmitter emitter) {
         this.emitter = emitter;
         emitterView = null;
 
         internalInstance = emitter.internalResource.addInstance();
-        velocity = new Vector3f();
+        velocity = new Vertex();
         gravity = 0;
     }
 
     public void reset(final RenderParticleEmitterView emitterView) {
         final RenderModel instance = emitterView.instance;
         final RenderNode renderNode = instance.getRenderNode(emitter.modelObject);
-        final Vector3f scale = renderNode.getWorldScale();
+        final Vertex scale = renderNode.getWorldScale();
 
         final double latitude = emitterView.getLatitude();
         final double lifeSpan = emitterView.getLifeSpan();

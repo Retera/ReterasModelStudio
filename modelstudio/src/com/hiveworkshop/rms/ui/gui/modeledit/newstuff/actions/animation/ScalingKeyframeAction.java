@@ -4,18 +4,16 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.lwjgl.util.vector.Vector3f;
-
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.Vertex;
 import com.hiveworkshop.rms.ui.application.edit.animation.NodeAnimationModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
-import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.Vertex;
 
 public class ScalingKeyframeAction implements GenericScaleAction {
 	private final UndoAction addingTimelinesOrKeyframesAction;
 	private final int trackTime;
-	private final HashMap<IdObject, Vector3f> nodeToLocalScale;
+	private final HashMap<IdObject, Vertex> nodeToLocalScale;
 	private final NodeAnimationModelEditor modelEditor;
 	private final Vertex center;
 	private final Integer trackGlobalSeq;
@@ -30,17 +28,17 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 		this.modelEditor = modelEditor;
 		nodeToLocalScale = new HashMap<>();
 		for (final IdObject node : nodeSelection) {
-			nodeToLocalScale.put(node, new Vector3f());
+			nodeToLocalScale.put(node, new Vertex());
 		}
 		center = new Vertex(centerX, centerY, centerZ);
 	}
 
 	@Override
 	public void undo() {
-		final Vector3f tempInverse = new Vector3f();
-		for (final Map.Entry<IdObject, Vector3f> nodeAndLocalTranslation : nodeToLocalScale.entrySet()) {
+		final Vertex tempInverse = new Vertex();
+		for (final Map.Entry<IdObject, Vertex> nodeAndLocalTranslation : nodeToLocalScale.entrySet()) {
 			final IdObject node = nodeAndLocalTranslation.getKey();
-			final Vector3f localTranslation = nodeAndLocalTranslation.getValue();
+			final Vertex localTranslation = nodeAndLocalTranslation.getValue();
 			tempInverse.x = 1 / localTranslation.x;
 			tempInverse.y = 1 / localTranslation.y;
 			tempInverse.z = 1 / localTranslation.z;
@@ -52,9 +50,9 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 	@Override
 	public void redo() {
 		addingTimelinesOrKeyframesAction.redo();
-		for (final Map.Entry<IdObject, Vector3f> nodeAndLocalTranslation : nodeToLocalScale.entrySet()) {
+		for (final Map.Entry<IdObject, Vertex> nodeAndLocalTranslation : nodeToLocalScale.entrySet()) {
 			final IdObject node = nodeAndLocalTranslation.getKey();
-			final Vector3f localTranslation = nodeAndLocalTranslation.getValue();
+			final Vertex localTranslation = nodeAndLocalTranslation.getValue();
 			node.updateLocalScalingKeyframe(trackTime, trackGlobalSeq, localTranslation);
 		}
 	}

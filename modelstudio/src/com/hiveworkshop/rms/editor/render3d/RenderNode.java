@@ -7,7 +7,6 @@ import com.hiveworkshop.rms.editor.model.QuaternionRotation;
 import com.hiveworkshop.rms.editor.model.Vertex;
 import com.hiveworkshop.rms.util.MathUtils;
 
-import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 public final class RenderNode {
@@ -18,26 +17,26 @@ public final class RenderNode {
 	boolean billboardedX;
 	boolean billboardedY;
 	boolean billboardedZ;
-	private static final Vector3f locationHeap = new Vector3f();
-	private static final Vector3f scalingHeap = new Vector3f();
-	private static final Vector3f pivotHeap = new Vector3f();
+	private static final Vertex locationHeap = new Vertex();
+	private static final Vertex scalingHeap = new Vertex();
+	private static final Vertex pivotHeap = new Vertex();
 	private static final Vector4f vector4Heap = new Vector4f();
 
-	protected final Vector3f localLocation = new Vector3f();
+	protected final Vertex localLocation = new Vertex();
 	protected final QuaternionRotation localRotation = new QuaternionRotation();
-	protected final Vector3f localScale = new Vector3f(1, 1, 1);
+	protected final Vertex localScale = new Vertex(1, 1, 1);
 	private final Matrix4 localMatrix = new Matrix4();
 
-	private final Vector3f worldLocation = new Vector3f();
+	private final Vertex worldLocation = new Vertex();
 	private final QuaternionRotation worldRotation = new QuaternionRotation();
-	private final Vector3f worldScale = new Vector3f(1, 1, 1);
+	private final Vertex worldScale = new Vertex(1, 1, 1);
 	private final Matrix4 worldMatrix = new Matrix4();
 	private final Matrix4 finalMatrix;
 	private Matrix4 bindPose;
 
-	protected final Vector3f inverseWorldLocation = new Vector3f();
+	protected final Vertex inverseWorldLocation = new Vertex();
 	protected final QuaternionRotation inverseWorldRotation = new QuaternionRotation();
-	protected final Vector3f inverseWorldScale = new Vector3f();
+	protected final Vertex inverseWorldScale = new Vertex();
 
 	protected boolean visible;
 
@@ -91,8 +90,8 @@ public final class RenderNode {
 		if (dirty) {
 			dirty = false;
 			if (idObject.getParent() != null) {
-				final Vector3f computedLocation = locationHeap;
-				final Vector3f computedScaling;
+				final Vertex computedLocation = locationHeap;
+				final Vertex computedScaling;
 				computedLocation.x = localLocation.x;// + (float) parent.pivotPoint.x;
 				computedLocation.y = localLocation.y;// + (float) parent.pivotPoint.y;
 				computedLocation.z = localLocation.z;// + (float) parent.pivotPoint.z;
@@ -100,7 +99,7 @@ public final class RenderNode {
 				if (dontInheritScaling) {
 					computedScaling = scalingHeap;
 
-					final Vector3f parentInverseScale = model.getRenderNode(idObject.getParent()).inverseWorldScale;
+					final Vertex parentInverseScale = model.getRenderNode(idObject.getParent()).inverseWorldScale;
 					computedScaling.x = parentInverseScale.x * localScale.x;
 					computedScaling.y = parentInverseScale.y * localScale.y;
 					computedScaling.z = parentInverseScale.z * localScale.z;
@@ -111,7 +110,7 @@ public final class RenderNode {
 				} else {
 					computedScaling = localScale;
 
-					final Vector3f parentScale = model.getRenderNode(idObject.getParent()).worldScale;
+					final Vertex parentScale = model.getRenderNode(idObject.getParent()).worldScale;
 					worldScale.x = parentScale.x * localScale.x;
 					worldScale.y = parentScale.y * localScale.y;
 					worldScale.z = parentScale.z * localScale.z;
@@ -235,23 +234,23 @@ public final class RenderNode {
 		return inverseWorldRotation;
 	}
 
-	public Vector3f getInverseWorldLocation() {
+	public Vertex getInverseWorldLocation() {
 		return inverseWorldLocation;
 	}
 
-	public Vector3f getInverseWorldScale() {
+	public Vertex getInverseWorldScale() {
 		return inverseWorldScale;
 	}
 
-	public Vector3f getWorldLocation() {
+	public Vertex getWorldLocation() {
 		return worldLocation;
 	}
 
-	public Vector3f getLocalLocation() {
+	public Vertex getLocalLocation() {
 		return localLocation;
 	}
 
-	public Vector3f getLocalScale() {
+	public Vertex getLocalScale() {
 		return localScale;
 	}
 
@@ -267,11 +266,11 @@ public final class RenderNode {
 		return worldRotation;
 	}
 
-	public Vector3f getWorldScale() {
+	public Vertex getWorldScale() {
 		return worldScale;
 	}
 
-	public Vector3f getPivot() {
+	public Vertex getPivot() {
 		vector4Heap.x = (float) idObject.getPivotPoint().x;
 		vector4Heap.y = (float) idObject.getPivotPoint().y;
 		vector4Heap.z = (float) idObject.getPivotPoint().z;

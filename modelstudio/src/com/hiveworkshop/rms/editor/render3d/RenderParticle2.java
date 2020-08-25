@@ -7,7 +7,6 @@ import com.hiveworkshop.rms.editor.model.Vertex;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.MathUtils;
 
-import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
@@ -19,18 +18,18 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 	private static final QuaternionRotation rotationYHeap = new QuaternionRotation();
 	private static final QuaternionRotation rotationXHeap = new QuaternionRotation();
 	private static final Matrix4 matrixHeap = new Matrix4();
-	private static final Vector3f locationHeap = new Vector3f();
+	private static final Vertex locationHeap = new Vertex();
 	private static final Vector4f location4Heap = new Vector4f();
 	private static final Vector4f startHeap = new Vector4f();
 	private static final Vector4f endHeap = new Vector4f();
-	private static final Vector3f tailHeap = new Vector3f();
-	private static final Vector3f normalHeap = new Vector3f();
+	private static final Vertex tailHeap = new Vertex();
+	private static final Vertex normalHeap = new Vertex();
 	private final RenderParticleEmitter2 emitter;
 	private boolean head;
-	private final Vector3f location;
-	private final Vector3f velocity;
+	private final Vertex location;
+	private final Vertex velocity;
 	private float gravity;
-	private final Vector3f nodeScale;
+	private final Vertex nodeScale;
 
 	private RenderNode node;
 
@@ -39,10 +38,10 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		emitterView = null;
 		health = 0;
 		head = true;
-		location = new Vector3f();
-		velocity = new Vector3f();
+		location = new Vertex();
+		velocity = new Vertex();
 		gravity = 0;
-		nodeScale = new Vector3f();
+		nodeScale = new Vertex();
 
 		vertices = new float[12];
 		lta = 0;
@@ -64,7 +63,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		final ParticleEmitter2 modelObject = emitter.modelObject;
 		final RenderNode node = emitterView.instance.getRenderNode(modelObject);
 		final Vertex pivotPoint = modelObject.getPivotPoint();
-		final Vector3f scale = node.getWorldScale();
+		final Vertex scale = node.getWorldScale();
 		width *= 0.5;
 		length *= 0.5;
 		latitude = Math.toRadians(latitude);
@@ -128,7 +127,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 	public void update() {
 		final ParticleEmitter2 modelObject = emitter.modelObject;
 		final float dt = AnimatedRenderEnvironment.FRAMES_PER_UPDATE * 0.001f;
-		final Vector3f worldLocation = locationHeap;
+		final Vertex worldLocation = locationHeap;
 		final Vector4f worldLocation4f = location4Heap;
 
 		health -= dt;
@@ -239,7 +238,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		}
 
 		final float[] vertices = this.vertices;
-		final Vector3f nodeScale = this.nodeScale;
+		final Vertex nodeScale = this.nodeScale;
 
 		final float scalex = scale * nodeScale.x;
 		final float scaley = scale * nodeScale.y;
@@ -302,12 +301,12 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 			// This allows to build a 2D rectangle around the 3D tail
 			tailHeap.set(endx - startx, endy - starty, endz - startz);
 			if (tailHeap.lengthSquared() > 0) {
-				tailHeap.normalise();
+				tailHeap.normalize();
 			}
 			normalHeap.set(instance.getBillboardVectors()[6]);
-			Vector3f.cross(normalHeap, tailHeap, normalHeap);
+			Vertex.cross(normalHeap, tailHeap, normalHeap);
 			if (normalHeap.lengthSquared() > 0) {
-				normalHeap.normalise();
+				normalHeap.normalize();
 			}
 
 			final float normalX = normalHeap.x * scalex;

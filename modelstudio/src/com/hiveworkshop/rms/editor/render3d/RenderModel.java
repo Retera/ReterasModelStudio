@@ -1,15 +1,27 @@
 package com.hiveworkshop.rms.editor.render3d;
 
-import com.hiveworkshop.rms.editor.model.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.hiveworkshop.rms.editor.model.AnimatedNode;
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.Camera.SourceNode;
 import com.hiveworkshop.rms.editor.model.Camera.TargetNode;
+import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.Matrix4;
+import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
+import com.hiveworkshop.rms.editor.model.QuaternionRotation;
+import com.hiveworkshop.rms.editor.model.Vertex;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.MathUtils;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
 
-import java.util.*;
+import org.lwjgl.util.vector.Vector4f;
 
 /**
  * For rendering. Copied from ghostwolf's stuff
@@ -183,9 +195,9 @@ public final class RenderModel {
 			if (nodeVisible) {
 				boolean wasDirty = false;
 				// TODO variants
-				final Vector3f localLocation = node.localLocation;
+				final Vertex localLocation = node.localLocation;
 				final QuaternionRotation localRotation = node.localRotation;
-				final Vector3f localScale = node.localScale;
+				final Vertex localScale = node.localScale;
 
 				// Only update the local data if there is a need to
 				if (forced || true /* variants */) {

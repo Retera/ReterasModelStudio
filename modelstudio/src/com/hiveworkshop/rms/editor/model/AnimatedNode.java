@@ -1,16 +1,16 @@
 package com.hiveworkshop.rms.editor.model;
 
+import java.util.List;
+
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.AddKeyframeAction;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
 
-import java.util.List;
+import org.lwjgl.util.vector.Vector4f;
 
 public abstract class AnimatedNode extends TimelineContainer {
 	private static final Vector4f translationHeap = new Vector4f();
@@ -55,7 +55,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		if ((translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
 			return null;
 		} else {
-			final Vector3f localLocation = renderNode.getLocalLocation();
+			final Vertex localLocation = renderNode.getLocalLocation();
 			final int insertIndex = ((translationFlag.getTimes().size() == 0)
 					|| (translationFlag.getTimes().get(0) > trackTime)) ? 0 : floorIndex + 1;
 			translationFlag.getTimes().add(insertIndex, trackTime);
@@ -132,7 +132,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		if ((scalingTimeline.getTimes().size() > 0) && (scalingTimeline.getTimes().get(floorIndex) == trackTime)) {
 			return null;
 		} else {
-			final Vector3f localScale = renderNode.getLocalScale();
+			final Vertex localScale = renderNode.getLocalScale();
 			final int insertIndex = ((scalingTimeline.getTimes().size() == 0)
 					|| (scalingTimeline.getTimes().get(0) > trackTime)) ? 0 : floorIndex + 1;
 			scalingTimeline.getTimes().add(insertIndex, trackTime);
@@ -154,7 +154,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 	}
 
 	public void updateTranslationKeyframe(final RenderModel renderModel, final double newDeltaX, final double newDeltaY,
-			final double newDeltaZ, final Vector3f savedLocalTranslation) {
+			final double newDeltaZ, final Vertex savedLocalTranslation) {
 		// Note to future author: the reason for saved local translation is that
 		// we would like to be able to undo the action of moving the animation data
 
@@ -358,7 +358,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 	}
 
 	public void updateScalingKeyframe(final RenderModel renderModel, final double scaleX, final double scaleY,
-			final double scaleZ, final Vector3f savedLocalScaling) {
+			final double scaleZ, final Vertex savedLocalScaling) {
 		// Note to future author: the reason for saved local scaling is that
 		// we would like to be able to undo the action of moving the animation data
 
@@ -572,7 +572,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 	}
 
 	public void updateLocalScalingKeyframe(final int trackTime, final Integer trackGlobalSeq,
-			final Vector3f localScaling) {
+			final Vertex localScaling) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
 		final AnimFlag translationFlag = find("Scaling", trackGlobalSeq);
