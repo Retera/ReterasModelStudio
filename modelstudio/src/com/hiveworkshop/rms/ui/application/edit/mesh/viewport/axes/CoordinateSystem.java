@@ -3,15 +3,15 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector4f;
-
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.editor.model.Matrix4;
 import com.hiveworkshop.rms.editor.model.TVertex;
 import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
+
+import org.lwjgl.util.vector.Vector4f;
 
 public interface CoordinateSystem extends CoordinateAxes {
 	double convertX(double x);
@@ -137,7 +137,7 @@ public interface CoordinateSystem extends CoordinateAxes {
 			vertexHeap.w = 1;
 			vertexSumHeap.set(0, 0, 0, 0);
 			for (final Bone bone : vertex.getBones()) {
-				Matrix4f.transform(renderModel.getRenderNode(bone).getWorldMatrix(), vertexHeap, appliedVertexHeap);
+				Matrix4.transform(renderModel.getRenderNode(bone).getWorldMatrix(), vertexHeap, appliedVertexHeap);
 				Vector4f.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
 			}
 			final int boneCount = vertex.getBones().size();

@@ -89,7 +89,6 @@ import net.miginfocom.swing.MigLayout;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
-import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -2824,7 +2823,7 @@ public class MainPanel extends JPanel
                         if (bones.size() > 0) {
                             vertexSumHeap.set(0, 0, 0, 0);
                             for (final Bone bone : bones) {
-                                Matrix4f.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(), vertexHeap,
+                                Matrix4.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(), vertexHeap,
                                         appliedVertexHeap);
                                 Vector4f.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
                             }
@@ -2847,7 +2846,7 @@ public class MainPanel extends JPanel
                         if (bones.size() > 0) {
                             normalSumHeap.set(0, 0, 0, 0);
                             for (final Bone bone : bones) {
-                                Matrix4f.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(), normalHeap,
+                                Matrix4.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(), normalHeap,
                                         appliedNormalHeap);
                                 Vector4f.add(normalSumHeap, appliedNormalHeap, normalSumHeap);
                             }

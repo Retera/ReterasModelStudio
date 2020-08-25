@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
@@ -16,9 +15,9 @@ import java.io.IOException;
 public class ViewportRenderableCamera {
 	private final EditableModel cameraModel;
 	private double cameraLength;
-	private final Matrix4f rotationMatrix = new Matrix4f();
-	private final Matrix4f scaleTranslateMatrix = new Matrix4f();
-	private final Matrix4f translateMatrix = new Matrix4f();
+	private final Matrix4 rotationMatrix = new Matrix4();
+	private final Matrix4 scaleTranslateMatrix = new Matrix4();
+	private final Matrix4 translateMatrix = new Matrix4();
 	private static final Vector3f f = new Vector3f();
 	private static final Vector3f u = new Vector3f();
 	private static final Vector3f s = new Vector3f();
@@ -100,7 +99,7 @@ public class ViewportRenderableCamera {
 		scaleTranslateMatrix.setIdentity();
 		vector3heap.set((float) (end.x), (float) (end.y), (float) (end.z));
 		scaleTranslateMatrix.translate(vector3heap);
-		Matrix4f.mul(scaleTranslateMatrix, rotationMatrix, scaleTranslateMatrix);
+		Matrix4.mul(scaleTranslateMatrix, rotationMatrix, scaleTranslateMatrix);
 		vector3heap.set((float) cameraModelScale, (float) cameraModelScale, (float) cameraModelScale);
 		scaleTranslateMatrix.scale(vector3heap);
 
@@ -116,7 +115,7 @@ public class ViewportRenderableCamera {
 					vectorHeap.y = (float) (vertex.y);
 					vectorHeap.z = (float) (vertex.z);
 					vectorHeap.w = 1;
-					Matrix4f.transform(scaleTranslateMatrix, vectorHeap, vectorHeap);
+					Matrix4.transform(scaleTranslateMatrix, vectorHeap, vectorHeap);
 					points[i].x = (int) coordinateSystem
 							.convertX(Vertex.getCoord(vectorHeap, coordinateSystem.getPortFirstXYZ()));
 					points[i].y = (int) coordinateSystem
@@ -156,7 +155,7 @@ public class ViewportRenderableCamera {
 		scaleTranslateMatrix.setIdentity();
 		vector3heap.set((float) (end.x), (float) (end.y), (float) (end.z));
 		scaleTranslateMatrix.translate(vector3heap);
-		Matrix4f.mul(rotationMatrix, scaleTranslateMatrix, scaleTranslateMatrix);
+		Matrix4.mul(rotationMatrix, scaleTranslateMatrix, scaleTranslateMatrix);
 		vector3heap.set((float) cameraModelScale, (float) cameraModelScale, (float) cameraModelScale);
 		scaleTranslateMatrix.scale(vector3heap);
 
@@ -172,7 +171,7 @@ public class ViewportRenderableCamera {
 					vectorHeap.y = (float) (vertex.y);
 					vectorHeap.z = (float) (vertex.z);
 					vectorHeap.w = 1;
-					Matrix4f.transform(scaleTranslateMatrix, vectorHeap, vectorHeap);
+					Matrix4.transform(scaleTranslateMatrix, vectorHeap, vectorHeap);
 				}
 			}
 		}

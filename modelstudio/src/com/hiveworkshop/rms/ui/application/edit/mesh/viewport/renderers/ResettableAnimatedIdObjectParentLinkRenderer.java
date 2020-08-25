@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
-import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector4f;
 
 import java.awt.*;
@@ -138,8 +137,8 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 	private static final Vector4f vertexHeap2 = new Vector4f();
 
 	public static void drawLink(final Graphics2D graphics, final CoordinateSystem coordinateSystem,
-			final Vertex pivotPoint, final Vertex target, final Matrix4f worldMatrix,
-			final Matrix4f targetWorldMatrix) {
+			final Vertex pivotPoint, final Vertex target, final Matrix4 worldMatrix,
+			final Matrix4 targetWorldMatrix) {
 		loadPivotInVertexHeap(pivotPoint, worldMatrix, vertexHeap);
 		loadPivotInVertexHeap(target, targetWorldMatrix, vertexHeap2);
 
@@ -158,13 +157,13 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 		graphics.drawLine(xCoord, yCoord, xCoord2, yCoord2);
 	}
 
-	public static void loadPivotInVertexHeap(final Vertex pivotPoint, final Matrix4f worldMatrix,
+	public static void loadPivotInVertexHeap(final Vertex pivotPoint, final Matrix4 worldMatrix,
 			final Vector4f vertexHeap) {
 		vertexHeap.x = (float) pivotPoint.x;
 		vertexHeap.y = (float) pivotPoint.y;
 		vertexHeap.z = (float) pivotPoint.z;
 		vertexHeap.w = 1;
-		Matrix4f.transform(worldMatrix, vertexHeap, vertexHeap);
+		Matrix4.transform(worldMatrix, vertexHeap, vertexHeap);
 	}
 
 }

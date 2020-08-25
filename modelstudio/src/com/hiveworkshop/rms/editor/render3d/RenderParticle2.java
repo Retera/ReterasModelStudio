@@ -1,10 +1,11 @@
 package com.hiveworkshop.rms.editor.render3d;
 
+import com.hiveworkshop.rms.editor.model.Matrix4;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
 import com.hiveworkshop.rms.editor.model.Vertex;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.MathUtils;
-import org.lwjgl.util.vector.Matrix4f;
+
 import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
@@ -17,7 +18,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 	private static final Quaternion rotationZHeap = new Quaternion();
 	private static final Quaternion rotationYHeap = new Quaternion();
 	private static final Quaternion rotationXHeap = new Quaternion();
-	private static final Matrix4f matrixHeap = new Matrix4f();
+	private static final Matrix4 matrixHeap = new Matrix4();
 	private static final Vector3f locationHeap = new Vector3f();
 	private static final Vector4f location4Heap = new Vector4f();
 	private static final Vector4f startHeap = new Vector4f();
@@ -84,7 +85,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		// World location
 		if (!modelObject.getModelSpace()) {
 			vector4Heap.set(location.x, location.y, location.z, 1);
-			Matrix4f.transform(node.getWorldMatrix(), vector4Heap, vector4Heap);
+			Matrix4.transform(node.getWorldMatrix(), vector4Heap, vector4Heap);
 			location.set(vector4Heap);
 		}
 
@@ -111,7 +112,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		// Apply the rotation
 		MathUtils.fromQuat(rotationYHeap, matrixHeap);
 		vector4Heap.set(0, 0, 1, 1);
-		Matrix4f.transform(matrixHeap, vector4Heap, vector4Heap);
+		Matrix4.transform(matrixHeap, vector4Heap, vector4Heap);
 		velocity.set(vector4Heap);
 
 		// Apply speed
@@ -248,7 +249,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 			// If this is a model space emitter, the particle location is in local space, so
 			// convert it now to world space.
 			if (modelObject.getModelSpace()) {
-				Matrix4f.transform(node.getWorldMatrix(), worldLocation4f, worldLocation4f);
+				Matrix4.transform(node.getWorldMatrix(), worldLocation4f, worldLocation4f);
 			}
 
 			final float px = worldLocation4f.x;
@@ -286,8 +287,8 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 			// If this is a model space emitter, the start and end are in local space, so
 			// convert them to world space.
 			if (modelObject.getModelSpace()) {
-				Matrix4f.transform(node.getWorldMatrix(), startHeap, startHeap);
-				Matrix4f.transform(node.getWorldMatrix(), endHeap, endHeap);
+				Matrix4.transform(node.getWorldMatrix(), startHeap, startHeap);
+				Matrix4.transform(node.getWorldMatrix(), endHeap, endHeap);
 			}
 
 			final float startx = startHeap.x;

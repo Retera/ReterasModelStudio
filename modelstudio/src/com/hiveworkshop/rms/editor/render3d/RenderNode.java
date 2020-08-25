@@ -2,10 +2,11 @@ package com.hiveworkshop.rms.editor.render3d;
 
 import com.hiveworkshop.rms.editor.model.AnimatedNode;
 import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.Matrix4;
 import com.hiveworkshop.rms.editor.model.QuaternionRotation;
 import com.hiveworkshop.rms.editor.model.Vertex;
 import com.hiveworkshop.rms.util.MathUtils;
-import org.lwjgl.util.vector.Matrix4f;
+
 import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
@@ -26,14 +27,14 @@ public final class RenderNode {
 	protected final Vector3f localLocation = new Vector3f();
 	protected final Quaternion localRotation = new Quaternion();
 	protected final Vector3f localScale = new Vector3f(1, 1, 1);
-	private final Matrix4f localMatrix = new Matrix4f();
+	private final Matrix4 localMatrix = new Matrix4();
 
 	private final Vector3f worldLocation = new Vector3f();
 	private final Quaternion worldRotation = new Quaternion();
 	private final Vector3f worldScale = new Vector3f(1, 1, 1);
-	private final Matrix4f worldMatrix = new Matrix4f();
-	private final Matrix4f finalMatrix;
-	private Matrix4f bindPose;
+	private final Matrix4 worldMatrix = new Matrix4();
+	private final Matrix4 finalMatrix;
+	private Matrix4 bindPose;
 
 	protected final Vector3f inverseWorldLocation = new Vector3f();
 	protected final Quaternion inverseWorldRotation = new Quaternion();
@@ -49,8 +50,8 @@ public final class RenderNode {
 		if (idObject instanceof IdObject) {
 			final float[] bindPose = ((IdObject) idObject).getBindPose();
 			if (bindPose != null) {
-				finalMatrix = new Matrix4f();
-				this.bindPose = new Matrix4f();
+				finalMatrix = new Matrix4();
+				this.bindPose = new Matrix4();
 				this.bindPose.m00 = bindPose[0];
 				this.bindPose.m01 = bindPose[1];
 				this.bindPose.m02 = bindPose[2];
@@ -123,7 +124,7 @@ public final class RenderNode {
 				MathUtils.fromRotationTranslationScaleOrigin(localRotation, computedLocation, computedScaling,
 						localMatrix, pivotHeap);
 
-				Matrix4f.mul(model.getRenderNode(idObject.getParent()).worldMatrix, localMatrix, worldMatrix);
+				Matrix4.mul(model.getRenderNode(idObject.getParent()).worldMatrix, localMatrix, worldMatrix);
 
 				Quaternion.mul(model.getRenderNode(idObject.getParent()).worldRotation, localRotation, worldRotation);
 			} else {
@@ -133,12 +134,12 @@ public final class RenderNode {
 				pivotHeap.z = (float) idObject.getPivotPoint().z;
 				MathUtils.fromRotationTranslationScaleOrigin(localRotation, localLocation, localScale, localMatrix,
 						pivotHeap);
-				worldMatrix.load(localMatrix);
+				worldMatrix.set(localMatrix);
 				worldRotation.set(localRotation);
 				worldScale.set(localScale);
 			}
 			if (worldMatrix != finalMatrix) {
-				Matrix4f.mul(worldMatrix, bindPose, finalMatrix);
+				Matrix4.mul(worldMatrix, bindPose, finalMatrix);
 			}
 
 			// Inverse world rotation
@@ -216,7 +217,7 @@ public final class RenderNode {
 		dirty = true;
 	}
 
-	public Matrix4f getWorldMatrix() {
+	public Matrix4 getWorldMatrix() {
 		return worldMatrix;
 	}
 
@@ -227,7 +228,7 @@ public final class RenderNode {
 	 * 
 	 * @return
 	 */
-	public Matrix4f getFinalMatrix() {
+	public Matrix4 getFinalMatrix() {
 		return finalMatrix;
 	}
 
@@ -255,7 +256,7 @@ public final class RenderNode {
 		return localScale;
 	}
 
-	public Matrix4f getLocalMatrix() {
+	public Matrix4 getLocalMatrix() {
 		return localMatrix;
 	}
 
@@ -276,7 +277,7 @@ public final class RenderNode {
 		vector4Heap.y = (float) idObject.getPivotPoint().y;
 		vector4Heap.z = (float) idObject.getPivotPoint().z;
 		vector4Heap.w = 1;
-		Matrix4f.transform(worldMatrix, vector4Heap, vector4Heap);
+		Matrix4.transform(worldMatrix, vector4Heap, vector4Heap);
 		pivotHeap.x = vector4Heap.x;
 		pivotHeap.y = vector4Heap.y;
 		pivotHeap.z = vector4Heap.z;

@@ -1,9 +1,10 @@
 package com.hiveworkshop.rms.editor.render3d;
 
+import com.hiveworkshop.rms.editor.model.Matrix4;
 import com.hiveworkshop.rms.editor.model.Vertex;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.MathUtils;
-import org.lwjgl.util.vector.Matrix4f;
+
 import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
@@ -21,7 +22,7 @@ public class RenderParticle {
     private static final Quaternion rotationZHeap = new Quaternion();
     private static final Quaternion rotationYHeap = new Quaternion();
     private static final Vector4f vector4Heap = new Vector4f();
-    private static final Matrix4f matrixHeap = new Matrix4f();
+    private static final Matrix4 matrixHeap = new Matrix4();
     private static final Vector3f velocityTimeHeap = new Vector3f();
 
     public RenderParticle(final RenderParticleEmitter emitter) {
@@ -57,11 +58,11 @@ public class RenderParticle {
         Quaternion.mul(rotationYHeap, rotationZHeap, rotationYHeap);
         MathUtils.fromQuat(rotationYHeap, matrixHeap);
         vector4Heap.set(0, 0, 1, 1);
-        Matrix4f.transform(matrixHeap, vector4Heap, vector4Heap);
+        Matrix4.transform(matrixHeap, vector4Heap, vector4Heap);
 
         // World rotation
         MathUtils.fromQuat(renderNode.getWorldRotation(), matrixHeap);
-        Matrix4f.transform(matrixHeap, vector4Heap, vector4Heap);
+        Matrix4.transform(matrixHeap, vector4Heap, vector4Heap);
 
         // Apply speed
         velocity.set(vector4Heap);

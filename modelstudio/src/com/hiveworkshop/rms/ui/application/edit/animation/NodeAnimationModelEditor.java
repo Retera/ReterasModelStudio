@@ -29,7 +29,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisitor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
@@ -226,7 +225,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		pivotHeap.y = (float) geosetVertex.y;
 		pivotHeap.z = (float) geosetVertex.z;
 		pivotHeap.w = 1;
-		Matrix4f.transform(renderNode.getWorldMatrix(), pivotHeap, pivotHeap);
+		Matrix4.transform(renderNode.getWorldMatrix(), pivotHeap, pivotHeap);
 		final byte dim1 = coordinateSystem.getPortFirstXYZ();
 		final byte dim2 = coordinateSystem.getPortSecondXYZ();
 		final double minX = coordinateSystem.convertX(area.getMinX());
@@ -244,12 +243,12 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	public static boolean hitTest(final Vertex vertex, final Point2D point, final CoordinateSystem coordinateSystem,
-			final double vertexSize, final Matrix4f worldMatrix) {
+			final double vertexSize, final Matrix4 worldMatrix) {
 		pivotHeap.x = (float) vertex.x;
 		pivotHeap.y = (float) vertex.y;
 		pivotHeap.z = (float) vertex.z;
 		pivotHeap.w = 1;
-		Matrix4f.transform(worldMatrix, pivotHeap, pivotHeap);
+		Matrix4.transform(worldMatrix, pivotHeap, pivotHeap);
 		final double x = coordinateSystem.convertX(Vertex.getCoord(pivotHeap, coordinateSystem.getPortFirstXYZ()));
 		final double y = coordinateSystem.convertY(Vertex.getCoord(pivotHeap, coordinateSystem.getPortSecondXYZ()));
 		final double px = coordinateSystem.convertX(point.getX());
@@ -320,7 +319,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		}
 
 		private void handleDefaultNode(final Point point, final CoordinateSystem axes, final IdObject node) {
-			final Matrix4f worldMatrix = renderModel.getRenderNode(node).getWorldMatrix();
+			final Matrix4 worldMatrix = renderModel.getRenderNode(node).getWorldMatrix();
 			if (hitTest(node.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes,
 					node.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes) * 2, worldMatrix)) {
 				mouseOverVertex = true;
@@ -349,7 +348,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 		@Override
 		public void helper(final Helper node) {
-			final Matrix4f worldMatrix = renderModel.getRenderNode(node).getWorldMatrix();
+			final Matrix4 worldMatrix = renderModel.getRenderNode(node).getWorldMatrix();
 			if (hitTest(node.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes,
 					node.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes), worldMatrix)) {
 				mouseOverVertex = true;
@@ -383,7 +382,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 		@Override
 		public void bone(final Bone node) {
-			final Matrix4f worldMatrix = renderModel.getRenderNode(node).getWorldMatrix();
+			final Matrix4 worldMatrix = renderModel.getRenderNode(node).getWorldMatrix();
 			if (hitTest(node.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes,
 					node.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes), worldMatrix)) {
 				mouseOverVertex = true;

@@ -17,7 +17,6 @@ import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.*;
-import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
@@ -516,8 +515,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	private final Vector4f normalHeap = new Vector4f();
 	private final Vector4f appliedNormalHeap = new Vector4f();
 	private final Vector4f normalSumHeap = new Vector4f();
-	private final Matrix4f skinBonesMatrixHeap = new Matrix4f();
-	private final Matrix4f skinBonesMatrixSumHeap = new Matrix4f();
+	private final Matrix4 skinBonesMatrixHeap = new Matrix4();
+	private final Matrix4 skinBonesMatrixSumHeap = new Matrix4();
 
 	@Override
 	protected void exceptionOccurred(final LWJGLException exception) {
@@ -685,8 +684,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 										continue;
 									}
 									processedBones = true;
-									final Matrix4f worldMatrix = renderModel.getRenderNode(skinBone).getWorldMatrix();
-									skinBonesMatrixHeap.load(worldMatrix);
+									final Matrix4 worldMatrix = renderModel.getRenderNode(skinBone).getWorldMatrix();
+									skinBonesMatrixHeap.set(worldMatrix);
 
 									skinBonesMatrixSumHeap.m00 += (skinBonesMatrixHeap.m00 * skinBoneWeights[boneIndex])
 											/ 255f;
@@ -724,13 +723,13 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 								if (!processedBones) {
 									skinBonesMatrixSumHeap.setIdentity();
 								}
-								Matrix4f.transform(skinBonesMatrixSumHeap, vertexHeap, vertexSumHeap);
+								Matrix4.transform(skinBonesMatrixSumHeap, vertexHeap, vertexSumHeap);
 								if (v.getNormal() != null) {
 									normalHeap.x = (float) v.getNormal().x;
 									normalHeap.y = (float) v.getNormal().y;
 									normalHeap.z = (float) v.getNormal().z;
 									normalHeap.w = 0;
-									Matrix4f.transform(skinBonesMatrixSumHeap, normalHeap, normalSumHeap);
+									Matrix4.transform(skinBonesMatrixSumHeap, normalHeap, normalSumHeap);
 
 									if (normalSumHeap.length() > 0) {
 										normalSumHeap.normalise();
@@ -766,7 +765,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 								if (boneCount > 0) {
 									vertexSumHeap.set(0, 0, 0, 0);
 									for (final Bone bone : v.getBones()) {
-										Matrix4f.transform(renderModel.getRenderNode(bone).getWorldMatrix(), vertexHeap,
+										Matrix4.transform(renderModel.getRenderNode(bone).getWorldMatrix(), vertexHeap,
 												appliedVertexHeap);
 										Vector4f.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
 									}
@@ -785,7 +784,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 									if (boneCount > 0) {
 										normalSumHeap.set(0, 0, 0, 0);
 										for (final Bone bone : v.getBones()) {
-											Matrix4f.transform(renderModel.getRenderNode(bone).getWorldMatrix(),
+											Matrix4.transform(renderModel.getRenderNode(bone).getWorldMatrix(),
 													normalHeap, appliedNormalHeap);
 											Vector4f.add(normalSumHeap, appliedNormalHeap, normalSumHeap);
 										}
@@ -970,8 +969,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 									continue;
 								}
 								processedBones = true;
-								final Matrix4f worldMatrix = renderModel.getRenderNode(skinBone).getWorldMatrix();
-								skinBonesMatrixHeap.load(worldMatrix);
+								final Matrix4 worldMatrix = renderModel.getRenderNode(skinBone).getWorldMatrix();
+								skinBonesMatrixHeap.set(worldMatrix);
 
 								skinBonesMatrixSumHeap.m00 += (skinBonesMatrixHeap.m00 * skinBoneWeights[boneIndex])
 										/ 255f;
@@ -1009,13 +1008,13 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 							if (!processedBones) {
 								skinBonesMatrixSumHeap.setIdentity();
 							}
-							Matrix4f.transform(skinBonesMatrixSumHeap, vertexHeap, vertexSumHeap);
+							Matrix4.transform(skinBonesMatrixSumHeap, vertexHeap, vertexSumHeap);
 							if (v.getNormal() != null) {
 								normalHeap.x = (float) v.getNormal().x;
 								normalHeap.y = (float) v.getNormal().y;
 								normalHeap.z = (float) v.getNormal().z;
 								normalHeap.w = 0;
-								Matrix4f.transform(skinBonesMatrixSumHeap, normalHeap, normalSumHeap);
+								Matrix4.transform(skinBonesMatrixSumHeap, normalHeap, normalSumHeap);
 
 								if (normalSumHeap.length() > 0) {
 									normalSumHeap.normalise();
@@ -1046,7 +1045,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 							if (boneCount > 0) {
 								vertexSumHeap.set(0, 0, 0, 0);
 								for (final Bone bone : v.getBones()) {
-									Matrix4f.transform(renderModel.getRenderNode(bone).getWorldMatrix(), vertexHeap,
+									Matrix4.transform(renderModel.getRenderNode(bone).getWorldMatrix(), vertexHeap,
 											appliedVertexHeap);
 									Vector4f.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
 								}
@@ -1065,7 +1064,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 								if (boneCount > 0) {
 									normalSumHeap.set(0, 0, 0, 0);
 									for (final Bone bone : v.getBones()) {
-										Matrix4f.transform(renderModel.getRenderNode(bone).getWorldMatrix(), normalHeap,
+										Matrix4.transform(renderModel.getRenderNode(bone).getWorldMatrix(), normalHeap,
 												appliedNormalHeap);
 										Vector4f.add(normalSumHeap, appliedNormalHeap, normalSumHeap);
 									}

@@ -9,7 +9,6 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexModelElementRenderer;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector4f;
 
 import java.util.*;
@@ -40,7 +39,7 @@ public final class NodeAnimationSelectionManager extends AbstractSelectionManage
 			pivotHeap.y = (float) pivot.y;
 			pivotHeap.z = (float) pivot.z;
 			pivotHeap.w = 1;
-			Matrix4f.transform(renderModel.getRenderNode(object).getWorldMatrix(), pivotHeap, pivotHeap);
+			Matrix4.transform(renderModel.getRenderNode(object).getWorldMatrix(), pivotHeap, pivotHeap);
 			centerOfGroupSumHeap.x += pivotHeap.x;
 			centerOfGroupSumHeap.y += pivotHeap.y;
 			centerOfGroupSumHeap.z += pivotHeap.z;
@@ -62,7 +61,7 @@ public final class NodeAnimationSelectionManager extends AbstractSelectionManage
 			pivotHeap.y = (float) pivot.y;
 			pivotHeap.z = (float) pivot.z;
 			pivotHeap.w = 1;
-			Matrix4f.transform(renderModel.getRenderNode(item).getWorldMatrix(), pivotHeap, pivotHeap);
+			Matrix4.transform(renderModel.getRenderNode(item).getWorldMatrix(), pivotHeap, pivotHeap);
 			final double distance = sphereCenter.distance(pivotHeap);
 			if (distance >= radius) {
 				radius = distance;

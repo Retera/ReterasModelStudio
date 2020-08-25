@@ -7,7 +7,6 @@ import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.AddKeyframeAction;
-import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
@@ -16,7 +15,7 @@ import java.util.List;
 
 public abstract class AnimatedNode extends TimelineContainer {
 	private static final Vector4f translationHeap = new Vector4f();
-	private static final Matrix4f matrixHeap = new Matrix4f();
+	private static final Matrix4 matrixHeap = new Matrix4();
 	private static final Quaternion rotationHeap = new Quaternion();
 	private static final Quaternion rotationDeltaHeap = new Quaternion();
 	private static final Vector4f axisAngleHeap = new Vector4f();
@@ -183,21 +182,21 @@ public abstract class AnimatedNode extends TimelineContainer {
 		final AnimatedNode parent = getParent();
 		if (parent != null) {
 			final RenderNode parentRenderNode = renderModel.getRenderNode(parent);
-			Matrix4f.invert(parentRenderNode.getWorldMatrix(), matrixHeap);
+			Matrix4.invert(parentRenderNode.getWorldMatrix(), matrixHeap);
 
 			translationHeap.x = 0;
 			translationHeap.y = 0;
 			translationHeap.z = 0;
 			translationHeap.w = 1;
 
-			Matrix4f.transform(parentRenderNode.getWorldMatrix(), translationHeap, translationHeap);
+			Matrix4.transform(parentRenderNode.getWorldMatrix(), translationHeap, translationHeap);
 
 			translationHeap.x = (float) (translationHeap.x + newDeltaX);
 			translationHeap.y = (float) (translationHeap.y + newDeltaY);
 			translationHeap.z = (float) (translationHeap.z + newDeltaZ);
 			translationHeap.w = 1;
 
-			Matrix4f.transform(matrixHeap, translationHeap, translationHeap);
+			Matrix4.transform(matrixHeap, translationHeap, translationHeap);
 		} else {
 			translationHeap.x = (float) (newDeltaX);
 			translationHeap.y = (float) (newDeltaY);
@@ -263,14 +262,14 @@ public abstract class AnimatedNode extends TimelineContainer {
 		final AnimatedNode parent = getParent();
 		if (parent != null) {
 			final RenderNode parentRenderNode = renderModel.getRenderNode(parent);
-			Matrix4f.invert(parentRenderNode.getWorldMatrix(), matrixHeap);
+			Matrix4.invert(parentRenderNode.getWorldMatrix(), matrixHeap);
 
 			axisAngleHeap.x = 0;
 			axisAngleHeap.y = 0;
 			axisAngleHeap.z = 0;
 			axisAngleHeap.w = 1;
 
-			Matrix4f.transform(parentRenderNode.getWorldMatrix(), axisAngleHeap, axisAngleHeap);
+			Matrix4.transform(parentRenderNode.getWorldMatrix(), axisAngleHeap, axisAngleHeap);
 
 			switch (unusedXYZ) {
 			case 0:
@@ -291,7 +290,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 			}
 			axisAngleHeap.w = 1;
 
-			Matrix4f.transform(matrixHeap, axisAngleHeap, axisAngleHeap);
+			Matrix4.transform(matrixHeap, axisAngleHeap, axisAngleHeap);
 		} else {
 			switch (unusedXYZ) {
 			case 0:

@@ -11,7 +11,6 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportView;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector4f;
 
 import java.awt.*;
@@ -167,8 +166,8 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 	private static final Vector4f normalHeap = new Vector4f();
 	private static final Vector4f appliedNormalHeap = new Vector4f();
 	private static final Vector4f normalSumHeap = new Vector4f();
-	private static final Matrix4f skinBonesMatrixHeap = new Matrix4f();
-	private static final Matrix4f skinBonesMatrixSumHeap = new Matrix4f();
+	private static final Matrix4 skinBonesMatrixHeap = new Matrix4();
+	private static final Matrix4 skinBonesMatrixSumHeap = new Matrix4();
 
 	private final class TriangleRendererImpl implements TriangleVisitor {
 		private final List<Point> previousVertices = new ArrayList<>();
@@ -188,7 +187,7 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 			if (bones.size() > 0) {
 				vertexSumHeap.set(0, 0, 0, 0);
 				for (final Bone bone : bones) {
-					Matrix4f.transform(renderModel.getRenderNode(bone).getWorldMatrix(), vertexHeap, appliedVertexHeap);
+					Matrix4.transform(renderModel.getRenderNode(bone).getWorldMatrix(), vertexHeap, appliedVertexHeap);
 					Vector4f.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
 				}
 				final int boneCount = bones.size();
@@ -246,7 +245,7 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 				if (bones.size() > 0) {
 					normalSumHeap.set(0, 0, 0, 0);
 					for (final Bone bone : bones) {
-						Matrix4f.transform(renderModel.getRenderNode(bone).getWorldMatrix(), normalHeap,
+						Matrix4.transform(renderModel.getRenderNode(bone).getWorldMatrix(), normalHeap,
 								appliedNormalHeap);
 						Vector4f.add(normalSumHeap, appliedNormalHeap, normalSumHeap);
 					}
@@ -315,8 +314,8 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 					continue;
 				}
 				processedBones = true;
-				final Matrix4f worldMatrix = renderModel.getRenderNode(skinBone).getWorldMatrix();
-				skinBonesMatrixHeap.load(worldMatrix);
+				final Matrix4 worldMatrix = renderModel.getRenderNode(skinBone).getWorldMatrix();
+				skinBonesMatrixHeap.set(worldMatrix);
 
 				skinBonesMatrixSumHeap.m00 += (skinBonesMatrixHeap.m00 * skinBoneWeights[boneIndex]) / 255f;
 				skinBonesMatrixSumHeap.m01 += (skinBonesMatrixHeap.m01 * skinBoneWeights[boneIndex]) / 255f;
@@ -338,12 +337,12 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 			if (!processedBones) {
 				skinBonesMatrixSumHeap.setIdentity();
 			}
-			Matrix4f.transform(skinBonesMatrixSumHeap, vertexHeap, vertexSumHeap);
+			Matrix4.transform(skinBonesMatrixSumHeap, vertexHeap, vertexSumHeap);
 			normalHeap.x = (float) normalX;
 			normalHeap.y = (float) normalY;
 			normalHeap.z = (float) normalZ;
 			normalHeap.w = 0;
-			Matrix4f.transform(skinBonesMatrixSumHeap, normalHeap, normalSumHeap);
+			Matrix4.transform(skinBonesMatrixSumHeap, normalHeap, normalSumHeap);
 
 			if (normalSumHeap.length() > 0) {
 				normalSumHeap.normalise();

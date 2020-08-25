@@ -7,7 +7,6 @@ import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportRenderableCamera;
-import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector4f;
 
 import java.awt.*;
@@ -82,7 +81,7 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
         drawCrosshair(object.getPivotPoint(), renderModel.getRenderNode(object).getWorldMatrix());
     }
 
-    private void drawCrosshair(final Vertex pivotPoint, final Matrix4f worldMatrix) {
+    private void drawCrosshair(final Vertex pivotPoint, final Matrix4 worldMatrix) {
         drawCrosshair(graphics, coordinateSystem, vertexSize, pivotPoint, worldMatrix, crosshairIsBox);
     }
 
@@ -197,14 +196,14 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
         // g2.drawLine(0, 0, (int) dist, 0);
     }
 
-    private void drawNodeImage(final IdObject attachment, final Image nodeImage, final Matrix4f worldMatrix) {
+    private void drawNodeImage(final IdObject attachment, final Image nodeImage, final Matrix4 worldMatrix) {
         drawNodeImage(graphics, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ(),
                 coordinateSystem, attachment, nodeImage, worldMatrix);
     }
 
     public static void drawNodeImage(final Graphics2D graphics, final byte xDimension, final byte yDimension,
                                      final CoordinateSystem coordinateSystem, final IdObject attachment, final Image nodeImage,
-                                     final Matrix4f worldMatrix) {
+                                     final Matrix4 worldMatrix) {
         loadPivotInVertexHeap(attachment.getPivotPoint(), worldMatrix, vertexHeap);
         final int xCoord = (int) coordinateSystem.convertX(Vertex.getCoord(vertexHeap, xDimension));
         final int yCoord = (int) coordinateSystem.convertY(Vertex.getCoord(vertexHeap, yDimension));
@@ -216,7 +215,7 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
     private static final Vector4f vertexHeap2 = new Vector4f();
 
     public static void drawCrosshair(final Graphics2D graphics, final CoordinateSystem coordinateSystem, int vertexSize,
-                                     final Vertex pivotPoint, final Matrix4f worldMatrix, final boolean crosshairIsBox) {
+                                     final Vertex pivotPoint, final Matrix4 worldMatrix, final boolean crosshairIsBox) {
         loadPivotInVertexHeap(pivotPoint, worldMatrix, vertexHeap);
 
         final int xCoord = (int) coordinateSystem
@@ -233,18 +232,18 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
         }
     }
 
-    public static void loadPivotInVertexHeap(final Vertex pivotPoint, final Matrix4f worldMatrix,
+    public static void loadPivotInVertexHeap(final Vertex pivotPoint, final Matrix4 worldMatrix,
                                              final Vector4f vertexHeap) {
         vertexHeap.x = (float) pivotPoint.x;
         vertexHeap.y = (float) pivotPoint.y;
         vertexHeap.z = (float) pivotPoint.z;
         vertexHeap.w = 1;
-        Matrix4f.transform(worldMatrix, vertexHeap, vertexHeap);
+        Matrix4.transform(worldMatrix, vertexHeap, vertexHeap);
     }
 
     public static void drawCollisionShape(final Graphics2D graphics, final Color color,
                                           final CoordinateSystem coordinateSystem, final byte xDimension, final byte yDimension, final int vertexSize,
-                                          final CollisionShape collisionShape, final Image collisionImage, final Matrix4f worldMatrix,
+                                          final CollisionShape collisionShape, final Image collisionImage, final Matrix4 worldMatrix,
                                           final boolean crosshairIsBox) {
         final Vertex pivotPoint = collisionShape.getPivotPoint();
         final List<Vertex> vertices = collisionShape.getVertices();

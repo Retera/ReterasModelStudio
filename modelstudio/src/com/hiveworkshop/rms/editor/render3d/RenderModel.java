@@ -6,7 +6,6 @@ import com.hiveworkshop.rms.editor.model.Camera.TargetNode;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.MathUtils;
-import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
@@ -39,7 +38,7 @@ public final class RenderModel {
 
 	private boolean spawnParticles = true;
 	private boolean allowInanimateParticles = false;
-	private static final Matrix4f billboardUpdatesMatrixHeap = new Matrix4f();
+	private static final Matrix4 billboardUpdatesMatrixHeap = new Matrix4();
 
 	// These guys form the corners of a 2x2 rectangle, for use in Ghostwolf particle
 	// emitter algorithm
@@ -98,7 +97,7 @@ public final class RenderModel {
 		// dont use billboardUpdatesMatrixHeap
 		MathUtils.fromQuat(inverseCameraRotation, billboardUpdatesMatrixHeap);
 		for (int i = 0; i < billboardVectors.length; i++) {
-			Matrix4f.transform(billboardUpdatesMatrixHeap, billboardBaseVectors[i], billboardVectors[i]);
+			Matrix4.transform(billboardUpdatesMatrixHeap, billboardBaseVectors[i], billboardVectors[i]);
 		}
 
 		sortedNodes.clear();
@@ -325,7 +324,7 @@ public final class RenderModel {
 	private void updateParticles() {
 		MathUtils.fromQuat(inverseCameraRotation, billboardUpdatesMatrixHeap);
 		for (int i = 0; i < billboardVectors.length; i++) {
-			Matrix4f.transform(billboardUpdatesMatrixHeap, billboardBaseVectors[i], billboardVectors[i]);
+			Matrix4.transform(billboardUpdatesMatrixHeap, billboardBaseVectors[i], billboardVectors[i]);
 		}
 		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
 			// not animating
