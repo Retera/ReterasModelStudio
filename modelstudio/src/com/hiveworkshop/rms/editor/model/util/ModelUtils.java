@@ -91,7 +91,7 @@ public final class ModelUtils {
 		for (int y = 0; y < (numberOfSegmentsY + 1); y++) {
 			final GeosetVertex[] currentRow = new GeosetVertex[numberOfSegmentsX + 1];
 			for (int x = 0; x < (numberOfSegmentsX + 1); x++) {
-				final Normal normal = new Normal(facingVector.x, facingVector.y, facingVector.z);
+				final Vertex normal = new Vertex(facingVector.x, facingVector.y, facingVector.z);
 				final GeosetVertex vertex = new GeosetVertex(0, 0, 0, normal);
 				currentRow[x] = vertex;
 				vertex.setCoord(planeDimension, planeHeight);

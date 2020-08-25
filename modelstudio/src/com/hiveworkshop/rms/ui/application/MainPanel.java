@@ -5252,26 +5252,26 @@ public class MainPanel extends JPanel
 
         final int groundOffset = aspectRatio > 1 ? (128 - displayHeight) / 2 : 0;
         final GeosetVertex upperLeft = new GeosetVertex(0, displayWidth / 2, displayHeight + groundOffset,
-                new Normal(0, 0, 1));
+                new Vertex(0, 0, 1));
         final TVertex upperLeftTVert = new TVertex(1, 0);
         upperLeft.addTVertex(upperLeftTVert);
         newGeoset.add(upperLeft);
         upperLeft.setGeoset(newGeoset);
 
         final GeosetVertex upperRight = new GeosetVertex(0, -displayWidth / 2, displayHeight + groundOffset,
-                new Normal(0, 0, 1));
+                new Vertex(0, 0, 1));
         newGeoset.add(upperRight);
         final TVertex upperRightTVert = new TVertex(0, 0);
         upperRight.addTVertex(upperRightTVert);
         upperRight.setGeoset(newGeoset);
 
-        final GeosetVertex lowerLeft = new GeosetVertex(0, displayWidth / 2, groundOffset, new Normal(0, 0, 1));
+        final GeosetVertex lowerLeft = new GeosetVertex(0, displayWidth / 2, groundOffset, new Vertex(0, 0, 1));
         newGeoset.add(lowerLeft);
         final TVertex lowerLeftTVert = new TVertex(1, 1);
         lowerLeft.addTVertex(lowerLeftTVert);
         lowerLeft.setGeoset(newGeoset);
 
-        final GeosetVertex lowerRight = new GeosetVertex(0, -displayWidth / 2, groundOffset, new Normal(0, 0, 1));
+        final GeosetVertex lowerRight = new GeosetVertex(0, -displayWidth / 2, groundOffset, new Vertex(0, 0, 1));
         newGeoset.add(lowerRight);
         final TVertex lowerRightTVert = new TVertex(0, 1);
         lowerRight.addTVertex(lowerRightTVert);

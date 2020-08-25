@@ -308,7 +308,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 			solidWhiteGeoset.setMaterial(new Material(new Layer("None", new Bitmap("Textures\\white.blp"))));
 			needsGeosetAction = true;
 		}
-		final GeosetVertex geosetVertex = new GeosetVertex(x, y, z, new Normal(preferredNormalFacingVector.x,
+		final GeosetVertex geosetVertex = new GeosetVertex(x, y, z, new Vertex(preferredNormalFacingVector.x,
 				preferredNormalFacingVector.y, preferredNormalFacingVector.z));
 		geosetVertex.setGeoset(solidWhiteGeoset);
 		geosetVertex.addTVertex(new TVertex(0, 0));

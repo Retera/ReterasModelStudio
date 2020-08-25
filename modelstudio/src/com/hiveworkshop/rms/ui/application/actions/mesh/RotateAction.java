@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.Normal;
+import com.hiveworkshop.rms.editor.model.Vertex;
 import com.hiveworkshop.rms.editor.model.Vertex;
 import com.hiveworkshop.rms.ui.application.actions.VertexActionType;
 
@@ -14,7 +14,7 @@ import com.hiveworkshop.rms.ui.application.actions.VertexActionType;
  * Eric Theller 6/8/2012
  */
 public class RotateAction extends MoveAction {
-	ArrayList<Normal> normals;
+	ArrayList<Vertex> normals;
 	ArrayList<Vertex> normalMoveVectors;
 
 	public RotateAction(final List<Vertex> selection, final List<Vertex> moveVectors,
@@ -63,7 +63,7 @@ public class RotateAction extends MoveAction {
 	public void redo() {
 		super.redo();
 		for (int i = 0; i < normals.size(); i++) {
-			final Normal ver = normals.get(i);
+			final Vertex ver = normals.get(i);
 			final Vertex vect = normalMoveVectors.get(i);
 			ver.x += vect.x;
 			ver.y += vect.y;
@@ -75,7 +75,7 @@ public class RotateAction extends MoveAction {
 	public void undo() {
 		super.undo();
 		for (int i = 0; i < normals.size(); i++) {
-			final Normal ver = normals.get(i);
+			final Vertex ver = normals.get(i);
 			final Vertex vect = normalMoveVectors.get(i);
 			ver.x -= vect.x;
 			ver.y -= vect.y;
@@ -83,7 +83,7 @@ public class RotateAction extends MoveAction {
 		}
 	}
 
-	public ArrayList<Normal> getNormals() {
+	public ArrayList<Vertex> getNormals() {
 		return normals;
 	}
 

@@ -620,7 +620,7 @@ public class BuildWLists implements BuilderInterface {
 		}
 
 		public GeosetVertex createVertex() {
-			return new GeosetVertex(posX, posY, posZ, new Normal(normX, normY, normZ));
+			return new GeosetVertex(posX, posY, posZ, new Vertex(normX, normY, normZ));
 		}
 
 		public TVertex createTVertex() {

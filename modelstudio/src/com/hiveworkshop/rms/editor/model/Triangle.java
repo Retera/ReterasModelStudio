@@ -213,7 +213,7 @@ public class Triangle {
 		vertIds[1] = tempVertId;
 		if (flipNormals) {
 			for (final GeosetVertex geosetVertex : verts) {
-				final Normal normal = geosetVertex.getNormal();
+				final Vertex normal = geosetVertex.getNormal();
 				if (normal != null) {
 					// Flip normals, preserve lighting!
 					normal.inverse();

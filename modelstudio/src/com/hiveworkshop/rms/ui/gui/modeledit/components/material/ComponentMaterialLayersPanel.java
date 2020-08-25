@@ -18,7 +18,7 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import net.miginfocom.swing.MigLayout;
 
 public class ComponentMaterialLayersPanel extends JPanel {
-	public static final String[] REFORGED_LAYER_DEFINITIONS = { "Diffuse", "Normal", "ORM", "Emissive", "Team Color",
+	public static final String[] REFORGED_LAYER_DEFINITIONS = { "Diffuse", "Vertex", "ORM", "Emissive", "Team Color",
 			"Reflections" };
 	private static final Color HIGHLIGHT_BUTTON_BACKGROUND_COLOR = new Color(100, 118, 135);
 	private Material material;

@@ -7,7 +7,7 @@ import java.util.List;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.Normal;
+import com.hiveworkshop.rms.editor.model.Vertex;
 import com.hiveworkshop.rms.editor.model.Vertex;
 
 public final class MirrorModelAction implements UndoAction {
@@ -47,7 +47,7 @@ public final class MirrorModelAction implements UndoAction {
 			vert.setCoord(mirrorDim, (2 * center.getCoord(mirrorDim)) - vert.getCoord(mirrorDim));
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
-				final Normal normal = gv.getNormal();
+				final Vertex normal = gv.getNormal();
 				if (normal != null) {
 					// Flip normals, preserve lighting!
 					normal.setCoord(mirrorDim, -normal.getCoord(mirrorDim));

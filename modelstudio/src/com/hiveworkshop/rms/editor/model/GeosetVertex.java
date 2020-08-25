@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class GeosetVertex extends Vertex {
 	Matrix matrixRef;
-	private Normal normal;
+	private Vertex normal;
 	public int VertexGroup = -1;
 	List<TVertex> tverts = new ArrayList<>();
 	List<Bone> bones = new ArrayList<>();
@@ -31,7 +31,7 @@ public class GeosetVertex extends Vertex {
 		super(x, y, z);
 	}
 
-	public GeosetVertex(final double x, final double y, final double z, final Normal n) {
+	public GeosetVertex(final double x, final double y, final double z, final Vertex n) {
 		super(x, y, z);
 		normal = n;
 	}
@@ -75,7 +75,7 @@ public class GeosetVertex extends Vertex {
 
 	public GeosetVertex(final GeosetVertex old) {
 		super(old.x, old.y, old.z);
-		this.normal = new Normal(old.normal);
+		this.normal = new Vertex(old.normal);
 		this.bones = new ArrayList<>(old.bones);
 		this.tverts = new ArrayList<>();
 		for (final TVertex tv : old.tverts) {
@@ -142,11 +142,11 @@ public class GeosetVertex extends Vertex {
 		matrixRef = ref;
 	}
 
-	public void setNormal(final Normal n) {
+	public void setNormal(final Vertex n) {
 		normal = n;
 	}
 
-	public Normal getNormal() {
+	public Vertex getNormal() {
 		return normal;
 	}
 

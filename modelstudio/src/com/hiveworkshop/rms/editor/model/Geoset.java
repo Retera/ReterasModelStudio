@@ -12,7 +12,7 @@ import java.util.List;
 public class Geoset implements Named, VisibilitySource {
 	ExtLog extents;
 	List<GeosetVertex> vertex = new ArrayList<>();
-	List<Normal> normals = new ArrayList<>();
+	List<Vertex> normals = new ArrayList<>();
 	List<UVLayer> uvlayers = new ArrayList<>();
 	List<Triangle> triangles = new ArrayList<>();
 	List<Matrix> matrix = new ArrayList<>();
@@ -72,7 +72,7 @@ public class Geoset implements Named, VisibilitySource {
 			// this is an unsigned byte, the other guys java code will read as
 			// signed
 			if (normals.length > 0) {
-				addNormal(new Normal(normals[i], normals[i + 1], normals[i + 2]));
+				addNormal(new Vertex(normals[i], normals[i + 1], normals[i + 2]));
 			}
 
 			for (int uvId = 0; uvId < uv.size(); uvId++) {
@@ -312,11 +312,11 @@ public class Geoset implements Named, VisibilitySource {
 		return vertex.size();
 	}
 
-	public void addNormal(final Normal n) {
+	public void addNormal(final Vertex n) {
 		normals.add(n);
 	}
 
-	public Normal getNormal(final int vertId) {
+	public Vertex getNormal(final int vertId) {
 		return normals.get(vertId);
 	}
 
@@ -754,11 +754,11 @@ public class Geoset implements Named, VisibilitySource {
 		this.vertex = vertex;
 	}
 
-	public List<Normal> getNormals() {
+	public List<Vertex> getNormals() {
 		return normals;
 	}
 
-	public void setNormals(final List<Normal> normals) {
+	public void setNormals(final List<Vertex> normals) {
 		this.normals = normals;
 	}
 

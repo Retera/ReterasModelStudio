@@ -385,4 +385,10 @@ public class Vertex {
 
 		return out;
 	}
+
+	public void inverse() {
+		x = -x;
+		y = -y;
+		z = -z;
+	}
 }

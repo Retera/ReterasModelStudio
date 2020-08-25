@@ -2204,7 +2204,7 @@ public class EditableModel implements Named {
 		for (final Geoset geo : model.getGeosets()) {
 			final List<GeosetVertex> vertices = geo.getVertices();
 			for (final GeosetVertex gv : vertices) {
-				final Normal normal = gv.getNormal();
+				final Vertex normal = gv.getNormal();
 				if (normal != null) {
 					gv.initV900();
 					final float[] tangent = gv.getTangent();
@@ -2300,7 +2300,7 @@ public class EditableModel implements Named {
 			}
 			for (int vertexId = 0; vertexId < theMesh.getVertices().size(); vertexId++) {
 				final GeosetVertex gv = theMesh.getVertex(vertexId);
-				final Normal n = gv.getNormal();
+				final Vertex n = gv.getNormal();
 				final Vertex t = new Vertex(tan1[vertexId]);
 
 				final Vertex v = new Vertex(t).subtract(n).scale(n.dotProduct(t)).normalize();

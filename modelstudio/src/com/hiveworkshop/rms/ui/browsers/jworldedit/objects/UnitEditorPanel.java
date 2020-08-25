@@ -223,7 +223,7 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 		actionsOnLearn.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-setvariables.blp"),
 				"Set LocalLevel = (Level of (This ability) for (Triggering unit))"));
 		actionsOnLearn.add(new BehaviorTreeNode(niceIcon("ui\\widgets\\tooltips\\human\\tooltipmanaicon.blp"),
-				"Command Card - Add a (Unit target) command card icon for (This ability) using ((Ability: (This ability)'s Integer Field: Button Position - Normal (X) ('abpx')), (Ability: (This ability)'s Integer Field: Button Position - Normal (Y) ('abpy')))"));
+				"Command Card - Add a (Unit target) command card icon for (This ability) using ((Ability: (This ability)'s Integer Field: Button Position - Vertex (X) ('abpx')), (Ability: (This ability)'s Integer Field: Button Position - Vertex (Y) ('abpy')))"));
 		actionsOnLearn.add(new BehaviorTreeNode(niceIcon("ui\\widgets\\tooltips\\human\\tooltipmanaicon.blp"),
 				"Command Card - Set the icon of (Last created Command Card Icon) to (Icon of (This ability))"));
 		actionsOnLearn.add(new BehaviorTreeNode(niceIcon("ui\\widgets\\tooltips\\human\\tooltipmanaicon.blp"),
@@ -244,7 +244,7 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 		actionsOnCast.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Missile.blp"),
 				"Missile - Launch (Last created missile) with a speed of (Ability: (This ability)'s Integer Field: Missile Speed ('amsp')) and arc of (Ability: (This ability)'s Real Field: Missile Arc ('amac'))"));
 		actionsOnCast.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Ability.blp"),
-				"Unit - Cause (Casting unit) to damage (Target unit of ability being cast), dealing (Ability: (This ability)'s Real Level Field Damage ('Htb1'), of Level: LocalLevel) damage of attack type Spells and damage type Normal"));
+				"Unit - Cause (Casting unit) to damage (Target unit of ability being cast), dealing (Ability: (This ability)'s Real Level Field Damage ('Htb1'), of Level: LocalLevel) damage of attack type Spells and damage type Vertex"));
 		actionsOnCast.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-setvariables.blp"),
 				"Set LocalBuffType = (Ability: (This ability)'s Buff Level Field Buffs ('abuf'), of Level: LocalLevel)"));
 
@@ -259,7 +259,7 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 			ifBlockStarter2.add(ifConditions2);
 			ifConditions2.add(new BehaviorTreeNode(niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-Logical.blp"),
 					"((Target unit of ability being cast) is A Hero) Equal to True"));
-			// (Ability: This_ability's Real Level Field Duration - Normal ('adur'), of
+			// (Ability: This_ability's Real Level Field Duration - Vertex ('adur'), of
 			// Level: level) Greater than or equal to 10.00
 
 			final BehaviorTreeNode thenActions2 = new BehaviorTreeNode(
@@ -273,7 +273,7 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 			ifBlockStarter2.add(elseActions2);
 			elseActions2.add(new BehaviorTreeNode(
 					niceIcon("ReplaceableTextures\\WorldEditUI\\Actions-setvariables.blp"),
-					"Set LocalDuration = (Ability: (This ability)'s Real Level Field Duration - Normal ('adur'), of Level: LocalLevel)"));
+					"Set LocalDuration = (Ability: (This ability)'s Real Level Field Duration - Vertex ('adur'), of Level: LocalLevel)"));
 		}
 
 		final BehaviorTreeNode ifBlockStarter = new BehaviorTreeNode(

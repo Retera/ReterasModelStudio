@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.Normal;
+import com.hiveworkshop.rms.editor.model.Vertex;
 import com.hiveworkshop.rms.editor.model.Vertex;
 
 public final class FlipNormalsAction implements UndoAction {
@@ -31,7 +31,7 @@ public final class FlipNormalsAction implements UndoAction {
 			final Vertex vert = selection.get(i);
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
-				final Normal normal = gv.getNormal();
+				final Vertex normal = gv.getNormal();
 				if (normal != null) {
 					// why is this nullable?
 					normal.inverse();

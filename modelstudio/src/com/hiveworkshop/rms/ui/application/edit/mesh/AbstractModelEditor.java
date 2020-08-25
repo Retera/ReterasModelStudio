@@ -82,7 +82,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 	public UndoAction snapNormals() {
 		final List<Vertex> oldLocations = new ArrayList<>();
 		final List<Vertex> selectedNormals = new ArrayList<>();
-		final Normal snapped = new Normal(0, 0, 1);
+		final Vertex snapped = new Vertex(0, 0, 1);
 		for (final Vertex vertex : selectionManager.getSelectedVertices()) {
 			if (vertex instanceof GeosetVertex) {
 				final GeosetVertex gv = (GeosetVertex) vertex;
@@ -101,7 +101,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 	public UndoAction recalcNormals() {
 		final List<Vertex> oldLocations = new ArrayList<>();
 		final List<GeosetVertex> selectedVertices = new ArrayList<>();
-		final Normal snapped = new Normal(0, 0, 1);
+		final Vertex snapped = new Vertex(0, 0, 1);
 		for (final Vertex vertex : selectionManager.getSelectedVertices()) {
 			if (vertex instanceof GeosetVertex) {
 				final GeosetVertex gv = (GeosetVertex) vertex;
@@ -217,7 +217,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		final Collection<? extends Vertex> selection = selectionManager.getSelectedVertices();
 		final List<Vertex> oldLocations = new ArrayList<>();
 		final List<Vertex> selectedNormals = new ArrayList<>();
-		final Normal snapped = new Normal(0, 0, 1);
+		final Vertex snapped = new Vertex(0, 0, 1);
 		for (final Vertex vertex : selection) {
 			if (vertex instanceof GeosetVertex) {
 				final GeosetVertex gv = (GeosetVertex) vertex;
