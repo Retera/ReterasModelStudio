@@ -1,9 +1,9 @@
 package com.hiveworkshop.rms.util;
 
 import com.hiveworkshop.rms.editor.model.Matrix4;
+import com.hiveworkshop.rms.editor.model.QuaternionRotation;
 import com.hiveworkshop.rms.editor.model.Vertex;
 
-import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -28,7 +28,7 @@ public class MathUtils {
 	}
 
 	public static Vertex lerp(final Vertex out, final Vertex a, final Vertex b, final double t) {
-		out.setTo(MathUtils.lerp(a.x, b.x, t), MathUtils.lerp(a.y, b.y, t), MathUtils.lerp(a.z, b.z, t));
+		out.set(MathUtils.lerp(a.x, b.x, t), MathUtils.lerp(a.y, b.y, t), MathUtils.lerp(a.z, b.z, t));
 		return out;
 	}
 
@@ -63,7 +63,7 @@ public class MathUtils {
 
 	// copied from ghostwolf and
 	// https://www.blend4web.com/api_doc/libs_gl-matrix2.js.html
-	public static void fromRotationTranslationScaleOrigin(final Quaternion q, final Vector3f v, final Vector3f s,
+	public static void fromRotationTranslationScaleOrigin(final QuaternionRotation q, final Vector3f v, final Vector3f s,
 			final Matrix4 out, final Vector3f pivot) {
 		final float x = q.x;
 		final float y = q.y;
@@ -104,7 +104,7 @@ public class MathUtils {
 
 	// copied from
 	// https://www.blend4web.com/api_doc/libs_gl-matrix2.js.html
-	public static void fromRotationTranslationScale(final Quaternion q, final Vector3f v, final Vector3f s,
+	public static void fromRotationTranslationScale(final QuaternionRotation q, final Vector3f v, final Vector3f s,
 			final Matrix4 out) {
 		final float x = q.x;
 		final float y = q.y;
@@ -143,7 +143,7 @@ public class MathUtils {
 		out.m33 = 1;
 	}
 
-	public static void fromQuat(final Quaternion q, final Matrix4 out) {
+	public static void fromQuat(final QuaternionRotation q, final Matrix4 out) {
 		final float x = q.x, y = q.y, z = q.z, w = q.w;
 		final float x2 = x + x;
 		final float y2 = y + y;

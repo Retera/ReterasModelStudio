@@ -7,7 +7,6 @@ import com.hiveworkshop.rms.editor.model.QuaternionRotation;
 import com.hiveworkshop.rms.editor.model.Vertex;
 import com.hiveworkshop.rms.util.MathUtils;
 
-import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -25,19 +24,19 @@ public final class RenderNode {
 	private static final Vector4f vector4Heap = new Vector4f();
 
 	protected final Vector3f localLocation = new Vector3f();
-	protected final Quaternion localRotation = new Quaternion();
+	protected final QuaternionRotation localRotation = new QuaternionRotation();
 	protected final Vector3f localScale = new Vector3f(1, 1, 1);
 	private final Matrix4 localMatrix = new Matrix4();
 
 	private final Vector3f worldLocation = new Vector3f();
-	private final Quaternion worldRotation = new Quaternion();
+	private final QuaternionRotation worldRotation = new QuaternionRotation();
 	private final Vector3f worldScale = new Vector3f(1, 1, 1);
 	private final Matrix4 worldMatrix = new Matrix4();
 	private final Matrix4 finalMatrix;
 	private Matrix4 bindPose;
 
 	protected final Vector3f inverseWorldLocation = new Vector3f();
-	protected final Quaternion inverseWorldRotation = new Quaternion();
+	protected final QuaternionRotation inverseWorldRotation = new QuaternionRotation();
 	protected final Vector3f inverseWorldScale = new Vector3f();
 
 	protected boolean visible;
@@ -126,7 +125,7 @@ public final class RenderNode {
 
 				Matrix4.mul(model.getRenderNode(idObject.getParent()).worldMatrix, localMatrix, worldMatrix);
 
-				Quaternion.mul(model.getRenderNode(idObject.getParent()).worldRotation, localRotation, worldRotation);
+				QuaternionRotation.mul(model.getRenderNode(idObject.getParent()).worldRotation, localRotation, worldRotation);
 			} else {
 
 				pivotHeap.x = (float) idObject.getPivotPoint().x;
@@ -232,7 +231,7 @@ public final class RenderNode {
 		return finalMatrix;
 	}
 
-	public Quaternion getInverseWorldRotation() {
+	public QuaternionRotation getInverseWorldRotation() {
 		return inverseWorldRotation;
 	}
 
@@ -260,11 +259,11 @@ public final class RenderNode {
 		return localMatrix;
 	}
 
-	public Quaternion getLocalRotation() {
+	public QuaternionRotation getLocalRotation() {
 		return localRotation;
 	}
 
-	public Quaternion getWorldRotation() {
+	public QuaternionRotation getWorldRotation() {
 		return worldRotation;
 	}
 

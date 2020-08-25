@@ -6,7 +6,6 @@ import com.hiveworkshop.rms.editor.model.Camera.TargetNode;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.MathUtils;
-import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -21,10 +20,10 @@ public final class RenderModel {
 	private final EditableModel model;
 	public static final double MAGIC_RENDER_SHOW_CONSTANT = 0.75;
 	private final List<AnimatedNode> sortedNodes = new ArrayList<>();
-	private Quaternion inverseCameraRotation;
-	private Quaternion inverseCameraRotationXSpin;
-	private Quaternion inverseCameraRotationYSpin;
-	private Quaternion inverseCameraRotationZSpin;
+	private QuaternionRotation inverseCameraRotation;
+	private QuaternionRotation inverseCameraRotationXSpin;
+	private QuaternionRotation inverseCameraRotationYSpin;
+	private QuaternionRotation inverseCameraRotationZSpin;
 	private AnimatedRenderEnvironment animatedRenderEnvironment;
 
 	private final Map<AnimatedNode, RenderNode> objectToRenderNode = new HashMap<>();
@@ -84,8 +83,8 @@ public final class RenderModel {
 	}
 
 	public void refreshFromEditor(final AnimatedRenderEnvironment animatedRenderEnvironment,
-			final Quaternion inverseCameraRotation, final Quaternion inverseCameraRotationYSpin,
-			final Quaternion inverseCameraRotationZSpin, final RenderResourceAllocator renderResourceAllocator) {
+			final QuaternionRotation inverseCameraRotation, final QuaternionRotation inverseCameraRotationYSpin,
+			final QuaternionRotation inverseCameraRotationZSpin, final RenderResourceAllocator renderResourceAllocator) {
 		particleEmitterViews2.clear();
 		particleEmitters2.clear();
 		this.animatedRenderEnvironment = animatedRenderEnvironment;
@@ -185,7 +184,7 @@ public final class RenderModel {
 				boolean wasDirty = false;
 				// TODO variants
 				final Vector3f localLocation = node.localLocation;
-				final Quaternion localRotation = node.localRotation;
+				final QuaternionRotation localRotation = node.localRotation;
 				final Vector3f localScale = node.localScale;
 
 				// Only update the local data if there is a need to
@@ -243,7 +242,7 @@ public final class RenderModel {
 						localRotation.setIdentity();
 					}
 
-					Quaternion.mul(localRotation, inverseCameraRotation, localRotation);
+					QuaternionRotation.mul(localRotation, inverseCameraRotation, localRotation);
 				} else if (node.billboardedY) {
 					// To solve billboard Y, you must rotate to face camera
 					// in node local space only around the node-local version of the Y axis.
@@ -261,9 +260,9 @@ public final class RenderModel {
 
 					// Cancel the parent's rotation;
 					localRotation.setIdentity();
-					Quaternion.mul(localRotation, inverseCameraRotationYSpin, localRotation);
+					QuaternionRotation.mul(localRotation, inverseCameraRotationYSpin, localRotation);
 //					if (parent != null) {
-//						Quaternion.mul(localRotation, localRotation, parent.inverseWorldRotation);
+//						QuaternionRotation.mul(localRotation, localRotation, parent.inverseWorldRotation);
 //					}
 
 					// TODO face camera, TODO have a camera
@@ -277,7 +276,7 @@ public final class RenderModel {
 						localRotation.setIdentity();
 					}
 
-					Quaternion.mul(localRotation, inverseCameraRotationZSpin, localRotation);
+					QuaternionRotation.mul(localRotation, inverseCameraRotationZSpin, localRotation);
 
 					// TODO face camera, TODO have a camera
 				}

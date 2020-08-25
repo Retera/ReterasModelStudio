@@ -1,11 +1,11 @@
 package com.hiveworkshop.rms.editor.render3d;
 
 import com.hiveworkshop.rms.editor.model.Matrix4;
+import com.hiveworkshop.rms.editor.model.QuaternionRotation;
 import com.hiveworkshop.rms.editor.model.Vertex;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.MathUtils;
 
-import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -19,8 +19,8 @@ public class RenderParticle {
     private final InternalInstance internalInstance;
     private RenderNode node;
     private double health;
-    private static final Quaternion rotationZHeap = new Quaternion();
-    private static final Quaternion rotationYHeap = new Quaternion();
+    private static final QuaternionRotation rotationZHeap = new QuaternionRotation();
+    private static final QuaternionRotation rotationYHeap = new QuaternionRotation();
     private static final Vector4f vector4Heap = new Vector4f();
     private static final Matrix4 matrixHeap = new Matrix4();
     private static final Vector3f velocityTimeHeap = new Vector3f();
@@ -55,7 +55,7 @@ public class RenderParticle {
         rotationZHeap.setFromAxisAngle(vector4Heap);
         vector4Heap.set(0, 1, 0, MathUtils.randomInRange(-latitude, latitude));
         rotationYHeap.setFromAxisAngle(vector4Heap);
-        Quaternion.mul(rotationYHeap, rotationZHeap, rotationYHeap);
+        QuaternionRotation.mul(rotationYHeap, rotationZHeap, rotationYHeap);
         MathUtils.fromQuat(rotationYHeap, matrixHeap);
         vector4Heap.set(0, 0, 1, 1);
         Matrix4.transform(matrixHeap, vector4Heap, vector4Heap);

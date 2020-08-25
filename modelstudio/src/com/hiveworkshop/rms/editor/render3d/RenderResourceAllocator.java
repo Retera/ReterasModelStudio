@@ -2,7 +2,8 @@ package com.hiveworkshop.rms.editor.render3d;
 
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
-import org.lwjgl.util.vector.Quaternion;
+import com.hiveworkshop.rms.editor.model.QuaternionRotation;
+
 import org.lwjgl.util.vector.Vector3f;
 
 public interface RenderResourceAllocator {
@@ -26,7 +27,7 @@ public interface RenderResourceAllocator {
 						}
 
 						@Override
-						public void setTransformation(final Vector3f worldLocation, final Quaternion rotation,
+						public void setTransformation(final Vector3f worldLocation, final QuaternionRotation rotation,
 								final Vector3f worldScale) {
 						}
 

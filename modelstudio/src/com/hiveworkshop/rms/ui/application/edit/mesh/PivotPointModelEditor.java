@@ -78,7 +78,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 				if (childVerts.size() > 0) {
 					final Vertex pivotPoint = bone.getPivotPoint();
 					boneToOldPosition.put(bone, new Vertex(pivotPoint));
-					pivotPoint.setTo(Vertex.centerOfGroup(childVerts));
+					pivotPoint.set(Vertex.centerOfGroup(childVerts));
 				}
 			}
 		}

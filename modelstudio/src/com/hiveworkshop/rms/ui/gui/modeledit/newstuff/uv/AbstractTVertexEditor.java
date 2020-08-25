@@ -55,10 +55,10 @@ public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexE
 		final List<TVertex> tVertices = new ArrayList<TVertex>();
 		final List<TVertex> newValueHolders = new ArrayList<TVertex>();
 		final List<TVertex> oldValueHolders = new ArrayList<TVertex>();
-		double minX = Double.MAX_VALUE;
-		double minY = Double.MAX_VALUE;
-		double maxX = -Double.MAX_VALUE;
-		double maxY = -Double.MAX_VALUE;
+		float minX = Float.MAX_VALUE;
+		float minY = Float.MAX_VALUE;
+		float maxX = -Float.MAX_VALUE;
+		float maxY = -Float.MAX_VALUE;
 		for (final Vertex vertex : selectionManager.getSelectedVertices()) {
 			if (vertex instanceof GeosetVertex) {
 				final GeosetVertex geosetVertex = (GeosetVertex) vertex;
@@ -83,13 +83,13 @@ public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexE
 				}
 			}
 		}
-		double widthX = (maxX - minX);
-		double widthY = (maxY - minY);
+		float widthX = (maxX - minX);
+		float widthY = (maxY - minY);
 		if (widthX == 0) {
-			widthX = 0.01;
+			widthX = 0.01f;
 		}
 		if (widthY == 0) {
-			widthY = 0.01;
+			widthY = 0.01f;
 		}
 		for (final TVertex tv : newValueHolders) {
 			tv.x = (tv.x - minX) / widthX;

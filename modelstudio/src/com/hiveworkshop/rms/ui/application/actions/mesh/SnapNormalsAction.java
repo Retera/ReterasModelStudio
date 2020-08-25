@@ -26,14 +26,14 @@ public class SnapNormalsAction implements UndoAction {
 	@Override
 	public void undo() {
 		for (int i = 0; i < selection.size(); i++) {
-			selection.get(i).setTo(oldSelLocs.get(i));
+			selection.get(i).set(oldSelLocs.get(i));
 		}
 	}
 
 	@Override
 	public void redo() {
 		for (int i = 0; i < selection.size(); i++) {
-			selection.get(i).setTo(snapPoint);
+			selection.get(i).set(snapPoint);
 		}
 	}
 

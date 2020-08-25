@@ -5,12 +5,12 @@ import java.util.Collection;
 public class TVertex {
 	public static final TVertex ORIGIN = new TVertex(0, 0);
 	GeosetVertex parent;
-	public double x = 0;
-	public double y = 0;
+	public float x = 0;
+	public float y = 0;
 
 	public TVertex(final double x, final double y) {
-		this.x = x;
-		this.y = y;
+		this.x = (float) x;
+		this.y = (float) y;
 	}
 
 	public TVertex(final TVertex old) {
@@ -19,11 +19,11 @@ public class TVertex {
 	}
 
 	public void setX(final double x) {
-		this.x = x;
+		this.x = (float) x;
 	}
 
 	public void setY(final double y) {
-		this.y = y;
+		this.y = (float) y;
 	}
 
 	public TVertex subtract(final TVertex other) {
@@ -67,10 +67,10 @@ public class TVertex {
 		if (!Double.isNaN(value)) {
 			switch (dim) {
 			case 0:
-				x = value;
+				x = (float) value;
 				break;
 			case 1:
-				y = value;
+				y = (float) value;
 				break;
 			}
 		}
@@ -106,10 +106,10 @@ public class TVertex {
 	}
 
 	public void scale(final double centerX, final double centerY, final double scaleX, final double scaleY) {
-		final double dx = this.x - centerX;
-		final double dy = this.y - centerY;
-		this.x = centerX + (dx * scaleX);
-		this.y = centerY + (dy * scaleY);
+		final float dx = this.x - (float)centerX;
+		final float dy = this.y - (float)centerY;
+		this.x = (float)centerX + (dx * (float)scaleX);
+		this.y = (float)centerY + (dy * (float)scaleY);
 	}
 
 	public void rotate(final double centerX, final double centerY, final double radians, final byte firstXYZ,

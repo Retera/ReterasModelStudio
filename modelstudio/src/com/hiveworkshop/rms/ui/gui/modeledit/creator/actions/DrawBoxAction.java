@@ -51,10 +51,10 @@ public class DrawBoxAction implements GenericMoveAction {
 		planeMaxX = Math.max(x, x2);
 		planeMaxY = Math.max(y, y2);
 
-		dummy1.setTo(Vertex.ORIGIN);
+		dummy1.set(Vertex.ORIGIN);
 		dummy1.setCoord(dim1, planeMinX);
 		dummy1.setCoord(dim2, planeMinY);
-		dummy2.setTo(Vertex.ORIGIN);
+		dummy2.set(Vertex.ORIGIN);
 		dummy2.setCoord(dim1, planeMaxX);
 		dummy2.setCoord(dim2, planeMaxY);
 		dummy2.setCoord(CoordinateSystem.Util.getUnusedXYZ(dim1, dim2), 1);

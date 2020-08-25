@@ -89,7 +89,6 @@ import net.miginfocom.swing.MigLayout;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
-import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector4f;
 
 import javax.imageio.ImageIO;
@@ -416,7 +415,7 @@ public class MainPanel extends JPanel
                 for (final UVLayer layer : geo.getUVLayers()) {
                     for (int i = 0; i < layer.numTVerteces(); i++) {
                         final TVertex tvert = layer.getTVertex(i);
-                        tvert.y = 1.0 - tvert.y;
+                        tvert.y = 1.0f - tvert.y;
                     }
                 }
             }
@@ -431,7 +430,7 @@ public class MainPanel extends JPanel
                 for (final UVLayer layer : geo.getUVLayers()) {
                     for (int i = 0; i < layer.numTVerteces(); i++) {
                         final TVertex tvert = layer.getTVertex(i);
-                        tvert.y = 1.0 - tvert.y;
+                        tvert.y = 1.0f - tvert.y;
                     }
                 }
             }
@@ -446,7 +445,7 @@ public class MainPanel extends JPanel
                 for (final UVLayer layer : geo.getUVLayers()) {
                     for (int i = 0; i < layer.numTVerteces(); i++) {
                         final TVertex tvert = layer.getTVertex(i);
-                        final double temp = tvert.x;
+                        final float temp = tvert.x;
                         tvert.x = tvert.y;
                         tvert.y = temp;
                     }
@@ -1542,7 +1541,7 @@ public class MainPanel extends JPanel
         creatorPanel.changeActivity(newType);
     }
 
-    private static final Quaternion IDENTITY = new Quaternion();
+    private static final QuaternionRotation IDENTITY = new QuaternionRotation();
     private final TimeEnvironmentImpl animatedRenderEnvironment;
     private JButton snapButton;
     private final CoordDisplayListener coordDisplayListener;

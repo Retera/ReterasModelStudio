@@ -29,7 +29,7 @@ public class RecalculateNormalsAction2 implements UndoAction {
 	@Override
 	public void undo() {
 		for (int i = 0; i < selection.size(); i++) {
-			selection.get(i).getNormal().setTo(oldSelLocs.get(i));
+			selection.get(i).getNormal().set(oldSelLocs.get(i));
 		}
 	}
 
@@ -50,7 +50,7 @@ public class RecalculateNormalsAction2 implements UndoAction {
 			final GeosetVertex geosetVertex = selection.get(i);
 			final Tuplet tuplet = new Tuplet(geosetVertex.x, geosetVertex.y, geosetVertex.z);
 			final List<GeosetVertex> matches = tupletToMatches.get(tuplet);
-			geosetVertex.getNormal().setTo(selection.get(i).createNormal(matches));
+			geosetVertex.getNormal().set(selection.get(i).createNormal(matches));
 		}
 	}
 

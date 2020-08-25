@@ -6,18 +6,18 @@ import org.lwjgl.util.vector.Vector4f;
 
 public class Vertex {
 	public static final Vertex ORIGIN = new Vertex(0, 0, 0);
-	public double x = 0;
-	public double y = 0;
-	public double z = 0;
+	public float x = 0;
+	public float y = 0;
+	public float z = 0;
 
 	public Vertex() {
 
 	}
 	
 	public Vertex(final double x, final double y, final double z) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
+		this.x = (float) x;
+		this.y = (float) y;
+		this.z = (float) z;
 	}
 
 	public Vertex(final Vertex v) {
@@ -33,9 +33,9 @@ public class Vertex {
 	}
 
 	public Vertex(final double[] data) {
-		x = data[0];
-		y = data[1];
-		z = data[2];
+		x = (float) data[0];
+		y = (float) data[1];
+		z = (float) data[2];
 	}
 
 	public Vertex(final float[] data, final boolean flip) {
@@ -79,13 +79,13 @@ public class Vertex {
 		if (!Double.isNaN(value)) {
 			switch (dim) {
 			case 0:
-				x = value;
+				x = (float) value;
 				break;
 			case 1:
-				y = value;
+				y = (float) value;
 				break;
 			case 2:
-				z = value;
+				z = (float) value;
 				break;
 			}
 		}
@@ -105,16 +105,16 @@ public class Vertex {
 		}
 	}
 
-	public void setTo(final Vertex v) {
+	public void set(final Vertex v) {
 		x = v.x;
 		y = v.y;
 		z = v.z;
 	}
 
-	public void setTo(final double vx, final double vy, final double vz) {
-		x = vx;
-		y = vy;
-		z = vz;
+	public void set(final double vx, final double vy, final double vz) {
+		x = (float) vx;
+		y = (float) vy;
+		z = (float) vz;
 	}
 
 	public boolean equalLocs(final Vertex v) {
@@ -232,12 +232,12 @@ public class Vertex {
 
 	public void scale(final double centerX, final double centerY, final double centerZ, final double scaleX,
 			final double scaleY, final double scaleZ) {
-		final double dx = this.x - centerX;
-		final double dy = this.y - centerY;
-		final double dz = this.z - centerZ;
-		this.x = centerX + (dx * scaleX);
-		this.y = centerY + (dy * scaleY);
-		this.z = centerZ + (dz * scaleZ);
+		final float dx = this.x - (float)centerX;
+		final float dy = this.y - (float)centerY;
+		final float dz = this.z - (float)centerZ;
+		this.x = (float)centerX + (dx * (float)scaleX);
+		this.y = (float)centerY + (dy * (float)scaleY);
+		this.z = (float)centerZ + (dz * (float)scaleZ);
 	}
 
 	public Vertex scale(final double factor) {
@@ -273,9 +273,9 @@ public class Vertex {
 		}
 		final double cosRadians = Math.cos(radiansToApply);
 		if (radiansToApply == Math.PI) {
-			vertex.x = centerX - deltaX;
-			vertex.y = centerY - deltaY;
-			vertex.z = centerY - deltaZ;
+			vertex.x = (float)centerX - (float)deltaX;
+			vertex.y = (float)centerY - (float)deltaY;
+			vertex.z = (float)centerY - (float)deltaZ;
 		}
 		final double resultDeltaX = vertexX * cosRadians;
 		throw new UnsupportedOperationException("NYI");

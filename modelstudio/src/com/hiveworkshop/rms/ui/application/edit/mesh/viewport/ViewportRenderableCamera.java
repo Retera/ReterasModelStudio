@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -28,7 +27,7 @@ public class ViewportRenderableCamera {
 	private static final Vector3f delta = new Vector3f(0, 0, 0);
 	private static final Vector3f vector3heap = new Vector3f(0, 0, 0);
 	private static final Vector3f Z_DIMENSION = new Vector3f(0, 0, 1);
-	private static final Quaternion quatHeap = new Quaternion();
+	private static final QuaternionRotation quatHeap = new QuaternionRotation();
 	private static final QuaternionRotation quatRotHeap = new QuaternionRotation(0, 0, 0, 0);
 	private static final Vector4f vectorHeap = new Vector4f();
 	private static final Vector3f ZEROES = new Vector3f(0, 0, 0);
@@ -70,16 +69,10 @@ public class ViewportRenderableCamera {
 	}
 
 	public void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem, final double startX,
-			final double startY, final float startZ, final double endX, final double endY, final float endZ,
+			final double startY, final double startZ, final double endX, final double endY, final float endZ,
 			final double rotation) {
-		start.setTo(Vertex.ORIGIN);
-		end.setTo(Vertex.ORIGIN);
-		start.x = startX;
-		start.y = startY;
-		start.z = startZ;
-		end.x = endX;
-		end.y = endY;
-		end.z = endZ;
+		start.set(startX, startY, startZ);
+		end.set(endX, endY, endZ);
 
 		startVector.x = (float) start.x;
 		startVector.y = (float) start.y;
@@ -130,12 +123,8 @@ public class ViewportRenderableCamera {
 
 	public void render(final double startX, final double startY, final double startZ, final double endX,
 			final double endY, final double endZ, final double rotation) {
-		start.x = startX;
-		start.y = startY;
-		start.z = startZ;
-		end.x = endX;
-		end.y = endY;
-		end.z = endZ;
+		start.set(startX, startY, startZ);
+		end.set(endX, endY, endZ);
 
 		startVector.x = (float) start.x;
 		startVector.y = (float) start.y;

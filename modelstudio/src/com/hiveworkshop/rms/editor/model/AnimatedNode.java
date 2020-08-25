@@ -7,7 +7,6 @@ import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.AddKeyframeAction;
-import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -16,8 +15,8 @@ import java.util.List;
 public abstract class AnimatedNode extends TimelineContainer {
 	private static final Vector4f translationHeap = new Vector4f();
 	private static final Matrix4 matrixHeap = new Matrix4();
-	private static final Quaternion rotationHeap = new Quaternion();
-	private static final Quaternion rotationDeltaHeap = new Quaternion();
+	private static final QuaternionRotation rotationHeap = new QuaternionRotation();
+	private static final QuaternionRotation rotationDeltaHeap = new QuaternionRotation();
 	private static final Vector4f axisAngleHeap = new Vector4f();
 
 	abstract public AnimatedNode getParent();
@@ -93,7 +92,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		if ((rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex) == trackTime)) {
 			return null;
 		} else {
-			final Quaternion localRotation = renderNode.getLocalRotation();
+			final QuaternionRotation localRotation = renderNode.getLocalRotation();
 			final int insertIndex = ((rotationTimeline.getTimes().size() == 0)
 					|| (rotationTimeline.getTimes().get(0) > trackTime)) ? 0 : floorIndex + 1;
 			rotationTimeline.getTimes().add(insertIndex, trackTime);
@@ -234,7 +233,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 	public void updateRotationKeyframe(final RenderModel renderModel, final double centerX, final double centerY,
 			final double centerZ, final double radians, final byte firstXYZ, final byte secondXYZ,
-			final Quaternion savedLocalRotation) {
+			final QuaternionRotation savedLocalRotation) {
 		// Note to future author: the reason for saved local rotation is that
 		// we would like to be able to undo the action of rotating the animation data
 
@@ -321,7 +320,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 			rotationHeap.y = (float) oldTranslationValue.y;
 			rotationHeap.z = (float) oldTranslationValue.z;
 			rotationHeap.w = (float) oldTranslationValue.w;
-			Quaternion.mul(rotationDeltaHeap, rotationHeap, rotationHeap);
+			QuaternionRotation.mul(rotationDeltaHeap, rotationHeap, rotationHeap);
 
 			oldTranslationValue.x = rotationHeap.x;
 			oldTranslationValue.y = rotationHeap.y;
@@ -329,7 +328,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 			oldTranslationValue.w = rotationHeap.w;
 
 			if (savedLocalRotation != null) {
-				Quaternion.mul(savedLocalRotation, rotationDeltaHeap, savedLocalRotation);
+				QuaternionRotation.mul(savedLocalRotation, rotationDeltaHeap, savedLocalRotation);
 			}
 
 			if (rotationTimeline.tans()) {
@@ -338,7 +337,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 				rotationHeap.y = (float) oldInTan.y;
 				rotationHeap.z = (float) oldInTan.z;
 				rotationHeap.w = (float) oldInTan.w;
-				Quaternion.mul(rotationDeltaHeap, rotationHeap, rotationHeap);
+				QuaternionRotation.mul(rotationDeltaHeap, rotationHeap, rotationHeap);
 				oldInTan.x = rotationHeap.x;
 				oldInTan.y = rotationHeap.y;
 				oldInTan.z = rotationHeap.z;
@@ -349,7 +348,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 				rotationHeap.y = (float) oldOutTan.y;
 				rotationHeap.z = (float) oldOutTan.z;
 				rotationHeap.w = (float) oldOutTan.w;
-				Quaternion.mul(rotationDeltaHeap, rotationHeap, rotationHeap);
+				QuaternionRotation.mul(rotationDeltaHeap, rotationHeap, rotationHeap);
 				oldOutTan.x = rotationHeap.x;
 				oldOutTan.y = rotationHeap.y;
 				oldOutTan.z = rotationHeap.z;
@@ -427,7 +426,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 	}
 
 	public void updateLocalRotationKeyframe(final int trackTime, final Integer trackGlobalSeq,
-			final Quaternion localRotation) {
+			final QuaternionRotation localRotation) {
 		// Note to future author: the reason for saved local rotation is that
 		// we would like to be able to undo the action of rotating the animation data
 
@@ -447,7 +446,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 			rotationHeap.y = (float) oldTranslationValue.y;
 			rotationHeap.z = (float) oldTranslationValue.z;
 			rotationHeap.w = (float) oldTranslationValue.w;
-			Quaternion.mul(localRotation, rotationHeap, rotationHeap);
+			QuaternionRotation.mul(localRotation, rotationHeap, rotationHeap);
 
 			oldTranslationValue.x = rotationHeap.x;
 			oldTranslationValue.y = rotationHeap.y;
@@ -460,7 +459,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 				rotationHeap.y = (float) oldInTan.y;
 				rotationHeap.z = (float) oldInTan.z;
 				rotationHeap.w = (float) oldInTan.w;
-				Quaternion.mul(localRotation, rotationHeap, rotationHeap);
+				QuaternionRotation.mul(localRotation, rotationHeap, rotationHeap);
 				oldInTan.x = rotationHeap.x;
 				oldInTan.y = rotationHeap.y;
 				oldInTan.z = rotationHeap.z;
@@ -471,7 +470,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 				rotationHeap.y = (float) oldOutTan.y;
 				rotationHeap.z = (float) oldOutTan.z;
 				rotationHeap.w = (float) oldOutTan.w;
-				Quaternion.mul(localRotation, rotationHeap, rotationHeap);
+				QuaternionRotation.mul(localRotation, rotationHeap, rotationHeap);
 				oldOutTan.x = rotationHeap.x;
 				oldOutTan.y = rotationHeap.y;
 				oldOutTan.z = rotationHeap.z;
@@ -481,7 +480,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 	}
 
 	public void updateLocalRotationKeyframeInverse(final int trackTime, final Integer trackGlobalSeq,
-			final Quaternion localRotation) {
+			final QuaternionRotation localRotation) {
 		// Note to future author: the reason for saved local rotation is that
 		// we would like to be able to undo the action of rotating the animation data
 
@@ -502,8 +501,8 @@ public abstract class AnimatedNode extends TimelineContainer {
 			rotationHeap.z = (float) oldTranslationValue.z;
 			rotationHeap.w = (float) oldTranslationValue.w;
 			rotationDeltaHeap.setIdentity();
-			Quaternion.mulInverse(rotationDeltaHeap, localRotation, rotationDeltaHeap);
-			Quaternion.mul(rotationDeltaHeap, rotationHeap, rotationHeap);
+			QuaternionRotation.mulInverse(rotationDeltaHeap, localRotation, rotationDeltaHeap);
+			QuaternionRotation.mul(rotationDeltaHeap, rotationHeap, rotationHeap);
 
 			oldTranslationValue.x = rotationHeap.x;
 			oldTranslationValue.y = rotationHeap.y;
@@ -517,8 +516,8 @@ public abstract class AnimatedNode extends TimelineContainer {
 				rotationHeap.z = (float) oldInTan.z;
 				rotationHeap.w = (float) oldInTan.w;
 				rotationDeltaHeap.setIdentity();
-				Quaternion.mulInverse(rotationDeltaHeap, localRotation, rotationDeltaHeap);
-				Quaternion.mul(rotationDeltaHeap, rotationHeap, rotationHeap);
+				QuaternionRotation.mulInverse(rotationDeltaHeap, localRotation, rotationDeltaHeap);
+				QuaternionRotation.mul(rotationDeltaHeap, rotationHeap, rotationHeap);
 				oldInTan.x = rotationHeap.x;
 				oldInTan.y = rotationHeap.y;
 				oldInTan.z = rotationHeap.z;
@@ -530,8 +529,8 @@ public abstract class AnimatedNode extends TimelineContainer {
 				rotationHeap.z = (float) oldOutTan.z;
 				rotationHeap.w = (float) oldOutTan.w;
 				rotationDeltaHeap.setIdentity();
-				Quaternion.mulInverse(rotationDeltaHeap, localRotation, rotationDeltaHeap);
-				Quaternion.mul(rotationDeltaHeap, rotationHeap, rotationHeap);
+				QuaternionRotation.mulInverse(rotationDeltaHeap, localRotation, rotationDeltaHeap);
+				QuaternionRotation.mul(rotationDeltaHeap, rotationHeap, rotationHeap);
 				oldOutTan.x = rotationHeap.x;
 				oldOutTan.y = rotationHeap.y;
 				oldOutTan.z = rotationHeap.z;

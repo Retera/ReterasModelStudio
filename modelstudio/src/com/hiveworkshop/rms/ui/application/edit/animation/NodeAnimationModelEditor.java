@@ -29,7 +29,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisitor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -614,7 +613,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	public void rawRotate2d(final double centerX, final double centerY, final double centerZ, final double radians,
-			final byte firstXYZ, final byte secondXYZ, final Map<IdObject, Quaternion> nodeToLocalRotation) {
+			final byte firstXYZ, final byte secondXYZ, final Map<IdObject, QuaternionRotation> nodeToLocalRotation) {
 		for (final IdObject idObject : selectionManager.getSelection()) {
 			idObject.updateRotationKeyframe(renderModel, centerX, centerY, centerZ, radians, firstXYZ, secondXYZ,
 					nodeToLocalRotation.get(idObject));
@@ -623,7 +622,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	public void rawSquatToolRotate2d(final double centerX, final double centerY, final double centerZ,
 			final double radians, final byte firstXYZ, final byte secondXYZ,
-			final Map<IdObject, Quaternion> nodeToLocalRotation) {
+			final Map<IdObject, QuaternionRotation> nodeToLocalRotation) {
 		for (final IdObject idObject : selectionManager.getSelection()) {
 			idObject.updateRotationKeyframe(renderModel, centerX, centerY, centerZ, radians, firstXYZ, secondXYZ,
 					nodeToLocalRotation.get(idObject));

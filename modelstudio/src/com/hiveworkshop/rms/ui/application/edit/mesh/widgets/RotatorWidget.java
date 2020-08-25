@@ -13,7 +13,7 @@ public final class RotatorWidget {
 
 	public RotatorWidget(final Vertex point) {
 		this.point = new Vertex(0, 0, 0);
-		this.point.setTo(point);
+		this.point.set(point);
 	}
 
 	public RotateDirection getDirectionByMouse(final Point mousePoint, final CoordinateSystem coordinateSystem) {
@@ -44,7 +44,7 @@ public final class RotatorWidget {
 	}
 
 	public void setPoint(final Vertex point) {
-		this.point.setTo(point);
+		this.point.set(point);
 	}
 
 	public RotateDirection getMoveDirection() {

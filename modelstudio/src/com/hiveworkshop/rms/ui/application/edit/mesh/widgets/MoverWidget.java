@@ -14,7 +14,7 @@ public final class MoverWidget {
 
 	public MoverWidget(final Vertex point) {
 		this.point = new Vertex(0, 0, 0);
-		this.point.setTo(point);
+		this.point.set(point);
 		northTriangle = new Polygon();
 		northTriangle.addPoint(-5, 0);
 		northTriangle.addPoint(0, -18);
@@ -54,7 +54,7 @@ public final class MoverWidget {
 	}
 
 	public void setPoint(final Vertex point) {
-		this.point.setTo(point);
+		this.point.set(point);
 	}
 
 	public MoveDirection getMoveDirection() {

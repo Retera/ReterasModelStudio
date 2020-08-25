@@ -27,14 +27,14 @@ public class RecalculateNormalsAction implements UndoAction {
 	@Override
 	public void undo() {
 		for (int i = 0; i < selection.size(); i++) {
-			selection.get(i).getNormal().setTo(oldSelLocs.get(i));
+			selection.get(i).getNormal().set(oldSelLocs.get(i));
 		}
 	}
 
 	@Override
 	public void redo() {
 		for (int i = 0; i < selection.size(); i++) {
-			selection.get(i).getNormal().setTo(selection.get(i).createNormal());
+			selection.get(i).getNormal().set(selection.get(i).createNormal());
 		}
 	}
 

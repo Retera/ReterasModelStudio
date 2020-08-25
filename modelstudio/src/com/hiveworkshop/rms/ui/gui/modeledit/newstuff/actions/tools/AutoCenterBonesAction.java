@@ -23,7 +23,7 @@ public final class AutoCenterBonesAction implements UndoAction {
 	public void undo() {
 		for (final Map.Entry<Bone, Vertex> entry : boneToOldPosition.entrySet()) {
 			final Bone bone = entry.getKey();
-			bone.getPivotPoint().setTo(entry.getValue());
+			bone.getPivotPoint().set(entry.getValue());
 		}
 	}
 
@@ -31,7 +31,7 @@ public final class AutoCenterBonesAction implements UndoAction {
 	public void redo() {
 		for (final Map.Entry<Bone, Vertex> entry : boneToNewPosition.entrySet()) {
 			final Bone bone = entry.getKey();
-			bone.getPivotPoint().setTo(entry.getValue());
+			bone.getPivotPoint().set(entry.getValue());
 		}
 	}
 

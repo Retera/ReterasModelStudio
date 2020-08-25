@@ -18,7 +18,6 @@ import com.hiveworkshop.rms.util.MathUtils;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.*;
-import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -41,9 +40,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 	public static final boolean LOG_EXCEPTIONS = true;
 	ModelView modelView;
 	Vertex cameraPos = new Vertex(0, 0, 0);
-	Quaternion inverseCameraRotationQuat = new Quaternion();
-	Quaternion inverseCameraRotationYSpin = new Quaternion();
-	Quaternion inverseCameraRotationZSpin = new Quaternion();
+	QuaternionRotation inverseCameraRotationQuat = new QuaternionRotation();
+	QuaternionRotation inverseCameraRotationYSpin = new QuaternionRotation();
+	QuaternionRotation inverseCameraRotationZSpin = new QuaternionRotation();
 	Matrix4 matrixHeap = new Matrix4();
 	private final Vector4f axisHeap = new Vector4f();
 	double m_zoom = 1;
@@ -316,8 +315,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 	}
 
 	public void setPosition(final double a, final double b) {
-		cameraPos.x = a;
-		cameraPos.y = b;
+		cameraPos.x = (float) a;
+		cameraPos.y = (float) b;
 	}
 
 	public void translate(final double a, final double b) {
@@ -1107,7 +1106,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 				inverseCameraRotationYSpin.setFromAxisAngle(axisHeap);
 				axisHeap.set(0, 0, 1, (float) Math.toRadians(xangle));
 				inverseCameraRotationZSpin.setFromAxisAngle(axisHeap);
-				Quaternion.mul(inverseCameraRotationYSpin, inverseCameraRotationZSpin, inverseCameraRotationQuat);
+				QuaternionRotation.mul(inverseCameraRotationYSpin, inverseCameraRotationZSpin, inverseCameraRotationQuat);
 				inverseCameraRotationQuat.x = -inverseCameraRotationQuat.x;
 				inverseCameraRotationQuat.y = -inverseCameraRotationQuat.y;
 				inverseCameraRotationQuat.z = -inverseCameraRotationQuat.z;
@@ -1309,7 +1308,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		}
 
 		@Override
-		public void setTransformation(final Vector3f worldLocation, final Quaternion rotation,
+		public void setTransformation(final Vector3f worldLocation, final QuaternionRotation rotation,
 				final Vector3f worldScale) {
 		}
 

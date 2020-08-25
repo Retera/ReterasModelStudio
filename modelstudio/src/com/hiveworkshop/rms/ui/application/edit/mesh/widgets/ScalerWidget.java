@@ -18,7 +18,7 @@ public final class ScalerWidget {
 
 	public ScalerWidget(final Vertex point) {
 		this.point = new Vertex(0, 0, 0);
-		this.point.setTo(point);
+		this.point.set(point);
 	}
 
 	public ScaleDirection getDirectionByMouse(final Point mousePoint, final CoordinateSystem coordinateSystem,
@@ -47,7 +47,7 @@ public final class ScalerWidget {
 	}
 
 	public void setPoint(final Vertex point) {
-		this.point.setTo(point);
+		this.point.set(point);
 	}
 
 	public ScaleDirection getMoveDirection() {
