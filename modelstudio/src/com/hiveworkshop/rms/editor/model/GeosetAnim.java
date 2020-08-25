@@ -5,6 +5,7 @@ import java.util.List;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxGeosetAnimation;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.rms.util.Vertex;
 
 /**
  * The geoset anims, heaven forbid they be forgotten.

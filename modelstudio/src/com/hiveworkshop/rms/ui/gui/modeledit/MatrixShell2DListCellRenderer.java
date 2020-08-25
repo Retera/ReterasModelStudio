@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit;
 
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Matrix;
-import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.util.Vertex;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.util.AbstractSnapshottingListCellRenderer2D;
 

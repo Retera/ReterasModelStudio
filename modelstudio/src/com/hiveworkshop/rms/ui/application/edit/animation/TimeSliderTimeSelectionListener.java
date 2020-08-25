@@ -1,11 +1,11 @@
 package com.hiveworkshop.rms.ui.application.edit.animation;
 
+import java.util.List;
+import java.util.Set;
+
 import com.hiveworkshop.rms.editor.model.AnimFlag;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.util.SubscriberSetNotifier;
-
-import java.util.List;
-import java.util.Set;
 
 public interface TimeSliderTimeSelectionListener {
 	void timeChanged(int currentTime, Set<IdObject> objects, List<AnimFlag> timelines);

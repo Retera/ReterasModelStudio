@@ -1,11 +1,13 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
-
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.JOptionPane;
+
+import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.util.Vertex;
 
 /**
  * <pre>

@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.AbstractManipu
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.editor.model.TVertex;
-import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.util.Vertex;
 
 public abstract class AbstractScaleTVertexManipulator extends AbstractManipulator {
 	private final TVertexEditor modelEditor;

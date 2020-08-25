@@ -1,9 +1,11 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.widgets;
 
-import com.hiveworkshop.rms.editor.model.Vertex;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
 
-import java.awt.*;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.util.Vertex;
 
 public final class ScalerWidget {
 	private static final int LINE_LEN = 80;

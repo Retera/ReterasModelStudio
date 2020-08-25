@@ -13,7 +13,7 @@ import javax.swing.SpinnerNumberModel;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.components.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.rms.editor.model.ExtLog;
-import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.util.Vertex;
 
 public class ExtLogEditor extends JPanel {
 	private static final Dimension MAXIMUM_SIZE = new Dimension(99999, 25);

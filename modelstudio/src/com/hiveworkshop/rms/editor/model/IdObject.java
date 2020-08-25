@@ -1,12 +1,13 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.parsers.mdlx.MdlxGenericObject;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxGenericObject;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.util.Vertex;
 
 /**
  * Write a description of class ObjectId here.

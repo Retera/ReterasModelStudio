@@ -1,11 +1,11 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.selection;
 
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 
 public abstract class AbstractSelectionManager<T> implements SelectionManager<T> {
 	protected final Set<T> selection = new HashSet<>();

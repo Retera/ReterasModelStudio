@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.editor.model;
+package com.hiveworkshop.rms.util;
 
 public class Vertex4 {
 	public float x = 0;

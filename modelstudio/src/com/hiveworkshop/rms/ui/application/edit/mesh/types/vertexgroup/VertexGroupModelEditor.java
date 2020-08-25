@@ -1,6 +1,19 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.types.vertexgroup;
 
-import com.hiveworkshop.rms.editor.model.*;
+import java.awt.Point;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.mesh.SplitGeosetAction;
 import com.hiveworkshop.rms.ui.application.actions.mesh.TeamColorAddAction;
@@ -21,12 +34,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisito
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-
-import java.awt.*;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.util.List;
-import java.util.*;
+import com.hiveworkshop.rms.util.Vertex;
 
 public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGroupModelEditor.VertexGroupBundle> {
 	private final ProgramPreferences programPreferences;

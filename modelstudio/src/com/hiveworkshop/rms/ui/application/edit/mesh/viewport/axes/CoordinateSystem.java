@@ -5,12 +5,12 @@ import java.awt.geom.Point2D;
 
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.Matrix4;
 import com.hiveworkshop.rms.editor.model.TVertex;
-import com.hiveworkshop.rms.editor.model.Vertex;
-import com.hiveworkshop.rms.editor.model.Vertex4;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
+import com.hiveworkshop.rms.util.Matrix4;
+import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex4;
 
 public interface CoordinateSystem extends CoordinateAxes {
 	double convertX(double x);

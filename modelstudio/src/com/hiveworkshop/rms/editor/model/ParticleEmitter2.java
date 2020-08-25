@@ -1,16 +1,18 @@
 package com.hiveworkshop.rms.editor.model;
 
+import java.util.List;
+
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.editor.render3d.EmitterIdObject;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter2;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter2.FilterMode;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter2.HeadOrTail;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import org.lwjgl.opengl.GL11;
+import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.rms.util.Vertex;
 
-import java.util.List;
+import org.lwjgl.opengl.GL11;
 
 /**
  * ParticleEmitter2 class, these are the things most people would think of as a

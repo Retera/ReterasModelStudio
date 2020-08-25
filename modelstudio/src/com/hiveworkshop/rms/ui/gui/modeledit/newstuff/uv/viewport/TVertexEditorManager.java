@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.viewport;
 
-import com.hiveworkshop.rms.editor.model.Vertex;
+import java.util.Collection;
+
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -17,8 +18,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.TVertexSelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-
-import java.util.Collection;
+import com.hiveworkshop.rms.util.Vertex;
 
 public final class TVertexEditorManager {
 	private final ModelView model;

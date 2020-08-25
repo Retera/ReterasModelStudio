@@ -2,11 +2,11 @@ package com.hiveworkshop.rms.editor.render3d;
 
 import com.hiveworkshop.rms.editor.model.AnimatedNode;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.Matrix4;
-import com.hiveworkshop.rms.editor.model.QuaternionRotation;
-import com.hiveworkshop.rms.editor.model.Vertex;
-import com.hiveworkshop.rms.editor.model.Vertex4;
 import com.hiveworkshop.rms.util.MathUtils;
+import com.hiveworkshop.rms.util.Matrix4;
+import com.hiveworkshop.rms.util.QuaternionRotation;
+import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex4;
 
 public final class RenderNode {
 	private final AnimatedNode idObject;

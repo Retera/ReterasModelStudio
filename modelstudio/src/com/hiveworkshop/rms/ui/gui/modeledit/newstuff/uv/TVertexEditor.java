@@ -1,19 +1,19 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv;
 
+import java.awt.Point;
+import java.awt.geom.Rectangle2D;
+import java.util.Collection;
+
 import com.hiveworkshop.rms.editor.model.TVertex;
-import com.hiveworkshop.rms.editor.model.Vertex;
-import com.hiveworkshop.rms.ui.application.edit.uv.panel.UVPanel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.edit.uv.panel.UVPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ComponentVisibilityListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
-
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
-import java.util.Collection;
+import com.hiveworkshop.rms.util.Vertex;
 
 /**
  * So, in some ideal future this would be an implementation of the ModelEditor

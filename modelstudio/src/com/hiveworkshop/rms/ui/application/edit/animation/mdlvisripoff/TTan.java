@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff;
 
 import com.hiveworkshop.rms.editor.model.AnimFlag;
-import com.hiveworkshop.rms.editor.model.QuaternionRotation;
-import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.util.QuaternionRotation;
+import com.hiveworkshop.rms.util.Vertex;
 
 /**
  * Aiming to copy some behaviors from Mdlvis with this

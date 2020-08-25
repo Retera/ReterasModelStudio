@@ -1,9 +1,10 @@
 package com.hiveworkshop.rms.editor.model;
 
+import java.util.List;
+
 import com.hiveworkshop.rms.parsers.mdlx.MdlxSequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.BasicTimeBoundProvider;
-
-import java.util.List;
+import com.hiveworkshop.rms.util.Vertex;
 
 /**
  * A java object to represent MDL "Sequences" ("Animations").

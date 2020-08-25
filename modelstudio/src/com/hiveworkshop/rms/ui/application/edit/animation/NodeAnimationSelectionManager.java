@@ -9,11 +9,8 @@ import java.util.Set;
 
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.Matrix4;
 import com.hiveworkshop.rms.editor.model.TVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
-import com.hiveworkshop.rms.editor.model.Vertex;
-import com.hiveworkshop.rms.editor.model.Vertex4;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
@@ -22,6 +19,9 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexModelElementRenderer;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.util.Matrix4;
+import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex4;
 
 public final class NodeAnimationSelectionManager extends AbstractSelectionManager<IdObject> {
 	private final RenderModel renderModel;

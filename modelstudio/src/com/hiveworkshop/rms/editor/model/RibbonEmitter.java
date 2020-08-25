@@ -1,11 +1,12 @@
 package com.hiveworkshop.rms.editor.model;
 
+import java.util.List;
+
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxRibbonEmitter;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-
-import java.util.List;
+import com.hiveworkshop.rms.util.Vertex;
 
 /**
  * RibbonEmitter class, these are the things most people would think of as a

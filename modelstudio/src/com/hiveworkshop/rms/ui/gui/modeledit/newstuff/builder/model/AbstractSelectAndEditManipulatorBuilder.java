@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.model;
 
-import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.util.Vertex;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;

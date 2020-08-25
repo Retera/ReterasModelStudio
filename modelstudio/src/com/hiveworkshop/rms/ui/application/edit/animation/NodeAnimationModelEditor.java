@@ -20,14 +20,10 @@ import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.Helper;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.Light;
-import com.hiveworkshop.rms.editor.model.Matrix4;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
 import com.hiveworkshop.rms.editor.model.ParticleEmitterPopcorn;
-import com.hiveworkshop.rms.editor.model.QuaternionRotation;
 import com.hiveworkshop.rms.editor.model.RibbonEmitter;
-import com.hiveworkshop.rms.editor.model.Vertex;
-import com.hiveworkshop.rms.editor.model.Vertex4;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode;
@@ -60,6 +56,10 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisitor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.util.Matrix4;
+import com.hiveworkshop.rms.util.QuaternionRotation;
+import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex4;
 
 public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> {
 	private final ProgramPreferences programPreferences;

@@ -1,13 +1,57 @@
 package com.hiveworkshop.rms.ui.application.edit.animation;
 
+import java.awt.AWTException;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Robot;
+import java.awt.Stroke;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.Box;
+import javax.swing.GroupLayout;
+import javax.swing.JCheckBox;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+
 import com.hiveworkshop.rms.editor.model.AnimFlag;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderTimeListener.TimeSliderTimeNotifier;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderTimeListener.TimeSliderTimeNotifier;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.AddKeyframeAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.SetKeyframeAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.SlideKeyframeAction;
@@ -19,13 +63,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.GUITheme;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-
-import javax.swing.Timer;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.List;
-import java.util.*;
 
 public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, SelectionListener {
 	private static final Color GLASS_TICK_COVER_COLOR = new Color(100, 190, 255, 100);

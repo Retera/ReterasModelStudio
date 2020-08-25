@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit;
 
-import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.util.Vertex;
 
 public interface VertexFilter<TYPE extends Vertex> {
 	boolean isAccepted(TYPE vertex);

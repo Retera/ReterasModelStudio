@@ -1,9 +1,12 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.activity;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
+
 import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.Vertex;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
@@ -11,8 +14,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.ResettableAnimatedIdObjectRenderer;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-
-import java.awt.*;
+import com.hiveworkshop.rms.util.Vertex;
 
 public final class Graphics2DToAnimatedModelElementRendererAdapter implements ModelElementRenderer {
 	private Graphics2D graphics;

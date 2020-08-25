@@ -2,6 +2,8 @@ package com.hiveworkshop.rms.editor.model;
 
 import java.util.List;
 
+import com.hiveworkshop.rms.util.Vertex;
+
 public class Triangle {
 	GeosetVertex[] verts = new GeosetVertex[3];
 	int[] vertIds = new int[3];

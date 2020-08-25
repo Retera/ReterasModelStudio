@@ -1,7 +1,13 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv;
 
+import java.awt.Point;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import com.hiveworkshop.rms.editor.model.TVertex;
-import com.hiveworkshop.rms.editor.model.Vertex;
 import com.hiveworkshop.rms.ui.application.edit.mesh.CloneContextHelper;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.uv.panel.UVPanel;
@@ -17,13 +23,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggle
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.util.SubscriberSetNotifier;
-
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import com.hiveworkshop.rms.util.Vertex;
 
 public class TVertexEditorNotifier extends SubscriberSetNotifier<TVertexEditor> implements TVertexEditor {
 	private CloneContextHelper cloneContextHelper;

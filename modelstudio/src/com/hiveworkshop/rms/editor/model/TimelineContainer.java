@@ -1,13 +1,15 @@
 package com.hiveworkshop.rms.editor.model;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.hiveworkshop.rms.parsers.mdlx.MdlxAnimatedObject;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import com.hiveworkshop.rms.util.QuaternionRotation;
+import com.hiveworkshop.rms.util.Vertex;
 
 public abstract class TimelineContainer implements VisibilitySource {
 	public Map<String, AnimFlag> animFlags = new HashMap<>();

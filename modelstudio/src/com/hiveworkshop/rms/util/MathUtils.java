@@ -1,10 +1,5 @@
 package com.hiveworkshop.rms.util;
 
-import com.hiveworkshop.rms.editor.model.Matrix4;
-import com.hiveworkshop.rms.editor.model.QuaternionRotation;
-import com.hiveworkshop.rms.editor.model.Vertex;
-import com.hiveworkshop.rms.editor.model.Vertex4;
-
 public class MathUtils {
 	/**
 	 * Returns true if the value of <code>b</code> falls between the values

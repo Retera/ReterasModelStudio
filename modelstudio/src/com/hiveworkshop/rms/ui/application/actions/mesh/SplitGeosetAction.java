@@ -8,18 +8,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.ExtLog;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetAnim;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Triangle;
-import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
+import com.hiveworkshop.rms.util.Vertex;
 
 public final class SplitGeosetAction<T> implements UndoAction {
 

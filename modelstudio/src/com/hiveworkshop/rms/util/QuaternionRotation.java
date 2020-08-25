@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.editor.model;
+package com.hiveworkshop.rms.util;
 
 /**
  * Quaternions are the most useless thing I've ever heard of. Nevertheless, I

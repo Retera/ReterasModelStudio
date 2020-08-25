@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.editor.model;
+package com.hiveworkshop.rms.util;
 
 public class Matrix4 {
     public float m00 = 1.0f;

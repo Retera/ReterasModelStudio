@@ -1,12 +1,12 @@
 package com.hiveworkshop.rms.editor.render3d;
 
-import com.hiveworkshop.rms.editor.model.Matrix4;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
-import com.hiveworkshop.rms.editor.model.QuaternionRotation;
-import com.hiveworkshop.rms.editor.model.Vertex;
-import com.hiveworkshop.rms.editor.model.Vertex4;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.MathUtils;
+import com.hiveworkshop.rms.util.Matrix4;
+import com.hiveworkshop.rms.util.QuaternionRotation;
+import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex4;
 
 public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 	private static final Vertex4 vector4Heap = new Vertex4();

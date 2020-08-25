@@ -9,7 +9,7 @@ import java.util.Map;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.util.Vertex;
 
 public class RigAction implements UndoAction {
 	private final List<Vertex> selectedVertices;

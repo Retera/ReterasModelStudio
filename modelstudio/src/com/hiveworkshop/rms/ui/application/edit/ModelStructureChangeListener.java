@@ -1,8 +1,13 @@
 package com.hiveworkshop.rms.ui.application.edit;
 
-import com.hiveworkshop.rms.editor.model.*;
-
 import java.util.List;
+
+import com.hiveworkshop.rms.editor.model.AnimFlag;
+import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.TimelineContainer;
 
 public interface ModelStructureChangeListener {
 	void geosetsAdded(List<Geoset> geosets);

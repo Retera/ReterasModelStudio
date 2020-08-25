@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.Vertex;
-import com.hiveworkshop.rms.editor.model.Vertex;
 import com.hiveworkshop.rms.ui.application.actions.VertexActionType;
+import com.hiveworkshop.rms.util.Vertex;
 
 /**
  * MotionAction -- something for you to undo when you screw up with motion

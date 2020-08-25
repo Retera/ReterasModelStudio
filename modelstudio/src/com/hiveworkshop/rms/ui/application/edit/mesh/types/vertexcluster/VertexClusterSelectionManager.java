@@ -1,6 +1,16 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.types.vertexcluster;
 
-import com.hiveworkshop.rms.editor.model.*;
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.TVertex;
+import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.VertexClusterDefinitions;
@@ -11,10 +21,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexModelElementRend
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-
-import java.awt.*;
-import java.util.List;
-import java.util.*;
+import com.hiveworkshop.rms.util.Vertex;
 
 public final class VertexClusterSelectionManager extends AbstractSelectionManager<VertexClusterModelEditor.VertexGroupBundle> {
 	private static final Color GROUP_SELECTED_COLOR = new Color(1f, 0.45f, 0.75f, 0.3f);

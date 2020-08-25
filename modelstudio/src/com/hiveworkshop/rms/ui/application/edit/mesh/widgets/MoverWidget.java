@@ -1,9 +1,13 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.widgets;
 
-import com.hiveworkshop.rms.editor.model.Vertex;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Polygon;
+import java.awt.Rectangle;
 
-import java.awt.*;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.util.Vertex;
 
 public final class MoverWidget {
 	private static final int TRIANGLE_OFFSET = 60 - 16;

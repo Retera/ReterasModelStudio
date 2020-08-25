@@ -1,6 +1,16 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh;
 
-import com.hiveworkshop.rms.editor.model.*;
+import java.awt.Point;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
@@ -18,13 +28,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePic
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.rms.util.SubscriberSetNotifier;
-
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import com.hiveworkshop.rms.util.Vertex;
 
 public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> implements ModelEditor {
 	private CloneContextHelper cloneContextHelper;

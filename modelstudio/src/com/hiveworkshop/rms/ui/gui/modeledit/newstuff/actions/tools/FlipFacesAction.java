@@ -7,7 +7,7 @@ import java.util.List;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
-import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.util.Vertex;
 
 public final class FlipFacesAction implements UndoAction {
 	private final List<Vertex> selection;

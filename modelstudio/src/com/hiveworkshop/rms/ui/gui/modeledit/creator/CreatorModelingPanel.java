@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 import com.hiveworkshop.rms.editor.model.AnimFlag;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.util.Vertex;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderTimeSelectionListener;

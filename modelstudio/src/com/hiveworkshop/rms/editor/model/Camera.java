@@ -1,13 +1,15 @@
 package com.hiveworkshop.rms.editor.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import com.hiveworkshop.rms.parsers.mdlx.AnimationMap;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCamera;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import com.hiveworkshop.rms.util.QuaternionRotation;
+import com.hiveworkshop.rms.util.Vertex;
 
 /**
  * Camera class, these are the things most people would think of as a particle

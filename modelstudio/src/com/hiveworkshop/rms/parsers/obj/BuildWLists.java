@@ -1,24 +1,46 @@
 package com.hiveworkshop.rms.parsers.obj;
 
-import com.hiveworkshop.rms.editor.model.*;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.SEVERE;
+
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
+
+import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
+
+import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.editor.model.Bitmap;
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.Layer;
+import com.hiveworkshop.rms.editor.model.TVertex;
+import com.hiveworkshop.rms.editor.model.Triangle;
+import com.hiveworkshop.rms.editor.model.UVLayer;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.gui.modeledit.TargaReader;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-import com.owens.oobjloader.builder.*;
+import com.hiveworkshop.rms.util.Vertex;
+import com.owens.oobjloader.builder.Face;
+import com.owens.oobjloader.builder.FaceVertex;
+import com.owens.oobjloader.builder.ReflectivityTransmiss;
+import com.owens.oobjloader.builder.VertexGeometric;
+import com.owens.oobjloader.builder.VertexNormal;
+import com.owens.oobjloader.builder.VertexTexture;
 import com.owens.oobjloader.parser.BuilderInterface;
+
 import de.wc3data.image.BlpFile;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-import java.util.logging.Logger;
-
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.SEVERE;
 
 public class BuildWLists implements BuilderInterface {
 

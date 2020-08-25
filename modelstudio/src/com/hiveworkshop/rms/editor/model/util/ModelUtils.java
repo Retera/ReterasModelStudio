@@ -1,10 +1,18 @@
 package com.hiveworkshop.rms.editor.model.util;
 
-import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.hiveworkshop.rms.editor.model.Bitmap;
+import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.Layer;
+import com.hiveworkshop.rms.editor.model.Material;
+import com.hiveworkshop.rms.editor.model.TVertex;
+import com.hiveworkshop.rms.editor.model.Triangle;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.util.Vertex;
 
 public final class ModelUtils {
 	public static final class Mesh {

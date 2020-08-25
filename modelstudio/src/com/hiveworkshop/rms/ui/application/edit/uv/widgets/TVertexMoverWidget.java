@@ -1,9 +1,13 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.widgets;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Polygon;
+import java.awt.Rectangle;
+
 import com.hiveworkshop.rms.editor.model.TVertex;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-
-import java.awt.*;
 
 public final class TVertexMoverWidget {
 	private static final int TRIANGLE_OFFSET = 60 - 16;

@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLight;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLight.Type;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.util.Vertex;
 
 /**
  * Write a description of class Light here.

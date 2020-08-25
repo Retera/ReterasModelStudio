@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.components.editors;
 
 import com.hiveworkshop.rms.editor.model.AnimFlag;
-import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.util.Vertex;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.gui.modeledit.components.material.FloatTrackTableModel;
 import com.hiveworkshop.rms.ui.icons.IconUtils;

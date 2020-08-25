@@ -1,15 +1,15 @@
 package com.hiveworkshop.rms.ui.application.actions.model;
 
-import com.hiveworkshop.rms.editor.model.Animation;
-import com.hiveworkshop.rms.editor.model.ExtLog;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.Vertex;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.editor.model.ExtLog;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.util.Vertex;
 
 public class RecalculateExtentsAction implements UndoAction {
 	private final ModelView modelView;

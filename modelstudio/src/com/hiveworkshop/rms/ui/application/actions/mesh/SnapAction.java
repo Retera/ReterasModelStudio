@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.util.Vertex;
 
 /**
  * Undoable snap action.

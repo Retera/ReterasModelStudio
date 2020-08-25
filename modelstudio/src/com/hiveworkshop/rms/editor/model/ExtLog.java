@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.parsers.mdlx.MdlxExtent;
+import com.hiveworkshop.rms.util.Vertex;
 
 /**
  * MinimumExt,MaximumExt,BoundsRad

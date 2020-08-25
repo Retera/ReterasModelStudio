@@ -5,7 +5,7 @@ import java.awt.geom.Point2D.Double;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.editor.model.TVertex;
-import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.util.Vertex;
 
 public final class ScaleTVertexManipulatorUsesYMouseDrag extends AbstractScaleTVertexManipulator {
 

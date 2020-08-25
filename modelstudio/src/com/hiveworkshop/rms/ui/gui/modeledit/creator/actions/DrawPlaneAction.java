@@ -1,9 +1,13 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator.actions;
 
-import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.TVertex;
+import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils.Mesh;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
+import com.hiveworkshop.rms.util.Vertex;
 
 public class DrawPlaneAction implements GenericMoveAction {
 

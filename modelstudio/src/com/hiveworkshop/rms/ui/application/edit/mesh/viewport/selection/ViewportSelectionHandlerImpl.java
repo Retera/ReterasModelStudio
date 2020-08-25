@@ -1,13 +1,13 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport.selection;
 
+import java.awt.Point;
+import java.awt.geom.Rectangle2D;
+
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
-
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
 
 public final class ViewportSelectionHandlerImpl implements ViewportSelectionHandler {
 	private final ToolbarButtonGroup<SelectionMode> modeButtonGroup;

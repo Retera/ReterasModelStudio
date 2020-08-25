@@ -1,5 +1,10 @@
 package com.hiveworkshop.rms.editor.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JOptionPane;
+
 import com.hiveworkshop.rms.parsers.mdlx.AnimationMap;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
@@ -10,11 +15,9 @@ import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxUInt32Timeline;
 import com.hiveworkshop.rms.ui.application.edit.animation.BasicTimeBoundProvider;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.MathUtils;
+import com.hiveworkshop.rms.util.QuaternionRotation;
+import com.hiveworkshop.rms.util.Vertex;
 import com.hiveworkshop.rms.util.War3ID;
-
-import javax.swing.*;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A java class for MDL "motion flags," such as Alpha, Translation, Scaling, or

@@ -1,12 +1,12 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.activity;
 
+import java.awt.Graphics2D;
+import java.awt.event.MouseEvent;
+
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
-
-import java.awt.*;
-import java.awt.event.MouseEvent;
 
 public final class ModelEditorViewportActivityManager implements ModelEditorViewportActivity {
 	private ModelEditorViewportActivity currentActivity;

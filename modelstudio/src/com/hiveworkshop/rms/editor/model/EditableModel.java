@@ -1,20 +1,48 @@
 package com.hiveworkshop.rms.editor.model;
 
+import java.awt.Component;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import javax.swing.JOptionPane;
+
 import com.hiveworkshop.rms.editor.model.AnimFlag.Entry;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.editor.model.visitor.*;
+import com.hiveworkshop.rms.editor.model.visitor.GeosetVisitor;
+import com.hiveworkshop.rms.editor.model.visitor.MeshVisitor;
+import com.hiveworkshop.rms.editor.model.visitor.ModelVisitor;
+import com.hiveworkshop.rms.editor.model.visitor.TriangleVisitor;
+import com.hiveworkshop.rms.editor.model.visitor.VertexVisitor;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.filesystem.sources.FolderDataSource;
-import com.hiveworkshop.rms.parsers.mdlx.*;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxAttachment;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxBone;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxCamera;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxEventObject;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxFaceEffect;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxGeoset;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxGeosetAnimation;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxHelper;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxLight;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxMaterial;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter2;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitterPopcorn;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxRibbonEmitter;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxSequence;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxTexture;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxTextureAnimation;
 import com.hiveworkshop.rms.util.MathUtils;
-
-import javax.swing.*;
-import java.awt.*;
-import java.io.File;
-import java.util.List;
-import java.util.*;
+import com.hiveworkshop.rms.util.QuaternionRotation;
+import com.hiveworkshop.rms.util.Vertex;
 
 /**
  * A java object to represent and store an MDL 3d model (Warcraft III file

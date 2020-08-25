@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
-import com.hiveworkshop.rms.ui.icons.RMSIcons;
+import java.awt.Image;
 
-import java.awt.*;
+import com.hiveworkshop.rms.ui.icons.RMSIcons;
 
 public class NodeIconPalette {
 	private final Image attachmentImage;

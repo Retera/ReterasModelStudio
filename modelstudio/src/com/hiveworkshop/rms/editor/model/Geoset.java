@@ -1,13 +1,15 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxExtent;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxGeoset;
-
-import javax.swing.*;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.JOptionPane;
+
+import com.hiveworkshop.rms.editor.model.util.ModelUtils;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxExtent;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxGeoset;
+import com.hiveworkshop.rms.util.Vertex;
 
 public class Geoset implements Named, VisibilitySource {
 	ExtLog extents;

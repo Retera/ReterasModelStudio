@@ -1,13 +1,28 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers;
 
-import com.hiveworkshop.rms.editor.model.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Point;
+import java.util.List;
+
+import com.hiveworkshop.rms.editor.model.Attachment;
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.CollisionShape;
+import com.hiveworkshop.rms.editor.model.EventObject;
+import com.hiveworkshop.rms.editor.model.Helper;
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.Light;
+import com.hiveworkshop.rms.editor.model.ParticleEmitter;
+import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
+import com.hiveworkshop.rms.editor.model.ParticleEmitterPopcorn;
+import com.hiveworkshop.rms.editor.model.RibbonEmitter;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
-
-import java.awt.*;
-import java.util.List;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.util.Vertex;
 
 public final class IdObjectRenderer implements IdObjectVisitor {
 	private CoordinateSystem coordinateSystem;

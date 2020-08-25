@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor;
 
-import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.util.Vertex;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 

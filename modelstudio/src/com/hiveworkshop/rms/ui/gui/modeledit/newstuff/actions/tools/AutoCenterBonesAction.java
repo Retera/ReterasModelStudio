@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.util.Vertex;
 
 public final class AutoCenterBonesAction implements UndoAction {
 	private final Map<Bone, Vertex> boneToOldPosition;

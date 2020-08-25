@@ -1,11 +1,15 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh;
 
-import com.hiveworkshop.rms.editor.model.*;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.Triangle;
+import com.hiveworkshop.rms.util.Vertex;
 
 public class VertexClusterDefinitions {
 	private final Map<Vertex, Integer> vertexToClusterId = new HashMap<>();

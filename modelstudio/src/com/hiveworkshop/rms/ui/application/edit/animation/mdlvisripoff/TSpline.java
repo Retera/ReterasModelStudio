@@ -1,12 +1,20 @@
 package com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff;
 
-import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
-import com.hiveworkshop.rms.editor.model.AnimFlag;
-import com.hiveworkshop.rms.editor.model.QuaternionRotation;
-import net.miginfocom.swing.MigLayout;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Rectangle;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+
+import com.hiveworkshop.rms.editor.model.AnimFlag;
+import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
+import com.hiveworkshop.rms.util.QuaternionRotation;
+
+import net.miginfocom.swing.MigLayout;
 
 public class TSpline extends JPanel {
 	private final TTan der; // in mdlvis this was just called der, and whatever, I'm copying them right now

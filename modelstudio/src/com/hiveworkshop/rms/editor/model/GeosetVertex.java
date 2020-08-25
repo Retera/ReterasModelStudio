@@ -3,6 +3,8 @@ package com.hiveworkshop.rms.editor.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.hiveworkshop.rms.util.Vertex;
+
 /**
  * GeosetVertex is a extended version of the Vertex class, for use strictly
  * inside of Geosets. The idea is that a Vertex object is used all over this

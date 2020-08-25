@@ -3,8 +3,9 @@ package com.hiveworkshop.rms.editor.model;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitterPopcorn;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.rms.util.Vertex;
 
 /**
  * Popcorn FX is what I am calling the CORN chunk, somebody said that's probably

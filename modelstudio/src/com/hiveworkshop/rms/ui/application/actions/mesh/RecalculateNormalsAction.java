@@ -3,9 +3,9 @@ package com.hiveworkshop.rms.ui.application.actions.mesh;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.util.Vertex;
 
 /**
  * Undoable snap action.

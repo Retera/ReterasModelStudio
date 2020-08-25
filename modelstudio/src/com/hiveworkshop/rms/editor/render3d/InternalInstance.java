@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.editor.render3d;
 
-import com.hiveworkshop.rms.editor.model.QuaternionRotation;
-import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.util.QuaternionRotation;
+import com.hiveworkshop.rms.util.Vertex;
 
 public interface InternalInstance {
     void setTransformation(Vertex worldLocation, QuaternionRotation rotation, Vertex worldScale);

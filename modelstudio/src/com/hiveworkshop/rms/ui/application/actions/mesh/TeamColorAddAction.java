@@ -1,13 +1,29 @@
 package com.hiveworkshop.rms.ui.application.actions.mesh;
 
-import com.hiveworkshop.rms.editor.model.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.editor.model.Bitmap;
+import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.ExtLog;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetAnim;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.Layer;
+import com.hiveworkshop.rms.editor.model.Material;
+import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
-
-import java.util.*;
+import com.hiveworkshop.rms.util.Vertex;
 
 public final class TeamColorAddAction<T> implements UndoAction {
 
