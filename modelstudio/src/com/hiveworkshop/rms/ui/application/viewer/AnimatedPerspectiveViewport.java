@@ -91,7 +91,7 @@ import com.hiveworkshop.rms.ui.util.BetterAWTGLCanvas;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.Matrix4;
 import com.hiveworkshop.rms.util.QuaternionRotation;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 import com.hiveworkshop.rms.util.Vertex4;
 
 import org.lwjgl.BufferUtils;
@@ -107,7 +107,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	public static final boolean LOG_EXCEPTIONS = true;
 	ModelView modelView;
 	private RenderModel renderModel;
-	Vertex cameraPos = new Vertex(0, 0, 0);
+	Vertex3 cameraPos = new Vertex3(0, 0, 0);
 	QuaternionRotation inverseCameraRotationQuat = new QuaternionRotation();
 	QuaternionRotation inverseCameraRotationYSpin = new QuaternionRotation();
 	QuaternionRotation inverseCameraRotationZSpin = new QuaternionRotation();
@@ -986,7 +986,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 				final float layerVisibility = layer.getRenderVisibility(this);
 				final float alphaValue = geosetAnimVisibility * layerVisibility;
 				if (/* geo.getMaterial().isConstantColor() && */ geosetAnim != null) {
-					final Vertex renderColor = geosetAnim.getRenderColor(this);
+					final Vertex3 renderColor = geosetAnim.getRenderColor(this);
 					if (renderColor != null) {
 						if (layer.getFilterMode() == FilterMode.ADDITIVE) {
 							GL11.glColor4f(renderColor.z * alphaValue, renderColor.y * alphaValue,
@@ -1631,8 +1631,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		}
 
 		@Override
-		public void setTransformation(final Vertex worldLocation, final QuaternionRotation rotation,
-				final Vertex worldScale) {
+		public void setTransformation(final Vertex3 worldLocation, final QuaternionRotation rotation,
+				final Vertex3 worldScale) {
 		}
 
 		@Override
@@ -1650,7 +1650,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		}
 
 		@Override
-		public void move(final Vertex deltaPosition) {
+		public void move(final Vertex3 deltaPosition) {
 
 		}
 

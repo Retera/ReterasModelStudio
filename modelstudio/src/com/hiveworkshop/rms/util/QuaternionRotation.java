@@ -22,7 +22,7 @@ public class QuaternionRotation {
 		set(other);
 	}
 
-	public QuaternionRotation(final Vertex eulerRotation) {
+	public QuaternionRotation(final Vertex3 eulerRotation) {
 		set(eulerRotation);
 	}
 
@@ -40,7 +40,7 @@ public class QuaternionRotation {
 		this.w = (float) w;
 	}
 
-	public void set(final Vertex eulerRotation) {
+	public void set(final Vertex3 eulerRotation) {
 		// eulerRotation.x = Math.toRadians(eulerRotation.x);
 		// eulerRotation.y = Math.toRadians(eulerRotation.y);
 		// eulerRotation.z = Math.toRadians(eulerRotation.z);
@@ -110,11 +110,11 @@ public class QuaternionRotation {
 		w = data[3];
 	}
 
-	public QuaternionRotation(final Vertex axis, final float angle) {
+	public QuaternionRotation(final Vertex3 axis, final float angle) {
 		setFromAxisAngle(axis, angle);
 	}
 
-	public void setFromAxisAngle(final Vertex axis, final float angle) {
+	public void setFromAxisAngle(final Vertex3 axis, final float angle) {
 		setFromAxisAngle(axis.x, axis.y, axis.z, angle);
 	}
 
@@ -170,19 +170,19 @@ public class QuaternionRotation {
 		return w;
 	}
 
-	public Vertex getAxisOfRotation() {
+	public Vertex3 getAxisOfRotation() {
 		final double sqrt = Math.sqrt(1 - (w * w));
 		if (sqrt == 0) {
-			return new Vertex(0, 0, 0);
+			return new Vertex3(0, 0, 0);
 		}
-		return new Vertex(x / sqrt, y / sqrt, z / sqrt);
+		return new Vertex3(x / sqrt, y / sqrt, z / sqrt);
 	}
 
 	public double getAngleAroundAxis() {
 		return 2 * Math.acos(w);
 	}
 
-	public Vertex toEuler() {
+	public Vertex3 toEuler() {
 		// Wikipedia formula
 		double roll = (Math.atan2(2.0 * ((x * y) + (z * w)), 1 - (2.0 * ((y * y) + (z * z)))));
 		double stuff = (x * z) - (w * y);
@@ -235,17 +235,17 @@ public class QuaternionRotation {
 			pitch = 0;
 		}
 
-		return new Vertex(roll, pitch, yaw);
+		return new Vertex3(roll, pitch, yaw);
 		// return new Vertex(heading, attitude, bank);
 		// Now Quaternions can go burn and die.
 	}
 
-	public Vertex applyToVertex(final Vertex originOfRotation, final Vertex target) {
+	public Vertex3 applyToVertex(final Vertex3 originOfRotation, final Vertex3 target) {
 		final QuaternionRotation vector = new QuaternionRotation(0, target.x - originOfRotation.x,
 				target.y - originOfRotation.y, target.z - originOfRotation.z);
 		final QuaternionRotation conjugate = conjugate();
 		final QuaternionRotation result = hamiltonianProduct(vector).hamiltonianProduct(conjugate);
-		final Vertex resultInPosition = new Vertex(originOfRotation.x + result.y, originOfRotation.y + result.z,
+		final Vertex3 resultInPosition = new Vertex3(originOfRotation.x + result.y, originOfRotation.y + result.z,
 				originOfRotation.z + result.w);
 		return resultInPosition;
 	}
@@ -321,9 +321,9 @@ public class QuaternionRotation {
 
 	public static void main(final String[] args) {
 		QuaternionRotation rot = new QuaternionRotation(0.241689, 0.152046, -0.372562, 0.882987);
-		Vertex euler = rot.toEuler();
+		Vertex3 euler = rot.toEuler();
 		euler.x = -euler.x;
-		Vertex eulerRotation = new Vertex(euler);
+		Vertex3 eulerRotation = new Vertex3(euler);
 
 		eulerRotation.x = (float) Math.toDegrees(eulerRotation.x);
 		eulerRotation.y = (float) Math.toDegrees(eulerRotation.y);
@@ -336,7 +336,7 @@ public class QuaternionRotation {
 		rot = new QuaternionRotation(0.241689, 0.152046, -0.372562, 0.882987);
 		euler = rot.toEuler();
 		euler.y = -euler.y;
-		eulerRotation = new Vertex(euler);
+		eulerRotation = new Vertex3(euler);
 
 		eulerRotation.x = (float) Math.toDegrees(eulerRotation.x);
 		eulerRotation.y = (float) Math.toDegrees(eulerRotation.y);
@@ -349,7 +349,7 @@ public class QuaternionRotation {
 		rot = new QuaternionRotation(0.241689, 0.152046, -0.372562, 0.882987);
 		euler = rot.toEuler();
 		euler.z = -euler.z;
-		eulerRotation = new Vertex(euler);
+		eulerRotation = new Vertex3(euler);
 
 		eulerRotation.x = (float) Math.toDegrees(eulerRotation.x);
 		eulerRotation.y = (float) Math.toDegrees(eulerRotation.y);
@@ -359,9 +359,9 @@ public class QuaternionRotation {
 		System.out.println(new QuaternionRotation(euler));
 
 		System.out.println();
-		euler = new Vertex(Math.PI * (20.0 / 90.0), 0, 0);
+		euler = new Vertex3(Math.PI * (20.0 / 90.0), 0, 0);
 		euler.x = -euler.x;
-		eulerRotation = new Vertex(euler);
+		eulerRotation = new Vertex3(euler);
 
 		eulerRotation.x = (float) Math.toDegrees(eulerRotation.x);
 		eulerRotation.y = (float) Math.toDegrees(eulerRotation.y);
@@ -376,7 +376,7 @@ public class QuaternionRotation {
 
 		System.out.println("Time for a spin!");
 		System.out.println(new QuaternionRotation(0.7071203316249954, 0.0, 0.7071203316249954, 0.0)
-				.applyToVertex(new Vertex(0, 0, 0), new Vertex(1, 0, 0)));
+				.applyToVertex(new Vertex3(0, 0, 0), new Vertex3(1, 0, 0)));
 	}
 
 	public void setCoord(final byte index, final float value) {

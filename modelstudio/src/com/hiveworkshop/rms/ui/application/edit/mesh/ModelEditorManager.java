@@ -25,7 +25,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public final class ModelEditorManager {
 	private final ModelView model;
@@ -55,7 +55,7 @@ public final class ModelEditorManager {
 	}
 
 	public void setSelectionItemType(final SelectionItemTypes selectionMode) {
-		final Collection<? extends Vertex> lastSelectedVertices;
+		final Collection<? extends Vertex3> lastSelectedVertices;
 		if (selectionView != null) {
 
 			lastSelectedVertices = selectionView.getSelectedVertices();

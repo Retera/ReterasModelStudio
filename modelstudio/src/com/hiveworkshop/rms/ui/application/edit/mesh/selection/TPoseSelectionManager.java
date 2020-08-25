@@ -9,7 +9,6 @@ import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.TVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
@@ -17,7 +16,8 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexModelElementRenderer;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex2;
+import com.hiveworkshop.rms.util.Vertex3;
 import com.hiveworkshop.rms.util.Vertex4;
 
 public final class TPoseSelectionManager extends AbstractSelectionManager<IdObject> {
@@ -35,15 +35,15 @@ public final class TPoseSelectionManager extends AbstractSelectionManager<IdObje
 	}
 
 	private final Vertex4 pivotHeap = new Vertex4();
-	private final Vertex centerOfGroupSumHeap = new Vertex(0, 0, 0);
+	private final Vertex3 centerOfGroupSumHeap = new Vertex3(0, 0, 0);
 
 	@Override
-	public Vertex getCenter() {
+	public Vertex3 getCenter() {
 		centerOfGroupSumHeap.x = 0;
 		centerOfGroupSumHeap.y = 0;
 		centerOfGroupSumHeap.z = 0;
 		for (final IdObject object : selection) {
-			final Vertex pivot = object.getPivotPoint();
+			final Vertex3 pivot = object.getPivotPoint();
 			pivotHeap.x = (float) pivot.x;
 			pivotHeap.y = (float) pivot.y;
 			pivotHeap.z = (float) pivot.z;
@@ -60,10 +60,10 @@ public final class TPoseSelectionManager extends AbstractSelectionManager<IdObje
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vertex sphereCenter) {
+	public double getCircumscribedSphereRadius(final Vertex3 sphereCenter) {
 		double radius = 0;
 		for (final IdObject item : selection) {
-			final Vertex pivot = item.getPivotPoint();
+			final Vertex3 pivot = item.getPivotPoint();
 			pivotHeap.x = (float) pivot.x;
 			pivotHeap.y = (float) pivot.y;
 			pivotHeap.z = (float) pivot.z;
@@ -119,12 +119,12 @@ public final class TPoseSelectionManager extends AbstractSelectionManager<IdObje
 	}
 
 	@Override
-	public Collection<Vertex> getSelectedVertices() {
+	public Collection<Vertex3> getSelectedVertices() {
 		// These reference the MODEL EDITOR pivot points,
 		// used only as memory references so that downstream will know
 		// to select those pivots, and therefore those IdObject nodes,
 		// for static editing (hence we do not apply worldMatrix)
-		final Set<Vertex> vertices = new HashSet<>();
+		final Set<Vertex3> vertices = new HashSet<>();
 		final Set<IdObject> nodesToMove = new HashSet<>(selection);
 		if (moveLinked) {
 			for (final IdObject object : modelView.getEditableIdObjects()) {
@@ -157,17 +157,17 @@ public final class TPoseSelectionManager extends AbstractSelectionManager<IdObje
 	}
 
 	@Override
-	public TVertex getUVCenter(final int tvertexLayerId) {
-		return TVertex.ORIGIN;
+	public Vertex2 getUVCenter(final int tvertexLayerId) {
+		return Vertex2.ORIGIN;
 	}
 
 	@Override
-	public Collection<? extends TVertex> getSelectedTVertices(final int tvertexLayerId) {
+	public Collection<? extends Vertex2> getSelectedTVertices(final int tvertexLayerId) {
 		return Collections.emptySet();
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final TVertex center, final int tvertexLayerId) {
+	public double getCircumscribedSphereRadius(final Vertex2 center, final int tvertexLayerId) {
 		return 0;
 	}
 

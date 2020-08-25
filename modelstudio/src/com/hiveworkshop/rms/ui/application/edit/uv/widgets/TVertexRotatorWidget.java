@@ -4,17 +4,17 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 
-import com.hiveworkshop.rms.editor.model.TVertex;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.util.Vertex2;
 
 public final class TVertexRotatorWidget {
 	private static final int ROTATOR_RADIUS = 60;
 	private static final int ROTATOR_RADIUS_SQUARED = ROTATOR_RADIUS * ROTATOR_RADIUS;
-	private final TVertex point;
+	private final Vertex2 point;
 	private RotateDirection moveDirection = RotateDirection.NONE;
 
-	public TVertexRotatorWidget(final TVertex point) {
-		this.point = new TVertex(0, 0);
+	public TVertexRotatorWidget(final Vertex2 point) {
+		this.point = new Vertex2(0, 0);
 		this.point.setTo(point);
 	}
 
@@ -41,11 +41,11 @@ public final class TVertexRotatorWidget {
 		return RotateDirection.NONE;
 	}
 
-	public TVertex getPoint() {
+	public Vertex2 getPoint() {
 		return point;
 	}
 
-	public void setPoint(final TVertex point) {
+	public void setPoint(final Vertex2 point) {
 		this.point.setTo(point);
 	}
 

@@ -5,23 +5,23 @@ import java.util.Map;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public final class AutoCenterBonesAction implements UndoAction {
-	private final Map<Bone, Vertex> boneToOldPosition;
-	private final Map<Bone, Vertex> boneToNewPosition;
+	private final Map<Bone, Vertex3> boneToOldPosition;
+	private final Map<Bone, Vertex3> boneToNewPosition;
 
-	public AutoCenterBonesAction(final Map<Bone, Vertex> boneToOldPosition) {
+	public AutoCenterBonesAction(final Map<Bone, Vertex3> boneToOldPosition) {
 		this.boneToOldPosition = boneToOldPosition;
 		boneToNewPosition = new HashMap<>();
 		for (final Bone bone : boneToOldPosition.keySet()) {
-			boneToNewPosition.put(bone, new Vertex(bone.getPivotPoint()));
+			boneToNewPosition.put(bone, new Vertex3(bone.getPivotPoint()));
 		}
 	}
 
 	@Override
 	public void undo() {
-		for (final Map.Entry<Bone, Vertex> entry : boneToOldPosition.entrySet()) {
+		for (final Map.Entry<Bone, Vertex3> entry : boneToOldPosition.entrySet()) {
 			final Bone bone = entry.getKey();
 			bone.getPivotPoint().set(entry.getValue());
 		}
@@ -29,7 +29,7 @@ public final class AutoCenterBonesAction implements UndoAction {
 
 	@Override
 	public void redo() {
-		for (final Map.Entry<Bone, Vertex> entry : boneToNewPosition.entrySet()) {
+		for (final Map.Entry<Bone, Vertex3> entry : boneToNewPosition.entrySet()) {
 			final Bone bone = entry.getKey();
 			bone.getPivotPoint().set(entry.getValue());
 		}

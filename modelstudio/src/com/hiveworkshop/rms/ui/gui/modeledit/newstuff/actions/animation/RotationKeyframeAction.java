@@ -9,14 +9,14 @@ import com.hiveworkshop.rms.ui.application.edit.animation.NodeAnimationModelEdit
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.util.QuaternionRotation;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public class RotationKeyframeAction implements GenericRotateAction {
 	private final UndoAction addingTimelinesOrKeyframesAction;
 	private final int trackTime;
 	private final HashMap<IdObject, QuaternionRotation> nodeToLocalRotation;
 	private final NodeAnimationModelEditor modelEditor;
-	private final Vertex center;
+	private final Vertex3 center;
 	private final byte dim1;
 	private final byte dim2;
 	private final Integer trackGlobalSeq;
@@ -35,7 +35,7 @@ public class RotationKeyframeAction implements GenericRotateAction {
 		for (final IdObject node : nodeSelection) {
 			nodeToLocalRotation.put(node, new QuaternionRotation());
 		}
-		center = new Vertex(centerX, centerY, centerZ);
+		center = new Vertex3(centerX, centerY, centerZ);
 	}
 
 	@Override

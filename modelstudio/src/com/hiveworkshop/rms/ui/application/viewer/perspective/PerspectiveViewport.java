@@ -88,7 +88,7 @@ import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.MathUtils;
 import com.hiveworkshop.rms.util.Matrix4;
 import com.hiveworkshop.rms.util.QuaternionRotation;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 import com.hiveworkshop.rms.util.Vertex4;
 
 import org.lwjgl.BufferUtils;
@@ -103,7 +103,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		implements MouseListener, ActionListener, MouseWheelListener, RenderResourceAllocator {
 	public static final boolean LOG_EXCEPTIONS = true;
 	ModelView modelView;
-	Vertex cameraPos = new Vertex(0, 0, 0);
+	Vertex3 cameraPos = new Vertex3(0, 0, 0);
 	QuaternionRotation inverseCameraRotationQuat = new QuaternionRotation();
 	QuaternionRotation inverseCameraRotationYSpin = new QuaternionRotation();
 	QuaternionRotation inverseCameraRotationZSpin = new QuaternionRotation();
@@ -922,7 +922,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 				if (animation != null) {
 					final float layerVisibility = layer.getRenderVisibility(timeEnvironment);
 					if (/* geo.getMaterial().isConstantColor() && */ geosetAnim != null) {
-						final Vertex renderColor = geosetAnim.getRenderColor(timeEnvironment);
+						final Vertex3 renderColor = geosetAnim.getRenderColor(timeEnvironment);
 						if (renderColor != null) {
 							GL11.glColor4f(renderColor.z * 1f, renderColor.y * 1f, renderColor.x * 1f,
 									geosetAnimVisibility * layerVisibility);
@@ -1372,8 +1372,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		}
 
 		@Override
-		public void setTransformation(final Vertex worldLocation, final QuaternionRotation rotation,
-				final Vertex worldScale) {
+		public void setTransformation(final Vertex3 worldLocation, final QuaternionRotation rotation,
+				final Vertex3 worldScale) {
 		}
 
 		@Override
@@ -1391,7 +1391,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		}
 
 		@Override
-		public void move(final Vertex deltaPosition) {
+		public void move(final Vertex3 deltaPosition) {
 
 		}
 

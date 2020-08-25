@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 
 /**
  * Undoable snap action.
@@ -13,15 +13,15 @@ import com.hiveworkshop.rms.util.Vertex;
  * Eric Theller 6/11/2012
  */
 public class RecalculateNormalsAction implements UndoAction {
-	List<Vertex> oldSelLocs;
+	List<Vertex3> oldSelLocs;
 	List<GeosetVertex> selection;
-	Vertex snapPoint;
+	Vertex3 snapPoint;
 
-	public RecalculateNormalsAction(final List<GeosetVertex> selection, final List<Vertex> oldSelLocs,
-			final Vertex snapPoint) {
+	public RecalculateNormalsAction(final List<GeosetVertex> selection, final List<Vertex3> oldSelLocs,
+			final Vertex3 snapPoint) {
 		this.selection = new ArrayList<>(selection);
 		this.oldSelLocs = oldSelLocs;
-		this.snapPoint = new Vertex(snapPoint);
+		this.snapPoint = new Vertex3(snapPoint);
 	}
 
 	@Override

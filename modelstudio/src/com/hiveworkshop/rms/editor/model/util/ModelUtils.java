@@ -9,10 +9,10 @@ import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.editor.model.TVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex2;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public final class ModelUtils {
 	public static final class Mesh {
@@ -72,20 +72,20 @@ public final class ModelUtils {
 		if (planeDimension == 1) {
 			flipFacesForIterationDesignFlaw = true;
 		}
-		final Vertex normal = new Vertex(0, 0, 0);
+		final Vertex3 normal = new Vertex3(0, 0, 0);
 		normal.setCoord(planeDimension, outward ? 1 : -1);
 		return createPlane(firstDimension, secondDimension, normal, planeHeight, minFirst, minSecond, maxFirst,
 				maxSecond, numberOfSegmentsX, numberOfSegmentsY);
 	}
 
-	public static Mesh createPlane(final byte firstDimension, final byte secondDimension, final Vertex facingVector,
+	public static Mesh createPlane(final byte firstDimension, final byte secondDimension, final Vertex3 facingVector,
 			final double planeHeight, final double minFirst, final double minSecond, final double maxFirst,
 			final double maxSecond, final int numberOfSegments) {
 		return createPlane(firstDimension, secondDimension, facingVector, planeHeight, minFirst, minSecond, maxFirst,
 				maxSecond, numberOfSegments, numberOfSegments);
 	}
 
-	public static Mesh createPlane(final byte firstDimension, final byte secondDimension, final Vertex facingVector,
+	public static Mesh createPlane(final byte firstDimension, final byte secondDimension, final Vertex3 facingVector,
 			final double planeHeight, final double minFirst, final double minSecond, final double maxFirst,
 			final double maxSecond, final int numberOfSegmentsX, final int numberOfSegmentsY) {
 		final byte planeDimension = CoordinateSystem.Util.getUnusedXYZ(firstDimension, secondDimension);
@@ -99,13 +99,13 @@ public final class ModelUtils {
 		for (int y = 0; y < (numberOfSegmentsY + 1); y++) {
 			final GeosetVertex[] currentRow = new GeosetVertex[numberOfSegmentsX + 1];
 			for (int x = 0; x < (numberOfSegmentsX + 1); x++) {
-				final Vertex normal = new Vertex(facingVector.x, facingVector.y, facingVector.z);
+				final Vertex3 normal = new Vertex3(facingVector.x, facingVector.y, facingVector.z);
 				final GeosetVertex vertex = new GeosetVertex(0, 0, 0, normal);
 				currentRow[x] = vertex;
 				vertex.setCoord(planeDimension, planeHeight);
 				vertex.setCoord(firstDimension, minFirst + (x * firstDimensionSegmentWidth));
 				vertex.setCoord(secondDimension, minSecond + (y * secondDimensionSegmentWidth));
-				vertex.addTVertex(new TVertex(x * segmentWidthUV1, y * segmentWidthUV2));
+				vertex.addTVertex(new Vertex2(x * segmentWidthUV1, y * segmentWidthUV2));
 				vertices.add(vertex);
 				if (y > 0) {
 					if (x > 0) {
@@ -134,13 +134,13 @@ public final class ModelUtils {
 	 * @param max
 	 * @param min
 	 */
-	public static void createBox(final EditableModel model, final Vertex max, final Vertex min, final int segments) {
+	public static void createBox(final EditableModel model, final Vertex3 max, final Vertex3 min, final int segments) {
 		final Geoset geoset = new Geoset();
 		geoset.setMaterial(new Material(new Layer("None", new Bitmap("textures\\white.blp"))));
 
 		for (byte side = (byte) 0; side < 2; side++) {
 			for (byte dimension = (byte) 0; dimension < 3; dimension++) {
-				final Vertex sideMaxima;
+				final Vertex3 sideMaxima;
 				switch (side) {
 				case 0:
 					sideMaxima = min;
@@ -187,7 +187,7 @@ public final class ModelUtils {
 			}
 		}
 		for (final GeosetVertex vertex : geoset.getVertices()) {
-			vertex.addTVertex(new TVertex(0, 0));
+			vertex.addTVertex(new Vertex2(0, 0));
 			vertex.setGeoset(geoset);
 		}
 		for (final Triangle triangle : geoset.getTriangles()) {
@@ -209,12 +209,12 @@ public final class ModelUtils {
 	 * @param dataGeoset
 	 * @return
 	 */
-	public static Mesh createBox(final Vertex max, final Vertex min, final int lengthSegs, final int widthSegs,
+	public static Mesh createBox(final Vertex3 max, final Vertex3 min, final int lengthSegs, final int widthSegs,
 			final int heightSegs, final Geoset dataGeoset) {
 		final Mesh box = new Mesh(new ArrayList<>(), new ArrayList<>());
 		for (byte side = (byte) 0; side < 2; side++) {
 			for (byte dimension = (byte) 0; dimension < 3; dimension++) {
-				final Vertex sideMaxima;
+				final Vertex3 sideMaxima;
 				switch (side) {
 				case 0:
 					sideMaxima = min;
@@ -269,7 +269,7 @@ public final class ModelUtils {
 			}
 		}
 		for (final GeosetVertex vertex : box.getVertices()) {
-			vertex.addTVertex(new TVertex(0, 0));
+			vertex.addTVertex(new Vertex2(0, 0));
 			vertex.setGeoset(dataGeoset);
 		}
 		for (final Triangle triangle : box.getTriangles()) {
@@ -286,7 +286,7 @@ public final class ModelUtils {
 	 * @param max
 	 * @param min
 	 */
-	public static void createGroundPlane(final EditableModel model, final Vertex max, final Vertex min, final int segments) {
+	public static void createGroundPlane(final EditableModel model, final Vertex3 max, final Vertex3 min, final int segments) {
 		final Geoset geoset = new Geoset();
 		geoset.setMaterial(new Material(new Layer("None", new Bitmap("textures\\white.blp"))));
 
@@ -298,7 +298,7 @@ public final class ModelUtils {
 			geoset.add(triangle);
 		}
 		for (final GeosetVertex vertex : geoset.getVertices()) {
-			vertex.addTVertex(new TVertex(0, 0));
+			vertex.addTVertex(new Vertex2(0, 0));
 			vertex.setGeoset(geoset);
 		}
 		for (final Triangle triangle : geoset.getTriangles()) {

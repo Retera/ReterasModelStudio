@@ -22,7 +22,7 @@ import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 	private CoordinateSystem coordinateSystem;
@@ -89,7 +89,7 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 		drawCrosshair(object.getPivotPoint());
 	}
 
-	private void drawCrosshair(final Vertex pivotPoint) {
+	private void drawCrosshair(final Vertex3 pivotPoint) {
 		if (crosshairIsBox) {
 			drawBox(graphics, coordinateSystem, vertexSize, pivotPoint);
 		} else {
@@ -144,8 +144,8 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 	public void camera(final Camera camera) {
 		graphics.setColor(Color.GREEN.darker());
 		final Graphics2D g2 = ((Graphics2D) graphics.create());
-		final Vertex ver = camera.getPosition();
-		final Vertex targ = camera.getTargetPosition();
+		final Vertex3 ver = camera.getPosition();
+		final Vertex3 targ = camera.getTargetPosition();
 		// final boolean verSel = selection.contains(ver);
 		// final boolean tarSel = selection.contains(targ);
 		final Point start = new Point(
@@ -224,7 +224,7 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 	}
 
 	public static void drawCrosshair(final Graphics2D graphics, final CoordinateSystem coordinateSystem,
-			final int vertexSize, final Vertex pivotPoint) {
+			final int vertexSize, final Vertex3 pivotPoint) {
 		final int xCoord = (int) coordinateSystem.convertX(pivotPoint.getCoord(coordinateSystem.getPortFirstXYZ()));
 		final int yCoord = (int) coordinateSystem.convertY(pivotPoint.getCoord(coordinateSystem.getPortSecondXYZ()));
 		graphics.drawOval(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2, vertexSize * 2);
@@ -233,7 +233,7 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 	}
 
 	public static void drawBox(final Graphics2D graphics, final CoordinateSystem coordinateSystem, int vertexSize,
-			final Vertex pivotPoint) {
+			final Vertex3 pivotPoint) {
 		vertexSize *= 3;
 
 		final int xCoord = (int) coordinateSystem.convertX(pivotPoint.getCoord(coordinateSystem.getPortFirstXYZ()));
@@ -244,15 +244,15 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 	public static void drawCollisionShape(final Graphics2D graphics, final Color color,
 			final CoordinateSystem coordinateSystem, final byte xDimension, final byte yDimension, final int vertexSize,
 			final CollisionShape collisionShape, final Image collisionImage, final boolean crosshairIsBox) {
-		final Vertex pivotPoint = collisionShape.getPivotPoint();
-		final List<Vertex> vertices = collisionShape.getVertices();
+		final Vertex3 pivotPoint = collisionShape.getPivotPoint();
+		final List<Vertex3> vertices = collisionShape.getVertices();
 		graphics.setColor(color);
 		final int xCoord = (int) coordinateSystem.convertX(pivotPoint.getCoord(xDimension));
 		final int yCoord = (int) coordinateSystem.convertY(pivotPoint.getCoord(yDimension));
 		if (collisionShape.getType() == MdlxCollisionShape.Type.BOX) {
 			if (vertices.size() > 1) {
-				final Vertex vertex = vertices.get(0);
-				final Vertex vertex2 = vertices.get(1);
+				final Vertex3 vertex = vertices.get(0);
+				final Vertex3 vertex2 = vertices.get(1);
 				final int firstXCoord = (int) coordinateSystem.convertX(vertex2.getCoord(xDimension));
 				final int firstYCoord = (int) coordinateSystem.convertY(vertex2.getCoord(yDimension));
 				final int secondXCoord = (int) coordinateSystem.convertX(vertex.getCoord(xDimension));
@@ -279,7 +279,7 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 				drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage);
 			}
 		}
-		for (final Vertex vertex : vertices) {
+		for (final Vertex3 vertex : vertices) {
 			if (crosshairIsBox) {
 				drawBox(graphics, coordinateSystem, vertexSize, vertex);
 			} else {

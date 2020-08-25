@@ -5,16 +5,16 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.editor.model.TVertex;
+import com.hiveworkshop.rms.util.Vertex2;
 
 public final class MirrorTVerticesAction implements UndoAction {
 	private final char[] DIMENSION_NAMES = { 'X', 'Y' };
-	private final List<TVertex> selection;
+	private final List<Vertex2> selection;
 	private final byte mirrorDim;
 	private final double centerX;
 	private final double centerY;
 
-	public MirrorTVerticesAction(final Collection<? extends TVertex> selection, final byte mirrorDim,
+	public MirrorTVerticesAction(final Collection<? extends Vertex2> selection, final byte mirrorDim,
 			final double centerX, final double centerY) {
 		this.centerX = centerX;
 		this.centerY = centerY;
@@ -33,8 +33,8 @@ public final class MirrorTVerticesAction implements UndoAction {
 	}
 
 	private void doMirror() {
-		final TVertex center = new TVertex(centerX, centerY);
-		for (final TVertex vert : selection) {
+		final Vertex2 center = new Vertex2(centerX, centerY);
+		for (final Vertex2 vert : selection) {
 			vert.setCoord(mirrorDim, 2 * center.getCoord(mirrorDim) - vert.getCoord(mirrorDim));
 		}
 	}

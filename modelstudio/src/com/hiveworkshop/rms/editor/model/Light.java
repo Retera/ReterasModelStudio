@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLight;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLight.Type;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 
 /**
  * Write a description of class Light here.
@@ -18,9 +18,9 @@ public class Light extends IdObject {
 	int attenuationStart = 0;
 	int attenuationEnd = 0;
 	double intensity = 0;
-	Vertex staticColor = new Vertex();
+	Vertex3 staticColor = new Vertex3();
 	double ambIntensity = 0;
-	Vertex staticAmbColor = new Vertex();
+	Vertex3 staticAmbColor = new Vertex3();
 
 	public Light() {
 
@@ -52,9 +52,9 @@ public class Light extends IdObject {
 		type = light.type;
 		setAttenuationStart((int)light.attenuation[0]);
 		setAttenuationEnd((int)light.attenuation[1]);
-		setStaticColor(new Vertex(light.color, true));
+		setStaticColor(new Vertex3(light.color, true));
 		setIntensity(light.intensity);
-		setStaticAmbColor(new Vertex(light.ambientColor, true));
+		setStaticAmbColor(new Vertex3(light.ambientColor, true));
 		setAmbIntensity(light.ambientIntensity);
 	}
 
@@ -107,11 +107,11 @@ public class Light extends IdObject {
 		this.intensity = intensity;
 	}
 
-	public Vertex getStaticColor() {
+	public Vertex3 getStaticColor() {
 		return staticColor;
 	}
 
-	public void setStaticColor(final Vertex staticColor) {
+	public void setStaticColor(final Vertex3 staticColor) {
 		this.staticColor = staticColor;
 	}
 
@@ -123,11 +123,11 @@ public class Light extends IdObject {
 		this.ambIntensity = ambIntensity;
 	}
 
-	public Vertex getStaticAmbColor() {
+	public Vertex3 getStaticAmbColor() {
 		return staticAmbColor;
 	}
 
-	public void setStaticAmbColor(final Vertex staticAmbColor) {
+	public void setStaticAmbColor(final Vertex3 staticAmbColor) {
 		this.staticAmbColor = staticAmbColor;
 	}
 

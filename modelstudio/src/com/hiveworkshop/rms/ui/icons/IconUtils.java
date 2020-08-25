@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.icons;
 
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.parsers.slk.Element;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
@@ -112,7 +112,7 @@ public final class IconUtils {
 		return image;
 	}
 
-	public static BufferedImage createColorImage(final Vertex color, final int width, final int height) {
+	public static BufferedImage createColorImage(final Vertex3 color, final int width, final int height) {
 		final Color awtColor = new Color((float) color.z, (float) color.y, (float) color.z);
 		return createBlank(awtColor, width, height);
 	}

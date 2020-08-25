@@ -9,7 +9,6 @@ import java.util.Set;
 
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.TVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
@@ -20,7 +19,8 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexModelElementRend
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex2;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public final class VertexGroupSelectionManager extends AbstractSelectionManager<VertexGroupModelEditor.VertexGroupBundle> {
 	private static final Color GROUP_SELECTED_COLOR = new Color(1f, 0.75f, 0.45f, 0.3f);
@@ -49,7 +49,7 @@ public final class VertexGroupSelectionManager extends AbstractSelectionManager<
 	}
 
 	@Override
-	public Vertex getCenter() {
+	public Vertex3 getCenter() {
 		return cachedVertexListManager.getCenter();
 	}
 
@@ -59,12 +59,12 @@ public final class VertexGroupSelectionManager extends AbstractSelectionManager<
 	}
 
 	@Override
-	public Collection<? extends Vertex> getSelectedVertices() {
+	public Collection<? extends Vertex3> getSelectedVertices() {
 		return cachedVertexListManager.getSelectedVertices();
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vertex center) {
+	public double getCircumscribedSphereRadius(final Vertex3 center) {
 		return cachedVertexListManager.getCircumscribedSphereRadius(center);
 	}
 
@@ -109,17 +109,17 @@ public final class VertexGroupSelectionManager extends AbstractSelectionManager<
 	}
 
 	@Override
-	public TVertex getUVCenter(final int tvertexLayerId) {
+	public Vertex2 getUVCenter(final int tvertexLayerId) {
 		throw new UnsupportedOperationException("Not yet implemented");
 	}
 
 	@Override
-	public Collection<? extends TVertex> getSelectedTVertices(final int tvertexLayerId) {
+	public Collection<? extends Vertex2> getSelectedTVertices(final int tvertexLayerId) {
 		throw new UnsupportedOperationException("Not yet implemented");
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final TVertex center, final int tvertexLayerId) {
+	public double getCircumscribedSphereRadius(final Vertex2 center, final int tvertexLayerId) {
 		throw new UnsupportedOperationException("Not yet implemented");
 	}
 

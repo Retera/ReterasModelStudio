@@ -26,14 +26,14 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Layer;
-import com.hiveworkshop.rms.editor.model.TVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.model.UVLayer;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.gui.modeledit.TargaReader;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex2;
+import com.hiveworkshop.rms.util.Vertex3;
 import com.owens.oobjloader.builder.Face;
 import com.owens.oobjloader.builder.FaceVertex;
 import com.owens.oobjloader.builder.ReflectivityTransmiss;
@@ -649,11 +649,11 @@ public class Build implements BuilderInterface {
 		}
 
 		public GeosetVertex createVertex() {
-			return new GeosetVertex(posX, posY, posZ, new Vertex(normX, normY, normZ));
+			return new GeosetVertex(posX, posY, posZ, new Vertex3(normX, normY, normZ));
 		}
 
-		public TVertex createTVertex() {
-			return new TVertex(uvU, uvV);
+		public Vertex2 createTVertex() {
+			return new Vertex2(uvU, uvV);
 		}
 
 		@Override
@@ -789,7 +789,7 @@ public class Build implements BuilderInterface {
 					}
 				}
 			}
-			for (final Vertex pivot : mdl.getPivots()) {
+			for (final Vertex3 pivot : mdl.getPivots()) {
 				if (Math.abs(pivot.x) > sizeLimit || Math.abs(pivot.y) > sizeLimit || Math.abs(pivot.z) > sizeLimit) {
 					allLessThan2 = false;
 				}
@@ -813,7 +813,7 @@ public class Build implements BuilderInterface {
 							gv.z *= factor;
 						}
 					}
-					for (final Vertex pivot : mdl.getPivots()) {
+					for (final Vertex3 pivot : mdl.getPivots()) {
 						pivot.x *= factor;
 						pivot.y *= factor;
 						pivot.z *= factor;
@@ -975,7 +975,7 @@ public class Build implements BuilderInterface {
 		}
 		final Bone groupBone = new Bone(groupName);
 		mdl.add(groupBone);
-		final List<Vertex> attachedVertices = new ArrayList<>();
+		final List<Vertex3> attachedVertices = new ArrayList<>();
 		for (final Map.Entry<com.owens.oobjloader.builder.Material, Subgroup> subgroup : materialToSubgroup.entrySet()) {
 			final Geoset geo = subgroup.getValue().getGeo();
 			geo.setParentModel(mdl);
@@ -997,8 +997,8 @@ public class Build implements BuilderInterface {
 			// }
 
 			for (final VertexKey key : vertexKeys) {
-				final List<TVertex> tverts = new ArrayList<>();
-				final TVertex createdTVertex = key.createTVertex();
+				final List<Vertex2> tverts = new ArrayList<>();
+				final Vertex2 createdTVertex = key.createTVertex();
 
 				if (createdTVertex.getX() > 1.0 || createdTVertex.getX() < 0 || createdTVertex.getY() > 1.0
 						|| createdTVertex.getY() < 0) {
@@ -1040,7 +1040,7 @@ public class Build implements BuilderInterface {
 			}
 		}
 		if (!attachedVertices.isEmpty()) {
-			groupBone.setPivotPoint(Vertex.centerOfGroup(attachedVertices));
+			groupBone.setPivotPoint(Vertex3.centerOfGroup(attachedVertices));
 		} else {
 			mdl.remove(groupBone);
 		}
@@ -1143,7 +1143,7 @@ public class Build implements BuilderInterface {
 			}
 			final ReflectivityTransmiss color = max;
 			if (color != null) {
-				geo.forceGetGeosetAnim().setStaticColor(new Vertex(color.bz, color.gy, color.rx));// pretty
+				geo.forceGetGeosetAnim().setStaticColor(new Vertex3(color.bz, color.gy, color.rx));// pretty
 																									// sure
 																									// geoset
 																									// anim

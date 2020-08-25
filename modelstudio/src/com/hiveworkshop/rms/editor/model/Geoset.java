@@ -9,12 +9,13 @@ import javax.swing.JOptionPane;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxExtent;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxGeoset;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex2;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public class Geoset implements Named, VisibilitySource {
 	ExtLog extents;
 	List<GeosetVertex> vertex = new ArrayList<>();
-	List<Vertex> normals = new ArrayList<>();
+	List<Vertex3> normals = new ArrayList<>();
 	List<UVLayer> uvlayers = new ArrayList<>();
 	List<Triangle> triangles = new ArrayList<>();
 	List<Matrix> matrix = new ArrayList<>();
@@ -74,11 +75,11 @@ public class Geoset implements Named, VisibilitySource {
 			// this is an unsigned byte, the other guys java code will read as
 			// signed
 			if (normals.length > 0) {
-				addNormal(new Vertex(normals[i], normals[i + 1], normals[i + 2]));
+				addNormal(new Vertex3(normals[i], normals[i + 1], normals[i + 2]));
 			}
 
 			for (int uvId = 0; uvId < uv.size(); uvId++) {
-				uv.get(uvId).addTVertex(new TVertex(uvSets[uvId][j], uvSets[uvId][j + 1]));
+				uv.get(uvId).addTVertex(new Vertex2(uvSets[uvId][j], uvSets[uvId][j + 1]));
 			}
 		}
 		// guys I didn't code this to allow experimental
@@ -306,7 +307,7 @@ public class Geoset implements Named, VisibilitySource {
 		return triangles.contains(t);
 	}
 
-	public boolean contains(final Vertex v) {
+	public boolean contains(final Vertex3 v) {
 		return vertex.contains(v);
 	}
 
@@ -314,11 +315,11 @@ public class Geoset implements Named, VisibilitySource {
 		return vertex.size();
 	}
 
-	public void addNormal(final Vertex n) {
+	public void addNormal(final Vertex3 n) {
 		normals.add(n);
 	}
 
-	public Vertex getNormal(final int vertId) {
+	public Vertex3 getNormal(final int vertId) {
 		return normals.get(vertId);
 	}
 
@@ -438,10 +439,10 @@ public class Geoset implements Named, VisibilitySource {
 		return anims.size();
 	}
 
-	public List<TVertex> getTVertecesInArea(final Rectangle2D.Double area, final int layerId) {
-		final List<TVertex> temp = new ArrayList<>();
+	public List<Vertex2> getTVertecesInArea(final Rectangle2D.Double area, final int layerId) {
+		final List<Vertex2> temp = new ArrayList<>();
 		for (int i = 0; i < vertex.size(); i++) {
-			final TVertex ver = vertex.get(i).getTVertex(layerId);
+			final Vertex2 ver = vertex.get(i).getTVertex(layerId);
 			// Point2D.Double p = new
 			// Point(ver.getCoords(dim1),ver.getCoords(dim2))
 			if (area.contains(ver.getX(), ver.getY())) {
@@ -451,9 +452,9 @@ public class Geoset implements Named, VisibilitySource {
 		return temp;
 	}
 
-	public List<Vertex> getVertecesInArea(final Rectangle2D.Double area, final byte dim1, final byte dim2) {
-		final List<Vertex> temp = new ArrayList<>();
-		for (final Vertex ver : vertex) {
+	public List<Vertex3> getVertecesInArea(final Rectangle2D.Double area, final byte dim1, final byte dim2) {
+		final List<Vertex3> temp = new ArrayList<>();
+		for (final Vertex3 ver : vertex) {
 			// Point2D.Double p = new
 			// Point(ver.getCoords(dim1),ver.getCoords(dim2))
 			if (area.contains(ver.getCoord(dim1), ver.getCoord(dim2))) {
@@ -644,11 +645,11 @@ public class Geoset implements Named, VisibilitySource {
 				normals.add(vertex.get(i).getNormal());
 			}
 			for (int uv = 0; uv < bigNum; uv++) {
-				final TVertex temp = vertex.get(i).getTVertex(uv);
+				final Vertex2 temp = vertex.get(i).getTVertex(uv);
 				if (temp != null) {
 					uvlayers.get(uv).addTVertex(temp);
 				} else {
-					uvlayers.get(uv).addTVertex(new TVertex(0, 0));
+					uvlayers.get(uv).addTVertex(new Vertex2(0, 0));
 				}
 			}
 		}
@@ -756,11 +757,11 @@ public class Geoset implements Named, VisibilitySource {
 		this.vertex = vertex;
 	}
 
-	public List<Vertex> getNormals() {
+	public List<Vertex3> getNormals() {
 		return normals;
 	}
 
-	public void setNormals(final List<Vertex> normals) {
+	public void setNormals(final List<Vertex3> normals) {
 		this.normals = normals;
 	}
 
@@ -885,6 +886,6 @@ public class Geoset implements Named, VisibilitySource {
 				maximumDistanceFromCenter = distanceFromCenter;
 			}
 		}
-		return new ExtLog(new Vertex(minX, minY, minZ), new Vertex(maxX, maxY, maxZ), maximumDistanceFromCenter);
+		return new ExtLog(new Vertex3(minX, minY, minZ), new Vertex3(maxX, maxY, maxZ), maximumDistanceFromCenter);
 	}
 }

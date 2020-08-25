@@ -21,7 +21,7 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Matrix4;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 import com.hiveworkshop.rms.util.Vertex4;
 
 public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObjectVisitor {
@@ -152,19 +152,19 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 	private static final Vertex4 vertexHeap2 = new Vertex4();
 
 	public static void drawLink(final Graphics2D graphics, final CoordinateSystem coordinateSystem,
-			final Vertex pivotPoint, final Vertex target, final Matrix4 worldMatrix,
+			final Vertex3 pivotPoint, final Vertex3 target, final Matrix4 worldMatrix,
 			final Matrix4 targetWorldMatrix) {
 		loadPivotInVertexHeap(pivotPoint, worldMatrix, vertexHeap);
 		loadPivotInVertexHeap(target, targetWorldMatrix, vertexHeap2);
 
 		final int xCoord = (int) coordinateSystem
-				.convertX(Vertex.getCoord(vertexHeap, coordinateSystem.getPortFirstXYZ()));
+				.convertX(Vertex3.getCoord(vertexHeap, coordinateSystem.getPortFirstXYZ()));
 		final int yCoord = (int) coordinateSystem
-				.convertY(Vertex.getCoord(vertexHeap, coordinateSystem.getPortSecondXYZ()));
+				.convertY(Vertex3.getCoord(vertexHeap, coordinateSystem.getPortSecondXYZ()));
 		final int xCoord2 = (int) coordinateSystem
-				.convertX(Vertex.getCoord(vertexHeap2, coordinateSystem.getPortFirstXYZ()));
+				.convertX(Vertex3.getCoord(vertexHeap2, coordinateSystem.getPortFirstXYZ()));
 		final int yCoord2 = (int) coordinateSystem
-				.convertY(Vertex.getCoord(vertexHeap2, coordinateSystem.getPortSecondXYZ()));
+				.convertY(Vertex3.getCoord(vertexHeap2, coordinateSystem.getPortSecondXYZ()));
 		// TODO resettable
 		graphics.setPaint(
 				new GradientPaint(new Point(xCoord, yCoord), Color.WHITE, new Point(xCoord2, yCoord2), Color.BLACK));
@@ -172,7 +172,7 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 		graphics.drawLine(xCoord, yCoord, xCoord2, yCoord2);
 	}
 
-	public static void loadPivotInVertexHeap(final Vertex pivotPoint, final Matrix4 worldMatrix,
+	public static void loadPivotInVertexHeap(final Vertex3 pivotPoint, final Matrix4 worldMatrix,
 			final Vertex4 vertexHeap) {
 		vertexHeap.x = (float) pivotPoint.x;
 		vertexHeap.y = (float) pivotPoint.y;

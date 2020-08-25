@@ -147,7 +147,7 @@ public class Matrix4 {
         return out;
 	}
     
-    public static Matrix4 translate(Vertex a, Matrix4 b, Matrix4 out) {
+    public static Matrix4 translate(Vertex3 a, Matrix4 b, Matrix4 out) {
 		out.m30 += b.m00 * a.x + b.m10 * a.y + b.m20 * a.z;
 		out.m31 += b.m01 * a.x + b.m11 * a.y + b.m21 * a.z;
 		out.m32 += b.m02 * a.x + b.m12 * a.y + b.m22 * a.z;
@@ -157,15 +157,15 @@ public class Matrix4 {
     }
     
     
-    public Matrix4 translate(Vertex vec, Matrix4 dest) {
+    public Matrix4 translate(Vertex3 vec, Matrix4 dest) {
 		return translate(vec, this, dest);
     }
     
-    public Matrix4 translate(Vertex vec) {
+    public Matrix4 translate(Vertex3 vec) {
 		return translate(vec, this);
 	}
 
-	public static Matrix4 scale(Vertex a, Matrix4 b, Matrix4 out) {
+	public static Matrix4 scale(Vertex3 a, Matrix4 b, Matrix4 out) {
         float x = (float) a.x;
         float y = (float) a.y;
         float z = (float) a.z;
@@ -186,11 +186,11 @@ public class Matrix4 {
 		return out;
     }
     
-    public Matrix4 scale(Vertex vec, Matrix4 dest) {
+    public Matrix4 scale(Vertex3 vec, Matrix4 dest) {
 		return scale(vec, this, dest);
     }
     
-    public Matrix4 scale(Vertex vec) {
+    public Matrix4 scale(Vertex3 vec) {
 		return scale(vec, this);
 	}
 

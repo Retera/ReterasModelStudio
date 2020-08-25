@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 import com.hiveworkshop.rms.ui.application.edit.animation.NodeAnimationModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
@@ -13,9 +13,9 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleA
 public class ScalingKeyframeAction implements GenericScaleAction {
 	private final UndoAction addingTimelinesOrKeyframesAction;
 	private final int trackTime;
-	private final HashMap<IdObject, Vertex> nodeToLocalScale;
+	private final HashMap<IdObject, Vertex3> nodeToLocalScale;
 	private final NodeAnimationModelEditor modelEditor;
-	private final Vertex center;
+	private final Vertex3 center;
 	private final Integer trackGlobalSeq;
 
 	public ScalingKeyframeAction(final UndoAction addingTimelinesOrKeyframesAction, final int trackTime,
@@ -28,17 +28,17 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 		this.modelEditor = modelEditor;
 		nodeToLocalScale = new HashMap<>();
 		for (final IdObject node : nodeSelection) {
-			nodeToLocalScale.put(node, new Vertex());
+			nodeToLocalScale.put(node, new Vertex3());
 		}
-		center = new Vertex(centerX, centerY, centerZ);
+		center = new Vertex3(centerX, centerY, centerZ);
 	}
 
 	@Override
 	public void undo() {
-		final Vertex tempInverse = new Vertex();
-		for (final Map.Entry<IdObject, Vertex> nodeAndLocalTranslation : nodeToLocalScale.entrySet()) {
+		final Vertex3 tempInverse = new Vertex3();
+		for (final Map.Entry<IdObject, Vertex3> nodeAndLocalTranslation : nodeToLocalScale.entrySet()) {
 			final IdObject node = nodeAndLocalTranslation.getKey();
-			final Vertex localTranslation = nodeAndLocalTranslation.getValue();
+			final Vertex3 localTranslation = nodeAndLocalTranslation.getValue();
 			tempInverse.x = 1 / localTranslation.x;
 			tempInverse.y = 1 / localTranslation.y;
 			tempInverse.z = 1 / localTranslation.z;
@@ -50,9 +50,9 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 	@Override
 	public void redo() {
 		addingTimelinesOrKeyframesAction.redo();
-		for (final Map.Entry<IdObject, Vertex> nodeAndLocalTranslation : nodeToLocalScale.entrySet()) {
+		for (final Map.Entry<IdObject, Vertex3> nodeAndLocalTranslation : nodeToLocalScale.entrySet()) {
 			final IdObject node = nodeAndLocalTranslation.getKey();
-			final Vertex localTranslation = nodeAndLocalTranslation.getValue();
+			final Vertex3 localTranslation = nodeAndLocalTranslation.getValue();
 			node.updateLocalScalingKeyframe(trackTime, trackGlobalSeq, localTranslation);
 		}
 	}

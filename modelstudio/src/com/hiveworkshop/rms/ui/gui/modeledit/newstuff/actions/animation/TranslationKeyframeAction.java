@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 import com.hiveworkshop.rms.ui.application.edit.animation.NodeAnimationModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
@@ -13,7 +13,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAc
 public class TranslationKeyframeAction implements GenericMoveAction {
 	private final UndoAction addingTimelinesOrKeyframesAction;
 	private final int trackTime;
-	private final HashMap<IdObject, Vertex> nodeToLocalTranslation;
+	private final HashMap<IdObject, Vertex3> nodeToLocalTranslation;
 	private final NodeAnimationModelEditor modelEditor;
 	private final Integer trackGlobalSeq;
 
@@ -26,15 +26,15 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 		this.modelEditor = modelEditor;
 		nodeToLocalTranslation = new HashMap<>();
 		for (final IdObject node : nodeSelection) {
-			nodeToLocalTranslation.put(node, new Vertex());
+			nodeToLocalTranslation.put(node, new Vertex3());
 		}
 	}
 
 	@Override
 	public void undo() {
-		for (final Map.Entry<IdObject, Vertex> nodeAndLocalTranslation : nodeToLocalTranslation.entrySet()) {
+		for (final Map.Entry<IdObject, Vertex3> nodeAndLocalTranslation : nodeToLocalTranslation.entrySet()) {
 			final IdObject node = nodeAndLocalTranslation.getKey();
-			final Vertex localTranslation = nodeAndLocalTranslation.getValue();
+			final Vertex3 localTranslation = nodeAndLocalTranslation.getValue();
 			node.updateLocalTranslationKeyframe(trackTime, trackGlobalSeq, -localTranslation.x, -localTranslation.y,
 					-localTranslation.z);
 		}
@@ -44,9 +44,9 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 	@Override
 	public void redo() {
 		addingTimelinesOrKeyframesAction.redo();
-		for (final Map.Entry<IdObject, Vertex> nodeAndLocalTranslation : nodeToLocalTranslation.entrySet()) {
+		for (final Map.Entry<IdObject, Vertex3> nodeAndLocalTranslation : nodeToLocalTranslation.entrySet()) {
 			final IdObject node = nodeAndLocalTranslation.getKey();
-			final Vertex localTranslation = nodeAndLocalTranslation.getValue();
+			final Vertex3 localTranslation = nodeAndLocalTranslation.getValue();
 			node.updateLocalTranslationKeyframe(trackTime, trackGlobalSeq, localTranslation.x, localTranslation.y,
 					localTranslation.z);
 		}

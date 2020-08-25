@@ -2,14 +2,14 @@ package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.actions;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexEditor;
-import com.hiveworkshop.rms.editor.model.TVertex;
+import com.hiveworkshop.rms.util.Vertex2;
 
 public final class SimpleRotateUVAction implements UndoAction {
 	private final TVertexEditor modelEditor;
-	private final TVertex center;
+	private final Vertex2 center;
 	private final double radians;
 
-	public SimpleRotateUVAction(final TVertexEditor modelEditor, final TVertex center, final double radians) {
+	public SimpleRotateUVAction(final TVertexEditor modelEditor, final Vertex2 center, final double radians) {
 		this.modelEditor = modelEditor;
 		this.center = center;
 		this.radians = radians;

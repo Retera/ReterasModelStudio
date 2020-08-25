@@ -1,22 +1,22 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.selection;
 
-import com.hiveworkshop.rms.editor.model.TVertex;
+import java.util.Collection;
+
 import com.hiveworkshop.rms.editor.model.Triangle;
-import com.hiveworkshop.rms.util.Vertex;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexModelElementRenderer;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-
-import java.util.Collection;
+import com.hiveworkshop.rms.util.Vertex2;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public interface SelectionView {
-	Vertex getCenter();
+	Vertex3 getCenter();
 
 	Collection<Triangle> getSelectedFaces();
 
-	Collection<? extends Vertex> getSelectedVertices();
+	Collection<? extends Vertex3> getSelectedVertices();
 
 	// needs to be coord system, not coord axes, so that
 	// vertex selection view knows the zoom level,
@@ -24,16 +24,16 @@ public interface SelectionView {
 	// is zoom independent
 	// boolean canSelectAt(Point point, CoordinateSystem axes);
 
-	double getCircumscribedSphereRadius(Vertex center);
+	double getCircumscribedSphereRadius(Vertex3 center);
 
 	void renderSelection(ModelElementRenderer renderer, final CoordinateSystem coordinateSystem, ModelView modelView,
                          ProgramPreferences programPreferences);
 
-	TVertex getUVCenter(int tvertexLayerId);
+	Vertex2 getUVCenter(int tvertexLayerId);
 
-	Collection<? extends TVertex> getSelectedTVertices(int tvertexLayerId);
+	Collection<? extends Vertex2> getSelectedTVertices(int tvertexLayerId);
 
-	double getCircumscribedSphereRadius(TVertex center, int tvertexLayerId);
+	double getCircumscribedSphereRadius(Vertex2 center, int tvertexLayerId);
 
 	void renderUVSelection(TVertexModelElementRenderer renderer, ModelView modelView,
                            ProgramPreferences programPreferences, int tvertexLayerId);

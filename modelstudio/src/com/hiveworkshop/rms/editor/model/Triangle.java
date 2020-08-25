@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.editor.model;
 
 import java.util.List;
 
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public class Triangle {
 	GeosetVertex[] verts = new GeosetVertex[3];
@@ -215,7 +215,7 @@ public class Triangle {
 		vertIds[1] = tempVertId;
 		if (flipNormals) {
 			for (final GeosetVertex geosetVertex : verts) {
-				final Vertex normal = geosetVertex.getNormal();
+				final Vertex3 normal = geosetVertex.getNormal();
 				if (normal != null) {
 					// Flip normals, preserve lighting!
 					normal.inverse();
@@ -248,10 +248,10 @@ public class Triangle {
 		this.vertIds = vertIds;
 	}
 
-	public Vertex getFacingVector() {
+	public Vertex3 getFacingVector() {
 		// NOTE does allocation
-		final Vertex firstEdge = verts[0].delta(verts[1]);
-		final Vertex secondEdge = verts[1].delta(verts[2]);
+		final Vertex3 firstEdge = verts[0].delta(verts[1]);
+		final Vertex3 secondEdge = verts[1].delta(verts[2]);
 		return firstEdge.crossProduct(secondEdge);
 	}
 }

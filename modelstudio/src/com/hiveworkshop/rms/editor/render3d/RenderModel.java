@@ -19,7 +19,7 @@ import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.MathUtils;
 import com.hiveworkshop.rms.util.Matrix4;
 import com.hiveworkshop.rms.util.QuaternionRotation;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 import com.hiveworkshop.rms.util.Vertex4;
 
 /**
@@ -194,9 +194,9 @@ public final class RenderModel {
 			if (nodeVisible) {
 				boolean wasDirty = false;
 				// TODO variants
-				final Vertex localLocation = node.localLocation;
+				final Vertex3 localLocation = node.localLocation;
 				final QuaternionRotation localRotation = node.localRotation;
-				final Vertex localScale = node.localScale;
+				final Vertex3 localScale = node.localScale;
 
 				// Only update the local data if there is a need to
 				if (forced || true /* variants */) {
@@ -204,7 +204,7 @@ public final class RenderModel {
 
 					// Translation
 					if (forced || true /* variants */) {
-						final Vertex renderTranslation = idObject.getRenderTranslation(animatedRenderEnvironment);
+						final Vertex3 renderTranslation = idObject.getRenderTranslation(animatedRenderEnvironment);
 						if (renderTranslation != null) {
 							localLocation.x = (float) renderTranslation.x;
 							localLocation.y = (float) renderTranslation.y;
@@ -229,7 +229,7 @@ public final class RenderModel {
 
 					// Scale
 					if (forced || true /* variants */) {
-						final Vertex renderScale = idObject.getRenderScale(animatedRenderEnvironment);
+						final Vertex3 renderScale = idObject.getRenderScale(animatedRenderEnvironment);
 						if (renderScale != null) {
 							localScale.x = (float) renderScale.x;
 							localScale.y = (float) renderScale.y;

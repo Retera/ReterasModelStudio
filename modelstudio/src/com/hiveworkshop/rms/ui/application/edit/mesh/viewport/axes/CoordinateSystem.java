@@ -5,11 +5,11 @@ import java.awt.geom.Point2D;
 
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.TVertex;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.util.Matrix4;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex2;
+import com.hiveworkshop.rms.util.Vertex3;
 import com.hiveworkshop.rms.util.Vertex4;
 
 public interface CoordinateSystem extends CoordinateAxes {
@@ -94,30 +94,30 @@ public interface CoordinateSystem extends CoordinateAxes {
 			return new Point2D.Double(coordinateSystem.geomX(point.x), coordinateSystem.geomY(point.y));
 		}
 
-		public static Vertex convertToVertex(final CoordinateSystem coordinateSystem, final Point point) {
-			final Vertex vertex = new Vertex(0, 0, 0);
+		public static Vertex3 convertToVertex(final CoordinateSystem coordinateSystem, final Point point) {
+			final Vertex3 vertex = new Vertex3(0, 0, 0);
 			return convertToVertex(coordinateSystem, point, vertex);
 		}
 
-		public static Vertex convertToVertex(final CoordinateSystem coordinateSystem, final Point point,
-				final Vertex recycleVertex) {
+		public static Vertex3 convertToVertex(final CoordinateSystem coordinateSystem, final Point point,
+				final Vertex3 recycleVertex) {
 			recycleVertex.setCoord(coordinateSystem.getPortFirstXYZ(), coordinateSystem.geomX(point.x));
 			recycleVertex.setCoord(coordinateSystem.getPortSecondXYZ(), coordinateSystem.geomY(point.y));
 			return recycleVertex;
 		}
 
-		public static Point convertToPoint(final CoordinateSystem coordinateSystem, final Vertex vertex) {
+		public static Point convertToPoint(final CoordinateSystem coordinateSystem, final Vertex3 vertex) {
 			return convertToPoint(coordinateSystem, vertex, new Point(0, 0));
 		}
 
-		public static Point convertToPoint(final CoordinateSystem coordinateSystem, final Vertex vertex,
+		public static Point convertToPoint(final CoordinateSystem coordinateSystem, final Vertex3 vertex,
 				final Point recyclePoint) {
 			recyclePoint.x = (int) coordinateSystem.convertX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
 			recyclePoint.y = (int) coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
 			return recyclePoint;
 		}
 
-		public static Point convertToPoint(final CoordinateSystem coordinateSystem, final TVertex vertex,
+		public static Point convertToPoint(final CoordinateSystem coordinateSystem, final Vertex2 vertex,
 				final Point recyclePoint) {
 			recyclePoint.x = (int) coordinateSystem.convertX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
 			recyclePoint.y = (int) coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
@@ -145,9 +145,9 @@ public interface CoordinateSystem extends CoordinateAxes {
 			vertexSumHeap.z /= boneCount;
 			vertexSumHeap.w /= boneCount;
 			recyclePoint.x = (int) coordinateSystem
-					.convertX(Vertex.getCoord(vertexSumHeap, coordinateSystem.getPortFirstXYZ()));
+					.convertX(Vertex3.getCoord(vertexSumHeap, coordinateSystem.getPortFirstXYZ()));
 			recyclePoint.y = (int) coordinateSystem
-					.convertY(Vertex.getCoord(vertexSumHeap, coordinateSystem.getPortSecondXYZ()));
+					.convertY(Vertex3.getCoord(vertexSumHeap, coordinateSystem.getPortSecondXYZ()));
 			return recyclePoint;
 		}
 

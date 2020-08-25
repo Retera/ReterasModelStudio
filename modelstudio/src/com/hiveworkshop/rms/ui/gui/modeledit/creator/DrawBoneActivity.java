@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
@@ -26,7 +26,7 @@ public class DrawBoneActivity implements ModelEditorViewportActivity {
 	private final ProgramPreferences preferences;
 	private ModelEditor modelEditor;
 	private final UndoActionListener undoActionListener;
-	private final Vertex locationCalculator = new Vertex(0, 0, 0);
+	private final Vertex3 locationCalculator = new Vertex3(0, 0, 0);
 	private final ModelView modelView;
 	private SelectionView selectionView;
 	private final Graphics2DToModelElementRendererAdapter graphics2dToModelElementRendererAdapter;
@@ -72,7 +72,7 @@ public class DrawBoneActivity implements ModelEditorViewportActivity {
 		locationCalculator.setCoord(CoordinateSystem.Util.getUnusedXYZ(coordinateSystem), 0);
 		try {
 			final Viewport viewport = activeViewportWatcher.getViewport();
-			final Vertex facingVector = viewport == null ? new Vertex(0, 0, 1) : viewport.getFacingVector();
+			final Vertex3 facingVector = viewport == null ? new Vertex3(0, 0, 1) : viewport.getFacingVector();
 			final UndoAction action = modelEditor.addBone(locationCalculator.x, locationCalculator.y,
 					locationCalculator.z);
 			undoActionListener.pushAction(action);

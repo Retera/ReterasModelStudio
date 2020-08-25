@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.editor.render3d;
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
 import com.hiveworkshop.rms.util.QuaternionRotation;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public interface RenderResourceAllocator {
 	InternalResource allocateTexture(Bitmap bitmap, ParticleEmitter2 textureSource);
@@ -26,8 +26,8 @@ public interface RenderResourceAllocator {
 						}
 
 						@Override
-						public void setTransformation(final Vertex worldLocation, final QuaternionRotation rotation,
-								final Vertex worldScale) {
+						public void setTransformation(final Vertex3 worldLocation, final QuaternionRotation rotation,
+								final Vertex3 worldScale) {
 						}
 
 						@Override
@@ -39,7 +39,7 @@ public interface RenderResourceAllocator {
 						}
 
 						@Override
-						public void move(final Vertex deltaPosition) {
+						public void move(final Vertex3 deltaPosition) {
 						}
 
 						@Override

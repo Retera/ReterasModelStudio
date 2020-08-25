@@ -3,7 +3,8 @@ package com.hiveworkshop.rms.editor.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex2;
+import com.hiveworkshop.rms.util.Vertex3;
 
 /**
  * GeosetVertex is a extended version of the Vertex class, for use strictly
@@ -15,11 +16,11 @@ import com.hiveworkshop.rms.util.Vertex;
  *
  * Eric Theller 3/9/2012
  */
-public class GeosetVertex extends Vertex {
+public class GeosetVertex extends Vertex3 {
 	Matrix matrixRef;
-	private Vertex normal;
+	private Vertex3 normal;
 	public int VertexGroup = -1;
-	List<TVertex> tverts = new ArrayList<>();
+	List<Vertex2> tverts = new ArrayList<>();
 	List<Bone> bones = new ArrayList<>();
 	List<Triangle> triangles = new ArrayList<>();
 	private byte[] skinBoneIndexes;
@@ -33,7 +34,7 @@ public class GeosetVertex extends Vertex {
 		super(x, y, z);
 	}
 
-	public GeosetVertex(final double x, final double y, final double z, final Vertex n) {
+	public GeosetVertex(final double x, final double y, final double z, final Vertex3 n) {
 		super(x, y, z);
 		normal = n;
 	}
@@ -77,11 +78,11 @@ public class GeosetVertex extends Vertex {
 
 	public GeosetVertex(final GeosetVertex old) {
 		super(old.x, old.y, old.z);
-		this.normal = new Vertex(old.normal);
+		this.normal = new Vertex3(old.normal);
 		this.bones = new ArrayList<>(old.bones);
 		this.tverts = new ArrayList<>();
-		for (final TVertex tv : old.tverts) {
-			tverts.add(new TVertex(tv));
+		for (final Vertex2 tv : old.tverts) {
+			tverts.add(new Vertex2(tv));
 		}
 		// odd, but when writing
 		this.geoset = old.geoset;
@@ -100,11 +101,11 @@ public class GeosetVertex extends Vertex {
 		}
 	}
 
-	public void addTVertex(final TVertex v) {
+	public void addTVertex(final Vertex2 v) {
 		tverts.add(v);
 	}
 
-	public TVertex getTVertex(final int i) {
+	public Vertex2 getTVertex(final int i) {
 		try {
 			return tverts.get(i);
 		} catch (final ArrayIndexOutOfBoundsException e) {
@@ -144,19 +145,19 @@ public class GeosetVertex extends Vertex {
 		matrixRef = ref;
 	}
 
-	public void setNormal(final Vertex n) {
+	public void setNormal(final Vertex3 n) {
 		normal = n;
 	}
 
-	public Vertex getNormal() {
+	public Vertex3 getNormal() {
 		return normal;
 	}
 
-	public List<TVertex> getTverts() {
+	public List<Vertex2> getTverts() {
 		return tverts;
 	}
 
-	public void setTverts(final List<TVertex> tverts) {
+	public void setTverts(final List<Vertex2> tverts) {
 		this.tverts = tverts;
 	}
 
@@ -283,10 +284,10 @@ public class GeosetVertex extends Vertex {
 		}
 	}
 
-	public Vertex createNormal() {
-		final Vertex sum = new Vertex(0, 0, 0);
+	public Vertex3 createNormal() {
+		final Vertex3 sum = new Vertex3(0, 0, 0);
 		for (final Triangle triangle : triangles) {
-			final Vertex perpendicular = triangle.verts[0].delta(triangle.verts[1])
+			final Vertex3 perpendicular = triangle.verts[0].delta(triangle.verts[1])
 					.crossProduct(triangle.verts[1].delta(triangle.verts[2]));
 			sum.x += perpendicular.x;
 			sum.y += perpendicular.y;
@@ -299,11 +300,11 @@ public class GeosetVertex extends Vertex {
 		return sum;
 	}
 
-	public Vertex createNormal(final List<GeosetVertex> matches) {
-		final Vertex sum = new Vertex(0, 0, 0);
+	public Vertex3 createNormal(final List<GeosetVertex> matches) {
+		final Vertex3 sum = new Vertex3(0, 0, 0);
 		for (final GeosetVertex match : matches) {
 			for (final Triangle triangle : match.triangles) {
-				final Vertex perpendicular = triangle.verts[0].delta(triangle.verts[1])
+				final Vertex3 perpendicular = triangle.verts[0].delta(triangle.verts[1])
 						.crossProduct(triangle.verts[1].delta(triangle.verts[2]));
 				double vectorMagnitude = perpendicular.vectorMagnitude();
 				if (vectorMagnitude == 0) {

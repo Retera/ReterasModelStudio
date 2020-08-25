@@ -10,7 +10,7 @@ import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 
 /**
  * Layers for MDLToolkit/MatrixEater.
@@ -25,7 +25,7 @@ public class Layer extends TimelineContainer implements Named {
 	Bitmap texture;
 	TextureAnim textureAnim;
 	private double emissiveGain = 0;
-	private Vertex fresnelColor = new Vertex(1, 1, 1);
+	private Vertex3 fresnelColor = new Vertex3(1, 1, 1);
 	private double fresnelOpacity = 0;
 	private double fresnelTeamColor = 0;
 	private double staticAlpha = 1;// Amount of static alpha (opacity)
@@ -198,7 +198,7 @@ public class Layer extends TimelineContainer implements Named {
 		}
 		staticAlpha = other.staticAlpha;
 		emissiveGain = other.emissiveGain;
-		fresnelColor = new Vertex(other.fresnelColor);
+		fresnelColor = new Vertex3(other.fresnelColor);
 		fresnelOpacity = other.fresnelOpacity;
 		fresnelTeamColor = other.fresnelTeamColor;
 		unshaded = other.unshaded;
@@ -253,7 +253,7 @@ public class Layer extends TimelineContainer implements Named {
 		// > 800
 		emissiveGain = layer.emissiveGain;
 		// > 900
-		setFresnelColor(new Vertex(ModelUtils.flipRGBtoBGR(layer.fresnelColor)));
+		setFresnelColor(new Vertex3(ModelUtils.flipRGBtoBGR(layer.fresnelColor)));
 		fresnelOpacity = layer.fresnelOpacity;
 		fresnelTeamColor = layer.fresnelTeamColor;
 
@@ -495,11 +495,11 @@ public class Layer extends TimelineContainer implements Named {
 		emissiveGain = emissive;
 	}
 
-	public Vertex getFresnelColor() {
+	public Vertex3 getFresnelColor() {
 		return fresnelColor;
 	}
 
-	public void setFresnelColor(final Vertex fresnelColor) {
+	public void setFresnelColor(final Vertex3 fresnelColor) {
 		this.fresnelColor = fresnelColor;
 	}
 

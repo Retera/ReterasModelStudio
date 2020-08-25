@@ -12,7 +12,7 @@ import com.hiveworkshop.rms.editor.model.ExtLog;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public class ModelScale {
 
@@ -35,26 +35,26 @@ public class ModelScale {
 		for (final AnimFlag flag : mdl.getAllAnimFlags()) {
 			if (flag.getTypeId() == AnimFlag.TRANSLATION) {
 				for (int i = 0; i < flag.size(); i++) {
-					final Vertex value = (Vertex) flag.getValues().get(i);
+					final Vertex3 value = (Vertex3) flag.getValues().get(i);
 					value.scale(centerX, centerY, centerZ, x, y, z);
 					if (flag.tans()) {
-						final Vertex inTan = (Vertex) flag.getInTans().get(i);
+						final Vertex3 inTan = (Vertex3) flag.getInTans().get(i);
 						inTan.scale(centerX, centerY, centerZ, x, y, z);
-						final Vertex outTan = (Vertex) flag.getOutTans().get(i);
+						final Vertex3 outTan = (Vertex3) flag.getOutTans().get(i);
 						outTan.scale(centerX, centerY, centerZ, x, y, z);
 					}
 				}
 			}
 		}
 		for (final Geoset geoset : mdl.getGeosets()) {
-			for (final Vertex vertex : geoset.getVertices()) {
+			for (final Vertex3 vertex : geoset.getVertices()) {
 				vertex.scale(centerX, centerY, centerZ, x, y, z);
 			}
 			for (final Animation anim : geoset.getAnims()) {
 				scale(centerX, centerY, centerZ, x, y, z, anim.getExtents());
 			}
 		}
-		for (final Vertex vertex : mdl.getPivots()) {
+		for (final Vertex3 vertex : mdl.getPivots()) {
 			vertex.scale(centerX, centerY, centerZ, x, y, z);
 		}
 		for (final Camera camera : mdl.getCameras()) {
@@ -62,7 +62,7 @@ public class ModelScale {
 			camera.getTargetPosition().scale(centerX, centerY, centerZ, x, y, z);
 		}
 		for (final CollisionShape collision : mdl.sortedIdObjects(CollisionShape.class)) {
-			for (final Vertex vertex : collision.getVertices()) {
+			for (final Vertex3 vertex : collision.getVertices()) {
 				vertex.scale(centerX, centerY, centerZ, x, y, z);
 			}
 			final ExtLog extents = collision.getExtents();

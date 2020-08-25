@@ -106,7 +106,6 @@ import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
-import com.hiveworkshop.rms.editor.model.TVertex;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.model.UVLayer;
@@ -210,7 +209,8 @@ import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
 import com.hiveworkshop.rms.util.Callback;
 import com.hiveworkshop.rms.util.Matrix4;
 import com.hiveworkshop.rms.util.QuaternionRotation;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex2;
+import com.hiveworkshop.rms.util.Vertex3;
 import com.hiveworkshop.rms.util.Vertex4;
 import com.hiveworkshop.rms.util.War3ID;
 import com.owens.oobjloader.parser.Parse;
@@ -440,7 +440,7 @@ public class MainPanel extends JPanel
             final ModelPanel mpanel = currentModelPanel();
             if (mpanel != null) {
                 boolean valid = false;
-                for (final Vertex v : mpanel.getModelEditorManager().getSelectionView().getSelectedVertices()) {
+                for (final Vertex3 v : mpanel.getModelEditorManager().getSelectionView().getSelectedVertices()) {
                     final int index = mpanel.getModel().getPivots().indexOf(v);
                     if (index != -1) {
                         if (index < mpanel.getModel().getIdObjects().size()) {
@@ -535,7 +535,7 @@ public class MainPanel extends JPanel
             for (final Geoset geo : currentMDL().getGeosets()) {
                 for (final UVLayer layer : geo.getUVLayers()) {
                     for (int i = 0; i < layer.numTVerteces(); i++) {
-                        final TVertex tvert = layer.getTVertex(i);
+                        final Vertex2 tvert = layer.getTVertex(i);
                         tvert.y = 1.0f - tvert.y;
                     }
                 }
@@ -550,7 +550,7 @@ public class MainPanel extends JPanel
             for (final Geoset geo : currentMDL().getGeosets()) {
                 for (final UVLayer layer : geo.getUVLayers()) {
                     for (int i = 0; i < layer.numTVerteces(); i++) {
-                        final TVertex tvert = layer.getTVertex(i);
+                        final Vertex2 tvert = layer.getTVertex(i);
                         tvert.y = 1.0f - tvert.y;
                     }
                 }
@@ -565,7 +565,7 @@ public class MainPanel extends JPanel
             for (final Geoset geo : currentMDL().getGeosets()) {
                 for (final UVLayer layer : geo.getUVLayers()) {
                     for (int i = 0; i < layer.numTVerteces(); i++) {
-                        final TVertex tvert = layer.getTVertex(i);
+                        final Vertex2 tvert = layer.getTVertex(i);
                         final float temp = tvert.x;
                         tvert.x = tvert.y;
                         tvert.y = temp;
@@ -580,7 +580,7 @@ public class MainPanel extends JPanel
         public void actionPerformed(final ActionEvent e) {
             final ModelPanel mpanel = currentModelPanel();
             if (mpanel != null) {
-                final Vertex selectionCenter = mpanel.getModelEditorManager().getModelEditor().getSelectionCenter();
+                final Vertex3 selectionCenter = mpanel.getModelEditorManager().getModelEditor().getSelectionCenter();
                 mpanel.getUndoManager()
                         .pushAction(mpanel.getModelEditorManager().getModelEditor().mirror((byte) 0,
                                 mirrorFlip.isSelected(), selectionCenter.x, selectionCenter.y,
@@ -594,7 +594,7 @@ public class MainPanel extends JPanel
         public void actionPerformed(final ActionEvent e) {
             final ModelPanel mpanel = currentModelPanel();
             if (mpanel != null) {
-                final Vertex selectionCenter = mpanel.getModelEditorManager().getModelEditor().getSelectionCenter();
+                final Vertex3 selectionCenter = mpanel.getModelEditorManager().getModelEditor().getSelectionCenter();
 
                 mpanel.getUndoManager()
                         .pushAction(mpanel.getModelEditorManager().getModelEditor().mirror((byte) 1,
@@ -609,7 +609,7 @@ public class MainPanel extends JPanel
         public void actionPerformed(final ActionEvent e) {
             final ModelPanel mpanel = currentModelPanel();
             if (mpanel != null) {
-                final Vertex selectionCenter = mpanel.getModelEditorManager().getModelEditor().getSelectionCenter();
+                final Vertex3 selectionCenter = mpanel.getModelEditorManager().getModelEditor().getSelectionCenter();
 
                 mpanel.getUndoManager()
                         .pushAction(mpanel.getModelEditorManager().getModelEditor().mirror((byte) 2,
@@ -2262,7 +2262,7 @@ public class MainPanel extends JPanel
                         final ModelPanel modelPanel = currentModelPanel();
                         if (modelPanel != null) {
                             final Viewport viewport = activeViewportWatcher.getViewport();
-                            final Vertex facingVector = viewport == null ? new Vertex(0, 0, 1)
+                            final Vertex3 facingVector = viewport == null ? new Vertex3(0, 0, 1)
                                     : viewport.getFacingVector();
                             final UndoAction createFaceFromSelection = modelPanel.getModelEditorManager()
                                     .getModelEditor().createFaceFromSelection(facingVector);
@@ -2743,7 +2743,7 @@ public class MainPanel extends JPanel
                                 final JButton[] colorButtons = new JButton[3];
                                 final Color[] colors = new Color[colorButtons.length];
                                 for (int i = 0; i < colorButtons.length; i++) {
-                                    final Vertex colorValues = particle.getSegmentColor(i);
+                                    final Vertex3 colorValues = particle.getSegmentColor(i);
                                     final Color color = new Color((int) (colorValues.z * 255), (int) (colorValues.y * 255),
                                             (int) (colorValues.x * 255));
 
@@ -2808,11 +2808,11 @@ public class MainPanel extends JPanel
                                         "Add " + basicName, JOptionPane.OK_CANCEL_OPTION);
                                 if (x == JOptionPane.OK_OPTION) {
                                     // do stuff
-                                    particle.setPivotPoint(new Vertex(((Number) xSpinner.getValue()).doubleValue(),
+                                    particle.setPivotPoint(new Vertex3(((Number) xSpinner.getValue()).doubleValue(),
                                             ((Number) ySpinner.getValue()).doubleValue(),
                                             ((Number) zSpinner.getValue()).doubleValue()));
                                     for (int i = 0; i < colors.length; i++) {
-                                        particle.setSegmentColor(i, new Vertex(colors[i].getBlue() / 255.00,
+                                        particle.setSegmentColor(i, new Vertex3(colors[i].getBlue() / 255.00,
                                                 colors[i].getGreen() / 255.00, colors[i].getRed() / 255.00));
                                     }
                                     final IdObject parentChoice = parent.getItemAt(parent.getSelectedIndex());
@@ -2986,7 +2986,7 @@ public class MainPanel extends JPanel
                 }
                 snapshotModel.getIdObjects().clear();
                 final Bone boneRoot = new Bone("Bone_Root");
-                boneRoot.setPivotPoint(new Vertex(0, 0, 0));
+                boneRoot.setPivotPoint(new Vertex3(0, 0, 0));
                 snapshotModel.add(boneRoot);
                 for (final Geoset geoset : snapshotModel.getGeosets()) {
                     for (final GeosetVertex vertex : geoset.getVertices()) {
@@ -3250,12 +3250,12 @@ public class MainPanel extends JPanel
                             final int blue = Integer.parseInt(data.substring(18, 21));
                             final int alpha = Integer.parseInt(data.substring(21, 24));
                             final GeosetAnim forceGetGeosetAnim = geo.forceGetGeosetAnim();
-                            forceGetGeosetAnim.setStaticColor(new Vertex(blue / 255.0, green / 255.0, red / 255.0));
+                            forceGetGeosetAnim.setStaticColor(new Vertex3(blue / 255.0, green / 255.0, red / 255.0));
                             forceGetGeosetAnim.setStaticAlpha(alpha / 255.0);
                             System.out.println(x + "," + y + "," + z);
 
-                            final Mesh mesh = ModelUtils.createBox(new Vertex(x * 10, y * 10, z * 10),
-                                    new Vertex((x * 10) + (sX * 10), (y * 10) + (sY * 10), (z * 10) + (sZ * 10)), 1, 1,
+                            final Mesh mesh = ModelUtils.createBox(new Vertex3(x * 10, y * 10, z * 10),
+                                    new Vertex3((x * 10) + (sX * 10), (y * 10) + (sY * 10), (z * 10) + (sZ * 10)), 1, 1,
                                     1, geo);
                             geo.getVertices().addAll(mesh.getVertices());
                             geo.getTriangles().addAll(mesh.getTriangles());
@@ -4431,10 +4431,10 @@ public class MainPanel extends JPanel
                             trans.setInterpType(InterpolationType.LINEAR);
                             b.getAnimFlags().add(trans);
                         }
-                        trans.addEntry(birth.getStart(), new Vertex(0, 0, -300));
-                        trans.addEntry(birth.getEnd(), new Vertex(0, 0, 0));
-                        trans.addEntry(death.getStart(), new Vertex(0, 0, 0));
-                        trans.addEntry(death.getEnd(), new Vertex(0, 0, -300));
+                        trans.addEntry(birth.getStart(), new Vertex3(0, 0, -300));
+                        trans.addEntry(birth.getEnd(), new Vertex3(0, 0, 0));
+                        trans.addEntry(death.getStart(), new Vertex3(0, 0, 0));
+                        trans.addEntry(death.getEnd(), new Vertex3(0, 0, -300));
                     }
                 }
 
@@ -4777,7 +4777,7 @@ public class MainPanel extends JPanel
                 if (userChoice != JOptionPane.OK_OPTION) {
                     return;
                 }
-                ModelUtils.createBox(mdl, new Vertex(64, 64, 128), new Vertex(-64, -64, 0),
+                ModelUtils.createBox(mdl, new Vertex3(64, 64, 128), new Vertex3(-64, -64, 0),
                         ((Number) spinner.getValue()).intValue());
             } else if (createPlaneButton.isSelected()) {
                 final SpinnerNumberModel sModel = new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1);
@@ -4787,7 +4787,7 @@ public class MainPanel extends JPanel
                 if (userChoice != JOptionPane.OK_OPTION) {
                     return;
                 }
-                ModelUtils.createGroundPlane(mdl, new Vertex(64, 64, 0), new Vertex(-64, -64, 0),
+                ModelUtils.createGroundPlane(mdl, new Vertex3(64, 64, 0), new Vertex3(-64, -64, 0),
                         ((Number) spinner.getValue()).intValue());
             }
             final ModelPanel temp = new ModelPanel(this, mdl, prefs, MainPanel.this, selectionItemTypeGroup,
@@ -5373,28 +5373,28 @@ public class MainPanel extends JPanel
 
         final int groundOffset = aspectRatio > 1 ? (128 - displayHeight) / 2 : 0;
         final GeosetVertex upperLeft = new GeosetVertex(0, displayWidth / 2, displayHeight + groundOffset,
-                new Vertex(0, 0, 1));
-        final TVertex upperLeftTVert = new TVertex(1, 0);
+                new Vertex3(0, 0, 1));
+        final Vertex2 upperLeftTVert = new Vertex2(1, 0);
         upperLeft.addTVertex(upperLeftTVert);
         newGeoset.add(upperLeft);
         upperLeft.setGeoset(newGeoset);
 
         final GeosetVertex upperRight = new GeosetVertex(0, -displayWidth / 2, displayHeight + groundOffset,
-                new Vertex(0, 0, 1));
+                new Vertex3(0, 0, 1));
         newGeoset.add(upperRight);
-        final TVertex upperRightTVert = new TVertex(0, 0);
+        final Vertex2 upperRightTVert = new Vertex2(0, 0);
         upperRight.addTVertex(upperRightTVert);
         upperRight.setGeoset(newGeoset);
 
-        final GeosetVertex lowerLeft = new GeosetVertex(0, displayWidth / 2, groundOffset, new Vertex(0, 0, 1));
+        final GeosetVertex lowerLeft = new GeosetVertex(0, displayWidth / 2, groundOffset, new Vertex3(0, 0, 1));
         newGeoset.add(lowerLeft);
-        final TVertex lowerLeftTVert = new TVertex(1, 1);
+        final Vertex2 lowerLeftTVert = new Vertex2(1, 1);
         lowerLeft.addTVertex(lowerLeftTVert);
         lowerLeft.setGeoset(newGeoset);
 
-        final GeosetVertex lowerRight = new GeosetVertex(0, -displayWidth / 2, groundOffset, new Vertex(0, 0, 1));
+        final GeosetVertex lowerRight = new GeosetVertex(0, -displayWidth / 2, groundOffset, new Vertex3(0, 0, 1));
         newGeoset.add(lowerRight);
-        final TVertex lowerRightTVert = new TVertex(0, 1);
+        final Vertex2 lowerRightTVert = new Vertex2(0, 1);
         lowerRight.addTVertex(lowerRightTVert);
         lowerRight.setGeoset(newGeoset);
 

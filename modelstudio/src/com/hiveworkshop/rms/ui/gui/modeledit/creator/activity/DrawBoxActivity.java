@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator.activity;
 
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
@@ -27,7 +27,7 @@ public class DrawBoxActivity implements ModelEditorViewportActivity {
 	private final ProgramPreferences preferences;
 	private ModelEditor modelEditor;
 	private final UndoActionListener undoActionListener;
-	private final Vertex locationCalculator = new Vertex(0, 0, 0);
+	private final Vertex3 locationCalculator = new Vertex3(0, 0, 0);
 	private final ModelView modelView;
 	private SelectionView selectionView;
 	private final Graphics2DToModelElementRendererAdapter graphics2dToModelElementRendererAdapter;
@@ -151,7 +151,7 @@ public class DrawBoxActivity implements ModelEditorViewportActivity {
 		if (Math.abs(mouseEnd.x - this.mouseStart.x) >= 0.1 && Math.abs(mouseEnd.y - this.mouseStart.y) >= 0.1) {
 			if (boxAction == null) {
 				final Viewport viewport = activeViewportWatcher.getViewport();
-				final Vertex facingVector = viewport == null ? new Vertex(0, 0, 1) : viewport.getFacingVector();
+				final Vertex3 facingVector = viewport == null ? new Vertex3(0, 0, 1) : viewport.getFacingVector();
 				try {
 					boxAction = modelEditor.addBox(this.mouseStart.x, this.mouseStart.y, mouseEnd.x, mouseEnd.y, dim1,
 							dim2, facingVector, numSegsX, numSegsY, numSegsZ);

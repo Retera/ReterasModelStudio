@@ -14,7 +14,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.Matrix4;
 import com.hiveworkshop.rms.util.QuaternionRotation;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 import com.hiveworkshop.rms.util.Vertex4;
 
 public class ViewportRenderableCamera {
@@ -23,22 +23,22 @@ public class ViewportRenderableCamera {
 	private final Matrix4 rotationMatrix = new Matrix4();
 	private final Matrix4 scaleTranslateMatrix = new Matrix4();
 	private final Matrix4 translateMatrix = new Matrix4();
-	private static final Vertex f = new Vertex();
-	private static final Vertex u = new Vertex();
-	private static final Vertex s = new Vertex();
-	private static final Vertex start = new Vertex(0, 0, 0);
-	private static final Vertex end = new Vertex(0, 0, 0);
-	private static final Vertex startVector = new Vertex(0, 0, 0);
-	private static final Vertex endVector = new Vertex(0, 0, 0);
-	private static final Vertex delta = new Vertex(0, 0, 0);
-	private static final Vertex vector3heap = new Vertex(0, 0, 0);
-	private static final Vertex Z_DIMENSION = new Vertex(0, 0, 1);
+	private static final Vertex3 f = new Vertex3();
+	private static final Vertex3 u = new Vertex3();
+	private static final Vertex3 s = new Vertex3();
+	private static final Vertex3 start = new Vertex3(0, 0, 0);
+	private static final Vertex3 end = new Vertex3(0, 0, 0);
+	private static final Vertex3 startVector = new Vertex3(0, 0, 0);
+	private static final Vertex3 endVector = new Vertex3(0, 0, 0);
+	private static final Vertex3 delta = new Vertex3(0, 0, 0);
+	private static final Vertex3 vector3heap = new Vertex3(0, 0, 0);
+	private static final Vertex3 Z_DIMENSION = new Vertex3(0, 0, 1);
 	private static final QuaternionRotation quatHeap = new QuaternionRotation();
 	private static final QuaternionRotation quatRotHeap = new QuaternionRotation(0, 0, 0, 0);
 	private static final Vertex4 vectorHeap = new Vertex4();
-	private static final Vertex ZEROES = new Vertex(0, 0, 0);
-	private static final Vertex ONES = new Vertex(1, 1, 1);
-	private static final Vertex quatRotAxisHeap = new Vertex(0, 0, 0);
+	private static final Vertex3 ZEROES = new Vertex3(0, 0, 0);
+	private static final Vertex3 ONES = new Vertex3(1, 1, 1);
+	private static final Vertex3 quatRotAxisHeap = new Vertex3(0, 0, 0);
 
 	public ViewportRenderableCamera() {
 		EditableModel camera;
@@ -53,14 +53,14 @@ public class ViewportRenderableCamera {
 		cameraModel = camera;
 	}
 
-	private void lookAt(final Vertex eye, final Vertex center, final Vertex up) {
-		Vertex.sub(center, eye, f);
+	private void lookAt(final Vertex3 eye, final Vertex3 center, final Vertex3 up) {
+		Vertex3.sub(center, eye, f);
 		f.normalize();
 		u.set(up);
 		u.normalize();
-		Vertex.cross(f, u, s);
+		Vertex3.cross(f, u, s);
 		s.normalize();
-		Vertex.cross(s, f, u);
+		Vertex3.cross(s, f, u);
 
 		rotationMatrix.setIdentity();
 		rotationMatrix.m00 = f.x;
@@ -116,9 +116,9 @@ public class ViewportRenderableCamera {
 					vectorHeap.w = 1;
 					Matrix4.transform(scaleTranslateMatrix, vectorHeap, vectorHeap);
 					points[i].x = (int) coordinateSystem
-							.convertX(Vertex.getCoord(vectorHeap, coordinateSystem.getPortFirstXYZ()));
+							.convertX(Vertex3.getCoord(vectorHeap, coordinateSystem.getPortFirstXYZ()));
 					points[i].y = (int) coordinateSystem
-							.convertY(Vertex.getCoord(vectorHeap, coordinateSystem.getPortSecondXYZ()));
+							.convertY(Vertex3.getCoord(vectorHeap, coordinateSystem.getPortSecondXYZ()));
 				}
 				graphics.drawLine(points[0].x, points[0].y, points[1].x, points[1].y);
 				graphics.drawLine(points[2].x, points[2].y, points[1].x, points[1].y);

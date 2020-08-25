@@ -1,16 +1,16 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor;
 
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 
 public final class StaticMeshMoveAction implements GenericMoveAction {
 	private final ModelEditor modelEditor;
-	private final Vertex moveVector;
+	private final Vertex3 moveVector;
 
-	public StaticMeshMoveAction(final ModelEditor modelEditor, final Vertex moveVector) {
+	public StaticMeshMoveAction(final ModelEditor modelEditor, final Vertex3 moveVector) {
 		this.modelEditor = modelEditor;
-		this.moveVector = new Vertex(moveVector);
+		this.moveVector = new Vertex3(moveVector);
 	}
 
 	@Override

@@ -20,7 +20,7 @@ public class MathUtils {
 		return a + (t * (b - a));
 	}
 
-	public static Vertex lerp(final Vertex out, final Vertex a, final Vertex b, final double t) {
+	public static Vertex3 lerp(final Vertex3 out, final Vertex3 a, final Vertex3 b, final double t) {
 		out.set(MathUtils.lerp(a.x, b.x, t), MathUtils.lerp(a.y, b.y, t), MathUtils.lerp(a.z, b.z, t));
 		return out;
 	}
@@ -56,8 +56,8 @@ public class MathUtils {
 
 	// copied from ghostwolf and
 	// https://www.blend4web.com/api_doc/libs_gl-matrix2.js.html
-	public static void fromRotationTranslationScaleOrigin(final QuaternionRotation q, final Vertex v, final Vertex s,
-			final Matrix4 out, final Vertex pivot) {
+	public static void fromRotationTranslationScaleOrigin(final QuaternionRotation q, final Vertex3 v, final Vertex3 s,
+			final Matrix4 out, final Vertex3 pivot) {
 		final float x = q.x;
 		final float y = q.y;
 		final float z = q.z;
@@ -97,7 +97,7 @@ public class MathUtils {
 
 	// copied from
 	// https://www.blend4web.com/api_doc/libs_gl-matrix2.js.html
-	public static void fromRotationTranslationScale(final QuaternionRotation q, final Vertex v, final Vertex s,
+	public static void fromRotationTranslationScale(final QuaternionRotation q, final Vertex3 v, final Vertex3 s,
 			final Matrix4 out) {
 		final float x = q.x;
 		final float y = q.y;

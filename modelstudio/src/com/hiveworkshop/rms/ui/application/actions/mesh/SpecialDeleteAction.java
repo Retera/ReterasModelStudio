@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public class SpecialDeleteAction extends DeleteAction {
 
@@ -16,7 +16,7 @@ public class SpecialDeleteAction extends DeleteAction {
 	private final EditableModel parent;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 
-	public SpecialDeleteAction(final Collection<? extends Vertex> selection, final List<Triangle> deletedTris,
+	public SpecialDeleteAction(final Collection<? extends Vertex3> selection, final List<Triangle> deletedTris,
 			final VertexSelectionHelper vertexSelectionHelper, final List<Geoset> deletedGs, final EditableModel parentModel,
 			final ModelStructureChangeListener modelStructureChangeListener) {
 		super(selection, deletedTris, vertexSelectionHelper);

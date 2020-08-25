@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff;
 
 import com.hiveworkshop.rms.editor.model.AnimFlag;
 import com.hiveworkshop.rms.util.QuaternionRotation;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 
 /**
  * Aiming to copy some behaviors from Mdlvis with this
@@ -35,8 +35,8 @@ public class TTan {
 				tang.outTan = Double.valueOf(0);
 				break;
 			case 3:
-				tang.inTan = new Vertex(0, 0, 0);
-				tang.outTan = new Vertex(0, 0, 0);
+				tang.inTan = new Vertex3(0, 0, 0);
+				tang.outTan = new Vertex3(0, 0, 0);
 				break;
 			case 4:
 				tang.inTan = new QuaternionRotation(0, 0, 0, 0);
@@ -234,8 +234,8 @@ public class TTan {
 	public static Object assignSubscript(final Object value, final int index, final Object newValue) {
 		if ((value instanceof Double) || (value instanceof Integer)) {
 			return newValue;
-		} else if (value instanceof Vertex) {
-			((Vertex) value).setCoord((byte) index, ((Number) newValue).doubleValue());
+		} else if (value instanceof Vertex3) {
+			((Vertex3) value).setCoord((byte) index, ((Number) newValue).doubleValue());
 			return value;
 		} else if (value instanceof QuaternionRotation) {
 			((QuaternionRotation) value).setCoord((byte) index, ((Number) newValue).floatValue());
@@ -247,8 +247,8 @@ public class TTan {
 	public static Number getSubscript(final Object value, final int index) {
 		if ((value instanceof Number)) {
 			return (Number) value;
-		} else if (value instanceof Vertex) {
-			return ((Vertex) value).getCoord((byte) index);
+		} else if (value instanceof Vertex3) {
+			return ((Vertex3) value).getCoord((byte) index);
 		} else if (value instanceof QuaternionRotation) {
 			return ((QuaternionRotation) value).getCoord((byte) index);
 		}
@@ -350,7 +350,7 @@ public class TTan {
 	public static int getSizeOfElement(final Object value) {
 		if ((value instanceof Number)) {
 			return 1;
-		} else if (value instanceof Vertex) {
+		} else if (value instanceof Vertex3) {
 			return 3;
 		} else if (value instanceof QuaternionRotation) {
 			return 4;

@@ -58,7 +58,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Matrix4;
 import com.hiveworkshop.rms.util.QuaternionRotation;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 import com.hiveworkshop.rms.util.Vertex4;
 
 public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> {
@@ -102,7 +102,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	@Override
-	public void selectByVertices(final Collection<? extends Vertex> newSelection) {
+	public void selectByVertices(final Collection<? extends Vertex3> newSelection) {
 		final Set<IdObject> newlySelectedObjects = new HashSet<>();
 		for (final IdObject object : model.getEditableIdObjects()) {
 			if (newSelection.contains(object.getPivotPoint())) {
@@ -146,7 +146,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 				@Override
 				public void collisionShape(final CollisionShape collisionShape) {
-					for (final Vertex vertex : collisionShape.getVertices()) {
+					for (final Vertex3 vertex : collisionShape.getVertices()) {
 						if (newSelection.contains(vertex)) {
 							newlySelectedObjects.add(collisionShape);
 						}
@@ -239,7 +239,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	private static final Vertex4 pivotHeap = new Vertex4();
 
-	public static void hitTest(final List<IdObject> selectedItems, final Rectangle2D area, final Vertex geosetVertex,
+	public static void hitTest(final List<IdObject> selectedItems, final Rectangle2D area, final Vertex3 geosetVertex,
 			final CoordinateSystem coordinateSystem, final double vertexSize, final IdObject object,
 			final RenderModel renderModel) {
 		final RenderNode renderNode = renderModel.getRenderNode(object);
@@ -254,9 +254,9 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		final double minY = coordinateSystem.convertY(area.getMinY());
 		final double maxX = coordinateSystem.convertX(area.getMaxX());
 		final double maxY = coordinateSystem.convertY(area.getMaxY());
-		final double vertexX = Vertex.getCoord(pivotHeap, dim1);
+		final double vertexX = Vertex3.getCoord(pivotHeap, dim1);
 		final double x = coordinateSystem.convertX(vertexX);
-		final double vertexY = Vertex.getCoord(pivotHeap, dim2);
+		final double vertexY = Vertex3.getCoord(pivotHeap, dim2);
 		final double y = coordinateSystem.convertY(vertexY);
 		if ((distance(x, y, minX, minY) <= (vertexSize / 2.0)) || (distance(x, y, maxX, maxY) <= (vertexSize / 2.0))
 				|| area.contains(vertexX, vertexY)) {
@@ -264,15 +264,15 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		}
 	}
 
-	public static boolean hitTest(final Vertex vertex, final Point2D point, final CoordinateSystem coordinateSystem,
+	public static boolean hitTest(final Vertex3 vertex, final Point2D point, final CoordinateSystem coordinateSystem,
 			final double vertexSize, final Matrix4 worldMatrix) {
 		pivotHeap.x = (float) vertex.x;
 		pivotHeap.y = (float) vertex.y;
 		pivotHeap.z = (float) vertex.z;
 		pivotHeap.w = 1;
 		Matrix4.transform(worldMatrix, pivotHeap, pivotHeap);
-		final double x = coordinateSystem.convertX(Vertex.getCoord(pivotHeap, coordinateSystem.getPortFirstXYZ()));
-		final double y = coordinateSystem.convertY(Vertex.getCoord(pivotHeap, coordinateSystem.getPortSecondXYZ()));
+		final double x = coordinateSystem.convertX(Vertex3.getCoord(pivotHeap, coordinateSystem.getPortFirstXYZ()));
+		final double y = coordinateSystem.convertY(Vertex3.getCoord(pivotHeap, coordinateSystem.getPortSecondXYZ()));
 		final double px = coordinateSystem.convertX(point.getX());
 		final double py = coordinateSystem.convertY(point.getY());
 		return Point2D.distance(px, py, x, y) <= (vertexSize / 2.0);
@@ -589,13 +589,13 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	public UndoAction addVertex(final double x, final double y, final double z,
-			final Vertex preferredNormalFacingVector) {
+			final Vertex3 preferredNormalFacingVector) {
 		throw new WrongModeException("Unable to add vertices in Animation Editor");
 	}
 
 	@Override
 	public GenericMoveAction addPlane(final double x, final double y, final double x2, final double y2, final byte dim1,
-                                      final byte dim2, final Vertex facingVector, final int numberOfWidthSegments,
+                                      final byte dim2, final Vertex3 facingVector, final int numberOfWidthSegments,
                                       final int numberOfHeightSegments) {
 		throw new WrongModeException("Unable to add plane in Animation Editor");
 	}
@@ -607,7 +607,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	public void rawScale(final double centerX, final double centerY, final double centerZ, final double scaleX,
-			final double scaleY, final double scaleZ, final Map<IdObject, Vertex> nodeToLocalScale) {
+			final double scaleY, final double scaleZ, final Map<IdObject, Vertex3> nodeToLocalScale) {
 		for (final IdObject idObject : selectionManager.getSelection()) {
 			idObject.updateScalingKeyframe(renderModel, scaleX, scaleY, scaleZ, nodeToLocalScale.get(idObject));
 		}
@@ -618,12 +618,12 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		// throw new UnsupportedOperationException("Unable to translate directly in
 		// animation mode, use other system");
 		for (final IdObject idObject : selectionManager.getSelection()) {
-			idObject.updateTranslationKeyframe(renderModel, x, y, z, new Vertex());
+			idObject.updateTranslationKeyframe(renderModel, x, y, z, new Vertex3());
 		}
 	}
 
 	public void rawTranslate(final double x, final double y, final double z,
-			final Map<IdObject, Vertex> nodeToLocalTranslation) {
+			final Map<IdObject, Vertex3> nodeToLocalTranslation) {
 		for (final IdObject idObject : selectionManager.getSelection()) {
 			idObject.updateTranslationKeyframe(renderModel, x, y, z, nodeToLocalTranslation.get(idObject));
 		}
@@ -661,28 +661,28 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	@Override
-	public void rawRotate3d(final Vertex center, final Vertex axis, final double radians) {
+	public void rawRotate3d(final Vertex3 center, final Vertex3 axis, final double radians) {
 		throw new UnsupportedOperationException("NYI");
 	}
 
 	@Override
 	public UndoAction translate(final double x, final double y, final double z) {
-		final Vertex delta = new Vertex(x, y, z);
+		final Vertex3 delta = new Vertex3(x, y, z);
 		final StaticMeshMoveAction moveAction = new StaticMeshMoveAction(this, delta);
 		moveAction.redo();
 		return moveAction;
 	}
 
 	@Override
-	public UndoAction setPosition(final Vertex center, final double x, final double y, final double z) {
-		final Vertex delta = new Vertex(x - center.x, y - center.y, z - center.z);
+	public UndoAction setPosition(final Vertex3 center, final double x, final double y, final double z) {
+		final Vertex3 delta = new Vertex3(x - center.x, y - center.y, z - center.z);
 		final StaticMeshMoveAction moveAction = new StaticMeshMoveAction(this, delta);
 		moveAction.redo();
 		return moveAction;
 	}
 
 	@Override
-	public UndoAction rotate(final Vertex center, final double rotateX, final double rotateY, final double rotateZ) {
+	public UndoAction rotate(final Vertex3 center, final double rotateX, final double rotateY, final double rotateZ) {
 		throw new UnsupportedOperationException("Not yet implemented for animation editing");
 		// final CompoundAction compoundAction = new CompoundAction("rotate",
 		// ListView.Util.of(new StaticMeshRotateAction(this, center, rotateX, (byte) 0,
@@ -694,7 +694,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	@Override
-	public Vertex getSelectionCenter() {
+	public Vertex3 getSelectionCenter() {
 		return selectionManager.getCenter();
 	}
 
@@ -859,13 +859,13 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	@Override
-	public UndoAction createFaceFromSelection(final Vertex preferredFacingVector) {
+	public UndoAction createFaceFromSelection(final Vertex3 preferredFacingVector) {
 		throw new WrongModeException("Unable to create face in animation editor");
 	}
 
 	@Override
 	public GenericMoveAction addBox(final double x, final double y, final double x2, final double y2, final byte dim1,
-			final byte dim2, final Vertex facingVector, final int numberOfLengthSegments,
+			final byte dim2, final Vertex3 facingVector, final int numberOfLengthSegments,
 			final int numberOfWidthSegments, final int numberOfHeightSegments) {
 		throw new WrongModeException("Unable to create box in animation editor");
 	}

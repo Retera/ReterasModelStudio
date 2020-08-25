@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 
 /**
  * Undoable snap action.
@@ -12,15 +12,15 @@ import com.hiveworkshop.rms.util.Vertex;
  * Eric Theller 6/11/2012
  */
 public class SnapNormalsAction implements UndoAction {
-	List<Vertex> oldSelLocs;
-	List<Vertex> selection;
-	Vertex snapPoint;
+	List<Vertex3> oldSelLocs;
+	List<Vertex3> selection;
+	Vertex3 snapPoint;
 
-	public SnapNormalsAction(final List<Vertex> selection, final List<Vertex> oldSelLocs,
-			final Vertex snapPoint) {
-		this.selection = new ArrayList<Vertex>(selection);
+	public SnapNormalsAction(final List<Vertex3> selection, final List<Vertex3> oldSelLocs,
+			final Vertex3 snapPoint) {
+		this.selection = new ArrayList<Vertex3>(selection);
 		this.oldSelLocs = oldSelLocs;
-		this.snapPoint = new Vertex(snapPoint);
+		this.snapPoint = new Vertex3(snapPoint);
 	}
 
 	@Override

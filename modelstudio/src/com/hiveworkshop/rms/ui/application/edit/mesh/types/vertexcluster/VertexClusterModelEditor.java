@@ -37,11 +37,11 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisito
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public final class VertexClusterModelEditor extends AbstractModelEditor<VertexClusterModelEditor.VertexGroupBundle> {
 	private final ProgramPreferences programPreferences;
-	private final Map<Vertex, Integer> vertexToClusterId = new HashMap<>();
+	private final Map<Vertex3, Integer> vertexToClusterId = new HashMap<>();
 	private final VertexClusterDefinitions vertexClusterDefinitions;
 
 	public VertexClusterModelEditor(final ModelView model, final ProgramPreferences programPreferences,
@@ -277,7 +277,7 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexCl
 	}
 
 	@Override
-	public void selectByVertices(final Collection<? extends Vertex> newSelection) {
+	public void selectByVertices(final Collection<? extends Vertex3> newSelection) {
 		final List<VertexGroupBundle> newSelectionGroups = new ArrayList<>();
 		for (final Geoset geoset : model.getEditableGeosets()) {
 			for (final GeosetVertex geosetVertex : geoset.getVertices()) {
@@ -336,13 +336,13 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexCl
 	}
 
 	@Override
-	public UndoAction createFaceFromSelection(final Vertex preferredFacingVector) {
+	public UndoAction createFaceFromSelection(final Vertex3 preferredFacingVector) {
 		throw new WrongModeException("Unable to create face from vertices in vertex group selection mode");
 	}
 
 	@Override
 	public UndoAction addVertex(final double x, final double y, final double z,
-			final Vertex preferredNormalFacingVector) {
+			final Vertex3 preferredNormalFacingVector) {
 		throw new WrongModeException("Unable to draw vertices in vertex group selection mode");
 	}
 

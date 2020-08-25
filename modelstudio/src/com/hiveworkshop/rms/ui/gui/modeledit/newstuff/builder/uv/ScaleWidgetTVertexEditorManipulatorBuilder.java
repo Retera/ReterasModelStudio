@@ -1,21 +1,26 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.uv;
 
-import com.hiveworkshop.rms.editor.model.TVertex;
+import java.awt.Graphics2D;
+import java.awt.Point;
+
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.selection.ViewportSelectionHandler;
 import com.hiveworkshop.rms.ui.application.edit.uv.widgets.TVertexScalerWidget;
 import com.hiveworkshop.rms.ui.application.edit.uv.widgets.TVertexScalerWidget.ScaleDirection;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv.*;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv.ScaleTVertexManipulator;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv.ScaleTVertexManipulatorUsesYMouseDrag;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv.ScaleXTVertexManipulator;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv.ScaleXYTVertexManipulator;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv.ScaleYTVertexManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-
-import java.awt.*;
+import com.hiveworkshop.rms.util.Vertex2;
 
 public final class ScaleWidgetTVertexEditorManipulatorBuilder extends AbstractSelectAndEditTVertexEditorManipulatorBuilder {
-	private final TVertexScalerWidget moverWidget = new TVertexScalerWidget(new TVertex(0, 0));
+	private final TVertexScalerWidget moverWidget = new TVertexScalerWidget(new Vertex2(0, 0));
 
 	public ScaleWidgetTVertexEditorManipulatorBuilder(final TVertexEditor modelEditor,
 			final ViewportSelectionHandler viewportSelectionHandler, final ProgramPreferences programPreferences,
@@ -24,7 +29,7 @@ public final class ScaleWidgetTVertexEditorManipulatorBuilder extends AbstractSe
 	}
 
 	@Override
-	protected boolean widgetOffersEdit(final TVertex selectionCenter, final Point mousePoint,
+	protected boolean widgetOffersEdit(final Vertex2 selectionCenter, final Point mousePoint,
 			final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
 		final ScaleDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem,
@@ -34,7 +39,7 @@ public final class ScaleWidgetTVertexEditorManipulatorBuilder extends AbstractSe
 	}
 
 	@Override
-	protected Manipulator createManipulatorFromWidget(final TVertex selectionCenter, final Point mousePoint,
+	protected Manipulator createManipulatorFromWidget(final Vertex2 selectionCenter, final Point mousePoint,
                                                       final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
 		final ScaleDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem,
@@ -58,7 +63,7 @@ public final class ScaleWidgetTVertexEditorManipulatorBuilder extends AbstractSe
 	}
 
 	@Override
-	protected Manipulator createDefaultManipulator(final TVertex selectionCenter, final Point mousePoint,
+	protected Manipulator createDefaultManipulator(final Vertex2 selectionCenter, final Point mousePoint,
 			final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
 		return new ScaleTVertexManipulator(getModelEditor(), selectionView);
 	}

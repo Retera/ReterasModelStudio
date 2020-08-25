@@ -25,7 +25,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.VertexFilter;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public class UVViewportModelRenderer implements MeshVisitor {
 	private Graphics2D graphics;
@@ -154,7 +154,7 @@ public class UVViewportModelRenderer implements MeshVisitor {
 	 * @param extraHighlightPoint
 	 */
 	public static void drawFittedTriangles(final EditableModel model, final Graphics g, final Rectangle bounds, final byte a,
-										   final byte b, final VertexFilter<? super GeosetVertex> filter, final Vertex extraHighlightPoint) {
+										   final byte b, final VertexFilter<? super GeosetVertex> filter, final Vertex3 extraHighlightPoint) {
 		final List<Triangle> triangles = new ArrayList<>();
 		double minX = Double.MAX_VALUE;
 		double maxX = Double.MIN_VALUE;

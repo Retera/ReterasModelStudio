@@ -9,7 +9,7 @@ import com.hiveworkshop.rms.parsers.mdlx.MdlxCamera;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.QuaternionRotation;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 
 /**
  * Camera class, these are the things most people would think of as a particle
@@ -21,11 +21,11 @@ import com.hiveworkshop.rms.util.Vertex;
  */
 public class Camera implements Named {
 	String name;
-	Vertex position;
+	Vertex3 position;
 	double fieldOfView;
 	double farClip;
 	double nearClip;
-	Vertex targetPosition;
+	Vertex3 targetPosition;
 	List<AnimFlag> targetAnimFlags = new ArrayList<>();
 	final SourceNode sourceNode = new SourceNode(this);
 	final TargetNode targetNode = new TargetNode(this);
@@ -33,11 +33,11 @@ public class Camera implements Named {
 
 	public Camera(final MdlxCamera camera) {
 		name = camera.name;
-		position = new Vertex(camera.position);
+		position = new Vertex3(camera.position);
 		fieldOfView = camera.fieldOfView;
 		farClip = camera.farClippingPlane;
 		nearClip = camera.nearClippingPlane;
-		targetPosition = new Vertex(camera.targetPosition);
+		targetPosition = new Vertex3(camera.targetPosition);
 
 		for (final MdlxTimeline<?> timeline : camera.timelines) {
 			if (timeline.name == AnimationMap.KTTR.getWar3id()) {
@@ -73,11 +73,11 @@ public class Camera implements Named {
 		return name;
 	}
 
-	public Vertex getPosition() {
+	public Vertex3 getPosition() {
 		return position;
 	}
 
-	public void setPosition(final Vertex position) {
+	public void setPosition(final Vertex3 position) {
 		this.position = position;
 	}
 
@@ -105,11 +105,11 @@ public class Camera implements Named {
 		this.nearClip = nearClip;
 	}
 
-	public Vertex getTargetPosition() {
+	public Vertex3 getTargetPosition() {
 		return targetPosition;
 	}
 
-	public void setTargetPosition(final Vertex targetPosition) {
+	public void setTargetPosition(final Vertex3 targetPosition) {
 		this.targetPosition = targetPosition;
 	}
 
@@ -125,7 +125,7 @@ public class Camera implements Named {
 		private static final QuaternionRotation rotationHeap = new QuaternionRotation(0, 0, 0, 1);
 		
 		private final Camera parent;
-		private final Vertex axisHeap = new Vertex(0, 0, 0);
+		private final Vertex3 axisHeap = new Vertex3(0, 0, 0);
 
 		private SourceNode(final Camera parent) {
 			this.parent = parent;
@@ -137,7 +137,7 @@ public class Camera implements Named {
 		}
 
 		@Override
-		public Vertex getPivotPoint() {
+		public Vertex3 getPivotPoint() {
 			return parent.position;
 		}
 
@@ -163,10 +163,10 @@ public class Camera implements Named {
 				final Object interpolated = translationFlag.interpolateAt(animatedRenderEnvironment);
 				if (interpolated instanceof Double) {
 					final Double angle = (Double) interpolated;
-					final Vertex targetTranslation = parent.targetNode.getRenderTranslation(animatedRenderEnvironment);
-					final Vertex targetPosition = parent.targetPosition;
-					final Vertex sourceTranslation = getRenderTranslation(animatedRenderEnvironment);
-					final Vertex sourcePosition = parent.position;
+					final Vertex3 targetTranslation = parent.targetNode.getRenderTranslation(animatedRenderEnvironment);
+					final Vertex3 targetPosition = parent.targetPosition;
+					final Vertex3 sourceTranslation = getRenderTranslation(animatedRenderEnvironment);
+					final Vertex3 sourcePosition = parent.position;
 					axisHeap.x = (targetPosition.x + targetTranslation.x) - (sourcePosition.x + sourceTranslation.x);
 					axisHeap.y = (targetPosition.y + targetTranslation.y) - (sourcePosition.y + sourceTranslation.y);
 					axisHeap.z = (targetPosition.z + targetTranslation.z) - (sourcePosition.z + sourceTranslation.z);
@@ -184,7 +184,7 @@ public class Camera implements Named {
 		}
 
 		@Override
-		public Vertex getRenderScale(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		public Vertex3 getRenderScale(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 			return AnimFlag.SCALE_IDENTITY;
 		}
 	}
@@ -202,7 +202,7 @@ public class Camera implements Named {
 		}
 
 		@Override
-		public Vertex getPivotPoint() {
+		public Vertex3 getPivotPoint() {
 			return parent.targetPosition;
 		}
 
@@ -227,7 +227,7 @@ public class Camera implements Named {
 		}
 
 		@Override
-		public Vertex getRenderScale(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		public Vertex3 getRenderScale(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 			return AnimFlag.SCALE_IDENTITY;
 		}
 	}

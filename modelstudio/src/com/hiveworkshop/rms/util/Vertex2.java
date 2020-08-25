@@ -1,19 +1,18 @@
-package com.hiveworkshop.rms.editor.model;
+package com.hiveworkshop.rms.util;
 
 import java.util.Collection;
 
-public class TVertex {
-	public static final TVertex ORIGIN = new TVertex(0, 0);
-	GeosetVertex parent;
+public class Vertex2 {
+	public static final Vertex2 ORIGIN = new Vertex2(0, 0);
 	public float x = 0;
 	public float y = 0;
 
-	public TVertex(final double x, final double y) {
+	public Vertex2(final double x, final double y) {
 		this.x = (float) x;
 		this.y = (float) y;
 	}
 
-	public TVertex(final TVertex old) {
+	public Vertex2(final Vertex2 old) {
 		this.x = old.x;
 		this.y = old.y;
 	}
@@ -26,30 +25,10 @@ public class TVertex {
 		this.y = (float) y;
 	}
 
-	public TVertex subtract(final TVertex other) {
+	public Vertex2 subtract(final Vertex2 other) {
 		this.x -= other.x;
 		this.y -= other.y;
 		return this;
-	}
-
-	/**
-	 * This method was designed late and is not reliable unless updated by an
-	 * outside source.
-	 *
-	 * @param gv
-	 */
-	public void setParent(final GeosetVertex gv) {
-		parent = gv;
-	}
-
-	/**
-	 * This method was designed late and is not reliable unless updated by an
-	 * outside source.
-	 *
-	 * @return
-	 */
-	public GeosetVertex getParent() {
-		return parent;
 	}
 
 	public double getCoord(final float dim) {
@@ -87,7 +66,7 @@ public class TVertex {
 		}
 	}
 
-	public void setTo(final TVertex v) {
+	public void setTo(final Vertex2 v) {
 		x = v.x;
 		y = v.y;
 	}
@@ -118,7 +97,7 @@ public class TVertex {
 	}
 
 	public static void rotateVertex(final double centerX, final double centerY, final double radians,
-			final byte firstXYZ, final byte secondXYZ, final TVertex vertex) {
+			final byte firstXYZ, final byte secondXYZ, final Vertex2 vertex) {
 		final double x1 = vertex.getCoord(firstXYZ);
 		final double y1 = vertex.getCoord(secondXYZ);
 		final double cx;// = coordinateSystem.geomX(centerX);
@@ -171,19 +150,19 @@ public class TVertex {
 		return "{ " + x + ", " + y + " }";
 	}
 
-	public static TVertex centerOfGroup(final Collection<? extends TVertex> group) {
+	public static Vertex2 centerOfGroup(final Collection<? extends Vertex2> group) {
 		double xTot = 0;
 		double yTot = 0;
-		for (final TVertex v : group) {
+		for (final Vertex2 v : group) {
 			xTot += v.getX();
 			yTot += v.getY();
 		}
 		xTot /= group.size();
 		yTot /= group.size();
-		return new TVertex(xTot, yTot);
+		return new Vertex2(xTot, yTot);
 	}
 
-	public double distance(final TVertex other) {
+	public double distance(final Vertex2 other) {
 		final double dx = other.x - x;
 		final double dy = other.y - y;
 		return Math.sqrt((dx * dx) + (dy * dy));

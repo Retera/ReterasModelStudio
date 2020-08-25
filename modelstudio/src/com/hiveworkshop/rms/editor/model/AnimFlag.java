@@ -16,7 +16,7 @@ import com.hiveworkshop.rms.ui.application.edit.animation.BasicTimeBoundProvider
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.MathUtils;
 import com.hiveworkshop.rms.util.QuaternionRotation;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 import com.hiveworkshop.rms.util.War3ID;
 
 /**
@@ -134,11 +134,11 @@ public class AnimFlag {
 							outTanAsObject = Double.valueOf(((float[])outTans[i])[0]);
 						}
 					} else if (vectorSize == 3) {
-						valueAsObject = new Vertex(valueAsArray);
+						valueAsObject = new Vertex3(valueAsArray);
 
 						if (hasTangents) {
-							inTanAsObject = new Vertex((float[])inTans[i]);
-							outTanAsObject = new Vertex((float[])outTans[i]);
+							inTanAsObject = new Vertex3((float[])inTans[i]);
+							outTanAsObject = new Vertex3((float[])outTans[i]);
 						}
 					} else {
 						valueAsObject = new QuaternionRotation(valueAsArray);
@@ -210,14 +210,14 @@ public class AnimFlag {
 						tempOutTans[i] = new float[] { 0 };
 					}
 				} else if (vectorSize == 3) {
-					tempValues[i] = ((Vertex)value).toFloatArray();
+					tempValues[i] = ((Vertex3)value).toFloatArray();
 
 					if (hasTangents) {
-						tempInTans[i] = ((Vertex)inTans.get(i)).toFloatArray();
-						tempOutTans[i] = ((Vertex)outTans.get(i)).toFloatArray();
+						tempInTans[i] = ((Vertex3)inTans.get(i)).toFloatArray();
+						tempOutTans[i] = ((Vertex3)outTans.get(i)).toFloatArray();
 					} else {
-						tempInTans[i] = (new Vertex()).toFloatArray();
-						tempOutTans[i] = (new Vertex()).toFloatArray();
+						tempInTans[i] = (new Vertex3()).toFloatArray();
+						tempOutTans[i] = (new Vertex3()).toFloatArray();
 					}
 				} else {
 					tempValues[i] = ((QuaternionRotation)value).toFloatArray();
@@ -529,9 +529,9 @@ public class AnimFlag {
 			return value;
 		} else if (value instanceof Double) {
 			return value;
-		} else if (value instanceof Vertex) {
-			final Vertex vertex = (Vertex) value;
-			final Vertex clonedVertex = new Vertex(vertex);
+		} else if (value instanceof Vertex3) {
+			final Vertex3 vertex = (Vertex3) value;
+			final Vertex3 clonedVertex = new Vertex3(vertex);
 			return clonedVertex;
 		} else if (value instanceof QuaternionRotation) {
 			final QuaternionRotation vertex = (QuaternionRotation) value;
@@ -550,9 +550,9 @@ public class AnimFlag {
 			return 0;
 		} else if (value instanceof Double) {
 			return 0.0;
-		} else if (value instanceof Vertex) {
-			final Vertex vertex = (Vertex) value;
-			final Vertex clonedVertex = new Vertex(0, 0, 0);
+		} else if (value instanceof Vertex3) {
+			final Vertex3 vertex = (Vertex3) value;
+			final Vertex3 clonedVertex = new Vertex3(0, 0, 0);
 			return clonedVertex;
 		} else if (value instanceof QuaternionRotation) {
 			final QuaternionRotation vertex = (QuaternionRotation) value;
@@ -608,8 +608,8 @@ public class AnimFlag {
 		final List<T> copy = new ArrayList<>();
 		for (final T item : source) {
 			T toAdd = item;
-			if (item instanceof Vertex) {
-				final Vertex v = (Vertex) item;
+			if (item instanceof Vertex3) {
+				final Vertex3 v = (Vertex3) item;
 				toAdd = (T) v;
 			} else if (item instanceof QuaternionRotation) {
 				final QuaternionRotation r = (QuaternionRotation) item;
@@ -659,7 +659,7 @@ public class AnimFlag {
 			// Rotation
 			for (int k = 0; k < values.size(); k++) {
 				final QuaternionRotation rot = (QuaternionRotation) values.get(k);
-				final Vertex euler = rot.toEuler();
+				final Vertex3 euler = rot.toEuler();
 				switch (axis) {
 				case 0:
 					euler.setCoord((byte) 0, -euler.getCoord((byte) 0));
@@ -678,7 +678,7 @@ public class AnimFlag {
 			}
 			for (int k = 0; k < inTans.size(); k++) {
 				final QuaternionRotation rot = (QuaternionRotation) inTans.get(k);
-				final Vertex euler = rot.toEuler();
+				final Vertex3 euler = rot.toEuler();
 				switch (axis) {
 				case 0:
 					euler.setCoord((byte) 0, -euler.getCoord((byte) 0));
@@ -697,7 +697,7 @@ public class AnimFlag {
 			}
 			for (int k = 0; k < outTans.size(); k++) {
 				final QuaternionRotation rot = (QuaternionRotation) outTans.get(k);
-				final Vertex euler = rot.toEuler();
+				final Vertex3 euler = rot.toEuler();
 				switch (axis) {
 				case 0:
 					euler.setCoord((byte) 0, -euler.getCoord((byte) 0));
@@ -717,7 +717,7 @@ public class AnimFlag {
 		} else if (typeid == 3) {
 			// Translation
 			for (int k = 0; k < values.size(); k++) {
-				final Vertex trans = (Vertex) values.get(k);
+				final Vertex3 trans = (Vertex3) values.get(k);
 				// trans.setCoord(axis,-trans.getCoord(axis));
 				switch (axis) {
 				// case 0:
@@ -741,7 +741,7 @@ public class AnimFlag {
 				}
 			}
 			for (int k = 0; k < inTans.size(); k++) {
-				final Vertex trans = (Vertex) inTans.get(k);
+				final Vertex3 trans = (Vertex3) inTans.get(k);
 				// trans.setCoord(axis,-trans.getCoord(axis));
 				switch (axis) {
 				// case 0:
@@ -765,7 +765,7 @@ public class AnimFlag {
 				}
 			}
 			for (int k = 0; k < outTans.size(); k++) {
-				final Vertex trans = (Vertex) outTans.get(k);
+				final Vertex3 trans = (Vertex3) outTans.get(k);
 				// trans.setCoord(axis,-trans.getCoord(axis));
 				switch (axis) {
 				// case 0:
@@ -1186,8 +1186,8 @@ public class AnimFlag {
 	}
 
 	public static final QuaternionRotation ROTATE_IDENTITY = new QuaternionRotation(0, 0, 0, 1);
-	public static final Vertex SCALE_IDENTITY = new Vertex(1, 1, 1);
-	public static final Vertex TRANSLATE_IDENTITY = new Vertex(0, 0, 0);
+	public static final Vertex3 SCALE_IDENTITY = new Vertex3(1, 1, 1);
+	public static final Vertex3 TRANSLATE_IDENTITY = new Vertex3(0, 0, 0);
 
 	private Object identity(final int typeid) {
 		switch (typeid) {
@@ -1386,16 +1386,16 @@ public class AnimFlag {
 		case SCALING:
 		case COLOR: {
 			// Vertex
-			final Vertex previous = (Vertex) floorValue;
-			final Vertex next = (Vertex) ceilValue;
+			final Vertex3 previous = (Vertex3) floorValue;
+			final Vertex3 next = (Vertex3) ceilValue;
 			switch (interpolationType) {
 			case BEZIER: {
-				final Vertex previousOutTan = (Vertex) floorOutTan;
-				final Vertex nextInTan = (Vertex) inTans.get(ceilIndex);
+				final Vertex3 previousOutTan = (Vertex3) floorOutTan;
+				final Vertex3 nextInTan = (Vertex3) inTans.get(ceilIndex);
 				final Integer floorTime = floorIndexTime;
 				final Integer ceilTime = ceilIndexTime;
 				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
-				final Vertex bezier = new Vertex(
+				final Vertex3 bezier = new Vertex3(
 						MathUtils.bezier(previous.x, previousOutTan.x, nextInTan.x, next.x, timeFactor),
 						MathUtils.bezier(previous.y, previousOutTan.y, nextInTan.y, next.y, timeFactor),
 						MathUtils.bezier(previous.z, previousOutTan.z, nextInTan.z, next.z, timeFactor));
@@ -1404,12 +1404,12 @@ public class AnimFlag {
 			case DONT_INTERP:
 				return floorValue;
 			case HERMITE: {
-				final Vertex previousOutTan = (Vertex) floorOutTan;
-				final Vertex nextInTan = (Vertex) inTans.get(ceilIndex);
+				final Vertex3 previousOutTan = (Vertex3) floorOutTan;
+				final Vertex3 nextInTan = (Vertex3) inTans.get(ceilIndex);
 				final Integer floorTime = floorIndexTime;
 				final Integer ceilTime = ceilIndexTime;
 				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
-				final Vertex hermite = new Vertex(
+				final Vertex3 hermite = new Vertex3(
 						MathUtils.hermite(previous.x, previousOutTan.x, nextInTan.x, next.x, timeFactor),
 						MathUtils.hermite(previous.y, previousOutTan.y, nextInTan.y, next.y, timeFactor),
 						MathUtils.hermite(previous.z, previousOutTan.z, nextInTan.z, next.z, timeFactor));
@@ -1419,7 +1419,7 @@ public class AnimFlag {
 				final Integer floorTime = floorIndexTime;
 				final Integer ceilTime = ceilIndexTime;
 				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
-				final Vertex lerp = new Vertex(MathUtils.lerp(previous.x, next.x, timeFactor),
+				final Vertex3 lerp = new Vertex3(MathUtils.lerp(previous.x, next.x, timeFactor),
 						MathUtils.lerp(previous.y, next.y, timeFactor), MathUtils.lerp(previous.z, next.z, timeFactor));
 				return lerp;
 			default:

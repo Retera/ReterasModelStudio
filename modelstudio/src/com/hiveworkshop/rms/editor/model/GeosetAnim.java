@@ -5,7 +5,7 @@ import java.util.List;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxGeosetAnimation;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 
 /**
  * The geoset anims, heaven forbid they be forgotten.
@@ -14,7 +14,7 @@ import com.hiveworkshop.rms.util.Vertex;
  */
 public class GeosetAnim extends TimelineContainer implements Named {
 	double staticAlpha = 1;
-	Vertex staticColor = new Vertex(1, 1, 1);
+	Vertex3 staticColor = new Vertex3(1, 1, 1);
 	int geosetId = -1;
 	Geoset geoset;
 	boolean dropShadow = false;
@@ -48,7 +48,7 @@ public class GeosetAnim extends TimelineContainer implements Named {
 
 		setDropShadow((flags & 1) == 1);
 
-		setStaticColor(new Vertex(ModelUtils.flipRGBtoBGR(animation.color)));
+		setStaticColor(new Vertex3(ModelUtils.flipRGBtoBGR(animation.color)));
 
 		loadTimelines(animation);
 	}
@@ -107,11 +107,11 @@ public class GeosetAnim extends TimelineContainer implements Named {
 		this.staticAlpha = staticAlpha;
 	}
 
-	public Vertex getStaticColor() {
+	public Vertex3 getStaticColor() {
 		return staticColor;
 	}
 
-	public void setStaticColor(final Vertex staticColor) {
+	public void setStaticColor(final Vertex3 staticColor) {
 		this.staticColor = staticColor;
 	}
 
@@ -154,10 +154,10 @@ public class GeosetAnim extends TimelineContainer implements Named {
 		return getRenderVisibility(animatedRenderEnvironment, (float) staticAlpha);
 	}
 
-	private static final Vertex renderColorVector = new Vertex();
+	private static final Vertex3 renderColorVector = new Vertex3();
 
-	public Vertex getRenderColor(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		final Vertex c = getInterpolatedVector(animatedRenderEnvironment, "Color", staticColor);
+	public Vertex3 getRenderColor(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final Vertex3 c = getInterpolatedVector(animatedRenderEnvironment, "Color", staticColor);
 
 		renderColorVector.x = (float) c.x;
 		renderColorVector.y = (float) c.y;

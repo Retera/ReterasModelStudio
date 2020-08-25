@@ -19,7 +19,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePic
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ComponentVisibilityListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 
 /**
  * SelectionManager should've been like this so it didn't wrap the selection in
@@ -43,18 +43,18 @@ public interface ModelEditor extends ComponentVisibilityListener {
 	// knowledge of center point from state holders
 	UndoAction translate(double x, double y, double z);
 
-	UndoAction setPosition(Vertex center, double x, double y, double z);
+	UndoAction setPosition(Vertex3 center, double x, double y, double z);
 
-	UndoAction rotate(Vertex center, double rotateX, double rotateY, double rotateZ);
+	UndoAction rotate(Vertex3 center, double rotateX, double rotateY, double rotateZ);
 
-	UndoAction addVertex(double x, double y, double z, Vertex preferredNormalFacingVector);
+	UndoAction addVertex(double x, double y, double z, Vertex3 preferredNormalFacingVector);
 
 	UndoAction addBone(double x, double y, double z);
 
-	GenericMoveAction addPlane(double x, double y, double x2, double y2, byte dim1, byte dim2, Vertex facingVector,
+	GenericMoveAction addPlane(double x, double y, double x2, double y2, byte dim1, byte dim2, Vertex3 facingVector,
 							   int numberOfWidthSegments, int numberOfHeightSegments);
 
-	GenericMoveAction addBox(double x, double y, double x2, double y2, byte dim1, byte dim2, Vertex facingVector,
+	GenericMoveAction addBox(double x, double y, double x2, double y2, byte dim1, byte dim2, Vertex3 facingVector,
 							 int numberOfLengthSegments, int numberOfWidthSegments, int numberOfHeightSegments);
 
 	UndoAction setMatrix(Collection<Bone> bones);
@@ -108,7 +108,7 @@ public interface ModelEditor extends ComponentVisibilityListener {
 	@Override
 	UndoAction showComponent(EditabilityToggleHandler editabilityToggleHandler);
 
-	void selectByVertices(Collection<? extends Vertex> newSelection);
+	void selectByVertices(Collection<? extends Vertex3> newSelection);
 
 	boolean canSelectAt(Point point, CoordinateSystem axes);
 
@@ -126,9 +126,9 @@ public interface ModelEditor extends ComponentVisibilityListener {
 
 	void rawRotate2d(double centerX, double centerY, double centerZ, double radians, byte firstXYZ, byte secondXYZ);
 
-	void rawRotate3d(Vertex center, Vertex axis, double radians);
+	void rawRotate3d(Vertex3 center, Vertex3 axis, double radians);
 
-	Vertex getSelectionCenter();
+	Vertex3 getSelectionCenter();
 
 	CopiedModelData copySelection();
 
@@ -137,5 +137,5 @@ public interface ModelEditor extends ComponentVisibilityListener {
 	// -- this is *definitely* a bit of a hack
 	boolean editorWantsAnimation();
 
-	UndoAction createFaceFromSelection(Vertex preferredFacingVector);
+	UndoAction createFaceFromSelection(Vertex3 preferredFacingVector);
 }

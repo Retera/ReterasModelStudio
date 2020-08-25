@@ -7,12 +7,12 @@ import java.util.List;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public final class FlipFacesAction implements UndoAction {
-	private final List<Vertex> selection;
+	private final List<Vertex3> selection;
 
-	public FlipFacesAction(final Collection<? extends Vertex> selection) {
+	public FlipFacesAction(final Collection<? extends Vertex3> selection) {
 		this.selection = new ArrayList<>(selection);
 	}
 
@@ -29,7 +29,7 @@ public final class FlipFacesAction implements UndoAction {
 	private void doFlip() {
 		final List<Triangle> selTris = new ArrayList<>();
 		for (int i = 0; i < selection.size(); i++) {
-			final Vertex vert = selection.get(i);
+			final Vertex3 vert = selection.get(i);
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 
@@ -47,7 +47,7 @@ public final class FlipFacesAction implements UndoAction {
 
 		for (int i = selTris.size() - 1; i >= 0; i--) {
 			boolean goodTri = true;
-			for (final Vertex v : selTris.get(i).getAll()) {
+			for (final Vertex3 v : selTris.get(i).getAll()) {
 				if (!selection.contains(v)) {
 					goodTri = false;
 				}

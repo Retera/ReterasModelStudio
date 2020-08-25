@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator;
 
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
@@ -21,13 +21,13 @@ public abstract class AbstractScaleManipulator extends AbstractManipulator {
 	@Override
 	protected void onStart(final Double mouseStart, final byte dim1, final byte dim2) {
 		super.onStart(mouseStart, dim1, dim2);
-		final Vertex center = selectionView.getCenter();
+		final Vertex3 center = selectionView.getCenter();
 		scaleAction = modelEditor.beginScaling(center.x, center.y, center.z);
 	}
 
 	@Override
 	public void update(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
-		final Vertex center = selectionView.getCenter();
+		final Vertex3 center = selectionView.getCenter();
 		final double scaleFactor = computeScaleFactor(mouseStart, mouseEnd, center, dim1, dim2);
 		scaleWithFactor(modelEditor, center, scaleFactor, dim1, dim2);
 	}
@@ -42,12 +42,12 @@ public abstract class AbstractScaleManipulator extends AbstractManipulator {
 		return scaleAction;
 	}
 
-	protected abstract void scaleWithFactor(final ModelEditor modelEditor, final Vertex center,
+	protected abstract void scaleWithFactor(final ModelEditor modelEditor, final Vertex3 center,
 											final double scaleFactor, byte dim1, byte dim2);
 
-	protected abstract Vertex buildScaleVector(final double scaleFactor, byte dim1, byte dim2);
+	protected abstract Vertex3 buildScaleVector(final double scaleFactor, byte dim1, byte dim2);
 
-	protected double computeScaleFactor(final Double startingClick, final Double endingClick, final Vertex center,
+	protected double computeScaleFactor(final Double startingClick, final Double endingClick, final Vertex3 center,
 										final byte dim1, final byte dim2) {
 		double dxs = endingClick.x - center.getCoord(dim1);
 		double dys = endingClick.y - center.getCoord(dim2);

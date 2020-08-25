@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor;
 
-import com.hiveworkshop.rms.util.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 
@@ -9,9 +9,9 @@ public class ScaleAction implements UndoAction {
 	private final double scaleX;
 	private final double scaleY;
 	private final double scaleZ;
-	private final Vertex center;
+	private final Vertex3 center;
 
-	public ScaleAction(final ModelEditor modelEditor, final Vertex center, final double scaleX, final double scaleY,
+	public ScaleAction(final ModelEditor modelEditor, final Vertex3 center, final double scaleX, final double scaleY,
 			final double scaleZ) {
 		this.modelEditor = modelEditor;
 		this.center = center;
