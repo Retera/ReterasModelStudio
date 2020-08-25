@@ -5,9 +5,8 @@ import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.Matrix4;
 import com.hiveworkshop.rms.editor.model.QuaternionRotation;
 import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.editor.model.Vertex4;
 import com.hiveworkshop.rms.util.MathUtils;
-
-import org.lwjgl.util.vector.Vector4f;
 
 public final class RenderNode {
 	private final AnimatedNode idObject;
@@ -20,7 +19,7 @@ public final class RenderNode {
 	private static final Vertex locationHeap = new Vertex();
 	private static final Vertex scalingHeap = new Vertex();
 	private static final Vertex pivotHeap = new Vertex();
-	private static final Vector4f vector4Heap = new Vector4f();
+	private static final Vertex4 vector4Heap = new Vertex4();
 
 	protected final Vertex localLocation = new Vertex();
 	protected final QuaternionRotation localRotation = new QuaternionRotation();

@@ -1,7 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import org.lwjgl.util.vector.Vector4f;
-
 public class Matrix4 {
     public float m00 = 1.0f;
     public float m01 = 0.0f;
@@ -69,14 +67,14 @@ public class Matrix4 {
         this.m33 = m33;
 	}
 	
-	public static Vector4f transform(final Matrix4 a, final Vector4f b, final Vector4f out) {
-        out.x = a.m00 * b.x + a.m10 * b.y + a.m20 * b.z + a.m30 * b.w;
-		out.y = a.m01 * b.x + a.m11 * b.y + a.m21 * b.z + a.m31 * b.w;
-		out.z = a.m02 * b.x + a.m12 * b.y + a.m22 * b.z + a.m32 * b.w;
-		out.w = a.m03 * b.x + a.m13 * b.y + a.m23 * b.z + a.m33 * b.w;
+  public static Vertex4 transform(final Matrix4 a, final Vertex4 b, final Vertex4 out) {
+    out.x = a.m00 * b.x + a.m10 * b.y + a.m20 * b.z + a.m30 * b.w;
+    out.y = a.m01 * b.x + a.m11 * b.y + a.m21 * b.z + a.m31 * b.w;
+    out.z = a.m02 * b.x + a.m12 * b.y + a.m22 * b.z + a.m32 * b.w;
+    out.w = a.m03 * b.x + a.m13 * b.y + a.m23 * b.z + a.m33 * b.w;
 
-        return out;
-	}
+    return out;
+}
     
 	public void setIdentity() {
         setIdentity(this);

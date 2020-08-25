@@ -17,11 +17,10 @@ import com.hiveworkshop.rms.editor.model.Matrix4;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
 import com.hiveworkshop.rms.editor.model.QuaternionRotation;
 import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.editor.model.Vertex4;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.MathUtils;
-
-import org.lwjgl.util.vector.Vector4f;
 
 /**
  * For rendering. Copied from ghostwolf's stuff
@@ -53,15 +52,15 @@ public final class RenderModel {
 
 	// These guys form the corners of a 2x2 rectangle, for use in Ghostwolf particle
 	// emitter algorithm
-	private final Vector4f[] spacialVectors = { new Vector4f(-1, 1, 0, 1), new Vector4f(1, 1, 0, 1),
-			new Vector4f(1, -1, 0, 1), new Vector4f(-1, -1, 0, 1), new Vector4f(1, 0, 0, 1), new Vector4f(0, 1, 0, 1),
-			new Vector4f(0, 0, 1, 1) };
-	private final Vector4f[] billboardBaseVectors = { new Vector4f(0, 1, -1, 1), new Vector4f(0, -1, -1, 1),
-			new Vector4f(0, -1, 1, 1), new Vector4f(0, 1, 1, 1), new Vector4f(0, 1, 0, 1), new Vector4f(0, 0, 1, 1),
-			new Vector4f(1, 0, 0, 1) };
-	private final Vector4f[] billboardVectors = { new Vector4f(0, 1, -1, 1), new Vector4f(0, -1, -1, 1),
-			new Vector4f(0, -1, 1, 1), new Vector4f(0, 1, 1, 1), new Vector4f(0, 1, 0, 1), new Vector4f(0, 0, 1, 1),
-			new Vector4f(1, 0, 0, 1) };
+	private final Vertex4[] spacialVectors = { new Vertex4(-1, 1, 0, 1), new Vertex4(1, 1, 0, 1),
+			new Vertex4(1, -1, 0, 1), new Vertex4(-1, -1, 0, 1), new Vertex4(1, 0, 0, 1), new Vertex4(0, 1, 0, 1),
+			new Vertex4(0, 0, 1, 1) };
+	private final Vertex4[] billboardBaseVectors = { new Vertex4(0, 1, -1, 1), new Vertex4(0, -1, -1, 1),
+			new Vertex4(0, -1, 1, 1), new Vertex4(0, 1, 1, 1), new Vertex4(0, 1, 0, 1), new Vertex4(0, 0, 1, 1),
+			new Vertex4(1, 0, 0, 1) };
+	private final Vertex4[] billboardVectors = { new Vertex4(0, 1, -1, 1), new Vertex4(0, -1, -1, 1),
+			new Vertex4(0, -1, 1, 1), new Vertex4(0, 1, 1, 1), new Vertex4(0, 1, 0, 1), new Vertex4(0, 0, 1, 1),
+			new Vertex4(1, 0, 0, 1) };
 	private final ModelView modelView;
 
 	public RenderModel(final EditableModel model, final ModelView modelView) {
@@ -361,11 +360,11 @@ public final class RenderModel {
 		}
 	}
 
-	public Vector4f[] getBillboardVectors() {
+	public Vertex4[] getBillboardVectors() {
 		return billboardVectors;
 	}
 
-	public Vector4f[] getSpacialVectors() {
+	public Vertex4[] getSpacialVectors() {
 		return spacialVectors;
 	}
 

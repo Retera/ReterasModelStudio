@@ -1,13 +1,28 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers;
 
-import com.hiveworkshop.rms.editor.model.*;
+import java.awt.Color;
+import java.awt.GradientPaint;
+import java.awt.Graphics2D;
+import java.awt.Point;
+
+import com.hiveworkshop.rms.editor.model.Attachment;
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.CollisionShape;
+import com.hiveworkshop.rms.editor.model.EventObject;
+import com.hiveworkshop.rms.editor.model.Helper;
+import com.hiveworkshop.rms.editor.model.Light;
+import com.hiveworkshop.rms.editor.model.Matrix4;
+import com.hiveworkshop.rms.editor.model.ParticleEmitter;
+import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
+import com.hiveworkshop.rms.editor.model.ParticleEmitterPopcorn;
+import com.hiveworkshop.rms.editor.model.RibbonEmitter;
+import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.editor.model.Vertex4;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
-import org.lwjgl.util.vector.Vector4f;
-
-import java.awt.*;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 
 public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObjectVisitor {
 	private CoordinateSystem coordinateSystem;
@@ -133,8 +148,8 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 		System.err.println("TODO ANIMATE CAMERAS");
 	}
 
-	private static final Vector4f vertexHeap = new Vector4f();
-	private static final Vector4f vertexHeap2 = new Vector4f();
+	private static final Vertex4 vertexHeap = new Vertex4();
+	private static final Vertex4 vertexHeap2 = new Vertex4();
 
 	public static void drawLink(final Graphics2D graphics, final CoordinateSystem coordinateSystem,
 			final Vertex pivotPoint, final Vertex target, final Matrix4 worldMatrix,
@@ -158,7 +173,7 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 	}
 
 	public static void loadPivotInVertexHeap(final Vertex pivotPoint, final Matrix4 worldMatrix,
-			final Vector4f vertexHeap) {
+			final Vertex4 vertexHeap) {
 		vertexHeap.x = (float) pivotPoint.x;
 		vertexHeap.y = (float) pivotPoint.y;
 		vertexHeap.z = (float) pivotPoint.z;

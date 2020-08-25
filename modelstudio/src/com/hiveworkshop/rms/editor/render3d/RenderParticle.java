@@ -3,10 +3,9 @@ package com.hiveworkshop.rms.editor.render3d;
 import com.hiveworkshop.rms.editor.model.Matrix4;
 import com.hiveworkshop.rms.editor.model.QuaternionRotation;
 import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.editor.model.Vertex4;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.MathUtils;
-
-import org.lwjgl.util.vector.Vector4f;
 
 public class RenderParticle {
     private static final Vertex UP = new Vertex(0, 0, 1);
@@ -20,7 +19,7 @@ public class RenderParticle {
     private double health;
     private static final QuaternionRotation rotationZHeap = new QuaternionRotation();
     private static final QuaternionRotation rotationYHeap = new QuaternionRotation();
-    private static final Vector4f vector4Heap = new Vector4f();
+    private static final Vertex4 vector4Heap = new Vertex4();
     private static final Matrix4 matrixHeap = new Matrix4();
     private static final Vertex velocityTimeHeap = new Vertex();
 

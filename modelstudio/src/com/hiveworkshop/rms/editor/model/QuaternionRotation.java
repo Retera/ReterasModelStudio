@@ -1,7 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import org.lwjgl.util.vector.Vector4f;
-
 /**
  * Quaternions are the most useless thing I've ever heard of. Nevertheless, I
  * wanted a simple object to encompass four quaternion values for rotation (this
@@ -120,7 +118,7 @@ public class QuaternionRotation {
 		setFromAxisAngle(axis.x, axis.y, axis.z, angle);
 	}
 
-	public void setFromAxisAngle(final Vector4f axis) {
+	public void setFromAxisAngle(final Vertex4 axis) {
 		setFromAxisAngle(axis.x, axis.y, axis.z, axis.w);
 	}
 

@@ -2,8 +2,6 @@ package com.hiveworkshop.rms.editor.model;
 
 import java.util.Collection;
 
-import org.lwjgl.util.vector.Vector4f;
-
 public class Vertex {
 	public static final Vertex ORIGIN = new Vertex(0, 0, 0);
 	public float x = 0;
@@ -62,7 +60,7 @@ public class Vertex {
 		return 0;
 	}
 
-	public static float getCoord(final Vector4f vector, final byte dim) {
+	public static float getCoord(final Vertex4 vector, final byte dim) {
 		switch (dim) {
 		case 0:
 			return vector.x;
@@ -111,7 +109,7 @@ public class Vertex {
 		z = v.z;
 	}
 
-	public void set(final Vector4f v) {
+	public void set(final Vertex4 v) {
 		x = v.x;
 		y = v.y;
 		z = v.z;
@@ -179,18 +177,20 @@ public class Vertex {
 		return new Vertex(xTot, yTot, zTot);
 	}
 
-	public double distance(final Vertex other) {
-		final double dx = other.x - x;
-		final double dy = other.y - y;
-		final double dz = other.z - z;
+	public double distance (final float ax, final float ay, final float az) {
+		final double dx = ax - x;
+		final double dy = ay - y;
+		final double dz = az - z;
+
 		return Math.sqrt((dx * dx) + (dy * dy) + (dz * dz));
+
+	}
+	public double distance(final Vertex other) {
+		return distance(other.x, other.y, other.z);
 	}
 
-	public double distance(final Vector4f other) {
-		final double dx = other.x - x;
-		final double dy = other.y - y;
-		final double dz = other.z - z;
-		return Math.sqrt((dx * dx) + (dy * dy) + (dz * dz));
+	public double distance(final Vertex4 other) {
+		return distance(other.x, other.y, other.z);
 	}
 
 	public double vectorMagnitude() {

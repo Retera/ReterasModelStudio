@@ -10,14 +10,12 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.AddKeyframeAction;
 
-import org.lwjgl.util.vector.Vector4f;
-
 public abstract class AnimatedNode extends TimelineContainer {
-	private static final Vector4f translationHeap = new Vector4f();
+	private static final Vertex4 translationHeap = new Vertex4();
 	private static final Matrix4 matrixHeap = new Matrix4();
 	private static final QuaternionRotation rotationHeap = new QuaternionRotation();
 	private static final QuaternionRotation rotationDeltaHeap = new QuaternionRotation();
-	private static final Vector4f axisAngleHeap = new Vector4f();
+	private static final Vertex4 axisAngleHeap = new Vertex4();
 
 	abstract public AnimatedNode getParent();
 

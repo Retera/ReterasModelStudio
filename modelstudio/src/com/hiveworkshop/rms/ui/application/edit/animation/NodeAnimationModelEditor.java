@@ -27,6 +27,7 @@ import com.hiveworkshop.rms.editor.model.ParticleEmitterPopcorn;
 import com.hiveworkshop.rms.editor.model.QuaternionRotation;
 import com.hiveworkshop.rms.editor.model.RibbonEmitter;
 import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.editor.model.Vertex4;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode;
@@ -59,8 +60,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisitor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-
-import org.lwjgl.util.vector.Vector4f;
 
 public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> {
 	private final ProgramPreferences programPreferences;
@@ -238,7 +237,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		return selectionAtPointTester.isMouseOverVertex();
 	}
 
-	private static final Vector4f pivotHeap = new Vector4f();
+	private static final Vertex4 pivotHeap = new Vertex4();
 
 	public static void hitTest(final List<IdObject> selectedItems, final Rectangle2D area, final Vertex geosetVertex,
 			final CoordinateSystem coordinateSystem, final double vertexSize, final IdObject object,

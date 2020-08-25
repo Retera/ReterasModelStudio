@@ -3,8 +3,7 @@ package com.hiveworkshop.rms.util;
 import com.hiveworkshop.rms.editor.model.Matrix4;
 import com.hiveworkshop.rms.editor.model.QuaternionRotation;
 import com.hiveworkshop.rms.editor.model.Vertex;
-
-import org.lwjgl.util.vector.Vector4f;
+import com.hiveworkshop.rms.editor.model.Vertex4;
 
 public class MathUtils {
 	/**
@@ -31,7 +30,7 @@ public class MathUtils {
 		return out;
 	}
 
-	public static Vector4f lerp(final Vector4f out, final Vector4f a, final Vector4f b, final double t) {
+	public static Vertex4 lerp(final Vertex4 out, final Vertex4 a, final Vertex4 b, final double t) {
 		out.set((float) MathUtils.lerp(a.x, b.x, t), (float) MathUtils.lerp(a.y, b.y, t),
 				(float) MathUtils.lerp(a.z, b.z, t), (float) MathUtils.lerp(a.w, b.w, t));
 		return out;

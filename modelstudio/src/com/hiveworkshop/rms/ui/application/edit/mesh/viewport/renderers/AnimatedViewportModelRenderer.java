@@ -1,21 +1,37 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers;
 
-import com.hiveworkshop.rms.editor.model.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.hiveworkshop.rms.editor.model.Attachment;
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.CollisionShape;
+import com.hiveworkshop.rms.editor.model.EventObject;
+import com.hiveworkshop.rms.editor.model.GeosetAnim;
+import com.hiveworkshop.rms.editor.model.Helper;
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.Light;
+import com.hiveworkshop.rms.editor.model.Material;
+import com.hiveworkshop.rms.editor.model.Matrix4;
+import com.hiveworkshop.rms.editor.model.ParticleEmitter;
+import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
+import com.hiveworkshop.rms.editor.model.ParticleEmitterPopcorn;
+import com.hiveworkshop.rms.editor.model.RibbonEmitter;
+import com.hiveworkshop.rms.editor.model.Vertex4;
 import com.hiveworkshop.rms.editor.model.visitor.GeosetVisitor;
 import com.hiveworkshop.rms.editor.model.visitor.ModelVisitor;
 import com.hiveworkshop.rms.editor.model.visitor.TriangleVisitor;
 import com.hiveworkshop.rms.editor.model.visitor.VertexVisitor;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportView;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import org.lwjgl.util.vector.Vector4f;
-
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class AnimatedViewportModelRenderer implements ModelVisitor {
 	private Graphics2D graphics;
@@ -160,12 +176,12 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 
 	}
 
-	private static final Vector4f vertexHeap = new Vector4f();
-	private static final Vector4f appliedVertexHeap = new Vector4f();
-	private static final Vector4f vertexSumHeap = new Vector4f();
-	private static final Vector4f normalHeap = new Vector4f();
-	private static final Vector4f appliedNormalHeap = new Vector4f();
-	private static final Vector4f normalSumHeap = new Vector4f();
+	private static final Vertex4 vertexHeap = new Vertex4();
+	private static final Vertex4 appliedVertexHeap = new Vertex4();
+	private static final Vertex4 vertexSumHeap = new Vertex4();
+	private static final Vertex4 normalHeap = new Vertex4();
+	private static final Vertex4 appliedNormalHeap = new Vertex4();
+	private static final Vertex4 normalSumHeap = new Vertex4();
 	private static final Matrix4 skinBonesMatrixHeap = new Matrix4();
 	private static final Matrix4 skinBonesMatrixSumHeap = new Matrix4();
 
@@ -188,7 +204,7 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 				vertexSumHeap.set(0, 0, 0, 0);
 				for (final Bone bone : bones) {
 					Matrix4.transform(renderModel.getRenderNode(bone).getWorldMatrix(), vertexHeap, appliedVertexHeap);
-					Vector4f.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
+					Vertex4.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
 				}
 				final int boneCount = bones.size();
 				vertexSumHeap.x /= boneCount;
@@ -247,11 +263,11 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 					for (final Bone bone : bones) {
 						Matrix4.transform(renderModel.getRenderNode(bone).getWorldMatrix(), normalHeap,
 								appliedNormalHeap);
-						Vector4f.add(normalSumHeap, appliedNormalHeap, normalSumHeap);
+						Vertex4.add(normalSumHeap, appliedNormalHeap, normalSumHeap);
 					}
 
 					if (normalSumHeap.length() > 0) {
-						normalSumHeap.normalise();
+						normalSumHeap.normalize();
 					} else {
 						normalSumHeap.set(0, 1, 0, 0);
 					}
@@ -345,7 +361,7 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 			Matrix4.transform(skinBonesMatrixSumHeap, normalHeap, normalSumHeap);
 
 			if (normalSumHeap.length() > 0) {
-				normalSumHeap.normalise();
+				normalSumHeap.normalize();
 			} else {
 				normalSumHeap.set(0, 1, 0, 0);
 			}

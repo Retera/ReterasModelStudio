@@ -8,10 +8,9 @@ import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Matrix4;
 import com.hiveworkshop.rms.editor.model.TVertex;
 import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.editor.model.Vertex4;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
-
-import org.lwjgl.util.vector.Vector4f;
 
 public interface CoordinateSystem extends CoordinateAxes {
 	double convertX(double x);
@@ -125,9 +124,9 @@ public interface CoordinateSystem extends CoordinateAxes {
 			return recyclePoint;
 		}
 
-		private static final Vector4f vertexHeap = new Vector4f();
-		private static final Vector4f appliedVertexHeap = new Vector4f();
-		private static final Vector4f vertexSumHeap = new Vector4f();
+		private static final Vertex4 vertexHeap = new Vertex4();
+		private static final Vertex4 appliedVertexHeap = new Vertex4();
+		private static final Vertex4 vertexSumHeap = new Vertex4();
 
 		public static Point convertToPoint(final CoordinateSystem coordinateSystem, final GeosetVertex vertex,
 				final Point recyclePoint, final RenderModel renderModel) {
@@ -138,7 +137,7 @@ public interface CoordinateSystem extends CoordinateAxes {
 			vertexSumHeap.set(0, 0, 0, 0);
 			for (final Bone bone : vertex.getBones()) {
 				Matrix4.transform(renderModel.getRenderNode(bone).getWorldMatrix(), vertexHeap, appliedVertexHeap);
-				Vector4f.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
+				Vertex4.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
 			}
 			final int boneCount = vertex.getBones().size();
 			vertexSumHeap.x /= boneCount;

@@ -1,18 +1,24 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.selection;
 
-import com.hiveworkshop.rms.editor.model.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.TVertex;
+import com.hiveworkshop.rms.editor.model.Triangle;
+import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.editor.model.Vertex4;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexModelElementRenderer;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import org.lwjgl.util.vector.Vector4f;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 public final class TPoseSelectionManager extends AbstractSelectionManager<IdObject> {
 	private final ModelView modelView;
@@ -28,7 +34,7 @@ public final class TPoseSelectionManager extends AbstractSelectionManager<IdObje
 		return new HashSet<>();
 	}
 
-	private final Vector4f pivotHeap = new Vector4f();
+	private final Vertex4 pivotHeap = new Vertex4();
 	private final Vertex centerOfGroupSumHeap = new Vertex(0, 0, 0);
 
 	@Override

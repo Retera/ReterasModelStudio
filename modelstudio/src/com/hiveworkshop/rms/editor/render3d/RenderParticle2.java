@@ -4,24 +4,23 @@ import com.hiveworkshop.rms.editor.model.Matrix4;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
 import com.hiveworkshop.rms.editor.model.QuaternionRotation;
 import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.editor.model.Vertex4;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.MathUtils;
 
-import org.lwjgl.util.vector.Vector4f;
-
 public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
-	private static final Vector4f vector4Heap = new Vector4f();
-	private static final Vector4f colorHeap = new Vector4f();
-	private static final Vector4f color1Heap = new Vector4f();
-	private static final Vector4f color2Heap = new Vector4f();
+	private static final Vertex4 vector4Heap = new Vertex4();
+	private static final Vertex4 colorHeap = new Vertex4();
+	private static final Vertex4 color1Heap = new Vertex4();
+	private static final Vertex4 color2Heap = new Vertex4();
 	private static final QuaternionRotation rotationZHeap = new QuaternionRotation();
 	private static final QuaternionRotation rotationYHeap = new QuaternionRotation();
 	private static final QuaternionRotation rotationXHeap = new QuaternionRotation();
 	private static final Matrix4 matrixHeap = new Matrix4();
 	private static final Vertex locationHeap = new Vertex();
-	private static final Vector4f location4Heap = new Vector4f();
-	private static final Vector4f startHeap = new Vector4f();
-	private static final Vector4f endHeap = new Vector4f();
+	private static final Vertex4 location4Heap = new Vertex4();
+	private static final Vertex4 startHeap = new Vertex4();
+	private static final Vertex4 endHeap = new Vertex4();
 	private static final Vertex tailHeap = new Vertex();
 	private static final Vertex normalHeap = new Vertex();
 	private final RenderParticleEmitter2 emitter;
@@ -128,7 +127,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		final ParticleEmitter2 modelObject = emitter.modelObject;
 		final float dt = AnimatedRenderEnvironment.FRAMES_PER_UPDATE * 0.001f;
 		final Vertex worldLocation = locationHeap;
-		final Vector4f worldLocation4f = location4Heap;
+		final Vertex4 worldLocation4f = location4Heap;
 
 		health -= dt;
 
@@ -228,7 +227,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		rgb = MathUtils.uint8ToUint24((byte) ((int) (colorHeap.z * 255) & 0xFF),
 				(byte) ((int) (colorHeap.y * 255) & 0xFF), (byte) ((int) (colorHeap.x * 255) & 0xFF));
 
-		final Vector4f[] vectors;
+		final Vertex4[] vectors;
 
 		// Choose between a default rectangle or a billboarded one
 		if (modelObject.getXYQuad()) {
@@ -255,10 +254,10 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 			final float py = worldLocation4f.y;
 			final float pz = worldLocation4f.z;
 
-			final Vector4f pv1 = vectors[0];
-			final Vector4f pv2 = vectors[1];
-			final Vector4f pv3 = vectors[2];
-			final Vector4f pv4 = vectors[3];
+			final Vertex4 pv1 = vectors[0];
+			final Vertex4 pv2 = vectors[1];
+			final Vertex4 pv3 = vectors[2];
+			final Vertex4 pv4 = vectors[3];
 
 			vertices[0] = px + (pv1.x * scalex);
 			vertices[1] = py + (pv1.y * scaley);

@@ -11,12 +11,11 @@ import com.hiveworkshop.rms.editor.model.Matrix4;
 import com.hiveworkshop.rms.editor.model.QuaternionRotation;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.editor.model.Vertex4;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-
-import org.lwjgl.util.vector.Vector4f;
 
 public class ViewportRenderableCamera {
 	private final EditableModel cameraModel;
@@ -36,7 +35,7 @@ public class ViewportRenderableCamera {
 	private static final Vertex Z_DIMENSION = new Vertex(0, 0, 1);
 	private static final QuaternionRotation quatHeap = new QuaternionRotation();
 	private static final QuaternionRotation quatRotHeap = new QuaternionRotation(0, 0, 0, 0);
-	private static final Vector4f vectorHeap = new Vector4f();
+	private static final Vertex4 vectorHeap = new Vertex4();
 	private static final Vertex ZEROES = new Vertex(0, 0, 0);
 	private static final Vertex ONES = new Vertex(1, 1, 1);
 	private static final Vertex quatRotAxisHeap = new Vertex(0, 0, 0);
