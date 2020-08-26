@@ -12,7 +12,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.ResettableIdObjectRenderer;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vector3;
 
 public final class Graphics2DToModelElementRendererAdapter implements ModelElementRenderer {
 	private Graphics2D graphics;
@@ -56,7 +56,7 @@ public final class Graphics2DToModelElementRendererAdapter implements ModelEleme
 	}
 
 	@Override
-	public void renderVertex(final Color color, final Vertex3 vertex) {
+	public void renderVertex(final Color color, final Vector3 vertex) {
 		CoordinateSystem.Util.convertToPoint(coordinateSystem, vertex, recyclePointA);
 		graphics.setColor(color);
 		graphics.fillRect(recyclePointA.x - vertexSize / 2, (int) (recyclePointA.y - (vertexSize / 2.0)), vertexSize,
@@ -71,11 +71,11 @@ public final class Graphics2DToModelElementRendererAdapter implements ModelEleme
 	}
 
 	@Override
-	public void renderCamera(final Camera camera, final Color boxColor, final Vertex3 position, final Color targetColor,
-			final Vertex3 targetPosition) {
+	public void renderCamera(final Camera camera, final Color boxColor, final Vector3 position, final Color targetColor,
+			final Vector3 targetPosition) {
 		final Graphics2D g2 = ((Graphics2D) graphics.create());
-		final Vertex3 ver = position;
-		final Vertex3 targ = targetPosition;
+		final Vector3 ver = position;
+		final Vector3 targ = targetPosition;
 		// final boolean verSel = selection.contains(ver);
 		// final boolean tarSel = selection.contains(targ);
 		final Point start = new Point(

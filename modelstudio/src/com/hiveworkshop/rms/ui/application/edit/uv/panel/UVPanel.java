@@ -84,7 +84,7 @@ import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.ui.util.ModeButton;
-import com.hiveworkshop.rms.util.Vertex2;
+import com.hiveworkshop.rms.util.Vector2;
 
 import net.infonode.docking.View;
 
@@ -174,7 +174,7 @@ public class UVPanel extends JPanel
         public void actionPerformed(final ActionEvent e) {
             final ModelPanel mpanel = currentModelPanel();
             if (mpanel != null) {
-                final Vertex2 selectionCenter = modelEditorManager.getModelEditor().getSelectionCenter();
+                final Vector2 selectionCenter = modelEditorManager.getModelEditor().getSelectionCenter();
                 mpanel.getUndoManager().pushAction(
                         modelEditorManager.getModelEditor().mirror((byte) 0, selectionCenter.x, selectionCenter.y));
             }
@@ -186,7 +186,7 @@ public class UVPanel extends JPanel
         public void actionPerformed(final ActionEvent e) {
             final ModelPanel mpanel = currentModelPanel();
             if (mpanel != null) {
-                final Vertex2 selectionCenter = modelEditorManager.getModelEditor().getSelectionCenter();
+                final Vector2 selectionCenter = modelEditorManager.getModelEditor().getSelectionCenter();
                 mpanel.getUndoManager().pushAction(
                         modelEditorManager.getModelEditor().mirror((byte) 1, selectionCenter.x, selectionCenter.y));
             }
@@ -625,11 +625,11 @@ public class UVPanel extends JPanel
                     // mpanel.getUndoManager().pushAction(modelEditorManager.getModelEditor()
                     // .selectFromViewer(mpanel.getModelEditorManager().getSelectionView()));
 
-                    final Collection<? extends Vertex2> selectedTVertices = modelEditorManager.getSelectionView()
+                    final Collection<? extends Vector2> selectedTVertices = modelEditorManager.getSelectionView()
                             .getSelectedTVertices(currentLayer());
                     for (final Geoset g : mpanel.getModel().getGeosets()) {
                         for (final GeosetVertex gv : new ArrayList<>(g.getVertices())) {
-                            final Vertex2 tVertex = gv.getTVertex(currentLayer());
+                            final Vector2 tVertex = gv.getTVertex(currentLayer());
                             if (selectedTVertices.contains(tVertex)) {
                                 final List<Triangle> triangles = gv.getTriangles();
                                 final Iterator<Triangle> iterator = triangles.iterator();

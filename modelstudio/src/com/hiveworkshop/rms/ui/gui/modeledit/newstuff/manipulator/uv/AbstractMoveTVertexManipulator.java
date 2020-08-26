@@ -6,16 +6,16 @@ import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.AbstractManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexEditor;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vector3;
 
 public abstract class AbstractMoveTVertexManipulator extends AbstractManipulator {
 	protected final TVertexEditor modelEditor;
-	protected final Vertex3 moveVector;
+	protected final Vector3 moveVector;
 	private GenericMoveAction translationAction;
 
 	public AbstractMoveTVertexManipulator(final TVertexEditor modelEditor) {
 		this.modelEditor = modelEditor;
-		moveVector = new Vertex3(0, 0, 0);
+		moveVector = new Vector3(0, 0, 0);
 	}
 
 	@Override

@@ -2,40 +2,40 @@ package com.hiveworkshop.rms.editor.render3d;
 
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.MathUtils;
-import com.hiveworkshop.rms.util.Matrix4;
-import com.hiveworkshop.rms.util.QuaternionRotation;
-import com.hiveworkshop.rms.util.Vertex3;
-import com.hiveworkshop.rms.util.Vertex4;
+import com.hiveworkshop.rms.util.Mat4;
+import com.hiveworkshop.rms.util.Quat;
+import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vector4;
 
 public class RenderParticle {
-    private static final Vertex3 UP = new Vertex3(0, 0, 1);
+    private static final Vector3 UP = new Vector3(0, 0, 1);
 
     private final RenderParticleEmitter emitter;
-    private final Vertex3 velocity;
+    private final Vector3 velocity;
     private float gravity;
     private RenderParticleEmitterView emitterView;
     private final InternalInstance internalInstance;
     private RenderNode node;
     private double health;
-    private static final QuaternionRotation rotationZHeap = new QuaternionRotation();
-    private static final QuaternionRotation rotationYHeap = new QuaternionRotation();
-    private static final Vertex4 vector4Heap = new Vertex4();
-    private static final Matrix4 matrixHeap = new Matrix4();
-    private static final Vertex3 velocityTimeHeap = new Vertex3();
+    private static final Quat rotationZHeap = new Quat();
+    private static final Quat rotationYHeap = new Quat();
+    private static final Vector4 vector4Heap = new Vector4();
+    private static final Mat4 matrixHeap = new Mat4();
+    private static final Vector3 velocityTimeHeap = new Vector3();
 
     public RenderParticle(final RenderParticleEmitter emitter) {
         this.emitter = emitter;
         emitterView = null;
 
         internalInstance = emitter.internalResource.addInstance();
-        velocity = new Vertex3();
+        velocity = new Vector3();
         gravity = 0;
     }
 
     public void reset(final RenderParticleEmitterView emitterView) {
         final RenderModel instance = emitterView.instance;
         final RenderNode renderNode = instance.getRenderNode(emitter.modelObject);
-        final Vertex3 scale = renderNode.getWorldScale();
+        final Vector3 scale = renderNode.getWorldScale();
 
         final double latitude = emitterView.getLatitude();
         final double lifeSpan = emitterView.getLifeSpan();
@@ -53,14 +53,14 @@ public class RenderParticle {
         rotationZHeap.setFromAxisAngle(vector4Heap);
         vector4Heap.set(0, 1, 0, MathUtils.randomInRange(-latitude, latitude));
         rotationYHeap.setFromAxisAngle(vector4Heap);
-        QuaternionRotation.mul(rotationYHeap, rotationZHeap, rotationYHeap);
-        MathUtils.fromQuat(rotationYHeap, matrixHeap);
+        rotationYHeap.mul(rotationZHeap);
+        matrixHeap.fromQuat(rotationYHeap);
         vector4Heap.set(0, 0, 1, 1);
-        Matrix4.transform(matrixHeap, vector4Heap, vector4Heap);
+        matrixHeap.transform(vector4Heap);
 
         // World rotation
-        MathUtils.fromQuat(renderNode.getWorldRotation(), matrixHeap);
-        Matrix4.transform(matrixHeap, vector4Heap, vector4Heap);
+        matrixHeap.fromQuat(renderNode.getWorldRotation());
+        matrixHeap.transform(vector4Heap);
 
         // Apply speed
         velocity.set(vector4Heap);

@@ -5,22 +5,22 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.util.Vertex2;
+import com.hiveworkshop.rms.util.Vector2;
 
 public final class TVertexScalerWidget {
 	private static final int LINE_LEN = 80;
 	private static final int EXTERIOR_TRIANGLE_OFFSET = LINE_LEN - 16;
 	private static final int INTERIOR_TRIANGLE_OFFSET = LINE_LEN - 32;
-	private final Vertex2 point;
+	private final Vector2 point;
 	private ScaleDirection moveDirection = ScaleDirection.NONE;
 	private final int[] recycleXPoints = new int[3];
 	private final int[] recycleYPoints = new int[3];
 	private final int[] recycleXPoints4 = new int[4];
 	private final int[] recycleYPoints4 = new int[4];
 
-	public TVertexScalerWidget(final Vertex2 point) {
-		this.point = new Vertex2(0, 0);
-		this.point.setTo(point);
+	public TVertexScalerWidget(final Vector2 point) {
+		this.point = new Vector2(0, 0);
+		this.point.set(point);
 	}
 
 	public ScaleDirection getDirectionByMouse(final Point mousePoint, final CoordinateSystem coordinateSystem,
@@ -46,12 +46,12 @@ public final class TVertexScalerWidget {
 		return direction;
 	}
 
-	public Vertex2 getPoint() {
+	public Vector2 getPoint() {
 		return point;
 	}
 
-	public void setPoint(final Vertex2 point) {
-		this.point.setTo(point);
+	public void setPoint(final Vector2 point) {
+		this.point.set(point);
 	}
 
 	public ScaleDirection getMoveDirection() {

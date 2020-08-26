@@ -7,7 +7,7 @@ import java.awt.Point;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.ResettableIdObjectRenderer;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.util.Vertex2;
+import com.hiveworkshop.rms.util.Vector2;
 
 public final class Graphics2DToTVertexModelElementRendererAdapter implements TVertexModelElementRenderer {
 	private Graphics2D graphics;
@@ -34,8 +34,8 @@ public final class Graphics2DToTVertexModelElementRendererAdapter implements TVe
 	}
 
 	@Override
-	public void renderFace(final Color borderColor, final Color color, final Vertex2 a, final Vertex2 b,
-			final Vertex2 c) {
+	public void renderFace(final Color borderColor, final Color color, final Vector2 a, final Vector2 b,
+			final Vector2 c) {
 		graphics.setColor(color);
 		CoordinateSystem.Util.convertToPoint(coordinateSystem, a, recyclePointA);
 		CoordinateSystem.Util.convertToPoint(coordinateSystem, b, recyclePointB);
@@ -52,7 +52,7 @@ public final class Graphics2DToTVertexModelElementRendererAdapter implements TVe
 	}
 
 	@Override
-	public void renderVertex(final Color color, final Vertex2 vertex) {
+	public void renderVertex(final Color color, final Vector2 vertex) {
 		CoordinateSystem.Util.convertToPoint(coordinateSystem, vertex, recyclePointA);
 		graphics.setColor(color);
 		graphics.fillRect(recyclePointA.x - (vertexSize / 2), (int) (recyclePointA.y - (vertexSize / 2.0)), vertexSize,

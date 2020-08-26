@@ -3,8 +3,8 @@ package com.hiveworkshop.rms.editor.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.hiveworkshop.rms.util.Vertex2;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vector2;
+import com.hiveworkshop.rms.util.Vector3;
 
 /**
  * GeosetVertex is a extended version of the Vertex class, for use strictly
@@ -16,11 +16,11 @@ import com.hiveworkshop.rms.util.Vertex3;
  *
  * Eric Theller 3/9/2012
  */
-public class GeosetVertex extends Vertex3 {
+public class GeosetVertex extends Vector3 {
 	Matrix matrixRef;
-	private Vertex3 normal;
+	private Vector3 normal;
 	public int VertexGroup = -1;
-	List<Vertex2> tverts = new ArrayList<>();
+	List<Vector2> tverts = new ArrayList<>();
 	List<Bone> bones = new ArrayList<>();
 	List<Triangle> triangles = new ArrayList<>();
 	private byte[] skinBoneIndexes;
@@ -34,7 +34,7 @@ public class GeosetVertex extends Vertex3 {
 		super(x, y, z);
 	}
 
-	public GeosetVertex(final double x, final double y, final double z, final Vertex3 n) {
+	public GeosetVertex(final double x, final double y, final double z, final Vector3 n) {
 		super(x, y, z);
 		normal = n;
 	}
@@ -78,11 +78,11 @@ public class GeosetVertex extends Vertex3 {
 
 	public GeosetVertex(final GeosetVertex old) {
 		super(old.x, old.y, old.z);
-		this.normal = new Vertex3(old.normal);
+		this.normal = new Vector3(old.normal);
 		this.bones = new ArrayList<>(old.bones);
 		this.tverts = new ArrayList<>();
-		for (final Vertex2 tv : old.tverts) {
-			tverts.add(new Vertex2(tv));
+		for (final Vector2 tv : old.tverts) {
+			tverts.add(new Vector2(tv));
 		}
 		// odd, but when writing
 		this.geoset = old.geoset;
@@ -101,11 +101,11 @@ public class GeosetVertex extends Vertex3 {
 		}
 	}
 
-	public void addTVertex(final Vertex2 v) {
+	public void addTVertex(final Vector2 v) {
 		tverts.add(v);
 	}
 
-	public Vertex2 getTVertex(final int i) {
+	public Vector2 getTVertex(final int i) {
 		try {
 			return tverts.get(i);
 		} catch (final ArrayIndexOutOfBoundsException e) {
@@ -145,19 +145,19 @@ public class GeosetVertex extends Vertex3 {
 		matrixRef = ref;
 	}
 
-	public void setNormal(final Vertex3 n) {
+	public void setNormal(final Vector3 n) {
 		normal = n;
 	}
 
-	public Vertex3 getNormal() {
+	public Vector3 getNormal() {
 		return normal;
 	}
 
-	public List<Vertex2> getTverts() {
+	public List<Vector2> getTverts() {
 		return tverts;
 	}
 
-	public void setTverts(final List<Vertex2> tverts) {
+	public void setTverts(final List<Vector2> tverts) {
 		this.tverts = tverts;
 	}
 
@@ -275,7 +275,7 @@ public class GeosetVertex extends Vertex3 {
 		// if( getDimEditable(dim1) )
 		double nextDim = (Math.cos(verAng + radians) * r) + cx;
 		if (!Double.isNaN(nextDim)) {
-			vertex[firstXYZ] = (float) ((Math.cos(verAng + radians) * r) + cx);
+			vertex[firstXYZ] = (float) nextDim;
 		}
 		// if( getDimEditable(dim2) )
 		nextDim = (Math.sin(verAng + radians) * r) + cy;
@@ -284,47 +284,29 @@ public class GeosetVertex extends Vertex3 {
 		}
 	}
 
-	public Vertex3 createNormal() {
-		final Vertex3 sum = new Vertex3(0, 0, 0);
+	public Vector3 createNormal() {
+		final Vector3 sum = new Vector3();
+		
 		for (final Triangle triangle : triangles) {
-			final Vertex3 perpendicular = triangle.verts[0].delta(triangle.verts[1])
-					.crossProduct(triangle.verts[1].delta(triangle.verts[2]));
-			sum.x += perpendicular.x;
-			sum.y += perpendicular.y;
-			sum.z += perpendicular.z;
+			sum.add(triangle.getNormal());
 		}
-		final double vectorMagnitude = sum.vectorMagnitude();
-		for (int i = 0; i < 3; i++) {
-			sum.setCoord((byte) i, sum.getCoord((byte) i) / vectorMagnitude);
-		}
+
+		sum.normalize();
+
 		return sum;
 	}
 
-	public Vertex3 createNormal(final List<GeosetVertex> matches) {
-		final Vertex3 sum = new Vertex3(0, 0, 0);
+	public Vector3 createNormal(final List<GeosetVertex> matches) {
+		final Vector3 sum = new Vector3();
+
 		for (final GeosetVertex match : matches) {
 			for (final Triangle triangle : match.triangles) {
-				final Vertex3 perpendicular = triangle.verts[0].delta(triangle.verts[1])
-						.crossProduct(triangle.verts[1].delta(triangle.verts[2]));
-				double vectorMagnitude = perpendicular.vectorMagnitude();
-				if (vectorMagnitude == 0) {
-					vectorMagnitude = 0.00001;
-				}
-				perpendicular.x /= vectorMagnitude;
-				perpendicular.y /= vectorMagnitude;
-				perpendicular.z /= vectorMagnitude;
-				sum.x += perpendicular.x;
-				sum.y += perpendicular.y;
-				sum.z += perpendicular.z;
+				sum.add(triangle.getNormal());
 			}
 		}
-		double vectorMagnitude = sum.vectorMagnitude();
-		if (vectorMagnitude == 0) {
-			vectorMagnitude = 0.00001;
-		}
-		for (int i = 0; i < 3; i++) {
-			sum.setCoord((byte) i, sum.getCoord((byte) i) / vectorMagnitude);
-		}
+
+		sum.normalize();
+
 		return sum;
 	}
 }

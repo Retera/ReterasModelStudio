@@ -1,36 +1,36 @@
 package com.hiveworkshop.rms.util;
 
-public class Vertex4 {
+public class Vector4 {
 	public float x = 0;
 	public float y = 0;
 	public float z = 0;
 	public float w = 0;
 
-	public Vertex4() {
+	public Vector4() {
 
 	}
 	
-	public Vertex4(final float x, final float y, final float z, final float w) {
+	public Vector4(final float x, final float y, final float z, final float w) {
 		set(x, y, z, w);
 	}
 
-	public Vertex4(final double x, final double y, final double z, final double w) {
+	public Vector4(final double x, final double y, final double z, final double w) {
 		set(x, y, z, w);
 	}
 
-	public Vertex4(final Vertex4 v) {
+	public Vector4(final Vector4 v) {
 		set(v);
 	}
 
-	public Vertex4(final float[] data) {
+	public Vector4(final float[] data) {
 		set(data[0], data[1], data[2], data[3]);
 	}
 
-	public Vertex4(final double[] data) {
+	public Vector4(final double[] data) {
 		set(data[0], data[1], data[2], data[3]);
 	}
 
-	public Vertex4(final float[] data, final boolean flip) {
+	public Vector4(final float[] data, final boolean flip) {
 		if (flip) {
 			z = data[0];
 			y = data[1];
@@ -113,7 +113,7 @@ public class Vertex4 {
 		}
 	}
 
-	public void set(final Vertex4 v) {
+	public void set(final Vector4 v) {
 		x = v.x;
 		y = v.y;
 		z = v.z;
@@ -134,7 +134,7 @@ public class Vertex4 {
 		w = (float) vw;
 	}
 
-	public boolean equals(final Vertex4 v) {
+	public boolean equals(final Vector4 v) {
 		return (x == v.x) && (y == v.y) && (z == v.z) && (w == v.w);
 	}
 
@@ -171,7 +171,7 @@ public class Vertex4 {
 		return (float) Math.sqrt(lengthSquared());
 	}
 
-	public float distanceSquared(final Vertex4 a) {
+	public float distanceSquared(final Vector4 a) {
 		final float dx = a.x - x;
 		final float dy = a.y - y;
 		final float dz = a.z - z;
@@ -180,15 +180,11 @@ public class Vertex4 {
 		return (dx * dx) + (dy * dy) + (dz * dz) + (dw * dw);
 	}
 
-	public float distance(final Vertex4 a) {
+	public float distance(final Vector4 a) {
 		return (float) Math.sqrt(distanceSquared(a));
 	}
 
-	public Vertex4 delta(final Vertex4 a) {
-		return new Vertex4(a.x - x, a.y - y, a.z - z, a.w - w);
-	}
-
-	public Vertex4 sub(final Vertex4 a) {
+	public Vector4 sub(final Vector4 a) {
 		x -= a.x;
 		y -= a.y;
 		z -= a.z;
@@ -197,51 +193,52 @@ public class Vertex4 {
 		return this;
 	}
 
-	public Vertex4 add(final Vertex4 a) {
-		return add(this, a, this);
-	}
-
-	public static Vertex4 add(final Vertex4 a, final Vertex4 b, final Vertex4 out) {
-		out.x = a.x + b.x;
-		out.y = a.y + b.y;
-		out.z = a.z + b.z;
-		out.w = a.w + b.w;
+	public Vector4 add(final Vector4 a, final Vector4 out) {
+		out.x = x + a.x;
+		out.y = y + a.y;
+		out.z = z + a.z;
+		out.w = w + a.w;
 
 		return out;
 	}
 
-	public float dot(final Vertex4 a) {
+	public Vector4 add(final Vector4 a) {
+		return add(a, this);
+	}
+
+	public float dot(final Vector4 a) {
 		return (x * a.x) + (y * a.y) + (z * a.z) + (w * a.w);
 	}
 
-	public Vertex4 scale(final float factor) {
-		x *= factor;
-		y *= factor;
-		z *= factor;
-		w *= factor;
+	public Vector4 scale(final float factor, final Vector4 out) {
+		out.x = x * factor;
+		out.y = y * factor;
+		out.z = z * factor;
+		out.w = w * factor;
 
-		return this;
+		return out;
 	}
 
-	public Vertex4 scale(final double factor) {
-		x *= factor;
-		y *= factor;
-		z *= factor;
-		w *= factor;
-
-		return this;
+	public Vector4 scale(final float factor) {
+		return scale(factor, this);
 	}
 
-	public void normalize() {
+	public Vector4 normalize(final Vector4 out) {
 		float len = lengthSquared();
 
-		if (len > 0f) {
-			len = 1f / (float) Math.sqrt(len);
+		if (len > 0) {
+			len = 1 / (float) Math.sqrt(len);
 		}
 		
-		x *= len;
-		y *= len;
-		z *= len;
-		w *= len;
+		out.x = x * len;
+		out.y = y * len;
+		out.z = z * len;
+		out.w = w * len;
+
+		return out;
+	}
+
+	public Vector4 normalize() {
+		return normalize(this);
 	}
 }

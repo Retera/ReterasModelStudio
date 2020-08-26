@@ -82,7 +82,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChange
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.listeners.ProgramPreferencesChangeListener;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vector3;
 
 public class Viewport extends JPanel implements MouseListener, ActionListener, MouseWheelListener, CoordinateSystem,
         ViewportView, MouseMotionListener, ModelEditorChangeListener {
@@ -126,7 +126,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	private final RenderModel renderModel;
 	private final ModelVisitorImplementation linkRenderingVisitorAdapter;
 	private final JMenuItem createFace;
-	private final Vertex3 facingVector;
+	private final Vector3 facingVector;
 	private final ViewportListener viewportListener;
 
 	public Viewport(final byte d1, final byte d2, final ModelView modelView,
@@ -222,7 +222,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		linkRenderer = new ResettableAnimatedIdObjectParentLinkRenderer(programPreferences.getVertexSize());
 		linkRenderingVisitorAdapter = new ModelVisitorImplementation();
 
-		facingVector = new Vertex3(0, 0, 0);
+		facingVector = new Vector3(0, 0, 0);
 		final byte unusedXYZ = CoordinateSystem.Util.getUnusedXYZ(this);
 		facingVector.setCoord(unusedXYZ, unusedXYZ == 0 ? 1 : -1);
 		paintTimer = new Timer(16, new ActionListener() {
@@ -715,7 +715,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		final JCheckBox customOrigin = new JCheckBox("Custom Scaling Origin");
 		inputPanel.add(customOrigin);
 
-		final Vertex3 selectionCenter = modelEditor.getSelectionCenter();
+		final Vector3 selectionCenter = modelEditor.getSelectionCenter();
 		inputPanel.add(new JLabel("Center X:"));
 		inputPanel.add(centerSpinners[0] = new JSpinner(
 				new SpinnerNumberModel(selectionCenter.x, -100000.00, 100000.0, 0.0001)));
@@ -1024,7 +1024,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		return modelEditor;
 	}
 
-	public Vertex3 getFacingVector() {
+	public Vector3 getFacingVector() {
 		return facingVector;
 	}
 

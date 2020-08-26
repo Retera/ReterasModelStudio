@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.ui.application.actions.VertexActionType;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vector3;
 
 /**
  * CloneAction -- allowing you to undo clone!
@@ -17,17 +17,17 @@ import com.hiveworkshop.rms.util.Vertex3;
  */
 public class CloneAction implements UndoAction {
 	private MoveAction baseMovement;
-	private List<Vertex3> selection;
+	private List<Vector3> selection;
 	private List<GeosetVertex> addedVerts;
 	private List<Triangle> addedTriangles;
 	private List<GeosetVertex> copiedGroup;
 	boolean type;
 
-	public CloneAction(final List<Vertex3> selection, final Vertex3 moveVector, final List<GeosetVertex> clones,
+	public CloneAction(final List<Vector3> selection, final Vector3 moveVector, final List<GeosetVertex> clones,
 			final List<Triangle> addedTriangles, final boolean isExtrude) {
 		addedVerts = clones;
 		this.addedTriangles = addedTriangles;
-		this.selection = new ArrayList<Vertex3>(selection);
+		this.selection = new ArrayList<Vector3>(selection);
 		baseMovement = new MoveAction(this.selection, moveVector, VertexActionType.UNKNOWN);
 		type = isExtrude;
 	}
@@ -36,11 +36,11 @@ public class CloneAction implements UndoAction {
 
 	}
 
-	public void storeSelection(final List<Vertex3> selection) {
-		this.selection = new ArrayList<Vertex3>(selection);
+	public void storeSelection(final List<Vector3> selection) {
+		this.selection = new ArrayList<Vector3>(selection);
 	}
 
-	public void storeBaseMovement(final Vertex3 moveVector) {
+	public void storeBaseMovement(final Vector3 moveVector) {
 		baseMovement = new MoveAction(this.selection, moveVector, VertexActionType.UNKNOWN);
 	}
 
@@ -112,7 +112,7 @@ public class CloneAction implements UndoAction {
 		// }
 		int probs = 0;
 		for (int k = 0; k < selection.size(); k++) {
-			final Vertex3 vert = selection.get(k);
+			final Vector3 vert = selection.get(k);
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				for (final Triangle t : gv.getTriangles()) {
@@ -195,7 +195,7 @@ public class CloneAction implements UndoAction {
 		// }
 		int probs = 0;
 		for (int k = 0; k < selection.size(); k++) {
-			final Vertex3 vert = selection.get(k);
+			final Vector3 vert = selection.get(k);
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				for (final Triangle t : gv.getTriangles()) {

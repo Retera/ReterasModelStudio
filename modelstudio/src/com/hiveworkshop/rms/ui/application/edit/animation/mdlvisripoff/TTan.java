@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff;
 
 import com.hiveworkshop.rms.editor.model.AnimFlag;
-import com.hiveworkshop.rms.util.QuaternionRotation;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Quat;
+import com.hiveworkshop.rms.util.Vector3;
 
 /**
  * Aiming to copy some behaviors from Mdlvis with this
@@ -19,7 +19,7 @@ import com.hiveworkshop.rms.util.Vertex3;
  */
 public class TTan {
 	private float ds; // Deviation (for Calculation)
-	private QuaternionRotation qcur, logNNP, logNMN; // Logarithms and current quaternion
+	private Quat qcur, logNNP, logNMN; // Logarithms and current quaternion
 	public AnimFlag.Entry tang; // storage for tangents
 	public float bias, tension, continuity; // Spline parameters
 	public AnimFlag.Entry prev, cur, next; // Values in KK
@@ -35,12 +35,12 @@ public class TTan {
 				tang.outTan = Double.valueOf(0);
 				break;
 			case 3:
-				tang.inTan = new Vertex3(0, 0, 0);
-				tang.outTan = new Vertex3(0, 0, 0);
+				tang.inTan = new Vector3(0, 0, 0);
+				tang.outTan = new Vector3(0, 0, 0);
 				break;
 			case 4:
-				tang.inTan = new QuaternionRotation(0, 0, 0, 0);
-				tang.outTan = new QuaternionRotation(0, 0, 0, 0);
+				tang.inTan = new Quat(0, 0, 0, 0);
+				tang.outTan = new Quat(0, 0, 0, 0);
 				break;
 			}
 		}
@@ -167,8 +167,8 @@ public class TTan {
 	}
 
 	public void calcDerivative4D() {
-		final QuaternionRotation qprev = new QuaternionRotation(0, 0, 0, 0), qnext = new QuaternionRotation(0, 0, 0, 0),
-				q = new QuaternionRotation(0, 0, 0, 0);
+		final Quat qprev = new Quat(0, 0, 0, 0), qnext = new Quat(0, 0, 0, 0),
+				q = new Quat(0, 0, 0, 0);
 		final float g1, g2, g3, g4;
 		if (!isLogsReady) {
 			qcur.x = getSubscript(cur.value, 0).floatValue();
@@ -195,50 +195,50 @@ public class TTan {
 			isLogsReady = true;
 		}
 		if (tang.inTan == null) {
-			tang.inTan = new QuaternionRotation(0, 0, 0, 0);
-			tang.outTan = new QuaternionRotation(0, 0, 0, 0);
+			tang.inTan = new Quat(0, 0, 0, 0);
+			tang.outTan = new Quat(0, 0, 0, 0);
 		}
 		g1 = (1 - tension) * (1 + continuity) * (1 - bias) * 0.5f;
 		g2 = (1 - tension) * (1 - continuity) * (1 + bias) * 0.5f;
 		g3 = (1 - tension) * (1 - continuity) * (1 - bias) * 0.5f;
 		g4 = (1 - tension) * (1 + continuity) * (1 + bias) * 0.5f;
-		((QuaternionRotation) tang.inTan).x = (g1 * logNNP.x) + (g2 * logNMN.x);
-		((QuaternionRotation) tang.outTan).x = (g3 * logNNP.x) + (g4 * logNMN.x);
-		((QuaternionRotation) tang.inTan).y = (g1 * logNNP.y) + (g2 * logNMN.y);
-		((QuaternionRotation) tang.outTan).y = (g3 * logNNP.y) + (g4 * logNMN.y);
-		((QuaternionRotation) tang.inTan).z = (g1 * logNNP.z) + (g2 * logNMN.z);
-		((QuaternionRotation) tang.outTan).z = (g3 * logNNP.z) + (g4 * logNMN.z);
+		((Quat) tang.inTan).x = (g1 * logNNP.x) + (g2 * logNMN.x);
+		((Quat) tang.outTan).x = (g3 * logNNP.x) + (g4 * logNMN.x);
+		((Quat) tang.inTan).y = (g1 * logNNP.y) + (g2 * logNMN.y);
+		((Quat) tang.outTan).y = (g3 * logNNP.y) + (g4 * logNMN.y);
+		((Quat) tang.inTan).z = (g1 * logNNP.z) + (g2 * logNMN.z);
+		((Quat) tang.outTan).z = (g3 * logNNP.z) + (g4 * logNMN.z);
 
-		q.x = 0.5f * (((QuaternionRotation) tang.outTan).x - logNNP.x);
-		q.y = 0.5f * (((QuaternionRotation) tang.outTan).y - logNNP.y);
-		q.z = 0.5f * (((QuaternionRotation) tang.outTan).z - logNNP.z);
+		q.x = 0.5f * (((Quat) tang.outTan).x - logNNP.x);
+		q.y = 0.5f * (((Quat) tang.outTan).y - logNNP.y);
+		q.z = 0.5f * (((Quat) tang.outTan).z - logNNP.z);
 		calcExpQ(q);
 		mulQuaternions(qcur, q, q);
-		((QuaternionRotation) tang.outTan).x = q.x;
-		((QuaternionRotation) tang.outTan).y = q.y;
-		((QuaternionRotation) tang.outTan).z = q.z;
-		((QuaternionRotation) tang.outTan).w = q.w;
+		((Quat) tang.outTan).x = q.x;
+		((Quat) tang.outTan).y = q.y;
+		((Quat) tang.outTan).z = q.z;
+		((Quat) tang.outTan).w = q.w;
 
-		q.x = 0.5f * (logNMN.x - ((QuaternionRotation) tang.inTan).x);
-		q.y = 0.5f * (logNMN.y - ((QuaternionRotation) tang.inTan).y);
-		q.z = 0.5f * (logNMN.z - ((QuaternionRotation) tang.inTan).z);
+		q.x = 0.5f * (logNMN.x - ((Quat) tang.inTan).x);
+		q.y = 0.5f * (logNMN.y - ((Quat) tang.inTan).y);
+		q.z = 0.5f * (logNMN.z - ((Quat) tang.inTan).z);
 		calcExpQ(q);
 		mulQuaternions(qcur, q, q);
-		((QuaternionRotation) tang.inTan).x = q.x;
-		((QuaternionRotation) tang.inTan).y = q.y;
-		((QuaternionRotation) tang.inTan).z = q.z;
-		((QuaternionRotation) tang.inTan).w = q.w;
+		((Quat) tang.inTan).x = q.x;
+		((Quat) tang.inTan).y = q.y;
+		((Quat) tang.inTan).z = q.z;
+		((Quat) tang.inTan).w = q.w;
 
 	}
 
 	public static Object assignSubscript(final Object value, final int index, final Object newValue) {
 		if ((value instanceof Double) || (value instanceof Integer)) {
 			return newValue;
-		} else if (value instanceof Vertex3) {
-			((Vertex3) value).setCoord((byte) index, ((Number) newValue).doubleValue());
+		} else if (value instanceof Vector3) {
+			((Vector3) value).setCoord((byte) index, ((Number) newValue).doubleValue());
 			return value;
-		} else if (value instanceof QuaternionRotation) {
-			((QuaternionRotation) value).setCoord((byte) index, ((Number) newValue).floatValue());
+		} else if (value instanceof Quat) {
+			((Quat) value).setCoord((byte) index, ((Number) newValue).floatValue());
 			return value;
 		}
 		throw new IllegalArgumentException("Unknown subscripting (set): " + value + ", " + index + ", " + newValue);
@@ -247,15 +247,15 @@ public class TTan {
 	public static Number getSubscript(final Object value, final int index) {
 		if ((value instanceof Number)) {
 			return (Number) value;
-		} else if (value instanceof Vertex3) {
-			return ((Vertex3) value).getCoord((byte) index);
-		} else if (value instanceof QuaternionRotation) {
-			return ((QuaternionRotation) value).getCoord((byte) index);
+		} else if (value instanceof Vector3) {
+			return ((Vector3) value).getCoord((byte) index);
+		} else if (value instanceof Quat) {
+			return ((Quat) value).getCoord((byte) index);
 		}
 		throw new IllegalArgumentException("Unknown subscripting (get): " + value + ", " + index);
 	}
 
-	private static void getInverseQuaternion(final QuaternionRotation qsrc, final QuaternionRotation qdest) {
+	private static void getInverseQuaternion(final Quat qsrc, final Quat qdest) {
 		float bigN;
 		bigN = 1 / ((qsrc.x * qsrc.x) + (qsrc.y * qsrc.y) + (qsrc.z * qsrc.z) + (qsrc.w * qsrc.w));
 		qdest.x = -qsrc.x * bigN;
@@ -264,8 +264,8 @@ public class TTan {
 		qdest.w = qsrc.w * bigN;
 	}
 
-	private static void mulQuaternions(final QuaternionRotation q1, final QuaternionRotation q2,
-			final QuaternionRotation qdest) {
+	private static void mulQuaternions(final Quat q1, final Quat q2,
+			final Quat qdest) {
 		float a, b, c, d, e, f, g, h;
 		a = (q1.w + q1.x) * (q2.w + q2.x);
 		b = (q1.z - q1.y) * (q2.y - q2.z);
@@ -282,7 +282,7 @@ public class TTan {
 		qdest.z = -d + (((e - f - g) + h) * 0.5f);
 	}
 
-	private void calcLogQ(final QuaternionRotation q) {
+	private void calcLogQ(final Quat q) {
 		float sint;
 		if (q.w > 0.99999) {
 			q.w = 0.99999f;
@@ -294,7 +294,7 @@ public class TTan {
 		q.w = 0;
 	}
 
-	private void calcExpQ(final QuaternionRotation q) {
+	private void calcExpQ(final Quat q) {
 		float t, divt;
 		t = (float) Math.sqrt((q.x * q.x) + (q.y * q.y) + (q.z * q.z));
 		if (t < 1e-5) {
@@ -350,9 +350,9 @@ public class TTan {
 	public static int getSizeOfElement(final Object value) {
 		if ((value instanceof Number)) {
 			return 1;
-		} else if (value instanceof Vertex3) {
+		} else if (value instanceof Vector3) {
 			return 3;
-		} else if (value instanceof QuaternionRotation) {
+		} else if (value instanceof Quat) {
 			return 4;
 		}
 		return -1;

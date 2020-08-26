@@ -76,7 +76,7 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.util.AbstractSnapshottingListCellRenderer2D;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vector3;
 
 /**
  * The panel to handle the import function.
@@ -1905,7 +1905,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 							if (dummyBone == null) {
 								dummyBone = new Bone();
 								dummyBone.setName("Bone_MatrixEaterDummy" + (int) (Math.random() * 2000000000));
-								dummyBone.setPivotPoint(new Vertex3(0, 0, 0));
+								dummyBone.setPivotPoint(new Vector3(0, 0, 0));
 								if (!currentModel.contains(dummyBone)) {
 									currentModel.add(dummyBone);
 								}
@@ -3073,7 +3073,7 @@ class BoneShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 	}
 
 	@Override
-	protected Vertex3 getRenderVertex(final BoneShell value) {
+	protected Vector3 getRenderVertex(final BoneShell value) {
 		return value.bone.getPivotPoint();
 	}
 
@@ -3178,7 +3178,7 @@ class BonePanelListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 	}
 
 	@Override
-	protected Vertex3 getRenderVertex(final Bone value) {
+	protected Vector3 getRenderVertex(final Bone value) {
 		return value.getPivotPoint();
 	}
 

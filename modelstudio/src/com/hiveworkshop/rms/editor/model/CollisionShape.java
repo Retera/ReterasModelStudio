@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape.Type;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vector3;
 
 /**
  * A class for CollisionShapes, which handle unit selection and related matters
@@ -18,7 +18,7 @@ import com.hiveworkshop.rms.util.Vertex3;
 public class CollisionShape extends IdObject {
 	ExtLog extents;
 	Type type = Type.BOX;
-	List<Vertex3> vertices = new ArrayList<>();
+	List<Vector3> vertices = new ArrayList<>();
 
 	public CollisionShape(final CollisionShape shape) {
 		copyObject(shape);
@@ -42,10 +42,10 @@ public class CollisionShape extends IdObject {
 
 		final float[][] vertices = shape.vertices;
 
-		this.vertices.add(new Vertex3(vertices[0]));
+		this.vertices.add(new Vector3(vertices[0]));
 
 		if (type != Type.SPHERE) {
-			this.vertices.add(new Vertex3(vertices[1]));
+			this.vertices.add(new Vector3(vertices[1]));
 		}
 
 		if (type == Type.SPHERE || type == Type.CYLINDER) {
@@ -86,11 +86,11 @@ public class CollisionShape extends IdObject {
 		this.type = type;
 	}
 
-	public void addVertex(final Vertex3 v) {
+	public void addVertex(final Vector3 v) {
 		vertices.add(v);
 	}
 
-	public Vertex3 getVertex(final int vertId) {
+	public Vector3 getVertex(final int vertId) {
 		return vertices.get(vertId);
 	}
 
@@ -106,11 +106,11 @@ public class CollisionShape extends IdObject {
 		this.extents = extents;
 	}
 
-	public List<Vertex3> getVertices() {
+	public List<Vector3> getVertices() {
 		return vertices;
 	}
 
-	public void setVertices(final List<Vertex3> vertices) {
+	public void setVertices(final List<Vector3> vertices) {
 		this.vertices = vertices;
 	}
 

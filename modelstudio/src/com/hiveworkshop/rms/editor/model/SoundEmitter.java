@@ -7,7 +7,7 @@ import javax.swing.JOptionPane;
 
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vector3;
 
 /**
  * <pre>
@@ -54,7 +54,7 @@ public class SoundEmitter extends IdObject {
 		final SoundEmitter x = new SoundEmitter();
 
 		x.name = name;
-		x.pivotPoint = new Vertex3(pivotPoint);
+		x.pivotPoint = new Vector3(pivotPoint);
 		x.objectId = objectId;
 		x.parentId = parentId;
 		x.setParent(getParent());

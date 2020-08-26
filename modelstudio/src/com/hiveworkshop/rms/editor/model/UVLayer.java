@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.editor.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.hiveworkshop.rms.util.Vertex2;
+import com.hiveworkshop.rms.util.Vector2;
 
 /**
  * A layer of TVertices (UV Mapping)
@@ -13,16 +13,16 @@ import com.hiveworkshop.rms.util.Vertex2;
  */
 public class UVLayer
 {
-    List<Vertex2> tverts;
+    List<Vector2> tverts;
     public UVLayer()
     {
-        tverts = new ArrayList<Vertex2>();
+        tverts = new ArrayList<Vector2>();
     }
-    public void addTVertex(Vertex2 v)
+    public void addTVertex(Vector2 v)
     {
         tverts.add(v);
     }
-    public Vertex2 getTVertex(int vertId)
+    public Vector2 getTVertex(int vertId)
     {
         return tverts.get(vertId);
     }

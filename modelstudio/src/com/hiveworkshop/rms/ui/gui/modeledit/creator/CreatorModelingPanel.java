@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 import com.hiveworkshop.rms.editor.model.AnimFlag;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vector3;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderTimeSelectionListener;
@@ -183,7 +183,7 @@ public class CreatorModelingPanel extends JPanel
 				}
 				try {
 					final Viewport viewport = activeViewportWatcher.getViewport();
-					final Vertex3 facingVector = viewport == null ? new Vertex3(0, 0, 1) : viewport.getFacingVector();
+					final Vector3 facingVector = viewport == null ? new Vector3(0, 0, 1) : viewport.getFacingVector();
 					final UndoAction createFaceFromSelection = modelEditorManager
 							.getModelEditor().createFaceFromSelection(facingVector);
 					undoActionListener.pushAction(createFaceFromSelection);

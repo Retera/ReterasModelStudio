@@ -6,7 +6,7 @@ import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxRibbonEmitter;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vector3;
 
 /**
  * RibbonEmitter class, these are the things most people would think of as a
@@ -28,7 +28,7 @@ public class RibbonEmitter extends IdObject {
 	int columns = 0;
 	int materialID = 0;
 	Material material;
-	Vertex3 staticColor = new Vertex3(1, 1, 1);
+	Vector3 staticColor = new Vector3(1, 1, 1);
 
 	public RibbonEmitter() {
 
@@ -52,7 +52,7 @@ public class RibbonEmitter extends IdObject {
 		columns = emitter.columns;
 		materialID = emitter.materialID;
 		material = emitter.material;
-		staticColor = new Vertex3(emitter.staticColor);
+		staticColor = new Vector3(emitter.staticColor);
 	}
 
 	public RibbonEmitter(final MdlxRibbonEmitter emitter) {
@@ -67,7 +67,7 @@ public class RibbonEmitter extends IdObject {
 		setHeightAbove(emitter.heightAbove);
 		setHeightBelow(emitter.heightBelow);
 		setAlpha(emitter.alpha);
-		setStaticColor(new Vertex3(ModelUtils.flipRGBtoBGR(emitter.color)));
+		setStaticColor(new Vector3(ModelUtils.flipRGBtoBGR(emitter.color)));
 		setLifeSpan(emitter.lifeSpan);
 		setEmissionRate((int)emitter.emissionRate);
 		setRows((int)emitter.rows);
@@ -197,11 +197,11 @@ public class RibbonEmitter extends IdObject {
 		this.material = material;
 	}
 
-	public Vertex3 getStaticColor() {
+	public Vector3 getStaticColor() {
 		return staticColor;
 	}
 
-	public void setStaticColor(final Vertex3 staticColor) {
+	public void setStaticColor(final Vector3 staticColor) {
 		this.staticColor = staticColor;
 	}
 

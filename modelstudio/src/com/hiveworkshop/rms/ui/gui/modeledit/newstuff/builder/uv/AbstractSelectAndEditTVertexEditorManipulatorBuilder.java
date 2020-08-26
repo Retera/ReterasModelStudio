@@ -15,7 +15,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.Graphics2DToTVertexMode
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.util.Vertex2;
+import com.hiveworkshop.rms.util.Vector2;
 
 public abstract class AbstractSelectAndEditTVertexEditorManipulatorBuilder implements TVertexEditorManipulatorBuilder {
 	private final ViewportSelectionHandler viewportSelectionHandler;
@@ -100,13 +100,13 @@ public abstract class AbstractSelectAndEditTVertexEditorManipulatorBuilder imple
 		}
 	}
 
-	protected abstract boolean widgetOffersEdit(Vertex2 selectionCenter, Point mousePoint,
+	protected abstract boolean widgetOffersEdit(Vector2 selectionCenter, Point mousePoint,
 			CoordinateSystem coordinateSystem, SelectionView selectionView);
 
-	protected abstract Manipulator createManipulatorFromWidget(Vertex2 selectionCenter, Point mousePoint,
+	protected abstract Manipulator createManipulatorFromWidget(Vector2 selectionCenter, Point mousePoint,
 			CoordinateSystem coordinateSystem, SelectionView selectionView);
 
-	protected abstract Manipulator createDefaultManipulator(Vertex2 selectionCenter, Point mousePoint,
+	protected abstract Manipulator createDefaultManipulator(Vector2 selectionCenter, Point mousePoint,
 			CoordinateSystem coordinateSystem, SelectionView selectionView);
 
 	protected abstract void renderWidget(final Graphics2D graphics, final CoordinateSystem coordinateSystem,

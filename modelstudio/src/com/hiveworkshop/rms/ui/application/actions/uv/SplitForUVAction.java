@@ -16,7 +16,7 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vector3;
 
 public final class SplitForUVAction<T> implements UndoAction {
 
@@ -27,7 +27,7 @@ public final class SplitForUVAction<T> implements UndoAction {
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final SelectionManager<T> selectionManager;
 	private final Collection<T> selection;
-	private final Collection<Vertex3> newVerticesToSelect;
+	private final Collection<Vector3> newVerticesToSelect;
 	private final VertexSelectionHelper vertexSelectionHelper;
 
 	public SplitForUVAction(final Collection<Triangle> trisToSeparate, final EditableModel model,

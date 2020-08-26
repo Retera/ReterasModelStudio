@@ -2,19 +2,19 @@ package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.rms.util.Vertex2;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vector2;
+import com.hiveworkshop.rms.util.Vector3;
 
 public final class ScaleXYTVertexManipulator extends AbstractScaleTVertexManipulator {
-	private final Vertex3 resettableScaleFactors;
+	private final Vector3 resettableScaleFactors;
 
 	public ScaleXYTVertexManipulator(final TVertexEditor modelEditor, final SelectionView selectionView) {
 		super(modelEditor, selectionView);
-		this.resettableScaleFactors = new Vertex3(0, 0, 0);
+		this.resettableScaleFactors = new Vector3(0, 0, 0);
 	}
 
 	@Override
-	protected final void scaleWithFactor(final TVertexEditor modelEditor, final Vertex2 center,
+	protected final void scaleWithFactor(final TVertexEditor modelEditor, final Vector2 center,
 			final double scaleFactor, final byte dim1, final byte dim2) {
 		resettableScaleFactors.x = 1;
 		resettableScaleFactors.y = 1;
@@ -25,7 +25,7 @@ public final class ScaleXYTVertexManipulator extends AbstractScaleTVertexManipul
 	}
 
 	@Override
-	protected Vertex3 buildScaleVector(final double scaleFactor, final byte dim1, final byte dim2) {
+	protected Vector3 buildScaleVector(final double scaleFactor, final byte dim1, final byte dim2) {
 		resettableScaleFactors.x = 1;
 		resettableScaleFactors.y = 1;
 		resettableScaleFactors.z = 1;

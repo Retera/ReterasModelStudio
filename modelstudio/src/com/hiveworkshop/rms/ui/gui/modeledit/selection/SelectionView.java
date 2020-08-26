@@ -8,15 +8,15 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexModelElementRenderer;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.util.Vertex2;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vector2;
+import com.hiveworkshop.rms.util.Vector3;
 
 public interface SelectionView {
-	Vertex3 getCenter();
+	Vector3 getCenter();
 
 	Collection<Triangle> getSelectedFaces();
 
-	Collection<? extends Vertex3> getSelectedVertices();
+	Collection<? extends Vector3> getSelectedVertices();
 
 	// needs to be coord system, not coord axes, so that
 	// vertex selection view knows the zoom level,
@@ -24,16 +24,16 @@ public interface SelectionView {
 	// is zoom independent
 	// boolean canSelectAt(Point point, CoordinateSystem axes);
 
-	double getCircumscribedSphereRadius(Vertex3 center);
+	double getCircumscribedSphereRadius(Vector3 center);
 
 	void renderSelection(ModelElementRenderer renderer, final CoordinateSystem coordinateSystem, ModelView modelView,
                          ProgramPreferences programPreferences);
 
-	Vertex2 getUVCenter(int tvertexLayerId);
+	Vector2 getUVCenter(int tvertexLayerId);
 
-	Collection<? extends Vertex2> getSelectedTVertices(int tvertexLayerId);
+	Collection<? extends Vector2> getSelectedTVertices(int tvertexLayerId);
 
-	double getCircumscribedSphereRadius(Vertex2 center, int tvertexLayerId);
+	double getCircumscribedSphereRadius(Vector2 center, int tvertexLayerId);
 
 	void renderUVSelection(TVertexModelElementRenderer renderer, ModelView modelView,
                            ProgramPreferences programPreferences, int tvertexLayerId);

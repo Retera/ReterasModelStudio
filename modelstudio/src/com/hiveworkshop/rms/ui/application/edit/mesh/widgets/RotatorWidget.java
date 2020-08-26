@@ -5,16 +5,16 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vector3;
 
 public final class RotatorWidget {
 	private static final int ROTATOR_RADIUS = 60;
 	private static final int ROTATOR_RADIUS_SQUARED = ROTATOR_RADIUS * ROTATOR_RADIUS;
-	private final Vertex3 point;
+	private final Vector3 point;
 	private RotateDirection moveDirection = RotateDirection.NONE;
 
-	public RotatorWidget(final Vertex3 point) {
-		this.point = new Vertex3(0, 0, 0);
+	public RotatorWidget(final Vector3 point) {
+		this.point = new Vector3(0, 0, 0);
 		this.point.set(point);
 	}
 
@@ -41,11 +41,11 @@ public final class RotatorWidget {
 		return RotateDirection.NONE;
 	}
 
-	public Vertex3 getPoint() {
+	public Vector3 getPoint() {
 		return point;
 	}
 
-	public void setPoint(final Vertex3 point) {
+	public void setPoint(final Vector3 point) {
 		this.point.set(point);
 	}
 

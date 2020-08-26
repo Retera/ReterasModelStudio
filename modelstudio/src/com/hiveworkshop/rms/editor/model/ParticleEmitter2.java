@@ -10,7 +10,7 @@ import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter2.FilterMode;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter2.HeadOrTail;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vector3;
 
 import org.lwjgl.opengl.GL11;
 
@@ -47,13 +47,13 @@ public class ParticleEmitter2 extends EmitterIdObject {
 	int textureID = 0;
 	int replaceableId = 0;
 	int priorityPlane = 0;
-	Vertex3[] segmentColor = new Vertex3[3];
-	Vertex3 alphas = new Vertex3(1, 1, 1);
-	Vertex3 particleScaling = new Vertex3(1, 1, 1);
-	Vertex3 headUVAnim = new Vertex3(0, 0, 1);
-	Vertex3 headDecayUVAnim = new Vertex3(0, 0, 1);
-	Vertex3 tailUVAnim = new Vertex3(0, 0, 1);
-	Vertex3 tailDecayUVAnim = new Vertex3(0, 0, 1);
+	Vector3[] segmentColor = new Vector3[3];
+	Vector3 alphas = new Vector3(1, 1, 1);
+	Vector3 particleScaling = new Vector3(1, 1, 1);
+	Vector3 headUVAnim = new Vector3(0, 0, 1);
+	Vector3 headDecayUVAnim = new Vector3(0, 0, 1);
+	Vector3 tailUVAnim = new Vector3(0, 0, 1);
+	Vector3 tailDecayUVAnim = new Vector3(0, 0, 1);
 	Bitmap texture;
 
 	public ParticleEmitter2() {
@@ -94,12 +94,12 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		priorityPlane = emitter.priorityPlane;
 	
 		segmentColor = emitter.segmentColor.clone();
-		alphas = new Vertex3(emitter.alphas);
-		particleScaling = new Vertex3(emitter.particleScaling);
-		headUVAnim = new Vertex3(emitter.headUVAnim);
-		headDecayUVAnim = new Vertex3(emitter.headDecayUVAnim);
-		tailUVAnim = new Vertex3(emitter.tailUVAnim);
-		tailDecayUVAnim = new Vertex3(emitter.tailDecayUVAnim);
+		alphas = new Vector3(emitter.alphas);
+		particleScaling = new Vector3(emitter.particleScaling);
+		headUVAnim = new Vector3(emitter.headUVAnim);
+		headDecayUVAnim = new Vector3(emitter.headDecayUVAnim);
+		tailUVAnim = new Vector3(emitter.tailUVAnim);
+		tailDecayUVAnim = new Vector3(emitter.tailDecayUVAnim);
 
 		texture = emitter.texture;
 	}
@@ -154,19 +154,19 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		
 		// SegmentColor - Inverse order for MDL!
 		for (int i = 0; i < 3; i++) {
-			setSegmentColor(i, new Vertex3(ModelUtils.flipRGBtoBGR(colors[i])));
+			setSegmentColor(i, new Vector3(ModelUtils.flipRGBtoBGR(colors[i])));
 		}
 
-		setAlpha(new Vertex3(alphas[0], alphas[1], alphas[2]));
-		setParticleScaling(new Vertex3(emitter.segmentScaling));
+		setAlpha(new Vector3(alphas[0], alphas[1], alphas[2]));
+		setParticleScaling(new Vector3(emitter.segmentScaling));
 
 		final long[][] head = emitter.headIntervals;
 		final long[][] tail = emitter.tailIntervals;
 
-		setHeadUVAnim(new Vertex3(head[0][0], head[0][1], head[0][2]));
-		setHeadDecayUVAnim(new Vertex3(head[1][0], head[1][1], head[1][2]));
-		setTailUVAnim(new Vertex3(tail[0][0], tail[0][1], tail[0][2]));
-		setTailDecayUVAnim(new Vertex3(tail[1][0], tail[1][1], tail[1][2]));
+		setHeadUVAnim(new Vector3(head[0][0], head[0][1], head[0][2]));
+		setHeadDecayUVAnim(new Vector3(head[1][0], head[1][1], head[1][2]));
+		setTailUVAnim(new Vector3(tail[0][0], tail[0][1], tail[0][2]));
+		setTailDecayUVAnim(new Vector3(tail[1][0], tail[1][1], tail[1][2]));
 
 		setTextureID(emitter.textureId);
 
@@ -538,59 +538,59 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		this.priorityPlane = priorityPlane;
 	}
 
-	public Vertex3 getAlpha() {
+	public Vector3 getAlpha() {
 		return alphas;
 	}
 
-	public void setAlpha(final Vertex3 alphas) {
+	public void setAlpha(final Vector3 alphas) {
 		this.alphas = alphas;
 	}
 
-	public Vertex3 getParticleScaling() {
+	public Vector3 getParticleScaling() {
 		return particleScaling;
 	}
 
-	public void setParticleScaling(final Vertex3 particleScaling) {
+	public void setParticleScaling(final Vector3 particleScaling) {
 		this.particleScaling = particleScaling;
 	}
 
-	public Vertex3 getHeadUVAnim() {
+	public Vector3 getHeadUVAnim() {
 		return headUVAnim;
 	}
 
-	public void setHeadUVAnim(final Vertex3 headUVAnim) {
+	public void setHeadUVAnim(final Vector3 headUVAnim) {
 		this.headUVAnim = headUVAnim;
 	}
 
-	public Vertex3 getHeadDecayUVAnim() {
+	public Vector3 getHeadDecayUVAnim() {
 		return headDecayUVAnim;
 	}
 
-	public void setHeadDecayUVAnim(final Vertex3 headDecayUVAnim) {
+	public void setHeadDecayUVAnim(final Vector3 headDecayUVAnim) {
 		this.headDecayUVAnim = headDecayUVAnim;
 	}
 
-	public Vertex3 getTailUVAnim() {
+	public Vector3 getTailUVAnim() {
 		return tailUVAnim;
 	}
 
-	public void setTailUVAnim(final Vertex3 tailUVAnim) {
+	public void setTailUVAnim(final Vector3 tailUVAnim) {
 		this.tailUVAnim = tailUVAnim;
 	}
 
-	public Vertex3 getTailDecayUVAnim() {
+	public Vector3 getTailDecayUVAnim() {
 		return tailDecayUVAnim;
 	}
 
-	public void setTailDecayUVAnim(final Vertex3 tailDecayUVAnim) {
+	public void setTailDecayUVAnim(final Vector3 tailDecayUVAnim) {
 		this.tailDecayUVAnim = tailDecayUVAnim;
 	}
 
-	public void setSegmentColor(final int index, final Vertex3 color) {
+	public void setSegmentColor(final int index, final Vector3 color) {
 		segmentColor[index] = color;
 	}
 
-	public Vertex3 getSegmentColor(final int index) {
+	public Vector3 getSegmentColor(final int index) {
 		return segmentColor[index];
 	}
 
@@ -598,7 +598,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return segmentColor.length;
 	}
 
-	public Vertex3[] getSegmentColors() {
+	public Vector3[] getSegmentColors() {
 		return segmentColor;
 	}
 

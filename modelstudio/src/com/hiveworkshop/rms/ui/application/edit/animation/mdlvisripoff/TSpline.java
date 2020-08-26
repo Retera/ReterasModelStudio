@@ -12,7 +12,7 @@ import javax.swing.SpinnerNumberModel;
 
 import com.hiveworkshop.rms.editor.model.AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
-import com.hiveworkshop.rms.util.QuaternionRotation;
+import com.hiveworkshop.rms.util.Quat;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -76,7 +76,7 @@ public class TSpline extends JPanel {
 		der.cur = timeline.getEntry(num);
 		der.prev = timeline.getEntry(num - 1);
 		der.next = timeline.getEntry(num + 1);
-		der.calcSplineParameters(timeline.getValues().get(0) instanceof QuaternionRotation, 4);
+		der.calcSplineParameters(timeline.getValues().get(0) instanceof Quat, 4);
 
 		tensionSpinner.setValue(Math.round(der.tension * 100));
 		continuitySpinner.setValue(Math.round(der.continuity * 100));
@@ -113,7 +113,7 @@ public class TSpline extends JPanel {
 		der.next = timeline.getEntry(i + 1);
 
 		der.isLogsReady = false;
-		if (timeline.getValues().get(0) instanceof QuaternionRotation) {
+		if (timeline.getValues().get(0) instanceof Quat) {
 			der.calcDerivative4D();
 		} else {
 			der.calcDerivativeXD(TTan.getSizeOfElement(timeline.getValues().get(0)));

@@ -2,41 +2,42 @@ package com.hiveworkshop.rms.util;
 
 import java.util.Collection;
 
-public class Vertex3 {
-	public static final Vertex3 ORIGIN = new Vertex3(0, 0, 0);
+public class Vector3 {
+	public static final Vector3 ORIGIN = new Vector3();
+
 	public float x = 0;
 	public float y = 0;
 	public float z = 0;
 
-	public Vertex3() {
+	public Vector3() {
 
 	}
 	
-	public Vertex3(final double x, final double y, final double z) {
+	public Vector3(final double x, final double y, final double z) {
 		this.x = (float) x;
 		this.y = (float) y;
 		this.z = (float) z;
 	}
 
-	public Vertex3(final Vertex3 v) {
+	public Vector3(final Vector3 v) {
 		x = v.x;
 		y = v.y;
 		z = v.z;
 	}
 
-	public Vertex3(final float[] data) {
+	public Vector3(final float[] data) {
 		x = data[0];
 		y = data[1];
 		z = data[2];
 	}
 
-	public Vertex3(final double[] data) {
+	public Vector3(final double[] data) {
 		x = (float) data[0];
 		y = (float) data[1];
 		z = (float) data[2];
 	}
 
-	public Vertex3(final float[] data, final boolean flip) {
+	public Vector3(final float[] data, final boolean flip) {
 		if (flip) {
 			z = data[0];
 			y = data[1];
@@ -60,7 +61,7 @@ public class Vertex3 {
 		return 0;
 	}
 
-	public static float getCoord(final Vertex4 vector, final byte dim) {
+	public static float getCoord(final Vector4 vector, final byte dim) {
 		switch (dim) {
 		case 0:
 			return vector.x;
@@ -103,13 +104,13 @@ public class Vertex3 {
 		}
 	}
 
-	public void set(final Vertex3 v) {
+	public void set(final Vector3 v) {
 		x = v.x;
 		y = v.y;
 		z = v.z;
 	}
 
-	public void set(final Vertex4 v) {
+	public void set(final Vector4 v) {
 		x = v.x;
 		y = v.y;
 		z = v.z;
@@ -121,20 +122,8 @@ public class Vertex3 {
 		z = (float) vz;
 	}
 
-	public boolean equalLocs(final Vertex3 v) {
+	public boolean equalLocs(final Vector3 v) {
 		return (x == v.x) && (y == v.y) && (z == v.z);
-	}
-
-	public double getX() {
-		return x;
-	}
-
-	public double getY() {
-		return y;
-	}
-
-	public double getZ() {
-		return z;
 	}
 
 	@Override
@@ -162,68 +151,44 @@ public class Vertex3 {
 		return new long[] { (long)x, (long)y, (long)z };
 	}
 
-	public static Vertex3 centerOfGroup(final Collection<? extends Vertex3> group) {
-		double xTot = 0;
-		double yTot = 0;
-		double zTot = 0;
-		for (final Vertex3 v : group) {
-			xTot += v.getX();
-			yTot += v.getY();
-			zTot += v.getZ();
+	public static Vector3 centerOfGroup(final Collection<? extends Vector3> group) {
+		final Vector3 center = new Vector3();
+
+		for (final Vector3 v : group) {
+			center.add(v);
 		}
-		xTot /= group.size();
-		yTot /= group.size();
-		zTot /= group.size();
-		return new Vertex3(xTot, yTot, zTot);
+
+		center.scale(1 / group.size());
+
+		return center;
 	}
 
-	public double distance (final float ax, final float ay, final float az) {
-		final double dx = ax - x;
-		final double dy = ay - y;
-		final double dz = az - z;
+	public float distance (final float ax, final float ay, final float az) {
+		final float dx = ax - x;
+		final float dy = ay - y;
+		final float dz = az - z;
 
-		return Math.sqrt((dx * dx) + (dy * dy) + (dz * dz));
+		return (float) Math.sqrt((dx * dx) + (dy * dy) + (dz * dz));
 
 	}
-	public double distance(final Vertex3 other) {
+	public float distance(final Vector3 other) {
 		return distance(other.x, other.y, other.z);
 	}
 
-	public double distance(final Vertex4 other) {
+	public float distance(final Vector4 other) {
 		return distance(other.x, other.y, other.z);
 	}
 
-	public double vectorMagnitude() {
-		return distance(ORIGIN);
+	public Vector3 add(final Vector3 a, final Vector3 out) {
+		out.x = x + a.x;
+		out.y = y + a.y;
+		out.z = z + a.z;
+
+		return out;
 	}
 
-	public Vertex3 delta(final Vertex3 other) {
-		return new Vertex3(other.x - x, other.y - y, other.z - z);
-	}
-
-	public Vertex3 subtract(final Vertex3 other) {
-		this.x -= other.x;
-		this.y -= other.y;
-		this.z -= other.z;
-		return this;
-	}
-
-	public Vertex3 add(final Vertex3 other) {
-		this.x += other.x;
-		this.y += other.y;
-		this.z += other.z;
-		return this;
-	}
-
-	public Vertex3 crossProduct(final Vertex3 other) {
-		final double x2 = other.x;
-		final double y2 = other.y;
-		final double z2 = other.z;
-		return crossProduct(x2, y2, z2);
-	}
-
-	private Vertex3 crossProduct(final double x2, final double y2, final double z2) {
-		return new Vertex3((y * z2) - (y2 * z), (x2 * z) - (x * z2), (x * y2) - (x2 * y));
+	public Vector3 add(final Vector3 a) {
+		return add(a, this);
 	}
 
 	public void translate(final double x, final double y, final double z) {
@@ -232,8 +197,8 @@ public class Vertex3 {
 		this.z += z;
 	}
 
-	public double dotProduct(final Vertex3 other) {
-		return (other.x * x) + (other.y * y) + (other.z * z);
+	public float dot(final Vector3 a) {
+		return (x * a.x) + (y * a.y) + (z * a.z);
 	}
 
 	public void scale(final double centerX, final double centerY, final double centerZ, final double scaleX,
@@ -246,11 +211,16 @@ public class Vertex3 {
 		this.z = (float)centerZ + (dz * (float)scaleZ);
 	}
 
-	public Vertex3 scale(final double factor) {
-		this.x *= factor;
-		this.y *= factor;
-		this.z *= factor;
-		return this;
+	public Vector3 scale(final float factor) {
+		return scale(factor, this);
+	}
+
+	public Vector3 scale(final float factor, final Vector3 out) {
+		out.x = x * factor;
+		out.y = y * factor;
+		out.z = z * factor;
+		
+		return out;
 	}
 
 	public void rotate(final double centerX, final double centerY, final double centerZ, final double radians,
@@ -258,7 +228,7 @@ public class Vertex3 {
 		rotateVertex(centerX, centerY, centerZ, radians, firstXYZ, secondXYZ, this);
 	}
 
-	public static void rotateVertex(final Vertex3 center, final Vertex3 axis, final double radians, final Vertex3 vertex) {
+	public static void rotateVertex(final Vector3 center, final Vector3 axis, final double radians, final Vector3 vertex) {
 		final double centerX = center.x;
 		final double centerY = center.y;
 		final double centerZ = center.z;
@@ -288,7 +258,7 @@ public class Vertex3 {
 	}
 
 	public static void rotateVertex(final double centerX, final double centerY, final double centerZ,
-			final double radians, final byte firstXYZ, final byte secondXYZ, final Vertex3 vertex) {
+			final double radians, final byte firstXYZ, final byte secondXYZ, final Vector3 vertex) {
 		final double x1 = vertex.getCoord(firstXYZ);
 		final double y1 = vertex.getCoord(secondXYZ);
 		final double cx;// = coordinateSystem.geomX(centerX);
@@ -327,40 +297,47 @@ public class Vertex3 {
 		// if( getDimEditable(dim1) )
 		double nextDim = (Math.cos(verAng + radians) * r) + cx;
 		if (!Double.isNaN(nextDim)) {
-			vertex.setCoord(firstXYZ, (Math.cos(verAng + radians) * r) + cx);
+			vertex.setCoord(firstXYZ, nextDim);
 		}
 		// if( getDimEditable(dim2) )
 		nextDim = (Math.sin(verAng + radians) * r) + cy;
 		if (!Double.isNaN(nextDim)) {
-			vertex.setCoord(secondXYZ, (Math.sin(verAng + radians) * r) + cy);
+			vertex.setCoord(secondXYZ, nextDim);
 		}
 	}
 
-	public Vertex3 normalize() {
-		final double magnitude = Math.sqrt((x * x) + (y * y) + (z * z));
-		x /= magnitude;
-		y /= magnitude;
-		z /= magnitude;
-		return this;
+	public Vector3 normalize(final Vector3 out) {
+		float len = lengthSquared();
+
+		if (len != 0) {
+			len = 1 / len;
+		}
+
+		out.x = x * len;
+		out.y = y * len;
+		out.z = z * len;
+
+		return out;
 	}
 
-	public Vertex3 cross(final Vertex3 other) {
-		return cross(this, other, new Vertex3());
+	public Vector3 normalize() {
+		return normalize(this);
 	}
 
-	public static Vertex3 cross(final Vertex3 a, final Vertex3 b, final Vertex3 out) {
+	public Vector3 cross(final Vector3 a, final Vector3 out) {
 		final float ax = a.x;
 		final float ay = a.y;
 		final float az = a.z;
-		final float bx = b.x;
-		final float by = b.y;
-		final float bz = b.z;
 
-		out.x = (ay * bz) - (by * az);
-		out.y = (bx * az) - (ax * bz);
-		out.z = (ax * by) - (bx * ay);
+		out.x = (y * az) - (ay * z);
+		out.y = (ax * z) - (x * az);
+		out.z = (x * ay) - (ax * y);
 
 		return out;
+	}
+
+	public Vector3 cross(final Vector3 a) {
+		return cross(a, this);
 	}
 
 	public float lengthSquared() {
@@ -371,24 +348,27 @@ public class Vertex3 {
 		return (float) Math.sqrt(lengthSquared());
 	}
 
-	public Vertex3 sub(final Vertex3 other) {
-		this.x -= other.x;
-		this.y -= other.y;
-		this.z -= other.z;
-		return this;
-	}
-
-	public static Vertex3 sub(final Vertex3 a, final Vertex3 b, final Vertex3 out) {
-		out.x = a.x - b.x;
-		out.y = a.y - b.y;
-		out.z = a.z - b.z;
+	public Vector3 sub(final Vector3 a, final Vector3 out) {
+		out.x = x - a.x;
+		out.y = y - a.y;
+		out.z = z - a.z;
 
 		return out;
 	}
 
-	public void inverse() {
-		x = -x;
-		y = -y;
-		z = -z;
+	public Vector3 sub(final Vector3 a) {
+		return sub(a, this);
+	}
+
+	public Vector3 negate(final Vector3 out) {
+		out.x = -x;
+		out.y = -y;
+		out.z = -z;
+
+		return out;
+	}
+
+	public Vector3 negate() {
+		return negate(this);
 	}
 }

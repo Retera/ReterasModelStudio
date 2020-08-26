@@ -7,10 +7,10 @@ import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
-import com.hiveworkshop.rms.util.Matrix4;
-import com.hiveworkshop.rms.util.Vertex2;
-import com.hiveworkshop.rms.util.Vertex3;
-import com.hiveworkshop.rms.util.Vertex4;
+import com.hiveworkshop.rms.util.Mat4;
+import com.hiveworkshop.rms.util.Vector2;
+import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vector4;
 
 public interface CoordinateSystem extends CoordinateAxes {
 	double convertX(double x);
@@ -94,39 +94,39 @@ public interface CoordinateSystem extends CoordinateAxes {
 			return new Point2D.Double(coordinateSystem.geomX(point.x), coordinateSystem.geomY(point.y));
 		}
 
-		public static Vertex3 convertToVertex(final CoordinateSystem coordinateSystem, final Point point) {
-			final Vertex3 vertex = new Vertex3(0, 0, 0);
+		public static Vector3 convertToVertex(final CoordinateSystem coordinateSystem, final Point point) {
+			final Vector3 vertex = new Vector3(0, 0, 0);
 			return convertToVertex(coordinateSystem, point, vertex);
 		}
 
-		public static Vertex3 convertToVertex(final CoordinateSystem coordinateSystem, final Point point,
-				final Vertex3 recycleVertex) {
+		public static Vector3 convertToVertex(final CoordinateSystem coordinateSystem, final Point point,
+				final Vector3 recycleVertex) {
 			recycleVertex.setCoord(coordinateSystem.getPortFirstXYZ(), coordinateSystem.geomX(point.x));
 			recycleVertex.setCoord(coordinateSystem.getPortSecondXYZ(), coordinateSystem.geomY(point.y));
 			return recycleVertex;
 		}
 
-		public static Point convertToPoint(final CoordinateSystem coordinateSystem, final Vertex3 vertex) {
+		public static Point convertToPoint(final CoordinateSystem coordinateSystem, final Vector3 vertex) {
 			return convertToPoint(coordinateSystem, vertex, new Point(0, 0));
 		}
 
-		public static Point convertToPoint(final CoordinateSystem coordinateSystem, final Vertex3 vertex,
+		public static Point convertToPoint(final CoordinateSystem coordinateSystem, final Vector3 vertex,
 				final Point recyclePoint) {
 			recyclePoint.x = (int) coordinateSystem.convertX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
 			recyclePoint.y = (int) coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
 			return recyclePoint;
 		}
 
-		public static Point convertToPoint(final CoordinateSystem coordinateSystem, final Vertex2 vertex,
+		public static Point convertToPoint(final CoordinateSystem coordinateSystem, final Vector2 vertex,
 				final Point recyclePoint) {
 			recyclePoint.x = (int) coordinateSystem.convertX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
 			recyclePoint.y = (int) coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
 			return recyclePoint;
 		}
 
-		private static final Vertex4 vertexHeap = new Vertex4();
-		private static final Vertex4 appliedVertexHeap = new Vertex4();
-		private static final Vertex4 vertexSumHeap = new Vertex4();
+		private static final Vector4 vertexHeap = new Vector4();
+		private static final Vector4 appliedVertexHeap = new Vector4();
+		private static final Vector4 vertexSumHeap = new Vector4();
 
 		public static Point convertToPoint(final CoordinateSystem coordinateSystem, final GeosetVertex vertex,
 				final Point recyclePoint, final RenderModel renderModel) {
@@ -136,8 +136,8 @@ public interface CoordinateSystem extends CoordinateAxes {
 			vertexHeap.w = 1;
 			vertexSumHeap.set(0, 0, 0, 0);
 			for (final Bone bone : vertex.getBones()) {
-				Matrix4.transform(renderModel.getRenderNode(bone).getWorldMatrix(), vertexHeap, appliedVertexHeap);
-				Vertex4.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
+				renderModel.getRenderNode(bone).getWorldMatrix().transform(vertexHeap, appliedVertexHeap);
+				vertexSumHeap.add(appliedVertexHeap);
 			}
 			final int boneCount = vertex.getBones().size();
 			vertexSumHeap.x /= boneCount;
@@ -145,9 +145,9 @@ public interface CoordinateSystem extends CoordinateAxes {
 			vertexSumHeap.z /= boneCount;
 			vertexSumHeap.w /= boneCount;
 			recyclePoint.x = (int) coordinateSystem
-					.convertX(Vertex3.getCoord(vertexSumHeap, coordinateSystem.getPortFirstXYZ()));
+					.convertX(Vector3.getCoord(vertexSumHeap, coordinateSystem.getPortFirstXYZ()));
 			recyclePoint.y = (int) coordinateSystem
-					.convertY(Vertex3.getCoord(vertexSumHeap, coordinateSystem.getPortSecondXYZ()));
+					.convertY(Vector3.getCoord(vertexSumHeap, coordinateSystem.getPortSecondXYZ()));
 			return recyclePoint;
 		}
 

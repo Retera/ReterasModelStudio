@@ -30,8 +30,8 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.util.Matrix4;
-import com.hiveworkshop.rms.util.Vertex4;
+import com.hiveworkshop.rms.util.Mat4;
+import com.hiveworkshop.rms.util.Vector4;
 
 public class AnimatedViewportModelRenderer implements ModelVisitor {
 	private Graphics2D graphics;
@@ -176,14 +176,14 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 
 	}
 
-	private static final Vertex4 vertexHeap = new Vertex4();
-	private static final Vertex4 appliedVertexHeap = new Vertex4();
-	private static final Vertex4 vertexSumHeap = new Vertex4();
-	private static final Vertex4 normalHeap = new Vertex4();
-	private static final Vertex4 appliedNormalHeap = new Vertex4();
-	private static final Vertex4 normalSumHeap = new Vertex4();
-	private static final Matrix4 skinBonesMatrixHeap = new Matrix4();
-	private static final Matrix4 skinBonesMatrixSumHeap = new Matrix4();
+	private static final Vector4 vertexHeap = new Vector4();
+	private static final Vector4 appliedVertexHeap = new Vector4();
+	private static final Vector4 vertexSumHeap = new Vector4();
+	private static final Vector4 normalHeap = new Vector4();
+	private static final Vector4 appliedNormalHeap = new Vector4();
+	private static final Vector4 normalSumHeap = new Vector4();
+	private static final Mat4 skinBonesMatrixHeap = new Mat4();
+	private static final Mat4 skinBonesMatrixSumHeap = new Mat4();
 
 	private final class TriangleRendererImpl implements TriangleVisitor {
 		private final List<Point> previousVertices = new ArrayList<>();
@@ -203,8 +203,8 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 			if (bones.size() > 0) {
 				vertexSumHeap.set(0, 0, 0, 0);
 				for (final Bone bone : bones) {
-					Matrix4.transform(renderModel.getRenderNode(bone).getWorldMatrix(), vertexHeap, appliedVertexHeap);
-					Vertex4.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
+					renderModel.getRenderNode(bone).getWorldMatrix().transform(vertexHeap, appliedVertexHeap);
+					vertexSumHeap.add(appliedVertexHeap);
 				}
 				final int boneCount = bones.size();
 				vertexSumHeap.x /= boneCount;
@@ -261,9 +261,8 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 				if (bones.size() > 0) {
 					normalSumHeap.set(0, 0, 0, 0);
 					for (final Bone bone : bones) {
-						Matrix4.transform(renderModel.getRenderNode(bone).getWorldMatrix(), normalHeap,
-								appliedNormalHeap);
-						Vertex4.add(normalSumHeap, appliedNormalHeap, normalSumHeap);
+						renderModel.getRenderNode(bone).getWorldMatrix().transform(normalHeap, appliedNormalHeap);
+						normalSumHeap.add(appliedNormalHeap);
 					}
 
 					if (normalSumHeap.length() > 0) {
@@ -330,7 +329,7 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 					continue;
 				}
 				processedBones = true;
-				final Matrix4 worldMatrix = renderModel.getRenderNode(skinBone).getWorldMatrix();
+				final Mat4 worldMatrix = renderModel.getRenderNode(skinBone).getWorldMatrix();
 				skinBonesMatrixHeap.set(worldMatrix);
 
 				skinBonesMatrixSumHeap.m00 += (skinBonesMatrixHeap.m00 * skinBoneWeights[boneIndex]) / 255f;
@@ -353,12 +352,12 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 			if (!processedBones) {
 				skinBonesMatrixSumHeap.setIdentity();
 			}
-			Matrix4.transform(skinBonesMatrixSumHeap, vertexHeap, vertexSumHeap);
+			skinBonesMatrixSumHeap.transform(vertexHeap, vertexSumHeap);
 			normalHeap.x = (float) normalX;
 			normalHeap.y = (float) normalY;
 			normalHeap.z = (float) normalZ;
 			normalHeap.w = 0;
-			Matrix4.transform(skinBonesMatrixSumHeap, normalHeap, normalSumHeap);
+			skinBonesMatrixSumHeap.transform(normalHeap, normalSumHeap);
 
 			if (normalSumHeap.length() > 0) {
 				normalSumHeap.normalize();

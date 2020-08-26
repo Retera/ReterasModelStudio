@@ -12,8 +12,8 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotate
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ComponentVisibilityListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.rms.util.Vertex2;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vector2;
+import com.hiveworkshop.rms.util.Vector3;
 
 /**
  * So, in some ideal future this would be an implementation of the ModelEditor
@@ -29,9 +29,9 @@ public interface TVertexEditor extends ComponentVisibilityListener {
 	// knowledge of center point from state holders
 	UndoAction translate(double x, double y);
 
-	UndoAction setPosition(Vertex2 center, double x, double y);
+	UndoAction setPosition(Vector2 center, double x, double y);
 
-	UndoAction rotate(Vertex2 center, double rotateRadians);
+	UndoAction rotate(Vector2 center, double rotateRadians);
 
 	UndoAction mirror(byte dim, double centerX, double centerY);
 
@@ -51,7 +51,7 @@ public interface TVertexEditor extends ComponentVisibilityListener {
 
 	UndoAction selectFromViewer(SelectionView viewerSelectionView);
 
-	void selectByVertices(Collection<? extends Vertex3> newSelection);
+	void selectByVertices(Collection<? extends Vector3> newSelection);
 
 	boolean canSelectAt(Point point, CoordinateSystem axes);
 
@@ -67,7 +67,7 @@ public interface TVertexEditor extends ComponentVisibilityListener {
 
 	void rawRotate2d(double centerX, double centerY, double radians, byte firstXYZ, byte secondXYZ);
 
-	Vertex2 getSelectionCenter();
+	Vector2 getSelectionCenter();
 
 	void setUVLayerIndex(int uvLayerIndex);
 

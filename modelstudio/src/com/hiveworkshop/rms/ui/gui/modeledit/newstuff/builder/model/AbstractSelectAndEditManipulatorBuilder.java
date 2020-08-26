@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.model;
 
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vector3;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
@@ -96,13 +96,13 @@ public abstract class AbstractSelectAndEditManipulatorBuilder implements ModelEd
 		}
 	}
 
-	protected abstract boolean widgetOffersEdit(Vertex3 selectionCenter, Point mousePoint,
+	protected abstract boolean widgetOffersEdit(Vector3 selectionCenter, Point mousePoint,
 			CoordinateSystem coordinateSystem, SelectionView selectionView);
 
-	protected abstract Manipulator createManipulatorFromWidget(Vertex3 selectionCenter, Point mousePoint,
+	protected abstract Manipulator createManipulatorFromWidget(Vector3 selectionCenter, Point mousePoint,
 			CoordinateSystem coordinateSystem, SelectionView selectionView);
 
-	protected abstract Manipulator createDefaultManipulator(Vertex3 selectionCenter, Point mousePoint,
+	protected abstract Manipulator createDefaultManipulator(Vector3 selectionCenter, Point mousePoint,
 			CoordinateSystem coordinateSystem, SelectionView selectionView);
 
 	protected abstract void renderWidget(final Graphics2D graphics, final CoordinateSystem coordinateSystem,

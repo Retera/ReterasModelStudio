@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator.activity;
 
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vector3;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
@@ -20,13 +20,13 @@ public class DrawPlaneManipulator extends AbstractManipulator {
 	private final ProgramPreferences programPreferences;
 	private final CoordinateSystem coordinateSystem;
 	private GenericMoveAction addPlane;
-	private final Vertex3 facingVector;
+	private final Vector3 facingVector;
 	private final int numberOfWidthSegments;
 	private final int numberOfHeightSegments;
 
 	public DrawPlaneManipulator(final ModelEditor modelEditor, final ProgramPreferences programPreferences,
 			final CoordinateSystem coordinateSystem, final int numberOfWidthSegments, final int numberOfHeightSegments,
-			final Vertex3 facingVector) {
+			final Vector3 facingVector) {
 		this.modelEditor = modelEditor;
 		this.programPreferences = programPreferences;
 		this.coordinateSystem = coordinateSystem;

@@ -22,7 +22,7 @@ import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vector3;
 
 public final class IdObjectRenderer implements IdObjectVisitor {
 	private CoordinateSystem coordinateSystem;
@@ -138,8 +138,8 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 	public void camera(final Camera camera) {
 		graphics.setColor(Color.GREEN.darker());
 		final Graphics2D g2 = ((Graphics2D) graphics.create());
-		final Vertex3 ver = camera.getPosition();
-		final Vertex3 targ = camera.getTargetPosition();
+		final Vector3 ver = camera.getPosition();
+		final Vector3 targ = camera.getTargetPosition();
 		// final boolean verSel = selection.contains(ver);
 		// final boolean tarSel = selection.contains(targ);
 		final Point start = new Point(
@@ -220,15 +220,15 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 	public static void drawCollisionShape(final Graphics2D graphics, final Color color,
 			final CoordinateSystem coordinateSystem, final byte xDimension, final byte yDimension, final int vertexSize,
 			final CollisionShape collisionShape, final Image collisionImage) {
-		final Vertex3 pivotPoint = collisionShape.getPivotPoint();
-		final List<Vertex3> vertices = collisionShape.getVertices();
+		final Vector3 pivotPoint = collisionShape.getPivotPoint();
+		final List<Vector3> vertices = collisionShape.getVertices();
 		graphics.setColor(color);
 		final int xCoord = (int) coordinateSystem.convertX(pivotPoint.getCoord(xDimension));
 		final int yCoord = (int) coordinateSystem.convertY(pivotPoint.getCoord(yDimension));
 		if (collisionShape.getType() == MdlxCollisionShape.Type.BOX) {
 			if (vertices.size() > 1) {
-				final Vertex3 vertex = vertices.get(0);
-				final Vertex3 vertex2 = vertices.get(1);
+				final Vector3 vertex = vertices.get(0);
+				final Vector3 vertex2 = vertices.get(1);
 				final int firstXCoord = (int) coordinateSystem.convertX(vertex2.getCoord(xDimension));
 				final int firstYCoord = (int) coordinateSystem.convertY(vertex2.getCoord(yDimension));
 				final int secondXCoord = (int) coordinateSystem.convertX(vertex.getCoord(xDimension));

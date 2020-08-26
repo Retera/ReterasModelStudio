@@ -3,15 +3,15 @@ package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.actions;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexEditor;
-import com.hiveworkshop.rms.util.Vertex2;
+import com.hiveworkshop.rms.util.Vector2;
 
 public final class StaticMeshUVMoveAction implements UndoAction, GenericMoveAction {
 	private final TVertexEditor modelEditor;
-	private final Vertex2 moveVector;
+	private final Vector2 moveVector;
 
-	public StaticMeshUVMoveAction(final TVertexEditor modelEditor, final Vertex2 moveVector) {
+	public StaticMeshUVMoveAction(final TVertexEditor modelEditor, final Vector2 moveVector) {
 		this.modelEditor = modelEditor;
-		this.moveVector = new Vertex2(moveVector);
+		this.moveVector = new Vector2(moveVector);
 	}
 
 	@Override

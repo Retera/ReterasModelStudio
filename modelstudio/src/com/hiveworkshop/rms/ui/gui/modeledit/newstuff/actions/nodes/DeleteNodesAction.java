@@ -14,20 +14,20 @@ import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vector3;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 
 public class DeleteNodesAction implements UndoAction {
 	private final List<IdObject> objects;
 	private final ModelStructureChangeListener changeListener;
 	private final ModelView model;
-	private final Collection<Vertex3> selection;
+	private final Collection<Vector3> selection;
 	private final VertexSelectionHelper vertexSelectionHelper;
 	private List<GeosetVertexNodeDeleteOperation> meshLinkDeleteOps;
 	private final Set<IdObject> quickHashSetRemovedObjects;
 	private final List<Camera> deletedCameras;
 
-	public DeleteNodesAction(final Collection<? extends Vertex3> selection, final List<IdObject> objects,
+	public DeleteNodesAction(final Collection<? extends Vector3> selection, final List<IdObject> objects,
 			final List<Camera> deletedCameras, final ModelStructureChangeListener changeListener, final ModelView model,
 			final VertexSelectionHelper vertexSelectionHelper) {
 		this.selection = new ArrayList<>(selection);
@@ -87,7 +87,7 @@ public class DeleteNodesAction implements UndoAction {
 		}
 		changeListener.nodesRemoved(objects);
 		changeListener.camerasRemoved(deletedCameras);
-		vertexSelectionHelper.selectVertices(new ArrayList<Vertex3>());
+		vertexSelectionHelper.selectVertices(new ArrayList<Vector3>());
 	}
 
 	@Override

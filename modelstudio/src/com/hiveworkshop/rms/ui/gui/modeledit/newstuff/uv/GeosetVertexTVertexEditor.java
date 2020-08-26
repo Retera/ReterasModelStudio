@@ -26,8 +26,8 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisito
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.util.Vertex2;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vector2;
+import com.hiveworkshop.rms.util.Vector3;
 
 public class GeosetVertexTVertexEditor extends AbstractTVertexEditor<GeosetVertex> {
 	private final ProgramPreferences programPreferences;
@@ -40,7 +40,7 @@ public class GeosetVertexTVertexEditor extends AbstractTVertexEditor<GeosetVerte
 	}
 
 	@Override
-	public void selectByVertices(final Collection<? extends Vertex3> newSelection) {
+	public void selectByVertices(final Collection<? extends Vector3> newSelection) {
 		final List<GeosetVertex> newGeosetVertices = new ArrayList<>();
 		for (final Geoset geoset : model.getEditableGeosets()) {
 			for (final GeosetVertex vertex : geoset.getVertices()) {
@@ -149,7 +149,7 @@ public class GeosetVertexTVertexEditor extends AbstractTVertexEditor<GeosetVerte
 	}
 
 	public static void hitTest(final List<GeosetVertex> selectedItems, final Rectangle2D area,
-			final GeosetVertex geosetVertex, final Vertex2 tVertex, final CoordinateSystem coordinateSystem,
+			final GeosetVertex geosetVertex, final Vector2 tVertex, final CoordinateSystem coordinateSystem,
 			final double vertexSize) {
 		final byte dim1 = coordinateSystem.getPortFirstXYZ();
 		final byte dim2 = coordinateSystem.getPortSecondXYZ();
@@ -167,7 +167,7 @@ public class GeosetVertexTVertexEditor extends AbstractTVertexEditor<GeosetVerte
 		}
 	}
 
-	public static boolean hitTest(final Vertex2 vertex, final Point2D point, final CoordinateSystem coordinateSystem,
+	public static boolean hitTest(final Vector2 vertex, final Point2D point, final CoordinateSystem coordinateSystem,
 			final double vertexSize) {
 		final double x = coordinateSystem.convertX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
 		final double y = coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
