@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.hiveworkshop.rms.parsers.mdlx.MdlxSequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.BasicTimeBoundProvider;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 
 /**
  * A java object to represent MDL "Sequences" ("Animations").
@@ -27,8 +27,8 @@ public class Animation implements BasicTimeBoundProvider {
 		extents = new ExtLog(ExtLog.DEFAULT_MINEXT, ExtLog.DEFAULT_MAXEXT, ExtLog.DEFAULT_BOUNDSRADIUS);
 	}
 
-	public Animation(final String name, final int intervalStart, final int intervalEnd, final Vector3 minimumExt,
-			final Vector3 maximumExt, final double boundsRad) {
+	public Animation(final String name, final int intervalStart, final int intervalEnd, final Vec3 minimumExt,
+			final Vec3 maximumExt, final double boundsRad) {
 		this.name = name;
 		this.intervalStart = intervalStart;
 		this.intervalEnd = intervalEnd;

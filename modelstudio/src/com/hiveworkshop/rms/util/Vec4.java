@@ -1,36 +1,36 @@
 package com.hiveworkshop.rms.util;
 
-public class Vector4 {
+public class Vec4 {
 	public float x = 0;
 	public float y = 0;
 	public float z = 0;
 	public float w = 0;
 
-	public Vector4() {
+	public Vec4() {
 
 	}
 	
-	public Vector4(final float x, final float y, final float z, final float w) {
+	public Vec4(final float x, final float y, final float z, final float w) {
 		set(x, y, z, w);
 	}
 
-	public Vector4(final double x, final double y, final double z, final double w) {
+	public Vec4(final double x, final double y, final double z, final double w) {
 		set(x, y, z, w);
 	}
 
-	public Vector4(final Vector4 v) {
+	public Vec4(final Vec4 v) {
 		set(v);
 	}
 
-	public Vector4(final float[] data) {
+	public Vec4(final float[] data) {
+		set(data);
+	}
+
+	public Vec4(final double[] data) {
 		set(data[0], data[1], data[2], data[3]);
 	}
 
-	public Vector4(final double[] data) {
-		set(data[0], data[1], data[2], data[3]);
-	}
-
-	public Vector4(final float[] data, final boolean flip) {
+	public Vec4(final float[] data, final boolean flip) {
 		if (flip) {
 			z = data[0];
 			y = data[1];
@@ -113,7 +113,7 @@ public class Vector4 {
 		}
 	}
 
-	public void set(final Vector4 v) {
+	public void set(final Vec4 v) {
 		x = v.x;
 		y = v.y;
 		z = v.z;
@@ -134,7 +134,14 @@ public class Vector4 {
 		w = (float) vw;
 	}
 
-	public boolean equals(final Vector4 v) {
+	public void set(final float[] a) {
+		x = a[0];
+		y = a[1];
+		z = a[2];
+		w = a[3];
+	}
+
+	public boolean equals(final Vec4 v) {
 		return (x == v.x) && (y == v.y) && (z == v.z) && (w == v.w);
 	}
 
@@ -171,7 +178,7 @@ public class Vector4 {
 		return (float) Math.sqrt(lengthSquared());
 	}
 
-	public float distanceSquared(final Vector4 a) {
+	public float distanceSquared(final Vec4 a) {
 		final float dx = a.x - x;
 		final float dy = a.y - y;
 		final float dz = a.z - z;
@@ -180,11 +187,11 @@ public class Vector4 {
 		return (dx * dx) + (dy * dy) + (dz * dz) + (dw * dw);
 	}
 
-	public float distance(final Vector4 a) {
+	public float distance(final Vec4 a) {
 		return (float) Math.sqrt(distanceSquared(a));
 	}
 
-	public Vector4 sub(final Vector4 a) {
+	public Vec4 sub(final Vec4 a) {
 		x -= a.x;
 		y -= a.y;
 		z -= a.z;
@@ -193,7 +200,7 @@ public class Vector4 {
 		return this;
 	}
 
-	public Vector4 add(final Vector4 a, final Vector4 out) {
+	public Vec4 add(final Vec4 a, final Vec4 out) {
 		out.x = x + a.x;
 		out.y = y + a.y;
 		out.z = z + a.z;
@@ -202,15 +209,15 @@ public class Vector4 {
 		return out;
 	}
 
-	public Vector4 add(final Vector4 a) {
+	public Vec4 add(final Vec4 a) {
 		return add(a, this);
 	}
 
-	public float dot(final Vector4 a) {
+	public float dot(final Vec4 a) {
 		return (x * a.x) + (y * a.y) + (z * a.z) + (w * a.w);
 	}
 
-	public Vector4 scale(final float factor, final Vector4 out) {
+	public Vec4 scale(final float factor, final Vec4 out) {
 		out.x = x * factor;
 		out.y = y * factor;
 		out.z = z * factor;
@@ -219,11 +226,11 @@ public class Vector4 {
 		return out;
 	}
 
-	public Vector4 scale(final float factor) {
+	public Vec4 scale(final float factor) {
 		return scale(factor, this);
 	}
 
-	public Vector4 normalize(final Vector4 out) {
+	public Vec4 normalize(final Vec4 out) {
 		float len = lengthSquared();
 
 		if (len > 0) {
@@ -238,7 +245,59 @@ public class Vector4 {
 		return out;
 	}
 
-	public Vector4 normalize() {
+	public Vec4 normalize() {
 		return normalize(this);
+	}
+
+	public Vec4 lerp(final Vec4 a, final float t, final Vec4 out) {
+		out.x = MathUtils.lerp(x, a.x, t);
+		out.y = MathUtils.lerp(y, a.y, t);
+		out.z = MathUtils.lerp(z, a.z, t);
+		out.w = MathUtils.lerp(w, a.w, t);
+
+		return out;
+	}
+
+	public Vec4 lerp(final Vec4 a, final float t) {
+		return lerp(a, t, this);
+	}
+
+	public Vec4 hermite(final Vec4 outTan, final Vec4 inTan, final Vec4 a, final float t, final Vec4 out) {
+		final float factorTimes2 = t * t;
+		final float factor1 = (factorTimes2 * ((2 * t) - 3)) + 1;
+		final float factor2 = (factorTimes2 * (t - 2)) + t;
+		final float factor3 = factorTimes2 * (t - 1);
+		final float factor4 = factorTimes2 * (3 - (2 * t));
+		
+		out.x = (x * factor1) + (outTan.x * factor2) + (inTan.x * factor3) + (a.x * factor4);
+		out.y = (y * factor1) + (outTan.y * factor2) + (inTan.y * factor3) + (a.y * factor4);
+		out.z = (z * factor1) + (outTan.z * factor2) + (inTan.z * factor3) + (a.z * factor4);
+
+		return out;
+	}
+
+	public Vec4 hermite(final Vec4 outTan, final Vec4 inTan, final Vec4 a, final float t) {
+		return hermite(outTan, inTan, a, t, this);
+	}
+
+	public Vec4 bezier(final Vec4 outTan, final Vec4 inTan, final Vec4 a, final float t, final Vec4 out) {
+		final float invt = 1 - t;
+		final float factorSquared = t * t;
+		final float inverseFactorSquared = invt * invt;
+		final float factor1 = inverseFactorSquared * invt;
+		final float factor2 = 3 * t * inverseFactorSquared;
+		final float factor3 = 3 * factorSquared * invt;
+		final float factor4 = factorSquared * t;
+		
+		out.x = (x * factor1) + (outTan.x * factor2) + (inTan.x * factor3) + (a.x * factor4);
+		out.y = (y * factor1) + (outTan.y * factor2) + (inTan.y * factor3) + (a.y * factor4);
+		out.z = (z * factor1) + (outTan.z * factor2) + (inTan.z * factor3) + (a.z * factor4);
+		out.w = (w * factor1) + (outTan.w * factor2) + (inTan.w * factor3) + (a.w * factor4);
+
+		return out;
+	}
+
+	public Vec4 bezier(final Vec4 outTan, final Vec4 inTan, final Vec4 a, final float t) {
+		return bezier(outTan, inTan, a, t, this);
 	}
 }

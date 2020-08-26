@@ -26,7 +26,7 @@ import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.Triangle;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 
 public class FaceTVertexEditor extends AbstractTVertexEditor<Triangle> {
@@ -40,7 +40,7 @@ public class FaceTVertexEditor extends AbstractTVertexEditor<Triangle> {
 	}
 
 	@Override
-	public void selectByVertices(final Collection<? extends Vector3> newSelection) {
+	public void selectByVertices(final Collection<? extends Vec3> newSelection) {
 		final Set<Triangle> newlySelectedFaces = new HashSet<>();
 		for (final Geoset geoset : model.getModel().getGeosets()) {
 			for (final Triangle triangle : geoset.getTriangles()) {
@@ -155,7 +155,7 @@ public class FaceTVertexEditor extends AbstractTVertexEditor<Triangle> {
                                                   final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
 		final List<Triangle> previousSelection = new ArrayList<>(selectionManager.getSelection());
 		final List<Triangle> possibleTrianglesToTruncate = new ArrayList<>();
-		final List<Vector3> possibleVerticesToTruncate = new ArrayList<>();
+		final List<Vec3> possibleVerticesToTruncate = new ArrayList<>();
 		for (final SelectableComponent component : selectableComponents) {
 			component.visit(new SelectableComponentVisitor() {
 				@Override

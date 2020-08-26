@@ -7,7 +7,7 @@ import java.util.Map;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxGenericObject;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 
 /**
  * Write a description of class ObjectId here.
@@ -28,7 +28,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	protected boolean billboardLockX = false;
 	protected boolean billboardLockY = false;
 	protected boolean billboardLockZ = false;
-	protected Vector3 pivotPoint;
+	protected Vec3 pivotPoint;
 	protected IdObject parent;
 	protected final List<IdObject> childrenNodes = new ArrayList<>();
 	protected float[] bindPose;
@@ -122,7 +122,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return name;
 	}
 
-	public void setPivotPoint(final Vector3 p) {
+	public void setPivotPoint(final Vec3 p) {
 		pivotPoint = p;
 	}
 
@@ -151,7 +151,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		billboardLockX = other.billboardLockX;
 		billboardLockY = other.billboardLockY;
 		billboardLockZ = other.billboardLockZ;
-		pivotPoint = new Vector3(other.getPivotPoint());
+		pivotPoint = new Vec3(other.getPivotPoint());
 		setParent(other.getParent());
 		addAll(other.getAnimFlags());
 	}
@@ -297,7 +297,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	}
 
 	@Override
-	public Vector3 getPivotPoint() {
+	public Vec3 getPivotPoint() {
 		return pivotPoint;
 	}
 

@@ -23,7 +23,7 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 
 public final class TeamColorAddAction<T> implements UndoAction {
 
@@ -34,7 +34,7 @@ public final class TeamColorAddAction<T> implements UndoAction {
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final SelectionManager<T> selectionManager;
 	private final Collection<T> selection;
-	private final Collection<Vector3> newVerticesToSelect;
+	private final Collection<Vec3> newVerticesToSelect;
 	private final VertexSelectionHelper vertexSelectionHelper;
 
 	public TeamColorAddAction(final Collection<Triangle> trisToSeparate, final EditableModel model,

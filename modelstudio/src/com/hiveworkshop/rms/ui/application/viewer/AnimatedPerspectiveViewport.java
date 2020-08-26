@@ -91,8 +91,8 @@ import com.hiveworkshop.rms.ui.util.BetterAWTGLCanvas;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
-import com.hiveworkshop.rms.util.Vector3;
-import com.hiveworkshop.rms.util.Vector4;
+import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.util.Vec4;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
@@ -107,11 +107,11 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	public static final boolean LOG_EXCEPTIONS = true;
 	ModelView modelView;
 	private RenderModel renderModel;
-	Vector3 cameraPos = new Vector3(0, 0, 0);
+	Vec3 cameraPos = new Vec3(0, 0, 0);
 	Quat inverseCameraRotationQuat = new Quat();
 	Quat inverseCameraRotationYSpin = new Quat();
 	Quat inverseCameraRotationZSpin = new Quat();
-	private final Vector4 axisHeap = new Vector4();
+	private final Vec4 axisHeap = new Vec4();
 	double m_zoom = 1;
 	Point lastClick;
 	Point leftClickStart;
@@ -575,12 +575,12 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		return texLoaded && ((programPreferences == null) || programPreferences.textureModels());
 	}
 
-	private final Vector4 vertexHeap = new Vector4();
-	private final Vector4 appliedVertexHeap = new Vector4();
-	private final Vector4 vertexSumHeap = new Vector4();
-	private final Vector4 normalHeap = new Vector4();
-	private final Vector4 appliedNormalHeap = new Vector4();
-	private final Vector4 normalSumHeap = new Vector4();
+	private final Vec4 vertexHeap = new Vec4();
+	private final Vec4 appliedVertexHeap = new Vec4();
+	private final Vec4 vertexSumHeap = new Vec4();
+	private final Vec4 normalHeap = new Vec4();
+	private final Vec4 appliedNormalHeap = new Vec4();
+	private final Vec4 normalSumHeap = new Vec4();
 	private final Mat4 skinBonesMatrixHeap = new Mat4();
 	private final Mat4 skinBonesMatrixSumHeap = new Mat4();
 
@@ -984,7 +984,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 				final float layerVisibility = layer.getRenderVisibility(this);
 				final float alphaValue = geosetAnimVisibility * layerVisibility;
 				if (/* geo.getMaterial().isConstantColor() && */ geosetAnim != null) {
-					final Vector3 renderColor = geosetAnim.getRenderColor(this);
+					final Vec3 renderColor = geosetAnim.getRenderColor(this);
 					if (renderColor != null) {
 						if (layer.getFilterMode() == FilterMode.ADDITIVE) {
 							GL11.glColor4f(renderColor.z * alphaValue, renderColor.y * alphaValue,
@@ -1627,8 +1627,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		}
 
 		@Override
-		public void setTransformation(final Vector3 worldLocation, final Quat rotation,
-				final Vector3 worldScale) {
+		public void setTransformation(final Vec3 worldLocation, final Quat rotation,
+				final Vec3 worldScale) {
 		}
 
 		@Override
@@ -1646,7 +1646,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		}
 
 		@Override
-		public void move(final Vector3 deltaPosition) {
+		public void move(final Vec3 deltaPosition) {
 
 		}
 

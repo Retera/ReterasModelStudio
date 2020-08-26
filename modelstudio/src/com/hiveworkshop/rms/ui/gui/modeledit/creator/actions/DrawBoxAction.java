@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.creator.actions;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils.Mesh;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
@@ -23,11 +23,11 @@ public class DrawBoxAction implements GenericMoveAction {
 	private double planeMaxX;
 	private double planeMaxY;
 	private final Geoset planeGeoset;
-	private final Vector3 dummy1, dummy2;
+	private final Vec3 dummy1, dummy2;
 	private double zHeight;
 
 	public DrawBoxAction(final double x, final double y, final double x2, final double y2, final byte dim1,
-			final byte dim2, final Vector3 facingVector, final int numberOfLengthSegments,
+			final byte dim2, final Vec3 facingVector, final int numberOfLengthSegments,
 			final int numberOfWidthSegments, final int numberOfHeightSegments, final Geoset planeGeoset) {
 		this.x = x;
 		this.y = y;
@@ -37,24 +37,24 @@ public class DrawBoxAction implements GenericMoveAction {
 		firstDimension = dim1;
 		secondDimension = dim2;
 
-		dummy1 = new Vector3(0, 0, 0);
-		dummy2 = new Vector3(0, 0, 0);
+		dummy1 = new Vec3(0, 0, 0);
+		dummy2 = new Vec3(0, 0, 0);
 		makePlaneFromPoints(x, y, x2, y2, dim1, dim2, facingVector, numberOfLengthSegments, numberOfWidthSegments,
 				numberOfHeightSegments);
 	}
 
 	public void makePlaneFromPoints(final double x, final double y, final double x2, final double y2, final byte dim1,
-			final byte dim2, final Vector3 facingVector, final int numberOfLengthSegments,
+			final byte dim2, final Vec3 facingVector, final int numberOfLengthSegments,
 			final int numberOfWidthSegments, final int numberOfHeightSegments) {
 		planeMinX = Math.min(x, x2);
 		planeMinY = Math.min(y, y2);
 		planeMaxX = Math.max(x, x2);
 		planeMaxY = Math.max(y, y2);
 
-		dummy1.set(Vector3.ORIGIN);
+		dummy1.set(Vec3.ORIGIN);
 		dummy1.setCoord(dim1, planeMinX);
 		dummy1.setCoord(dim2, planeMinY);
-		dummy2.set(Vector3.ORIGIN);
+		dummy2.set(Vec3.ORIGIN);
 		dummy2.setCoord(dim1, planeMaxX);
 		dummy2.setCoord(dim2, planeMaxY);
 		dummy2.setCoord(CoordinateSystem.Util.getUnusedXYZ(dim1, dim2), 1);
@@ -85,7 +85,7 @@ public class DrawBoxAction implements GenericMoveAction {
 		planeMaxY = maxY;
 	}
 
-	public void shiftPlanePoint(final Vector3 vertex, final double newMinX, final double newMinY, final double scaleX,
+	public void shiftPlanePoint(final Vec3 vertex, final double newMinX, final double newMinY, final double scaleX,
 			final double scaleY, final double scaleZ) {
 		final double vertexX = vertex.getCoord(firstDimension);
 		vertex.setCoord(firstDimension, ((vertexX - planeMinX) * scaleX) + newMinX);

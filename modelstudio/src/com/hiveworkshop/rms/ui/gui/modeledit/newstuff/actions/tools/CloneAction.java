@@ -9,12 +9,12 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.Triangle;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 
 public final class CloneAction implements UndoAction {
 	private final ModelView model;
-	private final List<Vector3> source;
+	private final List<Vec3> source;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final VertexSelectionHelper vertexSelectionHelper;
 
@@ -23,13 +23,13 @@ public final class CloneAction implements UndoAction {
 	private final List<Triangle> newTriangles;
 	private final List<IdObject> newBones;
 
-	private final Set<Vector3> newSelection;
+	private final Set<Vec3> newSelection;
 
-	public CloneAction(final ModelView model, final List<Vector3> source,
+	public CloneAction(final ModelView model, final List<Vec3> source,
 			final ModelStructureChangeListener modelStructureChangeListener,
 			final VertexSelectionHelper vertexSelectionHelper, final List<IdObject> selBones,
 			final List<GeosetVertex> newVertices, final List<Triangle> newTriangles, final List<IdObject> newBones,
-			final Set<Vector3> newSelection) {
+			final Set<Vec3> newSelection) {
 		this.model = model;
 		this.source = source;
 		this.modelStructureChangeListener = modelStructureChangeListener;

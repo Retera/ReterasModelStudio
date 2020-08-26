@@ -31,7 +31,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisito
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 
 public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 	private final ProgramPreferences programPreferences;
@@ -83,7 +83,7 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 	}
 
 	@Override
-	public void selectByVertices(final Collection<? extends Vector3> newSelection) {
+	public void selectByVertices(final Collection<? extends Vec3> newSelection) {
 		final Set<Triangle> newlySelectedFaces = new HashSet<>();
 		for (final Geoset geoset : model.getModel().getGeosets()) {
 			for (final Triangle triangle : geoset.getTriangles()) {
@@ -196,7 +196,7 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
                                                   final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
 		final List<Triangle> previousSelection = new ArrayList<>(selectionManager.getSelection());
 		final List<Triangle> possibleTrianglesToTruncate = new ArrayList<>();
-		final List<Vector3> possibleVerticesToTruncate = new ArrayList<>();
+		final List<Vec3> possibleVerticesToTruncate = new ArrayList<>();
 		for (final SelectableComponent component : selectableComponents) {
 			component.visit(new SelectableComponentVisitor() {
 				@Override
@@ -306,12 +306,12 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 
 	@Override
 	public UndoAction addVertex(final double x, final double y, final double z,
-			final Vector3 preferredNormalFacingVector) {
+			final Vec3 preferredNormalFacingVector) {
 		throw new WrongModeException("Unable to add vertex in face selection mode");
 	}
 
 	@Override
-	public UndoAction createFaceFromSelection(final Vector3 preferredFacingVector) {
+	public UndoAction createFaceFromSelection(final Vec3 preferredFacingVector) {
 		throw new WrongModeException("Unable to create face from vertices in face selection mode");
 	}
 

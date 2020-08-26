@@ -2,16 +2,16 @@ package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.actions;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexEditor;
-import com.hiveworkshop.rms.util.Vector2;
+import com.hiveworkshop.rms.util.Vec2;
 
 public final class StaticMeshUVRotateAction implements GenericRotateAction {
 	private final TVertexEditor modelEditor;
-	private final Vector2 center;
+	private final Vec2 center;
 	private double radians;
 	private final byte dim1;
 	private final byte dim2;
 
-	public StaticMeshUVRotateAction(final TVertexEditor modelEditor, final Vector2 center, final byte dim1,
+	public StaticMeshUVRotateAction(final TVertexEditor modelEditor, final Vec2 center, final byte dim1,
 			final byte dim2) {
 		this.modelEditor = modelEditor;
 		this.center = center;

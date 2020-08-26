@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.parsers.mdlx.MdlxExtent;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 
 /**
  * MinimumExt,MaximumExt,BoundsRad
@@ -10,12 +10,12 @@ import com.hiveworkshop.rms.util.Vector3;
  */
 public class ExtLog {
 	public static final double NO_BOUNDS_RADIUS = -99;
-	private Vector3 minimumExtent;
-	private Vector3 maximumExtent;
+	private Vec3 minimumExtent;
+	private Vec3 maximumExtent;
 	private double boundsRadius = NO_BOUNDS_RADIUS;
 	static double DEFAULT_BOUNDSRADIUS = 100.00;
-	static Vector3 DEFAULT_MINEXT = new Vector3(-100, -100, -100);
-	static Vector3 DEFAULT_MAXEXT = new Vector3(100, 100, 100);
+	static Vec3 DEFAULT_MINEXT = new Vec3(-100, -100, -100);
+	static Vec3 DEFAULT_MAXEXT = new Vec3(100, 100, 100);
 
 	public ExtLog(final double boundsRadius) {
 		this.boundsRadius = boundsRadius;
@@ -23,8 +23,8 @@ public class ExtLog {
 
 	public ExtLog(final MdlxExtent extent) {
 		boundsRadius = extent.boundsRadius;
-		minimumExtent = new Vector3(extent.min);
-		maximumExtent = new Vector3(extent.max);
+		minimumExtent = new Vec3(extent.min);
+		maximumExtent = new Vec3(extent.max);
 	}
 
 	public MdlxExtent toMdlx() {
@@ -37,20 +37,20 @@ public class ExtLog {
 		return extent;
 	}
 
-	public ExtLog(final Vector3 minE, final Vector3 maxE) {
+	public ExtLog(final Vec3 minE, final Vec3 maxE) {
 		minimumExtent = minE;
 		maximumExtent = maxE;
 	}
 
-	public ExtLog(final Vector3 minE, final Vector3 maxE, final double boundsRad) {
+	public ExtLog(final Vec3 minE, final Vec3 maxE, final double boundsRad) {
 		minimumExtent = minE;
 		maximumExtent = maxE;
 		boundsRadius = boundsRad;
 	}
 
 	public ExtLog(final float[] minE, final float[] maxE, final double boundsRad) {
-		minimumExtent = new Vector3(minE);
-		maximumExtent = new Vector3(maxE);
+		minimumExtent = new Vec3(minE);
+		maximumExtent = new Vec3(maxE);
 		boundsRadius = boundsRad;
 	}
 
@@ -60,11 +60,11 @@ public class ExtLog {
 		boundsRadius = other.boundsRadius;
 	}
 
-	public void setMinExt(final Vector3 v) {
+	public void setMinExt(final Vec3 v) {
 		minimumExtent = v;
 	}
 
-	public void setMaxExt(final Vector3 v) {
+	public void setMaxExt(final Vec3 v) {
 		maximumExtent = v;
 	}
 
@@ -76,19 +76,19 @@ public class ExtLog {
 		return boundsRadius != NO_BOUNDS_RADIUS;
 	}
 
-	public Vector3 getMinimumExtent() {
+	public Vec3 getMinimumExtent() {
 		return minimumExtent;
 	}
 
-	public void setMinimumExtent(final Vector3 minimumExtent) {
+	public void setMinimumExtent(final Vec3 minimumExtent) {
 		this.minimumExtent = minimumExtent;
 	}
 
-	public Vector3 getMaximumExtent() {
+	public Vec3 getMaximumExtent() {
 		return maximumExtent;
 	}
 
-	public void setMaximumExtent(final Vector3 maximumExtent) {
+	public void setMaximumExtent(final Vec3 maximumExtent) {
 		this.maximumExtent = maximumExtent;
 	}
 

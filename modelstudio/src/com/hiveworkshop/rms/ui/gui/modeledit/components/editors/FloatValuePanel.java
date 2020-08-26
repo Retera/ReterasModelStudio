@@ -77,7 +77,7 @@ public class FloatValuePanel extends JPanel {
 		} else {
 			dynamicButton.setSelected(true);
 		}
-		staticSpinner.reloadNewValue(Double.valueOf(value));
+		staticSpinner.reloadNewValue(Float.valueOf(value));
 		floatTrackTableModel.setTrack(valueTrack);
 	}
 }

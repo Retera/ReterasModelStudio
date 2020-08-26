@@ -16,10 +16,10 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexModelElementRenderer;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.util.Vector2;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec2;
+import com.hiveworkshop.rms.util.Vec3;
 
-public final class PivotPointSelectionManager extends AbstractSelectionManager<Vector3> {
+public final class PivotPointSelectionManager extends AbstractSelectionManager<Vec3> {
 
 	@Override
 	public Set<Triangle> getSelectedFaces() {
@@ -27,14 +27,14 @@ public final class PivotPointSelectionManager extends AbstractSelectionManager<V
 	}
 
 	@Override
-	public Vector3 getCenter() {
-		return Vector3.centerOfGroup(selection);
+	public Vec3 getCenter() {
+		return Vec3.centerOfGroup(selection);
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vector3 sphereCenter) {
+	public double getCircumscribedSphereRadius(final Vec3 sphereCenter) {
 		double radius = 0;
-		for (final Vector3 item : selection) {
+		for (final Vec3 item : selection) {
 			final double distance = sphereCenter.distance(item);
 			if (distance >= radius) {
 				radius = distance;
@@ -48,7 +48,7 @@ public final class PivotPointSelectionManager extends AbstractSelectionManager<V
 	@Override
 	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem,
 								final ModelView model, final ProgramPreferences programPreferences) {
-		final Set<Vector3> drawnSelection = new HashSet<>();
+		final Set<Vec3> drawnSelection = new HashSet<>();
 		for (final IdObject object : model.getEditableIdObjects()) {
 			if (selection.contains(object.getPivotPoint())) {
 				renderer.renderIdObject(object, NodeIconPalette.SELECTED, programPreferences.getSelectColor(),
@@ -65,7 +65,7 @@ public final class PivotPointSelectionManager extends AbstractSelectionManager<V
 			drawnSelection.add(camera.getPosition());
 			drawnSelection.add(camera.getTargetPosition());
 		}
-		for (final Vector3 vertex : selection) {
+		for (final Vec3 vertex : selection) {
 			if (!drawnSelection.contains(vertex)) {
 				renderBoneDummy.setPivotPoint(vertex);
 				renderer.renderIdObject(renderBoneDummy, NodeIconPalette.SELECTED, programPreferences.getSelectColor(),
@@ -75,22 +75,22 @@ public final class PivotPointSelectionManager extends AbstractSelectionManager<V
 	}
 
 	@Override
-	public Collection<Vector3> getSelectedVertices() {
+	public Collection<Vec3> getSelectedVertices() {
 		return getSelection();
 	}
 
 	@Override
-	public Vector2 getUVCenter(final int tvertexLayerId) {
-		return Vector2.ORIGIN;
+	public Vec2 getUVCenter(final int tvertexLayerId) {
+		return Vec2.ORIGIN;
 	}
 
 	@Override
-	public Collection<? extends Vector2> getSelectedTVertices(final int tvertexLayerId) {
+	public Collection<? extends Vec2> getSelectedTVertices(final int tvertexLayerId) {
 		return Collections.emptySet();
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vector2 center, final int tvertexLayerId) {
+	public double getCircumscribedSphereRadius(final Vec2 center, final int tvertexLayerId) {
 		return 0;
 	}
 

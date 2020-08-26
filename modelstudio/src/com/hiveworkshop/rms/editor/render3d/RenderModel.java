@@ -19,8 +19,8 @@ import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.MathUtils;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
-import com.hiveworkshop.rms.util.Vector3;
-import com.hiveworkshop.rms.util.Vector4;
+import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.util.Vec4;
 
 /**
  * For rendering. Copied from ghostwolf's stuff
@@ -52,15 +52,15 @@ public final class RenderModel {
 
 	// These guys form the corners of a 2x2 rectangle, for use in Ghostwolf particle
 	// emitter algorithm
-	private final Vector4[] spacialVectors = { new Vector4(-1, 1, 0, 1), new Vector4(1, 1, 0, 1),
-			new Vector4(1, -1, 0, 1), new Vector4(-1, -1, 0, 1), new Vector4(1, 0, 0, 1), new Vector4(0, 1, 0, 1),
-			new Vector4(0, 0, 1, 1) };
-	private final Vector4[] billboardBaseVectors = { new Vector4(0, 1, -1, 1), new Vector4(0, -1, -1, 1),
-			new Vector4(0, -1, 1, 1), new Vector4(0, 1, 1, 1), new Vector4(0, 1, 0, 1), new Vector4(0, 0, 1, 1),
-			new Vector4(1, 0, 0, 1) };
-	private final Vector4[] billboardVectors = { new Vector4(0, 1, -1, 1), new Vector4(0, -1, -1, 1),
-			new Vector4(0, -1, 1, 1), new Vector4(0, 1, 1, 1), new Vector4(0, 1, 0, 1), new Vector4(0, 0, 1, 1),
-			new Vector4(1, 0, 0, 1) };
+	private final Vec4[] spacialVectors = { new Vec4(-1, 1, 0, 1), new Vec4(1, 1, 0, 1),
+			new Vec4(1, -1, 0, 1), new Vec4(-1, -1, 0, 1), new Vec4(1, 0, 0, 1), new Vec4(0, 1, 0, 1),
+			new Vec4(0, 0, 1, 1) };
+	private final Vec4[] billboardBaseVectors = { new Vec4(0, 1, -1, 1), new Vec4(0, -1, -1, 1),
+			new Vec4(0, -1, 1, 1), new Vec4(0, 1, 1, 1), new Vec4(0, 1, 0, 1), new Vec4(0, 0, 1, 1),
+			new Vec4(1, 0, 0, 1) };
+	private final Vec4[] billboardVectors = { new Vec4(0, 1, -1, 1), new Vec4(0, -1, -1, 1),
+			new Vec4(0, -1, 1, 1), new Vec4(0, 1, 1, 1), new Vec4(0, 1, 0, 1), new Vec4(0, 0, 1, 1),
+			new Vec4(1, 0, 0, 1) };
 	private final ModelView modelView;
 
 	public RenderModel(final EditableModel model, final ModelView modelView) {
@@ -194,9 +194,9 @@ public final class RenderModel {
 			if (nodeVisible) {
 				boolean wasDirty = false;
 				// TODO variants
-				final Vector3 localLocation = node.localLocation;
+				final Vec3 localLocation = node.localLocation;
 				final Quat localRotation = node.localRotation;
-				final Vector3 localScale = node.localScale;
+				final Vec3 localScale = node.localScale;
 
 				// Only update the local data if there is a need to
 				if (forced || true /* variants */) {
@@ -204,7 +204,7 @@ public final class RenderModel {
 
 					// Translation
 					if (forced || true /* variants */) {
-						final Vector3 renderTranslation = idObject.getRenderTranslation(animatedRenderEnvironment);
+						final Vec3 renderTranslation = idObject.getRenderTranslation(animatedRenderEnvironment);
 						if (renderTranslation != null) {
 							localLocation.x = (float) renderTranslation.x;
 							localLocation.y = (float) renderTranslation.y;
@@ -229,7 +229,7 @@ public final class RenderModel {
 
 					// Scale
 					if (forced || true /* variants */) {
-						final Vector3 renderScale = idObject.getRenderScale(animatedRenderEnvironment);
+						final Vec3 renderScale = idObject.getRenderScale(animatedRenderEnvironment);
 						if (renderScale != null) {
 							localScale.x = (float) renderScale.x;
 							localScale.y = (float) renderScale.y;
@@ -360,11 +360,11 @@ public final class RenderModel {
 		}
 	}
 
-	public Vector4[] getBillboardVectors() {
+	public Vec4[] getBillboardVectors() {
 		return billboardVectors;
 	}
 
-	public Vector4[] getSpacialVectors() {
+	public Vec4[] getSpacialVectors() {
 		return spacialVectors;
 	}
 

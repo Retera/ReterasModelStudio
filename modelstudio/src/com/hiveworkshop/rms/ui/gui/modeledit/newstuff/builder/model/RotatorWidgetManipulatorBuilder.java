@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.model;
 
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
@@ -17,7 +17,7 @@ import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import java.awt.*;
 
 public final class RotatorWidgetManipulatorBuilder extends AbstractSelectAndEditModelEditorManipulatorBuilder {
-	private final RotatorWidget moverWidget = new RotatorWidget(new Vector3(0, 0, 0));
+	private final RotatorWidget moverWidget = new RotatorWidget(new Vec3(0, 0, 0));
 
 	public RotatorWidgetManipulatorBuilder(final ModelEditor modelEditor,
 										   final ViewportSelectionHandler viewportSelectionHandler, final ProgramPreferences programPreferences,
@@ -26,7 +26,7 @@ public final class RotatorWidgetManipulatorBuilder extends AbstractSelectAndEdit
 	}
 
 	@Override
-	protected boolean widgetOffersEdit(final Vector3 selectionCenter, final Point mousePoint,
+	protected boolean widgetOffersEdit(final Vec3 selectionCenter, final Point mousePoint,
 									   final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getCenter());
 		final RotateDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem);
@@ -35,7 +35,7 @@ public final class RotatorWidgetManipulatorBuilder extends AbstractSelectAndEdit
 	}
 
 	@Override
-	protected Manipulator createManipulatorFromWidget(final Vector3 selectionCenter, final Point mousePoint,
+	protected Manipulator createManipulatorFromWidget(final Vec3 selectionCenter, final Point mousePoint,
 													  final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getCenter());
 		final RotateDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem);
@@ -58,7 +58,7 @@ public final class RotatorWidgetManipulatorBuilder extends AbstractSelectAndEdit
 	}
 
 	@Override
-	protected Manipulator createDefaultManipulator(final Vector3 selectionCenter, final Point mousePoint,
+	protected Manipulator createDefaultManipulator(final Vec3 selectionCenter, final Point mousePoint,
 												   final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
 		return new RotateManipulator(getModelEditor(), selectionView);
 	}

@@ -55,7 +55,7 @@ public class Mat4 {
         this.m33 = m33;
 	}
 	
-  public Vector4 transform(final Vector4 a, final Vector4 out) {
+  public Vec4 transform(final Vec4 a, final Vec4 out) {
     out.x = m00 * a.x + m10 * a.y + m20 * a.z + m30 * a.w;
     out.y = m01 * a.x + m11 * a.y + m21 * a.z + m31 * a.w;
     out.z = m02 * a.x + m12 * a.y + m22 * a.z + m32 * a.w;
@@ -64,7 +64,7 @@ public class Mat4 {
     return out;
   }
 
-  public Vector4 transform(final Vector4 a) {
+  public Vec4 transform(final Vec4 a) {
     return transform(a, a);
   }
     
@@ -136,7 +136,7 @@ public class Mat4 {
     return mul(a, this);
   }
     
-  public Mat4 translate(Vector3 a, Mat4 out) {
+  public Mat4 translate(Vec3 a, Mat4 out) {
     float x = a.x;
     float y = a.y;
     float z = a.z;
@@ -149,11 +149,11 @@ public class Mat4 {
     return out;
   }
 
-  public Mat4 translate(Vector3 a) {
+  public Mat4 translate(Vec3 a) {
     return translate(a, this);
   }
 
-  public Mat4 scale(Vector3 a, Mat4 out) {
+  public Mat4 scale(Vec3 a, Mat4 out) {
     float x = (float) a.x;
     float y = (float) a.y;
     float z = (float) a.z;
@@ -174,7 +174,7 @@ public class Mat4 {
     return out;
   }
     
-  public Mat4 scale(Vector3 a) {
+  public Mat4 scale(Vec3 a) {
     return scale(a, this);
   }
 
@@ -227,7 +227,7 @@ public class Mat4 {
 
   // copied from ghostwolf and
 	// https://www.blend4web.com/api_doc/libs_gl-matrix2.js.html
-  public Mat4 fromRotationTranslationScaleOrigin(final Quat q, final Vector3 v, final Vector3 s, final Vector3 pivot) {
+  public Mat4 fromRotationTranslationScaleOrigin(final Quat q, final Vec3 v, final Vec3 s, final Vec3 pivot) {
     final float x = q.x;
     final float y = q.y;
     final float z = q.z;
@@ -270,7 +270,7 @@ public class Mat4 {
 
   // copied from
   // https://www.blend4web.com/api_doc/libs_gl-matrix2.js.html
-  public Mat4 fromRotationTranslationScale(final Quat q, final Vector3 v, final Vector3 s) {
+  public Mat4 fromRotationTranslationScale(final Quat q, final Vec3 v, final Vec3 s) {
     final float x = q.x;
     final float y = q.y;
     final float z = q.z;

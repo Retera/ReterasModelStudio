@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator;
 
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
@@ -22,14 +22,14 @@ public class SquatToolVerticalManipulator extends AbstractManipulator {
 	@Override
 	protected void onStart(final Double mouseStart, final byte dim1, final byte dim2) {
 		super.onStart(mouseStart, dim1, dim2);
-		final Vector3 center = selectionView.getCenter();
+		final Vec3 center = selectionView.getCenter();
 		rotationAction = modelEditor.beginSquatTool(center.x, center.y, center.z,
 				CoordinateSystem.Util.getUnusedXYZ(dim1, dim2), dim2);
 	}
 
 	@Override
 	public void update(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
-		final Vector3 center = selectionView.getCenter();
+		final Vec3 center = selectionView.getCenter();
 		final double radians = computeRotateRadians(mouseStart, mouseEnd, center, dim1, dim2);
 		rotationAction.updateRotation(radians);
 	}
@@ -40,7 +40,7 @@ public class SquatToolVerticalManipulator extends AbstractManipulator {
 		return rotationAction;
 	}
 
-	private double computeRotateRadians(final Double startingClick, final Double endingClick, final Vector3 center,
+	private double computeRotateRadians(final Double startingClick, final Double endingClick, final Vec3 center,
 			final byte portFirstXYZ, final byte portSecondXYZ) {
 		double radius = selectionView.getCircumscribedSphereRadius(center);
 		if (radius <= 0) {

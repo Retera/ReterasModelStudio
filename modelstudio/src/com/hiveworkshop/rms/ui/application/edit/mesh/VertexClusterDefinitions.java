@@ -9,10 +9,10 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 
 public class VertexClusterDefinitions {
-	private final Map<Vector3, Integer> vertexToClusterId = new HashMap<>();
+	private final Map<Vec3, Integer> vertexToClusterId = new HashMap<>();
 	private final int maxClusterIdKnown;
 
 	public VertexClusterDefinitions(final EditableModel model) {
@@ -52,7 +52,7 @@ public class VertexClusterDefinitions {
 	 * @param vertex
 	 * @return
 	 */
-	public int getClusterId(final Vector3 vertex) {
+	public int getClusterId(final Vec3 vertex) {
 		final Integer clusterId = vertexToClusterId.get(vertex);
 		if (clusterId == null) {
 			return -1;
@@ -84,7 +84,7 @@ public class VertexClusterDefinitions {
 			this.z = z;
 		}
 
-		public HashableVector(final Vector3 vertex) {
+		public HashableVector(final Vec3 vertex) {
 			x = (float) vertex.x;
 			y = (float) vertex.y;
 			z = (float) vertex.z;

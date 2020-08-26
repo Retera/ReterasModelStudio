@@ -3,8 +3,8 @@ package com.hiveworkshop.rms.editor.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.hiveworkshop.rms.util.Vector2;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec2;
+import com.hiveworkshop.rms.util.Vec3;
 
 /**
  * GeosetVertex is a extended version of the Vertex class, for use strictly
@@ -16,11 +16,11 @@ import com.hiveworkshop.rms.util.Vector3;
  *
  * Eric Theller 3/9/2012
  */
-public class GeosetVertex extends Vector3 {
+public class GeosetVertex extends Vec3 {
 	Matrix matrixRef;
-	private Vector3 normal;
+	private Vec3 normal;
 	public int VertexGroup = -1;
-	List<Vector2> tverts = new ArrayList<>();
+	List<Vec2> tverts = new ArrayList<>();
 	List<Bone> bones = new ArrayList<>();
 	List<Triangle> triangles = new ArrayList<>();
 	private byte[] skinBoneIndexes;
@@ -34,7 +34,7 @@ public class GeosetVertex extends Vector3 {
 		super(x, y, z);
 	}
 
-	public GeosetVertex(final double x, final double y, final double z, final Vector3 n) {
+	public GeosetVertex(final double x, final double y, final double z, final Vec3 n) {
 		super(x, y, z);
 		normal = n;
 	}
@@ -78,11 +78,11 @@ public class GeosetVertex extends Vector3 {
 
 	public GeosetVertex(final GeosetVertex old) {
 		super(old.x, old.y, old.z);
-		this.normal = new Vector3(old.normal);
+		this.normal = new Vec3(old.normal);
 		this.bones = new ArrayList<>(old.bones);
 		this.tverts = new ArrayList<>();
-		for (final Vector2 tv : old.tverts) {
-			tverts.add(new Vector2(tv));
+		for (final Vec2 tv : old.tverts) {
+			tverts.add(new Vec2(tv));
 		}
 		// odd, but when writing
 		this.geoset = old.geoset;
@@ -101,11 +101,11 @@ public class GeosetVertex extends Vector3 {
 		}
 	}
 
-	public void addTVertex(final Vector2 v) {
+	public void addTVertex(final Vec2 v) {
 		tverts.add(v);
 	}
 
-	public Vector2 getTVertex(final int i) {
+	public Vec2 getTVertex(final int i) {
 		try {
 			return tverts.get(i);
 		} catch (final ArrayIndexOutOfBoundsException e) {
@@ -145,19 +145,19 @@ public class GeosetVertex extends Vector3 {
 		matrixRef = ref;
 	}
 
-	public void setNormal(final Vector3 n) {
+	public void setNormal(final Vec3 n) {
 		normal = n;
 	}
 
-	public Vector3 getNormal() {
+	public Vec3 getNormal() {
 		return normal;
 	}
 
-	public List<Vector2> getTverts() {
+	public List<Vec2> getTverts() {
 		return tverts;
 	}
 
-	public void setTverts(final List<Vector2> tverts) {
+	public void setTverts(final List<Vec2> tverts) {
 		this.tverts = tverts;
 	}
 
@@ -284,8 +284,8 @@ public class GeosetVertex extends Vector3 {
 		}
 	}
 
-	public Vector3 createNormal() {
-		final Vector3 sum = new Vector3();
+	public Vec3 createNormal() {
+		final Vec3 sum = new Vec3();
 		
 		for (final Triangle triangle : triangles) {
 			sum.add(triangle.getNormal());
@@ -296,8 +296,8 @@ public class GeosetVertex extends Vector3 {
 		return sum;
 	}
 
-	public Vector3 createNormal(final List<GeosetVertex> matches) {
-		final Vector3 sum = new Vector3();
+	public Vec3 createNormal(final List<GeosetVertex> matches) {
+		final Vec3 sum = new Vec3();
 
 		for (final GeosetVertex match : matches) {
 			for (final Triangle triangle : match.triangles) {

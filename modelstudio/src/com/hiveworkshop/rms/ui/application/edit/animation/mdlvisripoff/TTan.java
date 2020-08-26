@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff;
 
 import com.hiveworkshop.rms.editor.model.AnimFlag;
 import com.hiveworkshop.rms.util.Quat;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 
 /**
  * Aiming to copy some behaviors from Mdlvis with this
@@ -31,12 +31,12 @@ public class TTan {
 		if (tang.inTan == null) {
 			switch (count) {
 			case 1:
-				tang.inTan = Double.valueOf(0);
-				tang.outTan = Double.valueOf(0);
+				tang.inTan = Float.valueOf(0);
+				tang.outTan = Float.valueOf(0);
 				break;
 			case 3:
-				tang.inTan = new Vector3(0, 0, 0);
-				tang.outTan = new Vector3(0, 0, 0);
+				tang.inTan = new Vec3(0, 0, 0);
+				tang.outTan = new Vec3(0, 0, 0);
 				break;
 			case 4:
 				tang.inTan = new Quat(0, 0, 0, 0);
@@ -232,10 +232,10 @@ public class TTan {
 	}
 
 	public static Object assignSubscript(final Object value, final int index, final Object newValue) {
-		if ((value instanceof Double) || (value instanceof Integer)) {
+		if ((value instanceof Float) || (value instanceof Integer)) {
 			return newValue;
-		} else if (value instanceof Vector3) {
-			((Vector3) value).setCoord((byte) index, ((Number) newValue).doubleValue());
+		} else if (value instanceof Vec3) {
+			((Vec3) value).setCoord((byte) index, ((Number) newValue).doubleValue());
 			return value;
 		} else if (value instanceof Quat) {
 			((Quat) value).setCoord((byte) index, ((Number) newValue).floatValue());
@@ -247,8 +247,8 @@ public class TTan {
 	public static Number getSubscript(final Object value, final int index) {
 		if ((value instanceof Number)) {
 			return (Number) value;
-		} else if (value instanceof Vector3) {
-			return ((Vector3) value).getCoord((byte) index);
+		} else if (value instanceof Vec3) {
+			return ((Vec3) value).getCoord((byte) index);
 		} else if (value instanceof Quat) {
 			return ((Quat) value).getCoord((byte) index);
 		}
@@ -350,7 +350,7 @@ public class TTan {
 	public static int getSizeOfElement(final Object value) {
 		if ((value instanceof Number)) {
 			return 1;
-		} else if (value instanceof Vector3) {
+		} else if (value instanceof Vec3) {
 			return 3;
 		} else if (value instanceof Quat) {
 			return 4;

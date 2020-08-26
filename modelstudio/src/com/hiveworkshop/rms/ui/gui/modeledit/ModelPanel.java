@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
@@ -496,7 +496,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 
 	public void viewMatrices() {
 		final List<Bone> boneRefs = new ArrayList<>();
-		for (final Vector3 ver : modelEditorManager.getSelectionView().getSelectedVertices()) {
+		for (final Vec3 ver : modelEditorManager.getSelectionView().getSelectedVertices()) {
 			if (ver instanceof GeosetVertex) {
 				final GeosetVertex gv = (GeosetVertex) ver;
 				for (final Bone b : gv.getBones()) {

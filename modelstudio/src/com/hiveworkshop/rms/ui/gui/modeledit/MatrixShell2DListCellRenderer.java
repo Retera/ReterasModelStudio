@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit;
 
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Matrix;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.util.AbstractSnapshottingListCellRenderer2D;
 
@@ -44,7 +44,7 @@ public final class MatrixShell2DListCellRenderer extends AbstractSnapshottingLis
 	}
 
 	@Override
-	protected Vector3 getRenderVertex(final MatrixShell value) {
+	protected Vec3 getRenderVertex(final MatrixShell value) {
 		return null;
 	}
 }

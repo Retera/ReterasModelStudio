@@ -72,7 +72,7 @@ import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
@@ -84,7 +84,7 @@ import org.lwjgl.opengl.PixelFormat;
 public class MDLSnapshot {
 
 	ModelView dispMDL;
-	Vector3 cameraPos = new Vector3(0, 0, 0);
+	Vec3 cameraPos = new Vec3(0, 0, 0);
 	double zoom = 1;
 	boolean enabled = false;
 
@@ -104,7 +104,7 @@ public class MDLSnapshot {
 		this.programPreferences = programPreferences;
 	}
 
-	public void setCameraPosition(final Vector3 cameraPos) {
+	public void setCameraPosition(final Vec3 cameraPos) {
 		this.cameraPos = cameraPos;
 	}
 
@@ -413,7 +413,7 @@ public class MDLSnapshot {
 		double avgWidth = 0;
 		int widthItems = 0;
 		for (final CollisionShape shape : sortedIdObjects) {
-			for (final Vector3 vertex : shape.getVertices()) {
+			for (final Vec3 vertex : shape.getVertices()) {
 				loadedWidth = true;
 				avgWidth += vertex.x;
 				widthItems++;
@@ -425,7 +425,7 @@ public class MDLSnapshot {
 			avgWidth /= widthItems;
 			double varianceGuy = 0;
 			for (final CollisionShape shape : sortedIdObjects) {
-				for (final Vector3 vertex : shape.getVertices()) {
+				for (final Vec3 vertex : shape.getVertices()) {
 					loadedWidth = true;
 					final double dx = vertex.x - avgWidth;
 					varianceGuy += dx * dx;
@@ -441,7 +441,7 @@ public class MDLSnapshot {
 			depth = (exts.getMaximumExtent().y) / 3;
 			loadedWidth = true;
 		}
-		setCameraPosition(new Vector3(0, -20, width));
+		setCameraPosition(new Vec3(0, -20, width));
 		setZoom(Math.min(1,
 				((exts == null) && (exts.getBoundsRadius() > 0)) ? (128 / width) : (32 / exts.getBoundsRadius())));
 	}
@@ -454,7 +454,7 @@ public class MDLSnapshot {
 
 		setYangle(35);
 		final EditableModel model = dispMDL.getModel();
-		final List<Vector3> shapeData = new ArrayList<>();
+		final List<Vec3> shapeData = new ArrayList<>();
 		for (final Geoset geo : dispMDL.getVisibleGeosets()) {
 			boolean isOnlyAdditive = true;
 			for (final Layer layer : geo.getMaterial().getLayers()) {
@@ -470,16 +470,16 @@ public class MDLSnapshot {
 				}
 			}
 		}
-		final Vector3 center = Vector3.centerOfGroup(shapeData);
+		final Vec3 center = Vec3.centerOfGroup(shapeData);
 		double maxDistance = 0;
-		for (final Vector3 vertex : shapeData) {
+		for (final Vec3 vertex : shapeData) {
 			final double distance = vertex.distance(center);
 			if (distance > maxDistance) {
 				maxDistance = distance;
 			}
 		}
 		final double zoom = 128 / maxDistance;
-		setCameraPosition(new Vector3(0, -Math.sqrt(maxDistance) * 1.3, maxDistance));
+		setCameraPosition(new Vec3(0, -Math.sqrt(maxDistance) * 1.3, maxDistance));
 		setZoom(zoom);
 	}
 

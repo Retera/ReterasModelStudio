@@ -9,14 +9,14 @@ import com.hiveworkshop.rms.ui.application.edit.animation.NodeAnimationModelEdit
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.util.Quat;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 
 public class RotationKeyframeAction implements GenericRotateAction {
 	private final UndoAction addingTimelinesOrKeyframesAction;
 	private final int trackTime;
 	private final HashMap<IdObject, Quat> nodeToLocalRotation;
 	private final NodeAnimationModelEditor modelEditor;
-	private final Vector3 center;
+	private final Vec3 center;
 	private final byte dim1;
 	private final byte dim2;
 	private final Integer trackGlobalSeq;
@@ -35,7 +35,7 @@ public class RotationKeyframeAction implements GenericRotateAction {
 		for (final IdObject node : nodeSelection) {
 			nodeToLocalRotation.put(node, new Quat());
 		}
-		center = new Vector3(centerX, centerY, centerZ);
+		center = new Vec3(centerX, centerY, centerZ);
 	}
 
 	@Override

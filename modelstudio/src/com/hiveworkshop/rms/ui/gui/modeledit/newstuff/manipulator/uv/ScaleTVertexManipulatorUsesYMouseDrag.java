@@ -4,8 +4,8 @@ import java.awt.geom.Point2D.Double;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.rms.util.Vector2;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec2;
+import com.hiveworkshop.rms.util.Vec3;
 
 public final class ScaleTVertexManipulatorUsesYMouseDrag extends AbstractScaleTVertexManipulator {
 
@@ -14,13 +14,13 @@ public final class ScaleTVertexManipulatorUsesYMouseDrag extends AbstractScaleTV
 	}
 
 	@Override
-	protected final void scaleWithFactor(final TVertexEditor modelEditor, final Vector2 center,
+	protected final void scaleWithFactor(final TVertexEditor modelEditor, final Vec2 center,
 			final double scaleFactor, final byte dim1, final byte dim2) {
 		getScaleAction().updateScale(scaleFactor, scaleFactor, scaleFactor);
 	}
 
 	@Override
-	protected double computeScaleFactor(final Double startingClick, final Double endingClick, final Vector2 center,
+	protected double computeScaleFactor(final Double startingClick, final Double endingClick, final Vec2 center,
 			final byte dim1, final byte dim2) {
 		// TODO not use an override
 		// final double dye = Math.abs(endingClick.y - center.getCoord(dim2));
@@ -33,8 +33,8 @@ public final class ScaleTVertexManipulatorUsesYMouseDrag extends AbstractScaleTV
 	}
 
 	@Override
-	protected Vector3 buildScaleVector(final double scaleFactor, final byte dim1, final byte dim2) {
-		return new Vector3(scaleFactor, scaleFactor, scaleFactor);
+	protected Vec3 buildScaleVector(final double scaleFactor, final byte dim1, final byte dim2) {
+		return new Vec3(scaleFactor, scaleFactor, scaleFactor);
 	}
 
 }

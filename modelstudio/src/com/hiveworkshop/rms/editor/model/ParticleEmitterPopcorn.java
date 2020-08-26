@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitterPopcorn;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 
 /**
  * Popcorn FX is what I am calling the CORN chunk, somebody said that's probably
@@ -16,7 +16,7 @@ import com.hiveworkshop.rms.util.Vector3;
 public class ParticleEmitterPopcorn extends IdObject {
 	int replaceableId = 0;
 	float alpha = 0;
-	Vector3 color = new Vector3();
+	Vec3 color = new Vec3();
 	float speed = 0;
 	float emissionRate = 0;
 	float lifeSpan = 0;
@@ -32,7 +32,7 @@ public class ParticleEmitterPopcorn extends IdObject {
 
 		replaceableId = emitter.replaceableId;
 		alpha = emitter.alpha;
-		color = new Vector3(emitter.color);
+		color = new Vec3(emitter.color);
 		speed = emitter.speed;
 		emissionRate = emitter.emissionRate;
 		lifeSpan = emitter.lifeSpan;
@@ -46,7 +46,7 @@ public class ParticleEmitterPopcorn extends IdObject {
 		lifeSpan = emitter.lifeSpan;
 		emissionRate = emitter.emissionRate;
 		speed = emitter.speed;
-		color = new Vector3(ModelUtils.flipRGBtoBGR(emitter.color));
+		color = new Vec3(ModelUtils.flipRGBtoBGR(emitter.color));
 		alpha = emitter.alpha;
 		replaceableId = emitter.replaceableId;
 		path = emitter.path;
@@ -105,11 +105,11 @@ public class ParticleEmitterPopcorn extends IdObject {
 		return getInterpolatedFloat(animatedRenderEnvironment, "EmissionRate", 0);
 	}
 
-	public Vector3 getColor() {
+	public Vec3 getColor() {
 		return color;
 	}
 
-	public void setColor(final Vector3 color) {
+	public void setColor(final Vec3 color) {
 		this.color = color;
 	}
 

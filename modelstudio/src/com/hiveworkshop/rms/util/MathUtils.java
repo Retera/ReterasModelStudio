@@ -16,40 +16,29 @@ public class MathUtils {
 		return (min < b) && (b < max);
 	}
 
-	public static double lerp(final double a, final double b, final double t) {
+	public static float lerp(final float a, final float b, final float t) {
 		return a + (t * (b - a));
 	}
 
-	public static Vector3 lerp(final Vector3 out, final Vector3 a, final Vector3 b, final double t) {
-		out.set(MathUtils.lerp(a.x, b.x, t), MathUtils.lerp(a.y, b.y, t), MathUtils.lerp(a.z, b.z, t));
-		return out;
-	}
-
-	public static Vector4 lerp(final Vector4 out, final Vector4 a, final Vector4 b, final double t) {
-		out.set((float) MathUtils.lerp(a.x, b.x, t), (float) MathUtils.lerp(a.y, b.y, t),
-				(float) MathUtils.lerp(a.z, b.z, t), (float) MathUtils.lerp(a.w, b.w, t));
-		return out;
-	}
-
-	public static double hermite(final double a, final double aOutTan, final double bInTan, final double b,
-			final double t) {
-		final double factorTimes2 = t * t;
-		final double factor1 = (factorTimes2 * ((2 * t) - 3)) + 1;
-		final double factor2 = (factorTimes2 * (t - 2)) + t;
-		final double factor3 = factorTimes2 * (t - 1);
-		final double factor4 = factorTimes2 * (3 - (2 * t));
+	public static float hermite(final float a, final float aOutTan, final float bInTan, final float b,
+			final float t) {
+		final float factorTimes2 = t * t;
+		final float factor1 = (factorTimes2 * ((2 * t) - 3)) + 1;
+		final float factor2 = (factorTimes2 * (t - 2)) + t;
+		final float factor3 = factorTimes2 * (t - 1);
+		final float factor4 = factorTimes2 * (3 - (2 * t));
 		return (a * factor1) + (aOutTan * factor2) + (bInTan * factor3) + (b * factor4);
 	}
 
-	public static double bezier(final double a, final double aOutTan, final double bInTan, final double b,
-			final double t) {
-		final double invt = 1 - t;
-		final double factorSquared = t * t;
-		final double inverseFactorSquared = invt * invt;
-		final double factor1 = inverseFactorSquared * invt;
-		final double factor2 = 3 * t * inverseFactorSquared;
-		final double factor3 = 3 * factorSquared * invt;
-		final double factor4 = factorSquared * t;
+	public static float bezier(final float a, final float aOutTan, final float bInTan, final float b,
+			final float t) {
+		final float invt = 1 - t;
+		final float factorSquared = t * t;
+		final float inverseFactorSquared = invt * invt;
+		final float factor1 = inverseFactorSquared * invt;
+		final float factor2 = 3 * t * inverseFactorSquared;
+		final float factor3 = 3 * factorSquared * invt;
+		final float factor4 = factorSquared * t;
 
 		return (a * factor1) + (aOutTan * factor2) + (bInTan * factor3) + (b * factor4);
 	}

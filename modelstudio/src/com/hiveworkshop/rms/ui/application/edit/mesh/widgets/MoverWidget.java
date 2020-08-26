@@ -7,17 +7,17 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 
 public final class MoverWidget {
 	private static final int TRIANGLE_OFFSET = 60 - 16;
-	private final Vector3 point;
+	private final Vec3 point;
 	private MoveDirection moveDirection = MoveDirection.NONE;
 	private final Polygon northTriangle;
 	private final Polygon eastTriangle;
 
-	public MoverWidget(final Vector3 point) {
-		this.point = new Vector3(0, 0, 0);
+	public MoverWidget(final Vec3 point) {
+		this.point = new Vec3(0, 0, 0);
 		this.point.set(point);
 		northTriangle = new Polygon();
 		northTriangle.addPoint(-5, 0);
@@ -53,11 +53,11 @@ public final class MoverWidget {
 		return direction;
 	}
 
-	public Vector3 getPoint() {
+	public Vec3 getPoint() {
 		return point;
 	}
 
-	public void setPoint(final Vector3 point) {
+	public void setPoint(final Vec3 point) {
 		this.point.set(point);
 	}
 

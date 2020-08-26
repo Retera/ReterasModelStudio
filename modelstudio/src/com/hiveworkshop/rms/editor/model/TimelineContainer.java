@@ -9,7 +9,7 @@ import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.Quat;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 
 public abstract class TimelineContainer implements VisibilitySource {
 	public Map<String, AnimFlag> animFlags = new HashMap<>();
@@ -101,17 +101,20 @@ public abstract class TimelineContainer implements VisibilitySource {
 		final AnimFlag timeline = find(tag);
 
 		if (timeline != null) {
-			return ((Double)timeline.interpolateAt(animatedRenderEnvironment)).floatValue();
+			if (timeline.interpolateAt(animatedRenderEnvironment).getClass() == Double.class) {
+				System.out.println("????");
+			}
+			return ((Float)timeline.interpolateAt(animatedRenderEnvironment)).floatValue();
 		}
 		
 		return defaultValue;
 	}
 
-	public Vector3 getInterpolatedVector(final AnimatedRenderEnvironment animatedRenderEnvironment, final String tag, final Vector3 defaultValue) {
+	public Vec3 getInterpolatedVector(final AnimatedRenderEnvironment animatedRenderEnvironment, final String tag, final Vec3 defaultValue) {
 		final AnimFlag timeline = find(tag);
 
 		if (timeline != null) {
-			return (Vector3)timeline.interpolateAt(animatedRenderEnvironment);
+			return (Vec3)timeline.interpolateAt(animatedRenderEnvironment);
 		}
 		
 		return defaultValue;

@@ -2,10 +2,10 @@ package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv;
 
 import java.awt.Color;
 
-import com.hiveworkshop.rms.util.Vector2;
+import com.hiveworkshop.rms.util.Vec2;
 
 public interface TVertexModelElementRenderer {
-	void renderFace(Color borderColor, Color color, Vector2 a, Vector2 b, Vector2 c);
+	void renderFace(Color borderColor, Color color, Vec2 a, Vec2 b, Vec2 c);
 
-	void renderVertex(Color color, Vector2 vertex);
+	void renderVertex(Color color, Vec2 vertex);
 }

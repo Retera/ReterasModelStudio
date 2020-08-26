@@ -1,13 +1,13 @@
 package com.hiveworkshop.rms.ui.gui.modeledit;
 
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 
-public interface VertexFilter<TYPE extends Vector3> {
+public interface VertexFilter<TYPE extends Vec3> {
 	boolean isAccepted(TYPE vertex);
 
-	VertexFilter<Vector3> IDENTITY = new VertexFilter<Vector3>() {
+	VertexFilter<Vec3> IDENTITY = new VertexFilter<Vec3>() {
 		@Override
-		public boolean isAccepted(final Vector3 vertex) {
+		public boolean isAccepted(final Vec3 vertex) {
 			return true;
 		}
 	};

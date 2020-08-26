@@ -6,7 +6,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.List;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 
 public interface SelectionItemView {
 	void render(Graphics2D graphics, CoordinateSystem coordinateSystem);
@@ -15,7 +15,7 @@ public interface SelectionItemView {
 
 	boolean hitTest(Rectangle2D rectangle, CoordinateSystem coordinateSystem);
 
-	Vector3 getCenter();
+	Vec3 getCenter();
 
 	List<? extends SelectionItemView> getConnectedComponents();
 }

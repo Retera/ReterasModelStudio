@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
@@ -26,7 +26,7 @@ public class DrawVertexActivity implements ModelEditorViewportActivity {
 	private final ProgramPreferences preferences;
 	private ModelEditor modelEditor;
 	private final UndoActionListener undoActionListener;
-	private final Vector3 locationCalculator = new Vector3(0, 0, 0);
+	private final Vec3 locationCalculator = new Vec3(0, 0, 0);
 	private final ModelView modelView;
 	private SelectionView selectionView;
 	private final Graphics2DToModelElementRendererAdapter graphics2dToModelElementRendererAdapter;
@@ -72,7 +72,7 @@ public class DrawVertexActivity implements ModelEditorViewportActivity {
 		locationCalculator.setCoord(CoordinateSystem.Util.getUnusedXYZ(coordinateSystem), 0);
 		try {
 			final Viewport viewport = activeViewportWatcher.getViewport();
-			final Vector3 facingVector = viewport == null ? new Vector3(0, 0, 1) : viewport.getFacingVector();
+			final Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
 			final UndoAction action = modelEditor.addVertex(locationCalculator.x, locationCalculator.y,
 					locationCalculator.z, facingVector);
 			undoActionListener.pushAction(action);

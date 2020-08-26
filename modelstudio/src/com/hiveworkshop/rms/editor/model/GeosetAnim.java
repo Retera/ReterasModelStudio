@@ -5,7 +5,7 @@ import java.util.List;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxGeosetAnimation;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 
 /**
  * The geoset anims, heaven forbid they be forgotten.
@@ -14,7 +14,7 @@ import com.hiveworkshop.rms.util.Vector3;
  */
 public class GeosetAnim extends TimelineContainer implements Named {
 	double staticAlpha = 1;
-	Vector3 staticColor = new Vector3(1, 1, 1);
+	Vec3 staticColor = new Vec3(1, 1, 1);
 	int geosetId = -1;
 	Geoset geoset;
 	boolean dropShadow = false;
@@ -48,7 +48,7 @@ public class GeosetAnim extends TimelineContainer implements Named {
 
 		setDropShadow((flags & 1) == 1);
 
-		setStaticColor(new Vector3(ModelUtils.flipRGBtoBGR(animation.color)));
+		setStaticColor(new Vec3(ModelUtils.flipRGBtoBGR(animation.color)));
 
 		loadTimelines(animation);
 	}
@@ -107,11 +107,11 @@ public class GeosetAnim extends TimelineContainer implements Named {
 		this.staticAlpha = staticAlpha;
 	}
 
-	public Vector3 getStaticColor() {
+	public Vec3 getStaticColor() {
 		return staticColor;
 	}
 
-	public void setStaticColor(final Vector3 staticColor) {
+	public void setStaticColor(final Vec3 staticColor) {
 		this.staticColor = staticColor;
 	}
 
@@ -154,10 +154,10 @@ public class GeosetAnim extends TimelineContainer implements Named {
 		return getRenderVisibility(animatedRenderEnvironment, (float) staticAlpha);
 	}
 
-	private static final Vector3 renderColorVector = new Vector3();
+	private static final Vec3 renderColorVector = new Vec3();
 
-	public Vector3 getRenderColor(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		final Vector3 c = getInterpolatedVector(animatedRenderEnvironment, "Color", staticColor);
+	public Vec3 getRenderColor(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final Vec3 c = getInterpolatedVector(animatedRenderEnvironment, "Color", staticColor);
 
 		renderColorVector.x = (float) c.x;
 		renderColorVector.y = (float) c.y;

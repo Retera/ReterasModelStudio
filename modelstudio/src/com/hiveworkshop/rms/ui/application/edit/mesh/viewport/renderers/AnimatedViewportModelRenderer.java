@@ -31,7 +31,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Mat4;
-import com.hiveworkshop.rms.util.Vector4;
+import com.hiveworkshop.rms.util.Vec4;
 
 public class AnimatedViewportModelRenderer implements ModelVisitor {
 	private Graphics2D graphics;
@@ -176,12 +176,12 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 
 	}
 
-	private static final Vector4 vertexHeap = new Vector4();
-	private static final Vector4 appliedVertexHeap = new Vector4();
-	private static final Vector4 vertexSumHeap = new Vector4();
-	private static final Vector4 normalHeap = new Vector4();
-	private static final Vector4 appliedNormalHeap = new Vector4();
-	private static final Vector4 normalSumHeap = new Vector4();
+	private static final Vec4 vertexHeap = new Vec4();
+	private static final Vec4 appliedVertexHeap = new Vec4();
+	private static final Vec4 vertexSumHeap = new Vec4();
+	private static final Vec4 normalHeap = new Vec4();
+	private static final Vec4 appliedNormalHeap = new Vec4();
+	private static final Vec4 normalSumHeap = new Vec4();
 	private static final Mat4 skinBonesMatrixHeap = new Mat4();
 	private static final Mat4 skinBonesMatrixSumHeap = new Mat4();
 

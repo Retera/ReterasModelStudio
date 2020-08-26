@@ -44,22 +44,22 @@ public class FloatTrackTableModel extends AbstractTableModel {
 		if ((track != null) && track.tans()) {
 			switch (columnIndex) {
 			case 0:
-				return Double.class;
+				return Float.class;
 			case 1:
-				return Double.class;
+				return Float.class;
 			case 2:
-				return Double.class;
+				return Float.class;
 			case 3:
-				return Double.class;
+				return Float.class;
 			case 4:
 				return String.class;
 			}
 		} else {
 			switch (columnIndex) {
 			case 0:
-				return Double.class;
+				return Float.class;
 			case 1:
-				return Double.class;
+				return Float.class;
 			case 2:
 				return String.class;
 			}

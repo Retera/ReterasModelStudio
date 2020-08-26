@@ -14,7 +14,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.ResettableAnimatedIdObjectRenderer;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 
 public final class Graphics2DToAnimatedModelElementRendererAdapter implements ModelElementRenderer {
 	private Graphics2D graphics;
@@ -61,7 +61,7 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 	}
 
 	@Override
-	public void renderVertex(final Color color, final Vector3 vertex) {
+	public void renderVertex(final Color color, final Vec3 vertex) {
 		CoordinateSystem.Util.convertToPoint(coordinateSystem, vertex, recyclePointA);
 		graphics.setColor(color);
 		graphics.fillRect(recyclePointA.x - (vertexSize / 2), (int) (recyclePointA.y - (vertexSize / 2.0)), vertexSize,
@@ -76,16 +76,16 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 	}
 
 	@Override
-	public void renderCamera(final Camera camera, final Color boxColor, final Vector3 position, final Color targetColor,
-			final Vector3 targetPosition) {
+	public void renderCamera(final Camera camera, final Color boxColor, final Vec3 position, final Color targetColor,
+			final Vec3 targetPosition) {
 		// TODO ANIMATION
 		if (true) {
 			throw new WrongModeException("not animating cameras yet, code not finished");
 		}
 
 		final Graphics2D g2 = ((Graphics2D) graphics.create());
-		final Vector3 ver = position;
-		final Vector3 targ = targetPosition;
+		final Vec3 ver = position;
+		final Vec3 targ = targetPosition;
 		// final boolean verSel = selection.contains(ver);
 		// final boolean tarSel = selection.contains(targ);
 		final Point start = new Point(

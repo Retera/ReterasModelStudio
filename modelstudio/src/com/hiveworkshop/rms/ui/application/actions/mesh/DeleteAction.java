@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 
 /**
  * Something to undo when you deleted something important.
@@ -16,12 +16,12 @@ import com.hiveworkshop.rms.util.Vector3;
  * Eric Theller 6/11/2012
  */
 public class DeleteAction implements UndoAction {
-	private final List<Vector3> selection;
-	private final List<Vector3> deleted;
+	private final List<Vec3> selection;
+	private final List<Vec3> deleted;
 	private final List<Triangle> deletedTris;
 	private final VertexSelectionHelper vertexSelectionHelper;
 
-	public DeleteAction(final Collection<? extends Vector3> selection, final List<Triangle> deletedTris,
+	public DeleteAction(final Collection<? extends Vec3> selection, final List<Triangle> deletedTris,
 			final VertexSelectionHelper vertexSelectionHelper) {
 		this.vertexSelectionHelper = vertexSelectionHelper;
 		this.selection = new ArrayList<>(selection);
@@ -43,7 +43,7 @@ public class DeleteAction implements UndoAction {
 				vertex.getTriangles().remove(t);
 			}
 		}
-		vertexSelectionHelper.selectVertices(new ArrayList<Vector3>());
+		vertexSelectionHelper.selectVertices(new ArrayList<Vec3>());
 	}
 
 	@Override

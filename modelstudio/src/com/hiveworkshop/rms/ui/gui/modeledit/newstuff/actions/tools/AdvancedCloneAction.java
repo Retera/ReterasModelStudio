@@ -9,7 +9,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.Triangle;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 
 public final class AdvancedCloneAction implements UndoAction {
@@ -22,17 +22,17 @@ public final class AdvancedCloneAction implements UndoAction {
 	private final List<Triangle> newTriangles;
 	private final List<IdObject> newBones;
 
-	private final Set<Vector3> newSelection;
-	private final List<Vector3> sourceNonPivots;
-	private final List<Vector3> sourcePivots;
+	private final Set<Vec3> newSelection;
+	private final List<Vec3> sourceNonPivots;
+	private final List<Vec3> sourcePivots;
 	private final VertexSelectionHelper pivotSelectionHelper;
-	private final Set<Vector3> newSelectionPivots;
+	private final Set<Vec3> newSelectionPivots;
 
-	public AdvancedCloneAction(final ModelView model, final List<Vector3> sourceNonPivots,
-			final List<Vector3> sourcePivots, final ModelStructureChangeListener modelStructureChangeListener,
+	public AdvancedCloneAction(final ModelView model, final List<Vec3> sourceNonPivots,
+			final List<Vec3> sourcePivots, final ModelStructureChangeListener modelStructureChangeListener,
 			final VertexSelectionHelper vertexSelectionHelper, final VertexSelectionHelper pivotSelectionHelper,
 			final List<IdObject> selBones, final List<GeosetVertex> newVertices, final List<Triangle> newTriangles,
-			final List<IdObject> newBones, final Set<Vector3> newSelection, final Set<Vector3> newSelectionPivots) {
+			final List<IdObject> newBones, final Set<Vec3> newSelection, final Set<Vec3> newSelectionPivots) {
 		this.model = model;
 		this.sourceNonPivots = sourceNonPivots;
 		this.sourcePivots = sourcePivots;

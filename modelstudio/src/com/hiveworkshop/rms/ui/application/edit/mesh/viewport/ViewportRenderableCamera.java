@@ -14,8 +14,8 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
-import com.hiveworkshop.rms.util.Vector3;
-import com.hiveworkshop.rms.util.Vector4;
+import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.util.Vec4;
 
 public class ViewportRenderableCamera {
 	private final EditableModel cameraModel;
@@ -23,22 +23,22 @@ public class ViewportRenderableCamera {
 	private final Mat4 rotationMatrix = new Mat4();
 	private final Mat4 scaleTranslateMatrix = new Mat4();
 	private final Mat4 translateMatrix = new Mat4();
-	private static final Vector3 f = new Vector3();
-	private static final Vector3 u = new Vector3();
-	private static final Vector3 s = new Vector3();
-	private static final Vector3 start = new Vector3(0, 0, 0);
-	private static final Vector3 end = new Vector3(0, 0, 0);
-	private static final Vector3 startVector = new Vector3(0, 0, 0);
-	private static final Vector3 endVector = new Vector3(0, 0, 0);
-	private static final Vector3 delta = new Vector3(0, 0, 0);
-	private static final Vector3 vector3heap = new Vector3(0, 0, 0);
-	private static final Vector3 Z_DIMENSION = new Vector3(0, 0, 1);
+	private static final Vec3 f = new Vec3();
+	private static final Vec3 u = new Vec3();
+	private static final Vec3 s = new Vec3();
+	private static final Vec3 start = new Vec3(0, 0, 0);
+	private static final Vec3 end = new Vec3(0, 0, 0);
+	private static final Vec3 startVector = new Vec3(0, 0, 0);
+	private static final Vec3 endVector = new Vec3(0, 0, 0);
+	private static final Vec3 delta = new Vec3(0, 0, 0);
+	private static final Vec3 vector3heap = new Vec3(0, 0, 0);
+	private static final Vec3 Z_DIMENSION = new Vec3(0, 0, 1);
 	private static final Quat quatHeap = new Quat();
 	private static final Quat quatRotHeap = new Quat(0, 0, 0, 0);
-	private static final Vector4 vectorHeap = new Vector4();
-	private static final Vector3 ZEROES = new Vector3(0, 0, 0);
-	private static final Vector3 ONES = new Vector3(1, 1, 1);
-	private static final Vector3 quatRotAxisHeap = new Vector3(0, 0, 0);
+	private static final Vec4 vectorHeap = new Vec4();
+	private static final Vec3 ZEROES = new Vec3(0, 0, 0);
+	private static final Vec3 ONES = new Vec3(1, 1, 1);
+	private static final Vec3 quatRotAxisHeap = new Vec3(0, 0, 0);
 
 	public ViewportRenderableCamera() {
 		EditableModel camera;
@@ -53,7 +53,7 @@ public class ViewportRenderableCamera {
 		cameraModel = camera;
 	}
 
-	private void lookAt(final Vector3 eye, final Vector3 center, final Vector3 up) {
+	private void lookAt(final Vec3 eye, final Vec3 center, final Vec3 up) {
 		center.sub(eye, f);
 		f.normalize();
 		u.set(up);
@@ -116,9 +116,9 @@ public class ViewportRenderableCamera {
 					vectorHeap.w = 1;
 					scaleTranslateMatrix.transform(vectorHeap);
 					points[i].x = (int) coordinateSystem
-							.convertX(Vector3.getCoord(vectorHeap, coordinateSystem.getPortFirstXYZ()));
+							.convertX(Vec3.getCoord(vectorHeap, coordinateSystem.getPortFirstXYZ()));
 					points[i].y = (int) coordinateSystem
-							.convertY(Vector3.getCoord(vectorHeap, coordinateSystem.getPortSecondXYZ()));
+							.convertY(Vec3.getCoord(vectorHeap, coordinateSystem.getPortSecondXYZ()));
 				}
 				graphics.drawLine(points[0].x, points[0].y, points[1].x, points[1].y);
 				graphics.drawLine(points[2].x, points[2].y, points[1].x, points[1].y);

@@ -40,8 +40,8 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisito
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.util.Vector2;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec2;
+import com.hiveworkshop.rms.util.Vec3;
 
 public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	private final ProgramPreferences programPreferences;
@@ -87,7 +87,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	}
 
 	@Override
-	public void selectByVertices(final Collection<? extends Vector3> newSelection) {
+	public void selectByVertices(final Collection<? extends Vec3> newSelection) {
 		final List<GeosetVertex> newGeosetVertices = new ArrayList<>();
 		for (final Geoset geoset : model.getEditableGeosets()) {
 			for (final GeosetVertex vertex : geoset.getVertices()) {
@@ -208,7 +208,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 		}
 	}
 
-	public static boolean hitTest(final Vector3 vertex, final Point2D point, final CoordinateSystem coordinateSystem,
+	public static boolean hitTest(final Vec3 vertex, final Point2D point, final CoordinateSystem coordinateSystem,
 			final double vertexSize) {
 		final double x = coordinateSystem.convertX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
 		final double y = coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
@@ -305,7 +305,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 
 	@Override
 	public UndoAction addVertex(final double x, final double y, final double z,
-			final Vector3 preferredNormalFacingVector) {
+			final Vec3 preferredNormalFacingVector) {
 		final List<Geoset> geosets = model.getModel().getGeosets();
 		Geoset solidWhiteGeoset = null;
 		for (final Geoset geoset : geosets) {
@@ -322,10 +322,10 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 			solidWhiteGeoset.setMaterial(new Material(new Layer("None", new Bitmap("Textures\\white.blp"))));
 			needsGeosetAction = true;
 		}
-		final GeosetVertex geosetVertex = new GeosetVertex(x, y, z, new Vector3(preferredNormalFacingVector.x,
+		final GeosetVertex geosetVertex = new GeosetVertex(x, y, z, new Vec3(preferredNormalFacingVector.x,
 				preferredNormalFacingVector.y, preferredNormalFacingVector.z));
 		geosetVertex.setGeoset(solidWhiteGeoset);
-		geosetVertex.addTVertex(new Vector2(0, 0));
+		geosetVertex.addTVertex(new Vec2(0, 0));
 		final UndoAction action;
 		final DrawVertexAction drawVertexAction = new DrawVertexAction(geosetVertex);
 		if (needsGeosetAction) {
@@ -340,7 +340,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	}
 
 	@Override
-	public UndoAction createFaceFromSelection(final Vector3 preferredFacingVector) {
+	public UndoAction createFaceFromSelection(final Vec3 preferredFacingVector) {
 		final Set<GeosetVertex> selection = selectionManager.getSelection();
 		if (selection.size() != 3) {
 			throw new FaceCreationException(
@@ -366,7 +366,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 		}
 
 		final Triangle newTriangle = new Triangle(verticesArray[0], verticesArray[1], verticesArray[2], geoset);
-		final Vector3 facingVector = newTriangle.getNormal();
+		final Vec3 facingVector = newTriangle.getNormal();
 		final double cosine = facingVector.dot(preferredFacingVector)
 				/ (facingVector.length() * preferredFacingVector.length());
 		if (cosine < 0) {

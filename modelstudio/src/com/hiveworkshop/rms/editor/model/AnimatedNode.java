@@ -11,25 +11,25 @@ import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.AddKeyframeAction;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
-import com.hiveworkshop.rms.util.Vector3;
-import com.hiveworkshop.rms.util.Vector4;
+import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.util.Vec4;
 
 public abstract class AnimatedNode extends TimelineContainer {
-	private static final Vector4 translationHeap = new Vector4();
+	private static final Vec4 translationHeap = new Vec4();
 	private static final Mat4 matrixHeap = new Mat4();
 	private static final Quat rotationHeap = new Quat();
 	private static final Quat rotationDeltaHeap = new Quat();
-	private static final Vector4 axisAngleHeap = new Vector4();
+	private static final Vec4 axisAngleHeap = new Vec4();
 
 	abstract public AnimatedNode getParent();
 
-	abstract public Vector3 getPivotPoint();
+	abstract public Vec3 getPivotPoint();
 
 	abstract public List<? extends AnimatedNode> getChildrenNodes();
 
 	abstract public String getName();
 	
-	public Vector3 getRenderTranslation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public Vec3 getRenderTranslation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		return getInterpolatedVector(animatedRenderEnvironment, "Translation", null);
 	}
 
@@ -37,7 +37,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		return getInterpolatedQuat(animatedRenderEnvironment, "Rotation", null);
 	}
 
-	public Vector3 getRenderScale(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public Vec3 getRenderScale(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		return getInterpolatedVector(animatedRenderEnvironment, "Scaling", null);
 	}
 
@@ -57,16 +57,16 @@ public abstract class AnimatedNode extends TimelineContainer {
 		if ((translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
 			return null;
 		} else {
-			final Vector3 localLocation = renderNode.getLocalLocation();
+			final Vec3 localLocation = renderNode.getLocalLocation();
 			final int insertIndex = ((translationFlag.getTimes().size() == 0)
 					|| (translationFlag.getTimes().get(0) > trackTime)) ? 0 : floorIndex + 1;
 			translationFlag.getTimes().add(insertIndex, trackTime);
-			final Vector3 keyframeValue = new Vector3(localLocation.x, localLocation.y, localLocation.z);
+			final Vec3 keyframeValue = new Vec3(localLocation.x, localLocation.y, localLocation.z);
 			translationFlag.getValues().add(insertIndex, keyframeValue);
 			if (translationFlag.tans()) {
-				final Vector3 inTan = new Vector3(localLocation.x, localLocation.y, localLocation.z);
+				final Vec3 inTan = new Vec3(localLocation.x, localLocation.y, localLocation.z);
 				translationFlag.getInTans().add(insertIndex, inTan);
-				final Vector3 outTan = new Vector3(localLocation.x, localLocation.y, localLocation.z);
+				final Vec3 outTan = new Vec3(localLocation.x, localLocation.y, localLocation.z);
 				translationFlag.getOutTans().add(insertIndex, outTan);
 				structureChangeListener.keyframeAdded(this, translationFlag, trackTime);
 				return new AddKeyframeAction(this, translationFlag, trackTime, keyframeValue, inTan, outTan,
@@ -134,16 +134,16 @@ public abstract class AnimatedNode extends TimelineContainer {
 		if ((scalingTimeline.getTimes().size() > 0) && (scalingTimeline.getTimes().get(floorIndex) == trackTime)) {
 			return null;
 		} else {
-			final Vector3 localScale = renderNode.getLocalScale();
+			final Vec3 localScale = renderNode.getLocalScale();
 			final int insertIndex = ((scalingTimeline.getTimes().size() == 0)
 					|| (scalingTimeline.getTimes().get(0) > trackTime)) ? 0 : floorIndex + 1;
 			scalingTimeline.getTimes().add(insertIndex, trackTime);
-			final Vector3 keyframeValue = new Vector3(localScale.x, localScale.y, localScale.z);
+			final Vec3 keyframeValue = new Vec3(localScale.x, localScale.y, localScale.z);
 			scalingTimeline.getValues().add(insertIndex, keyframeValue);
 			if (scalingTimeline.tans()) {
-				final Vector3 inTan = new Vector3(localScale.x, localScale.y, localScale.z);
+				final Vec3 inTan = new Vec3(localScale.x, localScale.y, localScale.z);
 				scalingTimeline.getInTans().add(insertIndex, inTan);
-				final Vector3 outTan = new Vector3(localScale.x, localScale.y, localScale.z);
+				final Vec3 outTan = new Vec3(localScale.x, localScale.y, localScale.z);
 				scalingTimeline.getOutTans().add(insertIndex, outTan);
 				structureChangeListener.keyframeAdded(this, scalingTimeline, trackTime);
 				return new AddKeyframeAction(this, scalingTimeline, trackTime, keyframeValue, inTan, outTan,
@@ -156,7 +156,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 	}
 
 	public void updateTranslationKeyframe(final RenderModel renderModel, final double newDeltaX, final double newDeltaY,
-			final double newDeltaZ, final Vector3 savedLocalTranslation) {
+			final double newDeltaZ, final Vec3 savedLocalTranslation) {
 		// Note to future author: the reason for saved local translation is that
 		// we would like to be able to undo the action of moving the animation data
 
@@ -207,7 +207,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 		if ((translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
 			// we must change it
-			final Vector3 oldTranslationValue = (Vector3) translationFlag.getValues().get(floorIndex);
+			final Vec3 oldTranslationValue = (Vec3) translationFlag.getValues().get(floorIndex);
 			oldTranslationValue.x += translationHeap.x;
 			oldTranslationValue.y += translationHeap.y;
 			oldTranslationValue.z += translationHeap.z;
@@ -219,12 +219,12 @@ public abstract class AnimatedNode extends TimelineContainer {
 			}
 
 			if (translationFlag.tans()) {
-				final Vector3 oldInTan = (Vector3) translationFlag.getInTans().get(floorIndex);
+				final Vec3 oldInTan = (Vec3) translationFlag.getInTans().get(floorIndex);
 				oldInTan.x += translationHeap.x;
 				oldInTan.y += translationHeap.y;
 				oldInTan.z += translationHeap.z;
 
-				final Vector3 oldOutTan = (Vector3) translationFlag.getOutTans().get(floorIndex);
+				final Vec3 oldOutTan = (Vec3) translationFlag.getOutTans().get(floorIndex);
 				oldOutTan.x += translationHeap.x;
 				oldOutTan.y += translationHeap.y;
 				oldOutTan.z += translationHeap.z;
@@ -360,7 +360,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 	}
 
 	public void updateScalingKeyframe(final RenderModel renderModel, final double scaleX, final double scaleY,
-			final double scaleZ, final Vector3 savedLocalScaling) {
+			final double scaleZ, final Vec3 savedLocalScaling) {
 		// Note to future author: the reason for saved local scaling is that
 		// we would like to be able to undo the action of moving the animation data
 
@@ -402,7 +402,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 		if ((translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
 			// we must change it
-			final Vector3 oldTranslationValue = (Vector3) translationFlag.getValues().get(floorIndex);
+			final Vec3 oldTranslationValue = (Vec3) translationFlag.getValues().get(floorIndex);
 			oldTranslationValue.x *= translationHeap.x;
 			oldTranslationValue.y *= translationHeap.y;
 			oldTranslationValue.z *= translationHeap.z;
@@ -414,12 +414,12 @@ public abstract class AnimatedNode extends TimelineContainer {
 			}
 
 			if (translationFlag.tans()) {
-				final Vector3 oldInTan = (Vector3) translationFlag.getInTans().get(floorIndex);
+				final Vec3 oldInTan = (Vec3) translationFlag.getInTans().get(floorIndex);
 				oldInTan.x *= translationHeap.x;
 				oldInTan.y *= translationHeap.y;
 				oldInTan.z *= translationHeap.z;
 
-				final Vector3 oldOutTan = (Vector3) translationFlag.getOutTans().get(floorIndex);
+				final Vec3 oldOutTan = (Vec3) translationFlag.getOutTans().get(floorIndex);
 				oldOutTan.x *= translationHeap.x;
 				oldOutTan.y *= translationHeap.y;
 				oldOutTan.z *= translationHeap.z;
@@ -553,18 +553,18 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 		if ((translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
 			// we must change it
-			final Vector3 oldTranslationValue = (Vector3) translationFlag.getValues().get(floorIndex);
+			final Vec3 oldTranslationValue = (Vec3) translationFlag.getValues().get(floorIndex);
 			oldTranslationValue.x += newDeltaX;
 			oldTranslationValue.y += newDeltaY;
 			oldTranslationValue.z += newDeltaZ;
 
 			if (translationFlag.tans()) {
-				final Vector3 oldInTan = (Vector3) translationFlag.getInTans().get(floorIndex);
+				final Vec3 oldInTan = (Vec3) translationFlag.getInTans().get(floorIndex);
 				oldInTan.x += newDeltaX;
 				oldInTan.y += newDeltaY;
 				oldInTan.z += newDeltaZ;
 
-				final Vector3 oldOutTan = (Vector3) translationFlag.getOutTans().get(floorIndex);
+				final Vec3 oldOutTan = (Vec3) translationFlag.getOutTans().get(floorIndex);
 				oldOutTan.x += newDeltaX;
 				oldOutTan.y += newDeltaY;
 				oldOutTan.z += newDeltaZ;
@@ -574,7 +574,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 	}
 
 	public void updateLocalScalingKeyframe(final int trackTime, final Integer trackGlobalSeq,
-			final Vector3 localScaling) {
+			final Vec3 localScaling) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
 		// make AnimFlag.find seek on globalSeqId
 		final AnimFlag translationFlag = find("Scaling", trackGlobalSeq);
@@ -585,18 +585,18 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 		if ((translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
 			// we must change it
-			final Vector3 oldTranslationValue = (Vector3) translationFlag.getValues().get(floorIndex);
+			final Vec3 oldTranslationValue = (Vec3) translationFlag.getValues().get(floorIndex);
 			oldTranslationValue.x *= localScaling.x;
 			oldTranslationValue.y *= localScaling.y;
 			oldTranslationValue.z *= localScaling.z;
 
 			if (translationFlag.tans()) {
-				final Vector3 oldInTan = (Vector3) translationFlag.getInTans().get(floorIndex);
+				final Vec3 oldInTan = (Vec3) translationFlag.getInTans().get(floorIndex);
 				oldInTan.x *= localScaling.x;
 				oldInTan.y *= localScaling.y;
 				oldInTan.z *= localScaling.z;
 
-				final Vector3 oldOutTan = (Vector3) translationFlag.getOutTans().get(floorIndex);
+				final Vec3 oldOutTan = (Vec3) translationFlag.getOutTans().get(floorIndex);
 				oldOutTan.x *= localScaling.x;
 				oldOutTan.y *= localScaling.y;
 				oldOutTan.z *= localScaling.z;

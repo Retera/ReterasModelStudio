@@ -7,11 +7,9 @@ package com.hiveworkshop.rms.util;
  *
  * Eric Theller 3/8/2012
  */
-public class Quat {
-	public float x = 0, y = 0, z = 0, w = 1;
-
+public class Quat extends Vec4 {
 	public Quat() {
-
+		w = 1;
 	}
 
 	public Quat(final double a, final double b, final double c, final double d) {
@@ -22,25 +20,11 @@ public class Quat {
 		set(other);
 	}
 
-	public Quat(final Vector3 eulerRotation) {
+	public Quat(final Vec3 eulerRotation) {
 		set(eulerRotation);
 	}
 
-	public void set(Quat a) {
-		this.x = a.x;
-		this.y = a.y;
-		this.z = a.z;
-		this.w = a.w;
-	}
-
-	public void set(double x, double y, double z, double w) {
-		this.x = (float) x;
-		this.y = (float) y;
-		this.z = (float) z;
-		this.w = (float) w;
-	}
-
-	public void set(final Vector3 eulerRotation) {
+	public void set(final Vec3 eulerRotation) {
 		// eulerRotation.x = Math.toRadians(eulerRotation.x);
 		// eulerRotation.y = Math.toRadians(eulerRotation.y);
 		// eulerRotation.z = Math.toRadians(eulerRotation.z);
@@ -104,21 +88,18 @@ public class Quat {
 	}
 
 	public Quat(final float[] data) {
-		x = data[0];
-		y = data[1];
-		z = data[2];
-		w = data[3];
+		set(data);
 	}
 
-	public Quat(final Vector3 axis, final float angle) {
+	public Quat(final Vec3 axis, final float angle) {
 		setFromAxisAngle(axis, angle);
 	}
 
-	public void setFromAxisAngle(final Vector3 axis, final float angle) {
+	public void setFromAxisAngle(final Vec3 axis, final float angle) {
 		setFromAxisAngle(axis.x, axis.y, axis.z, angle);
 	}
 
-	public void setFromAxisAngle(final Vector4 axis) {
+	public void setFromAxisAngle(final Vec4 axis) {
 		setFromAxisAngle(axis.x, axis.y, axis.z, axis.w);
 	}
 
@@ -138,34 +119,7 @@ public class Quat {
 		w = 1;
 	}
 
-	public Quat normalize(final Quat out) {
-		float len = lengthSquared();
-
-		if (len != 0) {
-			len = 1 / len;
-		}
-
-		out.x = x * len;
-		out.y = y * len;
-		out.z = z * len;
-		out.w = w * len;
-
-		return out;
-	}
-
-	public Quat normalize() {
-		return normalize(this);
-	}
-
-	public double[] toArray() {
-		return new double[] { x, y, z, w };
-	}
-
-	public float[] toFloatArray() {
-		return new float[] { (float) x, (float) y, (float) z, (float) w };
-	}
-
-	public Vector3 toEuler() {
+	public Vec3 toEuler() {
 		// Wikipedia formula
 		double roll = (Math.atan2(2.0 * ((x * y) + (z * w)), 1 - (2.0 * ((y * y) + (z * z)))));
 		double stuff = (x * z) - (w * y);
@@ -218,23 +172,22 @@ public class Quat {
 			pitch = 0;
 		}
 
-		return new Vector3(roll, pitch, yaw);
+		return new Vec3(roll, pitch, yaw);
 		// return new Vertex(heading, attitude, bank);
 		// Now Quaternions can go burn and die.
 	}
 
-	public Quat slerp(final Quat end, final float t, final Quat out) {
-		float bx = end.x, by = end.y, bz = end.z, bw = end.w;
+	private Quat slerp(float ax, float ay, float az, float aw, final float t, final Quat out) {
 		final float scale0, scale1;
 		// calc cosine
-		float cosom = (x * bx) + (y * by) + (z * bz) + (w * bw);
+		float cosom = (x * ax) + (y * ay) + (z * az) + (w * aw);
 		// adjust signs (if necessary)
 		if (cosom < 0) {
 			cosom = -cosom;
-			bx = -bx;
-			by = -by;
-			bz = -bz;
-			bw = -bw;
+			ax = -ax;
+			ay = -ay;
+			az = -az;
+			aw = -aw;
 		}
 		// calculate coefficients
 		if ((1.0 - cosom) > 0.000001) {
@@ -251,65 +204,51 @@ public class Quat {
 			scale1 = t;
 		}
 
-		out.x = (scale0 * x) + (scale1 * bx);
-		out.y = (scale0 * y) + (scale1 * by);
-		out.z = (scale0 * z) + (scale1 * bz);
-		out.w = (scale0 * w) + (scale1 * bw);
+		out.x = (scale0 * x) + (scale1 * ax);
+		out.y = (scale0 * y) + (scale1 * ay);
+		out.z = (scale0 * z) + (scale1 * az);
+		out.w = (scale0 * w) + (scale1 * aw);
 
 		// Super slow and generally not needed.
 		// quat.normalize(out, out);
 		return out;
 	}
 
-	private static final Quat temp1 = new Quat(0, 0, 0, 0);
-	private static final Quat temp2 = new Quat(0, 0, 0, 0);
+	public Quat slerp(final Quat a, final float t, final Quat out) {
+		return slerp(a.x, a.y, a.z, a.w, t, out);
+	}
 
-	public static Quat squad(final Quat out, final Quat a,
-			final Quat aOutTan, final Quat bInTan, final Quat b,
-			final float t) {
-		a.slerp(b, t, temp1);
-		aOutTan.slerp(bInTan, t, temp2);
-		temp1.slerp(temp2, 2 * t * (1 - t), out);
+	public Quat slerp(final Quat a, final float t) {
+		return slerp(a, t, this);
+	}
+
+	public Quat squad(final Quat outTan, final Quat inTan, final Quat a, final float t, final Quat out) {
+		slerp(a, t, out);
+
+		float x1 = out.x;
+		float y1 = out.y;
+		float z1 = out.z;
+		float w1 = out.w;
+
+		outTan.slerp(inTan, t, out);
+
+		float x2 = out.x;
+		float y2 = out.y;
+		float z2 = out.z;
+		float w2 = out.w;
+
+		out.x = x1;
+		out.y = y1;
+		out.z = z1;
+		out.w = w1;
+
+		out.slerp(x2, y2, z2, w2, 2 * t * (1 - t), out);
 		
 		return out;
 	}
 
-	@Override
-	public String toString() {
-		return "{ " + x + ", " + y + ", " + z + ", " + w + " }";
-	}
-
-	public void setCoord(final byte index, final float value) {
-		if (!Float.isNaN(value)) {
-			switch (index) {
-			case 0:
-				x = value;
-				break;
-			case 1:
-				y = value;
-				break;
-			case 2:
-				z = value;
-				break;
-			case 3:
-				w = value;
-				break;
-			}
-		}
-	}
-
-	public float getCoord(final byte index) {
-		switch (index) {
-		case 0:
-			return x;
-		case 1:
-			return y;
-		case 2:
-			return z;
-		case 3:
-			return w;
-		}
-		return 0;
+	public Quat squad(final Quat outTan, final Quat inTan, final Quat a, final float t) {
+		return squad(outTan, inTan, a, t, this);
 	}
 
 	public Quat mul(final Quat a, final Quat out) {
@@ -331,16 +270,20 @@ public class Quat {
 	}
 
 	public Quat mulInverse(Quat a, Quat out) {
+		float ax = a.x;
+		float ay = a.y;
+		float az = a.z;
+		float aw = a.w;
 		float len = a.lengthSquared();
 
 		if (len > 0) {
 			len = 1 / len;
 		}
 		
-		out.x =	((x * a.w) - (w * a.x) - (y * a.z) + (z * a.y)) * len;
-		out.y = ((y * a.w) - (w * a.y) - (z * a.x) + (x * a.z)) * len;
-		out.z = ((z * a.w) - (w * a.z) - (x * a.y) + (y * a.x)) * len;
-		out.w = ((w * a.w) + (x * a.x) + (y * a.y) + (z * a.z)) * len;
+		out.x =	((x * aw) - (w * ax) - (y * az) + (z * ay)) * len;
+		out.y = ((y * aw) - (w * ay) - (z * ax) + (x * az)) * len;
+		out.z = ((z * aw) - (w * az) - (x * ay) + (y * ax)) * len;
+		out.w = ((w * aw) + (x * ax) + (y * ay) + (z * az)) * len;
 
 		return out;
 	}
@@ -349,11 +292,26 @@ public class Quat {
 		return mulInverse(a, this);
 	}
 
-	public float lengthSquared() {
-		return (x * x) + (y * y) + (z * z) + (w * w);
-	}
+	public Vec3 transform(final Vec3 a, final Vec3 out) {
+        float ax = a.x;
+        float ay = a.y;
+        float az = a.z;
+        float uvx = y * az - z * ay;
+        float uvy = z * ax - x * az;
+        float uvz = x * ay - y * ax;
+        float uuvx = y * uvz - z * uvy;
+        float uuvy = z * uvx - x * uvz;
+        float uuvz = x * uvy - y * uvx;
+		float w2 = w * 2;
 
-	public float length() {
-		return (float) Math.sqrt(lengthSquared());
+        out.x = ax + (uvx * w2) + (uuvx * 2);
+        out.y = ay + (uvy * w2) + (uuvy * 2);
+        out.z = az + (uvz * w2) + (uuvz * 2);
+
+        return out;
+	}
+	
+	public Vec3 transform(final Vec3 a) {
+		return transform(a, a);
 	}
 }

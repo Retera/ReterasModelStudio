@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.util;
 
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.util.Vector3;
+import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportModelRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.VertexFilter;
@@ -68,7 +68,7 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 
 	protected abstract TYPE valueToType(Object value);
 
-	protected abstract Vector3 getRenderVertex(TYPE value);
+	protected abstract Vec3 getRenderVertex(TYPE value);
 
 	protected abstract boolean contains(ModelView modelDisp, TYPE object);
 
