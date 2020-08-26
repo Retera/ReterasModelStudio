@@ -1,15 +1,13 @@
 package com.hiveworkshop.rms.parsers.mdlx;
 
+import java.util.Iterator;
+
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
 import com.hiveworkshop.rms.util.BinaryReader;
 import com.hiveworkshop.rms.util.BinaryWriter;
-import com.hiveworkshop.rms.util.War3ID;
-
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * A generic object.
@@ -50,14 +48,18 @@ public abstract class MdlxGenericObject extends MdlxAnimatedObject {
 		writer.writeInt32(parentId);
 		writer.writeInt32(flags);
 
-		for (final MdlxTimeline<?> timeline : eachTimeline(true)) {
-			timeline.writeMdx(writer);
+		for (final MdlxTimeline<?> timeline : timelines) {
+			if (isGeneric(timeline)) {
+				timeline.writeMdx(writer);
+			}
 		}
 	}
 
 	public void writeNonGenericAnimationChunks(final BinaryWriter writer) {
-		for (final MdlxTimeline<?> timeline : eachTimeline(false)) {
-			timeline.writeMdx(writer);
+		for (final MdlxTimeline<?> timeline : timelines) {
+			if (!isGeneric(timeline)) {
+				timeline.writeMdx(writer);
+			}
 		}
 	}
 
@@ -118,85 +120,27 @@ public abstract class MdlxGenericObject extends MdlxAnimatedObject {
 		writeTimeline(stream, AnimationMap.KGSC);
 	}
 
-	public Iterable<MdlxTimeline<?>> eachTimeline(final boolean generic) {
-		return new TimelineMaskingIterable(generic);
-	}
-
 	public long getGenericByteLength(final int version) {
 		long size = 96;
-		for (final MdlxTimeline<?> animation : eachTimeline(true)) {
-			size += animation.getByteLength();
+
+		for (final MdlxTimeline<?> timeline : timelines) {
+			if (isGeneric(timeline)) {
+				size += timeline.getByteLength();
+			}
 		}
+
 		return size;
+	}
+
+	public boolean isGeneric(final MdlxTimeline<?> timeline) {
+		AnimationMap type = AnimationMap.ID_TO_TAG.get(timeline.name);
+
+		return (type == AnimationMap.KGTR) || (type == AnimationMap.KGRT) || (type == AnimationMap.KGSC);
 	}
 
 	@Override
 	public long getByteLength(final int version) {
 		return 96 + super.getByteLength(version);
-	}
-
-	private final class TimelineMaskingIterable implements Iterable<MdlxTimeline<?>> {
-		private final boolean generic;
-
-		private TimelineMaskingIterable(final boolean generic) {
-			this.generic = generic;
-		}
-
-		@Override
-		public Iterator<MdlxTimeline<?>> iterator() {
-			return new TimelineMaskingIterator(generic, timelines);
-		}
-	}
-
-	private static final class TimelineMaskingIterator implements Iterator<MdlxTimeline<?>> {
-		private final boolean wantGeneric;
-		private final Iterator<MdlxTimeline<?>> delegate;
-		private boolean hasNext;
-		private MdlxTimeline<?> next;
-
-		public TimelineMaskingIterator(final boolean wantGeneric, final List<MdlxTimeline<?>> timelines) {
-			this.wantGeneric = wantGeneric;
-			delegate = timelines.iterator();
-			scanUntilNext();
-		}
-
-		private boolean isGeneric(final MdlxTimeline<?> timeline) {
-			final War3ID name = timeline.name;
-			final boolean generic = AnimationMap.KGTR.getWar3id().equals(name)
-					|| AnimationMap.KGRT.getWar3id().equals(name) || AnimationMap.KGSC.getWar3id().equals(name);
-			return generic;
-		}
-
-		private void scanUntilNext() {
-			boolean hasNext = false;
-			if (hasNext = delegate.hasNext()) {
-				do {
-					next = delegate.next();
-				}
-				while ((isGeneric(next) != wantGeneric) && (hasNext = delegate.hasNext()));
-			}
-			if (!hasNext) {
-				next = null;
-			}
-		}
-
-		@Override
-		public boolean hasNext() {
-			return next != null;
-		}
-
-		@Override
-		public MdlxTimeline<?> next() {
-			final MdlxTimeline<?> last = next;
-			scanUntilNext();
-			return last;
-		}
-
-		@Override
-		public void remove() {
-			throw new UnsupportedOperationException("Remove is not supported");
-		}
-
 	}
 
 	private static final class WrappedMdlTokenIterator implements Iterator<String> {

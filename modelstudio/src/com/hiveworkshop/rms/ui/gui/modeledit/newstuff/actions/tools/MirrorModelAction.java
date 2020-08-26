@@ -8,7 +8,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.util.Vec3;
-import com.hiveworkshop.rms.util.Vec3;
 
 public final class MirrorModelAction implements UndoAction {
 	private final char[] DIMENSION_NAMES = { 'Z', 'X', 'Y' };

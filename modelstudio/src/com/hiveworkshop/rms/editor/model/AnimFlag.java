@@ -1336,37 +1336,24 @@ public class AnimFlag {
 				return floorValue;
 			}
 		}
+
+		final Integer floorTime = floorIndexTime;
+		final Integer ceilTime = ceilIndexTime;
+		final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
+
 		switch (localTypeId) {
 		case ALPHA | OTHER_TYPE: {
 			final Float previous = (Float) floorValue;
 			final Float next = (Float) ceilValue;
 			switch (interpolationType) {
-			case BEZIER: {
-				final Float previousOutTan = (Float) floorOutTan;
-				final Float nextInTan = (Float) inTans.get(ceilIndex);
-				final Integer floorTime = floorIndexTime;
-				final Integer ceilTime = ceilIndexTime;
-				final float bezier = MathUtils.bezier(previous, previousOutTan, nextInTan, next,
-						(float) (time - floorTime) / (float) (ceilTime - floorTime));
-				return bezier;
-			}
+			case BEZIER:
+				return MathUtils.bezier(previous,  (Float) floorOutTan, (Float) inTans.get(ceilIndex), next, timeFactor);
 			case DONT_INTERP:
 				return floorValue;
-			case HERMITE: {
-				final Float previousOutTan = (Float) floorOutTan;
-				final Float nextInTan = (Float) inTans.get(ceilIndex);
-				final Integer floorTime = floorIndexTime;
-				final Integer ceilTime = ceilIndexTime;
-				final float hermite = MathUtils.hermite(previous, previousOutTan, nextInTan, next,
-						(float) (time - floorTime) / (float) (ceilTime - floorTime));
-				return hermite;
-			}
+			case HERMITE:
+				return MathUtils.hermite(previous, (Float) floorOutTan, (Float) inTans.get(ceilIndex), next, timeFactor);
 			case LINEAR:
-				final Integer floorTime = floorIndexTime;
-				final Integer ceilTime = ceilIndexTime;
-				final float lerp = MathUtils.lerp(previous, next,
-						(float) (time - floorTime) / (float) (ceilTime - floorTime));
-				return lerp;
+				return MathUtils.lerp(previous, next, timeFactor);
 			default:
 				throw new IllegalStateException();
 			}
@@ -1377,36 +1364,17 @@ public class AnimFlag {
 			// Vertex
 			final Vec3 previous = (Vec3) floorValue;
 			final Vec3 next = (Vec3) ceilValue;
+
 			switch (interpolationType) {
-			case BEZIER: {
-				final Vec3 previousOutTan = (Vec3) floorOutTan;
-				final Vec3 nextInTan = (Vec3) inTans.get(ceilIndex);
-				final Integer floorTime = floorIndexTime;
-				final Integer ceilTime = ceilIndexTime;
-				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
-				final Vec3 bezier = new Vec3();
-				previous.bezier(previousOutTan, nextInTan, next, timeFactor, bezier);
-				return bezier;
-			}
+			case BEZIER:
+				return previous.bezier((Vec3) floorOutTan, (Vec3) inTans.get(ceilIndex), next, timeFactor, new Vec3());
 			case DONT_INTERP:
 				return floorValue;
 			case HERMITE: {
-				final Vec3 previousOutTan = (Vec3) floorOutTan;
-				final Vec3 nextInTan = (Vec3) inTans.get(ceilIndex);
-				final Integer floorTime = floorIndexTime;
-				final Integer ceilTime = ceilIndexTime;
-				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
-				final Vec3 hermite = new Vec3();
-				previous.hermite(previousOutTan, nextInTan, next, timeFactor, hermite);
-				return hermite;
+				return previous.hermite((Vec3) floorOutTan, (Vec3) inTans.get(ceilIndex), next, timeFactor, new Vec3());
 			}
 			case LINEAR:
-				final Integer floorTime = floorIndexTime;
-				final Integer ceilTime = ceilIndexTime;
-				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
-				final Vec3 lerp = new Vec3();
-				previous.lerp(next, timeFactor, lerp);
-				return lerp;
+				return previous.lerp(next, timeFactor, new Vec3());
 			default:
 				throw new IllegalStateException();
 			}
@@ -1415,33 +1383,16 @@ public class AnimFlag {
 			// Quat
 			final Quat previous = (Quat) floorValue;
 			final Quat next = (Quat) ceilValue;
+
 			switch (interpolationType) {
-			case BEZIER: {
-				final Quat previousOutTan = (Quat) floorOutTan;
-				final Quat nextInTan = (Quat) inTans.get(ceilIndex);
-				final Integer floorTime = floorIndexTime;
-				final Integer ceilTime = ceilIndexTime;
-				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
-				final Quat result = new Quat();
-				return previous.squad(previousOutTan, nextInTan, next, timeFactor, result);
-			}
+			case BEZIER:
+				return previous.squad((Quat) floorOutTan, (Quat) inTans.get(ceilIndex), next, timeFactor, new Quat());
 			case DONT_INTERP:
 				return floorValue;
-			case HERMITE: {
-				final Quat previousOutTan = (Quat) floorOutTan;
-				final Quat nextInTan = (Quat) inTans.get(ceilIndex);
-				final Integer floorTime = floorIndexTime;
-				final Integer ceilTime = ceilIndexTime;
-				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
-				final Quat result = new Quat();
-				return previous.squad(previousOutTan, nextInTan, next, timeFactor, result);
-			}
+			case HERMITE:
+				return previous.squad((Quat) floorOutTan, (Quat) inTans.get(ceilIndex), next, timeFactor,  new Quat());
 			case LINEAR:
-				final Integer floorTime = floorIndexTime;
-				final Integer ceilTime = ceilIndexTime;
-				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
-				final Quat result = new Quat();
-				return previous.slerp(next, timeFactor, result);
+				return previous.slerp(next, timeFactor, new Quat());
 			default:
 				throw new IllegalStateException();
 			}

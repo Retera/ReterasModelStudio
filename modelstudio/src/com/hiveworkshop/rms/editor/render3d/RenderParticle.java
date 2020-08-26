@@ -54,13 +54,11 @@ public class RenderParticle {
         vector4Heap.set(0, 1, 0, MathUtils.randomInRange(-latitude, latitude));
         rotationYHeap.setFromAxisAngle(vector4Heap);
         rotationYHeap.mul(rotationZHeap);
-        matrixHeap.fromQuat(rotationYHeap);
         vector4Heap.set(0, 0, 1, 1);
-        matrixHeap.transform(vector4Heap);
+        rotationYHeap.transform(vector4Heap);
 
         // World rotation
-        matrixHeap.fromQuat(renderNode.getWorldRotation());
-        matrixHeap.transform(vector4Heap);
+        renderNode.getWorldRotation().transform(vector4Heap);
 
         // Apply speed
         velocity.set(vector4Heap);

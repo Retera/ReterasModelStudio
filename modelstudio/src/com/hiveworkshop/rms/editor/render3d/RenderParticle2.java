@@ -108,9 +108,8 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		}
 
 		// Apply the rotation
-		matrixHeap.fromQuat(rotationYHeap);
 		vector4Heap.set(0, 0, 1, 1);
-		matrixHeap.transform(vector4Heap);
+		rotationYHeap.transform(vector4Heap);
 		velocity.set(vector4Heap);
 
 		// Apply speed

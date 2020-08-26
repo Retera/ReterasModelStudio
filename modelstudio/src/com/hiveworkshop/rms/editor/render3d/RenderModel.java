@@ -16,8 +16,6 @@ import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
-import com.hiveworkshop.rms.util.MathUtils;
-import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
@@ -32,7 +30,6 @@ public final class RenderModel {
 	public static final double MAGIC_RENDER_SHOW_CONSTANT = 0.75;
 	private final List<AnimatedNode> sortedNodes = new ArrayList<>();
 	private Quat inverseCameraRotation;
-	private Quat inverseCameraRotationXSpin;
 	private Quat inverseCameraRotationYSpin;
 	private Quat inverseCameraRotationZSpin;
 	private AnimatedRenderEnvironment animatedRenderEnvironment;
@@ -48,7 +45,6 @@ public final class RenderModel {
 
 	private boolean spawnParticles = true;
 	private boolean allowInanimateParticles = false;
-	private static final Mat4 billboardUpdatesMatrixHeap = new Mat4();
 
 	// These guys form the corners of a 2x2 rectangle, for use in Ghostwolf particle
 	// emitter algorithm
@@ -103,11 +99,8 @@ public final class RenderModel {
 		this.inverseCameraRotationYSpin = inverseCameraRotationYSpin;
 		this.inverseCameraRotationZSpin = inverseCameraRotationZSpin;
 
-		// Cache the billboard vectors; TODO be more efficient like Ghostwolf's code and
-		// dont use billboardUpdatesMatrixHeap
-		billboardUpdatesMatrixHeap.fromQuat(inverseCameraRotation);
 		for (int i = 0; i < billboardVectors.length; i++) {
-			billboardUpdatesMatrixHeap.transform(billboardBaseVectors[i], billboardVectors[i]);
+			inverseCameraRotation.transform(billboardBaseVectors[i], billboardVectors[i]);
 		}
 
 		sortedNodes.clear();
@@ -332,9 +325,8 @@ public final class RenderModel {
 	}
 
 	private void updateParticles() {
-		billboardUpdatesMatrixHeap.fromQuat(inverseCameraRotation);
 		for (int i = 0; i < billboardVectors.length; i++) {
-			billboardUpdatesMatrixHeap.transform(billboardBaseVectors[i], billboardVectors[i]);
+			inverseCameraRotation.transform(billboardBaseVectors[i], billboardVectors[i]);
 		}
 		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
 			// not animating

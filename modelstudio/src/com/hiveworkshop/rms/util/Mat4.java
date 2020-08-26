@@ -56,10 +56,27 @@ public class Mat4 {
 	}
 	
   public Vec4 transform(final Vec4 a, final Vec4 out) {
-    out.x = m00 * a.x + m10 * a.y + m20 * a.z + m30 * a.w;
-    out.y = m01 * a.x + m11 * a.y + m21 * a.z + m31 * a.w;
-    out.z = m02 * a.x + m12 * a.y + m22 * a.z + m32 * a.w;
-    out.w = m03 * a.x + m13 * a.y + m23 * a.z + m33 * a.w;
+    float x = a.x;
+    float y = a.y;
+    float z = a.z;
+    float w = a.w;
+
+    out.x = (m00 * x) + (m10 * y) + (m20 * z) + (m30 * w);
+    out.y = (m01 * x) + (m11 * y) + (m21 * z) + (m31 * w);
+    out.z = (m02 * x) + (m12 * y) + (m22 * z) + (m32 * w);
+    out.w = (m03 * x) + (m13 * y) + (m23 * z) + (m33 * w);
+
+    return out;
+  }
+
+  public Vec3 transform(final Vec3 a, final Vec3 out) {
+    float x = a.x;
+    float y = a.y;
+    float z = a.z;
+
+    out.x = (m00 * x) + (m10 * y) + (m20 * z) + m30;
+    out.y = (m01 * x) + (m11 * y) + (m21 * z) + m31;
+    out.z = (m02 * x) + (m12 * y) + (m22 * z) + m32;
 
     return out;
   }
@@ -67,7 +84,10 @@ public class Mat4 {
   public Vec4 transform(final Vec4 a) {
     return transform(a, a);
   }
-    
+  
+  public Vec3 transform(final Vec3 a) {
+    return transform(a, a);
+  }
     
   public Mat4 setIdentity() {
     m00 = 1.0f;

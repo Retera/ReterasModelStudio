@@ -85,7 +85,6 @@ import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.listeners.ProgramPreferencesChangeListener;
 import com.hiveworkshop.rms.ui.util.BetterAWTGLCanvas;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-import com.hiveworkshop.rms.util.MathUtils;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
@@ -1129,12 +1128,11 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			// "+lastClick.x+","+lastClick.y+" as last.");
 			// System.out.println(xoff+" and "+mx);
 			if (lastClick != null) {
-				matrixHeap.fromQuat(inverseCameraRotationQuat);
 				vertexHeap.x = 0;
 				vertexHeap.y = (float) (((int) mx - lastClick.x) / m_zoom);
 				vertexHeap.z = -(float) (((int) my - lastClick.y) / m_zoom);
 				vertexHeap.w = 1;
-				matrixHeap.transform(vertexHeap);
+				inverseCameraRotationQuat.transform(vertexHeap);
 				cameraPos.x += vertexHeap.x;
 				cameraPos.y += vertexHeap.y;
 				cameraPos.z += vertexHeap.z;

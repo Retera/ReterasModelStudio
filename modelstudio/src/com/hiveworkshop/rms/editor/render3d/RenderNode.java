@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.editor.render3d;
 
 import com.hiveworkshop.rms.editor.model.AnimatedNode;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.util.MathUtils;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;

@@ -137,10 +137,8 @@ public class Geoset implements Named, VisibilitySource {
 			geoset.extent = getExtents().toMdlx();
 		}
 
-		geoset.sequenceExtents = new MdlxExtent[getAnims().size()];
-
 		for (int i = 0, l = getAnims().size(); i < l; i++) {
-			geoset.sequenceExtents[i] = getAnim(i).getExtents().toMdlx();
+			geoset.sequenceExtents.add(getAnim(i).getExtents().toMdlx());
 		}
 
 

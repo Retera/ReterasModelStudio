@@ -223,26 +223,16 @@ public class Quat extends Vec4 {
 	}
 
 	public Quat squad(final Quat outTan, final Quat inTan, final Quat a, final float t, final Quat out) {
+        outTan.slerp(inTan, t, out);
+
+		float x = out.x;
+		float y = out.y;
+		float z = out.z;
+        float w = out.w;
+        
 		slerp(a, t, out);
 
-		float x1 = out.x;
-		float y1 = out.y;
-		float z1 = out.z;
-		float w1 = out.w;
-
-		outTan.slerp(inTan, t, out);
-
-		float x2 = out.x;
-		float y2 = out.y;
-		float z2 = out.z;
-		float w2 = out.w;
-
-		out.x = x1;
-		out.y = y1;
-		out.z = z1;
-		out.w = w1;
-
-		out.slerp(x2, y2, z2, w2, 2 * t * (1 - t), out);
+		out.slerp(x, y, z, w, 2 * t * (1 - t), out);
 		
 		return out;
 	}
@@ -290,6 +280,30 @@ public class Quat extends Vec4 {
 
 	public Quat mulInverse(Quat a) {
 		return mulInverse(a, this);
+	}
+
+	public Vec4 transform(final Vec4 a, final Vec4 out) {
+        float ax = a.x;
+        float ay = a.y;
+        float az = a.z;
+        float uvx = y * az - z * ay;
+        float uvy = z * ax - x * az;
+        float uvz = x * ay - y * ax;
+        float uuvx = y * uvz - z * uvy;
+        float uuvy = z * uvx - x * uvz;
+        float uuvz = x * uvy - y * uvx;
+		float w2 = w * 2;
+
+        out.x = ax + (uvx * w2) + (uuvx * 2);
+        out.y = ay + (uvy * w2) + (uuvy * 2);
+		out.z = az + (uvz * w2) + (uuvz * 2);
+		out.w = a.w;
+
+        return out;
+	}
+	
+	public Vec4 transform(final Vec4 a) {
+		return transform(a, a);
 	}
 
 	public Vec3 transform(final Vec3 a, final Vec3 out) {
