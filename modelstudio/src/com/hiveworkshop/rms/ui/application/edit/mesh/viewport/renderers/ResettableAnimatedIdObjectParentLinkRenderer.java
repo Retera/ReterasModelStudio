@@ -1,14 +1,28 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers;
 
-import com.hiveworkshop.rms.editor.model.*;
+import java.awt.Color;
+import java.awt.GradientPaint;
+import java.awt.Graphics2D;
+import java.awt.Point;
+
+import com.hiveworkshop.rms.editor.model.Attachment;
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.CollisionShape;
+import com.hiveworkshop.rms.editor.model.EventObject;
+import com.hiveworkshop.rms.editor.model.Helper;
+import com.hiveworkshop.rms.editor.model.Light;
+import com.hiveworkshop.rms.editor.model.ParticleEmitter;
+import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
+import com.hiveworkshop.rms.editor.model.ParticleEmitterPopcorn;
+import com.hiveworkshop.rms.editor.model.RibbonEmitter;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector4f;
-
-import java.awt.*;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.util.Matrix4;
+import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vertex4;
 
 public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObjectVisitor {
 	private CoordinateSystem coordinateSystem;
@@ -134,23 +148,23 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 		System.err.println("TODO ANIMATE CAMERAS");
 	}
 
-	private static final Vector4f vertexHeap = new Vector4f();
-	private static final Vector4f vertexHeap2 = new Vector4f();
+	private static final Vertex4 vertexHeap = new Vertex4();
+	private static final Vertex4 vertexHeap2 = new Vertex4();
 
 	public static void drawLink(final Graphics2D graphics, final CoordinateSystem coordinateSystem,
-			final Vertex pivotPoint, final Vertex target, final Matrix4f worldMatrix,
-			final Matrix4f targetWorldMatrix) {
+			final Vertex3 pivotPoint, final Vertex3 target, final Matrix4 worldMatrix,
+			final Matrix4 targetWorldMatrix) {
 		loadPivotInVertexHeap(pivotPoint, worldMatrix, vertexHeap);
 		loadPivotInVertexHeap(target, targetWorldMatrix, vertexHeap2);
 
 		final int xCoord = (int) coordinateSystem
-				.convertX(Vertex.getCoord(vertexHeap, coordinateSystem.getPortFirstXYZ()));
+				.convertX(Vertex3.getCoord(vertexHeap, coordinateSystem.getPortFirstXYZ()));
 		final int yCoord = (int) coordinateSystem
-				.convertY(Vertex.getCoord(vertexHeap, coordinateSystem.getPortSecondXYZ()));
+				.convertY(Vertex3.getCoord(vertexHeap, coordinateSystem.getPortSecondXYZ()));
 		final int xCoord2 = (int) coordinateSystem
-				.convertX(Vertex.getCoord(vertexHeap2, coordinateSystem.getPortFirstXYZ()));
+				.convertX(Vertex3.getCoord(vertexHeap2, coordinateSystem.getPortFirstXYZ()));
 		final int yCoord2 = (int) coordinateSystem
-				.convertY(Vertex.getCoord(vertexHeap2, coordinateSystem.getPortSecondXYZ()));
+				.convertY(Vertex3.getCoord(vertexHeap2, coordinateSystem.getPortSecondXYZ()));
 		// TODO resettable
 		graphics.setPaint(
 				new GradientPaint(new Point(xCoord, yCoord), Color.WHITE, new Point(xCoord2, yCoord2), Color.BLACK));
@@ -158,13 +172,13 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 		graphics.drawLine(xCoord, yCoord, xCoord2, yCoord2);
 	}
 
-	public static void loadPivotInVertexHeap(final Vertex pivotPoint, final Matrix4f worldMatrix,
-			final Vector4f vertexHeap) {
+	public static void loadPivotInVertexHeap(final Vertex3 pivotPoint, final Matrix4 worldMatrix,
+			final Vertex4 vertexHeap) {
 		vertexHeap.x = (float) pivotPoint.x;
 		vertexHeap.y = (float) pivotPoint.y;
 		vertexHeap.z = (float) pivotPoint.z;
 		vertexHeap.w = 1;
-		Matrix4f.transform(worldMatrix, vertexHeap, vertexHeap);
+		Matrix4.transform(worldMatrix, vertexHeap, vertexHeap);
 	}
 
 }

@@ -1,6 +1,16 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh;
 
-import com.hiveworkshop.rms.editor.model.*;
+import java.awt.Point;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
@@ -18,13 +28,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePic
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.rms.util.SubscriberSetNotifier;
-
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> implements ModelEditor {
 	private CloneContextHelper cloneContextHelper;
@@ -202,7 +206,7 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
-	public UndoAction setPosition(final Vertex center, final double x, final double y, final double z) {
+	public UndoAction setPosition(final Vertex3 center, final double x, final double y, final double z) {
 		final List<UndoAction> actions = new ArrayList<>();
 		for (final ModelEditor handler : set) {
 			actions.add(handler.setPosition(center, x, y, z));
@@ -211,7 +215,7 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
-	public UndoAction rotate(final Vertex center, final double rotateX, final double rotateY, final double rotateZ) {
+	public UndoAction rotate(final Vertex3 center, final double rotateX, final double rotateY, final double rotateZ) {
 		final List<UndoAction> actions = new ArrayList<>();
 		for (final ModelEditor handler : set) {
 			actions.add(handler.rotate(center, rotateX, rotateY, rotateZ));
@@ -364,7 +368,7 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
-	public void rawRotate3d(final Vertex center, final Vertex axis, final double radians) {
+	public void rawRotate3d(final Vertex3 center, final Vertex3 axis, final double radians) {
 		for (final ModelEditor handler : set) {
 			handler.rawRotate3d(center, axis, radians);
 		}
@@ -380,16 +384,16 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
-	public Vertex getSelectionCenter() {
-		final Set<Vertex> centers = new HashSet<>();
+	public Vertex3 getSelectionCenter() {
+		final Set<Vertex3> centers = new HashSet<>();
 		for (final ModelEditor handler : set) {
-			final Vertex selectionCenter = handler.getSelectionCenter();
+			final Vertex3 selectionCenter = handler.getSelectionCenter();
 			if (Double.isNaN(selectionCenter.x) || Double.isNaN(selectionCenter.y) || Double.isNaN(selectionCenter.z)) {
 				continue;
 			}
 			centers.add(selectionCenter);
 		}
-		return Vertex.centerOfGroup(centers);
+		return Vertex3.centerOfGroup(centers);
 	}
 
 	@Override
@@ -408,7 +412,7 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
-	public void selectByVertices(final java.util.Collection<? extends Vertex> newSelection) {
+	public void selectByVertices(final java.util.Collection<? extends Vertex3> newSelection) {
 		for (final ModelEditor handler : set) {
 			handler.selectByVertices(newSelection);
 		}
@@ -473,7 +477,7 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 
 	@Override
 	public UndoAction addVertex(final double x, final double y, final double z,
-			final Vertex preferredNormalFacingVector) {
+			final Vertex3 preferredNormalFacingVector) {
 		final List<UndoAction> actions = new ArrayList<>();
 		for (final ModelEditor handler : set) {
 			actions.add(handler.addVertex(x, y, z, preferredNormalFacingVector));
@@ -483,7 +487,7 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 
 	@Override
 	public GenericMoveAction addPlane(final double x, final double y, final double x2, final double y2, final byte dim1,
-			final byte dim2, final Vertex facingVector, final int numberOfSegmentsX, final int numberOfSegmentsY) {
+			final byte dim2, final Vertex3 facingVector, final int numberOfSegmentsX, final int numberOfSegmentsY) {
 		final List<GenericMoveAction> actions = new ArrayList<>();
 		for (final ModelEditor handler : set) {
 			actions.add(handler.addPlane(x, y, x2, y2, dim1, dim2, facingVector, numberOfSegmentsX, numberOfSegmentsY));
@@ -492,7 +496,7 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
-	public UndoAction createFaceFromSelection(final Vertex preferredFacingVector) {
+	public UndoAction createFaceFromSelection(final Vertex3 preferredFacingVector) {
 		final List<UndoAction> actions = new ArrayList<>();
 		for (final ModelEditor handler : set) {
 			actions.add(handler.createFaceFromSelection(preferredFacingVector));
@@ -502,7 +506,7 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 
 	@Override
 	public GenericMoveAction addBox(final double x, final double y, final double x2, final double y2, final byte dim1,
-			final byte dim2, final Vertex facingVector, final int numberOfLengthSegments,
+			final byte dim2, final Vertex3 facingVector, final int numberOfLengthSegments,
 			final int numberOfWidthSegments, final int numberOfHeightSegments) {
 		final List<GenericMoveAction> actions = new ArrayList<>();
 		for (final ModelEditor handler : set) {

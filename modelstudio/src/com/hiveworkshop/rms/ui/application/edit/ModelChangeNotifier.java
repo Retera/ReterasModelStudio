@@ -1,7 +1,5 @@
 package com.hiveworkshop.rms.ui.application.edit;
 
-import com.hiveworkshop.rms.ui.application.edit.ModelChangeListener;
-
 import java.util.HashSet;
 import java.util.Set;
 

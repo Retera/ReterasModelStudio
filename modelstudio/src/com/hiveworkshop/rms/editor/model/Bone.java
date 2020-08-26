@@ -2,8 +2,9 @@ package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxBone;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.rms.util.Vertex3;
 
 /**
  * Bones that make geometry animate.
@@ -24,7 +25,7 @@ public class Bone extends IdObject {
 
 	public Bone(final String name) {
 		this.name = name;
-		pivotPoint = new Vertex(0, 0, 0);
+		pivotPoint = new Vertex3(0, 0, 0);
 	}
 
 	public Bone(final Bone b) {

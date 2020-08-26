@@ -1,9 +1,12 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.activity;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
+
 import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.Vertex;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
@@ -11,8 +14,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.ResettableAnimatedIdObjectRenderer;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-
-import java.awt.*;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public final class Graphics2DToAnimatedModelElementRendererAdapter implements ModelElementRenderer {
 	private Graphics2D graphics;
@@ -59,7 +61,7 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 	}
 
 	@Override
-	public void renderVertex(final Color color, final Vertex vertex) {
+	public void renderVertex(final Color color, final Vertex3 vertex) {
 		CoordinateSystem.Util.convertToPoint(coordinateSystem, vertex, recyclePointA);
 		graphics.setColor(color);
 		graphics.fillRect(recyclePointA.x - (vertexSize / 2), (int) (recyclePointA.y - (vertexSize / 2.0)), vertexSize,
@@ -74,16 +76,16 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 	}
 
 	@Override
-	public void renderCamera(final Camera camera, final Color boxColor, final Vertex position, final Color targetColor,
-			final Vertex targetPosition) {
+	public void renderCamera(final Camera camera, final Color boxColor, final Vertex3 position, final Color targetColor,
+			final Vertex3 targetPosition) {
 		// TODO ANIMATION
 		if (true) {
 			throw new WrongModeException("not animating cameras yet, code not finished");
 		}
 
 		final Graphics2D g2 = ((Graphics2D) graphics.create());
-		final Vertex ver = position;
-		final Vertex targ = targetPosition;
+		final Vertex3 ver = position;
+		final Vertex3 targ = targetPosition;
 		// final boolean verSel = selection.contains(ver);
 		// final boolean tarSel = selection.contains(targ);
 		final Point start = new Point(

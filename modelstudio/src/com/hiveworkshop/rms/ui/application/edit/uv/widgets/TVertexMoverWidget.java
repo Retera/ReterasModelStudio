@@ -1,19 +1,23 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.widgets;
 
-import com.hiveworkshop.rms.editor.model.TVertex;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Polygon;
+import java.awt.Rectangle;
 
-import java.awt.*;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.util.Vertex2;
 
 public final class TVertexMoverWidget {
 	private static final int TRIANGLE_OFFSET = 60 - 16;
-	private final TVertex point;
+	private final Vertex2 point;
 	private MoveDirection moveDirection = MoveDirection.NONE;
 	private final Polygon northTriangle;
 	private final Polygon eastTriangle;
 
-	public TVertexMoverWidget(final TVertex point) {
-		this.point = new TVertex(0, 0);
+	public TVertexMoverWidget(final Vertex2 point) {
+		this.point = new Vertex2(0, 0);
 		this.point.setTo(point);
 		northTriangle = new Polygon();
 		northTriangle.addPoint(-5, 0);
@@ -49,11 +53,11 @@ public final class TVertexMoverWidget {
 		return direction;
 	}
 
-	public TVertex getPoint() {
+	public Vertex2 getPoint() {
 		return point;
 	}
 
-	public void setPoint(final TVertex point) {
+	public void setPoint(final Vertex2 point) {
 		this.point.setTo(point);
 	}
 

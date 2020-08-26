@@ -1,30 +1,34 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh;
 
-import com.hiveworkshop.rms.editor.model.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools.AdvancedCloneAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public class CloneContextHelper {
 	private final ModelView model;
 	private final ModelStructureChangeListener structureChangeListener;
 	private final VertexSelectionHelper vertexSelectionHelperNonPivots;
 	private final VertexSelectionHelper vertexSelectionHelperPivots;
-	private final SelectionManager<Vertex> pivotPointSelectionManager;
+	private final SelectionManager<Vertex3> pivotPointSelectionManager;
 	private final SelectionManager<?> stuffSelectionManager;
 
 	public CloneContextHelper(final ModelView model, final ModelStructureChangeListener structureChangeListener,
 							  final VertexSelectionHelper vertexSelectionHelperNonPivots,
 							  final VertexSelectionHelper vertexSelectionHelperPivots,
-							  final SelectionManager<Vertex> pivotPointSelectionManager,
+							  final SelectionManager<Vertex3> pivotPointSelectionManager,
 							  final SelectionManager<?> stuffSelectionManager) {
 		this.model = model;
 		this.structureChangeListener = structureChangeListener;
@@ -35,15 +39,15 @@ public class CloneContextHelper {
 	}
 
 	public AdvancedCloneAction cloneSelectedComponents(final ClonedNodeNamePicker clonedNodeNamePicker) {
-		final List<Vertex> sourceNonPivots = new ArrayList<>(stuffSelectionManager.getSelectedVertices());
-		final List<Vertex> sourcePivots = new ArrayList<>(pivotPointSelectionManager.getSelectedVertices());
+		final List<Vertex3> sourceNonPivots = new ArrayList<>(stuffSelectionManager.getSelectedVertices());
+		final List<Vertex3> sourcePivots = new ArrayList<>(pivotPointSelectionManager.getSelectedVertices());
 		final List<Triangle> selTris = new ArrayList<>();
 		final List<IdObject> selBones = new ArrayList<>();
 		final List<IdObject> newBones = new ArrayList<>();
 		final List<GeosetVertex> newVertices = new ArrayList<>();
 		final List<Triangle> newTriangles = new ArrayList<>();
 		for (int i = 0; i < sourceNonPivots.size(); i++) {
-			final Vertex vert = sourceNonPivots.get(i);
+			final Vertex3 vert = sourceNonPivots.get(i);
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				newVertices.add(new GeosetVertex(gv));
@@ -68,14 +72,14 @@ public class CloneContextHelper {
 			}
 		}
 		for (int k = 0; k < sourceNonPivots.size(); k++) {
-			final Vertex vert = sourceNonPivots.get(k);
+			final Vertex3 vert = sourceNonPivots.get(k);
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				final List<Triangle> gvTriangles = new ArrayList<>();// gv.getTriangles());
 				for (final Triangle tri : gv.getGeoset().getTriangles()) {
 					if (tri.contains(gv)) {
 						boolean good = true;
-						for (final Vertex vTemp : tri.getAll()) {
+						for (final Vertex3 vTemp : tri.getAll()) {
 							if (!sourceNonPivots.contains(vTemp)) {
 								good = false;
 								break;
@@ -101,9 +105,9 @@ public class CloneContextHelper {
 			b.getTriangles().add(newTriangle);
 			c.getTriangles().add(newTriangle);
 		}
-		final Set<Vertex> newSelection = new HashSet<>();
-		final Set<Vertex> newSelectionPivots = new HashSet<>();
-		for (final Vertex ver : newVertices) {
+		final Set<Vertex3> newSelection = new HashSet<>();
+		final Set<Vertex3> newSelectionPivots = new HashSet<>();
+		for (final Vertex3 ver : newVertices) {
 			if (ver != null) {
 				newSelection.add(ver);
 				if (ver.getClass() == GeosetVertex.class) {

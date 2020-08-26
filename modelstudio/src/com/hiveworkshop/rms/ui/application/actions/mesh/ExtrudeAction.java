@@ -3,11 +3,11 @@ package com.hiveworkshop.rms.ui.application.actions.mesh;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.hiveworkshop.rms.ui.application.actions.VertexActionType;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
-import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.ui.application.actions.VertexActionType;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.util.Vertex3;
 
 /**
  * ExtrudeAction -- something extruded that you can undo!
@@ -16,13 +16,13 @@ import com.hiveworkshop.rms.editor.model.Vertex;
  */
 public class ExtrudeAction implements UndoAction {
 	MoveAction baseMovement;
-	List<Vertex> selection;
+	List<Vertex3> selection;
 	List<GeosetVertex> addedVerts;
 	List<Triangle> addedTriangles;
 	List<GeosetVertex> copiedGroup;
 	boolean type;
 
-	public ExtrudeAction(final List<Vertex> selection, final Vertex moveVector, final List<GeosetVertex> clones,
+	public ExtrudeAction(final List<Vertex3> selection, final Vertex3 moveVector, final List<GeosetVertex> clones,
 			final List<Triangle> addedTriangles, final boolean isExtrude) {
 		addedVerts = clones;
 		this.addedTriangles = addedTriangles;
@@ -35,11 +35,11 @@ public class ExtrudeAction implements UndoAction {
 
 	}
 
-	public void storeSelection(final List<Vertex> selection) {
+	public void storeSelection(final List<Vertex3> selection) {
 		this.selection = new ArrayList<>(selection);
 	}
 
-	public void storeBaseMovement(final Vertex moveVector) {
+	public void storeBaseMovement(final Vertex3 moveVector) {
 		baseMovement = new MoveAction(this.selection, moveVector, VertexActionType.UNKNOWN);
 	}
 
@@ -111,7 +111,7 @@ public class ExtrudeAction implements UndoAction {
 		// }
 		int probs = 0;
 		for (int k = 0; k < selection.size(); k++) {
-			final Vertex vert = selection.get(k);
+			final Vertex3 vert = selection.get(k);
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				for (final Triangle t : gv.getTriangles()) {
@@ -192,7 +192,7 @@ public class ExtrudeAction implements UndoAction {
 		// }
 		int probs = 0;
 		for (int k = 0; k < selection.size(); k++) {
-			final Vertex vert = selection.get(k);
+			final Vertex3 vert = selection.get(k);
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				for (final Triangle t : gv.getTriangles()) {

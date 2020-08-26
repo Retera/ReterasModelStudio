@@ -1,9 +1,32 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh;
 
-import com.hiveworkshop.rms.editor.model.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.hiveworkshop.rms.editor.model.Bitmap;
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.Layer;
+import com.hiveworkshop.rms.editor.model.Material;
+import com.hiveworkshop.rms.editor.model.Matrix;
+import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
-import com.hiveworkshop.rms.ui.application.actions.mesh.*;
+import com.hiveworkshop.rms.ui.application.actions.mesh.DeleteAction;
+import com.hiveworkshop.rms.ui.application.actions.mesh.ExtrudeAction;
+import com.hiveworkshop.rms.ui.application.actions.mesh.RecalculateNormalsAction2;
+import com.hiveworkshop.rms.ui.application.actions.mesh.SnapAction;
+import com.hiveworkshop.rms.ui.application.actions.mesh.SnapNormalsAction;
+import com.hiveworkshop.rms.ui.application.actions.mesh.SpecialDeleteAction;
 import com.hiveworkshop.rms.ui.application.actions.model.RecalculateExtentsAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
@@ -12,15 +35,26 @@ import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.DrawBoxAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.DrawPlaneAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.NewGeosetAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.ModelEditorActionType;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor.*;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor.CompoundMoveAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor.SimpleRotateAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor.StaticMeshMoveAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor.StaticMeshRotateAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor.StaticMeshScaleAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools.CloneAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools.*;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.*;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools.FlipFacesAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools.FlipNormalsAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools.MirrorModelAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools.RigAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools.SetMatrixAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.DoNothingMoveActionAdapter;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
-
-import java.util.*;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> {
 	protected final ModelView model;
@@ -34,7 +68,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		this.structureChangeListener = structureChangeListener;
 		vertexSelectionHelper = new VertexSelectionHelper() {
 			@Override
-			public void selectVertices(final Collection<Vertex> vertices) {
+			public void selectVertices(final Collection<Vertex3> vertices) {
 				selectByVertices(vertices);
 			}
 		};
@@ -50,7 +84,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		final Map<GeosetVertex, List<Bone>> vertexToOldBoneReferences = new HashMap<>();
 		final Map<GeosetVertex, Bone[]> vertexToOldSkinBoneReferences = new HashMap<>();
 		final Map<GeosetVertex, short[]> vertexToOldSkinBoneWeightReferences = new HashMap<>();
-		for (final Vertex vert : selectionManager.getSelectedVertices()) {
+		for (final Vertex3 vert : selectionManager.getSelectedVertices()) {
 			if (vert instanceof GeosetVertex) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				if (gv.getSkinBones() != null) {
@@ -80,14 +114,14 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 
 	@Override
 	public UndoAction snapNormals() {
-		final List<Vertex> oldLocations = new ArrayList<>();
-		final List<Vertex> selectedNormals = new ArrayList<>();
-		final Normal snapped = new Normal(0, 0, 1);
-		for (final Vertex vertex : selectionManager.getSelectedVertices()) {
+		final List<Vertex3> oldLocations = new ArrayList<>();
+		final List<Vertex3> selectedNormals = new ArrayList<>();
+		final Vertex3 snapped = new Vertex3(0, 0, 1);
+		for (final Vertex3 vertex : selectionManager.getSelectedVertices()) {
 			if (vertex instanceof GeosetVertex) {
 				final GeosetVertex gv = (GeosetVertex) vertex;
 				if (gv.getNormal() != null) {
-					oldLocations.add(new Vertex(gv.getNormal()));
+					oldLocations.add(new Vertex3(gv.getNormal()));
 					selectedNormals.add(gv.getNormal());
 				} // else no normal to snap!!!
 			}
@@ -99,14 +133,14 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 
 	@Override
 	public UndoAction recalcNormals() {
-		final List<Vertex> oldLocations = new ArrayList<>();
+		final List<Vertex3> oldLocations = new ArrayList<>();
 		final List<GeosetVertex> selectedVertices = new ArrayList<>();
-		final Normal snapped = new Normal(0, 0, 1);
-		for (final Vertex vertex : selectionManager.getSelectedVertices()) {
+		final Vertex3 snapped = new Vertex3(0, 0, 1);
+		for (final Vertex3 vertex : selectionManager.getSelectedVertices()) {
 			if (vertex instanceof GeosetVertex) {
 				final GeosetVertex gv = (GeosetVertex) vertex;
 				if (gv.getNormal() != null) {
-					oldLocations.add(new Vertex(gv.getNormal()));
+					oldLocations.add(new Vertex3(gv.getNormal()));
 					selectedVertices.add(gv);
 				} // else no normal to snap!!!
 			}
@@ -141,8 +175,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		// TODO this code operates directly on MODEL
 		final List<Geoset> remGeosets = new ArrayList<>();// model.getGeosets()
 		final List<Triangle> deletedTris = new ArrayList<>();
-		final Collection<? extends Vertex> selection = new ArrayList<>(selectionManager.getSelectedVertices());
-		for (final Vertex vertex : selection) {
+		final Collection<? extends Vertex3> selection = new ArrayList<>(selectionManager.getSelectedVertices());
+		for (final Vertex3 vertex : selection) {
 			if (vertex.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vertex;
 				for (final Triangle t : gv.getTriangles()) {
@@ -169,7 +203,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 				}
 			}
 		}
-		selectByVertices(new ArrayList<Vertex>());
+		selectByVertices(new ArrayList<Vertex3>());
 		if (remGeosets.size() <= 0) {
 			final DeleteAction temp = new DeleteAction(selection, deletedTris, vertexSelectionHelper);
 			return temp;
@@ -214,15 +248,15 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 
 	@Override
 	public UndoAction snapSelectedNormals() {
-		final Collection<? extends Vertex> selection = selectionManager.getSelectedVertices();
-		final List<Vertex> oldLocations = new ArrayList<>();
-		final List<Vertex> selectedNormals = new ArrayList<>();
-		final Normal snapped = new Normal(0, 0, 1);
-		for (final Vertex vertex : selection) {
+		final Collection<? extends Vertex3> selection = selectionManager.getSelectedVertices();
+		final List<Vertex3> oldLocations = new ArrayList<>();
+		final List<Vertex3> selectedNormals = new ArrayList<>();
+		final Vertex3 snapped = new Vertex3(0, 0, 1);
+		for (final Vertex3 vertex : selection) {
 			if (vertex instanceof GeosetVertex) {
 				final GeosetVertex gv = (GeosetVertex) vertex;
 				if (gv.getNormal() != null) {
-					oldLocations.add(new Vertex(gv.getNormal()));
+					oldLocations.add(new Vertex3(gv.getNormal()));
 					selectedNormals.add(gv.getNormal());
 				} // else no normal to snap!!!
 			}
@@ -234,11 +268,11 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 
 	@Override
 	public UndoAction beginExtrudingSelection() {
-		final List<Vertex> selection = new ArrayList<>(selectionManager.getSelectedVertices());
+		final List<Vertex3> selection = new ArrayList<>(selectionManager.getSelectedVertices());
 		final List<GeosetVertex> copies = new ArrayList<>();
 		final List<Triangle> selTris = new ArrayList<>();
 		for (int i = 0; i < selection.size(); i++) {
-			final Vertex vert = selection.get(i);
+			final Vertex3 vert = selection.get(i);
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				copies.add(new GeosetVertex(gv));
@@ -274,7 +308,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		// copies.size() + " more.");
 		final List<Triangle> newTriangles = new ArrayList<>();
 		for (int k = 0; k < selection.size(); k++) {
-			final Vertex vert = selection.get(k);
+			final Vertex3 vert = selection.get(k);
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				final List<Triangle> gvTriangles = new ArrayList<>();// gv.getTriangles());
@@ -282,7 +316,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 				for (final Triangle tri : gv.getGeoset().getTriangles()) {
 					if (tri.contains(gv)) {
 						boolean good = true;
-						for (final Vertex vTemp : tri.getAll()) {
+						for (final Vertex3 vTemp : tri.getAll()) {
 							if (!selection.contains(vTemp)) {
 								good = false;
 								break;
@@ -414,7 +448,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		}
 		int probs = 0;
 		for (int k = 0; k < selection.size(); k++) {
-			final Vertex vert = selection.get(k);
+			final Vertex3 vert = selection.get(k);
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				for (final Triangle t : gv.getTriangles()) {
@@ -431,7 +465,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		final ExtrudeAction tempe = new ExtrudeAction(); // TODO better code
 		tempe.storeSelection(selection);
 		tempe.setType(true);
-		tempe.storeBaseMovement(new Vertex(0, 0, 0));
+		tempe.storeBaseMovement(new Vertex3(0, 0, 0));
 		tempe.setAddedTriangles(newTriangles);
 		tempe.setAddedVerts(copies);
 		return tempe;
@@ -439,7 +473,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 
 	@Override
 	public UndoAction beginExtendingSelection() {
-		final List<Vertex> selection = new ArrayList<>(selectionManager.getSelectedVertices());
+		final List<Vertex3> selection = new ArrayList<>(selectionManager.getSelectedVertices());
 		final List<GeosetVertex> copies = new ArrayList<>();
 		final List<Triangle> selTris = new ArrayList<>();
 		final List<Triangle> newTriangles = new ArrayList<>();
@@ -448,7 +482,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		final List<Triangle> brokenFaces = new ArrayList<>();
 
 		for (int i = 0; i < selection.size(); i++) {
-			final Vertex vert = selection.get(i);
+			final Vertex3 vert = selection.get(i);
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				// copies.add(new GeosetVertex(gv));
@@ -558,7 +592,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		final ExtrudeAction tempe = new ExtrudeAction();
 		tempe.storeSelection(selection);
 		tempe.setType(false);
-		tempe.storeBaseMovement(new Vertex(0, 0, 0));
+		tempe.storeBaseMovement(new Vertex3(0, 0, 0));
 		tempe.setAddedTriangles(newTriangles);
 		tempe.setAddedVerts(copies);
 		tempe.setCopiedGroup(copiedGroup);
@@ -567,11 +601,11 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 
 	@Override
 	public UndoAction snapSelectedVertices() {
-		final Collection<? extends Vertex> selection = selectionManager.getSelectedVertices();
-		final List<Vertex> oldLocations = new ArrayList<>();
-		final Vertex cog = Vertex.centerOfGroup(selection);
-		for (final Vertex vertex : selection) {
-			oldLocations.add(new Vertex(vertex));
+		final Collection<? extends Vertex3> selection = selectionManager.getSelectedVertices();
+		final List<Vertex3> oldLocations = new ArrayList<>();
+		final Vertex3 cog = Vertex3.centerOfGroup(selection);
+		for (final Vertex3 vertex : selection) {
+			oldLocations.add(new Vertex3(vertex));
 		}
 		final SnapAction temp = new SnapAction(selection, oldLocations, cog);
 		temp.redo();// a handy way to do the snapping!
@@ -580,14 +614,14 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 
 	@Override
 	public CloneAction cloneSelectedComponents(final ClonedNodeNamePicker clonedNodeNamePicker) {
-		final List<Vertex> source = new ArrayList<>(selectionManager.getSelectedVertices());
+		final List<Vertex3> source = new ArrayList<>(selectionManager.getSelectedVertices());
 		final List<Triangle> selTris = new ArrayList<>();
 		final List<IdObject> selBones = new ArrayList<>();
 		final List<IdObject> newBones = new ArrayList<>();
 		final List<GeosetVertex> newVertices = new ArrayList<>();
 		final List<Triangle> newTriangles = new ArrayList<>();
 		for (int i = 0; i < source.size(); i++) {
-			final Vertex vert = source.get(i);
+			final Vertex3 vert = source.get(i);
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				newVertices.add(new GeosetVertex(gv));
@@ -612,14 +646,14 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 			}
 		}
 		for (int k = 0; k < source.size(); k++) {
-			final Vertex vert = source.get(k);
+			final Vertex3 vert = source.get(k);
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				final List<Triangle> gvTriangles = new ArrayList<>();// gv.getTriangles());
 				for (final Triangle tri : gv.getGeoset().getTriangles()) {
 					if (tri.contains(gv)) {
 						boolean good = true;
-						for (final Vertex vTemp : tri.getAll()) {
+						for (final Vertex3 vTemp : tri.getAll()) {
 							if (!source.contains(vTemp)) {
 								good = false;
 								break;
@@ -645,8 +679,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 			b.getTriangles().add(newTriangle);
 			c.getTriangles().add(newTriangle);
 		}
-		final Set<Vertex> newSelection = new HashSet<>();
-		for (final Vertex ver : newVertices) {
+		final Set<Vertex3> newSelection = new HashSet<>();
+		for (final Vertex3 ver : newVertices) {
 			if (ver != null) {
 				newSelection.add(ver);
 				if (ver.getClass() == GeosetVertex.class) {
@@ -681,7 +715,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 
 	@Override
 	public void rawTranslate(final double x, final double y, final double z) {
-		for (final Vertex vertex : selectionManager.getSelectedVertices()) {
+		for (final Vertex3 vertex : selectionManager.getSelectedVertices()) {
 			vertex.translate(x, y, z);
 		}
 	}
@@ -689,7 +723,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 	@Override
 	public void rawScale(final double centerX, final double centerY, final double centerZ, final double scaleX,
 						 final double scaleY, final double scaleZ) {
-		for (final Vertex vertex : selectionManager.getSelectedVertices()) {
+		for (final Vertex3 vertex : selectionManager.getSelectedVertices()) {
 			vertex.scale(centerX, centerY, centerZ, scaleX, scaleY, scaleZ);
 		}
 	}
@@ -697,36 +731,36 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 	@Override
 	public void rawRotate2d(final double centerX, final double centerY, final double centerZ, final double radians,
 							final byte firstXYZ, final byte secondXYZ) {
-		for (final Vertex vertex : selectionManager.getSelectedVertices()) {
+		for (final Vertex3 vertex : selectionManager.getSelectedVertices()) {
 			vertex.rotate(centerX, centerY, centerZ, radians, firstXYZ, secondXYZ);
 		}
 	}
 
 	@Override
-	public void rawRotate3d(final Vertex center, final Vertex axis, final double radians) {
-		for (final Vertex vertex : selectionManager.getSelectedVertices()) {
-			Vertex.rotateVertex(center, axis, radians, vertex);
+	public void rawRotate3d(final Vertex3 center, final Vertex3 axis, final double radians) {
+		for (final Vertex3 vertex : selectionManager.getSelectedVertices()) {
+			Vertex3.rotateVertex(center, axis, radians, vertex);
 		}
 	}
 
 	@Override
 	public UndoAction translate(final double x, final double y, final double z) {
-		final Vertex delta = new Vertex(x, y, z);
+		final Vertex3 delta = new Vertex3(x, y, z);
 		final StaticMeshMoveAction moveAction = new StaticMeshMoveAction(this, delta);
 		moveAction.redo();
 		return moveAction;
 	}
 
 	@Override
-	public UndoAction setPosition(final Vertex center, final double x, final double y, final double z) {
-		final Vertex delta = new Vertex(x - center.x, y - center.y, z - center.z);
+	public UndoAction setPosition(final Vertex3 center, final double x, final double y, final double z) {
+		final Vertex3 delta = new Vertex3(x - center.x, y - center.y, z - center.z);
 		final StaticMeshMoveAction moveAction = new StaticMeshMoveAction(this, delta);
 		moveAction.redo();
 		return moveAction;
 	}
 
 	@Override
-	public UndoAction rotate(final Vertex center, final double rotateX, final double rotateY, final double rotateZ) {
+	public UndoAction rotate(final Vertex3 center, final double rotateX, final double rotateY, final double rotateZ) {
 
 		final CompoundAction compoundAction = new CompoundAction("rotate", Arrays.asList(
 				new SimpleRotateAction(this, center, rotateX, (byte) 2, (byte) 1),
@@ -737,7 +771,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 	}
 
 	@Override
-	public Vertex getSelectionCenter() {
+	public Vertex3 getSelectionCenter() {
 		return selectionManager.getCenter();
 	}
 
@@ -748,13 +782,13 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 
 	@Override
 	public GenericMoveAction beginTranslation() {
-		return new StaticMeshMoveAction(this, Vertex.ORIGIN);
+		return new StaticMeshMoveAction(this, Vertex3.ORIGIN);
 	}
 
 	@Override
 	public GenericRotateAction beginRotation(final double centerX, final double centerY, final double centerZ,
 											 final byte dim1, final byte dim2) {
-		return new StaticMeshRotateAction(this, new Vertex(centerX, centerY, centerZ), dim1, dim2);
+		return new StaticMeshRotateAction(this, new Vertex3(centerX, centerY, centerZ), dim1, dim2);
 	}
 
 	@Override
@@ -775,7 +809,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 
 	@Override
 	public GenericMoveAction addPlane(final double x, final double y, final double x2, final double y2, final byte dim1,
-									  final byte dim2, final Vertex facingVector, final int numberOfWidthSegments,
+									  final byte dim2, final Vertex3 facingVector, final int numberOfWidthSegments,
 									  final int numberOfHeightSegments) {
 		final List<Geoset> geosets = model.getModel().getGeosets();
 		Geoset solidWhiteGeoset = null;
@@ -811,7 +845,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 
 	@Override
 	public GenericMoveAction addBox(final double x, final double y, final double x2, final double y2, final byte dim1,
-									final byte dim2, final Vertex facingVector, final int numberOfLengthSegments,
+									final byte dim2, final Vertex3 facingVector, final int numberOfLengthSegments,
 									final int numberOfWidthSegments, final int numberOfHeightSegments) {
 		final List<Geoset> geosets = model.getModel().getGeosets();
 		Geoset solidWhiteGeoset = null;

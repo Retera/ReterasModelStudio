@@ -1,15 +1,15 @@
 package com.hiveworkshop.rms.ui.application.actions.model;
 
-import com.hiveworkshop.rms.editor.model.Animation;
-import com.hiveworkshop.rms.editor.model.ExtLog;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.Vertex;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.editor.model.ExtLog;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public class RecalculateExtentsAction implements UndoAction {
 	private final ModelView modelView;
@@ -27,8 +27,8 @@ public class RecalculateExtentsAction implements UndoAction {
 		double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE, minZ = Double.MAX_VALUE;
 		for (final Geoset geoset : geosetsIncludedForCalculation) {
 			final ExtLog extent = geoset.calculateExtent();
-			final Vertex maximumExtent = extent.getMaximumExtent();
-			final Vertex minimumExtent = extent.getMinimumExtent();
+			final Vertex3 maximumExtent = extent.getMaximumExtent();
+			final Vertex3 minimumExtent = extent.getMinimumExtent();
 			final double boundsRadius = extent.getBoundsRadius();
 			if (boundsRadius > maximumBoundsRadius) {
 				maximumBoundsRadius = boundsRadius;
@@ -52,7 +52,7 @@ public class RecalculateExtentsAction implements UndoAction {
 				minZ = minimumExtent.z;
 			}
 		}
-		newModelExtents = new ExtLog(new Vertex(minX, minY, minZ), new Vertex(maxX, maxY, maxZ), maximumBoundsRadius);
+		newModelExtents = new ExtLog(new Vertex3(minX, minY, minZ), new Vertex3(maxX, maxY, maxZ), maximumBoundsRadius);
 
 		for (final Geoset modelGeoset : modelView.getModel().getGeosets()) {
 			final Map<Animation, ExtLog> animationToOldExtents = new HashMap<>();

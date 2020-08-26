@@ -2,13 +2,11 @@ package com.hiveworkshop.rms.editor.render3d;
 
 import com.hiveworkshop.rms.editor.model.AnimatedNode;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.QuaternionRotation;
-import com.hiveworkshop.rms.editor.model.Vertex;
 import com.hiveworkshop.rms.util.MathUtils;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Quaternion;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
+import com.hiveworkshop.rms.util.Matrix4;
+import com.hiveworkshop.rms.util.QuaternionRotation;
+import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vertex4;
 
 public final class RenderNode {
 	private final AnimatedNode idObject;
@@ -18,26 +16,26 @@ public final class RenderNode {
 	boolean billboardedX;
 	boolean billboardedY;
 	boolean billboardedZ;
-	private static final Vector3f locationHeap = new Vector3f();
-	private static final Vector3f scalingHeap = new Vector3f();
-	private static final Vector3f pivotHeap = new Vector3f();
-	private static final Vector4f vector4Heap = new Vector4f();
+	private static final Vertex3 locationHeap = new Vertex3();
+	private static final Vertex3 scalingHeap = new Vertex3();
+	private static final Vertex3 pivotHeap = new Vertex3();
+	private static final Vertex4 vector4Heap = new Vertex4();
 
-	protected final Vector3f localLocation = new Vector3f();
-	protected final Quaternion localRotation = new Quaternion();
-	protected final Vector3f localScale = new Vector3f(1, 1, 1);
-	private final Matrix4f localMatrix = new Matrix4f();
+	protected final Vertex3 localLocation = new Vertex3();
+	protected final QuaternionRotation localRotation = new QuaternionRotation();
+	protected final Vertex3 localScale = new Vertex3(1, 1, 1);
+	private final Matrix4 localMatrix = new Matrix4();
 
-	private final Vector3f worldLocation = new Vector3f();
-	private final Quaternion worldRotation = new Quaternion();
-	private final Vector3f worldScale = new Vector3f(1, 1, 1);
-	private final Matrix4f worldMatrix = new Matrix4f();
-	private final Matrix4f finalMatrix;
-	private Matrix4f bindPose;
+	private final Vertex3 worldLocation = new Vertex3();
+	private final QuaternionRotation worldRotation = new QuaternionRotation();
+	private final Vertex3 worldScale = new Vertex3(1, 1, 1);
+	private final Matrix4 worldMatrix = new Matrix4();
+	private final Matrix4 finalMatrix;
+	private Matrix4 bindPose;
 
-	protected final Vector3f inverseWorldLocation = new Vector3f();
-	protected final Quaternion inverseWorldRotation = new Quaternion();
-	protected final Vector3f inverseWorldScale = new Vector3f();
+	protected final Vertex3 inverseWorldLocation = new Vertex3();
+	protected final QuaternionRotation inverseWorldRotation = new QuaternionRotation();
+	protected final Vertex3 inverseWorldScale = new Vertex3();
 
 	protected boolean visible;
 
@@ -49,8 +47,8 @@ public final class RenderNode {
 		if (idObject instanceof IdObject) {
 			final float[] bindPose = ((IdObject) idObject).getBindPose();
 			if (bindPose != null) {
-				finalMatrix = new Matrix4f();
-				this.bindPose = new Matrix4f();
+				finalMatrix = new Matrix4();
+				this.bindPose = new Matrix4();
 				this.bindPose.m00 = bindPose[0];
 				this.bindPose.m01 = bindPose[1];
 				this.bindPose.m02 = bindPose[2];
@@ -91,8 +89,8 @@ public final class RenderNode {
 		if (dirty) {
 			dirty = false;
 			if (idObject.getParent() != null) {
-				final Vector3f computedLocation = locationHeap;
-				final Vector3f computedScaling;
+				final Vertex3 computedLocation = locationHeap;
+				final Vertex3 computedScaling;
 				computedLocation.x = localLocation.x;// + (float) parent.pivotPoint.x;
 				computedLocation.y = localLocation.y;// + (float) parent.pivotPoint.y;
 				computedLocation.z = localLocation.z;// + (float) parent.pivotPoint.z;
@@ -100,7 +98,7 @@ public final class RenderNode {
 				if (dontInheritScaling) {
 					computedScaling = scalingHeap;
 
-					final Vector3f parentInverseScale = model.getRenderNode(idObject.getParent()).inverseWorldScale;
+					final Vertex3 parentInverseScale = model.getRenderNode(idObject.getParent()).inverseWorldScale;
 					computedScaling.x = parentInverseScale.x * localScale.x;
 					computedScaling.y = parentInverseScale.y * localScale.y;
 					computedScaling.z = parentInverseScale.z * localScale.z;
@@ -111,7 +109,7 @@ public final class RenderNode {
 				} else {
 					computedScaling = localScale;
 
-					final Vector3f parentScale = model.getRenderNode(idObject.getParent()).worldScale;
+					final Vertex3 parentScale = model.getRenderNode(idObject.getParent()).worldScale;
 					worldScale.x = parentScale.x * localScale.x;
 					worldScale.y = parentScale.y * localScale.y;
 					worldScale.z = parentScale.z * localScale.z;
@@ -123,9 +121,9 @@ public final class RenderNode {
 				MathUtils.fromRotationTranslationScaleOrigin(localRotation, computedLocation, computedScaling,
 						localMatrix, pivotHeap);
 
-				Matrix4f.mul(model.getRenderNode(idObject.getParent()).worldMatrix, localMatrix, worldMatrix);
+				Matrix4.mul(model.getRenderNode(idObject.getParent()).worldMatrix, localMatrix, worldMatrix);
 
-				Quaternion.mul(model.getRenderNode(idObject.getParent()).worldRotation, localRotation, worldRotation);
+				QuaternionRotation.mul(model.getRenderNode(idObject.getParent()).worldRotation, localRotation, worldRotation);
 			} else {
 
 				pivotHeap.x = (float) idObject.getPivotPoint().x;
@@ -133,12 +131,12 @@ public final class RenderNode {
 				pivotHeap.z = (float) idObject.getPivotPoint().z;
 				MathUtils.fromRotationTranslationScaleOrigin(localRotation, localLocation, localScale, localMatrix,
 						pivotHeap);
-				worldMatrix.load(localMatrix);
+				worldMatrix.set(localMatrix);
 				worldRotation.set(localRotation);
 				worldScale.set(localScale);
 			}
 			if (worldMatrix != finalMatrix) {
-				Matrix4f.mul(worldMatrix, bindPose, finalMatrix);
+				Matrix4.mul(worldMatrix, bindPose, finalMatrix);
 			}
 
 			// Inverse world rotation
@@ -199,7 +197,7 @@ public final class RenderNode {
 		dirty = true;
 	}
 
-	public void setTransformation(final Vertex location, final QuaternionRotation rotation, final Vertex scale) {
+	public void setTransformation(final Vertex3 location, final QuaternionRotation rotation, final Vertex3 scale) {
 		localLocation.x = (float) location.x;
 		localLocation.y = (float) location.y;
 		localLocation.z = (float) location.z;
@@ -216,7 +214,7 @@ public final class RenderNode {
 		dirty = true;
 	}
 
-	public Matrix4f getWorldMatrix() {
+	public Matrix4 getWorldMatrix() {
 		return worldMatrix;
 	}
 
@@ -227,56 +225,56 @@ public final class RenderNode {
 	 * 
 	 * @return
 	 */
-	public Matrix4f getFinalMatrix() {
+	public Matrix4 getFinalMatrix() {
 		return finalMatrix;
 	}
 
-	public Quaternion getInverseWorldRotation() {
+	public QuaternionRotation getInverseWorldRotation() {
 		return inverseWorldRotation;
 	}
 
-	public Vector3f getInverseWorldLocation() {
+	public Vertex3 getInverseWorldLocation() {
 		return inverseWorldLocation;
 	}
 
-	public Vector3f getInverseWorldScale() {
+	public Vertex3 getInverseWorldScale() {
 		return inverseWorldScale;
 	}
 
-	public Vector3f getWorldLocation() {
+	public Vertex3 getWorldLocation() {
 		return worldLocation;
 	}
 
-	public Vector3f getLocalLocation() {
+	public Vertex3 getLocalLocation() {
 		return localLocation;
 	}
 
-	public Vector3f getLocalScale() {
+	public Vertex3 getLocalScale() {
 		return localScale;
 	}
 
-	public Matrix4f getLocalMatrix() {
+	public Matrix4 getLocalMatrix() {
 		return localMatrix;
 	}
 
-	public Quaternion getLocalRotation() {
+	public QuaternionRotation getLocalRotation() {
 		return localRotation;
 	}
 
-	public Quaternion getWorldRotation() {
+	public QuaternionRotation getWorldRotation() {
 		return worldRotation;
 	}
 
-	public Vector3f getWorldScale() {
+	public Vertex3 getWorldScale() {
 		return worldScale;
 	}
 
-	public Vector3f getPivot() {
+	public Vertex3 getPivot() {
 		vector4Heap.x = (float) idObject.getPivotPoint().x;
 		vector4Heap.y = (float) idObject.getPivotPoint().y;
 		vector4Heap.z = (float) idObject.getPivotPoint().z;
 		vector4Heap.w = 1;
-		Matrix4f.transform(worldMatrix, vector4Heap, vector4Heap);
+		Matrix4.transform(worldMatrix, vector4Heap, vector4Heap);
 		pivotHeap.x = vector4Heap.x;
 		pivotHeap.y = vector4Heap.y;
 		pivotHeap.z = vector4Heap.z;

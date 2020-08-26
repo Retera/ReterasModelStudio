@@ -1,16 +1,17 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.activity;
 
+import java.awt.Graphics2D;
+import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Double;
+
+import javax.swing.SwingUtilities;
+
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.ManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Double;
 
 public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends ManipulatorBuilder>
 		implements ViewportActivity {

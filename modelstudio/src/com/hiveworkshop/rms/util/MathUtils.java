@@ -1,11 +1,5 @@
 package com.hiveworkshop.rms.util;
 
-import com.hiveworkshop.rms.editor.model.Vertex;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Quaternion;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
-
 public class MathUtils {
 	/**
 	 * Returns true if the value of <code>b</code> falls between the values
@@ -26,12 +20,12 @@ public class MathUtils {
 		return a + (t * (b - a));
 	}
 
-	public static Vertex lerp(final Vertex out, final Vertex a, final Vertex b, final double t) {
-		out.setTo(MathUtils.lerp(a.x, b.x, t), MathUtils.lerp(a.y, b.y, t), MathUtils.lerp(a.z, b.z, t));
+	public static Vertex3 lerp(final Vertex3 out, final Vertex3 a, final Vertex3 b, final double t) {
+		out.set(MathUtils.lerp(a.x, b.x, t), MathUtils.lerp(a.y, b.y, t), MathUtils.lerp(a.z, b.z, t));
 		return out;
 	}
 
-	public static Vector4f lerp(final Vector4f out, final Vector4f a, final Vector4f b, final double t) {
+	public static Vertex4 lerp(final Vertex4 out, final Vertex4 a, final Vertex4 b, final double t) {
 		out.set((float) MathUtils.lerp(a.x, b.x, t), (float) MathUtils.lerp(a.y, b.y, t),
 				(float) MathUtils.lerp(a.z, b.z, t), (float) MathUtils.lerp(a.w, b.w, t));
 		return out;
@@ -62,8 +56,8 @@ public class MathUtils {
 
 	// copied from ghostwolf and
 	// https://www.blend4web.com/api_doc/libs_gl-matrix2.js.html
-	public static void fromRotationTranslationScaleOrigin(final Quaternion q, final Vector3f v, final Vector3f s,
-			final Matrix4f out, final Vector3f pivot) {
+	public static void fromRotationTranslationScaleOrigin(final QuaternionRotation q, final Vertex3 v, final Vertex3 s,
+			final Matrix4 out, final Vertex3 pivot) {
 		final float x = q.x;
 		final float y = q.y;
 		final float z = q.z;
@@ -103,8 +97,8 @@ public class MathUtils {
 
 	// copied from
 	// https://www.blend4web.com/api_doc/libs_gl-matrix2.js.html
-	public static void fromRotationTranslationScale(final Quaternion q, final Vector3f v, final Vector3f s,
-			final Matrix4f out) {
+	public static void fromRotationTranslationScale(final QuaternionRotation q, final Vertex3 v, final Vertex3 s,
+			final Matrix4 out) {
 		final float x = q.x;
 		final float y = q.y;
 		final float z = q.z;
@@ -142,7 +136,7 @@ public class MathUtils {
 		out.m33 = 1;
 	}
 
-	public static void fromQuat(final Quaternion q, final Matrix4f out) {
+	public static void fromQuat(final QuaternionRotation q, final Matrix4 out) {
 		final float x = q.x, y = q.y, z = q.z, w = q.w;
 		final float x2 = x + x;
 		final float y2 = y + y;

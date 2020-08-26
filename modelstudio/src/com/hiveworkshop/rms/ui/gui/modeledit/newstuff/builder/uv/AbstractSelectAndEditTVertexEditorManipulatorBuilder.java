@@ -1,6 +1,9 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.uv;
 
-import com.hiveworkshop.rms.editor.model.TVertex;
+import java.awt.Cursor;
+import java.awt.Graphics2D;
+import java.awt.Point;
+
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ButtonType;
@@ -12,8 +15,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.Graphics2DToTVertexMode
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-
-import java.awt.*;
+import com.hiveworkshop.rms.util.Vertex2;
 
 public abstract class AbstractSelectAndEditTVertexEditorManipulatorBuilder implements TVertexEditorManipulatorBuilder {
 	private final ViewportSelectionHandler viewportSelectionHandler;
@@ -98,13 +100,13 @@ public abstract class AbstractSelectAndEditTVertexEditorManipulatorBuilder imple
 		}
 	}
 
-	protected abstract boolean widgetOffersEdit(TVertex selectionCenter, Point mousePoint,
+	protected abstract boolean widgetOffersEdit(Vertex2 selectionCenter, Point mousePoint,
 			CoordinateSystem coordinateSystem, SelectionView selectionView);
 
-	protected abstract Manipulator createManipulatorFromWidget(TVertex selectionCenter, Point mousePoint,
+	protected abstract Manipulator createManipulatorFromWidget(Vertex2 selectionCenter, Point mousePoint,
 			CoordinateSystem coordinateSystem, SelectionView selectionView);
 
-	protected abstract Manipulator createDefaultManipulator(TVertex selectionCenter, Point mousePoint,
+	protected abstract Manipulator createDefaultManipulator(Vertex2 selectionCenter, Point mousePoint,
 			CoordinateSystem coordinateSystem, SelectionView selectionView);
 
 	protected abstract void renderWidget(final Graphics2D graphics, final CoordinateSystem coordinateSystem,

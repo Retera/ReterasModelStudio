@@ -1,17 +1,17 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor;
 
-import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 
 public final class StaticMeshRotateAction implements GenericRotateAction {
 	private final ModelEditor modelEditor;
-	private final Vertex center;
+	private final Vertex3 center;
 	private double radians;
 	private final byte dim1;
 	private final byte dim2;
 
-	public StaticMeshRotateAction(final ModelEditor modelEditor, final Vertex center, final byte dim1,
+	public StaticMeshRotateAction(final ModelEditor modelEditor, final Vertex3 center, final byte dim1,
 			final byte dim2) {
 		this.modelEditor = modelEditor;
 		this.center = center;

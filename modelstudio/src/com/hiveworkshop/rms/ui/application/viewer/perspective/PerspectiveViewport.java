@@ -1,8 +1,79 @@
 package com.hiveworkshop.rms.ui.application.viewer.perspective;
 
-import com.hiveworkshop.rms.editor.model.*;
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_COLOR_MATERIAL;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
+import static org.lwjgl.opengl.GL11.GL_DIFFUSE;
+import static org.lwjgl.opengl.GL11.GL_FILL;
+import static org.lwjgl.opengl.GL11.GL_FRONT_AND_BACK;
+import static org.lwjgl.opengl.GL11.GL_LIGHT0;
+import static org.lwjgl.opengl.GL11.GL_LIGHT1;
+import static org.lwjgl.opengl.GL11.GL_LIGHTING;
+import static org.lwjgl.opengl.GL11.GL_LIGHT_MODEL_AMBIENT;
+import static org.lwjgl.opengl.GL11.GL_LINE;
+import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
+import static org.lwjgl.opengl.GL11.GL_NORMALIZE;
+import static org.lwjgl.opengl.GL11.GL_POSITION;
+import static org.lwjgl.opengl.GL11.GL_PROJECTION;
+import static org.lwjgl.opengl.GL11.glBegin;
+import static org.lwjgl.opengl.GL11.glClear;
+import static org.lwjgl.opengl.GL11.glClearColor;
+import static org.lwjgl.opengl.GL11.glColor3f;
+import static org.lwjgl.opengl.GL11.glColor4f;
+import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glEnd;
+import static org.lwjgl.opengl.GL11.glLight;
+import static org.lwjgl.opengl.GL11.glLightModel;
+import static org.lwjgl.opengl.GL11.glLoadIdentity;
+import static org.lwjgl.opengl.GL11.glMatrixMode;
+import static org.lwjgl.opengl.GL11.glPolygonMode;
+import static org.lwjgl.opengl.GL11.glRotatef;
+import static org.lwjgl.opengl.GL11.glScalef;
+import static org.lwjgl.opengl.GL11.glTranslatef;
+import static org.lwjgl.opengl.GL11.glViewport;
+import static org.lwjgl.util.glu.GLU.gluPerspective;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.swing.JCheckBox;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.Timer;
+
+import com.hiveworkshop.rms.editor.model.Bitmap;
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetAnim;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.Layer;
+import com.hiveworkshop.rms.editor.model.Material;
+import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
+import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.editor.render3d.*;
+import com.hiveworkshop.rms.editor.render3d.InternalInstance;
+import com.hiveworkshop.rms.editor.render3d.InternalResource;
+import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.editor.render3d.RenderParticleEmitter2;
+import com.hiveworkshop.rms.editor.render3d.RenderResourceAllocator;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
@@ -15,38 +86,29 @@ import com.hiveworkshop.rms.ui.preferences.listeners.ProgramPreferencesChangeLis
 import com.hiveworkshop.rms.ui.util.BetterAWTGLCanvas;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.MathUtils;
+import com.hiveworkshop.rms.util.Matrix4;
+import com.hiveworkshop.rms.util.QuaternionRotation;
+import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vertex4;
+
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
-import org.lwjgl.opengl.*;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Quaternion;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.util.HashMap;
-import java.util.List;
-
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.util.glu.GLU.gluPerspective;
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.Pbuffer;
+import org.lwjgl.opengl.PixelFormat;
 
 public class PerspectiveViewport extends BetterAWTGLCanvas
 		implements MouseListener, ActionListener, MouseWheelListener, RenderResourceAllocator {
 	public static final boolean LOG_EXCEPTIONS = true;
 	ModelView modelView;
-	Vertex cameraPos = new Vertex(0, 0, 0);
-	Quaternion inverseCameraRotationQuat = new Quaternion();
-	Quaternion inverseCameraRotationYSpin = new Quaternion();
-	Quaternion inverseCameraRotationZSpin = new Quaternion();
-	Matrix4f matrixHeap = new Matrix4f();
-	private final Vector4f axisHeap = new Vector4f();
+	Vertex3 cameraPos = new Vertex3(0, 0, 0);
+	QuaternionRotation inverseCameraRotationQuat = new QuaternionRotation();
+	QuaternionRotation inverseCameraRotationYSpin = new QuaternionRotation();
+	QuaternionRotation inverseCameraRotationZSpin = new QuaternionRotation();
+	Matrix4 matrixHeap = new Matrix4();
+	private final Vertex4 axisHeap = new Vertex4();
 	double m_zoom = 1;
 	Point lastClick;
 	Point leftClickStart;
@@ -317,8 +379,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 	}
 
 	public void setPosition(final double a, final double b) {
-		cameraPos.x = a;
-		cameraPos.y = b;
+		cameraPos.x = (float) a;
+		cameraPos.y = (float) b;
 	}
 
 	public void translate(final double a, final double b) {
@@ -373,14 +435,14 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		return texLoaded && ((programPreferences == null) || programPreferences.textureModels());
 	}
 
-	private final Vector4f vertexHeap = new Vector4f();
-	private final Vector4f appliedVertexHeap = new Vector4f();
-	private final Vector4f vertexSumHeap = new Vector4f();
-	private final Vector4f normalHeap = new Vector4f();
-	private final Vector4f appliedNormalHeap = new Vector4f();
-	private final Vector4f normalSumHeap = new Vector4f();
-	private final Matrix4f skinBonesMatrixHeap = new Matrix4f();
-	private final Matrix4f skinBonesMatrixSumHeap = new Matrix4f();
+	private final Vertex4 vertexHeap = new Vertex4();
+	private final Vertex4 appliedVertexHeap = new Vertex4();
+	private final Vertex4 vertexSumHeap = new Vertex4();
+	private final Vertex4 normalHeap = new Vertex4();
+	private final Vertex4 appliedNormalHeap = new Vertex4();
+	private final Vertex4 normalSumHeap = new Vertex4();
+	private final Matrix4 skinBonesMatrixHeap = new Matrix4();
+	private final Matrix4 skinBonesMatrixSumHeap = new Matrix4();
 
 	@Override
 	protected void exceptionOccurred(final LWJGLException exception) {
@@ -537,9 +599,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 										continue;
 									}
 									processedBones = true;
-									final Matrix4f worldMatrix = editorRenderModel.getRenderNode(skinBone)
+									final Matrix4 worldMatrix = editorRenderModel.getRenderNode(skinBone)
 											.getWorldMatrix();
-									skinBonesMatrixHeap.load(worldMatrix);
+									skinBonesMatrixHeap.set(worldMatrix);
 
 									skinBonesMatrixSumHeap.m00 += (skinBonesMatrixHeap.m00 * skinBoneWeights[boneIndex])
 											/ 255f;
@@ -577,16 +639,16 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 								if (!processedBones) {
 									skinBonesMatrixSumHeap.setIdentity();
 								}
-								Matrix4f.transform(skinBonesMatrixSumHeap, vertexHeap, vertexSumHeap);
+								Matrix4.transform(skinBonesMatrixSumHeap, vertexHeap, vertexSumHeap);
 								if (v.getNormal() != null) {
 									normalHeap.x = (float) v.getNormal().x;
 									normalHeap.y = (float) v.getNormal().y;
 									normalHeap.z = (float) v.getNormal().z;
 									normalHeap.w = 0;
-									Matrix4f.transform(skinBonesMatrixSumHeap, normalHeap, normalSumHeap);
+									Matrix4.transform(skinBonesMatrixSumHeap, normalHeap, normalSumHeap);
 
 									if (normalSumHeap.length() > 0) {
-										normalSumHeap.normalise();
+										normalSumHeap.normalize();
 									} else {
 										normalSumHeap.set(0, 1, 0, 0);
 									}
@@ -619,9 +681,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 								if (boneCount > 0) {
 									vertexSumHeap.set(0, 0, 0, 0);
 									for (final Bone bone : v.getBones()) {
-										Matrix4f.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(),
+										Matrix4.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(),
 												vertexHeap, appliedVertexHeap);
-										Vector4f.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
+										Vertex4.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
 									}
 									vertexSumHeap.x /= boneCount;
 									vertexSumHeap.y /= boneCount;
@@ -638,16 +700,16 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 									if (boneCount > 0) {
 										normalSumHeap.set(0, 0, 0, 0);
 										for (final Bone bone : v.getBones()) {
-											Matrix4f.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(),
+											Matrix4.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(),
 													normalHeap, appliedNormalHeap);
-											Vector4f.add(normalSumHeap, appliedNormalHeap, normalSumHeap);
+											Vertex4.add(normalSumHeap, appliedNormalHeap, normalSumHeap);
 										}
 									} else {
 										normalSumHeap.set(normalHeap);
 									}
 
 									if (normalSumHeap.length() > 0) {
-										normalSumHeap.normalise();
+										normalSumHeap.normalize();
 									} else {
 										normalSumHeap.set(0, 1, 0, 0);
 									}
@@ -860,7 +922,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 				if (animation != null) {
 					final float layerVisibility = layer.getRenderVisibility(timeEnvironment);
 					if (/* geo.getMaterial().isConstantColor() && */ geosetAnim != null) {
-						final Vector3f renderColor = geosetAnim.getRenderColor(timeEnvironment);
+						final Vertex3 renderColor = geosetAnim.getRenderColor(timeEnvironment);
 						if (renderColor != null) {
 							GL11.glColor4f(renderColor.z * 1f, renderColor.y * 1f, renderColor.x * 1f,
 									geosetAnimVisibility * layerVisibility);
@@ -903,8 +965,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 									continue;
 								}
 								processedBones = true;
-								final Matrix4f worldMatrix = editorRenderModel.getRenderNode(skinBone).getWorldMatrix();
-								skinBonesMatrixHeap.load(worldMatrix);
+								final Matrix4 worldMatrix = editorRenderModel.getRenderNode(skinBone).getWorldMatrix();
+								skinBonesMatrixHeap.set(worldMatrix);
 
 								skinBonesMatrixSumHeap.m00 += (skinBonesMatrixHeap.m00 * skinBoneWeights[boneIndex])
 										/ 255f;
@@ -942,16 +1004,16 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 							if (!processedBones) {
 								skinBonesMatrixSumHeap.setIdentity();
 							}
-							Matrix4f.transform(skinBonesMatrixSumHeap, vertexHeap, vertexSumHeap);
+							Matrix4.transform(skinBonesMatrixSumHeap, vertexHeap, vertexSumHeap);
 							if (v.getNormal() != null) {
 								normalHeap.x = (float) v.getNormal().x;
 								normalHeap.y = (float) v.getNormal().y;
 								normalHeap.z = (float) v.getNormal().z;
 								normalHeap.w = 0;
-								Matrix4f.transform(skinBonesMatrixSumHeap, normalHeap, normalSumHeap);
+								Matrix4.transform(skinBonesMatrixSumHeap, normalHeap, normalSumHeap);
 
 								if (normalSumHeap.length() > 0) {
-									normalSumHeap.normalise();
+									normalSumHeap.normalize();
 								} else {
 									normalSumHeap.set(0, 1, 0, 0);
 								}
@@ -979,9 +1041,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 							if (boneCount > 0) {
 								vertexSumHeap.set(0, 0, 0, 0);
 								for (final Bone bone : v.getBones()) {
-									Matrix4f.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(),
+									Matrix4.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(),
 											vertexHeap, appliedVertexHeap);
-									Vector4f.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
+									Vertex4.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
 								}
 								vertexSumHeap.x /= boneCount;
 								vertexSumHeap.y /= boneCount;
@@ -998,16 +1060,16 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 								if (boneCount > 0) {
 									normalSumHeap.set(0, 0, 0, 0);
 									for (final Bone bone : v.getBones()) {
-										Matrix4f.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(),
+										Matrix4.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(),
 												normalHeap, appliedNormalHeap);
-										Vector4f.add(normalSumHeap, appliedNormalHeap, normalSumHeap);
+										Vertex4.add(normalSumHeap, appliedNormalHeap, normalSumHeap);
 									}
 								} else {
 									normalSumHeap.set(normalHeap);
 								}
 
 								if (normalSumHeap.length() > 0) {
-									normalSumHeap.normalise();
+									normalSumHeap.normalize();
 								} else {
 									normalSumHeap.set(0, 1, 0, 0);
 								}
@@ -1076,7 +1138,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 				vertexHeap.y = (float) (((int) mx - lastClick.x) / m_zoom);
 				vertexHeap.z = -(float) (((int) my - lastClick.y) / m_zoom);
 				vertexHeap.w = 1;
-				Matrix4f.transform(matrixHeap, vertexHeap, vertexHeap);
+				Matrix4.transform(matrixHeap, vertexHeap, vertexHeap);
 				cameraPos.x += vertexHeap.x;
 				cameraPos.y += vertexHeap.y;
 				cameraPos.z += vertexHeap.z;
@@ -1108,7 +1170,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 				inverseCameraRotationYSpin.setFromAxisAngle(axisHeap);
 				axisHeap.set(0, 0, 1, (float) Math.toRadians(xangle));
 				inverseCameraRotationZSpin.setFromAxisAngle(axisHeap);
-				Quaternion.mul(inverseCameraRotationYSpin, inverseCameraRotationZSpin, inverseCameraRotationQuat);
+				QuaternionRotation.mul(inverseCameraRotationYSpin, inverseCameraRotationZSpin, inverseCameraRotationQuat);
 				inverseCameraRotationQuat.x = -inverseCameraRotationQuat.x;
 				inverseCameraRotationQuat.y = -inverseCameraRotationQuat.y;
 				inverseCameraRotationQuat.z = -inverseCameraRotationQuat.z;
@@ -1310,8 +1372,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		}
 
 		@Override
-		public void setTransformation(final Vector3f worldLocation, final Quaternion rotation,
-				final Vector3f worldScale) {
+		public void setTransformation(final Vertex3 worldLocation, final QuaternionRotation rotation,
+				final Vertex3 worldScale) {
 		}
 
 		@Override
@@ -1329,7 +1391,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		}
 
 		@Override
-		public void move(final Vector3f deltaPosition) {
+		public void move(final Vertex3 deltaPosition) {
 
 		}
 

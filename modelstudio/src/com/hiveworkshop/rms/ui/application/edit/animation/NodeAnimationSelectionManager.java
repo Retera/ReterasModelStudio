@@ -1,6 +1,15 @@
 package com.hiveworkshop.rms.ui.application.edit.animation;
 
-import com.hiveworkshop.rms.editor.model.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
@@ -9,10 +18,10 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexModelElementRenderer;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector4f;
-
-import java.util.*;
+import com.hiveworkshop.rms.util.Matrix4;
+import com.hiveworkshop.rms.util.Vertex2;
+import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vertex4;
 
 public final class NodeAnimationSelectionManager extends AbstractSelectionManager<IdObject> {
 	private final RenderModel renderModel;
@@ -26,21 +35,21 @@ public final class NodeAnimationSelectionManager extends AbstractSelectionManage
 		return new HashSet<>();
 	}
 
-	private final Vector4f pivotHeap = new Vector4f();
-	private final Vertex centerOfGroupSumHeap = new Vertex(0, 0, 0);
+	private final Vertex4 pivotHeap = new Vertex4();
+	private final Vertex3 centerOfGroupSumHeap = new Vertex3(0, 0, 0);
 
 	@Override
-	public Vertex getCenter() {
+	public Vertex3 getCenter() {
 		centerOfGroupSumHeap.x = 0;
 		centerOfGroupSumHeap.y = 0;
 		centerOfGroupSumHeap.z = 0;
 		for (final IdObject object : selection) {
-			final Vertex pivot = object.getPivotPoint();
+			final Vertex3 pivot = object.getPivotPoint();
 			pivotHeap.x = (float) pivot.x;
 			pivotHeap.y = (float) pivot.y;
 			pivotHeap.z = (float) pivot.z;
 			pivotHeap.w = 1;
-			Matrix4f.transform(renderModel.getRenderNode(object).getWorldMatrix(), pivotHeap, pivotHeap);
+			Matrix4.transform(renderModel.getRenderNode(object).getWorldMatrix(), pivotHeap, pivotHeap);
 			centerOfGroupSumHeap.x += pivotHeap.x;
 			centerOfGroupSumHeap.y += pivotHeap.y;
 			centerOfGroupSumHeap.z += pivotHeap.z;
@@ -54,15 +63,15 @@ public final class NodeAnimationSelectionManager extends AbstractSelectionManage
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vertex sphereCenter) {
+	public double getCircumscribedSphereRadius(final Vertex3 sphereCenter) {
 		double radius = 0;
 		for (final IdObject item : selection) {
-			final Vertex pivot = item.getPivotPoint();
+			final Vertex3 pivot = item.getPivotPoint();
 			pivotHeap.x = (float) pivot.x;
 			pivotHeap.y = (float) pivot.y;
 			pivotHeap.z = (float) pivot.z;
 			pivotHeap.w = 1;
-			Matrix4f.transform(renderModel.getRenderNode(item).getWorldMatrix(), pivotHeap, pivotHeap);
+			Matrix4.transform(renderModel.getRenderNode(item).getWorldMatrix(), pivotHeap, pivotHeap);
 			final double distance = sphereCenter.distance(pivotHeap);
 			if (distance >= radius) {
 				radius = distance;
@@ -114,12 +123,12 @@ public final class NodeAnimationSelectionManager extends AbstractSelectionManage
 	}
 
 	@Override
-	public Collection<Vertex> getSelectedVertices() {
+	public Collection<Vertex3> getSelectedVertices() {
 		// These reference the MODEL EDITOR pivot points,
 		// used only as memory references so that downstream will know
 		// to select those pivots, and therefore those IdObject nodes,
 		// for static editing (hence we do not apply worldMatrix)
-		final List<Vertex> vertices = new ArrayList<>();
+		final List<Vertex3> vertices = new ArrayList<>();
 		for (final IdObject obj : selection) {
 			vertices.add(obj.getPivotPoint());
 		}
@@ -127,17 +136,17 @@ public final class NodeAnimationSelectionManager extends AbstractSelectionManage
 	}
 
 	@Override
-	public TVertex getUVCenter(final int tvertexLayerId) {
-		return TVertex.ORIGIN;
+	public Vertex2 getUVCenter(final int tvertexLayerId) {
+		return Vertex2.ORIGIN;
 	}
 
 	@Override
-	public Collection<? extends TVertex> getSelectedTVertices(final int tvertexLayerId) {
+	public Collection<? extends Vertex2> getSelectedTVertices(final int tvertexLayerId) {
 		return Collections.emptySet();
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final TVertex center, final int tvertexLayerId) {
+	public double getCircumscribedSphereRadius(final Vertex2 center, final int tvertexLayerId) {
 		return 0;
 	}
 

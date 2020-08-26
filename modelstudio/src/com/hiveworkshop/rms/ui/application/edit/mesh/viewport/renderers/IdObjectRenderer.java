@@ -1,13 +1,28 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers;
 
-import com.hiveworkshop.rms.editor.model.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Point;
+import java.util.List;
+
+import com.hiveworkshop.rms.editor.model.Attachment;
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.CollisionShape;
+import com.hiveworkshop.rms.editor.model.EventObject;
+import com.hiveworkshop.rms.editor.model.Helper;
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.Light;
+import com.hiveworkshop.rms.editor.model.ParticleEmitter;
+import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
+import com.hiveworkshop.rms.editor.model.ParticleEmitterPopcorn;
+import com.hiveworkshop.rms.editor.model.RibbonEmitter;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
-
-import java.awt.*;
-import java.util.List;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public final class IdObjectRenderer implements IdObjectVisitor {
 	private CoordinateSystem coordinateSystem;
@@ -123,8 +138,8 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 	public void camera(final Camera camera) {
 		graphics.setColor(Color.GREEN.darker());
 		final Graphics2D g2 = ((Graphics2D) graphics.create());
-		final Vertex ver = camera.getPosition();
-		final Vertex targ = camera.getTargetPosition();
+		final Vertex3 ver = camera.getPosition();
+		final Vertex3 targ = camera.getTargetPosition();
 		// final boolean verSel = selection.contains(ver);
 		// final boolean tarSel = selection.contains(targ);
 		final Point start = new Point(
@@ -205,15 +220,15 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 	public static void drawCollisionShape(final Graphics2D graphics, final Color color,
 			final CoordinateSystem coordinateSystem, final byte xDimension, final byte yDimension, final int vertexSize,
 			final CollisionShape collisionShape, final Image collisionImage) {
-		final Vertex pivotPoint = collisionShape.getPivotPoint();
-		final List<Vertex> vertices = collisionShape.getVertices();
+		final Vertex3 pivotPoint = collisionShape.getPivotPoint();
+		final List<Vertex3> vertices = collisionShape.getVertices();
 		graphics.setColor(color);
 		final int xCoord = (int) coordinateSystem.convertX(pivotPoint.getCoord(xDimension));
 		final int yCoord = (int) coordinateSystem.convertY(pivotPoint.getCoord(yDimension));
 		if (collisionShape.getType() == MdlxCollisionShape.Type.BOX) {
 			if (vertices.size() > 1) {
-				final Vertex vertex = vertices.get(0);
-				final Vertex vertex2 = vertices.get(1);
+				final Vertex3 vertex = vertices.get(0);
+				final Vertex3 vertex2 = vertices.get(1);
 				final int firstXCoord = (int) coordinateSystem.convertX(vertex2.getCoord(xDimension));
 				final int firstYCoord = (int) coordinateSystem.convertY(vertex2.getCoord(yDimension));
 				final int secondXCoord = (int) coordinateSystem.convertX(vertex.getCoord(xDimension));

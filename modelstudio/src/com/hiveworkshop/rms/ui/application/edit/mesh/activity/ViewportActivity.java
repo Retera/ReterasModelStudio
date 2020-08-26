@@ -3,10 +3,10 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.activity;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.edit.ModelChangeListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.ui.application.edit.ModelChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
 
 public interface ViewportActivity extends SelectionListener, ModelChangeListener {
 	void viewportChanged(CursorManager cursorManager);

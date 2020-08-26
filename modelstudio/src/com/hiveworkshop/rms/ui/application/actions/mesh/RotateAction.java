@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.Normal;
-import com.hiveworkshop.rms.editor.model.Vertex;
 import com.hiveworkshop.rms.ui.application.actions.VertexActionType;
+import com.hiveworkshop.rms.util.Vertex3;
 
 /**
  * MotionAction -- something for you to undo when you screw up with motion
@@ -14,14 +13,14 @@ import com.hiveworkshop.rms.ui.application.actions.VertexActionType;
  * Eric Theller 6/8/2012
  */
 public class RotateAction extends MoveAction {
-	ArrayList<Normal> normals;
-	ArrayList<Vertex> normalMoveVectors;
+	ArrayList<Vertex3> normals;
+	ArrayList<Vertex3> normalMoveVectors;
 
-	public RotateAction(final List<Vertex> selection, final List<Vertex> moveVectors,
+	public RotateAction(final List<Vertex3> selection, final List<Vertex3> moveVectors,
 			final VertexActionType actionType) {
 		super(selection, moveVectors, actionType);
 		normals = new ArrayList<>();
-		for (final Vertex ver : selection) {
+		for (final Vertex3 ver : selection) {
 			if (ver instanceof GeosetVertex) {
 				final GeosetVertex gv = (GeosetVertex) ver;
 				if (gv.getNormal() != null) {
@@ -37,9 +36,9 @@ public class RotateAction extends MoveAction {
 	}
 
 	@Override
-	public void storeSelection(final List<Vertex> selection) {
+	public void storeSelection(final List<Vertex3> selection) {
 		super.storeSelection(selection);
-		for (final Vertex ver : selection) {
+		for (final Vertex3 ver : selection) {
 			if (ver instanceof GeosetVertex) {
 				final GeosetVertex gv = (GeosetVertex) ver;
 				if (gv.getNormal() != null) {
@@ -55,7 +54,7 @@ public class RotateAction extends MoveAction {
 
 		normalMoveVectors = new ArrayList<>();
 		for (int i = 0; i < normals.size(); i++) {
-			normalMoveVectors.add(new Vertex(0, 0, 0));
+			normalMoveVectors.add(new Vertex3(0, 0, 0));
 		}
 	}
 
@@ -63,8 +62,8 @@ public class RotateAction extends MoveAction {
 	public void redo() {
 		super.redo();
 		for (int i = 0; i < normals.size(); i++) {
-			final Normal ver = normals.get(i);
-			final Vertex vect = normalMoveVectors.get(i);
+			final Vertex3 ver = normals.get(i);
+			final Vertex3 vect = normalMoveVectors.get(i);
 			ver.x += vect.x;
 			ver.y += vect.y;
 			ver.z += vect.z;
@@ -75,19 +74,19 @@ public class RotateAction extends MoveAction {
 	public void undo() {
 		super.undo();
 		for (int i = 0; i < normals.size(); i++) {
-			final Normal ver = normals.get(i);
-			final Vertex vect = normalMoveVectors.get(i);
+			final Vertex3 ver = normals.get(i);
+			final Vertex3 vect = normalMoveVectors.get(i);
 			ver.x -= vect.x;
 			ver.y -= vect.y;
 			ver.z -= vect.z;
 		}
 	}
 
-	public ArrayList<Normal> getNormals() {
+	public ArrayList<Vertex3> getNormals() {
 		return normals;
 	}
 
-	public ArrayList<Vertex> getNormalMoveVectors() {
+	public ArrayList<Vertex3> getNormalMoveVectors() {
 		return normalMoveVectors;
 	}
 }

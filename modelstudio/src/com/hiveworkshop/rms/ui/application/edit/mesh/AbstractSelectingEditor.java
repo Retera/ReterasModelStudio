@@ -1,5 +1,10 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh;
 
+import java.awt.geom.Rectangle2D;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.AddSelectionAction;
@@ -9,11 +14,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelec
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
-
-import java.awt.geom.Rectangle2D;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public abstract class AbstractSelectingEditor<T> implements ModelEditor {
 	protected final SelectionManager<T> selectionManager;

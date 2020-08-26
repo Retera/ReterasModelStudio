@@ -1,17 +1,26 @@
 package com.hiveworkshop.rms.editor.render3d;
 
-import com.hiveworkshop.rms.editor.model.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.hiveworkshop.rms.editor.model.AnimatedNode;
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.Camera.SourceNode;
 import com.hiveworkshop.rms.editor.model.Camera.TargetNode;
+import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.MathUtils;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Quaternion;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
-
-import java.util.*;
+import com.hiveworkshop.rms.util.Matrix4;
+import com.hiveworkshop.rms.util.QuaternionRotation;
+import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vertex4;
 
 /**
  * For rendering. Copied from ghostwolf's stuff
@@ -22,10 +31,10 @@ public final class RenderModel {
 	private final EditableModel model;
 	public static final double MAGIC_RENDER_SHOW_CONSTANT = 0.75;
 	private final List<AnimatedNode> sortedNodes = new ArrayList<>();
-	private Quaternion inverseCameraRotation;
-	private Quaternion inverseCameraRotationXSpin;
-	private Quaternion inverseCameraRotationYSpin;
-	private Quaternion inverseCameraRotationZSpin;
+	private QuaternionRotation inverseCameraRotation;
+	private QuaternionRotation inverseCameraRotationXSpin;
+	private QuaternionRotation inverseCameraRotationYSpin;
+	private QuaternionRotation inverseCameraRotationZSpin;
 	private AnimatedRenderEnvironment animatedRenderEnvironment;
 
 	private final Map<AnimatedNode, RenderNode> objectToRenderNode = new HashMap<>();
@@ -39,19 +48,19 @@ public final class RenderModel {
 
 	private boolean spawnParticles = true;
 	private boolean allowInanimateParticles = false;
-	private static final Matrix4f billboardUpdatesMatrixHeap = new Matrix4f();
+	private static final Matrix4 billboardUpdatesMatrixHeap = new Matrix4();
 
 	// These guys form the corners of a 2x2 rectangle, for use in Ghostwolf particle
 	// emitter algorithm
-	private final Vector4f[] spacialVectors = { new Vector4f(-1, 1, 0, 1), new Vector4f(1, 1, 0, 1),
-			new Vector4f(1, -1, 0, 1), new Vector4f(-1, -1, 0, 1), new Vector4f(1, 0, 0, 1), new Vector4f(0, 1, 0, 1),
-			new Vector4f(0, 0, 1, 1) };
-	private final Vector4f[] billboardBaseVectors = { new Vector4f(0, 1, -1, 1), new Vector4f(0, -1, -1, 1),
-			new Vector4f(0, -1, 1, 1), new Vector4f(0, 1, 1, 1), new Vector4f(0, 1, 0, 1), new Vector4f(0, 0, 1, 1),
-			new Vector4f(1, 0, 0, 1) };
-	private final Vector4f[] billboardVectors = { new Vector4f(0, 1, -1, 1), new Vector4f(0, -1, -1, 1),
-			new Vector4f(0, -1, 1, 1), new Vector4f(0, 1, 1, 1), new Vector4f(0, 1, 0, 1), new Vector4f(0, 0, 1, 1),
-			new Vector4f(1, 0, 0, 1) };
+	private final Vertex4[] spacialVectors = { new Vertex4(-1, 1, 0, 1), new Vertex4(1, 1, 0, 1),
+			new Vertex4(1, -1, 0, 1), new Vertex4(-1, -1, 0, 1), new Vertex4(1, 0, 0, 1), new Vertex4(0, 1, 0, 1),
+			new Vertex4(0, 0, 1, 1) };
+	private final Vertex4[] billboardBaseVectors = { new Vertex4(0, 1, -1, 1), new Vertex4(0, -1, -1, 1),
+			new Vertex4(0, -1, 1, 1), new Vertex4(0, 1, 1, 1), new Vertex4(0, 1, 0, 1), new Vertex4(0, 0, 1, 1),
+			new Vertex4(1, 0, 0, 1) };
+	private final Vertex4[] billboardVectors = { new Vertex4(0, 1, -1, 1), new Vertex4(0, -1, -1, 1),
+			new Vertex4(0, -1, 1, 1), new Vertex4(0, 1, 1, 1), new Vertex4(0, 1, 0, 1), new Vertex4(0, 0, 1, 1),
+			new Vertex4(1, 0, 0, 1) };
 	private final ModelView modelView;
 
 	public RenderModel(final EditableModel model, final ModelView modelView) {
@@ -85,8 +94,8 @@ public final class RenderModel {
 	}
 
 	public void refreshFromEditor(final AnimatedRenderEnvironment animatedRenderEnvironment,
-			final Quaternion inverseCameraRotation, final Quaternion inverseCameraRotationYSpin,
-			final Quaternion inverseCameraRotationZSpin, final RenderResourceAllocator renderResourceAllocator) {
+			final QuaternionRotation inverseCameraRotation, final QuaternionRotation inverseCameraRotationYSpin,
+			final QuaternionRotation inverseCameraRotationZSpin, final RenderResourceAllocator renderResourceAllocator) {
 		particleEmitterViews2.clear();
 		particleEmitters2.clear();
 		this.animatedRenderEnvironment = animatedRenderEnvironment;
@@ -98,7 +107,7 @@ public final class RenderModel {
 		// dont use billboardUpdatesMatrixHeap
 		MathUtils.fromQuat(inverseCameraRotation, billboardUpdatesMatrixHeap);
 		for (int i = 0; i < billboardVectors.length; i++) {
-			Matrix4f.transform(billboardUpdatesMatrixHeap, billboardBaseVectors[i], billboardVectors[i]);
+			Matrix4.transform(billboardUpdatesMatrixHeap, billboardBaseVectors[i], billboardVectors[i]);
 		}
 
 		sortedNodes.clear();
@@ -185,9 +194,9 @@ public final class RenderModel {
 			if (nodeVisible) {
 				boolean wasDirty = false;
 				// TODO variants
-				final Vector3f localLocation = node.localLocation;
-				final Quaternion localRotation = node.localRotation;
-				final Vector3f localScale = node.localScale;
+				final Vertex3 localLocation = node.localLocation;
+				final QuaternionRotation localRotation = node.localRotation;
+				final Vertex3 localScale = node.localScale;
 
 				// Only update the local data if there is a need to
 				if (forced || true /* variants */) {
@@ -195,7 +204,7 @@ public final class RenderModel {
 
 					// Translation
 					if (forced || true /* variants */) {
-						final Vertex renderTranslation = idObject.getRenderTranslation(animatedRenderEnvironment);
+						final Vertex3 renderTranslation = idObject.getRenderTranslation(animatedRenderEnvironment);
 						if (renderTranslation != null) {
 							localLocation.x = (float) renderTranslation.x;
 							localLocation.y = (float) renderTranslation.y;
@@ -220,7 +229,7 @@ public final class RenderModel {
 
 					// Scale
 					if (forced || true /* variants */) {
-						final Vertex renderScale = idObject.getRenderScale(animatedRenderEnvironment);
+						final Vertex3 renderScale = idObject.getRenderScale(animatedRenderEnvironment);
 						if (renderScale != null) {
 							localScale.x = (float) renderScale.x;
 							localScale.y = (float) renderScale.y;
@@ -244,7 +253,7 @@ public final class RenderModel {
 						localRotation.setIdentity();
 					}
 
-					Quaternion.mul(localRotation, inverseCameraRotation, localRotation);
+					QuaternionRotation.mul(localRotation, inverseCameraRotation, localRotation);
 				} else if (node.billboardedY) {
 					// To solve billboard Y, you must rotate to face camera
 					// in node local space only around the node-local version of the Y axis.
@@ -262,9 +271,9 @@ public final class RenderModel {
 
 					// Cancel the parent's rotation;
 					localRotation.setIdentity();
-					Quaternion.mul(localRotation, inverseCameraRotationYSpin, localRotation);
+					QuaternionRotation.mul(localRotation, inverseCameraRotationYSpin, localRotation);
 //					if (parent != null) {
-//						Quaternion.mul(localRotation, localRotation, parent.inverseWorldRotation);
+//						QuaternionRotation.mul(localRotation, localRotation, parent.inverseWorldRotation);
 //					}
 
 					// TODO face camera, TODO have a camera
@@ -278,7 +287,7 @@ public final class RenderModel {
 						localRotation.setIdentity();
 					}
 
-					Quaternion.mul(localRotation, inverseCameraRotationZSpin, localRotation);
+					QuaternionRotation.mul(localRotation, inverseCameraRotationZSpin, localRotation);
 
 					// TODO face camera, TODO have a camera
 				}
@@ -325,7 +334,7 @@ public final class RenderModel {
 	private void updateParticles() {
 		MathUtils.fromQuat(inverseCameraRotation, billboardUpdatesMatrixHeap);
 		for (int i = 0; i < billboardVectors.length; i++) {
-			Matrix4f.transform(billboardUpdatesMatrixHeap, billboardBaseVectors[i], billboardVectors[i]);
+			Matrix4.transform(billboardUpdatesMatrixHeap, billboardBaseVectors[i], billboardVectors[i]);
 		}
 		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
 			// not animating
@@ -351,11 +360,11 @@ public final class RenderModel {
 		}
 	}
 
-	public Vector4f[] getBillboardVectors() {
+	public Vertex4[] getBillboardVectors() {
 		return billboardVectors;
 	}
 
-	public Vector4f[] getSpacialVectors() {
+	public Vertex4[] getSpacialVectors() {
 		return spacialVectors;
 	}
 

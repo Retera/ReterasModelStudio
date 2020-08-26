@@ -1,20 +1,24 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.widgets;
 
-import com.hiveworkshop.rms.editor.model.Vertex;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Polygon;
+import java.awt.Rectangle;
 
-import java.awt.*;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public final class MoverWidget {
 	private static final int TRIANGLE_OFFSET = 60 - 16;
-	private final Vertex point;
+	private final Vertex3 point;
 	private MoveDirection moveDirection = MoveDirection.NONE;
 	private final Polygon northTriangle;
 	private final Polygon eastTriangle;
 
-	public MoverWidget(final Vertex point) {
-		this.point = new Vertex(0, 0, 0);
-		this.point.setTo(point);
+	public MoverWidget(final Vertex3 point) {
+		this.point = new Vertex3(0, 0, 0);
+		this.point.set(point);
 		northTriangle = new Polygon();
 		northTriangle.addPoint(-5, 0);
 		northTriangle.addPoint(0, -18);
@@ -49,12 +53,12 @@ public final class MoverWidget {
 		return direction;
 	}
 
-	public Vertex getPoint() {
+	public Vertex3 getPoint() {
 		return point;
 	}
 
-	public void setPoint(final Vertex point) {
-		this.point.setTo(point);
+	public void setPoint(final Vertex3 point) {
+		this.point.set(point);
 	}
 
 	public MoveDirection getMoveDirection() {

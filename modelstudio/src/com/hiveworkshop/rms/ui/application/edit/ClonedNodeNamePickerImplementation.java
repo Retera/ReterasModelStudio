@@ -1,14 +1,20 @@
 package com.hiveworkshop.rms.ui.application.edit;
 
-import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.ui.application.MainPanel;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Dimension;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.ui.application.MainPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
 
 public final class ClonedNodeNamePickerImplementation implements ClonedNodeNamePicker {
     private final MainPanel mainPanel;

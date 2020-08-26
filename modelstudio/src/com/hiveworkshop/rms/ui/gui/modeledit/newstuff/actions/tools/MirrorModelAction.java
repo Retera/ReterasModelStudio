@@ -7,19 +7,19 @@ import java.util.List;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.Normal;
-import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public final class MirrorModelAction implements UndoAction {
 	private final char[] DIMENSION_NAMES = { 'Z', 'X', 'Y' };
-	private final List<Vertex> selection;
+	private final List<Vertex3> selection;
 	private final List<IdObject> idObjects;
 	private final byte mirrorDim;
 	private final double centerX;
 	private final double centerY;
 	private final double centerZ;
 
-	public MirrorModelAction(final Collection<? extends Vertex> selection, final Collection<IdObject> idObjects,
+	public MirrorModelAction(final Collection<? extends Vertex3> selection, final Collection<IdObject> idObjects,
 			final byte mirrorDim, final double centerX, final double centerY, final double centerZ) {
 		this.centerX = centerX;
 		this.centerY = centerY;
@@ -40,14 +40,14 @@ public final class MirrorModelAction implements UndoAction {
 	}
 
 	private void doMirror() {
-		final Vertex center = new Vertex(centerX, centerY, centerZ);
+		final Vertex3 center = new Vertex3(centerX, centerY, centerZ);
 		// Vertex.centerOfGroup(selection);// Calc center
 		// // of mass
-		for (final Vertex vert : selection) {
+		for (final Vertex3 vert : selection) {
 			vert.setCoord(mirrorDim, (2 * center.getCoord(mirrorDim)) - vert.getCoord(mirrorDim));
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
-				final Normal normal = gv.getNormal();
+				final Vertex3 normal = gv.getNormal();
 				if (normal != null) {
 					// Flip normals, preserve lighting!
 					normal.setCoord(mirrorDim, -normal.getCoord(mirrorDim));

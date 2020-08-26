@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.editor.model.TVertex;
+import com.hiveworkshop.rms.util.Vertex2;
 
 /**
  * Undoable snap action.
@@ -13,15 +13,15 @@ import com.hiveworkshop.rms.editor.model.TVertex;
  * Eric Theller 6/11/2012
  */
 public class UVSnapAction implements UndoAction {
-	private final List<TVertex> oldSelLocs;
-	private final List<TVertex> selection;
-	private final TVertex snapPoint;
+	private final List<Vertex2> oldSelLocs;
+	private final List<Vertex2> selection;
+	private final Vertex2 snapPoint;
 
-	public UVSnapAction(final Collection<? extends TVertex> selection, final List<TVertex> oldSelLocs,
-			final TVertex snapPoint) {
-		this.selection = new ArrayList<TVertex>(selection);
+	public UVSnapAction(final Collection<? extends Vertex2> selection, final List<Vertex2> oldSelLocs,
+			final Vertex2 snapPoint) {
+		this.selection = new ArrayList<Vertex2>(selection);
 		this.oldSelLocs = oldSelLocs;
-		this.snapPoint = new TVertex(snapPoint);
+		this.snapPoint = new Vertex2(snapPoint);
 	}
 
 	@Override

@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.hiveworkshop.rms.ui.application.actions.VertexActionType;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.editor.model.Vertex;
+import com.hiveworkshop.rms.util.Vertex3;
 
 /**
  * MotionAction -- something for you to undo when you screw up with motion
@@ -13,19 +13,19 @@ import com.hiveworkshop.rms.editor.model.Vertex;
  * Eric Theller 6/8/2012
  */
 public class MoveAction implements UndoAction {
-	private List<Vertex> selection;
-	private List<Vertex> moveVectors;
-	private Vertex moveVector;
+	private List<Vertex3> selection;
+	private List<Vertex3> moveVectors;
+	private Vertex3 moveVector;
 	private VertexActionType actType = VertexActionType.UNKNOWN;
 
-	public MoveAction(final List<Vertex> selection, final List<Vertex> moveVectors, final VertexActionType actionType) {
-		this.selection = new ArrayList<Vertex>(selection);
+	public MoveAction(final List<Vertex3> selection, final List<Vertex3> moveVectors, final VertexActionType actionType) {
+		this.selection = new ArrayList<Vertex3>(selection);
 		this.moveVectors = moveVectors;
 		actType = actionType;
 	}
 
-	public MoveAction(final List<Vertex> selection, final Vertex moveVector, final VertexActionType actionType) {
-		this.selection = new ArrayList<Vertex>(selection);
+	public MoveAction(final List<Vertex3> selection, final Vertex3 moveVector, final VertexActionType actionType) {
+		this.selection = new ArrayList<Vertex3>(selection);
 		this.moveVector = moveVector;
 		actType = actionType;
 	}
@@ -34,35 +34,35 @@ public class MoveAction implements UndoAction {
 
 	}
 
-	public void storeSelection(final List<Vertex> selection) {
-		this.selection = new ArrayList<Vertex>(selection);
+	public void storeSelection(final List<Vertex3> selection) {
+		this.selection = new ArrayList<Vertex3>(selection);
 	}
 
 	public void createEmptyMoveVectors() {
-		moveVectors = new ArrayList<Vertex>();
+		moveVectors = new ArrayList<Vertex3>();
 		for (int i = 0; i < selection.size(); i++) {
-			moveVectors.add(new Vertex(0, 0, 0));
+			moveVectors.add(new Vertex3(0, 0, 0));
 		}
 	}
 
 	public void createEmptyMoveVector() {
-		moveVector = new Vertex(0, 0, 0);
+		moveVector = new Vertex3(0, 0, 0);
 	}
 
 	@Override
 	public void redo() {
 		if (moveVector == null) {
 			for (int i = 0; i < selection.size(); i++) {
-				final Vertex ver = selection.get(i);
-				final Vertex vect = moveVectors.get(i);
+				final Vertex3 ver = selection.get(i);
+				final Vertex3 vect = moveVectors.get(i);
 				ver.x += vect.x;
 				ver.y += vect.y;
 				ver.z += vect.z;
 			}
 		} else {
 			for (int i = 0; i < selection.size(); i++) {
-				final Vertex ver = selection.get(i);
-				final Vertex vect = moveVector;
+				final Vertex3 ver = selection.get(i);
+				final Vertex3 vect = moveVector;
 				ver.x += vect.x;
 				ver.y += vect.y;
 				ver.z += vect.z;
@@ -74,16 +74,16 @@ public class MoveAction implements UndoAction {
 	public void undo() {
 		if (moveVector == null) {
 			for (int i = 0; i < selection.size(); i++) {
-				final Vertex ver = selection.get(i);
-				final Vertex vect = moveVectors.get(i);
+				final Vertex3 ver = selection.get(i);
+				final Vertex3 vect = moveVectors.get(i);
 				ver.x -= vect.x;
 				ver.y -= vect.y;
 				ver.z -= vect.z;
 			}
 		} else {
 			for (int i = 0; i < selection.size(); i++) {
-				final Vertex ver = selection.get(i);
-				final Vertex vect = moveVector;
+				final Vertex3 ver = selection.get(i);
+				final Vertex3 vect = moveVector;
 				ver.x -= vect.x;
 				ver.y -= vect.y;
 				ver.z -= vect.z;
@@ -114,19 +114,19 @@ public class MoveAction implements UndoAction {
 		return outName + " vertices";
 	}
 
-	public List<Vertex> getMoveVectors() {
+	public List<Vertex3> getMoveVectors() {
 		return moveVectors;
 	}
 
-	public void setMoveVectors(final List<Vertex> moveVectors) {
+	public void setMoveVectors(final List<Vertex3> moveVectors) {
 		this.moveVectors = moveVectors;
 	}
 
-	public Vertex getMoveVector() {
+	public Vertex3 getMoveVector() {
 		return moveVector;
 	}
 
-	public void setMoveVector(final Vertex moveVector) {
+	public void setMoveVector(final Vertex3 moveVector) {
 		this.moveVector = moveVector;
 	}
 

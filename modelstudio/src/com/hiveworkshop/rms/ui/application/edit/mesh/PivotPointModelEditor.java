@@ -1,7 +1,33 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh;
 
+import java.awt.Point;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.hiveworkshop.rms.editor.model.AnimFlag;
+import com.hiveworkshop.rms.editor.model.Attachment;
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.CollisionShape;
 import com.hiveworkshop.rms.editor.model.EventObject;
-import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.ExtLog;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.Helper;
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.Light;
+import com.hiveworkshop.rms.editor.model.ParticleEmitter;
+import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
+import com.hiveworkshop.rms.editor.model.ParticleEmitterPopcorn;
+import com.hiveworkshop.rms.editor.model.RibbonEmitter;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -24,20 +50,15 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisito
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.util.Vertex3;
 
-import java.awt.*;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.util.List;
-import java.util.*;
-
-public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
+public class PivotPointModelEditor extends AbstractModelEditor<Vertex3> {
 	private final ProgramPreferences programPreferences;
 	private final GenericSelectorVisitor genericSelectorVisitor;
 	private final SelectionAtPointTester selectionAtPointTester;
 
 	public PivotPointModelEditor(final ModelView model, final ProgramPreferences programPreferences,
-			final SelectionManager<Vertex> selectionManager,
+			final SelectionManager<Vertex3> selectionManager,
 			final ModelStructureChangeListener structureChangeListener) {
 		super(selectionManager, model, structureChangeListener);
 		this.programPreferences = programPreferences;
@@ -67,7 +88,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			}
 		}
 
-		final Map<Bone, Vertex> boneToOldPosition = new HashMap<>();
+		final Map<Bone, Vertex3> boneToOldPosition = new HashMap<>();
 		for (final IdObject obj : selBones) {
 			if (Bone.class.isAssignableFrom(obj.getClass())) {
 				final Bone bone = (Bone) obj;
@@ -76,9 +97,9 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 					childVerts.addAll(geo.getChildrenOf(bone));
 				}
 				if (childVerts.size() > 0) {
-					final Vertex pivotPoint = bone.getPivotPoint();
-					boneToOldPosition.put(bone, new Vertex(pivotPoint));
-					pivotPoint.setTo(Vertex.centerOfGroup(childVerts));
+					final Vertex3 pivotPoint = bone.getPivotPoint();
+					boneToOldPosition.put(bone, new Vertex3(pivotPoint));
+					pivotPoint.set(Vertex3.centerOfGroup(childVerts));
 				}
 			}
 		}
@@ -90,7 +111,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		if (selectionManager.getSelection().size() != 1) {
 			throw new IllegalStateException("Only one bone can be renamed at a time.");
 		}
-		final Vertex selectedVertex = selectionManager.getSelection().iterator().next();
+		final Vertex3 selectedVertex = selectionManager.getSelection().iterator().next();
 		IdObject node = null;
 		for (final IdObject bone : model.getEditableIdObjects()) {
 			if (bone.getPivotPoint() == selectedVertex) {
@@ -111,7 +132,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 
 	@Override
 	public UndoAction addSelectedBoneSuffix(final String name) {
-		final Set<Vertex> selection = selectionManager.getSelection();
+		final Set<Vertex3> selection = selectionManager.getSelection();
 		final List<RenameBoneAction> actions = new ArrayList<>();
 		for (final IdObject bone : model.getEditableIdObjects()) {
 			if (selection.contains(bone.getPivotPoint())) {
@@ -135,8 +156,8 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 	}
 
 	@Override
-	public void selectByVertices(final Collection<? extends Vertex> newSelection) {
-		final List<Vertex> newlySelectedPivots = new ArrayList<>();
+	public void selectByVertices(final Collection<? extends Vertex3> newSelection) {
+		final List<Vertex3> newlySelectedPivots = new ArrayList<>();
 		for (final IdObject object : model.getEditableIdObjects()) {
 			if (newSelection.contains(object.getPivotPoint())) {
 				newlySelectedPivots.add(object.getPivotPoint());
@@ -179,7 +200,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 
 				@Override
 				public void collisionShape(final CollisionShape collisionShape) {
-					for (final Vertex vertex : collisionShape.getVertices()) {
+					for (final Vertex3 vertex : collisionShape.getVertices()) {
 						if (newSelection.contains(vertex)) {
 							newlySelectedPivots.add(vertex);
 						}
@@ -215,8 +236,8 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 
 	@Override
 	public UndoAction expandSelection() {
-		final Set<Vertex> expandedSelection = new HashSet<>(selectionManager.getSelection());
-		final Set<Vertex> oldSelection = new HashSet<>(selectionManager.getSelection());
+		final Set<Vertex3> expandedSelection = new HashSet<>(selectionManager.getSelection());
+		final Set<Vertex3> oldSelection = new HashSet<>(selectionManager.getSelection());
 		final IdObjectVisitor visitor = new IdObjectVisitor() {
 			@Override
 			public void ribbonEmitter(final RibbonEmitter particleEmitter) {
@@ -258,7 +279,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 				if (oldSelection.contains(collisionShape.getPivotPoint())) {
 					selected = true;
 				}
-				for (final Vertex vertex : collisionShape.getVertices()) {
+				for (final Vertex3 vertex : collisionShape.getVertices()) {
 					if (oldSelection.contains(vertex)) {
 						selected = true;
 					}
@@ -299,8 +320,8 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 
 	@Override
 	public UndoAction invertSelection() {
-		final List<Vertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
-		final Set<Vertex> invertedSelection = new HashSet<>(selectionManager.getSelection());
+		final List<Vertex3> oldSelection = new ArrayList<>(selectionManager.getSelection());
+		final Set<Vertex3> invertedSelection = new HashSet<>(selectionManager.getSelection());
 		final IdObjectVisitor visitor = new IdObjectVisitor() {
 			@Override
 			public void ribbonEmitter(final RibbonEmitter particleEmitter) {
@@ -340,7 +361,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			@Override
 			public void collisionShape(final CollisionShape collisionShape) {
 				toggleSelection(invertedSelection, collisionShape.getPivotPoint());
-				for (final Vertex vertex : collisionShape.getVertices()) {
+				for (final Vertex3 vertex : collisionShape.getVertices()) {
 					toggleSelection(invertedSelection, vertex);
 				}
 			}
@@ -371,7 +392,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		return new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection");
 	}
 
-	private void toggleSelection(final Set<Vertex> selection, final Vertex position) {
+	private void toggleSelection(final Set<Vertex3> selection, final Vertex3 position) {
 		if (selection.contains(position)) {
 			selection.remove(position);
 		} else {
@@ -381,8 +402,8 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 
 	@Override
 	public UndoAction selectAll() {
-		final List<Vertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
-		final Set<Vertex> allSelection = new HashSet<>();
+		final List<Vertex3> oldSelection = new ArrayList<>(selectionManager.getSelection());
+		final Set<Vertex3> allSelection = new HashSet<>();
 		final IdObjectVisitor visitor = new IdObjectVisitor() {
 			@Override
 			public void ribbonEmitter(final RibbonEmitter particleEmitter) {
@@ -422,7 +443,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			@Override
 			public void collisionShape(final CollisionShape collisionShape) {
 				allSelection.add(collisionShape.getPivotPoint());
-				for (final Vertex vertex : collisionShape.getVertices()) {
+				for (final Vertex3 vertex : collisionShape.getVertices()) {
 					allSelection.add(vertex);
 				}
 			}
@@ -454,8 +475,8 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 	}
 
 	@Override
-	protected List<Vertex> genericSelect(final Rectangle2D region, final CoordinateSystem coordinateSystem) {
-		final List<Vertex> selectedItems = new ArrayList<>();
+	protected List<Vertex3> genericSelect(final Rectangle2D region, final CoordinateSystem coordinateSystem) {
+		final List<Vertex3> selectedItems = new ArrayList<>();
 		final double startingClickX = region.getX();
 		final double startingClickY = region.getY();
 		final double endingClickX = region.getX() + region.getWidth();
@@ -488,7 +509,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		return selectionAtPointTester.isMouseOverVertex();
 	}
 
-	public static void hitTest(final List<Vertex> selectedItems, final Rectangle2D area, final Vertex geosetVertex,
+	public static void hitTest(final List<Vertex3> selectedItems, final Rectangle2D area, final Vertex3 geosetVertex,
 			final CoordinateSystem coordinateSystem, final double vertexSize) {
 		final byte dim1 = coordinateSystem.getPortFirstXYZ();
 		final byte dim2 = coordinateSystem.getPortSecondXYZ();
@@ -506,7 +527,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		}
 	}
 
-	public static boolean hitTest(final Vertex vertex, final Point2D point, final CoordinateSystem coordinateSystem,
+	public static boolean hitTest(final Vertex3 vertex, final Point2D point, final CoordinateSystem coordinateSystem,
 			final double vertexSize) {
 		final double x = coordinateSystem.convertX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
 		final double y = coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
@@ -524,8 +545,8 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 	@Override
 	protected UndoAction buildHideComponentAction(final List<? extends SelectableComponent> selectableComponents,
                                                   final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
-		final List<Vertex> previousSelection = new ArrayList<>(selectionManager.getSelection());
-		final List<Vertex> possibleVerticesToTruncate = new ArrayList<>();
+		final List<Vertex3> previousSelection = new ArrayList<>(selectionManager.getSelection());
+		final List<Vertex3> possibleVerticesToTruncate = new ArrayList<>();
 		for (final SelectableComponent component : selectableComponents) {
 			component.visit(new SelectableComponentVisitor() {
 				@Override
@@ -676,7 +697,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 		@Override
 		public void collisionShape(final CollisionShape collisionShape) {
 			handleDefaultNode(point, axes, collisionShape);
-			for (final Vertex vertex : collisionShape.getVertices()) {
+			for (final Vertex3 vertex : collisionShape.getVertices()) {
 				if (hitTest(vertex, CoordinateSystem.Util.geom(axes, point), axes, IdObject.DEFAULT_CLICK_RADIUS)) {
 					mouseOverVertex = true;
 				}
@@ -714,11 +735,11 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 	}
 
 	private final class GenericSelectorVisitor implements IdObjectVisitor {
-		private List<Vertex> selectedItems;
+		private List<Vertex3> selectedItems;
 		private Rectangle2D area;
 		private CoordinateSystem coordinateSystem;
 
-		private GenericSelectorVisitor reset(final List<Vertex> selectedItems, final Rectangle2D area,
+		private GenericSelectorVisitor reset(final List<Vertex3> selectedItems, final Rectangle2D area,
 				final CoordinateSystem coordinateSystem) {
 			this.selectedItems = selectedItems;
 			this.area = area;
@@ -777,7 +798,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			hitTest(selectedItems, area, collisionShape.getPivotPoint(), coordinateSystem,
 					collisionShape.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem)
 							* 2);
-			for (final Vertex vertex : collisionShape.getVertices()) {
+			for (final Vertex3 vertex : collisionShape.getVertices()) {
 				hitTest(selectedItems, area, vertex, coordinateSystem, IdObject.DEFAULT_CLICK_RADIUS);
 			}
 		}
@@ -804,7 +825,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 
 	@Override
 	public CopiedModelData copySelection() {
-		final Set<Vertex> selection = selectionManager.getSelection();
+		final Set<Vertex3> selection = selectionManager.getSelection();
 		final Set<IdObject> clonedNodes = new HashSet<>();
 		final Set<Camera> clonedCameras = new HashSet<>();
 		for (final IdObject b : model.getEditableIdObjects()) {
@@ -857,12 +878,12 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 						final AnimFlag translation = object.find("Translation");
 						if (translation != null) {
 							for (int i = 0; i < translation.size(); i++) {
-								final Vertex scaleData = (Vertex) translation.getValues().get(i);
+								final Vertex3 scaleData = (Vertex3) translation.getValues().get(i);
 								scaleData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
 								if (translation.tans()) {
-									final Vertex inTanData = (Vertex) translation.getInTans().get(i);
+									final Vertex3 inTanData = (Vertex3) translation.getInTans().get(i);
 									inTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
-									final Vertex outTanData = (Vertex) translation.getInTans().get(i);
+									final Vertex3 outTanData = (Vertex3) translation.getInTans().get(i);
 									outTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
 								}
 							}
@@ -890,12 +911,12 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 						final AnimFlag translation = object.find("Translation");
 						if (translation != null) {
 							for (int i = 0; i < translation.size(); i++) {
-								final Vertex scaleData = (Vertex) translation.getValues().get(i);
+								final Vertex3 scaleData = (Vertex3) translation.getValues().get(i);
 								scaleData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
 								if (translation.tans()) {
-									final Vertex inTanData = (Vertex) translation.getInTans().get(i);
+									final Vertex3 inTanData = (Vertex3) translation.getInTans().get(i);
 									inTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
-									final Vertex outTanData = (Vertex) translation.getInTans().get(i);
+									final Vertex3 outTanData = (Vertex3) translation.getInTans().get(i);
 									outTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
 								}
 							}
@@ -932,13 +953,13 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 	}
 
 	@Override
-	public UndoAction createFaceFromSelection(final Vertex preferredFacingVector) {
+	public UndoAction createFaceFromSelection(final Vertex3 preferredFacingVector) {
 		return new DoNothingAction("create face");
 	}
 
 	@Override
 	public UndoAction addVertex(final double x, final double y, final double z,
-			final Vertex preferredNormalFacingVector) {
+			final Vertex3 preferredNormalFacingVector) {
 		return new DoNothingAction("add vertex");
 	}
 
@@ -974,7 +995,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 			nameNumber++;
 		}
 		final Bone bone = new Bone(getNumberName("Bone", nameNumber));
-		bone.setPivotPoint(new Vertex(x, y, z));
+		bone.setPivotPoint(new Vertex3(x, y, z));
 		final DrawBoneAction drawBoneAction = new DrawBoneAction(model, structureChangeListener, bone);
 		drawBoneAction.redo();
 		return drawBoneAction;

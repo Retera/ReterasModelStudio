@@ -1,12 +1,13 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.parsers.mdlx.MdlxGenericObject;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxGenericObject;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.util.Vertex3;
 
 /**
  * Write a description of class ObjectId here.
@@ -27,7 +28,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	protected boolean billboardLockX = false;
 	protected boolean billboardLockY = false;
 	protected boolean billboardLockZ = false;
-	protected Vertex pivotPoint;
+	protected Vertex3 pivotPoint;
 	protected IdObject parent;
 	protected final List<IdObject> childrenNodes = new ArrayList<>();
 	protected float[] bindPose;
@@ -121,7 +122,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return name;
 	}
 
-	public void setPivotPoint(final Vertex p) {
+	public void setPivotPoint(final Vertex3 p) {
 		pivotPoint = p;
 	}
 
@@ -150,7 +151,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		billboardLockX = other.billboardLockX;
 		billboardLockY = other.billboardLockY;
 		billboardLockZ = other.billboardLockZ;
-		pivotPoint = new Vertex(other.getPivotPoint());
+		pivotPoint = new Vertex3(other.getPivotPoint());
 		setParent(other.getParent());
 		addAll(other.getAnimFlags());
 	}
@@ -296,7 +297,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	}
 
 	@Override
-	public Vertex getPivotPoint() {
+	public Vertex3 getPivotPoint() {
 		return pivotPoint;
 	}
 

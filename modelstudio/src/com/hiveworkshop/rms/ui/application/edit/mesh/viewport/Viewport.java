@@ -1,6 +1,62 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
-import com.hiveworkshop.rms.editor.model.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridLayout;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.PointerInfo;
+import java.awt.Stroke;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.util.Collections;
+import java.util.List;
+
+import javax.swing.Action;
+import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JSpinner;
+import javax.swing.KeyStroke;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.Timer;
+import javax.swing.TransferHandler;
+
+import com.hiveworkshop.rms.editor.model.Attachment;
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.CollisionShape;
+import com.hiveworkshop.rms.editor.model.EventObject;
+import com.hiveworkshop.rms.editor.model.GeosetAnim;
+import com.hiveworkshop.rms.editor.model.Helper;
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.Light;
+import com.hiveworkshop.rms.editor.model.Material;
+import com.hiveworkshop.rms.editor.model.ParticleEmitter;
+import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
+import com.hiveworkshop.rms.editor.model.ParticleEmitterPopcorn;
+import com.hiveworkshop.rms.editor.model.RibbonEmitter;
 import com.hiveworkshop.rms.editor.model.visitor.GeosetVisitor;
 import com.hiveworkshop.rms.editor.model.visitor.ModelVisitor;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
@@ -26,15 +82,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChange
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.listeners.ProgramPreferencesChangeListener;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.util.Collections;
-import java.util.List;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public class Viewport extends JPanel implements MouseListener, ActionListener, MouseWheelListener, CoordinateSystem,
         ViewportView, MouseMotionListener, ModelEditorChangeListener {
@@ -78,7 +126,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	private final RenderModel renderModel;
 	private final ModelVisitorImplementation linkRenderingVisitorAdapter;
 	private final JMenuItem createFace;
-	private final Vertex facingVector;
+	private final Vertex3 facingVector;
 	private final ViewportListener viewportListener;
 
 	public Viewport(final byte d1, final byte d2, final ModelView modelView,
@@ -174,7 +222,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		linkRenderer = new ResettableAnimatedIdObjectParentLinkRenderer(programPreferences.getVertexSize());
 		linkRenderingVisitorAdapter = new ModelVisitorImplementation();
 
-		facingVector = new Vertex(0, 0, 0);
+		facingVector = new Vertex3(0, 0, 0);
 		final byte unusedXYZ = CoordinateSystem.Util.getUnusedXYZ(this);
 		facingVector.setCoord(unusedXYZ, unusedXYZ == 0 ? 1 : -1);
 		paintTimer = new Timer(16, new ActionListener() {
@@ -667,7 +715,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		final JCheckBox customOrigin = new JCheckBox("Custom Scaling Origin");
 		inputPanel.add(customOrigin);
 
-		final Vertex selectionCenter = modelEditor.getSelectionCenter();
+		final Vertex3 selectionCenter = modelEditor.getSelectionCenter();
 		inputPanel.add(new JLabel("Center X:"));
 		inputPanel.add(centerSpinners[0] = new JSpinner(
 				new SpinnerNumberModel(selectionCenter.x, -100000.00, 100000.0, 0.0001)));
@@ -976,7 +1024,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		return modelEditor;
 	}
 
-	public Vertex getFacingVector() {
+	public Vertex3 getFacingVector() {
 		return facingVector;
 	}
 

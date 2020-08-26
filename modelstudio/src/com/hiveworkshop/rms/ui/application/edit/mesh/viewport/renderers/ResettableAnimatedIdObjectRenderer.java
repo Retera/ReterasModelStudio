@@ -1,17 +1,32 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers;
 
-import com.hiveworkshop.rms.editor.model.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Point;
+import java.util.List;
+
+import com.hiveworkshop.rms.editor.model.Attachment;
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.CollisionShape;
+import com.hiveworkshop.rms.editor.model.EventObject;
+import com.hiveworkshop.rms.editor.model.Helper;
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.Light;
+import com.hiveworkshop.rms.editor.model.ParticleEmitter;
+import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
+import com.hiveworkshop.rms.editor.model.ParticleEmitterPopcorn;
+import com.hiveworkshop.rms.editor.model.RibbonEmitter;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportRenderableCamera;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector4f;
-
-import java.awt.*;
-import java.util.List;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.util.Matrix4;
+import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vertex4;
 
 public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor {
     private CoordinateSystem coordinateSystem;
@@ -53,9 +68,9 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
         graphics.setColor(lightColor);
         loadPivotInVertexHeap(light.getPivotPoint(), renderModel.getRenderNode(light).getWorldMatrix(), vertexHeap);
         final int xCoord = (int) coordinateSystem
-                .convertX(Vertex.getCoord(vertexHeap, coordinateSystem.getPortFirstXYZ()));
+                .convertX(Vertex3.getCoord(vertexHeap, coordinateSystem.getPortFirstXYZ()));
         final int yCoord = (int) coordinateSystem
-                .convertY(Vertex.getCoord(vertexHeap, coordinateSystem.getPortSecondXYZ()));
+                .convertY(Vertex3.getCoord(vertexHeap, coordinateSystem.getPortSecondXYZ()));
         final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
         // graphics.drawOval(xCoord - vertexSize * 2, yCoord - vertexSize * 2,
         // vertexSize * 4, vertexSize * 4);
@@ -82,7 +97,7 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
         drawCrosshair(object.getPivotPoint(), renderModel.getRenderNode(object).getWorldMatrix());
     }
 
-    private void drawCrosshair(final Vertex pivotPoint, final Matrix4f worldMatrix) {
+    private void drawCrosshair(final Vertex3 pivotPoint, final Matrix4 worldMatrix) {
         drawCrosshair(graphics, coordinateSystem, vertexSize, pivotPoint, worldMatrix, crosshairIsBox);
     }
 
@@ -139,18 +154,18 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
     public void camera(final Camera camera) {
         graphics.setColor(Color.GREEN.darker());
         final Graphics2D g2 = ((Graphics2D) graphics.create());
-        final Vertex ver = camera.getPosition();
-        final Vertex targ = camera.getTargetPosition();
+        final Vertex3 ver = camera.getPosition();
+        final Vertex3 targ = camera.getTargetPosition();
         loadPivotInVertexHeap(ver, renderModel.getRenderNode(camera.getSourceNode()).getWorldMatrix(), vertexHeap);
-        final float startX = Vertex.getCoord(vertexHeap, (byte) 0);
-        final float startY = Vertex.getCoord(vertexHeap, (byte) 1);
-        final float startZ = Vertex.getCoord(vertexHeap, (byte) 2);
+        final float startX = Vertex3.getCoord(vertexHeap, (byte) 0);
+        final float startY = Vertex3.getCoord(vertexHeap, (byte) 1);
+        final float startZ = Vertex3.getCoord(vertexHeap, (byte) 2);
         final Point start = new Point((int) Math.round(coordinateSystem.convertX(startX)),
                 (int) Math.round(coordinateSystem.convertY(startY)));
         loadPivotInVertexHeap(targ, renderModel.getRenderNode(camera.getTargetNode()).getWorldMatrix(), vertexHeap);
-        final float endX = Vertex.getCoord(vertexHeap, (byte) 0);
-        final float endY = Vertex.getCoord(vertexHeap, (byte) 1);
-        final float endZ = Vertex.getCoord(vertexHeap, (byte) 2);
+        final float endX = Vertex3.getCoord(vertexHeap, (byte) 0);
+        final float endY = Vertex3.getCoord(vertexHeap, (byte) 1);
+        final float endZ = Vertex3.getCoord(vertexHeap, (byte) 2);
         final Point end = new Point((int) Math.round(coordinateSystem.convertX(endX)),
                 (int) Math.round(coordinateSystem.convertY(endY)));
 
@@ -197,32 +212,32 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
         // g2.drawLine(0, 0, (int) dist, 0);
     }
 
-    private void drawNodeImage(final IdObject attachment, final Image nodeImage, final Matrix4f worldMatrix) {
+    private void drawNodeImage(final IdObject attachment, final Image nodeImage, final Matrix4 worldMatrix) {
         drawNodeImage(graphics, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ(),
                 coordinateSystem, attachment, nodeImage, worldMatrix);
     }
 
     public static void drawNodeImage(final Graphics2D graphics, final byte xDimension, final byte yDimension,
                                      final CoordinateSystem coordinateSystem, final IdObject attachment, final Image nodeImage,
-                                     final Matrix4f worldMatrix) {
+                                     final Matrix4 worldMatrix) {
         loadPivotInVertexHeap(attachment.getPivotPoint(), worldMatrix, vertexHeap);
-        final int xCoord = (int) coordinateSystem.convertX(Vertex.getCoord(vertexHeap, xDimension));
-        final int yCoord = (int) coordinateSystem.convertY(Vertex.getCoord(vertexHeap, yDimension));
+        final int xCoord = (int) coordinateSystem.convertX(Vertex3.getCoord(vertexHeap, xDimension));
+        final int yCoord = (int) coordinateSystem.convertY(Vertex3.getCoord(vertexHeap, yDimension));
         graphics.drawImage(nodeImage, xCoord - (nodeImage.getWidth(null) / 2), yCoord - (nodeImage.getHeight(null) / 2),
                 nodeImage.getWidth(null), nodeImage.getHeight(null), null);
     }
 
-    private static final Vector4f vertexHeap = new Vector4f();
-    private static final Vector4f vertexHeap2 = new Vector4f();
+    private static final Vertex4 vertexHeap = new Vertex4();
+    private static final Vertex4 vertexHeap2 = new Vertex4();
 
     public static void drawCrosshair(final Graphics2D graphics, final CoordinateSystem coordinateSystem, int vertexSize,
-                                     final Vertex pivotPoint, final Matrix4f worldMatrix, final boolean crosshairIsBox) {
+                                     final Vertex3 pivotPoint, final Matrix4 worldMatrix, final boolean crosshairIsBox) {
         loadPivotInVertexHeap(pivotPoint, worldMatrix, vertexHeap);
 
         final int xCoord = (int) coordinateSystem
-                .convertX(Vertex.getCoord(vertexHeap, coordinateSystem.getPortFirstXYZ()));
+                .convertX(Vertex3.getCoord(vertexHeap, coordinateSystem.getPortFirstXYZ()));
         final int yCoord = (int) coordinateSystem
-                .convertY(Vertex.getCoord(vertexHeap, coordinateSystem.getPortSecondXYZ()));
+                .convertY(Vertex3.getCoord(vertexHeap, coordinateSystem.getPortSecondXYZ()));
         if (crosshairIsBox) {
             vertexSize *= 3;
             graphics.fillRect(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2, vertexSize * 2);
@@ -233,35 +248,35 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
         }
     }
 
-    public static void loadPivotInVertexHeap(final Vertex pivotPoint, final Matrix4f worldMatrix,
-                                             final Vector4f vertexHeap) {
+    public static void loadPivotInVertexHeap(final Vertex3 pivotPoint, final Matrix4 worldMatrix,
+                                             final Vertex4 vertexHeap) {
         vertexHeap.x = (float) pivotPoint.x;
         vertexHeap.y = (float) pivotPoint.y;
         vertexHeap.z = (float) pivotPoint.z;
         vertexHeap.w = 1;
-        Matrix4f.transform(worldMatrix, vertexHeap, vertexHeap);
+        Matrix4.transform(worldMatrix, vertexHeap, vertexHeap);
     }
 
     public static void drawCollisionShape(final Graphics2D graphics, final Color color,
                                           final CoordinateSystem coordinateSystem, final byte xDimension, final byte yDimension, final int vertexSize,
-                                          final CollisionShape collisionShape, final Image collisionImage, final Matrix4f worldMatrix,
+                                          final CollisionShape collisionShape, final Image collisionImage, final Matrix4 worldMatrix,
                                           final boolean crosshairIsBox) {
-        final Vertex pivotPoint = collisionShape.getPivotPoint();
-        final List<Vertex> vertices = collisionShape.getVertices();
+        final Vertex3 pivotPoint = collisionShape.getPivotPoint();
+        final List<Vertex3> vertices = collisionShape.getVertices();
         graphics.setColor(color);
         loadPivotInVertexHeap(pivotPoint, worldMatrix, vertexHeap);
-        final int xCoord = (int) coordinateSystem.convertX(Vertex.getCoord(vertexHeap, xDimension));
-        final int yCoord = (int) coordinateSystem.convertY(Vertex.getCoord(vertexHeap, yDimension));
+        final int xCoord = (int) coordinateSystem.convertX(Vertex3.getCoord(vertexHeap, xDimension));
+        final int yCoord = (int) coordinateSystem.convertY(Vertex3.getCoord(vertexHeap, yDimension));
         if (collisionShape.getType() == MdlxCollisionShape.Type.BOX) {
             if (vertices.size() > 1) {
-                final Vertex vertex = vertices.get(0);
-                final Vertex vertex2 = vertices.get(1);
+                final Vertex3 vertex = vertices.get(0);
+                final Vertex3 vertex2 = vertices.get(1);
                 loadPivotInVertexHeap(vertex, worldMatrix, vertexHeap);
                 loadPivotInVertexHeap(vertex2, worldMatrix, vertexHeap2);
-                final int firstXCoord = (int) coordinateSystem.convertX(Vertex.getCoord(vertexHeap2, xDimension));
-                final int firstYCoord = (int) coordinateSystem.convertY(Vertex.getCoord(vertexHeap2, yDimension));
-                final int secondXCoord = (int) coordinateSystem.convertX(Vertex.getCoord(vertexHeap, xDimension));
-                final int secondYCoord = (int) coordinateSystem.convertY(Vertex.getCoord(vertexHeap, yDimension));
+                final int firstXCoord = (int) coordinateSystem.convertX(Vertex3.getCoord(vertexHeap2, xDimension));
+                final int firstYCoord = (int) coordinateSystem.convertY(Vertex3.getCoord(vertexHeap2, yDimension));
+                final int secondXCoord = (int) coordinateSystem.convertX(Vertex3.getCoord(vertexHeap, xDimension));
+                final int secondYCoord = (int) coordinateSystem.convertY(Vertex3.getCoord(vertexHeap, yDimension));
                 final int minXCoord = Math.min(firstXCoord, secondXCoord);
                 final int minYCoord = Math.min(firstYCoord, secondYCoord);
                 final int maxXCoord = Math.max(firstXCoord, secondXCoord);
@@ -288,7 +303,7 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
                         worldMatrix);
             }
         }
-        for (final Vertex vertex : vertices) {
+        for (final Vertex3 vertex : vertices) {
             drawCrosshair(graphics, coordinateSystem, vertexSize, vertex, worldMatrix, crosshairIsBox);
         }
     }

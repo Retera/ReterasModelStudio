@@ -1,24 +1,26 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.widgets;
 
-import com.hiveworkshop.rms.editor.model.Vertex;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
 
-import java.awt.*;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public final class ScalerWidget {
 	private static final int LINE_LEN = 80;
 	private static final int EXTERIOR_TRIANGLE_OFFSET = LINE_LEN - 16;
 	private static final int INTERIOR_TRIANGLE_OFFSET = LINE_LEN - 32;
-	private final Vertex point;
+	private final Vertex3 point;
 	private ScaleDirection moveDirection = ScaleDirection.NONE;
 	private final int[] recycleXPoints = new int[3];
 	private final int[] recycleYPoints = new int[3];
 	private final int[] recycleXPoints4 = new int[4];
 	private final int[] recycleYPoints4 = new int[4];
 
-	public ScalerWidget(final Vertex point) {
-		this.point = new Vertex(0, 0, 0);
-		this.point.setTo(point);
+	public ScalerWidget(final Vertex3 point) {
+		this.point = new Vertex3(0, 0, 0);
+		this.point.set(point);
 	}
 
 	public ScaleDirection getDirectionByMouse(final Point mousePoint, final CoordinateSystem coordinateSystem,
@@ -42,12 +44,12 @@ public final class ScalerWidget {
 		return direction;
 	}
 
-	public Vertex getPoint() {
+	public Vertex3 getPoint() {
 		return point;
 	}
 
-	public void setPoint(final Vertex point) {
-		this.point.setTo(point);
+	public void setPoint(final Vertex3 point) {
+		this.point.set(point);
 	}
 
 	public ScaleDirection getMoveDirection() {

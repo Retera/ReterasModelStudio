@@ -1,12 +1,14 @@
 package com.hiveworkshop.rms.ui.application.edit;
 
+import java.awt.event.ActionEvent;
+import java.util.NoSuchElementException;
+
+import javax.swing.AbstractAction;
+import javax.swing.JOptionPane;
+
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.util.NoSuchElementException;
 
 public final class UndoActionImplementation extends AbstractAction {
 	private final MainPanel mainPanel;

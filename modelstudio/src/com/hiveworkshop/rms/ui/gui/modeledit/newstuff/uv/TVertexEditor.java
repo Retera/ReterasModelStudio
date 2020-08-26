@@ -1,19 +1,19 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv;
 
-import com.hiveworkshop.rms.editor.model.TVertex;
-import com.hiveworkshop.rms.editor.model.Vertex;
-import com.hiveworkshop.rms.ui.application.edit.uv.panel.UVPanel;
+import java.awt.Point;
+import java.awt.geom.Rectangle2D;
+import java.util.Collection;
+
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.edit.uv.panel.UVPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ComponentVisibilityListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
-
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
-import java.util.Collection;
+import com.hiveworkshop.rms.util.Vertex2;
+import com.hiveworkshop.rms.util.Vertex3;
 
 /**
  * So, in some ideal future this would be an implementation of the ModelEditor
@@ -29,9 +29,9 @@ public interface TVertexEditor extends ComponentVisibilityListener {
 	// knowledge of center point from state holders
 	UndoAction translate(double x, double y);
 
-	UndoAction setPosition(TVertex center, double x, double y);
+	UndoAction setPosition(Vertex2 center, double x, double y);
 
-	UndoAction rotate(TVertex center, double rotateRadians);
+	UndoAction rotate(Vertex2 center, double rotateRadians);
 
 	UndoAction mirror(byte dim, double centerX, double centerY);
 
@@ -51,7 +51,7 @@ public interface TVertexEditor extends ComponentVisibilityListener {
 
 	UndoAction selectFromViewer(SelectionView viewerSelectionView);
 
-	void selectByVertices(Collection<? extends Vertex> newSelection);
+	void selectByVertices(Collection<? extends Vertex3> newSelection);
 
 	boolean canSelectAt(Point point, CoordinateSystem axes);
 
@@ -67,7 +67,7 @@ public interface TVertexEditor extends ComponentVisibilityListener {
 
 	void rawRotate2d(double centerX, double centerY, double radians, byte firstXYZ, byte secondXYZ);
 
-	TVertex getSelectionCenter();
+	Vertex2 getSelectionCenter();
 
 	void setUVLayerIndex(int uvLayerIndex);
 

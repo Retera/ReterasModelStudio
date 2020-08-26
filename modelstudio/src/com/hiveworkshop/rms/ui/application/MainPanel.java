@@ -1,7 +1,115 @@
 package com.hiveworkshop.rms.ui.application;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.KeyboardFocusManager;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Queue;
+
+import javax.imageio.ImageIO;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.ButtonGroup;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JColorChooser;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JRadioButton;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JRootPane;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSpinner;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
+import javax.swing.TransferHandler;
+import javax.swing.WindowConstants;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.plaf.basic.BasicComboBoxRenderer;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.rtf.RTFEditorKit;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
+
+import com.hiveworkshop.rms.editor.model.AnimFlag;
+import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.editor.model.Bitmap;
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.EventObject;
-import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.ExtLog;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetAnim;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.Helper;
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.Layer;
+import com.hiveworkshop.rms.editor.model.Material;
+import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
+import com.hiveworkshop.rms.editor.model.TimelineContainer;
+import com.hiveworkshop.rms.editor.model.Triangle;
+import com.hiveworkshop.rms.editor.model.UVLayer;
+import com.hiveworkshop.rms.editor.model.VisibilitySource;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils.Mesh;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
@@ -26,9 +134,18 @@ import com.hiveworkshop.rms.ui.application.edit.ClonedNodeNamePickerImplementati
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.RedoActionImplementation;
 import com.hiveworkshop.rms.ui.application.edit.UndoActionImplementation;
-import com.hiveworkshop.rms.ui.application.edit.animation.*;
+import com.hiveworkshop.rms.ui.application.edit.animation.ControllableTimeBoundProvider;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundChooserPanel;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderPanel;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderTimeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.*;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ActivityDescriptor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorChangeActivityListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorMultiManipulatorActivity;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorViewportActivity;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ActiveViewportWatcher;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
@@ -41,8 +158,12 @@ import com.hiveworkshop.rms.ui.application.viewer.AnimationViewer;
 import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.models.BetterUnitEditorModelSelector;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.*;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DoodadTabTreeBrowserBuilder;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTreeBrowser;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTreeBrowser.MDLLoadListener;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitTabTreeBrowserBuilder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.WorldEditorDataType;
@@ -52,11 +173,21 @@ import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPane.ModelElement;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPanel;
 import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPane;
 import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPanel;
-import com.hiveworkshop.rms.ui.gui.modeledit.*;
+import com.hiveworkshop.rms.ui.gui.modeledit.ImportPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.MaterialListRenderer;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanelCloseListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.ProgramPreferencesPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.CreatorModelingPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.ModelEditorActionType;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.model.*;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.model.ExtendWidgetManipulatorBuilder;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.model.ExtrudeWidgetManipulatorBuilder;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.model.MoverWidgetManipulatorBuilder;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.model.RotatorWidgetManipulatorBuilder;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.model.ScaleWidgetManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
@@ -76,45 +207,33 @@ import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.ui.util.ModeButton;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
 import com.hiveworkshop.rms.util.Callback;
+import com.hiveworkshop.rms.util.Matrix4;
+import com.hiveworkshop.rms.util.QuaternionRotation;
+import com.hiveworkshop.rms.util.Vertex2;
+import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vertex4;
 import com.hiveworkshop.rms.util.War3ID;
 import com.owens.oobjloader.parser.Parse;
+
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rtextarea.RTextScrollPane;
+
 import de.wc3data.stream.BlizzardDataInputStream;
-import net.infonode.docking.*;
+import net.infonode.docking.DockingWindow;
+import net.infonode.docking.DockingWindowListener;
+import net.infonode.docking.FloatingWindow;
+import net.infonode.docking.OperationAbortedException;
+import net.infonode.docking.RootWindow;
+import net.infonode.docking.SplitWindow;
+import net.infonode.docking.TabWindow;
+import net.infonode.docking.View;
 import net.infonode.docking.title.DockingWindowTitleProvider;
 import net.infonode.docking.util.StringViewMap;
 import net.infonode.tabbedpanel.TabAreaVisiblePolicy;
 import net.infonode.tabbedpanel.titledtab.TitledTabBorderSizePolicy;
 import net.infonode.tabbedpanel.titledtab.TitledTabSizePolicy;
 import net.miginfocom.swing.MigLayout;
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
-import org.fife.ui.rtextarea.RTextScrollPane;
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Quaternion;
-import org.lwjgl.util.vector.Vector4f;
-
-import javax.imageio.ImageIO;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-import javax.swing.*;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.plaf.basic.BasicComboBoxRenderer;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultStyledDocument;
-import javax.swing.text.rtf.RTFEditorKit;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreePath;
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.BufferedImage;
-import java.io.*;
-import java.net.MalformedURLException;
-import java.util.List;
-import java.util.Queue;
-import java.util.*;
 
 public class MainPanel extends JPanel
         implements ActionListener, UndoHandler, ModelEditorChangeActivityListener, ModelPanelCloseListener {
@@ -321,7 +440,7 @@ public class MainPanel extends JPanel
             final ModelPanel mpanel = currentModelPanel();
             if (mpanel != null) {
                 boolean valid = false;
-                for (final Vertex v : mpanel.getModelEditorManager().getSelectionView().getSelectedVertices()) {
+                for (final Vertex3 v : mpanel.getModelEditorManager().getSelectionView().getSelectedVertices()) {
                     final int index = mpanel.getModel().getPivots().indexOf(v);
                     if (index != -1) {
                         if (index < mpanel.getModel().getIdObjects().size()) {
@@ -416,8 +535,8 @@ public class MainPanel extends JPanel
             for (final Geoset geo : currentMDL().getGeosets()) {
                 for (final UVLayer layer : geo.getUVLayers()) {
                     for (int i = 0; i < layer.numTVerteces(); i++) {
-                        final TVertex tvert = layer.getTVertex(i);
-                        tvert.y = 1.0 - tvert.y;
+                        final Vertex2 tvert = layer.getTVertex(i);
+                        tvert.y = 1.0f - tvert.y;
                     }
                 }
             }
@@ -431,8 +550,8 @@ public class MainPanel extends JPanel
             for (final Geoset geo : currentMDL().getGeosets()) {
                 for (final UVLayer layer : geo.getUVLayers()) {
                     for (int i = 0; i < layer.numTVerteces(); i++) {
-                        final TVertex tvert = layer.getTVertex(i);
-                        tvert.y = 1.0 - tvert.y;
+                        final Vertex2 tvert = layer.getTVertex(i);
+                        tvert.y = 1.0f - tvert.y;
                     }
                 }
             }
@@ -446,8 +565,8 @@ public class MainPanel extends JPanel
             for (final Geoset geo : currentMDL().getGeosets()) {
                 for (final UVLayer layer : geo.getUVLayers()) {
                     for (int i = 0; i < layer.numTVerteces(); i++) {
-                        final TVertex tvert = layer.getTVertex(i);
-                        final double temp = tvert.x;
+                        final Vertex2 tvert = layer.getTVertex(i);
+                        final float temp = tvert.x;
                         tvert.x = tvert.y;
                         tvert.y = temp;
                     }
@@ -461,7 +580,7 @@ public class MainPanel extends JPanel
         public void actionPerformed(final ActionEvent e) {
             final ModelPanel mpanel = currentModelPanel();
             if (mpanel != null) {
-                final Vertex selectionCenter = mpanel.getModelEditorManager().getModelEditor().getSelectionCenter();
+                final Vertex3 selectionCenter = mpanel.getModelEditorManager().getModelEditor().getSelectionCenter();
                 mpanel.getUndoManager()
                         .pushAction(mpanel.getModelEditorManager().getModelEditor().mirror((byte) 0,
                                 mirrorFlip.isSelected(), selectionCenter.x, selectionCenter.y,
@@ -475,7 +594,7 @@ public class MainPanel extends JPanel
         public void actionPerformed(final ActionEvent e) {
             final ModelPanel mpanel = currentModelPanel();
             if (mpanel != null) {
-                final Vertex selectionCenter = mpanel.getModelEditorManager().getModelEditor().getSelectionCenter();
+                final Vertex3 selectionCenter = mpanel.getModelEditorManager().getModelEditor().getSelectionCenter();
 
                 mpanel.getUndoManager()
                         .pushAction(mpanel.getModelEditorManager().getModelEditor().mirror((byte) 1,
@@ -490,7 +609,7 @@ public class MainPanel extends JPanel
         public void actionPerformed(final ActionEvent e) {
             final ModelPanel mpanel = currentModelPanel();
             if (mpanel != null) {
-                final Vertex selectionCenter = mpanel.getModelEditorManager().getModelEditor().getSelectionCenter();
+                final Vertex3 selectionCenter = mpanel.getModelEditorManager().getModelEditor().getSelectionCenter();
 
                 mpanel.getUndoManager()
                         .pushAction(mpanel.getModelEditorManager().getModelEditor().mirror((byte) 2,
@@ -1543,7 +1662,7 @@ public class MainPanel extends JPanel
         creatorPanel.changeActivity(newType);
     }
 
-    private static final Quaternion IDENTITY = new Quaternion();
+    private static final QuaternionRotation IDENTITY = new QuaternionRotation();
     private final TimeEnvironmentImpl animatedRenderEnvironment;
     private JButton snapButton;
     private final CoordDisplayListener coordDisplayListener;
@@ -2143,7 +2262,7 @@ public class MainPanel extends JPanel
                         final ModelPanel modelPanel = currentModelPanel();
                         if (modelPanel != null) {
                             final Viewport viewport = activeViewportWatcher.getViewport();
-                            final Vertex facingVector = viewport == null ? new Vertex(0, 0, 1)
+                            final Vertex3 facingVector = viewport == null ? new Vertex3(0, 0, 1)
                                     : viewport.getFacingVector();
                             final UndoAction createFaceFromSelection = modelPanel.getModelEditorManager()
                                     .getModelEditor().createFaceFromSelection(facingVector);
@@ -2624,7 +2743,7 @@ public class MainPanel extends JPanel
                                 final JButton[] colorButtons = new JButton[3];
                                 final Color[] colors = new Color[colorButtons.length];
                                 for (int i = 0; i < colorButtons.length; i++) {
-                                    final Vertex colorValues = particle.getSegmentColor(i);
+                                    final Vertex3 colorValues = particle.getSegmentColor(i);
                                     final Color color = new Color((int) (colorValues.z * 255), (int) (colorValues.y * 255),
                                             (int) (colorValues.x * 255));
 
@@ -2689,11 +2808,11 @@ public class MainPanel extends JPanel
                                         "Add " + basicName, JOptionPane.OK_CANCEL_OPTION);
                                 if (x == JOptionPane.OK_OPTION) {
                                     // do stuff
-                                    particle.setPivotPoint(new Vertex(((Number) xSpinner.getValue()).doubleValue(),
+                                    particle.setPivotPoint(new Vertex3(((Number) xSpinner.getValue()).doubleValue(),
                                             ((Number) ySpinner.getValue()).doubleValue(),
                                             ((Number) zSpinner.getValue()).doubleValue()));
                                     for (int i = 0; i < colors.length; i++) {
-                                        particle.setSegmentColor(i, new Vertex(colors[i].getBlue() / 255.00,
+                                        particle.setSegmentColor(i, new Vertex3(colors[i].getBlue() / 255.00,
                                                 colors[i].getGreen() / 255.00, colors[i].getRed() / 255.00));
                                     }
                                     final IdObject parentChoice = parent.getItemAt(parent.getSelectedIndex());
@@ -2798,12 +2917,12 @@ public class MainPanel extends JPanel
                             "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                final Vector4f vertexHeap = new Vector4f();
-                final Vector4f appliedVertexHeap = new Vector4f();
-                final Vector4f vertexSumHeap = new Vector4f();
-                final Vector4f normalHeap = new Vector4f();
-                final Vector4f appliedNormalHeap = new Vector4f();
-                final Vector4f normalSumHeap = new Vector4f();
+                final Vertex4 vertexHeap = new Vertex4();
+                final Vertex4 appliedVertexHeap = new Vertex4();
+                final Vertex4 vertexSumHeap = new Vertex4();
+                final Vertex4 normalHeap = new Vertex4();
+                final Vertex4 appliedNormalHeap = new Vertex4();
+                final Vertex4 normalSumHeap = new Vertex4();
                 final ModelPanel modelContext = currentModelPanel();
                 final RenderModel editorRenderModel = modelContext.getEditorRenderModel();
                 final EditableModel model = modelContext.getModel();
@@ -2824,9 +2943,9 @@ public class MainPanel extends JPanel
                         if (bones.size() > 0) {
                             vertexSumHeap.set(0, 0, 0, 0);
                             for (final Bone bone : bones) {
-                                Matrix4f.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(), vertexHeap,
+                                Matrix4.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(), vertexHeap,
                                         appliedVertexHeap);
-                                Vector4f.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
+                                Vertex4.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
                             }
                             final int boneCount = bones.size();
                             vertexSumHeap.x /= boneCount;
@@ -2847,13 +2966,13 @@ public class MainPanel extends JPanel
                         if (bones.size() > 0) {
                             normalSumHeap.set(0, 0, 0, 0);
                             for (final Bone bone : bones) {
-                                Matrix4f.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(), normalHeap,
+                                Matrix4.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(), normalHeap,
                                         appliedNormalHeap);
-                                Vector4f.add(normalSumHeap, appliedNormalHeap, normalSumHeap);
+                                Vertex4.add(normalSumHeap, appliedNormalHeap, normalSumHeap);
                             }
 
                             if (normalSumHeap.length() > 0) {
-                                normalSumHeap.normalise();
+                                normalSumHeap.normalize();
                             } else {
                                 normalSumHeap.set(0, 1, 0, 0);
                             }
@@ -2867,7 +2986,7 @@ public class MainPanel extends JPanel
                 }
                 snapshotModel.getIdObjects().clear();
                 final Bone boneRoot = new Bone("Bone_Root");
-                boneRoot.setPivotPoint(new Vertex(0, 0, 0));
+                boneRoot.setPivotPoint(new Vertex3(0, 0, 0));
                 snapshotModel.add(boneRoot);
                 for (final Geoset geoset : snapshotModel.getGeosets()) {
                     for (final GeosetVertex vertex : geoset.getVertices()) {
@@ -3131,12 +3250,12 @@ public class MainPanel extends JPanel
                             final int blue = Integer.parseInt(data.substring(18, 21));
                             final int alpha = Integer.parseInt(data.substring(21, 24));
                             final GeosetAnim forceGetGeosetAnim = geo.forceGetGeosetAnim();
-                            forceGetGeosetAnim.setStaticColor(new Vertex(blue / 255.0, green / 255.0, red / 255.0));
+                            forceGetGeosetAnim.setStaticColor(new Vertex3(blue / 255.0, green / 255.0, red / 255.0));
                             forceGetGeosetAnim.setStaticAlpha(alpha / 255.0);
                             System.out.println(x + "," + y + "," + z);
 
-                            final Mesh mesh = ModelUtils.createBox(new Vertex(x * 10, y * 10, z * 10),
-                                    new Vertex((x * 10) + (sX * 10), (y * 10) + (sY * 10), (z * 10) + (sZ * 10)), 1, 1,
+                            final Mesh mesh = ModelUtils.createBox(new Vertex3(x * 10, y * 10, z * 10),
+                                    new Vertex3((x * 10) + (sX * 10), (y * 10) + (sY * 10), (z * 10) + (sZ * 10)), 1, 1,
                                     1, geo);
                             geo.getVertices().addAll(mesh.getVertices());
                             geo.getTriangles().addAll(mesh.getTriangles());
@@ -4312,10 +4431,10 @@ public class MainPanel extends JPanel
                             trans.setInterpType(InterpolationType.LINEAR);
                             b.getAnimFlags().add(trans);
                         }
-                        trans.addEntry(birth.getStart(), new Vertex(0, 0, -300));
-                        trans.addEntry(birth.getEnd(), new Vertex(0, 0, 0));
-                        trans.addEntry(death.getStart(), new Vertex(0, 0, 0));
-                        trans.addEntry(death.getEnd(), new Vertex(0, 0, -300));
+                        trans.addEntry(birth.getStart(), new Vertex3(0, 0, -300));
+                        trans.addEntry(birth.getEnd(), new Vertex3(0, 0, 0));
+                        trans.addEntry(death.getStart(), new Vertex3(0, 0, 0));
+                        trans.addEntry(death.getEnd(), new Vertex3(0, 0, -300));
                     }
                 }
 
@@ -4658,7 +4777,7 @@ public class MainPanel extends JPanel
                 if (userChoice != JOptionPane.OK_OPTION) {
                     return;
                 }
-                ModelUtils.createBox(mdl, new Vertex(64, 64, 128), new Vertex(-64, -64, 0),
+                ModelUtils.createBox(mdl, new Vertex3(64, 64, 128), new Vertex3(-64, -64, 0),
                         ((Number) spinner.getValue()).intValue());
             } else if (createPlaneButton.isSelected()) {
                 final SpinnerNumberModel sModel = new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1);
@@ -4668,7 +4787,7 @@ public class MainPanel extends JPanel
                 if (userChoice != JOptionPane.OK_OPTION) {
                     return;
                 }
-                ModelUtils.createGroundPlane(mdl, new Vertex(64, 64, 0), new Vertex(-64, -64, 0),
+                ModelUtils.createGroundPlane(mdl, new Vertex3(64, 64, 0), new Vertex3(-64, -64, 0),
                         ((Number) spinner.getValue()).intValue());
             }
             final ModelPanel temp = new ModelPanel(this, mdl, prefs, MainPanel.this, selectionItemTypeGroup,
@@ -5254,28 +5373,28 @@ public class MainPanel extends JPanel
 
         final int groundOffset = aspectRatio > 1 ? (128 - displayHeight) / 2 : 0;
         final GeosetVertex upperLeft = new GeosetVertex(0, displayWidth / 2, displayHeight + groundOffset,
-                new Normal(0, 0, 1));
-        final TVertex upperLeftTVert = new TVertex(1, 0);
+                new Vertex3(0, 0, 1));
+        final Vertex2 upperLeftTVert = new Vertex2(1, 0);
         upperLeft.addTVertex(upperLeftTVert);
         newGeoset.add(upperLeft);
         upperLeft.setGeoset(newGeoset);
 
         final GeosetVertex upperRight = new GeosetVertex(0, -displayWidth / 2, displayHeight + groundOffset,
-                new Normal(0, 0, 1));
+                new Vertex3(0, 0, 1));
         newGeoset.add(upperRight);
-        final TVertex upperRightTVert = new TVertex(0, 0);
+        final Vertex2 upperRightTVert = new Vertex2(0, 0);
         upperRight.addTVertex(upperRightTVert);
         upperRight.setGeoset(newGeoset);
 
-        final GeosetVertex lowerLeft = new GeosetVertex(0, displayWidth / 2, groundOffset, new Normal(0, 0, 1));
+        final GeosetVertex lowerLeft = new GeosetVertex(0, displayWidth / 2, groundOffset, new Vertex3(0, 0, 1));
         newGeoset.add(lowerLeft);
-        final TVertex lowerLeftTVert = new TVertex(1, 1);
+        final Vertex2 lowerLeftTVert = new Vertex2(1, 1);
         lowerLeft.addTVertex(lowerLeftTVert);
         lowerLeft.setGeoset(newGeoset);
 
-        final GeosetVertex lowerRight = new GeosetVertex(0, -displayWidth / 2, groundOffset, new Normal(0, 0, 1));
+        final GeosetVertex lowerRight = new GeosetVertex(0, -displayWidth / 2, groundOffset, new Vertex3(0, 0, 1));
         newGeoset.add(lowerRight);
-        final TVertex lowerRightTVert = new TVertex(0, 1);
+        final Vertex2 lowerRightTVert = new Vertex2(0, 1);
         lowerRight.addTVertex(lowerRightTVert);
         lowerRight.setGeoset(newGeoset);
 

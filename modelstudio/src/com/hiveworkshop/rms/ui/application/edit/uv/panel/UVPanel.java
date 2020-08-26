@@ -1,19 +1,70 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.panel;
 
-import com.hiveworkshop.rms.editor.model.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
+import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.GroupLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRootPane;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
+import javax.swing.SpinnerNumberModel;
+
+import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.Layer;
+import com.hiveworkshop.rms.editor.model.Material;
+import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
-import com.hiveworkshop.rms.ui.util.ModeButton;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.uv.activity.TVertexEditorActivityDescriptor;
 import com.hiveworkshop.rms.ui.application.edit.uv.activity.TVertexEditorMultiManipulatorActivity;
 import com.hiveworkshop.rms.ui.application.edit.uv.activity.TVertexEditorViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.uv.activity.TVertexEditorViewportActivityManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.*;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.MaterialListRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.TargaReader;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.ModelEditorActionType;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.uv.MoverWidgetTVertexEditorManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.uv.RotatorWidgetTVertexEditorManipulatorBuilder;
@@ -32,19 +83,10 @@ import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-import net.infonode.docking.View;
+import com.hiveworkshop.rms.ui.util.ModeButton;
+import com.hiveworkshop.rms.util.Vertex2;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.*;
+import net.infonode.docking.View;
 
 /**
  * Write a description of class DisplayPanel here.
@@ -132,7 +174,7 @@ public class UVPanel extends JPanel
         public void actionPerformed(final ActionEvent e) {
             final ModelPanel mpanel = currentModelPanel();
             if (mpanel != null) {
-                final TVertex selectionCenter = modelEditorManager.getModelEditor().getSelectionCenter();
+                final Vertex2 selectionCenter = modelEditorManager.getModelEditor().getSelectionCenter();
                 mpanel.getUndoManager().pushAction(
                         modelEditorManager.getModelEditor().mirror((byte) 0, selectionCenter.x, selectionCenter.y));
             }
@@ -144,7 +186,7 @@ public class UVPanel extends JPanel
         public void actionPerformed(final ActionEvent e) {
             final ModelPanel mpanel = currentModelPanel();
             if (mpanel != null) {
-                final TVertex selectionCenter = modelEditorManager.getModelEditor().getSelectionCenter();
+                final Vertex2 selectionCenter = modelEditorManager.getModelEditor().getSelectionCenter();
                 mpanel.getUndoManager().pushAction(
                         modelEditorManager.getModelEditor().mirror((byte) 1, selectionCenter.x, selectionCenter.y));
             }
@@ -583,11 +625,11 @@ public class UVPanel extends JPanel
                     // mpanel.getUndoManager().pushAction(modelEditorManager.getModelEditor()
                     // .selectFromViewer(mpanel.getModelEditorManager().getSelectionView()));
 
-                    final Collection<? extends TVertex> selectedTVertices = modelEditorManager.getSelectionView()
+                    final Collection<? extends Vertex2> selectedTVertices = modelEditorManager.getSelectionView()
                             .getSelectedTVertices(currentLayer());
                     for (final Geoset g : mpanel.getModel().getGeosets()) {
                         for (final GeosetVertex gv : new ArrayList<>(g.getVertices())) {
-                            final TVertex tVertex = gv.getTVertex(currentLayer());
+                            final Vertex2 tVertex = gv.getTVertex(currentLayer());
                             if (selectedTVertices.contains(tVertex)) {
                                 final List<Triangle> triangles = gv.getTriangles();
                                 final Iterator<Triangle> iterator = triangles.iterator();

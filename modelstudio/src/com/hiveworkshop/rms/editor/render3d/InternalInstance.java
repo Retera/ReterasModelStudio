@@ -1,14 +1,14 @@
 package com.hiveworkshop.rms.editor.render3d;
 
-import org.lwjgl.util.vector.Quaternion;
-import org.lwjgl.util.vector.Vector3f;
+import com.hiveworkshop.rms.util.QuaternionRotation;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public interface InternalInstance {
-    void setTransformation(Vector3f worldLocation, Quaternion rotation, Vector3f worldScale);
+    void setTransformation(Vertex3 worldLocation, QuaternionRotation rotation, Vertex3 worldScale);
     void setSequence(int index);
     void show();
     void setPaused(boolean paused);
-    void move(Vector3f deltaPosition);
+    void move(Vertex3 deltaPosition);
 
     void hide();
 }

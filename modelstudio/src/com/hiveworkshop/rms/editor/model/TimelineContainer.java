@@ -1,13 +1,15 @@
 package com.hiveworkshop.rms.editor.model;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.hiveworkshop.rms.parsers.mdlx.MdlxAnimatedObject;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import com.hiveworkshop.rms.util.QuaternionRotation;
+import com.hiveworkshop.rms.util.Vertex3;
 
 public abstract class TimelineContainer implements VisibilitySource {
 	public Map<String, AnimFlag> animFlags = new HashMap<>();
@@ -105,11 +107,11 @@ public abstract class TimelineContainer implements VisibilitySource {
 		return defaultValue;
 	}
 
-	public Vertex getInterpolatedVector(final AnimatedRenderEnvironment animatedRenderEnvironment, final String tag, final Vertex defaultValue) {
+	public Vertex3 getInterpolatedVector(final AnimatedRenderEnvironment animatedRenderEnvironment, final String tag, final Vertex3 defaultValue) {
 		final AnimFlag timeline = find(tag);
 
 		if (timeline != null) {
-			return (Vertex)timeline.interpolateAt(animatedRenderEnvironment);
+			return (Vertex3)timeline.interpolateAt(animatedRenderEnvironment);
 		}
 		
 		return defaultValue;
