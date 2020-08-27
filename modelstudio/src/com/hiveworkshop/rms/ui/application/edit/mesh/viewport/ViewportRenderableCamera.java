@@ -116,9 +116,9 @@ public class ViewportRenderableCamera {
 					vectorHeap.w = 1;
 					scaleTranslateMatrix.transform(vectorHeap);
 					points[i].x = (int) coordinateSystem
-							.convertX(Vec3.getCoord(vectorHeap, coordinateSystem.getPortFirstXYZ()));
+							.convertX(vectorHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
 					points[i].y = (int) coordinateSystem
-							.convertY(Vec3.getCoord(vectorHeap, coordinateSystem.getPortSecondXYZ()));
+							.convertY(vectorHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
 				}
 				graphics.drawLine(points[0].x, points[0].y, points[1].x, points[1].y);
 				graphics.drawLine(points[2].x, points[2].y, points[1].x, points[1].y);

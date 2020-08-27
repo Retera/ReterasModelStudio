@@ -144,9 +144,9 @@ public interface CoordinateSystem extends CoordinateAxes {
 			vertexSumHeap.z /= boneCount;
 			vertexSumHeap.w /= boneCount;
 			recyclePoint.x = (int) coordinateSystem
-					.convertX(Vec3.getCoord(vertexSumHeap, coordinateSystem.getPortFirstXYZ()));
+					.convertX(vertexSumHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
 			recyclePoint.y = (int) coordinateSystem
-					.convertY(Vec3.getCoord(vertexSumHeap, coordinateSystem.getPortSecondXYZ()));
+					.convertY(vertexSumHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
 			return recyclePoint;
 		}
 

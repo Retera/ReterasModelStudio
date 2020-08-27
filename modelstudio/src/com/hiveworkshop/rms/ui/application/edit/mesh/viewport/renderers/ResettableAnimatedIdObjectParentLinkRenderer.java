@@ -158,13 +158,13 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 		loadPivotInVertexHeap(target, targetWorldMatrix, vertexHeap2);
 
 		final int xCoord = (int) coordinateSystem
-				.convertX(Vec3.getCoord(vertexHeap, coordinateSystem.getPortFirstXYZ()));
+				.convertX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
 		final int yCoord = (int) coordinateSystem
-				.convertY(Vec3.getCoord(vertexHeap, coordinateSystem.getPortSecondXYZ()));
+				.convertY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
 		final int xCoord2 = (int) coordinateSystem
-				.convertX(Vec3.getCoord(vertexHeap2, coordinateSystem.getPortFirstXYZ()));
+				.convertX(vertexHeap2.getCoord(coordinateSystem.getPortFirstXYZ()));
 		final int yCoord2 = (int) coordinateSystem
-				.convertY(Vec3.getCoord(vertexHeap2, coordinateSystem.getPortSecondXYZ()));
+				.convertY(vertexHeap2.getCoord(coordinateSystem.getPortSecondXYZ()));
 		// TODO resettable
 		graphics.setPaint(
 				new GradientPaint(new Point(xCoord, yCoord), Color.WHITE, new Point(xCoord2, yCoord2), Color.BLACK));

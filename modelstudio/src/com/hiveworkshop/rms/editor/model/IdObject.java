@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.editor.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxGenericObject;
@@ -28,7 +27,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	protected boolean billboardLockX = false;
 	protected boolean billboardLockY = false;
 	protected boolean billboardLockZ = false;
-	protected Vec3 pivotPoint;
+	protected Vec3 pivotPoint = new Vec3();
 	protected IdObject parent;
 	protected final List<IdObject> childrenNodes = new ArrayList<>();
 	protected float[] bindPose;
@@ -123,7 +122,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	}
 
 	public void setPivotPoint(final Vec3 p) {
-		pivotPoint = p;
+		pivotPoint.set(p);
 	}
 
 	public void setParent(final IdObject p) {
@@ -151,55 +150,12 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		billboardLockX = other.billboardLockX;
 		billboardLockY = other.billboardLockY;
 		billboardLockZ = other.billboardLockZ;
-		pivotPoint = new Vec3(other.getPivotPoint());
+		pivotPoint.set(other.pivotPoint);
 		setParent(other.getParent());
 		addAll(other.getAnimFlags());
 	}
 
-	public boolean childOf(final IdObject other) {
-		if (parent != null) {
-			if (parent == other) {
-				return true;
-			} else {
-				return parent.childOf(other);
-			}
-		}
-		return false;
-	}
-
 	public abstract double getClickRadius(CoordinateSystem coordinateSystem);
-
-	public boolean parentOf(final IdObject other, final Map<IdObject, List<IdObject>> childMap) {
-		final List<IdObject> children = childMap.get(this);
-		if (children != null) {
-			if (children.contains(other)) {
-				return true;
-			} else {
-				boolean deepChild = false;
-				for (int i = 0; !deepChild && (i < children.size()); i++) {
-					deepChild = children.get(i).parentOf(other, childMap);
-				}
-				return deepChild;
-			}
-		}
-		return false;
-	}
-
-	public List<IdObject> getAllChildren(final Map<IdObject, List<IdObject>> childMap) {
-		final List<IdObject> children = childMap.get(this);
-		final List<IdObject> allChildren = new ArrayList<>();
-		if (children != null) {
-			for (int i = 0; i < children.size(); i++) {
-				final IdObject child = children.get(i);
-				if (!allChildren.contains(child)) {
-					allChildren.add(child);
-					allChildren.addAll(child.getAllChildren(childMap));
-				}
-			}
-		}
-
-		return allChildren;
-	}
 
 	/**
 	 *

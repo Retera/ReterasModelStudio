@@ -235,7 +235,7 @@ public class TTan {
 		if ((value instanceof Float) || (value instanceof Integer)) {
 			return newValue;
 		} else if (value instanceof Vec3) {
-			((Vec3) value).setCoord((byte) index, ((Number) newValue).doubleValue());
+			((Vec3) value).setCoord((byte) index, ((Number) newValue).floatValue());
 			return value;
 		} else if (value instanceof Quat) {
 			((Quat) value).setCoord((byte) index, ((Number) newValue).floatValue());

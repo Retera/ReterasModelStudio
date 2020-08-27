@@ -22,9 +22,8 @@ public class Vec2 {
 		this.y = old.y;
 	}
 
-	public double getCoord(final float dim) {
-		final int i = (int) dim;
-		switch (i) {
+	public float getCoord(final int dim) {
+		switch (dim) {
 		case 0:
 			return x;
 		case 1:
@@ -33,7 +32,7 @@ public class Vec2 {
 		return 0;
 	}
 
-	public void setCoord(final byte dim, final double value) {
+	public void setCoord(final int dim, final double value) {
 		if (!Double.isNaN(value)) {
 			switch (dim) {
 			case 0:
@@ -119,12 +118,12 @@ public class Vec2 {
 		// if( getDimEditable(dim1) )
 		double nextDim = (Math.cos(verAng + radians) * r) + cx;
 		if (!Double.isNaN(nextDim)) {
-			vertex.setCoord(firstXYZ, nextDim);
+			vertex.setCoord(firstXYZ, (float) nextDim);
 		}
 		// if( getDimEditable(dim2) )
 		nextDim = (Math.sin(verAng + radians) * r) + cy;
 		if (!Double.isNaN(nextDim)) {
-			vertex.setCoord(secondXYZ, (Math.sin(verAng + radians) * r) + cy);
+			vertex.setCoord(secondXYZ, (float) ((Math.sin(verAng + radians) * r) + cy));
 		}
 	}
 

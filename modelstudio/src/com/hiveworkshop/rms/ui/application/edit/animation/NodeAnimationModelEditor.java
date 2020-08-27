@@ -254,9 +254,9 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		final double minY = coordinateSystem.convertY(area.getMinY());
 		final double maxX = coordinateSystem.convertX(area.getMaxX());
 		final double maxY = coordinateSystem.convertY(area.getMaxY());
-		final double vertexX = Vec3.getCoord(pivotHeap, dim1);
+		final double vertexX = pivotHeap.getCoord(dim1);
 		final double x = coordinateSystem.convertX(vertexX);
-		final double vertexY = Vec3.getCoord(pivotHeap, dim2);
+		final double vertexY = pivotHeap.getCoord(dim2);
 		final double y = coordinateSystem.convertY(vertexY);
 		if ((distance(x, y, minX, minY) <= (vertexSize / 2.0)) || (distance(x, y, maxX, maxY) <= (vertexSize / 2.0))
 				|| area.contains(vertexX, vertexY)) {
@@ -271,8 +271,8 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		pivotHeap.z = (float) vertex.z;
 		pivotHeap.w = 1;
 		worldMatrix.transform(pivotHeap);
-		final double x = coordinateSystem.convertX(Vec3.getCoord(pivotHeap, coordinateSystem.getPortFirstXYZ()));
-		final double y = coordinateSystem.convertY(Vec3.getCoord(pivotHeap, coordinateSystem.getPortSecondXYZ()));
+		final double x = coordinateSystem.convertX(pivotHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
+		final double y = coordinateSystem.convertY(pivotHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
 		final double px = coordinateSystem.convertX(point.getX());
 		final double py = coordinateSystem.convertY(point.getY());
 		return Point2D.distance(px, py, x, y) <= (vertexSize / 2.0);

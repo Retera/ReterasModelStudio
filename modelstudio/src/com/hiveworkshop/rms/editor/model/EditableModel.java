@@ -1138,7 +1138,7 @@ public class EditableModel implements Named {
 			final Collection<AnimFlag> animFlags = obj.getAnimFlags();
 			final List<AnimFlag> bad = new ArrayList<>();
 			for (final AnimFlag flag : animFlags) {
-				if (flag.length() <= 0) {
+				if (flag.size() <= 0) {
 					bad.add(flag);
 				}
 			}
@@ -1849,7 +1849,7 @@ public class EditableModel implements Named {
 		for (final AnimFlag flag : allAnimFlags) {
 			final List<Integer> indicesForDeletion = new ArrayList<>();
 			Entry lastEntry = null;
-			for (int i = 0; i < flag.length(); i++) {
+			for (int i = 0; i < flag.size(); i++) {
 				final Entry entry = flag.getEntry(i);
 				if ((lastEntry != null) && (lastEntry.time == entry.time)) {
 					indicesForDeletion.add(Integer.valueOf(i));
@@ -1866,7 +1866,7 @@ public class EditableModel implements Named {
 					Object olderKeyframe = null;
 					Object oldKeyframe = null;
 					final List<Integer> indicesForDeletion = new ArrayList<>();
-					for (int i = 0; i < flag.length(); i++) {
+					for (int i = 0; i < flag.size(); i++) {
 						final Entry entry = flag.getEntry(i);
 						//
 						// //Types of AnimFlags:
@@ -1942,7 +1942,7 @@ public class EditableModel implements Named {
 					Object olderKeyframe = null;
 					Object oldKeyframe = null;
 					final List<Integer> indicesForDeletion = new ArrayList<>();
-					for (int i = 0; i < flag.length(); i++) {
+					for (int i = 0; i < flag.size(); i++) {
 						final Entry entry = flag.getEntry(i);
 						//
 						// //Types of AnimFlags:

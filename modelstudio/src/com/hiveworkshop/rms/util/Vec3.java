@@ -49,7 +49,7 @@ public class Vec3 {
 		}
 	}
 
-	public double getCoord(final byte dim) {
+	public float getCoord(final byte dim) {
 		switch (dim) {
 		case 0:
 			return x;
@@ -59,19 +59,6 @@ public class Vec3 {
 			return z;
 		}
 		return 0;
-	}
-
-	public static float getCoord(final Vec4 vector, final byte dim) {
-		switch (dim) {
-		case 0:
-			return vector.x;
-		case 1:
-			return vector.y;
-		case 2:
-			return vector.z;
-		default:
-			throw new IllegalStateException();
-		}
 	}
 
 	public void setCoord(final byte dim, final double value) {

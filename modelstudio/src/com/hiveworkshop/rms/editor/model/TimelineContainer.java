@@ -101,9 +101,6 @@ public abstract class TimelineContainer implements VisibilitySource {
 		final AnimFlag timeline = find(tag);
 
 		if (timeline != null) {
-			if (timeline.interpolateAt(animatedRenderEnvironment).getClass() == Double.class) {
-				System.out.println("????");
-			}
 			return ((Float)timeline.interpolateAt(animatedRenderEnvironment)).floatValue();
 		}
 		

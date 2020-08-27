@@ -390,10 +390,6 @@ public class AnimFlag {
 		return times.size();
 	}
 
-	public int length() {
-		return times.size();
-	}
-
 	public AnimFlag(final AnimFlag af) {
 		name = af.name;
 		globalSeq = af.globalSeq;
@@ -525,18 +521,13 @@ public class AnimFlag {
 		if (value == null) {
 			return null;
 		}
-		if (value instanceof Integer) {
-			return value;
-		} else if (value instanceof Float) {
+
+		if (value instanceof Integer || value instanceof Float) {
 			return value;
 		} else if (value instanceof Vec3) {
-			final Vec3 vertex = (Vec3) value;
-			final Vec3 clonedVertex = new Vec3(vertex);
-			return clonedVertex;
+			return new Vec3((Vec3) value);
 		} else if (value instanceof Quat) {
-			final Quat vertex = (Quat) value;
-			final Quat clonedVertex = new Quat(vertex);
-			return clonedVertex;
+			return new Quat((Quat) value);
 		} else {
 			throw new IllegalStateException(value.getClass().getName());
 		}
@@ -546,18 +537,15 @@ public class AnimFlag {
 		if (value == null) {
 			return null;
 		}
+
 		if (value instanceof Integer) {
 			return 0;
 		} else if (value instanceof Float) {
-			return 0.0;
+			return 0f;
 		} else if (value instanceof Vec3) {
-			final Vec3 vertex = (Vec3) value;
-			final Vec3 clonedVertex = new Vec3(0, 0, 0);
-			return clonedVertex;
+			return new Vec3();
 		} else if (value instanceof Quat) {
-			final Quat vertex = (Quat) value;
-			final Quat clonedVertex = new Quat(0, 0, 0, 1);
-			return clonedVertex;
+			return new Quat();
 		} else {
 			throw new IllegalStateException(value.getClass().getName());
 		}
@@ -652,131 +640,76 @@ public class AnimFlag {
 				final Vec3 euler = rot.toEuler();
 				switch (axis) {
 				case 0:
-					euler.setCoord((byte) 0, -euler.getCoord((byte) 0));
-					euler.setCoord((byte) 1, -euler.getCoord((byte) 1));
+					euler.x = -euler.x;
+					euler.y = -euler.y;
 					break;
 				case 1:
-					euler.setCoord((byte) 0, -euler.getCoord((byte) 0));
-					euler.setCoord((byte) 2, -euler.getCoord((byte) 2));
+					euler.x = -euler.x;
+					euler.z = -euler.z;
 					break;
 				case 2:
-					euler.setCoord((byte) 1, -euler.getCoord((byte) 1));
-					euler.setCoord((byte) 2, -euler.getCoord((byte) 2));
+					euler.y = -euler.y;
+					euler.z = -euler.z;
 					break;
 				}
-				values.set(k, new Quat(euler));
+				rot.set(euler);
 			}
 			for (int k = 0; k < inTans.size(); k++) {
 				final Quat rot = (Quat) inTans.get(k);
 				final Vec3 euler = rot.toEuler();
 				switch (axis) {
 				case 0:
-					euler.setCoord((byte) 0, -euler.getCoord((byte) 0));
-					euler.setCoord((byte) 1, -euler.getCoord((byte) 1));
+					euler.x = -euler.x;
+					euler.y = -euler.y;
 					break;
 				case 1:
-					euler.setCoord((byte) 0, -euler.getCoord((byte) 0));
-					euler.setCoord((byte) 2, -euler.getCoord((byte) 2));
+					euler.x = -euler.x;
+					euler.z = -euler.z;
 					break;
 				case 2:
-					euler.setCoord((byte) 1, -euler.getCoord((byte) 1));
-					euler.setCoord((byte) 2, -euler.getCoord((byte) 2));
+					euler.y = -euler.y;
+					euler.z = -euler.z;
 					break;
 				}
-				inTans.set(k, new Quat(euler));
+				rot.set(euler);
 			}
 			for (int k = 0; k < outTans.size(); k++) {
 				final Quat rot = (Quat) outTans.get(k);
 				final Vec3 euler = rot.toEuler();
 				switch (axis) {
 				case 0:
-					euler.setCoord((byte) 0, -euler.getCoord((byte) 0));
-					euler.setCoord((byte) 1, -euler.getCoord((byte) 1));
+					euler.x = -euler.x;
+					euler.y = -euler.y;
 					break;
 				case 1:
-					euler.setCoord((byte) 0, -euler.getCoord((byte) 0));
-					euler.setCoord((byte) 2, -euler.getCoord((byte) 2));
+					euler.x = -euler.x;
+					euler.z = -euler.z;
 					break;
 				case 2:
-					euler.setCoord((byte) 1, -euler.getCoord((byte) 1));
-					euler.setCoord((byte) 2, -euler.getCoord((byte) 2));
+					euler.y = -euler.y;
+					euler.z = -euler.z;
 					break;
 				}
-				outTans.set(k, new Quat(euler));
+				rot.set(euler);
 			}
 		} else if (typeid == 3) {
 			// Translation
 			for (int k = 0; k < values.size(); k++) {
 				final Vec3 trans = (Vec3) values.get(k);
-				// trans.setCoord(axis,-trans.getCoord(axis));
-				switch (axis) {
-				// case 0:
-				// trans.setCoord((byte)2,-trans.getCoord((byte)2));
-				// break;
-				// case 1:
-				// trans.setCoord((byte)0,-trans.getCoord((byte)0));
-				// break;
-				// case 2:
-				// trans.setCoord((byte)1,-trans.getCoord((byte)1));
-				// break;
-				case 0:
-					trans.setCoord((byte) 0, -trans.getCoord((byte) 0));
-					break;
-				case 1:
-					trans.setCoord((byte) 1, -trans.getCoord((byte) 1));
-					break;
-				case 2:
-					trans.setCoord((byte) 2, -trans.getCoord((byte) 2));
-					break;
-				}
+				
+				trans.setCoord(axis, -trans.getCoord(axis));
 			}
+
 			for (int k = 0; k < inTans.size(); k++) {
 				final Vec3 trans = (Vec3) inTans.get(k);
-				// trans.setCoord(axis,-trans.getCoord(axis));
-				switch (axis) {
-				// case 0:
-				// trans.setCoord((byte)2,-trans.getCoord((byte)2));
-				// break;
-				// case 1:
-				// trans.setCoord((byte)0,-trans.getCoord((byte)0));
-				// break;
-				// case 2:
-				// trans.setCoord((byte)1,-trans.getCoord((byte)1));
-				// break;
-				case 0:
-					trans.setCoord((byte) 0, -trans.getCoord((byte) 0));
-					break;
-				case 1:
-					trans.setCoord((byte) 1, -trans.getCoord((byte) 1));
-					break;
-				case 2:
-					trans.setCoord((byte) 2, -trans.getCoord((byte) 2));
-					break;
-				}
+				
+				trans.setCoord(axis, -trans.getCoord(axis));
 			}
+
 			for (int k = 0; k < outTans.size(); k++) {
 				final Vec3 trans = (Vec3) outTans.get(k);
-				// trans.setCoord(axis,-trans.getCoord(axis));
-				switch (axis) {
-				// case 0:
-				// trans.setCoord((byte)2,-trans.getCoord((byte)2));
-				// break;
-				// case 1:
-				// trans.setCoord((byte)0,-trans.getCoord((byte)0));
-				// break;
-				// case 2:
-				// trans.setCoord((byte)1,-trans.getCoord((byte)1));
-				// break;
-				case 0:
-					trans.setCoord((byte) 0, -trans.getCoord((byte) 0));
-					break;
-				case 1:
-					trans.setCoord((byte) 1, -trans.getCoord((byte) 1));
-					break;
-				case 2:
-					trans.setCoord((byte) 2, -trans.getCoord((byte) 2));
-					break;
-				}
+
+				trans.setCoord(axis, -trans.getCoord(axis));
 			}
 		}
 	}

@@ -98,15 +98,12 @@ public abstract class AnimatedNode extends TimelineContainer {
 			final int insertIndex = ((rotationTimeline.getTimes().size() == 0)
 					|| (rotationTimeline.getTimes().get(0) > trackTime)) ? 0 : floorIndex + 1;
 			rotationTimeline.getTimes().add(insertIndex, trackTime);
-			final Quat keyframeValue = new Quat(localRotation.x, localRotation.y,
-					localRotation.z, localRotation.w);
+			final Quat keyframeValue = new Quat(localRotation);
 			rotationTimeline.getValues().add(insertIndex, keyframeValue);
 			if (rotationTimeline.tans()) {
-				final Quat inTan = new Quat(localRotation.x, localRotation.y,
-						localRotation.z, localRotation.w);
+				final Quat inTan = new Quat(localRotation);
 				rotationTimeline.getInTans().add(insertIndex, inTan);
-				final Quat outTan = new Quat(localRotation.x, localRotation.y,
-						localRotation.z, localRotation.w);
+				final Quat outTan = new Quat(localRotation);
 				rotationTimeline.getOutTans().add(insertIndex, outTan);
 				structureChangeListener.keyframeAdded(this, rotationTimeline, trackTime);
 				return new AddKeyframeAction(this, rotationTimeline, trackTime, keyframeValue, inTan, outTan,
@@ -138,12 +135,12 @@ public abstract class AnimatedNode extends TimelineContainer {
 			final int insertIndex = ((scalingTimeline.getTimes().size() == 0)
 					|| (scalingTimeline.getTimes().get(0) > trackTime)) ? 0 : floorIndex + 1;
 			scalingTimeline.getTimes().add(insertIndex, trackTime);
-			final Vec3 keyframeValue = new Vec3(localScale.x, localScale.y, localScale.z);
+			final Vec3 keyframeValue = new Vec3(localScale);
 			scalingTimeline.getValues().add(insertIndex, keyframeValue);
 			if (scalingTimeline.tans()) {
-				final Vec3 inTan = new Vec3(localScale.x, localScale.y, localScale.z);
+				final Vec3 inTan = new Vec3(localScale);
 				scalingTimeline.getInTans().add(insertIndex, inTan);
-				final Vec3 outTan = new Vec3(localScale.x, localScale.y, localScale.z);
+				final Vec3 outTan = new Vec3(localScale);
 				scalingTimeline.getOutTans().add(insertIndex, outTan);
 				structureChangeListener.keyframeAdded(this, scalingTimeline, trackTime);
 				return new AddKeyframeAction(this, scalingTimeline, trackTime, keyframeValue, inTan, outTan,
