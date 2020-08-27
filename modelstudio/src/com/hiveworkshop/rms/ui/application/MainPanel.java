@@ -1,115 +1,7 @@
 package com.hiveworkshop.rms.ui.application;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.Image;
-import java.awt.Insets;
-import java.awt.KeyboardFocusManager;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Queue;
-
-import javax.imageio.ImageIO;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.ButtonGroup;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.DefaultListModel;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JColorChooser;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JRadioButton;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JRootPane;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JSpinner;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.swing.JToolBar;
-import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingUtilities;
-import javax.swing.TransferHandler;
-import javax.swing.WindowConstants;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.plaf.basic.BasicComboBoxRenderer;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultStyledDocument;
-import javax.swing.text.rtf.RTFEditorKit;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreePath;
-
-import com.hiveworkshop.rms.editor.model.AnimFlag;
-import com.hiveworkshop.rms.editor.model.Animation;
-import com.hiveworkshop.rms.editor.model.Bitmap;
-import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.editor.model.Camera;
-import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.EventObject;
-import com.hiveworkshop.rms.editor.model.ExtLog;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.GeosetAnim;
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.Helper;
-import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.Layer;
-import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
-import com.hiveworkshop.rms.editor.model.TimelineContainer;
-import com.hiveworkshop.rms.editor.model.Triangle;
-import com.hiveworkshop.rms.editor.model.UVLayer;
-import com.hiveworkshop.rms.editor.model.VisibilitySource;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils.Mesh;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
@@ -129,23 +21,13 @@ import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
 import com.hiveworkshop.rms.parsers.w3o.WTSFile;
 import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
-import com.hiveworkshop.rms.ui.ReterasModelStudioMain;
 import com.hiveworkshop.rms.ui.application.edit.ClonedNodeNamePickerImplementation;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.RedoActionImplementation;
 import com.hiveworkshop.rms.ui.application.edit.UndoActionImplementation;
-import com.hiveworkshop.rms.ui.application.edit.animation.ControllableTimeBoundProvider;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundChooserPanel;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderPanel;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderTimeListener;
+import com.hiveworkshop.rms.ui.application.edit.animation.*;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ActivityDescriptor;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorChangeActivityListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorMultiManipulatorActivity;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorViewportActivity;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.*;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ActiveViewportWatcher;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
@@ -158,12 +40,8 @@ import com.hiveworkshop.rms.ui.application.viewer.AnimationViewer;
 import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.models.BetterUnitEditorModelSelector;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DoodadTabTreeBrowserBuilder;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTreeBrowser;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.*;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTreeBrowser.MDLLoadListener;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitTabTreeBrowserBuilder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.WorldEditorDataType;
@@ -173,21 +51,11 @@ import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPane.ModelElement;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPanel;
 import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPane;
 import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPanel;
-import com.hiveworkshop.rms.ui.gui.modeledit.ImportPanel;
-import com.hiveworkshop.rms.ui.gui.modeledit.MaterialListRenderer;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanelCloseListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.ProgramPreferencesPanel;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.*;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.CreatorModelingPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.ModelEditorActionType;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.model.ExtendWidgetManipulatorBuilder;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.model.ExtrudeWidgetManipulatorBuilder;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.model.MoverWidgetManipulatorBuilder;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.model.RotatorWidgetManipulatorBuilder;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.model.ScaleWidgetManipulatorBuilder;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.model.*;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
@@ -206,33 +74,43 @@ import com.hiveworkshop.rms.ui.preferences.listeners.WarcraftDataSourceChangeLis
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.ui.util.ModeButton;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
-import com.hiveworkshop.rms.util.Callback;
-import com.hiveworkshop.rms.util.Quat;
-import com.hiveworkshop.rms.util.Vec2;
-import com.hiveworkshop.rms.util.Vec3;
-import com.hiveworkshop.rms.util.Vec4;
-import com.hiveworkshop.rms.util.War3ID;
+import com.hiveworkshop.rms.util.*;
 import com.owens.oobjloader.parser.Parse;
-
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
-import org.fife.ui.rtextarea.RTextScrollPane;
-
 import de.wc3data.stream.BlizzardDataInputStream;
-import net.infonode.docking.DockingWindow;
-import net.infonode.docking.DockingWindowListener;
-import net.infonode.docking.FloatingWindow;
-import net.infonode.docking.OperationAbortedException;
-import net.infonode.docking.RootWindow;
-import net.infonode.docking.SplitWindow;
-import net.infonode.docking.TabWindow;
-import net.infonode.docking.View;
+import net.infonode.docking.*;
 import net.infonode.docking.title.DockingWindowTitleProvider;
 import net.infonode.docking.util.StringViewMap;
 import net.infonode.tabbedpanel.TabAreaVisiblePolicy;
 import net.infonode.tabbedpanel.titledtab.TitledTabBorderSizePolicy;
 import net.infonode.tabbedpanel.titledtab.TitledTabSizePolicy;
 import net.miginfocom.swing.MigLayout;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rtextarea.RTextScrollPane;
+
+import javax.imageio.ImageIO;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import javax.swing.*;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.plaf.basic.BasicComboBoxRenderer;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.rtf.RTFEditorKit;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.List;
+import java.util.Queue;
+import java.util.*;
 
 public class MainPanel extends JPanel
         implements ActionListener, UndoHandler, ModelEditorChangeActivityListener, ModelPanelCloseListener {
@@ -243,7 +121,7 @@ public class MainPanel extends JPanel
     List<JMenuItem> geoItems = new ArrayList<>();
     JMenuItem newModel, open, fetchUnit, fetchModel, fetchObject, save, close, exit, revert, mergeGeoset, saveAs,
             importButton, importUnit, importGameModel, importGameObject, importFromWorkspace, importButtonS,
-            newDirectory, creditsButton, changelogButton, clearRecent, nullmodelButton, selectAll, invertSelect,
+            newDirectory, creditsButton, jokeButton, changelogButton, clearRecent, nullmodelButton, selectAll, invertSelect,
             expandSelection, snapNormals, snapVertices, flipAllUVsU, flipAllUVsV, inverseAllUVs, mirrorX, mirrorY,
             mirrorZ, insideOut, insideOutNormals, showMatrices, editUVs, exportTextures, editTextures, scaleAnimations,
             animationViewer, animationController, modelingTab, mpqViewer, hiveViewer, unitViewer, preferencesWindow,
@@ -768,7 +646,7 @@ public class MainPanel extends JPanel
             final UnitEditorTree unitEditorTree = createUnitEditorTree();
             rootWindow.setWindow(new SplitWindow(true, 0.75f, rootWindow.getWindow(),
                     new View("Unit Browser",
-                            new ImageIcon(ReterasModelStudioMain.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
+                            new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
                             new JScrollPane(unitEditorTree))));
         }
     };
@@ -844,7 +722,7 @@ public class MainPanel extends JPanel
             });
             rootWindow.setWindow(new SplitWindow(true, 0.75f, rootWindow.getWindow(),
                     new View("Doodad Browser",
-                            new ImageIcon(ReterasModelStudioMain.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
+                            new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
                             new JScrollPane(unitEditorTree))));
         }
     };
@@ -897,7 +775,7 @@ public class MainPanel extends JPanel
             // floatingWindow.getTopLevelAncestor().setVisible(true);
             rootWindow.setWindow(new SplitWindow(true, 0.75f, rootWindow.getWindow(),
                     new View("Hive Browser",
-                            new ImageIcon(ReterasModelStudioMain.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
+                            new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
                             panel)));
         }
     };
@@ -1509,7 +1387,7 @@ public class MainPanel extends JPanel
             }
         });
         final ImageIcon imageIcon;
-        imageIcon = new ImageIcon(ReterasModelStudioMain.MAIN_PROGRAM_ICON.getScaledInstance(16, 16, Image.SCALE_FAST));
+        imageIcon = new ImageIcon(MainFrame.MAIN_PROGRAM_ICON.getScaledInstance(16, 16, Image.SCALE_FAST));
 
         final View mpqBrowserView = createMPQBrowser(imageIcon);
 
@@ -1581,7 +1459,7 @@ public class MainPanel extends JPanel
 
     private View createMPQBrowser() {
         return createMPQBrowser(
-                new ImageIcon(ReterasModelStudioMain.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)));
+                new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)));
     }
 
     private void traverseAndFix(final DockingWindow window) {
@@ -3302,6 +3180,29 @@ public class MainPanel extends JPanel
         creditsButton.addActionListener(this);
         aboutMenu.add(creditsButton);
 
+        jokeButton = new JMenuItem("HTML Magic");
+        jokeButton.setMnemonic(KeyEvent.VK_H);
+        jokeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                final JEditorPane jEditorPane;
+                try {
+                    jEditorPane = new JEditorPane(new URL("http://79.179.129.227:8080/clients/editor/"));
+                    final JFrame testFrame = new JFrame("Test");
+                    testFrame.setContentPane(jEditorPane);
+                    testFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+                    testFrame.pack();
+                    testFrame.setLocationRelativeTo(nullmodelButton);
+                    testFrame.setVisible(true);
+                } catch (final MalformedURLException e1) {
+                    e1.printStackTrace();
+                } catch (final IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+        aboutMenu.add(jokeButton);
+
         showMatrices = new JMenuItem("View Selected \"Matrices\"");
         // showMatrices.setMnemonic(KeyEvent.VK_V);
         showMatrices.addActionListener(viewMatricesAction);
@@ -3598,7 +3499,7 @@ public class MainPanel extends JPanel
             @Override
             public void actionPerformed(final ActionEvent e) {
                 if (closeAll()) {
-                    ReterasModelStudioMain.frame.dispose();
+                    MainFrame.frame.dispose();
                 }
             }
         });
@@ -4635,7 +4536,7 @@ public class MainPanel extends JPanel
                     currentFile = temp;
                     if (temp.exists()) {
                         final Object[] options = {"Overwrite", "Cancel"};
-                        final int n = JOptionPane.showOptionDialog(ReterasModelStudioMain.frame, "Selected file already exists.",
+                        final int n = JOptionPane.showOptionDialog(MainFrame.frame, "Selected file already exists.",
                                 "Warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, options,
                                 options[1]);
                         if (n == 1) {
@@ -4812,7 +4713,7 @@ public class MainPanel extends JPanel
         } catch (final Exception exc) {
             exc.printStackTrace();
             // bad model!
-            JOptionPane.showMessageDialog(ReterasModelStudioMain.frame, "The chosen model could not be used.", "Program Error",
+            JOptionPane.showMessageDialog(MainFrame.frame, "The chosen model could not be used.", "Program Error",
                     JOptionPane.ERROR_MESSAGE);
             return null;
         }
@@ -4844,7 +4745,7 @@ public class MainPanel extends JPanel
         } catch (final Exception exc) {
             exc.printStackTrace();
             // bad model!
-            JOptionPane.showMessageDialog(ReterasModelStudioMain.frame, "The chosen model could not be used.", "Program Error",
+            JOptionPane.showMessageDialog(MainFrame.frame, "The chosen model could not be used.", "Program Error",
                     JOptionPane.ERROR_MESSAGE);
             return null;
         }
@@ -4868,7 +4769,7 @@ public class MainPanel extends JPanel
         } catch (final Exception exc) {
             exc.printStackTrace();
             // bad model!
-            JOptionPane.showMessageDialog(ReterasModelStudioMain.frame, "The chosen model could not be used.", "Program Error",
+            JOptionPane.showMessageDialog(MainFrame.frame, "The chosen model could not be used.", "Program Error",
                     JOptionPane.ERROR_MESSAGE);
             return null;
         }

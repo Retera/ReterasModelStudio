@@ -1,6 +1,21 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.cutpaste;
 
-import java.awt.Point;
+import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorNotifier;
+import com.hiveworkshop.rms.ui.application.edit.mesh.types.geosetvertex.GeosetVertexModelEditor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.types.geosetvertex.GeosetVertexSelectionManager;
+import com.hiveworkshop.rms.ui.application.edit.mesh.types.pivotpoint.PivotPointModelEditor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.types.pivotpoint.PivotPointSelectionManager;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.util.Vec3;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
@@ -11,29 +26,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JComponent;
-import javax.swing.TransferHandler;
-
-import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.editor.model.Camera;
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.Triangle;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
-import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.GeosetVertexModelEditor;
-import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorNotifier;
-import com.hiveworkshop.rms.ui.application.edit.mesh.PivotPointModelEditor;
-import com.hiveworkshop.rms.ui.application.edit.mesh.selection.GeosetVertexSelectionManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.selection.PivotPointSelectionManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.util.Vec3;
 
 public class ViewportTransferHandler extends TransferHandler {
 

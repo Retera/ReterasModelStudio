@@ -1,10 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.JOptionPane;
-
 import com.hiveworkshop.rms.parsers.mdlx.AnimationMap;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
@@ -18,6 +13,10 @@ import com.hiveworkshop.rms.util.MathUtils;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.War3ID;
+
+import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A java class for MDL "motion flags," such as Alpha, Translation, Scaling, or
@@ -409,6 +408,7 @@ public class AnimFlag {
 		na.globalSeqId = af.globalSeqId;
 		na.hasGlobalSeq = af.hasGlobalSeq;
 		na.typeid = af.typeid;
+		na.interpolationType = af.interpolationType;
 		return na;
 	}
 

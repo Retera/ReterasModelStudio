@@ -1,30 +1,14 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.types.vertexcluster;
 
-import java.awt.Point;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import com.hiveworkshop.rms.editor.model.Camera;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.Triangle;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.mesh.SplitGeosetAction;
 import com.hiveworkshop.rms.ui.application.actions.mesh.TeamColorAddAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditor;
-import com.hiveworkshop.rms.ui.application.edit.mesh.FaceModelEditor;
-import com.hiveworkshop.rms.ui.application.edit.mesh.GeosetVertexModelEditor;
-import com.hiveworkshop.rms.ui.application.edit.mesh.VertexClusterDefinitions;
+import com.hiveworkshop.rms.ui.application.edit.mesh.types.faces.FaceModelEditor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.types.geosetvertex.GeosetVertexModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.CopiedModelData;
@@ -39,15 +23,21 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec3;
 
+import java.awt.*;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.util.List;
+import java.util.*;
+
 public final class VertexClusterModelEditor extends AbstractModelEditor<VertexClusterModelEditor.VertexGroupBundle> {
 	private final ProgramPreferences programPreferences;
 	private final Map<Vec3, Integer> vertexToClusterId = new HashMap<>();
 	private final VertexClusterDefinitions vertexClusterDefinitions;
 
 	public VertexClusterModelEditor(final ModelView model, final ProgramPreferences programPreferences,
-			final SelectionManager<VertexGroupBundle> selectionManager,
-			final ModelStructureChangeListener structureChangeListener,
-			final VertexClusterDefinitions vertexClusterDefinitions) {
+									final SelectionManager<VertexGroupBundle> selectionManager,
+									final ModelStructureChangeListener structureChangeListener,
+									final VertexClusterDefinitions vertexClusterDefinitions) {
 		super(selectionManager, model, structureChangeListener);
 		this.programPreferences = programPreferences;
 		this.vertexClusterDefinitions = vertexClusterDefinitions;

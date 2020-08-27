@@ -1,18 +1,20 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh;
 
-import java.util.Arrays;
-import java.util.Collection;
-
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.NodeAnimationModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.animation.NodeAnimationSelectionManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.selection.FaceSelectionManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.selection.GeosetVertexSelectionManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.selection.MultiPartSelectionView;
-import com.hiveworkshop.rms.ui.application.edit.mesh.selection.PivotPointSelectionManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.selection.TPoseSelectionManager;
+import com.hiveworkshop.rms.ui.application.edit.mesh.types.faces.FaceModelEditor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.types.faces.FaceSelectionManager;
+import com.hiveworkshop.rms.ui.application.edit.mesh.types.geosetvertex.GeosetVertexModelEditor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.types.geosetvertex.GeosetVertexSelectionManager;
+import com.hiveworkshop.rms.ui.application.edit.mesh.types.pivotpoint.PivotPointModelEditor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.types.pivotpoint.PivotPointSelectionManager;
+import com.hiveworkshop.rms.ui.application.edit.mesh.types.tpose.TPoseModelEditor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.types.tpose.TPoseSelectionManager;
+import com.hiveworkshop.rms.ui.application.edit.mesh.types.vertexcluster.VertexClusterDefinitions;
 import com.hiveworkshop.rms.ui.application.edit.mesh.types.vertexcluster.VertexClusterModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.types.vertexcluster.VertexClusterSelectionManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.types.vertexgroup.VertexGroupModelEditor;
@@ -26,6 +28,9 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 public final class ModelEditorManager {
 	private final ModelView model;

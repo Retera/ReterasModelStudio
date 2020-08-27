@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.application.scripts;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
-import com.hiveworkshop.rms.ui.ReterasModelStudioMain;
+import com.hiveworkshop.rms.ui.application.MainFrame;
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ImportPanel;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
@@ -34,7 +34,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 
 	public AnimationTransfer(final JFrame parentFrame) {
 		this.parentFrame = parentFrame;
-		final MainPanel panel = ReterasModelStudioMain.getPanel();
+		final MainPanel panel = MainFrame.getPanel();
 		final EditableModel current;// ;
 		if (panel != null && (current = panel.currentMDL()) != null && current.getFile() != null) {
 			fc.setCurrentDirectory(current.getFile().getParentFile());
@@ -534,7 +534,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 
 		final JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setIconImage((new ImageIcon(ReterasModelStudioMain.class.getResource("ImageBin/Anim.png"))).getImage());
+		frame.setIconImage((new ImageIcon(MainFrame.class.getResource("ImageBin/Anim.png"))).getImage());
 		final AnimationTransfer transfer = new AnimationTransfer(frame);
 		frame.setContentPane(transfer);
 		frame.pack();
