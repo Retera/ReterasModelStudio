@@ -41,9 +41,9 @@ import com.hiveworkshop.rms.parsers.mdlx.MdlxSequence;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxTexture;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxTextureAnimation;
 import com.hiveworkshop.rms.util.MathUtils;
-import com.hiveworkshop.rms.util.QuaternionRotation;
-import com.hiveworkshop.rms.util.Vertex2;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Quat;
+import com.hiveworkshop.rms.util.Vec2;
+import com.hiveworkshop.rms.util.Vec3;
 
 /**
  * A java object to represent and store an MDL 3d model (Warcraft III file
@@ -70,7 +70,7 @@ public class EditableModel implements Named {
 	protected List<Geoset> geosets = new ArrayList<>();
 	protected List<GeosetAnim> geosetAnims = new ArrayList<>();
 	protected List<IdObject> idObjects = new ArrayList<>();
-	protected List<Vertex3> pivots = new ArrayList<>();
+	protected List<Vec3> pivots = new ArrayList<>();
 	protected List<Camera> cameras = new ArrayList<>();
 	private final List<FaceEffect> faceEffects = new ArrayList<>();
 	private BindPose bindPose;
@@ -222,7 +222,7 @@ public class EditableModel implements Named {
 		}
 
 		for (final float[] point : model.pivotPoints) {
-			addPivotPoint(new Vertex3(point));
+			addPivotPoint(new Vec3(point));
 		}
 
 		for (final MdlxFaceEffect effect : model.faceEffects) {
@@ -330,7 +330,7 @@ public class EditableModel implements Named {
 			model.collisionShapes.add(shape.toMdlx());
 		}
 
-		for (final Vertex3 point : getPivots()) {
+		for (final Vec3 point : getPivots()) {
 			model.pivotPoints.add(point.toFloatArray());
 		}
 
@@ -575,7 +575,7 @@ public class EditableModel implements Named {
 		return idObjects.indexOf(what);
 	}
 
-	public void addPivotPoint(final Vertex3 x) {
+	public void addPivotPoint(final Vec3 x) {
 		pivots.add(x);
 	}
 
@@ -1105,7 +1105,7 @@ public class EditableModel implements Named {
 			if (i >= pivots.size()) {
 				JOptionPane.showMessageDialog(null,
 						"Error: More objects than PivotPoints were found.\nAdditional pivot at {0,0,0} will be added.");
-				pivots.add(new Vertex3(0, 0, 0));
+				pivots.add(new Vec3(0, 0, 0));
 			}
 			obj.setPivotPoint(pivots.get(i));
 			if (bindPose != null) {
@@ -1138,7 +1138,7 @@ public class EditableModel implements Named {
 			final Collection<AnimFlag> animFlags = obj.getAnimFlags();
 			final List<AnimFlag> bad = new ArrayList<>();
 			for (final AnimFlag flag : animFlags) {
-				if (flag.length() <= 0) {
+				if (flag.size() <= 0) {
 					bad.add(flag);
 				}
 			}
@@ -1763,11 +1763,11 @@ public class EditableModel implements Named {
 		this.idObjects = idObjects;
 	}
 
-	public List<Vertex3> getPivots() {
+	public List<Vec3> getPivots() {
 		return pivots;
 	}
 
-	public void setPivots(final List<Vertex3> pivots) {
+	public void setPivots(final List<Vec3> pivots) {
 		this.pivots = pivots;
 	}
 
@@ -1799,7 +1799,7 @@ public class EditableModel implements Named {
 							vertexRenderer = triangleRenderer.hdVertex(vertex.x, vertex.y, vertex.z, 0, 0, 0,
 									vertex.getSkinBones(), vertex.getSkinBoneWeights());
 						}
-						for (final Vertex2 tvert : vertex.getTverts()) {
+						for (final Vec2 tvert : vertex.getTverts()) {
 							vertexRenderer.textureCoords(tvert.x, tvert.y);
 						}
 						vertexRenderer.vertexFinished();
@@ -1819,7 +1819,7 @@ public class EditableModel implements Named {
 							vertexRenderer = triangleRenderer.vertex(vertex.x, vertex.y, vertex.z, 0, 0, 0,
 									vertex.getBoneAttachments());
 						}
-						for (final Vertex2 tvert : vertex.getTverts()) {
+						for (final Vec2 tvert : vertex.getTverts()) {
 							vertexRenderer.textureCoords(tvert.x, tvert.y);
 						}
 						vertexRenderer.vertexFinished();
@@ -1849,7 +1849,7 @@ public class EditableModel implements Named {
 		for (final AnimFlag flag : allAnimFlags) {
 			final List<Integer> indicesForDeletion = new ArrayList<>();
 			Entry lastEntry = null;
-			for (int i = 0; i < flag.length(); i++) {
+			for (int i = 0; i < flag.size(); i++) {
 				final Entry entry = flag.getEntry(i);
 				if ((lastEntry != null) && (lastEntry.time == entry.time)) {
 					indicesForDeletion.add(Integer.valueOf(i));
@@ -1866,7 +1866,7 @@ public class EditableModel implements Named {
 					Object olderKeyframe = null;
 					Object oldKeyframe = null;
 					final List<Integer> indicesForDeletion = new ArrayList<>();
-					for (int i = 0; i < flag.length(); i++) {
+					for (int i = 0; i < flag.size(); i++) {
 						final Entry entry = flag.getEntry(i);
 						//
 						// //Types of AnimFlags:
@@ -1883,30 +1883,30 @@ public class EditableModel implements Named {
 						// // 5 TextureID
 						// public static final int TEXTUREID = 5;
 						if ((entry.time >= anim.getStart()) && (entry.time <= anim.getEnd())) {
-							if (entry.value instanceof Double) {
-								final Double d = (Double) entry.value;
-								final Double older = (Double) olderKeyframe;
-								final Double old = (Double) oldKeyframe;
+							if (entry.value instanceof Float) {
+								final Float d = (Float) entry.value;
+								final Float older = (Float) olderKeyframe;
+								final Float old = (Float) oldKeyframe;
 								if ((older != null) && (old != null) && MathUtils.isBetween(older, old, d)) {
 									indicesForDeletion.add(Integer.valueOf(i - 1));
 								}
-							} else if (entry.value instanceof Vertex3) {
-								final Vertex3 current = (Vertex3) entry.value;
-								final Vertex3 older = (Vertex3) olderKeyframe;
-								final Vertex3 old = (Vertex3) oldKeyframe;
+							} else if (entry.value instanceof Vec3) {
+								final Vec3 current = (Vec3) entry.value;
+								final Vec3 older = (Vec3) olderKeyframe;
+								final Vec3 old = (Vec3) oldKeyframe;
 								if ((older != null) && (old != null) && MathUtils.isBetween(older.x, old.x, current.x)
 										&& MathUtils.isBetween(older.y, old.y, current.y)
 										&& MathUtils.isBetween(older.z, old.z, current.z)) {
 									indicesForDeletion.add(Integer.valueOf(i - 1));
 								}
-							} else if (entry.value instanceof QuaternionRotation) {
-								final QuaternionRotation current = (QuaternionRotation) entry.value;
-								final QuaternionRotation older = (QuaternionRotation) olderKeyframe;
-								final QuaternionRotation old = (QuaternionRotation) oldKeyframe;
-								final Vertex3 euler = current.toEuler();
+							} else if (entry.value instanceof Quat) {
+								final Quat current = (Quat) entry.value;
+								final Quat older = (Quat) olderKeyframe;
+								final Quat old = (Quat) oldKeyframe;
+								final Vec3 euler = current.toEuler();
 								if ((older != null) && (old != null)) {
-									final Vertex3 olderEuler = older.toEuler();
-									final Vertex3 oldEuler = old.toEuler();
+									final Vec3 olderEuler = older.toEuler();
+									final Vec3 oldEuler = old.toEuler();
 									if (MathUtils.isBetween(olderEuler.x, oldEuler.x, euler.x)
 											&& MathUtils.isBetween(olderEuler.y, oldEuler.y, euler.y)
 											&& MathUtils.isBetween(olderEuler.z, oldEuler.z, euler.z)) {
@@ -1942,7 +1942,7 @@ public class EditableModel implements Named {
 					Object olderKeyframe = null;
 					Object oldKeyframe = null;
 					final List<Integer> indicesForDeletion = new ArrayList<>();
-					for (int i = 0; i < flag.length(); i++) {
+					for (int i = 0; i < flag.size(); i++) {
 						final Entry entry = flag.getEntry(i);
 						//
 						// //Types of AnimFlags:
@@ -1958,30 +1958,30 @@ public class EditableModel implements Named {
 						// public static final int COLOR = 4;
 						// // 5 TextureID
 						// public static final int TEXTUREID = 5;
-						if (entry.value instanceof Double) {
-							final Double d = (Double) entry.value;
-							final Double older = (Double) olderKeyframe;
-							final Double old = (Double) oldKeyframe;
+						if (entry.value instanceof Float) {
+							final Float d = (Float) entry.value;
+							final Float older = (Float) olderKeyframe;
+							final Float old = (Float) oldKeyframe;
 							if ((older != null) && (old != null) && MathUtils.isBetween(older, old, d)) {
 								indicesForDeletion.add(Integer.valueOf(i - 1));
 							}
-						} else if (entry.value instanceof Vertex3) {
-							final Vertex3 current = (Vertex3) entry.value;
-							final Vertex3 older = (Vertex3) olderKeyframe;
-							final Vertex3 old = (Vertex3) oldKeyframe;
+						} else if (entry.value instanceof Vec3) {
+							final Vec3 current = (Vec3) entry.value;
+							final Vec3 older = (Vec3) olderKeyframe;
+							final Vec3 old = (Vec3) oldKeyframe;
 							if ((older != null) && (old != null) && MathUtils.isBetween(older.x, old.x, current.x)
 									&& MathUtils.isBetween(older.y, old.y, current.y)
 									&& MathUtils.isBetween(older.z, old.z, current.z)) {
 								indicesForDeletion.add(Integer.valueOf(i - 1));
 							}
-						} else if (entry.value instanceof QuaternionRotation) {
-							final QuaternionRotation current = (QuaternionRotation) entry.value;
-							final QuaternionRotation older = (QuaternionRotation) olderKeyframe;
-							final QuaternionRotation old = (QuaternionRotation) oldKeyframe;
-							final Vertex3 euler = current.toEuler();
+						} else if (entry.value instanceof Quat) {
+							final Quat current = (Quat) entry.value;
+							final Quat older = (Quat) olderKeyframe;
+							final Quat old = (Quat) oldKeyframe;
+							final Vec3 euler = current.toEuler();
 							if ((older != null) && (old != null)) {
-								final Vertex3 olderEuler = older.toEuler();
-								final Vertex3 oldEuler = old.toEuler();
+								final Vec3 olderEuler = older.toEuler();
+								final Vec3 oldEuler = old.toEuler();
 								if (MathUtils.isBetween(olderEuler.x, oldEuler.x, euler.x)
 										&& MathUtils.isBetween(olderEuler.y, oldEuler.y, euler.y)
 										&& MathUtils.isBetween(olderEuler.z, oldEuler.z, euler.z)) {
@@ -2173,7 +2173,7 @@ public class EditableModel implements Named {
 					final Bone dummyHeroGlowNode = new Bone("hero_reforged");
 					// this model needs hero glow
 					final Geoset heroGlow = new Geoset();
-					final ModelUtils.Mesh heroGlowPlane = ModelUtils.createPlane((byte) 0, (byte) 1, new Vertex3(0, 0, 1), 0, -64,
+					final ModelUtils.Mesh heroGlowPlane = ModelUtils.createPlane((byte) 0, (byte) 1, new Vec3(0, 0, 1), 0, -64,
 							-64, 64, 64, 1);
 					heroGlow.getVertices().addAll(heroGlowPlane.getVertices());
 					for (final GeosetVertex gv : heroGlow.getVertices()) {
@@ -2233,7 +2233,7 @@ public class EditableModel implements Named {
 		for (final Geoset geo : model.getGeosets()) {
 			final List<GeosetVertex> vertices = geo.getVertices();
 			for (final GeosetVertex gv : vertices) {
-				final Vertex3 normal = gv.getNormal();
+				final Vec3 normal = gv.getNormal();
 				if (normal != null) {
 					gv.initV900();
 					final float[] tangent = gv.getTangent();
@@ -2296,9 +2296,9 @@ public class EditableModel implements Named {
 				final GeosetVertex v2 = face.getVerts()[1];
 				final GeosetVertex v3 = face.getVerts()[2];
 
-				final Vertex2 w1 = v1.getTVertex(0);
-				final Vertex2 w2 = v2.getTVertex(0);
-				final Vertex2 w3 = v3.getTVertex(0);
+				final Vec2 w1 = v1.getTVertex(0);
+				final Vec2 w2 = v2.getTVertex(0);
+				final Vec2 w3 = v3.getTVertex(0);
 
 				final double x1 = v2.x - v1.x;
 				final double x2 = v3.x - v1.x;
@@ -2329,11 +2329,17 @@ public class EditableModel implements Named {
 			}
 			for (int vertexId = 0; vertexId < theMesh.getVertices().size(); vertexId++) {
 				final GeosetVertex gv = theMesh.getVertex(vertexId);
-				final Vertex3 n = gv.getNormal();
-				final Vertex3 t = new Vertex3(tan1[vertexId]);
+				final Vec3 n = gv.getNormal();
+				final Vec3 t = new Vec3(tan1[vertexId]);
 
-				final Vertex3 v = new Vertex3(t).subtract(n).scale(n.dotProduct(t)).normalize();
-				double w = n.crossProduct(t).dotProduct(new Vertex3(tan2[vertexId]));
+				final Vec3 v = new Vec3(t).sub(n).scale(n.dot(t)).normalize();
+				final Vec3 cross = new Vec3();
+
+				n.cross(t, cross);
+
+				final Vec3 tanAsVert = new Vec3(tan2[vertexId]);
+
+				double w = cross.dot(tanAsVert);
 
 				if (w < 0.0) {
 					w = -1.0;
@@ -2347,7 +2353,7 @@ public class EditableModel implements Named {
 		int badTangents = 0;
 		for (final Geoset theMesh : currentMDL.getGeosets()) {
 			for (final GeosetVertex gv : theMesh.getVertices()) {
-				final double dotProduct = gv.getNormal().dotProduct(new Vertex3(gv.getTangent()));
+				final double dotProduct = gv.getNormal().dot(new Vec3(gv.getTangent()));
 				if (Math.abs(dotProduct) <= 0.000001) {
 					goodTangents += 1;
 				} else {
@@ -2374,18 +2380,18 @@ public class EditableModel implements Named {
 				final GeosetVertex v2 = face.getVerts()[0];
 				final GeosetVertex v3 = face.getVerts()[0];
 
-				final Vertex2 uv1 = v1.getTVertex(0);
-				final Vertex2 uv2 = v2.getTVertex(0);
-				final Vertex2 uv3 = v3.getTVertex(0);
+				final Vec2 uv1 = v1.getTVertex(0);
+				final Vec2 uv2 = v2.getTVertex(0);
+				final Vec2 uv3 = v3.getTVertex(0);
 
-				final Vertex3 dV1 = new Vertex3(v1).subtract(v2);
-				final Vertex3 dV2 = new Vertex3(v1).subtract(v3);
+				final Vec3 dV1 = new Vec3(v1).sub(v2);
+				final Vec3 dV2 = new Vec3(v1).sub(v3);
 
-				final Vertex2 dUV1 = new Vertex2(uv1).subtract(uv2);
-				final Vertex2 dUV2 = new Vertex2(uv1).subtract(uv3);
+				final Vec2 dUV1 = new Vec2(uv1).sub(uv2);
+				final Vec2 dUV2 = new Vec2(uv1).sub(uv3);
 				final double area = (dUV1.x * dUV2.y) - (dUV1.y * dUV2.x);
 				final int sign = (area < 0) ? -1 : 1;
-				final Vertex3 tangent = new Vertex3(1, 0, 0);
+				final Vec3 tangent = new Vec3(1, 0, 0);
 
 				tangent.x = (dV1.x * dUV2.y) - (dUV1.y * dV2.x);
 				tangent.y = (dV1.y * dUV2.y) - (dUV1.y * dV2.y);
@@ -2394,7 +2400,7 @@ public class EditableModel implements Named {
 				tangent.normalize();
 				tangent.scale(sign);
 
-				final Vertex3 faceNormal = new Vertex3(v1.getNormal());
+				final Vec3 faceNormal = new Vec3(v1.getNormal());
 				faceNormal.add(v2.getNormal());
 				faceNormal.add(v3.getNormal());
 				faceNormal.normalize();

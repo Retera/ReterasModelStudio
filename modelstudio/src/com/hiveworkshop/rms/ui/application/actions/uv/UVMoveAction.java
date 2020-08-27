@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.hiveworkshop.rms.ui.application.actions.VertexActionType;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.util.Vertex2;
+import com.hiveworkshop.rms.util.Vec2;
 
 /**
  * MotionAction -- something for you to undo when you screw up with motion
@@ -13,19 +13,19 @@ import com.hiveworkshop.rms.util.Vertex2;
  * Eric Theller 6/8/2012
  */
 public class UVMoveAction implements UndoAction {
-	private List<Vertex2> selection;
-	private List<Vertex2> moveVectors;
-	private Vertex2 moveVector;
+	private List<Vec2> selection;
+	private List<Vec2> moveVectors;
+	private Vec2 moveVector;
 	private VertexActionType actType = VertexActionType.UNKNOWN;
 
-	public UVMoveAction(final List<Vertex2> selection, final List<Vertex2> moveVectors, final VertexActionType actionType) {
-		this.selection = new ArrayList<Vertex2>(selection);
+	public UVMoveAction(final List<Vec2> selection, final List<Vec2> moveVectors, final VertexActionType actionType) {
+		this.selection = new ArrayList<Vec2>(selection);
 		this.moveVectors = moveVectors;
 		actType = actionType;
 	}
 
-	public UVMoveAction(final List<Vertex2> selection, final Vertex2 moveVector, final VertexActionType actionType) {
-		this.selection = new ArrayList<Vertex2>(selection);
+	public UVMoveAction(final List<Vec2> selection, final Vec2 moveVector, final VertexActionType actionType) {
+		this.selection = new ArrayList<Vec2>(selection);
 		this.moveVector = moveVector;
 		actType = actionType;
 	}
@@ -34,34 +34,34 @@ public class UVMoveAction implements UndoAction {
 
 	}
 
-	public void storeSelection(final List<Vertex2> selection) {
-		this.selection = new ArrayList<Vertex2>(selection);
+	public void storeSelection(final List<Vec2> selection) {
+		this.selection = new ArrayList<Vec2>(selection);
 	}
 
 	public void createEmptyMoveVectors() {
-		moveVectors = new ArrayList<Vertex2>();
+		moveVectors = new ArrayList<Vec2>();
 		for (int i = 0; i < selection.size(); i++) {
-			moveVectors.add(new Vertex2(0, 0));
+			moveVectors.add(new Vec2(0, 0));
 		}
 	}
 
 	public void createEmptyMoveVector() {
-		moveVector = new Vertex2(0, 0);
+		moveVector = new Vec2(0, 0);
 	}
 
 	@Override
 	public void redo() {
 		if (moveVector == null) {
 			for (int i = 0; i < selection.size(); i++) {
-				final Vertex2 ver = selection.get(i);
-				final Vertex2 vect = moveVectors.get(i);
+				final Vec2 ver = selection.get(i);
+				final Vec2 vect = moveVectors.get(i);
 				ver.x += vect.x;
 				ver.y += vect.y;
 			}
 		} else {
 			for (int i = 0; i < selection.size(); i++) {
-				final Vertex2 ver = selection.get(i);
-				final Vertex2 vect = moveVector;
+				final Vec2 ver = selection.get(i);
+				final Vec2 vect = moveVector;
 				ver.x += vect.x;
 				ver.y += vect.y;
 			}
@@ -72,15 +72,15 @@ public class UVMoveAction implements UndoAction {
 	public void undo() {
 		if (moveVector == null) {
 			for (int i = 0; i < selection.size(); i++) {
-				final Vertex2 ver = selection.get(i);
-				final Vertex2 vect = moveVectors.get(i);
+				final Vec2 ver = selection.get(i);
+				final Vec2 vect = moveVectors.get(i);
 				ver.x -= vect.x;
 				ver.y -= vect.y;
 			}
 		} else {
 			for (int i = 0; i < selection.size(); i++) {
-				final Vertex2 ver = selection.get(i);
-				final Vertex2 vect = moveVector;
+				final Vec2 ver = selection.get(i);
+				final Vec2 vect = moveVector;
 				ver.x -= vect.x;
 				ver.y -= vect.y;
 			}
@@ -111,15 +111,15 @@ public class UVMoveAction implements UndoAction {
 		this.actType = actType;
 	}
 
-	public List<Vertex2> getSelection() {
+	public List<Vec2> getSelection() {
 		return selection;
 	}
 
-	public List<Vertex2> getMoveVectors() {
+	public List<Vec2> getMoveVectors() {
 		return moveVectors;
 	}
 
-	public Vertex2 getMoveVector() {
+	public Vec2 getMoveVector() {
 		return moveVector;
 	}
 

@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.components.editors;
 
 import com.hiveworkshop.rms.editor.model.AnimFlag;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.gui.modeledit.components.material.FloatTrackTableModel;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
@@ -12,7 +12,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 public class ColorValuePanel extends JPanel {
-	private static final Vertex3 DEFAULT_COLOR = new Vertex3(1, 1, 1);
+	private static final Vec3 DEFAULT_COLOR = new Vec3(1, 1, 1);
 	private final JRadioButton staticButton;
 	private final JRadioButton dynamicButton;
 	private final JComboBox<InterpolationType> interpTypeBox;
@@ -49,7 +49,7 @@ public class ColorValuePanel extends JPanel {
 		dynamicButton.addChangeListener(l);
 	}
 
-	public void reloadNewValue(final Vertex3 color, final AnimFlag colorTrack) {
+	public void reloadNewValue(final Vec3 color, final AnimFlag colorTrack) {
 		if (colorTrack == null) {
 			staticButton.setSelected(true);
 		} else {

@@ -33,7 +33,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.selection.GeosetVertexSelec
 import com.hiveworkshop.rms.ui.application.edit.mesh.selection.PivotPointSelectionManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vec3;
 
 public class ViewportTransferHandler extends TransferHandler {
 
@@ -92,7 +92,7 @@ public class ViewportTransferHandler extends TransferHandler {
                 viewport.getModelStructureChangeListener()));
         modelEditorNotifier.selectAll();
         final Double geomPoint = CoordinateSystem.Util.geom(viewport, dropPoint);
-        final Vertex3 vertex = new Vertex3(0, 0, 0);
+        final Vec3 vertex = new Vec3(0, 0, 0);
         vertex.setCoord(viewport.getPortFirstXYZ(), geomPoint.x);
         vertex.setCoord(viewport.getPortSecondXYZ(), geomPoint.y);
         modelEditorNotifier.setPosition(modelEditorNotifier.getSelectionCenter(), vertex.x, vertex.y, vertex.z);
@@ -145,7 +145,7 @@ public class ViewportTransferHandler extends TransferHandler {
 
         final CopiedModelData copySelection = viewport.getModelEditor().copySelection();
         final Bone dummyBone = new Bone("CopiedModelDummy");
-        final List<Vertex3> verticesInNewMesh = new ArrayList<>();
+        final List<Vec3> verticesInNewMesh = new ArrayList<>();
         for (final Geoset geoset : copySelection.getGeosets()) {
             stringableModel.add(geoset);
             verticesInNewMesh.addAll(geoset.getVertices());
@@ -173,7 +173,7 @@ public class ViewportTransferHandler extends TransferHandler {
             stringableModel.add(camera);
             verticesInNewMesh.add(camera.getPosition());
         }
-        dummyBone.setPivotPoint(Vertex3.centerOfGroup(verticesInNewMesh));
+        dummyBone.setPivotPoint(Vec3.centerOfGroup(verticesInNewMesh));
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
             MdxUtils.saveMdx(stringableModel, outputStream);

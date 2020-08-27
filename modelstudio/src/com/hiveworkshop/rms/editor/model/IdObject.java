@@ -2,12 +2,11 @@ package com.hiveworkshop.rms.editor.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxGenericObject;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vec3;
 
 /**
  * Write a description of class ObjectId here.
@@ -28,7 +27,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	protected boolean billboardLockX = false;
 	protected boolean billboardLockY = false;
 	protected boolean billboardLockZ = false;
-	protected Vertex3 pivotPoint;
+	protected Vec3 pivotPoint = new Vec3();
 	protected IdObject parent;
 	protected final List<IdObject> childrenNodes = new ArrayList<>();
 	protected float[] bindPose;
@@ -122,8 +121,8 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return name;
 	}
 
-	public void setPivotPoint(final Vertex3 p) {
-		pivotPoint = p;
+	public void setPivotPoint(final Vec3 p) {
+		pivotPoint.set(p);
 	}
 
 	public void setParent(final IdObject p) {
@@ -151,55 +150,12 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		billboardLockX = other.billboardLockX;
 		billboardLockY = other.billboardLockY;
 		billboardLockZ = other.billboardLockZ;
-		pivotPoint = new Vertex3(other.getPivotPoint());
+		pivotPoint.set(other.pivotPoint);
 		setParent(other.getParent());
 		addAll(other.getAnimFlags());
 	}
 
-	public boolean childOf(final IdObject other) {
-		if (parent != null) {
-			if (parent == other) {
-				return true;
-			} else {
-				return parent.childOf(other);
-			}
-		}
-		return false;
-	}
-
 	public abstract double getClickRadius(CoordinateSystem coordinateSystem);
-
-	public boolean parentOf(final IdObject other, final Map<IdObject, List<IdObject>> childMap) {
-		final List<IdObject> children = childMap.get(this);
-		if (children != null) {
-			if (children.contains(other)) {
-				return true;
-			} else {
-				boolean deepChild = false;
-				for (int i = 0; !deepChild && (i < children.size()); i++) {
-					deepChild = children.get(i).parentOf(other, childMap);
-				}
-				return deepChild;
-			}
-		}
-		return false;
-	}
-
-	public List<IdObject> getAllChildren(final Map<IdObject, List<IdObject>> childMap) {
-		final List<IdObject> children = childMap.get(this);
-		final List<IdObject> allChildren = new ArrayList<>();
-		if (children != null) {
-			for (int i = 0; i < children.size(); i++) {
-				final IdObject child = children.get(i);
-				if (!allChildren.contains(child)) {
-					allChildren.add(child);
-					allChildren.addAll(child.getAllChildren(childMap));
-				}
-			}
-		}
-
-		return allChildren;
-	}
 
 	/**
 	 *
@@ -297,7 +253,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	}
 
 	@Override
-	public Vertex3 getPivotPoint() {
+	public Vec3 getPivotPoint() {
 		return pivotPoint;
 	}
 

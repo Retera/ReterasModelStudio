@@ -30,8 +30,8 @@ import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.gui.modeledit.TargaReader;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-import com.hiveworkshop.rms.util.Vertex2;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vec2;
+import com.hiveworkshop.rms.util.Vec3;
 import com.owens.oobjloader.builder.Face;
 import com.owens.oobjloader.builder.FaceVertex;
 import com.owens.oobjloader.builder.ReflectivityTransmiss;
@@ -642,11 +642,11 @@ public class BuildWLists implements BuilderInterface {
 		}
 
 		public GeosetVertex createVertex() {
-			return new GeosetVertex(posX, posY, posZ, new Vertex3(normX, normY, normZ));
+			return new GeosetVertex(posX, posY, posZ, new Vec3(normX, normY, normZ));
 		}
 
-		public Vertex2 createTVertex() {
-			return new Vertex2(uvU, uvV);
+		public Vec2 createTVertex() {
+			return new Vec2(uvU, uvV);
 		}
 
 		@Override
@@ -760,7 +760,7 @@ public class BuildWLists implements BuilderInterface {
 				}
 			}
 		}
-		for (final Vertex3 pivot : mdl.getPivots()) {
+		for (final Vec3 pivot : mdl.getPivots()) {
 			if (Math.abs(pivot.x) > sizeLimit || Math.abs(pivot.y) > sizeLimit || Math.abs(pivot.z) > sizeLimit) {
 				System.out.println(pivot);
 				allLessThan2 = false;
@@ -783,7 +783,7 @@ public class BuildWLists implements BuilderInterface {
 						gv.z *= factor;
 					}
 				}
-				for (final Vertex3 pivot : mdl.getPivots()) {
+				for (final Vec3 pivot : mdl.getPivots()) {
 					pivot.x *= factor;
 					pivot.y *= factor;
 					pivot.z *= factor;
@@ -913,7 +913,7 @@ public class BuildWLists implements BuilderInterface {
 		}
 		final Bone groupBone = new Bone(groupName);
 		mdl.add(groupBone);
-		final List<Vertex3> attachedVertices = new ArrayList<>();
+		final List<Vec3> attachedVertices = new ArrayList<>();
 		for (final Map.Entry<com.owens.oobjloader.builder.Material, Subgroup> subgroup : materialToSubgroup.entrySet()) {
 			final Geoset geo = subgroup.getValue().getGeo();
 			geo.setParentModel(mdl);
@@ -925,11 +925,11 @@ public class BuildWLists implements BuilderInterface {
 			// ArrayList<VertexKey>();
 
 			for (final VertexKey key : vertexKeys) {
-				final List<Vertex2> tverts = new ArrayList<>();
-				final Vertex2 createdTVertex = key.createTVertex();
+				final List<Vec2> tverts = new ArrayList<>();
+				final Vec2 createdTVertex = key.createTVertex();
 
-				if (createdTVertex.getX() > 1.0 || createdTVertex.getX() < 0 || createdTVertex.getY() > 1.0
-						|| createdTVertex.getY() < 0) {
+				if (createdTVertex.x > 1.0 || createdTVertex.x < 0 || createdTVertex.y > 1.0
+						|| createdTVertex.y < 0) {
 					noteForMatrixEaterAboutWrapHeights = true;
 				}
 				tverts.add(createdTVertex);
@@ -968,7 +968,7 @@ public class BuildWLists implements BuilderInterface {
 			}
 		}
 		if (!attachedVertices.isEmpty()) {
-			groupBone.setPivotPoint(Vertex3.centerOfGroup(attachedVertices));
+			groupBone.setPivotPoint(Vec3.centerOfGroup(attachedVertices));
 		} else {
 			mdl.remove(groupBone);
 		}
@@ -1067,7 +1067,7 @@ public class BuildWLists implements BuilderInterface {
 			}
 			final ReflectivityTransmiss color = max;
 			if (color != null) {
-				geo.forceGetGeosetAnim().setStaticColor(new Vertex3(color.bz, color.gy, color.rx));// pretty
+				geo.forceGetGeosetAnim().setStaticColor(new Vec3(color.bz, color.gy, color.rx));// pretty
 				// sure
 				// geoset
 				// anim

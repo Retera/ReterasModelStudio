@@ -22,8 +22,8 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggle
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.util.SubscriberSetNotifier;
-import com.hiveworkshop.rms.util.Vertex2;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vec2;
+import com.hiveworkshop.rms.util.Vec3;
 
 public class TVertexEditorNotifier extends SubscriberSetNotifier<TVertexEditor> implements TVertexEditor {
 	private CloneContextHelper cloneContextHelper;
@@ -131,7 +131,7 @@ public class TVertexEditorNotifier extends SubscriberSetNotifier<TVertexEditor> 
 	}
 
 	@Override
-	public UndoAction setPosition(final Vertex2 center, final double x, final double y) {
+	public UndoAction setPosition(final Vec2 center, final double x, final double y) {
 		final List<UndoAction> actions = new ArrayList<>();
 		for (final TVertexEditor handler : set) {
 			actions.add(handler.setPosition(center, x, y));
@@ -140,7 +140,7 @@ public class TVertexEditorNotifier extends SubscriberSetNotifier<TVertexEditor> 
 	}
 
 	@Override
-	public UndoAction rotate(final Vertex2 center, final double rotateRadians) {
+	public UndoAction rotate(final Vec2 center, final double rotateRadians) {
 		final List<UndoAction> actions = new ArrayList<>();
 		for (final TVertexEditor handler : set) {
 			actions.add(handler.rotate(center, rotateRadians));
@@ -198,20 +198,20 @@ public class TVertexEditorNotifier extends SubscriberSetNotifier<TVertexEditor> 
 	}
 
 	@Override
-	public Vertex2 getSelectionCenter() {
-		final Set<Vertex2> centers = new HashSet<>();
+	public Vec2 getSelectionCenter() {
+		final Set<Vec2> centers = new HashSet<>();
 		for (final TVertexEditor handler : set) {
-			final Vertex2 selectionCenter = handler.getSelectionCenter();
+			final Vec2 selectionCenter = handler.getSelectionCenter();
 			if (Double.isNaN(selectionCenter.x) || Double.isNaN(selectionCenter.y)) {
 				continue;
 			}
 			centers.add(selectionCenter);
 		}
-		return Vertex2.centerOfGroup(centers);
+		return Vec2.centerOfGroup(centers);
 	}
 
 	@Override
-	public void selectByVertices(final java.util.Collection<? extends Vertex3> newSelection) {
+	public void selectByVertices(final java.util.Collection<? extends Vec3> newSelection) {
 		for (final TVertexEditor handler : set) {
 			handler.selectByVertices(newSelection);
 		}

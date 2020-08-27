@@ -45,7 +45,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 	 */
 	public String lodName = "";
 	public MdlxExtent extent = new MdlxExtent();
-	public MdlxExtent[] sequenceExtents;
+	public List<MdlxExtent> sequenceExtents = new ArrayList<>();
 	/** 
 	 * @since 900
 	 */
@@ -88,11 +88,11 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 		extent.readMdx(reader);
 
 		final long numExtents = reader.readUInt32();
-		sequenceExtents = new MdlxExtent[(int) numExtents];
+
 		for (int i = 0; i < numExtents; i++) {
 			final MdlxExtent extent = new MdlxExtent();
 			extent.readMdx(reader);
-			sequenceExtents[i] = extent;
+			sequenceExtents.add(extent);
 		}
 
 		int id = reader.readTag(); // TANG or SKIN or UVAS
@@ -156,7 +156,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 		}
 
 		extent.writeMdx(writer);
-		writer.writeUInt32(sequenceExtents.length);
+		writer.writeUInt32(sequenceExtents.size());
 
 		for (final MdlxExtent sequenceExtent : sequenceExtents) {
 			sequenceExtent.writeMdx(writer);
@@ -189,7 +189,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 	@Override
 	public void readMdl(final MdlTokenInputStream stream, final int version) {
 		uvSets = new float[0][];
-		final List<MdlxExtent> sequenceExtents = new ArrayList<>();
+
 		for (final String token : stream.readBlock()) {
 			switch (token) {
 			case MdlUtils.TOKEN_VERTICES:
@@ -329,7 +329,6 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 				throw new RuntimeException("Unknown token in Geoset: " + token);
 			}
 		}
-		this.sequenceExtents = sequenceExtents.toArray(new MdlxExtent[sequenceExtents.size()]);
 	}
 
 	@Override
@@ -424,7 +423,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 	public long getByteLength(final int version) {
 		long size = 120 + (vertices.length * 4) + (normals.length * 4) + (faceTypeGroups.length * 4)
 				+ (faceGroups.length * 4) + (faces.length * 2) + vertexGroups.length
-				+ (matrixGroups.length * 4) + (matrixIndices.length * 4) + (sequenceExtents.length * 28);
+				+ (matrixGroups.length * 4) + (matrixIndices.length * 4) + (sequenceExtents.size() * 28);
 		for (final float[] uvSet : uvSets) {
 			size += 8 + (uvSet.length * 4);
 		}

@@ -85,11 +85,10 @@ import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.listeners.ProgramPreferencesChangeListener;
 import com.hiveworkshop.rms.ui.util.BetterAWTGLCanvas;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-import com.hiveworkshop.rms.util.MathUtils;
-import com.hiveworkshop.rms.util.Matrix4;
-import com.hiveworkshop.rms.util.QuaternionRotation;
-import com.hiveworkshop.rms.util.Vertex3;
-import com.hiveworkshop.rms.util.Vertex4;
+import com.hiveworkshop.rms.util.Mat4;
+import com.hiveworkshop.rms.util.Quat;
+import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.util.Vec4;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
@@ -103,12 +102,12 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		implements MouseListener, ActionListener, MouseWheelListener, RenderResourceAllocator {
 	public static final boolean LOG_EXCEPTIONS = true;
 	ModelView modelView;
-	Vertex3 cameraPos = new Vertex3(0, 0, 0);
-	QuaternionRotation inverseCameraRotationQuat = new QuaternionRotation();
-	QuaternionRotation inverseCameraRotationYSpin = new QuaternionRotation();
-	QuaternionRotation inverseCameraRotationZSpin = new QuaternionRotation();
-	Matrix4 matrixHeap = new Matrix4();
-	private final Vertex4 axisHeap = new Vertex4();
+	Vec3 cameraPos = new Vec3(0, 0, 0);
+	Quat inverseCameraRotationQuat = new Quat();
+	Quat inverseCameraRotationYSpin = new Quat();
+	Quat inverseCameraRotationZSpin = new Quat();
+	Mat4 matrixHeap = new Mat4();
+	private final Vec4 axisHeap = new Vec4();
 	double m_zoom = 1;
 	Point lastClick;
 	Point leftClickStart;
@@ -435,14 +434,14 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		return texLoaded && ((programPreferences == null) || programPreferences.textureModels());
 	}
 
-	private final Vertex4 vertexHeap = new Vertex4();
-	private final Vertex4 appliedVertexHeap = new Vertex4();
-	private final Vertex4 vertexSumHeap = new Vertex4();
-	private final Vertex4 normalHeap = new Vertex4();
-	private final Vertex4 appliedNormalHeap = new Vertex4();
-	private final Vertex4 normalSumHeap = new Vertex4();
-	private final Matrix4 skinBonesMatrixHeap = new Matrix4();
-	private final Matrix4 skinBonesMatrixSumHeap = new Matrix4();
+	private final Vec4 vertexHeap = new Vec4();
+	private final Vec4 appliedVertexHeap = new Vec4();
+	private final Vec4 vertexSumHeap = new Vec4();
+	private final Vec4 normalHeap = new Vec4();
+	private final Vec4 appliedNormalHeap = new Vec4();
+	private final Vec4 normalSumHeap = new Vec4();
+	private final Mat4 skinBonesMatrixHeap = new Mat4();
+	private final Mat4 skinBonesMatrixSumHeap = new Mat4();
 
 	@Override
 	protected void exceptionOccurred(final LWJGLException exception) {
@@ -599,7 +598,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 										continue;
 									}
 									processedBones = true;
-									final Matrix4 worldMatrix = editorRenderModel.getRenderNode(skinBone)
+									final Mat4 worldMatrix = editorRenderModel.getRenderNode(skinBone)
 											.getWorldMatrix();
 									skinBonesMatrixHeap.set(worldMatrix);
 
@@ -639,13 +638,13 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 								if (!processedBones) {
 									skinBonesMatrixSumHeap.setIdentity();
 								}
-								Matrix4.transform(skinBonesMatrixSumHeap, vertexHeap, vertexSumHeap);
+								skinBonesMatrixSumHeap.transform(vertexHeap, vertexSumHeap);
 								if (v.getNormal() != null) {
 									normalHeap.x = (float) v.getNormal().x;
 									normalHeap.y = (float) v.getNormal().y;
 									normalHeap.z = (float) v.getNormal().z;
 									normalHeap.w = 0;
-									Matrix4.transform(skinBonesMatrixSumHeap, normalHeap, normalSumHeap);
+									skinBonesMatrixSumHeap.transform(normalHeap, normalSumHeap);
 
 									if (normalSumHeap.length() > 0) {
 										normalSumHeap.normalize();
@@ -681,9 +680,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 								if (boneCount > 0) {
 									vertexSumHeap.set(0, 0, 0, 0);
 									for (final Bone bone : v.getBones()) {
-										Matrix4.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(),
-												vertexHeap, appliedVertexHeap);
-										Vertex4.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
+										editorRenderModel.getRenderNode(bone).getWorldMatrix().transform(vertexHeap, appliedVertexHeap);
+										vertexSumHeap.add(appliedVertexHeap);
 									}
 									vertexSumHeap.x /= boneCount;
 									vertexSumHeap.y /= boneCount;
@@ -700,9 +698,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 									if (boneCount > 0) {
 										normalSumHeap.set(0, 0, 0, 0);
 										for (final Bone bone : v.getBones()) {
-											Matrix4.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(),
-													normalHeap, appliedNormalHeap);
-											Vertex4.add(normalSumHeap, appliedNormalHeap, normalSumHeap);
+											editorRenderModel.getRenderNode(bone).getWorldMatrix().transform(normalHeap, appliedNormalHeap);
+											normalSumHeap.add(appliedNormalHeap);
 										}
 									} else {
 										normalSumHeap.set(normalHeap);
@@ -922,7 +919,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 				if (animation != null) {
 					final float layerVisibility = layer.getRenderVisibility(timeEnvironment);
 					if (/* geo.getMaterial().isConstantColor() && */ geosetAnim != null) {
-						final Vertex3 renderColor = geosetAnim.getRenderColor(timeEnvironment);
+						final Vec3 renderColor = geosetAnim.getRenderColor(timeEnvironment);
 						if (renderColor != null) {
 							GL11.glColor4f(renderColor.z * 1f, renderColor.y * 1f, renderColor.x * 1f,
 									geosetAnimVisibility * layerVisibility);
@@ -965,7 +962,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 									continue;
 								}
 								processedBones = true;
-								final Matrix4 worldMatrix = editorRenderModel.getRenderNode(skinBone).getWorldMatrix();
+								final Mat4 worldMatrix = editorRenderModel.getRenderNode(skinBone).getWorldMatrix();
 								skinBonesMatrixHeap.set(worldMatrix);
 
 								skinBonesMatrixSumHeap.m00 += (skinBonesMatrixHeap.m00 * skinBoneWeights[boneIndex])
@@ -1004,13 +1001,13 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 							if (!processedBones) {
 								skinBonesMatrixSumHeap.setIdentity();
 							}
-							Matrix4.transform(skinBonesMatrixSumHeap, vertexHeap, vertexSumHeap);
+							skinBonesMatrixSumHeap.transform(vertexHeap, vertexSumHeap);
 							if (v.getNormal() != null) {
 								normalHeap.x = (float) v.getNormal().x;
 								normalHeap.y = (float) v.getNormal().y;
 								normalHeap.z = (float) v.getNormal().z;
 								normalHeap.w = 0;
-								Matrix4.transform(skinBonesMatrixSumHeap, normalHeap, normalSumHeap);
+								skinBonesMatrixSumHeap.transform(normalHeap, normalSumHeap);
 
 								if (normalSumHeap.length() > 0) {
 									normalSumHeap.normalize();
@@ -1041,9 +1038,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 							if (boneCount > 0) {
 								vertexSumHeap.set(0, 0, 0, 0);
 								for (final Bone bone : v.getBones()) {
-									Matrix4.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(),
-											vertexHeap, appliedVertexHeap);
-									Vertex4.add(vertexSumHeap, appliedVertexHeap, vertexSumHeap);
+									editorRenderModel.getRenderNode(bone).getWorldMatrix().transform(vertexHeap, appliedVertexHeap);
+									vertexSumHeap.add(appliedVertexHeap);
 								}
 								vertexSumHeap.x /= boneCount;
 								vertexSumHeap.y /= boneCount;
@@ -1060,9 +1056,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 								if (boneCount > 0) {
 									normalSumHeap.set(0, 0, 0, 0);
 									for (final Bone bone : v.getBones()) {
-										Matrix4.transform(editorRenderModel.getRenderNode(bone).getWorldMatrix(),
-												normalHeap, appliedNormalHeap);
-										Vertex4.add(normalSumHeap, appliedNormalHeap, normalSumHeap);
+										editorRenderModel.getRenderNode(bone).getWorldMatrix().transform(normalHeap, appliedNormalHeap);
+										normalSumHeap.add(appliedNormalHeap);
 									}
 								} else {
 									normalSumHeap.set(normalHeap);
@@ -1133,12 +1128,11 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			// "+lastClick.x+","+lastClick.y+" as last.");
 			// System.out.println(xoff+" and "+mx);
 			if (lastClick != null) {
-				MathUtils.fromQuat(inverseCameraRotationQuat, matrixHeap);
 				vertexHeap.x = 0;
 				vertexHeap.y = (float) (((int) mx - lastClick.x) / m_zoom);
 				vertexHeap.z = -(float) (((int) my - lastClick.y) / m_zoom);
 				vertexHeap.w = 1;
-				Matrix4.transform(matrixHeap, vertexHeap, vertexHeap);
+				inverseCameraRotationQuat.transform(vertexHeap);
 				cameraPos.x += vertexHeap.x;
 				cameraPos.y += vertexHeap.y;
 				cameraPos.z += vertexHeap.z;
@@ -1170,7 +1164,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 				inverseCameraRotationYSpin.setFromAxisAngle(axisHeap);
 				axisHeap.set(0, 0, 1, (float) Math.toRadians(xangle));
 				inverseCameraRotationZSpin.setFromAxisAngle(axisHeap);
-				QuaternionRotation.mul(inverseCameraRotationYSpin, inverseCameraRotationZSpin, inverseCameraRotationQuat);
+				inverseCameraRotationYSpin.mul(inverseCameraRotationZSpin, inverseCameraRotationQuat);
 				inverseCameraRotationQuat.x = -inverseCameraRotationQuat.x;
 				inverseCameraRotationQuat.y = -inverseCameraRotationQuat.y;
 				inverseCameraRotationQuat.z = -inverseCameraRotationQuat.z;
@@ -1372,8 +1366,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		}
 
 		@Override
-		public void setTransformation(final Vertex3 worldLocation, final QuaternionRotation rotation,
-				final Vertex3 worldScale) {
+		public void setTransformation(final Vec3 worldLocation, final Quat rotation,
+				final Vec3 worldScale) {
 		}
 
 		@Override
@@ -1391,7 +1385,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		}
 
 		@Override
-		public void move(final Vertex3 deltaPosition) {
+		public void move(final Vec3 deltaPosition) {
 
 		}
 

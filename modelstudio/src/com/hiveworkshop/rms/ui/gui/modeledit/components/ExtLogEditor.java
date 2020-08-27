@@ -13,7 +13,7 @@ import javax.swing.SpinnerNumberModel;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.components.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.rms.editor.model.ExtLog;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vec3;
 
 public class ExtLogEditor extends JPanel {
 	private static final Dimension MAXIMUM_SIZE = new Dimension(99999, 25);
@@ -133,7 +133,7 @@ public class ExtLogEditor extends JPanel {
 	}
 
 	public void setExtLog(final ExtLog extents) {
-		final Vertex3 minimumExtent = extents == null ? null : extents.getMinimumExtent();
+		final Vec3 minimumExtent = extents == null ? null : extents.getMinimumExtent();
 		final boolean hasMinExt = minimumExtent != null;
 		minimumExtentBox.setSelected(hasMinExt);
 		updateMinExtOptionsAvailable();
@@ -143,7 +143,7 @@ public class ExtLogEditor extends JPanel {
 			minimumExtentZ.reloadNewValue(minimumExtent.z);
 		}
 
-		final Vertex3 maximumExtent = extents == null ? null : extents.getMaximumExtent();
+		final Vec3 maximumExtent = extents == null ? null : extents.getMaximumExtent();
 		final boolean hasMaxExt = maximumExtent != null;
 		maximumExtentBox.setSelected(hasMaxExt);
 		updateMaxExtOptionsAvailable();
@@ -162,15 +162,15 @@ public class ExtLogEditor extends JPanel {
 	}
 
 	public ExtLog getExtLog() {
-		final Vertex3 minimumExtent, maximumExtent;
+		final Vec3 minimumExtent, maximumExtent;
 		final double boundsRadius;
 		if (minimumExtentBox.isSelected()) {
-			minimumExtent = new Vertex3(val(minimumExtentX), val(minimumExtentY), val(minimumExtentZ));
+			minimumExtent = new Vec3(val(minimumExtentX), val(minimumExtentY), val(minimumExtentZ));
 		} else {
 			minimumExtent = null;
 		}
 		if (maximumExtentBox.isSelected()) {
-			maximumExtent = new Vertex3(val(maximumExtentX), val(maximumExtentY), val(maximumExtentZ));
+			maximumExtent = new Vec3(val(maximumExtentX), val(maximumExtentY), val(maximumExtentZ));
 		} else {
 			maximumExtent = null;
 		}

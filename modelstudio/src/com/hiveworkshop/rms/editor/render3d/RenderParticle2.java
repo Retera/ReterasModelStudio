@@ -3,32 +3,32 @@ package com.hiveworkshop.rms.editor.render3d;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.MathUtils;
-import com.hiveworkshop.rms.util.Matrix4;
-import com.hiveworkshop.rms.util.QuaternionRotation;
-import com.hiveworkshop.rms.util.Vertex3;
-import com.hiveworkshop.rms.util.Vertex4;
+import com.hiveworkshop.rms.util.Mat4;
+import com.hiveworkshop.rms.util.Quat;
+import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.util.Vec4;
 
 public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
-	private static final Vertex4 vector4Heap = new Vertex4();
-	private static final Vertex4 colorHeap = new Vertex4();
-	private static final Vertex4 color1Heap = new Vertex4();
-	private static final Vertex4 color2Heap = new Vertex4();
-	private static final QuaternionRotation rotationZHeap = new QuaternionRotation();
-	private static final QuaternionRotation rotationYHeap = new QuaternionRotation();
-	private static final QuaternionRotation rotationXHeap = new QuaternionRotation();
-	private static final Matrix4 matrixHeap = new Matrix4();
-	private static final Vertex3 locationHeap = new Vertex3();
-	private static final Vertex4 location4Heap = new Vertex4();
-	private static final Vertex4 startHeap = new Vertex4();
-	private static final Vertex4 endHeap = new Vertex4();
-	private static final Vertex3 tailHeap = new Vertex3();
-	private static final Vertex3 normalHeap = new Vertex3();
+	private static final Vec4 vector4Heap = new Vec4();
+	private static final Vec4 colorHeap = new Vec4();
+	private static final Vec4 color1Heap = new Vec4();
+	private static final Vec4 color2Heap = new Vec4();
+	private static final Quat rotationZHeap = new Quat();
+	private static final Quat rotationYHeap = new Quat();
+	private static final Quat rotationXHeap = new Quat();
+	private static final Mat4 matrixHeap = new Mat4();
+	private static final Vec3 locationHeap = new Vec3();
+	private static final Vec4 location4Heap = new Vec4();
+	private static final Vec4 startHeap = new Vec4();
+	private static final Vec4 endHeap = new Vec4();
+	private static final Vec3 tailHeap = new Vec3();
+	private static final Vec3 normalHeap = new Vec3();
 	private final RenderParticleEmitter2 emitter;
 	private boolean head;
-	private final Vertex3 location;
-	private final Vertex3 velocity;
+	private final Vec3 location;
+	private final Vec3 velocity;
 	private float gravity;
-	private final Vertex3 nodeScale;
+	private final Vec3 nodeScale;
 
 	private RenderNode node;
 
@@ -37,10 +37,10 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		emitterView = null;
 		health = 0;
 		head = true;
-		location = new Vertex3();
-		velocity = new Vertex3();
+		location = new Vec3();
+		velocity = new Vec3();
 		gravity = 0;
-		nodeScale = new Vertex3();
+		nodeScale = new Vec3();
 
 		vertices = new float[12];
 		lta = 0;
@@ -61,8 +61,8 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 
 		final ParticleEmitter2 modelObject = emitter.modelObject;
 		final RenderNode node = emitterView.instance.getRenderNode(modelObject);
-		final Vertex3 pivotPoint = modelObject.getPivotPoint();
-		final Vertex3 scale = node.getWorldScale();
+		final Vec3 pivotPoint = modelObject.getPivotPoint();
+		final Vec3 scale = node.getWorldScale();
 		width *= 0.5;
 		length *= 0.5;
 		latitude = Math.toRadians(latitude);
@@ -83,7 +83,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		// World location
 		if (!modelObject.getModelSpace()) {
 			vector4Heap.set(location.x, location.y, location.z, 1);
-			Matrix4.transform(node.getWorldMatrix(), vector4Heap, vector4Heap);
+			node.getWorldMatrix().transform(vector4Heap);
 			location.set(vector4Heap);
 		}
 
@@ -93,24 +93,23 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		rotationZHeap.setFromAxisAngle(vector4Heap);
 		vector4Heap.set(1, 0, 0, MathUtils.randomInRange(-latitude, latitude));
 		rotationYHeap.setFromAxisAngle(vector4Heap);
-		QuaternionRotation.mul(rotationYHeap, rotationZHeap, rotationYHeap);
+		rotationYHeap.mul(rotationZHeap);
 
 		// If this is not a line emitter, emit in a sphere rather than a circle
 		if (!modelObject.getLineEmitter()) {
 			vector4Heap.set(0, 1, 0, MathUtils.randomInRange(-latitude, latitude));
 			rotationXHeap.setFromAxisAngle(vector4Heap);
-			QuaternionRotation.mul(rotationXHeap, rotationYHeap, rotationYHeap);
+			rotationXHeap.mul(rotationYHeap, rotationYHeap);
 		}
 
 		// World rotation
 		if (!modelObject.getModelSpace()) {
-			QuaternionRotation.mul(node.getWorldRotation(), rotationYHeap, rotationYHeap);
+			node.getWorldRotation().mul(rotationYHeap, rotationYHeap);
 		}
 
 		// Apply the rotation
-		MathUtils.fromQuat(rotationYHeap, matrixHeap);
 		vector4Heap.set(0, 0, 1, 1);
-		Matrix4.transform(matrixHeap, vector4Heap, vector4Heap);
+		rotationYHeap.transform(vector4Heap);
 		velocity.set(vector4Heap);
 
 		// Apply speed
@@ -126,8 +125,8 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 	public void update() {
 		final ParticleEmitter2 modelObject = emitter.modelObject;
 		final float dt = AnimatedRenderEnvironment.FRAMES_PER_UPDATE * 0.001f;
-		final Vertex3 worldLocation = locationHeap;
-		final Vertex4 worldLocation4f = location4Heap;
+		final Vec3 worldLocation = locationHeap;
+		final Vec4 worldLocation4f = location4Heap;
 
 		health -= dt;
 
@@ -144,7 +143,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		final float timeMiddle = (float) modelObject.getTime();
 		float factor;
 		final int firstColor;
-		final Vertex3 interval;
+		final Vec3 interval;
 
 		if (lifeFactor < timeMiddle) {
 			factor = lifeFactor / timeMiddle;
@@ -173,8 +172,8 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		final float start = (float) interval.x;
 		final float end = (float) interval.y;
 		final float repeat = (float) interval.z;
-		final Vertex3 scaling = modelObject.getParticleScaling();
-		final Vertex3[] colors = modelObject.getSegmentColors();
+		final Vec3 scaling = modelObject.getParticleScaling();
+		final Vec3[] colors = modelObject.getSegmentColors();
 		final float scale = (float) MathUtils.lerp((float) scaling.getCoord((byte) firstColor),
 				(float) scaling.getCoord((byte) (firstColor + 1)), factor);
 		final float left;
@@ -210,13 +209,13 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 			bottom = top + 1;
 		}
 
-		final Vertex3 firstColorVertexME = colors[firstColor];
-		final Vertex3 secondColorVertexME = colors[firstColor + 1];
+		final Vec3 firstColorVertexME = colors[firstColor];
+		final Vec3 secondColorVertexME = colors[firstColor + 1];
 		color1Heap.set((float) firstColorVertexME.x, (float) firstColorVertexME.y, (float) firstColorVertexME.z,
 				(float) modelObject.getAlpha().getCoord((byte) firstColor));
 		color2Heap.set((float) secondColorVertexME.x, (float) secondColorVertexME.y, (float) secondColorVertexME.z,
 				(float) modelObject.getAlpha().getCoord((byte) (firstColor + 1)));
-		MathUtils.lerp(colorHeap, color1Heap, color2Heap, factor);
+		color1Heap.lerp(color2Heap, factor, colorHeap);
 
 		final int a = ((int) colorHeap.w) & 0xFF;
 
@@ -227,7 +226,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		rgb = MathUtils.uint8ToUint24((byte) ((int) (colorHeap.z * 255) & 0xFF),
 				(byte) ((int) (colorHeap.y * 255) & 0xFF), (byte) ((int) (colorHeap.x * 255) & 0xFF));
 
-		final Vertex4[] vectors;
+		final Vec4[] vectors;
 
 		// Choose between a default rectangle or a billboarded one
 		if (modelObject.getXYQuad()) {
@@ -237,7 +236,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		}
 
 		final float[] vertices = this.vertices;
-		final Vertex3 nodeScale = this.nodeScale;
+		final Vec3 nodeScale = this.nodeScale;
 
 		final float scalex = scale * nodeScale.x;
 		final float scaley = scale * nodeScale.y;
@@ -247,17 +246,17 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 			// If this is a model space emitter, the particle location is in local space, so
 			// convert it now to world space.
 			if (modelObject.getModelSpace()) {
-				Matrix4.transform(node.getWorldMatrix(), worldLocation4f, worldLocation4f);
+				node.getWorldMatrix().transform(worldLocation4f);
 			}
 
 			final float px = worldLocation4f.x;
 			final float py = worldLocation4f.y;
 			final float pz = worldLocation4f.z;
 
-			final Vertex4 pv1 = vectors[0];
-			final Vertex4 pv2 = vectors[1];
-			final Vertex4 pv3 = vectors[2];
-			final Vertex4 pv4 = vectors[3];
+			final Vec4 pv1 = vectors[0];
+			final Vec4 pv2 = vectors[1];
+			final Vec4 pv3 = vectors[2];
+			final Vec4 pv4 = vectors[3];
 
 			vertices[0] = px + (pv1.x * scalex);
 			vertices[1] = py + (pv1.y * scaley);
@@ -285,8 +284,8 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 			// If this is a model space emitter, the start and end are in local space, so
 			// convert them to world space.
 			if (modelObject.getModelSpace()) {
-				Matrix4.transform(node.getWorldMatrix(), startHeap, startHeap);
-				Matrix4.transform(node.getWorldMatrix(), endHeap, endHeap);
+				node.getWorldMatrix().transform(startHeap);
+				node.getWorldMatrix().transform(endHeap);
 			}
 
 			final float startx = startHeap.x;
@@ -303,7 +302,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 				tailHeap.normalize();
 			}
 			normalHeap.set(instance.getBillboardVectors()[6]);
-			Vertex3.cross(normalHeap, tailHeap, normalHeap);
+			normalHeap.cross(tailHeap);
 			if (normalHeap.lengthSquared() > 0) {
 				normalHeap.normalize();
 			}

@@ -7,7 +7,7 @@ import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.ui.application.actions.VertexActionType;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vec3;
 
 /**
  * ExtrudeAction -- something extruded that you can undo!
@@ -16,13 +16,13 @@ import com.hiveworkshop.rms.util.Vertex3;
  */
 public class ExtrudeAction implements UndoAction {
 	MoveAction baseMovement;
-	List<Vertex3> selection;
+	List<Vec3> selection;
 	List<GeosetVertex> addedVerts;
 	List<Triangle> addedTriangles;
 	List<GeosetVertex> copiedGroup;
 	boolean type;
 
-	public ExtrudeAction(final List<Vertex3> selection, final Vertex3 moveVector, final List<GeosetVertex> clones,
+	public ExtrudeAction(final List<Vec3> selection, final Vec3 moveVector, final List<GeosetVertex> clones,
 			final List<Triangle> addedTriangles, final boolean isExtrude) {
 		addedVerts = clones;
 		this.addedTriangles = addedTriangles;
@@ -35,11 +35,11 @@ public class ExtrudeAction implements UndoAction {
 
 	}
 
-	public void storeSelection(final List<Vertex3> selection) {
+	public void storeSelection(final List<Vec3> selection) {
 		this.selection = new ArrayList<>(selection);
 	}
 
-	public void storeBaseMovement(final Vertex3 moveVector) {
+	public void storeBaseMovement(final Vec3 moveVector) {
 		baseMovement = new MoveAction(this.selection, moveVector, VertexActionType.UNKNOWN);
 	}
 
@@ -111,7 +111,7 @@ public class ExtrudeAction implements UndoAction {
 		// }
 		int probs = 0;
 		for (int k = 0; k < selection.size(); k++) {
-			final Vertex3 vert = selection.get(k);
+			final Vec3 vert = selection.get(k);
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				for (final Triangle t : gv.getTriangles()) {
@@ -192,7 +192,7 @@ public class ExtrudeAction implements UndoAction {
 		// }
 		int probs = 0;
 		for (int k = 0; k < selection.size(); k++) {
-			final Vertex3 vert = selection.get(k);
+			final Vec3 vert = selection.get(k);
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				for (final Triangle t : gv.getTriangles()) {

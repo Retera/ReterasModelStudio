@@ -76,7 +76,7 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.util.AbstractSnapshottingListCellRenderer2D;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vec3;
 
 /**
  * The panel to handle the import function.
@@ -1905,7 +1905,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 							if (dummyBone == null) {
 								dummyBone = new Bone();
 								dummyBone.setName("Bone_MatrixEaterDummy" + (int) (Math.random() * 2000000000));
-								dummyBone.setPivotPoint(new Vertex3(0, 0, 0));
+								dummyBone.setPivotPoint(new Vec3(0, 0, 0));
 								if (!currentModel.contains(dummyBone)) {
 									currentModel.add(dummyBone);
 								}
@@ -1987,10 +1987,10 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 						for (final Animation a : oldAnims) {
 							test = true;
 							if (tans) {
-								flagOld.addEntry(Integer.valueOf(a.getStart()), Double.valueOf(0), Double.valueOf(0),
-										Double.valueOf(0));
+								flagOld.addEntry(Integer.valueOf(a.getStart()), Float.valueOf(0), Float.valueOf(0),
+									Float.valueOf(0));
 							} else {
-								flagOld.addEntry(Integer.valueOf(a.getStart()), Double.valueOf(0));
+								flagOld.addEntry(Integer.valueOf(a.getStart()), Float.valueOf(0));
 							}
 						}
 					}
@@ -2006,17 +2006,17 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 						flagNew = new AnimFlag("temp");
 						for (final Animation a : newAnims) {
 							if (tans) {
-								flagNew.addEntry(Integer.valueOf(a.getStart()), Double.valueOf(0), Double.valueOf(0),
-										Double.valueOf(0));
+								flagNew.addEntry(Integer.valueOf(a.getStart()), Float.valueOf(0), Float.valueOf(0),
+									Float.valueOf(0));
 							} else {
-								flagNew.addEntry(Integer.valueOf(a.getStart()), Double.valueOf(0));
+								flagNew.addEntry(Integer.valueOf(a.getStart()), Float.valueOf(0));
 							}
 							// flagNew.times.add(Integer.valueOf(a.getStart()));
-							// flagNew.values.add(Double.valueOf(0));
+							// flagNew.values.add(Float.valueOf(0));
 							// if( tans )
 							// {
-							// flagNew.inTans.add(Double.valueOf(0));
-							// flagNew.outTans.add(Double.valueOf(0));
+							// flagNew.inTans.add(Float.valueOf(0));
+							// flagNew.outTans.add(Float.valueOf(0));
 							// }
 						}
 					}
@@ -3073,7 +3073,7 @@ class BoneShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 	}
 
 	@Override
-	protected Vertex3 getRenderVertex(final BoneShell value) {
+	protected Vec3 getRenderVertex(final BoneShell value) {
 		return value.bone.getPivotPoint();
 	}
 
@@ -3178,7 +3178,7 @@ class BonePanelListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 	}
 
 	@Override
-	protected Vertex3 getRenderVertex(final Bone value) {
+	protected Vec3 getRenderVertex(final Bone value) {
 		return value.getPivotPoint();
 	}
 

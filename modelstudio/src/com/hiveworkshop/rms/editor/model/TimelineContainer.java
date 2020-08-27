@@ -8,8 +8,8 @@ import com.hiveworkshop.rms.parsers.mdlx.MdlxAnimatedObject;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
-import com.hiveworkshop.rms.util.QuaternionRotation;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Quat;
+import com.hiveworkshop.rms.util.Vec3;
 
 public abstract class TimelineContainer implements VisibilitySource {
 	public Map<String, AnimFlag> animFlags = new HashMap<>();
@@ -101,27 +101,27 @@ public abstract class TimelineContainer implements VisibilitySource {
 		final AnimFlag timeline = find(tag);
 
 		if (timeline != null) {
-			return ((Double)timeline.interpolateAt(animatedRenderEnvironment)).floatValue();
+			return ((Float)timeline.interpolateAt(animatedRenderEnvironment)).floatValue();
 		}
 		
 		return defaultValue;
 	}
 
-	public Vertex3 getInterpolatedVector(final AnimatedRenderEnvironment animatedRenderEnvironment, final String tag, final Vertex3 defaultValue) {
+	public Vec3 getInterpolatedVector(final AnimatedRenderEnvironment animatedRenderEnvironment, final String tag, final Vec3 defaultValue) {
 		final AnimFlag timeline = find(tag);
 
 		if (timeline != null) {
-			return (Vertex3)timeline.interpolateAt(animatedRenderEnvironment);
+			return (Vec3)timeline.interpolateAt(animatedRenderEnvironment);
 		}
 		
 		return defaultValue;
 	}
 
-	public QuaternionRotation getInterpolatedQuat(final AnimatedRenderEnvironment animatedRenderEnvironment, final String tag, final QuaternionRotation defaultValue) {
+	public Quat getInterpolatedQuat(final AnimatedRenderEnvironment animatedRenderEnvironment, final String tag, final Quat defaultValue) {
 		final AnimFlag timeline = find(tag);
 
 		if (timeline != null) {
-			return (QuaternionRotation)timeline.interpolateAt(animatedRenderEnvironment);
+			return (Quat)timeline.interpolateAt(animatedRenderEnvironment);
 		}
 		
 		return defaultValue;

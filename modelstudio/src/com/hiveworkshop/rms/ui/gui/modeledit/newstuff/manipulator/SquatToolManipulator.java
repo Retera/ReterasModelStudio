@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator;
 
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
@@ -21,13 +21,13 @@ public class SquatToolManipulator extends AbstractManipulator {
 	@Override
 	protected void onStart(final Double mouseStart, final byte dim1, final byte dim2) {
 		super.onStart(mouseStart, dim1, dim2);
-		final Vertex3 center = selectionView.getCenter();
+		final Vec3 center = selectionView.getCenter();
 		rotationAction = modelEditor.beginSquatTool(center.x, center.y, center.z, dim1, dim2);
 	}
 
 	@Override
 	public void update(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
-		final Vertex3 center = selectionView.getCenter();
+		final Vec3 center = selectionView.getCenter();
 		final double radians = computeRotateRadians(mouseStart, mouseEnd, center, dim1, dim2);
 		rotationAction.updateRotation(radians);
 	}
@@ -39,7 +39,7 @@ public class SquatToolManipulator extends AbstractManipulator {
 	}
 
 	private static double computeRotateRadians(final Double startingClick, final Double endingClick,
-			final Vertex3 center, final byte portFirstXYZ, final byte portSecondXYZ) {
+			final Vec3 center, final byte portFirstXYZ, final byte portSecondXYZ) {
 		final double startingDeltaX = startingClick.x - center.getCoord(portFirstXYZ);
 		final double startingDeltaY = startingClick.y - center.getCoord(portSecondXYZ);
 		final double endingDeltaX = endingClick.x - center.getCoord(portFirstXYZ);

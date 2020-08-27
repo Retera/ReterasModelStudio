@@ -188,22 +188,6 @@ public class Material {
 		this.priorityPlane = priorityPlane;
 	}
 
-	public void updateTextureAnims(final List<TextureAnim> list) {
-		final int sz = layers.size();
-		for (int i = 0; i < sz; i++) {
-			final Layer lay = layers.get(i);
-			if (lay.hasTexAnim()) {
-				lay.setTextureAnim(list);
-			}
-		}
-	}
-
-	public void updateReferenceIds(final EditableModel mdlr) {
-		for (final Layer lay : layers) {
-			lay.updateIds(mdlr);
-		}
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;

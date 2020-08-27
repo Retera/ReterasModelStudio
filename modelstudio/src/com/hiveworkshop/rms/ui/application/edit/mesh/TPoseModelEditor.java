@@ -46,7 +46,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vec3;
 
 public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	private final ProgramPreferences programPreferences;
@@ -84,7 +84,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 			}
 		}
 
-		final Map<Bone, Vertex3> boneToOldPosition = new HashMap<>();
+		final Map<Bone, Vec3> boneToOldPosition = new HashMap<>();
 		for (final IdObject obj : selBones) {
 			if (Bone.class.isAssignableFrom(obj.getClass())) {
 				final Bone bone = (Bone) obj;
@@ -93,9 +93,9 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 					childVerts.addAll(geo.getChildrenOf(bone));
 				}
 				if (childVerts.size() > 0) {
-					final Vertex3 pivotPoint = bone.getPivotPoint();
-					boneToOldPosition.put(bone, new Vertex3(pivotPoint));
-					pivotPoint.set(Vertex3.centerOfGroup(childVerts));
+					final Vec3 pivotPoint = bone.getPivotPoint();
+					boneToOldPosition.put(bone, new Vec3(pivotPoint));
+					pivotPoint.set(Vec3.centerOfGroup(childVerts));
 				}
 			}
 		}
@@ -139,7 +139,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	}
 
 	@Override
-	public void selectByVertices(final Collection<? extends Vertex3> newSelection) {
+	public void selectByVertices(final Collection<? extends Vec3> newSelection) {
 		final Set<IdObject> newlySelectedPivots = new HashSet<>();
 		for (final IdObject object : model.getEditableIdObjects()) {
 			if (newSelection.contains(object.getPivotPoint())) {
@@ -182,7 +182,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 
 				@Override
 				public void collisionShape(final CollisionShape collisionShape) {
-					for (final Vertex3 vertex : collisionShape.getVertices()) {
+					for (final Vec3 vertex : collisionShape.getVertices()) {
 						if (newSelection.contains(vertex)) {
 							newlySelectedPivots.add(collisionShape);
 						}
@@ -286,7 +286,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		// selectionManager, "invert selection"));
 	}
 
-	private void toggleSelection(final Set<Vertex3> selection, final Vertex3 position) {
+	private void toggleSelection(final Set<Vec3> selection, final Vec3 position) {
 		if (selection.contains(position)) {
 			selection.remove(position);
 		} else {
@@ -401,7 +401,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		return selectionAtPointTester.isMouseOverVertex();
 	}
 
-	public static void hitTest(final List<IdObject> selectedItems, final Rectangle2D area, final Vertex3 geosetVertex,
+	public static void hitTest(final List<IdObject> selectedItems, final Rectangle2D area, final Vec3 geosetVertex,
 			final CoordinateSystem coordinateSystem, final double vertexSize, final IdObject node) {
 		final byte dim1 = coordinateSystem.getPortFirstXYZ();
 		final byte dim2 = coordinateSystem.getPortSecondXYZ();
@@ -419,7 +419,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		}
 	}
 
-	public static boolean hitTest(final Vertex3 vertex, final Point2D point, final CoordinateSystem coordinateSystem,
+	public static boolean hitTest(final Vec3 vertex, final Point2D point, final CoordinateSystem coordinateSystem,
 			final double vertexSize) {
 		final double x = coordinateSystem.convertX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
 		final double y = coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
@@ -514,7 +514,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		@Override
 		public void collisionShape(final CollisionShape collisionShape) {
 			handleDefaultNode(point, axes, collisionShape);
-			for (final Vertex3 vertex : collisionShape.getVertices()) {
+			for (final Vec3 vertex : collisionShape.getVertices()) {
 				if (hitTest(vertex, CoordinateSystem.Util.geom(axes, point), axes, IdObject.DEFAULT_CLICK_RADIUS)) {
 					mouseOverVertex = true;
 				}
@@ -622,7 +622,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 					collisionShape.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem)
 							* 2,
 					collisionShape);
-			for (final Vertex3 vertex : collisionShape.getVertices()) {
+			for (final Vec3 vertex : collisionShape.getVertices()) {
 				hitTest(selectedItems, area, vertex, coordinateSystem, IdObject.DEFAULT_CLICK_RADIUS, collisionShape);
 			}
 		}
@@ -647,7 +647,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 
 	@Override
 	public CopiedModelData copySelection() {
-		final Collection<? extends Vertex3> selection = selectionManager.getSelectedVertices();
+		final Collection<? extends Vec3> selection = selectionManager.getSelectedVertices();
 		final Set<IdObject> clonedNodes = new HashSet<>();
 		final Set<Camera> clonedCameras = new HashSet<>();
 		for (final IdObject b : model.getEditableIdObjects()) {
@@ -700,12 +700,12 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 						final AnimFlag translation = object.find("Translation");
 						if (translation != null) {
 							for (int i = 0; i < translation.size(); i++) {
-								final Vertex3 scaleData = (Vertex3) translation.getValues().get(i);
+								final Vec3 scaleData = (Vec3) translation.getValues().get(i);
 								scaleData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
 								if (translation.tans()) {
-									final Vertex3 inTanData = (Vertex3) translation.getInTans().get(i);
+									final Vec3 inTanData = (Vec3) translation.getInTans().get(i);
 									inTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
-									final Vertex3 outTanData = (Vertex3) translation.getInTans().get(i);
+									final Vec3 outTanData = (Vec3) translation.getInTans().get(i);
 									outTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
 								}
 							}
@@ -733,12 +733,12 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 						final AnimFlag translation = object.find("Translation");
 						if (translation != null) {
 							for (int i = 0; i < translation.size(); i++) {
-								final Vertex3 scaleData = (Vertex3) translation.getValues().get(i);
+								final Vec3 scaleData = (Vec3) translation.getValues().get(i);
 								scaleData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
 								if (translation.tans()) {
-									final Vertex3 inTanData = (Vertex3) translation.getInTans().get(i);
+									final Vec3 inTanData = (Vec3) translation.getInTans().get(i);
 									inTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
-									final Vertex3 outTanData = (Vertex3) translation.getInTans().get(i);
+									final Vec3 outTanData = (Vec3) translation.getInTans().get(i);
 									outTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
 								}
 							}
@@ -775,13 +775,13 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	}
 
 	@Override
-	public UndoAction createFaceFromSelection(final Vertex3 preferredFacingVector) {
+	public UndoAction createFaceFromSelection(final Vec3 preferredFacingVector) {
 		return new DoNothingAction("create face");
 	}
 
 	@Override
 	public UndoAction addVertex(final double x, final double y, final double z,
-			final Vertex3 preferredNormalFacingVector) {
+			final Vec3 preferredNormalFacingVector) {
 		return new DoNothingAction("add vertex");
 	}
 

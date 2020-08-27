@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotate
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.AbstractManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.rms.util.Vertex2;
+import com.hiveworkshop.rms.util.Vec2;
 
 public class RotateTVertexHorizontalManipulator extends AbstractManipulator {
 	private final TVertexEditor modelEditor;
@@ -23,14 +23,14 @@ public class RotateTVertexHorizontalManipulator extends AbstractManipulator {
 	@Override
 	protected void onStart(final Double mouseStart, final byte dim1, final byte dim2) {
 		super.onStart(mouseStart, dim1, dim2);
-		final Vertex2 center = selectionView.getUVCenter(modelEditor.getUVLayerIndex());
+		final Vec2 center = selectionView.getUVCenter(modelEditor.getUVLayerIndex());
 		rotationAction = modelEditor.beginRotation(center.x, center.y, dim1,
 				CoordinateSystem.Util.getUnusedXYZ(dim1, dim2));
 	}
 
 	@Override
 	public void update(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
-		final Vertex2 center = selectionView.getUVCenter(modelEditor.getUVLayerIndex());
+		final Vec2 center = selectionView.getUVCenter(modelEditor.getUVLayerIndex());
 		final double radians = computeRotateRadians(mouseStart, mouseEnd, center, dim1, dim2);
 		rotationAction.updateRotation(radians);
 	}
@@ -41,7 +41,7 @@ public class RotateTVertexHorizontalManipulator extends AbstractManipulator {
 		return rotationAction;
 	}
 
-	private double computeRotateRadians(final Double startingClick, final Double endingClick, final Vertex2 center,
+	private double computeRotateRadians(final Double startingClick, final Double endingClick, final Vec2 center,
 			final byte portFirstXYZ, final byte portSecondXYZ) {
 		double radius = selectionView.getCircumscribedSphereRadius(center, modelEditor.getUVLayerIndex());
 		if (radius <= 0) {

@@ -13,8 +13,8 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexModelElementRenderer;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.util.Vertex2;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vec2;
+import com.hiveworkshop.rms.util.Vec3;
 
 public final class FaceSelectionManager extends AbstractSelectionManager<Triangle> {
 	private static final Color FACE_SELECTED_COLOR = new Color(1f, 0.45f, 0.45f, 0.3f);
@@ -24,21 +24,21 @@ public final class FaceSelectionManager extends AbstractSelectionManager<Triangl
 	private static final Color FACE_NOT_SELECTED_COLOR = new Color(0.45f, 0.45f, 1f, 0.3f);
 
 	@Override
-	public Vertex3 getCenter() {
-		final Set<Vertex3> selectedVertices = new HashSet<>();
+	public Vec3 getCenter() {
+		final Set<Vec3> selectedVertices = new HashSet<>();
 		for (final Triangle triangle : selection) {
 			for (final GeosetVertex geosetVertex : triangle.getVerts()) {
 				selectedVertices.add(geosetVertex);
 			}
 		}
-		return Vertex3.centerOfGroup(selectedVertices);
+		return Vec3.centerOfGroup(selectedVertices);
 	}
 
 	@Override
-	public Set<Vertex3> getSelectedVertices() {
-		final Set<Vertex3> vertices = new HashSet<>();
+	public Set<Vec3> getSelectedVertices() {
+		final Set<Vec3> vertices = new HashSet<>();
 		for (final Triangle triangle : getSelection()) {
-			for (final Vertex3 vertex : triangle.getVerts()) {
+			for (final Vec3 vertex : triangle.getVerts()) {
 				vertices.add(vertex);
 			}
 		}
@@ -46,7 +46,7 @@ public final class FaceSelectionManager extends AbstractSelectionManager<Triangl
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vertex3 sphereCenter) {
+	public double getCircumscribedSphereRadius(final Vec3 sphereCenter) {
 		double radius = 0;
 		for (final Triangle item : selection) {
 			for (final GeosetVertex geosetVertex : item.getVerts()) {
@@ -88,8 +88,8 @@ public final class FaceSelectionManager extends AbstractSelectionManager<Triangl
 	}
 
 	@Override
-	public Vertex2 getUVCenter(final int tvertexLayerId) {
-		final Set<Vertex2> selectedVertices = new HashSet<>();
+	public Vec2 getUVCenter(final int tvertexLayerId) {
+		final Set<Vec2> selectedVertices = new HashSet<>();
 		for (final Triangle triangle : selection) {
 			for (final GeosetVertex geosetVertex : triangle.getVerts()) {
 				if (tvertexLayerId < geosetVertex.getTverts().size()) {
@@ -97,12 +97,12 @@ public final class FaceSelectionManager extends AbstractSelectionManager<Triangl
 				}
 			}
 		}
-		return Vertex2.centerOfGroup(selectedVertices);
+		return Vec2.centerOfGroup(selectedVertices);
 	}
 
 	@Override
-	public Collection<? extends Vertex2> getSelectedTVertices(final int tvertexLayerId) {
-		final Set<Vertex2> selectedVertices = new HashSet<>();
+	public Collection<? extends Vec2> getSelectedTVertices(final int tvertexLayerId) {
+		final Set<Vec2> selectedVertices = new HashSet<>();
 		for (final Triangle triangle : selection) {
 			for (final GeosetVertex geosetVertex : triangle.getVerts()) {
 				if (tvertexLayerId < geosetVertex.getTverts().size()) {
@@ -114,7 +114,7 @@ public final class FaceSelectionManager extends AbstractSelectionManager<Triangl
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vertex2 center, final int tvertexLayerId) {
+	public double getCircumscribedSphereRadius(final Vec2 center, final int tvertexLayerId) {
 		double radius = 0;
 		for (final Triangle item : selection) {
 			for (final GeosetVertex geosetVertex : item.getVerts()) {

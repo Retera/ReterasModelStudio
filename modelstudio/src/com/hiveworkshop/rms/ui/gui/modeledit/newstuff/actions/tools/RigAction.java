@@ -9,14 +9,14 @@ import java.util.Map;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vec3;
 
 public class RigAction implements UndoAction {
-	private final List<Vertex3> selectedVertices;
+	private final List<Vec3> selectedVertices;
 	private final List<Bone> selectedBones;
-	private final Map<Vertex3, List<Bone>> vertexToPriorBoneAttachment;
+	private final Map<Vec3, List<Bone>> vertexToPriorBoneAttachment;
 
-	public RigAction(final Collection<? extends Vertex3> selectedVertices,
+	public RigAction(final Collection<? extends Vec3> selectedVertices,
 			final Collection<? extends Bone> selectedBones) {
 		this.selectedVertices = new ArrayList<>(selectedVertices);
 		this.selectedBones = new ArrayList<>(selectedBones);
@@ -36,7 +36,7 @@ public class RigAction implements UndoAction {
 	}
 
 	private void loadUndoData() {
-		for (final Vertex3 vertex : selectedVertices) {
+		for (final Vec3 vertex : selectedVertices) {
 			if (vertex instanceof GeosetVertex) {
 				final List<Bone> boneAttachments = ((GeosetVertex) vertex).getBoneAttachments();
 				vertexToPriorBoneAttachment.put(vertex, new ArrayList<>(boneAttachments));
@@ -46,7 +46,7 @@ public class RigAction implements UndoAction {
 
 	@Override
 	public void undo() {
-		for (final Vertex3 vertex : selectedVertices) {
+		for (final Vec3 vertex : selectedVertices) {
 			final List<Bone> list = vertexToPriorBoneAttachment.get(vertex);
 			if (list != null) {
 				if (vertex instanceof GeosetVertex) {
@@ -58,7 +58,7 @@ public class RigAction implements UndoAction {
 
 	@Override
 	public void redo() {
-		for (final Vertex3 vertex : selectedVertices) {
+		for (final Vec3 vertex : selectedVertices) {
 			if (vertex instanceof GeosetVertex) {
 				((GeosetVertex) vertex).setBones(new ArrayList<>(selectedBones));
 			}

@@ -6,8 +6,8 @@ import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils.Mesh;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
-import com.hiveworkshop.rms.util.Vertex2;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vec2;
+import com.hiveworkshop.rms.util.Vec3;
 
 public class DrawPlaneAction implements GenericMoveAction {
 
@@ -25,7 +25,7 @@ public class DrawPlaneAction implements GenericMoveAction {
 	private final Geoset planeGeoset;
 
 	public DrawPlaneAction(final double x, final double y, final double x2, final double y2, final byte dim1,
-						   final byte dim2, final Vertex3 facingVector, final int numberOfWidthSegments,
+						   final byte dim2, final Vec3 facingVector, final int numberOfWidthSegments,
 						   final int numberOfHeightSegments, final Geoset planeGeoset) {
 		this.x = x;
 		this.y = y;
@@ -39,7 +39,7 @@ public class DrawPlaneAction implements GenericMoveAction {
 	}
 
 	public void makePlaneFromPoints(final double x, final double y, final double x2, final double y2, final byte dim1,
-									final byte dim2, final Vertex3 facingVector, final int numberOfWidthSegments,
+									final byte dim2, final Vec3 facingVector, final int numberOfWidthSegments,
 									final int numberOfHeightSegments) {
 		planeMinX = Math.min(x, x2);
 		planeMinY = Math.min(y, y2);
@@ -49,7 +49,7 @@ public class DrawPlaneAction implements GenericMoveAction {
 		plane = ModelUtils.createPlane(dim1, dim2, facingVector, 0, planeMinX, planeMinY, planeMaxX, planeMaxY,
 				numberOfWidthSegments, numberOfHeightSegments);
 		for (final GeosetVertex vertex : plane.getVertices()) {
-			vertex.addTVertex(new Vertex2(0, 0));
+			vertex.addTVertex(new Vec2(0, 0));
 			vertex.setGeoset(planeGeoset);
 		}
 		for (final Triangle triangle : plane.getTriangles()) {
@@ -78,7 +78,7 @@ public class DrawPlaneAction implements GenericMoveAction {
 		planeMaxY = maxY;
 	}
 
-	public void shiftPlanePoint(final Vertex3 vertex, final double newMinX, final double newMinY, final double scaleX,
+	public void shiftPlanePoint(final Vec3 vertex, final double newMinX, final double newMinY, final double scaleX,
 								final double scaleY) {
 		final double vertexX = vertex.getCoord(firstDimension);
 		vertex.setCoord(firstDimension, (vertexX - planeMinX) * scaleX + newMinX);

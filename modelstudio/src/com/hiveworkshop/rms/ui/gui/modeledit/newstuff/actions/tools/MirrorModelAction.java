@@ -7,19 +7,18 @@ import java.util.List;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.util.Vertex3;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vec3;
 
 public final class MirrorModelAction implements UndoAction {
 	private final char[] DIMENSION_NAMES = { 'Z', 'X', 'Y' };
-	private final List<Vertex3> selection;
+	private final List<Vec3> selection;
 	private final List<IdObject> idObjects;
 	private final byte mirrorDim;
 	private final double centerX;
 	private final double centerY;
 	private final double centerZ;
 
-	public MirrorModelAction(final Collection<? extends Vertex3> selection, final Collection<IdObject> idObjects,
+	public MirrorModelAction(final Collection<? extends Vec3> selection, final Collection<IdObject> idObjects,
 			final byte mirrorDim, final double centerX, final double centerY, final double centerZ) {
 		this.centerX = centerX;
 		this.centerY = centerY;
@@ -40,20 +39,20 @@ public final class MirrorModelAction implements UndoAction {
 	}
 
 	private void doMirror() {
-		final Vertex3 center = new Vertex3(centerX, centerY, centerZ);
+		final Vec3 center = new Vec3(centerX, centerY, centerZ);
 		// Vertex.centerOfGroup(selection);// Calc center
 		// // of mass
-		for (final Vertex3 vert : selection) {
+		for (final Vec3 vert : selection) {
 			vert.setCoord(mirrorDim, (2 * center.getCoord(mirrorDim)) - vert.getCoord(mirrorDim));
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
-				final Vertex3 normal = gv.getNormal();
+				final Vec3 normal = gv.getNormal();
 				if (normal != null) {
 					// Flip normals, preserve lighting!
 					normal.setCoord(mirrorDim, -normal.getCoord(mirrorDim));
 					// this will inverse back if they correctly choose to flip
 					// faces, otherwise we're making an inside out model now
-					normal.inverse();
+					normal.negate();
 				}
 				if (gv.getTangent() != null) {
 					// TODO doesn't support flip yet

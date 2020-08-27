@@ -11,8 +11,8 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexModelElementRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.util.Vertex2;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vec2;
+import com.hiveworkshop.rms.util.Vec3;
 
 public class MultiPartSelectionView implements SelectionView {
 	private final List<SelectionView> selectionViews;
@@ -22,14 +22,14 @@ public class MultiPartSelectionView implements SelectionView {
 	}
 
 	@Override
-	public Vertex3 getCenter() {
-		final List<Vertex3> vertices = new ArrayList<>();
+	public Vec3 getCenter() {
+		final List<Vec3> vertices = new ArrayList<>();
 		for (final SelectionView selectionView : selectionViews) {
-			for (final Vertex3 vertex : selectionView.getSelectedVertices()) {
+			for (final Vec3 vertex : selectionView.getSelectedVertices()) {
 				vertices.add(vertex);
 			}
 		}
-		return Vertex3.centerOfGroup(vertices);
+		return Vec3.centerOfGroup(vertices);
 	}
 
 	@Override
@@ -44,10 +44,10 @@ public class MultiPartSelectionView implements SelectionView {
 	}
 
 	@Override
-	public Collection<? extends Vertex3> getSelectedVertices() {
-		final List<Vertex3> vertices = new ArrayList<>();
+	public Collection<? extends Vec3> getSelectedVertices() {
+		final List<Vec3> vertices = new ArrayList<>();
 		for (final SelectionView selectionView : selectionViews) {
-			for (final Vertex3 vertex : selectionView.getSelectedVertices()) {
+			for (final Vec3 vertex : selectionView.getSelectedVertices()) {
 				vertices.add(vertex);
 			}
 		}
@@ -55,12 +55,12 @@ public class MultiPartSelectionView implements SelectionView {
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vertex3 center) {
+	public double getCircumscribedSphereRadius(final Vec3 center) {
 		double radius = 0;
 		// TODO WHY DOES THIS DISCARD THE CENTER ARG??
-		final Collection<? extends Vertex3> selectedVertices = getSelectedVertices();
-		final Vertex3 centerOfGroup = Vertex3.centerOfGroup(selectedVertices);
-		for (final Vertex3 item : selectedVertices) {
+		final Collection<? extends Vec3> selectedVertices = getSelectedVertices();
+		final Vec3 centerOfGroup = Vec3.centerOfGroup(selectedVertices);
+		for (final Vec3 item : selectedVertices) {
 			final double distance = centerOfGroup.distance(item);
 			if (distance >= radius) {
 				radius = distance;
@@ -89,21 +89,21 @@ public class MultiPartSelectionView implements SelectionView {
 	}
 
 	@Override
-	public Vertex2 getUVCenter(final int tvertexLayerId) {
-		final List<Vertex2> vertices = new ArrayList<>();
+	public Vec2 getUVCenter(final int tvertexLayerId) {
+		final List<Vec2> vertices = new ArrayList<>();
 		for (final SelectionView selectionView : selectionViews) {
-			for (final Vertex2 vertex : selectionView.getSelectedTVertices(tvertexLayerId)) {
+			for (final Vec2 vertex : selectionView.getSelectedTVertices(tvertexLayerId)) {
 				vertices.add(vertex);
 			}
 		}
-		return Vertex2.centerOfGroup(vertices);
+		return Vec2.centerOfGroup(vertices);
 	}
 
 	@Override
-	public Collection<? extends Vertex2> getSelectedTVertices(final int tvertexLayerId) {
-		final List<Vertex2> vertices = new ArrayList<>();
+	public Collection<? extends Vec2> getSelectedTVertices(final int tvertexLayerId) {
+		final List<Vec2> vertices = new ArrayList<>();
 		for (final SelectionView selectionView : selectionViews) {
-			for (final Vertex2 vertex : selectionView.getSelectedTVertices(tvertexLayerId)) {
+			for (final Vec2 vertex : selectionView.getSelectedTVertices(tvertexLayerId)) {
 				vertices.add(vertex);
 			}
 		}
@@ -111,12 +111,12 @@ public class MultiPartSelectionView implements SelectionView {
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vertex2 center, final int tvertexLayerId) {
+	public double getCircumscribedSphereRadius(final Vec2 center, final int tvertexLayerId) {
 		double radius = 0;
 		// TODO WHY DOES THIS DISCARD THE CENTER ARG??
-		final Collection<? extends Vertex2> selectedVertices = getSelectedTVertices(tvertexLayerId);
-		final Vertex2 centerOfGroup = Vertex2.centerOfGroup(selectedVertices);
-		for (final Vertex2 item : selectedVertices) {
+		final Collection<? extends Vec2> selectedVertices = getSelectedTVertices(tvertexLayerId);
+		final Vec2 centerOfGroup = Vec2.centerOfGroup(selectedVertices);
+		for (final Vec2 item : selectedVertices) {
 			final double distance = centerOfGroup.distance(item);
 			if (distance >= radius) {
 				radius = distance;

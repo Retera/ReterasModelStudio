@@ -18,7 +18,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.TVertexSelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Vec3;
 
 public final class TVertexEditorManager {
 	private final ModelView model;
@@ -48,7 +48,7 @@ public final class TVertexEditorManager {
 	}
 
 	public void setSelectionItemType(final TVertexSelectionItemTypes selectionMode) {
-		final Collection<? extends Vertex3> lastSelectedVertices;
+		final Collection<? extends Vec3> lastSelectedVertices;
 		if (selectionView != null) {
 
 			lastSelectedVertices = selectionView.getSelectedVertices();

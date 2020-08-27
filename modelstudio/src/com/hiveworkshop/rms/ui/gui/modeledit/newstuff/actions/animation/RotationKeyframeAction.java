@@ -8,15 +8,15 @@ import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.ui.application.edit.animation.NodeAnimationModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
-import com.hiveworkshop.rms.util.QuaternionRotation;
-import com.hiveworkshop.rms.util.Vertex3;
+import com.hiveworkshop.rms.util.Quat;
+import com.hiveworkshop.rms.util.Vec3;
 
 public class RotationKeyframeAction implements GenericRotateAction {
 	private final UndoAction addingTimelinesOrKeyframesAction;
 	private final int trackTime;
-	private final HashMap<IdObject, QuaternionRotation> nodeToLocalRotation;
+	private final HashMap<IdObject, Quat> nodeToLocalRotation;
 	private final NodeAnimationModelEditor modelEditor;
-	private final Vertex3 center;
+	private final Vec3 center;
 	private final byte dim1;
 	private final byte dim2;
 	private final Integer trackGlobalSeq;
@@ -33,16 +33,16 @@ public class RotationKeyframeAction implements GenericRotateAction {
 		this.dim2 = dim2;
 		nodeToLocalRotation = new HashMap<>();
 		for (final IdObject node : nodeSelection) {
-			nodeToLocalRotation.put(node, new QuaternionRotation());
+			nodeToLocalRotation.put(node, new Quat());
 		}
-		center = new Vertex3(centerX, centerY, centerZ);
+		center = new Vec3(centerX, centerY, centerZ);
 	}
 
 	@Override
 	public void undo() {
-		for (final Map.Entry<IdObject, QuaternionRotation> nodeAndLocalTranslation : nodeToLocalRotation.entrySet()) {
+		for (final Map.Entry<IdObject, Quat> nodeAndLocalTranslation : nodeToLocalRotation.entrySet()) {
 			final IdObject node = nodeAndLocalTranslation.getKey();
-			final QuaternionRotation localTranslation = nodeAndLocalTranslation.getValue();
+			final Quat localTranslation = nodeAndLocalTranslation.getValue();
 			node.updateLocalRotationKeyframeInverse(trackTime, trackGlobalSeq, localTranslation);
 		}
 		addingTimelinesOrKeyframesAction.undo();
@@ -51,9 +51,9 @@ public class RotationKeyframeAction implements GenericRotateAction {
 	@Override
 	public void redo() {
 		addingTimelinesOrKeyframesAction.redo();
-		for (final Map.Entry<IdObject, QuaternionRotation> nodeAndLocalTranslation : nodeToLocalRotation.entrySet()) {
+		for (final Map.Entry<IdObject, Quat> nodeAndLocalTranslation : nodeToLocalRotation.entrySet()) {
 			final IdObject node = nodeAndLocalTranslation.getKey();
-			final QuaternionRotation localTranslation = nodeAndLocalTranslation.getValue();
+			final Quat localTranslation = nodeAndLocalTranslation.getValue();
 			node.updateLocalRotationKeyframe(trackTime, trackGlobalSeq, localTranslation);
 		}
 	}

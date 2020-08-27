@@ -7,18 +7,18 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.util.Vertex2;
+import com.hiveworkshop.rms.util.Vec2;
 
 public final class TVertexMoverWidget {
 	private static final int TRIANGLE_OFFSET = 60 - 16;
-	private final Vertex2 point;
+	private final Vec2 point;
 	private MoveDirection moveDirection = MoveDirection.NONE;
 	private final Polygon northTriangle;
 	private final Polygon eastTriangle;
 
-	public TVertexMoverWidget(final Vertex2 point) {
-		this.point = new Vertex2(0, 0);
-		this.point.setTo(point);
+	public TVertexMoverWidget(final Vec2 point) {
+		this.point = new Vec2(0, 0);
+		this.point.set(point);
 		northTriangle = new Polygon();
 		northTriangle.addPoint(-5, 0);
 		northTriangle.addPoint(0, -18);
@@ -53,12 +53,12 @@ public final class TVertexMoverWidget {
 		return direction;
 	}
 
-	public Vertex2 getPoint() {
+	public Vec2 getPoint() {
 		return point;
 	}
 
-	public void setPoint(final Vertex2 point) {
-		this.point.setTo(point);
+	public void setPoint(final Vec2 point) {
+		this.point.set(point);
 	}
 
 	public MoveDirection getMoveDirection() {
