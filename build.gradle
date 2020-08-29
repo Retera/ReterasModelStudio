@@ -19,7 +19,6 @@ allprojects {
     ext {
         appName = "retera-jwc3"
         jtattooVersion = '1.6.11'
-        xstreamVersion = '1.4.9'
         miglayoutVersion = '4.2'
 		lwjglVersion = '2.9.3'
 		image4jVersion = '0.7'
@@ -60,7 +59,6 @@ project(":thirdparty") {
         compile "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-osx"
         compile "org.lwjgl.lwjgl:lwjgl_util:${lwjglVersion}"
         compile "net.nikr:dds:1.0.0"
-        compile "com.google.guava:guava:23.5-jre"
 //        compile "com.github.ebourg:infonode:master"
 //        compile "com.github.DrSuperGood:blp-iio-plugin:master"
         compile files(fileTree(dir: '../jars', includes: ['*.jar']))
