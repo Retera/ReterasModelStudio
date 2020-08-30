@@ -48,12 +48,7 @@ public class AnimationViewer extends JPanel {
 						isSelected, cellHasFocus);
 			}
 		});
-		animationBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				perspectiveViewport.setAnimation((Animation) animationBox.getSelectedItem());
-			}
-		});
+		animationBox.addActionListener(e -> perspectiveViewport.setAnimation((Animation) animationBox.getSelectedItem()));
 		add(animationBox, BorderLayout.AFTER_LAST_LINE);
 
 	}

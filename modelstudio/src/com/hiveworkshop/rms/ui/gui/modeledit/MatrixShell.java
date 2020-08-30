@@ -6,11 +6,11 @@ import com.hiveworkshop.rms.editor.model.Matrix;
 
 public class MatrixShell {
 	Matrix matrix;
-	ArrayList<BoneShell> newBones = new ArrayList<BoneShell>();
+	ArrayList<BoneShell> newBones = new ArrayList<>();
 
 	public MatrixShell(final Matrix m) {
 		matrix = m;
-		newBones = new ArrayList<BoneShell>();
+		newBones = new ArrayList<>();
 	}
 
 	public Matrix getMatrix() {

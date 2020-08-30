@@ -114,18 +114,18 @@ public final class RenderNode {
 					worldScale.z = parentScale.z * localScale.z;
 				}
 
-				pivotHeap.x = (float) idObject.getPivotPoint().x;
-				pivotHeap.y = (float) idObject.getPivotPoint().y;
-				pivotHeap.z = (float) idObject.getPivotPoint().z;
+				pivotHeap.x = idObject.getPivotPoint().x;
+				pivotHeap.y = idObject.getPivotPoint().y;
+				pivotHeap.z = idObject.getPivotPoint().z;
 				localMatrix.fromRotationTranslationScaleOrigin(localRotation, computedLocation, computedScaling, pivotHeap);
 
 				model.getRenderNode(idObject.getParent()).worldMatrix.mul(localMatrix, worldMatrix);
 				model.getRenderNode(idObject.getParent()).worldRotation.mul(localRotation, worldRotation);
 			} else {
 
-				pivotHeap.x = (float) idObject.getPivotPoint().x;
-				pivotHeap.y = (float) idObject.getPivotPoint().y;
-				pivotHeap.z = (float) idObject.getPivotPoint().z;
+				pivotHeap.x = idObject.getPivotPoint().x;
+				pivotHeap.y = idObject.getPivotPoint().y;
+				pivotHeap.z = idObject.getPivotPoint().z;
 				localMatrix.fromRotationTranslationScaleOrigin(localRotation, localLocation, localScale, pivotHeap);
 				worldMatrix.set(localMatrix);
 				worldRotation.set(localRotation);
@@ -194,18 +194,18 @@ public final class RenderNode {
 	}
 
 	public void setTransformation(final Vec3 location, final Quat rotation, final Vec3 scale) {
-		localLocation.x = (float) location.x;
-		localLocation.y = (float) location.y;
-		localLocation.z = (float) location.z;
+		localLocation.x = location.x;
+		localLocation.y = location.y;
+		localLocation.z = location.z;
 
-		localRotation.x = (float) rotation.x;
-		localRotation.y = (float) rotation.y;
-		localRotation.z = (float) rotation.z;
-		localRotation.w = (float) rotation.w;
+		localRotation.x = rotation.x;
+		localRotation.y = rotation.y;
+		localRotation.z = rotation.z;
+		localRotation.w = rotation.w;
 
-		localScale.x = (float) scale.x;
-		localScale.y = (float) scale.y;
-		localScale.z = (float) scale.z;
+		localScale.x = scale.x;
+		localScale.y = scale.y;
+		localScale.z = scale.z;
 
 		dirty = true;
 	}
@@ -266,9 +266,9 @@ public final class RenderNode {
 	}
 
 	public Vec3 getPivot() {
-		vector4Heap.x = (float) idObject.getPivotPoint().x;
-		vector4Heap.y = (float) idObject.getPivotPoint().y;
-		vector4Heap.z = (float) idObject.getPivotPoint().z;
+		vector4Heap.x = idObject.getPivotPoint().x;
+		vector4Heap.y = idObject.getPivotPoint().y;
+		vector4Heap.z = idObject.getPivotPoint().z;
 		vector4Heap.w = 1;
 		worldMatrix.transform(vector4Heap);
 		pivotHeap.x = vector4Heap.x;

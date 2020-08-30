@@ -34,12 +34,7 @@ public class ExtLogEditor extends JPanel {
 		minimumExtentZ = new ComponentEditorJSpinner(
 				new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
 		minimumExtentZ.setMaximumSize(MAXIMUM_SIZE);
-		minimumExtentBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				updateMinExtOptionsAvailable();
-			}
-		});
+		minimumExtentBox.addActionListener(e -> updateMinExtOptionsAvailable());
 		maximumExtentBox = new JCheckBox("Maximum Extent");
 		maximumExtentX = new ComponentEditorJSpinner(
 				new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
@@ -50,21 +45,11 @@ public class ExtLogEditor extends JPanel {
 		maximumExtentZ = new ComponentEditorJSpinner(
 				new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
 		maximumExtentZ.setMaximumSize(MAXIMUM_SIZE);
-		maximumExtentBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				updateMaxExtOptionsAvailable();
-			}
-		});
+		maximumExtentBox.addActionListener(e -> updateMaxExtOptionsAvailable());
 		boundsRadiusBox = new JCheckBox("Bounds Radius");
 		boundsRadius = new ComponentEditorJSpinner(new SpinnerNumberModel(0., -Long.MAX_VALUE, Long.MAX_VALUE, 1.0));
 		boundsRadius.setMaximumSize(MAXIMUM_SIZE);
-		boundsRadiusBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				updateBoundRadiusOptionsAvailable();
-			}
-		});
+		boundsRadiusBox.addActionListener(e -> updateBoundRadiusOptionsAvailable());
 
 		final GroupLayout layout = new GroupLayout(this);
 		layout.setHorizontalGroup(layout.createSequentialGroup().addGap(16)
@@ -97,12 +82,7 @@ public class ExtLogEditor extends JPanel {
 		maximumExtentY.addActionListener(actionListener);
 		maximumExtentZ.addActionListener(actionListener);
 		boundsRadius.addActionListener(actionListener);
-		final ActionListener actionAdapter = new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				actionListener.run();
-			}
-		};
+		final ActionListener actionAdapter = e -> actionListener.run();
 		minimumExtentBox.addActionListener(actionAdapter);
 		maximumExtentBox.addActionListener(actionAdapter);
 		boundsRadiusBox.addActionListener(actionAdapter);

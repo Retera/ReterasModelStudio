@@ -22,12 +22,7 @@ public class FolderDataSource implements DataSource {
 		this.folderPath = folderPath;
 		listfile = new HashSet<>();
 		try {
-			Files.walk(folderPath).filter(Files::isRegularFile).forEach(new Consumer<Path>() {
-				@Override
-				public void accept(final Path t) {
-					listfile.add(folderPath.relativize(t).toString());
-				}
-			});
+			Files.walk(folderPath).filter(Files::isRegularFile).forEach(t -> listfile.add(folderPath.relativize(t).toString()));
 		} catch (final IOException e) {
 			throw new RuntimeException(e);
 		}

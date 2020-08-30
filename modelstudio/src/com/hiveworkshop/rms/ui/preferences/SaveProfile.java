@@ -124,9 +124,10 @@ public class SaveProfile implements Serializable {
 				}
 			} else if (desc instanceof CascDataSourceDescriptor) {
 				for (final String prefix : ((CascDataSourceDescriptor) desc).getPrefixes()) {
-					if (prefix.contains("_hd.w3mod")) {
-						hd = true;
-					}
+                    if (prefix.contains("_hd.w3mod")) {
+                        hd = true;
+                        break;
+                    }
 				}
 			} else if (desc instanceof MpqDataSourceDescriptor) {
 				if (((MpqDataSourceDescriptor) desc).getMpqFilePath().contains("_hd")) {

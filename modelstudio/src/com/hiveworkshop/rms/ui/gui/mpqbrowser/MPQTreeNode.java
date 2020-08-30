@@ -28,7 +28,7 @@ public class MPQTreeNode implements TreeNode {
 
 	@Override
 	public Enumeration<MPQTreeNode> children() {
-		return new Enumeration<MPQTreeNode>() {
+		return new Enumeration<>() {
 			private final Iterator<MPQTreeNode> iterator = children.values().iterator();
 
 			@Override
@@ -109,18 +109,15 @@ public class MPQTreeNode implements TreeNode {
 	}
 
 	public void sort() {
-		Collections.sort(childrenKeys, new Comparator<String>() {
-			@Override
-			public int compare(final String o1, final String o2) {
-				final MPQTreeNode child1 = children.get(o1);
-				final MPQTreeNode child2 = children.get(o2);
-				if (child1.isLeaf() && !child2.isLeaf()) {
-					return 1;
-				} else if (!child1.isLeaf() && child2.isLeaf()) {
-					return -1;
-				}
-				return o1.compareTo(o2);
+		childrenKeys.sort((o1, o2) -> {
+			final MPQTreeNode child1 = children.get(o1);
+			final MPQTreeNode child2 = children.get(o2);
+			if (child1.isLeaf() && !child2.isLeaf()) {
+				return 1;
+			} else if (!child1.isLeaf() && child2.isLeaf()) {
+				return -1;
 			}
+			return o1.compareTo(o2);
 		});
 		for (final MPQTreeNode child : children.values()) {
 			if (!child.isLeaf()) {

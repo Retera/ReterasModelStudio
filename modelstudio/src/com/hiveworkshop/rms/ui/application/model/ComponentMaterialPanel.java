@@ -35,7 +35,7 @@ public class ComponentMaterialPanel extends JPanel implements ComponentPanel {
 
 	public ComponentMaterialPanel() {
 		final String[] shaderOptions = { "", "Shader_SD_FixedFunction", "Shader_HD_DefaultUnit" };
-		shaderOptionComboBox = new JComboBox<String>(shaderOptions);
+		shaderOptionComboBox = new JComboBox<>(shaderOptions);
 		shaderOptionComboBox.setRenderer(new BasicComboBoxRenderer() {
 			@Override
 			protected void paintComponent(final Graphics g) {
@@ -81,30 +81,24 @@ public class ComponentMaterialPanel extends JPanel implements ComponentPanel {
 		});
 		shaderOptionComboBox.setEditable(true);
 
-		shaderOptionComboBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				if (listenForChanges) {
-					final SetMaterialShaderStringAction setMaterialShaderStringAction = new SetMaterialShaderStringAction(
-							material, material.getShaderString(), (String) shaderOptionComboBox.getSelectedItem(),
-							modelStructureChangeListener);
-					setMaterialShaderStringAction.redo();
-					undoActionListener.pushAction(setMaterialShaderStringAction);
-				}
-			}
-		});
+		shaderOptionComboBox.addActionListener(e -> {
+            if (listenForChanges) {
+                final SetMaterialShaderStringAction setMaterialShaderStringAction = new SetMaterialShaderStringAction(
+                        material, material.getShaderString(), (String) shaderOptionComboBox.getSelectedItem(),
+                        modelStructureChangeListener);
+                setMaterialShaderStringAction.redo();
+                undoActionListener.pushAction(setMaterialShaderStringAction);
+            }
+        });
 
 		priorityPlaneSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(-1, -1, Integer.MAX_VALUE, 1));
-		priorityPlaneSpinner.addActionListener(new Runnable() {
-			@Override
-			public void run() {
-				final SetMaterialPriorityPlaneAction setMaterialPriorityPlaneAction = new SetMaterialPriorityPlaneAction(
-						material, material.getPriorityPlane(), ((Number) priorityPlaneSpinner.getValue()).intValue(),
-						modelStructureChangeListener);
-				setMaterialPriorityPlaneAction.redo();
-				undoActionListener.pushAction(setMaterialPriorityPlaneAction);
-			}
-		});
+		priorityPlaneSpinner.addActionListener(() -> {
+            final SetMaterialPriorityPlaneAction setMaterialPriorityPlaneAction = new SetMaterialPriorityPlaneAction(
+                    material, material.getPriorityPlane(), ((Number) priorityPlaneSpinner.getValue()).intValue(),
+                    modelStructureChangeListener);
+            setMaterialPriorityPlaneAction.redo();
+            undoActionListener.pushAction(setMaterialPriorityPlaneAction);
+        });
 
 		multipleLayersPanel = new ComponentMaterialLayersPanel();
 

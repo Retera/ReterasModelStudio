@@ -300,11 +300,11 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 		void sort() {
 			final Comparator<WarcraftObject> unitComp = new UnitComparator();
 
-			Collections.sort(units, unitComp);
-			Collections.sort(heroes, unitComp);
-			Collections.sort(buildings, unitComp);
-			Collections.sort(buildingsUprooted, unitComp);
-			Collections.sort(special, unitComp);
+			units.sort(unitComp);
+			heroes.sort(unitComp);
+			buildings.sort(unitComp);
+			buildingsUprooted.sort(unitComp);
+			special.sort(unitComp);
 		}
 	}
 

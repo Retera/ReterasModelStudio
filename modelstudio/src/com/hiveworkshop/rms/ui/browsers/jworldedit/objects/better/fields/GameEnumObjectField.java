@@ -60,12 +60,7 @@ public class GameEnumObjectField extends AbstractObjectField {
 				selectedItemClass = itemClass;
 			}
 		}
-		Collections.sort(itemClassesList, new Comparator<GameEnumChoice>() {
-			@Override
-			public int compare(final GameEnumChoice a, final GameEnumChoice b) {
-				return a.getCategoryDisplay().compareTo(b.getCategoryDisplay());
-			}
-		});
+		itemClassesList.sort((a, b) -> a.getCategoryDisplay().compareTo(b.getCategoryDisplay()));
 
 		final JPanel popupPanel = new JPanel();
 		popupPanel.add(new JLabel(getDisplayName(gameUnit)));

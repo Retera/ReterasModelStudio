@@ -159,9 +159,9 @@ public class GeosetAnim extends TimelineContainer implements Named {
 	public Vec3 getRenderColor(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		final Vec3 c = getInterpolatedVector(animatedRenderEnvironment, "Color", staticColor);
 
-		renderColorVector.x = (float) c.x;
-		renderColorVector.y = (float) c.y;
-		renderColorVector.z = (float) c.z;
+		renderColorVector.x = c.x;
+		renderColorVector.y = c.y;
+		renderColorVector.z = c.z;
 
 		return renderColorVector;
 	}

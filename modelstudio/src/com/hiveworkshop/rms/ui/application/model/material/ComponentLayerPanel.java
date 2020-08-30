@@ -43,29 +43,23 @@ public class ComponentLayerPanel extends JPanel {
 		add(layerFlagsPanel);
 		leftHandSettingsPanel.setLayout(new MigLayout());
 		leftHandSettingsPanel.add(new JLabel("Filter Mode:"));
-		filterModeDropdown = new JComboBox<FilterMode>(FilterMode.values());
-		filterModeDropdown.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				if (listenersEnabled) {
-					final SetLayerFilterModeAction setLayerFilterModeAction = new SetLayerFilterModeAction(
-							layer, layer.getFilterMode(),
-							((FilterMode) filterModeDropdown.getSelectedItem()),
-							modelStructureChangeListener);
-					setLayerFilterModeAction.redo();
-					undoActionListener.pushAction(setLayerFilterModeAction);
-				}
-			}
-		});
+		filterModeDropdown = new JComboBox<>(FilterMode.values());
+		filterModeDropdown.addActionListener(e -> {
+            if (listenersEnabled) {
+                final SetLayerFilterModeAction setLayerFilterModeAction = new SetLayerFilterModeAction(
+                        layer, layer.getFilterMode(),
+                        ((FilterMode) filterModeDropdown.getSelectedItem()),
+                        modelStructureChangeListener);
+                setLayerFilterModeAction.redo();
+                undoActionListener.pushAction(setLayerFilterModeAction);
+            }
+        });
 		leftHandSettingsPanel.add(filterModeDropdown, "wrap, growx");
 		leftHandSettingsPanel.add(new JLabel("Texture:"));
 		textureButton = new JButton("Choose Texture");
-		textureButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
+		textureButton.addActionListener(e -> {
 
-			}
-		});
+        });
 		leftHandSettingsPanel.add(textureButton, "wrap, growx");
 		coordIdSpinner = new ComponentEditorJSpinner(
 				new SpinnerNumberModel(0, Integer.MIN_VALUE, Integer.MAX_VALUE, 1));

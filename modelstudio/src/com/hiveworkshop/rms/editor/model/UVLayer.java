@@ -16,7 +16,7 @@ public class UVLayer
     List<Vec2> tverts;
     public UVLayer()
     {
-        tverts = new ArrayList<Vec2>();
+        tverts = new ArrayList<>();
     }
     public void addTVertex(Vec2 v)
     {

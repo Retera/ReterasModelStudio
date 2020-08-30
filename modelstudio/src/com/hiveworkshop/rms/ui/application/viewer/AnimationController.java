@@ -49,54 +49,40 @@ public class AnimationController extends JPanel {
 				return super.getListCellRendererComponent(list, display, index, isSelected, cellHasFocus);
 			}
 		});
-		animationBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				listener.setAnimation((Animation) animationBox.getSelectedItem());
-				listener.playAnimation();
-			}
+		animationBox.addActionListener(e -> {
+			listener.setAnimation((Animation) animationBox.getSelectedItem());
+			listener.playAnimation();
 		});
 		animationBox.setMaximumSize(new Dimension(99999999, 35));
 		animationBox.setFocusable(true);
-		animationBox.addMouseWheelListener(new MouseWheelListener() {
-			@Override
-			public void mouseWheelMoved(final MouseWheelEvent e) {
-				final int wheelRotation = e.getWheelRotation();
-				int previousSelectedIndex = animationBox.getSelectedIndex();
-				if (previousSelectedIndex < 0) {
-					previousSelectedIndex = 0;
-				}
-				int newIndex = previousSelectedIndex + wheelRotation;
-				if (newIndex > (animations.getSize() - 1)) {
-					newIndex = animations.getSize() - 1;
-				} else if (newIndex < 0) {
-					newIndex = 0;
-				}
-				if (newIndex != previousSelectedIndex) {
-					animationBox.setSelectedIndex(newIndex);
-					// animationBox.setSelectedIndex(
-					// ((newIndex % animations.getSize()) + animations.getSize()) %
-					// animations.getSize());
-				}
+		animationBox.addMouseWheelListener(e -> {
+			final int wheelRotation = e.getWheelRotation();
+			int previousSelectedIndex = animationBox.getSelectedIndex();
+			if (previousSelectedIndex < 0) {
+				previousSelectedIndex = 0;
+			}
+			int newIndex = previousSelectedIndex + wheelRotation;
+			if (newIndex > (animations.getSize() - 1)) {
+				newIndex = animations.getSize() - 1;
+			} else if (newIndex < 0) {
+				newIndex = 0;
+			}
+			if (newIndex != previousSelectedIndex) {
+				animationBox.setSelectedIndex(newIndex);
+				// animationBox.setSelectedIndex(
+				// ((newIndex % animations.getSize()) + animations.getSize()) %
+				// animations.getSize());
 			}
 		});
 		final JSlider speedSlider = new JSlider(0, 100, 50);
 		final JLabel speedSliderLabel = new JLabel("Speed: 100%");
-		speedSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(final ChangeEvent e) {
-				speedSliderLabel.setText("Speed: " + (speedSlider.getValue() * 2) + "%");
-				listener.setSpeed(speedSlider.getValue() / 50f);
-			}
+		speedSlider.addChangeListener(e -> {
+			speedSliderLabel.setText("Speed: " + (speedSlider.getValue() * 2) + "%");
+			listener.setSpeed(speedSlider.getValue() / 50f);
 		});
 
 		final JButton playAnimationButton = new JButton("Play Animation");
-		final ActionListener playAnimationActionListener = new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				listener.playAnimation();
-			}
-		};
+		final ActionListener playAnimationActionListener = e -> listener.playAnimation();
 		playAnimationButton.addActionListener(playAnimationActionListener);
 
 		final JRadioButton defaultLoopButton = new JRadioButton("Default Loop");
@@ -107,22 +93,19 @@ public class AnimationController extends JPanel {
 		buttonGroup.add(defaultLoopButton);
 		buttonGroup.add(alwaysLoopButton);
 		buttonGroup.add(neverLoopButton);
-		final ActionListener setLoopTypeActionListener = new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final AnimationControllerListener.LoopType loopType;
-				if (defaultLoopButton.isSelected()) {
-					loopType = AnimationControllerListener.LoopType.DEFAULT_LOOP;
-				} else if (alwaysLoopButton.isSelected()) {
-					loopType = AnimationControllerListener.LoopType.ALWAYS_LOOP;
-				} else if (neverLoopButton.isSelected()) {
-					loopType = AnimationControllerListener.LoopType.NEVER_LOOP;
-				} else {
-					throw new IllegalStateException();
-				}
-				listener.setLoop(loopType);
-				listener.playAnimation();
+		final ActionListener setLoopTypeActionListener = e -> {
+			final AnimationControllerListener.LoopType loopType;
+			if (defaultLoopButton.isSelected()) {
+				loopType = AnimationControllerListener.LoopType.DEFAULT_LOOP;
+			} else if (alwaysLoopButton.isSelected()) {
+				loopType = AnimationControllerListener.LoopType.ALWAYS_LOOP;
+			} else if (neverLoopButton.isSelected()) {
+				loopType = AnimationControllerListener.LoopType.NEVER_LOOP;
+			} else {
+				throw new IllegalStateException();
 			}
+			listener.setLoop(loopType);
+			listener.playAnimation();
 		};
 		defaultLoopButton.addActionListener(setLoopTypeActionListener);
 		alwaysLoopButton.addActionListener(setLoopTypeActionListener);
@@ -130,12 +113,7 @@ public class AnimationController extends JPanel {
 
 		final JLabel levelOfDetailLabel = new JLabel("Level of Detail");
 		final JSpinner levelOfDetailSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 5, 1));
-		levelOfDetailSpinner.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(final ChangeEvent e) {
-				listener.setLevelOfDetail(((Number) levelOfDetailSpinner.getValue()).intValue());
-			}
-		});
+		levelOfDetailSpinner.addChangeListener(e -> listener.setLevelOfDetail(((Number) levelOfDetailSpinner.getValue()).intValue()));
 		levelOfDetailSpinner.setMaximumSize(new Dimension(99999, 25));
 
 		groupLayout.setHorizontalGroup(groupLayout.createParallelGroup().addComponent(animationBox)

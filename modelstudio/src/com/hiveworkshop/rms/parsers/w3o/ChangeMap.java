@@ -12,12 +12,8 @@ public final class ChangeMap implements Iterable<Map.Entry<War3ID, List<Change>>
 	private final Map<War3ID, List<Change>> idToChanges = new HashMap<>();
 
 	public void add(final War3ID war3Id, final Change change) {
-		List<Change> list = idToChanges.get(war3Id);
-		if (list == null) {
-			list = new ArrayList<>();
-			idToChanges.put(war3Id, list);
-		}
-		list.add(change);
+        List<Change> list = idToChanges.computeIfAbsent(war3Id, k -> new ArrayList<>());
+        list.add(change);
 	}
 
 	public void add(final War3ID war3Id, final List<Change> changes) {

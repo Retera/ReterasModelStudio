@@ -400,6 +400,8 @@ public class AnimFlag {
 		values = deepCopy(af.values);
 		inTans = deepCopy(af.inTans);
 		outTans = deepCopy(af.outTans);
+		vectorSize = af.vectorSize;
+		isFloat = af.isFloat;
 	}
 
 	public static AnimFlag buildEmptyFrom(final AnimFlag af) {
@@ -635,79 +637,79 @@ public class AnimFlag {
 	public void flipOver(final byte axis) {
 		if (typeid == 2) {
 			// Rotation
-			for (int k = 0; k < values.size(); k++) {
-				final Quat rot = (Quat) values.get(k);
+			for (Object value : values) {
+				final Quat rot = (Quat) value;
 				final Vec3 euler = rot.toEuler();
 				switch (axis) {
-				case 0:
-					euler.x = -euler.x;
-					euler.y = -euler.y;
-					break;
-				case 1:
-					euler.x = -euler.x;
-					euler.z = -euler.z;
-					break;
-				case 2:
-					euler.y = -euler.y;
-					euler.z = -euler.z;
-					break;
+					case 0:
+						euler.x = -euler.x;
+						euler.y = -euler.y;
+						break;
+					case 1:
+						euler.x = -euler.x;
+						euler.z = -euler.z;
+						break;
+					case 2:
+						euler.y = -euler.y;
+						euler.z = -euler.z;
+						break;
 				}
 				rot.set(euler);
 			}
-			for (int k = 0; k < inTans.size(); k++) {
-				final Quat rot = (Quat) inTans.get(k);
+			for (Object inTan : inTans) {
+				final Quat rot = (Quat) inTan;
 				final Vec3 euler = rot.toEuler();
 				switch (axis) {
-				case 0:
-					euler.x = -euler.x;
-					euler.y = -euler.y;
-					break;
-				case 1:
-					euler.x = -euler.x;
-					euler.z = -euler.z;
-					break;
-				case 2:
-					euler.y = -euler.y;
-					euler.z = -euler.z;
-					break;
+					case 0:
+						euler.x = -euler.x;
+						euler.y = -euler.y;
+						break;
+					case 1:
+						euler.x = -euler.x;
+						euler.z = -euler.z;
+						break;
+					case 2:
+						euler.y = -euler.y;
+						euler.z = -euler.z;
+						break;
 				}
 				rot.set(euler);
 			}
-			for (int k = 0; k < outTans.size(); k++) {
-				final Quat rot = (Quat) outTans.get(k);
+			for (Object outTan : outTans) {
+				final Quat rot = (Quat) outTan;
 				final Vec3 euler = rot.toEuler();
 				switch (axis) {
-				case 0:
-					euler.x = -euler.x;
-					euler.y = -euler.y;
-					break;
-				case 1:
-					euler.x = -euler.x;
-					euler.z = -euler.z;
-					break;
-				case 2:
-					euler.y = -euler.y;
-					euler.z = -euler.z;
-					break;
+					case 0:
+						euler.x = -euler.x;
+						euler.y = -euler.y;
+						break;
+					case 1:
+						euler.x = -euler.x;
+						euler.z = -euler.z;
+						break;
+					case 2:
+						euler.y = -euler.y;
+						euler.z = -euler.z;
+						break;
 				}
 				rot.set(euler);
 			}
 		} else if (typeid == 3) {
 			// Translation
-			for (int k = 0; k < values.size(); k++) {
-				final Vec3 trans = (Vec3) values.get(k);
-				
+			for (Object value : values) {
+				final Vec3 trans = (Vec3) value;
+
 				trans.setCoord(axis, -trans.getCoord(axis));
 			}
 
-			for (int k = 0; k < inTans.size(); k++) {
-				final Vec3 trans = (Vec3) inTans.get(k);
-				
+			for (Object inTan : inTans) {
+				final Vec3 trans = (Vec3) inTan;
+
 				trans.setCoord(axis, -trans.getCoord(axis));
 			}
 
-			for (int k = 0; k < outTans.size(); k++) {
-				final Vec3 trans = (Vec3) outTans.get(k);
+			for (Object outTan : outTans) {
+				final Vec3 trans = (Vec3) outTan;
 
 				trans.setCoord(axis, -trans.getCoord(axis));
 			}

@@ -20,15 +20,12 @@ public class ComponentEditorJSpinner extends JSpinner {
 	}
 
 	private void init() {
-		addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(final ChangeEvent e) {
-				((JSpinner.DefaultEditor) getEditor()).getTextField()
-						.setForeground(UnsavedChangesDocumentListener.UNSAVED_FOREGROUND_COLOR);
-				((JSpinner.DefaultEditor) getEditor()).getTextField()
-						.setBackground(UnsavedChangesDocumentListener.UNSAVED_BACKGROUND_COLOR);
-			}
-		});
+		addChangeListener(e -> {
+            ((DefaultEditor) getEditor()).getTextField()
+                    .setForeground(UnsavedChangesDocumentListener.UNSAVED_FOREGROUND_COLOR);
+            ((DefaultEditor) getEditor()).getTextField()
+                    .setBackground(UnsavedChangesDocumentListener.UNSAVED_BACKGROUND_COLOR);
+        });
 		final JFormattedTextField textField = ((JSpinner.DefaultEditor) getEditor()).getTextField();
 		final DefaultFormatter formatter = (DefaultFormatter) textField.getFormatter();
 		formatter.setCommitsOnValidEdit(true);

@@ -8,31 +8,11 @@ import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxUInt32Timeline;
 public interface MdlxTimelineDescriptor {
 	MdlxTimeline<?> createTimeline();
 
-	MdlxTimelineDescriptor UINT32_TIMELINE = new MdlxTimelineDescriptor() {
-		@Override
-		public MdlxUInt32Timeline createTimeline() {
-			return new MdlxUInt32Timeline();
-		}
-	};
+	MdlxTimelineDescriptor UINT32_TIMELINE = () -> new MdlxUInt32Timeline();
 
-	MdlxTimelineDescriptor FLOAT_TIMELINE = new MdlxTimelineDescriptor() {
-		@Override
-		public MdlxFloatTimeline createTimeline() {
-			return new MdlxFloatTimeline();
-		}
-	};
+	MdlxTimelineDescriptor FLOAT_TIMELINE = () -> new MdlxFloatTimeline();
 
-	MdlxTimelineDescriptor VECTOR3_TIMELINE = new MdlxTimelineDescriptor() {
-		@Override
-		public MdlxFloatArrayTimeline createTimeline() {
-			return new MdlxFloatArrayTimeline(3);
-		}
-	};
+	MdlxTimelineDescriptor VECTOR3_TIMELINE = () -> new MdlxFloatArrayTimeline(3);
 
-	MdlxTimelineDescriptor VECTOR4_TIMELINE = new MdlxTimelineDescriptor() {
-		@Override
-		public MdlxFloatArrayTimeline createTimeline() {
-			return new MdlxFloatArrayTimeline(4);
-		}
-	};
+	MdlxTimelineDescriptor VECTOR4_TIMELINE = () -> new MdlxFloatArrayTimeline(4);
 }

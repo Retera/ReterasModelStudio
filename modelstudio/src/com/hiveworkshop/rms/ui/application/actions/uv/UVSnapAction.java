@@ -19,7 +19,7 @@ public class UVSnapAction implements UndoAction {
 
 	public UVSnapAction(final Collection<? extends Vec2> selection, final List<Vec2> oldSelLocs,
 			final Vec2 snapPoint) {
-		this.selection = new ArrayList<Vec2>(selection);
+		this.selection = new ArrayList<>(selection);
 		this.oldSelLocs = oldSelLocs;
 		this.snapPoint = new Vec2(snapPoint);
 	}
@@ -33,8 +33,8 @@ public class UVSnapAction implements UndoAction {
 
 	@Override
 	public void redo() {
-		for (int i = 0; i < selection.size(); i++) {
-			selection.get(i).set(snapPoint);
+		for (Vec2 vec2 : selection) {
+			vec2.set(snapPoint);
 		}
 	}
 

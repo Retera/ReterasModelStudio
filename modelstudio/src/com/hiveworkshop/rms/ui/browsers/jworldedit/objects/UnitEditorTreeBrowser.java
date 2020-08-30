@@ -35,84 +35,74 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 		selectFirstUnit();
 		final JPopupMenu popupMenu = new JPopupMenu();
 		final JMenuItem openItem = new JMenuItem("Open");
-		openItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final TreePath currentUnitTreePath = getPathForLocation(rightClickX, rightClickY);
-				if (currentUnitTreePath != null) {
-					final DefaultMutableTreeNode o = (DefaultMutableTreeNode) currentUnitTreePath
-							.getLastPathComponent();
-					if (o.getUserObject() instanceof MutableGameObject) {
-						final MutableGameObject obj = (MutableGameObject) o.getUserObject();
-						final String path = convertPathToMDX(obj.getFieldAsString(War3ID.fromString("umdl"), 0));
-						final BufferedImage iconTexture = IconUtils.getIcon(obj,
-								WorldEditorDataType.UNITS);
-						final ImageIcon icon = iconTexture == null ? null
-								: new ImageIcon(iconTexture.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
-						listener.loadFile(path, true, true, icon);
-					}
-				}
-			}
-		});
+		openItem.addActionListener(e -> {
+            final TreePath currentUnitTreePath = getPathForLocation(rightClickX, rightClickY);
+            if (currentUnitTreePath != null) {
+                final DefaultMutableTreeNode o = (DefaultMutableTreeNode) currentUnitTreePath
+                        .getLastPathComponent();
+                if (o.getUserObject() instanceof MutableGameObject) {
+                    final MutableGameObject obj = (MutableGameObject) o.getUserObject();
+                    final String path = convertPathToMDX(obj.getFieldAsString(War3ID.fromString("umdl"), 0));
+                    final BufferedImage iconTexture = IconUtils.getIcon(obj,
+                            WorldEditorDataType.UNITS);
+                    final ImageIcon icon = iconTexture == null ? null
+                            : new ImageIcon(iconTexture.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
+                    listener.loadFile(path, true, true, icon);
+                }
+            }
+        });
 		popupMenu.add(openItem);
 		final JMenuItem openPortraitItem = new JMenuItem("Open Portrait");
-		openPortraitItem.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final TreePath currentUnitTreePath = getPathForLocation(rightClickX, rightClickY);
-				if (currentUnitTreePath != null) {
-					final DefaultMutableTreeNode o = (DefaultMutableTreeNode) currentUnitTreePath
-							.getLastPathComponent();
-					if (o.getUserObject() instanceof MutableGameObject) {
-						final MutableGameObject obj = (MutableGameObject) o.getUserObject();
-						final String path = convertPathToMDX(obj.getFieldAsString(War3ID.fromString("umdl"), 0));
-						final String portrait = ModelUtils.getPortrait(path);
-						final BufferedImage iconTexture = IconUtils.getIcon(obj,
-								WorldEditorDataType.UNITS);
-						final ImageIcon icon = iconTexture == null ? null
-								: new ImageIcon(iconTexture.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
-						listener.loadFile(portrait, true, true, icon);
-					}
-				}
-			}
-		});
+		openPortraitItem.addActionListener(e -> {
+            final TreePath currentUnitTreePath = getPathForLocation(rightClickX, rightClickY);
+            if (currentUnitTreePath != null) {
+                final DefaultMutableTreeNode o = (DefaultMutableTreeNode) currentUnitTreePath
+                        .getLastPathComponent();
+                if (o.getUserObject() instanceof MutableGameObject) {
+                    final MutableGameObject obj = (MutableGameObject) o.getUserObject();
+                    final String path = convertPathToMDX(obj.getFieldAsString(War3ID.fromString("umdl"), 0));
+                    final String portrait = ModelUtils.getPortrait(path);
+                    final BufferedImage iconTexture = IconUtils.getIcon(obj,
+                            WorldEditorDataType.UNITS);
+                    final ImageIcon icon = iconTexture == null ? null
+                            : new ImageIcon(iconTexture.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
+                    listener.loadFile(portrait, true, true, icon);
+                }
+            }
+        });
 		popupMenu.add(openPortraitItem);
 		popupMenu.addSeparator();
 		final JMenuItem extract = new JMenuItem("Extract");
 		popupMenu.add(extract);
-		extract.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final TreePath currentUnitTreePath = getPathForLocation(rightClickX, rightClickY);
-				if (currentUnitTreePath != null) {
-					final DefaultMutableTreeNode o = (DefaultMutableTreeNode) currentUnitTreePath
-							.getLastPathComponent();
-					if (o.getUserObject() instanceof MutableGameObject) {
-						final MutableGameObject obj = (MutableGameObject) o.getUserObject();
-						final String path = convertPathToMDX(obj.getFieldAsString(War3ID.fromString("umdl"), 0));
-						final BufferedImage iconTexture = IconUtils.getIcon(obj,
-								WorldEditorDataType.UNITS);
-						final ImageIcon icon = iconTexture == null ? null
-								: new ImageIcon(iconTexture.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
-						try {
-							final JFileChooser jFileChooser = new JFileChooser(SaveProfile.get().getPath());
-							final int response = jFileChooser.showSaveDialog(UnitEditorTreeBrowser.this);
-							if (response == JFileChooser.APPROVE_OPTION) {
-								final File selectedFile = jFileChooser.getSelectedFile();
-								if (selectedFile != null) {
-									Files.copy(GameDataFileSystem.getDefault().getResourceAsStream(path), selectedFile.toPath());
-								}
-							}
+		extract.addActionListener(e -> {
+            final TreePath currentUnitTreePath = getPathForLocation(rightClickX, rightClickY);
+            if (currentUnitTreePath != null) {
+                final DefaultMutableTreeNode o = (DefaultMutableTreeNode) currentUnitTreePath
+                        .getLastPathComponent();
+                if (o.getUserObject() instanceof MutableGameObject) {
+                    final MutableGameObject obj = (MutableGameObject) o.getUserObject();
+                    final String path = convertPathToMDX(obj.getFieldAsString(War3ID.fromString("umdl"), 0));
+                    final BufferedImage iconTexture = IconUtils.getIcon(obj,
+                            WorldEditorDataType.UNITS);
+                    final ImageIcon icon = iconTexture == null ? null
+                            : new ImageIcon(iconTexture.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
+                    try {
+                        final JFileChooser jFileChooser = new JFileChooser(SaveProfile.get().getPath());
+                        final int response = jFileChooser.showSaveDialog(UnitEditorTreeBrowser.this);
+                        if (response == JFileChooser.APPROVE_OPTION) {
+                            final File selectedFile = jFileChooser.getSelectedFile();
+                            if (selectedFile != null) {
+                                Files.copy(GameDataFileSystem.getDefault().getResourceAsStream(path), selectedFile.toPath());
+                            }
+                        }
 
-						} catch (final IOException e1) {
-							e1.printStackTrace();
-							ExceptionPopup.display(e1);
-						}
-					}
-				}
-			}
-		});
+                    } catch (final IOException e1) {
+                        e1.printStackTrace();
+                        ExceptionPopup.display(e1);
+                    }
+                }
+            }
+        });
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(final MouseEvent e) {

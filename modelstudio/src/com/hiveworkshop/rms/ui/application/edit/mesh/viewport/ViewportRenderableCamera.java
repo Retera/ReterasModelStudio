@@ -80,23 +80,23 @@ public class ViewportRenderableCamera {
 		start.set(startX, startY, startZ);
 		end.set(endX, endY, endZ);
 
-		startVector.x = (float) start.x;
-		startVector.y = (float) start.y;
-		startVector.z = (float) start.z;
-		endVector.x = (float) end.x;
-		endVector.y = (float) end.y;
-		endVector.z = (float) end.z;
+		startVector.x = start.x;
+		startVector.y = start.y;
+		startVector.z = start.z;
+		endVector.x = end.x;
+		endVector.y = end.y;
+		endVector.z = end.z;
 
-		delta.set((float) end.x, (float) end.y, (float) end.z);
-		delta.x -= (float) start.x;
-		delta.y -= (float) start.y;
-		delta.z -= (float) start.z;
+		delta.set(end.x, end.y, end.z);
+		delta.x -= start.x;
+		delta.y -= start.y;
+		delta.z -= start.z;
 		final float length = delta.length();
 		final double cameraModelScale = length / cameraLength;
 
 		lookAt(startVector, endVector, Z_DIMENSION);
 		scaleTranslateMatrix.setIdentity();
-		vector3heap.set((float) (end.x), (float) (end.y), (float) (end.z));
+		vector3heap.set(end.x, end.y, end.z);
 		scaleTranslateMatrix.translate(vector3heap);
 		scaleTranslateMatrix.mul(rotationMatrix);
 		vector3heap.set((float) cameraModelScale, (float) cameraModelScale, (float) cameraModelScale);
@@ -110,9 +110,9 @@ public class ViewportRenderableCamera {
 			for (final Triangle triangle : geoset.getTriangles()) {
 				for (int i = 0; i < 3; i++) {
 					final GeosetVertex vertex = triangle.getVerts()[i];
-					vectorHeap.x = (float) (vertex.x);
-					vectorHeap.y = (float) (vertex.y);
-					vectorHeap.z = (float) (vertex.z);
+					vectorHeap.x = vertex.x;
+					vectorHeap.y = vertex.y;
+					vectorHeap.z = vertex.z;
 					vectorHeap.w = 1;
 					scaleTranslateMatrix.transform(vectorHeap);
 					points[i].x = (int) coordinateSystem
@@ -132,23 +132,23 @@ public class ViewportRenderableCamera {
 		start.set(startX, startY, startZ);
 		end.set(endX, endY, endZ);
 
-		startVector.x = (float) start.x;
-		startVector.y = (float) start.y;
-		startVector.z = (float) start.z;
-		endVector.x = (float) end.x;
-		endVector.y = (float) end.y;
-		endVector.z = (float) end.z;
+		startVector.x = start.x;
+		startVector.y = start.y;
+		startVector.z = start.z;
+		endVector.x = end.x;
+		endVector.y = end.y;
+		endVector.z = end.z;
 
-		delta.set((float) end.x, (float) end.y, (float) end.z);
-		delta.x -= (float) start.x;
-		delta.y -= (float) start.y;
-		delta.z -= (float) start.z;
+		delta.set(end.x, end.y, end.z);
+		delta.x -= start.x;
+		delta.y -= start.y;
+		delta.z -= start.z;
 		final float length = delta.length();
 		final double cameraModelScale = length / cameraLength;
 
 		lookAt(startVector, endVector, Z_DIMENSION);
 		scaleTranslateMatrix.setIdentity();
-		vector3heap.set((float) (end.x), (float) (end.y), (float) (end.z));
+		vector3heap.set(end.x, end.y, end.z);
 		scaleTranslateMatrix.translate(vector3heap);
 		rotationMatrix.mul(scaleTranslateMatrix, scaleTranslateMatrix);
 		vector3heap.set((float) cameraModelScale, (float) cameraModelScale, (float) cameraModelScale);
@@ -162,9 +162,9 @@ public class ViewportRenderableCamera {
 			for (final Triangle triangle : geoset.getTriangles()) {
 				for (int i = 0; i < 3; i++) {
 					final GeosetVertex vertex = triangle.getVerts()[i];
-					vectorHeap.x = (float) (vertex.x);
-					vectorHeap.y = (float) (vertex.y);
-					vectorHeap.z = (float) (vertex.z);
+					vectorHeap.x = vertex.x;
+					vectorHeap.y = vertex.y;
+					vectorHeap.z = vertex.z;
 					vectorHeap.w = 1;
 					scaleTranslateMatrix.transform(vectorHeap);
 				}

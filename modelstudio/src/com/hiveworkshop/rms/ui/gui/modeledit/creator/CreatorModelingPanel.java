@@ -109,15 +109,12 @@ public class CreatorModelingPanel extends JPanel
 		modeChooserBox = new JComboBox<>(modeChooserBoxModel);
 		animationChooserBox = new JComboBox<>(animationChooserBoxModel);
 		animationChooserBox.setVisible(false);
-		animationChooserBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final ChooseableTimeRange selectedItem = (ChooseableTimeRange) animationChooserBox.getSelectedItem();
-				if (selectedItem != null) {
-					selectedItem.applyTo(timeEnvironmentImpl);
-				}
-			}
-		});
+		animationChooserBox.addActionListener(e -> {
+            final ChooseableTimeRange selectedItem = (ChooseableTimeRange) animationChooserBox.getSelectedItem();
+            if (selectedItem != null) {
+                selectedItem.applyTo(timeEnvironmentImpl);
+            }
+        });
 		northCardLayout = new CardLayout();
 		northCardPanel = new JPanel(northCardLayout);
 		add(northCardPanel, BorderLayout.NORTH);
@@ -154,12 +151,7 @@ public class CreatorModelingPanel extends JPanel
 
 		cardPanel.add(standardPrimitivesPanel, modeChooserBoxModel.getElementAt(1));
 
-		modeChooserBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				cardLayout.show(cardPanel, modeChooserBox.getSelectedItem().toString());
-			}
-		});
+		modeChooserBox.addActionListener(e -> cardLayout.show(cardPanel, modeChooserBox.getSelectedItem().toString()));
 
 		makeAnimationBasicsPanel(listener, programPreferences, actionTypeGroup, activeViewportWatcher,
 				modeChooserBoxModel, cardPanel);
@@ -175,27 +167,24 @@ public class CreatorModelingPanel extends JPanel
 		final ModeButton vertexButton = new ModeButton("Vertex");
 		final ModeButton faceButton = new ModeButton("Face from Selection");
 		final ModeButton boneButton = new ModeButton("Bone");
-		faceButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				if (modelEditorManager == null) {
-					return;
-				}
-				try {
-					final Viewport viewport = activeViewportWatcher.getViewport();
-					final Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
-					final UndoAction createFaceFromSelection = modelEditorManager
-							.getModelEditor().createFaceFromSelection(facingVector);
-					undoActionListener.pushAction(createFaceFromSelection);
-				} catch (final WrongModeException exc) {
-					JOptionPane.showMessageDialog(CreatorModelingPanel.this,
-							"Unable to create face, wrong selection mode", "Error", JOptionPane.ERROR_MESSAGE);
-				} catch (final FaceCreationException exc) {
-					JOptionPane.showMessageDialog(CreatorModelingPanel.this, exc.getMessage(), "Error",
-							JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		});
+		faceButton.addActionListener(e -> {
+            if (modelEditorManager == null) {
+                return;
+            }
+            try {
+                final Viewport viewport = activeViewportWatcher.getViewport();
+                final Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
+                final UndoAction createFaceFromSelection = modelEditorManager
+                        .getModelEditor().createFaceFromSelection(facingVector);
+                undoActionListener.pushAction(createFaceFromSelection);
+            } catch (final WrongModeException exc) {
+                JOptionPane.showMessageDialog(CreatorModelingPanel.this,
+                        "Unable to create face, wrong selection mode", "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (final FaceCreationException exc) {
+                JOptionPane.showMessageDialog(CreatorModelingPanel.this, exc.getMessage(), "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        });
 		final JPanel drawToolsPanel = new JPanel(new GridLayout(2, 1));
 		drawToolsPanel.setBorder(BorderFactory.createTitledBorder("Draw"));
 		drawToolsPanel.add(vertexButton);
@@ -213,38 +202,27 @@ public class CreatorModelingPanel extends JPanel
 			final String typeName = type.getName();
 			final ModeButton button = new ModeButton(typeName.substring(typeName.lastIndexOf(' ') + 1));
 			editToolsPanel.add(button);
-			button.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(final ActionEvent e) {
-					listener.changeActivity(type);
-				}
-			});
+			button.addActionListener(e -> listener.changeActivity(type));
 			putTypeToButton(type, button);
 			modeButtons.add(button);
 		}
 
 		meshBasicsPanel.add(editToolsPanel, BorderLayout.CENTER);
 
-		vertexButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				listeningForActivityChanges = false;
-				listener.changeActivity(new DrawVertexActivityDescriptor(programPrefences, activeViewportWatcher));
-				resetButtons();
-				vertexButton.setColors(programPrefences.getActiveColor1(), programPrefences.getActiveColor2());
-				listeningForActivityChanges = true;
-			}
-		});
-		boneButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				listeningForActivityChanges = false;
-				listener.changeActivity(new DrawBoneActivityDescriptor(programPrefences, activeViewportWatcher));
-				resetButtons();
-				boneButton.setColors(programPrefences.getActiveColor1(), programPrefences.getActiveColor2());
-				listeningForActivityChanges = true;
-			}
-		});
+		vertexButton.addActionListener(e -> {
+            listeningForActivityChanges = false;
+            listener.changeActivity(new DrawVertexActivityDescriptor(programPrefences, activeViewportWatcher));
+            resetButtons();
+            vertexButton.setColors(programPrefences.getActiveColor1(), programPrefences.getActiveColor2());
+            listeningForActivityChanges = true;
+        });
+		boneButton.addActionListener(e -> {
+            listeningForActivityChanges = false;
+            listener.changeActivity(new DrawBoneActivityDescriptor(programPrefences, activeViewportWatcher));
+            resetButtons();
+            boneButton.setColors(programPrefences.getActiveColor1(), programPrefences.getActiveColor2());
+            listeningForActivityChanges = true;
+        });
 		modeButtons.add(vertexButton);
 		modeButtons.add(boneButton);
 	}
@@ -265,36 +243,20 @@ public class CreatorModelingPanel extends JPanel
 				final String typeName = type.getName();
 				final ModeButton button = new ModeButton(typeName.substring(typeName.lastIndexOf(' ') + 1));
 				editToolsPanel.add(button);
-				button.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(final ActionEvent e) {
-						listener.changeActivity(type);
-					}
-				});
+				button.addActionListener(e -> listener.changeActivity(type));
 				putTypeToButton(type, button);
 				modeButtons.add(button);
 			}
 			index++;
 		}
-		final ActivityDescriptor selectAndSquatDescriptor = new ActivityDescriptor() {
-			@Override
-			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
-                                                              final ModelView modelView, final UndoActionListener undoActionListener) {
-				return new ModelEditorMultiManipulatorActivity(
-						new SquatToolWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
-								modelEditorManager.getViewportSelectionHandler(), programPreferences, modelView),
-						undoActionListener, modelEditorManager.getSelectionView());
-			}
-		};
+		final ActivityDescriptor selectAndSquatDescriptor = (modelEditorManager, modelView, undoActionListener) -> new ModelEditorMultiManipulatorActivity(
+                new SquatToolWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
+                        modelEditorManager.getViewportSelectionHandler(), programPreferences, modelView),
+                undoActionListener, modelEditorManager.getSelectionView());
 		final String squatTypeName = "Squat";
 		final ModeButton squatButton = new ModeButton(squatTypeName);
 		editToolsPanel.add(squatButton);
-		squatButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				listener.changeActivity(selectAndSquatDescriptor);
-			}
-		});
+		squatButton.addActionListener(e -> listener.changeActivity(selectAndSquatDescriptor));
 		putTypeToButton(selectAndSquatDescriptor, squatButton);
 		modeButtons.add(squatButton);
 
@@ -307,11 +269,7 @@ public class CreatorModelingPanel extends JPanel
 	}
 
 	private void putTypeToButton(final ActivityDescriptor type, final ModeButton button) {
-		List<ModeButton> buttons = typeToButtons.get(type);
-		if (buttons == null) {
-			buttons = new ArrayList<>();
-			typeToButtons.put(type, buttons);
-		}
+		List<ModeButton> buttons = typeToButtons.computeIfAbsent(type, k -> new ArrayList<>());
 		buttons.add(button);
 	}
 

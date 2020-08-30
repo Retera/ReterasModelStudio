@@ -315,10 +315,10 @@ public abstract class AnimatedNode extends TimelineContainer {
 			// we must change it
 			final Quat oldTranslationValue = (Quat) rotationTimeline.getValues()
 					.get(floorIndex);
-			rotationHeap.x = (float) oldTranslationValue.x;
-			rotationHeap.y = (float) oldTranslationValue.y;
-			rotationHeap.z = (float) oldTranslationValue.z;
-			rotationHeap.w = (float) oldTranslationValue.w;
+			rotationHeap.x = oldTranslationValue.x;
+			rotationHeap.y = oldTranslationValue.y;
+			rotationHeap.z = oldTranslationValue.z;
+			rotationHeap.w = oldTranslationValue.w;
 			rotationDeltaHeap.mul(rotationHeap, rotationHeap);
 
 			oldTranslationValue.x = rotationHeap.x;
@@ -332,10 +332,10 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 			if (rotationTimeline.tans()) {
 				final Quat oldInTan = (Quat) rotationTimeline.getInTans().get(floorIndex);
-				rotationHeap.x = (float) oldInTan.x;
-				rotationHeap.y = (float) oldInTan.y;
-				rotationHeap.z = (float) oldInTan.z;
-				rotationHeap.w = (float) oldInTan.w;
+				rotationHeap.x = oldInTan.x;
+				rotationHeap.y = oldInTan.y;
+				rotationHeap.z = oldInTan.z;
+				rotationHeap.w = oldInTan.w;
 				rotationDeltaHeap.mul(rotationHeap, rotationHeap);
 				oldInTan.x = rotationHeap.x;
 				oldInTan.y = rotationHeap.y;
@@ -343,10 +343,10 @@ public abstract class AnimatedNode extends TimelineContainer {
 				oldInTan.w = rotationHeap.w;
 
 				final Quat oldOutTan = (Quat) rotationTimeline.getOutTans().get(floorIndex);
-				rotationHeap.x = (float) oldOutTan.x;
-				rotationHeap.y = (float) oldOutTan.y;
-				rotationHeap.z = (float) oldOutTan.z;
-				rotationHeap.w = (float) oldOutTan.w;
+				rotationHeap.x = oldOutTan.x;
+				rotationHeap.y = oldOutTan.y;
+				rotationHeap.z = oldOutTan.z;
+				rotationHeap.w = oldOutTan.w;
 				rotationDeltaHeap.mul(rotationHeap, rotationHeap);
 				oldOutTan.x = rotationHeap.x;
 				oldOutTan.y = rotationHeap.y;
@@ -441,10 +441,10 @@ public abstract class AnimatedNode extends TimelineContainer {
 			// we must change it
 			final Quat oldTranslationValue = (Quat) rotationTimeline.getValues()
 					.get(floorIndex);
-			rotationHeap.x = (float) oldTranslationValue.x;
-			rotationHeap.y = (float) oldTranslationValue.y;
-			rotationHeap.z = (float) oldTranslationValue.z;
-			rotationHeap.w = (float) oldTranslationValue.w;
+			rotationHeap.x = oldTranslationValue.x;
+			rotationHeap.y = oldTranslationValue.y;
+			rotationHeap.z = oldTranslationValue.z;
+			rotationHeap.w = oldTranslationValue.w;
 			localRotation.mul(rotationHeap, rotationHeap);
 
 			oldTranslationValue.x = rotationHeap.x;
@@ -454,10 +454,10 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 			if (rotationTimeline.tans()) {
 				final Quat oldInTan = (Quat) rotationTimeline.getInTans().get(floorIndex);
-				rotationHeap.x = (float) oldInTan.x;
-				rotationHeap.y = (float) oldInTan.y;
-				rotationHeap.z = (float) oldInTan.z;
-				rotationHeap.w = (float) oldInTan.w;
+				rotationHeap.x = oldInTan.x;
+				rotationHeap.y = oldInTan.y;
+				rotationHeap.z = oldInTan.z;
+				rotationHeap.w = oldInTan.w;
 				localRotation.mul(rotationHeap, rotationHeap);
 				oldInTan.x = rotationHeap.x;
 				oldInTan.y = rotationHeap.y;
@@ -465,10 +465,10 @@ public abstract class AnimatedNode extends TimelineContainer {
 				oldInTan.w = rotationHeap.w;
 
 				final Quat oldOutTan = (Quat) rotationTimeline.getOutTans().get(floorIndex);
-				rotationHeap.x = (float) oldOutTan.x;
-				rotationHeap.y = (float) oldOutTan.y;
-				rotationHeap.z = (float) oldOutTan.z;
-				rotationHeap.w = (float) oldOutTan.w;
+				rotationHeap.x = oldOutTan.x;
+				rotationHeap.y = oldOutTan.y;
+				rotationHeap.z = oldOutTan.z;
+				rotationHeap.w = oldOutTan.w;
 				localRotation.mul(rotationHeap, rotationHeap);
 				oldOutTan.x = rotationHeap.x;
 				oldOutTan.y = rotationHeap.y;
@@ -495,10 +495,10 @@ public abstract class AnimatedNode extends TimelineContainer {
 			// we must change it
 			final Quat oldTranslationValue = (Quat) rotationTimeline.getValues()
 					.get(floorIndex);
-			rotationHeap.x = (float) oldTranslationValue.x;
-			rotationHeap.y = (float) oldTranslationValue.y;
-			rotationHeap.z = (float) oldTranslationValue.z;
-			rotationHeap.w = (float) oldTranslationValue.w;
+			rotationHeap.x = oldTranslationValue.x;
+			rotationHeap.y = oldTranslationValue.y;
+			rotationHeap.z = oldTranslationValue.z;
+			rotationHeap.w = oldTranslationValue.w;
 			rotationDeltaHeap.setIdentity();
 			rotationDeltaHeap.mulInverse(localRotation);
 			rotationDeltaHeap.mul(rotationHeap, rotationHeap);
@@ -510,10 +510,10 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 			if (rotationTimeline.tans()) {
 				final Quat oldInTan = (Quat) rotationTimeline.getInTans().get(floorIndex);
-				rotationHeap.x = (float) oldInTan.x;
-				rotationHeap.y = (float) oldInTan.y;
-				rotationHeap.z = (float) oldInTan.z;
-				rotationHeap.w = (float) oldInTan.w;
+				rotationHeap.x = oldInTan.x;
+				rotationHeap.y = oldInTan.y;
+				rotationHeap.z = oldInTan.z;
+				rotationHeap.w = oldInTan.w;
 				rotationDeltaHeap.setIdentity();
 				rotationDeltaHeap.mulInverse(localRotation);
 				rotationDeltaHeap.mul(rotationHeap, rotationHeap);
@@ -523,10 +523,10 @@ public abstract class AnimatedNode extends TimelineContainer {
 				oldInTan.w = rotationHeap.w;
 
 				final Quat oldOutTan = (Quat) rotationTimeline.getOutTans().get(floorIndex);
-				rotationHeap.x = (float) oldOutTan.x;
-				rotationHeap.y = (float) oldOutTan.y;
-				rotationHeap.z = (float) oldOutTan.z;
-				rotationHeap.w = (float) oldOutTan.w;
+				rotationHeap.x = oldOutTan.x;
+				rotationHeap.y = oldOutTan.y;
+				rotationHeap.z = oldOutTan.z;
+				rotationHeap.w = oldOutTan.w;
 				rotationDeltaHeap.setIdentity();
 				rotationDeltaHeap.mulInverse(localRotation);
 				rotationDeltaHeap.mul(rotationHeap, rotationHeap);

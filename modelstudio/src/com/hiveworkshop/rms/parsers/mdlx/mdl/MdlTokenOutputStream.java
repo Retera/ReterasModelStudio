@@ -153,45 +153,45 @@ public class MdlTokenOutputStream {
 
 	private String formatFloatArray(final float[] value) {
 		final StringBuilder stringBuilder = new StringBuilder();
-		for (int i = 0, l = value.length; i < l; i++) {
-			if (stringBuilder.length() > 0) {
-				stringBuilder.append(", ");
-			}
-			stringBuilder.append(formatFloat(value[i]));
-		}
+        for (float v : value) {
+            if (stringBuilder.length() > 0) {
+                stringBuilder.append(", ");
+            }
+            stringBuilder.append(formatFloat(v));
+        }
 		return stringBuilder.toString();
 	}
 
 	private String formatLongArray(final long[] value) {
 		final StringBuilder stringBuilder = new StringBuilder();
-		for (int i = 0, l = value.length; i < l; i++) {
-			if (stringBuilder.length() > 0) {
-				stringBuilder.append(", ");
-			}
-			stringBuilder.append(value[i]);
-		}
+        for (long item : value) {
+            if (stringBuilder.length() > 0) {
+                stringBuilder.append(", ");
+            }
+            stringBuilder.append(item);
+        }
 		return stringBuilder.toString();
 	}
 
 	private String formatShortArray(final short[] value) {
 		final StringBuilder stringBuilder = new StringBuilder();
-		for (int i = 0, l = value.length; i < l; i++) {
-			if (stringBuilder.length() > 0) {
-				stringBuilder.append(", ");
-			}
-			stringBuilder.append(value[i]);
-		}
+        for (short item : value) {
+            if (stringBuilder.length() > 0) {
+                stringBuilder.append(", ");
+            }
+            stringBuilder.append(item);
+        }
 		return stringBuilder.toString();
 	}
 
 	private String formatIntArray(final int[] value) {
 		final StringBuilder stringBuilder = new StringBuilder();
-		for (int i = 0, l = value.length; i < l; i++) {
-			if (stringBuilder.length() > 0) {
-				stringBuilder.append(", ");
-			}
-			stringBuilder.append(value[i]);
-		}
+        for (int j : value) {
+            if (stringBuilder.length() > 0) {
+                stringBuilder.append(", ");
+            }
+            stringBuilder.append(j);
+        }
 		return stringBuilder.toString();
 	}
 

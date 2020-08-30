@@ -127,7 +127,7 @@ public class Vec3 {
 	}
 
 	public float[] toFloatArray() {
-		return new float[] { (float) x, (float) y, (float) z };
+		return new float[] {x, y, z};
 	}
 
 	public short[] toShortArray() {

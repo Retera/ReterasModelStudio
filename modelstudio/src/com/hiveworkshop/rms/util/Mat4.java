@@ -171,9 +171,9 @@ public class Mat4 {
     }
 
     public Mat4 scale(Vec3 a, Mat4 out) {
-        float x = (float) a.x;
-        float y = (float) a.y;
-        float z = (float) a.z;
+        float x = a.x;
+        float y = a.y;
+        float z = a.z;
 
         out.m00 = m00 * x;
         out.m01 = m01 * x;

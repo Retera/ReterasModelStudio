@@ -19,13 +19,13 @@ public class UVMoveAction implements UndoAction {
 	private VertexActionType actType = VertexActionType.UNKNOWN;
 
 	public UVMoveAction(final List<Vec2> selection, final List<Vec2> moveVectors, final VertexActionType actionType) {
-		this.selection = new ArrayList<Vec2>(selection);
+		this.selection = new ArrayList<>(selection);
 		this.moveVectors = moveVectors;
 		actType = actionType;
 	}
 
 	public UVMoveAction(final List<Vec2> selection, final Vec2 moveVector, final VertexActionType actionType) {
-		this.selection = new ArrayList<Vec2>(selection);
+		this.selection = new ArrayList<>(selection);
 		this.moveVector = moveVector;
 		actType = actionType;
 	}
@@ -35,11 +35,11 @@ public class UVMoveAction implements UndoAction {
 	}
 
 	public void storeSelection(final List<Vec2> selection) {
-		this.selection = new ArrayList<Vec2>(selection);
+		this.selection = new ArrayList<>(selection);
 	}
 
 	public void createEmptyMoveVectors() {
-		moveVectors = new ArrayList<Vec2>();
+		moveVectors = new ArrayList<>();
 		for (int i = 0; i < selection.size(); i++) {
 			moveVectors.add(new Vec2(0, 0));
 		}
@@ -59,8 +59,7 @@ public class UVMoveAction implements UndoAction {
 				ver.y += vect.y;
 			}
 		} else {
-			for (int i = 0; i < selection.size(); i++) {
-				final Vec2 ver = selection.get(i);
+			for (final Vec2 ver : selection) {
 				final Vec2 vect = moveVector;
 				ver.x += vect.x;
 				ver.y += vect.y;
@@ -78,8 +77,7 @@ public class UVMoveAction implements UndoAction {
 				ver.y -= vect.y;
 			}
 		} else {
-			for (int i = 0; i < selection.size(); i++) {
-				final Vec2 ver = selection.get(i);
+			for (final Vec2 ver : selection) {
 				final Vec2 vect = moveVector;
 				ver.x -= vect.x;
 				ver.y -= vect.y;

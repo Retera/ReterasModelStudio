@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator.actions;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
@@ -19,7 +20,7 @@ public class NewGeosetAction implements UndoAction {
 		this.geoset = geoset;
 		this.model = model;
 		this.modelStructureChangeListener = modelStructureChangeListener;
-		geosetAsList = Arrays.asList(geoset);
+		geosetAsList = Collections.singletonList(geoset);
 	}
 
 	@Override

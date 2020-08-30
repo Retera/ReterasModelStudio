@@ -20,12 +20,8 @@ public class VertexClusterDefinitions {
 		for (final Geoset geoset : model.getGeosets()) {
 			for (final GeosetVertex vertex : geoset.getVertices()) {
 				final HashableVector hashKey = new HashableVector(vertex);
-				List<GeosetVertex> verticesAtPoint = positionToVertices.get(hashKey);
-				if (verticesAtPoint == null) {
-					verticesAtPoint = new ArrayList<>();
-					positionToVertices.put(hashKey, verticesAtPoint);
-				}
-				verticesAtPoint.add(vertex);
+                List<GeosetVertex> verticesAtPoint = positionToVertices.computeIfAbsent(hashKey, k -> new ArrayList<>());
+                verticesAtPoint.add(vertex);
 			}
 		}
 		int clusterId = 0;
@@ -85,9 +81,9 @@ public class VertexClusterDefinitions {
 		}
 
 		public HashableVector(final Vec3 vertex) {
-			x = (float) vertex.x;
-			y = (float) vertex.y;
-			z = (float) vertex.z;
+			x = vertex.x;
+			y = vertex.y;
+			z = vertex.z;
 		}
 
 		@Override

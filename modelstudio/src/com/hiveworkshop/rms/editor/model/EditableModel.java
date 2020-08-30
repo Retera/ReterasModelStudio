@@ -937,8 +937,8 @@ public class EditableModel implements Named {
 		// Geosets
 		if (geosets != null) {
 			if (geosets.size() > 0) {
-				for (int i = 0; i < geosets.size(); i++) {
-					geosets.get(i).doSavePrep(this);
+				for (Geoset geoset : geosets) {
+					geoset.doSavePrep(this);
 				}
 			}
 		}
@@ -950,8 +950,8 @@ public class EditableModel implements Named {
 
 		// Clearing pivot points
 		pivots.clear();
-		for (int i = 0; i < idObjects.size(); i++) {
-			pivots.add(idObjects.get(i).pivotPoint);
+		for (IdObject idObject : idObjects) {
+			pivots.add(idObject.pivotPoint);
 		}
 	}
 
@@ -1014,6 +1014,7 @@ public class EditableModel implements Named {
 					for (final Bitmap btm : textures) {
 						if (lay.texture.equals(btm)) {
 							good = false;
+							break;
 						}
 					}
 					if (good) {
@@ -1027,6 +1028,7 @@ public class EditableModel implements Named {
 							for (final Bitmap btm : textures) {
 								if (temp.equals(btm)) {
 									good = false;
+									break;
 								}
 							}
 							if (good) {
@@ -1046,6 +1048,7 @@ public class EditableModel implements Named {
 				for (final Bitmap btm : textures) {
 					if (pe.texture.equals(btm)) {
 						good = false;
+						break;
 					}
 				}
 				if (good) {
@@ -1218,7 +1221,7 @@ public class EditableModel implements Named {
 
 	public List<AnimFlag> getAllAnimFlags() {
 		// Probably will cause a bunch of lag, be wary
-		final List<AnimFlag> allFlags = Collections.synchronizedList(new ArrayList<AnimFlag>());
+		final List<AnimFlag> allFlags = Collections.synchronizedList(new ArrayList<>());
 		for (final Material m : materials) {
 			for (final Layer lay : m.layers) {
 				allFlags.addAll(lay.animFlags.values());
@@ -1376,6 +1379,7 @@ public class EditableModel implements Named {
 				final GeosetAnim ga = geosetAnims.get(i);
 				if (ga.geosetId != -1) {
 					noIds = false;
+					break;
 				}
 			}
 			if (noIds) {
@@ -2238,7 +2242,7 @@ public class EditableModel implements Named {
 					gv.initV900();
 					final float[] tangent = gv.getTangent();
 					for (int i = 0; i < 3; i++) {
-						tangent[i] = (float) normal.getCoord((byte) i);
+						tangent[i] = normal.getCoord((byte) i);
 					}
 					tangent[3] = 1;
 				}
@@ -2346,7 +2350,7 @@ public class EditableModel implements Named {
 				} else {
 					w = 1.0;
 				}
-				gv.setTangent(new float[] { (float) v.x, (float) v.y, (float) v.z, (float) w });
+				gv.setTangent(new float[] {v.x, v.y, v.z, (float) w });
 			}
 		}
 		int goodTangents = 0;

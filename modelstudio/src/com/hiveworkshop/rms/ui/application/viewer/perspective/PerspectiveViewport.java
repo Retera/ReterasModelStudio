@@ -170,23 +170,17 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		contextMenu.add(cogBone);
 
 		if (programPreferences != null) {
-			programPreferences.addChangeListener(new ProgramPreferencesChangeListener() {
-				@Override
-				public void preferencesChanged() {
-					setBackground(programPreferences.getPerspectiveBackgroundColor() == null ? new Color(80, 80, 80)
-							: programPreferences.getPerspectiveBackgroundColor());
-					loadBackgroundColors();
-				}
+			programPreferences.addChangeListener(() -> {
+				setBackground(programPreferences.getPerspectiveBackgroundColor() == null ? new Color(80, 80, 80)
+						: programPreferences.getPerspectiveBackgroundColor());
+				loadBackgroundColors();
 			});
 		}
 		loadBackgroundColors();
-		paintTimer = new Timer(16, new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				repaint();
-				if (!isShowing()) {
-					paintTimer.stop();
-				}
+		paintTimer = new Timer(16, e -> {
+			repaint();
+			if (!isShowing()) {
+				paintTimer.stop();
 			}
 		});
 		paintTimer.start();
@@ -512,8 +506,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			glTranslatef(0f, -70f, -200f);
 			glRotatef(yangle, 1f, 0f, 0f);
 			glRotatef(xangle, 0f, 1f, 0f);
-			glTranslatef((float) cameraPos.y * (float) m_zoom, (float) cameraPos.z * (float) m_zoom,
-					(float) cameraPos.x * (float) m_zoom);
+			glTranslatef(cameraPos.y * (float) m_zoom, cameraPos.z * (float) m_zoom,
+					cameraPos.x * (float) m_zoom);
 			glScalef((float) m_zoom, (float) m_zoom, (float) m_zoom);
 
 			final FloatBuffer ambientColor = BufferUtils.createFloatBuffer(4);
@@ -584,9 +578,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 							&& (geo.getVertex(0).getSkinBones() != null)) {
 						for (final Triangle tri : geo.getTriangles()) {
 							for (final GeosetVertex v : tri.getVerts()) {
-								vertexHeap.x = (float) v.x;
-								vertexHeap.y = (float) v.y;
-								vertexHeap.z = (float) v.z;
+								vertexHeap.x = v.x;
+								vertexHeap.y = v.y;
+								vertexHeap.z = v.z;
 								vertexHeap.w = 1;
 								skinBonesMatrixSumHeap.setZero();
 								final Bone[] skinBones = v.getSkinBones();
@@ -640,9 +634,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 								}
 								skinBonesMatrixSumHeap.transform(vertexHeap, vertexSumHeap);
 								if (v.getNormal() != null) {
-									normalHeap.x = (float) v.getNormal().x;
-									normalHeap.y = (float) v.getNormal().y;
-									normalHeap.z = (float) v.getNormal().z;
+									normalHeap.x = v.getNormal().x;
+									normalHeap.y = v.getNormal().y;
+									normalHeap.z = v.getNormal().z;
 									normalHeap.w = 0;
 									skinBonesMatrixSumHeap.transform(normalHeap, normalSumHeap);
 
@@ -672,9 +666,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 						for (final Triangle tri : geo.getTriangles()) {
 							for (final GeosetVertex v : tri.getVerts()) {
 
-								vertexHeap.x = (float) v.x;
-								vertexHeap.y = (float) v.y;
-								vertexHeap.z = (float) v.z;
+								vertexHeap.x = v.x;
+								vertexHeap.y = v.y;
+								vertexHeap.z = v.z;
 								vertexHeap.w = 1;
 								final int boneCount = v.getBones().size();
 								if (boneCount > 0) {
@@ -691,9 +685,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 									vertexSumHeap.set(vertexHeap);
 								}
 								if (v.getNormal() != null) {
-									normalHeap.x = (float) v.getNormal().x;
-									normalHeap.y = (float) v.getNormal().y;
-									normalHeap.z = (float) v.getNormal().z;
+									normalHeap.x = v.getNormal().x;
+									normalHeap.y = v.getNormal().y;
+									normalHeap.z = v.getNormal().z;
 									normalHeap.w = 0;
 									if (boneCount > 0) {
 										normalSumHeap.set(0, 0, 0, 0);
@@ -947,9 +941,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 						&& (geo.getVertex(0).getSkinBones() != null)) {
 					for (final Triangle tri : geo.getTriangles()) {
 						for (final GeosetVertex v : tri.getVerts()) {
-							vertexHeap.x = (float) v.x;
-							vertexHeap.y = (float) v.y;
-							vertexHeap.z = (float) v.z;
+							vertexHeap.x = v.x;
+							vertexHeap.y = v.y;
+							vertexHeap.z = v.z;
 							vertexHeap.w = 1;
 							skinBonesMatrixSumHeap.setZero();
 							final Bone[] skinBones = v.getSkinBones();
@@ -1003,9 +997,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 							}
 							skinBonesMatrixSumHeap.transform(vertexHeap, vertexSumHeap);
 							if (v.getNormal() != null) {
-								normalHeap.x = (float) v.getNormal().x;
-								normalHeap.y = (float) v.getNormal().y;
-								normalHeap.z = (float) v.getNormal().z;
+								normalHeap.x = v.getNormal().x;
+								normalHeap.y = v.getNormal().y;
+								normalHeap.z = v.getNormal().z;
 								normalHeap.w = 0;
 								skinBonesMatrixSumHeap.transform(normalHeap, normalSumHeap);
 
@@ -1021,8 +1015,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 							if (coordId >= v.getTverts().size()) {
 								coordId = v.getTverts().size() - 1;
 							}
-							GL11.glTexCoord2f((float) v.getTverts().get(coordId).x,
-									(float) v.getTverts().get(coordId).y);
+							GL11.glTexCoord2f(v.getTverts().get(coordId).x,
+									v.getTverts().get(coordId).y);
 							GL11.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
 						}
 					}
@@ -1030,9 +1024,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 					for (final Triangle tri : geo.getTriangles()) {
 						for (final GeosetVertex v : tri.getVerts()) {
 
-							vertexHeap.x = (float) v.x;
-							vertexHeap.y = (float) v.y;
-							vertexHeap.z = (float) v.z;
+							vertexHeap.x = v.x;
+							vertexHeap.y = v.y;
+							vertexHeap.z = v.z;
 							vertexHeap.w = 1;
 							final int boneCount = v.getBones().size();
 							if (boneCount > 0) {
@@ -1049,9 +1043,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 								vertexSumHeap.set(vertexHeap);
 							}
 							if (v.getNormal() != null) {
-								normalHeap.x = (float) v.getNormal().x;
-								normalHeap.y = (float) v.getNormal().y;
-								normalHeap.z = (float) v.getNormal().z;
+								normalHeap.x = v.getNormal().x;
+								normalHeap.y = v.getNormal().y;
+								normalHeap.z = v.getNormal().z;
 								normalHeap.w = 0;
 								if (boneCount > 0) {
 									normalSumHeap.set(0, 0, 0, 0);
@@ -1076,8 +1070,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 								coordId = v.getTverts().size() - 1;
 							}
 							final int highestTvertexIndx = v.getTverts().size() - 1;
-							GL11.glTexCoord2f((float) v.getTverts().get(coordId).x,
-									(float) v.getTverts().get(coordId).y);
+							GL11.glTexCoord2f(v.getTverts().get(coordId).x,
+									v.getTverts().get(coordId).y);
 							GL11.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
 						}
 					}

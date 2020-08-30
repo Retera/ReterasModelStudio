@@ -279,25 +279,24 @@ public class Material {
 			}
 			return newImage;
 		} else {
-			for (int i = 0; i < layers.size(); i++) {
-				final Layer lay = layers.get(i);
-				final Bitmap tex = lay.firstTexture();
-				final String path = getRenderableTexturePath(tex);
-				BufferedImage newImage;
-				try {
-					newImage = BLPHandler.get().getTexture(workingDirectory, path);
-				} catch (final Exception exc) {
-					// newImage = null;
-					newImage = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
-				}
-				if (theImage == null) {
-					theImage = newImage;
-				} else {
-					if (newImage != null) {
-						theImage = mergeImage(theImage, newImage);
-					}
-				}
-			}
+            for (final Layer lay : layers) {
+                final Bitmap tex = lay.firstTexture();
+                final String path = getRenderableTexturePath(tex);
+                BufferedImage newImage;
+                try {
+                    newImage = BLPHandler.get().getTexture(workingDirectory, path);
+                } catch (final Exception exc) {
+                    // newImage = null;
+                    newImage = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
+                }
+                if (theImage == null) {
+                    theImage = newImage;
+                } else {
+                    if (newImage != null) {
+                        theImage = mergeImage(theImage, newImage);
+                    }
+                }
+            }
 		}
 
 		return theImage;

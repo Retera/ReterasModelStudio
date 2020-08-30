@@ -42,9 +42,9 @@ public class MdlxEventObject extends MdlxGenericObject {
 		writer.writeUInt32(keyFrames.length);
 		writer.writeInt32(globalSequenceId);
 
-		for (int i = 0; i < keyFrames.length; i++) {
-			writer.writeUInt32(keyFrames[i]);
-		}
+        for (long keyFrame : keyFrames) {
+            writer.writeUInt32(keyFrame);
+        }
 	}
 
 	@Override

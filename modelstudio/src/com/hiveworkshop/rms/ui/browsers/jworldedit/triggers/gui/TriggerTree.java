@@ -293,11 +293,11 @@ public class TriggerTree extends JTree {
 			final JTree tree = (JTree) support.getComponent();
 			final int dropRow = tree.getRowForPath(dl.getPath());
 			final int[] selRows = tree.getSelectionRows();
-			for (int i = 0; i < selRows.length; i++) {
-				if (selRows[i] == dropRow) {
-					return false;
-				}
-			}
+            for (int selRow : selRows) {
+                if (selRow == dropRow) {
+                    return false;
+                }
+            }
 			// int action = support.getDropAction();
 			// if(action == MOVE) {
 			// return true;
@@ -348,12 +348,12 @@ public class TriggerTree extends JTree {
 		protected void exportDone(final JComponent source, final Transferable data, final int action) {
 			if ((action & MOVE) == MOVE) {
 				// Remove nodes saved by createTransferable.
-				for (int i = 0; i < triggersToRemove.length; i++) {
-					controller.deleteTrigger(triggersToRemove[i]);
-				}
-				for (int i = 0; i < categoriesToRemove.length; i++) {
-					controller.deleteCategory(categoriesToRemove[i]);
-				}
+                for (Trigger trigger : triggersToRemove) {
+                    controller.deleteTrigger(trigger);
+                }
+                for (TriggerCategory triggerCategory : categoriesToRemove) {
+                    controller.deleteCategory(triggerCategory);
+                }
 			}
 		}
 
@@ -393,9 +393,9 @@ public class TriggerTree extends JTree {
 			}
 			// Add data to model.
 			if (triggers != null) {
-				for (int i = 0; i < triggers.length; i++) {
-					triggers[i].dragInto(controller, parent, index++);
-				}
+                for (DraggableNode trigger : triggers) {
+                    trigger.dragInto(controller, parent, index++);
+                }
 				return true;
 			}
 			return false;

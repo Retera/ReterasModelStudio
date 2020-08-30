@@ -49,13 +49,10 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		if ((programPreferences.getRenderParticles() == null) || programPreferences.getRenderParticles()) {
 			renderParticles.setSelected(true);
 		}
-		final ActionListener viewModeUpdater = new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				programPreferences.setViewMode(wireframeViewMode.isSelected() ? 0 : 1);
-				programPreferences.setInvertedDisplay(invertedDisplay.isSelected());
-			}
-		};
+		final ActionListener viewModeUpdater = e -> {
+            programPreferences.setViewMode(wireframeViewMode.isSelected() ? 0 : 1);
+            programPreferences.setInvertedDisplay(invertedDisplay.isSelected());
+        };
 		wireframeViewMode.setSelected(programPreferences.viewMode() == 0);
 		wireframeViewMode.addActionListener(viewModeUpdater);
 		solidViewMode.setSelected(programPreferences.viewMode() == 1);
@@ -88,125 +85,38 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		final JPanel modelEditorPanel = new JPanel();
 		modelEditorPanel.setLayout(new MigLayout());
 		invertedDisplay.addActionListener(viewModeUpdater);
-		quickBrowse.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				programPreferences.setQuickBrowse(quickBrowse.isSelected());
-			}
-		});
-		allowLoadingNonBlpTextures.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				programPreferences.setAllowLoadingNonBlpTextures(allowLoadingNonBlpTextures.isSelected());
-			}
-		});
-		renderParticles.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				programPreferences.setRenderParticles(renderParticles.isSelected());
-			}
-		});
-		useBoxesForNodes.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				programPreferences.setUseBoxesForPivotPoints(useBoxesForNodes.isSelected());
-			}
-		});
+		quickBrowse.addActionListener(e -> programPreferences.setQuickBrowse(quickBrowse.isSelected()));
+		allowLoadingNonBlpTextures.addActionListener(e -> programPreferences.setAllowLoadingNonBlpTextures(allowLoadingNonBlpTextures.isSelected()));
+		renderParticles.addActionListener(e -> programPreferences.setRenderParticles(renderParticles.isSelected()));
+		useBoxesForNodes.addActionListener(e -> programPreferences.setUseBoxesForPivotPoints(useBoxesForNodes.isSelected()));
 		final ColorChooserIcon backgroundColorIcon = new ColorChooserIcon(programPreferences.getBackgroundColor(),
-				new ColorListener() {
-					@Override
-					public void colorChanged(final Color color) {
-						programPreferences.setBackgroundColor(color);
-					}
-				});
+                color -> programPreferences.setBackgroundColor(color));
 		final ColorChooserIcon perspectiveBackgroundColorIcon = new ColorChooserIcon(
-				programPreferences.getPerspectiveBackgroundColor(), new ColorListener() {
-			@Override
-			public void colorChanged(final Color color) {
-				programPreferences.setPerspectiveBackgroundColor(color);
-			}
-		});
+				programPreferences.getPerspectiveBackgroundColor(), color -> programPreferences.setPerspectiveBackgroundColor(color));
 		final ColorChooserIcon vertexColorIcon = new ColorChooserIcon(programPreferences.getVertexColor(),
-				new ColorListener() {
-					@Override
-					public void colorChanged(final Color color) {
-						programPreferences.setVertexColor(color);
-					}
-				});
+                color -> programPreferences.setVertexColor(color));
 		final ColorChooserIcon triangleColorIcon = new ColorChooserIcon(programPreferences.getTriangleColor(),
-				new ColorListener() {
-					@Override
-					public void colorChanged(final Color color) {
-						programPreferences.setTriangleColor(color);
-					}
-				});
+                color -> programPreferences.setTriangleColor(color));
 		final ColorChooserIcon visibleUneditableColorIcon = new ColorChooserIcon(
-				programPreferences.getVisibleUneditableColor(), new ColorListener() {
-			@Override
-			public void colorChanged(final Color color) {
-				programPreferences.setVisibleUneditableColor(color);
-			}
-		});
+				programPreferences.getVisibleUneditableColor(), color -> programPreferences.setVisibleUneditableColor(color));
 		final ColorChooserIcon selectColorIcon = new ColorChooserIcon(programPreferences.getSelectColor(),
-				new ColorListener() {
-					@Override
-					public void colorChanged(final Color color) {
-						programPreferences.setSelectColor(color);
-					}
-				});
+                color -> programPreferences.setSelectColor(color));
 		final ColorChooserIcon triangleHighlightColorIcon = new ColorChooserIcon(
-				programPreferences.getHighlighTriangleColor(), new ColorListener() {
-			@Override
-			public void colorChanged(final Color color) {
-				programPreferences.setHighlighTriangleColor(color);
-			}
-		});
+				programPreferences.getHighlighTriangleColor(), color -> programPreferences.setHighlighTriangleColor(color));
 		final ColorChooserIcon vertexHighlightColorIcon = new ColorChooserIcon(
-				programPreferences.getHighlighVertexColor(), new ColorListener() {
-			@Override
-			public void colorChanged(final Color color) {
-				programPreferences.setHighlighVertexColor(color);
-			}
-		});
+				programPreferences.getHighlighVertexColor(), color -> programPreferences.setHighlighVertexColor(color));
 		final ColorChooserIcon animtedBoneSelectedColorIcon = new ColorChooserIcon(
-				programPreferences.getAnimatedBoneSelectedColor(), new ColorListener() {
-			@Override
-			public void colorChanged(final Color color) {
-				programPreferences.setAnimatedBoneSelectedColor(color);
-			}
-		});
+				programPreferences.getAnimatedBoneSelectedColor(), color -> programPreferences.setAnimatedBoneSelectedColor(color));
 		final ColorChooserIcon animtedBoneUnselectedColorIcon = new ColorChooserIcon(
-				programPreferences.getAnimatedBoneUnselectedColor(), new ColorListener() {
-			@Override
-			public void colorChanged(final Color color) {
-				programPreferences.setAnimatedBoneUnselectedColor(color);
-			}
-		});
+				programPreferences.getAnimatedBoneUnselectedColor(), color -> programPreferences.setAnimatedBoneUnselectedColor(color));
 		final ColorChooserIcon animtedBoneSelectedUpstreamColorIcon = new ColorChooserIcon(
-				programPreferences.getAnimatedBoneSelectedUpstreamColor(), new ColorListener() {
-			@Override
-			public void colorChanged(final Color color) {
-				programPreferences.setAnimatedBoneSelectedUpstreamColor(color);
-			}
-		});
+				programPreferences.getAnimatedBoneSelectedUpstreamColor(), color -> programPreferences.setAnimatedBoneSelectedUpstreamColor(color));
 		final ColorChooserIcon pivotPointColorIcon = new ColorChooserIcon(programPreferences.getPivotPointsColor(),
-				new ColorListener() {
-					@Override
-					public void colorChanged(final Color color) {
-						programPreferences.setPivotPointsColor(color);
-					}
-				});
+                color -> programPreferences.setPivotPointsColor(color));
 		final ColorChooserIcon pivotPointSelectedColorIcon = new ColorChooserIcon(
-				programPreferences.getPivotPointsSelectedColor(), new ColorListener() {
-			@Override
-			public void colorChanged(final Color color) {
-				programPreferences.setPivotPointsSelectedColor(color);
-			}
-		});
+				programPreferences.getPivotPointsSelectedColor(), color -> programPreferences.setPivotPointsSelectedColor(color));
 
-		final JComboBox<GUITheme> themeCheckBox = new JComboBox<GUITheme>(GUITheme.values());
+		final JComboBox<GUITheme> themeCheckBox = new JComboBox<>(GUITheme.values());
 		themeCheckBox.setSelectedItem(programPreferences.getTheme());
 		themeCheckBox.addActionListener(new ActionListener() {
 			boolean hasWarned = false;
@@ -274,18 +184,8 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		cameraSpinBox.setSelectedItem(programPreferences.getThreeDCameraSpinButton());
 		final JComboBox<MouseButtonPreference> cameraPanBox = new JComboBox<>(MouseButtonPreference.values());
 		cameraPanBox.setSelectedItem(programPreferences.getThreeDCameraPanButton());
-		cameraSpinBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				programPreferences.setThreeDCameraSpinButton((MouseButtonPreference) cameraSpinBox.getSelectedItem());
-			}
-		});
-		cameraPanBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				programPreferences.setThreeDCameraPanButton((MouseButtonPreference) cameraPanBox.getSelectedItem());
-			}
-		});
+		cameraSpinBox.addActionListener(e -> programPreferences.setThreeDCameraSpinButton((MouseButtonPreference) cameraSpinBox.getSelectedItem()));
+		cameraPanBox.addActionListener(e -> programPreferences.setThreeDCameraPanButton((MouseButtonPreference) cameraPanBox.getSelectedItem()));
 		hotkeysPanel.add(new JLabel("3D Camera Spin"), "cell 0 " + row);
 		hotkeysPanel.add(cameraSpinBox, "cell 1 " + row);
 		row++;

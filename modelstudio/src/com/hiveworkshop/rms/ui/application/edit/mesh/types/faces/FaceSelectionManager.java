@@ -13,6 +13,7 @@ import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,9 +29,7 @@ public final class FaceSelectionManager extends AbstractSelectionManager<Triangl
 	public Vec3 getCenter() {
 		final Set<Vec3> selectedVertices = new HashSet<>();
 		for (final Triangle triangle : selection) {
-			for (final GeosetVertex geosetVertex : triangle.getVerts()) {
-				selectedVertices.add(geosetVertex);
-			}
+            selectedVertices.addAll(Arrays.asList(triangle.getVerts()));
 		}
 		return Vec3.centerOfGroup(selectedVertices);
 	}
@@ -39,9 +38,7 @@ public final class FaceSelectionManager extends AbstractSelectionManager<Triangl
 	public Set<Vec3> getSelectedVertices() {
 		final Set<Vec3> vertices = new HashSet<>();
 		for (final Triangle triangle : getSelection()) {
-			for (final Vec3 vertex : triangle.getVerts()) {
-				vertices.add(vertex);
-			}
+            vertices.addAll(Arrays.asList(triangle.getVerts()));
 		}
 		return vertices;
 	}

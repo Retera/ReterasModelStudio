@@ -99,12 +99,7 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 		this.parent = parent;
 
 		viewportModelRenderer = new UVViewportModelRenderer();
-		cursorManager = new CursorManager() {
-			@Override
-			public void setCursor(final Cursor cursor) {
-				UVViewport.this.setCursor(cursor);
-			}
-		};
+		cursorManager = cursor -> UVViewport.this.setCursor(cursor);
 	}
 
 	public void init() {
@@ -192,7 +187,7 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 			g.drawLine(0, (int) cameraOrigin.y, getWidth(), (int) cameraOrigin.y);
 			g.drawLine((int) cameraOrigin.x, 0, (int) cameraOrigin.x, getHeight());
 		}
-		for (int i = 0; i < backgrounds.size(); i++) {
+		for (Image background : backgrounds) {
 			if (parent.wrapImage.isSelected()) {
 				final double geomMinX = geomX(0);
 				final double geomMinY = geomY(0);
@@ -204,12 +199,12 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 				final int maxY = (int) Math.ceil(geomMaxY);
 				for (int y = minY; y < maxY; y++) {
 					for (int x = minX; x < maxX; x++) {
-						g.drawImage(backgrounds.get(i), (int) convertX(x), (int) convertY(y),
+						g.drawImage(background, (int) convertX(x), (int) convertY(y),
 								(int) (convertX(x + 1) - convertX(x)), (int) (convertY(y + 1) - convertY(y)), null);
 					}
 				}
 			} else {
-				g.drawImage(backgrounds.get(i), (int) convertX(0), (int) convertY(0), (int) (convertX(1) - convertX(0)),
+				g.drawImage(background, (int) convertX(0), (int) convertY(0), (int) (convertX(1) - convertX(0)),
 						(int) (convertY(1) - convertY(0)), null);
 			}
 		}

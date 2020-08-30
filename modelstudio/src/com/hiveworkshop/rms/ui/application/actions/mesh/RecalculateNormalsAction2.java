@@ -36,21 +36,15 @@ public class RecalculateNormalsAction2 implements UndoAction {
 	@Override
 	public void redo() {
 		final Map<Tuplet, List<GeosetVertex>> tupletToMatches = new HashMap<>();
-		for (int i = 0; i < selection.size(); i++) {
-			final GeosetVertex geosetVertex = selection.get(i);
+		for (final GeosetVertex geosetVertex : selection) {
 			final Tuplet tuplet = new Tuplet(geosetVertex.x, geosetVertex.y, geosetVertex.z);
-			List<GeosetVertex> matches = tupletToMatches.get(tuplet);
-			if (matches == null) {
-				matches = new ArrayList<>();
-				tupletToMatches.put(tuplet, matches);
-			}
+			List<GeosetVertex> matches = tupletToMatches.computeIfAbsent(tuplet, k -> new ArrayList<>());
 			matches.add(geosetVertex);
 		}
-		for (int i = 0; i < selection.size(); i++) {
-			final GeosetVertex geosetVertex = selection.get(i);
+		for (final GeosetVertex geosetVertex : selection) {
 			final Tuplet tuplet = new Tuplet(geosetVertex.x, geosetVertex.y, geosetVertex.z);
 			final List<GeosetVertex> matches = tupletToMatches.get(tuplet);
-			geosetVertex.getNormal().set(selection.get(i).createNormal(matches));
+			geosetVertex.getNormal().set(geosetVertex.createNormal(matches));
 		}
 	}
 

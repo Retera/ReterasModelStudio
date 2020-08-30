@@ -65,13 +65,8 @@ public abstract class MdlxGenericObject extends MdlxAnimatedObject {
 
 	protected final Iterable<String> readMdlGeneric(final MdlTokenInputStream stream) {
 		name = stream.read();
-		return new Iterable<String>() {
-			@Override
-			public Iterator<String> iterator() {
-				return new WrappedMdlTokenIterator(readAnimatedBlock(stream), MdlxGenericObject.this,
-						stream);
-			}
-		};
+		return () -> new WrappedMdlTokenIterator(readAnimatedBlock(stream), MdlxGenericObject.this,
+                stream);
 	}
 
 	public void writeGenericHeader(final MdlTokenOutputStream stream) {

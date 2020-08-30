@@ -86,31 +86,25 @@ public class DataSourceChooserPanel extends JPanel {
 		}
 
 		final JButton clearList = new JButton("Clear All");
-		clearList.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				dataSourceDescriptors.clear();
-				reloadTree();
-			}
-		});
+		clearList.addActionListener(e -> {
+            dataSourceDescriptors.clear();
+            reloadTree();
+        });
 		final JButton addWarcraft3Installation = new JButton("Add War3 Install Directory");
-		addWarcraft3Installation.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				fileChooser.setFileFilter(null);
-				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				final int result = fileChooser.showOpenDialog(DataSourceChooserPanel.this);
-				if (result == JFileChooser.APPROVE_OPTION) {
-					final File selectedFile = fileChooser.getSelectedFile();
-					if (selectedFile != null) {
-						// Is it a CASC war3
-						final Path installPathPath = selectedFile.toPath();
-						addWarcraft3Installation(installPathPath, true);
-						reloadTree();
-					}
-				}
-			}
-		});
+		addWarcraft3Installation.addActionListener(e -> {
+            fileChooser.setFileFilter(null);
+            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            final int result = fileChooser.showOpenDialog(DataSourceChooserPanel.this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                final File selectedFile = fileChooser.getSelectedFile();
+                if (selectedFile != null) {
+                    // Is it a CASC war3
+                    final Path installPathPath = selectedFile.toPath();
+                    addWarcraft3Installation(installPathPath, true);
+                    reloadTree();
+                }
+            }
+        });
 		final JButton addDefaultCascPrefixes = new JButton("Add Default CASC Mod");
 		addDefaultCascPrefixes.addActionListener(new ActionListener() {
 			@Override
@@ -276,62 +270,47 @@ public class DataSourceChooserPanel extends JPanel {
 		});
 		moveSelectionDown.setEnabled(false);
 		final JButton resetAllToDefaults = new JButton("Reset to Defaults");
-		resetAllToDefaults.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				loadDefaults(null);
-			}
-		});
+		resetAllToDefaults.addActionListener(e -> loadDefaults(null));
 		final JButton addCASCButton = new JButton("Add CASC");
-		addCASCButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				fileChooser.setFileFilter(null);
-				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				final int result = fileChooser.showOpenDialog(DataSourceChooserPanel.this);
-				if (result == JFileChooser.APPROVE_OPTION) {
-					final File selectedFile = fileChooser.getSelectedFile();
-					if (selectedFile != null) {
-						dataSourceDescriptors
-								.add(new CascDataSourceDescriptor(selectedFile.getPath(), new ArrayList<String>()));
-						reloadTree();
-					}
-				}
-			}
-		});
+		addCASCButton.addActionListener(e -> {
+            fileChooser.setFileFilter(null);
+            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            final int result = fileChooser.showOpenDialog(DataSourceChooserPanel.this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                final File selectedFile = fileChooser.getSelectedFile();
+                if (selectedFile != null) {
+                    dataSourceDescriptors
+                            .add(new CascDataSourceDescriptor(selectedFile.getPath(), new ArrayList<String>()));
+                    reloadTree();
+                }
+            }
+        });
 		final JButton addMPQButton = new JButton("Add MPQ");
-		addMPQButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				fileChooser.setFileFilter(new FileNameExtensionFilter("MPQ Archive File", "mpq", "w3x", "w3m"));
-				fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				final int result = fileChooser.showOpenDialog(DataSourceChooserPanel.this);
-				if (result == JFileChooser.APPROVE_OPTION) {
-					final File selectedFile = fileChooser.getSelectedFile();
-					if (selectedFile != null) {
-						dataSourceDescriptors.add(new MpqDataSourceDescriptor(selectedFile.getPath()));
-						reloadTree();
-					}
-				}
-			}
-		});
+		addMPQButton.addActionListener(e -> {
+            fileChooser.setFileFilter(new FileNameExtensionFilter("MPQ Archive File", "mpq", "w3x", "w3m"));
+            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            final int result = fileChooser.showOpenDialog(DataSourceChooserPanel.this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                final File selectedFile = fileChooser.getSelectedFile();
+                if (selectedFile != null) {
+                    dataSourceDescriptors.add(new MpqDataSourceDescriptor(selectedFile.getPath()));
+                    reloadTree();
+                }
+            }
+        });
 		final JButton addFolderButton = new JButton("Add Folder");
-		addFolderButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				fileChooser.setFileFilter(null);
-				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				final int result = fileChooser.showOpenDialog(DataSourceChooserPanel.this);
-				if (result == JFileChooser.APPROVE_OPTION) {
-					final File selectedFile = fileChooser.getSelectedFile();
-					if (selectedFile != null) {
-						dataSourceDescriptors.add(new FolderDataSourceDescriptor(selectedFile.getPath()));
-						reloadTree();
-					}
-				}
-			}
-		});
+		addFolderButton.addActionListener(e -> {
+            fileChooser.setFileFilter(null);
+            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            final int result = fileChooser.showOpenDialog(DataSourceChooserPanel.this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                final File selectedFile = fileChooser.getSelectedFile();
+                if (selectedFile != null) {
+                    dataSourceDescriptors.add(new FolderDataSourceDescriptor(selectedFile.getPath()));
+                    reloadTree();
+                }
+            }
+        });
 		final JLabel separatorLabel = new JLabel("-----");
 		separatorLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
 		final JLabel separatorLabel2 = new JLabel("-----");
@@ -349,34 +328,31 @@ public class DataSourceChooserPanel extends JPanel {
 		dataSourceTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		dataSourceTree.setRootVisible(false);
 
-		dataSourceTree.addTreeSelectionListener(new TreeSelectionListener() {
-			@Override
-			public void valueChanged(final TreeSelectionEvent e) {
-				boolean cascSelected = false;
-				final TreePath selectionPath = e.getNewLeadSelectionPath();
-				if (selectionPath != null) {
-					Object lastPathComponent = selectionPath.getLastPathComponent();
-					if (lastPathComponent instanceof DefaultMutableTreeNode) {
-						final TreeNode parent = ((DefaultMutableTreeNode) lastPathComponent).getParent();
-						if (parent instanceof DataSourceDescTreeNode) {
-							lastPathComponent = parent;
-						}
-					}
-					if (lastPathComponent instanceof DataSourceDescTreeNode) {
-						final DataSourceDescriptor dataSourceDescriptor = ((DataSourceDescTreeNode) lastPathComponent)
-								.getDescriptor();
-						if (dataSourceDescriptor instanceof CascDataSourceDescriptor) {
-							cascSelected = true;
-						}
-					}
-				}
-				addDefaultCascPrefixes.setEnabled(cascSelected);
-				addSpecificCascPrefix.setEnabled(cascSelected);
-				deleteSelection.setEnabled(selectionPath != null);
-				moveSelectionUp.setEnabled(selectionPath != null);
-				moveSelectionDown.setEnabled(selectionPath != null);
-			}
-		});
+		dataSourceTree.addTreeSelectionListener(e -> {
+            boolean cascSelected = false;
+            final TreePath selectionPath = e.getNewLeadSelectionPath();
+            if (selectionPath != null) {
+                Object lastPathComponent = selectionPath.getLastPathComponent();
+                if (lastPathComponent instanceof DefaultMutableTreeNode) {
+                    final TreeNode parent = ((DefaultMutableTreeNode) lastPathComponent).getParent();
+                    if (parent instanceof DataSourceDescTreeNode) {
+                        lastPathComponent = parent;
+                    }
+                }
+                if (lastPathComponent instanceof DataSourceDescTreeNode) {
+                    final DataSourceDescriptor dataSourceDescriptor = ((DataSourceDescTreeNode) lastPathComponent)
+                            .getDescriptor();
+                    if (dataSourceDescriptor instanceof CascDataSourceDescriptor) {
+                        cascSelected = true;
+                    }
+                }
+            }
+            addDefaultCascPrefixes.setEnabled(cascSelected);
+            addSpecificCascPrefix.setEnabled(cascSelected);
+            deleteSelection.setEnabled(selectionPath != null);
+            moveSelectionUp.setEnabled(selectionPath != null);
+            moveSelectionDown.setEnabled(selectionPath != null);
+        });
 		final JScrollPane dstScrollpane = new JScrollPane(dataSourceTree);
 		dstScrollpane.setPreferredSize(new Dimension(500, 400));
 		final GroupLayout layout = new GroupLayout(this);
@@ -445,7 +421,7 @@ public class DataSourceChooserPanel extends JPanel {
 	private void addWarcraft3Installation(final Path installPathPath, final boolean allowPopup) {
 		if (Files.exists(installPathPath.resolve("Data/indices"))) {
 			final CascDataSourceDescriptor dataSourceDesc = new CascDataSourceDescriptor(installPathPath.toString(),
-					new ArrayList<String>());
+					new ArrayList<>());
 			dataSourceDescriptors.add(dataSourceDesc);
 			addDefaultCASCPrefixes(installPathPath, dataSourceDesc, allowPopup);
 		} else {
@@ -555,7 +531,7 @@ public class DataSourceChooserPanel extends JPanel {
 		// It's CASC. Now the question: what prefixes do we use?
 		try {
 			final WarcraftIIICASC tempCascReader = new WarcraftIIICASC(installPathPath, true);
-			final DefaultComboBoxModel<String> prefixes = new DefaultComboBoxModel<String>();
+			final DefaultComboBoxModel<String> prefixes = new DefaultComboBoxModel<>();
 			try {
 				final WarcraftIIICASC.FileSystem rootFileSystem = tempCascReader.getRootFileSystem();
 				final List<String> allFiles = rootFileSystem.enumerateFiles();

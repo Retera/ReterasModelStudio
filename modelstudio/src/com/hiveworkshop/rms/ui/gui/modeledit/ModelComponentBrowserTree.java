@@ -66,90 +66,83 @@ public final class ModelComponentBrowserTree extends JTree {
 	}
 
 	public void addSelectListener(final ModelComponentListener selectListener) {
-		addTreeSelectionListener(new TreeSelectionListener() {
-			@Override
-			public void valueChanged(final TreeSelectionEvent e) {
-				final TreePath path = e.getNewLeadSelectionPath();
-				boolean selected = false;
-				if (path != null) {
-					final Object lastPathComponent = path.getLastPathComponent();
-					if (lastPathComponent instanceof DefaultMutableTreeNode) {
-						final DefaultMutableTreeNode node = (DefaultMutableTreeNode) lastPathComponent;
-						if (node.getUserObject() instanceof ChooseableDisplayElement) {
-							asElement(node.getUserObject()).select(selectListener);
-							selected = true;
-						}
-					}
-				}
-				if (!selected) {
-					selectListener.selectedBlank();
-				}
-			}
-		});
+		addTreeSelectionListener(e -> {
+            final TreePath path = e.getNewLeadSelectionPath();
+            boolean selected = false;
+            if (path != null) {
+                final Object lastPathComponent = path.getLastPathComponent();
+                if (lastPathComponent instanceof DefaultMutableTreeNode) {
+                    final DefaultMutableTreeNode node = (DefaultMutableTreeNode) lastPathComponent;
+                    if (node.getUserObject() instanceof ChooseableDisplayElement) {
+                        asElement(node.getUserObject()).select(selectListener);
+                        selected = true;
+                    }
+                }
+            }
+            if (!selected) {
+                selectListener.selectedBlank();
+            }
+        });
 	}
 
 	public void reloadFromModelView() {
 		System.out.println("Reloading ModelComponentBrowserTree");
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				final TreePath selectionPath = getSelectionPath();
-				final TreePath rootPath = new TreePath(getModel().getRoot());
-				final Enumeration<TreePath> expandedDescendants = getExpandedDescendants(rootPath);
-				setModel(buildTreeModel(modelViewManager, undoActionListener, modelStructureChangeListener));
-				final TreePath newRootPath = new TreePath(getModel().getRoot());
-				final List<TreePath> pathsToExpand = new ArrayList<>();
-				while ((expandedDescendants != null) && expandedDescendants.hasMoreElements()) {
-					final TreePath nextPathToExpand = expandedDescendants.nextElement();
-					TreePath newPathWithNewObjects = newRootPath;
-					DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) getModel().getRoot();
-					for (int i = 1; i < nextPathToExpand.getPathCount(); i++) {
-						final DefaultMutableTreeNode pathComponent = (DefaultMutableTreeNode) nextPathToExpand
-								.getPathComponent(i);
-						boolean foundMatchingChild = false;
-						for (int j = 0; (j < currentNode.getChildCount()) && !foundMatchingChild; j++) {
-							final DefaultMutableTreeNode childAt = (DefaultMutableTreeNode) currentNode.getChildAt(j);
-							if (asElement(childAt.getUserObject())
-									.hasSameItem(asElement(pathComponent.getUserObject()))) {
-								currentNode = childAt;
-								newPathWithNewObjects = newPathWithNewObjects.pathByAddingChild(childAt);
-								foundMatchingChild = true;
-							}
-						}
-						if (!foundMatchingChild) {
-							break;
-						}
-					}
-					pathsToExpand.add(newPathWithNewObjects);
-				}
-				for (final TreePath path : pathsToExpand) {
-					expandPath(path);
-				}
-				DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) getModel().getRoot();
-				TreePath newSelectionPath = newRootPath;
-				if (selectionPath != null) {
-					for (int i = 1; i < selectionPath.getPathCount(); i++) {
-						final DefaultMutableTreeNode pathComponent = (DefaultMutableTreeNode) selectionPath
-								.getPathComponent(i);
-						boolean foundMatchingChild = false;
-						for (int j = 0; (j < currentNode.getChildCount()) && !foundMatchingChild; j++) {
-							final DefaultMutableTreeNode childAt = (DefaultMutableTreeNode) currentNode.getChildAt(j);
-							if (asElement(childAt.getUserObject())
-									.hasSameItem(asElement(pathComponent.getUserObject()))) {
-								currentNode = childAt;
-								newSelectionPath = newSelectionPath.pathByAddingChild(childAt);
-								foundMatchingChild = true;
-							}
-						}
-						if (!foundMatchingChild) {
-							break;
-						}
-					}
-				}
-				setSelectionPath(newSelectionPath); // should also fire listeners
-			}
-
-		});
+		SwingUtilities.invokeLater(() -> {
+            final TreePath selectionPath = getSelectionPath();
+            final TreePath rootPath = new TreePath(getModel().getRoot());
+            final Enumeration<TreePath> expandedDescendants = getExpandedDescendants(rootPath);
+            setModel(buildTreeModel(modelViewManager, undoActionListener, modelStructureChangeListener));
+            final TreePath newRootPath = new TreePath(getModel().getRoot());
+            final List<TreePath> pathsToExpand = new ArrayList<>();
+            while ((expandedDescendants != null) && expandedDescendants.hasMoreElements()) {
+                final TreePath nextPathToExpand = expandedDescendants.nextElement();
+                TreePath newPathWithNewObjects = newRootPath;
+                DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) getModel().getRoot();
+                for (int i = 1; i < nextPathToExpand.getPathCount(); i++) {
+                    final DefaultMutableTreeNode pathComponent = (DefaultMutableTreeNode) nextPathToExpand
+                            .getPathComponent(i);
+                    boolean foundMatchingChild = false;
+                    for (int j = 0; (j < currentNode.getChildCount()) && !foundMatchingChild; j++) {
+                        final DefaultMutableTreeNode childAt = (DefaultMutableTreeNode) currentNode.getChildAt(j);
+                        if (asElement(childAt.getUserObject())
+                                .hasSameItem(asElement(pathComponent.getUserObject()))) {
+                            currentNode = childAt;
+                            newPathWithNewObjects = newPathWithNewObjects.pathByAddingChild(childAt);
+                            foundMatchingChild = true;
+                        }
+                    }
+                    if (!foundMatchingChild) {
+                        break;
+                    }
+                }
+                pathsToExpand.add(newPathWithNewObjects);
+            }
+            for (final TreePath path : pathsToExpand) {
+                expandPath(path);
+            }
+            DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) getModel().getRoot();
+            TreePath newSelectionPath = newRootPath;
+            if (selectionPath != null) {
+                for (int i = 1; i < selectionPath.getPathCount(); i++) {
+                    final DefaultMutableTreeNode pathComponent = (DefaultMutableTreeNode) selectionPath
+                            .getPathComponent(i);
+                    boolean foundMatchingChild = false;
+                    for (int j = 0; (j < currentNode.getChildCount()) && !foundMatchingChild; j++) {
+                        final DefaultMutableTreeNode childAt = (DefaultMutableTreeNode) currentNode.getChildAt(j);
+                        if (asElement(childAt.getUserObject())
+                                .hasSameItem(asElement(pathComponent.getUserObject()))) {
+                            currentNode = childAt;
+                            newSelectionPath = newSelectionPath.pathByAddingChild(childAt);
+                            foundMatchingChild = true;
+                        }
+                    }
+                    if (!foundMatchingChild) {
+                        break;
+                    }
+                }
+            }
+            setSelectionPath(newSelectionPath); // should also fire listeners
+        });
 	}
 
 	private ChooseableDisplayElement<?> asElement(final Object userObject) {
@@ -265,11 +258,7 @@ public final class ModelComponentBrowserTree extends JTree {
 			}
 			final DefaultMutableTreeNode parentTreeNode = nodeToTreeElement.get(parent);
 			if (parentTreeNode == null) {
-				List<DefaultMutableTreeNode> awaitingChildrenList = nodeToChildrenAwaitingLink.get(parent);
-				if (awaitingChildrenList == null) {
-					awaitingChildrenList = new ArrayList<>();
-					nodeToChildrenAwaitingLink.put(parent, awaitingChildrenList);
-				}
+				List<DefaultMutableTreeNode> awaitingChildrenList = nodeToChildrenAwaitingLink.computeIfAbsent(parent, k -> new ArrayList<>());
 				awaitingChildrenList.add(treeNode);
 			} else {
 				parentTreeNode.add(treeNode);
