@@ -46,6 +46,7 @@ project(":modelstudio") {
         compile "org.jclarion:image4j:$image4jVersion"
 
         compile "com.github.inwc3:JMPQ3:1.7.14"
+        compile "org.json:json:20200518"
     }
 }
 
