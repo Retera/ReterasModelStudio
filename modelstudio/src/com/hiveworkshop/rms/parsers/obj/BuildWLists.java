@@ -332,12 +332,10 @@ public class BuildWLists implements BuilderInterface {
 			// cleared the currentGroups lists, just return.
 			return;
 		}
-		for (int loopi = 0; loopi < names.length; loopi++) {
-			final String group = names[loopi].trim();
+		for (String name : names) {
+			final String group = name.trim();
 			currentGroups.add(group);
-			if (null == groups.get(group)) {
-				groups.put(group, new ArrayList<Face>());
-			}
+			groups.computeIfAbsent(group, k -> new ArrayList<Face>());
 			currentGroupFaceLists.add(groups.get(group));
 		}
 	}
@@ -797,6 +795,7 @@ public class BuildWLists implements BuilderInterface {
 				if (name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".tga")
 						|| name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".bmp")) {
 					hasPNGs = true;
+					break;
 				}
 			}
 		}
@@ -822,14 +821,14 @@ public class BuildWLists implements BuilderInterface {
 					if (userWantsSwapToBLP) {
 						try {
 							File imageFilePNG = new File(objFolder.getPath() + "/" + name);
-							if (!imageFilePNG.exists() && name.indexOf("_") >= 0) {
+							if (!imageFilePNG.exists() && name.contains("_")) {
 								imageFilePNG = new File(
 										objFolder.getPath() + "/" + name.substring(name.indexOf("_") + 1));
 							}
 							if (!imageFilePNG.exists()) {
 								imageFilePNG = new File(objFolder.getPath() + "/textures/" + name);
 							}
-							if (!imageFilePNG.exists() && name.indexOf("_") >= 0) {
+							if (!imageFilePNG.exists() && name.contains("_")) {
 								imageFilePNG = new File(
 										objFolder.getPath() + "/textures/" + name.substring(name.indexOf("_") + 1));
 							}
@@ -879,7 +878,7 @@ public class BuildWLists implements BuilderInterface {
 			for (int subTriangleIndex = 0; subTriangleIndex < face.vertices.size() - 2; subTriangleIndex++) {
 				Subgroup subgroup = materialToSubgroup.get(face.material);
 				if (subgroup == null) {
-					subgroup = new Subgroup(new ArrayList<VertexKey>(), new Geoset());
+					subgroup = new Subgroup(new ArrayList<>(), new Geoset());
 					materialToSubgroup.put(face.material, subgroup);
 				}
 				final Geoset geo = subgroup.getGeo();

@@ -113,7 +113,7 @@ public final class IconUtils {
 	}
 
 	public static BufferedImage createColorImage(final Vec3 color, final int width, final int height) {
-		final Color awtColor = new Color((float) color.z, (float) color.y, (float) color.z);
+		final Color awtColor = new Color(color.z, color.y, color.z);
 		return createBlank(awtColor, width, height);
 	}
 

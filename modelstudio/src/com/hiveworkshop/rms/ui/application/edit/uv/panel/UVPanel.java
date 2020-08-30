@@ -270,28 +270,25 @@ public class UVPanel extends JPanel
         scaleButton.addActionListener(new ButtonActionChangeListener(2));
         unwrapDirectionBox = new JComboBox<>(UnwrapDirection.values());
         unwrapButton = new ModeButton("Remap UVs");
-        unwrapButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                final UnwrapDirection selectedItem = (UnwrapDirection) unwrapDirectionBox.getSelectedItem();
-                if (selectedItem != null) {
-                    switch (selectedItem) {
-                        case BOTTOM:
-                            remap((byte) 1, (byte) 0, selectedItem);
-                            break;
-                        case FRONT:
-                            remap((byte) 1, (byte) 2, selectedItem);
-                            break;
-                        case RIGHT:
-                            remap((byte) 0, (byte) 2, selectedItem);
-                            break;
-                        case PERSPECTIVE:
-                            break;
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(UVPanel.this, "Please select a direction", "Error",
-                            JOptionPane.ERROR_MESSAGE);
+        unwrapButton.addActionListener(e -> {
+            final UnwrapDirection selectedItem = (UnwrapDirection) unwrapDirectionBox.getSelectedItem();
+            if (selectedItem != null) {
+                switch (selectedItem) {
+                    case BOTTOM:
+                        remap((byte) 1, (byte) 0, selectedItem);
+                        break;
+                    case FRONT:
+                        remap((byte) 1, (byte) 2, selectedItem);
+                        break;
+                    case RIGHT:
+                        remap((byte) 0, (byte) 2, selectedItem);
+                        break;
+                    case PERSPECTIVE:
+                        break;
                 }
+            } else {
+                JOptionPane.showMessageDialog(UVPanel.this, "Please select a direction", "Error",
+                        JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -315,10 +312,10 @@ public class UVPanel extends JPanel
         unwrapDirectionBox.setMinimumSize(new Dimension(90, 15));
         unwrapDirectionBox.addActionListener(this);
 
-        for (int i = 0; i < buttons.size(); i++) {
-            buttons.get(i).setMaximumSize(new Dimension(100, 35));
-            buttons.get(i).setMinimumSize(new Dimension(90, 15));
-            buttons.get(i).addActionListener(this);
+        for (ModeButton button : buttons) {
+            button.setMaximumSize(new Dimension(100, 35));
+            button.setMinimumSize(new Dimension(90, 15));
+            button.addActionListener(this);
         }
 
         plusZoom = new JButton("");
@@ -418,20 +415,15 @@ public class UVPanel extends JPanel
                                 .addComponent(unwrapButton).addGap(8).addGap(8))));
 
         setLayout(layout);
-        selectionModeGroup.addToolbarButtonListener(new ToolbarButtonListener<SelectionMode>() {
-            @Override
-            public void typeChanged(final SelectionMode newType) {
-                resetSelectionModeButtons();
-                final ModeButton selectionModeButton = modeToButton.get(newType);
-                if (selectionModeButton != null) {
-                    selectionModeButton.setColors(prefs.getActiveColor1(), prefs.getActiveColor2());
-                }
+        selectionModeGroup.addToolbarButtonListener(newType -> {
+            resetSelectionModeButtons();
+            final ModeButton selectionModeButton = modeToButton.get(newType);
+            if (selectionModeButton != null) {
+                selectionModeButton.setColors(prefs.getActiveColor1(), prefs.getActiveColor2());
             }
         });
 
-        selectionItemTypeGroup.addToolbarButtonListener(new ToolbarButtonListener<TVertexSelectionItemTypes>() {
-            @Override
-            public void typeChanged(final TVertexSelectionItemTypes newType) {
+        selectionItemTypeGroup.addToolbarButtonListener(newType -> {
 //				animationModeState = newType == SelectionItemTypes.ANIMATE;
 //				// we need to refresh the state of stuff AFTER the ModelPanels, this
 //				// is a pretty signficant design flaw, so we're just going to
@@ -452,17 +444,13 @@ public class UVPanel extends JPanel
 //					final boolean moveLinked = dialogResult == settings[0];
 //					ModelEditorManager.MOVE_LINKED = moveLinked;
 //				}
-                modelEditorManager.setSelectionItemType(newType);
-                repaint();
-            }
+            modelEditorManager.setSelectionItemType(newType);
+            repaint();
         });
 
-        actionTypeGroup.addToolbarButtonListener(new ToolbarButtonListener<TVertexToolbarActionButtonType>() {
-            @Override
-            public void typeChanged(final TVertexToolbarActionButtonType newType) {
-                if (newType != null) {
-                    changeActivity(newType);
-                }
+        actionTypeGroup.addToolbarButtonListener(newType -> {
+            if (newType != null) {
+                changeActivity(newType);
             }
         });
         actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
@@ -617,48 +605,45 @@ public class UVPanel extends JPanel
 
         final JMenuItem splitVertex = new JMenuItem("Split Vertex");
         splitVertex.setAccelerator(KeyStroke.getKeyStroke("control V"));
-        splitVertex.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                final ModelPanel mpanel = currentModelPanel();
-                if (mpanel != null) {
-                    // mpanel.getUndoManager().pushAction(modelEditorManager.getModelEditor()
-                    // .selectFromViewer(mpanel.getModelEditorManager().getSelectionView()));
+        splitVertex.addActionListener(e -> {
+            final ModelPanel mpanel = currentModelPanel();
+            if (mpanel != null) {
+                // mpanel.getUndoManager().pushAction(modelEditorManager.getModelEditor()
+                // .selectFromViewer(mpanel.getModelEditorManager().getSelectionView()));
 
-                    final Collection<? extends Vec2> selectedTVertices = modelEditorManager.getSelectionView()
-                            .getSelectedTVertices(currentLayer());
-                    for (final Geoset g : mpanel.getModel().getGeosets()) {
-                        for (final GeosetVertex gv : new ArrayList<>(g.getVertices())) {
-                            final Vec2 tVertex = gv.getTVertex(currentLayer());
-                            if (selectedTVertices.contains(tVertex)) {
-                                final List<Triangle> triangles = gv.getTriangles();
-                                final Iterator<Triangle> iterator = triangles.iterator();
-                                if (iterator.hasNext()) {
-                                    iterator.next(); // keep using gv in 1 triangle, but not more
-                                }
-                                while (iterator.hasNext()) {
-                                    final Triangle tri = iterator.next();
-                                    final int vertexIndex = tri.indexOfRef(gv);
-                                    final GeosetVertex newVertex = new GeosetVertex(gv);
-                                    tri.set(vertexIndex, newVertex);
-                                    newVertex.getTriangles().add(tri);
-                                    newVertex.getGeoset().add(newVertex);
-                                    iterator.remove();
-                                }
+                final Collection<? extends Vec2> selectedTVertices = modelEditorManager.getSelectionView()
+                        .getSelectedTVertices(currentLayer());
+                for (final Geoset g : mpanel.getModel().getGeosets()) {
+                    for (final GeosetVertex gv : new ArrayList<>(g.getVertices())) {
+                        final Vec2 tVertex = gv.getTVertex(currentLayer());
+                        if (selectedTVertices.contains(tVertex)) {
+                            final List<Triangle> triangles = gv.getTriangles();
+                            final Iterator<Triangle> iterator = triangles.iterator();
+                            if (iterator.hasNext()) {
+                                iterator.next(); // keep using gv in 1 triangle, but not more
+                            }
+                            while (iterator.hasNext()) {
+                                final Triangle tri = iterator.next();
+                                final int vertexIndex = tri.indexOfRef(gv);
+                                final GeosetVertex newVertex = new GeosetVertex(gv);
+                                tri.set(vertexIndex, newVertex);
+                                newVertex.getTriangles().add(tri);
+                                newVertex.getGeoset().add(newVertex);
+                                iterator.remove();
                             }
                         }
                     }
-                    /*
-                     * Collection<Triangle> selectedFaces =
-                     * modelEditorManager.getSelectionView().getSelectedFaces(); for(Triangle t:
-                     * selectedFaces) { for(int i = 0; i < 3; i++) { GeosetVertex gv = t.get(i);
-                     * if(gv.getTriangles().size()>1) { GeosetVertex copy = new GeosetVertex(gv);
-                     * t.set(i, copy); copy.getTriangles().add(t); } } }
-                     */
-
                 }
-                repaint();
+                /*
+                 * Collection<Triangle> selectedFaces =
+                 * modelEditorManager.getSelectionView().getSelectedFaces(); for(Triangle t:
+                 * selectedFaces) { for(int i = 0; i < 3; i++) { GeosetVertex gv = t.get(i);
+                 * if(gv.getTriangles().size()>1) { GeosetVertex copy = new GeosetVertex(gv);
+                 * t.set(i, copy); copy.getTriangles().add(t); } } }
+                 */
+
             }
+            repaint();
         });
         editMenu.add(splitVertex);
 

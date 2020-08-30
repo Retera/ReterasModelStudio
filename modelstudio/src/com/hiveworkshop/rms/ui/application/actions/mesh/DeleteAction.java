@@ -31,9 +31,9 @@ public class DeleteAction implements UndoAction {
 
 	@Override
 	public void redo() {
-		for (int i = 0; i < deleted.size(); i++) {
-			if (deleted.get(i).getClass() == GeosetVertex.class) {
-				final GeosetVertex gv = (GeosetVertex) deleted.get(i);
+		for (Vec3 vec3 : deleted) {
+			if (vec3.getClass() == GeosetVertex.class) {
+				final GeosetVertex gv = (GeosetVertex) vec3;
 				gv.getGeoset().remove(gv);
 			}
 		}
@@ -43,14 +43,14 @@ public class DeleteAction implements UndoAction {
 				vertex.getTriangles().remove(t);
 			}
 		}
-		vertexSelectionHelper.selectVertices(new ArrayList<Vec3>());
+		vertexSelectionHelper.selectVertices(new ArrayList<>());
 	}
 
 	@Override
 	public void undo() {
-		for (int i = 0; i < deleted.size(); i++) {
-			if (deleted.get(i).getClass() == GeosetVertex.class) {
-				final GeosetVertex gv = (GeosetVertex) deleted.get(i);
+		for (Vec3 vec3 : deleted) {
+			if (vec3.getClass() == GeosetVertex.class) {
+				final GeosetVertex gv = (GeosetVertex) vec3;
 				gv.getGeoset().addVertex(gv);
 			}
 		}

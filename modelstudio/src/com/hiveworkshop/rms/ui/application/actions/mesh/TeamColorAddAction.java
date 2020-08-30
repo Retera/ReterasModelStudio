@@ -1,12 +1,6 @@
 package com.hiveworkshop.rms.ui.application.actions.mesh;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.Bitmap;
@@ -50,9 +44,7 @@ public final class TeamColorAddAction<T> implements UndoAction {
 		final Set<GeosetVertex> verticesInTheTriangles = new HashSet<>();
 		final Set<Geoset> geosetsToCopy = new HashSet<>();
 		for (final Triangle tri : trisToSeparate) {
-			for (final GeosetVertex gv : tri.getVerts()) {
-				verticesInTheTriangles.add(gv);
-			}
+            verticesInTheTriangles.addAll(Arrays.asList(tri.getVerts()));
 			geosetsToCopy.add(tri.getGeoset());
 		}
 		final Map<Geoset, Geoset> oldGeoToNewGeo = new HashMap<>();

@@ -150,31 +150,26 @@ public class MdlTokenInputStream {
 
 	public Iterable<String> readBlock() {
 		read(); // {
-		return new Iterable<String>() {
-			@Override
-			public Iterator<String> iterator() {
-				return new Iterator<String>() {
-					String current;
-					private boolean hasLoaded = false;
+		return () -> new Iterator<String>() {
+            String current;
+            private boolean hasLoaded = false;
 
-					@Override
-					public String next() {
-						if (!hasLoaded) {
-							hasNext();
-						}
-						hasLoaded = false;
-						return current;
-					}
+            @Override
+            public String next() {
+                if (!hasLoaded) {
+                    hasNext();
+                }
+                hasLoaded = false;
+                return current;
+            }
 
-					@Override
-					public boolean hasNext() {
-						current = read();
-						hasLoaded = true;
-						return (current != null) && !current.equals("}");
-					}
-				};
-			}
-		};
+            @Override
+            public boolean hasNext() {
+                current = read();
+                hasLoaded = true;
+                return (current != null) && !current.equals("}");
+            }
+        };
 	}
 
 	public int[] readUInt16Array(final int[] values) {

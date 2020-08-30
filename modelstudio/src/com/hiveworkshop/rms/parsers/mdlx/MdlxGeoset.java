@@ -343,9 +343,9 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 		}
 
 		stream.startBlock(MdlUtils.TOKEN_VERTEX_GROUP);
-		for (int i = 0; i < vertexGroups.length; i++) {
-			stream.writeLine(vertexGroups[i] + ",");
-		}
+        for (short vertexGroup : vertexGroups) {
+            stream.writeLine(vertexGroup + ",");
+        }
 		stream.endBlock();
 
 		if (version > 800) {

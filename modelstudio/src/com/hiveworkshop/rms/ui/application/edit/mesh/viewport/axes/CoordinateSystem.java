@@ -129,9 +129,9 @@ public interface CoordinateSystem extends CoordinateAxes {
 
 		public static Point convertToPoint(final CoordinateSystem coordinateSystem, final GeosetVertex vertex,
 				final Point recyclePoint, final RenderModel renderModel) {
-			vertexHeap.x = (float) vertex.x;
-			vertexHeap.y = (float) vertex.y;
-			vertexHeap.z = (float) vertex.z;
+			vertexHeap.x = vertex.x;
+			vertexHeap.y = vertex.y;
+			vertexHeap.z = vertex.z;
 			vertexHeap.w = 1;
 			vertexSumHeap.set(0, 0, 0, 0);
 			for (final Bone bone : vertex.getBones()) {

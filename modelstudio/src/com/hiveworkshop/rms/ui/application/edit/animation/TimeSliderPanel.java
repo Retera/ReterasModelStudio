@@ -133,20 +133,17 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		popupMenu = new JPopupMenu();
 		copiedKeyframes = new ArrayList<>();
 
-		liveAnimationTimer = new Timer(16, new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				if (!drawing) {
-					return;
-				}
-				if (currentTime == end) {
-					currentTime = start;
-					timeChooserRect.x = computeSliderXFromTime();
-					notifier.timeChanged(currentTime);
-					repaint();
-				} else {
-					jumpFrames(16);
-				}
+		liveAnimationTimer = new Timer(16, e -> {
+			if (!drawing) {
+				return;
+			}
+			if (currentTime == end) {
+				currentTime = start;
+				timeChooserRect.x = computeSliderXFromTime();
+				notifier.timeChanged(currentTime);
+				repaint();
+			} else {
+				jumpFrames(16);
 			}
 		});
 		addMouseListener(new MouseListener() {
@@ -166,12 +163,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 						if (undoManager != null) {
 							if (draggingFrameStartTime != draggingFrame.time) {
 								undoManager.pushAction(new SlideKeyframeAction(draggingFrameStartTime,
-										draggingFrame.time, draggingFrame.timelines, new Runnable() {
-											@Override
-											public void run() {
-												revalidateKeyframeDisplay();
-											}
-										}));
+										draggingFrame.time, draggingFrame.timelines, () -> revalidateKeyframeDisplay()));
 							}
 						}
 						draggingFrame = null;
@@ -188,49 +180,25 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 							popupMenu.add(timeIndicator);
 							popupMenu.addSeparator();
 							final JMenuItem deleteAll = new JMenuItem("Delete All");
-							deleteAll.addActionListener(new ActionListener() {
-								@Override
-								public void actionPerformed(final ActionEvent e) {
-									deleteKeyframes("delete keyframe", structureChangeListener, timeAndKey.getKey(),
-											timeAndKey.getValue().objects);
-								}
-							});
+							deleteAll.addActionListener(e111 -> deleteKeyframes("delete keyframe", structureChangeListener, timeAndKey.getKey(),
+									timeAndKey.getValue().objects));
 							popupMenu.add(deleteAll);
 							popupMenu.addSeparator();
 							final JMenuItem cutItem = new JMenuItem("Cut");
-							cutItem.addActionListener(new ActionListener() {
-
-								@Override
-								public void actionPerformed(final ActionEvent e) {
-									copyKeyframes(structureChangeListener, timeAndKey.getKey());
-									deleteKeyframes("cut keyframe", structureChangeListener, timeAndKey.getKey(),
-											timeAndKey.getValue().objects);
-								}
+							cutItem.addActionListener(e110 -> {
+								copyKeyframes(structureChangeListener, timeAndKey.getKey());
+								deleteKeyframes("cut keyframe", structureChangeListener, timeAndKey.getKey(),
+										timeAndKey.getValue().objects);
 							});
 							popupMenu.add(cutItem);
 							final JMenuItem copyItem = new JMenuItem("Copy");
-							copyItem.addActionListener(new ActionListener() {
-								@Override
-								public void actionPerformed(final ActionEvent e) {
-									copyKeyframes(structureChangeListener, timeAndKey.getKey());
-								}
-							});
+							copyItem.addActionListener(e19 -> copyKeyframes(structureChangeListener, timeAndKey.getKey()));
 							popupMenu.add(copyItem);
 							final JMenuItem copyFrameItem = new JMenuItem("Copy Frame (whole model)");
-							copyFrameItem.addActionListener(new ActionListener() {
-								@Override
-								public void actionPerformed(final ActionEvent e) {
-									copyAllKeyframes(timeAndKey.getKey());
-								}
-							});
+							copyFrameItem.addActionListener(e18 -> copyAllKeyframes(timeAndKey.getKey()));
 							popupMenu.add(copyFrameItem);
 							final JMenuItem pasteItem = new JMenuItem("Paste");
-							pasteItem.addActionListener(new ActionListener() {
-								@Override
-								public void actionPerformed(final ActionEvent ae) {
-									pasteToAllSelected(structureChangeListener, timeAndKey.getKey());
-								}
-							});
+							pasteItem.addActionListener(ae -> pasteToAllSelected(structureChangeListener, timeAndKey.getKey()));
 							popupMenu.add(pasteItem);
 							popupMenu.addSeparator();
 							for (final IdObject object : timeAndKey.getValue().objects) {
@@ -241,42 +209,24 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 										final JMenu subMenu = new JMenu(object.getName() + ": " + flag.getName());
 										popupMenu.add(subMenu);
 										final JMenuItem deleteSpecificItem = new JMenuItem("Delete");
-										deleteSpecificItem.addActionListener(new ActionListener() {
-											@Override
-											public void actionPerformed(final ActionEvent e) {
-												deleteKeyframe("delete keyframe", structureChangeListener, object, flag,
-														timeAndKey.getKey());
-											}
-										});
+										deleteSpecificItem.addActionListener(e17 -> deleteKeyframe("delete keyframe", structureChangeListener, object, flag,
+												timeAndKey.getKey()));
 										subMenu.add(deleteSpecificItem);
 										subMenu.addSeparator();
 										final JMenuItem cutSpecificItem = new JMenuItem("Cut");
-										cutSpecificItem.addActionListener(new ActionListener() {
-											@Override
-											public void actionPerformed(final ActionEvent e) {
-												copyKeyframes(structureChangeListener, object, flag,
-														timeAndKey.getKey());
-												deleteKeyframe("cut keyframe", structureChangeListener, object, flag,
-														timeAndKey.getKey());
-											}
+										cutSpecificItem.addActionListener(e16 -> {
+											copyKeyframes(structureChangeListener, object, flag,
+													timeAndKey.getKey());
+											deleteKeyframe("cut keyframe", structureChangeListener, object, flag,
+													timeAndKey.getKey());
 										});
 										subMenu.add(cutSpecificItem);
 										final JMenuItem copySpecificItem = new JMenuItem("Copy");
-										copySpecificItem.addActionListener(new ActionListener() {
-											@Override
-											public void actionPerformed(final ActionEvent e) {
-												copyKeyframes(structureChangeListener, object, flag,
-														timeAndKey.getKey());
-											}
-										});
+										copySpecificItem.addActionListener(e15 -> copyKeyframes(structureChangeListener, object, flag,
+												timeAndKey.getKey()));
 										subMenu.add(copySpecificItem);
 										final JMenuItem pasteSpecificItem = new JMenuItem("Paste");
-										pasteSpecificItem.addActionListener(new ActionListener() {
-											@Override
-											public void actionPerformed(final ActionEvent e) {
-												pasteToSpecificTimeline(structureChangeListener, timeAndKey, flag);
-											}
-										});
+										pasteSpecificItem.addActionListener(e14 -> pasteToSpecificTimeline(structureChangeListener, timeAndKey, flag));
 										subMenu.add(pasteSpecificItem);
 									}
 								}
@@ -292,28 +242,13 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 						popupMenu.add(timeIndicator);
 						popupMenu.addSeparator();
 						final JMenuItem copyItem = new JMenuItem("Copy");
-						copyItem.addActionListener(new ActionListener() {
-							@Override
-							public void actionPerformed(final ActionEvent e) {
-								copyKeyframes(structureChangeListener, currentTime);
-							}
-						});
+						copyItem.addActionListener(e13 -> copyKeyframes(structureChangeListener, currentTime));
 						popupMenu.add(copyItem);
 						final JMenuItem copyFrameItem = new JMenuItem("Copy Frame (whole model)");
-						copyFrameItem.addActionListener(new ActionListener() {
-							@Override
-							public void actionPerformed(final ActionEvent e) {
-								copyAllKeyframes(currentTime);
-							}
-						});
+						copyFrameItem.addActionListener(e12 -> copyAllKeyframes(currentTime));
 						popupMenu.add(copyFrameItem);
 						final JMenuItem pasteItem = new JMenuItem("Paste");
-						pasteItem.addActionListener(new ActionListener() {
-							@Override
-							public void actionPerformed(final ActionEvent ae) {
-								pasteToAllSelected(structureChangeListener, currentTime);
-							}
-						});
+						pasteItem.addActionListener(ae -> pasteToAllSelected(structureChangeListener, currentTime));
 						popupMenu.add(pasteItem);
 						popupMenu.addSeparator();
 						popupMenu.show(TimeSliderPanel.this, e.getX(), e.getY());
@@ -456,12 +391,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 				new Color(255, 100, 100), true);
 
 		allKF = new JCheckBox("All KF");
-		allKF.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				revalidateKeyframeDisplay();
-			}
-		});
+		allKF.addActionListener(e -> revalidateKeyframeDisplay());
 		add(allKF);
 		final GroupLayout layout = new GroupLayout(this);
 		layout.setVerticalGroup(layout.createSequentialGroup().addGap(VERTICAL_SLIDER_HEIGHT).addGap(4)
@@ -1090,25 +1020,19 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 						final Object oldOutTan = frame.sourceTimeline.valueAt(mouseClickAnimationTime);
 						frame.sourceTimeline.setKeyframe(mouseClickAnimationTime, newValue, newInTan, newOutTan);
 						actions.add(new SetKeyframeAction(frame.node, frame.sourceTimeline, mouseClickAnimationTime,
-								newValue, newInTan, newOutTan, oldValue, oldInTan, oldOutTan, new Runnable() {
-									@Override
-									public void run() {
-										// TODO this is a hack to refresh screen while
-										// dragging
-										notifier.timeChanged(currentTime);
-									}
+								newValue, newInTan, newOutTan, oldValue, oldInTan, oldOutTan, () -> {
+									// TODO this is a hack to refresh screen while
+									// dragging
+									notifier.timeChanged(currentTime);
 								}));
 					} else {
 						final Object oldValue = frame.sourceTimeline.valueAt(mouseClickAnimationTime);
 						frame.sourceTimeline.setKeyframe(mouseClickAnimationTime, newValue);
 						actions.add(new SetKeyframeAction(frame.node, frame.sourceTimeline, mouseClickAnimationTime,
-								newValue, oldValue, new Runnable() {
-									@Override
-									public void run() {
-										// TODO this is a hack to refresh screen while
-										// dragging
-										notifier.timeChanged(currentTime);
-									}
+								newValue, oldValue, () -> {
+									// TODO this is a hack to refresh screen while
+									// dragging
+									notifier.timeChanged(currentTime);
 								}));
 					}
 				} else {
@@ -1150,25 +1074,19 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 						frame.sourceTimeline.setKeyframe(mouseClickAnimationTime, newValue, newInTan, newOutTan);
 						undoManager.pushAction(
 								new SetKeyframeAction(frame.node, frame.sourceTimeline, mouseClickAnimationTime,
-										newValue, newInTan, newOutTan, oldValue, oldInTan, oldOutTan, new Runnable() {
-											@Override
-											public void run() {
-												// TODO this is a hack to refresh screen
-												// while dragging
-												notifier.timeChanged(currentTime);
-											}
+										newValue, newInTan, newOutTan, oldValue, oldInTan, oldOutTan, () -> {
+											// TODO this is a hack to refresh screen
+											// while dragging
+											notifier.timeChanged(currentTime);
 										}));
 					} else {
 						final Object oldValue = frame.sourceTimeline.valueAt(mouseClickAnimationTime);
 						frame.sourceTimeline.setKeyframe(mouseClickAnimationTime, newValue);
 						undoManager.pushAction(new SetKeyframeAction(frame.node, frame.sourceTimeline,
-								mouseClickAnimationTime, newValue, oldValue, new Runnable() {
-									@Override
-									public void run() {
-										// TODO this is a hack to refresh screen
-										// while dragging
-										notifier.timeChanged(currentTime);
-									}
+								mouseClickAnimationTime, newValue, oldValue, () -> {
+									// TODO this is a hack to refresh screen
+									// while dragging
+									notifier.timeChanged(currentTime);
 								}));
 					}
 				} else {

@@ -340,180 +340,174 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 
 		if (!transferSingleAnimation.isSelected()) {
 			final ImportPanel importPanel = new ImportPanel(sourceFile, animFile, show);
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					importPanel.animTransfer(transferSingleAnimation.isSelected(),
-							pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()),
-							visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
-					while (importPanel.getParentFrame().isVisible()
-							&& (!importPanel.importStarted() || importPanel.importEnded())) {
-						// JOptionPane.showMessageDialog(null, "check 1!");
-						try {
-							Thread.sleep(1);
-						} catch (final Exception e) {
-							ExceptionPopup.display("MatrixEater detected error with Java's wait function", e);
-						}
-					}
-					// if( !importPanel.getParentFrame().isVisible() &&
-					// !importPanel.importEnded() )
-					// JOptionPane.showMessageDialog(null,"bad voodoo
-					// "+importPanel.importSuccessful());
-					// else
-					// JOptionPane.showMessageDialog(null,"good voodoo
-					// "+importPanel.importSuccessful());
-					// if( importPanel.importSuccessful() )
-					// {
-					// newModel.saveFile();
-					// loadFile(newModel.getFile());
-					// }
+			new Thread(() -> {
+                importPanel.animTransfer(transferSingleAnimation.isSelected(),
+                        pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()),
+                        visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
+                while (importPanel.getParentFrame().isVisible()
+                        && (!importPanel.importStarted() || importPanel.importEnded())) {
+                    // JOptionPane.showMessageDialog(null, "check 1!");
+                    try {
+                        Thread.sleep(1);
+                    } catch (final Exception e) {
+                        ExceptionPopup.display("MatrixEater detected error with Java's wait function", e);
+                    }
+                }
+                // if( !importPanel.getParentFrame().isVisible() &&
+                // !importPanel.importEnded() )
+                // JOptionPane.showMessageDialog(null,"bad voodoo
+                // "+importPanel.importSuccessful());
+                // else
+                // JOptionPane.showMessageDialog(null,"good voodoo
+                // "+importPanel.importSuccessful());
+                // if( importPanel.importSuccessful() )
+                // {
+                // newModel.saveFile();
+                // loadFile(newModel.getFile());
+                // }
 
-					if (importPanel.importStarted()) {
-						while (!importPanel.importEnded()) {
-							// JOptionPane.showMessageDialog(null, "check 2!");
-							try {
-								Thread.sleep(1);
-							} catch (final Exception e) {
-								ExceptionPopup.display("MatrixEater detected error with Java's wait function", e);
-							}
-						}
+                if (importPanel.importStarted()) {
+                    while (!importPanel.importEnded()) {
+                        // JOptionPane.showMessageDialog(null, "check 2!");
+                        try {
+                            Thread.sleep(1);
+                        } catch (final Exception e) {
+                            ExceptionPopup.display("MatrixEater detected error with Java's wait function", e);
+                        }
+                    }
 
-						// JOptionPane.showMessageDialog(null, "Animation
-						// transfer 99% done!");
+                    // JOptionPane.showMessageDialog(null, "Animation
+                    // transfer 99% done!");
 
-						if (importPanel.importSuccessful()) {
-							String filepath = outFileInput.getText();
-							if (!filepath.toLowerCase().endsWith(".mdl") && !filepath.toLowerCase().endsWith(".mdx")) {
-								filepath += ".mdl";
-							}
-							try {
-								MdxUtils.saveMdx(sourceFile, new File(filepath));
-							} catch (final IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							JOptionPane.showMessageDialog(null, "Animation transfer done!");
-						}
-					}
+                    if (importPanel.importSuccessful()) {
+                        String filepath = outFileInput.getText();
+                        if (!filepath.toLowerCase().endsWith(".mdl") && !filepath.toLowerCase().endsWith(".mdx")) {
+                            filepath += ".mdl";
+                        }
+                        try {
+                            MdxUtils.saveMdx(sourceFile, new File(filepath));
+                        } catch (final IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                        JOptionPane.showMessageDialog(null, "Animation transfer done!");
+                    }
+                }
 
-					// forceRefreshModels();
-				}
-			}).start();
+                // forceRefreshModels();
+            }).start();
 		} else {
-			final Thread watcher = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					final ImportPanel importPanel = new ImportPanel(sourceFile, animFile, show);
-					importPanel.animTransfer(transferSingleAnimation.isSelected(),
-							pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()),
-							visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
+			final Thread watcher = new Thread(() -> {
+                final ImportPanel importPanel = new ImportPanel(sourceFile, animFile, show);
+                importPanel.animTransfer(transferSingleAnimation.isSelected(),
+                        pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()),
+                        visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
 
-					// while(importPanel.getParentFrame().isVisible() &&
-					// (!importPanel.importStarted() ||
-					// importPanel.importEnded()) )
-					while (importPanel.getParentFrame().isVisible()
-							&& (!importPanel.importStarted() || importPanel.importEnded())) {
-						// JOptionPane.showMessageDialog(null, "check 1!");
-						try {
-							Thread.sleep(1);
-						} catch (final Exception e) {
-							ExceptionPopup.display("MatrixEater detected error with Java's wait function", e);
-						}
-					}
-					// if( !importPanel.getParentFrame().isVisible() &&
-					// !importPanel.importEnded() )
-					// JOptionPane.showMessageDialog(null,"bad voodoo
-					// "+importPanel.importSuccessful());
-					// else
-					// JOptionPane.showMessageDialog(null,"good voodoo
-					// "+importPanel.importSuccessful());
-					// if( importPanel.importSuccessful() )
-					// {
-					// newModel.saveFile();
-					// loadFile(newModel.getFile());
-					// }
+                // while(importPanel.getParentFrame().isVisible() &&
+                // (!importPanel.importStarted() ||
+                // importPanel.importEnded()) )
+                while (importPanel.getParentFrame().isVisible()
+                        && (!importPanel.importStarted() || importPanel.importEnded())) {
+                    // JOptionPane.showMessageDialog(null, "check 1!");
+                    try {
+                        Thread.sleep(1);
+                    } catch (final Exception e) {
+                        ExceptionPopup.display("MatrixEater detected error with Java's wait function", e);
+                    }
+                }
+                // if( !importPanel.getParentFrame().isVisible() &&
+                // !importPanel.importEnded() )
+                // JOptionPane.showMessageDialog(null,"bad voodoo
+                // "+importPanel.importSuccessful());
+                // else
+                // JOptionPane.showMessageDialog(null,"good voodoo
+                // "+importPanel.importSuccessful());
+                // if( importPanel.importSuccessful() )
+                // {
+                // newModel.saveFile();
+                // loadFile(newModel.getFile());
+                // }
 
-					if (importPanel.importStarted()) {
-						while (!importPanel.importEnded()) {
-							// JOptionPane.showMessageDialog(null, "check 2!");
-							try {
-								Thread.sleep(1);
-							} catch (final Exception e) {
-								ExceptionPopup.display("MatrixEater detected error with Java's wait function", e);
-							}
-						}
+                if (importPanel.importStarted()) {
+                    while (!importPanel.importEnded()) {
+                        // JOptionPane.showMessageDialog(null, "check 2!");
+                        try {
+                            Thread.sleep(1);
+                        } catch (final Exception e) {
+                            ExceptionPopup.display("MatrixEater detected error with Java's wait function", e);
+                        }
+                    }
 
-						// JOptionPane.showMessageDialog(null, "Animation
-						// transfer 99% done!");
+                    // JOptionPane.showMessageDialog(null, "Animation
+                    // transfer 99% done!");
 
-						if (importPanel.importSuccessful()) {
-							final ImportPanel importPanel2;
-							try {
-								importPanel2 = new ImportPanel(sourceFile,
-										MdxUtils.loadEditable(sourceFile.getFile()), show);
-							} catch (final IOException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-								return;
-							}
-							importPanel2.animTransferPartTwo(transferSingleAnimation.isSelected(),
-									pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()),
-									visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
+                    if (importPanel.importSuccessful()) {
+                        final ImportPanel importPanel2;
+                        try {
+                            importPanel2 = new ImportPanel(sourceFile,
+                                    MdxUtils.loadEditable(sourceFile.getFile()), show);
+                        } catch (final IOException e1) {
+                            // TODO Auto-generated catch block
+                            e1.printStackTrace();
+                            return;
+                        }
+                        importPanel2.animTransferPartTwo(transferSingleAnimation.isSelected(),
+                                pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()),
+                                visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
 
-							while (importPanel2.getParentFrame().isVisible()
-									&& (!importPanel2.importStarted() || importPanel2.importEnded())) {
-								// JOptionPane.showMessageDialog(null, "check
-								// 1!");
-								try {
-									Thread.sleep(1);
-								} catch (final Exception e) {
-									ExceptionPopup.display("MatrixEater detected error with Java's wait function", e);
-								}
-							}
-							// if( !importPanel.getParentFrame().isVisible() &&
-							// !importPanel.importEnded() )
-							// JOptionPane.showMessageDialog(null,"bad voodoo
-							// "+importPanel.importSuccessful());
-							// else
-							// JOptionPane.showMessageDialog(null,"good voodoo
-							// "+importPanel.importSuccessful());
-							// if( importPanel.importSuccessful() )
-							// {
-							// newModel.saveFile();
-							// loadFile(newModel.getFile());
-							// }
+                        while (importPanel2.getParentFrame().isVisible()
+                                && (!importPanel2.importStarted() || importPanel2.importEnded())) {
+                            // JOptionPane.showMessageDialog(null, "check
+                            // 1!");
+                            try {
+                                Thread.sleep(1);
+                            } catch (final Exception e) {
+                                ExceptionPopup.display("MatrixEater detected error with Java's wait function", e);
+                            }
+                        }
+                        // if( !importPanel.getParentFrame().isVisible() &&
+                        // !importPanel.importEnded() )
+                        // JOptionPane.showMessageDialog(null,"bad voodoo
+                        // "+importPanel.importSuccessful());
+                        // else
+                        // JOptionPane.showMessageDialog(null,"good voodoo
+                        // "+importPanel.importSuccessful());
+                        // if( importPanel.importSuccessful() )
+                        // {
+                        // newModel.saveFile();
+                        // loadFile(newModel.getFile());
+                        // }
 
-							if (importPanel2.importStarted()) {
-								while (!importPanel2.importEnded()) {
-									// JOptionPane.showMessageDialog(null,
-									// "check 2!");
-									try {
-										Thread.sleep(1);
-									} catch (final Exception e) {
-										ExceptionPopup.display("MatrixEater detected error with Java's wait function",
-												e);
-									}
-								}
+                        if (importPanel2.importStarted()) {
+                            while (!importPanel2.importEnded()) {
+                                // JOptionPane.showMessageDialog(null,
+                                // "check 2!");
+                                try {
+                                    Thread.sleep(1);
+                                } catch (final Exception e) {
+                                    ExceptionPopup.display("MatrixEater detected error with Java's wait function",
+                                            e);
+                                }
+                            }
 
-								// JOptionPane.showMessageDialog(null,
-								// "Animation transfer 99% done!");
+                            // JOptionPane.showMessageDialog(null,
+                            // "Animation transfer 99% done!");
 
-								if (importPanel2.importSuccessful()) {
-									JOptionPane.showMessageDialog(null, "Animation transfer done!");
-									try {
-										MdxUtils.saveMdx(sourceFile, new File(outFileInput.getText()));
-									} catch (final IOException e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
-									}
+                            if (importPanel2.importSuccessful()) {
+                                JOptionPane.showMessageDialog(null, "Animation transfer done!");
+                                try {
+                                    MdxUtils.saveMdx(sourceFile, new File(outFileInput.getText()));
+                                } catch (final IOException e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
 
-									// forceRefreshModels();
-								}
-							}
-						}
-					}
-				}
-			});
+                                // forceRefreshModels();
+                            }
+                        }
+                    }
+                }
+            });
 			watcher.start();
 		}
 	}

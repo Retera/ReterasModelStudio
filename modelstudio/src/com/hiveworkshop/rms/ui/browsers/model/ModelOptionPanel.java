@@ -799,7 +799,7 @@ public class ModelOptionPanel extends JPanel {
 			nextModel.cachedIcon = unitList.getCachedIconPath();
 			units.models.add(nextModel);
 		}
-		Collections.sort(units.models, new ModelComparator());
+		units.models.sort(new ModelComparator());
 		groups.add(units);
 
 		final ModelGroup unitsMissiles = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_UNIT_MSSL"));
@@ -824,7 +824,7 @@ public class ModelOptionPanel extends JPanel {
 			nextModel.cachedIcon = unitList.getCachedIconPath();
 			unitsMissiles.models.add(nextModel);
 		}
-		Collections.sort(unitsMissiles.models, new ModelComparator());
+		unitsMissiles.models.sort(new ModelComparator());
 		groups.add(unitsMissiles);
 
 		final ModelGroup unitsSpecial = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_UNIT_SPEC"));
@@ -849,7 +849,7 @@ public class ModelOptionPanel extends JPanel {
 			nextModel.cachedIcon = unitList.getCachedIconPath();
 			unitsSpecial.models.add(nextModel);
 		}
-		Collections.sort(unitsSpecial.models, new ModelComparator());
+		unitsSpecial.models.sort(new ModelComparator());
 		groups.add(unitsSpecial);
 
 		final ModelGroup items = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_ITEM"));
@@ -874,7 +874,7 @@ public class ModelOptionPanel extends JPanel {
 			nextModel.cachedIcon = unitList.getCachedIconPath();
 			items.models.add(nextModel);
 		}
-		Collections.sort(items.models, new ModelComparator());
+		items.models.sort(new ModelComparator());
 		groups.add(items);
 
 		final ModelGroup abilities = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_ABIL"));
@@ -899,7 +899,7 @@ public class ModelOptionPanel extends JPanel {
 			nextModel.cachedIcon = unitList.getCachedIconPath();
 			abilities.models.add(nextModel);
 		}
-		Collections.sort(abilities.models, new ModelComparator());
+		abilities.models.sort(new ModelComparator());
 		groups.add(abilities);
 
 		final ModelGroup buffs = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_BUFF"));
@@ -924,7 +924,7 @@ public class ModelOptionPanel extends JPanel {
 			nextModel.cachedIcon = unitList.getCachedIconPath();
 			buffs.models.add(nextModel);
 		}
-		Collections.sort(buffs.models, new ModelComparator());
+		buffs.models.sort(new ModelComparator());
 		groups.add(buffs);
 
 		final ModelGroup destructibles = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_DEST"));
@@ -949,7 +949,7 @@ public class ModelOptionPanel extends JPanel {
 			nextModel.cachedIcon = unitList.getCachedIconPath();
 			destructibles.models.add(nextModel);
 		}
-		Collections.sort(destructibles.models, new ModelComparator());
+		destructibles.models.sort(new ModelComparator());
 		groups.add(destructibles);
 
 		final ModelGroup doodads = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_DOOD"));
@@ -974,7 +974,7 @@ public class ModelOptionPanel extends JPanel {
 			nextModel.cachedIcon = unitList.getCachedIconPath();
 			doodads.models.add(nextModel);
 		}
-		Collections.sort(doodads.models, new ModelComparator());
+		doodads.models.sort(new ModelComparator());
 		groups.add(doodads);
 
 		final ModelGroup spawns = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_SPWN"));
@@ -999,7 +999,7 @@ public class ModelOptionPanel extends JPanel {
 			nextModel.cachedIcon = unitList.getCachedIconPath();
 			spawns.models.add(nextModel);
 		}
-		Collections.sort(spawns.models, new ModelComparator());
+		spawns.models.sort(new ModelComparator());
 		groups.add(spawns);
 
 		final ModelGroup ginters = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_SKIN"));
@@ -1024,7 +1024,7 @@ public class ModelOptionPanel extends JPanel {
 			nextModel.cachedIcon = unitList.getCachedIconPath();
 			ginters.models.add(nextModel);
 		}
-		Collections.sort(ginters.models, new ModelComparator());
+		ginters.models.sort(new ModelComparator());
 		groups.add(ginters);
 
 		final ModelGroup extra = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_XTRA"));
@@ -1046,7 +1046,7 @@ public class ModelOptionPanel extends JPanel {
 
 			emId++;
 		}
-		Collections.sort(extra.models, new ModelComparator());
+		extra.models.sort(new ModelComparator());
 		groups.add(extra);
 
 		for (final Model model : extra.models) {
@@ -1084,40 +1084,34 @@ public class ModelOptionPanel extends JPanel {
 		modelBox = new JComboBox<>(groupModels.get(0));
 		filePathField = new JTextField();
 		filePathField.setMaximumSize(new Dimension(20000, 25));
-		groupBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				modelBox.setModel(groupModels.get(groupBox.getSelectedIndex()));
-				modelBox.setSelectedIndex(0);
-			}
+		groupBox.addActionListener(e -> {
+			modelBox.setModel(groupModels.get(groupBox.getSelectedIndex()));
+			modelBox.setSelectedIndex(0);
 		});
-		modelBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				EditableModel toLoad = blank;
-				ModelView modelDisp;
-				try {
-					String filepath = ((Model) modelBox.getSelectedItem()).filepath;
-					filePathField.setText(filepath);
-					cachedIconPath = ((Model) modelBox.getSelectedItem()).cachedIcon;
-					if (filepath.endsWith(".mdl")) {
-						filepath = filepath.replace(".mdl", ".mdx");
-					} else if (!filepath.endsWith(".mdx")) {
-						filepath = filepath.concat(".mdx");
-					}
-					final InputStream modelStream = GameDataFileSystem.getDefault().getResourceAsStream(filepath);
-					final MdlxModel model = MdxUtils.loadMdlx(modelStream);
-					toLoad = new EditableModel(model);
-					modelDisp = new ModelViewManager(toLoad);
-				} catch (final Exception exc) {
-					exc.printStackTrace();
-					// bad model!
-					modelDisp = blankDisp;
+		modelBox.addActionListener(e -> {
+			EditableModel toLoad = blank;
+			ModelView modelDisp;
+			try {
+				String filepath = ((Model) modelBox.getSelectedItem()).filepath;
+				filePathField.setText(filepath);
+				cachedIconPath = ((Model) modelBox.getSelectedItem()).cachedIcon;
+				if (filepath.endsWith(".mdl")) {
+					filepath = filepath.replace(".mdl", ".mdx");
+				} else if (!filepath.endsWith(".mdx")) {
+					filepath = filepath.concat(".mdx");
 				}
-
-				viewer.setModel(modelDisp);
-				viewer.setTitle(toLoad.getName());
+				final InputStream modelStream = GameDataFileSystem.getDefault().getResourceAsStream(filepath);
+				final MdlxModel model = MdxUtils.loadMdlx(modelStream);
+				toLoad = new EditableModel(model);
+				modelDisp = new ModelViewManager(toLoad);
+			} catch (final Exception exc) {
+				exc.printStackTrace();
+				// bad model!
+				modelDisp = blankDisp;
 			}
+
+			viewer.setModel(modelDisp);
+			viewer.setTitle(toLoad.getName());
 		});
 		filePathField.getDocument().addDocumentListener(new DocumentListener() {
 			@Override

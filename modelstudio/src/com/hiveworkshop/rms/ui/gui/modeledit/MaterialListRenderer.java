@@ -14,7 +14,7 @@ import com.hiveworkshop.rms.editor.model.Material;
 
 public class MaterialListRenderer extends DefaultListCellRenderer {
 	EditableModel model;
-	HashMap<Material, ImageIcon> map = new HashMap<Material, ImageIcon>();
+	HashMap<Material, ImageIcon> map = new HashMap<>();
 	Font theFont = new Font("Arial", Font.BOLD, 32);
 
 	public MaterialListRenderer(final EditableModel model) {

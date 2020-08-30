@@ -31,20 +31,17 @@ public class ColorValuePanel extends JPanel {
 		staticColorButton = new JButton("Choose Color");
 		add(staticColorButton, "wrap");
 		add(dynamicButton);
-		interpTypeBox = new JComboBox<InterpolationType>(InterpolationType.values());
+		interpTypeBox = new JComboBox<>(InterpolationType.values());
 		add(interpTypeBox, "wrap");
 
 		floatTrackTableModel = new FloatTrackTableModel(null);
 		final JTable keyframeTable = new JTable(floatTrackTableModel);
 		add(keyframeTable, "span 2, wrap, grow");
-		final ChangeListener l = new ChangeListener() {
-			@Override
-			public void stateChanged(final ChangeEvent e) {
-				staticColorButton.setEnabled(staticButton.isSelected());
-				interpTypeBox.setEnabled(dynamicButton.isSelected());
-				keyframeTable.setVisible(dynamicButton.isSelected());
-			}
-		};
+		final ChangeListener l = e -> {
+            staticColorButton.setEnabled(staticButton.isSelected());
+            interpTypeBox.setEnabled(dynamicButton.isSelected());
+            keyframeTable.setVisible(dynamicButton.isSelected());
+        };
 		staticButton.addChangeListener(l);
 		dynamicButton.addChangeListener(l);
 	}

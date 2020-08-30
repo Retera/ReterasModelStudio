@@ -6,7 +6,7 @@ import java.util.List;
 public class Folder {
 	String name;
 	int count;
-	List<Object> children = new ArrayList<Object>();
+	List<Object> children = new ArrayList<>();
 	public String getName() {
 		return name;
 	}

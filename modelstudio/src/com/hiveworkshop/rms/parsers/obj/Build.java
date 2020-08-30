@@ -337,12 +337,10 @@ public class Build implements BuilderInterface {
 			// cleared the currentGroups lists, just return.
 			return;
 		}
-		for (int loopi = 0; loopi < names.length; loopi++) {
-			final String group = names[loopi].trim();
+		for (String name : names) {
+			final String group = name.trim();
 			currentGroups.add(group);
-			if (null == groups.get(group)) {
-				groups.put(group, new ArrayList<Face>());
-			}
+			groups.computeIfAbsent(group, k -> new ArrayList<Face>());
 			currentGroupFaceLists.add(groups.get(group));
 		}
 	}
@@ -786,12 +784,14 @@ public class Build implements BuilderInterface {
 				for (final GeosetVertex gv : geo.getVertices()) {
 					if (Math.abs(gv.x) > sizeLimit || Math.abs(gv.y) > sizeLimit || Math.abs(gv.z) > sizeLimit) {
 						allLessThan2 = false;
+						break;
 					}
 				}
 			}
 			for (final Vec3 pivot : mdl.getPivots()) {
 				if (Math.abs(pivot.x) > sizeLimit || Math.abs(pivot.y) > sizeLimit || Math.abs(pivot.z) > sizeLimit) {
 					allLessThan2 = false;
+					break;
 				}
 			}
 			if (allLessThan2) {
@@ -869,14 +869,14 @@ public class Build implements BuilderInterface {
 						if (userWantsSwapToBLP) {
 							File imageFilePNG = new File(objFolder.getPath() + "/" + name);
 							try {
-								if (!imageFilePNG.exists() && name.indexOf("_") >= 0) {
+								if (!imageFilePNG.exists() && name.contains("_")) {
 									imageFilePNG = new File(
 											objFolder.getPath() + "/" + name.substring(name.indexOf("_") + 1));
 								}
 								if (!imageFilePNG.exists()) {
 									imageFilePNG = new File(objFolder.getPath() + "/textures/" + name);
 								}
-								if (!imageFilePNG.exists() && name.indexOf("_") >= 0) {
+								if (!imageFilePNG.exists() && name.contains("_")) {
 									imageFilePNG = new File(
 											objFolder.getPath() + "/textures/" + name.substring(name.indexOf("_") + 1));
 								}
@@ -939,7 +939,7 @@ public class Build implements BuilderInterface {
 			for (int subTriangleIndex = 0; subTriangleIndex < face.vertices.size() - 2; subTriangleIndex++) {
 				Subgroup subgroup = materialToSubgroup.get(face.material);
 				if (subgroup == null) {
-					subgroup = new Subgroup(new HashMap<VertexKey, Integer>(), new Geoset());
+					subgroup = new Subgroup(new HashMap<>(), new Geoset());
 					materialToSubgroup.put(face.material, subgroup);
 				}
 				final Geoset geo = subgroup.getGeo();
@@ -984,14 +984,8 @@ public class Build implements BuilderInterface {
 			boolean noteForMatrixEaterAboutWrapHeights = false;
 			final UVLayer uvLayer = new UVLayer();
 			geo.addUVLayer(uvLayer);
-			final List<VertexKey> vertexKeys = new ArrayList<>();
-			vertexKeys.addAll(vertexKeysToIndices.keySet());
-			Collections.sort(vertexKeys, new Comparator<VertexKey>() {
-				@Override
-				public int compare(final VertexKey a, final VertexKey b) {
-					return vertexKeysToIndices.get(a).compareTo(vertexKeysToIndices.get(b));
-				}
-			});
+			final List<VertexKey> vertexKeys = new ArrayList<>(vertexKeysToIndices.keySet());
+			vertexKeys.sort((a, b) -> vertexKeysToIndices.get(a).compareTo(vertexKeysToIndices.get(b)));
 			// for(VertexKey key: vertexKeysToIndices.keySet()) {
 			// vertexKeys.add(e)
 			// }

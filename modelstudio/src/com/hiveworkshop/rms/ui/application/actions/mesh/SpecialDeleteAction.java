@@ -28,26 +28,24 @@ public class SpecialDeleteAction extends DeleteAction {
 	@Override
 	public void redo() {
 		super.redo();
-		for (int i = 0; i < deletedGeosets.size(); i++) {
-			final Geoset g = deletedGeosets.get(i);
-			if (g.getGeosetAnim() != null) {
-				parent.remove(g.getGeosetAnim());
-			}
-			parent.remove(g);
-		}
+        for (final Geoset g : deletedGeosets) {
+            if (g.getGeosetAnim() != null) {
+                parent.remove(g.getGeosetAnim());
+            }
+            parent.remove(g);
+        }
 		modelStructureChangeListener.geosetsRemoved(deletedGeosets);
 	}
 
 	@Override
 	public void undo() {
 		super.undo();
-		for (int i = 0; i < deletedGeosets.size(); i++) {
-			final Geoset g = deletedGeosets.get(i);
-			if (g.getGeosetAnim() != null) {
-				parent.add(g.getGeosetAnim());
-			}
-			parent.add(g);
-		}
+        for (final Geoset g : deletedGeosets) {
+            if (g.getGeosetAnim() != null) {
+                parent.add(g.getGeosetAnim());
+            }
+            parent.add(g);
+        }
 		modelStructureChangeListener.geosetsAdded(deletedGeosets);
 	}
 

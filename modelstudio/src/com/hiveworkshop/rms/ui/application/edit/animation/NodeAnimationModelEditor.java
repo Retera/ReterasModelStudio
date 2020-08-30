@@ -201,9 +201,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	public UndoAction selectAll() {
 		final List<IdObject> oldSelection = new ArrayList<>(selectionManager.getSelection());
 		final Set<IdObject> allSelection = new HashSet<>();
-		for (final IdObject node : model.getEditableIdObjects()) {
-			allSelection.add(node);
-		}
+		allSelection.addAll(model.getEditableIdObjects());
 		selectionManager.setSelection(allSelection);
 		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all");
 	}
@@ -243,9 +241,9 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 			final CoordinateSystem coordinateSystem, final double vertexSize, final IdObject object,
 			final RenderModel renderModel) {
 		final RenderNode renderNode = renderModel.getRenderNode(object);
-		pivotHeap.x = (float) geosetVertex.x;
-		pivotHeap.y = (float) geosetVertex.y;
-		pivotHeap.z = (float) geosetVertex.z;
+		pivotHeap.x = geosetVertex.x;
+		pivotHeap.y = geosetVertex.y;
+		pivotHeap.z = geosetVertex.z;
 		pivotHeap.w = 1;
 		renderNode.getWorldMatrix().transform(pivotHeap);
 		final byte dim1 = coordinateSystem.getPortFirstXYZ();
@@ -266,9 +264,9 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	public static boolean hitTest(final Vec3 vertex, final Point2D point, final CoordinateSystem coordinateSystem,
 			final double vertexSize, final Mat4 worldMatrix) {
-		pivotHeap.x = (float) vertex.x;
-		pivotHeap.y = (float) vertex.y;
-		pivotHeap.z = (float) vertex.z;
+		pivotHeap.x = vertex.x;
+		pivotHeap.y = vertex.y;
+		pivotHeap.z = vertex.z;
 		pivotHeap.w = 1;
 		worldMatrix.transform(pivotHeap);
 		final double x = coordinateSystem.convertX(pivotHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
@@ -305,20 +303,9 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 				}
 			});
 		}
-		final Runnable truncateSelectionRunnable = new Runnable() {
+		final Runnable truncateSelectionRunnable = () -> selectionManager.removeSelection(possibleVerticesToTruncate);
 
-			@Override
-			public void run() {
-				selectionManager.removeSelection(possibleVerticesToTruncate);
-			}
-		};
-
-		final Runnable unTruncateSelectionRunnable = new Runnable() {
-			@Override
-			public void run() {
-				selectionManager.setSelection(previousSelection);
-			}
-		};
+		final Runnable unTruncateSelectionRunnable = () -> selectionManager.setSelection(previousSelection);
 		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable,
 				unTruncateSelectionRunnable, refreshGUIRunnable);
 	}

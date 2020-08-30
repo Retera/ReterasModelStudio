@@ -31,9 +31,10 @@ public final class GeosetVertexSelectionManager extends AbstractSelectionManager
 		for (final Triangle face : partiallySelectedFaces) {
 			boolean whollySelected = true;
 			for (final GeosetVertex gv : face.getVerts()) {
-				if (!selectedVertices.contains(gv)) {
-					whollySelected = false;
-				}
+                if (!selectedVertices.contains(gv)) {
+                    whollySelected = false;
+                    break;
+                }
 			}
 			if (whollySelected) {
 				faces.add(face);

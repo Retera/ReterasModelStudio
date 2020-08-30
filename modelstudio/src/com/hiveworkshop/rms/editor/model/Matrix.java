@@ -56,19 +56,19 @@ public class Matrix {
 		} else {
 			m_boneIds.clear();
 		}
-		for (int i = 0; i < bones.size(); i++) {
-			final int newId = mdlr.getObjectId(bones.get(i));
-			if (newId >= 0) {
-				m_boneIds.add(newId);
-			} else {
-				new Exception("Matrix error").printStackTrace();
-				if ((System.currentTimeMillis() - lastPopupTimeHack) > 2000) {
-					JOptionPane.showMessageDialog(null,
-							"Error: A matrix's bone reference was missing in the model!\nDid you move geometry between models and forget to update bones?");
-					lastPopupTimeHack = System.currentTimeMillis();
-				}
-			}
-		}
+        for (Bone bone : bones) {
+            final int newId = mdlr.getObjectId(bone);
+            if (newId >= 0) {
+                m_boneIds.add(newId);
+            } else {
+                new Exception("Matrix error").printStackTrace();
+                if ((System.currentTimeMillis() - lastPopupTimeHack) > 2000) {
+                    JOptionPane.showMessageDialog(null,
+                            "Error: A matrix's bone reference was missing in the model!\nDid you move geometry between models and forget to update bones?");
+                    lastPopupTimeHack = System.currentTimeMillis();
+                }
+            }
+        }
 		if ((m_boneIds.size() < sz1) || ((sz1 != 0) && (m_boneIds.size() == 0))) {
 			new Exception("Matrix error").printStackTrace();
 			if ((System.currentTimeMillis() - lastPopupTimeHack) > 2000) {
@@ -85,21 +85,21 @@ public class Matrix {
 		} else {
 			bones.clear();
 		}
-		for (int i = 0; i < m_boneIds.size(); i++) {
-			final Bone b = mdlr.getBone(m_boneIds.get(i));
-			// if( b.getClass() == Helper.class )
-			// {
-			// JOptionPane.showMessageDialog(null,"Error: Holy fo shizzle my
-			// grizzle! There's geometry attached to Helper "+b.getName()+" and
-			// that is very bad!");
-			// }
-			if (b != null) {
-				bones.add(b);
-			} else {
+        for (Integer m_boneId : m_boneIds) {
+            final Bone b = mdlr.getBone(m_boneId);
+            // if( b.getClass() == Helper.class )
+            // {
+            // JOptionPane.showMessageDialog(null,"Error: Holy fo shizzle my
+            // grizzle! There's geometry attached to Helper "+b.getName()+" and
+            // that is very bad!");
+            // }
+            if (b != null) {
+                bones.add(b);
+            } else {
 //				JOptionPane.showMessageDialog(null, "Error: A matrix's bone id was not referencing a real bone!");
-				System.err.println("Error: A matrix's bone id was not referencing a real bone! " + m_boneIds.get(i));
-			}
-		}
+                System.err.println("Error: A matrix's bone id was not referencing a real bone! " + m_boneId);
+            }
+        }
 	}
 
 	public Matrix(final List<Bone> newBones) {
@@ -108,9 +108,9 @@ public class Matrix {
 
 	public Matrix(final int[] boneIds) {
 		m_boneIds = new ArrayList<>();
-		for (int i = 0; i < boneIds.length; i++) {
-			m_boneIds.add(boneIds[i]);
-		}
+        for (int boneId : boneIds) {
+            m_boneIds.add(boneId);
+        }
 	}
 
 	public void add(final Bone b) {

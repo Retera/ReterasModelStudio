@@ -13,7 +13,7 @@ public enum TVertexUtils {
 
 	public static Collection<? extends Vec2> getTVertices(final Collection<? extends Vec3> vertexSelection,
 			final int uvLayerIndex) {
-		final List<Vec2> tVertices = new ArrayList<Vec2>();
+		final List<Vec2> tVertices = new ArrayList<>();
 		for (final Vec3 vertex : vertexSelection) {
 			if (vertex instanceof GeosetVertex) {
 				final GeosetVertex geosetVertex = (GeosetVertex) vertex;

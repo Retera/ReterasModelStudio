@@ -324,11 +324,11 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		existingBones = new DefaultListModel();
 		final List<Bone> currentMDLBones = currentModel.sortedIdObjects(Bone.class);
 		final List<Helper> currentMDLHelpers = currentModel.sortedIdObjects(Helper.class);
-		for (int i = 0; i < currentMDLBones.size(); i++) {
-			existingBones.addElement(new BoneShell(currentMDLBones.get(i)));
+		for (Bone currentMDLBone : currentMDLBones) {
+			existingBones.addElement(new BoneShell(currentMDLBone));
 		}
-		for (int i = 0; i < currentMDLHelpers.size(); i++) {
-			existingBones.addElement(new BoneShell(currentMDLHelpers.get(i)));
+		for (Helper currentMDLHelper : currentMDLHelpers) {
+			existingBones.addElement(new BoneShell(currentMDLHelper));
 		}
 
 		final List<Bone> importedMDLBones = importedModel.sortedIdObjects(Bone.class);
@@ -860,8 +860,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				objectPanel.doImport.setSelected(false);
 			}
 		} else if (e.getSource() == allVisButton) {
-			for (int i = 0; i < allVisShellPanes.size(); i++) {
-				final VisibilityPane vPanel = allVisShellPanes.get(i);
+			for (final VisibilityPane vPanel : allVisShellPanes) {
 				if (vPanel.sourceShell.model == currentModel) {
 					vPanel.newSourcesBox.setSelectedItem(VisibilityPane.VISIBLE);
 				} else {
@@ -869,8 +868,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				}
 			}
 		} else if (e.getSource() == allInvisButton) {
-			for (int i = 0; i < allVisShellPanes.size(); i++) {
-				final VisibilityPane vPanel = allVisShellPanes.get(i);
+			for (final VisibilityPane vPanel : allVisShellPanes) {
 				if (vPanel.sourceShell.model == currentModel) {
 					vPanel.newSourcesBox.setSelectedItem(VisibilityPane.NOTVISIBLE);
 				} else {
@@ -878,8 +876,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				}
 			}
 		} else if (e.getSource() == selSimButton) {
-			for (int i = 0; i < allVisShellPanes.size(); i++) {
-				final VisibilityPane vPanel = allVisShellPanes.get(i);
+			for (final VisibilityPane vPanel : allVisShellPanes) {
 				vPanel.selectSimilarOptions();
 			}
 		} else if (e.getSource() == okayButton) {
@@ -1625,8 +1622,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 
 	public void setSelectedItem(final String what) {
 		final Object[] selected = boneTabs.getSelectedValuesList().toArray();
-		for (int i = 0; i < selected.length; i++) {
-			final BonePanel temp = (BonePanel) selected[i];
+		for (Object o : selected) {
+			final BonePanel temp = (BonePanel) o;
 			temp.setSelectedValue(what);
 		}
 	}
@@ -1642,8 +1639,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				JOptionPane.OK_CANCEL_OPTION);
 		if (x == JOptionPane.OK_OPTION) {
 			final Object[] selected = boneTabs.getSelectedValuesList().toArray();
-			for (int i = 0; i < selected.length; i++) {
-				final BonePanel temp = (BonePanel) selected[i];
+			for (Object o : selected) {
+				final BonePanel temp = (BonePanel) o;
 				temp.setParent(list.getSelectedValue());
 			}
 		}
@@ -1651,32 +1648,32 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 
 	public void setObjGroupSelected(final boolean flag) {
 		final Object[] selected = objectTabs.getSelectedValuesList().toArray();
-		for (int i = 0; i < selected.length; i++) {
-			final ObjectPanel temp = (ObjectPanel) selected[i];
+		for (Object o : selected) {
+			final ObjectPanel temp = (ObjectPanel) o;
 			temp.doImport.setSelected(flag);
 		}
 	}
 
 	public void setVisGroupSelected(final boolean flag) {
 		final Object[] selected = visTabs.getSelectedValuesList().toArray();
-		for (int i = 0; i < selected.length; i++) {
-			final VisibilityPane temp = (VisibilityPane) selected[i];
+		for (Object o : selected) {
+			final VisibilityPane temp = (VisibilityPane) o;
 			temp.favorOld.setSelected(flag);
 		}
 	}
 
 	public void setVisGroupItemOld(final Object o) {
 		final Object[] selected = visTabs.getSelectedValuesList().toArray();
-		for (int i = 0; i < selected.length; i++) {
-			final VisibilityPane temp = (VisibilityPane) selected[i];
+		for (Object value : selected) {
+			final VisibilityPane temp = (VisibilityPane) value;
 			temp.oldSourcesBox.setSelectedItem(o);
 		}
 	}
 
 	public void setVisGroupItemNew(final Object o) {
 		final Object[] selected = visTabs.getSelectedValuesList().toArray();
-		for (int i = 0; i < selected.length; i++) {
-			final VisibilityPane temp = (VisibilityPane) selected[i];
+		for (Object value : selected) {
+			final VisibilityPane temp = (VisibilityPane) value;
 			temp.newSourcesBox.setSelectedItem(o);
 		}
 	}
@@ -1717,8 +1714,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 					}
 				}
 			}
-			final List<Animation> oldAnims = new ArrayList<>();
-			oldAnims.addAll(currentModel.getAnims());
+			final List<Animation> oldAnims = new ArrayList<>(currentModel.getAnims());
 			final List<Animation> newAnims = new ArrayList<>();
 			final java.util.List<AnimFlag> curFlags = currentModel.getAllAnimFlags();
 			final java.util.List<AnimFlag> impFlags = importedModel.getAllAnimFlags();
@@ -2939,12 +2935,7 @@ class MultiBonePanel extends BonePanel {
 
 	public MultiBonePanel(final DefaultListModel existingBonesList, final ListCellRenderer renderer) {
 		setAllParent = new JButton("Set Parent for All");
-		setAllParent.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				getImportPanel().setParentMultiBones();
-			}
-		});
+		setAllParent.addActionListener(e -> getImportPanel().setParentMultiBones());
 		bone = null;
 		existingBones = existingBonesList;
 
@@ -3156,7 +3147,7 @@ class BonePanelListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 
 	@Override
 	protected ResettableVertexFilter<Bone> createFilter() {
-		return new ResettableVertexFilter<Bone>() {
+		return new ResettableVertexFilter<>() {
 			private Bone bone;
 
 			@Override

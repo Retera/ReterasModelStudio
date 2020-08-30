@@ -250,18 +250,8 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexCl
 				}
 			});
 		}
-		final Runnable truncateSelectionRunnable = new Runnable() {
-			@Override
-			public void run() {
-				selectionManager.removeSelection(vertexBundlesToTruncate);
-			}
-		};
-		final Runnable unTruncateSelectionRunnable = new Runnable() {
-			@Override
-			public void run() {
-				selectionManager.setSelection(previousSelection);
-			}
-		};
+		final Runnable truncateSelectionRunnable = () -> selectionManager.removeSelection(vertexBundlesToTruncate);
+		final Runnable unTruncateSelectionRunnable = () -> selectionManager.setSelection(previousSelection);
 		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable,
 				unTruncateSelectionRunnable, refreshGUIRunnable);
 	}
@@ -322,7 +312,7 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexCl
 				copiedGeosets.add(copy);
 			}
 		}
-		return new CopiedModelData(copiedGeosets, new ArrayList<IdObject>(), new ArrayList<Camera>());
+		return new CopiedModelData(copiedGeosets, new ArrayList<>(), new ArrayList<>());
 	}
 
 	@Override

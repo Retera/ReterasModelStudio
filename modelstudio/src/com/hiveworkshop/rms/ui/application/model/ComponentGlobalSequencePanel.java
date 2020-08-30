@@ -21,16 +21,13 @@ public class ComponentGlobalSequencePanel extends JPanel {
 	public ComponentGlobalSequencePanel() {
 		setLayout(new MigLayout());
 		lengthSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
-		lengthSpinner.addActionListener(new Runnable() {
-			@Override
-			public void run() {
-				final SetGlobalSequenceLengthAction setGlobalSequenceLengthAction = new SetGlobalSequenceLengthAction(
-						model, globalSequenceId, value, ((Number) lengthSpinner.getValue()).intValue(),
-						modelStructureChangeListener);
-				setGlobalSequenceLengthAction.redo();
-				undoActionListener.pushAction(setGlobalSequenceLengthAction);
-			}
-		});
+		lengthSpinner.addActionListener(() -> {
+            final SetGlobalSequenceLengthAction setGlobalSequenceLengthAction = new SetGlobalSequenceLengthAction(
+                    model, globalSequenceId, value, ((Number) lengthSpinner.getValue()).intValue(),
+                    modelStructureChangeListener);
+            setGlobalSequenceLengthAction.redo();
+            undoActionListener.pushAction(setGlobalSequenceLengthAction);
+        });
 		add(new JLabel("GlobalSequence "), "cell 0 0");
 		indexLabel = new JLabel();
 		add(indexLabel, "cell 1 0");

@@ -12,12 +12,9 @@ public class ZoomableImagePreviewPanel extends JPanel {
 	public ZoomableImagePreviewPanel(final Image image) {
 		this.image = image;
 
-		addMouseWheelListener(new MouseWheelListener() {
-			@Override
-			public void mouseWheelMoved(final MouseWheelEvent e) {
-				scale *= Math.pow(1.05, -e.getPreciseWheelRotation());
-				repaint();
-			}
+		addMouseWheelListener(e -> {
+			scale *= Math.pow(1.05, -e.getPreciseWheelRotation());
+			repaint();
 		});
 	}
 

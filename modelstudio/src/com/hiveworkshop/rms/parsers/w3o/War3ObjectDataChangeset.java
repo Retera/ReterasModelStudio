@@ -238,30 +238,26 @@ public final class War3ObjectDataChangeset {
 		final War3ID nameId = getNameField();
 		final List<War3ID> idsToRemoveFromMap = new ArrayList<>();
 		final Map<War3ID, ObjectDataChangeEntry> idsToObjectsForAddingToMap = new HashMap<>();
-		for (final Iterator<Map.Entry<War3ID, ObjectDataChangeEntry>> iterator = map.iterator(); iterator.hasNext();) {
-			final Map.Entry<War3ID, ObjectDataChangeEntry> entry = iterator.next();
-			final ObjectDataChangeEntry current = entry.getValue();
-			final List<Change> nameEntry = current.getChanges().get(nameId);
-			if ((nameEntry != null) && nameEntry.size() > 0) {
-				final Change firstNameChange = nameEntry.get(0);
-				int pos = firstNameChange.getStrval().lastIndexOf("::");
-				if ((pos != -1) && (firstNameChange.getStrval().length() > (pos + 2))) {
-					String rest = firstNameChange.getStrval().substring(pos + 2);
-					if (rest.length() == 4) {
-						final War3ID newId = War3ID.fromString(rest);
-						final ObjectDataChangeEntry existingObjectWithMatchingId = map.get(newId);
-						if (isOriginal) {// obj.cpp: update id and name
-							current.setOldId(newId);
-						} else {
-							current.setNewId(newId);
-						}
-						firstNameChange.setStrval(firstNameChange.getStrval().substring(0, pos));
-						if (existingObjectWithMatchingId != null) {
-							// obj.cpp: carry over all changes
-							final Iterator<Map.Entry<War3ID, List<Change>>> changeIterator = current.getChanges()
-									.iterator();
-							while (changeIterator.hasNext()) {
-								final Map.Entry<War3ID, List<Change>> changeIteratorNext = changeIterator.next();
+        for (final Map.Entry<War3ID, ObjectDataChangeEntry> entry : map) {
+            final ObjectDataChangeEntry current = entry.getValue();
+            final List<Change> nameEntry = current.getChanges().get(nameId);
+            if ((nameEntry != null) && nameEntry.size() > 0) {
+                final Change firstNameChange = nameEntry.get(0);
+                int pos = firstNameChange.getStrval().lastIndexOf("::");
+                if ((pos != -1) && (firstNameChange.getStrval().length() > (pos + 2))) {
+                    String rest = firstNameChange.getStrval().substring(pos + 2);
+                    if (rest.length() == 4) {
+                        final War3ID newId = War3ID.fromString(rest);
+                        final ObjectDataChangeEntry existingObjectWithMatchingId = map.get(newId);
+                        if (isOriginal) {// obj.cpp: update id and name
+                            current.setOldId(newId);
+                        } else {
+                            current.setNewId(newId);
+                        }
+                        firstNameChange.setStrval(firstNameChange.getStrval().substring(0, pos));
+                        if (existingObjectWithMatchingId != null) {
+                            // obj.cpp: carry over all changes
+							for (Map.Entry<War3ID, List<Change>> changeIteratorNext : current.getChanges()) {
 								final War3ID copiedChangeId = changeIteratorNext.getKey();
 								List<Change> changeListForFieldToOverwrite = existingObjectWithMatchingId.getChanges()
 										.get(copiedChangeId);
@@ -316,17 +312,17 @@ public final class War3ObjectDataChangeset {
 									}
 								}
 							}
-						} else { // obj.cpp: an object with that id didn't exist
-							idsToRemoveFromMap.add(entry.getKey());
-							idsToObjectsForAddingToMap.put(newId, current.clone());
-						}
-					} else if ("REMOVE".equals(rest)) { // obj.cpp: want to remove the object
-						idsToRemoveFromMap.add(entry.getKey());
-					} // obj.cpp: in all other cases keep it untouched
-				}
-			}
+                        } else { // obj.cpp: an object with that id didn't exist
+                            idsToRemoveFromMap.add(entry.getKey());
+                            idsToObjectsForAddingToMap.put(newId, current.clone());
+                        }
+                    } else if ("REMOVE".equals(rest)) { // obj.cpp: want to remove the object
+                        idsToRemoveFromMap.add(entry.getKey());
+                    } // obj.cpp: in all other cases keep it untouched
+                }
+            }
 
-		}
+        }
 		for (final War3ID id : idsToRemoveFromMap) {
 			map.remove(id);
 		}
@@ -380,61 +376,59 @@ public final class War3ObjectDataChangeset {
 
 	public void mergetable(final ObjectMap target, final ObjectMap targetCustom, final ObjectMap source,
 			final CollisionHandling collisionHandling) {
-		final Iterator<Map.Entry<War3ID, ObjectDataChangeEntry>> sourceObjectIterator = source.iterator();
-		while (sourceObjectIterator.hasNext()) {
-			final Map.Entry<War3ID, ObjectDataChangeEntry> sourceObject = sourceObjectIterator.next();
+		for (Map.Entry<War3ID, ObjectDataChangeEntry> sourceObject : source) {
 			if (target.containsKey(sourceObject.getKey())) {
 				// obj.cpp: we have a collision
 				War3ID oldId;
 				War3ID replacementId;
 
 				switch (collisionHandling) {
-				case CREATE_NEW_ID:
-					oldId = sourceObject.getKey();
-					// obj.cpp: get new id until we finally have one that isn't used yet, or we're
-					// out of ids
-					replacementId = getunusedid(oldId);
-					while (!((oldId.charAt(1) == '~') && (oldId.charAt(2) == '~') && (oldId.charAt(3) == '~'))
-							&& targetCustom.containsKey(replacementId)) {
-						oldId = replacementId;
+					case CREATE_NEW_ID:
+						oldId = sourceObject.getKey();
+						// obj.cpp: get new id until we finally have one that isn't used yet, or we're
+						// out of ids
 						replacementId = getunusedid(oldId);
-					}
-					if (!((oldId.charAt(1) == '~') && (oldId.charAt(2) == '~') && (oldId.charAt(3) == '~'))) {
-						sourceObject.getValue().setNewId(replacementId);
-						targetCustom.put(replacementId, sourceObject.getValue().clone());
-					}
-					break;
-				case REPLACE:
-					// final ObjectDataChangeEntry deleteObject = target.get(sourceObject.getKey());
-					target.put(sourceObject.getKey(), sourceObject.getValue().clone());
-					break;
-				default:// merge
-					final ObjectDataChangeEntry targetObject = target.get(sourceObject.getKey());
-					for (final Map.Entry<War3ID, List<Change>> sourceUnitField : sourceObject.getValue()
-							.getChanges()) {
-						for (final Change sourceChange : sourceUnitField.getValue()) {
-							List<Change> targetChanges = targetObject.getChanges().get(sourceUnitField.getKey());
-							if (targetChanges == null) {
-								targetChanges = new ArrayList<>();
-							}
-							Change bestTargetChange = null;
-							for (final Change targetChange : targetChanges) {
-								if (targetChange.getLevel() == sourceChange.getLevel()) {
-									bestTargetChange = targetChange;
-									break;
+						while (!((oldId.charAt(1) == '~') && (oldId.charAt(2) == '~') && (oldId.charAt(3) == '~'))
+								&& targetCustom.containsKey(replacementId)) {
+							oldId = replacementId;
+							replacementId = getunusedid(oldId);
+						}
+						if (!((oldId.charAt(1) == '~') && (oldId.charAt(2) == '~') && (oldId.charAt(3) == '~'))) {
+							sourceObject.getValue().setNewId(replacementId);
+							targetCustom.put(replacementId, sourceObject.getValue().clone());
+						}
+						break;
+					case REPLACE:
+						// final ObjectDataChangeEntry deleteObject = target.get(sourceObject.getKey());
+						target.put(sourceObject.getKey(), sourceObject.getValue().clone());
+						break;
+					default:// merge
+						final ObjectDataChangeEntry targetObject = target.get(sourceObject.getKey());
+						for (final Map.Entry<War3ID, List<Change>> sourceUnitField : sourceObject.getValue()
+								.getChanges()) {
+							for (final Change sourceChange : sourceUnitField.getValue()) {
+								List<Change> targetChanges = targetObject.getChanges().get(sourceUnitField.getKey());
+								if (targetChanges == null) {
+									targetChanges = new ArrayList<>();
 								}
-							}
-							if (bestTargetChange != null) {
-								bestTargetChange.copyFrom(sourceChange);
-							} else {
-								targetChanges.add(sourceChange.clone());
-								if (targetChanges.size() == 1) {
-									targetObject.getChanges().add(sourceUnitField.getKey(), targetChanges);
+								Change bestTargetChange = null;
+								for (final Change targetChange : targetChanges) {
+									if (targetChange.getLevel() == sourceChange.getLevel()) {
+										bestTargetChange = targetChange;
+										break;
+									}
+								}
+								if (bestTargetChange != null) {
+									bestTargetChange.copyFrom(sourceChange);
+								} else {
+									targetChanges.add(sourceChange.clone());
+									if (targetChanges.size() == 1) {
+										targetObject.getChanges().add(sourceUnitField.getKey(), targetChanges);
+									}
 								}
 							}
 						}
-					}
-					break;
+						break;
 				}
 			} else {
 				targetCustom.put(sourceObject.getKey(), sourceObject.getValue().clone());

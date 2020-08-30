@@ -76,12 +76,7 @@ public final class MPQBrowser extends JPanel {
 		filters.add(otherFilter);
 		for (final Filter filter : filters) {
 			filtersMenu.add(filter.getFilterCheckBoxItem());
-			filter.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(final ActionEvent e) {
-					refreshTree();
-				}
-			});
+			filter.addActionListener(e -> refreshTree());
 			for (final String ext : filter.extensions) {
 				extensionToFilter.put(ext, filter);
 			}
@@ -89,25 +84,19 @@ public final class MPQBrowser extends JPanel {
 		filtersMenu.addSeparator();
 		final JMenuItem allItem = new JMenuItem("All");
 		filtersMenu.add(allItem);
-		allItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				for (final Filter filter : filters) {
-					filter.getFilterCheckBoxItem().setSelected(true);
-				}
-				refreshTree();
+		allItem.addActionListener(e -> {
+			for (final Filter filter : filters) {
+				filter.getFilterCheckBoxItem().setSelected(true);
 			}
+			refreshTree();
 		});
 		final JMenuItem noneItem = new JMenuItem("None");
 		filtersMenu.add(noneItem);
-		noneItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				for (final Filter filter : filters) {
-					filter.getFilterCheckBoxItem().setSelected(false);
-				}
-				refreshTree();
+		noneItem.addActionListener(e -> {
+			for (final Filter filter : filters) {
+				filter.getFilterCheckBoxItem().setSelected(false);
 			}
+			refreshTree();
 		});
 		final MPQTreeNode root = createMPQTree(gameDataFileSystem);
 		treeModel = new DefaultTreeModel(root);
@@ -244,9 +233,7 @@ public final class MPQBrowser extends JPanel {
 		final MPQTreeNode root = new MPQTreeNode(null, "", "");
 		final Set<String> mergedListfile = gameDataFileSystem.getMergedListfile();
 		final List<String> listfile = new ArrayList<>();
-		for (final String string : mergedListfile) {
-			listfile.add(string);
-		}
+		listfile.addAll(mergedListfile);
 		Collections.sort(listfile);
 		for (String string : listfile) {
 			final int periodIndex = string.indexOf('.');

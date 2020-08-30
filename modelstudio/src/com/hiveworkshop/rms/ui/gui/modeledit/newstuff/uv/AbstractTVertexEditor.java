@@ -39,12 +39,7 @@ public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexE
 		super(selectionManager);
 		this.model = model;
 		this.structureChangeListener = structureChangeListener;
-		vertexSelectionHelper = new VertexSelectionHelper() {
-			@Override
-			public void selectVertices(final Collection<Vec3> vertices) {
-				selectByVertices(vertices);
-			}
-		};
+		vertexSelectionHelper = vertices -> selectByVertices(vertices);
 	}
 
 	@Override
@@ -60,9 +55,9 @@ public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexE
 
 	@Override
 	public UndoAction remap(final byte xDim, final byte yDim, final UVPanel.UnwrapDirection unwrapDirection) {
-		final List<Vec2> tVertices = new ArrayList<Vec2>();
-		final List<Vec2> newValueHolders = new ArrayList<Vec2>();
-		final List<Vec2> oldValueHolders = new ArrayList<Vec2>();
+		final List<Vec2> tVertices = new ArrayList<>();
+		final List<Vec2> newValueHolders = new ArrayList<>();
+		final List<Vec2> oldValueHolders = new ArrayList<>();
 		float minX = Float.MAX_VALUE;
 		float minY = Float.MAX_VALUE;
 		float maxX = -Float.MAX_VALUE;
@@ -172,9 +167,7 @@ public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexE
 	public Vec2 getSelectionCenter() {
 //		return selectionManager.getCenter();
 		final Set<Vec2> tvertices = new HashSet<>();
-		for (final Vec2 vertex : TVertexUtils.getTVertices(selectionManager.getSelectedVertices(), uvLayerIndex)) {
-			tvertices.add(vertex);
-		}
+		tvertices.addAll(TVertexUtils.getTVertices(selectionManager.getSelectedVertices(), uvLayerIndex));
 		return Vec2.centerOfGroup(tvertices); // TODO is this correct?
 	}
 

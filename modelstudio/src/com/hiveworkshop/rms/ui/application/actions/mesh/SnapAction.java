@@ -33,9 +33,9 @@ public class SnapAction implements UndoAction {
 
 	@Override
 	public void redo() {
-		for (int i = 0; i < selection.size(); i++) {
-			selection.get(i).set(snapPoint);
-		}
+        for (Vec3 vec3 : selection) {
+            vec3.set(snapPoint);
+        }
 	}
 
 	@Override

@@ -39,12 +39,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 				if (isSelected(sourceNode)) {
 					showHideComponentAction = modelEditorManager.getModelEditor().showComponent(toggleHandler);
 				} else {
-					final Runnable refreshGUIRunnable = new Runnable() {
-						@Override
-						public void run() {
-							reloadFromModelView();
-						}
-					};
+					final Runnable refreshGUIRunnable = () -> reloadFromModelView();
 					showHideComponentAction = modelEditorManager.getModelEditor().hideComponent(components,
 							toggleHandler, refreshGUIRunnable);
 				}
@@ -76,43 +71,39 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 	}
 
 	public void reloadFromModelView() {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				final TreePath rootPath = new TreePath(getModel().getRoot());
-				final Enumeration<TreePath> expandedDescendants = getExpandedDescendants(rootPath);
-				setModel(buildTreeModel(modelViewManager));
-				final TreePath newRootPath = new TreePath(getModel().getRoot());
-				final List<TreePath> pathsToExpand = new ArrayList<>();
-				while ((expandedDescendants != null) && expandedDescendants.hasMoreElements()) {
-					final TreePath nextPathToExpand = expandedDescendants.nextElement();
-					TreePath newPathWithNewObjects = newRootPath;
-					JCheckBoxTreeNode currentNode = (JCheckBoxTreeNode) getModel().getRoot();
-					for (int i = 1; i < nextPathToExpand.getPathCount(); i++) {
-						final JCheckBoxTreeNode pathComponent = (JCheckBoxTreeNode) nextPathToExpand
-								.getPathComponent(i);
-						boolean foundMatchingChild = false;
-						for (int j = 0; (j < currentNode.getChildCount()) && !foundMatchingChild; j++) {
-							final JCheckBoxTreeNode childAt = (JCheckBoxTreeNode) currentNode.getChildAt(j);
-							if (asElement(childAt.getUserObject())
-									.hasSameItem(asElement(pathComponent.getUserObject()))) {
-								currentNode = childAt;
-								newPathWithNewObjects = newPathWithNewObjects.pathByAddingChild(childAt);
-								foundMatchingChild = true;
-							}
-						}
-						if (!foundMatchingChild) {
-							break;
-						}
-					}
-					pathsToExpand.add(newPathWithNewObjects);
-				}
-				for (final TreePath path : pathsToExpand) {
-					expandPath(path);
-				}
-			}
-
-		});
+		SwingUtilities.invokeLater(() -> {
+            final TreePath rootPath = new TreePath(getModel().getRoot());
+            final Enumeration<TreePath> expandedDescendants = getExpandedDescendants(rootPath);
+            setModel(buildTreeModel(modelViewManager));
+            final TreePath newRootPath = new TreePath(getModel().getRoot());
+            final List<TreePath> pathsToExpand = new ArrayList<>();
+            while ((expandedDescendants != null) && expandedDescendants.hasMoreElements()) {
+                final TreePath nextPathToExpand = expandedDescendants.nextElement();
+                TreePath newPathWithNewObjects = newRootPath;
+                JCheckBoxTreeNode currentNode = (JCheckBoxTreeNode) getModel().getRoot();
+                for (int i = 1; i < nextPathToExpand.getPathCount(); i++) {
+                    final JCheckBoxTreeNode pathComponent = (JCheckBoxTreeNode) nextPathToExpand
+                            .getPathComponent(i);
+                    boolean foundMatchingChild = false;
+                    for (int j = 0; (j < currentNode.getChildCount()) && !foundMatchingChild; j++) {
+                        final JCheckBoxTreeNode childAt = (JCheckBoxTreeNode) currentNode.getChildAt(j);
+                        if (asElement(childAt.getUserObject())
+                                .hasSameItem(asElement(pathComponent.getUserObject()))) {
+                            currentNode = childAt;
+                            newPathWithNewObjects = newPathWithNewObjects.pathByAddingChild(childAt);
+                            foundMatchingChild = true;
+                        }
+                    }
+                    if (!foundMatchingChild) {
+                        break;
+                    }
+                }
+                pathsToExpand.add(newPathWithNewObjects);
+            }
+            for (final TreePath path : pathsToExpand) {
+                expandPath(path);
+            }
+        });
 	}
 
 	private CheckableDisplayElement<?> asElement(final Object userObject) {
@@ -147,11 +138,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 			}
 			final JCheckBoxTreeNode parentTreeNode = nodeToTreeElement.get(parent);
 			if (parentTreeNode == null) {
-				List<JCheckBoxTreeNode> awaitingChildrenList = nodeToChildrenAwaitingLink.get(parent);
-				if (awaitingChildrenList == null) {
-					awaitingChildrenList = new ArrayList<>();
-					nodeToChildrenAwaitingLink.put(parent, awaitingChildrenList);
-				}
+				List<JCheckBoxTreeNode> awaitingChildrenList = nodeToChildrenAwaitingLink.computeIfAbsent(parent, k -> new ArrayList<>());
 				awaitingChildrenList.add(treeNode);
 			} else {
 				parentTreeNode.add(treeNode);

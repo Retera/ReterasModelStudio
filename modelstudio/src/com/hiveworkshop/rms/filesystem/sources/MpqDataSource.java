@@ -1,86 +1,69 @@
 package com.hiveworkshop.rms.filesystem.sources;
 
-import mpq.*;
+import systems.crigges.jmpq3.*;
 
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.SeekableByteChannel;
-import java.nio.file.Files;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 public class MpqDataSource implements DataSource {
 
-	private final MPQArchive archive;
-	private final SeekableByteChannel inputChannel;
-	private final ArchivedFileExtractor extractor = new ArchivedFileExtractor();
+	private final JMpqEditor archive;
 
-	public MpqDataSource(final MPQArchive archive, final SeekableByteChannel inputChannel) {
+	public MpqDataSource(final JMpqEditor archive) {
 		this.archive = archive;
-		this.inputChannel = inputChannel;
 	}
 
-	public MPQArchive getArchive() {
+	public JMpqEditor getArchive() {
 		return archive;
-	}
-
-	public SeekableByteChannel getInputChannel() {
-		return inputChannel;
 	}
 
 	@Override
 	public InputStream getResourceAsStream(final String filepath) throws IOException {
-		ArchivedFile file = null;
+		MpqFile file = null;
 		try {
-			file = archive.lookupHash2(new HashLookup(filepath));
-		} catch (final MPQException exc) {
-			if (exc.getMessage().equals("lookup not found")) {
+			file = archive.getMpqFile(filepath);
+		} catch (final Exception exc) {
+			if (exc.getMessage().startsWith("File Not Found")) {
 				return null;
 			} else {
 				throw new IOException(exc);
 			}
 		}
-		final ArchivedFileStream stream = new ArchivedFileStream(inputChannel, extractor, file);
-		final InputStream newInputStream = Channels.newInputStream(stream);
-		return newInputStream;
+		final ByteArrayInputStream stream = new ByteArrayInputStream(file.extractToBytes());
+		return stream;
 	}
 
 	@Override
 	public ByteBuffer read(final String path) throws IOException {
-		ArchivedFile file = null;
+		MpqFile file = null;
 		try {
-			file = archive.lookupHash2(new HashLookup(path));
-		} catch (final MPQException exc) {
-			if (exc.getMessage().equals("lookup not found")) {
+			
+			file = archive.getMpqFile(path);
+		} catch (final Exception exc) {
+			if (exc.getMessage().startsWith("File Not Found")) {
 				return null;
 			} else {
 				throw new IOException(exc);
 			}
 		}
-		try (final ArchivedFileStream stream = new ArchivedFileStream(inputChannel, extractor, file)) {
-			final long size = stream.size();
-			final ByteBuffer buffer = ByteBuffer.allocate((int) size);
-			stream.read(buffer);
-			return buffer;
-		}
+
+		return ByteBuffer.wrap(file.extractToBytes());
 	}
 
 	@Override
 	public File getFile(final String filepath) throws IOException {
-		ArchivedFile file = null;
+		MpqFile file = null;
 		try {
-			file = archive.lookupHash2(new HashLookup(filepath));
-		} catch (final MPQException exc) {
-			if (exc.getMessage().equals("lookup not found")) {
+			file = archive.getMpqFile(filepath);
+		} catch (final Exception exc) {
+			if (exc.getMessage().startsWith("File Not Found")) {
 				return null;
 			} else {
 				throw new IOException(exc);
 			}
 		}
-		final ArchivedFileStream stream = new ArchivedFileStream(inputChannel, extractor, file);
-		final InputStream newInputStream = Channels.newInputStream(stream);
+
 		String tmpdir = System.getProperty("java.io.tmpdir");
 		if (!tmpdir.endsWith(File.separator)) {
 			tmpdir += File.separator;
@@ -89,23 +72,14 @@ public class MpqDataSource implements DataSource {
 		final File tempProduct = new File(tempDir + filepath.replace('\\', File.separatorChar));
 		tempProduct.delete();
 		tempProduct.getParentFile().mkdirs();
-		Files.copy(newInputStream, tempProduct.toPath());
+		file.extractToFile(tempProduct);
 		tempProduct.deleteOnExit();
 		return tempProduct;
 	}
 
 	@Override
 	public boolean has(final String filepath) {
-		try {
-			archive.lookupPath(filepath);
-			return true;
-		} catch (final MPQException exc) {
-			if (exc.getMessage().equals("lookup not found")) {
-				return false;
-			} else {
-				throw new RuntimeException(exc);
-			}
-		}
+		return archive.hasFile(filepath);
 	}
 
 	@Override
@@ -115,33 +89,12 @@ public class MpqDataSource implements DataSource {
 
 	@Override
 	public Collection<String> getListfile() {
-		try {
-			final Set<String> listfile = new HashSet<>();
-			final ArchivedFile listfileContents;
-			listfileContents = archive.lookupHash2(new HashLookup("(listfile)"));
-			final ArchivedFileStream stream = new ArchivedFileStream(inputChannel, extractor, listfileContents);
-			final InputStream newInputStream = Channels.newInputStream(stream);
-			try (BufferedReader reader = new BufferedReader(new InputStreamReader(newInputStream))) {
-				String line;
-				while ((line = reader.readLine()) != null) {
-					listfile.add(line);
-				}
-			} catch (final IOException exc) {
-				throw new RuntimeException(exc);
-			}
-			return listfile;
-		} catch (final MPQException exc) {
-			if (exc.getMessage().equals("lookup not found")) {
-				return null;
-			} else {
-				throw new RuntimeException(exc);
-			}
-		}
+		return archive.getFileNames();
 	}
 
 	@Override
 	public void close() throws IOException {
-		inputChannel.close();
+		archive.close();
 	}
 
 }

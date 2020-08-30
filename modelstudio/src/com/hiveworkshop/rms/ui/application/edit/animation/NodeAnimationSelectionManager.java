@@ -44,9 +44,9 @@ public final class NodeAnimationSelectionManager extends AbstractSelectionManage
 		centerOfGroupSumHeap.z = 0;
 		for (final IdObject object : selection) {
 			final Vec3 pivot = object.getPivotPoint();
-			pivotHeap.x = (float) pivot.x;
-			pivotHeap.y = (float) pivot.y;
-			pivotHeap.z = (float) pivot.z;
+			pivotHeap.x = pivot.x;
+			pivotHeap.y = pivot.y;
+			pivotHeap.z = pivot.z;
 			pivotHeap.w = 1;
 			renderModel.getRenderNode(object).getWorldMatrix().transform(pivotHeap);
 			centerOfGroupSumHeap.x += pivotHeap.x;
@@ -66,9 +66,9 @@ public final class NodeAnimationSelectionManager extends AbstractSelectionManage
 		double radius = 0;
 		for (final IdObject item : selection) {
 			final Vec3 pivot = item.getPivotPoint();
-			pivotHeap.x = (float) pivot.x;
-			pivotHeap.y = (float) pivot.y;
-			pivotHeap.z = (float) pivot.z;
+			pivotHeap.x = pivot.x;
+			pivotHeap.y = pivot.y;
+			pivotHeap.z = pivot.z;
 			pivotHeap.w = 1;
 			renderModel.getRenderNode(item).getWorldMatrix().transform(pivotHeap);
 			final double distance = sphereCenter.distance(pivotHeap);

@@ -43,12 +43,7 @@ public final class ColorChooserIcon extends JLabel {
 	}
 
 	public static void main(final String[] args) {
-		final ColorChooserIcon chooser = new ColorChooserIcon(Color.YELLOW, new ColorListener() {
-			@Override
-			public void colorChanged(final Color color) {
-				System.out.println(color);
-			}
-		});
+		final ColorChooserIcon chooser = new ColorChooserIcon(Color.YELLOW, color -> System.out.println(color));
 		chooser.setCurrentColor(Color.ORANGE);
 		JOptionPane.showMessageDialog(null, chooser);
 	}

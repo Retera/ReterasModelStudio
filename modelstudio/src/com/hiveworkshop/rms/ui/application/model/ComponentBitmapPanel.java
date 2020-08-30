@@ -41,46 +41,34 @@ public class ComponentBitmapPanel extends JPanel implements ComponentPanel {
 
 	public ComponentBitmapPanel(final TextureExporter textureExporter) {
 		texturePathField = new ComponentEditorTextField(24);
-		texturePathField.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final SetBitmapPathAction setBitmapPathAction = new SetBitmapPathAction(bitmap, bitmap.getPath(),
-						texturePathField.getText(), modelStructureChangeListener);
-				setBitmapPathAction.redo();
-				undoListener.pushAction(setBitmapPathAction);
-			}
-		});
+		texturePathField.addActionListener(e -> {
+            final SetBitmapPathAction setBitmapPathAction = new SetBitmapPathAction(bitmap, bitmap.getPath(),
+                    texturePathField.getText(), modelStructureChangeListener);
+            setBitmapPathAction.redo();
+            undoListener.pushAction(setBitmapPathAction);
+        });
 		replaceableIdSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(-1, -1, Integer.MAX_VALUE, 1));
-		replaceableIdSpinner.addActionListener(new Runnable() {
-			@Override
-			public void run() {
-				final SetBitmapReplaceableIdAction setBitmapReplaceableIdAction = new SetBitmapReplaceableIdAction(
-						bitmap, bitmap.getReplaceableId(), ((Number) replaceableIdSpinner.getValue()).intValue(),
-						modelStructureChangeListener);
-				setBitmapReplaceableIdAction.redo();
-				undoListener.pushAction(setBitmapReplaceableIdAction);
-			}
-		});
+		replaceableIdSpinner.addActionListener(() -> {
+            final SetBitmapReplaceableIdAction setBitmapReplaceableIdAction = new SetBitmapReplaceableIdAction(
+                    bitmap, bitmap.getReplaceableId(), ((Number) replaceableIdSpinner.getValue()).intValue(),
+                    modelStructureChangeListener);
+            setBitmapReplaceableIdAction.redo();
+            undoListener.pushAction(setBitmapReplaceableIdAction);
+        });
 		wrapWidthBox = new JCheckBox("Wrap Width");
-		wrapWidthBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final SetBitmapWrapWidthAction setBitmapWrapWidthAction = new SetBitmapWrapWidthAction(bitmap,
-						bitmap.isWrapWidth(), wrapWidthBox.isSelected(), modelStructureChangeListener);
-				setBitmapWrapWidthAction.redo();
-				undoListener.pushAction(setBitmapWrapWidthAction);
-			}
-		});
+		wrapWidthBox.addActionListener(e -> {
+            final SetBitmapWrapWidthAction setBitmapWrapWidthAction = new SetBitmapWrapWidthAction(bitmap,
+                    bitmap.isWrapWidth(), wrapWidthBox.isSelected(), modelStructureChangeListener);
+            setBitmapWrapWidthAction.redo();
+            undoListener.pushAction(setBitmapWrapWidthAction);
+        });
 		wrapHeightBox = new JCheckBox("Wrap Height");
-		wrapHeightBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final SetBitmapWrapHeightAction setBitmapWrapHeightAction = new SetBitmapWrapHeightAction(bitmap,
-						bitmap.isWrapHeight(), wrapHeightBox.isSelected(), modelStructureChangeListener);
-				setBitmapWrapHeightAction.redo();
-				undoListener.pushAction(setBitmapWrapHeightAction);
-			}
-		});
+		wrapHeightBox.addActionListener(e -> {
+            final SetBitmapWrapHeightAction setBitmapWrapHeightAction = new SetBitmapWrapHeightAction(bitmap,
+                    bitmap.isWrapHeight(), wrapHeightBox.isSelected(), modelStructureChangeListener);
+            setBitmapWrapHeightAction.redo();
+            undoListener.pushAction(setBitmapWrapHeightAction);
+        });
 		previewPanel = new JPanel();
 		previewPanel.setBorder(new TitledBorder(null, "Previewer", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		previewPanel.setLayout(new BorderLayout());
@@ -93,21 +81,12 @@ public class ComponentBitmapPanel extends JPanel implements ComponentPanel {
 		add(wrapWidthBox, "cell 0 2 3");
 		add(wrapHeightBox, "cell 0 3");
 		final JButton exportTextureImageFile = new JButton("Export Texture Image File");
-		exportTextureImageFile.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				String suggestedName = texturePathField.getText();
-				suggestedName = suggestedName.substring(suggestedName.lastIndexOf("\\") + 1);
-				suggestedName = suggestedName.substring(suggestedName.lastIndexOf("/") + 1);
-				textureExporter.exportTexture(suggestedName, new TextureExporter.TextureExporterClickListener() {
-
-					@Override
-					public void onClickOK(final File file, final FileFilter filter) {
-						BLPHandler.exportBitmapTextureFile(ComponentBitmapPanel.this, modelViewManager, bitmap, file);
-					}
-				}, ComponentBitmapPanel.this);
-			}
-		});
+		exportTextureImageFile.addActionListener(e -> {
+            String suggestedName = texturePathField.getText();
+            suggestedName = suggestedName.substring(suggestedName.lastIndexOf("\\") + 1);
+            suggestedName = suggestedName.substring(suggestedName.lastIndexOf("/") + 1);
+            textureExporter.exportTexture(suggestedName, (file, filter) -> BLPHandler.exportBitmapTextureFile(ComponentBitmapPanel.this, modelViewManager, bitmap, file), ComponentBitmapPanel.this);
+        });
 		add(exportTextureImageFile, "cell 2 3, pushx");
 		add(previewPanel, "cell 0 4 3, growx, growy");
 	}

@@ -151,9 +151,10 @@ public class Triangle {
 	public boolean equalRefsNoIds(final Triangle t) {
 		boolean equal = true;
 		for (int i = 0; i < 3 && equal; i++) {
-			if (t.verts[i] != verts[i]) {
-				equal = false;
-			}
+            if (t.verts[i] != verts[i]) {
+                equal = false;
+                break;
+            }
 		}
 		return equal;
 	}
@@ -161,9 +162,10 @@ public class Triangle {
 	public boolean equalRefs(final Triangle t) {
 		boolean equal = true;
 		for (int i = 0; i < 3 && equal; i++) {
-			if (t.verts[i] != verts[i] || t.vertIds[i] != vertIds[i]) {
-				equal = false;
-			}
+            if (t.verts[i] != verts[i] || t.vertIds[i] != vertIds[i]) {
+                equal = false;
+                break;
+            }
 		}
 		return equal;
 	}

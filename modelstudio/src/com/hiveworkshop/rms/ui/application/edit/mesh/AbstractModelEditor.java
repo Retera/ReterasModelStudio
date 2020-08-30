@@ -66,18 +66,13 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		super(selectionManager);
 		this.model = model;
 		this.structureChangeListener = structureChangeListener;
-		vertexSelectionHelper = new VertexSelectionHelper() {
-			@Override
-			public void selectVertices(final Collection<Vec3> vertices) {
-				selectByVertices(vertices);
-			}
-		};
+		vertexSelectionHelper = vertices -> selectByVertices(vertices);
 	}
 
 	@Override
 	public UndoAction setMatrix(final Collection<Bone> bones) {
 		final Matrix mx = new Matrix();
-		mx.setBones(new ArrayList<Bone>());
+		mx.setBones(new ArrayList<>());
 		for (final Bone bone : bones) {
 			mx.add(bone);
 		}
@@ -154,13 +149,9 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 	public UndoAction recalcExtents(final boolean onlyIncludeEditableGeosets) {
 		final List<Geoset> geosetsToIncorporate = new ArrayList<>();
 		if (onlyIncludeEditableGeosets) {
-			for (final Geoset geoset : model.getEditableGeosets()) {
-				geosetsToIncorporate.add(geoset);
-			}
+			geosetsToIncorporate.addAll(model.getEditableGeosets());
 		} else {
-			for (final Geoset geoset : model.getModel().getGeosets()) {
-				geosetsToIncorporate.add(geoset);
-			}
+			geosetsToIncorporate.addAll(model.getModel().getGeosets());
 		}
 		final RecalculateExtentsAction recalculateExtentsAction = new RecalculateExtentsAction(model,
 				geosetsToIncorporate);
@@ -203,7 +194,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 				}
 			}
 		}
-		selectByVertices(new ArrayList<Vec3>());
+		selectByVertices(new ArrayList<>());
 		if (remGeosets.size() <= 0) {
 			final DeleteAction temp = new DeleteAction(selection, deletedTris, vertexSelectionHelper);
 			return temp;
@@ -271,8 +262,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		final List<Vec3> selection = new ArrayList<>(selectionManager.getSelectedVertices());
 		final List<GeosetVertex> copies = new ArrayList<>();
 		final List<Triangle> selTris = new ArrayList<>();
-		for (int i = 0; i < selection.size(); i++) {
-			final Vec3 vert = selection.get(i);
+		for (final Vec3 vert : selection) {
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				copies.add(new GeosetVertex(gv));
@@ -447,8 +437,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 			}
 		}
 		int probs = 0;
-		for (int k = 0; k < selection.size(); k++) {
-			final Vec3 vert = selection.get(k);
+		for (final Vec3 vert : selection) {
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				for (final Triangle t : gv.getTriangles()) {
@@ -481,8 +470,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		final List<Triangle> edges = new ArrayList<>();
 		final List<Triangle> brokenFaces = new ArrayList<>();
 
-		for (int i = 0; i < selection.size(); i++) {
-			final Vec3 vert = selection.get(i);
+		for (final Vec3 vert : selection) {
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				// copies.add(new GeosetVertex(gv));
@@ -620,8 +608,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		final List<IdObject> newBones = new ArrayList<>();
 		final List<GeosetVertex> newVertices = new ArrayList<>();
 		final List<Triangle> newTriangles = new ArrayList<>();
-		for (int i = 0; i < source.size(); i++) {
-			final Vec3 vert = source.get(i);
+		for (final Vec3 vert : source) {
 			if (vert.getClass() == GeosetVertex.class) {
 				final GeosetVertex gv = (GeosetVertex) vert;
 				newVertices.add(new GeosetVertex(gv));

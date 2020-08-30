@@ -371,9 +371,10 @@ public class MDLSnapshot {
 					final String[] animationNames = animProps.split(",");
 					boolean isGoodAnimation = true;
 					for (final String name : animationNames) {
-						if (!anim.getName().toLowerCase().contains(name.toLowerCase())) {
-							isGoodAnimation = false;
-						}
+                        if (!anim.getName().toLowerCase().contains(name.toLowerCase())) {
+                            isGoodAnimation = false;
+                            break;
+                        }
 					}
 					if (isGoodAnimation && ((bestStandAnim == null)
 							|| (anim.getName().length() < bestStandAnim.getName().length()))) {
@@ -458,9 +459,10 @@ public class MDLSnapshot {
 		for (final Geoset geo : dispMDL.getVisibleGeosets()) {
 			boolean isOnlyAdditive = true;
 			for (final Layer layer : geo.getMaterial().getLayers()) {
-				if (!layer.getFilterMode().toString().contains("Add")) {
-					isOnlyAdditive = false;
-				}
+                if (!layer.getFilterMode().toString().contains("Add")) {
+                    isOnlyAdditive = false;
+                    break;
+                }
 			}
 			if (!isOnlyAdditive) {
 				for (final GeosetVertex vertex : geo.getVertices()) {
@@ -645,8 +647,8 @@ public class MDLSnapshot {
 			glLoadIdentity();
 			// GL11.glShadeModel(GL11.GL_SMOOTH);
 
-			glTranslatef(0f + ((float) cameraPos.x * (float) zoom), -70f - ((float) cameraPos.y * (float) zoom),
-					-200f - ((float) cameraPos.z * (float) zoom));
+			glTranslatef(0f + (cameraPos.x * (float) zoom), -70f - (cameraPos.y * (float) zoom),
+					-200f - (cameraPos.z * (float) zoom));
 			glRotatef(yangle, 1f, 0f, 0f);
 			glRotatef(xangle, 0f, 1f, 0f);
 			glScalef((float) zoom, (float) zoom, (float) zoom);
@@ -719,13 +721,13 @@ public class MDLSnapshot {
 							for (final GeosetVertex v : tri.getVerts()) {
 								if (renderMask.isAccepted(v)) {
 									if (v.getNormal() != null) {
-										GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z,
-												(float) v.getNormal().x);
+										GL11.glNormal3f(v.getNormal().y, v.getNormal().z,
+												v.getNormal().x);
 									}
 									GL11.glTexCoord2f(
-											(float) v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).x,
-											(float) v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).y);
-									GL11.glVertex3f((float) v.y / 1.0f, (float) v.z / 1.0f, (float) v.x / 1.0f);
+											v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).x,
+											v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).y);
+									GL11.glVertex3f(v.y / 1.0f, v.z / 1.0f, v.x / 1.0f);
 								}
 							}
 						}
@@ -767,12 +769,12 @@ public class MDLSnapshot {
 						for (final Triangle tri : geo.getTriangles()) {
 							for (final GeosetVertex v : tri.getVerts()) {
 								if (renderMask.isAccepted(v)) {
-									GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z,
-											(float) v.getNormal().x);
+									GL11.glNormal3f(v.getNormal().y, v.getNormal().z,
+											v.getNormal().x);
 									GL11.glTexCoord2f(
-											(float) v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).x,
-											(float) v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).y);
-									GL11.glVertex3f((float) v.y / 1.0f, (float) v.z / 1.0f, (float) v.x / 1.0f);
+											v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).x,
+											v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).y);
+									GL11.glVertex3f(v.y / 1.0f, v.z / 1.0f, v.x / 1.0f);
 								}
 							}
 						}
@@ -826,9 +828,9 @@ public class MDLSnapshot {
 				for (final Triangle tri : dispMDL.getHighlightedGeoset().getTriangles()) {
 					for (final GeosetVertex v : tri.getVerts()) {
 						if (renderMask.isAccepted(v)) {
-							GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z, (float) v.getNormal().x);
-							GL11.glTexCoord2f((float) v.getTverts().get(0).x, (float) v.getTverts().get(0).y);
-							GL11.glVertex3f((float) v.y / 1.0f, (float) v.z / 1.0f, (float) v.x / 1.0f);
+							GL11.glNormal3f(v.getNormal().y, v.getNormal().z, v.getNormal().x);
+							GL11.glTexCoord2f(v.getTverts().get(0).x, v.getTverts().get(0).y);
+							GL11.glVertex3f(v.y / 1.0f, v.z / 1.0f, v.x / 1.0f);
 						}
 					}
 				}
@@ -847,15 +849,15 @@ public class MDLSnapshot {
 					for (final Triangle tri : geo.getTriangles()) {
 						for (final GeosetVertex v : tri.getVerts()) {
 							if (renderMask.isAccepted(v)) {
-								GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z,
-										(float) v.getNormal().x);
-								GL11.glVertex3f((float) v.y / 1.0f, (float) v.z / 1.0f, (float) v.x / 1.0f);
+								GL11.glNormal3f(v.getNormal().y, v.getNormal().z,
+										v.getNormal().x);
+								GL11.glVertex3f(v.y / 1.0f, v.z / 1.0f, v.x / 1.0f);
 
-								GL11.glNormal3f((float) v.getNormal().y, (float) v.getNormal().z,
-										(float) v.getNormal().x);
-								GL11.glVertex3f(((float) v.y / 1.0f) + (float) ((v.getNormal().y * 6) / zoom),
-										((float) v.z / 1.0f) + (float) ((v.getNormal().z * 6) / zoom),
-										((float) v.x / 1.0f) + (float) ((v.getNormal().x * 6) / zoom));
+								GL11.glNormal3f(v.getNormal().y, v.getNormal().z,
+										v.getNormal().x);
+								GL11.glVertex3f((v.y / 1.0f) + (float) ((v.getNormal().y * 6) / zoom),
+										(v.z / 1.0f) + (float) ((v.getNormal().z * 6) / zoom),
+										(v.x / 1.0f) + (float) ((v.getNormal().x * 6) / zoom));
 							}
 						}
 					}

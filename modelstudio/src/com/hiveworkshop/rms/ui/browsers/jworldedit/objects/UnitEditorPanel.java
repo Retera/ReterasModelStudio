@@ -160,28 +160,24 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 		table.getTableHeader().setReorderingAllowed(false);
 		table.setDefaultRenderer(Object.class, editHighlightingRenderer);
 		table.setDefaultRenderer(String.class, editHighlightingRenderer);
-		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
+		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(ke -> {
+            synchronized (SHIFT_KEY_LOCK) {
+                switch (ke.getID()) {
+                case KeyEvent.KEY_PRESSED:
+                    if (ke.getKeyCode() == KeyEvent.VK_SHIFT) {
+                        holdingShift = true;
+                    }
+                    break;
 
-			@Override
-			public boolean dispatchKeyEvent(final KeyEvent ke) {
-				synchronized (SHIFT_KEY_LOCK) {
-					switch (ke.getID()) {
-					case KeyEvent.KEY_PRESSED:
-						if (ke.getKeyCode() == KeyEvent.VK_SHIFT) {
-							holdingShift = true;
-						}
-						break;
-
-					case KeyEvent.KEY_RELEASED:
-						if (ke.getKeyCode() == KeyEvent.VK_SHIFT) {
-							holdingShift = false;
-						}
-						break;
-					}
-					return false;
-				}
-			}
-		});
+                case KeyEvent.KEY_RELEASED:
+                    if (ke.getKeyCode() == KeyEvent.VK_SHIFT) {
+                        holdingShift = false;
+                    }
+                    break;
+                }
+                return false;
+            }
+        });
 		table.setShowGrid(false);
 
 		final JTabbedPane splitWithBehaviorEditor = new JTabbedPane();
@@ -522,44 +518,35 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 
 	public void fillTable() {
 		dataModel = new ObjectDataTableModel(currentUnit, unitMetaData, editorFieldBuilder,
-				settings.isDisplayAsRawData(), new Runnable() {
-					@Override
-					public void run() {
-						final DefaultTreeModel treeModel = tree.getModel();
-						if (currentUnitTreePath != null) {
-							for (final Object untypedTreePathNode : currentUnitTreePath.getPath()) {
-								treeModel.nodeChanged((TreeNode) untypedTreePathNode);
-							}
-						}
+				settings.isDisplayAsRawData(), () -> {
+                    final DefaultTreeModel treeModel = tree.getModel();
+                    if (currentUnitTreePath != null) {
+                        for (final Object untypedTreePathNode : currentUnitTreePath.getPath()) {
+                            treeModel.nodeChanged((TreeNode) untypedTreePathNode);
+                        }
+                    }
 
-					}
-				});
-		dataModel.addTableModelListener(new TableModelListener() {
-			@Override
-			public void tableChanged(final TableModelEvent e) {
-				if (currentUnit != null) {
-					lastSelectedFields.clear();
-					if (dataModel != null) {
-						for (final int rowIndex : table.getSelectedRows()) {
-							lastSelectedFields.add(
-									dataModel.getFieldRawDataName(rowIndex) + ":" + dataModel.getFieldLevel(rowIndex));
-						}
-					}
-				}
-			}
-		});
+                });
+		dataModel.addTableModelListener(e -> {
+            if (currentUnit != null) {
+                lastSelectedFields.clear();
+                if (dataModel != null) {
+                    for (final int rowIndex : table.getSelectedRows()) {
+                        lastSelectedFields.add(
+                                dataModel.getFieldRawDataName(rowIndex) + ":" + dataModel.getFieldLevel(rowIndex));
+                    }
+                }
+            }
+        });
 		table.setModel(dataModel);
-		dataModel.addTableModelListener(new TableModelListener() {
-			@Override
-			public void tableChanged(final TableModelEvent e) {
-				for (int rowIndex = 0; rowIndex < table.getRowCount(); rowIndex++) {
-					if (lastSelectedFields.contains(
-							dataModel.getFieldRawDataName(rowIndex) + ":" + dataModel.getFieldLevel(rowIndex))) {
-						table.addRowSelectionInterval(rowIndex, rowIndex);
-					}
-				}
-			}
-		});
+		dataModel.addTableModelListener(e -> {
+            for (int rowIndex = 0; rowIndex < table.getRowCount(); rowIndex++) {
+                if (lastSelectedFields.contains(
+                        dataModel.getFieldRawDataName(rowIndex) + ":" + dataModel.getFieldLevel(rowIndex))) {
+                    table.addRowSelectionInterval(rowIndex, rowIndex);
+                }
+            }
+        });
 		table.setAutoCreateColumnsFromModel(false);
 	}
 

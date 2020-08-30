@@ -115,12 +115,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 		modelComponentBrowserTree = new ModelComponentBrowserTree(modelView, undoManager,
 				modelEditorManager, modelStructureChangeListener);
 
-		selectionItemTypeNotifier.addToolbarButtonListener(new ToolbarButtonListener<SelectionItemTypes>() {
-			@Override
-			public void typeChanged(final SelectionItemTypes newType) {
-				modelEditorManager.setSelectionItemType(newType);
-			}
-		});
+		selectionItemTypeNotifier.addToolbarButtonListener(newType -> modelEditorManager.setSelectionItemType(newType));
 		// Produce the front display panel
 		// file = input;
 		// model = MDL.read(file);

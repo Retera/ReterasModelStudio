@@ -27,7 +27,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	protected boolean billboardLockX = false;
 	protected boolean billboardLockY = false;
 	protected boolean billboardLockZ = false;
-	protected Vec3 pivotPoint = new Vec3();
+	protected Vec3 pivotPoint;
 	protected IdObject parent;
 	protected final List<IdObject> childrenNodes = new ArrayList<>();
 	protected float[] bindPose;
@@ -122,7 +122,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	}
 
 	public void setPivotPoint(final Vec3 p) {
-		pivotPoint.set(p);
+		pivotPoint = p;
 	}
 
 	public void setParent(final IdObject p) {
@@ -150,7 +150,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		billboardLockX = other.billboardLockX;
 		billboardLockY = other.billboardLockY;
 		billboardLockZ = other.billboardLockZ;
-		pivotPoint.set(other.pivotPoint);
+		pivotPoint = new Vec3(other.pivotPoint);
 		setParent(other.getParent());
 		addAll(other.getAnimFlags());
 	}

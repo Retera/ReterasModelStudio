@@ -18,7 +18,7 @@ public class SnapNormalsAction implements UndoAction {
 
 	public SnapNormalsAction(final List<Vec3> selection, final List<Vec3> oldSelLocs,
 			final Vec3 snapPoint) {
-		this.selection = new ArrayList<Vec3>(selection);
+		this.selection = new ArrayList<>(selection);
 		this.oldSelLocs = oldSelLocs;
 		this.snapPoint = new Vec3(snapPoint);
 	}
@@ -32,8 +32,8 @@ public class SnapNormalsAction implements UndoAction {
 
 	@Override
 	public void redo() {
-		for (int i = 0; i < selection.size(); i++) {
-			selection.get(i).set(snapPoint);
+		for (Vec3 vec3 : selection) {
+			vec3.set(snapPoint);
 		}
 	}
 

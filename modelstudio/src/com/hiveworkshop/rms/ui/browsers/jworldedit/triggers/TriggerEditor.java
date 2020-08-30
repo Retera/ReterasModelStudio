@@ -56,18 +56,15 @@ public class TriggerEditor extends JPanel {
 		makeButton(worldEditorData, toolBar, "openMap", "ToolBarIcon_Open", "WESTRING_TOOLBAR_OPEN");
 		final JButton saveButton = makeButton(worldEditorData, toolBar, "saveMap", "ToolBarIcon_Save",
 				"WESTRING_TOOLBAR_SAVE");
-		saveButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final JFileChooser jFileChooser = new JFileChooser(
-						new File(System.getProperty("user.home") + "/Documents/Warcraft III/Maps"));
-				jFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				jFileChooser.setDialogTitle("Save Map");
-				if (jFileChooser.showSaveDialog(TriggerEditor.this) == JFileChooser.APPROVE_OPTION) {
-
-				}
+		saveButton.addActionListener(e -> {
+			final JFileChooser jFileChooser = new JFileChooser(
+					new File(System.getProperty("user.home") + "/Documents/Warcraft III/Maps"));
+			jFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			jFileChooser.setDialogTitle("Save Map");
+			if (jFileChooser.showSaveDialog(TriggerEditor.this) == JFileChooser.APPROVE_OPTION) {
 
 			}
+
 		});
 		toolBar.add(Box.createHorizontalStrut(8));
 		final TransferActionListener transferActionListener = new TransferActionListener();
@@ -80,34 +77,25 @@ public class TriggerEditor extends JPanel {
 		toolBar.add(Box.createHorizontalStrut(8));
 		createNewCategoryButton = makeButton(worldEditorData, toolBar, "createNewCategory",
 				"ToolBarIcon_SE_NewCategory", "WESTRING_TOOLBAR_SE_NEWCAT");
-		createNewCategoryButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final TriggerCategory category = triggerTree.getController().createCategory();
-				triggerTree.select(category);
-				triggerTree.startEditingAtPath(triggerTree.getSelectionPath());
-			}
+		createNewCategoryButton.addActionListener(e -> {
+			final TriggerCategory category = triggerTree.getController().createCategory();
+			triggerTree.select(category);
+			triggerTree.startEditingAtPath(triggerTree.getSelectionPath());
 		});
 		createNewTriggerButton = makeButton(worldEditorData, toolBar, "createNewTrigger", "ToolBarIcon_SE_NewTrigger",
 				"WESTRING_TOOLBAR_SE_NEWTRIG");
-		createNewTriggerButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final Trigger trigger = triggerTree.createTrigger();
-				triggerTree.select(trigger);
-				final TreePath selectionPath = triggerTree.getSelectionPath();
-				triggerTree.startEditingAtPath(selectionPath);
-			}
+		createNewTriggerButton.addActionListener(e -> {
+			final Trigger trigger = triggerTree.createTrigger();
+			triggerTree.select(trigger);
+			final TreePath selectionPath = triggerTree.getSelectionPath();
+			triggerTree.startEditingAtPath(selectionPath);
 		});
 		createNewCommentButton = makeButton(worldEditorData, toolBar, "createNewTriggerComment",
 				"ToolBarIcon_SE_NewTriggerComment", "WESTRING_TOOLBAR_SE_NEWTRIGCOM");
-		createNewCommentButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final Trigger trigger = triggerTree.createTriggerComment();
-				triggerTree.select(trigger);
-				triggerTree.startEditingAtPath(triggerTree.getSelectionPath());
-			}
+		createNewCommentButton.addActionListener(e -> {
+			final Trigger trigger = triggerTree.createTriggerComment();
+			triggerTree.select(trigger);
+			triggerTree.startEditingAtPath(triggerTree.getSelectionPath());
 		});
 		toolBar.add(Box.createHorizontalStrut(8));
 		makeButton(worldEditorData, toolBar, "terrainEditor", "ToolBarIcon_Module_Terrain",

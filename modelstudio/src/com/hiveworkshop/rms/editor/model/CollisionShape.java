@@ -22,7 +22,9 @@ public class CollisionShape extends IdObject {
 
 	public CollisionShape(final CollisionShape shape) {
 		copyObject(shape);
-	
+
+		type = shape.type;
+
 		vertices = new ArrayList<>(shape.vertices);
 
 		if (shape.extents != null) {

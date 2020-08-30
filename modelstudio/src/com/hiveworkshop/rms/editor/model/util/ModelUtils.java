@@ -260,12 +260,8 @@ public final class ModelUtils {
 
 				final Mesh sidedPlane = createPlane(dimension, side != 1, coordinateAtSide, minFirst, minSecond,
 						maxFirst, maxSecond, segsX, segsY);
-				for (final GeosetVertex vertex : sidedPlane.vertices) {
-					box.vertices.add(vertex);
-				}
-				for (final Triangle triangle : sidedPlane.triangles) {
-					box.triangles.add(triangle);
-				}
+                box.vertices.addAll(sidedPlane.vertices);
+                box.triangles.addAll(sidedPlane.triangles);
 			}
 		}
 		for (final GeosetVertex vertex : box.getVertices()) {

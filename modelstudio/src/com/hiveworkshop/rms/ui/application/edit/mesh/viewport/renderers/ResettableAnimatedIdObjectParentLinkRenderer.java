@@ -174,9 +174,9 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 
 	public static void loadPivotInVertexHeap(final Vec3 pivotPoint, final Mat4 worldMatrix,
 			final Vec4 vertexHeap) {
-		vertexHeap.x = (float) pivotPoint.x;
-		vertexHeap.y = (float) pivotPoint.y;
-		vertexHeap.z = (float) pivotPoint.z;
+		vertexHeap.x = pivotPoint.x;
+		vertexHeap.y = pivotPoint.y;
+		vertexHeap.z = pivotPoint.z;
 		vertexHeap.w = 1;
 		worldMatrix.transform(vertexHeap);
 	}

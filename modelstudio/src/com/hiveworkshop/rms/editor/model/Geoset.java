@@ -119,8 +119,8 @@ public class Geoset implements Named, VisibilitySource {
 			final short[] skin = geoset.skin;
 
 			// version 900
-			this.skin = new ArrayList<short[]>();
-			this.tangents = new ArrayList<float[]>();
+			this.skin = new ArrayList<>();
+			this.tangents = new ArrayList<>();
 			for (int i = 0; i < tangents.length; i += 4) {
 				this.tangents.add(new float[] { tangents[i], tangents[i + 1], tangents[i + 2], tangents[i + 3] });
 			}
@@ -291,8 +291,8 @@ public class Geoset implements Named, VisibilitySource {
 
 	public boolean containsReference(final IdObject obj) {
 		// boolean does = false;
-		for (int i = 0; i < vertices.size(); i++) {
-			if (vertices.get(i).bones.contains(obj)) {
+		for (GeosetVertex vertex : vertices) {
+			if (vertex.bones.contains(obj)) {
 				return true;
 			}
 		}
@@ -433,8 +433,8 @@ public class Geoset implements Named, VisibilitySource {
 
 	public List<Vec2> getTVertecesInArea(final Rectangle2D.Double area, final int layerId) {
 		final List<Vec2> temp = new ArrayList<>();
-		for (int i = 0; i < vertices.size(); i++) {
-			final Vec2 ver = vertices.get(i).getTVertex(layerId);
+		for (GeosetVertex vertex : vertices) {
+			final Vec2 ver = vertex.getTVertex(layerId);
 			// Point2D.Double p = new
 			// Point(ver.getCoords(dim1),ver.getCoords(dim2))
 			if (area.contains(ver.x, ver.y)) {
@@ -494,9 +494,9 @@ public class Geoset implements Named, VisibilitySource {
 			}
 			gv.clearTVerts();
 			final int szuv = uvlayers.size();
-			for (int l = 0; l < szuv; l++) {
+			for (UVLayer uvlayer : uvlayers) {
 				try {
-					gv.addTVertex(uvlayers.get(l).getTVertex(i));
+					gv.addTVertex(uvlayer.getTVertex(i));
 				} catch (final Exception e) {
 					JOptionPane.showMessageDialog(null,
 							"Error: Length of TVertices and Vertices chunk differ (Or some other unknown error has occurred)!");
@@ -562,8 +562,8 @@ public class Geoset implements Named, VisibilitySource {
 
 	public void applyVerticesToMatrices(final EditableModel mdlr) {
 		matrix.clear();
-		for (int i = 0; i < vertices.size(); i++) {
-			Matrix newTemp = new Matrix(vertices.get(i).bones);
+		for (GeosetVertex vertex : vertices) {
+			Matrix newTemp = new Matrix(vertex.bones);
 			boolean newMatrix = true;
 			for (int m = 0; (m < matrix.size()) && newMatrix; m++) {
 				if (newTemp.equals(matrix.get(m))) {
@@ -575,8 +575,8 @@ public class Geoset implements Named, VisibilitySource {
 				matrix.add(newTemp);
 				newTemp.updateIds(mdlr);
 			}
-			vertices.get(i).VertexGroup = matrix.indexOf(newTemp);
-			vertices.get(i).setMatrix(newTemp);
+			vertex.VertexGroup = matrix.indexOf(newTemp);
+			vertex.setMatrix(newTemp);
 		}
 	}
 
@@ -616,8 +616,8 @@ public class Geoset implements Named, VisibilitySource {
 		uvlayers.clear();
 		int bigNum = 0;
 		int littleNum = -1;
-		for (int i = 0; i < vertices.size(); i++) {
-			final int temp = vertices.get(i).tverts.size();
+		for (GeosetVertex element : vertices) {
+			final int temp = element.tverts.size();
 			if (temp > bigNum) {
 				bigNum = temp;
 			}
@@ -632,12 +632,12 @@ public class Geoset implements Named, VisibilitySource {
 		for (int i = 0; i < bigNum; i++) {
 			uvlayers.add(new UVLayer());
 		}
-		for (int i = 0; i < vertices.size(); i++) {
-			if (vertices.get(i).getNormal() != null) {
-				normals.add(vertices.get(i).getNormal());
+		for (GeosetVertex vertex : vertices) {
+			if (vertex.getNormal() != null) {
+				normals.add(vertex.getNormal());
 			}
 			for (int uv = 0; uv < bigNum; uv++) {
-				final Vec2 temp = vertices.get(i).getTVertex(uv);
+				final Vec2 temp = vertex.getTVertex(uv);
 				if (temp != null) {
 					uvlayers.get(uv).addTVertex(temp);
 				} else {
@@ -647,13 +647,12 @@ public class Geoset implements Named, VisibilitySource {
 		}
 		// Clearing matrix list
 		matrix.clear();
-		for (int i = 0; i < vertices.size(); i++) {
-			final GeosetVertex geosetVertex = vertices.get(i);
+		for (final GeosetVertex geosetVertex : vertices) {
 			if (geosetVertex.getSkinBones() != null) {
 				if (matrix.isEmpty()) {
 					final List<Bone> bones = mdlr.sortedIdObjects(Bone.class);
 					for (int j = 0; (j < bones.size()) && (j < 256); j++) {
-						final List<Bone> singleBoneList = new ArrayList<Bone>();
+						final List<Bone> singleBoneList = new ArrayList<>();
 						singleBoneList.add(bones.get(j));
 						final Matrix e = new Matrix(singleBoneList);
 						e.updateIds(mdlr);
@@ -663,7 +662,7 @@ public class Geoset implements Named, VisibilitySource {
 				int skinIndex = 0;
 				for (final Bone bone : geosetVertex.getSkinBones()) {
 					if (bone != null) {
-						final List<Bone> singleBoneList = new ArrayList<Bone>();
+						final List<Bone> singleBoneList = new ArrayList<>();
 						singleBoneList.add(bone);
 						final Matrix newTemp = new Matrix(singleBoneList);
 						int index = -1;
@@ -677,7 +676,7 @@ public class Geoset implements Named, VisibilitySource {
 				}
 				geosetVertex.VertexGroup = -1;
 			} else {
-				Matrix newTemp = new Matrix(vertices.get(i).bones);
+				Matrix newTemp = new Matrix(geosetVertex.bones);
 				boolean newMatrix = true;
 				for (int m = 0; (m < matrix.size()) && newMatrix; m++) {
 					if (newTemp.equals(matrix.get(m))) {
@@ -689,19 +688,19 @@ public class Geoset implements Named, VisibilitySource {
 					matrix.add(newTemp);
 					newTemp.updateIds(mdlr);
 				}
-				vertices.get(i).VertexGroup = matrix.indexOf(newTemp);
-				vertices.get(i).setMatrix(newTemp);
+				geosetVertex.VertexGroup = matrix.indexOf(newTemp);
+				geosetVertex.setMatrix(newTemp);
 			}
 		}
-		for (int i = 0; i < triangles.size(); i++) {
-			triangles.get(i).updateVertexIds(this);
+		for (Triangle triangle : triangles) {
+			triangle.updateVertexIds(this);
 		}
 		int boneRefCount = 0;
-		for (int i = 0; i < matrix.size(); i++) {
-			boneRefCount += matrix.get(i).bones.size();
+		for (Matrix item : matrix) {
+			boneRefCount += item.bones.size();
 		}
-		for (int i = 0; i < matrix.size(); i++) {
-			matrix.get(i).updateIds(mdlr);
+		for (Matrix value : matrix) {
+			value.updateIds(mdlr);
 		}
 	}
 

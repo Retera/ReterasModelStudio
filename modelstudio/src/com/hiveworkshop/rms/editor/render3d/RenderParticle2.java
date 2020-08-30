@@ -76,9 +76,9 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		nodeScale.set(scale);
 
 		// Local location
-		location.x = (float) (pivotPoint.x + MathUtils.randomInRange(-width, width));
-		location.y = (float) (pivotPoint.y + MathUtils.randomInRange(-length, length));
-		location.z = (float) (pivotPoint.z);
+		location.x = pivotPoint.x + MathUtils.randomInRange(-width, width);
+		location.y = pivotPoint.y + MathUtils.randomInRange(-length, length);
+		location.z = pivotPoint.z;
 
 		// World location
 		if (!modelObject.getModelSpace()) {
@@ -169,13 +169,13 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 
 		factor = Math.min(factor, 1);
 
-		final float start = (float) interval.x;
-		final float end = (float) interval.y;
-		final float repeat = (float) interval.z;
+		final float start = interval.x;
+		final float end = interval.y;
+		final float repeat = interval.z;
 		final Vec3 scaling = modelObject.getParticleScaling();
 		final Vec3[] colors = modelObject.getSegmentColors();
-		final float scale = (float) MathUtils.lerp((float) scaling.getCoord((byte) firstColor),
-				(float) scaling.getCoord((byte) (firstColor + 1)), factor);
+		final float scale = MathUtils.lerp(scaling.getCoord((byte) firstColor),
+                scaling.getCoord((byte) (firstColor + 1)), factor);
 		final float left;
 		final float top;
 		final float right;
@@ -211,10 +211,10 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 
 		final Vec3 firstColorVertexME = colors[firstColor];
 		final Vec3 secondColorVertexME = colors[firstColor + 1];
-		color1Heap.set((float) firstColorVertexME.x, (float) firstColorVertexME.y, (float) firstColorVertexME.z,
-				(float) modelObject.getAlpha().getCoord((byte) firstColor));
-		color2Heap.set((float) secondColorVertexME.x, (float) secondColorVertexME.y, (float) secondColorVertexME.z,
-				(float) modelObject.getAlpha().getCoord((byte) (firstColor + 1)));
+		color1Heap.set(firstColorVertexME.x, firstColorVertexME.y, firstColorVertexME.z,
+                modelObject.getAlpha().getCoord((byte) firstColor));
+		color2Heap.set(secondColorVertexME.x, secondColorVertexME.y, secondColorVertexME.z,
+                modelObject.getAlpha().getCoord((byte) (firstColor + 1)));
 		color1Heap.lerp(color2Heap, factor, colorHeap);
 
 		final int a = ((int) colorHeap.w) & 0xFF;

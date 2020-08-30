@@ -136,9 +136,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 		final List<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
 		final Set<GeosetVertex> allSelection = new HashSet<>();
 		for (final Geoset geo : model.getEditableGeosets()) {
-			for (final GeosetVertex geosetVertex : geo.getVertices()) {
-				allSelection.add(geosetVertex);
-			}
+			allSelection.addAll(geo.getVertices());
 		}
 		selectionManager.setSelection(allSelection);
 		return (new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all"));
@@ -233,18 +231,8 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 				}
 			});
 		}
-		final Runnable truncateSelectionRunnable = new Runnable() {
-			@Override
-			public void run() {
-				selectionManager.removeSelection(possibleVerticesToTruncate);
-			}
-		};
-		final Runnable unTruncateSelectionRunnable = new Runnable() {
-			@Override
-			public void run() {
-				selectionManager.setSelection(previousSelection);
-			}
-		};
+		final Runnable truncateSelectionRunnable = () -> selectionManager.removeSelection(possibleVerticesToTruncate);
+		final Runnable unTruncateSelectionRunnable = () -> selectionManager.setSelection(previousSelection);
 		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable,
 				unTruncateSelectionRunnable, refreshGUIRunnable);
 	}
@@ -289,7 +277,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 				copiedGeosets.add(copy);
 			}
 		}
-		return new CopiedModelData(copiedGeosets, new ArrayList<IdObject>(), new ArrayList<Camera>());
+		return new CopiedModelData(copiedGeosets, new ArrayList<>(), new ArrayList<>());
 	}
 
 	@Override

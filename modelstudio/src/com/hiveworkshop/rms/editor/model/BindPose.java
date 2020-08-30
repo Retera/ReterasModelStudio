@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.editor.model;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -21,9 +22,7 @@ public class BindPose {
 	public List<float[]> toMdlx() {
 		List<float[]> list = new ArrayList<>();
 
-		for (final float[] matrix : bindPose) {
-			list.add(matrix);
-		}
+        list.addAll(Arrays.asList(bindPose));
 
 		return list;
 	}

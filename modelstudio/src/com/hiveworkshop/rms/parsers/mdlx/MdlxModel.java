@@ -62,7 +62,7 @@ public class MdlxModel {
 	public String animationFile = "";
 	public MdlxExtent extent = new MdlxExtent();
 	public long blendTime = 0;
-	public List<MdlxSequence> sequences = new ArrayList<MdlxSequence>();
+	public List<MdlxSequence> sequences = new ArrayList<>();
 	public List<Long /* UInt32 */> globalSequences = new ArrayList<>();
 	public List<MdlxMaterial> materials = new ArrayList<>();
 	public List<MdlxTexture> textures = new ArrayList<>();
