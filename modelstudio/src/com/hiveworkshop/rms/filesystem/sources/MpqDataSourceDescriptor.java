@@ -1,14 +1,8 @@
 package com.hiveworkshop.rms.filesystem.sources;
 
-import mpq.MPQArchive;
-import mpq.MPQException;
+import systems.crigges.jmpq3.*;
 
-import java.io.IOException;
-import java.nio.channels.SeekableByteChannel;
-import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.EnumSet;
 
 public class MpqDataSourceDescriptor implements DataSourceDescriptor {
 	/**
@@ -24,12 +18,8 @@ public class MpqDataSourceDescriptor implements DataSourceDescriptor {
 	@Override
 	public DataSource createDataSource() {
 		try {
-			final SeekableByteChannel sbc;
-			sbc = Files.newByteChannel(Paths.get(mpqFilePath), EnumSet.of(StandardOpenOption.READ));
-			return new MpqDataSource(new MPQArchive(sbc), sbc);
-		} catch (final IOException e) {
-			throw new RuntimeException(e);
-		} catch (final MPQException e) {
+			return new MpqDataSource(new JMpqEditor(Paths.get(mpqFilePath), MPQOpenOption.READ_ONLY));
+		} catch (final Exception e) {
 			throw new RuntimeException(e);
 		}
 	}

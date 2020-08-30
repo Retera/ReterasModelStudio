@@ -8,6 +8,7 @@ buildscript {
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://maven.nikr.net/" }
         jcenter()
+        maven { url 'https://jitpack.io' }
     }
 }
 
@@ -31,6 +32,7 @@ allprojects {
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://maven.nikr.net/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+        maven { url 'https://jitpack.io' }
     }
 }
 
@@ -42,6 +44,8 @@ project(":modelstudio") {
         compile project(":thirdparty")
         compile "com.fifesoft:rsyntaxtextarea:$rsyntaxtextareaVersion"
         compile "org.jclarion:image4j:$image4jVersion"
+
+        compile "com.github.inwc3:JMPQ3:1.7.14"
     }
 }
 
