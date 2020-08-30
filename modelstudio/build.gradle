@@ -6,7 +6,7 @@ sourceCompatibility = 1.14
 sourceSets.main.java.srcDirs = [ "src/" ]
 sourceSets.main.resources.srcDirs = [ "res/" ]
 
-project.ext.mainClassName = "com.hiveworkshop.rms.ui.ReterasModelStudioMain"
+project.ext.mainClassName = "com.hiveworkshop.rms.Main"
 
 task run(dependsOn: classes, type: JavaExec) {
     main = project.mainClassName
