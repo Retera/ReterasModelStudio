@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.ui.gui.mpqbrowser;
+package com.hiveworkshop.rms.ui.browsers.mpq;
 
 import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;

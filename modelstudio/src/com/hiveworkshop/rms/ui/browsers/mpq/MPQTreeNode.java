@@ -1,15 +1,7 @@
-package com.hiveworkshop.rms.ui.gui.mpqbrowser;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+package com.hiveworkshop.rms.ui.browsers.mpq;
 
 import javax.swing.tree.TreeNode;
+import java.util.*;
 
 public class MPQTreeNode implements TreeNode {
 	private final MPQTreeNode parent;
@@ -22,8 +14,8 @@ public class MPQTreeNode implements TreeNode {
 		this.parent = parent;
 		this.path = path;
 		this.subPathName = subPathName;
-		this.children = new HashMap<>();
-		this.childrenKeys = new ArrayList<>();
+		children = new HashMap<>();
+		childrenKeys = new ArrayList<>();
 	}
 
 	@Override
