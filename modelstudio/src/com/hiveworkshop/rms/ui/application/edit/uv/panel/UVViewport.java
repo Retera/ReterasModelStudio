@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.application.edit.uv.panel;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -99,7 +98,7 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 		this.parent = parent;
 
 		viewportModelRenderer = new UVViewportModelRenderer();
-		cursorManager = cursor -> UVViewport.this.setCursor(cursor);
+		cursorManager = UVViewport.this::setCursor;
 	}
 
 	public void init() {

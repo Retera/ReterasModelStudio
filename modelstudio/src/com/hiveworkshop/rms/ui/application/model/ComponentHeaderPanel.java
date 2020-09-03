@@ -13,8 +13,6 @@ import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextFiel
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.text.ParseException;
 
 public class ComponentHeaderPanel extends JPanel implements ComponentPanel {

@@ -66,7 +66,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 		super(selectionManager);
 		this.model = model;
 		this.structureChangeListener = structureChangeListener;
-		vertexSelectionHelper = vertices -> selectByVertices(vertices);
+		vertexSelectionHelper = this::selectByVertices;
 	}
 
 	@Override

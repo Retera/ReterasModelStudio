@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.application.edit.animation;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collections;
 

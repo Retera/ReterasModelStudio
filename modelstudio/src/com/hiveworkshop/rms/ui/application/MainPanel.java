@@ -15,7 +15,6 @@ import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
-import com.hiveworkshop.rms.parsers.obj.Build;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
@@ -41,7 +40,6 @@ import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.models.BetterUnitEditorModelSelector;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.*;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTreeBrowser.MDLLoadListener;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.WorldEditorDataType;
@@ -61,7 +59,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarActionButtonType;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.util.TextureExporter;
 import com.hiveworkshop.rms.ui.gui.modeledit.util.TransferActionListener;
 import com.hiveworkshop.rms.ui.gui.mpqbrowser.MPQBrowser;
@@ -69,16 +66,16 @@ import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
-import com.hiveworkshop.rms.ui.preferences.listeners.WarcraftDataSourceChangeListener;
 import com.hiveworkshop.rms.ui.preferences.listeners.WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.ui.util.ModeButton;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
 import com.hiveworkshop.rms.util.*;
-import com.owens.oobjloader.parser.Parse;
 import de.wc3data.stream.BlizzardDataInputStream;
+import jassimp.AiPostProcessSteps;
+import jassimp.AiScene;
+import jassimp.Jassimp;
 import net.infonode.docking.*;
-import net.infonode.docking.title.DockingWindowTitleProvider;
 import net.infonode.docking.util.StringViewMap;
 import net.infonode.tabbedpanel.TabAreaVisiblePolicy;
 import net.infonode.tabbedpanel.titledtab.TitledTabBorderSizePolicy;
@@ -410,9 +407,8 @@ public class MainPanel extends JPanel
         @Override
         public void actionPerformed(final ActionEvent e) {
             for (final Geoset geo : currentMDL().getGeosets()) {
-                for (final UVLayer layer : geo.getUVLayers()) {
-                    for (int i = 0; i < layer.numTVerteces(); i++) {
-                        final Vec2 tvert = layer.getTVertex(i);
+                for (final List<Vec2> layer : geo.getUVLayers()) {
+                    for (final Vec2 tvert : layer) {
                         tvert.y = 1.0f - tvert.y;
                     }
                 }
@@ -425,9 +421,8 @@ public class MainPanel extends JPanel
         public void actionPerformed(final ActionEvent e) {
             // TODO this should be an action
             for (final Geoset geo : currentMDL().getGeosets()) {
-                for (final UVLayer layer : geo.getUVLayers()) {
-                    for (int i = 0; i < layer.numTVerteces(); i++) {
-                        final Vec2 tvert = layer.getTVertex(i);
+                for (final List<Vec2> layer : geo.getUVLayers()) {
+                    for (final Vec2 tvert : layer) {
                         tvert.y = 1.0f - tvert.y;
                     }
                 }
@@ -440,9 +435,8 @@ public class MainPanel extends JPanel
         public void actionPerformed(final ActionEvent e) {
             // TODO this should be an action
             for (final Geoset geo : currentMDL().getGeosets()) {
-                for (final UVLayer layer : geo.getUVLayers()) {
-                    for (int i = 0; i < layer.numTVerteces(); i++) {
-                        final Vec2 tvert = layer.getTVertex(i);
+                for (final List<Vec2> layer : geo.getUVLayers()) {
+                    for (final Vec2 tvert : layer) {
                         final float temp = tvert.x;
                         tvert.x = tvert.y;
                         tvert.y = temp;
@@ -1271,11 +1265,16 @@ public class MainPanel extends JPanel
         // Create a file chooser
         fc = new JFileChooser();
         fc.setAcceptAllFileFilterUsed(false);
-        fc.addChoosableFileFilter(new FileNameExtensionFilter("Warcraft III Binary Model '-.mdx'", "mdx"));
-        fc.addChoosableFileFilter(new FileNameExtensionFilter("Warcraft III Texture '-.blp'", "blp"));
-        fc.addChoosableFileFilter(new FileNameExtensionFilter("PNG Image '-.png'", "png"));
-        fc.addChoosableFileFilter(new FileNameExtensionFilter("Warcraft III Text Model '-.mdl'", "mdl"));
-        fc.addChoosableFileFilter(new FileNameExtensionFilter("Wavefront OBJ '-.obj'", "obj"));
+        fc.addChoosableFileFilter(new FileNameExtensionFilter("Supported Files (*.mdx;*.mdl;*.blp;*.dds;*.tga;*.png;*.obj,*.fbx)", "mdx", "mdl", "blp", "dds", "tga", "png", "obj", "fbx"));
+        fc.addChoosableFileFilter(new FileNameExtensionFilter("Warcraft III Files (*.mdx;*.mdl;*.blp;*.dds;*.tga)", "mdx", "mdl", "blp", "dds", "tga"));
+        fc.addChoosableFileFilter(new FileNameExtensionFilter("Warcraft III Binary Model (*.mdx)", "mdx"));
+        fc.addChoosableFileFilter(new FileNameExtensionFilter("Warcraft III Text Model (*.mdl)", "mdl"));
+        fc.addChoosableFileFilter(new FileNameExtensionFilter("Warcraft III BLP Image (*.blp)", "blp"));
+        fc.addChoosableFileFilter(new FileNameExtensionFilter("DDS Image (*.dds)", "dds"));
+        fc.addChoosableFileFilter(new FileNameExtensionFilter("TGA Image (*.tga)", "tga"));
+        fc.addChoosableFileFilter(new FileNameExtensionFilter("PNG Image (*.png)", "png"));
+        fc.addChoosableFileFilter(new FileNameExtensionFilter("Wavefront OBJ Model (*.obj)", "obj"));
+        fc.addChoosableFileFilter(new FileNameExtensionFilter("Autodesk FBX Model (*.fbx)", "fbx"));
         exportTextureDialog = new JFileChooser();
         exportTextureDialog.setDialogTitle("Export Texture");
         final String[] imageTypes = ImageIO.getWriterFileSuffixes();
@@ -1298,7 +1297,7 @@ public class MainPanel extends JPanel
             // is a pretty signficant design flaw, so we're just going to
             // post to the EDT to get behind them (they're called
             // on the same notifier as this method)
-            SwingUtilities.invokeLater(() -> refreshAnimationModeState());
+            SwingUtilities.invokeLater(this::refreshAnimationModeState);
 
             if (newType == SelectionItemTypes.TPOSE) {
 
@@ -1318,7 +1317,7 @@ public class MainPanel extends JPanel
         });
         actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
         viewportTransferHandler = new ViewportTransferHandler();
-        coordDisplayListener = (dimension1, dimension2, coord1, coord2) -> setMouseCoordDisplay(dimension1, dimension2, coord1, coord2);
+        coordDisplayListener = this::setMouseCoordDisplay;
     }
 
     private TabWindow createMainLayout() {
@@ -2607,7 +2606,7 @@ public class MainPanel extends JPanel
                                     animIndex = 0;
                                     for (final Animation anim : anims) {
                                         if (!checkBoxes[animIndex].isSelected()) {
-                                            visFlag.addEntry(anim.getStart(), Integer.valueOf(0));
+                                            visFlag.addEntry(anim.getStart(), 0);
                                         }
                                         animIndex++;
                                     }
@@ -2777,7 +2776,7 @@ public class MainPanel extends JPanel
                             .interpolateAt(editorRenderModel.getAnimatedRenderEnvironment());
                     if (visibilityValue instanceof Float) {
                         final Float visibility = (Float) visibilityValue;
-                        final double visvalue = visibility.floatValue();
+                        final double visvalue = visibility;
                         if (visvalue < 0.01) {
                             geosetIterator.remove();
                             snapshotModel.remove(geosetAnim);
@@ -4170,7 +4169,7 @@ public class MainPanel extends JPanel
                     af.deleteAnim(death);
                     af.copyFrom(dummy, stand.getStart(), stand.getEnd(), birth.getStart(), birth.getEnd());
                     af.copyFrom(dummy, stand.getStart(), stand.getEnd(), death.getStart(), death.getEnd());
-                    af.setEntry(death.getEnd(), Integer.valueOf(0));
+                    af.setEntry(death.getEnd(), 0);
                 }
 
                 if (!birth.isNonLooping()) {
@@ -4991,16 +4990,18 @@ public class MainPanel extends JPanel
     }
 
     public void loadFile(final File f, final boolean temporary, final boolean selectNewTab, final ImageIcon icon) {
-        if (f.getPath().toLowerCase().endsWith("blp")) {
+        final String pathLow = f.getPath().toLowerCase();
+
+        if (pathLow.endsWith("blp")) {
             loadBLPPathAsModel(f.getName(), f.getParentFile());
             return;
         }
-        if (f.getPath().toLowerCase().endsWith("png")) {
+        if (pathLow.endsWith("png")) {
             loadBLPPathAsModel(f.getName(), f.getParentFile());
             return;
         }
         ModelPanel temp = null;
-        if (f.getPath().toLowerCase().endsWith("mdx") || f.getPath().toLowerCase().endsWith("mdl")) {
+        if (pathLow.endsWith("mdx") || pathLow.endsWith("mdl")) {
             try {
                 final EditableModel model = MdxUtils.loadEditable(f);
                 model.setFileRef(f);
@@ -5016,24 +5017,37 @@ public class MainPanel extends JPanel
                 ExceptionPopup.display(e);
                 throw new RuntimeException("Reading mdx failed");
             }
-        } else if (f.getPath().toLowerCase().endsWith("obj")) {
-            // final Build builder = new Build();
-            // final MDLOBJBuilderInterface builder = new
-            // MDLOBJBuilderInterface();
-            final Build builder = new Build();
+        } else if (pathLow.endsWith("obj") || pathLow.endsWith("fbx")) {
             try {
-                final Parse obj = new Parse(builder, f.getPath());
-                temp = new ModelPanel(this, builder.createMDL(), prefs, MainPanel.this,
+                AiScene scene = Jassimp.importFile(f.getPath(), new HashSet<>(Arrays.asList(AiPostProcessSteps.TRIANGULATE)));
+
+                final EditableModel model = new EditableModel(scene);
+                
+                temp = new ModelPanel(this, model, prefs, MainPanel.this,
                         selectionItemTypeGroup, selectionModeGroup, modelStructureChangeListener,
                         coordDisplayListener, viewportTransferHandler, activeViewportWatcher, icon,
                         false, textureExporter);
-            } catch (final FileNotFoundException e) {
-                ExceptionPopup.display(e);
-                e.printStackTrace();
-            } catch (final IOException e) {
+            } catch (final Exception e) {
                 ExceptionPopup.display(e);
                 e.printStackTrace();
             }
+            // final Build builder = new Build();
+            // final MDLOBJBuilderInterface builder = new
+            // MDLOBJBuilderInterface();
+            // final Build builder = new Build();
+            // try {
+            //     final Parse obj = new Parse(builder, f.getPath());
+            //     temp = new ModelPanel(this, builder.createMDL(), prefs, MainPanel.this,
+            //             selectionItemTypeGroup, selectionModeGroup, modelStructureChangeListener,
+            //             coordDisplayListener, viewportTransferHandler, activeViewportWatcher, icon,
+            //             false, textureExporter);
+            // } catch (final FileNotFoundException e) {
+            //     ExceptionPopup.display(e);
+            //     e.printStackTrace();
+            // } catch (final IOException e) {
+            //     ExceptionPopup.display(e);
+            //     e.printStackTrace();
+            // }
         }
         loadModel(temporary, selectNewTab, temp);
     }

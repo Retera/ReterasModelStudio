@@ -17,8 +17,6 @@ import javax.swing.border.Border;
 import javax.swing.plaf.basic.BasicComboBoxEditor;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class ComponentMaterialPanel extends JPanel implements ComponentPanel {
 	private static final String SD = "SD";

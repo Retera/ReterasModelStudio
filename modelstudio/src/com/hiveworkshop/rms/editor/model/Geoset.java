@@ -1,6 +1,8 @@
 package com.hiveworkshop.rms.editor.model;
 
 import java.awt.geom.Rectangle2D;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,11 +14,13 @@ import com.hiveworkshop.rms.parsers.mdlx.MdlxGeoset;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
+import jassimp.AiMesh;
+
 public class Geoset implements Named, VisibilitySource {
 	ExtLog extents;
 	List<GeosetVertex> vertices = new ArrayList<>();
 	List<Vec3> normals = new ArrayList<>();
-	List<UVLayer> uvlayers = new ArrayList<>();
+	List<List<Vec2>> uvlayers = new ArrayList<>();
 	List<Triangle> triangles = new ArrayList<>();
 	List<Matrix> matrix = new ArrayList<>();
 	List<Animation> anims = new ArrayList<>();
@@ -48,11 +52,8 @@ public class Geoset implements Named, VisibilitySource {
 
 		final float[][] uvSets = geoset.uvSets;
 
-		final List<UVLayer> uv = new ArrayList<>();
-		for (int i = 0; i < geoset.uvSets.length; i++) {
-			final UVLayer layer = new UVLayer();
-			uv.add(layer);
-			addUVLayer(layer);
+		for (int i = 0; i < uvSets.length; i++) {
+			addUVLayer(new ArrayList<>());
 		}
 
 		final float[] vertices = geoset.vertices;
@@ -63,9 +64,9 @@ public class Geoset implements Named, VisibilitySource {
 		for (int k = 0; k < nVertices; k++) {
 			final int i = k * 3;
 			final int j = k * 2;
-			final GeosetVertex gv;
+			final GeosetVertex gv = new GeosetVertex(vertices[i], vertices[i + 1],vertices[i + 2]);
 
-			add(gv = new GeosetVertex(vertices[i], vertices[i + 1],vertices[i + 2]));
+			add(gv);
 
 			if (k >= vertexGroups.length) {
 				gv.setVertexGroup(-1);
@@ -78,8 +79,8 @@ public class Geoset implements Named, VisibilitySource {
 				addNormal(new Vec3(normals[i], normals[i + 1], normals[i + 2]));
 			}
 
-			for (int uvId = 0; uvId < uv.size(); uvId++) {
-				uv.get(uvId).addTVertex(new Vec2(uvSets[uvId][j], uvSets[uvId][j + 1]));
+			for (int uvId = 0; uvId < uvlayers.size(); uvId++) {
+				uvlayers.get(uvId).add(new Vec2(uvSets[uvId][j], uvSets[uvId][j + 1]));
 			}
 		}
 		// guys I didn't code this to allow experimental
@@ -89,12 +90,7 @@ public class Geoset implements Named, VisibilitySource {
 		final int[] faces = geoset.faces;
 
 		for (int i = 0; i < faces.length; i += 3) {
-			final Triangle triangle = new Triangle(
-				convertPossiblyBuggedShort((short)faces[i + 0]),
-				convertPossiblyBuggedShort((short)faces[i + 1]), 
-				convertPossiblyBuggedShort((short)faces[i + 2]),
-				this);
-			add(triangle);
+			add(new Triangle(faces[i], faces[i + 1], faces[i + 2], this));
 		}
 
 		if (geoset.selectionFlags == 4) {
@@ -130,6 +126,62 @@ public class Geoset implements Named, VisibilitySource {
 		}
 	}
 
+	public Geoset(final AiMesh mesh, final List<Material> materials) {
+		System.out.println("IMPLEMENT Geoset(AiMesh)");
+
+		this.levelOfDetailName = mesh.getName();
+
+		final List<FloatBuffer> uvSets = new ArrayList<>();
+
+		for (int i = 0; i < 8; i++) {
+			if (mesh.hasTexCoords(i)) {
+				uvSets.add(mesh.getTexCoordBuffer(i));
+			}
+		}
+		
+		final int uvSetCount = Math.max(uvSets.size(), 1);
+		final boolean hasUVs = uvSets.size() > 0;
+
+		for (int i = 0; i < uvSetCount; i++) {
+			addUVLayer(new ArrayList<>());
+		}
+
+		final FloatBuffer vertices = mesh.getPositionBuffer();
+		final FloatBuffer normals = mesh.getNormalBuffer();
+
+		for (int i = 0, l = mesh.getNumVertices(); i < l; i++) {
+			final GeosetVertex gv = new GeosetVertex(vertices.get(), vertices.get(), vertices.get());
+
+			add(gv);
+
+			gv.setVertexGroup(-1);
+			
+			if (normals != null) {
+				addNormal(new Vec3(normals.get(), normals.get(), normals.get()));
+			}
+
+			for (int uvId = 0; uvId < uvlayers.size(); uvId++) {
+				Vec2 coord = new Vec2();
+
+				if (hasUVs) {
+					coord.x = uvSets.get(uvId).get();
+					coord.y = uvSets.get(uvId).get();
+				}
+
+				uvlayers.get(uvId).add(coord);
+			}
+		}
+
+		final IntBuffer indices = mesh.getFaceBuffer();
+
+		for (int i = 0, l = mesh.getNumFaces(); i < l; i++) {
+			add(new Triangle(indices.get(), indices.get(), indices.get(), this));
+		}
+		
+		//materialID = mesh.getMaterialIndex();
+		materialID = 0;
+	}
+
 	public MdlxGeoset toMdlx() {
 		final MdlxGeoset geoset = new MdlxGeoset();
 
@@ -145,7 +197,7 @@ public class Geoset implements Named, VisibilitySource {
 		geoset.materialId = getMaterialID();
 
 		final int numVertices = getVertices().size();
-		final int nrOfTextureVertexGroups = getUVLayers().size();
+		final int nrOfTextureVertexGroups = uvlayers.size();
 
 		geoset.vertices = new float[numVertices * 3];
 
@@ -256,13 +308,6 @@ public class Geoset implements Named, VisibilitySource {
 		return geoset;
 	}
 
-	private int convertPossiblyBuggedShort(final short x) {
-		if (x < 0) {
-			return x - Short.MIN_VALUE;
-		}
-		return x;
-	}
-
 	@Override
 	public String getName() {
 		return "Geoset " + (parentModel.getGeosetId(this) + 1);// parentModel.getName()
@@ -323,11 +368,11 @@ public class Geoset implements Named, VisibilitySource {
 		return normals.size();
 	}
 
-	public void addUVLayer(final UVLayer v) {
+	public void addUVLayer(final List<Vec2> v) {
 		uvlayers.add(v);
 	}
 
-	public UVLayer getUVLayer(final int id) {
+	public List<Vec2> getUVLayer(final int id) {
 		return uvlayers.get(id);
 	}
 
@@ -494,9 +539,9 @@ public class Geoset implements Named, VisibilitySource {
 			}
 			gv.clearTVerts();
 			final int szuv = uvlayers.size();
-			for (UVLayer uvlayer : uvlayers) {
+			for (List<Vec2> uvlayer : uvlayers) {
 				try {
-					gv.addTVertex(uvlayer.getTVertex(i));
+					gv.addTVertex(uvlayer.get(i));
 				} catch (final Exception e) {
 					JOptionPane.showMessageDialog(null,
 							"Error: Length of TVertices and Vertices chunk differ (Or some other unknown error has occurred)!");
@@ -630,7 +675,7 @@ public class Geoset implements Named, VisibilitySource {
 					"Error: Attempting to save a Geoset with Verteces that have differing numbers of TVertices! Empty TVertices will be autogenerated.");
 		}
 		for (int i = 0; i < bigNum; i++) {
-			uvlayers.add(new UVLayer());
+			uvlayers.add(new ArrayList<>());
 		}
 		for (GeosetVertex vertex : vertices) {
 			if (vertex.getNormal() != null) {
@@ -639,9 +684,9 @@ public class Geoset implements Named, VisibilitySource {
 			for (int uv = 0; uv < bigNum; uv++) {
 				final Vec2 temp = vertex.getTVertex(uv);
 				if (temp != null) {
-					uvlayers.get(uv).addTVertex(temp);
+					uvlayers.get(uv).add(temp);
 				} else {
-					uvlayers.get(uv).addTVertex(new Vec2(0, 0));
+					uvlayers.get(uv).add(new Vec2(0, 0));
 				}
 			}
 		}
@@ -756,11 +801,11 @@ public class Geoset implements Named, VisibilitySource {
 		this.normals = normals;
 	}
 
-	public List<UVLayer> getUVLayers() {
+	public List<List<Vec2>> getUVLayers() {
 		return uvlayers;
 	}
 
-	public void setUvlayers(final List<UVLayer> uvlayers) {
+	public void setUvlayers(final List<List<Vec2>> uvlayers) {
 		this.uvlayers = uvlayers;
 	}
 

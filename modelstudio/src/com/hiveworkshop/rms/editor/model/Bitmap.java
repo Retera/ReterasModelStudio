@@ -44,6 +44,10 @@ public class Bitmap {
 		this.replaceableId = replaceableId;
 	}
 
+	public Bitmap() {
+
+	}
+	
 	public Bitmap(final String imagePath, final int replaceableId) {
 		this.imagePath = imagePath;
 		this.replaceableId = replaceableId;

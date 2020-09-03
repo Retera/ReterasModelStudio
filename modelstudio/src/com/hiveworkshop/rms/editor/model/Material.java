@@ -4,6 +4,11 @@ import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxMaterial;
+
+import jassimp.AiBlendMode;
+import jassimp.AiMaterial;
+import jassimp.AiTextureType;
+
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 
 import java.awt.*;
@@ -79,6 +84,25 @@ public class Material {
 		}
 
 		shaderString = material.shader;
+	}
+
+	public Material(final AiMaterial material, final EditableModel model) {
+		System.out.println("IMPLEMENT Material(AiMaterial)");
+
+		final String diffuse = material.getTextureFile(AiTextureType.DIFFUSE, 0);
+
+		if (diffuse.length() > 0) {
+			final Bitmap diffuseTexture = new Bitmap(diffuse);
+
+			model.add(diffuseTexture);
+
+			final Layer diffuseLayer = new Layer();
+
+			diffuseLayer.setTexture(diffuseTexture);
+			diffuseLayer.setStaticAlpha(material.getOpacity());
+
+			layers.add(diffuseLayer);
+		}
 	}
 
 	public MdlxMaterial toMdlx() {

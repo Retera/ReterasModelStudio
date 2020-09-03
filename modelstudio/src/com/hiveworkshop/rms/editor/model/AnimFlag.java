@@ -126,11 +126,11 @@ public class AnimFlag {
 					final float[] valueAsArray = (float[])value;
 
 					if (vectorSize == 1) {
-						valueAsObject = Float.valueOf(valueAsArray[0]);
+						valueAsObject = valueAsArray[0];
 
 						if (hasTangents) {
-							inTanAsObject = Float.valueOf(((float[])inTans[i])[0]);
-							outTanAsObject = Float.valueOf(((float[])outTans[i])[0]);
+							inTanAsObject = ((float[]) inTans[i])[0];
+							outTanAsObject = ((float[]) outTans[i])[0];
 						}
 					} else if (vectorSize == 3) {
 						valueAsObject = new Vec3(valueAsArray);
@@ -148,11 +148,11 @@ public class AnimFlag {
 						}
 					}
 				} else {
-					valueAsObject = Integer.valueOf((int)((long[])value)[0]);
+					valueAsObject = (int) ((long[]) value)[0];
 
 					if (hasTangents) {
-						inTanAsObject = Integer.valueOf((int)((long[])inTans[i])[0]);
-						outTanAsObject = Integer.valueOf((int)((long[])outTans[i])[0]);
+						inTanAsObject = (int) ((long[]) inTans[i])[0];
+						outTanAsObject = (int) ((long[]) outTans[i])[0];
 					}
 				}
 
@@ -199,11 +199,11 @@ public class AnimFlag {
 			
 			if (isFloat) {
 				if (vectorSize == 1) {
-					tempValues[i] = new float[] { ((Float)value).floatValue() };
+					tempValues[i] = new float[] {(Float) value};
 
 					if (hasTangents) {
-						tempInTans[i] = new float[] { ((Float)inTans.get(i)).floatValue() };
-						tempOutTans[i] = new float[] { ((Float)outTans.get(i)).floatValue() };
+						tempInTans[i] = new float[] {(Float) inTans.get(i)};
+						tempOutTans[i] = new float[] {(Float) outTans.get(i)};
 					} else {
 						tempInTans[i] = new float[] { 0 };
 						tempOutTans[i] = new float[] { 0 };
@@ -733,13 +733,13 @@ public class AnimFlag {
 
 					if (btimes.contains(currentTime)) {
 						final Float partVal = bvalues.get(btimes.indexOf(currentTime));
-						if (partVal.floatValue() > currentVal.floatValue()) {
+						if (partVal > currentVal) {
 							if (mostVisible == null) {
 								mostVisible = partner;
 							} else if (mostVisible == this) {
 								return null;
 							}
-						} else if (partVal.floatValue() < currentVal.floatValue()) {
+						} else if (partVal < currentVal) {
 							if (mostVisible == null) {
 								mostVisible = this;
 							} else if (mostVisible == partner) {
@@ -750,7 +750,7 @@ public class AnimFlag {
 						}
 						// btimes.remove(currentTime);
 						// bvalues.remove(partVal);
-					} else if (currentVal.floatValue() < 1) {
+					} else if (currentVal < 1) {
 						if (mostVisible == null) {
 							mostVisible = partner;
 						} else if (mostVisible == this) {
@@ -767,20 +767,20 @@ public class AnimFlag {
 
 					if (atimes.contains(currentTime)) {
 						final Float partVal = avalues.get(atimes.indexOf(currentTime));
-						if (partVal.floatValue() > currentVal.floatValue()) {
+						if (partVal > currentVal) {
 							if (mostVisible == null) {
 								mostVisible = this;
 							} else if (mostVisible == partner) {
 								return null;
 							}
-						} else if (partVal.floatValue() < currentVal.floatValue()) {
+						} else if (partVal < currentVal) {
 							if (mostVisible == null) {
 								mostVisible = partner;
 							} else if (mostVisible == this) {
 								return null;
 							}
 						}
-					} else if (currentVal.floatValue() < 1) {
+					} else if (currentVal < 1) {
 						if (mostVisible == null) {
 							mostVisible = this;
 						} else if (mostVisible == partner) {
@@ -837,7 +837,7 @@ public class AnimFlag {
 			final boolean tans = tans();
 			for (int index = times.size() - 1; index >= 0; index--) {
 				final Integer inte = times.get(index);
-				final int i = inte.intValue();
+				final int i = inte;
 				// int index = times.indexOf(inte);
 				if ((i >= anim.getStart()) && (i <= anim.getEnd())) {
 					// If this "i" is a part of the anim being removed
@@ -893,12 +893,12 @@ public class AnimFlag {
 			}
 		}
 		for (final Integer inte : source.times) {
-			final int i = inte.intValue();
+			final int i = inte;
 			final int index = source.times.indexOf(inte);
 			if ((i >= sourceStart) && (i <= sourceEnd)) {
 				// If this "i" is a part of the anim being rescaled
 				final double ratio = (double) (i - sourceStart) / (double) (sourceEnd - sourceStart);
-				times.add(Integer.valueOf((int) (newStart + (ratio * (newEnd - newStart)))));
+				times.add((int) (newStart + (ratio * (newEnd - newStart))));
 				values.add(cloneValue(source.values.get(index)));
 				if (tans) {
 					inTans.add(cloneValue(source.inTans.get(index)));
@@ -920,11 +920,11 @@ public class AnimFlag {
 		for (int z = 0; z < times.size(); z++)// Integer inte: times )
 		{
 			final Integer inte = times.get(z);
-			final int i = inte.intValue();
+			final int i = inte;
 			if ((i >= start) && (i <= end)) {
 				// If this "i" is a part of the anim being rescaled
 				final double ratio = (double) (i - start) / (double) (end - start);
-				times.set(z, Integer.valueOf((int) (newStart + (ratio * (newEnd - newStart)))));
+				times.set(z, (int) (newStart + (ratio * (newEnd - newStart))));
 			}
 		}
 		// }
@@ -964,10 +964,10 @@ public class AnimFlag {
 		final Integer pivot = times.get(low + ((high - low) / 2));
 
 		while (i <= j) {
-			while (times.get(i).intValue() < pivot.intValue()) {
+			while (times.get(i) < pivot) {
 				i++;
 			}
-			while (times.get(j).intValue() > pivot.intValue()) {
+			while (times.get(j) > pivot) {
 				j--;
 			}
 			if (i <= j) {

@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -80,7 +79,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChangeListener;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.ui.preferences.listeners.ProgramPreferencesChangeListener;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -152,7 +150,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		this.undoHandler = undoHandler;
 		this.renderModel = renderModel;
 		this.viewportListener = viewportListener;
-		cursorManager = cursor -> Viewport.this.setCursor(cursor);
+		cursorManager = Viewport.this::setCursor;
 		setupCopyPaste(viewportTransferHandler);
 		// Viewport border
 		setBorder(BorderFactory.createBevelBorder(1));

@@ -15,8 +15,6 @@ import com.hiveworkshop.rms.ui.icons.IconUtils;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class ComponentLayerPanel extends JPanel {
 	private final JComboBox<FilterMode> filterModeDropdown;

@@ -175,6 +175,10 @@ public class Layer extends TimelineContainer implements Named {
 		}
 	}
 
+	public Layer() {
+
+	}
+	
 	public Layer(final String filterMode, final int textureId) {
 		this.filterMode = FilterMode.nameToFilter(filterMode);
 		this.textureId = textureId;
@@ -371,7 +375,7 @@ public class Layer extends TimelineContainer implements Named {
 		textures = new ArrayList<>();
 		final AnimFlag txFlag = find(MdlUtils.TOKEN_TEXTURE_ID);
 		for (int i = 0; i < txFlag.values.size(); i++) {
-			final int txId = ((Integer) txFlag.values.get(i)).intValue();
+			final int txId = (Integer) txFlag.values.get(i);
 			final Bitmap texture2 = mdlr.getTexture(txId);
 			textures.add(texture2);
 			ridiculouslyWrongTextureIDToTexture.put(txId, texture2);
@@ -385,7 +389,7 @@ public class Layer extends TimelineContainer implements Named {
 			final AnimFlag txFlag = find(MdlUtils.TOKEN_TEXTURE_ID);
 			for (int i = 0; i < txFlag.values.size(); i++) {
 				final Bitmap textureFoundFromDirtyId = ridiculouslyWrongTextureIDToTexture
-						.get(((Integer) txFlag.values.get(i)).intValue());
+						.get((Integer) txFlag.values.get(i));
 				final int newerTextureId = mdlr.getTextureId(textureFoundFromDirtyId);
 				txFlag.values.set(i, newerTextureId);
 				ridiculouslyWrongTextureIDToTexture.put(newerTextureId, textureFoundFromDirtyId);

@@ -22,7 +22,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChange
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.util.TextureExporter;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec3;
@@ -115,7 +114,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 		modelComponentBrowserTree = new ModelComponentBrowserTree(modelView, undoManager,
 				modelEditorManager, modelStructureChangeListener);
 
-		selectionItemTypeNotifier.addToolbarButtonListener(newType -> modelEditorManager.setSelectionItemType(newType));
+		selectionItemTypeNotifier.addToolbarButtonListener(modelEditorManager::setSelectionItemType);
 		// Produce the front display panel
 		// file = input;
 		// model = MDL.read(file);

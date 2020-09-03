@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.editor.model;
 
 import java.awt.Component;
 import java.io.File;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -44,6 +45,10 @@ import com.hiveworkshop.rms.util.MathUtils;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
+
+import jassimp.AiMaterial;
+import jassimp.AiMesh;
+import jassimp.AiScene;
 
 /**
  * A java object to represent and store an MDL 3d model (Warcraft III file
@@ -105,8 +110,6 @@ public class EditableModel implements Named {
 	}
 
 	public EditableModel(final MdlxModel model) {
-		this();
-
 		// Step 1: Convert the Model Chunk
 		// For MDL api, this is currently embedded right inside the
 		// MDL class
@@ -122,7 +125,7 @@ public class EditableModel implements Named {
 
 		// Step 3: Convert any global sequences
 		for (final long sequence : model.globalSequences) {
-			add(Integer.valueOf((int)sequence));
+			add((int) sequence);
 		}
 
 		// Step 4: Convert Texture refs
@@ -199,21 +202,8 @@ public class EditableModel implements Named {
 			add(new EventObject(object));
 		}
 
-		boolean corruptedCameraWarningGiven = false;
 		for (final MdlxCamera camera : model.cameras) {
-			final Camera mdlCam = new Camera(camera);
-
-			if (!corruptedCameraWarningGiven && (mdlCam.getName().contains("????????")
-					|| (mdlCam.getName().length() > 20) || (mdlCam.getName().length() <= 0))) {
-				corruptedCameraWarningGiven = true;
-				JOptionPane.showMessageDialog(null, "--- " + getName()
-						+ " ---\nWARNING: Java Warcraft Libraries thinks we are loading a camera with corrupted data due to bug in Native MDX Parser.\nPlease DISABLE \"View > Use Native MDX Parser\" if you want to correctly edit \""
-						+ getName()
-						+ "\".\nYou may continue to work, but portions of the model's data have been lost, and will be missing if you save.",
-						"Warning", JOptionPane.WARNING_MESSAGE);
-			}
-
-			add(mdlCam);
+			add(new Camera(camera));
 		}
 
 		// CollisionShape
@@ -234,6 +224,50 @@ public class EditableModel implements Named {
 		}
 
 		doPostRead(); // fixes all the things
+	}
+
+	public EditableModel(final AiScene scene) {
+		System.out.println("IMPLEMENT EditableModel(AiScene)");
+
+		// for (final AiMaterial material : scene.getMaterials()) {
+		// 	add(new Material(material, this));
+
+		// 	AiMaterial.Property prop = material.getProperty("$raw.Diffuse");
+		// 	if (prop != null) {
+		// 		ByteBuffer buffer = (ByteBuffer) prop.getData();
+		// 		float r = buffer.getFloat();
+		// 		float g = buffer.getFloat();
+		// 		float b = buffer.getFloat();
+		// 		float a = buffer.getFloat();
+
+		// 		System.out.println("ASDASDSAD");
+		// 	}
+		// }
+
+		final Bitmap tex = new Bitmap();
+		tex.setReplaceableId(1);
+		add(tex);
+
+		final Material mat = new Material();
+		final Layer lay = new Layer();
+		lay.setTexture(tex);
+		lay.setTwoSided(true);
+		mat.getLayers().add(lay);
+		add(mat);
+
+		for (final AiMesh mesh : scene.getMeshes()) {
+			// For now only handle triangular meshes.
+			// Note that this doesn't mean polygons are not supported.
+			// This is because the meshes are triangularized by Assimp.
+			// Rather, this stops line meshes from being imported.
+			if (mesh.isPureTriangle()) {
+				add(new Geoset(mesh, materials));
+			}
+		}
+
+		doPostRead();
+
+		System.out.println("K");
 	}
 
 	public MdlxModel toMdlx() {
@@ -1357,7 +1391,7 @@ public class EditableModel implements Named {
 	}
 
 	public void buildGlobSeqFrom(final Animation anim, final List<AnimFlag> flags) {
-		final Integer newSeq = Integer.valueOf(anim.length());
+		final Integer newSeq = anim.length();
 		for (final AnimFlag af : flags) {
 			if (!af.hasGlobalSeq) {
 				final AnimFlag copy = new AnimFlag(af);
@@ -1856,7 +1890,7 @@ public class EditableModel implements Named {
 			for (int i = 0; i < flag.size(); i++) {
 				final Entry entry = flag.getEntry(i);
 				if ((lastEntry != null) && (lastEntry.time == entry.time)) {
-					indicesForDeletion.add(Integer.valueOf(i));
+					indicesForDeletion.add(i);
 				}
 				lastEntry = entry;
 			}
@@ -1892,7 +1926,7 @@ public class EditableModel implements Named {
 								final Float older = (Float) olderKeyframe;
 								final Float old = (Float) oldKeyframe;
 								if ((older != null) && (old != null) && MathUtils.isBetween(older, old, d)) {
-									indicesForDeletion.add(Integer.valueOf(i - 1));
+									indicesForDeletion.add(i - 1);
 								}
 							} else if (entry.value instanceof Vec3) {
 								final Vec3 current = (Vec3) entry.value;
@@ -1901,7 +1935,7 @@ public class EditableModel implements Named {
 								if ((older != null) && (old != null) && MathUtils.isBetween(older.x, old.x, current.x)
 										&& MathUtils.isBetween(older.y, old.y, current.y)
 										&& MathUtils.isBetween(older.z, old.z, current.z)) {
-									indicesForDeletion.add(Integer.valueOf(i - 1));
+									indicesForDeletion.add(i - 1);
 								}
 							} else if (entry.value instanceof Quat) {
 								final Quat current = (Quat) entry.value;
@@ -1926,7 +1960,7 @@ public class EditableModel implements Named {
 										// &&
 										// MathUtils.isBetween(older.d,
 										// old.d, current.d)) {
-										indicesForDeletion.add(Integer.valueOf(i - 1));
+										indicesForDeletion.add(i - 1);
 									}
 								}
 							}
@@ -1967,7 +2001,7 @@ public class EditableModel implements Named {
 							final Float older = (Float) olderKeyframe;
 							final Float old = (Float) oldKeyframe;
 							if ((older != null) && (old != null) && MathUtils.isBetween(older, old, d)) {
-								indicesForDeletion.add(Integer.valueOf(i - 1));
+								indicesForDeletion.add(i - 1);
 							}
 						} else if (entry.value instanceof Vec3) {
 							final Vec3 current = (Vec3) entry.value;
@@ -1976,7 +2010,7 @@ public class EditableModel implements Named {
 							if ((older != null) && (old != null) && MathUtils.isBetween(older.x, old.x, current.x)
 									&& MathUtils.isBetween(older.y, old.y, current.y)
 									&& MathUtils.isBetween(older.z, old.z, current.z)) {
-								indicesForDeletion.add(Integer.valueOf(i - 1));
+								indicesForDeletion.add(i - 1);
 							}
 						} else if (entry.value instanceof Quat) {
 							final Quat current = (Quat) entry.value;
@@ -1997,7 +2031,7 @@ public class EditableModel implements Named {
 									// old.c, current.c)
 									// && MathUtils.isBetween(older.d,
 									// old.d, current.d)) {
-									indicesForDeletion.add(Integer.valueOf(i - 1));
+									indicesForDeletion.add(i - 1);
 								}
 							}
 						}

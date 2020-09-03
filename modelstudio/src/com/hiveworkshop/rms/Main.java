@@ -1,12 +1,12 @@
 package com.hiveworkshop.rms;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglNativesLoader;
+import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.filesystem.sources.DataSourceDescriptor;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
-import com.hiveworkshop.rms.parsers.obj.Build;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.ui.application.MainFrame;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
@@ -17,7 +17,6 @@ import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.EditorDisplayManager;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-import com.owens.oobjloader.parser.Parse;
 import net.infonode.gui.laf.InfoNodeLookAndFeel;
 import net.infonode.gui.laf.InfoNodeLookAndFeelTheme;
 import net.infonode.gui.laf.InfoNodeLookAndFeelThemes;
@@ -26,7 +25,6 @@ import javax.swing.*;
 import javax.swing.plaf.ColorUIResource;
 import java.awt.*;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,6 +49,10 @@ public class Main {
         final boolean dataPromptForced = hasArgs && args[0].equals("-forcedataprompt");
         try {
             LwjglNativesLoader.load();
+
+            // Load the jassimp natives.
+            final SharedLibraryLoader loader = new SharedLibraryLoader();
+            loader.load("jassimp-natives");
 
             final ProgramPreferences preferences = SaveProfile.get().getPreferences();
             switch (preferences.getTheme()) {
@@ -272,19 +274,6 @@ public class Main {
             MdxUtils.saveMdl(model, new File(path.substring(0, path.lastIndexOf('.')) + ".mdl"));
         } else if (path.toLowerCase().endsWith(".mdl")) {
             MdxUtils.saveMdx(model, new File(path.substring(0, path.lastIndexOf('.')) + ".mdx"));
-        } else {
-            // Unfortunately obj convert does popups right now
-            final Build builder = new Build();
-            try {
-                final Parse obj = new Parse(builder, path);
-                final EditableModel mdl = builder.createMDL();
-            } catch (final FileNotFoundException e) {
-                ExceptionPopup.display(e);
-                e.printStackTrace();
-            } catch (final IOException e) {
-                ExceptionPopup.display(e);
-                e.printStackTrace();
-            }
         }
     }
 }

@@ -6,7 +6,6 @@ import com.hiveworkshop.rms.ui.application.model.material.FloatTrackTableModel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
@@ -74,7 +73,7 @@ public class FloatValuePanel extends JPanel {
 		} else {
 			dynamicButton.setSelected(true);
 		}
-		staticSpinner.reloadNewValue(Float.valueOf(value));
+		staticSpinner.reloadNewValue(value);
 		floatTrackTableModel.setTrack(valueTrack);
 	}
 }
