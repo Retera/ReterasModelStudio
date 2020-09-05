@@ -407,9 +407,9 @@ public class MainPanel extends JPanel
         @Override
         public void actionPerformed(final ActionEvent e) {
             for (final Geoset geo : currentMDL().getGeosets()) {
-                for (final List<Vec2> layer : geo.getUVLayers()) {
-                    for (final Vec2 tvert : layer) {
-                        tvert.y = 1.0f - tvert.y;
+                for (final GeosetVertex vertex : geo.getVertices()) {
+                    for (final Vec2 tvert : vertex.getTverts()) {
+                        tvert.x = 1.0f - tvert.x;
                     }
                 }
             }
@@ -421,8 +421,8 @@ public class MainPanel extends JPanel
         public void actionPerformed(final ActionEvent e) {
             // TODO this should be an action
             for (final Geoset geo : currentMDL().getGeosets()) {
-                for (final List<Vec2> layer : geo.getUVLayers()) {
-                    for (final Vec2 tvert : layer) {
+                for (final GeosetVertex vertex : geo.getVertices()) {
+                    for (final Vec2 tvert : vertex.getTverts()) {
                         tvert.y = 1.0f - tvert.y;
                     }
                 }
@@ -435,8 +435,8 @@ public class MainPanel extends JPanel
         public void actionPerformed(final ActionEvent e) {
             // TODO this should be an action
             for (final Geoset geo : currentMDL().getGeosets()) {
-                for (final List<Vec2> layer : geo.getUVLayers()) {
-                    for (final Vec2 tvert : layer) {
+                for (final GeosetVertex vertex : geo.getVertices()) {
+                    for (final Vec2 tvert : vertex.getTverts()) {
                         final float temp = tvert.x;
                         tvert.x = tvert.y;
                         tvert.y = temp;
