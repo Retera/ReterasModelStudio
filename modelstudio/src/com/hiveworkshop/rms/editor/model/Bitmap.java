@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.parsers.mdlx.MdlxTexture;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxTexture.WrapMode;
 
 /**
  * A class to represent MDL texture references. (Not materials)
@@ -10,8 +11,7 @@ import com.hiveworkshop.rms.parsers.mdlx.MdlxTexture;
 public class Bitmap {
 	private String imagePath = "";
 	private int replaceableId = 0;
-	private int wrapStyle = 0;// 0 = nothing, 1 = WrapWidth, 2 = WrapHeight, 3 =
-							// both
+	WrapMode wrapMode = WrapMode.REPEAT_BOTH;
 
 	public String getPath() {
 		return imagePath;
@@ -56,13 +56,13 @@ public class Bitmap {
 	public Bitmap(final Bitmap other) {
 		imagePath = other.imagePath;
 		replaceableId = other.replaceableId;
-		wrapStyle = other.wrapStyle;
+		wrapMode = other.wrapMode;
 	}
 
 	public Bitmap(final MdlxTexture texture) {
 		imagePath = texture.path;
 		replaceableId = texture.replaceableId;
-		setWrapStyle(texture.flags);
+		wrapMode = texture.wrapMode;
 	}
 
 	public MdlxTexture toMdlx() {
@@ -70,7 +70,7 @@ public class Bitmap {
 
 		texture.path = imagePath;
 		texture.replaceableId = replaceableId;
-		texture.flags = wrapStyle;
+		texture.wrapMode = wrapMode;
 
 		return texture;
 	}
@@ -85,7 +85,7 @@ public class Bitmap {
 		int result = 1;
 		result = (prime * result) + ((imagePath == null) ? 0 : imagePath.hashCode());
 		result = (prime * result) + replaceableId;
-		result = (prime * result) + wrapStyle;
+		result = (prime * result) + wrapMode.ordinal();
 		return result;
 	}
 
@@ -111,55 +111,55 @@ public class Bitmap {
 		if (replaceableId != other.replaceableId) {
 			return false;
 		}
-		return wrapStyle == other.wrapStyle;
+		return wrapMode == other.wrapMode;
 	}
 
 	public boolean isWrapHeight() {
-		return (wrapStyle == 2) || (wrapStyle == 3);
+		return (wrapMode == WrapMode.WRAP_HEIGHT) || (wrapMode == WrapMode.WRAP_BOTH);
 	}
 
 	public void setWrapHeight(final boolean flag) {
 		if (flag) {
-			if (wrapStyle == 1) {
-				wrapStyle = 3;
-			} else if (wrapStyle == 0) {
-				wrapStyle = 2;
+			if (wrapMode == WrapMode.REPEAT_BOTH) {
+				wrapMode = WrapMode.WRAP_HEIGHT;
+			} else if (wrapMode == WrapMode.WRAP_WIDTH) {
+				wrapMode = WrapMode.WRAP_BOTH;
 			}
 		} else {
-			if (wrapStyle == 3) {
-				wrapStyle = 1;
-			} else if (wrapStyle == 2) {
-				wrapStyle = 0;
+			if (wrapMode == WrapMode.WRAP_BOTH) {
+				wrapMode = WrapMode.WRAP_WIDTH;
+			} else if (wrapMode == WrapMode.WRAP_HEIGHT) {
+				wrapMode = WrapMode.REPEAT_BOTH;
 			}
 		}
 	}
 
 	public boolean isWrapWidth() {
-		return (wrapStyle == 1) || (wrapStyle == 3);
+		return (wrapMode == WrapMode.WRAP_WIDTH) || (wrapMode == WrapMode.WRAP_BOTH);
 	}
 
 	public void setWrapWidth(final boolean flag) {
 		if (flag) {
-			if (wrapStyle == 2) {
-				wrapStyle = 3;
-			} else if (wrapStyle == 0) {
-				wrapStyle = 1;
+			if (wrapMode == WrapMode.REPEAT_BOTH) {
+				wrapMode = WrapMode.WRAP_WIDTH;
+			} else if (wrapMode == WrapMode.WRAP_HEIGHT) {
+				wrapMode = WrapMode.WRAP_BOTH;
 			}
 		} else {
-			if (wrapStyle == 3) {
-				wrapStyle = 2;
-			} else if (wrapStyle == 1) {
-				wrapStyle = 0;
+			if (wrapMode == WrapMode.WRAP_BOTH) {
+				wrapMode = WrapMode.WRAP_HEIGHT;
+			} else if (wrapMode == WrapMode.WRAP_WIDTH) {
+				wrapMode = WrapMode.REPEAT_BOTH;
 			}
 		}
 	}
 
-	public int getWrapStyle() {
-		return wrapStyle;
+	public WrapMode getWrapMode() {
+		return wrapMode;
 	}
 
-	public void setWrapStyle(final int wrapStyle) {
-		this.wrapStyle = wrapStyle;
+	public void setWrapMode(final WrapMode wrapMode) {
+		this.wrapMode = wrapMode;
 	}
 
 	public void setPath(final String imagePath) {
