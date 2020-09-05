@@ -145,7 +145,7 @@ public class EditableModel implements Named {
 		
 		// Step 7: Geoset
 		for (final MdlxGeoset geoset : model.geosets) {
-			add(new Geoset(geoset));
+			add(new Geoset(geoset, this));
 		}
 
 		// Step 8: GeosetAnims
@@ -261,7 +261,7 @@ public class EditableModel implements Named {
 			// This is because the meshes are triangularized by Assimp.
 			// Rather, this stops line meshes from being imported.
 			if (mesh.isPureTriangle()) {
-				add(new Geoset(mesh, materials));
+				add(new Geoset(mesh, this));
 			}
 		}
 
@@ -313,7 +313,7 @@ public class EditableModel implements Named {
 		}
 
 		for (final Geoset geoset : geosets) {
-			model.geosets.add(geoset.toMdlx());
+			model.geosets.add(geoset.toMdlx(this));
 		}
 
 		for (final GeosetAnim animation : geosetAnims) {
@@ -1005,7 +1005,6 @@ public class EditableModel implements Named {
 			if ((g.material != null) && !materials.contains(g.material)) {
 				materials.add(g.material);
 			}
-			g.setMaterialId(materials.indexOf(g.material)); // -1 if null
 		}
 		final List<RibbonEmitter> ribbons = sortedIdObjects(RibbonEmitter.class);
 		for (final RibbonEmitter r : ribbons) {
@@ -2468,5 +2467,9 @@ public class EditableModel implements Named {
 			}
 			globalSeqs.set(globalSequenceId, newLength);
 		}
+	}
+
+	public int computeMaterialID(final Material material) {
+		return materials.indexOf(material);
 	}
 }

@@ -16,14 +16,14 @@ Natives:
 4. Build a release version of the included zlib under `contrib/zlib`.
 5. Copy the resulting `lib` files to `port/jassimp/jassimp-native`.
 6. Run the VS CLI (note there are 32bit and 64bit versions), and navigate to `jassimp-native`.
-7. `cl /Fe"jassimp-natives64.dll" /EHsc /O1 src/jassimp.cpp assimp-vc141-mt.lib zlibstatic.lib /I C:\jdk-14.0.2\include /I C:\jdk-14.0.2\include\win32 /I ..\..\..\include /MD /LD`
+7. `cl /Fe"jassimp-natives64.dll" /EHsc /O1 src/jassimp.cpp assimp-vc141-mt.lib zlibstatic.lib /I %JAVA_HOME%\include /I %JAVA_HOME%\include\win32 /I ..\..\..\include /MD /LD`
 8. `jar cf jassimp-natives.jar jassimp-natives64.dll`
 9. Move `jassimp-natives.jar` into `ReterasModelStudio/jars`.
 
 Bindings:
 1. Go to `jassimp/jassimp/src`.
-2. Open `JassimpLibraryLoader.java`, and comment the `System.loadLibrary` call.
+2. Open `jassimp/JassimpLibraryLoader.java`, and comment the `System.loadLibrary` call.
 2. `javac -d build jassimp/*`
 3. `cd build`
 4. `jar cf jassimp.jar jassimp/*`
-9. Move `jassimp.jar` into `ReterasModelStudio/jars`.
+5. Move `jassimp.jar` into `ReterasModelStudio/jars`.

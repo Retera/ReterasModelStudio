@@ -19,12 +19,10 @@ import jassimp.AiMesh;
 public class Geoset implements Named, VisibilitySource {
 	ExtLog extents;
 	List<GeosetVertex> vertices = new ArrayList<>();
-	List<Vec3> normals = new ArrayList<>();
 	List<List<Vec2>> uvlayers = new ArrayList<>();
 	List<Triangle> triangles = new ArrayList<>();
 	List<Matrix> matrix = new ArrayList<>();
 	List<Animation> anims = new ArrayList<>();
-	int materialID = 0;
 	Material material;
 	int selectionGroup = 0;
 	EditableModel parentModel;
@@ -39,7 +37,7 @@ public class Geoset implements Named, VisibilitySource {
 
 	}
 
-	public Geoset(final MdlxGeoset geoset) {
+	public Geoset(final MdlxGeoset geoset, final EditableModel model) {
 		setExtLog(new ExtLog(geoset.extent));
 
 		for (final MdlxExtent extent : geoset.sequenceExtents) {
@@ -48,7 +46,7 @@ public class Geoset implements Named, VisibilitySource {
 			add(anim);
 		}
 
-		setMaterialID((int)geoset.materialId);
+		material = model.getMaterial((int) geoset.materialId);
 
 		final float[][] uvSets = geoset.uvSets;
 
@@ -76,7 +74,7 @@ public class Geoset implements Named, VisibilitySource {
 			// this is an unsigned byte, the other guys java code will read as
 			// signed
 			if (normals.length > 0) {
-				addNormal(new Vec3(normals[i], normals[i + 1], normals[i + 2]));
+				gv.setNormal(new Vec3(normals[i], normals[i + 1], normals[i + 2]));
 			}
 
 			for (int uvId = 0; uvId < uvlayers.size(); uvId++) {
@@ -126,7 +124,7 @@ public class Geoset implements Named, VisibilitySource {
 		}
 	}
 
-	public Geoset(final AiMesh mesh, final List<Material> materials) {
+	public Geoset(final AiMesh mesh, final EditableModel model) {
 		System.out.println("IMPLEMENT Geoset(AiMesh)");
 
 		this.levelOfDetailName = mesh.getName();
@@ -157,7 +155,7 @@ public class Geoset implements Named, VisibilitySource {
 			gv.setVertexGroup(-1);
 			
 			if (normals != null) {
-				addNormal(new Vec3(normals.get(), normals.get(), normals.get()));
+				gv.setNormal(new Vec3(normals.get(), normals.get(), normals.get()));
 			}
 
 			for (int uvId = 0; uvId < uvlayers.size(); uvId++) {
@@ -178,11 +176,10 @@ public class Geoset implements Named, VisibilitySource {
 			add(new Triangle(indices.get(), indices.get(), indices.get(), this));
 		}
 		
-		//materialID = mesh.getMaterialIndex();
-		materialID = 0;
+		material = model.getMaterial(mesh.getMaterialIndex());
 	}
 
-	public MdlxGeoset toMdlx() {
+	public MdlxGeoset toMdlx(final EditableModel model) {
 		final MdlxGeoset geoset = new MdlxGeoset();
 
 		if (getExtents() != null) {
@@ -194,19 +191,13 @@ public class Geoset implements Named, VisibilitySource {
 		}
 
 
-		geoset.materialId = getMaterialID();
+		geoset.materialId = model.computeMaterialID(material);
 
 		final int numVertices = getVertices().size();
 		final int nrOfTextureVertexGroups = uvlayers.size();
 
 		geoset.vertices = new float[numVertices * 3];
-
-		final boolean hasNormals = getNormals().size() > 0;
-		if (hasNormals) {
-			geoset.normals = new float[numVertices * 3];
-		} else {
-			geoset.normals = new float[0];
-		}
+		geoset.normals = new float[numVertices * 3];
 
 		geoset.vertexGroups = new short[numVertices];
 		geoset.uvSets = new float[nrOfTextureVertexGroups][numVertices * 2];
@@ -218,13 +209,11 @@ public class Geoset implements Named, VisibilitySource {
 			geoset.vertices[(vId * 3) + 1] = vertex.y;
 			geoset.vertices[(vId * 3) + 2] = vertex.z;
 			
-			if (hasNormals) {
-				final Vec3 norm = vertex.getNormal();
+			final Vec3 norm = vertex.getNormal();
 
-				geoset.normals[(vId * 3) + 0] = norm.x;
-				geoset.normals[(vId * 3) + 1] = norm.y;
-				geoset.normals[(vId * 3) + 2] = norm.z;
-			}
+			geoset.normals[(vId * 3) + 0] = norm.x;
+			geoset.normals[(vId * 3) + 1] = norm.y;
+			geoset.normals[(vId * 3) + 2] = norm.z;
 
 			for (int uvLayerIndex = 0; uvLayerIndex < nrOfTextureVertexGroups; uvLayerIndex++) {
 				final Vec2 uv = vertex.getTVertex(uvLayerIndex);
@@ -356,18 +345,6 @@ public class Geoset implements Named, VisibilitySource {
 		return vertices.size();
 	}
 
-	public void addNormal(final Vec3 n) {
-		normals.add(n);
-	}
-
-	public Vec3 getNormal(final int vertId) {
-		return normals.get(vertId);
-	}
-
-	public int numNormals() {
-		return normals.size();
-	}
-
 	public void addUVLayer(final List<Vec2> v) {
 		uvlayers.add(v);
 	}
@@ -442,10 +419,6 @@ public class Geoset implements Named, VisibilitySource {
 
 	public int numMatrices() {
 		return matrix.size();
-	}
-
-	public void setMaterialId(final int i) {
-		materialID = i;
 	}
 
 	public void setMaterial(final Material m) {
@@ -563,9 +536,6 @@ public class Geoset implements Named, VisibilitySource {
 					}
 				}
 			}
-			if ((normals != null) && (normals.size() > 0)) {
-				gv.setNormal(normals.get(i));
-			}
 			for (final Triangle t : triangles) {
 				if (t.containsRef(gv)) {
 					gv.triangles.add(t);
@@ -575,11 +545,6 @@ public class Geoset implements Named, VisibilitySource {
 			gv.geoset = this;
 
 			// gv.addBoneAttachment(null);//Why was this here?
-		}
-		try {
-			material = mdlr.getMaterial(materialID);
-		} catch (final ArrayIndexOutOfBoundsException e) {
-			JOptionPane.showMessageDialog(null, "Error: Material index out of bounds for geoset!");
 		}
 		parentModel = mdlr;
 	}
@@ -655,8 +620,6 @@ public class Geoset implements Named, VisibilitySource {
 	public void doSavePrep(final EditableModel mdlr) {
 		purifyFaces();
 
-		// Normals cleared here, in case that becomes a problem later.
-		normals.clear();
 		// UV Layers cleared here
 		uvlayers.clear();
 		int bigNum = 0;
@@ -678,9 +641,6 @@ public class Geoset implements Named, VisibilitySource {
 			uvlayers.add(new ArrayList<>());
 		}
 		for (GeosetVertex vertex : vertices) {
-			if (vertex.getNormal() != null) {
-				normals.add(vertex.getNormal());
-			}
 			for (int uv = 0; uv < bigNum; uv++) {
 				final Vec2 temp = vertex.getTVertex(uv);
 				if (temp != null) {
@@ -793,14 +753,6 @@ public class Geoset implements Named, VisibilitySource {
 		this.vertices = vertex;
 	}
 
-	public List<Vec3> getNormals() {
-		return normals;
-	}
-
-	public void setNormals(final List<Vec3> normals) {
-		this.normals = normals;
-	}
-
 	public List<List<Vec2>> getUVLayers() {
 		return uvlayers;
 	}
@@ -831,14 +783,6 @@ public class Geoset implements Named, VisibilitySource {
 
 	public void setAnims(final List<Animation> anims) {
 		this.anims = anims;
-	}
-
-	public int getMaterialID() {
-		return materialID;
-	}
-
-	public void setMaterialID(final int materialID) {
-		this.materialID = materialID;
 	}
 
 	public int getSelectionGroup() {
