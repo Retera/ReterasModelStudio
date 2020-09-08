@@ -5022,7 +5022,8 @@ public class MainPanel extends JPanel
                 AiScene scene = Jassimp.importFile(f.getPath(), new HashSet<>(Arrays.asList(AiPostProcessSteps.TRIANGULATE)));
 
                 final EditableModel model = new EditableModel(scene);
-                
+                model.setFileRef(f);
+
                 temp = new ModelPanel(this, model, prefs, MainPanel.this,
                         selectionItemTypeGroup, selectionModeGroup, modelStructureChangeListener,
                         coordDisplayListener, viewportTransferHandler, activeViewportWatcher, icon,

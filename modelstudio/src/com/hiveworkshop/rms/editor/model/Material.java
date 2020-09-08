@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxMaterial;
 
-import jassimp.AiBlendMode;
 import jassimp.AiMaterial;
 import jassimp.AiTextureType;
 
@@ -89,20 +88,12 @@ public class Material {
 	public Material(final AiMaterial material, final EditableModel model) {
 		System.out.println("IMPLEMENT Material(AiMaterial)");
 
-		final String diffuse = material.getTextureFile(AiTextureType.DIFFUSE, 0);
+		final Layer diffuseLayer = new Layer();
 
-		if (diffuse.length() > 0) {
-			final Bitmap diffuseTexture = new Bitmap(diffuse);
+		diffuseLayer.setTexture(model.loadTexture(material.getTextureFile(AiTextureType.DIFFUSE, 0)));
+		diffuseLayer.setStaticAlpha(material.getOpacity());
 
-			model.add(diffuseTexture);
-
-			final Layer diffuseLayer = new Layer();
-
-			diffuseLayer.setTexture(diffuseTexture);
-			diffuseLayer.setStaticAlpha(material.getOpacity());
-
-			layers.add(diffuseLayer);
-		}
+		layers.add(diffuseLayer);
 	}
 
 	public MdlxMaterial toMdlx() {
@@ -212,15 +203,15 @@ public class Material {
 		this.priorityPlane = priorityPlane;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = (prime * result) + ((layers == null) ? 0 : layers.hashCode());
-		result = (prime * result) + priorityPlane;
-		result = (prime * result) + ((shaderString == null) ? 0 : shaderString.hashCode());
-		return result;
-	}
+	// @Override
+	// public int hashCode() {
+	// 	final int prime = 31;
+	// 	int result = 1;
+	// 	result = (prime * result) + ((layers == null) ? 0 : layers.hashCode());
+	// 	result = (prime * result) + priorityPlane;
+	// 	result = (prime * result) + ((shaderString == null) ? 0 : shaderString.hashCode());
+	// 	return result;
+	// }
 
 	@Override
 	public boolean equals(final Object obj) {

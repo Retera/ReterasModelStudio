@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JOptionPane;
 
@@ -45,6 +47,7 @@ import com.hiveworkshop.rms.util.MathUtils;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.util.Vec4;
 
 import jassimp.AiMaterial;
 import jassimp.AiMesh;
@@ -150,7 +153,13 @@ public class EditableModel implements Named {
 
 		// Step 8: GeosetAnims
 		for (final MdlxGeosetAnimation animation : model.geosetAnimations) {
-			add(new GeosetAnim(animation));
+			final GeosetAnim geosetAnim = new GeosetAnim(animation, this);
+
+			add(geosetAnim);
+
+			if (geosetAnim.geoset != null) {
+				geosetAnim.geoset.geosetAnim = geosetAnim;
+			}
 		}
 
 		// Step 9:
@@ -229,31 +238,26 @@ public class EditableModel implements Named {
 	public EditableModel(final AiScene scene) {
 		System.out.println("IMPLEMENT EditableModel(AiScene)");
 
-		// for (final AiMaterial material : scene.getMaterials()) {
-		// 	add(new Material(material, this));
+		final Map<Material, Vec3> materialColors = new HashMap<>();
+		
+		for (final AiMaterial material : scene.getMaterials()) {
+			final Material editableMaterial = new Material(material, this);
 
-		// 	AiMaterial.Property prop = material.getProperty("$raw.Diffuse");
-		// 	if (prop != null) {
-		// 		ByteBuffer buffer = (ByteBuffer) prop.getData();
-		// 		float r = buffer.getFloat();
-		// 		float g = buffer.getFloat();
-		// 		float b = buffer.getFloat();
-		// 		float a = buffer.getFloat();
+			add(editableMaterial);
 
-		// 		System.out.println("ASDASDSAD");
-		// 	}
-		// }
+			AiMaterial.Property prop = material.getProperty("$raw.Diffuse");
+			if (prop != null) {
+				ByteBuffer buffer = (ByteBuffer) prop.getData();
+				float r = buffer.getFloat();
+				float g = buffer.getFloat();
+				float b = buffer.getFloat();
 
-		final Bitmap tex = new Bitmap();
-		tex.setReplaceableId(1);
-		add(tex);
-
-		final Material mat = new Material();
-		final Layer lay = new Layer();
-		lay.setTexture(tex);
-		lay.setTwoSided(true);
-		mat.getLayers().add(lay);
-		add(mat);
+				if (r != 1.0f || g != 1.0f || b != 1.0f) {
+					// Alpha?
+					materialColors.put(editableMaterial, new Vec3(r, g, b));
+				}
+			}
+		}
 
 		for (final AiMesh mesh : scene.getMeshes()) {
 			// For now only handle triangular meshes.
@@ -261,13 +265,26 @@ public class EditableModel implements Named {
 			// This is because the meshes are triangularized by Assimp.
 			// Rather, this stops line meshes from being imported.
 			if (mesh.isPureTriangle()) {
-				add(new Geoset(mesh, this));
+				final Geoset geoset = new Geoset(mesh, this);
+
+				add(geoset);
+
+				// If the material used by this geoset had a diffuse color, add a geoset animation with that color.
+				final Material material = geoset.getMaterial();
+
+				if (materialColors.containsKey(material)) {
+					final GeosetAnim geosetAnim = new GeosetAnim(geoset);
+
+					geosetAnim.setStaticColor(materialColors.get(material));
+
+					add(geosetAnim);
+
+					geoset.geosetAnim = geosetAnim;
+				}
 			}
 		}
 
 		doPostRead();
-
-		System.out.println("K");
 	}
 
 	public MdlxModel toMdlx() {
@@ -317,7 +334,7 @@ public class EditableModel implements Named {
 		}
 
 		for (final GeosetAnim animation : geosetAnims) {
-			model.geosetAnimations.add(animation.toMdlx());
+			model.geosetAnimations.add(animation.toMdlx(this));
 		}
 
 		for (final Bone bone : sortedIdObjects(Bone.class)) {
@@ -530,6 +547,28 @@ public class EditableModel implements Named {
 		return textures.get(index);
 	}
 
+	public Bitmap getTexture(final String path) {
+		for (final Bitmap texture : textures) {
+			if (texture.getPath().equals(path)) {
+				return texture;
+			}
+		}
+
+		return null;
+	}
+
+	public Bitmap loadTexture(final String path) {
+		Bitmap texture = getTexture(path);
+
+		if (texture == null) {
+			texture = new Bitmap(path);
+
+			add(texture);
+		}
+
+		return texture;
+	}
+
 	public int getTextureId(final Bitmap b) {
 		if (b == null) {
 			return -1;
@@ -547,7 +586,11 @@ public class EditableModel implements Named {
 	}
 
 	public Material getMaterial(final int i) {
-		return materials.get(i);
+		if (i >= 0 && i < materials.size()) {
+			return materials.get(i);
+		}
+
+		return null;
 	}
 
 	public void addSound(final SoundFile sound) {
@@ -907,14 +950,8 @@ public class EditableModel implements Named {
 		}
 		final List<GeosetAnim> badAnims = new ArrayList<>();
 		for (final GeosetAnim geoAnim : geosetAnims) {
-			if (geoAnim.geosetId != -1) {
-				if (geoAnim.geosetId >= geosets.size()) {
-					badAnims.add(geoAnim);
-				} else {
-
-					geoAnim.geoset = getGeoset(geoAnim.geosetId);
-					geoAnim.geoset.geosetAnim = geoAnim;// YEAH THIS MAKES SENSE
-				}
+			if (geoAnim.geoset == null) {
+				badAnims.add(geoAnim);
 			}
 		}
 		if (badAnims.size() > 0) {
@@ -975,11 +1012,6 @@ public class EditableModel implements Named {
 					geoset.doSavePrep(this);
 				}
 			}
-		}
-
-		// GeosetAnims
-		for (final GeosetAnim geoAnim : geosetAnims) {
-			geoAnim.geosetId = geosets.indexOf(geoAnim.geoset);
 		}
 
 		// Clearing pivot points
@@ -1410,7 +1442,7 @@ public class EditableModel implements Named {
 			boolean noIds = true;
 			for (int i = 0; (i < geosetAnims.size()) && noIds; i++) {
 				final GeosetAnim ga = geosetAnims.get(i);
-				if (ga.geosetId != -1) {
+				if (ga.geoset != null) {
 					noIds = false;
 					break;
 				}
@@ -2471,5 +2503,9 @@ public class EditableModel implements Named {
 
 	public int computeMaterialID(final Material material) {
 		return materials.indexOf(material);
+	}
+
+	public int computeGeosetID(final Geoset geoset) {
+		return materials.indexOf(geoset);
 	}
 }
