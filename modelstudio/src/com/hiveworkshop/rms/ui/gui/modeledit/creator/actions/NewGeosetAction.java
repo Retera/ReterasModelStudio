@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator.actions;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

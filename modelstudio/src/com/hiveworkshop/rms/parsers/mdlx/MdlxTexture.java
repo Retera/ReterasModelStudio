@@ -7,22 +7,33 @@ import com.hiveworkshop.rms.util.BinaryReader;
 import com.hiveworkshop.rms.util.BinaryWriter;
 
 public class MdlxTexture implements MdlxBlock {
+	public enum WrapMode {
+		REPEAT_BOTH,
+		WRAP_WIDTH,
+		WRAP_HEIGHT,
+		WRAP_BOTH;
+
+		public static WrapMode fromId(final int id) {
+			return values()[id];
+		}
+	}
+
 	public int replaceableId = 0;
 	public String path = "";
-	public int flags = 0;
+	public WrapMode wrapMode = WrapMode.REPEAT_BOTH;
 
 	@Override
 	public void readMdx(final BinaryReader reader, final int version) {
 		replaceableId = reader.readInt32();
 		path = reader.read(260);
-		flags = reader.readInt32();
+		wrapMode = WrapMode.fromId(reader.readInt32());
 	}
 
 	@Override
 	public void writeMdx(final BinaryWriter writer, final int version) {
 		writer.writeInt32(replaceableId);
 		writer.writeWithNulls(path, 260);
-		writer.writeInt32(flags);
+		writer.writeInt32(wrapMode.ordinal());
 	}
 
 	@Override
@@ -36,10 +47,10 @@ public class MdlxTexture implements MdlxBlock {
 					replaceableId = stream.readInt();
 					break;
 				case MdlUtils.TOKEN_WRAP_WIDTH:
-					flags |= 0x1;
+					wrapMode = WrapMode.fromId(wrapMode.ordinal() + 0x1);
 					break;
 				case MdlUtils.TOKEN_WRAP_HEIGHT:
-					flags |= 0x2;
+					wrapMode = WrapMode.fromId(wrapMode.ordinal() + 0x2);
 					break;
 				default:
 					throw new RuntimeException("Unknown token in Texture: " + token);
@@ -56,11 +67,11 @@ public class MdlxTexture implements MdlxBlock {
 			stream.writeAttrib(MdlUtils.TOKEN_REPLACEABLE_ID, replaceableId);
 		}
 
-		if ((flags & 0x1) != 0) {
+		if (wrapMode == WrapMode.WRAP_WIDTH || wrapMode == WrapMode.WRAP_BOTH) {
 			stream.writeFlag(MdlUtils.TOKEN_WRAP_WIDTH);
 		}
 
-		if ((flags & 0x2) != 0) {
+		if (wrapMode == WrapMode.WRAP_HEIGHT || wrapMode == WrapMode.WRAP_BOTH) {
 			stream.writeFlag(MdlUtils.TOKEN_WRAP_HEIGHT);
 		}
 

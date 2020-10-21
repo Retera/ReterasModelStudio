@@ -77,7 +77,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.viewport.TVertexEditorM
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.TVertexSelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonListener;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
@@ -1076,7 +1075,7 @@ public class UVPanel extends JPanel
             panel.add(heightVal);
             JOptionPane.showMessageDialog(this, panel);
             vp.setAspectRatio(
-                    ((Integer) widthVal.getValue()).intValue() / (double) ((Integer) heightVal.getValue()).intValue());
+                    (Integer) widthVal.getValue() / (double) (Integer) heightVal.getValue());
         }
     }
 

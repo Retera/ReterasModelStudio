@@ -15,7 +15,7 @@ public class UnitComparator implements Comparator<StandardObjectData.WarcraftObj
 		}
 		int comp1 = a.getField("unitClass").compareTo(b.getField("unitClass"));
 		if( comp1 == 0 ) {
-			int comp2 = Integer.valueOf(a.getFieldValue("level")).compareTo(Integer.valueOf(b.getFieldValue("level")));
+			int comp2 = Integer.valueOf(a.getFieldValue("level")).compareTo(b.getFieldValue("level"));
 			if( comp2 == 0 )
 				return a.getName().compareTo(b.getName());
 			return comp2;

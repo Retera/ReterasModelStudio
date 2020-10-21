@@ -170,7 +170,7 @@ public class Camera implements Named {
 					axisHeap.x = (targetPosition.x + targetTranslation.x) - (sourcePosition.x + sourceTranslation.x);
 					axisHeap.y = (targetPosition.y + targetTranslation.y) - (sourcePosition.y + sourceTranslation.y);
 					axisHeap.z = (targetPosition.z + targetTranslation.z) - (sourcePosition.z + sourceTranslation.z);
-					rotationHeap.setFromAxisAngle(axisHeap, angle.floatValue());
+					rotationHeap.setFromAxisAngle(axisHeap, angle);
 					return rotationHeap;
 				} else {
 					return (Quat) interpolated;

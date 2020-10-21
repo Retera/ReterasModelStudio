@@ -14,8 +14,6 @@ import com.jtattoo.plaf.noire.NoireLookAndFeel;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.*;
 import java.awt.*;
@@ -280,7 +278,7 @@ public class DataSourceChooserPanel extends JPanel {
                 final File selectedFile = fileChooser.getSelectedFile();
                 if (selectedFile != null) {
                     dataSourceDescriptors
-                            .add(new CascDataSourceDescriptor(selectedFile.getPath(), new ArrayList<String>()));
+                            .add(new CascDataSourceDescriptor(selectedFile.getPath(), new ArrayList<>()));
                     reloadTree();
                 }
             }

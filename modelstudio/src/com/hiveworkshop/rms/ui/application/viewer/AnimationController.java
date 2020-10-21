@@ -4,14 +4,9 @@ import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 
 public class AnimationController extends JPanel {
 	private ModelView mdlDisp;

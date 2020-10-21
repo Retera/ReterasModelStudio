@@ -14,9 +14,9 @@ import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
 import net.miginfocom.swing.MigLayout;
 
+import java.awt.image.BufferedImage;
+
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class ComponentLayerPanel extends JPanel {
 	private final JComboBox<FilterMode> filterModeDropdown;
@@ -91,8 +91,13 @@ public class ComponentLayerPanel extends JPanel {
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		layerFlagsPanel.setLayer(layer);
 		filterModeDropdown.setSelectedItem(layer.getFilterMode());
-		textureButton.setIcon(new ImageIcon(
-				IconUtils.worldEditStyleIcon(BLPHandler.getImage(layer.getTextureBitmap(), workingDirectory))));
+
+		// Custom textures can fail to load.
+		BufferedImage image = BLPHandler.getImage(layer.firstTexture(), workingDirectory);
+		if (image != null) {
+			textureButton.setIcon(new ImageIcon(IconUtils.worldEditStyleIcon(image)));
+		}
+		
 		coordIdSpinner.reloadNewValue(layer.getCoordId());
 		tVertexAnimButton.setText(layer.getTextureAnim() == null ? "None" : layer.getTextureAnim().toString());
 		alphaPanel.reloadNewValue((float) layer.getStaticAlpha(), layer.find("Alpha"));

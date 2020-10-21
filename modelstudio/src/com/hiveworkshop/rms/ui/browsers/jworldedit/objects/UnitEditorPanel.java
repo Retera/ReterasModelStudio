@@ -17,8 +17,6 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.TopLe
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;

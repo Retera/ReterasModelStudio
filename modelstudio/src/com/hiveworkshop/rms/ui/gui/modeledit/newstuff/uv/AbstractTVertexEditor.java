@@ -39,7 +39,7 @@ public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexE
 		super(selectionManager);
 		this.model = model;
 		this.structureChangeListener = structureChangeListener;
-		vertexSelectionHelper = vertices -> selectByVertices(vertices);
+		vertexSelectionHelper = this::selectByVertices;
 	}
 
 	@Override

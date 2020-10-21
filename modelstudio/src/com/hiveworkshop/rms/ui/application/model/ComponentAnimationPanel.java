@@ -9,8 +9,6 @@ import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextFiel
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class ComponentAnimationPanel extends JPanel {
 	private final ComponentEditorTextField nameField;
