@@ -1,49 +1,5 @@
 package com.hiveworkshop.rms.ui.application.edit.animation;
 
-import java.awt.AWTException;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.GradientPaint;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.MouseInfo;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Robot;
-import java.awt.Stroke;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.swing.Box;
-import javax.swing.GroupLayout;
-import javax.swing.JCheckBox;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
-import javax.swing.Timer;
-
 import com.hiveworkshop.rms.editor.model.AnimFlag;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
@@ -63,6 +19,13 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.GUITheme;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+
+import javax.swing.Timer;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.List;
+import java.util.*;
 
 public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, SelectionListener {
 	private static final Color GLASS_TICK_COVER_COLOR = new Color(100, 190, 255, 100);
@@ -204,7 +167,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 							for (final IdObject object : timeAndKey.getValue().objects) {
 								for (final AnimFlag flag : object.getAnimFlags()) {
 									final int flooredTimeIndex = flag.floorIndex(timeAndKey.getKey());
-									if ((flooredTimeIndex < flag.getTimes().size())
+									if ((flooredTimeIndex != -1) && (flooredTimeIndex < flag.getTimes().size())
 											&& flag.getTimes().get(flooredTimeIndex).equals(timeAndKey.getKey())) {
 										final JMenu subMenu = new JMenu(object.getName() + ": " + flag.getName());
 										popupMenu.add(subMenu);
@@ -415,7 +378,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		for (final IdObject object : objects) {
 			for (final AnimFlag flag : object.getAnimFlags()) {
 				final int flooredTimeIndex = flag.floorIndex(trackTime);
-				if ((flooredTimeIndex < flag.getTimes().size())
+				if ((flooredTimeIndex != -1) && (flooredTimeIndex < flag.getTimes().size())
 						&& (flag.getTimes().get(flooredTimeIndex) == trackTime)) {
 					final ReversedAction deleteFrameAction;
 					// I'm going to cheat a little bit.
@@ -449,7 +412,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	private void deleteKeyframe(final String actionName, final ModelStructureChangeListener structureChangeListener,
 			final IdObject object, final AnimFlag flag, final int trackTime) {
 		final int flooredTimeIndex = flag.floorIndex(trackTime);
-		if ((flooredTimeIndex < flag.getTimes().size()) && (flag.getTimes().get(flooredTimeIndex) == trackTime)) {
+		if ((flooredTimeIndex != -1) && (flooredTimeIndex < flag.getTimes().size()) && (flag.getTimes().get(flooredTimeIndex) == trackTime)) {
 			final ReversedAction deleteFrameAction;
 			// I'm going to cheat a little bit.
 			// When this saves in the "undo stack" the list of keyframe values
@@ -571,7 +534,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 				if (((flag.getGlobalSeq() == null) && (currentEditorGlobalSeq == null))
 						|| ((currentEditorGlobalSeq != null) && currentEditorGlobalSeq.equals(flag.getGlobalSeq()))) {
 					final int flooredTimeIndex = flag.floorIndex(trackTime);
-					if ((flooredTimeIndex < flag.getTimes().size())
+					if ((flooredTimeIndex != -1) && (flooredTimeIndex < flag.getTimes().size())
 							&& (flag.getTimes().get(flooredTimeIndex) == trackTime)) {
 						final Object value = flag.getValues().get(flooredTimeIndex);
 						if (flag.tans()) {
@@ -602,7 +565,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		copiedKeyframes.clear();
 		useAllCopiedKeyframes = false;
 		final int flooredTimeIndex = flag.floorIndex(trackTime);
-		if ((flooredTimeIndex < flag.getTimes().size()) && (flag.getTimes().get(flooredTimeIndex) == trackTime)) {
+		if ((flooredTimeIndex != -1) && (flooredTimeIndex < flag.getTimes().size()) && (flag.getTimes().get(flooredTimeIndex) == trackTime)) {
 			final Object value = flag.getValues().get(flooredTimeIndex);
 			if (flag.tans()) {
 				copiedKeyframes.add(new CopiedKeyFrame(object, flag, AnimFlag.cloneValue(value),
@@ -631,7 +594,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 				if (((flag.getGlobalSeq() == null) && (currentEditorGlobalSeq == null))
 						|| ((currentEditorGlobalSeq != null) && currentEditorGlobalSeq.equals(flag.getGlobalSeq()))) {
 					final int flooredTimeIndex = flag.floorIndex(trackTime);
-					if ((flooredTimeIndex < flag.getTimes().size())
+					if ((flooredTimeIndex != -1) && (flooredTimeIndex < flag.getTimes().size())
 							&& (flag.getTimes().get(flooredTimeIndex) == trackTime)) {
 						final Object value = flag.getValues().get(flooredTimeIndex);
 						if (flag.tans()) {
@@ -1012,7 +975,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 				// tans might be null
 				final Object newInTan = AnimFlag.cloneValue(frame.inTan);
 				final Object newOutTan = AnimFlag.cloneValue(frame.outTan);
-				if ((flooredTimeIndex < frame.sourceTimeline.getTimes().size())
+				if ((flooredTimeIndex != -1) && (flooredTimeIndex < frame.sourceTimeline.getTimes().size())
 						&& (frame.sourceTimeline.getTimes().get(flooredTimeIndex) == mouseClickAnimationTime)) {
 					if (frame.sourceTimeline.tans()) {
 						final Object oldValue = frame.sourceTimeline.valueAt(mouseClickAnimationTime);
@@ -1021,10 +984,10 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 						frame.sourceTimeline.setKeyframe(mouseClickAnimationTime, newValue, newInTan, newOutTan);
 						actions.add(new SetKeyframeAction(frame.node, frame.sourceTimeline, mouseClickAnimationTime,
 								newValue, newInTan, newOutTan, oldValue, oldInTan, oldOutTan, () -> {
-									// TODO this is a hack to refresh screen while
-									// dragging
-									notifier.timeChanged(currentTime);
-								}));
+							// TODO this is a hack to refresh screen while
+							// dragging
+							notifier.timeChanged(currentTime);
+						}));
 					} else {
 						final Object oldValue = frame.sourceTimeline.valueAt(mouseClickAnimationTime);
 						frame.sourceTimeline.setKeyframe(mouseClickAnimationTime, newValue);
@@ -1065,7 +1028,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 				// tans might be null
 				final Object newInTan = AnimFlag.cloneValue(frame.inTan);
 				final Object newOutTan = AnimFlag.cloneValue(frame.outTan);
-				if ((flooredTimeIndex < flag.getTimes().size())
+				if ((flooredTimeIndex != -1) && (flooredTimeIndex < flag.getTimes().size())
 						&& (flag.getTimes().get(flooredTimeIndex) == mouseClickAnimationTime)) {
 					if (frame.sourceTimeline.tans()) {
 						final Object oldValue = frame.sourceTimeline.valueAt(mouseClickAnimationTime);
@@ -1075,7 +1038,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 						undoManager.pushAction(
 								new SetKeyframeAction(frame.node, frame.sourceTimeline, mouseClickAnimationTime,
 										newValue, newInTan, newOutTan, oldValue, oldInTan, oldOutTan, () -> {
-											// TODO this is a hack to refresh screen
+									// TODO this is a hack to refresh screen
 											// while dragging
 											notifier.timeChanged(currentTime);
 										}));

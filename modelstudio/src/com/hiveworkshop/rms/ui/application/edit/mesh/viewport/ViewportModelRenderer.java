@@ -1,32 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.hiveworkshop.rms.editor.model.Attachment;
-import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.editor.model.Camera;
-import com.hiveworkshop.rms.editor.model.CollisionShape;
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.EventObject;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.GeosetAnim;
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.Helper;
-import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.Light;
-import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.editor.model.ParticleEmitter;
-import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
-import com.hiveworkshop.rms.editor.model.ParticleEmitterPopcorn;
-import com.hiveworkshop.rms.editor.model.RibbonEmitter;
-import com.hiveworkshop.rms.editor.model.Triangle;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.visitor.GeosetVisitor;
 import com.hiveworkshop.rms.editor.model.visitor.ModelVisitor;
 import com.hiveworkshop.rms.editor.model.visitor.TriangleVisitor;
@@ -37,6 +11,11 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.Resettab
 import com.hiveworkshop.rms.ui.gui.modeledit.VertexFilter;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ViewportModelRenderer implements ModelVisitor {
 	private Graphics2D graphics;
@@ -79,6 +58,11 @@ public class ViewportModelRenderer implements ModelVisitor {
 		graphics.setColor(programPreferences.getTriangleColor());
 		if (modelView.getHighlightedGeoset() == modelView.getModel().getGeoset(geosetId)) {
 			graphics.setColor(programPreferences.getHighlighTriangleColor());
+		} else {
+			final Geoset geoset = modelView.getModel().getGeoset(geosetId);
+			if (!modelView.getEditableGeosets().contains(geoset)) {
+				graphics.setColor(programPreferences.getVisibleUneditableColor());
+			}
 		}
 		return geosetRenderer.reset();
 	}

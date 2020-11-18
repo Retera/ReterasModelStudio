@@ -818,7 +818,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 
 	@Override
 	public void rawScale(final double centerX, final double centerY, final double centerZ, final double scaleX,
-			final double scaleY, final double scaleZ) {
+						 final double scaleY, final double scaleZ) {
 		super.rawScale(centerX, centerY, centerZ, scaleX, scaleY, scaleZ);
 		for (final IdObject b : model.getEditableIdObjects()) {
 			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
@@ -897,6 +897,21 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 					public void attachment(final Attachment attachment) {
 					}
 				});
+			}
+		}
+	}
+
+	@Override
+	public void rawTranslate(final double x, final double y, final double z) {
+		super.rawTranslate(x, y, z);
+		for (final IdObject b : model.getEditableIdObjects()) {
+			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
+				final float[] bindPose = b.getBindPose();
+				if (bindPose != null) {
+					bindPose[9] += x;
+					bindPose[10] += y;
+					bindPose[11] += z;
+				}
 			}
 		}
 	}

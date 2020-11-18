@@ -1,12 +1,12 @@
 package com.hiveworkshop.rms.ui.gui.modeledit;
 
 import com.hiveworkshop.rms.filesystem.sources.DataSourceDescriptor;
+import com.hiveworkshop.rms.ui.preferences.DataSourceChooserPanel;
 import com.hiveworkshop.rms.ui.preferences.GUITheme;
 import com.hiveworkshop.rms.ui.preferences.MouseButtonPreference;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.ColorChooserIcon;
 import com.hiveworkshop.rms.ui.util.ColorChooserIcon.ColorListener;
-import com.hiveworkshop.rms.ui.preferences.DataSourceChooserPanel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -112,9 +112,51 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		final ColorChooserIcon animtedBoneSelectedUpstreamColorIcon = new ColorChooserIcon(
 				programPreferences.getAnimatedBoneSelectedUpstreamColor(), color -> programPreferences.setAnimatedBoneSelectedUpstreamColor(color));
 		final ColorChooserIcon pivotPointColorIcon = new ColorChooserIcon(programPreferences.getPivotPointsColor(),
-                color -> programPreferences.setPivotPointsColor(color));
+				color -> programPreferences.setPivotPointsColor(color));
 		final ColorChooserIcon pivotPointSelectedColorIcon = new ColorChooserIcon(
 				programPreferences.getPivotPointsSelectedColor(), color -> programPreferences.setPivotPointsSelectedColor(color));
+		final ColorChooserIcon buttonColorB1Icon = new ColorChooserIcon(programPreferences.getActiveBColor1(),
+				new ColorListener() {
+					@Override
+					public void colorChanged(final Color color) {
+						programPreferences.setActiveBColor1(color);
+					}
+				});
+		final ColorChooserIcon buttonColorB2Icon = new ColorChooserIcon(programPreferences.getActiveBColor2(),
+				new ColorListener() {
+					@Override
+					public void colorChanged(final Color color) {
+						programPreferences.setActiveBColor2(color);
+					}
+				});
+		final ColorChooserIcon buttonColor1Icon = new ColorChooserIcon(programPreferences.getActiveColor1(),
+				new ColorListener() {
+					@Override
+					public void colorChanged(final Color color) {
+						programPreferences.setActiveColor1(color);
+					}
+				});
+		final ColorChooserIcon buttonColor2Icon = new ColorChooserIcon(programPreferences.getActiveColor2(),
+				new ColorListener() {
+					@Override
+					public void colorChanged(final Color color) {
+						programPreferences.setActiveColor2(color);
+					}
+				});
+		final ColorChooserIcon buttonColorR1Icon = new ColorChooserIcon(programPreferences.getActiveRColor1(),
+				new ColorListener() {
+					@Override
+					public void colorChanged(final Color color) {
+						programPreferences.setActiveRColor1(color);
+					}
+				});
+		final ColorChooserIcon buttonColorR2Icon = new ColorChooserIcon(programPreferences.getActiveRColor2(),
+				new ColorListener() {
+					@Override
+					public void colorChanged(final Color color) {
+						programPreferences.setActiveRColor2(color);
+					}
+				});
 
 		final JComboBox<GUITheme> themeCheckBox = new JComboBox<>(GUITheme.values());
 		themeCheckBox.setSelectedItem(programPreferences.getTheme());
@@ -171,6 +213,24 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		row++;
 		modelEditorPanel.add(new JLabel("Pivot Point Selected Color:"), "cell 0 " + row);
 		modelEditorPanel.add(pivotPointSelectedColorIcon, "cell 1 " + row);
+		row++;
+		modelEditorPanel.add(new JLabel("Button B Color 1:"), "cell 0 " + row);
+		modelEditorPanel.add(buttonColorB1Icon, "cell 1 " + row);
+		row++;
+		modelEditorPanel.add(new JLabel("Button B Color 2:"), "cell 0 " + row);
+		modelEditorPanel.add(buttonColorB2Icon, "cell 1 " + row);
+		row++;
+		modelEditorPanel.add(new JLabel("Button Color 1:"), "cell 0 " + row);
+		modelEditorPanel.add(buttonColor1Icon, "cell 1 " + row);
+		row++;
+		modelEditorPanel.add(new JLabel("Button Color 2:"), "cell 0 " + row);
+		modelEditorPanel.add(buttonColor2Icon, "cell 1 " + row);
+		row++;
+		modelEditorPanel.add(new JLabel("Button R Color 1:"), "cell 0 " + row);
+		modelEditorPanel.add(buttonColorR1Icon, "cell 1 " + row);
+		row++;
+		modelEditorPanel.add(new JLabel("Button R Color 2:"), "cell 0 " + row);
+		modelEditorPanel.add(buttonColorR2Icon, "cell 1 " + row);
 		row++;
 		modelEditorPanel.add(new JLabel("Window Borders (Theme):"), "cell 0 " + row);
 		modelEditorPanel.add(themeCheckBox, "cell 1 " + row);

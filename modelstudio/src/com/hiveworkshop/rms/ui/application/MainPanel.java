@@ -41,7 +41,6 @@ import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.models.BetterUnitEditorModelSelector;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.*;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTreeBrowser.MDLLoadListener;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.WorldEditorDataType;
@@ -62,14 +61,12 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarActionButtonType;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.util.TextureExporter;
 import com.hiveworkshop.rms.ui.gui.modeledit.util.TransferActionListener;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
-import com.hiveworkshop.rms.ui.preferences.listeners.WarcraftDataSourceChangeListener;
 import com.hiveworkshop.rms.ui.preferences.listeners.WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.ui.util.ModeButton;
@@ -78,7 +75,6 @@ import com.hiveworkshop.rms.util.*;
 import com.owens.oobjloader.parser.Parse;
 import de.wc3data.stream.BlizzardDataInputStream;
 import net.infonode.docking.*;
-import net.infonode.docking.title.DockingWindowTitleProvider;
 import net.infonode.docking.util.StringViewMap;
 import net.infonode.tabbedpanel.TabAreaVisiblePolicy;
 import net.infonode.tabbedpanel.titledtab.TitledTabBorderSizePolicy;
@@ -158,8 +154,7 @@ public class MainPanel extends JPanel
     boolean cheatShift = false;
     boolean cheatAlt = false;
     SaveProfile profile = SaveProfile.get();
-    ProgramPreferences prefs = profile.getPreferences();// new
-    // ProgramPreferences();
+    ProgramPreferences prefs = profile.getPreferences();
 
     JToolBar toolbar;
 
@@ -1255,7 +1250,7 @@ public class MainPanel extends JPanel
         hackerView = new View("Matrix Eater Script", null, hackerPanel);
         creatorPanel = new CreatorModelingPanel(newType -> {
             actionTypeGroup.maybeSetButtonType(newType);
-            MainPanel.this.changeActivity(newType);
+            changeActivity(newType);
         }, prefs, actionTypeGroup, activeViewportWatcher, animatedRenderEnvironment);
         creatorView = new View("Modeling", null, creatorPanel);
         animationControllerView = new View("Animation Controller", null, new JPanel());
@@ -3949,6 +3944,7 @@ public class MainPanel extends JPanel
                             panel.getView());
                     panel.init();
                     floatingWindow.getTopLevelAncestor().setVisible(true);
+                    panel.packFrame();
                 } else if (!disp.getEditUVPanel().frameVisible()) {
                     final FloatingWindow floatingWindow = rootWindow.createFloatingWindow(
                             new Point(getX() + (getWidth() / 2), getY() + (getHeight() / 2)),
@@ -5467,7 +5463,7 @@ public class MainPanel extends JPanel
     // }
 
     public void setMouseCoordDisplay(final byte dim1, final byte dim2, final double value1, final double value2) {
-        for (JTextField jTextField : mouseCoordDisplay) {
+        for (final JTextField jTextField : mouseCoordDisplay) {
             jTextField.setText("");
         }
         mouseCoordDisplay[dim1].setText((float) value1 + "");

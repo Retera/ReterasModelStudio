@@ -1,7 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import java.util.List;
-
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -13,6 +11,8 @@ import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
+
+import java.util.List;
 
 public abstract class AnimatedNode extends TimelineContainer {
 	private static final Vec4 translationHeap = new Vec4();
@@ -54,12 +54,11 @@ public abstract class AnimatedNode extends TimelineContainer {
 		final int floorIndex = translationFlag.floorIndex(trackTime);
 		final RenderNode renderNode = renderModel.getRenderNode(this);
 
-		if ((translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
+		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
 			return null;
 		} else {
 			final Vec3 localLocation = renderNode.getLocalLocation();
-			final int insertIndex = ((translationFlag.getTimes().size() == 0)
-					|| (translationFlag.getTimes().get(0) > trackTime)) ? 0 : floorIndex + 1;
+			final int insertIndex = floorIndex + 1;
 			translationFlag.getTimes().add(insertIndex, trackTime);
 			final Vec3 keyframeValue = new Vec3(localLocation.x, localLocation.y, localLocation.z);
 			translationFlag.getValues().add(insertIndex, keyframeValue);
@@ -91,12 +90,11 @@ public abstract class AnimatedNode extends TimelineContainer {
 		final int floorIndex = rotationTimeline.floorIndex(trackTime);
 		final RenderNode renderNode = renderModel.getRenderNode(this);
 
-		if ((rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex) == trackTime)) {
+		if ((floorIndex != -1) && (rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex) == trackTime)) {
 			return null;
 		} else {
 			final Quat localRotation = renderNode.getLocalRotation();
-			final int insertIndex = ((rotationTimeline.getTimes().size() == 0)
-					|| (rotationTimeline.getTimes().get(0) > trackTime)) ? 0 : floorIndex + 1;
+			final int insertIndex = floorIndex + 1;
 			rotationTimeline.getTimes().add(insertIndex, trackTime);
 			final Quat keyframeValue = new Quat(localRotation);
 			rotationTimeline.getValues().add(insertIndex, keyframeValue);
@@ -128,12 +126,11 @@ public abstract class AnimatedNode extends TimelineContainer {
 		final int floorIndex = scalingTimeline.floorIndex(trackTime);
 		final RenderNode renderNode = renderModel.getRenderNode(this);
 
-		if ((scalingTimeline.getTimes().size() > 0) && (scalingTimeline.getTimes().get(floorIndex) == trackTime)) {
+		if ((floorIndex != -1) && (scalingTimeline.getTimes().size() > 0) && (scalingTimeline.getTimes().get(floorIndex) == trackTime)) {
 			return null;
 		} else {
 			final Vec3 localScale = renderNode.getLocalScale();
-			final int insertIndex = ((scalingTimeline.getTimes().size() == 0)
-					|| (scalingTimeline.getTimes().get(0) > trackTime)) ? 0 : floorIndex + 1;
+			final int insertIndex = floorIndex + 1;
 			scalingTimeline.getTimes().add(insertIndex, trackTime);
 			final Vec3 keyframeValue = new Vec3(localScale);
 			scalingTimeline.getValues().add(insertIndex, keyframeValue);
@@ -202,7 +199,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 			translationHeap.w = 1;
 		}
 
-		if ((translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
+		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
 			// we must change it
 			final Vec3 oldTranslationValue = (Vec3) translationFlag.getValues().get(floorIndex);
 			oldTranslationValue.x += translationHeap.x;
@@ -291,27 +288,27 @@ public abstract class AnimatedNode extends TimelineContainer {
 			matrixHeap.transform(axisAngleHeap);
 		} else {
 			switch (unusedXYZ) {
-			case 0:
-				axisAngleHeap.x = 1;
-				axisAngleHeap.y = 0;
-				axisAngleHeap.z = 0;
-				break;
-			case 1:
-				axisAngleHeap.x = 0;
-				axisAngleHeap.y = -1;
-				axisAngleHeap.z = 0;
-				break;
-			case 2:
-				axisAngleHeap.x = 0;
-				axisAngleHeap.y = 0;
-				axisAngleHeap.z = -1;
-				break;
+				case 0:
+					axisAngleHeap.x = 1;
+					axisAngleHeap.y = 0;
+					axisAngleHeap.z = 0;
+					break;
+				case 1:
+					axisAngleHeap.x = 0;
+					axisAngleHeap.y = -1;
+					axisAngleHeap.z = 0;
+					break;
+				case 2:
+					axisAngleHeap.x = 0;
+					axisAngleHeap.y = 0;
+					axisAngleHeap.z = -1;
+					break;
 			}
 		}
 		axisAngleHeap.w = (float) radians;
 		rotationDeltaHeap.setFromAxisAngle(axisAngleHeap);
 
-		if ((rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex) == trackTime)) {
+		if ((floorIndex != -1) && (rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex) == trackTime)) {
 			// we must change it
 			final Quat oldTranslationValue = (Quat) rotationTimeline.getValues()
 					.get(floorIndex);
@@ -397,7 +394,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		// translationHeap.w = 1;
 		// }
 
-		if ((translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
+		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
 			// we must change it
 			final Vec3 oldTranslationValue = (Vec3) translationFlag.getValues().get(floorIndex);
 			oldTranslationValue.x *= translationHeap.x;
@@ -437,7 +434,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		}
 		final int floorIndex = rotationTimeline.floorIndex(trackTime);
 
-		if ((rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex) == trackTime)) {
+		if ((floorIndex != -1) && (rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex) == trackTime)) {
 			// we must change it
 			final Quat oldTranslationValue = (Quat) rotationTimeline.getValues()
 					.get(floorIndex);
@@ -491,7 +488,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		}
 		final int floorIndex = rotationTimeline.floorIndex(trackTime);
 
-		if ((rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex) == trackTime)) {
+		if ((floorIndex != -1) && (rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex) == trackTime)) {
 			// we must change it
 			final Quat oldTranslationValue = (Quat) rotationTimeline.getValues()
 					.get(floorIndex);
@@ -548,7 +545,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		}
 		final int floorIndex = translationFlag.floorIndex(trackTime);
 
-		if ((translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
+		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
 			// we must change it
 			final Vec3 oldTranslationValue = (Vec3) translationFlag.getValues().get(floorIndex);
 			oldTranslationValue.x += newDeltaX;
@@ -580,7 +577,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		}
 		final int floorIndex = translationFlag.floorIndex(trackTime);
 
-		if ((translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
+		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
 			// we must change it
 			final Vec3 oldTranslationValue = (Vec3) translationFlag.getValues().get(floorIndex);
 			oldTranslationValue.x *= localScaling.x;

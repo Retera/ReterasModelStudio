@@ -1,10 +1,10 @@
 package com.hiveworkshop.rms.editor.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * GeosetVertex is a extended version of the Vertex class, for use strictly
@@ -78,26 +78,26 @@ public class GeosetVertex extends Vec3 {
 
 	public GeosetVertex(final GeosetVertex old) {
 		super(old.x, old.y, old.z);
-		this.normal = new Vec3(old.normal);
-		this.bones = new ArrayList<>(old.bones);
-		this.tverts = new ArrayList<>();
+		normal = new Vec3(old.normal);
+		bones = new ArrayList<>(old.bones);
+		tverts = new ArrayList<>();
 		for (final Vec2 tv : old.tverts) {
 			tverts.add(new Vec2(tv));
 		}
 		// odd, but when writing
-		this.geoset = old.geoset;
+		geoset = old.geoset;
 		// TODO copy triangles???????
 		if (old.skinBoneIndexes != null) {
-			this.skinBoneIndexes = old.skinBoneIndexes.clone();
+			skinBoneIndexes = old.skinBoneIndexes.clone();
 		}
 		if (old.skinBones != null) {
-			this.skinBones = old.skinBones.clone();
+			skinBones = old.skinBones.clone();
 		}
 		if (old.skinBoneWeights != null) {
-			this.skinBoneWeights = old.skinBoneWeights.clone();
+			skinBoneWeights = old.skinBoneWeights.clone();
 		}
 		if (old.tangent != null) {
-			this.tangent = old.tangent.clone();
+			tangent = old.tangent.clone();
 		}
 	}
 
@@ -109,6 +109,8 @@ public class GeosetVertex extends Vec3 {
 		try {
 			return tverts.get(i);
 		} catch (final ArrayIndexOutOfBoundsException e) {
+			return null;
+		} catch (final IndexOutOfBoundsException e) {
 			return null;
 		}
 	}

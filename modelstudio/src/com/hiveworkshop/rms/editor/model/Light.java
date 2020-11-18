@@ -15,8 +15,8 @@ import com.hiveworkshop.rms.util.Vec3;
  */
 public class Light extends IdObject {
 	Type type = Type.OMNIDIRECTIONAL;
-	int attenuationStart = 0;
-	int attenuationEnd = 0;
+	float attenuationStart = 0;
+	float attenuationEnd = 0;
 	double intensity = 0;
 	Vec3 staticColor = new Vec3();
 	double ambIntensity = 0;
@@ -50,8 +50,8 @@ public class Light extends IdObject {
 		loadObject(light);
 
 		type = light.type;
-		setAttenuationStart((int)light.attenuation[0]);
-		setAttenuationEnd((int)light.attenuation[1]);
+		setAttenuationStart(light.attenuation[0]);
+		setAttenuationEnd(light.attenuation[1]);
 		setStaticColor(new Vec3(light.color, true));
 		setIntensity(light.intensity);
 		setStaticAmbColor(new Vec3(light.ambientColor, true));
@@ -83,19 +83,19 @@ public class Light extends IdObject {
 		return "light";// geoset.getName();
 	}
 
-	public int getAttenuationStart() {
+	public float getAttenuationStart() {
 		return attenuationStart;
 	}
 
-	public void setAttenuationStart(final int attenuationStart) {
+	public void setAttenuationStart(final float attenuationStart) {
 		this.attenuationStart = attenuationStart;
 	}
 
-	public int getAttenuationEnd() {
+	public float getAttenuationEnd() {
 		return attenuationEnd;
 	}
 
-	public void setAttenuationEnd(final int attenuationEnd) {
+	public void setAttenuationEnd(final float attenuationEnd) {
 		this.attenuationEnd = attenuationEnd;
 	}
 

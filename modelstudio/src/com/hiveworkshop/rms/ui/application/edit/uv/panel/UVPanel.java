@@ -1,58 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.panel;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-
-import javax.imageio.ImageIO;
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.GroupLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRootPane;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JSpinner;
-import javax.swing.JTextField;
-import javax.swing.JToolBar;
-import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
-import javax.swing.SpinnerNumberModel;
-
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.Layer;
-import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.editor.model.Triangle;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -77,7 +25,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.viewport.TVertexEditorM
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.TVertexSelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonListener;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
@@ -85,8 +32,19 @@ import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.ui.util.ModeButton;
 import com.hiveworkshop.rms.util.Vec2;
-
 import net.infonode.docking.View;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.*;
 
 /**
  * Write a description of class DisplayPanel here.
@@ -312,7 +270,7 @@ public class UVPanel extends JPanel
         unwrapDirectionBox.setMinimumSize(new Dimension(90, 15));
         unwrapDirectionBox.addActionListener(this);
 
-        for (ModeButton button : buttons) {
+        for (final ModeButton button : buttons) {
             button.setMaximumSize(new Dimension(100, 35));
             button.setMinimumSize(new Dimension(90, 15));
             button.addActionListener(this);
@@ -323,7 +281,7 @@ public class UVPanel extends JPanel
         plusZoom.setMaximumSize(dim);
         plusZoom.setMinimumSize(dim);
         plusZoom.setPreferredSize(dim);
-        plusZoom.setIcon(new ImageIcon(RMSIcons.class.getResource("ImageBin/Plus.png")));
+        plusZoom.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage("Plus.png")));
         plusZoom.addActionListener(this);
         add(plusZoom);
 
@@ -331,7 +289,7 @@ public class UVPanel extends JPanel
         minusZoom.setMaximumSize(dim);
         minusZoom.setMinimumSize(dim);
         minusZoom.setPreferredSize(dim);
-        minusZoom.setIcon(new ImageIcon(RMSIcons.class.getResource("ImageBin/Minus.png")));
+        minusZoom.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage("Minus.png")));
         minusZoom.addActionListener(this);
         add(minusZoom);
 
@@ -340,7 +298,7 @@ public class UVPanel extends JPanel
         up.setMaximumSize(dim);
         up.setMinimumSize(dim);
         up.setPreferredSize(dim);
-        up.setIcon(new ImageIcon(RMSIcons.class.getResource("ImageBin/ArrowUp.png")));
+        up.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage("ArrowUp.png")));
         up.addActionListener(this);
         add(up);
 
@@ -348,7 +306,7 @@ public class UVPanel extends JPanel
         down.setMaximumSize(dim);
         down.setMinimumSize(dim);
         down.setPreferredSize(dim);
-        down.setIcon(new ImageIcon(RMSIcons.class.getResource("ImageBin/ArrowDown.png")));
+        down.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage("ArrowDown.png")));
         down.addActionListener(this);
         add(down);
 
@@ -357,7 +315,7 @@ public class UVPanel extends JPanel
         left.setMaximumSize(dim);
         left.setMinimumSize(dim);
         left.setPreferredSize(dim);
-        left.setIcon(new ImageIcon(RMSIcons.class.getResource("ImageBin/ArrowLeft.png")));
+        left.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage("ArrowLeft.png")));
         left.addActionListener(this);
         add(left);
 
@@ -365,7 +323,7 @@ public class UVPanel extends JPanel
         right.setMaximumSize(dim);
         right.setMinimumSize(dim);
         right.setPreferredSize(dim);
-        right.setIcon(new ImageIcon(RMSIcons.class.getResource("ImageBin/ArrowRight.png")));
+        right.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage("ArrowRight.png")));
         right.addActionListener(this);
         add(right);
 

@@ -14,8 +14,6 @@ import com.jtattoo.plaf.noire.NoireLookAndFeel;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.*;
 import java.awt.*;
@@ -446,6 +444,26 @@ public class DataSourceChooserPanel extends JPanel {
 			if (Files.exists(installPathPath.resolve("Deprecated.mpq"))) {
 				dataSourceDescriptors
 						.add(new MpqDataSourceDescriptor(installPathPath.resolve("Deprecated.mpq").toString()));
+			}
+			if (Files.exists(installPathPath.resolve("war3.w3mod"))) {
+				dataSourceDescriptors
+						.add(new FolderDataSourceDescriptor(installPathPath.resolve("war3.w3mod").toString()));
+			}
+			if (Files.exists(installPathPath.resolve("war3.w3mod/_locales/enus.w3mod"))) {
+				dataSourceDescriptors.add(new FolderDataSourceDescriptor(
+						installPathPath.resolve("war3.w3mod/_locales/enus.w3mod").toString()));
+			}
+			if (Files.exists(installPathPath.resolve("war3.w3mod/_deprecated.w3mod"))) {
+				dataSourceDescriptors.add(new FolderDataSourceDescriptor(
+						installPathPath.resolve("war3.w3mod/_deprecated.w3mod").toString()));
+			}
+			if (Files.exists(installPathPath.resolve("war3.w3mod/_hd.w3mod"))) {
+				dataSourceDescriptors.add(
+						new FolderDataSourceDescriptor(installPathPath.resolve("war3.w3mod/_hd.w3mod").toString()));
+			}
+			if (Files.exists(installPathPath.resolve("war3.w3mod/_hd.w3mod/_locales/enus.w3mod"))) {
+				dataSourceDescriptors.add(new FolderDataSourceDescriptor(
+						installPathPath.resolve("war3.w3mod/_hd.w3mod/_locales/enus.w3mod").toString()));
 			}
 		}
 	}
