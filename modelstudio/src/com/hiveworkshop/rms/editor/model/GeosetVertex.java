@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class GeosetVertex extends Vec3 {
 	Matrix matrixRef;
-	private Vec3 normal;
+	private Vec3 normal = new Vec3();
 	public int VertexGroup = -1;
 	List<Vec2> tverts = new ArrayList<>();
 	List<Bone> bones = new ArrayList<>();

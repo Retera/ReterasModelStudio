@@ -278,7 +278,7 @@ public class DataSourceChooserPanel extends JPanel {
                 final File selectedFile = fileChooser.getSelectedFile();
                 if (selectedFile != null) {
                     dataSourceDescriptors
-                            .add(new CascDataSourceDescriptor(selectedFile.getPath(), new ArrayList<String>()));
+                            .add(new CascDataSourceDescriptor(selectedFile.getPath(), new ArrayList<>()));
                     reloadTree();
                 }
             }

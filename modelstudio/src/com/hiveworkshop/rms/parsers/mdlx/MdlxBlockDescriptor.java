@@ -4,41 +4,41 @@ import com.hiveworkshop.rms.util.Descriptor;
 
 public interface MdlxBlockDescriptor<E> extends Descriptor<E> {
 
-	MdlxBlockDescriptor<MdlxAttachment> ATTACHMENT = () -> new MdlxAttachment();
+	MdlxBlockDescriptor<MdlxAttachment> ATTACHMENT = MdlxAttachment::new;
 
-	MdlxBlockDescriptor<MdlxBone> BONE = () -> new MdlxBone();
+	MdlxBlockDescriptor<MdlxBone> BONE = MdlxBone::new;
 
-	MdlxBlockDescriptor<MdlxCamera> CAMERA = () -> new MdlxCamera();
+	MdlxBlockDescriptor<MdlxCamera> CAMERA = MdlxCamera::new;
 
-	MdlxBlockDescriptor<MdlxCollisionShape> COLLISION_SHAPE = () -> new MdlxCollisionShape();
+	MdlxBlockDescriptor<MdlxCollisionShape> COLLISION_SHAPE = MdlxCollisionShape::new;
 
-	MdlxBlockDescriptor<MdlxEventObject> EVENT_OBJECT = () -> new MdlxEventObject();
+	MdlxBlockDescriptor<MdlxEventObject> EVENT_OBJECT = MdlxEventObject::new;
 
-	MdlxBlockDescriptor<MdlxGeoset> GEOSET = () -> new MdlxGeoset();
+	MdlxBlockDescriptor<MdlxGeoset> GEOSET = MdlxGeoset::new;
 
-	MdlxBlockDescriptor<MdlxGeosetAnimation> GEOSET_ANIMATION = () -> new MdlxGeosetAnimation();
+	MdlxBlockDescriptor<MdlxGeosetAnimation> GEOSET_ANIMATION = MdlxGeosetAnimation::new;
 
-	MdlxBlockDescriptor<MdlxHelper> HELPER = () -> new MdlxHelper();
+	MdlxBlockDescriptor<MdlxHelper> HELPER = MdlxHelper::new;
 
-	MdlxBlockDescriptor<MdlxLight> LIGHT = () -> new MdlxLight();
+	MdlxBlockDescriptor<MdlxLight> LIGHT = MdlxLight::new;
 
-	MdlxBlockDescriptor<MdlxLayer> LAYER = () -> new MdlxLayer();
+	MdlxBlockDescriptor<MdlxLayer> LAYER = MdlxLayer::new;
 
-	MdlxBlockDescriptor<MdlxMaterial> MATERIAL = () -> new MdlxMaterial();
+	MdlxBlockDescriptor<MdlxMaterial> MATERIAL = MdlxMaterial::new;
 
-	MdlxBlockDescriptor<MdlxParticleEmitter> PARTICLE_EMITTER = () -> new MdlxParticleEmitter();
+	MdlxBlockDescriptor<MdlxParticleEmitter> PARTICLE_EMITTER = MdlxParticleEmitter::new;
 
-	MdlxBlockDescriptor<MdlxParticleEmitter2> PARTICLE_EMITTER2 = () -> new MdlxParticleEmitter2();
+	MdlxBlockDescriptor<MdlxParticleEmitter2> PARTICLE_EMITTER2 = MdlxParticleEmitter2::new;
 
-	MdlxBlockDescriptor<MdlxParticleEmitterPopcorn> PARTICLE_EMITTER_POPCORN = () -> new MdlxParticleEmitterPopcorn();
+	MdlxBlockDescriptor<MdlxParticleEmitterPopcorn> PARTICLE_EMITTER_POPCORN = MdlxParticleEmitterPopcorn::new;
 
-	MdlxBlockDescriptor<MdlxRibbonEmitter> RIBBON_EMITTER = () -> new MdlxRibbonEmitter();
+	MdlxBlockDescriptor<MdlxRibbonEmitter> RIBBON_EMITTER = MdlxRibbonEmitter::new;
 
-	MdlxBlockDescriptor<MdlxSequence> SEQUENCE = () -> new MdlxSequence();
+	MdlxBlockDescriptor<MdlxSequence> SEQUENCE = MdlxSequence::new;
 
-	MdlxBlockDescriptor<MdlxTexture> TEXTURE = () -> new MdlxTexture();
+	MdlxBlockDescriptor<MdlxTexture> TEXTURE = MdlxTexture::new;
 
-	MdlxBlockDescriptor<MdlxTextureAnimation> TEXTURE_ANIMATION = () -> new MdlxTextureAnimation();
+	MdlxBlockDescriptor<MdlxTextureAnimation> TEXTURE_ANIMATION = MdlxTextureAnimation::new;
 
-	MdlxBlockDescriptor<MdlxFaceEffect> FACE_EFFECT = () -> new MdlxFaceEffect();
+	MdlxBlockDescriptor<MdlxFaceEffect> FACE_EFFECT = MdlxFaceEffect::new;
 }

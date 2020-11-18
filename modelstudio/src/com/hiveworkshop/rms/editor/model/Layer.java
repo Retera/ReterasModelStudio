@@ -1,16 +1,16 @@
 package com.hiveworkshop.rms.editor.model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Layers for MDLToolkit/MatrixEater.
@@ -173,6 +173,10 @@ public class Layer extends TimelineContainer implements Named {
 		} else {
 			return textures.equals(other.textures);
 		}
+	}
+
+	public Layer() {
+
 	}
 
 	public Layer(final String filterMode, final int textureId) {
@@ -371,7 +375,7 @@ public class Layer extends TimelineContainer implements Named {
 		textures = new ArrayList<>();
 		final AnimFlag txFlag = find(MdlUtils.TOKEN_TEXTURE_ID);
 		for (int i = 0; i < txFlag.values.size(); i++) {
-			final int txId = ((Integer) txFlag.values.get(i)).intValue();
+			final int txId = (Integer) txFlag.values.get(i);
 			final Bitmap texture2 = mdlr.getTexture(txId);
 			textures.add(texture2);
 			ridiculouslyWrongTextureIDToTexture.put(txId, texture2);
@@ -385,7 +389,7 @@ public class Layer extends TimelineContainer implements Named {
 			final AnimFlag txFlag = find(MdlUtils.TOKEN_TEXTURE_ID);
 			for (int i = 0; i < txFlag.values.size(); i++) {
 				final Bitmap textureFoundFromDirtyId = ridiculouslyWrongTextureIDToTexture
-						.get(((Integer) txFlag.values.get(i)).intValue());
+						.get((Integer) txFlag.values.get(i));
 				final int newerTextureId = mdlr.getTextureId(textureFoundFromDirtyId);
 				txFlag.values.set(i, newerTextureId);
 				ridiculouslyWrongTextureIDToTexture.put(newerTextureId, textureFoundFromDirtyId);

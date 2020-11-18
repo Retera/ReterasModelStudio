@@ -145,7 +145,7 @@ public class Vec3 {
 			center.add(v);
 		}
 
-		center.scale(1 / group.size());
+		center.scale(1.0f / group.size());
 
 		return center;
 	}

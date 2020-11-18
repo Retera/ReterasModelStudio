@@ -8,9 +8,9 @@ import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxUInt32Timeline;
 public interface MdlxTimelineDescriptor {
 	MdlxTimeline<?> createTimeline();
 
-	MdlxTimelineDescriptor UINT32_TIMELINE = () -> new MdlxUInt32Timeline();
+	MdlxTimelineDescriptor UINT32_TIMELINE = MdlxUInt32Timeline::new;
 
-	MdlxTimelineDescriptor FLOAT_TIMELINE = () -> new MdlxFloatTimeline();
+	MdlxTimelineDescriptor FLOAT_TIMELINE = MdlxFloatTimeline::new;
 
 	MdlxTimelineDescriptor VECTOR3_TIMELINE = () -> new MdlxFloatArrayTimeline(3);
 

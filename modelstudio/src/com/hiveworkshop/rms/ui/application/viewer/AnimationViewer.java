@@ -8,8 +8,6 @@ import org.lwjgl.LWJGLException;
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class AnimationViewer extends JPanel {
 	private ModelView mdlDisp;

@@ -27,7 +27,7 @@ public class SliderBarHandler implements ChangeListener {
                 isAdjusting = true;
                 if (!(spinner.getValue() instanceof Integer)) {
 
-                    bar.setValue((int) (((Double) spinner.getValue()).doubleValue() * 1000));
+                    bar.setValue((int) ((Double) spinner.getValue() * 1000));
                 }
 
                 isAdjusting = false;

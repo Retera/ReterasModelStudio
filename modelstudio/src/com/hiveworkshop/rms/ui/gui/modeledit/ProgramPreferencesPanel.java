@@ -90,31 +90,31 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		renderParticles.addActionListener(e -> programPreferences.setRenderParticles(renderParticles.isSelected()));
 		useBoxesForNodes.addActionListener(e -> programPreferences.setUseBoxesForPivotPoints(useBoxesForNodes.isSelected()));
 		final ColorChooserIcon backgroundColorIcon = new ColorChooserIcon(programPreferences.getBackgroundColor(),
-                color -> programPreferences.setBackgroundColor(color));
+				programPreferences::setBackgroundColor);
 		final ColorChooserIcon perspectiveBackgroundColorIcon = new ColorChooserIcon(
-				programPreferences.getPerspectiveBackgroundColor(), color -> programPreferences.setPerspectiveBackgroundColor(color));
+				programPreferences.getPerspectiveBackgroundColor(), programPreferences::setPerspectiveBackgroundColor);
 		final ColorChooserIcon vertexColorIcon = new ColorChooserIcon(programPreferences.getVertexColor(),
-                color -> programPreferences.setVertexColor(color));
+				programPreferences::setVertexColor);
 		final ColorChooserIcon triangleColorIcon = new ColorChooserIcon(programPreferences.getTriangleColor(),
-                color -> programPreferences.setTriangleColor(color));
+				programPreferences::setTriangleColor);
 		final ColorChooserIcon visibleUneditableColorIcon = new ColorChooserIcon(
-				programPreferences.getVisibleUneditableColor(), color -> programPreferences.setVisibleUneditableColor(color));
+				programPreferences.getVisibleUneditableColor(), programPreferences::setVisibleUneditableColor);
 		final ColorChooserIcon selectColorIcon = new ColorChooserIcon(programPreferences.getSelectColor(),
-                color -> programPreferences.setSelectColor(color));
+				programPreferences::setSelectColor);
 		final ColorChooserIcon triangleHighlightColorIcon = new ColorChooserIcon(
-				programPreferences.getHighlighTriangleColor(), color -> programPreferences.setHighlighTriangleColor(color));
+				programPreferences.getHighlighTriangleColor(), programPreferences::setHighlighTriangleColor);
 		final ColorChooserIcon vertexHighlightColorIcon = new ColorChooserIcon(
-				programPreferences.getHighlighVertexColor(), color -> programPreferences.setHighlighVertexColor(color));
+				programPreferences.getHighlighVertexColor(), programPreferences::setHighlighVertexColor);
 		final ColorChooserIcon animtedBoneSelectedColorIcon = new ColorChooserIcon(
-				programPreferences.getAnimatedBoneSelectedColor(), color -> programPreferences.setAnimatedBoneSelectedColor(color));
+				programPreferences.getAnimatedBoneSelectedColor(), programPreferences::setAnimatedBoneSelectedColor);
 		final ColorChooserIcon animtedBoneUnselectedColorIcon = new ColorChooserIcon(
-				programPreferences.getAnimatedBoneUnselectedColor(), color -> programPreferences.setAnimatedBoneUnselectedColor(color));
+				programPreferences.getAnimatedBoneUnselectedColor(), programPreferences::setAnimatedBoneUnselectedColor);
 		final ColorChooserIcon animtedBoneSelectedUpstreamColorIcon = new ColorChooserIcon(
-				programPreferences.getAnimatedBoneSelectedUpstreamColor(), color -> programPreferences.setAnimatedBoneSelectedUpstreamColor(color));
+				programPreferences.getAnimatedBoneSelectedUpstreamColor(), programPreferences::setAnimatedBoneSelectedUpstreamColor);
 		final ColorChooserIcon pivotPointColorIcon = new ColorChooserIcon(programPreferences.getPivotPointsColor(),
-				color -> programPreferences.setPivotPointsColor(color));
+				programPreferences::setPivotPointsColor);
 		final ColorChooserIcon pivotPointSelectedColorIcon = new ColorChooserIcon(
-				programPreferences.getPivotPointsSelectedColor(), color -> programPreferences.setPivotPointsSelectedColor(color));
+				programPreferences.getPivotPointsSelectedColor(), programPreferences::setPivotPointsSelectedColor);
 		final ColorChooserIcon buttonColorB1Icon = new ColorChooserIcon(programPreferences.getActiveBColor1(),
 				new ColorListener() {
 					@Override

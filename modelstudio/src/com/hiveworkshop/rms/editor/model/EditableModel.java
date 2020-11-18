@@ -2,11 +2,14 @@ package com.hiveworkshop.rms.editor.model;
 
 import java.awt.Component;
 import java.io.File;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JOptionPane;
 
@@ -44,6 +47,11 @@ import com.hiveworkshop.rms.util.MathUtils;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.util.Vec4;
+
+import jassimp.AiMaterial;
+import jassimp.AiMesh;
+import jassimp.AiScene;
 
 /**
  * A java object to represent and store an MDL 3d model (Warcraft III file
@@ -105,8 +113,6 @@ public class EditableModel implements Named {
 	}
 
 	public EditableModel(final MdlxModel model) {
-		this();
-
 		// Step 1: Convert the Model Chunk
 		// For MDL api, this is currently embedded right inside the
 		// MDL class
@@ -122,7 +128,7 @@ public class EditableModel implements Named {
 
 		// Step 3: Convert any global sequences
 		for (final long sequence : model.globalSequences) {
-			add(Integer.valueOf((int)sequence));
+			add((int) sequence);
 		}
 
 		// Step 4: Convert Texture refs
@@ -142,12 +148,18 @@ public class EditableModel implements Named {
 		
 		// Step 7: Geoset
 		for (final MdlxGeoset geoset : model.geosets) {
-			add(new Geoset(geoset));
+			add(new Geoset(geoset, this));
 		}
 
 		// Step 8: GeosetAnims
 		for (final MdlxGeosetAnimation animation : model.geosetAnimations) {
-			add(new GeosetAnim(animation));
+			final GeosetAnim geosetAnim = new GeosetAnim(animation, this);
+
+			add(geosetAnim);
+
+			if (geosetAnim.geoset != null) {
+				geosetAnim.geoset.geosetAnim = geosetAnim;
+			}
 		}
 
 		// Step 9:
@@ -199,21 +211,8 @@ public class EditableModel implements Named {
 			add(new EventObject(object));
 		}
 
-		boolean corruptedCameraWarningGiven = false;
 		for (final MdlxCamera camera : model.cameras) {
-			final Camera mdlCam = new Camera(camera);
-
-			if (!corruptedCameraWarningGiven && (mdlCam.getName().contains("????????")
-					|| (mdlCam.getName().length() > 20) || (mdlCam.getName().length() <= 0))) {
-				corruptedCameraWarningGiven = true;
-				JOptionPane.showMessageDialog(null, "--- " + getName()
-						+ " ---\nWARNING: Java Warcraft Libraries thinks we are loading a camera with corrupted data due to bug in Native MDX Parser.\nPlease DISABLE \"View > Use Native MDX Parser\" if you want to correctly edit \""
-						+ getName()
-						+ "\".\nYou may continue to work, but portions of the model's data have been lost, and will be missing if you save.",
-						"Warning", JOptionPane.WARNING_MESSAGE);
-			}
-
-			add(mdlCam);
+			add(new Camera(camera));
 		}
 
 		// CollisionShape
@@ -234,6 +233,58 @@ public class EditableModel implements Named {
 		}
 
 		doPostRead(); // fixes all the things
+	}
+
+	public EditableModel(final AiScene scene) {
+		System.out.println("IMPLEMENT EditableModel(AiScene)");
+
+		final Map<Material, Vec3> materialColors = new HashMap<>();
+		
+		for (final AiMaterial material : scene.getMaterials()) {
+			final Material editableMaterial = new Material(material, this);
+
+			add(editableMaterial);
+
+			AiMaterial.Property prop = material.getProperty("$raw.Diffuse");
+			if (prop != null) {
+				ByteBuffer buffer = (ByteBuffer) prop.getData();
+				float r = buffer.getFloat();
+				float g = buffer.getFloat();
+				float b = buffer.getFloat();
+
+				if (r != 1.0f || g != 1.0f || b != 1.0f) {
+					// Alpha?
+					materialColors.put(editableMaterial, new Vec3(r, g, b));
+				}
+			}
+		}
+
+		for (final AiMesh mesh : scene.getMeshes()) {
+			// For now only handle triangular meshes.
+			// Note that this doesn't mean polygons are not supported.
+			// This is because the meshes are triangularized by Assimp.
+			// Rather, this stops line meshes from being imported.
+			if (mesh.isPureTriangle()) {
+				final Geoset geoset = new Geoset(mesh, this);
+
+				add(geoset);
+
+				// If the material used by this geoset had a diffuse color, add a geoset animation with that color.
+				final Material material = geoset.getMaterial();
+
+				if (materialColors.containsKey(material)) {
+					final GeosetAnim geosetAnim = new GeosetAnim(geoset);
+
+					geosetAnim.setStaticColor(materialColors.get(material));
+
+					add(geosetAnim);
+
+					geoset.geosetAnim = geosetAnim;
+				}
+			}
+		}
+
+		doPostRead();
 	}
 
 	public MdlxModel toMdlx() {
@@ -279,11 +330,11 @@ public class EditableModel implements Named {
 		}
 
 		for (final Geoset geoset : geosets) {
-			model.geosets.add(geoset.toMdlx());
+			model.geosets.add(geoset.toMdlx(this));
 		}
 
 		for (final GeosetAnim animation : geosetAnims) {
-			model.geosetAnimations.add(animation.toMdlx());
+			model.geosetAnimations.add(animation.toMdlx(this));
 		}
 
 		for (final Bone bone : sortedIdObjects(Bone.class)) {
@@ -496,6 +547,28 @@ public class EditableModel implements Named {
 		return textures.get(index);
 	}
 
+	public Bitmap getTexture(final String path) {
+		for (final Bitmap texture : textures) {
+			if (texture.getPath().equals(path)) {
+				return texture;
+			}
+		}
+
+		return null;
+	}
+
+	public Bitmap loadTexture(final String path) {
+		Bitmap texture = getTexture(path);
+
+		if (texture == null) {
+			texture = new Bitmap(path);
+
+			add(texture);
+		}
+
+		return texture;
+	}
+
 	public int getTextureId(final Bitmap b) {
 		if (b == null) {
 			return -1;
@@ -513,7 +586,11 @@ public class EditableModel implements Named {
 	}
 
 	public Material getMaterial(final int i) {
-		return materials.get(i);
+		if (i >= 0 && i < materials.size()) {
+			return materials.get(i);
+		}
+
+		return null;
 	}
 
 	public void addSound(final SoundFile sound) {
@@ -873,14 +950,8 @@ public class EditableModel implements Named {
 		}
 		final List<GeosetAnim> badAnims = new ArrayList<>();
 		for (final GeosetAnim geoAnim : geosetAnims) {
-			if (geoAnim.geosetId != -1) {
-				if (geoAnim.geosetId >= geosets.size()) {
-					badAnims.add(geoAnim);
-				} else {
-
-					geoAnim.geoset = getGeoset(geoAnim.geosetId);
-					geoAnim.geoset.geosetAnim = geoAnim;// YEAH THIS MAKES SENSE
-				}
+			if (geoAnim.geoset == null) {
+				badAnims.add(geoAnim);
 			}
 		}
 		if (badAnims.size() > 0) {
@@ -943,11 +1014,6 @@ public class EditableModel implements Named {
 			}
 		}
 
-		// GeosetAnims
-		for (final GeosetAnim geoAnim : geosetAnims) {
-			geoAnim.geosetId = geosets.indexOf(geoAnim.geoset);
-		}
-
 		// Clearing pivot points
 		pivots.clear();
 		for (IdObject idObject : idObjects) {
@@ -971,7 +1037,6 @@ public class EditableModel implements Named {
 			if ((g.material != null) && !materials.contains(g.material)) {
 				materials.add(g.material);
 			}
-			g.setMaterialId(materials.indexOf(g.material)); // -1 if null
 		}
 		final List<RibbonEmitter> ribbons = sortedIdObjects(RibbonEmitter.class);
 		for (final RibbonEmitter r : ribbons) {
@@ -1357,7 +1422,7 @@ public class EditableModel implements Named {
 	}
 
 	public void buildGlobSeqFrom(final Animation anim, final List<AnimFlag> flags) {
-		final Integer newSeq = Integer.valueOf(anim.length());
+		final Integer newSeq = anim.length();
 		for (final AnimFlag af : flags) {
 			if (!af.hasGlobalSeq) {
 				final AnimFlag copy = new AnimFlag(af);
@@ -1377,7 +1442,7 @@ public class EditableModel implements Named {
 			boolean noIds = true;
 			for (int i = 0; (i < geosetAnims.size()) && noIds; i++) {
 				final GeosetAnim ga = geosetAnims.get(i);
-				if (ga.geosetId != -1) {
+				if (ga.geoset != null) {
 					noIds = false;
 					break;
 				}
@@ -1856,7 +1921,7 @@ public class EditableModel implements Named {
 			for (int i = 0; i < flag.size(); i++) {
 				final Entry entry = flag.getEntry(i);
 				if ((lastEntry != null) && (lastEntry.time == entry.time)) {
-					indicesForDeletion.add(Integer.valueOf(i));
+					indicesForDeletion.add(i);
 				}
 				lastEntry = entry;
 			}
@@ -1892,7 +1957,7 @@ public class EditableModel implements Named {
 								final Float older = (Float) olderKeyframe;
 								final Float old = (Float) oldKeyframe;
 								if ((older != null) && (old != null) && MathUtils.isBetween(older, old, d)) {
-									indicesForDeletion.add(Integer.valueOf(i - 1));
+									indicesForDeletion.add(i - 1);
 								}
 							} else if (entry.value instanceof Vec3) {
 								final Vec3 current = (Vec3) entry.value;
@@ -1901,7 +1966,7 @@ public class EditableModel implements Named {
 								if ((older != null) && (old != null) && MathUtils.isBetween(older.x, old.x, current.x)
 										&& MathUtils.isBetween(older.y, old.y, current.y)
 										&& MathUtils.isBetween(older.z, old.z, current.z)) {
-									indicesForDeletion.add(Integer.valueOf(i - 1));
+									indicesForDeletion.add(i - 1);
 								}
 							} else if (entry.value instanceof Quat) {
 								final Quat current = (Quat) entry.value;
@@ -1926,7 +1991,7 @@ public class EditableModel implements Named {
 										// &&
 										// MathUtils.isBetween(older.d,
 										// old.d, current.d)) {
-										indicesForDeletion.add(Integer.valueOf(i - 1));
+										indicesForDeletion.add(i - 1);
 									}
 								}
 							}
@@ -1967,7 +2032,7 @@ public class EditableModel implements Named {
 							final Float older = (Float) olderKeyframe;
 							final Float old = (Float) oldKeyframe;
 							if ((older != null) && (old != null) && MathUtils.isBetween(older, old, d)) {
-								indicesForDeletion.add(Integer.valueOf(i - 1));
+								indicesForDeletion.add(i - 1);
 							}
 						} else if (entry.value instanceof Vec3) {
 							final Vec3 current = (Vec3) entry.value;
@@ -1976,7 +2041,7 @@ public class EditableModel implements Named {
 							if ((older != null) && (old != null) && MathUtils.isBetween(older.x, old.x, current.x)
 									&& MathUtils.isBetween(older.y, old.y, current.y)
 									&& MathUtils.isBetween(older.z, old.z, current.z)) {
-								indicesForDeletion.add(Integer.valueOf(i - 1));
+								indicesForDeletion.add(i - 1);
 							}
 						} else if (entry.value instanceof Quat) {
 							final Quat current = (Quat) entry.value;
@@ -1997,7 +2062,7 @@ public class EditableModel implements Named {
 									// old.c, current.c)
 									// && MathUtils.isBetween(older.d,
 									// old.d, current.d)) {
-									indicesForDeletion.add(Integer.valueOf(i - 1));
+									indicesForDeletion.add(i - 1);
 								}
 							}
 						}
@@ -2434,5 +2499,13 @@ public class EditableModel implements Named {
 			}
 			globalSeqs.set(globalSequenceId, newLength);
 		}
+	}
+
+	public int computeMaterialID(final Material material) {
+		return materials.indexOf(material);
+	}
+
+	public int computeGeosetID(final Geoset geoset) {
+		return materials.indexOf(geoset);
 	}
 }

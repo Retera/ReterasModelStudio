@@ -2,8 +2,6 @@ package com.hiveworkshop.rms.ui.util;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 
 public class ZoomableImagePreviewPanel extends JPanel {
 	private final Image image;

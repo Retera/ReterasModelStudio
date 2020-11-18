@@ -31,8 +31,8 @@ public class TTan {
 		if (tang.inTan == null) {
 			switch (count) {
 			case 1:
-				tang.inTan = Float.valueOf(0);
-				tang.outTan = Float.valueOf(0);
+				tang.inTan = (float) 0;
+				tang.outTan = (float) 0;
 				break;
 			case 3:
 				tang.inTan = new Vec3(0, 0, 0);

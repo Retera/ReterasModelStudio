@@ -1034,7 +1034,7 @@ public class UVPanel extends JPanel
             panel.add(heightVal);
             JOptionPane.showMessageDialog(this, panel);
             vp.setAspectRatio(
-                    ((Integer) widthVal.getValue()).intValue() / (double) ((Integer) heightVal.getValue()).intValue());
+                    (Integer) widthVal.getValue() / (double) (Integer) heightVal.getValue());
         }
     }
 

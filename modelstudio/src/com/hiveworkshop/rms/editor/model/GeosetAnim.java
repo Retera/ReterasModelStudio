@@ -15,7 +15,6 @@ import com.hiveworkshop.rms.util.Vec3;
 public class GeosetAnim extends TimelineContainer implements Named {
 	double staticAlpha = 1;
 	Vec3 staticColor = new Vec3(1, 1, 1);
-	int geosetId = -1;
 	Geoset geoset;
 	boolean dropShadow = false;
 
@@ -35,28 +34,25 @@ public class GeosetAnim extends TimelineContainer implements Named {
 		addAll(other.getAnimFlags());
 		staticAlpha = other.staticAlpha;
 		staticColor = other.staticColor;
-		geosetId = other.geosetId;
 		this.geoset = geoset;
 		dropShadow = other.dropShadow;
 	}
 
-	public GeosetAnim(final MdlxGeosetAnimation animation) {
-		geosetId = animation.geosetId;
-		setStaticAlpha(animation.alpha);
+	public GeosetAnim(final MdlxGeosetAnimation animation, final EditableModel model) {
+		geoset = model.getGeoset(animation.geosetId);
+		staticAlpha = animation.alpha;
+		staticColor = new Vec3(ModelUtils.flipRGBtoBGR(animation.color));
 
 		final int flags = animation.flags;
-
-		setDropShadow((flags & 1) == 1);
-
-		setStaticColor(new Vec3(ModelUtils.flipRGBtoBGR(animation.color)));
+		dropShadow = ((flags & 1) == 1);
 
 		loadTimelines(animation);
 	}
 
-	public MdlxGeosetAnimation toMdlx() {
+	public MdlxGeosetAnimation toMdlx(final EditableModel model) {
 		final MdlxGeosetAnimation animation = new MdlxGeosetAnimation();
 
-		animation.geosetId = getGeosetId();
+		animation.geosetId = model.computeGeosetID(geoset);
 
 		if (dropShadow) {
 			animation.flags |= 1;
@@ -113,24 +109,6 @@ public class GeosetAnim extends TimelineContainer implements Named {
 
 	public void setStaticColor(final Vec3 staticColor) {
 		this.staticColor = staticColor;
-	}
-
-	/**
-	 * @return
-	 * @deprecated Used for MDX -> MDL code
-	 */
-	@Deprecated
-	public int getGeosetId() {
-		return geosetId;
-	}
-
-	/**
-	 * @param geosetId
-	 * @deprecated Used for MDX -> MDL code
-	 */
-	@Deprecated
-	public void setGeosetId(final int geosetId) {
-		this.geosetId = geosetId;
 	}
 
 	public Geoset getGeoset() {

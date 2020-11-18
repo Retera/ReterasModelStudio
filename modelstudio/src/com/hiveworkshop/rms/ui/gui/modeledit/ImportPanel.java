@@ -1983,10 +1983,10 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 						for (final Animation a : oldAnims) {
 							test = true;
 							if (tans) {
-								flagOld.addEntry(Integer.valueOf(a.getStart()), Float.valueOf(0), Float.valueOf(0),
-									Float.valueOf(0));
+								flagOld.addEntry(a.getStart(), (float) 0, (float) 0,
+										(float) 0);
 							} else {
-								flagOld.addEntry(Integer.valueOf(a.getStart()), Float.valueOf(0));
+								flagOld.addEntry(a.getStart(), (float) 0);
 							}
 						}
 					}
@@ -2002,10 +2002,10 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 						flagNew = new AnimFlag("temp");
 						for (final Animation a : newAnims) {
 							if (tans) {
-								flagNew.addEntry(Integer.valueOf(a.getStart()), Float.valueOf(0), Float.valueOf(0),
-									Float.valueOf(0));
+								flagNew.addEntry(a.getStart(), (float) 0, (float) 0,
+										(float) 0);
 							} else {
-								flagNew.addEntry(Integer.valueOf(a.getStart()), Float.valueOf(0));
+								flagNew.addEntry(a.getStart(), (float) 0);
 							}
 							// flagNew.times.add(Integer.valueOf(a.getStart()));
 							// flagNew.values.add(Float.valueOf(0));

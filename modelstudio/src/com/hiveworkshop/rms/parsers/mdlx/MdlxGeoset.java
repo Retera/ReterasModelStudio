@@ -213,7 +213,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 				this.vertexGroups = new short[vertexGroups.size()];
 				int i = 0;
 				for (final Short vertexGroup : vertexGroups) {
-					this.vertexGroups[i++] = vertexGroup.shortValue();
+					this.vertexGroups[i++] = vertexGroup;
 				}
 			}
 				break;
@@ -273,12 +273,12 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 				matrixIndices = new long[indices.size()];
 				int i = 0;
 				for (final Integer index : indices) {
-					matrixIndices[i++] = index.intValue();
+					matrixIndices[i++] = index;
 				}
 				matrixGroups = new long[groups.size()];
 				i = 0;
 				for (final Integer group : groups) {
-					matrixGroups[i++] = group.intValue();
+					matrixGroups[i++] = group;
 				}
 			}
 				break;

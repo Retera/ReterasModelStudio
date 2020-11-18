@@ -15,8 +15,6 @@ import com.hiveworkshop.rms.ui.icons.IconUtils;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 
 public class ComponentLayerPanel extends JPanel {
@@ -92,13 +90,15 @@ public class ComponentLayerPanel extends JPanel {
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		layerFlagsPanel.setLayer(layer);
 		filterModeDropdown.setSelectedItem(layer.getFilterMode());
-		if (layer.getTextureBitmap() != null) {
-			final BufferedImage image = BLPHandler.getImage(layer.getTextureBitmap(), workingDirectory);
+		// Custom textures can fail to load.
+		if (layer.firstTexture() != null) {
+			final BufferedImage image = BLPHandler.getImage(layer.firstTexture(), workingDirectory);
 			if (image != null) {
 				textureButton.setIcon(new ImageIcon(IconUtils.worldEditStyleIcon(image)));
 			}
+			textureButton.setText(layer.getName());
 		}
-		textureButton.setText(layer.getName());
+
 		coordIdSpinner.reloadNewValue(layer.getCoordId());
 		tVertexAnimButton.setText(layer.getTextureAnim() == null ? "None" : layer.getTextureAnim().toString());
 		alphaPanel.reloadNewValue((float) layer.getStaticAlpha(), layer.find("Alpha"));

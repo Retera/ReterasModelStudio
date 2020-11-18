@@ -6,19 +6,16 @@ import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.util.TextureExporter;
-import com.hiveworkshop.rms.ui.gui.modeledit.util.TextureExporter.TextureExporterClickListener;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
 
 public class EditTexturesPopupPanel extends JPanel {
 	private final JTextField pathField;

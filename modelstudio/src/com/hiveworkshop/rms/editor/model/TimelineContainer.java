@@ -91,7 +91,7 @@ public abstract class TimelineContainer implements VisibilitySource {
 		final AnimFlag timeline = find(tag);
 
 		if (timeline != null) {
-			return ((Integer)timeline.interpolateAt(animatedRenderEnvironment)).intValue();
+			return (Integer) timeline.interpolateAt(animatedRenderEnvironment);
 		}
 		
 		return defaultValue;
@@ -101,7 +101,7 @@ public abstract class TimelineContainer implements VisibilitySource {
 		final AnimFlag timeline = find(tag);
 
 		if (timeline != null) {
-			return ((Float)timeline.interpolateAt(animatedRenderEnvironment)).floatValue();
+			return (Float) timeline.interpolateAt(animatedRenderEnvironment);
 		}
 		
 		return defaultValue;
