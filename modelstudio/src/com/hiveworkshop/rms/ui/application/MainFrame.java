@@ -11,8 +11,8 @@ import java.io.File;
 import java.util.List;
 
 public class MainFrame extends JFrame {
-	public static final Image MAIN_PROGRAM_ICON = new ImageIcon(RMSIcons.loadProgramImage("retera.jpg"))
-			.getImage();
+	public static Image MAIN_PROGRAM_ICON;
+
 	public static MainFrame frame;
 	public static MainPanel panel;
 	public static JMenuBar menuBar;
@@ -23,6 +23,7 @@ public class MainFrame extends JFrame {
 
 	public MainFrame(final String title) {
 		super(title);
+		MAIN_PROGRAM_ICON = new ImageIcon(RMSIcons.loadProgramImage("retera.jpg")).getImage();
 
 		setBounds(0, 0, 1000, 650);
 		panel = new MainPanel();
@@ -46,7 +47,7 @@ public class MainFrame extends JFrame {
 	}
 
 	public static void create(final List<String> startupModelPaths) {
-		frame = new MainFrame("Retera Model Studio v0.04.2020.08.09 Nightly Build");
+		frame = new MainFrame("Retera Model Studio v0.05.2020.11.18 Beta Build");
 		panel.init();
 		if (!startupModelPaths.isEmpty()) {
 			for (final String path : startupModelPaths) {

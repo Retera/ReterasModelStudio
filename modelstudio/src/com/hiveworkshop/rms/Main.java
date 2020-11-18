@@ -51,8 +51,13 @@ public class Main {
             LwjglNativesLoader.load();
 
             // Load the jassimp natives.
-            final SharedLibraryLoader loader = new SharedLibraryLoader();
-            loader.load("jassimp-natives");
+            try {
+                final SharedLibraryLoader loader = new SharedLibraryLoader();
+                loader.load("jassimp-natives");
+            } catch (final Exception e) {
+                JOptionPane.showMessageDialog(null, "The C++ natives to parse FBX models failed to load. You will not be able to open FBX until you install the necessary software\nand restart Retera Model Studio.\n\nMaybe you are missing some Visual Studio Runtime dependency?\n\nNext up I will show you the error message that says why these C++ jassimp natives failed to load,\nin case you want to copy them and ask for help. Once you press OK on that error popup, you can probably still use\nRetera Model Studio just fine for everything else.", "Error", JOptionPane.ERROR_MESSAGE);
+                ExceptionPopup.display(e);
+            }
 
             final ProgramPreferences preferences = SaveProfile.get().getPreferences();
             switch (preferences.getTheme()) {
