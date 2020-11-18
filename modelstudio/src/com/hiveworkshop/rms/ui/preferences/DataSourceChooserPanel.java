@@ -267,22 +267,38 @@ public class DataSourceChooserPanel extends JPanel {
 			}
 		});
 		moveSelectionDown.setEnabled(false);
+		final JButton enterHDMode = new JButton("Reforged Graphics Mode");
+		enterHDMode.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				enterHDMode();
+			}
+		});
+		final JButton enterSDMode = new JButton("Classic Graphics Mode");
+		enterSDMode.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				enterSDMode();
+			}
+		});
 		final JButton resetAllToDefaults = new JButton("Reset to Defaults");
 		resetAllToDefaults.addActionListener(e -> loadDefaults(null));
 		final JButton addCASCButton = new JButton("Add CASC");
 		addCASCButton.addActionListener(e -> {
-            fileChooser.setFileFilter(null);
-            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            final int result = fileChooser.showOpenDialog(DataSourceChooserPanel.this);
-            if (result == JFileChooser.APPROVE_OPTION) {
-                final File selectedFile = fileChooser.getSelectedFile();
-                if (selectedFile != null) {
-                    dataSourceDescriptors
-                            .add(new CascDataSourceDescriptor(selectedFile.getPath(), new ArrayList<>()));
-                    reloadTree();
-                }
-            }
-        });
+			fileChooser.setFileFilter(null);
+			fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			final int result = fileChooser.showOpenDialog(DataSourceChooserPanel.this);
+			if (result == JFileChooser.APPROVE_OPTION) {
+				final File selectedFile = fileChooser.getSelectedFile();
+				if (selectedFile != null) {
+					dataSourceDescriptors
+							.add(new CascDataSourceDescriptor(selectedFile.getPath(), new ArrayList<>()));
+					reloadTree();
+				}
+			}
+		});
 		final JButton addMPQButton = new JButton("Add MPQ");
 		addMPQButton.addActionListener(e -> {
             fileChooser.setFileFilter(new FileNameExtensionFilter("MPQ Archive File", "mpq", "w3x", "w3m"));
@@ -298,21 +314,23 @@ public class DataSourceChooserPanel extends JPanel {
         });
 		final JButton addFolderButton = new JButton("Add Folder");
 		addFolderButton.addActionListener(e -> {
-            fileChooser.setFileFilter(null);
-            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            final int result = fileChooser.showOpenDialog(DataSourceChooserPanel.this);
-            if (result == JFileChooser.APPROVE_OPTION) {
-                final File selectedFile = fileChooser.getSelectedFile();
-                if (selectedFile != null) {
-                    dataSourceDescriptors.add(new FolderDataSourceDescriptor(selectedFile.getPath()));
-                    reloadTree();
-                }
-            }
-        });
+			fileChooser.setFileFilter(null);
+			fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			final int result = fileChooser.showOpenDialog(DataSourceChooserPanel.this);
+			if (result == JFileChooser.APPROVE_OPTION) {
+				final File selectedFile = fileChooser.getSelectedFile();
+				if (selectedFile != null) {
+					dataSourceDescriptors.add(new FolderDataSourceDescriptor(selectedFile.getPath()));
+					reloadTree();
+				}
+			}
+		});
 		final JLabel separatorLabel = new JLabel("-----");
 		separatorLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
 		final JLabel separatorLabel2 = new JLabel("-----");
 		separatorLabel2.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+		final JLabel separatorLabelLeftHandSide = new JLabel("-----");
+		separatorLabelLeftHandSide.setAlignmentX(JLabel.CENTER_ALIGNMENT);
 		final JLabel warcraft3InstallLocated = new JLabel("'Path' Registry Key: ");
 		final JLabel warcraft3InstallPath = new JLabel(wcDirectory == null ? "Not found" : wcDirectory);
 		warcraft3InstallLocated.setFont(new Font("Consolas", Font.BOLD, getFont().getSize()));
@@ -335,54 +353,58 @@ public class DataSourceChooserPanel extends JPanel {
                     final TreeNode parent = ((DefaultMutableTreeNode) lastPathComponent).getParent();
                     if (parent instanceof DataSourceDescTreeNode) {
                         lastPathComponent = parent;
-                    }
-                }
-                if (lastPathComponent instanceof DataSourceDescTreeNode) {
-                    final DataSourceDescriptor dataSourceDescriptor = ((DataSourceDescTreeNode) lastPathComponent)
-                            .getDescriptor();
-                    if (dataSourceDescriptor instanceof CascDataSourceDescriptor) {
-                        cascSelected = true;
-                    }
-                }
-            }
-            addDefaultCascPrefixes.setEnabled(cascSelected);
-            addSpecificCascPrefix.setEnabled(cascSelected);
-            deleteSelection.setEnabled(selectionPath != null);
-            moveSelectionUp.setEnabled(selectionPath != null);
-            moveSelectionDown.setEnabled(selectionPath != null);
-        });
+					}
+				}
+				if (lastPathComponent instanceof DataSourceDescTreeNode) {
+					final DataSourceDescriptor dataSourceDescriptor = ((DataSourceDescTreeNode) lastPathComponent)
+							.getDescriptor();
+					if (dataSourceDescriptor instanceof CascDataSourceDescriptor) {
+						cascSelected = true;
+					}
+				}
+			}
+			addDefaultCascPrefixes.setEnabled(cascSelected);
+			addSpecificCascPrefix.setEnabled(cascSelected);
+			deleteSelection.setEnabled(selectionPath != null);
+			moveSelectionUp.setEnabled(selectionPath != null);
+			moveSelectionDown.setEnabled(selectionPath != null);
+		});
 		final JScrollPane dstScrollpane = new JScrollPane(dataSourceTree);
 		dstScrollpane.setPreferredSize(new Dimension(500, 400));
 		final GroupLayout layout = new GroupLayout(this);
 
-		layout.setHorizontalGroup(layout.createSequentialGroup().addGap(8)
-				.addGroup(layout.createParallelGroup().addGroup(layout.createSequentialGroup()
-						.addGroup(layout.createParallelGroup().addComponent(clearList)
-								.addComponent(addWarcraft3Installation).addComponent(resetAllToDefaults))
-						.addComponent(dstScrollpane)
-						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(addCASCButton)
-								.addComponent(addMPQButton).addComponent(addFolderButton).addComponent(separatorLabel)
-								.addComponent(addDefaultCascPrefixes).addComponent(addSpecificCascPrefix)
-								.addComponent(separatorLabel2).addComponent(deleteSelection)
-								.addComponent(moveSelectionUp).addComponent(moveSelectionDown)))
-						.addGroup(layout.createSequentialGroup().addComponent(warcraft3InstallLocated)
-								.addComponent(warcraft3InstallPath)))
-				.addGap(8));
+		layout.setHorizontalGroup(
+				layout.createSequentialGroup().addGap(8)
+						.addGroup(layout.createParallelGroup().addGroup(layout.createSequentialGroup()
+								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+										.addComponent(clearList).addComponent(addWarcraft3Installation)
+										.addComponent(resetAllToDefaults).addComponent(separatorLabelLeftHandSide)
+										.addComponent(enterHDMode).addComponent(enterSDMode))
+								.addComponent(dstScrollpane)
+								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+										.addComponent(addCASCButton).addComponent(addMPQButton)
+										.addComponent(addFolderButton).addComponent(separatorLabel)
+										.addComponent(addDefaultCascPrefixes).addComponent(addSpecificCascPrefix)
+										.addComponent(separatorLabel2).addComponent(deleteSelection)
+										.addComponent(moveSelectionUp).addComponent(moveSelectionDown)))
+								.addGroup(layout.createSequentialGroup().addComponent(warcraft3InstallLocated)
+										.addComponent(warcraft3InstallPath)))
+						.addGap(8));
 
-		layout.linkSize(SwingConstants.HORIZONTAL, clearList, addWarcraft3Installation, resetAllToDefaults);
+		layout.linkSize(SwingConstants.HORIZONTAL, clearList, addWarcraft3Installation, enterHDMode, enterSDMode,
+				resetAllToDefaults);
 		layout.linkSize(SwingConstants.HORIZONTAL, addCASCButton, addMPQButton, addFolderButton, addDefaultCascPrefixes,
 				addSpecificCascPrefix, deleteSelection, moveSelectionUp, moveSelectionDown);
 
-		layout.setVerticalGroup(layout.createSequentialGroup().addGap(8)
-				.addGroup(layout.createParallelGroup()
-						.addGroup(layout.createSequentialGroup().addComponent(clearList)
-								.addComponent(addWarcraft3Installation).addComponent(resetAllToDefaults))
-						.addComponent(dstScrollpane)
-						.addGroup(layout.createSequentialGroup().addComponent(addCASCButton).addComponent(addMPQButton)
-								.addComponent(addFolderButton).addComponent(separatorLabel)
-								.addComponent(addDefaultCascPrefixes).addComponent(addSpecificCascPrefix)
-								.addComponent(separatorLabel2).addComponent(deleteSelection)
-								.addComponent(moveSelectionUp).addComponent(moveSelectionDown)))
+		layout.setVerticalGroup(layout.createSequentialGroup().addGap(8).addGroup(layout.createParallelGroup()
+				.addGroup(layout.createSequentialGroup().addComponent(clearList).addComponent(addWarcraft3Installation)
+						.addComponent(resetAllToDefaults).addComponent(separatorLabelLeftHandSide)
+						.addComponent(enterHDMode).addComponent(enterSDMode))
+				.addComponent(dstScrollpane)
+				.addGroup(layout.createSequentialGroup().addComponent(addCASCButton).addComponent(addMPQButton)
+						.addComponent(addFolderButton).addComponent(separatorLabel).addComponent(addDefaultCascPrefixes)
+						.addComponent(addSpecificCascPrefix).addComponent(separatorLabel2).addComponent(deleteSelection)
+						.addComponent(moveSelectionUp).addComponent(moveSelectionDown)))
 				.addGap(8)
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(warcraft3InstallLocated)
 						.addComponent(warcraft3InstallPath))
@@ -414,6 +436,57 @@ public class DataSourceChooserPanel extends JPanel {
 
 		setLayout(layout);
 		loadDefaults(dataSourceDescriptorDefaults);
+	}
+
+	private void enterSDMode() {
+		if ((dataSourceDescriptors.size() == 1) && (dataSourceDescriptors.get(0) instanceof CascDataSourceDescriptor)) {
+			final CascDataSourceDescriptor cascDataSourceDescriptor = (CascDataSourceDescriptor) dataSourceDescriptors
+					.get(0);
+			if (cascDataSourceDescriptor.getPrefixes().size() == 5) {
+				cascDataSourceDescriptor.deletePrefix(4);
+				cascDataSourceDescriptor.deletePrefix(3);
+				reloadTree();
+			} else {
+				JOptionPane.showMessageDialog(this, "Your Warcraft III data CASC configuration is not in the HD mode.",
+						"Error", JOptionPane.ERROR_MESSAGE);
+			}
+		} else {
+			JOptionPane.showMessageDialog(this,
+					"Your Warcraft III data configuration is not a standard Reforged CASC setup, so this automation feature is unavailable.\nTo use this feature, please press 'Clear All' and then 'Add War3 Install Directory' to choose a Reforged installation.",
+					"Error", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	private void enterHDMode() {
+		if ((dataSourceDescriptors.size() == 1) && (dataSourceDescriptors.get(0) instanceof CascDataSourceDescriptor)) {
+			final CascDataSourceDescriptor cascDataSourceDescriptor = (CascDataSourceDescriptor) dataSourceDescriptors
+					.get(0);
+			if (cascDataSourceDescriptor.getPrefixes().size() == 3) {
+				String localesMod = null;
+				for (final String possiblePrefix : cascDataSourceDescriptor.getPrefixes()) {
+					if (possiblePrefix.contains("_locales")) {
+						localesMod = possiblePrefix;
+						break;
+					}
+				}
+				if (localesMod != null) {
+					cascDataSourceDescriptor.addPrefix("war3.w3mod\\_hd.w3mod");
+					cascDataSourceDescriptor.addPrefix(localesMod.replace("_locales", "_hd.w3mod\\_locales"));
+					reloadTree();
+				} else {
+					JOptionPane.showMessageDialog(this,
+							"Your Warcraft III data CASC configuration is not in the SD mode or is not configured in the expected way. You will need to apply HD mode manually by adding the appropriate CASC mods.",
+							"Error", JOptionPane.ERROR_MESSAGE);
+				}
+			} else {
+				JOptionPane.showMessageDialog(this, "Your Warcraft III data CASC configuration is not in the SD mode.",
+						"Error", JOptionPane.ERROR_MESSAGE);
+			}
+		} else {
+			JOptionPane.showMessageDialog(this,
+					"Your Warcraft III data configuration is not a standard Reforged CASC setup, so this automation feature is unavailable.\nTo use this feature, please press 'Clear All' and then 'Add War3 Install Directory' to choose a Reforged installation.",
+					"Error", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	private void addWarcraft3Installation(final Path installPathPath, final boolean allowPopup) {
