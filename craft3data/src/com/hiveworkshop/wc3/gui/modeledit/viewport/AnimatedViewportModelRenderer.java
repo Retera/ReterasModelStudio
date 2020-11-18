@@ -16,6 +16,7 @@ import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.CollisionShape;
 import com.hiveworkshop.wc3.mdl.EventObject;
+import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.Helper;
 import com.hiveworkshop.wc3.mdl.IdObject;
@@ -75,6 +76,11 @@ public class AnimatedViewportModelRenderer implements ModelRenderer {
 		graphics.setColor(programPreferences.getTriangleColor());
 		if (modelView.getHighlightedGeoset() == modelView.getModel().getGeoset(geosetId)) {
 			graphics.setColor(programPreferences.getHighlighTriangleColor());
+		} else {
+			final Geoset geoset = modelView.getModel().getGeoset(geosetId);
+			if (!modelView.getEditableGeosets().contains(geoset)) {
+				graphics.setColor(programPreferences.getVisibleUneditableColor());
+			}
 		}
 		return geosetRenderer.reset();
 	}

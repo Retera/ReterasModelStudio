@@ -34,7 +34,8 @@ public class FolderDataSource implements DataSource {
 	}
 
 	@Override
-	public InputStream getResourceAsStream(final String filepath) throws IOException {
+	public InputStream getResourceAsStream(String filepath) throws IOException {
+		filepath = filepath.replace(':', File.separatorChar);
 		if (!has(filepath)) {
 			return null;
 		}
@@ -42,7 +43,8 @@ public class FolderDataSource implements DataSource {
 	}
 
 	@Override
-	public File getFile(final String filepath) throws IOException {
+	public File getFile(String filepath) throws IOException {
+		filepath = filepath.replace(':', File.separatorChar);
 		if (!has(filepath)) {
 			return null;
 		}
@@ -50,7 +52,8 @@ public class FolderDataSource implements DataSource {
 	}
 
 	@Override
-	public ByteBuffer read(final String path) throws IOException {
+	public ByteBuffer read(String path) throws IOException {
+		path = path.replace(':', File.separatorChar);
 		if (!has(path)) {
 			return null;
 		}
@@ -58,7 +61,8 @@ public class FolderDataSource implements DataSource {
 	}
 
 	@Override
-	public boolean has(final String filepath) {
+	public boolean has(String filepath) {
+		filepath = filepath.replace(':', File.separatorChar);
 		if ("".equals(filepath)) {
 			return false; // special case for folder data source, dont do this
 		}

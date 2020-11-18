@@ -548,6 +548,10 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			for (final Geoset geo : modelView.getVisibleGeosets()) {// .getMDL().getGeosets()
 				if (!modelView.getEditableGeosets().contains(geo) && (modelView.getHighlightedGeoset() != geo)) {
 					render(geo, true, false, true, formatVersion);
+				}
+			}
+			for (final Geoset geo : modelView.getVisibleGeosets()) {// .getMDL().getGeosets()
+				if (!modelView.getEditableGeosets().contains(geo) && (modelView.getHighlightedGeoset() != geo)) {
 					render(geo, false, false, true, formatVersion);
 				}
 			}
@@ -945,6 +949,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 					final Bitmap tex = layer.getRenderTexture(timeEnvironment, modelView.getModel());
 					final Integer texture = textureMap.get(tex);
 					bindLayer(layer, tex, texture);
+				}
+				if (overriddenColors) {
+					GL11.glDisable(GL11.GL_ALPHA_TEST);
 				}
 				glBegin(GL11.GL_TRIANGLES);
 				if ((ModelUtils.isTangentAndSkinSupported(formatVersion)) && (geo.getVertices().size() > 0)

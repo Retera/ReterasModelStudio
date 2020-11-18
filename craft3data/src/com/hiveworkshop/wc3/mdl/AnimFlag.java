@@ -2453,12 +2453,9 @@ public class AnimFlag {
 
 	public int floorIndex(final int time) {
 		if (times.size() == 0) {
-			return 0;
+			return -1;
 		}
 		final int floorIndex = floorIndex(time, 0, times.size() - 1);
-		if (floorIndex == -1) {
-			return 0;
-		}
 		return floorIndex;
 	}
 
@@ -2550,11 +2547,12 @@ public class AnimFlag {
 		Object ceilValue;
 		Integer floorIndexTime;
 		Integer ceilIndexTime;
+		float timeBetweenFrames;
 		if (hasGlobalSeq() && (getGlobalSeq() >= 0)) {
 			time = animatedRenderEnvironment.getGlobalSeqTime(getGlobalSeq());
-			final int floorAnimStartIndex = floorIndex(1);
-			final int floorAnimEndIndex = floorIndex(getGlobalSeq());
-			floorIndex = floorIndex(time);
+			final int floorAnimStartIndex = Math.max(0, floorIndex(1));
+			final int floorAnimEndIndex = Math.max(0, floorIndex(getGlobalSeq()));
+			floorIndex = Math.max(0, floorIndex(time));
 			ceilIndex = ceilIndex(time);
 			if (ceilIndex < floorIndex) {
 				// retarded repeated keyframes issue, see Peasant's Bone_Chest
@@ -2567,6 +2565,7 @@ public class AnimFlag {
 			ceilValue = values.get(ceilIndex);
 			floorIndexTime = times.get(floorIndex);
 			ceilIndexTime = times.get(ceilIndex);
+			timeBetweenFrames = ceilIndexTime - floorIndexTime;
 			if (ceilIndexTime < 0) {
 				return identity(localTypeId);
 			}
@@ -2592,8 +2591,8 @@ public class AnimFlag {
 		} else {
 			final BasicTimeBoundProvider animation = animatedRenderEnvironment.getCurrentAnimation();
 			time = animation.getStart() + animatedRenderEnvironment.getAnimationTime();
-			final int floorAnimStartIndex = floorIndex(animation.getStart() + 1);
-			final int floorAnimEndIndex = floorIndex(animation.getEnd());
+			final int floorAnimStartIndex = Math.max(0, floorIndex(animation.getStart() + 1));
+			final int floorAnimEndIndex = Math.max(0, floorIndex(animation.getEnd()));
 			floorIndex = floorIndex(time);
 			ceilIndex = ceilIndex(time);
 			if (ceilIndex < floorIndex) {
@@ -2601,49 +2600,47 @@ public class AnimFlag {
 				// at time 18300
 				ceilIndex = floorIndex;
 			}
-			floorValue = values.get(floorIndex);
-			floorInTan = tans() ? inTans.get(floorIndex) : null;
-			floorOutTan = tans() ? outTans.get(floorIndex) : null;
 			ceilValue = values.get(ceilIndex);
-			floorIndexTime = times.get(floorIndex);
 			ceilIndexTime = times.get(ceilIndex);
-			final boolean blockAllowingNoInterp = false;
 			if (ceilIndexTime < animation.getStart()) {
 				return identity(localTypeId);
 			}
+			final int lookupFloorIndex = Math.max(0, floorIndex);
+			floorValue = values.get(lookupFloorIndex);
+			floorInTan = tans() ? inTans.get(lookupFloorIndex) : null;
+			floorOutTan = tans() ? outTans.get(lookupFloorIndex) : null;
+			floorIndexTime = times.get(lookupFloorIndex);
 			if (floorIndexTime > animation.getEnd()) {
 				return identity(localTypeId);
 			}
 			if ((floorIndexTime < animation.getStart()) && (ceilIndexTime > animation.getEnd())) {
 				return identity(localTypeId);
-			} else if (floorIndexTime < animation.getStart()) {
-				if (times.get(floorAnimEndIndex) == animation.getEnd()) {
-					floorIndex = floorAnimEndIndex;
-					floorValue = values.get(floorAnimEndIndex);
-					floorIndexTime = animation.getStart();
-					if (tans()) {
-						floorInTan = inTans.get(floorAnimEndIndex);
-						floorOutTan = inTans.get(floorAnimEndIndex);
+			} else if ((floorIndex == -1) || (floorIndexTime < animation.getStart())) {
+				floorValue = values.get(floorAnimEndIndex);
+				floorIndexTime = times.get(floorAnimStartIndex);
+				if (tans()) {
+					floorInTan = inTans.get(floorAnimEndIndex);
+					floorOutTan = inTans.get(floorAnimEndIndex);
 //						floorIndexTime = times.get(floorAnimEndIndex);
-					}
-				} else {
-					floorValue = identity(localTypeId);
-					floorInTan = floorOutTan = identity(localTypeId);
-					floorIndexTime = animation.getStart();
 				}
+				timeBetweenFrames = times.get(floorAnimEndIndex) - animation.getStart();
 			} else if ((ceilIndexTime > animation.getEnd())
 					|| ((ceilIndexTime < time) && (times.get(floorAnimEndIndex) < time))) {
 				if (times.get(floorAnimStartIndex) == animation.getStart()) {
 					ceilValue = values.get(floorAnimStartIndex);
 					ceilIndex = floorAnimStartIndex;
 					ceilIndexTime = animation.getEnd();
+					timeBetweenFrames = ceilIndexTime - floorIndexTime;
 				} else {
 					ceilIndex = ceilIndex(animation.getStart());
 					ceilValue = values.get(ceilIndex);
-					ceilIndexTime = times.get(ceilIndex);
+					ceilIndexTime = animation.getEnd();// times.get(ceilIndex);
+					timeBetweenFrames = animation.getEnd() - animation.getStart();
 				}
 				// NOTE: we just let it be in this case, based on
 				// Water Elemental's birth
+			} else {
+				timeBetweenFrames = ceilIndexTime - floorIndexTime;
 			}
 			if (floorIndex == ceilIndex) {
 				return floorValue;
@@ -2661,7 +2658,7 @@ public class AnimFlag {
 				final Integer floorTime = floorIndexTime;
 				final Integer ceilTime = ceilIndexTime;
 				final double bezier = MathUtils.bezier(previous, previousOutTan, nextInTan, next,
-						(float) (time - floorTime) / (float) (ceilTime - floorTime));
+						(time - floorTime) / timeBetweenFrames);
 				return bezier;
 			}
 			case DONT_INTERP:
@@ -2672,14 +2669,13 @@ public class AnimFlag {
 				final Integer floorTime = floorIndexTime;
 				final Integer ceilTime = ceilIndexTime;
 				final double hermite = MathUtils.hermite(previous, previousOutTan, nextInTan, next,
-						(float) (time - floorTime) / (float) (ceilTime - floorTime));
+						(time - floorTime) / timeBetweenFrames);
 				return hermite;
 			}
 			case LINEAR:
 				final Integer floorTime = floorIndexTime;
 				final Integer ceilTime = ceilIndexTime;
-				final double lerp = MathUtils.lerp(previous, next,
-						(float) (time - floorTime) / (float) (ceilTime - floorTime));
+				final double lerp = MathUtils.lerp(previous, next, (time - floorTime) / timeBetweenFrames);
 				return lerp;
 			default:
 				throw new IllegalStateException();
@@ -2697,7 +2693,7 @@ public class AnimFlag {
 				final Vertex nextInTan = (Vertex) inTans.get(ceilIndex);
 				final Integer floorTime = floorIndexTime;
 				final Integer ceilTime = ceilIndexTime;
-				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
+				final float timeFactor = (time - floorTime) / timeBetweenFrames;
 				final Vertex bezier = new Vertex(
 						MathUtils.bezier(previous.x, previousOutTan.x, nextInTan.x, next.x, timeFactor),
 						MathUtils.bezier(previous.y, previousOutTan.y, nextInTan.y, next.y, timeFactor),
@@ -2711,7 +2707,7 @@ public class AnimFlag {
 				final Vertex nextInTan = (Vertex) inTans.get(ceilIndex);
 				final Integer floorTime = floorIndexTime;
 				final Integer ceilTime = ceilIndexTime;
-				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
+				final float timeFactor = (time - floorTime) / timeBetweenFrames;
 				final Vertex hermite = new Vertex(
 						MathUtils.hermite(previous.x, previousOutTan.x, nextInTan.x, next.x, timeFactor),
 						MathUtils.hermite(previous.y, previousOutTan.y, nextInTan.y, next.y, timeFactor),
@@ -2721,7 +2717,7 @@ public class AnimFlag {
 			case LINEAR:
 				final Integer floorTime = floorIndexTime;
 				final Integer ceilTime = ceilIndexTime;
-				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
+				final float timeFactor = (time - floorTime) / timeBetweenFrames;
 				final Vertex lerp = new Vertex(MathUtils.lerp(previous.x, next.x, timeFactor),
 						MathUtils.lerp(previous.y, next.y, timeFactor), MathUtils.lerp(previous.z, next.z, timeFactor));
 				return lerp;
@@ -2739,7 +2735,7 @@ public class AnimFlag {
 				final QuaternionRotation nextInTan = (QuaternionRotation) inTans.get(ceilIndex);
 				final Integer floorTime = floorIndexTime;
 				final Integer ceilTime = ceilIndexTime;
-				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
+				final float timeFactor = (time - floorTime) / timeBetweenFrames;
 				final QuaternionRotation result = new QuaternionRotation(0, 0, 0, 0);
 				return QuaternionRotation.ghostwolfSquad(result, previous, previousOutTan, nextInTan, next, timeFactor);
 			}
@@ -2750,14 +2746,14 @@ public class AnimFlag {
 				final QuaternionRotation nextInTan = (QuaternionRotation) inTans.get(ceilIndex);
 				final Integer floorTime = floorIndexTime;
 				final Integer ceilTime = ceilIndexTime;
-				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
+				final float timeFactor = (time - floorTime) / timeBetweenFrames;
 				final QuaternionRotation result = new QuaternionRotation(0, 0, 0, 0);
 				return QuaternionRotation.ghostwolfSquad(result, previous, previousOutTan, nextInTan, next, timeFactor);
 			}
 			case LINEAR:
 				final Integer floorTime = floorIndexTime;
 				final Integer ceilTime = ceilIndexTime;
-				final float timeFactor = (float) (time - floorTime) / (float) (ceilTime - floorTime);
+				final float timeFactor = (time - floorTime) / timeBetweenFrames;
 				final QuaternionRotation result = new QuaternionRotation(0, 0, 0, 0);
 				return QuaternionRotation.slerp(result, previous, next, timeFactor);
 			default:

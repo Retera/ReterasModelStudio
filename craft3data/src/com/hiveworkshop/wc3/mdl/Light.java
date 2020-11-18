@@ -18,8 +18,8 @@ import com.hiveworkshop.wc3.mdx.LightChunk;
  * @version (a version number or a date)
  */
 public class Light extends IdObject implements VisibilitySource {
-	int AttenuationStart = -1;
-	int AttenuationEnd = -1;
+	float AttenuationStart = -1;
+	float AttenuationEnd = -1;
 	double Intensity = -1;
 	Vertex staticColor;
 	double AmbIntensity = -1;
@@ -337,19 +337,19 @@ public class Light extends IdObject implements VisibilitySource {
 		}
 	}
 
-	public int getAttenuationStart() {
+	public float getAttenuationStart() {
 		return AttenuationStart;
 	}
 
-	public void setAttenuationStart(final int attenuationStart) {
+	public void setAttenuationStart(final float attenuationStart) {
 		AttenuationStart = attenuationStart;
 	}
 
-	public int getAttenuationEnd() {
+	public float getAttenuationEnd() {
 		return AttenuationEnd;
 	}
 
-	public void setAttenuationEnd(final int attenuationEnd) {
+	public void setAttenuationEnd(final float attenuationEnd) {
 		AttenuationEnd = attenuationEnd;
 	}
 

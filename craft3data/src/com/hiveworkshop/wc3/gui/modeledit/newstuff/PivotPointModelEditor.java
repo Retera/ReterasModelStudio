@@ -933,6 +933,21 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vertex> {
 	}
 
 	@Override
+	public void rawTranslate(final double x, final double y, final double z) {
+		super.rawTranslate(x, y, z);
+		for (final IdObject b : model.getEditableIdObjects()) {
+			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
+				final float[] bindPose = b.getBindPose();
+				if (bindPose != null) {
+					bindPose[9] += x;
+					bindPose[10] += y;
+					bindPose[11] += z;
+				}
+			}
+		}
+	}
+
+	@Override
 	public UndoAction deleteSelectedComponents() {
 		final List<IdObject> deletedIdObjects = new ArrayList<>();
 		for (final IdObject object : model.getEditableIdObjects()) {

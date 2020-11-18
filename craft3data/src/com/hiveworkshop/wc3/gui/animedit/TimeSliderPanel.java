@@ -236,7 +236,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 							for (final IdObject object : timeAndKey.getValue().objects) {
 								for (final AnimFlag flag : object.getAnimFlags()) {
 									final int flooredTimeIndex = flag.floorIndex(timeAndKey.getKey());
-									if ((flooredTimeIndex < flag.getTimes().size())
+									if ((flooredTimeIndex != -1) && (flooredTimeIndex < flag.getTimes().size())
 											&& flag.getTimes().get(flooredTimeIndex).equals(timeAndKey.getKey())) {
 										final JMenu subMenu = new JMenu(object.getName() + ": " + flag.getName());
 										popupMenu.add(subMenu);
@@ -485,7 +485,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		for (final IdObject object : objects) {
 			for (final AnimFlag flag : object.getAnimFlags()) {
 				final int flooredTimeIndex = flag.floorIndex(trackTime);
-				if ((flooredTimeIndex < flag.getTimes().size())
+				if ((flooredTimeIndex != -1) && (flooredTimeIndex < flag.getTimes().size())
 						&& (flag.getTimes().get(flooredTimeIndex) == trackTime)) {
 					final ReversedAction deleteFrameAction;
 					// I'm going to cheat a little bit.
@@ -519,7 +519,8 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	private void deleteKeyframe(final String actionName, final ModelStructureChangeListener structureChangeListener,
 			final IdObject object, final AnimFlag flag, final int trackTime) {
 		final int flooredTimeIndex = flag.floorIndex(trackTime);
-		if ((flooredTimeIndex < flag.getTimes().size()) && (flag.getTimes().get(flooredTimeIndex) == trackTime)) {
+		if ((flooredTimeIndex != -1) && (flooredTimeIndex < flag.getTimes().size())
+				&& (flag.getTimes().get(flooredTimeIndex) == trackTime)) {
 			final ReversedAction deleteFrameAction;
 			// I'm going to cheat a little bit.
 			// When this saves in the "undo stack" the list of keyframe values
@@ -641,7 +642,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 				if (((flag.getGlobalSeq() == null) && (currentEditorGlobalSeq == null))
 						|| ((currentEditorGlobalSeq != null) && currentEditorGlobalSeq.equals(flag.getGlobalSeq()))) {
 					final int flooredTimeIndex = flag.floorIndex(trackTime);
-					if ((flooredTimeIndex < flag.getTimes().size())
+					if ((flooredTimeIndex != -1) && (flooredTimeIndex < flag.getTimes().size())
 							&& (flag.getTimes().get(flooredTimeIndex) == trackTime)) {
 						final Object value = flag.getValues().get(flooredTimeIndex);
 						if (flag.tans()) {
@@ -672,7 +673,8 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		copiedKeyframes.clear();
 		useAllCopiedKeyframes = false;
 		final int flooredTimeIndex = flag.floorIndex(trackTime);
-		if ((flooredTimeIndex < flag.getTimes().size()) && (flag.getTimes().get(flooredTimeIndex) == trackTime)) {
+		if ((flooredTimeIndex != -1) && (flooredTimeIndex < flag.getTimes().size())
+				&& (flag.getTimes().get(flooredTimeIndex) == trackTime)) {
 			final Object value = flag.getValues().get(flooredTimeIndex);
 			if (flag.tans()) {
 				copiedKeyframes.add(new CopiedKeyFrame(object, flag, AnimFlag.cloneValue(value),
@@ -701,7 +703,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 				if (((flag.getGlobalSeq() == null) && (currentEditorGlobalSeq == null))
 						|| ((currentEditorGlobalSeq != null) && currentEditorGlobalSeq.equals(flag.getGlobalSeq()))) {
 					final int flooredTimeIndex = flag.floorIndex(trackTime);
-					if ((flooredTimeIndex < flag.getTimes().size())
+					if ((flooredTimeIndex != -1) && (flooredTimeIndex < flag.getTimes().size())
 							&& (flag.getTimes().get(flooredTimeIndex) == trackTime)) {
 						final Object value = flag.getValues().get(flooredTimeIndex);
 						if (flag.tans()) {
@@ -1082,7 +1084,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 				// tans might be null
 				final Object newInTan = AnimFlag.cloneValue(frame.inTan);
 				final Object newOutTan = AnimFlag.cloneValue(frame.outTan);
-				if ((flooredTimeIndex < frame.sourceTimeline.getTimes().size())
+				if ((flooredTimeIndex != -1) && (flooredTimeIndex < frame.sourceTimeline.getTimes().size())
 						&& (frame.sourceTimeline.getTimes().get(flooredTimeIndex) == mouseClickAnimationTime)) {
 					if (frame.sourceTimeline.tans()) {
 						final Object oldValue = frame.sourceTimeline.valueAt(mouseClickAnimationTime);
@@ -1141,7 +1143,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 				// tans might be null
 				final Object newInTan = AnimFlag.cloneValue(frame.inTan);
 				final Object newOutTan = AnimFlag.cloneValue(frame.outTan);
-				if ((flooredTimeIndex < flag.getTimes().size())
+				if ((flooredTimeIndex != -1) && (flooredTimeIndex < flag.getTimes().size())
 						&& (flag.getTimes().get(flooredTimeIndex) == mouseClickAnimationTime)) {
 					if (frame.sourceTimeline.tans()) {
 						final Object oldValue = frame.sourceTimeline.valueAt(mouseClickAnimationTime);

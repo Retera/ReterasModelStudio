@@ -25,14 +25,15 @@ public final class RenderByViewMeshRenderer implements MeshVisitor {
 	@Override
 	public GeosetVisitor beginGeoset(final int geosetId, final MaterialView material, final GeosetAnim geosetAnim) {
 		final Geoset geoset = modelView.getModel().getGeoset(geosetId);
-		if (modelView.getEditableGeosets().contains(geoset) || modelView.getHighlightedGeoset() == geoset) {
+		if (modelView.getEditableGeosets().contains(geoset) || (modelView.getHighlightedGeoset() == geoset)
+				|| modelView.getVisibleGeosets().contains(geoset)) {
 			return fullModelRenderer.beginGeoset(geosetId, material, geosetAnim);
 		}
 		return GeosetVisitor.NO_ACTION;
 	}
 
 	private boolean isVisibleNode(final IdObject object) {
-		return modelView.getEditableIdObjects().contains(object) || object == modelView.getHighlightedNode();
+		return modelView.getEditableIdObjects().contains(object) || (object == modelView.getHighlightedNode());
 	}
 
 }

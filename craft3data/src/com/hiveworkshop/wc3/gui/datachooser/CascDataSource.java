@@ -78,7 +78,7 @@ public class CascDataSource implements DataSource {
 
 	@Override
 	public InputStream getResourceAsStream(String filepath) {
-		filepath = filepath.toLowerCase(Locale.US).replace('/', '\\');
+		filepath = filepath.toLowerCase(Locale.US).replace('/', '\\').replace(':', '\\');
 		final String resolvedAlias = fileAliases.get(filepath);
 		if (resolvedAlias != null) {
 			filepath = resolvedAlias;
@@ -113,7 +113,7 @@ public class CascDataSource implements DataSource {
 
 	@Override
 	public ByteBuffer read(String path) {
-		path = path.toLowerCase(Locale.US).replace('/', '\\');
+		path = path.toLowerCase(Locale.US).replace('/', '\\').replace(':', '\\');
 		final String resolvedAlias = fileAliases.get(path);
 		if (resolvedAlias != null) {
 			path = resolvedAlias;
@@ -142,7 +142,7 @@ public class CascDataSource implements DataSource {
 
 	@Override
 	public File getFile(String filepath) {
-		filepath = filepath.toLowerCase(Locale.US).replace('/', '\\');
+		filepath = filepath.toLowerCase(Locale.US).replace('/', '\\').replace(':', '\\');
 		final String resolvedAlias = fileAliases.get(filepath);
 		if (resolvedAlias != null) {
 			filepath = resolvedAlias;
@@ -184,7 +184,7 @@ public class CascDataSource implements DataSource {
 
 	@Override
 	public boolean has(String filepath) {
-		filepath = filepath.toLowerCase(Locale.US).replace('/', '\\');
+		filepath = filepath.toLowerCase(Locale.US).replace('/', '\\').replace(':', '\\');
 		final String resolvedAlias = fileAliases.get(filepath);
 		if (resolvedAlias != null) {
 			filepath = resolvedAlias;

@@ -37,7 +37,8 @@ public final class RenderByViewModelRenderer implements ModelRenderer {
 	@Override
 	public GeosetVisitor beginGeoset(final int geosetId, final MaterialView material, final GeosetAnim geosetAnim) {
 		final Geoset geoset = modelView.getModel().getGeoset(geosetId);
-		if (modelView.getEditableGeosets().contains(geoset) || (modelView.getHighlightedGeoset() == geoset)) {
+		if (modelView.getEditableGeosets().contains(geoset) || (modelView.getHighlightedGeoset() == geoset)
+				|| modelView.getVisibleGeosets().contains(geoset)) {
 			return fullModelRenderer.beginGeoset(geosetId, material, geosetAnim);
 		}
 		return GeosetVisitor.NO_ACTION;

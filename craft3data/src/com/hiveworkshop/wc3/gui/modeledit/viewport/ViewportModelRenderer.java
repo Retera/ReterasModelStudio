@@ -16,6 +16,7 @@ import com.hiveworkshop.wc3.mdl.Attachment;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.CollisionShape;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.EventObject;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
@@ -23,7 +24,6 @@ import com.hiveworkshop.wc3.mdl.GeosetVertex;
 import com.hiveworkshop.wc3.mdl.Helper;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.Light;
-import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
 import com.hiveworkshop.wc3.mdl.ParticleEmitterPopcorn;
@@ -78,6 +78,11 @@ public class ViewportModelRenderer implements ModelRenderer {
 		graphics.setColor(programPreferences.getTriangleColor());
 		if (modelView.getHighlightedGeoset() == modelView.getModel().getGeoset(geosetId)) {
 			graphics.setColor(programPreferences.getHighlighTriangleColor());
+		} else {
+			final Geoset geoset = modelView.getModel().getGeoset(geosetId);
+			if (!modelView.getEditableGeosets().contains(geoset)) {
+				graphics.setColor(programPreferences.getVisibleUneditableColor());
+			}
 		}
 		return geosetRenderer.reset();
 	}
@@ -295,8 +300,9 @@ public class ViewportModelRenderer implements ModelRenderer {
 	 * @param filter
 	 * @param extraHighlightPoint
 	 */
-	public static void drawFittedTriangles(final EditableModel model, final Graphics g, final Rectangle bounds, final byte a,
-			final byte b, final VertexFilter<? super GeosetVertex> filter, final Vertex extraHighlightPoint) {
+	public static void drawFittedTriangles(final EditableModel model, final Graphics g, final Rectangle bounds,
+			final byte a, final byte b, final VertexFilter<? super GeosetVertex> filter,
+			final Vertex extraHighlightPoint) {
 		final List<Triangle> triangles = new ArrayList<>();
 		double minX = Double.MAX_VALUE;
 		double maxX = Double.MIN_VALUE;

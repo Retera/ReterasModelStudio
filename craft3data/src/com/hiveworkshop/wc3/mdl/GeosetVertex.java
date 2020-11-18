@@ -109,6 +109,8 @@ public class GeosetVertex extends Vertex {
 			return tverts.get(i);
 		} catch (final ArrayIndexOutOfBoundsException e) {
 			return null;
+		} catch (final IndexOutOfBoundsException e) {
+			return null;
 		}
 	}
 

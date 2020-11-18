@@ -53,8 +53,8 @@ public class LightChunk {
 	public class Light {
 		public Node node = new Node();
 		public int type;
-		public int attenuationStart;
-		public int attenuationEnd;
+		public float attenuationStart;
+		public float attenuationEnd;
 		public float[] color = new float[3];
 		public float intensity;
 		public float[] ambientColor = new float[3];
@@ -72,11 +72,8 @@ public class LightChunk {
 			node = new Node();
 			node.load(in);
 			type = in.readInt();
-			// Ghostwolf says attenuation start/end are floats.
-			// Magos is unclear, looks like int. My highschool system uses int.
-			// They are not interchangeable so one of us is wrong.
-			attenuationStart = in.readInt();
-			attenuationEnd = in.readInt();
+			attenuationStart = in.readFloat();
+			attenuationEnd = in.readFloat();
 			color = MdxUtils.loadFloatArray(in, 3);
 			intensity = in.readFloat();
 			ambientColor = MdxUtils.loadFloatArray(in, 3);
@@ -112,8 +109,8 @@ public class LightChunk {
 			out.writeInt(getSize());// InclusiveSize
 			node.save(out);
 			out.writeInt(type);
-			out.writeInt(attenuationStart);
-			out.writeInt(attenuationEnd);
+			out.writeFloat(attenuationStart);
+			out.writeFloat(attenuationEnd);
 			if ((color.length % 3) != 0) {
 				throw new IllegalArgumentException(
 						"The array color needs either the length 3 or a multiple of this number. (got " + color.length
