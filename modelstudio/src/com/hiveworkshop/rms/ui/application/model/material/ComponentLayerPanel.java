@@ -17,6 +17,7 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 
 public class ComponentLayerPanel extends JPanel {
 	private final JComboBox<FilterMode> filterModeDropdown;
@@ -91,8 +92,13 @@ public class ComponentLayerPanel extends JPanel {
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		layerFlagsPanel.setLayer(layer);
 		filterModeDropdown.setSelectedItem(layer.getFilterMode());
-		textureButton.setIcon(new ImageIcon(
-				IconUtils.worldEditStyleIcon(BLPHandler.getImage(layer.getTextureBitmap(), workingDirectory))));
+		if (layer.getTextureBitmap() != null) {
+			final BufferedImage image = BLPHandler.getImage(layer.getTextureBitmap(), workingDirectory);
+			if (image != null) {
+				textureButton.setIcon(new ImageIcon(IconUtils.worldEditStyleIcon(image)));
+			}
+		}
+		textureButton.setText(layer.getName());
 		coordIdSpinner.reloadNewValue(layer.getCoordId());
 		tVertexAnimButton.setText(layer.getTextureAnim() == null ? "None" : layer.getTextureAnim().toString());
 		alphaPanel.reloadNewValue((float) layer.getStaticAlpha(), layer.find("Alpha"));
