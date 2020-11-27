@@ -392,7 +392,7 @@ public class MainPanel extends JPanel
         contextMenu.add(contextClose);
 
         JMenuItem contextCloseOthers = new JMenuItem("Close Others");
-        contextCloseOthers.addActionListener(e -> MenuBar.closeOthers(this, currentModelPanel));
+        contextCloseOthers.addActionListener(e -> MenuBarActions.closeOthers(this, currentModelPanel));
         contextMenu.add(contextCloseOthers);
 
         JMenuItem contextCloseAll = new JMenuItem("Close All");
@@ -859,7 +859,7 @@ public class MainPanel extends JPanel
         // JPanel root = this;
         linkActions(this, root);
 
-        MenuBar.updateUIFromProgramPreferences(fetchPortraitsToo, modelPanels, prefs, showNormals, showVertexModifyControls, solid, textureModels, wireframe);
+        MenuBarActions.updateUIFromProgramPreferences(fetchPortraitsToo, modelPanels, prefs, showNormals, showVertexModifyControls, solid, textureModels, wireframe);
         // if( wireframe.isSelected() ){
         // prefs.setViewMode(0);
         // }
@@ -1436,7 +1436,7 @@ public class MainPanel extends JPanel
                 e.printStackTrace();
             }
         } else {
-            MenuBar.onClickSaveAs(this, model);
+            MenuBarActions.onClickSaveAs(this, model);
         }
     }
 

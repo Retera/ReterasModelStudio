@@ -1,9 +1,7 @@
 package com.hiveworkshop.rms.ui.application;
 
-import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
-import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
 import com.hiveworkshop.rms.parsers.w3o.WTSFile;
 import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
@@ -12,8 +10,6 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTreeBrowser;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitTabTreeBrowserBuilder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
-import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import de.wc3data.stream.BlizzardDataInputStream;
 import net.infonode.docking.DockingWindow;
 import net.infonode.docking.SplitWindow;
@@ -23,7 +19,6 @@ import net.infonode.docking.View;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class MainLayoutCreator {
     static TabWindow createMainLayout(MainPanel mainPanel) {
@@ -91,7 +86,7 @@ public class MainLayoutCreator {
 
     static UnitEditorTree createUnitEditorTree(MainPanel mainPanel) {
         final UnitEditorTree unitEditorTree = new UnitEditorTreeBrowser(getUnitData(), new UnitTabTreeBrowserBuilder(),
-                getUnitEditorSettings(), MutableObjectData.WorldEditorDataType.UNITS, (mdxFilePath, b, c, icon) -> loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(mdxFilePath), b, c, icon), mainPanel.prefs);
+                getUnitEditorSettings(), MutableObjectData.WorldEditorDataType.UNITS, (mdxFilePath, b, c, icon) -> MPQBrowserView.loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(mdxFilePath), b, c, icon), mainPanel.prefs);
         return unitEditorTree;
     }
 
@@ -121,20 +116,4 @@ public class MainLayoutCreator {
         return new UnitEditorSettings();
     }
 
-    public static void loadStreamMdx(MainPanel mainPanel, final InputStream f, final boolean temporary, final boolean selectNewTab,
-                                     final ImageIcon icon) {
-        ModelPanel temp = null;
-        try {
-            final EditableModel model = MdxUtils.loadEditable(f);
-            model.setFileRef(null);
-            temp = new ModelPanel(mainPanel, model, mainPanel.prefs, mainPanel, mainPanel.selectionItemTypeGroup,
-                    mainPanel.selectionModeGroup, mainPanel.modelStructureChangeListener, mainPanel.coordDisplayListener,
-                    mainPanel.viewportTransferHandler, mainPanel.activeViewportWatcher, icon, false, mainPanel.textureExporter);
-        } catch (final IOException e) {
-            e.printStackTrace();
-            ExceptionPopup.display(e);
-            throw new RuntimeException("Reading mdx failed");
-        }
-        MPQBrowserView.loadModel(mainPanel, temporary, selectNewTab, temp);
-    }
 }

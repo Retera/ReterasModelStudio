@@ -1,12 +1,15 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.browsers.mpq.MPQBrowser;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarActionButtonType;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
+import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.Vec2;
@@ -23,6 +26,7 @@ import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -409,6 +413,36 @@ public class MPQBrowserView {
                 final File fileToRevert = modelPanel.getModel().getFile();
                 loadFile(mainPanel, fileToRevert);
             }
+        }
+    }
+
+    public static void loadStreamMdx(MainPanel mainPanel, final InputStream f, final boolean temporary, final boolean selectNewTab,
+                                     final ImageIcon icon) {
+        ModelPanel temp = null;
+        try {
+            final EditableModel model = MdxUtils.loadEditable(f);
+            model.setFileRef(null);
+            temp = new ModelPanel(mainPanel, model, mainPanel.prefs, mainPanel, mainPanel.selectionItemTypeGroup,
+                    mainPanel.selectionModeGroup, mainPanel.modelStructureChangeListener, mainPanel.coordDisplayListener,
+                    mainPanel.viewportTransferHandler, mainPanel.activeViewportWatcher, icon, false, mainPanel.textureExporter);
+        } catch (final IOException e) {
+            e.printStackTrace();
+            ExceptionPopup.display(e);
+            throw new RuntimeException("Reading mdx failed");
+        }
+        loadModel(mainPanel, temporary, selectNewTab, temp);
+    }
+
+    static void loadMdxStream(MutableObjectData.MutableGameObject obj, String prePath, MainPanel mainPanel, boolean b) {
+        final String path = ImportFileActions.convertPathToMDX(prePath);
+        final String portrait = ModelUtils.getPortrait(path);
+        final ImageIcon icon = new ImageIcon(IconUtils
+                .getIcon(obj, MutableObjectData.WorldEditorDataType.DOODADS)
+                .getScaledInstance(16, 16, Image.SCALE_DEFAULT));
+        System.out.println(path);
+        loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(path), true, b, icon);
+        if (mainPanel.prefs.isLoadPortraits() && GameDataFileSystem.getDefault().has(portrait)) {
+            loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(portrait), true, false, icon);
         }
     }
 }
