@@ -354,10 +354,10 @@ public class MenuBar {
 
         mainPanel.recentMenu.add(new JSeparator());
 
-        mainPanel.clearRecent = new JMenuItem("Clear");
-        mainPanel.clearRecent.setMnemonic(KeyEvent.VK_C);
-        mainPanel.clearRecent.addActionListener(e -> clearRecentActionRes(mainPanel));
-        mainPanel.recentMenu.add(mainPanel.clearRecent);
+        JMenuItem clearRecent = new JMenuItem("Clear");
+        clearRecent.setMnemonic(KeyEvent.VK_C);
+        clearRecent.addActionListener(e -> clearRecentActionRes(mainPanel));
+        mainPanel.recentMenu.add(clearRecent);
 
         updateRecent(mainPanel);
 
@@ -415,20 +415,20 @@ public class MenuBar {
 
 //		viewsMenu.add(testItem);
 
-        mainPanel.animationViewer = new JMenuItem("Animation Preview");
-        mainPanel.animationViewer.setMnemonic(KeyEvent.VK_A);
-        mainPanel.animationViewer.addActionListener(getAnimationPreviewAction(mainPanel.rootWindow, "Animation Preview", mainPanel.previewView));
-        viewsMenu.add(mainPanel.animationViewer);
+        JMenuItem animationViewer = new JMenuItem("Animation Preview");
+        animationViewer.setMnemonic(KeyEvent.VK_A);
+        animationViewer.addActionListener(getAnimationPreviewAction(mainPanel.rootWindow, "Animation Preview", mainPanel.previewView));
+        viewsMenu.add(animationViewer);
 
-        mainPanel.animationController = new JMenuItem("Animation Controller");
-        mainPanel.animationController.setMnemonic(KeyEvent.VK_C);
-        mainPanel.animationController.addActionListener(getAnimationPreviewAction(mainPanel.rootWindow, "Animation Controller", mainPanel.animationControllerView));
-        viewsMenu.add(mainPanel.animationController);
+        JMenuItem animationController = new JMenuItem("Animation Controller");
+        animationController.setMnemonic(KeyEvent.VK_C);
+        animationController.addActionListener(getAnimationPreviewAction(mainPanel.rootWindow, "Animation Controller", mainPanel.animationControllerView));
+        viewsMenu.add(animationController);
 
-        mainPanel.modelingTab = new JMenuItem("Modeling");
-        mainPanel.modelingTab.setMnemonic(KeyEvent.VK_M);
-        mainPanel.modelingTab.addActionListener(getAnimationPreviewAction(mainPanel.rootWindow, "Modeling", mainPanel.creatorView));
-        viewsMenu.add(mainPanel.modelingTab);
+        JMenuItem modelingTab = new JMenuItem("Modeling");
+        modelingTab.setMnemonic(KeyEvent.VK_M);
+        modelingTab.addActionListener(getAnimationPreviewAction(mainPanel.rootWindow, "Modeling", mainPanel.creatorView));
+        viewsMenu.add(modelingTab);
 
         final JMenuItem outlinerItem = new JMenuItem("Outliner");
         outlinerItem.setMnemonic(KeyEvent.VK_O);
@@ -479,24 +479,24 @@ public class MenuBar {
         browsersMenu.setMnemonic(KeyEvent.VK_B);
         mainPanel.windowMenu.add(browsersMenu);
 
-        mainPanel.mpqViewer = new JMenuItem("Data Browser");
-        mainPanel.mpqViewer.setMnemonic(KeyEvent.VK_A);
-        mainPanel.mpqViewer.addActionListener(getOpenMPQViewerAction(mainPanel));
-        browsersMenu.add(mainPanel.mpqViewer);
+        JMenuItem mpqViewer = new JMenuItem("Data Browser");
+        mpqViewer.setMnemonic(KeyEvent.VK_A);
+        mpqViewer.addActionListener(getOpenMPQViewerAction(mainPanel));
+        browsersMenu.add(mpqViewer);
 
-        mainPanel.unitViewer = new JMenuItem("Unit Browser");
-        mainPanel.unitViewer.setMnemonic(KeyEvent.VK_U);
-        mainPanel.unitViewer.addActionListener(getOpenUnitViewerAction(mainPanel));
-        browsersMenu.add(mainPanel.unitViewer);
+        JMenuItem unitViewer = new JMenuItem("Unit Browser");
+        unitViewer.setMnemonic(KeyEvent.VK_U);
+        unitViewer.addActionListener(getOpenUnitViewerAction(mainPanel));
+        browsersMenu.add(unitViewer);
 
         final JMenuItem doodadViewer = new JMenuItem("Doodad Browser");
         doodadViewer.setMnemonic(KeyEvent.VK_D);
         doodadViewer.addActionListener(getOpenDoodadViewerAction(mainPanel));
         browsersMenu.add(doodadViewer);
 
-        mainPanel.hiveViewer = new JMenuItem("Hive Browser");
-        mainPanel.hiveViewer.setMnemonic(KeyEvent.VK_H);
-        mainPanel.hiveViewer.addActionListener(getOpenHiveViewerAction(mainPanel));
+        JMenuItem hiveViewer = new JMenuItem("Hive Browser");
+        hiveViewer.setMnemonic(KeyEvent.VK_H);
+        hiveViewer.addActionListener(getOpenHiveViewerAction(mainPanel));
 //		browsersMenu.add(hiveViewer);
 
         mainPanel.windowMenu.addSeparator();
@@ -698,89 +698,90 @@ public class MenuBar {
         mainPanel.animationMenu.setMnemonic(KeyEvent.VK_A);
         mainPanel.addMenu.add(mainPanel.animationMenu);
 
-        mainPanel.riseFallBirth = new JMenuItem("Rising/Falling Birth/Death");
-        mainPanel.riseFallBirth.setMnemonic(KeyEvent.VK_R);
-        mainPanel.riseFallBirth.addActionListener(e -> riseFallBirthActionRes(mainPanel));
-        mainPanel.animationMenu.add(mainPanel.riseFallBirth);
+        JMenuItem riseFallBirth = new JMenuItem("Rising/Falling Birth/Death");
+        riseFallBirth.setMnemonic(KeyEvent.VK_R);
+        riseFallBirth.addActionListener(e -> riseFallBirthActionRes(mainPanel));
+        mainPanel.animationMenu.add(riseFallBirth);
 
         mainPanel.singleAnimationMenu = new JMenu("Single");
         mainPanel.singleAnimationMenu.setMnemonic(KeyEvent.VK_S);
         mainPanel.animationMenu.add(mainPanel.singleAnimationMenu);
 
-        mainPanel.animFromFile = new JMenuItem("From File");
-        mainPanel.animFromFile.setMnemonic(KeyEvent.VK_F);
-        mainPanel.animFromFile.addActionListener(e -> {
+        JMenuItem animFromFile = new JMenuItem("From File");
+        animFromFile.setMnemonic(KeyEvent.VK_F);
+        animFromFile.addActionListener(e -> {
             try {
                 animFromFileActionRes(mainPanel);
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
         });
-        mainPanel.singleAnimationMenu.add(mainPanel.animFromFile);
+        mainPanel.singleAnimationMenu.add(animFromFile);
 
-        mainPanel.animFromUnit = new JMenuItem("From Unit");
-        mainPanel.animFromUnit.setMnemonic(KeyEvent.VK_U);
-        mainPanel.animFromUnit.addActionListener(e -> {
+        JMenuItem animFromUnit = new JMenuItem("From Unit");
+        animFromUnit.setMnemonic(KeyEvent.VK_U);
+        animFromUnit.addActionListener(e -> {
             try {
                 animFromUnitActionRes(mainPanel);
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
         });
-        mainPanel.singleAnimationMenu.add(mainPanel.animFromUnit);
+        mainPanel.singleAnimationMenu.add(animFromUnit);
 
-        mainPanel.animFromModel = new JMenuItem("From Model");
-        mainPanel.animFromModel.setMnemonic(KeyEvent.VK_M);
-        mainPanel.animFromModel.addActionListener(e -> {
+        JMenuItem animFromModel = new JMenuItem("From Model");
+        animFromModel.setMnemonic(KeyEvent.VK_M);
+        animFromModel.addActionListener(e -> {
             try {
                 animFromModelActionRes(mainPanel);
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
         });
-        mainPanel.singleAnimationMenu.add(mainPanel.animFromModel);
+        mainPanel.singleAnimationMenu.add(animFromModel);
 
-        mainPanel.animFromObject = new JMenuItem("From Object");
-        mainPanel.animFromObject.setMnemonic(KeyEvent.VK_O);
-        mainPanel.animFromObject.addActionListener(e -> {
+        JMenuItem animFromObject = new JMenuItem("From Object");
+        animFromObject.setMnemonic(KeyEvent.VK_O);
+        animFromObject.addActionListener(e -> {
             try {
                 animFromObjectActionRes(mainPanel);
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
         });
-        mainPanel.singleAnimationMenu.add(mainPanel.animFromObject);
+        mainPanel.singleAnimationMenu.add(animFromObject);
     }
 
     private static void fillScriptsMenu(MainPanel mainPanel) {
-        mainPanel.importButtonS = new JMenuItem("Oinkerwinkle-Style AnimTransfer");
-        mainPanel.importButtonS.setAccelerator(KeyStroke.getKeyStroke("control shift S"));
-        mainPanel.importButtonS.setMnemonic(KeyEvent.VK_P);
-        mainPanel.importButtonS.addActionListener(e -> importButtonSActionRes());
+        JMenuItem importButtonS = new JMenuItem("Oinkerwinkle-Style AnimTransfer");
+        importButtonS.setAccelerator(KeyStroke.getKeyStroke("control shift S"));
+        importButtonS.setMnemonic(KeyEvent.VK_P);
+        importButtonS.addActionListener(e -> importButtonSActionRes());
         // importButtonS.setEnabled(false);
-        mainPanel.scriptsMenu.add(mainPanel.importButtonS);
+        mainPanel.scriptsMenu.add(importButtonS);
 
-        mainPanel.mergeGeoset = new JMenuItem("Oinkerwinkle-Style Merge Geoset");
-        mainPanel.mergeGeoset.setAccelerator(KeyStroke.getKeyStroke("control M"));
-        mainPanel.mergeGeoset.setMnemonic(KeyEvent.VK_M);
-        mainPanel.mergeGeoset.addActionListener(e -> {
+        JMenuItem mergeGeoset = new JMenuItem("Oinkerwinkle-Style Merge Geoset");
+        mergeGeoset.setAccelerator(KeyStroke.getKeyStroke("control M"));
+        mergeGeoset.setMnemonic(KeyEvent.VK_M);
+        mergeGeoset.addActionListener(e -> {
             try {
                 mergeGeosetActionRes(mainPanel);
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
         });
-        mainPanel.scriptsMenu.add(mainPanel.mergeGeoset);
+        mainPanel.scriptsMenu.add(mergeGeoset);
 
-        mainPanel.nullmodelButton = new JMenuItem("Edit/delete model components");
-        mainPanel.nullmodelButton.setAccelerator(KeyStroke.getKeyStroke("control E"));
-        mainPanel.nullmodelButton.setMnemonic(KeyEvent.VK_E);
-        mainPanel.nullmodelButton.addActionListener(e -> nullmodelButtonActionRes(mainPanel));
-        mainPanel.scriptsMenu.add(mainPanel.nullmodelButton);
+        JMenuItem nullmodelButton = new JMenuItem("Edit/delete model components");
+        nullmodelButton.setAccelerator(KeyStroke.getKeyStroke("control E"));
+        nullmodelButton.setMnemonic(KeyEvent.VK_E);
+        nullmodelButton.addActionListener(e -> nullmodelButtonActionRes(mainPanel));
+        mainPanel.nullmodelButton = nullmodelButton;
+        mainPanel.scriptsMenu.add(nullmodelButton);
 
-        mainPanel.exportAnimatedToStaticMesh = new JMenuItem("Export Animated to Static Mesh");
-        mainPanel.exportAnimatedToStaticMesh.setMnemonic(KeyEvent.VK_E);
-        mainPanel.exportAnimatedToStaticMesh.addActionListener(e -> {
+        JMenuItem exportAnimatedToStaticMesh = new JMenuItem("Export Animated to Static Mesh");
+        exportAnimatedToStaticMesh.setMnemonic(KeyEvent.VK_E);
+        exportAnimatedToStaticMesh.addActionListener(e -> {
             if (!mainPanel.animationModeState) {
                 JOptionPane.showMessageDialog(mainPanel, "You must be in the Animation Editor to use that!",
                         "Error", JOptionPane.ERROR_MESSAGE);
@@ -913,11 +914,11 @@ public class MenuBar {
             }
 
         });
-        mainPanel.scriptsMenu.add(mainPanel.exportAnimatedToStaticMesh);
+        mainPanel.scriptsMenu.add(exportAnimatedToStaticMesh);
 
-        mainPanel.exportAnimatedFramePNG = new JMenuItem("Export Animated Frame PNG");
-        mainPanel.exportAnimatedFramePNG.setMnemonic(KeyEvent.VK_F);
-        mainPanel.exportAnimatedFramePNG.addActionListener(e -> {
+        JMenuItem exportAnimatedFramePNG = new JMenuItem("Export Animated Frame PNG");
+        exportAnimatedFramePNG.setMnemonic(KeyEvent.VK_F);
+        exportAnimatedFramePNG.addActionListener(e -> {
             final BufferedImage fBufferedImage = mainPanel.currentModelPanel().getAnimationViewer().getBufferedImage();
 
             if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
@@ -970,11 +971,11 @@ public class MenuBar {
                 }
             }
         });
-        mainPanel.scriptsMenu.add(mainPanel.exportAnimatedFramePNG);
+        mainPanel.scriptsMenu.add(exportAnimatedFramePNG);
 
-        mainPanel.combineAnims = new JMenuItem("Create Back2Back Animation");
-        mainPanel.combineAnims.setMnemonic(KeyEvent.VK_P);
-        mainPanel.combineAnims.addActionListener(e -> {
+        JMenuItem combineAnims = new JMenuItem("Create Back2Back Animation");
+        combineAnims.setMnemonic(KeyEvent.VK_P);
+        combineAnims.addActionListener(e -> {
             final List<Animation> anims = mainPanel.currentMDL().getAnims();
             final Animation[] array = anims.toArray(new Animation[0]);
             final Object choice = JOptionPane.showInputDialog(mainPanel, "Pick the first animation",
@@ -1009,12 +1010,12 @@ public class MenuBar {
                         JOptionPane.PLAIN_MESSAGE);
             }
         });
-        mainPanel.scriptsMenu.add(mainPanel.combineAnims);
+        mainPanel.scriptsMenu.add(combineAnims);
 
-        mainPanel.scaleAnimations = new JMenuItem("Change Animation Lengths by Scaling");
-        mainPanel.scaleAnimations.setMnemonic(KeyEvent.VK_A);
-        mainPanel.scaleAnimations.addActionListener(e -> scaleAnimationsActionRes(mainPanel));
-        mainPanel.scriptsMenu.add(mainPanel.scaleAnimations);
+        JMenuItem scaleAnimations = new JMenuItem("Change Animation Lengths by Scaling");
+        scaleAnimations.setMnemonic(KeyEvent.VK_A);
+        scaleAnimations.addActionListener(e -> scaleAnimationsActionRes(mainPanel));
+        mainPanel.scriptsMenu.add(scaleAnimations);
 
         final JMenuItem version800Toggle = new JMenuItem("Assign FormatVersion 800");
         version800Toggle.setMnemonic(KeyEvent.VK_A);
@@ -1104,19 +1105,19 @@ public class MenuBar {
     }
 
     private static void fillAboutMenu(MainPanel mainPanel) {
-        mainPanel.changelogButton = new JMenuItem("Changelog");
-        mainPanel.changelogButton.setMnemonic(KeyEvent.VK_A);
-        mainPanel.changelogButton.addActionListener(e -> creditsButtonActionRes("docs/changelist.rtf", "Changelog"));
-        mainPanel.aboutMenu.add(mainPanel.changelogButton);
+        JMenuItem changelogButton = new JMenuItem("Changelog");
+        changelogButton.setMnemonic(KeyEvent.VK_A);
+        changelogButton.addActionListener(e -> creditsButtonActionRes("docs/changelist.rtf", "Changelog"));
+        mainPanel.aboutMenu.add(changelogButton);
 
-        mainPanel.creditsButton = new JMenuItem("About");
-        mainPanel.creditsButton.setMnemonic(KeyEvent.VK_A);
-        mainPanel.creditsButton.addActionListener(e -> creditsButtonActionRes("docs/credits.rtf", "About"));
-        mainPanel.aboutMenu.add(mainPanel.creditsButton);
+        JMenuItem creditsButton = new JMenuItem("About");
+        creditsButton.setMnemonic(KeyEvent.VK_A);
+        creditsButton.addActionListener(e -> creditsButtonActionRes("docs/credits.rtf", "About"));
+        mainPanel.aboutMenu.add(creditsButton);
 
-        mainPanel.jokeButton = new JMenuItem("HTML Magic");
-        mainPanel.jokeButton.setMnemonic(KeyEvent.VK_H);
-        mainPanel.jokeButton.addActionListener(e -> {
+        JMenuItem jokeButton = new JMenuItem("HTML Magic");
+        jokeButton.setMnemonic(KeyEvent.VK_H);
+        jokeButton.addActionListener(e -> {
             final JEditorPane jEditorPane;
             try {
                 jEditorPane = new JEditorPane(new URL("http://79.179.129.227:8080/clients/editor/"));
@@ -1126,41 +1127,39 @@ public class MenuBar {
                 testFrame.pack();
                 testFrame.setLocationRelativeTo(mainPanel.nullmodelButton);
                 testFrame.setVisible(true);
-            } catch (final MalformedURLException e1) {
-                e1.printStackTrace();
             } catch (final IOException e1) {
                 e1.printStackTrace();
             }
         });
-        mainPanel.aboutMenu.add(mainPanel.jokeButton);
+        mainPanel.aboutMenu.add(jokeButton);
     }
 
     private static void fillToolsMenu(MainPanel mainPanel) {
-        mainPanel.showMatrices = new JMenuItem("View Selected \"Matrices\"");
+        JMenuItem showMatrices = new JMenuItem("View Selected \"Matrices\"");
         // showMatrices.setMnemonic(KeyEvent.VK_V);
-        mainPanel.showMatrices.addActionListener(getViewMatricesAction(mainPanel));
-        mainPanel.toolsMenu.add(mainPanel.showMatrices);
+        showMatrices.addActionListener(getViewMatricesAction(mainPanel));
+        mainPanel.toolsMenu.add(showMatrices);
 
-        mainPanel.insideOut = new JMenuItem("Flip all selected faces");
-        mainPanel.insideOut.setMnemonic(KeyEvent.VK_I);
-        mainPanel.insideOut.addActionListener(getInsideOutAction(mainPanel));
-        mainPanel.insideOut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_DOWN_MASK));
-        mainPanel.toolsMenu.add(mainPanel.insideOut);
+        JMenuItem insideOut = new JMenuItem("Flip all selected faces");
+        insideOut.setMnemonic(KeyEvent.VK_I);
+        insideOut.addActionListener(getInsideOutAction(mainPanel));
+        insideOut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_DOWN_MASK));
+        mainPanel.toolsMenu.add(insideOut);
 
-        mainPanel.insideOutNormals = new JMenuItem("Flip all selected normals");
-        mainPanel.insideOutNormals.addActionListener(getInsideOutNormalsAction(mainPanel));
-        mainPanel.toolsMenu.add(mainPanel.insideOutNormals);
+        JMenuItem insideOutNormals = new JMenuItem("Flip all selected normals");
+        insideOutNormals.addActionListener(getInsideOutNormalsAction(mainPanel));
+        mainPanel.toolsMenu.add(insideOutNormals);
 
         mainPanel.toolsMenu.add(new JSeparator());
 
-        mainPanel.editUVs = new JMenuItem("Edit UV Mapping");
-        mainPanel.editUVs.setMnemonic(KeyEvent.VK_U);
-        mainPanel.editUVs.addActionListener(e -> editUVsActionRes(mainPanel));
-        mainPanel.toolsMenu.add(mainPanel.editUVs);
+        JMenuItem editUVs = new JMenuItem("Edit UV Mapping");
+        editUVs.setMnemonic(KeyEvent.VK_U);
+        editUVs.addActionListener(e -> editUVsActionRes(mainPanel));
+        mainPanel.toolsMenu.add(editUVs);
 
-        mainPanel.editTextures = new JMenuItem("Edit Textures");
-        mainPanel.editTextures.setMnemonic(KeyEvent.VK_T);
-        mainPanel.editTextures.addActionListener(e -> {
+        JMenuItem editTextures = new JMenuItem("Edit Textures");
+        editTextures.setMnemonic(KeyEvent.VK_T);
+        editTextures.addActionListener(e -> {
             final EditTexturesPopupPanel textureManager = new EditTexturesPopupPanel(mainPanel.currentModelPanel().getModelViewManager(),
                     mainPanel.modelStructureChangeListener, mainPanel.textureExporter);
             final JFrame frame = new JFrame("Edit Textures");
@@ -1171,13 +1170,13 @@ public class MenuBar {
             frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
             frame.setVisible(true);
         });
-        mainPanel.toolsMenu.add(mainPanel.editTextures);
+        mainPanel.toolsMenu.add(editTextures);
 
-        mainPanel.rigButton = new JMenuItem("Rig Selection");
-        mainPanel.rigButton.setMnemonic(KeyEvent.VK_R);
-        mainPanel.rigButton.setAccelerator(KeyStroke.getKeyStroke("control W"));
-        mainPanel.rigButton.addActionListener(mainPanel.rigAction);
-        mainPanel.toolsMenu.add(mainPanel.rigButton);
+        JMenuItem rigButton = new JMenuItem("Rig Selection");
+        rigButton.setMnemonic(KeyEvent.VK_R);
+        rigButton.setAccelerator(KeyStroke.getKeyStroke("control W"));
+        rigButton.addActionListener(mainPanel.rigAction);
+        mainPanel.toolsMenu.add(rigButton);
 
         mainPanel.tweaksSubmenu = new JMenu("Tweaks");
         mainPanel.tweaksSubmenu.setMnemonic(KeyEvent.VK_T);
@@ -1185,40 +1184,40 @@ public class MenuBar {
                 .setAccessibleDescription("Allows the user to tweak conversion mistakes.");
         mainPanel.toolsMenu.add(mainPanel.tweaksSubmenu);
 
-        mainPanel.flipAllUVsU = new JMenuItem("Flip All UVs U");
-        mainPanel.flipAllUVsU.setMnemonic(KeyEvent.VK_U);
-        mainPanel.flipAllUVsU.addActionListener(getFlipAllUVsUAction(mainPanel));
-        mainPanel.tweaksSubmenu.add(mainPanel.flipAllUVsU);
+        JMenuItem flipAllUVsU = new JMenuItem("Flip All UVs U");
+        flipAllUVsU.setMnemonic(KeyEvent.VK_U);
+        flipAllUVsU.addActionListener(getFlipAllUVsUAction(mainPanel));
+        mainPanel.tweaksSubmenu.add(flipAllUVsU);
 
-        mainPanel.flipAllUVsV = new JMenuItem("Flip All UVs V");
+        JMenuItem flipAllUVsV = new JMenuItem("Flip All UVs V");
         // flipAllUVsV.setMnemonic(KeyEvent.VK_V);
-        mainPanel.flipAllUVsV.addActionListener(getFlipAllUVsVAction(mainPanel));
-        mainPanel.tweaksSubmenu.add(mainPanel.flipAllUVsV);
+        flipAllUVsV.addActionListener(getFlipAllUVsVAction(mainPanel));
+        mainPanel.tweaksSubmenu.add(flipAllUVsV);
 
-        mainPanel.inverseAllUVs = new JMenuItem("Swap All UVs U for V");
-        mainPanel.inverseAllUVs.setMnemonic(KeyEvent.VK_S);
-        mainPanel.inverseAllUVs.addActionListener(getInverseAllUVsAction(mainPanel));
-        mainPanel.tweaksSubmenu.add(mainPanel.inverseAllUVs);
+        JMenuItem inverseAllUVs = new JMenuItem("Swap All UVs U for V");
+        inverseAllUVs.setMnemonic(KeyEvent.VK_S);
+        inverseAllUVs.addActionListener(getInverseAllUVsAction(mainPanel));
+        mainPanel.tweaksSubmenu.add(inverseAllUVs);
 
         mainPanel.mirrorSubmenu = new JMenu("Mirror");
         mainPanel.mirrorSubmenu.setMnemonic(KeyEvent.VK_M);
         mainPanel.mirrorSubmenu.getAccessibleContext().setAccessibleDescription("Allows the user to mirror objects.");
         mainPanel.toolsMenu.add(mainPanel.mirrorSubmenu);
 
-        mainPanel.mirrorX = new JMenuItem("Mirror X");
-        mainPanel.mirrorX.setMnemonic(KeyEvent.VK_X);
-        mainPanel.mirrorX.addActionListener(getMirrorAxisAction(mainPanel, "Mirror X", (byte) 0));
-        mainPanel.mirrorSubmenu.add(mainPanel.mirrorX);
+        JMenuItem mirrorX = new JMenuItem("Mirror X");
+        mirrorX.setMnemonic(KeyEvent.VK_X);
+        mirrorX.addActionListener(getMirrorAxisAction(mainPanel, "Mirror X", (byte) 0));
+        mainPanel.mirrorSubmenu.add(mirrorX);
 
-        mainPanel.mirrorY = new JMenuItem("Mirror Y");
-        mainPanel.mirrorY.setMnemonic(KeyEvent.VK_Y);
-        mainPanel.mirrorY.addActionListener(getMirrorAxisAction(mainPanel, "Mirror Y", (byte) 1));
-        mainPanel.mirrorSubmenu.add(mainPanel.mirrorY);
+        JMenuItem mirrorY = new JMenuItem("Mirror Y");
+        mirrorY.setMnemonic(KeyEvent.VK_Y);
+        mirrorY.addActionListener(getMirrorAxisAction(mainPanel, "Mirror Y", (byte) 1));
+        mainPanel.mirrorSubmenu.add(mirrorY);
 
-        mainPanel.mirrorZ = new JMenuItem("Mirror Z");
-        mainPanel.mirrorZ.setMnemonic(KeyEvent.VK_Z);
-        mainPanel.mirrorZ.addActionListener(getMirrorAxisAction(mainPanel, "Mirror Z", (byte) 2));
-        mainPanel.mirrorSubmenu.add(mainPanel.mirrorZ);
+        JMenuItem mirrorZ = new JMenuItem("Mirror Z");
+        mirrorZ.setMnemonic(KeyEvent.VK_Z);
+        mirrorZ.addActionListener(getMirrorAxisAction(mainPanel, "Mirror Z", (byte) 2));
+        mainPanel.mirrorSubmenu.add(mirrorZ);
 
         mainPanel.mirrorSubmenu.add(new JSeparator());
 
@@ -1234,11 +1233,11 @@ public class MenuBar {
         mainPanel.textureModels.addActionListener(e -> mainPanel.prefs.setTextureModels(mainPanel.textureModels.isSelected()));
         mainPanel.viewMenu.add(mainPanel.textureModels);
 
-        mainPanel.newDirectory = new JMenuItem("Change Game Directory");
-        mainPanel.newDirectory.setAccelerator(KeyStroke.getKeyStroke("control shift D"));
-        mainPanel.newDirectory.setToolTipText("Changes the directory from which to load texture files for the 3D display.");
-        mainPanel.newDirectory.setMnemonic(KeyEvent.VK_D);
-        mainPanel.newDirectory.addActionListener(mainPanel);
+        JMenuItem newDirectory = new JMenuItem("Change Game Directory");
+       newDirectory.setAccelerator(KeyStroke.getKeyStroke("control shift D"));
+       newDirectory.setToolTipText("Changes the directory from which to load texture files for the 3D display.");
+       newDirectory.setMnemonic(KeyEvent.VK_D);
+       newDirectory.addActionListener(mainPanel);
 //		viewMenu.add(newDirectory);
 
         mainPanel.viewMenu.add(new JSeparator());
@@ -1286,17 +1285,17 @@ public class MenuBar {
     }
 
     private static void fillFileMenu(MainPanel mainPanel) {
-        mainPanel.newModel = new JMenuItem("New");
-        mainPanel.newModel.setAccelerator(KeyStroke.getKeyStroke("control N"));
-        mainPanel.newModel.setMnemonic(KeyEvent.VK_N);
-        mainPanel.newModel.addActionListener(e -> ToolBar.newModel(mainPanel));
-        mainPanel.fileMenu.add(mainPanel.newModel);
+        JMenuItem newModel = new JMenuItem("New");
+        newModel.setAccelerator(KeyStroke.getKeyStroke("control N"));
+        newModel.setMnemonic(KeyEvent.VK_N);
+        newModel.addActionListener(e -> ToolBar.newModel(mainPanel));
+        mainPanel.fileMenu.add(newModel);
 
-        mainPanel.open = new JMenuItem("Open");
-        mainPanel.open.setAccelerator(KeyStroke.getKeyStroke("control O"));
-        mainPanel.open.setMnemonic(KeyEvent.VK_O);
-        mainPanel.open.addActionListener(e -> ToolBar.onClickOpen(mainPanel));
-        mainPanel.fileMenu.add(mainPanel.open);
+        JMenuItem open = new JMenuItem("Open");
+        open.setAccelerator(KeyStroke.getKeyStroke("control O"));
+        open.setMnemonic(KeyEvent.VK_O);
+        open.addActionListener(e -> ToolBar.onClickOpen(mainPanel));
+        mainPanel.fileMenu.add(open);
 
         mainPanel.fileMenu.add(mainPanel.recentMenu);
 
@@ -1304,23 +1303,23 @@ public class MenuBar {
         mainPanel.fetch.setMnemonic(KeyEvent.VK_F);
         mainPanel.fileMenu.add(mainPanel.fetch);
 
-        mainPanel.fetchUnit = new JMenuItem("Unit");
-        mainPanel.fetchUnit.setAccelerator(KeyStroke.getKeyStroke("control U"));
-        mainPanel.fetchUnit.setMnemonic(KeyEvent.VK_U);
-        mainPanel.fetchUnit.addActionListener(e -> fetchUnitActionRes(mainPanel));
-        mainPanel.fetch.add(mainPanel.fetchUnit);
+        JMenuItem fetchUnit = new JMenuItem("Unit");
+        fetchUnit.setAccelerator(KeyStroke.getKeyStroke("control U"));
+        fetchUnit.setMnemonic(KeyEvent.VK_U);
+        fetchUnit.addActionListener(e -> fetchUnitActionRes(mainPanel));
+        mainPanel.fetch.add(fetchUnit);
 
-        mainPanel.fetchModel = new JMenuItem("Model");
-        mainPanel.fetchModel.setAccelerator(KeyStroke.getKeyStroke("control M"));
-        mainPanel.fetchModel.setMnemonic(KeyEvent.VK_M);
-        mainPanel.fetchModel.addActionListener(e -> fetchModelActionRes(mainPanel));
-        mainPanel.fetch.add(mainPanel.fetchModel);
+        JMenuItem fetchModel = new JMenuItem("Model");
+        fetchModel.setAccelerator(KeyStroke.getKeyStroke("control M"));
+        fetchModel.setMnemonic(KeyEvent.VK_M);
+        fetchModel.addActionListener(e -> fetchModelActionRes(mainPanel));
+        mainPanel.fetch.add(fetchModel);
 
-        mainPanel.fetchObject = new JMenuItem("Object Editor");
-        mainPanel.fetchObject.setAccelerator(KeyStroke.getKeyStroke("control O"));
-        mainPanel.fetchObject.setMnemonic(KeyEvent.VK_O);
-        mainPanel.fetchObject.addActionListener(e -> fetchObjectActionRes(mainPanel));
-        mainPanel.fetch.add(mainPanel.fetchObject);
+        JMenuItem fetchObject = new JMenuItem("Object Editor");
+        fetchObject.setAccelerator(KeyStroke.getKeyStroke("control O"));
+        fetchObject.setMnemonic(KeyEvent.VK_O);
+        fetchObject.addActionListener(e -> fetchObjectActionRes(mainPanel));
+        mainPanel.fetch.add(fetchObject);
 
         mainPanel.fetch.add(new JSeparator());
 
@@ -1336,83 +1335,83 @@ public class MenuBar {
         mainPanel.importMenu.setMnemonic(KeyEvent.VK_I);
         mainPanel.fileMenu.add(mainPanel.importMenu);
 
-        mainPanel.importButton = new JMenuItem("From File");
-        mainPanel.importButton.setAccelerator(KeyStroke.getKeyStroke("control shift I"));
-        mainPanel.importButton.setMnemonic(KeyEvent.VK_I);
-        mainPanel.importButton.addActionListener(e -> {
+        JMenuItem importButton = new JMenuItem("From File");
+        importButton.setAccelerator(KeyStroke.getKeyStroke("control shift I"));
+        importButton.setMnemonic(KeyEvent.VK_I);
+        importButton.addActionListener(e -> {
             try {
                 importButtonActionRes(mainPanel);
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
         });
-        mainPanel.importMenu.add(mainPanel.importButton);
+        mainPanel.importMenu.add(importButton);
 
-        mainPanel.importUnit = new JMenuItem("From Unit");
-        mainPanel.importUnit.setMnemonic(KeyEvent.VK_U);
-        mainPanel.importUnit.setAccelerator(KeyStroke.getKeyStroke("control shift U"));
-        mainPanel.importUnit.addActionListener(e -> {
+        JMenuItem importUnit = new JMenuItem("From Unit");
+        importUnit.setMnemonic(KeyEvent.VK_U);
+        importUnit.setAccelerator(KeyStroke.getKeyStroke("control shift U"));
+        importUnit.addActionListener(e -> {
             try {
                 importUnitActionRes(mainPanel);
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
         });
-        mainPanel.importMenu.add(mainPanel.importUnit);
+        mainPanel.importMenu.add(importUnit);
 
-        mainPanel.importGameModel = new JMenuItem("From WC3 Model");
-        mainPanel.importGameModel.setMnemonic(KeyEvent.VK_M);
-        mainPanel.importGameModel.addActionListener(e -> {
+        JMenuItem importGameModel = new JMenuItem("From WC3 Model");
+        importGameModel.setMnemonic(KeyEvent.VK_M);
+        importGameModel.addActionListener(e -> {
             try {
                 importGameModelActionRes(mainPanel);
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
         });
-        mainPanel.importMenu.add(mainPanel.importGameModel);
+        mainPanel.importMenu.add(importGameModel);
 
-        mainPanel.importGameObject = new JMenuItem("From Object Editor");
-        mainPanel.importGameObject.setMnemonic(KeyEvent.VK_O);
-        mainPanel.importGameObject.addActionListener(e -> {
+        JMenuItem importGameObject = new JMenuItem("From Object Editor");
+        importGameObject.setMnemonic(KeyEvent.VK_O);
+        importGameObject.addActionListener(e -> {
             try {
                 importGameObjectActionRes(mainPanel);
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
         });
-        mainPanel.importMenu.add(mainPanel.importGameObject);
+        mainPanel.importMenu.add(importGameObject);
 
-        mainPanel.importFromWorkspace = new JMenuItem("From Workspace");
-        mainPanel.importFromWorkspace.setMnemonic(KeyEvent.VK_O);
-        mainPanel.importFromWorkspace.addActionListener(e -> importFromWorkspaceActionRes(mainPanel));
-        mainPanel.importMenu.add(mainPanel.importFromWorkspace);
+        JMenuItem importFromWorkspace = new JMenuItem("From Workspace");
+        importFromWorkspace.setMnemonic(KeyEvent.VK_O);
+        importFromWorkspace.addActionListener(e -> importFromWorkspaceActionRes(mainPanel));
+        mainPanel.importMenu.add(importFromWorkspace);
 
-        mainPanel.save = new JMenuItem("Save");
-        mainPanel.save.setMnemonic(KeyEvent.VK_S);
-        mainPanel.save.setAccelerator(KeyStroke.getKeyStroke("control S"));
-        mainPanel.save.addActionListener(e -> {
+        JMenuItem save = new JMenuItem("Save");
+        save.setMnemonic(KeyEvent.VK_S);
+        save.setAccelerator(KeyStroke.getKeyStroke("control S"));
+        save.addActionListener(e -> {
             if ((mainPanel.currentMDL() != null) && (mainPanel.currentMDL().getFile() != null)) {
                 ToolBar.onClickSave(mainPanel);}
         });
-        mainPanel.fileMenu.add(mainPanel.save);
+        mainPanel.fileMenu.add(save);
 
-        mainPanel.saveAs = new JMenuItem("Save as");
-        mainPanel.saveAs.setMnemonic(KeyEvent.VK_A);
-        mainPanel.saveAs.setAccelerator(KeyStroke.getKeyStroke("control Q"));
-        mainPanel.saveAs.addActionListener(e -> onClickSaveAs(mainPanel));
-        mainPanel.fileMenu.add(mainPanel.saveAs);
-
-        mainPanel.fileMenu.add(new JSeparator());
-
-        mainPanel.exportTextures = new JMenuItem("Export Texture");
-        mainPanel.exportTextures.setMnemonic(KeyEvent.VK_E);
-        mainPanel.exportTextures.addActionListener(e -> exportTexturesActionRes(mainPanel));
-        mainPanel.fileMenu.add(mainPanel.exportTextures);
+        JMenuItem saveAs = new JMenuItem("Save as");
+        saveAs.setMnemonic(KeyEvent.VK_A);
+        saveAs.setAccelerator(KeyStroke.getKeyStroke("control Q"));
+        saveAs.addActionListener(e -> onClickSaveAs(mainPanel));
+        mainPanel.fileMenu.add(saveAs);
 
         mainPanel.fileMenu.add(new JSeparator());
 
-        mainPanel.revert = new JMenuItem("Revert");
-        mainPanel.revert.addActionListener(e -> {
+        JMenuItem exportTextures = new JMenuItem("Export Texture");
+        exportTextures.setMnemonic(KeyEvent.VK_E);
+        exportTextures.addActionListener(e -> exportTexturesActionRes(mainPanel));
+        mainPanel.fileMenu.add(exportTextures);
+
+        mainPanel.fileMenu.add(new JSeparator());
+
+        JMenuItem revert = new JMenuItem("Revert");
+        revert.addActionListener(e -> {
             final ModelPanel modelPanel = mainPanel.currentModelPanel();
             final int oldIndex = mainPanel.modelPanels.indexOf(modelPanel);
             if (modelPanel != null) {
@@ -1431,24 +1430,24 @@ public class MenuBar {
                 }
             }
         });
-        mainPanel.fileMenu.add(mainPanel.revert);
+        mainPanel.fileMenu.add(revert);
 
-        mainPanel.close = new JMenuItem("Close");
-        mainPanel.close.setAccelerator(KeyStroke.getKeyStroke("control E"));
-        mainPanel.close.setMnemonic(KeyEvent.VK_E);
-        mainPanel.close.addActionListener(e -> closePanelActionRes(mainPanel));
-        mainPanel.fileMenu.add(mainPanel.close);
+        JMenuItem close = new JMenuItem("Close");
+        close.setAccelerator(KeyStroke.getKeyStroke("control E"));
+        close.setMnemonic(KeyEvent.VK_E);
+        close.addActionListener(e -> closePanelActionRes(mainPanel));
+        mainPanel.fileMenu.add(close);
 
         mainPanel.fileMenu.add(new JSeparator());
 
-        mainPanel.exit = new JMenuItem("Exit");
-        mainPanel.exit.setMnemonic(KeyEvent.VK_E);
-        mainPanel.exit.addActionListener(e -> {
+        JMenuItem exit = new JMenuItem("Exit");
+        exit.setMnemonic(KeyEvent.VK_E);
+        exit.addActionListener(e -> {
             if (closeAll(mainPanel)) {
                 MainFrame.frame.dispose();
             }
         });
-        mainPanel.fileMenu.add(mainPanel.exit);
+        mainPanel.fileMenu.add(exit);
     }
 
     private static void fillEdidMenu(final MainPanel mainPanel) {
@@ -1472,15 +1471,15 @@ public class MenuBar {
         optimizeMenu.setMnemonic(KeyEvent.VK_O);
         mainPanel.editMenu.add(optimizeMenu);
 
-        mainPanel.linearizeAnimations = new JMenuItem("Linearize Animations");
-        mainPanel.linearizeAnimations.setMnemonic(KeyEvent.VK_L);
-        mainPanel.linearizeAnimations.addActionListener(e -> linearizeAnimationsActionRes(mainPanel));
-        optimizeMenu.add(mainPanel.linearizeAnimations);
+        JMenuItem linearizeAnimations = new JMenuItem("Linearize Animations");
+        linearizeAnimations.setMnemonic(KeyEvent.VK_L);
+        linearizeAnimations.addActionListener(e -> linearizeAnimationsActionRes(mainPanel));
+        optimizeMenu.add(linearizeAnimations);
 
-        mainPanel.simplifyKeyframes = new JMenuItem("Simplify Keyframes (Experimental)");
-        mainPanel.simplifyKeyframes.setMnemonic(KeyEvent.VK_K);
-        mainPanel.simplifyKeyframes.addActionListener(e -> simplifyKeyframesActionRes(mainPanel));
-        optimizeMenu.add(mainPanel.simplifyKeyframes);
+        JMenuItem simplifyKeyframes = new JMenuItem("Simplify Keyframes (Experimental)");
+        simplifyKeyframes.setMnemonic(KeyEvent.VK_K);
+        simplifyKeyframes.addActionListener(e -> simplifyKeyframesActionRes(mainPanel));
+        optimizeMenu.add(simplifyKeyframes);
 
         final JMenuItem minimizeGeoset = new JMenuItem("Minimize Geosets");
         minimizeGeoset.setMnemonic(KeyEvent.VK_K);
@@ -1574,9 +1573,9 @@ public class MenuBar {
         });
         optimizeMenu.add(minimizeGeoset);
 
-        mainPanel.sortBones = new JMenuItem("Sort Nodes");
-        mainPanel.sortBones.setMnemonic(KeyEvent.VK_S);
-        mainPanel.sortBones.addActionListener(e -> {
+        JMenuItem sortBones = new JMenuItem("Sort Nodes");
+        sortBones.setMnemonic(KeyEvent.VK_S);
+        sortBones.addActionListener(e -> {
             final EditableModel model = mainPanel.currentMDL();
             final List<IdObject> roots = new ArrayList<>();
             final List<IdObject> modelList = model.getIdObjects();
@@ -1601,7 +1600,7 @@ public class MenuBar {
             }
             mainPanel.modelStructureChangeListener.nodesAdded(result);
         });
-        optimizeMenu.add(mainPanel.sortBones);
+        optimizeMenu.add(sortBones);
 
         final JMenuItem flushUnusedTexture = new JMenuItem("Flush Unused Texture");
         flushUnusedTexture.setEnabled(false);
@@ -1634,59 +1633,59 @@ public class MenuBar {
                 }
             }
         };
-        mainPanel.cut = new JMenuItem("Cut");
-        mainPanel.cut.addActionListener(copyActionListener);
-        mainPanel.cut.setActionCommand((String) TransferHandler.getCutAction().getValue(Action.NAME));
-        mainPanel.cut.setAccelerator(KeyStroke.getKeyStroke("control X"));
-        mainPanel.editMenu.add(mainPanel.cut);
+        JMenuItem cut = new JMenuItem("Cut");
+        cut.addActionListener(copyActionListener);
+        cut.setActionCommand((String) TransferHandler.getCutAction().getValue(Action.NAME));
+        cut.setAccelerator(KeyStroke.getKeyStroke("control X"));
+        mainPanel.editMenu.add(cut);
 
-        mainPanel.copy = new JMenuItem("Copy");
-        mainPanel.copy.addActionListener(copyActionListener);
-        mainPanel.copy.setActionCommand((String) TransferHandler.getCopyAction().getValue(Action.NAME));
-        mainPanel.copy.setAccelerator(KeyStroke.getKeyStroke("control C"));
-        mainPanel.editMenu.add(mainPanel.copy);
+        JMenuItem copy = new JMenuItem("Copy");
+        copy.addActionListener(copyActionListener);
+        copy.setActionCommand((String) TransferHandler.getCopyAction().getValue(Action.NAME));
+        copy.setAccelerator(KeyStroke.getKeyStroke("control C"));
+        mainPanel.editMenu.add(copy);
 
-        mainPanel.paste = new JMenuItem("Paste");
-        mainPanel.paste.addActionListener(copyActionListener);
-        mainPanel.paste.setActionCommand((String) TransferHandler.getPasteAction().getValue(Action.NAME));
-        mainPanel.paste.setAccelerator(KeyStroke.getKeyStroke("control V"));
-        mainPanel.editMenu.add(mainPanel.paste);
+        JMenuItem paste = new JMenuItem("Paste");
+        paste.addActionListener(copyActionListener);
+        paste.setActionCommand((String) TransferHandler.getPasteAction().getValue(Action.NAME));
+        paste.setAccelerator(KeyStroke.getKeyStroke("control V"));
+        mainPanel.editMenu.add(paste);
 
-        mainPanel.duplicateSelection = new JMenuItem("Duplicate");
+        JMenuItem duplicateSelection = new JMenuItem("Duplicate");
         // divideVertices.setMnemonic(KeyEvent.VK_V);
-        mainPanel.duplicateSelection.setAccelerator(KeyStroke.getKeyStroke("control D"));
-        mainPanel.duplicateSelection.addActionListener(mainPanel.cloneAction);
+        duplicateSelection.setAccelerator(KeyStroke.getKeyStroke("control D"));
+        duplicateSelection.addActionListener(mainPanel.cloneAction);
         //duplicateSelectionActionRes ?
-        mainPanel.editMenu.add(mainPanel.duplicateSelection);
+        mainPanel.editMenu.add(duplicateSelection);
 
         mainPanel.editMenu.add(new JSeparator());
 
-        mainPanel.snapVertices = new JMenuItem("Snap Vertices");
-        mainPanel.snapVertices.setAccelerator(KeyStroke.getKeyStroke("control shift W"));
-        mainPanel.snapVertices.addActionListener(e -> getAbstractAction(mainPanel));
-        mainPanel.editMenu.add(mainPanel.snapVertices);
+        JMenuItem snapVertices = new JMenuItem("Snap Vertices");
+        snapVertices.setAccelerator(KeyStroke.getKeyStroke("control shift W"));
+        snapVertices.addActionListener(e -> getAbstractAction(mainPanel));
+        mainPanel.editMenu.add(snapVertices);
 
-        mainPanel.snapNormals = new JMenuItem("Snap Normals");
-        mainPanel.snapNormals.setAccelerator(KeyStroke.getKeyStroke("control L"));
-        mainPanel.snapNormals.addActionListener(getSnapNormalsAction(mainPanel));
-        mainPanel.editMenu.add(mainPanel.snapNormals);
+        JMenuItem snapNormals = new JMenuItem("Snap Normals");
+        snapNormals.setAccelerator(KeyStroke.getKeyStroke("control L"));
+        snapNormals.addActionListener(getSnapNormalsAction(mainPanel));
+        mainPanel.editMenu.add(snapNormals);
 
         mainPanel.editMenu.add(new JSeparator());
 
-        mainPanel.selectAll = new JMenuItem("Select All");
-        mainPanel.selectAll.setAccelerator(KeyStroke.getKeyStroke("control A"));
-        mainPanel.selectAll.addActionListener(mainPanel.selectAllAction);
-        mainPanel.editMenu.add(mainPanel.selectAll);
+        JMenuItem selectAll = new JMenuItem("Select All");
+        selectAll.setAccelerator(KeyStroke.getKeyStroke("control A"));
+        selectAll.addActionListener(mainPanel.selectAllAction);
+        mainPanel.editMenu.add(selectAll);
 
-        mainPanel.invertSelect = new JMenuItem("Invert Selection");
-        mainPanel.invertSelect.setAccelerator(KeyStroke.getKeyStroke("control I"));
-        mainPanel.invertSelect.addActionListener(mainPanel.invertSelectAction);
-        mainPanel.editMenu.add(mainPanel.invertSelect);
+        JMenuItem invertSelect = new JMenuItem("Invert Selection");
+        invertSelect.setAccelerator(KeyStroke.getKeyStroke("control I"));
+        invertSelect.addActionListener(mainPanel.invertSelectAction);
+        mainPanel.editMenu.add(invertSelect);
 
-        mainPanel.expandSelection = new JMenuItem("Expand Selection");
-        mainPanel.expandSelection.setAccelerator(KeyStroke.getKeyStroke("control E"));
-        mainPanel.expandSelection.addActionListener(mainPanel.expandSelectionAction);
-        mainPanel.editMenu.add(mainPanel.expandSelection);
+        JMenuItem expandSelection = new JMenuItem("Expand Selection");
+        expandSelection.setAccelerator(KeyStroke.getKeyStroke("control E"));
+        expandSelection.addActionListener(mainPanel.expandSelectionAction);
+        mainPanel.editMenu.add(expandSelection);
 
         mainPanel.editMenu.addSeparator();
 
@@ -1697,10 +1696,10 @@ public class MenuBar {
 
         mainPanel.editMenu.addSeparator();
 
-        mainPanel.preferencesWindow = new JMenuItem("Preferences Window");
-        mainPanel.preferencesWindow.setMnemonic(KeyEvent.VK_P);
-        mainPanel.preferencesWindow.addActionListener(getOpenPreferencesAction(mainPanel));
-        mainPanel.editMenu.add(mainPanel.preferencesWindow);
+        JMenuItem preferencesWindow = new JMenuItem("Preferences Window");
+        preferencesWindow.setMnemonic(KeyEvent.VK_P);
+        preferencesWindow.addActionListener(getOpenPreferencesAction(mainPanel));
+        mainPanel.editMenu.add(preferencesWindow);
     }
 
     private static void createTeamColorMenuItems(MainPanel mainPanel) {
