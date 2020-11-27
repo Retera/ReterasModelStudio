@@ -23,7 +23,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarActionButtonType;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
-import com.hiveworkshop.rms.ui.gui.modeledit.util.TextureExporter;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
@@ -41,12 +40,10 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
-import javax.imageio.ImageIO;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -162,63 +159,6 @@ public class MainPanel extends JPanel
             mpanel.repaintSelfAndRelatedChildren();
         }
     };
-    AbstractAction cutAction = new AbstractAction("Cut") {
-        @Override
-        public void actionPerformed(final ActionEvent e) {
-            final ModelPanel mpanel = currentModelPanel();
-            if (mpanel != null) {
-                try {
-                    mpanel.getModelEditorManager();// cut
-                    // something
-                    // to
-                    // clipboard
-                } catch (final Exception exc) {
-                    ExceptionPopup.display(exc);
-                }
-            }
-            refreshUndo();
-            repaintSelfAndChildren(MainPanel.this);
-            mpanel.repaintSelfAndRelatedChildren();
-        }
-    };
-    AbstractAction copyAction = new AbstractAction("Copy") {
-        @Override
-        public void actionPerformed(final ActionEvent e) {
-            final ModelPanel mpanel = currentModelPanel();
-            if (mpanel != null) {
-                try {
-                    mpanel.getModelEditorManager();// copy
-                    // something
-                    // to
-                    // clipboard
-                } catch (final Exception exc) {
-                    ExceptionPopup.display(exc);
-                }
-            }
-            refreshUndo();
-            repaintSelfAndChildren(MainPanel.this);
-            mpanel.repaintSelfAndRelatedChildren();
-        }
-    };
-    AbstractAction pasteAction = new AbstractAction("Paste") {
-        @Override
-        public void actionPerformed(final ActionEvent e) {
-            final ModelPanel mpanel = currentModelPanel();
-            if (mpanel != null) {
-                try {
-                    mpanel.getModelEditorManager();// paste
-                    // something
-                    // from
-                    // clipboard
-                } catch (final Exception exc) {
-                    ExceptionPopup.display(exc);
-                }
-            }
-            refreshUndo();
-            repaintSelfAndChildren(MainPanel.this);
-            mpanel.repaintSelfAndRelatedChildren();
-        }
-    };
     AbstractAction selectAllAction = new AbstractAction("Select All") {
         @Override
         public void actionPerformed(final ActionEvent e) {
@@ -285,9 +225,7 @@ public class MainPanel extends JPanel
     ToolbarButtonGroup<SelectionMode> selectionModeGroup;
     ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup;
     final ModelStructureChangeListener modelStructureChangeListener;
-    JMenuItem combineAnims;
-    JMenuItem exportAnimatedToStaticMesh;
-    JMenuItem exportAnimatedFramePNG;
+
     final ViewportTransferHandler viewportTransferHandler;
     final StringViewMap viewMap;
     final RootWindow rootWindow;
@@ -311,9 +249,9 @@ public class MainPanel extends JPanel
             divider[i] = new JLabel("----------");
         }
 
-        createMouseCoordDisp();
+        createMouseCoordDisp(mouseCoordDisplay);
 
-        modelStructureChangeListener = MenuBar.getModelStructureChangeListener(this);
+        modelStructureChangeListener = ModelStructureChangeListenerImplementation.getModelStructureChangeListener(this);
         animatedRenderEnvironment = new TimeEnvironmentImpl();
         blpPanel = new ZoomableImagePreviewPanel(null);
 
@@ -326,25 +264,14 @@ public class MainPanel extends JPanel
             }
         });
 
-        setKeyframe = createSetKeyframeButton();
+        setKeyframe = createSetKeyframeButton(this);
 
         setTimeBounds = createSetTimeBoundsButton(this);
 
         animationModeButton = new ModeButton("Animate");
         animationModeButton.setVisible(false);// TODO remove this if unused
 
-        contextMenu = new JPopupMenu();
-        JMenuItem contextClose = new JMenuItem("Close");
-        contextClose.addActionListener(this);
-        contextMenu.add(contextClose);
-
-        JMenuItem contextCloseOthers = new JMenuItem("Close Others");
-        contextCloseOthers.addActionListener(e -> closeOthers(this, currentModelPanel));
-        contextMenu.add(contextCloseOthers);
-
-        JMenuItem contextCloseAll = new JMenuItem("Close All");
-        contextCloseAll.addActionListener(e -> MenuBar.closeAll(this));
-        contextMenu.add(contextCloseAll);
+        createContextMenuPopup();
 
         modelPanels = new ArrayList<>();
         final JPanel toolsPanel = new JPanel();
@@ -370,9 +297,10 @@ public class MainPanel extends JPanel
         rootWindow.getRootWindowProperties().getTabWindowProperties().getTabbedPanelProperties().getTabAreaProperties().setTabAreaVisiblePolicy(TabAreaVisiblePolicy.MORE_THAN_ONE_TAB);
         rootWindow.setBackground(Color.GREEN);
         rootWindow.setForeground(Color.GREEN);
+
         final Runnable fixit = () -> {
             MenuBar.traverseAndReset(rootWindow);
-            MenuBar.traverseAndFix(rootWindow);
+            MainLayoutCreator.traverseAndFix(rootWindow);
         };
 
         rootWindow.addListener(getDockingWindowListener2(fixit));
@@ -380,6 +308,100 @@ public class MainPanel extends JPanel
         previewView = new View("Preview", null, new JPanel());
 
 
+        timeSliderView = createTimeSliderView(mouseCoordDisplay, setKeyframe, setTimeBounds, timeSliderPanel);
+
+
+        hackerView = createHackerView(this);
+
+
+        creatorPanel = new CreatorModelingPanel(newType -> {
+            actionTypeGroup.maybeSetButtonType(newType);
+            changeActivity(newType);
+        }, prefs, actionTypeGroup, activeViewportWatcher, animatedRenderEnvironment);
+        creatorView = new View("Modeling", null, creatorPanel);
+
+
+        animationControllerView = new View("Animation Controller", null, new JPanel());
+
+        final TabWindow startupTabWindow = MainLayoutCreator.createMainLayout(this);
+        rootWindow.setWindow(startupTabWindow);
+        rootWindow.getRootWindowProperties().getFloatingWindowProperties().setUseFrame(true);
+        startupTabWindow.setSelectedTab(0);
+
+        layout.setHorizontalGroup(layout
+                .createParallelGroup(GroupLayout.Alignment.LEADING)
+                .addComponent(toolbar)
+                .addComponent(rootWindow));
+        layout.setVerticalGroup(layout
+                .createSequentialGroup()
+                .addComponent(toolbar)
+                .addComponent(rootWindow));
+        setLayout(layout);
+
+
+        // Create a file chooser
+        ExportTextureDialog.createFileChooser(this);
+
+        ExportTextureDialog.createExportTextureDialog(this);
+
+        // getInputMap(JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_Y,
+        // Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), "Redo" );
+
+        // getInputMap(JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_Z,
+        // Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), "Undo" );
+
+        // setFocusable(true);
+        // selectButton.requestFocus();
+        selectionItemTypeGroup.addToolbarButtonListener(newType -> selectionItemTypeGroupActionRes(newType));
+
+        actionTypeGroup.addToolbarButtonListener(newType -> actionTypeGroupActionRes(newType));
+        actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
+        viewportTransferHandler = new ViewportTransferHandler();
+        coordDisplayListener = (dim1, dim2, value1, value2) -> setMouseCoordDisplay(mouseCoordDisplay, dim1, dim2, value1, value2);
+    }
+
+    private void actionTypeGroupActionRes(ToolbarActionButtonType newType) {
+        if (newType != null) {
+            changeActivity(newType);
+        }
+    }
+
+    private void selectionItemTypeGroupActionRes(SelectionItemTypes newType) {
+        animationModeState = newType == SelectionItemTypes.ANIMATE;
+        // we need to refresh the state of stuff AFTER the ModelPanels, this
+        // is a pretty signficant design flaw, so we're just going to
+        // post to the EDT to get behind them (they're called
+        // on the same notifier as this method)
+        SwingUtilities.invokeLater(() -> MPQBrowserView.refreshAnimationModeState(MainPanel.this));
+
+        if (newType == SelectionItemTypes.TPOSE) {
+
+            final Object[] settings = {"Move Linked", "Move Single"};
+            final Object dialogResult = JOptionPane.showInputDialog(null, "Choose settings:", "T-Pose Settings",
+                    JOptionPane.PLAIN_MESSAGE, null, settings, settings[0]);
+            final boolean moveLinked = dialogResult == settings[0];
+            ModelEditorManager.MOVE_LINKED = moveLinked;
+        }
+        repaint();
+    }
+
+    private void createContextMenuPopup() {
+        contextMenu = new JPopupMenu();
+        JMenuItem contextClose = new JMenuItem("Close");
+        contextClose.addActionListener(this);
+        contextMenu.add(contextClose);
+
+        JMenuItem contextCloseOthers = new JMenuItem("Close Others");
+        contextCloseOthers.addActionListener(e -> MenuBar.closeOthers(this, currentModelPanel));
+        contextMenu.add(contextCloseOthers);
+
+        JMenuItem contextCloseAll = new JMenuItem("Close All");
+        contextCloseAll.addActionListener(e -> MenuBar.closeAll(this));
+        contextMenu.add(contextCloseAll);
+    }
+
+    private static View createTimeSliderView(JTextField[] mouseCoordDisplay, JButton setKeyframe, JButton setTimeBounds, TimeSliderPanel timeSliderPanel) {
+        final View timeSliderView;
         final JPanel timeSliderAndExtra = new JPanel();
         final GroupLayout tsaeLayout = new GroupLayout(timeSliderAndExtra);
         final Component horizontalGlue = Box.createHorizontalGlue();
@@ -405,96 +427,27 @@ public class MainPanel extends JPanel
         timeSliderAndExtra.setLayout(tsaeLayout);
 
         timeSliderView = new View("Footer", null, timeSliderAndExtra);
-
-
-        hackerView = createHackerView(this);
-
-
-        creatorPanel = new CreatorModelingPanel(newType -> {
-            actionTypeGroup.maybeSetButtonType(newType);
-            changeActivity(newType);
-        }, prefs, actionTypeGroup, activeViewportWatcher, animatedRenderEnvironment);
-        creatorView = new View("Modeling", null, creatorPanel);
-
-
-        animationControllerView = new View("Animation Controller", null, new JPanel());
-
-        final TabWindow startupTabWindow = MenuBar.createMainLayout(this);
-        rootWindow.setWindow(startupTabWindow);
-        rootWindow.getRootWindowProperties().getFloatingWindowProperties().setUseFrame(true);
-        startupTabWindow.setSelectedTab(0);
-
-        layout.setHorizontalGroup(layout
-                .createParallelGroup(GroupLayout.Alignment.LEADING)
-                .addComponent(toolbar)
-                .addComponent(rootWindow));
-        layout.setVerticalGroup(layout
-                .createSequentialGroup()
-                .addComponent(toolbar)
-                .addComponent(rootWindow));
-        setLayout(layout);
-
-
-        // Create a file chooser
-        createFileChooser(this);
-
-        createExportTextureDialog(this);
-
-        // getInputMap(JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_Y,
-        // Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), "Redo" );
-
-        // getInputMap(JPanel.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_Z,
-        // Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), "Undo" );
-
-        // setFocusable(true);
-        // selectButton.requestFocus();
-        selectionItemTypeGroup.addToolbarButtonListener(newType -> {
-            animationModeState = newType == SelectionItemTypes.ANIMATE;
-            // we need to refresh the state of stuff AFTER the ModelPanels, this
-            // is a pretty signficant design flaw, so we're just going to
-            // post to the EDT to get behind them (they're called
-            // on the same notifier as this method)
-            SwingUtilities.invokeLater(() -> MenuBar.refreshAnimationModeState(MainPanel.this));
-
-            if (newType == SelectionItemTypes.TPOSE) {
-
-                final Object[] settings = {"Move Linked", "Move Single"};
-                final Object dialogResult = JOptionPane.showInputDialog(null, "Choose settings:", "T-Pose Settings",
-                        JOptionPane.PLAIN_MESSAGE, null, settings, settings[0]);
-                final boolean moveLinked = dialogResult == settings[0];
-                ModelEditorManager.MOVE_LINKED = moveLinked;
-            }
-            repaint();
-        });
-
-        actionTypeGroup.addToolbarButtonListener(newType -> {
-            if (newType != null) {
-                changeActivity(newType);
-            }
-        });
-        actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
-        viewportTransferHandler = new ViewportTransferHandler();
-        coordDisplayListener = (dim1, dim2, value1, value2) -> setMouseCoordDisplay(mouseCoordDisplay, dim1, dim2, value1, value2);
+        return timeSliderView;
     }
 
-    private JButton createSetKeyframeButton() {
+    private static JButton createSetKeyframeButton(MainPanel mainPanel) {
         final JButton setKeyframe;
         setKeyframe = new JButton(RMSIcons.setKeyframeIcon);
         setKeyframe.setMargin(new Insets(0, 0, 0, 0));
         setKeyframe.setToolTipText("Create Keyframe");
         setKeyframe.addActionListener(e -> {
-            final ModelPanel mpanel = currentModelPanel();
+            final ModelPanel mpanel = mainPanel.currentModelPanel();
             if (mpanel != null) {
                 mpanel.getUndoManager().pushAction(
-                        mpanel.getModelEditorManager().getModelEditor().createKeyframe(actionType));
+                        mpanel.getModelEditorManager().getModelEditor().createKeyframe(mainPanel.actionType));
             }
-            repaintSelfAndChildren(this);
+            repaintSelfAndChildren(mainPanel);
             mpanel.repaintSelfAndRelatedChildren();
         });
         return setKeyframe;
     }
 
-    private void createMouseCoordDisp() {
+    private static void createMouseCoordDisp(JTextField[] mouseCoordDisplay) {
         for (int i = 0; i < mouseCoordDisplay.length; i++) {
             mouseCoordDisplay[i] = new JTextField("");
             mouseCoordDisplay[i].setMaximumSize(new Dimension(80, 18));
@@ -518,7 +471,7 @@ public class MainPanel extends JPanel
                 timeBoundChooserPanel.applyTo(mainPanel.animatedRenderEnvironment);
                 if (mainPanel.currentModelPanel() != null) {
                     mainPanel.currentModelPanel().getEditorRenderModel().refreshFromEditor(
-                            mainPanel.animatedRenderEnvironment, MenuBar.IDENTITY, MenuBar.IDENTITY, MenuBar.IDENTITY,
+                            mainPanel.animatedRenderEnvironment, ModelStructureChangeListenerImplementation.IDENTITY, ModelStructureChangeListenerImplementation.IDENTITY, ModelStructureChangeListenerImplementation.IDENTITY,
                             mainPanel.currentModelPanel().getPerspArea().getViewport());
                     mainPanel.currentModelPanel().getEditorRenderModel().updateNodes(true, false);
                 }
@@ -563,31 +516,6 @@ public class MainPanel extends JPanel
             }
         });
 //		timeSliderPanel.addListener(creatorPanel);
-    }
-
-    private static void createExportTextureDialog(MainPanel mainPanel) {
-        mainPanel.exportTextureDialog = new JFileChooser();
-        mainPanel.exportTextureDialog.setDialogTitle("Export Texture");
-        final String[] imageTypes = ImageIO.getWriterFileSuffixes();
-        for (final String suffix : imageTypes) {
-            mainPanel.exportTextureDialog
-                    .addChoosableFileFilter(new FileNameExtensionFilter(suffix.toUpperCase() + " Image File", suffix));
-        }
-    }
-
-    private static void createFileChooser(MainPanel mainPanel) {
-        mainPanel.fc = new JFileChooser();
-        mainPanel.fc.setAcceptAllFileFilterUsed(false);
-        mainPanel.fc.addChoosableFileFilter(new FileNameExtensionFilter("Supported Files (*.mdx;*.mdl;*.blp;*.dds;*.tga;*.png;*.obj,*.fbx)", "mdx", "mdl", "blp", "dds", "tga", "png", "obj", "fbx"));
-        mainPanel.fc.addChoosableFileFilter(new FileNameExtensionFilter("Warcraft III Files (*.mdx;*.mdl;*.blp;*.dds;*.tga)", "mdx", "mdl", "blp", "dds", "tga"));
-        mainPanel.fc.addChoosableFileFilter(new FileNameExtensionFilter("Warcraft III Binary Model (*.mdx)", "mdx"));
-        mainPanel.fc.addChoosableFileFilter(new FileNameExtensionFilter("Warcraft III Text Model (*.mdl)", "mdl"));
-        mainPanel.fc.addChoosableFileFilter(new FileNameExtensionFilter("Warcraft III BLP Image (*.blp)", "blp"));
-        mainPanel.fc.addChoosableFileFilter(new FileNameExtensionFilter("DDS Image (*.dds)", "dds"));
-        mainPanel.fc.addChoosableFileFilter(new FileNameExtensionFilter("TGA Image (*.tga)", "tga"));
-        mainPanel.fc.addChoosableFileFilter(new FileNameExtensionFilter("PNG Image (*.png)", "png"));
-        mainPanel.fc.addChoosableFileFilter(new FileNameExtensionFilter("Wavefront OBJ Model (*.obj)", "obj"));
-        mainPanel.fc.addChoosableFileFilter(new FileNameExtensionFilter("Autodesk FBX Model (*.fbx)", "fbx"));
     }
 
     private static View createHackerView(final MainPanel mainPanel) {
@@ -921,8 +849,8 @@ public class MainPanel extends JPanel
     public static void reloadGUI(MainPanel mainPanel) {
         mainPanel.refreshUndo();
         ToolBar.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
-        MenuBar.refreshAnimationModeState(mainPanel);
-        MenuBar.reloadGeosetManagers(mainPanel, mainPanel.currentModelPanel());
+        MPQBrowserView.refreshAnimationModeState(mainPanel);
+        ModelStructureChangeListenerImplementation.reloadGeosetManagers(mainPanel, mainPanel.currentModelPanel());
 
     }
 
@@ -946,19 +874,21 @@ public class MainPanel extends JPanel
     }
 
     private static void linkActions(final MainPanel mainPanel, final JComponent root) {
-        root.getActionMap().put("Undo", mainPanel.undoAction);
         root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control Z"),
                 "Undo");
+        root.getActionMap().put("Undo", mainPanel.undoAction);
 
-        root.getActionMap().put("Redo", mainPanel.redoAction);
         root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control Y"),
                 "Redo");
+        root.getActionMap().put("Redo", mainPanel.redoAction);
 
-        root.getActionMap().put("Delete", mainPanel.deleteAction);
         root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("DELETE"), "Delete");
+        root.getActionMap().put("Delete", mainPanel.deleteAction);
 
         root.getActionMap().put("CloneSelection", mainPanel.cloneAction);
 
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("SPACE"),
+                "MaximizeSpacebar");
         root.getActionMap().put("MaximizeSpacebar", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -976,9 +906,9 @@ public class MainPanel extends JPanel
                 }
             }
         });
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("SPACE"),
-                "MaximizeSpacebar");
 
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("RIGHT"),
+                "PressRight");
         root.getActionMap().put("PressRight", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -991,8 +921,9 @@ public class MainPanel extends JPanel
                 }
             }
         });
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("RIGHT"),
-                "PressRight");
+
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("LEFT"),
+                "PressLeft");
         root.getActionMap().put("PressLeft", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -1005,8 +936,8 @@ public class MainPanel extends JPanel
                 }
             }
         });
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("LEFT"),
-                "PressLeft");
+
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("UP"), "PressUp");
         root.getActionMap().put("PressUp", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -1019,7 +950,9 @@ public class MainPanel extends JPanel
                 }
             }
         });
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("UP"), "PressUp");
+
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("shift UP"),
+                "PressShiftUp");
         root.getActionMap().put("PressShiftUp", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -1032,8 +965,9 @@ public class MainPanel extends JPanel
                 }
             }
         });
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("shift UP"),
-                "PressShiftUp");
+
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("DOWN"),
+                "PressDown");
         root.getActionMap().put("PressDown", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -1046,8 +980,9 @@ public class MainPanel extends JPanel
                 }
             }
         });
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("DOWN"),
-                "PressDown");
+
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("shift DOWN"),
+                "PressShiftDown");
         root.getActionMap().put("PressShiftDown", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -1060,8 +995,6 @@ public class MainPanel extends JPanel
                 }
             }
         });
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("shift DOWN"),
-                "PressShiftDown");
 
         root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control SPACE"),
                 "PlayKeyboardKey");
@@ -1075,6 +1008,7 @@ public class MainPanel extends JPanel
                 mainPanel.timeSliderPanel.play();
             }
         });
+
         root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("W"),
                 "QKeyboardKey");
         root.getActionMap().put("QKeyboardKey", new AbstractAction() {
@@ -1088,6 +1022,7 @@ public class MainPanel extends JPanel
                         .setToolbarButtonType(mainPanel.actionTypeGroup.getToolbarButtonTypes()[0]);
             }
         });
+
         root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("E"),
                 "WKeyboardKey");
         root.getActionMap().put("WKeyboardKey", new AbstractAction() {
@@ -1101,6 +1036,7 @@ public class MainPanel extends JPanel
                         .setToolbarButtonType(mainPanel.actionTypeGroup.getToolbarButtonTypes()[1]);
             }
         });
+
         root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("R"),
                 "EKeyboardKey");
         root.getActionMap().put("EKeyboardKey", new AbstractAction() {
@@ -1114,6 +1050,7 @@ public class MainPanel extends JPanel
                         .setToolbarButtonType(mainPanel.actionTypeGroup.getToolbarButtonTypes()[2]);
             }
         });
+
         root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("T"),
                 "RKeyboardKey");
         root.getActionMap().put("RKeyboardKey", new AbstractAction() {
@@ -1129,6 +1066,7 @@ public class MainPanel extends JPanel
                 }
             }
         });
+
         root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("Y"),
                 "TKeyboardKey");
         root.getActionMap().put("TKeyboardKey", new AbstractAction() {
@@ -1158,6 +1096,7 @@ public class MainPanel extends JPanel
                         .setToolbarButtonType(mainPanel.selectionItemTypeGroup.getToolbarButtonTypes()[0]);
             }
         });
+
         root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("S"),
                 "SKeyboardKey");
         root.getActionMap().put("SKeyboardKey", new AbstractAction() {
@@ -1171,6 +1110,7 @@ public class MainPanel extends JPanel
                         .setToolbarButtonType(mainPanel.selectionItemTypeGroup.getToolbarButtonTypes()[1]);
             }
         });
+
         root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("D"),
                 "DKeyboardKey");
         root.getActionMap().put("DKeyboardKey", new AbstractAction() {
@@ -1184,6 +1124,7 @@ public class MainPanel extends JPanel
                         .setToolbarButtonType(mainPanel.selectionItemTypeGroup.getToolbarButtonTypes()[2]);
             }
         });
+
         root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("F"),
                 "FKeyboardKey");
         root.getActionMap().put("FKeyboardKey", new AbstractAction() {
@@ -1197,6 +1138,7 @@ public class MainPanel extends JPanel
                         .setToolbarButtonType(mainPanel.selectionItemTypeGroup.getToolbarButtonTypes()[3]);
             }
         });
+
         root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("G"),
                 "GKeyboardKey");
         root.getActionMap().put("GKeyboardKey", new AbstractAction() {
@@ -1210,6 +1152,7 @@ public class MainPanel extends JPanel
                         .setToolbarButtonType(mainPanel.selectionItemTypeGroup.getToolbarButtonTypes()[4]);
             }
         });
+
         root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("Z"),
                 "ZKeyboardKey");
         root.getActionMap().put("ZKeyboardKey", new AbstractAction() {
@@ -1222,6 +1165,7 @@ public class MainPanel extends JPanel
                 mainPanel.prefs.setViewMode(mainPanel.prefs.getViewMode() == 1 ? 0 : 1);
             }
         });
+
         root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control F"),
                 "CreateFaceShortcut");
         root.getActionMap().put("CreateFaceShortcut", new AbstractAction() {
@@ -1251,6 +1195,7 @@ public class MainPanel extends JPanel
                 }
             }
         });
+
         for (int i = 1; i <= 9; i++) {
             root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
                     .put(KeyStroke.getKeyStroke("alt pressed " + i), i + "KeyboardKey");
@@ -1275,6 +1220,8 @@ public class MainPanel extends JPanel
         // V"),
         // "CloneSelection");
 
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
+                .put(KeyStroke.getKeyStroke("shift pressed SHIFT"), "shiftSelect");
         root.getActionMap().put("shiftSelect", new AbstractAction("shiftSelect") {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -1297,6 +1244,8 @@ public class MainPanel extends JPanel
                 }
             }
         });
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("alt pressed ALT"),
+                "altSelect");
         root.getActionMap().put("altSelect", new AbstractAction("altSelect") {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -1315,13 +1264,11 @@ public class MainPanel extends JPanel
                 }
             }
         });
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
-                .put(KeyStroke.getKeyStroke("shift pressed SHIFT"), "shiftSelect");
         // root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
         // .put(KeyStroke.getKeyStroke("control pressed CONTROL"), "shiftSelect");
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("alt pressed ALT"),
-                "altSelect");
 
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("released SHIFT"),
+                "unShiftSelect");
         root.getActionMap().put("unShiftSelect", new AbstractAction("unShiftSelect") {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -1345,6 +1292,9 @@ public class MainPanel extends JPanel
                 }
             }
         });
+
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("released ALT"),
+                "unAltSelect");
         root.getActionMap().put("unAltSelect", new AbstractAction("unAltSelect") {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -1364,29 +1314,25 @@ public class MainPanel extends JPanel
                 }
             }
         });
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("released SHIFT"),
-                "unShiftSelect");
         // root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("released
         // CONTROL"),
         // "unShiftSelect");
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("released ALT"),
-                "unAltSelect");
 
-        root.getActionMap().put("Select All", mainPanel.selectAllAction);
         root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control A"),
                 "Select All");
+        root.getActionMap().put("Select All", mainPanel.selectAllAction);
 
-        root.getActionMap().put("Invert Selection", mainPanel.invertSelectAction);
         root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control I"),
                 "Invert Selection");
+        root.getActionMap().put("Invert Selection", mainPanel.invertSelectAction);
 
-        root.getActionMap().put("Expand Selection", mainPanel.expandSelectionAction);
         root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control E"),
                 "Expand Selection");
+        root.getActionMap().put("Expand Selection", mainPanel.expandSelectionAction);
 
-        root.getActionMap().put("RigAction", mainPanel.rigAction);
         root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control W"),
                 "RigAction");
+        root.getActionMap().put("RigAction", mainPanel.rigAction);
     }
 
     @Override
@@ -1472,117 +1418,13 @@ public class MainPanel extends JPanel
         mouseCoordDisplay[dim2].setText((float) value2 + "");
     }
 
-    public static boolean closeOthers(MainPanel mainPanel, final ModelPanel panelToKeepOpen) {
-        boolean success = true;
-        final Iterator<ModelPanel> iterator = mainPanel.modelPanels.iterator();
-        boolean closedCurrentPanel = false;
-        ModelPanel lastUnclosedModelPanel = null;
-        while (iterator.hasNext()) {
-            final ModelPanel panel = iterator.next();
-            if (panel == panelToKeepOpen) {
-                lastUnclosedModelPanel = panel;
-                continue;
-            }
-            if (success = panel.close(mainPanel)) {
-                mainPanel.windowMenu.remove(panel.getMenuItem());
-                iterator.remove();
-                if (panel == mainPanel.currentModelPanel) {
-                    closedCurrentPanel = true;
-                }
-            } else {
-                lastUnclosedModelPanel = panel;
-                break;
-            }
-        }
-        if (closedCurrentPanel) {
-            MenuBar.setCurrentModel(mainPanel, lastUnclosedModelPanel);
-        }
-        return success;
-    }
-
     public static void repaintSelfAndChildren(MainPanel mainPanel) {
         mainPanel.repaint();
         mainPanel.geoControl.repaint();
         mainPanel.geoControlModelData.repaint();
     }
 
-    final TextureExporterImpl textureExporter = new TextureExporterImpl(this);
-
-    public static class TextureExporterImpl implements TextureExporter {
-        private MainPanel mainPanel;
-
-        public TextureExporterImpl(MainPanel mainPanel) {
-            this.mainPanel = mainPanel;
-        }
-
-        public JFileChooser getFileChooser() {
-            return mainPanel.exportTextureDialog;
-        }
-
-        @Override
-        public void showOpenDialog(final String suggestedName, final TextureExporterClickListener fileHandler,
-                                   final Component parent) {
-            if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
-                final EditableModel current = mainPanel.currentMDL();
-                if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
-                    mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
-                } else if (mainPanel.profile.getPath() != null) {
-                    mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
-                }
-            }
-            if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
-                mainPanel.exportTextureDialog.setSelectedFile(new File(
-                        mainPanel.exportTextureDialog.getCurrentDirectory() + File.separator + suggestedName));
-            }
-            final int showOpenDialog = mainPanel.exportTextureDialog.showOpenDialog(parent);
-            if (showOpenDialog == JFileChooser.APPROVE_OPTION) {
-                final File file = mainPanel.exportTextureDialog.getSelectedFile();
-                if (file != null) {
-                    fileHandler.onClickOK(file, mainPanel.exportTextureDialog.getFileFilter());
-                } else {
-                    JOptionPane.showMessageDialog(parent, "No import file was specified");
-                }
-            }
-        }
-
-        @Override
-        public void exportTexture(final String suggestedName, final TextureExporterClickListener fileHandler,
-                                  final Component parent) {
-
-            if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
-                final EditableModel current = mainPanel.currentMDL();
-                if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
-                    mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
-                } else if (mainPanel.profile.getPath() != null) {
-                    mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
-                }
-            }
-            if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
-                mainPanel.exportTextureDialog.setSelectedFile(new File(
-                        mainPanel.exportTextureDialog.getCurrentDirectory() + File.separator + suggestedName));
-            }
-
-            final int x = mainPanel.exportTextureDialog.showSaveDialog(parent);
-            if (x == JFileChooser.APPROVE_OPTION) {
-                final File file = mainPanel.exportTextureDialog.getSelectedFile();
-                if (file != null) {
-                    try {
-                        if (file.getName().lastIndexOf('.') >= 0) {
-                            fileHandler.onClickOK(file, mainPanel.exportTextureDialog.getFileFilter());
-                        } else {
-                            JOptionPane.showMessageDialog(parent, "No file type was specified");
-                        }
-                    } catch (final Exception e2) {
-                        ExceptionPopup.display(e2);
-                        e2.printStackTrace();
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(parent, "No output file was specified");
-                }
-            }
-        }
-
-    }
+    final ExportTextureDialog.TextureExporterImpl textureExporter = new ExportTextureDialog.TextureExporterImpl(this);
 
     @Override
     public void save(final EditableModel model) {

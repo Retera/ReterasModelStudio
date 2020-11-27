@@ -303,7 +303,7 @@ public class ToolBar {
                     mainPanel.selectionModeGroup, mainPanel.modelStructureChangeListener, mainPanel.coordDisplayListener,
                     mainPanel.viewportTransferHandler, mainPanel.activeViewportWatcher, RMSIcons.MDLIcon, false,
                     mainPanel.textureExporter);
-            MenuBar.loadModel(mainPanel, true, true, temp);
+            MPQBrowserView.loadModel(mainPanel, true, true, temp);
         }
 
     }
@@ -319,7 +319,7 @@ public class ToolBar {
         mainPanel.toolsMenu.setEnabled(true);
         SaveProfile.get().addRecent(mainPanel.currentFile.getPath());
         MenuBar.updateRecent(mainPanel);
-        MenuBar.loadFile(mainPanel, mainPanel.currentFile);
+        MPQBrowserView.loadFile(mainPanel, mainPanel.currentFile);
     }
 
     public static void refreshController(JScrollPane geoControl, JScrollPane geoControlModelData) {
