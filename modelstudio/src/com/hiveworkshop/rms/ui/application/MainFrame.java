@@ -28,14 +28,14 @@ public class MainFrame extends JFrame {
 		setBounds(0, 0, 1000, 650);
 		panel = new MainPanel();
 		setContentPane(panel);
-		menuBar = panel.createMenuBar();
+		menuBar = MenuBar.createMenuBar(panel);
 		setJMenuBar(menuBar);// MainFrame.class.getResource("ImageBin/DDChicken2.png")
 		setIconImage(MAIN_PROGRAM_ICON);
 
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(final WindowEvent e) {
-				if (panel.closeAll()) {
+				if (MenuBar.closeAll(panel)) {
 					System.exit(0);
 				}
 			}
@@ -51,7 +51,7 @@ public class MainFrame extends JFrame {
 		panel.init();
 		if (!startupModelPaths.isEmpty()) {
 			for (final String path : startupModelPaths) {
-				panel.openFile(new File(path));
+				ToolBar.openFile(panel, new File(path));
 			}
 		}
 	}

@@ -31,7 +31,7 @@ public final class UndoActionImplementation extends AbstractAction {
 			}
 		}
 		mainPanel.refreshUndo();
-		mainPanel.repaintSelfAndChildren();
+		MainPanel.repaintSelfAndChildren(mainPanel);
 		mpanel.repaintSelfAndRelatedChildren();
 	}
 }
