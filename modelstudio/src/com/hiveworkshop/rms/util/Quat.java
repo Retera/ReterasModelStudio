@@ -225,10 +225,10 @@ public class Quat extends Vec4 {
 	public Quat squad(final Quat outTan, final Quat inTan, final Quat a, final float t, final Quat out) {
         outTan.slerp(inTan, t, out);
 
-		float x = out.x;
-		float y = out.y;
-		float z = out.z;
-        float w = out.w;
+		final float x = out.x;
+		final float y = out.y;
+		final float z = out.z;
+        final float w = out.w;
         
 		slerp(a, t, out);
 
@@ -242,15 +242,20 @@ public class Quat extends Vec4 {
 	}
 
 	public Quat mul(final Quat a, final Quat out) {
-		float ax = a.x;
-		float ay = a.y;
-		float az = a.z;
-		float aw = a.w;
+		final float ax = a.x;
+		final float ay = a.y;
+		final float az = a.z;
+		final float aw = a.w;
 
-		out.x = (x * aw) + (w * ax) + (y * az) - (z * ay);
-		out.y = (y * aw) + (w * ay) + (z * ax) - (x * az);
-		out.z = (z * aw) + (w * az) + (x * ay) - (y * ax);
-		out.w = (w * aw) - (x * ax) - (y * ay) - (z * az);
+		final float thisx = x;
+		final float thisy = y;
+		final float thisz = z;
+		final float thisw = w;
+
+		out.x = (thisx * aw) + (thisw * ax) + (thisy * az) - (thisz * ay);
+		out.y = (thisy * aw) + (thisw * ay) + (thisz * ax) - (thisx * az);
+		out.z = (thisz * aw) + (thisw * az) + (thisx * ay) - (thisy * ax);
+		out.w = (thisw * aw) - (thisx * ax) - (thisy * ay) - (thisz * az);
 
 		return out;
 	}
@@ -259,11 +264,11 @@ public class Quat extends Vec4 {
 		return mul(a, this);
 	}
 
-	public Quat mulInverse(Quat a, Quat out) {
-		float ax = a.x;
-		float ay = a.y;
-		float az = a.z;
-		float aw = a.w;
+	public Quat mulInverse(final Quat a, final Quat out) {
+		final float ax = a.x;
+		final float ay = a.y;
+		final float az = a.z;
+		final float aw = a.w;
 		float len = a.lengthSquared();
 
 		if (len > 0) {
@@ -278,21 +283,21 @@ public class Quat extends Vec4 {
 		return out;
 	}
 
-	public Quat mulInverse(Quat a) {
+	public Quat mulInverse(final Quat a) {
 		return mulInverse(a, this);
 	}
 
 	public Vec4 transform(final Vec4 a, final Vec4 out) {
-        float ax = a.x;
-        float ay = a.y;
-        float az = a.z;
-        float uvx = y * az - z * ay;
-        float uvy = z * ax - x * az;
-        float uvz = x * ay - y * ax;
-        float uuvx = y * uvz - z * uvy;
-        float uuvy = z * uvx - x * uvz;
-        float uuvz = x * uvy - y * uvx;
-		float w2 = w * 2;
+        final float ax = a.x;
+        final float ay = a.y;
+        final float az = a.z;
+        final float uvx = y * az - z * ay;
+        final float uvy = z * ax - x * az;
+        final float uvz = x * ay - y * ax;
+        final float uuvx = y * uvz - z * uvy;
+        final float uuvy = z * uvx - x * uvz;
+        final float uuvz = x * uvy - y * uvx;
+		final float w2 = w * 2;
 
         out.x = ax + (uvx * w2) + (uuvx * 2);
         out.y = ay + (uvy * w2) + (uuvy * 2);
@@ -307,16 +312,16 @@ public class Quat extends Vec4 {
 	}
 
 	public Vec3 transform(final Vec3 a, final Vec3 out) {
-        float ax = a.x;
-        float ay = a.y;
-        float az = a.z;
-        float uvx = y * az - z * ay;
-        float uvy = z * ax - x * az;
-        float uvz = x * ay - y * ax;
-        float uuvx = y * uvz - z * uvy;
-        float uuvy = z * uvx - x * uvz;
-        float uuvz = x * uvy - y * uvx;
-		float w2 = w * 2;
+        final float ax = a.x;
+        final float ay = a.y;
+        final float az = a.z;
+        final float uvx = y * az - z * ay;
+        final float uvy = z * ax - x * az;
+        final float uvz = x * ay - y * ax;
+        final float uuvx = y * uvz - z * uvy;
+        final float uuvy = z * uvx - x * uvz;
+        final float uuvz = x * uvy - y * uvx;
+		final float w2 = w * 2;
 
         out.x = ax + (uvx * w2) + (uuvx * 2);
         out.y = ay + (uvy * w2) + (uuvy * 2);
