@@ -60,15 +60,7 @@ public class MainPanel extends JPanel
             scriptsMenu, windowMenu, addParticle, animationMenu, singleAnimationMenu, aboutMenu, fetch;
     JCheckBoxMenuItem mirrorFlip, fetchPortraitsToo, showNormals, textureModels, showVertexModifyControls;
     List<JMenuItem> geoItems = new ArrayList<>();
-    JMenuItem newModel, open, fetchUnit, fetchModel, fetchObject, save, close, exit, revert, mergeGeoset, saveAs,
-            importButton, importUnit, importGameModel, importGameObject, importFromWorkspace, importButtonS,
-            newDirectory, creditsButton, jokeButton, changelogButton, clearRecent, nullmodelButton, selectAll, invertSelect,
-            expandSelection, snapNormals, snapVertices, flipAllUVsU, flipAllUVsV, inverseAllUVs, mirrorX, mirrorY,
-            mirrorZ, insideOut, insideOutNormals, showMatrices, editUVs, exportTextures, editTextures, scaleAnimations,
-            animationViewer, animationController, modelingTab, mpqViewer, hiveViewer, unitViewer, preferencesWindow,
-            linearizeAnimations, sortBones, simplifyKeyframes, rigButton, duplicateSelection, riseFallBirth,
-            animFromFile, animFromUnit, animFromModel, animFromObject, teamColor, teamGlow;
-    JMenuItem cut, copy, paste;
+    JMenuItem nullmodelButton;
     List<MenuBar.RecentItem> recentItems = new ArrayList<>();
     MenuBar.UndoMenuItem undo;
     MenuBar.RedoMenuItem redo;
@@ -132,7 +124,6 @@ public class MainPanel extends JPanel
         return -1;
     }
 
-    JMenuItem contextClose, contextCloseAll, contextCloseOthers;
     int contextClickedTab = 0;
     JPopupMenu contextMenu;
     AbstractAction undoAction = new UndoActionImplementation("Undo", this);
@@ -300,10 +291,10 @@ public class MainPanel extends JPanel
     final ViewportTransferHandler viewportTransferHandler;
     final StringViewMap viewMap;
     final RootWindow rootWindow;
-    final View viewportControllerWindowView;
-    final View toolView;
-    final View modelDataView;
-    final View modelComponentView;
+    View viewportControllerWindowView;
+    View toolView;
+    View modelDataView;
+    View modelComponentView;
     private ControllableTimeBoundProvider timeBoundProvider;
     ActivityDescriptor currentActivity;
 
@@ -319,12 +310,9 @@ public class MainPanel extends JPanel
         for (int i = 0; i < divider.length; i++) {
             divider[i] = new JLabel("----------");
         }
-        for (int i = 0; i < mouseCoordDisplay.length; i++) {
-            mouseCoordDisplay[i] = new JTextField("");
-            mouseCoordDisplay[i].setMaximumSize(new Dimension(80, 18));
-            mouseCoordDisplay[i].setMinimumSize(new Dimension(50, 15));
-            mouseCoordDisplay[i].setEditable(false);
-        }
+
+        createMouseCoordDisp();
+
         modelStructureChangeListener = MenuBar.getModelStructureChangeListener(this);
         animatedRenderEnvironment = new TimeEnvironmentImpl();
         blpPanel = new ZoomableImagePreviewPanel(null);
@@ -338,18 +326,7 @@ public class MainPanel extends JPanel
             }
         });
 
-        setKeyframe = new JButton(RMSIcons.setKeyframeIcon);
-        setKeyframe.setMargin(new Insets(0, 0, 0, 0));
-        setKeyframe.setToolTipText("Create Keyframe");
-        setKeyframe.addActionListener(e -> {
-            final ModelPanel mpanel = currentModelPanel();
-            if (mpanel != null) {
-                mpanel.getUndoManager().pushAction(
-                        mpanel.getModelEditorManager().getModelEditor().createKeyframe(actionType));
-            }
-            repaintSelfAndChildren(this);
-            mpanel.repaintSelfAndRelatedChildren();
-        });
+        setKeyframe = createSetKeyframeButton();
 
         setTimeBounds = createSetTimeBoundsButton(this);
 
@@ -357,15 +334,15 @@ public class MainPanel extends JPanel
         animationModeButton.setVisible(false);// TODO remove this if unused
 
         contextMenu = new JPopupMenu();
-        contextClose = new JMenuItem("Close");
+        JMenuItem contextClose = new JMenuItem("Close");
         contextClose.addActionListener(this);
         contextMenu.add(contextClose);
 
-        contextCloseOthers = new JMenuItem("Close Others");
+        JMenuItem contextCloseOthers = new JMenuItem("Close Others");
         contextCloseOthers.addActionListener(e -> closeOthers(this, currentModelPanel));
         contextMenu.add(contextCloseOthers);
 
-        contextCloseAll = new JMenuItem("Close All");
+        JMenuItem contextCloseAll = new JMenuItem("Close All");
         contextCloseAll.addActionListener(e -> MenuBar.closeAll(this));
         contextMenu.add(contextCloseAll);
 
@@ -380,28 +357,17 @@ public class MainPanel extends JPanel
         rootWindow = new RootWindow(viewMap);
         rootWindow.addListener(getDockingWindowListener(this));
 
-        final JPanel jPanel = new JPanel();
-        jPanel.add(new JLabel("..."));
 
-        viewportControllerWindowView = new View("Outliner", null, jPanel);// GlobalIcons.geoIcon
-//		viewportControllerWindowView.getWindowProperties().setCloseEnabled(false);
-//		viewportControllerWindowView.getWindowProperties().setMaximizeEnabled(true);
-//		viewportControllerWindowView.getWindowProperties().setMinimizeEnabled(true);
-//		viewportControllerWindowView.getWindowProperties().setRestoreEnabled(true);
-        toolView = new View("Tools", null, new JPanel());
         final JPanel contentsDummy = new JPanel();
         contentsDummy.add(new JLabel("..."));
         modelDataView = new View("Contents", null, contentsDummy);
         modelComponentView = new View("Component", null, new JPanel());
 
 //		toolView.getWindowProperties().setCloseEnabled(false);
-        rootWindow.getWindowProperties().getTabProperties().getTitledTabProperties()
-                .setSizePolicy(TitledTabSizePolicy.EQUAL_SIZE);
+        rootWindow.getWindowProperties().getTabProperties().getTitledTabProperties().setSizePolicy(TitledTabSizePolicy.EQUAL_SIZE);
         rootWindow.getRootWindowProperties().getViewProperties().getViewTitleBarProperties().setVisible(true);
-        rootWindow.getWindowProperties().getTabProperties().getTitledTabProperties()
-                .setBorderSizePolicy(TitledTabBorderSizePolicy.EQUAL_SIZE);
-        rootWindow.getRootWindowProperties().getTabWindowProperties().getTabbedPanelProperties()
-                .getTabAreaProperties().setTabAreaVisiblePolicy(TabAreaVisiblePolicy.MORE_THAN_ONE_TAB);
+        rootWindow.getWindowProperties().getTabProperties().getTitledTabProperties().setBorderSizePolicy(TitledTabBorderSizePolicy.EQUAL_SIZE);
+        rootWindow.getRootWindowProperties().getTabWindowProperties().getTabbedPanelProperties().getTabAreaProperties().setTabAreaVisiblePolicy(TabAreaVisiblePolicy.MORE_THAN_ONE_TAB);
         rootWindow.setBackground(Color.GREEN);
         rootWindow.setForeground(Color.GREEN);
         final Runnable fixit = () -> {
@@ -411,25 +377,31 @@ public class MainPanel extends JPanel
 
         rootWindow.addListener(getDockingWindowListener2(fixit));
 
-        leftView = new View("Side", null, new JPanel());
-        frontView = new View("Front", null, new JPanel());
-        bottomView = new View("Bottom", null, new JPanel());
-        perspectiveView = new View("Perspective", null, new JPanel());
         previewView = new View("Preview", null, new JPanel());
+
+
         final JPanel timeSliderAndExtra = new JPanel();
         final GroupLayout tsaeLayout = new GroupLayout(timeSliderAndExtra);
         final Component horizontalGlue = Box.createHorizontalGlue();
         final Component verticalGlue = Box.createVerticalGlue();
         tsaeLayout.setHorizontalGroup(tsaeLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
                 .addComponent(timeSliderPanel)
-                .addGroup(tsaeLayout.createSequentialGroup().addComponent(mouseCoordDisplay[0])
-                        .addComponent(mouseCoordDisplay[1]).addComponent(mouseCoordDisplay[2])
-                        .addComponent(horizontalGlue).addComponent(setKeyframe).addComponent(setTimeBounds)));
-        tsaeLayout.setVerticalGroup(tsaeLayout.createSequentialGroup().addComponent(timeSliderPanel)
+                .addGroup(tsaeLayout.createSequentialGroup()
+                        .addComponent(mouseCoordDisplay[0])
+                        .addComponent(mouseCoordDisplay[1])
+                        .addComponent(mouseCoordDisplay[2])
+                        .addComponent(horizontalGlue)
+                        .addComponent(setKeyframe)
+                        .addComponent(setTimeBounds)));
+        tsaeLayout.setVerticalGroup(tsaeLayout.createSequentialGroup()
+                .addComponent(timeSliderPanel)
                 .addGroup(tsaeLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
-                        .addComponent(mouseCoordDisplay[0]).addComponent(mouseCoordDisplay[1])
-                        .addComponent(mouseCoordDisplay[2]).addComponent(horizontalGlue)
-                        .addComponent(setKeyframe).addComponent(setTimeBounds)));
+                        .addComponent(mouseCoordDisplay[0])
+                        .addComponent(mouseCoordDisplay[1])
+                        .addComponent(mouseCoordDisplay[2])
+                        .addComponent(horizontalGlue)
+                        .addComponent(setKeyframe)
+                        .addComponent(setTimeBounds)));
         timeSliderAndExtra.setLayout(tsaeLayout);
 
         timeSliderView = new View("Footer", null, timeSliderAndExtra);
@@ -452,10 +424,14 @@ public class MainPanel extends JPanel
         rootWindow.getRootWindowProperties().getFloatingWindowProperties().setUseFrame(true);
         startupTabWindow.setSelectedTab(0);
 
-        layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(toolbar)
+        layout.setHorizontalGroup(layout
+                .createParallelGroup(GroupLayout.Alignment.LEADING)
+                .addComponent(toolbar)
                 .addComponent(rootWindow));
-        layout.setVerticalGroup(
-                layout.createSequentialGroup().addComponent(toolbar).addComponent(rootWindow));
+        layout.setVerticalGroup(layout
+                .createSequentialGroup()
+                .addComponent(toolbar)
+                .addComponent(rootWindow));
         setLayout(layout);
 
 
@@ -499,6 +475,32 @@ public class MainPanel extends JPanel
         actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
         viewportTransferHandler = new ViewportTransferHandler();
         coordDisplayListener = (dim1, dim2, value1, value2) -> setMouseCoordDisplay(mouseCoordDisplay, dim1, dim2, value1, value2);
+    }
+
+    private JButton createSetKeyframeButton() {
+        final JButton setKeyframe;
+        setKeyframe = new JButton(RMSIcons.setKeyframeIcon);
+        setKeyframe.setMargin(new Insets(0, 0, 0, 0));
+        setKeyframe.setToolTipText("Create Keyframe");
+        setKeyframe.addActionListener(e -> {
+            final ModelPanel mpanel = currentModelPanel();
+            if (mpanel != null) {
+                mpanel.getUndoManager().pushAction(
+                        mpanel.getModelEditorManager().getModelEditor().createKeyframe(actionType));
+            }
+            repaintSelfAndChildren(this);
+            mpanel.repaintSelfAndRelatedChildren();
+        });
+        return setKeyframe;
+    }
+
+    private void createMouseCoordDisp() {
+        for (int i = 0; i < mouseCoordDisplay.length; i++) {
+            mouseCoordDisplay[i] = new JTextField("");
+            mouseCoordDisplay[i].setMaximumSize(new Dimension(80, 18));
+            mouseCoordDisplay[i].setMinimumSize(new Dimension(50, 15));
+            mouseCoordDisplay[i].setEditable(false);
+        }
     }
 
     private static JButton createSetTimeBoundsButton(MainPanel mainPanel) {
@@ -1389,99 +1391,7 @@ public class MainPanel extends JPanel
 
     @Override
     public void actionPerformed(final ActionEvent e) {
-        // Open, off of the file menu:
         refreshUndo();
-        try {
-//            if (e.getSource() == newModel) {
-//                ToolBar.newModel(this);
-//            } else if (e.getSource() == open) {
-//                ToolBar.onClickOpen(this);
-//            } else if (e.getSource() == close) {
-//                closePanelActionRes(this);
-//            } else if (e.getSource() == fetchUnit) {
-//                fetchUnitActionRes(this);
-//            } else if (e.getSource() == fetchModel) {
-//                fetchModelActionRes(this);
-//            } else if (e.getSource() == fetchObject) {
-//                fetchObjectActionRes(this);
-//            } else if (e.getSource() == importButton) {
-//                importButtonActionRes();
-//            } else if (e.getSource() == importUnit) {
-//                importUnitActionRes(this);
-//            } else if (e.getSource() == importGameModel) {
-//                importGameModelActionRes(this);
-//            } else if (e.getSource() == importGameObject) {
-//                importGameObjectActionRes(this);
-//            } else if (e.getSource() == importFromWorkspace) {
-//                importFromWorkspaceActionRes(this);
-//            } else if (e.getSource() == importButtonS) {
-//                importButtonSActionRes();
-//            } else if (e.getSource() == mergeGeoset) {
-//                mergeGeosetActionRes(this);
-//            } else if (e.getSource() == clearRecent) {
-//                clearRecentActionRes(this);
-//            } else if (e.getSource() == nullmodelButton) {
-//                nullmodelButtonActionRes(this);
-//            } else if ((e.getSource() == save) && (currentMDL() != null) && (currentMDL().getFile() != null)) {
-//                ToolBar.onClickSave(this);
-//            } else if (e.getSource() == saveAs) {
-//                onClickSaveAs(this);
-                // } else if (e.getSource() == contextClose) {
-                // if (((ModelPanel) tabbedPane.getComponentAt(contextClickedTab)).close()) {//
-                // this);
-                // tabbedPane.remove(contextClickedTab);
-                // }
-//            } else if (e.getSource() == contextCloseAll) {
-//                MenuBar.closeAll(this);
-//            } else if (e.getSource() == contextCloseOthers) {
-//                closeOthers(this, currentModelPanel);
-//            } else if (e.getSource() == showVertexModifyControls) {
-//                showVertexModifyControlsActionRes(modelPanels, prefs, showVertexModifyControls);
-//            } else if (e.getSource() == textureModels) {
-//                prefs.setTextureModels(textureModels.isSelected());
-//            } else if (e.getSource() == showNormals) {
-//                prefs.setShowNormals(showNormals.isSelected());
-//            } else if (e.getSource() == editUVs) {
-//                editUVsActionRes(this);
-//            } else if (e.getSource() == exportTextures) {
-//                exportTexturesActionRes(this);
-//            } else if (e.getSource() == scaleAnimations) {
-//                scaleAnimationsActionRes(this);
-//            } else if (e.getSource() == linearizeAnimations) {
-//                linearizeAnimationsActionRes(this);
-//            } else if (e.getSource() == duplicateSelection) {
-//                duplicateSelectionActionRes(this);
-//            } else if (e.getSource() == simplifyKeyframes) {
-//                simplifyKeyframesActionRes(this);
-//            } else if (e.getSource() == riseFallBirth) {
-//                riseFallBirthActionRes(this);
-//            } else if (e.getSource() == animFromFile) {
-//                animFromFileActionRes(this);
-//            } else if (e.getSource() == animFromUnit) {
-//                animFromUnitActionRes(this);
-//            } else if (e.getSource() == animFromModel) {
-//                animFromModelActionRes(this);
-//            } else if (e.getSource() == animFromObject) {
-//                animFromObjectActionRes(this);
-//            } else if (e.getSource() == creditsButton) {
-//                creditsButtonActionRes("docs/credits.rtf", "About");
-//            } else if (e.getSource() == changelogButton) {
-//                creditsButtonActionRes("docs/changelist.rtf", "Changelog");
-                // JOptionPane.showMessageDialog(this,new JScrollPane(epane));
-//            }
-            // for( int i = 0; i < geoItems.size(); i++ )
-            // {
-            // JCheckBoxMenuItem geoItem = (JCheckBoxMenuItem)geoItems.get(i);
-            // if( e.getSource() == geoItem )
-            // {
-            // frontArea.setGeosetVisible(i,geoItem.isSelected());
-            // frontArea.setGeosetHighlight(i,false);
-            // }
-            // repaint();
-            // }
-        } catch (final Exception exc) {
-            ExceptionPopup.display(exc);
-        }
     }
 
 
@@ -1690,8 +1600,7 @@ public class MainPanel extends JPanel
 
     private static Component getFocusedComponent() {
         final KeyboardFocusManager kfm = KeyboardFocusManager.getCurrentKeyboardFocusManager();
-        final Component focusedComponent = kfm.getFocusOwner();
-        return focusedComponent;
+        return kfm.getFocusOwner();
     }
 
     private static boolean focusedComponentNeedsTyping(final Component focusedComponent) {
