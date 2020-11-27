@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewStateListener;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
@@ -11,20 +12,32 @@ import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
 import com.hiveworkshop.rms.filesystem.sources.DataSourceDescriptor;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
+import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
 import com.hiveworkshop.rms.parsers.w3o.WTSFile;
 import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.uv.panel.UVPanel;
+import com.hiveworkshop.rms.ui.application.scripts.AnimationTransfer;
+import com.hiveworkshop.rms.ui.application.scripts.ChangeAnimationLengthFrame;
 import com.hiveworkshop.rms.ui.application.tools.EditTexturesPopupPanel;
 import com.hiveworkshop.rms.ui.application.viewer.AnimationViewer;
 import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.models.BetterUnitEditorModelSelector;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.*;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.UnitFields;
+import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPane;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPanel;
 import com.hiveworkshop.rms.ui.browsers.mpq.MPQBrowser;
+import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPane;
 import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.ImportPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.MaterialListRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ProgramPreferencesPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarActionButtonType;
@@ -46,7 +59,11 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.rtf.RTFEditorKit;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
@@ -59,6 +76,7 @@ import java.util.*;
 import java.util.List;
 
 public class MenuBar {
+    public static final ImageIcon AnimIcon = RMSIcons.AnimIcon;
     static final ImageIcon MDLIcon = RMSIcons.MDLIcon;
     static final Quat IDENTITY = new Quat();
     static final ImageIcon POWERED_BY_HIVE = RMSIcons.loadHiveBrowserImageIcon("powered_by_hive.png");
@@ -338,7 +356,7 @@ public class MenuBar {
 
         mainPanel.clearRecent = new JMenuItem("Clear");
         mainPanel.clearRecent.setMnemonic(KeyEvent.VK_C);
-        mainPanel.clearRecent.addActionListener(mainPanel);
+        mainPanel.clearRecent.addActionListener(e -> clearRecentActionRes(mainPanel));
         mainPanel.recentMenu.add(mainPanel.clearRecent);
 
         updateRecent(mainPanel);
@@ -682,7 +700,7 @@ public class MenuBar {
 
         mainPanel.riseFallBirth = new JMenuItem("Rising/Falling Birth/Death");
         mainPanel.riseFallBirth.setMnemonic(KeyEvent.VK_R);
-        mainPanel.riseFallBirth.addActionListener(mainPanel);
+        mainPanel.riseFallBirth.addActionListener(e -> riseFallBirthActionRes(mainPanel));
         mainPanel.animationMenu.add(mainPanel.riseFallBirth);
 
         mainPanel.singleAnimationMenu = new JMenu("Single");
@@ -691,22 +709,46 @@ public class MenuBar {
 
         mainPanel.animFromFile = new JMenuItem("From File");
         mainPanel.animFromFile.setMnemonic(KeyEvent.VK_F);
-        mainPanel.animFromFile.addActionListener(mainPanel);
+        mainPanel.animFromFile.addActionListener(e -> {
+            try {
+                animFromFileActionRes(mainPanel);
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
         mainPanel.singleAnimationMenu.add(mainPanel.animFromFile);
 
         mainPanel.animFromUnit = new JMenuItem("From Unit");
         mainPanel.animFromUnit.setMnemonic(KeyEvent.VK_U);
-        mainPanel.animFromUnit.addActionListener(mainPanel);
+        mainPanel.animFromUnit.addActionListener(e -> {
+            try {
+                animFromUnitActionRes(mainPanel);
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
         mainPanel.singleAnimationMenu.add(mainPanel.animFromUnit);
 
         mainPanel.animFromModel = new JMenuItem("From Model");
         mainPanel.animFromModel.setMnemonic(KeyEvent.VK_M);
-        mainPanel.animFromModel.addActionListener(mainPanel);
+        mainPanel.animFromModel.addActionListener(e -> {
+            try {
+                animFromModelActionRes(mainPanel);
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
         mainPanel.singleAnimationMenu.add(mainPanel.animFromModel);
 
         mainPanel.animFromObject = new JMenuItem("From Object");
         mainPanel.animFromObject.setMnemonic(KeyEvent.VK_O);
-        mainPanel.animFromObject.addActionListener(mainPanel);
+        mainPanel.animFromObject.addActionListener(e -> {
+            try {
+                animFromObjectActionRes(mainPanel);
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
         mainPanel.singleAnimationMenu.add(mainPanel.animFromObject);
     }
 
@@ -714,20 +756,26 @@ public class MenuBar {
         mainPanel.importButtonS = new JMenuItem("Oinkerwinkle-Style AnimTransfer");
         mainPanel.importButtonS.setAccelerator(KeyStroke.getKeyStroke("control shift S"));
         mainPanel.importButtonS.setMnemonic(KeyEvent.VK_P);
-        mainPanel.importButtonS.addActionListener(mainPanel);
+        mainPanel.importButtonS.addActionListener(e -> importButtonSActionRes());
         // importButtonS.setEnabled(false);
         mainPanel.scriptsMenu.add(mainPanel.importButtonS);
 
         mainPanel.mergeGeoset = new JMenuItem("Oinkerwinkle-Style Merge Geoset");
         mainPanel.mergeGeoset.setAccelerator(KeyStroke.getKeyStroke("control M"));
         mainPanel.mergeGeoset.setMnemonic(KeyEvent.VK_M);
-        mainPanel.mergeGeoset.addActionListener(mainPanel);
+        mainPanel.mergeGeoset.addActionListener(e -> {
+            try {
+                mergeGeosetActionRes(mainPanel);
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
         mainPanel.scriptsMenu.add(mainPanel.mergeGeoset);
 
         mainPanel.nullmodelButton = new JMenuItem("Edit/delete model components");
         mainPanel.nullmodelButton.setAccelerator(KeyStroke.getKeyStroke("control E"));
         mainPanel.nullmodelButton.setMnemonic(KeyEvent.VK_E);
-        mainPanel.nullmodelButton.addActionListener(mainPanel);
+        mainPanel.nullmodelButton.addActionListener(e -> nullmodelButtonActionRes(mainPanel));
         mainPanel.scriptsMenu.add(mainPanel.nullmodelButton);
 
         mainPanel.exportAnimatedToStaticMesh = new JMenuItem("Export Animated to Static Mesh");
@@ -965,7 +1013,7 @@ public class MenuBar {
 
         mainPanel.scaleAnimations = new JMenuItem("Change Animation Lengths by Scaling");
         mainPanel.scaleAnimations.setMnemonic(KeyEvent.VK_A);
-        mainPanel.scaleAnimations.addActionListener(mainPanel);
+        mainPanel.scaleAnimations.addActionListener(e -> scaleAnimationsActionRes(mainPanel));
         mainPanel.scriptsMenu.add(mainPanel.scaleAnimations);
 
         final JMenuItem version800Toggle = new JMenuItem("Assign FormatVersion 800");
@@ -1058,12 +1106,12 @@ public class MenuBar {
     private static void fillAboutMenu(MainPanel mainPanel) {
         mainPanel.changelogButton = new JMenuItem("Changelog");
         mainPanel.changelogButton.setMnemonic(KeyEvent.VK_A);
-        mainPanel.changelogButton.addActionListener(mainPanel);
+        mainPanel.changelogButton.addActionListener(e -> creditsButtonActionRes("docs/changelist.rtf", "Changelog"));
         mainPanel.aboutMenu.add(mainPanel.changelogButton);
 
         mainPanel.creditsButton = new JMenuItem("About");
         mainPanel.creditsButton.setMnemonic(KeyEvent.VK_A);
-        mainPanel.creditsButton.addActionListener(mainPanel);
+        mainPanel.creditsButton.addActionListener(e -> creditsButtonActionRes("docs/credits.rtf", "About"));
         mainPanel.aboutMenu.add(mainPanel.creditsButton);
 
         mainPanel.jokeButton = new JMenuItem("HTML Magic");
@@ -1107,7 +1155,7 @@ public class MenuBar {
 
         mainPanel.editUVs = new JMenuItem("Edit UV Mapping");
         mainPanel.editUVs.setMnemonic(KeyEvent.VK_U);
-        mainPanel.editUVs.addActionListener(mainPanel);
+        mainPanel.editUVs.addActionListener(e -> editUVsActionRes(mainPanel));
         mainPanel.toolsMenu.add(mainPanel.editUVs);
 
         mainPanel.editTextures = new JMenuItem("Edit Textures");
@@ -1183,7 +1231,7 @@ public class MenuBar {
         mainPanel.textureModels = new JCheckBoxMenuItem("Texture Models", true);
         mainPanel.textureModels.setMnemonic(KeyEvent.VK_T);
         mainPanel.textureModels.setSelected(true);
-        mainPanel.textureModels.addActionListener(mainPanel);
+        mainPanel.textureModels.addActionListener(e -> mainPanel.prefs.setTextureModels(mainPanel.textureModels.isSelected()));
         mainPanel.viewMenu.add(mainPanel.textureModels);
 
         mainPanel.newDirectory = new JMenuItem("Change Game Directory");
@@ -1197,7 +1245,7 @@ public class MenuBar {
 
         mainPanel.showVertexModifyControls = new JCheckBoxMenuItem("Show Viewport Buttons", true);
         // showVertexModifyControls.setMnemonic(KeyEvent.VK_V);
-        mainPanel.showVertexModifyControls.addActionListener(mainPanel);
+        mainPanel.showVertexModifyControls.addActionListener(e -> showVertexModifyControlsActionRes(mainPanel.modelPanels, mainPanel.prefs, mainPanel.showVertexModifyControls));
         mainPanel.viewMenu.add(mainPanel.showVertexModifyControls);
 
         mainPanel.viewMenu.add(new JSeparator());
@@ -1205,7 +1253,7 @@ public class MenuBar {
         mainPanel.showNormals = new JCheckBoxMenuItem("Show Normals", true);
         mainPanel.showNormals.setMnemonic(KeyEvent.VK_N);
         mainPanel.showNormals.setSelected(false);
-        mainPanel.showNormals.addActionListener(mainPanel);
+        mainPanel.showNormals.addActionListener(e -> mainPanel.prefs.setShowNormals(mainPanel.showNormals.isSelected()));
         mainPanel.viewMenu.add(mainPanel.showNormals);
 
         mainPanel.viewMode = new JMenu("3D View Mode");
@@ -1241,13 +1289,13 @@ public class MenuBar {
         mainPanel.newModel = new JMenuItem("New");
         mainPanel.newModel.setAccelerator(KeyStroke.getKeyStroke("control N"));
         mainPanel.newModel.setMnemonic(KeyEvent.VK_N);
-        mainPanel.newModel.addActionListener(mainPanel);
+        mainPanel.newModel.addActionListener(e -> ToolBar.newModel(mainPanel));
         mainPanel.fileMenu.add(mainPanel.newModel);
 
         mainPanel.open = new JMenuItem("Open");
         mainPanel.open.setAccelerator(KeyStroke.getKeyStroke("control O"));
         mainPanel.open.setMnemonic(KeyEvent.VK_O);
-        mainPanel.open.addActionListener(mainPanel);
+        mainPanel.open.addActionListener(e -> ToolBar.onClickOpen(mainPanel));
         mainPanel.fileMenu.add(mainPanel.open);
 
         mainPanel.fileMenu.add(mainPanel.recentMenu);
@@ -1259,19 +1307,19 @@ public class MenuBar {
         mainPanel.fetchUnit = new JMenuItem("Unit");
         mainPanel.fetchUnit.setAccelerator(KeyStroke.getKeyStroke("control U"));
         mainPanel.fetchUnit.setMnemonic(KeyEvent.VK_U);
-        mainPanel.fetchUnit.addActionListener(mainPanel);
+        mainPanel.fetchUnit.addActionListener(e -> fetchUnitActionRes(mainPanel));
         mainPanel.fetch.add(mainPanel.fetchUnit);
 
         mainPanel.fetchModel = new JMenuItem("Model");
         mainPanel.fetchModel.setAccelerator(KeyStroke.getKeyStroke("control M"));
         mainPanel.fetchModel.setMnemonic(KeyEvent.VK_M);
-        mainPanel.fetchModel.addActionListener(mainPanel);
+        mainPanel.fetchModel.addActionListener(e -> fetchModelActionRes(mainPanel));
         mainPanel.fetch.add(mainPanel.fetchModel);
 
         mainPanel.fetchObject = new JMenuItem("Object Editor");
         mainPanel.fetchObject.setAccelerator(KeyStroke.getKeyStroke("control O"));
         mainPanel.fetchObject.setMnemonic(KeyEvent.VK_O);
-        mainPanel.fetchObject.addActionListener(mainPanel);
+        mainPanel.fetchObject.addActionListener(e -> fetchObjectActionRes(mainPanel));
         mainPanel.fetch.add(mainPanel.fetchObject);
 
         mainPanel.fetch.add(new JSeparator());
@@ -1291,47 +1339,74 @@ public class MenuBar {
         mainPanel.importButton = new JMenuItem("From File");
         mainPanel.importButton.setAccelerator(KeyStroke.getKeyStroke("control shift I"));
         mainPanel.importButton.setMnemonic(KeyEvent.VK_I);
-        mainPanel.importButton.addActionListener(mainPanel);
+        mainPanel.importButton.addActionListener(e -> {
+            try {
+                importButtonActionRes(mainPanel);
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
         mainPanel.importMenu.add(mainPanel.importButton);
 
         mainPanel.importUnit = new JMenuItem("From Unit");
         mainPanel.importUnit.setMnemonic(KeyEvent.VK_U);
         mainPanel.importUnit.setAccelerator(KeyStroke.getKeyStroke("control shift U"));
-        mainPanel.importUnit.addActionListener(mainPanel);
+        mainPanel.importUnit.addActionListener(e -> {
+            try {
+                importUnitActionRes(mainPanel);
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
         mainPanel.importMenu.add(mainPanel.importUnit);
 
         mainPanel.importGameModel = new JMenuItem("From WC3 Model");
         mainPanel.importGameModel.setMnemonic(KeyEvent.VK_M);
-        mainPanel.importGameModel.addActionListener(mainPanel);
+        mainPanel.importGameModel.addActionListener(e -> {
+            try {
+                importGameModelActionRes(mainPanel);
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
         mainPanel.importMenu.add(mainPanel.importGameModel);
 
         mainPanel.importGameObject = new JMenuItem("From Object Editor");
         mainPanel.importGameObject.setMnemonic(KeyEvent.VK_O);
-        mainPanel.importGameObject.addActionListener(mainPanel);
+        mainPanel.importGameObject.addActionListener(e -> {
+            try {
+                importGameObjectActionRes(mainPanel);
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
         mainPanel.importMenu.add(mainPanel.importGameObject);
 
         mainPanel.importFromWorkspace = new JMenuItem("From Workspace");
         mainPanel.importFromWorkspace.setMnemonic(KeyEvent.VK_O);
-        mainPanel.importFromWorkspace.addActionListener(mainPanel);
+        mainPanel.importFromWorkspace.addActionListener(e -> importFromWorkspaceActionRes(mainPanel));
         mainPanel.importMenu.add(mainPanel.importFromWorkspace);
 
         mainPanel.save = new JMenuItem("Save");
         mainPanel.save.setMnemonic(KeyEvent.VK_S);
         mainPanel.save.setAccelerator(KeyStroke.getKeyStroke("control S"));
-        mainPanel.save.addActionListener(mainPanel);
+        mainPanel.save.addActionListener(e -> {
+            if ((mainPanel.currentMDL() != null) && (mainPanel.currentMDL().getFile() != null)) {
+                ToolBar.onClickSave(mainPanel);}
+        });
         mainPanel.fileMenu.add(mainPanel.save);
 
         mainPanel.saveAs = new JMenuItem("Save as");
         mainPanel.saveAs.setMnemonic(KeyEvent.VK_A);
         mainPanel.saveAs.setAccelerator(KeyStroke.getKeyStroke("control Q"));
-        mainPanel.saveAs.addActionListener(mainPanel);
+        mainPanel.saveAs.addActionListener(e -> onClickSaveAs(mainPanel));
         mainPanel.fileMenu.add(mainPanel.saveAs);
 
         mainPanel.fileMenu.add(new JSeparator());
 
         mainPanel.exportTextures = new JMenuItem("Export Texture");
         mainPanel.exportTextures.setMnemonic(KeyEvent.VK_E);
-        mainPanel.exportTextures.addActionListener(mainPanel);
+        mainPanel.exportTextures.addActionListener(e -> exportTexturesActionRes(mainPanel));
         mainPanel.fileMenu.add(mainPanel.exportTextures);
 
         mainPanel.fileMenu.add(new JSeparator());
@@ -1361,7 +1436,7 @@ public class MenuBar {
         mainPanel.close = new JMenuItem("Close");
         mainPanel.close.setAccelerator(KeyStroke.getKeyStroke("control E"));
         mainPanel.close.setMnemonic(KeyEvent.VK_E);
-        mainPanel.close.addActionListener(mainPanel);
+        mainPanel.close.addActionListener(e -> closePanelActionRes(mainPanel));
         mainPanel.fileMenu.add(mainPanel.close);
 
         mainPanel.fileMenu.add(new JSeparator());
@@ -1399,12 +1474,12 @@ public class MenuBar {
 
         mainPanel.linearizeAnimations = new JMenuItem("Linearize Animations");
         mainPanel.linearizeAnimations.setMnemonic(KeyEvent.VK_L);
-        mainPanel.linearizeAnimations.addActionListener(mainPanel);
+        mainPanel.linearizeAnimations.addActionListener(e -> linearizeAnimationsActionRes(mainPanel));
         optimizeMenu.add(mainPanel.linearizeAnimations);
 
         mainPanel.simplifyKeyframes = new JMenuItem("Simplify Keyframes (Experimental)");
         mainPanel.simplifyKeyframes.setMnemonic(KeyEvent.VK_K);
-        mainPanel.simplifyKeyframes.addActionListener(mainPanel);
+        mainPanel.simplifyKeyframes.addActionListener(e -> simplifyKeyframesActionRes(mainPanel));
         optimizeMenu.add(mainPanel.simplifyKeyframes);
 
         final JMenuItem minimizeGeoset = new JMenuItem("Minimize Geosets");
@@ -1581,6 +1656,7 @@ public class MenuBar {
         // divideVertices.setMnemonic(KeyEvent.VK_V);
         mainPanel.duplicateSelection.setAccelerator(KeyStroke.getKeyStroke("control D"));
         mainPanel.duplicateSelection.addActionListener(mainPanel.cloneAction);
+        //duplicateSelectionActionRes ?
         mainPanel.editMenu.add(mainPanel.duplicateSelection);
 
         mainPanel.editMenu.add(new JSeparator());
@@ -2484,8 +2560,1008 @@ public class MenuBar {
         }
     }
 
+    static void animFromFileActionRes(MainPanel mainPanel) throws IOException {
+        mainPanel.fc.setDialogTitle("Animation Source");
+        final EditableModel current = mainPanel.currentMDL();
+        if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
+            mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
+        } else if (mainPanel.profile.getPath() != null) {
+            mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
+        }
+        final int returnValue = mainPanel.fc.showOpenDialog(mainPanel);
+
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            mainPanel.currentFile = mainPanel.fc.getSelectedFile();
+            mainPanel.profile.setPath(mainPanel.currentFile.getParent());
+            final EditableModel animationSourceModel = MdxUtils.loadEditable(mainPanel.currentFile);
+            addSingleAnimation(mainPanel, current, animationSourceModel);
+        }
+
+        mainPanel.fc.setSelectedFile(null);
+
+        ToolBar.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
+    }
+
+    static void addSingleAnimation(MainPanel mainPanel, final EditableModel current, final EditableModel animationSourceModel) {
+        Animation choice = null;
+        choice = (Animation) JOptionPane.showInputDialog(mainPanel, "Choose an animation!", "Add Animation",
+                JOptionPane.QUESTION_MESSAGE, null, animationSourceModel.getAnims().toArray(),
+                animationSourceModel.getAnims().get(0));
+        if (choice == null) {
+            JOptionPane.showMessageDialog(mainPanel, "Bad choice. No animation added.");
+            return;
+        }
+        final Animation visibilitySource = (Animation) JOptionPane.showInputDialog(mainPanel,
+                "Which animation from THIS model to copy visiblity from?", "Add Animation",
+                JOptionPane.QUESTION_MESSAGE, null, current.getAnims().toArray(), current.getAnims().get(0));
+        if (visibilitySource == null) {
+            JOptionPane.showMessageDialog(mainPanel, "No visibility will be copied.");
+        }
+        final List<Animation> animationsAdded = current.addAnimationsFrom(animationSourceModel,
+                Collections.singletonList(choice));
+        for (final Animation anim : animationsAdded) {
+            current.copyVisibility(visibilitySource, anim);
+        }
+        JOptionPane.showMessageDialog(mainPanel, "Added " + animationSourceModel.getName() + "'s " + choice.getName()
+                + " with " + visibilitySource.getName() + "'s visibility  OK!");
+        mainPanel.modelStructureChangeListener.animationsAdded(animationsAdded);
+    }
+
+    static void creditsButtonActionRes(String s, String about) {
+        final DefaultStyledDocument panel = new DefaultStyledDocument();
+        final JTextPane epane = new JTextPane();
+        epane.setForeground(Color.BLACK);
+        epane.setBackground(Color.WHITE);
+        final RTFEditorKit rtfk = new RTFEditorKit();
+        try {
+            rtfk.read(GameDataFileSystem.getDefault().getResourceAsStream(s), panel, 0);
+        } catch (final BadLocationException | IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        epane.setDocument(panel);
+        final JFrame frame = new JFrame(about);
+        frame.setContentPane(new JScrollPane(epane));
+        frame.setSize(650, 500);
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+        // JOptionPane.showMessageDialog(this,new JScrollPane(epane));
+    }
+
+    static void animFromObjectActionRes(MainPanel mainPanel) throws IOException {
+        mainPanel.fc.setDialogTitle("Animation Source");
+        final MutableObjectData.MutableGameObject fetchResult = fetchObject(mainPanel);
+        if (fetchResult == null) {
+            return;
+        }
+        final String filepath = convertPathToMDX(fetchResult.getFieldAsString(UnitFields.MODEL_FILE, 0));
+        final EditableModel current = mainPanel.currentMDL();
+        if (filepath != null) {
+            final EditableModel animationSource = MdxUtils.loadEditable(GameDataFileSystem.getDefault().getFile(filepath));
+            addSingleAnimation(mainPanel, current, animationSource);
+        }
+    }
+
+    static void animFromModelActionRes(MainPanel mainPanel) throws IOException {
+        mainPanel.fc.setDialogTitle("Animation Source");
+        final ModelOptionPane.ModelElement fetchResult = fetchModel(mainPanel);
+        if (fetchResult == null) {
+            return;
+        }
+        final String filepath = convertPathToMDX(fetchResult.getFilepath());
+        final EditableModel current = mainPanel.currentMDL();
+        if (filepath != null) {
+            final EditableModel animationSource = MdxUtils.loadEditable(GameDataFileSystem.getDefault().getFile(filepath));
+            addSingleAnimation(mainPanel, current, animationSource);
+        }
+    }
+
+    static void animFromUnitActionRes(MainPanel mainPanel) throws IOException {
+        mainPanel.fc.setDialogTitle("Animation Source");
+        final GameObject fetchResult = fetchUnit(mainPanel);
+        if (fetchResult == null) {
+            return;
+        }
+        final String filepath = convertPathToMDX(fetchResult.getField("file"));
+        final EditableModel current = mainPanel.currentMDL();
+        if (filepath != null) {
+            final EditableModel animationSource = MdxUtils.loadEditable(GameDataFileSystem.getDefault().getFile(filepath));
+            addSingleAnimation(mainPanel, current, animationSource);
+        }
+    }
+
+    static void riseFallBirthActionRes(MainPanel mainPanel) {
+        final ModelView disp = mainPanel.currentModelPanel().getModelViewManager();
+        final EditableModel model = disp.getModel();
+        final Animation lastAnim = model.getAnim(model.getAnimsSize() - 1);
+
+        final Animation oldBirth = model.findAnimByName("birth");
+        final Animation oldDeath = model.findAnimByName("death");
+
+        Animation birth = new Animation("Birth", lastAnim.getEnd() + 300, lastAnim.getEnd() + 2300);
+        Animation death = new Animation("Death", birth.getEnd() + 300, birth.getEnd() + 2300);
+        final Animation stand = model.findAnimByName("stand");
+
+        final int confirmed = JOptionPane.showConfirmDialog(mainPanel,
+                "This will permanently alter model. Are you sure?", "Confirmation",
+                JOptionPane.OK_CANCEL_OPTION);
+        if (confirmed != JOptionPane.OK_OPTION) {
+            return;
+        }
+
+        boolean wipeoutOldBirth = false;
+        if (oldBirth != null) {
+            final String[] choices = {"Ignore", "Delete", "Overwrite"};
+            final Object x = JOptionPane.showInputDialog(mainPanel,
+                    "Existing birth detected. What should be done with it?", "Question",
+                    JOptionPane.PLAIN_MESSAGE, null, choices, choices[0]);
+            if (x == choices[1]) {
+                wipeoutOldBirth = true;
+            } else if (x == choices[2]) {
+                birth = oldBirth;
+            } else {
+                return;
+            }
+        }
+        boolean wipeoutOldDeath = false;
+        if (oldDeath != null) {
+            final String[] choices = {"Ignore", "Delete", "Overwrite"};
+            final Object x = JOptionPane.showInputDialog(mainPanel,
+                    "Existing death detected. What should be done with it?", "Question",
+                    JOptionPane.PLAIN_MESSAGE, null, choices, choices[0]);
+            if (x == choices[1]) {
+                wipeoutOldDeath = true;
+            } else if (x == choices[2]) {
+                death = oldDeath;
+            } else {
+                return;
+            }
+        }
+        if (wipeoutOldBirth) {
+            model.remove(oldBirth);
+        }
+        if (wipeoutOldDeath) {
+            model.remove(oldDeath);
+        }
+
+        final List<IdObject> roots = new ArrayList<>();
+        for (final IdObject obj : model.getIdObjects()) {
+            if (obj.getParent() == null) {
+                roots.add(obj);
+            }
+        }
+        for (final AnimFlag af : model.getAllAnimFlags()) {
+            af.deleteAnim(birth);
+            af.deleteAnim(death);
+        }
+        for (final IdObject obj : roots) {
+            if (obj instanceof Bone) {
+                final Bone b = (Bone) obj;
+                AnimFlag trans = null;
+                boolean globalSeq = false;
+                for (final AnimFlag af : b.getAnimFlags()) {
+                    if (af.getTypeId() == AnimFlag.TRANSLATION) {
+                        if (af.hasGlobalSeq()) {
+                            globalSeq = true;
+                        } else {
+                            trans = af;
+                        }
+                    }
+                }
+                if (globalSeq) {
+                    continue;
+                }
+                if (trans == null) {
+                    final List<Integer> times = new ArrayList<>();
+                    final List<Integer> values = new ArrayList<>();
+                    trans = new AnimFlag("Translation", times, values);
+                    trans.setInterpType(InterpolationType.LINEAR);
+                    b.getAnimFlags().add(trans);
+                }
+                trans.addEntry(birth.getStart(), new Vec3(0, 0, -300));
+                trans.addEntry(birth.getEnd(), new Vec3(0, 0, 0));
+                trans.addEntry(death.getStart(), new Vec3(0, 0, 0));
+                trans.addEntry(death.getEnd(), new Vec3(0, 0, -300));
+            }
+        }
+
+        // visibility
+        for (final VisibilitySource source : model.getAllVisibilitySources()) {
+            final AnimFlag dummy = new AnimFlag("dummy");
+            final AnimFlag af = source.getVisibilityFlag();
+            dummy.copyFrom(af);
+            af.deleteAnim(birth);
+            af.deleteAnim(death);
+            af.copyFrom(dummy, stand.getStart(), stand.getEnd(), birth.getStart(), birth.getEnd());
+            af.copyFrom(dummy, stand.getStart(), stand.getEnd(), death.getStart(), death.getEnd());
+            af.setEntry(death.getEnd(), 0);
+        }
+
+        if (!birth.isNonLooping()) {
+            birth.setNonLooping(true);
+        }
+        if (!death.isNonLooping()) {
+            death.setNonLooping(true);
+        }
+
+        if (!model.contains(birth)) {
+            model.add(birth);
+        }
+        if (!model.contains(death)) {
+            model.add(death);
+        }
+
+        JOptionPane.showMessageDialog(mainPanel, "Done!");
+    }
+
+    static void simplifyKeyframesActionRes(MainPanel mainPanel) {
+        final int x = JOptionPane.showConfirmDialog(mainPanel,
+                "This is an irreversible process that will lose some of your model data,\nin exchange for making it a smaller storage size.\n\nContinue and simplify keyframes?",
+                "Warning: Simplify Keyframes", JOptionPane.OK_CANCEL_OPTION);
+        if (x == JOptionPane.OK_OPTION) {
+            simplifyKeyframes(mainPanel);
+        }
+    }
+
+    static void duplicateSelectionActionRes(MainPanel mainPanel) {
+        // final int x = JOptionPane.showConfirmDialog(this,
+        // "This is an irreversible process that will split selected
+        // vertices into many copies of themself, one for each face, so
+        // you can wrap textures and normals in a different
+        // way.\n\nContinue?",
+        // "Warning"/* : Divide Vertices" */,
+        // JOptionPane.OK_CANCEL_OPTION);
+        // if (x == JOptionPane.OK_OPTION) {
+        final ModelPanel currentModelPanel = mainPanel.currentModelPanel();
+        if (currentModelPanel != null) {
+            currentModelPanel.getUndoManager().pushAction(currentModelPanel.getModelEditorManager()
+                    .getModelEditor().cloneSelectedComponents(mainPanel.namePicker));
+        }
+        // }
+    }
+
+    static void linearizeAnimationsActionRes(MainPanel mainPanel) {
+        final int x = JOptionPane.showConfirmDialog(mainPanel,
+                "This is an irreversible process that will lose some of your model data,\nin exchange for making it a smaller storage size.\n\nContinue and simplify animations?",
+                "Warning: Linearize Animations", JOptionPane.OK_CANCEL_OPTION);
+        if (x == JOptionPane.OK_OPTION) {
+            final List<AnimFlag> allAnimFlags = mainPanel.currentMDL().getAllAnimFlags();
+            for (final AnimFlag flag : allAnimFlags) {
+                flag.linearize();
+            }
+        }
+    }
+
+    static void scaleAnimationsActionRes(MainPanel mainPanel) {
+        // if( disp.animpanel == null )
+        // {
+        // AnimationPanel panel = new UVPanel(disp);
+        // disp.setUVPanel(panel);
+        // panel.showFrame();
+        // }
+        // else if(!disp.uvpanel.frameVisible() )
+        // {
+        // disp.uvpanel.showFrame();
+        // }
+        final ChangeAnimationLengthFrame aFrame = new ChangeAnimationLengthFrame(mainPanel.currentModelPanel(), () -> mainPanel.timeSliderPanel.revalidateKeyframeDisplay());
+        aFrame.setVisible(true);
+    }
+
+    static void exportTexturesActionRes(MainPanel mainPanel) {
+        final DefaultListModel<Material> materials = new DefaultListModel<>();
+        for (int i = 0; i < mainPanel.currentMDL().getMaterials().size(); i++) {
+            final Material mat = mainPanel.currentMDL().getMaterials().get(i);
+            materials.addElement(mat);
+        }
+        for (final ParticleEmitter2 emitter2 : mainPanel.currentMDL().sortedIdObjects(ParticleEmitter2.class)) {
+            final Material dummyMaterial = new Material(
+                    new Layer("Blend", mainPanel.currentMDL().getTexture(emitter2.getTextureID())));
+        }
+
+        final JList<Material> materialsList = new JList<>(materials);
+        materialsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        materialsList.setCellRenderer(new MaterialListRenderer(mainPanel.currentMDL()));
+        JOptionPane.showMessageDialog(mainPanel, new JScrollPane(materialsList));
+
+        if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
+            final EditableModel current = mainPanel.currentMDL();
+            if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
+                mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
+            } else if (mainPanel.profile.getPath() != null) {
+                mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
+            }
+        }
+        if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
+            mainPanel.exportTextureDialog.setSelectedFile(new File(mainPanel.exportTextureDialog.getCurrentDirectory()
+                    + File.separator + materialsList.getSelectedValue().getName()));
+        }
+
+        final int x = mainPanel.exportTextureDialog.showSaveDialog(mainPanel);
+        if (x == JFileChooser.APPROVE_OPTION) {
+            final File file = mainPanel.exportTextureDialog.getSelectedFile();
+            if (file != null) {
+                try {
+                    if (file.getName().lastIndexOf('.') >= 0) {
+                        BufferedImage bufferedImage = materialsList.getSelectedValue()
+                                .getBufferedImage(mainPanel.currentMDL().getWrappedDataSource());
+                        String fileExtension = file.getName().substring(file.getName().lastIndexOf('.') + 1)
+                                .toUpperCase();
+                        if (fileExtension.equals("BMP") || fileExtension.equals("JPG")
+                                || fileExtension.equals("JPEG")) {
+                            JOptionPane.showMessageDialog(mainPanel,
+                                    "Warning: Alpha channel was converted to black. Some data will be lost\nif you convert this texture back to Warcraft BLP.");
+                            bufferedImage = BLPHandler.removeAlphaChannel(bufferedImage);
+                        }
+                        if (fileExtension.equals("BLP")) {
+                            fileExtension = "blp";
+                        }
+                        final boolean write = ImageIO.write(bufferedImage, fileExtension, file);
+                        if (!write) {
+                            JOptionPane.showMessageDialog(mainPanel, "File type unknown or unavailable");
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(mainPanel, "No file type was specified");
+                    }
+                } catch (final Exception e1) {
+                    ExceptionPopup.display(e1);
+                    e1.printStackTrace();
+                }
+            } else {
+                JOptionPane.showMessageDialog(mainPanel, "No output file was specified");
+            }
+        }
+    }
+
+    static void editUVsActionRes(MainPanel mainPanel) {
+        final ModelPanel disp = mainPanel.currentModelPanel();
+        if (disp.getEditUVPanel() == null) {
+            final UVPanel panel = new UVPanel(disp, mainPanel.prefs, mainPanel.modelStructureChangeListener);
+            disp.setEditUVPanel(panel);
+
+            panel.initViewport();
+            final FloatingWindow floatingWindow = mainPanel.rootWindow.createFloatingWindow(
+                    new Point(mainPanel.getX() + (mainPanel.getWidth() / 2), mainPanel.getY() + (mainPanel.getHeight() / 2)), panel.getSize(),
+                    panel.getView());
+            panel.init();
+            floatingWindow.getTopLevelAncestor().setVisible(true);
+            panel.packFrame();
+        } else if (!disp.getEditUVPanel().frameVisible()) {
+            final FloatingWindow floatingWindow = mainPanel.rootWindow.createFloatingWindow(
+                    new Point(mainPanel.getX() + (mainPanel.getWidth() / 2), mainPanel.getY() + (mainPanel.getHeight() / 2)),
+                    disp.getEditUVPanel().getSize(), disp.getEditUVPanel().getView());
+            floatingWindow.getTopLevelAncestor().setVisible(true);
+        }
+    }
+
+    static void showVertexModifyControlsActionRes(List<ModelPanel> modelPanels, ProgramPreferences prefs, JCheckBoxMenuItem showVertexModifyControls) {
+        final boolean selected = showVertexModifyControls.isSelected();
+        prefs.setShowVertexModifierControls(selected);
+        // SaveProfile.get().setShowViewportButtons(selected);
+        for (final ModelPanel panel : modelPanels) {
+            panel.getFrontArea().setControlsVisible(selected);
+            panel.getBotArea().setControlsVisible(selected);
+            panel.getSideArea().setControlsVisible(selected);
+            final UVPanel uvPanel = panel.getEditUVPanel();
+            if (uvPanel != null) {
+                uvPanel.setControlsVisible(selected);
+            }
+        }
+    }
+
+    static void nullmodelButtonActionRes(MainPanel mainPanel) {
+        nullmodelFile(mainPanel);
+        ToolBar.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
+    }
+
+    static void simplifyKeyframes(MainPanel mainPanel) {
+        final EditableModel currentMDL = mainPanel.currentMDL();
+        currentMDL.simplifyKeyframes();
+    }
+
+    static GameObject fetchUnit(MainPanel mainPanel) {
+        final GameObject choice = UnitOptionPane.show(mainPanel);
+        if (choice != null) {
+
+        } else {
+            return null;
+        }
+
+        String filepath = choice.getField("file");
+
+        try {
+            filepath = convertPathToMDX(filepath);
+            // modelDisp = new MDLDisplay(toLoad, null);
+        } catch (final Exception exc) {
+            exc.printStackTrace();
+            // bad model!
+            JOptionPane.showMessageDialog(MainFrame.frame, "The chosen model could not be used.", "Program Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+        return choice;
+    }
+
+    static ModelOptionPane.ModelElement fetchModel(MainPanel mainPanel) {
+        final ModelOptionPane.ModelElement model = ModelOptionPane.showAndLogIcon(mainPanel);
+        if (model == null) {
+            return null;
+        }
+        String filepath = model.getFilepath();
+        if (filepath != null) {
+
+        } else {
+            return null;
+        }
+        try {
+            filepath = convertPathToMDX(filepath);
+        } catch (final Exception exc) {
+            exc.printStackTrace();
+            // bad model!
+            JOptionPane.showMessageDialog(MainFrame.frame, "The chosen model could not be used.", "Program Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+        return model;
+    }
+
+    static MutableObjectData.MutableGameObject fetchObject(MainPanel mainPanel) {
+        final BetterUnitEditorModelSelector selector = new BetterUnitEditorModelSelector(getUnitData(),
+                getUnitEditorSettings());
+        final int x = JOptionPane.showConfirmDialog(mainPanel, selector, "Object Editor - Select Unit",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        final MutableObjectData.MutableGameObject choice = selector.getSelection();
+        if ((choice == null) || (x != JOptionPane.OK_OPTION)) {
+            return null;
+        }
+
+        String filepath = choice.getFieldAsString(UnitFields.MODEL_FILE, 0);
+
+        try {
+            filepath = convertPathToMDX(filepath);
+        } catch (final Exception exc) {
+            exc.printStackTrace();
+            // bad model!
+            JOptionPane.showMessageDialog(MainFrame.frame, "The chosen model could not be used.", "Program Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+        return choice;
+    }
+
+    public static String incName(final String name) {
+        String output = name;
+
+        int depth = 1;
+        boolean continueLoop = true;
+        while (continueLoop) {
+            char c = '0';
+            try {
+                c = output.charAt(output.length() - depth);
+            } catch (final IndexOutOfBoundsException e) {
+                // c remains '0'
+                continueLoop = false;
+            }
+            for (char n = '0'; (n < '9') && continueLoop; n++) {
+                // JOptionPane.showMessageDialog(null,"checking "+c+" against
+                // "+n);
+                if (c == n) {
+                    char x = c;
+                    x++;
+                    output = output.substring(0, output.length() - depth) + x
+                            + output.substring((output.length() - depth) + 1);
+                    continueLoop = false;
+                }
+            }
+            if (c == '9') {
+                output = output.substring(0, output.length() - depth) + 0
+                        + output.substring((output.length() - depth) + 1);
+            } else if (continueLoop) {
+                output = output.substring(0, (output.length() - depth) + 1) + 1
+                        + output.substring((output.length() - depth) + 1);
+                continueLoop = false;
+            }
+            depth++;
+        }
+        if (output == null) {
+            output = "name error";
+        } else if (output.equals(name)) {
+            output = output + "_edit";
+        }
+
+        return output;
+    }
+
+    public static void nullmodelFile(MainPanel mainPanel) {
+        final EditableModel currentMDL = mainPanel.currentMDL();
+        if (currentMDL != null) {
+            final EditableModel newModel = new EditableModel();
+            newModel.copyHeaders(currentMDL);
+            if (newModel.getFileRef() == null) {
+                newModel.setFileRef(
+                        new File(System.getProperty("java.io.tmpdir") + "MatrixEaterExtract/matrixeater_anonymousMDL",
+                                "" + (int) (Math.random() * Integer.MAX_VALUE) + ".mdl"));
+            }
+            while (newModel.getFile().exists()) {
+                newModel.setFileRef(
+                        new File(currentMDL.getFile().getParent() + "/" + incName(newModel.getName()) + ".mdl"));
+            }
+            mainPanel.importPanel = new ImportPanel(newModel, EditableModel.deepClone(currentMDL, "CurrentModel"));
+
+            final Thread watcher = new Thread(() -> {
+                while (mainPanel.importPanel.getParentFrame().isVisible()
+                        && (!mainPanel.importPanel.importStarted()
+                        || mainPanel.importPanel.importEnded())) {
+                    try {
+                        Thread.sleep(1);
+                    } catch (final Exception e) {
+                        ExceptionPopup.display("MatrixEater detected error with Java's wait function", e);
+                    }
+                }
+                // if( !importPanel.getParentFrame().isVisible() &&
+                // !importPanel.importEnded() )
+                // JOptionPane.showMessageDialog(null,"bad voodoo
+                // "+importPanel.importSuccessful());
+                // else
+                // JOptionPane.showMessageDialog(null,"good voodoo
+                // "+importPanel.importSuccessful());
+                // if( importPanel.importSuccessful() )
+                // {
+                // newModel.saveFile();
+                // loadFile(newModel.getFile());
+                // }
+
+                if (mainPanel.importPanel.importStarted()) {
+                    while (!mainPanel.importPanel.importEnded()) {
+                        try {
+                            Thread.sleep(1);
+                        } catch (final Exception e) {
+                            ExceptionPopup.display("MatrixEater detected error with Java's wait function", e);
+                        }
+                    }
+
+                    if (mainPanel.importPanel.importSuccessful()) {
+                        try {
+                            MdxUtils.saveMdx(newModel, newModel.getFile());
+                        } catch (final IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                        loadFile(mainPanel, newModel.getFile());
+                    }
+                }
+            });
+            watcher.start();
+        }
+    }
+
+    static void reloadGeosetManagers(MainPanel mainPanel, final ModelPanel display) {
+        mainPanel.geoControl.repaint();
+        display.getModelViewManagingTree().reloadFromModelView();
+        mainPanel.geoControl.setViewportView(display.getModelViewManagingTree());
+        reloadComponentBrowser(mainPanel.geoControlModelData, display);
+        display.getPerspArea().reloadTextures();// .mpanel.perspArea.reloadTextures();//addGeosets(newGeosets);
+        display.getAnimationViewer().reload();
+        display.getAnimationController().reload();
+        mainPanel.creatorPanel.reloadAnimationList();
+
+        display.getEditorRenderModel().refreshFromEditor(mainPanel.animatedRenderEnvironment, IDENTITY, IDENTITY, IDENTITY,
+                display.getPerspArea().getViewport());
+    }
+
+    static void clearRecentActionRes(MainPanel mainPanel) {
+        final int dialogResult = JOptionPane.showConfirmDialog(mainPanel,
+                "Are you sure you want to clear the Recent history?", "Confirm Clear",
+                JOptionPane.YES_NO_OPTION);
+        if (dialogResult == JOptionPane.YES_OPTION) {
+            SaveProfile.get().clearRecent();
+            updateRecent(mainPanel);
+        }
+    }
+
+    static void mergeGeosetActionRes(MainPanel mainPanel) throws IOException {
+        mainPanel.fc.setDialogTitle("Merge Single Geoset (Oinker-based)");
+        final EditableModel current = mainPanel.currentMDL();
+        if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
+            mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
+        } else if (mainPanel.profile.getPath() != null) {
+            mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
+        }
+        final int returnValue = mainPanel.fc.showOpenDialog(mainPanel);
+
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            mainPanel.currentFile = mainPanel.fc.getSelectedFile();
+            final EditableModel geoSource = MdxUtils.loadEditable(mainPanel.currentFile);
+            mainPanel.profile.setPath(mainPanel.currentFile.getParent());
+            boolean going = true;
+            Geoset host = null;
+            while (going) {
+                final String s = JOptionPane.showInputDialog(mainPanel,
+                        "Geoset into which to Import: (1 to " + current.getGeosetsSize() + ")");
+                try {
+                    final int x = Integer.parseInt(s);
+                    if ((x >= 1) && (x <= current.getGeosetsSize())) {
+                        host = current.getGeoset(x - 1);
+                        going = false;
+                    }
+                } catch (final NumberFormatException ignored) {
+
+                }
+            }
+            Geoset newGeoset = null;
+            going = true;
+            while (going) {
+                final String s = JOptionPane.showInputDialog(mainPanel,
+                        "Geoset to Import: (1 to " + geoSource.getGeosetsSize() + ")");
+                try {
+                    final int x = Integer.parseInt(s);
+                    if (x <= geoSource.getGeosetsSize()) {
+                        newGeoset = geoSource.getGeoset(x - 1);
+                        going = false;
+                    }
+                } catch (final NumberFormatException ignored) {
+
+                }
+            }
+            newGeoset.updateToObjects(current);
+            System.out.println("putting " + newGeoset.numUVLayers() + " into a nice " + host.numUVLayers());
+            for (int i = 0; i < newGeoset.numVerteces(); i++) {
+                final GeosetVertex ver = newGeoset.getVertex(i);
+                host.add(ver);
+                ver.setGeoset(host);// geoset = host;
+                // for( int z = 0; z < host.n.numUVLayers(); z++ )
+                // {
+                // host.getUVLayer(z).addTVertex(newGeoset.getVertex(i).getTVertex(z));
+                // }
+            }
+            for (int i = 0; i < newGeoset.numTriangles(); i++) {
+                final Triangle tri = newGeoset.getTriangle(i);
+                host.add(tri);
+                tri.setGeoRef(host);
+            }
+        }
+
+        mainPanel.fc.setSelectedFile(null);
+    }
+
+    static void importButtonSActionRes() {
+        final JFrame frame = new JFrame("Animation Transferer");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setContentPane(new AnimationTransfer(frame));
+        frame.setIconImage(AnimIcon.getImage());
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+    }
+
+    static void importFromWorkspaceActionRes(MainPanel mainPanel) {
+        final List<EditableModel> optionNames = new ArrayList<>();
+        for (final ModelPanel modelPanel : mainPanel.modelPanels) {
+            final EditableModel model = modelPanel.getModel();
+            optionNames.add(model);
+        }
+        final EditableModel choice = (EditableModel) JOptionPane.showInputDialog(mainPanel,
+                "Choose a workspace item to import data from:", "Import from Workspace",
+                JOptionPane.OK_CANCEL_OPTION, null, optionNames.toArray(), optionNames.get(0));
+        if (choice != null) {
+            importFile(mainPanel, EditableModel.deepClone(choice, choice.getHeaderName()));
+        }
+        ToolBar.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
+    }
+
+    static void importGameObjectActionRes(MainPanel mainPanel) throws IOException {
+        final MutableObjectData.MutableGameObject fetchObjectResult = fetchObject(mainPanel);
+        if (fetchObjectResult == null) {
+            return;
+        }
+        final String filepath = convertPathToMDX(fetchObjectResult.getFieldAsString(UnitFields.MODEL_FILE, 0));
+        final EditableModel current = mainPanel.currentMDL();
+        if (filepath != null) {
+            final File animationSource = GameDataFileSystem.getDefault().getFile(filepath);
+            importFile(mainPanel, animationSource);
+        }
+        ToolBar.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
+    }
+
+    static void importGameModelActionRes(MainPanel mainPanel) throws IOException {
+        final ModelOptionPane.ModelElement fetchModelResult = fetchModel(mainPanel);
+        if (fetchModelResult == null) {
+            return;
+        }
+        final String filepath = convertPathToMDX(fetchModelResult.getFilepath());
+        final EditableModel current = mainPanel.currentMDL();
+        if (filepath != null) {
+            final File animationSource = GameDataFileSystem.getDefault().getFile(filepath);
+            importFile(mainPanel, animationSource);
+        }
+        ToolBar.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
+    }
+
+    static void importUnitActionRes(MainPanel mainPanel) throws IOException {
+        final GameObject fetchUnitResult = fetchUnit(mainPanel);
+        if (fetchUnitResult == null) {
+            return;
+        }
+        final String filepath = convertPathToMDX(fetchUnitResult.getField("file"));
+        final EditableModel current = mainPanel.currentMDL();
+        if (filepath != null) {
+            final File animationSource = GameDataFileSystem.getDefault().getFile(filepath);
+            importFile(mainPanel, animationSource);
+        }
+        ToolBar.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
+    }
+
+    static void importButtonActionRes(MainPanel mainPanel) throws IOException {
+        mainPanel.fc.setDialogTitle("Import");
+        final EditableModel current = mainPanel.currentMDL();
+        if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
+            mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
+        } else if (mainPanel.profile.getPath() != null) {
+            mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
+        }
+        final int returnValue = mainPanel.fc.showOpenDialog(mainPanel);
+
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            mainPanel.currentFile = mainPanel.fc.getSelectedFile();
+            mainPanel.profile.setPath(mainPanel.currentFile.getParent());
+            mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
+                    "Allows the user to control which parts of the model are displayed for editing.");
+            mainPanel.toolsMenu.setEnabled(true);
+            importFile(mainPanel, mainPanel.currentFile);
+        }
+
+        mainPanel.fc.setSelectedFile(null);
+
+        // //Special thanks to the JWSFileChooserDemo from oracle's Java
+        // tutorials, from which many ideas were borrowed for the
+        // following
+        // FileOpenService fos = null;
+        // FileContents fileContents = null;
+        //
+        // try
+        // {
+        // fos =
+        // (FileOpenService)ServiceManager.lookup("javax.jnlp.FileOpenService");
+        // }
+        // catch (UnavailableServiceException exc )
+        // {
+        //
+        // }
+        //
+        // if( fos != null )
+        // {
+        // try
+        // {
+        // fileContents = fos.openFileDialog(null, null);
+        // }
+        // catch (Exception exc )
+        // {
+        // JOptionPane.showMessageDialog(this,"Opening command failed:
+        // "+exc.getLocalizedMessage());
+        // }
+        // }
+        //
+        // if( fileContents != null)
+        // {
+        // try
+        // {
+        // fileContents.getName();
+        // }
+        // catch (IOException exc)
+        // {
+        // JOptionPane.showMessageDialog(this,"Problem opening file:
+        // "+exc.getLocalizedMessage());
+        // }
+        // }
+        ToolBar.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
+    }
+
+    static void fetchObjectActionRes(MainPanel mainPanel) {
+        final MutableObjectData.MutableGameObject objectFetched = fetchObject(mainPanel);
+        if (objectFetched != null) {
+            final String filepath = convertPathToMDX(objectFetched.getFieldAsString(UnitFields.MODEL_FILE, 0));
+            if (filepath != null) {
+                loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(filepath), true, true,
+                        new ImageIcon(BLPHandler.get()
+                                .getGameTex(objectFetched.getFieldAsString(UnitFields.INTERFACE_ICON, 0))
+                                .getScaledInstance(16, 16, Image.SCALE_FAST)));
+                final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
+                        + filepath.substring(filepath.lastIndexOf('.'));
+                if (mainPanel.prefs.isLoadPortraits() && GameDataFileSystem.getDefault().has(portrait)) {
+                    loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(portrait), true, false,
+                            new ImageIcon(BLPHandler.get()
+                                    .getGameTex(objectFetched.getFieldAsString(UnitFields.INTERFACE_ICON, 0))
+                                    .getScaledInstance(16, 16, Image.SCALE_FAST)));
+                }
+                mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
+                        "Allows the user to control which parts of the model are displayed for editing.");
+                mainPanel.toolsMenu.setEnabled(true);
+            }
+        }
+    }
+
+    static void fetchModelActionRes(MainPanel mainPanel) {
+        final ModelOptionPane.ModelElement model = fetchModel(mainPanel);
+        if (model != null) {
+            final String filepath = convertPathToMDX(model.getFilepath());
+            if (filepath != null) {
+
+                final ImageIcon icon = model.hasCachedIconPath() ? new ImageIcon(BLPHandler.get()
+                        .getGameTex(model.getCachedIconPath()).getScaledInstance(16, 16, Image.SCALE_FAST))
+                        : MDLIcon;
+                loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(filepath), true, true, icon);
+                final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
+                        + filepath.substring(filepath.lastIndexOf('.'));
+                if (mainPanel.prefs.isLoadPortraits() && GameDataFileSystem.getDefault().has(portrait)) {
+                    loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(portrait), true, false, icon);
+                }
+                mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
+                        "Allows the user to control which parts of the model are displayed for editing.");
+                mainPanel.toolsMenu.setEnabled(true);
+            }
+        }
+    }
+
+    static void fetchUnitActionRes(MainPanel mainPanel) {
+        final GameObject unitFetched = fetchUnit(mainPanel);
+        if (unitFetched != null) {
+            final String filepath = convertPathToMDX(unitFetched.getField("file"));
+            if (filepath != null) {
+                loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(filepath), true, true,
+                        unitFetched.getScaledIcon(0.25f));
+                final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
+                        + filepath.substring(filepath.lastIndexOf('.'));
+                if (mainPanel.prefs.isLoadPortraits() && GameDataFileSystem.getDefault().has(portrait)) {
+                    loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(portrait), true, false,
+                            unitFetched.getScaledIcon(0.25f));
+                }
+                mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
+                        "Allows the user to control which parts of the model are displayed for editing.");
+                mainPanel.toolsMenu.setEnabled(true);
+            }
+        }
+    }
+
+    static void closePanelActionRes(MainPanel mainPanel) {
+        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        final int oldIndex = mainPanel.modelPanels.indexOf(modelPanel);
+        if (modelPanel != null) {
+            if (modelPanel.close(mainPanel)) {
+                mainPanel.modelPanels.remove(modelPanel);
+                mainPanel.windowMenu.remove(modelPanel.getMenuItem());
+                if (mainPanel.modelPanels.size() > 0) {
+                    final int newIndex = Math.min(mainPanel.modelPanels.size() - 1, oldIndex);
+                    setCurrentModel(mainPanel, mainPanel.modelPanels.get(newIndex));
+                } else {
+                    // TODO remove from notifiers to fix leaks
+                    setCurrentModel(mainPanel, null);
+                }
+            }
+        }
+    }
+
+    static void onClickSaveAs(MainPanel mainPanel) {
+        final EditableModel current = mainPanel.currentMDL();
+        onClickSaveAs(mainPanel, current);
+    }
+
+    static void onClickSaveAs(MainPanel mainPanel, final EditableModel current) {
+        try {
+            mainPanel.fc.setDialogTitle("Save as");
+            if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
+                mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
+                mainPanel.fc.setSelectedFile(current.getFile());
+            } else if (mainPanel.profile.getPath() != null) {
+                mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
+            }
+            final int returnValue = mainPanel.fc.showSaveDialog(mainPanel);
+            File temp = mainPanel.fc.getSelectedFile();
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                if (temp != null) {
+                    final FileFilter ff = mainPanel.fc.getFileFilter();
+                    final String ext = ff.accept(new File("junk.mdl")) ? ".mdl" : ".mdx";
+                    if (ff.accept(new File("junk.obj"))) {
+                        throw new UnsupportedOperationException("OBJ saving has not been coded yet.");
+                    }
+                    final String name = temp.getName();
+                    if (name.lastIndexOf('.') != -1) {
+                        if (!name.substring(name.lastIndexOf('.')).equals(ext)) {
+                            temp = new File(
+                                    temp.getAbsolutePath().substring(0, temp.getAbsolutePath().lastIndexOf('.')) + ext);
+                        }
+                    } else {
+                        temp = new File(temp.getAbsolutePath() + ext);
+                    }
+                    mainPanel.currentFile = temp;
+                    if (temp.exists()) {
+                        final Object[] options = {"Overwrite", "Cancel"};
+                        final int n = JOptionPane.showOptionDialog(MainFrame.frame, "Selected file already exists.",
+                                "Warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, options,
+                                options[1]);
+                        if (n == 1) {
+                            mainPanel.fc.setSelectedFile(null);
+                            return;
+                        }
+                    }
+                    mainPanel.profile.setPath(mainPanel.currentFile.getParent());
+
+                    final MdlxModel mdlx = mainPanel.currentMDL().toMdlx();
+                    final FileOutputStream stream = new FileOutputStream(mainPanel.currentFile);
+
+                    if (ext.equals(".mdl")) {
+                        MdxUtils.saveMdl(mdlx, stream);
+                    } else {
+                        MdxUtils.saveMdx(mdlx, stream);
+                    }
+                    mainPanel.currentMDL().setFileRef(mainPanel.currentFile);
+                    // currentMDLDisp().resetBeenSaved();
+                    // TODO reset been saved
+                    mainPanel.currentModelPanel().getMenuItem().setName(mainPanel.currentFile.getName().split("\\.")[0]);
+                    mainPanel.currentModelPanel().getMenuItem().setToolTipText(mainPanel.currentFile.getPath());
+                } else {
+                    JOptionPane.showMessageDialog(mainPanel,
+                            "You tried to save, but you somehow didn't select a file.\nThat is bad.");
+                }
+            }
+            mainPanel.fc.setSelectedFile(null);
+            return;
+        } catch (final Exception exc) {
+            ExceptionPopup.display(exc);
+        }
+        ToolBar.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
+    }
+
+    /**
+     * Returns the MDLDisplay associated with a given MDL, or null if one cannot be
+     * found.
+     */
+    public static ModelPanel displayFor(List<ModelPanel> modelPanels, final EditableModel model) {
+        ModelPanel output = null;
+        ModelView tempDisplay;
+        for (final ModelPanel modelPanel : modelPanels) {
+            tempDisplay = modelPanel.getModelViewManager();
+            if (tempDisplay.getModel() == model) {
+                output = modelPanel;
+                break;
+            }
+        }
+        return output;
+    }
+
+    public static void importFile(MainPanel mainPanel, final File f) throws IOException {
+        final EditableModel currentModel = mainPanel.currentMDL();
+        if (currentModel != null) {
+            importFile(mainPanel, MdxUtils.loadEditable(f));
+        }
+    }
+
+    public static void importFile(final MainPanel mainPanel, final EditableModel model) {
+        final EditableModel currentModel = mainPanel.currentMDL();
+        if (currentModel != null) {
+            mainPanel.importPanel = new ImportPanel(currentModel, model);
+            mainPanel.importPanel.setCallback(new ModelStructureChangeListenerImplementation(mainPanel, new ModelReference() {
+                private final EditableModel model = mainPanel.currentMDL();
+
+                @Override
+                public EditableModel getModel() {
+                    return model;
+                }
+            }));
+
+        }
+    }
+
+    static ModelStructureChangeListener getModelStructureChangeListener(MainPanel mainPanel) {
+        final ModelStructureChangeListener modelStructureChangeListener;
+        modelStructureChangeListener = new ModelStructureChangeListenerImplementation(mainPanel, () -> mainPanel.currentModelPanel().getModel());
+        return modelStructureChangeListener;
+    }
+
     interface OpenViewGetter {
         View getView();
+    }
+
+    private interface ModelReference {
+        EditableModel getModel();
     }
 
     static class OpenViewAction extends AbstractAction {
@@ -2635,6 +3711,197 @@ public class MenuBar {
                 return !mainPanel.currentModelPanel().getUndoManager().isRedoListEmpty();
             } catch (final NullPointerException e) {
                 return false;
+            }
+        }
+    }
+
+    static class ModelStructureChangeListenerImplementation implements ModelStructureChangeListener {
+        private final ModelReference modelReference;
+        private MainPanel mainPanel;
+
+        public ModelStructureChangeListenerImplementation(MainPanel mainPanel, final ModelReference modelReference) {
+            this.modelReference = modelReference;
+            this.mainPanel = mainPanel;
+        }
+
+        public ModelStructureChangeListenerImplementation(MainPanel mainPanel, final EditableModel model) {
+            modelReference = () -> model;
+            this.mainPanel = mainPanel;
+        }
+
+        @Override
+        public void nodesRemoved(final List<IdObject> nodes) {
+            // Tell program to set visibility after import
+            final ModelPanel display = displayFor(mainPanel.modelPanels, modelReference.getModel());
+            if (display != null) {
+                // display.setBeenSaved(false); // we edited the model
+                // TODO notify been saved system, wherever that moves to
+                for (final IdObject geoset : nodes) {
+                    display.getModelViewManager().makeIdObjectNotVisible(geoset);
+                }
+                reloadGeosetManagers(mainPanel, display);
+            }
+        }
+
+        @Override
+        public void nodesAdded(final List<IdObject> nodes) {
+            // Tell program to set visibility after import
+            final ModelPanel display = displayFor(mainPanel.modelPanels, modelReference.getModel());
+            if (display != null) {
+                // display.setBeenSaved(false); // we edited the model
+                // TODO notify been saved system, wherever that moves to
+                for (final IdObject geoset : nodes) {
+                    display.getModelViewManager().makeIdObjectVisible(geoset);
+                }
+                reloadGeosetManagers(mainPanel, display);
+                display.getEditorRenderModel().refreshFromEditor(mainPanel.animatedRenderEnvironment, IDENTITY,
+                        IDENTITY, IDENTITY, display.getPerspArea().getViewport());
+                display.getAnimationViewer().reload();
+            }
+        }
+
+        @Override
+        public void geosetsRemoved(final List<Geoset> geosets) {
+            // Tell program to set visibility after import
+            final ModelPanel display = displayFor(mainPanel.modelPanels, modelReference.getModel());
+            if (display != null) {
+                // display.setBeenSaved(false); // we edited the model
+                // TODO notify been saved system, wherever that moves to
+                for (final Geoset geoset : geosets) {
+                    display.getModelViewManager().makeGeosetNotEditable(geoset);
+                    display.getModelViewManager().makeGeosetNotVisible(geoset);
+                }
+                reloadGeosetManagers(mainPanel, display);
+            }
+        }
+
+        @Override
+        public void geosetsAdded(final List<Geoset> geosets) {
+            // Tell program to set visibility after import
+            final ModelPanel display = displayFor(mainPanel.modelPanels, modelReference.getModel());
+            if (display != null) {
+                // display.setBeenSaved(false); // we edited the model
+                // TODO notify been saved system, wherever that moves to
+                for (final Geoset geoset : geosets) {
+                    display.getModelViewManager().makeGeosetEditable(geoset);
+                    // display.getModelViewManager().makeGeosetVisible(geoset);
+                }
+                reloadGeosetManagers(mainPanel, display);
+            }
+        }
+
+        @Override
+        public void camerasAdded(final List<Camera> cameras) {
+            // Tell program to set visibility after import
+            final ModelPanel display = displayFor(mainPanel.modelPanels, modelReference.getModel());
+            if (display != null) {
+                // display.setBeenSaved(false); // we edited the model
+                // TODO notify been saved system, wherever that moves to
+                for (final Camera camera : cameras) {
+                    display.getModelViewManager().makeCameraVisible(camera);
+                    // display.getModelViewManager().makeGeosetVisible(geoset);
+                }
+                reloadGeosetManagers(mainPanel, display);
+            }
+        }
+
+        @Override
+        public void camerasRemoved(final List<Camera> cameras) {
+            // Tell program to set visibility after import
+            final ModelPanel display = displayFor(mainPanel.modelPanels, modelReference.getModel());
+            if (display != null) {
+                // display.setBeenSaved(false); // we edited the model
+                // TODO notify been saved system, wherever that moves to
+                for (final Camera camera : cameras) {
+                    display.getModelViewManager().makeCameraNotVisible(camera);
+                    // display.getModelViewManager().makeGeosetVisible(geoset);
+                }
+                reloadGeosetManagers(mainPanel, display);
+            }
+        }
+
+        @Override
+        public void timelineAdded(final TimelineContainer node, final AnimFlag timeline) {
+
+        }
+
+        @Override
+        public void keyframeAdded(final TimelineContainer node, final AnimFlag timeline, final int trackTime) {
+            mainPanel.timeSliderPanel.revalidateKeyframeDisplay();
+        }
+
+        @Override
+        public void timelineRemoved(final TimelineContainer node, final AnimFlag timeline) {
+
+        }
+
+        @Override
+        public void keyframeRemoved(final TimelineContainer node, final AnimFlag timeline, final int trackTime) {
+            mainPanel.timeSliderPanel.revalidateKeyframeDisplay();
+        }
+
+        @Override
+        public void animationsAdded(final List<Animation> animation) {
+            mainPanel.currentModelPanel().getAnimationViewer().reload();
+            mainPanel.currentModelPanel().getAnimationController().reload();
+            mainPanel.creatorPanel.reloadAnimationList();
+            final ModelPanel display = displayFor(mainPanel.modelPanels, modelReference.getModel());
+            if (display != null) {
+                reloadComponentBrowser(mainPanel.geoControlModelData, display);
+            }
+        }
+
+        @Override
+        public void animationsRemoved(final List<Animation> animation) {
+            mainPanel.currentModelPanel().getAnimationViewer().reload();
+            mainPanel.currentModelPanel().getAnimationController().reload();
+            mainPanel.creatorPanel.reloadAnimationList();
+            final ModelPanel display = displayFor(mainPanel.modelPanels, modelReference.getModel());
+            if (display != null) {
+                reloadComponentBrowser(mainPanel.geoControlModelData, display);
+            }
+        }
+
+        @Override
+        public void texturesChanged() {
+            final ModelPanel modelPanel = mainPanel.currentModelPanel();
+            if (modelPanel != null) {
+                modelPanel.getAnimationViewer().reloadAllTextures();
+                modelPanel.getPerspArea().reloadAllTextures();
+            }
+            final ModelPanel display = displayFor(mainPanel.modelPanels, modelReference.getModel());
+            if (display != null) {
+                reloadComponentBrowser(mainPanel.geoControlModelData, display);
+            }
+        }
+
+        @Override
+        public void headerChanged() {
+            final ModelPanel display = displayFor(mainPanel.modelPanels, modelReference.getModel());
+            if (display != null) {
+                reloadComponentBrowser(mainPanel.geoControlModelData, display);
+            }
+        }
+
+        @Override
+        public void animationParamsChanged(final Animation animation) {
+            mainPanel.currentModelPanel().getAnimationViewer().reload();
+            mainPanel.currentModelPanel().getAnimationController().reload();
+            mainPanel.creatorPanel.reloadAnimationList();
+            final ModelPanel display = displayFor(mainPanel.modelPanels, modelReference.getModel());
+            if (display != null) {
+                reloadComponentBrowser(mainPanel.geoControlModelData, display);
+            }
+        }
+
+        @Override
+        public void globalSequenceLengthChanged(final int index, final Integer newLength) {
+            mainPanel.currentModelPanel().getAnimationViewer().reload();
+            mainPanel.currentModelPanel().getAnimationController().reload();
+            mainPanel.creatorPanel.reloadAnimationList();
+            final ModelPanel display = displayFor(mainPanel.modelPanels, modelReference.getModel());
+            if (display != null) {
+                reloadComponentBrowser(mainPanel.geoControlModelData, display);
             }
         }
     }
