@@ -19,12 +19,9 @@ import java.util.List;
 
 public class AddParticlePanel {
     static void fetchIncludedParticles(MainPanel mainPanel) {
-        System.out.println("Particles!!");
 //        ../../../res/stock/particles
         final File stockFolder = new File("modelstudio/res/stock/particles");
-        System.out.println(stockFolder.getAbsolutePath());
         final File[] stockFiles = stockFolder.listFiles((dir, name) -> name.endsWith(".mdx"));
-        System.out.println(stockFiles);
         if (stockFiles != null) {
             for (final File file : stockFiles) {
                 parseParticle(mainPanel, file);
@@ -33,7 +30,6 @@ public class AddParticlePanel {
     }
 
     private static void parseParticle(MainPanel mainPanel, File file) {
-        System.out.println("pars particles");
         final String basicName = file.getName().split("\\.")[0];
         final File pngImage = new File(file.getParent() + File.separatorChar + basicName + ".png");
         if (pngImage.exists()) {
@@ -43,7 +39,6 @@ public class AddParticlePanel {
 
     private static void tryFetchParticle(MainPanel mainPanel, File file, String basicName, File pngImage){
         final Image image;
-        System.out.println("fetch particle...");
         try {
             System.out.println(pngImage);
             image = ImageIO.read(pngImage);
