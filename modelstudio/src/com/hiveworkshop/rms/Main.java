@@ -99,11 +99,7 @@ public class Main {
                     try {
                         UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel");
                     } catch (final Exception exc) {
-                        try {
-                            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                        } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
-                            e.printStackTrace();
-                        }
+                        setSystemLookAndFeel();
                     }
                     break;
                 case JAVA_DEFAULT:
@@ -113,11 +109,7 @@ public class Main {
                         final InfoNodeLookAndFeelTheme softGrayTheme = InfoNodeLookAndFeelThemes.getSoftGrayTheme();
                         UIManager.setLookAndFeel(new InfoNodeLookAndFeel(softGrayTheme));
                     } catch (final Exception exc) {
-                        try {
-                            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                        } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
-                            e.printStackTrace();
-                        }
+                        setSystemLookAndFeel();
                     }
 
                     break;
@@ -126,11 +118,7 @@ public class Main {
                         final InfoNodeLookAndFeelTheme blueIceTheme = InfoNodeLookAndFeelThemes.getBlueIceTheme();
                         UIManager.setLookAndFeel(new InfoNodeLookAndFeel(blueIceTheme));
                     } catch (final Exception exc) {
-                        try {
-                            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                        } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
-                            e.printStackTrace();
-                        }
+                        setSystemLookAndFeel();
                     }
 
                     break;
@@ -140,11 +128,7 @@ public class Main {
                                 .getDarkBlueGreenTheme();
                         UIManager.setLookAndFeel(new InfoNodeLookAndFeel(darkBlueGreenTheme));
                     } catch (final Exception exc) {
-                        try {
-                            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                        } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
-                            e.printStackTrace();
-                        }
+                        setSystemLookAndFeel();
                     }
 
                     break;
@@ -153,11 +137,7 @@ public class Main {
                         final InfoNodeLookAndFeelTheme grayTheme = InfoNodeLookAndFeelThemes.getGrayTheme();
                         UIManager.setLookAndFeel(new InfoNodeLookAndFeel(grayTheme));
                     } catch (final Exception exc) {
-                        try {
-                            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                        } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
-                            e.printStackTrace();
-                        }
+                        setSystemLookAndFeel();
                     }
 
                     break;
@@ -233,6 +213,14 @@ public class Main {
                     System.exit(-1);
                 });
             }
+        }
+    }
+
+    private static void setSystemLookAndFeel() {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
         }
     }
 

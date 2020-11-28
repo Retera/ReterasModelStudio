@@ -64,6 +64,7 @@ public final class EditorDisplayManager {
 			UIManager.setLookAndFeel(
 					"com.jtattoo.plaf." + jtattooTheme.toLowerCase() + "." + jtattooTheme + "LookAndFeel");
 		} catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
+			System.out.println("could not set theme");
 			throw new RuntimeException(e);
 		}
 	}
