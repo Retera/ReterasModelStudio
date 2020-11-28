@@ -126,98 +126,127 @@ public class MainPanel extends JPanel
     AbstractAction undoAction = new UndoActionImplementation("Undo", this);
     AbstractAction redoAction = new RedoActionImplementation("Redo", this);
     ClonedNodeNamePicker namePicker = new ClonedNodeNamePickerImplementation(this);
+//    AbstractAction cloneAction1 = e -> cloneActionRes();
     AbstractAction cloneAction = new AbstractAction("CloneSelection") {
         @Override
         public void actionPerformed(final ActionEvent e) {
-            final ModelPanel mpanel = currentModelPanel();
-            if (mpanel != null) {
-                try {
-                    mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor()
-                            .cloneSelectedComponents(namePicker));
-                } catch (final Exception exc) {
-                    ExceptionPopup.display(exc);
-                }
-            }
-            refreshUndo();
-            repaintSelfAndChildren(MainPanel.this);
-            mpanel.repaintSelfAndRelatedChildren();
+            cloneActionRes();
         }
     };
+
+    private void cloneActionRes() {
+        final ModelPanel mpanel = currentModelPanel();
+        if (mpanel != null) {
+            try {
+                mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor()
+                        .cloneSelectedComponents(namePicker));
+            } catch (final Exception exc) {
+                ExceptionPopup.display(exc);
+            }
+        }
+        refreshUndo();
+        repaintSelfAndChildren(MainPanel.this);
+        mpanel.repaintSelfAndRelatedChildren();
+    }
+
     AbstractAction deleteAction = new AbstractAction("Delete") {
         @Override
         public void actionPerformed(final ActionEvent e) {
-            final ModelPanel mpanel = currentModelPanel();
-            if (mpanel != null) {
-                if (animationModeState) {
-                    timeSliderPanel.deleteSelectedKeyframes();
-                } else {
-                    mpanel.getUndoManager()
-                            .pushAction(mpanel.getModelEditorManager().getModelEditor().deleteSelectedComponents());
-                }
-            }
-            repaintSelfAndChildren(MainPanel.this);
-            mpanel.repaintSelfAndRelatedChildren();
+            deleteActionRes();
         }
     };
+
+    private void deleteActionRes() {
+        final ModelPanel mpanel = currentModelPanel();
+        if (mpanel != null) {
+            if (animationModeState) {
+                timeSliderPanel.deleteSelectedKeyframes();
+            } else {
+                mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().deleteSelectedComponents());
+            }
+        }
+        repaintSelfAndChildren(MainPanel.this);
+        mpanel.repaintSelfAndRelatedChildren();
+    }
+
     AbstractAction selectAllAction = new AbstractAction("Select All") {
         @Override
         public void actionPerformed(final ActionEvent e) {
-            final ModelPanel mpanel = currentModelPanel();
-            if (mpanel != null) {
-                mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().selectAll());
-            }
-            repaint();
+            selectAllActionRes();
         }
     };
+
+    private void selectAllActionRes() {
+        final ModelPanel mpanel = currentModelPanel();
+        if (mpanel != null) {
+            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().selectAll());
+        }
+        repaint();
+    }
+
     AbstractAction invertSelectAction = new AbstractAction("Invert Selection") {
         @Override
         public void actionPerformed(final ActionEvent e) {
-            final ModelPanel mpanel = currentModelPanel();
-            if (mpanel != null) {
-                mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().invertSelection());
-            }
-            repaint();
+            invertSelectActionRes();
         }
     };
+
+    private void invertSelectActionRes() {
+        final ModelPanel mpanel = currentModelPanel();
+        if (mpanel != null) {
+            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().invertSelection());
+        }
+        repaint();
+    }
+
     AbstractAction rigAction = new AbstractAction("Rig") {
         @Override
         public void actionPerformed(final ActionEvent e) {
-            final ModelPanel mpanel = currentModelPanel();
-            if (mpanel != null) {
-                boolean valid = false;
-                for (final Vec3 v : mpanel.getModelEditorManager().getSelectionView().getSelectedVertices()) {
-                    final int index = mpanel.getModel().getPivots().indexOf(v);
-                    if (index != -1) {
-                        if (index < mpanel.getModel().getIdObjects().size()) {
-                            final IdObject node = mpanel.getModel().getIdObject(index);
-                            if ((node instanceof Bone) && !(node instanceof Helper)) {
-                                valid = true;
-                            }
+            rigActionRes();
+        }
+    };
+
+    private void rigActionRes() {
+        final ModelPanel mpanel = currentModelPanel();
+        if (mpanel != null) {
+            boolean valid = false;
+            for (final Vec3 v : mpanel.getModelEditorManager().getSelectionView().getSelectedVertices()) {
+                final int index = mpanel.getModel().getPivots().indexOf(v);
+                if (index != -1) {
+                    if (index < mpanel.getModel().getIdObjects().size()) {
+                        final IdObject node = mpanel.getModel().getIdObject(index);
+                        if ((node instanceof Bone) && !(node instanceof Helper)) {
+                            valid = true;
                         }
                     }
                 }
-                if (valid) {
-                    mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().rig());
-                } else {
-                    System.err.println("NOT RIGGING, NOT VALID");
-                }
             }
-            repaint();
+            if (valid) {
+                mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().rig());
+            } else {
+                System.err.println("NOT RIGGING, NOT VALID");
+            }
         }
-    };
+        repaint();
+    }
+
     AbstractAction expandSelectionAction = getExpandSelectionAction();
 
     private AbstractAction getExpandSelectionAction() {
         return new AbstractAction("Expand Selection") {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                final ModelPanel mpanel = currentModelPanel();
-                if (mpanel != null) {
-                    mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().expandSelection());
-                }
-                repaint();
+                getExpandSelectionActionRes();
             }
         };
+    }
+
+    private void getExpandSelectionActionRes() {
+        final ModelPanel mpanel = currentModelPanel();
+        if (mpanel != null) {
+            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().expandSelection());
+        }
+        repaint();
     }
 
 
