@@ -269,16 +269,21 @@ public class Quat extends Vec4 {
 		final float ay = a.y;
 		final float az = a.z;
 		final float aw = a.w;
+
+		final float thisx = x;
+		final float thisy = y;
+		final float thisz = z;
+		final float thisw = w;
 		float len = a.lengthSquared();
 
 		if (len > 0) {
 			len = 1 / len;
 		}
-		
-		out.x =	((x * aw) - (w * ax) - (y * az) + (z * ay)) * len;
-		out.y = ((y * aw) - (w * ay) - (z * ax) + (x * az)) * len;
-		out.z = ((z * aw) - (w * az) - (x * ay) + (y * ax)) * len;
-		out.w = ((w * aw) + (x * ax) + (y * ay) + (z * az)) * len;
+
+		out.x = ((thisx * aw) - (thisw * ax) - (thisy * az) + (thisz * ay)) * len;
+		out.y = ((thisy * aw) - (thisw * ay) - (thisz * ax) + (thisx * az)) * len;
+		out.z = ((thisz * aw) - (thisw * az) - (thisx * ay) + (thisy * ax)) * len;
+		out.w = ((thisw * aw) + (thisx * ax) + (thisy * ay) + (thisz * az)) * len;
 
 		return out;
 	}
