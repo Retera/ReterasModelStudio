@@ -53,8 +53,7 @@ import java.util.*;
 public class MainPanel extends JPanel
         implements ActionListener, UndoHandler, ModelEditorChangeActivityListener, ModelPanelCloseListener {
     JMenuBar menuBar;
-    JMenu fileMenu, recentMenu, editMenu, toolsMenu, mirrorSubmenu, tweaksSubmenu, viewMenu, importMenu, addMenu,
-            scriptsMenu, windowMenu, addParticle, animationMenu, singleAnimationMenu, aboutMenu, fetch;
+    JMenu recentMenu, toolsMenu, windowMenu;
     JCheckBoxMenuItem mirrorFlip, fetchPortraitsToo, showNormals, textureModels, showVertexModifyControls;
     List<JMenuItem> geoItems = new ArrayList<>();
     JMenuItem nullmodelButton;

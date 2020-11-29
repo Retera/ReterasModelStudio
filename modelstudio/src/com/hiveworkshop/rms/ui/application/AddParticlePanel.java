@@ -18,22 +18,18 @@ import java.util.stream.Collectors;
 
 public class AddParticlePanel {
 
-    public AddParticlePanel(){
-        List<String> particleList = new ArrayList<>();
-    }
-
-    static void addParticleButtons(MainPanel mainPanel){
+    static void addParticleButtons(MainPanel mainPanel, JMenu addParticle){
         List<ParticleInformation> particleInformationList = fetchIncludedParticles();
         for (ParticleInformation particleInformation : particleInformationList){
-            makeAndAddParticleButtons(mainPanel, particleInformation);
+            makeAndAddParticleButtons(mainPanel, addParticle, particleInformation);
         }
 
     }
 
-    private static void makeAndAddParticleButtons(MainPanel mainPanel, ParticleInformation particleInformation){
+    private static void makeAndAddParticleButtons(MainPanel mainPanel, JMenu addParticle, ParticleInformation particleInformation){
         final JMenuItem particleItem = new JMenuItem(particleInformation.getUggName(), new ImageIcon(particleInformation.getImage().getScaledInstance(28, 28, Image.SCALE_DEFAULT)));
         particleItem.addActionListener(e -> makeAddParticlePanel(mainPanel, particleInformation));
-        mainPanel.addParticle.add(particleItem);
+        addParticle.add(particleItem);
     }
 
     private static class ParticleInformation{
@@ -255,59 +251,17 @@ public class AddParticlePanel {
         setVerticalLayoutGroup(particleParentBoneChooser, particleParentChooserLabel, imageLabel, titleLabel, nameLabel, nameField, coordinateSpinners, chooseAnimations, colorButtons, layout);
 
         particlePanel.setLayout(layout);
-//        layout.setHorizontalGroup(
-//                layout.createSequentialGroup().addComponent(imageLabel).addGap(8)
-//                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-//                                .addComponent(titleLabel)
-//                                .addGroup(layout.createSequentialGroup().addComponent(nameLabel)
-//                                        .addGap(4).addComponent(nameField))
-//                                .addGroup(layout.createSequentialGroup().addComponent(particleParentChooserLabel )
-//                                        .addGap(4).addComponent(particleParentBoneChooser ))
-//                                .addComponent(chooseAnimations)
-//                                .addGroup(layout.createSequentialGroup()
-//                                        .addComponent(coordinateSpinners.get("X").getFirst()).addComponent(coordinateSpinners.get("X").getSecond()).addGap(4)
-//                                        .addComponent(coordinateSpinners.get("Y").getFirst()).addComponent(coordinateSpinners.get("Y").getSecond()).addGap(4)
-//                                        .addComponent(coordinateSpinners.get("Z").getFirst()).addComponent(coordinateSpinners.get("Z").getSecond()))
-//                                .addGroup(
-//                                        layout.createSequentialGroup().addComponent(colorButtons[0])
-//                                                .addGap(4).addComponent(colorButtons[1]).addGap(4)
-//                                                .addComponent(colorButtons[2]))));
-//        layout.setVerticalGroup(
-//                layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(imageLabel)
-//                        .addGroup(
-//                                layout.createSequentialGroup().addComponent(titleLabel)
-//                                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-//                                                .addComponent(nameLabel).addComponent(nameField))
-//                                        .addGap(4)
-//                                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-//                                                .addComponent(particleParentChooserLabel ).addComponent(particleParentBoneChooser ))
-//                                        .addGap(4).addComponent(chooseAnimations).addGap(4)
-//                                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-//                                                .addComponent(coordinateSpinners.get("X").getFirst()).addComponent(coordinateSpinners.get("X").getSecond())
-//                                                .addComponent(coordinateSpinners.get("Y").getFirst()).addComponent(coordinateSpinners.get("Y").getSecond())
-//                                                .addComponent(coordinateSpinners.get("Z").getFirst()).addComponent(coordinateSpinners.get("Z").getSecond()))
-//                                        .addGap(4)
-//                                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-//                                                .addComponent(colorButtons[0])
-//                                                .addComponent(colorButtons[1])
-//                                                .addComponent(colorButtons[2]))));
-//        particlePanel.setLayout(layout);
     }
 
     private static void setVerticalLayoutGroup(JComboBox<IdObject> parent, JLabel parentLabel, JLabel imageLabel, JLabel titleLabel, JLabel nameLabel, JTextField nameField, Map<String, Pair<JLabel, JSpinner>> coordinateSpinners, JButton chooseAnimations, JButton[] colorButtons, GroupLayout layout) {
         GroupLayout.ParallelGroup nameGroup = layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(nameLabel).addComponent(nameField);
         GroupLayout.ParallelGroup parentGroup = layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(parentLabel).addComponent(parent);
-//        GroupLayout.ParallelGroup axisSpinners = layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-//                .addComponent(coordinateSpinners.get("X").getFirst()).addComponent(coordinateSpinners.get("X").getSecond())
-//                .addComponent(coordinateSpinners.get("Y").getFirst()).addComponent(coordinateSpinners.get("Y").getSecond())
-//                .addComponent(coordinateSpinners.get("Z").getFirst()).addComponent(coordinateSpinners.get("Z").getSecond());
+
         GroupLayout.ParallelGroup axisSpinners = layout.createParallelGroup(GroupLayout.Alignment.CENTER);
         addCoordinateSpinner("X", coordinateSpinners, axisSpinners);
         addCoordinateSpinner("Y", coordinateSpinners, axisSpinners);
         addCoordinateSpinner("Z", coordinateSpinners, axisSpinners);
-//                .addComponent(coordinateSpinners.get("X").getFirst()).addComponent(coordinateSpinners.get("X").getSecond())
-//                .addComponent(coordinateSpinners.get("Y").getFirst()).addComponent(coordinateSpinners.get("Y").getSecond())
-//                .addComponent(coordinateSpinners.get("Z").getFirst()).addComponent(coordinateSpinners.get("Z").getSecond());
+
         GroupLayout.ParallelGroup colorChoosers = layout.createParallelGroup(GroupLayout.Alignment.CENTER)
                 .addComponent(colorButtons[0])
                 .addComponent(colorButtons[1])
@@ -326,17 +280,12 @@ public class AddParticlePanel {
     private static void setHorizontalLayoutGroup(JComboBox<IdObject> parent, JLabel parentLabel, JLabel imageLabel, JLabel titleLabel, JLabel nameLabel, JTextField nameField, Map<String, Pair<JLabel, JSpinner>> coordinateSpinners, JButton chooseAnimations, JButton[] colorButtons, GroupLayout layout) {
         GroupLayout.SequentialGroup nameGroup = layout.createSequentialGroup().addComponent(nameLabel).addGap(4).addComponent(nameField);
         GroupLayout.SequentialGroup parentGroup = layout.createSequentialGroup().addComponent(parentLabel).addGap(4).addComponent(parent);
-//        GroupLayout.SequentialGroup axisSpinners = layout.createSequentialGroup()
-//                .addComponent(coordinateSpinners.get("X").getFirst()).addComponent(coordinateSpinners.get("X").getSecond()).addGap(4)
-//                .addComponent(coordinateSpinners.get("Y").getFirst()).addComponent(coordinateSpinners.get("Y").getSecond()).addGap(4)
-//                .addComponent(coordinateSpinners.get("Z").getFirst()).addComponent(coordinateSpinners.get("Z").getSecond());
+
         GroupLayout.SequentialGroup axisSpinners = layout.createSequentialGroup();
          axisSpinners = addCoordinateSpinner2("X", coordinateSpinners, axisSpinners).addGap(4);
          axisSpinners = addCoordinateSpinner2("Y", coordinateSpinners, axisSpinners).addGap(4);
          axisSpinners = addCoordinateSpinner2("Z", coordinateSpinners, axisSpinners);
-//                .addComponent(coordinateSpinners.get("X").getFirst()).addComponent(coordinateSpinners.get("X").getSecond()).addGap(4)
-//                .addComponent(coordinateSpinners.get("Y").getFirst()).addComponent(coordinateSpinners.get("Y").getSecond()).addGap(4)
-//                .addComponent(coordinateSpinners.get("Z").getFirst()).addComponent(coordinateSpinners.get("Z").getSecond());
+
         GroupLayout.SequentialGroup colorChoosers = layout.createSequentialGroup()
                 .addComponent(colorButtons[0]).addGap(4)
                 .addComponent(colorButtons[1]).addGap(4)

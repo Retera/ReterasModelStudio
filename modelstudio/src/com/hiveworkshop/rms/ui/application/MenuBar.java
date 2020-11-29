@@ -33,6 +33,7 @@ import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createAndAdd
 import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createMenu;
 
 public class MenuBar {
+
     public static final ImageIcon AnimIcon = RMSIcons.AnimIcon;
 
     public static JMenuBar createMenuBar(MainPanel mainPanel) {
@@ -42,9 +43,6 @@ public class MenuBar {
         // Build the file menu
         JMenu fileMenu = createMenu("File", KeyEvent.VK_F, "Allows the user to open, save, close, and manipulate files.");
         mainPanel.menuBar.add(fileMenu);
-
-
-        mainPanel.recentMenu = createMenu("Open Recent", KeyEvent.VK_R, "Allows you to access recently opened files.");
 
         JMenu editMenu = createMenu("Edit", KeyEvent.VK_E, "Allows the user to use various tools to edit the currently selected model.");
         mainPanel.menuBar.add(editMenu);
@@ -90,6 +88,7 @@ public class MenuBar {
         fillScriptsMenu(mainPanel, scriptsMenu);
 
         final JMenuItem fixReteraLand = new JMenuItem("Fix Retera Land");
+
         fixReteraLand.setMnemonic(KeyEvent.VK_A);
         fixReteraLand.addActionListener(e -> {
             final EditableModel currentMDL = mainPanel.currentMDL();
@@ -100,16 +99,17 @@ public class MenuBar {
         });
 //		scriptsMenu.add(fixReteraLand);
 
-        mainPanel.aboutMenu = createMenu("Help", KeyEvent.VK_H, "");
-        mainPanel.menuBar.add(mainPanel.aboutMenu);
+        JMenu aboutMenu = createMenu("Help", KeyEvent.VK_H, "");
+        mainPanel.menuBar.add(aboutMenu);
 
+
+        mainPanel.recentMenu = createMenu("Open Recent", KeyEvent.VK_R, "Allows you to access recently opened files.");
         mainPanel.recentMenu.add(new JSeparator());
-
         createAndAddMenuItem("Clear", mainPanel.recentMenu, KeyEvent.VK_C, e -> MenuBarActions.clearRecentActionRes(mainPanel));
 
         updateRecent(mainPanel);
 
-        fillAboutMenu(mainPanel);
+        fillAboutMenu(mainPanel, aboutMenu);
 
         fillToolsMenu(mainPanel);
 
@@ -210,58 +210,40 @@ public class MenuBar {
     }
 
     private static void fillAddMenu(final MainPanel mainPanel, JMenu addMenu) {
-        mainPanel.addParticle = new JMenu("Particle");
-        mainPanel.addParticle.setMnemonic(KeyEvent.VK_P);
-        addMenu.add(mainPanel.addParticle);
+        JMenu addParticle = new JMenu("Particle");
+        addParticle.setMnemonic(KeyEvent.VK_P);
+        addMenu.add(addParticle);
 
-        AddParticlePanel.addParticleButtons(mainPanel);
+        AddParticlePanel.addParticleButtons(mainPanel, addParticle);
 
-        mainPanel.animationMenu = new JMenu("Animation");
-        mainPanel.animationMenu.setMnemonic(KeyEvent.VK_A);
-        addMenu.add(mainPanel.animationMenu);
+        JMenu animationMenu = new JMenu("Animation");
+        animationMenu.setMnemonic(KeyEvent.VK_A);
+        addMenu.add(animationMenu);
 
-        createAndAddMenuItem("Rising/Falling Birth/Death", mainPanel.animationMenu, KeyEvent.VK_R, e -> MenuBarActions.riseFallBirthActionRes(mainPanel));
+        createAndAddMenuItem("Rising/Falling Birth/Death", animationMenu, KeyEvent.VK_R, e -> MenuBarActions.riseFallBirthActionRes(mainPanel));
 
-        mainPanel.singleAnimationMenu = new JMenu("Single");
-        mainPanel.singleAnimationMenu.setMnemonic(KeyEvent.VK_S);
-        mainPanel.animationMenu.add(mainPanel.singleAnimationMenu);
+        JMenu singleAnimationMenu = new JMenu("Single");
+        singleAnimationMenu.setMnemonic(KeyEvent.VK_S);
+        animationMenu.add(singleAnimationMenu);
 
-        createAndAddMenuItem("From File", mainPanel.singleAnimationMenu, KeyEvent.VK_F, e -> MenuBarActions.animFromFileActionRes(mainPanel));
-//        JMenuItem animFromFile = new JMenuItem("From File");
-//        animFromFile.setMnemonic(KeyEvent.VK_F);
-//        animFromFile.addActionListener(e -> {
-//            MenuBarActions.animFromFileActionRes(mainPanel);
-//        });
-//        mainPanel.singleAnimationMenu.add(animFromFile);
+        createAndAddMenuItem("From File", singleAnimationMenu, KeyEvent.VK_F, e -> MenuBarActions.animFromFileActionRes(mainPanel));
 
-        createAndAddMenuItem("From Unit", mainPanel.singleAnimationMenu, KeyEvent.VK_U, e -> MenuBarActions.animFromUnitActionRes(mainPanel));
-//        JMenuItem animFromUnit = new JMenuItem("From Unit");
-//        animFromUnit.setMnemonic(KeyEvent.VK_U);
-//        animFromUnit.addActionListener(e -> MenuBarActions.animFromUnitActionRes(mainPanel));
-//        mainPanel.singleAnimationMenu.add(animFromUnit);
+        createAndAddMenuItem("From Unit", singleAnimationMenu, KeyEvent.VK_U, e -> MenuBarActions.animFromUnitActionRes(mainPanel));
 
-        createAndAddMenuItem("From Model", mainPanel.singleAnimationMenu, KeyEvent.VK_M, e -> MenuBarActions.animFromModelActionRes(mainPanel));
-//        JMenuItem animFromModel = new JMenuItem("From Model");
-//        animFromModel.setMnemonic(KeyEvent.VK_M);
-//        animFromModel.addActionListener(e -> MenuBarActions.animFromModelActionRes(mainPanel));
-//        mainPanel.singleAnimationMenu.add(animFromModel);
+        createAndAddMenuItem("From Model", singleAnimationMenu, KeyEvent.VK_M, e -> MenuBarActions.animFromModelActionRes(mainPanel));
 
-        createAndAddMenuItem("From Object", mainPanel.singleAnimationMenu, KeyEvent.VK_O, e -> MenuBarActions.animFromObjectActionRes(mainPanel));
-//        JMenuItem animFromObject = new JMenuItem("From Object");
-//        animFromObject.setMnemonic(KeyEvent.VK_O);
-//        animFromObject.addActionListener(e -> MenuBarActions.animFromObjectActionRes(mainPanel));
-//        mainPanel.singleAnimationMenu.add(animFromObject);
+        createAndAddMenuItem("From Object", singleAnimationMenu, KeyEvent.VK_O, e -> MenuBarActions.animFromObjectActionRes(mainPanel));
     }
 
-    private static void fillAboutMenu(MainPanel mainPanel) {
-        createAndAddMenuItem("Changelog", mainPanel.aboutMenu, KeyEvent.VK_A, e -> MenuBarActions.creditsButtonActionRes("docs/changelist.rtf", "Changelog"));
+    private static void fillAboutMenu(MainPanel mainPanel, JMenu aboutMenu) {
+        createAndAddMenuItem("Changelog", aboutMenu, KeyEvent.VK_A, e -> MenuBarActions.creditsButtonActionRes("docs/changelist.rtf", "Changelog"));
 
-        createAndAddMenuItem("About", mainPanel.aboutMenu, KeyEvent.VK_A, e -> MenuBarActions.creditsButtonActionRes("docs/credits.rtf", "About"));
+        createAndAddMenuItem("About", aboutMenu, KeyEvent.VK_A, e -> MenuBarActions.creditsButtonActionRes("docs/credits.rtf", "About"));
 
         JMenuItem jokeButton = new JMenuItem("HTML Magic");
         jokeButton.setMnemonic(KeyEvent.VK_H);
         jokeButton.addActionListener(e -> jokeButtonActionRes(mainPanel));
-        mainPanel.aboutMenu.add(jokeButton);
+        aboutMenu.add(jokeButton);
     }
 
     private static void jokeButtonActionRes(MainPanel mainPanel) {
@@ -306,37 +288,35 @@ public class MenuBar {
 
         createAndAddMenuItem("Rig Selection", mainPanel.toolsMenu, KeyEvent.VK_R, KeyStroke.getKeyStroke("control W"), mainPanel.rigAction);
 
-        mainPanel.tweaksSubmenu = new JMenu("Tweaks");
-        mainPanel.tweaksSubmenu.setMnemonic(KeyEvent.VK_T);
-        mainPanel.tweaksSubmenu.getAccessibleContext()
-                .setAccessibleDescription("Allows the user to tweak conversion mistakes.");
-        mainPanel.toolsMenu.add(mainPanel.tweaksSubmenu);
-
-        createAndAddMenuItem("Flip All UVs U", mainPanel.tweaksSubmenu, KeyEvent.VK_U, MenuBarActions.getFlipAllUVsUAction(mainPanel));
+        JMenu tweaksSubmenu = new JMenu("Tweaks");
+        tweaksSubmenu.setMnemonic(KeyEvent.VK_T);
+        tweaksSubmenu.getAccessibleContext().setAccessibleDescription("Allows the user to tweak conversion mistakes.");
+        mainPanel.toolsMenu.add(tweaksSubmenu);
+        createAndAddMenuItem("Flip All UVs U", tweaksSubmenu, KeyEvent.VK_U, MenuBarActions.getFlipAllUVsUAction(mainPanel));
 
         JMenuItem flipAllUVsV = new JMenuItem("Flip All UVs V");
         // flipAllUVsV.setMnemonic(KeyEvent.VK_V);
         flipAllUVsV.addActionListener(MenuBarActions.getFlipAllUVsVAction(mainPanel));
-        mainPanel.tweaksSubmenu.add(flipAllUVsV);
+        tweaksSubmenu.add(flipAllUVsV);
 
-        createAndAddMenuItem("Swap All UVs U for V", mainPanel.tweaksSubmenu, KeyEvent.VK_S, MenuBarActions.getInverseAllUVsAction(mainPanel));
+        createAndAddMenuItem("Swap All UVs U for V", tweaksSubmenu, KeyEvent.VK_S, MenuBarActions.getInverseAllUVsAction(mainPanel));
 
-        mainPanel.mirrorSubmenu = new JMenu("Mirror");
-        mainPanel.mirrorSubmenu.setMnemonic(KeyEvent.VK_M);
-        mainPanel.mirrorSubmenu.getAccessibleContext().setAccessibleDescription("Allows the user to mirror objects.");
-        mainPanel.toolsMenu.add(mainPanel.mirrorSubmenu);
+        JMenu mirrorSubmenu = new JMenu("Mirror");
+        mirrorSubmenu.setMnemonic(KeyEvent.VK_M);
+        mirrorSubmenu.getAccessibleContext().setAccessibleDescription("Allows the user to mirror objects.");
+        mainPanel.toolsMenu.add(mirrorSubmenu);
 
-        createAndAddMenuItem("Mirror X", mainPanel.mirrorSubmenu, KeyEvent.VK_X, MenuBarActions.getMirrorAxisAction(mainPanel, "Mirror X", (byte) 0));
+        createAndAddMenuItem("Mirror X", mirrorSubmenu, KeyEvent.VK_X, MenuBarActions.getMirrorAxisAction(mainPanel, "Mirror X", (byte) 0));
 
-        createAndAddMenuItem("Mirror Y", mainPanel.mirrorSubmenu, KeyEvent.VK_Y, MenuBarActions.getMirrorAxisAction(mainPanel, "Mirror Y", (byte) 1));
+        createAndAddMenuItem("Mirror Y", mirrorSubmenu, KeyEvent.VK_Y, MenuBarActions.getMirrorAxisAction(mainPanel, "Mirror Y", (byte) 1));
 
-        createAndAddMenuItem("Mirror Z", mainPanel.mirrorSubmenu, KeyEvent.VK_Z, MenuBarActions.getMirrorAxisAction(mainPanel, "Mirror Z", (byte) 2));
+        createAndAddMenuItem("Mirror Z", mirrorSubmenu, KeyEvent.VK_Z, MenuBarActions.getMirrorAxisAction(mainPanel, "Mirror Z", (byte) 2));
 
-        mainPanel.mirrorSubmenu.add(new JSeparator());
+        mirrorSubmenu.add(new JSeparator());
 
         mainPanel.mirrorFlip = new JCheckBoxMenuItem("Automatically flip after mirror (preserves surface)", true);
         mainPanel.mirrorFlip.setMnemonic(KeyEvent.VK_A);
-        mainPanel.mirrorSubmenu.add(mainPanel.mirrorFlip);
+        mirrorSubmenu.add(mainPanel.mirrorFlip);
     }
 
     private static void editTexturesActionRes(MainPanel mainPanel) {
@@ -418,23 +398,23 @@ public class MenuBar {
 
         fileMenu.add(mainPanel.recentMenu);
 
-        mainPanel.fetch = new JMenu("Open Internal");
-        mainPanel.fetch.setMnemonic(KeyEvent.VK_F);
-        fileMenu.add(mainPanel.fetch);
+        JMenu fetch = new JMenu("Open Internal");
+        fetch.setMnemonic(KeyEvent.VK_F);
+        fileMenu.add(fetch);
 
-        createAndAddMenuItem("Unit", mainPanel.fetch, KeyEvent.VK_U, KeyStroke.getKeyStroke("control U"), e -> MenuBarActions.fetchUnitActionRes(mainPanel));
+        createAndAddMenuItem("Unit", fetch, KeyEvent.VK_U, KeyStroke.getKeyStroke("control U"), e -> MenuBarActions.fetchUnitActionRes(mainPanel));
 
-        createAndAddMenuItem("Model", mainPanel.fetch, KeyEvent.VK_M, KeyStroke.getKeyStroke("control M"), e -> MenuBarActions.fetchModelActionRes(mainPanel));
+        createAndAddMenuItem("Model", fetch, KeyEvent.VK_M, KeyStroke.getKeyStroke("control M"), e -> MenuBarActions.fetchModelActionRes(mainPanel));
 
-        createAndAddMenuItem("Object Editor", mainPanel.fetch, KeyEvent.VK_O, KeyStroke.getKeyStroke("control O"), e -> MenuBarActions.fetchObjectActionRes(mainPanel));
+        createAndAddMenuItem("Object Editor", fetch, KeyEvent.VK_O, KeyStroke.getKeyStroke("control O"), e -> MenuBarActions.fetchObjectActionRes(mainPanel));
 
-        mainPanel.fetch.add(new JSeparator());
+        fetch.add(new JSeparator());
 
         JCheckBoxMenuItem fetchPortraitsToo = new JCheckBoxMenuItem("Fetch portraits, too!", true);
         fetchPortraitsToo.setMnemonic(KeyEvent.VK_P);
         fetchPortraitsToo.addActionListener(e -> mainPanel.prefs.setLoadPortraits(fetchPortraitsToo.isSelected()));
         mainPanel.fetchPortraitsToo = fetchPortraitsToo;
-        mainPanel.fetch.add(fetchPortraitsToo);
+        fetch.add(fetchPortraitsToo);
         fetchPortraitsToo.setSelected(true);
 
         fileMenu.add(new JSeparator());
