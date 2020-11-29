@@ -214,7 +214,7 @@ public class MenuBar {
         mainPanel.addParticle.setMnemonic(KeyEvent.VK_P);
         addMenu.add(mainPanel.addParticle);
 
-        AddParticlePanel.fetchIncludedParticles(mainPanel);
+        AddParticlePanel.addParticleButtons(mainPanel);
 
         mainPanel.animationMenu = new JMenu("Animation");
         mainPanel.animationMenu.setMnemonic(KeyEvent.VK_A);
@@ -226,27 +226,31 @@ public class MenuBar {
         mainPanel.singleAnimationMenu.setMnemonic(KeyEvent.VK_S);
         mainPanel.animationMenu.add(mainPanel.singleAnimationMenu);
 
-        JMenuItem animFromFile = new JMenuItem("From File");
-        animFromFile.setMnemonic(KeyEvent.VK_F);
-        animFromFile.addActionListener(e -> {
-            MenuBarActions.animFromFileActionRes(mainPanel);
-        });
-        mainPanel.singleAnimationMenu.add(animFromFile);
+        createAndAddMenuItem("From File", mainPanel.singleAnimationMenu, KeyEvent.VK_F, e -> MenuBarActions.animFromFileActionRes(mainPanel));
+//        JMenuItem animFromFile = new JMenuItem("From File");
+//        animFromFile.setMnemonic(KeyEvent.VK_F);
+//        animFromFile.addActionListener(e -> {
+//            MenuBarActions.animFromFileActionRes(mainPanel);
+//        });
+//        mainPanel.singleAnimationMenu.add(animFromFile);
 
-        JMenuItem animFromUnit = new JMenuItem("From Unit");
-        animFromUnit.setMnemonic(KeyEvent.VK_U);
-        animFromUnit.addActionListener(e -> MenuBarActions.animFromUnitActionRes(mainPanel));
-        mainPanel.singleAnimationMenu.add(animFromUnit);
+        createAndAddMenuItem("From Unit", mainPanel.singleAnimationMenu, KeyEvent.VK_U, e -> MenuBarActions.animFromUnitActionRes(mainPanel));
+//        JMenuItem animFromUnit = new JMenuItem("From Unit");
+//        animFromUnit.setMnemonic(KeyEvent.VK_U);
+//        animFromUnit.addActionListener(e -> MenuBarActions.animFromUnitActionRes(mainPanel));
+//        mainPanel.singleAnimationMenu.add(animFromUnit);
 
-        JMenuItem animFromModel = new JMenuItem("From Model");
-        animFromModel.setMnemonic(KeyEvent.VK_M);
-        animFromModel.addActionListener(e -> MenuBarActions.animFromModelActionRes(mainPanel));
-        mainPanel.singleAnimationMenu.add(animFromModel);
+        createAndAddMenuItem("From Model", mainPanel.singleAnimationMenu, KeyEvent.VK_M, e -> MenuBarActions.animFromModelActionRes(mainPanel));
+//        JMenuItem animFromModel = new JMenuItem("From Model");
+//        animFromModel.setMnemonic(KeyEvent.VK_M);
+//        animFromModel.addActionListener(e -> MenuBarActions.animFromModelActionRes(mainPanel));
+//        mainPanel.singleAnimationMenu.add(animFromModel);
 
-        JMenuItem animFromObject = new JMenuItem("From Object");
-        animFromObject.setMnemonic(KeyEvent.VK_O);
-        animFromObject.addActionListener(e -> MenuBarActions.animFromObjectActionRes(mainPanel));
-        mainPanel.singleAnimationMenu.add(animFromObject);
+        createAndAddMenuItem("From Object", mainPanel.singleAnimationMenu, KeyEvent.VK_O, e -> MenuBarActions.animFromObjectActionRes(mainPanel));
+//        JMenuItem animFromObject = new JMenuItem("From Object");
+//        animFromObject.setMnemonic(KeyEvent.VK_O);
+//        animFromObject.addActionListener(e -> MenuBarActions.animFromObjectActionRes(mainPanel));
+//        mainPanel.singleAnimationMenu.add(animFromObject);
     }
 
     private static void fillAboutMenu(MainPanel mainPanel) {

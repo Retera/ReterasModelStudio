@@ -286,12 +286,7 @@ public class MainPanel extends JPanel
 
         createTimeSliderPanel(this);
 
-        animatedRenderEnvironment.addChangeListener(new TimeBoundChangeListener() {
-            @Override
-            public void timeBoundsChanged(final int start, final int end) {
-                animatedRenderEnvChangeResult(MainPanel.this, start, end);
-            }
-        });
+        animatedRenderEnvironment.addChangeListener((start, end) -> animatedRenderEnvChangeResult(MainPanel.this, start, end));
 
         setKeyframe = createSetKeyframeButton(this);
 
@@ -381,9 +376,9 @@ public class MainPanel extends JPanel
 
         // setFocusable(true);
         // selectButton.requestFocus();
-        selectionItemTypeGroup.addToolbarButtonListener(newType -> selectionItemTypeGroupActionRes(newType));
+        selectionItemTypeGroup.addToolbarButtonListener(this::selectionItemTypeGroupActionRes);
 
-        actionTypeGroup.addToolbarButtonListener(newType -> actionTypeGroupActionRes(newType));
+        actionTypeGroup.addToolbarButtonListener(this::actionTypeGroupActionRes);
         actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
         viewportTransferHandler = new ViewportTransferHandler();
         coordDisplayListener = (dim1, dim2, value1, value2) -> setMouseCoordDisplay(mouseCoordDisplay, dim1, dim2, value1, value2);
