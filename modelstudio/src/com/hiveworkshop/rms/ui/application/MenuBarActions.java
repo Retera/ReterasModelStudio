@@ -61,6 +61,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class MenuBarActions {
     static final ImageIcon POWERED_BY_HIVE = RMSIcons.loadHiveBrowserImageIcon("powered_by_hive.png");
@@ -1271,20 +1272,31 @@ public class MenuBarActions {
             if (returnValue == JFileChooser.APPROVE_OPTION) {
                 if (temp != null) {
                     final FileFilter ff = mainPanel.fc.getFileFilter();
-                    final String ext = ff.accept(new File("junk.mdl")) ? ".mdl" : ".mdx";
-                    if (ff.accept(new File("junk.obj"))) {
-                        throw new UnsupportedOperationException("OBJ saving has not been coded yet.");
-                    }
                     final String name = temp.getName();
-                    if (name.lastIndexOf('.') != -1) {
-                        if (!name.substring(name.lastIndexOf('.')).equals(ext)) {
-                            temp = new File(
-                                    temp.getAbsolutePath().substring(0, temp.getAbsolutePath().lastIndexOf('.')) + ext);
-                        }
+                    String ext = ".mdx";
+                    if (name.lastIndexOf('.') != -1 &&
+                            ff.accept(new File("Junk" + name.substring(name.lastIndexOf('.'))))) {
+                        ext = name.substring(name.lastIndexOf('.'));
                     } else {
-                        temp = new File(temp.getAbsolutePath() + ext);
+                        String[] exts = {".mdx", ".mdl", ".obj", ".fbx"};
+                        //Don't think texture extensions should be here
+                        //, ".blp", ".dds", ".tga", ".png"
+                        Supplier<String> a = () -> {
+                            for (String e : exts)
+                                if (ff.accept(new File("Junk" + e)))
+                                    return e;
+                            //This should never happen
+                            throw new UnsupportedOperationException("Invalid model extension was chosen.");};
+                        ext = a.get();
                     }
-                    mainPanel.currentFile = temp;
+                    if (ext.equals(".obj") || ext.equals(".fbx"))
+                        throw new UnsupportedOperationException(ext + " saving has not been coded yet.");
+                    String filepathBase = temp.getAbsolutePath();
+                    mainPanel.currentFile = new File(
+                            (filepathBase.lastIndexOf('.') == -1 ? filepathBase :
+                                    filepathBase.substring(0, filepathBase.lastIndexOf('.')))
+                                    + ext);
+
                     if (temp.exists()) {
                         final Object[] options = {"Overwrite", "Cancel"};
                         final int n = JOptionPane.showOptionDialog(MainFrame.frame, "Selected file already exists.",
