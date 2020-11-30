@@ -74,6 +74,7 @@ public final class MPQBrowser extends JPanel {
 		filters.add(new Filter("Music", new String[] { ".mp3", ".mid" }));
 		otherFilter = new Filter("Other", true);
 		filters.add(otherFilter);
+
 		for (final Filter filter : filters) {
 			filtersMenu.add(filter.getFilterCheckBoxItem());
 			filter.addActionListener(e -> refreshTree());
@@ -81,32 +82,74 @@ public final class MPQBrowser extends JPanel {
 				extensionToFilter.put(ext, filter);
 			}
 		}
+
 		filtersMenu.addSeparator();
+
 		final JMenuItem allItem = new JMenuItem("All");
 		filtersMenu.add(allItem);
-		allItem.addActionListener(e -> {
-			for (final Filter filter : filters) {
-				filter.getFilterCheckBoxItem().setSelected(true);
-			}
-			refreshTree();
-		});
+		allItem.addActionListener(e -> setFiltered(true));
+
 		final JMenuItem noneItem = new JMenuItem("None");
 		filtersMenu.add(noneItem);
-		noneItem.addActionListener(e -> {
-			for (final Filter filter : filters) {
-				filter.getFilterCheckBoxItem().setSelected(false);
-			}
-			refreshTree();
-		});
+		noneItem.addActionListener(e -> setFiltered(false));
+
 		final MPQTreeNode root = createMPQTree(gameDataFileSystem);
 		treeModel = new DefaultTreeModel(root);
 		tree = new JTree(treeModel);
 		tree.setShowsRootHandles(true);
 		tree.setRootVisible(false);
-		tree.setCellRenderer(new DefaultTreeCellRenderer() {
+		tree.setCellRenderer(createTreeCellRenderer());
+		tree.addMouseListener(getMouseClickedListener(fileOpenCallback));
+		setLayout(new BorderLayout());
+		add(menuBar, BorderLayout.BEFORE_FIRST_LINE);
+		add(new JScrollPane(tree), BorderLayout.CENTER);
+
+		exportFileChooser = new JFileChooser(SaveProfile.get().getPath());
+
+		final JPopupMenu contextMenu = new JPopupMenu();
+
+		final JMenuItem openItem = new JMenuItem("Open");
+		openItem.addActionListener(e -> useAsTextureActionRes(fileOpenCallback));
+		contextMenu.add(openItem);
+
+		final JMenuItem extractItem = new JMenuItem("Export");
+		extractItem.addActionListener(e -> exportItemActionRes(gameDataFileSystem));
+		contextMenu.add(extractItem);
+
+		contextMenu.addSeparator();
+
+		final JMenuItem copyPathToClipboardItem = new JMenuItem("Copy Path to Clipboard");
+		copyPathToClipboardItem.addActionListener(e -> copyItemPathToClipboard());
+		contextMenu.add(copyPathToClipboardItem);
+
+		final JMenuItem useAsTextureItem = new JMenuItem("Use as Texture");
+		useAsTextureItem.addActionListener(e -> useAsTextureActionRes(useAsTextureCallback));
+		contextMenu.add(useAsTextureItem);
+
+		mouseAdapterExtension = new MouseAdapterExtension(contextMenu);
+		tree.addMouseListener(mouseAdapterExtension);
+	}
+
+	private MouseAdapter getMouseClickedListener(Callback<String> fileOpenCallback) {
+		return new MouseAdapter() {
+			@Override
+			public void mouseClicked(final MouseEvent e) {
+				if (e.getClickCount() >= 2) {
+					final MPQTreeNode lastPathComponent = (MPQTreeNode) tree.getPathForLocation(e.getX(), e.getY())
+							.getLastPathComponent();
+					if (lastPathComponent != null) {
+						fileOpenCallback.run(lastPathComponent.getPath());
+					}
+				}
+			}
+		};
+	}
+
+	private DefaultTreeCellRenderer createTreeCellRenderer() {
+		return new DefaultTreeCellRenderer() {
 			@Override
 			public Component getTreeCellRendererComponent(final JTree tree, final Object value, final boolean sel,
-					final boolean expanded, final boolean leaf, final int row, final boolean hasFocus) {
+														  final boolean expanded, final boolean leaf, final int row, final boolean hasFocus) {
 				final Component treeCellRendererComponent = super.getTreeCellRendererComponent(tree, value, sel,
 						expanded, leaf, row, hasFocus);
 				if (leaf) {
@@ -135,93 +178,62 @@ public final class MPQBrowser extends JPanel {
 				}
 				return treeCellRendererComponent;
 			}
-		});
-		tree.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(final MouseEvent e) {
-				if (e.getClickCount() >= 2) {
-					final MPQTreeNode lastPathComponent = (MPQTreeNode) tree.getPathForLocation(e.getX(), e.getY())
-							.getLastPathComponent();
-					if (lastPathComponent != null) {
-						fileOpenCallback.run(lastPathComponent.getPath());
+		};
+	}
+
+	private void setFiltered(boolean b) {
+		for (final Filter filter : filters) {
+			filter.getFilterCheckBoxItem().setSelected(b);
+		}
+		refreshTree();
+	}
+
+	private void useAsTextureActionRes(Callback<String> useAsTextureCallback) {
+		useAsTextureCallback
+				.run(((MPQTreeNode) mouseAdapterExtension.getClickedPath().getLastPathComponent()).getPath());
+	}
+
+	private void copyItemPathToClipboard() {
+		final MPQTreeNode clickedNode = ((MPQTreeNode) mouseAdapterExtension.getClickedPath().getLastPathComponent());
+		final StringSelection selection = new StringSelection(clickedNode.getPath());
+		final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+		clipboard.setContents(selection, selection);
+	}
+
+	private void exportItemActionRes(CompoundDataSource gameDataFileSystem) {
+		final MPQTreeNode clickedNode = ((MPQTreeNode) mouseAdapterExtension.getClickedPath().getLastPathComponent());
+
+		exportFileChooser.setSelectedFile(
+				new File(exportFileChooser.getCurrentDirectory() + "/" + clickedNode.getSubPathName()));
+		//ToDo: don't close save dialog if file exists - cancel on overwrite prompt should let user change the name of the file being saved
+		if (exportFileChooser.showSaveDialog(MPQBrowser.this) == JFileChooser.APPROVE_OPTION) {
+			final File selectedFile = exportFileChooser.getSelectedFile();
+			if (selectedFile != null) {
+				if (selectedFile.exists()) {
+					int confirmOverwriteFile = JOptionPane.showConfirmDialog(
+							MPQBrowser.this,
+							"File \""
+									+ selectedFile.getName()
+									+ "\" already exists. Overwrite anyway?",
+							"Export File",
+							JOptionPane.WARNING_MESSAGE,
+							JOptionPane.OK_CANCEL_OPTION);
+					if (confirmOverwriteFile != JOptionPane.OK_OPTION) {
+						return;
+					} else {
+						selectedFile.delete();
+					}
+				} else {
+					try {
+						Files.copy(gameDataFileSystem.getResourceAsStream(clickedNode.getPath()),
+								selectedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+					} catch (final IOException e1) {
+						ExceptionPopup.display(e1);
+						e1.printStackTrace();
 					}
 				}
 			}
-		});
-		setLayout(new BorderLayout());
-		add(menuBar, BorderLayout.BEFORE_FIRST_LINE);
-		add(new JScrollPane(tree), BorderLayout.CENTER);
-
-		exportFileChooser = new JFileChooser(SaveProfile.get().getPath());
-
-		final JPopupMenu contextMenu = new JPopupMenu();
-		final JMenuItem openItem = new JMenuItem("Open");
-		openItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				fileOpenCallback
-						.run(((MPQTreeNode) mouseAdapterExtension.getClickedPath().getLastPathComponent()).getPath());
-			}
-		});
-		final JMenuItem extractItem = new JMenuItem("Export");
-		extractItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final MPQTreeNode clickedNode = ((MPQTreeNode) mouseAdapterExtension.getClickedPath()
-						.getLastPathComponent());
-				exportFileChooser.setSelectedFile(
-						new File(exportFileChooser.getCurrentDirectory() + "/" + clickedNode.getSubPathName()));
-				if (exportFileChooser.showSaveDialog(MPQBrowser.this) == JFileChooser.APPROVE_OPTION) {
-					final File selectedFile = exportFileChooser.getSelectedFile();
-					if (selectedFile != null) {
-						if (selectedFile.exists()) {
-							if (JOptionPane.showConfirmDialog(MPQBrowser.this,
-									"File \"" + selectedFile.getName() + "\" already exists. Overwrite anyway?",
-									"Export File", JOptionPane.WARNING_MESSAGE,
-									JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION) {
-								return;
-							} else {
-								selectedFile.delete();
-							}
-						} else {
-							try {
-								Files.copy(gameDataFileSystem.getResourceAsStream(clickedNode.getPath()),
-										selectedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-							} catch (final IOException e1) {
-								ExceptionPopup.display(e1);
-								e1.printStackTrace();
-							}
-						}
-					}
-				}
-			}
-		});
-		final JMenuItem copyPathToClipboardItem = new JMenuItem("Copy Path to Clipboard");
-		copyPathToClipboardItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final MPQTreeNode clickedNode = ((MPQTreeNode) mouseAdapterExtension.getClickedPath()
-						.getLastPathComponent());
-				final StringSelection selection = new StringSelection(clickedNode.getPath());
-				final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-				clipboard.setContents(selection, selection);
-			}
-		});
-		contextMenu.add(openItem);
-		contextMenu.add(extractItem);
-		contextMenu.addSeparator();
-		contextMenu.add(copyPathToClipboardItem);
-		final JMenuItem useAsTextureItem = new JMenuItem("Use as Texture");
-		useAsTextureItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				useAsTextureCallback
-						.run(((MPQTreeNode) mouseAdapterExtension.getClickedPath().getLastPathComponent()).getPath());
-			}
-		});
-		contextMenu.add(useAsTextureItem);
-		mouseAdapterExtension = new MouseAdapterExtension(contextMenu);
-		tree.addMouseListener(mouseAdapterExtension);
+		}
 	}
 
 	public void refreshTree() {
@@ -233,8 +245,10 @@ public final class MPQBrowser extends JPanel {
 		final MPQTreeNode root = new MPQTreeNode(null, "", "");
 		final Set<String> mergedListfile = gameDataFileSystem.getMergedListfile();
 		final List<String> listfile = new ArrayList<>();
+
 		listfile.addAll(mergedListfile);
 		Collections.sort(listfile);
+
 		for (String string : listfile) {
 			final int periodIndex = string.indexOf('.');
 			boolean foundMatch = false;
@@ -253,6 +267,7 @@ public final class MPQBrowser extends JPanel {
 			}
 			MPQTreeNode currentNode = root;
 			final StringBuilder totalPath = new StringBuilder();
+
 			for (int slashIndex = string.indexOf('\\'); slashIndex != -1; slashIndex = string.indexOf('\\')) {
 				final String prefixName = string.substring(0, slashIndex);
 				if (totalPath.length() > 0) {
