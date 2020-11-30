@@ -871,7 +871,7 @@ public class MainPanel extends JPanel
 
     public static void reloadGUI(MainPanel mainPanel) {
         mainPanel.refreshUndo();
-        ToolBar.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
+        MenuBarActions.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
         MPQBrowserView.refreshAnimationModeState(mainPanel);
         ModelStructureChangeListenerImplementation.reloadGeosetManagers(mainPanel, mainPanel.currentModelPanel());
 

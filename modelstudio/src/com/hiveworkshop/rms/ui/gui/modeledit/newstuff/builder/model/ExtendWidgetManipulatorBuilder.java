@@ -19,40 +19,46 @@ import java.awt.*;
 public final class ExtendWidgetManipulatorBuilder extends AbstractSelectAndEditModelEditorManipulatorBuilder {
 	private final MoverWidget moverWidget = new MoverWidget(new Vec3(0, 0, 0));
 
-	public ExtendWidgetManipulatorBuilder(final ModelEditor modelEditor,
-			final ViewportSelectionHandler viewportSelectionHandler, final ProgramPreferences programPreferences,
+	public ExtendWidgetManipulatorBuilder(
+			final ModelEditor modelEditor,
+			final ViewportSelectionHandler viewportSelectionHandler,
+			final ProgramPreferences programPreferences,
 			final ModelView modelView) {
 		super(viewportSelectionHandler, programPreferences, modelEditor, modelView);
 	}
 
 	@Override
-	protected boolean widgetOffersEdit(final Vec3 selectionCenter, final Point mousePoint,
-			final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
+	protected boolean widgetOffersEdit(
+			final Vec3 selectionCenter,
+			final Point mousePoint,
+			final CoordinateSystem coordinateSystem,
+			final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getCenter());
-		final MoveDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem,
-				coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+		final MoveDirection directionByMouse = moverWidget.getDirectionByMouse(
+				mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 		moverWidget.setMoveDirection(directionByMouse);
 		return directionByMouse != MoveDirection.NONE;
 	}
 
 	@Override
-	protected Manipulator createManipulatorFromWidget(final Vec3 selectionCenter, final Point mousePoint,
-                                                      final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
+	protected Manipulator createManipulatorFromWidget(
+			final Vec3 selectionCenter,
+			final Point mousePoint,
+			final CoordinateSystem coordinateSystem,
+			final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getCenter());
-		final MoveDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem,
-				coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+		final MoveDirection directionByMouse = moverWidget.getDirectionByMouse(
+				mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 		if (directionByMouse != null) {
 			moverWidget.setMoveDirection(directionByMouse);
 		}
-		switch (directionByMouse) {
-		case BOTH:
-			return new ExtendManipulator(getModelEditor());
-		case RIGHT:
-			return new ExtendXManipulator(getModelEditor());
-		case UP:
-			return new ExtendYManipulator(getModelEditor());
-		case NONE:
-			return null;
+		if (directionByMouse != null) {
+			return switch (directionByMouse) {
+				case BOTH -> new ExtendManipulator(getModelEditor());
+				case RIGHT -> new ExtendXManipulator(getModelEditor());
+				case UP -> new ExtendYManipulator(getModelEditor());
+				case NONE -> null;
+			};
 		}
 		return null;
 	}

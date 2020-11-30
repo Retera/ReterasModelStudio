@@ -280,7 +280,7 @@ public class MenuBar {
 
         mainPanel.toolsMenu.add(new JSeparator());
 
-        createAndAddMenuItem("Edit UV Mapping", mainPanel.toolsMenu, KeyEvent.VK_U, e -> EditUVsPannel.editUVs(mainPanel));
+        createAndAddMenuItem("Edit UV Mapping", mainPanel.toolsMenu, KeyEvent.VK_U, e -> EditUVsPanel.showEditUVs(mainPanel));
 
         JMenuItem editTextures = new JMenuItem("Edit Textures");
         editTextures.setMnemonic(KeyEvent.VK_T);
@@ -393,9 +393,9 @@ public class MenuBar {
     }
 
     private static void fillFileMenu(MainPanel mainPanel, JMenu fileMenu) {
-        createAndAddMenuItem("New", fileMenu, KeyEvent.VK_N, KeyStroke.getKeyStroke("control N"), e -> ToolBar.newModel(mainPanel));
+        createAndAddMenuItem("New", fileMenu, KeyEvent.VK_N, KeyStroke.getKeyStroke("control N"), e -> MenuBarActions.newModel(mainPanel));
 
-        createAndAddMenuItem("Open", fileMenu, KeyEvent.VK_O, KeyStroke.getKeyStroke("control O"), e -> ToolBar.onClickOpen(mainPanel));
+        createAndAddMenuItem("Open", fileMenu, KeyEvent.VK_O, KeyStroke.getKeyStroke("control O"), e -> MenuBarActions.onClickOpen(mainPanel));
 
         fileMenu.add(mainPanel.recentMenu);
 
@@ -454,7 +454,7 @@ public class MenuBar {
 
     private static void SaveActionRes(MainPanel mainPanel) {
         if ((mainPanel.currentMDL() != null) && (mainPanel.currentMDL().getFile() != null)) {
-            ToolBar.onClickSave(mainPanel);}
+            MenuBarActions.onClickSave(mainPanel);}
     }
 
     private static void ExitActionRes(MainPanel mainPanel) {

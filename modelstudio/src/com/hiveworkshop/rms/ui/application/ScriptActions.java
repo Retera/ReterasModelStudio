@@ -344,7 +344,7 @@ public class ScriptActions {
 
     static void nullmodelButtonActionRes(MainPanel mainPanel) {
         nullModelFile(mainPanel);
-        ToolBar.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
+        MenuBarActions.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
     }
 
     public static String incName(final String name) {

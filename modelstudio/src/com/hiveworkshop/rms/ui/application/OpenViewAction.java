@@ -10,7 +10,7 @@ import java.awt.event.ActionEvent;
 
 class OpenViewAction extends AbstractAction {
     private final OpenViewGetter openViewGetter;
-    private RootWindow rootWindow;
+    private final RootWindow rootWindow;
 
     OpenViewAction(RootWindow rootWindow, final String name, final OpenViewGetter openViewGetter) {
         super(name);

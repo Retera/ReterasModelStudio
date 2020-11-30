@@ -51,7 +51,7 @@ public class MainFrame extends JFrame {
 		panel.init();
 		if (!startupModelPaths.isEmpty()) {
 			for (final String path : startupModelPaths) {
-				ToolBar.openFile(panel, new File(path));
+				MenuBarActions.openFile(panel, new File(path));
 			}
 		}
 	}

@@ -6,8 +6,8 @@ import net.infonode.docking.FloatingWindow;
 
 import java.awt.*;
 
-public class EditUVsPannel {
-    static void editUVs(MainPanel mainPanel) {
+public class EditUVsPanel {
+    static void showEditUVs(MainPanel mainPanel) {
         final ModelPanel disp = mainPanel.currentModelPanel();
         if (disp.getEditUVPanel() == null) {
             final UVPanel panel = new UVPanel(disp, mainPanel.prefs, mainPanel.modelStructureChangeListener);

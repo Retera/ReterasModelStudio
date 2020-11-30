@@ -40,7 +40,7 @@ public class AddSingleAnimationActions {
 
         mainPanel.fc.setSelectedFile(null);
 
-        ToolBar.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
+        MenuBarActions.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
     }
 
     static void addSingleAnimation(MainPanel mainPanel, final EditableModel current, final EditableModel animationSourceModel) {

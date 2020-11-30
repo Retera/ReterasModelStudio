@@ -20,39 +20,42 @@ public final class ExtrudeWidgetManipulatorBuilder extends AbstractSelectAndEdit
 	private final MoverWidget moverWidget = new MoverWidget(new Vec3(0, 0, 0));
 
 	public ExtrudeWidgetManipulatorBuilder(final ModelEditor modelEditor,
-			final ViewportSelectionHandler viewportSelectionHandler, final ProgramPreferences programPreferences,
-			final ModelView modelView) {
+										   final ViewportSelectionHandler viewportSelectionHandler,
+										   final ProgramPreferences programPreferences,
+										   final ModelView modelView) {
 		super(viewportSelectionHandler, programPreferences, modelEditor, modelView);
 	}
 
 	@Override
-	protected boolean widgetOffersEdit(final Vec3 selectionCenter, final Point mousePoint,
-			final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
+	protected boolean widgetOffersEdit(final Vec3 selectionCenter,
+									   final Point mousePoint,
+									   final CoordinateSystem coordinateSystem,
+									   final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getCenter());
-		final MoveDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem,
-				coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+		final MoveDirection directionByMouse = moverWidget.getDirectionByMouse(
+				mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 		moverWidget.setMoveDirection(directionByMouse);
 		return directionByMouse != MoveDirection.NONE;
 	}
 
 	@Override
-	protected Manipulator createManipulatorFromWidget(final Vec3 selectionCenter, final Point mousePoint,
-                                                      final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
+	protected Manipulator createManipulatorFromWidget(final Vec3 selectionCenter,
+													  final Point mousePoint,
+                                                      final CoordinateSystem coordinateSystem,
+													  final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getCenter());
-		final MoveDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem,
-				coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+		final MoveDirection directionByMouse = moverWidget.getDirectionByMouse(
+				mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 		if (directionByMouse != null) {
 			moverWidget.setMoveDirection(directionByMouse);
 		}
-		switch (directionByMouse) {
-		case BOTH:
-			return new ExtrudeManipulator(getModelEditor());
-		case RIGHT:
-			return new ExtrudeXManipulator(getModelEditor());
-		case UP:
-			return new ExtrudeYManipulator(getModelEditor());
-		case NONE:
-			return null;
+		if (directionByMouse != null) {
+			return switch (directionByMouse) {
+				case BOTH -> new ExtrudeManipulator(getModelEditor());
+				case RIGHT -> new ExtrudeXManipulator(getModelEditor());
+				case UP -> new ExtrudeYManipulator(getModelEditor());
+				case NONE -> null;
+			};
 		}
 		return null;
 	}

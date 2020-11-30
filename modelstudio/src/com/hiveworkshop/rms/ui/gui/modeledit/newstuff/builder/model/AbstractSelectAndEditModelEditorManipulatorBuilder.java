@@ -25,7 +25,9 @@ public abstract class AbstractSelectAndEditModelEditorManipulatorBuilder impleme
 	private final ModelView modelView;
 
 	public AbstractSelectAndEditModelEditorManipulatorBuilder(final ViewportSelectionHandler viewportSelectionHandler,
-			final ProgramPreferences programPreferences, final ModelEditor modelEditor, final ModelView modelView) {
+															  final ProgramPreferences programPreferences,
+															  final ModelEditor modelEditor,
+															  final ModelView modelView) {
 		this.viewportSelectionHandler = viewportSelectionHandler;
 		this.programPreferences = programPreferences;
 		this.modelEditor = modelEditor;
@@ -46,8 +48,9 @@ public abstract class AbstractSelectAndEditModelEditorManipulatorBuilder impleme
 	}
 
 	@Override
-	public final Cursor getCursorAt(final int x, final int y, final CoordinateSystem coordinateSystem,
-			final SelectionView selectionView) {
+	public final Cursor getCursorAt(final int x, final int y,
+									final CoordinateSystem coordinateSystem,
+									final SelectionView selectionView) {
 		final Point mousePoint = new Point(x, y);
 		if (!selectionView.isEmpty()
 				&& widgetOffersEdit(selectionView.getCenter(), mousePoint, coordinateSystem, selectionView)) {
@@ -59,8 +62,10 @@ public abstract class AbstractSelectAndEditModelEditorManipulatorBuilder impleme
 	}
 
 	@Override
-	public final Manipulator buildActivityListener(final int x, final int y, final ButtonType clickedButton,
-                                                   final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
+	public final Manipulator buildActivityListener(final int x, final int y,
+												   final ButtonType clickedButton,
+                                                   final CoordinateSystem coordinateSystem,
+												   final SelectionView selectionView) {
 		final Point mousePoint = new Point(x, y);
 		if (clickedButton == ButtonType.RIGHT_MOUSE) {
 			return createDefaultManipulator(selectionView.getCenter(), mousePoint, coordinateSystem, selectionView);
@@ -77,18 +82,22 @@ public abstract class AbstractSelectAndEditModelEditorManipulatorBuilder impleme
 	}
 
 	@Override
-	public final void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem,
-			final SelectionView selectionView, final RenderModel renderModel) {
-		selectionView.renderSelection(graphics2dToAnimatedModelElementRendererAdapter.reset(graphics, coordinateSystem,
-				renderModel, programPreferences), coordinateSystem, modelView, programPreferences);
+	public final void render(final Graphics2D graphics,
+							 final CoordinateSystem coordinateSystem,
+							 final SelectionView selectionView,
+							 final RenderModel renderModel) {
+		selectionView.renderSelection(graphics2dToAnimatedModelElementRendererAdapter.reset(
+				graphics, coordinateSystem, renderModel, programPreferences),
+				coordinateSystem, modelView, programPreferences);
 		if (!selectionView.isEmpty()) {
 			renderWidget(graphics, coordinateSystem, selectionView);
 		}
 	}
 
 	@Override
-	public final void renderStatic(final Graphics2D graphics, final CoordinateSystem coordinateSystem,
-			final SelectionView selectionView) {
+	public final void renderStatic(final Graphics2D graphics,
+								   final CoordinateSystem coordinateSystem,
+								   final SelectionView selectionView) {
 		selectionView.renderSelection(graphics2dToModelElementRendererAdapter.reset(graphics, coordinateSystem),
 				coordinateSystem, modelView, programPreferences);
 		if (!selectionView.isEmpty()) {

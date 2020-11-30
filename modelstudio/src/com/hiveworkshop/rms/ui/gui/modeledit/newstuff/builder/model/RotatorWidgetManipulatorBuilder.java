@@ -20,14 +20,17 @@ public final class RotatorWidgetManipulatorBuilder extends AbstractSelectAndEdit
 	private final RotatorWidget moverWidget = new RotatorWidget(new Vec3(0, 0, 0));
 
 	public RotatorWidgetManipulatorBuilder(final ModelEditor modelEditor,
-										   final ViewportSelectionHandler viewportSelectionHandler, final ProgramPreferences programPreferences,
+										   final ViewportSelectionHandler viewportSelectionHandler,
+										   final ProgramPreferences programPreferences,
 										   final ModelView modelView) {
 		super(viewportSelectionHandler, programPreferences, modelEditor, modelView);
 	}
 
 	@Override
-	protected boolean widgetOffersEdit(final Vec3 selectionCenter, final Point mousePoint,
-									   final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
+	protected boolean widgetOffersEdit(final Vec3 selectionCenter,
+									   final Point mousePoint,
+									   final CoordinateSystem coordinateSystem,
+									   final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getCenter());
 		final RotateDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem);
 		moverWidget.setMoveDirection(directionByMouse);
@@ -35,36 +38,38 @@ public final class RotatorWidgetManipulatorBuilder extends AbstractSelectAndEdit
 	}
 
 	@Override
-	protected Manipulator createManipulatorFromWidget(final Vec3 selectionCenter, final Point mousePoint,
-													  final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
+	protected Manipulator createManipulatorFromWidget(final Vec3 selectionCenter,
+													  final Point mousePoint,
+													  final CoordinateSystem coordinateSystem,
+													  final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getCenter());
 		final RotateDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem);
 		if (directionByMouse != null) {
 			moverWidget.setMoveDirection(directionByMouse);
 		}
-		switch (directionByMouse) {
-			case FREE:
-				return new RotateManipulator(getModelEditor(), selectionView);
-			case HORIZONTALLY:
-				return new RotateHorizontalManipulator(getModelEditor(), selectionView);
-			case VERTICALLY:
-				return new RotateVerticalManipulator(getModelEditor(), selectionView);
-			case SPIN:
-				return new RotateManipulator(getModelEditor(), selectionView);
-			case NONE:
-				return null;
+		if (directionByMouse != null) {
+			return switch (directionByMouse) {
+				case FREE -> new RotateManipulator(getModelEditor(), selectionView);
+				case HORIZONTALLY -> new RotateHorizontalManipulator(getModelEditor(), selectionView);
+				case VERTICALLY -> new RotateVerticalManipulator(getModelEditor(), selectionView);
+				case SPIN -> new RotateManipulator(getModelEditor(), selectionView);
+				case NONE -> null;
+			};
 		}
 		return null;
 	}
 
 	@Override
-	protected Manipulator createDefaultManipulator(final Vec3 selectionCenter, final Point mousePoint,
-												   final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
+	protected Manipulator createDefaultManipulator(final Vec3 selectionCenter,
+												   final Point mousePoint,
+												   final CoordinateSystem coordinateSystem,
+												   final SelectionView selectionView) {
 		return new RotateManipulator(getModelEditor(), selectionView);
 	}
 
 	@Override
-	protected void renderWidget(final Graphics2D graphics, final CoordinateSystem coordinateSystem,
+	protected void renderWidget(final Graphics2D graphics,
+								final CoordinateSystem coordinateSystem,
 								final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getCenter());
 		moverWidget.render(graphics, coordinateSystem);

@@ -17,54 +17,59 @@ public final class ScaleWidgetManipulatorBuilder extends AbstractSelectAndEditMo
 	private final ScalerWidget moverWidget = new ScalerWidget(new Vec3(0, 0, 0));
 
 	public ScaleWidgetManipulatorBuilder(final ModelEditor modelEditor,
-			final ViewportSelectionHandler viewportSelectionHandler, final ProgramPreferences programPreferences,
-			final ModelView modelView) {
+										 final ViewportSelectionHandler viewportSelectionHandler,
+										 final ProgramPreferences programPreferences,
+										 final ModelView modelView) {
 		super(viewportSelectionHandler, programPreferences, modelEditor, modelView);
 	}
 
 	@Override
-	protected boolean widgetOffersEdit(final Vec3 selectionCenter, final Point mousePoint,
-			final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
+	protected boolean widgetOffersEdit(final Vec3 selectionCenter,
+									   final Point mousePoint,
+									   final CoordinateSystem coordinateSystem,
+									   final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getCenter());
-		final ScaleDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem,
-				coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+		final ScaleDirection directionByMouse = moverWidget.getDirectionByMouse(
+				mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 		moverWidget.setMoveDirection(directionByMouse);
 		return directionByMouse != ScaleDirection.NONE;
 	}
 
 	@Override
-	protected Manipulator createManipulatorFromWidget(final Vec3 selectionCenter, final Point mousePoint,
-                                                      final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
+	protected Manipulator createManipulatorFromWidget(final Vec3 selectionCenter,
+													  final Point mousePoint,
+                                                      final CoordinateSystem coordinateSystem,
+													  final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getCenter());
-		final ScaleDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem,
-				coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+		final ScaleDirection directionByMouse = moverWidget.getDirectionByMouse(
+				mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 		if (directionByMouse != null) {
 			moverWidget.setMoveDirection(directionByMouse);
 		}
-		switch (directionByMouse) {
-		case XYZ:
-			return new ScaleManipulatorUsesYMouseDrag(getModelEditor(), selectionView);
-		case FLAT_XY:
-			return new ScaleXYManipulator(getModelEditor(), selectionView);
-		case RIGHT:
-			return new ScaleXManipulator(getModelEditor(), selectionView);
-		case UP:
-			return new ScaleYManipulator(getModelEditor(), selectionView);
-		case NONE:
-			return null;
+		if (directionByMouse != null) {
+			return switch (directionByMouse) {
+				case XYZ -> new ScaleManipulatorUsesYMouseDrag(getModelEditor(), selectionView);
+				case FLAT_XY -> new ScaleXYManipulator(getModelEditor(), selectionView);
+				case RIGHT -> new ScaleXManipulator(getModelEditor(), selectionView);
+				case UP -> new ScaleYManipulator(getModelEditor(), selectionView);
+				case NONE -> null;
+			};
 		}
 		return null;
 	}
 
 	@Override
-	protected Manipulator createDefaultManipulator(final Vec3 selectionCenter, final Point mousePoint,
-			final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
+	protected Manipulator createDefaultManipulator(final Vec3 selectionCenter,
+												   final Point mousePoint,
+												   final CoordinateSystem coordinateSystem,
+												   final SelectionView selectionView) {
 		return new ScaleManipulator(getModelEditor(), selectionView);
 	}
 
 	@Override
-	protected void renderWidget(final Graphics2D graphics, final CoordinateSystem coordinateSystem,
-			final SelectionView selectionView) {
+	protected void renderWidget(final Graphics2D graphics,
+								final CoordinateSystem coordinateSystem,
+								final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getCenter());
 		moverWidget.render(graphics, coordinateSystem);
 	}
