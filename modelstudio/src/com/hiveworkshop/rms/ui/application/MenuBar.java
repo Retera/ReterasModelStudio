@@ -106,7 +106,7 @@ public class MenuBar {
 
         mainPanel.recentMenu = createMenu("Open Recent", KeyEvent.VK_R, "Allows you to access recently opened files.");
         mainPanel.recentMenu.add(new JSeparator());
-        createAndAddMenuItem("Clear", mainPanel.recentMenu, KeyEvent.VK_C, e -> MenuBarActions.clearRecentActionRes(mainPanel));
+        createAndAddMenuItem("Clear", mainPanel.recentMenu, KeyEvent.VK_C, e -> MenuBarActions.clearRecent(mainPanel));
 
         updateRecent(mainPanel);
 
@@ -129,7 +129,7 @@ public class MenuBar {
 
     private static void fillWindowsMenu(MainPanel mainPanel, JMenu windowMenu) {
         final JMenuItem resetViewButton = new JMenuItem("Reset Layout");
-        resetViewButton.addActionListener(e -> resetViewButtonActionRes(mainPanel));
+        resetViewButton.addActionListener(e -> resetView(mainPanel));
         windowMenu.add(resetViewButton);
 
         final JMenu viewsMenu = createMenu("Views", KeyEvent.VK_V);
@@ -173,7 +173,7 @@ public class MenuBar {
         createAndAddMenuItem("Unit Browser", browsersMenu, KeyEvent.VK_U, e -> MenuBarActions.openUnitViewer(mainPanel));
 
 //        createAndAddMenuItem("Doodad Browser", browsersMenu, KeyEvent.VK_D, getOpenDoodadViewerAction(mainPanel));
-        createAndAddMenuItem("Doodad Browser", browsersMenu, KeyEvent.VK_D, e -> MenuBarActions.OpenDoodadViewerActionRes(mainPanel));
+        createAndAddMenuItem("Doodad Browser", browsersMenu, KeyEvent.VK_D, e -> MPQBrowserView.OpenDoodadViewer(mainPanel));
 
         JMenuItem hiveViewer = new JMenuItem("Hive Browser");
         hiveViewer.setMnemonic(KeyEvent.VK_H);
@@ -203,7 +203,7 @@ public class MenuBar {
         return new View("Test", null, testPanel);
     }
 
-    private static void resetViewButtonActionRes(MainPanel mainPanel) {
+    private static void resetView(MainPanel mainPanel) {
         traverseAndReset(mainPanel.rootWindow);
         final TabWindow startupTabWindow = MainLayoutCreator.createMainLayout(mainPanel);
         mainPanel.rootWindow.setWindow(startupTabWindow);
@@ -221,25 +221,25 @@ public class MenuBar {
         animationMenu.setMnemonic(KeyEvent.VK_A);
         addMenu.add(animationMenu);
 
-        createAndAddMenuItem("Rising/Falling Birth/Death", animationMenu, KeyEvent.VK_R, e -> MenuBarActions.riseFallBirthActionRes(mainPanel));
+        createAndAddMenuItem("Rising/Falling Birth/Death", animationMenu, KeyEvent.VK_R, e -> AddBirthDeathSequences.riseFallBirthActionRes(mainPanel));
 
         JMenu singleAnimationMenu = new JMenu("Single");
         singleAnimationMenu.setMnemonic(KeyEvent.VK_S);
         animationMenu.add(singleAnimationMenu);
 
-        createAndAddMenuItem("From File", singleAnimationMenu, KeyEvent.VK_F, e -> MenuBarActions.addAnimationFromFile(mainPanel));
+        createAndAddMenuItem("From File", singleAnimationMenu, KeyEvent.VK_F, e -> AddSingleAnimationActions.addAnimationFromFile(mainPanel));
 
-        createAndAddMenuItem("From Unit", singleAnimationMenu, KeyEvent.VK_U, e -> MenuBarActions.addAnimationFromUnit(mainPanel));
+        createAndAddMenuItem("From Unit", singleAnimationMenu, KeyEvent.VK_U, e -> AddSingleAnimationActions.addAnimationFromUnit(mainPanel));
 
-        createAndAddMenuItem("From Model", singleAnimationMenu, KeyEvent.VK_M, e -> MenuBarActions.addAnimFromModel(mainPanel));
+        createAndAddMenuItem("From Model", singleAnimationMenu, KeyEvent.VK_M, e -> AddSingleAnimationActions.addAnimFromModel(mainPanel));
 
-        createAndAddMenuItem("From Object", singleAnimationMenu, KeyEvent.VK_O, e -> MenuBarActions.addAnimationFromObject(mainPanel));
+        createAndAddMenuItem("From Object", singleAnimationMenu, KeyEvent.VK_O, e -> AddSingleAnimationActions.addAnimationFromObject(mainPanel));
     }
 
     private static void fillAboutMenu(MainPanel mainPanel, JMenu aboutMenu) {
-        createAndAddMenuItem("Changelog", aboutMenu, KeyEvent.VK_A, e -> MenuBarActions.creditsButtonActionRes("docs/changelist.rtf", "Changelog"));
+        createAndAddMenuItem("Changelog", aboutMenu, KeyEvent.VK_A, e -> MenuBarActions.createAndShowRtfPanel("docs/changelist.rtf", "Changelog"));
 
-        createAndAddMenuItem("About", aboutMenu, KeyEvent.VK_A, e -> MenuBarActions.creditsButtonActionRes("docs/credits.rtf", "About"));
+        createAndAddMenuItem("About", aboutMenu, KeyEvent.VK_A, e -> MenuBarActions.createAndShowRtfPanel("docs/credits.rtf", "About"));
 
         JMenuItem jokeButton = new JMenuItem("HTML Magic");
         jokeButton.setMnemonic(KeyEvent.VK_H);
@@ -265,22 +265,22 @@ public class MenuBar {
     private static void fillToolsMenu(MainPanel mainPanel) {
         JMenuItem showMatrices = new JMenuItem("View Selected \"Matrices\"");
         // showMatrices.setMnemonic(KeyEvent.VK_V);
-        showMatrices.addActionListener(e -> MenuBarActions.viewMatrices(mainPanel));
+        showMatrices.addActionListener(e -> ModelEditActions.viewMatrices(mainPanel));
         mainPanel.toolsMenu.add(showMatrices);
 
         JMenuItem insideOut = new JMenuItem("Flip all selected faces");
         insideOut.setMnemonic(KeyEvent.VK_I);
-        insideOut.addActionListener(e -> MenuBarActions.insideOut(mainPanel));
+        insideOut.addActionListener(e -> ModelEditActions.insideOut(mainPanel));
         insideOut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_DOWN_MASK));
         mainPanel.toolsMenu.add(insideOut);
 
         JMenuItem insideOutNormals = new JMenuItem("Flip all selected normals");
-        insideOutNormals.addActionListener(e -> MenuBarActions.insideOutNormals(mainPanel));
+        insideOutNormals.addActionListener(e -> ModelEditActions.insideOutNormals(mainPanel));
         mainPanel.toolsMenu.add(insideOutNormals);
 
         mainPanel.toolsMenu.add(new JSeparator());
 
-        createAndAddMenuItem("Edit UV Mapping", mainPanel.toolsMenu, KeyEvent.VK_U, e -> MenuBarActions.editUVs(mainPanel));
+        createAndAddMenuItem("Edit UV Mapping", mainPanel.toolsMenu, KeyEvent.VK_U, e -> EditUVsPannel.editUVs(mainPanel));
 
         JMenuItem editTextures = new JMenuItem("Edit Textures");
         editTextures.setMnemonic(KeyEvent.VK_T);
@@ -293,25 +293,25 @@ public class MenuBar {
         tweaksSubmenu.setMnemonic(KeyEvent.VK_T);
         tweaksSubmenu.getAccessibleContext().setAccessibleDescription("Allows the user to tweak conversion mistakes.");
         mainPanel.toolsMenu.add(tweaksSubmenu);
-        createAndAddMenuItem("Flip All UVs U", tweaksSubmenu, KeyEvent.VK_U, e -> MenuBarActions.flipAllUVsU(mainPanel));
+        createAndAddMenuItem("Flip All UVs U", tweaksSubmenu, KeyEvent.VK_U, e -> ModelEditActions.flipAllUVsU(mainPanel));
 
         JMenuItem flipAllUVsV = new JMenuItem("Flip All UVs V");
         // flipAllUVsV.setMnemonic(KeyEvent.VK_V);
-        flipAllUVsV.addActionListener(e -> MenuBarActions.flipAllUVsV(mainPanel));
+        flipAllUVsV.addActionListener(e -> ModelEditActions.flipAllUVsV(mainPanel));
         tweaksSubmenu.add(flipAllUVsV);
 
-        createAndAddMenuItem("Swap All UVs U for V", tweaksSubmenu, KeyEvent.VK_S, e -> MenuBarActions.inverseAllUVs(mainPanel));
+        createAndAddMenuItem("Swap All UVs U for V", tweaksSubmenu, KeyEvent.VK_S, e -> ModelEditActions.inverseAllUVs(mainPanel));
 
         JMenu mirrorSubmenu = new JMenu("Mirror");
         mirrorSubmenu.setMnemonic(KeyEvent.VK_M);
         mirrorSubmenu.getAccessibleContext().setAccessibleDescription("Allows the user to mirror objects.");
         mainPanel.toolsMenu.add(mirrorSubmenu);
 
-        createAndAddMenuItem("Mirror X", mirrorSubmenu, KeyEvent.VK_X, e -> MenuBarActions.mirrorAxis(mainPanel, (byte) 0));
+        createAndAddMenuItem("Mirror X", mirrorSubmenu, KeyEvent.VK_X, e -> ModelEditActions.mirrorAxis(mainPanel, (byte) 0));
 
-        createAndAddMenuItem("Mirror Y", mirrorSubmenu, KeyEvent.VK_Y, e -> MenuBarActions.mirrorAxis(mainPanel, (byte) 1));
+        createAndAddMenuItem("Mirror Y", mirrorSubmenu, KeyEvent.VK_Y, e -> ModelEditActions.mirrorAxis(mainPanel, (byte) 1));
 
-        createAndAddMenuItem("Mirror Z", mirrorSubmenu, KeyEvent.VK_Z, e -> MenuBarActions.mirrorAxis(mainPanel, (byte) 2));
+        createAndAddMenuItem("Mirror Z", mirrorSubmenu, KeyEvent.VK_Z, e -> ModelEditActions.mirrorAxis(mainPanel, (byte) 2));
 
         mirrorSubmenu.add(new JSeparator());
 
@@ -403,11 +403,11 @@ public class MenuBar {
         fetch.setMnemonic(KeyEvent.VK_F);
         fileMenu.add(fetch);
 
-        createAndAddMenuItem("Unit", fetch, KeyEvent.VK_U, KeyStroke.getKeyStroke("control U"), e -> MenuBarActions.fetchUnit(mainPanel));
+        createAndAddMenuItem("Unit", fetch, KeyEvent.VK_U, KeyStroke.getKeyStroke("control U"), e -> MPQBrowserView.fetchUnit(mainPanel));
 
-        createAndAddMenuItem("Model", fetch, KeyEvent.VK_M, KeyStroke.getKeyStroke("control M"), e -> MenuBarActions.fetchModel(mainPanel));
+        createAndAddMenuItem("Model", fetch, KeyEvent.VK_M, KeyStroke.getKeyStroke("control M"), e -> MPQBrowserView.fetchModel(mainPanel));
 
-        createAndAddMenuItem("Object Editor", fetch, KeyEvent.VK_O, KeyStroke.getKeyStroke("control O"), e -> MenuBarActions.fetchObject(mainPanel));
+        createAndAddMenuItem("Object Editor", fetch, KeyEvent.VK_O, KeyStroke.getKeyStroke("control O"), e -> MPQBrowserView.fetchObject(mainPanel));
 
         fetch.add(new JSeparator());
 
@@ -482,9 +482,9 @@ public class MenuBar {
         editMenu.add(new JSeparator());
         final JMenu optimizeMenu = createMenu("Optimize", KeyEvent.VK_O);
         editMenu.add(optimizeMenu);
-        createAndAddMenuItem("Linearize Animations", optimizeMenu, KeyEvent.VK_L, e -> MenuBarActions.linearizeAnimations(mainPanel));
+        createAndAddMenuItem("Linearize Animations", optimizeMenu, KeyEvent.VK_L, e -> ModelEditActions.linearizeAnimations(mainPanel));
 
-        createAndAddMenuItem("Simplify Keyframes (Experimental)", optimizeMenu, KeyEvent.VK_K, e -> MenuBarActions.simplifyKeyframes(mainPanel));
+        createAndAddMenuItem("Simplify Keyframes (Experimental)", optimizeMenu, KeyEvent.VK_K, e -> ModelEditActions.simplifyKeyframes(mainPanel));
 
         createAndAddMenuItem("Minimize Geosets", optimizeMenu, KeyEvent.VK_K, e -> minimizeGeoset(mainPanel));
 
@@ -495,9 +495,9 @@ public class MenuBar {
         flushUnusedTexture.setMnemonic(KeyEvent.VK_F);
         optimizeMenu.add(flushUnusedTexture);
 
-        createAndAddMenuItem("Recalculate Normals", editMenu, -1, KeyStroke.getKeyStroke("control N"), e -> MenuBarActions.recalculateNormals(mainPanel));
+        createAndAddMenuItem("Recalculate Normals", editMenu, -1, KeyStroke.getKeyStroke("control N"), e -> ModelEditActions.recalculateNormals(mainPanel));
 
-        createAndAddMenuItem("Recalculate Extents", editMenu, -1, KeyStroke.getKeyStroke("control shift E"), e -> MenuBarActions.recalculateExtents(mainPanel));
+        createAndAddMenuItem("Recalculate Extents", editMenu, -1, KeyStroke.getKeyStroke("control shift E"), e -> ModelEditActions.recalculateExtents(mainPanel));
 
         editMenu.add(new JSeparator());
         final TransferActionListener transferActionListener = new TransferActionListener();
@@ -515,9 +515,9 @@ public class MenuBar {
         editMenu.add(new JSeparator());
 
 //        createAndAddMenuItem("Snap Vertices", editMenu, -1, KeyStroke.getKeyStroke("control shift W"), e -> MenuBarActions.getSnapVerticiesAction(mainPanel));
-        createAndAddMenuItem("Snap Vertices", editMenu, -1, KeyStroke.getKeyStroke("control shift W"), e -> MenuBarActions.snapVerticies(mainPanel));
+        createAndAddMenuItem("Snap Vertices", editMenu, -1, KeyStroke.getKeyStroke("control shift W"), e -> ModelEditActions.snapVerticies(mainPanel));
 
-        createAndAddMenuItem("Snap Normals", editMenu, -1, KeyStroke.getKeyStroke("control L"), e -> MenuBarActions.snapNormals(mainPanel));
+        createAndAddMenuItem("Snap Normals", editMenu, -1, KeyStroke.getKeyStroke("control L"), e -> ModelEditActions.snapNormals(mainPanel));
 
         editMenu.add(new JSeparator());
 
@@ -583,7 +583,7 @@ public class MenuBar {
         mergeGeoset.setAccelerator(KeyStroke.getKeyStroke("control M"));
         mergeGeoset.addActionListener(e -> {
             try {
-                MenuBarActions.mergeGeosetActionRes(mainPanel);
+                ScriptActions.mergeGeosetActionRes(mainPanel);
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
@@ -593,17 +593,17 @@ public class MenuBar {
         JMenuItem nullmodelButton = new JMenuItem("Edit/delete model components");
         nullmodelButton.setMnemonic(KeyEvent.VK_E);
         nullmodelButton.setAccelerator(KeyStroke.getKeyStroke("control E"));
-        nullmodelButton.addActionListener(e -> MenuBarActions.nullmodelButtonActionRes(mainPanel));
+        nullmodelButton.addActionListener(e -> ScriptActions.nullmodelButtonActionRes(mainPanel));
         mainPanel.nullmodelButton = nullmodelButton;
         scriptsMenu.add(nullmodelButton);
 
-        createAndAddMenuItem("Export Animated to Static Mesh", scriptsMenu, KeyEvent.VK_E, e -> MenuBarActions.exportAnimatedToStaticMesh(mainPanel));
+        createAndAddMenuItem("Export Animated to Static Mesh", scriptsMenu, KeyEvent.VK_E, e -> ScriptActions.exportAnimatedToStaticMesh(mainPanel));
 
-        createAndAddMenuItem("Export Animated Frame PNG", scriptsMenu, KeyEvent.VK_F, e -> MenuBarActions.exportAnimatedFramePNG(mainPanel));
+        createAndAddMenuItem("Export Animated Frame PNG", scriptsMenu, KeyEvent.VK_F, e -> ScriptActions.exportAnimatedFramePNG(mainPanel));
 
-        createAndAddMenuItem("Create Back2Back Animation", scriptsMenu, KeyEvent.VK_P, e -> MenuBarActions.combineAnimations(mainPanel));
+        createAndAddMenuItem("Create Back2Back Animation", scriptsMenu, KeyEvent.VK_P, e -> ScriptActions.combineAnimations(mainPanel));
 
-        createAndAddMenuItem("Change Animation Lengths by Scaling", scriptsMenu, KeyEvent.VK_A, e -> MenuBarActions.scaleAnimations(mainPanel));
+        createAndAddMenuItem("Change Animation Lengths by Scaling", scriptsMenu, KeyEvent.VK_A, e -> ScriptActions.scaleAnimations(mainPanel));
 
         createAndAddMenuItem("Assign FormatVersion 800", scriptsMenu, KeyEvent.VK_A, e -> mainPanel.currentMDL().setFormatVersion(800));
 
@@ -618,7 +618,7 @@ public class MenuBar {
         final JMenuItem jokebutton = new JMenuItem("Load Retera Land");
         jokebutton.setMnemonic(KeyEvent.VK_A);
         jokebutton.addActionListener(e -> {
-            MenuBarActions.jokeButtonClickResponse(mainPanel);
+            ScriptActions.jokeButtonClickResponse(mainPanel);
         });
 //		scriptsMenu.add(jokebutton);
     }

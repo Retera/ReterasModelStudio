@@ -3,8 +3,14 @@ package com.hiveworkshop.rms.ui.application;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
+import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
+import com.hiveworkshop.rms.parsers.slk.GameObject;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DoodadTabTreeBrowserBuilder;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.UnitFields;
+import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPane;
 import com.hiveworkshop.rms.ui.browsers.mpq.MPQBrowser;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarActionButtonType;
@@ -14,6 +20,7 @@ import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.util.War3ID;
 import jassimp.AiPostProcessSteps;
 import jassimp.AiScene;
 import jassimp.Jassimp;
@@ -21,8 +28,11 @@ import net.infonode.docking.SplitWindow;
 import net.infonode.docking.View;
 
 import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -404,6 +414,119 @@ public class MPQBrowserView {
 
         if (mainPanel.prefs.isLoadPortraits() && GameDataFileSystem.getDefault().has(portrait)) {
             loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(portrait), true, false, icon);
+        }
+    }
+
+    static void OpenDoodadViewer(MainPanel mainPanel) {
+        final UnitEditorTree unitEditorTree = new UnitEditorTree(MenuBarActions.getDoodadData(), new DoodadTabTreeBrowserBuilder(),
+                MainLayoutCreator.getUnitEditorSettings(), MutableObjectData.WorldEditorDataType.DOODADS);
+        unitEditorTree.selectFirstUnit();
+
+        unitEditorTree.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(final MouseEvent e) {
+                try {
+                    dodadViewerMouseClick(e, unitEditorTree, mainPanel);
+                } catch (final Exception exc) {
+                    exc.printStackTrace();
+                    ExceptionPopup.display(exc);
+                }
+            }
+        });
+        mainPanel.rootWindow.setWindow(new SplitWindow(true, 0.75f, mainPanel.rootWindow.getWindow(),
+                new View("Doodad Browser",
+                        new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
+                        new JScrollPane(unitEditorTree))));
+    }
+
+    private static void dodadViewerMouseClick(MouseEvent e, UnitEditorTree unitEditorTree, MainPanel mainPanel) {
+        if (e.getClickCount() >= 2) {
+            final TreePath currentUnitTreePath = unitEditorTree.getSelectionPath();
+            if (currentUnitTreePath != null) {
+                final DefaultMutableTreeNode o = (DefaultMutableTreeNode) currentUnitTreePath .getLastPathComponent();
+                if (o.getUserObject() instanceof MutableObjectData.MutableGameObject) {
+                    final MutableObjectData.MutableGameObject obj = (MutableObjectData.MutableGameObject) o.getUserObject();
+                    final int numberOfVariations = obj.getFieldAsInteger(War3ID.fromString("dvar"), 0);
+                    if (numberOfVariations > 1) {
+                        for (int i = 0; i < numberOfVariations; i++) {
+                            String prePath = obj.getFieldAsString(War3ID.fromString("dfil"), 0) + i + ".mdl";
+                            loadMdxStream(obj, prePath, mainPanel, i == 0);
+                        }
+                    } else {
+                        String prePath = obj.getFieldAsString(War3ID.fromString("dfil"), 0);
+                        loadMdxStream(obj, prePath, mainPanel, true);
+                    }
+                    mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
+                            "Allows the user to control which parts of the model are displayed for editing.");
+                    mainPanel.toolsMenu.setEnabled(true);
+                }
+            }
+        }
+    }
+
+    static void fetchObject(MainPanel mainPanel) {
+        final MutableObjectData.MutableGameObject objectFetched = ImportFileActions.fetchObject(mainPanel);
+        if (objectFetched != null) {
+            final String filepath = ImportFileActions.convertPathToMDX(objectFetched.getFieldAsString(UnitFields.MODEL_FILE, 0));
+            if (filepath != null) {
+                loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(filepath), true, true,
+                        new ImageIcon(BLPHandler.get()
+                                .getGameTex(objectFetched.getFieldAsString(UnitFields.INTERFACE_ICON, 0))
+                                .getScaledInstance(16, 16, Image.SCALE_FAST)));
+                final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
+                        + filepath.substring(filepath.lastIndexOf('.'));
+                if (mainPanel.prefs.isLoadPortraits() && GameDataFileSystem.getDefault().has(portrait)) {
+                    loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(portrait), true, false,
+                            new ImageIcon(BLPHandler.get()
+                                    .getGameTex(objectFetched.getFieldAsString(UnitFields.INTERFACE_ICON, 0))
+                                    .getScaledInstance(16, 16, Image.SCALE_FAST)));
+                }
+                mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
+                        "Allows the user to control which parts of the model are displayed for editing.");
+                mainPanel.toolsMenu.setEnabled(true);
+            }
+        }
+    }
+
+    static void fetchModel(MainPanel mainPanel) {
+        final ModelOptionPane.ModelElement model = ImportFileActions.fetchModel(mainPanel);
+        if (model != null) {
+            final String filepath = ImportFileActions.convertPathToMDX(model.getFilepath());
+            if (filepath != null) {
+
+                final ImageIcon icon = model.hasCachedIconPath() ? new ImageIcon(BLPHandler.get()
+                        .getGameTex(model.getCachedIconPath()).getScaledInstance(16, 16, Image.SCALE_FAST))
+                        : MDLIcon;
+                loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(filepath), true, true, icon);
+                final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
+                        + filepath.substring(filepath.lastIndexOf('.'));
+                if (mainPanel.prefs.isLoadPortraits() && GameDataFileSystem.getDefault().has(portrait)) {
+                    loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(portrait), true, false, icon);
+                }
+                mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
+                        "Allows the user to control which parts of the model are displayed for editing.");
+                mainPanel.toolsMenu.setEnabled(true);
+            }
+        }
+    }
+
+    static void fetchUnit(MainPanel mainPanel) {
+        final GameObject unitFetched = ImportFileActions.fetchUnit(mainPanel);
+        if (unitFetched != null) {
+            final String filepath = ImportFileActions.convertPathToMDX(unitFetched.getField("file"));
+            if (filepath != null) {
+                loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(filepath), true, true,
+                        unitFetched.getScaledIcon(0.25f));
+                final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
+                        + filepath.substring(filepath.lastIndexOf('.'));
+                if (mainPanel.prefs.isLoadPortraits() && GameDataFileSystem.getDefault().has(portrait)) {
+                    loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(portrait), true, false,
+                            unitFetched.getScaledIcon(0.25f));
+                }
+                mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
+                        "Allows the user to control which parts of the model are displayed for editing.");
+                mainPanel.toolsMenu.setEnabled(true);
+            }
         }
     }
 }

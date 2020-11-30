@@ -22,8 +22,7 @@ public class ExportTextureDialog {
         mainPanel.exportTextureDialog.setDialogTitle("Export Texture");
         final String[] imageTypes = ImageIO.getWriterFileSuffixes();
         for (final String suffix : imageTypes) {
-            mainPanel.exportTextureDialog
-                    .addChoosableFileFilter(new FileNameExtensionFilter(suffix.toUpperCase() + " Image File", suffix));
+            mainPanel.exportTextureDialog.addChoosableFileFilter(new FileNameExtensionFilter(suffix.toUpperCase() + " Image File", suffix));
         }
     }
 
@@ -49,8 +48,7 @@ public class ExportTextureDialog {
             materials.addElement(mat);
         }
         for (final ParticleEmitter2 emitter2 : mainPanel.currentMDL().sortedIdObjects(ParticleEmitter2.class)) {
-            final Material dummyMaterial = new Material(
-                    new Layer("Blend", mainPanel.currentMDL().getTexture(emitter2.getTextureID())));
+            final Material dummyMaterial = new Material(new Layer("Blend", mainPanel.currentMDL().getTexture(emitter2.getTextureID())));
         }
 
         final JList<Material> materialsList = new JList<>(materials);
@@ -79,12 +77,11 @@ public class ExportTextureDialog {
                     if (file.getName().lastIndexOf('.') >= 0) {
                         BufferedImage bufferedImage = materialsList.getSelectedValue()
                                 .getBufferedImage(mainPanel.currentMDL().getWrappedDataSource());
-                        String fileExtension = file.getName().substring(file.getName().lastIndexOf('.') + 1)
-                                .toUpperCase();
-                        if (fileExtension.equals("BMP") || fileExtension.equals("JPG")
-                                || fileExtension.equals("JPEG")) {
+                        String fileExtension = file.getName().substring(file.getName().lastIndexOf('.') + 1).toUpperCase();
+                        if (fileExtension.equals("BMP") || fileExtension.equals("JPG") || fileExtension.equals("JPEG")) {
                             JOptionPane.showMessageDialog(mainPanel,
-                                    "Warning: Alpha channel was converted to black. Some data will be lost\nif you convert this texture back to Warcraft BLP.");
+                                    "Warning: Alpha channel was converted to black. Some data will be lost" +
+                                            "\nif you convert this texture back to Warcraft BLP.");
                             bufferedImage = BLPHandler.removeAlphaChannel(bufferedImage);
                         }
                         if (fileExtension.equals("BLP")) {
@@ -108,7 +105,7 @@ public class ExportTextureDialog {
     }
 
     public static class TextureExporterImpl implements TextureExporter {
-        private MainPanel mainPanel;
+        private final MainPanel mainPanel;
 
         public TextureExporterImpl(MainPanel mainPanel) {
             this.mainPanel = mainPanel;
@@ -121,33 +118,36 @@ public class ExportTextureDialog {
         @Override
         public void showOpenDialog(final String suggestedName, final TextureExporterClickListener fileHandler,
                                    final Component parent) {
-            if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
-                final EditableModel current = mainPanel.currentMDL();
-                if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
-                    mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
-                } else if (mainPanel.profile.getPath() != null) {
-                    mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
-                }
-            }
-            if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
-                mainPanel.exportTextureDialog.setSelectedFile(new File(
-                        mainPanel.exportTextureDialog.getCurrentDirectory() + File.separator + suggestedName));
-            }
-            final int showOpenDialog = mainPanel.exportTextureDialog.showOpenDialog(parent);
-            if (showOpenDialog == JFileChooser.APPROVE_OPTION) {
-                final File file = mainPanel.exportTextureDialog.getSelectedFile();
-                if (file != null) {
-                    fileHandler.onClickOK(file, mainPanel.exportTextureDialog.getFileFilter());
-                } else {
-                    JOptionPane.showMessageDialog(parent, "No import file was specified");
-                }
-            }
+            setCurrentDirectory(suggestedName);
+            showWarningDialog(fileHandler, parent, false);
         }
 
         @Override
         public void exportTexture(final String suggestedName, final TextureExporterClickListener fileHandler,
                                   final Component parent) {
+            setCurrentDirectory(suggestedName);
+            showWarningDialog(fileHandler, parent, true);
+        }
 
+        private void showWarningDialog(TextureExporterClickListener fileHandler, Component parent, boolean checkForFileExtention) {
+            final int showOpenDialog = mainPanel.exportTextureDialog.showOpenDialog(parent);
+            if (showOpenDialog == JFileChooser.APPROVE_OPTION) {
+                final File file = mainPanel.exportTextureDialog.getSelectedFile();
+                if (file != null) {
+                    if (!checkForFileExtention || file.getName().lastIndexOf('.') >= 0) {
+                        fileHandler.onClickOK(file, mainPanel.exportTextureDialog.getFileFilter());
+                    } else {
+                        JOptionPane.showMessageDialog(parent, "No file type was specified");
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(parent, "No file was specified");
+//                    JOptionPane.showMessageDialog(parent, "No import file was specified");
+//                    JOptionPane.showMessageDialog(parent, "No output file was specified");
+                }
+            }
+        }
+
+        private void setCurrentDirectory(String suggestedName) {
             if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
                 final EditableModel current = mainPanel.currentMDL();
                 if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
@@ -157,27 +157,7 @@ public class ExportTextureDialog {
                 }
             }
             if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
-                mainPanel.exportTextureDialog.setSelectedFile(new File(
-                        mainPanel.exportTextureDialog.getCurrentDirectory() + File.separator + suggestedName));
-            }
-
-            final int x = mainPanel.exportTextureDialog.showSaveDialog(parent);
-            if (x == JFileChooser.APPROVE_OPTION) {
-                final File file = mainPanel.exportTextureDialog.getSelectedFile();
-                if (file != null) {
-                    try {
-                        if (file.getName().lastIndexOf('.') >= 0) {
-                            fileHandler.onClickOK(file, mainPanel.exportTextureDialog.getFileFilter());
-                        } else {
-                            JOptionPane.showMessageDialog(parent, "No file type was specified");
-                        }
-                    } catch (final Exception e2) {
-                        ExceptionPopup.display(e2);
-                        e2.printStackTrace();
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(parent, "No output file was specified");
-                }
+                mainPanel.exportTextureDialog.setSelectedFile(new File(mainPanel.exportTextureDialog.getCurrentDirectory() + File.separator + suggestedName));
             }
         }
 

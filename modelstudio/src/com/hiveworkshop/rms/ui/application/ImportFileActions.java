@@ -66,48 +66,6 @@ public class ImportFileActions {
         }
 
         mainPanel.fc.setSelectedFile(null);
-
-        // //Special thanks to the JWSFileChooserDemo from oracle's Java
-        // tutorials, from which many ideas were borrowed for the
-        // following
-        // FileOpenService fos = null;
-        // FileContents fileContents = null;
-        //
-        // try
-        // {
-        // fos =
-        // (FileOpenService)ServiceManager.lookup("javax.jnlp.FileOpenService");
-        // }
-        // catch (UnavailableServiceException exc )
-        // {
-        //
-        // }
-        //
-        // if( fos != null )
-        // {
-        // try
-        // {
-        // fileContents = fos.openFileDialog(null, null);
-        // }
-        // catch (Exception exc )
-        // {
-        // JOptionPane.showMessageDialog(this,"Opening command failed:
-        // "+exc.getLocalizedMessage());
-        // }
-        // }
-        //
-        // if( fileContents != null)
-        // {
-        // try
-        // {
-        // fileContents.getName();
-        // }
-        // catch (IOException exc)
-        // {
-        // JOptionPane.showMessageDialog(this,"Problem opening file:
-        // "+exc.getLocalizedMessage());
-        // }
-        // }
         ToolBar.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
     }
 
