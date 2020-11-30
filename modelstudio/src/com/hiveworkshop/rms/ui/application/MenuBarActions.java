@@ -65,7 +65,7 @@ import java.util.List;
 public class MenuBarActions {
     static final ImageIcon POWERED_BY_HIVE = RMSIcons.loadHiveBrowserImageIcon("powered_by_hive.png");
 
-    static void combineAnimsActionRes(MainPanel mainPanel) {
+    static void combineAnimations(MainPanel mainPanel) {
         final List<Animation> anims = mainPanel.currentMDL().getAnims();
         final Animation[] array = anims.toArray(new Animation[0]);
         final Object choice = JOptionPane.showInputDialog(mainPanel, "Pick the first animation",
@@ -101,7 +101,7 @@ public class MenuBarActions {
         }
     }
 
-    static void exportAnimatedFramePNGActionRes(MainPanel mainPanel) {
+    static void exportAnimatedFramePNG(MainPanel mainPanel) {
         final BufferedImage fBufferedImage = mainPanel.currentModelPanel().getAnimationViewer().getBufferedImage();
 
         if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
@@ -155,7 +155,7 @@ public class MenuBarActions {
         }
     }
 
-    static void exportAnimatedToStaticMeshActionRes(MainPanel mainPanel) {
+    static void exportAnimatedToStaticMesh(MainPanel mainPanel) {
         if (!mainPanel.animationModeState) {
             JOptionPane.showMessageDialog(mainPanel, "You must be in the Animation Editor to use that!",
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -167,15 +167,19 @@ public class MenuBarActions {
         final Vec4 normalHeap = new Vec4();
         final Vec4 appliedNormalHeap = new Vec4();
         final Vec4 normalSumHeap = new Vec4();
+
         final ModelPanel modelContext = mainPanel.currentModelPanel();
         final RenderModel editorRenderModel = modelContext.getEditorRenderModel();
         final EditableModel model = modelContext.getModel();
         final ModelViewManager modelViewManager = modelContext.getModelViewManager();
+
         final EditableModel snapshotModel = EditableModel.deepClone(model, model.getHeaderName() + "At"
                 + editorRenderModel.getAnimatedRenderEnvironment().getAnimationTime());
+
         for (int geosetIndex = 0; geosetIndex < snapshotModel.getGeosets().size(); geosetIndex++) {
             final Geoset geoset = model.getGeoset(geosetIndex);
             final Geoset snapshotGeoset = snapshotModel.getGeoset(geosetIndex);
+
             for (int vertexIndex = 0; vertexIndex < geoset.getVertices().size(); vertexIndex++) {
                 final GeosetVertex vertex = geoset.getVertex(vertexIndex);
                 final GeosetVertex snapshotVertex = snapshotGeoset.getVertex(vertexIndex);
@@ -184,12 +188,15 @@ public class MenuBarActions {
                 vertexHeap.y = (float) vertex.y;
                 vertexHeap.z = (float) vertex.z;
                 vertexHeap.w = 1;
+
                 if (bones.size() > 0) {
+
                     vertexSumHeap.set(0, 0, 0, 0);
                     for (final Bone bone : bones) {
                         editorRenderModel.getRenderNode(bone).getWorldMatrix().transform(vertexHeap, appliedVertexHeap);
                         vertexSumHeap.add(appliedVertexHeap);
                     }
+
                     final int boneCount = bones.size();
                     vertexSumHeap.x /= boneCount;
                     vertexSumHeap.y /= boneCount;
@@ -207,6 +214,7 @@ public class MenuBarActions {
                 normalHeap.z = (float) vertex.getNormal().z;
                 normalHeap.w = 0;
                 if (bones.size() > 0) {
+
                     normalSumHeap.set(0, 0, 0, 0);
                     for (final Bone bone : bones) {
                         editorRenderModel.getRenderNode(bone).getWorldMatrix().transform(normalHeap, appliedNormalHeap);
@@ -230,22 +238,27 @@ public class MenuBarActions {
         final Bone boneRoot = new Bone("Bone_Root");
         boneRoot.setPivotPoint(new Vec3(0, 0, 0));
         snapshotModel.add(boneRoot);
+
         for (final Geoset geoset : snapshotModel.getGeosets()) {
             for (final GeosetVertex vertex : geoset.getVertices()) {
                 vertex.getBones().clear();
                 vertex.getBones().add(boneRoot);
             }
         }
+
         final Iterator<Geoset> geosetIterator = snapshotModel.getGeosets().iterator();
+
         while (geosetIterator.hasNext()) {
             final Geoset geoset = geosetIterator.next();
             final GeosetAnim geosetAnim = geoset.getGeosetAnim();
+
             if (geosetAnim != null) {
-                final Object visibilityValue = geosetAnim.getVisibilityFlag()
-                        .interpolateAt(editorRenderModel.getAnimatedRenderEnvironment());
+                final Object visibilityValue = geosetAnim.getVisibilityFlag().interpolateAt(editorRenderModel.getAnimatedRenderEnvironment());
+
                 if (visibilityValue instanceof Float) {
                     final Float visibility = (Float) visibilityValue;
                     final double visvalue = visibility;
+
                     if (visvalue < 0.01) {
                         geosetIterator.remove();
                         snapshotModel.remove(geosetAnim);
@@ -288,7 +301,7 @@ public class MenuBarActions {
         }
     }
 
-    static void jokeButtonActionResponse(MainPanel mainPanel) {
+    static void jokeButtonClickResponse(MainPanel mainPanel) {
         final StringBuilder sb = new StringBuilder();
         for (final File file : new File(
                 "C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\CustomMapData\\LuaFpsMap\\Maps\\MultiplayerFun004")
@@ -342,92 +355,66 @@ public class MenuBarActions {
         mainPanel.modelStructureChangeListener.geosetsAdded(new ArrayList<>(mainPanel.currentMDL().getGeosets()));
     }
 
-    static AbstractAction getSnapVerticiesAction(final MainPanel mainPanel) {
-        return new AbstractAction("Snap Vertices") {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                final ModelPanel mpanel = mainPanel.currentModelPanel();
-                if (mpanel != null) {
-                    mpanel.getUndoManager()
-                            .pushAction(mpanel.getModelEditorManager().getModelEditor().snapSelectedVertices());
-                }
-                mainPanel.repaint();
-            }
-        };
+    static void snapVerticies(MainPanel mainPanel) {
+        final ModelPanel mpanel = mainPanel.currentModelPanel();
+        if (mpanel != null) {
+            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().snapSelectedVertices());
+        }
+        mainPanel.repaint();
     }
 
-    static AbstractAction getSnapNormalsAction(final MainPanel mainPanel) {
-        return new AbstractAction("Snap Normals") {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                final ModelPanel mpanel = mainPanel.currentModelPanel();
-                if (mpanel != null) {
-                    mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().snapNormals());
-                }
-                mainPanel.repaint();
-            }
-        };
+    static void snapNormals(MainPanel mainPanel) {
+        final ModelPanel mpanel = mainPanel.currentModelPanel();
+        if (mpanel != null) {
+            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().snapNormals());
+        }
+        mainPanel.repaint();
     }
 
-    static AbstractAction getRecalculateNormalsAction(final MainPanel mainPanel) {
-        return new AbstractAction("RecalculateNormals") {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                final ModelPanel mpanel = mainPanel.currentModelPanel();
-                if (mpanel != null) {
-                    mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().recalcNormals());
-                }
-                mainPanel.repaint();
-            }
-        };
+    static void recalculateNormals(MainPanel mainPanel) {
+        final ModelPanel mpanel = mainPanel.currentModelPanel();
+        if (mpanel != null) {
+            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().recalcNormals());
+        }
+        mainPanel.repaint();
     }
 
-    static AbstractAction getRecalculateExtentsAction(final MainPanel mainPanel) {
-        return new AbstractAction("RecalculateExtents") {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                final ModelPanel mpanel = mainPanel.currentModelPanel();
-                if (mpanel != null) {
-                    final JPanel messagePanel = new JPanel(new MigLayout());
-                    messagePanel.add(new JLabel("This will calculate the extents of all model components. Proceed?"),
-                            "wrap");
-                    messagePanel.add(new JLabel("(It may destroy existing extents)"), "wrap");
-                    final JRadioButton considerAllBtn = new JRadioButton("Consider all geosets for calculation");
-                    final JRadioButton considerCurrentBtn = new JRadioButton(
-                            "Consider current editable geosets for calculation");
-                    final ButtonGroup buttonGroup = new ButtonGroup();
-                    buttonGroup.add(considerAllBtn);
-                    buttonGroup.add(considerCurrentBtn);
-                    considerAllBtn.setSelected(true);
-                    messagePanel.add(considerAllBtn, "wrap");
-                    messagePanel.add(considerCurrentBtn, "wrap");
-                    final int userChoice = JOptionPane.showConfirmDialog(mainPanel, messagePanel, "Message",
-                            JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-                    if (userChoice == JOptionPane.YES_OPTION) {
-                        mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor()
-                                .recalcExtents(considerCurrentBtn.isSelected()));
-                    }
-                }
-                mainPanel.repaint();
+    static void recalculateExtents(MainPanel mainPanel) {
+        final ModelPanel mpanel = mainPanel.currentModelPanel();
+        if (mpanel != null) {
+            final JPanel messagePanel = new JPanel(new MigLayout());
+            messagePanel.add(new JLabel("This will calculate the extents of all model components. Proceed?"),
+                    "wrap");
+            messagePanel.add(new JLabel("(It may destroy existing extents)"), "wrap");
+            final JRadioButton considerAllBtn = new JRadioButton("Consider all geosets for calculation");
+            final JRadioButton considerCurrentBtn = new JRadioButton(
+                    "Consider current editable geosets for calculation");
+            final ButtonGroup buttonGroup = new ButtonGroup();
+            buttonGroup.add(considerAllBtn);
+            buttonGroup.add(considerCurrentBtn);
+            considerAllBtn.setSelected(true);
+            messagePanel.add(considerAllBtn, "wrap");
+            messagePanel.add(considerCurrentBtn, "wrap");
+            final int userChoice = JOptionPane.showConfirmDialog(mainPanel, messagePanel, "Message",
+                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+            if (userChoice == JOptionPane.YES_OPTION) {
+                mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor()
+                        .recalcExtents(considerCurrentBtn.isSelected()));
             }
-        };
+        }
+        mainPanel.repaint();
     }
 
-    static AbstractAction getMirrorAxisAction(final MainPanel mainPanel, String s, byte i) {
-        return new AbstractAction(s) {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                final ModelPanel mpanel = mainPanel.currentModelPanel();
-                if (mpanel != null) {
-                    final Vec3 selectionCenter = mpanel.getModelEditorManager().getModelEditor().getSelectionCenter();
-                    mpanel.getUndoManager()
-                            .pushAction(mpanel.getModelEditorManager().getModelEditor().mirror(i,
-                                    mainPanel.mirrorFlip.isSelected(), selectionCenter.x, selectionCenter.y,
-                                    selectionCenter.z));
-                }
-                mainPanel.repaint();
-            }
-        };
+    static void mirrorAxis(MainPanel mainPanel, byte i) {
+        final ModelPanel mpanel = mainPanel.currentModelPanel();
+        if (mpanel != null) {
+            final Vec3 selectionCenter = mpanel.getModelEditorManager().getModelEditor().getSelectionCenter();
+            mpanel.getUndoManager()
+                    .pushAction(mpanel.getModelEditorManager().getModelEditor().mirror(i,
+                            mainPanel.mirrorFlip.isSelected(), selectionCenter.x, selectionCenter.y,
+                            selectionCenter.z));
+        }
+        mainPanel.repaint();
     }
 
     static void updateUIFromProgramPreferences(JCheckBoxMenuItem fetchPortraitsToo, List<ModelPanel> modelPanels, ProgramPreferences prefs, JCheckBoxMenuItem showNormals, JCheckBoxMenuItem showVertexModifyControls, JRadioButtonMenuItem solid, JCheckBoxMenuItem textureModels, JRadioButtonMenuItem wireframe) {
@@ -486,73 +473,63 @@ public class MenuBarActions {
                 StandardObjectData.getStandardDoodadMeta(), editorData);
     }
 
-    static AbstractAction getOpenUnitViewerAction(MainPanel mainPanel) {
-        return new AbstractAction("Open Unit Browser") {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                final UnitEditorTree unitEditorTree = MainLayoutCreator.createUnitEditorTree(mainPanel);
-                mainPanel.rootWindow.setWindow(new SplitWindow(true, 0.75f, mainPanel.rootWindow.getWindow(),
-                        new View("Unit Browser",
-                                new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
-                                new JScrollPane(unitEditorTree))));
-            }
-        };
+    static void openUnitViewer(MainPanel mainPanel) {
+        final UnitEditorTree unitEditorTree = MainLayoutCreator.createUnitEditorTree(mainPanel);
+        mainPanel.rootWindow.setWindow(new SplitWindow(true, 0.75f, mainPanel.rootWindow.getWindow(),
+                new View("Unit Browser",
+                        new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
+                        new JScrollPane(unitEditorTree))));
     }
 
-    static AbstractAction getOpenHiveViewerAction(MainPanel mainPanel) {
-        return new AbstractAction("Open Hive Browser") {
+    static void openHiveViewer(MainPanel mainPanel) {
+        final JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+        panel.add(BorderLayout.BEFORE_FIRST_LINE, new JLabel(POWERED_BY_HIVE));
+        // final JPanel resourceFilters = new JPanel();
+        // resourceFilters.setBorder(BorderFactory.createTitledBorder("Resource
+        // Filters"));
+        // panel.add(BorderLayout.BEFORE_LINE_BEGINS, resourceFilters);
+        // resourceFilters.add(new JLabel("Resource Type"));
+        // resourceFilters.add(new JComboBox<>(new String[] { "Any" }));
+        final JList<String> view = new JList<>(
+                new String[]{"Bongo Bongo (Phantom Shadow Beast)", "Other Model", "Other Model"});
+        view.setCellRenderer(new DefaultListCellRenderer() {
             @Override
-            public void actionPerformed(final ActionEvent e) {
-                final JPanel panel = new JPanel();
-                panel.setLayout(new BorderLayout());
-                panel.add(BorderLayout.BEFORE_FIRST_LINE, new JLabel(POWERED_BY_HIVE));
-                // final JPanel resourceFilters = new JPanel();
-                // resourceFilters.setBorder(BorderFactory.createTitledBorder("Resource
-                // Filters"));
-                // panel.add(BorderLayout.BEFORE_LINE_BEGINS, resourceFilters);
-                // resourceFilters.add(new JLabel("Resource Type"));
-                // resourceFilters.add(new JComboBox<>(new String[] { "Any" }));
-                final JList<String> view = new JList<>(
-                        new String[]{"Bongo Bongo (Phantom Shadow Beast)", "Other Model", "Other Model"});
-                view.setCellRenderer(new DefaultListCellRenderer() {
-                    @Override
-                    public Component getListCellRendererComponent(final JList<?> list, final Object value,
-                                                                  final int index, final boolean isSelected, final boolean cellHasFocus) {
-                        final Component listCellRendererComponent = super.getListCellRendererComponent(list, value, index,
-                                isSelected, cellHasFocus);
-                        final ImageIcon icon = new ImageIcon(MainPanel.class.getResource("ImageBin/deleteme.png"));
-                        setIcon(new ImageIcon(icon.getImage().getScaledInstance(48, 32, Image.SCALE_DEFAULT)));
-                        return listCellRendererComponent;
-                    }
-                });
-                panel.add(BorderLayout.BEFORE_LINE_BEGINS, new JScrollPane(view));
-
-                final JPanel tags = new JPanel();
-                tags.setBorder(BorderFactory.createTitledBorder("Tags"));
-                tags.setLayout(new GridLayout(30, 1));
-                tags.add(new JCheckBox("Results must include all selected tags"));
-                tags.add(new JSeparator());
-                tags.add(new JLabel("Types (Models)"));
-                tags.add(new JSeparator());
-                tags.add(new JCheckBox("Building"));
-                tags.add(new JCheckBox("Doodad"));
-                tags.add(new JCheckBox("Item"));
-                tags.add(new JCheckBox("User Interface"));
-                panel.add(BorderLayout.CENTER, tags);
-                // final FloatingWindow floatingWindow =
-                // rootWindow.createFloatingWindow(rootWindow.getLocation(),
-                // mpqBrowser.getPreferredSize(),
-                // new View("MPQ Browser",
-                // new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16,
-                // Image.SCALE_FAST)),
-                // mpqBrowser));
-                // floatingWindow.getTopLevelAncestor().setVisible(true);
-                mainPanel.rootWindow.setWindow(new SplitWindow(true, 0.75f, mainPanel.rootWindow.getWindow(),
-                        new View("Hive Browser",
-                                new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
-                                panel)));
+            public Component getListCellRendererComponent(final JList<?> list, final Object value,
+                                                          final int index, final boolean isSelected, final boolean cellHasFocus) {
+                final Component listCellRendererComponent = super.getListCellRendererComponent(list, value, index,
+                        isSelected, cellHasFocus);
+                final ImageIcon icon = new ImageIcon(MainPanel.class.getResource("ImageBin/deleteme.png"));
+                setIcon(new ImageIcon(icon.getImage().getScaledInstance(48, 32, Image.SCALE_DEFAULT)));
+                return listCellRendererComponent;
             }
-        };
+        });
+        panel.add(BorderLayout.BEFORE_LINE_BEGINS, new JScrollPane(view));
+
+        final JPanel tags = new JPanel();
+        tags.setBorder(BorderFactory.createTitledBorder("Tags"));
+        tags.setLayout(new GridLayout(30, 1));
+        tags.add(new JCheckBox("Results must include all selected tags"));
+        tags.add(new JSeparator());
+        tags.add(new JLabel("Types (Models)"));
+        tags.add(new JSeparator());
+        tags.add(new JCheckBox("Building"));
+        tags.add(new JCheckBox("Doodad"));
+        tags.add(new JCheckBox("Item"));
+        tags.add(new JCheckBox("User Interface"));
+        panel.add(BorderLayout.CENTER, tags);
+        // final FloatingWindow floatingWindow =
+        // rootWindow.createFloatingWindow(rootWindow.getLocation(),
+        // mpqBrowser.getPreferredSize(),
+        // new View("MPQ Browser",
+        // new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16,
+        // Image.SCALE_FAST)),
+        // mpqBrowser));
+        // floatingWindow.getTopLevelAncestor().setVisible(true);
+        mainPanel.rootWindow.setWindow(new SplitWindow(true, 0.75f, mainPanel.rootWindow.getWindow(),
+                new View("Hive Browser",
+                        new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
+                        panel)));
     }
 
     static void OpenDoodadViewerActionRes(MainPanel mainPanel) {
@@ -602,138 +579,97 @@ public class MenuBarActions {
         }
     }
 
-    static AbstractAction getOpenPreferencesAction(MainPanel mainPanel) {
-        return new AbstractAction("Open Preferences") {
+    static void openPreferences(MainPanel mainPanel) {
+        final ProgramPreferences programPreferences = new ProgramPreferences();
+        programPreferences.loadFrom(mainPanel.prefs);
+        final List<DataSourceDescriptor> priorDataSources = SaveProfile.get().getDataSources();
+        final ProgramPreferencesPanel programPreferencesPanel = new ProgramPreferencesPanel(programPreferences,
+                priorDataSources);
+        // final JFrame frame = new JFrame("Preferences");
+        // frame.setIconImage(MainFrame.frame.getIconImage());
+        // frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        // frame.setContentPane(programPreferencesPanel);
+        // frame.pack();
+        // frame.setLocationRelativeTo(MainPanel.this);
+        // frame.setVisible(true);
 
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-
-                final ProgramPreferences programPreferences = new ProgramPreferences();
-                programPreferences.loadFrom(mainPanel.prefs);
-                final List<DataSourceDescriptor> priorDataSources = SaveProfile.get().getDataSources();
-                final ProgramPreferencesPanel programPreferencesPanel = new ProgramPreferencesPanel(programPreferences,
-                        priorDataSources);
-                // final JFrame frame = new JFrame("Preferences");
-                // frame.setIconImage(MainFrame.frame.getIconImage());
-                // frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                // frame.setContentPane(programPreferencesPanel);
-                // frame.pack();
-                // frame.setLocationRelativeTo(MainPanel.this);
-                // frame.setVisible(true);
-
-                final int ret = JOptionPane.showConfirmDialog(mainPanel, programPreferencesPanel, "Preferences",
-                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-                if (ret == JOptionPane.OK_OPTION) {
-                    mainPanel.prefs.loadFrom(programPreferences);
-                    final List<DataSourceDescriptor> dataSources = programPreferencesPanel.getDataSources();
-                    final boolean changedDataSources = (dataSources != null) && !dataSources.equals(priorDataSources);
-                    if (changedDataSources) {
-                        SaveProfile.get().setDataSources(dataSources);
-                    }
-                    SaveProfile.save();
-                    if (changedDataSources) {
-                        dataSourcesChanged(mainPanel.directoryChangeNotifier, mainPanel.modelPanels);
-                    }
-                    updateUIFromProgramPreferences(mainPanel.fetchPortraitsToo, mainPanel.modelPanels, mainPanel.prefs, mainPanel.showNormals, mainPanel.showVertexModifyControls, mainPanel.solid, mainPanel.textureModels, mainPanel.wireframe);
-                }
+        final int ret = JOptionPane.showConfirmDialog(mainPanel, programPreferencesPanel, "Preferences",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (ret == JOptionPane.OK_OPTION) {
+            mainPanel.prefs.loadFrom(programPreferences);
+            final List<DataSourceDescriptor> dataSources = programPreferencesPanel.getDataSources();
+            final boolean changedDataSources = (dataSources != null) && !dataSources.equals(priorDataSources);
+            if (changedDataSources) {
+                SaveProfile.get().setDataSources(dataSources);
             }
-        };
+            SaveProfile.save();
+            if (changedDataSources) {
+                dataSourcesChanged(mainPanel.directoryChangeNotifier, mainPanel.modelPanels);
+            }
+            updateUIFromProgramPreferences(mainPanel.fetchPortraitsToo, mainPanel.modelPanels, mainPanel.prefs, mainPanel.showNormals, mainPanel.showVertexModifyControls, mainPanel.solid, mainPanel.textureModels, mainPanel.wireframe);
+        }
     }
 
-    static AbstractAction getViewMatricesAction(final MainPanel mainPanel) {
-        return new AbstractAction("View Matrices") {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                final ModelPanel mpanel = mainPanel.currentModelPanel();
-                if (mpanel != null) {
-                    mpanel.viewMatrices();
-                }
-                mainPanel.repaint();
-            }
-        };
+    static void viewMatrices(MainPanel mainPanel) {
+        final ModelPanel mpanel = mainPanel.currentModelPanel();
+        if (mpanel != null) {
+            mpanel.viewMatrices();
+        }
+        mainPanel.repaint();
     }
 
-    static AbstractAction getInsideOutNormalsAction(final MainPanel mainPanel) {
-        return new AbstractAction("Inside Out Normals") {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                final ModelPanel mpanel = mainPanel.currentModelPanel();
-                if (mpanel != null) {
-                    mpanel.getUndoManager()
-                            .pushAction(mpanel.getModelEditorManager().getModelEditor().flipSelectedNormals());
-                }
-                mainPanel.repaint();
-            }
-        };
+    static void insideOutNormals(MainPanel mainPanel) {
+        final ModelPanel mpanel = mainPanel.currentModelPanel();
+        if (mpanel != null) {
+            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().flipSelectedNormals());
+        }
+        mainPanel.repaint();
     }
 
-    static AbstractAction getInsideOutAction(final MainPanel mainPanel) {
-        return new AbstractAction("Inside Out") {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                final ModelPanel mpanel = mainPanel.currentModelPanel();
-                if (mpanel != null) {
-                    mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().flipSelectedFaces());
-                }
-                mainPanel.repaint();
-            }
-        };
+    static void insideOut(MainPanel mainPanel) {
+        final ModelPanel mpanel = mainPanel.currentModelPanel();
+        if (mpanel != null) {
+            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().flipSelectedFaces());
+        }
+        mainPanel.repaint();
     }
 
-    static AbstractAction getInverseAllUVsAction(MainPanel mainPanel) {
-        return new AbstractAction("Swap UVs U for V") {
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                for (final Geoset geo : mainPanel.currentMDL().getGeosets()) {
-                    for (final GeosetVertex vertex : geo.getVertices()) {
-                        for (final Vec2 tvert : vertex.getTverts()) {
-                            final float temp = tvert.x;
-                            tvert.x = tvert.y;
-                            tvert.y = temp;
-                        }
-                    }
+    static void inverseAllUVs(MainPanel mainPanel) {
+        for (final Geoset geo : mainPanel.currentMDL().getGeosets()) {
+            for (final GeosetVertex vertex : geo.getVertices()) {
+                for (final Vec2 tvert : vertex.getTverts()) {
+                    final float temp = tvert.x;
+                    tvert.x = tvert.y;
+                    tvert.y = temp;
                 }
-                mainPanel.repaint();
             }
-        };
+        }
+        mainPanel.repaint();
     }
 
-    static AbstractAction getFlipAllUVsVAction(MainPanel mainPanel) {
-        return new AbstractAction("Flip All UVs V") {
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                for (final Geoset geo : mainPanel.currentMDL().getGeosets()) {
-                    for (final GeosetVertex vertex : geo.getVertices()) {
-                        for (final Vec2 tvert : vertex.getTverts()) {
-                            tvert.y = 1.0f - tvert.y;
-                        }
-                    }
+    static void flipAllUVsV(MainPanel mainPanel) {
+        for (final Geoset geo : mainPanel.currentMDL().getGeosets()) {
+            for (final GeosetVertex vertex : geo.getVertices()) {
+                for (final Vec2 tvert : vertex.getTverts()) {
+                    tvert.y = 1.0f - tvert.y;
                 }
-                mainPanel.repaint();
             }
-        };
+        }
+        mainPanel.repaint();
     }
 
-    static AbstractAction getFlipAllUVsUAction(MainPanel mainPanel) {
-        return new AbstractAction("Flip All UVs U") {
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                for (final Geoset geo : mainPanel.currentMDL().getGeosets()) {
-                    for (final GeosetVertex vertex : geo.getVertices()) {
-                        for (final Vec2 tvert : vertex.getTverts()) {
-                            tvert.x = 1.0f - tvert.x;
-                        }
-                    }
+    static void flipAllUVsU(MainPanel mainPanel) {
+        for (final Geoset geo : mainPanel.currentMDL().getGeosets()) {
+            for (final GeosetVertex vertex : geo.getVertices()) {
+                for (final Vec2 tvert : vertex.getTverts()) {
+                    tvert.x = 1.0f - tvert.x;
                 }
-                mainPanel.repaint();
             }
-        };
+        }
+        mainPanel.repaint();
     }
 
-    static void animFromFileActionRes(MainPanel mainPanel){
+    static void addAnimationFromFile(MainPanel mainPanel){
         mainPanel.fc.setDialogTitle("Animation Source");
         final EditableModel current = mainPanel.currentMDL();
         if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
@@ -806,7 +742,7 @@ public class MenuBarActions {
         // JOptionPane.showMessageDialog(this,new JScrollPane(epane));
     }
 
-    static void animFromObjectActionRes(MainPanel mainPanel){
+    static void addAnimationFromObject(MainPanel mainPanel){
         mainPanel.fc.setDialogTitle("Animation Source");
         final MutableObjectData.MutableGameObject fetchResult = ImportFileActions.fetchObject(mainPanel);
         if (fetchResult != null) {
@@ -815,7 +751,7 @@ public class MenuBarActions {
         }
     }
 
-    static void animFromModelActionRes(MainPanel mainPanel){
+    static void addAnimFromModel(MainPanel mainPanel){
         mainPanel.fc.setDialogTitle("Animation Source");
         final ModelOptionPane.ModelElement fetchResult = ImportFileActions.fetchModel(mainPanel);
         if (fetchResult != null) {
@@ -824,7 +760,7 @@ public class MenuBarActions {
         }
     }
 
-    static void animFromUnitActionRes(MainPanel mainPanel){
+    static void addAnimationFromUnit(MainPanel mainPanel){
         mainPanel.fc.setDialogTitle("Animation Source");
         final GameObject fetchResult = ImportFileActions.fetchUnit(mainPanel);
         if (fetchResult != null) {
@@ -971,15 +907,6 @@ public class MenuBarActions {
         JOptionPane.showMessageDialog(mainPanel, "Done!");
     }
 
-    static void simplifyKeyframesActionRes(MainPanel mainPanel) {
-        final int x = JOptionPane.showConfirmDialog(mainPanel,
-                "This is an irreversible process that will lose some of your model data,\nin exchange for making it a smaller storage size.\n\nContinue and simplify keyframes?",
-                "Warning: Simplify Keyframes", JOptionPane.OK_CANCEL_OPTION);
-        if (x == JOptionPane.OK_OPTION) {
-            simplifyKeyframes(mainPanel);
-        }
-    }
-
     static void duplicateSelectionActionRes(MainPanel mainPanel) {
         // final int x = JOptionPane.showConfirmDialog(this,
         // "This is an irreversible process that will split selected
@@ -997,7 +924,7 @@ public class MenuBarActions {
         // }
     }
 
-    static void linearizeAnimationsActionRes(MainPanel mainPanel) {
+    static void linearizeAnimations(MainPanel mainPanel) {
         final int x = JOptionPane.showConfirmDialog(mainPanel,
                 "This is an irreversible process that will lose some of your model data,\nin exchange for making it a smaller storage size.\n\nContinue and simplify animations?",
                 "Warning: Linearize Animations", JOptionPane.OK_CANCEL_OPTION);
@@ -1009,7 +936,7 @@ public class MenuBarActions {
         }
     }
 
-    static void scaleAnimationsActionRes(MainPanel mainPanel) {
+    static void scaleAnimations(MainPanel mainPanel) {
         // if( disp.animpanel == null )
         // {
         // AnimationPanel panel = new UVPanel(disp);
@@ -1024,72 +951,7 @@ public class MenuBarActions {
         aFrame.setVisible(true);
     }
 
-    static void exportTexturesActionRes(MainPanel mainPanel) {
-        final DefaultListModel<Material> materials = new DefaultListModel<>();
-        for (int i = 0; i < mainPanel.currentMDL().getMaterials().size(); i++) {
-            final Material mat = mainPanel.currentMDL().getMaterials().get(i);
-            materials.addElement(mat);
-        }
-        for (final ParticleEmitter2 emitter2 : mainPanel.currentMDL().sortedIdObjects(ParticleEmitter2.class)) {
-            final Material dummyMaterial = new Material(
-                    new Layer("Blend", mainPanel.currentMDL().getTexture(emitter2.getTextureID())));
-        }
-
-        final JList<Material> materialsList = new JList<>(materials);
-        materialsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        materialsList.setCellRenderer(new MaterialListRenderer(mainPanel.currentMDL()));
-        JOptionPane.showMessageDialog(mainPanel, new JScrollPane(materialsList));
-
-        if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
-            final EditableModel current = mainPanel.currentMDL();
-            if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
-                mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
-            } else if (mainPanel.profile.getPath() != null) {
-                mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
-            }
-        }
-        if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
-            mainPanel.exportTextureDialog.setSelectedFile(new File(mainPanel.exportTextureDialog.getCurrentDirectory()
-                    + File.separator + materialsList.getSelectedValue().getName()));
-        }
-
-        final int x = mainPanel.exportTextureDialog.showSaveDialog(mainPanel);
-        if (x == JFileChooser.APPROVE_OPTION) {
-            final File file = mainPanel.exportTextureDialog.getSelectedFile();
-            if (file != null) {
-                try {
-                    if (file.getName().lastIndexOf('.') >= 0) {
-                        BufferedImage bufferedImage = materialsList.getSelectedValue()
-                                .getBufferedImage(mainPanel.currentMDL().getWrappedDataSource());
-                        String fileExtension = file.getName().substring(file.getName().lastIndexOf('.') + 1)
-                                .toUpperCase();
-                        if (fileExtension.equals("BMP") || fileExtension.equals("JPG")
-                                || fileExtension.equals("JPEG")) {
-                            JOptionPane.showMessageDialog(mainPanel,
-                                    "Warning: Alpha channel was converted to black. Some data will be lost\nif you convert this texture back to Warcraft BLP.");
-                            bufferedImage = BLPHandler.removeAlphaChannel(bufferedImage);
-                        }
-                        if (fileExtension.equals("BLP")) {
-                            fileExtension = "blp";
-                        }
-                        final boolean write = ImageIO.write(bufferedImage, fileExtension, file);
-                        if (!write) {
-                            JOptionPane.showMessageDialog(mainPanel, "File type unknown or unavailable");
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(mainPanel, "No file type was specified");
-                    }
-                } catch (final Exception e1) {
-                    ExceptionPopup.display(e1);
-                    e1.printStackTrace();
-                }
-            } else {
-                JOptionPane.showMessageDialog(mainPanel, "No output file was specified");
-            }
-        }
-    }
-
-    static void editUVsActionRes(MainPanel mainPanel) {
+    static void editUVs(MainPanel mainPanel) {
         final ModelPanel disp = mainPanel.currentModelPanel();
         if (disp.getEditUVPanel() == null) {
             final UVPanel panel = new UVPanel(disp, mainPanel.prefs, mainPanel.modelStructureChangeListener);
@@ -1116,8 +978,13 @@ public class MenuBarActions {
     }
 
     static void simplifyKeyframes(MainPanel mainPanel) {
-        final EditableModel currentMDL = mainPanel.currentMDL();
-        currentMDL.simplifyKeyframes();
+        final int x = JOptionPane.showConfirmDialog(mainPanel,
+                "This is an irreversible process that will lose some of your model data,\nin exchange for making it a smaller storage size.\n\nContinue and simplify keyframes?",
+                "Warning: Simplify Keyframes", JOptionPane.OK_CANCEL_OPTION);
+        if (x == JOptionPane.OK_OPTION) {
+            final EditableModel currentMDL = mainPanel.currentMDL();
+            currentMDL.simplifyKeyframes();
+        }
     }
 
     public static String incName(final String name) {
@@ -1301,7 +1168,7 @@ public class MenuBarActions {
         mainPanel.fc.setSelectedFile(null);
     }
 
-    static void fetchObjectActionRes(MainPanel mainPanel) {
+    static void fetchObject(MainPanel mainPanel) {
         final MutableObjectData.MutableGameObject objectFetched = ImportFileActions.fetchObject(mainPanel);
         if (objectFetched != null) {
             final String filepath = ImportFileActions.convertPathToMDX(objectFetched.getFieldAsString(UnitFields.MODEL_FILE, 0));
@@ -1325,7 +1192,7 @@ public class MenuBarActions {
         }
     }
 
-    static void fetchModelActionRes(MainPanel mainPanel) {
+    static void fetchModel(MainPanel mainPanel) {
         final ModelOptionPane.ModelElement model = ImportFileActions.fetchModel(mainPanel);
         if (model != null) {
             final String filepath = ImportFileActions.convertPathToMDX(model.getFilepath());
@@ -1347,7 +1214,7 @@ public class MenuBarActions {
         }
     }
 
-    static void fetchUnitActionRes(MainPanel mainPanel) {
+    static void fetchUnit(MainPanel mainPanel) {
         final GameObject unitFetched = ImportFileActions.fetchUnit(mainPanel);
         if (unitFetched != null) {
             final String filepath = ImportFileActions.convertPathToMDX(unitFetched.getField("file"));
@@ -1367,7 +1234,7 @@ public class MenuBarActions {
         }
     }
 
-    static void closePanelActionRes(MainPanel mainPanel) {
+    static void closePanel(MainPanel mainPanel) {
         final ModelPanel modelPanel = mainPanel.currentModelPanel();
         final int oldIndex = mainPanel.modelPanels.indexOf(modelPanel);
         if (modelPanel != null) {

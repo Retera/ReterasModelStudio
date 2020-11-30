@@ -897,12 +897,10 @@ public class MainPanel extends JPanel
     }
 
     private static void linkActions(final MainPanel mainPanel, final JComponent root) {
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control Z"),
-                "Undo");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control Z"),"Undo");
         root.getActionMap().put("Undo", mainPanel.undoAction);
 
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control Y"),
-                "Redo");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control Y"),"Redo");
         root.getActionMap().put("Redo", mainPanel.redoAction);
 
         root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("DELETE"), "Delete");
@@ -910,8 +908,7 @@ public class MainPanel extends JPanel
 
         root.getActionMap().put("CloneSelection", mainPanel.cloneAction);
 
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("SPACE"),
-                "MaximizeSpacebar");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("SPACE"),"MaximizeSpacebar");
         root.getActionMap().put("MaximizeSpacebar", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -930,8 +927,7 @@ public class MainPanel extends JPanel
             }
         });
 
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("RIGHT"),
-                "PressRight");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("RIGHT"),"PressRight");
         root.getActionMap().put("PressRight", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -945,8 +941,7 @@ public class MainPanel extends JPanel
             }
         });
 
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("LEFT"),
-                "PressLeft");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("LEFT"),"PressLeft");
         root.getActionMap().put("PressLeft", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -974,8 +969,7 @@ public class MainPanel extends JPanel
             }
         });
 
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("shift UP"),
-                "PressShiftUp");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("shift UP"),"PressShiftUp");
         root.getActionMap().put("PressShiftUp", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -989,8 +983,7 @@ public class MainPanel extends JPanel
             }
         });
 
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("DOWN"),
-                "PressDown");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("DOWN"),"PressDown");
         root.getActionMap().put("PressDown", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -1004,8 +997,7 @@ public class MainPanel extends JPanel
             }
         });
 
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("shift DOWN"),
-                "PressShiftDown");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("shift DOWN"),"PressShiftDown");
         root.getActionMap().put("PressShiftDown", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -1019,8 +1011,7 @@ public class MainPanel extends JPanel
             }
         });
 
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control SPACE"),
-                "PlayKeyboardKey");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control SPACE"),"PlayKeyboardKey");
         root.getActionMap().put("PlayKeyboardKey", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -1032,8 +1023,7 @@ public class MainPanel extends JPanel
             }
         });
 
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("W"),
-                "QKeyboardKey");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("W"),"QKeyboardKey");
         root.getActionMap().put("QKeyboardKey", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -1046,8 +1036,7 @@ public class MainPanel extends JPanel
             }
         });
 
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("E"),
-                "WKeyboardKey");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("E"),"WKeyboardKey");
         root.getActionMap().put("WKeyboardKey", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -1060,8 +1049,7 @@ public class MainPanel extends JPanel
             }
         });
 
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("R"),
-                "EKeyboardKey");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("R"),"EKeyboardKey");
         root.getActionMap().put("EKeyboardKey", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -1074,8 +1062,7 @@ public class MainPanel extends JPanel
             }
         });
 
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("T"),
-                "RKeyboardKey");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("T"),"RKeyboardKey");
         root.getActionMap().put("RKeyboardKey", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -1090,8 +1077,7 @@ public class MainPanel extends JPanel
             }
         });
 
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("Y"),
-                "TKeyboardKey");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("Y"),"TKeyboardKey");
         root.getActionMap().put("TKeyboardKey", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -1106,8 +1092,7 @@ public class MainPanel extends JPanel
             }
         });
 
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("A"),
-                "AKeyboardKey");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("A"),"AKeyboardKey");
         root.getActionMap().put("AKeyboardKey", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -1120,8 +1105,7 @@ public class MainPanel extends JPanel
             }
         });
 
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("S"),
-                "SKeyboardKey");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("S"),"SKeyboardKey");
         root.getActionMap().put("SKeyboardKey", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -1134,8 +1118,7 @@ public class MainPanel extends JPanel
             }
         });
 
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("D"),
-                "DKeyboardKey");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("D"),"DKeyboardKey");
         root.getActionMap().put("DKeyboardKey", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -1148,8 +1131,7 @@ public class MainPanel extends JPanel
             }
         });
 
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("F"),
-                "FKeyboardKey");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("F"),"FKeyboardKey");
         root.getActionMap().put("FKeyboardKey", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -1162,8 +1144,7 @@ public class MainPanel extends JPanel
             }
         });
 
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("G"),
-                "GKeyboardKey");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("G"),"GKeyboardKey");
         root.getActionMap().put("GKeyboardKey", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -1176,8 +1157,7 @@ public class MainPanel extends JPanel
             }
         });
 
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("Z"),
-                "ZKeyboardKey");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("Z"),"ZKeyboardKey");
         root.getActionMap().put("ZKeyboardKey", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -1189,8 +1169,7 @@ public class MainPanel extends JPanel
             }
         });
 
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control F"),
-                "CreateFaceShortcut");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control F"),"CreateFaceShortcut");
         root.getActionMap().put("CreateFaceShortcut", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
