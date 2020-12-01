@@ -10,6 +10,7 @@ import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
 import com.hiveworkshop.rms.parsers.w3o.WTSFile;
 import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
+import com.hiveworkshop.rms.ui.application.viewer.AnimationViewer;
 import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
@@ -33,6 +34,7 @@ import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.rtf.RTFEditorKit;
 import java.awt.*;
 import java.io.*;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
@@ -166,25 +168,25 @@ public class MenuBarActions {
         }
     }
 
-    static void createAndShowRtfPanel(String s, String about) {
-        final DefaultStyledDocument panel = new DefaultStyledDocument();
-        final JTextPane epane = new JTextPane();
-        epane.setForeground(Color.BLACK);
-        epane.setBackground(Color.WHITE);
+    static void createAndShowRtfPanel(String filePath, String title) {
+        final DefaultStyledDocument document = new DefaultStyledDocument();
+        final JTextPane textPane = new JTextPane();
+        textPane.setForeground(Color.BLACK);
+        textPane.setBackground(Color.WHITE);
         final RTFEditorKit rtfk = new RTFEditorKit();
         try {
-            rtfk.read(GameDataFileSystem.getDefault().getResourceAsStream(s), panel, 0);
-        } catch (final BadLocationException | IOException e1) {
+            rtfk.read(GameDataFileSystem.getDefault().getResourceAsStream(filePath), document, 0);
+        } catch (final BadLocationException | IOException e) {
             // TODO Auto-generated catch block
-            e1.printStackTrace();
+            e.printStackTrace();
         }
-        epane.setDocument(panel);
-        final JFrame frame = new JFrame(about);
-        frame.setContentPane(new JScrollPane(epane));
+        textPane.setDocument(document);
+        final JFrame frame = new JFrame(title);
+        frame.setContentPane(new JScrollPane(textPane));
         frame.setSize(650, 500);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-        // JOptionPane.showMessageDialog(this,new JScrollPane(epane));
+        // JOptionPane.showMessageDialog(this,new JScrollPane(textPane));
     }
 
     static void duplicateSelectionActionRes(MainPanel mainPanel) {
@@ -230,6 +232,85 @@ public class MenuBarActions {
                 }
             }
         }
+    }
+
+    static void newModel(MainPanel mainPanel) {
+        final JPanel newModelPanel = new JPanel();
+        newModelPanel.setLayout(new MigLayout());
+        newModelPanel.add(new JLabel("Model Name: "), "cell 0 0");
+        final JTextField newModelNameField = new JTextField("MrNew", 25);
+        newModelPanel.add(newModelNameField, "cell 1 0");
+        final JRadioButton createEmptyButton = new JRadioButton("Create Empty", true);
+        newModelPanel.add(createEmptyButton, "cell 0 1");
+        final JRadioButton createPlaneButton = new JRadioButton("Create Plane");
+        newModelPanel.add(createPlaneButton, "cell 0 2");
+        final JRadioButton createBoxButton = new JRadioButton("Create Box");
+        newModelPanel.add(createBoxButton, "cell 0 3");
+        final ButtonGroup buttonGroup = new ButtonGroup();
+        buttonGroup.add(createBoxButton);
+        buttonGroup.add(createPlaneButton);
+        buttonGroup.add(createEmptyButton);
+
+        final int userDialogResult = JOptionPane.showConfirmDialog(mainPanel, newModelPanel, "New Model",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (userDialogResult == JOptionPane.OK_OPTION) {
+            final EditableModel mdl = new EditableModel(newModelNameField.getText());
+            if (createBoxButton.isSelected()) {
+                final SpinnerNumberModel sModel = new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1);
+                final JSpinner spinner = new JSpinner(sModel);
+                final int userChoice = JOptionPane.showConfirmDialog(mainPanel, spinner, "Box: Choose Segments",
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                if (userChoice != JOptionPane.OK_OPTION) {
+                    return;
+                }
+                ModelUtils.createBox(mdl, new Vec3(64, 64, 128), new Vec3(-64, -64, 0),
+                        ((Number) spinner.getValue()).intValue());
+            } else if (createPlaneButton.isSelected()) {
+                final SpinnerNumberModel sModel = new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1);
+                final JSpinner spinner = new JSpinner(sModel);
+                final int userChoice = JOptionPane.showConfirmDialog(mainPanel, spinner, "Plane: Choose Segments",
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                if (userChoice != JOptionPane.OK_OPTION) {
+                    return;
+                }
+                ModelUtils.createGroundPlane(mdl, new Vec3(64, 64, 0), new Vec3(-64, -64, 0),
+                        ((Number) spinner.getValue()).intValue());
+            }
+            final ModelPanel temp = new ModelPanel(mainPanel, mdl, mainPanel.prefs, mainPanel, mainPanel.selectionItemTypeGroup,
+                    mainPanel.selectionModeGroup, mainPanel.modelStructureChangeListener, mainPanel.coordDisplayListener,
+                    mainPanel.viewportTransferHandler, mainPanel.activeViewportWatcher, RMSIcons.MDLIcon, false,
+                    mainPanel.textureExporter);
+            MPQBrowserView.loadModel(mainPanel, true, true, temp);
+        }
+
+    }
+
+    public static boolean closeOthers(MainPanel mainPanel, final ModelPanel panelToKeepOpen) {
+        boolean success = true;
+        final Iterator<ModelPanel> iterator = mainPanel.modelPanels.iterator();
+        boolean closedCurrentPanel = false;
+        ModelPanel lastUnclosedModelPanel = null;
+        while (iterator.hasNext()) {
+            final ModelPanel panel = iterator.next();
+            if (panel == panelToKeepOpen) {
+                lastUnclosedModelPanel = panel;
+                continue;
+            }
+            if (success = panel.close(mainPanel)) {
+                mainPanel.windowMenu.remove(panel.getMenuItem());
+                iterator.remove();
+                if (panel == mainPanel.currentModelPanel) {
+                    closedCurrentPanel = true;
+                }
+            } else {
+                lastUnclosedModelPanel = panel;
+                break;
+            }
+        }
+        if (closedCurrentPanel) {
+            MPQBrowserView.setCurrentModel(mainPanel, lastUnclosedModelPanel);
+        }
+        return success;
     }
 
     static void onClickSaveAs(MainPanel mainPanel) {
@@ -314,34 +395,6 @@ public class MenuBarActions {
         refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
     }
 
-    public static boolean closeOthers(MainPanel mainPanel, final ModelPanel panelToKeepOpen) {
-        boolean success = true;
-        final Iterator<ModelPanel> iterator = mainPanel.modelPanels.iterator();
-        boolean closedCurrentPanel = false;
-        ModelPanel lastUnclosedModelPanel = null;
-        while (iterator.hasNext()) {
-            final ModelPanel panel = iterator.next();
-            if (panel == panelToKeepOpen) {
-                lastUnclosedModelPanel = panel;
-                continue;
-            }
-            if (success = panel.close(mainPanel)) {
-                mainPanel.windowMenu.remove(panel.getMenuItem());
-                iterator.remove();
-                if (panel == mainPanel.currentModelPanel) {
-                    closedCurrentPanel = true;
-                }
-            } else {
-                lastUnclosedModelPanel = panel;
-                break;
-            }
-        }
-        if (closedCurrentPanel) {
-            MPQBrowserView.setCurrentModel(mainPanel, lastUnclosedModelPanel);
-        }
-        return success;
-    }
-
     static void onClickSave(MainPanel mainPanel) {
         try {
             if (mainPanel.currentMDL() != null) {
@@ -354,15 +407,6 @@ public class MenuBarActions {
             ExceptionPopup.display(exc);
         }
         refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
-    }
-
-    public static void refreshController(JScrollPane geoControl, JScrollPane geoControlModelData) {
-        if (geoControl != null) {
-            geoControl.repaint();
-        }
-        if (geoControlModelData != null) {
-            geoControlModelData.repaint();
-        }
     }
 
     static void onClickOpen(MainPanel mainPanel) {
@@ -383,57 +427,6 @@ public class MenuBarActions {
         mainPanel.fc.setSelectedFile(null);
     }
 
-    static void newModel(MainPanel mainPanel) {
-        final JPanel newModelPanel = new JPanel();
-        newModelPanel.setLayout(new MigLayout());
-        newModelPanel.add(new JLabel("Model Name: "), "cell 0 0");
-        final JTextField newModelNameField = new JTextField("MrNew", 25);
-        newModelPanel.add(newModelNameField, "cell 1 0");
-        final JRadioButton createEmptyButton = new JRadioButton("Create Empty", true);
-        newModelPanel.add(createEmptyButton, "cell 0 1");
-        final JRadioButton createPlaneButton = new JRadioButton("Create Plane");
-        newModelPanel.add(createPlaneButton, "cell 0 2");
-        final JRadioButton createBoxButton = new JRadioButton("Create Box");
-        newModelPanel.add(createBoxButton, "cell 0 3");
-        final ButtonGroup buttonGroup = new ButtonGroup();
-        buttonGroup.add(createBoxButton);
-        buttonGroup.add(createPlaneButton);
-        buttonGroup.add(createEmptyButton);
-
-        final int userDialogResult = JOptionPane.showConfirmDialog(mainPanel, newModelPanel, "New Model",
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (userDialogResult == JOptionPane.OK_OPTION) {
-            final EditableModel mdl = new EditableModel(newModelNameField.getText());
-            if (createBoxButton.isSelected()) {
-                final SpinnerNumberModel sModel = new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1);
-                final JSpinner spinner = new JSpinner(sModel);
-                final int userChoice = JOptionPane.showConfirmDialog(mainPanel, spinner, "Box: Choose Segments",
-                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-                if (userChoice != JOptionPane.OK_OPTION) {
-                    return;
-                }
-                ModelUtils.createBox(mdl, new Vec3(64, 64, 128), new Vec3(-64, -64, 0),
-                        ((Number) spinner.getValue()).intValue());
-            } else if (createPlaneButton.isSelected()) {
-                final SpinnerNumberModel sModel = new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1);
-                final JSpinner spinner = new JSpinner(sModel);
-                final int userChoice = JOptionPane.showConfirmDialog(mainPanel, spinner, "Plane: Choose Segments",
-                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-                if (userChoice != JOptionPane.OK_OPTION) {
-                    return;
-                }
-                ModelUtils.createGroundPlane(mdl, new Vec3(64, 64, 0), new Vec3(-64, -64, 0),
-                        ((Number) spinner.getValue()).intValue());
-            }
-            final ModelPanel temp = new ModelPanel(mainPanel, mdl, mainPanel.prefs, mainPanel, mainPanel.selectionItemTypeGroup,
-                    mainPanel.selectionModeGroup, mainPanel.modelStructureChangeListener, mainPanel.coordDisplayListener,
-                    mainPanel.viewportTransferHandler, mainPanel.activeViewportWatcher, RMSIcons.MDLIcon, false,
-                    mainPanel.textureExporter);
-            MPQBrowserView.loadModel(mainPanel, true, true, temp);
-        }
-
-    }
-
     public static void openFile(MainPanel mainPanel, final File f) {
         mainPanel.currentFile = f;
         mainPanel.profile.setPath(mainPanel.currentFile.getParent());
@@ -446,5 +439,49 @@ public class MenuBarActions {
         SaveProfile.get().addRecent(mainPanel.currentFile.getPath());
         MenuBar.updateRecent(mainPanel);
         MPQBrowserView.loadFile(mainPanel, mainPanel.currentFile);
+    }
+
+    public static void refreshController(JScrollPane geoControl, JScrollPane geoControlModelData) {
+        if (geoControl != null) {
+            geoControl.repaint();
+        }
+        if (geoControlModelData != null) {
+            geoControlModelData.repaint();
+        }
+    }
+
+    static View testItemResponse(MainPanel mainPanel) {
+        final JPanel testPanel = new JPanel();
+
+        for (int i = 0; i < 3; i++) {
+//					final ControlledAnimationViewer animationViewer = new ControlledAnimationViewer(
+//							currentModelPanel().getModelViewManager(), prefs);
+//					animationViewer.setMinimumSize(new Dimension(400, 400));
+//					final AnimationController animationController = new AnimationController(
+//							currentModelPanel().getModelViewManager(), true, animationViewer);
+
+            final AnimationViewer animationViewer2 = new AnimationViewer(
+                    mainPanel.currentModelPanel().getModelViewManager(), mainPanel.prefs, false);
+            animationViewer2.setMinimumSize(new Dimension(400, 400));
+            testPanel.add(animationViewer2);
+//					testPanel.add(animationController);
+        }
+        testPanel.setLayout(new GridLayout(1, 4));
+        return new View("Test", null, testPanel);
+    }
+
+    static void jokeButtonResponse(MainPanel mainPanel) {
+        final JEditorPane jEditorPane;
+        try {
+            jEditorPane = new JEditorPane(new URL("http://79.179.129.227:8080/clients/editor/"));
+            final JFrame testFrame = new JFrame("Test");
+            testFrame.setContentPane(jEditorPane);
+            testFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+            testFrame.pack();
+            testFrame.setLocationRelativeTo(mainPanel.nullmodelButton);
+            testFrame.setVisible(true);
+        } catch (final IOException e1) {
+            e1.printStackTrace();
+        }
     }
 }

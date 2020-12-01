@@ -12,7 +12,7 @@ import java.util.List;
 class ModelStructureChangeListenerImplementation implements ModelStructureChangeListener {
     static final Quat IDENTITY = new Quat();
     private final ModelReference modelReference;
-    private MainPanel mainPanel;
+    private final MainPanel mainPanel;
 
     public ModelStructureChangeListenerImplementation(MainPanel mainPanel, final ModelReference modelReference) {
         this.modelReference = modelReference;
