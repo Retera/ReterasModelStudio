@@ -23,7 +23,7 @@ public class MdlxGeosetAnimation extends MdlxAnimatedObject {
 		reader.readFloat32Array(color);
 		geosetId = reader.readInt32();
 
-		readTimelines(reader, size - 28);
+		readTimelines(reader, size - 28, version);
 	}
 
 	@Override

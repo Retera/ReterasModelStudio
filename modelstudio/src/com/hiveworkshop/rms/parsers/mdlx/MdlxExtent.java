@@ -5,6 +5,8 @@ import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.util.BinaryReader;
 import com.hiveworkshop.rms.util.BinaryWriter;
 
+import java.util.Arrays;
+
 public class MdlxExtent {
 	public float boundsRadius = 0;
 	public float[] min = new float[3];
@@ -34,5 +36,14 @@ public class MdlxExtent {
 		if (boundsRadius != 0) {
 			stream.writeFloatAttrib(MdlUtils.TOKEN_BOUNDSRADIUS, boundsRadius);
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "MdlxExtent{" +
+				"boundsRadius=" + boundsRadius +
+				", min=" + Arrays.toString(min) +
+				", max=" + Arrays.toString(max) +
+				'}';
 	}
 }

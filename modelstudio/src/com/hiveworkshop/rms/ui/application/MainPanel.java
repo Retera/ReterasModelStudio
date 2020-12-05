@@ -1339,8 +1339,8 @@ public class MainPanel extends JPanel
         final View mpqBrowserView = createMPQBrowser(imageIcon);
 
         final UnitEditorTree unitEditorTree = createUnitEditorTree();
-        final TabWindow tabWindow = new TabWindow(new DockingWindow[]{
-                new View("Unit Browser", imageIcon, new JScrollPane(unitEditorTree)), mpqBrowserView});
+        final TabWindow tabWindow = new TabWindow(new DockingWindow[]{mpqBrowserView,
+                new View("Unit Browser", imageIcon, new JScrollPane(unitEditorTree))});
         tabWindow.setSelectedTab(0);
         final SplitWindow viewingTab = new SplitWindow(true, 0.8f,
                 new SplitWindow(true, 0.8f, previewView, animationControllerView), tabWindow);

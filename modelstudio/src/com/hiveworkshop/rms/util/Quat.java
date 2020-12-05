@@ -91,6 +91,12 @@ public class Quat extends Vec4 {
 		set(data);
 	}
 
+	public void nor() {
+		float lenSquared = x*x + y*y + z*z + w*w;
+		float invLen = 1f/(float)Math.sqrt(lenSquared);
+		set(x*invLen, y*invLen, z*invLen, w*invLen);
+	}
+
 	public Quat(final Vec3 axis, final float angle) {
 		setFromAxisAngle(axis, angle);
 	}

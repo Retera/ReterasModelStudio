@@ -19,18 +19,35 @@ public class MdlxEventObject extends MdlxGenericObject {
 
 	@Override
 	public void readMdx(final BinaryReader reader, final int version) {
+		long size;
+		long position;
+		if(version == 1300) {
+			position = reader.position();
+			size = reader.readUInt32();
+			System.out.println("MdlxEventObject size: " + size);
+		} else {
+			position = 0;
+			size = 0;
+		}
 		super.readMdx(reader, version);
 
-		reader.readInt32(); // KEVT skipped
+		if(version != 1300 || reader.position() - position < size ) {
+			System.out.println((reader.position() - position) +" < " + size);
+			int shouldBeKEVT = reader.readInt32(); // KEVT skipped
+			System.out.println("MdlxEventObject should be KEVT: " + MdlxModel.convertInt2(shouldBeKEVT));
 
-		final long count = reader.readUInt32();
+			final long count = reader.readUInt32();
+			System.out.println("MdlxEventObject count: " + count);
 
-		globalSequenceId = reader.readInt32();
+			globalSequenceId = reader.readInt32();
+			System.out.println("MdlxEventObject globalSequenceId: " + globalSequenceId);
 
-		keyFrames = new long[(int) count];
+			keyFrames = new long[(int) count];
 
-		for (int i = 0; i < count; i++) {
-			keyFrames[i] = reader.readInt32();
+			for (int i = 0; i < count; i++) {
+				keyFrames[i] = reader.readInt32();
+				System.out.println("MdlxEventObject keyFrame[" + i + "]: " + keyFrames[i]);
+			}
 		}
 	}
 

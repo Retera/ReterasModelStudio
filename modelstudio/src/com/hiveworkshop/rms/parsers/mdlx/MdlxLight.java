@@ -53,7 +53,7 @@ public class MdlxLight extends MdlxGenericObject {
 		reader.readFloat32Array(ambientColor);
 		ambientIntensity = reader.readFloat32();
 
-		readTimelines(reader, size - (reader.position() - position));
+		readTimelines(reader, size - (reader.position() - position), version);
 	}
 
 	@Override

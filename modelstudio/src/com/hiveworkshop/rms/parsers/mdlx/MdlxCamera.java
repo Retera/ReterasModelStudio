@@ -25,7 +25,7 @@ public class MdlxCamera extends MdlxAnimatedObject {
 		nearClippingPlane = reader.readFloat32();
 		reader.readFloat32Array(targetPosition);
 
-		readTimelines(reader, size - 120);
+		readTimelines(reader, size - 120, version);
 	}
 
 	@Override

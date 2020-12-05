@@ -252,6 +252,9 @@ public class Layer extends TimelineContainer implements Named {
 
 		setTVertexAnimId(layer.textureAnimationId);
 		setCoordId((int) layer.coordId);
+		if (coordId==-1) {
+			coordId = 0;
+		}
 		setStaticAlpha(layer.alpha);
 
 		// > 800

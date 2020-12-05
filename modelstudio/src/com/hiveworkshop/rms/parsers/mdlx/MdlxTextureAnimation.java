@@ -11,7 +11,7 @@ public class MdlxTextureAnimation extends MdlxAnimatedObject {
 	public void readMdx(final BinaryReader reader, final int version) {
 		final long size = reader.readUInt32();
 
-		readTimelines(reader, size - 4);
+		readTimelines(reader, size - 4, version);
 	}
 
 	@Override

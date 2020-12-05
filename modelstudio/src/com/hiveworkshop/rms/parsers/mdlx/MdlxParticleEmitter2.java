@@ -133,7 +133,7 @@ public class MdlxParticleEmitter2 extends MdlxGenericObject {
 		priorityPlane = reader.readInt32();
 		replaceableId = reader.readUInt32();
 
-		readTimelines(reader, size - (reader.position() - position));
+		readTimelines(reader, size - (reader.position() - position), version);
 	}
 
 	@Override

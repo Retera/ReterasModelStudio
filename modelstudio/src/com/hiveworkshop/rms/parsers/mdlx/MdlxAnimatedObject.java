@@ -18,14 +18,15 @@ import java.util.List;
 public abstract class MdlxAnimatedObject implements MdlxChunk, MdlxBlock {
 	public final List<MdlxTimeline<?>> timelines = new ArrayList<>();
 
-	public void readTimelines(final BinaryReader reader, long size) {
+	public void readTimelines(final BinaryReader reader, long size, int version) {
 		while (size > 0) {
 			final War3ID name = new War3ID(reader.readTag());
+			System.out.println("Timeline loading: " + name);
 			final MdlxTimeline<?> timeline = AnimationMap.ID_TO_TAG.get(name).getImplementation().createTimeline();
 
-			timeline.readMdx(reader, name);
+			timeline.readMdx(reader, name, version);
 
-			size -= timeline.getByteLength();
+			size -= timeline.getByteLength(version);
 
 			timelines.add(timeline);
 		}
@@ -63,7 +64,7 @@ public abstract class MdlxAnimatedObject implements MdlxChunk, MdlxBlock {
 	public long getByteLength(final int version) {
 		long size = 0;
 		for (final MdlxTimeline<?> timeline : timelines) {
-			size += timeline.getByteLength();
+			size += timeline.getByteLength(version);
 		}
 		return size;
 	}

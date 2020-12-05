@@ -36,7 +36,7 @@ public class MdlxParticleEmitter extends MdlxGenericObject {
 		lifeSpan = reader.readFloat32();
 		speed = reader.readFloat32();
 
-		readTimelines(reader, size - (reader.position() - position));
+		readTimelines(reader, size - (reader.position() - position), version);
 	}
 
 	@Override

@@ -42,7 +42,7 @@ public class MdlxRibbonEmitter extends MdlxGenericObject {
 		materialId = reader.readInt32();
 		gravity = reader.readFloat32();
 
-		readTimelines(reader, size - (reader.position() - position));
+		readTimelines(reader, size - (reader.position() - position), version);
 	}
 
 	@Override

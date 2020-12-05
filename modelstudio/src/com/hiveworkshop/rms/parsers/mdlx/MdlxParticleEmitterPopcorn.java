@@ -36,7 +36,7 @@ public class MdlxParticleEmitterPopcorn extends MdlxGenericObject {
 		path = reader.read(260);
 		animationVisiblityGuide = reader.read(260);
 
-		readTimelines(reader, size - (reader.position() - position));
+		readTimelines(reader, size - (reader.position() - position), version);
 	}
 
 	@Override

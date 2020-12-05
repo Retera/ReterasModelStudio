@@ -31,13 +31,17 @@ public abstract class MdlxGenericObject extends MdlxAnimatedObject {
 	@Override
 	public void readMdx(final BinaryReader reader, final int version) {
 		final long size = reader.readUInt32();
-
+		System.out.println("MdlxGenericObject size: " + size);
 		name = reader.read(80);
+		System.out.println("MdlxGenericObject name: " + name);
 		objectId = reader.readInt32();
+		System.out.println("MdlxGenericObject objectId: " + objectId);
 		parentId = reader.readInt32();
+		System.out.println("MdlxGenericObject parentId: " + parentId);
 		flags = reader.readInt32();
+		System.out.println("MdlxGenericObject flags: " + flags);
 
-		readTimelines(reader, size - 96);
+		readTimelines(reader, size - 96, version);
 	}
 
 	@Override
@@ -120,7 +124,7 @@ public abstract class MdlxGenericObject extends MdlxAnimatedObject {
 
 		for (final MdlxTimeline<?> timeline : timelines) {
 			if (isGeneric(timeline)) {
-				size += timeline.getByteLength();
+				size += timeline.getByteLength(version);
 			}
 		}
 

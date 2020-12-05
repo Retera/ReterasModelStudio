@@ -24,6 +24,8 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 	private static final War3ID SKIN = War3ID.fromString("SKIN");
 	private static final War3ID UVAS = War3ID.fromString("UVAS");
 	private static final War3ID UVBS = War3ID.fromString("UVBS");
+	private static final War3ID BIDX = War3ID.fromString("BIDX");
+	private static final War3ID BWGT = War3ID.fromString("BWGT");
 	
 	public float[] vertices;
 	public float[] normals;
@@ -60,27 +62,81 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 	public void readMdx(final BinaryReader reader, final int version) {
 		final long size = reader.readUInt32();
 
-		reader.readInt32(); // skip VRTX
-		vertices = reader.readFloat32Array(reader.readInt32() * 3);
-		reader.readInt32(); // skip NRMS
+		int thisIsVRTX = reader.readInt32(); // skip VRTX
+		System.out.println("should be VRTX: " + MdlxModel.convertInt2(thisIsVRTX));
+		int numVertices = reader.readInt32();
+		vertices = reader.readFloat32Array(numVertices * 3);
+		System.out.println("vertexCount: " + vertices.length / 3);
+		int thisIsNRMS = reader.readInt32(); // skip NRMS
+		System.out.println("should be NRMS: " + MdlxModel.convertInt2(thisIsNRMS));
 		normals = reader.readFloat32Array(reader.readInt32() * 3);
-		reader.readInt32(); // skip PTYP
-		faceTypeGroups = reader.readUInt32Array(reader.readInt32());
-		reader.readInt32(); // skip PCNT
+		System.out.println("normalsCount: " + normals.length / 3);
+		if(version == 1300) {
+			int id = reader.readTag(); // UVAS
+			System.out.println("should be UVAS: " + MdlxModel.convertInt2(id));
+			uvSets = new float[1][];
+			for (int i = 0; i < 1; i++) {
+				uvSets[i] = reader.readFloat32Array(numVertices * reader.readInt32() * 2);
+			}
+		}
+		int thisIsPTYP = reader.readInt32(); // skip PTYP
+		System.out.println("should be PTYP: " + MdlxModel.convertInt2(thisIsPTYP));
+		if(version == 1300) {
+			short[] faceTypeGroups8Bit = reader.readUInt8Array(reader.readInt32());
+			faceTypeGroups = new long[faceTypeGroups8Bit.length];
+			for(int i = 0; i < faceTypeGroups8Bit.length; i++) {
+				faceTypeGroups[i] = faceTypeGroups8Bit[i];
+			}
+		} else {
+			faceTypeGroups = reader.readUInt32Array(reader.readInt32());
+		}
+		int thisIsPCNT = reader.readInt32(); // skip PCNT
+		System.out.println("should be PCNT: " + MdlxModel.convertInt2(thisIsPCNT));
 		faceGroups = reader.readUInt32Array(reader.readInt32());
-		reader.readInt32(); // skip PVTX
+		int thisIsPVTX = reader.readInt32(); // skip PVTX
+		System.out.println("should be PVTX: " + MdlxModel.convertInt2(thisIsPVTX));
 		faces = reader.readUInt16Array(reader.readInt32());
-		reader.readInt32(); // skip GNDX
+		int thisIsGNDX = reader.readInt32(); // skip GNDX
+		System.out.println("should be GNDX: " + MdlxModel.convertInt2(thisIsGNDX));
 		vertexGroups = reader.readUInt8Array(reader.readInt32());
-		reader.readInt32(); // skip MTGC
+		int thisIsMTGC = reader.readInt32(); // skip MTGC
+		System.out.println("should be MTGC: " + MdlxModel.convertInt2(thisIsMTGC));
 		matrixGroups = reader.readUInt32Array(reader.readInt32());
-		reader.readInt32(); // skip MATS
+		int thisIsMATS = reader.readInt32(); // skip MATS
+		System.out.println("should be MATS: " + MdlxModel.convertInt2(thisIsMATS));
 		matrixIndices = reader.readUInt32Array(reader.readInt32());
+
+		if(version == 1300) {
+			int thisIsBIDX = reader.readInt32(); // skip BIDX
+			System.out.println("should be BIDX: " + MdlxModel.convertInt2(thisIsBIDX));
+			int bidxCount = (int)reader.readUInt32();
+			System.out.println("bidx count: " + bidxCount);
+			short[] boneIndices = reader.readUInt8Array(bidxCount*4);
+
+			int thisIsBWGT = reader.readInt32(); // skip BWGT
+			System.out.println("should be BWGT: " + MdlxModel.convertInt2(thisIsBWGT));
+			int bwgtCount = (int)reader.readUInt32();
+			System.out.println("bwgt count: " + bwgtCount);
+			short[] boneWeights = reader.readUInt8Array(bidxCount*4);
+
+			skin = new short[boneIndices.length + boneWeights.length];
+			for(int boneIndexing = 0; boneIndexing < boneIndices.length && boneIndexing < boneWeights.length; boneIndexing += 4) {
+				skin[boneIndexing*2 + 0] = boneIndices[boneIndexing + 0];
+				skin[boneIndexing*2 + 1] = boneIndices[boneIndexing + 1];
+				skin[boneIndexing*2 + 2] = boneIndices[boneIndexing + 2];
+				skin[boneIndexing*2 + 3] = boneIndices[boneIndexing + 3];
+				skin[boneIndexing*2 + 4] = boneWeights[boneIndexing + 0];
+				skin[boneIndexing*2 + 5] = boneWeights[boneIndexing + 1];
+				skin[boneIndexing*2 + 6] = boneWeights[boneIndexing + 2];
+				skin[boneIndexing*2 + 7] = boneWeights[boneIndexing + 3];
+			}
+		}
+
 		materialId = reader.readUInt32();
 		selectionGroup = reader.readUInt32();
 		selectionFlags = reader.readUInt32();
 
-		if (version > 800) {
+		if (version > 800 && version < 1300) {
 			lod = reader.readInt32();
 			lodName = reader.read(80);
 		}
@@ -95,27 +151,30 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 			sequenceExtents.add(extent);
 		}
 
-		int id = reader.readTag(); // TANG or SKIN or UVAS
+		if (version != 1300) {
+			int id = reader.readTag(); // TANG or SKIN or UVAS
 
-		if (version > 800 && id != UVAS.getValue()) {
-			if (id == TANG.getValue()) {
-				tangents = reader.readFloat32Array(reader.readInt32() * 4);
+			if (version > 800 && version < 1300 && id != UVAS.getValue()) {
+				if (id == TANG.getValue()) {
+					tangents = reader.readFloat32Array(reader.readInt32() * 4);
 
-				id = reader.readTag(); // SKIN or UVAS
+					id = reader.readTag(); // SKIN or UVAS
+				}
+
+				if (id == SKIN.getValue()) {
+					skin = reader.readUInt8Array(reader.readInt32());
+
+					id = reader.readInt32(); // UVAS
+				}
 			}
 
-			if (id == SKIN.getValue()) {
-				skin = reader.readUInt8Array(reader.readInt32());
-
-				id = reader.readInt32(); // UVAS
+			final long numUVLayers = reader.readUInt32();
+			System.out.println("numUVLayers: " + numUVLayers);
+			uvSets = new float[(int) numUVLayers][];
+			for (int i = 0; i < numUVLayers; i++) {
+				reader.readInt32(); // skip UVBS
+				uvSets[i] = reader.readFloat32Array(reader.readInt32() * 2);
 			}
-		}
-
-		final long numUVLayers = reader.readUInt32();
-		uvSets = new float[(int) numUVLayers][];
-		for (int i = 0; i < numUVLayers; i++) {
-			reader.readInt32(); // skip UVBS
-			uvSets[i] = reader.readFloat32Array(reader.readInt32() * 2);
 		}
 	}
 

@@ -62,6 +62,7 @@ public class MdlxModel {
 	public String animationFile = "";
 	public MdlxExtent extent = new MdlxExtent();
 	public long blendTime = 0;
+	public byte flags = 0;
 	public List<MdlxSequence> sequences = new ArrayList<>();
 	public List<Long /* UInt32 */> globalSequences = new ArrayList<>();
 	public List<MdlxMaterial> materials = new ArrayList<>();
@@ -108,6 +109,14 @@ public class MdlxModel {
 		}
 	}
 
+	public static String convertInt(int tag) {
+		return "" + (char)((tag>>24)&0xFF) + (char)((tag>>16)&0xFF) + (char)((tag>>8)&0xFF) + (char)((tag>>0)&0xFF);
+	}
+
+	public static String convertInt2(int tag) {
+		return "" + (char)((tag>>0)&0xFF) + (char)((tag>>8)&0xFF) + (char)((tag>>16)&0xFF) + (char)((tag>>24)&0xFF);
+	}
+
 	public void loadMdx(final ByteBuffer buffer) {
 		final BinaryReader reader = new BinaryReader(buffer);
 
@@ -118,7 +127,8 @@ public class MdlxModel {
 		while (reader.remaining() > 0) {
 			final int tag = reader.readTag();
 			final int size = reader.readInt32();
-
+			System.out.println("about to load tag : " + convertInt(tag));
+			System.out.println("size: " + size);
 			switch (tag) {
 			case VERS:
 				loadVersionChunk(reader);
@@ -126,15 +136,25 @@ public class MdlxModel {
 			case MODL:
 				loadModelChunk(reader);
 				break;
-			case SEQS:
-				loadStaticObjects(sequences, MdlxBlockDescriptor.SEQUENCE, reader, size / 132);
+			case SEQS: {
+				int elementCount = version == 1300 ? (int) reader.readUInt32() : (size / 132);
+				loadStaticObjects(sequences, MdlxBlockDescriptor.SEQUENCE, reader, elementCount);
 				break;
+			}
 			case GLBS:
 				loadGlobalSequenceChunk(reader, size);
 				break;
-			case MTLS:
-				loadDynamicObjects(materials, MdlxBlockDescriptor.MATERIAL, reader, size);
+			case MTLS: {
+				if(version == 1300) {
+					long numMaterials = reader.readUInt32();
+					System.out.println("MTLS num sequences is: " + numMaterials);
+					System.out.println("MTLS extra data is: " + reader.readUInt32());
+					loadNDynamicObjects(materials, MdlxBlockDescriptor.MATERIAL, reader, numMaterials);
+				} else {
+					loadDynamicObjects(materials, MdlxBlockDescriptor.MATERIAL, reader, size);
+				}
 				break;
+			}
 			case TEXS:
 				loadStaticObjects(textures, MdlxBlockDescriptor.TEXTURE, reader, size / 268);
 				break;
@@ -142,46 +162,115 @@ public class MdlxModel {
 				loadDynamicObjects(textureAnimations, MdlxBlockDescriptor.TEXTURE_ANIMATION, reader, size);
 				break;
 			case GEOS:
-				loadDynamicObjects(geosets, MdlxBlockDescriptor.GEOSET, reader, size);
+				if(version == 1300) {
+					long numGeos = reader.readUInt32();
+					System.out.println("GEOS num is: " + numGeos);
+					loadNDynamicObjects(geosets, MdlxBlockDescriptor.GEOSET, reader, numGeos);
+				} else {
+					loadDynamicObjects(geosets, MdlxBlockDescriptor.GEOSET, reader, size);
+				}
 				break;
 			case GEOA:
 				loadDynamicObjects(geosetAnimations, MdlxBlockDescriptor.GEOSET_ANIMATION, reader, size);
 				break;
 			case BONE:
-				loadDynamicObjects(bones, MdlxBlockDescriptor.BONE, reader, size);
+				if(version == 1300) {
+					long count = reader.readUInt32();
+					System.out.println("BONE count is: " + count);
+					loadNDynamicObjects(bones, MdlxBlockDescriptor.BONE, reader, count);
+				} else {
+					loadDynamicObjects(bones, MdlxBlockDescriptor.BONE, reader, size);
+				}
 				break;
 			case LITE:
-				loadDynamicObjects(lights, MdlxBlockDescriptor.LIGHT, reader, size);
+				if(version == 1300) {
+					long count = reader.readUInt32();
+					System.out.println("BONE count is: " + count);
+					loadNDynamicObjects(lights, MdlxBlockDescriptor.LIGHT, reader, count);
+				} else {
+					loadDynamicObjects(lights, MdlxBlockDescriptor.LIGHT, reader, size);
+				}
 				break;
 			case HELP:
-				loadDynamicObjects(helpers, MdlxBlockDescriptor.HELPER, reader, size);
+				if(version == 1300) {
+					long count = reader.readUInt32();
+					System.out.println("HELP count is: " + count);
+					loadNDynamicObjects(helpers, MdlxBlockDescriptor.HELPER, reader, count);
+				} else {
+					loadDynamicObjects(helpers, MdlxBlockDescriptor.HELPER, reader, size);
+				}
 				break;
 			case ATCH:
-				loadDynamicObjects(attachments, MdlxBlockDescriptor.ATTACHMENT, reader, size);
+				if(version == 1300) {
+					long count = reader.readUInt32();
+					System.out.println("ATCH count is: " + count);
+					long unused = reader.readUInt32();
+					System.out.println("ATCH unused is: " + unused);
+					loadNDynamicObjects(attachments, MdlxBlockDescriptor.ATTACHMENT, reader, count);
+				} else {
+					loadDynamicObjects(attachments, MdlxBlockDescriptor.ATTACHMENT, reader, size);
+				}
 				break;
 			case PIVT:
 				loadPivotPointChunk(reader, size);
 				break;
 			case PREM:
-				loadDynamicObjects(particleEmitters, MdlxBlockDescriptor.PARTICLE_EMITTER, reader, size);
+				if(version == 1300) {
+					long count = reader.readUInt32();
+					System.out.println("PREM count is: " + count);
+					loadNDynamicObjects(particleEmitters, MdlxBlockDescriptor.PARTICLE_EMITTER, reader, count);
+				} else {
+					loadDynamicObjects(particleEmitters, MdlxBlockDescriptor.PARTICLE_EMITTER, reader, size);
+				}
 				break;
 			case PRE2:
-				loadDynamicObjects(particleEmitters2, MdlxBlockDescriptor.PARTICLE_EMITTER2, reader, size);
+				if(version == 1300) {
+					long count = reader.readUInt32();
+					System.out.println("PRE2 count is: " + count);
+					loadNDynamicObjects(particleEmitters2, MdlxBlockDescriptor.PARTICLE_EMITTER2, reader, count);
+				} else {
+					loadDynamicObjects(particleEmitters2, MdlxBlockDescriptor.PARTICLE_EMITTER2, reader, size);
+				}
 				break;
 			case CORN:
 				loadDynamicObjects(particleEmittersPopcorn, MdlxBlockDescriptor.PARTICLE_EMITTER_POPCORN, reader, size);
 				break;
 			case RIBB:
-				loadDynamicObjects(ribbonEmitters, MdlxBlockDescriptor.RIBBON_EMITTER, reader, size);
+				if(version == 1300) {
+					long count = reader.readUInt32();
+					System.out.println("RIBB count is: " + count);
+					loadNDynamicObjects(ribbonEmitters, MdlxBlockDescriptor.RIBBON_EMITTER, reader, count);
+				} else {
+					loadDynamicObjects(ribbonEmitters, MdlxBlockDescriptor.RIBBON_EMITTER, reader, size);
+				}
 				break;
 			case CAMS:
-				loadDynamicObjects(cameras, MdlxBlockDescriptor.CAMERA, reader, size);
+				if(version == 1300) {
+					long count = reader.readUInt32();
+					System.out.println("CAMS count is: " + count);
+					loadNDynamicObjects(cameras, MdlxBlockDescriptor.CAMERA, reader, count);
+				} else {
+					loadDynamicObjects(cameras, MdlxBlockDescriptor.CAMERA, reader, size);
+				}
 				break;
 			case EVTS:
-				loadDynamicObjects(eventObjects, MdlxBlockDescriptor.EVENT_OBJECT, reader, size);
+				if(version == 1300) {
+					long count = reader.readUInt32();
+					System.out.println("EVTS count is: " + count);
+					loadNDynamicObjects(eventObjects, MdlxBlockDescriptor.EVENT_OBJECT, reader, count);
+				} else {
+					loadDynamicObjects(eventObjects, MdlxBlockDescriptor.EVENT_OBJECT, reader, size);
+				}
 				break;
 			case CLID:
-				loadDynamicObjects(collisionShapes, MdlxBlockDescriptor.COLLISION_SHAPE, reader, size);
+				if(version == 1300) {
+					//long count = reader.readUInt32();
+					//System.out.println("CLID count is: " + count);
+					//loadNDynamicObjects(collisionShapes, MdlxBlockDescriptor.COLLISION_SHAPE, reader, count);
+					unknownChunks.add(new MdlxUnknownChunk(reader, size, new War3ID(tag)));
+				} else {
+					loadDynamicObjects(collisionShapes, MdlxBlockDescriptor.COLLISION_SHAPE, reader, size);
+				}
 				break;
 			case FAFX:
 				loadStaticObjects(faceEffects, MdlxBlockDescriptor.FACE_EFFECT, reader, size / 340);
@@ -197,6 +286,7 @@ public class MdlxModel {
 
 	private void loadVersionChunk(final BinaryReader reader) {
 		version = reader.readInt32();
+		System.out.println("version: " + version);
 	}
 
 	private void loadModelChunk(final BinaryReader reader) {
@@ -204,6 +294,14 @@ public class MdlxModel {
 		animationFile = reader.read(260);
 		extent.readMdx(reader);
 		blendTime = reader.readInt32();
+		if(version==1300) {
+			flags = reader.readInt8();
+		}
+		System.out.println("name: " + name);
+		System.out.println("animationFile: " + animationFile);
+		System.out.println("extent: " + extent);
+		System.out.println("blendTime: " + blendTime);
+		System.out.println("flags: " + flags);
 	}
 
 	private <E extends MdlxBlock> void loadStaticObjects(final List<E> out, final MdlxBlockDescriptor<E> constructor,
@@ -224,7 +322,7 @@ public class MdlxModel {
 	}
 
 	private <E extends MdlxBlock & MdlxChunk> void loadDynamicObjects(final List<E> out,
-			final MdlxBlockDescriptor<E> constructor, final BinaryReader reader, final long size) {
+																	  final MdlxBlockDescriptor<E> constructor, final BinaryReader reader, final long size) {
 		long totalSize = 0;
 		while (totalSize < size) {
 			final E object = constructor.create();
@@ -232,6 +330,18 @@ public class MdlxModel {
 			object.readMdx(reader, version);
 
 			totalSize += object.getByteLength(version);
+
+			out.add(object);
+		}
+	}
+
+	private <E extends MdlxBlock & MdlxChunk> void loadNDynamicObjects(final List<E> out,
+																	  final MdlxBlockDescriptor<E> constructor, final BinaryReader reader, final long count) {
+
+		while (out.size() < count) {
+			final E object = constructor.create();
+
+			object.readMdx(reader, version);
 
 			out.add(object);
 		}

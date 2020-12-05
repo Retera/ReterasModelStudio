@@ -21,10 +21,17 @@ public class MdlxAttachment extends MdlxGenericObject {
 
 		super.readMdx(reader, version);
 
-		path = reader.read(260);
-		attachmentId = reader.readInt32();
+		if(version == 1300) {
+			attachmentId = reader.readInt32();
+			reader.readUInt8(); // padding
+			path = reader.read(260);
+		} else {
+			path = reader.read(260);
+			attachmentId = reader.readInt32();
 
-		readTimelines(reader, size - (reader.position() - position));
+		}
+
+		readTimelines(reader, size - (reader.position() - position), version);
 	}
 
 	@Override
@@ -84,6 +91,9 @@ public class MdlxAttachment extends MdlxGenericObject {
 
 	@Override
 	public long getByteLength(final int version) {
+		if(version == 1300) {
+			return 269 + super.getByteLength(version);
+		}
 		return 268 + super.getByteLength(version);
 	}
 }

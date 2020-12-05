@@ -29,7 +29,7 @@ public abstract class MdlxTimeline<TYPE> {
 		
 	}
 
-	public void readMdx(final BinaryReader reader, final War3ID name) {
+	public void readMdx(final BinaryReader reader, final War3ID name, int version) {
 		this.name = name;
 
 		final long keyFrameCount = reader.readUInt32();
@@ -46,11 +46,11 @@ public abstract class MdlxTimeline<TYPE> {
 
 		for (int i = 0; i < keyFrameCount; i++) {
 			frames[i] = reader.readInt32();
-			values[i] = (readMdxValue(reader));
+			values[i] = (readMdxValue(reader, version));
 
 			if (interpolationType.tangential()) {
-				inTans[i] = (readMdxValue(reader));
-				outTans[i] = (readMdxValue(reader));
+				inTans[i] = (readMdxValue(reader, version));
+				outTans[i] = (readMdxValue(reader, version));
 			}
 		}
 	}
@@ -157,12 +157,12 @@ public abstract class MdlxTimeline<TYPE> {
 		stream.endBlock();
 	}
 
-	public long getByteLength() {
+	public long getByteLength(int version) {
 		final int tracksCount = frames.length;
 		int size = 16;
 
 		if (tracksCount > 0) {
-			final int bytesPerValue = size() * 4;
+			final int bytesPerValue = size(version) * 4;
 			int valuesPerTrack = 1;
 			if (interpolationType.tangential()) {
 				valuesPerTrack = 3;
@@ -173,9 +173,9 @@ public abstract class MdlxTimeline<TYPE> {
 		return size;
 	}
 
-	protected abstract int size();
+	protected abstract int size(int version);
 
-	protected abstract TYPE readMdxValue(BinaryReader reader);
+	protected abstract TYPE readMdxValue(BinaryReader reader, int version);
 
 	protected abstract TYPE readMdlValue(MdlTokenInputStream stream);
 
