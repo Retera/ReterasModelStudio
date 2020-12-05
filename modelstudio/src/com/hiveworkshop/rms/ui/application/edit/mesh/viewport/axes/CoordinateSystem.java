@@ -76,7 +76,13 @@ public interface CoordinateSystem extends CoordinateAxes {
 			return getUnusedXYZ(coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 		}
 
-		public static byte getUnusedXYZ(final byte portFirstXYZ, final byte portSecondXYZ) {
+		public static byte getUnusedXYZ(byte portFirstXYZ, byte portSecondXYZ) {
+			if(portFirstXYZ < 0) {
+				portFirstXYZ = (byte)(-portFirstXYZ-1);
+			}
+			if(portSecondXYZ < 0) {
+				portSecondXYZ = (byte)(-portSecondXYZ-1);
+			}
 			return (byte) (3 - portFirstXYZ - portSecondXYZ);
 		}
 

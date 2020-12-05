@@ -186,6 +186,15 @@ public class ViewportModelRenderer implements ModelVisitor {
 				case 2:
 					firstCoord = z;
 					break;
+				case -1:
+					firstCoord = -x;
+					break;
+				case -2:
+					firstCoord = -y;
+					break;
+				case -3:
+					firstCoord = -z;
+					break;
 				default:
 					throw new IllegalStateException("Invalid x dimension");
 			}
@@ -198,6 +207,15 @@ public class ViewportModelRenderer implements ModelVisitor {
 					break;
 				case 2:
 					secondCoord = z;
+					break;
+				case -1:
+					secondCoord = -x;
+					break;
+				case -2:
+					secondCoord = -y;
+					break;
+				case -3:
+					secondCoord = -z;
 					break;
 				default:
 					throw new IllegalStateException("Invalid y dimension");
@@ -227,6 +245,15 @@ public class ViewportModelRenderer implements ModelVisitor {
 					case 2:
 						firstNormalCoord = normalZ;
 						break;
+					case -1:
+						firstNormalCoord = -normalX;
+						break;
+					case -2:
+						firstNormalCoord = -normalY;
+						break;
+					case -3:
+						firstNormalCoord = -normalZ;
+						break;
 					default:
 						throw new IllegalStateException("Invalid x dimension");
 				}
@@ -239,6 +266,15 @@ public class ViewportModelRenderer implements ModelVisitor {
 						break;
 					case 2:
 						secondNormalCoord = normalZ;
+						break;
+					case -1:
+						secondNormalCoord = -normalX;
+						break;
+					case -2:
+						secondNormalCoord = -normalY;
+						break;
+					case -3:
+						secondNormalCoord = -normalZ;
 						break;
 					default:
 						throw new IllegalStateException("Invalid y dimension");

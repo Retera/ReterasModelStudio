@@ -498,6 +498,11 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	@Override
+	public UndoAction setHDSkinning(Bone[] bones, short[] skinWeights) {
+		throw new WrongModeException("Unable to set HD skinning bones in Animation Editor");
+	}
+
+	@Override
 	public UndoAction snapNormals() {
 		throw new WrongModeException("Unable to modify normals in Animation Editor");
 	}
@@ -832,6 +837,16 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	@Override
 	public UndoAction createFaceFromSelection(final Vec3 preferredFacingVector) {
 		throw new WrongModeException("Unable to create face in animation editor");
+	}
+
+	@Override
+	public String getSelectedMatricesDescription() {
+		throw new WrongModeException("Unable to investigate mesh in Animation Editor");
+	}
+
+	@Override
+	public String getSelectedHDSkinningDescription() {
+		throw new WrongModeException("Unable to investigate mesh in Animation Editor");
 	}
 
 	@Override

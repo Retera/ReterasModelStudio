@@ -128,6 +128,7 @@ public class DisplayPanel extends JPanel implements ActionListener {
 
 		setLayout(layout);
 		view = new View(title, null, this);
+		vp.setView(view);
 	}
 
 	public View getView() {

@@ -985,4 +985,14 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 		drawBoneAction.redo();
 		return drawBoneAction;
 	}
+
+	@Override
+	public String getSelectedHDSkinningDescription() {
+		return null;
+	}
+
+	@Override
+	public String getSelectedMatricesDescription() {
+		return null;
+	}
 }

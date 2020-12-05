@@ -24,6 +24,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.rms.ui.gui.modeledit.util.TextureExporter;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.ui.util.InfoPopup;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
@@ -489,40 +490,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 	}
 
 	public void viewMatrices() {
-		final List<Bone> boneRefs = new ArrayList<>();
-		for (final Vec3 ver : modelEditorManager.getSelectionView().getSelectedVertices()) {
-			if (ver instanceof GeosetVertex) {
-				final GeosetVertex gv = (GeosetVertex) ver;
-				for (final Bone b : gv.getBones()) {
-					if (!boneRefs.contains(b)) {
-						boneRefs.add(b);
-					}
-				}
-			}
-		}
-		String boneList = "";
-		for (int i = 0; i < boneRefs.size(); i++) {
-			if (i == (boneRefs.size() - 2)) {
-				boneList = boneList + boneRefs.get(i).getName() + " and ";
-			} else if (i == (boneRefs.size() - 1)) {
-				boneList = boneList + boneRefs.get(i).getName();
-			} else {
-				boneList = boneList + boneRefs.get(i).getName() + ", ";
-			}
-		}
-		if (boneRefs.size() == 0) {
-			boneList = "Nothing was selected that was attached to any bones.";
-		}
-		final JTextArea tpane = new JTextArea(boneList);
-		tpane.setLineWrap(true);
-		tpane.setWrapStyleWord(true);
-		tpane.setEditable(false);
-		tpane.setSize(230, 400);
-
-		final JScrollPane jspane = new JScrollPane(tpane);
-		jspane.setPreferredSize(new Dimension(270, 230));
-
-		JOptionPane.showMessageDialog(null, jspane);
+		InfoPopup.show(parent, modelEditorManager.getModelEditor().getSelectedMatricesDescription());
 	}
 
 	public EditableModel getModel() {

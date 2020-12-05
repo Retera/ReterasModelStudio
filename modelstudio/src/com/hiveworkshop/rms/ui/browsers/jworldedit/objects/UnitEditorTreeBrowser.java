@@ -15,6 +15,8 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -33,42 +35,19 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 		selectFirstUnit();
 		final JPopupMenu popupMenu = new JPopupMenu();
 		final JMenuItem openItem = new JMenuItem("Open");
-		openItem.addActionListener(e -> {
-            final TreePath currentUnitTreePath = getPathForLocation(rightClickX, rightClickY);
-            if (currentUnitTreePath != null) {
-                final DefaultMutableTreeNode o = (DefaultMutableTreeNode) currentUnitTreePath
-                        .getLastPathComponent();
-                if (o.getUserObject() instanceof MutableGameObject) {
-                    final MutableGameObject obj = (MutableGameObject) o.getUserObject();
-                    final String path = convertPathToMDX(obj.getFieldAsString(War3ID.fromString("umdl"), 0));
-                    final BufferedImage iconTexture = IconUtils.getIcon(obj,
-                            WorldEditorDataType.UNITS);
-                    final ImageIcon icon = iconTexture == null ? null
-                            : new ImageIcon(iconTexture.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
-                    listener.loadFile(path, true, true, icon);
-                }
-            }
-        });
+		openItem.addActionListener(new OpenUnitStandardModelField(listener, "umdl"));
 		popupMenu.add(openItem);
 		final JMenuItem openPortraitItem = new JMenuItem("Open Portrait");
-		openPortraitItem.addActionListener(e -> {
-            final TreePath currentUnitTreePath = getPathForLocation(rightClickX, rightClickY);
-            if (currentUnitTreePath != null) {
-                final DefaultMutableTreeNode o = (DefaultMutableTreeNode) currentUnitTreePath
-                        .getLastPathComponent();
-                if (o.getUserObject() instanceof MutableGameObject) {
-                    final MutableGameObject obj = (MutableGameObject) o.getUserObject();
-                    final String path = convertPathToMDX(obj.getFieldAsString(War3ID.fromString("umdl"), 0));
-                    final String portrait = ModelUtils.getPortrait(path);
-                    final BufferedImage iconTexture = IconUtils.getIcon(obj,
-                            WorldEditorDataType.UNITS);
-                    final ImageIcon icon = iconTexture == null ? null
-                            : new ImageIcon(iconTexture.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
-                    listener.loadFile(portrait, true, true, icon);
-                }
-            }
-        });
+		openPortraitItem.addActionListener(new OpenUnitPortraitModelField(listener));
 		popupMenu.add(openPortraitItem);
+		JMenu projectileArtMenu = new JMenu("Open Projectile");
+		final JMenuItem openProjectileItem = new JMenuItem("Attack 1");
+		openProjectileItem.addActionListener(new OpenUnitStandardModelField(listener, "ua1m"));
+		projectileArtMenu.add(openProjectileItem);
+		final JMenuItem openProjectile2Item = new JMenuItem("Attack 2");
+		openProjectile2Item.addActionListener(new OpenUnitStandardModelField(listener, "ua2m"));
+		projectileArtMenu.add(openProjectile2Item);
+		popupMenu.add(projectileArtMenu);
 		popupMenu.addSeparator();
 		final JMenuItem extract = new JMenuItem("Extract");
 		popupMenu.add(extract);
@@ -155,4 +134,56 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 		return filepath;
 	}
 
+	private final class OpenUnitStandardModelField extends OpenUnitModelField {
+		public OpenUnitStandardModelField(MDLLoadListener listener, String unitFieldRawcode) {
+			super(listener, unitFieldRawcode);
+		}
+
+		@Override
+		public String resolvePath(String path) {
+			return path;
+		}
+	}
+
+	private final class OpenUnitPortraitModelField extends OpenUnitModelField {
+		public OpenUnitPortraitModelField(MDLLoadListener listener) {
+			super(listener, "umdl");
+		}
+
+		@Override
+		public String resolvePath(String path) {
+			return ModelUtils.getPortrait(path);
+		}
+	}
+
+	private abstract class OpenUnitModelField implements ActionListener {
+		private final MDLLoadListener listener;
+		private String unitFieldRawcode;
+
+		public OpenUnitModelField(MDLLoadListener listener, String unitFieldRawcode) {
+			this.listener = listener;
+			this.unitFieldRawcode = unitFieldRawcode;
+		}
+
+		public abstract String resolvePath(String path);
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			final TreePath currentUnitTreePath = UnitEditorTreeBrowser.this.getPathForLocation(rightClickX, rightClickY);
+			if (currentUnitTreePath != null) {
+				final DefaultMutableTreeNode o = (DefaultMutableTreeNode) currentUnitTreePath
+						.getLastPathComponent();
+				if (o.getUserObject() instanceof MutableGameObject) {
+					final MutableGameObject obj = (MutableGameObject) o.getUserObject();
+					final String path = UnitEditorTreeBrowser.this.convertPathToMDX(obj.getFieldAsString(War3ID.fromString(unitFieldRawcode), 0));
+					final String resolvedPath = resolvePath(path);
+					final BufferedImage iconTexture = IconUtils.getIcon(obj,
+							WorldEditorDataType.UNITS);
+					final ImageIcon icon = iconTexture == null ? null
+							: new ImageIcon(iconTexture.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
+					listener.loadFile(resolvedPath, true, true, icon);
+				}
+			}
+		}
+	}
 }

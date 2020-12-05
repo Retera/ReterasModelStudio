@@ -233,6 +233,15 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
+	public UndoAction setHDSkinning(Bone[] bones, short[] skinWeights) {
+		final List<UndoAction> actions = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			actions.add(handler.setHDSkinning(bones, skinWeights));
+		}
+		return mergeActions(actions);
+	}
+
+	@Override
 	public UndoAction deleteSelectedComponents() {
 		final List<UndoAction> actions = new ArrayList<>();
 		for (final ModelEditor handler : set) {
@@ -502,6 +511,28 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 			actions.add(handler.createFaceFromSelection(preferredFacingVector));
 		}
 		return mergeActions(actions);
+	}
+
+	@Override
+	public String getSelectedMatricesDescription() {
+		for(ModelEditor editor: set) {
+			String selectedMatricesDescription = editor.getSelectedMatricesDescription();
+			if(selectedMatricesDescription != null) {
+				return selectedMatricesDescription;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public String getSelectedHDSkinningDescription() {
+		for(ModelEditor editor: set) {
+			String selectedMatricesDescription = editor.getSelectedHDSkinningDescription();
+			if(selectedMatricesDescription != null) {
+				return selectedMatricesDescription;
+			}
+		}
+		return null;
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh;
 
-import java.awt.Point;
+import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 import java.util.List;
@@ -58,6 +58,8 @@ public interface ModelEditor extends ComponentVisibilityListener {
 							 int numberOfLengthSegments, int numberOfWidthSegments, int numberOfHeightSegments);
 
 	UndoAction setMatrix(Collection<Bone> bones);
+
+	UndoAction setHDSkinning(Bone[] bones, short[] skinWeights);
 
 	UndoAction setParent(IdObject node);
 
@@ -138,4 +140,8 @@ public interface ModelEditor extends ComponentVisibilityListener {
 	boolean editorWantsAnimation();
 
 	UndoAction createFaceFromSelection(Vec3 preferredFacingVector);
+
+	String getSelectedMatricesDescription();
+
+	String getSelectedHDSkinningDescription();
 }

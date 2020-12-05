@@ -25,22 +25,7 @@ import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.Action;
-import javax.swing.ActionMap;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JSpinner;
-import javax.swing.KeyStroke;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.Timer;
-import javax.swing.TransferHandler;
+import javax.swing.*;
 
 import com.hiveworkshop.rms.editor.model.Attachment;
 import com.hiveworkshop.rms.editor.model.Bone;
@@ -71,16 +56,17 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayL
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.AnimatedViewportModelRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.ResettableAnimatedIdObjectParentLinkRenderer;
-import com.hiveworkshop.rms.ui.gui.modeledit.BoneShell;
-import com.hiveworkshop.rms.ui.gui.modeledit.MatrixPopup;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.*;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChangeListener;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
+import com.hiveworkshop.rms.ui.util.InfoPopup;
 import com.hiveworkshop.rms.util.Vec3;
+import net.infonode.docking.View;
+import net.infonode.docking.title.DockingWindowTitleProvider;
+import net.infonode.docking.title.SimpleDockingWindowTitleProvider;
 
 public class Viewport extends JPanel implements MouseListener, ActionListener, MouseWheelListener, CoordinateSystem,
         ViewportView, MouseMotionListener, ModelEditorChangeListener {
@@ -96,7 +82,22 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	Timer paintTimer;
 	boolean mouseInBounds = false;
 	JPopupMenu contextMenu;
+	JMenu viewMenu;
+	JMenu meshMenu;
+	JMenu editMenu;
+	JMenu matrixMenu;
+	JMenu nodeMenu;
+	JMenuItem frontView;
+	JMenuItem backView;
+	JMenuItem topView;
+	JMenuItem bottomView;
+	JMenuItem leftView;
+	JMenuItem rightView;
+	JMenuItem rig;
 	JMenuItem reAssignMatrix;
+	JMenuItem viewMatrix;
+	JMenuItem reAssignSkinning;
+	JMenuItem viewHDSkinning;
 	JMenuItem setParent;
 	JMenuItem renameBone;
 	JMenuItem appendBoneBone;
@@ -126,6 +127,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	private final JMenuItem createFace;
 	private final Vec3 facingVector;
 	private final ViewportListener viewportListener;
+	private View view;
 
 	public Viewport(final byte d1, final byte d2, final ModelView modelView,
 			final ProgramPreferences programPreferences, final ViewportActivity activityListener,
@@ -165,45 +167,84 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		addMouseMotionListener(this);
 
 		contextMenu = new JPopupMenu();
+		viewMenu = new JMenu("View");
+		frontView = new JMenuItem("Front");
+		frontView.addActionListener(new ChangeViewportAxisAction("Front", (byte)1, (byte)2));
+		viewMenu.add(frontView);
+		backView = new JMenuItem("Back");
+		backView.addActionListener(new ChangeViewportAxisAction("Back", (byte)-2, (byte)2));
+		viewMenu.add(backView);
+		topView = new JMenuItem("Top");
+		topView.addActionListener(new ChangeViewportAxisAction("Top", (byte)1, (byte)-1));
+		viewMenu.add(topView);
+		bottomView = new JMenuItem("Bottom");
+		bottomView.addActionListener(new ChangeViewportAxisAction("Bottom", (byte)1, (byte)0));
+		viewMenu.add(bottomView);
+		leftView = new JMenuItem("Left");
+		leftView.addActionListener(new ChangeViewportAxisAction("Left", (byte)-1, (byte)2));
+		viewMenu.add(leftView);
+		rightView = new JMenuItem("Right");
+		rightView.addActionListener(new ChangeViewportAxisAction("Right", (byte)0, (byte)2));
+		viewMenu.add(rightView);
+
+		contextMenu.add(viewMenu);
+		meshMenu = new JMenu("Mesh");
 		createFace = new JMenuItem("Create Face");
 		createFace.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
 		createFace.addActionListener(this);
-		contextMenu.add(createFace);
+		meshMenu.add(createFace);
 		addTeamColor = new JMenuItem("Split Geoset and Add Team Color");
 		addTeamColor.addActionListener(this);
-		contextMenu.add(addTeamColor);
+		meshMenu.add(addTeamColor);
 		splitGeo = new JMenuItem("Split Geoset");
 		splitGeo.addActionListener(this);
-		contextMenu.add(splitGeo);
-		contextMenu.addSeparator();
+		meshMenu.add(splitGeo);
+		contextMenu.add(meshMenu);
+		editMenu = new JMenu("Edit");
 		manualMove = new JMenuItem("Translation Type-in");
 		manualMove.addActionListener(this);
-		contextMenu.add(manualMove);
+		editMenu.add(manualMove);
 		manualRotate = new JMenuItem("Rotate Type-in");
 		manualRotate.addActionListener(this);
-		contextMenu.add(manualRotate);
+		editMenu.add(manualRotate);
 		manualSet = new JMenuItem("Position Type-in");
 		manualSet.addActionListener(this);
-		contextMenu.add(manualSet);
+		editMenu.add(manualSet);
 		manualScale = new JMenuItem("Scale Type-in");
 		manualScale.addActionListener(this);
-		contextMenu.add(manualScale);
-		contextMenu.addSeparator();
+		editMenu.add(manualScale);
+		contextMenu.add(editMenu);
+		matrixMenu = new JMenu("Rig");
+		rig = new JMenuItem("Selected Mesh to Selected Nodes");
+		rig.addActionListener(this);
+		matrixMenu.add(rig);
 		reAssignMatrix = new JMenuItem("Re-assign Matrix");
 		reAssignMatrix.addActionListener(this);
-		contextMenu.add(reAssignMatrix);
+		matrixMenu.add(reAssignMatrix);
+		viewMatrix = new JMenuItem("View Matrix");
+		viewMatrix.addActionListener(this);
+		matrixMenu.add(viewMatrix);
+		reAssignSkinning = new JMenuItem("Re-assign HD Skin");
+		reAssignSkinning.addActionListener(this);
+		matrixMenu.add(reAssignSkinning);
+		viewHDSkinning = new JMenuItem("View HD Skin");
+		viewHDSkinning.addActionListener(this);
+		matrixMenu.add(viewHDSkinning);
+		contextMenu.add(matrixMenu);
+		nodeMenu = new JMenu("Node");
 		setParent = new JMenuItem("Set Parent");
 		setParent.addActionListener(this);
-		contextMenu.add(setParent);
+		nodeMenu.add(setParent);
 		cogBone = new JMenuItem("Auto-Center Bone(s)");
 		cogBone.addActionListener(this);
-		contextMenu.add(cogBone);
+		nodeMenu.add(cogBone);
 		renameBone = new JMenuItem("Rename Bone");
 		renameBone.addActionListener(this);
-		contextMenu.add(renameBone);
+		nodeMenu.add(renameBone);
 		appendBoneBone = new JMenuItem("Append Bone Suffix");
 		appendBoneBone.addActionListener(this);
-		contextMenu.add(appendBoneBone);
+		nodeMenu.add(appendBoneBone);
+		contextMenu.add(nodeMenu);
 
 		viewportModelRenderer = new ViewportModelRenderer(programPreferences.getVertexSize());
 		animatedViewportModelRenderer = new AnimatedViewportModelRenderer(programPreferences.getVertexSize());
@@ -220,6 +261,10 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 			}
 		});
 		paintTimer.start();
+	}
+
+	public void setView(View view) {
+		this.view = view;
 	}
 
 	public void setupViewportBackground(final ProgramPreferences programPreferences) {
@@ -531,6 +576,8 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 				// actStart = actEnd;
 				// }
 //				repaint();
+			} else if (e.getSource() == rig) {
+				undoListener.pushAction(modelEditor.rig());
 			} else if (e.getSource() == reAssignMatrix) {
 				final MatrixPopup matrixPopup = new MatrixPopup(modelView.getModel());
 				final String[] words = { "Accept", "Cancel" };
@@ -538,8 +585,22 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 						JOptionPane.PLAIN_MESSAGE, JOptionPane.YES_NO_OPTION, null, words, words[1]);
 				if (i == 0) {
 					// JOptionPane.showMessageDialog(null,"action approved");
-					modelEditor.setMatrix(BoneShell.toBonesList(Collections.list(matrixPopup.newRefs.elements())));
+					UndoAction reassignMatrixAction = modelEditor.setMatrix(BoneShell.toBonesList(Collections.list(matrixPopup.newRefs.elements())));
+					undoListener.pushAction(reassignMatrixAction);
 				}
+			} else if (e.getSource() == reAssignSkinning) {
+				SkinPopup skinPopup = new SkinPopup(modelView);
+				final String[] words = { "Accept", "Cancel" };
+				final int i = JOptionPane.showOptionDialog(this, skinPopup, "Rebuild Skin",
+						JOptionPane.PLAIN_MESSAGE, JOptionPane.YES_NO_OPTION, null, words, words[1]);
+				if (i == 0) {
+					// JOptionPane.showMessageDialog(null,"action approved");
+					undoListener.pushAction(modelEditor.setHDSkinning(skinPopup.getBones(), skinPopup.getSkinWeights()));
+				}
+			} else if (e.getSource() == viewMatrix) {
+				InfoPopup.show(this, modelEditor.getSelectedMatricesDescription());
+			} else if (e.getSource() == viewHDSkinning) {
+				InfoPopup.show(this, modelEditor.getSelectedHDSkinningDescription());
 			} else if (e.getSource() == setParent) {
 				class NodeShell {
 					final IdObject node;
@@ -700,7 +761,10 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		final JCheckBox customOrigin = new JCheckBox("Custom Scaling Origin");
 		inputPanel.add(customOrigin);
 
-		final Vec3 selectionCenter = modelEditor.getSelectionCenter();
+		Vec3 selectionCenter = modelEditor.getSelectionCenter();
+		if(Double.isNaN(selectionCenter.x)) {
+			selectionCenter = new Vec3(0,0,0);
+		}
 		inputPanel.add(new JLabel("Center X:"));
 		inputPanel.add(centerSpinners[0] = new JSpinner(
 				new SpinnerNumberModel(selectionCenter.x, -100000.00, 100000.0, 0.0001)));
@@ -920,6 +984,27 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	public void modelEditorChanged(final ModelEditor newModelEditor) {
 		modelEditor = newModelEditor;
 		// TODO call from display panel and above
+	}
+
+	private class ChangeViewportAxisAction implements ActionListener {
+		private final String name;
+		private final byte dim1;
+		private final byte dim2;
+
+		public ChangeViewportAxisAction(String name, byte dim1, byte dim2) {
+			this.name = name;
+			this.dim1 = dim1;
+			this.dim2 = dim2;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			DockingWindowTitleProvider titleProvider = view.getWindowProperties().getTitleProvider();
+			view.getViewProperties().setTitle(name);
+			view.getWindowProperties().setTitleProvider(titleProvider);
+			m_d1 = dim1;
+			m_d2 = dim2;
+		}
 	}
 
 	private final class ModelVisitorImplementation implements ModelVisitor {

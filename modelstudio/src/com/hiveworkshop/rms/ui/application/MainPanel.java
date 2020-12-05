@@ -1412,9 +1412,17 @@ public class MainPanel extends JPanel
     // }
     // }
 
-    public static void setMouseCoordDisplay(JTextField[] mouseCoordDisplay, final byte dim1, final byte dim2, final double value1, final double value2) {
+    public static void setMouseCoordDisplay(JTextField[] mouseCoordDisplay, byte dim1, byte dim2, double value1, double value2) {
         for (final JTextField jTextField : mouseCoordDisplay) {
             jTextField.setText("");
+        }
+        if(dim1 < 0) {
+            dim1 = (byte)(-dim1-1);
+            value1 = -value1;
+        }
+        if(dim2 < 0) {
+            dim2 = (byte)(-dim2-1);
+            value2 = -value2;
         }
         mouseCoordDisplay[dim1].setText((float) value1 + "");
         mouseCoordDisplay[dim2].setText((float) value2 + "");

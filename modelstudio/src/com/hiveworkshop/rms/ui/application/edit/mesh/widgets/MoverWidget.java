@@ -144,12 +144,15 @@ public final class MoverWidget {
 	private void setColorByDimension(final Graphics2D graphics, final byte xDimension) {
 		switch (xDimension) {
 			case 0:
+			case -1:
 				graphics.setColor(new Color(0, 255, 0));
 				break;
 			case 1:
+			case -2:
 				graphics.setColor(new Color(255, 0, 0));
 				break;
 			case 2:
+			case -3:
 				graphics.setColor(new Color(0, 0, 255));
 				break;
 		}
