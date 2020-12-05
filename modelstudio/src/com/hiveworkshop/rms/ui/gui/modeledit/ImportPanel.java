@@ -1388,8 +1388,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 	}
 
 	public void initVisibilityList() {
-		visSourcesOld = new ArrayList();
-		visSourcesNew = new ArrayList();
+		visSourcesOld = new ArrayList<>();
+		visSourcesNew = new ArrayList<>();
 		allVisShells = new ArrayList<>();
 		EditableModel model = currentModel;
 		final List tempList = new ArrayList();

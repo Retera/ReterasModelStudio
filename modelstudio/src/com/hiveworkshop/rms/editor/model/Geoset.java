@@ -69,8 +69,8 @@ public class Geoset implements Named, VisibilitySource {
 				gv.setNormal(new Vec3(normals[i], normals[i + 1], normals[i + 2]));
 			}
 
-			for (int uvId = 0; uvId < uvSets.length; uvId++) {
-				gv.addTVertex(new Vec2(uvSets[uvId][j], uvSets[uvId][j + 1]));
+			for (float[] uvSet : uvSets) {
+				gv.addTVertex(new Vec2(uvSet[j], uvSet[j + 1]));
 			}
 		}
 		// guys I didn't code this to allow experimental

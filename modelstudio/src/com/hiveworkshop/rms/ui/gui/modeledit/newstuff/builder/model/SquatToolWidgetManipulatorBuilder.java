@@ -20,14 +20,17 @@ public final class SquatToolWidgetManipulatorBuilder extends AbstractSelectAndEd
 	private final RotatorWidget moverWidget = new RotatorWidget(new Vec3(0, 0, 0));
 
 	public SquatToolWidgetManipulatorBuilder(final ModelEditor modelEditor,
-			final ViewportSelectionHandler viewportSelectionHandler, final ProgramPreferences programPreferences,
-			final ModelView modelView) {
+											 final ViewportSelectionHandler viewportSelectionHandler,
+											 final ProgramPreferences programPreferences,
+											 final ModelView modelView) {
 		super(viewportSelectionHandler, programPreferences, modelEditor, modelView);
 	}
 
 	@Override
-	protected boolean widgetOffersEdit(final Vec3 selectionCenter, final Point mousePoint,
-			final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
+	protected boolean widgetOffersEdit(final Vec3 selectionCenter,
+									   final Point mousePoint,
+									   final CoordinateSystem coordinateSystem,
+									   final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getCenter());
 		final RotateDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem);
 		moverWidget.setMoveDirection(directionByMouse);
@@ -35,37 +38,39 @@ public final class SquatToolWidgetManipulatorBuilder extends AbstractSelectAndEd
 	}
 
 	@Override
-	protected Manipulator createManipulatorFromWidget(final Vec3 selectionCenter, final Point mousePoint,
-                                                      final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
+	protected Manipulator createManipulatorFromWidget(final Vec3 selectionCenter,
+													  final Point mousePoint,
+                                                      final CoordinateSystem coordinateSystem,
+													  final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getCenter());
 		final RotateDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem);
 		if (directionByMouse != null) {
 			moverWidget.setMoveDirection(directionByMouse);
 		}
-		switch (directionByMouse) {
-		case FREE:
-			return new SquatToolManipulator(getModelEditor(), selectionView);
-		case HORIZONTALLY:
-			return new SquatToolHorizontalManipulator(getModelEditor(), selectionView);
-		case VERTICALLY:
-			return new SquatToolVerticalManipulator(getModelEditor(), selectionView);
-		case SPIN:
-			return new SquatToolManipulator(getModelEditor(), selectionView);
-		case NONE:
-			return null;
+		if (directionByMouse != null) {
+			return switch (directionByMouse) {
+				case FREE -> new SquatToolManipulator(getModelEditor(), selectionView);
+				case HORIZONTALLY -> new SquatToolHorizontalManipulator(getModelEditor(), selectionView);
+				case VERTICALLY -> new SquatToolVerticalManipulator(getModelEditor(), selectionView);
+				case SPIN -> new SquatToolManipulator(getModelEditor(), selectionView);
+				case NONE -> null;
+			};
 		}
 		return null;
 	}
 
 	@Override
-	protected Manipulator createDefaultManipulator(final Vec3 selectionCenter, final Point mousePoint,
-			final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
+	protected Manipulator createDefaultManipulator(final Vec3 selectionCenter,
+												   final Point mousePoint,
+												   final CoordinateSystem coordinateSystem,
+												   final SelectionView selectionView) {
 		return new SquatToolManipulator(getModelEditor(), selectionView);
 	}
 
 	@Override
-	protected void renderWidget(final Graphics2D graphics, final CoordinateSystem coordinateSystem,
-			final SelectionView selectionView) {
+	protected void renderWidget(final Graphics2D graphics,
+								final CoordinateSystem coordinateSystem,
+								final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getCenter());
 		moverWidget.render(graphics, coordinateSystem);
 	}

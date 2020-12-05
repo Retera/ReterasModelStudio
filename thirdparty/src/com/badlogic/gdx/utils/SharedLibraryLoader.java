@@ -63,7 +63,7 @@ public class SharedLibraryLoader {
 		}
 	}
 
-	static private final HashSet<String> loadedLibraries = new HashSet();
+	static private final HashSet<String> loadedLibraries = new HashSet<>();
 
 	private String nativesJar;
 
@@ -73,8 +73,6 @@ public class SharedLibraryLoader {
 	/**
 	 * Fetches the natives from the given natives jar file. Used for testing a
 	 * shared lib on the fly.
-	 *
-	 * @param nativesJar
 	 */
 	public SharedLibraryLoader(final String nativesJar) {
 		this.nativesJar = nativesJar;

@@ -58,7 +58,7 @@ public class WindowsRegistry {
 				while ((c = is.read()) != -1) {
 					sw.write(c);
 				}
-			} catch (final IOException e) {
+			} catch (final IOException ignored) {
 			}
 		}
 
