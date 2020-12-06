@@ -13,7 +13,6 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class ObjectTabTreeBrowserTransferHandler extends TransferHandler {
@@ -63,12 +62,10 @@ public class ObjectTabTreeBrowserTransferHandler extends TransferHandler {
 				final UnitEditorPanel.DropLocation dl = (UnitEditorPanel.DropLocation) info.getDropLocation();
 				final Point dropPoint = dl.getDropPoint();
 				// discard drop point, unit location is based on tree sorter folders
-				editorPanel.acceptPastedObjectData(pastedObjects);
-				return true;
 			} else { // This is a paste
-				editorPanel.acceptPastedObjectData(pastedObjects);
-				return true;
 			}
+			editorPanel.acceptPastedObjectData(pastedObjects);
+			return true;
 		} catch (final Throwable th) {
 			th.printStackTrace();
 			ExceptionPopup.display(th);
@@ -87,9 +84,6 @@ public class ObjectTabTreeBrowserTransferHandler extends TransferHandler {
 			final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			try (BlizzardDataOutputStream blizzardStream = new BlizzardDataOutputStream(outputStream)) {
 				selectedUnitsAsChangeset.save(blizzardStream, false);
-			} catch (final FileNotFoundException e) {
-				System.out.println("failed to copy");
-				e.printStackTrace();
 			} catch (final IOException e) {
 				System.out.println("failed to copy");
 				e.printStackTrace();

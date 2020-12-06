@@ -6,11 +6,9 @@ import com.hiveworkshop.rms.ui.preferences.GUITheme;
 import com.hiveworkshop.rms.ui.preferences.MouseButtonPreference;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.ColorChooserIcon;
-import com.hiveworkshop.rms.ui.util.ColorChooserIcon.ColorListener;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -116,47 +114,17 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		final ColorChooserIcon pivotPointSelectedColorIcon = new ColorChooserIcon(
 				programPreferences.getPivotPointsSelectedColor(), programPreferences::setPivotPointsSelectedColor);
 		final ColorChooserIcon buttonColorB1Icon = new ColorChooserIcon(programPreferences.getActiveBColor1(),
-				new ColorListener() {
-					@Override
-					public void colorChanged(final Color color) {
-						programPreferences.setActiveBColor1(color);
-					}
-				});
+				programPreferences::setActiveBColor1);
 		final ColorChooserIcon buttonColorB2Icon = new ColorChooserIcon(programPreferences.getActiveBColor2(),
-				new ColorListener() {
-					@Override
-					public void colorChanged(final Color color) {
-						programPreferences.setActiveBColor2(color);
-					}
-				});
+				programPreferences::setActiveBColor2);
 		final ColorChooserIcon buttonColor1Icon = new ColorChooserIcon(programPreferences.getActiveColor1(),
-				new ColorListener() {
-					@Override
-					public void colorChanged(final Color color) {
-						programPreferences.setActiveColor1(color);
-					}
-				});
+				programPreferences::setActiveColor1);
 		final ColorChooserIcon buttonColor2Icon = new ColorChooserIcon(programPreferences.getActiveColor2(),
-				new ColorListener() {
-					@Override
-					public void colorChanged(final Color color) {
-						programPreferences.setActiveColor2(color);
-					}
-				});
+				programPreferences::setActiveColor2);
 		final ColorChooserIcon buttonColorR1Icon = new ColorChooserIcon(programPreferences.getActiveRColor1(),
-				new ColorListener() {
-					@Override
-					public void colorChanged(final Color color) {
-						programPreferences.setActiveRColor1(color);
-					}
-				});
+				programPreferences::setActiveRColor1);
 		final ColorChooserIcon buttonColorR2Icon = new ColorChooserIcon(programPreferences.getActiveRColor2(),
-				new ColorListener() {
-					@Override
-					public void colorChanged(final Color color) {
-						programPreferences.setActiveRColor2(color);
-					}
-				});
+				programPreferences::setActiveRColor2);
 
 		final JComboBox<GUITheme> themeCheckBox = new JComboBox<>(GUITheme.values());
 		themeCheckBox.setSelectedItem(programPreferences.getTheme());

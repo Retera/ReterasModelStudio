@@ -47,20 +47,14 @@ public final class ScaleWidgetTVertexEditorManipulatorBuilder extends AbstractSe
 		if (directionByMouse != null) {
 			moverWidget.setMoveDirection(directionByMouse);
 		}
-		switch (directionByMouse) {
-		case XYZ:
-			return new ScaleTVertexManipulatorUsesYMouseDrag(getModelEditor(), selectionView);
-		case FLAT_XY:
-			return new ScaleXYTVertexManipulator(getModelEditor(), selectionView);
-		case RIGHT:
-			return new ScaleXTVertexManipulator(getModelEditor(), selectionView);
-		case UP:
-			return new ScaleYTVertexManipulator(getModelEditor(), selectionView);
-		case NONE:
-			return null;
-		}
-		return null;
-	}
+        return switch (directionByMouse) {
+            case XYZ -> new ScaleTVertexManipulatorUsesYMouseDrag(getModelEditor(), selectionView);
+            case FLAT_XY -> new ScaleXYTVertexManipulator(getModelEditor(), selectionView);
+            case RIGHT -> new ScaleXTVertexManipulator(getModelEditor(), selectionView);
+            case UP -> new ScaleYTVertexManipulator(getModelEditor(), selectionView);
+            case NONE -> null;
+        };
+    }
 
 	@Override
 	protected Manipulator createDefaultManipulator(final Vec2 selectionCenter, final Point mousePoint,

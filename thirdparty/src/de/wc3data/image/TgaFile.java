@@ -11,7 +11,6 @@ import java.awt.image.DataBufferInt;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -24,22 +23,14 @@ public class TgaFile {
 
     /**
      * Read a TGA image from a file
-     * @param file
-     * @return
-     * @throws FileNotFoundException
-     * @throws IOException 
      */
-    public static BufferedImage readTGA(File file) throws FileNotFoundException, IOException{
+    public static BufferedImage readTGA(File file) throws IOException{
         return readTGA(file.getName(),new FileInputStream(file));
 
     }
     
     /**
      * Read a TGA image from an input stream.
-     * @param name
-     * @param stream
-     * @return
-     * @throws IOException 
      */
     public static BufferedImage readTGA(String name, InputStream stream) throws IOException {
 
@@ -136,9 +127,6 @@ public class TgaFile {
     /**
      * Write a BufferedImage to a TGA file
      * BufferedImages should be TYPE_INT_ARGB or TYPE_INT_RGB
-     * @param src
-     * @param file
-     * @throws IOException 
      */
     public static void writeTGA(BufferedImage src, File file) throws IOException {
         

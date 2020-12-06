@@ -553,7 +553,7 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 		for (final ModelEditor handler : set) {
 			rigActions.add(handler.rig());
 		}
-		final RigAction rigAction = new RigAction(rigActions.toArray(new RigAction[rigActions.size()]));
+		final RigAction rigAction = new RigAction(rigActions.toArray(new RigAction[0]));
 		rigAction.redo();
 		return rigAction;
 	}

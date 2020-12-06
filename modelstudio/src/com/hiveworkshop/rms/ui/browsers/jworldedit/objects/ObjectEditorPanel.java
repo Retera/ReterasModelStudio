@@ -28,7 +28,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -426,8 +425,6 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 					try (BlizzardDataOutputStream outputStream = new BlizzardDataOutputStream(w3uFile)) {
 						unitEditorPanel.getUnitData().getEditorData().save(outputStream, false);
 					}
-				} catch (final FileNotFoundException e1) {
-					e1.printStackTrace();
 				} catch (final IOException e1) {
 					e1.printStackTrace();
 				}
@@ -436,24 +433,15 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 	}
 
 	public String getFileTypeName(final WorldEditorDataType dataType) {
-		switch (dataType) {
-			case ABILITIES:
-				return WEString.getString("WESTRING_FILETYPE_ABILITYDATA");
-			case BUFFS_EFFECTS:
-				return WEString.getString("WESTRING_FILETYPE_BUFFDATA");
-			case DESTRUCTIBLES:
-				return WEString.getString("WESTRING_FILETYPE_DESTRUCTABLEDATA");
-			case DOODADS:
-				return WEString.getString("WESTRING_FILETYPE_DOODADDATA");
-			case ITEM:
-				return WEString.getString("WESTRING_FILETYPE_ITEMDATA");
-			case UNITS:
-				return WEString.getString("WESTRING_FILETYPE_UNITDATA");
-			case UPGRADES:
-				return WEString.getString("WESTRING_FILETYPE_UPGRADEDATA");
-			default:
-				return WEString.getString("WESTRING_UNKNOWN");
-		}
+		return switch (dataType) {
+			case ABILITIES -> WEString.getString("WESTRING_FILETYPE_ABILITYDATA");
+			case BUFFS_EFFECTS -> WEString.getString("WESTRING_FILETYPE_BUFFDATA");
+			case DESTRUCTIBLES -> WEString.getString("WESTRING_FILETYPE_DESTRUCTABLEDATA");
+			case DOODADS -> WEString.getString("WESTRING_FILETYPE_DOODADDATA");
+			case ITEM -> WEString.getString("WESTRING_FILETYPE_ITEMDATA");
+			case UNITS -> WEString.getString("WESTRING_FILETYPE_UNITDATA");
+			case UPGRADES -> WEString.getString("WESTRING_FILETYPE_UPGRADEDATA");
+		};
 	}
 
 	public void openSpecificTabData() {
@@ -488,8 +476,6 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 						unitEditorPanel.getUnitData().getEditorData().load(inputStream, null, false);
 						unitEditorPanel.reloadAllDataVerySlowly();
 					}
-				} catch (final FileNotFoundException e1) {
-					e1.printStackTrace();
 				} catch (final IOException e1) {
 					e1.printStackTrace();
 				}

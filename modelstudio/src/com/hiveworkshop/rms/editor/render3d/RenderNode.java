@@ -218,8 +218,6 @@ public final class RenderNode {
 	 * Supposedly returns final matrix based on bind pose, but don't actually use
 	 * this yet, I'm not even sure it's computed correctly. Graphically, based on my
 	 * tests, it looked like maybe we do not need it.
-	 * 
-	 * @return
 	 */
 	public Mat4 getFinalMatrix() {
 		return finalMatrix;

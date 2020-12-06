@@ -54,50 +54,38 @@ public final class IconUtils {
 			final MutableObjectData.WorldEditorDataType worldEditorDataType) {
 		String iconPath;
 		switch (worldEditorDataType) {
-		case ABILITIES:
-			iconPath = gameObject.getFieldAsString(War3ID.fromString("aart"), 0);
-			break;
-		case BUFFS_EFFECTS:
-			iconPath = gameObject.getFieldAsString(War3ID.fromString("fart"), 0);
-			break;
-		case DESTRUCTIBLES: {
-			final DataTable unitEditorData = DataTable.getWorldEditorData();
-			final String category = gameObject.getFieldAsString(War3ID.fromString("bcat"), 0);
-			final Element categories = unitEditorData.get("DestructibleCategories");
-			if (categories.hasField(category)) {
-				iconPath = categories.getField(category).split(",")[1];
-			} else {
-				iconPath = "ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp";
-			}
-			if (!iconPath.toLowerCase().endsWith(".blp")) {
-				iconPath += ".blp";
-			}
-			break;
-		}
-		case DOODADS: {
-			final DataTable unitEditorData = DataTable.getWorldEditorData();
-			final String category = gameObject.getFieldAsString(War3ID.fromString("dcat"), 0);
-			final Element categories = unitEditorData.get("DoodadCategories");
-			if (categories.hasField(category)) {
-				iconPath = categories.getField(category, 1);
-			} else {
-				iconPath = "ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp";
-			}
-			if (!iconPath.toLowerCase().endsWith(".blp")) {
-				iconPath += ".blp";
-			}
-			break;
-		}
-		case ITEM:
-			iconPath = gameObject.getFieldAsString(War3ID.fromString("iico"), 0);
-			break;
-		case UPGRADES:
-			iconPath = gameObject.getFieldAsString(War3ID.fromString("gar1"), 1);
-			break;
-		default:
-		case UNITS:
-			iconPath = gameObject.getFieldAsString(War3ID.fromString("uico"), 0);
-			break;
+			case ABILITIES -> iconPath = gameObject.getFieldAsString(War3ID.fromString("aart"), 0);
+			case BUFFS_EFFECTS -> iconPath = gameObject.getFieldAsString(War3ID.fromString("fart"), 0);
+			case DESTRUCTIBLES -> {
+				final DataTable unitEditorData = DataTable.getWorldEditorData();
+				final String category = gameObject.getFieldAsString(War3ID.fromString("bcat"), 0);
+				final Element categories = unitEditorData.get("DestructibleCategories");
+				if (categories.hasField(category)) {
+					iconPath = categories.getField(category).split(",")[1];
+				} else {
+					iconPath = "ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp";
+				}
+				if (!iconPath.toLowerCase().endsWith(".blp")) {
+					iconPath += ".blp";
+				}
+            }
+			case DOODADS -> {
+				final DataTable unitEditorData = DataTable.getWorldEditorData();
+				final String category = gameObject.getFieldAsString(War3ID.fromString("dcat"), 0);
+				final Element categories = unitEditorData.get("DoodadCategories");
+				if (categories.hasField(category)) {
+					iconPath = categories.getField(category, 1);
+				} else {
+					iconPath = "ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp";
+				}
+				if (!iconPath.toLowerCase().endsWith(".blp")) {
+					iconPath += ".blp";
+				}
+            }
+			case ITEM -> iconPath = gameObject.getFieldAsString(War3ID.fromString("iico"), 0);
+			case UPGRADES -> iconPath = gameObject.getFieldAsString(War3ID.fromString("gar1"), 1);
+			case UNITS -> iconPath = gameObject.getFieldAsString(War3ID.fromString("uico"), 0);
+			default -> iconPath = gameObject.getFieldAsString(War3ID.fromString("uico"), 0);
 		}
 		final BufferedImage gameTex = BLPHandler.get().getGameTex(iconPath);
 		return gameTex;

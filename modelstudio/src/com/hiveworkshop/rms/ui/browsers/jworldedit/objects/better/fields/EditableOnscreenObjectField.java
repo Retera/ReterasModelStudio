@@ -27,30 +27,19 @@ public interface EditableOnscreenObjectField {
 	// void setValue(final MutableGameObject gameUnit, final Object value);
 
 	static String categoryName(final String cat) {
-		switch (cat.toLowerCase()) {
-		case "abil":
-			return WEString.getString("WESTRING_OE_CAT_ABILITIES").replace("&", "");
-		case "art":
-			return WEString.getString("WESTRING_OE_CAT_ART").replace("&", "");
-		case "combat":
-			return WEString.getString("WESTRING_OE_CAT_COMBAT").replace("&", "");
-		case "data":
-			return WEString.getString("WESTRING_OE_CAT_DATA").replace("&", "");
-		case "editor":
-			return WEString.getString("WESTRING_OE_CAT_EDITOR").replace("&", "");
-		case "move":
-			return WEString.getString("WESTRING_OE_CAT_MOVEMENT").replace("&", "");
-		case "path":
-			return WEString.getString("WESTRING_OE_CAT_PATHING").replace("&", "");
-		case "sound":
-			return WEString.getString("WESTRING_OE_CAT_SOUND").replace("&", "");
-		case "stats":
-			return WEString.getString("WESTRING_OE_CAT_STATS").replace("&", "");
-		case "tech":
-			return WEString.getString("WESTRING_OE_CAT_TECHTREE").replace("&", "");
-		case "text":
-			return WEString.getString("WESTRING_OE_CAT_TEXT").replace("&", "");
-		}
-		return WEString.getString("WESTRING_UNKNOWN");
+		return switch (cat.toLowerCase()) {
+			case "abil" -> WEString.getString("WESTRING_OE_CAT_ABILITIES").replace("&", "");
+			case "art" -> WEString.getString("WESTRING_OE_CAT_ART").replace("&", "");
+			case "combat" -> WEString.getString("WESTRING_OE_CAT_COMBAT").replace("&", "");
+			case "data" -> WEString.getString("WESTRING_OE_CAT_DATA").replace("&", "");
+			case "editor" -> WEString.getString("WESTRING_OE_CAT_EDITOR").replace("&", "");
+			case "move" -> WEString.getString("WESTRING_OE_CAT_MOVEMENT").replace("&", "");
+			case "path" -> WEString.getString("WESTRING_OE_CAT_PATHING").replace("&", "");
+			case "sound" -> WEString.getString("WESTRING_OE_CAT_SOUND").replace("&", "");
+			case "stats" -> WEString.getString("WESTRING_OE_CAT_STATS").replace("&", "");
+			case "tech" -> WEString.getString("WESTRING_OE_CAT_TECHTREE").replace("&", "");
+			case "text" -> WEString.getString("WESTRING_OE_CAT_TEXT").replace("&", "");
+			default -> WEString.getString("WESTRING_UNKNOWN");
+		};
 	}
 }

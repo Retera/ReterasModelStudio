@@ -43,29 +43,14 @@ public class MdlxSequence implements MdlxBlock {
 
 		for (final String token : stream.readBlock()) {
 			switch (token) {
-			case MdlUtils.TOKEN_INTERVAL:
-				stream.readIntArray(interval);
-				break;
-			case MdlUtils.TOKEN_NONLOOPING:
-				flags = 1;
-				break;
-			case MdlUtils.TOKEN_MOVESPEED:
-				moveSpeed = stream.readFloat();
-				break;
-			case MdlUtils.TOKEN_RARITY:
-				rarity = stream.readFloat();
-				break;
-			case MdlUtils.TOKEN_MINIMUM_EXTENT:
-				stream.readFloatArray(extent.min);
-				break;
-			case MdlUtils.TOKEN_MAXIMUM_EXTENT:
-				stream.readFloatArray(extent.max);
-				break;
-			case MdlUtils.TOKEN_BOUNDSRADIUS:
-				extent.boundsRadius = stream.readFloat();
-				break;
-			default:
-				throw new IllegalStateException("Unknown token in Sequence \"" + name + "\": " + token);
+				case MdlUtils.TOKEN_INTERVAL -> stream.readIntArray(interval);
+				case MdlUtils.TOKEN_NONLOOPING -> flags = 1;
+				case MdlUtils.TOKEN_MOVESPEED -> moveSpeed = stream.readFloat();
+				case MdlUtils.TOKEN_RARITY -> rarity = stream.readFloat();
+				case MdlUtils.TOKEN_MINIMUM_EXTENT -> stream.readFloatArray(extent.min);
+				case MdlUtils.TOKEN_MAXIMUM_EXTENT -> stream.readFloatArray(extent.max);
+				case MdlUtils.TOKEN_BOUNDSRADIUS -> extent.boundsRadius = stream.readFloat();
+				default -> throw new IllegalStateException("Unknown token in Sequence \"" + name + "\": " + token);
 			}
 		}
 	}

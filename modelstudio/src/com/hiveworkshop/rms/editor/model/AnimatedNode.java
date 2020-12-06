@@ -267,42 +267,42 @@ public abstract class AnimatedNode extends TimelineContainer {
 			parentRenderNode.getWorldMatrix().transform(axisAngleHeap);
 
 			switch (unusedXYZ) {
-			case 0:
-				axisAngleHeap.x = axisAngleHeap.x + 1;
-				axisAngleHeap.y = axisAngleHeap.y + 0;
-				axisAngleHeap.z = axisAngleHeap.z + 0;
-				break;
-			case 1:
-				axisAngleHeap.x = axisAngleHeap.x + 0;
-				axisAngleHeap.y = axisAngleHeap.y + -1;
-				axisAngleHeap.z = axisAngleHeap.z + 0;
-				break;
-			case 2:
-				axisAngleHeap.x = axisAngleHeap.x + 0;
-				axisAngleHeap.y = axisAngleHeap.y + 0;
-				axisAngleHeap.z = axisAngleHeap.z + -1;
-				break;
+				case 0 -> {
+					axisAngleHeap.x = axisAngleHeap.x + 1;
+					axisAngleHeap.y = axisAngleHeap.y + 0;
+					axisAngleHeap.z = axisAngleHeap.z + 0;
+				}
+				case 1 -> {
+					axisAngleHeap.x = axisAngleHeap.x + 0;
+					axisAngleHeap.y = axisAngleHeap.y + -1;
+					axisAngleHeap.z = axisAngleHeap.z + 0;
+				}
+				case 2 -> {
+					axisAngleHeap.x = axisAngleHeap.x + 0;
+					axisAngleHeap.y = axisAngleHeap.y + 0;
+					axisAngleHeap.z = axisAngleHeap.z + -1;
+				}
 			}
 			axisAngleHeap.w = 1;
 
 			matrixHeap.transform(axisAngleHeap);
 		} else {
 			switch (unusedXYZ) {
-				case 0:
+				case 0 -> {
 					axisAngleHeap.x = 1;
 					axisAngleHeap.y = 0;
 					axisAngleHeap.z = 0;
-					break;
-				case 1:
+				}
+				case 1 -> {
 					axisAngleHeap.x = 0;
 					axisAngleHeap.y = -1;
 					axisAngleHeap.z = 0;
-					break;
-				case 2:
+				}
+				case 2 -> {
 					axisAngleHeap.x = 0;
 					axisAngleHeap.y = 0;
 					axisAngleHeap.z = -1;
-					break;
+				}
 			}
 		}
 		axisAngleHeap.w = (float) radians;

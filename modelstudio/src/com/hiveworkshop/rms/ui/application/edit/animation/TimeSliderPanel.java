@@ -791,17 +791,9 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 			return;
 		}
 		switch (theme) {
-		case DARK:
-		case HIFI:
-			g.setColor(Color.WHITE);
-			break;
-		case FOREST_GREEN:
-			g.setColor(Color.WHITE);
-			break;
-		default:
-			g.setColor(Color.BLACK);
-			break;
-
+			case DARK, HIFI -> g.setColor(Color.WHITE);
+			case FOREST_GREEN -> g.setColor(Color.WHITE);
+			default -> g.setColor(Color.BLACK);
 		}
 		final int timeSpan = end - start;
 		final int tickWidthPixels = widthMinusOffsets / 30;
@@ -947,9 +939,8 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		if ((modelView == null) || (modelView.getModel() == null)) {
 			return Collections.emptySet();
 		}
-		final Collection<IdObject> selection = allKF.isSelected() ? modelView.getModel().getIdObjects()
+		return allKF.isSelected() ? modelView.getModel().getIdObjects()
 				: nodeSelectionManager.getSelection();
-		return selection;
 	}
 
 	@Override

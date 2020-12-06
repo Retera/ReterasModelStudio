@@ -6,9 +6,6 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Collection;
 
 public class SkinPopup extends JPanel {
     private static final int BONE_COUNT = 4;
@@ -21,24 +18,21 @@ public class SkinPopup extends JPanel {
             final int index = i;
             JButton boneButton = new JButton("null");
             add(boneButton, "growx");
-            boneButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    DefaultListModel<BoneShell> boneShellDefaultListModel = new DefaultListModel<>();
-                    for(Bone bone: modelView.getModel().sortedIdObjects(Bone.class)) {
-                        boneShellDefaultListModel.addElement(new BoneShell(bone));
-                    }
-                    JList<BoneShell> bones = new JList<>(boneShellDefaultListModel);
-                    JCheckBox showParents = new JCheckBox("Show Parents");
-                    bones.setCellRenderer(new ParentToggleRenderer(showParents, modelView, null));
-                    JPanel panel = new JPanel(new BorderLayout());
-                    panel.add(showParents, BorderLayout.NORTH);
-                    panel.add(new JScrollPane(bones), BorderLayout.CENTER);
-                    JOptionPane.showMessageDialog(SkinPopup.this, panel);
-                    BoneShell selectedValue = bones.getSelectedValue();
-                    SkinPopup.this.bones[index] = selectedValue.bone;
-                    boneButton.setText(selectedValue.bone.getName());
+            boneButton.addActionListener(e -> {
+                DefaultListModel<BoneShell> boneShellDefaultListModel = new DefaultListModel<>();
+                for(Bone bone: modelView.getModel().sortedIdObjects(Bone.class)) {
+                    boneShellDefaultListModel.addElement(new BoneShell(bone));
                 }
+                JList<BoneShell> bones = new JList<>(boneShellDefaultListModel);
+                JCheckBox showParents = new JCheckBox("Show Parents");
+                bones.setCellRenderer(new ParentToggleRenderer(showParents, modelView, null));
+                JPanel panel = new JPanel(new BorderLayout());
+                panel.add(showParents, BorderLayout.NORTH);
+                panel.add(new JScrollPane(bones), BorderLayout.CENTER);
+                JOptionPane.showMessageDialog(SkinPopup.this, panel);
+                BoneShell selectedValue = bones.getSelectedValue();
+                SkinPopup.this.bones[index] = selectedValue.bone;
+                boneButton.setText(selectedValue.bone.getName());
             });
             JSpinner boneWeightSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 255, 1));
             add(boneWeightSpinner, "wrap");

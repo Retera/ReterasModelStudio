@@ -46,18 +46,10 @@ public final class EditorDisplayManager {
 
 		// set your theme
 		switch (jtattooTheme) {
-		case "Noire":
-			NoireLookAndFeel.setCurrentTheme(props);
-			break;
-		case "HiFi":
-			HiFiLookAndFeel.setCurrentTheme(props);
-			break;
-		case "Acryl":
-			AcrylLookAndFeel.setCurrentTheme(props);
-			break;
-		case "Aluminium":
-			AluminiumLookAndFeel.setCurrentTheme(props);
-			break;
+			case "Noire" -> NoireLookAndFeel.setCurrentTheme(props);
+			case "HiFi" -> HiFiLookAndFeel.setCurrentTheme(props);
+			case "Acryl" -> AcrylLookAndFeel.setCurrentTheme(props);
+			case "Aluminium" -> AluminiumLookAndFeel.setCurrentTheme(props);
 		}
 		// select the Look and Feel
 		try {

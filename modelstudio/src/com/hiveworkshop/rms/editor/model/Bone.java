@@ -97,8 +97,6 @@ public class Bone extends IdObject {
 	/**
 	 * Returns true if this bone contains some type of data that moves, scales, rotates, or otherwise changes based on
 	 * the time track.
-	 *
-	 * @return
 	 */
 	public boolean animates() {
 		for (final AnimFlag af : animFlags.values()) {

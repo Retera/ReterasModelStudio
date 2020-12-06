@@ -272,24 +272,18 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
 
                 graphics.drawRoundRect(minXCoord, minYCoord, maxXCoord - minXCoord, maxYCoord - minYCoord, vertexSize,
                         vertexSize);
-                drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage,
-                        worldMatrix);
-            } else {
-                drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage,
-                        worldMatrix);
             }
+            drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage,
+                    worldMatrix);
         } else {
             if (collisionShape.getExtents() != null) {
                 final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
                 final double boundsRadius = collisionShape.getExtents().getBoundsRadius() * zoom;
                 graphics.drawOval((int) (xCoord - boundsRadius), (int) (yCoord - boundsRadius),
                         (int) (boundsRadius * 2), (int) (boundsRadius * 2));
-                drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage,
-                        worldMatrix);
-            } else {
-                drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage,
-                        worldMatrix);
             }
+            drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage,
+                    worldMatrix);
         }
         for (final Vec3 vertex : vertices) {
             drawCrosshair(graphics, coordinateSystem, vertexSize, vertex, worldMatrix, crosshairIsBox);

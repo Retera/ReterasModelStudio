@@ -112,9 +112,7 @@ public class MdlTokenOutputStream {
 	}
 
 	public void writeLine(final String string) {
-		for (int i = 0; i < ident; i++) {
-			buffer.append('\t');
-		}
+        buffer.append("\t".repeat(Math.max(0, ident)));
 
 		buffer.append(string);
 		buffer.append('\n');

@@ -156,7 +156,7 @@ public class ExtLogEditor extends JPanel {
 		return new ExtLog(minimumExtent, maximumExtent, boundsRadius);
 	}
 
-	private final double val(final JSpinner spinner) {
+	private double val(final JSpinner spinner) {
 		return ((Number) spinner.getValue()).doubleValue();
 	}
 

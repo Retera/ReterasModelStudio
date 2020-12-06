@@ -120,7 +120,7 @@ public class MdlTokenInputStream {
 	 * Read an MDL keyframe value. If the value is a scalar, it is just the number.
 	 * If the value is a vector, it is enclosed with curly braces.
 	 *
-	 * @param {Float32Array|Uint32Array} value
+	 * @param values {Float32Array|Uint32Array}
 	 */
 	public void readKeyframe(final float[] values) {
 		if (values.length == 1) {

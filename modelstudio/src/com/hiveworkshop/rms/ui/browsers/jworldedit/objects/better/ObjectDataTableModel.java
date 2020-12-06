@@ -76,13 +76,11 @@ public class ObjectDataTableModel implements TableModel {
 
 	@Override
 	public String getColumnName(final int columnIndex) {
-		switch (columnIndex) {
-		case 0:
-			return WEString.getString("WESTRING_UE_FIELDNAME");
-		case 1:
-			return WEString.getString("WESTRING_UE_FIELDVALUE");
-		}
-		return WEString.getString("WESTRING_UNKNOWN");
+		return switch (columnIndex) {
+			case 0 -> WEString.getString("WESTRING_UE_FIELDNAME");
+			case 1 -> WEString.getString("WESTRING_UE_FIELDVALUE");
+			default -> WEString.getString("WESTRING_UNKNOWN");
+		};
 	}
 
 	@Override

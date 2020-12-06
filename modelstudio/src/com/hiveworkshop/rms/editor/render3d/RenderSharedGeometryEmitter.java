@@ -88,7 +88,7 @@ public abstract class RenderSharedGeometryEmitter<MODEL_OBJECT extends EmitterId
 	/**
 	 * Returns a power of two size for the given target capacity.
 	 */
-	private static final int powerOfTwo(final int capacity) {
+	private static int powerOfTwo(final int capacity) {
 		int numElements = capacity - 1;
 		numElements |= numElements >>> 1;
 		numElements |= numElements >>> 2;

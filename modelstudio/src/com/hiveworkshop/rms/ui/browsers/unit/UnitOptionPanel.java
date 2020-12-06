@@ -208,26 +208,19 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 	}
 
 	private String raceKey(final int index) {
-		switch (index) {
-		case -1:
-			return "human";
-		case 0:
-			return "human";
-		case 1:
-			return "orc";
-		case 2:
-			return "undead";
-		case 3:
-			return "nightelf";
-		case 4:
-			return "neutrals";
-		case 5:
-			return "naga";
-		}
-		return "neutrals";
+		return switch (index) {
+			case -1 -> "human";
+			case 0 -> "human";
+			case 1 -> "orc";
+			case 2 -> "undead";
+			case 3 -> "nightelf";
+			case 4 -> "neutrals";
+			case 5 -> "naga";
+			default -> "neutrals";
+		};
 	}
 
-	class RaceData {
+	static class RaceData {
 		List<GameObject> units = new ArrayList<>();
 		List<GameObject> heroes = new ArrayList<>();
 		List<GameObject> buildings = new ArrayList<>();
@@ -310,22 +303,14 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 				}
 
 				switch (sortGroupId) {
-				case 0:
-					sortedRaces.get(storeKey).units.add(unit);
-					break;
-				case 1:
-					sortedRaces.get(storeKey).heroes.add(unit);
-					break;
-				case 2:
-					sortedRaces.get(storeKey).buildings.add(unit);
-					break;
-				case 3:
-					sortedRaces.get(storeKey).buildingsUprooted.add(unit);
-					sortedRaces.get(storeKey).buildings.add(unit);
-					break;
-				case 4:
-					sortedRaces.get(storeKey).special.add(unit);
-					break;
+					case 0 -> sortedRaces.get(storeKey).units.add(unit);
+					case 1 -> sortedRaces.get(storeKey).heroes.add(unit);
+					case 2 -> sortedRaces.get(storeKey).buildings.add(unit);
+					case 3 -> {
+						sortedRaces.get(storeKey).buildingsUprooted.add(unit);
+						sortedRaces.get(storeKey).buildings.add(unit);
+					}
+					case 4 -> sortedRaces.get(storeKey).special.add(unit);
 				}
 			}
 
@@ -354,25 +339,25 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 			uberTip = uberTip.replace("|cffffcc00", "");
 			uberTip = uberTip.replace("|r", "");
 
-			String newUberTip = "";
+			StringBuilder newUberTip = new StringBuilder();
 			int depth = 0;
 			for (int i = 0; i < uberTip.length(); i++) {
 				final char c = uberTip.charAt(i);
 				if (c == '<' && uberTip.length() > i + 4 && uberTip.startsWith("<br>", i)) {
 					i += 3;
 					depth = 0;
-					newUberTip += "<br>";
+					newUberTip.append("<br>");
 				} else {
 					if (depth > 80 && c == ' ') {
 						depth = 0;
-						newUberTip += "<br>";
+						newUberTip.append("<br>");
 					}
-					newUberTip += "" + c;
+					newUberTip.append(c);
 					depth++;
 				}
 			}
 
-			uberTip = newUberTip;
+			uberTip = newUberTip.toString();
 			String name = unit.getName();
 			// if( unit.getField("campaign").startsWith("1") &&
 			// Character.isUpperCase(unit.getUnitId().charAt(0)) ) {
@@ -568,7 +553,7 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 			// continue;
 			// }
 			if (i % rowLength == 0) {
-				if (lastVertGroup != null && lastHorizGroup != null) {
+				if (lastVertGroup != null) {
 					horizontalGroup.addGroup(lastHorizGroup);
 					verticalGroup.addGroup(lastVertGroup);
 				}
@@ -581,7 +566,7 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 			lastHorizGroup.addComponent(myButton);
 			i++;
 		}
-		if (lastVertGroup != null && lastHorizGroup != null) {
+		if (lastVertGroup != null) {
 			horizontalGroup.addGroup(lastHorizGroup);
 			verticalGroup.addGroup(lastVertGroup);
 		}
@@ -638,7 +623,7 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 				// continue;
 				// }
 				if (i % rowLength == 0) {
-					if (lastVertGroup != null && lastHorizGroup != null) {
+					if (lastVertGroup != null) {
 						horizontalGroup.addGroup(lastHorizGroup);
 						verticalGroup.addGroup(lastVertGroup);
 					}
@@ -651,7 +636,7 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 				lastHorizGroup.addComponent(myButton);
 				i++;
 			}
-			if (lastVertGroup != null && lastHorizGroup != null) {
+			if (lastVertGroup != null) {
 				horizontalGroup.addGroup(lastHorizGroup);
 				verticalGroup.addGroup(lastVertGroup);
 			}
@@ -711,7 +696,7 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 				// continue;
 				// }
 				if (i % rowLength == 0) {
-					if (lastVertGroup != null && lastHorizGroup != null) {
+					if (lastVertGroup != null) {
 						horizontalGroup.addGroup(lastHorizGroup);
 						verticalGroup.addGroup(lastVertGroup);
 					}
@@ -724,7 +709,7 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 				lastHorizGroup.addComponent(myButton);
 				i++;
 			}
-			if (lastVertGroup != null && lastHorizGroup != null) {
+			if (lastVertGroup != null) {
 				horizontalGroup.addGroup(lastHorizGroup);
 				verticalGroup.addGroup(lastVertGroup);
 			}

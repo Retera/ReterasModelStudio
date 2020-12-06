@@ -44,16 +44,13 @@ public final class MoverWidgetTVertexEditorManipulatorBuilder extends AbstractSe
 				coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 		if (directionByMouse != null) {
 			moverWidget.setMoveDirection(directionByMouse);
-		}
-		switch (directionByMouse) {
-		case BOTH:
-			return new MoveTVertexManipulator(getModelEditor());
-		case RIGHT:
-			return new MoveXTVertexManipulator(getModelEditor());
-		case UP:
-			return new MoveYTVertexManipulator(getModelEditor());
-		case NONE:
-			return null;
+
+			return switch (directionByMouse) {
+				case BOTH -> new MoveTVertexManipulator(getModelEditor());
+				case RIGHT -> new MoveXTVertexManipulator(getModelEditor());
+				case UP -> new MoveYTVertexManipulator(getModelEditor());
+				case NONE -> null;
+			};
 		}
 		return null;
 	}

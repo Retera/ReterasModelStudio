@@ -70,59 +70,24 @@ public class MdlxRibbonEmitter extends MdlxGenericObject {
 	public void readMdl(final MdlTokenInputStream stream, final int version) {
 		for (final String token : super.readMdlGeneric(stream)) {
 			switch (token) {
-				case MdlUtils.TOKEN_STATIC_HEIGHT_ABOVE:
-					heightAbove = stream.readFloat();
-					break;
-				case MdlUtils.TOKEN_HEIGHT_ABOVE:
-					readTimeline(stream, AnimationMap.KRHA);
-					break;
-				case MdlUtils.TOKEN_STATIC_HEIGHT_BELOW:
-					heightBelow = stream.readFloat();
-					break;
-				case MdlUtils.TOKEN_HEIGHT_BELOW:
-					readTimeline(stream, AnimationMap.KRHB);
-					break;
-				case MdlUtils.TOKEN_STATIC_ALPHA:
-					alpha = stream.readFloat();
-					break;
-				case MdlUtils.TOKEN_ALPHA:
-					readTimeline(stream, AnimationMap.KRAL);
-					break;
-				case MdlUtils.TOKEN_STATIC_COLOR:
-					stream.readColor(color);
-					break;
-				case MdlUtils.TOKEN_COLOR:
-					readTimeline(stream, AnimationMap.KRCO);
-					break;
-				case MdlUtils.TOKEN_STATIC_TEXTURE_SLOT:
-					textureSlot = stream.readUInt32();
-					break;
-				case MdlUtils.TOKEN_TEXTURE_SLOT:
-					readTimeline(stream, AnimationMap.KRTX);
-					break;
-				case MdlUtils.TOKEN_VISIBILITY:
-					readTimeline(stream, AnimationMap.KRVS);
-					break;
-				case MdlUtils.TOKEN_EMISSION_RATE:
-					emissionRate = stream.readUInt32();
-					break;
-				case MdlUtils.TOKEN_LIFE_SPAN:
-					lifeSpan = stream.readFloat();
-					break;
-				case MdlUtils.TOKEN_GRAVITY:
-					gravity = stream.readFloat();
-					break;
-				case MdlUtils.TOKEN_ROWS:
-					rows = stream.readUInt32();
-					break;
-				case MdlUtils.TOKEN_COLUMNS:
-					columns = stream.readUInt32();
-					break;
-				case MdlUtils.TOKEN_MATERIAL_ID:
-					materialId = stream.readInt();
-					break;
-				default:
-					throw new RuntimeException("Unknown token in RibbonEmitter " + name + ": " + token);
+				case MdlUtils.TOKEN_STATIC_HEIGHT_ABOVE -> heightAbove = stream.readFloat();
+				case MdlUtils.TOKEN_HEIGHT_ABOVE -> readTimeline(stream, AnimationMap.KRHA);
+				case MdlUtils.TOKEN_STATIC_HEIGHT_BELOW -> heightBelow = stream.readFloat();
+				case MdlUtils.TOKEN_HEIGHT_BELOW -> readTimeline(stream, AnimationMap.KRHB);
+				case MdlUtils.TOKEN_STATIC_ALPHA -> alpha = stream.readFloat();
+				case MdlUtils.TOKEN_ALPHA -> readTimeline(stream, AnimationMap.KRAL);
+				case MdlUtils.TOKEN_STATIC_COLOR -> stream.readColor(color);
+				case MdlUtils.TOKEN_COLOR -> readTimeline(stream, AnimationMap.KRCO);
+				case MdlUtils.TOKEN_STATIC_TEXTURE_SLOT -> textureSlot = stream.readUInt32();
+				case MdlUtils.TOKEN_TEXTURE_SLOT -> readTimeline(stream, AnimationMap.KRTX);
+				case MdlUtils.TOKEN_VISIBILITY -> readTimeline(stream, AnimationMap.KRVS);
+				case MdlUtils.TOKEN_EMISSION_RATE -> emissionRate = stream.readUInt32();
+				case MdlUtils.TOKEN_LIFE_SPAN -> lifeSpan = stream.readFloat();
+				case MdlUtils.TOKEN_GRAVITY -> gravity = stream.readFloat();
+				case MdlUtils.TOKEN_ROWS -> rows = stream.readUInt32();
+				case MdlUtils.TOKEN_COLUMNS -> columns = stream.readUInt32();
+				case MdlUtils.TOKEN_MATERIAL_ID -> materialId = stream.readInt();
+				default -> throw new RuntimeException("Unknown token in RibbonEmitter " + name + ": " + token);
 			}
 		}
 	}

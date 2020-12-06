@@ -145,7 +145,6 @@ public class ModelOptionPanel extends JPanel {
 		for (String str : unitData.keySet()) {
 			str = str.toUpperCase();
 			if (str.startsWith("R")) {
-				continue;
 			} else if (str.startsWith("A") || str.startsWith("S")) {
 				// ability
 				final Element unit = unitData.get(str);
@@ -779,20 +778,20 @@ public class ModelOptionPanel extends JPanel {
 		for (final String str : unitsModelData.keySet()) {
 			final NamedList<String> unitList = unitsModelData.get(str);
 			// Collections.sort(unitList);
-			String nameOutput = "";
+			StringBuilder nameOutput = new StringBuilder();
 			for (final String unitName : unitList) {
 				if (nameOutput.length() > 0) {
-					nameOutput += ", ";
+					nameOutput.append(", ");
 				}
 				if ((nameOutput.length() + unitName.length()) > lengthCap) {
-					nameOutput += "...";
+					nameOutput.append("...");
 					break;
 				} else {
-					nameOutput += unitName;
+					nameOutput.append(unitName);
 				}
 			}
 			final Model nextModel = new Model();
-			nextModel.displayName = nameOutput;
+			nextModel.displayName = nameOutput.toString();
 			nextModel.filepath = unitList.name;
 			nextModel.cachedIcon = unitList.getCachedIconPath();
 			units.models.add(nextModel);
@@ -804,20 +803,20 @@ public class ModelOptionPanel extends JPanel {
 		for (final String str : unitsMissileData.keySet()) {
 			final NamedList<String> unitList = unitsMissileData.get(str);
 			// Collections.sort(unitList);
-			String nameOutput = "";
+			StringBuilder nameOutput = new StringBuilder();
 			for (final String unitName : unitList) {
 				if (nameOutput.length() > 0) {
-					nameOutput += ", ";
+					nameOutput.append(", ");
 				}
 				if ((nameOutput.length() + unitName.length()) > lengthCap) {
-					nameOutput += "...";
+					nameOutput.append("...");
 					break;
 				} else {
-					nameOutput += unitName;
+					nameOutput.append(unitName);
 				}
 			}
 			final Model nextModel = new Model();
-			nextModel.displayName = nameOutput;
+			nextModel.displayName = nameOutput.toString();
 			nextModel.filepath = unitList.name;
 			nextModel.cachedIcon = unitList.getCachedIconPath();
 			unitsMissiles.models.add(nextModel);
@@ -829,20 +828,20 @@ public class ModelOptionPanel extends JPanel {
 		for (final String str : unitsSpecialData.keySet()) {
 			final NamedList<String> unitList = unitsSpecialData.get(str);
 			// Collections.sort(unitList);
-			String nameOutput = "";
+			StringBuilder nameOutput = new StringBuilder();
 			for (final String unitName : unitList) {
 				if (nameOutput.length() > 0) {
-					nameOutput += ", ";
+					nameOutput.append(", ");
 				}
 				if ((nameOutput.length() + unitName.length()) > lengthCap) {
-					nameOutput += "...";
+					nameOutput.append("...");
 					break;
 				} else {
-					nameOutput += unitName;
+					nameOutput.append(unitName);
 				}
 			}
 			final Model nextModel = new Model();
-			nextModel.displayName = nameOutput;
+			nextModel.displayName = nameOutput.toString();
 			nextModel.filepath = unitList.name;
 			nextModel.cachedIcon = unitList.getCachedIconPath();
 			unitsSpecial.models.add(nextModel);
@@ -854,20 +853,20 @@ public class ModelOptionPanel extends JPanel {
 		for (final String str : itemsModelData.keySet()) {
 			final NamedList<String> unitList = itemsModelData.get(str);
 			// Collections.sort(unitList);
-			String nameOutput = "";
+			StringBuilder nameOutput = new StringBuilder();
 			for (final String unitName : unitList) {
 				if (nameOutput.length() > 0) {
-					nameOutput += ", ";
+					nameOutput.append(", ");
 				}
 				if ((nameOutput.length() + unitName.length()) > lengthCap) {
-					nameOutput += "...";
+					nameOutput.append("...");
 					break;
 				} else {
-					nameOutput += unitName;
+					nameOutput.append(unitName);
 				}
 			}
 			final Model nextModel = new Model();
-			nextModel.displayName = nameOutput;
+			nextModel.displayName = nameOutput.toString();
 			nextModel.filepath = unitList.name;
 			nextModel.cachedIcon = unitList.getCachedIconPath();
 			items.models.add(nextModel);
@@ -879,20 +878,20 @@ public class ModelOptionPanel extends JPanel {
 		for (final String str : abilityModelData.keySet()) {
 			final NamedList<String> unitList = abilityModelData.get(str);
 			// Collections.sort(unitList);
-			String nameOutput = "";
+			StringBuilder nameOutput = new StringBuilder();
 			for (final String unitName : unitList) {
 				if (nameOutput.length() > 0) {
-					nameOutput += ", ";
+					nameOutput.append(", ");
 				}
 				if ((nameOutput.length() + unitName.length()) > lengthCap) {
-					nameOutput += "...";
+					nameOutput.append("...");
 					break;
 				} else {
-					nameOutput += unitName;
+					nameOutput.append(unitName);
 				}
 			}
 			final Model nextModel = new Model();
-			nextModel.displayName = nameOutput;
+			nextModel.displayName = nameOutput.toString();
 			nextModel.filepath = unitList.name;
 			nextModel.cachedIcon = unitList.getCachedIconPath();
 			abilities.models.add(nextModel);
@@ -904,20 +903,20 @@ public class ModelOptionPanel extends JPanel {
 		for (final String str : buffModelData.keySet()) {
 			final NamedList<String> unitList = buffModelData.get(str);
 			// Collections.sort(unitList);
-			String nameOutput = "";
+			StringBuilder nameOutput = new StringBuilder();
 			for (final String unitName : unitList) {
 				if (nameOutput.length() > 0) {
-					nameOutput += ", ";
+					nameOutput.append(", ");
 				}
 				if ((nameOutput.length() + unitName.length()) > lengthCap) {
-					nameOutput += "...";
+					nameOutput.append("...");
 					break;
 				} else {
-					nameOutput += unitName;
+					nameOutput.append(unitName);
 				}
 			}
 			final Model nextModel = new Model();
-			nextModel.displayName = nameOutput;
+			nextModel.displayName = nameOutput.toString();
 			nextModel.filepath = unitList.name;
 			nextModel.cachedIcon = unitList.getCachedIconPath();
 			buffs.models.add(nextModel);
@@ -929,20 +928,20 @@ public class ModelOptionPanel extends JPanel {
 		for (final String str : destModelData.keySet()) {
 			final NamedList<String> unitList = destModelData.get(str);
 			Collections.sort(unitList);
-			String nameOutput = "";
+			StringBuilder nameOutput = new StringBuilder();
 			for (final String unitName : unitList) {
 				if (nameOutput.length() > 0) {
-					nameOutput += ", ";
+					nameOutput.append(", ");
 				}
 				if ((nameOutput.length() + unitName.length()) > lengthCap) {
-					nameOutput += "...";
+					nameOutput.append("...");
 					break;
 				} else {
-					nameOutput += unitName;
+					nameOutput.append(unitName);
 				}
 			}
 			final Model nextModel = new Model();
-			nextModel.displayName = nameOutput;
+			nextModel.displayName = nameOutput.toString();
 			nextModel.filepath = unitList.name;
 			nextModel.cachedIcon = unitList.getCachedIconPath();
 			destructibles.models.add(nextModel);
@@ -954,20 +953,20 @@ public class ModelOptionPanel extends JPanel {
 		for (final String str : doodModelData.keySet()) {
 			final NamedList<String> unitList = doodModelData.get(str);
 			// Collections.sort(unitList);
-			String nameOutput = "";
+			StringBuilder nameOutput = new StringBuilder();
 			for (final String unitName : unitList) {
 				if (nameOutput.length() > 0) {
-					nameOutput += ", ";
+					nameOutput.append(", ");
 				}
 				if ((nameOutput.length() + unitName.length()) > lengthCap) {
-					nameOutput += "...";
+					nameOutput.append("...");
 					break;
 				} else {
-					nameOutput += unitName;
+					nameOutput.append(unitName);
 				}
 			}
 			final Model nextModel = new Model();
-			nextModel.displayName = nameOutput;
+			nextModel.displayName = nameOutput.toString();
 			nextModel.filepath = unitList.name;
 			nextModel.cachedIcon = unitList.getCachedIconPath();
 			doodads.models.add(nextModel);
@@ -979,20 +978,20 @@ public class ModelOptionPanel extends JPanel {
 		for (final String str : spawnModelData.keySet()) {
 			final NamedList<String> unitList = spawnModelData.get(str);
 			// Collections.sort(unitList);
-			String nameOutput = "";
+			StringBuilder nameOutput = new StringBuilder();
 			for (final String unitName : unitList) {
 				if (nameOutput.length() > 0) {
-					nameOutput += ", ";
+					nameOutput.append(", ");
 				}
 				if ((nameOutput.length() + unitName.length()) > lengthCap) {
-					nameOutput += "...";
+					nameOutput.append("...");
 					break;
 				} else {
-					nameOutput += unitName;
+					nameOutput.append(unitName);
 				}
 			}
 			final Model nextModel = new Model();
-			nextModel.displayName = nameOutput;
+			nextModel.displayName = nameOutput.toString();
 			nextModel.filepath = unitList.name;
 			nextModel.cachedIcon = unitList.getCachedIconPath();
 			spawns.models.add(nextModel);
@@ -1004,20 +1003,20 @@ public class ModelOptionPanel extends JPanel {
 		for (final String str : ginterModelData.keySet()) {
 			final NamedList<String> unitList = ginterModelData.get(str);
 			// Collections.sort(unitList);
-			String nameOutput = "";
+			StringBuilder nameOutput = new StringBuilder();
 			for (final String unitName : unitList) {
 				if (nameOutput.length() > 0) {
-					nameOutput += ", ";
+					nameOutput.append(", ");
 				}
 				if ((nameOutput.length() + unitName.length()) > lengthCap) {
-					nameOutput += "...";
+					nameOutput.append("...");
 					break;
 				} else {
-					nameOutput += unitName;
+					nameOutput.append(unitName);
 				}
 			}
 			final Model nextModel = new Model();
-			nextModel.displayName = nameOutput;
+			nextModel.displayName = nameOutput.toString();
 			nextModel.filepath = unitList.name;
 			nextModel.cachedIcon = unitList.getCachedIconPath();
 			ginters.models.add(nextModel);

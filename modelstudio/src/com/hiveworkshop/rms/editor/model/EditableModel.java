@@ -403,8 +403,6 @@ public class EditableModel implements Named {
 	/**
 	 * IMPORTANT: This is the only way to retrieve the true header name from the top
 	 * of the "model chunk", the same one set by {@link #setName(String)} function.
-	 *
-	 * @return
 	 */
 	public String getHeaderName() {
 		return name;
@@ -715,8 +713,6 @@ public class EditableModel implements Named {
 	 * In addition, any bones with significant amounts of motion that were not found
 	 * to correlate with the contents of this model get added to this model's list
 	 * of bones.
-	 *
-	 * @param other
 	 */
 	public void addAnimationsFrom(EditableModel other) {
 		// this process destroys the "other" model inside memory, so destroy
@@ -784,7 +780,7 @@ public class EditableModel implements Named {
 				final Bone bone = (Bone) object;
 				// the object in this model of similar name
 				final Object localObject = getObject(bone.getName());
-				if ((localObject != null) && (localObject instanceof Bone)) {
+				if ((localObject instanceof Bone)) {
 					final Bone localBone = (Bone) localObject;
 					localBone.copyMotionFrom(bone); // if it's a match, take the
 													// data
@@ -871,7 +867,7 @@ public class EditableModel implements Named {
 				final Bone bone = (Bone) object;
 				// the object in this model of similar name
 				final Object localObject = getObject(bone.getName());
-				if ((localObject != null) && (localObject instanceof Bone)) {
+				if ((localObject instanceof Bone)) {
 					final Bone localBone = (Bone) localObject;
 					localBone.copyMotionFrom(bone); // if it's a match, take the
 													// data
@@ -1890,7 +1886,7 @@ public class EditableModel implements Named {
 			Entry lastEntry = null;
 			for (int i = 0; i < flag.size(); i++) {
 				final Entry entry = flag.getEntry(i);
-				if ((lastEntry != null) && (lastEntry.time == entry.time)) {
+				if ((lastEntry != null) && (lastEntry.time.equals(entry.time))) {
 					indicesForDeletion.add(i);
 				}
 				lastEntry = entry;
@@ -2134,9 +2130,6 @@ public class EditableModel implements Named {
 
 	/**
 	 * Please, for the love of Pete, don't actually do this.
-	 *
-	 * @param targetLevelOfDetail
-	 * @param model
 	 */
 	public static void convertToV800(final int targetLevelOfDetail, final EditableModel model) {
 		// Things to fix:

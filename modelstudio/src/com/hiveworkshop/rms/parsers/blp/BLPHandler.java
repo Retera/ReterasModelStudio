@@ -230,9 +230,6 @@ public class BLPHandler {
 	/**
 	 * Returns a BufferedImage from any arbitrary filepath string on your computer,
 	 * reading the image from BLP format.
-	 *
-	 * @param filepath
-	 * @return
 	 */
 	public BufferedImage getCustomTex(final String filepath) {
 		final File blpFile = new File(filepath);

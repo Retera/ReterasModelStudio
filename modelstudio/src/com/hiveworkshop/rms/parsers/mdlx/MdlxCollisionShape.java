@@ -78,34 +78,21 @@ public class MdlxCollisionShape extends MdlxGenericObject {
 	public void readMdl(final MdlTokenInputStream stream, final int version) {
 		for (final String token : super.readMdlGeneric(stream)) {
 			switch (token) {
-				case MdlUtils.TOKEN_BOX:
-					type = Type.BOX;
-					break;
-				case MdlUtils.TOKEN_PLANE:
-					type = Type.PLANE;
-					break;
-				case MdlUtils.TOKEN_SPHERE:
-					type = Type.SPHERE;
-					break;
-				case MdlUtils.TOKEN_CYLINDER:
-					type = Type.CYLINDER;
-					break;
-				case MdlUtils.TOKEN_VERTICES:
+				case MdlUtils.TOKEN_BOX -> type = Type.BOX;
+				case MdlUtils.TOKEN_PLANE -> type = Type.PLANE;
+				case MdlUtils.TOKEN_SPHERE -> type = Type.SPHERE;
+				case MdlUtils.TOKEN_CYLINDER -> type = Type.CYLINDER;
+				case MdlUtils.TOKEN_VERTICES -> {
 					final int count = stream.readInt();
 					stream.read(); // {
-
 					stream.readFloatArray(vertices[0]);
 					if (count == 2) {
 						stream.readFloatArray(vertices[1]);
 					}
-
 					stream.read(); // }
-					break;
-				case MdlUtils.TOKEN_BOUNDSRADIUS:
-					boundsRadius = stream.readFloat();
-					break;
-				default:
-					throw new RuntimeException("Unknown token in CollisionShape " + name + ": " + token);
+				}
+				case MdlUtils.TOKEN_BOUNDSRADIUS -> boundsRadius = stream.readFloat();
+				default -> throw new RuntimeException("Unknown token in CollisionShape " + name + ": " + token);
 			}
 		}
 	}
@@ -117,21 +104,14 @@ public class MdlxCollisionShape extends MdlxGenericObject {
 		final String type;
 		int vertices = 2;
 		switch (this.type) {
-			case BOX:
-				type = MdlUtils.TOKEN_BOX;
-				break;
-			case PLANE:
-				type = MdlUtils.TOKEN_PLANE;
-				break;
-			case SPHERE:
+			case BOX -> type = MdlUtils.TOKEN_BOX;
+			case PLANE -> type = MdlUtils.TOKEN_PLANE;
+			case SPHERE -> {
 				type = MdlUtils.TOKEN_SPHERE;
 				vertices = 1;
-				break;
-			case CYLINDER:
-				type = MdlUtils.TOKEN_CYLINDER;
-				break;
-			default:
-				throw new IllegalStateException("Invalid type in CollisionShape " + name + ": " + this.type);
+			}
+			case CYLINDER -> type = MdlUtils.TOKEN_CYLINDER;
+			default -> throw new IllegalStateException("Invalid type in CollisionShape " + name + ": " + this.type);
 		}
 
 		stream.writeFlag(type);

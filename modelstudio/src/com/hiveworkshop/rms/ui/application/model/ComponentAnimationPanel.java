@@ -103,11 +103,6 @@ public class ComponentAnimationPanel extends JPanel {
 		return newAnimation;
 	}
 
-	/**
-	 * @param animation
-	 * @param modelStructureChangeListener
-	 * @param undoListener
-	 */
 	public void setAnimation(final Animation animation, final UndoActionListener undoListener,
 			final ModelStructureChangeListener modelStructureChangeListener) {
 		this.animation = animation;

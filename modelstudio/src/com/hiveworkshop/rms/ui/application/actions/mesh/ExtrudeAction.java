@@ -204,11 +204,7 @@ public class ExtrudeAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		if (type) {
-			return "extrude";
-		} else {
-			return "extrude";
-		}
+		return "extrude";
 	}
 
 	public MoveAction getBaseMovement() {

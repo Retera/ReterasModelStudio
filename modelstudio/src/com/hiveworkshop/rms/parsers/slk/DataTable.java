@@ -465,7 +465,7 @@ public class DataTable implements ObjectData {
 				final int subYIndex = input.indexOf("Y");
 				if ((subYIndex >= 0) && (subYIndex < subXIndex)) {
 					final int eIndex = kInput.indexOf("K");
-					final int fieldIdEndIndex = kInput != input ? input.length() : eIndex - 1;
+					final int fieldIdEndIndex = !kInput.equals(input) ? input.length() : eIndex - 1;
 					if ((eIndex == -1) || (kInput.charAt(eIndex - 1) != ';')) {
 						continue;
 					}
@@ -489,8 +489,7 @@ public class DataTable implements ObjectData {
 						dataNames[fieldId - 1] = kInput.substring(quotationIndex + 1, kInput.lastIndexOf("\""));
 					}
 					lastFieldId = fieldId;
-					continue;
-				} else {
+                } else {
 					int eIndex = kInput.indexOf("K");
 					if ((eIndex == -1) || (kInput.charAt(eIndex - 1) != ';')) {
 						continue;
@@ -502,10 +501,10 @@ public class DataTable implements ObjectData {
 						}
 						fieldId = lastFieldId + 1;
 					} else {
-						if (flipMode && input.contains("Y") && (input == kInput)) {
+						if (flipMode && input.contains("Y") && (input.equals(kInput))) {
 							eIndex = Math.min(subYIndex, eIndex);
 						}
-						final int fieldIdEndIndex = kInput != input ? input.length() : eIndex - 1;
+						final int fieldIdEndIndex = !kInput.equals(input) ? input.length() : eIndex - 1;
 						fieldId = Integer.parseInt(input.substring(subXIndex + 1, fieldIdEndIndex));
 					}
 
@@ -519,12 +518,12 @@ public class DataTable implements ObjectData {
 						dataNames[fieldId - 1] = kInput.substring(quotationIndex + 1, kInput.lastIndexOf("\""));
 					}
 					lastFieldId = fieldId;
-					continue;
-				}
-			}
+                }
+                continue;
+            }
 			// if( rowStartCount == 2)
 			// System.out.println(Arrays.toString(dataNames));
-			if (input.contains("X1;") || ((input != kInput) && input.endsWith("X1"))) {
+			if (input.contains("X1;") || ((!input.equals(kInput)) && input.endsWith("X1"))) {
 				final int start = kInput.indexOf("\"") + 1;
 				final int end = kInput.lastIndexOf("\"");
 				if ((start - 1) != end) {
@@ -541,7 +540,7 @@ public class DataTable implements ObjectData {
 				if (flipMode && kInput.contains("Y")) {
 					eIndex = Math.min(kInput.indexOf("Y"), eIndex);
 				}
-				final int fieldIdEndIndex = kInput != input ? input.length() : eIndex - 1;
+				final int fieldIdEndIndex = !kInput.equals(input) ? input.length() : eIndex - 1;
 				final int fieldId = (subXIndex == -1) || (subXIndex > fieldIdEndIndex) ? 1
 						: Integer.parseInt(input.substring(subXIndex + 1, fieldIdEndIndex));
 				String fieldValue = kInput.substring(eIndex + 1);

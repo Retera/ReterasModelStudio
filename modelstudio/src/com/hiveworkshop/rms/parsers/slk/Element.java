@@ -184,60 +184,60 @@ public class Element extends HashedGameObject {
 
 	@Override
 	public String getName() {
-		String name = getField("Name");
+		StringBuilder name = new StringBuilder(getField("Name"));
 		boolean nameKnown = name.length() >= 1;
 		if (!nameKnown && !getField("code").equals(id) && getField("code").length() >= 4) {
 			final Element other = (Element) parentTable.get(getField("code").substring(0, 4));
 			if (other != null) {
-				name = other.getName();
+				name = new StringBuilder(other.getName());
 				nameKnown = true;
 			}
 		}
 		if (!nameKnown && getField("EditorName").length() > 1) {
-			name = getField("EditorName");
+			name = new StringBuilder(getField("EditorName"));
 			nameKnown = true;
 		}
 		if (!nameKnown && getField("Editorname").length() > 1) {
-			name = getField("Editorname");
+			name = new StringBuilder(getField("Editorname"));
 			nameKnown = true;
 		}
 		if (!nameKnown && getField("BuffTip").length() > 1) {
-			name = getField("BuffTip");
+			name = new StringBuilder(getField("BuffTip"));
 			nameKnown = true;
 		}
 		if (!nameKnown && getField("Bufftip").length() > 1) {
-			name = getField("Bufftip");
+			name = new StringBuilder(getField("Bufftip"));
 			nameKnown = true;
 		}
-		if (nameKnown && name.startsWith("WESTRING")) {
-			if (!name.contains(" ")) {
-				name = WEString.getString(name);
+		if (nameKnown && name.toString().startsWith("WESTRING")) {
+			if (!name.toString().contains(" ")) {
+				name = new StringBuilder(WEString.getString(name.toString()));
 			} else {
-				final String[] names = name.split(" ");
-				name = "";
+				final String[] names = name.toString().split(" ");
+				name = new StringBuilder();
 				for (final String subName : names) {
 					if (name.length() > 0) {
-						name += " ";
+						name.append(" ");
 					}
 					if (subName.startsWith("WESTRING")) {
-						name += WEString.getString(subName);
+						name.append(WEString.getString(subName));
 					} else {
-						name += subName;
+						name.append(subName);
 					}
 				}
 			}
-			if (name.startsWith("\"") && name.endsWith("\"")) {
-				name = name.substring(1, name.length() - 1);
+			if (name.toString().startsWith("\"") && name.toString().endsWith("\"")) {
+				name = new StringBuilder(name.substring(1, name.length() - 1));
 			}
-			setField("Name", name);
+			setField("Name", name.toString());
 		}
 		if (!nameKnown) {
-			name = WEString.getString("WESTRING_UNKNOWN") + " '" + getUnitId() + "'";
+			name = new StringBuilder(WEString.getString("WESTRING_UNKNOWN") + " '" + getUnitId() + "'");
 		}
 		if (getField("campaign").startsWith("1") && Character.isUpperCase(getUnitId().charAt(0))) {
-			name = getField("Propernames");
-			if (name.contains(",")) {
-				name = name.split(",")[0];
+			name = new StringBuilder(getField("Propernames"));
+			if (name.toString().contains(",")) {
+				name = new StringBuilder(name.toString().split(",")[0]);
 			}
 		}
 		String suf = getField("EditorSuffix");
@@ -246,11 +246,11 @@ public class Element extends HashedGameObject {
 				suf = WEString.getString(suf);
 			}
 			if (!suf.startsWith(" ")) {
-				name += " ";
+				name.append(" ");
 			}
-			name += suf;
+			name.append(suf);
 		}
-		return name;
+		return name.toString();
 	}
 
 	public void addParent(final String parentId) {
