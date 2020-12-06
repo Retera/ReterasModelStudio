@@ -264,20 +264,16 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 
 				graphics.drawRoundRect(minXCoord, minYCoord, maxXCoord - minXCoord, maxYCoord - minYCoord, vertexSize,
 						vertexSize);
-				drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage);
-			} else {
-				drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage);
 			}
+			drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage);
 		} else {
 			if (collisionShape.getExtents() != null) {
 				final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
 				final double boundsRadius = collisionShape.getExtents().getBoundsRadius() * zoom;
 				graphics.drawOval((int) (xCoord - boundsRadius), (int) (yCoord - boundsRadius),
 						(int) (boundsRadius * 2), (int) (boundsRadius * 2));
-				drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage);
-			} else {
-				drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage);
 			}
+			drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage);
 		}
 		for (final Vec3 vertex : vertices) {
 			if (crosshairIsBox) {

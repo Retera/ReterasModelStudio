@@ -61,59 +61,24 @@ public class MdlxParticleEmitterPopcorn extends MdlxGenericObject {
 	public void readMdl(final MdlTokenInputStream stream, final int version) {
 		for (final String token : super.readMdlGeneric(stream)) {
 			switch (token) {
-				case "SortPrimsFarZ":
-					flags |= 0x10000;
-					break;
-				case "Unshaded":
-					flags |= 0x8000;
-					break;
-				case "Unfogged":
-					flags |= 0x40000;
-					break;
-				case "static LifeSpan":
-					lifeSpan = stream.readFloat();
-					break;
-				case "LifeSpan":
-					readTimeline(stream, AnimationMap.KPPL);
-					break;
-				case "static EmissionRate":
-					emissionRate = stream.readFloat();
-					break;
-				case "EmissionRate":
-					readTimeline(stream, AnimationMap.KPPE);
-					break;
-				case "static Speed":
-					speed = stream.readFloat();
-					break;
-				case "Speed":
-					readTimeline(stream, AnimationMap.KPPS);
-					break;
-				case "static Color":
-					stream.readColor(color);
-					break;
-				case "Color":
-					readTimeline(stream, AnimationMap.KPPC);
-					break;
-				case "static Alpha":
-					alpha = stream.readFloat();
-					break;
-				case "Alpha":
-					readTimeline(stream, AnimationMap.KPPA);
-					break;
-				case "Visibility":
-					readTimeline(stream, AnimationMap.KPPV);
-					break;
-				case "ReplaceableId":
-					replaceableId = stream.readInt();
-					break;
-				case "Path":
-					path = stream.read();
-					break;
-				case "AnimVisibilityGuide":
-					animationVisiblityGuide = stream.read();
-					break;
-				default:
-					throw new RuntimeException("Unknown token in MdlxParticleEmitterPopcorn " + name + ": " + token);
+				case "SortPrimsFarZ" -> flags |= 0x10000;
+				case "Unshaded" -> flags |= 0x8000;
+				case "Unfogged" -> flags |= 0x40000;
+				case "static LifeSpan" -> lifeSpan = stream.readFloat();
+				case "LifeSpan" -> readTimeline(stream, AnimationMap.KPPL);
+				case "static EmissionRate" -> emissionRate = stream.readFloat();
+				case "EmissionRate" -> readTimeline(stream, AnimationMap.KPPE);
+				case "static Speed" -> speed = stream.readFloat();
+				case "Speed" -> readTimeline(stream, AnimationMap.KPPS);
+				case "static Color" -> stream.readColor(color);
+				case "Color" -> readTimeline(stream, AnimationMap.KPPC);
+				case "static Alpha" -> alpha = stream.readFloat();
+				case "Alpha" -> readTimeline(stream, AnimationMap.KPPA);
+				case "Visibility" -> readTimeline(stream, AnimationMap.KPPV);
+				case "ReplaceableId" -> replaceableId = stream.readInt();
+				case "Path" -> path = stream.read();
+				case "AnimVisibilityGuide" -> animationVisiblityGuide = stream.read();
+				default -> throw new RuntimeException("Unknown token in MdlxParticleEmitterPopcorn " + name + ": " + token);
 			}
 		}
 	}

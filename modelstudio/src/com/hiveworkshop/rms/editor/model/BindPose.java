@@ -20,9 +20,8 @@ public class BindPose {
 	}
 
 	public List<float[]> toMdlx() {
-		List<float[]> list = new ArrayList<>();
 
-        list.addAll(Arrays.asList(bindPose));
+        List<float[]> list = new ArrayList<>(Arrays.asList(bindPose));
 
 		return list;
 	}

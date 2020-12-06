@@ -41,25 +41,17 @@ public final class UnitSortByRaceFolder extends AbstractSortingFolderTreeNode {
 	}
 
 	private DefaultUnitRace raceKey(final int index) {
-		switch (index) {
-		case -1:
-			return DefaultUnitRace.HUMAN;
-		case 0:
-			return DefaultUnitRace.HUMAN;
-		case 1:
-			return DefaultUnitRace.ORC;
-		case 2:
-			return DefaultUnitRace.UNDEAD;
-		case 3:
-			return DefaultUnitRace.NIGHTELF;
-		case 4:
-			return DefaultUnitRace.NEUTRAL_NAGA;
-		case 5:
-			return DefaultUnitRace.NEUTRAL_HOSTILE;
-		case 6:
-			return DefaultUnitRace.NEUTRAL_PASSIVE;
-		}
-		return DefaultUnitRace.NEUTRAL_PASSIVE;
+		return switch (index) {
+			case -1 -> DefaultUnitRace.HUMAN;
+			case 0 -> DefaultUnitRace.HUMAN;
+			case 1 -> DefaultUnitRace.ORC;
+			case 2 -> DefaultUnitRace.UNDEAD;
+			case 3 -> DefaultUnitRace.NIGHTELF;
+			case 4 -> DefaultUnitRace.NEUTRAL_NAGA;
+			case 5 -> DefaultUnitRace.NEUTRAL_HOSTILE;
+			case 6 -> DefaultUnitRace.NEUTRAL_PASSIVE;
+			default -> DefaultUnitRace.NEUTRAL_PASSIVE;
+		};
 	}
 
 	private static final List<String> defaultNeutralRaces = Arrays.asList("commoner", "demon", "critters", "other",

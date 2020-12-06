@@ -25,15 +25,11 @@ public final class ViewportSelectionHandlerImpl implements ViewportSelectionHand
 
 	@Override
 	public UndoAction selectRegion(final Rectangle2D region, final CoordinateSystem coordinateSystem) {
-		switch (modeButtonGroup.getActiveButtonType()) {
-		case ADD:
-			return selectingEventHandler.addSelectedRegion(region, coordinateSystem);
-		case DESELECT:
-			return selectingEventHandler.removeSelectedRegion(region, coordinateSystem);
-		default:
-		case SELECT:
-			return selectingEventHandler.setSelectedRegion(region, coordinateSystem);
-		}
+		return switch (modeButtonGroup.getActiveButtonType()) {
+			case ADD -> selectingEventHandler.addSelectedRegion(region, coordinateSystem);
+			case DESELECT -> selectingEventHandler.removeSelectedRegion(region, coordinateSystem);
+			case SELECT -> selectingEventHandler.setSelectedRegion(region, coordinateSystem);
+		};
 	}
 
 	@Override

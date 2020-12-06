@@ -1048,8 +1048,6 @@ public class UVPanel extends JPanel
 
     /**
      * A method defining the currently selected UV layer.
-     *
-     * @return
      */
     public int currentLayer() {
         return uvLayerIndex;

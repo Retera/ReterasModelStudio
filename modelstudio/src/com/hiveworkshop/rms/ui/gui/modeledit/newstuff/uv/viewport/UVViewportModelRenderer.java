@@ -144,14 +144,6 @@ public class UVViewportModelRenderer implements MeshVisitor {
 
 	/**
 	 * Copied directly from MDLDisplay and then made static.
-	 *
-	 * @param model
-	 * @param g
-	 * @param bounds
-	 * @param a
-	 * @param b
-	 * @param filter
-	 * @param extraHighlightPoint
 	 */
 	public static void drawFittedTriangles(final EditableModel model, final Graphics g, final Rectangle bounds, final byte a,
 										   final byte b, final VertexFilter<? super GeosetVertex> filter, final Vec3 extraHighlightPoint) {
@@ -223,11 +215,6 @@ public class UVViewportModelRenderer implements MeshVisitor {
 
 	/**
 	 * Copied directly from MDLDisplay and then made static.
-	 *
-	 * @param g
-	 * @param a
-	 * @param b
-	 * @param t
 	 */
 	private static void drawTriangle(final Graphics g, final byte a, final byte b, final Triangle t) {
 		final double[] x = t.getCoords(a);

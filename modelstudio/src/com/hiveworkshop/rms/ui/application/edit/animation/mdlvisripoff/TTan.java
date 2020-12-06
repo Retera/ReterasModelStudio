@@ -30,18 +30,18 @@ public class TTan {
 		// Calculating the derivatives in point Cur (for count cells)
 		if (tang.inTan == null) {
 			switch (count) {
-			case 1:
-				tang.inTan = (float) 0;
-				tang.outTan = (float) 0;
-				break;
-			case 3:
-				tang.inTan = new Vec3(0, 0, 0);
-				tang.outTan = new Vec3(0, 0, 0);
-				break;
-			case 4:
-				tang.inTan = new Quat(0, 0, 0, 0);
-				tang.outTan = new Quat(0, 0, 0, 0);
-				break;
+				case 1 -> {
+					tang.inTan = (float) 0;
+					tang.outTan = (float) 0;
+				}
+				case 3 -> {
+					tang.inTan = new Vec3(0, 0, 0);
+					tang.outTan = new Vec3(0, 0, 0);
+				}
+				case 4 -> {
+					tang.inTan = new Quat(0, 0, 0, 0);
+					tang.outTan = new Quat(0, 0, 0, 0);
+				}
 			}
 		}
 		g1 = (1 - tension) * (1 - continuity) * (1 + bias) * 0.5f;

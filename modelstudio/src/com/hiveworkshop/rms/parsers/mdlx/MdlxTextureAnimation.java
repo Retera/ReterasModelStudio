@@ -24,19 +24,12 @@ public class MdlxTextureAnimation extends MdlxAnimatedObject {
 	@Override
 	public void readMdl(final MdlTokenInputStream stream, final int version) {
 		for (final String token : stream.readBlock()) {
-			switch (token) {
-			case MdlUtils.TOKEN_TRANSLATION:
-				readTimeline(stream, AnimationMap.KTAT);
-				break;
-			case MdlUtils.TOKEN_ROTATION:
-				readTimeline(stream, AnimationMap.KTAR);
-				break;
-			case MdlUtils.TOKEN_SCALING:
-				readTimeline(stream, AnimationMap.KTAS);
-				break;
-			default:
-				throw new RuntimeException("Unknown token in TextureAnimation: " + token);
-			}
+            switch (token) {
+                case MdlUtils.TOKEN_TRANSLATION -> readTimeline(stream, AnimationMap.KTAT);
+                case MdlUtils.TOKEN_ROTATION -> readTimeline(stream, AnimationMap.KTAR);
+                case MdlUtils.TOKEN_SCALING -> readTimeline(stream, AnimationMap.KTAS);
+                default -> throw new RuntimeException("Unknown token in TextureAnimation: " + token);
+            }
 		}
 	}
 

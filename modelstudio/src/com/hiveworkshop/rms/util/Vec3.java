@@ -1,7 +1,5 @@
 package com.hiveworkshop.rms.util;
 
-import com.hiveworkshop.rms.editor.model.Layer;
-
 import java.util.Collection;
 
 public class Vec3 {
@@ -52,68 +50,38 @@ public class Vec3 {
     }
 
     public float getCoord(final byte dim) {
-        switch (dim) {
-            case 0:
-                return x;
-            case 1:
-                return y;
-            case 2:
-                return z;
-            case -1:
-                return -x;
-            case -2:
-                return -y;
-            case -3:
-                return -z;
-        }
-        return 0;
+        return switch (dim) {
+            case 0 -> x;
+            case 1 -> y;
+            case 2 -> z;
+            case -1 -> -x;
+            case -2 -> -y;
+            case -3 -> -z;
+            default -> 0;
+        };
     }
 
     public void setCoord(final byte dim, final double value) {
         if (!Double.isNaN(value)) {
             switch (dim) {
-                case 0:
-                    x = (float) value;
-                    break;
-                case 1:
-                    y = (float) value;
-                    break;
-                case 2:
-                    z = (float) value;
-                    break;
-                case -1:
-                    x = (float) -value;
-                    break;
-                case -2:
-                    y = (float) -value;
-                    break;
-                case -32:
-                    z = (float) -value;
-                    break;
+                case 0 -> x = (float) value;
+                case 1 -> y = (float) value;
+                case 2 -> z = (float) value;
+                case -1 -> x = (float) -value;
+                case -2 -> y = (float) -value;
+                case -32 -> z = (float) -value;
             }
         }
     }
 
     public void translateCoord(final byte dim, final double value) {
         switch (dim) {
-            case 0:
-                x += value;
-                break;
-            case 1:
-                y += value;
-                break;
-            case 2:
-                z += value;
-                break;
-            case -1:
-                x -= value;
-                break;
-            case -2:
-                y -= value;
-                break;
-            case 3:
-                z -= value;
-                break;
+            case 0 -> x += value;
+            case 1 -> y += value;
+            case 2 -> z += value;
+            case -1 -> x -= value;
+            case -2 -> y -= value;
+            case 3 -> z -= value;
         }
     }
 
@@ -275,51 +243,25 @@ public class Vec3 {
                                     final double radians, final byte firstXYZ, final byte secondXYZ, final Vec3 vertex) {
         final double x1 = vertex.getCoord(firstXYZ);
         final double y1 = vertex.getCoord(secondXYZ);
-        final double cx;// = coordinateSystem.geomX(centerX);
-        switch (firstXYZ) {
-            case 0:
-                cx = centerX;
-                break;
-            case 1:
-                cx = centerY;
-                break;
-            case -1:
-                cx = -centerX;
-                break;
-            case -2:
-                cx = -centerY;
-                break;
-            case -3:
-                cx = -centerZ;
-                break;
-            default:
-            case 2:
-                cx = centerZ;
-                break;
-        }
+        final double cx = switch (firstXYZ) {
+            case 0 -> centerX;
+            case 1 -> centerY;
+            case -1 -> -centerX;
+            case -2 -> -centerY;
+            case -3 -> -centerZ;
+            case 2 -> centerZ;
+            default -> centerZ;
+        };// = coordinateSystem.geomX(centerX);
         final double dx = x1 - cx;
-        final double cy;// = coordinateSystem.geomY(centerY);
-        switch (secondXYZ) {
-            case 0:
-                cy = centerX;
-                break;
-            case 1:
-                cy = centerY;
-                break;
-            case -1:
-                cy = -centerX;
-                break;
-            case -2:
-                cy = -centerY;
-                break;
-            case -3:
-                cy = -centerZ;
-                break;
-            default:
-            case 2:
-                cy = centerZ;
-                break;
-        }
+        final double cy = switch (secondXYZ) {
+            case 0 -> centerX;
+            case 1 -> centerY;
+            case -1 -> -centerX;
+            case -2 -> -centerY;
+            case -3 -> -centerZ;
+            case 2 -> centerZ;
+            default -> centerZ;
+        };// = coordinateSystem.geomY(centerY);
         final double dy = y1 - cy;
         final double r = Math.sqrt((dx * dx) + (dy * dy));
         double verAng = Math.acos(dx / r);

@@ -268,21 +268,9 @@ public class DataSourceChooserPanel extends JPanel {
 		});
 		moveSelectionDown.setEnabled(false);
 		final JButton enterHDMode = new JButton("Reforged Graphics Mode");
-		enterHDMode.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				enterHDMode();
-			}
-		});
+		enterHDMode.addActionListener(e -> enterHDMode());
 		final JButton enterSDMode = new JButton("Classic Graphics Mode");
-		enterSDMode.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				enterSDMode();
-			}
-		});
+		enterSDMode.addActionListener(e -> enterSDMode());
 		final JButton resetAllToDefaults = new JButton("Reset to Defaults");
 		resetAllToDefaults.addActionListener(e -> loadDefaults(null));
 		final JButton addCASCButton = new JButton("Add CASC");
@@ -673,8 +661,7 @@ public class DataSourceChooserPanel extends JPanel {
 			}
 		}
 		try {
-			final WarcraftIIICASC tempCascReader = new WarcraftIIICASC(installPathPath, true);
-			try {
+			try (WarcraftIIICASC tempCascReader = new WarcraftIIICASC(installPathPath, true)) {
 				final String tags = tempCascReader.getBuildInfo().getField(tempCascReader.getActiveRecordIndex(),
 						"Tags");
 				final String[] splitTags = tags.split("\\?");
@@ -810,47 +797,42 @@ public class DataSourceChooserPanel extends JPanel {
 				}
 				final String lowerLocale = locale.toLowerCase();
 				final List<String> defaultPrefixes;
+				// Reforged?????? It's probably going to break my code
 				switch (patchFormat) {
-					case PATCH130: {
+					case PATCH130 -> {
 						System.out.println("Detected Patch 1.30");
 						// We used to have this, maybe some people still do?
 						final String[] prefixes = {"war3.mpq", "deprecated.mpq", lowerLocale + "-war3local.mpq"};
 						defaultPrefixes = Arrays.asList(prefixes);
-						break;
 					}
-					case PATCH131: {
+					case PATCH131 -> {
 						System.out.println("Detected Patch 1.31");
 						// This is what I have right now
 						final String[] prefixes = {"war3.w3mod", "war3.w3mod\\_deprecated.w3mod",
 								"war3.w3mod\\_locales\\" + lowerLocale + ".w3mod"};
 						defaultPrefixes = Arrays.asList(prefixes);
-						break;
 					}
-					case PATCH132: {
+					case PATCH132 -> {
 						System.out.println("Detected Patch 1.32+");
 						// This is what I have right now
 						final String[] prefixes = {"war3.w3mod", "war3.w3mod\\_deprecated.w3mod",
 								"war3.w3mod\\_locales\\" + lowerLocale + ".w3mod", "war3.w3mod\\_hd.w3mod",
 								"war3.w3mod\\_hd.w3mod\\_locales\\" + lowerLocale + ".w3mod"};
 						defaultPrefixes = Arrays.asList(prefixes);
-						break;
 					}
-					default:
-					case UNKNOWN_FUTURE_PATCH:
-						// Reforged?????? It's probably going to break my code
+					case UNKNOWN_FUTURE_PATCH -> {
 						final String[] prefixes = {"war3.w3mod", "war3.w3mod", "war3.w3mod\\_deprecated.w3mod",
 								"war3.w3mod\\_locales\\" + lowerLocale + ".w3mod"};
 						JOptionPane.showMessageDialog(DataSourceChooserPanel.this,
 								"The Warcraft III Installation you have selected seems to be too new, or is not a supported version. The suggested prefix list from Patch 1.31 will be used.\nThis will probably fail, and you will need more advanced configuration.",
 								"Error", JOptionPane.ERROR_MESSAGE);
 						defaultPrefixes = Arrays.asList(prefixes);
-						break;
+					}
+					default -> defaultPrefixes = new ArrayList<>();
 				}
 				for (final String prefix : defaultPrefixes) {
 					dataSourceDesc.addPrefix(prefix);
 				}
-			} finally {
-				tempCascReader.close();
 			}
 		} catch (final Exception e1) {
 			ExceptionPopup.display(e1);
@@ -890,30 +872,16 @@ public class DataSourceChooserPanel extends JPanel {
 
 		// set your theme
 		switch (jtattooTheme) {
-			case "Noire":
-				NoireLookAndFeel.setCurrentTheme(props);
-				break;
-			case "HiFi":
-				HiFiLookAndFeel.setCurrentTheme(props);
-				break;
-			case "Acryl":
-				AcrylLookAndFeel.setCurrentTheme(props);
-				break;
-			case "Aluminium":
-				AluminiumLookAndFeel.setCurrentTheme(props);
-				break;
+			case "Noire" -> NoireLookAndFeel.setCurrentTheme(props);
+			case "HiFi" -> HiFiLookAndFeel.setCurrentTheme(props);
+			case "Acryl" -> AcrylLookAndFeel.setCurrentTheme(props);
+			case "Aluminium" -> AluminiumLookAndFeel.setCurrentTheme(props);
 		}
 		// select the Look and Feel
 		try {
 			UIManager.setLookAndFeel(
 					"com.jtattoo.plaf." + jtattooTheme.toLowerCase() + "." + jtattooTheme + "LookAndFeel");
-		} catch (final ClassNotFoundException e) {
-			throw new RuntimeException(e);
-		} catch (final InstantiationException e) {
-			throw new RuntimeException(e);
-		} catch (final IllegalAccessException e) {
-			throw new RuntimeException(e);
-		} catch (final UnsupportedLookAndFeelException e) {
+		} catch (final ClassNotFoundException | UnsupportedLookAndFeelException | IllegalAccessException | InstantiationException e) {
 			throw new RuntimeException(e);
 		}
 	}

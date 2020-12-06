@@ -25,7 +25,6 @@ import com.hiveworkshop.rms.util.Vec3;
  * SelectionManager should've been like this so it didn't wrap the selection in
  * silly Item objects, but the code hasn't been reworked to be this thing yet
  *
- * @param <T>
  * @author Eric
  */
 public interface ModelEditor extends ComponentVisibilityListener {

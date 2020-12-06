@@ -155,33 +155,14 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 			}
 			final float darkIncrement = increment * 10;
 			g.setColor(Color.DARK_GRAY);
-			for (float x = 0; ((cameraOrigin.x + x) < getWidth()) || ((cameraOrigin.x - x) >= 0); x += lightIncrement) {
-				g.drawLine((int) (cameraOrigin.x + x), 0, (int) (cameraOrigin.x + x), getHeight());
-				g.drawLine((int) (cameraOrigin.x - x), 0, (int) (cameraOrigin.x - x), getHeight());
-			}
-			for (float y = 0; ((cameraOrigin.y + y) < getHeight())
-					|| ((cameraOrigin.y - y) >= 0); y += lightIncrement) {
-				g.drawLine(0, (int) (cameraOrigin.y + y), getWidth(), (int) (cameraOrigin.y + y));
-				g.drawLine(0, (int) (cameraOrigin.y - y), getWidth(), (int) (cameraOrigin.y - y));
-			}
+			drawXLine(g, cameraOrigin, lightIncrement);
+			drawYLine(g, cameraOrigin, lightIncrement);
 			g.setColor(Color.GRAY);
-			for (float x = 0; ((cameraOrigin.x + x) < getWidth()) || ((cameraOrigin.x - x) >= 0); x += increment) {
-				g.drawLine((int) (cameraOrigin.x + x), 0, (int) (cameraOrigin.x + x), getHeight());
-				g.drawLine((int) (cameraOrigin.x - x), 0, (int) (cameraOrigin.x - x), getHeight());
-			}
-			for (float y = 0; ((cameraOrigin.y + y) < getHeight()) || ((cameraOrigin.y - y) >= 0); y += increment) {
-				g.drawLine(0, (int) (cameraOrigin.y + y), getWidth(), (int) (cameraOrigin.y + y));
-				g.drawLine(0, (int) (cameraOrigin.y - y), getWidth(), (int) (cameraOrigin.y - y));
-			}
+			drawXLine(g, cameraOrigin, increment);
+			drawYLine(g, cameraOrigin, increment);
 			g.setColor(Color.ORANGE);
-			for (float x = 0; ((cameraOrigin.x + x) < getWidth()) || ((cameraOrigin.x - x) >= 0); x += darkIncrement) {
-				g.drawLine((int) (cameraOrigin.x + x), 0, (int) (cameraOrigin.x + x), getHeight());
-				g.drawLine((int) (cameraOrigin.x - x), 0, (int) (cameraOrigin.x - x), getHeight());
-			}
-			for (float y = 0; ((cameraOrigin.y + y) < getHeight()) || ((cameraOrigin.y - y) >= 0); y += darkIncrement) {
-				g.drawLine(0, (int) (cameraOrigin.y + y), getWidth(), (int) (cameraOrigin.y + y));
-				g.drawLine(0, (int) (cameraOrigin.y - y), getWidth(), (int) (cameraOrigin.y - y));
-			}
+			drawXLine(g, cameraOrigin, darkIncrement);
+			drawYLine(g, cameraOrigin, darkIncrement);
 			g.setColor(Color.BLACK);
 			g.drawLine(0, (int) cameraOrigin.y, getWidth(), (int) cameraOrigin.y);
 			g.drawLine((int) cameraOrigin.x, 0, (int) cameraOrigin.x, getHeight());
@@ -246,24 +227,38 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 //		}
 	}
 
+	private void drawXLine(Graphics g, Point2D.Double cameraOrigin, float darkIncrement) {
+		for (float x = 0; ((cameraOrigin.x + x) < getWidth()) || ((cameraOrigin.x - x) >= 0); x += darkIncrement) {
+			g.drawLine((int) (cameraOrigin.x + x), 0, (int) (cameraOrigin.x + x), getHeight());
+			g.drawLine((int) (cameraOrigin.x - x), 0, (int) (cameraOrigin.x - x), getHeight());
+		}
+	}
+
+	private void drawYLine(Graphics g, Point2D.Double cameraOrigin, float darkIncrement) {
+		for (float y = 0; ((cameraOrigin.y + y) < getHeight()) || ((cameraOrigin.y - y) >= 0); y += darkIncrement) {
+			g.drawLine(0, (int) (cameraOrigin.y + y), getWidth(), (int) (cameraOrigin.y + y));
+			g.drawLine(0, (int) (cameraOrigin.y - y), getWidth(), (int) (cameraOrigin.y - y));
+		}
+	}
+
 	@Override
 	public double convertX(final double x) {
-		return ((x + m_a) * m_zoom * aspectRatio) + (getWidth() / 2);
+		return ((x + m_a) * m_zoom * aspectRatio) + (getWidth() / 2.0);
 	}
 
 	@Override
 	public double convertY(final double y) {
-		return ((y + m_b) * m_zoom) + (getHeight() / 2);
+		return ((y + m_b) * m_zoom) + (getHeight() / 2.0);
 	}
 
 	@Override
 	public double geomX(final double x) {
-		return ((x - (getWidth() / 2)) / aspectRatio / m_zoom) - m_a;
+		return ((x - (getWidth() / 2.0)) / aspectRatio / m_zoom) - m_a;
 	}
 
 	@Override
 	public double geomY(final double y) {
-		return ((y - (getHeight() / 2)) / m_zoom) - m_b;
+		return ((y - (getHeight() / 2.0)) / m_zoom) - m_b;
 	}
 
 	@Override
@@ -289,8 +284,8 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 				lastClick.x = (int) mx;
 				lastClick.y = (int) my;
 			}
-			parent.setMouseCoordDisplay(((mx - (getWidth() / 2)) / aspectRatio / m_zoom) - m_a,
-					((my - (getHeight() / 2)) / m_zoom) - m_b);
+			parent.setMouseCoordDisplay(((mx - (getWidth() / 2.0)) / aspectRatio / m_zoom) - m_a,
+					((my - (getHeight() / 2.0)) / m_zoom) - m_b);
 
 			repaint();
 		} else if (e.getSource() == placeholderButton) {
@@ -402,13 +397,13 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 		}
 		for (int i = 0; i < wr; i++) {
 			if (neg) {
-				m_a -= ((mx - (getWidth() / 2)) / aspectRatio) * ((1 / m_zoom) - (1 / (m_zoom * 1.15)));
-				m_b -= (my - (getHeight() / 2)) * ((1 / m_zoom) - (1 / (m_zoom * 1.15)));
+				m_a -= ((mx - (getWidth() / 2.0)) / aspectRatio) * ((1 / m_zoom) - (1 / (m_zoom * 1.15)));
+				m_b -= (my - (getHeight() / 2.0)) * ((1 / m_zoom) - (1 / (m_zoom * 1.15)));
 				m_zoom *= 1.15;
 			} else {
 				m_zoom /= 1.15;
-				m_a -= ((mx - (getWidth() / 2)) / aspectRatio) * ((1 / (m_zoom * 1.15)) - (1 / m_zoom));
-				m_b -= (my - (getHeight() / 2)) * ((1 / (m_zoom * 1.15)) - (1 / m_zoom));
+				m_a -= ((mx - (getWidth() / 2.0)) / aspectRatio) * ((1 / (m_zoom * 1.15)) - (1 / m_zoom));
+				m_b -= (my - (getHeight() / 2.0)) * ((1 / (m_zoom * 1.15)) - (1 / m_zoom));
 			}
 		}
 	}
@@ -418,17 +413,15 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 				Math.min(geomY(a.y), geomY(b.y)));
 		final Point2D.Double lowRight = new Point2D.Double(Math.max(geomX(a.x), geomX(b.x)),
 				Math.max(geomY(a.y), geomY(b.y)));
-		final Rectangle2D.Double temp = new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x,
+		return new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x,
 				lowRight.y - topLeft.y);
-		return temp;
 	}
 
 	public Rectangle2D.Double pointsToRect(final Point a, final Point b) {
 		final Point2D.Double topLeft = new Point2D.Double(Math.min(a.x, b.x), Math.min(a.y, b.y));
 		final Point2D.Double lowRight = new Point2D.Double(Math.max(a.x, b.x), Math.max(a.y, b.y));
-		final Rectangle2D.Double temp = new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x,
+		return new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x,
 				lowRight.y - topLeft.y);
-		return temp;
 	}
 
 	public void setAspectRatio(final double ratio) {

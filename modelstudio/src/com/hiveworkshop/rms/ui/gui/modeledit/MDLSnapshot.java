@@ -990,19 +990,19 @@ public class MDLSnapshot {
 	// }
 	// }
 	public double convertX(final double x) {
-		return ((x + cameraPos.x) * zoom) + (getWidth() / 2);
+		return ((x + cameraPos.x) * zoom) + (getWidth() / 2.0);
 	}
 
 	public double convertY(final double y) {
-		return ((-y + cameraPos.y) * zoom) + (getHeight() / 2);
+		return ((-y + cameraPos.y) * zoom) + (getHeight() / 2.0);
 	}
 
 	public double geomX(final double x) {
-		return ((x - (getWidth() / 2)) / zoom) - cameraPos.x;
+		return ((x - (getWidth() / 2.0)) / zoom) - cameraPos.x;
 	}
 
 	public double geomY(final double y) {
-		return -(((y - (getHeight() / 2)) / zoom) - cameraPos.y);
+		return -(((y - (getHeight() / 2.0)) / zoom) - cameraPos.y);
 	}
 
 	public Rectangle2D.Double pointsToGeomRect(final Point a, final Point b) {

@@ -64,7 +64,7 @@ public final class RotatorWidget {
         final double y = coordinateSystem.convertY(point.getCoord(yDimension));
         if (moveDirection != null) {
             switch (moveDirection) {
-                case FREE:
+                case FREE -> {
                     graphics.setColor(new Color(0.5f, 0.5f, 0.5f, 0.4f));
                     graphics.fillOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2,
                             ROTATOR_RADIUS * 2);
@@ -75,8 +75,8 @@ public final class RotatorWidget {
                     setColorByDimension(graphics, getOutwardDimension(xDimension, yDimension));
                     graphics.drawOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2,
                             ROTATOR_RADIUS * 2);
-                    break;
-                case SPIN:
+                }
+                case SPIN -> {
                     setColorByDimension(graphics, xDimension);
                     graphics.drawLine((int) (x - ROTATOR_RADIUS), (int) y, (int) (x + ROTATOR_RADIUS), (int) y);
                     setColorByDimension(graphics, yDimension);
@@ -84,8 +84,8 @@ public final class RotatorWidget {
                     graphics.setColor(new Color(255, 255, 0));
                     graphics.drawOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2,
                             ROTATOR_RADIUS * 2);
-                    break;
-                case VERTICALLY:
+                }
+                case VERTICALLY -> {
                     setColorByDimension(graphics, xDimension);
                     graphics.drawLine((int) (x - ROTATOR_RADIUS), (int) y, (int) (x + ROTATOR_RADIUS), (int) y);
                     graphics.setColor(new Color(255, 255, 0));
@@ -93,8 +93,8 @@ public final class RotatorWidget {
                     setColorByDimension(graphics, getOutwardDimension(xDimension, yDimension));
                     graphics.drawOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2,
                             ROTATOR_RADIUS * 2);
-                    break;
-                case HORIZONTALLY:
+                }
+                case HORIZONTALLY -> {
                     graphics.setColor(new Color(255, 255, 0));
                     graphics.drawLine((int) (x - ROTATOR_RADIUS), (int) y, (int) (x + ROTATOR_RADIUS), (int) y);
                     setColorByDimension(graphics, yDimension);
@@ -102,8 +102,8 @@ public final class RotatorWidget {
                     setColorByDimension(graphics, getOutwardDimension(xDimension, yDimension));
                     graphics.drawOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2,
                             ROTATOR_RADIUS * 2);
-                    break;
-                case NONE:
+                }
+                case NONE -> {
                     setColorByDimension(graphics, xDimension);
                     graphics.drawLine((int) (x - ROTATOR_RADIUS), (int) y, (int) (x + ROTATOR_RADIUS), (int) y);
                     setColorByDimension(graphics, yDimension);
@@ -111,7 +111,7 @@ public final class RotatorWidget {
                     setColorByDimension(graphics, getOutwardDimension(xDimension, yDimension));
                     graphics.drawOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2,
                             ROTATOR_RADIUS * 2);
-                    break;
+                }
             }
         }
     }
@@ -120,20 +120,11 @@ public final class RotatorWidget {
         return CoordinateSystem.Util.getUnusedXYZ(xDimension, yDimension);
     }
 
-    private void setColorByDimension(final Graphics2D graphics, final byte xDimension) {
-        switch (xDimension) {
-            case 0:
-            case -1:
-                graphics.setColor(new Color(0, 255, 0));
-                break;
-            case 1:
-            case -2:
-                graphics.setColor(new Color(255, 0, 0));
-                break;
-            case 2:
-            case -3:
-                graphics.setColor(new Color(0, 0, 255));
-                break;
+    private void setColorByDimension(final Graphics2D graphics, final byte dimension) {
+        switch (dimension) {
+            case 0, -1 -> graphics.setColor(new Color(0, 255, 0));
+            case 1, -2 -> graphics.setColor(new Color(255, 0, 0));
+            case 2, -3 -> graphics.setColor(new Color(0, 0, 255));
         }
     }
 

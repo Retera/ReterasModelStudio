@@ -41,25 +41,17 @@ public final class AbilitySortByRaceFolder extends AbstractSortingFolderTreeNode
 	}
 
 	private DefaultAbilityRace raceKey(final int index) {
-		switch (index) {
-		case -1:
-			return DefaultAbilityRace.HUMAN;
-		case 0:
-			return DefaultAbilityRace.HUMAN;
-		case 1:
-			return DefaultAbilityRace.ORC;
-		case 2:
-			return DefaultAbilityRace.UNDEAD;
-		case 3:
-			return DefaultAbilityRace.NIGHTELF;
-		case 4:
-			return DefaultAbilityRace.OTHER;
-		case 5:
-			return DefaultAbilityRace.NEUTRAL_HOSTILE;
-		case 6:
-			return DefaultAbilityRace.NEUTRAL_PASSIVE;
-		}
-		return DefaultAbilityRace.NEUTRAL_PASSIVE;
+		return switch (index) {
+			case -1 -> DefaultAbilityRace.HUMAN;
+			case 0 -> DefaultAbilityRace.HUMAN;
+			case 1 -> DefaultAbilityRace.ORC;
+			case 2 -> DefaultAbilityRace.UNDEAD;
+			case 3 -> DefaultAbilityRace.NIGHTELF;
+			case 4 -> DefaultAbilityRace.OTHER;
+			case 5 -> DefaultAbilityRace.NEUTRAL_HOSTILE;
+			case 6 -> DefaultAbilityRace.NEUTRAL_PASSIVE;
+			default -> DefaultAbilityRace.NEUTRAL_PASSIVE;
+		};
 	}
 
 	@Override

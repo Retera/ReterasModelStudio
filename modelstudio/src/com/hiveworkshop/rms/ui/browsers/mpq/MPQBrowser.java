@@ -244,9 +244,8 @@ public final class MPQBrowser extends JPanel {
 	public MPQTreeNode createMPQTree(final CompoundDataSource gameDataFileSystem) {
 		final MPQTreeNode root = new MPQTreeNode(null, "", "");
 		final Set<String> mergedListfile = gameDataFileSystem.getMergedListfile();
-		final List<String> listfile = new ArrayList<>();
 
-		listfile.addAll(mergedListfile);
+		final List<String> listfile = new ArrayList<>(mergedListfile);
 		Collections.sort(listfile);
 
 		for (String string : listfile) {

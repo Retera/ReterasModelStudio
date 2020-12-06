@@ -17,6 +17,7 @@ import com.hiveworkshop.rms.util.War3ID;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A java class for MDL "motion flags," such as Alpha, Translation, Scaling, or
@@ -67,10 +68,10 @@ public class AnimFlag {
 		final AnimFlag af = o;
 		does = (name.equals(af.getName())) ||
 			   (hasGlobalSeq == af.hasGlobalSeq) ||
-			   (values.equals(af.values) && (globalSeq == null ? af.globalSeq == null : globalSeq.equals(af.globalSeq))
+			   (values.equals(af.values) && (Objects.equals(globalSeq, af.globalSeq))
 				&& (interpolationType == af.interpolationType)
-				&& (inTans == null ? af.inTans == null : inTans.equals(af.inTans))
-				&& (outTans == null ? af.outTans == null : outTans.equals(af.outTans)) && (typeid == af.typeid));
+				&& (Objects.equals(inTans, af.inTans))
+				&& (Objects.equals(outTans, af.outTans)) && (typeid == af.typeid));
 		return does;
 	}
 
@@ -641,18 +642,18 @@ public class AnimFlag {
 				final Quat rot = (Quat) value;
 				final Vec3 euler = rot.toEuler();
 				switch (axis) {
-					case 0:
+					case 0 -> {
 						euler.x = -euler.x;
 						euler.y = -euler.y;
-						break;
-					case 1:
+					}
+					case 1 -> {
 						euler.x = -euler.x;
 						euler.z = -euler.z;
-						break;
-					case 2:
+					}
+					case 2 -> {
 						euler.y = -euler.y;
 						euler.z = -euler.z;
-						break;
+					}
 				}
 				rot.set(euler);
 			}
@@ -660,18 +661,18 @@ public class AnimFlag {
 				final Quat rot = (Quat) inTan;
 				final Vec3 euler = rot.toEuler();
 				switch (axis) {
-					case 0:
+					case 0 -> {
 						euler.x = -euler.x;
 						euler.y = -euler.y;
-						break;
-					case 1:
+					}
+					case 1 -> {
 						euler.x = -euler.x;
 						euler.z = -euler.z;
-						break;
-					case 2:
+					}
+					case 2 -> {
 						euler.y = -euler.y;
 						euler.z = -euler.z;
-						break;
+					}
 				}
 				rot.set(euler);
 			}
@@ -679,18 +680,18 @@ public class AnimFlag {
 				final Quat rot = (Quat) outTan;
 				final Vec3 euler = rot.toEuler();
 				switch (axis) {
-					case 0:
+					case 0 -> {
 						euler.x = -euler.x;
 						euler.y = -euler.y;
-						break;
-					case 1:
+					}
+					case 1 -> {
 						euler.x = -euler.x;
 						euler.z = -euler.z;
-						break;
-					case 2:
+					}
+					case 2 -> {
 						euler.y = -euler.y;
 						euler.z = -euler.z;
-						break;
+					}
 				}
 				rot.set(euler);
 			}
@@ -788,11 +789,8 @@ public class AnimFlag {
 						}
 					}
 				}
-				if (mostVisible == null) {
-					return partner;// partner has priority!
-				} else {
-					return mostVisible;
-				}
+				// partner has priority!
+				return Objects.requireNonNullElse(mostVisible, partner);
 			} else {
 				JOptionPane.showMessageDialog(null,
 						"Error: Program attempted to compare visibility with non-visibility animation component.\nThis... probably means something is horribly wrong. Save your work, if you can.");
@@ -871,12 +869,6 @@ public class AnimFlag {
 	 * interval. The AnimFlag source of the data to copy cannot be same AnimFlag
 	 * into which the data is copied, or else a ConcurrentModificationException will
 	 * be thrown.
-	 *
-	 * @param source
-	 * @param sourceStart
-	 * @param sourceEnd
-	 * @param newStart
-	 * @param newEnd
 	 */
 	public void copyFrom(final AnimFlag source, final int sourceStart, final int sourceEnd, final int newStart,
 			final int newEnd) {
@@ -1139,10 +1131,6 @@ public class AnimFlag {
 	/**
 	 * Interpolates at a given time. The lack of generics on this function is
 	 * abysmal, but currently this is how the codebase is.
-	 *
-	 * @param time
-	 * @param animation
-	 * @return
 	 */
 	public Object interpolateAt(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
@@ -1273,26 +1261,19 @@ public class AnimFlag {
 		final Integer ceilTime = ceilIndexTime;
 		final float timeFactor = (time - floorTime) / timeBetweenFrames;
 
+		// Integer
 		switch (localTypeId) {
-			case ALPHA | OTHER_TYPE: {
+			case ALPHA | OTHER_TYPE -> {
 				final Float previous = (Float) floorValue;
 				final Float next = (Float) ceilValue;
-				switch (interpolationType) {
-					case BEZIER:
-						return MathUtils.bezier(previous, (Float) floorOutTan, (Float) inTans.get(ceilIndex), next, timeFactor);
-					case DONT_INTERP:
-						return floorValue;
-					case HERMITE:
-						return MathUtils.hermite(previous, (Float) floorOutTan, (Float) inTans.get(ceilIndex), next, timeFactor);
-					case LINEAR:
-						return MathUtils.lerp(previous, next, timeFactor);
-					default:
-						throw new IllegalStateException();
-				}
+				return switch (interpolationType) {
+					case BEZIER -> MathUtils.bezier(previous, (Float) floorOutTan, (Float) inTans.get(ceilIndex), next, timeFactor);
+					case DONT_INTERP -> floorValue;
+					case HERMITE -> MathUtils.hermite(previous, (Float) floorOutTan, (Float) inTans.get(ceilIndex), next, timeFactor);
+					case LINEAR -> MathUtils.lerp(previous, next, timeFactor);
+				};
 			}
-			case TRANSLATION:
-			case SCALING:
-			case COLOR: {
+			case TRANSLATION, SCALING, COLOR -> {
 				// Vertex
 				final Vec3 previous = (Vec3) floorValue;
 				final Vec3 next = (Vec3) ceilValue;
@@ -1302,47 +1283,36 @@ public class AnimFlag {
 						return previous.bezier((Vec3) floorOutTan, (Vec3) inTans.get(ceilIndex), next, timeFactor, new Vec3());
 					case DONT_INTERP:
 						return floorValue;
-			case HERMITE: {
-				return previous.hermite((Vec3) floorOutTan, (Vec3) inTans.get(ceilIndex), next, timeFactor, new Vec3());
+					case HERMITE: {
+						return previous.hermite((Vec3) floorOutTan, (Vec3) inTans.get(ceilIndex), next, timeFactor, new Vec3());
+					}
+					case LINEAR:
+						return previous.lerp(next, timeFactor, new Vec3());
+					default:
+						throw new IllegalStateException();
+				}
 			}
-			case LINEAR:
-				return previous.lerp(next, timeFactor, new Vec3());
-			default:
-				throw new IllegalStateException();
-			}
-		}
-		case ROTATION: {
-			// Quat
-			final Quat previous = (Quat) floorValue;
-			final Quat next = (Quat) ceilValue;
+			case ROTATION -> {
+				// Quat
+				final Quat previous = (Quat) floorValue;
+				final Quat next = (Quat) ceilValue;
 
-			switch (interpolationType) {
-			case BEZIER:
-				return previous.squad((Quat) floorOutTan, (Quat) inTans.get(ceilIndex), next, timeFactor, new Quat());
-			case DONT_INTERP:
-				return floorValue;
-			case HERMITE:
-				return previous.squad((Quat) floorOutTan, (Quat) inTans.get(ceilIndex), next, timeFactor,  new Quat());
-			case LINEAR:
-				return previous.slerp(next, timeFactor, new Quat());
-			default:
-				throw new IllegalStateException();
+				return switch (interpolationType) {
+					case BEZIER -> previous.squad((Quat) floorOutTan, (Quat) inTans.get(ceilIndex), next, timeFactor, new Quat());
+					case DONT_INTERP -> floorValue;
+					case HERMITE -> previous.squad((Quat) floorOutTan, (Quat) inTans.get(ceilIndex), next, timeFactor, new Quat());
+					case LINEAR -> previous.slerp(next, timeFactor, new Quat());
+				};
 			}
-		}
-		case TEXTUREID:
-		// Integer
-		{
-			final Integer previous = (Integer) floorValue;
-			switch (interpolationType) {
-			case DONT_INTERP:
-			case BEZIER: // dont use bezier on these, does that even make any sense?
-			case HERMITE: // dont use hermite on these, does that even make any sense?
-			case LINEAR: // dont use linear on these, does that even make any sense?
-				return previous;
-			default:
-				throw new IllegalStateException();
+			case TEXTUREID -> {
+				final Integer previous = (Integer) floorValue;
+				return switch (interpolationType) {
+					// dont use linear on these, does that even make any sense?
+					// dont use hermite on these, does that even make any sense?
+					// dont use bezier on these, does that even make any sense?
+					case DONT_INTERP, BEZIER, HERMITE, LINEAR -> previous;
+				};
 			}
-		}
 		}
 		throw new IllegalStateException();
 	}

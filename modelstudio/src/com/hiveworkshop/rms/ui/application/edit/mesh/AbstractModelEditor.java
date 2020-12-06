@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -56,8 +55,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePic
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.util.Vec3;
-
-import javax.swing.*;
 
 public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> {
     protected final ModelView model;
@@ -906,20 +903,20 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                 }
             }
         }
-        String boneList = "";
+        StringBuilder boneList = new StringBuilder();
         for (int i = 0; i < boneRefs.size(); i++) {
             if (i == (boneRefs.size() - 2)) {
-                boneList = boneList + boneRefs.get(i).getName() + " and ";
+                boneList.append(boneRefs.get(i).getName()).append(" and ");
             } else if (i == (boneRefs.size() - 1)) {
-                boneList = boneList + boneRefs.get(i).getName();
+                boneList.append(boneRefs.get(i).getName());
             } else {
-                boneList = boneList + boneRefs.get(i).getName() + ", ";
+                boneList.append(boneRefs.get(i).getName()).append(", ");
             }
         }
         if (boneRefs.size() == 0) {
-            boneList = "Nothing was selected that was attached to any bones.";
+            boneList = new StringBuilder("Nothing was selected that was attached to any bones.");
         }
-        return boneList;
+        return boneList.toString();
     }
 
     @Override

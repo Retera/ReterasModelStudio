@@ -60,12 +60,11 @@ public class ViewportTransferHandler extends TransferHandler {
             final Viewport.DropLocation dl = (Viewport.DropLocation) info.getDropLocation();
             final Point dropPoint = dl.getDropPoint();
             pasteModelIntoViewport(pastedModel, list, dropPoint, list.getModelStructureChangeListener());
-            return true;
         } else { // This is a paste
             pasteModelIntoViewport(pastedModel, list, list.getLastMouseMotion(),
                     list.getModelStructureChangeListener());
-            return true;
         }
+        return true;
     }
 
     private void pasteModelIntoViewport(final EditableModel pastedModel, final Viewport viewport, final Point dropPoint,

@@ -13,7 +13,7 @@ public final class CharInt {
      * @param id the string to convert
      * @return integer representation of the string.
      */
-    public final static int toInt(final String id) {
+    public static int toInt(final String id) {
         final byte[] bytes = id.getBytes(StandardCharsets.US_ASCII);
         int result = 0;
         if (bytes.length >= 4) {
@@ -36,14 +36,11 @@ public final class CharInt {
      * @param id the integer to convert
      * @return four character string representing the integer.
      */
-    public final static String toString(final int id) {
-        final StringBuffer result = new StringBuffer(4);
-        
-        result.append((char) ((id >> 24) & 0xFF));
-        result.append((char) ((id >> 16) & 0xFF));
-        result.append((char) ((id >> 8) & 0xFF));
-        result.append((char) ((id >> 0) & 0xFF));
-        
-        return result.toString();
+    public static String toString(final int id) {
+
+        return String.valueOf((char) ((id >> 24) & 0xFF)) +
+                (char) ((id >> 16) & 0xFF) +
+                (char) ((id >> 8) & 0xFF) +
+                (char) ((id >> 0) & 0xFF);
     }
 }

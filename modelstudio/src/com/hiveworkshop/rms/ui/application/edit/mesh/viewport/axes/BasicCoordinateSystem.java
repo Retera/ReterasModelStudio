@@ -22,22 +22,22 @@ public final class BasicCoordinateSystem implements CoordinateSystem {
 
 	@Override
 	public double convertX(final double x) {
-		return (x + cameraX) * zoom + width / 2;
+		return (x + cameraX) * zoom + width / 2.0;
 	}
 
 	@Override
 	public double convertY(final double y) {
-		return ((-y + cameraY) * zoom) + height / 2;
+		return ((-y + cameraY) * zoom) + height / 2.0;
 	}
 
 	@Override
 	public double geomX(final double x) {
-		return (x - width / 2) / zoom - cameraX;
+		return (x - width / 2.0) / zoom - cameraX;
 	}
 
 	@Override
 	public double geomY(final double y) {
-		return -((y - height / 2) / zoom - cameraY);
+		return -((y - height / 2.0) / zoom - cameraY);
 	}
 
 	@Override

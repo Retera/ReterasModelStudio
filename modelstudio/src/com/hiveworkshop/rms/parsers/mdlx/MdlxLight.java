@@ -76,56 +76,23 @@ public class MdlxLight extends MdlxGenericObject {
 	public void readMdl(final MdlTokenInputStream stream, final int version) {
 		for (final String token : super.readMdlGeneric(stream)) {
 			switch (token) {
-			case MdlUtils.TOKEN_OMNIDIRECTIONAL:
-				type = Type.OMNIDIRECTIONAL;
-				break;
-			case MdlUtils.TOKEN_DIRECTIONAL:
-				type = Type.DIRECTIONAL;
-				break;
-			case MdlUtils.TOKEN_AMBIENT:
-				type = Type.AMBIENT;
-				break;
-			case MdlUtils.TOKEN_STATIC_ATTENUATION_START:
-				attenuation[0] = stream.readFloat();
-				break;
-			case MdlUtils.TOKEN_ATTENUATION_START:
-				readTimeline(stream, AnimationMap.KLAS);
-				break;
-			case MdlUtils.TOKEN_STATIC_ATTENUATION_END:
-				attenuation[1] = stream.readFloat();
-				break;
-			case MdlUtils.TOKEN_ATTENUATION_END:
-				readTimeline(stream, AnimationMap.KLAE);
-				break;
-			case MdlUtils.TOKEN_STATIC_INTENSITY:
-				intensity = stream.readFloat();
-				break;
-			case MdlUtils.TOKEN_INTENSITY:
-				readTimeline(stream, AnimationMap.KLAI);
-				break;
-			case MdlUtils.TOKEN_STATIC_COLOR:
-				stream.readColor(color);
-				break;
-			case MdlUtils.TOKEN_COLOR:
-				readTimeline(stream, AnimationMap.KLAC);
-				break;
-			case MdlUtils.TOKEN_STATIC_AMB_INTENSITY:
-				ambientIntensity = stream.readFloat();
-				break;
-			case MdlUtils.TOKEN_AMB_INTENSITY:
-				readTimeline(stream, AnimationMap.KLBI);
-				break;
-			case MdlUtils.TOKEN_STATIC_AMB_COLOR:
-				stream.readColor(ambientColor);
-				break;
-			case MdlUtils.TOKEN_AMB_COLOR:
-				readTimeline(stream, AnimationMap.KLBC);
-				break;
-			case MdlUtils.TOKEN_VISIBILITY:
-				readTimeline(stream, AnimationMap.KLAV);
-				break;
-			default:
-				throw new RuntimeException("Unknown token in Light: " + token);
+				case MdlUtils.TOKEN_OMNIDIRECTIONAL -> type = Type.OMNIDIRECTIONAL;
+				case MdlUtils.TOKEN_DIRECTIONAL -> type = Type.DIRECTIONAL;
+				case MdlUtils.TOKEN_AMBIENT -> type = Type.AMBIENT;
+				case MdlUtils.TOKEN_STATIC_ATTENUATION_START -> attenuation[0] = stream.readFloat();
+				case MdlUtils.TOKEN_ATTENUATION_START -> readTimeline(stream, AnimationMap.KLAS);
+				case MdlUtils.TOKEN_STATIC_ATTENUATION_END -> attenuation[1] = stream.readFloat();
+				case MdlUtils.TOKEN_ATTENUATION_END -> readTimeline(stream, AnimationMap.KLAE);
+				case MdlUtils.TOKEN_STATIC_INTENSITY -> intensity = stream.readFloat();
+				case MdlUtils.TOKEN_INTENSITY -> readTimeline(stream, AnimationMap.KLAI);
+				case MdlUtils.TOKEN_STATIC_COLOR -> stream.readColor(color);
+				case MdlUtils.TOKEN_COLOR -> readTimeline(stream, AnimationMap.KLAC);
+				case MdlUtils.TOKEN_STATIC_AMB_INTENSITY -> ambientIntensity = stream.readFloat();
+				case MdlUtils.TOKEN_AMB_INTENSITY -> readTimeline(stream, AnimationMap.KLBI);
+				case MdlUtils.TOKEN_STATIC_AMB_COLOR -> stream.readColor(ambientColor);
+				case MdlUtils.TOKEN_AMB_COLOR -> readTimeline(stream, AnimationMap.KLBC);
+				case MdlUtils.TOKEN_VISIBILITY -> readTimeline(stream, AnimationMap.KLAV);
+				default -> throw new RuntimeException("Unknown token in Light: " + token);
 			}
 		}
 	}

@@ -449,38 +449,26 @@ public class ParticleEmitter2 extends EmitterIdObject {
 
 	@Override
 	public int getBlendSrc() {
-		switch (filterMode) {
-		case BLEND:
-			return GL11.GL_SRC_ALPHA;
-		case ADDITIVE:
-			return GL11.GL_SRC_ALPHA;
-		case ALPHAKEY:
-			return GL11.GL_SRC_ALPHA;
-		case MODULATE:
-			return GL11.GL_ZERO;
-		case MODULATE2X:
-			return GL11.GL_DST_COLOR;
-		}
+		return switch (filterMode) {
+			case BLEND -> GL11.GL_SRC_ALPHA;
+			case ADDITIVE -> GL11.GL_SRC_ALPHA;
+			case ALPHAKEY -> GL11.GL_SRC_ALPHA;
+			case MODULATE -> GL11.GL_ZERO;
+			case MODULATE2X -> GL11.GL_DST_COLOR;
+		};
 
-		return GL11.GL_ONE;
 	}
 
 	@Override
 	public int getBlendDst() {
-		switch (filterMode) {
-		case BLEND:
-			return GL11.GL_ONE_MINUS_SRC_ALPHA;
-		case ADDITIVE:
-			return GL11.GL_ONE;
-		case ALPHAKEY:
-			return GL11.GL_ONE;
-		case MODULATE:
-			return GL11.GL_SRC_COLOR;
-		case MODULATE2X:
-			return GL11.GL_SRC_COLOR;
-		}
+		return switch (filterMode) {
+			case BLEND -> GL11.GL_ONE_MINUS_SRC_ALPHA;
+			case ADDITIVE -> GL11.GL_ONE;
+			case ALPHAKEY -> GL11.GL_ONE;
+			case MODULATE -> GL11.GL_SRC_COLOR;
+			case MODULATE2X -> GL11.GL_SRC_COLOR;
+		};
 
-		return GL11.GL_ONE;
 	}
 
 	@Override

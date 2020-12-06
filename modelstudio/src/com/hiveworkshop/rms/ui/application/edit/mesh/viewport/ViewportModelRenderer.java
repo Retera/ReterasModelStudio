@@ -176,50 +176,8 @@ public class ViewportModelRenderer implements ModelVisitor {
 									final double normalY, final double normalZ, final List<Bone> bones) {
 			final double firstCoord;
 			final double secondCoord;
-			switch (xDimension) {
-				case 0:
-					firstCoord = x;
-					break;
-				case 1:
-					firstCoord = y;
-					break;
-				case 2:
-					firstCoord = z;
-					break;
-				case -1:
-					firstCoord = -x;
-					break;
-				case -2:
-					firstCoord = -y;
-					break;
-				case -3:
-					firstCoord = -z;
-					break;
-				default:
-					throw new IllegalStateException("Invalid x dimension");
-			}
-			switch (yDimension) {
-				case 0:
-					secondCoord = x;
-					break;
-				case 1:
-					secondCoord = y;
-					break;
-				case 2:
-					secondCoord = z;
-					break;
-				case -1:
-					secondCoord = -x;
-					break;
-				case -2:
-					secondCoord = -y;
-					break;
-				case -3:
-					secondCoord = -z;
-					break;
-				default:
-					throw new IllegalStateException("Invalid y dimension");
-			}
+			firstCoord = getDimension(x, y, z, xDimension, "Invalid x dimension");
+			secondCoord = getDimension(x, y, z, yDimension, "Invalid y dimension");
 			final Point point = new Point((int) coordinateSystem.convertX(firstCoord),
 					(int) coordinateSystem.convertY(secondCoord));
 			if (previousVertices.size() > 0) {
@@ -235,50 +193,8 @@ public class ViewportModelRenderer implements ModelVisitor {
 				final Color triangleColor = graphics.getColor();
 				final double firstNormalCoord;
 				final double secondNormalCoord;
-				switch (xDimension) {
-					case 0:
-						firstNormalCoord = normalX;
-						break;
-					case 1:
-						firstNormalCoord = normalY;
-						break;
-					case 2:
-						firstNormalCoord = normalZ;
-						break;
-					case -1:
-						firstNormalCoord = -normalX;
-						break;
-					case -2:
-						firstNormalCoord = -normalY;
-						break;
-					case -3:
-						firstNormalCoord = -normalZ;
-						break;
-					default:
-						throw new IllegalStateException("Invalid x dimension");
-				}
-				switch (yDimension) {
-					case 0:
-						secondNormalCoord = normalX;
-						break;
-					case 1:
-						secondNormalCoord = normalY;
-						break;
-					case 2:
-						secondNormalCoord = normalZ;
-						break;
-					case -1:
-						secondNormalCoord = -normalX;
-						break;
-					case -2:
-						secondNormalCoord = -normalY;
-						break;
-					case -3:
-						secondNormalCoord = -normalZ;
-						break;
-					default:
-						throw new IllegalStateException("Invalid y dimension");
-				}
+				firstNormalCoord = getDimension(normalX, normalY, normalZ, xDimension, "Invalid x dimension");
+				secondNormalCoord = getDimension(normalX, normalY, normalZ, yDimension, "Invalid y dimension");
 				graphics.setColor(programPreferences.getNormalsColor());
 				final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
 				final Point endPoint = new Point(
@@ -307,16 +223,20 @@ public class ViewportModelRenderer implements ModelVisitor {
 
 	}
 
+	private double getDimension(double x, double y, double z, byte dimension, String throwMessage) {
+		return switch (dimension) {
+			case 0 -> x;
+			case 1 -> y;
+			case 2 -> z;
+			case -1 -> -x;
+			case -2 -> -y;
+			case -3 -> -z;
+			default -> throw new IllegalStateException(throwMessage);
+		};
+	}
+
 	/**
 	 * Copied directly from MDLDisplay and then made static.
-	 *
-	 * @param model
-	 * @param g
-	 * @param bounds
-	 * @param a
-	 * @param b
-	 * @param filter
-	 * @param extraHighlightPoint
 	 */
 	public static void drawFittedTriangles(final EditableModel model, final Graphics g, final Rectangle bounds, final byte a,
 										   final byte b, final VertexFilter<? super GeosetVertex> filter, final Vec3 extraHighlightPoint) {
@@ -339,22 +259,15 @@ public class ViewportModelRenderer implements ModelVisitor {
 				}
 				final double[] x = t.getCoords(a);
 				for (final double xval : x) {
-					if (xval < minX) {
-						minX = xval;
-					}
-					if (xval > maxX) {
-						maxX = xval;
-					}
+					minX = Math.min(xval, minX);
+					maxX = Math.max(xval, maxX);
 				}
 				final double[] y = t.getCoords(b);
 				for (final double yval : y) {
 					final double yCoord = -yval;
-					if (yCoord < minY) {
-						minY = yCoord;
-					}
-					if (yCoord > maxY) {
-						maxY = yCoord;
-					}
+					minY = Math.min(yCoord, minY);
+					maxY = Math.max(yCoord, maxY);
+
 				}
 			}
 		}
@@ -388,11 +301,6 @@ public class ViewportModelRenderer implements ModelVisitor {
 
 	/**
 	 * Copied directly from MDLDisplay and then made static.
-	 *
-	 * @param g
-	 * @param a
-	 * @param b
-	 * @param t
 	 */
 	private static void drawTriangle(final Graphics g, final byte a, final byte b, final Triangle t) {
 		final double[] x = t.getCoords(a);

@@ -19,7 +19,7 @@ public class CascDataSourceDescriptor implements DataSourceDescriptor {
 
 	@Override
 	public DataSource createDataSource() {
-		return new CascDataSource(gameInstallPath, prefixes.toArray(new String[prefixes.size()]));
+		return new CascDataSource(gameInstallPath, prefixes.toArray(new String[0]));
 	}
 
 	@Override

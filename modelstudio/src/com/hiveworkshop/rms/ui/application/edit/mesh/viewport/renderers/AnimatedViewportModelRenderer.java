@@ -206,32 +206,18 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 			}
 			final float firstCoord;
 			final float secondCoord;
-			switch (xDimension) {
-				case 0:
-					firstCoord = vertexSumHeap.x;
-					break;
-				case 1:
-					firstCoord = vertexSumHeap.y;
-					break;
-				case 2:
-					firstCoord = vertexSumHeap.z;
-					break;
-				default:
-					throw new IllegalStateException("Invalid x dimension");
-			}
-			switch (yDimension) {
-				case 0:
-					secondCoord = vertexSumHeap.x;
-					break;
-				case 1:
-					secondCoord = vertexSumHeap.y;
-					break;
-				case 2:
-					secondCoord = vertexSumHeap.z;
-					break;
-				default:
-					throw new IllegalStateException("Invalid y dimension");
-			}
+			firstCoord = switch (xDimension) {
+				case 0 -> vertexSumHeap.x;
+				case 1 -> vertexSumHeap.y;
+				case 2 -> vertexSumHeap.z;
+				default -> throw new IllegalStateException("Invalid x dimension");
+			};
+			secondCoord = switch (yDimension) {
+				case 0 -> vertexSumHeap.x;
+				case 1 -> vertexSumHeap.y;
+				case 2 -> vertexSumHeap.z;
+				default -> throw new IllegalStateException("Invalid y dimension");
+			};
 			final Point point = new Point((int) coordinateSystem.convertX(firstCoord),
 					(int) coordinateSystem.convertY(secondCoord));
 			if (previousVertices.size() > 0) {
@@ -266,50 +252,24 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 				final Color triangleColor = graphics.getColor();
 				final float firstNormalCoord;
 				final float secondNormalCoord;
-				switch (xDimension) {
-					case 0:
-						firstNormalCoord = normalSumHeap.x;
-						break;
-					case 1:
-						firstNormalCoord = normalSumHeap.y;
-						break;
-					case 2:
-						firstNormalCoord = normalSumHeap.z;
-						break;
-					case -1:
-						firstNormalCoord = -normalSumHeap.x;
-						break;
-					case -2:
-						firstNormalCoord = -normalSumHeap.y;
-						break;
-					case -3:
-						firstNormalCoord = -normalSumHeap.z;
-						break;
-					default:
-						throw new IllegalStateException("Invalid x dimension");
-				}
-				switch (yDimension) {
-					case 0:
-						secondNormalCoord = normalSumHeap.x;
-						break;
-					case 1:
-						secondNormalCoord = normalSumHeap.y;
-						break;
-					case 2:
-						secondNormalCoord = normalSumHeap.z;
-						break;
-					case -1:
-						secondNormalCoord = -normalSumHeap.x;
-						break;
-					case -2:
-						secondNormalCoord = -normalSumHeap.y;
-						break;
-					case -3:
-						secondNormalCoord = -normalSumHeap.z;
-						break;
-					default:
-						throw new IllegalStateException("Invalid y dimension");
-				}
+				firstNormalCoord = switch (xDimension) {
+					case 0 -> normalSumHeap.x;
+					case 1 -> normalSumHeap.y;
+					case 2 -> normalSumHeap.z;
+					case -1 -> -normalSumHeap.x;
+					case -2 -> -normalSumHeap.y;
+					case -3 -> -normalSumHeap.z;
+					default -> throw new IllegalStateException("Invalid x dimension");
+				};
+				secondNormalCoord = switch (yDimension) {
+					case 0 -> normalSumHeap.x;
+					case 1 -> normalSumHeap.y;
+					case 2 -> normalSumHeap.z;
+					case -1 -> -normalSumHeap.x;
+					case -2 -> -normalSumHeap.y;
+					case -3 -> -normalSumHeap.z;
+					default -> throw new IllegalStateException("Invalid y dimension");
+				};
 				graphics.setColor(programPreferences.getNormalsColor());
 				final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
 				final Point endPoint = new Point(
@@ -375,32 +335,18 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 
 			final float firstCoord;
 			final float secondCoord;
-			switch (xDimension) {
-				case 0:
-					firstCoord = vertexSumHeap.x;
-					break;
-				case 1:
-					firstCoord = vertexSumHeap.y;
-					break;
-				case 2:
-					firstCoord = vertexSumHeap.z;
-					break;
-				default:
-					throw new IllegalStateException("Invalid x dimension");
-			}
-			switch (yDimension) {
-				case 0:
-					secondCoord = vertexSumHeap.x;
-					break;
-				case 1:
-					secondCoord = vertexSumHeap.y;
-					break;
-				case 2:
-					secondCoord = vertexSumHeap.z;
-					break;
-				default:
-					throw new IllegalStateException("Invalid y dimension");
-			}
+			firstCoord = switch (xDimension) {
+				case 0 -> vertexSumHeap.x;
+				case 1 -> vertexSumHeap.y;
+				case 2 -> vertexSumHeap.z;
+				default -> throw new IllegalStateException("Invalid x dimension");
+			};
+			secondCoord = switch (yDimension) {
+				case 0 -> vertexSumHeap.x;
+				case 1 -> vertexSumHeap.y;
+				case 2 -> vertexSumHeap.z;
+				default -> throw new IllegalStateException("Invalid y dimension");
+			};
 			final Point point = new Point((int) coordinateSystem.convertX(firstCoord),
 					(int) coordinateSystem.convertY(secondCoord));
 			if (previousVertices.size() > 0) {
@@ -416,32 +362,18 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 				final Color triangleColor = graphics.getColor();
 				final float firstNormalCoord;
 				final float secondNormalCoord;
-				switch (xDimension) {
-					case 0:
-						firstNormalCoord = normalSumHeap.x;
-						break;
-					case 1:
-						firstNormalCoord = normalSumHeap.y;
-						break;
-					case 2:
-						firstNormalCoord = normalSumHeap.z;
-						break;
-					default:
-						throw new IllegalStateException("Invalid x dimension");
-				}
-				switch (yDimension) {
-					case 0:
-						secondNormalCoord = normalSumHeap.x;
-						break;
-					case 1:
-						secondNormalCoord = normalSumHeap.y;
-						break;
-					case 2:
-						secondNormalCoord = normalSumHeap.z;
-						break;
-					default:
-						throw new IllegalStateException("Invalid y dimension");
-				}
+				firstNormalCoord = switch (xDimension) {
+					case 0 -> normalSumHeap.x;
+					case 1 -> normalSumHeap.y;
+					case 2 -> normalSumHeap.z;
+					default -> throw new IllegalStateException("Invalid x dimension");
+				};
+				secondNormalCoord = switch (yDimension) {
+					case 0 -> normalSumHeap.x;
+					case 1 -> normalSumHeap.y;
+					case 2 -> normalSumHeap.z;
+					default -> throw new IllegalStateException("Invalid y dimension");
+				};
 				graphics.setColor(programPreferences.getNormalsColor());
 				final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
 				final Point endPoint = new Point(

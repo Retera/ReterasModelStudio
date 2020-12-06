@@ -170,23 +170,11 @@ public final class War3ObjectDataChangeset {
 			kind = 'a';
 		} else {
 			switch (chid.asStringValue().charAt(0)) {
-			case 'f':
-				kind = 'h';
-				break;
-			case 'i':
-				kind = 't';
-				break;
-			case 'g':
-				kind = 'q';
-				break;
-			case 'a':
-			case 'u':
-			case 'b':
-			case 'd':
-				kind = chid.asStringValue().charAt(0);
-				break;
-			default:
-				kind = 'a';
+				case 'f' -> kind = 'h';
+				case 'i' -> kind = 't';
+				case 'g' -> kind = 'q';
+				case 'a', 'u', 'b', 'd' -> kind = chid.asStringValue().charAt(0);
+				default -> kind = 'a';
 			}
 		}
 		return true;
@@ -203,18 +191,10 @@ public final class War3ObjectDataChangeset {
 			cmp = expected;
 		}
 		switch (cmp) {
-		case 'h':
-			nameField = field.set(0, 'f');
-			break;
-		case 't':
-			nameField = field.set(0, 'u');
-			break;
-		case 'q':
-			nameField = field.set(0, 'g');
-			break;
-		default:
-			nameField = field.set(0, cmp);
-			break;
+			case 'h' -> nameField = field.set(0, 'f');
+			case 't' -> nameField = field.set(0, 'u');
+			case 'q' -> nameField = field.set(0, 'g');
+			default -> nameField = field.set(0, cmp);
 		}
 		return nameField;
 	}
@@ -224,17 +204,13 @@ public final class War3ObjectDataChangeset {
 		if (!detected) {
 			cmp = expected;
 		}
-		switch (cmp) {
-		case 'u':
-		case 'h':
-		case 'b':
-		case 't':
-			return false;
-		}
-		return true;
+		return switch (cmp) {
+			case 'u', 'h', 'b', 't' -> false;
+			default -> true;
+		};
 	}
 
-	public void renameids(final ObjectMap map, final boolean isOriginal) {
+	public void renameIds(final ObjectMap map, final boolean isOriginal) {
 		final War3ID nameId = getNameField();
 		final List<War3ID> idsToRemoveFromMap = new ArrayList<>();
 		final Map<War3ID, ObjectDataChangeEntry> idsToObjectsForAddingToMap = new HashMap<>();
@@ -332,8 +308,8 @@ public final class War3ObjectDataChangeset {
 	}
 
 	public void renameIds() {
-		renameids(original, true);
-		renameids(custom, false);
+		renameIds(original, true);
+		renameIds(custom, false);
 	}
 
 	// ' ' - '/'
@@ -341,22 +317,21 @@ public final class War3ObjectDataChangeset {
 	// '[' - '`'
 	// '{' - '~'
 	public char nextchar(final char cur) {
-		switch (cur) {
-		case '&': // skip ' because often jass parsers don't handle escaped rawcodes like '\''
-			return '(';
-		case '/': // skip digits
-			return ':';
-		case '@': // skip capital letters
-			return '['; // skip \ for the sam reason like ' ('\\')
-		case '[':
-			return ']';
-		case '_': // skip � and lower case letters (� can't be seen very well)
-			return '{';
-		case '~': // close circle and restart at !
-			return '!';
-		default:
-			return (char) ((short) cur + 1);
-		}
+		return switch (cur) {
+// skip ' because often jass parsers don't handle escaped rawcodes like '\''
+			case '&' -> '(';
+// skip digits
+			case '/' -> ':';
+// skip capital letters
+// skip \ for the sam reason like ' ('\\')
+			case '@' -> '[';
+			case '[' -> ']';
+// skip � and lower case letters (� can't be seen very well)
+			case '_' -> '{';
+// close circle and restart at !
+			case '~' -> '!';
+			default -> (char) ((short) cur + 1);
+		};
 	}
 
 	// we use only special characters to avoid collisions with existing objects
@@ -382,11 +357,12 @@ public final class War3ObjectDataChangeset {
 				War3ID oldId;
 				War3ID replacementId;
 
+				// obj.cpp: get new id until we finally have one that isn't used yet, or we're
+				// out of ids
+				// final ObjectDataChangeEntry deleteObject = target.get(sourceObject.getKey());
 				switch (collisionHandling) {
-					case CREATE_NEW_ID:
+					case CREATE_NEW_ID -> {
 						oldId = sourceObject.getKey();
-						// obj.cpp: get new id until we finally have one that isn't used yet, or we're
-						// out of ids
 						replacementId = getunusedid(oldId);
 						while (!((oldId.charAt(1) == '~') && (oldId.charAt(2) == '~') && (oldId.charAt(3) == '~'))
 								&& targetCustom.containsKey(replacementId)) {
@@ -397,12 +373,10 @@ public final class War3ObjectDataChangeset {
 							sourceObject.getValue().setNewId(replacementId);
 							targetCustom.put(replacementId, sourceObject.getValue().clone());
 						}
-						break;
-					case REPLACE:
-						// final ObjectDataChangeEntry deleteObject = target.get(sourceObject.getKey());
-						target.put(sourceObject.getKey(), sourceObject.getValue().clone());
-						break;
-					default:// merge
+					}
+					case REPLACE -> target.put(sourceObject.getKey(), sourceObject.getValue().clone());
+// merge
+					default -> {
 						final ObjectDataChangeEntry targetObject = target.get(sourceObject.getKey());
 						for (final Map.Entry<War3ID, List<Change>> sourceUnitField : sourceObject.getValue()
 								.getChanges()) {
@@ -428,7 +402,7 @@ public final class War3ObjectDataChangeset {
 								}
 							}
 						}
-						break;
+					}
 				}
 			} else {
 				targetCustom.put(sourceObject.getKey(), sourceObject.getValue().clone());
@@ -522,38 +496,38 @@ public final class War3ObjectDataChangeset {
 				}
 
 				switch (newlyReadChange.getVartype()) {
-				case 0:
-					newlyReadChange.setLongval(stream.readInt());
-					debugprint("\t\tValue " + newlyReadChange.getLongval() + ",");
-					break;
-				case 3:
-					ptr = 0;
-					stringByteBuffer.clear();
-					byte charRead;
-					while ((charRead = (byte) stream.read()) != 0) {
-						stringByteBuffer.put(charRead);
+					case 0 -> {
+						newlyReadChange.setLongval(stream.readInt());
+						debugprint("\t\tValue " + newlyReadChange.getLongval() + ",");
 					}
-					stringByteBuffer.flip();
-					newlyReadChange.setStrval(decoder.decode(stringByteBuffer).toString());
-					if (inlineWTS && (newlyReadChange.getStrval().length() > 8)
-							&& "TRIGSTR_".equals(newlyReadChange.getStrval().substring(0, 8))) {
-						final int key = getWTSValue(newlyReadChange);
-						newlyReadChange.setStrval(wts.get(key));
-						if ((newlyReadChange.getStrval() != null)
-								&& (newlyReadChange.getStrval().length() > MAX_STR_LEN)) {
-							newlyReadChange.setStrval(newlyReadChange.getStrval().substring(0, MAX_STR_LEN - 1));
+					case 3 -> {
+						ptr = 0;
+						stringByteBuffer.clear();
+						byte charRead;
+						while ((charRead = (byte) stream.read()) != 0) {
+							stringByteBuffer.put(charRead);
 						}
+						stringByteBuffer.flip();
+						newlyReadChange.setStrval(decoder.decode(stringByteBuffer).toString());
+						if (inlineWTS && (newlyReadChange.getStrval().length() > 8)
+								&& "TRIGSTR_".equals(newlyReadChange.getStrval().substring(0, 8))) {
+							final int key = getWTSValue(newlyReadChange);
+							newlyReadChange.setStrval(wts.get(key));
+							if ((newlyReadChange.getStrval() != null)
+									&& (newlyReadChange.getStrval().length() > MAX_STR_LEN)) {
+								newlyReadChange.setStrval(newlyReadChange.getStrval().substring(0, MAX_STR_LEN - 1));
+							}
+						}
+						debugprint("\t\tValue \"" + newlyReadChange.getStrval() + "\",");
 					}
-					debugprint("\t\tValue \"" + newlyReadChange.getStrval() + "\",");
-					break;
-				case 4:
-					newlyReadChange.setBoolval(stream.readInt() == 1);
-					debugprint("\t\tValue " + newlyReadChange.isBoolval() + ",");
-					break;
-				default:
-					newlyReadChange.setRealval(stream.readFloat());
-					debugprint("\t\tValue " + newlyReadChange.getRealval() + ",");
-					break;
+					case 4 -> {
+						newlyReadChange.setBoolval(stream.readInt() == 1);
+						debugprint("\t\tValue " + newlyReadChange.isBoolval() + ",");
+					}
+					default -> {
+						newlyReadChange.setRealval(stream.readFloat());
+						debugprint("\t\tValue " + newlyReadChange.getRealval() + ",");
+					}
 				}
 				final War3ID crap = readWar3ID(stream);
 				debugprint("\t\tExtra \"" + crap + "\",");
@@ -638,8 +612,7 @@ public final class War3ObjectDataChangeset {
 
 	public boolean load(final File file, final WTS wts, final boolean inlineWTS) throws IOException {
 		try (BlizzardDataInputStream inputStream = new BlizzardDataInputStream(new FileInputStream(file))) {
-			final boolean result = load(inputStream, wts, inlineWTS);
-			return result;
+			return load(inputStream, wts, inlineWTS);
 		}
 	}
 
@@ -707,30 +680,24 @@ public final class War3ObjectDataChangeset {
 							outputStream.writeInt(change.getDataptr());
 						}
 						switch (change.getVartype()) {
-						case 0:
-							outputStream.writeInt(change.getLongval());
-							break;
-						case 3:
-							charBuffer.clear();
-							byteBuffer.clear();
-							charBuffer.put(change.getStrval());
-							charBuffer.flip();
-							encoder.encode(charBuffer, byteBuffer, false);
-							byteBuffer.flip();
-							final byte[] stringBytes = new byte[byteBuffer.remaining() + 1];
-							int i = 0;
-							while (byteBuffer.hasRemaining()) {
-								stringBytes[i++] = byteBuffer.get();
+							case 0 -> outputStream.writeInt(change.getLongval());
+							case 3 -> {
+								charBuffer.clear();
+								byteBuffer.clear();
+								charBuffer.put(change.getStrval());
+								charBuffer.flip();
+								encoder.encode(charBuffer, byteBuffer, false);
+								byteBuffer.flip();
+								final byte[] stringBytes = new byte[byteBuffer.remaining() + 1];
+								int i = 0;
+								while (byteBuffer.hasRemaining()) {
+									stringBytes[i++] = byteBuffer.get();
+								}
+								stringBytes[i] = 0;
+								outputStream.write(stringBytes);
 							}
-							stringBytes[i] = 0;
-							outputStream.write(stringBytes);
-							break;
-						case 4:
-							outputStream.writeInt(change.isBoolval() ? 1 : 0);
-							break;
-						default:
-							outputStream.writeFloat(change.getRealval());
-							break;
+							case 4 -> outputStream.writeInt(change.isBoolval() ? 1 : 0);
+							default -> outputStream.writeFloat(change.getRealval());
 						}
 						// if (change.getJunkDNA() == null) {
 						// saveWriteChars(outputStream, cl.getNewId().asStringValue().toCharArray());
