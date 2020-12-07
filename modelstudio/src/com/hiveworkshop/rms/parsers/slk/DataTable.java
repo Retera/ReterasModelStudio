@@ -341,7 +341,6 @@ public class DataTable implements ObjectData {
 				final int start = input.indexOf("[") + 1;
 				final int end = input.indexOf("]");
 				final String newKey = input.substring(start, end);
-				final String newKeyBase = newKey;
 				currentUnit = dataTable.get(new StringKey(newKey));
 				if (currentUnit == null) {
 					// currentUnit = dataTable.get(newKey.charAt(0) + "" +

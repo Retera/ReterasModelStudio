@@ -224,8 +224,7 @@ public class Main {
         }
     }
 
-    private static void runAsConverter(final String arg) throws IOException {
-        final String path = arg;
+    private static void runAsConverter(final String path) throws IOException {
         final EditableModel model = MdxUtils.loadEditable(new File(path));
         if (path.toLowerCase().endsWith(".mdx")) {
             MdxUtils.saveMdl(model, new File(path.substring(0, path.lastIndexOf('.')) + ".mdl"));

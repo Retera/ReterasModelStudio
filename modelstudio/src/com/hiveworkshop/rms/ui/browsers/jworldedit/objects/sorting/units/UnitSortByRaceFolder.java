@@ -42,8 +42,7 @@ public final class UnitSortByRaceFolder extends AbstractSortingFolderTreeNode {
 
 	private DefaultUnitRace raceKey(final int index) {
 		return switch (index) {
-			case -1 -> DefaultUnitRace.HUMAN;
-			case 0 -> DefaultUnitRace.HUMAN;
+			case -1, 0 -> DefaultUnitRace.HUMAN;
 			case 1 -> DefaultUnitRace.ORC;
 			case 2 -> DefaultUnitRace.UNDEAD;
 			case 3 -> DefaultUnitRace.NIGHTELF;

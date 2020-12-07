@@ -178,22 +178,7 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 
 	private String raceKey() {
 		if (raceBox.getModel() == raceBoxModel) {
-			switch (raceBox.getSelectedIndex()) {
-			case -1:
-				return "human";
-			case 0:
-				return "human";
-			case 1:
-				return "orc";
-			case 2:
-				return "undead";
-			case 3:
-				return "nightelf";
-			case 4:
-				return "neutrals";
-			case 5:
-				return "naga";
-			}
+			return raceKey(raceBox.getSelectedIndex());
 		} else {
 			switch (raceBox.getSelectedIndex()) {
 			case -1:
@@ -209,8 +194,7 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 
 	private String raceKey(final int index) {
 		return switch (index) {
-			case -1 -> "human";
-			case 0 -> "human";
+			case -1, 0 -> "human";
 			case 1 -> "orc";
 			case 2 -> "undead";
 			case 3 -> "nightelf";
@@ -260,8 +244,12 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 			final GameObject rootAncients = abilityData.get("Aro1");
 			for (final String str : unitData.keySet()) {
 				final String strUpper = str.toUpperCase();
-				if (strUpper.startsWith("B") || strUpper.startsWith("R") || strUpper.startsWith("A")
-						|| strUpper.startsWith("S") || strUpper.startsWith("X") || strUpper.startsWith("M")
+				if (strUpper.startsWith("B")
+						|| strUpper.startsWith("R")
+						|| strUpper.startsWith("A")
+						|| strUpper.startsWith("S")
+						|| strUpper.startsWith("X")
+						|| strUpper.startsWith("M")
 						|| strUpper.startsWith("HERO")) {
 					continue;
 				}
@@ -284,7 +272,8 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 					sortGroupId = 4;
 				} else if (unit.getId().length() > 1 && Character.isUpperCase(unit.getId().charAt(0))) {
 					sortGroupId = 1;
-				} else if (abilities.contains(root) || abilities.contains(rootAncients)
+				} else if (abilities.contains(root)
+						|| abilities.contains(rootAncients)
 						|| abilities.contains(rootAncientProtector)) {
 					sortGroupId = 3;
 				} else if (unit.getField("isbldg").startsWith("1")) {
@@ -773,7 +762,7 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 				// continue;
 				// }
 				if (i % rowLength == 0) {
-					if (lastVertGroup != null && lastHorizGroup != null) {
+					if (lastVertGroup != null) {
 						horizontalGroup.addGroup(lastHorizGroup);
 						verticalGroup.addGroup(lastVertGroup);
 					}
@@ -786,7 +775,7 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 				lastHorizGroup.addComponent(myButton);
 				i++;
 			}
-			if (lastVertGroup != null && lastHorizGroup != null) {
+			if (lastVertGroup != null) {
 				horizontalGroup.addGroup(lastHorizGroup);
 				verticalGroup.addGroup(lastVertGroup);
 			}
@@ -840,7 +829,7 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 				// continue;
 				// }
 				if (i % rowLength == 0) {
-					if (lastVertGroup != null && lastHorizGroup != null) {
+					if (lastVertGroup != null) {
 						horizontalGroup.addGroup(lastHorizGroup);
 						verticalGroup.addGroup(lastVertGroup);
 					}
@@ -853,7 +842,7 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 				lastHorizGroup.addComponent(myButton);
 				i++;
 			}
-			if (lastVertGroup != null && lastHorizGroup != null) {
+			if (lastVertGroup != null) {
 				horizontalGroup.addGroup(lastHorizGroup);
 				verticalGroup.addGroup(lastVertGroup);
 			}

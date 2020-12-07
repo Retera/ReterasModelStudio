@@ -212,7 +212,7 @@ public final class ModelUtils {
 	}
 
 	private static byte[] getBytesDimensions(byte dimension) {
-		final byte dimensions[] = new byte[2];
+		final byte[] dimensions = new byte[2];
 		switch (dimension) {
 			case 0 -> {
 				dimensions[0] = (byte) 1;

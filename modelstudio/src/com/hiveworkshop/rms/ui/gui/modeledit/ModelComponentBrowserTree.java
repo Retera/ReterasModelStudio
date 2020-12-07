@@ -290,8 +290,7 @@ public final class ModelComponentBrowserTree extends JTree {
 			root.add(new DefaultMutableTreeNode(new ChooseableBindPoseChunkItem(modelViewManager, undoActionListener,
 					modelStructureChangeListener, modelViewManager.getModel().getBindPoseChunk())));
 		}
-		final DefaultTreeModel defaultTreeModel = new DefaultTreeModel(root);
-		return defaultTreeModel;
+		return new DefaultTreeModel(root);
 	}
 
 	private final class HighlightOnMouseoverListenerImpl implements MouseMotionListener, MouseListener {

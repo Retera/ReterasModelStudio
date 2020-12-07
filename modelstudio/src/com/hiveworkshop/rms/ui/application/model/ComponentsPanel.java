@@ -31,21 +31,29 @@ public class ComponentsPanel extends JPanel implements ModelComponentBrowserTree
 	public ComponentsPanel(final TextureExporter textureExporter) {
 		cardLayout = new CardLayout();
 		setLayout(cardLayout);
+
 		blankPanel = new JPanel();
 		blankPanel.add(new JLabel("Select a model component to get started..."));
 		add(blankPanel, BLANK);
+
 		headerPanel = new ComponentHeaderPanel();
 		add(headerPanel, HEADER);
+
 		commentPanel = new ComponentCommentPanel();
 		add(commentPanel, COMMENT);
+
 		animationPanel = new ComponentAnimationPanel();
 		add(animationPanel, ANIMATION);
+
 		globalSeqPanel = new ComponentGlobalSequencePanel();
 		add(globalSeqPanel, GLOBALSEQ);
+
 		bitmapPanel = new ComponentBitmapPanel(textureExporter);
 		add(bitmapPanel, BITMAP);
+
 		materialPanel = new ComponentMaterialPanel();
 		add(new JScrollPane(materialPanel), MATERIAL);
+
 		cardLayout.show(this, BLANK);
 	}
 

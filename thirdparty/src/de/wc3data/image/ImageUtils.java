@@ -1,12 +1,7 @@
 package de.wc3data.image;
 
-import java.awt.AlphaComposite;
-import java.awt.Composite;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.Color;
 
 public class ImageUtils {
 
@@ -73,15 +68,15 @@ public class ImageUtils {
 
 
             BufferedImage tmp;
-            if(img.getColorModel().hasAlpha() == false){
-                tmp= new BufferedImage(w, h, type);
+            if (!img.getColorModel().hasAlpha()) {
+                tmp = new BufferedImage(w, h, type);
                 final Graphics2D g2 = tmp.createGraphics();
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, hint);
                 g2.drawImage(ret, 0, 0, w, h, null);
                 g2.dispose();
-            }else{
+            } else {
                 //Necessary because otherwise Bilinear resize would couse transparent pixel to change color
-                tmp = resizeWorkAround(ret,w,h, hint);
+                tmp = resizeWorkAround(ret, w, h, hint);
             }
 
             ret = tmp;

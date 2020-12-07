@@ -246,9 +246,9 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 				standardUnitMeta, new ItemFieldBuilder(), new ItemTabTreeBrowserBuilder(), WorldEditorDataType.ITEM,
 				new EditorTabCustomToolbarButtonData("WESTRING_MENU_OE_ITEM_NEW", "ToolBarIcon_OE_NewItem",
 						"WESTRING_MENU_OE_ITEM_COPY", "WESTRING_MENU_OE_ITEM_PASTE"),
-                () -> {
-                    // TODO Auto-generated method stub
-                });
+				() -> {
+					// TODO Auto-generated method stub
+				});
 		return unitEditorPanel;
 	}
 
@@ -274,10 +274,10 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 				new DestructableTabTreeBrowserBuilder(), WorldEditorDataType.DESTRUCTIBLES,
 				new EditorTabCustomToolbarButtonData("WESTRING_MENU_OE_DEST_NEW", "ToolBarIcon_OE_NewDest",
 						"WESTRING_MENU_OE_DEST_COPY", "WESTRING_MENU_OE_DEST_PASTE"),
-                () -> {
-                    // TODO Auto-generated method stub
+				() -> {
+					// TODO Auto-generated method stub
 
-                });
+				});
 		return unitEditorPanel;
 	}
 

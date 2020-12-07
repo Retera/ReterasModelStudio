@@ -49,6 +49,43 @@ public class Vec3 {
         }
     }
 
+    public static void rotateVertex(final double centerX, final double centerY, final double centerZ,
+                                    final double radians, final byte firstXYZ, final byte secondXYZ, final Vec3 vertex) {
+        final double x1 = vertex.getCoord(firstXYZ);
+        final double y1 = vertex.getCoord(secondXYZ);
+        final double cx = getCx(centerX, centerY, centerZ, firstXYZ);// = coordinateSystem.geomX(centerX);
+        final double dx = x1 - cx;
+        final double cy = getCx(centerX, centerY, centerZ, secondXYZ);// = coordinateSystem.geomY(centerY);
+        final double dy = y1 - cy;
+        final double r = Math.sqrt((dx * dx) + (dy * dy));
+        double verAng = Math.acos(dx / r);
+        if (dy < 0) {
+            verAng = -verAng;
+        }
+        // if( getDimEditable(dim1) )
+        double nextDim = (Math.cos(verAng + radians) * r) + cx;
+        if (!Double.isNaN(nextDim)) {
+            vertex.setCoord(firstXYZ, nextDim);
+        }
+        // if( getDimEditable(dim2) )
+        nextDim = (Math.sin(verAng + radians) * r) + cy;
+        if (!Double.isNaN(nextDim)) {
+            vertex.setCoord(secondXYZ, nextDim);
+        }
+    }
+
+    private static double getCx(double centerX, double centerY, double centerZ, byte firstXYZ) {
+        return switch (firstXYZ) {
+            case 0 -> centerX;
+            case 1 -> centerY;
+            case -1 -> -centerX;
+            case -2 -> -centerY;
+            case -3 -> -centerZ;
+            case 2 -> centerZ;
+            default -> centerZ;
+        };
+    }
+
     public float getCoord(final byte dim) {
         return switch (dim) {
             case 0 -> x;
@@ -59,30 +96,6 @@ public class Vec3 {
             case -3 -> -z;
             default -> 0;
         };
-    }
-
-    public void setCoord(final byte dim, final double value) {
-        if (!Double.isNaN(value)) {
-            switch (dim) {
-                case 0 -> x = (float) value;
-                case 1 -> y = (float) value;
-                case 2 -> z = (float) value;
-                case -1 -> x = (float) -value;
-                case -2 -> y = (float) -value;
-                case -32 -> z = (float) -value;
-            }
-        }
-    }
-
-    public void translateCoord(final byte dim, final double value) {
-        switch (dim) {
-            case 0 -> x += value;
-            case 1 -> y += value;
-            case 2 -> z += value;
-            case -1 -> x -= value;
-            case -2 -> y -= value;
-            case 3 -> z -= value;
-        }
     }
 
     public void set(final Vec3 v) {
@@ -239,44 +252,27 @@ public class Vec3 {
         throw new UnsupportedOperationException("NYI");
     }
 
-    public static void rotateVertex(final double centerX, final double centerY, final double centerZ,
-                                    final double radians, final byte firstXYZ, final byte secondXYZ, final Vec3 vertex) {
-        final double x1 = vertex.getCoord(firstXYZ);
-        final double y1 = vertex.getCoord(secondXYZ);
-        final double cx = switch (firstXYZ) {
-            case 0 -> centerX;
-            case 1 -> centerY;
-            case -1 -> -centerX;
-            case -2 -> -centerY;
-            case -3 -> -centerZ;
-            case 2 -> centerZ;
-            default -> centerZ;
-        };// = coordinateSystem.geomX(centerX);
-        final double dx = x1 - cx;
-        final double cy = switch (secondXYZ) {
-            case 0 -> centerX;
-            case 1 -> centerY;
-            case -1 -> -centerX;
-            case -2 -> -centerY;
-            case -3 -> -centerZ;
-            case 2 -> centerZ;
-            default -> centerZ;
-        };// = coordinateSystem.geomY(centerY);
-        final double dy = y1 - cy;
-        final double r = Math.sqrt((dx * dx) + (dy * dy));
-        double verAng = Math.acos(dx / r);
-        if (dy < 0) {
-            verAng = -verAng;
+    public void setCoord(final byte dim, final double value) {
+        if (!Double.isNaN(value)) {
+            switch (dim) {
+                case 0 -> x = (float) value;
+                case 1 -> y = (float) value;
+                case 2 -> z = (float) value;
+                case -1 -> x = (float) -value;
+                case -2 -> y = (float) -value;
+                case -32 -> z = (float) -value;
+            }
         }
-        // if( getDimEditable(dim1) )
-        double nextDim = (Math.cos(verAng + radians) * r) + cx;
-        if (!Double.isNaN(nextDim)) {
-            vertex.setCoord(firstXYZ, nextDim);
-        }
-        // if( getDimEditable(dim2) )
-        nextDim = (Math.sin(verAng + radians) * r) + cy;
-        if (!Double.isNaN(nextDim)) {
-            vertex.setCoord(secondXYZ, nextDim);
+    }
+
+    public void translateCoord(final byte dim, final double value) {
+        switch (dim) {
+            case 0 -> x += value;
+            case 1 -> y += value;
+            case 2 -> z += value;
+            case -1 -> x -= value;
+            case -2 -> y -= value;
+            case 3 -> z -= value;
         }
     }
 

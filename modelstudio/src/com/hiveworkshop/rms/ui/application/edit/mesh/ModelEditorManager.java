@@ -189,7 +189,7 @@ public final class ModelEditorManager {
 						geosetVertexModelEditor.getVertexSelectionHelper(),
 						pivotPointModelEditor.getVertexSelectionHelper(), pivotPointModelEditor.selectionManager,
 						geosetVertexModelEditor.selectionManager));
-            }
+			}
 		}
 	}
 

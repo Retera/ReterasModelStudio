@@ -1,17 +1,12 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 
+import net.sf.image4j.codec.ico.ICODecoder;
+
+import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-
-import net.sf.image4j.codec.ico.ICODecoder;
 
 public class ObjectEditorFrame extends JFrame {
 
@@ -51,7 +46,7 @@ public class ObjectEditorFrame extends JFrame {
 			} catch (final ClassNotFoundException | UnsupportedLookAndFeelException | IllegalAccessException | InstantiationException e) {
 				e.printStackTrace();
 			}
-        }
+		}
 
 		final ObjectEditorFrame frame = new ObjectEditorFrame();
 		frame.setVisible(true);

@@ -194,9 +194,8 @@ public class BLPHandler {
 		}
 
 		// Convert to sRGB.
-		final BufferedImage sRGB = new BufferedImage(sRGBModel, lRGB.getRaster(), false, null);
 
-		return sRGB;
+		return new BufferedImage(sRGBModel, lRGB.getRaster(), false, null);
 	}
 
 // Legacy API
@@ -227,33 +226,18 @@ public class BLPHandler {
 		return bi;
 	}
 
-	/**
-	 * Returns a BufferedImage from any arbitrary filepath string on your computer,
-	 * reading the image from BLP format.
-	 */
-	public BufferedImage getCustomTex(final String filepath) {
-		final File blpFile = new File(filepath);
-		final File tga;
-		try {
-			if (filepath.toLowerCase().endsWith(".blp")) {
-				final BufferedImage rawImage = readCustom(blpFile);
-				final BufferedImage img = forceBufferedImagesRGB(rawImage);
-				return img;// BlpFile.read(filepath, new FileInputStream(blpFile));
-				// tga = convertBLPtoTGA(blpFile, File.createTempFile("customtex",
-				// ".tga"));//+(int)(Math.random()*50)
-				// System.out.println(tga.getPath());
-				// //mpqlib.TestMPQ.draw(mpqlib.TargaReader.getImage(tga.getPath()));
-				// return TargaReader.getImage(tga.getPath());//ImageIO.read(tga);
-			} else {
-				if (!blpFile.exists()) {
-					return null;
-				}
-				return ImageIO.read(blpFile);
+	public static BufferedImage getImage(final Bitmap defaultTexture, final DataSource workingDirectory) {
+		String path = defaultTexture.getPath();
+		if ((path == null) || path.isEmpty()) {
+			if (defaultTexture.getReplaceableId() == 1) {
+				path = "ReplaceableTextures\\TeamColor\\TeamColor" + Material.getTeamColorNumberString() + ".blp";
+			} else if (defaultTexture.getReplaceableId() == 2) {
+				path = "ReplaceableTextures\\TeamGlow\\TeamGlow" + Material.getTeamColorNumberString() + ".blp";
+			} else if (defaultTexture.getReplaceableId() != 0) {
+				path = "replaceabletextures\\lordaerontree\\lordaeronsummertree" + ".blp";
 			}
-		} catch (final IOException e1) {
-			e1.printStackTrace();
 		}
-		return null;
+		return BLPHandler.get().getTexture(workingDirectory, path);
 	}
 
 	private static BLPHandler current;
@@ -348,18 +332,31 @@ public class BLPHandler {
 		}
 	}
 
-	public static BufferedImage getImage(final Bitmap defaultTexture, final DataSource workingDirectory) {
-		String path = defaultTexture.getPath();
-		if ((path == null) || path.isEmpty()) {
-			if (defaultTexture.getReplaceableId() == 1) {
-				path = "ReplaceableTextures\\TeamColor\\TeamColor" + Material.getTeamColorNumberString() + ".blp";
-			} else if (defaultTexture.getReplaceableId() == 2) {
-				path = "ReplaceableTextures\\TeamGlow\\TeamGlow" + Material.getTeamColorNumberString() + ".blp";
-			} else if (defaultTexture.getReplaceableId() != 0) {
-				path = "replaceabletextures\\lordaerontree\\lordaeronsummertree" + ".blp";
+	/**
+	 * Returns a BufferedImage from any arbitrary filepath string on your computer,
+	 * reading the image from BLP format.
+	 */
+	public BufferedImage getCustomTex(final String filepath) {
+		final File blpFile = new File(filepath);
+		final File tga;
+		try {
+			if (filepath.toLowerCase().endsWith(".blp")) {
+				final BufferedImage rawImage = readCustom(blpFile);
+				return forceBufferedImagesRGB(rawImage);// BlpFile.read(filepath, new FileInputStream(blpFile));
+				// tga = convertBLPtoTGA(blpFile, File.createTempFile("customtex",
+				// ".tga"));//+(int)(Math.random()*50)
+				// System.out.println(tga.getPath());
+				// //mpqlib.TestMPQ.draw(mpqlib.TargaReader.getImage(tga.getPath()));
+				// return TargaReader.getImage(tga.getPath());//ImageIO.read(tga);
+			} else {
+				if (!blpFile.exists()) {
+					return null;
+				}
+				return ImageIO.read(blpFile);
 			}
+		} catch (final IOException e1) {
+			e1.printStackTrace();
 		}
-		final BufferedImage texture = BLPHandler.get().getTexture(workingDirectory, path);
-		return texture;
+		return null;
 	}
 }

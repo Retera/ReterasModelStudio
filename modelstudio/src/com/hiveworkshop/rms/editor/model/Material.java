@@ -2,13 +2,11 @@ package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
+import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxMaterial;
-
 import jassimp.AiMaterial;
 import jassimp.AiTextureType;
-
-import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

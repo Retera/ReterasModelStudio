@@ -85,9 +85,8 @@ public class MainLayoutCreator {
     }
 
     static UnitEditorTree createUnitEditorTree(MainPanel mainPanel) {
-        final UnitEditorTree unitEditorTree = new UnitEditorTreeBrowser(getUnitData(), new UnitTabTreeBrowserBuilder(),
+        return new UnitEditorTreeBrowser(getUnitData(), new UnitTabTreeBrowserBuilder(),
                 getUnitEditorSettings(), MutableObjectData.WorldEditorDataType.UNITS, (mdxFilePath, b, c, icon) -> MPQBrowserView.loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(mdxFilePath), b, c, icon), mainPanel.prefs);
-        return unitEditorTree;
     }
 
     /**

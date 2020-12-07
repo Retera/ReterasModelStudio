@@ -30,37 +30,39 @@ public class ComponentHeaderPanel extends JPanel implements ComponentPanel {
 		modelNameField = new ComponentEditorTextField();
 		modelNameField.setMaximumSize(MAXIMUM_SIZE);
 		modelNameField.addActionListener(e -> {
-            if (modelViewManager != null) {
-                final SetNameAction action = new SetNameAction(modelViewManager.getModel().getHeaderName(),
-                        modelNameField.getText(), modelViewManager, changeListener);
-                action.redo();
-                undoActionListener.pushAction(action);
-            }
-        });
+			if (modelViewManager != null) {
+				final SetNameAction action = new SetNameAction(modelViewManager.getModel().getHeaderName(),
+						modelNameField.getText(), modelViewManager, changeListener);
+				action.redo();
+				undoActionListener.pushAction(action);
+			}
+		});
+
 		final JLabel versionLabel = new JLabel("Format Version:");
 		formatVersionSpinner = new ComponentEditorJSpinner(
 				new SpinnerNumberModel(800, Integer.MIN_VALUE, Integer.MAX_VALUE, 1));
 		formatVersionSpinner.setMaximumSize(MAXIMUM_SIZE);
 		formatVersionSpinner.addActionListener(() -> {
-            if (modelViewManager != null) {
-                final SetFormatVersionAction setFormatVersionAction = new SetFormatVersionAction(
-                        modelViewManager.getModel().getFormatVersion(),
-                        ((Number) formatVersionSpinner.getValue()).intValue(), modelViewManager, changeListener);
-                setFormatVersionAction.redo();
-                undoActionListener.pushAction(setFormatVersionAction);
-            }
-        });
+			if (modelViewManager != null) {
+				final SetFormatVersionAction setFormatVersionAction = new SetFormatVersionAction(
+						modelViewManager.getModel().getFormatVersion(),
+						((Number) formatVersionSpinner.getValue()).intValue(), modelViewManager, changeListener);
+				setFormatVersionAction.redo();
+				undoActionListener.pushAction(setFormatVersionAction);
+			}
+		});
+
 		final JLabel blendTimeLabel = new JLabel("Blend Time:");
 		blendTimeSpinner = new ComponentEditorJSpinner(
 				new SpinnerNumberModel(150, Integer.MIN_VALUE, Integer.MAX_VALUE, 1));
 		blendTimeSpinner.setMaximumSize(MAXIMUM_SIZE);
 		blendTimeSpinner.addActionListener(() -> {
-            if (modelViewManager != null) {
-                final SetBlendTimeAction setFormatVersionAction = new SetBlendTimeAction(
-                        modelViewManager.getModel().getBlendTime(),
-                        ((Number) blendTimeSpinner.getValue()).intValue(), modelViewManager, changeListener);
-                setFormatVersionAction.redo();
-                undoActionListener.pushAction(setFormatVersionAction);
+			if (modelViewManager != null) {
+				final SetBlendTimeAction setFormatVersionAction = new SetBlendTimeAction(
+						modelViewManager.getModel().getBlendTime(),
+						((Number) blendTimeSpinner.getValue()).intValue(), modelViewManager, changeListener);
+				setFormatVersionAction.redo();
+				undoActionListener.pushAction(setFormatVersionAction);
             }
         });
 

@@ -172,8 +172,9 @@ public class ViewportModelRenderer implements ModelVisitor {
 		}
 
 		@Override
-		public VertexVisitor vertex(final double x, final double y, final double z, final double normalX,
-									final double normalY, final double normalZ, final List<Bone> bones) {
+		public VertexVisitor vertex(final double x, final double y, final double z,
+									final double normalX, final double normalY, final double normalZ,
+									final List<Bone> bones) {
 			final double firstCoord;
 			final double secondCoord;
 			firstCoord = getDimension(x, y, z, xDimension, "Invalid x dimension");
@@ -207,8 +208,9 @@ public class ViewportModelRenderer implements ModelVisitor {
 		}
 
 		@Override
-		public VertexVisitor hdVertex(final double x, final double y, final double z, final double normalX,
-									  final double normalY, final double normalZ, final Bone[] skinBones, final short[] skinBoneWeights) {
+		public VertexVisitor hdVertex(final double x, final double y, final double z,
+									  final double normalX, final double normalY, final double normalZ,
+									  final Bone[] skinBones, final short[] skinBoneWeights) {
 			return vertex(x, y, z, normalX, normalY, normalZ, null);
 		}
 
@@ -305,15 +307,15 @@ public class ViewportModelRenderer implements ModelVisitor {
 	private static void drawTriangle(final Graphics g, final byte a, final byte b, final Triangle t) {
 		final double[] x = t.getCoords(a);
 		final double[] y = t.getCoords(b);
-		final int[] xint = new int[4];
-		final int[] yint = new int[4];
+		final int[] xInt = new int[4];
+		final int[] yInt = new int[4];
 		for (int ix = 0; ix < 3; ix++) {
-			xint[ix] = (int) Math.round(x[ix]);
-			yint[ix] = (int) Math.round(-y[ix]);
+			xInt[ix] = (int) Math.round(x[ix]);
+			yInt[ix] = (int) Math.round(-y[ix]);
 		}
-		xint[3] = xint[0];
-		yint[3] = yint[0];
-		g.drawPolyline(xint, yint, 4);
+		xInt[3] = xInt[0];
+		yInt[3] = yInt[0];
+		g.drawPolyline(xInt, yInt, 4);
 	}
 
 }
