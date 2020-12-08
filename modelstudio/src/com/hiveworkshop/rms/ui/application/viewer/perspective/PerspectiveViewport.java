@@ -102,7 +102,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		contextMenu.add(reAssignMatrix);
 
 		cogBone = new JMenuItem("Auto-Center Bone(s)");
-		cogBone.addActionListener(this);
+		cogBone.addActionListener(e -> cogBone());
 		contextMenu.add(cogBone);
 
 		if (programPreferences != null) {
@@ -340,8 +340,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 				forceReloadTextures();
 			}
 		} catch (final Throwable e) {
-			JOptionPane.showMessageDialog(null, "initGL failed because of this exact reason:\n"
-					+ e.getClass().getSimpleName() + ": " + e.getMessage());
+			JOptionPane.showMessageDialog(null,
+					"initGL failed because of this exact reason:\n"
+							+ e.getClass().getSimpleName() + ": " + e.getMessage());
 			throw new RuntimeException(e);
 		}
 		// JAVA 9+ or maybe WIN 10 allow ridiculous virtual pixes, this combination of old library code
@@ -356,30 +357,11 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 
 	@Override
 	public void paintGL() {
-		if (wantReloadAll) {
-			wantReloadAll = false;
-			wantReload = false;// If we just reloaded all, no need to reload some.
-			try {
-				initGL();// Re-overwrite textures
-			} catch (final Exception e) {
-				e.printStackTrace();
-				ExceptionPopup.display("Error loading textures:", e);
-			}
-		} else if (wantReload) {
-			wantReload = false;
-			try {
-				forceReloadTextures();
-			} catch (final Exception e) {
-				e.printStackTrace();
-				ExceptionPopup.display("Error loading new texture:", e);
-			}
-		} else if (!texLoaded && ((programPreferences == null) || programPreferences.textureModels())) {
-			forceReloadTextures();
-			texLoaded = true;
-		}
+		reloadIfNeeded();
 		try {
 			final int formatVersion = modelView.getModel().getFormatVersion();
 			initContext(0, 0, 0);
+
 			if ((getWidth() != current_width) || (getHeight() != current_height)) {
 				current_width = getWidth();
 				current_height = getHeight();
@@ -475,16 +457,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			}
 
 			// glPopMatrix();
-			swapBuffers();
-			repaintRunnable.run();
-			final boolean showing = isShowing();
-			final boolean running = paintTimer.isRunning();
-			if (showing && !running) {
-				paintTimer.restart();
-			} else if (!showing && running) {
-				paintTimer.stop();
-			}
+			paintAndUpdate();
 		} catch (final Throwable e) {
+//			e.printStackTrace();
 			if ((lastThrownErrorClass == null) || (lastThrownErrorClass != e.getClass())) {
 				lastThrownErrorClass = e.getClass();
 				popupCount++;
@@ -493,6 +468,46 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 				}
 			}
 			throw new RuntimeException(e);
+		}
+	}
+
+	private void paintAndUpdate() {
+		try {
+			swapBuffers();
+		} catch (LWJGLException e) {
+			e.printStackTrace();
+		}
+		repaintRunnable.run();
+		final boolean showing = isShowing();
+		final boolean running = paintTimer.isRunning();
+		if (showing && !running) {
+			paintTimer.restart();
+		} else if (!showing && running) {
+			paintTimer.stop();
+		}
+	}
+
+	private void reloadIfNeeded() {
+		if (wantReloadAll) {
+			wantReloadAll = false;
+			wantReload = false;// If we just reloaded all, no need to reload some.
+			try {
+				initGL();// Re-overwrite textures
+			} catch (final Exception e) {
+				e.printStackTrace();
+				ExceptionPopup.display("Error loading textures:", e);
+			}
+		} else if (wantReload) {
+			wantReload = false;
+			try {
+				forceReloadTextures();
+			} catch (final Exception e) {
+				e.printStackTrace();
+				ExceptionPopup.display("Error loading new texture:", e);
+			}
+		} else if (!texLoaded && ((programPreferences == null) || programPreferences.textureModels())) {
+			forceReloadTextures();
+			texLoaded = true;
 		}
 	}
 
@@ -918,9 +933,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
-		if (e.getSource() == clickTimer) {
-			clickTimerAction();
-		} else if (e.getSource() == reAssignMatrix) {
+		if (e.getSource() == reAssignMatrix) {
 			// MatrixPopup matrixPopup = new MatrixPopup(dispMDL.getMDL());
 			// String[] words = { "Accept", "Cancel" };
 			// int i = JOptionPane.showOptionDialog(MainFrame.panel,
@@ -931,11 +944,12 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			// // JOptionPane.showMessageDialog(null,"action approved");
 			// dispMDL.setMatrix(matrixPopup.newRefs);
 			// }
-		} else if (e.getSource() == cogBone) {
-			// modelView.cogBones();
-			JOptionPane.showMessageDialog(this,
-					"Please use other viewport, this action is not implemented for this viewport.");
 		}
+	}
+
+	private void cogBone() {
+		JOptionPane.showMessageDialog(this,
+				"Please use other viewport, this action is not implemented for this viewport.");
 	}
 
 	private void clickTimerAction() {

@@ -14,16 +14,24 @@ public class EditUVsPanel {
             disp.setEditUVPanel(panel);
 
             panel.initViewport();
+
             final FloatingWindow floatingWindow = mainPanel.rootWindow.createFloatingWindow(
-                    new Point(mainPanel.getX() + (mainPanel.getWidth() / 2), mainPanel.getY() + (mainPanel.getHeight() / 2)), panel.getSize(),
+                    new Point(
+                            mainPanel.getX() + (mainPanel.getWidth() / 2),
+                            mainPanel.getY() + (mainPanel.getHeight() / 2)),
+                    panel.getSize(),
                     panel.getView());
+
             panel.init();
             floatingWindow.getTopLevelAncestor().setVisible(true);
             panel.packFrame();
         } else if (!disp.getEditUVPanel().frameVisible()) {
             final FloatingWindow floatingWindow = mainPanel.rootWindow.createFloatingWindow(
-                    new Point(mainPanel.getX() + (mainPanel.getWidth() / 2), mainPanel.getY() + (mainPanel.getHeight() / 2)),
-                    disp.getEditUVPanel().getSize(), disp.getEditUVPanel().getView());
+                    new Point(
+                            mainPanel.getX() + (mainPanel.getWidth() / 2),
+                            mainPanel.getY() + (mainPanel.getHeight() / 2)),
+                    disp.getEditUVPanel().getSize(),
+                    disp.getEditUVPanel().getView());
             floatingWindow.getTopLevelAncestor().setVisible(true);
         }
     }

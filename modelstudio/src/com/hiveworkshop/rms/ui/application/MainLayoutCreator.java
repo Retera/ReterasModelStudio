@@ -99,9 +99,10 @@ public class MainLayoutCreator {
         try {
             final CompoundDataSource gameDataFileSystem = GameDataFileSystem.getDefault();
             if (gameDataFileSystem.has("war3map.w3u")) {
-                editorData.load(new BlizzardDataInputStream(gameDataFileSystem.getResourceAsStream("war3map.w3u")),
-                        gameDataFileSystem.has("war3map.wts") ? new WTSFile(gameDataFileSystem.getResourceAsStream("war3map.wts"))
-                                : null,
+                editorData.load(
+                        new BlizzardDataInputStream(gameDataFileSystem.getResourceAsStream("war3map.w3u")),
+                        gameDataFileSystem.has("war3map.wts")
+                                ? new WTSFile(gameDataFileSystem.getResourceAsStream("war3map.wts")) : null,
                         true);
             }
         } catch (final IOException e) {

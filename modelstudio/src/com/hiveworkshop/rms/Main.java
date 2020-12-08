@@ -40,8 +40,11 @@ public class Main {
                 runAsConverter(args[1]);
                 return;
             } else {
-                if (args[0].endsWith(".mdx") || args[0].endsWith(".mdl") || args[0].endsWith(".blp")
-                        || args[0].endsWith(".dds") || args[0].endsWith(".obj")) {
+                if (args[0].endsWith(".mdx")
+                        || args[0].endsWith(".mdl")
+                        || args[0].endsWith(".blp")
+                        || args[0].endsWith(".dds")
+                        || args[0].endsWith(".obj")) {
                     startupModelPaths.addAll(Arrays.asList(args));
                 }
             }
@@ -55,7 +58,17 @@ public class Main {
                 final SharedLibraryLoader loader = new SharedLibraryLoader();
                 loader.load("jassimp-natives");
             } catch (final Exception e) {
-                JOptionPane.showMessageDialog(null, "The C++ natives to parse FBX models failed to load. You will not be able to open FBX until you install the necessary software\nand restart Retera Model Studio.\n\nMaybe you are missing some Visual Studio Runtime dependency?\n\nNext up I will show you the error message that says why these C++ jassimp natives failed to load,\nin case you want to copy them and ask for help. Once you press OK on that error popup, you can probably still use\nRetera Model Studio just fine for everything else.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null,
+                        "The C++ natives to parse FBX models failed to load. " +
+                                "You will not be able to open FBX until you install the necessary software" +
+                                "\nand restart Retera Model Studio." +
+                                "\n\nMaybe you are missing some Visual Studio Runtime dependency?" +
+                                "\n\nNext up I will show you the error message that says why " +
+                                "these C++ jassimp natives failed to load," +
+                                "\nin case you want to copy them and ask for help. " +
+                                "Once you press OK on that error popup, you can probably still use" +
+                                "\nRetera Model Studio just fine for everything else.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
                 ExceptionPopup.display(e);
             }
 
@@ -193,10 +206,7 @@ public class Main {
                             }
                         }).start();
                     } else {
-                        JOptionPane.showMessageDialog(null,
-                                "Retera Model Studio startup sequence has failed for two attempts. The program will now exit.",
-                                "Error", JOptionPane.ERROR_MESSAGE);
-                        System.exit(-1);
+                        startupFailDialog();
                     }
                 }
             });
@@ -204,16 +214,20 @@ public class Main {
             th.printStackTrace();
             SwingUtilities.invokeLater(() -> ExceptionPopup.display(th));
             if (!dataPromptForced) {
-                main(new String[]{"-forcedataprompt"});
+                main(new String[] {"-forcedataprompt"});
             } else {
                 SwingUtilities.invokeLater(() -> {
-                    JOptionPane.showMessageDialog(null,
-                            "Retera Model Studio startup sequence has failed for two attempts. The program will now exit.",
-                            "Error", JOptionPane.ERROR_MESSAGE);
-                    System.exit(-1);
+                    startupFailDialog();
                 });
             }
         }
+    }
+
+    private static void startupFailDialog() {
+        JOptionPane.showMessageDialog(null,
+                "Retera Model Studio startup sequence has failed for two attempts. The program will now exit.",
+                "Error", JOptionPane.ERROR_MESSAGE);
+        System.exit(-1);
     }
 
     private static void setSystemLookAndFeel() {

@@ -47,49 +47,21 @@ public class PerspDisplayPanel extends JPanel implements ActionListener {
 		this.title = title;
 		this.dispMDL = dispMDL;
 
-		plusZoom = new JButton("");
-		Dimension dim = new Dimension(20, 20);
-		plusZoom.setMaximumSize(dim);
-		plusZoom.setMinimumSize(dim);
-		plusZoom.setPreferredSize(dim);
-		plusZoom.addActionListener(this);
-		// add(plusZoom);
+		plusZoom = getButton(this, 20, 20);
 
-		minusZoom = new JButton("");
-		minusZoom.setMaximumSize(dim);
-		minusZoom.setMinimumSize(dim);
-		minusZoom.setPreferredSize(dim);
-		minusZoom.addActionListener(this);
+		minusZoom = getButton(this, 20, 20);
 		// add(minusZoom);
 
-		up = new JButton("");
-		dim = new Dimension(32, 16);
-		up.setMaximumSize(dim);
-		up.setMinimumSize(dim);
-		up.setPreferredSize(dim);
-		up.addActionListener(this);
+		up = getButton(this, 32, 16);
 		// add(up);
 
-		down = new JButton("");
-		down.setMaximumSize(dim);
-		down.setMinimumSize(dim);
-		down.setPreferredSize(dim);
-		down.addActionListener(this);
+		down = getButton(this, 32, 16);
 		// add(down);
 
-		dim = new Dimension(16, 32);
-		left = new JButton("");
-		left.setMaximumSize(dim);
-		left.setMinimumSize(dim);
-		left.setPreferredSize(dim);
-		left.addActionListener(this);
+		left = getButton(this, 16, 32);
 		// add(left);
 
-		right = new JButton("");
-		right.setMaximumSize(dim);
-		right.setMinimumSize(dim);
-		right.setPreferredSize(dim);
-		right.addActionListener(this);
+		right = getButton(this, 16, 32);
 		// add(right);
 
 		final GroupLayout layout = new GroupLayout(this);
@@ -128,6 +100,17 @@ public class PerspDisplayPanel extends JPanel implements ActionListener {
 		// setLayout( new BoxLayout(this,BoxLayout.LINE_AXIS));
 		// setLayout(new GridLayout(1,1));
 		view = new View(title, null, this);
+	}
+
+	private static JButton getButton(PerspDisplayPanel perspDisplayPanel, int width, int height) {
+		Dimension dim = new Dimension(width, height);
+		JButton button = new JButton("");
+		button.setMaximumSize(dim);
+		button.setMinimumSize(dim);
+		button.setPreferredSize(dim);
+		button.addActionListener(perspDisplayPanel);
+		// add(button);
+		return button;
 	}
 
 	public void setViewportBackground(final Color background) {

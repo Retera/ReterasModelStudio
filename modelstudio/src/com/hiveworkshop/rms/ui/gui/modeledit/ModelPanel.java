@@ -96,16 +96,19 @@ public class ModelPanel implements ActionListener, MouseListener {
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
 		modelView = new ModelViewManager(input);
 		undoManager = new UndoManagerImpl(undoHandler);
+
 		editorRenderModel = new RenderModel(input, modelView);
 		editorRenderModel.setSpawnParticles((prefs.getRenderParticles() == null) || prefs.getRenderParticles());
-		editorRenderModel.setAllowInanimateParticles(
-				(prefs.getRenderStaticPoseParticles() == null) || prefs.getRenderStaticPoseParticles());
+		editorRenderModel.setAllowInanimateParticles((prefs.getRenderStaticPoseParticles() == null) || prefs.getRenderStaticPoseParticles());
+
 		modelEditorManager = new ModelEditorManager(modelView, prefs, modeNotifier,
 				modelEditorChangeNotifier, viewportActivityManager, editorRenderModel,
 				modelStructureChangeListener);
+
 		modelViewManagingTree = new ModelViewManagingTree(modelView, undoManager,
 				modelEditorManager);
 		modelViewManagingTree.setFocusable(false);
+
 		modelComponentBrowserTree = new ModelComponentBrowserTree(modelView, undoManager,
 				modelEditorManager, modelStructureChangeListener);
 

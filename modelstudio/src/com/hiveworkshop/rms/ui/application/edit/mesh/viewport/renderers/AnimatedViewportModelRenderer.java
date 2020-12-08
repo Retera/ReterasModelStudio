@@ -39,9 +39,15 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 		idObjectRenderer = new ResettableAnimatedIdObjectRenderer(vertexSize);
 	}
 
-	public AnimatedViewportModelRenderer reset(final Graphics2D graphics, final ProgramPreferences programPreferences,
-											   final byte xDimension, final byte yDimension, final ViewportView viewportView,
-											   final CoordinateSystem coordinateSystem, final ModelView modelView, final RenderModel renderModel) {
+	public AnimatedViewportModelRenderer reset(
+			final Graphics2D graphics,
+			final ProgramPreferences programPreferences,
+			final byte xDimension,
+			final byte yDimension,
+			final ViewportView viewportView,
+			final CoordinateSystem coordinateSystem,
+			final ModelView modelView,
+			final RenderModel renderModel) {
 		this.graphics = graphics;
 		this.programPreferences = programPreferences;
 		this.xDimension = xDimension;
@@ -284,6 +290,7 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 			setHeap(vertexHeap, (float) x, (float) y, (float) z, 1);
 			skinBonesMatrixSumHeap.setZero();
 			vertexSumHeap.set(0, 0, 0, 0);
+
 			boolean processedBones = false;
 			for (int boneIndex = 0; boneIndex < 4; boneIndex++) {
 				final Bone skinBone = skinBones[boneIndex];
@@ -297,6 +304,7 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 				float skinBoneWeight = skinBoneWeights[boneIndex] / 255f;
 				skinBonesMatrixSumHeap.addToThis(skinBonesMatrixHeap.getUniformlyScaled(skinBoneWeight));
 			}
+
 			if (!processedBones) {
 				skinBonesMatrixSumHeap.setIdentity();
 			}
@@ -320,6 +328,7 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 				graphics.drawLine(previousPoint.x, previousPoint.y, point.x, point.y);
 			}
 			previousVertices.add(point);
+
 			if (programPreferences.showNormals()) {
 				setHeap(normalHeap, (float) normalX, (float) normalY, (float) normalZ, 0);
 				final Color triangleColor = graphics.getColor();
