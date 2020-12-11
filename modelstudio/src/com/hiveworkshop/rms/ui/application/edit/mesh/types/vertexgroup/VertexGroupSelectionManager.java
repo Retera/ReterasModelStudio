@@ -76,18 +76,18 @@ public final class VertexGroupSelectionManager extends AbstractSelectionManager<
 			}
 			for (final Triangle triangle : geoset.getTriangles()) {
 				final GeosetVertex[] triangleVertices = triangle.getVerts();
-				if (selection.contains(new VertexGroupModelEditor.VertexGroupBundle(geoset, triangleVertices[0].getVertexGroup()))
-						&& selection.contains(new VertexGroupModelEditor.VertexGroupBundle(geoset, triangleVertices[1].getVertexGroup()))
-						&& selection.contains(new VertexGroupModelEditor.VertexGroupBundle(geoset, triangleVertices[2].getVertexGroup()))) {
+				if (selectionContainsVertexGroup(selection, 0, geoset, triangleVertices)
+						&& selectionContainsVertexGroup(selection, 1, geoset, triangleVertices)
+						&& selectionContainsVertexGroup(selection, 2, geoset, triangleVertices)) {
 					renderer.renderFace(outlineColor, fillColor, triangle.get(0), triangle.get(1), triangle.get(2));
-				} else if (selection.contains(new VertexGroupModelEditor.VertexGroupBundle(geoset, triangleVertices[0].getVertexGroup()))
-						&& selection.contains(new VertexGroupModelEditor.VertexGroupBundle(geoset, triangleVertices[1].getVertexGroup()))) {
+				} else if (selectionContainsVertexGroup(selection, 0, geoset, triangleVertices)
+						&& selectionContainsVertexGroup(selection, 1, geoset, triangleVertices)) {
 					renderer.renderFace(outlineColor, fillColor, triangle.get(0), triangle.get(1), triangle.get(0));
-				} else if (selection.contains(new VertexGroupModelEditor.VertexGroupBundle(geoset, triangleVertices[0].getVertexGroup()))
-						&& selection.contains(new VertexGroupModelEditor.VertexGroupBundle(geoset, triangleVertices[2].getVertexGroup()))) {
+				} else if (selectionContainsVertexGroup(selection, 0, geoset, triangleVertices)
+						&& selectionContainsVertexGroup(selection, 2, geoset, triangleVertices)) {
 					renderer.renderFace(outlineColor, fillColor, triangle.get(0), triangle.get(2), triangle.get(0));
-				} else if (selection.contains(new VertexGroupModelEditor.VertexGroupBundle(geoset, triangleVertices[1].getVertexGroup()))
-						&& selection.contains(new VertexGroupModelEditor.VertexGroupBundle(geoset, triangleVertices[2].getVertexGroup()))) {
+				} else if (selectionContainsVertexGroup(selection, 1, geoset, triangleVertices)
+						&& selectionContainsVertexGroup(selection, 2, geoset, triangleVertices)) {
 					renderer.renderFace(outlineColor, fillColor, triangle.get(1), triangle.get(2), triangle.get(1));
 				}
 			}
@@ -98,6 +98,10 @@ public final class VertexGroupSelectionManager extends AbstractSelectionManager<
 			// }
 			// }
 		}
+	}
+
+	private boolean selectionContainsVertexGroup(Set<VertexGroupModelEditor.VertexGroupBundle> selection, int i, Geoset geoset, GeosetVertex[] triangleVertices) {
+		return selection.contains(new VertexGroupModelEditor.VertexGroupBundle(geoset, triangleVertices[i].getVertexGroup()));
 	}
 
 	@Override

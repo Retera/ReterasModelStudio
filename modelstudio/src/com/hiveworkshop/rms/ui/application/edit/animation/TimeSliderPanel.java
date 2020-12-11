@@ -134,19 +134,24 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 					}
 					if (!foundFrame && timeChooserRect.contains(mouseEvent.getPoint())) {
 						popupMenu.removeAll();
+
 						final JMenuItem timeIndicator = new JMenuItem("" + currentTime);
 						timeIndicator.setEnabled(false);
 						popupMenu.add(timeIndicator);
 						popupMenu.addSeparator();
+
 						final JMenuItem copyItem = new JMenuItem("Copy");
 						copyItem.addActionListener(e -> copyKeyframes(structureChangeListener, currentTime));
 						popupMenu.add(copyItem);
+
 						final JMenuItem copyFrameItem = new JMenuItem("Copy Frame (whole model)");
 						copyFrameItem.addActionListener(e -> copyAllKeyframes(currentTime));
 						popupMenu.add(copyFrameItem);
+
 						final JMenuItem pasteItem = new JMenuItem("Paste");
 						pasteItem.addActionListener(e -> pasteToAllSelected(structureChangeListener, currentTime));
 						popupMenu.add(pasteItem);
+
 						popupMenu.addSeparator();
 						popupMenu.show(TimeSliderPanel.this, mouseEvent.getX(), mouseEvent.getY());
 					}
@@ -302,34 +307,37 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	}
 
 	private boolean showTimeSliderPopup(MouseEvent mouseEvent, Map.Entry<Integer, KeyFrame> timeAndKey, ModelStructureChangeListener structureChangeListener) {
-		boolean foundFrame;
 		popupMenu.removeAll();
+
 		final JMenuItem timeIndicator = new JMenuItem("" + timeAndKey.getKey());
 		timeIndicator.setEnabled(false);
 		popupMenu.add(timeIndicator);
 		popupMenu.addSeparator();
+
 		final JMenuItem deleteAll = new JMenuItem("Delete All");
 		deleteAll.addActionListener(e -> deleteKeyframes("delete keyframe", structureChangeListener, timeAndKey.getKey(),
 				timeAndKey.getValue().objects));
 		popupMenu.add(deleteAll);
 		popupMenu.addSeparator();
+
 		final JMenuItem cutItem = new JMenuItem("Cut");
-		cutItem.addActionListener(e -> {
-			copyKeyframes(structureChangeListener, timeAndKey.getKey());
-			deleteKeyframes("cut keyframe", structureChangeListener, timeAndKey.getKey(),
-					timeAndKey.getValue().objects);
-		});
+		cutItem.addActionListener(e -> cutItem(timeAndKey, structureChangeListener));
 		popupMenu.add(cutItem);
+
 		final JMenuItem copyItem = new JMenuItem("Copy");
 		copyItem.addActionListener(e -> copyKeyframes(structureChangeListener, timeAndKey.getKey()));
 		popupMenu.add(copyItem);
+
 		final JMenuItem copyFrameItem = new JMenuItem("Copy Frame (whole model)");
 		copyFrameItem.addActionListener(e -> copyAllKeyframes(timeAndKey.getKey()));
 		popupMenu.add(copyFrameItem);
+
 		final JMenuItem pasteItem = new JMenuItem("Paste");
 		pasteItem.addActionListener(e -> pasteToAllSelected(structureChangeListener, timeAndKey.getKey()));
 		popupMenu.add(pasteItem);
+
 		popupMenu.addSeparator();
+
 		for (final IdObject object : timeAndKey.getValue().objects) {
 			for (final AnimFlag flag : object.getAnimFlags()) {
 				final int flooredTimeIndex = flag.floorIndex(timeAndKey.getKey());
@@ -337,20 +345,21 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 						&& flag.getTimes().get(flooredTimeIndex).equals(timeAndKey.getKey())) {
 					final JMenu subMenu = new JMenu(object.getName() + ": " + flag.getName());
 					popupMenu.add(subMenu);
+
 					final JMenuItem deleteSpecificItem = new JMenuItem("Delete");
 					deleteSpecificItem.addActionListener(e ->
 							deleteKeyframe("delete keyframe", structureChangeListener, object, flag, timeAndKey.getKey()));
 					subMenu.add(deleteSpecificItem);
 					subMenu.addSeparator();
+
 					final JMenuItem cutSpecificItem = new JMenuItem("Cut");
-					cutSpecificItem.addActionListener(e -> {
-						copyKeyframes(structureChangeListener, object, flag, timeAndKey.getKey());
-						deleteKeyframe("cut keyframe", structureChangeListener, object, flag, timeAndKey.getKey());
-					});
+					cutSpecificItem.addActionListener(e -> cutSpecificItem(timeAndKey, structureChangeListener, object, flag));
 					subMenu.add(cutSpecificItem);
+
 					final JMenuItem copySpecificItem = new JMenuItem("Copy");
 					copySpecificItem.addActionListener(e -> copyKeyframes(structureChangeListener, object, flag, timeAndKey.getKey()));
 					subMenu.add(copySpecificItem);
+
 					final JMenuItem pasteSpecificItem = new JMenuItem("Paste");
 					pasteSpecificItem.addActionListener(e -> pasteToSpecificTimeline(structureChangeListener, timeAndKey, flag));
 					subMenu.add(pasteSpecificItem);
@@ -358,8 +367,18 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 			}
 		}
 		popupMenu.show(TimeSliderPanel.this, mouseEvent.getX(), mouseEvent.getY());
-		foundFrame = true;
-		return foundFrame;
+		return true;
+	}
+
+	private void cutSpecificItem(Map.Entry<Integer, KeyFrame> timeAndKey, ModelStructureChangeListener structureChangeListener, IdObject object, AnimFlag flag) {
+		copyKeyframes(structureChangeListener, object, flag, timeAndKey.getKey());
+		deleteKeyframe("cut keyframe", structureChangeListener, object, flag, timeAndKey.getKey());
+	}
+
+	private void cutItem(Map.Entry<Integer, KeyFrame> timeAndKey, ModelStructureChangeListener structureChangeListener) {
+		copyKeyframes(structureChangeListener, timeAndKey.getKey());
+		deleteKeyframes("cut keyframe", structureChangeListener, timeAndKey.getKey(),
+				timeAndKey.getValue().objects);
 	}
 
 	private void liveAnimationTimerListener() {
@@ -449,22 +468,12 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 
 	public void jumpLeft() {
 		int lastTime = 0;
-		final List<Integer> times = new ArrayList<>();
-		for (final Map.Entry<Integer, KeyFrame> timeAndKey : timeToKey.entrySet()) {
-			final Integer time = timeAndKey.getKey();
-			times.add(time);
-		}
+		final List<Integer> times = getTimes();
 		boolean foundMatch = false;
 		Collections.sort(times);
 		for (final Integer time : times) {
 			if (time >= currentTime) {
-				if (lastTime > end) {
-					lastTime = end;
-				} else if (lastTime < start) {
-					lastTime = start;
-				}
-				setCurrentTime(lastTime);
-				foundMatch = true;
+				foundMatch = isFoundMatch(lastTime);
 				break;
 			}
 			lastTime = time;
@@ -475,6 +484,41 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 				setCurrentTime(jumpTime);
 			}
 		}
+	}
+
+	public void jumpRight() {
+		final List<Integer> times = getTimes();
+		boolean foundMatch = false;
+		Collections.sort(times);
+		for (Integer time : times) {
+			if (time > currentTime) {
+				foundMatch = isFoundMatch(time);
+			}
+		}
+		if (!foundMatch) {
+			if (times.size() > 0) {
+				setCurrentTime(end);
+			}
+		}
+	}
+
+	private boolean isFoundMatch(int time) {
+		if (time > end) {
+			time = end;
+		} else if (time < start) {
+			time = start;
+		}
+		setCurrentTime(time);
+		return true;
+	}
+
+	private List<Integer> getTimes() {
+		final List<Integer> times = new ArrayList<>();
+		for (final Map.Entry<Integer, KeyFrame> timeAndKey : timeToKey.entrySet()) {
+			final Integer time = timeAndKey.getKey();
+			times.add(time);
+		}
+		return times;
 	}
 
 	public void setCurrentTime(final int lastTime) {
@@ -499,33 +543,6 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		}
 		setCurrentTime(newTime);
 		repaint();
-	}
-
-	public void jumpRight() {
-		final List<Integer> times = new ArrayList<>();
-		for (final Map.Entry<Integer, KeyFrame> timeAndKey : timeToKey.entrySet()) {
-			final Integer time = timeAndKey.getKey();
-			times.add(time);
-		}
-		boolean foundMatch = false;
-		Collections.sort(times);
-		for (Integer time : times) {
-			if (time > currentTime) {
-				if (time > end) {
-					time = end;
-				} else if (time < start) {
-					time = start;
-				}
-				setCurrentTime(time);
-				foundMatch = true;
-				break;
-			}
-		}
-		if (!foundMatch) {
-			if (times.size() > 0) {
-				setCurrentTime(end);
-			}
-		}
 	}
 
 	private void copyKeyframes(final ModelStructureChangeListener structureChangeListener, final int trackTime) {

@@ -18,6 +18,7 @@ public class ComponentsPanel extends JPanel implements ModelComponentBrowserTree
 	private static final String GLOBALSEQ = "GLOBALSEQ";
 	private static final String BITMAP = "BITMAP";
 	private static final String MATERIAL = "MATERIAL";
+	private static final String GEOSET = "GEOSET";
 	private final CardLayout cardLayout;
 	private final JPanel blankPanel;
 	private final ComponentHeaderPanel headerPanel;
@@ -26,6 +27,7 @@ public class ComponentsPanel extends JPanel implements ModelComponentBrowserTree
 	private final ComponentGlobalSequencePanel globalSeqPanel;
 	private final ComponentBitmapPanel bitmapPanel;
 	private final ComponentMaterialPanel materialPanel;
+	private final ComponentGeosetPanel geosetPanel;
 	private ComponentPanel currentPanel;
 
 	public ComponentsPanel(final TextureExporter textureExporter) {
@@ -52,7 +54,16 @@ public class ComponentsPanel extends JPanel implements ModelComponentBrowserTree
 		add(bitmapPanel, BITMAP);
 
 		materialPanel = new ComponentMaterialPanel();
-		add(new JScrollPane(materialPanel), MATERIAL);
+		materialPanel.setOpaque(true);
+		materialPanel.setBackground(Color.cyan);
+		JScrollPane materialScrollPane = new JScrollPane(materialPanel);
+		materialScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+//		materialScrollPane.setOpaque(true);
+//		materialScrollPane.setBackground(Color.cyan);
+		add(materialScrollPane, MATERIAL);
+
+		geosetPanel = new ComponentGeosetPanel();
+		add(geosetPanel, GEOSET);
 
 		cardLayout.show(this, BLANK);
 	}
@@ -117,7 +128,13 @@ public class ComponentsPanel extends JPanel implements ModelComponentBrowserTree
 	}
 
 	@Override
-	public void selected(final Geoset geoset) {
+	public void selected(final Geoset geoset, final ModelViewManager modelViewManager,
+	                     final UndoActionListener undoActionListener,
+	                     final ModelStructureChangeListener modelStructureChangeListener) {
+		geosetPanel.setSelectedGeoset(geoset, modelViewManager, undoActionListener, modelStructureChangeListener);
+//		geosetPanel.setMaterial(geoset, modelViewManager, undoActionListener, modelStructureChangeListener);
+		cardLayout.show(this, GEOSET);
+		currentPanel = geosetPanel;
 	}
 
 	@Override

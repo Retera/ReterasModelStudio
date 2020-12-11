@@ -33,9 +33,10 @@ public class ComponentMaterialLayersPanel extends JPanel {
 	}
 
 	public void setMaterial(final Material material, final ModelViewManager modelViewManager,
-			final UndoActionListener undoActionListener,
-			final ModelStructureChangeListener modelStructureChangeListener) {
+	                        final UndoActionListener undoActionListener,
+	                        final ModelStructureChangeListener modelStructureChangeListener) {
 		System.out.println("Reloading ComponentMaterialLayersPanel");
+
 		this.material = material;
 		this.undoActionListener = undoActionListener;
 		this.modelStructureChangeListener = modelStructureChangeListener;
@@ -43,59 +44,68 @@ public class ComponentMaterialLayersPanel extends JPanel {
 
 		if (currentlyDisplayedLayerCount != material.getLayers().size()) {
 			removeAll();
-			for (int i = 0; i < material.getLayers().size(); i++) {
-				final Layer layer = material.getLayers().get(i);
-				final ComponentLayerPanel panel;
-				final JLabel layerLabel;
-				final JButton layerDeleteButton;
-				if (i < cachedLayerPanels.size()) {
-					panel = cachedLayerPanels.get(i);
-					layerLabel = cachedLayerLabels.get(i);
-					layerDeleteButton = cachedLayerDeleteButtons.get(i);
-				} else {
-					panel = new ComponentLayerPanel();
-					layerLabel = new JLabel("Layer");
-					layerDeleteButton = new JButton("Delete");
-					layerDeleteButton.setBackground(Color.RED);
-					layerDeleteButton.setForeground(Color.WHITE);
-					cachedLayerPanels.add(panel);
-					cachedLayerLabels.add(layerLabel);
-					cachedLayerDeleteButtons.add(layerDeleteButton);
-				}
-				if (hdShader) {
-					final String reforgedDefintion;
-					if (i < REFORGED_LAYER_DEFINITIONS.length) {
-						reforgedDefintion = REFORGED_LAYER_DEFINITIONS[i];
-					} else {
-						reforgedDefintion = "Unknown";
-					}
-					layerLabel.setText(reforgedDefintion + " Layer");
-					layerLabel.setFont(layerLabel.getFont().deriveFont(Font.BOLD));
-				} else {
-					layerLabel.setText("Layer " + (i + 1));
-					layerLabel.setFont(layerLabel.getFont().deriveFont(Font.PLAIN));
-				}
-				panel.setLayer(modelViewManager.getModel().getWrappedDataSource(), layer,
-						modelViewManager.getModel().getFormatVersion(), hdShader, undoActionListener,
-						modelStructureChangeListener);
-				add(layerLabel);
-				add(layerDeleteButton, "wrap");
-				add(panel, "growx, growy, span 2, wrap");
-			}
+			createLayerPanels(material, modelViewManager, undoActionListener, modelStructureChangeListener, hdShader);
 			add(addLayerButton, "wrap");
 			revalidate();
 			repaint();
 			currentlyDisplayedLayerCount = material.getLayers().size();
 		} else {
-			for (int i = 0; i < material.getLayers().size(); i++) {
-				final Layer layer = material.getLayers().get(i);
-				final ComponentLayerPanel panel = cachedLayerPanels.get(i);
-				panel.setLayer(modelViewManager.getModel().getWrappedDataSource(), layer,
-						modelViewManager.getModel().getFormatVersion(), hdShader, undoActionListener,
-						modelStructureChangeListener);
-			}
+			replaceLayerPanels(material, modelViewManager, undoActionListener, modelStructureChangeListener, hdShader);
 
 		}
 
+	}
+
+	private void replaceLayerPanels(Material material, ModelViewManager modelViewManager, UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener, boolean hdShader) {
+		for (int i = 0; i < material.getLayers().size(); i++) {
+			final Layer layer = material.getLayers().get(i);
+			final ComponentLayerPanel panel = cachedLayerPanels.get(i);
+			panel.setLayer(modelViewManager.getModel(), layer,
+					modelViewManager.getModel().getFormatVersion(), hdShader, undoActionListener,
+					modelStructureChangeListener);
+		}
+	}
+
+	private void createLayerPanels(Material material, ModelViewManager modelViewManager, UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener, boolean hdShader) {
+		for (int i = 0; i < material.getLayers().size(); i++) {
+			final Layer layer = material.getLayers().get(i);
+			final ComponentLayerPanel panel;
+			final JLabel layerLabel;
+			final JButton layerDeleteButton;
+			if (i < cachedLayerPanels.size()) {
+				panel = cachedLayerPanels.get(i);
+				layerLabel = cachedLayerLabels.get(i);
+				layerDeleteButton = cachedLayerDeleteButtons.get(i);
+			} else {
+				panel = new ComponentLayerPanel(modelViewManager.getModel());
+				layerLabel = new JLabel("Layer");
+				layerDeleteButton = new JButton("Delete");
+				layerDeleteButton.setBackground(Color.RED);
+				layerDeleteButton.setForeground(Color.WHITE);
+
+				cachedLayerPanels.add(panel);
+				cachedLayerLabels.add(layerLabel);
+				cachedLayerDeleteButtons.add(layerDeleteButton);
+			}
+			if (hdShader) {
+				final String reforgedDefintion;
+				if (i < REFORGED_LAYER_DEFINITIONS.length) {
+					reforgedDefintion = REFORGED_LAYER_DEFINITIONS[i];
+				} else {
+					reforgedDefintion = "Unknown";
+				}
+				layerLabel.setText(reforgedDefintion + " Layer");
+				layerLabel.setFont(layerLabel.getFont().deriveFont(Font.BOLD));
+			} else {
+				layerLabel.setText("Layer " + (i + 1));
+				layerLabel.setFont(layerLabel.getFont().deriveFont(Font.PLAIN));
+			}
+			panel.setLayer(modelViewManager.getModel(), layer,
+					modelViewManager.getModel().getFormatVersion(), hdShader, undoActionListener,
+					modelStructureChangeListener);
+			add(layerLabel);
+			add(layerDeleteButton, "wrap");
+			add(panel, "growx, growy, span 2, wrap");
+		}
 	}
 }

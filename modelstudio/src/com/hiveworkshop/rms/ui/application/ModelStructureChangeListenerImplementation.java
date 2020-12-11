@@ -243,6 +243,22 @@ class ModelStructureChangeListenerImplementation implements ModelStructureChange
         }
     }
 
+    @Override
+    public void materialsListChanged() {
+        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        if (modelPanel != null) {
+            System.out.println("modelPanel!");
+            modelPanel.getAnimationViewer().reloadAllTextures();
+            modelPanel.getPerspArea().reloadAllTextures();
+            modelPanel.repaintSelfAndRelatedChildren();
+        }
+        final ModelPanel display = displayFor(mainPanel.modelPanels, modelReference.getModel());
+        if (display != null) {
+            System.out.println("disp!");
+            reloadComponentBrowser(mainPanel.geoControlModelData, display);
+        }
+    }
+
     interface ModelReference {
         EditableModel getModel();
     }

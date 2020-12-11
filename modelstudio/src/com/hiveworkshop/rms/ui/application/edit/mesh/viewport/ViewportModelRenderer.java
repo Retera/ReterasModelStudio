@@ -75,11 +75,12 @@ public class ViewportModelRenderer implements ModelVisitor {
 
 	private void resetIdObjectRendererWithNode(final IdObject object) {
 		idObjectRenderer.reset(coordinateSystem, graphics,
-				modelView.getHighlightedNode() == object ? programPreferences.getHighlighVertexColor()
-						: programPreferences.getLightsColor(),
-				modelView.getHighlightedNode() == object ? programPreferences.getHighlighVertexColor()
-						: programPreferences.getPivotPointsColor(),
-				modelView.getHighlightedNode() == object ? NodeIconPalette.HIGHLIGHT : NodeIconPalette.UNSELECTED,
+				modelView.getHighlightedNode() == object
+						? programPreferences.getHighlighVertexColor() : programPreferences.getLightsColor(),
+				modelView.getHighlightedNode() == object
+						? programPreferences.getHighlighVertexColor() : programPreferences.getPivotPointsColor(),
+				modelView.getHighlightedNode() == object
+						? NodeIconPalette.HIGHLIGHT : NodeIconPalette.UNSELECTED,
 				programPreferences.isUseBoxesForPivotPoints());
 	}
 
@@ -181,23 +182,23 @@ public class ViewportModelRenderer implements ModelVisitor {
 			secondCoord = getDimension(x, y, z, yDimension, "Invalid y dimension");
 			final Point point = new Point((int) coordinateSystem.convertX(firstCoord),
 					(int) coordinateSystem.convertY(secondCoord));
+
 			if (previousVertices.size() > 0) {
 				final Point previousPoint = previousVertices.get(previousVertices.size() - 1);
 				graphics.drawLine(previousPoint.x, previousPoint.y, point.x, point.y);
 			}
 			previousVertices.add(point);
-			// graphics.setColor(programPreferences.getVertexColor());
-			// graphics.fillRect((int) firstCoord - vertexSize / 2, (int)
-			// secondCoord - vertexSize / 2, vertexSize,
-			// vertexSize);
+
 			if (programPreferences.showNormals()) {
 				final Color triangleColor = graphics.getColor();
 				final double firstNormalCoord;
 				final double secondNormalCoord;
 				firstNormalCoord = getDimension(normalX, normalY, normalZ, xDimension, "Invalid x dimension");
 				secondNormalCoord = getDimension(normalX, normalY, normalZ, yDimension, "Invalid y dimension");
+
 				graphics.setColor(programPreferences.getNormalsColor());
 				final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+
 				final Point endPoint = new Point(
 						(int) coordinateSystem.convertX(firstCoord + ((firstNormalCoord * 12) / zoom)),
 						(int) coordinateSystem.convertY(secondCoord + ((secondNormalCoord * 12) / zoom)));

@@ -23,30 +23,13 @@ public class ComponentAnimationPanel extends JPanel {
 
 	public ComponentAnimationPanel() {
 		nameField = new ComponentEditorTextField(24);
-		nameField.addActionListener(e -> {
-            final SetAnimationNameAction setAnimationNameAction = new SetAnimationNameAction(animation.getName(),
-                    nameField.getText(), animation, modelStructureChangeListener);
-            setAnimationNameAction.redo();
-            undoListener.pushAction(setAnimationNameAction);
-        });
+		nameField.addActionListener(e -> nameField());
 
 		newAnimTimeStart = new ComponentEditorJSpinner(new SpinnerNumberModel(300, 0, Integer.MAX_VALUE, 1));
-		newAnimTimeStart.addActionListener(() -> {
-            final SetAnimationIntervalStartAction setAnimationIntervalStartAction = new SetAnimationIntervalStartAction(
-                    animation.getStart(), ((Number) newAnimTimeStart.getValue()).intValue(), animation,
-                    modelStructureChangeListener);
-            setAnimationIntervalStartAction.redo();
-            undoListener.pushAction(setAnimationIntervalStartAction);
-        });
+		newAnimTimeStart.addActionListener(this::newAnimTimeStart);
 
 		newAnimTimeEnd = new ComponentEditorJSpinner(new SpinnerNumberModel(1300, 0, Integer.MAX_VALUE, 1));
-		newAnimTimeEnd.addActionListener(() -> {
-            final SetAnimationIntervalEndAction setAnimationIntervalEndAction = new SetAnimationIntervalEndAction(
-                    animation.getEnd(), ((Number) newAnimTimeEnd.getValue()).intValue(), animation,
-                    modelStructureChangeListener);
-            setAnimationIntervalEndAction.redo();
-            undoListener.pushAction(setAnimationIntervalEndAction);
-        });
+		newAnimTimeEnd.addActionListener(this::newAnimTimeEnd);
 
 		setLayout(new MigLayout());
 		add(new JLabel("Name: "), "cell 0 0");
@@ -57,37 +40,66 @@ public class ComponentAnimationPanel extends JPanel {
 		add(newAnimTimeEnd, "cell 3 1");
 
 		rarityChooser = new ComponentEditorJSpinner(new SpinnerNumberModel(0d, 0d, Long.MAX_VALUE, 1d));
-		rarityChooser.addActionListener(() -> {
-            final SetAnimationRarityAction setAnimationRarityAction = new SetAnimationRarityAction(
-                    animation.getRarity(), ((Number) rarityChooser.getValue()).floatValue(), animation,
-                    modelStructureChangeListener);
-            setAnimationRarityAction.redo();
-            undoListener.pushAction(setAnimationRarityAction);
-        });
+		rarityChooser.addActionListener(this::rarityChooser);
 
 		moveSpeedChooser = new ComponentEditorJSpinner(new SpinnerNumberModel(0d, 0d, Long.MAX_VALUE, 1d));
-		moveSpeedChooser.addActionListener(() -> {
-            final SetAnimationMoveSpeedAction setAnimationMoveSpeedAction = new SetAnimationMoveSpeedAction(
-                    animation.getMoveSpeed(), ((Number) moveSpeedChooser.getValue()).floatValue(), animation,
-                    modelStructureChangeListener);
-            setAnimationMoveSpeedAction.redo();
-            undoListener.pushAction(setAnimationMoveSpeedAction);
-        });
+		moveSpeedChooser.addActionListener(this::moveSpeedChooser);
 
 		nonLoopingChooser = new JCheckBox("NonLooping");
-		nonLoopingChooser.addActionListener(e -> {
-            final SetAnimationNonLoopingAction setAnimationNonLoopingAction = new SetAnimationNonLoopingAction(
-                    animation.isNonLooping(), nonLoopingChooser.isSelected(), animation,
-                    modelStructureChangeListener);
-            setAnimationNonLoopingAction.redo();
-            undoListener.pushAction(setAnimationNonLoopingAction);
-        });
+		nonLoopingChooser.addActionListener(e -> nonLoopingChooser());
 
 		add(nonLoopingChooser, "cell 0 2");
 		add(new JLabel("Rarity"), "cell 0 3");
 		add(rarityChooser, "cell 1 3");
 		add(new JLabel("MoveSpeed"), "cell 0 4");
 		add(moveSpeedChooser, "cell 1 4");
+	}
+
+	private void nonLoopingChooser() {
+		final SetAnimationNonLoopingAction setAnimationNonLoopingAction = new SetAnimationNonLoopingAction(
+				animation.isNonLooping(), nonLoopingChooser.isSelected(), animation,
+				modelStructureChangeListener);
+		setAnimationNonLoopingAction.redo();
+		undoListener.pushAction(setAnimationNonLoopingAction);
+	}
+
+	private void moveSpeedChooser() {
+		final SetAnimationMoveSpeedAction setAnimationMoveSpeedAction = new SetAnimationMoveSpeedAction(
+				animation.getMoveSpeed(), ((Number) moveSpeedChooser.getValue()).floatValue(), animation,
+				modelStructureChangeListener);
+		setAnimationMoveSpeedAction.redo();
+		undoListener.pushAction(setAnimationMoveSpeedAction);
+	}
+
+	private void rarityChooser() {
+		final SetAnimationRarityAction setAnimationRarityAction = new SetAnimationRarityAction(
+				animation.getRarity(), ((Number) rarityChooser.getValue()).floatValue(), animation,
+				modelStructureChangeListener);
+		setAnimationRarityAction.redo();
+		undoListener.pushAction(setAnimationRarityAction);
+	}
+
+	private void newAnimTimeEnd() {
+		final SetAnimationIntervalEndAction setAnimationIntervalEndAction = new SetAnimationIntervalEndAction(
+				animation.getEnd(), ((Number) newAnimTimeEnd.getValue()).intValue(), animation,
+				modelStructureChangeListener);
+		setAnimationIntervalEndAction.redo();
+		undoListener.pushAction(setAnimationIntervalEndAction);
+	}
+
+	private void nameField() {
+		final SetAnimationNameAction setAnimationNameAction = new SetAnimationNameAction(animation.getName(),
+				nameField.getText(), animation, modelStructureChangeListener);
+		setAnimationNameAction.redo();
+		undoListener.pushAction(setAnimationNameAction);
+	}
+
+	private void newAnimTimeStart() {
+		final SetAnimationIntervalStartAction setAnimationIntervalStartAction = new SetAnimationIntervalStartAction(
+				animation.getStart(), ((Number) newAnimTimeStart.getValue()).intValue(), animation,
+				modelStructureChangeListener);
+		setAnimationIntervalStartAction.redo();
+		undoListener.pushAction(setAnimationIntervalStartAction);
 	}
 
 	public Animation getAnimation() {

@@ -123,12 +123,15 @@ public class EditableModel implements Named {
 
 		// Step 8: GeosetAnims
 		for (final MdlxGeosetAnimation animation : model.geosetAnimations) {
-			final GeosetAnim geosetAnim = new GeosetAnim(animation, this);
+			if (animation.geosetId != -1) {
+				System.out.println(animation);
+				final GeosetAnim geosetAnim = new GeosetAnim(animation, this);
 
-			add(geosetAnim);
+				add(geosetAnim);
 
-			if (geosetAnim.geoset != null) {
-				geosetAnim.geoset.geosetAnim = geosetAnim;
+				if (geosetAnim.geoset != null) {
+					geosetAnim.geoset.geosetAnim = geosetAnim;
+				}
 			}
 		}
 
@@ -259,18 +262,15 @@ public class EditableModel implements Named {
 
 	public MdlxModel toMdlx() {
 		doSavePreps(); // restores all GeosetID, ObjectID, TextureID,
-		// MaterialID stuff all based on object references
-		// in the Java
+		// MaterialID stuff all based on object references in the Java
 		// (this is so that you can write a program that does something like
-		// "mdl.add(new Bone())" without
-		// a problem, or even "mdl.add(otherMdl.getGeoset(5))" and have the
-		// geoset's textures and materials
-		// all be carried over with it via object references in java
+		// "mdl.add(new Bone())" without a problem, or even
+		// "mdl.add(otherMdl.getGeoset(5))" and have the geoset's textures and
+		// materials  all be carried over with it via object references in java
 
 		// also this re-creates all matrices, which are consumed by the
-		// MatrixEater at runtime in doPostRead()
-		// in favor of each vertex having its own attachments list, no vertex
-		// groups)
+		// MatrixEater at runtime in doPostRead() in favor of each vertex
+		// having its own attachments list, no vertex groups)
 
 		final MdlxModel model = new MdlxModel();
 
@@ -629,6 +629,7 @@ public class EditableModel implements Named {
 	}
 
 	public Geoset getGeoset(final int index) {
+		System.out.println(index);
 		return geosets.get(index);
 	}
 
@@ -1336,10 +1337,8 @@ public class EditableModel implements Named {
 		return null;
 	}
 
-	public void addFlagToParent(final AnimFlag aflg, final AnimFlag added)// aflg
-																			// is
-																			// the
-																			// parent
+	public void addFlagToParent(final AnimFlag aflg, final AnimFlag added)
+	// aflg is the parent
 	{
 		// ADDS "added" TO THE PARENT OF "aflg"
 		for (final Material m : materials) {
@@ -2036,14 +2035,6 @@ public class EditableModel implements Named {
 			}
 		}
 	}
-	// public void destroy()
-	// {
-	// try {
-	// this.finalize();
-	// } catch (Throwable e) {
-	// e.printStackTrace();
-	// }
-	// }
 
 	public void removeAllTimelinesForGlobalSeq(final Integer selectedValue) {
 		for (final Material m : materials) {

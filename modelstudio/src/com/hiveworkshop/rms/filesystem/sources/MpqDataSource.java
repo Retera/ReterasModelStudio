@@ -24,48 +24,21 @@ public class MpqDataSource implements DataSource {
 
 	@Override
 	public InputStream getResourceAsStream(final String filepath) throws IOException {
-		MpqFile file = null;
-		try {
-			file = archive.getMpqFile(filepath);
-		} catch (final Exception exc) {
-			if (exc.getMessage().startsWith("File Not Found")) {
-				return null;
-			} else {
-				throw new IOException(exc);
-			}
-		}
+		MpqFile file = getMpqFile(filepath);
+		if (file == null) return null;
 		return new ByteArrayInputStream(file.extractToBytes());
 	}
 
 	@Override
 	public ByteBuffer read(final String path) throws IOException {
-		MpqFile file = null;
-		try {
-			
-			file = archive.getMpqFile(path);
-		} catch (final Exception exc) {
-			if (exc.getMessage().startsWith("File Not Found")) {
-				return null;
-			} else {
-				throw new IOException(exc);
-			}
-		}
+		MpqFile file = getMpqFile(path);
 
 		return ByteBuffer.wrap(file.extractToBytes());
 	}
 
 	@Override
 	public File getFile(final String filepath) throws IOException {
-		MpqFile file = null;
-		try {
-			file = archive.getMpqFile(filepath);
-		} catch (final Exception exc) {
-			if (exc.getMessage().startsWith("File Not Found")) {
-				return null;
-			} else {
-				throw new IOException(exc);
-			}
-		}
+		MpqFile file = getMpqFile(filepath);
 
 		String tmpdir = System.getProperty("java.io.tmpdir");
 		if (!tmpdir.endsWith(File.separator)) {
@@ -78,6 +51,20 @@ public class MpqDataSource implements DataSource {
 		file.extractToFile(tempProduct);
 		tempProduct.deleteOnExit();
 		return tempProduct;
+	}
+
+	private MpqFile getMpqFile(String filepath) throws IOException {
+		MpqFile file;
+		try {
+			file = archive.getMpqFile(filepath);
+		} catch (final Exception exc) {
+			if (exc.getMessage().startsWith("File Not Found")) {
+				return null;
+			} else {
+				throw new IOException(exc);
+			}
+		}
+		return file;
 	}
 
 	@Override

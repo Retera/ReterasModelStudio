@@ -38,173 +38,60 @@ public final class ModelComponentBrowserTree extends JTree {
 		final HighlightOnMouseoverListenerImpl mouseListener = new HighlightOnMouseoverListenerImpl();
 		addMouseMotionListener(mouseListener);
 		addMouseListener(mouseListener);
-		setCellRenderer(new DefaultTreeCellRenderer() {
-			@Override
-			public Component getTreeCellRendererComponent(final JTree tree, final Object value, final boolean selected,
-					final boolean expanded, final boolean leaf, final int row, final boolean hasFocus) {
-				ImageIcon iconOverride = null;
-				if (value instanceof DefaultMutableTreeNode) {
-					final Object userObject = ((DefaultMutableTreeNode) value).getUserObject();
-					if (userObject instanceof ChooseableDisplayElement) {
-						final ImageIcon icon = ((ChooseableDisplayElement<?>) userObject).getIcon(expanded);
-						if (icon != null) {
-							iconOverride = icon;
-						}
-					}
-				}
-				final Component treeCellRendererComponent = super.getTreeCellRendererComponent(tree, value, selected,
-						expanded, leaf, row, hasFocus);
-				if (iconOverride != null) {
-					setIcon(iconOverride);
-				}
-				return treeCellRendererComponent;
-			}
-		});
+		setCellRenderer(getComponentBrowserCellRenderer());
 		setFocusable(false);
-	}
-
-	public void addSelectListener(final ModelComponentListener selectListener) {
-		addTreeSelectionListener(e -> {
-            final TreePath path = e.getNewLeadSelectionPath();
-            boolean selected = false;
-            if (path != null) {
-                final Object lastPathComponent = path.getLastPathComponent();
-                if (lastPathComponent instanceof DefaultMutableTreeNode) {
-                    final DefaultMutableTreeNode node = (DefaultMutableTreeNode) lastPathComponent;
-                    if (node.getUserObject() instanceof ChooseableDisplayElement) {
-                        asElement(node.getUserObject()).select(selectListener);
-                        selected = true;
-                    }
-                }
-            }
-            if (!selected) {
-                selectListener.selectedBlank();
-            }
-        });
-	}
-
-	public void reloadFromModelView() {
-		System.out.println("Reloading ModelComponentBrowserTree");
-		SwingUtilities.invokeLater(() -> {
-            final TreePath selectionPath = getSelectionPath();
-            final TreePath rootPath = new TreePath(getModel().getRoot());
-            final Enumeration<TreePath> expandedDescendants = getExpandedDescendants(rootPath);
-            setModel(buildTreeModel(modelViewManager, undoActionListener, modelStructureChangeListener));
-            final TreePath newRootPath = new TreePath(getModel().getRoot());
-            final List<TreePath> pathsToExpand = new ArrayList<>();
-            while ((expandedDescendants != null) && expandedDescendants.hasMoreElements()) {
-                final TreePath nextPathToExpand = expandedDescendants.nextElement();
-                TreePath newPathWithNewObjects = newRootPath;
-                DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) getModel().getRoot();
-                for (int i = 1; i < nextPathToExpand.getPathCount(); i++) {
-                    final DefaultMutableTreeNode pathComponent = (DefaultMutableTreeNode) nextPathToExpand
-                            .getPathComponent(i);
-                    boolean foundMatchingChild = false;
-                    for (int j = 0; (j < currentNode.getChildCount()) && !foundMatchingChild; j++) {
-                        final DefaultMutableTreeNode childAt = (DefaultMutableTreeNode) currentNode.getChildAt(j);
-                        if (asElement(childAt.getUserObject())
-                                .hasSameItem(asElement(pathComponent.getUserObject()))) {
-                            currentNode = childAt;
-                            newPathWithNewObjects = newPathWithNewObjects.pathByAddingChild(childAt);
-                            foundMatchingChild = true;
-                        }
-                    }
-                    if (!foundMatchingChild) {
-                        break;
-                    }
-                }
-                pathsToExpand.add(newPathWithNewObjects);
-            }
-            for (final TreePath path : pathsToExpand) {
-                expandPath(path);
-            }
-            DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) getModel().getRoot();
-            TreePath newSelectionPath = newRootPath;
-            if (selectionPath != null) {
-                for (int i = 1; i < selectionPath.getPathCount(); i++) {
-                    final DefaultMutableTreeNode pathComponent = (DefaultMutableTreeNode) selectionPath
-                            .getPathComponent(i);
-                    boolean foundMatchingChild = false;
-                    for (int j = 0; (j < currentNode.getChildCount()) && !foundMatchingChild; j++) {
-                        final DefaultMutableTreeNode childAt = (DefaultMutableTreeNode) currentNode.getChildAt(j);
-                        if (asElement(childAt.getUserObject())
-                                .hasSameItem(asElement(pathComponent.getUserObject()))) {
-                            currentNode = childAt;
-                            newSelectionPath = newSelectionPath.pathByAddingChild(childAt);
-                            foundMatchingChild = true;
-                        }
-                    }
-                    if (!foundMatchingChild) {
-                        break;
-                    }
-                }
-            }
-            setSelectionPath(newSelectionPath); // should also fire listeners
-        });
-	}
-
-	private ChooseableDisplayElement<?> asElement(final Object userObject) {
-		return (ChooseableDisplayElement<?>) userObject;
 	}
 
 	private static DefaultTreeModel buildTreeModel(final ModelViewManager modelViewManager,
 			final UndoActionListener undoActionListener,
 			final ModelStructureChangeListener modelStructureChangeListener) {
-		final DefaultMutableTreeNode root = new DefaultMutableTreeNode(new ChooseableModelRoot(modelViewManager,
-				undoActionListener, modelStructureChangeListener, modelViewManager.getModel()));
+		final ChooseableModelRoot modelRoot = new ChooseableModelRoot(modelViewManager,
+				undoActionListener, modelStructureChangeListener, modelViewManager.getModel());
+		final DefaultMutableTreeNode root = new DefaultMutableTreeNode(modelRoot);
 
-		root.add(new DefaultMutableTreeNode(new ChooseableModelComment(modelViewManager, undoActionListener,
-				modelStructureChangeListener, modelViewManager.getModel())));
-		root.add(new DefaultMutableTreeNode(new ChooseableModelHeader(modelViewManager, undoActionListener,
-				modelStructureChangeListener, modelViewManager.getModel())));
-		final DefaultMutableTreeNode sequences = new DefaultMutableTreeNode(new ChooseableDummyItem(modelViewManager,
-				undoActionListener, modelStructureChangeListener, "Sequences"));
+		ChooseableModelComment modelComment = new ChooseableModelComment(modelViewManager, undoActionListener, modelStructureChangeListener, modelViewManager.getModel());
+		root.add(new DefaultMutableTreeNode(modelComment));
+
+		ChooseableModelHeader modelHeader = new ChooseableModelHeader(modelViewManager, undoActionListener, modelStructureChangeListener, modelViewManager.getModel());
+		root.add(new DefaultMutableTreeNode(modelHeader));
+
+		final DefaultMutableTreeNode sequences = new DefaultMutableTreeNode(getDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, "Sequences"));
 		for (final Animation item : modelViewManager.getModel().getAnims()) {
-			sequences.add(new DefaultMutableTreeNode(new ChooseableAnimationItem(modelViewManager, undoActionListener,
-					modelStructureChangeListener, item)));
+			sequences.add(new DefaultMutableTreeNode(new ChooseableAnimationItem(modelViewManager, undoActionListener, modelStructureChangeListener, item)));
 		}
 		root.add(sequences);
-		final DefaultMutableTreeNode globalSequences = new DefaultMutableTreeNode(new ChooseableDummyItem(
-				modelViewManager, undoActionListener, modelStructureChangeListener, "GlobalSequences"));
+		final DefaultMutableTreeNode globalSequences = new DefaultMutableTreeNode(getDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, "GlobalSequences"));
 		for (int globalSeqId = 0; globalSeqId < modelViewManager.getModel().getGlobalSeqs().size(); globalSeqId++) {
-			globalSequences.add(new DefaultMutableTreeNode(
-					new ChooseableGlobalSequenceItem(modelViewManager, undoActionListener, modelStructureChangeListener,
-							modelViewManager.getModel().getGlobalSeq(globalSeqId), globalSeqId)));
+			ChooseableGlobalSequenceItem sequenceItem = new ChooseableGlobalSequenceItem(modelViewManager, undoActionListener, modelStructureChangeListener, modelViewManager.getModel().getGlobalSeq(globalSeqId), globalSeqId);
+			globalSequences.add(new DefaultMutableTreeNode(sequenceItem));
 		}
 		root.add(globalSequences);
-		final DefaultMutableTreeNode textures = new DefaultMutableTreeNode(new ChooseableDummyItem(modelViewManager,
-				undoActionListener, modelStructureChangeListener, "Textures"));
+		final DefaultMutableTreeNode textures = new DefaultMutableTreeNode(getDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, "Textures"));
 		for (final Bitmap item : modelViewManager.getModel().getTextures()) {
-			textures.add(new DefaultMutableTreeNode(new ChooseableBitmapItem(modelViewManager, undoActionListener,
-					modelStructureChangeListener, item)));
+			textures.add(new DefaultMutableTreeNode(new ChooseableBitmapItem(modelViewManager, undoActionListener, modelStructureChangeListener, item)));
 		}
 		root.add(textures);
-		final DefaultMutableTreeNode materials = new DefaultMutableTreeNode(new ChooseableDummyItem(modelViewManager,
-				undoActionListener, modelStructureChangeListener, "Materials"));
+		final DefaultMutableTreeNode materials = new DefaultMutableTreeNode(getDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, "Materials"));
 		for (final Material item : modelViewManager.getModel().getMaterials()) {
-			materials.add(new DefaultMutableTreeNode(new ChooseableMaterialItem(modelViewManager, undoActionListener,
-					modelStructureChangeListener, item)));
+			materials.add(new DefaultMutableTreeNode(new ChooseableMaterialItem(modelViewManager, undoActionListener, modelStructureChangeListener, item)));
 		}
 		root.add(materials);
-		final DefaultMutableTreeNode tVertexAnims = new DefaultMutableTreeNode(new ChooseableDummyItem(modelViewManager,
-				undoActionListener, modelStructureChangeListener, "TVertexAnims"));
+		final DefaultMutableTreeNode tVertexAnims = new DefaultMutableTreeNode(getDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, "TVertexAnims"));
 		for (final TextureAnim item : modelViewManager.getModel().getTexAnims()) {
-			tVertexAnims.add(new DefaultMutableTreeNode(new ChooseableTextureAnimItem(modelViewManager,
-					undoActionListener, modelStructureChangeListener, item)));
+			ChooseableTextureAnimItem textureAnimItem = new ChooseableTextureAnimItem(modelViewManager, undoActionListener, modelStructureChangeListener, item);
+			tVertexAnims.add(new DefaultMutableTreeNode(textureAnimItem));
 		}
 		root.add(tVertexAnims);
-		final DefaultMutableTreeNode geosets = new DefaultMutableTreeNode(
-				new ChooseableDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, "Geosets"));
+		final DefaultMutableTreeNode geosets = new DefaultMutableTreeNode(getDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, "Geosets"));
 		for (final Geoset item : modelViewManager.getModel().getGeosets()) {
-			geosets.add(new DefaultMutableTreeNode(new ChooseableGeosetItem(modelViewManager, undoActionListener,
-					modelStructureChangeListener, item)));
+			ChooseableGeosetItem geosetItem = new ChooseableGeosetItem(modelViewManager, undoActionListener, modelStructureChangeListener, item);
+			geosets.add(new DefaultMutableTreeNode(geosetItem));
 		}
 		root.add(geosets);
-		final DefaultMutableTreeNode geosetAnims = new DefaultMutableTreeNode(new ChooseableDummyItem(modelViewManager,
-				undoActionListener, modelStructureChangeListener, "GeosetAnims"));
+		final DefaultMutableTreeNode geosetAnims = new DefaultMutableTreeNode(getDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, "GeosetAnims"));
 		for (final GeosetAnim item : modelViewManager.getModel().getGeosetAnims()) {
-			geosetAnims.add(new DefaultMutableTreeNode(new ChooseableGeosetAnimItem(modelViewManager,
-					undoActionListener, modelStructureChangeListener, item)));
+			ChooseableGeosetAnimItem geosetAnimItem = new ChooseableGeosetAnimItem(modelViewManager, undoActionListener, modelStructureChangeListener, item);
+			geosetAnims.add(new DefaultMutableTreeNode(geosetAnimItem));
 		}
 		root.add(geosetAnims);
 //		for (final Bone item : modelViewManager.getModel().sortedIdObjects(Bone.class)) {
@@ -244,7 +131,7 @@ public final class ModelComponentBrowserTree extends JTree {
 		final Map<IdObject, DefaultMutableTreeNode> nodeToTreeElement = new HashMap<>();
 		final Map<IdObject, List<DefaultMutableTreeNode>> nodeToChildrenAwaitingLink = new HashMap<>();
 		final DefaultMutableTreeNode nodes = new DefaultMutableTreeNode(
-				new ChooseableDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, "Nodes"));
+				getDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, "Nodes"));
 		nodeToTreeElement.put(null, nodes);
 		for (final IdObject object : modelViewManager.getModel().getIdObjects()) {
 			object.apply(converter);
@@ -274,23 +161,130 @@ public final class ModelComponentBrowserTree extends JTree {
 		root.add(nodes);
 
 		final DefaultMutableTreeNode cameras = new DefaultMutableTreeNode(
-				new ChooseableDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, "Cameras"));
+				getDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, "Cameras"));
 		for (final Camera item : modelViewManager.getModel().getCameras()) {
-			cameras.add(new DefaultMutableTreeNode(new ChooseableCameraItem(modelViewManager, undoActionListener,
-					modelStructureChangeListener, item)));
+			cameras.add(new DefaultMutableTreeNode(new ChooseableCameraItem(modelViewManager, undoActionListener, modelStructureChangeListener, item)));
 		}
 		root.add(cameras);
 		if (!modelViewManager.getModel().getFaceEffects().isEmpty()) {
 			for (final FaceEffect faceEffect : modelViewManager.getModel().getFaceEffects()) {
-				root.add(new DefaultMutableTreeNode(new ChooseableFaceEffectsChunkItem(modelViewManager,
-						undoActionListener, modelStructureChangeListener, faceEffect)));
+				ChooseableFaceEffectsChunkItem effectsChunkItem = new ChooseableFaceEffectsChunkItem(modelViewManager, undoActionListener, modelStructureChangeListener, faceEffect);
+				root.add(new DefaultMutableTreeNode(effectsChunkItem));
 			}
 		}
 		if (modelViewManager.getModel().getBindPoseChunk() != null) {
-			root.add(new DefaultMutableTreeNode(new ChooseableBindPoseChunkItem(modelViewManager, undoActionListener,
-					modelStructureChangeListener, modelViewManager.getModel().getBindPoseChunk())));
+			ChooseableBindPoseChunkItem bindPoseChunkItem = new ChooseableBindPoseChunkItem(modelViewManager, undoActionListener, modelStructureChangeListener, modelViewManager.getModel().getBindPoseChunk());
+			root.add(new DefaultMutableTreeNode(bindPoseChunkItem));
 		}
 		return new DefaultTreeModel(root);
+	}
+
+	private static ChooseableDummyItem getDummyItem(
+			ModelViewManager modelViewManager,
+			UndoActionListener undoActionListener,
+			ModelStructureChangeListener modelStructureChangeListener,
+			String sequences) {
+		return new ChooseableDummyItem(modelViewManager,
+				undoActionListener, modelStructureChangeListener, sequences);
+	}
+
+	public void addSelectListener(final ModelComponentListener selectListener) {
+		addTreeSelectionListener(e -> {
+			final TreePath path = e.getNewLeadSelectionPath();
+			boolean selected = false;
+			if (path != null) {
+				final Object lastPathComponent = path.getLastPathComponent();
+				if (lastPathComponent instanceof DefaultMutableTreeNode) {
+					final DefaultMutableTreeNode node = (DefaultMutableTreeNode) lastPathComponent;
+					if (node.getUserObject() instanceof ChooseableDisplayElement) {
+						asElement(node.getUserObject()).select(selectListener);
+						selected = true;
+					}
+				}
+			}
+			if (!selected) {
+				selectListener.selectedBlank();
+			}
+		});
+	}
+
+	private DefaultTreeCellRenderer getComponentBrowserCellRenderer() {
+		return new DefaultTreeCellRenderer() {
+			@Override
+			public Component getTreeCellRendererComponent(final JTree tree, final Object value, final boolean selected,
+			                                              final boolean expanded, final boolean leaf, final int row, final boolean hasFocus) {
+				ImageIcon iconOverride = null;
+				if (value instanceof DefaultMutableTreeNode) {
+					final Object userObject = ((DefaultMutableTreeNode) value).getUserObject();
+					if (userObject instanceof ChooseableDisplayElement) {
+						final ImageIcon icon = ((ChooseableDisplayElement<?>) userObject).getIcon(expanded);
+						if (icon != null) {
+							iconOverride = icon;
+						}
+					}
+				}
+				final Component treeCellRendererComponent = super.getTreeCellRendererComponent(tree, value, selected,
+						expanded, leaf, row, hasFocus);
+				if (iconOverride != null) {
+					setIcon(iconOverride);
+				}
+				return treeCellRendererComponent;
+			}
+		};
+	}
+
+	private ChooseableDisplayElement<?> asElement(final Object userObject) {
+		return (ChooseableDisplayElement<?>) userObject;
+	}
+
+	public void reloadFromModelView() {
+		System.out.println("Reloading ModelComponentBrowserTree");
+		SwingUtilities.invokeLater(() -> {
+			final TreePath selectionPath = getSelectionPath();
+			final TreePath rootPath = new TreePath(getModel().getRoot());
+			final Enumeration<TreePath> expandedDescendants = getExpandedDescendants(rootPath);
+			setModel(buildTreeModel(modelViewManager, undoActionListener, modelStructureChangeListener));
+			final TreePath newRootPath = new TreePath(getModel().getRoot());
+			final List<TreePath> pathsToExpand = new ArrayList<>();
+			while ((expandedDescendants != null) && expandedDescendants.hasMoreElements()) {
+				final TreePath nextPathToExpand = expandedDescendants.nextElement();
+				TreePath newPathWithNewObjects = newRootPath;
+				DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) getModel().getRoot();
+				newPathWithNewObjects = getTreePath(nextPathToExpand, currentNode, newPathWithNewObjects);
+				pathsToExpand.add(newPathWithNewObjects);
+			}
+			for (final TreePath path : pathsToExpand) {
+				expandPath(path);
+			}
+			DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) getModel().getRoot();
+			TreePath newSelectionPath = newRootPath;
+			if (selectionPath != null) {
+				newSelectionPath = getTreePath(selectionPath, currentNode, newSelectionPath);
+			}
+			setSelectionPath(newSelectionPath); // should also fire listeners
+		});
+	}
+
+	private TreePath getTreePath(TreePath selectionPath, DefaultMutableTreeNode currentNode, TreePath newSelectionPath) {
+		for (int i = 1; i < selectionPath.getPathCount(); i++) {
+			final DefaultMutableTreeNode pathComponent = (DefaultMutableTreeNode) selectionPath
+					.getPathComponent(i);
+			boolean foundMatchingChild = false;
+
+			for (int j = 0; (j < currentNode.getChildCount()) && !foundMatchingChild; j++) {
+				final DefaultMutableTreeNode childAt = (DefaultMutableTreeNode) currentNode.getChildAt(j);
+
+				if (asElement(childAt.getUserObject()).hasSameItem(asElement(pathComponent.getUserObject()))) {
+					currentNode = childAt;
+					newSelectionPath = newSelectionPath.pathByAddingChild(childAt);
+					foundMatchingChild = true;
+				}
+			}
+			if (!foundMatchingChild) {
+				break;
+			}
+		}
+		return newSelectionPath;
 	}
 
 	private final class HighlightOnMouseoverListenerImpl implements MouseMotionListener, MouseListener {
@@ -671,42 +665,61 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	}
 
-	private static final class ChooseableGeosetItem extends ChooseableDisplayElement<Geoset> {
-		private static final ImageIcon GEOSET_ITEM_ICON = new ImageIcon(
-				RMSIcons.loadNodeImage("/geoset.png"));
+	public interface ModelComponentListener {
 
-		public ChooseableGeosetItem(final ModelViewManager modelViewManager,
-				final UndoActionListener undoActionListener,
-				final ModelStructureChangeListener modelStructureChangeListener, final Geoset item) {
-			super(GEOSET_ITEM_ICON, modelViewManager, undoActionListener, modelStructureChangeListener, item);
-		}
+		void selectedBlank();
 
-		@Override
-		protected void select(final Geoset item, final ModelViewManager modelViewManager,
-				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-				final ModelComponentListener listener) {
-			listener.selected(item);
-		}
+		void selected(EditableModel model);
 
-		@Override
-		protected String getName(final Geoset item, final ModelViewManager modelViewManager) {
-			final String numberName = "Geoset " + (modelViewManager.getModel().getGeosetId(item) + 1);
-			if ((item.getLevelOfDetailName() != null) && (item.getLevelOfDetailName().length() > 0)) {
-				return numberName + ": " + item.getLevelOfDetailName();
-			}
-			return numberName;
-		}
+		void selectedHeaderData(EditableModel model, ModelViewManager modelViewManager, UndoActionListener undoListener,
+		                        ModelStructureChangeListener modelStructureChangeListener);
 
-		@Override
-		public void mouseEntered() {
-			modelViewManager.highlightGeoset(item);
-		}
+		void selectedHeaderComment(Iterable<String> comment);
 
-		@Override
-		public void mouseExited() {
-			modelViewManager.unhighlightGeoset(item);
-		}
+		void selected(Animation animation, UndoActionListener undoListener,
+		              ModelStructureChangeListener modelStructureChangeListener);
 
+		void selected(EditableModel model, Integer globalSequence, int globalSequenceId,
+		              UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener);
+
+		void selected(Bitmap texture, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
+		              ModelStructureChangeListener modelStructureChangeListener);
+
+		void selected(Material material, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
+		              ModelStructureChangeListener modelStructureChangeListener);
+
+		void selected(TextureAnim textureAnim);
+
+		void selected(Geoset geoset, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
+		              ModelStructureChangeListener modelStructureChangeListener);
+
+		void selected(GeosetAnim geosetAnim);
+
+		void selected(Bone object);
+
+		void selected(Light light);
+
+		void selected(Helper object);
+
+		void selected(Attachment attachment);
+
+		void selected(ParticleEmitter particleEmitter);
+
+		void selected(ParticleEmitter2 particleEmitter);
+
+		void selected(ParticleEmitterPopcorn popcornFxEmitter);
+
+		void selected(RibbonEmitter particleEmitter);
+
+		void selected(EventObject eventObject);
+
+		void selected(CollisionShape collisionShape);
+
+		void selected(Camera camera);
+
+		void selected(FaceEffect faceEffectsChunk);
+
+		void selected(BindPose bindPoseChunk);
 	}
 
 	private static final class ChooseableGeosetAnimItem extends ChooseableDisplayElement<GeosetAnim> {
@@ -1191,60 +1204,42 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 	}
 
-	public interface ModelComponentListener {
+	private static final class ChooseableGeosetItem extends ChooseableDisplayElement<Geoset> {
+		private static final ImageIcon GEOSET_ITEM_ICON = new ImageIcon(
+				RMSIcons.loadNodeImage("/geoset.png"));
 
-		void selectedBlank();
+		public ChooseableGeosetItem(final ModelViewManager modelViewManager,
+		                            final UndoActionListener undoActionListener,
+		                            final ModelStructureChangeListener modelStructureChangeListener, final Geoset item) {
+			super(GEOSET_ITEM_ICON, modelViewManager, undoActionListener, modelStructureChangeListener, item);
+		}
 
-		void selected(EditableModel model);
+		@Override
+		protected void select(final Geoset item, final ModelViewManager modelViewManager,
+		                      final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
+		                      final ModelComponentListener listener) {
+			listener.selected(item, modelViewManager, undoListener, modelStructureChangeListener);
+		}
 
-		void selectedHeaderData(EditableModel model, ModelViewManager modelViewManager, UndoActionListener undoListener,
-				ModelStructureChangeListener modelStructureChangeListener);
+		@Override
+		protected String getName(final Geoset item, final ModelViewManager modelViewManager) {
+			final String numberName = "Geoset " + (modelViewManager.getModel().getGeosetId(item) + 1);
+			if ((item.getLevelOfDetailName() != null) && (item.getLevelOfDetailName().length() > 0)) {
+				return numberName + ": " + item.getLevelOfDetailName();
+			}
+			return numberName;
+		}
 
-		void selectedHeaderComment(Iterable<String> comment);
+		@Override
+		public void mouseEntered() {
+			modelViewManager.highlightGeoset(item);
+		}
 
-		void selected(Animation animation, UndoActionListener undoListener,
-				ModelStructureChangeListener modelStructureChangeListener);
+		@Override
+		public void mouseExited() {
+			modelViewManager.unhighlightGeoset(item);
+		}
 
-		void selected(EditableModel model, Integer globalSequence, int globalSequenceId,
-				UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener);
-
-		void selected(Bitmap texture, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
-				ModelStructureChangeListener modelStructureChangeListener);
-
-		void selected(Material material, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
-				ModelStructureChangeListener modelStructureChangeListener);
-
-		void selected(TextureAnim textureAnim);
-
-		void selected(Geoset geoset);
-
-		void selected(GeosetAnim geosetAnim);
-
-		void selected(Bone object);
-
-		void selected(Light light);
-
-		void selected(Helper object);
-
-		void selected(Attachment attachment);
-
-		void selected(ParticleEmitter particleEmitter);
-
-		void selected(ParticleEmitter2 particleEmitter);
-
-		void selected(ParticleEmitterPopcorn popcornFxEmitter);
-
-		void selected(RibbonEmitter particleEmitter);
-
-		void selected(EventObject eventObject);
-
-		void selected(CollisionShape collisionShape);
-
-		void selected(Camera camera);
-
-		void selected(FaceEffect faceEffectsChunk);
-
-		void selected(BindPose bindPoseChunk);
 	}
 
 	private static final class IdObjectToChooseableElementWrappingConverter implements IdObjectVisitor {
