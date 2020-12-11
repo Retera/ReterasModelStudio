@@ -184,56 +184,36 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 		return new DefaultTreeModel(root);
 	}
 
-	private final class HighlightOnMouseoverListenerImpl implements MouseMotionListener, MouseListener {
-		private CheckableDisplayElement<?> lastMouseOverNode = null;
+	private static final class CheckableCameraElement extends CheckableDisplayElement<Camera> {
+		public CheckableCameraElement(final ModelViewManager modelViewManager, final Camera item) {
+			super(modelViewManager, item);
+		}
 
 		@Override
-		public void mouseMoved(final MouseEvent mouseEvent) {
-			final TreePath pathForLocation = getPathForLocation(mouseEvent.getX(), mouseEvent.getY());
-			final CheckableDisplayElement<?> element;
-			if (pathForLocation == null) {
-				element = null;
+		protected void setChecked(final Camera item, final ModelViewManager modelViewManager, final boolean checked) {
+			if (checked) {
+				modelViewManager.makeCameraVisible(item);
 			} else {
-				final JCheckBoxTreeNode lastPathComponent = (JCheckBoxTreeNode) pathForLocation.getLastPathComponent();
-				element = (CheckableDisplayElement<?>) lastPathComponent.getUserObject();
-			}
-			if (element != lastMouseOverNode) {
-				if (lastMouseOverNode != null) {
-					lastMouseOverNode.mouseExited();
-				}
-				if (element != null) {
-					element.mouseEntered();
-				}
-				lastMouseOverNode = element;
+				modelViewManager.makeCameraNotVisible(item);
 			}
 		}
 
 		@Override
-		public void mouseDragged(final MouseEvent e) {
-
+		protected String getName(final Camera item, final ModelViewManager modelViewManager) {
+			return item.getName();
 		}
 
 		@Override
-		public void mouseReleased(final MouseEvent e) {
+		public void visit(final SelectableComponentVisitor visitor) {
+			visitor.accept(item);
 		}
 
 		@Override
-		public void mousePressed(final MouseEvent e) {
+		public void mouseEntered() {
 		}
 
 		@Override
-		public void mouseExited(final MouseEvent e) {
-			if (lastMouseOverNode != null) {
-				lastMouseOverNode.mouseExited();
-			}
-		}
-
-		@Override
-		public void mouseEntered(final MouseEvent e) {
-		}
-
-		@Override
-		public void mouseClicked(final MouseEvent e) {
+		public void mouseExited() {
 		}
 	}
 
@@ -342,41 +322,6 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 		}
 	}
 
-	private static final class CheckableCameraElement extends CheckableDisplayElement<Camera> {
-		public CheckableCameraElement(final ModelViewManager modelViewManager, final Camera item) {
-			super(modelViewManager, item);
-		}
-
-		@Override
-		protected void setChecked(final Camera item, final ModelViewManager modelViewManager, final boolean checked) {
-			if (checked) {
-				modelViewManager.makeCameraVisible(item);
-			} else {
-				modelViewManager.makeCameraNotVisible(item);
-			}
-		}
-
-		@Override
-		protected String getName(final Camera item, final ModelViewManager modelViewManager) {
-			return item.getName();
-		}
-
-		@Override
-		public void visit(final SelectableComponentVisitor visitor) {
-			visitor.accept(item);
-		}
-
-		@Override
-		public void mouseEntered() {
-
-		}
-
-		@Override
-		public void mouseExited() {
-
-		}
-	}
-
 	private static final class CheckableModelElement extends CheckableDisplayElement<Void> {
 		public CheckableModelElement(final ModelViewManager modelViewManager) {
 			super(modelViewManager, null);
@@ -384,7 +329,6 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 
 		@Override
 		protected void setChecked(final Void item, final ModelViewManager modelViewManager, final boolean checked) {
-
 		}
 
 		@Override
@@ -398,12 +342,10 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 
 		@Override
 		public void mouseEntered() {
-
 		}
 
 		@Override
 		public void mouseExited() {
-
 		}
 	}
 
@@ -414,7 +356,6 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 
 		@Override
 		protected void setChecked(final String item, final ModelViewManager modelViewManager, final boolean checked) {
-
 		}
 
 		@Override
@@ -428,12 +369,62 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 
 		@Override
 		public void mouseEntered() {
-
 		}
 
 		@Override
 		public void mouseExited() {
+		}
+	}
 
+	private final class HighlightOnMouseoverListenerImpl implements MouseMotionListener, MouseListener {
+		private CheckableDisplayElement<?> lastMouseOverNode = null;
+
+		@Override
+		public void mouseMoved(final MouseEvent mouseEvent) {
+			final TreePath pathForLocation = getPathForLocation(mouseEvent.getX(), mouseEvent.getY());
+			final CheckableDisplayElement<?> element;
+			if (pathForLocation == null) {
+				element = null;
+			} else {
+				final JCheckBoxTreeNode lastPathComponent = (JCheckBoxTreeNode) pathForLocation.getLastPathComponent();
+				element = (CheckableDisplayElement<?>) lastPathComponent.getUserObject();
+			}
+			if (element != lastMouseOverNode) {
+				if (lastMouseOverNode != null) {
+					lastMouseOverNode.mouseExited();
+				}
+				if (element != null) {
+					element.mouseEntered();
+				}
+				lastMouseOverNode = element;
+			}
+		}
+
+		@Override
+		public void mouseDragged(final MouseEvent e) {
+		}
+
+		@Override
+		public void mouseReleased(final MouseEvent e) {
+		}
+
+		@Override
+		public void mousePressed(final MouseEvent e) {
+		}
+
+		@Override
+		public void mouseExited(final MouseEvent e) {
+			if (lastMouseOverNode != null) {
+				lastMouseOverNode.mouseExited();
+			}
+		}
+
+		@Override
+		public void mouseEntered(final MouseEvent e) {
+		}
+
+		@Override
+		public void mouseClicked(final MouseEvent e) {
 		}
 	}
 

@@ -68,11 +68,8 @@ public class ComponentGeosetMaterialPanel extends JPanel {
 	private void copyMaterial(Geoset geoset, ModelViewManager modelViewManager) {
 
 		if (listenersEnabled) {
-//			listenersEnabled = false;
 			new AddMaterialAction(geoset.getMaterial(), modelViewManager, modelStructureChangeListener).redo();
 			updateMaterialChooserBox(geoset);
-
-//			listenersEnabled = true;
 			materialChooser.setSelectedIndex(materialMap.size() - 1);
 		}
 	}

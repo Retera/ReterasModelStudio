@@ -52,8 +52,6 @@ public class ComponentLayerPanel extends JPanel {
 		leftHandSettingsPanel.add(filterModeDropdown, "wrap, growx");
 
 		leftHandSettingsPanel.add(new JLabel("Texture:"));
-//		List<String> textures = new ArrayList<>();
-//		textures.add("Choose Texture");
 		textureChooser = new JComboBox<String>(getTextures(model));
 		textureChooser.addActionListener(e -> chooseTexture(model));
 		leftHandSettingsPanel.add(textureChooser, "wrap, growx");
@@ -90,10 +88,6 @@ public class ComponentLayerPanel extends JPanel {
 		List<String> bitmapNames = new ArrayList<>();
 
 		for (final Bitmap bitmap : model.getTextures()) {
-			System.out.println(bitmap.getName());
-			System.out.println(bitmap.getReplaceableId());
-			String path = bitmap.getPath();
-			System.out.println(path);
 			bitmapNames.add(bitmap.getName());
 			bitmapListModel.addElement(bitmap);
 		}
@@ -111,25 +105,15 @@ public class ComponentLayerPanel extends JPanel {
 
 	private void chooseTexture(EditableModel model) {
 		if (listenersEnabled) {
-			System.out.println(textureChooser.getSelectedIndex());
 			Bitmap bitmap = bitmapListModel.get(textureChooser.getSelectedIndex());
-//			model.add(bitmap);
+
 			final SetBitmapPathAction setBitmapPathAction = new SetBitmapPathAction(bitmap, layer.getTextureBitmap().getPath(), bitmap.getPath(), modelStructureChangeListener);
+
 			layer.setTexture(bitmap);
 			layer.setTextureId(textureChooser.getSelectedIndex());
 			setBitmapPathAction.redo();
 			undoActionListener.pushAction(setBitmapPathAction);
 		}
-
-		// Custom textures can fail to load.
-//		if (layer.firstTexture() != null) {
-//			final BufferedImage image = BLPHandler.getImage(layer.firstTexture(), workingDirectory);
-//			if (image != null) {
-//				textureButton.setIcon(new ImageIcon(IconUtils.worldEditStyleIcon(image)));
-//			}
-//			textureButton.setText(layer.getName());
-//		}
-		System.out.println("choose Texture");
 	}
 
 	public void setLayer(final EditableModel model, final Layer layer, final int formatVersion,
@@ -143,17 +127,7 @@ public class ComponentLayerPanel extends JPanel {
 		filterModeDropdown.setSelectedItem(layer.getFilterMode());
 
 		textureChooser.setModel(new DefaultComboBoxModel<>(getTextures(model)));
-		System.out.println(layer.getTextureId() + " of " + textureChooser.getItemCount());
 		textureChooser.setSelectedIndex(layer.getTextureId());
-
-		// Custom textures can fail to load.
-//		if (layer.firstTexture() != null) {
-//			final BufferedImage image = BLPHandler.getImage(layer.firstTexture(), workingDirectory);
-//			if (image != null) {
-//				textureButton.setIcon(new ImageIcon(IconUtils.worldEditStyleIcon(image)));
-//			}
-//			textureButton.setText(layer.getName());
-//		}
 
 		coordIdSpinner.reloadNewValue(layer.getCoordId());
 		tVertexAnimButton.setText(layer.getTextureAnim() == null ? "None" : layer.getTextureAnim().toString());

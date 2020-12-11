@@ -13,9 +13,6 @@ public class AddMaterialAction implements UndoAction {
 	public AddMaterialAction(final Material material,
 	                         final ModelViewManager modelViewManager,
 	                         final ModelStructureChangeListener modelStructureChangeListener) {
-		System.out.println(material.getShaderString());
-		System.out.println(material.getName());
-
 		this.material = new Material(material);
 		this.material.setShaderString(material.getShaderString() + "_copy");
 		this.modelViewManager = modelViewManager;

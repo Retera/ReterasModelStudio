@@ -124,7 +124,6 @@ public class EditableModel implements Named {
 		// Step 8: GeosetAnims
 		for (final MdlxGeosetAnimation animation : model.geosetAnimations) {
 			if (animation.geosetId != -1) {
-				System.out.println(animation);
 				final GeosetAnim geosetAnim = new GeosetAnim(animation, this);
 
 				add(geosetAnim);
@@ -629,7 +628,6 @@ public class EditableModel implements Named {
 	}
 
 	public Geoset getGeoset(final int index) {
-		System.out.println(index);
 		return geosets.get(index);
 	}
 

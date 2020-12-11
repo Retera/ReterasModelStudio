@@ -54,12 +54,8 @@ public class ComponentsPanel extends JPanel implements ModelComponentBrowserTree
 		add(bitmapPanel, BITMAP);
 
 		materialPanel = new ComponentMaterialPanel();
-		materialPanel.setOpaque(true);
-		materialPanel.setBackground(Color.cyan);
 		JScrollPane materialScrollPane = new JScrollPane(materialPanel);
 		materialScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-//		materialScrollPane.setOpaque(true);
-//		materialScrollPane.setBackground(Color.cyan);
 		add(materialScrollPane, MATERIAL);
 
 		geosetPanel = new ComponentGeosetPanel();
