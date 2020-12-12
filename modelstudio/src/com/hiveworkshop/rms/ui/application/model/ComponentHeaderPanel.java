@@ -135,8 +135,13 @@ public class ComponentHeaderPanel extends JPanel implements ComponentPanel {
 	}
 
 	@Override
+	public void setSelectedItem(Object itemToSelect) {
+
+	}
+
+	@Override
 	public void save(final EditableModel modelOutput, final UndoActionListener undoListener,
-			final ModelStructureChangeListener changeListener) {
+	                 final ModelStructureChangeListener changeListener) {
 		modelOutput.setFormatVersion(((Number) formatVersionSpinner.getValue()).intValue());
 		modelOutput.setBlendTime(((Number) blendTimeSpinner.getValue()).intValue());
 		modelOutput.setExtents(extLogEditor.getExtLog());

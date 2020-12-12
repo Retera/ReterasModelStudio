@@ -60,70 +60,46 @@ public final class ModelComponentBrowserTree extends JTree {
 			sequences.add(new DefaultMutableTreeNode(new ChooseableAnimationItem(modelViewManager, undoActionListener, modelStructureChangeListener, item)));
 		}
 		root.add(sequences);
+
 		final DefaultMutableTreeNode globalSequences = new DefaultMutableTreeNode(getDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, "GlobalSequences"));
 		for (int globalSeqId = 0; globalSeqId < modelViewManager.getModel().getGlobalSeqs().size(); globalSeqId++) {
 			ChooseableGlobalSequenceItem sequenceItem = new ChooseableGlobalSequenceItem(modelViewManager, undoActionListener, modelStructureChangeListener, modelViewManager.getModel().getGlobalSeq(globalSeqId), globalSeqId);
 			globalSequences.add(new DefaultMutableTreeNode(sequenceItem));
 		}
 		root.add(globalSequences);
+
 		final DefaultMutableTreeNode textures = new DefaultMutableTreeNode(getDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, "Textures"));
 		for (final Bitmap item : modelViewManager.getModel().getTextures()) {
 			textures.add(new DefaultMutableTreeNode(new ChooseableBitmapItem(modelViewManager, undoActionListener, modelStructureChangeListener, item)));
 		}
 		root.add(textures);
+
 		final DefaultMutableTreeNode materials = new DefaultMutableTreeNode(getDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, "Materials"));
 		for (final Material item : modelViewManager.getModel().getMaterials()) {
 			materials.add(new DefaultMutableTreeNode(new ChooseableMaterialItem(modelViewManager, undoActionListener, modelStructureChangeListener, item)));
 		}
 		root.add(materials);
+
 		final DefaultMutableTreeNode tVertexAnims = new DefaultMutableTreeNode(getDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, "TVertexAnims"));
 		for (final TextureAnim item : modelViewManager.getModel().getTexAnims()) {
 			ChooseableTextureAnimItem textureAnimItem = new ChooseableTextureAnimItem(modelViewManager, undoActionListener, modelStructureChangeListener, item);
 			tVertexAnims.add(new DefaultMutableTreeNode(textureAnimItem));
 		}
 		root.add(tVertexAnims);
+
 		final DefaultMutableTreeNode geosets = new DefaultMutableTreeNode(getDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, "Geosets"));
 		for (final Geoset item : modelViewManager.getModel().getGeosets()) {
 			ChooseableGeosetItem geosetItem = new ChooseableGeosetItem(modelViewManager, undoActionListener, modelStructureChangeListener, item);
 			geosets.add(new DefaultMutableTreeNode(geosetItem));
 		}
 		root.add(geosets);
+
 		final DefaultMutableTreeNode geosetAnims = new DefaultMutableTreeNode(getDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, "GeosetAnims"));
 		for (final GeosetAnim item : modelViewManager.getModel().getGeosetAnims()) {
 			ChooseableGeosetAnimItem geosetAnimItem = new ChooseableGeosetAnimItem(modelViewManager, undoActionListener, modelStructureChangeListener, item);
 			geosetAnims.add(new DefaultMutableTreeNode(geosetAnimItem));
 		}
 		root.add(geosetAnims);
-//		for (final Bone item : modelViewManager.getModel().sortedIdObjects(Bone.class)) {
-//			root.add(new DefaultMutableTreeNode(new ChooseableBoneItem(modelViewManager, item)));
-//		}
-//		for (final Light item : modelViewManager.getModel().sortedIdObjects(Light.class)) {
-//			root.add(new DefaultMutableTreeNode(new ChooseableLightItem(modelViewManager, item)));
-//		}
-//		for (final Helper item : modelViewManager.getModel().sortedIdObjects(Helper.class)) {
-//			root.add(new DefaultMutableTreeNode(new ChooseableHelperItem(modelViewManager, item)));
-//		}
-//		for (final Attachment item : modelViewManager.getModel().sortedIdObjects(Attachment.class)) {
-//			root.add(new DefaultMutableTreeNode(new ChooseableAttachmentItem(modelViewManager, item)));
-//		}
-//		for (final ParticleEmitter item : modelViewManager.getModel().sortedIdObjects(ParticleEmitter.class)) {
-//			root.add(new DefaultMutableTreeNode(new ChooseableParticleEmitterItem(modelViewManager, item)));
-//		}
-//		for (final ParticleEmitter2 item : modelViewManager.getModel().sortedIdObjects(ParticleEmitter2.class)) {
-//			root.add(new DefaultMutableTreeNode(new ChooseableParticleEmitter2Item(modelViewManager, item)));
-//		}
-//		for (final PopcornFxEmitter item : modelViewManager.getModel().sortedIdObjects(PopcornFxEmitter.class)) {
-//			root.add(new DefaultMutableTreeNode(new ChooseableParticleEmitterPopcornItem(modelViewManager, item)));
-//		}
-//		for (final RibbonEmitter item : modelViewManager.getModel().sortedIdObjects(RibbonEmitter.class)) {
-//			root.add(new DefaultMutableTreeNode(new ChooseableRibbonEmitterItem(modelViewManager, item)));
-//		}
-//		for (final EventObject item : modelViewManager.getModel().sortedIdObjects(EventObject.class)) {
-//			root.add(new DefaultMutableTreeNode(new ChooseableEventObjectItem(modelViewManager, item)));
-//		}
-//		for (final CollisionShape item : modelViewManager.getModel().sortedIdObjects(CollisionShape.class)) {
-//			root.add(new DefaultMutableTreeNode(new ChooseableCollisionShapeItem(modelViewManager, item)));
-//		}
 
 		final IdObjectToChooseableElementWrappingConverter converter = new IdObjectToChooseableElementWrappingConverter(
 				modelViewManager, undoActionListener, modelStructureChangeListener);
@@ -188,14 +164,17 @@ public final class ModelComponentBrowserTree extends JTree {
 				undoActionListener, modelStructureChangeListener, sequences);
 	}
 
-	public void addSelectListener(final ModelComponentListener selectListener) {
+	public void addSelectListener(final ModelComponentTreeListener selectListener) {
 		addTreeSelectionListener(e -> {
 			final TreePath path = e.getNewLeadSelectionPath();
 			boolean selected = false;
+
 			if (path != null) {
 				final Object lastPathComponent = path.getLastPathComponent();
+
 				if (lastPathComponent instanceof DefaultMutableTreeNode) {
 					final DefaultMutableTreeNode node = (DefaultMutableTreeNode) lastPathComponent;
+
 					if (node.getUserObject() instanceof ChooseableDisplayElement) {
 						asElement(node.getUserObject()).select(selectListener);
 						selected = true;
@@ -206,6 +185,25 @@ public final class ModelComponentBrowserTree extends JTree {
 				selectListener.selectedBlank();
 			}
 		});
+	}
+
+	public interface ModelComponentListener<T> {
+
+		void selectedBlank();
+
+		void selected(EditableModel model);
+
+		void selectedHeaderData(EditableModel model, ModelViewManager modelViewManager, UndoActionListener undoListener,
+		                        ModelStructureChangeListener modelStructureChangeListener);
+
+		void selectedHeaderComment(Iterable<String> comment);
+
+		void selected(EditableModel model, Integer globalSequence, int globalSequenceId,
+		              UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener);
+
+		void selected(T itemToSelect, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
+		              ModelStructureChangeListener modelStructureChangeListener);
+
 	}
 
 	private DefaultTreeCellRenderer getComponentBrowserCellRenderer() {
@@ -341,60 +339,6 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 	}
 
-	private static abstract class ChooseableDisplayElement<T> {
-		protected final ModelViewManager modelViewManager;
-		private final UndoActionListener undoActionListener;
-		protected final T item;
-		private ImageIcon icon;
-		private final ModelStructureChangeListener modelStructureChangeListener;
-
-		public ChooseableDisplayElement(final ModelViewManager modelViewManager,
-				final UndoActionListener undoActionListener,
-				final ModelStructureChangeListener modelStructureChangeListener, final T item) {
-			this(null, modelViewManager, undoActionListener, modelStructureChangeListener, item);
-		}
-
-		public ChooseableDisplayElement(final ImageIcon icon, final ModelViewManager modelViewManager,
-				final UndoActionListener undoActionListener,
-				final ModelStructureChangeListener modelStructureChangeListener, final T item) {
-			this.modelViewManager = modelViewManager;
-			this.undoActionListener = undoActionListener;
-			this.modelStructureChangeListener = modelStructureChangeListener;
-			this.item = item;
-			this.icon = icon;
-		}
-
-		public void setIcon(final ImageIcon icon) {
-			this.icon = icon;
-		}
-
-		public void select(final ModelComponentListener listener) {
-			select(item, modelViewManager, undoActionListener, modelStructureChangeListener, listener);
-		}
-
-		public abstract void mouseEntered();
-
-		public abstract void mouseExited();
-
-		protected abstract void select(T item, ModelViewManager modelViewManager, UndoActionListener undoListener,
-				ModelStructureChangeListener modelStructureChangeListener, ModelComponentListener listener);
-
-		@Override
-		public String toString() {
-			return getName(item, modelViewManager);
-		}
-
-		protected abstract String getName(T item, ModelViewManager modelViewManager);
-
-		public boolean hasSameItem(final ChooseableDisplayElement<?> other) {
-			return (getClass() == other.getClass())
-					&& (Objects.equals(item, other.item));
-		}
-
-		public ImageIcon getIcon(final boolean expanded) {
-			return icon;
-		}
-	}
 //	final Image attachmentImage = IconUtils.loadNodeImage("/attachment" + template + ".png");
 //	final Image eventImage = IconUtils.loadNodeImage("/event" + template + ".png");
 //	final Image lightImage = IconUtils.loadNodeImage("/light" + template + ".png");
@@ -414,8 +358,8 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected void select(final EditableModel item, final ModelViewManager modelViewManager,
-				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-				final ModelComponentListener listener) {
+		                      final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
+		                      final ModelComponentTreeListener listener) {
 			listener.selected(item);
 		}
 
@@ -423,15 +367,6 @@ public final class ModelComponentBrowserTree extends JTree {
 		protected String getName(final EditableModel item, final ModelViewManager modelViewManager) {
 			return "Model \"" + item.getHeaderName() + "\"";
 		}
-
-		@Override
-		public void mouseEntered() {
-		}
-
-		@Override
-		public void mouseExited() {
-		}
-
 	}
 
 	private static final class ChooseableModelComment extends ChooseableDisplayElement<EditableModel> {
@@ -446,8 +381,8 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected void select(final EditableModel item, final ModelViewManager modelViewManager,
-				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-				final ModelComponentListener listener) {
+		                      final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
+		                      final ModelComponentTreeListener listener) {
 			listener.selectedHeaderComment(item.getHeader());
 		}
 
@@ -455,15 +390,6 @@ public final class ModelComponentBrowserTree extends JTree {
 		protected String getName(final EditableModel item, final ModelViewManager modelViewManager) {
 			return "Comment";
 		}
-
-		@Override
-		public void mouseEntered() {
-		}
-
-		@Override
-		public void mouseExited() {
-		}
-
 	}
 
 	private static final class ChooseableModelHeader extends ChooseableDisplayElement<EditableModel> {
@@ -477,8 +403,8 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected void select(final EditableModel item, final ModelViewManager modelViewManager,
-				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-				final ModelComponentListener listener) {
+		                      final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
+		                      final ModelComponentTreeListener listener) {
 			listener.selectedHeaderData(item, modelViewManager, undoListener, modelStructureChangeListener);
 		}
 
@@ -486,17 +412,10 @@ public final class ModelComponentBrowserTree extends JTree {
 		protected String getName(final EditableModel item, final ModelViewManager modelViewManager) {
 			return "Header";
 		}
-
-		@Override
-		public void mouseEntered() {
-		}
-
-		@Override
-		public void mouseExited() {
-		}
 	}
 
 	private static final class ChooseableAnimationItem extends ChooseableDisplayElement<Animation> {
+
 		private static final ImageIcon ANIMATION_ICON = new ImageIcon(
 				RMSIcons.loadNodeImage("/animation.png"));
 
@@ -507,23 +426,8 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 
 		@Override
-		protected void select(final Animation item, final ModelViewManager modelViewManager,
-				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-				final ModelComponentListener listener) {
-			listener.selected(item, undoListener, modelStructureChangeListener);
-		}
-
-		@Override
 		protected String getName(final Animation item, final ModelViewManager modelViewManager) {
 			return "Anim \"" + item.getName() + "\"";
-		}
-
-		@Override
-		public void mouseEntered() {
-		}
-
-		@Override
-		public void mouseExited() {
 		}
 
 	}
@@ -531,6 +435,7 @@ public final class ModelComponentBrowserTree extends JTree {
 	private static final class ChooseableGlobalSequenceItem extends ChooseableDisplayElement<Integer> {
 		private static final ImageIcon GLOBAL_SEQ_ICON = new ImageIcon(
 				RMSIcons.loadNodeImage("/globalseq.png"));
+
 		private final int globalSeqId;
 
 		public ChooseableGlobalSequenceItem(final ModelViewManager modelViewManager,
@@ -540,36 +445,20 @@ public final class ModelComponentBrowserTree extends JTree {
 			super(GLOBAL_SEQ_ICON, modelViewManager, undoActionListener, modelStructureChangeListener, item);
 			this.globalSeqId = globalSeqId;
 		}
-
-		@Override
-		protected void select(final Integer item, final ModelViewManager modelViewManager,
-				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-				final ModelComponentListener listener) {
-			listener.selected(modelViewManager.getModel(), item, globalSeqId, undoListener,
-					modelStructureChangeListener);
-		}
-
 		@Override
 		protected String getName(final Integer item, final ModelViewManager modelViewManager) {
 			return "GlobalSequence " + globalSeqId + ": Duration " + item;
 		}
-
-		@Override
-		public void mouseEntered() {
-		}
-
-		@Override
-		public void mouseExited() {
-		}
-
 		@Override
 		public boolean hasSameItem(final ChooseableDisplayElement<?> other) {
 			return (other != null) && (other.getClass() == getClass())
 					&& (globalSeqId == ((ChooseableGlobalSequenceItem) other).globalSeqId);
 		}
+
 	}
 
 	private static final class ChooseableBitmapItem extends ChooseableDisplayElement<Bitmap> {
+
 		private static final ImageIcon TEXTURE_ICON = new ImageIcon(
 				RMSIcons.loadNodeImage("/bitmap.png"));
 
@@ -578,30 +467,15 @@ public final class ModelComponentBrowserTree extends JTree {
 				final ModelStructureChangeListener modelStructureChangeListener, final Bitmap item) {
 			super(TEXTURE_ICON, modelViewManager, undoActionListener, modelStructureChangeListener, item);
 		}
-
-		@Override
-		protected void select(final Bitmap item, final ModelViewManager modelViewManager,
-				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-				final ModelComponentListener listener) {
-			listener.selected(item, modelViewManager, undoListener, modelStructureChangeListener);
-		}
-
 		@Override
 		protected String getName(final Bitmap item, final ModelViewManager modelViewManager) {
 			return "Bitmap \"" + item.getName() + "\"";
 		}
 
-		@Override
-		public void mouseEntered() {
-		}
-
-		@Override
-		public void mouseExited() {
-		}
-
 	}
 
 	private static final class ChooseableMaterialItem extends ChooseableDisplayElement<Material> {
+
 		private static final ImageIcon MATERIAL_ICON = new ImageIcon(
 				RMSIcons.loadNodeImage("/material.png"));
 
@@ -610,30 +484,15 @@ public final class ModelComponentBrowserTree extends JTree {
 				final ModelStructureChangeListener modelStructureChangeListener, final Material item) {
 			super(MATERIAL_ICON, modelViewManager, undoActionListener, modelStructureChangeListener, item);
 		}
-
-		@Override
-		protected void select(final Material item, final ModelViewManager modelViewManager,
-				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-				final ModelComponentListener listener) {
-			listener.selected(item, modelViewManager, undoListener, modelStructureChangeListener);
-		}
-
 		@Override
 		protected String getName(final Material item, final ModelViewManager modelViewManager) {
 			return "Material " + modelViewManager.getModel().getMaterials().indexOf(item);
 		}
 
-		@Override
-		public void mouseEntered() {
-		}
-
-		@Override
-		public void mouseExited() {
-		}
-
 	}
 
 	private static final class ChooseableTextureAnimItem extends ChooseableDisplayElement<TextureAnim> {
+
 		private static final ImageIcon TEXTURE_ANIM_ICON = new ImageIcon(
 				RMSIcons.loadNodeImage("/textureanim.png"));
 
@@ -642,84 +501,11 @@ public final class ModelComponentBrowserTree extends JTree {
 				final ModelStructureChangeListener modelStructureChangeListener, final TextureAnim item) {
 			super(TEXTURE_ANIM_ICON, modelViewManager, undoActionListener, modelStructureChangeListener, item);
 		}
-
-		@Override
-		protected void select(final TextureAnim item, final ModelViewManager modelViewManager,
-				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-				final ModelComponentListener listener) {
-			listener.selected(item);
-		}
-
 		@Override
 		protected String getName(final TextureAnim item, final ModelViewManager modelViewManager) {
 			return "TextureAnim " + modelViewManager.getModel().getTexAnims().indexOf(item);
 		}
 
-		@Override
-		public void mouseEntered() {
-		}
-
-		@Override
-		public void mouseExited() {
-		}
-
-	}
-
-	public interface ModelComponentListener {
-
-		void selectedBlank();
-
-		void selected(EditableModel model);
-
-		void selectedHeaderData(EditableModel model, ModelViewManager modelViewManager, UndoActionListener undoListener,
-		                        ModelStructureChangeListener modelStructureChangeListener);
-
-		void selectedHeaderComment(Iterable<String> comment);
-
-		void selected(Animation animation, UndoActionListener undoListener,
-		              ModelStructureChangeListener modelStructureChangeListener);
-
-		void selected(EditableModel model, Integer globalSequence, int globalSequenceId,
-		              UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener);
-
-		void selected(Bitmap texture, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
-		              ModelStructureChangeListener modelStructureChangeListener);
-
-		void selected(Material material, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
-		              ModelStructureChangeListener modelStructureChangeListener);
-
-		void selected(TextureAnim textureAnim);
-
-		void selected(Geoset geoset, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
-		              ModelStructureChangeListener modelStructureChangeListener);
-
-		void selected(GeosetAnim geosetAnim);
-
-		void selected(Bone object);
-
-		void selected(Light light);
-
-		void selected(Helper object);
-
-		void selected(Attachment attachment);
-
-		void selected(ParticleEmitter particleEmitter);
-
-		void selected(ParticleEmitter2 particleEmitter);
-
-		void selected(ParticleEmitterPopcorn popcornFxEmitter);
-
-		void selected(RibbonEmitter particleEmitter);
-
-		void selected(EventObject eventObject);
-
-		void selected(CollisionShape collisionShape);
-
-		void selected(Camera camera);
-
-		void selected(FaceEffect faceEffectsChunk);
-
-		void selected(BindPose bindPoseChunk);
 	}
 
 	private static final class ChooseableGeosetAnimItem extends ChooseableDisplayElement<GeosetAnim> {
@@ -733,25 +519,9 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 
 		@Override
-		protected void select(final GeosetAnim item, final ModelViewManager modelViewManager,
-				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-				final ModelComponentListener listener) {
-			listener.selected(item);
-		}
-
-		@Override
 		protected String getName(final GeosetAnim item, final ModelViewManager modelViewManager) {
 			return "GeosetAnim " + modelViewManager.getModel().getGeosetAnims().indexOf(item);
 		}
-
-		@Override
-		public void mouseEntered() {
-		}
-
-		@Override
-		public void mouseExited() {
-		}
-
 	}
 
 	private static final class ChooseableBoneItem extends ChooseableDisplayElement<Bone> {
@@ -763,25 +533,9 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 
 		@Override
-		protected void select(final Bone item, final ModelViewManager modelViewManager,
-				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-				final ModelComponentListener listener) {
-			listener.selected(item);
-		}
-
-		@Override
 		protected String getName(final Bone item, final ModelViewManager modelViewManager) {
 			return "Bone \"" + item.getName() + "\"";
 		}
-
-		@Override
-		public void mouseEntered() {
-		}
-
-		@Override
-		public void mouseExited() {
-		}
-
 	}
 
 	private static final class ChooseableHelperItem extends ChooseableDisplayElement<Helper> {
@@ -795,25 +549,9 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 
 		@Override
-		protected void select(final Helper item, final ModelViewManager modelViewManager,
-				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-				final ModelComponentListener listener) {
-			listener.selected(item);
-		}
-
-		@Override
 		protected String getName(final Helper item, final ModelViewManager modelViewManager) {
 			return "Helper \"" + item.getName() + "\"";
 		}
-
-		@Override
-		public void mouseEntered() {
-		}
-
-		@Override
-		public void mouseExited() {
-		}
-
 	}
 
 	private static final class ChooseableLightItem extends ChooseableDisplayElement<Light> {
@@ -825,25 +563,9 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 
 		@Override
-		protected void select(final Light item, final ModelViewManager modelViewManager,
-				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-				final ModelComponentListener listener) {
-			listener.selected(item);
-		}
-
-		@Override
 		protected String getName(final Light item, final ModelViewManager modelViewManager) {
 			return "Light \"" + item.getName() + "\"";
 		}
-
-		@Override
-		public void mouseEntered() {
-		}
-
-		@Override
-		public void mouseExited() {
-		}
-
 	}
 
 	private static final class ChooseableAttachmentItem extends ChooseableDisplayElement<Attachment> {
@@ -857,25 +579,9 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 
 		@Override
-		protected void select(final Attachment item, final ModelViewManager modelViewManager,
-				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-				final ModelComponentListener listener) {
-			listener.selected(item);
-		}
-
-		@Override
 		protected String getName(final Attachment item, final ModelViewManager modelViewManager) {
 			return "Attachment \"" + item.getName() + "\"";
 		}
-
-		@Override
-		public void mouseEntered() {
-		}
-
-		@Override
-		public void mouseExited() {
-		}
-
 	}
 
 	private static final class ChooseableParticleEmitterItem extends ChooseableDisplayElement<ParticleEmitter> {
@@ -889,25 +595,9 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 
 		@Override
-		protected void select(final ParticleEmitter item, final ModelViewManager modelViewManager,
-				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-				final ModelComponentListener listener) {
-			listener.selected(item);
-		}
-
-		@Override
 		protected String getName(final ParticleEmitter item, final ModelViewManager modelViewManager) {
 			return "ParticleEmitter \"" + item.getName() + "\"";
 		}
-
-		@Override
-		public void mouseEntered() {
-		}
-
-		@Override
-		public void mouseExited() {
-		}
-
 	}
 
 	private static final class ChooseableParticleEmitter2Item extends ChooseableDisplayElement<ParticleEmitter2> {
@@ -915,64 +605,31 @@ public final class ModelComponentBrowserTree extends JTree {
 				RMSIcons.loadNodeImage("/particle2.png"));
 
 		public ChooseableParticleEmitter2Item(final ModelViewManager modelViewManager,
-				final UndoActionListener undoActionListener,
-				final ModelStructureChangeListener modelStructureChangeListener, final ParticleEmitter2 item) {
+		                                      final UndoActionListener undoActionListener,
+		                                      final ModelStructureChangeListener modelStructureChangeListener, final ParticleEmitter2 item) {
 			super(PARTICLE2_ICON, modelViewManager, undoActionListener, modelStructureChangeListener, item);
-		}
-
-		@Override
-		protected void select(final ParticleEmitter2 item, final ModelViewManager modelViewManager,
-				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-				final ModelComponentListener listener) {
-			listener.selected(item);
 		}
 
 		@Override
 		protected String getName(final ParticleEmitter2 item, final ModelViewManager modelViewManager) {
 			return "ParticleEmitter2 \"" + item.getName() + "\"";
 		}
-
-		@Override
-		public void mouseEntered() {
-		}
-
-		@Override
-		public void mouseExited() {
-		}
-
 	}
 
-	private static final class ChooseableParticleEmitterPopcornItem
-			extends ChooseableDisplayElement<ParticleEmitterPopcorn> {
+	private static final class ChooseableParticleEmitterPopcornItem extends ChooseableDisplayElement<ParticleEmitterPopcorn> {
 		private static final ImageIcon POPCORN_ICON = new ImageIcon(
 				RMSIcons.loadNodeImage("/popcorn.png"));
 
 		public ChooseableParticleEmitterPopcornItem(final ModelViewManager modelViewManager,
-				final UndoActionListener undoActionListener,
-				final ModelStructureChangeListener modelStructureChangeListener, final ParticleEmitterPopcorn item) {
+		                                            final UndoActionListener undoActionListener,
+		                                            final ModelStructureChangeListener modelStructureChangeListener, final ParticleEmitterPopcorn item) {
 			super(POPCORN_ICON, modelViewManager, undoActionListener, modelStructureChangeListener, item);
-		}
-
-		@Override
-		protected void select(final ParticleEmitterPopcorn item, final ModelViewManager modelViewManager,
-				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-				final ModelComponentListener listener) {
-			listener.selected(item);
 		}
 
 		@Override
 		protected String getName(final ParticleEmitterPopcorn item, final ModelViewManager modelViewManager) {
 			return "ParticleEmitterPopcorn \"" + item.getName() + "\"";
 		}
-
-		@Override
-		public void mouseEntered() {
-		}
-
-		@Override
-		public void mouseExited() {
-		}
-
 	}
 
 	private static final class ChooseableRibbonEmitterItem extends ChooseableDisplayElement<RibbonEmitter> {
@@ -986,25 +643,9 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 
 		@Override
-		protected void select(final RibbonEmitter item, final ModelViewManager modelViewManager,
-				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-				final ModelComponentListener listener) {
-			listener.selected(item);
-		}
-
-		@Override
 		protected String getName(final RibbonEmitter item, final ModelViewManager modelViewManager) {
 			return "RibbonEmitter \"" + item.getName() + "\"";
 		}
-
-		@Override
-		public void mouseEntered() {
-		}
-
-		@Override
-		public void mouseExited() {
-		}
-
 	}
 
 	private static final class ChooseableEventObjectItem extends ChooseableDisplayElement<EventObject> {
@@ -1018,23 +659,8 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 
 		@Override
-		protected void select(final EventObject item, final ModelViewManager modelViewManager,
-				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-				final ModelComponentListener listener) {
-			listener.selected(item);
-		}
-
-		@Override
-		protected String getName(final EventObject item, final ModelViewManager modelViewManager) {
-			return "EventObject \"" + item.getName() + "\"";
-		}
-
-		@Override
-		public void mouseEntered() {
-		}
-
-		@Override
-		public void mouseExited() {
+		protected String getName(EventObject item, ModelViewManager modelViewManager) {
+			return null;
 		}
 	}
 
@@ -1049,23 +675,8 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 
 		@Override
-		protected void select(final CollisionShape item, final ModelViewManager modelViewManager,
-				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-				final ModelComponentListener listener) {
-			listener.selected(item);
-		}
-
-		@Override
 		protected String getName(final CollisionShape item, final ModelViewManager modelViewManager) {
 			return "CollisionShape \"" + item.getName() + "\"";
-		}
-
-		@Override
-		public void mouseEntered() {
-		}
-
-		@Override
-		public void mouseExited() {
 		}
 	}
 
@@ -1080,23 +691,8 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 
 		@Override
-		protected void select(final Camera item, final ModelViewManager modelViewManager,
-				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-				final ModelComponentListener listener) {
-			listener.selected(item);
-		}
-
-		@Override
 		protected String getName(final Camera item, final ModelViewManager modelViewManager) {
 			return "Camera \"" + item.getName() + "\"";
-		}
-
-		@Override
-		public void mouseEntered() {
-		}
-
-		@Override
-		public void mouseExited() {
 		}
 	}
 
@@ -1110,23 +706,8 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 
 		@Override
-		protected void select(final FaceEffect item, final ModelViewManager modelViewManager,
-				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-				final ModelComponentListener listener) {
-			listener.selected(item);
-		}
-
-		@Override
 		protected String getName(final FaceEffect item, final ModelViewManager modelViewManager) {
 			return "FaceFX \"" + item.faceEffectTarget + "\"";
-		}
-
-		@Override
-		public void mouseEntered() {
-		}
-
-		@Override
-		public void mouseExited() {
 		}
 	}
 
@@ -1141,23 +722,8 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 
 		@Override
-		protected void select(final BindPose item, final ModelViewManager modelViewManager,
-				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-				final ModelComponentListener listener) {
-			listener.selected(item);
-		}
-
-		@Override
 		protected String getName(final BindPose item, final ModelViewManager modelViewManager) {
 			return "BindPose";
-		}
-
-		@Override
-		public void mouseEntered() {
-		}
-
-		@Override
-		public void mouseExited() {
 		}
 	}
 
@@ -1175,24 +741,9 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 
 		@Override
-		protected void select(final Void item, final ModelViewManager modelViewManager,
-				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-				final ModelComponentListener listener) {
-		}
-
-		@Override
 		protected String getName(final Void item, final ModelViewManager modelViewManager) {
 			return name2;
 		}
-
-		@Override
-		public void mouseEntered() {
-		}
-
-		@Override
-		public void mouseExited() {
-		}
-
 		@Override
 		public ImageIcon getIcon(final boolean expanded) {
 			return expanded ? GROUP_ICON_EXPANDED : GROUP_ICON;
@@ -1215,13 +766,6 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 
 		@Override
-		protected void select(final Geoset item, final ModelViewManager modelViewManager,
-		                      final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-		                      final ModelComponentListener listener) {
-			listener.selected(item, modelViewManager, undoListener, modelStructureChangeListener);
-		}
-
-		@Override
 		protected String getName(final Geoset item, final ModelViewManager modelViewManager) {
 			final String numberName = "Geoset " + (modelViewManager.getModel().getGeosetId(item) + 1);
 			if ((item.getLevelOfDetailName() != null) && (item.getLevelOfDetailName().length() > 0)) {
@@ -1239,7 +783,6 @@ public final class ModelComponentBrowserTree extends JTree {
 		public void mouseExited() {
 			modelViewManager.unhighlightGeoset(item);
 		}
-
 	}
 
 	private static final class IdObjectToChooseableElementWrappingConverter implements IdObjectVisitor {

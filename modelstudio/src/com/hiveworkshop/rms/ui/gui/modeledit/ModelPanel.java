@@ -146,37 +146,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 
 		componentsPanel = new ComponentsPanel(textureExporter);
 
-		modelComponentBrowserTree.addSelectListener(componentsPanel);
-		// perspAreaPanel.setMinimumSize(new Dimension(200,200));
-		// perspAreaPanel.add(Box.createHorizontalStrut(200));
-		// perspAreaPanel.add(Box.createVerticalStrut(200));
-		// perspAreaPanel.setLayout( new BoxLayout(this,BoxLayout.LINE_AXIS));
-		// botArea.setViewport(0,1);
-
-		// Hacky viewer
-		// frontArea.setVisible(false);
-		// sideArea.setVisible(false);
-		// botArea.setVisible(false);
-		// setLayout(new GridLayout(1,1));
-		// GroupLayout layout = new GroupLayout(this);
-		//
-		// layout.setHorizontalGroup(layout.createSequentialGroup()
-		// .addGroup(layout.createParallelGroup()
-		// .addComponent(frontArea)
-		// .addComponent(sideArea))
-		// .addGroup(layout.createParallelGroup()
-		// .addComponent(botArea)
-		// .addComponent(perspArea)));
-		// layout.setVerticalGroup(layout.createSequentialGroup()
-		// .addGroup(layout.createParallelGroup()
-		// .addComponent(frontArea)
-		// .addComponent(botArea))
-		// .addGroup(layout.createParallelGroup()
-		// .addComponent(sideArea)
-		// .addComponent(perspArea)));
-		// setLayout(layout);
-
-		// Create a file chooser
+		modelComponentBrowserTree.addSelectListener(new ModelComponentTreeListener(componentsPanel));
 	}
 
 	public RenderModel getEditorRenderModel() {

@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
@@ -12,9 +11,9 @@ import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ComponentGeosetPanel extends JPanel implements ComponentPanel {
-	DefaultListModel<Material> materialList = new DefaultListModel<>();
+public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geoset> {
 	private Geoset geoset;
+	private ModelViewManager modelViewManager;
 	private UndoActionListener undoActionListener;
 	private ModelStructureChangeListener modelStructureChangeListener;
 	private ComponentGeosetMaterialPanel materialPanel;
@@ -22,7 +21,12 @@ public class ComponentGeosetPanel extends JPanel implements ComponentPanel {
 	private boolean listenersEnabled = true;
 
 
-	public ComponentGeosetPanel() {
+	public ComponentGeosetPanel(final ModelViewManager modelViewManager,
+	                            final UndoActionListener undoActionListener,
+	                            final ModelStructureChangeListener modelStructureChangeListener) {
+		this.undoActionListener = undoActionListener;
+		this.modelViewManager = modelViewManager;
+		this.modelStructureChangeListener = modelStructureChangeListener;
 		materialPanels = new HashMap<>();
 		setLayout(new MigLayout());
 
@@ -31,13 +35,10 @@ public class ComponentGeosetPanel extends JPanel implements ComponentPanel {
 		add(materialPanel);
 	}
 
-
-	public void setSelectedGeoset(final Geoset geoset, final ModelViewManager modelViewManager,
-	                              final UndoActionListener undoActionListener,
-	                              final ModelStructureChangeListener modelStructureChangeListener) {
+	@Override
+	public void setSelectedItem(final Geoset geoset) {
 		this.geoset = geoset;
-		this.undoActionListener = undoActionListener;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+
 		remove(materialPanel);
 
 		materialPanels.putIfAbsent(geoset, new ComponentGeosetMaterialPanel());

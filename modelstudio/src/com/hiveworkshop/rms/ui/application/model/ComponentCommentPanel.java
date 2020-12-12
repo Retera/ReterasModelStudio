@@ -9,7 +9,7 @@ import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 
-public class ComponentCommentPanel extends JPanel implements ComponentPanel {
+public class ComponentCommentPanel extends JPanel implements ComponentPanel<String> {
 	private final JTextPane textPane;
 
 	public ComponentCommentPanel() {
@@ -27,9 +27,15 @@ public class ComponentCommentPanel extends JPanel implements ComponentPanel {
 		textPane.setText(sb.toString());
 	}
 
+
+	@Override
+	public void setSelectedItem(String itemToSelect) {
+
+	}
+
 	@Override
 	public void save(final EditableModel model, final UndoActionListener undoListener,
-                     final ModelStructureChangeListener changeListener) {
+	                 final ModelStructureChangeListener changeListener) {
 		model.setHeader(getCommentContents());
 	}
 

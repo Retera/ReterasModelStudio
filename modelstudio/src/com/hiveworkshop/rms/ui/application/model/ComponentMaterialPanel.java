@@ -18,7 +18,7 @@ import javax.swing.plaf.basic.BasicComboBoxEditor;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import java.awt.*;
 
-public class ComponentMaterialPanel extends JPanel implements ComponentPanel {
+public class ComponentMaterialPanel extends JPanel implements ComponentPanel<Material> {
 	private static final String SD = "SD";
 	private static final String HD = "HD";
 	private Material material;
@@ -70,9 +70,9 @@ public class ComponentMaterialPanel extends JPanel implements ComponentPanel {
 		}
 	}
 
-	public void setMaterial(final Material material, final ModelViewManager modelViewManager,
-	                        final UndoActionListener undoActionListener,
-	                        final ModelStructureChangeListener modelStructureChangeListener) {
+	public void setSelectedMaterial(final Material material, final ModelViewManager modelViewManager,
+	                                final UndoActionListener undoActionListener,
+	                                final ModelStructureChangeListener modelStructureChangeListener) {
 		this.material = material;
 		this.undoActionListener = undoActionListener;
 		this.modelStructureChangeListener = modelStructureChangeListener;
@@ -144,6 +144,11 @@ public class ComponentMaterialPanel extends JPanel implements ComponentPanel {
 		};
 	}
 
+
+	@Override
+	public void setSelectedItem(Material itemToSelect) {
+
+	}
 
 	@Override
 	public void save(final EditableModel model, final UndoActionListener undoListener,

@@ -118,8 +118,13 @@ public class ComponentBitmapPanel extends JPanel implements ComponentPanel {
 	}
 
 	@Override
+	public void setSelectedItem(Object itemToSelect) {
+
+	}
+
+	@Override
 	public void save(final EditableModel model, final UndoActionListener undoListener,
-                     final ModelStructureChangeListener changeListener) {
+	                 final ModelStructureChangeListener changeListener) {
 
 	}
 

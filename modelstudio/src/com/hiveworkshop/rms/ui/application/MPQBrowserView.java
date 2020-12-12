@@ -215,35 +215,34 @@ public class MPQBrowserView {
         return vertex;
     }
 
-    public static void loadModel(MainPanel mainPanel, final boolean temporary, final boolean selectNewTab, final ModelPanel temp) {
-        if (temporary) {
-            temp.getModelViewManager().getModel().setTemp(true);
-        }
-        final ModelPanel modelPanel = temp;
-        final JMenuItem menuItem = new JMenuItem(temp.getModel().getName());
-        menuItem.setIcon(temp.getIcon());
-        mainPanel.windowMenu.add(menuItem);
-        menuItem.addActionListener(e -> setCurrentModel(mainPanel, modelPanel));
-        temp.setJMenuItem(menuItem);
-        temp.getModelViewManager().addStateListener(new RepaintingModelStateListener(mainPanel));
-        temp.changeActivity(mainPanel.currentActivity);
+    public static void loadModel(MainPanel mainPanel, final boolean temporary, final boolean selectNewTab, final ModelPanel modelPanel) {
+	    if (temporary) {
+		    modelPanel.getModelViewManager().getModel().setTemp(true);
+	    }
+	    final JMenuItem menuItem = new JMenuItem(modelPanel.getModel().getName());
+	    menuItem.setIcon(modelPanel.getIcon());
+	    mainPanel.windowMenu.add(menuItem);
+	    menuItem.addActionListener(e -> setCurrentModel(mainPanel, modelPanel));
+	    modelPanel.setJMenuItem(menuItem);
+	    modelPanel.getModelViewManager().addStateListener(new RepaintingModelStateListener(mainPanel));
+	    modelPanel.changeActivity(mainPanel.currentActivity);
 
-        if (mainPanel.geoControl == null) {
-            mainPanel.geoControl = new JScrollPane(temp.getModelViewManagingTree());
-            mainPanel.viewportControllerWindowView.setComponent(mainPanel.geoControl);
-            mainPanel.viewportControllerWindowView.repaint();
-            mainPanel.geoControlModelData = new JScrollPane(temp.getModelComponentBrowserTree());
-            mainPanel.modelDataView.setComponent(mainPanel.geoControlModelData);
-            mainPanel.modelComponentView.setComponent(temp.getComponentsPanel());
-            mainPanel.modelDataView.repaint();
-        }
+	    if (mainPanel.geoControl == null) {
+		    mainPanel.geoControl = new JScrollPane(modelPanel.getModelViewManagingTree());
+		    mainPanel.viewportControllerWindowView.setComponent(mainPanel.geoControl);
+		    mainPanel.viewportControllerWindowView.repaint();
+		    mainPanel.geoControlModelData = new JScrollPane(modelPanel.getModelComponentBrowserTree());
+		    mainPanel.modelDataView.setComponent(mainPanel.geoControlModelData);
+		    mainPanel.modelComponentView.setComponent(modelPanel.getComponentsPanel());
+		    mainPanel.modelDataView.repaint();
+	    }
         if (selectNewTab) {
-            temp.getMenuItem().doClick();
+	        modelPanel.getMenuItem().doClick();
         }
-        mainPanel.modelPanels.add(temp);
+	    mainPanel.modelPanels.add(modelPanel);
 
         if (temporary) {
-            temp.getModelViewManager().getModel().setFileRef(null);
+	        modelPanel.getModelViewManager().getModel().setFileRef(null);
         }
 
         mainPanel.toolsMenu.setEnabled(true);
