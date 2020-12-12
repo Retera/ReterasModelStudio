@@ -24,6 +24,7 @@ public class ComponentMaterialPanel extends JPanel implements ComponentPanel<Mat
 	private Material material;
 	private UndoActionListener undoActionListener;
 	private ModelStructureChangeListener modelStructureChangeListener;
+	private final ModelViewManager modelViewManager;
 
 	private final JComboBox<String> shaderOptionComboBox;
 	private final ComponentEditorJSpinner priorityPlaneSpinner;
@@ -31,7 +32,13 @@ public class ComponentMaterialPanel extends JPanel implements ComponentPanel<Mat
 	private boolean listenForChanges = true;
 	private final ComponentMaterialLayersPanel multipleLayersPanel;
 
-	public ComponentMaterialPanel() {
+	public ComponentMaterialPanel(final ModelViewManager modelViewManager,
+	                              final UndoActionListener undoActionListener,
+	                              final ModelStructureChangeListener modelStructureChangeListener) {
+		this.modelViewManager = modelViewManager;
+		this.undoActionListener = undoActionListener;
+		this.modelStructureChangeListener = modelStructureChangeListener;
+
 		final String[] shaderOptions = {"", "Shader_SD_FixedFunction", "Shader_HD_DefaultUnit"};
 		shaderOptionComboBox = new JComboBox<>(shaderOptions);
 		shaderOptionComboBox.setRenderer(ShaderBoxRenderer());
@@ -70,12 +77,9 @@ public class ComponentMaterialPanel extends JPanel implements ComponentPanel<Mat
 		}
 	}
 
-	public void setSelectedMaterial(final Material material, final ModelViewManager modelViewManager,
-	                                final UndoActionListener undoActionListener,
-	                                final ModelStructureChangeListener modelStructureChangeListener) {
+	@Override
+	public void setSelectedItem(final Material material) {
 		this.material = material;
-		this.undoActionListener = undoActionListener;
-		this.modelStructureChangeListener = modelStructureChangeListener;
 
 		final String shaderString;
 		if (material.getShaderString() != null) {
@@ -142,12 +146,6 @@ public class ComponentMaterialPanel extends JPanel implements ComponentPanel<Mat
 				return editor;
 			}
 		};
-	}
-
-
-	@Override
-	public void setSelectedItem(Material itemToSelect) {
-
 	}
 
 	@Override

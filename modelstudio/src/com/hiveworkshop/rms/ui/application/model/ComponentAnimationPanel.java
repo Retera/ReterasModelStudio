@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.ui.application.actions.model.animation.*;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
@@ -10,7 +11,7 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
-public class ComponentAnimationPanel extends JPanel {
+public class ComponentAnimationPanel extends JPanel implements ComponentPanel<Animation> {
 	private final ComponentEditorTextField nameField;
 	private final ComponentEditorJSpinner newAnimTimeStart;
 	private final ComponentEditorJSpinner newAnimTimeEnd;
@@ -21,7 +22,10 @@ public class ComponentAnimationPanel extends JPanel {
 	private UndoActionListener undoListener;
 	private ModelStructureChangeListener modelStructureChangeListener;
 
-	public ComponentAnimationPanel() {
+	public ComponentAnimationPanel(final UndoActionListener undoListener,
+	                               final ModelStructureChangeListener modelStructureChangeListener) {
+		this.undoListener = undoListener;
+		this.modelStructureChangeListener = modelStructureChangeListener;
 		nameField = new ComponentEditorTextField(24);
 		nameField.addActionListener(e -> nameField());
 
@@ -119,11 +123,9 @@ public class ComponentAnimationPanel extends JPanel {
 		return newAnimation;
 	}
 
-	public void setAnimation(final Animation animation, final UndoActionListener undoListener,
-			final ModelStructureChangeListener modelStructureChangeListener) {
+	@Override
+	public void setSelectedItem(final Animation animation) {
 		this.animation = animation;
-		this.undoListener = undoListener;
-		this.modelStructureChangeListener = modelStructureChangeListener;
 		nameField.reloadNewValue(animation.getName());
 		newAnimTimeStart.reloadNewValue(animation.getStart());
 		newAnimTimeEnd.reloadNewValue(animation.getEnd());
@@ -132,5 +134,10 @@ public class ComponentAnimationPanel extends JPanel {
 		nonLoopingChooser.setSelected(animation.isNonLooping());
 		rarityChooser.reloadNewValue(animation.getRarity());
 		moveSpeedChooser.reloadNewValue(animation.getMoveSpeed());
+	}
+
+	@Override
+	public void save(EditableModel model, UndoActionListener undoListener, ModelStructureChangeListener changeListener) {
+
 	}
 }

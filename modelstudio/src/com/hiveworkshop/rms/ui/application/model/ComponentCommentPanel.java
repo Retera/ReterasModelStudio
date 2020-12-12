@@ -9,7 +9,7 @@ import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 
-public class ComponentCommentPanel extends JPanel implements ComponentPanel<String> {
+public class ComponentCommentPanel extends JPanel implements ComponentPanel<List<String>> {
 	private final JTextPane textPane;
 
 	public ComponentCommentPanel() {
@@ -18,19 +18,14 @@ public class ComponentCommentPanel extends JPanel implements ComponentPanel<Stri
 		add(textPane, BorderLayout.CENTER);
 	}
 
-	public void setCommentContents(final Iterable<String> headerComment) {
+	@Override
+	public void setSelectedItem(final List<String> headerComment) {
 		final StringBuilder sb = new StringBuilder();
 		for (final String line : headerComment) {
 			sb.append(line);
 			sb.append('\n');
 		}
 		textPane.setText(sb.toString());
-	}
-
-
-	@Override
-	public void setSelectedItem(String itemToSelect) {
-
 	}
 
 	@Override

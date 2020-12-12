@@ -9,7 +9,7 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
-public class ComponentGlobalSequencePanel extends JPanel {
+public class ComponentGlobalSequencePanel extends JPanel implements ComponentPanel<EditableModel> {
 	private final JLabel indexLabel;
 	private final ComponentEditorJSpinner lengthSpinner;
 	private EditableModel model;
@@ -49,5 +49,15 @@ public class ComponentGlobalSequencePanel extends JPanel {
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		indexLabel.setText(Integer.toString(globalSequenceId));
 		lengthSpinner.reloadNewValue(value);
+	}
+
+	@Override
+	public void setSelectedItem(EditableModel itemToSelect) {
+
+	}
+
+	@Override
+	public void save(EditableModel model, UndoActionListener undoListener, ModelStructureChangeListener changeListener) {
+
 	}
 }

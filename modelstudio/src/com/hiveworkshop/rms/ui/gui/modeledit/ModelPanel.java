@@ -144,9 +144,9 @@ public class ModelPanel implements ActionListener, MouseListener {
 
 		perspArea = new PerspDisplayPanel("Perspective", modelView, prefs, editorRenderModel);
 
-		componentsPanel = new ComponentsPanel(textureExporter);
+		componentsPanel = new ComponentsPanel(getModelViewManager(), undoManager, modelStructureChangeListener, textureExporter);
 
-		modelComponentBrowserTree.addSelectListener(new ModelComponentTreeListener(componentsPanel));
+		modelComponentBrowserTree.addSelectListener(componentsPanel);
 	}
 
 	public RenderModel getEditorRenderModel() {
