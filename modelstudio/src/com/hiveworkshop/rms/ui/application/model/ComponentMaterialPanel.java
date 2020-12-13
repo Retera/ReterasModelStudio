@@ -51,7 +51,7 @@ public class ComponentMaterialPanel extends JPanel implements ComponentPanel<Mat
 
 		multipleLayersPanel = new ComponentMaterialLayersPanel();
 
-		setLayout(new MigLayout("fill", "[][grow][grow]", "[][][grow]"));
+		setLayout(new MigLayout("fill", "[][][grow]", "[][][grow]"));
 		add(new JLabel("Shader:"));
 		add(shaderOptionComboBox, "wrap, growx, span 2");
 		add(new JLabel("Priority Plane:"));

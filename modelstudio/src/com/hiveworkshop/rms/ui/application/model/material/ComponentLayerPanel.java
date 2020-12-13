@@ -4,6 +4,8 @@ import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
+import com.hiveworkshop.rms.filesystem.sources.DataSource;
+import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.rms.ui.application.actions.model.bitmap.SetBitmapPathAction;
 import com.hiveworkshop.rms.ui.application.actions.model.material.SetLayerFilterModeAction;
@@ -12,40 +14,80 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener
 import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
+import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ComponentLayerPanel extends JPanel {
-	private final JComboBox<FilterMode> filterModeDropdown;
-	private final JComboBox<String> textureChooser;
-	private final LayerFlagsPanel layerFlagsPanel;
-	private final JButton tVertexAnimButton;
-	private final ComponentEditorJSpinner coordIdSpinner;
-	private final FloatValuePanel alphaPanel;
-	private final FloatValuePanel emissiveGainPanel;
+	private JComboBox<FilterMode> filterModeDropdown;
+	private JComboBox<String> textureChooser;
+	private LayerFlagsPanel layerFlagsPanel;
+	private JPanel texturePreviewPanel;
+	private JButton tVertexAnimButton;
+	private ComponentEditorJSpinner coordIdSpinner;
+	private FloatValuePanel alphaPanel;
+	private FloatValuePanel emissiveGainPanel;
 	private Layer layer;
-	private final FloatValuePanel fresnelOpacityPanel;
-	private final FloatValuePanel fresnelTeamColor;
-	private final ColorValuePanel fresnelColorPanel;
+	private FloatValuePanel fresnelOpacityPanel;
+	private FloatValuePanel fresnelTeamColor;
+	private ColorValuePanel fresnelColorPanel;
 	private UndoActionListener undoActionListener;
 	private ModelStructureChangeListener modelStructureChangeListener;
 	private boolean listenersEnabled = true;
 	DefaultListModel<Bitmap> bitmapListModel;
 
 	public ComponentLayerPanel(EditableModel model) {
-		setLayout(new MigLayout("fill", "", "[fill][fill]"));
+		setLayout(new MigLayout("fill", "[][][grow]", "[fill][fill]"));
+
 		final JPanel leftHandSettingsPanel = new JPanel();
+		leftHandSettingsPanel.setLayout(new MigLayout());
+		fillLeftHandPanel(model, leftHandSettingsPanel);
+//		leftHandSettingsPanel.setOpaque(true);
+//		leftHandSettingsPanel.setBackground(Color.cyan);
+		add(leftHandSettingsPanel);
+
 
 		layerFlagsPanel = new LayerFlagsPanel();
 		layerFlagsPanel.setBorder(BorderFactory.createTitledBorder("Flags"));
-		add(leftHandSettingsPanel);
+//		layerFlagsPanel.setOpaque(true);
+//		layerFlagsPanel.setBackground(Color.yellow);
 		add(layerFlagsPanel);
 
-		leftHandSettingsPanel.setLayout(new MigLayout());
+		texturePreviewPanel = new JPanel();
+//		texturePreviewPanel.setLayout(new MigLayout("fill"));
+//		texturePreviewPanel.setOpaque(true);
+//		texturePreviewPanel.setBackground(Color.cyan);
+//		texturePreviewPanel.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		texturePreviewPanel.setLayout(new BorderLayout());
+		add(texturePreviewPanel, "growx");
+	}
 
+	private void loadBitmapPreview(final Bitmap defaultTexture, EditableModel model) {
+		if (defaultTexture != null) {
+			final DataSource workingDirectory = model.getWrappedDataSource();
+			texturePreviewPanel.removeAll();
+			try {
+				final BufferedImage texture = BLPHandler.getImage(defaultTexture, workingDirectory);
+				texturePreviewPanel.add(new ZoomableImagePreviewPanel(texture));
+			} catch (final Exception exc) {
+				final BufferedImage image = new BufferedImage(512, 512, BufferedImage.TYPE_INT_ARGB);
+				final Graphics2D g2 = image.createGraphics();
+				g2.setColor(Color.RED);
+				g2.drawString(exc.getClass().getSimpleName() + ": " + exc.getMessage(), 128, 128);
+				texturePreviewPanel.add(new ZoomableImagePreviewPanel(image));
+			}
+//			texturePreviewPanel.setSize(64,64);
+			texturePreviewPanel.revalidate();
+			texturePreviewPanel.repaint();
+		}
+	}
+
+	private void fillLeftHandPanel(EditableModel model, JPanel leftHandSettingsPanel) {
 		leftHandSettingsPanel.add(new JLabel("Filter Mode:"));
 		filterModeDropdown = new JComboBox<>(FilterMode.values());
 		filterModeDropdown.addActionListener(e -> filterModeDropdownListener());
@@ -79,7 +121,6 @@ public class ComponentLayerPanel extends JPanel {
 
 		fresnelTeamColor = new FloatValuePanel("Fresnel Team Color");
 		leftHandSettingsPanel.add(fresnelTeamColor, "wrap, span 2, hidemode 2");
-
 	}
 
 	private String[] getTextures(EditableModel model) {
@@ -125,6 +166,8 @@ public class ComponentLayerPanel extends JPanel {
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		layerFlagsPanel.setLayer(layer);
 		filterModeDropdown.setSelectedItem(layer.getFilterMode());
+
+		loadBitmapPreview(layer.getTextureBitmap(), model);
 
 		textureChooser.setModel(new DefaultComboBoxModel<>(getTextures(model)));
 		textureChooser.setSelectedIndex(layer.getTextureId());

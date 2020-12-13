@@ -17,9 +17,7 @@ public class ComponentsPanel extends JPanel {
 	private static final String GLOBALSEQ = "GLOBALSEQ";
 	private final CardLayout cardLayout;
 	private final Map<Class<?>, ComponentPanel<?>> panelMap;
-	private final JPanel blankPanel;
-	private ComponentHeaderPanel headerPanel;
-	private ComponentGlobalSequencePanel globalSeqPanel;
+	private final ComponentGlobalSequencePanel globalSeqPanel;
 
 	public ComponentsPanel(final ModelViewManager modelViewManager,
 	                       final UndoActionListener undoActionListener,
@@ -29,16 +27,16 @@ public class ComponentsPanel extends JPanel {
 		cardLayout = new CardLayout();
 		setLayout(cardLayout);
 
-		blankPanel = new JPanel();
+		JPanel blankPanel = new JPanel();
 		blankPanel.add(new JLabel("Select a model component to get started..."));
 		add(blankPanel, BLANK);
 //		panelMap.put(null, blankPanel);
 
-		headerPanel = new ComponentHeaderPanel();
+		ComponentHeaderPanel headerPanel = new ComponentHeaderPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
 		add(headerPanel, EditableModel.class.getName());
 		panelMap.put(EditableModel.class, headerPanel);
 
-		ComponentCommentPanel commentPanel = new ComponentCommentPanel();
+		ComponentCommentPanel commentPanel = new ComponentCommentPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
 		add(commentPanel, ArrayList.class.getName());
 		panelMap.put(ArrayList.class, commentPanel);
 
@@ -51,7 +49,7 @@ public class ComponentsPanel extends JPanel {
 		add(globalSeqPanel, GLOBALSEQ);
 //		panelMap.put(EditableModel.class, globalSeqPanel);
 
-		ComponentBitmapPanel bitmapPanel = new ComponentBitmapPanel(textureExporter);
+		ComponentBitmapPanel bitmapPanel = new ComponentBitmapPanel(modelViewManager, undoActionListener, modelStructureChangeListener, textureExporter);
 		add(bitmapPanel, Bitmap.class.getName());
 		panelMap.put(Bitmap.class, bitmapPanel);
 
@@ -80,7 +78,7 @@ public class ComponentsPanel extends JPanel {
 
 	public <T> void setSelectedPanel(T selectedItem) {
 		if (selectedItem != null && panelMap.containsKey(selectedItem.getClass())) {
-//			ComponentPanel<?> componentPanel = panelMap.get(selectedItem.getClass());
+			// Typing of this would be nice, if ever possible...
 			ComponentPanel<T> componentPanel = (ComponentPanel<T>) panelMap.get(selectedItem.getClass());
 			componentPanel.setSelectedItem(selectedItem);
 			cardLayout.show(this, selectedItem.getClass().getName());

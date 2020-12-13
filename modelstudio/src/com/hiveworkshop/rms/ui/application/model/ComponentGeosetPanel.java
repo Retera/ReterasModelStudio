@@ -12,13 +12,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geoset> {
-	private Geoset geoset;
-	private ModelViewManager modelViewManager;
-	private UndoActionListener undoActionListener;
-	private ModelStructureChangeListener modelStructureChangeListener;
+	private final ModelViewManager modelViewManager;
+	private final UndoActionListener undoActionListener;
+	private final ModelStructureChangeListener modelStructureChangeListener;
 	private ComponentGeosetMaterialPanel materialPanel;
 	private final Map<Geoset, ComponentGeosetMaterialPanel> materialPanels;
-	private boolean listenersEnabled = true;
+	private final boolean listenersEnabled = true;
 
 
 	public ComponentGeosetPanel(final ModelViewManager modelViewManager,
@@ -37,7 +36,6 @@ public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geose
 
 	@Override
 	public void setSelectedItem(final Geoset geoset) {
-		this.geoset = geoset;
 
 		remove(materialPanel);
 

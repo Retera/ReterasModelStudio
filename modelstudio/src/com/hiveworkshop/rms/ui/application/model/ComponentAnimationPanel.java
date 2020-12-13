@@ -19,8 +19,8 @@ public class ComponentAnimationPanel extends JPanel implements ComponentPanel<An
 	private final ComponentEditorJSpinner moveSpeedChooser;
 	private final JCheckBox nonLoopingChooser;
 	private Animation animation;
-	private UndoActionListener undoListener;
-	private ModelStructureChangeListener modelStructureChangeListener;
+	private final UndoActionListener undoListener;
+	private final ModelStructureChangeListener modelStructureChangeListener;
 
 	public ComponentAnimationPanel(final UndoActionListener undoListener,
 	                               final ModelStructureChangeListener modelStructureChangeListener) {

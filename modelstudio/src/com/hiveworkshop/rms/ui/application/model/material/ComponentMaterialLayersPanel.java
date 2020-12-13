@@ -26,7 +26,7 @@ public class ComponentMaterialLayersPanel extends JPanel {
 	private int currentlyDisplayedLayerCount = 0;
 
 	public ComponentMaterialLayersPanel() {
-		setLayout(new MigLayout());
+		setLayout(new MigLayout("fill", "[][][grow]"));
 		addLayerButton = new JButton("Add Layer");
 		addLayerButton.setBackground(HIGHLIGHT_BUTTON_BACKGROUND_COLOR);
 		addLayerButton.setForeground(Color.WHITE);
@@ -82,7 +82,6 @@ public class ComponentMaterialLayersPanel extends JPanel {
 				layerDeleteButton = new JButton("Delete");
 				layerDeleteButton.setBackground(Color.RED);
 				layerDeleteButton.setForeground(Color.WHITE);
-
 				cachedLayerPanels.add(panel);
 				cachedLayerLabels.add(layerLabel);
 				cachedLayerDeleteButtons.add(layerDeleteButton);
@@ -103,9 +102,10 @@ public class ComponentMaterialLayersPanel extends JPanel {
 			panel.setLayer(modelViewManager.getModel(), layer,
 					modelViewManager.getModel().getFormatVersion(), hdShader, undoActionListener,
 					modelStructureChangeListener);
+
 			add(layerLabel);
 			add(layerDeleteButton, "wrap");
-			add(panel, "growx, growy, span 2, wrap");
+			add(panel, "growx, growy, span 3, wrap");
 		}
 	}
 }

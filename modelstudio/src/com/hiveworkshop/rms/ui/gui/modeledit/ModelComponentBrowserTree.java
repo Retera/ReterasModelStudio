@@ -54,6 +54,9 @@ public final class ModelComponentBrowserTree extends JTree {
 		final DefaultMutableTreeNode root = new DefaultMutableTreeNode(modelRoot);
 
 		ChooseableModelComment modelComment = new ChooseableModelComment(modelViewManager, model.getHeader());
+//		System.out.println(model.getHeader());
+//		System.out.println(model.getName());
+//		System.out.println(model.getWrappedDataSource());
 		root.add(new DefaultMutableTreeNode(modelComment));
 
 		ChooseableModelHeader modelHeader = new ChooseableModelHeader(modelViewManager, model);
@@ -187,25 +190,6 @@ public final class ModelComponentBrowserTree extends JTree {
 				componentsPanel.selectedBlank();
 			}
 		});
-	}
-
-	public interface ModelComponentListener<T> {
-
-		void selectedBlank();
-
-		void selected(EditableModel model);
-
-		void selectedHeaderData(EditableModel model, ModelViewManager modelViewManager, UndoActionListener undoListener,
-		                        ModelStructureChangeListener modelStructureChangeListener);
-
-		void selectedHeaderComment(Iterable<String> comment);
-
-		void selected(EditableModel model, Integer globalSequence, int globalSequenceId,
-		              UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener);
-
-		void selected(T itemToSelect, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
-		              ModelStructureChangeListener modelStructureChangeListener);
-
 	}
 
 	private DefaultTreeCellRenderer getComponentBrowserCellRenderer() {
@@ -350,19 +334,11 @@ public final class ModelComponentBrowserTree extends JTree {
 //	final Image collisionImage = IconUtils.loadNodeImage("/collision" + template + ".png");
 
 	private static final class ChooseableModelRoot extends ChooseableDisplayElement<EditableModel> {
-		private static final ImageIcon MODEL_ROOT_ICON = new ImageIcon(IconUtils.worldEditStyleIcon(
-				BLPHandler.get().getGameTex("replaceabletextures\\worldeditui\\editor-trigger.blp")));
+		private static final ImageIcon MODEL_ROOT_ICON = new ImageIcon(IconUtils.worldEditStyleIcon(BLPHandler.get().getGameTex("replaceabletextures\\worldeditui\\editor-trigger.blp")));
 
 		public ChooseableModelRoot(final ModelViewManager modelViewManager, final EditableModel item) {
 			super(MODEL_ROOT_ICON, modelViewManager, item);
 		}
-
-//		@Override
-//		protected void select(final EditableModel item, final ModelViewManager modelViewManager,
-//		                      final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
-//		                      final ModelComponentTreeListener listener) {
-//			listener.selected(item);
-//		}
 
 		@Override
 		protected String getName(final EditableModel item, final ModelViewManager modelViewManager) {
@@ -370,16 +346,16 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 	}
 
-	private static final class ChooseableModelComment extends ChooseableDisplayElement<List<String>> {
-		private static final ImageIcon COMMENT_ICON = new ImageIcon(
-				RMSIcons.loadNodeImage("/comment.png"));
+	private static final class ChooseableModelComment extends ChooseableDisplayElement<ArrayList<String>> {
+		private static final ImageIcon COMMENT_ICON = new ImageIcon(RMSIcons.loadNodeImage("/comment.png"));
 
-		public ChooseableModelComment(final ModelViewManager modelViewManager, final List<String> item) {
+		public ChooseableModelComment(final ModelViewManager modelViewManager, final ArrayList<String> item) {
 			super(COMMENT_ICON, modelViewManager, item);
+			System.out.println(item);
 		}
 
 		@Override
-		protected String getName(final List<String> item, final ModelViewManager modelViewManager) {
+		protected String getName(final ArrayList<String> item, final ModelViewManager modelViewManager) {
 			return "Comment";
 		}
 	}
@@ -399,8 +375,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	private static final class ChooseableAnimationItem extends ChooseableDisplayElement<Animation> {
 
-		private static final ImageIcon ANIMATION_ICON = new ImageIcon(
-				RMSIcons.loadNodeImage("/animation.png"));
+		private static final ImageIcon ANIMATION_ICON = new ImageIcon(RMSIcons.loadNodeImage("/animation.png"));
 
 		public ChooseableAnimationItem(final ModelViewManager modelViewManager, final Animation item) {
 			super(ANIMATION_ICON, modelViewManager, item);
@@ -410,17 +385,14 @@ public final class ModelComponentBrowserTree extends JTree {
 		protected String getName(final Animation item, final ModelViewManager modelViewManager) {
 			return "Anim \"" + item.getName() + "\"";
 		}
-
 	}
 
 	private static final class ChooseableGlobalSequenceItem extends ChooseableDisplayElement<Integer> {
-		private static final ImageIcon GLOBAL_SEQ_ICON = new ImageIcon(
-				RMSIcons.loadNodeImage("/globalseq.png"));
+		private static final ImageIcon GLOBAL_SEQ_ICON = new ImageIcon(RMSIcons.loadNodeImage("/globalseq.png"));
 
 		private final int globalSeqId;
 
-		public ChooseableGlobalSequenceItem(final ModelViewManager modelViewManager, final Integer item,
-		                                    final int globalSeqId) {
+		public ChooseableGlobalSequenceItem(final ModelViewManager modelViewManager, final Integer item, final int globalSeqId) {
 			super(GLOBAL_SEQ_ICON, modelViewManager, item);
 			this.globalSeqId = globalSeqId;
 		}
@@ -435,13 +407,11 @@ public final class ModelComponentBrowserTree extends JTree {
 			return (other != null) && (other.getClass() == getClass())
 					&& (globalSeqId == ((ChooseableGlobalSequenceItem) other).globalSeqId);
 		}
-
 	}
 
 	private static final class ChooseableBitmapItem extends ChooseableDisplayElement<Bitmap> {
 
-		private static final ImageIcon TEXTURE_ICON = new ImageIcon(
-				RMSIcons.loadNodeImage("/bitmap.png"));
+		private static final ImageIcon TEXTURE_ICON = new ImageIcon(RMSIcons.loadNodeImage("/bitmap.png"));
 
 		public ChooseableBitmapItem(final ModelViewManager modelViewManager, final Bitmap item) {
 			super(TEXTURE_ICON, modelViewManager, item);
@@ -451,13 +421,11 @@ public final class ModelComponentBrowserTree extends JTree {
 		protected String getName(final Bitmap item, final ModelViewManager modelViewManager) {
 			return "Bitmap \"" + item.getName() + "\"";
 		}
-
 	}
 
 	private static final class ChooseableMaterialItem extends ChooseableDisplayElement<Material> {
 
-		private static final ImageIcon MATERIAL_ICON = new ImageIcon(
-				RMSIcons.loadNodeImage("/material.png"));
+		private static final ImageIcon MATERIAL_ICON = new ImageIcon(RMSIcons.loadNodeImage("/material.png"));
 
 		public ChooseableMaterialItem(final ModelViewManager modelViewManager, final Material item) {
 			super(MATERIAL_ICON, modelViewManager, item);
@@ -467,13 +435,11 @@ public final class ModelComponentBrowserTree extends JTree {
 		protected String getName(final Material item, final ModelViewManager modelViewManager) {
 			return "Material " + modelViewManager.getModel().getMaterials().indexOf(item);
 		}
-
 	}
 
 	private static final class ChooseableTextureAnimItem extends ChooseableDisplayElement<TextureAnim> {
 
-		private static final ImageIcon TEXTURE_ANIM_ICON = new ImageIcon(
-				RMSIcons.loadNodeImage("/textureanim.png"));
+		private static final ImageIcon TEXTURE_ANIM_ICON = new ImageIcon(RMSIcons.loadNodeImage("/textureanim.png"));
 
 		public ChooseableTextureAnimItem(final ModelViewManager modelViewManager, final TextureAnim item) {
 			super(TEXTURE_ANIM_ICON, modelViewManager, item);
@@ -483,12 +449,10 @@ public final class ModelComponentBrowserTree extends JTree {
 		protected String getName(final TextureAnim item, final ModelViewManager modelViewManager) {
 			return "TextureAnim " + modelViewManager.getModel().getTexAnims().indexOf(item);
 		}
-
 	}
 
 	private static final class ChooseableGeosetAnimItem extends ChooseableDisplayElement<GeosetAnim> {
-		private static final ImageIcon GEOSET_ANIM_ICON = new ImageIcon(
-				RMSIcons.loadNodeImage("/geoanim.png"));
+		private static final ImageIcon GEOSET_ANIM_ICON = new ImageIcon(RMSIcons.loadNodeImage("/geoanim.png"));
 
 		public ChooseableGeosetAnimItem(final ModelViewManager modelViewManager, final GeosetAnim item) {
 			super(GEOSET_ANIM_ICON, modelViewManager, item);
@@ -514,8 +478,7 @@ public final class ModelComponentBrowserTree extends JTree {
 	}
 
 	private static final class ChooseableHelperItem extends ChooseableDisplayElement<Helper> {
-		private static final ImageIcon BONE_ICON = new ImageIcon(
-				RMSIcons.loadNodeImage("/helperhand.png"));
+		private static final ImageIcon BONE_ICON = new ImageIcon(RMSIcons.loadNodeImage("/helperhand.png"));
 
 		public ChooseableHelperItem(final ModelViewManager modelViewManager, final Helper item) {
 			super(BONE_ICON, modelViewManager, item);
@@ -541,8 +504,7 @@ public final class ModelComponentBrowserTree extends JTree {
 	}
 
 	private static final class ChooseableAttachmentItem extends ChooseableDisplayElement<Attachment> {
-		private static final ImageIcon ATTACHMENT_ICON = new ImageIcon(
-				RMSIcons.loadNodeImage("/attachment.png"));
+		private static final ImageIcon ATTACHMENT_ICON = new ImageIcon(RMSIcons.loadNodeImage("/attachment.png"));
 
 		public ChooseableAttachmentItem(final ModelViewManager modelViewManager, final Attachment item) {
 			super(ATTACHMENT_ICON, modelViewManager, item);
@@ -555,8 +517,7 @@ public final class ModelComponentBrowserTree extends JTree {
 	}
 
 	private static final class ChooseableParticleEmitterItem extends ChooseableDisplayElement<ParticleEmitter> {
-		private static final ImageIcon PARTICLE_ICON = new ImageIcon(
-				RMSIcons.loadNodeImage("/particle1.png"));
+		private static final ImageIcon PARTICLE_ICON = new ImageIcon(RMSIcons.loadNodeImage("/particle1.png"));
 
 		public ChooseableParticleEmitterItem(final ModelViewManager modelViewManager, final ParticleEmitter item) {
 			super(PARTICLE_ICON, modelViewManager, item);
@@ -569,8 +530,7 @@ public final class ModelComponentBrowserTree extends JTree {
 	}
 
 	private static final class ChooseableParticleEmitter2Item extends ChooseableDisplayElement<ParticleEmitter2> {
-		private static final ImageIcon PARTICLE2_ICON = new ImageIcon(
-				RMSIcons.loadNodeImage("/particle2.png"));
+		private static final ImageIcon PARTICLE2_ICON = new ImageIcon(RMSIcons.loadNodeImage("/particle2.png"));
 
 		public ChooseableParticleEmitter2Item(final ModelViewManager modelViewManager, final ParticleEmitter2 item) {
 			super(PARTICLE2_ICON, modelViewManager, item);
@@ -583,8 +543,7 @@ public final class ModelComponentBrowserTree extends JTree {
 	}
 
 	private static final class ChooseableParticleEmitterPopcornItem extends ChooseableDisplayElement<ParticleEmitterPopcorn> {
-		private static final ImageIcon POPCORN_ICON = new ImageIcon(
-				RMSIcons.loadNodeImage("/popcorn.png"));
+		private static final ImageIcon POPCORN_ICON = new ImageIcon(RMSIcons.loadNodeImage("/popcorn.png"));
 
 		public ChooseableParticleEmitterPopcornItem(final ModelViewManager modelViewManager, final ParticleEmitterPopcorn item) {
 			super(POPCORN_ICON, modelViewManager, item);
@@ -597,8 +556,7 @@ public final class ModelComponentBrowserTree extends JTree {
 	}
 
 	private static final class ChooseableRibbonEmitterItem extends ChooseableDisplayElement<RibbonEmitter> {
-		private static final ImageIcon RIBBON_ICON = new ImageIcon(
-				RMSIcons.loadNodeImage("/ribbon.png"));
+		private static final ImageIcon RIBBON_ICON = new ImageIcon(RMSIcons.loadNodeImage("/ribbon.png"));
 
 		public ChooseableRibbonEmitterItem(final ModelViewManager modelViewManager, final RibbonEmitter item) {
 			super(RIBBON_ICON, modelViewManager, item);
@@ -611,8 +569,7 @@ public final class ModelComponentBrowserTree extends JTree {
 	}
 
 	private static final class ChooseableEventObjectItem extends ChooseableDisplayElement<EventObject> {
-		private static final ImageIcon EVENT_OBJECT_ICON = new ImageIcon(
-				RMSIcons.loadNodeImage("/event.png"));
+		private static final ImageIcon EVENT_OBJECT_ICON = new ImageIcon(RMSIcons.loadNodeImage("/event.png"));
 
 		public ChooseableEventObjectItem(final ModelViewManager modelViewManager, final EventObject item) {
 			super(EVENT_OBJECT_ICON, modelViewManager, item);
@@ -625,8 +582,7 @@ public final class ModelComponentBrowserTree extends JTree {
 	}
 
 	private static final class ChooseableCollisionShapeItem extends ChooseableDisplayElement<CollisionShape> {
-		private static final ImageIcon COLLISION_SHAPE_ICON = new ImageIcon(
-				RMSIcons.loadNodeImage("/collision.png"));
+		private static final ImageIcon COLLISION_SHAPE_ICON = new ImageIcon(RMSIcons.loadNodeImage("/collision.png"));
 
 		public ChooseableCollisionShapeItem(final ModelViewManager modelViewManager, final CollisionShape item) {
 			super(COLLISION_SHAPE_ICON, modelViewManager, item);
@@ -639,8 +595,7 @@ public final class ModelComponentBrowserTree extends JTree {
 	}
 
 	private static final class ChooseableCameraItem extends ChooseableDisplayElement<Camera> {
-		private static final ImageIcon CAMERA_ICON = new ImageIcon(
-				RMSIcons.loadNodeImage("/camera.png"));
+		private static final ImageIcon CAMERA_ICON = new ImageIcon(RMSIcons.loadNodeImage("/camera.png"));
 
 		public ChooseableCameraItem(final ModelViewManager modelViewManager, final Camera item) {
 			super(CAMERA_ICON, modelViewManager, item);
@@ -666,8 +621,7 @@ public final class ModelComponentBrowserTree extends JTree {
 	}
 
 	private static final class ChooseableBindPoseChunkItem extends ChooseableDisplayElement<BindPose> {
-		private static final ImageIcon BINDPOSE_ICON = new ImageIcon(
-				IconUtils.worldEditStyleIcon(RMSIcons.loadNodeImage("/bindpos.png")));
+		private static final ImageIcon BINDPOSE_ICON = new ImageIcon(IconUtils.worldEditStyleIcon(RMSIcons.loadNodeImage("/bindpos.png")));
 
 		public ChooseableBindPoseChunkItem(final ModelViewManager modelViewManager, final BindPose item) {
 			super(BINDPOSE_ICON, modelViewManager, item);
@@ -708,8 +662,7 @@ public final class ModelComponentBrowserTree extends JTree {
 	}
 
 	private static final class ChooseableGeosetItem extends ChooseableDisplayElement<Geoset> {
-		private static final ImageIcon GEOSET_ITEM_ICON = new ImageIcon(
-				RMSIcons.loadNodeImage("/geoset.png"));
+		private static final ImageIcon GEOSET_ITEM_ICON = new ImageIcon(RMSIcons.loadNodeImage("/geoset.png"));
 
 		public ChooseableGeosetItem(final ModelViewManager modelViewManager, final Geoset item) {
 			super(GEOSET_ITEM_ICON, modelViewManager, item);

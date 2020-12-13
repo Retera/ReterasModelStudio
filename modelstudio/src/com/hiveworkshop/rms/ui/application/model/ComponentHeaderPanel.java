@@ -15,17 +15,24 @@ import javax.swing.*;
 import java.awt.*;
 import java.text.ParseException;
 
-public class ComponentHeaderPanel extends JPanel implements ComponentPanel {
+public class ComponentHeaderPanel extends JPanel implements ComponentPanel<EditableModel> {
 	private static final Dimension MAXIMUM_SIZE = new Dimension(99999, 25);
 	private final ComponentEditorTextField modelNameField;
 	private final ComponentEditorJSpinner formatVersionSpinner;
 	private final ComponentEditorJSpinner blendTimeSpinner;
 	private final ExtLogEditor extLogEditor;
-	private ModelViewManager modelViewManager;
-	private UndoActionListener undoActionListener;
-	private ModelStructureChangeListener changeListener;
+	private final ModelViewManager modelViewManager;
+	private final UndoActionListener undoActionListener;
+	private final ModelStructureChangeListener changeListener;
 
-	public ComponentHeaderPanel() {
+	public ComponentHeaderPanel(final ModelViewManager modelViewManager,
+	                            final UndoActionListener undoActionListener,
+	                            final ModelStructureChangeListener changeListener) {
+
+		this.modelViewManager = modelViewManager;
+		this.undoActionListener = undoActionListener;
+		this.changeListener = changeListener;
+
 		final JLabel modelNameLabel = new JLabel("Model Name:");
 		modelNameField = new ComponentEditorTextField();
 		modelNameField.setMaximumSize(MAXIMUM_SIZE);
@@ -110,13 +117,10 @@ public class ComponentHeaderPanel extends JPanel implements ComponentPanel {
 		extLogEditor.setExtLog(model.getExtents());
 	}
 
-	public void setActiveModel(final ModelViewManager modelViewManager, final UndoActionListener undoActionListener,
-	                           final ModelStructureChangeListener changeListener) {
+	@Override
+	public void setSelectedItem(EditableModel model) {
 		commitEdits();
-		this.modelViewManager = modelViewManager;
-		this.undoActionListener = undoActionListener;
-		this.changeListener = changeListener;
-		setModelHeader(modelViewManager.getModel());
+		setModelHeader(model);
 	}
 
 	private void commitEdits() {
@@ -131,11 +135,6 @@ public class ComponentHeaderPanel extends JPanel implements ComponentPanel {
 			e.printStackTrace();
 		}
 		extLogEditor.commitEdits();
-
-	}
-
-	@Override
-	public void setSelectedItem(Object itemToSelect) {
 
 	}
 

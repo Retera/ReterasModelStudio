@@ -38,7 +38,7 @@ public class EditableModel implements Named {
 	private int blendTime = 0;
 	private ExtLog extents;
 	private int formatVersion = 800;
-	protected List<String> header = new ArrayList<>();
+	protected ArrayList<String> header = new ArrayList<>();
 	protected List<Animation> anims = new ArrayList<>();
 	protected List<Integer> globalSeqs = new ArrayList<>();
 	protected List<Bitmap> textures = new ArrayList<>();
@@ -1131,7 +1131,8 @@ public class EditableModel implements Named {
 			}
 			if (i >= pivots.size()) {
 				JOptionPane.showMessageDialog(null,
-						"Error: More objects than PivotPoints were found.\nAdditional pivot at {0,0,0} will be added.");
+						"Error: More objects than PivotPoints were found." +
+								"\nAdditional pivot at {0,0,0} will be added.");
 				pivots.add(new Vec3(0, 0, 0));
 			}
 			obj.setPivotPoint(pivots.get(i));
@@ -1717,11 +1718,11 @@ public class EditableModel implements Named {
 		this.formatVersion = formatVersion;
 	}
 
-	public List<String> getHeader() {
+	public ArrayList<String> getHeader() {
 		return header;
 	}
 
-	public void setHeader(final List<String> header) {
+	public void setHeader(final ArrayList<String> header) {
 		this.header = header;
 	}
 
