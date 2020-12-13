@@ -1,46 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridLayout;
-import java.awt.MouseInfo;
-import java.awt.Point;
-import java.awt.PointerInfo;
-import java.awt.Stroke;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.util.Collections;
-import java.util.List;
-
-import javax.swing.*;
-
-import com.hiveworkshop.rms.editor.model.Attachment;
-import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.editor.model.Camera;
-import com.hiveworkshop.rms.editor.model.CollisionShape;
-import com.hiveworkshop.rms.editor.model.EventObject;
-import com.hiveworkshop.rms.editor.model.GeosetAnim;
-import com.hiveworkshop.rms.editor.model.Helper;
-import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.Light;
-import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.editor.model.ParticleEmitter;
-import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
-import com.hiveworkshop.rms.editor.model.ParticleEmitterPopcorn;
-import com.hiveworkshop.rms.editor.model.RibbonEmitter;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.visitor.GeosetVisitor;
 import com.hiveworkshop.rms.editor.model.visitor.ModelVisitor;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
@@ -61,14 +21,22 @@ import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChangeListener;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.ui.util.InfoPopup;
 import com.hiveworkshop.rms.util.Vec3;
 import net.infonode.docking.View;
 import net.infonode.docking.title.DockingWindowTitleProvider;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.util.Collections;
+import java.util.List;
+
 public class Viewport extends JPanel implements MouseListener, ActionListener, MouseWheelListener, CoordinateSystem,
-        ViewportView, MouseMotionListener, ModelEditorChangeListener {
+		ViewportView, MouseMotionListener, ModelEditorChangeListener {
 	byte m_d1;
 	byte m_d2;
 	double m_a = 0;
@@ -438,11 +406,11 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 			final long millis = ((runningSum / count) / 1000000L) + 1;
 			if (millis > paintTimer.getDelay()) {
 				final int millis2 = (int) (millis * 5);
-				System.out.println("delay=" + millis2);
+//				System.out.println("delay=" + millis2);
 				paintTimer.setDelay(millis2);
 			} else if (millis < paintTimer.getDelay()) {
 				final int max2 = Math.max(16, (int) (millis * 5));
-				System.out.println("delay=" + max2);
+//				System.out.println("delay=" + max2);
 				paintTimer.setDelay(max2);
 			}
 			min = Long.MAX_VALUE;
@@ -643,13 +611,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		final JPanel inputPanel = new JPanel();
 		final GridLayout layout = new GridLayout(6, 1);
 		inputPanel.setLayout(layout);
-		final JSpinner[] spinners = new JSpinner[3];
-		inputPanel.add(new JLabel("Move X:"));
-		inputPanel.add(spinners[0] = getStandardSpinner(0.0));
-		inputPanel.add(new JLabel("Move Y:"));
-		inputPanel.add(spinners[1] = getStandardSpinner(0.0));
-		inputPanel.add(new JLabel("Move Z:"));
-		inputPanel.add(spinners[2] = getStandardSpinner(0.0));
+		final JSpinner[] spinners = getLabeledSpinnerArray(inputPanel, "Move X:", 0.0, "Move Y:", 0.0, "Move Z:", 0.0);
 		final int x = JOptionPane.showConfirmDialog(getRootPane(), inputPanel, "Manual Translation",
 				JOptionPane.OK_CANCEL_OPTION);
 		if (x != JOptionPane.OK_OPTION) {
@@ -662,17 +624,22 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		undoListener.pushAction(translate);
 	}
 
+	private JSpinner[] getLabeledSpinnerArray(JPanel panel, String labelX, double xValue, String labelY, double yValue, String labelZ, double zValue) {
+		final JSpinner[] spinners = new JSpinner[3];
+		panel.add(new JLabel(labelX));
+		panel.add(spinners[0] = getStandardSpinner(xValue));
+		panel.add(new JLabel(labelY));
+		panel.add(spinners[1] = getStandardSpinner(yValue));
+		panel.add(new JLabel(labelZ));
+		panel.add(spinners[2] = getStandardSpinner(zValue));
+		return spinners;
+	}
+
 	private void manualRotate() {
 		final JPanel inputPanel = new JPanel();
 		final GridLayout layout = new GridLayout(6, 1);
 		inputPanel.setLayout(layout);
-		final JSpinner[] spinners = new JSpinner[3];
-		inputPanel.add(new JLabel("Rotate X degrees (around axis facing front):"));
-		inputPanel.add(spinners[0] = getStandardSpinner(0.0));
-		inputPanel.add(new JLabel("Rotate Y degrees (around axis facing left):"));
-		inputPanel.add(spinners[1] = getStandardSpinner(0.0));
-		inputPanel.add(new JLabel("Rotate Z degrees (around axis facing up):"));
-		inputPanel.add(spinners[2] = getStandardSpinner(0.0));
+		final JSpinner[] spinners = getLabeledSpinnerArray(inputPanel, "Rotate X degrees (around axis facing front):", 0.0, "Rotate Y degrees (around axis facing left):", 0.0, "Rotate Z degrees (around axis facing up):", 0.0);
 		final int x = JOptionPane.showConfirmDialog(getRootPane(), inputPanel, "Manual Rotation",
 				JOptionPane.OK_CANCEL_OPTION);
 		if (x != JOptionPane.OK_OPTION) {
@@ -692,13 +659,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		final JPanel inputPanel = new JPanel();
 		final GridLayout layout = new GridLayout(6, 1);
 		inputPanel.setLayout(layout);
-		final JSpinner[] spinners = new JSpinner[3];
-		inputPanel.add(new JLabel("New Position X:"));
-		inputPanel.add(spinners[0] = getStandardSpinner(0.0));
-		inputPanel.add(new JLabel("New Position Y:"));
-		inputPanel.add(spinners[1] = getStandardSpinner(0.0));
-		inputPanel.add(new JLabel("New Position Z:"));
-		inputPanel.add(spinners[2] = getStandardSpinner(0.0));
+		final JSpinner[] spinners = getLabeledSpinnerArray(inputPanel, "New Position X:", 0.0, "New Position Y:", 0.0, "New Position Z:", 0.0);
 		final int x = JOptionPane.showConfirmDialog(getRootPane(), inputPanel, "Manual Position",
 				JOptionPane.OK_CANCEL_OPTION);
 		if (x != JOptionPane.OK_OPTION) {
@@ -716,27 +677,15 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		final JPanel inputPanel = new JPanel();
 		final GridLayout layout = new GridLayout(13, 1);
 		inputPanel.setLayout(layout);
-		final JSpinner[] spinners = new JSpinner[3];
-		final JSpinner[] centerSpinners = new JSpinner[3];
-		inputPanel.add(new JLabel("Scale X:"));
-		inputPanel.add(spinners[0] = getStandardSpinner(1.0));
-		inputPanel.add(new JLabel("Scale Y:"));
-		inputPanel.add(spinners[1] = getStandardSpinner(1.0));
-		inputPanel.add(new JLabel("Scale Z:"));
-		inputPanel.add(spinners[2] = getStandardSpinner(1.0));
+		final JSpinner[] spinners = getLabeledSpinnerArray(inputPanel, "Scale X:", 1.0, "Scale Y:", 1.0, "Scale Z:", 1.0);
 		final JCheckBox customOrigin = new JCheckBox("Custom Scaling Origin");
 		inputPanel.add(customOrigin);
 
 		Vec3 selectionCenter = modelEditor.getSelectionCenter();
-		if(Double.isNaN(selectionCenter.x)) {
-			selectionCenter = new Vec3(0,0,0);
+		if (Double.isNaN(selectionCenter.x)) {
+			selectionCenter = new Vec3(0, 0, 0);
 		}
-		inputPanel.add(new JLabel("Center X:"));
-		inputPanel.add(centerSpinners[0] = getStandardSpinner(selectionCenter.x));
-		inputPanel.add(new JLabel("Center Y:"));
-		inputPanel.add(centerSpinners[1] = getStandardSpinner(selectionCenter.y));
-		inputPanel.add(new JLabel("Center Z:"));
-		inputPanel.add(centerSpinners[2] = getStandardSpinner(selectionCenter.z));
+		final JSpinner[] centerSpinners = getLabeledSpinnerArray(inputPanel, "Center X:", selectionCenter.x, "Center Y:", selectionCenter.y, "Center Z:", selectionCenter.z);
 		for (final JSpinner spinner : centerSpinners) {
 			spinner.setEnabled(false);
 		}
@@ -899,17 +848,15 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 				Math.min(geomY(a.y), geomY(b.y)));
 		final Point2D.Double lowRight = new Point2D.Double(Math.max(geomX(a.x), geomX(b.x)),
 				Math.max(geomY(a.y), geomY(b.y)));
-		final Rectangle2D.Double temp = new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x,
+		return new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x,
 				lowRight.y - topLeft.y);
-		return temp;
 	}
 
 	public Rectangle2D.Double pointsToRect(final Point a, final Point b) {
 		final Point2D.Double topLeft = new Point2D.Double(Math.min(a.x, b.x), Math.min(a.y, b.y));
 		final Point2D.Double lowRight = new Point2D.Double(Math.max(a.x, b.x), Math.max(a.y, b.y));
-		final Rectangle2D.Double temp = new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x,
+		return new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x,
 				lowRight.y - topLeft.y);
-		return temp;
 	}
 
 	@Override

@@ -340,8 +340,7 @@ public class Layer extends TimelineContainer implements Named {
 			if (textureIdAtTime >= model.getTextures().size()) {
 				return texture;
 			}
-			final Bitmap textureAtTime = model.getTextures().get(textureIdAtTime);
-			return textureAtTime;
+			return model.getTextures().get(textureIdAtTime);
 		} else {
 			return texture;
 		}

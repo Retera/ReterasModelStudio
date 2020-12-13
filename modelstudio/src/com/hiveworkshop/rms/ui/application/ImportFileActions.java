@@ -106,7 +106,8 @@ public class ImportFileActions {
     static MutableObjectData.MutableGameObject fetchObject(MainPanel mainPanel) {
         final BetterUnitEditorModelSelector selector = new BetterUnitEditorModelSelector(MainLayoutCreator.getUnitData(),
                 MainLayoutCreator.getUnitEditorSettings());
-        final int x = JOptionPane.showConfirmDialog(mainPanel, selector, "Object Editor - Select Unit",
+        final int x = JOptionPane.showConfirmDialog(mainPanel, selector,
+                "Object Editor - Select Unit",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         final MutableObjectData.MutableGameObject choice = selector.getSelection();
         if ((choice == null) || (x != JOptionPane.OK_OPTION)) {
@@ -115,16 +116,8 @@ public class ImportFileActions {
 
         String filepath = choice.getFieldAsString(UnitFields.MODEL_FILE, 0);
 
-        try {
-            filepath = convertPathToMDX(filepath);
-        } catch (final Exception exc) {
-            exc.printStackTrace();
-            // bad model!
-            JOptionPane.showMessageDialog(MainFrame.frame, "The chosen model could not be used.", "Program Error",
-                    JOptionPane.ERROR_MESSAGE);
-            return null;
-        }
-        return choice;
+        if (isValidFilepath(filepath)) return choice;
+        return null;
     }
 
     static void importGameObjectActionRes(MainPanel mainPanel){
@@ -142,21 +135,8 @@ public class ImportFileActions {
             return null;
         }
         String filepath = model.getFilepath();
-        if (filepath != null) {
-
-        } else {
-            return null;
-        }
-        try {
-            filepath = convertPathToMDX(filepath);
-        } catch (final Exception exc) {
-            exc.printStackTrace();
-            // bad model!
-            JOptionPane.showMessageDialog(MainFrame.frame, "The chosen model could not be used.", "Program Error",
-                    JOptionPane.ERROR_MESSAGE);
-            return null;
-        }
-        return model;
+        if (isValidFilepath(filepath)) return model;
+        return null;
     }
 
     static void importGameModelActionRes(MainPanel mainPanel){
@@ -169,25 +149,30 @@ public class ImportFileActions {
 
     static GameObject fetchUnit(MainPanel mainPanel) {
         final GameObject choice = UnitOptionPane.show(mainPanel);
+
         if (choice != null) {
             String filepath = choice.getField("file");
-
-            try {
-                //check model by converting its path
-                filepath = convertPathToMDX(filepath);
-            } catch (final Exception exc) {
-                exc.printStackTrace();
-                JOptionPane.showMessageDialog(MainFrame.frame, "The chosen model could not be used.", "Program Error",
-                        JOptionPane.ERROR_MESSAGE);
-                return null;
-            }
-            return choice;
-        } else {
-            return null;
+            if (isValidFilepath(filepath)) return choice;
         }
+        return null;
     }
 
-    static void importUnitActionRes(MainPanel mainPanel){
+    private static boolean isValidFilepath(String filepath) {
+        try {
+            //check model by converting its path
+            convertPathToMDX(filepath);
+        } catch (final Exception exc) {
+            exc.printStackTrace();
+            JOptionPane.showMessageDialog(MainFrame.frame,
+                    "The chosen model could not be used.",
+                    "Program Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        return true;
+    }
+
+    static void importUnitActionRes(MainPanel mainPanel) {
         final GameObject fetchUnitResult = fetchUnit(mainPanel);
         if (fetchUnitResult != null) {
             String path = fetchUnitResult.getField("file");

@@ -167,13 +167,15 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 
 	public void refreshModels() throws IOException {
 		if (baseFileInput.getText().length() > 0) {
-			if (sourceFile == null || sourceFile.getFile() == null
+			if (sourceFile == null
+					|| sourceFile.getFile() == null
 					|| !baseFileInput.getText().equals(sourceFile.getFile().getPath())) {
 				sourceFile = MdxUtils.loadEditable(new File(baseFileInput.getText()));
 			}
 		}
 		if (animFileInput.getText().length() > 0) {
-			if (animFile == null || animFile.getFile() == null
+			if (animFile == null
+					|| animFile.getFile() == null
 					|| !animFileInput.getText().equals(animFile.getFile().getPath())) {
 				animFile = MdxUtils.loadEditable(new File(animFileInput.getText()));
 			}

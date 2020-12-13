@@ -29,6 +29,7 @@ public class ComponentAnimationPanel extends JPanel {
             setAnimationNameAction.redo();
             undoListener.pushAction(setAnimationNameAction);
         });
+
 		newAnimTimeStart = new ComponentEditorJSpinner(new SpinnerNumberModel(300, 0, Integer.MAX_VALUE, 1));
 		newAnimTimeStart.addActionListener(() -> {
             final SetAnimationIntervalStartAction setAnimationIntervalStartAction = new SetAnimationIntervalStartAction(
@@ -37,6 +38,7 @@ public class ComponentAnimationPanel extends JPanel {
             setAnimationIntervalStartAction.redo();
             undoListener.pushAction(setAnimationIntervalStartAction);
         });
+
 		newAnimTimeEnd = new ComponentEditorJSpinner(new SpinnerNumberModel(1300, 0, Integer.MAX_VALUE, 1));
 		newAnimTimeEnd.addActionListener(() -> {
             final SetAnimationIntervalEndAction setAnimationIntervalEndAction = new SetAnimationIntervalEndAction(
@@ -62,6 +64,7 @@ public class ComponentAnimationPanel extends JPanel {
             setAnimationRarityAction.redo();
             undoListener.pushAction(setAnimationRarityAction);
         });
+
 		moveSpeedChooser = new ComponentEditorJSpinner(new SpinnerNumberModel(0d, 0d, Long.MAX_VALUE, 1d));
 		moveSpeedChooser.addActionListener(() -> {
             final SetAnimationMoveSpeedAction setAnimationMoveSpeedAction = new SetAnimationMoveSpeedAction(
@@ -70,6 +73,7 @@ public class ComponentAnimationPanel extends JPanel {
             setAnimationMoveSpeedAction.redo();
             undoListener.pushAction(setAnimationMoveSpeedAction);
         });
+
 		nonLoopingChooser = new JCheckBox("NonLooping");
 		nonLoopingChooser.addActionListener(e -> {
             final SetAnimationNonLoopingAction setAnimationNonLoopingAction = new SetAnimationNonLoopingAction(

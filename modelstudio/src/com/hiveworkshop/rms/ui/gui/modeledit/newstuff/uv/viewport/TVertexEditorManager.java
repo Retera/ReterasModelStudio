@@ -1,7 +1,5 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.viewport;
 
-import java.util.Collection;
-
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -19,6 +17,8 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.TVertexSelectionItemTypes
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.Collection;
 
 public final class TVertexEditorManager {
 	private final ModelView model;
@@ -69,7 +69,7 @@ public final class TVertexEditorManager {
 				selectionView = selectionManager;
 				selectionListener.onSelectionChanged(selectionView);
 				nodeAnimationSelectionManager = null;
-            }
+			}
 			case VERTEX -> {
 				final GeosetVertexSelectionManager selectionManager = new GeosetVertexSelectionManager();
 				final GeosetVertexTVertexEditor geosetVertexModelEditor = new GeosetVertexTVertexEditor(model,
@@ -83,7 +83,7 @@ public final class TVertexEditorManager {
 				selectionView = selectionManager;
 				selectionListener.onSelectionChanged(selectionView);
 				nodeAnimationSelectionManager = null;
-            }
+			}
 		}
 	}
 

@@ -751,16 +751,14 @@ public class EditableModel implements Named {
 			final int animTrackEnd = animTrackEnd();
 			final int newStart = animTrackEnd + 300;
 			final int newEnd = newStart + anim.length();
-			final Animation newAnim = new Animation(anim); // clone the
-															// animation from
-															// the other model
+			final Animation newAnim = new Animation(anim);
+			// clone the animation from the other model
 			newAnim.copyToInterval(newStart, newEnd, othersFlags, othersEventObjs, newImpFlags, newImpEventObjs);
 			newAnim.setInterval(newStart, newEnd);
 			add(newAnim); // add the new animation to this model
 		}
 
-		// destroy the other model's animations, filling them in with the new
-		// stuff
+		// destroy the other model's animations, filling them in with the new stuff
 		for (final AnimFlag af : othersFlags) {
 			af.setValuesTo(newImpFlags.get(othersFlags.indexOf(af)));
 		}
@@ -770,10 +768,8 @@ public class EditableModel implements Named {
 
 		// Now, map the bones in the other model onto the bones in the current
 		// model
-		final List<Bone> leftBehind = new ArrayList<>(); // the bones that
-															// don't find
-															// matches in
-															// current model
+		final List<Bone> leftBehind = new ArrayList<>();
+		// the bones that don't find matches in current model
 		for (final IdObject object : other.idObjects) {
 			if (object instanceof Bone) {
 				// the bone from the other model
@@ -782,8 +778,7 @@ public class EditableModel implements Named {
 				final Object localObject = getObject(bone.getName());
 				if ((localObject instanceof Bone)) {
 					final Bone localBone = (Bone) localObject;
-					localBone.copyMotionFrom(bone); // if it's a match, take the
-													// data
+					localBone.copyMotionFrom(bone); // if it's a match, take the data
 				} else {
 					leftBehind.add(bone);
 				}
@@ -869,8 +864,7 @@ public class EditableModel implements Named {
 				final Object localObject = getObject(bone.getName());
 				if ((localObject instanceof Bone)) {
 					final Bone localBone = (Bone) localObject;
-					localBone.copyMotionFrom(bone); // if it's a match, take the
-													// data
+					localBone.copyMotionFrom(bone); // if it's a match, take the data
 				} else {
 					leftBehind.add(bone);
 				}

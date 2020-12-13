@@ -1,11 +1,9 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.widgets;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Point;
-
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.awt.*;
 
 public final class ScalerWidget {
     private static final int LINE_LEN = 80;
@@ -28,6 +26,7 @@ public final class ScalerWidget {
         final double x = coordinateSystem.convertX(point.getCoord(dim1));
         final double y = coordinateSystem.convertY(point.getCoord(dim2));
         ScaleDirection direction = ScaleDirection.NONE;
+
         if (mousePoint.x > x && mousePoint.y < y && mousePoint.y - y > mousePoint.x - x - INTERIOR_TRIANGLE_OFFSET) {
             return ScaleDirection.XYZ;
         }

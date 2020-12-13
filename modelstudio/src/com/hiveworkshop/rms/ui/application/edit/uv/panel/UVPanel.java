@@ -201,14 +201,17 @@ public class UVPanel extends JPanel
         modeToButton.put(selectionModeGroup.getToolbarButtonTypes()[0], selectButton);
         selectButton.addActionListener(new ButtonModeChangeListener(0));
         selectionModeButtons.add(selectButton);
+
         addButton = new ModeButton("Add");
         modeToButton.put(selectionModeGroup.getToolbarButtonTypes()[1], addButton);
         addButton.addActionListener(new ButtonModeChangeListener(1));
         selectionModeButtons.add(addButton);
+
         deselectButton = new ModeButton("Deselect");
         modeToButton.put(selectionModeGroup.getToolbarButtonTypes()[2], deselectButton);
         deselectButton.addActionListener(new ButtonModeChangeListener(2));
         selectionModeButtons.add(deselectButton);
+
         final JLabel[] divider = new JLabel[4];
         for (int i = 0; i < divider.length; i++) {
             divider[i] = new JLabel("----------");
@@ -276,58 +279,20 @@ public class UVPanel extends JPanel
             button.addActionListener(this);
         }
 
-        plusZoom = new JButton("");
-        Dimension dim = new Dimension(20, 20);
-        plusZoom.setMaximumSize(dim);
-        plusZoom.setMinimumSize(dim);
-        plusZoom.setPreferredSize(dim);
-        plusZoom.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage("Plus.png")));
-        plusZoom.addActionListener(this);
-        add(plusZoom);
+        plusZoom = addButton(20, 20, "Plus.png");
 
-        minusZoom = new JButton("");
-        minusZoom.setMaximumSize(dim);
-        minusZoom.setMinimumSize(dim);
-        minusZoom.setPreferredSize(dim);
-        minusZoom.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage("Minus.png")));
-        minusZoom.addActionListener(this);
-        add(minusZoom);
+        minusZoom = addButton(20, 20, "Minus.png");
 
-        up = new JButton("");
-        dim = new Dimension(32, 16);
-        up.setMaximumSize(dim);
-        up.setMinimumSize(dim);
-        up.setPreferredSize(dim);
-        up.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage("ArrowUp.png")));
-        up.addActionListener(this);
-        add(up);
+        up = addButton(32, 16, "ArrowUp.png");
 
-        down = new JButton("");
-        down.setMaximumSize(dim);
-        down.setMinimumSize(dim);
-        down.setPreferredSize(dim);
-        down.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage("ArrowDown.png")));
-        down.addActionListener(this);
-        add(down);
+        down = addButton(32, 16, "ArrowDown.png");
 
-        dim = new Dimension(16, 32);
-        left = new JButton("");
-        left.setMaximumSize(dim);
-        left.setMinimumSize(dim);
-        left.setPreferredSize(dim);
-        left.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage("ArrowLeft.png")));
-        left.addActionListener(this);
-        add(left);
+        left = addButton(16, 32, "ArrowLeft.png");
 
-        right = new JButton("");
-        right.setMaximumSize(dim);
-        right.setMinimumSize(dim);
-        right.setPreferredSize(dim);
-        right.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage("ArrowRight.png")));
-        right.addActionListener(this);
-        add(right);
+        right = addButton(16, 32, "ArrowRight.png");
 
         toolbar.setMaximumSize(new Dimension(80000, 48));
+
         final GroupLayout layout = new GroupLayout(this);
         layout.setHorizontalGroup(
                 layout.createSequentialGroup()
@@ -418,6 +383,18 @@ public class UVPanel extends JPanel
         menuHolderPanel.add(createMenuBar(), BorderLayout.BEFORE_FIRST_LINE);
         view = new View("Texture Coordinate Editor: " + currentModelPanel().getModel().getName(), UVIcon,
                 menuHolderPanel);
+    }
+
+    private JButton addButton(int width, int height, String iconPath) {
+        Dimension dim = new Dimension(width, height);
+        JButton button = new JButton("");
+        button.setMaximumSize(dim);
+        button.setMinimumSize(dim);
+        button.setPreferredSize(dim);
+        button.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage(iconPath)));
+        button.addActionListener(this);
+        add(button);
+        return button;
     }
 
     protected void remap(final byte xDim, final byte yDim, final UnwrapDirection direction) {
@@ -919,7 +896,8 @@ public class UVPanel extends JPanel
         } else if (e.getSource() == loadImage) {
 
             final int x = JOptionPane.showConfirmDialog(this,
-                    "Do you want to use the texture auto-loader to find available textures?\nIf you choose \"No\", then you will have to find a file on your hard drive instead.",
+                    "Do you want to use the texture auto-loader to find available textures?" +
+                            "\nIf you choose \"No\", then you will have to find a file on your hard drive instead.",
                     "Load Image", JOptionPane.YES_NO_CANCEL_OPTION);
             if (x == JOptionPane.YES_OPTION) {
                 final DefaultListModel<Material> materials = new DefaultListModel<>();

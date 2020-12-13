@@ -1,8 +1,11 @@
 package com.hiveworkshop.rms.util;
 
 public class Mat4 {
-    public float m00 = 1.0f, m01 = 0.0f, m02 = 0.0f, m03 = 0.0f, m10 = 0.0f, m11 = 1.0f, m12 = 0.0f, m13 = 0.0f,
-            m20 = 0.0f, m21 = 0.0f, m22 = 1.0f, m23 = 0.0f, m30 = 0.0f, m31 = 0.0f, m32 = 0.0f, m33 = 1.0f;
+    public float
+            m00 = 1.0f, m01 = 0.0f, m02 = 0.0f, m03 = 0.0f,
+            m10 = 0.0f, m11 = 1.0f, m12 = 0.0f, m13 = 0.0f,
+            m20 = 0.0f, m21 = 0.0f, m22 = 1.0f, m23 = 0.0f,
+            m30 = 0.0f, m31 = 0.0f, m32 = 0.0f, m33 = 1.0f;
 
     public Mat4() {
 
@@ -193,6 +196,79 @@ public class Mat4 {
 
     public Mat4 scale(Vec3 a) {
         return scale(a, this);
+    }
+
+    public static Mat4 uniformScale(float v, Mat4 matrixToScale) {
+        matrixToScale.m00 *= v;
+        matrixToScale.m01 *= v;
+        matrixToScale.m02 *= v;
+        matrixToScale.m03 *= v;
+        matrixToScale.m10 *= v;
+        matrixToScale.m11 *= v;
+        matrixToScale.m12 *= v;
+        matrixToScale.m13 *= v;
+        matrixToScale.m20 *= v;
+        matrixToScale.m21 *= v;
+        matrixToScale.m22 *= v;
+        matrixToScale.m23 *= v;
+        matrixToScale.m30 *= v;
+        matrixToScale.m31 *= v;
+        matrixToScale.m32 *= v;
+        matrixToScale.m33 *= v;
+        return matrixToScale;
+    }
+
+    public Mat4 uniformScale(float v) {
+        return uniformScale(v, this);
+    }
+
+    /**
+     * @param v value to scale by
+     * @return a uniformly scaled copy of the matrix
+     */
+    public Mat4 getUniformlyScaled(float v) {
+        Mat4 mat4 = new Mat4(this);
+        return uniformScale(v, mat4);
+    }
+
+    public Mat4 add(Mat4 out) {
+        out.m00 += m00;
+        out.m01 += m01;
+        out.m02 += m02;
+        out.m03 += m03;
+        out.m10 += m10;
+        out.m11 += m11;
+        out.m12 += m12;
+        out.m13 += m13;
+        out.m20 += m20;
+        out.m21 += m21;
+        out.m22 += m22;
+        out.m23 += m23;
+        out.m30 += m30;
+        out.m31 += m31;
+        out.m32 += m32;
+        out.m33 += m33;
+        return out;
+    }
+
+    public Mat4 addToThis(Mat4 matToAdd) {
+        m00 += matToAdd.m00;
+        m01 += matToAdd.m01;
+        m02 += matToAdd.m02;
+        m03 += matToAdd.m03;
+        m10 += matToAdd.m10;
+        m11 += matToAdd.m11;
+        m12 += matToAdd.m12;
+        m13 += matToAdd.m13;
+        m20 += matToAdd.m20;
+        m21 += matToAdd.m21;
+        m22 += matToAdd.m22;
+        m23 += matToAdd.m23;
+        m30 += matToAdd.m30;
+        m31 += matToAdd.m31;
+        m32 += matToAdd.m32;
+        m33 += matToAdd.m33;
+        return this;
     }
 
     public Mat4 invert(final Mat4 out) {

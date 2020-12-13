@@ -1,9 +1,5 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.io.IOException;
-
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
@@ -16,6 +12,9 @@ import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
+
+import java.awt.*;
+import java.io.IOException;
 
 public class ViewportRenderableCamera {
 	private final EditableModel cameraModel;
@@ -88,9 +87,11 @@ public class ViewportRenderableCamera {
 		endVector.z = end.z;
 
 		delta.set(end.x, end.y, end.z);
+
 		delta.x -= start.x;
 		delta.y -= start.y;
 		delta.z -= start.z;
+
 		final float length = delta.length();
 		final double cameraModelScale = length / cameraLength;
 
@@ -127,8 +128,9 @@ public class ViewportRenderableCamera {
 		}
 	}
 
-	public void render(final double startX, final double startY, final double startZ, final double endX,
-			final double endY, final double endZ, final double rotation) {
+	public void render(final double startX, final double startY, final double startZ,
+	                   final double endX, final double endY, final double endZ,
+	                   final double rotation) {
 		start.set(startX, startY, startZ);
 		end.set(endX, endY, endZ);
 

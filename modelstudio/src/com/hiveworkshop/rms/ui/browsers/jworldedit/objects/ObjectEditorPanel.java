@@ -2,23 +2,23 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
+import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
-import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPanel;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.WorldEditorDataType;
 import com.hiveworkshop.rms.parsers.w3o.WTSFile;
-import com.hiveworkshop.rms.util.War3ID;
 import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
-import com.hiveworkshop.rms.parsers.blp.BLPHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.util.TransferActionListener;
-import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.AbstractWorldEditorPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.builders.*;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.factory.BasicSingleFieldFactory;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.WorldEditorDataType;
+import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.util.TransferActionListener;
+import com.hiveworkshop.rms.ui.icons.IconUtils;
+import com.hiveworkshop.rms.util.War3ID;
 import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
 
@@ -86,19 +86,21 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 
 		add(toolBar, BorderLayout.BEFORE_FIRST_LINE);
 		add(tabbedPane, BorderLayout.CENTER);
-		tabbedPane.addChangeListener(e -> {
-            final UnitEditorPanel selectedEditorPanel = (UnitEditorPanel) tabbedPane.getSelectedComponent();
-            final EditorTabCustomToolbarButtonData editorTabCustomToolbarButtonData = selectedEditorPanel
-                    .getEditorTabCustomToolbarButtonData();
-            createNewButton.setIcon(getIcon(worldEditorData, editorTabCustomToolbarButtonData.getIconKey()));
-            createNewButton.setToolTipText(
-                    WEString.getString(editorTabCustomToolbarButtonData.getNewCustomObject()).replace("&", ""));
-            copyButton.setToolTipText(
-                    WEString.getString(editorTabCustomToolbarButtonData.getCopyObject()).replace("&", ""));
-            pasteButton.setToolTipText(
-                    WEString.getString(editorTabCustomToolbarButtonData.getPasteObject()).replace("&", ""));
-        });
+		tabbedPane.addChangeListener(e -> tabbedPaneChangeListener(worldEditorData));
 		jFileChooser = new JFileChooser(new File(System.getProperty("user.home") + "/Documents/Warcraft III/Maps"));
+	}
+
+	private void tabbedPaneChangeListener(DataTable worldEditorData) {
+		final UnitEditorPanel selectedEditorPanel = (UnitEditorPanel) tabbedPane.getSelectedComponent();
+		final EditorTabCustomToolbarButtonData editorTabCustomToolbarButtonData = selectedEditorPanel
+				.getEditorTabCustomToolbarButtonData();
+		createNewButton.setIcon(getIcon(worldEditorData, editorTabCustomToolbarButtonData.getIconKey()));
+		createNewButton.setToolTipText(
+				WEString.getString(editorTabCustomToolbarButtonData.getNewCustomObject()).replace("&", ""));
+		copyButton.setToolTipText(
+				WEString.getString(editorTabCustomToolbarButtonData.getCopyObject()).replace("&", ""));
+		pasteButton.setToolTipText(
+				WEString.getString(editorTabCustomToolbarButtonData.getPasteObject()).replace("&", ""));
 	}
 
 	private JToolBar createToolbar(final DataTable worldEditorData) {
@@ -115,16 +117,14 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 		copyButton = makeButton(worldEditorData, toolBar, "copy", "ToolBarIcon_Copy", "WESTRING_MENU_OE_UNIT_COPY");
 		copyButton.addActionListener(transferActionListener);
 		copyButton.setActionCommand((String) TransferHandler.getCopyAction().getValue(Action.NAME));
+
 		pasteButton = makeButton(worldEditorData, toolBar, "paste", "ToolBarIcon_Paste", "WESTRING_MENU_OE_UNIT_PASTE");
 		pasteButton.addActionListener(transferActionListener);
 		pasteButton.setActionCommand((String) TransferHandler.getPasteAction().getValue(Action.NAME));
 		toolBar.add(Box.createHorizontalStrut(8));
 		createNewButton = makeButton(worldEditorData, toolBar, "createNew", "ToolBarIcon_OE_NewUnit",
 				"WESTRING_MENU_OE_UNIT_NEW");
-		createNewButton.addActionListener(e -> {
-            final UnitEditorPanel selectedEditorPanel = (UnitEditorPanel) tabbedPane.getSelectedComponent();
-            selectedEditorPanel.runCustomUnitPopup();
-        });
+		createNewButton.addActionListener(e -> createNew());
 		toolBar.add(Box.createHorizontalStrut(8));
 		makeButton(worldEditorData, toolBar, "terrainEditor", "ToolBarIcon_Module_Terrain",
 				"WESTRING_MENU_MODULE_TERRAIN");
@@ -164,6 +164,11 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 		return toolBar;
 	}
 
+	private void createNew() {
+		final UnitEditorPanel selectedEditorPanel = (UnitEditorPanel) tabbedPane.getSelectedComponent();
+		selectedEditorPanel.runCustomUnitPopup();
+	}
+
 	public void loadHotkeys() {
 		final JRootPane root = getRootPane();
 		getRootPane().getActionMap().put("displayAsRawData", new AbstractAction() {
@@ -177,17 +182,13 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 		getRootPane().getActionMap().put("searchUnits", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				final int selectedIndex = tabbedPane.getSelectedIndex();
-				final UnitEditorPanel unitEditorPanel = editors.get(selectedIndex);
-				unitEditorPanel.doSearchForUnit();
+				searchUnits();
 			}
 		});
 		getRootPane().getActionMap().put("searchFindNextUnit", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				final int selectedIndex = tabbedPane.getSelectedIndex();
-				final UnitEditorPanel unitEditorPanel = editors.get(selectedIndex);
-				unitEditorPanel.doSearchFindNextUnit();
+				searchFindNextUnit();
 			}
 		});
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control D"),
@@ -199,6 +200,18 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 		for (final UnitEditorPanel editor : editors) {
 			editor.loadHotkeys();
 		}
+	}
+
+	private void searchFindNextUnit() {
+		final int selectedIndex = tabbedPane.getSelectedIndex();
+		final UnitEditorPanel unitEditorPanel = editors.get(selectedIndex);
+		unitEditorPanel.doSearchFindNextUnit();
+	}
+
+	private void searchUnits() {
+		final int selectedIndex = tabbedPane.getSelectedIndex();
+		final UnitEditorPanel unitEditorPanel = editors.get(selectedIndex);
+		unitEditorPanel.doSearchForUnit();
 	}
 
 	private UnitEditorPanel createUnitEditor() {
@@ -246,9 +259,9 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 				standardUnitMeta, new ItemFieldBuilder(), new ItemTabTreeBrowserBuilder(), WorldEditorDataType.ITEM,
 				new EditorTabCustomToolbarButtonData("WESTRING_MENU_OE_ITEM_NEW", "ToolBarIcon_OE_NewItem",
 						"WESTRING_MENU_OE_ITEM_COPY", "WESTRING_MENU_OE_ITEM_PASTE"),
-                () -> {
-                    // TODO Auto-generated method stub
-                });
+				() -> {
+					// TODO Auto-generated method stub
+				});
 		return unitEditorPanel;
 	}
 
@@ -274,10 +287,10 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 				new DestructableTabTreeBrowserBuilder(), WorldEditorDataType.DESTRUCTIBLES,
 				new EditorTabCustomToolbarButtonData("WESTRING_MENU_OE_DEST_NEW", "ToolBarIcon_OE_NewDest",
 						"WESTRING_MENU_OE_DEST_COPY", "WESTRING_MENU_OE_DEST_PASTE"),
-                () -> {
-                    // TODO Auto-generated method stub
+				() -> {
+					// TODO Auto-generated method stub
 
-                });
+				});
 		return unitEditorPanel;
 	}
 

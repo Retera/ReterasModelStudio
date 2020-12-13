@@ -1,7 +1,5 @@
 package com.hiveworkshop.rms.ui.application.actions.uv;
 
-import java.util.*;
-
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
@@ -11,6 +9,8 @@ import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.*;
 
 public final class SplitForUVAction<T> implements UndoAction {
 
@@ -37,15 +37,12 @@ public final class SplitForUVAction<T> implements UndoAction {
 		final Set<GeosetVertex> verticesInTheTriangles = new HashSet<>();
 		final Set<Geoset> geosetsToCopy = new HashSet<>();
 		for (final Triangle tri : trisToSeparate) {
-            verticesInTheTriangles.addAll(Arrays.asList(tri.getVerts()));
+			verticesInTheTriangles.addAll(Arrays.asList(tri.getVerts()));
 			geosetsToCopy.add(tri.getGeoset());
 		}
 		final Map<Geoset, Geoset> oldGeoToNewGeo = new HashMap<>();
 		final Map<GeosetVertex, GeosetVertex> oldVertToNewVert = new HashMap<>();
-		for (final Geoset geoset : geosetsToCopy) {
-			final Geoset geosetModified = geoset;
-			geosetsModified.add(geosetModified);
-		}
+		geosetsModified.addAll(geosetsToCopy);
 		for (final GeosetVertex vertex : verticesInTheTriangles) {
 			final GeosetVertex copy = new GeosetVertex(vertex);
 			final Geoset newGeoset = oldGeoToNewGeo.get(vertex.getGeoset());

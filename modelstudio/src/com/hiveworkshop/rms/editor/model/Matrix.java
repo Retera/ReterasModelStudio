@@ -1,9 +1,8 @@
 package com.hiveworkshop.rms.editor.model;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JOptionPane;
 
 /**
  * Vertex motion matrices.
@@ -131,8 +130,7 @@ public class Matrix {
 		} else if ((bones != null) && (bones.size() > 0)) {
 			return bones.size();
 		}
-		// JOptionPane.showMessageDialog(null,"Warning: A matrix with no
-		// contents was used!");
+		// JOptionPane.showMessageDialog(null,"Warning: A matrix with no contents was used!");
 		// System.out.println("Warning: A matrix with no contents was used!");
 		return -1;// bad stuff
 	}

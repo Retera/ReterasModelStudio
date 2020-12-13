@@ -43,6 +43,7 @@ public class ComponentBitmapPanel extends JPanel implements ComponentPanel {
             setBitmapPathAction.redo();
             undoListener.pushAction(setBitmapPathAction);
         });
+
 		replaceableIdSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(-1, -1, Integer.MAX_VALUE, 1));
 		replaceableIdSpinner.addActionListener(() -> {
             final SetBitmapReplaceableIdAction setBitmapReplaceableIdAction = new SetBitmapReplaceableIdAction(
@@ -51,6 +52,7 @@ public class ComponentBitmapPanel extends JPanel implements ComponentPanel {
             setBitmapReplaceableIdAction.redo();
             undoListener.pushAction(setBitmapReplaceableIdAction);
         });
+
 		wrapWidthBox = new JCheckBox("Wrap Width");
 		wrapWidthBox.addActionListener(e -> {
             final SetBitmapWrapWidthAction setBitmapWrapWidthAction = new SetBitmapWrapWidthAction(bitmap,
@@ -58,6 +60,7 @@ public class ComponentBitmapPanel extends JPanel implements ComponentPanel {
             setBitmapWrapWidthAction.redo();
             undoListener.pushAction(setBitmapWrapWidthAction);
         });
+
 		wrapHeightBox = new JCheckBox("Wrap Height");
 		wrapHeightBox.addActionListener(e -> {
             final SetBitmapWrapHeightAction setBitmapWrapHeightAction = new SetBitmapWrapHeightAction(bitmap,
@@ -65,6 +68,7 @@ public class ComponentBitmapPanel extends JPanel implements ComponentPanel {
             setBitmapWrapHeightAction.redo();
             undoListener.pushAction(setBitmapWrapHeightAction);
         });
+
 		previewPanel = new JPanel();
 		previewPanel.setBorder(new TitledBorder(null, "Previewer", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		previewPanel.setLayout(new BorderLayout());
@@ -76,6 +80,7 @@ public class ComponentBitmapPanel extends JPanel implements ComponentPanel {
 		add(replaceableIdSpinner, "cell 1 1 2");
 		add(wrapWidthBox, "cell 0 2 3");
 		add(wrapHeightBox, "cell 0 3");
+
 		final JButton exportTextureImageFile = new JButton("Export Texture Image File");
 		exportTextureImageFile.addActionListener(e -> {
             String suggestedName = texturePathField.getText();

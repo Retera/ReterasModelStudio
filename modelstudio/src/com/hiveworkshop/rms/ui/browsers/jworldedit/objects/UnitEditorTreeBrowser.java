@@ -158,7 +158,7 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 
 	private abstract class OpenUnitModelField implements ActionListener {
 		private final MDLLoadListener listener;
-		private String unitFieldRawcode;
+		private final String unitFieldRawcode;
 
 		public OpenUnitModelField(MDLLoadListener listener, String unitFieldRawcode) {
 			this.listener = listener;

@@ -89,39 +89,25 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 			}
 			object.apply(new IdObjectVisitor() {
 				@Override
-				public void ribbonEmitter(final RibbonEmitter particleEmitter) {
-
-				}
+				public void ribbonEmitter(final RibbonEmitter particleEmitter) {}
 
 				@Override
-				public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
-
-				}
+				public void particleEmitter2(final ParticleEmitter2 particleEmitter) {}
 
 				@Override
-				public void particleEmitter(final ParticleEmitter particleEmitter) {
-
-				}
+				public void particleEmitter(final ParticleEmitter particleEmitter) {}
 
 				@Override
-				public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
-
-				}
+				public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {}
 
 				@Override
-				public void light(final Light light) {
-
-				}
+				public void light(final Light light) {}
 
 				@Override
-				public void helper(final Helper object) {
-
-				}
+				public void helper(final Helper object) {}
 
 				@Override
-				public void eventObject(final EventObject eventObject) {
-
-				}
+				public void eventObject(final EventObject eventObject) {}
 
 				@Override
 				public void collisionShape(final CollisionShape collisionShape) {
@@ -133,19 +119,13 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 				}
 
 				@Override
-				public void camera(final Camera camera) {
-
-				}
+				public void camera(final Camera camera) {}
 
 				@Override
-				public void bone(final Bone object) {
-
-				}
+				public void bone(final Bone object) {}
 
 				@Override
-				public void attachment(final Attachment attachment) {
-
-				}
+				public void attachment(final Attachment attachment) {}
 			});
 		}
 		// TODO cameras in a second CameraAnimationEditor

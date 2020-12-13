@@ -91,6 +91,7 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 		tree.setModel(model);
 		tree.setCellRenderer(new WarcraftObjectTreeCellRenderer(settings, WorldEditorDataType.UNITS));
 		tree.setRootVisible(false);
+
 		final JScrollPane treePane;
 		setLeftComponent(treePane = new JScrollPane(tree));
 		final JPanel temp = new JPanel();
@@ -297,8 +298,7 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 
 	private String raceKey(final int index) {
 		return switch (index) {
-			case -1 -> "human";
-			case 0 -> "human";
+			case -1, 0 -> "human";
 			case 1 -> "orc";
 			case 2 -> "undead";
 			case 3 -> "nightelf";
@@ -345,15 +345,10 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 				}
 
 				final WarcraftObject unit = (WarcraftObject) unitData.get(baseId);
-				// if( unit == null ) {
-				// System.err.println(str);
-				// continue;
-				// }
 				String raceKey = "passives";
 				final String abilities = unit.getField("abilList");
 				final boolean isCampaign = unit.getField("campaign").startsWith("1");
-				// boolean isCustom =
-				// !unit.getField("inEditor").startsWith("1");
+				// boolean isCustom = !unit.getField("inEditor").startsWith("1");
 				int sortGroupId = 0;
 
 				for (int i = 0; i < 6; i++) {
@@ -373,8 +368,6 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 					sortGroupId = 3;
 				} else if (unit.getField("isbldg").startsWith("1")) {
 					sortGroupId = 2;
-				} else {
-					sortGroupId = 0;
 				}
 				// sortedRaces.get(raceKey(i) + "campaign").
 

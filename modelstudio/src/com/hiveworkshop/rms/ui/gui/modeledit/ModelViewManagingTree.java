@@ -165,8 +165,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 			root.add(cameras);
 		}
 
-		final DefaultTreeModel defaultTreeModel = new DefaultTreeModel(root);
-		return defaultTreeModel;
+		return new DefaultTreeModel(root);
 	}
 
 	private final class HighlightOnMouseoverListenerImpl implements MouseMotionListener, MouseListener {

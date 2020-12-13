@@ -29,8 +29,10 @@ public class ComponentGlobalSequencePanel extends JPanel {
             undoActionListener.pushAction(setGlobalSequenceLengthAction);
         });
 		add(new JLabel("GlobalSequence "), "cell 0 0");
+
 		indexLabel = new JLabel();
 		add(indexLabel, "cell 1 0");
+
 		add(new JLabel("Duration: "), "cell 0 1");
 		add(lengthSpinner, "cell 1 1");
 	}

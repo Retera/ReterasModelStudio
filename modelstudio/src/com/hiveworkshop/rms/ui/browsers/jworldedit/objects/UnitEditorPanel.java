@@ -1,19 +1,19 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 
-import com.hiveworkshop.rms.parsers.slk.DataTable;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.WorldEditorDataType;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectDataChangeListener;
-import com.hiveworkshop.rms.util.War3ID;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
-import com.hiveworkshop.rms.ui.icons.IconUtils;
+import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.EditorFieldBuilder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.ObjectDataTableModel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.FieldPopupUtils;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.WorldEditorDataType;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectDataChangeListener;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.TreeNodeLinkerFromModel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.TopLevelCategoryFolder;
+import com.hiveworkshop.rms.ui.icons.IconUtils;
+import com.hiveworkshop.rms.util.War3ID;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -489,8 +489,7 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 			nodes.addFirst(currentNode);
 			currentNode = currentNode.getParent();
 		}
-		final TreePath pathForNode = new TreePath(nodes.toArray());
-		return pathForNode;
+		return new TreePath(nodes.toArray());
 	}
 
 	public void selectUnit(final War3ID unitId) {

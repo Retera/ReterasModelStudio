@@ -18,16 +18,22 @@ public class LayerFlagsPanel extends JPanel {
 		setLayout(new MigLayout());
 		unshaded = new JCheckBox("Unshaded");
 		add(unshaded, "wrap");
+
 		sphereEnvMap = new JCheckBox("SphereEnvMap");
 		add(sphereEnvMap, "wrap");
+
 		twoSided = new JCheckBox("TwoSided");
 		add(twoSided, "wrap");
+
 		unfogged = new JCheckBox("Unfogged");
 		add(unfogged, "wrap");
+
 		noDepthTest = new JCheckBox("NoDepthTest");
 		add(noDepthTest, "wrap");
+
 		noDepthSet = new JCheckBox("NoDepthSet");
 		add(noDepthSet, "wrap");
+
 		unlit = new JCheckBox("Unlit");
 		add(unlit, "wrap");
 	}

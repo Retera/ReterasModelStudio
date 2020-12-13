@@ -52,6 +52,10 @@ public final class RenderModel {
 		this.model = model;
 		this.modelView = modelView;
 		rootPosition = new RenderNode(this, new Bone("RootPositionHack"));
+		// Some classes doesn't call refreshFromEditor which leads to null-pointers when these in nor initialised
+		inverseCameraRotation = new Quat(0, 0, 0, 1);
+		inverseCameraRotationYSpin = new Quat(0, 0, 0, 1);
+		inverseCameraRotationZSpin = new Quat(0, 0, 0, 1);
 	}
 
 	public void setSpawnParticles(final boolean spawnParticles) {

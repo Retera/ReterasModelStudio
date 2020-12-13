@@ -22,8 +22,7 @@ public class TargaReader {
      private static int offset;
 
      private static int btoi(byte b) {
-             int a = b;
-             return (a<0?256+a:a);
+         return ((int) b < 0 ? 256 + (int) b : (int) b);
      }
 
      private static int read(byte[] buf) {

@@ -85,9 +85,8 @@ public class MainLayoutCreator {
     }
 
     static UnitEditorTree createUnitEditorTree(MainPanel mainPanel) {
-        final UnitEditorTree unitEditorTree = new UnitEditorTreeBrowser(getUnitData(), new UnitTabTreeBrowserBuilder(),
+        return new UnitEditorTreeBrowser(getUnitData(), new UnitTabTreeBrowserBuilder(),
                 getUnitEditorSettings(), MutableObjectData.WorldEditorDataType.UNITS, (mdxFilePath, b, c, icon) -> MPQBrowserView.loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(mdxFilePath), b, c, icon), mainPanel.prefs);
-        return unitEditorTree;
     }
 
     /**
@@ -100,9 +99,10 @@ public class MainLayoutCreator {
         try {
             final CompoundDataSource gameDataFileSystem = GameDataFileSystem.getDefault();
             if (gameDataFileSystem.has("war3map.w3u")) {
-                editorData.load(new BlizzardDataInputStream(gameDataFileSystem.getResourceAsStream("war3map.w3u")),
-                        gameDataFileSystem.has("war3map.wts") ? new WTSFile(gameDataFileSystem.getResourceAsStream("war3map.wts"))
-                                : null,
+                editorData.load(
+                        new BlizzardDataInputStream(gameDataFileSystem.getResourceAsStream("war3map.w3u")),
+                        gameDataFileSystem.has("war3map.wts")
+                                ? new WTSFile(gameDataFileSystem.getResourceAsStream("war3map.wts")) : null,
                         true);
             }
         } catch (final IOException e) {

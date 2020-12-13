@@ -66,12 +66,14 @@ public class AnimFlag {
 			return false;
 		}
 		final AnimFlag af = o;
-		does = (name.equals(af.getName())) ||
-			   (hasGlobalSeq == af.hasGlobalSeq) ||
-			   (values.equals(af.values) && (Objects.equals(globalSeq, af.globalSeq))
+		does = (name.equals(af.getName()))
+				|| (hasGlobalSeq == af.hasGlobalSeq)
+				|| (values.equals(af.values)
+				&& (Objects.equals(globalSeq, af.globalSeq))
 				&& (interpolationType == af.interpolationType)
 				&& (Objects.equals(inTans, af.inTans))
-				&& (Objects.equals(outTans, af.outTans)) && (typeid == af.typeid));
+				&& (Objects.equals(outTans, af.outTans))
+				&& (typeid == af.typeid));
 		return does;
 	}
 
@@ -834,8 +836,7 @@ public class AnimFlag {
 		if (!hasGlobalSeq) {
 			final boolean tans = tans();
 			for (int index = times.size() - 1; index >= 0; index--) {
-				final Integer inte = times.get(index);
-				final int i = inte;
+				final int i = times.get(index);
 				// int index = times.indexOf(inte);
 				if ((i >= anim.getStart()) && (i <= anim.getEnd())) {
 					// If this "i" is a part of the anim being removed
@@ -911,8 +912,7 @@ public class AnimFlag {
 		// {
 		for (int z = 0; z < times.size(); z++)// Integer inte: times )
 		{
-			final Integer inte = times.get(z);
-			final int i = inte;
+			final int i = times.get(z);
 			if ((i >= start) && (i <= end)) {
 				// If this "i" is a part of the anim being rescaled
 				final double ratio = (double) (i - start) / (double) (end - start);
@@ -1069,8 +1069,7 @@ public class AnimFlag {
 		if (times.size() == 0) {
 			return -1;
 		}
-		final int floorIndex = floorIndex(time, 0, times.size() - 1);
-		return floorIndex;
+		return floorIndex(time, 0, times.size() - 1);
 	}
 
 	/*

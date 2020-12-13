@@ -1,11 +1,6 @@
 package de.wc3data.stream;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 
 public class BlizzardDataOutputStream extends BufferedOutputStream {
 
@@ -17,7 +12,7 @@ public class BlizzardDataOutputStream extends BufferedOutputStream {
 		super(new FileOutputStream(file, append));
 	}
 
-	public BlizzardDataOutputStream(final OutputStream outputStream) throws FileNotFoundException {
+	public BlizzardDataOutputStream(final OutputStream outputStream) {
 		super(outputStream);
 	}
 

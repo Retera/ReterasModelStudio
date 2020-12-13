@@ -710,11 +710,9 @@ public final class MutableObjectData {
 				editorMetaDataDisplayKey = editorMetaDataDisplayKey + ":hd";
 			}
 			if (index != -1) {
-				final String fieldStringValue = parentWC3Object.getField(editorMetaDataDisplayKey, index);
-				return fieldStringValue;
+				return parentWC3Object.getField(editorMetaDataDisplayKey, index);
 			}
-			final String fieldStringValue = parentWC3Object.getField(editorMetaDataDisplayKey);
-			return fieldStringValue;
+			return parentWC3Object.getField(editorMetaDataDisplayKey);
 		}
 
 		public int getFieldAsInteger(final War3ID field, final int level) {

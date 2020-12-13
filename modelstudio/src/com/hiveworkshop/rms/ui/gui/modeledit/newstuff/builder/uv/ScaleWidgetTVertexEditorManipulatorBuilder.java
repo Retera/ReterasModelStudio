@@ -1,30 +1,25 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.uv;
 
-import java.awt.Graphics2D;
-import java.awt.Point;
-
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.selection.ViewportSelectionHandler;
 import com.hiveworkshop.rms.ui.application.edit.uv.widgets.TVertexScalerWidget;
 import com.hiveworkshop.rms.ui.application.edit.uv.widgets.TVertexScalerWidget.ScaleDirection;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv.ScaleTVertexManipulator;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv.ScaleTVertexManipulatorUsesYMouseDrag;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv.ScaleXTVertexManipulator;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv.ScaleXYTVertexManipulator;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv.ScaleYTVertexManipulator;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv.*;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 
+import java.awt.*;
+
 public final class ScaleWidgetTVertexEditorManipulatorBuilder extends AbstractSelectAndEditTVertexEditorManipulatorBuilder {
 	private final TVertexScalerWidget moverWidget = new TVertexScalerWidget(new Vec2(0, 0));
 
 	public ScaleWidgetTVertexEditorManipulatorBuilder(final TVertexEditor modelEditor,
-			final ViewportSelectionHandler viewportSelectionHandler, final ProgramPreferences programPreferences,
-			final ModelView modelView) {
+	                                                  final ViewportSelectionHandler viewportSelectionHandler, final ProgramPreferences programPreferences,
+	                                                  final ModelView modelView) {
 		super(viewportSelectionHandler, programPreferences, modelEditor, modelView);
 	}
 
@@ -47,14 +42,14 @@ public final class ScaleWidgetTVertexEditorManipulatorBuilder extends AbstractSe
 		if (directionByMouse != null) {
 			moverWidget.setMoveDirection(directionByMouse);
 		}
-        return switch (directionByMouse) {
-            case XYZ -> new ScaleTVertexManipulatorUsesYMouseDrag(getModelEditor(), selectionView);
-            case FLAT_XY -> new ScaleXYTVertexManipulator(getModelEditor(), selectionView);
-            case RIGHT -> new ScaleXTVertexManipulator(getModelEditor(), selectionView);
-            case UP -> new ScaleYTVertexManipulator(getModelEditor(), selectionView);
-            case NONE -> null;
-        };
-    }
+		return switch (directionByMouse) {
+			case XYZ -> new ScaleTVertexManipulatorUsesYMouseDrag(getModelEditor(), selectionView);
+			case FLAT_XY -> new ScaleXYTVertexManipulator(getModelEditor(), selectionView);
+			case RIGHT -> new ScaleXTVertexManipulator(getModelEditor(), selectionView);
+			case UP -> new ScaleYTVertexManipulator(getModelEditor(), selectionView);
+			case NONE -> null;
+		};
+	}
 
 	@Override
 	protected Manipulator createDefaultManipulator(final Vec2 selectionCenter, final Point mousePoint,

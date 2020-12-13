@@ -7,9 +7,13 @@ import com.hiveworkshop.rms.ui.application.edit.ClonedNodeNamePickerImplementati
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.RedoActionImplementation;
 import com.hiveworkshop.rms.ui.application.edit.UndoActionImplementation;
-import com.hiveworkshop.rms.ui.application.edit.animation.*;
+import com.hiveworkshop.rms.ui.application.edit.animation.ControllableTimeBoundProvider;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundChooserPanel;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderPanel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.*;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ActivityDescriptor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorChangeActivityListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ActiveViewportWatcher;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
@@ -30,7 +34,7 @@ import com.hiveworkshop.rms.ui.preferences.listeners.WarcraftDataSourceChangeLis
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.ui.util.ModeButton;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
-import com.hiveworkshop.rms.util.*;
+import com.hiveworkshop.rms.util.Vec3;
 import net.infonode.docking.*;
 import net.infonode.docking.util.StringViewMap;
 import net.infonode.tabbedpanel.TabAreaVisiblePolicy;
@@ -45,10 +49,12 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.*;
 
 public class MainPanel extends JPanel
         implements ActionListener, UndoHandler, ModelEditorChangeActivityListener, ModelPanelCloseListener {
@@ -402,8 +408,7 @@ public class MainPanel extends JPanel
             final Object[] settings = {"Move Linked", "Move Single"};
             final Object dialogResult = JOptionPane.showInputDialog(null, "Choose settings:", "T-Pose Settings",
                     JOptionPane.PLAIN_MESSAGE, null, settings, settings[0]);
-            final boolean moveLinked = dialogResult == settings[0];
-            ModelEditorManager.MOVE_LINKED = moveLinked;
+            ModelEditorManager.MOVE_LINKED = dialogResult == settings[0];
         }
         repaint();
     }

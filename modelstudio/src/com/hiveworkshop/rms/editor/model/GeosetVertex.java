@@ -239,25 +239,9 @@ public class GeosetVertex extends Vec3 {
                                      final double radians, final byte firstXYZ, final byte secondXYZ, final float[] vertex) {
         final double x1 = getVertexCoord(firstXYZ, vertex);
         final double y1 = getVertexCoord(secondXYZ, vertex);
-        final double cx = switch (firstXYZ) {
-            case 0 -> centerX;
-            case 1 -> centerY;
-            case -1 -> -centerX;
-            case -2 -> -centerY;
-            case -3 -> -centerZ;
-            case 2 -> centerZ;
-            default -> centerZ;
-        };// = coordinateSystem.geomX(centerX);
+        final double cx = getCenter(centerX, centerY, centerZ, firstXYZ);// = coordinateSystem.geomX(centerX);
         final double dx = x1 - cx;
-        final double cy = switch (secondXYZ) {
-            case 0 -> centerX;
-            case 1 -> centerY;
-            case -1 -> -centerX;
-            case -2 -> -centerY;
-            case -3 -> -centerZ;
-            case 2 -> centerZ;
-            default -> centerZ;
-        };// = coordinateSystem.geomY(centerY);
+        final double cy = getCenter(centerX, centerY, centerZ, secondXYZ);// = coordinateSystem.geomY(centerY);
         final double dy = y1 - cy;
         final double r = Math.sqrt((dx * dx) + (dy * dy));
         double verAng = Math.acos(dx / r);
@@ -276,9 +260,21 @@ public class GeosetVertex extends Vec3 {
         }
     }
 
+    private static double getCenter(double centerX, double centerY, double centerZ, byte secondXYZ) {
+        return switch (secondXYZ) {
+            case 0 -> centerX;
+            case 1 -> centerY;
+            case -1 -> -centerX;
+            case -2 -> -centerY;
+            case -3 -> -centerZ;
+            case 2 -> centerZ;
+            default -> centerZ;
+        };
+    }
+
     private static void setVertexCoord(byte firstXYZ, float[] vertex, float nextDim) {
-        if(firstXYZ < 0) {
-            firstXYZ = (byte)(-firstXYZ-1);
+        if (firstXYZ < 0) {
+            firstXYZ = (byte) (-firstXYZ - 1);
             nextDim = -nextDim;
         }
         vertex[firstXYZ] = nextDim;
