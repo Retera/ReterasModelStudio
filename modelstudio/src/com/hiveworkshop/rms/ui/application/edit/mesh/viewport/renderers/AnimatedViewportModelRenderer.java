@@ -385,6 +385,15 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 				case 2:
 					firstCoord = vertexSumHeap.z;
 					break;
+				case -1:
+					firstCoord = -vertexSumHeap.x;
+					break;
+				case -2:
+					firstCoord = -vertexSumHeap.y;
+					break;
+				case -3:
+					firstCoord = -vertexSumHeap.z;
+					break;
 				default:
 					throw new IllegalStateException("Invalid x dimension");
 			}
@@ -397,6 +406,15 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 					break;
 				case 2:
 					secondCoord = vertexSumHeap.z;
+					break;
+				case -1:
+					secondCoord = -vertexSumHeap.x;
+					break;
+				case -2:
+					secondCoord = -vertexSumHeap.y;
+					break;
+				case -3:
+					secondCoord = -vertexSumHeap.z;
 					break;
 				default:
 					throw new IllegalStateException("Invalid y dimension");
@@ -426,6 +444,15 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 					case 2:
 						firstNormalCoord = normalSumHeap.z;
 						break;
+					case -1:
+						firstNormalCoord = -normalSumHeap.x;
+						break;
+					case -2:
+						firstNormalCoord = -normalSumHeap.y;
+						break;
+					case -3:
+						firstNormalCoord = -normalSumHeap.z;
+						break;
 					default:
 						throw new IllegalStateException("Invalid x dimension");
 				}
@@ -438,6 +465,15 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 						break;
 					case 2:
 						secondNormalCoord = normalSumHeap.z;
+						break;
+					case -1:
+						secondNormalCoord = -normalSumHeap.x;
+						break;
+					case -2:
+						secondNormalCoord = -normalSumHeap.y;
+						break;
+					case -3:
+						secondNormalCoord = -normalSumHeap.z;
 						break;
 					default:
 						throw new IllegalStateException("Invalid y dimension");
