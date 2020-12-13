@@ -1,11 +1,9 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.widgets;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Point;
-
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.awt.*;
 
 public final class ScalerWidget {
     private static final int LINE_LEN = 80;
@@ -28,6 +26,7 @@ public final class ScalerWidget {
         final double x = coordinateSystem.convertX(point.getCoord(dim1));
         final double y = coordinateSystem.convertY(point.getCoord(dim2));
         ScaleDirection direction = ScaleDirection.NONE;
+
         if (mousePoint.x > x && mousePoint.y < y && mousePoint.y - y > mousePoint.x - x - INTERIOR_TRIANGLE_OFFSET) {
             return ScaleDirection.XYZ;
         }
@@ -67,7 +66,7 @@ public final class ScalerWidget {
         final double y = coordinateSystem.convertY(point.getCoord(yDimension));
         if (moveDirection != null) {
             switch (moveDirection) {
-                case XYZ:
+                case XYZ -> {
                     recycleXPoints[0] = (int) x;
                     recycleYPoints[0] = (int) y;
                     recycleXPoints[1] = (int) x + INTERIOR_TRIANGLE_OFFSET;
@@ -86,8 +85,8 @@ public final class ScalerWidget {
                     setColorByDimension(graphics, yDimension);
                     graphics.drawLine((int) x, (int) y, (int) x, (int) y - LINE_LEN);
                     graphics.drawRect((int) x - 2, (int) y - LINE_LEN - 2, 4, 4);
-                    break;
-                case UP:
+                }
+                case UP -> {
                     setColorByDimension(graphics, xDimension);
                     graphics.drawLine((int) x + EXTERIOR_TRIANGLE_OFFSET, (int) y, (int) x + EXTERIOR_TRIANGLE_OFFSET / 2,
                             (int) y - EXTERIOR_TRIANGLE_OFFSET / 2);
@@ -103,8 +102,8 @@ public final class ScalerWidget {
                     graphics.drawLine((int) x + INTERIOR_TRIANGLE_OFFSET / 2, (int) y - INTERIOR_TRIANGLE_OFFSET / 2,
                             (int) x, (int) y - INTERIOR_TRIANGLE_OFFSET);
                     graphics.drawRect((int) x - 2, (int) y - LINE_LEN - 2, 4, 4);
-                    break;
-                case RIGHT:
+                }
+                case RIGHT -> {
                     graphics.setColor(new Color(255, 255, 0));
                     graphics.drawLine((int) x, (int) y, (int) x + LINE_LEN, (int) y);
                     setColorByDimension(graphics, xDimension);
@@ -120,8 +119,8 @@ public final class ScalerWidget {
                     graphics.drawLine((int) x + INTERIOR_TRIANGLE_OFFSET / 2, (int) y - INTERIOR_TRIANGLE_OFFSET / 2,
                             (int) x, (int) y - INTERIOR_TRIANGLE_OFFSET);
                     graphics.drawRect((int) x - 2, (int) y - LINE_LEN - 2, 4, 4);
-                    break;
-                case NONE:
+                }
+                case NONE -> {
                     recycleXPoints[0] = (int) x;
                     recycleYPoints[0] = (int) y;
                     recycleXPoints[1] = (int) x + INTERIOR_TRIANGLE_OFFSET;
@@ -140,8 +139,8 @@ public final class ScalerWidget {
                     setColorByDimension(graphics, yDimension);
                     graphics.drawLine((int) x, (int) y, (int) x, (int) y - LINE_LEN);
                     graphics.drawRect((int) x - 2, (int) y - LINE_LEN - 2, 4, 4);
-                    break;
-                case FLAT_XY:
+                }
+                case FLAT_XY -> {
                     recycleXPoints4[0] = (int) x + EXTERIOR_TRIANGLE_OFFSET;
                     recycleYPoints4[0] = (int) y;
                     recycleXPoints4[1] = (int) x + INTERIOR_TRIANGLE_OFFSET;
@@ -160,25 +159,16 @@ public final class ScalerWidget {
                     setColorByDimension(graphics, yDimension);
                     graphics.drawLine((int) x, (int) y, (int) x, (int) y - LINE_LEN);
                     graphics.drawRect((int) x - 2, (int) y - LINE_LEN - 2, 4, 4);
-                    break;
+                }
             }
         }
     }
 
-    private void setColorByDimension(final Graphics2D graphics, final byte xDimension) {
-        switch (xDimension) {
-            case 0:
-            case -1:
-                graphics.setColor(new Color(0, 255, 0));
-                break;
-            case 1:
-            case -2:
-                graphics.setColor(new Color(255, 0, 0));
-                break;
-            case 2:
-            case -3:
-                graphics.setColor(new Color(0, 0, 255));
-                break;
+    private void setColorByDimension(final Graphics2D graphics, final byte dimension) {
+        switch (dimension) {
+            case 0, -1 -> graphics.setColor(new Color(0, 255, 0));
+            case 1, -2 -> graphics.setColor(new Color(255, 0, 0));
+            case 2, -3 -> graphics.setColor(new Color(0, 0, 255));
         }
     }
 

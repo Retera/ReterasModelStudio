@@ -9,15 +9,10 @@ import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * For rendering. Copied from ghostwolf's stuff
- *
- * @param forced
  */
 public final class RenderModel {
 	private final EditableModel model;
@@ -57,6 +52,10 @@ public final class RenderModel {
 		this.model = model;
 		this.modelView = modelView;
 		rootPosition = new RenderNode(this, new Bone("RootPositionHack"));
+		// Some classes doesn't call refreshFromEditor which leads to null-pointers when these in nor initialised
+		inverseCameraRotation = new Quat(0, 0, 0, 1);
+		inverseCameraRotationYSpin = new Quat(0, 0, 0, 1);
+		inverseCameraRotationZSpin = new Quat(0, 0, 0, 1);
 	}
 
 	public void setSpawnParticles(final boolean spawnParticles) {
@@ -121,7 +120,7 @@ public final class RenderModel {
 			particleEmitters2.add(new RenderParticleEmitter2(particleEmitter,
 					renderResourceAllocator.allocateTexture(particleEmitter.getTexture(), particleEmitter)));
 		}
-		particleEmitters2.sort((o1, o2) -> Integer.compare(o1.getPriorityPlane(), o2.getPriorityPlane()));
+		particleEmitters2.sort(Comparator.comparingInt(RenderParticleEmitter2::getPriorityPlane));
 		for (final RenderParticleEmitter2 particleEmitter : particleEmitters2) {
 			final RenderParticleEmitter2View emitterView = new RenderParticleEmitter2View(this, particleEmitter);
 			particleEmitterViews2.add(emitterView);

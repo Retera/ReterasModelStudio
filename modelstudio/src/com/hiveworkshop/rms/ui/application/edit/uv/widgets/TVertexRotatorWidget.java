@@ -64,54 +64,54 @@ public final class TVertexRotatorWidget {
 		final double y = coordinateSystem.convertY(point.getCoord(yDimension));
 		if (moveDirection != null) {
 			switch (moveDirection) {
-			case FREE:
-				graphics.setColor(new Color(0.5f, 0.5f, 0.5f, 0.4f));
-				graphics.fillOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2,
-						ROTATOR_RADIUS * 2);
-				setColorByDimension(graphics, xDimension);
-				graphics.drawLine((int) (x - ROTATOR_RADIUS), (int) y, (int) (x + ROTATOR_RADIUS), (int) y);
-				setColorByDimension(graphics, yDimension);
-				graphics.drawLine((int) x, (int) (y - ROTATOR_RADIUS), (int) x, (int) (y + ROTATOR_RADIUS));
-				setColorByDimension(graphics, getOutwardDimension(xDimension, yDimension));
-				graphics.drawOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2,
-						ROTATOR_RADIUS * 2);
-				break;
-			case SPIN:
-				setColorByDimension(graphics, xDimension);
-				graphics.drawLine((int) (x - ROTATOR_RADIUS), (int) y, (int) (x + ROTATOR_RADIUS), (int) y);
-				setColorByDimension(graphics, yDimension);
-				graphics.drawLine((int) (x), (int) (y - ROTATOR_RADIUS), (int) (x), (int) (y + ROTATOR_RADIUS));
-				graphics.setColor(new Color(255, 255, 0));
-				graphics.drawOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2,
-						ROTATOR_RADIUS * 2);
-				break;
-			case VERTICALLY:
-				setColorByDimension(graphics, xDimension);
-				graphics.drawLine((int) (x - ROTATOR_RADIUS), (int) y, (int) (x + ROTATOR_RADIUS), (int) y);
-				graphics.setColor(new Color(255, 255, 0));
-				graphics.drawLine((int) (x), (int) (y - ROTATOR_RADIUS), (int) (x), (int) (y + ROTATOR_RADIUS));
-				setColorByDimension(graphics, getOutwardDimension(xDimension, yDimension));
-				graphics.drawOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2,
-						ROTATOR_RADIUS * 2);
-				break;
-			case HORIZONTALLY:
-				graphics.setColor(new Color(255, 255, 0));
-				graphics.drawLine((int) (x - ROTATOR_RADIUS), (int) y, (int) (x + ROTATOR_RADIUS), (int) y);
-				setColorByDimension(graphics, yDimension);
-				graphics.drawLine((int) (x), (int) (y - ROTATOR_RADIUS), (int) (x), (int) (y + ROTATOR_RADIUS));
-				setColorByDimension(graphics, getOutwardDimension(xDimension, yDimension));
-				graphics.drawOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2,
-						ROTATOR_RADIUS * 2);
-				break;
-			case NONE:
-				setColorByDimension(graphics, xDimension);
-				graphics.drawLine((int) (x - ROTATOR_RADIUS), (int) y, (int) (x + ROTATOR_RADIUS), (int) y);
-				setColorByDimension(graphics, yDimension);
-				graphics.drawLine((int) (x), (int) (y - ROTATOR_RADIUS), (int) (x), (int) (y + ROTATOR_RADIUS));
-				setColorByDimension(graphics, getOutwardDimension(xDimension, yDimension));
-				graphics.drawOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2,
-						ROTATOR_RADIUS * 2);
-				break;
+				case FREE -> {
+					graphics.setColor(new Color(0.5f, 0.5f, 0.5f, 0.4f));
+					graphics.fillOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2,
+							ROTATOR_RADIUS * 2);
+					setColorByDimension(graphics, xDimension);
+					graphics.drawLine((int) (x - ROTATOR_RADIUS), (int) y, (int) (x + ROTATOR_RADIUS), (int) y);
+					setColorByDimension(graphics, yDimension);
+					graphics.drawLine((int) x, (int) (y - ROTATOR_RADIUS), (int) x, (int) (y + ROTATOR_RADIUS));
+					setColorByDimension(graphics, getOutwardDimension(xDimension, yDimension));
+					graphics.drawOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2,
+							ROTATOR_RADIUS * 2);
+				}
+				case SPIN -> {
+					setColorByDimension(graphics, xDimension);
+					graphics.drawLine((int) (x - ROTATOR_RADIUS), (int) y, (int) (x + ROTATOR_RADIUS), (int) y);
+					setColorByDimension(graphics, yDimension);
+					graphics.drawLine((int) (x), (int) (y - ROTATOR_RADIUS), (int) (x), (int) (y + ROTATOR_RADIUS));
+					graphics.setColor(new Color(255, 255, 0));
+					graphics.drawOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2,
+							ROTATOR_RADIUS * 2);
+				}
+				case VERTICALLY -> {
+					setColorByDimension(graphics, xDimension);
+					graphics.drawLine((int) (x - ROTATOR_RADIUS), (int) y, (int) (x + ROTATOR_RADIUS), (int) y);
+					graphics.setColor(new Color(255, 255, 0));
+					graphics.drawLine((int) (x), (int) (y - ROTATOR_RADIUS), (int) (x), (int) (y + ROTATOR_RADIUS));
+					setColorByDimension(graphics, getOutwardDimension(xDimension, yDimension));
+					graphics.drawOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2,
+							ROTATOR_RADIUS * 2);
+				}
+				case HORIZONTALLY -> {
+					graphics.setColor(new Color(255, 255, 0));
+					graphics.drawLine((int) (x - ROTATOR_RADIUS), (int) y, (int) (x + ROTATOR_RADIUS), (int) y);
+					setColorByDimension(graphics, yDimension);
+					graphics.drawLine((int) (x), (int) (y - ROTATOR_RADIUS), (int) (x), (int) (y + ROTATOR_RADIUS));
+					setColorByDimension(graphics, getOutwardDimension(xDimension, yDimension));
+					graphics.drawOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2,
+							ROTATOR_RADIUS * 2);
+				}
+				case NONE -> {
+					setColorByDimension(graphics, xDimension);
+					graphics.drawLine((int) (x - ROTATOR_RADIUS), (int) y, (int) (x + ROTATOR_RADIUS), (int) y);
+					setColorByDimension(graphics, yDimension);
+					graphics.drawLine((int) (x), (int) (y - ROTATOR_RADIUS), (int) (x), (int) (y + ROTATOR_RADIUS));
+					setColorByDimension(graphics, getOutwardDimension(xDimension, yDimension));
+					graphics.drawOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2,
+							ROTATOR_RADIUS * 2);
+				}
 			}
 		}
 	}
@@ -120,17 +120,11 @@ public final class TVertexRotatorWidget {
 		return (byte) (3 - xDimension - yDimension);
 	}
 
-	private void setColorByDimension(final Graphics2D graphics, final byte xDimension) {
-		switch (xDimension) {
-		case 0:
-			graphics.setColor(new Color(0, 255, 0));
-			break;
-		case 1:
-			graphics.setColor(new Color(255, 0, 0));
-			break;
-		case 2:
-			graphics.setColor(new Color(0, 0, 255));
-			break;
+	private void setColorByDimension(final Graphics2D graphics, final byte dimension) {
+		switch (dimension) {
+			case 0 -> graphics.setColor(new Color(0, 255, 0));
+			case 1 -> graphics.setColor(new Color(255, 0, 0));
+			case 2 -> graphics.setColor(new Color(0, 0, 255));
 		}
 	}
 

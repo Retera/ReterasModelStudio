@@ -203,7 +203,6 @@ public class EventObject extends IdObject {
 	}
 
 	/**
-	 * @return
 	 * @deprecated Use getGlobalSeq
 	 */
 	@Deprecated
@@ -212,7 +211,6 @@ public class EventObject extends IdObject {
 	}
 
 	/**
-	 * @param globalSeqId
 	 * @deprecated Use setGlobalSeq
 	 */
 	@Deprecated

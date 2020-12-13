@@ -28,7 +28,6 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -92,6 +91,7 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 		tree.setModel(model);
 		tree.setCellRenderer(new WarcraftObjectTreeCellRenderer(settings, WorldEditorDataType.UNITS));
 		tree.setRootVisible(false);
+
 		final JScrollPane treePane;
 		setLeftComponent(treePane = new JScrollPane(tree));
 		final JPanel temp = new JPanel();
@@ -117,31 +117,20 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 	}
 
 	public static String categoryName(final String cat) {
-		switch (cat.toLowerCase()) {
-			case "abil":
-				return WEString.getString("WESTRING_OE_CAT_ABILITIES").replace("&", "");
-			case "art":
-				return WEString.getString("WESTRING_OE_CAT_ART").replace("&", "");
-			case "combat":
-				return WEString.getString("WESTRING_OE_CAT_COMBAT").replace("&", "");
-			case "data":
-				return WEString.getString("WESTRING_OE_CAT_DATA").replace("&", "");
-			case "editor":
-				return WEString.getString("WESTRING_OE_CAT_EDITOR").replace("&", "");
-			case "move":
-				return WEString.getString("WESTRING_OE_CAT_MOVEMENT").replace("&", "");
-			case "path":
-				return WEString.getString("WESTRING_OE_CAT_PATHING").replace("&", "");
-			case "sound":
-				return WEString.getString("WESTRING_OE_CAT_SOUND").replace("&", "");
-			case "stats":
-				return WEString.getString("WESTRING_OE_CAT_STATS").replace("&", "");
-			case "tech":
-				return WEString.getString("WESTRING_OE_CAT_TECHTREE").replace("&", "");
-			case "text":
-				return WEString.getString("WESTRING_OE_CAT_TEXT").replace("&", "");
-		}
-		return WEString.getString("WESTRING_UNKNOWN");
+		return switch (cat.toLowerCase()) {
+			case "abil" -> WEString.getString("WESTRING_OE_CAT_ABILITIES").replace("&", "");
+			case "art" -> WEString.getString("WESTRING_OE_CAT_ART").replace("&", "");
+			case "combat" -> WEString.getString("WESTRING_OE_CAT_COMBAT").replace("&", "");
+			case "data" -> WEString.getString("WESTRING_OE_CAT_DATA").replace("&", "");
+			case "editor" -> WEString.getString("WESTRING_OE_CAT_EDITOR").replace("&", "");
+			case "move" -> WEString.getString("WESTRING_OE_CAT_MOVEMENT").replace("&", "");
+			case "path" -> WEString.getString("WESTRING_OE_CAT_PATHING").replace("&", "");
+			case "sound" -> WEString.getString("WESTRING_OE_CAT_SOUND").replace("&", "");
+			case "stats" -> WEString.getString("WESTRING_OE_CAT_STATS").replace("&", "");
+			case "tech" -> WEString.getString("WESTRING_OE_CAT_TECHTREE").replace("&", "");
+			case "text" -> WEString.getString("WESTRING_OE_CAT_TEXT").replace("&", "");
+			default -> WEString.getString("WESTRING_UNKNOWN");
+		};
 	}
 
 	public void fillTable() {
@@ -168,9 +157,6 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 				modelDisp = new ModelViewManager(mdl);
 				modelPanel.setViewport(modelDisp);
 				modelPanel.setTitle(currentUnit.getName());
-			} catch (final FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} catch (final IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -290,7 +276,7 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 		}
 	}
 
-	class RaceData {
+	static class RaceData {
 		List<WarcraftObject> units = new ArrayList<>();
 		List<WarcraftObject> heroes = new ArrayList<>();
 		List<WarcraftObject> buildings = new ArrayList<>();
@@ -311,47 +297,30 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 	static Map<String, RaceData> sortedRaces;
 
 	private String raceKey(final int index) {
-		switch (index) {
-			case -1:
-				return "human";
-			case 0:
-				return "human";
-			case 1:
-				return "orc";
-			case 2:
-				return "undead";
-			case 3:
-				return "nightelf";
-			case 4:
-				return "naga";
-			case 5:
-				return "hostiles";
-			case 6:
-				return "passives";
-		}
-		return "passives";
+		return switch (index) {
+			case -1, 0 -> "human";
+			case 1 -> "orc";
+			case 2 -> "undead";
+			case 3 -> "nightelf";
+			case 4 -> "naga";
+			case 5 -> "hostiles";
+			case 6 -> "passives";
+			default -> "passives";
+		};
 	}
 
 	private String raceName(final int index) {
-		switch (index) {
-			case -1:
-				return WEString.getString("WESTRING_RACE_OTHER");
-			case 0:
-				return WEString.getString("WESTRING_RACE_HUMAN");
-			case 1:
-				return WEString.getString("WESTRING_RACE_ORC");
-			case 2:
-				return WEString.getString("WESTRING_RACE_UNDEAD");
-			case 3:
-				return WEString.getString("WESTRING_RACE_NIGHTELF");
-			case 4:
-				return WEString.getString("WESTRING_RACE_NEUTRAL_NAGA");
-			case 5:
-				return WEString.getString("WESTRING_NEUTRAL_HOSTILE");
-			case 6:
-				return WEString.getString("WESTRING_NEUTRAL_PASSIVE");
-		}
-		return WEString.getString("WESTRING_RACE_NEUTRALS");
+		return switch (index) {
+			case -1 -> WEString.getString("WESTRING_RACE_OTHER");
+			case 0 -> WEString.getString("WESTRING_RACE_HUMAN");
+			case 1 -> WEString.getString("WESTRING_RACE_ORC");
+			case 2 -> WEString.getString("WESTRING_RACE_UNDEAD");
+			case 3 -> WEString.getString("WESTRING_RACE_NIGHTELF");
+			case 4 -> WEString.getString("WESTRING_RACE_NEUTRAL_NAGA");
+			case 5 -> WEString.getString("WESTRING_NEUTRAL_HOSTILE");
+			case 6 -> WEString.getString("WESTRING_NEUTRAL_PASSIVE");
+			default -> WEString.getString("WESTRING_RACE_NEUTRALS");
+		};
 	}
 
 	public void sortRaces() {
@@ -376,15 +345,10 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 				}
 
 				final WarcraftObject unit = (WarcraftObject) unitData.get(baseId);
-				// if( unit == null ) {
-				// System.err.println(str);
-				// continue;
-				// }
 				String raceKey = "passives";
 				final String abilities = unit.getField("abilList");
 				final boolean isCampaign = unit.getField("campaign").startsWith("1");
-				// boolean isCustom =
-				// !unit.getField("inEditor").startsWith("1");
+				// boolean isCustom = !unit.getField("inEditor").startsWith("1");
 				int sortGroupId = 0;
 
 				for (int i = 0; i < 6; i++) {
@@ -404,8 +368,6 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 					sortGroupId = 3;
 				} else if (unit.getField("isbldg").startsWith("1")) {
 					sortGroupId = 2;
-				} else {
-					sortGroupId = 0;
 				}
 				// sortedRaces.get(raceKey(i) + "campaign").
 
@@ -415,22 +377,14 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 				// }
 
 				switch (sortGroupId) {
-					case 0:
-						sortedRaces.get(storeKey).units.add(unit);
-						break;
-					case 1:
-						sortedRaces.get(storeKey).heroes.add(unit);
-						break;
-					case 2:
-						sortedRaces.get(storeKey).buildings.add(unit);
-						break;
-					case 3:
+					case 0 -> sortedRaces.get(storeKey).units.add(unit);
+					case 1 -> sortedRaces.get(storeKey).heroes.add(unit);
+					case 2 -> sortedRaces.get(storeKey).buildings.add(unit);
+					case 3 -> {
 						sortedRaces.get(storeKey).buildingsUprooted.add(unit);
 						sortedRaces.get(storeKey).buildings.add(unit);
-						break;
-					case 4:
-						sortedRaces.get(storeKey).special.add(unit);
-						break;
+					}
+					case 4 -> sortedRaces.get(storeKey).special.add(unit);
 				}
 			}
 

@@ -45,37 +45,23 @@ public final class EditableOnscreenObjectFieldImpl {
 	public Object getValue(final ObjectData metaData, final MutableGameObject gameUnit) {
 		final GameObject metaDataFieldObject = metaData.get(cachedMetaKeyString);
 		final String metaDataType = metaDataFieldObject.getField("type");
-		switch (metaDataType) {
-		case "int":
-			return gameUnit.getFieldAsInteger(metaKey, level);
-		case "real":
-		case "unreal":
-			return gameUnit.getFieldAsFloat(metaKey, level);
-		case "bool":
-			return gameUnit.getFieldAsBoolean(metaKey, level);
-		default:
-		case "string":
-			return gameUnit.getFieldAsString(metaKey, level);
-		}
+		return switch (metaDataType) {
+			case "int" -> gameUnit.getFieldAsInteger(metaKey, level);
+			case "real", "unreal" -> gameUnit.getFieldAsFloat(metaKey, level);
+			case "bool" -> gameUnit.getFieldAsBoolean(metaKey, level);
+			case "string" -> gameUnit.getFieldAsString(metaKey, level);
+			default -> gameUnit.getFieldAsString(metaKey, level);
+		};
 	}
 
 	public void setValue(final ObjectData metaData, final MutableGameObject gameUnit, final Object value) {
 		final GameObject metaDataFieldObject = metaData.get(cachedMetaKeyString);
 		final String metaDataType = metaDataFieldObject.getField("type");
 		switch (metaDataType) {
-		case "int":
-			gameUnit.setField(metaKey, level, ((Number) value).intValue());
-			break;
-		case "real":
-		case "unreal":
-			gameUnit.setField(metaKey, level, ((Number) value).floatValue());
-			break;
-		case "bool":
-			gameUnit.setField(metaKey, level, ((Boolean) value));
-			break;
-		default:
-		case "string":
-			gameUnit.setField(metaKey, level, value.toString());
+			case "int" -> gameUnit.setField(metaKey, level, ((Number) value).intValue());
+			case "real", "unreal" -> gameUnit.setField(metaKey, level, ((Number) value).floatValue());
+			case "bool" -> gameUnit.setField(metaKey, level, ((Boolean) value));
+			case "string" -> gameUnit.setField(metaKey, level, value.toString());
 		}
 	}
 

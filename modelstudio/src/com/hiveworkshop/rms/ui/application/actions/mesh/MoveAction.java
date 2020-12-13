@@ -91,21 +91,12 @@ public class MoveAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		String outName = "";
-		switch (actType) {
-		case MOVE:
-			outName = "move";
-			break;
-		case ROTATE:
-			outName = "rotate";
-			break;
-		case SCALE:
-			outName = "scale";
-			break;
-		case UNKNOWN:
-			outName = "unknown error-type action";
-			break;
-		}
+		String outName = switch (actType) {
+			case MOVE -> "move";
+			case ROTATE -> "rotate";
+			case SCALE -> "scale";
+			case UNKNOWN -> "unknown error-type action";
+        };
 		if (outName.equals("")) {
 			outName = "actionType_" + actType;
 		}

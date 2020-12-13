@@ -1,16 +1,5 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-
-import javax.swing.GroupLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -23,8 +12,13 @@ import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChangeNotifier;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-
 import net.infonode.docking.View;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 
 /**
  * Write a description of class DisplayPanel here.
@@ -62,56 +56,17 @@ public class DisplayPanel extends JPanel implements ActionListener {
 				viewportTransferHandler, renderModel);
 		this.title = title;
 
-		plusZoom = new JButton("");
-		Dimension dim = new Dimension(20, 20);
-		plusZoom.setMaximumSize(dim);
-		plusZoom.setMinimumSize(dim);
-		plusZoom.setPreferredSize(dim);
-		plusZoom.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage("Plus.png")));
-		plusZoom.addActionListener(this);
-		add(plusZoom);
+		plusZoom = addButton(20, 20, "Plus.png");
 
-		minusZoom = new JButton("");
-		minusZoom.setMaximumSize(dim);
-		minusZoom.setMinimumSize(dim);
-		minusZoom.setPreferredSize(dim);
-		minusZoom.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage("Minus.png")));
-		minusZoom.addActionListener(this);
-		add(minusZoom);
+		minusZoom = addButton(20, 20, "Minus.png");
 
-		up = new JButton("");
-		dim = new Dimension(32, 16);
-		up.setMaximumSize(dim);
-		up.setMinimumSize(dim);
-		up.setPreferredSize(dim);
-		up.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage("ArrowUp.png")));
-		up.addActionListener(this);
-		add(up);
+		up = addButton(32, 16, "ArrowUp.png");
 
-		down = new JButton("");
-		down.setMaximumSize(dim);
-		down.setMinimumSize(dim);
-		down.setPreferredSize(dim);
-		down.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage("ArrowDown.png")));
-		down.addActionListener(this);
-		add(down);
+		down = addButton(32, 16, "ArrowDown.png");
 
-		dim = new Dimension(16, 32);
-		left = new JButton("");
-		left.setMaximumSize(dim);
-		left.setMinimumSize(dim);
-		left.setPreferredSize(dim);
-		left.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage("ArrowLeft.png")));
-		left.addActionListener(this);
-		add(left);
+		left = addButton(16, 32, "ArrowLeft.png");
 
-		right = new JButton("");
-		right.setMaximumSize(dim);
-		right.setMinimumSize(dim);
-		right.setPreferredSize(dim);
-		right.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage("ArrowRight.png")));
-		right.addActionListener(this);
-		add(right);
+		right = addButton(16, 32, "ArrowRight.png");
 
 		final GroupLayout layout = new GroupLayout(this);
 		layout.setHorizontalGroup(layout.createSequentialGroup().addComponent(vp)
@@ -129,6 +84,18 @@ public class DisplayPanel extends JPanel implements ActionListener {
 		setLayout(layout);
 		view = new View(title, null, this);
 		vp.setView(view);
+	}
+
+	private JButton addButton(int width, int height, String iconPath) {
+		Dimension dim = new Dimension(width, height);
+		JButton button = new JButton("");
+		button.setMaximumSize(dim);
+		button.setMinimumSize(dim);
+		button.setPreferredSize(dim);
+		button.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage(iconPath)));
+		button.addActionListener(this);
+		add(button);
+		return button;
 	}
 
 	public View getView() {

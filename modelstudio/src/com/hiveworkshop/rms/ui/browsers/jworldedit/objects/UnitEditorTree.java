@@ -1,5 +1,21 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 
+import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.WorldEditorDataType;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.AbstractSortingFolderTreeNode;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.PreModelCreationTreeNodeLinker;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.TreeNodeLinker;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.TopLevelCategoryFolder;
+import com.hiveworkshop.rms.util.War3ID;
+
+import javax.swing.*;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -8,26 +24,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.swing.AbstractAction;
-import javax.swing.JComponent;
-import javax.swing.JTree;
-import javax.swing.KeyStroke;
-import javax.swing.event.TreeExpansionEvent;
-import javax.swing.event.TreeExpansionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
-
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.AbstractSortingFolderTreeNode;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.PreModelCreationTreeNodeLinker;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.TreeNodeLinker;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.TopLevelCategoryFolder;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.WorldEditorDataType;
-import com.hiveworkshop.rms.util.War3ID;
-import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
 
 public class UnitEditorTree extends JTree {
 	private TopLevelCategoryFolder root;
@@ -248,8 +244,7 @@ public class UnitEditorTree extends JTree {
 	public MutableGameObject getSelectedGameObject() {
 		final DefaultMutableTreeNode o = (DefaultMutableTreeNode) getLastSelectedPathComponent();
 		if ((o != null) && (o.getUserObject() instanceof MutableGameObject)) {
-			final MutableGameObject obj = (MutableGameObject) o.getUserObject();
-			return obj;
+			return (MutableGameObject) o.getUserObject();
 		}
 		return null;
 	}

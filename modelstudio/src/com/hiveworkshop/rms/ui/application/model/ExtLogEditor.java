@@ -52,24 +52,35 @@ public class ExtLogEditor extends JPanel {
 
 		final GroupLayout layout = new GroupLayout(this);
 		layout.setHorizontalGroup(layout.createSequentialGroup().addGap(16)
-				.addGroup(layout.createParallelGroup().addComponent(minimumExtentBox)
-						.addGroup(layout.createSequentialGroup().addComponent(minimumExtentX)
-								.addComponent(minimumExtentY).addComponent(minimumExtentZ))
+				.addGroup(layout.createParallelGroup()
+						.addComponent(minimumExtentBox)
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(minimumExtentX)
+								.addComponent(minimumExtentY)
+								.addComponent(minimumExtentZ))
 						.addComponent(maximumExtentBox)
-						.addGroup(layout.createSequentialGroup().addComponent(maximumExtentX)
-								.addComponent(maximumExtentY).addComponent(maximumExtentZ))
-						.addComponent(boundsRadiusBox).addComponent(boundsRadius))
-				.addGap(16));
-		layout.setVerticalGroup(
-				layout.createSequentialGroup().addGap(16)
-						.addGroup(layout.createSequentialGroup().addComponent(minimumExtentBox)
-								.addGroup(layout.createParallelGroup().addComponent(minimumExtentX)
-										.addComponent(minimumExtentY).addComponent(minimumExtentZ))
-								.addComponent(maximumExtentBox)
-								.addGroup(layout.createParallelGroup().addComponent(maximumExtentX)
-										.addComponent(maximumExtentY).addComponent(maximumExtentZ))
-								.addComponent(boundsRadiusBox).addComponent(boundsRadius))
-						.addGap(16));
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(maximumExtentX)
+								.addComponent(maximumExtentY)
+								.addComponent(maximumExtentZ))
+						.addComponent(boundsRadiusBox)
+						.addComponent(boundsRadius)).addGap(16));
+
+		layout.setVerticalGroup(layout.createSequentialGroup().addGap(16)
+				.addGroup(layout.createSequentialGroup()
+						.addComponent(minimumExtentBox)
+						.addGroup(layout.createParallelGroup()
+								.addComponent(minimumExtentX)
+								.addComponent(minimumExtentY)
+								.addComponent(minimumExtentZ))
+						.addComponent(maximumExtentBox)
+						.addGroup(layout.createParallelGroup()
+								.addComponent(maximumExtentX)
+								.addComponent(maximumExtentY)
+								.addComponent(maximumExtentZ))
+						.addComponent(boundsRadiusBox)
+						.addComponent(boundsRadius)).addGap(16));
+
 		setLayout(layout);
 	}
 
@@ -156,7 +167,7 @@ public class ExtLogEditor extends JPanel {
 		return new ExtLog(minimumExtent, maximumExtent, boundsRadius);
 	}
 
-	private final double val(final JSpinner spinner) {
+	private double val(final JSpinner spinner) {
 		return ((Number) spinner.getValue()).doubleValue();
 	}
 

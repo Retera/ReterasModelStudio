@@ -43,28 +43,19 @@ public class MdlxGeosetAnimation extends MdlxAnimatedObject {
 		while (blockIterator.hasNext()) {
 			final String token = blockIterator.next();
 			switch (token) {
-			case MdlUtils.TOKEN_DROP_SHADOW:
-				flags |= 0x1;
-				break;
-			case MdlUtils.TOKEN_STATIC_ALPHA:
-				alpha = stream.readFloat();
-				break;
-			case MdlUtils.TOKEN_ALPHA:
-				readTimeline(stream, AnimationMap.KGAO);
-				break;
-			case MdlUtils.TOKEN_STATIC_COLOR:
-				flags |= 0x2;
-				stream.readColor(color);
-				break;
-			case MdlUtils.TOKEN_COLOR:
-				flags |= 0x2;
-				readTimeline(stream, AnimationMap.KGAC);
-				break;
-			case MdlUtils.TOKEN_GEOSETID:
-				geosetId = stream.readInt();
-				break;
-			default:
-				throw new RuntimeException("Unknown token in GeosetAnimation: " + token);
+				case MdlUtils.TOKEN_DROP_SHADOW -> flags |= 0x1;
+				case MdlUtils.TOKEN_STATIC_ALPHA -> alpha = stream.readFloat();
+				case MdlUtils.TOKEN_ALPHA -> readTimeline(stream, AnimationMap.KGAO);
+				case MdlUtils.TOKEN_STATIC_COLOR -> {
+					flags |= 0x2;
+					stream.readColor(color);
+				}
+				case MdlUtils.TOKEN_COLOR -> {
+					flags |= 0x2;
+					readTimeline(stream, AnimationMap.KGAC);
+				}
+				case MdlUtils.TOKEN_GEOSETID -> geosetId = stream.readInt();
+				default -> throw new RuntimeException("Unknown token in GeosetAnimation: " + token);
 			}
 		}
 	}

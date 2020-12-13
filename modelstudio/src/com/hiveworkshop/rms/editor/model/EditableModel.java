@@ -403,8 +403,6 @@ public class EditableModel implements Named {
 	/**
 	 * IMPORTANT: This is the only way to retrieve the true header name from the top
 	 * of the "model chunk", the same one set by {@link #setName(String)} function.
-	 *
-	 * @return
 	 */
 	public String getHeaderName() {
 		return name;
@@ -715,8 +713,6 @@ public class EditableModel implements Named {
 	 * In addition, any bones with significant amounts of motion that were not found
 	 * to correlate with the contents of this model get added to this model's list
 	 * of bones.
-	 *
-	 * @param other
 	 */
 	public void addAnimationsFrom(EditableModel other) {
 		// this process destroys the "other" model inside memory, so destroy
@@ -755,16 +751,14 @@ public class EditableModel implements Named {
 			final int animTrackEnd = animTrackEnd();
 			final int newStart = animTrackEnd + 300;
 			final int newEnd = newStart + anim.length();
-			final Animation newAnim = new Animation(anim); // clone the
-															// animation from
-															// the other model
+			final Animation newAnim = new Animation(anim);
+			// clone the animation from the other model
 			newAnim.copyToInterval(newStart, newEnd, othersFlags, othersEventObjs, newImpFlags, newImpEventObjs);
 			newAnim.setInterval(newStart, newEnd);
 			add(newAnim); // add the new animation to this model
 		}
 
-		// destroy the other model's animations, filling them in with the new
-		// stuff
+		// destroy the other model's animations, filling them in with the new stuff
 		for (final AnimFlag af : othersFlags) {
 			af.setValuesTo(newImpFlags.get(othersFlags.indexOf(af)));
 		}
@@ -774,20 +768,17 @@ public class EditableModel implements Named {
 
 		// Now, map the bones in the other model onto the bones in the current
 		// model
-		final List<Bone> leftBehind = new ArrayList<>(); // the bones that
-															// don't find
-															// matches in
-															// current model
+		final List<Bone> leftBehind = new ArrayList<>();
+		// the bones that don't find matches in current model
 		for (final IdObject object : other.idObjects) {
 			if (object instanceof Bone) {
 				// the bone from the other model
 				final Bone bone = (Bone) object;
 				// the object in this model of similar name
 				final Object localObject = getObject(bone.getName());
-				if ((localObject != null) && (localObject instanceof Bone)) {
+				if ((localObject instanceof Bone)) {
 					final Bone localBone = (Bone) localObject;
-					localBone.copyMotionFrom(bone); // if it's a match, take the
-													// data
+					localBone.copyMotionFrom(bone); // if it's a match, take the data
 				} else {
 					leftBehind.add(bone);
 				}
@@ -871,10 +862,9 @@ public class EditableModel implements Named {
 				final Bone bone = (Bone) object;
 				// the object in this model of similar name
 				final Object localObject = getObject(bone.getName());
-				if ((localObject != null) && (localObject instanceof Bone)) {
+				if ((localObject instanceof Bone)) {
 					final Bone localBone = (Bone) localObject;
-					localBone.copyMotionFrom(bone); // if it's a match, take the
-													// data
+					localBone.copyMotionFrom(bone); // if it's a match, take the data
 				} else {
 					leftBehind.add(bone);
 				}
@@ -1890,7 +1880,7 @@ public class EditableModel implements Named {
 			Entry lastEntry = null;
 			for (int i = 0; i < flag.size(); i++) {
 				final Entry entry = flag.getEntry(i);
-				if ((lastEntry != null) && (lastEntry.time == entry.time)) {
+				if ((lastEntry != null) && (lastEntry.time.equals(entry.time))) {
 					indicesForDeletion.add(i);
 				}
 				lastEntry = entry;
@@ -2134,9 +2124,6 @@ public class EditableModel implements Named {
 
 	/**
 	 * Please, for the love of Pete, don't actually do this.
-	 *
-	 * @param targetLevelOfDetail
-	 * @param model
 	 */
 	public static void convertToV800(final int targetLevelOfDetail, final EditableModel model) {
 		// Things to fix:

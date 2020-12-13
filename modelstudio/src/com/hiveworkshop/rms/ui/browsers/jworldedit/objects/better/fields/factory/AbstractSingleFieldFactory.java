@@ -25,33 +25,28 @@ public abstract class AbstractSingleFieldFactory implements SingleFieldFactory {
 		final String displayPrefix = getDisplayPrefix(metaData, metaKey, hasMoreThanOneLevel ? level : 0, gameObject);
 		final String rawDataName = getRawDataName(metaData, metaKey, hasMoreThanOneLevel ? level : 0);
 		final String metaDataType = metaField.getField("type");
-		switch (metaDataType) {
-		case "attackBits":
-		case "teamColor":
-		case "deathType":
-		case "versionFlags":
-		case "channelFlags":
-		case "channelType":
-		case "int":
-			return new IntegerObjectField(displayPrefix + displayName, displayName, rawDataName, hasMoreThanOneLevel,
-					metaKey, level, worldEditorDataType, metaField);
-		case "real":
-		case "unreal":
-			return new FloatObjectField(displayPrefix + displayName, displayName, rawDataName, hasMoreThanOneLevel,
-					metaKey, level, worldEditorDataType, metaField);
-		case "bool":
-			return new BooleanObjectField(displayPrefix + displayName, displayName, rawDataName, hasMoreThanOneLevel,
-					metaKey, level, worldEditorDataType, metaField);
-		case "unitRace":
-			return new GameEnumObjectField(displayPrefix + displayName, displayName, rawDataName, hasMoreThanOneLevel,
-					metaKey, level, worldEditorDataType, metaField, "unitRace", "WESTRING_COD_TYPE_UNITRACE",
+		return switch (metaDataType) {
+			case "attackBits", "teamColor", "deathType", "versionFlags", "channelFlags", "channelType", "int" ->
+					new IntegerObjectField(displayPrefix + displayName, displayName, rawDataName,
+							hasMoreThanOneLevel, metaKey, level, worldEditorDataType, metaField);
+			case "real", "unreal" ->
+					new FloatObjectField(displayPrefix + displayName, displayName, rawDataName,
+							hasMoreThanOneLevel, metaKey, level, worldEditorDataType, metaField);
+			case "bool" ->
+					new BooleanObjectField(displayPrefix + displayName, displayName, rawDataName,
+							hasMoreThanOneLevel, metaKey, level, worldEditorDataType, metaField);
+			case "unitRace" ->
+					new GameEnumObjectField(displayPrefix + displayName, displayName, rawDataName,
+							hasMoreThanOneLevel, metaKey, level, worldEditorDataType, metaField,
+							"unitRace", "WESTRING_COD_TYPE_UNITRACE",
 					StandardObjectData.getUnitEditorData());
-
-		default:
-		case "string":
-			return new StringObjectField(displayPrefix + displayName, displayName, rawDataName, hasMoreThanOneLevel,
-					metaKey, level, worldEditorDataType, metaField);
-		}
+			case "string" ->
+					new StringObjectField(displayPrefix + displayName, displayName, rawDataName,
+							hasMoreThanOneLevel, metaKey, level, worldEditorDataType, metaField);
+			default ->
+					new StringObjectField(displayPrefix + displayName, displayName, rawDataName,
+					hasMoreThanOneLevel, metaKey, level, worldEditorDataType, metaField);
+		};
 	}
 
 	protected abstract String getDisplayName(final ObjectData metaData, final War3ID metaKey, final int level,

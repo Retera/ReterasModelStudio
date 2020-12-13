@@ -35,44 +35,31 @@ public class Vec4 {
 			z = data[0];
 			y = data[1];
 			x = data[2];
-			w = data[3];
 		} else {
 			x = data[0];
 			y = data[1];
 			z = data[2];
-			w = data[3];
 		}
+		w = data[3];
 	}
 
 	public float getCoord(final byte dim) {
-		switch (dim) {
-		case 0:
-			return x;
-		case 1:
-			return y;
-		case 2:
-			return z;
-		case 3:
-			return w;
-		}
-		return 0;
+		return switch (dim) {
+			case 0 -> x;
+			case 1 -> y;
+			case 2 -> z;
+			case 3 -> w;
+			default -> 0;
+		};
 	}
 
 	public void setCoord(final byte dim, final float value) {
 		if (!Float.isNaN(value)) {
 			switch (dim) {
-			case 0:
-				x = value;
-				break;
-			case 1:
-				y = value;
-				break;
-			case 2:
-				z = value;
-				break;
-			case 3:
-				w = value;
-				break;
+				case 0 -> x = value;
+				case 1 -> y = value;
+				case 2 -> z = value;
+				case 3 -> w = value;
 			}
 		}
 	}
@@ -80,36 +67,20 @@ public class Vec4 {
 	public void setCoord(final byte dim, final double value) {
 		if (!Double.isNaN(value)) {
 			switch (dim) {
-			case 0:
-				x = (float) value;
-				break;
-			case 1:
-				y = (float) value;
-				break;
-			case 2:
-				z = (float) value;
-				break;
-			case 3:
-				w = (float) value;
-				break;
+				case 0 -> x = (float) value;
+				case 1 -> y = (float) value;
+				case 2 -> z = (float) value;
+				case 3 -> w = (float) value;
 			}
 		}
 	}
 
 	public void translateCoord(final byte dim, final float value) {
 		switch (dim) {
-		case 0:
-			x += value;
-			break;
-		case 1:
-			y += value;
-			break;
-		case 2:
-			z += value;
-			break;
-		case 3:
-			w += value;
-			break;
+			case 0 -> x += value;
+			case 1 -> y += value;
+			case 2 -> z += value;
+			case 3 -> w += value;
 		}
 	}
 

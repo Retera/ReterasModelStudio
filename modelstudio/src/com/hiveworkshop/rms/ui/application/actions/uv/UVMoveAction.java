@@ -87,18 +87,12 @@ public class UVMoveAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		String outName = "";
-		switch (actType) {
-		case MOVE:
-			outName = "move";
-			break;
-		case ROTATE:
-			outName = "rotate";
-			break;
-		case SCALE:
-			outName = "scale";
-			break;
-		}
+		String outName = switch (actType) {
+			case MOVE -> "move";
+			case ROTATE -> "rotate";
+			case SCALE -> "scale";
+			default -> "";
+		};
 		if (outName.equals("")) {
 			outName = "actionType_" + actType;
 		}

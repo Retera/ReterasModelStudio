@@ -1,21 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers;
 
-import java.awt.Color;
-import java.awt.GradientPaint;
-import java.awt.Graphics2D;
-import java.awt.Point;
-
-import com.hiveworkshop.rms.editor.model.Attachment;
-import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.editor.model.Camera;
-import com.hiveworkshop.rms.editor.model.CollisionShape;
-import com.hiveworkshop.rms.editor.model.EventObject;
-import com.hiveworkshop.rms.editor.model.Helper;
-import com.hiveworkshop.rms.editor.model.Light;
-import com.hiveworkshop.rms.editor.model.ParticleEmitter;
-import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
-import com.hiveworkshop.rms.editor.model.ParticleEmitterPopcorn;
-import com.hiveworkshop.rms.editor.model.RibbonEmitter;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
@@ -23,6 +8,8 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
+
+import java.awt.*;
 
 public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObjectVisitor {
 	private CoordinateSystem coordinateSystem;
@@ -157,17 +144,12 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 		loadPivotInVertexHeap(pivotPoint, worldMatrix, vertexHeap);
 		loadPivotInVertexHeap(target, targetWorldMatrix, vertexHeap2);
 
-		final int xCoord = (int) coordinateSystem
-				.convertX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
-		final int yCoord = (int) coordinateSystem
-				.convertY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
-		final int xCoord2 = (int) coordinateSystem
-				.convertX(vertexHeap2.getCoord(coordinateSystem.getPortFirstXYZ()));
-		final int yCoord2 = (int) coordinateSystem
-				.convertY(vertexHeap2.getCoord(coordinateSystem.getPortSecondXYZ()));
+		final int xCoord = (int) coordinateSystem.convertX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
+		final int yCoord = (int) coordinateSystem.convertY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
+		final int xCoord2 = (int) coordinateSystem.convertX(vertexHeap2.getCoord(coordinateSystem.getPortFirstXYZ()));
+		final int yCoord2 = (int) coordinateSystem.convertY(vertexHeap2.getCoord(coordinateSystem.getPortSecondXYZ()));
 		// TODO resettable
-		graphics.setPaint(
-				new GradientPaint(new Point(xCoord, yCoord), Color.WHITE, new Point(xCoord2, yCoord2), Color.BLACK));
+		graphics.setPaint(new GradientPaint(new Point(xCoord, yCoord), Color.WHITE, new Point(xCoord2, yCoord2), Color.BLACK));
 
 		graphics.drawLine(xCoord, yCoord, xCoord2, yCoord2);
 	}

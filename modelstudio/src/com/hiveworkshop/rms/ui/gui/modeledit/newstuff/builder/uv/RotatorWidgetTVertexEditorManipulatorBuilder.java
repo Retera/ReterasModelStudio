@@ -43,19 +43,13 @@ public final class RotatorWidgetTVertexEditorManipulatorBuilder extends Abstract
 		if (directionByMouse != null) {
 			moverWidget.setMoveDirection(directionByMouse);
 		}
-		switch (directionByMouse) {
-			case FREE:
-				return new RotateTVertexManipulator(getModelEditor(), selectionView);
-			case HORIZONTALLY:
-				return new RotateTVertexHorizontalManipulator(getModelEditor(), selectionView);
-			case VERTICALLY:
-				return new RotateTVertexVerticalManipulator(getModelEditor(), selectionView);
-			case SPIN:
-				return new RotateTVertexManipulator(getModelEditor(), selectionView);
-			case NONE:
-				return null;
-		}
-		return null;
+		return switch (directionByMouse) {
+			case FREE -> new RotateTVertexManipulator(getModelEditor(), selectionView);
+			case HORIZONTALLY -> new RotateTVertexHorizontalManipulator(getModelEditor(), selectionView);
+			case VERTICALLY -> new RotateTVertexVerticalManipulator(getModelEditor(), selectionView);
+			case SPIN -> new RotateTVertexManipulator(getModelEditor(), selectionView);
+			case NONE -> null;
+		};
 	}
 
 	@Override

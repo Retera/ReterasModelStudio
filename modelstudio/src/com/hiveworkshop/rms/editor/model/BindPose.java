@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.editor.model;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.ArrayList;
 
 public class BindPose {
 	public float[][] bindPose = null;
@@ -20,10 +20,7 @@ public class BindPose {
 	}
 
 	public List<float[]> toMdlx() {
-		List<float[]> list = new ArrayList<>();
 
-        list.addAll(Arrays.asList(bindPose));
-
-		return list;
+		return new ArrayList<>(Arrays.asList(bindPose));
 	}
 }

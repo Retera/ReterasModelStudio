@@ -1,9 +1,8 @@
 package com.hiveworkshop.rms.editor.model;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JOptionPane;
 
 /**
  * Vertex motion matrices.
@@ -24,27 +23,27 @@ public class Matrix {
 	}
 
 	public String getName() {
-		String out = "";
+		StringBuilder out = new StringBuilder();
 		if (bones != null) {
 			if (bones.size() > 0) {
-				out = bones.get(0).getName();
+				out = new StringBuilder(bones.get(0).getName());
 				for (int i = 1; i < bones.size(); i++) {
-					out = out + ", " + bones.get(i).getName();
+					out.append(", ").append(bones.get(i).getName());
 				}
 			} else {
-				out = "Error bad bone list";
+				out = new StringBuilder("Error bad bone list");
 			}
 		} else if (m_boneIds != null) {
 			if (m_boneIds.size() > 0) {
-				out = m_boneIds.get(0).toString();
+				out = new StringBuilder(m_boneIds.get(0).toString());
 				for (int i = 1; i < m_boneIds.size(); i++) {
-					out = out + ", " + m_boneIds.get(i).toString();
+					out.append(", ").append(m_boneIds.get(i).toString());
 				}
 			} else {
-				out = "Error bad bone ids";
+				out = new StringBuilder("Error bad bone ids");
 			}
 		}
-		return out;
+		return out.toString();
 	}
 
 	long lastPopupTimeHack = 0;
@@ -131,8 +130,7 @@ public class Matrix {
 		} else if ((bones != null) && (bones.size() > 0)) {
 			return bones.size();
 		}
-		// JOptionPane.showMessageDialog(null,"Warning: A matrix with no
-		// contents was used!");
+		// JOptionPane.showMessageDialog(null,"Warning: A matrix with no contents was used!");
 		// System.out.println("Warning: A matrix with no contents was used!");
 		return -1;// bad stuff
 	}

@@ -153,7 +153,7 @@ public class ParticleEmitter extends EmitterIdObject {
 	}
 
 	public double getLifeSpan() {
-		return getLifeSpan();
+		return this.lifeSpan;
 	}
 
 	public void setLifeSpan(final double lifeSpan) {

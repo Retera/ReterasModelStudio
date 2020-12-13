@@ -40,20 +40,11 @@ public class MdlxTexture implements MdlxBlock {
 	public void readMdl(final MdlTokenInputStream stream, final int version) {
 		for (final String token : stream.readBlock()) {
 			switch (token) {
-				case MdlUtils.TOKEN_IMAGE:
-					path = stream.read();
-					break;
-				case MdlUtils.TOKEN_REPLACEABLE_ID:
-					replaceableId = stream.readInt();
-					break;
-				case MdlUtils.TOKEN_WRAP_WIDTH:
-					wrapMode = WrapMode.fromId(wrapMode.ordinal() + 0x1);
-					break;
-				case MdlUtils.TOKEN_WRAP_HEIGHT:
-					wrapMode = WrapMode.fromId(wrapMode.ordinal() + 0x2);
-					break;
-				default:
-					throw new RuntimeException("Unknown token in Texture: " + token);
+				case MdlUtils.TOKEN_IMAGE -> path = stream.read();
+				case MdlUtils.TOKEN_REPLACEABLE_ID -> replaceableId = stream.readInt();
+				case MdlUtils.TOKEN_WRAP_WIDTH -> wrapMode = WrapMode.fromId(wrapMode.ordinal() + 0x1);
+				case MdlUtils.TOKEN_WRAP_HEIGHT -> wrapMode = WrapMode.fromId(wrapMode.ordinal() + 0x2);
+				default -> throw new RuntimeException("Unknown token in Texture: " + token);
 			}
 		}
 	}

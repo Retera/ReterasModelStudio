@@ -340,8 +340,7 @@ public class Layer extends TimelineContainer implements Named {
 			if (textureIdAtTime >= model.getTextures().size()) {
 				return texture;
 			}
-			final Bitmap textureAtTime = model.getTextures().get(textureIdAtTime);
-			return textureAtTime;
+			return model.getTextures().get(textureIdAtTime);
 		} else {
 			return texture;
 		}
@@ -389,7 +388,7 @@ public class Layer extends TimelineContainer implements Named {
 			final AnimFlag txFlag = find(MdlUtils.TOKEN_TEXTURE_ID);
 			for (int i = 0; i < txFlag.values.size(); i++) {
 				final Bitmap textureFoundFromDirtyId = ridiculouslyWrongTextureIDToTexture
-						.get((Integer) txFlag.values.get(i));
+						.get(txFlag.values.get(i));
 				final int newerTextureId = mdlr.getTextureId(textureFoundFromDirtyId);
 				txFlag.values.set(i, newerTextureId);
 				ridiculouslyWrongTextureIDToTexture.put(newerTextureId, textureFoundFromDirtyId);

@@ -1,8 +1,12 @@
 package com.hiveworkshop.rms.filesystem.sources;
 
-import systems.crigges.jmpq3.*;
+import systems.crigges.jmpq3.JMpqEditor;
+import systems.crigges.jmpq3.MpqFile;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 
@@ -30,8 +34,7 @@ public class MpqDataSource implements DataSource {
 				throw new IOException(exc);
 			}
 		}
-		final ByteArrayInputStream stream = new ByteArrayInputStream(file.extractToBytes());
-		return stream;
+		return new ByteArrayInputStream(file.extractToBytes());
 	}
 
 	@Override

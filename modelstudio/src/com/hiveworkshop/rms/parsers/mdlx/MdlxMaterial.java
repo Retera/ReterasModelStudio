@@ -63,32 +63,18 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 	public void readMdl(final MdlTokenInputStream stream, final int version) {
 		for (final String token : stream.readBlock()) {
 			switch (token) {
-				case MdlUtils.TOKEN_CONSTANT_COLOR:
-					flags |= 0x1;
-					break;
-				case MdlUtils.TOKEN_SORT_PRIMS_NEAR_Z:
-					flags |= 0x8;
-					break;
-				case MdlUtils.TOKEN_SORT_PRIMS_FAR_Z:
-					flags |= 0x10;
-					break;
-				case MdlUtils.TOKEN_FULL_RESOLUTION:
-					flags |= 0x20;
-					break;
-				case MdlUtils.TOKEN_PRIORITY_PLANE:
-					priorityPlane = stream.readInt();
-					break;
-				case "Shader":
-					shader = stream.read();
-					break;
-				case MdlUtils.TOKEN_LAYER: {
+				case MdlUtils.TOKEN_CONSTANT_COLOR -> flags |= 0x1;
+				case MdlUtils.TOKEN_SORT_PRIMS_NEAR_Z -> flags |= 0x8;
+				case MdlUtils.TOKEN_SORT_PRIMS_FAR_Z -> flags |= 0x10;
+				case MdlUtils.TOKEN_FULL_RESOLUTION -> flags |= 0x20;
+				case MdlUtils.TOKEN_PRIORITY_PLANE -> priorityPlane = stream.readInt();
+				case "Shader" -> shader = stream.read();
+				case MdlUtils.TOKEN_LAYER -> {
 					final MdlxLayer layer = new MdlxLayer();
 					layer.readMdl(stream, version);
 					layers.add(layer);
-					break;
 				}
-				default:
-					throw new RuntimeException("Unknown token in Material: " + token);
+				default -> throw new RuntimeException("Unknown token in Material: " + token);
 			}
 		}
 	}

@@ -1,7 +1,5 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.viewport;
 
-import java.util.Collection;
-
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -19,6 +17,8 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.TVertexSelectionItemTypes
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.Collection;
 
 public final class TVertexEditorManager {
 	private final ModelView model;
@@ -56,37 +56,34 @@ public final class TVertexEditorManager {
 			lastSelectedVertices = null;
 		}
 		switch (selectionMode) {
-		case FACE: {
-			final FaceSelectionManager selectionManager = new FaceSelectionManager();
-			final FaceTVertexEditor faceModelEditor = new FaceTVertexEditor(model, programPreferences, selectionManager,
-					structureChangeListener);
-			modelEditor = faceModelEditor;
-			if (lastSelectedVertices != null) {
-				modelEditor.selectByVertices(lastSelectedVertices);
+			case FACE -> {
+				final FaceSelectionManager selectionManager = new FaceSelectionManager();
+				final FaceTVertexEditor faceModelEditor = new FaceTVertexEditor(model, programPreferences, selectionManager,
+						structureChangeListener);
+				modelEditor = faceModelEditor;
+				if (lastSelectedVertices != null) {
+					modelEditor.selectByVertices(lastSelectedVertices);
+				}
+				viewportSelectionHandler.setSelectingEventHandler(modelEditor);
+				modelEditorChangeListener.editorChanged(modelEditor);
+				selectionView = selectionManager;
+				selectionListener.onSelectionChanged(selectionView);
+				nodeAnimationSelectionManager = null;
 			}
-			viewportSelectionHandler.setSelectingEventHandler(modelEditor);
-			modelEditorChangeListener.editorChanged(modelEditor);
-			selectionView = selectionManager;
-			selectionListener.onSelectionChanged(selectionView);
-			nodeAnimationSelectionManager = null;
-			break;
-		}
-		default:
-		case VERTEX: {
-			final GeosetVertexSelectionManager selectionManager = new GeosetVertexSelectionManager();
-			final GeosetVertexTVertexEditor geosetVertexModelEditor = new GeosetVertexTVertexEditor(model,
-					programPreferences, selectionManager, structureChangeListener);
-			modelEditor = geosetVertexModelEditor;
-			if (lastSelectedVertices != null) {
-				modelEditor.selectByVertices(lastSelectedVertices);
+			case VERTEX -> {
+				final GeosetVertexSelectionManager selectionManager = new GeosetVertexSelectionManager();
+				final GeosetVertexTVertexEditor geosetVertexModelEditor = new GeosetVertexTVertexEditor(model,
+						programPreferences, selectionManager, structureChangeListener);
+				modelEditor = geosetVertexModelEditor;
+				if (lastSelectedVertices != null) {
+					modelEditor.selectByVertices(lastSelectedVertices);
+				}
+				viewportSelectionHandler.setSelectingEventHandler(modelEditor);
+				modelEditorChangeListener.editorChanged(modelEditor);
+				selectionView = selectionManager;
+				selectionListener.onSelectionChanged(selectionView);
+				nodeAnimationSelectionManager = null;
 			}
-			viewportSelectionHandler.setSelectingEventHandler(modelEditor);
-			modelEditorChangeListener.editorChanged(modelEditor);
-			selectionView = selectionManager;
-			selectionListener.onSelectionChanged(selectionView);
-			nodeAnimationSelectionManager = null;
-			break;
-		}
 		}
 	}
 

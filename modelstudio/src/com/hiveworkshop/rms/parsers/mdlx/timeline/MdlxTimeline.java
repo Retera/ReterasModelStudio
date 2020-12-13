@@ -83,24 +83,13 @@ public abstract class MdlxTimeline<TYPE> {
 		stream.read(); // {
 
 		final String token = stream.read();
-		final InterpolationType interpolationType;
-		switch (token) {
-		case MdlUtils.TOKEN_DONT_INTERP:
-			interpolationType = InterpolationType.DONT_INTERP;
-			break;
-		case MdlUtils.TOKEN_LINEAR:
-			interpolationType = InterpolationType.LINEAR;
-			break;
-		case MdlUtils.TOKEN_HERMITE:
-			interpolationType = InterpolationType.HERMITE;
-			break;
-		case MdlUtils.TOKEN_BEZIER:
-			interpolationType = InterpolationType.BEZIER;
-			break;
-		default:
-			interpolationType = InterpolationType.DONT_INTERP;
-			break;
-		}
+		final InterpolationType interpolationType = switch (token) {
+			case MdlUtils.TOKEN_DONT_INTERP -> InterpolationType.DONT_INTERP;
+			case MdlUtils.TOKEN_LINEAR -> InterpolationType.LINEAR;
+			case MdlUtils.TOKEN_HERMITE -> InterpolationType.HERMITE;
+			case MdlUtils.TOKEN_BEZIER -> InterpolationType.BEZIER;
+			default -> InterpolationType.DONT_INTERP;
+		};
 
 		this.interpolationType = interpolationType;
 

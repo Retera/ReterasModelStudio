@@ -89,39 +89,25 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 			}
 			object.apply(new IdObjectVisitor() {
 				@Override
-				public void ribbonEmitter(final RibbonEmitter particleEmitter) {
-
-				}
+				public void ribbonEmitter(final RibbonEmitter particleEmitter) {}
 
 				@Override
-				public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
-
-				}
+				public void particleEmitter2(final ParticleEmitter2 particleEmitter) {}
 
 				@Override
-				public void particleEmitter(final ParticleEmitter particleEmitter) {
-
-				}
+				public void particleEmitter(final ParticleEmitter particleEmitter) {}
 
 				@Override
-				public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
-
-				}
+				public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {}
 
 				@Override
-				public void light(final Light light) {
-
-				}
+				public void light(final Light light) {}
 
 				@Override
-				public void helper(final Helper object) {
-
-				}
+				public void helper(final Helper object) {}
 
 				@Override
-				public void eventObject(final EventObject eventObject) {
-
-				}
+				public void eventObject(final EventObject eventObject) {}
 
 				@Override
 				public void collisionShape(final CollisionShape collisionShape) {
@@ -133,19 +119,13 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 				}
 
 				@Override
-				public void camera(final Camera camera) {
-
-				}
+				public void camera(final Camera camera) {}
 
 				@Override
-				public void bone(final Bone object) {
-
-				}
+				public void bone(final Bone object) {}
 
 				@Override
-				public void attachment(final Attachment attachment) {
-
-				}
+				public void attachment(final Attachment attachment) {}
 			});
 		}
 		// TODO cameras in a second CameraAnimationEditor
@@ -179,8 +159,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	@Override
 	public UndoAction selectAll() {
 		final List<IdObject> oldSelection = new ArrayList<>(selectionManager.getSelection());
-		final Set<IdObject> allSelection = new HashSet<>();
-		allSelection.addAll(model.getEditableIdObjects());
+		final Set<IdObject> allSelection = new HashSet<>(model.getEditableIdObjects());
 		selectionManager.setSelection(allSelection);
 		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all");
 	}
@@ -782,20 +761,11 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	public UndoAction createKeyframe(final ModelEditorActionType actionType) {
-		final String keyframeMdlTypeName;
-		switch (actionType) {
-		case ROTATION:
-			keyframeMdlTypeName = "Rotation";
-			break;
-		case SCALING:
-			keyframeMdlTypeName = "Scaling";
-			break;
-		case TRANSLATION:
-			keyframeMdlTypeName = "Translation";
-			break;
-		default:
-			throw new IllegalArgumentException();
-		}
+		final String keyframeMdlTypeName = switch (actionType) {
+			case ROTATION -> "Rotation";
+			case SCALING -> "Scaling";
+			case TRANSLATION -> "Translation";
+		};
 		final Set<IdObject> selection = selectionManager.getSelection();
 		final List<UndoAction> actions = new ArrayList<>();
 		for (final IdObject node : selection) {
@@ -811,21 +781,12 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 				structureChangeListener.timelineAdded(node, translationTimeline);
 				actions.add(addTimelineAction);
 			}
-			final AddKeyframeAction keyframeAction;
-			switch (actionType) {
-			case ROTATION:
-				keyframeAction = node.createRotationKeyframe(renderModel, translationTimeline, structureChangeListener);
-				break;
-			case SCALING:
-				keyframeAction = node.createScalingKeyframe(renderModel, translationTimeline, structureChangeListener);
-				break;
-			case TRANSLATION:
-				keyframeAction = node.createTranslationKeyframe(renderModel, translationTimeline,
+			final AddKeyframeAction keyframeAction = switch (actionType) {
+				case ROTATION -> node.createRotationKeyframe(renderModel, translationTimeline, structureChangeListener);
+				case SCALING -> node.createScalingKeyframe(renderModel, translationTimeline, structureChangeListener);
+				case TRANSLATION -> node.createTranslationKeyframe(renderModel, translationTimeline,
 						structureChangeListener);
-				break;
-			default:
-				throw new IllegalArgumentException();
-			}
+			};
 			if (keyframeAction != null) {
 				actions.add(keyframeAction);
 			}

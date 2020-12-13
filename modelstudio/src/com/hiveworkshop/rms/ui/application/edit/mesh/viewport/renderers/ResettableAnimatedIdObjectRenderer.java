@@ -1,23 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Point;
-import java.util.List;
-
-import com.hiveworkshop.rms.editor.model.Attachment;
-import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.editor.model.Camera;
-import com.hiveworkshop.rms.editor.model.CollisionShape;
-import com.hiveworkshop.rms.editor.model.EventObject;
-import com.hiveworkshop.rms.editor.model.Helper;
-import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.Light;
-import com.hiveworkshop.rms.editor.model.ParticleEmitter;
-import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
-import com.hiveworkshop.rms.editor.model.ParticleEmitterPopcorn;
-import com.hiveworkshop.rms.editor.model.RibbonEmitter;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
@@ -26,6 +9,9 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportRenderable
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.awt.*;
+import java.util.List;
 
 public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor {
     private CoordinateSystem coordinateSystem;
@@ -61,34 +47,46 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
         drawCrosshair(object);
     }
 
-    @Override
-    public void light(final Light light) {
-        final Image lightImage = nodeIconPalette.getLightImage();
-        graphics.setColor(lightColor);
-        renderModel.getRenderNode(light).getWorldMatrix().transform(light.getPivotPoint(), vertexHeap);
-        final int xCoord = (int) coordinateSystem
-                .convertX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
-        final int yCoord = (int) coordinateSystem
-                .convertY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
-        final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
-        // graphics.drawOval(xCoord - vertexSize * 2, yCoord - vertexSize * 2,
-        // vertexSize * 4, vertexSize * 4);
-        // graphics.setColor(programPreferences.getAmbientLightColor());
-        // graphics.drawLine(xCoord - vertexSize * 3, yCoord, xCoord +
-        // vertexSize * 3, yCoord);
-        // graphics.drawLine(xCoord, yCoord - vertexSize * 3, xCoord, yCoord +
-        // vertexSize * 3);
-        graphics.drawImage(lightImage, xCoord - (lightImage.getWidth(null) / 2),
-                yCoord - (lightImage.getHeight(null) / 2), lightImage.getWidth(null), lightImage.getHeight(null), null);
+    public static void drawCollisionShape(final Graphics2D graphics, final Color color,
+                                          final CoordinateSystem coordinateSystem, final byte xDimension, final byte yDimension, final int vertexSize,
+                                          final CollisionShape collisionShape, final Image collisionImage, final Mat4 worldMatrix,
+                                          final boolean crosshairIsBox) {
+        final Vec3 pivotPoint = collisionShape.getPivotPoint();
+        final List<Vec3> vertices = collisionShape.getVertices();
+        graphics.setColor(color);
+        worldMatrix.transform(pivotPoint, vertexHeap);
+        final int xCoord = (int) coordinateSystem.convertX(vertexHeap.getCoord(xDimension));
+        final int yCoord = (int) coordinateSystem.convertY(vertexHeap.getCoord(yDimension));
+        if (collisionShape.getType() == MdlxCollisionShape.Type.BOX) {
+            if (vertices.size() > 1) {
+                final Vec3 vertex = vertices.get(0);
+                final Vec3 vertex2 = vertices.get(1);
+                worldMatrix.transform(vertex, vertexHeap);
+                worldMatrix.transform(vertex2, vertexHeap2);
+                final int firstXCoord = (int) coordinateSystem.convertX(vertexHeap2.getCoord(xDimension));
+                final int firstYCoord = (int) coordinateSystem.convertY(vertexHeap2.getCoord(yDimension));
+                final int secondXCoord = (int) coordinateSystem.convertX(vertexHeap2.getCoord(xDimension));
+                final int secondYCoord = (int) coordinateSystem.convertY(vertexHeap2.getCoord(yDimension));
+                final int minXCoord = Math.min(firstXCoord, secondXCoord);
+                final int minYCoord = Math.min(firstYCoord, secondYCoord);
+                final int maxXCoord = Math.max(firstXCoord, secondXCoord);
+                final int maxYCoord = Math.max(firstYCoord, secondYCoord);
 
-        final int attenuationStart = (int) (light.getAttenuationStart() * zoom);
-        if (attenuationStart > 0) {
-            graphics.drawOval(xCoord - attenuationStart, yCoord - attenuationStart, attenuationStart * 2,
-                    attenuationStart * 2);
+                graphics.drawRoundRect(minXCoord, minYCoord, maxXCoord - minXCoord, maxYCoord - minYCoord, vertexSize,
+                        vertexSize);
+            }
+        } else {
+            if (collisionShape.getExtents() != null) {
+                final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+                final double boundsRadius = collisionShape.getExtents().getBoundsRadius() * zoom;
+                graphics.drawOval((int) (xCoord - boundsRadius), (int) (yCoord - boundsRadius),
+                        (int) (boundsRadius * 2), (int) (boundsRadius * 2));
+            }
         }
-        final int attenuationEnd = (int) (light.getAttenuationEnd() * zoom);
-        if (attenuationEnd > 0) {
-            graphics.drawOval(xCoord - attenuationEnd, yCoord - attenuationEnd, attenuationEnd * 2, attenuationEnd * 2);
+        drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage, worldMatrix);
+
+        for (final Vec3 vertex : vertices) {
+            drawCrosshair(graphics, coordinateSystem, vertexSize, vertex, worldMatrix, crosshairIsBox);
         }
     }
 
@@ -245,54 +243,32 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
         }
     }
 
-    public static void drawCollisionShape(final Graphics2D graphics, final Color color,
-                                          final CoordinateSystem coordinateSystem, final byte xDimension, final byte yDimension, final int vertexSize,
-                                          final CollisionShape collisionShape, final Image collisionImage, final Mat4 worldMatrix,
-                                          final boolean crosshairIsBox) {
-        final Vec3 pivotPoint = collisionShape.getPivotPoint();
-        final List<Vec3> vertices = collisionShape.getVertices();
-        graphics.setColor(color);
-        worldMatrix.transform(pivotPoint, vertexHeap);
-        final int xCoord = (int) coordinateSystem.convertX(vertexHeap.getCoord(xDimension));
-        final int yCoord = (int) coordinateSystem.convertY(vertexHeap.getCoord(yDimension));
-        if (collisionShape.getType() == MdlxCollisionShape.Type.BOX) {
-            if (vertices.size() > 1) {
-                final Vec3 vertex = vertices.get(0);
-                final Vec3 vertex2 = vertices.get(1);
-                worldMatrix.transform(vertex, vertexHeap);
-                worldMatrix.transform(vertex2, vertexHeap2);
-                final int firstXCoord = (int) coordinateSystem.convertX(vertexHeap2.getCoord(xDimension));
-                final int firstYCoord = (int) coordinateSystem.convertY(vertexHeap2.getCoord(yDimension));
-                final int secondXCoord = (int) coordinateSystem.convertX(vertexHeap2.getCoord(xDimension));
-                final int secondYCoord = (int) coordinateSystem.convertY(vertexHeap2.getCoord(yDimension));
-                final int minXCoord = Math.min(firstXCoord, secondXCoord);
-                final int minYCoord = Math.min(firstYCoord, secondYCoord);
-                final int maxXCoord = Math.max(firstXCoord, secondXCoord);
-                final int maxYCoord = Math.max(firstYCoord, secondYCoord);
+    @Override
+    public void light(final Light light) {
+        final Image lightImage = nodeIconPalette.getLightImage();
+        graphics.setColor(lightColor);
+        renderModel.getRenderNode(light).getWorldMatrix().transform(light.getPivotPoint(), vertexHeap);
+        final int xCoord = (int) coordinateSystem.convertX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
+        final int yCoord = (int) coordinateSystem.convertY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
+        final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+        // graphics.drawOval(xCoord - vertexSize * 2, yCoord - vertexSize * 2,
+        // vertexSize * 4, vertexSize * 4);
+        // graphics.setColor(programPreferences.getAmbientLightColor());
+        // graphics.drawLine(xCoord - vertexSize * 3, yCoord, xCoord +
+        // vertexSize * 3, yCoord);
+        // graphics.drawLine(xCoord, yCoord - vertexSize * 3, xCoord, yCoord +
+        // vertexSize * 3);
+        graphics.drawImage(lightImage, xCoord - (lightImage.getWidth(null) / 2),
+                yCoord - (lightImage.getHeight(null) / 2), lightImage.getWidth(null), lightImage.getHeight(null), null);
 
-                graphics.drawRoundRect(minXCoord, minYCoord, maxXCoord - minXCoord, maxYCoord - minYCoord, vertexSize,
-                        vertexSize);
-                drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage,
-                        worldMatrix);
-            } else {
-                drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage,
-                        worldMatrix);
-            }
-        } else {
-            if (collisionShape.getExtents() != null) {
-                final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
-                final double boundsRadius = collisionShape.getExtents().getBoundsRadius() * zoom;
-                graphics.drawOval((int) (xCoord - boundsRadius), (int) (yCoord - boundsRadius),
-                        (int) (boundsRadius * 2), (int) (boundsRadius * 2));
-                drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage,
-                        worldMatrix);
-            } else {
-                drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage,
-                        worldMatrix);
-            }
+        final int attenuationStart = (int) (light.getAttenuationStart() * zoom);
+        if (attenuationStart > 0) {
+            graphics.drawOval(xCoord - attenuationStart, yCoord - attenuationStart, attenuationStart * 2,
+                    attenuationStart * 2);
         }
-        for (final Vec3 vertex : vertices) {
-            drawCrosshair(graphics, coordinateSystem, vertexSize, vertex, worldMatrix, crosshairIsBox);
+        final int attenuationEnd = (int) (light.getAttenuationEnd() * zoom);
+        if (attenuationEnd > 0) {
+            graphics.drawOval(xCoord - attenuationEnd, yCoord - attenuationEnd, attenuationEnd * 2, attenuationEnd * 2);
         }
     }
 }

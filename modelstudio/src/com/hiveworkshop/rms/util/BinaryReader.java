@@ -30,40 +30,40 @@ public class BinaryReader {
     }
 
     public String read(final int count) {
-        String value = "";
+        StringBuilder value = new StringBuilder();
 
         for (int i = 0; i < count; i++) {
             byte b = buffer.get();
 
             if (b != 0) {
-                value += (char)(b & 0xFF);
+                value.append((char) (b & 0xFF));
             }
         }
 
-        return value;
+        return value.toString();
     }
 
     public String readBytes(final int count) {
-        String value = "";
+        StringBuilder value = new StringBuilder();
 
         for (int i = 0; i < count; i++) {
-            value += (char)(buffer.get() & 0xFF);
+            value.append((char) (buffer.get() & 0xFF));
         }
 
-        return value;
+        return value.toString();
     }
 
     public String readUntilNull() {
-        String value = "";
+        StringBuilder value = new StringBuilder();
         byte b = buffer.get();
 
         while (b != 0) {
-            value += (char)(b & 0xFF);
+            value.append((char) (b & 0xFF));
 
             b = buffer.get();
         }
 
-        return value;
+        return value.toString();
     }
 
     public byte readInt8() {

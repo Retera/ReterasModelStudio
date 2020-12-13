@@ -69,115 +69,109 @@ public final class TVertexScalerWidget {
 		final double y = coordinateSystem.convertY(point.getCoord(yDimension));
 		if (moveDirection != null) {
 			switch (moveDirection) {
-			case XYZ:
-				recycleXPoints[0] = (int) x;
-				recycleYPoints[0] = (int) y;
-				recycleXPoints[1] = (int) x + INTERIOR_TRIANGLE_OFFSET;
-				recycleYPoints[1] = (int) y;
-				recycleXPoints[2] = (int) x;
-				recycleYPoints[2] = (int) y - INTERIOR_TRIANGLE_OFFSET;
-				graphics.setColor(new Color(255, 255, 0, 70));
-				graphics.fillPolygon(recycleXPoints, recycleYPoints, 3);
-				graphics.setColor(new Color(255, 255, 0));
-				graphics.drawPolygon(recycleXPoints, recycleYPoints, 3);
-				graphics.drawLine((int) x + EXTERIOR_TRIANGLE_OFFSET, (int) y, (int) x,
-						(int) y - EXTERIOR_TRIANGLE_OFFSET);
-				setColorByDimension(graphics, xDimension);
-				graphics.drawLine((int) x, (int) y, (int) x + LINE_LEN, (int) y);
-				graphics.drawRect(((int) x + LINE_LEN) - 2, (int) y - 2, 4, 4);
-				setColorByDimension(graphics, yDimension);
-				graphics.drawLine((int) x, (int) y, (int) x, (int) y - LINE_LEN);
-				graphics.drawRect((int) x - 2, (int) y - LINE_LEN - 2, 4, 4);
-				break;
-			case UP:
-				setColorByDimension(graphics, xDimension);
-				graphics.drawLine((int) x + EXTERIOR_TRIANGLE_OFFSET, (int) y, (int) x + (EXTERIOR_TRIANGLE_OFFSET / 2),
-						(int) y - (EXTERIOR_TRIANGLE_OFFSET / 2));
-				graphics.drawLine((int) x + INTERIOR_TRIANGLE_OFFSET, (int) y, (int) x + (INTERIOR_TRIANGLE_OFFSET / 2),
-						(int) y - (INTERIOR_TRIANGLE_OFFSET / 2));
-				graphics.drawLine((int) x, (int) y, (int) x + LINE_LEN, (int) y);
-				graphics.drawRect(((int) x + LINE_LEN) - 2, (int) y - 2, 4, 4);
-				graphics.setColor(new Color(255, 255, 0));
-				graphics.drawLine((int) x, (int) y, (int) x, (int) y - LINE_LEN);
-				setColorByDimension(graphics, yDimension);
-				graphics.drawLine((int) x + (EXTERIOR_TRIANGLE_OFFSET / 2), (int) y - (EXTERIOR_TRIANGLE_OFFSET / 2),
-						(int) x, (int) y - EXTERIOR_TRIANGLE_OFFSET);
-				graphics.drawLine((int) x + (INTERIOR_TRIANGLE_OFFSET / 2), (int) y - (INTERIOR_TRIANGLE_OFFSET / 2),
-						(int) x, (int) y - INTERIOR_TRIANGLE_OFFSET);
-				graphics.drawRect((int) x - 2, (int) y - LINE_LEN - 2, 4, 4);
-				break;
-			case RIGHT:
-				graphics.setColor(new Color(255, 255, 0));
-				graphics.drawLine((int) x, (int) y, (int) x + LINE_LEN, (int) y);
-				setColorByDimension(graphics, xDimension);
-				graphics.drawLine((int) x + EXTERIOR_TRIANGLE_OFFSET, (int) y, (int) x + (EXTERIOR_TRIANGLE_OFFSET / 2),
-						(int) y - (EXTERIOR_TRIANGLE_OFFSET / 2));
-				graphics.drawLine((int) x + INTERIOR_TRIANGLE_OFFSET, (int) y, (int) x + (INTERIOR_TRIANGLE_OFFSET / 2),
-						(int) y - (INTERIOR_TRIANGLE_OFFSET / 2));
-				graphics.drawRect(((int) x + LINE_LEN) - 2, (int) y - 2, 4, 4);
-				setColorByDimension(graphics, yDimension);
-				graphics.drawLine((int) x, (int) y, (int) x, (int) y - LINE_LEN);
-				graphics.drawLine((int) x + (EXTERIOR_TRIANGLE_OFFSET / 2), (int) y - (EXTERIOR_TRIANGLE_OFFSET / 2),
-						(int) x, (int) y - EXTERIOR_TRIANGLE_OFFSET);
-				graphics.drawLine((int) x + (INTERIOR_TRIANGLE_OFFSET / 2), (int) y - (INTERIOR_TRIANGLE_OFFSET / 2),
-						(int) x, (int) y - INTERIOR_TRIANGLE_OFFSET);
-				graphics.drawRect((int) x - 2, (int) y - LINE_LEN - 2, 4, 4);
-				break;
-			case NONE:
-				recycleXPoints[0] = (int) x;
-				recycleYPoints[0] = (int) y;
-				recycleXPoints[1] = (int) x + INTERIOR_TRIANGLE_OFFSET;
-				recycleYPoints[1] = (int) y;
-				recycleXPoints[2] = (int) x;
-				recycleYPoints[2] = (int) y - INTERIOR_TRIANGLE_OFFSET;
-				graphics.setColor(new Color(255, 255, 0, 70));
-				graphics.fillPolygon(recycleXPoints, recycleYPoints, 3);
-				graphics.setColor(new Color(255, 255, 0));
-				graphics.drawPolygon(recycleXPoints, recycleYPoints, 3);
-				graphics.drawLine((int) x + EXTERIOR_TRIANGLE_OFFSET, (int) y, (int) x,
-						(int) y - EXTERIOR_TRIANGLE_OFFSET);
-				setColorByDimension(graphics, xDimension);
-				graphics.drawLine((int) x, (int) y, (int) x + LINE_LEN, (int) y);
-				graphics.drawRect(((int) x + LINE_LEN) - 2, (int) y - 2, 4, 4);
-				setColorByDimension(graphics, yDimension);
-				graphics.drawLine((int) x, (int) y, (int) x, (int) y - LINE_LEN);
-				graphics.drawRect((int) x - 2, (int) y - LINE_LEN - 2, 4, 4);
-				break;
-			case FLAT_XY:
-				recycleXPoints4[0] = (int) x + EXTERIOR_TRIANGLE_OFFSET;
-				recycleYPoints4[0] = (int) y;
-				recycleXPoints4[1] = (int) x + INTERIOR_TRIANGLE_OFFSET;
-				recycleYPoints4[1] = (int) y;
-				recycleXPoints4[2] = (int) x;
-				recycleYPoints4[2] = (int) y - INTERIOR_TRIANGLE_OFFSET;
-				recycleXPoints4[3] = (int) x;
-				recycleYPoints4[3] = (int) y - EXTERIOR_TRIANGLE_OFFSET;
-				graphics.setColor(new Color(255, 255, 0, 70));
-				graphics.fillPolygon(recycleXPoints4, recycleYPoints4, 4);
-				graphics.setColor(new Color(255, 255, 0));
-				graphics.drawPolygon(recycleXPoints4, recycleYPoints4, 4);
-				setColorByDimension(graphics, xDimension);
-				graphics.drawLine((int) x, (int) y, (int) x + LINE_LEN, (int) y);
-				graphics.drawRect(((int) x + LINE_LEN) - 2, (int) y - 2, 4, 4);
-				setColorByDimension(graphics, yDimension);
-				graphics.drawLine((int) x, (int) y, (int) x, (int) y - LINE_LEN);
-				graphics.drawRect((int) x - 2, (int) y - LINE_LEN - 2, 4, 4);
-				break;
+				case XYZ -> {
+					recycleXPoints[0] = (int) x;
+					recycleYPoints[0] = (int) y;
+					recycleXPoints[1] = (int) x + INTERIOR_TRIANGLE_OFFSET;
+					recycleYPoints[1] = (int) y;
+					recycleXPoints[2] = (int) x;
+					recycleYPoints[2] = (int) y - INTERIOR_TRIANGLE_OFFSET;
+					graphics.setColor(new Color(255, 255, 0, 70));
+					graphics.fillPolygon(recycleXPoints, recycleYPoints, 3);
+					graphics.setColor(new Color(255, 255, 0));
+					graphics.drawPolygon(recycleXPoints, recycleYPoints, 3);
+					graphics.drawLine((int) x + EXTERIOR_TRIANGLE_OFFSET, (int) y, (int) x,
+							(int) y - EXTERIOR_TRIANGLE_OFFSET);
+					setColorByDimension(graphics, xDimension);
+					graphics.drawLine((int) x, (int) y, (int) x + LINE_LEN, (int) y);
+					graphics.drawRect(((int) x + LINE_LEN) - 2, (int) y - 2, 4, 4);
+					setColorByDimension(graphics, yDimension);
+					graphics.drawLine((int) x, (int) y, (int) x, (int) y - LINE_LEN);
+					graphics.drawRect((int) x - 2, (int) y - LINE_LEN - 2, 4, 4);
+				}
+				case UP -> {
+					setColorByDimension(graphics, xDimension);
+					graphics.drawLine((int) x + EXTERIOR_TRIANGLE_OFFSET, (int) y, (int) x + (EXTERIOR_TRIANGLE_OFFSET / 2),
+							(int) y - (EXTERIOR_TRIANGLE_OFFSET / 2));
+					graphics.drawLine((int) x + INTERIOR_TRIANGLE_OFFSET, (int) y, (int) x + (INTERIOR_TRIANGLE_OFFSET / 2),
+							(int) y - (INTERIOR_TRIANGLE_OFFSET / 2));
+					graphics.drawLine((int) x, (int) y, (int) x + LINE_LEN, (int) y);
+					graphics.drawRect(((int) x + LINE_LEN) - 2, (int) y - 2, 4, 4);
+					graphics.setColor(new Color(255, 255, 0));
+					graphics.drawLine((int) x, (int) y, (int) x, (int) y - LINE_LEN);
+					setColorByDimension(graphics, yDimension);
+					graphics.drawLine((int) x + (EXTERIOR_TRIANGLE_OFFSET / 2), (int) y - (EXTERIOR_TRIANGLE_OFFSET / 2),
+							(int) x, (int) y - EXTERIOR_TRIANGLE_OFFSET);
+					graphics.drawLine((int) x + (INTERIOR_TRIANGLE_OFFSET / 2), (int) y - (INTERIOR_TRIANGLE_OFFSET / 2),
+							(int) x, (int) y - INTERIOR_TRIANGLE_OFFSET);
+					graphics.drawRect((int) x - 2, (int) y - LINE_LEN - 2, 4, 4);
+				}
+				case RIGHT -> {
+					graphics.setColor(new Color(255, 255, 0));
+					graphics.drawLine((int) x, (int) y, (int) x + LINE_LEN, (int) y);
+					setColorByDimension(graphics, xDimension);
+					graphics.drawLine((int) x + EXTERIOR_TRIANGLE_OFFSET, (int) y, (int) x + (EXTERIOR_TRIANGLE_OFFSET / 2),
+							(int) y - (EXTERIOR_TRIANGLE_OFFSET / 2));
+					graphics.drawLine((int) x + INTERIOR_TRIANGLE_OFFSET, (int) y, (int) x + (INTERIOR_TRIANGLE_OFFSET / 2),
+							(int) y - (INTERIOR_TRIANGLE_OFFSET / 2));
+					graphics.drawRect(((int) x + LINE_LEN) - 2, (int) y - 2, 4, 4);
+					setColorByDimension(graphics, yDimension);
+					graphics.drawLine((int) x, (int) y, (int) x, (int) y - LINE_LEN);
+					graphics.drawLine((int) x + (EXTERIOR_TRIANGLE_OFFSET / 2), (int) y - (EXTERIOR_TRIANGLE_OFFSET / 2),
+							(int) x, (int) y - EXTERIOR_TRIANGLE_OFFSET);
+					graphics.drawLine((int) x + (INTERIOR_TRIANGLE_OFFSET / 2), (int) y - (INTERIOR_TRIANGLE_OFFSET / 2),
+							(int) x, (int) y - INTERIOR_TRIANGLE_OFFSET);
+					graphics.drawRect((int) x - 2, (int) y - LINE_LEN - 2, 4, 4);
+				}
+				case NONE -> {
+					recycleXPoints[0] = (int) x;
+					recycleYPoints[0] = (int) y;
+					recycleXPoints[1] = (int) x + INTERIOR_TRIANGLE_OFFSET;
+					recycleYPoints[1] = (int) y;
+					recycleXPoints[2] = (int) x;
+					recycleYPoints[2] = (int) y - INTERIOR_TRIANGLE_OFFSET;
+					graphics.setColor(new Color(255, 255, 0, 70));
+					graphics.fillPolygon(recycleXPoints, recycleYPoints, 3);
+					graphics.setColor(new Color(255, 255, 0));
+					graphics.drawPolygon(recycleXPoints, recycleYPoints, 3);
+					graphics.drawLine((int) x + EXTERIOR_TRIANGLE_OFFSET, (int) y, (int) x,
+							(int) y - EXTERIOR_TRIANGLE_OFFSET);
+					setColorByDimension(graphics, xDimension);
+					graphics.drawLine((int) x, (int) y, (int) x + LINE_LEN, (int) y);
+					graphics.drawRect(((int) x + LINE_LEN) - 2, (int) y - 2, 4, 4);
+					setColorByDimension(graphics, yDimension);
+					graphics.drawLine((int) x, (int) y, (int) x, (int) y - LINE_LEN);
+					graphics.drawRect((int) x - 2, (int) y - LINE_LEN - 2, 4, 4);
+				}
+				case FLAT_XY -> {
+					recycleXPoints4[0] = (int) x + EXTERIOR_TRIANGLE_OFFSET;
+					recycleYPoints4[0] = (int) y;
+					recycleXPoints4[1] = (int) x + INTERIOR_TRIANGLE_OFFSET;
+					recycleYPoints4[1] = (int) y;
+					recycleXPoints4[2] = (int) x;
+					recycleYPoints4[2] = (int) y - INTERIOR_TRIANGLE_OFFSET;
+					recycleXPoints4[3] = (int) x;
+					recycleYPoints4[3] = (int) y - EXTERIOR_TRIANGLE_OFFSET;
+					graphics.setColor(new Color(255, 255, 0, 70));
+					graphics.fillPolygon(recycleXPoints4, recycleYPoints4, 4);
+					graphics.setColor(new Color(255, 255, 0));
+					graphics.drawPolygon(recycleXPoints4, recycleYPoints4, 4);
+					setColorByDimension(graphics, xDimension);
+					graphics.drawLine((int) x, (int) y, (int) x + LINE_LEN, (int) y);
+					graphics.drawRect(((int) x + LINE_LEN) - 2, (int) y - 2, 4, 4);
+					setColorByDimension(graphics, yDimension);
+					graphics.drawLine((int) x, (int) y, (int) x, (int) y - LINE_LEN);
+					graphics.drawRect((int) x - 2, (int) y - LINE_LEN - 2, 4, 4);
+				}
 			}
 		}
 	}
 
-	private void setColorByDimension(final Graphics2D graphics, final byte xDimension) {
-		switch (xDimension) {
-		case 0:
-			graphics.setColor(new Color(0, 255, 0));
-			break;
-		case 1:
-			graphics.setColor(new Color(255, 0, 0));
-			break;
-		case 2:
-			graphics.setColor(new Color(0, 0, 255));
-			break;
+	private void setColorByDimension(final Graphics2D graphics, final byte dimension) {
+		switch (dimension) {
+			case 0 -> graphics.setColor(new Color(0, 255, 0));
+			case 1 -> graphics.setColor(new Color(255, 0, 0));
+			case 2 -> graphics.setColor(new Color(0, 0, 255));
 		}
 	}
 

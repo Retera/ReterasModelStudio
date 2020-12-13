@@ -18,7 +18,7 @@ public final class ItemSortByClassFolder extends AbstractSortingFolderTreeNode {
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final War3ID ITEM_CLASS_FIELD = War3ID.fromString("icla");
-	private static final Comparator<MutableGameObject> ITEM_NAME_COMPARATOR = (o1, o2) -> o1.getName().compareTo(o2.getName());
+	private static final Comparator<MutableGameObject> ITEM_NAME_COMPARATOR = Comparator.comparing(MutableGameObject::getName);
 	private final Map<String, BottomLevelCategoryFolder> itemClassToTreeNode;
 	private final List<BottomLevelCategoryFolder> itemClassesList;
 

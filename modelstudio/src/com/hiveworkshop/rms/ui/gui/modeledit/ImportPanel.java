@@ -964,7 +964,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				boolean selectedt = false;
 				for (int i = 0; (i < selected.length) && !dif; i++) {
 					final ObjectPanel temp = (ObjectPanel) selected[i];
-					if (set == false) {
+					if (!set) {
 						set = true;
 						selectedt = temp.doImport.isSelected();
 					} else if (selectedt != temp.doImport.isSelected()) {
@@ -995,7 +995,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 
 				for (int i = 0; (i < selected.length) && !dif; i++) {
 					final VisibilityPane temp = (VisibilityPane) selected[i];
-					if (set == false) {
+					if (!set) {
 						set = true;
 						selectedt = temp.favorOld.isSelected();
 					} else if (selectedt != temp.favorOld.isSelected()) {
@@ -1082,8 +1082,6 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 	/**
 	 * Provides a Runnable to the ImportPanel that will be run after the import has
 	 * ended successfully.
-	 *
-	 * @param callback
 	 */
 	public void setCallback(final ModelStructureChangeListener callback) {
 		this.callback = callback;
@@ -1603,12 +1601,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 
 		for (int i = 0; i < objectPanels.size(); i++) {
 			final ObjectPanel op = objectPanels.get(i);
-			if (op.doImport.isSelected() && (op.object != null))// we don't touch
-																// camera
-																// "object"
-																// panels (which
-																// aren't
-																// idobjects)
+			if (op.doImport.isSelected() && (op.object != null))
+				// we don't touch camera "object" panels (which aren't idobjects)
 			{
 				final VisibilityPane vs = visPaneFromObject(op.object);
 				if (!visComponents.contains(vs) && (vs != null)) {
@@ -1833,26 +1827,23 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				final BonePanel bonePanel = bonePanels.get(i);
 				final Bone b = bonePanel.bone;
 				final int type = bonePanel.importTypeBox.getSelectedIndex();
+				// b.setName(b.getName()+" "+importedModel.getName());
+				// bonePanel.boneList.getSelectedValuesList();
+				// we will go through all bone shells for this
+				// Fix cross-model referencing issue (force clean parent node's list of
+				// children)
 				switch (type) {
-				case 0:
-					currentModel.add(b);
-					objectsAdded.add(b);
-					// b.setName(b.getName()+" "+importedModel.getName());
-					final BoneShell mbs = (BoneShell) bonePanel.futureBonesList.getSelectedValue();
-					if (mbs != null) {
-						b.setParent((mbs).bone);
-					} else {
-						b.setParent(null);
+					case 0 -> {
+						currentModel.add(b);
+						objectsAdded.add(b);
+						final BoneShell mbs = (BoneShell) bonePanel.futureBonesList.getSelectedValue();
+						if (mbs != null) {
+							b.setParent((mbs).bone);
+						} else {
+							b.setParent(null);
+						}
 					}
-					break;
-				case 1: // List targets =
-						// bonePanel.boneList.getSelectedValuesList();
-					// we will go through all bone shells for this
-				case 2:
-					// Fix cross-model referencing issue (force clean parent node's list of
-					// children)
-					b.setParent(null);
-					break;
+					case 1, 2 -> b.setParent(null);
 				}
 			}
 			if (!clearBones) {
@@ -2040,24 +2031,18 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 					for (final Animation a : newAnims) {
 						if (flagOld != null) {
 							if (!flagOld.hasGlobalSeq()) {
-								flagOld.deleteAnim(a);// All entries for
-														// visibility are
-														// deleted from
-														// original-based
-														// sources during
-														// imported animation
-														// times
+								flagOld.deleteAnim(a);
+								// All entries for visibility are deleted from
+								// original-based sources during imported animation times
 							}
 						}
 					}
 				}
 				if (flagOld != null) {
 					newVisFlag.copyFrom(flagOld);
-				} else {
 				}
 				if (flagNew != null) {
 					newVisFlag.copyFrom(flagNew);
-				} else {
 				}
 				finalVisFlags.add(newVisFlag);
 			}

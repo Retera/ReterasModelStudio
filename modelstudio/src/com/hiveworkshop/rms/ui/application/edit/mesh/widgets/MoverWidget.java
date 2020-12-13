@@ -1,13 +1,9 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.widgets;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Polygon;
-import java.awt.Rectangle;
-
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.awt.*;
 
 public final class MoverWidget {
 	private static final int TRIANGLE_OFFSET = 60 - 16;
@@ -38,11 +34,15 @@ public final class MoverWidget {
 		northTriangle.translate((int) x, (int) y - TRIANGLE_OFFSET);
 		MoveDirection direction = MoveDirection.NONE;
 		if (northTriangle.contains(mousePoint)
-				|| (Math.abs(x - mousePoint.getX()) <= 1 && mousePoint.y < y && mousePoint.y > y - TRIANGLE_OFFSET)) {
+				|| (Math.abs(x - mousePoint.getX()) <= 1
+				&& mousePoint.y < y
+				&& mousePoint.y > y - TRIANGLE_OFFSET)) {
 			direction = MoveDirection.UP;
 		}
 		if (eastTriangle.contains(mousePoint)
-				|| (Math.abs(y - mousePoint.getY()) <= 1 && mousePoint.x > x && mousePoint.x < x + TRIANGLE_OFFSET)) {
+				|| (Math.abs(y - mousePoint.getY()) <= 1
+				&& mousePoint.x > x
+				&& mousePoint.x < x + TRIANGLE_OFFSET)) {
 			direction = MoveDirection.RIGHT;
 		}
 		if (new Rectangle((int) x, (int) y - 20, 20, 20).contains(mousePoint)) {
@@ -76,85 +76,88 @@ public final class MoverWidget {
 		final double y = coordinateSystem.convertY(point.getCoord(yDimension));
 		if (moveDirection != null) {
 			switch (moveDirection) {
-				case BOTH:
+				case BOTH -> {
 					graphics.setColor(new Color(255, 255, 0, 70));
 					graphics.fillRect((int) x, (int) y - 20, 20, 20);
 					graphics.setColor(new Color(255, 255, 0));
-					graphics.drawLine((int) x, (int) y - 15, (int) x, (int) y - 60);
-					graphics.drawLine((int) x + 15, (int) y, (int) x + 60, (int) y);
-					graphics.drawLine((int) x + 20, (int) y, (int) x + 20, (int) y - 20);
-					graphics.drawLine((int) x, (int) y - 20, (int) x + 20, (int) y - 20);
+					drawLongNorthLine(graphics, (int) x, (int) y);
+					drawLongEatsLine(graphics, (int) x, (int) y);
+					drawShortNorthLine(graphics, (int) x, (int) y);
+					drawShortEastLine(graphics, (int) x, (int) y);
 					setColorByDimension(graphics, xDimension);
-					eastTriangle.translate((int) x + TRIANGLE_OFFSET, (int) y);
-					graphics.fill(eastTriangle);
-					eastTriangle.translate(-((int) x + TRIANGLE_OFFSET), -((int) y));
+					drawEastTriangle(graphics, (int) x, (int) y);
 					setColorByDimension(graphics, yDimension);
-					northTriangle.translate((int) x, (int) y - TRIANGLE_OFFSET);
-					graphics.fill(northTriangle);
-					northTriangle.translate(-(int) x, -((int) y - TRIANGLE_OFFSET));
-					break;
-				case UP:
+					drawNorthTriangle(graphics, (int) x, (int) y);
+				}
+				case UP -> {
 					graphics.setColor(new Color(255, 255, 0));
-					graphics.drawLine((int) x, (int) y - 15, (int) x, (int) y - 60);
+					drawLongNorthLine(graphics, (int) x, (int) y);
 					setColorByDimension(graphics, xDimension);
-					eastTriangle.translate((int) x + TRIANGLE_OFFSET, (int) y);
-					graphics.drawLine((int) x + 15, (int) y, (int) x + 60, (int) y);
-					graphics.drawLine((int) x + 20, (int) y, (int) x + 20, (int) y - 20);
-					graphics.fill(eastTriangle);
-					eastTriangle.translate(-((int) x + TRIANGLE_OFFSET), -((int) y));
+					drawLongEatsLine(graphics, (int) x, (int) y);
+					drawShortNorthLine(graphics, (int) x, (int) y);
+					drawEastTriangle(graphics, (int) x, (int) y);
 					setColorByDimension(graphics, yDimension);
-					northTriangle.translate((int) x, (int) y - TRIANGLE_OFFSET);
-					graphics.drawLine((int) x, (int) y - 20, (int) x + 20, (int) y - 20);
-					graphics.fill(northTriangle);
-					northTriangle.translate(-(int) x, -((int) y - TRIANGLE_OFFSET));
-					break;
-				case RIGHT:
+					drawShortEastLine(graphics, (int) x, (int) y);
+					drawNorthTriangle(graphics, (int) x, (int) y);
+				}
+				case RIGHT -> {
 					graphics.setColor(new Color(255, 255, 0));
-					graphics.drawLine((int) x + 15, (int) y, (int) x + 60, (int) y);
+					drawLongEatsLine(graphics, (int) x, (int) y);
 					setColorByDimension(graphics, xDimension);
-					eastTriangle.translate((int) x + TRIANGLE_OFFSET, (int) y);
-					graphics.drawLine((int) x + 20, (int) y, (int) x + 20, (int) y - 20);
-					graphics.fill(eastTriangle);
-					eastTriangle.translate(-((int) x + TRIANGLE_OFFSET), -((int) y));
+					drawShortNorthLine(graphics, (int) x, (int) y);
+					drawEastTriangle(graphics, (int) x, (int) y);
 					setColorByDimension(graphics, yDimension);
-					northTriangle.translate((int) x, (int) y - TRIANGLE_OFFSET);
-					graphics.drawLine((int) x, (int) y - 15, (int) x, (int) y - 60);
-					graphics.drawLine((int) x, (int) y - 20, (int) x + 20, (int) y - 20);
-					graphics.fill(northTriangle);
-					northTriangle.translate(-(int) x, -((int) y - TRIANGLE_OFFSET));
-					break;
-				case NONE:
+					drawLongNorthLine(graphics, (int) x, (int) y);
+					drawShortEastLine(graphics, (int) x, (int) y);
+					drawNorthTriangle(graphics, (int) x, (int) y);
+				}
+				case NONE -> {
 					setColorByDimension(graphics, xDimension);
-					eastTriangle.translate((int) x + TRIANGLE_OFFSET, (int) y);
-					graphics.drawLine((int) x + 15, (int) y, (int) x + 60, (int) y);
-					graphics.drawLine((int) x + 20, (int) y, (int) x + 20, (int) y - 20);
-					graphics.fill(eastTriangle);
-					eastTriangle.translate(-((int) x + TRIANGLE_OFFSET), -((int) y));
+					drawLongEatsLine(graphics, (int) x, (int) y);
+					drawShortNorthLine(graphics, (int) x, (int) y);
+					drawEastTriangle(graphics, (int) x, (int) y);
 					setColorByDimension(graphics, yDimension);
-					northTriangle.translate((int) x, (int) y - TRIANGLE_OFFSET);
-					graphics.drawLine((int) x, (int) y - 15, (int) x, (int) y - 60);
-					graphics.drawLine((int) x, (int) y - 20, (int) x + 20, (int) y - 20);
-					graphics.fill(northTriangle);
-					northTriangle.translate(-(int) x, -((int) y - TRIANGLE_OFFSET));
-					break;
+					drawLongNorthLine(graphics, (int) x, (int) y);
+					drawShortEastLine(graphics, (int) x, (int) y);
+					drawNorthTriangle(graphics, (int) x, (int) y);
+				}
 			}
 		}
 	}
 
-	private void setColorByDimension(final Graphics2D graphics, final byte xDimension) {
-		switch (xDimension) {
-			case 0:
-			case -1:
-				graphics.setColor(new Color(0, 255, 0));
-				break;
-			case 1:
-			case -2:
-				graphics.setColor(new Color(255, 0, 0));
-				break;
-			case 2:
-			case -3:
-				graphics.setColor(new Color(0, 0, 255));
-				break;
+	private void drawShortEastLine(Graphics2D graphics, int x, int y) {
+		graphics.drawLine(x, y - 20, x + 20, y - 20);
+	}
+
+	private void drawShortNorthLine(Graphics2D graphics, int x, int y) {
+		graphics.drawLine(x + 20, y, x + 20, y - 20);
+	}
+
+	private void drawLongEatsLine(Graphics2D graphics, int x, int y) {
+		graphics.drawLine(x + 15, y, x + 60, y);
+	}
+
+	private void drawLongNorthLine(Graphics2D graphics, int x, int y) {
+		graphics.drawLine(x, y - 15, x, y - 60);
+	}
+
+	private void drawEastTriangle(Graphics2D graphics, int x, int y) {
+		eastTriangle.translate(x + TRIANGLE_OFFSET, y);
+		graphics.fill(eastTriangle);
+		eastTriangle.translate(-(x + TRIANGLE_OFFSET), -y);
+	}
+
+	private void drawNorthTriangle(Graphics2D graphics, int x, int y) {
+		northTriangle.translate(x, y - TRIANGLE_OFFSET);
+		graphics.fill(northTriangle);
+		northTriangle.translate(-x, -(y - TRIANGLE_OFFSET));
+	}
+
+	private void setColorByDimension(final Graphics2D graphics, final byte dimension) {
+		switch (dimension) {
+			case 0, -1 -> graphics.setColor(new Color(0, 255, 0));
+			case 1, -2 -> graphics.setColor(new Color(255, 0, 0));
+			case 2, -3 -> graphics.setColor(new Color(0, 0, 255));
 		}
 	}
 

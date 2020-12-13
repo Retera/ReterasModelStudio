@@ -2,13 +2,11 @@ package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
+import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxMaterial;
-
 import jassimp.AiMaterial;
 import jassimp.AiTextureType;
-
-import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -135,41 +133,39 @@ public class Material {
 	}
 
 	public String getName() {
-		String name = "";
+		StringBuilder name = new StringBuilder();
 		if (layers.size() > 0) {
 			if (SHADER_HD_DEFAULT_UNIT.equals(shaderString)) {
 				try {
-					name = name + " over " + layers.get(0).texture.getName();
+					name.append(" over ").append(layers.get(0).texture.getName());
 					if (layers.get(0).find("Alpha") != null) {
-						name = name + " (animated Alpha)";
+						name.append(" (animated Alpha)");
 					}
 				} catch (final NullPointerException e) {
-					name = name + " over " + "animated texture layers (" + layers.get(0).textures.get(0).getName()
-							+ ")";
+					name.append(" over ").append("animated texture layers (").append(layers.get(0).textures.get(0).getName()).append(")");
 				}
 			} else {
 				if (layers.get(layers.size() - 1).texture != null) {
-					name = layers.get(layers.size() - 1).texture.getName();
+					name = new StringBuilder(layers.get(layers.size() - 1).texture.getName());
 					if (layers.get(layers.size() - 1).find("Alpha") != null) {
-						name = name + " (animated Alpha)";
+						name.append(" (animated Alpha)");
 					}
 				} else {
-					name = "animated texture layers";
+					name = new StringBuilder("animated texture layers");
 				}
 				for (int i = layers.size() - 2; i >= 0; i--) {
 					try {
-						name = name + " over " + layers.get(i).texture.getName();
+						name.append(" over ").append(layers.get(i).texture.getName());
 						if (layers.get(i).find("Alpha") != null) {
-							name = name + " (animated Alpha)";
+							name.append(" (animated Alpha)");
 						}
 					} catch (final NullPointerException e) {
-						name = name + " over " + "animated texture layers ("
-								+ layers.get(i).textures.get(0).getName() + ")";
+						name.append(" over ").append("animated texture layers (").append(layers.get(i).textures.get(0).getName()).append(")");
 					}
 				}
 			}
 		}
-		return name;
+		return name.toString();
 	}
 
 	public Layer firstLayer() {
@@ -319,9 +315,6 @@ public class Material {
 
 	/**
 	 * Intended to handle resolving ReplaceableIds into paths
-	 *
-	 * @param tex
-	 * @return
 	 */
 	private String getRenderableTexturePath(final Bitmap tex) {
 		if (tex == null) {

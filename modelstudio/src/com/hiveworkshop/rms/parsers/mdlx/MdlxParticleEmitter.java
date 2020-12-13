@@ -60,67 +60,33 @@ public class MdlxParticleEmitter extends MdlxGenericObject {
 	public void readMdl(final MdlTokenInputStream stream, final int version) {
 		for (final String token : super.readMdlGeneric(stream)) {
 			switch (token) {
-				case MdlUtils.TOKEN_EMITTER_USES_MDL:
-					flags |= 0x8000;
-					break;
-				case MdlUtils.TOKEN_EMITTER_USES_TGA:
-					flags |= 0x10000;
-					break;
-				case MdlUtils.TOKEN_STATIC_EMISSION_RATE:
-					emissionRate = stream.readFloat();
-					break;
-				case MdlUtils.TOKEN_EMISSION_RATE:
-					readTimeline(stream, AnimationMap.KPEE);
-					break;
-				case MdlUtils.TOKEN_STATIC_GRAVITY:
-					gravity = stream.readFloat();
-					break;
-				case MdlUtils.TOKEN_GRAVITY:
-					readTimeline(stream, AnimationMap.KPEG);
-					break;
-				case MdlUtils.TOKEN_STATIC_LONGITUDE:
-					longitude = stream.readFloat();
-					break;
-				case MdlUtils.TOKEN_LONGITUDE:
-					readTimeline(stream, AnimationMap.KPLN);
-					break;
-				case MdlUtils.TOKEN_STATIC_LATITUDE:
-					latitude = stream.readFloat();
-					break;
-				case MdlUtils.TOKEN_LATITUDE:
-					readTimeline(stream, AnimationMap.KPLT);
-					break;
-				case MdlUtils.TOKEN_VISIBILITY:
-					readTimeline(stream, AnimationMap.KPEV);
-					break;
-				case MdlUtils.TOKEN_PARTICLE:
+				case MdlUtils.TOKEN_EMITTER_USES_MDL -> flags |= 0x8000;
+				case MdlUtils.TOKEN_EMITTER_USES_TGA -> flags |= 0x10000;
+				case MdlUtils.TOKEN_STATIC_EMISSION_RATE -> emissionRate = stream.readFloat();
+				case MdlUtils.TOKEN_EMISSION_RATE -> readTimeline(stream, AnimationMap.KPEE);
+				case MdlUtils.TOKEN_STATIC_GRAVITY -> gravity = stream.readFloat();
+				case MdlUtils.TOKEN_GRAVITY -> readTimeline(stream, AnimationMap.KPEG);
+				case MdlUtils.TOKEN_STATIC_LONGITUDE -> longitude = stream.readFloat();
+				case MdlUtils.TOKEN_LONGITUDE -> readTimeline(stream, AnimationMap.KPLN);
+				case MdlUtils.TOKEN_STATIC_LATITUDE -> latitude = stream.readFloat();
+				case MdlUtils.TOKEN_LATITUDE -> readTimeline(stream, AnimationMap.KPLT);
+				case MdlUtils.TOKEN_VISIBILITY -> readTimeline(stream, AnimationMap.KPEV);
+				case MdlUtils.TOKEN_PARTICLE -> {
 					final Iterator<String> iterator = readAnimatedBlock(stream);
 					while (iterator.hasNext()) {
 						final String subToken = iterator.next();
 						switch (subToken) {
-							case MdlUtils.TOKEN_STATIC_LIFE_SPAN:
-								lifeSpan = stream.readFloat();
-								break;
-							case MdlUtils.TOKEN_LIFE_SPAN:
-								readTimeline(stream, AnimationMap.KPEL);
-								break;
-							case MdlUtils.TOKEN_STATIC_INIT_VELOCITY:
-								speed = stream.readFloat();
-								break;
-							case MdlUtils.TOKEN_INIT_VELOCITY:
-								readTimeline(stream, AnimationMap.KPES);
-								break;
-							case MdlUtils.TOKEN_PATH:
-								path = stream.read();
-								break;
-							default:
-								throw new RuntimeException(
-										"Unknown token in ParticleEmitter " + name + "'s Particle: " + subToken);
+							case MdlUtils.TOKEN_STATIC_LIFE_SPAN -> lifeSpan = stream.readFloat();
+							case MdlUtils.TOKEN_LIFE_SPAN -> readTimeline(stream, AnimationMap.KPEL);
+							case MdlUtils.TOKEN_STATIC_INIT_VELOCITY -> speed = stream.readFloat();
+							case MdlUtils.TOKEN_INIT_VELOCITY -> readTimeline(stream, AnimationMap.KPES);
+							case MdlUtils.TOKEN_PATH -> path = stream.read();
+							default -> throw new RuntimeException(
+									"Unknown token in ParticleEmitter " + name + "'s Particle: " + subToken);
 						}
 					}
-					break;
-				default:
-					throw new RuntimeException("Unknown token in ParticleEmitter " + name + ": " + token);
+				}
+				default -> throw new RuntimeException("Unknown token in ParticleEmitter " + name + ": " + token);
 			}
 		}
 	}

@@ -1,8 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit;
 
-import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
@@ -25,18 +23,14 @@ import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.rms.ui.gui.modeledit.util.TextureExporter;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.InfoPopup;
-import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The ModelPanel is a pane holding the display of a given MDL model. I plan to
@@ -102,16 +96,19 @@ public class ModelPanel implements ActionListener, MouseListener {
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
 		modelView = new ModelViewManager(input);
 		undoManager = new UndoManagerImpl(undoHandler);
+
 		editorRenderModel = new RenderModel(input, modelView);
 		editorRenderModel.setSpawnParticles((prefs.getRenderParticles() == null) || prefs.getRenderParticles());
-		editorRenderModel.setAllowInanimateParticles(
-				(prefs.getRenderStaticPoseParticles() == null) || prefs.getRenderStaticPoseParticles());
+		editorRenderModel.setAllowInanimateParticles((prefs.getRenderStaticPoseParticles() == null) || prefs.getRenderStaticPoseParticles());
+
 		modelEditorManager = new ModelEditorManager(modelView, prefs, modeNotifier,
 				modelEditorChangeNotifier, viewportActivityManager, editorRenderModel,
 				modelStructureChangeListener);
+
 		modelViewManagingTree = new ModelViewManagingTree(modelView, undoManager,
 				modelEditorManager);
 		modelViewManagingTree.setFocusable(false);
+
 		modelComponentBrowserTree = new ModelComponentBrowserTree(modelView, undoManager,
 				modelEditorManager, modelStructureChangeListener);
 

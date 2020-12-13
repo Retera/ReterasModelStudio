@@ -90,6 +90,60 @@ public class ModelOptionPanel extends JPanel {
 		preloaded = false;
 	}
 
+	public ModelOptionPanel() {
+		preload();
+
+		for (final ModelGroup group : groups) {
+			groupsModel.addElement(group);
+			final DefaultComboBoxModel<Model> groupModel = new DefaultComboBoxModel<>();
+
+			for (final Model model : group.models) {
+				groupModel.addElement(model);
+			}
+			groupModels.add(groupModel);
+		}
+		groupBox = new JComboBox<>(groupsModel);
+		modelBox = new JComboBox<>(groupModels.get(0));
+		filePathField = new JTextField();
+		filePathField.setMaximumSize(new Dimension(20000, 25));
+		groupBox.addActionListener(e -> groupBoxListener());
+		modelBox.addActionListener(e -> modelBoxListener());
+
+		filePathField.getDocument().addDocumentListener(getFilepathDocumentListener(this));
+
+		groupBox.setMaximumRowCount(11);
+		modelBox.setMaximumRowCount(36);
+
+		groupBox.setMaximumSize(new Dimension(140, 25));
+		modelBox.setMaximumSize(new Dimension(10000, 25));
+
+		// TODO program prefs not be null???
+		// viewer = new PerspDisplayPanel("blank", blankDisp, null);
+		viewer = new AnimationViewer(blankDisp, new ProgramPreferences(), false);
+		modelBox.setSelectedIndex(0);
+
+		add(groupBox);
+		add(modelBox);
+
+		final GroupLayout layout = new GroupLayout(this);
+
+		layout.setHorizontalGroup(layout.createSequentialGroup().addGap(8)
+				.addComponent(viewer).addGap(8)
+				.addGroup(layout.createParallelGroup()
+						.addComponent(groupBox)
+						.addComponent(modelBox)
+						.addComponent(filePathField)).addGap(8));
+		layout.setVerticalGroup(layout.createSequentialGroup().addGap(8)
+				.addGroup(layout.createParallelGroup()
+						.addComponent(viewer)
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(groupBox).addGap(4)
+								.addComponent(modelBox).addGap(4)
+								.addComponent(filePathField))).addGap(8));
+
+		setLayout(layout);
+	}
+
 	static void preload() {
 		if (preloaded) {
 			return;
@@ -145,584 +199,130 @@ public class ModelOptionPanel extends JPanel {
 		for (String str : unitData.keySet()) {
 			str = str.toUpperCase();
 			if (str.startsWith("R")) {
-				continue;
 			} else if (str.startsWith("A") || str.startsWith("S")) {
 				// ability
 				final Element unit = unitData.get(str);
-				String filepath = unit.getField("Areaeffectart");
-				if (filepath.length() > 0) {
-					if (filepath.contains(",")) {
-						filepath = filepath.split(",")[0];
-					}
-					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						abilityModelData.put(filepath.toLowerCase(), unitList);
-					}
-					unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_AREAEFFECT"));
-				}
-				filepath = unit.getField("areaeffectart");
-				if (filepath.length() > 0) {
-					if (filepath.contains(",")) {
-						filepath = filepath.split(",")[0];
-					}
-					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						abilityModelData.put(filepath.toLowerCase(), unitList);
-					}
-					unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_AREAEFFECT"));
-				}
-				filepath = unit.getField("AreaEffectart");
-				if (filepath.length() > 0) {
-					if (filepath.contains(",")) {
-						filepath = filepath.split(",")[0];
-					}
-					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						abilityModelData.put(filepath.toLowerCase(), unitList);
-					}
-					unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_AREAEFFECT"));
-				}
-				filepath = unit.getField("AreaEffectArt");
-				if (filepath.length() > 0) {
-					if (filepath.contains(",")) {
-						filepath = filepath.split(",")[0];
-					}
-					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						abilityModelData.put(filepath.toLowerCase(), unitList);
-					}
-					unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_AREAEFFECT"));
-				}
-				filepath = unit.getField("AreaeffectArt");
-				if (filepath.length() > 0) {
-					if (filepath.contains(",")) {
-						filepath = filepath.split(",")[0];
-					}
-					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase().toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						abilityModelData.put(filepath.toLowerCase().toLowerCase(), unitList);
-					}
-					unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_AREAEFFECT"));
-				}
+				addModelsToList(abilityModelData, unit, "Areaeffectart", "WESTRING_OE_TYPECAT_SUFFIX_AREAEFFECT");
+				addModelsToList(abilityModelData, unit, "areaeffectart", "WESTRING_OE_TYPECAT_SUFFIX_AREAEFFECT");
+				addModelsToList(abilityModelData, unit, "AreaEffectart", "WESTRING_OE_TYPECAT_SUFFIX_AREAEFFECT");
+				addModelsToList(abilityModelData, unit, "AreaEffectArt", "WESTRING_OE_TYPECAT_SUFFIX_AREAEFFECT");
+				addModelsToList(abilityModelData, unit, "AreaeffectArt", "WESTRING_OE_TYPECAT_SUFFIX_AREAEFFECT");
 
-				filepath = unit.getField("CasterArt");
-				if (filepath.length() > 0) {
-					if (filepath.contains(",")) {
-						filepath = filepath.split(",")[0];
-					}
-					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						abilityModelData.put(filepath.toLowerCase(), unitList);
-					}
-					unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_CASTER"));
-				}
-				filepath = unit.getField("Casterart");
-				if (filepath.length() > 0) {
-					if (filepath.contains(",")) {
-						filepath = filepath.split(",")[0];
-					}
-					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						abilityModelData.put(filepath.toLowerCase(), unitList);
-					}
-					unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_CASTER"));
-				}
-				filepath = unit.getField("casterart");
-				if (filepath.length() > 0) {
-					if (filepath.contains(",")) {
-						filepath = filepath.split(",")[0];
-					}
-					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						abilityModelData.put(filepath.toLowerCase(), unitList);
-					}
-					unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_CASTER"));
-				}
+				addModelsToList(abilityModelData, unit, "CasterArt", "WESTRING_OE_TYPECAT_SUFFIX_CASTER");
+				addModelsToList(abilityModelData, unit, "Casterart", "WESTRING_OE_TYPECAT_SUFFIX_CASTER");
+				addModelsToList(abilityModelData, unit, "casterart", "WESTRING_OE_TYPECAT_SUFFIX_CASTER");
 
-				filepath = unit.getField("EffectArt");
-				if (filepath.length() > 0) {
-					if (filepath.contains(",")) {
-						filepath = filepath.split(",")[0];
-					}
-					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						abilityModelData.put(filepath.toLowerCase(), unitList);
-					}
-					unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_EFFECT"));
-				}
-				filepath = unit.getField("Effectart");
-				if (filepath.length() > 0) {
-					if (filepath.contains(",")) {
-						filepath = filepath.split(",")[0];
-					}
-					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						abilityModelData.put(filepath.toLowerCase(), unitList);
-					}
-					unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_EFFECT"));
-				}
-				filepath = unit.getField("effectart");
-				if (filepath.length() > 0) {
-					if (filepath.contains(",")) {
-						filepath = filepath.split(",")[0];
-					}
-					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						abilityModelData.put(filepath.toLowerCase(), unitList);
-					}
-					unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_EFFECT"));
-				}
+				addModelsToList(abilityModelData, unit, "EffectArt", "WESTRING_OE_TYPECAT_SUFFIX_EFFECT");
+				addModelsToList(abilityModelData, unit, "Effectart", "WESTRING_OE_TYPECAT_SUFFIX_EFFECT");
+				addModelsToList(abilityModelData, unit, "effectart", "WESTRING_OE_TYPECAT_SUFFIX_EFFECT");
 
-				filepath = unit.getField("Missileart");
-				if (filepath.length() > 0) {
-					if (filepath.contains(",")) {
-						filepath = filepath.split(",")[0];
-					}
-					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						abilityModelData.put(filepath.toLowerCase(), unitList);
-					}
-					unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_MISSILE"));
-				}
-				filepath = unit.getField("missileart");
-				if (filepath.length() > 0) {
-					if (filepath.contains(",")) {
-						filepath = filepath.split(",")[0];
-					}
-					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						abilityModelData.put(filepath.toLowerCase(), unitList);
-					}
-					unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_MISSILE"));
-				}
-				filepath = unit.getField("MissileArt");
-				if (filepath.length() > 0) {
-					if (filepath.contains(",")) {
-						filepath = filepath.split(",")[0];
-					}
-					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						abilityModelData.put(filepath.toLowerCase(), unitList);
-					}
-					unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_MISSILE"));
-				}
+				addModelsToList(abilityModelData, unit, "Missileart", "WESTRING_OE_TYPECAT_SUFFIX_MISSILE");
+				addModelsToList(abilityModelData, unit, "missileart", "WESTRING_OE_TYPECAT_SUFFIX_MISSILE");
+				addModelsToList(abilityModelData, unit, "MissileArt", "WESTRING_OE_TYPECAT_SUFFIX_MISSILE");
 
-				filepath = unit.getField("SpecialArt");
-				if (filepath.length() > 0) {
-					if (filepath.contains(",")) {
-						filepath = filepath.split(",")[0];
-					}
-					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						abilityModelData.put(filepath.toLowerCase(), unitList);
-					}
-					unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_SPECIAL"));
-				}
-				filepath = unit.getField("Specialart");
-				if (filepath.length() > 0) {
-					if (filepath.contains(",")) {
-						filepath = filepath.split(",")[0];
-					}
-					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						abilityModelData.put(filepath.toLowerCase(), unitList);
-					}
-					unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_SPECIAL"));
-				}
-				filepath = unit.getField("specialart");
-				if (filepath.length() > 0) {
-					if (filepath.contains(",")) {
-						filepath = filepath.split(",")[0];
-					}
-					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						abilityModelData.put(filepath.toLowerCase(), unitList);
-					}
-					unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_SPECIAL"));
-				}
+				addModelsToList(abilityModelData, unit, "SpecialArt", "WESTRING_OE_TYPECAT_SUFFIX_SPECIAL");
+				addModelsToList(abilityModelData, unit, "Specialart", "WESTRING_OE_TYPECAT_SUFFIX_SPECIAL");
+				addModelsToList(abilityModelData, unit, "specialart", "WESTRING_OE_TYPECAT_SUFFIX_SPECIAL");
 
-				filepath = unit.getField("TargetArt");
-				if (filepath.length() > 0) {
-					if (filepath.contains(",")) {
-						filepath = filepath.split(",")[0];
-					}
-					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						abilityModelData.put(filepath.toLowerCase(), unitList);
-					}
-					unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_TARGET"));
-				}
-				filepath = unit.getField("Targetart");
-				if (filepath.length() > 0) {
-					if (filepath.contains(",")) {
-						filepath = filepath.split(",")[0];
-					}
-					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						abilityModelData.put(filepath.toLowerCase(), unitList);
-					}
-					unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_TARGET"));
-				}
-				filepath = unit.getField("targetart");
-				if (filepath.length() > 0) {
-					if (filepath.contains(",")) {
-						filepath = filepath.split(",")[0];
-					}
-					NamedList<String> unitList = abilityModelData.get(filepath.toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						abilityModelData.put(filepath.toLowerCase(), unitList);
-					}
-					unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_TARGET"));
-				}
-			} else if (str.startsWith("B") || str.startsWith("X") || str.startsWith("A")) {
+				addModelsToList(abilityModelData, unit, "TargetArt", "WESTRING_OE_TYPECAT_SUFFIX_TARGET");
+				addModelsToList(abilityModelData, unit, "Targetart", "WESTRING_OE_TYPECAT_SUFFIX_TARGET");
+				addModelsToList(abilityModelData, unit, "targetart", "WESTRING_OE_TYPECAT_SUFFIX_TARGET");
+			} else if (str.startsWith("B") || str.startsWith("X")) {
 				// BUFF
 			} else {
 				// UNIT
 				final Element unit = unitData.get(str);
-				String filepath = unit.getField("file");
-				if (filepath.length() > 0) {
-					NamedList<String> unitList = unitsModelData.get(filepath.toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						unitsModelData.put(filepath.toLowerCase(), unitList);
-					}
-					unitList.add(unit.getName());
-				}
+				addMissileArtUnitToList(unitsModelData, unitsMissileData, unit);
 
-				filepath = unit.getField("Missileart");
-				if (filepath.length() > 0) {
-					if (filepath.contains(",")) {
-						final String[] filepaths = filepath.split(",");
-						for (final String fp : filepaths) {
-							NamedList<String> unitList = unitsMissileData.get(fp.toLowerCase());
-							if (unitList == null) {
-								unitList = new NamedList<>(filepath);
-								unitList.setCachedIconPath(unit.getIconPath());
-								unitsMissileData.put(fp.toLowerCase(), unitList);
-							}
-							unitList.add(unit.getName());
-						}
-					} else {
-						NamedList<String> unitList = unitsMissileData.get(filepath.toLowerCase());
-						if (unitList == null) {
-							unitList = new NamedList<>(filepath);
-							unitList.setCachedIconPath(unit.getIconPath());
-							unitsMissileData.put(filepath.toLowerCase(), unitList);
-						}
-						unitList.add(unit.getName());
-					}
-				}
+				addUnitsToList(unitsSpecialData, unit, "Specialart", "WESTRING_OE_TYPECAT_SUFFIX_SPECIAL");
 
-				filepath = unit.getField("Specialart");
-				if (filepath.length() > 0) {
-					NamedList<String> unitList = unitsSpecialData.get(filepath.toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						unitsSpecialData.put(filepath.toLowerCase(), unitList);
-					}
-					unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_SPECIAL"));
-				}
-
-				filepath = unit.getField("Targetart");
-				if (filepath.length() > 0) {
-					NamedList<String> unitList = unitsSpecialData.get(filepath.toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						unitsSpecialData.put(filepath.toLowerCase(), unitList);
-					}
-					unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_TARGET"));
-				}
+				addUnitsToList(unitsSpecialData, unit, "Targetart", "WESTRING_OE_TYPECAT_SUFFIX_TARGET");
 			}
 		}
 
 		for (final String str : buffData.keySet()) {
 
 			final Element unit = buffData.get(str);
-			String filepath = unit.getField("EffectArt");
-			if (filepath.length() > 0) {
-				if (filepath.contains(",")) {
-					filepath = filepath.split(",")[0];
-				}
-				NamedList<String> unitList = buffModelData.get(filepath.toLowerCase());
-				if (unitList == null) {
-					unitList = new NamedList<>(filepath);
-					unitList.setCachedIconPath(unit.getIconPath());
-					buffModelData.put(filepath.toLowerCase(), unitList);
-				}
-				unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_EFFECT"));
-			}
-			filepath = unit.getField("Effectart");
-			if (filepath.length() > 0) {
-				if (filepath.contains(",")) {
-					filepath = filepath.split(",")[0];
-				}
-				NamedList<String> unitList = buffModelData.get(filepath.toLowerCase());
-				if (unitList == null) {
-					unitList = new NamedList<>(filepath);
-					unitList.setCachedIconPath(unit.getIconPath());
-					buffModelData.put(filepath.toLowerCase(), unitList);
-				}
-				unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_EFFECT"));
-			}
-			filepath = unit.getField("effectart");
-			if (filepath.length() > 0) {
-				if (filepath.contains(",")) {
-					filepath = filepath.split(",")[0];
-				}
-				NamedList<String> unitList = buffModelData.get(filepath.toLowerCase());
-				if (unitList == null) {
-					unitList = new NamedList<>(filepath);
-					unitList.setCachedIconPath(unit.getIconPath());
-					buffModelData.put(filepath.toLowerCase(), unitList);
-				}
-				unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_EFFECT"));
-			}
+			addModelsToList(buffModelData, unit, "EffectArt", "WESTRING_OE_TYPECAT_SUFFIX_EFFECT");
+			addModelsToList(buffModelData, unit, "Effectart", "WESTRING_OE_TYPECAT_SUFFIX_EFFECT");
+			addModelsToList(buffModelData, unit, "effectart", "WESTRING_OE_TYPECAT_SUFFIX_EFFECT");
 
-			filepath = unit.getField("Missileart");
-			if (filepath.length() > 0) {
-				if (filepath.contains(",")) {
-					filepath = filepath.split(",")[0];
-				}
-				NamedList<String> unitList = buffModelData.get(filepath.toLowerCase());
-				if (unitList == null) {
-					unitList = new NamedList<>(filepath);
-					unitList.setCachedIconPath(unit.getIconPath());
-					buffModelData.put(filepath.toLowerCase(), unitList);
-				}
-				unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_MISSILE"));
-			}
-			filepath = unit.getField("MissileArt");
-			if (filepath.length() > 0) {
-				if (filepath.contains(",")) {
-					filepath = filepath.split(",")[0];
-				}
-				NamedList<String> unitList = buffModelData.get(filepath.toLowerCase());
-				if (unitList == null) {
-					unitList = new NamedList<>(filepath);
-					unitList.setCachedIconPath(unit.getIconPath());
-					buffModelData.put(filepath.toLowerCase(), unitList);
-				}
-				unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_MISSILE"));
-			}
-			filepath = unit.getField("missileart");
-			if (filepath.length() > 0) {
-				if (filepath.contains(",")) {
-					filepath = filepath.split(",")[0];
-				}
-				NamedList<String> unitList = buffModelData.get(filepath.toLowerCase());
-				if (unitList == null) {
-					unitList = new NamedList<>(filepath);
-					unitList.setCachedIconPath(unit.getIconPath());
-					buffModelData.put(filepath.toLowerCase(), unitList);
-				}
-				unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_MISSILE"));
-			}
+			addModelsToList(buffModelData, unit, "Missileart", "WESTRING_OE_TYPECAT_SUFFIX_MISSILE");
+			addModelsToList(buffModelData, unit, "MissileArt", "WESTRING_OE_TYPECAT_SUFFIX_MISSILE");
+			addModelsToList(buffModelData, unit, "missileart", "WESTRING_OE_TYPECAT_SUFFIX_MISSILE");
 
-			filepath = unit.getField("SpecialArt");
-			if (filepath.length() > 0) {
-				if (filepath.contains(",")) {
-					filepath = filepath.split(",")[0];
-				}
-				NamedList<String> unitList = buffModelData.get(filepath.toLowerCase());
-				if (unitList == null) {
-					unitList = new NamedList<>(filepath);
-					unitList.setCachedIconPath(unit.getIconPath());
-					buffModelData.put(filepath.toLowerCase(), unitList);
-				}
-				unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_SPECIAL"));
-			}
-			filepath = unit.getField("Specialart");
-			if (filepath.length() > 0) {
-				if (filepath.contains(",")) {
-					filepath = filepath.split(",")[0];
-				}
-				NamedList<String> unitList = buffModelData.get(filepath.toLowerCase());
-				if (unitList == null) {
-					unitList = new NamedList<>(filepath);
-					unitList.setCachedIconPath(unit.getIconPath());
-					buffModelData.put(filepath.toLowerCase(), unitList);
-				}
-				unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_SPECIAL"));
-			}
-			filepath = unit.getField("specialart");
-			if (filepath.length() > 0) {
-				if (filepath.contains(",")) {
-					filepath = filepath.split(",")[0];
-				}
-				NamedList<String> unitList = buffModelData.get(filepath.toLowerCase());
-				if (unitList == null) {
-					unitList = new NamedList<>(filepath);
-					unitList.setCachedIconPath(unit.getIconPath());
-					buffModelData.put(filepath.toLowerCase(), unitList);
-				}
-				unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_SPECIAL"));
-			}
+			addModelsToList(buffModelData, unit, "SpecialArt", "WESTRING_OE_TYPECAT_SUFFIX_SPECIAL");
+			addModelsToList(buffModelData, unit, "Specialart", "WESTRING_OE_TYPECAT_SUFFIX_SPECIAL");
+			addModelsToList(buffModelData, unit, "specialart", "WESTRING_OE_TYPECAT_SUFFIX_SPECIAL");
 
-			filepath = unit.getField("TargetArt");
-			if (filepath.length() > 0) {
-				if (filepath.contains(",")) {
-					filepath = filepath.split(",")[0];
-				}
-				NamedList<String> unitList = buffModelData.get(filepath.toLowerCase());
-				if (unitList == null) {
-					unitList = new NamedList<>(filepath);
-					unitList.setCachedIconPath(unit.getIconPath());
-					buffModelData.put(filepath.toLowerCase(), unitList);
-				}
-				unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_TARGET"));
-			}
-			filepath = unit.getField("Targetart");
-			if (filepath.length() > 0) {
-				if (filepath.contains(",")) {
-					filepath = filepath.split(",")[0];
-				}
-				NamedList<String> unitList = buffModelData.get(filepath.toLowerCase());
-				if (unitList == null) {
-					unitList = new NamedList<>(filepath);
-					unitList.setCachedIconPath(unit.getIconPath());
-					buffModelData.put(filepath.toLowerCase(), unitList);
-				}
-				unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_TARGET"));
-			}
-			filepath = unit.getField("targetart");
-			if (filepath.length() > 0) {
-				if (filepath.contains(",")) {
-					filepath = filepath.split(",")[0];
-				}
-				NamedList<String> unitList = buffModelData.get(filepath.toLowerCase());
-				if (unitList == null) {
-					unitList = new NamedList<>(filepath);
-					unitList.setCachedIconPath(unit.getIconPath());
-					buffModelData.put(filepath.toLowerCase(), unitList);
-				}
-				unitList.add(unit.getName() + " " + WEString.getString("WESTRING_OE_TYPECAT_SUFFIX_TARGET"));
-			}
+			addModelsToList(buffModelData, unit, "TargetArt", "WESTRING_OE_TYPECAT_SUFFIX_TARGET");
+			addModelsToList(buffModelData, unit, "Targetart", "WESTRING_OE_TYPECAT_SUFFIX_TARGET");
+			addModelsToList(buffModelData, unit, "targetart", "WESTRING_OE_TYPECAT_SUFFIX_TARGET");
 		}
 
+		fillItemData(itemsModelData);
+
+		fillUnitList(destModelData, destData);
+
+		fillUnitList(doodModelData, doodData);
+
+		fillSpawnData(spawnModelData);
+
+		fillGinterData(ginterModelData);
+
+		addNewModelGroup(unitsModelData, "WESTRING_OE_TYPECAT_UNIT");
+
+		addNewModelGroup(unitsMissileData, "WESTRING_OE_TYPECAT_UNIT_MSSL");
+
+		addNewModelGroup(unitsSpecialData, "WESTRING_OE_TYPECAT_UNIT_SPEC");
+
+		addNewModelGroup(itemsModelData, "WESTRING_OE_TYPECAT_ITEM");
+
+		addNewModelGroup(abilityModelData, "WESTRING_OE_TYPECAT_ABIL");
+
+		addNewModelGroup(buffModelData, "WESTRING_OE_TYPECAT_BUFF");
+
+		addNewModelGroup(destModelData, "WESTRING_OE_TYPECAT_DEST");
+
+		addNewModelGroup(doodModelData, "WESTRING_OE_TYPECAT_DOOD");
+
+		addNewModelGroup(spawnModelData, "WESTRING_OE_TYPECAT_SPWN");
+
+		addNewModelGroup(ginterModelData, "WESTRING_OE_TYPECAT_SKIN");
+
+		addExtraModelGroup();
+
+		// new JFrame().setVisible(true);
+	}
+
+	private static void fillItemData(Map<String, NamedList<String>> itemsModelData) {
 		for (final String str : itemData.keySet()) {
 			// ITEMS
 			final Element unit = itemData.get(str);
 			final String filepath = unit.getField("file");
 			if (filepath.length() > 0) {
-				NamedList<String> unitList = itemsModelData.get(filepath.toLowerCase());
-				if (unitList == null) {
-					unitList = new NamedList<>(filepath);
-					unitList.setCachedIconPath(unit.getIconPath());
-					itemsModelData.put(filepath.toLowerCase(), unitList);
-				}
+				NamedList<String> unitList = getUnitList(itemsModelData, unit, filepath);
 				unitList.add(unit.getName());
+				System.out.println("unit.fieldValue: " + unit.getFieldValue("numVar"));
 			}
 		}
+	}
 
-		for (final String str : destData.keySet()) {
-			// ITEMS
-			final Element unit = destData.get(str);
-			final String filepath = unit.getField("file");
-			if (filepath.length() > 0) {
-				NamedList<String> unitList = destModelData.get(filepath.toLowerCase());
-				if (unitList == null) {
-					unitList = new NamedList<>(filepath);
-					unitList.setCachedIconPath(unit.getIconPath());
-					destModelData.put(filepath.toLowerCase(), unitList);
-				}
-				unitList.add(unit.getName() + " <Base>");
-
-				final int numVar = unit.getFieldValue("numVar");
-				if (numVar > 1) {
-					for (int i = 0; i < numVar; i++) {
-
-						final String filepath2 = filepath + i + ".mdl";
-						if (filepath2.length() > 0) {
-							NamedList<String> unitList2 = destModelData.get(filepath2.toLowerCase());
-							if (unitList2 == null) {
-								unitList2 = new NamedList<>(filepath2);
-								unitList2.setCachedIconPath(unit.getIconPath());
-								destModelData.put(filepath2.toLowerCase(), unitList2);
-							}
-							unitList2.add(unit.getName() + " <" + WEString.getString("WESTRING_PREVIEWER_VAR") + " "
-									+ (i + 1) + ">");
-						}
-					}
+	private static void fillGinterData(Map<String, NamedList<String>> ginterModelData) {
+		for (final String str : ginterData.keySet()) {
+			final Element race = ginterData.get(str);
+			// System.err.println("Gintering unit " + str);
+			for (final String fieldName : race.keySet()) {
+				final String value = race.getField(fieldName);
+				if (value.endsWith(".mdl")) {
+					NamedList<String> unitList = getUnitList(ginterModelData, race, value);
+					unitList.add(fieldName + " (" + race.getUnitId() + ")");
 				}
 			}
 		}
+	}
 
-		for (final String str : doodData.keySet()) {
-			// ITEMS
-			final Element unit = doodData.get(str);
-			final String filepath = unit.getField("file");
-			if (filepath.length() > 0) {
-				NamedList<String> unitList = doodModelData.get(filepath.toLowerCase());
-				if (unitList == null) {
-					unitList = new NamedList<>(filepath);
-					unitList.setCachedIconPath(unit.getIconPath());
-					doodModelData.put(filepath.toLowerCase(), unitList);
-				}
-				unitList.add(unit.getName() + " <Base>");
-
-				final int numVar = unit.getFieldValue("numVar");
-				if (numVar > 1) {
-					for (int i = 0; i < numVar; i++) {
-
-						final String filepath2 = filepath + i + ".mdl";
-						if (filepath2.length() > 0) {
-							NamedList<String> unitList2 = doodModelData.get(filepath2.toLowerCase());
-							if (unitList2 == null) {
-								unitList2 = new NamedList<>(filepath2);
-								unitList2.setCachedIconPath(unit.getIconPath());
-								doodModelData.put(filepath2.toLowerCase(), unitList2);
-							}
-							unitList2.add(unit.getName() + " <" + WEString.getString("WESTRING_PREVIEWER_VAR") + " "
-									+ (i + 1) + ">");
-						}
-					}
-				}
-			}
-		}
-
+	private static void fillSpawnData(Map<String, NamedList<String>> spawnModelData) {
 		for (final String str : spawnData.keySet()) {
 			if (!str.equals("init")) {
 				// ITEMS
@@ -733,12 +333,7 @@ public class ModelOptionPanel extends JPanel {
 				}
 				final String filepath = model;
 				if (filepath.length() > 0) {
-					NamedList<String> unitList = spawnModelData.get(filepath.toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						spawnModelData.put(filepath.toLowerCase(), unitList);
-					}
+					NamedList<String> unitList = getUnitList(spawnModelData, unit, filepath);
 					if (model.contains("\\")) {
 						model = model.substring(model.lastIndexOf("\\") + 1);
 					}
@@ -749,282 +344,9 @@ public class ModelOptionPanel extends JPanel {
 				}
 			}
 		}
+	}
 
-		for (final String str : ginterData.keySet()) {
-			final Element race = ginterData.get(str);
-			// System.err.println("Gintering unit " + str);
-			for (final String fieldName : race.keySet()) {
-				final String value = race.getField(fieldName);
-				if (value.endsWith(".mdl")) {
-
-					final String filepath = value;
-					if (filepath.length() > 0) {
-						NamedList<String> unitList = ginterModelData.get(filepath.toLowerCase());
-						if (unitList == null) {
-							unitList = new NamedList<>(filepath);
-							unitList.setCachedIconPath(race.getIconPath());
-							ginterModelData.put(filepath.toLowerCase(), unitList);
-						}
-						unitList.add(fieldName + " (" + race.getUnitId() + ")");
-					}
-				}
-			}
-		}
-
-		final int lengthCap = 120;
-		// Collections.sort(sortedUnitData, new UnitComparator2());
-		// for( Unit unit: sortedUnitData ) {
-		// }
-		final ModelGroup units = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_UNIT"));
-		for (final String str : unitsModelData.keySet()) {
-			final NamedList<String> unitList = unitsModelData.get(str);
-			// Collections.sort(unitList);
-			String nameOutput = "";
-			for (final String unitName : unitList) {
-				if (nameOutput.length() > 0) {
-					nameOutput += ", ";
-				}
-				if ((nameOutput.length() + unitName.length()) > lengthCap) {
-					nameOutput += "...";
-					break;
-				} else {
-					nameOutput += unitName;
-				}
-			}
-			final Model nextModel = new Model();
-			nextModel.displayName = nameOutput;
-			nextModel.filepath = unitList.name;
-			nextModel.cachedIcon = unitList.getCachedIconPath();
-			units.models.add(nextModel);
-		}
-		units.models.sort(new ModelComparator());
-		groups.add(units);
-
-		final ModelGroup unitsMissiles = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_UNIT_MSSL"));
-		for (final String str : unitsMissileData.keySet()) {
-			final NamedList<String> unitList = unitsMissileData.get(str);
-			// Collections.sort(unitList);
-			String nameOutput = "";
-			for (final String unitName : unitList) {
-				if (nameOutput.length() > 0) {
-					nameOutput += ", ";
-				}
-				if ((nameOutput.length() + unitName.length()) > lengthCap) {
-					nameOutput += "...";
-					break;
-				} else {
-					nameOutput += unitName;
-				}
-			}
-			final Model nextModel = new Model();
-			nextModel.displayName = nameOutput;
-			nextModel.filepath = unitList.name;
-			nextModel.cachedIcon = unitList.getCachedIconPath();
-			unitsMissiles.models.add(nextModel);
-		}
-		unitsMissiles.models.sort(new ModelComparator());
-		groups.add(unitsMissiles);
-
-		final ModelGroup unitsSpecial = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_UNIT_SPEC"));
-		for (final String str : unitsSpecialData.keySet()) {
-			final NamedList<String> unitList = unitsSpecialData.get(str);
-			// Collections.sort(unitList);
-			String nameOutput = "";
-			for (final String unitName : unitList) {
-				if (nameOutput.length() > 0) {
-					nameOutput += ", ";
-				}
-				if ((nameOutput.length() + unitName.length()) > lengthCap) {
-					nameOutput += "...";
-					break;
-				} else {
-					nameOutput += unitName;
-				}
-			}
-			final Model nextModel = new Model();
-			nextModel.displayName = nameOutput;
-			nextModel.filepath = unitList.name;
-			nextModel.cachedIcon = unitList.getCachedIconPath();
-			unitsSpecial.models.add(nextModel);
-		}
-		unitsSpecial.models.sort(new ModelComparator());
-		groups.add(unitsSpecial);
-
-		final ModelGroup items = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_ITEM"));
-		for (final String str : itemsModelData.keySet()) {
-			final NamedList<String> unitList = itemsModelData.get(str);
-			// Collections.sort(unitList);
-			String nameOutput = "";
-			for (final String unitName : unitList) {
-				if (nameOutput.length() > 0) {
-					nameOutput += ", ";
-				}
-				if ((nameOutput.length() + unitName.length()) > lengthCap) {
-					nameOutput += "...";
-					break;
-				} else {
-					nameOutput += unitName;
-				}
-			}
-			final Model nextModel = new Model();
-			nextModel.displayName = nameOutput;
-			nextModel.filepath = unitList.name;
-			nextModel.cachedIcon = unitList.getCachedIconPath();
-			items.models.add(nextModel);
-		}
-		items.models.sort(new ModelComparator());
-		groups.add(items);
-
-		final ModelGroup abilities = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_ABIL"));
-		for (final String str : abilityModelData.keySet()) {
-			final NamedList<String> unitList = abilityModelData.get(str);
-			// Collections.sort(unitList);
-			String nameOutput = "";
-			for (final String unitName : unitList) {
-				if (nameOutput.length() > 0) {
-					nameOutput += ", ";
-				}
-				if ((nameOutput.length() + unitName.length()) > lengthCap) {
-					nameOutput += "...";
-					break;
-				} else {
-					nameOutput += unitName;
-				}
-			}
-			final Model nextModel = new Model();
-			nextModel.displayName = nameOutput;
-			nextModel.filepath = unitList.name;
-			nextModel.cachedIcon = unitList.getCachedIconPath();
-			abilities.models.add(nextModel);
-		}
-		abilities.models.sort(new ModelComparator());
-		groups.add(abilities);
-
-		final ModelGroup buffs = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_BUFF"));
-		for (final String str : buffModelData.keySet()) {
-			final NamedList<String> unitList = buffModelData.get(str);
-			// Collections.sort(unitList);
-			String nameOutput = "";
-			for (final String unitName : unitList) {
-				if (nameOutput.length() > 0) {
-					nameOutput += ", ";
-				}
-				if ((nameOutput.length() + unitName.length()) > lengthCap) {
-					nameOutput += "...";
-					break;
-				} else {
-					nameOutput += unitName;
-				}
-			}
-			final Model nextModel = new Model();
-			nextModel.displayName = nameOutput;
-			nextModel.filepath = unitList.name;
-			nextModel.cachedIcon = unitList.getCachedIconPath();
-			buffs.models.add(nextModel);
-		}
-		buffs.models.sort(new ModelComparator());
-		groups.add(buffs);
-
-		final ModelGroup destructibles = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_DEST"));
-		for (final String str : destModelData.keySet()) {
-			final NamedList<String> unitList = destModelData.get(str);
-			Collections.sort(unitList);
-			String nameOutput = "";
-			for (final String unitName : unitList) {
-				if (nameOutput.length() > 0) {
-					nameOutput += ", ";
-				}
-				if ((nameOutput.length() + unitName.length()) > lengthCap) {
-					nameOutput += "...";
-					break;
-				} else {
-					nameOutput += unitName;
-				}
-			}
-			final Model nextModel = new Model();
-			nextModel.displayName = nameOutput;
-			nextModel.filepath = unitList.name;
-			nextModel.cachedIcon = unitList.getCachedIconPath();
-			destructibles.models.add(nextModel);
-		}
-		destructibles.models.sort(new ModelComparator());
-		groups.add(destructibles);
-
-		final ModelGroup doodads = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_DOOD"));
-		for (final String str : doodModelData.keySet()) {
-			final NamedList<String> unitList = doodModelData.get(str);
-			// Collections.sort(unitList);
-			String nameOutput = "";
-			for (final String unitName : unitList) {
-				if (nameOutput.length() > 0) {
-					nameOutput += ", ";
-				}
-				if ((nameOutput.length() + unitName.length()) > lengthCap) {
-					nameOutput += "...";
-					break;
-				} else {
-					nameOutput += unitName;
-				}
-			}
-			final Model nextModel = new Model();
-			nextModel.displayName = nameOutput;
-			nextModel.filepath = unitList.name;
-			nextModel.cachedIcon = unitList.getCachedIconPath();
-			doodads.models.add(nextModel);
-		}
-		doodads.models.sort(new ModelComparator());
-		groups.add(doodads);
-
-		final ModelGroup spawns = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_SPWN"));
-		for (final String str : spawnModelData.keySet()) {
-			final NamedList<String> unitList = spawnModelData.get(str);
-			// Collections.sort(unitList);
-			String nameOutput = "";
-			for (final String unitName : unitList) {
-				if (nameOutput.length() > 0) {
-					nameOutput += ", ";
-				}
-				if ((nameOutput.length() + unitName.length()) > lengthCap) {
-					nameOutput += "...";
-					break;
-				} else {
-					nameOutput += unitName;
-				}
-			}
-			final Model nextModel = new Model();
-			nextModel.displayName = nameOutput;
-			nextModel.filepath = unitList.name;
-			nextModel.cachedIcon = unitList.getCachedIconPath();
-			spawns.models.add(nextModel);
-		}
-		spawns.models.sort(new ModelComparator());
-		groups.add(spawns);
-
-		final ModelGroup ginters = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_SKIN"));
-		for (final String str : ginterModelData.keySet()) {
-			final NamedList<String> unitList = ginterModelData.get(str);
-			// Collections.sort(unitList);
-			String nameOutput = "";
-			for (final String unitName : unitList) {
-				if (nameOutput.length() > 0) {
-					nameOutput += ", ";
-				}
-				if ((nameOutput.length() + unitName.length()) > lengthCap) {
-					nameOutput += "...";
-					break;
-				} else {
-					nameOutput += unitName;
-				}
-			}
-			final Model nextModel = new Model();
-			nextModel.displayName = nameOutput;
-			nextModel.filepath = unitList.name;
-			nextModel.cachedIcon = unitList.getCachedIconPath();
-			ginters.models.add(nextModel);
-		}
-		ginters.models.sort(new ModelComparator());
-		groups.add(ginters);
-
+	private static void addExtraModelGroup() {
 		final ModelGroup extra = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_XTRA"));
 		final DataTable worldEditData = new DataTable();
 		try {
@@ -1050,8 +372,105 @@ public class ModelOptionPanel extends JPanel {
 		for (final Model model : extra.models) {
 			System.out.println(model);// + ": \"" + model.filepath + "\"");
 		}
+	}
 
-		// new JFrame().setVisible(true);
+	private static void addMissileArtUnitToList(Map<String, NamedList<String>> unitsModelData, Map<String, NamedList<String>> unitsMissileData, Element unit) {
+		String filepath = unit.getField("file");
+		if (filepath.length() > 0) {
+			NamedList<String> unitList = getUnitList(unitsModelData, unit, filepath);
+			unitList.add(unit.getName());
+		}
+
+		filepath = unit.getField("Missileart");
+		if (filepath.length() > 0) {
+			if (filepath.contains(",")) {
+				final String[] filepaths = filepath.split(",");
+				for (final String fp : filepaths) {
+					NamedList<String> unitList = unitsMissileData.get(fp.toLowerCase());
+					if (unitList == null) {
+						unitList = new NamedList<>(filepath);
+						unitList.setCachedIconPath(unit.getIconPath());
+						unitsMissileData.put(fp.toLowerCase(), unitList);
+					}
+					unitList.add(unit.getName());
+				}
+			} else {
+				NamedList<String> unitList = getUnitList(unitsMissileData, unit, filepath);
+				unitList.add(unit.getName());
+			}
+		}
+	}
+
+	private static void addNewModelGroup(Map<String, NamedList<String>> modelData, String weStringType) {
+		final ModelGroup modelGroup = new ModelGroup(WEString.getString(weStringType));
+		fillModelGroup(modelData, modelGroup);
+		modelGroup.models.sort(new ModelComparator());
+		groups.add(modelGroup);
+	}
+
+	private static NamedList<String> getUnitList(Map<String, NamedList<String>> spawnModelData, Element unit, String filepath) {
+		NamedList<String> unitList = spawnModelData.get(filepath.toLowerCase());
+		if (unitList == null) {
+			unitList = new NamedList<>(filepath);
+			unitList.setCachedIconPath(unit.getIconPath());
+			spawnModelData.put(filepath.toLowerCase(), unitList);
+		}
+		return unitList;
+	}
+
+	private static void fillUnitList(Map<String, NamedList<String>> modelData, DataTable dataTable) {
+		for (final String str : dataTable.keySet()) {
+			// ITEMS
+			final Element unit = dataTable.get(str);
+			final String filepath = unit.getField("file");
+			if (filepath.length() > 0) {
+				NamedList<String> unitList = getUnitList(modelData, unit, filepath);
+				unitList.add(unit.getName() + " <Base>");
+
+				final int numVar = unit.getFieldValue("numVar");
+				if (numVar > 1) {
+					for (int i = 0; i < numVar; i++) {
+						final String filepath2 = filepath + i + ".mdl";
+						NamedList<String> unitList2 = getUnitList(modelData, unit, filepath2);
+						unitList2.add(unit.getName() + " <" + WEString.getString("WESTRING_PREVIEWER_VAR") + " "
+								+ (i + 1) + ">");
+
+					}
+				}
+			}
+		}
+	}
+
+	private static void fillModelGroup(Map<String, NamedList<String>> modelData, ModelGroup modelGroup) {
+		for (final String str : modelData.keySet()) {
+			final NamedList<String> unitList = modelData.get(str);
+			// Collections.sort(unitList);
+			StringBuilder nameOutput = new StringBuilder();
+			for (final String unitName : unitList) {
+				if (nameOutput.length() > 0) {
+					nameOutput.append(", ");
+				}
+				if ((nameOutput.length() + unitName.length()) > 120) {
+					nameOutput.append("...");
+					break;
+				} else {
+					nameOutput.append(unitName);
+				}
+			}
+			final Model nextModel = new Model();
+			nextModel.displayName = nameOutput.toString();
+			nextModel.filepath = unitList.name;
+			nextModel.cachedIcon = unitList.getCachedIconPath();
+			modelGroup.models.add(nextModel);
+		}
+	}
+
+	private static void addUnitsToList(Map<String, NamedList<String>> unitsData, Element unit, String artName, String weStringTypeSuffix) {
+		String filepath = unit.getField(artName);
+		if (filepath.length() > 0) {
+			NamedList<String> unitList = getUnitList(unitsData, unit, filepath);
+			unitList.add(unit.getName() + " " + WEString.getString(weStringTypeSuffix));
+		}
 	}
 
 	JComboBox<ModelGroup> groupBox;
@@ -1066,52 +485,19 @@ public class ModelOptionPanel extends JPanel {
 	final EditableModel blank = new EditableModel();
 	final ModelView blankDisp = new ModelViewManager(blank);
 
-	public ModelOptionPanel() {
-		preload();
-
-		for (final ModelGroup group : groups) {
-			groupsModel.addElement(group);
-			final DefaultComboBoxModel<Model> groupModel = new DefaultComboBoxModel<>();
-
-			for (final Model model : group.models) {
-				groupModel.addElement(model);
+	private static void addModelsToList(Map<String, NamedList<String>> modelsData, Element unit, String artName, String weStringTypeSuffix) {
+		String filepath = unit.getField(artName);
+		if (filepath.length() > 0) {
+			if (filepath.contains(",")) {
+				filepath = filepath.split(",")[0];
 			}
-			groupModels.add(groupModel);
+			NamedList<String> unitList = getUnitList(modelsData, unit, filepath);
+			unitList.add(unit.getName() + " " + WEString.getString(weStringTypeSuffix));
 		}
-		groupBox = new JComboBox<>(groupsModel);
-		modelBox = new JComboBox<>(groupModels.get(0));
-		filePathField = new JTextField();
-		filePathField.setMaximumSize(new Dimension(20000, 25));
-		groupBox.addActionListener(e -> {
-			modelBox.setModel(groupModels.get(groupBox.getSelectedIndex()));
-			modelBox.setSelectedIndex(0);
-		});
-		modelBox.addActionListener(e -> {
-			EditableModel toLoad = blank;
-			ModelView modelDisp;
-			try {
-				String filepath = ((Model) modelBox.getSelectedItem()).filepath;
-				filePathField.setText(filepath);
-				cachedIconPath = ((Model) modelBox.getSelectedItem()).cachedIcon;
-				if (filepath.endsWith(".mdl")) {
-					filepath = filepath.replace(".mdl", ".mdx");
-				} else if (!filepath.endsWith(".mdx")) {
-					filepath = filepath.concat(".mdx");
-				}
-				final InputStream modelStream = GameDataFileSystem.getDefault().getResourceAsStream(filepath);
-				final MdlxModel model = MdxUtils.loadMdlx(modelStream);
-				toLoad = new EditableModel(model);
-				modelDisp = new ModelViewManager(toLoad);
-			} catch (final Exception exc) {
-				exc.printStackTrace();
-				// bad model!
-				modelDisp = blankDisp;
-			}
+	}
 
-			viewer.setModel(modelDisp);
-			viewer.setTitle(toLoad.getName());
-		});
-		filePathField.getDocument().addDocumentListener(new DocumentListener() {
+	private static DocumentListener getFilepathDocumentListener(final ModelOptionPanel modelOptionPanel) {
+		return new DocumentListener() {
 			@Override
 			public void removeUpdate(final DocumentEvent e) {
 				refresh();
@@ -1128,56 +514,24 @@ public class ModelOptionPanel extends JPanel {
 			}
 
 			void refresh() {
-				EditableModel toLoad = blank;
-				ModelView modelDisp;
-				try {
-					String filepath = filePathField.getText();
-					if (filepath.endsWith(".mdl")) {
-						filepath = filepath.replace(".mdl", ".mdx");
-					} else if (!filepath.endsWith(".mdx")) {
-						filepath = filepath.concat(".mdx");
-					}
-					final InputStream modelStream = GameDataFileSystem.getDefault().getResourceAsStream(filepath);
-					final MdlxModel model = MdxUtils.loadMdlx(modelStream);
-					toLoad = new EditableModel(model);
-					modelDisp = new ModelViewManager(toLoad);
-					cachedIconPath = null;
-				} catch (final Exception exc) {
-					exc.printStackTrace();
-					// bad model!
-					modelDisp = blankDisp;
-				}
-
-				viewer.setModel(modelDisp);
-				viewer.setTitle(toLoad.getName());
+				String filepath = modelOptionPanel.filePathField.getText();
+				modelOptionPanel.cachedIconPath = null;
+				modelOptionPanel.showModel(filepath);
 			}
-		});
+		};
+	}
 
-		groupBox.setMaximumRowCount(11);
-		modelBox.setMaximumRowCount(36);
-
-		groupBox.setMaximumSize(new Dimension(140, 25));
-		modelBox.setMaximumSize(new Dimension(10000, 25));
-
-		// TODO program prefs not be null???
-		// viewer = new PerspDisplayPanel("blank", blankDisp, null);
-		viewer = new AnimationViewer(blankDisp, new ProgramPreferences(), false);
+	private void groupBoxListener() {
+		modelBox.setModel(groupModels.get(groupBox.getSelectedIndex()));
 		modelBox.setSelectedIndex(0);
+	}
 
-		add(groupBox);
-		add(modelBox);
-
-		final GroupLayout layout = new GroupLayout(this);
-
-		layout.setHorizontalGroup(layout.createSequentialGroup().addGap(8).addComponent(viewer).addGap(8).addGroup(
-				layout.createParallelGroup().addComponent(groupBox).addComponent(modelBox).addComponent(filePathField))
-				.addGap(8));
-		layout.setVerticalGroup(layout.createSequentialGroup().addGap(8)
-				.addGroup(layout.createParallelGroup().addComponent(viewer).addGroup(layout.createSequentialGroup()
-						.addComponent(groupBox).addGap(4).addComponent(modelBox).addGap(4).addComponent(filePathField)))
-				.addGap(8));
-
-		setLayout(layout);
+	private void modelBoxListener() {
+		Model model = (Model) modelBox.getSelectedItem();
+		String filepath = model != null ? model.filepath : null;
+		filePathField.setText(filepath);
+		cachedIconPath = ((Model) modelBox.getSelectedItem()).cachedIcon;
+		showModel(filepath);
 	}
 
 	public String getSelection() {
@@ -1211,25 +565,25 @@ public class ModelOptionPanel extends JPanel {
 		}
 	}
 
-	// public static void main(String[] args) {
-	// try {
-	// UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-	// } catch (ClassNotFoundException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// } catch (InstantiationException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// } catch (IllegalAccessException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// } catch (UnsupportedLookAndFeelException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	//
-	// preload();
-	// JOptionPane.showMessageDialog(null, new ModelOptionPanel(), "Choose
-	// Model", JOptionPane.PLAIN_MESSAGE);
-	// }
+	private void showModel(String filepath) {
+		EditableModel toLoad = blank;
+		ModelView modelDisp;
+		try {
+			if (filepath.endsWith(".mdl")) {
+				filepath = filepath.replace(".mdl", ".mdx");
+			} else if (!filepath.endsWith(".mdx")) {
+				filepath = filepath.concat(".mdx");
+			}
+			final InputStream modelStream = GameDataFileSystem.getDefault().getResourceAsStream(filepath);
+			final MdlxModel model = MdxUtils.loadMdlx(modelStream);
+			toLoad = new EditableModel(model);
+			modelDisp = new ModelViewManager(toLoad);
+		} catch (final Exception exc) {
+			exc.printStackTrace();
+			// bad model!
+			modelDisp = blankDisp;
+		}
+		viewer.setModel(modelDisp);
+		viewer.setTitle(toLoad.getName());
+	}
 }

@@ -44,9 +44,6 @@ public class VertexClusterDefinitions {
 	/**
 	 * Returns the cluster ID of the vertex. Returns -1 for vertices added dynamically, so they should all be in a group
 	 * together and not cause error.
-	 *
-	 * @param vertex
-	 * @return
 	 */
 	public int getClusterId(final Vec3 vertex) {
 		final Integer clusterId = vertexToClusterId.get(vertex);

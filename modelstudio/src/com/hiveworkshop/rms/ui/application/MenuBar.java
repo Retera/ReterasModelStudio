@@ -373,7 +373,7 @@ public class MenuBar {
         windowMenu.add(viewsMenu);
 
         final JMenuItem testItem = new JMenuItem("test");
-        testItem.addActionListener(new OpenViewAction(mainPanel.rootWindow, "Animation Preview", () -> {return MenuBarActions.testItemResponse(mainPanel);}));
+        testItem.addActionListener(new OpenViewAction(mainPanel.rootWindow, "Animation Preview", () -> MenuBarActions.testItemResponse(mainPanel)));
 
 //		viewsMenu.add(testItem);
 
@@ -488,9 +488,7 @@ public class MenuBar {
 
         final JMenuItem jokebutton = new JMenuItem("Load Retera Land");
         jokebutton.setMnemonic(KeyEvent.VK_A);
-        jokebutton.addActionListener(e -> {
-            ScriptActions.jokeButtonClickResponse(mainPanel);
-        });
+        jokebutton.addActionListener(e -> ScriptActions.jokeButtonClickResponse(mainPanel));
 //		scriptsMenu.add(jokebutton);
     }
 
@@ -720,7 +718,7 @@ public class MenuBar {
         mainPanel.recentItems.clear();
         for (int i = 0; i < recent.size(); i++) {
             final String fp = recent.get(recent.size() - i - 1);
-            if ((mainPanel.recentItems.size() <= i) || (mainPanel.recentItems.get(i).filepath != fp)) {
+            if ((mainPanel.recentItems.size() <= i) || (!mainPanel.recentItems.get(i).filepath.equals(fp))) {
                 // String[] bits = recent.get(i).split("/");
 
                 final RecentItem item = new RecentItem(new File(fp).getName());
@@ -834,7 +832,7 @@ public class MenuBar {
     }
 
     static class UndoMenuItem extends JMenuItem {
-        private MainPanel mainPanel;
+        private final MainPanel mainPanel;
 
         public UndoMenuItem(MainPanel mainPanel, final String text) {
             super(text);
@@ -861,7 +859,7 @@ public class MenuBar {
     }
 
     static class RedoMenuItem extends JMenuItem {
-        private MainPanel mainPanel;
+        private final MainPanel mainPanel;
 
         public RedoMenuItem(MainPanel mainPanel, final String text) {
             super(text);
