@@ -39,6 +39,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 import java.util.*;
+import java.util.function.BiFunction;
 
 public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> {
 	private final ProgramPreferences programPreferences;
@@ -48,9 +49,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	private final RenderModel renderModel;
 	private final ModelStructureChangeListener structureChangeListener;
 
-	public NodeAnimationModelEditor(final ModelView model, final ProgramPreferences programPreferences,
-			final SelectionManager<IdObject> selectionManager, final RenderModel renderModel,
-			final ModelStructureChangeListener structureChangeListener) {
+	public NodeAnimationModelEditor(final ModelView model, final ProgramPreferences programPreferences, final SelectionManager<IdObject> selectionManager, final RenderModel renderModel, final ModelStructureChangeListener structureChangeListener) {
 		super(selectionManager);
 		this.model = model;
 		this.programPreferences = programPreferences;
@@ -195,9 +194,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	private static final Vec4 pivotHeap = new Vec4();
 
-	public static void hitTest(final List<IdObject> selectedItems, final Rectangle2D area, final Vec3 geosetVertex,
-			final CoordinateSystem coordinateSystem, final double vertexSize, final IdObject object,
-			final RenderModel renderModel) {
+	public static void hitTest(final List<IdObject> selectedItems, final Rectangle2D area, final Vec3 geosetVertex, final CoordinateSystem coordinateSystem, final double vertexSize, final IdObject object, final RenderModel renderModel) {
 		final RenderNode renderNode = renderModel.getRenderNode(object);
 		pivotHeap.x = geosetVertex.x;
 		pivotHeap.y = geosetVertex.y;
@@ -214,14 +211,12 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		final double x = coordinateSystem.convertX(vertexX);
 		final double vertexY = pivotHeap.getCoord(dim2);
 		final double y = coordinateSystem.convertY(vertexY);
-		if ((distance(x, y, minX, minY) <= (vertexSize / 2.0)) || (distance(x, y, maxX, maxY) <= (vertexSize / 2.0))
-				|| area.contains(vertexX, vertexY)) {
+		if ((distance(x, y, minX, minY) <= (vertexSize / 2.0)) || (distance(x, y, maxX, maxY) <= (vertexSize / 2.0)) || area.contains(vertexX, vertexY)) {
 			selectedItems.add(object);
 		}
 	}
 
-	public static boolean hitTest(final Vec3 vertex, final Point2D point, final CoordinateSystem coordinateSystem,
-			final double vertexSize, final Mat4 worldMatrix) {
+	public static boolean hitTest(final Vec3 vertex, final Point2D point, final CoordinateSystem coordinateSystem, final double vertexSize, final Mat4 worldMatrix) {
 		pivotHeap.x = vertex.x;
 		pivotHeap.y = vertex.y;
 		pivotHeap.z = vertex.z;
@@ -241,8 +236,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	@Override
-	protected UndoAction buildHideComponentAction(final List<? extends SelectableComponent> selectableComponents,
-                                                  final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
+	protected UndoAction buildHideComponentAction(final List<? extends SelectableComponent> selectableComponents, final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
 		final List<IdObject> previousSelection = new ArrayList<>(selectionManager.getSelection());
 		final List<IdObject> possibleVerticesToTruncate = new ArrayList<>();
 		for (final SelectableComponent component : selectableComponents) {
@@ -264,201 +258,17 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		final Runnable truncateSelectionRunnable = () -> selectionManager.removeSelection(possibleVerticesToTruncate);
 
 		final Runnable unTruncateSelectionRunnable = () -> selectionManager.setSelection(previousSelection);
-		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable,
-				unTruncateSelectionRunnable, refreshGUIRunnable);
+		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable, unTruncateSelectionRunnable, refreshGUIRunnable);
 	}
 
-	private final class SelectionAtPointTester implements IdObjectVisitor {
-		private CoordinateSystem axes;
-		private Point point;
-		private boolean mouseOverVertex;
-
-		private SelectionAtPointTester reset(final CoordinateSystem axes, final Point point) {
-			this.axes = axes;
-			this.point = point;
-			mouseOverVertex = false;
-			return this;
-		}
-
-		@Override
-		public void ribbonEmitter(final RibbonEmitter particleEmitter) {
-			handleDefaultNode(point, axes, particleEmitter);
-		}
-
-		private void handleDefaultNode(final Point point, final CoordinateSystem axes, final IdObject node) {
-			final Mat4 worldMatrix = renderModel.getRenderNode(node).getWorldMatrix();
-			if (hitTest(node.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes,
-					node.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes) * 2, worldMatrix)) {
-				mouseOverVertex = true;
-			}
-		}
-
-		@Override
-		public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
-			handleDefaultNode(point, axes, particleEmitter);
-		}
-
-		@Override
-		public void particleEmitter(final ParticleEmitter particleEmitter) {
-			handleDefaultNode(point, axes, particleEmitter);
-		}
-
-		@Override
-		public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
-			handleDefaultNode(point, axes, popcornFxEmitter);
-		}
-
-		@Override
-		public void light(final Light light) {
-			handleDefaultNode(point, axes, light);
-		}
-
-		@Override
-		public void helper(final Helper node) {
-			final Mat4 worldMatrix = renderModel.getRenderNode(node).getWorldMatrix();
-			if (hitTest(node.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes,
-					node.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes), worldMatrix)) {
-				mouseOverVertex = true;
-			}
-		}
-
-		@Override
-		public void eventObject(final EventObject eventObject) {
-			handleDefaultNode(point, axes, eventObject);
-		}
-
-		@Override
-		public void collisionShape(final CollisionShape collisionShape) {
-			handleDefaultNode(point, axes, collisionShape);
-		}
-
-		@Override
-		public void camera(final Camera camera) {
-			System.err.println("CAMERA processed in NodeAnimationModelEditor!!!");
-			// if (hitTest(camera.getPosition(), CoordinateSystem.Util.geom(axes, point),
-			// axes,
-			// programPreferences.getVertexSize(), worldMatrix)) {
-			// mouseOverVertex = true;
-			// }
-			// if (hitTest(camera.getTargetPosition(), CoordinateSystem.Util.geom(axes,
-			// point), axes,
-			// programPreferences.getVertexSize(), worldMatrix)) {
-			// mouseOverVertex = true;
-			// }
-		}
-
-		@Override
-		public void bone(final Bone node) {
-			final Mat4 worldMatrix = renderModel.getRenderNode(node).getWorldMatrix();
-			if (hitTest(node.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes,
-					node.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes), worldMatrix)) {
-				mouseOverVertex = true;
-			}
-		}
-
-		@Override
-		public void attachment(final Attachment attachment) {
-			handleDefaultNode(point, axes, attachment);
-		}
-
-		public boolean isMouseOverVertex() {
-			return mouseOverVertex;
-		}
+	@Override
+	public UndoAction mirror(final byte dim, final boolean flipModel, final double centerX, final double centerY, final double centerZ) {
+		throw new WrongModeException("Mirror has not yet been coded in Animation Editor");
 	}
 
-	private final class GenericSelectorVisitor implements IdObjectVisitor {
-		private List<IdObject> selectedItems;
-		private Rectangle2D area;
-		private CoordinateSystem coordinateSystem;
-
-		private GenericSelectorVisitor reset(final List<IdObject> selectedItems, final Rectangle2D area,
-				final CoordinateSystem coordinateSystem) {
-			this.selectedItems = selectedItems;
-			this.area = area;
-			this.coordinateSystem = coordinateSystem;
-			return this;
-		}
-
-		@Override
-		public void ribbonEmitter(final RibbonEmitter particleEmitter) {
-			hitTest(selectedItems, area, particleEmitter.getPivotPoint(), coordinateSystem,
-					particleEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem)
-							* 2,
-					particleEmitter, renderModel);
-		}
-
-		@Override
-		public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
-			hitTest(selectedItems, area, particleEmitter.getPivotPoint(), coordinateSystem,
-					particleEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem)
-							* 2,
-					particleEmitter, renderModel);
-		}
-
-		@Override
-		public void particleEmitter(final ParticleEmitter particleEmitter) {
-			hitTest(selectedItems, area, particleEmitter.getPivotPoint(), coordinateSystem,
-					particleEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem)
-							* 2,
-					particleEmitter, renderModel);
-		}
-
-		@Override
-		public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
-			hitTest(selectedItems, area, popcornFxEmitter.getPivotPoint(), coordinateSystem,
-					popcornFxEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem)
-							* 2,
-					popcornFxEmitter, renderModel);
-		}
-
-		@Override
-		public void light(final Light light) {
-			hitTest(selectedItems, area, light.getPivotPoint(), coordinateSystem,
-					light.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, light,
-					renderModel);
-		}
-
-		@Override
-		public void helper(final Helper object) {
-			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem,
-					object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem), object,
-					renderModel);
-		}
-
-		@Override
-		public void eventObject(final EventObject eventObject) {
-			hitTest(selectedItems, area, eventObject.getPivotPoint(), coordinateSystem,
-					eventObject.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2,
-					eventObject, renderModel);
-		}
-
-		@Override
-		public void collisionShape(final CollisionShape collisionShape) {
-			hitTest(selectedItems, area, collisionShape.getPivotPoint(), coordinateSystem,
-					collisionShape.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem)
-							* 2,
-					collisionShape, renderModel);
-		}
-
-		@Override
-		public void camera(final Camera camera) {
-			System.err.println("Attempted to process camera with Node Animation Editor generic selector!!!");
-		}
-
-		@Override
-		public void bone(final Bone object) {
-			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem,
-					object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem), object,
-					renderModel);
-		}
-
-		@Override
-		public void attachment(final Attachment attachment) {
-			hitTest(selectedItems, area, attachment.getPivotPoint(), coordinateSystem,
-					attachment.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2,
-					attachment, renderModel);
-		}
-
+	@Override
+	public UndoAction addVertex(final double x, final double y, final double z, final Vec3 preferredNormalFacingVector) {
+		throw new WrongModeException("Unable to add vertices in Animation Editor");
 	}
 
 	@Override
@@ -497,9 +307,8 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	@Override
-	public UndoAction mirror(final byte dim, final boolean flipModel, final double centerX, final double centerY,
-			final double centerZ) {
-		throw new WrongModeException("Mirror has not yet been coded in Animation Editor");
+	public GenericMoveAction addPlane(final double x, final double y, final double x2, final double y2, final byte dim1, final byte dim2, final Vec3 facingVector, final int numberOfWidthSegments, final int numberOfHeightSegments) {
+		throw new WrongModeException("Unable to add plane in Animation Editor");
 	}
 
 	@Override
@@ -538,28 +347,24 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	@Override
-	public UndoAction addVertex(final double x, final double y, final double z,
-			final Vec3 preferredNormalFacingVector) {
-		throw new WrongModeException("Unable to add vertices in Animation Editor");
-	}
-
-	@Override
-	public GenericMoveAction addPlane(final double x, final double y, final double x2, final double y2, final byte dim1,
-                                      final byte dim2, final Vec3 facingVector, final int numberOfWidthSegments,
-                                      final int numberOfHeightSegments) {
-		throw new WrongModeException("Unable to add plane in Animation Editor");
-	}
-
-	@Override
-	public void rawScale(final double centerX, final double centerY, final double centerZ, final double scaleX,
-			final double scaleY, final double scaleZ) {
+	public void rawScale(final double centerX, final double centerY, final double centerZ, final double scaleX, final double scaleY, final double scaleZ) {
 		throw new UnsupportedOperationException("Unable to scale directly in animation mode, use other system");
 	}
 
-	public void rawScale(final double centerX, final double centerY, final double centerZ, final double scaleX,
-			final double scaleY, final double scaleZ, final Map<IdObject, Vec3> nodeToLocalScale) {
+	public void rawScale(final double centerX, final double centerY, final double centerZ, final double scaleX, final double scaleY, final double scaleZ, final Map<IdObject, Vec3> nodeToLocalScale) {
 		for (final IdObject idObject : selectionManager.getSelection()) {
 			idObject.updateScalingKeyframe(renderModel, scaleX, scaleY, scaleZ, nodeToLocalScale.get(idObject));
+		}
+	}
+
+	@Override
+	public void rawRotate2d(final double centerX, final double centerY, final double centerZ, final double radians, final byte firstXYZ, final byte secondXYZ) {
+		throw new UnsupportedOperationException("Unable to rotate directly in animation mode, use other system");
+	}
+
+	public void rawRotate2d(final double centerX, final double centerY, final double centerZ, final double radians, final byte firstXYZ, final byte secondXYZ, final Map<IdObject, Quat> nodeToLocalRotation) {
+		for (final IdObject idObject : selectionManager.getSelection()) {
+			idObject.updateRotationKeyframe(renderModel, centerX, centerY, centerZ, radians, firstXYZ, secondXYZ, nodeToLocalRotation.get(idObject));
 		}
 	}
 
@@ -573,41 +378,49 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	public void rawTranslate(final double x, final double y, final double z,
-			final Map<IdObject, Vec3> nodeToLocalTranslation) {
+	                         final Map<IdObject, Vec3> nodeToLocalTranslation) {
 		for (final IdObject idObject : selectionManager.getSelection()) {
 			idObject.updateTranslationKeyframe(renderModel, x, y, z, nodeToLocalTranslation.get(idObject));
 		}
 	}
 
-	@Override
-	public void rawRotate2d(final double centerX, final double centerY, final double centerZ, final double radians,
-			final byte firstXYZ, final byte secondXYZ) {
-		throw new UnsupportedOperationException("Unable to rotate directly in animation mode, use other system");
-	}
-
-	public void rawRotate2d(final double centerX, final double centerY, final double centerZ, final double radians,
-			final byte firstXYZ, final byte secondXYZ, final Map<IdObject, Quat> nodeToLocalRotation) {
+	public void rawSquatToolRotate2d(final double centerX, final double centerY, final double centerZ, final double radians, final byte firstXYZ, final byte secondXYZ, final Map<IdObject, Quat> nodeToLocalRotation) {
 		for (final IdObject idObject : selectionManager.getSelection()) {
-			idObject.updateRotationKeyframe(renderModel, centerX, centerY, centerZ, radians, firstXYZ, secondXYZ,
-					nodeToLocalRotation.get(idObject));
-		}
-	}
-
-	public void rawSquatToolRotate2d(final double centerX, final double centerY, final double centerZ,
-			final double radians, final byte firstXYZ, final byte secondXYZ,
-			final Map<IdObject, Quat> nodeToLocalRotation) {
-		for (final IdObject idObject : selectionManager.getSelection()) {
-			idObject.updateRotationKeyframe(renderModel, centerX, centerY, centerZ, radians, firstXYZ, secondXYZ,
-					nodeToLocalRotation.get(idObject));
+			idObject.updateRotationKeyframe(renderModel, centerX, centerY, centerZ, radians, firstXYZ, secondXYZ, nodeToLocalRotation.get(idObject));
 		}
 		for (final IdObject idObject : model.getModel().getIdObjects()) {
-			if (selectionManager.getSelection().contains(idObject.getParent()) && (((idObject.getClass() == Bone.class)
-					&& (idObject.getParent().getClass() == Bone.class))
-					|| ((idObject.getClass() == Helper.class) && (idObject.getParent().getClass() == Helper.class)))) {
-				idObject.updateRotationKeyframe(renderModel, centerX, centerY, centerZ, -radians, firstXYZ, secondXYZ,
-						nodeToLocalRotation.get(idObject));
+			if (selectionManager.getSelection().contains(idObject.getParent()) && (((idObject.getClass() == Bone.class) && (idObject.getParent().getClass() == Bone.class)) || ((idObject.getClass() == Helper.class) && (idObject.getParent().getClass() == Helper.class)))) {
+				idObject.updateRotationKeyframe(renderModel, centerX, centerY, centerZ, -radians, firstXYZ, secondXYZ, nodeToLocalRotation.get(idObject));
 			}
 		}
+	}
+
+	@Override
+	public UndoAction rotate(final Vec3 center, final double rotateX, final double rotateY, final double rotateZ) {
+
+		final GenericRotateAction rotationX = beginRotation(center.x, center.y, center.z, (byte) 2, (byte) 1);
+		rotationX.updateRotation(rotateX);
+		final GenericRotateAction rotationY = beginRotation(center.x, center.y, center.z, (byte) 0, (byte) 2);
+		rotationY.updateRotation(rotateY);
+		final GenericRotateAction rotationZ = beginRotation(center.x, center.y, center.z, (byte) 1, (byte) 0);
+		rotationZ.updateRotation(rotateZ);
+		final CompoundAction compoundAction = new CompoundAction("rotate", Arrays.asList(rotationX, rotationY, rotationZ));
+		compoundAction.redo();
+		return compoundAction;
+	}
+
+	@Override
+	public GenericMoveAction beginTranslation() {
+		final Set<IdObject> selection = selectionManager.getSelection();
+		final List<UndoAction> actions = new ArrayList<>();
+		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from a TimeEnvironmentImpl render environment, and never from the anim previewer impl
+		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
+
+		generateKeyframes(selection, actions, timeEnvironmentImpl, "Translation", (node, translationTimeline) -> node.createTranslationKeyframe(renderModel, translationTimeline, structureChangeListener));
+
+		final int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
+		final int trackTimeToUse = timeEnvironmentImpl.getGlobalSeq() == null ? trackTime : timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
+		return new TranslationKeyframeAction(new CompoundAction("setup", actions), trackTimeToUse, timeEnvironmentImpl.getGlobalSeq(), selection, this);
 	}
 
 	@Override
@@ -632,20 +445,17 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	@Override
-	public UndoAction rotate(final Vec3 center, final double rotateX, final double rotateY, final double rotateZ) {
+	public GenericRotateAction beginRotation(final double centerX, final double centerY, final double centerZ, final byte firstXYZ, final byte secondXYZ) {
+		final Set<IdObject> selection = selectionManager.getSelection();
+		final List<UndoAction> actions = new ArrayList<>();
 
-		final GenericRotateAction rotationX = beginRotation(center.x, center.y, center.z, (byte) 2, (byte) 1);
-		rotationX.updateRotation(rotateX);
-		final GenericRotateAction rotationY = beginRotation(center.x, center.y, center.z, (byte) 0, (byte) 2);
-		rotationY.updateRotation(rotateY);
-		final GenericRotateAction rotationZ = beginRotation(center.x, center.y, center.z, (byte) 1, (byte) 0);
-		rotationZ.updateRotation(rotateZ);
-		final CompoundAction compoundAction = new CompoundAction("rotate", Arrays.asList(
-				rotationX,
-				rotationY,
-				rotationZ));
-		compoundAction.redo();
-		return compoundAction;
+		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
+
+		generateKeyframes(selection, actions, timeEnvironmentImpl, "Rotation", (node, translationTimeline) -> node.createRotationKeyframe(renderModel, translationTimeline, structureChangeListener));
+
+		final int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
+		final int trackTimeToUse = timeEnvironmentImpl.getGlobalSeq() == null ? trackTime : timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
+		return new RotationKeyframeAction(new CompoundAction("setup", actions), trackTimeToUse, timeEnvironmentImpl.getGlobalSeq(), selection, this, centerX, centerY, centerZ, firstXYZ, secondXYZ);
 	}
 
 	@Override
@@ -658,105 +468,38 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		return true;
 	}
 
-	@Override
-	public GenericMoveAction beginTranslation() {
-		final Set<IdObject> selection = selectionManager.getSelection();
-		final List<UndoAction> actions = new ArrayList<>();
-		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be
-		// constructed from
-		// a TimeEnvironmentImpl render environment, and never from the anim previewer
-		// impl
-		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
-				.getAnimatedRenderEnvironment();
+	private void generateKeyframes(Set<IdObject> selection, List<UndoAction> actions, TimeEnvironmentImpl timeEnvironmentImpl, String name, BiFunction<IdObject, AnimFlag, AddKeyframeAction> keyframeFunction) {
 		for (final IdObject node : selection) {
-			AnimFlag translationTimeline = node.find("Translation",	timeEnvironmentImpl.getGlobalSeq());
+			AnimFlag translationTimeline = node.find(name, timeEnvironmentImpl.getGlobalSeq());
+
 			if (translationTimeline == null) {
-				translationTimeline = AnimFlag.createEmpty2018("Translation", InterpolationType.HERMITE,
-						timeEnvironmentImpl.getGlobalSeq());
+				translationTimeline = AnimFlag.createEmpty2018(name, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
 				node.add(translationTimeline);
-				final AddTimelineAction addTimelineAction = new AddTimelineAction(node, translationTimeline,
-						structureChangeListener);
+
+				final AddTimelineAction addTimelineAction = new AddTimelineAction(node, translationTimeline, structureChangeListener);
 				structureChangeListener.timelineAdded(node, translationTimeline);
 				actions.add(addTimelineAction);
 			}
-			final AddKeyframeAction keyframeAction = node.createTranslationKeyframe(renderModel, translationTimeline,
-					structureChangeListener);
+//			final AddKeyframeAction keyframeAction = node.createRotationKeyframe(renderModel, translationTimeline, structureChangeListener);
+			final AddKeyframeAction keyframeAction = keyframeFunction.apply(node, translationTimeline);
 			if (keyframeAction != null) {
 				actions.add(keyframeAction);
 			}
 		}
-
-		final int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime()
-				+ renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
-		final int trackTimeToUse = timeEnvironmentImpl.getGlobalSeq() == null ? trackTime
-				: timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
-		return new TranslationKeyframeAction(new CompoundAction("setup", actions), trackTimeToUse,
-				timeEnvironmentImpl.getGlobalSeq(), selection, this);
-	}
-
-	@Override
-	public GenericRotateAction beginRotation(final double centerX, final double centerY, final double centerZ,
-                                             final byte firstXYZ, final byte secondXYZ) {
-		final Set<IdObject> selection = selectionManager.getSelection();
-		final List<UndoAction> actions = new ArrayList<>();
-		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
-				.getAnimatedRenderEnvironment();
-		for (final IdObject node : selection) {
-			AnimFlag translationTimeline = node.find("Rotation", timeEnvironmentImpl.getGlobalSeq());
-			if (translationTimeline == null) {
-				translationTimeline = AnimFlag.createEmpty2018("Rotation", InterpolationType.HERMITE,
-						timeEnvironmentImpl.getGlobalSeq());
-				node.add(translationTimeline);
-				final AddTimelineAction addTimelineAction = new AddTimelineAction(node, translationTimeline,
-						structureChangeListener);
-				structureChangeListener.timelineAdded(node, translationTimeline);
-				actions.add(addTimelineAction);
-			}
-			final AddKeyframeAction keyframeAction = node.createRotationKeyframe(renderModel, translationTimeline,
-					structureChangeListener);
-			if (keyframeAction != null) {
-				actions.add(keyframeAction);
-			}
-		}
-
-		final int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime()
-				+ renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
-		final int trackTimeToUse = timeEnvironmentImpl.getGlobalSeq() == null ? trackTime
-				: timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
-		return new RotationKeyframeAction(new CompoundAction("setup", actions), trackTimeToUse,
-				timeEnvironmentImpl.getGlobalSeq(), selection, this, centerX, centerY, centerZ, firstXYZ, secondXYZ);
 	}
 
 	@Override
 	public GenericScaleAction beginScaling(final double centerX, final double centerY, final double centerZ) {
 		final Set<IdObject> selection = selectionManager.getSelection();
 		final List<UndoAction> actions = new ArrayList<>();
-		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
-				.getAnimatedRenderEnvironment();
-		for (final IdObject node : selection) {
-			AnimFlag translationTimeline = node.find("Scaling",	timeEnvironmentImpl.getGlobalSeq());
-			if (translationTimeline == null) {
-				translationTimeline = AnimFlag.createEmpty2018("Scaling", InterpolationType.HERMITE,
-						timeEnvironmentImpl.getGlobalSeq());
-				node.add(translationTimeline);
-				final AddTimelineAction addTimelineAction = new AddTimelineAction(node, translationTimeline,
-						structureChangeListener);
-				structureChangeListener.timelineAdded(node, translationTimeline);
-				actions.add(addTimelineAction);
-			}
-			final AddKeyframeAction keyframeAction = node.createScalingKeyframe(renderModel, translationTimeline,
-					structureChangeListener);
-			if (keyframeAction != null) {
-				actions.add(keyframeAction);
-			}
-		}
+		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
 
-		final int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime()
-				+ renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
-		final int trackTimeToUse = timeEnvironmentImpl.getGlobalSeq() == null ? trackTime
-				: timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
-		return new ScalingKeyframeAction(new CompoundAction("setup", actions), trackTimeToUse,
-				timeEnvironmentImpl.getGlobalSeq(), selection, this, centerX, centerY, centerZ);
+		generateKeyframes(selection, actions, timeEnvironmentImpl, "Scaling", (node, translationTimeline) -> node.createScalingKeyframe(renderModel, translationTimeline, structureChangeListener));
+
+
+		final int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
+		final int trackTimeToUse = timeEnvironmentImpl.getGlobalSeq() == null ? trackTime : timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
+		return new ScalingKeyframeAction(new CompoundAction("setup", actions), trackTimeToUse, timeEnvironmentImpl.getGlobalSeq(), selection, this, centerX, centerY, centerZ);
 	}
 
 	@Override
@@ -766,26 +509,27 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 			case SCALING -> "Scaling";
 			case TRANSLATION -> "Translation";
 		};
+
 		final Set<IdObject> selection = selectionManager.getSelection();
 		final List<UndoAction> actions = new ArrayList<>();
+
+		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
 		for (final IdObject node : selection) {
-			final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
-					.getAnimatedRenderEnvironment();
 			AnimFlag translationTimeline = node.find(keyframeMdlTypeName, timeEnvironmentImpl.getGlobalSeq());
+
 			if (translationTimeline == null) {
-				translationTimeline = AnimFlag.createEmpty2018(keyframeMdlTypeName, InterpolationType.HERMITE,
-						timeEnvironmentImpl.getGlobalSeq());
+				translationTimeline = AnimFlag.createEmpty2018(keyframeMdlTypeName, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
 				node.add(translationTimeline);
-				final AddTimelineAction addTimelineAction = new AddTimelineAction(node, translationTimeline,
-						structureChangeListener);
+
+				final AddTimelineAction addTimelineAction = new AddTimelineAction(node, translationTimeline, structureChangeListener);
 				structureChangeListener.timelineAdded(node, translationTimeline);
+
 				actions.add(addTimelineAction);
 			}
 			final AddKeyframeAction keyframeAction = switch (actionType) {
 				case ROTATION -> node.createRotationKeyframe(renderModel, translationTimeline, structureChangeListener);
 				case SCALING -> node.createScalingKeyframe(renderModel, translationTimeline, structureChangeListener);
-				case TRANSLATION -> node.createTranslationKeyframe(renderModel, translationTimeline,
-						structureChangeListener);
+				case TRANSLATION -> node.createTranslationKeyframe(renderModel, translationTimeline, structureChangeListener);
 			};
 			if (keyframeAction != null) {
 				actions.add(keyframeAction);
@@ -793,6 +537,46 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		}
 
 		return new CompoundAction("create keyframe", actions);
+
+	}
+
+	@Override
+	public GenericMoveAction addBox(final double x, final double y, final double x2, final double y2, final byte dim1, final byte dim2, final Vec3 facingVector, final int numberOfLengthSegments, final int numberOfWidthSegments, final int numberOfHeightSegments) {
+		throw new WrongModeException("Unable to create box in animation editor");
+	}
+
+	@Override
+	public GenericRotateAction beginSquatTool(final double centerX, final double centerY, final double centerZ, final byte firstXYZ, final byte secondXYZ) {
+		final Set<IdObject> selection = new HashSet<>(selectionManager.getSelection());
+
+		for (final IdObject idObject : model.getModel().getIdObjects()) {
+			if (selectionManager.getSelection().contains(idObject.getParent()) && (((idObject.getClass() == Bone.class) && (idObject.getParent().getClass() == Bone.class)) || ((idObject.getClass() == Helper.class) && (idObject.getParent().getClass() == Helper.class)))) {
+				selection.add(idObject);
+			}
+		}
+		final List<UndoAction> actions = new ArrayList<>();
+		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
+
+		for (final IdObject node : selection) {
+			AnimFlag translationTimeline = node.find("Rotation", timeEnvironmentImpl.getGlobalSeq());
+			if (translationTimeline == null) {
+				translationTimeline = AnimFlag.createEmpty2018("Rotation", InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+				node.add(translationTimeline);
+
+				final AddTimelineAction addTimelineAction = new AddTimelineAction(node, translationTimeline, structureChangeListener);
+				structureChangeListener.timelineAdded(node, translationTimeline);
+				actions.add(addTimelineAction);
+			}
+
+			final AddKeyframeAction keyframeAction = node.createRotationKeyframe(renderModel, translationTimeline, structureChangeListener);
+			if (keyframeAction != null) {
+				actions.add(keyframeAction);
+			}
+		}
+
+		final int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
+		final int trackTimeToUse = timeEnvironmentImpl.getGlobalSeq() == null ? trackTime : timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
+		return new SquatToolKeyframeAction(new CompoundAction("setup", actions), trackTimeToUse, timeEnvironmentImpl.getGlobalSeq(), selection, this, centerX, centerY, centerZ, firstXYZ, secondXYZ);
 	}
 
 	@Override
@@ -810,11 +594,99 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		throw new WrongModeException("Unable to investigate mesh in Animation Editor");
 	}
 
-	@Override
-	public GenericMoveAction addBox(final double x, final double y, final double x2, final double y2, final byte dim1,
-			final byte dim2, final Vec3 facingVector, final int numberOfLengthSegments,
-			final int numberOfWidthSegments, final int numberOfHeightSegments) {
-		throw new WrongModeException("Unable to create box in animation editor");
+	private final class SelectionAtPointTester implements IdObjectVisitor {
+		private CoordinateSystem axes;
+		private Point point;
+		private boolean mouseOverVertex;
+
+		private SelectionAtPointTester reset(final CoordinateSystem axes, final Point point) {
+			this.axes = axes;
+			this.point = point;
+			mouseOverVertex = false;
+			return this;
+		}
+
+		@Override
+		public void ribbonEmitter(final RibbonEmitter particleEmitter) {
+			handleDefaultNode(point, axes, particleEmitter);
+		}
+
+		private void handleDefaultNode(final Point point, final CoordinateSystem axes, final IdObject node) {
+			final Mat4 worldMatrix = renderModel.getRenderNode(node).getWorldMatrix();
+			if (hitTest(node.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes, node.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes) * 2, worldMatrix)) {
+				mouseOverVertex = true;
+			}
+		}
+
+		@Override
+		public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
+			handleDefaultNode(point, axes, particleEmitter);
+		}
+
+		@Override
+		public void particleEmitter(final ParticleEmitter particleEmitter) {
+			handleDefaultNode(point, axes, particleEmitter);
+		}
+
+		@Override
+		public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
+			handleDefaultNode(point, axes, popcornFxEmitter);
+		}
+
+		@Override
+		public void light(final Light light) {
+			handleDefaultNode(point, axes, light);
+		}
+
+		@Override
+		public void helper(final Helper node) {
+			final Mat4 worldMatrix = renderModel.getRenderNode(node).getWorldMatrix();
+			if (hitTest(node.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes, node.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes), worldMatrix)) {
+				mouseOverVertex = true;
+			}
+		}
+
+		@Override
+		public void eventObject(final EventObject eventObject) {
+			handleDefaultNode(point, axes, eventObject);
+		}
+
+		@Override
+		public void collisionShape(final CollisionShape collisionShape) {
+			handleDefaultNode(point, axes, collisionShape);
+		}
+
+		@Override
+		public void camera(final Camera camera) {
+			System.err.println("CAMERA processed in NodeAnimationModelEditor!!!");
+			// if (hitTest(camera.getPosition(), CoordinateSystem.Util.geom(axes, point),
+			// axes,
+			// programPreferences.getVertexSize(), worldMatrix)) {
+			// mouseOverVertex = true;
+			// }
+			// if (hitTest(camera.getTargetPosition(), CoordinateSystem.Util.geom(axes,
+			// point), axes,
+			// programPreferences.getVertexSize(), worldMatrix)) {
+			// mouseOverVertex = true;
+			// }
+		}
+
+		@Override
+		public void bone(final Bone node) {
+			final Mat4 worldMatrix = renderModel.getRenderNode(node).getWorldMatrix();
+			if (hitTest(node.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes, node.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes), worldMatrix)) {
+				mouseOverVertex = true;
+			}
+		}
+
+		@Override
+		public void attachment(final Attachment attachment) {
+			handleDefaultNode(point, axes, attachment);
+		}
+
+		public boolean isMouseOverVertex() {
+			return mouseOverVertex;
+		}
 	}
 
 	@Override
@@ -822,44 +694,73 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		throw new WrongModeException("Unable to split geoset in animation editor");
 	}
 
-	@Override
-	public GenericRotateAction beginSquatTool(final double centerX, final double centerY, final double centerZ,
-			final byte firstXYZ, final byte secondXYZ) {
-		final Set<IdObject> selection = new HashSet<>(selectionManager.getSelection());
-		for (final IdObject idObject : model.getModel().getIdObjects()) {
-			if (selectionManager.getSelection().contains(idObject.getParent()) && (((idObject.getClass() == Bone.class)
-					&& (idObject.getParent().getClass() == Bone.class))
-					|| ((idObject.getClass() == Helper.class) && (idObject.getParent().getClass() == Helper.class)))) {
-				selection.add(idObject);
-			}
-		}
-		final List<UndoAction> actions = new ArrayList<>();
-		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
-				.getAnimatedRenderEnvironment();
-		for (final IdObject node : selection) {
-			AnimFlag translationTimeline = node.find("Rotation", timeEnvironmentImpl.getGlobalSeq());
-			if (translationTimeline == null) {
-				translationTimeline = AnimFlag.createEmpty2018("Rotation", InterpolationType.HERMITE,
-						timeEnvironmentImpl.getGlobalSeq());
-				node.add(translationTimeline);
-				final AddTimelineAction addTimelineAction = new AddTimelineAction(node, translationTimeline,
-						structureChangeListener);
-				structureChangeListener.timelineAdded(node, translationTimeline);
-				actions.add(addTimelineAction);
-			}
-			final AddKeyframeAction keyframeAction = node.createRotationKeyframe(renderModel, translationTimeline,
-					structureChangeListener);
-			if (keyframeAction != null) {
-				actions.add(keyframeAction);
-			}
+	private final class GenericSelectorVisitor implements IdObjectVisitor {
+		private List<IdObject> selectedItems;
+		private Rectangle2D area;
+		private CoordinateSystem coordinateSystem;
+
+		private GenericSelectorVisitor reset(final List<IdObject> selectedItems, final Rectangle2D area, final CoordinateSystem coordinateSystem) {
+			this.selectedItems = selectedItems;
+			this.area = area;
+			this.coordinateSystem = coordinateSystem;
+			return this;
 		}
 
-		final int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime()
-				+ renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
-		final int trackTimeToUse = timeEnvironmentImpl.getGlobalSeq() == null ? trackTime
-				: timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
-		return new SquatToolKeyframeAction(new CompoundAction("setup", actions), trackTimeToUse,
-				timeEnvironmentImpl.getGlobalSeq(), selection, this, centerX, centerY, centerZ, firstXYZ, secondXYZ);
+		@Override
+		public void ribbonEmitter(final RibbonEmitter particleEmitter) {
+			hitTest(selectedItems, area, particleEmitter.getPivotPoint(), coordinateSystem, particleEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, particleEmitter, renderModel);
+		}
+
+		@Override
+		public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
+			hitTest(selectedItems, area, particleEmitter.getPivotPoint(), coordinateSystem, particleEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, particleEmitter, renderModel);
+		}
+
+		@Override
+		public void particleEmitter(final ParticleEmitter particleEmitter) {
+			hitTest(selectedItems, area, particleEmitter.getPivotPoint(), coordinateSystem, particleEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, particleEmitter, renderModel);
+		}
+
+		@Override
+		public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
+			hitTest(selectedItems, area, popcornFxEmitter.getPivotPoint(), coordinateSystem, popcornFxEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, popcornFxEmitter, renderModel);
+		}
+
+		@Override
+		public void light(final Light light) {
+			hitTest(selectedItems, area, light.getPivotPoint(), coordinateSystem, light.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, light, renderModel);
+		}
+
+		@Override
+		public void helper(final Helper object) {
+			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem, object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem), object, renderModel);
+		}
+
+		@Override
+		public void eventObject(final EventObject eventObject) {
+			hitTest(selectedItems, area, eventObject.getPivotPoint(), coordinateSystem, eventObject.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, eventObject, renderModel);
+		}
+
+		@Override
+		public void collisionShape(final CollisionShape collisionShape) {
+			hitTest(selectedItems, area, collisionShape.getPivotPoint(), coordinateSystem, collisionShape.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, collisionShape, renderModel);
+		}
+
+		@Override
+		public void camera(final Camera camera) {
+			System.err.println("Attempted to process camera with Node Animation Editor generic selector!!!");
+		}
+
+		@Override
+		public void bone(final Bone object) {
+			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem, object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem), object, renderModel);
+		}
+
+		@Override
+		public void attachment(final Attachment attachment) {
+			hitTest(selectedItems, area, attachment.getPivotPoint(), coordinateSystem, attachment.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, attachment, renderModel);
+		}
+
 	}
 
 	@Override

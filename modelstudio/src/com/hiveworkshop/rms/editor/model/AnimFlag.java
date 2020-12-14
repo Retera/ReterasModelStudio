@@ -9,10 +9,7 @@ import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxUInt32Timeline;
 import com.hiveworkshop.rms.ui.application.edit.animation.BasicTimeBoundProvider;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
-import com.hiveworkshop.rms.util.MathUtils;
-import com.hiveworkshop.rms.util.Quat;
-import com.hiveworkshop.rms.util.Vec3;
-import com.hiveworkshop.rms.util.War3ID;
+import com.hiveworkshop.rms.util.*;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -77,19 +74,6 @@ public class AnimFlag {
 		return does;
 	}
 
-	public void setGlobSeq(final Integer inte) {
-		globalSeq = inte;
-		hasGlobalSeq = inte != null;
-	}
-
-	public Integer getGlobalSeq() {
-		return globalSeq;
-	}
-
-	public void setGlobalSeq(final Integer globalSeq) {
-		this.globalSeq = globalSeq;
-	}
-	
 	public AnimFlag(final MdlxTimeline<?> timeline) {
 		name = AnimationMap.ID_TO_TAG.get(timeline.name).getMdlToken();
 		generateTypeId();
@@ -110,14 +94,7 @@ public class AnimFlag {
 		if (frames.length > 0) {
 			final boolean hasTangents = interpolationType.tangential();
 
-			final Object firstValue = values[0];
-
-			if (firstValue instanceof float[]) {
-				vectorSize = ((float[])firstValue).length;
-			} else {
-				isFloat = false;
-				vectorSize = ((long[])firstValue).length;
-			}
+			setVectorSize(values[0]);
 
 			for (int i = 0, l = frames.length; i < l; i++) {
 				final Object value = values[i];
@@ -126,7 +103,7 @@ public class AnimFlag {
 				Object outTanAsObject = null;
 
 				if (isFloat) {
-					final float[] valueAsArray = (float[])value;
+					final float[] valueAsArray = (float[]) value;
 
 					if (vectorSize == 1) {
 						valueAsObject = valueAsArray[0];
@@ -159,98 +136,40 @@ public class AnimFlag {
 					}
 				}
 
-				addEntry((int)frames[i], valueAsObject, inTanAsObject, outTanAsObject);
+				addEntry((int) frames[i], valueAsObject, inTanAsObject, outTanAsObject);
 			}
 		}
 	}
 
-	public MdlxTimeline<Object> toMdlx(final TimelineContainer container) {
-		final MdlxTimeline timeline;
+	public Integer getGlobalSeq() {
+		return globalSeq;
+	}
 
-		if (isFloat) {
-			if (vectorSize == 1) {
-				timeline = new MdlxFloatTimeline();
-			} else if (vectorSize == 3) {
-				timeline = new MdlxFloatArrayTimeline(3);
-			} else {
-				timeline = new MdlxFloatArrayTimeline(4);
-			}
-		} else {
-			timeline = new MdlxUInt32Timeline();
+	public void setGlobalSeq(final Integer globalSeq) {
+		this.globalSeq = globalSeq;
+	}
+
+	public static AnimFlag createEmpty2018(final String title, final InterpolationType interpolationType, final Integer globalSeq) {
+		final AnimFlag flag = new AnimFlag();
+		flag.name = title;
+		flag.interpolationType = interpolationType;
+		flag.generateTypeId();
+		flag.setGlobSeq(globalSeq);
+		return flag;
+	}
+
+	private static AnimFlag getMostVis(AnimFlag flag1, AnimFlag flag2, AnimFlag mostVisible) {
+		if (mostVisible == null) {
+			mostVisible = flag1;
+		} else if (mostVisible == flag2) {
+			return null;
 		}
+		return mostVisible;
+	}
 
-		timeline.name = getWar3ID(container);
-		timeline.interpolationType = interpolationType;
-		timeline.globalSequenceId = getGlobalSeqId();
-
-		final List<Integer> times = getTimes();
-		final List<Object> values = getValues();
-		final List<Object> inTans = getInTans();
-		final List<Object> outTans = getOutTans();
-
-		final long[] tempFrames = new long[times.size()];
-		final Object[] tempValues = new Object[times.size()];
-		final Object[] tempInTans = new Object[times.size()];
-		final Object[] tempOutTans = new Object[times.size()];
-
-		final boolean hasTangents = timeline.interpolationType.tangential();
-
-		for (int i = 0, l = times.size(); i < l; i++) {
-			final Object value = values.get(i);
-
-			tempFrames[i] = times.get(i).longValue();
-			
-			if (isFloat) {
-				if (vectorSize == 1) {
-					tempValues[i] = new float[] {(Float) value};
-
-					if (hasTangents) {
-						tempInTans[i] = new float[] {(Float) inTans.get(i)};
-						tempOutTans[i] = new float[] {(Float) outTans.get(i)};
-					} else {
-						tempInTans[i] = new float[] { 0 };
-						tempOutTans[i] = new float[] { 0 };
-					}
-				} else if (vectorSize == 3) {
-					tempValues[i] = ((Vec3)value).toFloatArray();
-
-					if (hasTangents) {
-						tempInTans[i] = ((Vec3)inTans.get(i)).toFloatArray();
-						tempOutTans[i] = ((Vec3)outTans.get(i)).toFloatArray();
-					} else {
-						tempInTans[i] = (new Vec3()).toFloatArray();
-						tempOutTans[i] = (new Vec3()).toFloatArray();
-					}
-				} else {
-					tempValues[i] = ((Quat)value).toFloatArray();
-
-					if (hasTangents) {
-						tempInTans[i] = ((Quat)inTans.get(i)).toFloatArray();
-						tempOutTans[i] = ((Quat)outTans.get(i)).toFloatArray();
-					} else {
-						tempInTans[i] = (new Quat()).toFloatArray();
-						tempOutTans[i] = (new Quat()).toFloatArray();
-					}
-				}
-			} else {
-				tempValues[i] = (new long[] { ((Integer)value).longValue() });
-
-				if (hasTangents) {
-					tempInTans[i] = new long[] { ((Integer)inTans.get(i)).longValue() };
-					tempOutTans[i] = new long[] { ((Integer)outTans.get(i)).longValue() };
-				} else {
-					tempInTans[i] = new long[] { 0 };
-					tempOutTans[i] = new long[] { 0 };
-				}
-			}
-		}
-
-		timeline.frames = tempFrames;
-		timeline.values = tempValues;
-		timeline.inTans = tempInTans;
-		timeline.outTans = tempOutTans;
-
-		return timeline;
+	public void setGlobSeq(final Integer integer) {
+		globalSeq = integer;
+		hasGlobalSeq = integer != null;
 	}
 
 	// end special constructors
@@ -361,23 +280,30 @@ public class AnimFlag {
 	
 		if (container instanceof IdObject) {
 			switch (name) {
-			case MdlUtils.TOKEN_TRANSLATION: return AnimationMap.KGTR;
-			case MdlUtils.TOKEN_ROTATION: return AnimationMap.KGRT;
-			case MdlUtils.TOKEN_SCALING: return AnimationMap.KGSC;
+				case MdlUtils.TOKEN_TRANSLATION:
+					return AnimationMap.KGTR;
+				case MdlUtils.TOKEN_ROTATION:
+					return AnimationMap.KGRT;
+				case MdlUtils.TOKEN_SCALING:
+					return AnimationMap.KGSC;
 			}
 		}
 
 		return null;
 	}
 
-	public static AnimFlag createEmpty2018(final String title, final InterpolationType interpolationType,
-			final Integer globalSeq) {
-		final AnimFlag flag = new AnimFlag();
-		flag.name = title;
-		flag.interpolationType = interpolationType;
-		flag.generateTypeId();
-		flag.setGlobSeq(globalSeq);
-		return flag;
+	private void setVectorSize(Object value) {
+//		Object value = values.get(0);
+		if (value instanceof float[]) {
+			vectorSize = ((float[]) value).length;
+		} else if (value instanceof Vec3) {
+			vectorSize = 3;
+		} else if (value instanceof Vec4) {
+			vectorSize = 4;
+		} else {
+			isFloat = false;
+			vectorSize = ((long[]) value).length;
+		}
 	}
 
 	public void setInterpType(final InterpolationType interpolationType) {
@@ -417,24 +343,93 @@ public class AnimFlag {
 		return na;
 	}
 
-	public void generateTypeId() {
-		typeid = 0;
-		if (name.equals("Scaling")) {
-			typeid = 1;
-		} else if (name.equals("Rotation")) {
-			typeid = 2;
-		} else if (name.equals("Translation")) {
-			typeid = 3;
-		} else if (name.equals("TextureID"))// aflg.title.equals("Visibility")
-												// || -- 100.088% visible in
-												// UndeadCampaign3D OutTans! Go
-												// look!
-		{
-			typeid = 5;
-		} else if (name.contains("Color"))// AmbColor
-		{
-			typeid = 4;
+	public MdlxTimeline<Object> toMdlx(final TimelineContainer container) {
+		final MdlxTimeline timeline;
+		setVectorSize(values.get(0));
+		if (isFloat) {
+			if (vectorSize == 1) {
+				timeline = new MdlxFloatTimeline();
+			} else if (vectorSize == 3) {
+				timeline = new MdlxFloatArrayTimeline(3);
+			} else {
+				timeline = new MdlxFloatArrayTimeline(4);
+			}
+		} else {
+			timeline = new MdlxUInt32Timeline();
 		}
+
+		timeline.name = getWar3ID(container);
+		timeline.interpolationType = interpolationType;
+		timeline.globalSequenceId = getGlobalSeqId();
+
+		final List<Integer> times = getTimes();
+		final List<Object> values = getValues();
+		final List<Object> inTans = getInTans();
+		final List<Object> outTans = getOutTans();
+
+		final long[] tempFrames = new long[times.size()];
+		final Object[] tempValues = new Object[times.size()];
+		final Object[] tempInTans = new Object[times.size()];
+		final Object[] tempOutTans = new Object[times.size()];
+
+		final boolean hasTangents = timeline.interpolationType.tangential();
+
+		for (int i = 0, l = times.size(); i < l; i++) {
+			final Object value = values.get(i);
+
+			tempFrames[i] = times.get(i).longValue();
+
+			if (isFloat) {
+				if (vectorSize == 1) {
+					tempValues[i] = new float[] {(Float) value};
+
+					if (hasTangents) {
+						tempInTans[i] = new float[] {(Float) inTans.get(i)};
+						tempOutTans[i] = new float[] {(Float) outTans.get(i)};
+					} else {
+						tempInTans[i] = new float[] {0};
+						tempOutTans[i] = new float[] {0};
+					}
+				} else if (vectorSize == 3) {
+					tempValues[i] = ((Vec3) value).toFloatArray();
+
+					if (hasTangents) {
+						tempInTans[i] = ((Vec3) inTans.get(i)).toFloatArray();
+						tempOutTans[i] = ((Vec3) outTans.get(i)).toFloatArray();
+					} else {
+						tempInTans[i] = (new Vec3()).toFloatArray();
+						tempOutTans[i] = (new Vec3()).toFloatArray();
+					}
+				} else {
+					tempValues[i] = ((Quat) value).toFloatArray();
+
+					if (hasTangents) {
+						tempInTans[i] = ((Quat) inTans.get(i)).toFloatArray();
+						tempOutTans[i] = ((Quat) outTans.get(i)).toFloatArray();
+					} else {
+						tempInTans[i] = (new Quat()).toFloatArray();
+						tempOutTans[i] = (new Quat()).toFloatArray();
+					}
+				}
+			} else {
+				tempValues[i] = (new long[] {((Integer) value).longValue()});
+
+				if (hasTangents) {
+					tempInTans[i] = new long[] {((Integer) inTans.get(i)).longValue()};
+					tempOutTans[i] = new long[] {((Integer) outTans.get(i)).longValue()};
+				} else {
+					tempInTans[i] = new long[] {0};
+					tempOutTans[i] = new long[] {0};
+				}
+			}
+		}
+
+		timeline.frames = tempFrames;
+		timeline.values = tempValues;
+		timeline.inTans = tempInTans;
+		timeline.outTans = tempOutTans;
+
+		return timeline;
 	}
 
 	public int getGlobalSeqId() {
@@ -637,66 +632,23 @@ public class AnimFlag {
 		}
 	}
 
+	public void generateTypeId() {
+		typeid = switch (name) {
+			case "Scaling" -> 1;
+			case "Rotation" -> 2;
+			case "Translation" -> 3;
+			case "TextureID" -> 5; // aflg.title.equals("Visibility") || -- 100.088% visible in UndeadCampaign3D OutTans! Golook!
+			case "Color" -> 4;
+			default -> 0;
+		};
+	}
+
 	public void flipOver(final byte axis) {
 		if (typeid == 2) {
 			// Rotation
-			for (final Object value : values) {
-				final Quat rot = (Quat) value;
-				final Vec3 euler = rot.toEuler();
-				switch (axis) {
-					case 0 -> {
-						euler.x = -euler.x;
-						euler.y = -euler.y;
-					}
-					case 1 -> {
-						euler.x = -euler.x;
-						euler.z = -euler.z;
-					}
-					case 2 -> {
-						euler.y = -euler.y;
-						euler.z = -euler.z;
-					}
-				}
-				rot.set(euler);
-			}
-			for (final Object inTan : inTans) {
-				final Quat rot = (Quat) inTan;
-				final Vec3 euler = rot.toEuler();
-				switch (axis) {
-					case 0 -> {
-						euler.x = -euler.x;
-						euler.y = -euler.y;
-					}
-					case 1 -> {
-						euler.x = -euler.x;
-						euler.z = -euler.z;
-					}
-					case 2 -> {
-						euler.y = -euler.y;
-						euler.z = -euler.z;
-					}
-				}
-				rot.set(euler);
-			}
-			for (final Object outTan : outTans) {
-				final Quat rot = (Quat) outTan;
-				final Vec3 euler = rot.toEuler();
-				switch (axis) {
-					case 0 -> {
-						euler.x = -euler.x;
-						euler.y = -euler.y;
-					}
-					case 1 -> {
-						euler.x = -euler.x;
-						euler.z = -euler.z;
-					}
-					case 2 -> {
-						euler.y = -euler.y;
-						euler.z = -euler.z;
-					}
-				}
-				rot.set(euler);
-			}
+			flipAll(axis, values);
+			flipAll(axis, inTans);
+			flipAll(axis, outTans);
 		} else if (typeid == 3) {
 			// Translation
 			for (final Object value : values) {
@@ -719,6 +671,28 @@ public class AnimFlag {
 		}
 	}
 
+	private void flipAll(byte axis, List<Object> values) {
+		for (final Object value : values) {
+			final Quat rot = (Quat) value;
+			final Vec3 euler = rot.toEuler();
+			switch (axis) {
+				case 0 -> {
+					euler.x = -euler.x;
+					euler.y = -euler.y;
+				}
+				case 1 -> {
+					euler.x = -euler.x;
+					euler.z = -euler.z;
+				}
+				case 2 -> {
+					euler.y = -euler.y;
+					euler.z = -euler.z;
+				}
+			}
+			rot.set(euler);
+		}
+	}
+
 	public AnimFlag getMostVisible(final AnimFlag partner) {
 		if (partner != null) {
 			if ((typeid == 0) && (partner.typeid == 0)) {
@@ -726,71 +700,14 @@ public class AnimFlag {
 				final List<Integer> btimes = new ArrayList<>(partner.times);
 				final List<Float> avalues = new ArrayList(values);
 				final List<Float> bvalues = new ArrayList(partner.values);
+
 				AnimFlag mostVisible = null;
-				for (int i = atimes.size() - 1; i >= 0; i--)
-				// count down from top, meaning that removing the current value
-				// causes no harm
-				{
-					final Integer currentTime = atimes.get(i);
-					final Float currentVal = avalues.get(i);
+				mostVisible = getMostVissibleAnimFlag(atimes, btimes, avalues, bvalues, mostVisible, partner, this);
+				if (mostVisible == null) return null;
 
-					if (btimes.contains(currentTime)) {
-						final Float partVal = bvalues.get(btimes.indexOf(currentTime));
-						if (partVal > currentVal) {
-							if (mostVisible == null) {
-								mostVisible = partner;
-							} else if (mostVisible == this) {
-								return null;
-							}
-						} else if (partVal < currentVal) {
-							if (mostVisible == null) {
-								mostVisible = this;
-							} else if (mostVisible == partner) {
-								return null;
-							}
-						} else {
-							// System.out.println("Equal entries spell success");
-						}
-						// btimes.remove(currentTime);
-						// bvalues.remove(partVal);
-					} else if (currentVal < 1) {
-						if (mostVisible == null) {
-							mostVisible = partner;
-						} else if (mostVisible == this) {
-							return null;
-						}
-					}
-				}
-				for (int i = btimes.size() - 1; i >= 0; i--)
-				// count down from top, meaning that removing the current value
-				// causes no harm
-				{
-					final Integer currentTime = btimes.get(i);
-					final Float currentVal = bvalues.get(i);
+				mostVisible = getMostVissibleAnimFlag(btimes, atimes, bvalues, avalues, mostVisible, this, partner);
+				if (mostVisible == null) return null;
 
-					if (atimes.contains(currentTime)) {
-						final Float partVal = avalues.get(atimes.indexOf(currentTime));
-						if (partVal > currentVal) {
-							if (mostVisible == null) {
-								mostVisible = this;
-							} else if (mostVisible == partner) {
-								return null;
-							}
-						} else if (partVal < currentVal) {
-							if (mostVisible == null) {
-								mostVisible = partner;
-							} else if (mostVisible == this) {
-								return null;
-							}
-						}
-					} else if (currentVal < 1) {
-						if (mostVisible == null) {
-							mostVisible = this;
-						} else if (mostVisible == partner) {
-							return null;
-						}
-					}
-				}
 				// partner has priority!
 				return Objects.requireNonNullElse(mostVisible, partner);
 			} else {
@@ -799,6 +716,30 @@ public class AnimFlag {
 			}
 		}
 		return null;
+	}
+
+	private AnimFlag getMostVissibleAnimFlag(List<Integer> atimes, List<Integer> btimes, List<Float> avalues, List<Float> bvalues, AnimFlag mostVisible, AnimFlag flag1, AnimFlag flag2) {
+		for (int i = atimes.size() - 1; i >= 0; i--)
+		// count down from top, meaning that removing the current value causes no harm
+		{
+			final Integer currentTime = atimes.get(i);
+			final Float currentVal = avalues.get(i);
+
+			if (btimes.contains(currentTime)) {
+				final Float partVal = bvalues.get(btimes.indexOf(currentTime));
+				if (partVal > currentVal) {
+					mostVisible = getMostVis(flag1, flag2, mostVisible);
+					if (mostVisible == null) return null;
+				} else if (partVal < currentVal) {
+					mostVisible = getMostVis(flag2, flag1, mostVisible);
+					if (mostVisible == null) return null;
+				}
+			} else if (currentVal < 1) {
+				mostVisible = getMostVis(flag1, flag2, mostVisible);
+				if (mostVisible == null) return null;
+			}
+		}
+		return mostVisible;
 	}
 
 	public boolean tans() {
@@ -827,26 +768,18 @@ public class AnimFlag {
 			inTans.clear();
 			outTans.clear();
 			interpolationType = InterpolationType.LINEAR;
-			// Probably makes this flag linear, but certainly makes it more like
-			// the copy source
+			// Probably makes this flag linear, but certainly makes it more like the copy source
 		}
 	}
 
 	public void deleteAnim(final Animation anim) {
 		if (!hasGlobalSeq) {
-			final boolean tans = tans();
 			for (int index = times.size() - 1; index >= 0; index--) {
 				final int i = times.get(index);
 				// int index = times.indexOf(inte);
 				if ((i >= anim.getStart()) && (i <= anim.getEnd())) {
 					// If this "i" is a part of the anim being removed
-
-					times.remove(index);
-					values.remove(index);
-					if (tans) {
-						inTans.remove(index);
-						outTans.remove(index);
-					}
+					deleteAt(index);
 				}
 			}
 		} else {
@@ -866,20 +799,17 @@ public class AnimFlag {
 	}
 
 	/**
-	 * Copies time track data from a certain interval into a different, new
-	 * interval. The AnimFlag source of the data to copy cannot be same AnimFlag
-	 * into which the data is copied, or else a ConcurrentModificationException will
-	 * be thrown.
+	 * Copies time track data from a certain interval into a different, new interval.
+	 * The AnimFlag source of the data to copy cannot be same AnimFlag into which the
+	 * data is copied, or else a ConcurrentModificationException will be thrown.
 	 */
 	public void copyFrom(final AnimFlag source, final int sourceStart, final int sourceEnd, final int newStart,
 			final int newEnd) {
-		// Timescales a part of the AnimFlag from the source into the new time
-		// "newStart" to "newEnd"
+		// Timescales a part of the AnimFlag from the source into the new time "newStart" to "newEnd"
 		boolean tans = source.tans();
 		if (tans && interpolationType == InterpolationType.LINEAR) {
 			final int x = JOptionPane.showConfirmDialog(null,
-					"ERROR! A source was found to have Linear and Nonlinear motion simultaneously. Does the following have non-zero data? "
-							+ source.inTans,
+					"ERROR! A source was found to have Linear and Nonlinear motion simultaneously. Does the following have non-zero data? " + source.inTans,
 					"Help This Program!", JOptionPane.YES_NO_OPTION);
 			if (x == JOptionPane.NO_OPTION) {
 				tans = false;
@@ -919,25 +849,7 @@ public class AnimFlag {
 				times.set(z, (int) (newStart + (ratio * (newEnd - newStart))));
 			}
 		}
-		// }
-		// else
-		// {
-		// for( Integer inte: times )
-		// {
-		// int i = inte.intValue();
-		// if( i >= end && i <= start )
-		// {
-		// //If this "i" is a part of the anim being rescaled
-		// double ratio = (double)(i-start)/(double)(end-start);
-		// times.set(times.indexOf(inte),Integer.valueOf((int)(newStart + ( ratio *
-		// ( newStart - newEnd ) ) ) ) );
-		// }
-		// }
-		// }
-
 		sort();
-
-		// BOOM magic happens
 	}
 
 	public void sort() {
@@ -949,8 +861,7 @@ public class AnimFlag {
 	}
 
 	private void quicksort(final int low, final int high) {
-		// Thanks to Lars Vogel for the quicksort concept code (something to
-		// look at), found on google
+		// Thanks to Lars Vogel for the quicksort concept code (something to look at), found on google
 		// (re-written by Eric "Retera" for use in AnimFlags)
 		int i = low, j = high;
 		final Integer pivot = times.get(low + ((high - low) / 2));
@@ -986,10 +897,6 @@ public class AnimFlag {
 			values.set(i, values.get(j));
 		} catch (final Exception e) {
 			e.printStackTrace();
-			// System.out.println(getName()+":
-			// "+times.size()+","+values.size());
-			// System.out.println(times.get(0)+": "+values.get(0));
-			// System.out.println(times.get(1));
 		}
 
 		times.set(j, iTime);
@@ -1103,28 +1010,17 @@ public class AnimFlag {
 	public static final Vec3 TRANSLATE_IDENTITY = new Vec3(0, 0, 0);
 
 	private Object identity(final int typeid) {
-		switch (typeid) {
-		case ALPHA | OTHER_TYPE: {
-			return 1.f;
-		}
-		case TRANSLATION:
-			return TRANSLATE_IDENTITY;
-		case SCALING:
-		case COLOR: {
-			return SCALE_IDENTITY;
-		}
-		case ROTATION: {
-			return ROTATE_IDENTITY;
-		}
-		case TEXTUREID:
-		// Integer
-		{
-			System.err.println("Texture identity used in renderer... TODO make this function more intelligent.");
-			return 0;
-		}
-		default:
-			throw new IllegalStateException();
-		}
+		return switch (typeid) {
+			case ALPHA -> 1.f;
+			case TRANSLATION -> TRANSLATE_IDENTITY;
+			case SCALING, COLOR -> SCALE_IDENTITY;
+			case ROTATION -> ROTATE_IDENTITY;
+			case TEXTUREID -> {
+				System.err.println("Texture identity used in renderer... TODO make this function more intelligent.");
+				yield 0;
+			}
+			default -> throw new IllegalStateException("Unexpected value: " + typeid);
+		};
 	}
 
 	/**
@@ -1164,8 +1060,7 @@ public class AnimFlag {
 			floorIndex = Math.max(0, floorIndex(time));
 			ceilIndex = ceilIndex(time);
 			if (ceilIndex < floorIndex) {
-				// retarded repeated keyframes issue, see Peasant's Bone_Chest
-				// at time 18300
+				// retarded repeated keyframes issue, see Peasant's Bone_Chest at time 18300
 				ceilIndex = floorIndex;
 			}
 			floorValue = values.get(floorIndex);
@@ -1205,8 +1100,7 @@ public class AnimFlag {
 			floorIndex = floorIndex(time);
 			ceilIndex = ceilIndex(time);
 			if (ceilIndex < floorIndex) {
-				// retarded repeated keyframes issue, see Peasant's Bone_Chest
-				// at time 18300
+				// retarded repeated keyframes issue, see Peasant's Bone_Chest at time 18300
 				ceilIndex = floorIndex;
 			}
 			ceilValue = values.get(ceilIndex);
@@ -1246,8 +1140,7 @@ public class AnimFlag {
 					ceilIndexTime = animation.getEnd();
 					timeBetweenFrames = animation.getEnd() - animation.getStart();
 				}
-				// NOTE: we just let it be in this case, based on
-				// Water Elemental's birth
+				// NOTE: we just let it be in this case, based on Water Elemental's birth
 			} else {
 				timeBetweenFrames = ceilIndexTime - floorIndexTime;
 			}
@@ -1277,19 +1170,12 @@ public class AnimFlag {
 				final Vec3 previous = (Vec3) floorValue;
 				final Vec3 next = (Vec3) ceilValue;
 
-				switch (interpolationType) {
-					case BEZIER:
-						return previous.bezier((Vec3) floorOutTan, (Vec3) inTans.get(ceilIndex), next, timeFactor, new Vec3());
-					case DONT_INTERP:
-						return floorValue;
-					case HERMITE: {
-						return previous.hermite((Vec3) floorOutTan, (Vec3) inTans.get(ceilIndex), next, timeFactor, new Vec3());
-					}
-					case LINEAR:
-						return previous.lerp(next, timeFactor, new Vec3());
-					default:
-						throw new IllegalStateException();
-				}
+				return switch (interpolationType) {
+					case BEZIER -> previous.bezier((Vec3) floorOutTan, (Vec3) inTans.get(ceilIndex), next, timeFactor, new Vec3());
+					case DONT_INTERP -> floorValue;
+					case HERMITE -> previous.hermite((Vec3) floorOutTan, (Vec3) inTans.get(ceilIndex), next, timeFactor, new Vec3());
+					case LINEAR -> previous.lerp(next, timeFactor, new Vec3());
+				};
 			}
 			case ROTATION -> {
 				// Quat
@@ -1322,12 +1208,7 @@ public class AnimFlag {
 			throw new IllegalStateException("Attempted to remove keyframe, but no keyframe was found (" + keyframeIndex
 					+ " @ time " + trackTime + ")");
 		} else {
-			times.remove(keyframeIndex);
-			values.remove(keyframeIndex);
-			if (tans()) {
-				inTans.remove(keyframeIndex);
-				outTans.remove(keyframeIndex);
-			}
+			deleteAt(keyframeIndex);
 		}
 	}
 

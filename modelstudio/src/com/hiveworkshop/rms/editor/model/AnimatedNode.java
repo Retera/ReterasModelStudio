@@ -43,14 +43,8 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 	public AddKeyframeAction createTranslationKeyframe(final RenderModel renderModel, final AnimFlag translationFlag,
                                                        final ModelStructureChangeListener structureChangeListener) {
-		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
-		// make AnimFlag.find seek on globalSeqId
-		final int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
-		int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart() + animationTime;
-		final Integer globalSeq = ((TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment()).getGlobalSeq();
-		if (globalSeq != null) {
-			trackTime = renderModel.getAnimatedRenderEnvironment().getGlobalSeqTime(globalSeq);
-		}
+		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
+		int trackTime = getTrackTime(renderModel);
 		final int floorIndex = translationFlag.floorIndex(trackTime);
 		final RenderNode renderNode = renderModel.getRenderNode(this);
 
@@ -58,35 +52,14 @@ public abstract class AnimatedNode extends TimelineContainer {
 			return null;
 		} else {
 			final Vec3 localLocation = renderNode.getLocalLocation();
-			final int insertIndex = floorIndex + 1;
-			translationFlag.getTimes().add(insertIndex, trackTime);
-			final Vec3 keyframeValue = new Vec3(localLocation.x, localLocation.y, localLocation.z);
-			translationFlag.getValues().add(insertIndex, keyframeValue);
-			if (translationFlag.tans()) {
-				final Vec3 inTan = new Vec3(localLocation.x, localLocation.y, localLocation.z);
-				translationFlag.getInTans().add(insertIndex, inTan);
-				final Vec3 outTan = new Vec3(localLocation.x, localLocation.y, localLocation.z);
-				translationFlag.getOutTans().add(insertIndex, outTan);
-				structureChangeListener.keyframeAdded(this, translationFlag, trackTime);
-				return new AddKeyframeAction(this, translationFlag, trackTime, keyframeValue, inTan, outTan,
-						structureChangeListener);
-			} else {
-				structureChangeListener.keyframeAdded(this, translationFlag, trackTime);
-				return new AddKeyframeAction(this, translationFlag, trackTime, keyframeValue, structureChangeListener);
-			}
+			return getAddKeyframeAction(translationFlag, structureChangeListener, trackTime, floorIndex, localLocation);
 		}
 	}
 
 	public AddKeyframeAction createRotationKeyframe(final RenderModel renderModel, final AnimFlag rotationTimeline,
-			final ModelStructureChangeListener structureChangeListener) {
-		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
-		// make AnimFlag.find seek on globalSeqId
-		final int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
-		int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart() + animationTime;
-		final Integer globalSeq = ((TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment()).getGlobalSeq();
-		if (globalSeq != null) {
-			trackTime = renderModel.getAnimatedRenderEnvironment().getGlobalSeqTime(globalSeq);
-		}
+	                                                final ModelStructureChangeListener structureChangeListener) {
+		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
+		int trackTime = getTrackTime(renderModel);
 		final int floorIndex = rotationTimeline.floorIndex(trackTime);
 		final RenderNode renderNode = renderModel.getRenderNode(this);
 
@@ -96,16 +69,18 @@ public abstract class AnimatedNode extends TimelineContainer {
 			final Quat localRotation = renderNode.getLocalRotation();
 			final int insertIndex = floorIndex + 1;
 			rotationTimeline.getTimes().add(insertIndex, trackTime);
+
 			final Quat keyframeValue = new Quat(localRotation);
 			rotationTimeline.getValues().add(insertIndex, keyframeValue);
 			if (rotationTimeline.tans()) {
 				final Quat inTan = new Quat(localRotation);
 				rotationTimeline.getInTans().add(insertIndex, inTan);
+
 				final Quat outTan = new Quat(localRotation);
 				rotationTimeline.getOutTans().add(insertIndex, outTan);
+
 				structureChangeListener.keyframeAdded(this, rotationTimeline, trackTime);
-				return new AddKeyframeAction(this, rotationTimeline, trackTime, keyframeValue, inTan, outTan,
-						structureChangeListener);
+				return new AddKeyframeAction(this, rotationTimeline, trackTime, keyframeValue, inTan, outTan, structureChangeListener);
 			} else {
 				structureChangeListener.keyframeAdded(this, rotationTimeline, trackTime);
 				return new AddKeyframeAction(this, rotationTimeline, trackTime, keyframeValue, structureChangeListener);
@@ -114,15 +89,9 @@ public abstract class AnimatedNode extends TimelineContainer {
 	}
 
 	public AddKeyframeAction createScalingKeyframe(final RenderModel renderModel, final AnimFlag scalingTimeline,
-			final ModelStructureChangeListener structureChangeListener) {
-		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
-		// make AnimFlag.find seek on globalSeqId
-		final int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
-		int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart() + animationTime;
-		final Integer globalSeq = ((TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment()).getGlobalSeq();
-		if (globalSeq != null) {
-			trackTime = renderModel.getAnimatedRenderEnvironment().getGlobalSeqTime(globalSeq);
-		}
+	                                               final ModelStructureChangeListener structureChangeListener) {
+		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
+		int trackTime = getTrackTime(renderModel);
 		final int floorIndex = scalingTimeline.floorIndex(trackTime);
 		final RenderNode renderNode = renderModel.getRenderNode(this);
 
@@ -130,38 +99,52 @@ public abstract class AnimatedNode extends TimelineContainer {
 			return null;
 		} else {
 			final Vec3 localScale = renderNode.getLocalScale();
-			final int insertIndex = floorIndex + 1;
-			scalingTimeline.getTimes().add(insertIndex, trackTime);
-			final Vec3 keyframeValue = new Vec3(localScale);
-			scalingTimeline.getValues().add(insertIndex, keyframeValue);
-			if (scalingTimeline.tans()) {
-				final Vec3 inTan = new Vec3(localScale);
-				scalingTimeline.getInTans().add(insertIndex, inTan);
-				final Vec3 outTan = new Vec3(localScale);
-				scalingTimeline.getOutTans().add(insertIndex, outTan);
-				structureChangeListener.keyframeAdded(this, scalingTimeline, trackTime);
-				return new AddKeyframeAction(this, scalingTimeline, trackTime, keyframeValue, inTan, outTan,
-						structureChangeListener);
-			} else {
-				structureChangeListener.keyframeAdded(this, scalingTimeline, trackTime);
-				return new AddKeyframeAction(this, scalingTimeline, trackTime, keyframeValue, structureChangeListener);
-			}
+			return getAddKeyframeAction(scalingTimeline, structureChangeListener, trackTime, floorIndex, localScale);
+		}
+	}
+
+	private int getTrackTime(RenderModel renderModel) {
+		final int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
+		int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart() + animationTime;
+
+		final Integer globalSeq = ((TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment()).getGlobalSeq();
+		if (globalSeq != null) {
+			trackTime = renderModel.getAnimatedRenderEnvironment().getGlobalSeqTime(globalSeq);
+		}
+		return trackTime;
+	}
+
+	private AddKeyframeAction getAddKeyframeAction(AnimFlag timeline, ModelStructureChangeListener structureChangeListener, int trackTime, int floorIndex, Vec3 vec3) {
+		final int insertIndex = floorIndex + 1;
+		timeline.getTimes().add(insertIndex, trackTime);
+
+		final Vec3 keyframeValue = new Vec3(vec3);
+		timeline.getValues().add(insertIndex, keyframeValue);
+//		if (timeline.tans()) {
+		if (timeline.interpolationType.tangential()) {
+			final Vec3 inTan = new Vec3(vec3);
+			timeline.getInTans().add(insertIndex, inTan);
+
+			final Vec3 outTan = new Vec3(vec3);
+			timeline.getOutTans().add(insertIndex, outTan);
+
+			structureChangeListener.keyframeAdded(this, timeline, trackTime);
+			return new AddKeyframeAction(this, timeline, trackTime, keyframeValue, inTan, outTan, structureChangeListener);
+		} else {
+			structureChangeListener.keyframeAdded(this, timeline, trackTime);
+			return new AddKeyframeAction(this, timeline, trackTime, keyframeValue, structureChangeListener);
 		}
 	}
 
 	public void updateTranslationKeyframe(final RenderModel renderModel, final double newDeltaX, final double newDeltaY,
-			final double newDeltaZ, final Vec3 savedLocalTranslation) {
+	                                      final double newDeltaZ, final Vec3 savedLocalTranslation) {
 		// Note to future author: the reason for saved local translation is that
 		// we would like to be able to undo the action of moving the animation data
 
-		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
-		// make AnimFlag.find seek on globalSeqId
-		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be
-		// constructed from
-		// a TimeEnvironmentImpl render environment, and never from the anim previewer
-		// impl
-		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
-				.getAnimatedRenderEnvironment();
+		// TODO global seqs, needs separate check on AnimRendEnv, and also we must  make AnimFlag.find seek on globalSeqId
+		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from
+		//  a TimeEnvironmentImpl render environment, and never from the anim previewer impl
+		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
 		final AnimFlag translationFlag = find("Translation", timeEnvironmentImpl.getGlobalSeq());
 		if (translationFlag == null) {
 			return;
@@ -179,53 +162,38 @@ public abstract class AnimatedNode extends TimelineContainer {
 			final RenderNode parentRenderNode = renderModel.getRenderNode(parent);
 			parentRenderNode.getWorldMatrix().invert(matrixHeap);
 
-			translationHeap.x = 0;
-			translationHeap.y = 0;
-			translationHeap.z = 0;
+			setXYZ(translationHeap, 0, 0, 0);
 			translationHeap.w = 1;
 
 			parentRenderNode.getWorldMatrix().transform(translationHeap);
 
-			translationHeap.x = (float) (translationHeap.x + newDeltaX);
-			translationHeap.y = (float) (translationHeap.y + newDeltaY);
-			translationHeap.z = (float) (translationHeap.z + newDeltaZ);
-			translationHeap.w = 1;
+			setFloat(translationHeap.x + newDeltaX, translationHeap.y + newDeltaY, translationHeap.z + newDeltaZ);
 
 			matrixHeap.transform(translationHeap);
 		} else {
-			translationHeap.x = (float) (newDeltaX);
-			translationHeap.y = (float) (newDeltaY);
-			translationHeap.z = (float) (newDeltaZ);
-			translationHeap.w = 1;
+			setFloat(newDeltaX, newDeltaY, newDeltaZ);
 		}
 
 		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
 			// we must change it
 			final Vec3 oldTranslationValue = (Vec3) translationFlag.getValues().get(floorIndex);
-			oldTranslationValue.x += translationHeap.x;
-			oldTranslationValue.y += translationHeap.y;
-			oldTranslationValue.z += translationHeap.z;
+			addTo(oldTranslationValue, translationHeap.x, translationHeap.y, translationHeap.z);
 
 			if (savedLocalTranslation != null) {
-				savedLocalTranslation.x += translationHeap.x;
-				savedLocalTranslation.y += translationHeap.y;
-				savedLocalTranslation.z += translationHeap.z;
+				addTo(savedLocalTranslation, translationHeap.x, translationHeap.y, translationHeap.z);
 			}
 
 			if (translationFlag.tans()) {
 				final Vec3 oldInTan = (Vec3) translationFlag.getInTans().get(floorIndex);
-				oldInTan.x += translationHeap.x;
-				oldInTan.y += translationHeap.y;
-				oldInTan.z += translationHeap.z;
+				addTo(oldInTan, translationHeap.x, translationHeap.y, translationHeap.z);
 
 				final Vec3 oldOutTan = (Vec3) translationFlag.getOutTans().get(floorIndex);
-				oldOutTan.x += translationHeap.x;
-				oldOutTan.y += translationHeap.y;
-				oldOutTan.z += translationHeap.z;
+				addTo(oldOutTan, translationHeap.x, translationHeap.y, translationHeap.z);
 			}
 		}
 
 	}
+
 
 	public void updateRotationKeyframe(final RenderModel renderModel, final double centerX, final double centerY,
 			final double centerZ, final double radians, final byte firstXYZ, final byte secondXYZ,
@@ -233,12 +201,9 @@ public abstract class AnimatedNode extends TimelineContainer {
 		// Note to future author: the reason for saved local rotation is that
 		// we would like to be able to undo the action of rotating the animation data
 
-		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
-		// make AnimFlag.find seek on globalSeqId
-		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be
-		// constructed from
-		// a TimeEnvironmentImpl render environment, and never from the anim previewer
-		// impl
+		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
+		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be  constructed from
+		//  a TimeEnvironmentImpl render environment, and never from the anim previewer impl
 		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
 				.getAnimatedRenderEnvironment();
 		final AnimFlag rotationTimeline = find("Rotation", timeEnvironmentImpl.getGlobalSeq());
@@ -259,50 +224,24 @@ public abstract class AnimatedNode extends TimelineContainer {
 			final RenderNode parentRenderNode = renderModel.getRenderNode(parent);
 			parentRenderNode.getWorldMatrix().invert(matrixHeap);
 
-			axisAngleHeap.x = 0;
-			axisAngleHeap.y = 0;
-			axisAngleHeap.z = 0;
+			setXYZ(axisAngleHeap, 0, 0, 0);
 			axisAngleHeap.w = 1;
 
 			parentRenderNode.getWorldMatrix().transform(axisAngleHeap);
 
 			switch (unusedXYZ) {
-				case 0 -> {
-					axisAngleHeap.x = axisAngleHeap.x + 1;
-					axisAngleHeap.y = axisAngleHeap.y + 0;
-					axisAngleHeap.z = axisAngleHeap.z + 0;
-				}
-				case 1 -> {
-					axisAngleHeap.x = axisAngleHeap.x + 0;
-					axisAngleHeap.y = axisAngleHeap.y + -1;
-					axisAngleHeap.z = axisAngleHeap.z + 0;
-				}
-				case 2 -> {
-					axisAngleHeap.x = axisAngleHeap.x + 0;
-					axisAngleHeap.y = axisAngleHeap.y + 0;
-					axisAngleHeap.z = axisAngleHeap.z + -1;
-				}
+				case 0 -> setXYZ(axisAngleHeap, (axisAngleHeap.x + 1), axisAngleHeap.y + 0, axisAngleHeap.z + 0);
+				case 1 -> setXYZ(axisAngleHeap, (axisAngleHeap.x + 0), axisAngleHeap.y + -1, axisAngleHeap.z + 0);
+				case 2 -> setXYZ(axisAngleHeap, (axisAngleHeap.x + 0), axisAngleHeap.y + 0, axisAngleHeap.z + -1);
 			}
 			axisAngleHeap.w = 1;
 
 			matrixHeap.transform(axisAngleHeap);
 		} else {
 			switch (unusedXYZ) {
-				case 0 -> {
-					axisAngleHeap.x = 1;
-					axisAngleHeap.y = 0;
-					axisAngleHeap.z = 0;
-				}
-				case 1 -> {
-					axisAngleHeap.x = 0;
-					axisAngleHeap.y = -1;
-					axisAngleHeap.z = 0;
-				}
-				case 2 -> {
-					axisAngleHeap.x = 0;
-					axisAngleHeap.y = 0;
-					axisAngleHeap.z = -1;
-				}
+				case 0 -> setXYZ(axisAngleHeap, 1, 0, 0);
+				case 1 -> setXYZ(axisAngleHeap, 0, -1, 0);
+				case 2 -> setXYZ(axisAngleHeap, 0, 0, -1);
 			}
 		}
 		axisAngleHeap.w = (float) radians;
@@ -312,16 +251,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 			// we must change it
 			final Quat oldTranslationValue = (Quat) rotationTimeline.getValues()
 					.get(floorIndex);
-			rotationHeap.x = oldTranslationValue.x;
-			rotationHeap.y = oldTranslationValue.y;
-			rotationHeap.z = oldTranslationValue.z;
-			rotationHeap.w = oldTranslationValue.w;
-			rotationDeltaHeap.mul(rotationHeap, rotationHeap);
-
-			oldTranslationValue.x = rotationHeap.x;
-			oldTranslationValue.y = rotationHeap.y;
-			oldTranslationValue.z = rotationHeap.z;
-			oldTranslationValue.w = rotationHeap.w;
+			setStuff(oldTranslationValue, rotationDeltaHeap);
 
 			if (savedLocalRotation != null) {
 				savedLocalRotation.mul(rotationDeltaHeap);
@@ -329,26 +259,10 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 			if (rotationTimeline.tans()) {
 				final Quat oldInTan = (Quat) rotationTimeline.getInTans().get(floorIndex);
-				rotationHeap.x = oldInTan.x;
-				rotationHeap.y = oldInTan.y;
-				rotationHeap.z = oldInTan.z;
-				rotationHeap.w = oldInTan.w;
-				rotationDeltaHeap.mul(rotationHeap, rotationHeap);
-				oldInTan.x = rotationHeap.x;
-				oldInTan.y = rotationHeap.y;
-				oldInTan.z = rotationHeap.z;
-				oldInTan.w = rotationHeap.w;
+				setStuff(oldInTan, rotationDeltaHeap);
 
 				final Quat oldOutTan = (Quat) rotationTimeline.getOutTans().get(floorIndex);
-				rotationHeap.x = oldOutTan.x;
-				rotationHeap.y = oldOutTan.y;
-				rotationHeap.z = oldOutTan.z;
-				rotationHeap.w = oldOutTan.w;
-				rotationDeltaHeap.mul(rotationHeap, rotationHeap);
-				oldOutTan.x = rotationHeap.x;
-				oldOutTan.y = rotationHeap.y;
-				oldOutTan.z = rotationHeap.z;
-				oldOutTan.w = rotationHeap.w;
+				setStuff(oldOutTan, rotationDeltaHeap);
 			}
 		}
 	}
@@ -358,76 +272,50 @@ public abstract class AnimatedNode extends TimelineContainer {
 		// Note to future author: the reason for saved local scaling is that
 		// we would like to be able to undo the action of moving the animation data
 
-		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
-		// make AnimFlag.find seek on globalSeqId
-		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be
-		// constructed from
-		// a TimeEnvironmentImpl render environment, and never from the anim previewer
-		// impl
-		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel
-				.getAnimatedRenderEnvironment();
+		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
+		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from
+		//  a TimeEnvironmentImpl render environment, and never from the anim previewer impl
+		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
 		final AnimFlag translationFlag = find("Scaling", timeEnvironmentImpl.getGlobalSeq());
 		if (translationFlag == null) {
 			return;
 		}
+
 		final int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
 		int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart() + animationTime;
+
 		final Integer globalSeq = timeEnvironmentImpl.getGlobalSeq();
 		if (globalSeq != null) {
 			trackTime = timeEnvironmentImpl.getGlobalSeqTime(globalSeq);
 		}
 		final int floorIndex = translationFlag.floorIndex(trackTime);
-		// final RenderNode renderNode = renderModel.getRenderNode(this);
-		// if (parent != null) {
-		// final RenderNode parentRenderNode = renderModel.getRenderNode(parent);
-		// translationHeap.x = (float)scaleX *
-		// parentRenderNode.getInverseWorldScale().x;
-		// translationHeap.y = (float)scaleY *
-		// parentRenderNode.getInverseWorldScale().y;
-		// translationHeap.z = (float)scaleZ *
-		// parentRenderNode.getInverseWorldScale().z;
-		// translationHeap.w = 1;
-		// } else {
-		translationHeap.x = (float) scaleX;
-		translationHeap.y = (float) scaleY;
-		translationHeap.z = (float) scaleZ;
-		// translationHeap.w = 1;
-		// }
+
+		setXYZ(translationHeap, (float) scaleX, (float) scaleY, (float) scaleZ);
 
 		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
 			// we must change it
 			final Vec3 oldTranslationValue = (Vec3) translationFlag.getValues().get(floorIndex);
-			oldTranslationValue.x *= translationHeap.x;
-			oldTranslationValue.y *= translationHeap.y;
-			oldTranslationValue.z *= translationHeap.z;
+			scaleBy(oldTranslationValue, translationHeap.x, translationHeap.y, translationHeap.z);
 
 			if (savedLocalScaling != null) {
-				savedLocalScaling.x *= translationHeap.x;
-				savedLocalScaling.y *= translationHeap.y;
-				savedLocalScaling.z *= translationHeap.z;
+				scaleBy(savedLocalScaling, translationHeap.x, translationHeap.y, translationHeap.z);
 			}
 
 			if (translationFlag.tans()) {
 				final Vec3 oldInTan = (Vec3) translationFlag.getInTans().get(floorIndex);
-				oldInTan.x *= translationHeap.x;
-				oldInTan.y *= translationHeap.y;
-				oldInTan.z *= translationHeap.z;
+				scaleBy(oldInTan, translationHeap.x, translationHeap.y, translationHeap.z);
 
 				final Vec3 oldOutTan = (Vec3) translationFlag.getOutTans().get(floorIndex);
-				oldOutTan.x *= translationHeap.x;
-				oldOutTan.y *= translationHeap.y;
-				oldOutTan.z *= translationHeap.z;
+				scaleBy(oldOutTan, translationHeap.x, translationHeap.y, translationHeap.z);
 			}
 		}
 	}
 
-	public void updateLocalRotationKeyframe(final int trackTime, final Integer trackGlobalSeq,
-			final Quat localRotation) {
+	public void updateLocalRotationKeyframe(final int trackTime, final Integer trackGlobalSeq, final Quat localRotation) {
 		// Note to future author: the reason for saved local rotation is that
 		// we would like to be able to undo the action of rotating the animation data
 
-		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
-		// make AnimFlag.find seek on globalSeqId
+		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
 		final AnimFlag rotationTimeline = find("Rotation", trackGlobalSeq);
 		if (rotationTimeline == null) {
 			return;
@@ -436,52 +324,24 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 		if ((floorIndex != -1) && (rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex) == trackTime)) {
 			// we must change it
-			final Quat oldTranslationValue = (Quat) rotationTimeline.getValues()
-					.get(floorIndex);
-			rotationHeap.x = oldTranslationValue.x;
-			rotationHeap.y = oldTranslationValue.y;
-			rotationHeap.z = oldTranslationValue.z;
-			rotationHeap.w = oldTranslationValue.w;
-			localRotation.mul(rotationHeap, rotationHeap);
-
-			oldTranslationValue.x = rotationHeap.x;
-			oldTranslationValue.y = rotationHeap.y;
-			oldTranslationValue.z = rotationHeap.z;
-			oldTranslationValue.w = rotationHeap.w;
+			final Quat oldTranslationValue = (Quat) rotationTimeline.getValues().get(floorIndex);
+			setStuff(oldTranslationValue, localRotation);
 
 			if (rotationTimeline.tans()) {
 				final Quat oldInTan = (Quat) rotationTimeline.getInTans().get(floorIndex);
-				rotationHeap.x = oldInTan.x;
-				rotationHeap.y = oldInTan.y;
-				rotationHeap.z = oldInTan.z;
-				rotationHeap.w = oldInTan.w;
-				localRotation.mul(rotationHeap, rotationHeap);
-				oldInTan.x = rotationHeap.x;
-				oldInTan.y = rotationHeap.y;
-				oldInTan.z = rotationHeap.z;
-				oldInTan.w = rotationHeap.w;
+				setStuff(oldInTan, localRotation);
 
 				final Quat oldOutTan = (Quat) rotationTimeline.getOutTans().get(floorIndex);
-				rotationHeap.x = oldOutTan.x;
-				rotationHeap.y = oldOutTan.y;
-				rotationHeap.z = oldOutTan.z;
-				rotationHeap.w = oldOutTan.w;
-				localRotation.mul(rotationHeap, rotationHeap);
-				oldOutTan.x = rotationHeap.x;
-				oldOutTan.y = rotationHeap.y;
-				oldOutTan.z = rotationHeap.z;
-				oldOutTan.w = rotationHeap.w;
+				setStuff(oldOutTan, localRotation);
 			}
 		}
 	}
 
-	public void updateLocalRotationKeyframeInverse(final int trackTime, final Integer trackGlobalSeq,
-			final Quat localRotation) {
+	public void updateLocalRotationKeyframeInverse(final int trackTime, final Integer trackGlobalSeq, final Quat localRotation) {
 		// Note to future author: the reason for saved local rotation is that
 		// we would like to be able to undo the action of rotating the animation data
 
-		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
-		// make AnimFlag.find seek on globalSeqId
+		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
 		final AnimFlag rotationTimeline = find("Rotation", trackGlobalSeq);
 		if (rotationTimeline == null) {
 			return;
@@ -490,55 +350,22 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 		if ((floorIndex != -1) && (rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex) == trackTime)) {
 			// we must change it
-			final Quat oldTranslationValue = (Quat) rotationTimeline.getValues()
-					.get(floorIndex);
-			rotationHeap.x = oldTranslationValue.x;
-			rotationHeap.y = oldTranslationValue.y;
-			rotationHeap.z = oldTranslationValue.z;
-			rotationHeap.w = oldTranslationValue.w;
-			rotationDeltaHeap.setIdentity();
-			rotationDeltaHeap.mulInverse(localRotation);
-			rotationDeltaHeap.mul(rotationHeap, rotationHeap);
-
-			oldTranslationValue.x = rotationHeap.x;
-			oldTranslationValue.y = rotationHeap.y;
-			oldTranslationValue.z = rotationHeap.z;
-			oldTranslationValue.w = rotationHeap.w;
+			final Quat oldTranslationValue = (Quat) rotationTimeline.getValues().get(floorIndex);
+			rotateStuff(localRotation, oldTranslationValue);
 
 			if (rotationTimeline.tans()) {
 				final Quat oldInTan = (Quat) rotationTimeline.getInTans().get(floorIndex);
-				rotationHeap.x = oldInTan.x;
-				rotationHeap.y = oldInTan.y;
-				rotationHeap.z = oldInTan.z;
-				rotationHeap.w = oldInTan.w;
-				rotationDeltaHeap.setIdentity();
-				rotationDeltaHeap.mulInverse(localRotation);
-				rotationDeltaHeap.mul(rotationHeap, rotationHeap);
-				oldInTan.x = rotationHeap.x;
-				oldInTan.y = rotationHeap.y;
-				oldInTan.z = rotationHeap.z;
-				oldInTan.w = rotationHeap.w;
+				rotateStuff(localRotation, oldInTan);
 
 				final Quat oldOutTan = (Quat) rotationTimeline.getOutTans().get(floorIndex);
-				rotationHeap.x = oldOutTan.x;
-				rotationHeap.y = oldOutTan.y;
-				rotationHeap.z = oldOutTan.z;
-				rotationHeap.w = oldOutTan.w;
-				rotationDeltaHeap.setIdentity();
-				rotationDeltaHeap.mulInverse(localRotation);
-				rotationDeltaHeap.mul(rotationHeap, rotationHeap);
-				oldOutTan.x = rotationHeap.x;
-				oldOutTan.y = rotationHeap.y;
-				oldOutTan.z = rotationHeap.z;
-				oldOutTan.w = rotationHeap.w;
+				rotateStuff(localRotation, oldOutTan);
 			}
 		}
 	}
 
 	public void updateLocalTranslationKeyframe(final int trackTime, final Integer trackGlobalSeq,
 			final double newDeltaX, final double newDeltaY, final double newDeltaZ) {
-		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
-		// make AnimFlag.find seek on globalSeqId
+		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
 		final AnimFlag translationFlag = find("Translation", trackGlobalSeq);
 		if (translationFlag == null) {
 			return;
@@ -548,20 +375,14 @@ public abstract class AnimatedNode extends TimelineContainer {
 		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
 			// we must change it
 			final Vec3 oldTranslationValue = (Vec3) translationFlag.getValues().get(floorIndex);
-			oldTranslationValue.x += newDeltaX;
-			oldTranslationValue.y += newDeltaY;
-			oldTranslationValue.z += newDeltaZ;
+			addTo(oldTranslationValue, newDeltaX, newDeltaY, newDeltaZ);
 
 			if (translationFlag.tans()) {
 				final Vec3 oldInTan = (Vec3) translationFlag.getInTans().get(floorIndex);
-				oldInTan.x += newDeltaX;
-				oldInTan.y += newDeltaY;
-				oldInTan.z += newDeltaZ;
+				addTo(oldInTan, newDeltaX, newDeltaY, newDeltaZ);
 
 				final Vec3 oldOutTan = (Vec3) translationFlag.getOutTans().get(floorIndex);
-				oldOutTan.x += newDeltaX;
-				oldOutTan.y += newDeltaY;
-				oldOutTan.z += newDeltaZ;
+				addTo(oldOutTan, newDeltaX, newDeltaY, newDeltaZ);
 			}
 		}
 
@@ -569,8 +390,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 	public void updateLocalScalingKeyframe(final int trackTime, final Integer trackGlobalSeq,
 			final Vec3 localScaling) {
-		// TODO global seqs, needs separate check on AnimRendEnv, and also we must
-		// make AnimFlag.find seek on globalSeqId
+		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
 		final AnimFlag translationFlag = find("Scaling", trackGlobalSeq);
 		if (translationFlag == null) {
 			return;
@@ -580,22 +400,62 @@ public abstract class AnimatedNode extends TimelineContainer {
 		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
 			// we must change it
 			final Vec3 oldTranslationValue = (Vec3) translationFlag.getValues().get(floorIndex);
-			oldTranslationValue.x *= localScaling.x;
-			oldTranslationValue.y *= localScaling.y;
-			oldTranslationValue.z *= localScaling.z;
+			scaleBy(oldTranslationValue, localScaling.x, localScaling.y, localScaling.z);
 
 			if (translationFlag.tans()) {
 				final Vec3 oldInTan = (Vec3) translationFlag.getInTans().get(floorIndex);
-				oldInTan.x *= localScaling.x;
-				oldInTan.y *= localScaling.y;
-				oldInTan.z *= localScaling.z;
+				scaleBy(oldInTan, localScaling.x, localScaling.y, localScaling.z);
 
 				final Vec3 oldOutTan = (Vec3) translationFlag.getOutTans().get(floorIndex);
-				oldOutTan.x *= localScaling.x;
-				oldOutTan.y *= localScaling.y;
-				oldOutTan.z *= localScaling.z;
+				scaleBy(oldOutTan, localScaling.x, localScaling.y, localScaling.z);
 			}
 		}
 
+	}
+
+
+	private void setFloat(double newDeltaX, double newDeltaY, double newDeltaZ) {
+		setXYZ(translationHeap, (float) (newDeltaX), (float) (newDeltaY), (float) (newDeltaZ));
+		translationHeap.w = 1;
+	}
+
+	private void addTo(Vec3 vec3Value, double x, double y, double z) {
+		vec3Value.x += x;
+		vec3Value.y += y;
+		vec3Value.z += z;
+	}
+
+	private void scaleBy(Vec3 vec3Value, float x, float y, float z) {
+		vec3Value.x *= x;
+		vec3Value.y *= y;
+		vec3Value.z *= z;
+	}
+
+	private void setXYZ(Vec4 vecHeap, float x, float y, float z) {
+		vecHeap.x = x;
+		vecHeap.y = y;
+		vecHeap.z = z;
+	}
+
+	private void setStuff(Quat oldTan, Quat rotation) {
+		setXYZ(rotationHeap, oldTan.x, oldTan.y, oldTan.z);
+		rotationHeap.w = oldTan.w;
+
+		rotation.mul(rotationHeap, rotationHeap);
+
+		setXYZ(oldTan, rotationHeap.x, rotationHeap.y, rotationHeap.z);
+		oldTan.w = rotationHeap.w;
+	}
+
+	private void rotateStuff(Quat localRotation, Quat oldInTan) {
+		setXYZ(rotationHeap, oldInTan.x, oldInTan.y, oldInTan.z);
+		rotationHeap.w = oldInTan.w;
+
+		rotationDeltaHeap.setIdentity();
+		rotationDeltaHeap.mulInverse(localRotation);
+		rotationDeltaHeap.mul(rotationHeap, rotationHeap);
+
+		setXYZ(oldInTan, rotationHeap.x, rotationHeap.y, rotationHeap.z);
+		oldInTan.w = rotationHeap.w;
 	}
 }
