@@ -72,7 +72,8 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 			final Quat keyframeValue = new Quat(localRotation);
 			rotationTimeline.getValues().add(insertIndex, keyframeValue);
-			if (rotationTimeline.tans()) {
+//			if (rotationTimeline.tans()) {
+			if (rotationTimeline.interpolationType.tangential()) {
 				final Quat inTan = new Quat(localRotation);
 				rotationTimeline.getInTans().add(insertIndex, inTan);
 
