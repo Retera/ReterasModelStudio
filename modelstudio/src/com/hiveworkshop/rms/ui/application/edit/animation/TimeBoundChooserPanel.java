@@ -167,8 +167,7 @@ public class TimeBoundChooserPanel extends JPanel {
 		final Animation selectedValue = animationBox.getSelectedValue();
 		if (result == JOptionPane.YES_OPTION) {
 			// del keys
-			selectedValue.clearData(modelView.getModel().getAllAnimFlags(),
-					modelView.getModel().sortedIdObjects(EventObject.class));
+			selectedValue.clearData(modelView.getModel().getAllAnimFlags(), modelView.getModel().sortedIdObjects(EventObject.class));
 		}
 		if (result != JOptionPane.CANCEL_OPTION) {
 			// del anim

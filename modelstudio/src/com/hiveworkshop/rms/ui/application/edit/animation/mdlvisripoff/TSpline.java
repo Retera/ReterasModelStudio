@@ -53,7 +53,7 @@ public class TSpline extends JPanel {
 		final int num;
 		len = timeline.size();
 		num = timeline.ceilIndex(currentFrame);
-		if ((num == 0) || (num >= (len - 1)) || (timeline.getInterpType() != InterpolationType.HERMITE)) {
+		if ((num == 0) || (num >= (len - 1)) || (timeline.getInterpolationType() != InterpolationType.HERMITE)) {
 			setVisible(false);
 			return;
 		}
@@ -136,7 +136,7 @@ public class TSpline extends JPanel {
 			der.calcDerivativeXD(1);
 			g.setColor(Color.BLACK);
 			i = 0;
-			final InterpolationType interpType = timeline.getInterpType();
+			final InterpolationType interpType = timeline.getInterpolationType();
 			do {
 				itd.set(der.tang);
 				TTan.assignSubscript(itd.value, 0, 100);
