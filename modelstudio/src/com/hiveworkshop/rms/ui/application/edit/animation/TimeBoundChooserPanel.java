@@ -220,18 +220,16 @@ public class TimeBoundChooserPanel extends JPanel {
 		final JRadioButton lengthButton = new JRadioButton("Length");
 		final JSpinner newAnimLength = new JSpinner(new SpinnerNumberModel(1000, 0, Integer.MAX_VALUE, 1));
 		final JRadioButton timeRangeButton = new JRadioButton("Time Range");
-		final Animation lastAnimation = modelView.getModel().getAnimsSize() == 0 ? null
-				: modelView.getModel().getAnim(modelView.getModel().getAnimsSize() - 1);
+		final Animation lastAnimation = modelView.getModel().getAnimsSize() == 0
+				? null : modelView.getModel().getAnim(modelView.getModel().getAnimsSize() - 1);
 		final int lastAnimationEnd = lastAnimation == null ? 0 : lastAnimation.getEnd();
-		final JSpinner newAnimTimeStart = new JSpinner(
-				new SpinnerNumberModel(lastAnimationEnd + 300, 0, Integer.MAX_VALUE, 1));
-		final JSpinner newAnimTimeEnd = new JSpinner(
-				new SpinnerNumberModel(lastAnimationEnd + 1300, 0, Integer.MAX_VALUE, 1));
+
+		final JSpinner newAnimTimeStart = new JSpinner(new SpinnerNumberModel(lastAnimationEnd + 300, 0, Integer.MAX_VALUE, 1));
+		final JSpinner newAnimTimeEnd = new JSpinner(new SpinnerNumberModel(lastAnimationEnd + 1300, 0, Integer.MAX_VALUE, 1));
 
 		newAnimLength.addChangeListener(e13 -> {
 			newAnimTimeStart.setValue(lastAnimationEnd + 300);
-			newAnimTimeEnd
-					.setValue(lastAnimationEnd + 300 + ((Number) newAnimLength.getValue()).intValue());
+			newAnimTimeEnd.setValue(lastAnimationEnd + 300 + ((Number) newAnimLength.getValue()).intValue());
 		});
 
 		final ButtonGroup newAnimBtnGrp = new ButtonGroup();
@@ -298,8 +296,7 @@ public class TimeBoundChooserPanel extends JPanel {
 
 	private void lengthButton(JRadioButton lengthButton, JSpinner newAnimLength, JRadioButton timeRangeButton, int lastAnimationEnd, JSpinner newAnimTimeStart, JSpinner newAnimTimeEnd) {
 		newAnimTimeStart.setValue(lastAnimationEnd + 300);
-		newAnimTimeEnd
-				.setValue(lastAnimationEnd + 300 + ((Number) newAnimLength.getValue()).intValue());
+		newAnimTimeEnd.setValue(lastAnimationEnd + 300 + ((Number) newAnimLength.getValue()).intValue());
 		timeRangeButton(lengthButton, newAnimLength, timeRangeButton, newAnimTimeStart, newAnimTimeEnd);
 	}
 
@@ -317,8 +314,7 @@ public class TimeBoundChooserPanel extends JPanel {
 		if (userChosenName != null) {
 			final Animation copyAnimation = new Animation(selectedAnimation);
 			final Animation lastAnim = modelView.getModel().getAnim(modelView.getModel().getAnimsSize() - 1);
-			copyAnimation.setInterval(lastAnim.getEnd() + 300,
-					lastAnim.getEnd() + 300 + selectedAnimation.length());
+			copyAnimation.setInterval(lastAnim.getEnd() + 300, lastAnim.getEnd() + 300 + selectedAnimation.length());
 			copyAnimation.setName(userChosenName);
 			modelView.getModel().add(copyAnimation);
 			selectedAnimation.copyToInterval(copyAnimation.getStart(), copyAnimation.getEnd(),

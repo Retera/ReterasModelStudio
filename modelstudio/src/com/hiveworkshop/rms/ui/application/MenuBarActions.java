@@ -33,7 +33,9 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.rtf.RTFEditorKit;
 import java.awt.*;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
@@ -43,15 +45,10 @@ public class MenuBarActions {
     static final ImageIcon POWERED_BY_HIVE = RMSIcons.loadHiveBrowserImageIcon("powered_by_hive.png");
 
     static void updateUIFromProgramPreferences(JCheckBoxMenuItem fetchPortraitsToo, List<ModelPanel> modelPanels, ProgramPreferences prefs, JCheckBoxMenuItem showNormals, JCheckBoxMenuItem showVertexModifyControls, JRadioButtonMenuItem solid, JCheckBoxMenuItem textureModels, JRadioButtonMenuItem wireframe) {
-        // prefs.setShowVertexModifierControls(showVertexModifyControls.isSelected());
         showVertexModifyControls.setSelected(prefs.isShowVertexModifierControls());
-        // prefs.setTextureModels(textureModels.isSelected());
         textureModels.setSelected(prefs.isTextureModels());
-        // prefs.setShowNormals(showNormals.isSelected());
         showNormals.setSelected(prefs.isShowNormals());
-        // prefs.setLoadPortraits(true);
         fetchPortraitsToo.setSelected(prefs.isLoadPortraits());
-        // prefs.setUseNativeMDXParser(useNativeMDXParser.isSelected());
         switch (prefs.getViewMode()) {
             case 0:
                 wireframe.setSelected(true);
@@ -63,12 +60,9 @@ public class MenuBarActions {
                 break;
         }
         for (final ModelPanel mpanel : modelPanels) {
-            mpanel.getEditorRenderModel()
-                    .setSpawnParticles((prefs.getRenderParticles() == null) || prefs.getRenderParticles());
-            mpanel.getEditorRenderModel().setAllowInanimateParticles(
-                    (prefs.getRenderStaticPoseParticles() == null) || prefs.getRenderStaticPoseParticles());
-            mpanel.getAnimationViewer()
-                    .setSpawnParticles((prefs.getRenderParticles() == null) || prefs.getRenderParticles());
+            mpanel.getEditorRenderModel().setSpawnParticles((prefs.getRenderParticles() == null) || prefs.getRenderParticles());
+            mpanel.getEditorRenderModel().setAllowInanimateParticles((prefs.getRenderStaticPoseParticles() == null) || prefs.getRenderStaticPoseParticles());
+            mpanel.getAnimationViewer().setSpawnParticles((prefs.getRenderParticles() == null) || prefs.getRenderParticles());
         }
     }
 
@@ -87,8 +81,8 @@ public class MenuBarActions {
             final CompoundDataSource gameDataFileSystem = GameDataFileSystem.getDefault();
             if (gameDataFileSystem.has("war3map.w3d")) {
                 editorData.load(new BlizzardDataInputStream(gameDataFileSystem.getResourceAsStream("war3map.w3d")),
-                        gameDataFileSystem.has("war3map.wts") ? new WTSFile(gameDataFileSystem.getResourceAsStream("war3map.wts"))
-                                : null,
+                        gameDataFileSystem.has("war3map.wts")
+                                ? new WTSFile(gameDataFileSystem.getResourceAsStream("war3map.wts")) : null,
                         true);
             }
         } catch (final IOException e) {
@@ -111,14 +105,12 @@ public class MenuBarActions {
         panel.setLayout(new BorderLayout());
         panel.add(BorderLayout.BEFORE_FIRST_LINE, new JLabel(POWERED_BY_HIVE));
 
-        final JList<String> view = new JList<>(
-                new String[]{"Bongo Bongo (Phantom Shadow Beast)", "Other Model", "Other Model"});
+        final JList<String> view = new JList<>(new String[] {"Bongo Bongo (Phantom Shadow Beast)", "Other Model", "Other Model"});
         view.setCellRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(final JList<?> list, final Object value,
                                                           final int index, final boolean isSelected, final boolean cellHasFocus) {
-                final Component listCellRendererComponent = super.getListCellRendererComponent(list, value, index,
-                        isSelected, cellHasFocus);
+                final Component listCellRendererComponent = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 final ImageIcon icon = new ImageIcon(MainPanel.class.getResource("ImageBin/deleteme.png"));
                 setIcon(new ImageIcon(icon.getImage().getScaledInstance(48, 32, Image.SCALE_DEFAULT)));
                 return listCellRendererComponent;
@@ -149,8 +141,8 @@ public class MenuBarActions {
         final ProgramPreferences programPreferences = new ProgramPreferences();
         programPreferences.loadFrom(mainPanel.prefs);
         final List<DataSourceDescriptor> priorDataSources = SaveProfile.get().getDataSources();
-        final ProgramPreferencesPanel programPreferencesPanel = new ProgramPreferencesPanel(programPreferences,
-                priorDataSources);
+        final ProgramPreferencesPanel programPreferencesPanel = new ProgramPreferencesPanel(programPreferences, priorDataSources);
+
         final int ret = JOptionPane.showConfirmDialog(mainPanel, programPreferencesPanel, "Preferences",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (ret == JOptionPane.OK_OPTION) {
@@ -263,8 +255,7 @@ public class MenuBarActions {
                 if (userChoice != JOptionPane.OK_OPTION) {
                     return;
                 }
-                ModelUtils.createBox(mdl, new Vec3(64, 64, 128), new Vec3(-64, -64, 0),
-                        ((Number) spinner.getValue()).intValue());
+                ModelUtils.createBox(mdl, new Vec3(64, 64, 128), new Vec3(-64, -64, 0), ((Number) spinner.getValue()).intValue());
             } else if (createPlaneButton.isSelected()) {
                 final SpinnerNumberModel sModel = new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1);
                 final JSpinner spinner = new JSpinner(sModel);
@@ -353,8 +344,8 @@ public class MenuBarActions {
                         throw new UnsupportedOperationException(ext + " saving has not been coded yet.");
                     String filepathBase = temp.getAbsolutePath();
                     mainPanel.currentFile = new File(
-                            (filepathBase.lastIndexOf('.') == -1 ? filepathBase :
-                                    filepathBase.substring(0, filepathBase.lastIndexOf('.')))
+                            (filepathBase.lastIndexOf('.') == -1
+                                    ? filepathBase : filepathBase.substring(0, filepathBase.lastIndexOf('.')))
                                     + ext);
 
                     if (temp.exists()) {

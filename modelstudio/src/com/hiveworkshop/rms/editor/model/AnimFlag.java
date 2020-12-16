@@ -293,13 +293,14 @@ public class AnimFlag {
 	}
 
 	private void setVectorSize(Object value) {
-//		Object value = values.get(0);
 		if (value instanceof float[]) {
 			vectorSize = ((float[]) value).length;
 		} else if (value instanceof Vec3) {
 			vectorSize = 3;
 		} else if (value instanceof Vec4) {
 			vectorSize = 4;
+		} else if (value.getClass().getName().equals("java.lang.Float")) {
+			vectorSize = 1;
 		} else {
 			isFloat = false;
 			vectorSize = ((long[]) value).length;
@@ -310,7 +311,7 @@ public class AnimFlag {
 		this.interpolationType = interpolationType;
 	}
 
-	public InterpolationType getInterpType() {
+	public InterpolationType getInterpolationType() {
 		return interpolationType;
 	}
 

@@ -370,8 +370,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	public void rawTranslate(final double x, final double y, final double z) {
-		// throw new UnsupportedOperationException("Unable to translate directly in
-		// animation mode, use other system");
+		// throw new UnsupportedOperationException("Unable to translate directly in animation mode, use other system");
 		for (final IdObject idObject : selectionManager.getSelection()) {
 			idObject.updateTranslationKeyframe(renderModel, x, y, z, new Vec3());
 		}
