@@ -92,25 +92,24 @@ public class ModelPanel implements ActionListener, MouseListener {
 		selectionItemTypeNotifier = notifier;
 		this.icon = icon;
 		viewportActivityManager = new ModelEditorViewportActivityManager(new DoNothingActivity());
+
 		modelEditorChangeNotifier = new ModelEditorChangeNotifier();
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
+
 		modelView = new ModelViewManager(input);
+
 		undoManager = new UndoManagerImpl(undoHandler);
 
 		editorRenderModel = new RenderModel(input, modelView);
 		editorRenderModel.setSpawnParticles((prefs.getRenderParticles() == null) || prefs.getRenderParticles());
 		editorRenderModel.setAllowInanimateParticles((prefs.getRenderStaticPoseParticles() == null) || prefs.getRenderStaticPoseParticles());
 
-		modelEditorManager = new ModelEditorManager(modelView, prefs, modeNotifier,
-				modelEditorChangeNotifier, viewportActivityManager, editorRenderModel,
-				modelStructureChangeListener);
+		modelEditorManager = new ModelEditorManager(modelView, prefs, modeNotifier, modelEditorChangeNotifier, viewportActivityManager, editorRenderModel, modelStructureChangeListener);
 
-		modelViewManagingTree = new ModelViewManagingTree(modelView, undoManager,
-				modelEditorManager);
+		modelViewManagingTree = new ModelViewManagingTree(modelView, undoManager, modelEditorManager);
 		modelViewManagingTree.setFocusable(false);
 
-		modelComponentBrowserTree = new ModelComponentBrowserTree(modelView, undoManager,
-				modelEditorManager, modelStructureChangeListener);
+		modelComponentBrowserTree = new ModelComponentBrowserTree(modelView, undoManager, modelEditorManager, modelStructureChangeListener);
 
 		selectionItemTypeNotifier.addToolbarButtonListener(modelEditorManager::setSelectionItemType);
 		// Produce the front display panel
@@ -137,47 +136,17 @@ public class ModelPanel implements ActionListener, MouseListener {
 
 		animationViewer = new ControlledAnimationViewer(modelView, prefs, !specialBLPModel);
 
-		animationController = new AnimationController(modelView, true, animationViewer,
-				animationViewer.getCurrentAnimation());
+		animationController = new AnimationController(modelView, true, animationViewer, animationViewer.getCurrentAnimation());
 
 		frontArea.setControlsVisible(prefs.showVMControls());
 		botArea.setControlsVisible(prefs.showVMControls());
 		sideArea.setControlsVisible(prefs.showVMControls());
 
 		perspArea = new PerspDisplayPanel("Perspective", modelView, prefs, editorRenderModel);
-		componentsPanel = new ComponentsPanel(textureExporter);
+
+		componentsPanel = new ComponentsPanel(getModelViewManager(), undoManager, modelStructureChangeListener, textureExporter);
 
 		modelComponentBrowserTree.addSelectListener(componentsPanel);
-		// perspAreaPanel.setMinimumSize(new Dimension(200,200));
-		// perspAreaPanel.add(Box.createHorizontalStrut(200));
-		// perspAreaPanel.add(Box.createVerticalStrut(200));
-		// perspAreaPanel.setLayout( new BoxLayout(this,BoxLayout.LINE_AXIS));
-		// botArea.setViewport(0,1);
-
-		// Hacky viewer
-		// frontArea.setVisible(false);
-		// sideArea.setVisible(false);
-		// botArea.setVisible(false);
-		// setLayout(new GridLayout(1,1));
-		// GroupLayout layout = new GroupLayout(this);
-		//
-		// layout.setHorizontalGroup(layout.createSequentialGroup()
-		// .addGroup(layout.createParallelGroup()
-		// .addComponent(frontArea)
-		// .addComponent(sideArea))
-		// .addGroup(layout.createParallelGroup()
-		// .addComponent(botArea)
-		// .addComponent(perspArea)));
-		// layout.setVerticalGroup(layout.createSequentialGroup()
-		// .addGroup(layout.createParallelGroup()
-		// .addComponent(frontArea)
-		// .addComponent(botArea))
-		// .addGroup(layout.createParallelGroup()
-		// .addComponent(sideArea)
-		// .addComponent(perspArea)));
-		// setLayout(layout);
-
-		// Create a file chooser
 	}
 
 	public RenderModel getEditorRenderModel() {
@@ -242,134 +211,6 @@ public class ModelPanel implements ActionListener, MouseListener {
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
-		// //Open, off of the file menu:
-		// if( e.getSource() == open )
-		// {
-		// int returnValue = fc.showOpenDialog(this);
-		//
-		// if( returnValue == JFileChooser.APPROVE_OPTION )
-		// {
-		// currentFile = fc.getSelectedFile();
-		// frontArea.clearGeosets();
-		// sideArea.clearGeosets();
-		// botArea.clearGeosets();
-		// modelMenu.getAccessibleContext().setAccessibleDescription("Allows the
-		// user to control which parts of the model are displayed for
-		// editing.");
-		// modelMenu.setEnabled(true);
-		// loadFile(currentFile);
-		// }
-		//
-		// fc.setSelectedFile(null);
-		//
-		// // //Special thanks to the JWSFileChooserDemo from oracle's Java
-		// tutorials, from which many ideas were borrowed for the following
-		// // FileOpenService fos = null;
-		// // FileContents fileContents = null;
-		// //
-		// // try
-		// // {
-		// // fos =
-		// (FileOpenService)ServiceManager.lookup("javax.jnlp.FileOpenService");
-		// // }
-		// // catch (UnavailableServiceException exc )
-		// // {
-		// //
-		// // }
-		// //
-		// // if( fos != null )
-		// // {
-		// // try
-		// // {
-		// // fileContents = fos.openFileDialog(null, null);
-		// // }
-		// // catch (Exception exc )
-		// // {
-		// // JOptionPane.showMessageDialog(this,"Opening command failed:
-		// "+exc.getLocalizedMessage());
-		// // }
-		// // }
-		// //
-		// // if( fileContents != null)
-		// // {
-		// // try
-		// // {
-		// // fileContents.getName();
-		// // }
-		// // catch (IOException exc)
-		// // {
-		// // JOptionPane.showMessageDialog(this,"Problem opening file:
-		// "+exc.getLocalizedMessage());
-		// // }
-		// // }
-		// }
-		// if( e.getSource() == importButton )
-		// {
-		// int returnValue = fc.showOpenDialog(this);
-		//
-		// if( returnValue == JFileChooser.APPROVE_OPTION )
-		// {
-		// currentFile = fc.getSelectedFile();
-		// modelMenu.getAccessibleContext().setAccessibleDescription("Allows the
-		// user to control which parts of the model are displayed for
-		// editing.");
-		// modelMenu.setEnabled(true);
-		// loadFile(currentFile);
-		// }
-		//
-		// fc.setSelectedFile(null);
-		//
-		// // //Special thanks to the JWSFileChooserDemo from oracle's Java
-		// tutorials, from which many ideas were borrowed for the following
-		// // FileOpenService fos = null;
-		// // FileContents fileContents = null;
-		// //
-		// // try
-		// // {
-		// // fos =
-		// (FileOpenService)ServiceManager.lookup("javax.jnlp.FileOpenService");
-		// // }
-		// // catch (UnavailableServiceException exc )
-		// // {
-		// //
-		// // }
-		// //
-		// // if( fos != null )
-		// // {
-		// // try
-		// // {
-		// // fileContents = fos.openFileDialog(null, null);
-		// // }
-		// // catch (Exception exc )
-		// // {
-		// // JOptionPane.showMessageDialog(this,"Opening command failed:
-		// "+exc.getLocalizedMessage());
-		// // }
-		// // }
-		// //
-		// // if( fileContents != null)
-		// // {
-		// // try
-		// // {
-		// // fileContents.getName();
-		// // }
-		// // catch (IOException exc)
-		// // {
-		// // JOptionPane.showMessageDialog(this,"Problem opening file:
-		// "+exc.getLocalizedMessage());
-		// // }
-		// // }
-		// }
-		// for( int i = 0; i < geoItems.size(); i++ )
-		// {
-		// JCheckBoxMenuItem geoItem = (JCheckBoxMenuItem)geoItems.get(i);
-		// if( e.getSource() == geoItem )
-		// {
-		// frontArea.setGeosetVisible(i,geoItem.isSelected());
-		// frontArea.setGeosetHighlight(i,false);
-		// }
-		// repaint();
-		// }
 	}
 
 	public boolean close(final ModelPanelCloseListener listener)// MainPanel parent) TODO fix
@@ -414,27 +255,22 @@ public class ModelPanel implements ActionListener, MouseListener {
 
 	@Override
 	public void mouseEntered(final MouseEvent e) {
-
 	}
 
 	@Override
 	public void mouseExited(final MouseEvent e) {
-
 	}
 
 	@Override
 	public void mousePressed(final MouseEvent e) {
-
 	}
 
 	@Override
 	public void mouseReleased(final MouseEvent e) {
-
 	}
 
 	@Override
 	public void mouseClicked(final MouseEvent e) {
-
 	}
 
 	public DisplayPanel getFrontArea() {

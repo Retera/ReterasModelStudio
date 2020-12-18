@@ -14,57 +14,39 @@ public class FloatTrackTableModel extends AbstractTableModel {
 	@Override
 	public String getColumnName(final int column) {
 		if ((track != null) && track.tans()) {
-			switch (column) {
-			case 0:
-				return "Keyframe";
-			case 1:
-				return "Value";
-			case 2:
-				return "InTan";
-			case 3:
-				return "OutTan";
-			case 4:
-				return "Delete";
-			}
+			return switch (column) {
+				case 0 -> "Keyframe";
+				case 1 -> "Value";
+				case 2 -> "InTan";
+				case 3 -> "OutTan";
+				case 4 -> "Delete";
+				default -> null;
+			};
 		} else {
-			switch (column) {
-			case 0:
-				return "Keyframe";
-			case 1:
-				return "Value";
-			case 2:
-				return "Delete";
-			}
+			return switch (column) {
+				case 0 -> "Keyframe";
+				case 1 -> "Value";
+				case 2 -> "Delete";
+				default -> null;
+			};
 		}
-		return null;
 	}
 
 	@Override
 	public Class<?> getColumnClass(final int columnIndex) {
 		if ((track != null) && track.tans()) {
-			switch (columnIndex) {
-			case 0:
-				return Float.class;
-			case 1:
-				return Float.class;
-			case 2:
-				return Float.class;
-			case 3:
-				return Float.class;
-			case 4:
-				return String.class;
-			}
+			return switch (columnIndex) {
+				case 0, 1, 2, 3 -> Float.class;
+				case 4 -> String.class;
+				default -> super.getColumnClass(columnIndex);
+			};
 		} else {
-			switch (columnIndex) {
-			case 0:
-				return Float.class;
-			case 1:
-				return Float.class;
-			case 2:
-				return String.class;
-			}
+			return switch (columnIndex) {
+				case 0, 1 -> Float.class;
+				case 2 -> String.class;
+				default -> super.getColumnClass(columnIndex);
+			};
 		}
-		return super.getColumnClass(columnIndex);
 	}
 
 	@Override
@@ -89,29 +71,22 @@ public class FloatTrackTableModel extends AbstractTableModel {
 			return null;
 		}
 		if (track.tans()) {
-			switch (columnIndex) {
-			case 0:
-				return track.getTimes().get(rowIndex);
-			case 1:
-				return track.getValues().get(rowIndex);
-			case 2:
-				return track.getInTans().get(rowIndex);
-			case 3:
-				return track.getOutTans().get(rowIndex);
-			case 4:
-				return "Delete";
-			}
+			return switch (columnIndex) {
+				case 0 -> track.getTimes().get(rowIndex);
+				case 1 -> track.getValues().get(rowIndex);
+				case 2 -> track.getInTans().get(rowIndex);
+				case 3 -> track.getOutTans().get(rowIndex);
+				case 4 -> "Delete";
+				default -> null;
+			};
 		} else {
-			switch (columnIndex) {
-			case 0:
-				return track.getTimes().get(rowIndex);
-			case 1:
-				return track.getValues().get(rowIndex);
-			case 2:
-				return "Delete";
-			}
+			return switch (columnIndex) {
+				case 0 -> track.getTimes().get(rowIndex);
+				case 1 -> track.getValues().get(rowIndex);
+				case 2 -> "Delete";
+				default -> null;
+			};
 		}
-		return null;
 	}
 
 	public void setTrack(final AnimFlag track) {

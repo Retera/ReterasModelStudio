@@ -2,8 +2,8 @@ package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxEventObject;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -112,12 +112,12 @@ public class EventObject extends IdObject {
 	public void timeScale(final int start, final int end, final int newStart, final int newEnd) {
 		// Timescales a part of the AnimFlag from section "start" to "end" into
 		// the new time "newStart" to "newEnd"
-		for (final Integer inte : eventTrack) {
-			final int i = inte;
+		for (final Integer integer : eventTrack) {
+			final int i = integer;
 			if ((i >= start) && (i <= end)) {
 				// If this "i" is a part of the anim being rescaled
 				final double ratio = (double) (i - start) / (double) (end - start);
-				eventTrack.set(eventTrack.indexOf(inte), (int) (newStart + (ratio * (newEnd - newStart))));
+				eventTrack.set(eventTrack.indexOf(integer), (int) (newStart + (ratio * (newEnd - newStart))));
 			}
 		}
 
@@ -130,8 +130,8 @@ public class EventObject extends IdObject {
 						 final int newEnd) {
 		// Timescales a part of the AnimFlag from section "start" to "end" into
 		// the new time "newStart" to "newEnd"
-		for (final Integer inte : source.eventTrack) {
-			final int i = inte;
+		for (final Integer integer : source.eventTrack) {
+			final int i = integer;
 			if ((i >= start) && (i <= end)) {
 				// If this "i" is a part of the anim being rescaled
 				final double ratio = (double) (i - start) / (double) (end - start);

@@ -69,16 +69,27 @@ public class DisplayPanel extends JPanel implements ActionListener {
 		right = addButton(16, 32, "ArrowRight.png");
 
 		final GroupLayout layout = new GroupLayout(this);
-		layout.setHorizontalGroup(layout.createSequentialGroup().addComponent(vp)
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(plusZoom)
+		layout.setHorizontalGroup(layout.createSequentialGroup()
+				.addComponent(vp)
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+						.addComponent(plusZoom)
 						.addComponent(minusZoom)
-						.addGroup(layout.createSequentialGroup().addComponent(left).addGroup(layout
-								.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(up).addComponent(down))
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(left)
+								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+										.addComponent(up)
+										.addComponent(down))
 								.addComponent(right))));
-		layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(vp)
-				.addGroup(layout.createSequentialGroup().addComponent(plusZoom).addGap(16).addComponent(minusZoom)
-						.addGap(16).addComponent(up).addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-								.addComponent(left).addComponent(right))
+
+		layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+				.addComponent(vp)
+				.addGroup(layout.createSequentialGroup()
+						.addComponent(plusZoom).addGap(16)
+						.addComponent(minusZoom).addGap(16)
+						.addComponent(up)
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+								.addComponent(left)
+								.addComponent(right))
 						.addComponent(down)));
 
 		setLayout(layout);

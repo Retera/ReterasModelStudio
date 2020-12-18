@@ -215,35 +215,34 @@ public class MPQBrowserView {
         return vertex;
     }
 
-    public static void loadModel(MainPanel mainPanel, final boolean temporary, final boolean selectNewTab, final ModelPanel temp) {
-        if (temporary) {
-            temp.getModelViewManager().getModel().setTemp(true);
-        }
-        final ModelPanel modelPanel = temp;
-        final JMenuItem menuItem = new JMenuItem(temp.getModel().getName());
-        menuItem.setIcon(temp.getIcon());
-        mainPanel.windowMenu.add(menuItem);
-        menuItem.addActionListener(e -> setCurrentModel(mainPanel, modelPanel));
-        temp.setJMenuItem(menuItem);
-        temp.getModelViewManager().addStateListener(new RepaintingModelStateListener(mainPanel));
-        temp.changeActivity(mainPanel.currentActivity);
+    public static void loadModel(MainPanel mainPanel, final boolean temporary, final boolean selectNewTab, final ModelPanel modelPanel) {
+	    if (temporary) {
+		    modelPanel.getModelViewManager().getModel().setTemp(true);
+	    }
+	    final JMenuItem menuItem = new JMenuItem(modelPanel.getModel().getName());
+	    menuItem.setIcon(modelPanel.getIcon());
+	    mainPanel.windowMenu.add(menuItem);
+	    menuItem.addActionListener(e -> setCurrentModel(mainPanel, modelPanel));
+	    modelPanel.setJMenuItem(menuItem);
+	    modelPanel.getModelViewManager().addStateListener(new RepaintingModelStateListener(mainPanel));
+	    modelPanel.changeActivity(mainPanel.currentActivity);
 
-        if (mainPanel.geoControl == null) {
-            mainPanel.geoControl = new JScrollPane(temp.getModelViewManagingTree());
-            mainPanel.viewportControllerWindowView.setComponent(mainPanel.geoControl);
-            mainPanel.viewportControllerWindowView.repaint();
-            mainPanel.geoControlModelData = new JScrollPane(temp.getModelComponentBrowserTree());
-            mainPanel.modelDataView.setComponent(mainPanel.geoControlModelData);
-            mainPanel.modelComponentView.setComponent(temp.getComponentsPanel());
-            mainPanel.modelDataView.repaint();
-        }
+	    if (mainPanel.geoControl == null) {
+		    mainPanel.geoControl = new JScrollPane(modelPanel.getModelViewManagingTree());
+		    mainPanel.viewportControllerWindowView.setComponent(mainPanel.geoControl);
+		    mainPanel.viewportControllerWindowView.repaint();
+		    mainPanel.geoControlModelData = new JScrollPane(modelPanel.getModelComponentBrowserTree());
+		    mainPanel.modelDataView.setComponent(mainPanel.geoControlModelData);
+		    mainPanel.modelComponentView.setComponent(modelPanel.getComponentsPanel());
+		    mainPanel.modelDataView.repaint();
+	    }
         if (selectNewTab) {
-            temp.getMenuItem().doClick();
+	        modelPanel.getMenuItem().doClick();
         }
-        mainPanel.modelPanels.add(temp);
+	    mainPanel.modelPanels.add(modelPanel);
 
         if (temporary) {
-            temp.getModelViewManager().getModel().setFileRef(null);
+	        modelPanel.getModelViewManager().getModel().setFileRef(null);
         }
 
         mainPanel.toolsMenu.setEnabled(true);
@@ -389,7 +388,7 @@ public class MPQBrowserView {
 
     public static void loadStreamMdx(MainPanel mainPanel, final InputStream f, final boolean temporary, final boolean selectNewTab,
                                      final ImageIcon icon) {
-        ModelPanel temp = null;
+        ModelPanel temp;
         try {
             final EditableModel model = MdxUtils.loadEditable(f);
             model.setFileRef(null);
@@ -443,8 +442,10 @@ public class MPQBrowserView {
         if (e.getClickCount() >= 2) {
             final TreePath currentUnitTreePath = unitEditorTree.getSelectionPath();
             if (currentUnitTreePath != null) {
+
                 final DefaultMutableTreeNode o = (DefaultMutableTreeNode) currentUnitTreePath .getLastPathComponent();
                 if (o.getUserObject() instanceof MutableObjectData.MutableGameObject) {
+
                     final MutableObjectData.MutableGameObject obj = (MutableObjectData.MutableGameObject) o.getUserObject();
                     final int numberOfVariations = obj.getFieldAsInteger(War3ID.fromString("dvar"), 0);
                     if (numberOfVariations > 1) {
@@ -467,66 +468,49 @@ public class MPQBrowserView {
     static void fetchObject(MainPanel mainPanel) {
         final MutableObjectData.MutableGameObject objectFetched = ImportFileActions.fetchObject(mainPanel);
         if (objectFetched != null) {
+
             final String filepath = ImportFileActions.convertPathToMDX(objectFetched.getFieldAsString(UnitFields.MODEL_FILE, 0));
-            if (filepath != null) {
-                loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(filepath), true, true,
-                        new ImageIcon(BLPHandler.get()
-                                .getGameTex(objectFetched.getFieldAsString(UnitFields.INTERFACE_ICON, 0))
-                                .getScaledInstance(16, 16, Image.SCALE_FAST)));
-                final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
-                        + filepath.substring(filepath.lastIndexOf('.'));
-                if (mainPanel.prefs.isLoadPortraits() && GameDataFileSystem.getDefault().has(portrait)) {
-                    loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(portrait), true, false,
-                            new ImageIcon(BLPHandler.get()
-                                    .getGameTex(objectFetched.getFieldAsString(UnitFields.INTERFACE_ICON, 0))
-                                    .getScaledInstance(16, 16, Image.SCALE_FAST)));
-                }
-                mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
-                        "Allows the user to control which parts of the model are displayed for editing.");
-                mainPanel.toolsMenu.setEnabled(true);
-            }
+            final ImageIcon icon = new ImageIcon(BLPHandler.get().getGameTex(objectFetched.getFieldAsString(UnitFields.INTERFACE_ICON, 0)).getScaledInstance(16, 16, Image.SCALE_FAST));
+
+            loadFromStream(mainPanel, filepath, icon);
         }
     }
 
     static void fetchModel(MainPanel mainPanel) {
         final ModelOptionPane.ModelElement model = ImportFileActions.fetchModel(mainPanel);
         if (model != null) {
-            final String filepath = ImportFileActions.convertPathToMDX(model.getFilepath());
-            if (filepath != null) {
 
-                final ImageIcon icon = model.hasCachedIconPath() ? new ImageIcon(BLPHandler.get()
-                        .getGameTex(model.getCachedIconPath()).getScaledInstance(16, 16, Image.SCALE_FAST))
-                        : MDLIcon;
-                loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(filepath), true, true, icon);
-                final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
-                        + filepath.substring(filepath.lastIndexOf('.'));
-                if (mainPanel.prefs.isLoadPortraits() && GameDataFileSystem.getDefault().has(portrait)) {
-                    loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(portrait), true, false, icon);
-                }
-                mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
-                        "Allows the user to control which parts of the model are displayed for editing.");
-                mainPanel.toolsMenu.setEnabled(true);
-            }
+            final String filepath = ImportFileActions.convertPathToMDX(model.getFilepath());
+            final ImageIcon icon = model.hasCachedIconPath() ? new ImageIcon(BLPHandler.get().getGameTex(model.getCachedIconPath()).getScaledInstance(16, 16, Image.SCALE_FAST)) : MDLIcon;
+
+            loadFromStream(mainPanel, filepath, icon);
         }
     }
 
     static void fetchUnit(MainPanel mainPanel) {
         final GameObject unitFetched = ImportFileActions.fetchUnit(mainPanel);
         if (unitFetched != null) {
+
             final String filepath = ImportFileActions.convertPathToMDX(unitFetched.getField("file"));
-            if (filepath != null) {
-                loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(filepath), true, true,
-                        unitFetched.getScaledIcon(0.25f));
-                final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
-                        + filepath.substring(filepath.lastIndexOf('.'));
-                if (mainPanel.prefs.isLoadPortraits() && GameDataFileSystem.getDefault().has(portrait)) {
-                    loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(portrait), true, false,
-                            unitFetched.getScaledIcon(0.25f));
-                }
-                mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
-                        "Allows the user to control which parts of the model are displayed for editing.");
-                mainPanel.toolsMenu.setEnabled(true);
+            final ImageIcon icon = unitFetched.getScaledIcon(0.25f);
+
+            loadFromStream(mainPanel, filepath, icon);
+        }
+    }
+
+    private static void loadFromStream(MainPanel mainPanel, String filepath, ImageIcon icon) {
+        if (filepath != null) {
+
+            loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(filepath), true, true, icon);
+
+            final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait" + filepath.substring(filepath.lastIndexOf('.'));
+
+            if (mainPanel.prefs.isLoadPortraits() && GameDataFileSystem.getDefault().has(portrait)) {
+                loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(portrait), true, false, icon);
             }
+            mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
+                    "Allows the user to control which parts of the model are displayed for editing.");
+            mainPanel.toolsMenu.setEnabled(true);
         }
     }
 }

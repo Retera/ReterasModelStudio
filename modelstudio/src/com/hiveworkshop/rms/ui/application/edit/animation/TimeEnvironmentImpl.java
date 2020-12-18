@@ -18,9 +18,8 @@ public class TimeEnvironmentImpl implements AnimatedRenderEnvironment, TimeBound
 		controllableTimeBoundProvider.setStart(startTime);
 
 		if (globalSequenceLength == -1) {
-			if (currentTime < startTime) {
-				currentTime = startTime;
-			}
+			currentTime = Math.min(startTime, currentTime);
+
 			notifier.timeBoundsChanged(controllableTimeBoundProvider.getStart(),
 					controllableTimeBoundProvider.getEnd());
 		}
@@ -29,9 +28,7 @@ public class TimeEnvironmentImpl implements AnimatedRenderEnvironment, TimeBound
 	public void setEnd(final int endTime) {
 		controllableTimeBoundProvider.setEnd(endTime);
 		if (globalSequenceLength == -1) {
-			if (currentTime > endTime) {
-				currentTime = endTime;
-			}
+			currentTime = Math.min(endTime, currentTime);
 			notifier.timeBoundsChanged(controllableTimeBoundProvider.getStart(),
 					controllableTimeBoundProvider.getEnd());
 		}

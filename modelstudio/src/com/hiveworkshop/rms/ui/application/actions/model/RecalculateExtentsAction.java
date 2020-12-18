@@ -1,15 +1,15 @@
 package com.hiveworkshop.rms.ui.application.actions.model;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.ExtLog;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class RecalculateExtentsAction implements UndoAction {
 	private final ModelView modelView;
@@ -33,24 +33,13 @@ public class RecalculateExtentsAction implements UndoAction {
 			if (boundsRadius > maximumBoundsRadius) {
 				maximumBoundsRadius = boundsRadius;
 			}
-			if (maximumExtent.x > maxX) {
-				maxX = maximumExtent.x;
-			}
-			if (maximumExtent.y > maxY) {
-				maxY = maximumExtent.y;
-			}
-			if (maximumExtent.z > maxZ) {
-				maxZ = maximumExtent.z;
-			}
-			if (minimumExtent.x < minX) {
-				minX = minimumExtent.x;
-			}
-			if (minimumExtent.y < minY) {
-				minY = minimumExtent.y;
-			}
-			if (minimumExtent.z < minZ) {
-				minZ = minimumExtent.z;
-			}
+			maxX = Math.max(maximumExtent.x, maxX);
+			maxY = Math.max(maximumExtent.y, maxY);
+			maxZ = Math.max(maximumExtent.z, maxZ);
+
+			minX = Math.min(minimumExtent.x, minX);
+			minY = Math.min(minimumExtent.y, minY);
+			minZ = Math.min(minimumExtent.z, minZ);
 		}
 		newModelExtents = new ExtLog(new Vec3(minX, minY, minZ), new Vec3(maxX, maxY, maxZ), maximumBoundsRadius);
 

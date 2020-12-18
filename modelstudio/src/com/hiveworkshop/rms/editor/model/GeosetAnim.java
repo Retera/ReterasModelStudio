@@ -1,11 +1,11 @@
 package com.hiveworkshop.rms.editor.model;
 
-import java.util.List;
-
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxGeosetAnimation;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.List;
 
 /**
  * The geoset anims, heaven forbid they be forgotten.
@@ -162,12 +162,9 @@ public class GeosetAnim extends TimelineContainer implements Named {
 		for (final Animation a : mdlr.getAnims()) {
 			if (newVisFlag != null) {
 				if (!newVisFlag.hasGlobalSeq()) {
-					newVisFlag.deleteAnim(a);// All entries for
-					// visibility are
-					// deleted from
-					// original-based
-					// sources during
-					// imported animation
+					newVisFlag.deleteAnim(a);
+					// All entries for visibility are deleted from
+					// original-based sources during imported animation
 					// times
 				}
 			}

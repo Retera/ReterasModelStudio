@@ -9,7 +9,7 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
-public class ComponentGlobalSequencePanel extends JPanel {
+public class ComponentGlobalSequencePanel extends JPanel implements ComponentPanel<EditableModel> {
 	private final JLabel indexLabel;
 	private final ComponentEditorJSpinner lengthSpinner;
 	private EditableModel model;
@@ -21,13 +21,7 @@ public class ComponentGlobalSequencePanel extends JPanel {
 	public ComponentGlobalSequencePanel() {
 		setLayout(new MigLayout());
 		lengthSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
-		lengthSpinner.addActionListener(() -> {
-            final SetGlobalSequenceLengthAction setGlobalSequenceLengthAction = new SetGlobalSequenceLengthAction(
-                    model, globalSequenceId, value, ((Number) lengthSpinner.getValue()).intValue(),
-                    modelStructureChangeListener);
-            setGlobalSequenceLengthAction.redo();
-            undoActionListener.pushAction(setGlobalSequenceLengthAction);
-        });
+		lengthSpinner.addActionListener(() -> lengthSpinner());
 		add(new JLabel("GlobalSequence "), "cell 0 0");
 
 		indexLabel = new JLabel();
@@ -37,9 +31,17 @@ public class ComponentGlobalSequencePanel extends JPanel {
 		add(lengthSpinner, "cell 1 1");
 	}
 
+	private void lengthSpinner() {
+		final SetGlobalSequenceLengthAction setGlobalSequenceLengthAction = new SetGlobalSequenceLengthAction(
+				model, globalSequenceId, value, ((Number) lengthSpinner.getValue()).intValue(),
+				modelStructureChangeListener);
+		setGlobalSequenceLengthAction.redo();
+		undoActionListener.pushAction(setGlobalSequenceLengthAction);
+	}
+
 	public void setGlobalSequence(final EditableModel model, final Integer value, final int globalSequenceId,
-			final UndoActionListener undoActionListener,
-			final ModelStructureChangeListener modelStructureChangeListener) {
+	                              final UndoActionListener undoActionListener,
+	                              final ModelStructureChangeListener modelStructureChangeListener) {
 		this.model = model;
 		this.value = value;
 		this.globalSequenceId = globalSequenceId;
@@ -47,5 +49,15 @@ public class ComponentGlobalSequencePanel extends JPanel {
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		indexLabel.setText(Integer.toString(globalSequenceId));
 		lengthSpinner.reloadNewValue(value);
+	}
+
+	@Override
+	public void setSelectedItem(EditableModel itemToSelect) {
+
+	}
+
+	@Override
+	public void save(EditableModel model, UndoActionListener undoListener, ModelStructureChangeListener changeListener) {
+
 	}
 }

@@ -1,9 +1,5 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.activity;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Point;
-
 import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
@@ -15,6 +11,8 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.ResettableAnimatedIdObjectRenderer;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.awt.*;
 
 public final class Graphics2DToAnimatedModelElementRendererAdapter implements ModelElementRenderer {
 	private Graphics2D graphics;
@@ -46,12 +44,15 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 	public void renderFace(final Color borderColor, final Color color, final GeosetVertex a, final GeosetVertex b,
 			final GeosetVertex c) {
 		graphics.setColor(color);
+
 		CoordinateSystem.Util.convertToPoint(coordinateSystem, a, recyclePointA, renderModel);
 		CoordinateSystem.Util.convertToPoint(coordinateSystem, b, recyclePointB, renderModel);
 		CoordinateSystem.Util.convertToPoint(coordinateSystem, c, recyclePointC, renderModel);
+
 		recycleXCoords[0] = recyclePointA.x;
 		recycleXCoords[1] = recyclePointB.x;
 		recycleXCoords[2] = recyclePointC.x;
+
 		recycleYCoords[0] = recyclePointA.y;
 		recycleYCoords[1] = recyclePointB.y;
 		recycleYCoords[2] = recyclePointC.y;

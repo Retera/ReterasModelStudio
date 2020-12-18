@@ -1,75 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit;
 
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.swing.BorderFactory;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.DefaultListModel;
-import javax.swing.GroupLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
-import javax.swing.ListCellRenderer;
-import javax.swing.ListModel;
-import javax.swing.ListSelectionModel;
-import javax.swing.WindowConstants;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
-import com.hiveworkshop.rms.editor.model.AnimFlag;
-import com.hiveworkshop.rms.editor.model.Animation;
-import com.hiveworkshop.rms.editor.model.Attachment;
-import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.editor.model.Camera;
-import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.EventObject;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.GeosetAnim;
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.Helper;
-import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.Layer;
-import com.hiveworkshop.rms.editor.model.Light;
-import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.editor.model.Matrix;
-import com.hiveworkshop.rms.editor.model.Named;
-import com.hiveworkshop.rms.editor.model.ParticleEmitter;
-import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
-import com.hiveworkshop.rms.editor.model.ParticleEmitterPopcorn;
-import com.hiveworkshop.rms.editor.model.RibbonEmitter;
-import com.hiveworkshop.rms.editor.model.VisibilitySource;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -78,6 +10,17 @@ import com.hiveworkshop.rms.ui.util.AbstractSnapshottingListCellRenderer2D;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.Vec3;
 
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.File;
+import java.util.List;
+import java.util.*;
+
 /**
  * The panel to handle the import function.
  *
@@ -85,7 +28,7 @@ import com.hiveworkshop.rms.util.Vec3;
  */
 public class ImportPanel extends JTabbedPane implements ActionListener, ListSelectionListener, ChangeListener {
 	static final ImageIcon animIcon = RMSIcons.animIcon;// new
-															// ImageIcon(ImportPanel.class.getClassLoader().getResource("ImageBin/anim_small.png"));
+	// ImageIcon(ImportPanel.class.getClassLoader().getResource("ImageBin/anim_small.png"));
 	static final ImageIcon boneIcon = RMSIcons.boneIcon;// new
 															// ImageIcon(ImportPanel.class.getClassLoader().getResource("ImageBin/Bone_small.png"));
 	static final ImageIcon geoIcon = RMSIcons.geoIcon;// new
@@ -1694,8 +1637,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				JOptionPane.showMessageDialog(null, "The program has confused itself.");
 			}
 
-			// ArrayList<Geoset> newGeosets = new ArrayList<Geoset>();//Just for
-			// 3d update
+			// ArrayList<Geoset> newGeosets = new ArrayList<Geoset>();//Just for 3d update
 
 			for (int i = 0; i < geosetTabs.getTabCount(); i++) {
 				final GeosetPanel gp = (GeosetPanel) geosetTabs.getComponentAt(i);
@@ -1744,32 +1686,28 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 						aniPanel.anim.reverse(impFlags, impEventObjs);
 					}
 					switch (type) {
-					case 0:
-						aniPanel.anim.copyToInterval(animTrackEnd + 300, animTrackEnd + aniPanel.anim.length() + 300,
-								impFlags, impEventObjs, newImpFlags, newImpEventObjs);
-						aniPanel.anim.setInterval(animTrackEnd + 300, animTrackEnd + aniPanel.anim.length() + 300);
-						currentModel.add(aniPanel.anim);
-						newAnims.add(aniPanel.anim);
-						break;
-					case 1:
-						aniPanel.anim.copyToInterval(animTrackEnd + 300, animTrackEnd + aniPanel.anim.length() + 300,
-								impFlags, impEventObjs, newImpFlags, newImpEventObjs);
-						aniPanel.anim.setInterval(animTrackEnd + 300, animTrackEnd + aniPanel.anim.length() + 300);
-						aniPanel.anim.setName(aniPanel.newNameEntry.getText());
-						currentModel.add(aniPanel.anim);
-						newAnims.add(aniPanel.anim);
-						break;
-					case 2:
-						// List<AnimShell> targets =
-						// aniPane.animList.getSelectedValuesList();
-						// aniPanel.anim.setInterval(animTrackEnd+300,animTrackEnd
-						// + aniPanel.anim.length() + 300, impFlags,
-						// impEventObjs, newImpFlags, newImpEventObjs);
-						// handled by animShells
-						break;
-					case 3:
-						importedModel.buildGlobSeqFrom(aniPanel.anim, impFlags);
-						break;
+						case 0:
+							aniPanel.anim.copyToInterval(animTrackEnd + 300, animTrackEnd + aniPanel.anim.length() + 300, impFlags, impEventObjs, newImpFlags, newImpEventObjs);
+							aniPanel.anim.setInterval(animTrackEnd + 300, animTrackEnd + aniPanel.anim.length() + 300);
+							currentModel.add(aniPanel.anim);
+							newAnims.add(aniPanel.anim);
+							break;
+						case 1:
+							aniPanel.anim.copyToInterval(animTrackEnd + 300, animTrackEnd + aniPanel.anim.length() + 300, impFlags, impEventObjs, newImpFlags, newImpEventObjs);
+							aniPanel.anim.setInterval(animTrackEnd + 300, animTrackEnd + aniPanel.anim.length() + 300);
+							aniPanel.anim.setName(aniPanel.newNameEntry.getText());
+							currentModel.add(aniPanel.anim);
+							newAnims.add(aniPanel.anim);
+							break;
+						case 2:
+							// List<AnimShell> targets = aniPane.animList.getSelectedValuesList();
+							// aniPanel.anim.setInterval(animTrackEnd+300,animTrackEnd + aniPanel.anim.length() + 300, impFlags,
+							// impEventObjs, newImpFlags, newImpEventObjs);
+							// handled by animShells
+							break;
+						case 3:
+							importedModel.buildGlobSeqFrom(aniPanel.anim, impFlags);
+							break;
 					}
 				}
 			}
@@ -1789,11 +1727,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 								final BoneShell bs = (BoneShell) existingBones.get(p);
 								if (bs.importBone != null) {
 									if (getPanelOf(bs.importBone).importTypeBox.getSelectedIndex() == 1) {
-										// JOptionPane.showMessageDialog(null,"Attempting
-										// to clear animation for
-										// "+bs.bone.getName()+" values
-										// "+animShell.anim.getStart()+",
-										// "+animShell.anim.getEnd());
+										// JOptionPane.showMessageDialog(null,"Attempting to clear animation for
+										// "+bs.bone.getName()+" values "+animShell.anim.getStart()+", "+animShell.anim.getEnd());
 										System.out.println(
 												"Attempting to clear animation for " + bs.bone.getName() + " values "
 														+ animShell.anim.getStart() + ", " + animShell.anim.getEnd());
@@ -1867,9 +1802,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 						if (ms.newBones.size() > 0) {
 							ms.matrix.getBones().clear();
 						} else {
-							// JOptionPane.showMessageDialog(null,"Warning: You
-							// left some matrices empty. Zero values will be
-							// inserted.");
+							// JOptionPane.showMessageDialog(null,"Warning: You left some matrices empty. Zero values will be inserted.");
 							ms.matrix.getBones().clear();
 							// ms.matrix.bones.add(bap.model.getBone(0));
 						}
@@ -1928,22 +1861,19 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 						} else {
 							objectPanel.object.setParent(null);
 						}
-						// objectPanel.object.setName(importedModel.getName()+"
-						// "+objectPanel.object.getName());
+						// objectPanel.object.setName(importedModel.getName()+" "+objectPanel.object.getName());
 						// later make a name field?
 						currentModel.add(objectPanel.object);
 						objectsAdded.add(objectPanel.object);
 					} else if (objectPanel.camera != null) {
-						// objectPanel.camera.setName(importedModel.getName()+"
-						// "+objectPanel.camera.getName());
+						// objectPanel.camera.setName(importedModel.getName()+" "+objectPanel.camera.getName());
 						currentModel.add(objectPanel.camera);
 						camerasAdded.add(objectPanel.camera);
 					}
 				} else {
 					if (objectPanel.object != null) {
 						objectPanel.object.setParent(null);
-						// Fix cross-model referencing issue (force clean parent node's list of
-						// children)
+						// Fix cross-model referencing issue (force clean parent node's list of children)
 					}
 				}
 			}
@@ -2012,17 +1942,13 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				}
 				if ((vPanel.favorOld.isSelected() && (vPanel.sourceShell.model == currentModel) && !clearAnims)
 						|| (!vPanel.favorOld.isSelected() && (vPanel.sourceShell.model == importedModel))) {
-					// this is an element favoring existing animations over
-					// imported
+					// this is an element favoring existing animations over imported
 					for (final Animation a : oldAnims) {
 						if (flagNew != null) {
 							if (!flagNew.hasGlobalSeq()) {
-								flagNew.deleteAnim(a);// All entries for
-														// visibility are
-														// deleted from imported
-														// sources during
-														// existing animation
-														// times
+								flagNew.deleteAnim(a);
+								// All entries for visibility are deleted from imported
+								// sources during existing animation times
 							}
 						}
 					}
@@ -2139,12 +2065,10 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			clearExistingAnims.doClick();// turn it back off
 		}
 
-		VisibilityShell corpseShell = null;// Try assuming it's a unit with a
-											// corpse; they'll tend to be that
-											// way
+		VisibilityShell corpseShell = null;
+		// Try assuming it's a unit with a corpse; they'll tend to be that way
 
-		// Iterate through new visibility sources, find a geoset with gutz
-		// material
+		// Iterate through new visibility sources, find a geoset with gutz material
 		for (int i = 0; (i < visSourcesNew.size()) && (corpseShell == null); i++) {
 			if (visSourcesNew.get(i) instanceof VisibilityShell) {
 				final VisibilityShell vs = (VisibilityShell) visSourcesNew.get(i);
@@ -2249,11 +2173,9 @@ class GeosetPanel extends JPanel implements ChangeListener {
 	boolean isImported;
 	MaterialListCellRenderer renderer;
 
-	public GeosetPanel(final boolean imported, // Is this Geoset an imported
-												// one, or an original?
-			final EditableModel model, final int geoIndex, // which geoset is this for?
-													// (starts with 0)
-			final DefaultListModel materials, final MaterialListCellRenderer renderer) {
+	public GeosetPanel(final boolean imported, // Is this Geoset an imported one, or an original?
+	                   final EditableModel model, final int geoIndex, // which geoset is this for? (starts with 0)
+	                   final DefaultListModel materials, final MaterialListCellRenderer renderer) {
 		this.materials = materials;
 		this.model = model;
 		this.renderer = renderer;
@@ -3124,8 +3046,7 @@ class BonePanelListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 		setText(((BonePanel) value).bone.getClass().getSimpleName() + " \"" + ((BonePanel) value).bone.getName()
 				+ "\"");
 		// setIcon(ImportPanel.cyanIcon);
-		// setIcon(new
-		// ImageIcon(Material.mergeImageScaled(ImportPanel.cyanIcon.getImage(),
+		// setIcon(new ImageIcon(Material.mergeImageScaled(ImportPanel.cyanIcon.getImage(),
 		// ((ImageIcon) getIcon()).getImage(), 64, 64, 64, 64)));
 		return this;
 	}
@@ -3186,17 +3107,9 @@ class GeosetAnimationPanel extends JTabbedPane {
 	BoneAttachmentPane bap;
 	VisibilityPane vp;
 
-	public GeosetAnimationPanel(final boolean imported, // Is this Geoset an
-														// imported one, or an
-														// original?
-			final EditableModel model, final int geoIndex, final ImportPanel thePanel)// which
-																			// geoset
-																			// is
-																			// this
-																			// for?
-																			// (starts
-																			// with
-																			// 0)
+	public GeosetAnimationPanel(final boolean imported, // Is this Geoset an imported one, or an original?
+	                            final EditableModel model, final int geoIndex, final ImportPanel thePanel)
+	// which geoset is this for? (starts with 0)
 	{
 		this.model = model;
 		impPanel = thePanel;
@@ -3306,22 +3219,34 @@ class BoneAttachmentPane extends JPanel implements ActionListener, ListSelection
 	public void buildLayout() {
 		final GroupLayout layout = new GroupLayout(this);
 		layout.setHorizontalGroup(layout.createSequentialGroup()
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(oldBoneRefsLabel)
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+						.addComponent(oldBoneRefsLabel)
 						.addComponent(oldBoneRefsPane))
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(newRefsLabel)
-						.addComponent(newRefsPane).addComponent(removeNewRef))
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(moveUp)
-						.addComponent(moveDown))
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(bonesLabel)
-						.addComponent(bonesPane).addComponent(useBone)));
-		layout.setVerticalGroup(layout.createSequentialGroup()
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(oldBoneRefsLabel)
-						.addComponent(newRefsLabel).addComponent(bonesLabel))
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(oldBoneRefsPane)
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+						.addComponent(newRefsLabel)
 						.addComponent(newRefsPane)
-						.addGroup(layout.createSequentialGroup().addComponent(moveUp).addGap(16).addComponent(moveDown))
+						.addComponent(removeNewRef))
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+						.addComponent(moveUp)
+						.addComponent(moveDown))
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+						.addComponent(bonesLabel)
+						.addComponent(bonesPane)
+						.addComponent(useBone)));
+		layout.setVerticalGroup(layout.createSequentialGroup()
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+						.addComponent(oldBoneRefsLabel)
+						.addComponent(newRefsLabel)
+						.addComponent(bonesLabel))
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+						.addComponent(oldBoneRefsPane)
+						.addComponent(newRefsPane)
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(moveUp).addGap(16)
+								.addComponent(moveDown))
 						.addComponent(bonesPane))
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(removeNewRef)
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+						.addComponent(removeNewRef)
 						.addComponent(useBone)));
 		setLayout(layout);
 	}
@@ -3560,13 +3485,21 @@ class ObjectPanel extends JPanel {
 		parentsPane = new JScrollPane(parentsList);
 
 		final GroupLayout layout = new GroupLayout(this);
-		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(title)
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(doImport)
+		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+				.addComponent(title)
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+						.addComponent(doImport)
 						.addComponent(oldParentLabel)
-						.addGroup(layout.createSequentialGroup().addComponent(parentLabel).addComponent(parentsPane))));
-		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(title).addGap(16).addComponent(doImport)
-				.addComponent(oldParentLabel).addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-						.addComponent(parentLabel).addComponent(parentsPane)));
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(parentLabel)
+								.addComponent(parentsPane))));
+		layout.setVerticalGroup(layout.createSequentialGroup()
+				.addComponent(title).addGap(16)
+				.addComponent(doImport)
+				.addComponent(oldParentLabel)
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+						.addComponent(parentLabel)
+						.addComponent(parentsPane)));
 		setLayout(layout);
 	}
 
@@ -3582,10 +3515,14 @@ class ObjectPanel extends JPanel {
 		oldParentLabel = new JLabel("(Cameras don't have parents)");
 
 		final GroupLayout layout = new GroupLayout(this);
-		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(title)
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(doImport)
+		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+				.addComponent(title)
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+						.addComponent(doImport)
 						.addComponent(oldParentLabel)));
-		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(title).addGap(16).addComponent(doImport)
+		layout.setVerticalGroup(layout.createSequentialGroup()
+				.addComponent(title).addGap(16)
+				.addComponent(doImport)
 				.addComponent(oldParentLabel));
 		setLayout(layout);
 	}
@@ -3610,13 +3547,21 @@ class MultiObjectPanel extends ObjectPanel implements ChangeListener {
 		parentsList.setEnabled(false);
 
 		final GroupLayout layout = new GroupLayout(this);
-		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(title)
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(doImport)
+		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+				.addComponent(title)
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+						.addComponent(doImport)
 						.addComponent(oldParentLabel)
-						.addGroup(layout.createSequentialGroup().addComponent(parentLabel).addComponent(parentsPane))));
-		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(title).addGap(16).addComponent(doImport)
-				.addComponent(oldParentLabel).addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-						.addComponent(parentLabel).addComponent(parentsPane)));
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(parentLabel)
+								.addComponent(parentsPane))));
+		layout.setVerticalGroup(layout.createSequentialGroup()
+				.addComponent(title).addGap(16)
+				.addComponent(doImport)
+				.addComponent(oldParentLabel)
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+						.addComponent(parentLabel)
+						.addComponent(parentsPane)));
 		setLayout(layout);
 	}
 
@@ -3687,8 +3632,7 @@ class VisShellBoxCellRenderer extends javax.swing.plaf.basic.BasicComboBoxRender
 		}
 		if (value.getClass() != String.class) {
 			super.getListCellRendererComponent(list,
-					((VisibilityShell) value).model.getName() + ": " + ((VisibilityShell) value).source.getName(),
-					index, iss, chf);
+					((VisibilityShell) value).model.getName() + ": " + ((VisibilityShell) value).source.getName(), index, iss, chf);
 		} else {
 			super.getListCellRendererComponent(list, value, index, iss, chf);
 		}
@@ -3756,13 +3700,21 @@ class VisibilityPane extends JPanel {
 		favorOld.setSelected(true);
 
 		final GroupLayout layout = new GroupLayout(this);
-		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(title)
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(oldAnimsLabel)
-						.addComponent(oldSourcesBox).addComponent(newAnimsLabel).addComponent(newSourcesBox)
+		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+				.addComponent(title)
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+						.addComponent(oldAnimsLabel)
+						.addComponent(oldSourcesBox)
+						.addComponent(newAnimsLabel)
+						.addComponent(newSourcesBox)
 						.addComponent(favorOld)));
-		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(title).addGap(16)
-				.addComponent(oldAnimsLabel).addComponent(oldSourcesBox).addComponent(newAnimsLabel)
-				.addComponent(newSourcesBox).addComponent(favorOld));
+		layout.setVerticalGroup(layout.createSequentialGroup()
+				.addComponent(title).addGap(16)
+				.addComponent(oldAnimsLabel)
+				.addComponent(oldSourcesBox)
+				.addComponent(newAnimsLabel)
+				.addComponent(newSourcesBox)
+				.addComponent(favorOld));
 		setLayout(layout);
 	}
 
@@ -3816,13 +3768,21 @@ class MultiVisibilityPane extends VisibilityPane implements ChangeListener, Item
 		favorOld.addChangeListener(this);
 
 		final GroupLayout layout = new GroupLayout(this);
-		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(title)
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(oldAnimsLabel)
-						.addComponent(oldSourcesBox).addComponent(newAnimsLabel).addComponent(newSourcesBox)
+		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+				.addComponent(title)
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+						.addComponent(oldAnimsLabel)
+						.addComponent(oldSourcesBox)
+						.addComponent(newAnimsLabel)
+						.addComponent(newSourcesBox)
 						.addComponent(favorOld)));
-		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(title).addGap(16)
-				.addComponent(oldAnimsLabel).addComponent(oldSourcesBox).addComponent(newAnimsLabel)
-				.addComponent(newSourcesBox).addComponent(favorOld));
+		layout.setVerticalGroup(layout.createSequentialGroup()
+				.addComponent(title).addGap(16)
+				.addComponent(oldAnimsLabel)
+				.addComponent(oldSourcesBox)
+				.addComponent(newAnimsLabel)
+				.addComponent(newSourcesBox)
+				.addComponent(favorOld));
 		setLayout(layout);
 	}
 

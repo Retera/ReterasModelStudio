@@ -279,62 +279,82 @@ public class UVPanel extends JPanel
             button.addActionListener(this);
         }
 
-        plusZoom = addButton(20, 20, "Plus.png");
+        plusZoom = addButton(20, 20, "Plus.png", e -> zoom(.15));
 
-        minusZoom = addButton(20, 20, "Minus.png");
+        minusZoom = addButton(20, 20, "Minus.png", e -> zoom(-.15));
 
-        up = addButton(32, 16, "ArrowUp.png");
+        up = addButton(32, 16, "ArrowUp.png", e -> moveUpDown(20));
 
-        down = addButton(32, 16, "ArrowDown.png");
+        down = addButton(32, 16, "ArrowDown.png", e -> moveUpDown(-20));
 
-        left = addButton(16, 32, "ArrowLeft.png");
+        left = addButton(16, 32, "ArrowLeft.png", e -> moveLeftRight(20));
 
-        right = addButton(16, 32, "ArrowRight.png");
+        right = addButton(16, 32, "ArrowRight.png", e -> moveLeftRight(-20));
 
         toolbar.setMaximumSize(new Dimension(80000, 48));
 
         final GroupLayout layout = new GroupLayout(this);
-        layout.setHorizontalGroup(
-                layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(toolbar)
-                                .addComponent(vp)
-                                .addGroup(layout.createSequentialGroup().addComponent(mouseCoordDisplay[0])
-                                        .addComponent(mouseCoordDisplay[1]).addGap(120)
-                                        .addGroup(layout.createSequentialGroup().addComponent(left)
-                                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-                                                        .addComponent(up).addComponent(down))
-                                                .addComponent(right))
-
-                                        .addGap(16)
+        layout.setHorizontalGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                        .addComponent(toolbar)
+                        .addComponent(vp)
+                        .addGroup(layout.createSequentialGroup()
+                                .addComponent(mouseCoordDisplay[0])
+                                .addComponent(mouseCoordDisplay[1]).addGap(120)
+                                .addGroup(layout.createSequentialGroup()
+                                        .addComponent(left)
                                         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-                                                .addComponent(plusZoom).addComponent(minusZoom))))
-
-                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(loadImage)
-                                .addComponent(divider[0]).addComponent(selectButton).addComponent(addButton)
-                                .addComponent(deselectButton).addComponent(divider[1]).addComponent(moveButton)
-                                .addComponent(rotateButton).addComponent(scaleButton).addComponent(divider[2])
-                                .addComponent(unwrapDirectionBox).addComponent(unwrapButton)));
-        layout.setVerticalGroup(layout.createSequentialGroup().addComponent(toolbar)
-                .addGroup(layout.createParallelGroup()
-                        .addGroup(layout.createSequentialGroup().addComponent(vp).addGroup(layout.createParallelGroup()
-                                .addComponent(mouseCoordDisplay[0]).addComponent(mouseCoordDisplay[1])
-                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-                                        .addGroup(layout.createSequentialGroup().addComponent(up)
-                                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-                                                        .addComponent(left).addComponent(right))
+                                                .addComponent(up)
                                                 .addComponent(down))
+                                        .addComponent(right)).addGap(16)
+                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+                                        .addComponent(plusZoom)
+                                        .addComponent(minusZoom))))
+                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+                        .addComponent(loadImage)
+                        .addComponent(divider[0])
+                        .addComponent(selectButton)
+                        .addComponent(addButton)
+                        .addComponent(deselectButton)
+                        .addComponent(divider[1])
+                        .addComponent(moveButton)
+                        .addComponent(rotateButton)
+                        .addComponent(scaleButton)
+                        .addComponent(divider[2])
+                        .addComponent(unwrapDirectionBox)
+                        .addComponent(unwrapButton)));
 
-                                        .addGroup(layout.createSequentialGroup().addComponent(plusZoom).addGap(16)
-                                                .addComponent(minusZoom)))
-
-                        ))
-
-                        .addGroup(layout.createSequentialGroup().addComponent(loadImage).addGap(8)
-                                .addComponent(divider[0]).addGap(8).addComponent(selectButton).addGap(8)
-                                .addComponent(addButton).addGap(8).addComponent(deselectButton).addGap(8)
-                                .addComponent(divider[1]).addGap(8).addComponent(moveButton).addGap(8)
-                                .addComponent(rotateButton).addGap(8).addComponent(scaleButton).addGap(8)
-                                .addComponent(divider[2]).addGap(8).addComponent(unwrapDirectionBox).addGap(8)
+        layout.setVerticalGroup(layout.createSequentialGroup()
+                .addComponent(toolbar)
+                .addGroup(layout.createParallelGroup()
+                        .addGroup(layout.createSequentialGroup()
+                                .addComponent(vp)
+                                .addGroup(layout.createParallelGroup()
+                                        .addComponent(mouseCoordDisplay[0])
+                                        .addComponent(mouseCoordDisplay[1])
+                                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+                                                .addGroup(layout.createSequentialGroup()
+                                                        .addComponent(up)
+                                                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+                                                                .addComponent(left)
+                                                                .addComponent(right))
+                                                        .addComponent(down))
+                                                .addGroup(layout.createSequentialGroup()
+                                                        .addComponent(plusZoom)
+                                                        .addGap(16)
+                                                        .addComponent(minusZoom)))))
+                        .addGroup(layout.createSequentialGroup()
+                                .addComponent(loadImage).addGap(8)
+                                .addComponent(divider[0]).addGap(8)
+                                .addComponent(selectButton).addGap(8)
+                                .addComponent(addButton).addGap(8)
+                                .addComponent(deselectButton).addGap(8)
+                                .addComponent(divider[1]).addGap(8)
+                                .addComponent(moveButton).addGap(8)
+                                .addComponent(rotateButton).addGap(8)
+                                .addComponent(scaleButton).addGap(8)
+                                .addComponent(divider[2]).addGap(8)
+                                .addComponent(unwrapDirectionBox).addGap(8)
                                 .addComponent(unwrapButton).addGap(8).addGap(8))));
 
         setLayout(layout);
@@ -385,14 +405,14 @@ public class UVPanel extends JPanel
                 menuHolderPanel);
     }
 
-    private JButton addButton(int width, int height, String iconPath) {
+    private JButton addButton(int width, int height, String iconPath, ActionListener actionListener) {
         Dimension dim = new Dimension(width, height);
         JButton button = new JButton("");
         button.setMaximumSize(dim);
         button.setMinimumSize(dim);
         button.setPreferredSize(dim);
         button.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage(iconPath)));
-        button.addActionListener(this);
+        button.addActionListener(actionListener);
         add(button);
         return button;
     }
@@ -508,92 +528,34 @@ public class UVPanel extends JPanel
 
         editMenu = new JMenu("Edit");
         editMenu.setMnemonic(KeyEvent.VK_E);
-        editMenu.getAccessibleContext().setAccessibleDescription(
-                "Allows the user to use various tools to edit the currently selected model's TVertices.");
+        editMenu.getAccessibleContext().setAccessibleDescription("Allows the user to use various tools to edit the currently selected model's TVertices.");
         menuBar.add(editMenu);
 
         dispMenu = new JMenu("View");
         dispMenu.setMnemonic(KeyEvent.VK_V);
-        dispMenu.getAccessibleContext()
-                .setAccessibleDescription("Control display settings for this Texture Coordinate Editor window.");
+        dispMenu.getAccessibleContext().setAccessibleDescription("Control display settings for this Texture Coordinate Editor window.");
         menuBar.add(dispMenu);
 
-        selectAll = new JMenuItem("Select All");
-        selectAll.setAccelerator(KeyStroke.getKeyStroke("control A"));
-        selectAll.addActionListener(selectAllAction);
-        editMenu.add(selectAll);
+        createAndAddMenuItem("Select All", "control A", selectAllAction);
 
-        invertSelect = new JMenuItem("Invert Selection");
-        invertSelect.setAccelerator(KeyStroke.getKeyStroke("control I"));
-        invertSelect.addActionListener(invertSelectAction);
-        editMenu.add(invertSelect);
+        createAndAddMenuItem("Invert Selection", "control I", invertSelectAction);
 
-        expandSelection = new JMenuItem("Expand Selection");
-        expandSelection.setAccelerator(KeyStroke.getKeyStroke("control E"));
-        expandSelection.addActionListener(expandSelectionAction);
-        editMenu.add(expandSelection);
+        createAndAddMenuItem("Expand Selection", "control E", expandSelectionAction);
 
-        selFromMain = new JMenuItem("Select from Viewer");
-        selFromMain.setAccelerator(KeyStroke.getKeyStroke("control V"));
-        selFromMain.addActionListener(selFromMainAction);
-        editMenu.add(selFromMain);
+        createAndAddMenuItem("Select from Viewer", "control V", selFromMainAction);
 
-        final JMenuItem splitVertex = new JMenuItem("Split Vertex");
-        splitVertex.setAccelerator(KeyStroke.getKeyStroke("control V"));
-        splitVertex.addActionListener(e -> {
-            final ModelPanel mpanel = currentModelPanel();
-            if (mpanel != null) {
-                // mpanel.getUndoManager().pushAction(modelEditorManager.getModelEditor()
-                // .selectFromViewer(mpanel.getModelEditorManager().getSelectionView()));
-
-                final Collection<? extends Vec2> selectedTVertices = modelEditorManager.getSelectionView()
-                        .getSelectedTVertices(currentLayer());
-                for (final Geoset g : mpanel.getModel().getGeosets()) {
-                    for (final GeosetVertex gv : new ArrayList<>(g.getVertices())) {
-                        final Vec2 tVertex = gv.getTVertex(currentLayer());
-                        if (selectedTVertices.contains(tVertex)) {
-                            final List<Triangle> triangles = gv.getTriangles();
-                            final Iterator<Triangle> iterator = triangles.iterator();
-                            if (iterator.hasNext()) {
-                                iterator.next(); // keep using gv in 1 triangle, but not more
-                            }
-                            while (iterator.hasNext()) {
-                                final Triangle tri = iterator.next();
-                                final int vertexIndex = tri.indexOfRef(gv);
-                                final GeosetVertex newVertex = new GeosetVertex(gv);
-                                tri.set(vertexIndex, newVertex);
-                                newVertex.getTriangles().add(tri);
-                                newVertex.getGeoset().add(newVertex);
-                                iterator.remove();
-                            }
-                        }
-                    }
-                }
-                /*
-                 * Collection<Triangle> selectedFaces =
-                 * modelEditorManager.getSelectionView().getSelectedFaces(); for(Triangle t:
-                 * selectedFaces) { for(int i = 0; i < 3; i++) { GeosetVertex gv = t.get(i);
-                 * if(gv.getTriangles().size()>1) { GeosetVertex copy = new GeosetVertex(gv);
-                 * t.set(i, copy); copy.getTriangles().add(t); } } }
-                 */
-
-            }
-            repaint();
-        });
-        editMenu.add(splitVertex);
+        createAndAddMenuItem("Split Vertex", "control V", e -> splitVertex());
 
         wrapImage = new JCheckBoxMenuItem("Wrap Image", false);
-        wrapImage.setToolTipText(
-                "Repeat the texture many times in a grid-like display. This feature does not edit the model in any way; only this viewing window.");
+        wrapImage.setToolTipText("Repeat the texture many times in a grid-like display. This feature does not edit the model in any way; only this viewing window.");
         // wrapImage.addActionListener(this);
         dispMenu.add(wrapImage);
 
         setAspectRatio = new JMenuItem("Set Aspect Ratio");
         setAspectRatio.setMnemonic(KeyEvent.VK_S);
         setAspectRatio.setAccelerator(KeyStroke.getKeyStroke("control R"));
-        setAspectRatio.setToolTipText(
-                "Sets the amount by which the texture display is stretched, for editing textures with non-uniform width and height.");
-        setAspectRatio.addActionListener(this);
+        setAspectRatio.setToolTipText("Sets the amount by which the texture display is stretched, for editing textures with non-uniform width and height.");
+        setAspectRatio.addActionListener(e -> setAspectRatio());
         dispMenu.add(setAspectRatio);
 
         editMenu.add(new JSeparator());
@@ -603,17 +565,59 @@ public class UVPanel extends JPanel
         mirrorSubmenu.getAccessibleContext().setAccessibleDescription("Allows the user to mirror objects.");
         editMenu.add(mirrorSubmenu);
 
-        mirrorX = new JMenuItem("Mirror X");
-        mirrorX.setMnemonic(KeyEvent.VK_X);
-        mirrorX.addActionListener(mirrorXAction);
-        mirrorSubmenu.add(mirrorX);
+        createAndAddMenuItem("Mirror X", KeyEvent.VK_X, mirrorXAction);
 
-        mirrorY = new JMenuItem("Mirror Y");
-        mirrorY.setMnemonic(KeyEvent.VK_Y);
-        mirrorY.addActionListener(mirrorYAction);
-        mirrorSubmenu.add(mirrorY);
+        createAndAddMenuItem("Mirror Y", KeyEvent.VK_Y, mirrorYAction);
 
         return menuBar;
+    }
+
+    private void createAndAddMenuItem(String itemText, int keyEvent, ActionListener actionListener) {
+        JMenuItem menuItem = new JMenuItem(itemText);
+        menuItem.setMnemonic(keyEvent);
+        menuItem.addActionListener(actionListener);
+        mirrorSubmenu.add(menuItem);
+    }
+
+    private JMenuItem createAndAddMenuItem(String itemText, String keyStroke, ActionListener actionListener) {
+        JMenuItem menuItem = new JMenuItem(itemText);
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(keyStroke));
+        menuItem.addActionListener(actionListener);
+        editMenu.add(menuItem);
+        return menuItem;
+    }
+
+    private void splitVertex() {
+        final ModelPanel mpanel = currentModelPanel();
+        if (mpanel != null) {
+            // mpanel.getUndoManager().pushAction(modelEditorManager.getModelEditor()
+            // .selectFromViewer(mpanel.getModelEditorManager().getSelectionView()));
+
+            final Collection<? extends Vec2> selectedTVertices = modelEditorManager.getSelectionView()
+                    .getSelectedTVertices(currentLayer());
+            for (final Geoset g : mpanel.getModel().getGeosets()) {
+                for (final GeosetVertex gv : new ArrayList<>(g.getVertices())) {
+                    final Vec2 tVertex = gv.getTVertex(currentLayer());
+                    if (selectedTVertices.contains(tVertex)) {
+                        final List<Triangle> triangles = gv.getTriangles();
+                        final Iterator<Triangle> iterator = triangles.iterator();
+                        if (iterator.hasNext()) {
+                            iterator.next(); // keep using gv in 1 triangle, but not more
+                        }
+                        while (iterator.hasNext()) {
+                            final Triangle tri = iterator.next();
+                            final int vertexIndex = tri.indexOfRef(gv);
+                            final GeosetVertex newVertex = new GeosetVertex(gv);
+                            tri.set(vertexIndex, newVertex);
+                            newVertex.getTriangles().add(tri);
+                            newVertex.getGeoset().add(newVertex);
+                            iterator.remove();
+                        }
+                    }
+                }
+            }
+        }
+        repaint();
     }
 
     public void setControlsVisible(final boolean flag) {
@@ -638,31 +642,26 @@ public class UVPanel extends JPanel
         final JRootPane root = getRootPane();
 
         root.getActionMap().put("Undo", undoAction);
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control Z"),
-                "Undo");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control Z"), "Undo");
 
         root.getActionMap().put("Redo", redoAction);
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control Y"),
-                "Redo");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control Y"), "Redo");
 
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("W"),
-                "QKeyboardKey");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("W"), "QKeyboardKey");
         root.getActionMap().put("QKeyboardKey", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
             }
         });
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("E"),
-                "WKeyboardKey");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("E"), "WKeyboardKey");
         root.getActionMap().put("WKeyboardKey", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[1]);
             }
         });
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("R"),
-                "EKeyboardKey");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("R"), "EKeyboardKey");
         root.getActionMap().put("EKeyboardKey", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -670,16 +669,14 @@ public class UVPanel extends JPanel
             }
         });
 
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("A"),
-                "AKeyboardKey");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("A"), "AKeyboardKey");
         root.getActionMap().put("AKeyboardKey", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 selectionItemTypeGroup.setToolbarButtonType(selectionItemTypeGroup.getToolbarButtonTypes()[0]);
             }
         });
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("S"),
-                "SKeyboardKey");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("S"), "SKeyboardKey");
         root.getActionMap().put("SKeyboardKey", new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -714,15 +711,6 @@ public class UVPanel extends JPanel
         root.getActionMap().put("shiftSelect", new AbstractAction("shiftSelect") {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                // if (prefs.getSelectionType() == 0) {
-                // for (int b = 0; b < 3; b++) {
-                // buttons.get(b).resetColors();
-                // }
-                // addButton.setColors(prefs.getActiveColor1(),
-                // prefs.getActiveColor2());
-                // prefs.setSelectionType(1);
-                // cheatShift = true;
-                // }
                 if (selectionModeGroup.getActiveButtonType() == SelectionMode.SELECT) {
                     selectionModeGroup.setToolbarButtonType(SelectionMode.ADD);
                     cheatShift = true;
@@ -732,15 +720,6 @@ public class UVPanel extends JPanel
         root.getActionMap().put("altSelect", new AbstractAction("altSelect") {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                // if (prefs.getSelectionType() == 0) {
-                // for (int b = 0; b < 3; b++) {
-                // buttons.get(b).resetColors();
-                // }
-                // deselectButton.setColors(prefs.getActiveColor1(),
-                // prefs.getActiveColor2());
-                // prefs.setSelectionType(2);
-                // cheatAlt = true;
-                // }
                 if (selectionModeGroup.getActiveButtonType() == SelectionMode.SELECT) {
                     selectionModeGroup.setToolbarButtonType(SelectionMode.DESELECT);
                     cheatAlt = true;
@@ -757,15 +736,6 @@ public class UVPanel extends JPanel
         root.getActionMap().put("unShiftSelect", new AbstractAction("unShiftSelect") {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                // if (prefs.getSelectionType() == 1 && cheatShift) {
-                // for (int b = 0; b < 3; b++) {
-                // buttons.get(b).resetColors();
-                // }
-                // selectButton.setColors(prefs.getActiveColor1(),
-                // prefs.getActiveColor2());
-                // prefs.setSelectionType(0);
-                // cheatShift = false;
-                // }
                 if ((selectionModeGroup.getActiveButtonType() == SelectionMode.ADD) && cheatShift) {
                     selectionModeGroup.setToolbarButtonType(SelectionMode.SELECT);
                     cheatShift = false;
@@ -775,40 +745,26 @@ public class UVPanel extends JPanel
         root.getActionMap().put("unAltSelect", new AbstractAction("unAltSelect") {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                // if (prefs.getSelectionType() == 2 && cheatAlt) {
-                // for (int b = 0; b < 3; b++) {
-                // buttons.get(b).resetColors();
-                // }
-                // selectButton.setColors(prefs.getActiveColor1(),
-                // prefs.getActiveColor2());
-                // prefs.setSelectionType(0);
-                // cheatAlt = false;
-                // }
                 if ((selectionModeGroup.getActiveButtonType() == SelectionMode.DESELECT) && cheatAlt) {
                     selectionModeGroup.setToolbarButtonType(SelectionMode.SELECT);
                     cheatAlt = false;
                 }
             }
         });
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("released SHIFT"),
-                "unShiftSelect");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("released SHIFT"), "unShiftSelect");
         // root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("released
         // CONTROL"),
         // "unShiftSelect");
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("released ALT"),
-                "unAltSelect");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("released ALT"), "unAltSelect");
 
         root.getActionMap().put("Select All", selectAllAction);
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control A"),
-                "Select All");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control A"), "Select All");
 
         root.getActionMap().put("Invert Selection", invertSelectAction);
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control I"),
-                "Invert Selection");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control I"), "Invert Selection");
 
         root.getActionMap().put("Expand Selection", expandSelectionAction);
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control E"),
-                "Expand Selection");
+        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control E"), "Expand Selection");
 
         setControlsVisible(prefs.showVMControls());
     }
@@ -851,168 +807,114 @@ public class UVPanel extends JPanel
         // vp.repaint();
     }
 
-    // public void addGeoset(Geoset g)
-    // {
-    // m_geosets.add(g);
-    // }
-    // public void setGeosetVisible(int index, boolean flag)
-    // {
-    // Geoset geo = (Geoset)m_geosets.get(index);
-    // geo.setVisible(flag);
-    // }
-    // public void setGeosetHighlight(int index, boolean flag)
-    // {
-    // Geoset geo = (Geoset)m_geosets.get(index);
-    // geo.setHighlight(flag);
-    // }
-    // public void clearGeosets()
-    // {
-    // m_geosets.clear();
-    // }
-    // public int getGeosetsSize()
-    // {
-    // return m_geosets.size();
-    // }
     @Override
     public void actionPerformed(final ActionEvent e) {
-        if (e.getSource() == up) {
-            vp.translate(0, 20 * (1 / vp.getZoomAmount()));
-            vp.repaint();
-        } else if (e.getSource() == down) {
-            vp.translate(0, -20 * (1 / vp.getZoomAmount()));
-            vp.repaint();
-        } else if (e.getSource() == left) {
-            vp.translate(20 * (1 / vp.getZoomAmount()), 0);
-            vp.repaint();
-        } else if (e.getSource() == right) {
-            vp.translate(-20 * (1 / vp.getZoomAmount()), 0);// *vp.getZoomAmount()
-            vp.repaint();
-        } else if (e.getSource() == plusZoom) {
-            vp.zoom(.15);
-            vp.repaint();
-        } else if (e.getSource() == minusZoom) {
-            vp.zoom(-.15);
-            vp.repaint();
-        } else if (e.getSource() == loadImage) {
-
-            final int x = JOptionPane.showConfirmDialog(this,
-                    "Do you want to use the texture auto-loader to find available textures?" +
-                            "\nIf you choose \"No\", then you will have to find a file on your hard drive instead.",
-                    "Load Image", JOptionPane.YES_NO_CANCEL_OPTION);
-            if (x == JOptionPane.YES_OPTION) {
-                final DefaultListModel<Material> materials = new DefaultListModel<>();
-                for (int i = 0; i < dispMDL.getModel().getMaterials().size(); i++) {
-                    final Material mat = dispMDL.getModel().getMaterials().get(i);
-                    materials.addElement(mat);
-                }
-
-                final JList<Material> materialsList = new JList<>(materials);
-                materialsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                materialsList.setCellRenderer(new MaterialListRenderer(dispMDL.getModel()));
-                JOptionPane.showMessageDialog(this, new JScrollPane(materialsList));
-
-                vp.clearBackgroundImage();
-                if (materialsList.getSelectedValue() != null) {
-                    vp.addBackgroundImage(materialsList.getSelectedValue()
-                            .getBufferedImage(dispMDL.getModel().getWrappedDataSource()));
-                    boolean wrap = false;
-                    for (final Layer layer : materialsList.getSelectedValue().getLayers()) {
-                        if ((layer.getTextureBitmap() != null) && (layer.getTextureBitmap().isWrapWidth()
-                                || layer.getTextureBitmap().isWrapHeight())) {
-                            wrap = true;
-                        }
-                    }
-                    wrapImage.setSelected(wrap);
-                }
-            } else if (x == JOptionPane.NO_OPTION) {
-                final JFileChooser jfc = new JFileChooser();
-                final EditableModel current = dispMDL.getModel();
-                final SaveProfile profile = SaveProfile.get();
-                if ((current != null) && (current.getWorkingDirectory() != null)) {
-                    jfc.setCurrentDirectory(current.getWorkingDirectory());
-                } else if (profile.getPath() != null) {
-                    jfc.setCurrentDirectory(new File(profile.getPath()));
-                }
-                jfc.setSelectedFile(null);
-                final int returnValue = jfc.showOpenDialog(this);
-
-                if (returnValue == JFileChooser.APPROVE_OPTION) {
-                    final File temp = jfc.getSelectedFile();
-                    final String fileName = temp.getName();
-                    String extension = "";
-                    final int i = fileName.lastIndexOf('.');
-                    if (i > 0) {
-                        extension = fileName.substring(i + 1);
-                    }
-                    if (extension.toLowerCase().equals("blp")) {
-                        vp.clearBackgroundImage();
-                        vp.addBackgroundImage(BLPHandler.get().getCustomTex(temp.getPath()));
-                    } else if (extension.toLowerCase().equals("tga")) {
-                        try {
-                            vp.clearBackgroundImage();
-                            vp.addBackgroundImage(TargaReader.getImage(temp.getPath()));
-                        } catch (final Exception e1) {
-                            e1.printStackTrace();
-                            ExceptionPopup.display("Unable to load (special case TGA) image file:", e1);
-                        }
-                    } else {
-                        try {
-                            vp.clearBackgroundImage();
-                            vp.addBackgroundImage(ImageIO.read(temp));
-                        } catch (final IOException e1) {
-                            e1.printStackTrace();
-                            ExceptionPopup.display("Unable to load image file:", e1);
-                        }
-                    }
-                }
-                // if( dispMDL.visibleGeosets.size() > 0 )
-                // {
-                //// for(Layer lay:
-                // dispMDL.visibleGeosets.get(0).getMaterial().layers)
-                //// {
-                //// Bitmap tex = lay.firstTexture();
-                //// String path = tex.getPath();
-                //// if( path.length() == 0 )
-                //// {
-                //// if( tex.getReplaceableId() == 1 )
-                //// {
-                //// path = "ReplaceableTextures\\TeamColor\\TeamColor00.blp";
-                //// }
-                //// else if( tex.getReplaceableId() == 2 )
-                //// {
-                //// path = "ReplaceableTextures\\TeamGlow\\TeamGlow00.blp";
-                //// }
-                //// }
-                //// try {
-                //// vp.addBackgroundImage(BLPHandler.get().getGameTex(path));
-                //// }
-                //// catch (Exception exc)
-                //// {
-                //// exc.printStackTrace();
-                //// try {
-                //// vp.addBackgroundImage(BLPHandler.get().getCustomTex(dispMDL.getMDL().getFile().getParent()+"\\"+path));
-                //// }
-                //// catch (Exception exc2)
-                //// {
-                //// exc2.printStackTrace();
-                //// JOptionPane.showMessageDialog(this, "BLP texture-loader
-                // failed.");
-                //// }
-                //// }
-                //// }
-                // }
-            }
+        if (e.getSource() == loadImage) {
+            loadImage();
         } else if (e.getSource() == setAspectRatio) {
-            final JPanel panel = new JPanel();
-            final JSpinner widthVal = new JSpinner(new SpinnerNumberModel(1, 1, 10000, 1));
-            final JSpinner heightVal = new JSpinner(new SpinnerNumberModel(1, 1, 10000, 1));
-            final JLabel toLabel = new JLabel(" to ");
-            panel.add(widthVal);
-            panel.add(toLabel);
-            panel.add(heightVal);
-            JOptionPane.showMessageDialog(this, panel);
-            vp.setAspectRatio(
-                    (Integer) widthVal.getValue() / (double) (Integer) heightVal.getValue());
+            setAspectRatio();
+        }
+    }
+
+    private void moveUpDown(int i) {
+        vp.translate(0, i * (1 / vp.getZoomAmount()));
+        vp.repaint();
+    }
+
+    private void moveLeftRight(int i) {
+        vp.translate(i * (1 / vp.getZoomAmount()), 0);// *vp.getZoomAmount()
+        vp.repaint();
+    }
+
+    private void zoom(double v) {
+        vp.zoom(v);
+        vp.repaint();
+    }
+
+    private void setAspectRatio() {
+        final JPanel panel = new JPanel();
+        final JSpinner widthVal = new JSpinner(new SpinnerNumberModel(1, 1, 10000, 1));
+        final JSpinner heightVal = new JSpinner(new SpinnerNumberModel(1, 1, 10000, 1));
+        final JLabel toLabel = new JLabel(" to ");
+        panel.add(widthVal);
+        panel.add(toLabel);
+        panel.add(heightVal);
+        JOptionPane.showMessageDialog(this, panel);
+        vp.setAspectRatio(
+                (Integer) widthVal.getValue() / (double) (Integer) heightVal.getValue());
+    }
+
+    private void loadImage() {
+        final int x = JOptionPane.showConfirmDialog(this,
+                "Do you want to use the texture auto-loader to find available textures?" +
+                        "\nIf you choose \"No\", then you will have to find a file on your hard drive instead.",
+                "Load Image", JOptionPane.YES_NO_CANCEL_OPTION);
+        if (x == JOptionPane.YES_OPTION) {
+            final DefaultListModel<Material> materials = new DefaultListModel<>();
+            for (int i = 0; i < dispMDL.getModel().getMaterials().size(); i++) {
+                final Material mat = dispMDL.getModel().getMaterials().get(i);
+                materials.addElement(mat);
+            }
+
+            final JList<Material> materialsList = new JList<>(materials);
+            materialsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            materialsList.setCellRenderer(new MaterialListRenderer(dispMDL.getModel()));
+            JOptionPane.showMessageDialog(this, new JScrollPane(materialsList));
+
+            vp.clearBackgroundImage();
+            if (materialsList.getSelectedValue() != null) {
+                vp.addBackgroundImage(materialsList.getSelectedValue()
+                        .getBufferedImage(dispMDL.getModel().getWrappedDataSource()));
+                boolean wrap = false;
+                for (final Layer layer : materialsList.getSelectedValue().getLayers()) {
+                    if ((layer.getTextureBitmap() != null) && (layer.getTextureBitmap().isWrapWidth()
+                            || layer.getTextureBitmap().isWrapHeight())) {
+                        wrap = true;
+                    }
+                }
+                wrapImage.setSelected(wrap);
+            }
+        } else if (x == JOptionPane.NO_OPTION) {
+            final JFileChooser jfc = new JFileChooser();
+            final EditableModel current = dispMDL.getModel();
+            final SaveProfile profile = SaveProfile.get();
+            if ((current != null) && (current.getWorkingDirectory() != null)) {
+                jfc.setCurrentDirectory(current.getWorkingDirectory());
+            } else if (profile.getPath() != null) {
+                jfc.setCurrentDirectory(new File(profile.getPath()));
+            }
+            jfc.setSelectedFile(null);
+            final int returnValue = jfc.showOpenDialog(this);
+
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                final File temp = jfc.getSelectedFile();
+                final String fileName = temp.getName();
+                String extension = "";
+                final int i = fileName.lastIndexOf('.');
+                if (i > 0) {
+                    extension = fileName.substring(i + 1);
+                }
+                if (extension.toLowerCase().equals("blp")) {
+                    vp.clearBackgroundImage();
+                    vp.addBackgroundImage(BLPHandler.get().getCustomTex(temp.getPath()));
+                } else if (extension.toLowerCase().equals("tga")) {
+                    try {
+                        vp.clearBackgroundImage();
+                        vp.addBackgroundImage(TargaReader.getImage(temp.getPath()));
+                    } catch (final Exception e1) {
+                        e1.printStackTrace();
+                        ExceptionPopup.display("Unable to load (special case TGA) image file:", e1);
+                    }
+                } else {
+                    try {
+                        vp.clearBackgroundImage();
+                        vp.addBackgroundImage(ImageIO.read(temp));
+                    } catch (final IOException e1) {
+                        e1.printStackTrace();
+                        ExceptionPopup.display("Unable to load image file:", e1);
+                    }
+                }
+            }
         }
     }
 

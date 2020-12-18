@@ -79,37 +79,36 @@ public final class VertexClusterSelectionManager extends AbstractSelectionManage
 			}
 			for (final Triangle triangle : geoset.getTriangles()) {
 				final GeosetVertex[] triangleVertices = triangle.getVerts();
-				if (selection.contains(
-						new VertexClusterModelEditor.VertexGroupBundle(geoset, vertexClusterDefinitions.getClusterId(triangleVertices[0])))
-						&& selection.contains(new VertexClusterModelEditor.VertexGroupBundle(geoset,
-								vertexClusterDefinitions.getClusterId(triangleVertices[1])))
-						&& selection.contains(new VertexClusterModelEditor.VertexGroupBundle(geoset,
-								vertexClusterDefinitions.getClusterId(triangleVertices[2])))) {
+				if (containsClusters(selection, geoset, triangleVertices)) {
 					renderer.renderFace(outlineColor, fillColor, triangle.get(0), triangle.get(1), triangle.get(2));
-				} else if (selection.contains(
-						new VertexClusterModelEditor.VertexGroupBundle(geoset, vertexClusterDefinitions.getClusterId(triangleVertices[0])))
-						&& selection.contains(new VertexClusterModelEditor.VertexGroupBundle(geoset,
-								vertexClusterDefinitions.getClusterId(triangleVertices[1])))) {
+				} else if (containsClusters(selection, geoset, triangleVertices, 0, 1)) {
 					renderer.renderFace(outlineColor, fillColor, triangle.get(0), triangle.get(1), triangle.get(0));
-				} else if (selection.contains(
-						new VertexClusterModelEditor.VertexGroupBundle(geoset, vertexClusterDefinitions.getClusterId(triangleVertices[0])))
-						&& selection.contains(new VertexClusterModelEditor.VertexGroupBundle(geoset,
-								vertexClusterDefinitions.getClusterId(triangleVertices[2])))) {
+				} else if (containsClusters(selection, geoset, triangleVertices, 0, 2)) {
 					renderer.renderFace(outlineColor, fillColor, triangle.get(0), triangle.get(2), triangle.get(0));
-				} else if (selection.contains(
-						new VertexClusterModelEditor.VertexGroupBundle(geoset, vertexClusterDefinitions.getClusterId(triangleVertices[1])))
-						&& selection.contains(new VertexClusterModelEditor.VertexGroupBundle(geoset,
-								vertexClusterDefinitions.getClusterId(triangleVertices[2])))) {
+				} else if (containsClusters(selection, geoset, triangleVertices, 1, 2)) {
 					renderer.renderFace(outlineColor, fillColor, triangle.get(1), triangle.get(2), triangle.get(1));
 				}
 			}
-			// for (final GeosetVertex geosetVertex : geoset.getVertices()) {
-			// if (selection.contains(new VertexGroupBundle(geoset,
-			// geosetVertex.getVertexGroup()))) {
-			// renderer.renderVertex(outlineColor, geosetVertex);
-			// }
-			// }
 		}
+	}
+
+	private boolean containsClusters(Set<VertexClusterModelEditor.VertexGroupBundle> selection, Geoset geoset, GeosetVertex[] triangleVertices) {
+		return containsCluster(selection, 0, geoset, triangleVertices)
+				&& containsCluster(selection, 1, geoset, triangleVertices)
+				&& containsCluster(selection, 2, geoset, triangleVertices);
+	}
+
+	private boolean containsClusters(Set<VertexClusterModelEditor.VertexGroupBundle> selection,
+	                                 Geoset geoset, GeosetVertex[] triangleVertices,
+	                                 int cluster1, int cluster2) {
+		return containsCluster(selection, cluster1, geoset, triangleVertices)
+				&& containsCluster(selection, cluster2, geoset, triangleVertices);
+	}
+
+	private boolean containsCluster(Set<VertexClusterModelEditor.VertexGroupBundle> selection,
+	                                int cluster, Geoset geoset, GeosetVertex[] triangleVertices) {
+		return selection.contains(
+				new VertexClusterModelEditor.VertexGroupBundle(geoset, vertexClusterDefinitions.getClusterId(triangleVertices[cluster])));
 	}
 
 	@Override

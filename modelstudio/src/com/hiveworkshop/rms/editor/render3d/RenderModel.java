@@ -167,8 +167,7 @@ public final class RenderModel {
 			node.visible = nodeVisible;
 
 			// Every node only needs to be updated if this is a forced update, or if both
-			// the parent node and the
-			// generic object corresponding to this node are visible.
+			// the parent node and the generic object corresponding to this node are visible.
 			// Incoming messy code for optimizations!
 			// --- All copied from Ghostwolf
 			if (nodeVisible) {
@@ -241,11 +240,9 @@ public final class RenderModel {
 					// where the front of the plane will face after we apply the node's rotation.
 					// We can easily do "billboarding", which is to say we can construct a rotation
 					// that turns this facing to face the camera. However, for BillboardLockY, we
-					// must
-					// instead take the projection of the vector that would result from this --
-					// "facing camera"
-					// vector, and take the projection of that vector onto the plane perpendicular
-					// to the billboard lock axis.
+					// must instead take the projection of the vector that would result from this --
+					// "facing camera" vector, and take the projection of that vector onto the plane
+					// perpendicular to the billboard lock axis.
 
 					wasDirty = true;
 
@@ -276,16 +273,14 @@ public final class RenderModel {
 				node.wasDirty = wasReallyDirty;
 
 				// If this is a forced upate, or this node's local data was updated, or the
-				// parent node updated, do
-				// a full world update.
+				// parent node updated, do a full world update.
 
 				if (wasReallyDirty) {
 					node.recalculateTransformation();
 				}
 
 				// If there is an instance object associated with this node, and the node is
-				// visible (which might
-				// not be the case for a forced update!), update the object.
+				// visible (which might not be the case for a forced update!), update the object.
 				// This includes attachments and emitters.
 
 				// TODO instanced rendering in 2090

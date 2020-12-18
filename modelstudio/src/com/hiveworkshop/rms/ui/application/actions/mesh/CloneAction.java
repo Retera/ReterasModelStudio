@@ -1,14 +1,14 @@
 package com.hiveworkshop.rms.ui.application.actions.mesh;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.ui.application.actions.VertexActionType;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * CloneAction -- allowing you to undo clone!
@@ -65,33 +65,19 @@ public class CloneAction implements UndoAction {
 				if (good) {
 					final List<Triangle> tris = new ArrayList<>(gv.getTriangles());
 					for (final Triangle t : tris) {
-						if (!selection.contains(t.get(0)) || !selection.contains(t.get(1))
+						if (!selection.contains(t.get(0))
+								|| !selection.contains(t.get(1))
 								|| !selection.contains(t.get(2))) {
-							// System.out.println("SHOULD be one:
-							// "+Collections.frequency(tris,t));
-							// System.out.println("should be a number:
-							// "+t.indexOfRef(gv));
-							// System.out.println("should be a negative one
-							// number: "+t.indexOfRef(cgv));
+
 							t.set(t.indexOfRef(gv), cgv);
 							gv.getTriangles().remove(t);
 							cgv.getTriangles().add(t);
 						}
 					}
 				}
-				// cgv.geoset.addVertex(cgv);
 			}
 		}
-		for (final Triangle t : addedTriangles) {
-			for (final GeosetVertex gv : t.getAll()) {
-				if (!gv.getTriangles().contains(t)) {
-					gv.getTriangles().add(t);
-				}
-			}
-			if (!t.getGeoset().contains(t)) {
-				t.getGeoset().addTriangle(t);
-			}
-		}
+		addTriangles();
 		for (final GeosetVertex cgv : addedVerts) {
 			if (cgv != null) {
 				boolean inGeoset = false;
@@ -106,45 +92,34 @@ public class CloneAction implements UndoAction {
 				}
 			}
 		}
-		// for( Triangle t: addedTriangles )
-		// {
-		// t.m_geoRef.addTriangle(t);
-		// }
-		int probs = 0;
-		for (final Vec3 vert : selection) {
-			if (vert.getClass() == GeosetVertex.class) {
-				final GeosetVertex gv = (GeosetVertex) vert;
-				for (final Triangle t : gv.getTriangles()) {
-					System.out.println("SHOULD be one: " + Collections.frequency(gv.getTriangles(), t));
-					if (!t.containsRef(gv)) {
-						probs++;
-					}
+
+		checkForErrors("Redo ");
+	}
+
+	private void addTriangles() {
+		for (final Triangle t : addedTriangles) {
+			for (final GeosetVertex gv : t.getAll()) {
+				if (!gv.getTriangles().contains(t)) {
+					gv.getTriangles().add(t);
 				}
 			}
+			if (!t.getGeoset().contains(t)) {
+				t.getGeoset().addTriangle(t);
+			}
 		}
-		System.out.println("Redo " + actionName() + " finished with " + probs + " inexplicable errors.");
 	}
 
 	@Override
 	public void undo() {
 		baseMovement.undo();
 		if (type) {
-			for (final Triangle t : addedTriangles) {
-				for (final GeosetVertex gv : t.getAll()) {
-					gv.getTriangles().remove(t);
-				}
-				t.getGeoset().removeTriangle(t);
-			}
+			removeTriangle();
 			for (int i = 0; i < addedVerts.size(); i++) {
 				final GeosetVertex cgv = addedVerts.get(i);
 				if (cgv != null) {
 					final GeosetVertex gv = (GeosetVertex) selection.get(addedVerts.indexOf(cgv));
 					final List<Triangle> ctris = new ArrayList<>(cgv.getTriangles());
-					for (final Triangle t : ctris) {
-						t.set(t.indexOf(cgv), gv);
-						cgv.getTriangles().remove(t);
-						gv.getTriangles().add(t);
-					}
+					moveTriangle(cgv, gv, ctris);
 					cgv.getGeoset().remove(cgv);
 					if (!gv.getGeoset().contains(gv)) {
 						gv.getGeoset().addVertex(gv);
@@ -152,22 +127,13 @@ public class CloneAction implements UndoAction {
 				}
 			}
 		} else {
-			for (final Triangle t : addedTriangles) {
-				for (final GeosetVertex gv : t.getAll()) {
-					gv.getTriangles().remove(t);
-				}
-				t.getGeoset().removeTriangle(t);
-			}
+			removeTriangle();
 			for (int i = 0; i < addedVerts.size(); i++) {
 				final GeosetVertex cgv = addedVerts.get(i);
 				if (cgv != null) {
 					final GeosetVertex gv = copiedGroup.get(addedVerts.indexOf(cgv));
 					final List<Triangle> ctris = new ArrayList<>(cgv.getTriangles());
-					for (final Triangle t : ctris) {
-						t.set(t.indexOf(cgv), gv);
-						cgv.getTriangles().remove(t);
-						gv.getTriangles().add(t);
-					}
+					moveTriangle(cgv, gv, ctris);
 					cgv.getGeoset().remove(cgv);
 					if (!gv.getGeoset().contains(gv)) {
 						gv.getGeoset().addVertex(gv);
@@ -175,23 +141,11 @@ public class CloneAction implements UndoAction {
 				}
 			}
 		}
-		// for( GeosetVertex cgv: addedVerts )
-		// {
-		// if( cgv != null )
-		// {
-		// boolean inGeoset = false;
-		// for( Triangle t: cgv.geoset.m_triangle )
-		// {
-		// if( t.containsRef(cgv) )
-		// {
-		// inGeoset = true;
-		// break;
-		// }
-		// }
-		// if( inGeoset )
-		// cgv.geoset.remove(cgv);
-		// }
-		// }
+
+		checkForErrors("Undo ");
+	}
+
+	private void checkForErrors(String s) {
 		int probs = 0;
 		for (final Vec3 vert : selection) {
 			if (vert.getClass() == GeosetVertex.class) {
@@ -204,7 +158,24 @@ public class CloneAction implements UndoAction {
 				}
 			}
 		}
-		System.out.println("Undo " + actionName() + " finished with " + probs + " inexplicable errors.");
+		System.out.println(s + actionName() + " finished with " + probs + " inexplicable errors.");
+	}
+
+	private void moveTriangle(GeosetVertex cgv, GeosetVertex gv, List<Triangle> ctris) {
+		for (final Triangle t : ctris) {
+			t.set(t.indexOf(cgv), gv);
+			cgv.getTriangles().remove(t);
+			gv.getTriangles().add(t);
+		}
+	}
+
+	private void removeTriangle() {
+		for (final Triangle t : addedTriangles) {
+			for (final GeosetVertex gv : t.getAll()) {
+				gv.getTriangles().remove(t);
+			}
+			t.getGeoset().removeTriangle(t);
+		}
 	}
 
 	@Override

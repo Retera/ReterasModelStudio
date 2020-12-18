@@ -52,24 +52,27 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 		throw new UnsupportedOperationException("This feature is not available in Face mode");
 	}
 
-	@Override
-	public UndoAction addTeamColor() {
-		// copy the selection before we hand it off, so the we can't strip the stored
-		// action's
-		// list of faces to add/remove
-		final TeamColorAddAction<Triangle> teamColorAddAction = new TeamColorAddAction<>(
-				new ArrayList<>(selectionManager.getSelection()), model.getModel(), structureChangeListener,
-				selectionManager, vertexSelectionHelper);
-		teamColorAddAction.redo();
-		return teamColorAddAction;
+	public static boolean hitTest(final Triangle triangle, final Rectangle2D rectangle,
+	                              final CoordinateSystem coordinateSystem) {
+		final byte dim1 = coordinateSystem.getPortFirstXYZ();
+		final byte dim2 = coordinateSystem.getPortSecondXYZ();
+		final GeosetVertex[] verts = triangle.getVerts();
+		final Path2D.Double path = new Path2D.Double();
+		path.moveTo(verts[0].getCoord(dim1), verts[0].getCoord(dim2));
+		for (int i = 1; i < verts.length; i++) {
+			path.lineTo(verts[i].getCoord(dim1), verts[i].getCoord(dim2));
+		}
+		return rectangle.contains(verts[0].getCoord(dim1), verts[0].getCoord(dim2))
+				|| rectangle.contains(verts[1].getCoord(dim1), verts[1].getCoord(dim2))
+				|| rectangle.contains(verts[2].getCoord(dim1), verts[2].getCoord(dim2))
+				|| path.intersects(rectangle);
 	}
 
 	@Override
-	public UndoAction splitGeoset() {
+	public UndoAction addTeamColor() {
 		// copy the selection before we hand it off, so the we can't strip the stored
-		// action's
-		// list of faces to add/remove
-		final SplitGeosetAction<Triangle> teamColorAddAction = new SplitGeosetAction<>(
+		// action's list of faces to add/remove
+		final TeamColorAddAction<Triangle> teamColorAddAction = new TeamColorAddAction<>(
 				new ArrayList<>(selectionManager.getSelection()), model.getModel(), structureChangeListener,
 				selectionManager, vertexSelectionHelper);
 		teamColorAddAction.redo();
@@ -233,19 +236,15 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 		return path.contains(point);
 	}
 
-	public static boolean hitTest(final Triangle triangle, final Rectangle2D rectangle,
-			final CoordinateSystem coordinateSystem) {
-		final byte dim1 = coordinateSystem.getPortFirstXYZ();
-		final byte dim2 = coordinateSystem.getPortSecondXYZ();
-		final GeosetVertex[] verts = triangle.getVerts();
-		final Path2D.Double path = new Path2D.Double();
-		path.moveTo(verts[0].getCoord(dim1), verts[0].getCoord(dim2));
-		for (int i = 1; i < verts.length; i++) {
-			path.lineTo(verts[i].getCoord(dim1), verts[i].getCoord(dim2));
-		}
-		return rectangle.contains(verts[0].getCoord(dim1), verts[0].getCoord(dim2))
-				|| rectangle.contains(verts[1].getCoord(dim1), verts[1].getCoord(dim2))
-				|| rectangle.contains(verts[2].getCoord(dim1), verts[2].getCoord(dim2)) || path.intersects(rectangle);
+	@Override
+	public UndoAction splitGeoset() {
+		// copy the selection before we hand it off, so the we can't strip the stored
+		// action's list of faces to add/remove
+		final SplitGeosetAction<Triangle> teamColorAddAction = new SplitGeosetAction<>(
+				new ArrayList<>(selectionManager.getSelection()), model.getModel(), structureChangeListener,
+				selectionManager, vertexSelectionHelper);
+		teamColorAddAction.redo();
+		return teamColorAddAction;
 	}
 
 	@Override

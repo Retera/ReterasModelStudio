@@ -1,13 +1,8 @@
 package com.hiveworkshop.rms.ui.application.edit;
 
-import java.util.List;
+import com.hiveworkshop.rms.editor.model.*;
 
-import com.hiveworkshop.rms.editor.model.AnimFlag;
-import com.hiveworkshop.rms.editor.model.Animation;
-import com.hiveworkshop.rms.editor.model.Camera;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.TimelineContainer;
+import java.util.List;
 
 public interface ModelStructureChangeListener {
 	void geosetsAdded(List<Geoset> geosets);
@@ -41,4 +36,6 @@ public interface ModelStructureChangeListener {
 	void animationParamsChanged(Animation animation);
 
 	void globalSequenceLengthChanged(int index, Integer newLength);
+
+	void materialsListChanged();
 }

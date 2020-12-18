@@ -54,25 +54,20 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 
 	public UnitEditorModelSelector() {
 		root = new DefaultMutableTreeNode();
-		// System.out.println(unitData.get("opeo").getName());
-		// root.add(new DefaultMutableTreeNode(unitData.get("opeo")));
-		// root.add(new DefaultMutableTreeNode(unitData.get("hpea")));
-		// root.add(new DefaultMutableTreeNode(unitData.get("uaco")));
-		final DefaultMutableTreeNode standardUnitsFolder = new DefaultMutableTreeNode(
-				WEString.getString("WESTRING_UE_STANDARDUNITS"));
-		final DefaultMutableTreeNode customUnitsFolder = new DefaultMutableTreeNode(
-				WEString.getString("WESTRING_UE_CUSTOMUNITS"));
+
+		final DefaultMutableTreeNode standardUnitsFolder = new DefaultMutableTreeNode(WEString.getString("WESTRING_UE_STANDARDUNITS"));
+		final DefaultMutableTreeNode customUnitsFolder = new DefaultMutableTreeNode(WEString.getString("WESTRING_UE_CUSTOMUNITS"));
 		sortRaces();
+
 		for (int i = 0; i < 7; i++) {
 			final String race = raceName(i);
 			final String raceKey = raceKey(i);
 			final DefaultMutableTreeNode humanFolder = new DefaultMutableTreeNode(race);
-			final DefaultMutableTreeNode humanMeleeFolder = new DefaultMutableTreeNode(
-					WEString.getString("WESTRING_MELEE"));
-			final DefaultMutableTreeNode humanCampFolder = new DefaultMutableTreeNode(
-					WEString.getString("WESTRING_CAMPAIGN"));
+			final DefaultMutableTreeNode humanMeleeFolder = new DefaultMutableTreeNode(WEString.getString("WESTRING_MELEE"));
+			final DefaultMutableTreeNode humanCampFolder = new DefaultMutableTreeNode(WEString.getString("WESTRING_CAMPAIGN"));
 			final RaceData humanMData = sortedRaces.get(raceKey + "melee");
 			final RaceData humanCData = sortedRaces.get(raceKey + "campaign");
+
 			loadRaceData(humanMeleeFolder, humanMData);
 			loadRaceData(humanCampFolder, humanCData);
 			if (humanMeleeFolder.getLeafCount() > 1) {
@@ -95,12 +90,10 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 		final JScrollPane treePane;
 		setLeftComponent(treePane = new JScrollPane(tree));
 		final JPanel temp = new JPanel();
-		// temp.setBackground(Color.blue);
 		temp.add(debugLabel);
 
 		// TODO null prefs
 		modelPanel = new PerspDisplayPanel("blank", modelDisp, null, new RenderModel(modelDisp.getModel(), null));
-		// table.setShowGrid(false);
 		fillTable();
 
 		setRightComponent(modelPanel);
@@ -138,78 +131,29 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 			currentUnit = unitData.get("hpea");
 		}
 		if (currentUnit != null) {
+			String filepath = currentUnit.getField("file");
 
-		} else {
-			return;
-		}
+			ModelView modelDisp = null;
 
-		String filepath = currentUnit.getField("file");
-
-		ModelView modelDisp = null;
-		try {
 			if (filepath.endsWith(".mdl")) {
 				filepath = filepath.replace(".mdl", ".mdx");
 			} else if (!filepath.endsWith(".mdx")) {
 				filepath = filepath.concat(".mdx");
 			}
+
 			try (InputStream reader = GameDataFileSystem.getDefault().getResourceAsStream(filepath)) {
 				mdl = new EditableModel(MdxUtils.loadMdlx(reader));
 				modelDisp = new ModelViewManager(mdl);
 				modelPanel.setViewport(modelDisp);
 				modelPanel.setTitle(currentUnit.getName());
 			} catch (final IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+				// bad model!
+				JOptionPane.showMessageDialog(getParent(), "The chosen model could not be used.", "Program Error",
+						JOptionPane.ERROR_MESSAGE);
 			}
-			// loadFile(MPQHandler.get().getGameFile(filepath), true);
-			// modelMenu.getAccessibleContext().setAccessibleDescription("Allows
-			// the user to control which parts of the model are displayed for
-			// editing.");
-			// modelMenu.setEnabled(true);
-			// modelDisp = new MDLDisplay(toLoad, null);
-		} catch (final Exception exc) {
-			exc.printStackTrace();
-			// bad model!
-			JOptionPane.showMessageDialog(getParent(), "The chosen model could not be used.", "Program Error",
-					JOptionPane.ERROR_MESSAGE);
+
 		}
-		// Vector colNames = new Vector();
-		// colNames.add("Name");
-		// colNames.add("Value");
-		// Vector fields = new Vector();
-		// for( String fieldId: unitMetaData.keySet() ) {
-		// Element field = unitMetaData.get(fieldId);
-		// Vector fieldVect = new Vector();
-		// String name = field.getField("field");
-		// if( !settings.isDisplayAsRawData() ) {
-		// name = categoryName(field.getField("category"))+" -
-		// "+WEString.getString(field.getField("displayName"));
-		// }
-		//
-		// fieldVect.add(name);
-		// fieldVect.add(currentUnit.getField(field.getField("field")));
-		// if( field.getFieldValue("useUnit") > 0
-		// || (currentUnit.getFieldValue("isbldg") > 0 &&
-		// field.getFieldValue("useBuilding") > 0)
-		// || (Character.isUpperCase(currentUnit.getId().charAt(0)) &&
-		// field.getFieldValue("useHero") > 0)
-		// )
-		// fields.add(fieldVect);
-		// }
-		// fields.sort(new Comparator<Vector>() {
-		//
-		// @Override
-		// public int compare(Vector o1, Vector o2) {
-		// return o1.get(0).toString().compareTo(o2.get(0).toString());
-		// }
-		//
-		// });
-		// if( tableModel == null ) {
-		// tableModel = new DefaultTableModel(fields, colNames);
-		// table.setModel(tableModel);
-		// } else {
-		// tableModel.setDataVector(fields, colNames);
-		// }
 	}
 
 	public void loadHotkeys() {
@@ -219,9 +163,9 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				settings.setDisplayAsRawData(!settings.isDisplayAsRawData());
-				final Enumeration<TreeNode> enumer = UnitEditorModelSelector.this.root.breadthFirstEnumeration();
-				while (enumer.hasMoreElements()) {
-					model.nodeChanged(enumer.nextElement());
+				final Enumeration<TreeNode> enumeration = UnitEditorModelSelector.this.root.breadthFirstEnumeration();
+				while (enumeration.hasMoreElements()) {
+					model.nodeChanged(enumeration.nextElement());
 				}
 				fillTable();
 				repaint();
@@ -241,38 +185,25 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 	}
 
 	public void loadRaceData(final DefaultMutableTreeNode folder, final RaceData data) {
-		final DefaultMutableTreeNode units = new DefaultMutableTreeNode(WEString.getString("WESTRING_UNITS"));
-		final DefaultMutableTreeNode buildings = new DefaultMutableTreeNode(
-				WEString.getString("WESTRING_UTYPE_BUILDINGS"));
-		final DefaultMutableTreeNode heroes = new DefaultMutableTreeNode(WEString.getString("WESTRING_UTYPE_HEROES"));
-		final DefaultMutableTreeNode special = new DefaultMutableTreeNode(WEString.getString("WESTRING_UTYPE_SPECIAL"));
-		for (final WarcraftObject u : data.units) {
-			final DefaultMutableTreeNode node;
-			units.add(node = new DefaultMutableTreeNode(u));
-			if (defaultSelection == null) {
-				defaultSelection = node;
-			}
+		fetchAndAddRaceData(folder, "WESTRING_UNITS", data.units);
+
+		fetchAndAddRaceData(folder, "WESTRING_UTYPE_BUILDINGS", data.buildings);
+
+		fetchAndAddRaceData(folder, "WESTRING_UTYPE_HEROES", data.heroes);
+
+		fetchAndAddRaceData(folder, "WESTRING_UTYPE_SPECIAL", data.special);
+	}
+
+	private void fetchAndAddRaceData(DefaultMutableTreeNode folder, String weString, List<WarcraftObject> objects) {
+		final DefaultMutableTreeNode units = new DefaultMutableTreeNode(WEString.getString(weString));
+		for (final WarcraftObject u : objects) {
+			units.add(new DefaultMutableTreeNode(u));
 		}
-		for (final WarcraftObject u : data.buildings) {
-			buildings.add(new DefaultMutableTreeNode(u));
-		}
-		for (final WarcraftObject u : data.heroes) {
-			heroes.add(new DefaultMutableTreeNode(u));
-		}
-		for (final WarcraftObject u : data.special) {
-			special.add(new DefaultMutableTreeNode(u));
-		}
-		if (data.units.size() > 0) {
+		if (objects.size() > 0) {
 			folder.add(units);
-		}
-		if (data.buildings.size() > 0) {
-			folder.add(buildings);
-		}
-		if (data.heroes.size() > 0) {
-			folder.add(heroes);
-		}
-		if (data.special.size() > 0) {
-			folder.add(special);
+			if (defaultSelection == null) {
+				defaultSelection = units.getFirstLeaf();
+			}
 		}
 	}
 
@@ -349,7 +280,6 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 				final String abilities = unit.getField("abilList");
 				final boolean isCampaign = unit.getField("campaign").startsWith("1");
 				// boolean isCustom = !unit.getField("inEditor").startsWith("1");
-				int sortGroupId = 0;
 
 				for (int i = 0; i < 6; i++) {
 					if (unit.getField("race").equals(raceKey(i))) {
@@ -360,6 +290,7 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 					raceKey = "hostiles";
 				}
 
+				int sortGroupId = 0;
 				if (unit.getField("special").startsWith("1")) {
 					sortGroupId = 4;
 				} else if ((unit.getId().length() > 1) && Character.isUpperCase(unit.getId().charAt(0))) {
@@ -401,7 +332,6 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 		if (o.getUserObject() instanceof WarcraftObject) {
 			final WarcraftObject obj = (WarcraftObject) o.getUserObject();
 			debugLabel.setText(obj.getName());
-			// System.out.println(obj.getId());
 			currentUnit = obj;
 			fillTable();
 		}
