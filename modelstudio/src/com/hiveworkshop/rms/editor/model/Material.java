@@ -42,7 +42,10 @@ public class Material {
 	}
 
 	public Material(final Material material) {
-		layers.addAll(material.layers);
+		// copying the layers so the new material don't have to share them with the old one
+		for (Layer layer : material.layers) {
+			this.layers.add(new Layer(layer));
+		}
 		priorityPlane = material.priorityPlane;
 		shaderString = material.shaderString;
 		constantColor = material.constantColor;

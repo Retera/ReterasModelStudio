@@ -1,20 +1,12 @@
 package com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Rectangle;
-
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
-
 import com.hiveworkshop.rms.editor.model.AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.util.Quat;
-
 import net.miginfocom.swing.MigLayout;
+
+import javax.swing.*;
+import java.awt.*;
 
 public class TSpline extends JPanel {
 	private final TTan der; // in mdlvis this was just called der, and whatever, I'm copying them right now
@@ -28,13 +20,9 @@ public class TSpline extends JPanel {
 	public TSpline(final TTan der) {
 		super(new MigLayout("fillx, filly", "[grow][]", "[][grow][][][]"));
 		this.der = der;
-//		der = new TTan();
-//		der.cur = new AnimFlag.Entry(null, null);
-//		der.next = new AnimFlag.Entry(null, null);
-//		der.prev = new AnimFlag.Entry(null, null);
-//		der.tang = new AnimFlag.Entry(null, null);
 		add(new JLabel("Curve properties"), "growx");
 		add(new JButton("-"), "wrap");
+
 		curveRenderer = new CurveRenderer();
 		curveRenderer.setBackground(Color.WHITE);
 		add(curveRenderer, "wrap");
@@ -42,9 +30,11 @@ public class TSpline extends JPanel {
 		add(new JLabel("Tension:"), "growx");
 		tensionSpinner = new JSpinner(new SpinnerNumberModel(0.0, Long.MIN_VALUE, Long.MAX_VALUE, 0.01));
 		add(tensionSpinner, "wrap");
+
 		add(new JLabel("Continuity:"), "growx");
 		continuitySpinner = new JSpinner(new SpinnerNumberModel(0.0, Long.MIN_VALUE, Long.MAX_VALUE, 0.01));
 		add(continuitySpinner, "wrap");
+
 		add(new JLabel("Bias:"), "growx");
 		biasSpinner = new JSpinner(new SpinnerNumberModel(0.0, Long.MIN_VALUE, Long.MAX_VALUE, 0.01));
 		add(biasSpinner, "wrap");
@@ -63,7 +53,7 @@ public class TSpline extends JPanel {
 		final int num;
 		len = timeline.size();
 		num = timeline.ceilIndex(currentFrame);
-		if ((num == 0) || (num >= (len - 1)) || (timeline.getInterpType() != InterpolationType.HERMITE)) {
+		if ((num == 0) || (num >= (len - 1)) || (timeline.getInterpolationType() != InterpolationType.HERMITE)) {
 			setVisible(false);
 			return;
 		}
@@ -146,7 +136,7 @@ public class TSpline extends JPanel {
 			der.calcDerivativeXD(1);
 			g.setColor(Color.BLACK);
 			i = 0;
-			final InterpolationType interpType = timeline.getInterpType();
+			final InterpolationType interpType = timeline.getInterpolationType();
 			do {
 				itd.set(der.tang);
 				TTan.assignSubscript(itd.value, 0, 100);
@@ -157,19 +147,9 @@ public class TSpline extends JPanel {
 				TTan.assignSubscript(its.inTan, 0, 0);
 				TTan.assignSubscript(its.outTan, 0, 0);
 
-				switch (interpType) {
-					case HERMITE:
-						TTan.spline(i, its, itd);
-						break;
-					case BEZIER:
-						TTan.bezInterp(i, its, itd);
-						break;
-					default:
-						break;
-				}
+				TTan_doStuff(i, interpType);
 				final float newRenderX = Math.round(pixPerUnitX * i);
-				final float newRenderY = rect.height
-						- Math.round(pixPerUnitY * TTan.getSubscript(itd.value, 0).floatValue());
+				final float newRenderY = rect.height - Math.round(pixPerUnitY * TTan.getSubscript(itd.value, 0).floatValue());
 				g.drawLine((int) renderX, (int) renderY, (int) newRenderX, (int) newRenderY);
 				renderX = newRenderX;
 				renderY = newRenderY;
@@ -189,19 +169,9 @@ public class TSpline extends JPanel {
 				its.time = 100;
 				TTan.assignSubscript(its.value, 0, 100);
 
-				switch (interpType) {
-					case HERMITE:
-						TTan.spline(i, its, itd);
-						break;
-					case BEZIER:
-						TTan.bezInterp(i, its, itd);
-						break;
-					default:
-						break;
-				}
+				TTan_doStuff(i, interpType);
 				final float newRenderX = Math.round(pixPerUnitX * i);
-				final float newRenderY = rect.height
-						- Math.round(pixPerUnitY * TTan.getSubscript(itd.value, 0).floatValue());
+				final float newRenderY = rect.height - Math.round(pixPerUnitY * TTan.getSubscript(itd.value, 0).floatValue());
 				g.drawLine((int) renderX, (int) renderY, (int) newRenderX, (int) newRenderY);
 				renderX = newRenderX;
 				renderY = newRenderY;
@@ -210,8 +180,14 @@ public class TSpline extends JPanel {
 
 			// Central line
 			g.setColor(Color.RED);
-			g.drawLine((Math.round(pixPerUnitX * 100)), rect.height, Math.round(pixPerUnitX * 100),
-					rect.height - Math.round(pixPerUnitY * 100));
+			g.drawLine((Math.round(pixPerUnitX * 100)), rect.height, Math.round(pixPerUnitX * 100), rect.height - Math.round(pixPerUnitY * 100));
+		}
+
+		private void TTan_doStuff(int i, InterpolationType interpType) {
+			switch (interpType) {
+				case HERMITE -> TTan.spline(i, its, itd);
+				case BEZIER -> TTan.bezInterp(i, its, itd);
+			}
 		}
 	}
 

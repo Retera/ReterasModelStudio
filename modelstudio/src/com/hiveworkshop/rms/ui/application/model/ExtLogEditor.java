@@ -24,27 +24,30 @@ public class ExtLogEditor extends JPanel {
 
 	public ExtLogEditor() {
 		minimumExtentBox = new JCheckBox("Minimum Extent");
-		minimumExtentX = new ComponentEditorJSpinner(
-				new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
+
+		minimumExtentX = new ComponentEditorJSpinner(new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
 		minimumExtentX.setMaximumSize(MAXIMUM_SIZE);
-		minimumExtentY = new ComponentEditorJSpinner(
-				new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
+
+		minimumExtentY = new ComponentEditorJSpinner(new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
 		minimumExtentY.setMaximumSize(MAXIMUM_SIZE);
-		minimumExtentZ = new ComponentEditorJSpinner(
-				new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
+
+		minimumExtentZ = new ComponentEditorJSpinner(new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
 		minimumExtentZ.setMaximumSize(MAXIMUM_SIZE);
 		minimumExtentBox.addActionListener(e -> updateMinExtOptionsAvailable());
+
 		maximumExtentBox = new JCheckBox("Maximum Extent");
-		maximumExtentX = new ComponentEditorJSpinner(
-				new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
+
+		maximumExtentX = new ComponentEditorJSpinner(new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
 		maximumExtentX.setMaximumSize(MAXIMUM_SIZE);
-		maximumExtentY = new ComponentEditorJSpinner(
-				new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
+
+		maximumExtentY = new ComponentEditorJSpinner(new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
 		maximumExtentY.setMaximumSize(MAXIMUM_SIZE);
-		maximumExtentZ = new ComponentEditorJSpinner(
-				new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
+
+		maximumExtentZ = new ComponentEditorJSpinner(new SpinnerNumberModel(0., -Integer.MAX_VALUE, Integer.MAX_VALUE, 1.0));
 		maximumExtentZ.setMaximumSize(MAXIMUM_SIZE);
+
 		maximumExtentBox.addActionListener(e -> updateMaxExtOptionsAvailable());
+
 		boundsRadiusBox = new JCheckBox("Bounds Radius");
 		boundsRadius = new ComponentEditorJSpinner(new SpinnerNumberModel(0., -Long.MAX_VALUE, Long.MAX_VALUE, 1.0));
 		boundsRadius.setMaximumSize(MAXIMUM_SIZE);
@@ -88,9 +91,11 @@ public class ExtLogEditor extends JPanel {
 		minimumExtentX.addActionListener(actionListener);
 		minimumExtentY.addActionListener(actionListener);
 		minimumExtentZ.addActionListener(actionListener);
+
 		maximumExtentX.addActionListener(actionListener);
 		maximumExtentY.addActionListener(actionListener);
 		maximumExtentZ.addActionListener(actionListener);
+
 		boundsRadius.addActionListener(actionListener);
 		final ActionListener actionAdapter = e -> actionListener.run();
 		minimumExtentBox.addActionListener(actionAdapter);

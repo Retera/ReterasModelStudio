@@ -194,7 +194,7 @@ public class Layer extends TimelineContainer implements Named {
 		textureId = other.textureId;
 		TVertexAnimId = other.TVertexAnimId;
 		coordId = other.coordId;
-		texture = new Bitmap(other.texture);
+		texture = other.texture;
 		if (other.textureAnim != null) {
 			textureAnim = new TextureAnim(other.textureAnim);
 		} else {
@@ -211,13 +211,19 @@ public class Layer extends TimelineContainer implements Named {
 		unfogged = other.unfogged;
 		noDepthTest = other.noDepthTest;
 		noDepthSet = other.noDepthSet;
-		unshaded = other.unshaded;
 		unlit = other.unlit;
+
+		for (AnimFlag animFlag : other.getAnimFlags()) {
+			add(new AnimFlag(animFlag));
+		}
+
 		textures = new ArrayList<>();
-		addAll(other.getAnimFlags());
 		if (other.textures != null) {
+//			for (final Bitmap bmp : other.textures) {
+//				textures.add(new Bitmap(bmp));
+//			}
 			for (final Bitmap bmp : other.textures) {
-				textures.add(new Bitmap(bmp));
+				textures.add(bmp);
 			}
 		} else {
 			textures = null;
@@ -355,16 +361,9 @@ public class Layer extends TimelineContainer implements Named {
 		textureAnim = texa;
 	}
 
-	public void setTextureAnim(final List<TextureAnim> list) { // Sets the
-		// texture
-		// anim
-		// reference
-		// to the
-		// one from
-		// the list
-		// corresponding
-		// to the
-		// TVertexAnimId
+	public void setTextureAnim(final List<TextureAnim> list) {
+		// Sets the texture anim reference to the one from
+		// the list corresponding to the TVertexAnimId
 		textureAnim = list.get(TVertexAnimId);
 	}
 

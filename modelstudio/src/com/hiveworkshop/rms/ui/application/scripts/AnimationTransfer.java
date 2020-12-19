@@ -45,33 +45,36 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 		baseFileLabel = new JLabel("Base file:");
 		baseFileInput = new JTextField("");
 		baseFileInput.setMinimumSize(new Dimension(200, 18));
-		baseBrowse = new JButton("...");
+
 		final Dimension dim = new Dimension(28, 18);
+		baseBrowse = new JButton("...");
 		baseBrowse.setMaximumSize(dim);
 		baseBrowse.setMinimumSize(dim);
 		baseBrowse.setPreferredSize(dim);
-		baseBrowse.addActionListener(this);
+		baseBrowse.addActionListener(e -> openAction(baseFileInput));
 
 		animFileLabel = new JLabel("Animation file:");
 		animFileInput = new JTextField("");
 		animFileInput.setMinimumSize(new Dimension(200, 18));
+
 		animBrowse = new JButton("...");
 		animBrowse.setMaximumSize(dim);
 		animBrowse.setMinimumSize(dim);
 		animBrowse.setPreferredSize(dim);
-		animBrowse.addActionListener(this);
+		animBrowse.addActionListener(e -> openAction(animFileInput));
 
 		outFileLabel = new JLabel("Output file:");
 		outFileInput = new JTextField("");
 		outFileInput.setMinimumSize(new Dimension(200, 18));
+
 		outBrowse = new JButton("...");
 		outBrowse.setMaximumSize(dim);
 		outBrowse.setMinimumSize(dim);
 		outBrowse.setPreferredSize(dim);
-		outBrowse.addActionListener(this);
+		outBrowse.addActionListener(e -> saveAction());
 
 		transferSingleAnimation = new JCheckBox("", false);
-		transferSingleAnimation.addActionListener(this);
+		transferSingleAnimation.addActionListener(e -> transferSingleAnimation());
 		transSingleLabel = new JLabel("Transfer single animation:");
 
 		pickAnimLabel = new JLabel("Animation to transfer:");
@@ -85,16 +88,16 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 		transfer = new JButton("Transfer");
 		transfer.setMnemonic(KeyEvent.VK_T);
 		transfer.setMinimumSize(new Dimension(200, 35));
-		transfer.addActionListener(this);
+		transfer.addActionListener(e -> transfer(false));
 
 		done = new JButton("Done");
 		done.setMnemonic(KeyEvent.VK_D);
 		done.setMinimumSize(new Dimension(80, 35));
-		done.addActionListener(this);
+		done.addActionListener(e -> done());
 
 		goAdvanced = new JButton("Go Advanced");
 		goAdvanced.setMnemonic(KeyEvent.VK_G);
-		goAdvanced.addActionListener(this);
+		goAdvanced.addActionListener(e -> transfer(true));
 		goAdvanced.setToolTipText(
 				"Opens the traditional MatrixEater Import window responsible for this Simple Import, " +
 						"so that you can micro-manage particular settings before finishing the operation.");
@@ -199,113 +202,54 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 
 	public void updateBoxes() {
 		if (animFile != null) {
-			final DefaultComboBoxModel<Animation> model = new DefaultComboBoxModel<>();
-
-			for (int i = 0; i < animFile.getAnimsSize(); i++) {
-				final Animation anim = animFile.getAnim(i);
-				model.addElement(anim);
-			}
-			final ComboBoxModel<Animation> oldModel = pickAnimBox.getModel();
-			boolean equalModels = oldModel.getSize() > 0;
-			for (int i = 0; i < oldModel.getSize() && i < model.getSize() && equalModels; i++) {
-				if (oldModel.getElementAt(i) != model.getElementAt(i)) {
-					equalModels = false;
-				}
-			}
-			if (!equalModels) {
-				pickAnimBox.setModel(model);
-			}
+			updateBox(animFile, pickAnimBox);
 		}
 		if (sourceFile != null) {
-			final DefaultComboBoxModel<Animation> model = new DefaultComboBoxModel<>();
+			updateBox(sourceFile, visFromBox);
+		}
+	}
 
-			for (int i = 0; i < sourceFile.getAnimsSize(); i++) {
-				final Animation anim = sourceFile.getAnim(i);
-				model.addElement(anim);
+	private void updateBox(EditableModel animFile, JComboBox<Animation> pickAnimBox) {
+		final DefaultComboBoxModel<Animation> model = new DefaultComboBoxModel<>();
+
+		for (int i = 0; i < animFile.getAnimsSize(); i++) {
+			final Animation anim = animFile.getAnim(i);
+			model.addElement(anim);
+		}
+		final ComboBoxModel<Animation> oldModel = pickAnimBox.getModel();
+		boolean equalModels = oldModel.getSize() > 0;
+		for (int i = 0; i < oldModel.getSize() && i < model.getSize() && equalModels; i++) {
+			if (oldModel.getElementAt(i) != model.getElementAt(i)) {
+				equalModels = false;
 			}
-			final ComboBoxModel<Animation> oldModel = visFromBox.getModel();
-			boolean equalModels = oldModel.getSize() > 0;
-			for (int i = 0; i < oldModel.getSize() && i < model.getSize() && equalModels; i++) {
-				if (oldModel.getElementAt(i) != model.getElementAt(i)) {
-					equalModels = false;
-				}
-			}
-			if (!equalModels) {
-				visFromBox.setModel(model);
-			}
+		}
+		if (!equalModels) {
+			pickAnimBox.setModel(model);
 		}
 	}
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
-		if (e.getSource() == baseBrowse) {
-			openAction(baseFileInput);
-		} else if (e.getSource() == animBrowse) {
-			openAction(animFileInput);
-		} else if (e.getSource() == outBrowse) {
-			saveAction();
-		} else if (e.getSource() == transferSingleAnimation) {
-			updateBoxes();
-			pickAnimBox.setEnabled(transferSingleAnimation.isSelected());
-			visFromBox.setEnabled(transferSingleAnimation.isSelected());
-		} else if (e.getSource() == transfer) {
-			// refreshModels();
-			//
-			// if( !transferSingleAnimation.isSelected() ) {
-			// ImportPanel host = new ImportPanel(sourceFile,animFile,false);
-			// host.animTransfer(transferSingleAnimation.isSelected(),
-			// pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()),
-			// visFromBox.getItemAt(visFromBox.getSelectedIndex()),false);
-			//
-			// sourceFile.printTo(new File(outFileInput.getText()));
-			// JOptionPane.showMessageDialog(null, "Animation transfer done!");
-			//
-			// forceRefreshModels();
-			// }
-			// else
-			// {
-			// Thread watcher = new Thread(new Runnable() {
-			// public void run()
-			// {
-			// final ImportPanel importPanel = new
-			// ImportPanel(sourceFile,animFile,false);
-			// importPanel.animTransfer(transferSingleAnimation.isSelected(),
-			// pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()),
-			// visFromBox.getItemAt(visFromBox.getSelectedIndex()),false);
-			//
-			//
-			// ImportPanel importPanel2 = new
-			// ImportPanel(sourceFile,MDL.read(sourceFile.getFile()),false);
-			// importPanel2.animTransferPartTwo(transferSingleAnimation.isSelected(),
-			// pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()),
-			// visFromBox.getItemAt(visFromBox.getSelectedIndex()),false);
-			//
-			// sourceFile.printTo(new File(outFileInput.getText()));
-			// JOptionPane.showMessageDialog(null, "Animation transfer done!");
-			//
-			// forceRefreshModels();
-			//
-			// }
-			// });
-			// watcher.start();
-			// }
-			try {
-				doTransfer(false);
-			} catch (final IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		} else if (e.getSource() == goAdvanced) {
-			try {
-				doTransfer(true);
-			} catch (final IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		} else if (e.getSource() == done) {
-			parentFrame.setVisible(false);
-			parentFrame.dispose();
+	}
+
+	private void done() {
+		parentFrame.setVisible(false);
+		parentFrame.dispose();
+	}
+
+	private void transfer(boolean advancedTransfer) {
+		try {
+			doTransfer(advancedTransfer);
+		} catch (final IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
+	}
+
+	private void transferSingleAnimation() {
+		updateBoxes();
+		pickAnimBox.setEnabled(transferSingleAnimation.isSelected());
+		visFromBox.setEnabled(transferSingleAnimation.isSelected());
 	}
 
 	private void saveAction() {
@@ -334,7 +278,6 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 			try {
 				refreshModels();
 			} catch (final IOException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			updateBoxes();
@@ -346,94 +289,88 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 		final EditableModel animFile = MdxUtils.loadEditable(new File(animFileInput.getText()));
 
 		if (!transferSingleAnimation.isSelected()) {
-			final ImportPanel importPanel = new ImportPanel(sourceFile, animFile, show);
 			new Thread(() -> {
-                importPanel.animTransfer(transferSingleAnimation.isSelected(),
-                        pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()),
-                        visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
-                while (importPanel.getParentFrame().isVisible()
-                        && (!importPanel.importStarted()
-						|| importPanel.importEnded())) {
-					trySleep();
-				}
+				final ImportPanel importPanel = new ImportPanel(sourceFile, animFile, show);
+				importPanel.animTransfer(transferSingleAnimation.isSelected(),
+						pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()),
+						visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
+				waitWhileVisible(importPanel);
 
-                if (importPanel.importStarted()) {
-                    while (!importPanel.importEnded()) {
-						trySleep();
+				if (importPanel.importStarted()) {
+					waitForPanel(importPanel);
+
+					if (importPanel.importSuccessful()) {
+						String filepath = outFileInput.getText();
+						if (!filepath.toLowerCase().endsWith(".mdl") && !filepath.toLowerCase().endsWith(".mdx")) {
+							filepath += ".mdl";
+						}
+						trySave(sourceFile, filepath);
+						JOptionPane.showMessageDialog(null, "Animation transfer done!");
 					}
-
-                    if (importPanel.importSuccessful()) {
-                        String filepath = outFileInput.getText();
-                        if (!filepath.toLowerCase().endsWith(".mdl") && !filepath.toLowerCase().endsWith(".mdx")) {
-                            filepath += ".mdl";
-                        }
-                        try {
-                            MdxUtils.saveMdx(sourceFile, new File(filepath));
-                        } catch (final IOException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                        JOptionPane.showMessageDialog(null, "Animation transfer done!");
-                    }
-                }
+				}
 
                 // forceRefreshModels();
             }).start();
 		} else {
 			final Thread watcher = new Thread(() -> {
-                final ImportPanel importPanel = new ImportPanel(sourceFile, animFile, show);
-                importPanel.animTransfer(transferSingleAnimation.isSelected(),
-                        pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()),
-                        visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
+				final ImportPanel importPanel = new ImportPanel(sourceFile, animFile, show);
+				importPanel.animTransfer(transferSingleAnimation.isSelected(),
+						pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()),
+						visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
 
-                while (importPanel.getParentFrame().isVisible()
-                        && (!importPanel.importStarted()
-						|| importPanel.importEnded())) {
-					trySleep();
-				}
+				waitWhileVisible(importPanel);
 
-                if (importPanel.importStarted()) {
-                    while (!importPanel.importEnded()) {
-						trySleep();
-					}
+				if (importPanel.importStarted()) {
+					waitForPanel(importPanel);
 
-                    if (importPanel.importSuccessful()) {
-                        final ImportPanel importPanel2;
-                        try {
-                            importPanel2 = new ImportPanel(sourceFile,
-                                    MdxUtils.loadEditable(sourceFile.getFile()), show);
-                        } catch (final IOException e) {
-                            e.printStackTrace();
-                            return;
-                        }
-                        importPanel2.animTransferPartTwo(transferSingleAnimation.isSelected(),
-                                pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()),
-                                visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
-
-                        while (importPanel2.getParentFrame().isVisible()
-                                && (!importPanel2.importStarted()
-								|| importPanel2.importEnded())) {
-							trySleep();
+					if (importPanel.importSuccessful()) {
+						final ImportPanel importPanel2;
+						try {
+							importPanel2 = new ImportPanel(sourceFile, MdxUtils.loadEditable(sourceFile.getFile()), show);
+						} catch (final IOException e) {
+							e.printStackTrace();
+							return;
 						}
+						importPanel2.animTransferPartTwo(transferSingleAnimation.isSelected(),
+								pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()),
+								visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
 
-                        if (importPanel2.importStarted()) {
-                            while (!importPanel2.importEnded()) {
-								trySleep();
+						waitWhileVisible(importPanel2);
+
+						if (importPanel2.importStarted()) {
+							waitForPanel(importPanel2);
+							if (importPanel2.importSuccessful()) {
+								JOptionPane.showMessageDialog(null, "Animation transfer done!");
+								trySave(sourceFile, outFileInput.getText());
 							}
-                            if (importPanel2.importSuccessful()) {
-                                JOptionPane.showMessageDialog(null, "Animation transfer done!");
-                                try {
-                                    MdxUtils.saveMdx(sourceFile, new File(outFileInput.getText()));
-                                } catch (final IOException e) {
-                                    // TODO Auto-generated catch block
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-                    }
-                }
-            });
+						}
+					}
+				}
+			});
 			watcher.start();
+		}
+	}
+
+	private void waitForPanel(ImportPanel importPanel) {
+		while (!importPanel.importEnded()) {
+			trySleep();
+		}
+	}
+
+	private void waitWhileVisible(ImportPanel importPanel) {
+		while (importPanel.getParentFrame().isVisible()
+				&& (!importPanel.importStarted()
+				|| importPanel.importEnded())) {
+			trySleep();
+		}
+	}
+
+	private void trySave(EditableModel sourceFile, String text) {
+		try {
+			MdxUtils.saveMdx(sourceFile, new File(text));
+		} catch (final IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

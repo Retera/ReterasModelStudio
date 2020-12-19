@@ -1,18 +1,17 @@
 package com.hiveworkshop.rms.editor.model;
 
-import java.awt.geom.Rectangle2D;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxExtent;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxGeoset;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
-
 import jassimp.AiMesh;
+
+import java.awt.geom.Rectangle2D;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Geoset implements Named, VisibilitySource {
 	ExtLog extents;
@@ -563,14 +562,10 @@ public class Geoset implements Named, VisibilitySource {
 			for (int ix = 0; ix < triangles.size(); ix++) {
 				final Triangle trix = triangles.get(ix);
 				if (trix != tri) {
-					if (trix.equalRefsNoIds(tri))// Changed this from
-													// "sameVerts" -- this means
-													// that
-													// triangles with the same
-													// vertices but in a
-													// different order will no
-													// longer be purged
-													// automatically.
+					if (trix.equalRefsNoIds(tri))
+					// Changed this from "sameVerts" -- this means that
+					// triangles with the same vertices but in a different
+					// order will no longer be purged automatically.
 					{
 						triangles.remove(tri);
 						break;
@@ -770,25 +765,15 @@ public class Geoset implements Named, VisibilitySource {
 		double maximumDistanceFromCenter = 0;
 		double maxX = -Double.MAX_VALUE, maxY = -Double.MAX_VALUE, maxZ = -Double.MAX_VALUE;
 		double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE, minZ = Double.MAX_VALUE;
+
 		for (final GeosetVertex geosetVertex : vertices) {
-			if (geosetVertex.x > maxX) {
-				maxX = geosetVertex.x;
-			}
-			if (geosetVertex.y > maxY) {
-				maxY = geosetVertex.y;
-			}
-			if (geosetVertex.z > maxZ) {
-				maxZ = geosetVertex.z;
-			}
-			if (geosetVertex.x < minX) {
-				minX = geosetVertex.x;
-			}
-			if (geosetVertex.y < minY) {
-				minY = geosetVertex.y;
-			}
-			if (geosetVertex.z < minZ) {
-				minZ = geosetVertex.z;
-			}
+			maxX = Math.max(geosetVertex.x, maxX);
+			maxY = Math.max(geosetVertex.y, maxY);
+			maxZ = Math.max(geosetVertex.z, maxZ);
+			minX = Math.min(geosetVertex.x, minX);
+			minY = Math.min(geosetVertex.y, minY);
+			minZ = Math.min(geosetVertex.z, minZ);
+
 			final double distanceFromCenter = Math.sqrt((geosetVertex.x * geosetVertex.x)
 					+ (geosetVertex.y * geosetVertex.y) + (geosetVertex.z * geosetVertex.z));
 			if (distanceFromCenter > maximumDistanceFromCenter) {

@@ -161,12 +161,15 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 		raceBox = new JComboBox<>(raceBoxModel);
 		raceBox.addActionListener(this);
 		raceBox.setMaximumSize(new Dimension(10000, 25));
+
 		meleeBox = new JComboBox<>(meleeBoxModel);
 		meleeBox.addActionListener(this);
 		meleeBox.setMaximumSize(new Dimension(10000, 25));
+
 		tilesetBox = new JComboBox<>(tilesetBoxModel);
 		tilesetBox.addActionListener(this);
 		tilesetBox.setMaximumSize(new Dimension(10000, 25));
+
 		levelBox = new JComboBox<>(levelBoxModel);
 		levelBox.addActionListener(this);
 		levelBox.setMaximumSize(new Dimension(10000, 25));
@@ -180,16 +183,11 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 		if (raceBox.getModel() == raceBoxModel) {
 			return raceKey(raceBox.getSelectedIndex());
 		} else {
-			switch (raceBox.getSelectedIndex()) {
-			case -1:
-				return "neutrals";
-			case 0:
-				return "neutrals";
-			case 1:
-				return "naga";
-			}
+			return switch (raceBox.getSelectedIndex()) {
+				case 1 -> "naga";
+				default -> "neutrals";
+			};
 		}
-		return "neutrals";
 	}
 
 	private String raceKey(final int index) {

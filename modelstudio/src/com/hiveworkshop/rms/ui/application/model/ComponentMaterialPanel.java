@@ -18,12 +18,13 @@ import javax.swing.plaf.basic.BasicComboBoxEditor;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import java.awt.*;
 
-public class ComponentMaterialPanel extends JPanel implements ComponentPanel {
+public class ComponentMaterialPanel extends JPanel implements ComponentPanel<Material> {
 	private static final String SD = "SD";
 	private static final String HD = "HD";
 	private Material material;
 	private UndoActionListener undoActionListener;
 	private ModelStructureChangeListener modelStructureChangeListener;
+	private final ModelViewManager modelViewManager;
 
 	private final JComboBox<String> shaderOptionComboBox;
 	private final ComponentEditorJSpinner priorityPlaneSpinner;
@@ -31,10 +32,75 @@ public class ComponentMaterialPanel extends JPanel implements ComponentPanel {
 	private boolean listenForChanges = true;
 	private final ComponentMaterialLayersPanel multipleLayersPanel;
 
-	public ComponentMaterialPanel() {
-		final String[] shaderOptions = { "", "Shader_SD_FixedFunction", "Shader_HD_DefaultUnit" };
+	public ComponentMaterialPanel(final ModelViewManager modelViewManager,
+	                              final UndoActionListener undoActionListener,
+	                              final ModelStructureChangeListener modelStructureChangeListener) {
+		this.modelViewManager = modelViewManager;
+		this.undoActionListener = undoActionListener;
+		this.modelStructureChangeListener = modelStructureChangeListener;
+
+		final String[] shaderOptions = {"", "Shader_SD_FixedFunction", "Shader_HD_DefaultUnit"};
 		shaderOptionComboBox = new JComboBox<>(shaderOptions);
-		shaderOptionComboBox.setRenderer(new BasicComboBoxRenderer() {
+		shaderOptionComboBox.setRenderer(ShaderBoxRenderer());
+		shaderOptionComboBox.setEditor(ShaderBoxEditor());
+		shaderOptionComboBox.setEditable(true);
+		shaderOptionComboBox.addActionListener(e -> shaderOptionComboBoxListener());
+
+		priorityPlaneSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(-1, -1, Integer.MAX_VALUE, 1));
+		priorityPlaneSpinner.addActionListener(this::priorityPlaneSpinnerListener);
+
+		multipleLayersPanel = new ComponentMaterialLayersPanel();
+
+		setLayout(new MigLayout("fill", "[][][grow]", "[][][grow]"));
+		add(new JLabel("Shader:"));
+		add(shaderOptionComboBox, "wrap, growx, span 2");
+		add(new JLabel("Priority Plane:"));
+		add(priorityPlaneSpinner, "wrap, growx, span 2");
+		add(multipleLayersPanel, "growx, growy, span 3");
+	}
+
+	private void priorityPlaneSpinnerListener() {
+		final SetMaterialPriorityPlaneAction setMaterialPriorityPlaneAction = new SetMaterialPriorityPlaneAction(
+				material, material.getPriorityPlane(), ((Number) priorityPlaneSpinner.getValue()).intValue(),
+				modelStructureChangeListener);
+		setMaterialPriorityPlaneAction.redo();
+		undoActionListener.pushAction(setMaterialPriorityPlaneAction);
+	}
+
+	private void shaderOptionComboBoxListener() {
+		if (listenForChanges) {
+			final SetMaterialShaderStringAction setMaterialShaderStringAction = new SetMaterialShaderStringAction(
+					material, material.getShaderString(), (String) shaderOptionComboBox.getSelectedItem(),
+					modelStructureChangeListener);
+			setMaterialShaderStringAction.redo();
+			undoActionListener.pushAction(setMaterialShaderStringAction);
+		}
+	}
+
+	@Override
+	public void setSelectedItem(final Material material) {
+		this.material = material;
+
+		final String shaderString;
+		if (material.getShaderString() != null) {
+			shaderString = material.getShaderString();
+		} else {
+			shaderString = "";
+		}
+		listenForChanges = false;
+		try {
+			shaderOptionComboBox.setSelectedItem(shaderString);
+			comboBoxEditor.setColorToSaved();
+			priorityPlaneSpinner.reloadNewValue(material.getPriorityPlane());
+		} finally {
+			listenForChanges = true;
+		}
+		final boolean useHDPanel = Material.SHADER_HD_DEFAULT_UNIT.equals(shaderString);
+		multipleLayersPanel.setMaterial(material, modelViewManager, undoActionListener, modelStructureChangeListener);
+	}
+
+	private BasicComboBoxRenderer ShaderBoxRenderer() {
+		return new BasicComboBoxRenderer() {
 			@Override
 			protected void paintComponent(final Graphics g) {
 				super.paintComponent(g);
@@ -43,8 +109,11 @@ public class ComponentMaterialPanel extends JPanel implements ComponentPanel {
 					g.drawString("<empty>", 0, (getHeight() + g.getFontMetrics().getMaxAscent()) / 2);
 				}
 			}
-		});
-		shaderOptionComboBox.setEditor(new BasicComboBoxEditor() {
+		};
+	}
+
+	private BasicComboBoxEditor ShaderBoxEditor() {
+		return new BasicComboBoxEditor() {
 			@Override
 			protected JTextField createEditorComponent() {
 				final ComponentEditorTextField editor = new ComponentEditorTextField("", 9) {
@@ -76,66 +145,12 @@ public class ComponentMaterialPanel extends JPanel implements ComponentPanel {
 				editor.setBorder(null);
 				return editor;
 			}
-		});
-		shaderOptionComboBox.setEditable(true);
-
-		shaderOptionComboBox.addActionListener(e -> {
-            if (listenForChanges) {
-                final SetMaterialShaderStringAction setMaterialShaderStringAction = new SetMaterialShaderStringAction(
-                        material, material.getShaderString(), (String) shaderOptionComboBox.getSelectedItem(),
-                        modelStructureChangeListener);
-                setMaterialShaderStringAction.redo();
-                undoActionListener.pushAction(setMaterialShaderStringAction);
-            }
-        });
-
-		priorityPlaneSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(-1, -1, Integer.MAX_VALUE, 1));
-		priorityPlaneSpinner.addActionListener(() -> {
-            final SetMaterialPriorityPlaneAction setMaterialPriorityPlaneAction = new SetMaterialPriorityPlaneAction(
-                    material, material.getPriorityPlane(), ((Number) priorityPlaneSpinner.getValue()).intValue(),
-                    modelStructureChangeListener);
-            setMaterialPriorityPlaneAction.redo();
-            undoActionListener.pushAction(setMaterialPriorityPlaneAction);
-        });
-
-		multipleLayersPanel = new ComponentMaterialLayersPanel();
-
-		setLayout(new MigLayout("fill", "[][grow][grow]", "[][][grow]"));
-		add(new JLabel("Shader:"));
-		add(shaderOptionComboBox, "wrap, growx, span 2");
-		add(new JLabel("Priority Plane:"));
-		add(priorityPlaneSpinner, "wrap, growx, span 2");
-		add(multipleLayersPanel, "growx, growy, span 3");
-	}
-
-	public void setMaterial(final Material material, final ModelViewManager modelViewManager,
-			final UndoActionListener undoActionListener,
-			final ModelStructureChangeListener modelStructureChangeListener) {
-		this.material = material;
-		this.undoActionListener = undoActionListener;
-		this.modelStructureChangeListener = modelStructureChangeListener;
-
-		final String shaderString;
-		if (material.getShaderString() != null) {
-			shaderString = material.getShaderString();
-		} else {
-			shaderString = "";
-		}
-		listenForChanges = false;
-		try {
-			shaderOptionComboBox.setSelectedItem(shaderString);
-			comboBoxEditor.setColorToSaved();
-			priorityPlaneSpinner.reloadNewValue(material.getPriorityPlane());
-		} finally {
-			listenForChanges = true;
-		}
-		final boolean useHDPanel = Material.SHADER_HD_DEFAULT_UNIT.equals(shaderString);
-		multipleLayersPanel.setMaterial(material, modelViewManager, undoActionListener, modelStructureChangeListener);
+		};
 	}
 
 	@Override
 	public void save(final EditableModel model, final UndoActionListener undoListener,
-                     final ModelStructureChangeListener changeListener) {
+	                 final ModelStructureChangeListener changeListener) {
 	}
 
 }

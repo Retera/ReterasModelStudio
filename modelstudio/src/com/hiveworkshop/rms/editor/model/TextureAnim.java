@@ -2,6 +2,8 @@ package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.parsers.mdlx.MdlxTextureAnimation;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -22,7 +24,11 @@ public class TextureAnim extends TimelineContainer {
 	}
 
 	public TextureAnim(final TextureAnim other) {
-		setAnimFlags(other.getAnimFlags());
+		Collection<AnimFlag> flags = new ArrayList<>();
+		for (AnimFlag animFlag : other.getAnimFlags()) {
+			flags.add(new AnimFlag(animFlag));
+		}
+		setAnimFlags(flags);
 	}
 
 	public TextureAnim(final MdlxTextureAnimation animation) {

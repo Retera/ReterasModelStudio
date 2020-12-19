@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.ui.application.actions.model.animation.*;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
@@ -10,7 +11,7 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
-public class ComponentAnimationPanel extends JPanel {
+public class ComponentAnimationPanel extends JPanel implements ComponentPanel<Animation> {
 	private final ComponentEditorTextField nameField;
 	private final ComponentEditorJSpinner newAnimTimeStart;
 	private final ComponentEditorJSpinner newAnimTimeEnd;
@@ -18,35 +19,21 @@ public class ComponentAnimationPanel extends JPanel {
 	private final ComponentEditorJSpinner moveSpeedChooser;
 	private final JCheckBox nonLoopingChooser;
 	private Animation animation;
-	private UndoActionListener undoListener;
-	private ModelStructureChangeListener modelStructureChangeListener;
+	private final UndoActionListener undoListener;
+	private final ModelStructureChangeListener modelStructureChangeListener;
 
-	public ComponentAnimationPanel() {
+	public ComponentAnimationPanel(final UndoActionListener undoListener,
+	                               final ModelStructureChangeListener modelStructureChangeListener) {
+		this.undoListener = undoListener;
+		this.modelStructureChangeListener = modelStructureChangeListener;
 		nameField = new ComponentEditorTextField(24);
-		nameField.addActionListener(e -> {
-            final SetAnimationNameAction setAnimationNameAction = new SetAnimationNameAction(animation.getName(),
-                    nameField.getText(), animation, modelStructureChangeListener);
-            setAnimationNameAction.redo();
-            undoListener.pushAction(setAnimationNameAction);
-        });
+		nameField.addActionListener(e -> nameField());
 
 		newAnimTimeStart = new ComponentEditorJSpinner(new SpinnerNumberModel(300, 0, Integer.MAX_VALUE, 1));
-		newAnimTimeStart.addActionListener(() -> {
-            final SetAnimationIntervalStartAction setAnimationIntervalStartAction = new SetAnimationIntervalStartAction(
-                    animation.getStart(), ((Number) newAnimTimeStart.getValue()).intValue(), animation,
-                    modelStructureChangeListener);
-            setAnimationIntervalStartAction.redo();
-            undoListener.pushAction(setAnimationIntervalStartAction);
-        });
+		newAnimTimeStart.addActionListener(this::newAnimTimeStart);
 
 		newAnimTimeEnd = new ComponentEditorJSpinner(new SpinnerNumberModel(1300, 0, Integer.MAX_VALUE, 1));
-		newAnimTimeEnd.addActionListener(() -> {
-            final SetAnimationIntervalEndAction setAnimationIntervalEndAction = new SetAnimationIntervalEndAction(
-                    animation.getEnd(), ((Number) newAnimTimeEnd.getValue()).intValue(), animation,
-                    modelStructureChangeListener);
-            setAnimationIntervalEndAction.redo();
-            undoListener.pushAction(setAnimationIntervalEndAction);
-        });
+		newAnimTimeEnd.addActionListener(this::newAnimTimeEnd);
 
 		setLayout(new MigLayout());
 		add(new JLabel("Name: "), "cell 0 0");
@@ -57,37 +44,66 @@ public class ComponentAnimationPanel extends JPanel {
 		add(newAnimTimeEnd, "cell 3 1");
 
 		rarityChooser = new ComponentEditorJSpinner(new SpinnerNumberModel(0d, 0d, Long.MAX_VALUE, 1d));
-		rarityChooser.addActionListener(() -> {
-            final SetAnimationRarityAction setAnimationRarityAction = new SetAnimationRarityAction(
-                    animation.getRarity(), ((Number) rarityChooser.getValue()).floatValue(), animation,
-                    modelStructureChangeListener);
-            setAnimationRarityAction.redo();
-            undoListener.pushAction(setAnimationRarityAction);
-        });
+		rarityChooser.addActionListener(this::rarityChooser);
 
 		moveSpeedChooser = new ComponentEditorJSpinner(new SpinnerNumberModel(0d, 0d, Long.MAX_VALUE, 1d));
-		moveSpeedChooser.addActionListener(() -> {
-            final SetAnimationMoveSpeedAction setAnimationMoveSpeedAction = new SetAnimationMoveSpeedAction(
-                    animation.getMoveSpeed(), ((Number) moveSpeedChooser.getValue()).floatValue(), animation,
-                    modelStructureChangeListener);
-            setAnimationMoveSpeedAction.redo();
-            undoListener.pushAction(setAnimationMoveSpeedAction);
-        });
+		moveSpeedChooser.addActionListener(this::moveSpeedChooser);
 
 		nonLoopingChooser = new JCheckBox("NonLooping");
-		nonLoopingChooser.addActionListener(e -> {
-            final SetAnimationNonLoopingAction setAnimationNonLoopingAction = new SetAnimationNonLoopingAction(
-                    animation.isNonLooping(), nonLoopingChooser.isSelected(), animation,
-                    modelStructureChangeListener);
-            setAnimationNonLoopingAction.redo();
-            undoListener.pushAction(setAnimationNonLoopingAction);
-        });
+		nonLoopingChooser.addActionListener(e -> nonLoopingChooser());
 
 		add(nonLoopingChooser, "cell 0 2");
 		add(new JLabel("Rarity"), "cell 0 3");
 		add(rarityChooser, "cell 1 3");
 		add(new JLabel("MoveSpeed"), "cell 0 4");
 		add(moveSpeedChooser, "cell 1 4");
+	}
+
+	private void nonLoopingChooser() {
+		final SetAnimationNonLoopingAction setAnimationNonLoopingAction = new SetAnimationNonLoopingAction(
+				animation.isNonLooping(), nonLoopingChooser.isSelected(), animation,
+				modelStructureChangeListener);
+		setAnimationNonLoopingAction.redo();
+		undoListener.pushAction(setAnimationNonLoopingAction);
+	}
+
+	private void moveSpeedChooser() {
+		final SetAnimationMoveSpeedAction setAnimationMoveSpeedAction = new SetAnimationMoveSpeedAction(
+				animation.getMoveSpeed(), ((Number) moveSpeedChooser.getValue()).floatValue(), animation,
+				modelStructureChangeListener);
+		setAnimationMoveSpeedAction.redo();
+		undoListener.pushAction(setAnimationMoveSpeedAction);
+	}
+
+	private void rarityChooser() {
+		final SetAnimationRarityAction setAnimationRarityAction = new SetAnimationRarityAction(
+				animation.getRarity(), ((Number) rarityChooser.getValue()).floatValue(), animation,
+				modelStructureChangeListener);
+		setAnimationRarityAction.redo();
+		undoListener.pushAction(setAnimationRarityAction);
+	}
+
+	private void newAnimTimeEnd() {
+		final SetAnimationIntervalEndAction setAnimationIntervalEndAction = new SetAnimationIntervalEndAction(
+				animation.getEnd(), ((Number) newAnimTimeEnd.getValue()).intValue(), animation,
+				modelStructureChangeListener);
+		setAnimationIntervalEndAction.redo();
+		undoListener.pushAction(setAnimationIntervalEndAction);
+	}
+
+	private void nameField() {
+		final SetAnimationNameAction setAnimationNameAction = new SetAnimationNameAction(animation.getName(),
+				nameField.getText(), animation, modelStructureChangeListener);
+		setAnimationNameAction.redo();
+		undoListener.pushAction(setAnimationNameAction);
+	}
+
+	private void newAnimTimeStart() {
+		final SetAnimationIntervalStartAction setAnimationIntervalStartAction = new SetAnimationIntervalStartAction(
+				animation.getStart(), ((Number) newAnimTimeStart.getValue()).intValue(), animation,
+				modelStructureChangeListener);
+		setAnimationIntervalStartAction.redo();
+		undoListener.pushAction(setAnimationIntervalStartAction);
 	}
 
 	public Animation getAnimation() {
@@ -107,11 +123,9 @@ public class ComponentAnimationPanel extends JPanel {
 		return newAnimation;
 	}
 
-	public void setAnimation(final Animation animation, final UndoActionListener undoListener,
-			final ModelStructureChangeListener modelStructureChangeListener) {
+	@Override
+	public void setSelectedItem(final Animation animation) {
 		this.animation = animation;
-		this.undoListener = undoListener;
-		this.modelStructureChangeListener = modelStructureChangeListener;
 		nameField.reloadNewValue(animation.getName());
 		newAnimTimeStart.reloadNewValue(animation.getStart());
 		newAnimTimeEnd.reloadNewValue(animation.getEnd());
@@ -120,5 +134,10 @@ public class ComponentAnimationPanel extends JPanel {
 		nonLoopingChooser.setSelected(animation.isNonLooping());
 		rarityChooser.reloadNewValue(animation.getRarity());
 		moveSpeedChooser.reloadNewValue(animation.getMoveSpeed());
+	}
+
+	@Override
+	public void save(EditableModel model, UndoActionListener undoListener, ModelStructureChangeListener changeListener) {
+
 	}
 }

@@ -300,13 +300,25 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 			stream.writeVectorArray(MdlUtils.TOKEN_TVERTICES, uvSet, 2);
 		}
 
-		stream.startBlock(MdlUtils.TOKEN_VERTEX_GROUP);
-        for (short vertexGroup : vertexGroups) {
-            stream.writeLine(vertexGroup + ",");
-        }
-		stream.endBlock();
+		if (version <= 800) {
+			stream.startBlock(MdlUtils.TOKEN_VERTEX_GROUP);
+			for (short vertexGroup : vertexGroups) {
+				stream.writeLine(vertexGroup + ",");
+			}
+			stream.endBlock();
+		}
 
 		if (version > 800) {
+
+			stream.startBlock(MdlUtils.TOKEN_VERTEX_GROUP);
+			if (skin == null) {
+				for (short vertexGroup : vertexGroups) {
+					stream.writeLine(vertexGroup + ",");
+				}
+			}
+			stream.endBlock();
+
+
 			if (tangents != null) {
 				stream.startBlock("Tangents", tangents.length / 4);
 

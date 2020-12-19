@@ -38,14 +38,16 @@ public class Quat extends Vec4 {
 		// }
 		// eulerRotation.z = yaw;
 		// eulerRotation.y = -eulerRotation.y;
-		x = (float) ((Math.cos(eulerRotation.x / 2) * Math.cos(eulerRotation.y / 2) * Math.cos(eulerRotation.z / 2))
-				+ (Math.sin(eulerRotation.x / 2) * Math.sin(eulerRotation.y / 2) * Math.sin(eulerRotation.z / 2)));
-		y = (float) ((Math.sin(eulerRotation.x / 2) * Math.cos(eulerRotation.y / 2) * Math.cos(eulerRotation.z / 2))
-				- (Math.cos(eulerRotation.x / 2) * Math.sin(eulerRotation.y / 2) * Math.sin(eulerRotation.z / 2)));
-		z = (float) ((Math.cos(eulerRotation.x / 2) * Math.sin(eulerRotation.y / 2) * Math.cos(eulerRotation.z / 2))
-				+ (Math.sin(eulerRotation.x / 2) * Math.cos(eulerRotation.y / 2) * Math.sin(eulerRotation.z / 2)));
-		w = (float) ((Math.cos(eulerRotation.x / 2) * Math.cos(eulerRotation.y / 2) * Math.sin(eulerRotation.z / 2))
-				- (Math.sin(eulerRotation.x / 2) * Math.sin(eulerRotation.y / 2) * Math.cos(eulerRotation.z / 2)));
+		double sinX = Math.sin(eulerRotation.x / 2);
+		double sinY = Math.sin(eulerRotation.y / 2);
+		double sinZ = Math.sin(eulerRotation.z / 2);
+		double cosX = Math.cos(eulerRotation.x / 2);
+		double cosY = Math.cos(eulerRotation.y / 2);
+		double cosZ = Math.cos(eulerRotation.z / 2);
+		x = (float) ((cosX * cosY * cosZ) + (sinX * sinY * sinZ));
+		y = (float) ((sinX * cosY * cosZ) - (cosX * sinY * sinZ));
+		z = (float) ((cosX * sinY * cosZ) + (sinX * cosY * sinZ));
+		w = (float) ((cosX * cosY * sinZ) - (sinX * sinY * cosZ));
 
 		if (Math.abs(x) < 1E-15) {
 			x = 0;
