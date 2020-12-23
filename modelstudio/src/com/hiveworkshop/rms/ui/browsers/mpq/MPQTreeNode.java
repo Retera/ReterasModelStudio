@@ -2,20 +2,27 @@ package com.hiveworkshop.rms.ui.browsers.mpq;
 
 import javax.swing.tree.TreeNode;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MPQTreeNode implements TreeNode {
 	private final MPQTreeNode parent;
 	private final String path;
+	private final String extension;
 	private final String subPathName;
 	private final Map<String, MPQTreeNode> children;
+	private final Map<String, MPQTreeNode> hiddenChildren;
 	private final List<String> childrenKeys;
+	private Boolean isVisible;
 
-	public MPQTreeNode(final MPQTreeNode parent, final String path, final String subPathName) {
+	public MPQTreeNode(final MPQTreeNode parent, final String path, final String subPathName, final String extension) {
 		this.parent = parent;
 		this.path = path;
 		this.subPathName = subPathName;
 		children = new HashMap<>();
+		hiddenChildren = new HashMap<>();
 		childrenKeys = new ArrayList<>();
+		this.extension = extension;
+		isVisible = true;
 	}
 
 	@Override
@@ -58,8 +65,20 @@ public class MPQTreeNode implements TreeNode {
 		return children.size();
 	}
 
+	public int getTotalChildCount() {
+		return children.size() + hiddenChildren.size();
+	}
+
 	public MPQTreeNode getChild(final String subPathName) {
 		return children.get(subPathName);
+	}
+
+	public List<MPQTreeNode> getChildren() {
+		return new ArrayList<MPQTreeNode>(children.values());
+	}
+
+	public List<MPQTreeNode> getHiddenChildren() {
+		return new ArrayList<MPQTreeNode>(hiddenChildren.values());
 	}
 
 	/**
@@ -73,13 +92,57 @@ public class MPQTreeNode implements TreeNode {
 		}
 	}
 
+	public boolean isVisible() {
+		return isVisible;
+	}
+
+	public void setVisible(boolean visible) {
+		isVisible = visible;
+	}
+
+	public String getExtension() {
+		return extension;
+	}
+
+	public boolean hasVisibleChildren() {
+		return children.values().stream().anyMatch(c -> c.isVisible);
+	}
+
+	public List<MPQTreeNode> getVisibleChildren() {
+		return children.values().stream().filter(c -> c.isVisible).collect(Collectors.toList());
+	}
+
+	public void updateChildrenVisibility() {
+		setHiddenChildren();
+		setVisibleChildren();
+	}
+
+	public void setHiddenChildren() {
+		List<MPQTreeNode> childrenToHide = children.values().stream().filter(c -> !c.isVisible).collect(Collectors.toList());
+
+		for (MPQTreeNode child : childrenToHide) {
+			hiddenChildren.put(child.getSubPathName(), child);
+			children.remove(child.getSubPathName());
+			childrenKeys.remove(child.getSubPathName());
+		}
+	}
+
+	public void setVisibleChildren() {
+		List<MPQTreeNode> childrenToShow = hiddenChildren.values().stream().filter(c -> c.isVisible).collect(Collectors.toList());
+		for (MPQTreeNode child : childrenToShow) {
+			children.put(child.getSubPathName(), child);
+			hiddenChildren.remove(child.getSubPathName());
+			childrenKeys.add(child.getSubPathName());
+		}
+	}
+
 	@Override
 	public int getIndex(final TreeNode node) {
 		if (!(node instanceof MPQTreeNode)) {
 			return -1;
 		}
 
-		return childrenKeys.indexOf(((MPQTreeNode)node).getPath());
+		return childrenKeys.indexOf(((MPQTreeNode) node).getPath());
 	}
 
 	@Override

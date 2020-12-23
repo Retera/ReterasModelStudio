@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application;
 
-import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
@@ -50,14 +50,8 @@ public class MenuBarActions {
         showNormals.setSelected(prefs.isShowNormals());
         fetchPortraitsToo.setSelected(prefs.isLoadPortraits());
         switch (prefs.getViewMode()) {
-            case 0:
-                wireframe.setSelected(true);
-                break;
-            case 1:
-                solid.setSelected(true);
-                break;
-            default:
-                break;
+            case 0 -> wireframe.setSelected(true);
+            case 1 -> solid.setSelected(true);
         }
         for (final ModelPanel mpanel : modelPanels) {
             mpanel.getEditorRenderModel().setSpawnParticles((prefs.getRenderParticles() == null) || prefs.getRenderParticles());
