@@ -496,11 +496,6 @@ public class MenuBar {
         createAndAddMenuItem("Changelog", aboutMenu, KeyEvent.VK_A, e -> MenuBarActions.createAndShowRtfPanel("docs/changelist.rtf", "Changelog"));
 
         createAndAddMenuItem("About", aboutMenu, KeyEvent.VK_A, e -> MenuBarActions.createAndShowRtfPanel("docs/credits.rtf", "About"));
-
-        JMenuItem jokeButton = new JMenuItem("HTML Magic");
-        jokeButton.setMnemonic(KeyEvent.VK_H);
-        jokeButton.addActionListener(e -> MenuBarActions.jokeButtonResponse(mainPanel));
-        aboutMenu.add(jokeButton);
     }
 
     private static void resetView(MainPanel mainPanel) {

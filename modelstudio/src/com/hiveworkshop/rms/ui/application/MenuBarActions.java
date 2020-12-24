@@ -460,19 +460,4 @@ public class MenuBarActions {
         testPanel.setLayout(new GridLayout(1, 4));
         return new View("Test", null, testPanel);
     }
-
-    static void jokeButtonResponse(MainPanel mainPanel) {
-        final JEditorPane jEditorPane;
-        try {
-            jEditorPane = new JEditorPane(new URL("http://79.179.129.227:8080/clients/editor/"));
-            final JFrame testFrame = new JFrame("Test");
-            testFrame.setContentPane(jEditorPane);
-            testFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-            testFrame.pack();
-            testFrame.setLocationRelativeTo(mainPanel.nullmodelButton);
-            testFrame.setVisible(true);
-        } catch (final IOException e1) {
-            e1.printStackTrace();
-        }
-    }
 }

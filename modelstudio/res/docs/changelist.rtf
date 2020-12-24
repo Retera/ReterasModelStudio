@@ -1,9 +1,24 @@
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}{\f1\fnil\fcharset2 Symbol;}}
-{\*\generator Riched20 10.0.17134}\viewkind4\uc1 
+{\*\generator Riched20 10.0.19041}\viewkind4\uc1 
 \pard\sa200\sl276\slmult1\qc\b\f0\fs40\lang9 Changelog\par
 \b0\fs20 Retera Model Studio\par
 
-\pard\sa200\sl276\slmult1\b\fs32 v0.03 Public Beta:\par
+\pard\sa200\sl276\slmult1\b\fs32 v0.05 Public Beta:\par
+
+\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li720\sa200\sl276\slmult1\b0 The code has been changed to support Java 15 up from Java 8. With this some changes were made to gradle configurations.\b\par
+{\pntext\f1\'B7\tab}\b0 The project source code structure changed from several dependent projects ("craft3data", "craft3editor", "matrixeater", "disarm") to use a cleaner layout at the root level ("modelstudio" and "thirdparty")\b\par
+{\pntext\f1\'B7\tab}\b0 The project has stopped using a backported build of DrSuperGood's JCASC and is now using the real official JCASC, integrated as a Gradle dependency instead of using a modified copy of the original JCASC source code.\b\par
+{\pntext\f1\'B7\tab}\b0 The project has stopped using DrSuperGood's MPQ parser because it was not available as a gradle dependency. Ghostwolf changed it to use JMPQ3, which is linkable easily from Gradle.\b\par
+{\pntext\f1\'B7\tab}\b0 The project has stopped using Oger-Lord's MDX parser. We have also stopped using Retera's 2012 MDL parser. For the 0.05 version, the model parser has been entirely rewritten. This new parser was transcribed by Retera from the JavaScript mdx-m3-viewer repo written by Ghostwolf originally. Then Ghostwolf reorganized and improved the transcription himself, added Reforged support, and integrated it to interface with the MDL classes on Retera Model Studio.\b\par
+{\pntext\f1\'B7\tab}\b0 The MDL class that had existed since 2012 was finally renamed to EditableModel to distance it from the parsing logic and try to create a better code separation within this project.\b\par
+{\pntext\f1\'B7\tab}\b0 Ghostwolf did a bunch of code reorganization and changed to a unified, consistent math library in many locations in the code. (Previously Retera was using a combination of some homebrew stuff and deprecated classes from older LWJGL versions)\b\par
+{\pntext\f1\'B7\tab}\b0 twilac has been doing code reorganization and adding in some of the missing features in the Model tab because Retera has been lazy.\b\par
+
+\pard\sa200\sl276\slmult1 v0.04:\par
+
+\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li720\sa200\sl276\slmult1\b0 Reforged support was added in 0.04 as well as a few extra features and the first draft of the unfinished "Model" tab. Some additional notes about progress are available on the Hive Workshop and on the GitHub commit history for this project.\b\par
+
+\pard\sa200\sl276\slmult1 v0.03:\par
 
 \pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li720\sa200\sl276\slmult1\b0 Changed the program to use Java 11. Had trouble exporting the JAR from Eclipse, so I changed it back to Java 8 for now.\par
 {\pntext\f1\'B7\tab}Changed the program to use the latest version of DrSuperGood's JCASC, which requires Java 11 to use, then I modified his code so that it did not require Java 11 so that we could continue deployment in the previous fashion.\par
