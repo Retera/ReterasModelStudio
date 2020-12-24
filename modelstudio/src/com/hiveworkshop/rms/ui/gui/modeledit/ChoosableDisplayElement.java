@@ -8,11 +8,17 @@ import java.util.Objects;
 
 abstract class ChooseableDisplayElement<T> {
 	protected final ModelViewManager modelViewManager;
+	private final int id;
 	protected final T item;
 	private ImageIcon icon;
 
 	public ChooseableDisplayElement(final ImageIcon icon, final ModelViewManager modelViewManager, final T item) {
+		this(icon, modelViewManager, item, -1);
+	}
+
+	public ChooseableDisplayElement(final ImageIcon icon, final ModelViewManager modelViewManager, final T item, final int id) {
 		this.modelViewManager = modelViewManager;
+		this.id = id;
 		this.item = item;
 		this.icon = icon;
 	}
@@ -45,7 +51,8 @@ abstract class ChooseableDisplayElement<T> {
 
 	public boolean hasSameItem(final ChooseableDisplayElement<?> other) {
 		return (getClass() == other.getClass())
-				&& (Objects.equals(item, other.item));
+				&& (Objects.equals(item, other.item)
+				&& (this.id == other.id));
 	}
 
 	public ImageIcon getIcon(final boolean expanded) {

@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class ComponentGeosetMaterialPanel extends JPanel {
 	Map<String, Material> materialMap = new HashMap<>();
-	int materialNumber = 0;
+	int materialNumber = -1;
 	private JComboBox<String> materialChooser;
 	private UndoActionListener undoActionListener;
 	private ModelStructureChangeListener modelStructureChangeListener;
@@ -49,7 +49,7 @@ public class ComponentGeosetMaterialPanel extends JPanel {
 
 		for (int i = 0; i < materialList.size(); i++) {
 			materialMap.put("Material " + i, materialList.get(i));
-			if (material.equals(materialList.get(i))) {
+			if (materialNumber == -1 && material.equals(materialList.get(i))) {
 				materialNumber = i;
 			}
 		}
@@ -61,6 +61,7 @@ public class ComponentGeosetMaterialPanel extends JPanel {
 	private void chooseMaterial(Geoset geoset) {
 		if (listenersEnabled) {
 			Material material = materialMap.get(materialChooser.getSelectedItem().toString());
+			materialNumber = materialChooser.getSelectedIndex();
 			geoset.setMaterial(material);
 		}
 	}
@@ -68,7 +69,9 @@ public class ComponentGeosetMaterialPanel extends JPanel {
 	private void copyMaterial(Geoset geoset, ModelViewManager modelViewManager) {
 
 		if (listenersEnabled) {
-			new AddMaterialAction(geoset.getMaterial(), modelViewManager, modelStructureChangeListener).redo();
+			AddMaterialAction addMaterialAction = new AddMaterialAction(geoset.getMaterial(), modelViewManager, modelStructureChangeListener);
+			undoActionListener.pushAction(addMaterialAction);
+			addMaterialAction.redo();
 			updateMaterialChooserBox(geoset);
 			materialChooser.setSelectedIndex(materialMap.size() - 1);
 		}

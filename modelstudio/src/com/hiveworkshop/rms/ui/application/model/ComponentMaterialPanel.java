@@ -22,8 +22,8 @@ public class ComponentMaterialPanel extends JPanel implements ComponentPanel<Mat
 	private static final String SD = "SD";
 	private static final String HD = "HD";
 	private Material material;
-	private UndoActionListener undoActionListener;
-	private ModelStructureChangeListener modelStructureChangeListener;
+	private final UndoActionListener undoActionListener;
+	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final ModelViewManager modelViewManager;
 
 	private final JComboBox<String> shaderOptionComboBox;

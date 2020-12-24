@@ -52,6 +52,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		final ChooseableModelRoot modelRoot = new ChooseableModelRoot(modelViewManager, model);
 		final DefaultMutableTreeNode root = new DefaultMutableTreeNode(modelRoot);
+		int number = 0;
 
 		ChooseableModelComment modelComment = new ChooseableModelComment(modelViewManager, model.getHeader());
 //		System.out.println(model.getHeader());
@@ -75,35 +76,39 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 		root.add(globalSequences);
 
+		number = 0;
 		final DefaultMutableTreeNode textures = new DefaultMutableTreeNode(getDummyItem(modelViewManager, "Textures"));
 		for (final Bitmap item : model.getTextures()) {
-			textures.add(new DefaultMutableTreeNode(new ChooseableBitmapItem(modelViewManager, item)));
+			textures.add(new DefaultMutableTreeNode(new ChooseableBitmapItem(modelViewManager, item, number++)));
 		}
 		root.add(textures);
 
+		number = 0;
 		final DefaultMutableTreeNode materials = new DefaultMutableTreeNode(getDummyItem(modelViewManager, "Materials"));
 		for (final Material item : model.getMaterials()) {
-			materials.add(new DefaultMutableTreeNode(new ChooseableMaterialItem(modelViewManager, item)));
+			materials.add(new DefaultMutableTreeNode(new ChooseableMaterialItem(modelViewManager, item, number++)));
 		}
 		root.add(materials);
 
+		number = 0;
 		final DefaultMutableTreeNode tVertexAnims = new DefaultMutableTreeNode(getDummyItem(modelViewManager, "TVertexAnims"));
 		for (final TextureAnim item : model.getTexAnims()) {
-			ChooseableTextureAnimItem textureAnimItem = new ChooseableTextureAnimItem(modelViewManager, item);
+			ChooseableTextureAnimItem textureAnimItem = new ChooseableTextureAnimItem(modelViewManager, item, number++);
 			tVertexAnims.add(new DefaultMutableTreeNode(textureAnimItem));
 		}
 		root.add(tVertexAnims);
 
+		number = 0;
 		final DefaultMutableTreeNode geosets = new DefaultMutableTreeNode(getDummyItem(modelViewManager, "Geosets"));
 		for (final Geoset item : model.getGeosets()) {
-			ChooseableGeosetItem geosetItem = new ChooseableGeosetItem(modelViewManager, item);
+			ChooseableGeosetItem geosetItem = new ChooseableGeosetItem(modelViewManager, item, number++);
 			geosets.add(new DefaultMutableTreeNode(geosetItem));
 		}
 		root.add(geosets);
 
 		final DefaultMutableTreeNode geosetAnims = new DefaultMutableTreeNode(getDummyItem(modelViewManager, "GeosetAnims"));
 		for (final GeosetAnim item : model.getGeosetAnims()) {
-			ChooseableGeosetAnimItem geosetAnimItem = new ChooseableGeosetAnimItem(modelViewManager, item);
+			ChooseableGeosetAnimItem geosetAnimItem = new ChooseableGeosetAnimItem(modelViewManager, item, number++);
 			geosetAnims.add(new DefaultMutableTreeNode(geosetAnimItem));
 		}
 		root.add(geosetAnims);
@@ -152,9 +157,10 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 		root.add(cameras);
 
+		number = 0;
 		if (!model.getFaceEffects().isEmpty()) {
 			for (final FaceEffect faceEffect : model.getFaceEffects()) {
-				ChooseableFaceEffectsChunkItem effectsChunkItem = new ChooseableFaceEffectsChunkItem(modelViewManager, faceEffect);
+				ChooseableFaceEffectsChunkItem effectsChunkItem = new ChooseableFaceEffectsChunkItem(modelViewManager, faceEffect, number++);
 				root.add(new DefaultMutableTreeNode(effectsChunkItem));
 			}
 		}
@@ -413,8 +419,8 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		private static final ImageIcon TEXTURE_ICON = new ImageIcon(RMSIcons.loadNodeImage("bitmap.png"));
 
-		public ChooseableBitmapItem(final ModelViewManager modelViewManager, final Bitmap item) {
-			super(TEXTURE_ICON, modelViewManager, item);
+		public ChooseableBitmapItem(final ModelViewManager modelViewManager, final Bitmap item, int id) {
+			super(TEXTURE_ICON, modelViewManager, item, id);
 		}
 
 		@Override
@@ -424,16 +430,25 @@ public final class ModelComponentBrowserTree extends JTree {
 	}
 
 	private static final class ChooseableMaterialItem extends ChooseableDisplayElement<Material> {
+		private static int num = 0;
+		private int thisNum;
 
 		private static final ImageIcon MATERIAL_ICON = new ImageIcon(RMSIcons.loadNodeImage("material.png"));
 
-		public ChooseableMaterialItem(final ModelViewManager modelViewManager, final Material item) {
-			super(MATERIAL_ICON, modelViewManager, item);
+		public ChooseableMaterialItem(final ModelViewManager modelViewManager, final Material item, int id) {
+			super(MATERIAL_ICON, modelViewManager, item, id);
+			thisNum = id;
+//			thisNum = num;
+//			num++;
+//			int matNum = modelViewManager.getModel().getMaterials().size();
+//			if(num>= matNum){
+//				num=0;
+//			}
 		}
 
 		@Override
 		protected String getName(final Material item, final ModelViewManager modelViewManager) {
-			return "Material " + modelViewManager.getModel().getMaterials().indexOf(item);
+			return "Material " + (thisNum);
 		}
 	}
 
@@ -441,8 +456,8 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		private static final ImageIcon TEXTURE_ANIM_ICON = new ImageIcon(RMSIcons.loadNodeImage("textureanim.png"));
 
-		public ChooseableTextureAnimItem(final ModelViewManager modelViewManager, final TextureAnim item) {
-			super(TEXTURE_ANIM_ICON, modelViewManager, item);
+		public ChooseableTextureAnimItem(final ModelViewManager modelViewManager, final TextureAnim item, int id) {
+			super(TEXTURE_ANIM_ICON, modelViewManager, item, id);
 		}
 
 		@Override
@@ -454,8 +469,8 @@ public final class ModelComponentBrowserTree extends JTree {
 	private static final class ChooseableGeosetAnimItem extends ChooseableDisplayElement<GeosetAnim> {
 		private static final ImageIcon GEOSET_ANIM_ICON = new ImageIcon(RMSIcons.loadNodeImage("geoanim.png"));
 
-		public ChooseableGeosetAnimItem(final ModelViewManager modelViewManager, final GeosetAnim item) {
-			super(GEOSET_ANIM_ICON, modelViewManager, item);
+		public ChooseableGeosetAnimItem(final ModelViewManager modelViewManager, final GeosetAnim item, int id) {
+			super(GEOSET_ANIM_ICON, modelViewManager, item, id);
 		}
 
 		@Override
@@ -610,8 +625,8 @@ public final class ModelComponentBrowserTree extends JTree {
 	private static final class ChooseableFaceEffectsChunkItem extends ChooseableDisplayElement<FaceEffect> {
 		private static final ImageIcon FACEFX_ICON = new ImageIcon(RMSIcons.loadNodeImage("fafx.png"));
 
-		public ChooseableFaceEffectsChunkItem(final ModelViewManager modelViewManager, final FaceEffect item) {
-			super(FACEFX_ICON, modelViewManager, item);
+		public ChooseableFaceEffectsChunkItem(final ModelViewManager modelViewManager, final FaceEffect item, int id) {
+			super(FACEFX_ICON, modelViewManager, item, id);
 		}
 
 		@Override
@@ -664,8 +679,8 @@ public final class ModelComponentBrowserTree extends JTree {
 	private static final class ChooseableGeosetItem extends ChooseableDisplayElement<Geoset> {
 		private static final ImageIcon GEOSET_ITEM_ICON = new ImageIcon(RMSIcons.loadNodeImage("geoset.png"));
 
-		public ChooseableGeosetItem(final ModelViewManager modelViewManager, final Geoset item) {
-			super(GEOSET_ITEM_ICON, modelViewManager, item);
+		public ChooseableGeosetItem(final ModelViewManager modelViewManager, final Geoset item, int id) {
+			super(GEOSET_ITEM_ICON, modelViewManager, item, id);
 		}
 
 		@Override

@@ -1,8 +1,12 @@
 package com.hiveworkshop.rms.ui.application.model.material;
 
+import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.ui.application.actions.model.material.AddLayerAction;
+import com.hiveworkshop.rms.ui.application.actions.model.material.RemoveLayerAction;
+import com.hiveworkshop.rms.ui.application.actions.model.material.RemoveMaterialAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import net.miginfocom.swing.MigLayout;
@@ -19,6 +23,7 @@ public class ComponentMaterialLayersPanel extends JPanel {
 	private Material material;
 	private UndoActionListener undoActionListener;
 	private ModelStructureChangeListener modelStructureChangeListener;
+	private ModelViewManager modelViewManager;
 	private final JButton addLayerButton;
 	private final List<ComponentLayerPanel> cachedLayerPanels = new ArrayList<>();
 	private final List<JLabel> cachedLayerLabels = new ArrayList<>();
@@ -30,6 +35,7 @@ public class ComponentMaterialLayersPanel extends JPanel {
 		addLayerButton = new JButton("Add Layer");
 		addLayerButton.setBackground(HIGHLIGHT_BUTTON_BACKGROUND_COLOR);
 		addLayerButton.setForeground(Color.WHITE);
+		addLayerButton.addActionListener(e -> addLayer());
 	}
 
 	public void setMaterial(final Material material, final ModelViewManager modelViewManager,
@@ -38,6 +44,7 @@ public class ComponentMaterialLayersPanel extends JPanel {
 		System.out.println("Reloading ComponentMaterialLayersPanel");
 
 		this.material = material;
+		this.modelViewManager = modelViewManager;
 		this.undoActionListener = undoActionListener;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		final boolean hdShader = Material.SHADER_HD_DEFAULT_UNIT.equals(material.getShaderString());
@@ -82,6 +89,7 @@ public class ComponentMaterialLayersPanel extends JPanel {
 				layerDeleteButton = new JButton("Delete");
 				layerDeleteButton.setBackground(Color.RED);
 				layerDeleteButton.setForeground(Color.WHITE);
+				layerDeleteButton.addActionListener(e -> removeLayer(layer));
 				cachedLayerPanels.add(panel);
 				cachedLayerLabels.add(layerLabel);
 				cachedLayerDeleteButtons.add(layerDeleteButton);
@@ -107,5 +115,50 @@ public class ComponentMaterialLayersPanel extends JPanel {
 			add(layerDeleteButton, "wrap");
 			add(panel, "growx, growy, span 3, wrap");
 		}
+	}
+
+	private void addLayer() {
+		AddLayerAction addLayerAction = new AddLayerAction(new Layer("None", 0), material, modelStructureChangeListener);
+		undoActionListener.pushAction(addLayerAction);
+		addLayerAction.redo();
+//		setMaterial(material, modelViewManager, undoActionListener, modelStructureChangeListener);
+	}
+
+	private void removeLayer(Layer layer) {
+		boolean doRemove = true;
+		if (material.getLayers().size() <= 1) {
+			doRemove = false;
+			List<Geoset> geosetList = modelViewManager.getModel().getGeosets();
+			int numUses = 0;
+			for (Geoset geoset : geosetList) {
+				if (geoset.getMaterial().equals(material)) {
+					numUses++;
+				}
+			}
+			if (numUses > 0) {
+//				JOptionPane.showMessageDialog(this, "Removing this layer is not possible since it would\nremove a material used by " + numUses + " geosets.");
+				JOptionPane.showMessageDialog(this, "Cannot delete material as it is being used by " + numUses + " geosets.");
+				//TODO check if it's really being used, maybe by checking ComponentGeosetMaterialPanel#MaterialChooser#index
+			} else {
+//				int removeLayer = JOptionPane.showConfirmDialog(this, "Removing this layer will remove the material.\nDo you want to remove the material?", "Remove material", JOptionPane.YES_NO_OPTION);
+//				if (removeLayer == 0){
+				doRemove = true;
+				removeMaterial();
+//				}
+			}
+		}
+		if (doRemove) {
+			RemoveLayerAction removeLayerAction = new RemoveLayerAction(layer, material, modelStructureChangeListener);
+			undoActionListener.pushAction(removeLayerAction);
+			removeLayerAction.redo();
+//			setMaterial(material, modelViewManager, undoActionListener, modelStructureChangeListener);
+		}
+	}
+
+	private void removeMaterial() {
+		RemoveMaterialAction removeMaterialAction = new RemoveMaterialAction(material, modelViewManager, modelStructureChangeListener);
+		undoActionListener.pushAction(removeMaterialAction);
+		removeMaterialAction.redo();
+//		this.getParent().remove(this);
 	}
 }

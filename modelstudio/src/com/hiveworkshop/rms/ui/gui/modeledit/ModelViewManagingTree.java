@@ -61,13 +61,11 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 
 	private TreePath getTreePath(TreePath nextPathToExpand, TreePath newPathWithNewObjects, JCheckBoxTreeNode currentNode) {
 		for (int i = 1; i < nextPathToExpand.getPathCount(); i++) {
-			final JCheckBoxTreeNode pathComponent = (JCheckBoxTreeNode) nextPathToExpand
-					.getPathComponent(i);
+			final JCheckBoxTreeNode pathComponent = (JCheckBoxTreeNode) nextPathToExpand.getPathComponent(i);
 			boolean foundMatchingChild = false;
 			for (int j = 0; (j < currentNode.getChildCount()) && !foundMatchingChild; j++) {
 				final JCheckBoxTreeNode childAt = (JCheckBoxTreeNode) currentNode.getChildAt(j);
-				if (asElement(childAt.getUserObject())
-						.hasSameItem(asElement(pathComponent.getUserObject()))) {
+				if (asElement(childAt.getUserObject()).hasSameItem(asElement(pathComponent.getUserObject()))) {
 					currentNode = childAt;
 					newPathWithNewObjects = newPathWithNewObjects.pathByAddingChild(childAt);
 					foundMatchingChild = true;

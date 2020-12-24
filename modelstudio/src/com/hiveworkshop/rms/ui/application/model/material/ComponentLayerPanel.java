@@ -26,8 +26,8 @@ import java.util.List;
 public class ComponentLayerPanel extends JPanel {
 	private JComboBox<FilterMode> filterModeDropdown;
 	private JComboBox<String> textureChooser;
-	private LayerFlagsPanel layerFlagsPanel;
-	private JPanel texturePreviewPanel;
+	private final LayerFlagsPanel layerFlagsPanel;
+	private final JPanel texturePreviewPanel;
 	private JButton tVertexAnimButton;
 	private ComponentEditorJSpinner coordIdSpinner;
 	private FloatValuePanel alphaPanel;
