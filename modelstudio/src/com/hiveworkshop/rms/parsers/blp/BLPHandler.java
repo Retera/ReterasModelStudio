@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 
 public class BLPHandler {
@@ -46,7 +47,7 @@ public class BLPHandler {
 	private static final int BYTES_PER_PIXEL = 4;
 
 	public GPUReadyTexture loadTexture(final DataSource dataSource, final String filepath) {
-		final String lowerFilePath = filepath.toLowerCase();
+		final String lowerFilePath = filepath.toLowerCase(Locale.US);
 		GPUReadyTexture gpuReadyTexture = gpuBufferCache.get(lowerFilePath);
 		if (gpuReadyTexture != null) {
 			return gpuReadyTexture;
@@ -94,7 +95,7 @@ public class BLPHandler {
 
 	public BufferedImage getTexture(final DataSource dataSource, final String filepath) {
 		try {
-			final String lowerCaseFilepath = filepath.toLowerCase();
+			final String lowerCaseFilepath = filepath.toLowerCase(Locale.US);
 			BufferedImage resultImage = cache.get(lowerCaseFilepath);
 			if (resultImage != null) {
 				return resultImage;
@@ -158,7 +159,7 @@ public class BLPHandler {
 		if (filepath.length() < extension.length()) {
 			return false;
 		}
-		return filepath.substring(filepath.length() - extension.length()).toLowerCase().equals(extension);
+		return filepath.substring(filepath.length() - extension.length()).toLowerCase(Locale.US).equals(extension);
 	}
 
 	/**
@@ -207,7 +208,7 @@ public class BLPHandler {
 
 		final Iterator<ImageReader> iter = ImageIO.getImageReaders(stream);
 		if (!iter.hasNext()) {
-			if (file.getName().toLowerCase().endsWith(".tga")) {
+			if (file.getName().toLowerCase(Locale.US).endsWith(".tga")) {
 				return TgaFile.readTGA(file);
 			}
 			return null;
@@ -290,7 +291,7 @@ public class BLPHandler {
 			fileExtension = "blp";
 		}
 		boolean directExport = false;
-		if (selectedValue.getPath().toLowerCase().endsWith(fileExtension)) {
+		if (selectedValue.getPath().toLowerCase(Locale.US).endsWith(fileExtension)) {
 			final CompoundDataSource gameDataFileSystem = GameDataFileSystem.getDefault();
 			if (gameDataFileSystem.has(selectedValue.getPath())) {
 				final InputStream mpqFile = gameDataFileSystem.getResourceAsStream(selectedValue.getPath());
@@ -340,7 +341,7 @@ public class BLPHandler {
 		final File blpFile = new File(filepath);
 		final File tga;
 		try {
-			if (filepath.toLowerCase().endsWith(".blp")) {
+			if (filepath.toLowerCase(Locale.US).endsWith(".blp")) {
 				final BufferedImage rawImage = readCustom(blpFile);
 				return forceBufferedImagesRGB(rawImage);// BlpFile.read(filepath, new FileInputStream(blpFile));
 				// tga = convertBLPtoTGA(blpFile, File.createTempFile("customtex",
