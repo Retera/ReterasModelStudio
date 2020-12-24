@@ -11,7 +11,7 @@ import java.util.Collections;
 public class JavaJarDataSource implements DataSource {
     @Override
     public InputStream getResourceAsStream(final String filepath) throws IOException {
-        return JavaJarDataSource.class.getResourceAsStream("/" + filepath);
+        return JavaJarDataSource.class.getResourceAsStream("/" + filepath.replace('\\', '/'));
     }
 
     @Override
@@ -41,7 +41,7 @@ public class JavaJarDataSource implements DataSource {
 
     @Override
     public boolean has(final String filepath) {
-        return JavaJarDataSource.class.getResource("/" + filepath) != null;
+        return JavaJarDataSource.class.getResource("/" + filepath.replace('\\', '/')) != null;
     }
 
     @Override
