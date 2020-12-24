@@ -128,8 +128,8 @@ public class MainPanel extends JPanel
 
     int contextClickedTab = 0;
     JPopupMenu contextMenu;
-    AbstractAction undoAction = new UndoActionImplementation("Undo", this);
-    AbstractAction redoAction = new RedoActionImplementation("Redo", this);
+    public AbstractAction undoAction = new UndoActionImplementation("Undo", this);
+    public AbstractAction redoAction = new RedoActionImplementation("Redo", this);
     ClonedNodeNamePicker namePicker = new ClonedNodeNamePickerImplementation(this);
     AbstractAction cloneAction = new AbstractAction("CloneSelection") {
         @Override

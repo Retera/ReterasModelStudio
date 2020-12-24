@@ -8,10 +8,11 @@ import java.awt.*;
 
 public class EditUVsPanel {
     static void showEditUVs(MainPanel mainPanel) {
-        final ModelPanel disp = mainPanel.currentModelPanel();
-        if (disp.getEditUVPanel() == null) {
-            final UVPanel panel = new UVPanel(disp, mainPanel.prefs, mainPanel.modelStructureChangeListener);
-            disp.setEditUVPanel(panel);
+        final ModelPanel currentModelPanel = mainPanel.currentModelPanel();
+        UVPanel panel = currentModelPanel.getEditUVPanel();
+        if (panel == null) {
+            panel = new UVPanel(mainPanel, mainPanel.modelStructureChangeListener, mainPanel.prefs);
+            currentModelPanel.setEditUVPanel(panel);
 
             panel.initViewport();
 
@@ -25,13 +26,13 @@ public class EditUVsPanel {
             panel.init();
             floatingWindow.getTopLevelAncestor().setVisible(true);
             panel.packFrame();
-        } else if (!disp.getEditUVPanel().frameVisible()) {
+        } else if (!panel.frameVisible()) {
             final FloatingWindow floatingWindow = mainPanel.rootWindow.createFloatingWindow(
                     new Point(
                             mainPanel.getX() + (mainPanel.getWidth() / 2),
                             mainPanel.getY() + (mainPanel.getHeight() / 2)),
-                    disp.getEditUVPanel().getSize(),
-                    disp.getEditUVPanel().getView());
+                    panel.getSize(),
+                    panel.getView());
             floatingWindow.getTopLevelAncestor().setVisible(true);
         }
     }

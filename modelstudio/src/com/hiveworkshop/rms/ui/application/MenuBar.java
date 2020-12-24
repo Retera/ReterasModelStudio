@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.ui.application.edit.uv.panel.UVPanel;
 import com.hiveworkshop.rms.ui.application.scripts.AnimationTransfer;
 import com.hiveworkshop.rms.ui.application.tools.EditTexturesPopupPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.*;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPanel;
 import com.hiveworkshop.rms.ui.browsers.mpq.MPQBrowser;
@@ -18,14 +18,20 @@ import com.hiveworkshop.rms.ui.gui.modeledit.util.TransferActionListener;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
-import net.infonode.docking.*;
+import net.infonode.docking.DockingWindow;
+import net.infonode.docking.TabWindow;
+import net.infonode.docking.View;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.util.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.Queue;
+import java.util.*;
 
 import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createAndAddMenuItem;
 import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createMenu;
@@ -216,6 +222,8 @@ public class MenuBar {
         flushUnusedTexture.setEnabled(false);
         flushUnusedTexture.setMnemonic(KeyEvent.VK_F);
         optimizeMenu.add(flushUnusedTexture);
+
+        createAndAddMenuItem("Remove Materials Duplicates", optimizeMenu, KeyEvent.VK_S, e -> removeMaterialDuplicates(mainPanel));
 
         createAndAddMenuItem("Recalculate Normals", editMenu, -1, KeyStroke.getKeyStroke("control N"), e -> ModelEditActions.recalculateNormals(mainPanel));
 
@@ -691,6 +699,34 @@ public class MenuBar {
                 break;
             }
         }
+    }
+
+    private static void removeMaterialDuplicates(MainPanel mainPanel) {
+        EditableModel model = mainPanel.currentModelPanel().getModel();
+        List<Material> materials = model.getMaterials();
+        Map<Material, Material> sameMaterialMap = new HashMap<>();
+        for (int i = 0; i < materials.size(); i++) {
+            Material material1 = materials.get(i);
+            for (int j = i + 1; j < materials.size(); j++) {
+                Material material2 = materials.get(j);
+                System.out.println(material1.getName() + " == " + material2.getName());
+                if (material1.equals(material2)) {
+                    if (!sameMaterialMap.containsKey(material2)) {
+                        sameMaterialMap.put(material2, material1);
+                    }
+                }
+            }
+        }
+
+        List<Geoset> geosets = model.getGeosets();
+        for (Geoset geoset : geosets) {
+            if (sameMaterialMap.containsKey(geoset.getMaterial())) {
+                geoset.setMaterial(sameMaterialMap.get(geoset.getMaterial()));
+            }
+        }
+
+        materials.removeAll(sameMaterialMap.keySet());
+        mainPanel.modelStructureChangeListener.materialsListChanged();
     }
 
     static void traverseAndReset(final DockingWindow window) {
