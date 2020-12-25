@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.parsers.mdlx.MdlxTextureAnimation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * TextureAnims, inside them called TVertexAnims
@@ -41,5 +42,12 @@ public class TextureAnim extends TimelineContainer {
 		timelinesToMdlx(animation);
 
 		return animation;
+	}
+
+	public String getFlagNames() {
+		Map<String, AnimFlag> flags = this.animFlags;
+		//TODO figure out what this should return
+		System.out.println(flags.keySet());
+		return flags.keySet().toString();
 	}
 }

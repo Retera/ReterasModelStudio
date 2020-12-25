@@ -1,13 +1,14 @@
 package com.hiveworkshop.rms.ui.application.model.material;
 
-import com.hiveworkshop.rms.editor.model.Bitmap;
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.Layer;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.rms.ui.application.actions.model.bitmap.SetBitmapPathAction;
+import com.hiveworkshop.rms.ui.application.actions.model.material.RemoveLayerAction;
+import com.hiveworkshop.rms.ui.application.actions.model.material.RemoveMaterialAction;
 import com.hiveworkshop.rms.ui.application.actions.model.material.SetLayerFilterModeAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
@@ -24,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ComponentLayerPanel extends JPanel {
+	public static final String[] REFORGED_LAYER_DEFINITIONS = {"Diffuse", "Vertex", "ORM", "Emissive", "Team Color",
+			"Reflections"};
 	private JComboBox<FilterMode> filterModeDropdown;
 	private JComboBox<String> textureChooser;
 	private final LayerFlagsPanel layerFlagsPanel;
@@ -32,7 +35,10 @@ public class ComponentLayerPanel extends JPanel {
 	private ComponentEditorJSpinner coordIdSpinner;
 	private FloatValuePanel alphaPanel;
 	private FloatValuePanel emissiveGainPanel;
+	private JPanel titlePanel;
 	private Layer layer;
+	private Material material;
+	private ModelViewManager modelViewManager;
 	private FloatValuePanel fresnelOpacityPanel;
 	private FloatValuePanel fresnelTeamColor;
 	private ColorValuePanel fresnelColorPanel;
@@ -41,28 +47,49 @@ public class ComponentLayerPanel extends JPanel {
 	private boolean listenersEnabled = true;
 	DefaultListModel<Bitmap> bitmapListModel;
 
-	public ComponentLayerPanel(EditableModel model) {
-		setLayout(new MigLayout("fill", "[][][grow]", "[fill][fill]"));
+	public ComponentLayerPanel(Material material, ModelViewManager modelViewManager, int i, boolean hdShader) {
+		setLayout(new MigLayout("fill", "[][][grow]", "[][fill][fill]"));
+		setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+//		setOpaque(true);
+//		setBackground(Color.cyan);
+
+		this.modelViewManager = modelViewManager;
+		this.material = material;
+		titlePanel = new JPanel();
+		titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.X_AXIS));
+		add(titlePanel, "growx, span 3, wrap");
+
+		final JLabel layerLabel = new JLabel("Layer");
+		titlePanel.add(layerLabel);
+		titlePanel.add(Box.createHorizontalGlue());
+		final JButton layerDeleteButton = getDeleteButton(layer);
+		titlePanel.add(layerDeleteButton);
+
+		if (hdShader) {
+			final String reforgedDefinition;
+			if (i < REFORGED_LAYER_DEFINITIONS.length) {
+				reforgedDefinition = REFORGED_LAYER_DEFINITIONS[i];
+			} else {
+				reforgedDefinition = "Unknown";
+			}
+			layerLabel.setText(reforgedDefinition + " Layer");
+			layerLabel.setFont(layerLabel.getFont().deriveFont(Font.BOLD));
+		} else {
+			layerLabel.setText("Layer " + (i + 1));
+			layerLabel.setFont(layerLabel.getFont().deriveFont(Font.PLAIN));
+		}
 
 		final JPanel leftHandSettingsPanel = new JPanel();
 		leftHandSettingsPanel.setLayout(new MigLayout());
-		fillLeftHandPanel(model, leftHandSettingsPanel);
-//		leftHandSettingsPanel.setOpaque(true);
-//		leftHandSettingsPanel.setBackground(Color.cyan);
+		fillLeftHandPanel(modelViewManager.getModel(), leftHandSettingsPanel);
 		add(leftHandSettingsPanel);
 
 
 		layerFlagsPanel = new LayerFlagsPanel();
 		layerFlagsPanel.setBorder(BorderFactory.createTitledBorder("Flags"));
-//		layerFlagsPanel.setOpaque(true);
-//		layerFlagsPanel.setBackground(Color.yellow);
 		add(layerFlagsPanel);
 
 		texturePreviewPanel = new JPanel();
-//		texturePreviewPanel.setLayout(new MigLayout("fill"));
-//		texturePreviewPanel.setOpaque(true);
-//		texturePreviewPanel.setBackground(Color.cyan);
-//		texturePreviewPanel.setBorder(new TitledBorder(null, "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		texturePreviewPanel.setLayout(new BorderLayout());
 		add(texturePreviewPanel, "growx");
 	}
@@ -88,6 +115,7 @@ public class ComponentLayerPanel extends JPanel {
 	}
 
 	private void fillLeftHandPanel(EditableModel model, JPanel leftHandSettingsPanel) {
+
 		leftHandSettingsPanel.add(new JLabel("Filter Mode:"));
 		filterModeDropdown = new JComboBox<>(FilterMode.values());
 		filterModeDropdown.addActionListener(e -> filterModeDropdownListener());
@@ -149,7 +177,7 @@ public class ComponentLayerPanel extends JPanel {
 			Bitmap bitmap = bitmapListModel.get(textureChooser.getSelectedIndex());
 
 			final SetBitmapPathAction setBitmapPathAction = new SetBitmapPathAction(bitmap, layer.getTextureBitmap().getPath(), bitmap.getPath(), modelStructureChangeListener);
-
+			// TODO this is probably not done right...
 			layer.setTexture(bitmap);
 			layer.setTextureId(textureChooser.getSelectedIndex());
 			setBitmapPathAction.redo();
@@ -164,6 +192,7 @@ public class ComponentLayerPanel extends JPanel {
 		this.layer = layer;
 		this.undoActionListener = undoActionListener;
 		this.modelStructureChangeListener = modelStructureChangeListener;
+
 		layerFlagsPanel.setLayer(layer);
 		filterModeDropdown.setSelectedItem(layer.getFilterMode());
 
@@ -173,7 +202,7 @@ public class ComponentLayerPanel extends JPanel {
 		textureChooser.setSelectedIndex(layer.getTextureId());
 
 		coordIdSpinner.reloadNewValue(layer.getCoordId());
-		tVertexAnimButton.setText(layer.getTextureAnim() == null ? "None" : layer.getTextureAnim().toString());
+		tVertexAnimButton.setText(layer.getTextureAnim() == null ? "None" : layer.getTextureAnim().getFlagNames());
 		alphaPanel.reloadNewValue((float) layer.getStaticAlpha(), layer.find("Alpha"));
 
 		emissiveGainPanel.setVisible(ModelUtils.isEmissiveLayerSupported(formatVersion) && hdShader);
@@ -191,5 +220,44 @@ public class ComponentLayerPanel extends JPanel {
 		fresnelTeamColor.reloadNewValue((float) layer.getFresnelTeamColor(), layer.find("FresnelTeamColor"));
 
 		listenersEnabled = true;
+	}
+
+	private JButton getDeleteButton(Layer layer) {
+		final JButton layerDeleteButton;
+		layerDeleteButton = new JButton("Delete");
+		layerDeleteButton.setBackground(Color.RED);
+		layerDeleteButton.setForeground(Color.WHITE);
+		layerDeleteButton.addActionListener(e -> removeLayer(layer));
+		return layerDeleteButton;
+	}
+
+	private void removeLayer(Layer layer) {
+		if (material.getLayers().size() <= 1) {
+			List<Geoset> geosetList = modelViewManager.getModel().getGeosets();
+			int numUses = 0;
+			for (Geoset geoset : geosetList) {
+				if (geoset.getMaterial() == material) {
+					// Checks if this instance of the material is used.
+					// This lets the user remove the material even if used clones exists
+					numUses++;
+				}
+			}
+
+			if (numUses > 0) {
+				JOptionPane.showMessageDialog(this, "Cannot delete material as it is being used by " + numUses + " geosets.");
+			} else {
+				removeMaterial();
+			}
+		} else {
+			RemoveLayerAction removeLayerAction = new RemoveLayerAction(layer, material, modelStructureChangeListener);
+			undoActionListener.pushAction(removeLayerAction);
+			removeLayerAction.redo();
+		}
+	}
+
+	private void removeMaterial() {
+		RemoveMaterialAction removeMaterialAction = new RemoveMaterialAction(material, modelViewManager, modelStructureChangeListener);
+		undoActionListener.pushAction(removeMaterialAction);
+		removeMaterialAction.redo();
 	}
 }

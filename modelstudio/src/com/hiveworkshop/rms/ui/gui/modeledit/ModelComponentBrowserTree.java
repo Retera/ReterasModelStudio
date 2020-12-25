@@ -228,7 +228,7 @@ public final class ModelComponentBrowserTree extends JTree {
 	}
 
 	public void reloadFromModelView() {
-		System.out.println("Reloading ModelComponentBrowserTree");
+//		System.out.println("Reloading ModelComponentBrowserTree");
 		SwingUtilities.invokeLater(() -> {
 			final TreePath selectionPath = getSelectionPath();
 			final TreePath rootPath = new TreePath(getModel().getRoot());
@@ -357,7 +357,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		public ChooseableModelComment(final ModelViewManager modelViewManager, final ArrayList<String> item) {
 			super(COMMENT_ICON, modelViewManager, item);
-			System.out.println(item);
+			System.out.println("(ModelComponentBrowserTree) model comment: " + item);
 		}
 
 		@Override

@@ -30,24 +30,27 @@ public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geose
 		this.undoActionListener = undoActionListener;
 		this.modelViewManager = modelViewManager;
 		this.modelStructureChangeListener = modelStructureChangeListener;
-		materialPanels = new HashMap<>();
 		setLayout(new MigLayout("fill", "[][][grow]", "[][][grow]"));
+
+		materialPanels = new HashMap<>();
+
 		materialPanelHolder = new JPanel(new MigLayout());
 		add(materialPanelHolder, "wrap, growx, span 3");
-
-		JPanel geosetInfoPanel = new JPanel(new MigLayout());
-		add(geosetInfoPanel, "wrap, growx, span 3");
-
 
 		materialPanelHolder.add(new JLabel("Material:"), "wrap");
 		materialPanel = new ComponentGeosetMaterialPanel();
 		materialPanelHolder.add(materialPanel);
+
+		JPanel geosetInfoPanel = new JPanel(new MigLayout());
+		add(geosetInfoPanel, "wrap, growx, span 3");
+
 		geosetInfoPanel.add(new JLabel("Triangles: "));
 		trisLabel = new JLabel("0");
 		geosetInfoPanel.add(trisLabel, "wrap");
+
 		geosetInfoPanel.add(new JLabel("Vertices: "));
 		vertLabel = new JLabel("0");
-		geosetInfoPanel.add(vertLabel);
+		geosetInfoPanel.add(vertLabel, "wrap");
 
 	}
 
