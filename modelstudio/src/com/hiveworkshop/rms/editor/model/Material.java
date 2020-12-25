@@ -135,7 +135,7 @@ public class Material {
 		return string;
 	}
 
-	public String getName() {
+	public String getName2() {
 		StringBuilder name = new StringBuilder();
 		if (layers.size() > 0) {
 			if (SHADER_HD_DEFAULT_UNIT.equals(shaderString)) {
@@ -164,6 +164,49 @@ public class Material {
 						}
 					} catch (final NullPointerException e) {
 						name.append(" over ").append("animated texture layers (").append(layers.get(i).textures.get(0).getName()).append(")");
+					}
+				}
+			}
+		}
+		return name.toString();
+	}
+
+	public String getName() {
+		StringBuilder name = new StringBuilder();
+		String over = " /\u21E9 "; //\u226F ≯,\u21B8 ↸, \u21B8↸, /\u02C5 /˅, /\u21E9 /⇩, /\u23F7 /⏷, /\u25BC /▼, /\u2304 /⌄, \u2215\u2304
+//		"\u226F ≯,\u21B8 ↸, \u21B8↸, /\u02C5 /˅, /\u21E9 /⇩, /\u23F7 /⏷, /\u25BC /▼, /\u2304 /⌄, \u2215\u2304 Pessant /↘ Team color"
+		String alpha = "\u25A8"; //\u2237 ∷, \u25A8▨
+		String animated = " \u23E9"; //\u23EF ⏯, \u21DD⇝, \u23ED ⏭, \u23F5\u23F8⏵⏸, \u25B6\u23F8▶⏸, \u23E9⏩, \u23F2⏲
+		String texture = "\u25A3"; //\u22A2 ⊢, 22A1⊡, \u25A3 ▣
+		if (layers.size() > 0) {
+			if (SHADER_HD_DEFAULT_UNIT.equals(shaderString)) {
+				try {
+					name.append(over).append(layers.get(0).texture.getName());
+					if (layers.get(0).find("Alpha") != null) {
+						name.append(animated + alpha);
+					}
+				} catch (final NullPointerException e) {
+//					name.append(over).append(animated + texture).append("animated texture layers (").append(layers.get(0).textures.get(0).getName()).append(")");
+					name.append(over).append(animated + texture).append("(").append(layers.get(0).textures.get(0).getName()).append(")");
+				}
+			} else {
+				if (layers.get(layers.size() - 1).texture != null) {
+					name = new StringBuilder(layers.get(layers.size() - 1).texture.getName());
+					if (layers.get(layers.size() - 1).find("Alpha") != null) {
+						name.append(animated + alpha);
+					}
+				} else {
+					name = new StringBuilder(animated + texture);
+				}
+				for (int i = layers.size() - 2; i >= 0; i--) {
+					try {
+						name.append(over).append(layers.get(i).texture.getName());
+						if (layers.get(i).find("Alpha") != null) {
+							name.append(animated + alpha);
+						}
+					} catch (final NullPointerException e) {
+//						name.append(over).append(animated + texture).append("animated texture layers (").append(layers.get(i).textures.get(0).getName()).append(")");
+						name.append(over).append(animated + texture).append("(").append(layers.get(i).textures.get(0).getName()).append(")");
 					}
 				}
 			}

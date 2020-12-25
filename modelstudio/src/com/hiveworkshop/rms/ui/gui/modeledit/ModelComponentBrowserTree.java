@@ -448,7 +448,10 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final Material item, final ModelViewManager modelViewManager) {
-			return "Material " + (thisNum);
+			//\u2116 №
+//			return "Material \u2116" + (thisNum);
+//			return "\u2116 " + (thisNum) + " " + item.getName();
+			return "# " + (thisNum) + " " + item.getName();
 		}
 	}
 

@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,27 +35,65 @@ public class ComponentGeosetMaterialPanel extends JPanel {
 	}
 
 	private void updateMaterialChooserBox(Geoset geoset) {
+		System.out.println("updateChooser");
 		remove(materialChooser);
 		materialChooser = new JComboBox<>(getMaterials(geoset));
 		materialChooser.addActionListener(e -> chooseMaterial(geoset));
+		checkIndex(geoset);
 		materialChooser.setSelectedIndex(materialNumber);
 		add(materialChooser);
 	}
 
 	private String[] getMaterials(Geoset geoset) {
+		System.out.println("getMaterials");
 		materialMap = new HashMap<>();
 		Material material = geoset.getMaterial();
 
 		List<Material> materialList = geoset.getParentModel().getMaterials();
-
 		for (int i = 0; i < materialList.size(); i++) {
-			materialMap.put("Material " + i, materialList.get(i));
+//			"\u2116 " + (thisNum) + " " + item.getName()
+//			materialMap.put("\u2116 " + i + " " + materialList.get(i).getName(), materialList.get(i));
+			materialMap.put("# " + i + " " + materialList.get(i).getName(), materialList.get(i));
+//			materialMap.put(materialList.get(i).getName(), materialList.get(i));
+//			materialMap.put("Material " + i, materialList.get(i));
 			if (materialNumber == -1 && material.equals(materialList.get(i))) {
 				materialNumber = i;
 			}
 		}
 
+
 		return materialMap.keySet().toArray(String[]::new);
+	}
+
+	private void checkIndex(Geoset geoset) {
+		Material gMaterial = geoset.getMaterial();
+		if (materialNumber >= materialChooser.getItemCount()) {
+			materialNumber = -1;
+		} else if (materialChooser.getItemCount() > 0) {
+			Material material = materialMap.get(materialChooser.getSelectedItem().toString());
+			if (gMaterial != material) {
+				materialNumber = -1;
+			}
+		}
+		if (materialNumber == -1) {
+			List<Material> materials = new ArrayList<>(materialMap.values());
+			int tempNum = -1;
+			for (int i = 0; i < materials.size(); i++) {
+				if (tempNum == -1 && gMaterial.equals(materials.get(i))) {
+					System.out.println("equal " + i);
+					tempNum = i;
+				}
+				if (geoset.getMaterial() == materials.get(i)) {
+					System.out.println("same " + i);
+//					geoset.setMaterial(materials.get(i));
+					materialNumber = i;
+					break;
+				}
+			}
+			if (materialNumber == -1) {
+				materialNumber = Math.max(tempNum, 0);
+			}
+		}
 	}
 
 
@@ -69,9 +108,11 @@ public class ComponentGeosetMaterialPanel extends JPanel {
 	private void copyMaterial(Geoset geoset, ModelViewManager modelViewManager) {
 
 		if (listenersEnabled) {
-			AddMaterialAction addMaterialAction = new AddMaterialAction(geoset.getMaterial(), modelViewManager, modelStructureChangeListener);
+			Material material = new Material(geoset.getMaterial());
+			AddMaterialAction addMaterialAction = new AddMaterialAction(material, modelViewManager, modelStructureChangeListener);
 			undoActionListener.pushAction(addMaterialAction);
 			addMaterialAction.redo();
+			geoset.setMaterial(material);
 			updateMaterialChooserBox(geoset);
 			materialChooser.setSelectedIndex(materialMap.size() - 1);
 		}
@@ -80,6 +121,7 @@ public class ComponentGeosetMaterialPanel extends JPanel {
 	public void setMaterialChooser(Geoset geoset, final ModelViewManager modelViewManager,
 	                               final UndoActionListener undoActionListener,
 	                               final ModelStructureChangeListener modelStructureChangeListener) {
+		System.out.println("setMaterialChooser");
 		this.undoActionListener = undoActionListener;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		listenersEnabled = false;

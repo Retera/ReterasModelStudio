@@ -131,10 +131,14 @@ public class ComponentMaterialLayersPanel extends JPanel {
 			List<Geoset> geosetList = modelViewManager.getModel().getGeosets();
 			int numUses = 0;
 			for (Geoset geoset : geosetList) {
-				if (geoset.getMaterial().equals(material)) {
+//				if (geoset.getMaterial().equals(material)) {
+				if (geoset.getMaterial() == material) {
+
+					System.out.println("is super same? " + (geoset.getMaterial() == material));
 					numUses++;
 				}
 			}
+//			List<Material> materials = modelViewManager.getModel().getMaterials();
 			if (numUses > 0) {
 //				JOptionPane.showMessageDialog(this, "Removing this layer is not possible since it would\nremove a material used by " + numUses + " geosets.");
 				JOptionPane.showMessageDialog(this, "Cannot delete material as it is being used by " + numUses + " geosets.");
@@ -142,7 +146,7 @@ public class ComponentMaterialLayersPanel extends JPanel {
 			} else {
 //				int removeLayer = JOptionPane.showConfirmDialog(this, "Removing this layer will remove the material.\nDo you want to remove the material?", "Remove material", JOptionPane.YES_NO_OPTION);
 //				if (removeLayer == 0){
-				doRemove = true;
+//				doRemove = true;
 				removeMaterial();
 //				}
 			}
