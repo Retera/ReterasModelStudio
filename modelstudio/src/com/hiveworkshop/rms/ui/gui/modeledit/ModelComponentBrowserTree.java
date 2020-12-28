@@ -340,7 +340,7 @@ public final class ModelComponentBrowserTree extends JTree {
 //	final Image collisionImage = IconUtils.loadNodeImage("/collision" + template + ".png");
 
 	private static final class ChooseableModelRoot extends ChooseableDisplayElement<EditableModel> {
-		private static final ImageIcon MODEL_ROOT_ICON = new ImageIcon(IconUtils.worldEditStyleIcon(BLPHandler.get().getGameTex("replaceabletextures\\worldeditui\\editor-trigger.blp")));
+		private static final ImageIcon MODEL_ROOT_ICON = new ImageIcon(IconUtils.worldEditStyleIcon(BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-Trigger.blp")));
 
 		public ChooseableModelRoot(final ModelViewManager modelViewManager, final EditableModel item) {
 			super(MODEL_ROOT_ICON, modelViewManager, item);

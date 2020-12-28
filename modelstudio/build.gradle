@@ -16,13 +16,33 @@ task run(dependsOn: classes, type: JavaExec) {
 }
 
 task dist(type: Jar) {
+    // From http://cmoz.me/blog/2014/11/service-files-uber-jars-and-gradle/
+    doFirst {
+        def serviceDir = file("$buildDir/META-INF/services")
+        serviceDir.deleteDir()
+        serviceDir.mkdirs()
+
+        // copy all service files from deps to buildDir
+        for(file in configurations.runtime) {
+            zipTree(file).matching{ include 'META-INF/services/*' }.each { f ->
+                new File(serviceDir, f.name) << f.getText("UTF-8")
+            }
+        }
+    }
+
     from files(sourceSets.main.output.classesDirs)
     from files(sourceSets.main.output.resourcesDir)
-    from {configurations.compile.collect {zipTree(it)}}
- 
+
     manifest {
         attributes 'Main-Class': project.mainClassName
     }
+
+    from(configurations.runtime.collect{ it.isDirectory() ? it : zipTree(it) }) {
+        exclude 'META-INF/**' // Don't let Gradle merge service files
+    }
+
+    // Include service files from the buildDir.
+    from fileTree(buildDir).matching{ include 'META-INF/services/*' }
 }
 
 dist.dependsOn classes
