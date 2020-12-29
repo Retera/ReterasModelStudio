@@ -63,6 +63,14 @@ public class ComponentsPanel extends JPanel {
 		add(geosetPanel, Geoset.class.getName());
 		panelMap.put(Geoset.class, geosetPanel);
 
+		ComponentGeosetAnimPanel geosetAnimPanel = new ComponentGeosetAnimPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		add(geosetAnimPanel, GeosetAnim.class.getName());
+		panelMap.put(GeosetAnim.class, geosetAnimPanel);
+
+		ComponentNodePanel nodePanel = new ComponentNodePanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		add(nodePanel, AnimatedNode.class.getName());
+		panelMap.put(AnimatedNode.class, nodePanel);
+
 		cardLayout.show(this, BLANK);
 	}
 
