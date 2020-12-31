@@ -105,7 +105,7 @@ public class FloatTrackTableModel extends AbstractTableModel {
 
 	@Override
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-		System.out.println("value: " + aValue + ", row: " + rowIndex + ", col: " + columnIndex);
+//		System.out.println("value: " + aValue + ", row: " + rowIndex + ", col: " + columnIndex);
 	}
 
 	public void setTrack(final AnimFlag track) {

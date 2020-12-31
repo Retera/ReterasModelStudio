@@ -64,7 +64,9 @@ public class ComponentsPanel extends JPanel {
 		panelMap.put(Geoset.class, geosetPanel);
 
 		ComponentGeosetAnimPanel geosetAnimPanel = new ComponentGeosetAnimPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
-		add(geosetAnimPanel, GeosetAnim.class.getName());
+		JScrollPane geosetAnimScrollPane = new JScrollPane(geosetAnimPanel);
+		geosetAnimScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+		add(geosetAnimScrollPane, GeosetAnim.class.getName());
 		panelMap.put(GeosetAnim.class, geosetAnimPanel);
 
 		ComponentNodePanel nodePanel = new ComponentNodePanel(modelViewManager, undoActionListener, modelStructureChangeListener);

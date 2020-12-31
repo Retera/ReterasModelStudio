@@ -464,6 +464,16 @@ public class AnimFlag {
 		}
 	}
 
+	public void addEntry(Entry entry) {
+		times.add(entry.time);
+		values.add(entry.value);
+
+		if (entry.inTan != null && entry.outTan != null) {
+			inTans.add(entry.inTan);
+			outTans.add(entry.outTan);
+		}
+	}
+
 	public void setEntry(final Integer time, final Object value) {
 		for (int index = 0; index < times.size(); index++) {
 			if (times.get(index).equals(time)) {
@@ -477,12 +487,34 @@ public class AnimFlag {
 	}
 
 	/**
+	 * To set an Entry with an Entry
+	 *
+	 * @param time  the time of the entry to be changed
+	 * @param entry the entry to replace the old entry
+	 */
+	public void setEntry(final Integer time, Entry entry) {
+		for (int index = 0; index < times.size(); index++) {
+			if (times.get(index).equals(time)) {
+				times.set(index, entry.time);
+				values.set(index, entry.value);
+				if (tans()) {
+					inTans.set(index, entry.value);
+					outTans.set(index, entry.value);
+				}
+			}
+		}
+	}
+
+	public void setEntry(Entry entry) {
+		setEntry(entry.time, entry);
+	}
+
+	/**
 	 * This class is a small shell of an example for how my "AnimFlag" class
 	 * should've been implemented. It's currently only used for the
 	 * {@link AnimFlag#getEntry(int)} function.
 	 *
 	 * @author Eric
-	 *
 	 */
 	public static class Entry {
 		public Integer time;
@@ -500,6 +532,14 @@ public class AnimFlag {
 			super();
 			this.time = time;
 			this.value = value;
+		}
+
+		public Entry(final Entry other) {
+			super();
+			this.time = other.time;
+			this.value = cloneValue(other.value);
+			this.inTan = cloneValue(other.inTan);
+			this.outTan = cloneValue(other.outTan);
 		}
 
 		public void set(final Entry other) {

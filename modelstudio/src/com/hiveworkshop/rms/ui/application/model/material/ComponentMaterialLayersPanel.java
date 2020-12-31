@@ -71,10 +71,10 @@ public class ComponentMaterialLayersPanel extends JPanel {
 			if (layerPanelMap.containsKey(keyString)) {
 				panel = layerPanelMap.get(keyString);
 			} else {
-				panel = new ComponentLayerPanel(material, modelViewManager, i, hdShader);
+				panel = new ComponentLayerPanel(material, modelViewManager, i, hdShader, undoActionListener, modelStructureChangeListener);
 				layerPanelMap.put(keyString, panel);
 			}
-			panel.setLayer(modelViewManager.getModel(), layer, modelViewManager.getModel().getFormatVersion(), hdShader, undoActionListener, modelStructureChangeListener);
+			panel.setLayer(modelViewManager.getModel(), layer, modelViewManager.getModel().getFormatVersion(), hdShader, undoActionListener);
 			layerPanelsHolder.add(panel, "growx, wrap");
 		}
 	}

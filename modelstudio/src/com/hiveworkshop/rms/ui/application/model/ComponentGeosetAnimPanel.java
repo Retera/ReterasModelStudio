@@ -39,7 +39,7 @@ public class ComponentGeosetAnimPanel extends JPanel implements ComponentPanel<G
 
 		animsPanelHolder.add(new JLabel("GeosetAnim"), "wrap");
 
-		alphaPanel = new FloatValuePanel("Alpha");
+		alphaPanel = new FloatValuePanel("Alpha", undoActionListener, modelStructureChangeListener);
 		animsPanelHolder.add(alphaPanel, "wrap, span 2");
 //		geosetAnimPanel = new ComponentGeosetMaterialPanel();
 //		animsPanelHolder.add(geosetAnimPanel);

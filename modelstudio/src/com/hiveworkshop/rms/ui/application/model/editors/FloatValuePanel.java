@@ -3,25 +3,27 @@ package com.hiveworkshop.rms.ui.application.model.editors;
 import com.hiveworkshop.rms.editor.model.AnimFlag;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
+import com.hiveworkshop.rms.ui.application.actions.model.animFlag.AddAnimFlagAction;
+import com.hiveworkshop.rms.ui.application.actions.model.animFlag.AddFlagEntryAction;
+import com.hiveworkshop.rms.ui.application.actions.model.animFlag.ChangeFlagEntry;
+import com.hiveworkshop.rms.ui.application.actions.model.animFlag.RemoveFlagEntryAction;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.model.material.FloatTrackTableModel;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.event.CaretListener;
-import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeListener;
-import java.util.EventObject;
 
 public class FloatValuePanel extends JPanel {
 	private static final String NUMBERS = "1234567890";
@@ -36,20 +38,25 @@ public class FloatValuePanel extends JPanel {
 	private final ComponentEditorJSpinner staticSpinner;
 	private final JComboBox<InterpolationType> interpTypeBox;
 	private final JTable keyframeTable;
+	private final UndoActionListener undoActionListener;
+	private final ModelStructureChangeListener modelStructureChangeListener;
 	//	private final JPanel keyFrameHeaderHolder;
 	boolean doSave;
+	String preEditValue;
 	private FloatTrackTableModel floatTrackTableModel;
 	private AnimFlag animFlag;
 	private TimelineContainer timelineContainer;
 	private String flagName;
 
-	public FloatValuePanel(final String title) {
-		this(title, Double.MAX_VALUE, -Double.MAX_VALUE);
+	public FloatValuePanel(final String title, UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener) {
+		this(title, Double.MAX_VALUE, -Double.MAX_VALUE, undoActionListener, modelStructureChangeListener);
 //		this(title, 1.0, 0.0);
 	}
 
-	public FloatValuePanel(final String title, double maxValue, double minValue) {
-		System.out.println("New FloatValuePanel!");
+	public FloatValuePanel(final String title, double maxValue, double minValue, UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener) {
+//		System.out.println("New FloatValuePanel!");
+		this.undoActionListener = undoActionListener;
+		this.modelStructureChangeListener = modelStructureChangeListener;
 		animFlag = null;
 		timelineContainer = null;
 		flagName = "";
@@ -78,56 +85,10 @@ public class FloatValuePanel extends JPanel {
 
 		keyframeTable = new JTable();
 		keyframeTable.addPropertyChangeListener(getPropertyChangeListener());
-		keyframeTable.addMouseListener(new MouseListener() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				checkDeletePressed();
-			}
+		addDeleteListeners();
 
-			@Override
-			public void mousePressed(MouseEvent e) {
-
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-
-			}
-		});
-		keyframeTable.addKeyListener(new KeyListener() {
-			@Override
-			public void keyTyped(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					checkDeletePressed();
-				}
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-
-			}
-		});
-//		keyFrameHeaderHolder = new JPanel();
-//		add(keyFrameHeaderHolder, "span 2, wrap, grow");
 		add(keyframeTable.getTableHeader(), "span 2, wrap, grow");
 
-
-//		System.out.println(keyframeTable.getTableHeader().getColumnModel().getColumn(2).getHeaderValue());
 
 		keyframeTable.setDefaultRenderer(String.class, getCellRenderer());
 
@@ -148,13 +109,54 @@ public class FloatValuePanel extends JPanel {
 		dynamicButton.addChangeListener(l);
 	}
 
+	private void addDeleteListeners() {
+		keyframeTable.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				checkDeletePressed();
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+			}
+		});
+		keyframeTable.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					checkDeletePressed();
+				}
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+		});
+	}
+
 	private PropertyChangeListener getPropertyChangeListener() {
 		return evt -> {
-			System.out.println("~~~~~~~~~~~~~~\npropChanged:");
-			System.out.println("propName " + evt.getPropertyName());
-			System.out.println("evt.source" + evt.getSource());
-			System.out.println("OLDval " + evt.getOldValue());
-			System.out.println("NEWval " + evt.getNewValue());
+//			System.out.println("~~~~~~~~~~~~~~\npropChanged:");
+//			System.out.println("propName " + evt.getPropertyName());
+//			System.out.println("evt.source" + evt.getSource());
+//			System.out.println("OLDval " + evt.getOldValue());
+//			System.out.println("NEWval " + evt.getNewValue());
 
 //			if(evt.getSource() instanceof JTable){
 //				JTable t = (JTable) evt.getSource();
@@ -165,19 +167,26 @@ public class FloatValuePanel extends JPanel {
 			if (comp instanceof JTextField) {
 				int row = keyframeTable.getEditingRow();
 				int col = keyframeTable.getEditingColumn();
-				System.out.println(keyframeTable.getColumnName(col));
-				System.out.println("compValid: " + comp);
-				System.out.println("comp: " + comp.isValid());
+//				System.out.println(keyframeTable.getColumnName(col));
+//				System.out.println("compValid: " + comp);
+//				System.out.println("comp: " + comp.isValid());
 				final JTextField compTextField = (JTextField) comp;
 				if (comp.isValid()) {
+//					System.out.println("valid");
 					doSave = true;
-					System.out.println("doSave: " + doSave);
+					preEditValue = compTextField.getText();
+//					System.out.println("doSave: " + doSave);
 				} else if (doSave) {
-					System.out.println(keyframeTable.getColumnName(col) + ": " + ((JTextField) comp).getText());
-					changeEntry(row, col, keyframeTable.getColumnName(col), ((JTextField) comp).getText());
-					System.out.println("X: " + keyframeTable.getEditingRow() + " Y: " + keyframeTable.getEditingColumn());
+//					System.out.println("save");
+//					System.out.println(keyframeTable.getColumnName(col) + ": " + ((JTextField) comp).getText());
+					String newValue = compTextField.getText();
+					if (!newValue.equals(preEditValue)) {
+//						System.out.println("doSave!");
+						changeEntry(row, col, keyframeTable.getColumnName(col), ((JTextField) comp).getText());
+					}
+//					System.out.println("X: " + keyframeTable.getEditingRow() + " Y: " + keyframeTable.getEditingColumn());
 					doSave = false;
-					System.out.println("doSave: " + doSave);
+//					System.out.println("doSave: " + doSave);
 				}
 
 				if (compTextField.getCaretListeners().length == 0) {
@@ -196,9 +205,9 @@ public class FloatValuePanel extends JPanel {
 				}
 			}
 
-			if (evt.getSource() instanceof JTable) {
-				System.out.println(((JTable) evt.getSource()).isValid());
-			}
+//			if (evt.getSource() instanceof JTable) {
+//				System.out.println(((JTable) evt.getSource()).isValid());
+//			}
 		};
 	}
 
@@ -206,8 +215,8 @@ public class FloatValuePanel extends JPanel {
 		return new DefaultTableCellRenderer() {
 			@Override
 			public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column) {
-				System.out.println(row + ", " + column + " , value:" + value + " editor:");
-				System.out.println("correct? " + table.getSelectedColumn() + ", " + table.getSelectedRow());
+//				System.out.println(row + ", " + column + " , value:" + value + " editor:");
+//				System.out.println("correct? " + table.getSelectedColumn() + ", " + table.getSelectedRow());
 				setBackground(null);
 				setForeground(null);
 				final Component tableCellRendererComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
@@ -238,68 +247,33 @@ public class FloatValuePanel extends JPanel {
 		this.timelineContainer = timelineContainer;
 		this.flagName = flagName;
 
-		TableColumn column = null;
 		if (animFlag == null) {
 			staticButton.setSelected(true);
-//			if(timelineContainer != null && !flagName.equals("")){
-//				ActionListener[] actionListeners = addButton.getActionListeners();
-//				if(actionListeners != null){
-//					for (ActionListener actionListener : actionListeners){
-//						addButton.removeActionListener(actionListener);
-//					}
-//				}
-//				addButton.addActionListener(e -> addAnim(timelineContainer, flagName));
-//			}
 		} else {
-			if (floatTrackTableModel == null) {
-				floatTrackTableModel = new FloatTrackTableModel(animFlag);
-//				floatTrackTableModel.addTableModelListener(e -> ugg());
-				keyframeTable.setModel(floatTrackTableModel);
-				keyframeTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-//				keyframeTable.sizeColumnsToFit(2);
-//				keyframeTable.getTableHeader();
-				column = keyframeTable.getColumn("");
-//				column.setHeaderValue("");
-				int rowHeight = keyframeTable.getRowHeight();
-				column.setMaxWidth(rowHeight);
-				System.out.println("rh: " + rowHeight);
-				column.setPreferredWidth(rowHeight);
-//				column.setWidth(1);
-				column.setMinWidth(1);
-//				keyframeTable.getColumn("Delete").setHeaderValue(" ");
-//				System.out.println("column: " + keyframeTable.getColumn("Delete").getHeaderValue());
-			}
 			dynamicButton.setSelected(true);
-//			ActionListener[] actionListeners = addButton.getActionListeners();
-//			if(actionListeners != null){
-//				for (ActionListener actionListener : actionListeners){
-//					addButton.removeActionListener(actionListener);
-//				}
-//			}
-//			addButton.addActionListener(e -> addEntry());
-
-//			PropertyChangeListener[] propertyChangeListeners = keyframeTable.getPropertyChangeListeners();
-//			if(actionListeners != null){
-//				for (PropertyChangeListener propertyChangeListener : propertyChangeListeners){
-//					keyframeTable.removePropertyChangeListener(propertyChangeListener);
-//				}
-//			}
-
 		}
-		System.out.println("colums: " + keyframeTable.getModel().getColumnCount());
+//		System.out.println("colums: " + keyframeTable.getModel().getColumnCount());
 		staticSpinner.reloadNewValue(value);
+		setTableModel();
+	}
+
+	private void setTableModel() {
+		if (floatTrackTableModel == null) {
+			floatTrackTableModel = new FloatTrackTableModel(animFlag);
+
+			keyframeTable.setModel(floatTrackTableModel);
+			keyframeTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		}
+
 		if (floatTrackTableModel != null) {
 			floatTrackTableModel.setTrack(animFlag);
-			column = keyframeTable.getColumn("");
+			TableColumn column = keyframeTable.getColumn("");
 			if (column != null) {
 				int rowHeight = keyframeTable.getRowHeight();
 				column.setMaxWidth(rowHeight);
 				column.setPreferredWidth(rowHeight);
-//				column.setWidth(1);
-				column.setMinWidth(1);
-				System.out.println("rh1: " + rowHeight);
+				column.setMinWidth(5);
 			}
-//			keyframeTable.getColumn("Delete").setPreferredWidth(10);
 		}
 	}
 
@@ -310,27 +284,45 @@ public class FloatValuePanel extends JPanel {
 	}
 
 	private void addEntry() {
-		System.out.println("addEntry");
-		System.out.println(animFlag + " " + timelineContainer + " " + flagName);
+//		System.out.println("addEntry");
+//		System.out.println(animFlag + " " + timelineContainer + " " + flagName);
 		if (animFlag == null && timelineContainer != null && !flagName.equals("")) {
-			animFlag = new AnimFlag(flagName);
-			animFlag.addEntry(0, 1);
-			timelineContainer.add(animFlag);
+			UndoAction undoAction = new AddAnimFlagAction(timelineContainer, flagName, modelStructureChangeListener);
+			undoActionListener.pushAction(undoAction);
+			undoAction.redo();
+//			animFlag = new AnimFlag(flagName);
+//			animFlag.addEntry(0, 1);
+//			timelineContainer.add(animFlag);
 		} else if (animFlag != null) {
-			AnimFlag.Entry lastEntry = animFlag.getEntry(animFlag.getTimes().size() - 1);
-
-			Integer time = lastEntry.time + 1;
-			Object value = AnimFlag.cloneValue(lastEntry.value);
-
-			if (animFlag.tans()) {
-				Object inTan = AnimFlag.cloneValue(lastEntry.inTan);
-				Object outTan = AnimFlag.cloneValue(lastEntry.outTan);
-				animFlag.addEntry(time, value, inTan, outTan);
+			AnimFlag.Entry newEntry;
+			AnimFlag.Entry lastEntry;
+			if (animFlag.getTimes().isEmpty()) {
+				if (animFlag.getInterpolationType().tangential()) {
+					lastEntry = new AnimFlag.Entry(0, 0, 0, 0);
+				} else {
+					lastEntry = new AnimFlag.Entry(0, 0);
+				}
+				newEntry = new AnimFlag.Entry(lastEntry);
 			} else {
-				animFlag.addEntry(time, value);
+				lastEntry = animFlag.getEntry(animFlag.getTimes().size() - 1);
+				newEntry = new AnimFlag.Entry(lastEntry);
+				newEntry.time++;
 			}
+			UndoAction undoAction = new AddFlagEntryAction(animFlag, newEntry, timelineContainer, modelStructureChangeListener);
+			undoActionListener.pushAction(undoAction);
+			undoAction.redo();
+//			Integer time = lastEntry.time + 1;
+//			Object value = AnimFlag.cloneValue(lastEntry.value);
+//
+//			if (animFlag.tans()) {
+//				Object inTan = AnimFlag.cloneValue(lastEntry.inTan);
+//				Object outTan = AnimFlag.cloneValue(lastEntry.outTan);
+//				animFlag.addEntry(time, value, inTan, outTan);
+//			} else {
+//				animFlag.addEntry(time, value);
+//			}
 		}
-//		floatTrackTableModel.setTrack(animFlag);
+		setTableModel();
 
 		revalidate();
 		repaint();
@@ -345,13 +337,16 @@ public class FloatValuePanel extends JPanel {
 	}
 
 	private void removeEntry(int row) {
-		animFlag.getTimes().remove(row);
-		animFlag.getValues().remove(row);
-
-		if (animFlag.tans()) {
-			animFlag.getInTans().remove(row);
-			animFlag.getOutTans().remove(row);
-		}
+		UndoAction undoAction = new RemoveFlagEntryAction(animFlag, row, timelineContainer, modelStructureChangeListener);
+		undoActionListener.pushAction(undoAction);
+		undoAction.redo();
+//		animFlag.getTimes().remove(row);
+//		animFlag.getValues().remove(row);
+//
+//		if (animFlag.tans()) {
+//			animFlag.getInTans().remove(row);
+//			animFlag.getOutTans().remove(row);
+//		}
 		revalidate();
 		repaint();
 	}
@@ -361,96 +356,35 @@ public class FloatValuePanel extends JPanel {
 //		if(strings.length>2){
 //
 //		}
+		AnimFlag.Entry entry = animFlag.getEntry(row);
+		int orgTime = animFlag.getTimes().get(row);
 		float fValue = Float.parseFloat(val);
 		int iValue = Integer.parseInt(val.replaceAll("\\D", ""));
+//		switch (field) {
+//			case "Keyframe" -> {
+//				animFlag.getTimes().set(row, iValue);
+//				animFlag.sort();
+//			}
+//			case "Value" -> animFlag.getValues().set(row, fValue);
+//			case "InTan" -> animFlag.getInTans().set(row, fValue);
+//			case "OutTan" -> animFlag.getOutTans().set(row, fValue);
+//		}
 		switch (field) {
 			case "Keyframe" -> {
-				animFlag.getTimes().set(row, iValue);
-				animFlag.sort();
+				entry.time = iValue;
 			}
-			case "Value" -> animFlag.getValues().set(row, fValue);
-			case "InTan" -> animFlag.getInTans().set(row, fValue);
-			case "OutTan" -> animFlag.getOutTans().set(row, fValue);
+			case "Value" -> entry.value = fValue;
+			case "InTan" -> entry.inTan = fValue;
+			case "OutTan" -> entry.outTan = fValue;
 		}
+		UndoAction undoAction = new ChangeFlagEntry(animFlag, entry, orgTime, timelineContainer, modelStructureChangeListener);
+		undoActionListener.pushAction(undoAction);
+		undoAction.redo();
 
-		System.out.println("changed nr " + row + ", " + col + " to: " + val);
+//		System.out.println("changed nr " + row + ", " + col + " to: " + val);
 
 		revalidate();
 		repaint();
 	}
 
-	private void ugg(ListSelectionEvent event) {
-		System.out.println("ugg " + event);
-	}
-
-	private void ugg() {
-		System.out.println("ugg ");
-	}
-
-	private void setCellEditor(JTable table) {
-		table.setCellEditor(new TableCellEditor() {
-			@Override
-			public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-				System.out.println("value" + value);
-				return null;
-			}
-
-			@Override
-			public Object getCellEditorValue() {
-
-				System.out.println("value");
-				return null;
-			}
-
-			@Override
-			public boolean isCellEditable(EventObject anEvent) {
-
-				System.out.println("editable, " + anEvent.getSource());
-				return true;
-			}
-
-			@Override
-			public boolean shouldSelectCell(EventObject anEvent) {
-
-				return true;
-			}
-
-			@Override
-			public boolean stopCellEditing() {
-
-				System.out.println("stop");
-				return false;
-			}
-
-			@Override
-			public void cancelCellEditing() {
-
-				System.out.println("cancel");
-
-			}
-
-			@Override
-			public void addCellEditorListener(CellEditorListener l) {
-
-			}
-
-			@Override
-			public void removeCellEditorListener(CellEditorListener l) {
-
-			}
-		});
-	}
-
-	private void newFilter(TableRowSorter<FloatTrackTableModel> sorter) {
-		RowFilter<FloatTrackTableModel, Object> rf = null;
-		//If current expression doesn't parse, don't update.
-		try {
-			System.out.println("filter!");
-			rf = RowFilter.regexFilter("\\d+", 0);
-		} catch (java.util.regex.PatternSyntaxException e) {
-			System.out.println("no filter");
-			return;
-		}
-		sorter.setRowFilter(rf);
-	}
 }

@@ -47,13 +47,15 @@ public class ComponentLayerPanel extends JPanel {
 	private boolean listenersEnabled = true;
 	DefaultListModel<Bitmap> bitmapListModel;
 
-	public ComponentLayerPanel(Material material, ModelViewManager modelViewManager, int i, boolean hdShader) {
+	public ComponentLayerPanel(Material material, ModelViewManager modelViewManager, int i, boolean hdShader, UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener) {
 		setLayout(new MigLayout("fill", "[][][grow]", "[][fill][fill]"));
 		setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 //		setOpaque(true);
 //		setBackground(Color.cyan);
 
 		this.modelViewManager = modelViewManager;
+		this.undoActionListener = undoActionListener;
+		this.modelStructureChangeListener = modelStructureChangeListener;
 		this.material = material;
 		titlePanel = new JPanel();
 		titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.X_AXIS));
@@ -135,19 +137,19 @@ public class ComponentLayerPanel extends JPanel {
 		leftHandSettingsPanel.add(new JLabel("CoordID:"));
 		leftHandSettingsPanel.add(coordIdSpinner, "wrap, growx");
 
-		alphaPanel = new FloatValuePanel("Alpha");
+		alphaPanel = new FloatValuePanel("Alpha", undoActionListener, modelStructureChangeListener);
 		leftHandSettingsPanel.add(alphaPanel, "wrap, span 2");
 
-		emissiveGainPanel = new FloatValuePanel("Emissive Gain");
+		emissiveGainPanel = new FloatValuePanel("Emissive Gain", undoActionListener, modelStructureChangeListener);
 		leftHandSettingsPanel.add(emissiveGainPanel, "wrap, span 2, hidemode 2");
 
 		fresnelColorPanel = new ColorValuePanel("Fresnel Color");
 		leftHandSettingsPanel.add(fresnelColorPanel, "wrap, span 2, hidemode 2");
 
-		fresnelOpacityPanel = new FloatValuePanel("Fresnel Opacity");
+		fresnelOpacityPanel = new FloatValuePanel("Fresnel Opacity", undoActionListener, modelStructureChangeListener);
 		leftHandSettingsPanel.add(fresnelOpacityPanel, "wrap, span 2, hidemode 2");
 
-		fresnelTeamColor = new FloatValuePanel("Fresnel Team Color");
+		fresnelTeamColor = new FloatValuePanel("Fresnel Team Color", undoActionListener, modelStructureChangeListener);
 		leftHandSettingsPanel.add(fresnelTeamColor, "wrap, span 2, hidemode 2");
 	}
 
@@ -186,12 +188,11 @@ public class ComponentLayerPanel extends JPanel {
 	}
 
 	public void setLayer(final EditableModel model, final Layer layer, final int formatVersion,
-	                     final boolean hdShader, final UndoActionListener undoActionListener,
-	                     final ModelStructureChangeListener modelStructureChangeListener) {
+	                     final boolean hdShader, final UndoActionListener undoActionListener) {
 		listenersEnabled = false;
 		this.layer = layer;
-		this.undoActionListener = undoActionListener;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+//		this.undoActionListener = undoActionListener;
+//		this.modelStructureChangeListener = modelStructureChangeListener;
 
 		layerFlagsPanel.setLayer(layer);
 		filterModeDropdown.setSelectedItem(layer.getFilterMode());
