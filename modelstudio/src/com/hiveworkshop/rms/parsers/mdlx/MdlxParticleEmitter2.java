@@ -229,7 +229,8 @@ public class MdlxParticleEmitter2 extends MdlxGenericObject {
 				case MdlUtils.TOKEN_TEXTURE_ID -> textureId = stream.readInt();
 				case MdlUtils.TOKEN_REPLACEABLE_ID -> replaceableId = stream.readUInt32();
 				case MdlUtils.TOKEN_PRIORITY_PLANE -> priorityPlane = stream.readInt();
-				default -> throw new RuntimeException("Unknown token in ParticleEmitter2 " + name + ": " + token);
+//				default -> throw new RuntimeException("Unknown token in ParticleEmitter2 " + name + ": " + token);
+				default -> System.out.println("Unknown token in ParticleEmitter2 " + name + ": " + token);
 			}
 		}
 	}

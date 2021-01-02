@@ -38,7 +38,9 @@ public class MdlxTexture implements MdlxBlock {
 
 	@Override
 	public void readMdl(final MdlTokenInputStream stream, final int version) {
+//		System.out.println("texture, ver: " + version);
 		for (final String token : stream.readBlock()) {
+//			System.out.println("token: " + token);
 			switch (token) {
 				case MdlUtils.TOKEN_IMAGE -> path = stream.read();
 				case MdlUtils.TOKEN_REPLACEABLE_ID -> replaceableId = stream.readInt();

@@ -16,12 +16,9 @@ import java.util.List;
  * and text MDL file formats.
  */
 public class MdlxModel {
-	// Below, these can't call a function on a string to make their value
-	// because
-	// switch/case statements require the value to be compile-time defined in
-	// order
-	// to be legal, and it appears to only allow basic binary operators for
-	// that.
+	// Below, these can't call a function on a string to make their value because
+	// switch/case statements require the value to be compile-time defined in order
+	// to be legal, and it appears to only allow basic binary operators for that.
 	// I would love a clearer way to just type 'MDLX' in a character constant in
 	// Java for this
 	private static final int MDLX = ('M' << 24) | ('D' << 16) | ('L' << 8) | ('X');// War3ID.fromString("MDLX").getValue();
@@ -328,10 +325,8 @@ public class MdlxModel {
 				case MdlUtils.TOKEN_SEQUENCES -> loadNumberedObjectBlock(sequences, MdlxBlockDescriptor.SEQUENCE, MdlUtils.TOKEN_ANIM, stream);
 				case MdlUtils.TOKEN_GLOBAL_SEQUENCES -> loadGlobalSequenceBlock(stream);
 				case MdlUtils.TOKEN_TEXTURES -> loadNumberedObjectBlock(textures, MdlxBlockDescriptor.TEXTURE, MdlUtils.TOKEN_BITMAP, stream);
-				case MdlUtils.TOKEN_MATERIALS -> loadNumberedObjectBlock(materials, MdlxBlockDescriptor.MATERIAL, MdlUtils.TOKEN_MATERIAL,
-						stream);
-				case MdlUtils.TOKEN_TEXTURE_ANIMS -> loadNumberedObjectBlock(textureAnimations, MdlxBlockDescriptor.TEXTURE_ANIMATION,
-						MdlUtils.TOKEN_TEXTURE_ANIM, stream);
+				case MdlUtils.TOKEN_MATERIALS -> loadNumberedObjectBlock(materials, MdlxBlockDescriptor.MATERIAL, MdlUtils.TOKEN_MATERIAL, stream);
+				case MdlUtils.TOKEN_TEXTURE_ANIMS -> loadNumberedObjectBlock(textureAnimations, MdlxBlockDescriptor.TEXTURE_ANIMATION, MdlUtils.TOKEN_TVERTEX_ANIM_SPACE, stream);
 				case MdlUtils.TOKEN_GEOSET -> loadObject(geosets, MdlxBlockDescriptor.GEOSET, stream);
 				case MdlUtils.TOKEN_GEOSETANIM -> loadObject(geosetAnimations, MdlxBlockDescriptor.GEOSET_ANIMATION, stream);
 				case MdlUtils.TOKEN_BONE -> loadObject(bones, MdlxBlockDescriptor.BONE, stream);

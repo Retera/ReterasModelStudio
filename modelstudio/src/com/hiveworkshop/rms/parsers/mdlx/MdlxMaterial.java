@@ -74,7 +74,10 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 					layer.readMdl(stream, version);
 					layers.add(layer);
 				}
-				default -> throw new RuntimeException("Unknown token in Material: " + token);
+//				default -> throw new RuntimeException("Unknown token in Material: " + token);
+				default -> System.out.println("Unknown token in Material: " + token);
+				//TODO maybe collect problems instead of throwing errors and
+				// present to the user through a popup once the model is loaded
 			}
 		}
 	}

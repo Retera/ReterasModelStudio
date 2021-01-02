@@ -191,8 +191,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 		uvSets = new float[0][];
 
 		for (final String token : stream.readBlock()) {
-			// For now hardcoded for triangles, until I see a model with something
-			// different.
+			// For now hardcoded for triangles, until I see a model with something different.
 			switch (token) {
 				case MdlUtils.TOKEN_VERTICES -> vertices = stream.readVectorArray(new float[stream.readInt() * 3], 3);
 				case MdlUtils.TOKEN_NORMALS -> normals = stream.readVectorArray(new float[stream.readInt() * 3], 3);
@@ -201,8 +200,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 					uvSets[uvSets.length - 1] = stream.readVectorArray(new float[stream.readInt() * 2], 2);
 				}
 				case MdlUtils.TOKEN_VERTEX_GROUP -> {
-					// Vertex groups are stored in a block with no count, can't allocate the buffer
-					// yet.
+					// Vertex groups are stored in a block with no count, can't allocate the buffer yet.
 					final List<Short> vertexGroups = new ArrayList<>();
 					for (final String vertexGroup : stream.readBlock()) {
 						vertexGroups.add(Short.valueOf(vertexGroup));
@@ -222,18 +220,18 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 				case "SkinWeights" -> {
 					final int skinCount = (int) stream.readUInt32();
 					skin = new short[skinCount * 8];
-					stream.readUInt8Array(skin);
+					stream.readUInt8Array(skin, 8);
 				}
 				case MdlUtils.TOKEN_FACES -> {
-					faceTypeGroups = new long[]{4L};
+					faceTypeGroups = new long[] {4L};
 					stream.readInt(); // number of groups
 					final int count = stream.readInt();
 					stream.read(); // {
 					stream.read(); // Triangles
-					stream.read(); // {
-					faces = stream.readUInt16Array(new int[count]);
-					faceGroups = new long[]{count};
-					stream.read(); // }
+//					stream.read(); // {
+					faces = stream.readUInt16Array(new int[count], 3);
+					faceGroups = new long[] {count};
+//					stream.read(); // }
 					stream.read(); // }
 				}
 				case MdlUtils.TOKEN_GROUPS -> {

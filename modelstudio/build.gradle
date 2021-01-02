@@ -25,7 +25,7 @@ task dist(type: Jar) {
         // copy all service files from deps to buildDir
         for(file in configurations.runtime) {
             zipTree(file).matching{ include 'META-INF/services/*' }.each { f ->
-                new File(serviceDir, f.name) << f.getText("UTF-8")
+                new File(serviceDir, f.name) << f.getText("UTF-8") + "\n"
             }
         }
     }

@@ -87,7 +87,7 @@ public class Material {
 	}
 
 	public Material(final AiMaterial material, final EditableModel model) {
-		System.out.println("IMPLEMENT Material(AiMaterial)");
+//		System.out.println("IMPLEMENT Material(AiMaterial)");
 
 		final Layer diffuseLayer = new Layer();
 
@@ -257,6 +257,7 @@ public class Material {
 
 	@Override
 	public boolean equals(final Object obj) {
+//		System.out.println("equals");
 		if (this == obj) {
 			return true;
 		}
@@ -322,6 +323,7 @@ public class Material {
 	}
 
 	public BufferedImage getBufferedImage(final DataSource workingDirectory) {
+//		System.out.println("getBufferedImage");
 		BufferedImage theImage = null;
 		if (SHADER_HD_DEFAULT_UNIT.equals(shaderString) && (layers.size() > 0)) {
 			final Layer firstLayer = layers.get(0);
@@ -363,6 +365,7 @@ public class Material {
 	 * Intended to handle resolving ReplaceableIds into paths
 	 */
 	private String getRenderableTexturePath(final Bitmap tex) {
+//		System.out.println("getRenderableTexturePath");
 		if (tex == null) {
 			return "Textures\\white.blp";
 		}

@@ -29,7 +29,7 @@ public class MdlUtils {
 	public static final String TOKEN_WRAP_HEIGHT = "WrapHeight";
 	public static final String TOKEN_BITMAP = "Bitmap";
 
-	public static final String TOKEN_TVERTEX_ANIM_SPACE = "TVertexAnim ";
+	public static final String TOKEN_TVERTEX_ANIM_SPACE = "TVertexAnim";
 
 	public static final String TOKEN_DONT_INTERP = "DontInterp";
 	public static final String TOKEN_LINEAR = "Linear";

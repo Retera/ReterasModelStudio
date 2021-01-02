@@ -28,7 +28,8 @@ public class MdlxTextureAnimation extends MdlxAnimatedObject {
 				case MdlUtils.TOKEN_TRANSLATION -> readTimeline(stream, AnimationMap.KTAT);
 				case MdlUtils.TOKEN_ROTATION -> readTimeline(stream, AnimationMap.KTAR);
 				case MdlUtils.TOKEN_SCALING -> readTimeline(stream, AnimationMap.KTAS);
-				default -> throw new RuntimeException("Unknown token in TextureAnimation: " + token);
+//					default -> throw new RuntimeException("Unknown token in TextureAnimation: " + token);
+				default -> System.out.println("Unknown token in TextureAnimation: " + token);
 			}
 		}
 	}
