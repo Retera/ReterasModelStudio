@@ -64,6 +64,7 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 		for (final String token : stream.readBlock()) {
 			switch (token) {
 				case MdlUtils.TOKEN_CONSTANT_COLOR -> flags |= 0x1;
+				case MdlUtils.TOKEN_TWO_SIDED -> flags |= 0x2;
 				case MdlUtils.TOKEN_SORT_PRIMS_NEAR_Z -> flags |= 0x8;
 				case MdlUtils.TOKEN_SORT_PRIMS_FAR_Z -> flags |= 0x10;
 				case MdlUtils.TOKEN_FULL_RESOLUTION -> flags |= 0x20;
@@ -88,6 +89,10 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 
 		if ((flags & 0x1) != 0) {
 			stream.writeFlag(MdlUtils.TOKEN_CONSTANT_COLOR);
+		}
+
+		if ((flags & 0x2) != 0 && version > 800) {
+			stream.writeFlag(MdlUtils.TOKEN_TWO_SIDED);
 		}
 
 		if ((flags & 0x8) != 0) {
