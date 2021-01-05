@@ -1,13 +1,13 @@
-package com.hiveworkshop.rms.ui.application.model.material;
+package com.hiveworkshop.rms.ui.application.model.editors;
 
 import com.hiveworkshop.rms.editor.model.AnimFlag;
 
 import javax.swing.table.AbstractTableModel;
 
-public class FloatTrackTableModel extends AbstractTableModel {
+public class FloatVecTrackTableModel extends AbstractTableModel {
 	private AnimFlag track;
 
-	public FloatTrackTableModel(final AnimFlag track) {
+	public FloatVecTrackTableModel(final AnimFlag track) {
 		this.track = track;
 	}
 
@@ -34,6 +34,7 @@ public class FloatTrackTableModel extends AbstractTableModel {
 
 	@Override
 	public Class<?> getColumnClass(final int columnIndex) {
+//		System.out.println("class for column " + columnIndex);
 		if ((track != null) && track.tans()) {
 			return switch (columnIndex) {
 				case 0, 1, 2, 3 -> Float.class;
@@ -43,7 +44,10 @@ public class FloatTrackTableModel extends AbstractTableModel {
 			};
 		} else {
 			return switch (columnIndex) {
-				case 0, 1 -> Float.class;
+//				case 0 -> Float.class;
+				case 0 -> Integer.class;
+				case 1 -> String.class;
+//				case 1 -> Vec3.class;
 //				case 2 -> JButton.class;
 				case 2 -> String.class;
 				default -> super.getColumnClass(columnIndex);
@@ -70,6 +74,7 @@ public class FloatTrackTableModel extends AbstractTableModel {
 	//⊠u22A0, ☒u2612, ☓u2613, ⛝u26DD, ╳u2573
 	@Override
 	public Object getValueAt(final int rowIndex, final int columnIndex) {
+//		System.out.println("Value at [" + rowIndex + ", " + columnIndex + "]");
 		if (track == null) {
 			return null;
 		}
@@ -89,6 +94,7 @@ public class FloatTrackTableModel extends AbstractTableModel {
 				case 1 -> track.getValues().get(rowIndex);
 //				case 2 -> new JButton("X");
 				case 2 -> "X";
+//				case 2 -> "\uD83C\uDFA8"; // 🎨 \uD83C\uDFA8
 				default -> null;
 			};
 		}
@@ -96,9 +102,12 @@ public class FloatTrackTableModel extends AbstractTableModel {
 
 	@Override
 	public boolean isCellEditable(int row, int col) {
+		System.out.println("editable? [" + row + ", " + col + "]");
 		if (track.tans()) {
+			System.out.println("<4");
 			return col < 4;
 		} else {
+			System.out.println("<2");
 			return col < 2;
 		}
 	}

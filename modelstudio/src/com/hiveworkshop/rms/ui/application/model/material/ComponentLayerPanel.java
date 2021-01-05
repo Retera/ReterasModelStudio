@@ -15,6 +15,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener
 import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
+import com.hiveworkshop.rms.ui.application.model.editors.TimelineKeyNamer;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
 import net.miginfocom.swing.MigLayout;
 
@@ -42,6 +43,7 @@ public class ComponentLayerPanel extends JPanel {
 	private FloatValuePanel fresnelOpacityPanel;
 	private FloatValuePanel fresnelTeamColor;
 	private ColorValuePanel fresnelColorPanel;
+	JScrollPane fresnelColorScrollPane;
 	private UndoActionListener undoActionListener;
 	private ModelStructureChangeListener modelStructureChangeListener;
 	private boolean listenersEnabled = true;
@@ -137,20 +139,38 @@ public class ComponentLayerPanel extends JPanel {
 		leftHandSettingsPanel.add(new JLabel("CoordID:"));
 		leftHandSettingsPanel.add(coordIdSpinner, "wrap, growx");
 
+//		alphaPanel = new FloatValuePanel("Alpha", undoActionListener, modelStructureChangeListener);
+//		alphaPanel.setKeyframeHelper(new TimelineKeyNamer(model));
+//		leftHandSettingsPanel.add(alphaPanel, "wrap, span 2");
 		alphaPanel = new FloatValuePanel("Alpha", undoActionListener, modelStructureChangeListener);
-		leftHandSettingsPanel.add(alphaPanel, "wrap, span 2");
+		alphaPanel.setKeyframeHelper(new TimelineKeyNamer(model));
+		JScrollPane alphaScrollPane = new JScrollPane(alphaPanel);
+		alphaScrollPane.setMaximumSize(new Dimension(700, 300));
+		leftHandSettingsPanel.add(alphaScrollPane, "wrap, span 2, growx");
 
 		emissiveGainPanel = new FloatValuePanel("Emissive Gain", undoActionListener, modelStructureChangeListener);
-		leftHandSettingsPanel.add(emissiveGainPanel, "wrap, span 2, hidemode 2");
+		emissiveGainPanel.setKeyframeHelper(new TimelineKeyNamer(model));
+		JScrollPane emissiveGainScrollPane = new JScrollPane(emissiveGainPanel);
+		emissiveGainScrollPane.setMaximumSize(new Dimension(700, 300));
+		leftHandSettingsPanel.add(emissiveGainScrollPane, "wrap, span 2, growx, hidemode 2");
 
-		fresnelColorPanel = new ColorValuePanel("Fresnel Color");
-		leftHandSettingsPanel.add(fresnelColorPanel, "wrap, span 2, hidemode 2");
+		fresnelColorPanel = new ColorValuePanel("Fresnel Color", undoActionListener, modelStructureChangeListener);
+		fresnelColorPanel.setKeyframeHelper(new TimelineKeyNamer(model));
+		fresnelColorScrollPane = new JScrollPane(fresnelColorPanel);
+		fresnelColorScrollPane.setMaximumSize(new Dimension(700, 300));
+		leftHandSettingsPanel.add(fresnelColorScrollPane, "wrap, span 2, growx, hidemode 2");
 
 		fresnelOpacityPanel = new FloatValuePanel("Fresnel Opacity", undoActionListener, modelStructureChangeListener);
-		leftHandSettingsPanel.add(fresnelOpacityPanel, "wrap, span 2, hidemode 2");
+		fresnelOpacityPanel.setKeyframeHelper(new TimelineKeyNamer(model));
+		JScrollPane fresnelOpacityScrollPane = new JScrollPane(fresnelOpacityPanel);
+		fresnelOpacityScrollPane.setMaximumSize(new Dimension(700, 300));
+		leftHandSettingsPanel.add(fresnelOpacityScrollPane, "wrap, span 2, growx, hidemode 2");
 
 		fresnelTeamColor = new FloatValuePanel("Fresnel Team Color", undoActionListener, modelStructureChangeListener);
-		leftHandSettingsPanel.add(fresnelTeamColor, "wrap, span 2, hidemode 2");
+		fresnelTeamColor.setKeyframeHelper(new TimelineKeyNamer(model));
+		JScrollPane fresnelTeamColorScrollPane = new JScrollPane(fresnelTeamColor);
+		fresnelTeamColorScrollPane.setMaximumSize(new Dimension(700, 300));
+		leftHandSettingsPanel.add(fresnelTeamColorScrollPane, "wrap, span 2, growx, hidemode 2");
 	}
 
 	private String[] getTextures(EditableModel model) {
@@ -212,7 +232,8 @@ public class ComponentLayerPanel extends JPanel {
 		final boolean fresnelColorLayerSupported = ModelUtils.isFresnelColorLayerSupported(formatVersion) && hdShader;
 
 		fresnelColorPanel.setVisible(fresnelColorLayerSupported);
-		fresnelColorPanel.reloadNewValue(layer.getFresnelColor(), layer.find("FresnelColor"));
+		fresnelColorScrollPane.setVisible(fresnelColorLayerSupported);
+		fresnelColorPanel.reloadNewValue(layer.getFresnelColor(), layer.find("FresnelColor"), layer, "FresnelColor", layer::setFresnelColor);
 
 		fresnelOpacityPanel.setVisible(fresnelColorLayerSupported);
 		fresnelOpacityPanel.reloadNewValue((float) layer.getFresnelOpacity(), layer.find("FresnelOpacity"), layer, "FresnelOpacity");

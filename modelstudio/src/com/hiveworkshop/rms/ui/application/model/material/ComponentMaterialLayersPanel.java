@@ -21,11 +21,19 @@ public class ComponentMaterialLayersPanel extends JPanel {
 	private UndoActionListener undoActionListener;
 	private ModelStructureChangeListener modelStructureChangeListener;
 	private final JPanel layerPanelsHolder;
+	private final JPanel twoSidedBoxHolder;
 	private final Map<String, ComponentLayerPanel> layerPanelMap;
 
+	private final JCheckBox twoSided;
 
 	public ComponentMaterialLayersPanel() {
 		setLayout(new MigLayout("fill", "[][][grow]"));
+		twoSided = new JCheckBox("TwoSided", false);
+		twoSided.addActionListener(e -> setTwoSided());
+
+		twoSidedBoxHolder = new JPanel(new MigLayout("fill", "[grow]"));
+		add(twoSidedBoxHolder, "growx, span 3, wrap");
+//		add(twoSided, "wrap");
 		layerPanelMap = new HashMap<>();
 		layerPanelsHolder = new JPanel(new MigLayout("fill", "[grow]"));
 //		layerPanelsHolder.setOpaque(true);
@@ -53,6 +61,13 @@ public class ComponentMaterialLayersPanel extends JPanel {
 		this.undoActionListener = undoActionListener;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		final boolean hdShader = Material.SHADER_HD_DEFAULT_UNIT.equals(material.getShaderString());
+		twoSidedBoxHolder.removeAll();
+		if (hdShader) {
+			twoSided.setSelected(material.getTwoSided());
+			twoSidedBoxHolder.add(twoSided);
+		} else {
+			twoSided.setSelected(false);
+		}
 
 		layerPanelsHolder.removeAll();
 		createLayerPanels(material, modelViewManager, undoActionListener, modelStructureChangeListener, hdShader);
@@ -84,6 +99,10 @@ public class ComponentMaterialLayersPanel extends JPanel {
 		AddLayerAction addLayerAction = new AddLayerAction(new Layer("None", 0), material, modelStructureChangeListener);
 		undoActionListener.pushAction(addLayerAction);
 		addLayerAction.redo();
+	}
+
+	private void setTwoSided() {
+		material.setTwoSided(twoSided.isSelected());
 	}
 
 }

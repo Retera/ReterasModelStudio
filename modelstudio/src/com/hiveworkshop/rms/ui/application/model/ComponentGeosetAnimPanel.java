@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
+import com.hiveworkshop.rms.ui.application.model.editors.TimelineKeyNamer;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -40,6 +41,7 @@ public class ComponentGeosetAnimPanel extends JPanel implements ComponentPanel<G
 		animsPanelHolder.add(new JLabel("GeosetAnim"), "wrap");
 
 		alphaPanel = new FloatValuePanel("Alpha", undoActionListener, modelStructureChangeListener);
+		alphaPanel.setKeyframeHelper(new TimelineKeyNamer(modelViewManager.getModel()));
 		animsPanelHolder.add(alphaPanel, "wrap, span 2");
 //		geosetAnimPanel = new ComponentGeosetMaterialPanel();
 //		animsPanelHolder.add(geosetAnimPanel);

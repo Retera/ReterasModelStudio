@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 
-public class ChangeFlagEntry implements UndoAction {
+public class ChangeFlagEntryAction implements UndoAction {
 	private final ModelStructureChangeListener structureChangeListener;
 	private final TimelineContainer timelineContainer;
 	private final AnimFlag animFlag;
@@ -15,7 +15,7 @@ public class ChangeFlagEntry implements UndoAction {
 	AnimFlag.Entry orgEntry;
 
 
-	public ChangeFlagEntry(AnimFlag animFlag, AnimFlag.Entry entry, int orgTime, TimelineContainer timelineContainer, ModelStructureChangeListener structureChangeListener) {
+	public ChangeFlagEntryAction(AnimFlag animFlag, AnimFlag.Entry entry, int orgTime, TimelineContainer timelineContainer, ModelStructureChangeListener structureChangeListener) {
 		this.structureChangeListener = structureChangeListener;
 		this.timelineContainer = timelineContainer;
 		this.animFlag = animFlag;

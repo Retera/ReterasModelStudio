@@ -3,19 +3,14 @@ package com.hiveworkshop.rms.ui.application.model.editors;
 import com.hiveworkshop.rms.editor.model.AnimFlag;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
-import com.hiveworkshop.rms.ui.application.actions.model.animFlag.AddAnimFlagAction;
-import com.hiveworkshop.rms.ui.application.actions.model.animFlag.AddFlagEntryAction;
-import com.hiveworkshop.rms.ui.application.actions.model.animFlag.ChangeFlagEntry;
-import com.hiveworkshop.rms.ui.application.actions.model.animFlag.RemoveFlagEntryAction;
+import com.hiveworkshop.rms.ui.application.actions.model.animFlag.*;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
-import com.hiveworkshop.rms.ui.application.model.material.FloatTrackTableModel;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.event.CaretListener;
-import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import java.awt.*;
@@ -26,6 +21,8 @@ import java.awt.event.MouseListener;
 import java.beans.PropertyChangeListener;
 
 public class FloatValuePanel extends JPanel {
+	private static final Color LIGHT_GREEN = new Color(128, 255, 128);
+	private static final Color LIGHT_YELLOW = new Color(255, 255, 128);
 	private static final String NUMBERS = "1234567890";
 	private static final String PUNKTATIONS = ".";
 	private static final String NEGATIVE = "\\-";
@@ -34,6 +31,10 @@ public class FloatValuePanel extends JPanel {
 	private static final String DOUBLE_REPLACE_REGEX = "[^" + NUMBERS + PUNKTATIONS + NEGATIVE + "eE]";
 	private final JRadioButton staticButton;
 	private final JRadioButton dynamicButton;
+
+	private final JLabel typeLabel;
+	private final JButton makeStaticButton;
+	private final JButton makeDynamicButton;
 	private final JButton addButton;
 	private final ComponentEditorJSpinner staticSpinner;
 	private final JComboBox<InterpolationType> interpTypeBox;
@@ -45,8 +46,10 @@ public class FloatValuePanel extends JPanel {
 	String preEditValue;
 	private FloatTrackTableModel floatTrackTableModel;
 	private AnimFlag animFlag;
+	TimelineKeyNamer timelineKeyNamer;
 	private TimelineContainer timelineContainer;
 	private String flagName;
+	private AnimFlag oldAnimFlag;
 
 	public FloatValuePanel(final String title, UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener) {
 		this(title, Double.MAX_VALUE, -Double.MAX_VALUE, undoActionListener, modelStructureChangeListener);
@@ -62,26 +65,65 @@ public class FloatValuePanel extends JPanel {
 		flagName = "";
 
 		setBorder(BorderFactory.createTitledBorder(title));
-		setLayout(new MigLayout());
+		setLayout(new MigLayout("hidemode 1"));
+
 		final ButtonGroup staticDynamicGroup = new ButtonGroup();
 		staticButton = new JRadioButton("Static");
 		dynamicButton = new JRadioButton("Dynamic");
-		staticDynamicGroup.add(staticButton);
-		staticDynamicGroup.add(dynamicButton);
-		add(staticButton);
+//		staticDynamicGroup.add(staticButton);
+//		staticDynamicGroup.add(dynamicButton);
+//		add(staticButton);
+//		add(dynamicButton);
+
+
+		JPanel spinInterpPanel = new JPanel(new MigLayout("wrap, hidemode 1", "", "[shrink 0]"));
+
+		add(spinInterpPanel);
+
+		typeLabel = new JLabel("");
+		spinInterpPanel.add(typeLabel);
+		spinInterpPanel.add(typeLabel, "wrap");
+
+
 		staticSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(1.0, minValue, maxValue, 0.01));
+
+//		staticSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(1.00, -255000.00, 255000.00, 0.01));
+
+
+//		((JSpinner.NumberEditor)staticSpinner.getEditor()).getFormat().applyPattern("######0.00######E0");
+
+		((JSpinner.NumberEditor) staticSpinner.getEditor()).getFormat().setMinimumFractionDigits(2);
+//		((JSpinner.NumberEditor)staticSpinner.getEditor()).getFormat().setMaximumFractionDigits(12);
+//		((JSpinner.NumberEditor)staticSpinner.getEditor()).getFormat().setMaximumIntegerDigits(9);
+
 		// below: fix this stupid nonsense java bug that a spinner with infinite value
 		// range takes infinite GUI space on the screen
-		final JSpinner standinGuiSpinner = new JSpinner(new SpinnerNumberModel(1.0, -Long.MAX_VALUE, Long.MAX_VALUE, 1.0));
-		staticSpinner.setPreferredSize(standinGuiSpinner.getPreferredSize());
-		staticSpinner.setMaximumSize(standinGuiSpinner.getMaximumSize());
-		staticSpinner.setMinimumSize(standinGuiSpinner.getMinimumSize());
-		add(staticSpinner, "wrap");
+		if (maxValue == Double.MAX_VALUE) {
+			final JSpinner standinGuiSpinner = new JSpinner(new SpinnerNumberModel(1.0, -Long.MAX_VALUE, Long.MAX_VALUE, 1.0));
+			staticSpinner.setPreferredSize(standinGuiSpinner.getPreferredSize());
+			staticSpinner.setMaximumSize(standinGuiSpinner.getMaximumSize());
+			staticSpinner.setMinimumSize(standinGuiSpinner.getMinimumSize());
+		}
+//		spinInterpPanel.add(staticSpinner, "wrap");
+		spinInterpPanel.add(staticSpinner);
 
-		add(dynamicButton);
 
 		interpTypeBox = new JComboBox<>(InterpolationType.values());
-		add(interpTypeBox, "wrap");
+		interpTypeBox.addActionListener(e -> setInterpolationType());
+		spinInterpPanel.add(interpTypeBox);
+
+		JPanel dynStatPanel = new JPanel();
+//		dynStatPanel.setOpaque(true);
+//		dynStatPanel.setBackground(Color.magenta);
+		makeStaticButton = new JButton("Make Static");
+		makeStaticButton.addActionListener(e -> makeStatic());
+		makeDynamicButton = new JButton("Make Dynamic");
+		makeDynamicButton.addActionListener(e -> makeDynamic());
+		dynStatPanel.add(makeStaticButton);
+		dynStatPanel.add(makeDynamicButton);
+		makeStaticButton.setVisible(true);
+		makeDynamicButton.setVisible(false);
+		add(dynStatPanel, "hidemode 1, wrap");
 
 		keyframeTable = new JTable();
 		keyframeTable.addPropertyChangeListener(getPropertyChangeListener());
@@ -91,6 +133,7 @@ public class FloatValuePanel extends JPanel {
 
 
 		keyframeTable.setDefaultRenderer(String.class, getCellRenderer());
+		keyframeTable.setDefaultRenderer(Float.class, getCellRenderer());
 
 		add(keyframeTable, "span 2, wrap, grow");
 
@@ -98,15 +141,60 @@ public class FloatValuePanel extends JPanel {
 		addButton.addActionListener(e -> addEntry());
 		add(addButton);
 
-		final ChangeListener l = e -> {
-			staticSpinner.setEnabled(staticButton.isSelected());
-			interpTypeBox.setEnabled(dynamicButton.isSelected());
-			keyframeTable.setVisible(dynamicButton.isSelected());
-			keyframeTable.getTableHeader().setVisible(dynamicButton.isSelected());
-			addButton.setVisible(dynamicButton.isSelected());
-		};
-		staticButton.addChangeListener(l);
-		dynamicButton.addChangeListener(l);
+//		final ChangeListener l = e -> {
+//			staticSpinner.setEnabled(staticButton.isSelected());
+////			interpTypeBox.setEnabled(dynamicButton.isSelected());
+//			keyframeTable.setVisible(dynamicButton.isSelected());
+//			interpTypeBox.setVisible(dynamicButton.isSelected());
+//			makeStaticButton.setVisible(dynamicButton.isSelected());
+//			makeDynamicButton.setVisible(!dynamicButton.isSelected());
+//			staticSpinner.setVisible(!dynamicButton.isSelected());
+//			keyframeTable.getTableHeader().setVisible(dynamicButton.isSelected());
+//			addButton.setVisible(dynamicButton.isSelected());
+//		};
+//		staticButton.addChangeListener(l);
+//		dynamicButton.addChangeListener(l);
+	}
+
+	private void makeStatic() {
+		toggleStaticDynamicPanel(true);
+		RemoveAnimFlagAction removeAnimFlagAction = new RemoveAnimFlagAction(timelineContainer, animFlag, modelStructureChangeListener);
+		undoActionListener.pushAction(removeAnimFlagAction);
+		removeAnimFlagAction.redo();
+//		System.out.println("made static!");
+	}
+
+	private void makeDynamic() {
+//		if (oldAnimFlag == null && timelineContainer != null && !flagName.equals("")) {
+		if (animFlag == null && timelineContainer != null && !flagName.equals("")) {
+			toggleStaticDynamicPanel(false);
+			AddAnimFlagAction addAnimFlagAction = new AddAnimFlagAction(timelineContainer, flagName, modelStructureChangeListener);
+			undoActionListener.pushAction(addAnimFlagAction);
+			addAnimFlagAction.redo();
+//		} else if (oldAnimFlag != null){
+		} else if (animFlag != null) {
+			toggleStaticDynamicPanel(false);
+			AddAnimFlagAction addAnimFlagAction = new AddAnimFlagAction(timelineContainer, animFlag, modelStructureChangeListener);
+			undoActionListener.pushAction(addAnimFlagAction);
+			addAnimFlagAction.redo();
+		}
+//		System.out.println("made dynamic!");
+	}
+
+	private void toggleStaticDynamicPanel(boolean isStatic) {
+		boolean isDynamic = !isStatic;
+		keyframeTable.setVisible(isDynamic);
+		interpTypeBox.setVisible(isDynamic);
+		makeStaticButton.setVisible(isDynamic);
+		keyframeTable.getTableHeader().setVisible(isDynamic);
+		addButton.setVisible(isDynamic);
+		makeDynamicButton.setVisible(isStatic);
+		staticSpinner.setVisible(isStatic);
+		if (isDynamic) {
+			typeLabel.setText("Dynamic");
+		} else {
+			typeLabel.setText("Static");
+		}
 	}
 
 	private void addDeleteListeners() {
@@ -152,41 +240,22 @@ public class FloatValuePanel extends JPanel {
 
 	private PropertyChangeListener getPropertyChangeListener() {
 		return evt -> {
-//			System.out.println("~~~~~~~~~~~~~~\npropChanged:");
-//			System.out.println("propName " + evt.getPropertyName());
-//			System.out.println("evt.source" + evt.getSource());
-//			System.out.println("OLDval " + evt.getOldValue());
-//			System.out.println("NEWval " + evt.getNewValue());
-
-//			if(evt.getSource() instanceof JTable){
-//				JTable t = (JTable) evt.getSource();
-//			}
-
 
 			Component comp = keyframeTable.getEditorComponent();
 			if (comp instanceof JTextField) {
 				int row = keyframeTable.getEditingRow();
 				int col = keyframeTable.getEditingColumn();
-//				System.out.println(keyframeTable.getColumnName(col));
-//				System.out.println("compValid: " + comp);
-//				System.out.println("comp: " + comp.isValid());
+
 				final JTextField compTextField = (JTextField) comp;
 				if (comp.isValid()) {
-//					System.out.println("valid");
 					doSave = true;
 					preEditValue = compTextField.getText();
-//					System.out.println("doSave: " + doSave);
 				} else if (doSave) {
-//					System.out.println("save");
-//					System.out.println(keyframeTable.getColumnName(col) + ": " + ((JTextField) comp).getText());
 					String newValue = compTextField.getText();
 					if (!newValue.equals(preEditValue)) {
-//						System.out.println("doSave!");
 						changeEntry(row, col, keyframeTable.getColumnName(col), ((JTextField) comp).getText());
 					}
-//					System.out.println("X: " + keyframeTable.getEditingRow() + " Y: " + keyframeTable.getEditingColumn());
 					doSave = false;
-//					System.out.println("doSave: " + doSave);
 				}
 
 				if (compTextField.getCaretListeners().length == 0) {
@@ -204,10 +273,6 @@ public class FloatValuePanel extends JPanel {
 					});
 				}
 			}
-
-//			if (evt.getSource() instanceof JTable) {
-//				System.out.println(((JTable) evt.getSource()).isValid());
-//			}
 		};
 	}
 
@@ -231,11 +296,33 @@ public class FloatValuePanel extends JPanel {
 					this.setHorizontalAlignment(SwingConstants.CENTER);
 					tableCellRendererComponent.setBackground(Color.RED);
 					tableCellRendererComponent.setForeground(Color.WHITE);
+				} else if (column == 0) {
+//					System.out.println("column 0");
+					if (timelineKeyNamer != null) {
+//						System.out.println("Should get color!");
+						Color bgColor = Color.WHITE;
+						int time = (int) value;
+						TimelineKeyNamer.AnimationMarker animationMarker = timelineKeyNamer.getAnimationMarker(time);
+						if (animationMarker != null && animationMarker.contains(time)) {
+							if (animationMarker.isEndPoint(time)) {
+								bgColor = LIGHT_GREEN;
+							} else {
+								bgColor = LIGHT_YELLOW;
+							}
+							this.createToolTip();
+							this.setToolTipText(animationMarker.name);
+						}
+						tableCellRendererComponent.setBackground(bgColor);
+					}
 				}
 				return tableCellRendererComponent;
 //				return this;
 			}
 		};
+	}
+
+	public void setKeyframeHelper(TimelineKeyNamer timelineKeyNamer) {
+		this.timelineKeyNamer = timelineKeyNamer;
 	}
 
 	public void reloadNewValue(final float value, final AnimFlag valueTrack) {
@@ -248,8 +335,11 @@ public class FloatValuePanel extends JPanel {
 		this.flagName = flagName;
 
 		if (animFlag == null) {
+			toggleStaticDynamicPanel(true);
 			staticButton.setSelected(true);
 		} else {
+			toggleStaticDynamicPanel(false);
+			interpTypeBox.setSelectedItem(animFlag.getInterpolationType());
 			dynamicButton.setSelected(true);
 		}
 //		System.out.println("colums: " + keyframeTable.getModel().getColumnCount());
@@ -274,6 +364,12 @@ public class FloatValuePanel extends JPanel {
 				column.setPreferredWidth(rowHeight);
 				column.setMinWidth(5);
 			}
+		}
+	}
+
+	private void setInterpolationType() {
+		if (interpTypeBox.getSelectedItem() != null) {
+			animFlag.setInterpType(InterpolationType.getType(interpTypeBox.getSelectedItem().toString()));
 		}
 	}
 
@@ -308,19 +404,13 @@ public class FloatValuePanel extends JPanel {
 				newEntry = new AnimFlag.Entry(lastEntry);
 				newEntry.time++;
 			}
+
+//			animFlag.addEntry(newEntry);
+
 			UndoAction undoAction = new AddFlagEntryAction(animFlag, newEntry, timelineContainer, modelStructureChangeListener);
 			undoActionListener.pushAction(undoAction);
 			undoAction.redo();
-//			Integer time = lastEntry.time + 1;
-//			Object value = AnimFlag.cloneValue(lastEntry.value);
-//
-//			if (animFlag.tans()) {
-//				Object inTan = AnimFlag.cloneValue(lastEntry.inTan);
-//				Object outTan = AnimFlag.cloneValue(lastEntry.outTan);
-//				animFlag.addEntry(time, value, inTan, outTan);
-//			} else {
-//				animFlag.addEntry(time, value);
-//			}
+
 		}
 		setTableModel();
 
@@ -337,16 +427,14 @@ public class FloatValuePanel extends JPanel {
 	}
 
 	private void removeEntry(int row) {
+//		AnimFlag.Entry entry = animFlag.getEntry(row);
+//		animFlag.removeKeyframe(entry.time);
+		oldAnimFlag = animFlag;
+
 		UndoAction undoAction = new RemoveFlagEntryAction(animFlag, row, timelineContainer, modelStructureChangeListener);
 		undoActionListener.pushAction(undoAction);
 		undoAction.redo();
-//		animFlag.getTimes().remove(row);
-//		animFlag.getValues().remove(row);
-//
-//		if (animFlag.tans()) {
-//			animFlag.getInTans().remove(row);
-//			animFlag.getOutTans().remove(row);
-//		}
+
 		revalidate();
 		repaint();
 	}
@@ -360,15 +448,7 @@ public class FloatValuePanel extends JPanel {
 		int orgTime = animFlag.getTimes().get(row);
 		float fValue = Float.parseFloat(val);
 		int iValue = Integer.parseInt(val.replaceAll("\\D", ""));
-//		switch (field) {
-//			case "Keyframe" -> {
-//				animFlag.getTimes().set(row, iValue);
-//				animFlag.sort();
-//			}
-//			case "Value" -> animFlag.getValues().set(row, fValue);
-//			case "InTan" -> animFlag.getInTans().set(row, fValue);
-//			case "OutTan" -> animFlag.getOutTans().set(row, fValue);
-//		}
+
 		switch (field) {
 			case "Keyframe" -> {
 				entry.time = iValue;
@@ -377,11 +457,12 @@ public class FloatValuePanel extends JPanel {
 			case "InTan" -> entry.inTan = fValue;
 			case "OutTan" -> entry.outTan = fValue;
 		}
-		UndoAction undoAction = new ChangeFlagEntry(animFlag, entry, orgTime, timelineContainer, modelStructureChangeListener);
+
+//		animFlag.setEntry(orgTime, entry);
+
+		UndoAction undoAction = new ChangeFlagEntryAction(animFlag, entry, orgTime, timelineContainer, modelStructureChangeListener);
 		undoActionListener.pushAction(undoAction);
 		undoAction.redo();
-
-//		System.out.println("changed nr " + row + ", " + col + " to: " + val);
 
 		revalidate();
 		repaint();

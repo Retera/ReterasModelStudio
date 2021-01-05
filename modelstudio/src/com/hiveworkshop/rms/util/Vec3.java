@@ -391,4 +391,17 @@ public class Vec3 {
     public Vec3 bezier(final Vec3 outTan, final Vec3 inTan, final Vec3 a, final float t) {
         return bezier(outTan, inTan, a, t, this);
     }
+
+    public static Vec3 valueOf(String s) throws NumberFormatException {
+        return parseVec3(s);
+    }
+
+    public static Vec3 parseVec3(String s) throws NumberFormatException {
+        String unbracketed = s.replaceAll("[\\[\\](){}]", "");
+        String[] numbers = unbracketed.split(",");
+        float num0 = Float.parseFloat(numbers[0].strip());
+        float num1 = Float.parseFloat(numbers[1].strip());
+        float num2 = Float.parseFloat(numbers[2].strip());
+        return new Vec3(num0, num1, num2);
+    }
 }

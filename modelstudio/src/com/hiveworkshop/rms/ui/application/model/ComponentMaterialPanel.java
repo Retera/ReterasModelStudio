@@ -72,7 +72,7 @@ public class ComponentMaterialPanel extends JPanel implements ComponentPanel<Mat
 		} finally {
 			listenForChanges = true;
 		}
-		final boolean useHDPanel = Material.SHADER_HD_DEFAULT_UNIT.equals(shaderString);
+
 		multipleLayersPanel.setMaterial(material, modelViewManager, undoActionListener, modelStructureChangeListener);
 	}
 

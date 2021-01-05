@@ -1,11 +1,11 @@
 package com.hiveworkshop.rms.ui.icons;
 
-import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.parsers.slk.Element;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
+import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.War3ID;
-import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -101,7 +101,7 @@ public final class IconUtils {
 	}
 
 	public static BufferedImage createColorImage(final Vec3 color, final int width, final int height) {
-		final Color awtColor = new Color(color.z, color.y, color.z);
+		final Color awtColor = new Color(color.x, color.y, color.z);
 		return createBlank(awtColor, width, height);
 	}
 
