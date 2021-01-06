@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.ui.application.actions.model.animation.*;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
@@ -10,6 +11,7 @@ import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextFiel
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class ComponentAnimationPanel extends JPanel implements ComponentPanel<Animation> {
 	private final ComponentEditorTextField nameField;
@@ -18,12 +20,15 @@ public class ComponentAnimationPanel extends JPanel implements ComponentPanel<An
 	private final ComponentEditorJSpinner rarityChooser;
 	private final ComponentEditorJSpinner moveSpeedChooser;
 	private final JCheckBox nonLoopingChooser;
+	private final JButton deleteButton;
 	private Animation animation;
+	private final ModelViewManager modelViewManager;
 	private final UndoActionListener undoListener;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 
-	public ComponentAnimationPanel(final UndoActionListener undoListener,
+	public ComponentAnimationPanel(final ModelViewManager modelViewManager, final UndoActionListener undoListener,
 	                               final ModelStructureChangeListener modelStructureChangeListener) {
+		this.modelViewManager = modelViewManager;
 		this.undoListener = undoListener;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		nameField = new ComponentEditorTextField(24);
@@ -57,6 +62,13 @@ public class ComponentAnimationPanel extends JPanel implements ComponentPanel<An
 		add(rarityChooser, "cell 1 3");
 		add(new JLabel("MoveSpeed"), "cell 0 4");
 		add(moveSpeedChooser, "cell 1 4");
+
+		deleteButton = new JButton("Delete");
+		deleteButton.addActionListener(e -> deleteAnim());
+		deleteButton.setBackground(Color.RED);
+		deleteButton.setForeground(Color.WHITE);
+		add(deleteButton, "cell 0 5, gapy 20px");
+
 	}
 
 	private void nonLoopingChooser() {
@@ -104,6 +116,12 @@ public class ComponentAnimationPanel extends JPanel implements ComponentPanel<An
 				modelStructureChangeListener);
 		setAnimationIntervalStartAction.redo();
 		undoListener.pushAction(setAnimationIntervalStartAction);
+	}
+
+	private void deleteAnim() {
+		final DeleteAnimationAction deleteAnimationAction = new DeleteAnimationAction(modelViewManager.getModel(), animation, modelStructureChangeListener);
+		undoListener.pushAction(deleteAnimationAction);
+		deleteAnimationAction.redo();
 	}
 
 	public Animation getAnimation() {

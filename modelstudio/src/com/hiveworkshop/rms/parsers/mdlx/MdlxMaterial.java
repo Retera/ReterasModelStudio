@@ -91,10 +91,6 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 			stream.writeFlag(MdlUtils.TOKEN_CONSTANT_COLOR);
 		}
 
-		if ((flags & 0x2) != 0 && version > 800) {
-			stream.writeFlag(MdlUtils.TOKEN_TWO_SIDED);
-		}
-
 		if ((flags & 0x8) != 0) {
 			stream.writeFlag(MdlUtils.TOKEN_SORT_PRIMS_NEAR_Z);
 		}
@@ -109,6 +105,10 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 
 		if (priorityPlane != 0) {
 			stream.writeAttrib(MdlUtils.TOKEN_PRIORITY_PLANE, priorityPlane);
+		}
+
+		if ((flags & 0x2) != 0 && version > 800) {
+			stream.writeFlag(MdlUtils.TOKEN_TWO_SIDED);
 		}
 
 		if (version > 800) {

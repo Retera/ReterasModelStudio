@@ -44,6 +44,10 @@ public class ComponentLayerPanel extends JPanel {
 	private FloatValuePanel fresnelTeamColor;
 	private ColorValuePanel fresnelColorPanel;
 	JScrollPane fresnelColorScrollPane;
+	JScrollPane alphaScrollPane;
+	JScrollPane emissiveGainScrollPane;
+	JScrollPane fresnelOpacityScrollPane;
+	JScrollPane fresnelTeamColorScrollPane;
 	private UndoActionListener undoActionListener;
 	private ModelStructureChangeListener modelStructureChangeListener;
 	private boolean listenersEnabled = true;
@@ -144,13 +148,13 @@ public class ComponentLayerPanel extends JPanel {
 //		leftHandSettingsPanel.add(alphaPanel, "wrap, span 2");
 		alphaPanel = new FloatValuePanel("Alpha", undoActionListener, modelStructureChangeListener);
 		alphaPanel.setKeyframeHelper(new TimelineKeyNamer(model));
-		JScrollPane alphaScrollPane = new JScrollPane(alphaPanel);
+		alphaScrollPane = new JScrollPane(alphaPanel);
 		alphaScrollPane.setMaximumSize(new Dimension(700, 300));
 		leftHandSettingsPanel.add(alphaScrollPane, "wrap, span 2, growx");
 
 		emissiveGainPanel = new FloatValuePanel("Emissive Gain", undoActionListener, modelStructureChangeListener);
 		emissiveGainPanel.setKeyframeHelper(new TimelineKeyNamer(model));
-		JScrollPane emissiveGainScrollPane = new JScrollPane(emissiveGainPanel);
+		emissiveGainScrollPane = new JScrollPane(emissiveGainPanel);
 		emissiveGainScrollPane.setMaximumSize(new Dimension(700, 300));
 		leftHandSettingsPanel.add(emissiveGainScrollPane, "wrap, span 2, growx, hidemode 2");
 
@@ -162,13 +166,13 @@ public class ComponentLayerPanel extends JPanel {
 
 		fresnelOpacityPanel = new FloatValuePanel("Fresnel Opacity", undoActionListener, modelStructureChangeListener);
 		fresnelOpacityPanel.setKeyframeHelper(new TimelineKeyNamer(model));
-		JScrollPane fresnelOpacityScrollPane = new JScrollPane(fresnelOpacityPanel);
+		fresnelOpacityScrollPane = new JScrollPane(fresnelOpacityPanel);
 		fresnelOpacityScrollPane.setMaximumSize(new Dimension(700, 300));
 		leftHandSettingsPanel.add(fresnelOpacityScrollPane, "wrap, span 2, growx, hidemode 2");
 
 		fresnelTeamColor = new FloatValuePanel("Fresnel Team Color", undoActionListener, modelStructureChangeListener);
 		fresnelTeamColor.setKeyframeHelper(new TimelineKeyNamer(model));
-		JScrollPane fresnelTeamColorScrollPane = new JScrollPane(fresnelTeamColor);
+		fresnelTeamColorScrollPane = new JScrollPane(fresnelTeamColor);
 		fresnelTeamColorScrollPane.setMaximumSize(new Dimension(700, 300));
 		leftHandSettingsPanel.add(fresnelTeamColorScrollPane, "wrap, span 2, growx, hidemode 2");
 	}
@@ -226,13 +230,20 @@ public class ComponentLayerPanel extends JPanel {
 		tVertexAnimButton.setText(layer.getTextureAnim() == null ? "None" : layer.getTextureAnim().getFlagNames());
 		alphaPanel.reloadNewValue((float) layer.getStaticAlpha(), layer.find("Alpha"), layer, "Alpha");
 
+
 		emissiveGainPanel.setVisible(ModelUtils.isEmissiveLayerSupported(formatVersion) && hdShader);
 		emissiveGainPanel.reloadNewValue((float) layer.getEmissive(), layer.find("EmissiveGain"), layer, "EmissiveGain");
 
 		final boolean fresnelColorLayerSupported = ModelUtils.isFresnelColorLayerSupported(formatVersion) && hdShader;
 
 		fresnelColorPanel.setVisible(fresnelColorLayerSupported);
+
+		//		alphaScrollPane.setVisible();
 		fresnelColorScrollPane.setVisible(fresnelColorLayerSupported);
+		emissiveGainScrollPane.setVisible(ModelUtils.isEmissiveLayerSupported(formatVersion) && hdShader);
+		fresnelOpacityScrollPane.setVisible(fresnelColorLayerSupported);
+		fresnelTeamColorScrollPane.setVisible(fresnelColorLayerSupported);
+
 		fresnelColorPanel.reloadNewValue(layer.getFresnelColor(), layer.find("FresnelColor"), layer, "FresnelColor", layer::setFresnelColor);
 
 		fresnelOpacityPanel.setVisible(fresnelColorLayerSupported);

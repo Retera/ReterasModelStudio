@@ -37,7 +37,9 @@ public class FloatVecTrackTableModel extends AbstractTableModel {
 //		System.out.println("class for column " + columnIndex);
 		if ((track != null) && track.tans()) {
 			return switch (columnIndex) {
-				case 0, 1, 2, 3 -> Float.class;
+//				case 0, 1, 2, 3 -> Float.class;
+				case 0 -> Integer.class;
+				case 1, 2, 3 -> String.class;
 //				case 4 -> JButton.class;
 				case 4 -> String.class;
 				default -> super.getColumnClass(columnIndex);

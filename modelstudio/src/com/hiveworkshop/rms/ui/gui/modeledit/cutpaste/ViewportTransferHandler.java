@@ -133,6 +133,7 @@ public class ViewportTransferHandler extends TransferHandler {
         final Viewport viewport = (Viewport) c;
         final EditableModel stringableModel = new EditableModel("CopyPastedModelData");
         stringableModel.setFormatVersion(viewport.getModelView().getModel().getFormatVersion());
+        stringableModel.setExtents(viewport.getModelView().getModel().getExtents());
 
         final CopiedModelData copySelection = viewport.getModelEditor().copySelection();
         final Bone dummyBone = new Bone("CopiedModelDummy");

@@ -40,7 +40,7 @@ public class ComponentsPanel extends JPanel {
 		add(commentPanel, ArrayList.class.getName());
 		panelMap.put(ArrayList.class, commentPanel);
 
-		ComponentAnimationPanel animationPanel = new ComponentAnimationPanel(undoActionListener, modelStructureChangeListener);
+		ComponentAnimationPanel animationPanel = new ComponentAnimationPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
 		add(animationPanel, Animation.class.getName());
 		panelMap.put(Animation.class, animationPanel);
 
