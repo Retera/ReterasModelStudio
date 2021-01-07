@@ -14,10 +14,10 @@ import javax.swing.event.CaretListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.beans.PropertyChangeListener;
 import java.util.function.Consumer;
 
@@ -106,7 +106,7 @@ public abstract class ValuePanel<T> extends JPanel {
 		add(keyframeTable, "span 2, wrap, grow");
 
 		addButton = new JButton("add");
-		addButton.addActionListener(e -> addEntry());
+		addButton.addActionListener(e -> addEntry(keyframeTable.getRowCount() - 1));
 		add(addButton);
 	}
 
@@ -165,49 +165,33 @@ public abstract class ValuePanel<T> extends JPanel {
 	}
 
 	private void addDeleteListeners() {
-		keyframeTable.addMouseListener(new MouseListener() {
+		keyframeTable.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				checkDeletePressed();
 			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-			}
 		});
-		keyframeTable.addKeyListener(new KeyListener() {
-			@Override
-			public void keyTyped(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					checkDeletePressed();
-				}
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-			}
+		keyframeTable.addKeyListener(new KeyAdapter() {
 
 			@Override
 			public void keyReleased(KeyEvent e) {
+				System.out.println("VP keyReleased! " + e.getKeyCode() + ", char: " + e.getKeyChar());
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					System.out.println("was enter");
+					checkDeletePressed();
+				}
+				if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+					removeEntry(keyframeTable.getSelectedRow());
+				}
+				if (e.getKeyCode() == KeyEvent.VK_PLUS || e.getKeyCode() == KeyEvent.VK_ADD) {
+					addEntry(keyframeTable.getSelectedRow());
+				}
 			}
 		});
 	}
 
 	private PropertyChangeListener getPropertyChangeListener() {
 		return evt -> {
-
 			Component comp = keyframeTable.getEditorComponent();
 			if (comp instanceof JTextField) {
 				int row = keyframeTable.getEditingRow();
@@ -227,6 +211,7 @@ public abstract class ValuePanel<T> extends JPanel {
 
 				if (compTextField.getCaretListeners().length == 0) {
 					compTextField.addCaretListener(e -> {
+						editFieldSpecial(compTextField, col);
 						String text = compTextField.getText();
 						if (!text.matches("[" + allowedCharacters + "eE]*")) {
 							String newText = text.replaceAll("[^" + allowedCharacters + "eE]*", "");
@@ -235,7 +220,8 @@ public abstract class ValuePanel<T> extends JPanel {
 								compTextField.removeCaretListener(listener);
 								int carPos = compTextField.getCaretPosition();
 								compTextField.setText(newText);
-								compTextField.setCaretPosition(carPos - 1);
+								int newCarPos = Math.max(0, Math.min(newText.length(), carPos - 1));
+								compTextField.setCaretPosition(newCarPos);
 								compTextField.addCaretListener(listener);
 							});
 						}
@@ -273,7 +259,11 @@ public abstract class ValuePanel<T> extends JPanel {
 							this.createToolTip();
 							this.setToolTipText(animationMarker.name);
 						}
-						tableCellRendererComponent.setBackground(bgColor);
+						if (isSelected) {
+							tableCellRendererComponent.setBackground(bgColor.darker().darker());
+						} else {
+							tableCellRendererComponent.setBackground(bgColor);
+						}
 					}
 				}
 				return tableCellRendererComponent;
@@ -350,7 +340,7 @@ public abstract class ValuePanel<T> extends JPanel {
 		}
 	}
 
-	private void addEntry() {
+	private void addEntry(int row) {
 		if (animFlag == null && timelineContainer != null && !flagName.equals("")) {
 			UndoAction undoAction = new AddAnimFlagAction(timelineContainer, flagName, modelStructureChangeListener);
 			undoActionListener.pushAction(undoAction);
@@ -370,7 +360,8 @@ public abstract class ValuePanel<T> extends JPanel {
 				}
 				newEntry = new AnimFlag.Entry(lastEntry);
 			} else {
-				lastEntry = animFlag.getEntry(animFlag.getTimes().size() - 1);
+//				lastEntry = animFlag.getEntry(animFlag.getTimes().size() - 1);
+				lastEntry = animFlag.getEntry(row);
 				newEntry = new AnimFlag.Entry(lastEntry);
 				newEntry.time++;
 			}
@@ -384,6 +375,11 @@ public abstract class ValuePanel<T> extends JPanel {
 
 		revalidate();
 		repaint();
+
+	}
+
+	// To let implementations change how the editfield is displayed
+	protected void editFieldSpecial(JTextField textField, int column) {
 
 	}
 
