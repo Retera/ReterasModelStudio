@@ -1,12 +1,12 @@
 package com.hiveworkshop.rms.ui.gui.modeledit;
 
-import java.util.ArrayList;
-
 import com.hiveworkshop.rms.editor.model.Matrix;
 
+import java.util.ArrayList;
+
 public class MatrixShell {
-	Matrix matrix;
-	ArrayList<BoneShell> newBones = new ArrayList<>();
+	public Matrix matrix;
+	public ArrayList<BoneShell> newBones = new ArrayList<>();
 
 	public MatrixShell(final Matrix m) {
 		matrix = m;

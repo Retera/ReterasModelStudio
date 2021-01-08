@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit;
 
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ParentToggleRenderer;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;

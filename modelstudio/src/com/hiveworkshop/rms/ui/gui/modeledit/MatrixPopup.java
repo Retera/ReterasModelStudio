@@ -4,6 +4,8 @@ import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ParentToggleRenderer;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -27,7 +29,7 @@ public class MatrixPopup extends JPanel implements ActionListener, ListSelection
 	// New refs
 	JLabel newRefsLabel;
 	public DefaultListModel<BoneShell> newRefs;
-	JList newRefsList;
+	JList<BoneShell> newRefsList;
 	JScrollPane newRefsPane;
 	JButton removeNewRef;
 	JButton moveUp;
@@ -36,7 +38,7 @@ public class MatrixPopup extends JPanel implements ActionListener, ListSelection
 	// Bones (all available -- NEW AND OLD)
 	JLabel bonesLabel;
 	DefaultListModel<BoneShell> bones;
-	JList bonesList;
+	JList<BoneShell> bonesList;
 	JScrollPane bonesPane;
 	JButton useBone;
 
@@ -54,7 +56,7 @@ public class MatrixPopup extends JPanel implements ActionListener, ListSelection
 		buildBonesList();
 		// Built before oldBoneRefs, so that the MatrixShells can default to
 		// using New Refs with the same name as their first bone
-		bonesList = new JList(bones);
+		bonesList = new JList<>(bones);
 		bonesList.setCellRenderer(renderer);
 		bonesPane = new JScrollPane(bonesList);
 		bonesPane.setPreferredSize(new Dimension(400, 500));
@@ -64,7 +66,7 @@ public class MatrixPopup extends JPanel implements ActionListener, ListSelection
 
 		newRefsLabel = new JLabel("New Refs");
 		newRefs = new DefaultListModel<>();
-		newRefsList = new JList(newRefs);
+		newRefsList = new JList<>(newRefs);
 		newRefsList.setCellRenderer(renderer);
 		newRefsPane = new JScrollPane(newRefsList);
 		newRefsPane.setPreferredSize(new Dimension(400, 500));
@@ -83,23 +85,33 @@ public class MatrixPopup extends JPanel implements ActionListener, ListSelection
 
 	public void buildLayout() {
 		final GroupLayout layout = new GroupLayout(this);
-		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(displayParents)
+		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+				.addComponent(displayParents)
 				.addGroup(layout.createSequentialGroup()
-						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(newRefsLabel)
-								.addComponent(newRefsPane).addComponent(removeNewRef))
-						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(moveUp)
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+								.addComponent(newRefsLabel)
+								.addComponent(newRefsPane)
+								.addComponent(removeNewRef))
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+								.addComponent(moveUp)
 								.addComponent(moveDown))
-						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(bonesLabel)
-								.addComponent(bonesPane).addComponent(useBone))));
+						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+								.addComponent(bonesLabel)
+								.addComponent(bonesPane)
+								.addComponent(useBone))));
 		layout.setVerticalGroup(layout.createSequentialGroup()
-
 				.addComponent(displayParents).addGap(10)
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(newRefsLabel)
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+						.addComponent(newRefsLabel)
 						.addComponent(bonesLabel))
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(newRefsPane)
-						.addGroup(layout.createSequentialGroup().addComponent(moveUp).addGap(16).addComponent(moveDown))
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+						.addComponent(newRefsPane)
+						.addGroup(layout.createSequentialGroup()
+								.addComponent(moveUp).addGap(16)
+								.addComponent(moveDown))
 						.addComponent(bonesPane))
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(removeNewRef)
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+						.addComponent(removeNewRef)
 						.addComponent(useBone)));
 		setLayout(layout);
 	}

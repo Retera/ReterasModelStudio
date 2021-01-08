@@ -9,8 +9,8 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObje
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.UnitFields;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPane;
 import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPane;
-import com.hiveworkshop.rms.ui.gui.modeledit.ImportPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
 
 import javax.swing.*;
 import java.io.File;

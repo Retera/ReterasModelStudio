@@ -1,16 +1,17 @@
 package com.hiveworkshop.rms.ui.gui.modeledit;
 
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BonePanel;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import com.hiveworkshop.rms.editor.model.Bone;
-
 public class BoneShell {
-	final Bone bone;
-	Bone importBone;
-	String modelName;
-	BonePanel panel;
-	boolean showClass = false;
+	public final Bone bone;
+	public Bone importBone;
+	public String modelName;
+	public BonePanel panel;
+	public boolean showClass = false;
 
 	public BoneShell(final Bone b) {
 		bone = b;
