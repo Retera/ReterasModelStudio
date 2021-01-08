@@ -134,13 +134,13 @@ public class ComponentLayerPanel extends JPanel {
 		textureChooser.addActionListener(e -> chooseTexture(model));
 		leftHandSettingsPanel.add(textureChooser, "wrap, growx");
 
-		coordIdSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(0, Integer.MIN_VALUE, Integer.MAX_VALUE, 1));
 		leftHandSettingsPanel.add(new JLabel("TVertex Anim:"));
-
 		tVertexAnimButton = new JButton("Choose TVertex Anim");
 		leftHandSettingsPanel.add(tVertexAnimButton, "wrap, growx");
 
 		leftHandSettingsPanel.add(new JLabel("CoordID:"));
+		coordIdSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(0, Integer.MIN_VALUE, Integer.MAX_VALUE, 1));
+		coordIdSpinner.addEditingStoppedListener(this::setCoordId);
 		leftHandSettingsPanel.add(coordIdSpinner, "wrap, growx");
 
 //		alphaPanel = new FloatValuePanel("Alpha", undoActionListener, modelStructureChangeListener);
@@ -228,11 +228,11 @@ public class ComponentLayerPanel extends JPanel {
 
 		coordIdSpinner.reloadNewValue(layer.getCoordId());
 		tVertexAnimButton.setText(layer.getTextureAnim() == null ? "None" : layer.getTextureAnim().getFlagNames());
-		alphaPanel.reloadNewValue((float) layer.getStaticAlpha(), layer.find("Alpha"), layer, "Alpha");
+		alphaPanel.reloadNewValue((float) layer.getStaticAlpha(), layer.find("Alpha"), layer, "Alpha", layer::setStaticAlpha);
 
 
 		emissiveGainPanel.setVisible(ModelUtils.isEmissiveLayerSupported(formatVersion) && hdShader);
-		emissiveGainPanel.reloadNewValue((float) layer.getEmissive(), layer.find("EmissiveGain"), layer, "EmissiveGain");
+		emissiveGainPanel.reloadNewValue((float) layer.getEmissive(), layer.find("EmissiveGain"), layer, "EmissiveGain", layer::setEmissive);
 
 		final boolean fresnelColorLayerSupported = ModelUtils.isFresnelColorLayerSupported(formatVersion) && hdShader;
 
@@ -247,10 +247,10 @@ public class ComponentLayerPanel extends JPanel {
 		fresnelColorPanel.reloadNewValue(layer.getFresnelColor(), layer.find("FresnelColor"), layer, "FresnelColor", layer::setFresnelColor);
 
 		fresnelOpacityPanel.setVisible(fresnelColorLayerSupported);
-		fresnelOpacityPanel.reloadNewValue((float) layer.getFresnelOpacity(), layer.find("FresnelOpacity"), layer, "FresnelOpacity");
+		fresnelOpacityPanel.reloadNewValue((float) layer.getFresnelOpacity(), layer.find("FresnelOpacity"), layer, "FresnelOpacity", layer::setFresnelOpacity);
 
 		fresnelTeamColor.setVisible(fresnelColorLayerSupported);
-		fresnelTeamColor.reloadNewValue((float) layer.getFresnelTeamColor(), layer.find("FresnelTeamColor"), layer, "FresnelTeamColor");
+		fresnelTeamColor.reloadNewValue((float) layer.getFresnelTeamColor(), layer.find("FresnelTeamColor"), layer, "FresnelTeamColor", layer::setFresnelTeamColor);
 
 		listenersEnabled = true;
 	}
@@ -262,6 +262,11 @@ public class ComponentLayerPanel extends JPanel {
 		layerDeleteButton.setForeground(Color.WHITE);
 		layerDeleteButton.addActionListener(e -> removeLayer(layer));
 		return layerDeleteButton;
+	}
+
+	private void setCoordId() {
+		layer.setCoordId(coordIdSpinner.getIntValue());
+		coordIdSpinner.reloadNewValue(coordIdSpinner.getIntValue());
 	}
 
 	private void removeLayer(Layer layer) {

@@ -82,14 +82,15 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 					Color bgColor = new Color(ColorSpace.getInstance(ColorSpace.CS_sRGB), rowColor, 1.0f);
 					tableCellRendererComponent.setBackground(bgColor);
 
-					double greyValue = 0.2990 * rowColor[0] + 0.5870 * rowColor[1] + 0.1140 * rowColor[2];
+//					double greyValue = 0.2990 * rowColor[0] + 0.5870 * rowColor[1] + 0.1140 * rowColor[2];
 //					System.out.println("grey value: " + (0.2990*rowColor[0]+ 0.5870*rowColor[1]+ 0.1140*rowColor[2]));
 //					float maxColor = Math.max(rowColor[0], Math.max(rowColor[1], rowColor[2]));
-					if (greyValue > .5) {
-						tableCellRendererComponent.setForeground(Color.BLACK);
-					} else {
-						tableCellRendererComponent.setForeground(Color.WHITE);
-					}
+					tableCellRendererComponent.setForeground(getTextColor(bgColor));
+//					if (greyValue > .5) {
+//						tableCellRendererComponent.setForeground(Color.BLACK);
+//					} else {
+//						tableCellRendererComponent.setForeground(Color.WHITE);
+//					}
 				}
 				return tableCellRendererComponent;
 			}
@@ -118,10 +119,6 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 		return rowColor;
 	}
 
-//	public void setKeyframeHelper(TimelineKeyNamer timelineKeyNamer) {
-//		this.timelineKeyNamer = timelineKeyNamer;
-//	}
-
 	protected void editFieldSpecial(JTextField textField, int column) {
 		// sets the background color of the editor field to the color currently entered
 		Color bgColor = getClampedColor(textField.getText());
@@ -132,7 +129,7 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 	@Override
 	JComponent getStaticComponent() {
 		staticColorButton = new JButton("Choose Color");
-		staticColorButton.addActionListener(e -> ugg2());
+		staticColorButton.addActionListener(e -> setStaticColor());
 		return staticColorButton;
 	}
 
@@ -155,9 +152,9 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 		Vec3 vecValue = staticValue;
 		String polishedString = valueString;
 		if (valueString != null && valueString.matches("\\{? ?((\\d+(\\.\\d*)?)|(\\d*\\.\\d+))( ?, ?((\\d+(\\.\\d*)?)|(\\d*\\.\\d+)))* ?}")) {
-			System.out.println("match");
+//			System.out.println("match");
 			polishedString = valueString.replaceAll("[\\{} ]", "");
-			System.out.println("polishedString pre: " + polishedString);
+//			System.out.println("polishedString pre: " + polishedString);
 			String[] split = polishedString.split(",");
 			int vecSize = split.length;
 			if (vecSize < 3) {
@@ -175,9 +172,9 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 				}
 			}
 		} else {
-			System.out.println("nja");
+//			System.out.println("nja");
 			polishedString = valueString.replaceAll("[\\{} ]", "");
-			System.out.println("polishedString pre: " + polishedString);
+//			System.out.println("polishedString pre: " + polishedString);
 			String[] split = polishedString.split(",");
 			if (split.length < 3) {
 				polishedString = polishedString.replaceAll("\\.\\.", ".0,.");
@@ -207,7 +204,7 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 			polishedString = newS.toString();
 
 		}
-		System.out.println("polishedString: " + polishedString);
+//		System.out.println("polishedString: " + polishedString);
 		vecValue = Vec3.parseVec3(polishedString);
 
 		clamp(vecValue, 0.0f, 1.0f);
@@ -228,7 +225,6 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 		keyframeTable.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				System.out.println("clickPoint: " + e.getPoint() + ", comp: " + e.getComponent());
 				checkChangeColorPressed(e.getPoint(), KeyEvent.VK_ENTER);
 			}
 		});
@@ -236,12 +232,12 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 		keyframeTable.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
-				System.out.println("CVP keyReleased! " + e.getKeyCode());
-				System.out.println("rect: " + keyframeTable.getCellRect(keyframeTable.getSelectedRow(), keyframeTable.getSelectedColumn(), false));
-				System.out.println("loc: " + keyframeTable.getCellRect(keyframeTable.getSelectedRow(), keyframeTable.getSelectedColumn(), false).getLocation());
+//				System.out.println("CVP keyReleased! " + e.getKeyCode());
+//				System.out.println("rect: " + keyframeTable.getCellRect(keyframeTable.getSelectedRow(), keyframeTable.getSelectedColumn(), false));
+//				System.out.println("loc: " + keyframeTable.getCellRect(keyframeTable.getSelectedRow(), keyframeTable.getSelectedColumn(), false).getLocation());
 //				System.out.println("loc: " + keyframeTable.getCellRect(keyframeTable.getSelectedRow(), keyframeTable.getSelectedColumn(), false));
 				if (e.getKeyCode() == KeyEvent.VK_C) {
-					System.out.println("C-Point: " + e.getComponent().getLocation() + ", comp: " + e.getComponent());
+//					System.out.println("C-Point: " + e.getComponent().getLocation() + ", comp: " + e.getComponent());
 					Point compPoint = e.getComponent().getLocation();
 					Point point = new Point(compPoint.y, compPoint.x);
 
@@ -255,18 +251,8 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 		int colorChangeColumnIndex = keyframeTable.getColumnCount() - 2;
 		if (keyCode == KeyEvent.VK_C || keyCode == KeyEvent.VK_ENTER && keyframeTable.getSelectedColumn() == colorChangeColumnIndex) {
 			colorChooser.setColor(new Color(ColorSpace.getInstance(ColorSpace.CS_sRGB), clampColorVector(((Vec3) animFlag.getValues().get(keyframeTable.getSelectedRow())).toFloatArray()), 1.0f));
-
-//			keyframeTable.getCellRenderer(keyframeTable.getSelectedRow(),keyframeTable.getSelectedColumn());
-//			keyframeTable.
 			chooseColor.show(keyframeTable, point.x, point.y);
-//			chooseColor.show(keyframeTable.getCellRenderer(keyframeTable.getSelectedRow(),keyframeTable.getSelectedColumn()), 0, 0);
-//			changeRowColor(keyframeTable.getSelectedRow());
-
 		}
-	}
-
-	private void changeRowColor(int row) {
-
 	}
 
 	private void changeColor() {
@@ -277,8 +263,6 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 			}
 			staticColorButton.setIcon(new ImageIcon(IconUtils.createColorImage(color, 48, 48)));
 		} else {
-			System.out.println("selected row: " + keyframeTable.getSelectedRow());
-			System.out.println("selected col: " + keyframeTable.getSelectedColumn());
 			changeEntry(keyframeTable.getSelectedRow(), 1, "Value", selectedColor.toString());
 		}
 
@@ -293,12 +277,7 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 
 			@Override
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-//				System.out.println("new color: " + color);
 				changeColor();
-//				if (valueSettingFunction != null) {
-//					valueSettingFunction.accept(color);
-//				}
-//				staticColorButton.setIcon(new ImageIcon(IconUtils.createColorImage(color, 48, 48)));
 			}
 
 			@Override
@@ -308,7 +287,7 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 	}
 
 
-	private void ugg2() {
+	private void setStaticColor() {
 		colorChooser.setColor(new Color(ColorSpace.getInstance(ColorSpace.CS_sRGB), clampColorVector(color.toFloatArray()), 1.0f));
 		chooseColor.show(staticColorButton, 0, 0);
 	}

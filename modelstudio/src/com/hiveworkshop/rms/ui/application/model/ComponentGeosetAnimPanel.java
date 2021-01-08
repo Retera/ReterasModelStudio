@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.GeosetAnim;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.TimelineKeyNamer;
 import net.miginfocom.swing.MigLayout;
@@ -22,6 +23,7 @@ public class ComponentGeosetAnimPanel extends JPanel implements ComponentPanel<G
 	private final boolean listenersEnabled = true;
 	private final JPanel animsPanelHolder;
 	private FloatValuePanel alphaPanel;
+	private ColorValuePanel colorPanel;
 	private ComponentGeosetMaterialPanel geosetAnimPanel;
 
 
@@ -43,19 +45,10 @@ public class ComponentGeosetAnimPanel extends JPanel implements ComponentPanel<G
 		alphaPanel = new FloatValuePanel("Alpha", undoActionListener, modelStructureChangeListener);
 		alphaPanel.setKeyframeHelper(new TimelineKeyNamer(modelViewManager.getModel()));
 		animsPanelHolder.add(alphaPanel, "wrap, span 2");
-//		geosetAnimPanel = new ComponentGeosetMaterialPanel();
-//		animsPanelHolder.add(geosetAnimPanel);
 
-//		JPanel geosetInfoPanel = new JPanel(new MigLayout());
-//		add(geosetInfoPanel, "wrap, growx, span 3");
-
-//		geosetInfoPanel.add(new JLabel("Triangles: "));
-//		trisLabel = new JLabel("0");
-//		geosetInfoPanel.add(trisLabel, "wrap");
-
-//		geosetInfoPanel.add(new JLabel("Vertices: "));
-//		vertLabel = new JLabel("0");
-//		geosetInfoPanel.add(vertLabel, "wrap");
+		colorPanel = new ColorValuePanel("Color", undoActionListener, modelStructureChangeListener);
+		colorPanel.setKeyframeHelper(new TimelineKeyNamer(modelViewManager.getModel()));
+		animsPanelHolder.add(colorPanel, "wrap, span 2");
 
 	}
 
@@ -71,7 +64,8 @@ public class ComponentGeosetAnimPanel extends JPanel implements ComponentPanel<G
 //		animsPanelHolder.add(geosetAnimPanel);
 		animsPanelHolder.revalidate();
 		animsPanelHolder.repaint();
-		alphaPanel.reloadNewValue((float) geosetAnim.getStaticAlpha(), geosetAnim.find("Alpha"), geosetAnim, "Alpha");
+		alphaPanel.reloadNewValue((float) geosetAnim.getStaticAlpha(), geosetAnim.find("Alpha"), geosetAnim, "Alpha", geosetAnim::setStaticAlpha);
+		colorPanel.reloadNewValue(geosetAnim.getStaticColor(), geosetAnim.find("Color"), geosetAnim, "Color", geosetAnim::setStaticColor);
 
 		revalidate();
 		repaint();

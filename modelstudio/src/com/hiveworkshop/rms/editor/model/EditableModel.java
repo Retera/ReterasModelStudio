@@ -2453,6 +2453,6 @@ public class EditableModel implements Named {
 	}
 
 	public int computeGeosetID(final Geoset geoset) {
-		return materials.indexOf(geoset);
+		return geosets.indexOf(geoset);
 	}
 }

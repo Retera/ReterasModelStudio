@@ -45,7 +45,12 @@ task dist(type: Jar) {
     from fileTree(buildDir).matching{ include 'META-INF/services/*' }
 }
 
+task setVersion(){
+    new File(sourceSets.main.output.resourcesDir.path, "version.txt").text ="""${version}.${new SimpleDateFormat("yyyy.MM.dd").format(new Date())}"""
+}
+
 dist.dependsOn classes
+//dist.doLast {setVersion()}
 
 eclipse.project {
     name = appName + "-modelstudio"

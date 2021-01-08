@@ -177,10 +177,12 @@ public class AnimFlag {
 		name = title;
 		this.times = times;
 		this.values = values;
+		generateTypeId();
 	}
 
 	public AnimFlag(final String title) {
 		name = title;
+		generateTypeId();
 	}
 
 	public War3ID getWar3ID(final TimelineContainer container) {

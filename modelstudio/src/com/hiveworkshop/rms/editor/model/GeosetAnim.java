@@ -57,6 +57,9 @@ public class GeosetAnim extends TimelineContainer implements Named {
 		if (dropShadow) {
 			animation.flags |= 1;
 		}
+		if (find("Color") != null || !staticColor.equals(new Vec3(1, 1, 1))) {
+			animation.flags |= 0x2;
+		}
 
 		animation.color = ModelUtils.flipRGBtoBGR(getStaticColor().toFloatArray());
 
@@ -163,9 +166,8 @@ public class GeosetAnim extends TimelineContainer implements Named {
 			if (newVisFlag != null) {
 				if (!newVisFlag.hasGlobalSeq()) {
 					newVisFlag.deleteAnim(a);
-					// All entries for visibility are deleted from
-					// original-based sources during imported animation
-					// times
+					// All entries for visibility are deleted from original-based
+					// sources during imported animation times
 				}
 			}
 		}

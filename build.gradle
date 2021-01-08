@@ -16,7 +16,7 @@ allprojects {
     apply plugin: "eclipse"
     apply plugin: "idea"
 
-    version = '1.0'
+    version = '0.5'
     ext {
         appName = "retera-jwc3"
         jtattooVersion = '1.6.11'

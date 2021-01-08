@@ -42,10 +42,12 @@ public class ComponentBitmapPanel extends JPanel implements ComponentPanel<Bitma
 		this.undoListener = undoListener;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		texturePathField = new ComponentEditorTextField(24);
-		texturePathField.addActionListener(e -> texturePathField());
+		texturePathField.addEditingStoppedListener(this::texturePathField);
+//		texturePathField.addActionListener(e -> texturePathField());
 
 		replaceableIdSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(-1, -1, Integer.MAX_VALUE, 1));
-		replaceableIdSpinner.addActionListener(this::replaceableIdSpinner);
+		replaceableIdSpinner.addEditingStoppedListener(this::replaceableIdSpinner);
+//		replaceableIdSpinner.addActionListener(this::replaceableIdSpinner);
 
 		wrapWidthBox = new JCheckBox("Wrap Width");
 		wrapWidthBox.addActionListener(e -> wrapWidthBox());
