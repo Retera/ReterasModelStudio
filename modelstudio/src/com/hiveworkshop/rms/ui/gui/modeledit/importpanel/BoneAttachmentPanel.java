@@ -14,7 +14,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-class BoneAttachmentPane extends JPanel implements ActionListener, ListSelectionListener {
+class BoneAttachmentPanel extends JPanel implements ActionListener, ListSelectionListener {
 	JLabel title;
 
 	// Old bone refs (matrices)
@@ -44,8 +44,8 @@ class BoneAttachmentPane extends JPanel implements ActionListener, ListSelection
 	MatrixShell currentMatrix = null;
 	ImportPanel impPanel;
 
-	public BoneAttachmentPane(final EditableModel model, final Geoset whichGeoset, final BoneShellListCellRenderer renderer,
-	                          final ImportPanel thePanel) {
+	public BoneAttachmentPanel(final EditableModel model, final Geoset whichGeoset, final BoneShellListCellRenderer renderer,
+	                           final ImportPanel thePanel) {
 		this.model = model;
 		geoset = whichGeoset;
 		impPanel = thePanel;

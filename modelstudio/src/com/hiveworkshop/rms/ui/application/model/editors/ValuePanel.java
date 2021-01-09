@@ -100,7 +100,7 @@ public abstract class ValuePanel<T> extends JPanel {
 
 
 		keyframeTable.setDefaultRenderer(Integer.class, getCellRenderer());
-//		keyframeTable.setDefaultRenderer(String.class, getCellRenderer());
+		keyframeTable.setDefaultRenderer(String.class, getCellRenderer());
 		keyframeTable.setDefaultRenderer(Float.class, getCellRenderer());
 
 		add(keyframeTable, "span 2, wrap, grow");
@@ -203,7 +203,7 @@ public abstract class ValuePanel<T> extends JPanel {
 					preEditValue = compTextField.getText();
 				} else if (doSave) {
 					String newValue = compTextField.getText();
-					if (!newValue.equals(preEditValue)) {
+					if (!newValue.equals(preEditValue) && !newValue.equals("")) {
 						changeEntry(row, col, keyframeTable.getColumnName(col), ((JTextField) comp).getText());
 					}
 					doSave = false;
@@ -211,10 +211,22 @@ public abstract class ValuePanel<T> extends JPanel {
 
 				if (compTextField.getCaretListeners().length == 0) {
 					compTextField.addCaretListener(e -> {
-						editFieldSpecial(compTextField, col);
+						editFieldRendering(compTextField, col);
 						String text = compTextField.getText();
 						if (!text.matches("[" + allowedCharacters + "eE]*")) {
 							String newText = text.replaceAll("[^" + allowedCharacters + "eE]*", "");
+							SwingUtilities.invokeLater(() -> {
+								CaretListener listener = compTextField.getCaretListeners()[0];
+								compTextField.removeCaretListener(listener);
+								int carPos = compTextField.getCaretPosition();
+								compTextField.setText(newText);
+								int newCarPos = Math.max(0, Math.min(newText.length(), carPos - 1));
+								compTextField.setCaretPosition(newCarPos);
+								compTextField.addCaretListener(listener);
+							});
+						}
+						if (text.matches("(.*\\.\\.+.*)")) {
+							String newText = text.replaceAll("(\\.+)", ".");
 							SwingUtilities.invokeLater(() -> {
 								CaretListener listener = compTextField.getCaretListeners()[0];
 								compTextField.removeCaretListener(listener);
@@ -265,6 +277,8 @@ public abstract class ValuePanel<T> extends JPanel {
 							tableCellRendererComponent.setBackground(bgColor);
 						}
 					}
+				} else {
+					valueCellRendering(tableCellRendererComponent, table, value, isSelected, hasFocus, row, column);
 				}
 				return tableCellRendererComponent;
 //				return this;
@@ -379,8 +393,16 @@ public abstract class ValuePanel<T> extends JPanel {
 	}
 
 	// To let implementations change how the editfield is displayed
-	protected void editFieldSpecial(JTextField textField, int column) {
+	protected void editFieldRendering(JTextField textField, int column) {
+	}
 
+	/**
+	 * Lets implementations change how the fields of {@link #keyframeTable}, except delete and time, is displayed
+	 *
+	 * @param tableCellRendererComponent the render component for the current cell
+	 * @param value                      the value of the cell
+	 */
+	protected void valueCellRendering(Component tableCellRendererComponent, JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 	}
 
 	abstract T getZeroValue();
@@ -406,7 +428,6 @@ public abstract class ValuePanel<T> extends JPanel {
 	}
 
 	protected void changeEntry(int row, int col, String field, String val) {
-
 		AnimFlag.Entry entry = animFlag.getEntry(row);
 		int orgTime = animFlag.getTimes().get(row);
 		T tValue = parseValue(val);

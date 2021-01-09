@@ -55,7 +55,34 @@ public class FloatValuePanel extends ValuePanel<Float> {
 
 	@Override
 	Float parseValue(String valueString) {
-		return null;
+		valueString = valueString.replaceAll("[^-\\.e\\d]", "");
+//		if(valueString.matches(".*\\d.*")){
+//			System.out.println("1 \".*\\\\d.*\" - " + valueString);
+//		}
+//		if(valueString.matches("(-?\\d+(\\.\\d+)?(e\\d+)?)|(-?\\d*(\\.\\d+)(e\\d+)?)")){
+//			System.out.println("2 \"(-?\\d+(\\.\\d+)?(e\\d+)?)|(-?\\d*(\\.\\d+)(e\\d+)?)\" - " + valueString);
+//		}
+//		if(valueString.matches("(-?\\d+(\\.\\d+)?(e\\d+)?)")){
+//			System.out.println("3 \"(-?\\\\d+(\\.\\d+)?(e\\d+)?)\" - " + valueString);
+//		}
+//		if(valueString.matches("(-?\\d*(\\.\\d+)(e\\d+)?)")){
+//			System.out.println("4 \"(-?\\d*(\\.\\d+)(e\\d+)?)\" - " + valueString);
+//		}
+//		if(valueString.matches("(-?\\d*\\.?\\d+(e\\d+)?)")){
+//			System.out.println("5 \"(-?\\d*\\.?\\d+(e\\d+)?)\" - " + valueString);
+//		}
+		if (valueString.matches("(-?\\d+\\.+)")) {
+//			System.out.println("5 \"(-?\\d+\\.+)\" - " + valueString);
+			valueString = valueString.replace(".", "");
+		}
+		if (valueString.matches("(-?\\d+\\.+\\d+)")) {
+//			System.out.println("5 \"(-?\\d+\\.+\\d+)\" - " + valueString);
+			valueString = valueString.replaceAll("(\\.+)", ".");
+		}
+		if (valueString.matches(".*\\d.*") && valueString.matches("(-?\\d*\\.?\\d+(e\\d+)?)")) {
+			return Float.parseFloat(valueString);
+		}
+		return 0.0f;
 	}
 
 

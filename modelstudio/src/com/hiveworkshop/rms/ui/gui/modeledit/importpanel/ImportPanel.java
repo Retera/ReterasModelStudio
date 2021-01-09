@@ -421,14 +421,14 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 
 	private void MakeGeosetAnimPanel(EditableModel currentModel, EditableModel importedModel, ParentToggleRenderer ptr) {
 		for (int i = 0; i < currentModel.getGeosets().size(); i++) {
-			final BoneAttachmentPane geoPanel = new BoneAttachmentPane(currentModel, currentModel.getGeoset(i), ptr,
+			final BoneAttachmentPanel geoPanel = new BoneAttachmentPanel(currentModel, currentModel.getGeoset(i), ptr,
 					this);
 
 			geosetAnimTabs.addTab(currentModel.getName() + " " + (i + 1), greenIcon, geoPanel,
 					"Click to modify animation data for Geoset " + i + " from " + currentModel.getName() + ".");
 		}
 		for (int i = 0; i < importedModel.getGeosets().size(); i++) {
-			final BoneAttachmentPane geoPanel = new BoneAttachmentPane(importedModel, importedModel.getGeoset(i), ptr,
+			final BoneAttachmentPanel geoPanel = new BoneAttachmentPanel(importedModel, importedModel.getGeoset(i), ptr,
 					this);
 
 			geosetAnimTabs.addTab(importedModel.getName() + " " + (i + 1), orangeIcon, geoPanel,
@@ -526,8 +526,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 
 		final VisShellBoxCellRenderer visRenderer = new VisShellBoxCellRenderer();
 		for (final VisibilityShell vs : allVisShells) {
-			final VisibilityPanel vp = new VisibilityPanel(vs, new DefaultComboBoxModel<Object>(visSourcesOld.toArray()),
-					new DefaultComboBoxModel<Object>(visSourcesNew.toArray()), visRenderer);
+			final VisibilityPanel vp = new VisibilityPanel(vs, new DefaultComboBoxModel<>(visSourcesOld.toArray()),
+					new DefaultComboBoxModel<>(visSourcesNew.toArray()), visRenderer);
 
 			allVisShellPanes.add(vp);
 
@@ -728,7 +728,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		for (int i = 0; i < geosetAnimTabs.getTabCount(); i++) {
 			if (geosetAnimTabs.isEnabledAt(i)) {
 				System.out.println("Performing check on geoset: " + i);
-				final BoneAttachmentPane bap = (BoneAttachmentPane) geosetAnimTabs.getComponentAt(i);
+				final BoneAttachmentPanel bap = (BoneAttachmentPanel) geosetAnimTabs.getComponentAt(i);
 				for (int mk = 0; mk < bap.oldBoneRefs.size(); mk++) {
 					final MatrixShell ms = bap.oldBoneRefs.get(mk);
 					// System.out.println("Performing check on MatrixShell:
@@ -880,7 +880,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 	private void allMatrOriginal() {
 		for (int i = 0; i < geosetAnimTabs.getTabCount(); i++) {
 			if (geosetAnimTabs.isEnabledAt(i)) {
-				final BoneAttachmentPane bap = (BoneAttachmentPane) geosetAnimTabs.getComponentAt(i);
+				final BoneAttachmentPanel bap = (BoneAttachmentPanel) geosetAnimTabs.getComponentAt(i);
 				bap.resetMatrices();
 			}
 		}
@@ -889,7 +889,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 	private void allMatrSameName() {
 		for (int i = 0; i < geosetAnimTabs.getTabCount(); i++) {
 			if (geosetAnimTabs.isEnabledAt(i)) {
-				final BoneAttachmentPane bap = (BoneAttachmentPane) geosetAnimTabs.getComponentAt(i);
+				final BoneAttachmentPanel bap = (BoneAttachmentPanel) geosetAnimTabs.getComponentAt(i);
 				bap.setMatricesToSimilarNames();
 			}
 		}
@@ -980,7 +980,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 	 **/
 	public void informGeosetVisibility(final Geoset g, final boolean flag) {
 		for (int i = 0; i < geosetAnimTabs.getTabCount(); i++) {
-			final BoneAttachmentPane geoPanel = (BoneAttachmentPane) geosetAnimTabs.getComponentAt(i);
+			final BoneAttachmentPanel geoPanel = (BoneAttachmentPanel) geosetAnimTabs.getComponentAt(i);
 			if (geoPanel.geoset == g) {
 				geosetAnimTabs.setEnabledAt(i, flag);
 			}
@@ -1842,7 +1842,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			Bone dummyBone = null;
 			for (int i = 0; i < geosetAnimTabs.getTabCount(); i++) {
 				if (geosetAnimTabs.isEnabledAt(i)) {
-					final BoneAttachmentPane bap = (BoneAttachmentPane) geosetAnimTabs.getComponentAt(i);
+					final BoneAttachmentPanel bap = (BoneAttachmentPanel) geosetAnimTabs.getComponentAt(i);
 					for (int l = 0; l < bap.oldBoneRefs.size(); l++) {
 						final MatrixShell ms = bap.oldBoneRefs.get(l);
 						if (ms.newBones.size() > 0) {

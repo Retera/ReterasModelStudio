@@ -8,7 +8,6 @@ import com.hiveworkshop.rms.util.Vec3;
 import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.color.ColorSpace;
@@ -50,9 +49,7 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 		allowedCharacters += "\\{}, ";
 		floatTrackTableModel.addExtraColumn("", "\uD83C\uDFA8", Integer.class);  // 🎨 \uD83C\uDFA8
 		floatTrackTableModel.setValueClass(String.class);
-//		keyframeTable.setModel(floatTrackTableModel);
-//		keyframeTable.getTableHeader().
-		keyframeTable.setDefaultRenderer(String.class, getCellRenderer());
+
 		addColorChangeListeners();
 
 		TableColumn column = keyframeTable.getColumnModel().getColumn(keyframeTable.getColumnCount() - 2);
@@ -62,39 +59,6 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 			column.setPreferredWidth(rowHeight);
 			column.setMinWidth(5);
 		}
-	}
-
-
-	private DefaultTableCellRenderer getCellRenderer() {
-		return new DefaultTableCellRenderer() {
-			@Override
-			public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column) {
-//				System.out.println(row + ", " + column + " , value:" + value + " editor:");
-//				System.out.println("correct? " + table.getSelectedColumn() + ", " + table.getSelectedRow());
-				setBackground(null);
-				setForeground(null);
-				final Component tableCellRendererComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-				if (column == 1) {
-					float[] rowColor = ((Vec3) value).toFloatArray();
-
-					clampColorVector(rowColor);
-					Color bgColor = new Color(ColorSpace.getInstance(ColorSpace.CS_sRGB), rowColor, 1.0f);
-					tableCellRendererComponent.setBackground(bgColor);
-
-//					double greyValue = 0.2990 * rowColor[0] + 0.5870 * rowColor[1] + 0.1140 * rowColor[2];
-//					System.out.println("grey value: " + (0.2990*rowColor[0]+ 0.5870*rowColor[1]+ 0.1140*rowColor[2]));
-//					float maxColor = Math.max(rowColor[0], Math.max(rowColor[1], rowColor[2]));
-					tableCellRendererComponent.setForeground(getTextColor(bgColor));
-//					if (greyValue > .5) {
-//						tableCellRendererComponent.setForeground(Color.BLACK);
-//					} else {
-//						tableCellRendererComponent.setForeground(Color.WHITE);
-//					}
-				}
-				return tableCellRendererComponent;
-			}
-		};
 	}
 
 	private Color getClampedColor(String string) {
@@ -112,18 +76,35 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 		}
 	}
 
+	/**
+	 * Clamps all entries of the array between 0 and 1
+	 *
+	 * @param rowColor the array to be clamped
+	 * @return the clamped array
+	 */
 	private float[] clampColorVector(float[] rowColor) {
-		for (int i = 0; i < 3; i++) {
+		for (int i = 0; i < rowColor.length; i++) {
 			rowColor[i] = Math.max(0, Math.min(1, rowColor[i]));
 		}
 		return rowColor;
 	}
 
-	protected void editFieldSpecial(JTextField textField, int column) {
+	protected void editFieldRendering(JTextField textField, int column) {
 		// sets the background color of the editor field to the color currently entered
 		Color bgColor = getClampedColor(textField.getText());
 		textField.setBackground(bgColor);
 		textField.setForeground(getTextColor(bgColor));
+	}
+
+	protected void valueCellRendering(Component tableCellRendererComponent, JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+		if (column == 1) {
+			float[] rowColor = ((Vec3) value).toFloatArray();
+
+			clampColorVector(rowColor);
+			Color bgColor = new Color(ColorSpace.getInstance(ColorSpace.CS_sRGB), rowColor, 1.0f);
+			tableCellRendererComponent.setBackground(bgColor);
+			tableCellRendererComponent.setForeground(getTextColor(bgColor));
+		}
 	}
 
 	@Override
