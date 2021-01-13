@@ -317,12 +317,12 @@ public class MPQBrowserView {
         mainPanel.rootWindow.setWindow(new SplitWindow(true, 0.75f, mainPanel.rootWindow.getWindow(), view));
     }
 
-    public static void loadFile(MainPanel mainPanel, final File f, final boolean temporary) {
-        loadFile(mainPanel, f, temporary, true, MDLIcon);
+    public static void loadFile(MainPanel mainPanel, final File f) {
+        loadFile(mainPanel, f, false, true, MDLIcon);
     }
 
-    public static void loadFile(MainPanel mainPanel, final File f) {
-        loadFile(mainPanel, f, false);
+    public static void loadFile(MainPanel mainPanel, final File f, final boolean temporary) {
+        loadFile(mainPanel, f, temporary, true, MDLIcon);
     }
 
     public static void loadFile(MainPanel mainPanel, final File f, final boolean temporary, final boolean selectNewTab, final ImageIcon icon) {

@@ -130,9 +130,9 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 
 	@Override
 	Vec3 parseValue(String valueString) {
-		Vec3 vecValue = staticValue;
-		String polishedString = valueString;
-		if (valueString != null && valueString.matches("\\{? ?((\\d+(\\.\\d*)?)|(\\d*\\.\\d+))( ?, ?((\\d+(\\.\\d*)?)|(\\d*\\.\\d+)))* ?}")) {
+		Vec3 vecValue;
+		String polishedString;
+		if (valueString != null && valueString.matches("\\{? ?(\\d*\\.?\\d+)( ?, ?(\\d*\\.?\\d+))* ?}?")) {
 //			System.out.println("match");
 			polishedString = valueString.replaceAll("[\\{} ]", "");
 //			System.out.println("polishedString pre: " + polishedString);

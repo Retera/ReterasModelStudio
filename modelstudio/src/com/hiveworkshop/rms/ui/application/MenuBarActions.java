@@ -1,6 +1,9 @@
 package com.hiveworkshop.rms.ui.application;
 
+import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.Layer;
+import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
@@ -36,7 +39,6 @@ import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
@@ -453,5 +455,21 @@ public class MenuBarActions {
         }
         testPanel.setLayout(new GridLayout(1, 4));
         return new View("Test", null, testPanel);
+    }
+
+    public static void addNewMaterial(MainPanel mainPanel) {
+        final EditableModel current = mainPanel.currentMDL();
+        if (current != null) {
+            Material material = new Material();
+            final Bitmap white = new Bitmap("Textures\\White.dds");
+            white.setWrapHeight(true);
+            white.setWrapWidth(true);
+            material.getLayers().add(new Layer("None", white));
+            if (current.getFormatVersion() == 1000) {
+                material.makeHD();
+            }
+            current.add(material);
+            mainPanel.modelStructureChangeListener.materialsListChanged();
+        }
     }
 }

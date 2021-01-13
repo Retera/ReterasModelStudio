@@ -2271,30 +2271,31 @@ public class EditableModel implements Named {
 			}
 		}
 		for (final Material m : model.getMaterials()) {
-			m.setShaderString("Shader_HD_DefaultUnit");
-			if (m.getLayers().size() > 1) {
-				m.getLayers().add(m.getLayers().remove(0));
-			}
-			final Bitmap normTex = new Bitmap("ReplaceableTextures\\TeamColor\\TeamColor09.dds");
-			normTex.setWrapHeight(true);
-			normTex.setWrapWidth(true);
-			final Bitmap ormTex = new Bitmap("ReplaceableTextures\\TeamColor\\TeamColor18.dds");
-			ormTex.setWrapHeight(true);
-			ormTex.setWrapWidth(true);
-			m.getLayers().add(1, new Layer("None", normTex));
-			m.getLayers().add(2, new Layer("None", ormTex));
-			final Bitmap black32 = new Bitmap("Textures\\Black32.dds");
-			black32.setWrapHeight(true);
-			black32.setWrapWidth(true);
-			m.getLayers().add(3, new Layer("None", black32));
-			final Bitmap texture2 = new Bitmap("ReplaceableTextures\\EnvironmentMap.dds");
-			texture2.setWrapHeight(true);
-			texture2.setWrapWidth(true);
-			m.getLayers().add(4, new Layer("None", m.getLayers().get(0).getTextureBitmap()));
-			m.getLayers().add(5, new Layer("None", texture2));
-			for (final Layer l : m.getLayers()) {
-				l.setEmissive(1.0);
-			}
+			m.makeHD();
+//			m.setShaderString("Shader_HD_DefaultUnit");
+//			if (m.getLayers().size() > 1) {
+//				m.getLayers().add(m.getLayers().remove(0));
+//			}
+//			final Bitmap normTex = new Bitmap("ReplaceableTextures\\TeamColor\\TeamColor09.dds");
+//			normTex.setWrapHeight(true);
+//			normTex.setWrapWidth(true);
+//			final Bitmap ormTex = new Bitmap("ReplaceableTextures\\TeamColor\\TeamColor18.dds");
+//			ormTex.setWrapHeight(true);
+//			ormTex.setWrapWidth(true);
+//			m.getLayers().add(1, new Layer("None", normTex));
+//			m.getLayers().add(2, new Layer("None", ormTex));
+//			final Bitmap black32 = new Bitmap("Textures\\Black32.dds");
+//			black32.setWrapHeight(true);
+//			black32.setWrapWidth(true);
+//			m.getLayers().add(3, new Layer("None", black32));
+//			final Bitmap texture2 = new Bitmap("ReplaceableTextures\\EnvironmentMap.dds");
+//			texture2.setWrapHeight(true);
+//			texture2.setWrapWidth(true);
+//			m.getLayers().add(4, new Layer("None", m.getLayers().get(0).getTextureBitmap()));
+//			m.getLayers().add(5, new Layer("None", texture2));
+//			for (final Layer l : m.getLayers()) {
+//				l.setEmissive(1.0);
+//			}
 		}
 	}
 
@@ -2330,10 +2331,8 @@ public class EditableModel implements Named {
 
 				final double r = 1.0 / ((s1 * t2) - (s2 * t1));
 
-				final double[] sdir = { ((t2 * x1) - (t1 * x2)) * r, ((t2 * y1) - (t1 * y2)) * r,
-						((t2 * z1) - (t1 * z2)) * r };
-				final double[] tdir = { ((s1 * x2) - (s2 * x1)) * r, ((s1 * y2) - (s2 * y1)) * r,
-						((s1 * z2) - (s2 * z1)) * r };
+				final double[] sdir = {((t2 * x1) - (t1 * x2)) * r, ((t2 * y1) - (t1 * y2)) * r, ((t2 * z1) - (t1 * z2)) * r};
+				final double[] tdir = {((s1 * x2) - (s2 * x1)) * r, ((s1 * y2) - (s2 * y1)) * r, ((s1 * z2) - (s2 * z1)) * r};
 
 				tan1[face.getId(0)] = sdir;
 				tan1[face.getId(1)] = sdir;

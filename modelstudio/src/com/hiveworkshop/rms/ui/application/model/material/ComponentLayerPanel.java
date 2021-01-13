@@ -6,16 +6,13 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
-import com.hiveworkshop.rms.ui.application.actions.model.bitmap.SetBitmapPathAction;
+import com.hiveworkshop.rms.ui.application.actions.model.material.ChangeLayerStaticTextureAction;
 import com.hiveworkshop.rms.ui.application.actions.model.material.RemoveLayerAction;
 import com.hiveworkshop.rms.ui.application.actions.model.material.RemoveMaterialAction;
 import com.hiveworkshop.rms.ui.application.actions.model.material.SetLayerFilterModeAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
-import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
-import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorJSpinner;
-import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
-import com.hiveworkshop.rms.ui.application.model.editors.TimelineKeyNamer;
+import com.hiveworkshop.rms.ui.application.model.editors.*;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
 import net.miginfocom.swing.MigLayout;
 
@@ -34,6 +31,7 @@ public class ComponentLayerPanel extends JPanel {
 	private final JPanel texturePreviewPanel;
 	private JButton tVertexAnimButton;
 	private ComponentEditorJSpinner coordIdSpinner;
+	private TextureValuePanel texturePanel;
 	private FloatValuePanel alphaPanel;
 	private FloatValuePanel emissiveGainPanel;
 	private JPanel titlePanel;
@@ -69,20 +67,22 @@ public class ComponentLayerPanel extends JPanel {
 
 		final JLabel layerLabel = new JLabel("Layer");
 		titlePanel.add(layerLabel);
-		titlePanel.add(Box.createHorizontalGlue());
 		final JButton layerDeleteButton = getDeleteButton(layer);
-		titlePanel.add(layerDeleteButton);
 
 		if (hdShader) {
 			final String reforgedDefinition;
 			if (i < REFORGED_LAYER_DEFINITIONS.length) {
 				reforgedDefinition = REFORGED_LAYER_DEFINITIONS[i];
 			} else {
+				titlePanel.add(Box.createHorizontalGlue());
+				titlePanel.add(layerDeleteButton);
 				reforgedDefinition = "Unknown";
 			}
 			layerLabel.setText(reforgedDefinition + " Layer");
 			layerLabel.setFont(layerLabel.getFont().deriveFont(Font.BOLD));
 		} else {
+			titlePanel.add(Box.createHorizontalGlue());
+			titlePanel.add(layerDeleteButton);
 			layerLabel.setText("Layer " + (i + 1));
 			layerLabel.setFont(layerLabel.getFont().deriveFont(Font.PLAIN));
 		}
@@ -131,7 +131,7 @@ public class ComponentLayerPanel extends JPanel {
 
 		leftHandSettingsPanel.add(new JLabel("Texture:"));
 		textureChooser = new JComboBox<String>(getTextures(model));
-		textureChooser.addActionListener(e -> chooseTexture(model));
+		textureChooser.addActionListener(e -> chooseTexture());
 		leftHandSettingsPanel.add(textureChooser, "wrap, growx");
 
 		leftHandSettingsPanel.add(new JLabel("TVertex Anim:"));
@@ -143,6 +143,10 @@ public class ComponentLayerPanel extends JPanel {
 		coordIdSpinner.addEditingStoppedListener(this::setCoordId);
 		leftHandSettingsPanel.add(coordIdSpinner, "wrap, growx");
 
+		texturePanel = new TextureValuePanel("Texture", undoActionListener, modelStructureChangeListener, model);
+		texturePanel.setKeyframeHelper(new TimelineKeyNamer(model));
+		leftHandSettingsPanel.add(texturePanel, "wrap, span 2, growx");
+
 //		alphaPanel = new FloatValuePanel("Alpha", undoActionListener, modelStructureChangeListener);
 //		alphaPanel.setKeyframeHelper(new TimelineKeyNamer(model));
 //		leftHandSettingsPanel.add(alphaPanel, "wrap, span 2");
@@ -150,30 +154,35 @@ public class ComponentLayerPanel extends JPanel {
 		alphaPanel.setKeyframeHelper(new TimelineKeyNamer(model));
 		alphaScrollPane = new JScrollPane(alphaPanel);
 		alphaScrollPane.setMaximumSize(new Dimension(700, 300));
+		alphaScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		leftHandSettingsPanel.add(alphaScrollPane, "wrap, span 2, growx");
 
 		emissiveGainPanel = new FloatValuePanel("Emissive Gain", undoActionListener, modelStructureChangeListener);
 		emissiveGainPanel.setKeyframeHelper(new TimelineKeyNamer(model));
 		emissiveGainScrollPane = new JScrollPane(emissiveGainPanel);
 		emissiveGainScrollPane.setMaximumSize(new Dimension(700, 300));
+		emissiveGainScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		leftHandSettingsPanel.add(emissiveGainScrollPane, "wrap, span 2, growx, hidemode 2");
 
 		fresnelColorPanel = new ColorValuePanel("Fresnel Color", undoActionListener, modelStructureChangeListener);
 		fresnelColorPanel.setKeyframeHelper(new TimelineKeyNamer(model));
 		fresnelColorScrollPane = new JScrollPane(fresnelColorPanel);
 		fresnelColorScrollPane.setMaximumSize(new Dimension(700, 300));
+		fresnelColorScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		leftHandSettingsPanel.add(fresnelColorScrollPane, "wrap, span 2, growx, hidemode 2");
 
 		fresnelOpacityPanel = new FloatValuePanel("Fresnel Opacity", undoActionListener, modelStructureChangeListener);
 		fresnelOpacityPanel.setKeyframeHelper(new TimelineKeyNamer(model));
 		fresnelOpacityScrollPane = new JScrollPane(fresnelOpacityPanel);
 		fresnelOpacityScrollPane.setMaximumSize(new Dimension(700, 300));
+		fresnelOpacityScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		leftHandSettingsPanel.add(fresnelOpacityScrollPane, "wrap, span 2, growx, hidemode 2");
 
 		fresnelTeamColor = new FloatValuePanel("Fresnel Team Color", undoActionListener, modelStructureChangeListener);
 		fresnelTeamColor.setKeyframeHelper(new TimelineKeyNamer(model));
 		fresnelTeamColorScrollPane = new JScrollPane(fresnelTeamColor);
 		fresnelTeamColorScrollPane.setMaximumSize(new Dimension(700, 300));
+		fresnelTeamColorScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		leftHandSettingsPanel.add(fresnelTeamColorScrollPane, "wrap, span 2, growx, hidemode 2");
 	}
 
@@ -198,16 +207,13 @@ public class ComponentLayerPanel extends JPanel {
 		}
 	}
 
-	private void chooseTexture(EditableModel model) {
+	private void chooseTexture() {
 		if (listenersEnabled) {
 			Bitmap bitmap = bitmapListModel.get(textureChooser.getSelectedIndex());
 
-			final SetBitmapPathAction setBitmapPathAction = new SetBitmapPathAction(bitmap, layer.getTextureBitmap().getPath(), bitmap.getPath(), modelStructureChangeListener);
-			// TODO this is probably not done right...
-			layer.setTexture(bitmap);
-			layer.setTextureId(textureChooser.getSelectedIndex());
-			setBitmapPathAction.redo();
-			undoActionListener.pushAction(setBitmapPathAction);
+			ChangeLayerStaticTextureAction changeLayerStaticTextureAction = new ChangeLayerStaticTextureAction(bitmap, layer, modelStructureChangeListener);
+			changeLayerStaticTextureAction.redo();
+			undoActionListener.pushAction(changeLayerStaticTextureAction);
 		}
 	}
 
@@ -228,6 +234,9 @@ public class ComponentLayerPanel extends JPanel {
 
 		coordIdSpinner.reloadNewValue(layer.getCoordId());
 		tVertexAnimButton.setText(layer.getTextureAnim() == null ? "None" : layer.getTextureAnim().getFlagNames());
+
+		texturePanel.reloadNewValue(layer.getTextureId(), layer.find("TextureID"), layer, "TextureID", layer::setTextureId);
+
 		alphaPanel.reloadNewValue((float) layer.getStaticAlpha(), layer.find("Alpha"), layer, "Alpha", layer::setStaticAlpha);
 
 

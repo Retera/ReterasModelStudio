@@ -452,6 +452,11 @@ public class MenuBar {
         createAndAddMenuItem("From Model", singleAnimationMenu, KeyEvent.VK_M, e -> AddSingleAnimationActions.addAnimFromModel(mainPanel));
 
         createAndAddMenuItem("From Object", singleAnimationMenu, KeyEvent.VK_O, e -> AddSingleAnimationActions.addAnimationFromObject(mainPanel));
+
+        createAndAddMenuItem("Material", addMenu, KeyEvent.VK_M, e -> MenuBarActions.addNewMaterial(mainPanel));
+//        JMenu addMaterial = new JMenu("Material");
+//        addMaterial.setMnemonic(KeyEvent.VK_M);
+//        addMenu.add(addMaterial);
     }
 
     private static void fillScriptsMenu(MainPanel mainPanel, JMenu scriptsMenu) {

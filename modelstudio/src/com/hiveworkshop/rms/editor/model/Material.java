@@ -404,4 +404,36 @@ public class Material {
 
 		return combined;
 	}
+
+	public void makeHD() {
+		setShaderString("Shader_HD_DefaultUnit");
+		if (getLayers().size() > 1) {
+			getLayers().add(getLayers().remove(0));
+		} else if (getLayers().size() == 0) {
+			final Bitmap white = new Bitmap("Textures\\White.dds");
+			white.setWrapHeight(true);
+			white.setWrapWidth(true);
+			getLayers().add(new Layer("None", white));
+		}
+		final Bitmap normTex = new Bitmap("ReplaceableTextures\\TeamColor\\TeamColor09.dds");
+		normTex.setWrapHeight(true);
+		normTex.setWrapWidth(true);
+		final Bitmap ormTex = new Bitmap("ReplaceableTextures\\TeamColor\\TeamColor18.dds");
+		ormTex.setWrapHeight(true);
+		ormTex.setWrapWidth(true);
+		getLayers().add(1, new Layer("None", normTex));
+		getLayers().add(2, new Layer("None", ormTex));
+		final Bitmap black32 = new Bitmap("Textures\\Black32.dds");
+		black32.setWrapHeight(true);
+		black32.setWrapWidth(true);
+		getLayers().add(3, new Layer("None", black32));
+		final Bitmap texture2 = new Bitmap("ReplaceableTextures\\EnvironmentMap.dds");
+		texture2.setWrapHeight(true);
+		texture2.setWrapWidth(true);
+		getLayers().add(4, new Layer("None", getLayers().get(0).getTextureBitmap()));
+		getLayers().add(5, new Layer("None", texture2));
+		for (final Layer l : getLayers()) {
+			l.setEmissive(1.0);
+		}
+	}
 }

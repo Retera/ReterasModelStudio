@@ -6,7 +6,7 @@ import javax.swing.table.AbstractTableModel;
 
 public class FloatTrackTableModel extends AbstractTableModel {
 	private AnimFlag track;
-	private String[] lastButtons = {"X", null};
+	private Object[] lastButtons = {"X", null};
 	private String[] lastButtonstitle = {"", null};
 	private Class<?>[] lastButtonsClazz = {Integer.class, null};
 	private Class<?> valueClazz = Float.class;
@@ -129,8 +129,10 @@ public class FloatTrackTableModel extends AbstractTableModel {
 //					uggB.addActionListener(e -> ugg());
 //					yield uggB;}
 //				case 2 -> new JButton("X");
-				case 2 -> lastButtons[0];
-				case 3 -> lastButtons[1];
+//				case 2 -> lastButtons[0];
+//				case 3 -> lastButtons[1];
+				case 2 -> getLbtValue(0, rowIndex);
+				case 3 -> getLbtValue(1, rowIndex);
 				default -> null;
 			};
 		}
@@ -145,10 +147,10 @@ public class FloatTrackTableModel extends AbstractTableModel {
 		}
 	}
 
-	@Override
-	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-//		System.out.println("value: " + aValue + ", row: " + rowIndex + ", col: " + columnIndex);
-	}
+//	@Override
+//	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+////		System.out.println("value: " + aValue + ", row: " + rowIndex + ", col: " + columnIndex);
+//	}
 
 	public void setTrack(final AnimFlag track) {
 		this.track = track;
@@ -160,7 +162,7 @@ public class FloatTrackTableModel extends AbstractTableModel {
 //		System.out.println("X");
 //	}
 
-	public void addExtraColumn(String title, String fill, Class<?> clazz) {
+	public void addExtraColumn(String title, Object fill, Class<?> clazz) {
 //		System.out.println("addExtraColumn");
 		if (lastButtons[1] == null) {
 //			System.out.println(fill);
@@ -210,6 +212,26 @@ public class FloatTrackTableModel extends AbstractTableModel {
 
 	private String getLbt(int i) {
 		return lastButtonstitle[i];
+	}
+
+	private String getLbtValue(int i, int index) {
+		if (lastButtons[i].getClass() == String.class) {
+			return (String) lastButtons[i];
+//		} else if(lastButtons[i].getClass() == ArrayList.class){
+		} else if (lastButtons[i].getClass() == String[].class) {
+//			List<String> buttonValues = (ArrayList<String>) lastButtons[i];
+			String[] bv = (String[]) lastButtons[i];
+			if (bv.length > index) {
+				return bv[index];
+			}
+		}
+		return "";
+	}
+
+	public void updateExtraButtonValues(Object values) {
+		if (lastButtons[1] != null) {
+			lastButtons[0] = values;
+		}
 	}
 
 	private Class<?> getLbtClass(int i) {

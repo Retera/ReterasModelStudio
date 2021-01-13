@@ -45,6 +45,8 @@ public abstract class ValuePanel<T> extends JPanel {
 	protected boolean doSave;
 	protected String preEditValue;
 
+	protected int selectNewIndex = -1;
+
 	protected Consumer<T> valueSettingFunction;
 
 	public ValuePanel(final String title, UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener) {
@@ -314,6 +316,10 @@ public abstract class ValuePanel<T> extends JPanel {
 //		System.out.println("colums: " + keyframeTable.getModel().getColumnCount());
 		reloadStaticValue(value);
 		setTableModel();
+		if (selectNewIndex != -1 && selectNewIndex < keyframeTable.getRowCount()) {
+			keyframeTable.setRowSelectionInterval(selectNewIndex, selectNewIndex);
+			selectNewIndex = -1;
+		}
 //		System.out.println("colums: " + keyframeTable.getColumnCount());
 	}
 
@@ -431,12 +437,12 @@ public abstract class ValuePanel<T> extends JPanel {
 		AnimFlag.Entry entry = animFlag.getEntry(row);
 		int orgTime = animFlag.getTimes().get(row);
 		T tValue = parseValue(val);
-		int iValue = Integer.parseInt(val.replaceAll("\\D", ""));
+		String intString = val.replaceAll("[^\\d.]", "").split("\\.")[0];
+		intString = intString.substring(0, Math.min(intString.length(), 10));
+		int iValue = Integer.parseInt(intString);
 
 		switch (field) {
-			case "Keyframe" -> {
-				entry.time = iValue;
-			}
+			case "Keyframe" -> entry.time = iValue;
 			case "Value" -> entry.value = tValue;
 			case "InTan" -> entry.inTan = tValue;
 			case "OutTan" -> entry.outTan = tValue;
@@ -446,8 +452,10 @@ public abstract class ValuePanel<T> extends JPanel {
 		undoActionListener.pushAction(undoAction);
 		undoAction.redo();
 
-		revalidate();
-		repaint();
+//		revalidate();
+//		repaint();
+
+		selectNewIndex = animFlag.ceilIndex(entry.time);
 	}
 
 }

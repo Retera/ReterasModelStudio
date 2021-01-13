@@ -301,7 +301,7 @@ public class AnimFlag {
 			vectorSize = 3;
 		} else if (value instanceof Vec4) {
 			vectorSize = 4;
-		} else if (value.getClass().getName().equals("java.lang.Float")) {
+		} else if (value.getClass().getName().equals("java.lang.Float") || value.getClass().getName().equals("java.lang.Integer")) {
 			vectorSize = 1;
 		} else {
 			isFloat = false;

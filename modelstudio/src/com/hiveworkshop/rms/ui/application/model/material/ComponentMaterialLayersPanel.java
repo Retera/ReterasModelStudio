@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.ui.application.actions.model.material.AddLayerAction;
+import com.hiveworkshop.rms.ui.application.actions.model.material.RemoveMaterialAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import net.miginfocom.swing.MigLayout;
@@ -19,20 +20,29 @@ public class ComponentMaterialLayersPanel extends JPanel {
 	private static final Color HIGHLIGHT_BUTTON_BACKGROUND_COLOR = new Color(100, 118, 135);
 	private Material material;
 	private UndoActionListener undoActionListener;
+	private ModelViewManager modelViewManager;
 	private ModelStructureChangeListener modelStructureChangeListener;
 	private final JPanel layerPanelsHolder;
-	private final JPanel twoSidedBoxHolder;
 	private final Map<String, ComponentLayerPanel> layerPanelMap;
 
 	private final JCheckBox twoSided;
 
 	public ComponentMaterialLayersPanel() {
 		setLayout(new MigLayout("fill", "[][][grow]"));
+
+		JPanel twoSidedBoxHolder = new JPanel(new MigLayout("fill", "[grow]"));
+		add(twoSidedBoxHolder, "growx, span 3, wrap");
+
 		twoSided = new JCheckBox("TwoSided", false);
 		twoSided.addActionListener(e -> setTwoSided());
+		twoSidedBoxHolder.add(twoSided);
 
-		twoSidedBoxHolder = new JPanel(new MigLayout("fill", "[grow]"));
-		add(twoSidedBoxHolder, "growx, span 3, wrap");
+		JButton deleteMaterialButton = new JButton("Delete");
+		deleteMaterialButton.setBackground(Color.RED);
+		deleteMaterialButton.setForeground(Color.WHITE);
+		deleteMaterialButton.addActionListener(e -> deleteMaterial());
+		twoSidedBoxHolder.add(deleteMaterialButton, "right");
+
 //		add(twoSided, "wrap");
 		layerPanelMap = new HashMap<>();
 		layerPanelsHolder = new JPanel(new MigLayout("fill", "[grow]"));
@@ -55,16 +65,14 @@ public class ComponentMaterialLayersPanel extends JPanel {
 	public void setMaterial(final Material material, final ModelViewManager modelViewManager,
 	                        final UndoActionListener undoActionListener,
 	                        final ModelStructureChangeListener modelStructureChangeListener) {
-//		System.out.println("Reloading ComponentMaterialLayersPanel");
-//		System.out.println(material);
 		this.material = material;
 		this.undoActionListener = undoActionListener;
+		this.modelViewManager = modelViewManager;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		final boolean hdShader = Material.SHADER_HD_DEFAULT_UNIT.equals(material.getShaderString());
-		twoSidedBoxHolder.removeAll();
+		twoSided.setVisible(hdShader);
 		if (hdShader) {
 			twoSided.setSelected(material.getTwoSided());
-			twoSidedBoxHolder.add(twoSided);
 		} else {
 			twoSided.setSelected(false);
 		}
@@ -103,6 +111,14 @@ public class ComponentMaterialLayersPanel extends JPanel {
 
 	private void setTwoSided() {
 		material.setTwoSided(twoSided.isSelected());
+	}
+
+	private void deleteMaterial() {
+		if (!modelViewManager.getModel().getMaterials().isEmpty()) {
+			RemoveMaterialAction removeMaterialAction = new RemoveMaterialAction(material, modelViewManager, modelStructureChangeListener);
+			undoActionListener.pushAction(removeMaterialAction);
+			removeMaterialAction.redo();
+		}
 	}
 
 }
