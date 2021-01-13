@@ -408,7 +408,7 @@ public class MenuBar {
 
         createAndAddMenuItem("Footer", viewsMenu, OpenViewAction.getOpenViewAction(mainPanel.rootWindow, "Footer", mainPanel.timeSliderView));
 
-        createAndAddMenuItem("Matrix Eater Script", viewsMenu, KeyEvent.VK_H, KeyStroke.getKeyStroke("control P"), OpenViewAction.getOpenViewAction(mainPanel.rootWindow, "Matrix Eater Script", mainPanel.hackerView));
+        createAndAddMenuItem("Matrix Eater Script", viewsMenu, KeyEvent.VK_H, KeyStroke.getKeyStroke("control P"), OpenViewAction.getOpenViewAction(mainPanel.rootWindow, "Matrix Eater Script", ScriptView.createHackerView(mainPanel)));
 
         final JMenu browsersMenu = createMenu("Browsers", KeyEvent.VK_B);
         windowMenu.add(browsersMenu);
@@ -438,6 +438,8 @@ public class MenuBar {
         JMenu animationMenu = new JMenu("Animation");
         animationMenu.setMnemonic(KeyEvent.VK_A);
         addMenu.add(animationMenu);
+
+        createAndAddMenuItem("Empty", animationMenu, KeyEvent.VK_F, e -> AddSingleAnimationActions.addEmptyAnimation(mainPanel));
 
         createAndAddMenuItem("Rising/Falling Birth/Death", animationMenu, KeyEvent.VK_R, e -> AddBirthDeathSequences.riseFallBirthActionRes(mainPanel));
 

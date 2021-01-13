@@ -467,12 +467,13 @@ public class AnimFlag {
 	}
 
 	public void addEntry(Entry entry) {
-		times.add(entry.time);
-		values.add(entry.value);
+		int keyframeIndex = getKeyframeCeilIndex(entry.time);
+		times.add(keyframeIndex, entry.time);
+		values.add(keyframeIndex, entry.value);
 
 		if (entry.inTan != null && entry.outTan != null) {
-			inTans.add(entry.inTan);
-			outTans.add(entry.outTan);
+			inTans.add(keyframeIndex, entry.inTan);
+			outTans.add(keyframeIndex, entry.outTan);
 		}
 	}
 
@@ -1255,7 +1256,11 @@ public class AnimFlag {
 		}
 	}
 
-	public void addKeyframe(final int trackTime, final Object value) {
+	public void addKeyframe(final Entry entry) {
+		addEntry(entry);
+	}
+
+	private int getKeyframeCeilIndex(int trackTime) {
 		int keyframeIndex = ceilIndex(trackTime);
 		if (keyframeIndex == (times.size() - 1)) {
 			if (times.isEmpty()) {
@@ -1264,19 +1269,17 @@ public class AnimFlag {
 				keyframeIndex = times.size();
 			}
 		}
+		return keyframeIndex;
+	}
+
+	public void addKeyframe(final int trackTime, final Object value) {
+		int keyframeIndex = getKeyframeCeilIndex(trackTime);
 		times.add(keyframeIndex, trackTime);
 		values.add(keyframeIndex, value);
 	}
 
 	public void addKeyframe(final int trackTime, final Object value, final Object inTan, final Object outTan) {
-		int keyframeIndex = ceilIndex(trackTime);
-		if (keyframeIndex == (times.size() - 1)) {
-			if (times.isEmpty()) {
-				keyframeIndex = 0;
-			} else if (trackTime > times.get(times.size() - 1)) {
-				keyframeIndex = times.size();
-			}
-		}
+		int keyframeIndex = getKeyframeCeilIndex(trackTime);
 		times.add(keyframeIndex, trackTime);
 		values.add(keyframeIndex, value);
 		inTans.add(keyframeIndex, inTan);
@@ -1314,11 +1317,14 @@ public class AnimFlag {
 		}
 		final int startIndex = floorIndex(startTrackTime);
 		final int endIndex = floorIndex(endTrackTime);
-		if (times.get(endIndex) == endTrackTime) {
-			throw new IllegalStateException("Sliding this keyframe would create duplicate entries at one time!");
+		if (endIndex != -1 && startIndex != -1) {
+			if (times.get(endIndex) == endTrackTime) {
+				throw new IllegalStateException("Sliding this keyframe would create duplicate entries at one time!");
+			} else {
+				times.set(startIndex, endTrackTime);
+				sort();
+			}
 		}
-		times.set(startIndex, endTrackTime);
-		sort();
 	}
 
 	public void setName(final String title) {

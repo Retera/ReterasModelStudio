@@ -1,26 +1,21 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.edit.ClonedNodeNamePickerImplementation;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.RedoActionImplementation;
 import com.hiveworkshop.rms.ui.application.edit.UndoActionImplementation;
 import com.hiveworkshop.rms.ui.application.edit.animation.ControllableTimeBoundProvider;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundChooserPanel;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderPanel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ActivityDescriptor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorChangeActivityListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ActiveViewportWatcher;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanelCloseListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.CreatorModelingPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
@@ -31,7 +26,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarActionButtonType;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
-import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.preferences.listeners.WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier;
@@ -44,13 +38,7 @@ import net.infonode.docking.util.StringViewMap;
 import net.infonode.tabbedpanel.TabAreaVisiblePolicy;
 import net.infonode.tabbedpanel.titledtab.TitledTabBorderSizePolicy;
 import net.infonode.tabbedpanel.titledtab.TitledTabSizePolicy;
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
-import org.fife.ui.rtextarea.RTextScrollPane;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -84,7 +72,7 @@ public class MainPanel extends JPanel
     ModelPanel currentModelPanel;
     View frontView, leftView, bottomView, perspectiveView;
     final View timeSliderView;
-    final View hackerView;
+//    final View hackerView;
     final View previewView;
     final View creatorView;
     final View animationControllerView;
@@ -131,7 +119,6 @@ public class MainPanel extends JPanel
     }
 
     int contextClickedTab = 0;
-    JPopupMenu contextMenu;
     public AbstractAction undoAction = new UndoActionImplementation("Undo", this);
     public AbstractAction redoAction = new RedoActionImplementation("Redo", this);
     ClonedNodeNamePicker namePicker = new ClonedNodeNamePickerImplementation(this);
@@ -286,24 +273,24 @@ public class MainPanel extends JPanel
             divider[i] = new JLabel("----------");
         }
 
-        createMouseCoordDisp(mouseCoordDisplay);
+        TimeSliderViewThing.createMouseCoordDisp(mouseCoordDisplay);
 
         modelStructureChangeListener = ModelStructureChangeListenerImplementation.getModelStructureChangeListener(this);
         animatedRenderEnvironment = new TimeEnvironmentImpl();
         blpPanel = new ZoomableImagePreviewPanel(null);
 
-        createTimeSliderPanel(this);
+        TimeSliderViewThing.createTimeSliderPanel(this);
 
         animatedRenderEnvironment.addChangeListener((start, end) -> animatedRenderEnvChangeResult(MainPanel.this, start, end));
 
-        setKeyframe = createSetKeyframeButton(this);
+        setKeyframe = TimeSliderViewThing.createSetKeyframeButton(this);
 
-        setTimeBounds = createSetTimeBoundsButton(this);
+        setTimeBounds = TimeSliderViewThing.createSetTimeBoundsButton(this);
 
         animationModeButton = new ModeButton("Animate");
         animationModeButton.setVisible(false);// TODO remove this if unused
 
-        createContextMenuPopup();
+        ClosePopup.createContextMenuPopup(this);
 
         modelPanels = new ArrayList<>();
         final JPanel toolsPanel = new JPanel();
@@ -339,9 +326,9 @@ public class MainPanel extends JPanel
 
         previewView = new View("Preview", null, new JPanel());
 
-        timeSliderView = createTimeSliderView(mouseCoordDisplay, setKeyframe, setTimeBounds, timeSliderPanel);
+        timeSliderView = TimeSliderViewThing.createTimeSliderView(mouseCoordDisplay, setKeyframe, setTimeBounds, timeSliderPanel);
 
-        hackerView = createHackerView(this);
+//        hackerView = ScriptView.createHackerView(this);
 
         creatorPanel = new CreatorModelingPanel(newType -> {
             actionTypeGroup.maybeSetButtonType(newType);
@@ -378,7 +365,7 @@ public class MainPanel extends JPanel
         actionTypeGroup.addToolbarButtonListener(this::actionTypeGroupActionRes);
         actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
         viewportTransferHandler = new ViewportTransferHandler();
-        coordDisplayListener = (dim1, dim2, value1, value2) -> setMouseCoordDisplay(mouseCoordDisplay, dim1, dim2, value1, value2);
+        coordDisplayListener = (dim1, dim2, value1, value2) -> TimeSliderViewThing.setMouseCoordDisplay(mouseCoordDisplay, dim1, dim2, value1, value2);
     }
 
     private void actionTypeGroupActionRes(ToolbarActionButtonType newType) {
@@ -405,107 +392,6 @@ public class MainPanel extends JPanel
         repaint();
     }
 
-    private void createContextMenuPopup() {
-        contextMenu = new JPopupMenu();
-        JMenuItem contextClose = new JMenuItem("Close");
-        contextClose.addActionListener(this);
-        contextMenu.add(contextClose);
-
-        JMenuItem contextCloseOthers = new JMenuItem("Close Others");
-        contextCloseOthers.addActionListener(e -> MenuBarActions.closeOthers(this, currentModelPanel));
-        contextMenu.add(contextCloseOthers);
-
-        JMenuItem contextCloseAll = new JMenuItem("Close All");
-        contextCloseAll.addActionListener(e -> MenuBar.closeAll(this));
-        contextMenu.add(contextCloseAll);
-    }
-
-    private static View createTimeSliderView(JTextField[] mouseCoordDisplay, JButton setKeyframe, JButton setTimeBounds, TimeSliderPanel timeSliderPanel) {
-        final View timeSliderView;
-        final JPanel timeSliderAndExtra = new JPanel();
-        final GroupLayout tsaeLayout = new GroupLayout(timeSliderAndExtra);
-        final Component horizontalGlue = Box.createHorizontalGlue();
-        final Component verticalGlue = Box.createVerticalGlue();
-        tsaeLayout.setHorizontalGroup(tsaeLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                .addComponent(timeSliderPanel)
-                .addGroup(tsaeLayout.createSequentialGroup()
-                        .addComponent(mouseCoordDisplay[0])
-                        .addComponent(mouseCoordDisplay[1])
-                        .addComponent(mouseCoordDisplay[2])
-                        .addComponent(horizontalGlue)
-                        .addComponent(setKeyframe)
-                        .addComponent(setTimeBounds)));
-        tsaeLayout.setVerticalGroup(tsaeLayout.createSequentialGroup()
-                .addComponent(timeSliderPanel)
-                .addGroup(tsaeLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
-                        .addComponent(mouseCoordDisplay[0])
-                        .addComponent(mouseCoordDisplay[1])
-                        .addComponent(mouseCoordDisplay[2])
-                        .addComponent(horizontalGlue)
-                        .addComponent(setKeyframe)
-                        .addComponent(setTimeBounds)));
-        timeSliderAndExtra.setLayout(tsaeLayout);
-
-        timeSliderView = new View("Footer", null, timeSliderAndExtra);
-        return timeSliderView;
-    }
-
-    private static JButton createSetKeyframeButton(MainPanel mainPanel) {
-        final JButton setKeyframe;
-        setKeyframe = new JButton(RMSIcons.setKeyframeIcon);
-        setKeyframe.setMargin(new Insets(0, 0, 0, 0));
-        setKeyframe.setToolTipText("Create Keyframe");
-        setKeyframe.addActionListener(e -> createKeyframe(mainPanel));
-        return setKeyframe;
-    }
-
-    private static void createKeyframe(MainPanel mainPanel) {
-        final ModelPanel mpanel = mainPanel.currentModelPanel();
-        if (mpanel != null) {
-            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().createKeyframe(mainPanel.actionType));
-        }
-        repaintSelfAndChildren(mainPanel);
-        mpanel.repaintSelfAndRelatedChildren();
-    }
-
-    private static void createMouseCoordDisp(JTextField[] mouseCoordDisplay) {
-        for (int i = 0; i < mouseCoordDisplay.length; i++) {
-            mouseCoordDisplay[i] = new JTextField("");
-            mouseCoordDisplay[i].setMaximumSize(new Dimension(80, 18));
-            mouseCoordDisplay[i].setMinimumSize(new Dimension(50, 15));
-            mouseCoordDisplay[i].setEditable(false);
-        }
-    }
-
-    private static JButton createSetTimeBoundsButton(MainPanel mainPanel) {
-        final JButton setTimeBounds;
-        setTimeBounds = new JButton(RMSIcons.setTimeBoundsIcon);
-        setTimeBounds.setMargin(new Insets(0, 0, 0, 0));
-        setTimeBounds.setToolTipText("Choose Time Bounds");
-        setTimeBounds.addActionListener(e -> timeBoundsChooserPanel(mainPanel));
-        return setTimeBounds;
-    }
-
-    private static void timeBoundsChooserPanel(MainPanel mainPanel) {
-        final TimeBoundChooserPanel timeBoundChooserPanel = new TimeBoundChooserPanel(
-                mainPanel.currentModelPanel() == null ? null : mainPanel.currentModelPanel().getModelViewManager(),
-                mainPanel.modelStructureChangeListener);
-        final int confirmDialogResult = JOptionPane.showConfirmDialog(mainPanel, timeBoundChooserPanel,
-                "Set Time Bounds", JOptionPane.OK_CANCEL_OPTION);
-        if (confirmDialogResult == JOptionPane.OK_OPTION) {
-            timeBoundChooserPanel.applyTo(mainPanel.animatedRenderEnvironment);
-            if (mainPanel.currentModelPanel() != null) {
-                mainPanel.currentModelPanel().getEditorRenderModel().refreshFromEditor(
-                        mainPanel.animatedRenderEnvironment,
-                        ModelStructureChangeListenerImplementation.IDENTITY,
-                        ModelStructureChangeListenerImplementation.IDENTITY,
-                        ModelStructureChangeListenerImplementation.IDENTITY,
-                        mainPanel.currentModelPanel().getPerspArea().getViewport());
-                mainPanel.currentModelPanel().getEditorRenderModel().updateNodes(true, false);
-            }
-        }
-    }
-
     private static void animatedRenderEnvChangeResult(MainPanel mainPanel, int start, int end) {
         final Integer globalSeq = mainPanel.animatedRenderEnvironment.getGlobalSeq();
         if (globalSeq != null) {
@@ -527,66 +413,6 @@ public class MainPanel extends JPanel
             }
 
         }
-    }
-
-    private static void createTimeSliderPanel(MainPanel mainPanel) {
-        mainPanel.timeSliderPanel = new TimeSliderPanel(mainPanel.animatedRenderEnvironment, mainPanel.modelStructureChangeListener,
-                mainPanel.prefs);
-        mainPanel.timeSliderPanel.setDrawing(false);
-        mainPanel.timeSliderPanel.addListener(currentTime -> {
-            mainPanel.animatedRenderEnvironment
-                    .setCurrentTime(currentTime - mainPanel.animatedRenderEnvironment.getStart());
-            if (mainPanel.currentModelPanel() != null) {
-                mainPanel.currentModelPanel().getEditorRenderModel().updateNodes(true, false);
-                mainPanel.currentModelPanel().repaintSelfAndRelatedChildren();
-            }
-        });
-//		timeSliderPanel.addListener(creatorPanel);
-    }
-
-    private static View createHackerView(final MainPanel mainPanel) {
-        final View hackerView;
-        final JPanel hackerPanel = new JPanel(new BorderLayout());
-        final RSyntaxTextArea matrixEaterScriptTextArea = new RSyntaxTextArea(20, 60);
-        matrixEaterScriptTextArea.setCodeFoldingEnabled(true);
-        matrixEaterScriptTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
-        hackerPanel.add(new RTextScrollPane(matrixEaterScriptTextArea), BorderLayout.CENTER);
-
-        ImageIcon icon = new ImageIcon(BLPHandler.get()
-                .getGameTex("ReplaceableTextures\\CommandButtons\\BTNReplay-Play.blp")
-                .getScaledInstance(24, 24, Image.SCALE_FAST));
-        final JButton run = new JButton("Run", icon);
-        run.addActionListener(showScriptViewAction(mainPanel, matrixEaterScriptTextArea));
-        hackerPanel.add(run, BorderLayout.NORTH);
-        hackerView = new View("Matrix Eater Script", null, hackerPanel);
-        return hackerView;
-    }
-
-    private static ActionListener showScriptViewAction(MainPanel mainPanel, RSyntaxTextArea matrixEaterScriptTextArea) {
-        return new ActionListener() {
-            final ScriptEngineManager factory = new ScriptEngineManager();
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                final String text = matrixEaterScriptTextArea.getText();
-                final ScriptEngine engine = factory.getEngineByName("JavaScript");
-                final ModelPanel modelPanel = mainPanel.currentModelPanel();
-                if (modelPanel != null) {
-                    engine.put("modelPanel", modelPanel);
-                    engine.put("model", modelPanel.getModel());
-                    engine.put("world", mainPanel);
-                    try {
-                        engine.eval(text);
-                    } catch (final ScriptException e1) {
-                        e1.printStackTrace();
-                        JOptionPane.showMessageDialog(mainPanel, e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(mainPanel, "Must open a file!", "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        };
     }
 
     private static DockingWindowListener getDockingWindowListener2(Runnable fixit) {
@@ -731,7 +557,7 @@ public class MainPanel extends JPanel
                     if (dockingWindow instanceof View) {
                         final Component component = ((View) dockingWindow).getComponent();
                         if (component instanceof JComponent) {
-                            linkActions(mainPanel, ((JComponent) component).getRootPane());
+                            MainPanelLinkActions.linkActions(mainPanel, ((JComponent) component).getRootPane());
                         }
                     }
                 }));
@@ -830,322 +656,11 @@ public class MainPanel extends JPanel
 
     public void init() {
         final JRootPane root = getRootPane();
-        linkActions(this, root);
+        MainPanelLinkActions.linkActions(this, root);
 
         MenuBarActions.updateUIFromProgramPreferences(fetchPortraitsToo, modelPanels, prefs, showNormals, showVertexModifyControls, solid, textureModels, wireframe);
     }
 
-    private static void linkActions(final MainPanel mainPanel, final JComponent root) {
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control Z"),"Undo");
-        root.getActionMap().put("Undo", mainPanel.undoAction);
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control Y"), "Redo");
-        root.getActionMap().put("Redo", mainPanel.redoAction);
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("DELETE"), "Delete");
-        root.getActionMap().put("Delete", mainPanel.deleteAction);
-
-        root.getActionMap().put("CloneSelection", mainPanel.cloneAction);
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("SPACE"), "MaximizeSpacebar");
-        root.getActionMap().put("MaximizeSpacebar", maximizeSpacebarAction(mainPanel));
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("RIGHT"), "PressRight");
-        root.getActionMap().put("PressRight", pressRightAction(mainPanel));
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("LEFT"), "PressLeft");
-        root.getActionMap().put("PressLeft", pressLeftAction(mainPanel));
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("UP"), "PressUp");
-        root.getActionMap().put("PressUp", jumpFramesAction(mainPanel, 1));
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("shift UP"), "PressShiftUp");
-        root.getActionMap().put("PressShiftUp", jumpFramesAction(mainPanel, 10));
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("DOWN"), "PressDown");
-        root.getActionMap().put("PressDown", jumpFramesAction(mainPanel, -1));
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("shift DOWN"), "PressShiftDown");
-        root.getActionMap().put("PressShiftDown", jumpFramesAction(mainPanel, -10));
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control SPACE"), "PlayKeyboardKey");
-        root.getActionMap().put("PlayKeyboardKey", playKeyboardKeyAction(mainPanel));
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("W"), "QKeyboardKey");
-        root.getActionMap().put("QKeyboardKey", actionShortcutAction(mainPanel, 0));
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("E"), "WKeyboardKey");
-        root.getActionMap().put("WKeyboardKey", actionShortcutAction(mainPanel, 1));
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("R"), "EKeyboardKey");
-        root.getActionMap().put("EKeyboardKey", actionShortcutAction(mainPanel, 2));
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("T"), "RKeyboardKey");
-        root.getActionMap().put("RKeyboardKey", notAnimationActionShortcutAction(mainPanel, 3));
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("Y"), "TKeyboardKey");
-        root.getActionMap().put("TKeyboardKey", notAnimationActionShortcutAction(mainPanel, 4));
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("A"), "AKeyboardKey");
-        root.getActionMap().put("AKeyboardKey", itemShortcutAction(mainPanel, 0));
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("S"), "SKeyboardKey");
-        root.getActionMap().put("SKeyboardKey", itemShortcutAction(mainPanel, 1));
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("D"), "DKeyboardKey");
-        root.getActionMap().put("DKeyboardKey", itemShortcutAction(mainPanel, 2));
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("F"), "FKeyboardKey");
-        root.getActionMap().put("FKeyboardKey", itemShortcutAction(mainPanel, 3));
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("G"), "GKeyboardKey");
-        root.getActionMap().put("GKeyboardKey", itemShortcutAction(mainPanel, 4));
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("Z"), "ZKeyboardKey");
-        root.getActionMap().put("ZKeyboardKey", zKeyboardKeyAction(mainPanel));
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control F"), "CreateFaceShortcut");
-        root.getActionMap().put("CreateFaceShortcut", createFaceShortcutAction(mainPanel));
-
-        for (int i = 1; i <= 9; i++) {
-            root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("alt pressed " + i), i + "KeyboardKey");
-            final int index = i;
-            root.getActionMap().put(i + "KeyboardKey", getKeyPressedAction(mainPanel, index));
-        }
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("shift pressed SHIFT"), "shiftSelect");
-        root.getActionMap().put("shiftSelect", shiftSelectAction(mainPanel));
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("alt pressed ALT"), "altSelect");
-        root.getActionMap().put("altSelect", altSelectAction(mainPanel));
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("released SHIFT"), "unShiftSelect");
-        root.getActionMap().put("unShiftSelect", unShiftSelectAction(mainPanel));
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("released ALT"), "unAltSelect");
-        root.getActionMap().put("unAltSelect", unAltSelectAction(mainPanel));
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control A"), "Select All");
-        root.getActionMap().put("Select All", mainPanel.selectAllAction);
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control I"), "Invert Selection");
-        root.getActionMap().put("Invert Selection", mainPanel.invertSelectAction);
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control E"), "Expand Selection");
-        root.getActionMap().put("Expand Selection", mainPanel.expandSelectionAction);
-
-        root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control W"), "RigAction");
-        root.getActionMap().put("RigAction", mainPanel.rigAction);
-    }
-
-    private static AbstractAction unAltSelectAction(MainPanel mainPanel) {
-        return new AbstractAction("unAltSelect") {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                if ((mainPanel.selectionModeGroup.getActiveButtonType() == SelectionMode.DESELECT) && mainPanel.cheatAlt) {
-                    mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.SELECT);
-                    mainPanel.cheatAlt = false;
-                }
-            }
-        };
-    }
-
-
-    private static AbstractAction unShiftSelectAction(MainPanel mainPanel) {
-        return new AbstractAction("unShiftSelect") {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                if (isTextField()) return;
-                if ((mainPanel.selectionModeGroup.getActiveButtonType() == SelectionMode.ADD)
-                        && mainPanel.cheatShift) {
-                    mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.SELECT);
-                    mainPanel.cheatShift = false;
-                }
-                ;
-            }
-        };
-    }
-
-    private static AbstractAction altSelectAction(MainPanel mainPanel) {
-        return new AbstractAction("altSelect") {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                if (mainPanel.selectionModeGroup.getActiveButtonType() == SelectionMode.SELECT) {
-                    mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.DESELECT);
-                    mainPanel.cheatAlt = true;
-                }
-            }
-        };
-    }
-
-    private static AbstractAction shiftSelectAction(MainPanel mainPanel) {
-        return new AbstractAction("shiftSelect") {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                if (isTextField()) return;
-                if (mainPanel.selectionModeGroup.getActiveButtonType() == SelectionMode.SELECT) {
-                    mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.ADD);
-                    mainPanel.cheatShift = true;
-                }
-            }
-        };
-    }
-
-    private static AbstractAction maximizeSpacebarAction(MainPanel mainPanel) {
-        return new AbstractAction() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                maximizeFocusedWindow(mainPanel);
-            }
-        };
-    }
-
-    private static AbstractAction getKeyPressedAction(MainPanel mainPanel, int index) {
-        return new AbstractAction() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                final DockingWindow window = mainPanel.rootWindow.getWindow();
-                if (window instanceof TabWindow) {
-                    final TabWindow tabWindow = (TabWindow) window;
-                    final int tabCount = tabWindow.getChildWindowCount();
-                    if ((index - 1) < tabCount) {
-                        tabWindow.setSelectedTab(index - 1);
-                    }
-                }
-            }
-        };
-    }
-
-    private static AbstractAction createFaceShortcutAction(MainPanel mainPanel) {
-        return new AbstractAction() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                if (isTextField()) return;
-                if (!mainPanel.animationModeState) {
-                    try {
-                        final ModelPanel modelPanel = mainPanel.currentModelPanel();
-                        if (modelPanel != null) {
-                            final Viewport viewport = mainPanel.activeViewportWatcher.getViewport();
-                            final Vec3 facingVector = viewport == null
-                                    ? new Vec3(0, 0, 1) : viewport.getFacingVector();
-                            final UndoAction createFaceFromSelection = modelPanel.getModelEditorManager()
-                                    .getModelEditor().createFaceFromSelection(facingVector);
-                            modelPanel.getUndoManager().pushAction(createFaceFromSelection);
-                        }
-                    } catch (final FaceCreationException exc) {
-                        JOptionPane.showMessageDialog(mainPanel, exc.getMessage(), "Error",
-                                JOptionPane.ERROR_MESSAGE);
-                    } catch (final Exception exc) {
-                        ExceptionPopup.display(exc);
-                    }
-                }
-            }
-        };
-    }
-
-    private static AbstractAction zKeyboardKeyAction(MainPanel mainPanel) {
-        return new AbstractAction() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                if (isTextField()) return;
-                mainPanel.prefs.setViewMode(mainPanel.prefs.getViewMode() == 1 ? 0 : 1);
-            }
-        };
-    }
-
-    private static AbstractAction itemShortcutAction(MainPanel mainPanel, int i) {
-        return new AbstractAction() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                if (isTextField()) return;
-                mainPanel.selectionItemTypeGroup.setToolbarButtonType(mainPanel.selectionItemTypeGroup.getToolbarButtonTypes()[i]);
-            }
-        };
-    }
-
-    private static AbstractAction notAnimationActionShortcutAction(MainPanel mainPanel, int i) {
-        return new AbstractAction() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                if (isTextField()) return;
-                if (!mainPanel.animationModeState) {
-                    mainPanel.actionTypeGroup.setToolbarButtonType(mainPanel.actionTypeGroup.getToolbarButtonTypes()[i]);
-                }
-            }
-        };
-    }
-
-    private static AbstractAction actionShortcutAction(MainPanel mainPanel, int i) {
-        return new AbstractAction() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                if (isTextField()) return;
-                mainPanel.actionTypeGroup.setToolbarButtonType(mainPanel.actionTypeGroup.getToolbarButtonTypes()[i]);
-            }
-        };
-    }
-
-    private static AbstractAction playKeyboardKeyAction(MainPanel mainPanel) {
-        return new AbstractAction() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                if (isTextField()) return;
-                mainPanel.timeSliderPanel.play();
-            }
-        };
-    }
-
-    private static AbstractAction jumpFramesAction(MainPanel mainPanel, int i) {
-        return new AbstractAction() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                if (isTextField()) return;
-                if (mainPanel.animationModeState) {
-                    mainPanel.timeSliderPanel.jumpFrames(i);
-                }
-            }
-        };
-    }
-
-    private static AbstractAction pressLeftAction(MainPanel mainPanel) {
-        return new AbstractAction() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                if (isTextField()) return;
-                if (mainPanel.animationModeState) {
-                    mainPanel.timeSliderPanel.jumpLeft();
-                }
-            }
-        };
-    }
-
-    private static AbstractAction pressRightAction(MainPanel mainPanel) {
-        return new AbstractAction() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                if (isTextField()) return;
-                if (mainPanel.animationModeState) {
-                    mainPanel.timeSliderPanel.jumpRight();
-                }
-            }
-        };
-    }
-
-    private static boolean isTextField() {
-        return focusedComponentNeedsTyping(getFocusedComponent());
-    }
-
-    private static void maximizeFocusedWindow(MainPanel mainPanel) {
-        if (isTextField()) return;
-        final View focusedView = mainPanel.rootWindow.getFocusedView();
-        if (focusedView != null) {
-            if (focusedView.isMaximized()) {
-                mainPanel.rootWindow.setMaximizedWindow(null);
-            } else {
-                focusedView.maximize();
-            }
-        }
-    }
 
     @Override
     public void actionPerformed(final ActionEvent e) {
@@ -1222,22 +737,6 @@ public class MainPanel extends JPanel
     // }
     // }
 
-    public static void setMouseCoordDisplay(JTextField[] mouseCoordDisplay, byte dim1, byte dim2, double value1, double value2) {
-        for (final JTextField jTextField : mouseCoordDisplay) {
-            jTextField.setText("");
-        }
-        if(dim1 < 0) {
-            dim1 = (byte)(-dim1-1);
-            value1 = -value1;
-        }
-        if(dim2 < 0) {
-            dim2 = (byte)(-dim2-1);
-            value2 = -value2;
-        }
-        mouseCoordDisplay[dim1].setText((float) value1 + "");
-        mouseCoordDisplay[dim2].setText((float) value2 + "");
-    }
-
     public static void repaintSelfAndChildren(MainPanel mainPanel) {
         mainPanel.repaint();
         mainPanel.geoControl.repaint();
@@ -1245,15 +744,6 @@ public class MainPanel extends JPanel
     }
 
     final ExportTextureDialog.TextureExporterImpl textureExporter = new ExportTextureDialog.TextureExporterImpl(this);
-
-    private static boolean focusedComponentNeedsTyping(final Component focusedComponent) {
-        return (focusedComponent instanceof JTextArea) || (focusedComponent instanceof JTextField) || (focusedComponent instanceof JTextPane);
-    }
-
-    private static Component getFocusedComponent() {
-        final KeyboardFocusManager kfm = KeyboardFocusManager.getCurrentKeyboardFocusManager();
-        return kfm.getFocusOwner();
-    }
 
     @Override
     public void save(final EditableModel model) {
