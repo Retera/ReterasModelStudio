@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
-import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.scripts.ChangeAnimationLengthFrame;
@@ -14,9 +13,7 @@ import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -27,19 +24,24 @@ import java.util.List;
 
 public class ScriptActions {
     static void mergeGeosetActionRes(MainPanel mainPanel) throws IOException {
-        mainPanel.fc.setDialogTitle("Merge Single Geoset (Oinker-based)");
-        final EditableModel current = mainPanel.currentMDL();
-        if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
-            mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
-        } else if (mainPanel.profile.getPath() != null) {
-            mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
-        }
-        final int returnValue = mainPanel.fc.showOpenDialog(mainPanel);
+        FileDialog fileDialog = new FileDialog(mainPanel);
 
-        if (returnValue == JFileChooser.APPROVE_OPTION) {
-            mainPanel.currentFile = mainPanel.fc.getSelectedFile();
-            final EditableModel geoSource = MdxUtils.loadEditable(mainPanel.currentFile);
-            mainPanel.profile.setPath(mainPanel.currentFile.getParent());
+//        mainPanel.fc.setDialogTitle("Merge Single Geoset (Oinker-based)");
+//
+        final EditableModel current = mainPanel.currentMDL();
+//        if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
+//            mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
+//        } else if (mainPanel.profile.getPath() != null) {
+//            mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
+//        }
+//        final int returnValue = mainPanel.fc.showOpenDialog(mainPanel);
+        final EditableModel geoSource = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
+
+//        if (returnValue == JFileChooser.APPROVE_OPTION) {
+//            mainPanel.currentFile = mainPanel.fc.getSelectedFile();
+//            final EditableModel geoSource = MdxUtils.loadEditable(mainPanel.currentFile);
+//            mainPanel.profile.setPath(mainPanel.currentFile.getParent());
+        if (geoSource != null) {
             boolean going = true;
             Geoset host = null;
             while (going) {
@@ -62,7 +64,7 @@ public class ScriptActions {
                         "Geoset to Import: (1 to " + geoSource.getGeosetsSize() + ")");
                 try {
                     final int x = Integer.parseInt(s);
-                    if (x <= geoSource.getGeosetsSize()) {
+                    if ((x >= 1) && x <= geoSource.getGeosetsSize()) {
                         newGeoset = geoSource.getGeoset(x - 1);
                         going = false;
                     }
@@ -91,56 +93,55 @@ public class ScriptActions {
         mainPanel.fc.setSelectedFile(null);
     }
 
-    static void exportAnimatedFramePNG(MainPanel mainPanel) {
-        final BufferedImage fBufferedImage = mainPanel.currentModelPanel().getAnimationViewer().getBufferedImage();
-
-        if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
-            final EditableModel current = mainPanel.currentMDL();
-            if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
-                mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
-            } else if (mainPanel.profile.getPath() != null) {
-                mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
-            }
-        }
-        if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
-            mainPanel.exportTextureDialog.setSelectedFile(
-                    new File(mainPanel.exportTextureDialog.getCurrentDirectory() + File.separator));
-        }
-
-        final int x = mainPanel.exportTextureDialog.showSaveDialog(mainPanel);
-        if (x == JFileChooser.APPROVE_OPTION) {
-            final File file = mainPanel.exportTextureDialog.getSelectedFile();
-            if (file != null) {
-                try {
-                    if (file.getName().lastIndexOf('.') >= 0) {
-                        BufferedImage bufferedImage = fBufferedImage;
-                        String fileExtension = file.getName().substring(file.getName().lastIndexOf('.') + 1)
-                                .toUpperCase();
-                        if (fileExtension.equals("BMP") || fileExtension.equals("JPG")
-                                || fileExtension.equals("JPEG")) {
-                            JOptionPane.showMessageDialog(mainPanel,
-                                    "Warning: Alpha channel was converted to black. Some data will be lost\nif you convert this texture back to Warcraft BLP.");
-                            bufferedImage = BLPHandler.removeAlphaChannel(bufferedImage);
-                        }
-                        if (fileExtension.equals("BLP")) {
-                            fileExtension = "blp";
-                        }
-                        final boolean write = ImageIO.write(bufferedImage, fileExtension, file);
-                        if (!write) {
-                            JOptionPane.showMessageDialog(mainPanel, "File type unknown or unavailable");
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(mainPanel, "No file type was specified");
-                    }
-                } catch (final Exception e1) {
-                    ExceptionPopup.display(e1);
-                    e1.printStackTrace();
-                }
-            } else {
-                JOptionPane.showMessageDialog(mainPanel, "No output file was specified");
-            }
-        }
-    }
+//    static void exportAnimatedFramePNG(MainPanel mainPanel) {
+//        final BufferedImage fBufferedImage = mainPanel.currentModelPanel().getAnimationViewer().getBufferedImage();
+//
+//        if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
+//            final EditableModel current = mainPanel.currentMDL();
+//            if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
+//                mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
+//            } else if (mainPanel.profile.getPath() != null) {
+//                mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
+//            }
+//        }
+//        if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
+//            mainPanel.exportTextureDialog.setSelectedFile(new File(mainPanel.exportTextureDialog.getCurrentDirectory() + File.separator));
+//        }
+//
+//        final int x = mainPanel.exportTextureDialog.showSaveDialog(mainPanel);
+//        if (x == JFileChooser.APPROVE_OPTION) {
+//            final File file = mainPanel.exportTextureDialog.getSelectedFile();
+//            if (file != null) {
+//                try {
+//                    if (file.getName().lastIndexOf('.') >= 0) {
+//                        BufferedImage bufferedImage = fBufferedImage;
+//                        String fileExtension = file.getName().substring(file.getName().lastIndexOf('.') + 1)
+//                                .toUpperCase();
+//                        if (fileExtension.equals("BMP") || fileExtension.equals("JPG")
+//                                || fileExtension.equals("JPEG")) {
+//                            JOptionPane.showMessageDialog(mainPanel,
+//                                    "Warning: Alpha channel was converted to black. Some data will be lost\nif you convert this texture back to Warcraft BLP.");
+//                            bufferedImage = BLPHandler.removeAlphaChannel(bufferedImage);
+//                        }
+//                        if (fileExtension.equals("BLP")) {
+//                            fileExtension = "blp";
+//                        }
+//                        final boolean write = ImageIO.write(bufferedImage, fileExtension, file);
+//                        if (!write) {
+//                            JOptionPane.showMessageDialog(mainPanel, "File type unknown or unavailable");
+//                        }
+//                    } else {
+//                        JOptionPane.showMessageDialog(mainPanel, "No file type was specified");
+//                    }
+//                } catch (final Exception e1) {
+//                    ExceptionPopup.display(e1);
+//                    e1.printStackTrace();
+//                }
+//            } else {
+//                JOptionPane.showMessageDialog(mainPanel, "No output file was specified");
+//            }
+//        }
+//    }
 
     static void exportAnimatedToStaticMesh(MainPanel mainPanel) {
         if (!mainPanel.animationModeState) {
@@ -270,22 +271,26 @@ public class ScriptActions {
                 }
             }
         }
-        mainPanel.fc.setDialogTitle("Export Static Snapshot");
-        final int result = mainPanel.fc.showSaveDialog(mainPanel);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = mainPanel.fc.getSelectedFile();
-            if (selectedFile != null) {
-                if (!selectedFile.getPath().toLowerCase().endsWith(".mdx")) {
-                    selectedFile = new File(selectedFile.getPath() + ".mdx");
-                }
-                try {
-                    MdxUtils.saveMdx(snapshotModel, selectedFile);
-                } catch (final IOException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
-            }
-        }
+
+        FileDialog fileDialog = new FileDialog(mainPanel);
+        fileDialog.onClickSaveAs(snapshotModel, FileDialog.SAVE_MODEL, false);
+
+//        mainPanel.fc.setDialogTitle("Export Static Snapshot");
+//        final int result = mainPanel.fc.showSaveDialog(mainPanel);
+//        if (result == JFileChooser.APPROVE_OPTION) {
+//            File selectedFile = mainPanel.fc.getSelectedFile();
+//            if (selectedFile != null) {
+//                if (!selectedFile.getPath().toLowerCase().endsWith(".mdx")) {
+//                    selectedFile = new File(selectedFile.getPath() + ".mdx");
+//                }
+//                try {
+//                    MdxUtils.saveMdx(snapshotModel, selectedFile);
+//                } catch (final IOException e1) {
+//                    // TODO Auto-generated catch block
+//                    e1.printStackTrace();
+//                }
+//            }
+//        }
     }
 
     static void combineAnimations(MainPanel mainPanel) {
@@ -347,38 +352,66 @@ public class ScriptActions {
     public static String incName(final String name) {
         String output = name;
 
-        int depth = 1;
-        boolean continueLoop = true;
-        while (continueLoop) {
-            char c = '0';
-            try {
-                c = output.charAt(output.length() - depth);
-            } catch (final IndexOutOfBoundsException e) {
-                // c remains '0'
-                continueLoop = false;
-            }
-            for (char n = '0'; (n < '9') && continueLoop; n++) {
-                if (c == n) {
-                    char x = c;
-                    x++;
-                    output = output.substring(0, output.length() - depth) + x
-                            + output.substring((output.length() - depth) + 1);
-                    continueLoop = false;
+//        int depth = 1;
+//        boolean continueLoop = name != null && output.length()>0;
+//        while (continueLoop) {
+//            char c = '0';
+//            try {
+//                c = output.charAt(output.length() - depth);
+//            } catch (final IndexOutOfBoundsException e) {
+//                // c remains '0', name is not changed (this should only happen if name is "9" or "99...9")
+//                continueLoop = false;
+//            }
+//            for (char n = '0'; (n < '9') && continueLoop; n++) {
+//                if (c == n) {
+//                    char x = c;
+//                    x++;
+//                    output = output.substring(0, output.length() - depth) + x
+//                            + output.substring((output.length() - depth) + 1);
+//                    continueLoop = false;
+//                }
+//            }
+//            if (c == '9') {
+//                output = output.substring(0, output.length() - depth) + 0
+//                        + output.substring((output.length() - depth) + 1);
+//            } else if (continueLoop) {
+//                output = output.substring(0, (output.length() - depth) + 1) + 1
+//                        + output.substring((output.length() - depth) + 1);
+//                continueLoop = false;
+//            }
+//            depth++;
+//        }
+//        if (output == null) {
+//            output = "name error";
+//        } else if (output.equals(name)) {
+//            output = output + "_edit";
+//        }
+
+        if (output != null) {
+            for (int offsetFromEnd = 1; offsetFromEnd <= output.length(); offsetFromEnd++) {
+                char charAt = output.charAt(output.length() - offsetFromEnd);
+                if ('0' <= charAt && charAt <= '8') {
+                    int numberLocation = output.length() - offsetFromEnd;
+                    output = output.substring(0, numberLocation) + (charAt + 1) + output.substring((numberLocation) + 1);
+                    break;
+                } else if (charAt == '9') {
+                    int numberLocation = output.length() - offsetFromEnd;
+                    output = output.substring(0, numberLocation) + "0" + output.substring(numberLocation + 1);
+                    if (numberLocation == 0) {
+                        output = 1 + output; // if name == "999...9" -> output = "1000...0" instead of "000...0"
+                    }
+                } else { // charAt is not a digit
+                    int numberLocation = output.length() - offsetFromEnd;
+                    output = output.substring(0, numberLocation + 1) + "1" + output.substring(numberLocation + 1);
+                    break;
                 }
             }
-            if (c == '9') {
-                output = output.substring(0, output.length() - depth) + 0
-                        + output.substring((output.length() - depth) + 1);
-            } else if (continueLoop) {
-                output = output.substring(0, (output.length() - depth) + 1) + 1
-                        + output.substring((output.length() - depth) + 1);
-                continueLoop = false;
-            }
-            depth++;
         }
+
         if (output == null) {
             output = "name error";
-        } else if (output.equals(name)) {
+        }
+        if (output.equals(name)) {
             output = output + "_edit";
         }
 
@@ -396,8 +429,7 @@ public class ScriptActions {
                                 "" + (int) (Math.random() * Integer.MAX_VALUE) + ".mdl"));
             }
             while (newModel.getFile().exists()) {
-                newModel.setFileRef(
-                        new File(currentMDL.getFile().getParent() + "/" + incName(newModel.getName()) + ".mdl"));
+                newModel.setFileRef(new File(currentMDL.getFile().getParent() + "/" + incName(newModel.getName()) + ".mdl"));
             }
             mainPanel.importPanel = new ImportPanel(newModel, EditableModel.deepClone(currentMDL, "CurrentModel"));
 

@@ -132,9 +132,11 @@ public class MenuBar {
     }
 
     private static void fillFileMenu(MainPanel mainPanel, JMenu fileMenu) {
+        FileDialog fileDialog = new FileDialog(mainPanel);
         createAndAddMenuItem("New", fileMenu, KeyEvent.VK_N, KeyStroke.getKeyStroke("control N"), e -> MenuBarActions.newModel(mainPanel));
 
-        createAndAddMenuItem("Open", fileMenu, KeyEvent.VK_O, KeyStroke.getKeyStroke("control O"), e -> MenuBarActions.onClickOpen(mainPanel));
+//        createAndAddMenuItem("Open", fileMenu, KeyEvent.VK_O, KeyStroke.getKeyStroke("control O"), e -> MenuBarActions.onClickOpen(mainPanel));
+        createAndAddMenuItem("Open", fileMenu, KeyEvent.VK_O, KeyStroke.getKeyStroke("control O"), e -> fileDialog.onClickOpen());
 
         fileMenu.add(mainPanel.recentMenu);
 
@@ -172,9 +174,11 @@ public class MenuBar {
 
         createAndAddMenuItem("From Workspace", importMenu, KeyEvent.VK_O, e -> ImportFileActions.importFromWorkspaceActionRes(mainPanel));
 
-        createAndAddMenuItem("Save", fileMenu, KeyEvent.VK_S, KeyStroke.getKeyStroke("control S"), e -> save(mainPanel));
+//        createAndAddMenuItem("Save", fileMenu, KeyEvent.VK_S, KeyStroke.getKeyStroke("control S"), e -> save(mainPanel));
+        createAndAddMenuItem("Save", fileMenu, KeyEvent.VK_S, KeyStroke.getKeyStroke("control S"), e -> fileDialog.onClickSave());
 
-        createAndAddMenuItem("Save as", fileMenu, KeyEvent.VK_A, KeyStroke.getKeyStroke("control Q"), e -> MenuBarActions.onClickSaveAs(mainPanel));
+//        createAndAddMenuItem("Save as", fileMenu, KeyEvent.VK_A, KeyStroke.getKeyStroke("control Q"), e -> MenuBarActions.onClickSaveAs(mainPanel));
+        createAndAddMenuItem("Save as", fileMenu, KeyEvent.VK_A, KeyStroke.getKeyStroke("control Q"), e -> fileDialog.onClickSaveAs());
 
         fileMenu.add(new JSeparator());
 
@@ -464,6 +468,8 @@ public class MenuBar {
     private static void fillScriptsMenu(MainPanel mainPanel, JMenu scriptsMenu) {
         createAndAddMenuItem("Oinkerwinkle-Style AnimTransfer", scriptsMenu, KeyEvent.VK_P, KeyStroke.getKeyStroke("control shift S"), e -> importButtonS());
 
+        FileDialog fileDialog = new FileDialog(mainPanel);
+
         JMenuItem mergeGeoset = new JMenuItem("Oinkerwinkle-Style Merge Geoset");
         mergeGeoset.setMnemonic(KeyEvent.VK_M);
         mergeGeoset.setAccelerator(KeyStroke.getKeyStroke("control M"));
@@ -485,7 +491,8 @@ public class MenuBar {
 
         createAndAddMenuItem("Export Animated to Static Mesh", scriptsMenu, KeyEvent.VK_E, e -> ScriptActions.exportAnimatedToStaticMesh(mainPanel));
 
-        createAndAddMenuItem("Export Animated Frame PNG", scriptsMenu, KeyEvent.VK_F, e -> ScriptActions.exportAnimatedFramePNG(mainPanel));
+//        createAndAddMenuItem("Export Animated Frame PNG", scriptsMenu, KeyEvent.VK_F, e -> ScriptActions.exportAnimatedFramePNG(mainPanel));
+        createAndAddMenuItem("Export Animated Frame PNG", scriptsMenu, KeyEvent.VK_F, e -> fileDialog.exportAnimatedFramePNG());
 
         createAndAddMenuItem("Create Back2Back Animation", scriptsMenu, KeyEvent.VK_P, e -> ScriptActions.combineAnimations(mainPanel));
 
@@ -543,10 +550,13 @@ public class MenuBar {
         mainPanel.repaint();
     }
 
-    private static void save(MainPanel mainPanel) {
-        if ((mainPanel.currentMDL() != null) && (mainPanel.currentMDL().getFile() != null)) {
-            MenuBarActions.onClickSave(mainPanel);}
-    }
+//    private static void save(MainPanel mainPanel) {
+//        if ((mainPanel.currentMDL() != null) && (mainPanel.currentMDL().getFile() != null)) {
+//            MenuBarActions.onClickSave(mainPanel);
+//        } else {
+//            MenuBarActions.onClickSaveAs(mainPanel);
+//        }
+//    }
 
     private static void closeProgram(MainPanel mainPanel) {
         if (closeAll(mainPanel)) {

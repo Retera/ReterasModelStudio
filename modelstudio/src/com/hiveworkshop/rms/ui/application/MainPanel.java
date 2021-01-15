@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.edit.ClonedNodeNamePickerImplementation;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.RedoActionImplementation;
@@ -44,7 +43,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,8 +85,8 @@ public class MainPanel extends JPanel
     JToolBar toolbar;
 
     TimeSliderPanel timeSliderPanel;
-    final JButton setKeyframe;
-    final JButton setTimeBounds;
+    //    final JButton setKeyframe;
+//    final JButton setTimeBounds;
     final ModeButton animationModeButton;
     boolean animationModeState = false;
     final ZoomableImagePreviewPanel blpPanel;
@@ -128,21 +126,8 @@ public class MainPanel extends JPanel
             cloneActionRes();
         }
     };
-
-    private void cloneActionRes() {
-        final ModelPanel mpanel = currentModelPanel();
-        if (mpanel != null) {
-            try {
-                mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor()
-                        .cloneSelectedComponents(namePicker));
-            } catch (final Exception exc) {
-                ExceptionPopup.display(exc);
-            }
-        }
-        refreshUndo();
-        repaintSelfAndChildren(MainPanel.this);
-        mpanel.repaintSelfAndRelatedChildren();
-    }
+    //    protected ModelEditorActionType actionType;
+    public ModelEditorActionType actionType;
 
     AbstractAction deleteAction = new AbstractAction("Delete") {
         @Override
@@ -150,115 +135,6 @@ public class MainPanel extends JPanel
             deleteActionRes();
         }
     };
-
-    private void deleteActionRes() {
-        final ModelPanel mpanel = currentModelPanel();
-        if (mpanel != null) {
-            if (animationModeState) {
-                timeSliderPanel.deleteSelectedKeyframes();
-            } else {
-                mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().deleteSelectedComponents());
-            }
-        }
-        repaintSelfAndChildren(MainPanel.this);
-        mpanel.repaintSelfAndRelatedChildren();
-    }
-
-    AbstractAction selectAllAction = new AbstractAction("Select All") {
-        @Override
-        public void actionPerformed(final ActionEvent e) {
-            selectAllActionRes();
-        }
-    };
-
-    private void selectAllActionRes() {
-        final ModelPanel mpanel = currentModelPanel();
-        if (mpanel != null) {
-            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().selectAll());
-        }
-        repaint();
-    }
-
-    AbstractAction invertSelectAction = new AbstractAction("Invert Selection") {
-        @Override
-        public void actionPerformed(final ActionEvent e) {
-            invertSelectActionRes();
-        }
-    };
-
-    private void invertSelectActionRes() {
-        final ModelPanel mpanel = currentModelPanel();
-        if (mpanel != null) {
-            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().invertSelection());
-        }
-        repaint();
-    }
-
-    AbstractAction rigAction = new AbstractAction("Rig") {
-        @Override
-        public void actionPerformed(final ActionEvent e) {
-            rigActionRes();
-        }
-    };
-
-    private void rigActionRes() {
-        final ModelPanel mpanel = currentModelPanel();
-        if (mpanel != null) {
-            boolean valid = false;
-            for (final Vec3 v : mpanel.getModelEditorManager().getSelectionView().getSelectedVertices()) {
-                final int index = mpanel.getModel().getPivots().indexOf(v);
-                if (index != -1) {
-                    if (index < mpanel.getModel().getIdObjects().size()) {
-                        final IdObject node = mpanel.getModel().getIdObject(index);
-                        if ((node instanceof Bone) && !(node instanceof Helper)) {
-                            valid = true;
-                        }
-                    }
-                }
-            }
-            if (valid) {
-                mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().rig());
-            } else {
-                System.err.println("NOT RIGGING, NOT VALID");
-            }
-        }
-        repaint();
-    }
-
-    AbstractAction expandSelectionAction = getExpandSelectionAction();
-
-    private AbstractAction getExpandSelectionAction() {
-        return new AbstractAction("Expand Selection") {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                getExpandSelectionActionRes();
-            }
-        };
-    }
-
-    private void getExpandSelectionActionRes() {
-        final ModelPanel mpanel = currentModelPanel();
-        if (mpanel != null) {
-            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().expandSelection());
-        }
-        repaint();
-    }
-
-
-    ToolbarButtonGroup<SelectionItemTypes> selectionItemTypeGroup;
-    ToolbarButtonGroup<SelectionMode> selectionModeGroup;
-    ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup;
-    final ModelStructureChangeListener modelStructureChangeListener;
-
-    final ViewportTransferHandler viewportTransferHandler;
-    final StringViewMap viewMap;
-    final RootWindow rootWindow;
-    View viewportControllerWindowView;
-    View toolView;
-    View modelDataView;
-    View modelComponentView;
-    private ControllableTimeBoundProvider timeBoundProvider;
-    ActivityDescriptor currentActivity;
 
     public MainPanel() {
         super();
@@ -273,19 +149,19 @@ public class MainPanel extends JPanel
             divider[i] = new JLabel("----------");
         }
 
-        TimeSliderViewThing.createMouseCoordDisp(mouseCoordDisplay);
+        TimeSliderView.createMouseCoordDisp(mouseCoordDisplay);
 
         modelStructureChangeListener = ModelStructureChangeListenerImplementation.getModelStructureChangeListener(this);
         animatedRenderEnvironment = new TimeEnvironmentImpl();
         blpPanel = new ZoomableImagePreviewPanel(null);
 
-        TimeSliderViewThing.createTimeSliderPanel(this);
+        TimeSliderView.createTimeSliderPanel(this);
 
         animatedRenderEnvironment.addChangeListener((start, end) -> animatedRenderEnvChangeResult(MainPanel.this, start, end));
 
-        setKeyframe = TimeSliderViewThing.createSetKeyframeButton(this);
+//        setKeyframe = TimeSliderViewThing.createSetKeyframeButton(this);
 
-        setTimeBounds = TimeSliderViewThing.createSetTimeBoundsButton(this);
+//        setTimeBounds = TimeSliderViewThing.createSetTimeBoundsButton(this);
 
         animationModeButton = new ModeButton("Animate");
         animationModeButton.setVisible(false);// TODO remove this if unused
@@ -326,7 +202,8 @@ public class MainPanel extends JPanel
 
         previewView = new View("Preview", null, new JPanel());
 
-        timeSliderView = TimeSliderViewThing.createTimeSliderView(mouseCoordDisplay, setKeyframe, setTimeBounds, timeSliderPanel);
+//        timeSliderView = TimeSliderViewThing.createTimeSliderView(mouseCoordDisplay, setKeyframe, setTimeBounds, timeSliderPanel);
+        timeSliderView = TimeSliderView.createTimeSliderView(timeSliderPanel);
 
 //        hackerView = ScriptView.createHackerView(this);
 
@@ -365,7 +242,165 @@ public class MainPanel extends JPanel
         actionTypeGroup.addToolbarButtonListener(this::actionTypeGroupActionRes);
         actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
         viewportTransferHandler = new ViewportTransferHandler();
-        coordDisplayListener = (dim1, dim2, value1, value2) -> TimeSliderViewThing.setMouseCoordDisplay(mouseCoordDisplay, dim1, dim2, value1, value2);
+        coordDisplayListener = (dim1, dim2, value1, value2) -> TimeSliderView.setMouseCoordDisplay(mouseCoordDisplay, dim1, dim2, value1, value2);
+    }
+
+    AbstractAction selectAllAction = new AbstractAction("Select All") {
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            selectAllActionRes();
+        }
+    };
+
+    private void selectAllActionRes() {
+        final ModelPanel mpanel = currentModelPanel();
+        if (mpanel != null) {
+            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().selectAll());
+        }
+        repaint();
+    }
+
+    AbstractAction invertSelectAction = new AbstractAction("Invert Selection") {
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            invertSelectActionRes();
+        }
+    };
+
+    private void invertSelectActionRes() {
+        final ModelPanel mpanel = currentModelPanel();
+        if (mpanel != null) {
+            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().invertSelection());
+        }
+        repaint();
+    }
+
+    AbstractAction rigAction = new AbstractAction("Rig") {
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            rigActionRes();
+        }
+    };
+
+    private static DockingWindowListener getDockingWindowListener2(Runnable fixit) {
+        return new DockingWindowAdapter() {
+
+            @Override
+            public void windowUndocking(final DockingWindow removedWindow) {
+                if (OLDMODE) {
+                    setTitleBarVisibility(removedWindow, true, ": (windowUndocking removedWindow as view) title bar visible now");
+                } else {
+                    SwingUtilities.invokeLater(fixit);
+                }
+            }
+
+            @Override
+            public void windowRemoved(final DockingWindow removedFromWindow, final DockingWindow removedWindow) {
+                if (OLDMODE) {
+                    if (removedFromWindow instanceof TabWindow) {
+                        setTitleBarVisibility(removedWindow, true, ": (removedWindow as view) title bar visible now");
+                        final TabWindow tabWindow = (TabWindow) removedFromWindow;
+                        if (tabWindow.getChildWindowCount() == 1) {
+                            final DockingWindow childWindow = tabWindow.getChildWindow(0);
+                            setTitleBarVisibility(childWindow, true, ": (singleChildView, windowRemoved()) title bar visible now");
+                        } else if (tabWindow.getChildWindowCount() == 0) {
+                            System.out.println(tabWindow.getTitle() + ": force close because 0 child windows in windowRemoved()");
+//						tabWindow.close();
+                        }
+                    }
+                } else {
+                    SwingUtilities.invokeLater(fixit);
+                }
+            }
+
+            @Override
+            public void windowClosing(final DockingWindow closingWindow) {
+                if (OLDMODE) {
+                    if (closingWindow.getWindowParent() instanceof TabWindow) {
+                        setTitleBarVisibility(closingWindow, true, ": (closingWindow as view) title bar visible now");
+                        final TabWindow tabWindow = (TabWindow) closingWindow.getWindowParent();
+                        if (tabWindow.getChildWindowCount() == 1) {
+                            final DockingWindow childWindow = tabWindow.getChildWindow(0);
+                            setTitleBarVisibility(childWindow, true, ": (singleChildView, windowClosing()) title bar visible now");
+                        } else if (tabWindow.getChildWindowCount() == 0) {
+                            System.out.println(tabWindow.getTitle() + ": force close because 0 child windows in windowClosing()");
+                            tabWindow.close();
+                        }
+                    }
+                } else {
+                    SwingUtilities.invokeLater(fixit);
+                }
+            }
+
+            @Override
+            public void windowAdded(final DockingWindow addedToWindow, final DockingWindow addedWindow) {
+                if (OLDMODE) {
+                    if (addedToWindow instanceof TabWindow) {
+                        final TabWindow tabWindow = (TabWindow) addedToWindow;
+                        if (tabWindow.getChildWindowCount() == 2) {
+                            for (int i = 0; i < 2; i++) {
+                                final DockingWindow childWindow = tabWindow.getChildWindow(i);
+                                setTitleBarVisibility(childWindow, false, ": (singleChildView as view, windowAdded()) title bar NOT visible now");
+                            }
+                        }
+                        setTitleBarVisibility(addedWindow, false, ": (addedWindow as view) title bar NOT visible now");
+                    }
+                } else {
+                    SwingUtilities.invokeLater(fixit);
+                }
+            }
+        };
+    }
+
+    AbstractAction expandSelectionAction = getExpandSelectionAction();
+
+    private AbstractAction getExpandSelectionAction() {
+        return new AbstractAction("Expand Selection") {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                getExpandSelectionActionRes();
+            }
+        };
+    }
+
+    private void getExpandSelectionActionRes() {
+        final ModelPanel mpanel = currentModelPanel();
+        if (mpanel != null) {
+            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().expandSelection());
+        }
+        repaint();
+    }
+
+
+    ToolbarButtonGroup<SelectionItemTypes> selectionItemTypeGroup;
+    ToolbarButtonGroup<SelectionMode> selectionModeGroup;
+    ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup;
+    final ModelStructureChangeListener modelStructureChangeListener;
+
+    final ViewportTransferHandler viewportTransferHandler;
+    final StringViewMap viewMap;
+    final RootWindow rootWindow;
+    View viewportControllerWindowView;
+    View toolView;
+    View modelDataView;
+    View modelComponentView;
+    private ControllableTimeBoundProvider timeBoundProvider;
+    ActivityDescriptor currentActivity;
+
+    private static DockingWindowListener getDockingWindowListener(final MainPanel mainPanel) {
+        return new DockingWindowAdapter() {
+            @Override
+            public void windowUndocked(final DockingWindow dockingWindow) {
+                SwingUtilities.invokeLater(() -> SwingUtilities.invokeLater(() -> {
+                    if (dockingWindow instanceof View) {
+                        final Component component = ((View) dockingWindow).getComponent();
+                        if (component instanceof JComponent) {
+                            MainPanelLinkActions.linkActions(mainPanel, ((JComponent) component).getRootPane());
+                        }
+                    }
+                }));
+            }
+        };
     }
 
     private void actionTypeGroupActionRes(ToolbarActionButtonType newType) {
@@ -415,126 +450,19 @@ public class MainPanel extends JPanel
         }
     }
 
-    private static DockingWindowListener getDockingWindowListener2(Runnable fixit) {
-        return new DockingWindowListener() {
-
-            @Override
-            public void windowUndocking(final DockingWindow removedWindow) {
-                if (OLDMODE) {
-                    setTitleBarVisibility(removedWindow, true, ": (windowUndocking removedWindow as view) title bar visible now");
-                } else {
-                    SwingUtilities.invokeLater(fixit);
-                }
+    private void cloneActionRes() {
+        final ModelPanel mpanel = currentModelPanel();
+        if (mpanel != null) {
+            try {
+                mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor()
+                        .cloneSelectedComponents(namePicker));
+            } catch (final Exception exc) {
+                ExceptionPopup.display(exc);
             }
-
-            @Override
-            public void windowUndocked(final DockingWindow arg0) {
-            }
-
-            @Override
-            public void windowShown(final DockingWindow arg0) {
-            }
-
-            @Override
-            public void windowRestoring(final DockingWindow arg0) {
-            }
-
-            @Override
-            public void windowRestored(final DockingWindow arg0) {
-            }
-
-            @Override
-            public void windowRemoved(final DockingWindow removedFromWindow, final DockingWindow removedWindow) {
-                if (OLDMODE) {
-                    if (removedFromWindow instanceof TabWindow) {
-                        setTitleBarVisibility(removedWindow, true, ": (removedWindow as view) title bar visible now");
-                        final TabWindow tabWindow = (TabWindow) removedFromWindow;
-                        if (tabWindow.getChildWindowCount() == 1) {
-                            final DockingWindow childWindow = tabWindow.getChildWindow(0);
-                            setTitleBarVisibility(childWindow, true, ": (singleChildView, windowRemoved()) title bar visible now");
-                        } else if (tabWindow.getChildWindowCount() == 0) {
-                            System.out.println(tabWindow.getTitle() + ": force close because 0 child windows in windowRemoved()");
-//						tabWindow.close();
-                        }
-                    }
-                } else {
-                    SwingUtilities.invokeLater(fixit);
-                }
-            }
-
-            @Override
-            public void windowMinimizing(final DockingWindow arg0) {
-            }
-
-            @Override
-            public void windowMinimized(final DockingWindow arg0) {
-            }
-
-            @Override
-            public void windowMaximizing(final DockingWindow arg0) {
-            }
-
-            @Override
-            public void windowMaximized(final DockingWindow arg0) {
-            }
-
-            @Override
-            public void windowHidden(final DockingWindow arg0) {
-            }
-
-            @Override
-            public void windowDocking(final DockingWindow arg0) {
-            }
-
-            @Override
-            public void windowDocked(final DockingWindow arg0) {
-            }
-
-            @Override
-            public void windowClosing(final DockingWindow closingWindow) {
-                if (OLDMODE) {
-                    if (closingWindow.getWindowParent() instanceof TabWindow) {
-                        setTitleBarVisibility(closingWindow, true, ": (closingWindow as view) title bar visible now");
-                        final TabWindow tabWindow = (TabWindow) closingWindow.getWindowParent();
-                        if (tabWindow.getChildWindowCount() == 1) {
-                            final DockingWindow childWindow = tabWindow.getChildWindow(0);
-                            setTitleBarVisibility(childWindow, true, ": (singleChildView, windowClosing()) title bar visible now");
-                        } else if (tabWindow.getChildWindowCount() == 0) {
-                            System.out.println(tabWindow.getTitle() + ": force close because 0 child windows in windowClosing()");
-                            tabWindow.close();
-                        }
-                    }
-                } else {
-                    SwingUtilities.invokeLater(fixit);
-                }
-            }
-
-            @Override
-            public void windowClosed(final DockingWindow closedWindow) {
-            }
-
-            @Override
-            public void windowAdded(final DockingWindow addedToWindow, final DockingWindow addedWindow) {
-                if (OLDMODE) {
-                    if (addedToWindow instanceof TabWindow) {
-                        final TabWindow tabWindow = (TabWindow) addedToWindow;
-                        if (tabWindow.getChildWindowCount() == 2) {
-                            for (int i = 0; i < 2; i++) {
-                                final DockingWindow childWindow = tabWindow.getChildWindow(i);
-                                setTitleBarVisibility(childWindow, false, ": (singleChildView as view, windowAdded()) title bar NOT visible now");
-                            }
-                        }
-                        setTitleBarVisibility(addedWindow, false, ": (addedWindow as view) title bar NOT visible now");
-                    }
-                } else {
-                    SwingUtilities.invokeLater(fixit);
-                }
-            }
-
-            @Override
-            public void viewFocusChanged(final View arg0, final View arg1) {
-            }
-        };
+            refreshUndo();
+            repaintSelfAndChildren(MainPanel.this);
+            mpanel.repaintSelfAndRelatedChildren();
+        }
     }
 
     private static void setTitleBarVisibility(DockingWindow removedWindow, boolean setVisible, String s) {
@@ -545,84 +473,17 @@ public class MainPanel extends JPanel
         }
     }
 
-    private static DockingWindowListener getDockingWindowListener(final MainPanel mainPanel) {
-        return new DockingWindowListener() {
-            @Override
-            public void windowUndocking(final DockingWindow arg0) {
+    private void deleteActionRes() {
+        final ModelPanel mpanel = currentModelPanel();
+        if (mpanel != null) {
+            if (animationModeState) {
+                timeSliderPanel.deleteSelectedKeyframes();
+            } else {
+                mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().deleteSelectedComponents());
             }
-
-            @Override
-            public void windowUndocked(final DockingWindow dockingWindow) {
-                SwingUtilities.invokeLater(() -> SwingUtilities.invokeLater(() -> {
-                    if (dockingWindow instanceof View) {
-                        final Component component = ((View) dockingWindow).getComponent();
-                        if (component instanceof JComponent) {
-                            MainPanelLinkActions.linkActions(mainPanel, ((JComponent) component).getRootPane());
-                        }
-                    }
-                }));
-            }
-
-            @Override
-            public void windowShown(final DockingWindow arg0) {
-            }
-
-            @Override
-            public void windowRestoring(final DockingWindow arg0) {
-            }
-
-            @Override
-            public void windowRestored(final DockingWindow arg0) {
-            }
-
-            @Override
-            public void windowRemoved(final DockingWindow arg0, final DockingWindow arg1) {
-            }
-
-            @Override
-            public void windowMinimizing(final DockingWindow arg0) {
-            }
-
-            @Override
-            public void windowMinimized(final DockingWindow arg0) {
-            }
-
-            @Override
-            public void windowMaximizing(final DockingWindow arg0) {
-            }
-
-            @Override
-            public void windowMaximized(final DockingWindow arg0) {
-            }
-
-            @Override
-            public void windowHidden(final DockingWindow arg0) {
-            }
-
-            @Override
-            public void windowDocking(final DockingWindow arg0) {
-            }
-
-            @Override
-            public void windowDocked(final DockingWindow arg0) {
-            }
-
-            @Override
-            public void windowClosing(final DockingWindow arg0) {
-            }
-
-            @Override
-            public void windowClosed(final DockingWindow arg0) {
-            }
-
-            @Override
-            public void windowAdded(final DockingWindow arg0, final DockingWindow arg1) {
-            }
-
-            @Override
-            public void viewFocusChanged(final View arg0, final View arg1) {
-            }
-        };
+            repaintSelfAndChildren(MainPanel.this);
+            mpanel.repaintSelfAndRelatedChildren();
+        }
     }
 
     @Override
@@ -637,7 +498,32 @@ public class MainPanel extends JPanel
     final TimeEnvironmentImpl animatedRenderEnvironment;
     JButton snapButton;
     final CoordDisplayListener coordDisplayListener;
-    protected ModelEditorActionType actionType;
+
+    private void rigActionRes() {
+        final ModelPanel mpanel = currentModelPanel();
+        if (mpanel != null) {
+            EditableModel model = mpanel.getModel();
+            ModelEditorManager editorManager = mpanel.getModelEditorManager();
+            boolean valid = false;
+            for (final Vec3 v : editorManager.getSelectionView().getSelectedVertices()) {
+                final int index = model.getPivots().indexOf(v);
+
+                if (index != -1 && index < model.getIdObjects().size()) {
+                    final IdObject node = model.getIdObject(index);
+                    if ((node instanceof Bone) && !(node instanceof Helper)) {
+                        valid = true;
+                    }
+                }
+            }
+            if (valid) {
+                mpanel.getUndoManager().pushAction(editorManager.getModelEditor().rig());
+            } else {
+                System.err.println("NOT RIGGING, NOT VALID");
+            }
+        }
+        repaint();
+    }
+
     JMenu teamColorMenu;
     final CreatorModelingPanel creatorPanel;
     ToolbarActionButtonType selectAndMoveDescriptor;
@@ -747,14 +633,21 @@ public class MainPanel extends JPanel
 
     @Override
     public void save(final EditableModel model) {
-        if (model.getFile() != null) {
-            try {
-                MdxUtils.saveMdx(model, model.getFile()); // TODO should save in the format of the file!
-            } catch (final IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            MenuBarActions.onClickSaveAs(this, model);
-        }
+//        System.out.println("Save");
+        FileDialog fileDialog = new FileDialog(this);
+        fileDialog.onClickSave();
+//        fileDialog.onClickSaveAs();
+//        File modelFile = model.getFile();
+//        if (modelFile != null) {
+//            System.out.println(Arrays.toString(modelFile.getName().split(".*(?=\\..+)")));
+//            try {
+//                MdxUtils.saveMdx(model, modelFile); // TODO should save in the format of the file!
+//            } catch (final IOException e) {
+//                e.printStackTrace();
+//            }
+//        } else {
+//            System.out.println("lul");
+//            MenuBarActions.onClickSaveAs(this, model);
+//        }
     }
 }

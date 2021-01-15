@@ -21,12 +21,15 @@ public class ToolBar {
     public static JToolBar createJToolBar(final MainPanel mainPanel) {
         mainPanel.toolbar = new JToolBar(JToolBar.HORIZONTAL);
         mainPanel.toolbar.setFloatable(false);
+        FileDialog fileDialog = new FileDialog(mainPanel);
 
         addToolbarIcon(mainPanel.toolbar, "New", "new.png", () -> MenuBarActions.newModel(mainPanel));
 
-        addToolbarIcon(mainPanel.toolbar, "Open", "open.png", () -> MenuBarActions.onClickOpen(mainPanel));
+//        addToolbarIcon(mainPanel.toolbar, "Open", "open.png", () -> MenuBarActions.onClickOpen(mainPanel));
+        addToolbarIcon(mainPanel.toolbar, "Open", "open.png", fileDialog::onClickOpen);
 
-        addToolbarIcon(mainPanel.toolbar, "Save", "save.png", () -> MenuBarActions.onClickSave(mainPanel));
+//        addToolbarIcon(mainPanel.toolbar, "Save", "save.png", () -> MenuBarActions.onClickSave(mainPanel));
+        addToolbarIcon(mainPanel.toolbar, "Save", "save.png", fileDialog::onClickSave);
 
         mainPanel.toolbar.addSeparator();
 

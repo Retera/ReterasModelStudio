@@ -300,11 +300,6 @@ public class MenuBarActions {
         return success;
     }
 
-    static void onClickSaveAs(MainPanel mainPanel) {
-        final EditableModel current = mainPanel.currentMDL();
-        onClickSaveAs(mainPanel, current);
-    }
-
     static void onClickSaveAs(MainPanel mainPanel, final EditableModel current) {
         try {
             mainPanel.fc.setDialogTitle("Save as");
@@ -315,19 +310,18 @@ public class MenuBarActions {
                 mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
             }
             final int returnValue = mainPanel.fc.showSaveDialog(mainPanel);
-            File temp = mainPanel.fc.getSelectedFile();
+            File modelFile = mainPanel.fc.getSelectedFile();
             if (returnValue == JFileChooser.APPROVE_OPTION) {
-                if (temp != null) {
+                if (modelFile != null) {
                     final FileFilter ff = mainPanel.fc.getFileFilter();
-                    final String name = temp.getName();
+                    final String name = modelFile.getName();
                     String ext = ".mdx";
                     if (name.lastIndexOf('.') != -1 &&
                             ff.accept(new File("Junk" + name.substring(name.lastIndexOf('.'))))) {
                         ext = name.substring(name.lastIndexOf('.'));
                     } else {
                         String[] exts = {".mdx", ".mdl", ".obj", ".fbx"};
-                        //Don't think texture extensions should be here
-                        //, ".blp", ".dds", ".tga", ".png"
+                        //Don't think texture extensions should be here; ".blp", ".dds", ".tga", ".png"
                         Supplier<String> a = () -> {
                             for (String e : exts)
                                 if (ff.accept(new File("Junk" + e)))
@@ -338,13 +332,13 @@ public class MenuBarActions {
                     }
                     if (ext.equals(".obj") || ext.equals(".fbx"))
                         throw new UnsupportedOperationException(ext + " saving has not been coded yet.");
-                    String filepathBase = temp.getAbsolutePath();
+                    String filepathBase = modelFile.getAbsolutePath();
                     mainPanel.currentFile = new File(
                             (filepathBase.lastIndexOf('.') == -1
                                     ? filepathBase : filepathBase.substring(0, filepathBase.lastIndexOf('.')))
                                     + ext);
 
-                    if (temp.exists()) {
+                    if (modelFile.exists()) {
                         final Object[] options = {"Overwrite", "Cancel"};
                         final int n = JOptionPane.showOptionDialog(MainFrame.frame, "Selected file already exists.",
                                 "Warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, options,
@@ -382,37 +376,44 @@ public class MenuBarActions {
         refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
     }
 
-    static void onClickSave(MainPanel mainPanel) {
-        try {
-            if (mainPanel.currentMDL() != null) {
-                MdxUtils.saveMdx(mainPanel.currentMDL(), mainPanel.currentMDL().getFile());
-                mainPanel.profile.setPath(mainPanel.currentMDL().getFile().getParent());
-                // currentMDLDisp().resetBeenSaved();
-                // TODO reset been saved
-            }
-        } catch (final Exception exc) {
-            ExceptionPopup.display(exc);
-        }
-        refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
-    }
+//    static void onClickSave(MainPanel mainPanel) {
+//        try {
+//            EditableModel model = mainPanel.currentMDL();
+//            if (model != null) {
+//                String extention =  model.getFile().getName().split(".+(?=\\..+)")[1];
+//                if(extention == ".mdx"){
+//
+//                }
+//                File modelFile = model.getFile();
+//                MdxUtils.saveMdx(model, modelFile);
+//                mainPanel.profile.setPath(modelFile.getParent());
+//                // currentMDLDisp().resetBeenSaved();
+////                SaveProfile.get().addRecent(mainPanel.currentFile.getPath());
+//                // TODO reset been saved
+//            }
+//        } catch (final Exception exc) {
+//            ExceptionPopup.display(exc);
+//        }
+//        refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
+//    }
 
-    static void onClickOpen(MainPanel mainPanel) {
-        mainPanel.fc.setDialogTitle("Open");
-        final EditableModel current = mainPanel.currentMDL();
-        if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
-            mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
-        } else if (mainPanel.profile.getPath() != null) {
-            mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
-        }
-
-        final int returnValue = mainPanel.fc.showOpenDialog(mainPanel);
-
-        if (returnValue == JFileChooser.APPROVE_OPTION) {
-            openFile(mainPanel, mainPanel.fc.getSelectedFile());
-        }
-
-        mainPanel.fc.setSelectedFile(null);
-    }
+//    static void onClickOpen(MainPanel mainPanel) {
+//        mainPanel.fc.setDialogTitle("Open");
+//        final EditableModel current = mainPanel.currentMDL();
+//        if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
+//            mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
+//        } else if (mainPanel.profile.getPath() != null) {
+//            mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
+//        }
+//
+//        final int returnValue = mainPanel.fc.showOpenDialog(mainPanel);
+//
+//        if (returnValue == JFileChooser.APPROVE_OPTION) {
+//            openFile(mainPanel, mainPanel.fc.getSelectedFile());
+//        }
+//
+//        mainPanel.fc.setSelectedFile(null);
+//    }
 
     public static void openFile(MainPanel mainPanel, final File f) {
         mainPanel.currentFile = f;

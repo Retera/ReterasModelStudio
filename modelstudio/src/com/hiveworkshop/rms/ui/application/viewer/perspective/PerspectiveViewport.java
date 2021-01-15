@@ -287,15 +287,36 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 	// }
 	public BufferedImage getBufferedImage() {
 		try {
-			final BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+			int height = getHeight();
+			int width = getWidth();
+			final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 			// paintComponent(image.getGraphics(),5);
-			final Pbuffer buffer = new Pbuffer(getWidth(), getHeight(), new PixelFormat(), null, null);
+			final Pbuffer buffer = new Pbuffer(width, height, new PixelFormat(), null, null);
 			buffer.makeCurrent();
-			final ByteBuffer pixels = ByteBuffer.allocate(getWidth() * getHeight() * 4);
+			final ByteBuffer pixels = ByteBuffer.allocateDirect(width * height * 4);
+
 			initGL();
 			paintGL();
-			GL11.glReadPixels(0, 0, getWidth(), getHeight(), 1, GL11.GL_4_BYTES, pixels);
-			image.getRaster().setDataElements(0, 0, getWidth(), getHeight(), pixels);
+
+			GL11.glReadPixels(0, 0, width, height, GL11.GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+			final int[] array = new int[pixels.capacity() / 4];
+			final int[] flippedArray = new int[pixels.capacity() / 4];
+
+			pixels.asIntBuffer().get(array);
+			for (int i = 0; i < array.length; i++) {
+				final int rgba = array[i];
+				final int a = rgba & 0xFF;
+				array[i] = (rgba >>> 8) | (a << 24);
+			}
+			for (int i = 0; i < height; i++) {
+				for (int j = 0; j < width; j++) {
+					flippedArray[(height - 1 - i) * width + j] = array[i * width + j];
+				}
+			}
+			image.getRaster().setDataElements(0, 0, width, height, flippedArray);
+
+			buffer.releaseContext();
 			return image;
 		} catch (final Exception e) {
 			throw new RuntimeException(e);

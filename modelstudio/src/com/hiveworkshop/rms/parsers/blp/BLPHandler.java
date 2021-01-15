@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.parsers.blp;
 
 import com.hiveworkshop.rms.editor.model.Bitmap;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
@@ -64,6 +65,11 @@ public class BLPHandler {
 
 	public static void exportBitmapTextureFile(final Component component, final ModelView modelView,
 	                                           final Bitmap selectedValue, final File file) {
+		exportBitmapTextureFile(component, modelView.getModel(), selectedValue, file);
+	}
+
+	public static void exportBitmapTextureFile(final Component component, final EditableModel model,
+	                                           final Bitmap selectedValue, final File file) {
 		if (file.exists()) {
 			final int confirmOption = JOptionPane.showConfirmDialog(component,
 					"File \"" + file.getPath() + "\" already exists. Continue?", "Confirm Export",
@@ -72,8 +78,8 @@ public class BLPHandler {
 				return;
 			}
 		}
-		final DataSource wrappedDataSource = modelView.getModel().getWrappedDataSource();
-		final File workingDirectory = modelView.getModel().getWorkingDirectory();
+		final DataSource wrappedDataSource = model.getWrappedDataSource();
+		final File workingDirectory = model.getWorkingDirectory();
 		BufferedImage bufferedImage = getImage(selectedValue, wrappedDataSource);
 		String fileExtension = file.getName().substring(file.getName().lastIndexOf('.') + 1).toUpperCase();
 		if (fileExtension.equals("BMP") || fileExtension.equals("JPG") || fileExtension.equals("JPEG")) {
@@ -99,8 +105,7 @@ public class BLPHandler {
 				}
 			} else {
 				if (workingDirectory != null) {
-					final File wantedFile = new File(
-							workingDirectory.getPath() + File.separatorChar + selectedValue.getPath());
+					final File wantedFile = new File(workingDirectory.getPath() + File.separatorChar + selectedValue.getPath());
 					if (wantedFile.exists()) {
 						try {
 							Files.copy(wantedFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -238,12 +243,7 @@ public class BLPHandler {
 
 		final ByteBuffer buffer = BufferUtils
 				.createByteBuffer(javaTexture.getWidth() * javaTexture.getHeight() * BYTES_PER_PIXEL);
-		// 4
-		// for
-		// RGBA,
-		// 3
-		// for
-		// RGB
+		// 4 for RGBA, 3 for RGB
 
 		for (int y = 0; y < javaTexture.getHeight(); y++) {
 			for (int x = 0; x < javaTexture.getWidth(); x++) {
@@ -294,59 +294,74 @@ public class BLPHandler {
 		return combined;
 	}
 
+//	public BufferedImage getTexture(final DataSource dataSource, final String filepath) {
+////		System.out.println("getTexture, fp: " + filepath);
+//		try {
+//			final String lowerCaseFilepath = filepath.toLowerCase(Locale.US);
+//			BufferedImage resultImage = cache.get(lowerCaseFilepath);
+//			if (resultImage != null) {
+////				System.out.println("was not null");
+//				return resultImage;
+//			}
+////			System.out.println("was Null");
+//			if (lowerCaseFilepath.endsWith(".blp") || lowerCaseFilepath.endsWith(".tif")) {
+//				// War3 allows .blp and .tif to actually resolve to dds
+//				final String ddsFilepath = filepath.substring(0, filepath.length() - 4) + ".dds";
+//
+//				if (dataSource.has(ddsFilepath)) {
+//					resultImage = getImage(dataSource, lowerCaseFilepath, ddsFilepath);
+//					if (resultImage != null) return resultImage;
+//				}
+//			}
+//			if (dataSource.has(filepath)) {
+////				System.out.println("dataSource.has(filepath), filepath: " + filepath);
+//				resultImage = getImage(dataSource, lowerCaseFilepath, filepath);
+//				if (resultImage != null) return resultImage;
+//			}
+//			final String nameOnly = filepath.substring(Math.max(filepath.lastIndexOf("/"), filepath.lastIndexOf("\\")) + 1);
+////			System.out.println("nameOnly: " + nameOnly);
+//
+//			return getImage(dataSource, lowerCaseFilepath, nameOnly);
+//
+//		} catch (final IOException exc) {
+//			throw new RuntimeException(exc);
+//		}
+//	}
+
 	public BufferedImage getTexture(final DataSource dataSource, final String filepath) {
 //		System.out.println("getTexture, fp: " + filepath);
 		try {
 			final String lowerCaseFilepath = filepath.toLowerCase(Locale.US);
 			BufferedImage resultImage = cache.get(lowerCaseFilepath);
-			if (resultImage != null) {
-//				System.out.println("was not null");
-				return resultImage;
-			}
-//			System.out.println("was Null");
-			if (lowerCaseFilepath.endsWith(".blp") || lowerCaseFilepath.endsWith(".tif")) {
+			if (resultImage == null && lowerCaseFilepath.endsWith(".blp") || lowerCaseFilepath.endsWith(".tif")) {
 				// War3 allows .blp and .tif to actually resolve to dds
 				final String ddsFilepath = filepath.substring(0, filepath.length() - 4) + ".dds";
 
-//				System.out.println(".blp/.tif, filepath: " + filepath);
 				if (dataSource.has(ddsFilepath)) {
-//					System.out.println("dataSource.has(ddsFilepath)");
-					resultImage = loadTextureDirectly(dataSource, ddsFilepath);
-					if (resultImage != null) {
-//						System.out.println("dds image");
-						if (dataSource.allowDownstreamCaching(ddsFilepath)) {
-//							System.out.println("streamable");
-							cache.put(lowerCaseFilepath, resultImage);
-						}
-						return resultImage;
-					}
+					resultImage = getImage(dataSource, lowerCaseFilepath, ddsFilepath);
 				}
 			}
-			if (dataSource.has(filepath)) {
-//				System.out.println("dataSource.has(filepath), filepath: " + filepath);
-				resultImage = loadTextureDirectly(dataSource, filepath);
-				if (resultImage != null) {
-					if (dataSource.allowDownstreamCaching(filepath)) {
-						cache.put(lowerCaseFilepath, resultImage);
-					}
-					return resultImage;
-				}
+			if (resultImage == null && dataSource.has(filepath)) {
+				resultImage = getImage(dataSource, lowerCaseFilepath, filepath);
 			}
-			final String nameOnly = filepath.substring(Math.max(filepath.lastIndexOf("/"), filepath.lastIndexOf("\\")) + 1);
-//			System.out.println("nameOnly: " + nameOnly);
-			resultImage = loadTextureDirectly(dataSource, nameOnly);
-			if (resultImage != null) {
-//				System.out.println("got nameOnlyImage");
-				if (dataSource.allowDownstreamCaching(nameOnly)) {
-//					System.out.println("could stream");
-					cache.put(lowerCaseFilepath, resultImage);
-				}
+			if (resultImage == null) {
+				final String nameOnly = filepath.substring(Math.max(filepath.lastIndexOf("/"), filepath.lastIndexOf("\\")) + 1);
+				resultImage = getImage(dataSource, lowerCaseFilepath, nameOnly);
 			}
-//			System.out.println("image: " + resultImage);
+
 			return resultImage;
+
 		} catch (final IOException exc) {
 			throw new RuntimeException(exc);
 		}
+	}
+
+	private BufferedImage getImage(DataSource dataSource, String lowerCaseFilepath, String nameOnly) throws IOException {
+		BufferedImage resultImage = loadTextureDirectly(dataSource, nameOnly);
+		if (resultImage != null && dataSource.allowDownstreamCaching(nameOnly)) {
+			cache.put(lowerCaseFilepath, resultImage);
+		}
+		return resultImage;
 	}
 
 	/**
