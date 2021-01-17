@@ -20,29 +20,40 @@ import java.util.Collections;
 import java.util.List;
 
 public class AddSingleAnimationActions {
-    static void addAnimationFromFile(MainPanel mainPanel){
-        mainPanel.fc.setDialogTitle("Animation Source");
-        final EditableModel current = mainPanel.currentMDL();
-        if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
-            mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
-        } else if (mainPanel.profile.getPath() != null) {
-            mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
-        }
-        final int returnValue = mainPanel.fc.showOpenDialog(mainPanel);
+//    static void addAnimationFromFile(MainPanel mainPanel){
+//        mainPanel.fc.setDialogTitle("Animation Source");
+//        final EditableModel current = mainPanel.currentMDL();
+//        if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
+//            mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
+//        } else if (mainPanel.profile.getPath() != null) {
+//            mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
+//        }
+//        final int returnValue = mainPanel.fc.showOpenDialog(mainPanel);
+//
+//        if (returnValue == JFileChooser.APPROVE_OPTION) {
+//            mainPanel.currentFile = mainPanel.fc.getSelectedFile();
+//            mainPanel.profile.setPath(mainPanel.currentFile.getParent());
+//            final EditableModel animationSourceModel;
+//            try {
+//                animationSourceModel = MdxUtils.loadEditable(mainPanel.currentFile);
+//                addSingleAnimation(mainPanel, current, animationSourceModel);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        mainPanel.fc.setSelectedFile(null);
+//
+//        MenuBarActions.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
+//    }
 
-        if (returnValue == JFileChooser.APPROVE_OPTION) {
-            mainPanel.currentFile = mainPanel.fc.getSelectedFile();
-            mainPanel.profile.setPath(mainPanel.currentFile.getParent());
-            final EditableModel animationSourceModel;
-            try {
-                animationSourceModel = MdxUtils.loadEditable(mainPanel.currentFile);
-                addSingleAnimation(mainPanel, current, animationSourceModel);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+    static void addAnimationFromFile(MainPanel mainPanel) {
+        FileDialog fileDialog = new FileDialog(mainPanel);
 
-        mainPanel.fc.setSelectedFile(null);
+        final EditableModel animationSourceModel = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
+        if (animationSourceModel != null) {
+            addSingleAnimation(mainPanel, fileDialog.getModel(), animationSourceModel);
+        }
 
         MenuBarActions.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
     }

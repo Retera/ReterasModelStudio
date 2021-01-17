@@ -8,8 +8,6 @@ import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
 import com.hiveworkshop.rms.filesystem.sources.DataSourceDescriptor;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
-import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
 import com.hiveworkshop.rms.parsers.w3o.WTSFile;
 import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
@@ -23,7 +21,6 @@ import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.preferences.listeners.WarcraftDataSourceChangeListener;
-import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.Vec3;
 import de.wc3data.stream.BlizzardDataInputStream;
 import net.infonode.docking.SplitWindow;
@@ -31,17 +28,13 @@ import net.infonode.docking.View;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.rtf.RTFEditorKit;
 import java.awt.*;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.Supplier;
 
 public class MenuBarActions {
     static final ImageIcon POWERED_BY_HIVE = RMSIcons.loadHiveBrowserImageIcon("powered_by_hive.png");
@@ -200,7 +193,7 @@ public class MenuBarActions {
                 JOptionPane.YES_NO_OPTION);
         if (dialogResult == JOptionPane.YES_OPTION) {
             SaveProfile.get().clearRecent();
-            MenuBar.updateRecent(mainPanel);
+            MenuBar.updateRecent();
         }
     }
 
@@ -210,7 +203,8 @@ public class MenuBarActions {
         if (modelPanel != null) {
             if (modelPanel.close(mainPanel)) {
                 mainPanel.modelPanels.remove(modelPanel);
-                mainPanel.windowMenu.remove(modelPanel.getMenuItem());
+//                mainPanel.windowMenu.remove(modelPanel.getMenuItem());
+                MenuBar.windowMenu.remove(modelPanel.getMenuItem());
                 if (mainPanel.modelPanels.size() > 0) {
                     final int newIndex = Math.min(mainPanel.modelPanels.size() - 1, oldIndex);
                     MPQBrowserView.setCurrentModel(mainPanel, mainPanel.modelPanels.get(newIndex));
@@ -284,7 +278,8 @@ public class MenuBarActions {
                 continue;
             }
             if (success = panel.close(mainPanel)) {
-                mainPanel.windowMenu.remove(panel.getMenuItem());
+//                mainPanel.windowMenu.remove(panel.getMenuItem());
+                MenuBar.windowMenu.remove(panel.getMenuItem());
                 iterator.remove();
                 if (panel == mainPanel.currentModelPanel) {
                     closedCurrentPanel = true;
@@ -300,134 +295,6 @@ public class MenuBarActions {
         return success;
     }
 
-    static void onClickSaveAs(MainPanel mainPanel, final EditableModel current) {
-        try {
-            mainPanel.fc.setDialogTitle("Save as");
-            if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
-                mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
-                mainPanel.fc.setSelectedFile(current.getFile());
-            } else if (mainPanel.profile.getPath() != null) {
-                mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
-            }
-            final int returnValue = mainPanel.fc.showSaveDialog(mainPanel);
-            File modelFile = mainPanel.fc.getSelectedFile();
-            if (returnValue == JFileChooser.APPROVE_OPTION) {
-                if (modelFile != null) {
-                    final FileFilter ff = mainPanel.fc.getFileFilter();
-                    final String name = modelFile.getName();
-                    String ext = ".mdx";
-                    if (name.lastIndexOf('.') != -1 &&
-                            ff.accept(new File("Junk" + name.substring(name.lastIndexOf('.'))))) {
-                        ext = name.substring(name.lastIndexOf('.'));
-                    } else {
-                        String[] exts = {".mdx", ".mdl", ".obj", ".fbx"};
-                        //Don't think texture extensions should be here; ".blp", ".dds", ".tga", ".png"
-                        Supplier<String> a = () -> {
-                            for (String e : exts)
-                                if (ff.accept(new File("Junk" + e)))
-                                    return e;
-                            //This should never happen
-                            throw new UnsupportedOperationException("Invalid model extension was chosen.");};
-                        ext = a.get();
-                    }
-                    if (ext.equals(".obj") || ext.equals(".fbx"))
-                        throw new UnsupportedOperationException(ext + " saving has not been coded yet.");
-                    String filepathBase = modelFile.getAbsolutePath();
-                    mainPanel.currentFile = new File(
-                            (filepathBase.lastIndexOf('.') == -1
-                                    ? filepathBase : filepathBase.substring(0, filepathBase.lastIndexOf('.')))
-                                    + ext);
-
-                    if (modelFile.exists()) {
-                        final Object[] options = {"Overwrite", "Cancel"};
-                        final int n = JOptionPane.showOptionDialog(MainFrame.frame, "Selected file already exists.",
-                                "Warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, options,
-                                options[1]);
-                        if (n == 1) {
-                            mainPanel.fc.setSelectedFile(null);
-                            return;
-                        }
-                    }
-                    mainPanel.profile.setPath(mainPanel.currentFile.getParent());
-
-                    final MdlxModel mdlx = mainPanel.currentMDL().toMdlx();
-                    final FileOutputStream stream = new FileOutputStream(mainPanel.currentFile);
-
-                    if (ext.equals(".mdl")) {
-                        MdxUtils.saveMdl(mdlx, stream);
-                    } else {
-                        MdxUtils.saveMdx(mdlx, stream);
-                    }
-                    mainPanel.currentMDL().setFileRef(mainPanel.currentFile);
-                    // currentMDLDisp().resetBeenSaved();
-                    // TODO reset been saved
-                    mainPanel.currentModelPanel().getMenuItem().setName(mainPanel.currentFile.getName().split("\\.")[0]);
-                    mainPanel.currentModelPanel().getMenuItem().setToolTipText(mainPanel.currentFile.getPath());
-                } else {
-                    JOptionPane.showMessageDialog(mainPanel,
-                            "You tried to save, but you somehow didn't select a file.\nThat is bad.");
-                }
-            }
-            mainPanel.fc.setSelectedFile(null);
-            return;
-        } catch (final Exception exc) {
-            ExceptionPopup.display(exc);
-        }
-        refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
-    }
-
-//    static void onClickSave(MainPanel mainPanel) {
-//        try {
-//            EditableModel model = mainPanel.currentMDL();
-//            if (model != null) {
-//                String extention =  model.getFile().getName().split(".+(?=\\..+)")[1];
-//                if(extention == ".mdx"){
-//
-//                }
-//                File modelFile = model.getFile();
-//                MdxUtils.saveMdx(model, modelFile);
-//                mainPanel.profile.setPath(modelFile.getParent());
-//                // currentMDLDisp().resetBeenSaved();
-////                SaveProfile.get().addRecent(mainPanel.currentFile.getPath());
-//                // TODO reset been saved
-//            }
-//        } catch (final Exception exc) {
-//            ExceptionPopup.display(exc);
-//        }
-//        refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
-//    }
-
-//    static void onClickOpen(MainPanel mainPanel) {
-//        mainPanel.fc.setDialogTitle("Open");
-//        final EditableModel current = mainPanel.currentMDL();
-//        if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
-//            mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
-//        } else if (mainPanel.profile.getPath() != null) {
-//            mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
-//        }
-//
-//        final int returnValue = mainPanel.fc.showOpenDialog(mainPanel);
-//
-//        if (returnValue == JFileChooser.APPROVE_OPTION) {
-//            openFile(mainPanel, mainPanel.fc.getSelectedFile());
-//        }
-//
-//        mainPanel.fc.setSelectedFile(null);
-//    }
-
-    public static void openFile(MainPanel mainPanel, final File f) {
-        mainPanel.currentFile = f;
-        mainPanel.profile.setPath(mainPanel.currentFile.getParent());
-        // frontArea.clearGeosets();
-        // sideArea.clearGeosets();
-        // botArea.clearGeosets();
-        mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
-                "Allows the user to control which parts of the model are displayed for editing.");
-        mainPanel.toolsMenu.setEnabled(true);
-        SaveProfile.get().addRecent(mainPanel.currentFile.getPath());
-        MenuBar.updateRecent(mainPanel);
-        MPQBrowserView.loadFile(mainPanel, mainPanel.currentFile);
-    }
 
     public static void refreshController(JScrollPane geoControl, JScrollPane geoControlModelData) {
         if (geoControl != null) {

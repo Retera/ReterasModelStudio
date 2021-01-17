@@ -2,8 +2,6 @@ package com.hiveworkshop.rms.ui.browsers.mpq;
 
 import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
-import com.hiveworkshop.rms.ui.preferences.SaveProfile;
-import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.Callback;
 
 import javax.swing.*;
@@ -17,8 +15,6 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.*;
 
@@ -45,7 +41,7 @@ public final class MPQBrowser extends JPanel {
 	}
 
 	private final JTree tree;
-	private final JFileChooser exportFileChooser;
+//	private final JFileChooser exportFileChooser;
 	private final MouseAdapterExtension mouseAdapterExtension;
 	private final CompoundDataSource gameDataFileSystem;
 	private final DefaultTreeModel treeModel;
@@ -97,7 +93,7 @@ public final class MPQBrowser extends JPanel {
 		add(menuBar, BorderLayout.BEFORE_FIRST_LINE);
 		add(new JScrollPane(tree), BorderLayout.CENTER);
 
-		exportFileChooser = getFileChooser();
+//		exportFileChooser = getFileChooser();
 
 		final JPopupMenu contextMenu = new JPopupMenu();
 
@@ -299,56 +295,14 @@ public final class MPQBrowser extends JPanel {
 
 	private void exportItemActionRes(CompoundDataSource gameDataFileSystem) {
 		final MPQTreeNode clickedNode = ((MPQTreeNode) mouseAdapterExtension.getClickedPath().getLastPathComponent());
+		com.hiveworkshop.rms.ui.application.FileDialog fileDialog = new com.hiveworkshop.rms.ui.application.FileDialog(this);
 
+		fileDialog.exportInternalFile(clickedNode.getPath());
 		// TODO batch save? (setSelectedFiles, getSelectedFiles, forEach -> if exists promt: [overwrite/skip/cancel batch save])
 		// TODO make it possible to save as png (technically possible but the encoding is still blp)
-		exportFileChooser.setSelectedFile(new File(exportFileChooser.getCurrentDirectory() + "/" + clickedNode.getSubPathName()));
-
-		saveDialog(gameDataFileSystem, clickedNode);
 	}
 
-	private void saveDialog(CompoundDataSource gameDataFileSystem, MPQTreeNode clickedNode) {
-		int saveOption = exportFileChooser.showSaveDialog(MPQBrowser.this);
 
-		if (saveOption == JFileChooser.APPROVE_OPTION) {
-			final File selectedFile = exportFileChooser.getSelectedFile();
-			if (selectedFile != null) {
-				if (!selectedFile.exists()) {
-					try {
-						Files.copy(gameDataFileSystem.getResourceAsStream(clickedNode.getPath()), selectedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-					} catch (final IOException e1) {
-						ExceptionPopup.display(e1);
-						e1.printStackTrace();
-					}
-				}
-			}
-		}
-	}
-
-	// Creates an overwrite-prompt without closing the fileChooser dialog,
-	// letting the user change the name to save as if choosing "Cancel"
-	private JFileChooser getFileChooser() {
-		return new JFileChooser(SaveProfile.get().getPath()) {
-			@Override
-			public void approveSelection() {
-				final File selectedFile = exportFileChooser.getSelectedFile();
-
-				if (selectedFile.exists()) {
-					int confirmOverwriteFile = JOptionPane.showConfirmDialog(
-							MPQBrowser.this,
-							"File \"" + selectedFile.getName() + "\" already exists. Overwrite anyway?",
-							"Export File",
-							JOptionPane.OK_CANCEL_OPTION);
-					if (confirmOverwriteFile == JOptionPane.OK_OPTION) {
-						selectedFile.delete();
-					} else {
-						return;
-					}
-				}
-				super.approveSelection();
-			}
-		};
-	}
 
 	// Refreshed the tree. Not sure if all of this is necessary
 	public void refreshTree() {

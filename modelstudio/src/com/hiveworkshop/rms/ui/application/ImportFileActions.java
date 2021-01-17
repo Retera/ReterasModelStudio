@@ -47,25 +47,12 @@ public class ImportFileActions {
     }
 
     static void importButtonActionRes(MainPanel mainPanel) {
-        mainPanel.fc.setDialogTitle("Import");
-        final EditableModel current = mainPanel.currentMDL();
-        if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
-            mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
-        } else if (mainPanel.profile.getPath() != null) {
-            mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
-        }
-        final int returnValue = mainPanel.fc.showOpenDialog(mainPanel);
+        FileDialog fileDialog = new FileDialog(mainPanel);
 
-        if (returnValue == JFileChooser.APPROVE_OPTION) {
-            mainPanel.currentFile = mainPanel.fc.getSelectedFile();
-            mainPanel.profile.setPath(mainPanel.currentFile.getParent());
-            mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
-                    "Allows the user to control which parts of the model are displayed for editing.");
-            mainPanel.toolsMenu.setEnabled(true);
-            importFile(mainPanel, mainPanel.currentFile);
+        final EditableModel model = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
+        if (model != null) {
+            importFile(mainPanel, model);
         }
-
-        mainPanel.fc.setSelectedFile(null);
         MenuBarActions.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
     }
 

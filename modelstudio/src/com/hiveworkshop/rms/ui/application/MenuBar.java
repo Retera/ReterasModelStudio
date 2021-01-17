@@ -38,8 +38,14 @@ import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createMenu;
 
 public class MenuBar {
     static JMenuBar menuBar;
+    static MainPanel mainPanel;
 
     public static final ImageIcon AnimIcon = RMSIcons.AnimIcon;
+
+    static JMenu recentMenu;
+    static JMenu toolsMenu;
+    static JMenu windowMenu;
+    static List<MenuBar.RecentItem> recentItems = new ArrayList<>();
 
     public static JMenuBar createMenuBar(MainPanel mainPanel) {
         // Create my menu bar
@@ -52,9 +58,12 @@ public class MenuBar {
         JMenu editMenu = createMenu("Edit", KeyEvent.VK_E, "Allows the user to use various tools to edit the currently selected model.");
         menuBar.add(editMenu);
 
-        mainPanel.toolsMenu = createMenu("Tools", KeyEvent.VK_T, "Allows the user to use various model editing tools. (You must open a model before you may use this menu.)");
-        mainPanel.toolsMenu.setEnabled(false);
-        menuBar.add(mainPanel.toolsMenu);
+//        mainPanel.toolsMenu = createMenu("Tools", KeyEvent.VK_T, "Allows the user to use various model editing tools. (You must open a model before you may use this menu.)");
+//        mainPanel.toolsMenu.setEnabled(false);
+//        menuBar.add(mainPanel.toolsMenu);
+        toolsMenu = createMenu("Tools", KeyEvent.VK_T, "Allows the user to use various model editing tools. (You must open a model before you may use this menu.)");
+        toolsMenu.setEnabled(false);
+        menuBar.add(toolsMenu);
 
         JMenu viewMenu = createMenu("View", -1, "Allows the user to control view settings.");
         menuBar.add(viewMenu);
@@ -77,7 +86,8 @@ public class MenuBar {
         createTeamColorMenuItems(mainPanel);
 
         JMenu windowMenu = createMenu("Window", KeyEvent.VK_W, "Allows the user to open various windows containing the program features.");
-        mainPanel.windowMenu = windowMenu;
+//        mainPanel.windowMenu = windowMenu;
+        MenuBar.windowMenu = windowMenu;
         menuBar.add(windowMenu);
 
         fillWindowsMenu(mainPanel, windowMenu);
@@ -108,11 +118,14 @@ public class MenuBar {
         menuBar.add(aboutMenu);
 
 
-        mainPanel.recentMenu = createMenu("Open Recent", KeyEvent.VK_R, "Allows you to access recently opened files.");
-        mainPanel.recentMenu.add(new JSeparator());
-        createAndAddMenuItem("Clear", mainPanel.recentMenu, KeyEvent.VK_C, e -> MenuBarActions.clearRecent(mainPanel));
+//        mainPanel.recentMenu = createMenu("Open Recent", KeyEvent.VK_R, "Allows you to access recently opened files.");
+//        mainPanel.recentMenu.add(new JSeparator());
+//        createAndAddMenuItem("Clear", mainPanel.recentMenu, KeyEvent.VK_C, e -> MenuBarActions.clearRecent(mainPanel));
+        recentMenu = createMenu("Open Recent", KeyEvent.VK_R, "Allows you to access recently opened files.");
+        recentMenu.add(new JSeparator());
+        createAndAddMenuItem("Clear", recentMenu, KeyEvent.VK_C, e -> MenuBarActions.clearRecent(mainPanel));
 
-        updateRecent(mainPanel);
+        updateRecent();
 
         fillAboutMenu(mainPanel, aboutMenu);
 
@@ -138,7 +151,8 @@ public class MenuBar {
 //        createAndAddMenuItem("Open", fileMenu, KeyEvent.VK_O, KeyStroke.getKeyStroke("control O"), e -> MenuBarActions.onClickOpen(mainPanel));
         createAndAddMenuItem("Open", fileMenu, KeyEvent.VK_O, KeyStroke.getKeyStroke("control O"), e -> fileDialog.onClickOpen());
 
-        fileMenu.add(mainPanel.recentMenu);
+//        fileMenu.add(mainPanel.recentMenu);
+        fileMenu.add(recentMenu);
 
         JMenu fetch = new JMenu("Open Internal");
         fetch.setMnemonic(KeyEvent.VK_F);
@@ -182,6 +196,7 @@ public class MenuBar {
 
         fileMenu.add(new JSeparator());
 
+        createAndAddMenuItem("Export Material as Texture", fileMenu, KeyEvent.VK_E, e -> ExportTextureDialog.exportMaterialAsTextures(mainPanel));
         createAndAddMenuItem("Export Texture", fileMenu, KeyEvent.VK_E, e -> ExportTextureDialog.exportTextures(mainPanel));
 
         fileMenu.add(new JSeparator());
@@ -273,33 +288,33 @@ public class MenuBar {
         JMenuItem showMatrices = new JMenuItem("View Selected \"Matrices\"");
         // showMatrices.setMnemonic(KeyEvent.VK_V);
         showMatrices.addActionListener(e -> ModelEditActions.viewMatrices(mainPanel));
-        mainPanel.toolsMenu.add(showMatrices);
+        toolsMenu.add(showMatrices);
 
         JMenuItem insideOut = new JMenuItem("Flip all selected faces");
         insideOut.setMnemonic(KeyEvent.VK_I);
         insideOut.addActionListener(e -> ModelEditActions.insideOut(mainPanel));
         insideOut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_DOWN_MASK));
-        mainPanel.toolsMenu.add(insideOut);
+        toolsMenu.add(insideOut);
 
         JMenuItem insideOutNormals = new JMenuItem("Flip all selected normals");
         insideOutNormals.addActionListener(e -> ModelEditActions.insideOutNormals(mainPanel));
-        mainPanel.toolsMenu.add(insideOutNormals);
+        toolsMenu.add(insideOutNormals);
 
-        mainPanel.toolsMenu.add(new JSeparator());
+        toolsMenu.add(new JSeparator());
 
-        createAndAddMenuItem("Edit UV Mapping", mainPanel.toolsMenu, KeyEvent.VK_U, e -> EditUVsPanel.showEditUVs(mainPanel));
+        createAndAddMenuItem("Edit UV Mapping", toolsMenu, KeyEvent.VK_U, e -> EditUVsPanel.showEditUVs(mainPanel));
 
         JMenuItem editTextures = new JMenuItem("Edit Textures");
         editTextures.setMnemonic(KeyEvent.VK_T);
         editTextures.addActionListener(e -> editTextures(mainPanel));
-        mainPanel.toolsMenu.add(editTextures);
+        toolsMenu.add(editTextures);
 
-        createAndAddMenuItem("Rig Selection", mainPanel.toolsMenu, KeyEvent.VK_R, KeyStroke.getKeyStroke("control W"), mainPanel.rigAction);
+        createAndAddMenuItem("Rig Selection", toolsMenu, KeyEvent.VK_R, KeyStroke.getKeyStroke("control W"), mainPanel.rigAction);
 
         JMenu tweaksSubmenu = new JMenu("Tweaks");
         tweaksSubmenu.setMnemonic(KeyEvent.VK_T);
         tweaksSubmenu.getAccessibleContext().setAccessibleDescription("Allows the user to tweak conversion mistakes.");
-        mainPanel.toolsMenu.add(tweaksSubmenu);
+        toolsMenu.add(tweaksSubmenu);
         createAndAddMenuItem("Flip All UVs U", tweaksSubmenu, KeyEvent.VK_U, e -> ModelEditActions.flipAllUVsU(mainPanel));
 
         JMenuItem flipAllUVsV = new JMenuItem("Flip All UVs V");
@@ -312,7 +327,7 @@ public class MenuBar {
         JMenu mirrorSubmenu = new JMenu("Mirror");
         mirrorSubmenu.setMnemonic(KeyEvent.VK_M);
         mirrorSubmenu.getAccessibleContext().setAccessibleDescription("Allows the user to mirror objects.");
-        mainPanel.toolsMenu.add(mirrorSubmenu);
+        toolsMenu.add(mirrorSubmenu);
 
         createAndAddMenuItem("Mirror X", mirrorSubmenu, KeyEvent.VK_X, e -> ModelEditActions.mirrorAxis(mainPanel, (byte) 0));
 
@@ -758,35 +773,35 @@ public class MenuBar {
         }
     }
 
-    public static void updateRecent(MainPanel mainPanel) {
+    public static void updateRecent() {
         final List<String> recent = SaveProfile.get().getRecent();
-        for (final RecentItem recentItem : mainPanel.recentItems) {
-            mainPanel.recentMenu.remove(recentItem);
+        for (final RecentItem recentItem : recentItems) {
+            recentMenu.remove(recentItem);
         }
-        mainPanel.recentItems.clear();
+        recentItems.clear();
         for (int i = 0; i < recent.size(); i++) {
             final String fp = recent.get(recent.size() - i - 1);
-            if ((mainPanel.recentItems.size() <= i) || (!mainPanel.recentItems.get(i).filepath.equals(fp))) {
+            if ((recentItems.size() <= i) || (!recentItems.get(i).filepath.equals(fp))) {
                 // String[] bits = recent.get(i).split("/");
 
                 final RecentItem item = new RecentItem(new File(fp).getName());
                 item.filepath = fp;
-                mainPanel.recentItems.add(item);
+                recentItems.add(item);
                 item.addActionListener(e -> {
 
-                    mainPanel.currentFile = new File(item.filepath);
-                    mainPanel.profile.setPath(mainPanel.currentFile.getParent());
+                    FileDialog.setCurrentFile(new File(item.filepath));
+                    FileDialog.setCurrentPath(FileDialog.getCurrentFile().getParentFile());
                     // frontArea.clearGeosets();
                     // sideArea.clearGeosets();
                     // botArea.clearGeosets();
-                    mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
+                    toolsMenu.getAccessibleContext().setAccessibleDescription(
                             "Allows the user to control which parts of the model are displayed for editing.");
-                    mainPanel.toolsMenu.setEnabled(true);
-                    SaveProfile.get().addRecent(mainPanel.currentFile.getPath());
-                    updateRecent(mainPanel);
-                    MPQBrowserView.loadFile(mainPanel, mainPanel.currentFile);
+                    toolsMenu.setEnabled(true);
+                    SaveProfile.get().addRecent(FileDialog.getCurrentFile().getPath());
+                    updateRecent();
+                    MPQBrowserView.loadFile(mainPanel, FileDialog.getCurrentFile());
                 });
-                mainPanel.recentMenu.add(item, mainPanel.recentMenu.getItemCount() - 2);
+                recentMenu.add(item, recentMenu.getItemCount() - 2);
             }
         }
     }
@@ -799,7 +814,8 @@ public class MenuBar {
         while (iterator.hasNext()) {
             final ModelPanel panel = iterator.next();
             if (success = panel.close(mainPanel)) {
-                mainPanel.windowMenu.remove(panel.getMenuItem());
+//                mainPanel.windowMenu.remove(panel.getMenuItem());
+                windowMenu.remove(panel.getMenuItem());
                 iterator.remove();
                 if (panel == mainPanel.currentModelPanel) {
                     closedCurrentPanel = true;

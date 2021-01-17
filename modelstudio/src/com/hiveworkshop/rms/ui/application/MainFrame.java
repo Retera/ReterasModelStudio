@@ -49,9 +49,10 @@ public class MainFrame extends JFrame {
 	public static void create(final List<String> startupModelPaths) {
 		frame = new MainFrame("Retera Model Studio " + getVersion());
 		panel.init();
+		FileDialog fileDialog = new FileDialog(panel);
 		if (!startupModelPaths.isEmpty()) {
 			for (final String path : startupModelPaths) {
-				MenuBarActions.openFile(panel, new File(path));
+				fileDialog.openFile(new File(path));
 			}
 		}
 	}

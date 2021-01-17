@@ -1,9 +1,11 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 
@@ -14,6 +16,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 public class FileDialog {
@@ -25,7 +29,12 @@ public class FileDialog {
     public static final int SAVE_TEXTURE = 5;
     public static final int SAVE = 6;
 
-    private final MainPanel mainPanel;
+    private static File currentFile;
+    private static SaveProfile profile = SaveProfile.get();
+
+    private static MainPanel mainPanel;
+    private ModelPanel modelPanel;
+    private JComponent parent;
     private final JFileChooser fileChooser;
     private List<FileNameExtensionFilter> openFilesExtensions;
     private List<FileNameExtensionFilter> openModelExtensions;
@@ -45,7 +54,92 @@ public class FileDialog {
         fillExtensionLists();
     }
 
+    public FileDialog(ModelPanel modelPanel) {
+        this.modelPanel = modelPanel;
+        this.fileChooser = getFileChooser();
+        this.fileChooser.setAcceptAllFileFilterUsed(false);
+        fillExtensionLists();
+    }
+
+    public FileDialog(JComponent parent) {
+        this.parent = parent;
+        this.fileChooser = getFileChooser();
+        this.fileChooser.setAcceptAllFileFilterUsed(false);
+        fillExtensionLists();
+    }
+
+    public static void setCurrentPath(File modelFile) {
+//        mainPanel.profile.setPath(modelFile.getParent());
+        profile.setPath(modelFile.getParent());
+    }
+
+//    public void saveFileDialog() {
+//        setFilter(saveModelExtensions);
+//        int saveOption = fileChooser.showSaveDialog(mainPanel);
+//
+//        if (saveOption == JFileChooser.APPROVE_OPTION) {
+//            final File selectedFile = fileChooser.getSelectedFile();
+//            if (selectedFile != null) {
+//                if (!selectedFile.exists()) {
+//                    System.out.println("Should Save!");
+////                    try {
+//////                        Files.copy(gameDataFileSystem.getResourceAsStream(clickedNode.getPath()), selectedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+////                    } catch (final IOException e1) {
+////                        ExceptionPopup.display(e1);
+////                        e1.printStackTrace();
+////                    }
+//                }
+//            }
+//        }
+//    }
+
+
+    private void setFilter(int type) {
+        switch (type) {
+            case OPEN_FILE -> setFilter(openFilesExtensions);
+            case OPEN_MODEL -> setFilter(openModelExtensions);
+            case SAVE_MODEL, OPEN_WC_MODEL -> setFilter(saveModelExtensions);
+            case OPEN_TEXTURE, SAVE_TEXTURE -> setFilter(textureExtensions);
+            case SAVE -> setFilter(savableExtensions);
+        }
+    }
+
+    private void setFilter(List<FileNameExtensionFilter> filters) {
+        fileChooser.resetChoosableFileFilters();
+//        acceptedExtensions = new HashSet<>();
+        for (FileNameExtensionFilter filter : filters) {
+            fileChooser.addChoosableFileFilter(filter);
+//            acceptedExtensions.addAll(Arrays.asList(filter.getExtensions()));
+        }
+    }
+
+    private void fillExtensionSets() {
+        savableModelExtensions = new HashSet<>();
+        savableTextureExtensions = new HashSet<>();
+        for (FileNameExtensionFilter filter : saveModelExtensions) {
+            savableModelExtensions.addAll(Arrays.asList(filter.getExtensions()));
+        }
+        for (FileNameExtensionFilter filter : textureExtensions) {
+            savableTextureExtensions.addAll(Arrays.asList(filter.getExtensions()));
+        }
+    }
+
+    public static String getPath() {
+        return profile.getPath();
+//        return mainPanel.profile.getPath();
+    }
+
+    public static File getCurrentFile() {
+        return currentFile;
+    }
+
+    public static void setCurrentFile(File file) {
+//        mainPanel.currentFile = file;
+        currentFile = file;
+    }
+
     void fillExtensionLists() {
+        // TODO make a class for extention handeling that builds filters from a map(s?) with <extension, [image/model, isWC3, (loadable), savable]>
         FileNameExtensionFilter OpenFiles = new FileNameExtensionFilter("Supported Files (*.mdx;*.mdl;*.blp;*.dds;*.tga;*.png;*.bmp;*.jpg;*.jpeg;*.obj,*.fbx)", "mdx", "mdl", "blp", "dds", "tga", "png", "bmp", "jpg", "jpeg", "obj", "fbx");
         FileNameExtensionFilter SaveFiles = new FileNameExtensionFilter("Supported Files (*.mdx;*.mdl;*.blp;*.dds;*.tga;*.png)", "mdx", "mdl", "blp", "dds", "tga", "png");
         FileNameExtensionFilter Image = new FileNameExtensionFilter("Supported Image Files (*.blp;*.dds;*.tga;*.png)", "blp", "dds", "tga", "png");
@@ -85,74 +179,28 @@ public class FileDialog {
         }
     }
 
-    public void saveFileDialog() {
-        setFilter(saveModelExtensions);
-        int saveOption = fileChooser.showSaveDialog(mainPanel);
-
-        if (saveOption == JFileChooser.APPROVE_OPTION) {
-            final File selectedFile = fileChooser.getSelectedFile();
-            if (selectedFile != null) {
-                if (!selectedFile.exists()) {
-                    System.out.println("Should Save!");
-//                    try {
-////                        Files.copy(gameDataFileSystem.getResourceAsStream(clickedNode.getPath()), selectedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-//                    } catch (final IOException e1) {
-//                        ExceptionPopup.display(e1);
-//                        e1.printStackTrace();
-//                    }
-                }
-            }
-        }
-    }
-
-
-    private void setFilter(int type) {
-        switch (type) {
-            case OPEN_FILE -> setFilter(openFilesExtensions);
-            case OPEN_MODEL -> setFilter(openModelExtensions);
-            case SAVE_MODEL, OPEN_WC_MODEL -> setFilter(saveModelExtensions);
-            case OPEN_TEXTURE, SAVE_TEXTURE -> setFilter(textureExtensions);
-            case SAVE -> setFilter(savableExtensions);
-        }
-    }
-
-    private void setFilter(List<FileNameExtensionFilter> filters) {
-        fileChooser.resetChoosableFileFilters();
-//        acceptedExtensions = new HashSet<>();
-        for (FileNameExtensionFilter filter : filters) {
-            fileChooser.addChoosableFileFilter(filter);
-//            acceptedExtensions.addAll(Arrays.asList(filter.getExtensions()));
-        }
-    }
-
-    private void fillExtensionSets() {
-        savableModelExtensions = new HashSet<>();
-        savableTextureExtensions = new HashSet<>();
-        for (FileNameExtensionFilter filter : saveModelExtensions) {
-            savableModelExtensions.addAll(Arrays.asList(filter.getExtensions()));
-        }
-        for (FileNameExtensionFilter filter : textureExtensions) {
-            savableTextureExtensions.addAll(Arrays.asList(filter.getExtensions()));
-        }
-    }
-
     // Creates an overwrite-prompt without closing the fileChooser dialog,
     // letting the user change the name to save as if choosing "Cancel"
     private JFileChooser getFileChooser() {
         return new JFileChooser() {
             @Override
             public void approveSelection() {
-                final File selectedFile = this.getSelectedFile();
+                File selectedFile = this.getSelectedFile();
+                String ext = getExtension(selectedFile);
+                if (!selectedFile.getName().endsWith(ext)) {
+                    selectedFile = new File(selectedFile.getPath() + "." + ext);
+                    this.setSelectedFile(selectedFile);
+                }
                 System.out.println("filechooser this: " + this);
                 System.out.println("dialog type: " + this.getDialogType());
                 if (selectedFile.exists() && this.getDialogType() == JFileChooser.SAVE_DIALOG) {
                     int confirmOverwriteFile = JOptionPane.showConfirmDialog(
-                            mainPanel,
+                            getParent(),
                             "File \"" + selectedFile.getName() + "\" already exists. Overwrite anyway?",
                             "Export File",
                             JOptionPane.OK_CANCEL_OPTION);
                     if (confirmOverwriteFile == JOptionPane.OK_OPTION) {
-                        selectedFile.delete();
+                        //selectedFile.delete();
                     } else {
                         return;
                     }
@@ -163,15 +211,32 @@ public class FileDialog {
     }
 
     void onClickSaveAs() {
-        final EditableModel model = mainPanel.currentMDL();
+        final EditableModel model = getModel();
         onClickSaveAs(model, SAVE, true);
+    }
+
+    public void exportTexture(final BufferedImage bufferedImage, String fileName) {
+        setCurrentDirectory(getModel());
+        File selectedFile = new File(fileChooser.getCurrentDirectory(), fileName);
+        fileChooser.setSelectedFile(selectedFile);
+//        new ArrayList<>(mainPanel.currentModelPanel().getModelEditorManager().getSelectionView().getSelectedFaces()).get(0).getGeoset().getMaterial().getBufferedImage(mainPanel.currentMDL().getWrappedDataSource())
+        onClickSaveAs(null, bufferedImage, SAVE_TEXTURE, false);
+    }
+
+    private String getExtension(File modelFile) {
+        final String name = modelFile.getName();
+        if (name.lastIndexOf('.') != -1) {
+            return name.substring(name.lastIndexOf('.') + 1);
+        } else {
+            return ((FileNameExtensionFilter) fileChooser.getFileFilter()).getExtensions()[0];
+        }
     }
 
     void onClickSaveAs(final EditableModel model, int operationType, boolean updateCurrent) {
         BufferedImage bufferedImage = null;
         if (operationType == SAVE_TEXTURE || operationType == SAVE) {
             if (model != null && model.getMaterial(0) != null) {
-                bufferedImage = model.getMaterial(0).getBufferedImage(mainPanel.currentMDL().getWrappedDataSource());
+                bufferedImage = model.getMaterial(0).getBufferedImage(getModel().getWrappedDataSource());
             }
         }
 //        new ArrayList<>(mainPanel.currentModelPanel().getModelEditorManager().getSelectionView().getSelectedFaces()).get(0).getGeoset().getMaterial().getBufferedImage(mainPanel.currentMDL().getWrappedDataSource())
@@ -179,41 +244,40 @@ public class FileDialog {
     }
 
     void onClickSaveAs(final EditableModel model, BufferedImage bufferedImage, int operationType, boolean updateCurrent) {
-        try {
-            fileChooser.setDialogTitle("Save as");
-            setFilter(operationType);
-            setCurrentDirectory(model);
-            if (model != null) {
-                File selectedFile = model.getFile();
-                if (selectedFile == null) {
-                    System.out.println("model.getName(): " + model.getName());
-                    selectedFile = new File(fileChooser.getCurrentDirectory(), model.getName());
-                } else if (model.isTemp()) {
-                    System.out.println("selectedFile.getName(): " + selectedFile.getName());
-                    selectedFile = new File(fileChooser.getCurrentDirectory(), selectedFile.getName());
-                }
-                fileChooser.setSelectedFile(selectedFile);
+        fileChooser.setDialogTitle("Save as");
+        setFilter(operationType);
+        setCurrentDirectory(model);
+        if (model != null) {
+            File selectedFile = model.getFile();
+            if (selectedFile == null) {
+                System.out.println("model.getName(): " + model.getName());
+                selectedFile = new File(fileChooser.getCurrentDirectory(), model.getName());
+            } else if (model.isTemp()) {
+                System.out.println("selectedFile.getName(): " + selectedFile.getName());
+                selectedFile = new File(fileChooser.getCurrentDirectory(), selectedFile.getName());
             }
-
-            final int returnValue = fileChooser.showSaveDialog(mainPanel);
-            File modelFile = fileChooser.getSelectedFile();
+            fileChooser.setSelectedFile(selectedFile);
+        }
+        try {
+            final int returnValue = fileChooser.showSaveDialog(getParent());
+            File file = fileChooser.getSelectedFile();
             if (returnValue == JFileChooser.APPROVE_OPTION) {
-                if (modelFile != null) {
-                    String ext = getExtension(modelFile).toLowerCase();
-                    String absolutePath = modelFile.getAbsolutePath();
+                if (file != null) {
+                    String ext = getExtension(file).toLowerCase();
+                    String absolutePath = file.getAbsolutePath();
                     if (absolutePath.lastIndexOf('.') == -1) {
                         absolutePath += "." + ext;
-                        modelFile = new File(absolutePath);
+                        file = new File(absolutePath);
                     }
-                    mainPanel.profile.setPath(modelFile.getParent());
+                    setCurrentPath(file);
 
                     if (savableModelExtensions.contains(ext)) {
-                        saveModel(model, modelFile, ext, updateCurrent);
+                        saveModel(model, file, ext, updateCurrent);
                     } else if (savableTextureExtensions.contains(ext) && bufferedImage != null) {
-                        saveTexture(bufferedImage, modelFile, ext);
+                        saveTexture(bufferedImage, file, ext);
                     }
                 } else {
-                    JOptionPane.showMessageDialog(mainPanel,
+                    JOptionPane.showMessageDialog(getParent(),
                             "You tried to save, but you somehow didn't select a file.\nThat is bad.");
                 }
             }
@@ -224,22 +288,32 @@ public class FileDialog {
         }
     }
 
+    public void exportInternalFile(String internalPath) {
+        setCurrentDirectory(getModel());
+        String fileName = internalPath.replaceAll(".+[\\\\/](?=.+)", "");
+        System.out.println("intP: " + internalPath + "\nfileName: " + fileName);
+        System.out.println("path: " + getPath());
+        File tempFile = new File(fileChooser.getCurrentDirectory(), fileName);
+        fileChooser.setSelectedFile(tempFile);
+        final int returnValue = fileChooser.showSaveDialog(getParent());
+        File selectedFile = fileChooser.getSelectedFile();
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            try {
+                Files.copy(GameDataFileSystem.getDefault().getResourceAsStream(internalPath), selectedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+
+        }
+    }
+
     public void exportAnimatedFramePNG() {
-        if (mainPanel.currentModelPanel() != null) {
-            final BufferedImage fBufferedImage = mainPanel.currentModelPanel().getPerspArea().getViewport().getBufferedImage();
+        if (getModelPanel() != null) {
+            final BufferedImage fBufferedImage = getModelPanel().getPerspArea().getViewport().getBufferedImage();
 //            final BufferedImage fBufferedImage = mainPanel.currentModelPanel().getAnimationViewer().getBufferedImage();
             if (fBufferedImage != null) {
                 onClickSaveAs(null, fBufferedImage, SAVE_TEXTURE, false);
             }
-        }
-    }
-
-    private String getExtension(File modelFile) {
-        final String name = modelFile.getName();
-        if (name.lastIndexOf('.') != -1) {
-            return name.substring(name.lastIndexOf('.') + 1);
-        } else {
-            return ((FileNameExtensionFilter) fileChooser.getFileFilter()).getExtensions()[0];
         }
     }
 
@@ -261,19 +335,23 @@ public class FileDialog {
             // TODO reset been saved
         }
         SaveProfile.get().addRecent(modelFile.getPath());
-        MenuBar.updateRecent(mainPanel);
+        MenuBar.updateRecent();
+    }
+
+    void onClickOpen() {
+        onClickOpen(OPEN_FILE);
     }
 
     private void setCurrentModelFile(File modelFile) {
-        mainPanel.currentFile = modelFile;
-        mainPanel.currentModelPanel().getMenuItem().setName(mainPanel.currentFile.getName().split("\\.")[0]);
-        mainPanel.currentModelPanel().getMenuItem().setToolTipText(mainPanel.currentFile.getPath());
+        setCurrentFile(modelFile);
+        getModelPanel().getMenuItem().setName(getCurrentFile().getName().split("\\.")[0]);
+        getModelPanel().getMenuItem().setToolTipText(getCurrentFile().getPath());
     }
 
     private void saveTexture(BufferedImage bufferedImage, File modelFile, String ext) throws IOException {
         String fileExtension = ext.toLowerCase();
         if (fileExtension.equals("bmp") || fileExtension.equals("jpg") || fileExtension.equals("jpeg")) {
-            JOptionPane.showMessageDialog(mainPanel,
+            JOptionPane.showMessageDialog(getParent(),
                     "Warning: Alpha channel was converted to black. Some data will be lost" +
                             "\nif you convert this texture back to Warcraft BLP.");
             bufferedImage = BLPHandler.removeAlphaChannel(bufferedImage);
@@ -281,23 +359,22 @@ public class FileDialog {
         final boolean write = ImageIO.write(bufferedImage, fileExtension, modelFile);
         SaveProfile.get().addRecent(modelFile.getPath());
         if (!write) {
-            JOptionPane.showMessageDialog(mainPanel, "File type unknown or unavailable");
+            JOptionPane.showMessageDialog(getParent(), "File type unknown or unavailable");
         }
-
     }
 
     private void setCurrentDirectory(EditableModel model) {
         if ((model != null) && !model.isTemp() && (model.getFile() != null)) {
             fileChooser.setCurrentDirectory(model.getFile().getParentFile());
-        } else if (mainPanel.profile.getPath() != null) {
-            fileChooser.setCurrentDirectory(new File(mainPanel.profile.getPath()));
+        } else if (getPath() != null) {
+            fileChooser.setCurrentDirectory(new File(getPath()));
         }
     }
 
     void onClickSave() {
         System.out.println("saving");
         try {
-            EditableModel model = mainPanel.currentMDL();
+            EditableModel model = getModel();
             if (model != null && !model.isTemp()) {
                 File modelFile = model.getFile();
                 if (modelFile != null) {
@@ -319,17 +396,13 @@ public class FileDialog {
         }
     }
 
-    void onClickOpen() {
-        onClickOpen(OPEN_FILE);
-    }
-
     void onClickOpen(int operationType) {
         fileChooser.setDialogTitle("Open");
         setFilter(operationType);
-        final EditableModel model = mainPanel.currentMDL();
+        final EditableModel model = getModel();
         setCurrentDirectory(model);
 
-        final int returnValue = fileChooser.showOpenDialog(mainPanel);
+        final int returnValue = fileChooser.showOpenDialog(getParent());
 
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             openFile(fileChooser.getSelectedFile());
@@ -341,7 +414,7 @@ public class FileDialog {
     public EditableModel chooseModelFile(int operationType) {
         fileChooser.setDialogTitle("Open");
         setFilter(operationType);
-        setCurrentDirectory(mainPanel.currentMDL());
+        setCurrentDirectory(getModel());
 
         final int returnValue = fileChooser.showOpenDialog(mainPanel);
         File file = fileChooser.getSelectedFile();
@@ -355,7 +428,7 @@ public class FileDialog {
                     absolutePath += "." + ext;
                     file = new File(absolutePath);
                 }
-                mainPanel.profile.setPath(file.getParent());
+                setCurrentPath(file);
 
                 if (savableModelExtensions.contains(ext)) {
                     try {
@@ -373,19 +446,53 @@ public class FileDialog {
         return model;
     }
 
+    public EditableModel getModel() {
+        if (mainPanel != null) {
+            return mainPanel.currentMDL();
+        } else if (modelPanel != null) {
+            return modelPanel.getModel();
+        } else {
+            return null;
+        }
+    }
+
+    private ModelPanel getModelPanel() {
+        if (mainPanel != null) {
+            return mainPanel.currentModelPanel();
+        } else if (modelPanel != null) {
+            return modelPanel;
+        } else {
+            return null;
+        }
+    }
+
+    private JComponent getParent() {
+        if (mainPanel != null) {
+            return mainPanel;
+        } else if (modelPanel != null) {
+            return modelPanel.getParent();
+        } else if (parent != null) {
+            return parent;
+        } else {
+            return null;
+        }
+    }
+
     public void openFile(final File file) {
         if (file != null) {
-            mainPanel.currentFile = file;
-            mainPanel.profile.setPath(file.getParent());
+            setCurrentFile(file);
+            setCurrentPath(file);
             // frontArea.clearGeosets();
             // sideArea.clearGeosets();
             // botArea.clearGeosets();
-            mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
+//            mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
+            MenuBar.toolsMenu.getAccessibleContext().setAccessibleDescription(
                     "Allows the user to control which parts of the model are displayed for editing.");
-            mainPanel.toolsMenu.setEnabled(true);
-            SaveProfile.get().addRecent(mainPanel.currentFile.getPath());
-            MenuBar.updateRecent(mainPanel);
-            MPQBrowserView.loadFile(mainPanel, mainPanel.currentFile);
+//            mainPanel.toolsMenu.setEnabled(true);
+            MenuBar.toolsMenu.setEnabled(true);
+            SaveProfile.get().addRecent(getCurrentFile().getPath());
+            MenuBar.updateRecent();
+            MPQBrowserView.loadFile(mainPanel, getCurrentFile());
         }
     }
 }
