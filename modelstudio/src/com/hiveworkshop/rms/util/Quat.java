@@ -12,8 +12,8 @@ public class Quat extends Vec4 {
 		w = 1;
 	}
 
-	public Quat(final double a, final double b, final double c, final double d) {
-		set(a, b, c, d);
+	public Quat(final double x, final double y, final double z, final double w) {
+		set(x, y, z, w);
 	}
 
 	public Quat(final Quat other) {
@@ -24,7 +24,31 @@ public class Quat extends Vec4 {
 		set(eulerRotation);
 	}
 
-	public void set(final Vec3 eulerRotation) {
+	public static Quat getSlerped(final Quat from, final Quat toward, final float t) {
+		return new Quat(from).slerp(toward, t);
+	}
+
+	public Quat(final float[] data) {
+		set(data);
+	}
+
+	public Quat(final Vec3 axis, final float angle) {
+		setFromAxisAngle(axis, angle);
+	}
+
+	public static Quat getSquad(final Quat from, final Quat toward, final Quat outTan, final Quat inTan, final float t) {
+		return new Quat(from).squad(toward, outTan, inTan, t);
+	}
+
+	public static Quat getProd(final Quat a, final Quat b) {
+		return new Quat(a).mul(b);
+	}
+
+	public static Quat getInverseRotation(Quat q) {
+		return new Quat(q).invertRotation();
+	}
+
+	public Quat set(final Vec3 eulerRotation) {
 		// eulerRotation.x = Math.toRadians(eulerRotation.x);
 		// eulerRotation.y = Math.toRadians(eulerRotation.y);
 		// eulerRotation.z = Math.toRadians(eulerRotation.z);
@@ -87,38 +111,7 @@ public class Quat extends Vec4 {
 		 */
 
 		// Now Quaternions can go burn and die.
-	}
-
-	public Quat(final float[] data) {
-		set(data);
-	}
-
-	public Quat(final Vec3 axis, final float angle) {
-		setFromAxisAngle(axis, angle);
-	}
-
-	public void setFromAxisAngle(final Vec3 axis, final float angle) {
-		setFromAxisAngle(axis.x, axis.y, axis.z, angle);
-	}
-
-	public void setFromAxisAngle(final Vec4 axis) {
-		setFromAxisAngle(axis.x, axis.y, axis.z, axis.w);
-	}
-
-	public void setFromAxisAngle(final float ax, final float ay, final float az, final float angle) {
-		final float halfAngle = angle / 2;
-		final float sinOfHalfAngle = (float) Math.sin(halfAngle);
-		x = ax * sinOfHalfAngle;
-		y = ay * sinOfHalfAngle;
-		z = az * sinOfHalfAngle;
-		w = (float) Math.cos(halfAngle);
-	}
-
-	public void setIdentity() {
-		x = 0;
-		y = 0;
-		z = 0;
-		w = 1;
+		return this;
 	}
 
 	public Vec3 toEuler() {
@@ -179,165 +172,146 @@ public class Quat extends Vec4 {
 		// Now Quaternions can go burn and die.
 	}
 
-	private Quat slerp(float ax, float ay, float az, float aw, final float t, final Quat out) {
+	public Quat setFromAxisAngle(final Vec3 axis, final float angle) {
+		return setFromAxisAngle(axis.x, axis.y, axis.z, angle);
+	}
+
+	public Quat setFromAxisAngle(final Vec4 axis) {
+		return setFromAxisAngle(axis.x, axis.y, axis.z, axis.w);
+	}
+
+	public Quat setFromAxisAngle(final float ax, final float ay, final float az, final float angle) {
+		final float halfAngle = angle / 2;
+		final float sinOfHalfAngle = (float) Math.sin(halfAngle);
+		x = ax * sinOfHalfAngle;
+		y = ay * sinOfHalfAngle;
+		z = az * sinOfHalfAngle;
+		w = (float) Math.cos(halfAngle);
+		return this;
+	}
+
+	public Quat setIdentity() {
+		x = 0;
+		y = 0;
+		z = 0;
+		w = 1;
+		return this;
+	}
+
+//	public Quat squad(final Quat outTan, final Quat inTan, final Quat a, final float t, final Quat out) {
+//        outTan.slerp(inTan, t, out);
+//
+//		final float x = out.x;
+//		final float y = out.y;
+//		final float z = out.z;
+//        final float w = out.w;
+//
+//		slerp(a, t, out);
+//
+//		out.slerp(x, y, z, w, 2 * t * (1 - t), out);
+//
+//		return out;
+//	}
+
+	private Quat getSlerped(final Quat from, float ax, float ay, float az, float aw, final float t) {
+		Quat temp = new Quat(ax, ay, az, aw);
+		return new Quat(from).slerp(temp, t);
+	}
+
+	private Quat slerp(float ax, float ay, float az, float aw, final float t) {
+		Quat temp = new Quat(ax, ay, az, aw);
+		return slerp(temp, t);
+	}
+
+	public Quat slerp(final Quat toward, final float t) {
 		final float scale0, scale1;
+		float dir = 1;
 		// calc cosine
-		float cosom = (x * ax) + (y * ay) + (z * az) + (w * aw);
+		float cosOm = (x * toward.x) + (y * toward.y) + (z * toward.z) + (w * toward.w);
 		// adjust signs (if necessary)
-		if (cosom < 0) {
-			cosom = -cosom;
-			ax = -ax;
-			ay = -ay;
-			az = -az;
-			aw = -aw;
+		if (cosOm < 0) {
+			cosOm = -cosOm;
+			dir = -1;
+//			a.x = -a.x;
+//			a.y = -a.y;
+//			a.z = -a.z;
+//			a.w = -a.w;
 		}
 		// calculate coefficients
-		if ((1.0 - cosom) > 0.000001) {
+		if ((1.0 - cosOm) > 0.000001) {
 			// standard case (slerp)
-			final float omega = (float) Math.acos(cosom);
-			final float sinom = (float) Math.sin(omega);
+			final float omega = (float) Math.acos(cosOm);
+			final float sinOm = (float) Math.sin(omega);
 
-			scale0 = (float) Math.sin((1.0 - t) * omega) / sinom;
-			scale1 = (float) Math.sin(t * omega) / sinom;
+			scale0 = (float) Math.sin((1.0 - t) * omega) / sinOm;
+			scale1 = (float) Math.sin(t * omega) / sinOm;
 		} else {
 			// "from" and "to" quaternions are very close
 			// ... so we can do a linear interpolation
 			scale0 = 1.0f - t;
 			scale1 = t;
 		}
-
-		out.x = (scale0 * x) + (scale1 * ax);
-		out.y = (scale0 * y) + (scale1 * ay);
-		out.z = (scale0 * z) + (scale1 * az);
-		out.w = (scale0 * w) + (scale1 * aw);
+		this.scale(scale0).add(Quat.getScaled(toward, scale1 * dir));
+//		x = (scale0 * x) + (scale1 * dir * toward.x);
+//		y = (scale0 * y) + (scale1 * dir * toward.y);
+//		z = (scale0 * z) + (scale1 * dir * toward.z);
+//		w = (scale0 * w) + (scale1 * dir * toward.w);
 
 		// Super slow and generally not needed.
 		// quat.normalize(out, out);
-		return out;
+		return this;
+//		return slerp(a, t, this);
 	}
 
-	public Quat slerp(final Quat a, final float t, final Quat out) {
-		return slerp(a.x, a.y, a.z, a.w, t, out);
-	}
+	public Quat squad(final Quat toward, final Quat outTan, final Quat inTan, final float t) {
+//		outTan.slerp(inTan, t, out);
+		Quat temp = getSlerped(outTan, inTan, t);
 
-	public Quat slerp(final Quat a, final float t) {
-		return slerp(a, t, this);
-	}
+//		slerp(toward, t, out);
 
-	public Quat squad(final Quat outTan, final Quat inTan, final Quat a, final float t, final Quat out) {
-        outTan.slerp(inTan, t, out);
+//		Quat temp2 = getSlerped(this, toward, t);
+//		Quat temp3 = getSlerped(temp2, temp, 2 * t * (1 - t));
+//		return (Quat) set(temp3);
 
-		final float x = out.x;
-		final float y = out.y;
-		final float z = out.z;
-        final float w = out.w;
-        
-		slerp(a, t, out);
-
-		out.slerp(x, y, z, w, 2 * t * (1 - t), out);
-		
-		return out;
-	}
-
-	public Quat squad(final Quat outTan, final Quat inTan, final Quat a, final float t) {
-		return squad(outTan, inTan, a, t, this);
-	}
-
-	public Quat mul(final Quat a, final Quat out) {
-		final float ax = a.x;
-		final float ay = a.y;
-		final float az = a.z;
-		final float aw = a.w;
-
-		final float thisx = x;
-		final float thisy = y;
-		final float thisz = z;
-		final float thisw = w;
-
-		out.x = (thisx * aw) + (thisw * ax) + (thisy * az) - (thisz * ay);
-		out.y = (thisy * aw) + (thisw * ay) + (thisz * ax) - (thisx * az);
-		out.z = (thisz * aw) + (thisw * az) + (thisx * ay) - (thisy * ax);
-		out.w = (thisw * aw) - (thisx * ax) - (thisy * ay) - (thisz * az);
-
-		return out;
+		slerp(toward, t);
+		return slerp(temp, 2 * t * (1 - t));
 	}
 
 	public Quat mul(final Quat a) {
-		return mul(a, this);
+		float newX = (x * a.w) + (w * a.x) + (y * a.z) - (z * a.y);
+		float newY = (y * a.w) + (w * a.y) + (z * a.x) - (x * a.z);
+		float newZ = (z * a.w) + (w * a.z) + (x * a.y) - (y * a.x);
+		float newW = (w * a.w) - (x * a.x) - (y * a.y) - (z * a.z);
+		return (Quat) set(newX, newY, newZ, newW);
 	}
 
-	public Quat mulInverse(final Quat a, final Quat out) {
-		final float ax = a.x;
-		final float ay = a.y;
-		final float az = a.z;
-		final float aw = a.w;
-
-		final float thisx = x;
-		final float thisy = y;
-		final float thisz = z;
-		final float thisw = w;
+	public Quat mulInverse(final Quat a) {
 		float len = a.lengthSquared();
 
 		if (len > 0) {
 			len = 1 / len;
 		}
 
-		out.x = ((thisx * aw) - (thisw * ax) - (thisy * az) + (thisz * ay)) * len;
-		out.y = ((thisy * aw) - (thisw * ay) - (thisz * ax) + (thisx * az)) * len;
-		out.z = ((thisz * aw) - (thisw * az) - (thisx * ay) + (thisy * ax)) * len;
-		out.w = ((thisw * aw) + (thisx * ax) + (thisy * ay) + (thisz * az)) * len;
+		float newX = ((x * a.w) - (w * a.x) - (y * a.z) + (z * a.y)) * len;
+		float newY = ((y * a.w) - (w * a.y) - (z * a.x) + (x * a.z)) * len;
+		float newZ = ((z * a.w) - (w * a.z) - (x * a.y) + (y * a.x)) * len;
+		float newW = ((w * a.w) + (x * a.x) + (y * a.y) + (z * a.z)) * len;
 
-		return out;
+		return (Quat) set(newX, newY, newZ, newW);
 	}
 
-	public Quat mulInverse(final Quat a) {
-		return mulInverse(a, this);
+	public Quat invertRotation() {
+		x = -x;
+		y = -y;
+		z = -z;
+		return this;
 	}
 
-	public Vec4 transform(final Vec4 a, final Vec4 out) {
-        final float ax = a.x;
-        final float ay = a.y;
-        final float az = a.z;
-        final float uvx = y * az - z * ay;
-        final float uvy = z * ax - x * az;
-        final float uvz = x * ay - y * ax;
-        final float uuvx = y * uvz - z * uvy;
-        final float uuvy = z * uvx - x * uvz;
-        final float uuvz = x * uvy - y * uvx;
-		final float w2 = w * 2;
-
-        out.x = ax + (uvx * w2) + (uuvx * 2);
-        out.y = ay + (uvy * w2) + (uuvy * 2);
-		out.z = az + (uvz * w2) + (uuvz * 2);
-		out.w = a.w;
-
-        return out;
-	}
-	
-	public Vec4 transform(final Vec4 a) {
-		return transform(a, a);
-	}
-
-	public Vec3 transform(final Vec3 a, final Vec3 out) {
-        final float ax = a.x;
-        final float ay = a.y;
-        final float az = a.z;
-        final float uvx = y * az - z * ay;
-        final float uvy = z * ax - x * az;
-        final float uvz = x * ay - y * ax;
-        final float uuvx = y * uvz - z * uvy;
-        final float uuvy = z * uvx - x * uvz;
-        final float uuvz = x * uvy - y * uvx;
-		final float w2 = w * 2;
-
-        out.x = ax + (uvx * w2) + (uuvx * 2);
-        out.y = ay + (uvy * w2) + (uuvy * 2);
-        out.z = az + (uvz * w2) + (uuvz * 2);
-
-        return out;
-	}
-	
-	public Vec3 transform(final Vec3 a) {
-		return transform(a, a);
+	public Quat set(Quat q) {
+		x = q.x;
+		y = q.y;
+		z = q.z;
+		w = q.w;
+		return this;
 	}
 }

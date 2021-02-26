@@ -196,11 +196,8 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	public static void hitTest(final List<IdObject> selectedItems, final Rectangle2D area, final Vec3 geosetVertex, final CoordinateSystem coordinateSystem, final double vertexSize, final IdObject object, final RenderModel renderModel) {
 		final RenderNode renderNode = renderModel.getRenderNode(object);
-		pivotHeap.x = geosetVertex.x;
-		pivotHeap.y = geosetVertex.y;
-		pivotHeap.z = geosetVertex.z;
-		pivotHeap.w = 1;
-		renderNode.getWorldMatrix().transform(pivotHeap);
+		Vec4 pivotHeap = new Vec4(geosetVertex, 1);
+		pivotHeap.transform(renderNode.getWorldMatrix());
 		final byte dim1 = coordinateSystem.getPortFirstXYZ();
 		final byte dim2 = coordinateSystem.getPortSecondXYZ();
 		final double minX = coordinateSystem.convertX(area.getMinX());
@@ -217,11 +214,8 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	public static boolean hitTest(final Vec3 vertex, final Point2D point, final CoordinateSystem coordinateSystem, final double vertexSize, final Mat4 worldMatrix) {
-		pivotHeap.x = vertex.x;
-		pivotHeap.y = vertex.y;
-		pivotHeap.z = vertex.z;
-		pivotHeap.w = 1;
-		worldMatrix.transform(pivotHeap);
+		Vec4 pivotHeap = new Vec4(vertex, 1);
+		pivotHeap.transform(worldMatrix);
 		final double x = coordinateSystem.convertX(pivotHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
 		final double y = coordinateSystem.convertY(pivotHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
 		final double px = coordinateSystem.convertX(point.getX());

@@ -10,8 +10,8 @@ import java.awt.event.ActionListener;
 
 public class AnimationController extends JPanel {
 	private ModelView mdlDisp;
-	private final DefaultComboBoxModel<Animation> animations;
-	private final JComboBox<Animation> animationBox;
+	private DefaultComboBoxModel<Animation> animations;
+	private JComboBox<Animation> animationBox;
 	private final boolean allowUnanimated;
 
 	public AnimationController(final ModelView mdlDisp, final boolean allowUnanimated, final AnimationControllerListener listener) {

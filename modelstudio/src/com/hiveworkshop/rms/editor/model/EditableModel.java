@@ -1865,170 +1865,88 @@ public class EditableModel implements Named {
 		}
 	}
 
-	public void simplifyKeyframes() {
-		final EditableModel currentMDL = this;
-		final List<AnimFlag> allAnimFlags = currentMDL.getAllAnimFlags();
-		final List<Animation> anims = currentMDL.getAnims();
+	public static void recalculateTangents(final EditableModel currentMDL, final Component parent) {
+		// copied from
+		// https://github.com/TaylorMouse/MaxScripts/blob/master/Warcraft%203%20Reforged/GriffonStudios/GriffonStudios_Warcraft_3_Reforged_Export.ms#L169
+		currentMDL.doSavePreps(); // I wanted to use VertexId on the triangle
+		for (final Geoset theMesh : currentMDL.getGeosets()) {
+			final double[][] tan1 = new double[theMesh.getVertices().size()][];
+			final double[][] tan2 = new double[theMesh.getVertices().size()][];
+			for (int nFace = 0; nFace < theMesh.getTriangles().size(); nFace++) {
+				final Triangle face = theMesh.getTriangle(nFace);
 
-		for (final AnimFlag flag : allAnimFlags) {
-			final List<Integer> indicesForDeletion = new ArrayList<>();
-			Entry lastEntry = null;
-			for (int i = 0; i < flag.size(); i++) {
-				final Entry entry = flag.getEntry(i);
-				if ((lastEntry != null) && (lastEntry.time.equals(entry.time))) {
-					indicesForDeletion.add(i);
-				}
-				lastEntry = entry;
+				final GeosetVertex v1 = face.getVerts()[0];
+				final GeosetVertex v2 = face.getVerts()[1];
+				final GeosetVertex v3 = face.getVerts()[2];
+
+				final Vec2 w1 = v1.getTVertex(0);
+				final Vec2 w2 = v2.getTVertex(0);
+				final Vec2 w3 = v3.getTVertex(0);
+
+				final double x1 = v2.x - v1.x;
+				final double x2 = v3.x - v1.x;
+				final double y1 = v2.y - v1.y;
+				final double y2 = v3.y - v1.y;
+				final double z1 = v2.z - v1.z;
+				final double z2 = v3.z - v1.z;
+
+				final double s1 = w2.x - w1.x;
+				final double s2 = w3.x - w1.x;
+				final double t1 = w2.y - w1.y;
+				final double t2 = w3.y - w1.y;
+
+				final double r = 1.0 / ((s1 * t2) - (s2 * t1));
+
+				final double[] sdir = {((t2 * x1) - (t1 * x2)) * r, ((t2 * y1) - (t1 * y2)) * r, ((t2 * z1) - (t1 * z2)) * r};
+				final double[] tdir = {((s1 * x2) - (s2 * x1)) * r, ((s1 * y2) - (s2 * y1)) * r, ((s1 * z2) - (s2 * z1)) * r};
+
+				tan1[face.getId(0)] = sdir;
+				tan1[face.getId(1)] = sdir;
+				tan1[face.getId(2)] = sdir;
+
+				tan2[face.getId(0)] = tdir;
+				tan2[face.getId(1)] = tdir;
+				tan2[face.getId(2)] = tdir;
 			}
-			for (int i = indicesForDeletion.size() - 1; i >= 0; i--) {
-				flag.deleteAt(indicesForDeletion.get(i));
+			for (int vertexId = 0; vertexId < theMesh.getVertices().size(); vertexId++) {
+				final GeosetVertex gv = theMesh.getVertex(vertexId);
+				final Vec3 n = gv.getNormal();
+				final Vec3 t = new Vec3(tan1[vertexId]);
+
+				final Vec3 v = new Vec3(t).sub(n).scale(n.dot(t)).normalize();
+				final Vec3 cross = Vec3.getCross(n, t);
+
+				final Vec3 tanAsVert = new Vec3(tan2[vertexId]);
+
+				double w = cross.dot(tanAsVert);
+
+				if (w < 0.0) {
+					w = -1.0;
+				} else {
+					w = 1.0;
+				}
+				gv.setTangent(new float[] {v.x, v.y, v.z, (float) w});
 			}
 		}
-		for (final Animation anim : anims) {
-			for (final AnimFlag flag : allAnimFlags) {
-				if (!flag.hasGlobalSeq()) {
-					Object olderKeyframe = null;
-					Object oldKeyframe = null;
-					final List<Integer> indicesForDeletion = new ArrayList<>();
-					for (int i = 0; i < flag.size(); i++) {
-						final Entry entry = flag.getEntry(i);
-						//
-						// //Types of AnimFlags:
-						// // 0 Alpha
-						// public static final int ALPHA = 0;
-						// // 1 Scaling
-						// public static final int SCALING = 1;
-						// // 2 Rotation
-						// public static final int ROTATION = 2;
-						// // 3 Translation
-						// public static final int TRANSLATION = 3;
-						// // 4 Color
-						// public static final int COLOR = 4;
-						// // 5 TextureID
-						// public static final int TEXTUREID = 5;
-						if ((entry.time >= anim.getStart()) && (entry.time <= anim.getEnd())) {
-							if (entry.value instanceof Float) {
-								final Float d = (Float) entry.value;
-								final Float older = (Float) olderKeyframe;
-								final Float old = (Float) oldKeyframe;
-								if ((older != null) && (old != null) && MathUtils.isBetween(older, old, d)) {
-									indicesForDeletion.add(i - 1);
-								}
-							} else if (entry.value instanceof Vec3) {
-								final Vec3 current = (Vec3) entry.value;
-								final Vec3 older = (Vec3) olderKeyframe;
-								final Vec3 old = (Vec3) oldKeyframe;
-								if ((older != null) && (old != null) && MathUtils.isBetween(older.x, old.x, current.x)
-										&& MathUtils.isBetween(older.y, old.y, current.y)
-										&& MathUtils.isBetween(older.z, old.z, current.z)) {
-									indicesForDeletion.add(i - 1);
-								}
-							} else if (entry.value instanceof Quat) {
-								final Quat current = (Quat) entry.value;
-								final Quat older = (Quat) olderKeyframe;
-								final Quat old = (Quat) oldKeyframe;
-								final Vec3 euler = current.toEuler();
-								if ((older != null) && (old != null)) {
-									final Vec3 olderEuler = older.toEuler();
-									final Vec3 oldEuler = old.toEuler();
-									if (MathUtils.isBetween(olderEuler.x, oldEuler.x, euler.x)
-											&& MathUtils.isBetween(olderEuler.y, oldEuler.y, euler.y)
-											&& MathUtils.isBetween(olderEuler.z, oldEuler.z, euler.z)) {
-										// if
-										// (MathUtils.isBetween(older.a,
-										// old.a, current.a)
-										// &&
-										// MathUtils.isBetween(older.b,
-										// old.b, current.b)
-										// &&
-										// MathUtils.isBetween(older.c,
-										// old.c, current.c)
-										// &&
-										// MathUtils.isBetween(older.d,
-										// old.d, current.d)) {
-										indicesForDeletion.add(i - 1);
-									}
-								}
-							}
-							olderKeyframe = oldKeyframe;
-							oldKeyframe = entry.value;
-						}
-					}
-					for (int i = indicesForDeletion.size() - 1; i >= 0; i--) {
-						flag.deleteAt(indicesForDeletion.get(i));
-					}
+		int goodTangents = 0;
+		int badTangents = 0;
+		for (final Geoset theMesh : currentMDL.getGeosets()) {
+			for (final GeosetVertex gv : theMesh.getVertices()) {
+				final double dotProduct = gv.getNormal().dot(new Vec3(gv.getTangent()));
+				if (Math.abs(dotProduct) <= 0.000001) {
+					goodTangents += 1;
+				} else {
+					System.out.println(dotProduct);
+					badTangents += 1;
 				}
 			}
 		}
-		for (final Integer globalSeq : currentMDL.getGlobalSeqs()) {
-			for (final AnimFlag flag : allAnimFlags) {
-				if (flag.hasGlobalSeq() && flag.getGlobalSeq().equals(globalSeq)) {
-					Object olderKeyframe = null;
-					Object oldKeyframe = null;
-					final List<Integer> indicesForDeletion = new ArrayList<>();
-					for (int i = 0; i < flag.size(); i++) {
-						final Entry entry = flag.getEntry(i);
-						//
-						// //Types of AnimFlags:
-						// // 0 Alpha
-						// public static final int ALPHA = 0;
-						// // 1 Scaling
-						// public static final int SCALING = 1;
-						// // 2 Rotation
-						// public static final int ROTATION = 2;
-						// // 3 Translation
-						// public static final int TRANSLATION = 3;
-						// // 4 Color
-						// public static final int COLOR = 4;
-						// // 5 TextureID
-						// public static final int TEXTUREID = 5;
-						if (entry.value instanceof Float) {
-							final Float d = (Float) entry.value;
-							final Float older = (Float) olderKeyframe;
-							final Float old = (Float) oldKeyframe;
-							if ((older != null) && (old != null) && MathUtils.isBetween(older, old, d)) {
-								indicesForDeletion.add(i - 1);
-							}
-						} else if (entry.value instanceof Vec3) {
-							final Vec3 current = (Vec3) entry.value;
-							final Vec3 older = (Vec3) olderKeyframe;
-							final Vec3 old = (Vec3) oldKeyframe;
-							if ((older != null) && (old != null) && MathUtils.isBetween(older.x, old.x, current.x)
-									&& MathUtils.isBetween(older.y, old.y, current.y)
-									&& MathUtils.isBetween(older.z, old.z, current.z)) {
-								indicesForDeletion.add(i - 1);
-							}
-						} else if (entry.value instanceof Quat) {
-							final Quat current = (Quat) entry.value;
-							final Quat older = (Quat) olderKeyframe;
-							final Quat old = (Quat) oldKeyframe;
-							final Vec3 euler = current.toEuler();
-							if ((older != null) && (old != null)) {
-								final Vec3 olderEuler = older.toEuler();
-								final Vec3 oldEuler = old.toEuler();
-								if (MathUtils.isBetween(olderEuler.x, oldEuler.x, euler.x)
-										&& MathUtils.isBetween(olderEuler.y, oldEuler.y, euler.y)
-										&& MathUtils.isBetween(olderEuler.z, oldEuler.z, euler.z)) {
-									// if (MathUtils.isBetween(older.a,
-									// old.a, current.a)
-									// && MathUtils.isBetween(older.b,
-									// old.b, current.b)
-									// && MathUtils.isBetween(older.c,
-									// old.c, current.c)
-									// && MathUtils.isBetween(older.d,
-									// old.d, current.d)) {
-									indicesForDeletion.add(i - 1);
-								}
-							}
-						}
-						olderKeyframe = oldKeyframe;
-						oldKeyframe = entry.value;
-					}
-					for (int i = indicesForDeletion.size() - 1; i >= 0; i--) {
-						flag.deleteAt(indicesForDeletion.get(i));
-					}
-				}
-			}
+		if (parent != null) {
+			JOptionPane.showMessageDialog(parent,
+					"Tangent generation completed.\nGood tangents: " + goodTangents + ", bad tangents: " + badTangents);
+		} else {
+			System.out.println(
+					"Tangent generation completed.\nGood tangents: " + goodTangents + ", bad tangents: " + badTangents);
 		}
 	}
 
@@ -2296,90 +2214,162 @@ public class EditableModel implements Named {
 		}
 	}
 
-	public static void recalculateTangents(final EditableModel currentMDL, final Component parent) {
-		// copied from
-		// https://github.com/TaylorMouse/MaxScripts/blob/master/Warcraft%203%20Reforged/GriffonStudios/GriffonStudios_Warcraft_3_Reforged_Export.ms#L169
-		currentMDL.doSavePreps(); // I wanted to use VertexId on the triangle
-		for (final Geoset theMesh : currentMDL.getGeosets()) {
-			final double[][] tan1 = new double[theMesh.getVertices().size()][];
-			final double[][] tan2 = new double[theMesh.getVertices().size()][];
-			for (int nFace = 0; nFace < theMesh.getTriangles().size(); nFace++) {
-				final Triangle face = theMesh.getTriangle(nFace);
+	public void simplifyKeyframes() {
+		final EditableModel currentMDL = this;
+		final List<AnimFlag> allAnimFlags = currentMDL.getAllAnimFlags();
+		final List<Animation> anims = currentMDL.getAnims();
 
-				final GeosetVertex v1 = face.getVerts()[0];
-				final GeosetVertex v2 = face.getVerts()[1];
-				final GeosetVertex v3 = face.getVerts()[2];
-
-				final Vec2 w1 = v1.getTVertex(0);
-				final Vec2 w2 = v2.getTVertex(0);
-				final Vec2 w3 = v3.getTVertex(0);
-
-				final double x1 = v2.x - v1.x;
-				final double x2 = v3.x - v1.x;
-				final double y1 = v2.y - v1.y;
-				final double y2 = v3.y - v1.y;
-				final double z1 = v2.z - v1.z;
-				final double z2 = v3.z - v1.z;
-
-				final double s1 = w2.x - w1.x;
-				final double s2 = w3.x - w1.x;
-				final double t1 = w2.y - w1.y;
-				final double t2 = w3.y - w1.y;
-
-				final double r = 1.0 / ((s1 * t2) - (s2 * t1));
-
-				final double[] sdir = {((t2 * x1) - (t1 * x2)) * r, ((t2 * y1) - (t1 * y2)) * r, ((t2 * z1) - (t1 * z2)) * r};
-				final double[] tdir = {((s1 * x2) - (s2 * x1)) * r, ((s1 * y2) - (s2 * y1)) * r, ((s1 * z2) - (s2 * z1)) * r};
-
-				tan1[face.getId(0)] = sdir;
-				tan1[face.getId(1)] = sdir;
-				tan1[face.getId(2)] = sdir;
-
-				tan2[face.getId(0)] = tdir;
-				tan2[face.getId(1)] = tdir;
-				tan2[face.getId(2)] = tdir;
-			}
-			for (int vertexId = 0; vertexId < theMesh.getVertices().size(); vertexId++) {
-				final GeosetVertex gv = theMesh.getVertex(vertexId);
-				final Vec3 n = gv.getNormal();
-				final Vec3 t = new Vec3(tan1[vertexId]);
-
-				final Vec3 v = new Vec3(t).sub(n).scale(n.dot(t)).normalize();
-				final Vec3 cross = new Vec3();
-
-				n.cross(t, cross);
-
-				final Vec3 tanAsVert = new Vec3(tan2[vertexId]);
-
-				double w = cross.dot(tanAsVert);
-
-				if (w < 0.0) {
-					w = -1.0;
-				} else {
-					w = 1.0;
+		for (final AnimFlag flag : allAnimFlags) {
+			final List<Integer> indicesForDeletion = new ArrayList<>();
+			Entry lastEntry = null;
+			for (int i = 0; i < flag.size(); i++) {
+				final Entry entry = flag.getEntry(i);
+				if ((lastEntry != null) && (lastEntry.time.equals(entry.time))) {
+					indicesForDeletion.add(i);
 				}
-				gv.setTangent(new float[] {v.x, v.y, v.z, (float) w });
+				lastEntry = entry;
+			}
+			for (int i = indicesForDeletion.size() - 1; i >= 0; i--) {
+				flag.deleteAt(indicesForDeletion.get(i));
 			}
 		}
-		int goodTangents = 0;
-		int badTangents = 0;
-		for (final Geoset theMesh : currentMDL.getGeosets()) {
-			for (final GeosetVertex gv : theMesh.getVertices()) {
-				final double dotProduct = gv.getNormal().dot(new Vec3(gv.getTangent()));
-				if (Math.abs(dotProduct) <= 0.000001) {
-					goodTangents += 1;
-				} else {
-					System.out.println(dotProduct);
-					badTangents += 1;
+		for (final Animation anim : anims) {
+			for (final AnimFlag flag : allAnimFlags) {
+				if (!flag.hasGlobalSeq()) {
+					Object olderKeyframe = null;
+					Object oldKeyframe = null;
+					final List<Integer> indicesForDeletion = new ArrayList<>();
+					for (int i = 0; i < flag.size(); i++) {
+						final Entry entry = flag.getEntry(i);
+						//
+						// //Types of AnimFlags:
+						// // 0 Alpha
+						// public static final int ALPHA = 0;
+						// // 1 Scaling
+						// public static final int SCALING = 1;
+						// // 2 Rotation
+						// public static final int ROTATION = 2;
+						// // 3 Translation
+						// public static final int TRANSLATION = 3;
+						// // 4 Color
+						// public static final int COLOR = 4;
+						// // 5 TextureID
+						// public static final int TEXTUREID = 5;
+						if ((entry.time >= anim.getStart()) && (entry.time <= anim.getEnd())) {
+							if (entry.value instanceof Float) {
+								final Float d = (Float) entry.value;
+								final Float older = (Float) olderKeyframe;
+								final Float old = (Float) oldKeyframe;
+								if ((older != null) && (old != null) && MathUtils.isBetween(older, old, d)) {
+									indicesForDeletion.add(i - 1);
+								}
+							} else if (entry.value instanceof Vec3) {
+								final Vec3 current = (Vec3) entry.value;
+								final Vec3 older = (Vec3) olderKeyframe;
+								final Vec3 old = (Vec3) oldKeyframe;
+								if ((older != null) && (old != null) && MathUtils.isBetween(older.x, old.x, current.x)
+										&& MathUtils.isBetween(older.y, old.y, current.y)
+										&& MathUtils.isBetween(older.z, old.z, current.z)) {
+									indicesForDeletion.add(i - 1);
+								}
+							} else if (entry.value instanceof Quat) {
+								final Quat current = (Quat) entry.value;
+								final Quat older = (Quat) olderKeyframe;
+								final Quat old = (Quat) oldKeyframe;
+								final Vec3 euler = current.toEuler();
+								if ((older != null) && (old != null)) {
+									final Vec3 olderEuler = older.toEuler();
+									final Vec3 oldEuler = old.toEuler();
+									if (MathUtils.isBetween(olderEuler.x, oldEuler.x, euler.x)
+											&& MathUtils.isBetween(olderEuler.y, oldEuler.y, euler.y)
+											&& MathUtils.isBetween(olderEuler.z, oldEuler.z, euler.z)) {
+										// if
+										// (MathUtils.isBetween(older.a,
+										// old.a, current.a)
+										// &&
+										// MathUtils.isBetween(older.b,
+										// old.b, current.b)
+										// &&
+										// MathUtils.isBetween(older.c,
+										// old.c, current.c)
+										// &&
+										// MathUtils.isBetween(older.d,
+										// old.d, current.d)) {
+										indicesForDeletion.add(i - 1);
+									}
+								}
+							}
+							olderKeyframe = oldKeyframe;
+							oldKeyframe = entry.value;
+						}
+					}
+					for (int i = indicesForDeletion.size() - 1; i >= 0; i--) {
+						flag.deleteAt(indicesForDeletion.get(i));
+					}
 				}
 			}
 		}
-		if (parent != null) {
-			JOptionPane.showMessageDialog(parent,
-					"Tangent generation completed.\nGood tangents: " + goodTangents + ", bad tangents: " + badTangents);
-		} else {
-			System.out.println(
-					"Tangent generation completed.\nGood tangents: " + goodTangents + ", bad tangents: " + badTangents);
+		for (final Integer globalSeq : currentMDL.getGlobalSeqs()) {
+			for (final AnimFlag flag : allAnimFlags) {
+				if (flag.hasGlobalSeq() && flag.getGlobalSeq().equals(globalSeq)) {
+					Object olderKeyframe = null;
+					Object oldKeyframe = null;
+					final List<Integer> indicesForDeletion = new ArrayList<>();
+					for (int i = 0; i < flag.size(); i++) {
+						final Entry entry = flag.getEntry(i);
+						//
+						// //Types of AnimFlags:
+						// // 0 Alpha
+						// public static final int ALPHA = 0;
+						// // 1 Scaling
+						// public static final int SCALING = 1;
+						// // 2 Rotation
+						// public static final int ROTATION = 2;
+						// // 3 Translation
+						// public static final int TRANSLATION = 3;
+						// // 4 Color
+						// public static final int COLOR = 4;
+						// // 5 TextureID
+						// public static final int TEXTUREID = 5;
+						if (entry.value instanceof Float) {
+							final Float d = (Float) entry.value;
+							final Float older = (Float) olderKeyframe;
+							final Float old = (Float) oldKeyframe;
+							if ((older != null) && (old != null) && MathUtils.isBetween(older, old, d)) {
+								indicesForDeletion.add(i - 1);
+							}
+						} else if (entry.value instanceof Vec3) {
+							final Vec3 current = (Vec3) entry.value;
+							final Vec3 older = (Vec3) olderKeyframe;
+							final Vec3 old = (Vec3) oldKeyframe;
+							if ((older != null) && (old != null) && MathUtils.isBetween(older.x, current.x, old.x)
+									&& MathUtils.isBetween(older.y, current.y, old.y)
+									&& MathUtils.isBetween(older.z, current.z, old.z)) {
+								indicesForDeletion.add(i - 1);
+							}
+						} else if (entry.value instanceof Quat) {
+							final Quat current = (Quat) entry.value;
+							final Quat older = (Quat) olderKeyframe;
+							final Quat old = (Quat) oldKeyframe;
+							final Vec3 euler = current.toEuler();
+							if ((older != null) && (old != null)) {
+								final Vec3 olderEuler = older.toEuler();
+								final Vec3 oldEuler = old.toEuler();
+								if (MathUtils.isBetween(olderEuler.x, euler.x, oldEuler.x)
+										&& MathUtils.isBetween(olderEuler.y, euler.y, oldEuler.y)
+										&& MathUtils.isBetween(olderEuler.z, euler.z, oldEuler.z)) {
+									indicesForDeletion.add(i - 1);
+								}
+							}
+						}
+						olderKeyframe = oldKeyframe;
+						oldKeyframe = entry.value;
+					}
+					for (int i = indicesForDeletion.size() - 1; i >= 0; i--) {
+						flag.deleteAt(indicesForDeletion.get(i));
+					}
+				}
+			}
 		}
 	}
 

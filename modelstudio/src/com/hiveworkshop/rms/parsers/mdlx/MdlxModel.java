@@ -336,7 +336,7 @@ public class MdlxModel {
 				case MdlUtils.TOKEN_PIVOT_POINTS -> loadPivotPointBlock(stream);
 				case MdlUtils.TOKEN_PARTICLE_EMITTER -> loadObject(particleEmitters, MdlxBlockDescriptor.PARTICLE_EMITTER, stream);
 				case MdlUtils.TOKEN_PARTICLE_EMITTER2 -> loadObject(particleEmitters2, MdlxBlockDescriptor.PARTICLE_EMITTER2, stream);
-				case "ParticleEmitterPopcorn" -> loadObject(particleEmittersPopcorn, MdlxBlockDescriptor.PARTICLE_EMITTER_POPCORN, stream);
+				case MdlUtils.TOKEN_POPCORN_PARTICLE_EMITTER -> loadObject(particleEmittersPopcorn, MdlxBlockDescriptor.PARTICLE_EMITTER_POPCORN, stream);
 				case MdlUtils.TOKEN_RIBBON_EMITTER -> loadObject(ribbonEmitters, MdlxBlockDescriptor.RIBBON_EMITTER, stream);
 				case MdlUtils.TOKEN_CAMERA -> loadObject(cameras, MdlxBlockDescriptor.CAMERA, stream);
 				case MdlUtils.TOKEN_EVENT_OBJECT -> loadObject(eventObjects, MdlxBlockDescriptor.EVENT_OBJECT, stream);

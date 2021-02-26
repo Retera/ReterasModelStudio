@@ -26,7 +26,6 @@ public class DrawBoneActivity implements ModelEditorViewportActivity {
 	private final ProgramPreferences preferences;
 	private ModelEditor modelEditor;
 	private final UndoActionListener undoActionListener;
-	private final Vec3 locationCalculator = new Vec3(0, 0, 0);
 	private final ModelView modelView;
 	private SelectionView selectionView;
 	private final Graphics2DToModelElementRendererAdapter graphics2dToModelElementRendererAdapter;
@@ -60,14 +59,14 @@ public class DrawBoneActivity implements ModelEditorViewportActivity {
 
 	@Override
 	public void mousePressed(final MouseEvent e, final CoordinateSystem coordinateSystem) {
-		locationCalculator.setCoord(coordinateSystem.getPortFirstXYZ(), coordinateSystem.geomX(e.getX()));
-		locationCalculator.setCoord(coordinateSystem.getPortSecondXYZ(), coordinateSystem.geomY(e.getY()));
-		locationCalculator.setCoord(CoordinateSystem.Util.getUnusedXYZ(coordinateSystem), 0);
+		Vec3 worldPressLocation = new Vec3(0, 0, 0);
+		worldPressLocation.setCoord(coordinateSystem.getPortFirstXYZ(), coordinateSystem.geomX(e.getX()));
+		worldPressLocation.setCoord(coordinateSystem.getPortSecondXYZ(), coordinateSystem.geomY(e.getY()));
+		worldPressLocation.setCoord(CoordinateSystem.Util.getUnusedXYZ(coordinateSystem), 0);
 		try {
 			final Viewport viewport = activeViewportWatcher.getViewport();
 			final Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
-			final UndoAction action = modelEditor.addBone(locationCalculator.x, locationCalculator.y,
-					locationCalculator.z);
+			final UndoAction action = modelEditor.addBone(worldPressLocation.x, worldPressLocation.y, worldPressLocation.z);
 			undoActionListener.pushAction(action);
 		} catch (final WrongModeException exc) {
 			JOptionPane.showMessageDialog(null, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

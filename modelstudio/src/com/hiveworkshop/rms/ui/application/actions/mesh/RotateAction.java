@@ -64,9 +64,7 @@ public class RotateAction extends MoveAction {
 		for (int i = 0; i < normals.size(); i++) {
 			final Vec3 ver = normals.get(i);
 			final Vec3 vect = normalMoveVectors.get(i);
-			ver.x += vect.x;
-			ver.y += vect.y;
-			ver.z += vect.z;
+			ver.add(vect);
 		}
 	}
 
@@ -76,9 +74,7 @@ public class RotateAction extends MoveAction {
 		for (int i = 0; i < normals.size(); i++) {
 			final Vec3 ver = normals.get(i);
 			final Vec3 vect = normalMoveVectors.get(i);
-			ver.x -= vect.x;
-			ver.y -= vect.y;
-			ver.z -= vect.z;
+			ver.sub(vect);
 		}
 	}
 

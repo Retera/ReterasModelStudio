@@ -135,16 +135,8 @@ public class GeosetAnim extends TimelineContainer implements Named {
 		return getRenderVisibility(animatedRenderEnvironment, (float) staticAlpha);
 	}
 
-	private static final Vec3 renderColorVector = new Vec3();
-
 	public Vec3 getRenderColor(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		final Vec3 c = getInterpolatedVector(animatedRenderEnvironment, "Color", staticColor);
-
-		renderColorVector.x = c.x;
-		renderColorVector.y = c.y;
-		renderColorVector.z = c.z;
-
-		return renderColorVector;
+		return getInterpolatedVector(animatedRenderEnvironment, "Color", staticColor);
 	}
 
 	public void copyVisibilityFrom(final VisibilitySource other, final EditableModel mdlr) {

@@ -8,194 +8,143 @@ public class Mat4 {
             m30 = 0.0f, m31 = 0.0f, m32 = 0.0f, m33 = 1.0f;
 
     public Mat4() {
-
     }
 
-    public Mat4(final Mat4 a) {
-        set(a);
-    }
+	public Mat4(final Mat4 a) {
+		set(a);
+	}
 
-    public Mat4(final float[] a) {
-        set(a);
-    }
+	public Mat4(final float[] a) {
+		set(a);
+	}
 
-    public Mat4(final float m00, final float m01, final float m02, final float m03, final float m10, final float m11,
-            final float m12, final float m13, final float m20, final float m21, final float m22, final float m23,
-            final float m30, final float m31, final float m32, final float m33) {
-        set(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
-    }
+	public Mat4(final float m00, final float m01, final float m02, final float m03,
+	            final float m10, final float m11, final float m12, final float m13,
+	            final float m20, final float m21, final float m22, final float m23,
+	            final float m30, final float m31, final float m32, final float m33) {
+		set(
+				m00, m01, m02, m03,
+				m10, m11, m12, m13,
+				m20, m21, m22, m23,
+				m30, m31, m32, m33);
+	}
 
-    public void set(final Mat4 a) {
-        set(a.m00, a.m01, a.m02, a.m03, a.m10, a.m11, a.m12, a.m13, a.m20, a.m21, a.m22, a.m23, a.m30, a.m31, a.m32,
-                a.m33);
-    }
+	public static Mat4 getProd(final Mat4 a, final Mat4 b) {
+		return new Mat4(a).mul(b);
+	}
 
-    public void set(final float[] a) {
-        set(a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15]);
-    }
+	public static Mat4 getInverted(final Mat4 mat) {
+		return new Mat4(mat).invert();
+	}
 
-    public void set(final float m00, final float m01, final float m02, final float m03, final float m10,
-            final float m11, final float m12, final float m13, final float m20, final float m21, final float m22,
-            final float m23, final float m30, final float m31, final float m32, final float m33) {
-        this.m00 = m00;
-        this.m01 = m01;
-        this.m02 = m02;
-        this.m03 = m03;
-        this.m10 = m10;
-        this.m11 = m11;
-        this.m12 = m12;
-        this.m13 = m13;
-        this.m20 = m20;
-        this.m21 = m21;
-        this.m22 = m22;
-        this.m23 = m23;
-        this.m30 = m30;
-        this.m31 = m31;
-        this.m32 = m32;
-        this.m33 = m33;
-    }
+	public Mat4 set(final Mat4 a) {
+		set(
+				a.m00, a.m01, a.m02, a.m03,
+				a.m10, a.m11, a.m12, a.m13,
+				a.m20, a.m21, a.m22, a.m23,
+				a.m30, a.m31, a.m32, a.m33);
+		return this;
+	}
 
-    public Vec4 transform(final Vec4 a, final Vec4 out) {
-        float x = a.x;
-        float y = a.y;
-        float z = a.z;
-        float w = a.w;
+	public Mat4 set(final float[] a) {
+		set(
+				a[0], a[1], a[2], a[3],
+				a[4], a[5], a[6], a[7],
+				a[8], a[9], a[10], a[11],
+				a[12], a[13], a[14], a[15]);
+		return this;
+	}
 
-        out.x = (m00 * x) + (m10 * y) + (m20 * z) + (m30 * w);
-        out.y = (m01 * x) + (m11 * y) + (m21 * z) + (m31 * w);
-        out.z = (m02 * x) + (m12 * y) + (m22 * z) + (m32 * w);
-        out.w = (m03 * x) + (m13 * y) + (m23 * z) + (m33 * w);
+	public Mat4 set(final float m00, final float m01, final float m02, final float m03,
+	                final float m10, final float m11, final float m12, final float m13,
+	                final float m20, final float m21, final float m22, final float m23,
+	                final float m30, final float m31, final float m32, final float m33) {
+		this.m00 = m00;
+		this.m01 = m01;
+		this.m02 = m02;
+		this.m03 = m03;
+		this.m10 = m10;
+		this.m11 = m11;
+		this.m12 = m12;
+		this.m13 = m13;
+		this.m20 = m20;
+		this.m21 = m21;
+		this.m22 = m22;
+		this.m23 = m23;
+		this.m30 = m30;
+		this.m31 = m31;
+		this.m32 = m32;
+		this.m33 = m33;
+		return this;
+	}
 
-        return out;
-    }
-
-    public Vec3 transform(final Vec3 a, final Vec3 out) {
-        float x = a.x;
-        float y = a.y;
-        float z = a.z;
-
-        out.x = (m00 * x) + (m10 * y) + (m20 * z) + m30;
-        out.y = (m01 * x) + (m11 * y) + (m21 * z) + m31;
-        out.z = (m02 * x) + (m12 * y) + (m22 * z) + m32;
-
-        return out;
-    }
-
-    public Vec4 transform(final Vec4 a) {
-        return transform(a, a);
-    }
-
-    public Vec3 transform(final Vec3 a) {
-        return transform(a, a);
-    }
-
-    public Mat4 setIdentity() {
-        m00 = 1.0f;
-        m01 = 0.0f;
-        m02 = 0.0f;
-        m03 = 0.0f;
-        m10 = 0.0f;
-        m11 = 1.0f;
-        m12 = 0.0f;
-        m13 = 0.0f;
-        m20 = 0.0f;
-        m21 = 0.0f;
-        m22 = 1.0f;
-        m23 = 0.0f;
-        m30 = 0.0f;
-        m31 = 0.0f;
-        m32 = 0.0f;
-        m33 = 1.0f;
-
-        return this;
-    }
+	public Mat4 setIdentity() {
+		m00 = 1.0f;
+		m01 = 0.0f;
+		m02 = 0.0f;
+		m03 = 0.0f;
+		m10 = 0.0f;
+		m11 = 1.0f;
+		m12 = 0.0f;
+		m13 = 0.0f;
+		m20 = 0.0f;
+		m21 = 0.0f;
+		m22 = 1.0f;
+		m23 = 0.0f;
+		m30 = 0.0f;
+		m31 = 0.0f;
+		m32 = 0.0f;
+		m33 = 1.0f;
+		return this;
+	}
 
     public Mat4 setZero() {
-        m00 = 0.0f;
-        m01 = 0.0f;
-        m02 = 0.0f;
-        m03 = 0.0f;
-        m10 = 0.0f;
-        m11 = 0.0f;
-        m12 = 0.0f;
-        m13 = 0.0f;
-        m20 = 0.0f;
-        m21 = 0.0f;
-        m22 = 0.0f;
-        m23 = 0.0f;
-        m30 = 0.0f;
-        m31 = 0.0f;
-        m32 = 0.0f;
-        m33 = 0.0f;
-
-        return this;
-    }
-
-    public Mat4 mul(final Mat4 a, final Mat4 out) {
-        out.m00 = m00 * a.m00 + m10 * a.m01 + m20 * a.m02 + m30 * a.m03;
-        out.m01 = m01 * a.m00 + m11 * a.m01 + m21 * a.m02 + m31 * a.m03;
-        out.m02 = m02 * a.m00 + m12 * a.m01 + m22 * a.m02 + m32 * a.m03;
-        out.m03 = m03 * a.m00 + m13 * a.m01 + m23 * a.m02 + m33 * a.m03;
-        out.m10 = m00 * a.m10 + m10 * a.m11 + m20 * a.m12 + m30 * a.m13;
-        out.m11 = m01 * a.m10 + m11 * a.m11 + m21 * a.m12 + m31 * a.m13;
-        out.m12 = m02 * a.m10 + m12 * a.m11 + m22 * a.m12 + m32 * a.m13;
-        out.m13 = m03 * a.m10 + m13 * a.m11 + m23 * a.m12 + m33 * a.m13;
-        out.m20 = m00 * a.m20 + m10 * a.m21 + m20 * a.m22 + m30 * a.m23;
-        out.m21 = m01 * a.m20 + m11 * a.m21 + m21 * a.m22 + m31 * a.m23;
-        out.m22 = m02 * a.m20 + m12 * a.m21 + m22 * a.m22 + m32 * a.m23;
-        out.m23 = m03 * a.m20 + m13 * a.m21 + m23 * a.m22 + m33 * a.m23;
-        out.m30 = m00 * a.m30 + m10 * a.m31 + m20 * a.m32 + m30 * a.m33;
-        out.m31 = m01 * a.m30 + m11 * a.m31 + m21 * a.m32 + m31 * a.m33;
-        out.m32 = m02 * a.m30 + m12 * a.m31 + m22 * a.m32 + m32 * a.m33;
-        out.m33 = m03 * a.m30 + m13 * a.m31 + m23 * a.m32 + m33 * a.m33;
-
-        return out;
+	    m00 = 0.0f;
+	    m01 = 0.0f;
+	    m02 = 0.0f;
+	    m03 = 0.0f;
+	    m10 = 0.0f;
+	    m11 = 0.0f;
+	    m12 = 0.0f;
+	    m13 = 0.0f;
+	    m20 = 0.0f;
+	    m21 = 0.0f;
+	    m22 = 0.0f;
+	    m23 = 0.0f;
+	    m30 = 0.0f;
+	    m31 = 0.0f;
+	    m32 = 0.0f;
+	    m33 = 0.0f;
+	    return this;
     }
 
     public Mat4 mul(final Mat4 a) {
-        return mul(a, this);
-    }
-
-    public Mat4 translate(Vec3 a, Mat4 out) {
-        float x = a.x;
-        float y = a.y;
-        float z = a.z;
-
-        out.m30 += m00 * x + m10 * y + m20 * z;
-        out.m31 += m01 * x + m11 * y + m21 * z;
-        out.m32 += m02 * x + m12 * y + m22 * z;
-        out.m33 += m03 * x + m13 * y + m23 * z;
-
-        return out;
+	    Mat4 temp = new Mat4();
+	    temp.m00 = m00 * a.m00 + m10 * a.m01 + m20 * a.m02 + m30 * a.m03;
+	    temp.m01 = m01 * a.m00 + m11 * a.m01 + m21 * a.m02 + m31 * a.m03;
+	    temp.m02 = m02 * a.m00 + m12 * a.m01 + m22 * a.m02 + m32 * a.m03;
+	    temp.m03 = m03 * a.m00 + m13 * a.m01 + m23 * a.m02 + m33 * a.m03;
+	    temp.m10 = m00 * a.m10 + m10 * a.m11 + m20 * a.m12 + m30 * a.m13;
+	    temp.m11 = m01 * a.m10 + m11 * a.m11 + m21 * a.m12 + m31 * a.m13;
+	    temp.m12 = m02 * a.m10 + m12 * a.m11 + m22 * a.m12 + m32 * a.m13;
+	    temp.m13 = m03 * a.m10 + m13 * a.m11 + m23 * a.m12 + m33 * a.m13;
+	    temp.m20 = m00 * a.m20 + m10 * a.m21 + m20 * a.m22 + m30 * a.m23;
+	    temp.m21 = m01 * a.m20 + m11 * a.m21 + m21 * a.m22 + m31 * a.m23;
+	    temp.m22 = m02 * a.m20 + m12 * a.m21 + m22 * a.m22 + m32 * a.m23;
+	    temp.m23 = m03 * a.m20 + m13 * a.m21 + m23 * a.m22 + m33 * a.m23;
+	    temp.m30 = m00 * a.m30 + m10 * a.m31 + m20 * a.m32 + m30 * a.m33;
+	    temp.m31 = m01 * a.m30 + m11 * a.m31 + m21 * a.m32 + m31 * a.m33;
+	    temp.m32 = m02 * a.m30 + m12 * a.m31 + m22 * a.m32 + m32 * a.m33;
+	    temp.m33 = m03 * a.m30 + m13 * a.m31 + m23 * a.m32 + m33 * a.m33;
+	    return set(temp);
     }
 
     public Mat4 translate(Vec3 a) {
-        return translate(a, this);
-    }
-
-    public Mat4 scale(Vec3 a, Mat4 out) {
-        float x = a.x;
-        float y = a.y;
-        float z = a.z;
-
-        out.m00 = m00 * x;
-        out.m01 = m01 * x;
-        out.m02 = m02 * x;
-        out.m03 = m03 * x;
-        out.m10 = m10 * y;
-        out.m11 = m11 * y;
-        out.m12 = m12 * y;
-        out.m13 = m13 * y;
-        out.m20 = m20 * z;
-        out.m21 = m21 * z;
-        out.m22 = m22 * z;
-        out.m23 = m23 * z;
-
-        return out;
-    }
-
-    public Mat4 scale(Vec3 a) {
-        return scale(a, this);
+	    m30 += m00 * a.x + m10 * a.y + m20 * a.z;
+	    m31 += m01 * a.x + m11 * a.y + m21 * a.z;
+	    m32 += m02 * a.x + m12 * a.y + m22 * a.z;
+	    m33 += m03 * a.x + m13 * a.y + m23 * a.z;
+	    return this;
     }
 
     public static Mat4 uniformScale(float v, Mat4 matrixToScale) {
@@ -222,101 +171,93 @@ public class Mat4 {
         return uniformScale(v, this);
     }
 
-    /**
-     * @param v value to scale by
-     * @return a uniformly scaled copy of the matrix
-     */
-    public Mat4 getUniformlyScaled(float v) {
-        Mat4 mat4 = new Mat4(this);
-        return uniformScale(v, mat4);
-    }
+	/**
+	 * @param v value to scale by
+	 * @return a uniformly scaled copy of the matrix
+	 */
+	public Mat4 getUniformlyScaled(float v) {
+		Mat4 mat4 = new Mat4(this);
+		return uniformScale(v, mat4);
+	}
 
-    public Mat4 add(Mat4 out) {
-        out.m00 += m00;
-        out.m01 += m01;
-        out.m02 += m02;
-        out.m03 += m03;
-        out.m10 += m10;
-        out.m11 += m11;
-        out.m12 += m12;
-        out.m13 += m13;
-        out.m20 += m20;
-        out.m21 += m21;
-        out.m22 += m22;
-        out.m23 += m23;
-        out.m30 += m30;
-        out.m31 += m31;
-        out.m32 += m32;
-        out.m33 += m33;
-        return out;
-    }
+	public Mat4 scale(Vec3 a) {
+		m00 = m00 * a.x;
+		m01 = m01 * a.x;
+		m02 = m02 * a.x;
+		m03 = m03 * a.x;
+		m10 = m10 * a.y;
+		m11 = m11 * a.y;
+		m12 = m12 * a.y;
+		m13 = m13 * a.y;
+		m20 = m20 * a.z;
+		m21 = m21 * a.z;
+		m22 = m22 * a.z;
+		m23 = m23 * a.z;
+		return this;
+	}
 
-    public Mat4 addToThis(Mat4 matToAdd) {
-        m00 += matToAdd.m00;
-        m01 += matToAdd.m01;
-        m02 += matToAdd.m02;
-        m03 += matToAdd.m03;
-        m10 += matToAdd.m10;
-        m11 += matToAdd.m11;
-        m12 += matToAdd.m12;
-        m13 += matToAdd.m13;
-        m20 += matToAdd.m20;
-        m21 += matToAdd.m21;
-        m22 += matToAdd.m22;
-        m23 += matToAdd.m23;
-        m30 += matToAdd.m30;
-        m31 += matToAdd.m31;
-        m32 += matToAdd.m32;
-        m33 += matToAdd.m33;
-        return this;
-    }
+	public Mat4 add(Mat4 matToAdd) {
+		m00 += matToAdd.m00;
+		m01 += matToAdd.m01;
+		m02 += matToAdd.m02;
+		m03 += matToAdd.m03;
+		m10 += matToAdd.m10;
+		m11 += matToAdd.m11;
+		m12 += matToAdd.m12;
+		m13 += matToAdd.m13;
+		m20 += matToAdd.m20;
+		m21 += matToAdd.m21;
+		m22 += matToAdd.m22;
+		m23 += matToAdd.m23;
+		m30 += matToAdd.m30;
+		m31 += matToAdd.m31;
+		m32 += matToAdd.m32;
+		m33 += matToAdd.m33;
+		return this;
+	}
 
-    public Mat4 invert(final Mat4 out) {
-        float b00 = m00 * m11 - m01 * m10;
-        float b01 = m00 * m12 - m02 * m10;
-        float b02 = m00 * m13 - m03 * m10;
-        float b03 = m01 * m12 - m02 * m11;
-        float b04 = m01 * m13 - m03 * m11;
-        float b05 = m02 * m13 - m03 * m12;
-        float b06 = m20 * m31 - m21 * m30;
-        float b07 = m20 * m32 - m22 * m30;
-        float b08 = m20 * m33 - m23 * m30;
-        float b09 = m21 * m32 - m22 * m31;
+	public Mat4 invert() {
+		Mat4 temp = new Mat4();
+		float b00 = m00 * m11 - m01 * m10;
+		float b01 = m00 * m12 - m02 * m10;
+		float b02 = m00 * m13 - m03 * m10;
+		float b03 = m01 * m12 - m02 * m11;
+		float b04 = m01 * m13 - m03 * m11;
+		float b05 = m02 * m13 - m03 * m12;
+		float b06 = m20 * m31 - m21 * m30;
+		float b07 = m20 * m32 - m22 * m30;
+		float b08 = m20 * m33 - m23 * m30;
+		float b09 = m21 * m32 - m22 * m31;
         float b10 = m21 * m33 - m23 * m31;
         float b11 = m22 * m33 - m23 * m32;
 
-        // Calculate the determinant
-        float det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+		// Calculate the determinant
+		float det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
-        if (det == 0f) {
-            return null;
-        }
+		if (det == 0f) {
+			return null;
+		}
 
-        det = 1f / det;
+		det = 1f / det;
 
-        out.m00 = (m11 * b11) - (m12 * b10) + (m13 * b09) * det;
-        out.m01 = (m02 * b10) - (m01 * b11) - (m03 * b09) * det;
-        out.m02 = (m31 * b05) - (m32 * b04) + (m33 * b03) * det;
-        out.m03 = (m22 * b04) - (m21 * b05) - (m23 * b03) * det;
-        out.m10 = (m12 * b08) - (m10 * b11) - (m13 * b07) * det;
-        out.m11 = (m00 * b11) - (m02 * b08) + (m03 * b07) * det;
-        out.m12 = (m32 * b02) - (m30 * b05) - (m33 * b01) * det;
-        out.m13 = (m20 * b05) - (m22 * b02) + (m23 * b01) * det;
-        out.m20 = (m10 * b10) - (m11 * b08) + (m13 * b06) * det;
-        out.m21 = (m01 * b08) - (m00 * b10) - (m03 * b06) * det;
-        out.m22 = (m30 * b04) - (m31 * b02) + (m33 * b00) * det;
-        out.m23 = (m21 * b02) - (m20 * b04) - (m23 * b00) * det;
-        out.m30 = (m11 * b07) - (m10 * b09) - (m12 * b06) * det;
-        out.m31 = (m00 * b09) - (m01 * b07) + (m02 * b06) * det;
-        out.m32 = (m31 * b01) - (m30 * b03) - (m32 * b00) * det;
-        out.m33 = (m20 * b03) - (m21 * b01) + (m22 * b00) * det;
-
-        return out;
-    }
-
-    public Mat4 invert() {
-        return invert(this);
-    }
+		temp.m00 = (m11 * b11) - (m12 * b10) + (m13 * b09) * det;
+		temp.m01 = (m02 * b10) - (m01 * b11) - (m03 * b09) * det;
+		temp.m02 = (m31 * b05) - (m32 * b04) + (m33 * b03) * det;
+		temp.m03 = (m22 * b04) - (m21 * b05) - (m23 * b03) * det;
+		temp.m10 = (m12 * b08) - (m10 * b11) - (m13 * b07) * det;
+		temp.m11 = (m00 * b11) - (m02 * b08) + (m03 * b07) * det;
+		temp.m12 = (m32 * b02) - (m30 * b05) - (m33 * b01) * det;
+		temp.m13 = (m20 * b05) - (m22 * b02) + (m23 * b01) * det;
+		temp.m20 = (m10 * b10) - (m11 * b08) + (m13 * b06) * det;
+		temp.m21 = (m01 * b08) - (m00 * b10) - (m03 * b06) * det;
+		temp.m22 = (m30 * b04) - (m31 * b02) + (m33 * b00) * det;
+		temp.m23 = (m21 * b02) - (m20 * b04) - (m23 * b00) * det;
+		temp.m30 = (m11 * b07) - (m10 * b09) - (m12 * b06) * det;
+		temp.m31 = (m00 * b09) - (m01 * b07) + (m02 * b06) * det;
+		temp.m32 = (m31 * b01) - (m30 * b03) - (m32 * b00) * det;
+		temp.m33 = (m20 * b03) - (m21 * b01) + (m22 * b00) * det;
+		return set(temp);
+	}
 
     // copied from ghostwolf and
     // https://www.blend4web.com/api_doc/libs_gl-matrix2.js.html

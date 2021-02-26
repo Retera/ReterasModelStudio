@@ -35,13 +35,10 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 
 	@Override
 	public void undo() {
-		final Vec3 tempInverse = new Vec3();
 		for (final Map.Entry<IdObject, Vec3> nodeAndLocalTranslation : nodeToLocalScale.entrySet()) {
 			final IdObject node = nodeAndLocalTranslation.getKey();
 			final Vec3 localTranslation = nodeAndLocalTranslation.getValue();
-			tempInverse.x = 1 / localTranslation.x;
-			tempInverse.y = 1 / localTranslation.y;
-			tempInverse.z = 1 / localTranslation.z;
+			final Vec3 tempInverse = new Vec3(1, 1, 1).divide(localTranslation);
 			node.updateLocalScalingKeyframe(trackTime, trackGlobalSeq, tempInverse);
 		}
 		addingTimelinesOrKeyframesAction.undo();

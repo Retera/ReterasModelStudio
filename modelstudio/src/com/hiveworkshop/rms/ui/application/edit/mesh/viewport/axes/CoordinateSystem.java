@@ -126,30 +126,18 @@ public interface CoordinateSystem extends CoordinateAxes {
 			return recyclePoint;
 		}
 
-		private static final Vec4 vertexHeap = new Vec4();
-		private static final Vec4 appliedVertexHeap = new Vec4();
-		private static final Vec4 vertexSumHeap = new Vec4();
+		public static Point convertToPoint(final CoordinateSystem coordinateSystem, final GeosetVertex vertex, final Point recyclePoint, final RenderModel renderModel) {
+			Vec4 vertexHeap = new Vec4(vertex, 1);
 
-		public static Point convertToPoint(final CoordinateSystem coordinateSystem, final GeosetVertex vertex,
-				final Point recyclePoint, final RenderModel renderModel) {
-			vertexHeap.x = vertex.x;
-			vertexHeap.y = vertex.y;
-			vertexHeap.z = vertex.z;
-			vertexHeap.w = 1;
-			vertexSumHeap.set(0, 0, 0, 0);
+			Vec4 vertexSumHeap = new Vec4(0, 0, 0, 0);
 			for (final Bone bone : vertex.getBones()) {
-				renderModel.getRenderNode(bone).getWorldMatrix().transform(vertexHeap, appliedVertexHeap);
+				Vec4 appliedVertexHeap = Vec4.getTransformed(vertexHeap, renderModel.getRenderNode(bone).getWorldMatrix());
 				vertexSumHeap.add(appliedVertexHeap);
 			}
 			final int boneCount = vertex.getBones().size();
-			vertexSumHeap.x /= boneCount;
-			vertexSumHeap.y /= boneCount;
-			vertexSumHeap.z /= boneCount;
-			vertexSumHeap.w /= boneCount;
-			recyclePoint.x = (int) coordinateSystem
-					.convertX(vertexSumHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
-			recyclePoint.y = (int) coordinateSystem
-					.convertY(vertexSumHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
+			vertexSumHeap.scale(1f / boneCount);
+			recyclePoint.x = (int) coordinateSystem.convertX(vertexSumHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
+			recyclePoint.y = (int) coordinateSystem.convertY(vertexSumHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
 			return recyclePoint;
 		}
 

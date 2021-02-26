@@ -197,9 +197,7 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 		for (int i = 0; i < 3; i++) {
 			vecFloats[i] = Math.max(min, Math.min(max, vecFloats[i]));
 		}
-		vec3.x = vecFloats[0];
-		vec3.y = vecFloats[1];
-		vec3.z = vecFloats[2];
+		vec3.set(vecFloats);
 	}
 
 	private void addColorChangeListeners() {

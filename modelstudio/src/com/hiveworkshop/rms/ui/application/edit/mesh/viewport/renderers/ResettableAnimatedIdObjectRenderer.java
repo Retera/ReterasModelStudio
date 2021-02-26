@@ -56,16 +56,15 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
         final Vec3 pivotPoint = collisionShape.getPivotPoint();
         final List<Vec3> vertices = collisionShape.getVertices();
         graphics.setColor(color);
-        worldMatrix.transform(pivotPoint, vertexHeap);
-        final int xCoord = (int) coordinateSystem.convertX(vertexHeap.getCoord(xDimension));
+        Vec3 vertexHeap = Vec3.getTransformed(pivotPoint, worldMatrix);
+	    final int xCoord = (int) coordinateSystem.convertX(vertexHeap.getCoord(xDimension));
         final int yCoord = (int) coordinateSystem.convertY(vertexHeap.getCoord(yDimension));
         if (collisionShape.getType() == MdlxCollisionShape.Type.BOX) {
             if (vertices.size() > 1) {
                 final Vec3 vertex = vertices.get(0);
-                final Vec3 vertex2 = vertices.get(1);
-                worldMatrix.transform(vertex, vertexHeap);
-                worldMatrix.transform(vertex2, vertexHeap2);
-                final int firstXCoord = (int) coordinateSystem.convertX(vertexHeap2.getCoord(xDimension));
+	            final Vec3 vertex2 = vertices.get(1);
+	            Vec3 vertexHeap2 = Vec3.getTransformed(vertex2, worldMatrix);
+	            final int firstXCoord = (int) coordinateSystem.convertX(vertexHeap2.getCoord(xDimension));
                 final int firstYCoord = (int) coordinateSystem.convertY(vertexHeap2.getCoord(yDimension));
                 final int secondXCoord = (int) coordinateSystem.convertX(vertexHeap2.getCoord(xDimension));
                 final int secondYCoord = (int) coordinateSystem.convertY(vertexHeap2.getCoord(yDimension));
@@ -137,39 +136,62 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
     @Override
     public void eventObject(final EventObject eventObject) {
         drawNodeImage(eventObject, nodeIconPalette.getEventImage(),
-                renderModel.getRenderNode(eventObject).getWorldMatrix());
+		        renderModel.getRenderNode(eventObject).getWorldMatrix());
     }
 
-    @Override
-    public void collisionShape(final CollisionShape collisionShape) {
-        drawCollisionShape(graphics, pivotPointColor, coordinateSystem, coordinateSystem.getPortFirstXYZ(),
-                coordinateSystem.getPortSecondXYZ(), vertexSize, collisionShape, nodeIconPalette.getCollisionImage(),
-                renderModel.getRenderNode(collisionShape).getWorldMatrix(), crosshairIsBox);
-    }
+	@Override
+	public void collisionShape(final CollisionShape collisionShape) {
+		drawCollisionShape(graphics, pivotPointColor, coordinateSystem, coordinateSystem.getPortFirstXYZ(),
+				coordinateSystem.getPortSecondXYZ(), vertexSize, collisionShape, nodeIconPalette.getCollisionImage(),
+				renderModel.getRenderNode(collisionShape).getWorldMatrix(), crosshairIsBox);
+	}
 
-    @Override
-    public void camera(final Camera camera) {
-        graphics.setColor(Color.GREEN.darker());
-        final Graphics2D g2 = ((Graphics2D) graphics.create());
-        final Vec3 ver = camera.getPosition();
-        final Vec3 targ = camera.getTargetPosition();
-        renderModel.getRenderNode(camera.getSourceNode()).getWorldMatrix().transform(ver, vertexHeap);
-        final float startX = vertexHeap.getCoord((byte) 0);
-        final float startY = vertexHeap.getCoord((byte) 1);
-        final float startZ = vertexHeap.getCoord((byte) 2);
-        final Point start = new Point((int) Math.round(coordinateSystem.convertX(startX)),
-                (int) Math.round(coordinateSystem.convertY(startY)));
-        renderModel.getRenderNode(camera.getTargetNode()).getWorldMatrix().transform(targ, vertexHeap);
-        final float endX = vertexHeap.getCoord((byte) 0);
-        final float endY = vertexHeap.getCoord((byte) 1);
-        final float endZ = vertexHeap.getCoord((byte) 2);
-        final Point end = new Point((int) Math.round(coordinateSystem.convertX(endX)), (int) Math.round(coordinateSystem.convertY(endY)));
+	public static void drawNodeImage(final Graphics2D graphics, final byte xDimension, final byte yDimension,
+	                                 final CoordinateSystem coordinateSystem, final IdObject attachment, final Image nodeImage,
+	                                 final Mat4 worldMatrix) {
+		Vec3 vertexHeap = Vec3.getTransformed(attachment.getPivotPoint(), worldMatrix);
+		final int xCoord = (int) coordinateSystem.convertX(vertexHeap.getCoord(xDimension));
+		final int yCoord = (int) coordinateSystem.convertY(vertexHeap.getCoord(yDimension));
+		graphics.drawImage(nodeImage, xCoord - (nodeImage.getWidth(null) / 2), yCoord - (nodeImage.getHeight(null) / 2), nodeImage.getWidth(null), nodeImage.getHeight(null), null);
+	}
 
-        float renderRotationScalar = renderModel.getAnimatedRenderEnvironment() == null ? 0 : camera.getSourceNode().getRenderRotationScalar(renderModel.getAnimatedRenderEnvironment());
- 
-        renderableCameraProp.render(g2, coordinateSystem, startX, startY, startZ, endX, endY, endZ, renderRotationScalar);
+	public static void drawCrosshair(final Graphics2D graphics, final CoordinateSystem coordinateSystem, int vertexSize, final Vec3 pivotPoint, final Mat4 worldMatrix, final boolean crosshairIsBox) {
+		Vec3 vertexHeap = Vec3.getTransformed(pivotPoint, worldMatrix);
 
-        // g2.translate(end.x, end.y);
+		final int xCoord = (int) coordinateSystem.convertX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
+		final int yCoord = (int) coordinateSystem.convertY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
+		if (crosshairIsBox) {
+			vertexSize *= 3;
+			graphics.fillRect(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2, vertexSize * 2);
+		} else {
+			graphics.drawOval(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2, vertexSize * 2);
+			graphics.drawLine(xCoord - (int) (vertexSize * 1.5f), yCoord, xCoord + (int) (vertexSize * 1.5f), yCoord);
+			graphics.drawLine(xCoord, yCoord - (int) (vertexSize * 1.5f), xCoord, yCoord + (int) (vertexSize * 1.5f));
+		}
+	}
+
+	@Override
+	public void camera(final Camera camera) {
+		graphics.setColor(Color.GREEN.darker());
+		final Graphics2D g2 = ((Graphics2D) graphics.create());
+		final Vec3 ver = camera.getPosition();
+		final Vec3 targ = camera.getTargetPosition();
+		Vec3 vertexHeap = Vec3.getTransformed(ver, renderModel.getRenderNode(camera.getSourceNode()).getWorldMatrix());
+		final float startX = vertexHeap.getCoord((byte) 0);
+		final float startY = vertexHeap.getCoord((byte) 1);
+		final float startZ = vertexHeap.getCoord((byte) 2);
+		final Point start = new Point((int) Math.round(coordinateSystem.convertX(startX)), (int) Math.round(coordinateSystem.convertY(startY)));
+		vertexHeap = Vec3.getTransformed(targ, renderModel.getRenderNode(camera.getTargetNode()).getWorldMatrix());
+		final float endX = vertexHeap.getCoord((byte) 0);
+		final float endY = vertexHeap.getCoord((byte) 1);
+		final float endZ = vertexHeap.getCoord((byte) 2);
+		final Point end = new Point((int) Math.round(coordinateSystem.convertX(endX)), (int) Math.round(coordinateSystem.convertY(endY)));
+
+		float renderRotationScalar = renderModel.getAnimatedRenderEnvironment() == null ? 0 : camera.getSourceNode().getRenderRotationScalar(renderModel.getAnimatedRenderEnvironment());
+
+		renderableCameraProp.render(g2, coordinateSystem, startX, startY, startZ, endX, endY, endZ, renderRotationScalar);
+
+		// g2.translate(end.x, end.y);
         // g2.rotate(-(Math.PI / 2 + Math.atan2(end.x - start.x, end.y - start.y)));
         // final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
         // final int size = (int) (20 * zoom);
@@ -205,47 +227,15 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
     }
 
     private void drawNodeImage(final IdObject attachment, final Image nodeImage, final Mat4 worldMatrix) {
-        drawNodeImage(graphics, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ(),
-                coordinateSystem, attachment, nodeImage, worldMatrix);
-    }
-
-    public static void drawNodeImage(final Graphics2D graphics, final byte xDimension, final byte yDimension,
-                                     final CoordinateSystem coordinateSystem, final IdObject attachment, final Image nodeImage,
-                                     final Mat4 worldMatrix) {
-        worldMatrix.transform(attachment.getPivotPoint(), vertexHeap);
-        final int xCoord = (int) coordinateSystem.convertX(vertexHeap.getCoord(xDimension));
-        final int yCoord = (int) coordinateSystem.convertY(vertexHeap.getCoord(yDimension));
-        graphics.drawImage(nodeImage, xCoord - (nodeImage.getWidth(null) / 2), yCoord - (nodeImage.getHeight(null) / 2),
-                nodeImage.getWidth(null), nodeImage.getHeight(null), null);
-    }
-
-    private static final Vec3 vertexHeap = new Vec3();
-    private static final Vec3 vertexHeap2 = new Vec3();
-
-    public static void drawCrosshair(final Graphics2D graphics, final CoordinateSystem coordinateSystem, int vertexSize,
-                                     final Vec3 pivotPoint, final Mat4 worldMatrix, final boolean crosshairIsBox) {
-        worldMatrix.transform(pivotPoint, vertexHeap);
-
-        final int xCoord = (int) coordinateSystem
-                .convertX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
-        final int yCoord = (int) coordinateSystem
-                .convertY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
-        if (crosshairIsBox) {
-            vertexSize *= 3;
-            graphics.fillRect(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2, vertexSize * 2);
-        } else {
-            graphics.drawOval(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2, vertexSize * 2);
-            graphics.drawLine(xCoord - (int) (vertexSize * 1.5f), yCoord, xCoord + (int) (vertexSize * 1.5f), yCoord);
-            graphics.drawLine(xCoord, yCoord - (int) (vertexSize * 1.5f), xCoord, yCoord + (int) (vertexSize * 1.5f));
-        }
+	    drawNodeImage(graphics, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ(), coordinateSystem, attachment, nodeImage, worldMatrix);
     }
 
     @Override
     public void light(final Light light) {
         final Image lightImage = nodeIconPalette.getLightImage();
         graphics.setColor(lightColor);
-        renderModel.getRenderNode(light).getWorldMatrix().transform(light.getPivotPoint(), vertexHeap);
-        final int xCoord = (int) coordinateSystem.convertX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
+	    Vec3 vertexHeap = Vec3.getTransformed(light.getPivotPoint(), renderModel.getRenderNode(light).getWorldMatrix());
+	    final int xCoord = (int) coordinateSystem.convertX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
         final int yCoord = (int) coordinateSystem.convertY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
         final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
         // graphics.drawOval(xCoord - vertexSize * 2, yCoord - vertexSize * 2,
@@ -255,13 +245,11 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
         // vertexSize * 3, yCoord);
         // graphics.drawLine(xCoord, yCoord - vertexSize * 3, xCoord, yCoord +
         // vertexSize * 3);
-        graphics.drawImage(lightImage, xCoord - (lightImage.getWidth(null) / 2),
-                yCoord - (lightImage.getHeight(null) / 2), lightImage.getWidth(null), lightImage.getHeight(null), null);
+	    graphics.drawImage(lightImage, xCoord - (lightImage.getWidth(null) / 2), yCoord - (lightImage.getHeight(null) / 2), lightImage.getWidth(null), lightImage.getHeight(null), null);
 
         final int attenuationStart = (int) (light.getAttenuationStart() * zoom);
         if (attenuationStart > 0) {
-            graphics.drawOval(xCoord - attenuationStart, yCoord - attenuationStart, attenuationStart * 2,
-                    attenuationStart * 2);
+	        graphics.drawOval(xCoord - attenuationStart, yCoord - attenuationStart, attenuationStart * 2, attenuationStart * 2);
         }
         final int attenuationEnd = (int) (light.getAttenuationEnd() * zoom);
         if (attenuationEnd > 0) {

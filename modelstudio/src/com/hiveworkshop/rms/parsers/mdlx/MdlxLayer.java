@@ -164,26 +164,32 @@ public class MdlxLayer extends MdlxAnimatedObject {
 			case MdlUtils.TOKEN_COORD_ID:
 				coordId = stream.readInt();
 				break;
-			case MdlUtils.TOKEN_STATIC_ALPHA:
-				alpha = stream.readFloat();
-				break;
-			case MdlUtils.TOKEN_ALPHA:
-				readTimeline(stream, AnimationMap.KMTA);
-				break;
-			case "static EmissiveGain":
-				emissiveGain = stream.readFloat();
-				break;
-			case "EmissiveGain":
-				readTimeline(stream, AnimationMap.KMTE);
-				break;
-			case "static FresnelColor":
-				stream.readColor(fresnelColor);
-				break;
-			case "FresnelColor":
-				readTimeline(stream, AnimationMap.KFC3);
-				break;
-			case "static FresnelOpacity":
-				fresnelOpacity = stream.readFloat();
+				case MdlUtils.TOKEN_STATIC_ALPHA:
+					alpha = stream.readFloat();
+					break;
+				case MdlUtils.TOKEN_ALPHA:
+					readTimeline(stream, AnimationMap.KMTA);
+					break;
+				case "static EmissiveGain":
+					emissiveGain = stream.readFloat();
+					break;
+				case "static Emissive":
+					emissiveGain = stream.readFloat();
+					break;
+				case "EmissiveGain":
+					readTimeline(stream, AnimationMap.KMTE);
+					break;
+				case "Emissive":
+					readTimeline(stream, AnimationMap.KMTE);
+					break;
+				case "static FresnelColor":
+					stream.readColor(fresnelColor);
+					break;
+				case "FresnelColor":
+					readTimeline(stream, AnimationMap.KFC3);
+					break;
+				case "static FresnelOpacity":
+					fresnelOpacity = stream.readFloat();
 				break;
 			case "FresnelOpacity":
 				readTimeline(stream, AnimationMap.KFCA);

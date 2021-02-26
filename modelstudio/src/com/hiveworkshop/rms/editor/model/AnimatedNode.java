@@ -15,11 +15,6 @@ import com.hiveworkshop.rms.util.Vec4;
 import java.util.List;
 
 public abstract class AnimatedNode extends TimelineContainer {
-	private static final Vec4 translationHeap = new Vec4();
-	private static final Mat4 matrixHeap = new Mat4();
-	private static final Quat rotationHeap = new Quat();
-	private static final Quat rotationDeltaHeap = new Quat();
-	private static final Vec4 axisAngleHeap = new Vec4();
 
 	abstract public AnimatedNode getParent();
 
@@ -160,37 +155,32 @@ public abstract class AnimatedNode extends TimelineContainer {
 		final int floorIndex = translationFlag.floorIndex(trackTime);
 		//final RenderNode renderNode = renderModel.getRenderNode(this);
 		final AnimatedNode parent = getParent();
+		Vec4 translationHeap = new Vec4(0, 0, 0, 1);
 		if (parent != null) {
 			final RenderNode parentRenderNode = renderModel.getRenderNode(parent);
-			parentRenderNode.getWorldMatrix().invert(matrixHeap);
 
-			setXYZ(translationHeap, 0, 0, 0);
-			translationHeap.w = 1;
-
-			parentRenderNode.getWorldMatrix().transform(translationHeap);
-
-			setFloat(translationHeap.x + newDeltaX, translationHeap.y + newDeltaY, translationHeap.z + newDeltaZ);
-
-			matrixHeap.transform(translationHeap);
+			translationHeap.transform(parentRenderNode.getWorldMatrix());
+			translationHeap.add(new Vec4(newDeltaX, newDeltaY, newDeltaZ, 0));
+			translationHeap.transform(Mat4.getInverted(parentRenderNode.getWorldMatrix()));
 		} else {
-			setFloat(newDeltaX, newDeltaY, newDeltaZ);
+			translationHeap.set(newDeltaX, newDeltaY, newDeltaZ, 1);
 		}
 
-		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
+		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex).equals(trackTime))) {
 			// we must change it
 			final Vec3 oldTranslationValue = (Vec3) translationFlag.getValues().get(floorIndex);
-			addTo(oldTranslationValue, translationHeap.x, translationHeap.y, translationHeap.z);
+			oldTranslationValue.add(translationHeap.getVec3());
 
 			if (savedLocalTranslation != null) {
-				addTo(savedLocalTranslation, translationHeap.x, translationHeap.y, translationHeap.z);
+				savedLocalTranslation.add(translationHeap.getVec3());
 			}
 
 			if (translationFlag.tans()) {
 				final Vec3 oldInTan = (Vec3) translationFlag.getInTans().get(floorIndex);
-				addTo(oldInTan, translationHeap.x, translationHeap.y, translationHeap.z);
+				oldInTan.add(translationHeap.getVec3());
 
 				final Vec3 oldOutTan = (Vec3) translationFlag.getOutTans().get(floorIndex);
-				addTo(oldOutTan, translationHeap.x, translationHeap.y, translationHeap.z);
+				oldOutTan.add(translationHeap.getVec3());
 			}
 		}
 
@@ -222,38 +212,33 @@ public abstract class AnimatedNode extends TimelineContainer {
 		//final RenderNode renderNode = renderModel.getRenderNode(this);
 		final byte unusedXYZ = CoordinateSystem.Util.getUnusedXYZ(firstXYZ, secondXYZ);
 		final AnimatedNode parent = getParent();
+		Vec4 axisAngleHeap = new Vec4(0, 0, 0, 1);
+
 		if (parent != null) {
 			final RenderNode parentRenderNode = renderModel.getRenderNode(parent);
-			parentRenderNode.getWorldMatrix().invert(matrixHeap);
 
-			setXYZ(axisAngleHeap, 0, 0, 0);
-			axisAngleHeap.w = 1;
-
-			parentRenderNode.getWorldMatrix().transform(axisAngleHeap);
+			axisAngleHeap.transform(parentRenderNode.getWorldMatrix());
 
 			switch (unusedXYZ) {
-				case 0 -> setXYZ(axisAngleHeap, (axisAngleHeap.x + 1), axisAngleHeap.y + 0, axisAngleHeap.z + 0);
-				case 1 -> setXYZ(axisAngleHeap, (axisAngleHeap.x + 0), axisAngleHeap.y + -1, axisAngleHeap.z + 0);
-				case 2 -> setXYZ(axisAngleHeap, (axisAngleHeap.x + 0), axisAngleHeap.y + 0, axisAngleHeap.z + -1);
+				case 0 -> axisAngleHeap.set(axisAngleHeap.x + 1, axisAngleHeap.y + 0, axisAngleHeap.z + 0, radians);
+				case 1 -> axisAngleHeap.set(axisAngleHeap.x + 0, axisAngleHeap.y + -1, axisAngleHeap.z + 0, radians);
+				case 2 -> axisAngleHeap.set(axisAngleHeap.x + 0, axisAngleHeap.y + 0, axisAngleHeap.z + -1, radians);
 			}
-			axisAngleHeap.w = 1;
 
-			matrixHeap.transform(axisAngleHeap);
+			axisAngleHeap.transform(Mat4.getInverted(parentRenderNode.getWorldMatrix()));
 		} else {
 			switch (unusedXYZ) {
-				case 0 -> setXYZ(axisAngleHeap, 1, 0, 0);
-				case 1 -> setXYZ(axisAngleHeap, 0, -1, 0);
-				case 2 -> setXYZ(axisAngleHeap, 0, 0, -1);
+				case 0 -> axisAngleHeap.set(1, 0, 0, radians);
+				case 1 -> axisAngleHeap.set(0, -1, 0, radians);
+				case 2 -> axisAngleHeap.set(0, 0, -1, radians);
 			}
 		}
-		axisAngleHeap.w = (float) radians;
-		rotationDeltaHeap.setFromAxisAngle(axisAngleHeap);
+		Quat rotationDeltaHeap = new Quat().setFromAxisAngle(axisAngleHeap);
 
-		if ((floorIndex != -1) && (rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex) == trackTime)) {
+		if ((floorIndex != -1) && (rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex).equals(trackTime))) {
 			// we must change it
-			final Quat oldTranslationValue = (Quat) rotationTimeline.getValues()
-					.get(floorIndex);
-			setStuff(oldTranslationValue, rotationDeltaHeap);
+			final Quat oldTranslationValue = (Quat) rotationTimeline.getValues().get(floorIndex);
+			oldTranslationValue.mul(rotationDeltaHeap);
 
 			if (savedLocalRotation != null) {
 				savedLocalRotation.mul(rotationDeltaHeap);
@@ -261,10 +246,10 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 			if (rotationTimeline.tans()) {
 				final Quat oldInTan = (Quat) rotationTimeline.getInTans().get(floorIndex);
-				setStuff(oldInTan, rotationDeltaHeap);
+				oldInTan.mul(rotationDeltaHeap);
 
 				final Quat oldOutTan = (Quat) rotationTimeline.getOutTans().get(floorIndex);
-				setStuff(oldOutTan, rotationDeltaHeap);
+				oldOutTan.mul(rotationDeltaHeap);
 			}
 		}
 	}
@@ -292,23 +277,23 @@ public abstract class AnimatedNode extends TimelineContainer {
 		}
 		final int floorIndex = translationFlag.floorIndex(trackTime);
 
-		setXYZ(translationHeap, (float) scaleX, (float) scaleY, (float) scaleZ);
+		Vec3 translationHeap = new Vec3(scaleX, scaleY, scaleZ);
 
-		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
+		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex).equals(trackTime))) {
 			// we must change it
 			final Vec3 oldTranslationValue = (Vec3) translationFlag.getValues().get(floorIndex);
-			scaleBy(oldTranslationValue, translationHeap.x, translationHeap.y, translationHeap.z);
+			oldTranslationValue.multiply(translationHeap);
 
 			if (savedLocalScaling != null) {
-				scaleBy(savedLocalScaling, translationHeap.x, translationHeap.y, translationHeap.z);
+				savedLocalScaling.multiply(translationHeap);
 			}
 
 			if (translationFlag.tans()) {
 				final Vec3 oldInTan = (Vec3) translationFlag.getInTans().get(floorIndex);
-				scaleBy(oldInTan, translationHeap.x, translationHeap.y, translationHeap.z);
+				oldInTan.multiply(translationHeap);
 
 				final Vec3 oldOutTan = (Vec3) translationFlag.getOutTans().get(floorIndex);
-				scaleBy(oldOutTan, translationHeap.x, translationHeap.y, translationHeap.z);
+				oldOutTan.multiply(translationHeap);
 			}
 		}
 	}
@@ -324,17 +309,17 @@ public abstract class AnimatedNode extends TimelineContainer {
 		}
 		final int floorIndex = rotationTimeline.floorIndex(trackTime);
 
-		if ((floorIndex != -1) && (rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex) == trackTime)) {
+		if ((floorIndex != -1) && (rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex).equals(trackTime))) {
 			// we must change it
 			final Quat oldTranslationValue = (Quat) rotationTimeline.getValues().get(floorIndex);
-			setStuff(oldTranslationValue, localRotation);
+			oldTranslationValue.mul(localRotation);
 
 			if (rotationTimeline.tans()) {
 				final Quat oldInTan = (Quat) rotationTimeline.getInTans().get(floorIndex);
-				setStuff(oldInTan, localRotation);
+				oldInTan.mul(localRotation);
 
 				final Quat oldOutTan = (Quat) rotationTimeline.getOutTans().get(floorIndex);
-				setStuff(oldOutTan, localRotation);
+				oldOutTan.mul(localRotation);
 			}
 		}
 	}
@@ -374,17 +359,17 @@ public abstract class AnimatedNode extends TimelineContainer {
 		}
 		final int floorIndex = translationFlag.floorIndex(trackTime);
 
-		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
+		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex).equals(trackTime))) {
 			// we must change it
 			final Vec3 oldTranslationValue = (Vec3) translationFlag.getValues().get(floorIndex);
-			addTo(oldTranslationValue, newDeltaX, newDeltaY, newDeltaZ);
+			oldTranslationValue.add(new Vec3(newDeltaX, newDeltaY, newDeltaZ));
 
 			if (translationFlag.tans()) {
 				final Vec3 oldInTan = (Vec3) translationFlag.getInTans().get(floorIndex);
-				addTo(oldInTan, newDeltaX, newDeltaY, newDeltaZ);
+				oldInTan.add(new Vec3(newDeltaX, newDeltaY, newDeltaZ));
 
 				final Vec3 oldOutTan = (Vec3) translationFlag.getOutTans().get(floorIndex);
-				addTo(oldOutTan, newDeltaX, newDeltaY, newDeltaZ);
+				oldOutTan.add(new Vec3(newDeltaX, newDeltaY, newDeltaZ));
 			}
 		}
 
@@ -402,62 +387,23 @@ public abstract class AnimatedNode extends TimelineContainer {
 		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex).equals(trackTime))) {
 			// we must change it
 			final Vec3 oldTranslationValue = (Vec3) translationFlag.getValues().get(floorIndex);
-			scaleBy(oldTranslationValue, localScaling.x, localScaling.y, localScaling.z);
+			oldTranslationValue.multiply(localScaling);
 
 			if (translationFlag.tans()) {
 				final Vec3 oldInTan = (Vec3) translationFlag.getInTans().get(floorIndex);
-				scaleBy(oldInTan, localScaling.x, localScaling.y, localScaling.z);
+				oldInTan.multiply(localScaling);
 
 				final Vec3 oldOutTan = (Vec3) translationFlag.getOutTans().get(floorIndex);
-				scaleBy(oldOutTan, localScaling.x, localScaling.y, localScaling.z);
+				oldOutTan.multiply(localScaling);
 			}
 		}
 
 	}
 
 
-	private void setFloat(double newDeltaX, double newDeltaY, double newDeltaZ) {
-		setXYZ(translationHeap, (float) (newDeltaX), (float) (newDeltaY), (float) (newDeltaZ));
-		translationHeap.w = 1;
-	}
+	private void rotateStuff(Quat localRotation, Quat heap) {
+		Quat rotationDeltaHeap = new Quat().setIdentity().mulInverse(localRotation);
+		heap.mul(rotationDeltaHeap);
 
-	private void addTo(Vec3 vec3Value, double x, double y, double z) {
-		vec3Value.x += x;
-		vec3Value.y += y;
-		vec3Value.z += z;
-	}
-
-	private void scaleBy(Vec3 vec3Value, float x, float y, float z) {
-		vec3Value.x *= x;
-		vec3Value.y *= y;
-		vec3Value.z *= z;
-	}
-
-	private void setXYZ(Vec4 vecHeap, float x, float y, float z) {
-		vecHeap.x = x;
-		vecHeap.y = y;
-		vecHeap.z = z;
-	}
-
-	private void setStuff(Quat oldTan, Quat rotation) {
-		setXYZ(rotationHeap, oldTan.x, oldTan.y, oldTan.z);
-		rotationHeap.w = oldTan.w;
-
-		rotation.mul(rotationHeap, rotationHeap);
-
-		setXYZ(oldTan, rotationHeap.x, rotationHeap.y, rotationHeap.z);
-		oldTan.w = rotationHeap.w;
-	}
-
-	private void rotateStuff(Quat localRotation, Quat oldInTan) {
-		setXYZ(rotationHeap, oldInTan.x, oldInTan.y, oldInTan.z);
-		rotationHeap.w = oldInTan.w;
-
-		rotationDeltaHeap.setIdentity();
-		rotationDeltaHeap.mulInverse(localRotation);
-		rotationDeltaHeap.mul(rotationHeap, rotationHeap);
-
-		setXYZ(oldInTan, rotationHeap.x, rotationHeap.y, rotationHeap.z);
-		oldInTan.w = rotationHeap.w;
 	}
 }

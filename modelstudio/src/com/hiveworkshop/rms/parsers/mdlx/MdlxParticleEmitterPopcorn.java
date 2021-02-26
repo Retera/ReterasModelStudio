@@ -85,7 +85,7 @@ public class MdlxParticleEmitterPopcorn extends MdlxGenericObject {
 
 	@Override
 	public void writeMdl(final MdlTokenOutputStream stream, final int version) {
-		stream.startObjectBlock(MdlUtils.TOKEN_PARTICLE_EMITTER2, name);
+		stream.startObjectBlock(MdlUtils.TOKEN_POPCORN_PARTICLE_EMITTER, name);
 		writeGenericHeader(stream);
 
 		if ((flags & 0x10000) != 0) {

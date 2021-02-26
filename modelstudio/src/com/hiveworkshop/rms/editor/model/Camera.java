@@ -1,15 +1,15 @@
 package com.hiveworkshop.rms.editor.model;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import com.hiveworkshop.rms.parsers.mdlx.AnimationMap;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCamera;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Camera class, these are the things most people would think of as a particle
@@ -125,7 +125,6 @@ public class Camera implements Named {
 		private static final Quat rotationHeap = new Quat(0, 0, 0, 1);
 		
 		private final Camera parent;
-		private final Vec3 axisHeap = new Vec3(0, 0, 0);
 
 		private SourceNode(final Camera parent) {
 			this.parent = parent;
@@ -167,9 +166,10 @@ public class Camera implements Named {
 					final Vec3 targetPosition = parent.targetPosition;
 					final Vec3 sourceTranslation = getRenderTranslation(animatedRenderEnvironment);
 					final Vec3 sourcePosition = parent.position;
-					axisHeap.x = (targetPosition.x + targetTranslation.x) - (sourcePosition.x + sourceTranslation.x);
-					axisHeap.y = (targetPosition.y + targetTranslation.y) - (sourcePosition.y + sourceTranslation.y);
-					axisHeap.z = (targetPosition.z + targetTranslation.z) - (sourcePosition.z + sourceTranslation.z);
+					final Vec3 axisHeap = new Vec3(targetPosition).add(targetTranslation).sub(sourcePosition).sub(sourceTranslation);
+//					axisHeap.x = (targetPosition.x + targetTranslation.x) - (sourcePosition.x + sourceTranslation.x);
+//					axisHeap.y = (targetPosition.y + targetTranslation.y) - (sourcePosition.y + sourceTranslation.y);
+//					axisHeap.z = (targetPosition.z + targetTranslation.z) - (sourcePosition.z + sourceTranslation.z);
 					rotationHeap.setFromAxisAngle(axisHeap, angle);
 					return rotationHeap;
 				} else {

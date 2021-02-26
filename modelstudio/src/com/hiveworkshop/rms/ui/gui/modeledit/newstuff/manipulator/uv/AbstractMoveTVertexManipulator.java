@@ -41,8 +41,6 @@ public abstract class AbstractMoveTVertexManipulator extends AbstractManipulator
 	protected abstract void buildMoveVector(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2);
 
 	private void resetMoveVector() {
-		moveVector.x = 0;
-		moveVector.y = 0;
-		moveVector.z = 0;
+		moveVector.set(0, 0, 0);
 	}
 }

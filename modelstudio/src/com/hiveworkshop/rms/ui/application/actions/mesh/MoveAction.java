@@ -55,16 +55,12 @@ public class MoveAction implements UndoAction {
 			for (int i = 0; i < selection.size(); i++) {
 				final Vec3 ver = selection.get(i);
 				final Vec3 vect = moveVectors.get(i);
-				ver.x += vect.x;
-				ver.y += vect.y;
-				ver.z += vect.z;
+				ver.add(vect);
 			}
 		} else {
 			for (final Vec3 ver : selection) {
 				final Vec3 vect = moveVector;
-				ver.x += vect.x;
-				ver.y += vect.y;
-				ver.z += vect.z;
+				ver.add(vect);
 			}
 		}
 	}
@@ -75,16 +71,12 @@ public class MoveAction implements UndoAction {
 			for (int i = 0; i < selection.size(); i++) {
 				final Vec3 ver = selection.get(i);
 				final Vec3 vect = moveVectors.get(i);
-				ver.x -= vect.x;
-				ver.y -= vect.y;
-				ver.z -= vect.z;
+				ver.set(vect);
 			}
 		} else {
 			for (final Vec3 ver : selection) {
 				final Vec3 vect = moveVector;
-				ver.x -= vect.x;
-				ver.y -= vect.y;
-				ver.z -= vect.z;
+				ver.sub(vect);
 			}
 		}
 	}

@@ -1,12 +1,5 @@
 package com.hiveworkshop.rms.ui.application.edit.animation;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.Triangle;
@@ -22,6 +15,8 @@ import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
 
+import java.util.*;
+
 public final class NodeAnimationSelectionManager extends AbstractSelectionManager<IdObject> {
 	private final RenderModel renderModel;
 
@@ -34,29 +29,17 @@ public final class NodeAnimationSelectionManager extends AbstractSelectionManage
 		return new HashSet<>();
 	}
 
-	private final Vec4 pivotHeap = new Vec4();
-	private final Vec3 centerOfGroupSumHeap = new Vec3(0, 0, 0);
-
 	@Override
 	public Vec3 getCenter() {
-		centerOfGroupSumHeap.x = 0;
-		centerOfGroupSumHeap.y = 0;
-		centerOfGroupSumHeap.z = 0;
+		Vec3 centerOfGroupSumHeap = new Vec3(0, 0, 0);
 		for (final IdObject object : selection) {
 			final Vec3 pivot = object.getPivotPoint();
-			pivotHeap.x = pivot.x;
-			pivotHeap.y = pivot.y;
-			pivotHeap.z = pivot.z;
-			pivotHeap.w = 1;
-			renderModel.getRenderNode(object).getWorldMatrix().transform(pivotHeap);
-			centerOfGroupSumHeap.x += pivotHeap.x;
-			centerOfGroupSumHeap.y += pivotHeap.y;
-			centerOfGroupSumHeap.z += pivotHeap.z;
+			Vec4 pivotHeap = new Vec4(pivot, 1);
+			pivotHeap.transform(renderModel.getRenderNode(object).getWorldMatrix());
+			centerOfGroupSumHeap.add(pivotHeap.getVec3());
 		}
 		if (selection.size() > 0) {
-			centerOfGroupSumHeap.x /= selection.size();
-			centerOfGroupSumHeap.y /= selection.size();
-			centerOfGroupSumHeap.z /= selection.size();
+			centerOfGroupSumHeap.scale(1f / selection.size());
 		}
 		return centerOfGroupSumHeap;
 	}
@@ -66,11 +49,8 @@ public final class NodeAnimationSelectionManager extends AbstractSelectionManage
 		double radius = 0;
 		for (final IdObject item : selection) {
 			final Vec3 pivot = item.getPivotPoint();
-			pivotHeap.x = pivot.x;
-			pivotHeap.y = pivot.y;
-			pivotHeap.z = pivot.z;
-			pivotHeap.w = 1;
-			renderModel.getRenderNode(item).getWorldMatrix().transform(pivotHeap);
+			Vec4 pivotHeap = new Vec4(pivot, 1);
+			pivotHeap.transform(renderModel.getRenderNode(item).getWorldMatrix());
 			final double distance = sphereCenter.distance(pivotHeap);
 			if (distance >= radius) {
 				radius = distance;

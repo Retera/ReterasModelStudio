@@ -133,8 +133,7 @@ public final class ModelEditorManager {
 				final VertexClusterSelectionManager selectionManager = new VertexClusterSelectionManager(vertexClusterDefinitions);
 				final PivotPointSelectionManager pivotSelectionManager = new PivotPointSelectionManager();
 				final ModelEditorNotifier modelEditorNotifier = new ModelEditorNotifier();
-				final VertexClusterModelEditor vertexGroupModelEditor = new VertexClusterModelEditor(model,
-						programPreferences, selectionManager, structureChangeListener, vertexClusterDefinitions);
+				final VertexClusterModelEditor vertexGroupModelEditor = new VertexClusterModelEditor(model, programPreferences, selectionManager, structureChangeListener, vertexClusterDefinitions);
 				modelEditorNotifier.subscribe(vertexGroupModelEditor);
 				final PivotPointModelEditor pivotPointModelEditor = new PivotPointModelEditor(model, programPreferences, pivotSelectionManager, structureChangeListener);
 				modelEditorNotifier.subscribe(pivotPointModelEditor);

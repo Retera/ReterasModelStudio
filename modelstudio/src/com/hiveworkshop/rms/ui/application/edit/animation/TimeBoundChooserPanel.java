@@ -313,13 +313,12 @@ public class TimeBoundChooserPanel extends JPanel {
 				"Choose new animation name:", selectedAnimation.getName() + " Second");
 		if (userChosenName != null) {
 			final Animation copyAnimation = new Animation(selectedAnimation);
-			final Animation lastAnim = modelView.getModel().getAnim(modelView.getModel().getAnimsSize() - 1);
+			EditableModel model = modelView.getModel();
+			final Animation lastAnim = model.getAnim(model.getAnimsSize() - 1);
 			copyAnimation.setInterval(lastAnim.getEnd() + 300, lastAnim.getEnd() + 300 + selectedAnimation.length());
 			copyAnimation.setName(userChosenName);
-			modelView.getModel().add(copyAnimation);
-			selectedAnimation.copyToInterval(copyAnimation.getStart(), copyAnimation.getEnd(),
-					modelView.getModel().getAllAnimFlags(),
-					modelView.getModel().sortedIdObjects(EventObject.class));
+			model.add(copyAnimation);
+			selectedAnimation.copyToInterval(copyAnimation.getStart(), copyAnimation.getEnd(), model.getAllAnimFlags(), model.sortedIdObjects(EventObject.class));
 			animations.addElement(copyAnimation);
 			structureChangeListener.animationsAdded(Collections.singletonList(copyAnimation));
 		}

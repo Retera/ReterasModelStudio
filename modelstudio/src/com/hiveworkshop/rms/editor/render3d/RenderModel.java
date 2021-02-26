@@ -110,7 +110,8 @@ public final class RenderModel {
 		this.inverseCameraRotationZSpin = inverseCameraRotationZSpin;
 
 		for (int i = 0; i < billboardVectors.length; i++) {
-			inverseCameraRotation.transform(billboardBaseVectors[i], billboardVectors[i]);
+//			inverseCameraRotation.transform(billboardBaseVectors[i], billboardVectors[i]);
+			billboardVectors[i].set(Vec4.getTransformed(billboardBaseVectors[i], inverseCameraRotation));
 		}
 
 		sortedNodes.clear();
@@ -137,8 +138,10 @@ public final class RenderModel {
 			particleEmitters2.add(new RenderParticleEmitter2(particleEmitter, renderResourceAllocator.allocateTexture(particleEmitter.getTexture(), particleEmitter)));
 		}
 		particleEmitters2.sort(Comparator.comparingInt(RenderParticleEmitter2::getPriorityPlane));
+		System.out.println("refresh from renderer, partEm: " + particleEmitters2.size());
 		for (final RenderParticleEmitter2 particleEmitter : particleEmitters2) {
 			final RenderParticleEmitter2View emitterView = new RenderParticleEmitter2View(this, particleEmitter);
+			System.out.println("emitterView: " + emitterView + " emitterView.em: " + emitterView.getEmitter());
 			particleEmitterViews2.add(emitterView);
 			emitterToRenderer.put(emitterView.getEmitter(), emitterView);
 		}
@@ -201,9 +204,7 @@ public final class RenderModel {
 					if (forced || true /* variants */) {
 						final Vec3 renderTranslation = idObject.getRenderTranslation(animatedRenderEnvironment);
 						if (renderTranslation != null) {
-							localLocation.x = renderTranslation.x;
-							localLocation.y = renderTranslation.y;
-							localLocation.z = renderTranslation.z;
+							localLocation.set(renderTranslation);
 						} else {
 							localLocation.set(0, 0, 0);
 						}
@@ -211,24 +212,29 @@ public final class RenderModel {
 
 					// Rotation
 					if (forced || true /* variants */) {
-						final Quat renderRotation = idObject.getRenderRotation(animatedRenderEnvironment);
-						if (renderRotation != null) {
-							localRotation.x = renderRotation.x;
-							localRotation.y = renderRotation.y;
-							localRotation.z = renderRotation.z;
-							localRotation.w = renderRotation.w;
-						} else {
-							localRotation.set(0, 0, 0, 1);
+						try {
+							final Quat renderRotation = idObject.getRenderRotation(animatedRenderEnvironment);
+							if (renderRotation != null) {
+								localRotation.set(renderRotation);
+							} else {
+								localRotation.set(0, 0, 0, 1);
+							}
+						} catch (Exception e) {
+							long currentTime = System.currentTimeMillis();
+							if (lastConsoleLogTime < currentTime) {
+								System.out.println("RenderModel#updateNodes: failed to update rotation for " + idObject.getName());
+								;
+								lastConsoleLogTime = currentTime + 500;
+							}
 						}
+
 					}
 
 					// Scale
 					if (forced || true /* variants */) {
 						final Vec3 renderScale = idObject.getRenderScale(animatedRenderEnvironment);
 						if (renderScale != null) {
-							localScale.x = renderScale.x;
-							localScale.y = renderScale.y;
-							localScale.z = renderScale.z;
+							localScale.set(renderScale);
 						} else {
 							localScale.set(1, 1, 1);
 						}
@@ -324,7 +330,8 @@ public final class RenderModel {
 
 	private void updateParticles() {
 		for (int i = 0; i < billboardVectors.length; i++) {
-			inverseCameraRotation.transform(billboardBaseVectors[i], billboardVectors[i]);
+//			inverseCameraRotation.transform(billboardBaseVectors[i], billboardVectors[i]);
+			billboardVectors[i].set(Vec4.getTransformed(billboardBaseVectors[i], inverseCameraRotation));
 		}
 		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
 			// not animating

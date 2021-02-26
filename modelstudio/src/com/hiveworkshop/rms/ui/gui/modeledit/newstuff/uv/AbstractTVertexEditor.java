@@ -51,10 +51,13 @@ public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexE
 		final List<Vec2> tVertices = new ArrayList<>();
 		final List<Vec2> newValueHolders = new ArrayList<>();
 		final List<Vec2> oldValueHolders = new ArrayList<>();
-		float minX = Float.MAX_VALUE;
-		float minY = Float.MAX_VALUE;
-		float maxX = -Float.MAX_VALUE;
-		float maxY = -Float.MAX_VALUE;
+
+		Vec2 min = new Vec2(Float.MAX_VALUE, Float.MAX_VALUE);
+		Vec2 max = new Vec2(Float.MIN_VALUE, Float.MIN_VALUE);
+//		float minX = Float.MAX_VALUE;
+//		float minY = Float.MAX_VALUE;
+//		float maxX = -Float.MAX_VALUE;
+//		float maxY = -Float.MAX_VALUE;
 		for (final Vec3 vertex : selectionManager.getSelectedVertices()) {
 			if (vertex instanceof GeosetVertex) {
 				final GeosetVertex geosetVertex = (GeosetVertex) vertex;
@@ -63,36 +66,42 @@ public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexE
 					tVertices.add(modelDataTVertex);
 					oldValueHolders.add(new Vec2(modelDataTVertex.x, modelDataTVertex.y));
 					final Vec2 newCoordValue = new Vec2(vertex.getCoord(xDim), vertex.getCoord(yDim));
-					if (newCoordValue.x > maxX) {
-						maxX = newCoordValue.x;
-					}
-					if (newCoordValue.x < minX) {
-						minX = newCoordValue.x;
-					}
-					if (newCoordValue.y > maxY) {
-						maxY = newCoordValue.y;
-					}
-					if (newCoordValue.y < minY) {
-						minY = newCoordValue.y;
-					}
+
+					max.set(Math.max(max.x, newCoordValue.x), Math.max(max.y, newCoordValue.y));
+					min.set(Math.min(min.x, newCoordValue.x), Math.min(min.y, newCoordValue.y));
+//					maxX = Math.max(maxX, newCoordValue.x);
+//					minX = Math.min(minX, newCoordValue.x);
+//
+//					maxY = Math.max(maxY, newCoordValue.y);
+//					minY = Math.min(minY, newCoordValue.y);
+
 					newValueHolders.add(newCoordValue);
 				}
 			}
 		}
-		float widthX = (maxX - minX);
-		float widthY = (maxY - minY);
-		if (widthX == 0) {
-			widthX = 0.01f;
+		Vec2 width = Vec2.getDif(max, min);
+
+		if (width.x == 0) {
+			width.x = 0.01f;
 		}
-		if (widthY == 0) {
-			widthY = 0.01f;
+		if (width.y == 0) {
+			width.y = 0.01f;
 		}
+
+//		float widthX = (maxX - minX);
+//		float widthY = (maxY - minY);
+//		if (widthX == 0) {
+//			widthX = 0.01f;
+//		}
+//		if (widthY == 0) {
+//			widthY = 0.01f;
+//		}
 		for (final Vec2 tv : newValueHolders) {
-			tv.x = (tv.x - minX) / widthX;
-			tv.y = (tv.y - minY) / widthY;
+			tv.sub(min).div(width);
+//			tv.x = (tv.x - minX) / widthX;
+//			tv.y = (tv.y - minY) / widthY;
 		}
-		final UVRemapAction uvRemapAction = new UVRemapAction(tVertices, newValueHolders, oldValueHolders,
-				unwrapDirection);
+		final UVRemapAction uvRemapAction = new UVRemapAction(tVertices, newValueHolders, oldValueHolders, unwrapDirection);
 		uvRemapAction.redo();
 		return uvRemapAction;
 	}

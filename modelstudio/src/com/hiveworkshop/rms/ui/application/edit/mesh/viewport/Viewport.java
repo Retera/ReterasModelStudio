@@ -96,12 +96,7 @@ public class Viewport extends JPanel
 	private final ViewportListener viewportListener;
 	private View view;
 
-	public Viewport(final byte d1, final byte d2, final ModelView modelView,
-	                final ProgramPreferences programPreferences, final ViewportActivity activityListener,
-	                final ModelStructureChangeListener modelStructureChangeListener, final UndoActionListener undoListener,
-	                final CoordDisplayListener coordDisplayListener, final UndoHandler undoHandler,
-	                final ModelEditor modelEditor, final ViewportTransferHandler viewportTransferHandler,
-	                final RenderModel renderModel, final ViewportListener viewportListener) {
+	public Viewport(final byte d1, final byte d2, final ModelView modelView, final ProgramPreferences programPreferences, final ViewportActivity activityListener, final ModelStructureChangeListener modelStructureChangeListener, final UndoActionListener undoListener, final CoordDisplayListener coordDisplayListener, final UndoHandler undoHandler, final ModelEditor modelEditor, final ViewportTransferHandler viewportTransferHandler, final RenderModel renderModel, final ViewportListener viewportListener) {
 		// Dimension 1 and Dimension 2, these specify which dimensions to display.
 		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z dimensions
 		m_d1 = d1;
@@ -292,16 +287,16 @@ public class Viewport extends JPanel
 			}
 			final float darkIncrement = increment * 10;
 			g.setColor(Color.DARK_GRAY);
-			drawXLine(g, cameraOrigin, lightIncrement);
-			drawYLine(g, cameraOrigin, lightIncrement);
+			drawXLines(g, cameraOrigin, lightIncrement);
+			drawYLines(g, cameraOrigin, lightIncrement);
 
 			g.setColor(Color.GRAY);
-			drawXLine(g, cameraOrigin, increment);
-			drawYLine(g, cameraOrigin, increment);
+			drawXLines(g, cameraOrigin, increment);
+			drawYLines(g, cameraOrigin, increment);
 
 			g.setColor(Color.ORANGE);
-			drawXLine(g, cameraOrigin, darkIncrement);
-			drawYLine(g, cameraOrigin, darkIncrement);
+			drawXLines(g, cameraOrigin, darkIncrement);
+			drawYLines(g, cameraOrigin, darkIncrement);
 
 			g.setColor(Color.BLACK);
 			g.drawLine(0, (int) cameraOrigin.y, getWidth(), (int) cameraOrigin.y);
@@ -409,15 +404,15 @@ public class Viewport extends JPanel
 		}
 	}
 
-	private void drawXLine(Graphics g, Point2D.Double cameraOrigin, float darkIncrement) {
-		for (float x = 0; ((cameraOrigin.x + x) < getWidth()) || ((cameraOrigin.x - x) >= 0); x += darkIncrement) {
+	private void drawXLines(Graphics g, Point2D.Double cameraOrigin, float distance) {
+		for (float x = 0; ((cameraOrigin.x + x) < getWidth()) || ((cameraOrigin.x - x) >= 0); x += distance) {
 			g.drawLine((int) (cameraOrigin.x + x), 0, (int) (cameraOrigin.x + x), getHeight());
 			g.drawLine((int) (cameraOrigin.x - x), 0, (int) (cameraOrigin.x - x), getHeight());
 		}
 	}
 
-	private void drawYLine(Graphics g, Point2D.Double cameraOrigin, float darkIncrement) {
-		for (float y = 0; ((cameraOrigin.y + y) < getHeight()) || ((cameraOrigin.y - y) >= 0); y += darkIncrement) {
+	private void drawYLines(Graphics g, Point2D.Double cameraOrigin, float distance) {
+		for (float y = 0; ((cameraOrigin.y + y) < getHeight()) || ((cameraOrigin.y - y) >= 0); y += distance) {
 			g.drawLine(0, (int) (cameraOrigin.y + y), getWidth(), (int) (cameraOrigin.y + y));
 			g.drawLine(0, (int) (cameraOrigin.y - y), getWidth(), (int) (cameraOrigin.y - y));
 		}
