@@ -48,6 +48,7 @@ public class MenuBar {
     static List<MenuBar.RecentItem> recentItems = new ArrayList<>();
 
     public static JMenuBar createMenuBar(MainPanel mainPanel) {
+        MenuBar.mainPanel = mainPanel;
         // Create my menu bar
         menuBar = new JMenuBar();
 
@@ -169,9 +170,8 @@ public class MenuBar {
         JCheckBoxMenuItem fetchPortraitsToo = new JCheckBoxMenuItem("Fetch portraits, too!", true);
         fetchPortraitsToo.setMnemonic(KeyEvent.VK_P);
         fetchPortraitsToo.addActionListener(e -> mainPanel.prefs.setLoadPortraits(fetchPortraitsToo.isSelected()));
-        mainPanel.fetchPortraitsToo = fetchPortraitsToo;
         fetch.add(fetchPortraitsToo);
-        fetchPortraitsToo.setSelected(true);
+        fetchPortraitsToo.setSelected(mainPanel.prefs.isLoadPortraits());
 
         fileMenu.add(new JSeparator());
 
@@ -329,25 +329,44 @@ public class MenuBar {
         mirrorSubmenu.getAccessibleContext().setAccessibleDescription("Allows the user to mirror objects.");
         toolsMenu.add(mirrorSubmenu);
 
-        createAndAddMenuItem("Mirror X", mirrorSubmenu, KeyEvent.VK_X, e -> ModelEditActions.mirrorAxis(mainPanel, (byte) 0));
+        JCheckBoxMenuItem mirrorFlip = new JCheckBoxMenuItem("Automatically flip after mirror (preserves surface)", true);
+        mirrorFlip.setMnemonic(KeyEvent.VK_A);
 
-        createAndAddMenuItem("Mirror Y", mirrorSubmenu, KeyEvent.VK_Y, e -> ModelEditActions.mirrorAxis(mainPanel, (byte) 1));
+        createAndAddMenuItem("Mirror X", mirrorSubmenu, KeyEvent.VK_X, e -> ModelEditActions.mirrorAxis(mainPanel, (byte) 0, mirrorFlip.isSelected()));
 
-        createAndAddMenuItem("Mirror Z", mirrorSubmenu, KeyEvent.VK_Z, e -> ModelEditActions.mirrorAxis(mainPanel, (byte) 2));
+        createAndAddMenuItem("Mirror Y", mirrorSubmenu, KeyEvent.VK_Y, e -> ModelEditActions.mirrorAxis(mainPanel, (byte) 1, mirrorFlip.isSelected()));
+
+        createAndAddMenuItem("Mirror Z", mirrorSubmenu, KeyEvent.VK_Z, e -> ModelEditActions.mirrorAxis(mainPanel, (byte) 2, mirrorFlip.isSelected()));
 
         mirrorSubmenu.add(new JSeparator());
 
-        mainPanel.mirrorFlip = new JCheckBoxMenuItem("Automatically flip after mirror (preserves surface)", true);
-        mainPanel.mirrorFlip.setMnemonic(KeyEvent.VK_A);
-        mirrorSubmenu.add(mainPanel.mirrorFlip);
+        mirrorSubmenu.add(mirrorFlip);
     }
 
     private static void fillViewMenu(MainPanel mainPanel, JMenu viewMenu) {
-        mainPanel.textureModels = new JCheckBoxMenuItem("Texture Models", true);
-        mainPanel.textureModels.setMnemonic(KeyEvent.VK_T);
-        mainPanel.textureModels.setSelected(true);
-        mainPanel.textureModels.addActionListener(e -> mainPanel.prefs.setTextureModels(mainPanel.textureModels.isSelected()));
-        viewMenu.add(mainPanel.textureModels);
+        JCheckBoxMenuItem textureModels = new JCheckBoxMenuItem("Texture Models", true);
+        textureModels.setMnemonic(KeyEvent.VK_T);
+        textureModels.setSelected(mainPanel.prefs.textureModels());
+        textureModels.addActionListener(e -> mainPanel.prefs.setTextureModels(textureModels.isSelected()));
+        viewMenu.add(textureModels);
+
+        JCheckBoxMenuItem showNormals = new JCheckBoxMenuItem("Show Normals", true);
+        showNormals.setMnemonic(KeyEvent.VK_N);
+        showNormals.setSelected(mainPanel.prefs.showNormals());
+        showNormals.addActionListener(e -> mainPanel.prefs.setShowNormals(showNormals.isSelected()));
+        viewMenu.add(showNormals);
+
+        JCheckBoxMenuItem renderParticles = new JCheckBoxMenuItem("Render Particles", true);
+        renderParticles.setMnemonic(KeyEvent.VK_P);
+        renderParticles.setSelected(mainPanel.prefs.getRenderParticles());
+        renderParticles.addActionListener(e -> mainPanel.prefs.setRenderParticles(renderParticles.isSelected()));
+        viewMenu.add(renderParticles);
+
+        JCheckBoxMenuItem showPerspectiveGrid = new JCheckBoxMenuItem("Show Perspective Grid", true);
+        showPerspectiveGrid.setMnemonic(KeyEvent.VK_G);
+        showPerspectiveGrid.setSelected(mainPanel.prefs.showPerspectiveGrid());
+        showPerspectiveGrid.addActionListener(e -> mainPanel.prefs.setShowPerspectiveGrid(showPerspectiveGrid.isSelected()));
+        viewMenu.add(showPerspectiveGrid);
 
         JMenuItem newDirectory = new JMenuItem("Change Game Directory");
         newDirectory.setAccelerator(KeyStroke.getKeyStroke("control shift D"));
@@ -358,37 +377,31 @@ public class MenuBar {
 
         viewMenu.add(new JSeparator());
 
-        mainPanel.showVertexModifyControls = new JCheckBoxMenuItem("Show Viewport Buttons", true);
+        JCheckBoxMenuItem showVertexModifyControls = new JCheckBoxMenuItem("Show Viewport Buttons", true);
         // showVertexModifyControls.setMnemonic(KeyEvent.VK_V);
-        mainPanel.showVertexModifyControls.addActionListener(e -> showVertexModifyControls(mainPanel.modelPanels, mainPanel.prefs, mainPanel.showVertexModifyControls));
-        viewMenu.add(mainPanel.showVertexModifyControls);
+        showVertexModifyControls.addActionListener(e -> showVertexModifyControls(mainPanel.modelPanels, mainPanel.prefs, showVertexModifyControls));
+        viewMenu.add(showVertexModifyControls);
 
         viewMenu.add(new JSeparator());
 
-        mainPanel.showNormals = new JCheckBoxMenuItem("Show Normals", true);
-        mainPanel.showNormals.setMnemonic(KeyEvent.VK_N);
-        mainPanel.showNormals.setSelected(false);
-        mainPanel.showNormals.addActionListener(e -> mainPanel.prefs.setShowNormals(mainPanel.showNormals.isSelected()));
-        viewMenu.add(mainPanel.showNormals);
+        JMenu viewMode = new JMenu("3D View Mode");
+        viewMenu.add(viewMode);
 
-        mainPanel.viewMode = new JMenu("3D View Mode");
-        viewMenu.add(mainPanel.viewMode);
+        ButtonGroup viewModes = new ButtonGroup();
 
-        mainPanel.viewModes = new ButtonGroup();
+        JRadioButtonMenuItem wireframe = new JRadioButtonMenuItem("Wireframe");
+        wireframe.addActionListener(e -> repaint(mainPanel, 0));
+        wireframe.setSelected(mainPanel.prefs.getViewMode() == 0);
+        viewMode.add(wireframe);
+        viewModes.add(wireframe);
 
-        final ActionListener repainter = e -> repaint(mainPanel);
+        JRadioButtonMenuItem solid = new JRadioButtonMenuItem("Solid");
+        solid.addActionListener(e -> repaint(mainPanel, 1));
+        solid.setSelected(mainPanel.prefs.getViewMode() == 1);
+        viewMode.add(solid);
+        viewModes.add(solid);
 
-        mainPanel.wireframe = new JRadioButtonMenuItem("Wireframe");
-        mainPanel.wireframe.addActionListener(repainter);
-        mainPanel.viewMode.add(mainPanel.wireframe);
-        mainPanel.viewModes.add(mainPanel.wireframe);
-
-        mainPanel.solid = new JRadioButtonMenuItem("Solid");
-        mainPanel.solid.addActionListener(repainter);
-        mainPanel.viewMode.add(mainPanel.solid);
-        mainPanel.viewModes.add(mainPanel.solid);
-
-        mainPanel.viewModes.setSelected(mainPanel.solid.getModel(), true);
+//        viewModes.setSelected(solid.getModel(), true);
     }
 
     private static void fillWindowsMenu(MainPanel mainPanel, JMenu windowMenu) {
@@ -501,7 +514,6 @@ public class MenuBar {
         nullmodelButton.setMnemonic(KeyEvent.VK_E);
         nullmodelButton.setAccelerator(KeyStroke.getKeyStroke("control E"));
         nullmodelButton.addActionListener(e -> ScriptActions.nullmodelButtonActionRes(mainPanel));
-        mainPanel.nullmodelButton = nullmodelButton;
         scriptsMenu.add(nullmodelButton);
 
         createAndAddMenuItem("Export Animated to Static Mesh", scriptsMenu, KeyEvent.VK_E, e -> ScriptActions.exportAnimatedToStaticMesh(mainPanel));
@@ -517,11 +529,11 @@ public class MenuBar {
 
         createAndAddMenuItem("Assign FormatVersion 1000", scriptsMenu, KeyEvent.VK_A, e -> mainPanel.currentMDL().setFormatVersion(1000));
 
-        createAndAddMenuItem("SD -> HD (highly experimental, requires 900 or 1000)", scriptsMenu, KeyEvent.VK_A, e -> EditableModel.makeItHD(mainPanel.currentMDL()));
+        createAndAddMenuItem("SD -> HD (highly experimental, requires 900 or 1000)", scriptsMenu, KeyEvent.VK_A, e -> ScriptActions.makeItHD(mainPanel.currentMDL()));
 
-        createAndAddMenuItem("HD -> SD (highly experimental, becomes 800)", scriptsMenu, KeyEvent.VK_A, e -> EditableModel.convertToV800(1, mainPanel.currentMDL()));
+        createAndAddMenuItem("HD -> SD (highly experimental, becomes 800)", scriptsMenu, KeyEvent.VK_A, e -> ScriptActions.convertToV800(1, mainPanel.currentMDL()));
 
-        createAndAddMenuItem("Recalculate Tangents (requires 900 or 1000)", scriptsMenu, KeyEvent.VK_A, e -> EditableModel.recalculateTangents(mainPanel.currentMDL(), mainPanel));
+        createAndAddMenuItem("Recalculate Tangents (requires 900 or 1000)", scriptsMenu, KeyEvent.VK_A, e -> MenuBarActions.recalculateTangents(mainPanel.currentMDL(), mainPanel));
 
         final JMenuItem jokebutton = new JMenuItem("Load Retera Land");
         jokebutton.setMnemonic(KeyEvent.VK_A);
@@ -538,7 +550,10 @@ public class MenuBar {
     private static void resetView(MainPanel mainPanel) {
         traverseAndReset(mainPanel.rootWindow);
         final TabWindow startupTabWindow = MainLayoutCreator.createMainLayout(mainPanel);
+        startupTabWindow.setSelectedTab(0);
         mainPanel.rootWindow.setWindow(startupTabWindow);
+        MPQBrowserView.setCurrentModel(mainPanel, mainPanel.currentModelPanel());
+        mainPanel.rootWindow.revalidate();
         MainLayoutCreator.traverseAndFix(mainPanel.rootWindow);
     }
 
@@ -554,10 +569,10 @@ public class MenuBar {
         frame.setVisible(true);
     }
 
-    private static void repaint(MainPanel mainPanel) {
-        if (mainPanel.wireframe.isSelected()) {
+    private static void repaint(MainPanel mainPanel, int radioButton) {
+        if (radioButton == 0) {
             mainPanel.prefs.setViewMode(0);
-        } else if (mainPanel.solid.isSelected()) {
+        } else if (radioButton == 1) {
             mainPanel.prefs.setViewMode(1);
         } else {
             mainPanel.prefs.setViewMode(-1);

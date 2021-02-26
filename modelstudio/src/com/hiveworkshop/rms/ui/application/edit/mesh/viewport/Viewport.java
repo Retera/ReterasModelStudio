@@ -274,7 +274,7 @@ public class Viewport extends JPanel
 	public void paintComponent(final Graphics g, final int vertexSize) {
 		super.paintComponent(g);
 		final long renderStart = System.nanoTime();
-		if (programPreferences.isInvertedDisplay()) {
+		if (programPreferences.show2dGrid()) {
 			final Point2D.Double cameraOrigin = new Point2D.Double(convertX(0), convertY(0));
 
 			float increment = 20 * (float) getZoomAmount();

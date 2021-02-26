@@ -30,7 +30,7 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		final JCheckBox quickBrowse = new JCheckBox();
 		final JCheckBox allowLoadingNonBlpTextures = new JCheckBox();
 		final JCheckBox renderParticles = new JCheckBox();
-		if ((programPreferences.isInvertedDisplay() != null) && programPreferences.isInvertedDisplay()) {
+		if ((programPreferences.show2dGrid() != null) && programPreferences.show2dGrid()) {
 			invertedDisplay.setSelected(true);
 		}
 		if ((programPreferences.getUseBoxesForPivotPoints() != null)
@@ -48,8 +48,8 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 			renderParticles.setSelected(true);
 		}
 		final ActionListener viewModeUpdater = e -> {
-            programPreferences.setViewMode(wireframeViewMode.isSelected() ? 0 : 1);
-            programPreferences.setInvertedDisplay(invertedDisplay.isSelected());
+			programPreferences.setViewMode(wireframeViewMode.isSelected() ? 0 : 1);
+			programPreferences.setShow2dGrid(invertedDisplay.isSelected());
         };
 		wireframeViewMode.setSelected(programPreferences.viewMode() == 0);
 		wireframeViewMode.addActionListener(viewModeUpdater);

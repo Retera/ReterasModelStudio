@@ -118,11 +118,6 @@ public class MPQBrowserView {
 //        mainPanel.setTimeBounds.setVisible(mainPanel.animationModeState);
         mainPanel.timeSliderPanel.setKeyframeModeActive(mainPanel.animationModeState);
 
-        if (mainPanel.animationModeState) {
-            mainPanel.animationModeButton.setColors(mainPanel.prefs.getActiveColor1(), mainPanel.prefs.getActiveColor2());
-        } else {
-            mainPanel.animationModeButton.resetColors();
-        }
         mainPanel.timeSliderPanel.repaint();
         mainPanel.creatorPanel.setAnimationModeState(mainPanel.animationModeState);
     }

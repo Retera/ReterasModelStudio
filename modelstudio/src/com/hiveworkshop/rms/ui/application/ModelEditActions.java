@@ -122,13 +122,13 @@ public class ModelEditActions {
         mainPanel.repaint();
     }
 
-    static void mirrorAxis(MainPanel mainPanel, byte i) {
+    static void mirrorAxis(MainPanel mainPanel, byte i, boolean mirrorFlip) {
         final ModelPanel modelPanel = mainPanel.currentModelPanel();
         if (modelPanel != null) {
             final Vec3 selectionCenter = modelPanel.getModelEditorManager().getModelEditor().getSelectionCenter();
             modelPanel.getUndoManager().pushAction(
                     modelPanel.getModelEditorManager().getModelEditor()
-                            .mirror(i, mainPanel.mirrorFlip.isSelected(), selectionCenter.x, selectionCenter.y, selectionCenter.z));
+                            .mirror(i, mirrorFlip, selectionCenter.x, selectionCenter.y, selectionCenter.z));
         }
         mainPanel.repaint();
     }

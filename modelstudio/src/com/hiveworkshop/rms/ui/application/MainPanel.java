@@ -29,7 +29,6 @@ import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.preferences.listeners.WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-import com.hiveworkshop.rms.ui.util.ModeButton;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
 import com.hiveworkshop.rms.util.Vec3;
 import net.infonode.docking.*;
@@ -37,6 +36,7 @@ import net.infonode.docking.util.StringViewMap;
 import net.infonode.tabbedpanel.TabAreaVisiblePolicy;
 import net.infonode.tabbedpanel.titledtab.TitledTabBorderSizePolicy;
 import net.infonode.tabbedpanel.titledtab.TitledTabSizePolicy;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -48,18 +48,8 @@ import java.util.List;
 
 public class MainPanel extends JPanel
         implements ActionListener, UndoHandler, ModelEditorChangeActivityListener, ModelPanelCloseListener {
-    JMenuBar menuBar;
-    JMenu recentMenu, toolsMenu, windowMenu;
-    JCheckBoxMenuItem mirrorFlip, fetchPortraitsToo, showNormals, textureModels, showVertexModifyControls;
-    List<JMenuItem> geoItems = new ArrayList<>();
-    JMenuItem nullmodelButton;
-    List<MenuBar.RecentItem> recentItems = new ArrayList<>();
     MenuBar.UndoMenuItem undo;
     MenuBar.RedoMenuItem redo;
-
-    JMenu viewMode;
-    JRadioButtonMenuItem wireframe, solid;
-    ButtonGroup viewModes;
 
     JFileChooser fc, exportTextureDialog;
     File currentFile;
@@ -82,39 +72,38 @@ public class MainPanel extends JPanel
     SaveProfile profile = SaveProfile.get();
     ProgramPreferences prefs = profile.getPreferences();
 
-    JToolBar toolbar;
+    final CreatorModelingPanel creatorPanel;
+    final TimeEnvironmentImpl animatedRenderEnvironment;
+    final CoordDisplayListener coordDisplayListener;
+    final ModelStructureChangeListener modelStructureChangeListener;
+    final ViewportTransferHandler viewportTransferHandler;
+    final StringViewMap viewMap;
+    final RootWindow rootWindow;
+    final ExportTextureDialog.TextureExporterImpl textureExporter = new ExportTextureDialog.TextureExporterImpl(this);
+    //    protected ModelEditorActionType actionType;
+    public ModelEditorActionType actionType;
+    JMenu teamColorMenu;
+    JButton snapButton;
+    ToolbarButtonGroup<SelectionItemTypes> selectionItemTypeGroup;
+    ToolbarButtonGroup<SelectionMode> selectionModeGroup;
+    ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup;
+    View viewportControllerWindowView;
+    View toolView;
+    View modelDataView;
+    View modelComponentView;
+    ActivityDescriptor currentActivity;
+    AbstractAction expandSelectionAction = getExpandSelectionAction();
+    private ControllableTimeBoundProvider timeBoundProvider;
 
     TimeSliderPanel timeSliderPanel;
     //    final JButton setKeyframe;
 //    final JButton setTimeBounds;
-    final ModeButton animationModeButton;
     boolean animationModeState = false;
     final ZoomableImagePreviewPanel blpPanel;
 
     final ActiveViewportWatcher activeViewportWatcher = new ActiveViewportWatcher();
 
     WarcraftDataSourceChangeNotifier directoryChangeNotifier = new WarcraftDataSourceChangeNotifier();
-
-    public boolean showNormals() {
-        return showNormals.isSelected();
-    }
-
-    public boolean showVMControls() {
-        return showVertexModifyControls.isSelected();
-    }
-
-    public boolean textureModels() {
-        return textureModels.isSelected();
-    }
-
-    public int viewMode() {
-        if (wireframe.isSelected()) {
-            return 0;
-        } else if (solid.isSelected()) {
-            return 1;
-        }
-        return -1;
-    }
 
     int contextClickedTab = 0;
     public AbstractAction undoAction = new UndoActionImplementation("Undo", this);
@@ -126,8 +115,6 @@ public class MainPanel extends JPanel
             cloneActionRes();
         }
     };
-    //    protected ModelEditorActionType actionType;
-    public ModelEditorActionType actionType;
 
     AbstractAction deleteAction = new AbstractAction("Delete") {
         @Override
@@ -138,7 +125,7 @@ public class MainPanel extends JPanel
 
     public MainPanel() {
         super();
-
+        setLayout(new MigLayout("fill, gap 0, novisualpadding, wrap 1", "[fill, grow]", "[][fill, grow]"));
         add(ToolBar.createJToolBar(this));
         // testArea = new PerspDisplayPanel("Graphic Test",2,0);
         // //botArea.setViewport(0,1);
@@ -163,16 +150,11 @@ public class MainPanel extends JPanel
 
 //        setTimeBounds = TimeSliderViewThing.createSetTimeBoundsButton(this);
 
-        animationModeButton = new ModeButton("Animate");
-        animationModeButton.setVisible(false);// TODO remove this if unused
-
         ClosePopup.createContextMenuPopup(this);
 
         modelPanels = new ArrayList<>();
-        final JPanel toolsPanel = new JPanel();
-        toolsPanel.setMaximumSize(new Dimension(30, 999999));
-        final GroupLayout layout = new GroupLayout(this);
-        toolbar.setMaximumSize(new Dimension(80000, 48));
+//        final JPanel toolsPanel = new JPanel();
+//        toolsPanel.setMaximumSize(new Dimension(30, 999999));
 
         viewMap = new StringViewMap();
 
@@ -221,15 +203,7 @@ public class MainPanel extends JPanel
         rootWindow.getRootWindowProperties().getFloatingWindowProperties().setUseFrame(true);
         startupTabWindow.setSelectedTab(0);
 
-        layout.setHorizontalGroup(layout
-                .createParallelGroup(GroupLayout.Alignment.LEADING)
-                .addComponent(toolbar)
-                .addComponent(rootWindow));
-        layout.setVerticalGroup(layout
-                .createSequentialGroup()
-                .addComponent(toolbar)
-                .addComponent(rootWindow));
-        setLayout(layout);
+        add(rootWindow);
 
 
         // Create a file chooser
@@ -352,8 +326,6 @@ public class MainPanel extends JPanel
         };
     }
 
-    AbstractAction expandSelectionAction = getExpandSelectionAction();
-
     private AbstractAction getExpandSelectionAction() {
         return new AbstractAction("Expand Selection") {
             @Override
@@ -370,22 +342,6 @@ public class MainPanel extends JPanel
         }
         repaint();
     }
-
-
-    ToolbarButtonGroup<SelectionItemTypes> selectionItemTypeGroup;
-    ToolbarButtonGroup<SelectionMode> selectionModeGroup;
-    ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup;
-    final ModelStructureChangeListener modelStructureChangeListener;
-
-    final ViewportTransferHandler viewportTransferHandler;
-    final StringViewMap viewMap;
-    final RootWindow rootWindow;
-    View viewportControllerWindowView;
-    View toolView;
-    View modelDataView;
-    View modelComponentView;
-    private ControllableTimeBoundProvider timeBoundProvider;
-    ActivityDescriptor currentActivity;
 
     private static DockingWindowListener getDockingWindowListener(final MainPanel mainPanel) {
         return new DockingWindowAdapter() {
@@ -495,10 +451,6 @@ public class MainPanel extends JPanel
         creatorPanel.changeActivity(newType);
     }
 
-    final TimeEnvironmentImpl animatedRenderEnvironment;
-    JButton snapButton;
-    final CoordDisplayListener coordDisplayListener;
-
     private void rigActionRes() {
         final ModelPanel mpanel = currentModelPanel();
         if (mpanel != null) {
@@ -524,14 +476,6 @@ public class MainPanel extends JPanel
         repaint();
     }
 
-    JMenu teamColorMenu;
-    final CreatorModelingPanel creatorPanel;
-    ToolbarActionButtonType selectAndMoveDescriptor;
-    ToolbarActionButtonType selectAndRotateDescriptor;
-    ToolbarActionButtonType selectAndScaleDescriptor;
-    ToolbarActionButtonType selectAndExtrudeDescriptor;
-    ToolbarActionButtonType selectAndExtendDescriptor;
-
     public static void reloadGUI(MainPanel mainPanel) {
         mainPanel.refreshUndo();
         MenuBarActions.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
@@ -544,7 +488,7 @@ public class MainPanel extends JPanel
         final JRootPane root = getRootPane();
         MainPanelLinkActions.linkActions(this, root);
 
-        MenuBarActions.updateUIFromProgramPreferences(fetchPortraitsToo, modelPanels, prefs, showNormals, showVertexModifyControls, solid, textureModels, wireframe);
+        MenuBarActions.updateUIFromProgramPreferences(modelPanels, prefs);
     }
 
 
@@ -628,8 +572,6 @@ public class MainPanel extends JPanel
         mainPanel.geoControl.repaint();
         mainPanel.geoControlModelData.repaint();
     }
-
-    final ExportTextureDialog.TextureExporterImpl textureExporter = new ExportTextureDialog.TextureExporterImpl(this);
 
     @Override
     public void save(final EditableModel model) {

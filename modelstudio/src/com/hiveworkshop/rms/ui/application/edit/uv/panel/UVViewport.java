@@ -116,7 +116,7 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 
 	public void paintComponent(final Graphics g, final int vertexSize) {
 		super.paintComponent(g);
-		if (programPreferences.isInvertedDisplay()) {
+		if (programPreferences.show2dGrid()) {
 			final Point2D.Double cameraOrigin = new Point2D.Double(convertX(0), convertY(0));
 
 			float increment = 20 * (float) getZoomAmount();

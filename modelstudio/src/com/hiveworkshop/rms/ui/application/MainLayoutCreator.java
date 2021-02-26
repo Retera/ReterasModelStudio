@@ -46,6 +46,7 @@ public class MainLayoutCreator {
         modelTab.getWindowProperties().setTitleProvider(arg0 -> "Model");
 
         final TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {viewingTab, editingTab, modelTab});
+//        final TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {editingTab, viewingTab, modelTab});
         traverseAndFix(startupTabWindow);
         return startupTabWindow;
     }
@@ -57,12 +58,16 @@ public class MainLayoutCreator {
         final View mpqBrowserView = MPQBrowserView.createMPQBrowser(mainPanel, imageIcon);
 
         final UnitEditorTree unitEditorTree = createUnitEditorTree(mainPanel);
-        final TabWindow tabWindow = new TabWindow(new DockingWindow[]{
-                new View("Unit Browser", imageIcon, new JScrollPane(unitEditorTree)), mpqBrowserView});
+        View view = new View("Unit Browser", imageIcon, new JScrollPane(unitEditorTree));
+        DockingWindow[] dockingWindow = new DockingWindow[] {view, mpqBrowserView};
+
+        final TabWindow tabWindow = new TabWindow(dockingWindow);
+
         tabWindow.setSelectedTab(0);
 
-        final SplitWindow viewingTab = new SplitWindow(true, 0.8f,
-                new SplitWindow(true, 0.8f, mainPanel.previewView, mainPanel.animationControllerView), tabWindow);
+        SplitWindow animPersp = new SplitWindow(true, 0.8f, mainPanel.previewView, mainPanel.animationControllerView);
+        final SplitWindow viewingTab = new SplitWindow(true, 0.8f, animPersp, tabWindow);
+
         viewingTab.getWindowProperties().setTitleProvider(arg0 -> "View");
         viewingTab.getWindowProperties().setCloseEnabled(false);
         return viewingTab;
@@ -72,16 +77,14 @@ public class MainLayoutCreator {
         final TabWindow leftHandTabWindow = new TabWindow(new DockingWindow[] {mainPanel.viewportControllerWindowView, mainPanel.toolView});
         leftHandTabWindow.setSelectedTab(0);
 
-        SplitWindow quadView = new SplitWindow(false,
-                new SplitWindow(true, mainPanel.frontView, mainPanel.bottomView),
-                new SplitWindow(true, mainPanel.leftView, mainPanel.perspectiveView));
+        SplitWindow frBt = new SplitWindow(true, mainPanel.frontView, mainPanel.bottomView);
+        SplitWindow lfPs = new SplitWindow(true, mainPanel.leftView, mainPanel.perspectiveView);
+        SplitWindow quadView = new SplitWindow(false, frBt, lfPs);
 
-        final SplitWindow editingTab = new SplitWindow(false, 0.875f,
-                new SplitWindow(true, 0.2f, leftHandTabWindow,
-                        new SplitWindow(true, 0.8f,
-                                quadView,
-                                mainPanel.creatorView)),
-                mainPanel.timeSliderView);
+        SplitWindow splitWindow = new SplitWindow(true, 0.2f, leftHandTabWindow, new SplitWindow(true, 0.8f, quadView, mainPanel.creatorView));
+
+        final SplitWindow editingTab = new SplitWindow(false, 0.875f, splitWindow, mainPanel.timeSliderView);
+
         editingTab.getWindowProperties().setCloseEnabled(false);
         editingTab.getWindowProperties().setTitleProvider(arg0 -> "Edit");
         return editingTab;

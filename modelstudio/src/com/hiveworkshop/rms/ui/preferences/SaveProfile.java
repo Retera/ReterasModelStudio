@@ -17,7 +17,8 @@ public class SaveProfile implements Serializable {
 	ProgramPreferences preferences;
 	private List<DataSourceDescriptor> dataSources;
 
-	private transient WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier dataSourceChangeNotifier = new WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier();
+	private transient WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier dataSourceChangeNotifier
+			= new WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier();
 	private transient boolean isHD = false;
 
 	public void clearRecent() {
@@ -32,17 +33,49 @@ public class SaveProfile implements Serializable {
 		return recent;
 	}
 
-	public void addRecent(final String fp) {
-		if (!getRecent().contains(fp)) {
-			getRecent().add(fp);
-		} else {
-			getRecent().remove(fp);
-			getRecent().add(fp);
+	public static SaveProfile get() {
+		if (currentProfile == null) {
+			try {
+				final String homeProfile = System.getProperty("user.home");
+				String profilePath = getProfilePath();
+				final File profileDir = new File(homeProfile + profilePath);
+				File profileFile = getProfileFile(profileDir);
+				final ObjectInputStream ois = new ObjectInputStream(new FileInputStream(profileFile));
+				currentProfile = (SaveProfile) ois.readObject();
+				currentProfile.preferences.reload();
+				currentProfile.reload();
+				ois.close();
+			} catch (final Exception e) {
+
+			}
+			if (currentProfile == null) {
+				currentProfile = new SaveProfile();
+				currentProfile.preferences = new ProgramPreferences();
+			}
 		}
-		if (recent.size() > 15) {
-			recent.remove(0);
+		return currentProfile;
+	}
+
+	public static void save() {
+		if (currentProfile != null) {
+			final String homeProfile = System.getProperty("user.home");
+			String profilePath = getProfilePath();
+			final File profileDir = new File(homeProfile + profilePath);
+			profileDir.mkdirs();
+			File profileFile = getProfileFile(profileDir);
+			System.out.println(profileFile.getPath());
+			// profileFile.delete();
+
+			try {
+				profileFile.createNewFile();
+				final OutputStream fos = new FileOutputStream(profileFile);
+				final ObjectOutputStream oos = new ObjectOutputStream(fos);
+				oos.writeObject(get());
+				oos.close();
+			} catch (final Exception e) {
+				e.printStackTrace();
+			}
 		}
-		save();
 	}
 
 	public ProgramPreferences getPreferences() {
@@ -81,33 +114,12 @@ public class SaveProfile implements Serializable {
 		save();
 	}
 
-	public static SaveProfile get() {
-		if (currentProfile == null) {
-			try {
-				final String homeProfile = System.getProperty("user.home");
-				String profilePath = "\\AppData\\Roaming\\ReteraStudioBeta";
-				if (!System.getProperty("os.name").toLowerCase().contains("win")) {
-					profilePath = "/.reteraStudioBeta";
-				}
-				final File profileDir = new File(homeProfile + profilePath);
-				File profileFile = new File(profileDir.getPath() + "\\user.profile");
-				if (!System.getProperty("os.name").toLowerCase().contains("win")) {
-					profileFile = new File(profileFile.getPath().replace('\\', '/'));
-				}
-				final ObjectInputStream ois = new ObjectInputStream(new FileInputStream(profileFile));
-				currentProfile = (SaveProfile) ois.readObject();
-				currentProfile.preferences.reload();
-				currentProfile.reload();
-				ois.close();
-			} catch (final Exception e) {
-
-			}
-			if (currentProfile == null) {
-				currentProfile = new SaveProfile();
-				currentProfile.preferences = new ProgramPreferences();
-			}
+	public static File getProfileFile(File profileDir) {
+		File profileFile = new File(profileDir.getPath() + "\\user.profile");
+		if (!System.getProperty("os.name").toLowerCase().contains("win")) {
+			profileFile = new File(profileFile.getPath().replace('\\', '/'));
 		}
-		return currentProfile;
+		return profileFile;
 	}
 
 	private void reload() {
@@ -140,34 +152,12 @@ public class SaveProfile implements Serializable {
 		return hd;
 	}
 
-	public static void save() {
-		if (currentProfile != null) {
-			final String homeProfile = System.getProperty("user.home");
-			String profilePath = "\\AppData\\Roaming\\ReteraStudioBeta";
-			if (!System.getProperty("os.name").toLowerCase().contains("win")) {
-				profilePath = "/.reteraStudioBeta";
-			}
-			final File profileDir = new File(homeProfile + profilePath);
-			profileDir.mkdirs();
-			// System.out.println(profileDir.mkdirs());
-			// System.out.println(profileDir);
-			File profileFile = new File(profileDir.getPath() + "\\user.profile");
-			if (!System.getProperty("os.name").toLowerCase().contains("win")) {
-				profileFile = new File(profileFile.getPath().replace('\\', '/'));
-			}
-			System.out.println(profileFile.getPath());
-			// profileFile.delete();
-
-			try {
-				profileFile.createNewFile();
-				final OutputStream fos = new FileOutputStream(profileFile);
-				final ObjectOutputStream oos = new ObjectOutputStream(fos);
-				oos.writeObject(get());
-				oos.close();
-			} catch (final Exception e) {
-				e.printStackTrace();
-			}
+	public static String getProfilePath() {
+		String profilePath = "\\AppData\\Roaming\\ReteraStudioBeta";
+		if (!System.getProperty("os.name").toLowerCase().contains("win")) {
+			profilePath = "/.reteraStudioBeta";
 		}
+		return profilePath;
 	}
 
 	public static boolean testTargetFolderReadOnly(final String wcDirectory) {
@@ -181,6 +171,22 @@ public class SaveProfile implements Serializable {
 			return false;
 		}
 		return true;
+	}
+
+	public void addRecent(final String fp) {
+		getRecent().remove(fp);
+		getRecent().add(fp);
+		if (recent.size() > 15) {
+			recent.remove(0);
+		}
+		save();
+	}
+
+	public void removeFromRecent(final String fp) {
+		if (getRecent().contains(fp)) {
+			getRecent().remove(fp);
+			save();
+		}
 	}
 
 	public boolean isHd() {

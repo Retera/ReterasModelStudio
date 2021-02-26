@@ -14,6 +14,7 @@ import net.infonode.docking.View;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class MainPanelLinkActions {
 	static void linkActions(final MainPanel mainPanel, final JComponent root) {
@@ -95,13 +96,16 @@ public class MainPanelLinkActions {
 		}
 
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("shift pressed SHIFT"), "shiftSelect");
-		root.getActionMap().put("shiftSelect", shiftSelectAction(mainPanel));
+//		root.getActionMap().put("shiftSelect", shiftSelectAction(mainPanel));
+		root.getActionMap().put("shiftSelect", new AcAd(e -> shiftSelectActionRes(mainPanel)));
 
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("alt pressed ALT"), "altSelect");
-		root.getActionMap().put("altSelect", altSelectAction(mainPanel));
+//		root.getActionMap().put("altSelect", altSelectAction(mainPanel));
+		root.getActionMap().put("altSelect", new AcAd(e -> altSelectActionRes(mainPanel)));
 
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("released SHIFT"), "unShiftSelect");
-		root.getActionMap().put("unShiftSelect", unShiftSelectAction(mainPanel));
+//		root.getActionMap().put("unShiftSelect", unShiftSelectAction(mainPanel));
+		root.getActionMap().put("unShiftSelect", new AcAd(e -> unShiftSelectActionRes(mainPanel)));
 
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("released ALT"), "unAltSelect");
 		root.getActionMap().put("unAltSelect", unAltSelectAction(mainPanel));
@@ -135,40 +139,51 @@ public class MainPanelLinkActions {
 		return new AbstractAction("unShiftSelect") {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				if (isTextField()) return;
-				if ((mainPanel.selectionModeGroup.getActiveButtonType() == SelectionMode.ADD)
-						&& mainPanel.cheatShift) {
-					mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.SELECT);
-					mainPanel.cheatShift = false;
-				}
-				;
+				unShiftSelectActionRes(mainPanel);
 			}
 		};
+	}
+
+	private static void unShiftSelectActionRes(MainPanel mainPanel) {
+		if (isTextField()) return;
+		if ((mainPanel.selectionModeGroup.getActiveButtonType() == SelectionMode.ADD)
+				&& mainPanel.cheatShift) {
+			mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.SELECT);
+			mainPanel.cheatShift = false;
+		}
 	}
 
 	private static AbstractAction altSelectAction(MainPanel mainPanel) {
 		return new AbstractAction("altSelect") {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				if (mainPanel.selectionModeGroup.getActiveButtonType() == SelectionMode.SELECT) {
-					mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.DESELECT);
-					mainPanel.cheatAlt = true;
-				}
+				altSelectActionRes(mainPanel);
 			}
 		};
+	}
+
+	private static void altSelectActionRes(MainPanel mainPanel) {
+		if (mainPanel.selectionModeGroup.getActiveButtonType() == SelectionMode.SELECT) {
+			mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.DESELECT);
+			mainPanel.cheatAlt = true;
+		}
 	}
 
 	private static AbstractAction shiftSelectAction(MainPanel mainPanel) {
 		return new AbstractAction("shiftSelect") {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				if (isTextField()) return;
-				if (mainPanel.selectionModeGroup.getActiveButtonType() == SelectionMode.SELECT) {
-					mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.ADD);
-					mainPanel.cheatShift = true;
-				}
+				shiftSelectActionRes(mainPanel);
 			}
 		};
+	}
+
+	private static void shiftSelectActionRes(MainPanel mainPanel) {
+		if (isTextField()) return;
+		if (mainPanel.selectionModeGroup.getActiveButtonType() == SelectionMode.SELECT) {
+			mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.ADD);
+			mainPanel.cheatShift = true;
+		}
 	}
 
 	private static AbstractAction maximizeSpacebarAction(MainPanel mainPanel) {
@@ -334,5 +349,18 @@ public class MainPanelLinkActions {
 	private static Component getFocusedComponent() {
 		final KeyboardFocusManager kfm = KeyboardFocusManager.getCurrentKeyboardFocusManager();
 		return kfm.getFocusOwner();
+	}
+
+	private static class AcAd extends AbstractAction {
+		ActionListener actionListener;
+
+		AcAd(ActionListener actionListener) {
+			this.actionListener = actionListener;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			actionListener.actionPerformed(e);
+		}
 	}
 }
