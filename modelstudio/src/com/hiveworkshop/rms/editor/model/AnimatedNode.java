@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.editor.model;
 
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -68,7 +69,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 			final Quat keyframeValue = new Quat(localRotation);
 			rotationTimeline.getValues().add(insertIndex, keyframeValue);
 //			if (rotationTimeline.tans()) {
-			if (rotationTimeline.interpolationType.tangential()) {
+			if (rotationTimeline.getInterpolationType().tangential()) {
 				final Quat inTan = new Quat(localRotation);
 				rotationTimeline.getInTans().add(insertIndex, inTan);
 
@@ -117,7 +118,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		final Vec3 keyframeValue = new Vec3(vec3);
 		timeline.getValues().add(insertIndex, keyframeValue);
 //		if (timeline.tans()) {
-		if (timeline.interpolationType.tangential()) {
+		if (timeline.getInterpolationType().tangential()) {
 			final Vec3 inTan = new Vec3(vec3);
 			timeline.getInTans().add(insertIndex, inTan);
 

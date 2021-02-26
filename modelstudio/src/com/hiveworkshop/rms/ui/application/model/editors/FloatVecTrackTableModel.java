@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application.model.editors;
 
-import com.hiveworkshop.rms.editor.model.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 
 import javax.swing.table.AbstractTableModel;
 

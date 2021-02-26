@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.editor.model;
 
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
@@ -372,8 +373,8 @@ public class Layer extends TimelineContainer implements Named {
 	public void buildTextureList(final EditableModel mdlr) {
 		textures = new ArrayList<>();
 		final AnimFlag txFlag = find(MdlUtils.TOKEN_TEXTURE_ID);
-		for (int i = 0; i < txFlag.values.size(); i++) {
-			final int txId = (Integer) txFlag.values.get(i);
+		for (int i = 0; i < txFlag.getValues().size(); i++) {
+			final int txId = (Integer) txFlag.getValues().get(i);
 			final Bitmap texture2 = mdlr.getTexture(txId);
 			textures.add(texture2);
 			ridiculouslyWrongTextureIDToTexture.put(txId, texture2);
@@ -385,11 +386,11 @@ public class Layer extends TimelineContainer implements Named {
 		TVertexAnimId = mdlr.getTextureAnimId(textureAnim);
 		if (textures != null) {
 			final AnimFlag txFlag = find(MdlUtils.TOKEN_TEXTURE_ID);
-			for (int i = 0; i < txFlag.values.size(); i++) {
+			for (int i = 0; i < txFlag.getValues().size(); i++) {
 				final Bitmap textureFoundFromDirtyId = ridiculouslyWrongTextureIDToTexture
-						.get(txFlag.values.get(i));
+						.get(txFlag.getValues().get(i));
 				final int newerTextureId = mdlr.getTextureId(textureFoundFromDirtyId);
-				txFlag.values.set(i, newerTextureId);
+				txFlag.getValues().set(i, newerTextureId);
 				ridiculouslyWrongTextureIDToTexture.put(newerTextureId, textureFoundFromDirtyId);
 			}
 		}

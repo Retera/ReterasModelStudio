@@ -1,15 +1,16 @@
 package com.hiveworkshop.rms.editor.model;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxAnimatedObject;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class TimelineContainer implements VisibilitySource {
 	public Map<String, AnimFlag> animFlags = new HashMap<>();
@@ -71,8 +72,8 @@ public abstract class TimelineContainer implements VisibilitySource {
 	public AnimFlag find(final String name, final Integer globalSeq) {
 		final AnimFlag timeline = animFlags.get(name);
 
-		if (timeline != null && (((globalSeq == null) && (timeline.globalSeq == null))
-				|| ((globalSeq != null) && globalSeq.equals(timeline.globalSeq)))) {
+		if (timeline != null && (((globalSeq == null) && (timeline.getGlobalSeq() == null))
+				|| ((globalSeq != null) && globalSeq.equals(timeline.getGlobalSeq())))) {
 			return timeline;
 		}
 

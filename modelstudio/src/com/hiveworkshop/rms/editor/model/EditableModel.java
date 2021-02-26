@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.editor.model.AnimFlag.Entry;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag.Entry;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.model.visitor.*;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
@@ -24,8 +25,7 @@ import java.util.List;
 import java.util.*;
 
 /**
- * A java object to represent and store an MDL 3d model (Warcraft III file
- * format).
+ * A java object to represent and store an MDL 3d model (Warcraft III file format).
  * <p>
  * Eric Theller 11/5/2011
  */
@@ -135,8 +135,7 @@ public class EditableModel implements Named {
 		}
 
 		// Step 9:
-		// convert "IdObjects" as I called them in my high school mdl code
-		// (nodes)
+		// convert "IdObjects" as I called them in my high school mdl code (nodes)
 
 		// Bones
 		for (final MdlxBone bone : model.bones) {
@@ -729,7 +728,7 @@ public class EditableModel implements Named {
 
 		final List<AnimFlag> newImpFlags = new ArrayList<>();
 		for (final AnimFlag af : othersFlags) {
-			if (!af.hasGlobalSeq) {
+			if (!af.hasGlobalSeq()) {
 				newImpFlags.add(AnimFlag.buildEmptyFrom(af));
 			} else {
 				newImpFlags.add(new AnimFlag(af));
@@ -810,7 +809,7 @@ public class EditableModel implements Named {
 
 		final List<AnimFlag> newImpFlags = new ArrayList<>();
 		for (final AnimFlag af : othersFlags) {
-			if (!af.hasGlobalSeq) {
+			if (!af.hasGlobalSeq()) {
 				newImpFlags.add(AnimFlag.buildEmptyFrom(af));
 			} else {
 				newImpFlags.add(new AnimFlag(af));
@@ -1085,8 +1084,8 @@ public class EditableModel implements Named {
 		final List<AnimFlag> animFlags = getAllAnimFlags();// laggggg!
 		final List<EventObject> evtObjs = sortedIdObjects(EventObject.class);
 		for (final AnimFlag af : animFlags) {
-			if (!globalSeqs.contains(af.globalSeq) && (af.globalSeq != null)) {
-				globalSeqs.add(af.globalSeq);
+			if (!globalSeqs.contains(af.getGlobalSeq()) && (af.getGlobalSeq() != null)) {
+				globalSeqs.add(af.getGlobalSeq());
 			}
 			af.updateGlobalSeqId(this);// keep the ids straight
 		}
@@ -1379,7 +1378,7 @@ public class EditableModel implements Named {
 	public void buildGlobSeqFrom(final Animation anim, final List<AnimFlag> flags) {
 		final Integer newSeq = anim.length();
 		for (final AnimFlag af : flags) {
-			if (!af.hasGlobalSeq) {
+			if (!af.hasGlobalSeq()) {
 				final AnimFlag copy = new AnimFlag(af);
 				copy.setGlobSeq(newSeq);
 				copy.copyFrom(af, anim.getStart(), anim.getEnd(), 0, anim.length());

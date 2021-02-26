@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools;
 
-import com.hiveworkshop.rms.editor.model.AnimFlag;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 
 import java.util.Map;

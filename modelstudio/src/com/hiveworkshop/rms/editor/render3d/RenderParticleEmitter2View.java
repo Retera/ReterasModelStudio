@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.editor.render3d;
 
-import com.hiveworkshop.rms.editor.model.AnimFlag;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 
 public class RenderParticleEmitter2View extends EmitterView {
