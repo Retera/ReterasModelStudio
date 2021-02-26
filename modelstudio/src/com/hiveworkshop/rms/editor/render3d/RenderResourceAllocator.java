@@ -23,8 +23,7 @@ public interface RenderResourceAllocator {
                 }
 
                 @Override
-                public void setTransformation(final Vec3 worldLocation, final Quat rotation,
-                        final Vec3 worldScale) {
+                public void setTransformation(final Vec3 worldLocation, final Quat rotation, final Vec3 worldScale) {
                 }
 
                 @Override

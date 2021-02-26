@@ -55,8 +55,7 @@ import java.util.*;
  * @author (your name)
  * @version (a version number or a date)
  */
-public class UVPanel extends JPanel
-		implements ActionListener, CoordDisplayListener, TVertexEditorChangeActivityListener {
+public class UVPanel extends JPanel implements ActionListener, CoordDisplayListener, TVertexEditorChangeActivityListener {
 
 	static final ImageIcon UVIcon;
 
@@ -445,8 +444,7 @@ public class UVPanel extends JPanel
 	}
 
 	private TVertexToolbarActionButtonType getButtonStuff(String path, String name, ModelEditorActionType editorActionType) {
-		return new TVertexToolbarActionButtonType(
-				RMSIcons.loadToolBarImageIcon(path), name) {
+		return new TVertexToolbarActionButtonType(RMSIcons.loadToolBarImageIcon(path), name) {
 			@Override
 			public TVertexEditorViewportActivity createActivity(final TVertexEditorManager modelEditorManager,
 			                                                    final ModelView modelView, final UndoActionListener undoActionListener) {
@@ -462,12 +460,9 @@ public class UVPanel extends JPanel
 
 	private TVertexEditorManipulatorBuilder getManipulatorWidget(TVertexEditorManager modelEditorManager, ModelView modelView, ModelEditorActionType editorActionType) {
 		return switch (editorActionType) {
-			case SCALING -> new ScaleWidgetTVertexEditorManipulatorBuilder(modelEditorManager.getModelEditor(),
-					modelEditorManager.getViewportSelectionHandler(), prefs, modelView);
-			case ROTATION -> new RotatorWidgetTVertexEditorManipulatorBuilder(modelEditorManager.getModelEditor(),
-					modelEditorManager.getViewportSelectionHandler(), prefs, modelView);
-			case TRANSLATION -> new MoverWidgetTVertexEditorManipulatorBuilder(modelEditorManager.getModelEditor(),
-					modelEditorManager.getViewportSelectionHandler(), prefs, modelView);
+			case SCALING -> new ScaleWidgetTVertexEditorManipulatorBuilder(modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), prefs, modelView);
+			case ROTATION -> new RotatorWidgetTVertexEditorManipulatorBuilder(modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), prefs, modelView);
+			case TRANSLATION -> new MoverWidgetTVertexEditorManipulatorBuilder(modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), prefs, modelView);
 
 		};
 	}
@@ -850,8 +845,7 @@ public class UVPanel extends JPanel
 
 			vp.clearBackgroundImage();
 			if (materialsList.getSelectedValue() != null) {
-				vp.addBackgroundImage(materialsList.getSelectedValue()
-						.getBufferedImage(dispMDL.getModel().getWrappedDataSource()));
+				vp.addBackgroundImage(materialsList.getSelectedValue().getBufferedImage(dispMDL.getModel().getWrappedDataSource()));
 				boolean wrap = false;
 				for (final Layer layer : materialsList.getSelectedValue().getLayers()) {
 					if ((layer.getTextureBitmap() != null) && (layer.getTextureBitmap().isWrapWidth()
@@ -932,8 +926,7 @@ public class UVPanel extends JPanel
 	@Override
 	public void changeActivity(final TVertexEditorActivityDescriptor newType) {
 		currentActivity = newType;
-		viewportActivityManager.setCurrentActivity(
-				newType.createActivity(modelEditorManager, dispMDL.getModelViewManager(), dispMDL.getUndoManager()));
+		viewportActivityManager.setCurrentActivity(newType.createActivity(modelEditorManager, dispMDL.getModelViewManager(), dispMDL.getUndoManager()));
 		resetButtons();
 		final ModeButton modeButton = typeToButton.get(newType);
 		if (modeButton != null) {

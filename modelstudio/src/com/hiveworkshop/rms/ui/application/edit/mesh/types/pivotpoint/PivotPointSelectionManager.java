@@ -52,25 +52,19 @@ public final class PivotPointSelectionManager extends AbstractSelectionManager<V
 		final Set<Vec3> drawnSelection = new HashSet<>();
 		for (final IdObject object : model.getEditableIdObjects()) {
 			if (selection.contains(object.getPivotPoint())) {
-				renderer.renderIdObject(object, NodeIconPalette.SELECTED, programPreferences.getSelectColor(),
-						programPreferences.getPivotPointsSelectedColor());
+				renderer.renderIdObject(object, NodeIconPalette.SELECTED, programPreferences.getSelectColor(), programPreferences.getPivotPointsSelectedColor());
 				drawnSelection.add(object.getPivotPoint());
 			}
 		}
 		for (final Camera camera : model.getEditableCameras()) {
-			renderer.renderCamera(camera,
-					selection.contains(camera.getPosition()) ? Color.GREEN.darker() : Color.ORANGE.darker(),
-					camera.getPosition(),
-					selection.contains(camera.getTargetPosition()) ? Color.GREEN.darker() : Color.ORANGE.darker(),
-					camera.getTargetPosition());
+			renderer.renderCamera(camera, selection.contains(camera.getPosition()) ? Color.GREEN.darker() : Color.ORANGE.darker(), camera.getPosition(), selection.contains(camera.getTargetPosition()) ? Color.GREEN.darker() : Color.ORANGE.darker(), camera.getTargetPosition());
 			drawnSelection.add(camera.getPosition());
 			drawnSelection.add(camera.getTargetPosition());
 		}
 		for (final Vec3 vertex : selection) {
 			if (!drawnSelection.contains(vertex)) {
 				renderBoneDummy.setPivotPoint(vertex);
-				renderer.renderIdObject(renderBoneDummy, NodeIconPalette.SELECTED, programPreferences.getSelectColor(),
-						programPreferences.getPivotPointsSelectedColor());
+				renderer.renderIdObject(renderBoneDummy, NodeIconPalette.SELECTED, programPreferences.getSelectColor(), programPreferences.getPivotPointsSelectedColor());
 			}
 		}
 	}
@@ -96,8 +90,6 @@ public final class PivotPointSelectionManager extends AbstractSelectionManager<V
 	}
 
 	@Override
-	public void renderUVSelection(final TVertexModelElementRenderer renderer, final ModelView modelView,
-                                  final ProgramPreferences programPreferences, final int tvertexLayerId) {
-
+	public void renderUVSelection(final TVertexModelElementRenderer renderer, final ModelView modelView, final ProgramPreferences programPreferences, final int tvertexLayerId) {
 	}
 }

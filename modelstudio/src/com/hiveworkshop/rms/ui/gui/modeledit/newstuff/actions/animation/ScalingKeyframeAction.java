@@ -1,14 +1,14 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.ui.application.edit.animation.NodeAnimationModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
+import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ScalingKeyframeAction implements GenericScaleAction {
 	private final UndoAction addingTimelinesOrKeyframesAction;

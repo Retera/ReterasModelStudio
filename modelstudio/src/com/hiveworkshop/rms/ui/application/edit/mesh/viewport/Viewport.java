@@ -35,8 +35,8 @@ import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.List;
 
-public class Viewport extends JPanel implements MouseListener, ActionListener, MouseWheelListener, CoordinateSystem,
-		ViewportView, MouseMotionListener, ModelEditorChangeListener {
+public class Viewport extends JPanel
+		implements MouseListener, ActionListener, MouseWheelListener, CoordinateSystem, ViewportView, MouseMotionListener, ModelEditorChangeListener {
 	byte m_d1;
 	byte m_d2;
 	double m_a = 0;
@@ -214,9 +214,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	public void setupViewportBackground(final ProgramPreferences programPreferences) {
 		// if (programPreferences.isInvertedDisplay()) {
 		// setBackground(Color.DARK_GRAY.darker());
-		// } else {
-		// setBackground(new Color(255, 255, 255));
-		// }
+		// } else {setBackground(new Color(255, 255, 255));}
 		setBackground(programPreferences.getBackgroundColor());
 	}
 
@@ -472,13 +470,10 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		while (temp != null) {
 			xoff += temp.getX();
 			yoff += temp.getY();
-			// if( temp.getClass() == ModelPanel.class )
-			// {
+			// if( temp.getClass() == ModelPanel.class ){
 			//// temp = MainFrame.panel;
 			// temp = null; // TODO
-			// }
-			// else
-			// {
+			// }else{
 			temp = temp.getParent();
 			// }
 		}
@@ -486,8 +481,8 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		if ((pointerInfo == null) || (pointerInfo.getLocation() == null)) {
 			return true;
 		}
-		final double mx = pointerInfo.getLocation().x - xoff;// MainFrame.frame.getX()-8);
-		final double my = pointerInfo.getLocation().y - yoff;// MainFrame.frame.getY()-30);
+		final double mx = pointerInfo.getLocation().x - xoff;
+		final double my = pointerInfo.getLocation().y - yoff;
 		// JOptionPane.showMessageDialog(null,mx+","+my+" as mouse,
 		// "+lastClick.x+","+lastClick.y+" as last.");
 		// System.out.println(xoff+" and "+mx);
@@ -519,8 +514,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	private void reAssignMatrix() {
 		final MatrixPopup matrixPopup = new MatrixPopup(modelView.getModel());
 		final String[] words = { "Accept", "Cancel" };
-		final int i = JOptionPane.showOptionDialog(this, matrixPopup, "Rebuild Matrix",
-				JOptionPane.PLAIN_MESSAGE, JOptionPane.YES_NO_OPTION, null, words, words[1]);
+		final int i = JOptionPane.showOptionDialog(this, matrixPopup, "Rebuild Matrix", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, words, words[1]);
 		if (i == 0) {
 			// JOptionPane.showMessageDialog(null,"action approved");
 			UndoAction reassignMatrixAction = modelEditor.setMatrix(BoneShell.toBonesList(Collections.list(matrixPopup.newRefs.elements())));
@@ -531,8 +525,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	private void reAssignSkinning() {
 		SkinPopup skinPopup = new SkinPopup(modelView);
 		final String[] words = { "Accept", "Cancel" };
-		final int i = JOptionPane.showOptionDialog(this, skinPopup, "Rebuild Skin",
-				JOptionPane.PLAIN_MESSAGE, JOptionPane.YES_NO_OPTION, null, words, words[1]);
+		final int i = JOptionPane.showOptionDialog(this, skinPopup, "Rebuild Skin", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, words, words[1]);
 		if (i == 0) {
 			// JOptionPane.showMessageDialog(null,"action approved");
 			undoListener.pushAction(modelEditor.setHDSkinning(skinPopup.getBones(), skinPopup.getSkinWeights()));
@@ -582,8 +575,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 			final IdObject node = idObjects.get(i);
 			nodeOptions[i + 1] = new NodeShell(node);
 		}
-		final NodeShell result = (NodeShell) JOptionPane.showInputDialog(this, "Choose a parent node",
-				"Set Parent Node", JOptionPane.PLAIN_MESSAGE, null, nodeOptions, defaultChoice);
+		final NodeShell result = (NodeShell) JOptionPane.showInputDialog(this, "Choose a parent node", "Set Parent Node", JOptionPane.PLAIN_MESSAGE, null, nodeOptions, defaultChoice);
 		final MatrixPopup matrixPopup = new MatrixPopup(modelView.getModel());
 		if (result != null) {
 			// JOptionPane.showMessageDialog(null,"action approved");
@@ -596,8 +588,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		final GridLayout layout = new GridLayout(6, 1);
 		inputPanel.setLayout(layout);
 		final JSpinner[] spinners = getLabeledSpinnerArray(inputPanel, "Move X:", 0.0, "Move Y:", 0.0, "Move Z:", 0.0);
-		final int x = JOptionPane.showConfirmDialog(getRootPane(), inputPanel, "Manual Translation",
-				JOptionPane.OK_CANCEL_OPTION);
+		final int x = JOptionPane.showConfirmDialog(getRootPane(), inputPanel, "Manual Translation", JOptionPane.OK_CANCEL_OPTION);
 		if (x != JOptionPane.OK_OPTION) {
 			return;
 		}
@@ -624,8 +615,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		final GridLayout layout = new GridLayout(6, 1);
 		inputPanel.setLayout(layout);
 		final JSpinner[] spinners = getLabeledSpinnerArray(inputPanel, "Rotate X degrees (around axis facing front):", 0.0, "Rotate Y degrees (around axis facing left):", 0.0, "Rotate Z degrees (around axis facing up):", 0.0);
-		final int x = JOptionPane.showConfirmDialog(getRootPane(), inputPanel, "Manual Rotation",
-				JOptionPane.OK_CANCEL_OPTION);
+		final int x = JOptionPane.showConfirmDialog(getRootPane(), inputPanel, "Manual Rotation", JOptionPane.OK_CANCEL_OPTION);
 		if (x != JOptionPane.OK_OPTION) {
 			return;
 		}
@@ -633,8 +623,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		final double deltaXAngle = Math.toRadians(((Number) spinners[0].getValue()).doubleValue());
 		final double deltaYAngle = Math.toRadians(((Number) spinners[1].getValue()).doubleValue());
 		final double deltaZAngle = Math.toRadians(((Number) spinners[2].getValue()).doubleValue());
-		final UndoAction rotate = modelEditor.rotate(modelEditor.getSelectionCenter(), deltaXAngle, deltaYAngle,
-				deltaZAngle);
+		final UndoAction rotate = modelEditor.rotate(modelEditor.getSelectionCenter(), deltaXAngle, deltaYAngle, deltaZAngle);
 		undoListener.pushAction(rotate);
 
 	}
@@ -644,16 +633,14 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		final GridLayout layout = new GridLayout(6, 1);
 		inputPanel.setLayout(layout);
 		final JSpinner[] spinners = getLabeledSpinnerArray(inputPanel, "New Position X:", 0.0, "New Position Y:", 0.0, "New Position Z:", 0.0);
-		final int x = JOptionPane.showConfirmDialog(getRootPane(), inputPanel, "Manual Position",
-				JOptionPane.OK_CANCEL_OPTION);
+		final int x = JOptionPane.showConfirmDialog(getRootPane(), inputPanel, "Manual Position", JOptionPane.OK_CANCEL_OPTION);
 		if (x != JOptionPane.OK_OPTION) {
 			return;
 		}
 		final double positionX = ((Number) spinners[0].getValue()).doubleValue();
 		final double positionY = ((Number) spinners[1].getValue()).doubleValue();
 		final double positionZ = ((Number) spinners[2].getValue()).doubleValue();
-		final UndoAction setPosition = modelEditor.setPosition(modelEditor.getSelectionCenter(), positionX, positionY,
-				positionZ);
+		final UndoAction setPosition = modelEditor.setPosition(modelEditor.getSelectionCenter(), positionX, positionY, positionZ);
 		undoListener.pushAction(setPosition);
 	}
 
@@ -827,20 +814,31 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		}
 	}
 
+	@Override
+	public void mouseDragged(final MouseEvent e) {
+		activityListener.mouseDragged(e, this);
+		lastMouseMotion = e.getPoint();
+	}
+
+	@Override
+	public void mouseMoved(final MouseEvent e) {
+		if (!mouseInBounds && getBounds().contains(e.getPoint()) && !activityListener.isEditing()) {
+			mouseEntered(e);
+		}
+		activityListener.mouseMoved(e, this);
+		lastMouseMotion = e.getPoint();
+	}
+
 	public Rectangle2D.Double pointsToGeomRect(final Point a, final Point b) {
-		final Point2D.Double topLeft = new Point2D.Double(Math.min(geomX(a.x), geomX(b.x)),
-				Math.min(geomY(a.y), geomY(b.y)));
-		final Point2D.Double lowRight = new Point2D.Double(Math.max(geomX(a.x), geomX(b.x)),
-				Math.max(geomY(a.y), geomY(b.y)));
-		return new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x,
-				lowRight.y - topLeft.y);
+		final Point2D.Double topLeft = new Point2D.Double(Math.min(geomX(a.x), geomX(b.x)), Math.min(geomY(a.y), geomY(b.y)));
+		final Point2D.Double lowRight = new Point2D.Double(Math.max(geomX(a.x), geomX(b.x)), Math.max(geomY(a.y), geomY(b.y)));
+		return new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x, lowRight.y - topLeft.y);
 	}
 
 	public Rectangle2D.Double pointsToRect(final Point a, final Point b) {
 		final Point2D.Double topLeft = new Point2D.Double(Math.min(a.x, b.x), Math.min(a.y, b.y));
 		final Point2D.Double lowRight = new Point2D.Double(Math.max(a.x, b.x), Math.max(a.y, b.y));
-		return new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x,
-				lowRight.y - topLeft.y);
+		return new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x, lowRight.y - topLeft.y);
 	}
 
 	@Override
@@ -856,21 +854,6 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	@Override
 	public double getZoom() {
 		return m_zoom;
-	}
-
-	@Override
-	public void mouseDragged(final MouseEvent e) {
-		activityListener.mouseDragged(e, this);
-		lastMouseMotion = e.getPoint();
-	}
-
-	@Override
-	public void mouseMoved(final MouseEvent e) {
-		if (!mouseInBounds && getBounds().contains(e.getPoint()) && !activityListener.isEditing()) {
-			mouseEntered(e);
-		}
-		activityListener.mouseMoved(e, this);
-		lastMouseMotion = e.getPoint();
 	}
 
 	@Override
@@ -947,8 +930,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		}
 
 		@Override
-		public void camera(final Camera camera) {
-		}
+		public void camera(final Camera camera) { }
 
 		@Override
 		public void bone(final Bone object) {
@@ -970,7 +952,6 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		protected DropLocation(final Point dropPoint) {
 			super(dropPoint);
 		}
-
 	}
 
 	public ModelView getModelView() {

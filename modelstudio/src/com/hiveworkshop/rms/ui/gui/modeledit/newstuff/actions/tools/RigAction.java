@@ -1,15 +1,11 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.*;
 
 public class RigAction implements UndoAction {
 	private final List<Vec3> selectedVertices;
@@ -19,7 +15,7 @@ public class RigAction implements UndoAction {
 	private final Map<GeosetVertex, short[]> vertexToOldSkinBoneWeightReferences;
 
 	public RigAction(final Collection<? extends Vec3> selectedVertices,
-			final Collection<? extends Bone> selectedBones) {
+	                 final Collection<? extends Bone> selectedBones) {
 		this.selectedVertices = new ArrayList<>(selectedVertices);
 		this.selectedBones = new ArrayList<>(selectedBones);
 		this.vertexToPriorBoneAttachment = new HashMap<>();

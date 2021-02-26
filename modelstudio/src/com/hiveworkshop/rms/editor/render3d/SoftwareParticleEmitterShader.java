@@ -6,16 +6,13 @@ public class SoftwareParticleEmitterShader implements ParticleEmitterShader {
 	private static final byte TFF = (byte) (255);
 
 	@Override
-	public void renderParticles(final int blendSrc, final int blendDst, final int rows, final int cols,
-			final InternalResource texture, final float[] bufferData, final boolean isRibbonEmitter,
-			final int numItemsToRender) {
+	public void renderParticles(final int blendSrc, final int blendDst, final int rows, final int cols, final InternalResource texture, final float[] bufferData, final boolean isRibbonEmitter, final int numItemsToRender) {
 		texture.bind();
 		GL11.glBlendFunc(blendSrc, blendDst);
 		GL11.glBegin(GL11.GL_TRIANGLES);
 		if ((numItemsToRender * 5) > bufferData.length) {
 //			throw new IllegalStateException(numItemsToRender + " alive items, " + bufferData.length + " len buffer");
-			new IllegalStateException(numItemsToRender + " alive items, " + bufferData.length + " len buffer")
-					.printStackTrace();
+			new IllegalStateException(numItemsToRender + " alive items, " + bufferData.length + " len buffer").printStackTrace();
 			return;
 		}
 		for (int itemIndex = 0; itemIndex < numItemsToRender; itemIndex++) {

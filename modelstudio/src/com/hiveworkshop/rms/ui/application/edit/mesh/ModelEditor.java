@@ -1,10 +1,5 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh;
 
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
-import java.util.Collection;
-import java.util.List;
-
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
@@ -20,6 +15,11 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ComponentVisibili
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * SelectionManager should've been like this so it didn't wrap the selection in

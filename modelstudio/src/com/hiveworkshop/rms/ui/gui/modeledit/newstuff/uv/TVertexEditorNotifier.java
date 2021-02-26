@@ -1,12 +1,5 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv;
 
-import java.awt.Point;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.hiveworkshop.rms.ui.application.edit.mesh.CloneContextHelper;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.uv.panel.UVPanel;
@@ -24,6 +17,13 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.util.SubscriberSetNotifier;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class TVertexEditorNotifier extends SubscriberSetNotifier<TVertexEditor> implements TVertexEditor {
 	private CloneContextHelper cloneContextHelper;
@@ -104,7 +104,8 @@ public class TVertexEditorNotifier extends SubscriberSetNotifier<TVertexEditor> 
 
 	@Override
 	public UndoAction hideComponent(final List<? extends SelectableComponent> selectableComponents,
-                                    final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
+	                                final EditabilityToggleHandler editabilityToggleHandler,
+	                                final Runnable refreshGUIRunnable) {
 		final List<UndoAction> actions = new ArrayList<>();
 		for (final TVertexEditor handler : set) {
 			actions.add(handler.hideComponent(selectableComponents, editabilityToggleHandler, refreshGUIRunnable));
@@ -181,8 +182,8 @@ public class TVertexEditorNotifier extends SubscriberSetNotifier<TVertexEditor> 
 	}
 
 	@Override
-	public void rawRotate2d(final double centerX, final double centerY, final double radians, final byte dim1,
-			final byte dim2) {
+	public void rawRotate2d(final double centerX, final double centerY,
+	                        final double radians, final byte dim1, final byte dim2) {
 		for (final TVertexEditor handler : set) {
 			handler.rawRotate2d(centerX, centerY, radians, dim1, dim2);
 		}
@@ -227,8 +228,8 @@ public class TVertexEditorNotifier extends SubscriberSetNotifier<TVertexEditor> 
 	}
 
 	@Override
-	public GenericRotateAction beginRotation(final double centerX, final double centerY, final byte dim1,
-			final byte dim2) {
+	public GenericRotateAction beginRotation(final double centerX, final double centerY,
+	                                         final byte dim1, final byte dim2) {
 		final List<GenericRotateAction> actions = new ArrayList<>();
 		for (final TVertexEditor handler : set) {
 			actions.add(handler.beginRotation(centerX, centerY, dim1, dim2));
@@ -268,8 +269,7 @@ public class TVertexEditorNotifier extends SubscriberSetNotifier<TVertexEditor> 
 			if (uvLayerIndex == -1) {
 				uvLayerIndex = handler.getUVLayerIndex();
 			} else if (uvLayerIndex != handler.getUVLayerIndex()) {
-				throw new IllegalStateException("Differing UV Layer Indices between editors: " + uvLayerIndex + " != "
-						+ handler.getUVLayerIndex());
+				throw new IllegalStateException("Differing UV Layer Indices between editors: " + uvLayerIndex + " != " + handler.getUVLayerIndex());
 			}
 		}
 		return uvLayerIndex;

@@ -58,8 +58,7 @@ public final class TVertexEditorManager {
 		switch (selectionMode) {
 			case FACE -> {
 				final FaceSelectionManager selectionManager = new FaceSelectionManager();
-				final FaceTVertexEditor faceModelEditor = new FaceTVertexEditor(model, programPreferences, selectionManager,
-						structureChangeListener);
+				final FaceTVertexEditor faceModelEditor = new FaceTVertexEditor(model, programPreferences, selectionManager, structureChangeListener);
 				modelEditor = faceModelEditor;
 				if (lastSelectedVertices != null) {
 					modelEditor.selectByVertices(lastSelectedVertices);
@@ -72,8 +71,7 @@ public final class TVertexEditorManager {
 			}
 			case VERTEX -> {
 				final GeosetVertexSelectionManager selectionManager = new GeosetVertexSelectionManager();
-				final GeosetVertexTVertexEditor geosetVertexModelEditor = new GeosetVertexTVertexEditor(model,
-						programPreferences, selectionManager, structureChangeListener);
+				final GeosetVertexTVertexEditor geosetVertexModelEditor = new GeosetVertexTVertexEditor(model, programPreferences, selectionManager, structureChangeListener);
 				modelEditor = geosetVertexModelEditor;
 				if (lastSelectedVertices != null) {
 					modelEditor.selectByVertices(lastSelectedVertices);

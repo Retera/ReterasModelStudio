@@ -1,9 +1,9 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv;
 
-import javax.swing.ImageIcon;
-
 import com.hiveworkshop.rms.ui.application.edit.uv.activity.TVertexEditorActivityDescriptor;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonType;
+
+import javax.swing.*;
 
 public abstract class TVertexToolbarActionButtonType implements ToolbarButtonType, TVertexEditorActivityDescriptor {
 	private final ImageIcon imageIcon;

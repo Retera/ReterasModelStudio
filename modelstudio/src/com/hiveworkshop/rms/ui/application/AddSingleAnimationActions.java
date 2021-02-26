@@ -13,39 +13,12 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class AddSingleAnimationActions {
-//    static void addAnimationFromFile(MainPanel mainPanel){
-//        mainPanel.fc.setDialogTitle("Animation Source");
-//        final EditableModel current = mainPanel.currentMDL();
-//        if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
-//            mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
-//        } else if (mainPanel.profile.getPath() != null) {
-//            mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
-//        }
-//        final int returnValue = mainPanel.fc.showOpenDialog(mainPanel);
-//
-//        if (returnValue == JFileChooser.APPROVE_OPTION) {
-//            mainPanel.currentFile = mainPanel.fc.getSelectedFile();
-//            mainPanel.profile.setPath(mainPanel.currentFile.getParent());
-//            final EditableModel animationSourceModel;
-//            try {
-//                animationSourceModel = MdxUtils.loadEditable(mainPanel.currentFile);
-//                addSingleAnimation(mainPanel, current, animationSourceModel);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//
-//        mainPanel.fc.setSelectedFile(null);
-//
-//        MenuBarActions.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
-//    }
 
     static void addAnimationFromFile(MainPanel mainPanel) {
         FileDialog fileDialog = new FileDialog(mainPanel);

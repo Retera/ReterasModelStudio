@@ -14,25 +14,9 @@ import java.util.List;
 
 public class ModelEditActions {
     static void viewMatrices(MainPanel mainPanel) {
-        final ModelPanel mpanel = mainPanel.currentModelPanel();
-        if (mpanel != null) {
-            mpanel.viewMatrices();
-        }
-        mainPanel.repaint();
-    }
-
-    static void insideOutNormals(MainPanel mainPanel) {
-        final ModelPanel mpanel = mainPanel.currentModelPanel();
-        if (mpanel != null) {
-            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().flipSelectedNormals());
-        }
-        mainPanel.repaint();
-    }
-
-    static void insideOut(MainPanel mainPanel) {
-        final ModelPanel mpanel = mainPanel.currentModelPanel();
-        if (mpanel != null) {
-            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().flipSelectedFaces());
+        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        if (modelPanel != null) {
+            modelPanel.viewMatrices();
         }
         mainPanel.repaint();
     }
@@ -72,33 +56,49 @@ public class ModelEditActions {
         mainPanel.repaint();
     }
 
-    static void snapVerticies(MainPanel mainPanel) {
-        final ModelPanel mpanel = mainPanel.currentModelPanel();
-        if (mpanel != null) {
-            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().snapSelectedVertices());
+    static void insideOutNormals(MainPanel mainPanel) {
+        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        if (modelPanel != null) {
+            modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().flipSelectedNormals());
+        }
+        mainPanel.repaint();
+    }
+
+    static void insideOut(MainPanel mainPanel) {
+        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        if (modelPanel != null) {
+            modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().flipSelectedFaces());
+        }
+        mainPanel.repaint();
+    }
+
+    static void snapVertices(MainPanel mainPanel) {
+        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        if (modelPanel != null) {
+            modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().snapSelectedVertices());
         }
         mainPanel.repaint();
     }
 
     static void snapNormals(MainPanel mainPanel) {
-        final ModelPanel mpanel = mainPanel.currentModelPanel();
-        if (mpanel != null) {
-            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().snapNormals());
+        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        if (modelPanel != null) {
+            modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().snapNormals());
         }
         mainPanel.repaint();
     }
 
     static void recalculateNormals(MainPanel mainPanel) {
-        final ModelPanel mpanel = mainPanel.currentModelPanel();
-        if (mpanel != null) {
-            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().recalcNormals());
+        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        if (modelPanel != null) {
+            modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().recalcNormals());
         }
         mainPanel.repaint();
     }
 
     static void recalculateExtents(MainPanel mainPanel) {
-        final ModelPanel mpanel = mainPanel.currentModelPanel();
-        if (mpanel != null) {
+        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        if (modelPanel != null) {
             final JPanel messagePanel = new JPanel(new MigLayout());
             messagePanel.add(new JLabel("This will calculate the extents of all model components. Proceed?"),
                     "wrap");
@@ -115,7 +115,7 @@ public class ModelEditActions {
             final int userChoice = JOptionPane.showConfirmDialog(mainPanel, messagePanel, "Message",
                     JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
             if (userChoice == JOptionPane.YES_OPTION) {
-                mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor()
+                modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor()
                         .recalcExtents(considerCurrentBtn.isSelected()));
             }
         }
@@ -123,13 +123,12 @@ public class ModelEditActions {
     }
 
     static void mirrorAxis(MainPanel mainPanel, byte i) {
-        final ModelPanel mpanel = mainPanel.currentModelPanel();
-        if (mpanel != null) {
-            final Vec3 selectionCenter = mpanel.getModelEditorManager().getModelEditor().getSelectionCenter();
-            mpanel.getUndoManager()
-                    .pushAction(mpanel.getModelEditorManager().getModelEditor().mirror(i,
-                            mainPanel.mirrorFlip.isSelected(), selectionCenter.x, selectionCenter.y,
-                            selectionCenter.z));
+        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        if (modelPanel != null) {
+            final Vec3 selectionCenter = modelPanel.getModelEditorManager().getModelEditor().getSelectionCenter();
+            modelPanel.getUndoManager().pushAction(
+                    modelPanel.getModelEditorManager().getModelEditor()
+                            .mirror(i, mainPanel.mirrorFlip.isSelected(), selectionCenter.x, selectionCenter.y, selectionCenter.z));
         }
         mainPanel.repaint();
     }

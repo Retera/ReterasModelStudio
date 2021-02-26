@@ -291,9 +291,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 		if (!transferSingleAnimation.isSelected()) {
 			new Thread(() -> {
 				final ImportPanel importPanel = new ImportPanel(sourceFile, animFile, show);
-				importPanel.animTransfer(transferSingleAnimation.isSelected(),
-						pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()),
-						visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
+				importPanel.animTransfer(transferSingleAnimation.isSelected(), pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()), visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
 				waitWhileVisible(importPanel);
 
 				if (importPanel.importStarted()) {
@@ -314,10 +312,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 		} else {
 			final Thread watcher = new Thread(() -> {
 				final ImportPanel importPanel = new ImportPanel(sourceFile, animFile, show);
-				importPanel.animTransfer(transferSingleAnimation.isSelected(),
-						pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()),
-						visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
-
+				importPanel.animTransfer(transferSingleAnimation.isSelected(), pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()), visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
 				waitWhileVisible(importPanel);
 
 				if (importPanel.importStarted()) {

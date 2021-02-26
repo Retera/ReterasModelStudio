@@ -1,11 +1,9 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.widgets;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Point;
-
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec2;
+
+import java.awt.*;
 
 public final class TVertexRotatorWidget {
 	private static final int ROTATOR_RADIUS = 60;

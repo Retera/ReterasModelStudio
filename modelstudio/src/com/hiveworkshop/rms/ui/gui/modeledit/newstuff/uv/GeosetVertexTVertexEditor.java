@@ -1,19 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv;
 
-import java.awt.Point;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import com.hiveworkshop.rms.editor.model.Camera;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.Triangle;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
@@ -29,14 +16,50 @@ import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
+import java.awt.*;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.util.List;
+import java.util.*;
+
 public class GeosetVertexTVertexEditor extends AbstractTVertexEditor<GeosetVertex> {
 	private final ProgramPreferences programPreferences;
 
-	public GeosetVertexTVertexEditor(final ModelView model, final ProgramPreferences programPreferences,
-			final SelectionManager<GeosetVertex> selectionManager,
-			final ModelStructureChangeListener structureChangeListener) {
+	public GeosetVertexTVertexEditor(final ModelView model, final ProgramPreferences programPreferences, final SelectionManager<GeosetVertex> selectionManager, final ModelStructureChangeListener structureChangeListener) {
 		super(selectionManager, model, structureChangeListener);
 		this.programPreferences = programPreferences;
+	}
+
+	public static void hitTest(final List<GeosetVertex> selectedItems, final Rectangle2D area, final GeosetVertex geosetVertex, final Vec2 tVertex, final CoordinateSystem coordinateSystem, final double vertexSize) {
+		final byte dim1 = coordinateSystem.getPortFirstXYZ();
+		final byte dim2 = coordinateSystem.getPortSecondXYZ();
+		final double minX = coordinateSystem.convertX(area.getMinX());
+		final double minY = coordinateSystem.convertY(area.getMinY());
+		final double maxX = coordinateSystem.convertX(area.getMaxX());
+		final double maxY = coordinateSystem.convertY(area.getMaxY());
+		final double vertexX = tVertex.getCoord(dim1);
+		final double x = coordinateSystem.convertX(vertexX);
+		final double vertexY = tVertex.getCoord(dim2);
+		final double y = coordinateSystem.convertY(vertexY);
+		if (distance(x, y, minX, minY) <= vertexSize / 2.0
+				|| distance(x, y, maxX, maxY) <= vertexSize / 2.0
+				|| area.contains(vertexX, vertexY)) {
+			selectedItems.add(geosetVertex);
+		}
+	}
+
+	public static boolean hitTest(final Vec2 vertex, final Point2D point, final CoordinateSystem coordinateSystem, final double vertexSize) {
+		final double x = coordinateSystem.convertX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
+		final double y = coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
+		final double px = coordinateSystem.convertX(point.getX());
+		final double py = coordinateSystem.convertY(point.getY());
+		return Point2D.distance(px, py, x, y) <= vertexSize / 2.0;
+	}
+
+	public static double distance(final double vertexX, final double vertexY, final double x, final double y) {
+		final double dx = x - vertexX;
+		final double dy = y - vertexY;
+		return Math.sqrt(dx * dx + dy * dy);
 	}
 
 	@Override
@@ -122,8 +145,7 @@ public class GeosetVertexTVertexEditor extends AbstractTVertexEditor<GeosetVerte
 		for (final Geoset geoset : model.getEditableGeosets()) {
 			for (final GeosetVertex geosetVertex : geoset.getVertices()) {
 				if (geosetVertex.getTverts().size() > uvLayerIndex) {
-					hitTest(selectedItems, area, geosetVertex, geosetVertex.getTVertex(uvLayerIndex), coordinateSystem,
-							programPreferences.getVertexSize());
+					hitTest(selectedItems, area, geosetVertex, geosetVertex.getTVertex(uvLayerIndex), coordinateSystem, programPreferences.getVertexSize());
 				}
 			}
 		}
@@ -136,8 +158,7 @@ public class GeosetVertexTVertexEditor extends AbstractTVertexEditor<GeosetVerte
 		for (final Geoset geoset : model.getEditableGeosets()) {
 			for (final GeosetVertex geosetVertex : geoset.getVertices()) {
 				if (geosetVertex.getTverts().size() > uvLayerIndex) {
-					if (hitTest(geosetVertex.getTVertex(uvLayerIndex), CoordinateSystem.Util.geom(axes, point), axes,
-							programPreferences.getVertexSize())) {
+					if (hitTest(geosetVertex.getTVertex(uvLayerIndex), CoordinateSystem.Util.geom(axes, point), axes, programPreferences.getVertexSize())) {
 						canSelect = true;
 					}
 				}
@@ -146,43 +167,10 @@ public class GeosetVertexTVertexEditor extends AbstractTVertexEditor<GeosetVerte
 		return canSelect;
 	}
 
-	public static void hitTest(final List<GeosetVertex> selectedItems, final Rectangle2D area,
-			final GeosetVertex geosetVertex, final Vec2 tVertex, final CoordinateSystem coordinateSystem,
-			final double vertexSize) {
-		final byte dim1 = coordinateSystem.getPortFirstXYZ();
-		final byte dim2 = coordinateSystem.getPortSecondXYZ();
-		final double minX = coordinateSystem.convertX(area.getMinX());
-		final double minY = coordinateSystem.convertY(area.getMinY());
-		final double maxX = coordinateSystem.convertX(area.getMaxX());
-		final double maxY = coordinateSystem.convertY(area.getMaxY());
-		final double vertexX = tVertex.getCoord(dim1);
-		final double x = coordinateSystem.convertX(vertexX);
-		final double vertexY = tVertex.getCoord(dim2);
-		final double y = coordinateSystem.convertY(vertexY);
-		if (distance(x, y, minX, minY) <= vertexSize / 2.0 || distance(x, y, maxX, maxY) <= vertexSize / 2.0
-				|| area.contains(vertexX, vertexY)) {
-			selectedItems.add(geosetVertex);
-		}
-	}
-
-	public static boolean hitTest(final Vec2 vertex, final Point2D point, final CoordinateSystem coordinateSystem,
-			final double vertexSize) {
-		final double x = coordinateSystem.convertX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
-		final double y = coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
-		final double px = coordinateSystem.convertX(point.getX());
-		final double py = coordinateSystem.convertY(point.getY());
-		return Point2D.distance(px, py, x, y) <= vertexSize / 2.0;
-	}
-
-	public static double distance(final double vertexX, final double vertexY, final double x, final double y) {
-		final double dx = x - vertexX;
-		final double dy = y - vertexY;
-		return Math.sqrt(dx * dx + dy * dy);
-	}
-
 	@Override
 	protected UndoAction buildHideComponentAction(final List<? extends SelectableComponent> selectableComponents,
-                                                  final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
+                                                  final EditabilityToggleHandler editabilityToggleHandler,
+                                                  final Runnable refreshGUIRunnable) {
 		final List<GeosetVertex> previousSelection = new ArrayList<>(selectionManager.getSelection());
 		final List<GeosetVertex> possibleVerticesToTruncate = new ArrayList<>();
 		for (final SelectableComponent component : selectableComponents) {
@@ -204,8 +192,7 @@ public class GeosetVertexTVertexEditor extends AbstractTVertexEditor<GeosetVerte
 		final Runnable truncateSelectionRunnable = () -> selectionManager.removeSelection(possibleVerticesToTruncate);
 
 		final Runnable unTruncateSelectionRunnable = () -> selectionManager.setSelection(previousSelection);
-		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable,
-				unTruncateSelectionRunnable, refreshGUIRunnable);
+		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable, unTruncateSelectionRunnable, refreshGUIRunnable);
 	}
 
 	public VertexSelectionHelper getVertexSelectionHelper() {

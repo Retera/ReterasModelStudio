@@ -1,11 +1,11 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools;
 
-import java.util.Map;
-
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.editor.model.AnimFlag;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+
+import java.util.Map;
 
 public final class EditAnimationLengthsAction implements UndoAction {
 	private final EditableModel mdl;

@@ -22,8 +22,7 @@ public class EditTexturesPopupPanel extends JPanel {
 	/**
 	 * Create the panel.
 	 */
-	public EditTexturesPopupPanel(final ModelView modelView, final ModelStructureChangeListener listener,
-	                              final TextureExporter textureExporter) {
+	public EditTexturesPopupPanel(final ModelView modelView, final ModelStructureChangeListener listener, final TextureExporter textureExporter) {
 		this.modelView = modelView;
 		this.listener = listener;
 		setLayout(null);

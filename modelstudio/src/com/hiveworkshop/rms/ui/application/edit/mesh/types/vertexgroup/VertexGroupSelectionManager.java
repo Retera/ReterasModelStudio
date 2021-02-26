@@ -61,8 +61,7 @@ public final class VertexGroupSelectionManager extends AbstractSelectionManager<
 	}
 
 	@Override
-	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem,
-								final ModelView modelView, final ProgramPreferences programPreferences) {
+	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem, final ModelView modelView, final ProgramPreferences programPreferences) {
 		final Set<VertexGroupModelEditor.VertexGroupBundle> selection = getSelection();
 		for (final Geoset geoset : modelView.getEditableGeosets()) {
 			final Color outlineColor;

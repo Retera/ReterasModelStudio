@@ -192,7 +192,7 @@ public class AddBirthDeathSequences {
         // TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
         final int floorIndex = translationFlag.floorIndex(trackTime);
 
-        if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
+        if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex).equals(trackTime))) {
             return null;
         } else {
             return getAddKeyframeAction(idObject, translationFlag, structureChangeListener, trackTime, floorIndex, vec3);

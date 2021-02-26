@@ -1,34 +1,5 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.panel;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.MouseInfo;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.Timer;
-
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.CursorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
@@ -41,8 +12,15 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexEditorChangeList
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.viewport.UVViewportModelRenderer;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 
-public class UVViewport extends JPanel implements MouseListener, ActionListener, MouseWheelListener,
-		MouseMotionListener, CoordinateSystem, ViewportView, TVertexEditorChangeListener {
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+
+public class UVViewport extends JPanel implements MouseListener, ActionListener, MouseWheelListener, MouseMotionListener, CoordinateSystem, ViewportView, TVertexEditorChangeListener {
 	ArrayList<Image> backgrounds = new ArrayList<>();
 	double m_a = 0;
 	double m_b = 0;
@@ -66,19 +44,15 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 	private Point lastMouseMotion = new Point(0, 0);
 	private TVertexEditor editor;
 
-	public UVViewport(final ModelView modelView, final UVPanel parent, final ProgramPreferences programPreferences,
-			final ViewportActivity viewportActivity, final CoordDisplayListener coordDisplayListener,
-			final TVertexEditor editor) {
+	public UVViewport(final ModelView modelView, final UVPanel parent, final ProgramPreferences programPreferences, final ViewportActivity viewportActivity, final CoordDisplayListener coordDisplayListener, final TVertexEditor editor) {
 		this.modelView = modelView;
 		this.programPreferences = programPreferences;
 		activityListener = viewportActivity;
 		this.coordDisplayListener = coordDisplayListener;
 		this.editor = editor;
-		// Dimension 1 and Dimension 2, these specify which dimensions to
-		// display.
-		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z
-		// dimensions
-		//
+		// Dimension 1 and Dimension 2, these specify which dimensions to display.
+		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z dimensions
+
 		// Viewport border
 		setBorder(BorderFactory.createBevelBorder(1));
 		setBackground(programPreferences.getBackgroundColor());
@@ -408,20 +382,35 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 		}
 	}
 
+	@Override
+	public void mouseDragged(final MouseEvent e) {
+		activityListener.mouseDragged(e, this);
+		lastMouseMotion = e.getPoint();
+		repaint();
+	}
+
+	@Override
+	public void mouseMoved(final MouseEvent e) {
+		if (!mouseInBounds && getBounds().contains(e.getPoint()) && !activityListener.isEditing()) {
+			mouseEntered(e);
+		}
+		activityListener.mouseMoved(e, this);
+		lastMouseMotion = e.getPoint();
+		repaint();
+	}
+
+
+
 	public Rectangle2D.Double pointsToGeomRect(final Point a, final Point b) {
-		final Point2D.Double topLeft = new Point2D.Double(Math.min(geomX(a.x), geomX(b.x)),
-				Math.min(geomY(a.y), geomY(b.y)));
-		final Point2D.Double lowRight = new Point2D.Double(Math.max(geomX(a.x), geomX(b.x)),
-				Math.max(geomY(a.y), geomY(b.y)));
-		return new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x,
-				lowRight.y - topLeft.y);
+		final Point2D.Double topLeft = new Point2D.Double(Math.min(geomX(a.x), geomX(b.x)), Math.min(geomY(a.y), geomY(b.y)));
+		final Point2D.Double lowRight = new Point2D.Double(Math.max(geomX(a.x), geomX(b.x)), Math.max(geomY(a.y), geomY(b.y)));
+		return new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x, lowRight.y - topLeft.y);
 	}
 
 	public Rectangle2D.Double pointsToRect(final Point a, final Point b) {
 		final Point2D.Double topLeft = new Point2D.Double(Math.min(a.x, b.x), Math.min(a.y, b.y));
 		final Point2D.Double lowRight = new Point2D.Double(Math.max(a.x, b.x), Math.max(a.y, b.y));
-		return new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x,
-				lowRight.y - topLeft.y);
+		return new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x, lowRight.y - topLeft.y);
 	}
 
 	public void setAspectRatio(final double ratio) {
@@ -454,23 +443,6 @@ public class UVViewport extends JPanel implements MouseListener, ActionListener,
 	@Override
 	public CoordinateSystem copy() {
 		return new BasicCoordinateSystem((byte) 0, (byte) 1, m_a, m_b, m_zoom, getWidth(), getHeight());
-	}
-
-	@Override
-	public void mouseDragged(final MouseEvent e) {
-		activityListener.mouseDragged(e, this);
-		lastMouseMotion = e.getPoint();
-		repaint();
-	}
-
-	@Override
-	public void mouseMoved(final MouseEvent e) {
-		if (!mouseInBounds && getBounds().contains(e.getPoint()) && !activityListener.isEditing()) {
-			mouseEntered(e);
-		}
-		activityListener.mouseMoved(e, this);
-		lastMouseMotion = e.getPoint();
-		repaint();
 	}
 
 	@Override

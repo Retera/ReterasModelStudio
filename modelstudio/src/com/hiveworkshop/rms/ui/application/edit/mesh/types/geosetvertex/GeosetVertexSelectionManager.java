@@ -122,8 +122,7 @@ public final class GeosetVertexSelectionManager extends AbstractSelectionManager
 					continue;
 				}
 				if (modelView.getHighlightedGeoset() == geo) {
-					renderer.renderVertex(programPreferences.getHighlighVertexColor(),
-							geosetVertex.getTVertex(tvertexLayerId));
+					renderer.renderVertex(programPreferences.getHighlighVertexColor(), geosetVertex.getTVertex(tvertexLayerId));
 				} else if (selection.contains(geosetVertex)) {
 					renderer.renderVertex(programPreferences.getSelectColor(), geosetVertex.getTVertex(tvertexLayerId));
 				} else {

@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator.activity;
 
-import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
@@ -9,6 +8,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.DoNothingActi
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.AbstractManipulator;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,9 +24,7 @@ public class DrawPlaneManipulator extends AbstractManipulator {
 	private final int numberOfWidthSegments;
 	private final int numberOfHeightSegments;
 
-	public DrawPlaneManipulator(final ModelEditor modelEditor, final ProgramPreferences programPreferences,
-			final CoordinateSystem coordinateSystem, final int numberOfWidthSegments, final int numberOfHeightSegments,
-			final Vec3 facingVector) {
+	public DrawPlaneManipulator(final ModelEditor modelEditor, final ProgramPreferences programPreferences, final CoordinateSystem coordinateSystem, final int numberOfWidthSegments, final int numberOfHeightSegments, final Vec3 facingVector) {
 		this.modelEditor = modelEditor;
 		this.programPreferences = programPreferences;
 		this.coordinateSystem = coordinateSystem;
@@ -40,8 +38,7 @@ public class DrawPlaneManipulator extends AbstractManipulator {
 		if (Math.abs(mouseEnd.x - activityStart.x) >= 0.1 && Math.abs(mouseEnd.y - activityStart.y) >= 0.1) {
 			if (addPlane == null) {
 				try {
-					addPlane = modelEditor.addPlane(activityStart.x, activityStart.y, mouseEnd.x, mouseEnd.y, dim1,
-							dim2, facingVector, numberOfWidthSegments, numberOfHeightSegments);
+					addPlane = modelEditor.addPlane(activityStart.x, activityStart.y, mouseEnd.x, mouseEnd.y, dim1, dim2, facingVector, numberOfWidthSegments, numberOfHeightSegments);
 				} catch (final WrongModeException exc) {
 					JOptionPane.showMessageDialog(null, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 				}

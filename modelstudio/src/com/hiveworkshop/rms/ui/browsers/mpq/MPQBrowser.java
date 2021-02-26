@@ -41,7 +41,7 @@ public final class MPQBrowser extends JPanel {
 	}
 
 	private final JTree tree;
-//	private final JFileChooser exportFileChooser;
+	//	private final JFileChooser exportFileChooser;
 	private final MouseAdapterExtension mouseAdapterExtension;
 	private final CompoundDataSource gameDataFileSystem;
 	private final DefaultTreeModel treeModel;

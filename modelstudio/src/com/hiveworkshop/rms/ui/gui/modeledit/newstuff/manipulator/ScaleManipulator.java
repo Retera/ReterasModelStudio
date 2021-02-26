@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator;
 
-import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.rms.util.Vec3;
 
 public final class ScaleManipulator extends AbstractScaleManipulator {
 
@@ -11,8 +11,7 @@ public final class ScaleManipulator extends AbstractScaleManipulator {
 	}
 
 	@Override
-	protected final void scaleWithFactor(final ModelEditor modelEditor, final Vec3 center, final double scaleFactor,
-										 final byte dim1, final byte dim2) {
+	protected final void scaleWithFactor(final ModelEditor modelEditor, final Vec3 center, final double scaleFactor, final byte dim1, final byte dim2) {
 		getScaleAction().updateScale(scaleFactor, scaleFactor, scaleFactor);
 	}
 

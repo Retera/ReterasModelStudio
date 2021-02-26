@@ -71,8 +71,7 @@ public class MenuBarActions {
             if (gameDataFileSystem.has("war3map.w3d")) {
                 editorData.load(new BlizzardDataInputStream(gameDataFileSystem.getResourceAsStream("war3map.w3d")),
                         gameDataFileSystem.has("war3map.wts")
-                                ? new WTSFile(gameDataFileSystem.getResourceAsStream("war3map.wts")) : null,
-                        true);
+                                ? new WTSFile(gameDataFileSystem.getResourceAsStream("war3map.wts")) : null, true);
             }
         } catch (final IOException e) {
             e.printStackTrace();
@@ -330,14 +329,14 @@ public class MenuBarActions {
         if (current != null) {
             Material material = new Material();
             final Bitmap white = new Bitmap("Textures\\White.dds");
-            white.setWrapHeight(true);
-            white.setWrapWidth(true);
-            material.getLayers().add(new Layer("None", white));
-            if (current.getFormatVersion() == 1000) {
-                material.makeHD();
-            }
-            current.add(material);
-            mainPanel.modelStructureChangeListener.materialsListChanged();
+	        white.setWrapHeight(true);
+	        white.setWrapWidth(true);
+	        material.getLayers().add(new Layer("None", white));
+	        if (current.getFormatVersion() == 1000) {
+		        material.makeHD();
+	        }
+	        current.add(material);
+	        mainPanel.modelStructureChangeListener.materialsListChanged();
         }
     }
 }

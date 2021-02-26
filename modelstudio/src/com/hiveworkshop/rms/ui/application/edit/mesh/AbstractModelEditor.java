@@ -53,11 +53,10 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                 if (gv.getSkinBones() != null) {
                     vertexToOldSkinBoneReferences.put(gv, gv.getSkinBones().clone());
                     vertexToOldSkinBoneWeightReferences.put(gv, gv.getSkinBoneWeights().clone());
-                    gv.rigBones(matrixBones);
                 } else {
                     vertexToOldBoneReferences.put(gv, new ArrayList<>(gv.getBoneAttachments()));
-                    gv.rigBones(matrixBones);
                 }
+                gv.rigBones(matrixBones);
             }
         }
         return new SetMatrixAction(vertexToOldBoneReferences, vertexToOldSkinBoneReferences,
@@ -134,16 +133,14 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
         } else {
             geosetsToIncorporate.addAll(model.getModel().getGeosets());
         }
-        final RecalculateExtentsAction recalculateExtentsAction = new RecalculateExtentsAction(model,
-                geosetsToIncorporate);
+        final RecalculateExtentsAction recalculateExtentsAction = new RecalculateExtentsAction(model, geosetsToIncorporate);
         recalculateExtentsAction.redo();
         return recalculateExtentsAction;
     }
 
     @Override
     public UndoAction deleteSelectedComponents() {
-        // TODO this code is RIPPED FROM MDLDispaly and is not good for general
-        // cases
+        // TODO this code is RIPPED FROM MDLDispaly and is not good for general cases
         // TODO this code operates directly on MODEL
         final List<Geoset> remGeosets = new ArrayList<>();// model.getGeosets()
         final List<Triangle> deletedTris = new ArrayList<>();
@@ -192,9 +189,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                              final double centerZ) {
         final MirrorModelAction mirror = new MirrorModelAction(selectionManager.getSelectedVertices(),
                 model.getEditableIdObjects(), dim, centerX, centerY, centerZ);
-        // super weird passing of currently editable id Objects, works because
-        // mirror action checks selected vertices against pivot points from this
-        // list
+        // super weird passing of currently editable id Objects, works because mirror action
+        // checks selected vertices against pivot points from this list
         mirror.redo();
         if (flipModel) {
             final UndoAction flipFacesAction = flipSelectedFaces();
@@ -302,10 +298,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                     // for (final GeosetVertex copyVer : copies) {
                     // if (copyVer != null) {
                     // if (tri.containsRef(copyVer)) {
-                    // System.out.println("holy brejeezers!");
-                    // }
-                    // }
-                    // }
+                    // System.out.println("holy brejeezers!");}}}
                     for (int gvI = 0; gvI < tri.getAll().length; gvI++) {
                         final GeosetVertex gvTemp = tri.get(gvI);
                         if (!gvTemp.equalLocs(gv) && (gvTemp.getGeoset() == gv.getGeoset())) {
@@ -324,12 +317,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                             if (okay && (ctCount == 1) && selection.contains(gvTemp)) {
                                 final GeosetVertex gvCopy = copies.get(selection.indexOf(gv));
                                 final GeosetVertex gvTempCopy = copies.get(selection.indexOf(gvTemp));
-                                // if (gvCopy == null) {
-                                // System.out.println("Vertex (gvCopy) copy found as null!");
-                                // }
-                                // if (gvTempCopy == null) {
-                                // System.out.println("Vertex (gvTempCopy) copy found as null!");
-                                // }
+                                // if (gvCopy == null) {System.out.println("Vertex (gvCopy) copy found as null!");}
+                                // if (gvTempCopy == null) { System.out.println("Vertex (gvTempCopy) copy found as null!");}
                                 Triangle newFace = new Triangle(null, null, null, gv.getGeoset());
 
                                 final int indexA = temptr.indexOf(gv);
@@ -341,7 +330,6 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                                         indexC = i;
                                     }
                                 }
-
                                 // System.out.println(" Indeces: " + indexA + "," + indexB + "," + indexC);
 
                                 newFace.set(indexA, gv);
@@ -355,10 +343,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                                 boolean bad = false;
                                 for (final Triangle t : newTriangles) {
                                     // if( t.equals(newFace) )
-                                    // {
-                                    // bad = true;
-                                    // break;
-                                    // }
+                                    // {bad = true;break;}
                                     if (t.contains(gv) && t.contains(gvTemp)) {
                                         bad = true;
                                         break;
@@ -367,11 +352,6 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                                 if (!bad) {
                                     newTriangles.add(newFace);
 
-                                    // System.out.println("New Face: ");
-                                    // System.out.println(newFace.get(0));
-                                    // System.out.println(newFace.get(1));
-                                    // System.out.println(newFace.get(2));
-
                                     newFace = new Triangle(null, null, null, gv.getGeoset());
 
                                     newFace.set(indexA, gvCopy);
@@ -379,12 +359,6 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                                     newFace.set(indexC, gvTempCopy);
                                     // Make sure it's included later
                                     newTriangles.add(newFace);
-
-                                    // System.out.println("New Alternate Face: ");
-                                    // System.out.println(newFace.get(0));
-                                    // System.out.println(newFace.get(1));
-                                    // System.out.println(newFace.get(2));
-
                                 }
                             }
                         }
@@ -456,7 +430,6 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                 final GeosetVertex gv = (GeosetVertex) vert;
                 // copies.add(new GeosetVertex(gv));
 
-                // selTris.addAll(gv.getTriangles());
                 for (int ti = 0; ti < gv.getTriangles().size(); ti++) {
                     final Triangle temptr = gv.getTriangles().get(ti);
                     if (!selTris.contains(temptr)) {
@@ -498,11 +471,9 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                 }
                 if (selVerts == 2) {
                     // if (gvCopy == null) {
-                    // System.out.println("Vertex (gvCopy) copy found as null!");
-                    // }
+                    // System.out.println("Vertex (gvCopy) copy found as null!"); }
                     // if (gvTempCopy == null) {
-                    // System.out.println("Vertex (gvTempCopy) copy found as null!");
-                    // }
+                    // System.out.println("Vertex (gvTempCopy) copy found as null!"); }
                     Triangle newFace = new Triangle(null, null, null, gv.getGeoset());
 
                     final int indexA = tri.indexOf(gvCopy);
@@ -515,7 +486,6 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                         }
                     }
 
-                    // System.out.println(" Indeces: " + indexA + "," + indexB + "," + indexC);
 
                     newFace.set(indexA, gv);
                     newFace.set(indexB, gvTemp);
@@ -526,11 +496,6 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                     gvCopy.getTriangles().add(newFace);
                     gv.getGeoset().addTriangle(newFace);
                     newTriangles.add(newFace);
-
-                    // System.out.println("New Face: ");
-                    // System.out.println(newFace.get(0));
-                    // System.out.println(newFace.get(1));
-                    // System.out.println(newFace.get(2));
 
                     newFace = new Triangle(null, null, null, gv.getGeoset());
 
@@ -543,11 +508,6 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                     gvTempCopy.getTriangles().add(newFace);
                     gv.getGeoset().addTriangle(newFace);
                     newTriangles.add(newFace);
-
-                    // System.out.println("New Alternate Face: ");
-                    // System.out.println(newFace.get(0));
-                    // System.out.println(newFace.get(1));
-                    // System.out.println(newFace.get(2));
                 }
             }
         }
@@ -689,8 +649,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
     }
 
     @Override
-    public void rawScale(final double centerX, final double centerY, final double centerZ, final double scaleX,
-                         final double scaleY, final double scaleZ) {
+    public void rawScale(final double centerX, final double centerY, final double centerZ,
+                         final double scaleX, final double scaleY, final double scaleZ) {
         for (final Vec3 vertex : selectionManager.getSelectedVertices()) {
             vertex.scale(centerX, centerY, centerZ, scaleX, scaleY, scaleZ);
         }
@@ -776,8 +736,10 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
     }
 
     @Override
-    public GenericMoveAction addPlane(final double x, final double y, final double x2, final double y2, final byte dim1,
-                                      final byte dim2, final Vec3 facingVector, final int numberOfWidthSegments,
+    public GenericMoveAction addPlane(final double x, final double y, final double x2, final double y2,
+                                      final byte dim1, final byte dim2,
+                                      final Vec3 facingVector,
+                                      final int numberOfWidthSegments,
                                       final int numberOfHeightSegments) {
         final List<Geoset> geosets = model.getModel().getGeosets();
         Geoset solidWhiteGeoset = null;
@@ -812,9 +774,12 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
     }
 
     @Override
-    public GenericMoveAction addBox(final double x, final double y, final double x2, final double y2, final byte dim1,
-                                    final byte dim2, final Vec3 facingVector, final int numberOfLengthSegments,
-                                    final int numberOfWidthSegments, final int numberOfHeightSegments) {
+    public GenericMoveAction addBox(final double x, final double y, final double x2, final double y2,
+                                    final byte dim1, final byte dim2,
+                                    final Vec3 facingVector,
+                                    final int numberOfLengthSegments,
+                                    final int numberOfWidthSegments,
+                                    final int numberOfHeightSegments) {
         final List<Geoset> geosets = model.getModel().getGeosets();
         Geoset solidWhiteGeoset = null;
         for (final Geoset geoset : geosets) {

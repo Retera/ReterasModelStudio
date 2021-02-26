@@ -1,9 +1,9 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator;
 
-import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
+import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.geom.Point2D.Double;
 
@@ -37,8 +37,7 @@ public abstract class AbstractMoveManipulator extends AbstractManipulator {
 		return translationAction;
 	}
 
-	protected abstract void buildMoveVector(final Double mouseStart, final Double mouseEnd, final byte dim1,
-			final byte dim2);
+	protected abstract void buildMoveVector(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2);
 
 	private void resetMoveVector() {
 		moveVector.x = 0;

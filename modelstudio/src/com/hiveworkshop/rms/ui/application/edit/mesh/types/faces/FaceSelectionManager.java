@@ -126,8 +126,7 @@ public final class FaceSelectionManager extends AbstractSelectionManager<Triangl
 	}
 
 	@Override
-	public void renderUVSelection(final TVertexModelElementRenderer renderer, final ModelView modelView,
-                                  final ProgramPreferences programPreferences, final int tvertexLayerId) {
+	public void renderUVSelection(final TVertexModelElementRenderer renderer, final ModelView modelView, final ProgramPreferences programPreferences, final int tvertexLayerId) {
 		for (final Geoset geoset : modelView.getEditableGeosets()) {
 			for (final Triangle triangle : geoset.getTriangles()) {
 				final Color outlineColor;
@@ -146,8 +145,7 @@ public final class FaceSelectionManager extends AbstractSelectionManager<Triangl
 				if ((tvertexLayerId < triangle.get(0).getTverts().size())
 						&& (tvertexLayerId < triangle.get(1).getTverts().size())
 						&& (tvertexLayerId < triangle.get(2).getTverts().size())) {
-					renderer.renderFace(outlineColor, fillColor, triangle.get(0).getTVertex(tvertexLayerId),
-							triangle.get(1).getTVertex(tvertexLayerId), triangle.get(2).getTVertex(tvertexLayerId));
+					renderer.renderFace(outlineColor, fillColor, triangle.get(0).getTVertex(tvertexLayerId), triangle.get(1).getTVertex(tvertexLayerId), triangle.get(2).getTVertex(tvertexLayerId));
 				}
 			}
 		}

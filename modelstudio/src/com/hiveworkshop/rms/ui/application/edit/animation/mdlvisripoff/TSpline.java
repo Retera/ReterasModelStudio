@@ -57,7 +57,7 @@ public class TSpline extends JPanel {
 			setVisible(false);
 			return;
 		}
-		if ((num >= len) || (num < 0) || (timeline.getTimes().get(num) != currentFrame)) {
+		if ((num >= len) || (num < 0) || !(timeline.getTimes().get(num).equals(currentFrame))) {
 			setVisible(false);
 			return;
 		}

@@ -48,9 +48,11 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
     }
 
     public static void drawCollisionShape(final Graphics2D graphics, final Color color,
-                                          final CoordinateSystem coordinateSystem, final byte xDimension, final byte yDimension, final int vertexSize,
-                                          final CollisionShape collisionShape, final Image collisionImage, final Mat4 worldMatrix,
-                                          final boolean crosshairIsBox) {
+                                          final CoordinateSystem coordinateSystem,
+                                          final byte xDimension, final byte yDimension,
+                                          final int vertexSize,
+                                          final CollisionShape collisionShape, final Image collisionImage,
+                                          final Mat4 worldMatrix, final boolean crosshairIsBox) {
         final Vec3 pivotPoint = collisionShape.getPivotPoint();
         final List<Vec3> vertices = collisionShape.getVertices();
         graphics.setColor(color);
@@ -72,15 +74,13 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
                 final int maxXCoord = Math.max(firstXCoord, secondXCoord);
                 final int maxYCoord = Math.max(firstYCoord, secondYCoord);
 
-                graphics.drawRoundRect(minXCoord, minYCoord, maxXCoord - minXCoord, maxYCoord - minYCoord, vertexSize,
-                        vertexSize);
+                graphics.drawRoundRect(minXCoord, minYCoord, maxXCoord - minXCoord, maxYCoord - minYCoord, vertexSize, vertexSize);
             }
         } else {
             if (collisionShape.getExtents() != null) {
                 final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
                 final double boundsRadius = collisionShape.getExtents().getBoundsRadius() * zoom;
-                graphics.drawOval((int) (xCoord - boundsRadius), (int) (yCoord - boundsRadius),
-                        (int) (boundsRadius * 2), (int) (boundsRadius * 2));
+                graphics.drawOval((int) (xCoord - boundsRadius), (int) (yCoord - boundsRadius), (int) (boundsRadius * 2), (int) (boundsRadius * 2));
             }
         }
         drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage, worldMatrix);
@@ -163,14 +163,11 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
         final float endX = vertexHeap.getCoord((byte) 0);
         final float endY = vertexHeap.getCoord((byte) 1);
         final float endZ = vertexHeap.getCoord((byte) 2);
-        final Point end = new Point((int) Math.round(coordinateSystem.convertX(endX)),
-                (int) Math.round(coordinateSystem.convertY(endY)));
+        final Point end = new Point((int) Math.round(coordinateSystem.convertX(endX)), (int) Math.round(coordinateSystem.convertY(endY)));
 
-        float renderRotationScalar = renderModel.getAnimatedRenderEnvironment() == null ? 0
-                : camera.getSourceNode().getRenderRotationScalar(renderModel.getAnimatedRenderEnvironment());
+        float renderRotationScalar = renderModel.getAnimatedRenderEnvironment() == null ? 0 : camera.getSourceNode().getRenderRotationScalar(renderModel.getAnimatedRenderEnvironment());
  
-        renderableCameraProp.render(g2, coordinateSystem, startX, startY, startZ, endX, endY, endZ,
-                renderRotationScalar);
+        renderableCameraProp.render(g2, coordinateSystem, startX, startY, startZ, endX, endY, endZ, renderRotationScalar);
 
         // g2.translate(end.x, end.y);
         // g2.rotate(-(Math.PI / 2 + Math.atan2(end.x - start.x, end.y - start.y)));

@@ -30,9 +30,7 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 		idObjectRenderer = new ResettableAnimatedIdObjectRenderer(vertexSize);
 	}
 
-	public Graphics2DToAnimatedModelElementRendererAdapter reset(final Graphics2D graphics,
-			final CoordinateSystem coordinateSystem, final RenderModel renderModel,
-			final ProgramPreferences preferences) {
+	public Graphics2DToAnimatedModelElementRendererAdapter reset(final Graphics2D graphics, final CoordinateSystem coordinateSystem, final RenderModel renderModel, final ProgramPreferences preferences) {
 		this.graphics = graphics;
 		this.coordinateSystem = coordinateSystem;
 		this.renderModel = renderModel;
@@ -42,7 +40,7 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 
 	@Override
 	public void renderFace(final Color borderColor, final Color color, final GeosetVertex a, final GeosetVertex b,
-			final GeosetVertex c) {
+	                       final GeosetVertex c) {
 		graphics.setColor(color);
 
 		CoordinateSystem.Util.convertToPoint(coordinateSystem, a, recyclePointA, renderModel);
@@ -65,20 +63,16 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 	public void renderVertex(final Color color, final Vec3 vertex) {
 		CoordinateSystem.Util.convertToPoint(coordinateSystem, vertex, recyclePointA);
 		graphics.setColor(color);
-		graphics.fillRect(recyclePointA.x - (vertexSize / 2), (int) (recyclePointA.y - (vertexSize / 2.0)), vertexSize,
-				vertexSize);
+		graphics.fillRect(recyclePointA.x - (vertexSize / 2), (int) (recyclePointA.y - (vertexSize / 2.0)), vertexSize, vertexSize);
 	}
 
 	@Override
-	public void renderIdObject(final IdObject object, final NodeIconPalette nodeIconPalette, final Color lightColor,
-                               final Color pivotPointColor) {
-		object.apply(idObjectRenderer.reset(coordinateSystem, graphics, lightColor, pivotPointColor, nodeIconPalette,
-				renderModel, programPreferences.isUseBoxesForPivotPoints()));
+	public void renderIdObject(final IdObject object, final NodeIconPalette nodeIconPalette, final Color lightColor, final Color pivotPointColor) {
+		object.apply(idObjectRenderer.reset(coordinateSystem, graphics, lightColor, pivotPointColor, nodeIconPalette, renderModel, programPreferences.isUseBoxesForPivotPoints()));
 	}
 
 	@Override
-	public void renderCamera(final Camera camera, final Color boxColor, final Vec3 position, final Color targetColor,
-			final Vec3 targetPosition) {
+	public void renderCamera(final Camera camera, final Color boxColor, final Vec3 position, final Color targetColor, final Vec3 targetPosition) {
 		// TODO ANIMATION
 		if (true) {
 			throw new WrongModeException("not animating cameras yet, code not finished");

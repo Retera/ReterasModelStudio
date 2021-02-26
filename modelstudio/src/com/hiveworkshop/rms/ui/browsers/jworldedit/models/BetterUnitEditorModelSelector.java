@@ -59,8 +59,7 @@ public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSel
 		final JPanel temp = new JPanel();
 		temp.add(debugLabel);
 
-		modelPanel = new PerspDisplayPanel("blank", modelDisp, new ProgramPreferences(),
-				new RenderModel(modelDisp.getModel(), null));
+		modelPanel = new PerspDisplayPanel("blank", modelDisp, new ProgramPreferences(), new RenderModel(modelDisp.getModel(), null));
 		fillTable();
 
 		setRightComponent(modelPanel);

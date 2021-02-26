@@ -10,14 +10,13 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class ControlledAnimationViewer extends JPanel implements AnimationControllerListener {
-	private ModelView mdlDisp;
+	private ModelView modelView;
 	private final AnimatedPerspectiveViewport perspectiveViewport;
 
-	public ControlledAnimationViewer(final ModelView mdlDisp, final ProgramPreferences programPreferences,
-			final boolean doDefaultCamera) {
-		this.mdlDisp = mdlDisp;
+	public ControlledAnimationViewer(final ModelView modelView, final ProgramPreferences programPreferences, final boolean doDefaultCamera) {
+		this.modelView = modelView;
 		try {
-			perspectiveViewport = new AnimatedPerspectiveViewport(mdlDisp, programPreferences, doDefaultCamera);
+			perspectiveViewport = new AnimatedPerspectiveViewport(modelView, programPreferences, doDefaultCamera);
 			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
 			perspectiveViewport.setAnimationTime(0);
 			perspectiveViewport.setLive(true);
@@ -29,7 +28,7 @@ public class ControlledAnimationViewer extends JPanel implements AnimationContro
 	}
 
 	public void setModel(final ModelView modelView) {
-		mdlDisp = modelView;
+		this.modelView = modelView;
 		perspectiveViewport.setModel(modelView);
 		reload();
 	}

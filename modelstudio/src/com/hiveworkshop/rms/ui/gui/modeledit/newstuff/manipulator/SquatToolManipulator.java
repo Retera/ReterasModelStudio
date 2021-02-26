@@ -1,10 +1,10 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator;
 
-import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.geom.Point2D.Double;
 
@@ -38,8 +38,7 @@ public class SquatToolManipulator extends AbstractManipulator {
 		return rotationAction;
 	}
 
-	private static double computeRotateRadians(final Double startingClick, final Double endingClick,
-			final Vec3 center, final byte portFirstXYZ, final byte portSecondXYZ) {
+	private static double computeRotateRadians(final Double startingClick, final Double endingClick, final Vec3 center, final byte portFirstXYZ, final byte portSecondXYZ) {
 		final double startingDeltaX = startingClick.x - center.getCoord(portFirstXYZ);
 		final double startingDeltaY = startingClick.y - center.getCoord(portSecondXYZ);
 		final double endingDeltaX = endingClick.x - center.getCoord(portFirstXYZ);

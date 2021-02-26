@@ -17,8 +17,7 @@ public class SelectManipulator extends AbstractManipulator {
 	private byte currentDim1;
 	private byte currentDim2;
 
-	public SelectManipulator(final ViewportSelectionHandler eventHandler, final ProgramPreferences programPreferences,
-			final CoordinateSystem coordinateSystem) {
+	public SelectManipulator(final ViewportSelectionHandler eventHandler, final ProgramPreferences programPreferences, final CoordinateSystem coordinateSystem) {
 		this.eventHandler = eventHandler;
 		this.programPreferences = programPreferences;
 		this.coordinateSystem = coordinateSystem;
@@ -41,8 +40,7 @@ public class SelectManipulator extends AbstractManipulator {
 		final double minY = Math.min(activityStart.y, mouseEnd.y);
 		final double maxX = Math.max(activityStart.x, mouseEnd.x);
 		final double maxY = Math.max(activityStart.y, mouseEnd.y);
-		return eventHandler.selectRegion(new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY),
-				coordinateSystem);
+		return eventHandler.selectRegion(new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY), coordinateSystem);
 	}
 
 	@Override
@@ -50,16 +48,11 @@ public class SelectManipulator extends AbstractManipulator {
 		if ((activityStart == null) || (mouseEnd == null)) {
 			return;
 		}
-		if ((currentDim1 == coordinateSystem.getPortFirstXYZ())
-				&& (currentDim2 == coordinateSystem.getPortSecondXYZ())) {
-			final double minX = Math.min(coordinateSystem.convertX(activityStart.x),
-					coordinateSystem.convertX(mouseEnd.x));
-			final double minY = Math.min(coordinateSystem.convertY(activityStart.y),
-					coordinateSystem.convertY(mouseEnd.y));
-			final double maxX = Math.max(coordinateSystem.convertX(activityStart.x),
-					coordinateSystem.convertX(mouseEnd.x));
-			final double maxY = Math.max(coordinateSystem.convertY(activityStart.y),
-					coordinateSystem.convertY(mouseEnd.y));
+		if ((currentDim1 == coordinateSystem.getPortFirstXYZ()) && (currentDim2 == coordinateSystem.getPortSecondXYZ())) {
+			final double minX = Math.min(coordinateSystem.convertX(activityStart.x), coordinateSystem.convertX(mouseEnd.x));
+			final double minY = Math.min(coordinateSystem.convertY(activityStart.y), coordinateSystem.convertY(mouseEnd.y));
+			final double maxX = Math.max(coordinateSystem.convertX(activityStart.x), coordinateSystem.convertX(mouseEnd.x));
+			final double maxY = Math.max(coordinateSystem.convertY(activityStart.y), coordinateSystem.convertY(mouseEnd.y));
 			graphics.setColor(programPreferences.getSelectColor());
 			graphics.drawRect((int) minX, (int) minY, (int) (maxX - minX), (int) (maxY - minY));
 		}

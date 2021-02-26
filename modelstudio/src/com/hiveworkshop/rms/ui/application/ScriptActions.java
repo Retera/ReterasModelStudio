@@ -75,13 +75,11 @@ public class ScriptActions {
             newGeoset.updateToObjects(current);
             System.out.println("putting " + newGeoset.numUVLayers() + " into a nice " + host.numUVLayers());
             for (int i = 0; i < newGeoset.numVerteces(); i++) {
-                final GeosetVertex ver = newGeoset.getVertex(i);
-                host.add(ver);
-                ver.setGeoset(host);// geoset = host;
-                // for( int z = 0; z < host.n.numUVLayers(); z++ )
-                // {
-                // host.getUVLayer(z).addTVertex(newGeoset.getVertex(i).getTVertex(z));
-                // }
+	            final GeosetVertex ver = newGeoset.getVertex(i);
+	            host.add(ver);
+	            ver.setGeoset(host);// geoset = host;
+	            // for( int z = 0; z < host.n.numUVLayers(); z++ ){
+	            // host.getUVLayer(z).addTVertex(newGeoset.getVertex(i).getTVertex(z));}
             }
             for (int i = 0; i < newGeoset.numTriangles(); i++) {
                 final Triangle tri = newGeoset.getTriangle(i);
@@ -523,14 +521,14 @@ public class ScriptActions {
                     System.out.println(x + "," + y + "," + z);
 
                     final ModelUtils.Mesh mesh = ModelUtils.createBox(new Vec3(x * 10, y * 10, z * 10),
-                            new Vec3((x * 10) + (sX * 10), (y * 10) + (sY * 10), (z * 10) + (sZ * 10)), 1, 1,
-                            1, geo);
-                    geo.getVertices().addAll(mesh.getVertices());
-                    geo.getTriangles().addAll(mesh.getTriangles());
+		                    new Vec3((x * 10) + (sX * 10), (y * 10) + (sY * 10), (z * 10) + (sZ * 10)), 1, 1,
+		                    1, geo);
+	                geo.getVertices().addAll(mesh.getVertices());
+	                geo.getTriangles().addAll(mesh.getTriangles());
                 }
             }
 
         }
-        mainPanel.modelStructureChangeListener.geosetsAdded(new ArrayList<>(mainPanel.currentMDL().getGeosets()));
+	    mainPanel.modelStructureChangeListener.geosetsAdded(new ArrayList<>(mainPanel.currentMDL().getGeosets()));
     }
 }

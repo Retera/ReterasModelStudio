@@ -48,7 +48,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		final int floorIndex = translationFlag.floorIndex(trackTime);
 		final RenderNode renderNode = renderModel.getRenderNode(this);
 
-		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
+		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex).equals(trackTime))) {
 			return null;
 		} else {
 			final Vec3 localLocation = renderNode.getLocalLocation();
@@ -63,7 +63,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		final int floorIndex = rotationTimeline.floorIndex(trackTime);
 		final RenderNode renderNode = renderModel.getRenderNode(this);
 
-		if ((floorIndex != -1) && (rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex) == trackTime)) {
+		if ((floorIndex != -1) && (rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex).equals(trackTime))) {
 			return null;
 		} else {
 			final Quat localRotation = renderNode.getLocalRotation();
@@ -96,7 +96,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		final int floorIndex = scalingTimeline.floorIndex(trackTime);
 		final RenderNode renderNode = renderModel.getRenderNode(this);
 
-		if ((floorIndex != -1) && (scalingTimeline.getTimes().size() > 0) && (scalingTimeline.getTimes().get(floorIndex) == trackTime)) {
+		if ((floorIndex != -1) && (scalingTimeline.getTimes().size() > 0) && (scalingTimeline.getTimes().get(floorIndex).equals(trackTime))) {
 			return null;
 		} else {
 			final Vec3 localScale = renderNode.getLocalScale();
@@ -137,8 +137,9 @@ public abstract class AnimatedNode extends TimelineContainer {
 		}
 	}
 
-	public void updateTranslationKeyframe(final RenderModel renderModel, final double newDeltaX, final double newDeltaY,
-	                                      final double newDeltaZ, final Vec3 savedLocalTranslation) {
+	public void updateTranslationKeyframe(final RenderModel renderModel,
+	                                      final double newDeltaX, final double newDeltaY, final double newDeltaZ,
+	                                      final Vec3 savedLocalTranslation) {
 		// Note to future author: the reason for saved local translation is that
 		// we would like to be able to undo the action of moving the animation data
 
@@ -349,7 +350,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		}
 		final int floorIndex = rotationTimeline.floorIndex(trackTime);
 
-		if ((floorIndex != -1) && (rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex) == trackTime)) {
+		if ((floorIndex != -1) && (rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex).equals(trackTime))) {
 			// we must change it
 			final Quat oldTranslationValue = (Quat) rotationTimeline.getValues().get(floorIndex);
 			rotateStuff(localRotation, oldTranslationValue);
@@ -398,7 +399,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		}
 		final int floorIndex = translationFlag.floorIndex(trackTime);
 
-		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex) == trackTime)) {
+		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex).equals(trackTime))) {
 			// we must change it
 			final Vec3 oldTranslationValue = (Vec3) translationFlag.getValues().get(floorIndex);
 			scaleBy(oldTranslationValue, localScaling.x, localScaling.y, localScaling.z);

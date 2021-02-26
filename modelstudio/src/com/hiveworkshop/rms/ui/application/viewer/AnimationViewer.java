@@ -10,18 +10,17 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import java.awt.*;
 
 public class AnimationViewer extends JPanel {
-	private ModelView mdlDisp;
+	private ModelView modelView;
 	private final AnimatedPerspectiveViewport perspectiveViewport;
 	private final DefaultComboBoxModel<Animation> animations;
 	private final JComboBox<Animation> animationBox;
 	private final boolean allowUnanimated;
 
-	public AnimationViewer(final ModelView mdlDisp, final ProgramPreferences programPreferences,
-			final boolean allowUnanimated) {
-		this.mdlDisp = mdlDisp;
+	public AnimationViewer(final ModelView modelView, final ProgramPreferences programPreferences, final boolean allowUnanimated) {
+		this.modelView = modelView;
 		this.allowUnanimated = allowUnanimated;
 		try {
-			perspectiveViewport = new AnimatedPerspectiveViewport(mdlDisp, programPreferences, true);
+			perspectiveViewport = new AnimatedPerspectiveViewport(modelView, programPreferences, true);
 			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
 			perspectiveViewport.setAnimationTime(0);
 			perspectiveViewport.setLive(true);
@@ -31,10 +30,10 @@ public class AnimationViewer extends JPanel {
 		setLayout(new BorderLayout());
 		add(perspectiveViewport, BorderLayout.CENTER);
 		animations = new DefaultComboBoxModel<>();
-		if (allowUnanimated || (mdlDisp.getModel().getAnims().size() == 0)) {
+		if (allowUnanimated || (modelView.getModel().getAnims().size() == 0)) {
 			animations.addElement(null);
 		}
-		for (final Animation animation : mdlDisp.getModel().getAnims()) {
+		for (final Animation animation : modelView.getModel().getAnims()) {
 			animations.addElement(animation);
 		}
 		animationBox = new JComboBox<>(animations);
@@ -42,8 +41,8 @@ public class AnimationViewer extends JPanel {
 			@Override
 			public Component getListCellRendererComponent(final JList list, final Object value, final int index,
 					final boolean isSelected, final boolean cellHasFocus) {
-				return super.getListCellRendererComponent(list, value == null ? "(Unanimated)" : value, index,
-						isSelected, cellHasFocus);
+				return super.getListCellRendererComponent(list, value == null
+						? "(Unanimated)" : value, index, isSelected, cellHasFocus);
 			}
 		});
 		animationBox.addActionListener(e -> perspectiveViewport.setAnimation((Animation) animationBox.getSelectedItem()));
@@ -52,7 +51,7 @@ public class AnimationViewer extends JPanel {
 	}
 
 	public void setModel(final ModelView modelView) {
-		mdlDisp = modelView;
+		this.modelView = modelView;
 		perspectiveViewport.setModel(modelView);
 		reload();
 	}
@@ -76,10 +75,10 @@ public class AnimationViewer extends JPanel {
 		final Animation selectedItem = (Animation) animationBox.getSelectedItem();
 		animations.removeAllElements();
 		boolean sawLast = selectedItem == null;
-		if (allowUnanimated || (mdlDisp.getModel().getAnims().size() == 0)) {
+		if (allowUnanimated || (modelView.getModel().getAnims().size() == 0)) {
 			animations.addElement(null);
 		}
-		for (final Animation animation : mdlDisp.getModel().getAnims()) {
+		for (final Animation animation : modelView.getModel().getAnims()) {
 			animations.addElement(animation);
 			if (animation == selectedItem) {
 				sawLast = true;
@@ -88,8 +87,8 @@ public class AnimationViewer extends JPanel {
 		perspectiveViewport.reloadTextures();
 		if (sawLast && ((selectedItem != null) || allowUnanimated)) {
 			animationBox.setSelectedItem(selectedItem);
-		} else if (!allowUnanimated && (mdlDisp.getModel().getAnims().size() > 0)) {
-			animationBox.setSelectedItem(mdlDisp.getModel().getAnim(0));
+		} else if (!allowUnanimated && (modelView.getModel().getAnims().size() > 0)) {
+			animationBox.setSelectedItem(modelView.getModel().getAnim(0));
 		}
 	}
 }

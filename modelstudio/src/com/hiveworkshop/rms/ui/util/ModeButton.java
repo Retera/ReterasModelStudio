@@ -7,9 +7,6 @@ import java.awt.event.ComponentEvent;
 
 /**
  * Cool gradient colored JButton
- *
- * @author (your name)
- * @version (a version number or a date)
  */
 public class ModeButton extends JButton {
 	GradientPaint gPaint;
@@ -20,8 +17,9 @@ public class ModeButton extends JButton {
 			@Override
 			public void componentResized(final ComponentEvent e) {
 				if (gPaint != null) {
-					gPaint = new GradientPaint(new Point(0, 10), gPaint.getColor1(), new Point(0, getHeight()),
-							gPaint.getColor2(), true);
+					gPaint = new GradientPaint(
+							new Point(0, 10), gPaint.getColor1(),
+							new Point(0, getHeight()), gPaint.getColor2(), true);
 				}
 			}
 		});

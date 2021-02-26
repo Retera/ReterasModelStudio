@@ -1,13 +1,9 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.widgets;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Polygon;
-import java.awt.Rectangle;
-
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec2;
+
+import java.awt.*;
 
 public final class TVertexMoverWidget {
 	private static final int TRIANGLE_OFFSET = 60 - 16;
@@ -30,18 +26,21 @@ public final class TVertexMoverWidget {
 		eastTriangle.addPoint(0, 5);
 	}
 
-	public MoveDirection getDirectionByMouse(final Point mousePoint, final CoordinateSystem coordinateSystem,
-			final byte dim1, final byte dim2) {
+	public MoveDirection getDirectionByMouse(final Point mousePoint, final CoordinateSystem coordinateSystem, final byte dim1, final byte dim2) {
 		final double x = coordinateSystem.convertX(point.getCoord(dim1));
 		final double y = coordinateSystem.convertY(point.getCoord(dim2));
 		eastTriangle.translate((int) x + TRIANGLE_OFFSET, (int) y);
 		northTriangle.translate((int) x, (int) y - TRIANGLE_OFFSET);
 		MoveDirection direction = MoveDirection.NONE;
-		if (northTriangle.contains(mousePoint) || ((Math.abs(x - mousePoint.getX()) <= 1) && (mousePoint.y < y)
+		if (northTriangle.contains(mousePoint)
+				|| ((Math.abs(x - mousePoint.getX()) <= 1)
+				&& (mousePoint.y < y)
 				&& (mousePoint.y > (y - TRIANGLE_OFFSET)))) {
 			direction = MoveDirection.UP;
 		}
-		if (eastTriangle.contains(mousePoint) || ((Math.abs(y - mousePoint.getY()) <= 1) && (mousePoint.x > x)
+		if (eastTriangle.contains(mousePoint)
+				|| ((Math.abs(y - mousePoint.getY()) <= 1)
+				&& (mousePoint.x > x)
 				&& (mousePoint.x < (x + TRIANGLE_OFFSET)))) {
 			direction = MoveDirection.RIGHT;
 		}

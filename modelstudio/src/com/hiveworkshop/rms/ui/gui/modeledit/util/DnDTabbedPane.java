@@ -1,35 +1,12 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.util;
 
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DragGestureListener;
-import java.awt.dnd.DragSource;
-import java.awt.dnd.DragSourceDragEvent;
-import java.awt.dnd.DragSourceDropEvent;
-import java.awt.dnd.DragSourceEvent;
-import java.awt.dnd.DragSourceListener;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
-import java.awt.dnd.InvalidDnDOperationException;
+import java.awt.dnd.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-
-import javax.swing.Icon;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 
 /**
  * DnDTabbedPane.java
@@ -77,7 +54,9 @@ public class DnDTabbedPane extends JTabbedPane {
 				final Point glassPt = e.getLocation();
 				SwingUtilities.convertPointFromScreen(glassPt, glassPane);
 				final int targetIdx = getTargetTabIndex(glassPt);
-				if (getTabAreaBound().contains(tabPt) && targetIdx >= 0 && targetIdx != dragTabIndex
+				if (getTabAreaBound().contains(tabPt)
+						&& targetIdx >= 0
+						&& targetIdx != dragTabIndex
 						&& targetIdx != dragTabIndex + 1) {
 					e.getDragSourceContext().setCursor(DragSource.DefaultMoveDrop);
 				} else {

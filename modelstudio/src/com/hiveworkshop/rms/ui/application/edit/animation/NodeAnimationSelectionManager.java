@@ -123,10 +123,9 @@ public final class NodeAnimationSelectionManager extends AbstractSelectionManage
 
 	@Override
 	public Collection<Vec3> getSelectedVertices() {
-		// These reference the MODEL EDITOR pivot points,
-		// used only as memory references so that downstream will know
-		// to select those pivots, and therefore those IdObject nodes,
-		// for static editing (hence we do not apply worldMatrix)
+		// These reference the MODEL EDITOR pivot points, used only as memory references
+		// so that downstream will know to select those pivots, and therefore those
+		// IdObject nodes, for static editing (hence we do not apply worldMatrix)
 		final List<Vec3> vertices = new ArrayList<>();
 		for (final IdObject obj : selection) {
 			vertices.add(obj.getPivotPoint());

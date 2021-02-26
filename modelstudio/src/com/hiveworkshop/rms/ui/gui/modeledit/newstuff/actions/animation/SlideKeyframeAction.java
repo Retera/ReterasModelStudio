@@ -1,9 +1,9 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation;
 
-import java.util.List;
-
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.editor.model.AnimFlag;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+
+import java.util.List;
 
 public class SlideKeyframeAction implements UndoAction {
 	private final int startTrackTime;
@@ -12,7 +12,7 @@ public class SlideKeyframeAction implements UndoAction {
 	private final Runnable keyframeChangeCallback;
 
 	public SlideKeyframeAction(final int startTrackTime, final int endTrackTime, final List<AnimFlag> timelines,
-			final Runnable keyframeChangeCallback) {
+	                           final Runnable keyframeChangeCallback) {
 		this.startTrackTime = startTrackTime;
 		this.endTrackTime = endTrackTime;
 		this.timelines = timelines;

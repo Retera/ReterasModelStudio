@@ -1,11 +1,11 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation;
 
-import java.util.Collection;
-
-import com.hiveworkshop.rms.util.Pair;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.editor.model.AnimFlag;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.util.Pair;
+
+import java.util.Collection;
 
 public class AddTimelinesAction implements UndoAction {
 	private final Collection<Pair<TimelineContainer, AnimFlag>> containersAndTimelines;

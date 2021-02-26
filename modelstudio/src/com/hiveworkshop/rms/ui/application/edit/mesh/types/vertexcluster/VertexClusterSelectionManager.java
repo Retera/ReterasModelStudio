@@ -64,8 +64,7 @@ public final class VertexClusterSelectionManager extends AbstractSelectionManage
 	}
 
 	@Override
-	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem,
-								final ModelView modelView, final ProgramPreferences programPreferences) {
+	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem, final ModelView modelView, final ProgramPreferences programPreferences) {
 		final Set<VertexClusterModelEditor.VertexGroupBundle> selection = getSelection();
 		for (final Geoset geoset : modelView.getEditableGeosets()) {
 			final Color outlineColor;
@@ -105,10 +104,8 @@ public final class VertexClusterSelectionManager extends AbstractSelectionManage
 				&& containsCluster(selection, cluster2, geoset, triangleVertices);
 	}
 
-	private boolean containsCluster(Set<VertexClusterModelEditor.VertexGroupBundle> selection,
-	                                int cluster, Geoset geoset, GeosetVertex[] triangleVertices) {
-		return selection.contains(
-				new VertexClusterModelEditor.VertexGroupBundle(geoset, vertexClusterDefinitions.getClusterId(triangleVertices[cluster])));
+	private boolean containsCluster(Set<VertexClusterModelEditor.VertexGroupBundle> selection, int cluster, Geoset geoset, GeosetVertex[] triangleVertices) {
+		return selection.contains(new VertexClusterModelEditor.VertexGroupBundle(geoset, vertexClusterDefinitions.getClusterId(triangleVertices[cluster])));
 	}
 
 	@Override
@@ -127,8 +124,7 @@ public final class VertexClusterSelectionManager extends AbstractSelectionManage
 	}
 
 	@Override
-	public void renderUVSelection(final TVertexModelElementRenderer renderer, final ModelView modelView,
-                                  final ProgramPreferences programPreferences, final int tvertexLayerId) {
+	public void renderUVSelection(final TVertexModelElementRenderer renderer, final ModelView modelView, final ProgramPreferences programPreferences, final int tvertexLayerId) {
 		throw new UnsupportedOperationException("Not yet implemented");
 	}
 }

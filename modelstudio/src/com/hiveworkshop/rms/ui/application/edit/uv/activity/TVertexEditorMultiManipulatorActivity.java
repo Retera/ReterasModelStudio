@@ -6,11 +6,11 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.uv.TVertexEditorMa
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 
-public class TVertexEditorMultiManipulatorActivity extends MultiManipulatorActivity<TVertexEditorManipulatorBuilder>
-		implements TVertexEditorViewportActivity {
+public class TVertexEditorMultiManipulatorActivity extends MultiManipulatorActivity<TVertexEditorManipulatorBuilder> implements TVertexEditorViewportActivity {
 
 	public TVertexEditorMultiManipulatorActivity(final TVertexEditorManipulatorBuilder manipulatorBuilder,
-												 final UndoActionListener undoActionListener, final SelectionView selectionView) {
+	                                             final UndoActionListener undoActionListener,
+	                                             final SelectionView selectionView) {
 		super(manipulatorBuilder, undoActionListener, selectionView);
 	}
 

@@ -1,11 +1,9 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.widgets;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Point;
-
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec2;
+
+import java.awt.*;
 
 public final class TVertexScalerWidget {
 	private static final int LINE_LEN = 80;
@@ -28,19 +26,16 @@ public final class TVertexScalerWidget {
 		final double x = coordinateSystem.convertX(point.getCoord(dim1));
 		final double y = coordinateSystem.convertY(point.getCoord(dim2));
 		ScaleDirection direction = ScaleDirection.NONE;
-		if ((mousePoint.x > x) && (mousePoint.y < y)
-				&& ((mousePoint.y - y) > (mousePoint.x - x - INTERIOR_TRIANGLE_OFFSET))) {
+		if (mousePoint.x > x && mousePoint.y < y && mousePoint.y - y > mousePoint.x - x - INTERIOR_TRIANGLE_OFFSET) {
 			return ScaleDirection.XYZ;
 		}
-		if (((Math.abs(x - mousePoint.getX()) <= 4) && (mousePoint.y < y) && (mousePoint.y > (y - LINE_LEN)))) {
+		if ((Math.abs(x - mousePoint.getX()) <= 4 && mousePoint.y < y && mousePoint.y > y - LINE_LEN)) {
 			direction = ScaleDirection.UP;
 		}
-		if (((Math.abs(y - mousePoint.getY()) <= 4) && (mousePoint.x > x) && (mousePoint.x < (x + LINE_LEN)))) {
+		if ((Math.abs(y - mousePoint.getY()) <= 4 && mousePoint.x > x && mousePoint.x < x + LINE_LEN)) {
 			direction = ScaleDirection.RIGHT;
 		}
-		if ((mousePoint.x > x) && (mousePoint.y < y)
-				&& ((mousePoint.y - y) > (mousePoint.x - x - EXTERIOR_TRIANGLE_OFFSET))
-				&& ((mousePoint.y - y) < (mousePoint.x - x - INTERIOR_TRIANGLE_OFFSET))) {
+		if (mousePoint.x > x && mousePoint.y < y && mousePoint.y - y > mousePoint.x - x - EXTERIOR_TRIANGLE_OFFSET && mousePoint.y - y < mousePoint.x - x - INTERIOR_TRIANGLE_OFFSET) {
 			return ScaleDirection.FLAT_XY;
 		}
 		return direction;

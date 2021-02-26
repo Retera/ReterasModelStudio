@@ -1,19 +1,10 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv;
 
-import java.awt.Point;
-import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
@@ -21,22 +12,54 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisitor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
-import com.hiveworkshop.rms.editor.model.Camera;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.Triangle;
+import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec3;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+
+import java.awt.*;
+import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.util.List;
+import java.util.*;
 
 public class FaceTVertexEditor extends AbstractTVertexEditor<Triangle> {
 	private final ProgramPreferences programPreferences;
 
-	public FaceTVertexEditor(final ModelView model, final ProgramPreferences programPreferences,
-			final SelectionManager<Triangle> selectionManager,
-			final ModelStructureChangeListener structureChangeListener) {
+	public FaceTVertexEditor(final ModelView model, final ProgramPreferences programPreferences, final SelectionManager<Triangle> selectionManager, final ModelStructureChangeListener structureChangeListener) {
 		super(selectionManager, model, structureChangeListener);
 		this.programPreferences = programPreferences;
+	}
+
+	public static boolean hitTest(final Triangle triangle, final Point2D point, final CoordinateSystem coordinateSystem, final int uvLayerIndex) {
+		final byte dim1 = coordinateSystem.getPortFirstXYZ();
+		final byte dim2 = coordinateSystem.getPortSecondXYZ();
+		final GeosetVertex[] verts = triangle.getVerts();
+		final Path2D.Double path = new Path2D.Double();
+		path.moveTo(verts[0].getTVertex(uvLayerIndex).getCoord(dim1), verts[0].getTVertex(uvLayerIndex).getCoord(dim2));
+		for (int i = 1; i < verts.length; i++) {
+			path.lineTo(verts[i].getTVertex(uvLayerIndex).getCoord(dim1), verts[i].getTVertex(uvLayerIndex).getCoord(dim2));
+			// xpts[i] = (int)
+			// (verts[i].getCoord(dim1));
+			// ypts[i] = (int)
+			// (verts[i].getCoord(dim2));
+		} // TODO fix bad performance allocation
+		path.closePath();
+		return path.contains(point);
+	}
+
+	public static boolean hitTest(final Triangle triangle, final Rectangle2D rectangle, final CoordinateSystem coordinateSystem, final int uvLayerIndex) {
+		final byte dim1 = coordinateSystem.getPortFirstXYZ();
+		final byte dim2 = coordinateSystem.getPortSecondXYZ();
+		final GeosetVertex[] verts = triangle.getVerts();
+		final Path2D.Double path = new Path2D.Double();
+		path.moveTo(verts[0].getTVertex(uvLayerIndex).getCoord(dim1), verts[0].getTVertex(uvLayerIndex).getCoord(dim2));
+		for (int i = 1; i < verts.length; i++) {
+			path.lineTo(verts[i].getTVertex(uvLayerIndex).getCoord(dim1), verts[i].getTVertex(uvLayerIndex).getCoord(dim2));
+		}
+		return rectangle.contains(verts[0].getTVertex(uvLayerIndex).getCoord(dim1), verts[0].getTVertex(uvLayerIndex).getCoord(dim2))
+				|| rectangle.contains(verts[1].getTVertex(uvLayerIndex).getCoord(dim1), verts[1].getTVertex(uvLayerIndex).getCoord(dim2))
+				|| rectangle.contains(verts[2].getTVertex(uvLayerIndex).getCoord(dim1), verts[2].getTVertex(uvLayerIndex).getCoord(dim2))
+				|| path.intersects(rectangle);
 	}
 
 	@Override
@@ -125,9 +148,7 @@ public class FaceTVertexEditor extends AbstractTVertexEditor<Triangle> {
 		for (final Geoset geoset : model.getEditableGeosets()) {
 			for (final Triangle triangle : geoset.getTriangles()) {
 				if (hitTest(triangle, new Point2D.Double(area.getX(), area.getY()), coordinateSystem, uvLayerIndex)
-						|| hitTest(triangle,
-								new Point2D.Double(area.getX() + area.getWidth(), area.getY() + area.getHeight()),
-								coordinateSystem, uvLayerIndex)
+						|| hitTest(triangle, new Point2D.Double(area.getX() + area.getWidth(), area.getY() + area.getHeight()), coordinateSystem, uvLayerIndex)
 						|| hitTest(triangle, area, coordinateSystem, uvLayerIndex)) {
 					newSelection.add(triangle);
 				}
@@ -151,7 +172,8 @@ public class FaceTVertexEditor extends AbstractTVertexEditor<Triangle> {
 
 	@Override
 	protected UndoAction buildHideComponentAction(final List<? extends SelectableComponent> selectableComponents,
-                                                  final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
+                                                  final EditabilityToggleHandler editabilityToggleHandler,
+                                                  final Runnable refreshGUIRunnable) {
 		final List<Triangle> previousSelection = new ArrayList<>(selectionManager.getSelection());
 		final List<Triangle> possibleTrianglesToTruncate = new ArrayList<>();
 		final List<Vec3> possibleVerticesToTruncate = new ArrayList<>();
@@ -176,47 +198,7 @@ public class FaceTVertexEditor extends AbstractTVertexEditor<Triangle> {
 		}
 		final Runnable truncateSelectionRunnable = () -> selectionManager.removeSelection(possibleTrianglesToTruncate);
 		final Runnable unTruncateSelectionRunnable = () -> selectionManager.setSelection(previousSelection);
-		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable,
-				unTruncateSelectionRunnable, refreshGUIRunnable);
-	}
-
-	public static boolean hitTest(final Triangle triangle, final Point2D point, final CoordinateSystem coordinateSystem,
-			final int uvLayerIndex) {
-		final byte dim1 = coordinateSystem.getPortFirstXYZ();
-		final byte dim2 = coordinateSystem.getPortSecondXYZ();
-		final GeosetVertex[] verts = triangle.getVerts();
-		final Path2D.Double path = new Path2D.Double();
-		path.moveTo(verts[0].getTVertex(uvLayerIndex).getCoord(dim1), verts[0].getTVertex(uvLayerIndex).getCoord(dim2));
-		for (int i = 1; i < verts.length; i++) {
-			path.lineTo(verts[i].getTVertex(uvLayerIndex).getCoord(dim1),
-					verts[i].getTVertex(uvLayerIndex).getCoord(dim2));
-			// xpts[i] = (int)
-			// (verts[i].getCoord(dim1));
-			// ypts[i] = (int)
-			// (verts[i].getCoord(dim2));
-		} // TODO fix bad performance allocation
-		path.closePath();
-		return path.contains(point);
-	}
-
-	public static boolean hitTest(final Triangle triangle, final Rectangle2D rectangle,
-			final CoordinateSystem coordinateSystem, final int uvLayerIndex) {
-		final byte dim1 = coordinateSystem.getPortFirstXYZ();
-		final byte dim2 = coordinateSystem.getPortSecondXYZ();
-		final GeosetVertex[] verts = triangle.getVerts();
-		final Path2D.Double path = new Path2D.Double();
-		path.moveTo(verts[0].getTVertex(uvLayerIndex).getCoord(dim1), verts[0].getTVertex(uvLayerIndex).getCoord(dim2));
-		for (int i = 1; i < verts.length; i++) {
-			path.lineTo(verts[i].getTVertex(uvLayerIndex).getCoord(dim1),
-					verts[i].getTVertex(uvLayerIndex).getCoord(dim2));
-		}
-		return rectangle.contains(verts[0].getTVertex(uvLayerIndex).getCoord(dim1),
-				verts[0].getTVertex(uvLayerIndex).getCoord(dim2))
-				|| rectangle.contains(verts[1].getTVertex(uvLayerIndex).getCoord(dim1),
-						verts[1].getTVertex(uvLayerIndex).getCoord(dim2))
-				|| rectangle.contains(verts[2].getTVertex(uvLayerIndex).getCoord(dim1),
-						verts[2].getTVertex(uvLayerIndex).getCoord(dim2))
-				|| path.intersects(rectangle);
+		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable, unTruncateSelectionRunnable, refreshGUIRunnable);
 	}
 
 	public VertexSelectionHelper getVertexSelectionHelper() {

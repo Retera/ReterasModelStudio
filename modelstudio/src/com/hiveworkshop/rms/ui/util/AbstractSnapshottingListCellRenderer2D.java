@@ -1,10 +1,10 @@
 package com.hiveworkshop.rms.ui.util;
 
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportModelRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.VertexFilter;
+import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,8 +30,7 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 	protected abstract ResettableVertexFilter<TYPE> createFilter();
 
 	@Override
-	public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index,
-			final boolean iss, final boolean chf) {
+	public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index, final boolean iss, final boolean chf) {
 		final Color backgroundColor = getBackground();
 		setBackground(null);
 		final TYPE matrixShell = valueToType(value);

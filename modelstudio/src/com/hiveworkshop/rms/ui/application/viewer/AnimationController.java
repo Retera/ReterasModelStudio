@@ -14,13 +14,12 @@ public class AnimationController extends JPanel {
 	private final JComboBox<Animation> animationBox;
 	private final boolean allowUnanimated;
 
-	public AnimationController(final ModelView mdlDisp, final boolean allowUnanimated,
-			final AnimationControllerListener listener) {
+	public AnimationController(final ModelView mdlDisp, final boolean allowUnanimated, final AnimationControllerListener listener) {
 		this(mdlDisp, allowUnanimated, listener, null);
 	}
 
 	public AnimationController(final ModelView mdlDisp, final boolean allowUnanimated,
-			final AnimationControllerListener listener, final Animation defaultAnimation) {
+	                           final AnimationControllerListener listener, final Animation defaultAnimation) {
 		this.mdlDisp = mdlDisp;
 		this.allowUnanimated = allowUnanimated;
 		final GroupLayout groupLayout = new GroupLayout(this);
@@ -36,7 +35,7 @@ public class AnimationController extends JPanel {
 		animationBox.setRenderer(new BasicComboBoxRenderer() {
 			@Override
 			public Component getListCellRendererComponent(final JList list, final Object value, final int index,
-					final boolean isSelected, final boolean cellHasFocus) {
+			                                              final boolean isSelected, final boolean cellHasFocus) {
 				Object display = value == null ? "(Unanimated)" : value;
 				if (value != null) {
 					display = "(" + mdlDisp.getModel().getAnims().indexOf(value) + ") " + display;

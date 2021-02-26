@@ -12,8 +12,7 @@ public final class ScaleTVertexManipulator extends AbstractScaleTVertexManipulat
 	}
 
 	@Override
-	protected final void scaleWithFactor(final TVertexEditor modelEditor, final Vec2 center,
-			final double scaleFactor, final byte dim1, final byte dim2) {
+	protected final void scaleWithFactor(final TVertexEditor modelEditor, final Vec2 center, final double scaleFactor, final byte dim1, final byte dim2) {
 		getScaleAction().updateScale(scaleFactor, scaleFactor, scaleFactor);
 	}
 

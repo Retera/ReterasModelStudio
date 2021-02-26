@@ -118,7 +118,7 @@ public class ToolBar {
         mainPanel.currentActivity = mainPanel.actionTypeGroup.getActiveButtonType();
         mainPanel.toolbar.addSeparator();
 
-        mainPanel.snapButton = addToolbarIcon(mainPanel.toolbar, "Snap", "snap.png", () -> ModelEditActions.snapVerticies(mainPanel));
+        mainPanel.snapButton = addToolbarIcon(mainPanel.toolbar, "Snap", "snap.png", () -> ModelEditActions.snapVertices(mainPanel));
 
         return mainPanel.toolbar;
     }

@@ -1,11 +1,5 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.uv.UVRemapAction;
@@ -17,16 +11,14 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelec
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.actions.MirrorTVerticesAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.actions.SimpleRotateUVAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.actions.StaticMeshUVMoveAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.actions.StaticMeshUVRotateAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.actions.StaticMeshUVScaleAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.actions.*;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.*;
 
 public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexEditor<T> {
 	protected final ModelView model;
@@ -34,8 +26,9 @@ public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexE
 	protected final ModelStructureChangeListener structureChangeListener;
 	protected int uvLayerIndex;
 
-	public AbstractTVertexEditor(final SelectionManager<T> selectionManager, final ModelView model,
-			final ModelStructureChangeListener structureChangeListener) {
+	public AbstractTVertexEditor(final SelectionManager<T> selectionManager,
+	                             final ModelView model,
+	                             final ModelStructureChangeListener structureChangeListener) {
 		super(selectionManager);
 		this.model = model;
 		this.structureChangeListener = structureChangeListener;
@@ -44,8 +37,8 @@ public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexE
 
 	@Override
 	public UndoAction mirror(final byte dim, final double centerX, final double centerY) {
-		final MirrorTVerticesAction mirror = new MirrorTVerticesAction(
-				TVertexUtils.getTVertices(selectionManager.getSelectedVertices(), uvLayerIndex), dim, centerX, centerY);
+		final MirrorTVerticesAction mirror =
+				new MirrorTVerticesAction(TVertexUtils.getTVertices(selectionManager.getSelectedVertices(), uvLayerIndex), dim, centerX, centerY);
 		// super weird passing of currently editable id Objects, works because
 		// mirror action checks selected vertices against pivot points from this
 		// list
@@ -106,8 +99,7 @@ public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexE
 
 	@Override
 	public UndoAction snapSelectedVertices() {
-		final Collection<? extends Vec2> selection = TVertexUtils
-				.getTVertices(selectionManager.getSelectedVertices(), uvLayerIndex);
+		final Collection<? extends Vec2> selection = TVertexUtils.getTVertices(selectionManager.getSelectedVertices(), uvLayerIndex);
 		final List<Vec2> oldLocations = new ArrayList<>();
 		final Vec2 cog = Vec2.centerOfGroup(selection);
 		for (final Vec2 vertex : selection) {
@@ -126,15 +118,17 @@ public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexE
 	}
 
 	@Override
-	public void rawScale(final double centerX, final double centerY, final double scaleX, final double scaleY) {
+	public void rawScale(final double centerX, final double centerY,
+	                     final double scaleX, final double scaleY) {
 		for (final Vec2 vertex : TVertexUtils.getTVertices(selectionManager.getSelectedVertices(), uvLayerIndex)) {
 			vertex.scale(centerX, centerY, scaleX, scaleY);
 		}
 	}
 
 	@Override
-	public void rawRotate2d(final double centerX, final double centerY, final double radians, final byte firstXYZ,
-			final byte secondXYZ) {
+	public void rawRotate2d(final double centerX, final double centerY,
+	                        final double radians,
+	                        final byte firstXYZ, final byte secondXYZ) {
 		for (final Vec2 vertex : TVertexUtils.getTVertices(selectionManager.getSelectedVertices(), uvLayerIndex)) {
 			vertex.rotate(centerX, centerY, radians, firstXYZ, secondXYZ);
 		}
@@ -174,8 +168,8 @@ public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexE
 	public UndoAction selectFromViewer(final SelectionView viewerSelectionView) {
 		final Set<T> previousSelection = selectionManager.getSelection();
 		selectByVertices(viewerSelectionView.getSelectedVertices());
-		final SetSelectionAction<T> setSelectionAction = new SetSelectionAction<>(selectionManager.getSelection(),
-				previousSelection, selectionManager, "select UV from viewer");
+		final SetSelectionAction<T> setSelectionAction =
+				new SetSelectionAction<>(selectionManager.getSelection(), previousSelection, selectionManager, "select UV from viewer");
 		return setSelectionAction;
 	}
 
@@ -185,8 +179,8 @@ public abstract class AbstractTVertexEditor<T> extends AbstractSelectingTVertexE
 	}
 
 	@Override
-	public GenericRotateAction beginRotation(final double centerX, final double centerY, final byte dim1,
-                                             final byte dim2) {
+	public GenericRotateAction beginRotation(final double centerX, final double centerY,
+	                                         final byte dim1, final byte dim2) {
 		return new StaticMeshUVRotateAction(this, new Vec2(centerX, centerY), dim1, dim2);
 	}
 

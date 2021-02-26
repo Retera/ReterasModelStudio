@@ -28,8 +28,7 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 	private ViewportView viewportView;
 	private CoordinateSystem coordinateSystem;
 	private final ResettableAnimatedIdObjectRenderer idObjectRenderer;
-	// TODO Now that I added modelView to this class, why does
-	// RenderByViewModelRenderer exist???
+	// TODO Now that I added modelView to this class, why does RenderByViewModelRenderer exist???
 	private ModelView modelView;
 	private RenderModel renderModel;
 
@@ -39,15 +38,13 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 		idObjectRenderer = new ResettableAnimatedIdObjectRenderer(vertexSize);
 	}
 
-	public AnimatedViewportModelRenderer reset(
-			final Graphics2D graphics,
-			final ProgramPreferences programPreferences,
-			final byte xDimension,
-			final byte yDimension,
-			final ViewportView viewportView,
-			final CoordinateSystem coordinateSystem,
-			final ModelView modelView,
-			final RenderModel renderModel) {
+	public AnimatedViewportModelRenderer reset(final Graphics2D graphics,
+	                                           final ProgramPreferences programPreferences,
+	                                           final byte xDimension, final byte yDimension,
+	                                           final ViewportView viewportView,
+	                                           final CoordinateSystem coordinateSystem,
+	                                           final ModelView modelView,
+	                                           final RenderModel renderModel) {
 		this.graphics = graphics;
 		this.programPreferences = programPreferences;
 		this.xDimension = xDimension;
@@ -56,9 +53,7 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 		this.coordinateSystem = coordinateSystem;
 		this.modelView = modelView;
 		this.renderModel = renderModel;
-		idObjectRenderer.reset(coordinateSystem, graphics, programPreferences.getLightsColor(),
-				programPreferences.getAnimatedBoneUnselectedColor(), NodeIconPalette.UNSELECTED, renderModel,
-				programPreferences.isUseBoxesForPivotPoints());
+		idObjectRenderer.reset(coordinateSystem, graphics, programPreferences.getLightsColor(), programPreferences.getAnimatedBoneUnselectedColor(), NodeIconPalette.UNSELECTED, renderModel, programPreferences.isUseBoxesForPivotPoints());
 		return this;
 	}
 
@@ -84,10 +79,8 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 
 	private void resetIdObjectRendererWithNode(final IdObject object) {
 		idObjectRenderer.reset(coordinateSystem, graphics,
-				modelView.getHighlightedNode() == object
-						? programPreferences.getHighlighVertexColor() : programPreferences.getLightsColor(),
-				modelView.getHighlightedNode() == object
-						? programPreferences.getHighlighVertexColor() : programPreferences.getAnimatedBoneUnselectedColor(),
+				modelView.getHighlightedNode() == object ? programPreferences.getHighlighVertexColor() : programPreferences.getLightsColor(),
+				modelView.getHighlightedNode() == object ? programPreferences.getHighlighVertexColor() : programPreferences.getAnimatedBoneUnselectedColor(),
 				modelView.getHighlightedNode() == object ? NodeIconPalette.HIGHLIGHT : NodeIconPalette.UNSELECTED,
 				renderModel, programPreferences.isUseBoxesForPivotPoints());
 	}
@@ -166,10 +159,7 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 
 		@Override
 		public void geosetFinished() {
-			// TODO Auto-generated method stub
-
 		}
-
 	}
 
 	private static final Vec4 vertexHeap = new Vec4();

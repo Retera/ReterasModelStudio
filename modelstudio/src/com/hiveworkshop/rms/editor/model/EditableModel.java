@@ -246,11 +246,8 @@ public class EditableModel implements Named {
 
 				if (materialColors.containsKey(material)) {
 					final GeosetAnim geosetAnim = new GeosetAnim(geoset);
-
 					geosetAnim.setStaticColor(materialColors.get(material));
-
 					add(geosetAnim);
-
 					geoset.geosetAnim = geosetAnim;
 				}
 			}

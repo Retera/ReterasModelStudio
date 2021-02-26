@@ -21,7 +21,7 @@ import java.util.List;
  * @version (a version number or a date)
  */
 public class PerspDisplayPanel extends JPanel implements ActionListener {
-	private final ModelView dispMDL;
+	private final ModelView modelView;
 	private PerspectiveViewport vp;
 	private JPanel vpp;
 	private String title;
@@ -31,21 +31,16 @@ public class PerspDisplayPanel extends JPanel implements ActionListener {
 	private final RenderModel editorRenderModel;
 
 	// private JCheckBox wireframe;
-	public PerspDisplayPanel(final String title, final ModelView dispMDL, final ProgramPreferences programPreferences,
-			final RenderModel editorRenderModel) {
+	public PerspDisplayPanel(final String title, final ModelView modelView, final ProgramPreferences programPreferences, final RenderModel editorRenderModel) {
 		super();
 		this.programPreferences = programPreferences;
 		this.editorRenderModel = editorRenderModel;
-		// BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title),BorderFactory.createBevelBorder(1)),BorderFactory.createEmptyBorder(1,1,1,1)
-		// ));
 		setOpaque(true);
 
-		// wireframe = new JCheckBox("Wireframe");
-		// add(wireframe);
-		setViewport(dispMDL);
+		setViewport(modelView);
 		getViewport().setMinimumSize(new Dimension(200, 200));
 		this.title = title;
-		this.dispMDL = dispMDL;
+		this.modelView = modelView;
 
 		plusZoom = getButton(this, 20, 20);
 
@@ -66,39 +61,10 @@ public class PerspDisplayPanel extends JPanel implements ActionListener {
 
 		final GroupLayout layout = new GroupLayout(this);
 		layout.setHorizontalGroup(layout.createSequentialGroup().addComponent(vp));
-		// .addComponent(wireframe));
-		// .addComponent(vp)
-		// .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-		// .addComponent(plusZoom)
-		// .addComponent(minusZoom)
-		// .addGroup(layout.createSequentialGroup()
-		// .addComponent(left)
-		// .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-		// .addComponent(up)
-		// .addComponent(down))
-		// .addComponent(right)))
-		// );
 		layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(vp));
-		// .addComponent(wireframe));
-		// .addComponent(vp)
-		// .addGroup(layout.createSequentialGroup()
-		// .addComponent(plusZoom)
-		// .addGap(16)
-		// .addComponent(minusZoom)
-		// .addGap(16)
-		// .addComponent(up)
-		// .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-		// .addComponent(left)
-		// .addComponent(right))
-		// .addComponent(down)
-		// ));
-		//
 		setLayout(new BorderLayout());
 		add(vp);
-//		add(Box.createHorizontalStrut(200));
-//		add(Box.createVerticalStrut(200));
-		// setLayout( new BoxLayout(this,BoxLayout.LINE_AXIS));
-		// setLayout(new GridLayout(1,1));
+
 		view = new View(title, null, this);
 	}
 
@@ -114,7 +80,7 @@ public class PerspDisplayPanel extends JPanel implements ActionListener {
 	}
 
 	public void setViewportBackground(final Color background) {
-		vp.setViewportBackground(background);
+//		vp.setViewportBackground(background);
 	}
 
 	public Color getViewportBackground() {
@@ -152,33 +118,7 @@ public class PerspDisplayPanel extends JPanel implements ActionListener {
 			vp.setMinimumSize(new Dimension(viewerSize, viewerSize));
 			final GroupLayout layout = new GroupLayout(this);
 			layout.setHorizontalGroup(layout.createSequentialGroup().addComponent(vp));
-			// .addComponent(wireframe));
-			// .addComponent(vp)
-			// .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-			// .addComponent(plusZoom)
-			// .addComponent(minusZoom)
-			// .addGroup(layout.createSequentialGroup()
-			// .addComponent(left)
-			// .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-			// .addComponent(up)
-			// .addComponent(down))
-			// .addComponent(right)))
-			// );
 			layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(vp));
-			// .addComponent(wireframe));
-			// .addComponent(vp)
-			// .addGroup(layout.createSequentialGroup()
-			// .addComponent(plusZoom)
-			// .addGap(16)
-			// .addComponent(minusZoom)
-			// .addGap(16)
-			// .addComponent(up)
-			// .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-			// .addComponent(left)
-			// .addComponent(right))
-			// .addComponent(down)
-			// ));
-			//
 			setLayout(new BorderLayout());
 			// vp.setWireframeHandler(wireframe);
 			// vpp = new JPanel();
@@ -212,27 +152,17 @@ public class PerspDisplayPanel extends JPanel implements ActionListener {
 	}
 
 	// public void addGeoset(Geoset g)
-	// {
-	// m_geosets.add(g);
-	// }
+	// { m_geosets.add(g);}
 	// public void setGeosetVisible(int index, boolean flag)
-	// {
-	// Geoset geo = (Geoset)m_geosets.get(index);
-	// geo.setVisible(flag);
-	// }
+	// { Geoset geo = (Geoset)m_geosets.get(index);
+	// geo.setVisible(flag);}
 	// public void setGeosetHighlight(int index, boolean flag)
-	// {
-	// Geoset geo = (Geoset)m_geosets.get(index);
-	// geo.setHighlight(flag);
-	// }
+	// { Geoset geo = (Geoset)m_geosets.get(index);
+	// geo.setHighlight(flag);}
 	// public void clearGeosets()
-	// {
-	// m_geosets.clear();
-	// }
+	// { m_geosets.clear();}
 	// public int getGeosetsSize()
-	// {
-	// return m_geosets.size();
-	// }
+	// { return m_geosets.size()}
 	@Override
 	public void actionPerformed(final ActionEvent e) {
 		if (e.getSource() == up) {

@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 
-import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
@@ -15,6 +14,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
 import java.awt.*;
@@ -32,17 +32,19 @@ public class DrawVertexActivity implements ModelEditorViewportActivity {
 	private final Graphics2DToModelElementRendererAdapter graphics2dToModelElementRendererAdapter;
 	private final ActiveViewportWatcher activeViewportWatcher;
 
-	public DrawVertexActivity(final ProgramPreferences preferences, final UndoActionListener undoActionListener,
-							  final ModelEditor modelEditor, final ModelView modelView, final SelectionView selectionView,
-							  final ActiveViewportWatcher activeViewportWatcher) {
+	public DrawVertexActivity(final ProgramPreferences preferences,
+	                          final UndoActionListener undoActionListener,
+	                          final ModelEditor modelEditor,
+	                          final ModelView modelView,
+	                          final SelectionView selectionView,
+	                          final ActiveViewportWatcher activeViewportWatcher) {
 		this.preferences = preferences;
 		this.undoActionListener = undoActionListener;
 		this.modelEditor = modelEditor;
 		this.modelView = modelView;
 		this.selectionView = selectionView;
 		this.activeViewportWatcher = activeViewportWatcher;
-		graphics2dToModelElementRendererAdapter = new Graphics2DToModelElementRendererAdapter(
-				preferences.getVertexSize(), preferences);
+		graphics2dToModelElementRendererAdapter = new Graphics2DToModelElementRendererAdapter(preferences.getVertexSize(), preferences);
 	}
 
 	@Override
@@ -51,9 +53,7 @@ public class DrawVertexActivity implements ModelEditorViewportActivity {
 	}
 
 	@Override
-	public void modelChanged() {
-
-	}
+	public void modelChanged() { }
 
 	@Override
 	public void modelEditorChanged(final ModelEditor newModelEditor) {
@@ -61,9 +61,7 @@ public class DrawVertexActivity implements ModelEditorViewportActivity {
 	}
 
 	@Override
-	public void viewportChanged(final CursorManager cursorManager) {
-
-	}
+	public void viewportChanged(final CursorManager cursorManager) { }
 
 	@Override
 	public void mousePressed(final MouseEvent e, final CoordinateSystem coordinateSystem) {
@@ -73,8 +71,7 @@ public class DrawVertexActivity implements ModelEditorViewportActivity {
 		try {
 			final Viewport viewport = activeViewportWatcher.getViewport();
 			final Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
-			final UndoAction action = modelEditor.addVertex(locationCalculator.x, locationCalculator.y,
-					locationCalculator.z, facingVector);
+			final UndoAction action = modelEditor.addVertex(locationCalculator.x, locationCalculator.y, locationCalculator.z, facingVector);
 			undoActionListener.pushAction(action);
 		} catch (final WrongModeException exc) {
 			JOptionPane.showMessageDialog(null, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -82,9 +79,7 @@ public class DrawVertexActivity implements ModelEditorViewportActivity {
 	}
 
 	@Override
-	public void mouseReleased(final MouseEvent e, final CoordinateSystem coordinateSystem) {
-
-	}
+	public void mouseReleased(final MouseEvent e, final CoordinateSystem coordinateSystem) { }
 
 	@Override
 	public void mouseMoved(final MouseEvent e, final CoordinateSystem coordinateSystem) {
@@ -92,23 +87,18 @@ public class DrawVertexActivity implements ModelEditorViewportActivity {
 	}
 
 	@Override
-	public void mouseDragged(final MouseEvent e, final CoordinateSystem coordinateSystem) {
-
-	}
+	public void mouseDragged(final MouseEvent e, final CoordinateSystem coordinateSystem) { }
 
 	@Override
-	public void render(final Graphics2D g, final CoordinateSystem coordinateSystem, final RenderModel renderModel) {
-	}
+	public void render(final Graphics2D g, final CoordinateSystem coordinateSystem, final RenderModel renderModel) { }
 
 	@Override
 	public void renderStatic(final Graphics2D g, final CoordinateSystem coordinateSystem) {
-		selectionView.renderSelection(graphics2dToModelElementRendererAdapter.reset(g, coordinateSystem),
-				coordinateSystem, modelView, preferences);
+		selectionView.renderSelection(graphics2dToModelElementRendererAdapter.reset(g, coordinateSystem), coordinateSystem, modelView, preferences);
 		g.setColor(preferences.getVertexColor());
 		if (lastMousePoint != null) {
 			g.fillRect(lastMousePoint.x, lastMousePoint.y, 3, 3);
 		}
-
 	}
 
 	@Override

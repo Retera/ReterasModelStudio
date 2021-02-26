@@ -1,12 +1,12 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv;
 
-import java.awt.geom.Point2D.Double;
-
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.AbstractManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexEditor;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.awt.geom.Point2D.Double;
 
 public abstract class AbstractMoveTVertexManipulator extends AbstractManipulator {
 	protected final TVertexEditor modelEditor;
@@ -38,8 +38,7 @@ public abstract class AbstractMoveTVertexManipulator extends AbstractManipulator
 		return translationAction;
 	}
 
-	protected abstract void buildMoveVector(final Double mouseStart, final Double mouseEnd, final byte dim1,
-			final byte dim2);
+	protected abstract void buildMoveVector(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2);
 
 	private void resetMoveVector() {
 		moveVector.x = 0;

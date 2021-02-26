@@ -22,8 +22,7 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 		this.vertexSize = vertexSize;
 	}
 
-	public ResettableAnimatedIdObjectParentLinkRenderer reset(final CoordinateSystem coordinateSystem,
-			final Graphics2D graphics, final NodeIconPalette nodeIconPalette, final RenderModel renderModel) {
+	public ResettableAnimatedIdObjectParentLinkRenderer reset(final CoordinateSystem coordinateSystem, final Graphics2D graphics, final NodeIconPalette nodeIconPalette, final RenderModel renderModel) {
 		this.coordinateSystem = coordinateSystem;
 		this.graphics = graphics;
 		this.nodeIconPalette = nodeIconPalette;

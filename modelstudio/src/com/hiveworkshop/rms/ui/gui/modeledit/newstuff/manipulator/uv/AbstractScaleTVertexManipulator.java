@@ -1,7 +1,5 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv;
 
-import java.awt.geom.Point2D.Double;
-
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.AbstractManipulator;
@@ -9,6 +7,8 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.awt.geom.Point2D.Double;
 
 public abstract class AbstractScaleTVertexManipulator extends AbstractManipulator {
 	private final TVertexEditor modelEditor;
@@ -44,13 +44,11 @@ public abstract class AbstractScaleTVertexManipulator extends AbstractManipulato
 		return scaleAction;
 	}
 
-	protected abstract void scaleWithFactor(final TVertexEditor modelEditor, final Vec2 center,
-			final double scaleFactor, byte dim1, byte dim2);
+	protected abstract void scaleWithFactor(final TVertexEditor modelEditor, final Vec2 center, final double scaleFactor, byte dim1, byte dim2);
 
 	protected abstract Vec3 buildScaleVector(final double scaleFactor, byte dim1, byte dim2);
 
-	protected double computeScaleFactor(final Double startingClick, final Double endingClick, final Vec2 center,
-			final byte dim1, final byte dim2) {
+	protected double computeScaleFactor(final Double startingClick, final Double endingClick, final Vec2 center, final byte dim1, final byte dim2) {
 		double dxs = endingClick.x - center.getCoord(dim1);
 		double dys = endingClick.y - center.getCoord(dim2);
 		final double endDist = Math.sqrt((dxs * dxs) + (dys * dys));

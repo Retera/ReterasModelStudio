@@ -26,8 +26,8 @@ class OpenViewAction extends AbstractAction {
     public void actionPerformed(final ActionEvent e) {
         final View view = openViewGetter.getView();
         if ((view.getTopLevelAncestor() == null) || !view.getTopLevelAncestor().isVisible()) {
-            final FloatingWindow createFloatingWindow = rootWindow
-                    .createFloatingWindow(rootWindow.getLocation(), new Dimension(640, 480), view);
+            final FloatingWindow createFloatingWindow
+                    = rootWindow.createFloatingWindow(rootWindow.getLocation(), new Dimension(640, 480), view);
             createFloatingWindow.getTopLevelAncestor().setVisible(true);
         }
     }

@@ -122,14 +122,23 @@ public class MainLayoutCreator {
                         true);
             }
         } catch (final IOException e) {
-            e.printStackTrace();
+	        e.printStackTrace();
         }
-        return new MutableObjectData(MutableObjectData.WorldEditorDataType.UNITS, StandardObjectData.getStandardUnits(),
-                StandardObjectData.getStandardUnitMeta(), editorData);
+	    return new MutableObjectData(MutableObjectData.WorldEditorDataType.UNITS, StandardObjectData.getStandardUnits(),
+			    StandardObjectData.getStandardUnitMeta(), editorData);
     }
 
-    public static UnitEditorSettings getUnitEditorSettings() {
-        return new UnitEditorSettings();
-    }
+	public static UnitEditorSettings getUnitEditorSettings() {
+		return new UnitEditorSettings();
+	}
 
+
+////        TempBonePanel tempBonePanel = new TempBonePanel();
+////        final DockingWindow boneTab = new SplitWindow(true, 0.5f, tempBonePanel.getBoneView(), mainPanel.previewView);
+////        boneTab.getWindowProperties().setTitleProvider(arg0 -> "Bones");
+//
+//        editingTab.setDebugGraphicsOptions(JComponent.WHEN_FOCUSED);
+//        System.out.println("editingTab insets: " + editingTab.getInsets());
+//        System.out.println("leftView insets: " + mainPanel.leftView.getInsets());
+////        final TabWindow startupTabWindow = new TabWindow(new DockingWindow[]{boneTab, viewingTab, editingTab, modelTab});
 }

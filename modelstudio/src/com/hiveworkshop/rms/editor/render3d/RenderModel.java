@@ -26,26 +26,43 @@ public final class RenderModel {
 	private final Map<AnimatedNode, RenderNode> objectToRenderNode = new HashMap<>();
 	private final Map<ParticleEmitter2, RenderParticleEmitter2View> emitterToRenderer = new HashMap<>();
 	private final List<RenderParticleEmitter2> particleEmitters2 = new ArrayList<>();// TODO one per model, not instance
-	private final List<RenderParticleEmitter2View> particleEmitterViews2 = new ArrayList<>();// TODO one per model, not
-																								// instance
+	private final List<RenderParticleEmitter2View> particleEmitterViews2 = new ArrayList<>();
+	// TODO one per model, not instance
 	private final SoftwareParticleEmitterShader particleShader = new SoftwareParticleEmitterShader();
 
 	private final RenderNode rootPosition;
 
 	private boolean spawnParticles = true;
+	//	private boolean allowInanimateParticles = false;
 	private boolean allowInanimateParticles = false;
 
-	// These guys form the corners of a 2x2 rectangle, for use in Ghostwolf particle
-	// emitter algorithm
-	private final Vec4[] spacialVectors = { new Vec4(-1, 1, 0, 1), new Vec4(1, 1, 0, 1),
-			new Vec4(1, -1, 0, 1), new Vec4(-1, -1, 0, 1), new Vec4(1, 0, 0, 1), new Vec4(0, 1, 0, 1),
-			new Vec4(0, 0, 1, 1) };
-	private final Vec4[] billboardBaseVectors = { new Vec4(0, 1, -1, 1), new Vec4(0, -1, -1, 1),
-			new Vec4(0, -1, 1, 1), new Vec4(0, 1, 1, 1), new Vec4(0, 1, 0, 1), new Vec4(0, 0, 1, 1),
-			new Vec4(1, 0, 0, 1) };
-	private final Vec4[] billboardVectors = { new Vec4(0, 1, -1, 1), new Vec4(0, -1, -1, 1),
-			new Vec4(0, -1, 1, 1), new Vec4(0, 1, 1, 1), new Vec4(0, 1, 0, 1), new Vec4(0, 0, 1, 1),
-			new Vec4(1, 0, 0, 1) };
+	private long lastConsoleLogTime = 0;
+
+	// These guys form the corners of a 2x2 rectangle, for use in Ghostwolf particle emitter algorithm
+	private final Vec4[] spacialVectors = {
+			new Vec4(-1, 1, 0, 1),
+			new Vec4(1, 1, 0, 1),
+			new Vec4(1, -1, 0, 1),
+			new Vec4(-1, -1, 0, 1),
+			new Vec4(1, 0, 0, 1),
+			new Vec4(0, 1, 0, 1),
+			new Vec4(0, 0, 1, 1)};
+	private final Vec4[] billboardBaseVectors = {
+			new Vec4(0, 1, -1, 1),
+			new Vec4(0, -1, -1, 1),
+			new Vec4(0, -1, 1, 1),
+			new Vec4(0, 1, 1, 1),
+			new Vec4(0, 1, 0, 1),
+			new Vec4(0, 0, 1, 1),
+			new Vec4(1, 0, 0, 1)};
+	private final Vec4[] billboardVectors = {
+			new Vec4(0, 1, -1, 1),
+			new Vec4(0, -1, -1, 1),
+			new Vec4(0, -1, 1, 1),
+			new Vec4(0, 1, 1, 1),
+			new Vec4(0, 1, 0, 1),
+			new Vec4(0, 0, 1, 1),
+			new Vec4(1, 0, 0, 1)};
 	private final ModelView modelView;
 
 	public RenderModel(final EditableModel model, final ModelView modelView) {
@@ -117,8 +134,7 @@ public final class RenderModel {
 			}
 		}
 		for (final ParticleEmitter2 particleEmitter : model.sortedIdObjects(ParticleEmitter2.class)) {
-			particleEmitters2.add(new RenderParticleEmitter2(particleEmitter,
-					renderResourceAllocator.allocateTexture(particleEmitter.getTexture(), particleEmitter)));
+			particleEmitters2.add(new RenderParticleEmitter2(particleEmitter, renderResourceAllocator.allocateTexture(particleEmitter.getTexture(), particleEmitter)));
 		}
 		particleEmitters2.sort(Comparator.comparingInt(RenderParticleEmitter2::getPriorityPlane));
 		for (final RenderParticleEmitter2 particleEmitter : particleEmitters2) {
@@ -160,8 +176,8 @@ public final class RenderModel {
 			final RenderNode node = getRenderNode(idObject);
 			final AnimatedNode idObjectParent = idObject.getParent();
 			final RenderNode parent = idObjectParent == null ? null : getRenderNode(idObjectParent);
-			final boolean objectVisible = idObject
-					.getRenderVisibility(animatedRenderEnvironment) >= MAGIC_RENDER_SHOW_CONSTANT;
+			final boolean objectVisible = idObject.getRenderVisibility(animatedRenderEnvironment) >= MAGIC_RENDER_SHOW_CONSTANT;
+
 			final boolean nodeVisible = forced || (((parent == null) || parent.visible) && objectVisible);
 
 			node.visible = nodeVisible;
@@ -314,8 +330,7 @@ public final class RenderModel {
 			// not animating
 			if (allowInanimateParticles) {
 				for (final RenderParticleEmitter2View renderParticleEmitter2View : particleEmitterViews2) {
-					if ((modelView == null)
-							|| modelView.getEditableIdObjects().contains(renderParticleEmitter2View.getEmitter())) {
+					if ((modelView == null) || modelView.getEditableIdObjects().contains(renderParticleEmitter2View.getEmitter())) {
 						renderParticleEmitter2View.fill();
 					}
 					renderParticleEmitter2View.update();

@@ -196,7 +196,6 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 			case 1 -> "orc";
 			case 2 -> "undead";
 			case 3 -> "nightelf";
-			case 4 -> "neutrals";
 			case 5 -> "naga";
 			default -> "neutrals";
 		};
@@ -346,13 +345,9 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 
 			uberTip = newUberTip.toString();
 			String name = unit.getName();
-			// if( unit.getField("campaign").startsWith("1") &&
-			// Character.isUpperCase(unit.getUnitId().charAt(0)) ) {
+			// if( unit.getField("campaign").startsWith("1") && Character.isUpperCase(unit.getUnitId().charAt(0)) ) {
 			// name = unit.getField("Propernames");
-			// if( name.contains(",") ) {
-			// name = name.split(",")[0];
-			// }
-			// }
+			// if( name.contains(",") ) {name = name.split(",")[0]; }}
 			final String race = unit.getField("race");
 			boolean showLevel = true;
 			for (int i = 0; i < 6; i++) {
