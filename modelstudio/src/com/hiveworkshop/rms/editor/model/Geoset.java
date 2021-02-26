@@ -481,8 +481,7 @@ public class Geoset implements Named, VisibilitySource {
 							bone = null;
 						}
 					}
-					gv.getSkinBones()[j] = bone;
-					gv.getSkinBoneWeights()[j] = boneWeight;
+					gv.setSkinBone(bone, boneWeight, j);
 					gv.getTangent()[j] = tangents.get(i)[j];
 				}
 			}
@@ -551,7 +550,7 @@ public class Geoset implements Named, VisibilitySource {
 				matrix.add(newTemp);
 				newTemp.updateIds(mdlr);
 			}
-			vertex.VertexGroup = matrix.indexOf(newTemp);
+			vertex.vertexGroup = matrix.indexOf(newTemp);
 			vertex.setMatrix(newTemp);
 		}
 	}
@@ -611,7 +610,7 @@ public class Geoset implements Named, VisibilitySource {
 						geosetVertex.getSkinBoneIndexes()[skinIndex++] = (byte) index;
 					}
 				}
-				geosetVertex.VertexGroup = -1;
+				geosetVertex.vertexGroup = -1;
 			} else {
 				Matrix newTemp = new Matrix(geosetVertex.bones);
 				boolean newMatrix = true;
@@ -625,7 +624,7 @@ public class Geoset implements Named, VisibilitySource {
 					matrix.add(newTemp);
 					newTemp.updateIds(mdlr);
 				}
-				geosetVertex.VertexGroup = matrix.indexOf(newTemp);
+				geosetVertex.vertexGroup = matrix.indexOf(newTemp);
 				geosetVertex.setMatrix(newTemp);
 			}
 		}

@@ -75,8 +75,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                     vertexToOldSkinBoneReferences.put(gv, gv.getSkinBones().clone());
                     vertexToOldSkinBoneWeightReferences.put(gv, gv.getSkinBoneWeights().clone());
                     for(int i= 0 ; i < bones.length; i++) {
-                        gv.getSkinBones()[i] = bones[i];
-                        gv.getSkinBoneWeights()[i] = skinWeights[i];
+                        gv.setSkinBone(bones[i], skinWeights[i], i);
                     }
                 } else {
                     throw new IllegalStateException("Attempted to manipulate HD Skinning while SD mesh is selected!");

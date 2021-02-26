@@ -2177,10 +2177,10 @@ public class EditableModel implements Named {
 				final short weight = (short) (255 / bones);
 				final short offsetWeight = (short) (255 - (weight * bones));
 				for (int i = 0; (i < bones) && (i < 4); i++) {
-					gv.getSkinBones()[i] = gv.getBoneAttachments().get(i);
-					gv.getSkinBoneWeights()[i] = weight;
 					if (i == 0) {
-						gv.getSkinBoneWeights()[i] += offsetWeight;
+						gv.setSkinBone(gv.getBoneAttachments().get(i), (short) (weight + offsetWeight), i);
+					} else {
+						gv.setSkinBone(gv.getBoneAttachments().get(i), weight, i);
 					}
 				}
 			}
