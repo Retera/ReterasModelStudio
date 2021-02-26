@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.*;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxAnimatedObject;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
@@ -13,26 +13,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class TimelineContainer implements VisibilitySource {
-	public Map<String, AnimFlag> animFlags = new HashMap<>();
+	public Map<String, AnimFlag<?>> animFlags = new HashMap<>();
 
 	public void loadTimelines(final MdlxAnimatedObject object) {
 		for (final MdlxTimeline<?> timeline : object.timelines) {
-			add(new AnimFlag(timeline));
+			add(AnimFlag.createFromTimeline(timeline));
 		}
 	}
 
 	public void timelinesToMdlx(final MdlxAnimatedObject object) {
-		for (final AnimFlag timeline : animFlags.values()) {
+		for (final AnimFlag<?> timeline : animFlags.values()) {
 			object.timelines.add(timeline.toMdlx(this));
 		}
 	}
 
-	public void add(final AnimFlag timeline) {
+	public void add(final AnimFlag<?> timeline) {
 		animFlags.put(timeline.getName(), timeline);
 	}
 
-	public void addAll(final Collection<AnimFlag> timelines) {
-		for (final AnimFlag timeline : timelines) {
+	public void addAll(final Collection<AnimFlag<?>> timelines) {
+		for (final AnimFlag<?> timeline : timelines) {
 			add(timeline);
 		}
 	}
@@ -41,36 +41,36 @@ public abstract class TimelineContainer implements VisibilitySource {
 		return animFlags.containsKey(name);
 	}
 
-	public void remove(final AnimFlag timeline) {
+	public void remove(final AnimFlag<?> timeline) {
 		animFlags.remove(timeline.getName());
 	}
 
 	public void remove(final String name) {
-		final AnimFlag timeline = animFlags.get(name);
+		final AnimFlag<?> timeline = animFlags.get(name);
 
 		if (timeline != null) {
 			animFlags.remove(name);
 		}
 	}
 
-	public Collection<AnimFlag> getAnimFlags() {
+	public Collection<AnimFlag<?>> getAnimFlags() {
 		return animFlags.values();
 	}
 
-	public void setAnimFlags(final Collection<AnimFlag> timelines) {
+	public void setAnimFlags(final Collection<AnimFlag<?>> timelines) {
 		animFlags.clear();
 
-		for (final AnimFlag timeline : timelines) {
+		for (final AnimFlag<?> timeline : timelines) {
 			add(timeline);
 		}
 	}
 
-	public AnimFlag find(final String name) {
+	public AnimFlag<?> find(final String name) {
 		return animFlags.get(name);
 	}
 
-	public AnimFlag find(final String name, final Integer globalSeq) {
-		final AnimFlag timeline = animFlags.get(name);
+	public AnimFlag<?> find(final String name, final Integer globalSeq) {
+		final AnimFlag<?> timeline = animFlags.get(name);
 
 		if (timeline != null && (((globalSeq == null) && (timeline.getGlobalSeq() == null))
 				|| ((globalSeq != null) && globalSeq.equals(timeline.getGlobalSeq())))) {
@@ -81,7 +81,7 @@ public abstract class TimelineContainer implements VisibilitySource {
 	}
 
 	public void removeAllTimelinesForGlobalSeq(final Integer selectedValue) {
-		for (final AnimFlag timeline : animFlags.values()) {
+		for (final AnimFlag<?> timeline : animFlags.values()) {
 			if (selectedValue.equals(timeline.getGlobalSeq())) {
 				remove(timeline);
 			}
@@ -89,71 +89,71 @@ public abstract class TimelineContainer implements VisibilitySource {
 	}
 
 	public int getInterpolatedInteger(final AnimatedRenderEnvironment animatedRenderEnvironment, final String tag, final int defaultValue) {
-		final AnimFlag timeline = find(tag);
+		final IntAnimFlag timeline = (IntAnimFlag) find(tag);
 
 		if (timeline != null) {
-			return (Integer) timeline.interpolateAt(animatedRenderEnvironment);
+			return timeline.interpolateAt(animatedRenderEnvironment);
 		}
-		
+
 		return defaultValue;
 	}
 
 	public float getInterpolatedFloat(final AnimatedRenderEnvironment animatedRenderEnvironment, final String tag, final float defaultValue) {
-		final AnimFlag timeline = find(tag);
+		final FloatAnimFlag timeline = (FloatAnimFlag) find(tag);
 
 		if (timeline != null) {
-			return (Float) timeline.interpolateAt(animatedRenderEnvironment);
+			return timeline.interpolateAt(animatedRenderEnvironment);
 		}
-		
+
 		return defaultValue;
 	}
 
 	public Vec3 getInterpolatedVector(final AnimatedRenderEnvironment animatedRenderEnvironment, final String tag, final Vec3 defaultValue) {
-		final AnimFlag timeline = find(tag);
+		final Vec3AnimFlag timeline = (Vec3AnimFlag) find(tag);
 
 		if (timeline != null) {
-			return (Vec3)timeline.interpolateAt(animatedRenderEnvironment);
+			return timeline.interpolateAt(animatedRenderEnvironment);
 		}
-		
+
 		return defaultValue;
 	}
 
 	public Quat getInterpolatedQuat(final AnimatedRenderEnvironment animatedRenderEnvironment, final String tag, final Quat defaultValue) {
-		final AnimFlag timeline = find(tag);
+		final QuatAnimFlag timeline = (QuatAnimFlag) find(tag);
 
 		if (timeline != null) {
-			return (Quat)timeline.interpolateAt(animatedRenderEnvironment);
+			return timeline.interpolateAt(animatedRenderEnvironment);
 		}
-		
+
 		return defaultValue;
 	}
 
 	public void flipOver(final byte axis) {
-		for (final AnimFlag timeline : animFlags.values()) {
+		for (final AnimFlag<?> timeline : animFlags.values()) {
 			timeline.flipOver(axis);
 		}
 	}
 
+	@Override
+	public AnimFlag<?> getVisibilityFlag() {
+		AnimFlag<?> timeline = find(MdlUtils.TOKEN_VISIBILITY);
+
+		if (timeline == null) {
+			timeline = find(MdlUtils.TOKEN_ALPHA);
+		}
+
+		return timeline;
+	}
+
 	// VisibilitySource methods
 	@Override
-	public void setVisibilityFlag(final AnimFlag flag) {
+	public void setVisibilityFlag(final AnimFlag<?> flag) {
 		remove(MdlUtils.TOKEN_VISIBILITY);
 		remove(MdlUtils.TOKEN_ALPHA);
 
 		if (flag != null) {
 			add(flag);
 		}
-	}
-
-	@Override
-	public AnimFlag getVisibilityFlag() {
-		AnimFlag timeline = find(MdlUtils.TOKEN_VISIBILITY);
-		
-		if (timeline == null) {
-			timeline = find(MdlUtils.TOKEN_ALPHA);
-		}
-
-		return timeline;
 	}
 
 	public float getRenderVisibility(final AnimatedRenderEnvironment animatedRenderEnvironment) {

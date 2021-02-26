@@ -160,22 +160,22 @@ class ModelStructureChangeListenerImplementation implements ModelStructureChange
     }
 
     @Override
-    public void timelineAdded(final TimelineContainer node, final AnimFlag timeline) {
+    public void timelineAdded(final TimelineContainer node, final AnimFlag<?> timeline) {
 
     }
 
     @Override
-    public void keyframeAdded(final TimelineContainer node, final AnimFlag timeline, final int trackTime) {
+    public void keyframeAdded(final TimelineContainer node, final AnimFlag<?> timeline, final int trackTime) {
         mainPanel.timeSliderPanel.revalidateKeyframeDisplay();
     }
 
     @Override
-    public void timelineRemoved(final TimelineContainer node, final AnimFlag timeline) {
+    public void timelineRemoved(final TimelineContainer node, final AnimFlag<?> timeline) {
 
     }
 
     @Override
-    public void keyframeRemoved(final TimelineContainer node, final AnimFlag timeline, final int trackTime) {
+    public void keyframeRemoved(final TimelineContainer node, final AnimFlag<?> timeline, final int trackTime) {
         mainPanel.timeSliderPanel.revalidateKeyframeDisplay();
     }
 

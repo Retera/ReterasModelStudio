@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
@@ -214,8 +215,8 @@ public class Layer extends TimelineContainer implements Named {
 		noDepthSet = other.noDepthSet;
 		unlit = other.unlit;
 
-		for (AnimFlag animFlag : other.getAnimFlags()) {
-			add(new AnimFlag(animFlag));
+		for (AnimFlag<?> animFlag : other.getAnimFlags()) {
+			add(AnimFlag.createFromAnimFlag(animFlag));
 		}
 
 		textures = new ArrayList<>();
@@ -334,7 +335,7 @@ public class Layer extends TimelineContainer implements Named {
 
 	public Bitmap getRenderTexture(final AnimatedRenderEnvironment animatedRenderEnvironment,
 			final EditableModel model) {
-		final AnimFlag textureFlag = find(MdlUtils.TOKEN_TEXTURE_ID);
+		final IntAnimFlag textureFlag = (IntAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
 		if ((textureFlag != null) && (animatedRenderEnvironment != null)) {
 			if (animatedRenderEnvironment.getCurrentAnimation() == null) {
 				if (textures.size() > 0) {
@@ -343,7 +344,7 @@ public class Layer extends TimelineContainer implements Named {
 					return texture;
 				}
 			}
-			final Integer textureIdAtTime = (Integer) textureFlag.interpolateAt(animatedRenderEnvironment);
+			final Integer textureIdAtTime = textureFlag.interpolateAt(animatedRenderEnvironment);
 			if (textureIdAtTime >= model.getTextures().size()) {
 				return texture;
 			}
@@ -372,9 +373,9 @@ public class Layer extends TimelineContainer implements Named {
 
 	public void buildTextureList(final EditableModel mdlr) {
 		textures = new ArrayList<>();
-		final AnimFlag txFlag = find(MdlUtils.TOKEN_TEXTURE_ID);
-		for (int i = 0; i < txFlag.getValues().size(); i++) {
-			final int txId = (Integer) txFlag.getValues().get(i);
+		final IntAnimFlag txFlag = (IntAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
+		for (int i = 0; i < txFlag.values.size(); i++) {
+			final int txId = txFlag.values.get(i);
 			final Bitmap texture2 = mdlr.getTexture(txId);
 			textures.add(texture2);
 			ridiculouslyWrongTextureIDToTexture.put(txId, texture2);
@@ -385,12 +386,12 @@ public class Layer extends TimelineContainer implements Named {
 		textureId = mdlr.getTextureId(texture);
 		TVertexAnimId = mdlr.getTextureAnimId(textureAnim);
 		if (textures != null) {
-			final AnimFlag txFlag = find(MdlUtils.TOKEN_TEXTURE_ID);
-			for (int i = 0; i < txFlag.getValues().size(); i++) {
+			final IntAnimFlag txFlag = (IntAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
+			for (int i = 0; i < txFlag.values.size(); i++) {
 				final Bitmap textureFoundFromDirtyId = ridiculouslyWrongTextureIDToTexture
-						.get(txFlag.getValues().get(i));
+						.get(txFlag.values.get(i));
 				final int newerTextureId = mdlr.getTextureId(textureFoundFromDirtyId);
-				txFlag.getValues().set(i, newerTextureId);
+				txFlag.values.set(i, newerTextureId);
 				ridiculouslyWrongTextureIDToTexture.put(newerTextureId, textureFoundFromDirtyId);
 			}
 		}
@@ -403,7 +404,7 @@ public class Layer extends TimelineContainer implements Named {
 		if ((TVertexAnimId >= 0) && (TVertexAnimId < mdlr.texAnims.size())) {
 			textureAnim = mdlr.texAnims.get(TVertexAnimId);
 		}
-		final AnimFlag txFlag = find(MdlUtils.TOKEN_TEXTURE_ID);
+		final IntAnimFlag txFlag = (IntAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
 		if (txFlag != null) {
 			buildTextureList(mdlr);
 		}

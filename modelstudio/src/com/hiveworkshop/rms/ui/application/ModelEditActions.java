@@ -140,8 +140,8 @@ public class ModelEditActions {
                         "\n\nContinue and simplify animations?",
                 "Warning: Linearize Animations", JOptionPane.OK_CANCEL_OPTION);
         if (x == JOptionPane.OK_OPTION) {
-            final List<AnimFlag> allAnimFlags = mainPanel.currentMDL().getAllAnimFlags();
-            for (final AnimFlag flag : allAnimFlags) {
+            final List<AnimFlag<?>> allAnimFlags = mainPanel.currentMDL().getAllAnimFlags();
+            for (final AnimFlag<?> flag : allAnimFlags) {
                 flag.linearize();
             }
         }

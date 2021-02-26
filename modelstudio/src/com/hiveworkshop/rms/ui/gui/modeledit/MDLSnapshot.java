@@ -316,18 +316,14 @@ public class MDLSnapshot {
 			Animation bestStandAnim = null;
 			for (final Animation anim : model.getAnims()) {
 				if (anim.getName().toLowerCase().contains("stand")) {
-					final String animProps = unit.getField("Animprops");// should
-																		// not
-																		// be
-																		// case
-																		// sensitive!
+					final String animProps = unit.getField("Animprops");// should not be case sensitive!
 					final String[] animationNames = animProps.split(",");
 					boolean isGoodAnimation = true;
 					for (final String name : animationNames) {
-                        if (!anim.getName().toLowerCase().contains(name.toLowerCase())) {
-                            isGoodAnimation = false;
-                            break;
-                        }
+						if (!anim.getName().toLowerCase().contains(name.toLowerCase())) {
+							isGoodAnimation = false;
+							break;
+						}
 					}
 					if (isGoodAnimation && ((bestStandAnim == null)
 							|| (anim.getName().length() < bestStandAnim.getName().length()))) {
@@ -337,10 +333,10 @@ public class MDLSnapshot {
 			}
 			if (bestStandAnim != null) {
 				for (final Geoset geo : model.getGeosets()) {
-					final AnimFlag visibilityFlag = geo.getVisibilityFlag();
+					final AnimFlag<?> visibilityFlag = geo.getVisibilityFlag();
 					if (visibilityFlag != null) {
 						for (int i = 0; i < visibilityFlag.size(); i++) {
-							final Entry entry = visibilityFlag.getEntry(i);
+							final Entry<?> entry = visibilityFlag.getEntry(i);
 							if ((entry.time == bestStandAnim.getStart()) && (((Number) entry.value).intValue() == 0)) {
 								mdlDisplay.makeGeosetNotEditable(geo);
 								mdlDisplay.makeGeosetNotVisible(geo);
@@ -999,12 +995,7 @@ public class MDLSnapshot {
 		final int[] pixels = new int[image.getWidth() * image.getHeight()];
 		image.getRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());
 
-		final ByteBuffer buffer = BufferUtils.createByteBuffer(image.getWidth() * image.getHeight() * BYTES_PER_PIXEL); // 4
-																														// for
-																														// RGBA,
-																														// 3
-																														// for
-																														// RGB
+		final ByteBuffer buffer = BufferUtils.createByteBuffer(image.getWidth() * image.getHeight() * BYTES_PER_PIXEL); // 4 for RGBA, 3 for RGB
 
 		for (int y = 0; y < image.getHeight(); y++) {
 			for (int x = 0; x < image.getWidth(); x++) {
@@ -1013,7 +1004,7 @@ public class MDLSnapshot {
 				buffer.put((byte) ((pixel >> 8) & 0xFF)); // Green component
 				buffer.put((byte) (pixel & 0xFF)); // Blue component
 				buffer.put((byte) ((pixel >> 24) & 0xFF)); // Alpha component.
-															// Only for RGBA
+				// Only for RGBA
 			}
 		}
 

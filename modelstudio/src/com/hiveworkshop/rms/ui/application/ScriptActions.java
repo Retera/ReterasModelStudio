@@ -239,7 +239,7 @@ public class ScriptActions {
         }
         snapshotModel.getAnims().clear();
         snapshotModel.add(new Animation("Stand", 333, 1333));
-        final List<AnimFlag> allAnimFlags = snapshotModel.getAllAnimFlags();
+        final List<AnimFlag<?>> allAnimFlags = snapshotModel.getAllAnimFlags();
         for (final AnimFlag flag : allAnimFlags) {
             if (!flag.hasGlobalSeq()) {
                 if (flag.size() > 0) {

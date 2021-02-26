@@ -18,10 +18,8 @@ import jassimp.AiMesh;
 import jassimp.AiScene;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.File;
 import java.nio.ByteBuffer;
-import java.util.List;
 import java.util.*;
 
 /**
@@ -670,7 +668,7 @@ public class EditableModel implements Named {
 			for (final IdObject emitter : emitters) {
 				int talliesFor = 0;
 				int talliesAgainst = 0;
-				final AnimFlag visibility = ((VisibilitySource) emitter).getVisibilityFlag();
+				final AnimFlag<?> visibility = ((VisibilitySource) emitter).getVisibilityFlag();
 				for (final Animation anim : anims) {
 					final Integer animStartTime = anim.getStart();
 					final Number visible = (Number) visibility.valueAt(animStartTime);
@@ -685,7 +683,7 @@ public class EditableModel implements Named {
 				}
 			}
 		}
-		final List<AnimFlag> flags = getAllAnimFlags();
+		final List<AnimFlag<?>> flags = getAllAnimFlags();
 		final List<EventObject> evts = sortedIdObjects(EventObject.class);
 		for (final Animation anim : anims) {
 			anim.clearData(flags, evts);
@@ -714,10 +712,10 @@ public class EditableModel implements Named {
 		// a copy instead
 		other = EditableModel.deepClone(other, "animation source file");
 
-		final List<AnimFlag> flags = getAllAnimFlags();
+		final List<AnimFlag<?>> flags = getAllAnimFlags();
 		final List<EventObject> eventObjs = sortedIdObjects(EventObject.class);
 
-		final List<AnimFlag> othersFlags = other.getAllAnimFlags();
+		final List<AnimFlag<?>> othersFlags = other.getAllAnimFlags();
 		final List<EventObject> othersEventObjs = other.sortedIdObjects(EventObject.class);
 
 		// ------ Duplicate the time track in the other model -------------
@@ -726,12 +724,12 @@ public class EditableModel implements Named {
 		// the information specific to each node about how it will
 		// move if it gets translated into or onto the current model
 
-		final List<AnimFlag> newImpFlags = new ArrayList<>();
-		for (final AnimFlag af : othersFlags) {
+		final List<AnimFlag<?>> newImpFlags = new ArrayList<>();
+		for (final AnimFlag<?> af : othersFlags) {
 			if (!af.hasGlobalSeq()) {
 				newImpFlags.add(AnimFlag.buildEmptyFrom(af));
 			} else {
-				newImpFlags.add(new AnimFlag(af));
+				newImpFlags.add(AnimFlag.createFromAnimFlag(af));
 			}
 		}
 		final List<EventObject> newImpEventObjs = new ArrayList<>();
@@ -754,7 +752,7 @@ public class EditableModel implements Named {
 		}
 
 		// destroy the other model's animations, filling them in with the new stuff
-		for (final AnimFlag af : othersFlags) {
+		for (final AnimFlag<?> af : othersFlags) {
 			af.setValuesTo(newImpFlags.get(othersFlags.indexOf(af)));
 		}
 		for (final Object e : othersEventObjs) {
@@ -793,10 +791,10 @@ public class EditableModel implements Named {
 		// a copy instead
 		other = EditableModel.deepClone(other, "animation source file");
 
-		final List<AnimFlag> flags = getAllAnimFlags();
+		final List<AnimFlag<?>> flags = getAllAnimFlags();
 		final List<EventObject> eventObjs = sortedIdObjects(EventObject.class);
 
-		final List<AnimFlag> othersFlags = other.getAllAnimFlags();
+		final List<AnimFlag<?>> othersFlags = other.getAllAnimFlags();
 		final List<EventObject> othersEventObjs = other.sortedIdObjects(EventObject.class);
 
 		final List<Animation> newAnimations = new ArrayList<>();
@@ -807,12 +805,12 @@ public class EditableModel implements Named {
 		// the information specific to each node about how it will
 		// move if it gets translated into or onto the current model
 
-		final List<AnimFlag> newImpFlags = new ArrayList<>();
-		for (final AnimFlag af : othersFlags) {
+		final List<AnimFlag<?>> newImpFlags = new ArrayList<>();
+		for (final AnimFlag<?> af : othersFlags) {
 			if (!af.hasGlobalSeq()) {
 				newImpFlags.add(AnimFlag.buildEmptyFrom(af));
 			} else {
-				newImpFlags.add(new AnimFlag(af));
+				newImpFlags.add(AnimFlag.createFromAnimFlag(af));
 			}
 		}
 		final List<EventObject> newImpEventObjs = new ArrayList<>();
@@ -827,9 +825,7 @@ public class EditableModel implements Named {
 			final int animTrackEnd = animTrackEnd();
 			final int newStart = animTrackEnd + 300;
 			final int newEnd = newStart + anim.length();
-			final Animation newAnim = new Animation(anim); // clone the
-															// animation from
-															// the other model
+			final Animation newAnim = new Animation(anim); // clone the animation from the other model
 			newAnim.copyToInterval(newStart, newEnd, othersFlags, othersEventObjs, newImpFlags, newImpEventObjs);
 			newAnim.setInterval(newStart, newEnd);
 			add(newAnim); // add the new animation to this model
@@ -838,7 +834,7 @@ public class EditableModel implements Named {
 
 		// destroy the other model's animations, filling them in with the new
 		// stuff
-		for (final AnimFlag af : othersFlags) {
+		for (final AnimFlag<?> af : othersFlags) {
 			af.setValuesTo(newImpFlags.get(othersFlags.indexOf(af)));
 		}
 		for (final Object e : othersEventObjs) {
@@ -847,10 +843,7 @@ public class EditableModel implements Named {
 
 		// Now, map the bones in the other model onto the bones in the current
 		// model
-		final List<Bone> leftBehind = new ArrayList<>(); // the bones that
-															// don't find
-															// matches in
-															// current model
+		final List<Bone> leftBehind = new ArrayList<>(); // the bones that don't find matches in current model
 		for (final IdObject object : other.idObjects) {
 			if (object instanceof Bone) {
 				// the bone from the other model
@@ -878,8 +871,8 @@ public class EditableModel implements Named {
 	public void copyVisibility(final Animation visibilitySource, final Animation target) {
 		final List<VisibilitySource> allVisibilitySources = getAllVisibilitySources();
 		for (final VisibilitySource source : allVisibilitySources) {
-			final AnimFlag visibilityFlag = source.getVisibilityFlag();
-			final AnimFlag copyFlag = new AnimFlag(visibilityFlag);
+			final AnimFlag<?> visibilityFlag = source.getVisibilityFlag();
+			final AnimFlag<?> copyFlag = AnimFlag.createFromAnimFlag(visibilityFlag);
 			visibilityFlag.deleteAnim(target);
 			visibilityFlag.copyFrom(copyFlag, visibilitySource.getStart(), visibilitySource.getEnd(), target.getStart(),
 					target.getEnd());
@@ -919,8 +912,8 @@ public class EditableModel implements Named {
 		for (final ParticleEmitter2 temp : sortedIdObjects(ParticleEmitter2.class)) {
 			temp.updateTextureRef(textures);
 		}
-		final List<AnimFlag> animFlags = getAllAnimFlags();// laggggg!
-		for (final AnimFlag af : animFlags) {
+		final List<AnimFlag<?>> animFlags = getAllAnimFlags();// laggggg!
+		for (final AnimFlag<?> af : animFlags) {
 			af.updateGlobalSeqRef(this);
 			if (!af.getName().equals("Scaling") && !af.getName().equals("Translation")
 					&& !af.getName().equals("Rotation")) {
@@ -1041,7 +1034,7 @@ public class EditableModel implements Named {
 						textures.add(lay.texture);
 					}
 				} else {
-					final AnimFlag af = lay.find("TextureID");
+					final AnimFlag<?> af = lay.find("TextureID");
 					if (af != null) {
 						for (final Bitmap temp : lay.textures) {
 							boolean good = true;
@@ -1081,9 +1074,9 @@ public class EditableModel implements Named {
 
 	public void rebuildGlobalSeqList() {
 		globalSeqs.clear();
-		final List<AnimFlag> animFlags = getAllAnimFlags();// laggggg!
+		final List<AnimFlag<?>> animFlags = getAllAnimFlags();// laggggg!
 		final List<EventObject> evtObjs = sortedIdObjects(EventObject.class);
-		for (final AnimFlag af : animFlags) {
+		for (final AnimFlag<?> af : animFlags) {
 			if (!globalSeqs.contains(af.getGlobalSeq()) && (af.getGlobalSeq() != null)) {
 				globalSeqs.add(af.getGlobalSeq());
 			}
@@ -1159,14 +1152,14 @@ public class EditableModel implements Named {
 		// Delete empty rotation/translation/scaling
 		bindPose = null;
 		for (final IdObject obj : idObjects) {
-			final Collection<AnimFlag> animFlags = obj.getAnimFlags();
-			final List<AnimFlag> bad = new ArrayList<>();
-			for (final AnimFlag flag : animFlags) {
+			final Collection<AnimFlag<?>> animFlags = obj.getAnimFlags();
+			final List<AnimFlag<?>> bad = new ArrayList<>();
+			for (final AnimFlag<?> flag : animFlags) {
 				if (flag.size() <= 0) {
 					bad.add(flag);
 				}
 			}
-			for (final AnimFlag badFlag : bad) {
+			for (final AnimFlag<?> badFlag : bad) {
 				System.err.println("Gleaning out " + badFlag.getName() + " chunk with size of 0");
 				animFlags.remove(badFlag);
 			}
@@ -1240,9 +1233,9 @@ public class EditableModel implements Named {
 		return objects;
 	}
 
-	public List<AnimFlag> getAllAnimFlags() {
+	public List<AnimFlag<?>> getAllAnimFlags() {
 		// Probably will cause a bunch of lag, be wary
-		final List<AnimFlag> allFlags = Collections.synchronizedList(new ArrayList<>());
+		final List<AnimFlag<?>> allFlags = Collections.synchronizedList(new ArrayList<>());
 		for (final Material m : materials) {
 			for (final Layer lay : m.layers) {
 				allFlags.addAll(lay.animFlags.values());
@@ -1281,11 +1274,11 @@ public class EditableModel implements Named {
 		return allFlags;
 	}
 
-	public Object getAnimFlagSource(final AnimFlag aflg) {
+	public Object getAnimFlagSource(final AnimFlag<?> aflg) {
 		// Probably will cause a bunch of lag, be wary
 		for (final Material m : materials) {
 			for (final Layer lay : m.layers) {
-				final AnimFlag timeline = lay.find(aflg.getName());
+				final AnimFlag<?> timeline = lay.find(aflg.getName());
 				if (timeline != null) {
 					return lay;
 				}
@@ -1293,7 +1286,7 @@ public class EditableModel implements Named {
 		}
 		if (texAnims != null) {
 			for (final TextureAnim texa : texAnims) {
-				final AnimFlag timeline = texa.find(aflg.getName());
+				final AnimFlag<?> timeline = texa.find(aflg.getName());
 				if (timeline != null) {
 					return texa;
 				}
@@ -1301,7 +1294,7 @@ public class EditableModel implements Named {
 		}
 		if (geosetAnims != null) {
 			for (final GeosetAnim ga : geosetAnims) {
-				final AnimFlag timeline = ga.find(aflg.getName());
+				final AnimFlag<?> timeline = ga.find(aflg.getName());
 				if (timeline != null) {
 					return ga;
 				}
@@ -1309,7 +1302,7 @@ public class EditableModel implements Named {
 		}
 
 		for (final IdObject object : idObjects) {
-			final AnimFlag timeline = object.find(aflg.getName());
+			final AnimFlag<?> timeline = object.find(aflg.getName());
 			if (timeline != null) {
 				return object;
 			}
@@ -1317,7 +1310,7 @@ public class EditableModel implements Named {
 
 		if (cameras != null) {
 			for (final Camera x : cameras) {
-				AnimFlag timeline = x.getSourceNode().find(aflg.getName());
+				AnimFlag<?> timeline = x.getSourceNode().find(aflg.getName());
 				if (timeline != null) {
 					return x;
 				}
@@ -1332,7 +1325,7 @@ public class EditableModel implements Named {
 		return null;
 	}
 
-	public void addFlagToParent(final AnimFlag aflg, final AnimFlag added)
+	public void addFlagToParent(final AnimFlag<?> aflg, final AnimFlag<?> added)
 	// aflg is the parent
 	{
 		// ADDS "added" TO THE PARENT OF "aflg"
@@ -1365,7 +1358,7 @@ public class EditableModel implements Named {
 				object.add(added);
 			}
 		}
-	
+
 		if (cameras != null) {
 			for (final Camera x : cameras) {
 				if (x.getSourceNode().has(aflg.getName()) || x.targetAnimFlags.contains(aflg)) {
@@ -1375,11 +1368,11 @@ public class EditableModel implements Named {
 		}
 	}
 
-	public void buildGlobSeqFrom(final Animation anim, final List<AnimFlag> flags) {
+	public void buildGlobSeqFrom(final Animation anim, final List<AnimFlag<?>> flags) {
 		final Integer newSeq = anim.length();
-		for (final AnimFlag af : flags) {
+		for (final AnimFlag<?> af : flags) {
 			if (!af.hasGlobalSeq()) {
-				final AnimFlag copy = new AnimFlag(af);
+				final AnimFlag<?> copy = AnimFlag.createFromAnimFlag(af);
 				copy.setGlobSeq(newSeq);
 				copy.copyFrom(af, anim.getStart(), anim.getEnd(), 0, anim.length());
 				addFlagToParent(af, copy);
@@ -1494,9 +1487,9 @@ public class EditableModel implements Named {
 	}
 
 	public List<VisibilitySource> getAllVisibilitySources() {
-		final List<AnimFlag> animFlags = getAllAnimFlags();// laggggg!
+		final List<AnimFlag<?>> animFlags = getAllAnimFlags();// laggggg!
 		final List<VisibilitySource> out = new ArrayList<>();
-		for (final AnimFlag af : animFlags) {
+		for (final AnimFlag<?> af : animFlags) {
 			if (af.getName().equals("Visibility") || af.getName().equals("Alpha")) {
 				out.add((VisibilitySource) getAnimFlagSource(af));
 			}
@@ -1864,91 +1857,6 @@ public class EditableModel implements Named {
 		}
 	}
 
-	public static void recalculateTangents(final EditableModel currentMDL, final Component parent) {
-		// copied from
-		// https://github.com/TaylorMouse/MaxScripts/blob/master/Warcraft%203%20Reforged/GriffonStudios/GriffonStudios_Warcraft_3_Reforged_Export.ms#L169
-		currentMDL.doSavePreps(); // I wanted to use VertexId on the triangle
-		for (final Geoset theMesh : currentMDL.getGeosets()) {
-			final double[][] tan1 = new double[theMesh.getVertices().size()][];
-			final double[][] tan2 = new double[theMesh.getVertices().size()][];
-			for (int nFace = 0; nFace < theMesh.getTriangles().size(); nFace++) {
-				final Triangle face = theMesh.getTriangle(nFace);
-
-				final GeosetVertex v1 = face.getVerts()[0];
-				final GeosetVertex v2 = face.getVerts()[1];
-				final GeosetVertex v3 = face.getVerts()[2];
-
-				final Vec2 w1 = v1.getTVertex(0);
-				final Vec2 w2 = v2.getTVertex(0);
-				final Vec2 w3 = v3.getTVertex(0);
-
-				final double x1 = v2.x - v1.x;
-				final double x2 = v3.x - v1.x;
-				final double y1 = v2.y - v1.y;
-				final double y2 = v3.y - v1.y;
-				final double z1 = v2.z - v1.z;
-				final double z2 = v3.z - v1.z;
-
-				final double s1 = w2.x - w1.x;
-				final double s2 = w3.x - w1.x;
-				final double t1 = w2.y - w1.y;
-				final double t2 = w3.y - w1.y;
-
-				final double r = 1.0 / ((s1 * t2) - (s2 * t1));
-
-				final double[] sdir = {((t2 * x1) - (t1 * x2)) * r, ((t2 * y1) - (t1 * y2)) * r, ((t2 * z1) - (t1 * z2)) * r};
-				final double[] tdir = {((s1 * x2) - (s2 * x1)) * r, ((s1 * y2) - (s2 * y1)) * r, ((s1 * z2) - (s2 * z1)) * r};
-
-				tan1[face.getId(0)] = sdir;
-				tan1[face.getId(1)] = sdir;
-				tan1[face.getId(2)] = sdir;
-
-				tan2[face.getId(0)] = tdir;
-				tan2[face.getId(1)] = tdir;
-				tan2[face.getId(2)] = tdir;
-			}
-			for (int vertexId = 0; vertexId < theMesh.getVertices().size(); vertexId++) {
-				final GeosetVertex gv = theMesh.getVertex(vertexId);
-				final Vec3 n = gv.getNormal();
-				final Vec3 t = new Vec3(tan1[vertexId]);
-
-				final Vec3 v = new Vec3(t).sub(n).scale(n.dot(t)).normalize();
-				final Vec3 cross = Vec3.getCross(n, t);
-
-				final Vec3 tanAsVert = new Vec3(tan2[vertexId]);
-
-				double w = cross.dot(tanAsVert);
-
-				if (w < 0.0) {
-					w = -1.0;
-				} else {
-					w = 1.0;
-				}
-				gv.setTangent(new float[] {v.x, v.y, v.z, (float) w});
-			}
-		}
-		int goodTangents = 0;
-		int badTangents = 0;
-		for (final Geoset theMesh : currentMDL.getGeosets()) {
-			for (final GeosetVertex gv : theMesh.getVertices()) {
-				final double dotProduct = gv.getNormal().dot(new Vec3(gv.getTangent()));
-				if (Math.abs(dotProduct) <= 0.000001) {
-					goodTangents += 1;
-				} else {
-					System.out.println(dotProduct);
-					badTangents += 1;
-				}
-			}
-		}
-		if (parent != null) {
-			JOptionPane.showMessageDialog(parent,
-					"Tangent generation completed.\nGood tangents: " + goodTangents + ", bad tangents: " + badTangents);
-		} else {
-			System.out.println(
-					"Tangent generation completed.\nGood tangents: " + goodTangents + ", bad tangents: " + badTangents);
-		}
-	}
-
 	public void removeAllTimelinesForGlobalSeq(final Integer selectedValue) {
 		for (final Material m : materials) {
 			for (final Layer lay : m.layers) {
@@ -2026,203 +1934,16 @@ public class EditableModel implements Named {
 		bindPose = bindPoseChunk;
 	}
 
-	/**
-	 * Please, for the love of Pete, don't actually do this.
-	 */
-	public static void convertToV800(final int targetLevelOfDetail, final EditableModel model) {
-		// Things to fix:
-		// 1.) format version
-		model.setFormatVersion(800);
-		// 2.) materials: only diffuse
-		for (final Bitmap tex : model.getTextures()) {
-			String path = tex.getPath();
-			if ((path != null) && !path.isEmpty()) {
-				final int dotIndex = path.lastIndexOf('.');
-				if ((dotIndex != -1) && !path.endsWith(".blp")) {
-					path = (path.substring(0, dotIndex));
-				}
-				if (!path.endsWith(".blp")) {
-					path += ".blp";
-				}
-				tex.setPath(path);
-			}
-		}
-		for (final Material material : model.getMaterials()) {
-			if (material.getShaderString() != null) {
-				material.setShaderString(null);
-				final Layer layerZero = material.getLayers().get(0);
-				material.getLayers().clear();
-				material.getLayers().add(layerZero);
-				if (material.getTwoSided()) {
-					material.setTwoSided(false);
-					layerZero.setTwoSided(true);
-				}
-			}
-			for (final Layer layer : material.getLayers()) {
-				if (!Double.isNaN(layer.getEmissive())) {
-					layer.setEmissive(Double.NaN);
-				}
-				final AnimFlag flag = layer.find("Emissive");
-				if (flag != null) {
-					layer.remove(flag);
-				}
-			}
-		}
-		// 3.) geosets:
-		// - Convert skin to matrices & vertex groups
-		final List<Geoset> wrongLOD = new ArrayList<>();
-		for (final Geoset geo : model.getGeosets()) {
-			for (final GeosetVertex vertex : geo.getVertices()) {
-				vertex.un900Heuristic();
-			}
-			if (geo.getLevelOfDetail() != targetLevelOfDetail) {
-				// wrong lod
-				wrongLOD.add(geo);
-			}
-		}
-		// - Probably overwrite normals with tangents, maybe, or maybe not
-		// - Eradicate anything that isn't LOD==X
-		if (model.getGeosets().size() > wrongLOD.size()) {
-			for (final Geoset wrongLODGeo : wrongLOD) {
-				model.remove(wrongLODGeo);
-				final GeosetAnim geosetAnim = wrongLODGeo.getGeosetAnim();
-				if (geosetAnim != null) {
-					model.remove(geosetAnim);
-				}
-			}
-		}
-		// 4.) remove popcorn
-		// - add hero glow from popcorn if necessary
-		final List<IdObject> incompatibleObjects = new ArrayList<>();
-		for (int idObjIdx = 0; idObjIdx < model.getIdObjectsSize(); idObjIdx++) {
-			final IdObject idObject = model.getIdObject(idObjIdx);
-			if (idObject instanceof ParticleEmitterPopcorn) {
-				incompatibleObjects.add(idObject);
-				if (((ParticleEmitterPopcorn) idObject).getPath().toLowerCase().contains("hero_glow")) {
-					System.out.println("HERO HERO HERO");
-					final Bone dummyHeroGlowNode = new Bone("hero_reforged");
-					// this model needs hero glow
-					final Geoset heroGlow = new Geoset();
-					final ModelUtils.Mesh heroGlowPlane = ModelUtils.createPlane((byte) 0, (byte) 1, new Vec3(0, 0, 1), 0, -64,
-							-64, 64, 64, 1);
-					heroGlow.getVertices().addAll(heroGlowPlane.getVertices());
-					for (final GeosetVertex gv : heroGlow.getVertices()) {
-						gv.setGeoset(heroGlow);
-						gv.getBones().clear();
-						gv.getBones().add(dummyHeroGlowNode);
-					}
-					heroGlow.getTriangles().addAll(heroGlowPlane.getTriangles());
-					heroGlow.setUnselectable(true);
-					final Bitmap heroGlowBitmap = new Bitmap("");
-					heroGlowBitmap.setReplaceableId(2);
-					final Layer layer = new Layer("Additive", heroGlowBitmap);
-					layer.setUnshaded(true);
-					layer.setUnfogged(true);
-					heroGlow.setMaterial(new Material(layer));
-					model.add(dummyHeroGlowNode);
-					model.add(heroGlow);
-
-				}
-			}
-		}
-		for (final IdObject incompat : incompatibleObjects) {
-			model.remove(incompat);
-		}
-		// 5.) remove other unsupported stuff
-		for (final IdObject obj : model.getIdObjects()) {
-			obj.setBindPose(null);
-		}
-		for (final Camera camera : model.getCameras()) {
-			camera.setBindPose(null);
-		}
-		// 6.) fix dump bug with paths:
-		for (final Bitmap tex : model.getTextures()) {
-			final String path = tex.getPath();
-			if (path != null) {
-				tex.setPath(path.replace('/', '\\'));
-			}
-		}
-		for (final ParticleEmitter emitter : model.sortedIdObjects(ParticleEmitter.class)) {
-			final String path = emitter.getPath();
-			if (path != null) {
-				emitter.setPath(path.replace('/', '\\'));
-			}
-		}
-		for (final Attachment emitter : model.sortedIdObjects(Attachment.class)) {
-			final String path = emitter.getPath();
-			if (path != null) {
-				emitter.setPath(path.replace('/', '\\'));
-			}
-		}
-
-		model.setBindPoseChunk(null);
-		model.faceEffects.clear();
-	}
-
-	public static void makeItHD(final EditableModel model) {
-		for (final Geoset geo : model.getGeosets()) {
-			final List<GeosetVertex> vertices = geo.getVertices();
-			for (final GeosetVertex gv : vertices) {
-				final Vec3 normal = gv.getNormal();
-				if (normal != null) {
-					gv.initV900();
-					final float[] tangent = gv.getTangent();
-					for (int i = 0; i < 3; i++) {
-						tangent[i] = normal.getCoord((byte) i);
-					}
-					tangent[3] = 1;
-				}
-				final int bones = Math.min(4, gv.getBoneAttachments().size());
-				final short weight = (short) (255 / bones);
-				final short offsetWeight = (short) (255 - (weight * bones));
-				for (int i = 0; (i < bones) && (i < 4); i++) {
-					if (i == 0) {
-						gv.setSkinBone(gv.getBoneAttachments().get(i), (short) (weight + offsetWeight), i);
-					} else {
-						gv.setSkinBone(gv.getBoneAttachments().get(i), weight, i);
-					}
-				}
-			}
-		}
-		for (final Material m : model.getMaterials()) {
-			m.makeHD();
-//			m.setShaderString("Shader_HD_DefaultUnit");
-//			if (m.getLayers().size() > 1) {
-//				m.getLayers().add(m.getLayers().remove(0));
-//			}
-//			final Bitmap normTex = new Bitmap("ReplaceableTextures\\TeamColor\\TeamColor09.dds");
-//			normTex.setWrapHeight(true);
-//			normTex.setWrapWidth(true);
-//			final Bitmap ormTex = new Bitmap("ReplaceableTextures\\TeamColor\\TeamColor18.dds");
-//			ormTex.setWrapHeight(true);
-//			ormTex.setWrapWidth(true);
-//			m.getLayers().add(1, new Layer("None", normTex));
-//			m.getLayers().add(2, new Layer("None", ormTex));
-//			final Bitmap black32 = new Bitmap("Textures\\Black32.dds");
-//			black32.setWrapHeight(true);
-//			black32.setWrapWidth(true);
-//			m.getLayers().add(3, new Layer("None", black32));
-//			final Bitmap texture2 = new Bitmap("ReplaceableTextures\\EnvironmentMap.dds");
-//			texture2.setWrapHeight(true);
-//			texture2.setWrapWidth(true);
-//			m.getLayers().add(4, new Layer("None", m.getLayers().get(0).getTextureBitmap()));
-//			m.getLayers().add(5, new Layer("None", texture2));
-//			for (final Layer l : m.getLayers()) {
-//				l.setEmissive(1.0);
-//			}
-		}
-	}
-
 	public void simplifyKeyframes() {
 		final EditableModel currentMDL = this;
-		final List<AnimFlag> allAnimFlags = currentMDL.getAllAnimFlags();
+		final List<AnimFlag<?>> allAnimFlags = currentMDL.getAllAnimFlags();
 		final List<Animation> anims = currentMDL.getAnims();
 
-		for (final AnimFlag flag : allAnimFlags) {
+		for (final AnimFlag<?> flag : allAnimFlags) {
 			final List<Integer> indicesForDeletion = new ArrayList<>();
-			Entry lastEntry = null;
+			Entry<?> lastEntry = null;
 			for (int i = 0; i < flag.size(); i++) {
-				final Entry entry = flag.getEntry(i);
+				final Entry<?> entry = flag.getEntry(i);
 				if ((lastEntry != null) && (lastEntry.time.equals(entry.time))) {
 					indicesForDeletion.add(i);
 				}
@@ -2233,13 +1954,13 @@ public class EditableModel implements Named {
 			}
 		}
 		for (final Animation anim : anims) {
-			for (final AnimFlag flag : allAnimFlags) {
+			for (final AnimFlag<?> flag : allAnimFlags) {
 				if (!flag.hasGlobalSeq()) {
 					Object olderKeyframe = null;
 					Object oldKeyframe = null;
 					final List<Integer> indicesForDeletion = new ArrayList<>();
 					for (int i = 0; i < flag.size(); i++) {
-						final Entry entry = flag.getEntry(i);
+						final Entry<?> entry = flag.getEntry(i);
 						//
 						// //Types of AnimFlags:
 						// // 0 Alpha
@@ -2309,13 +2030,13 @@ public class EditableModel implements Named {
 			}
 		}
 		for (final Integer globalSeq : currentMDL.getGlobalSeqs()) {
-			for (final AnimFlag flag : allAnimFlags) {
+			for (final AnimFlag<?> flag : allAnimFlags) {
 				if (flag.hasGlobalSeq() && flag.getGlobalSeq().equals(globalSeq)) {
 					Object olderKeyframe = null;
 					Object oldKeyframe = null;
 					final List<Integer> indicesForDeletion = new ArrayList<>();
 					for (int i = 0; i < flag.size(); i++) {
-						final Entry entry = flag.getEntry(i);
+						final Entry<?> entry = flag.getEntry(i);
 						//
 						// //Types of AnimFlags:
 						// // 0 Alpha
@@ -2372,48 +2093,11 @@ public class EditableModel implements Named {
 		}
 	}
 
-	public static void recalculateTangentsOld(final EditableModel currentMDL) {
-		for (final Geoset theMesh : currentMDL.getGeosets()) {
-			for (int nFace = 0; nFace < theMesh.getTriangles().size(); nFace++) {
-				final Triangle face = theMesh.getTriangle(nFace);
-
-				final GeosetVertex v1 = face.getVerts()[0];
-				final GeosetVertex v2 = face.getVerts()[0];
-				final GeosetVertex v3 = face.getVerts()[0];
-
-				final Vec2 uv1 = v1.getTVertex(0);
-				final Vec2 uv2 = v2.getTVertex(0);
-				final Vec2 uv3 = v3.getTVertex(0);
-
-				final Vec3 dV1 = new Vec3(v1).sub(v2);
-				final Vec3 dV2 = new Vec3(v1).sub(v3);
-
-				final Vec2 dUV1 = new Vec2(uv1).sub(uv2);
-				final Vec2 dUV2 = new Vec2(uv1).sub(uv3);
-				final double area = (dUV1.x * dUV2.y) - (dUV1.y * dUV2.x);
-				final int sign = (area < 0) ? -1 : 1;
-				final Vec3 tangent = new Vec3(1, 0, 0);
-
-				tangent.x = (dV1.x * dUV2.y) - (dUV1.y * dV2.x);
-				tangent.y = (dV1.y * dUV2.y) - (dUV1.y * dV2.y);
-				tangent.z = (dV1.z * dUV2.y) - (dUV1.y * dV2.z);
-
-				tangent.normalize();
-				tangent.scale(sign);
-
-				final Vec3 faceNormal = new Vec3(v1.getNormal());
-				faceNormal.add(v2.getNormal());
-				faceNormal.add(v3.getNormal());
-				faceNormal.normalize();
-			}
-		}
-	}
-
 	public void setGlobalSequenceLength(final int globalSequenceId, final Integer newLength) {
 		if (globalSequenceId < globalSeqs.size()) {
 			final Integer prevLength = globalSeqs.get(globalSequenceId);
-			final List<AnimFlag> allAnimFlags = getAllAnimFlags();
-			for (final AnimFlag af : allAnimFlags) {
+			final List<AnimFlag<?>> allAnimFlags = getAllAnimFlags();
+			for (final AnimFlag<?> af : allAnimFlags) {
 				if ((af.getGlobalSeq() != null) && af.hasGlobalSeq()) {// TODO eliminate redundant structure
 					if (af.getGlobalSeq().equals(prevLength)) {
 						af.setGlobalSeq(newLength);

@@ -17,18 +17,18 @@ public class TextureAnim extends TimelineContainer {
 	/**
 	 * Constructor for objects of class TextureAnim
 	 */
-	public TextureAnim(final AnimFlag flag) {
+	public TextureAnim(final AnimFlag<?> flag) {
 		add(flag);
 	}
 
-	public TextureAnim(final List<AnimFlag> flags) {
+	public TextureAnim(final List<AnimFlag<?>> flags) {
 		setAnimFlags(flags);
 	}
 
 	public TextureAnim(final TextureAnim other) {
-		Collection<AnimFlag> flags = new ArrayList<>();
-		for (AnimFlag animFlag : other.getAnimFlags()) {
-			flags.add(new AnimFlag(animFlag));
+		Collection<AnimFlag<?>> flags = new ArrayList<>();
+		for (AnimFlag<?> animFlag : other.getAnimFlags()) {
+			flags.add(AnimFlag.createFromAnimFlag(animFlag));
 		}
 		setAnimFlags(flags);
 	}
@@ -46,7 +46,7 @@ public class TextureAnim extends TimelineContainer {
 	}
 
 	public String getFlagNames() {
-		Map<String, AnimFlag> flags = this.animFlags;
+		Map<String, AnimFlag<?>> flags = this.animFlags;
 		//TODO figure out what this should return
 		System.out.println(flags.keySet());
 		return flags.keySet().toString();

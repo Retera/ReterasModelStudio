@@ -1,12 +1,14 @@
 package com.hiveworkshop.rms.ui.application.model.editors;
 
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.*;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.actions.model.animFlag.*;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.util.Quat;
+import com.hiveworkshop.rms.util.Vec3;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -39,8 +41,8 @@ public abstract class ValuePanel<T> extends JPanel {
 	protected T staticValue;
 	protected TimelineContainer timelineContainer;
 	protected String flagName;
-	protected AnimFlag animFlag;
-	protected AnimFlag oldAnimFlag;
+	protected AnimFlag<T> animFlag;
+	protected AnimFlag<T> oldAnimFlag;
 	protected TimelineKeyNamer timelineKeyNamer;
 	protected boolean doSave;
 	protected String preEditValue;
@@ -124,14 +126,17 @@ public abstract class ValuePanel<T> extends JPanel {
 //		if (oldAnimFlag == null && timelineContainer != null && !flagName.equals("")) {
 		if (animFlag == null && timelineContainer != null && !flagName.equals("")) {
 			toggleStaticDynamicPanel(false);
-			AnimFlag newAnimFlag = new AnimFlag(flagName);
 			if (staticValue == null) {
 				staticValue = getZeroValue();
 			}
-			newAnimFlag.addEntry(0, staticValue);
-			AddAnimFlagAction addAnimFlagAction = new AddAnimFlagAction(timelineContainer, newAnimFlag, modelStructureChangeListener);
-			undoActionListener.pushAction(addAnimFlagAction);
-			addAnimFlagAction.redo();
+			AnimFlag<T> newAnimFlag = getNewAnimFlag();
+
+			if (newAnimFlag != null) {
+				newAnimFlag.addEntry(0, staticValue);
+				AddAnimFlagAction addAnimFlagAction = new AddAnimFlagAction(timelineContainer, newAnimFlag, modelStructureChangeListener);
+				undoActionListener.pushAction(addAnimFlagAction);
+				addAnimFlagAction.redo();
+			}
 //		} else if (oldAnimFlag != null){
 		} else if (animFlag != null) {
 			toggleStaticDynamicPanel(false);
@@ -146,6 +151,20 @@ public abstract class ValuePanel<T> extends JPanel {
 //		keyframeTable.revalidate();
 //		System.out.println("kft_a: " + keyframeTable.getColumnCount());
 //		System.out.println("kftM_a: " + keyframeTable.getModel().getColumnCount());
+	}
+
+	private AnimFlag<T> getNewAnimFlag() {
+		if (staticValue instanceof Integer) {
+			return (AnimFlag<T>) new IntAnimFlag(flagName);
+		} else if (staticValue instanceof Float) {
+			return (AnimFlag<T>) new FloatAnimFlag(flagName);
+		} else if (staticValue instanceof Vec3) {
+			return (AnimFlag<T>) new Vec3AnimFlag(flagName);
+		} else if (staticValue instanceof Quat) {
+			return (AnimFlag<T>) new QuatAnimFlag(flagName);
+		} else {
+			return null;
+		}
 	}
 
 	private void toggleStaticDynamicPanel(boolean isStatic) {
@@ -311,6 +330,8 @@ public abstract class ValuePanel<T> extends JPanel {
 			toggleStaticDynamicPanel(true);
 		} else {
 			toggleStaticDynamicPanel(false);
+//			List<InterpolationType> types =  animFlag.getForbiddenInterpolationTypes();
+//			types.forEach(t -> interpTypeBox.remove());
 			interpTypeBox.setSelectedItem(animFlag.getInterpolationType());
 		}
 //		System.out.println("colums: " + keyframeTable.getModel().getColumnCount());
@@ -362,27 +383,33 @@ public abstract class ValuePanel<T> extends JPanel {
 
 	private void addEntry(int row) {
 		if (animFlag == null && timelineContainer != null && !flagName.equals("")) {
-			UndoAction undoAction = new AddAnimFlagAction(timelineContainer, flagName, modelStructureChangeListener);
-			undoActionListener.pushAction(undoAction);
-			undoAction.redo();
+			AnimFlag<T> flag = getNewAnimFlag();
+			if (flag != null) {
+				AnimFlag.Entry<T> entry = new AnimFlag.Entry<>(0, staticValue);
+				flag.addEntry(entry);
+//			UndoAction undoAction = new AddAnimFlagAction(timelineContainer, flagName, modelStructureChangeListener);
+				UndoAction undoAction = new AddAnimFlagAction(timelineContainer, flag, modelStructureChangeListener);
+				undoActionListener.pushAction(undoAction);
+				undoAction.redo();
+			}
 		} else if (animFlag != null) {
-			AnimFlag.Entry newEntry;
-			AnimFlag.Entry lastEntry;
+			AnimFlag.Entry<T> newEntry;
+			AnimFlag.Entry<T> lastEntry;
 			T zeroValue = getZeroValue();
 			if (staticValue == null) {
 				staticValue = zeroValue;
 			}
 			if (animFlag.getTimes().isEmpty()) {
 				if (animFlag.getInterpolationType().tangential()) {
-					lastEntry = new AnimFlag.Entry(0, staticValue, zeroValue, zeroValue);
+					lastEntry = new AnimFlag.Entry<>(0, staticValue, zeroValue, zeroValue);
 				} else {
-					lastEntry = new AnimFlag.Entry(0, staticValue);
+					lastEntry = new AnimFlag.Entry<>(0, staticValue);
 				}
-				newEntry = new AnimFlag.Entry(lastEntry);
+				newEntry = new AnimFlag.Entry<>(lastEntry);
 			} else {
 //				lastEntry = animFlag.getEntry(animFlag.getTimes().size() - 1);
 				lastEntry = animFlag.getEntry(row);
-				newEntry = new AnimFlag.Entry(lastEntry);
+				newEntry = new AnimFlag.Entry<>(lastEntry);
 				newEntry.time++;
 			}
 

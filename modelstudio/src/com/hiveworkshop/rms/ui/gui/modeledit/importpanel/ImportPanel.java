@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.BoneShell;
@@ -1699,17 +1700,17 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			}
 			final List<Animation> oldAnims = new ArrayList<>(currentModel.getAnims());
 			final List<Animation> newAnims = new ArrayList<>();
-			final java.util.List<AnimFlag> curFlags = currentModel.getAllAnimFlags();
-			final java.util.List<AnimFlag> impFlags = importedModel.getAllAnimFlags();
+			final java.util.List<AnimFlag<?>> curFlags = currentModel.getAllAnimFlags();
+			final java.util.List<AnimFlag<?>> impFlags = importedModel.getAllAnimFlags();
 			final List<EventObject> curEventObjs = currentModel.sortedIdObjects(EventObject.class);
 			final List<EventObject> impEventObjs = importedModel.sortedIdObjects(EventObject.class);
 			// note to self: remember to scale event objects with time
-			final List<AnimFlag> newImpFlags = new ArrayList<>();
-			for (final AnimFlag af : impFlags) {
+			final List<AnimFlag<?>> newImpFlags = new ArrayList<>();
+			for (final AnimFlag<?> af : impFlags) {
 				if (!af.hasGlobalSeq()) {
 					newImpFlags.add(AnimFlag.buildEmptyFrom(af));
 				} else {
-					newImpFlags.add(new AnimFlag(af));
+					newImpFlags.add(AnimFlag.createFromAnimFlag(af));
 				}
 			}
 			final List<EventObject> newImpEventObjs = new ArrayList<>();
@@ -1788,7 +1789,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				}
 			}
 			// Now, rebuild the old animflags with the new
-			for (final AnimFlag af : impFlags) {
+			for (final AnimFlag<?> af : impFlags) {
 				af.setValuesTo(newImpFlags.get(impFlags.indexOf(af)));
 			}
 			for (final Object e : impEventObjs) {
@@ -1925,55 +1926,53 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				}
 			}
 
-			final List<AnimFlag> finalVisFlags = new ArrayList<>();
+			final List<AnimFlag<?>> finalVisFlags = new ArrayList<>();
 			for (int i = 0; i < visComponents.size(); i++) {
 				final VisibilityPanel vPanel = visComponents.get(i);
 				final VisibilitySource temp = ((VisibilitySource) vPanel.sourceShell.source);
-				final AnimFlag visFlag = temp.getVisibilityFlag();// might be
+				final AnimFlag<?> visFlag = temp.getVisibilityFlag();// might be
 				// null
-				final AnimFlag newVisFlag;
+				final AnimFlag<?> newVisFlag;
 				boolean tans = false;
 				if (visFlag != null) {
 					newVisFlag = AnimFlag.buildEmptyFrom(visFlag);
 					tans = visFlag.tans();
 				} else {
-					newVisFlag = new AnimFlag(temp.visFlagName());
+					newVisFlag = new FloatAnimFlag(temp.visFlagName());
 				}
 				// newVisFlag = new AnimFlag(temp.visFlagName());
 				final Object oldSource = vPanel.oldSourcesBox.getSelectedItem();
-				AnimFlag flagOld = null;
+				FloatAnimFlag flagOld = null;
 				boolean test = false;
 				if (oldSource.getClass() == String.class) {
 					if (oldSource == VisibilityPanel.VISIBLE) {
 						// empty for visible
 					} else if (oldSource == VisibilityPanel.NOTVISIBLE) {
-						flagOld = new AnimFlag("temp");
+						flagOld = new FloatAnimFlag("temp");
 						for (final Animation a : oldAnims) {
 							test = true;
 							if (tans) {
-								flagOld.addEntry(a.getStart(), (float) 0, (float) 0,
-										(float) 0);
+								flagOld.addEntry(a.getStart(), 0f, 0f, 0f);
 							} else {
-								flagOld.addEntry(a.getStart(), (float) 0);
+								flagOld.addEntry(a.getStart(), 0f);
 							}
 						}
 					}
 				} else {
-					flagOld = (((VisibilitySource) ((VisibilityShell) oldSource).source).getVisibilityFlag());
+					flagOld = (FloatAnimFlag) ((VisibilitySource) ((VisibilityShell) oldSource).source).getVisibilityFlag();
 				}
 				final Object newSource = vPanel.newSourcesBox.getSelectedItem();
-				AnimFlag flagNew = null;
+				FloatAnimFlag flagNew = null;
 				if (newSource.getClass() == String.class) {
 					if (newSource == VisibilityPanel.VISIBLE) {
 						// empty for visible
 					} else if (newSource == VisibilityPanel.NOTVISIBLE) {
-						flagNew = new AnimFlag("temp");
+						flagNew = new FloatAnimFlag("temp");
 						for (final Animation a : newAnims) {
 							if (tans) {
-								flagNew.addEntry(a.getStart(), (float) 0, (float) 0,
-										(float) 0);
+								flagNew.addEntry(a.getStart(), 0f, 0f, 0f);
 							} else {
-								flagNew.addEntry(a.getStart(), (float) 0);
+								flagNew.addEntry(a.getStart(), 0f);
 							}
 							// flagNew.times.add(Integer.valueOf(a.getStart()));
 							// flagNew.values.add(Float.valueOf(0));
@@ -1985,7 +1984,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 						}
 					}
 				} else {
-					flagNew = (((VisibilitySource) ((VisibilityShell) newSource).source).getVisibilityFlag());
+					flagNew = (FloatAnimFlag) ((VisibilitySource) ((VisibilityShell) newSource).source).getVisibilityFlag();
 				}
 				if ((vPanel.favorOld.isSelected() && (vPanel.sourceShell.model == currentModel) && !clearAnims)
 						|| (!vPanel.favorOld.isSelected() && (vPanel.sourceShell.model == importedModel))) {
@@ -2022,7 +2021,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			for (int i = 0; i < visComponents.size(); i++) {
 				final VisibilityPanel vPanel = visComponents.get(i);
 				final VisibilitySource temp = ((VisibilitySource) vPanel.sourceShell.source);
-				final AnimFlag visFlag = finalVisFlags.get(i);// might be null
+				final AnimFlag<?> visFlag = finalVisFlags.get(i);// might be null
 				if (visFlag.size() > 0) {
 					temp.setVisibilityFlag(visFlag);
 				} else {
@@ -2063,7 +2062,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				callback.nodesAdded(objectsAdded);
 				callback.camerasAdded(camerasAdded);
 			}
-			for (final AnimFlag flag : currentModel.getAllAnimFlags()) {
+			for (final AnimFlag<?> flag : currentModel.getAllAnimFlags()) {
 				flag.sort();
 			}
 		} catch (final Exception e) {

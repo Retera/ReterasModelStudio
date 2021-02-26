@@ -18,13 +18,13 @@ public interface ModelStructureChangeListener {
 
 	void camerasRemoved(List<Camera> nodes);
 
-	void timelineAdded(TimelineContainer node, AnimFlag timeline);
+	void timelineAdded(TimelineContainer node, AnimFlag<?> timeline);
 
-	void keyframeAdded(TimelineContainer node, AnimFlag timeline, int trackTime);
+	void keyframeAdded(TimelineContainer node, AnimFlag<?> timeline, int trackTime);
 
-	void timelineRemoved(TimelineContainer node, AnimFlag timeline);
+	void timelineRemoved(TimelineContainer node, AnimFlag<?> timeline);
 
-	void keyframeRemoved(TimelineContainer node, AnimFlag timeline, int trackTime);
+	void keyframeRemoved(TimelineContainer node, AnimFlag<?> timeline, int trackTime);
 
 	void animationsAdded(List<Animation> animation);
 

@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.util.Pair;
@@ -230,15 +231,15 @@ public class AddParticlePanel {
         } else {
             particle.setParent(parentChoice);
         }
-        AnimFlag oldFlag = particle.getVisibilityFlag();
+        FloatAnimFlag oldFlag = (FloatAnimFlag) particle.getVisibilityFlag();
         if (oldFlag == null) {
-            oldFlag = new AnimFlag("Visibility");
+            oldFlag = new FloatAnimFlag("Visibility");
         }
-        final AnimFlag visFlag = AnimFlag.buildEmptyFrom(oldFlag);
+        final FloatAnimFlag visFlag = (FloatAnimFlag) AnimFlag.buildEmptyFrom(oldFlag);
         animIndex = 0;
         for (final Animation anim : anims) {
             if (!checkBoxes[animIndex].isSelected()) {
-                visFlag.addEntry(anim.getStart(), 0);
+                visFlag.addEntry(anim.getStart(), 0f);
             }
             animIndex++;
         }

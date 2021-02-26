@@ -24,7 +24,7 @@ import java.util.Objects;
  *
  * Eric Theller 11/5/2011
  */
-public class AnimFlag {
+public abstract class AnimFlag<T> {
 	// Types of AnimFlags:
 	// 0 Alpha
 	public static final int ALPHA = 0;
@@ -44,36 +44,21 @@ public class AnimFlag {
 	 * not included in the options above.
 	 */
 	public static final int OTHER_TYPE = 0;
-
+	public static final Quat ROTATE_IDENTITY = new Quat(0, 0, 0, 1);
+	public static final Vec3 SCALE_IDENTITY = new Vec3(1, 1, 1);
+	public static final Vec3 TRANSLATE_IDENTITY = new Vec3(0, 0, 0);
 	String name;
-	InterpolationType interpolationType = InterpolationType.DONT_INTERP;
-	Integer globalSeq;
+	public InterpolationType interpolationType = InterpolationType.DONT_INTERP;
+	public Integer globalSeq;
 	int globalSeqId = -1;
-	boolean hasGlobalSeq = false;
-	List<Integer> times = new ArrayList<>();
-	List<Object> values = new ArrayList<>();
-	List<Object> inTans = new ArrayList<>();
-	List<Object> outTans = new ArrayList<>();
+	public boolean hasGlobalSeq = false;
+	public List<Integer> times = new ArrayList<>();
+	public List<T> values = new ArrayList<>();
+	public List<T> inTans = new ArrayList<>();
+	public List<T> outTans = new ArrayList<>();
 	int typeid = 0;
 	int vectorSize = 1;
 	boolean isFloat = true;
-
-	public boolean equals(final AnimFlag o) {
-		boolean does = o instanceof AnimFlag;
-		if (!does) {
-			return false;
-		}
-		final AnimFlag af = o;
-		does = (name.equals(af.getName()))
-				|| (hasGlobalSeq == af.hasGlobalSeq)
-				|| (values.equals(af.values)
-				&& (Objects.equals(globalSeq, af.globalSeq))
-				&& (interpolationType == af.interpolationType)
-				&& (Objects.equals(inTans, af.inTans))
-				&& (Objects.equals(outTans, af.outTans))
-				&& (typeid == af.typeid));
-		return does;
-	}
 
 	public AnimFlag(final MdlxTimeline<?> timeline) {
 		name = AnimationMap.ID_TO_TAG.get(timeline.name).getMdlToken();
@@ -86,243 +71,17 @@ public class AnimFlag {
 			setGlobalSeqId(globalSequenceId);
 			setHasGlobalSeq(true);
 		}
-
-		final long[] frames = timeline.frames;
-		final Object[] values = timeline.values;
-		final Object[] inTans = timeline.inTans;
-		final Object[] outTans = timeline.outTans;
-
-		if (frames.length > 0) {
-			final boolean hasTangents = interpolationType.tangential();
-
-			setVectorSize(values[0]);
-
-			for (int i = 0, l = frames.length; i < l; i++) {
-				final Object value = values[i];
-				final Object valueAsObject;
-				Object inTanAsObject = null;
-				Object outTanAsObject = null;
-
-				if (isFloat) {
-					final float[] valueAsArray = (float[]) value;
-
-					if (vectorSize == 1) {
-						valueAsObject = valueAsArray[0];
-
-						if (hasTangents) {
-							inTanAsObject = ((float[]) inTans[i])[0];
-							outTanAsObject = ((float[]) outTans[i])[0];
-						}
-					} else if (vectorSize == 3) {
-						valueAsObject = new Vec3(valueAsArray);
-
-						if (hasTangents) {
-							inTanAsObject = new Vec3((float[])inTans[i]);
-							outTanAsObject = new Vec3((float[])outTans[i]);
-						}
-					} else {
-						valueAsObject = new Quat(valueAsArray);
-
-						if (hasTangents) {
-							inTanAsObject = new Quat((float[])inTans[i]);
-							outTanAsObject = new Quat((float[])outTans[i]);
-						}
-					}
-				} else {
-					valueAsObject = (int) ((long[]) value)[0];
-
-					if (hasTangents) {
-						inTanAsObject = (int) ((long[]) inTans[i])[0];
-						outTanAsObject = (int) ((long[]) outTans[i])[0];
-					}
-				}
-
-				addEntry((int) frames[i], valueAsObject, inTanAsObject, outTanAsObject);
-			}
-		}
-	}
-
-	public Integer getGlobalSeq() {
-		return globalSeq;
-	}
-
-	public void setGlobalSeq(final Integer globalSeq) {
-		this.globalSeq = globalSeq;
-	}
-
-	public static AnimFlag createEmpty2018(final String title, final InterpolationType interpolationType, final Integer globalSeq) {
-		final AnimFlag flag = new AnimFlag();
-		flag.name = title;
-		flag.interpolationType = interpolationType;
-		flag.generateTypeId();
-		flag.setGlobSeq(globalSeq);
-		return flag;
-	}
-
-	private static AnimFlag getMostVis(AnimFlag flag1, AnimFlag flag2, AnimFlag mostVisible) {
-		if (mostVisible == null) {
-			mostVisible = flag1;
-		} else if (mostVisible == flag2) {
-			return null;
-		}
-		return mostVisible;
-	}
-
-	public void setGlobSeq(final Integer integer) {
-		globalSeq = integer;
-		hasGlobalSeq = integer != null;
 	}
 
 	// end special constructors
-	public AnimFlag(final String title, final List<Integer> times, final List values) {
+	public AnimFlag(final String title, final List<Integer> times, final List<T> values) {
 		name = title;
 		this.times = times;
 		this.values = values;
 		generateTypeId();
 	}
 
-	public AnimFlag(final String title) {
-		name = title;
-		generateTypeId();
-	}
-
-	public War3ID getWar3ID(final TimelineContainer container) {
-		final AnimationMap id = getAnimationMap(container);
-
-		if (id == null) {
-			throw new RuntimeException("Got an unknown timeline name: " + name);
-		}
-
-		return id.getWar3id();
-	}
-
-	public AnimationMap getAnimationMap(final TimelineContainer container) {
-		if (container instanceof Layer) {
-			switch (name) {
-			case MdlUtils.TOKEN_TEXTURE_ID: return AnimationMap.KMTF;
-			case MdlUtils.TOKEN_ALPHA: return AnimationMap.KMTA;
-			case MdlUtils.TOKEN_EMISSIVE_GAIN: return AnimationMap.KMTE;
-			case MdlUtils.TOKEN_FRESNEL_COLOR: return AnimationMap.KFC3;
-			case MdlUtils.TOKEN_FRESNEL_OPACITY: return AnimationMap.KFCA;
-			case MdlUtils.TOKEN_FRESNEL_TEAM_COLOR: return AnimationMap.KFTC;
-			}
-		} else if (container instanceof TextureAnim) {
-			switch (name) {
-			case MdlUtils.TOKEN_TRANSLATION: return AnimationMap.KTAT;
-			case MdlUtils.TOKEN_ROTATION: return AnimationMap.KTAR;
-			case MdlUtils.TOKEN_SCALING: return AnimationMap.KTAS;
-			}
-		} else if (container instanceof GeosetAnim) {
-			switch (name) {
-			case MdlUtils.TOKEN_ALPHA: return AnimationMap.KGAO;
-			case MdlUtils.TOKEN_COLOR: return AnimationMap.KGAC;
-			}
-		} else if (container instanceof Light) {
-			switch (name) {
-			case MdlUtils.TOKEN_ATTENUATION_START: return AnimationMap.KLAS;
-			case MdlUtils.TOKEN_ATTENUATION_END: return AnimationMap.KLAE;
-			case MdlUtils.TOKEN_COLOR: return AnimationMap.KLAC;
-			case MdlUtils.TOKEN_INTENSITY: return AnimationMap.KLAI;
-			case MdlUtils.TOKEN_AMB_INTENSITY: return AnimationMap.KLBI;
-			case MdlUtils.TOKEN_AMB_COLOR: return AnimationMap.KLBC;
-			case MdlUtils.TOKEN_VISIBILITY: return AnimationMap.KLAV;
-			}
-		} else if (container instanceof Attachment) {
-			switch (name) {
-			case MdlUtils.TOKEN_VISIBILITY: return AnimationMap.KATV;
-			}
-		} else if (container instanceof ParticleEmitter) {
-			switch (name) {
-			case MdlUtils.TOKEN_EMISSION_RATE: return AnimationMap.KPEE;
-			case MdlUtils.TOKEN_GRAVITY: return AnimationMap.KPEG;
-			case MdlUtils.TOKEN_LONGITUDE: return AnimationMap.KPLN;
-			case MdlUtils.TOKEN_LATITUDE: return AnimationMap.KPLT;
-			case MdlUtils.TOKEN_LIFE_SPAN: return AnimationMap.KPEL;
-			case MdlUtils.TOKEN_INIT_VELOCITY: return AnimationMap.KPES;
-			case MdlUtils.TOKEN_VISIBILITY: return AnimationMap.KPEV;
-			}
-		} else if (container instanceof ParticleEmitter2) {
-			switch (name) {
-			case MdlUtils.TOKEN_SPEED: return AnimationMap.KP2S;
-			case MdlUtils.TOKEN_VARIATION: return AnimationMap.KP2R;
-			case MdlUtils.TOKEN_LATITUDE: return AnimationMap.KP2L;
-			case MdlUtils.TOKEN_GRAVITY: return AnimationMap.KP2G;
-			case MdlUtils.TOKEN_EMISSION_RATE: return AnimationMap.KP2E;
-			case MdlUtils.TOKEN_LENGTH: return AnimationMap.KP2N;
-			case MdlUtils.TOKEN_WIDTH: return AnimationMap.KP2W;
-			case MdlUtils.TOKEN_VISIBILITY: return AnimationMap.KP2V;
-			}
-		} else if (container instanceof ParticleEmitterPopcorn) {
-			switch (name) {
-			case MdlUtils.TOKEN_ALPHA: return AnimationMap.KPPA;
-			case MdlUtils.TOKEN_COLOR: return AnimationMap.KPPC;
-			case MdlUtils.TOKEN_EMISSION_RATE: return AnimationMap.KPPE;
-			case MdlUtils.TOKEN_LIFE_SPAN: return AnimationMap.KPPL;
-			case MdlUtils.TOKEN_SPEED: return AnimationMap.KPPS;
-			case MdlUtils.TOKEN_VISIBILITY: return AnimationMap.KPPV;
-			}
-		} else if (container instanceof RibbonEmitter) {
-			switch (name) {
-			case MdlUtils.TOKEN_HEIGHT_ABOVE: return AnimationMap.KRHA;
-			case MdlUtils.TOKEN_HEIGHT_BELOW: return AnimationMap.KRHB;
-			case MdlUtils.TOKEN_ALPHA: return AnimationMap.KRAL;
-			case MdlUtils.TOKEN_COLOR: return AnimationMap.KRCO;
-			case MdlUtils.TOKEN_TEXTURE_SLOT: return AnimationMap.KRTX;
-			case MdlUtils.TOKEN_VISIBILITY: return AnimationMap.KRVS;
-			}
-		} else if (container instanceof Camera.SourceNode) {
-			switch (name) {
-			case MdlUtils.TOKEN_TRANSLATION: return AnimationMap.KCTR;
-			case MdlUtils.TOKEN_ROTATION: return AnimationMap.KCRL;
-			}
-		} else if (container instanceof Camera.TargetNode) {
-			switch (name) {
-			case MdlUtils.TOKEN_TRANSLATION: return AnimationMap.KTTR;
-			}
-		} 
-	
-		if (container instanceof IdObject) {
-			switch (name) {
-				case MdlUtils.TOKEN_TRANSLATION:
-					return AnimationMap.KGTR;
-				case MdlUtils.TOKEN_ROTATION:
-					return AnimationMap.KGRT;
-				case MdlUtils.TOKEN_SCALING:
-					return AnimationMap.KGSC;
-			}
-		}
-
-		return null;
-	}
-
-	private void setVectorSize(Object value) {
-		if (value instanceof float[]) {
-			vectorSize = ((float[]) value).length;
-		} else if (value instanceof Vec3) {
-			vectorSize = 3;
-		} else if (value instanceof Vec4) {
-			vectorSize = 4;
-		} else if (value.getClass().getName().equals("java.lang.Float") || value.getClass().getName().equals("java.lang.Integer")) {
-			vectorSize = 1;
-		} else {
-			isFloat = false;
-			vectorSize = ((long[]) value).length;
-		}
-	}
-
-	public void setInterpType(final InterpolationType interpolationType) {
-		this.interpolationType = interpolationType;
-	}
-
-	public InterpolationType getInterpolationType() {
-		return interpolationType;
-	}
-
-	public int size() {
-		return times.size();
-	}
-
-	public AnimFlag(final AnimFlag af) {
+	public AnimFlag(final AnimFlag<T> af) {
 		name = af.name;
 		globalSeq = af.globalSeq;
 		globalSeqId = af.globalSeqId;
@@ -337,229 +96,64 @@ public class AnimFlag {
 		isFloat = af.isFloat;
 	}
 
-	public static AnimFlag buildEmptyFrom(final AnimFlag af) {
-		final AnimFlag na = new AnimFlag(af.name);
-		na.globalSeq = af.globalSeq;
-		na.globalSeqId = af.globalSeqId;
-		na.hasGlobalSeq = af.hasGlobalSeq;
-		na.typeid = af.typeid;
-		na.interpolationType = af.interpolationType;
-		return na;
+//	public static AnimFlag<?> createFromName(final AnimFlag<?> af) {
+//		if(af instanceof IntAnimFlag){
+//			return new IntAnimFlag((IntAnimFlag) af);
+//		}else if(af instanceof FloatAnimFlag){
+//			return new FloatAnimFlag((FloatAnimFlag) af);
+//		}else if(af instanceof Vec3AnimFlag){
+//			return new Vec3AnimFlag((Vec3AnimFlag) af);
+//		}else if(af instanceof QuatAnimFlag){
+//			return new QuatAnimFlag((QuatAnimFlag) af);
+//		}
+//		else return null;
+//	}
+
+
+//	public static AnimFlag createEmpty2018(final String title, final InterpolationType interpolationType, final Integer globalSeq) {
+//		final AnimFlag flag = new AnimFlag();
+//		flag.name = title;
+//		flag.interpolationType = interpolationType;
+//		flag.generateTypeId();
+//		flag.setGlobSeq(globalSeq);
+//		return flag;
+//	}
+
+	public AnimFlag(final String title) {
+		name = title;
+		generateTypeId();
 	}
 
-	public MdlxTimeline<Object> toMdlx(final TimelineContainer container) {
-		final MdlxTimeline timeline;
-		setVectorSize(values.get(0));
-		if (isFloat) {
-			if (vectorSize == 1) {
-				timeline = new MdlxFloatTimeline();
-			} else if (vectorSize == 3) {
-				timeline = new MdlxFloatArrayTimeline(3);
-			} else {
-				timeline = new MdlxFloatArrayTimeline(4);
+	public static AnimFlag<?> createFromTimeline(final MdlxTimeline<?> timeline) {
+		Object firstValue = timeline.values[0];
+		if (firstValue instanceof float[]) {
+			if (((float[]) firstValue).length == 1) {
+				return new FloatAnimFlag((MdlxFloatTimeline) timeline);
+			} else if (((float[]) firstValue).length == 3) {
+				return new Vec3AnimFlag((MdlxFloatArrayTimeline) timeline);
+			} else if (((float[]) firstValue).length == 4) {
+				return new QuatAnimFlag((MdlxFloatArrayTimeline) timeline);
 			}
-		} else {
-			timeline = new MdlxUInt32Timeline();
-		}
-
-		timeline.name = getWar3ID(container);
-		timeline.interpolationType = interpolationType;
-		timeline.globalSequenceId = getGlobalSeqId();
-
-		final List<Integer> times = getTimes();
-		final List<Object> values = getValues();
-		final List<Object> inTans = getInTans();
-		final List<Object> outTans = getOutTans();
-
-		final long[] tempFrames = new long[times.size()];
-		final Object[] tempValues = new Object[times.size()];
-		final Object[] tempInTans = new Object[times.size()];
-		final Object[] tempOutTans = new Object[times.size()];
-
-		final boolean hasTangents = timeline.interpolationType.tangential();
-
-		for (int i = 0, l = times.size(); i < l; i++) {
-			final Object value = values.get(i);
-
-			tempFrames[i] = times.get(i).longValue();
-
-			if (isFloat) {
-				if (vectorSize == 1) {
-					tempValues[i] = new float[] {(Float) value};
-
-					if (hasTangents) {
-						tempInTans[i] = new float[] {(Float) inTans.get(i)};
-						tempOutTans[i] = new float[] {(Float) outTans.get(i)};
-					} else {
-						tempInTans[i] = new float[] {0};
-						tempOutTans[i] = new float[] {0};
-					}
-				} else if (vectorSize == 3) {
-					tempValues[i] = ((Vec3) value).toFloatArray();
-
-					if (hasTangents) {
-						tempInTans[i] = ((Vec3) inTans.get(i)).toFloatArray();
-						tempOutTans[i] = ((Vec3) outTans.get(i)).toFloatArray();
-					} else {
-						tempInTans[i] = (new Vec3()).toFloatArray();
-						tempOutTans[i] = (new Vec3()).toFloatArray();
-					}
-				} else {
-					tempValues[i] = ((Quat) value).toFloatArray();
-
-					if (hasTangents) {
-						tempInTans[i] = ((Quat) inTans.get(i)).toFloatArray();
-						tempOutTans[i] = ((Quat) outTans.get(i)).toFloatArray();
-					} else {
-						tempInTans[i] = (new Quat()).toFloatArray();
-						tempOutTans[i] = (new Quat()).toFloatArray();
-					}
-				}
-			} else {
-				tempValues[i] = (new long[] {((Integer) value).longValue()});
-
-				if (hasTangents) {
-					tempInTans[i] = new long[] {((Integer) inTans.get(i)).longValue()};
-					tempOutTans[i] = new long[] {((Integer) outTans.get(i)).longValue()};
-				} else {
-					tempInTans[i] = new long[] {0};
-					tempOutTans[i] = new long[] {0};
-				}
+		} else if (firstValue instanceof long[]) {
+			if (timeline.name.toString().equalsIgnoreCase("rotation")) {
+				return new QuatAnimFlag((MdlxFloatArrayTimeline) timeline);
 			}
+			return new IntAnimFlag((MdlxUInt32Timeline) timeline);
+//			return new IntAnimFlag((MdlxTimeline<long[]>) timeline);
 		}
-
-		timeline.frames = tempFrames;
-		timeline.values = tempValues;
-		timeline.inTans = tempInTans;
-		timeline.outTans = tempOutTans;
-
-		return timeline;
+		return null;
 	}
 
-	public int getGlobalSeqId() {
-		return globalSeqId;
-	}
-
-	public void setGlobalSeqId(final int globalSeqId) {
-		this.globalSeqId = globalSeqId;
-	}
-
-	public boolean hasGlobalSeq() {
-		return hasGlobalSeq;
-	}
-
-	public void setHasGlobalSeq(final boolean hasGlobalSeq) {
-		this.hasGlobalSeq = hasGlobalSeq;
-	}
-
-	public void addEntry(final Integer time, final Object value) {
-		times.add(time);
-		values.add(value);
-	}
-
-	public void addEntry(final Integer time, final Object value, final Object inTan, final Object outTan) {
-		times.add(time);
-		values.add(value);
-
-		if (inTan != null && outTan != null) {
-			inTans.add(inTan);
-			outTans.add(outTan);
-		}
-	}
-
-	public void addEntry(Entry entry) {
-		int keyframeIndex = getKeyframeCeilIndex(entry.time);
-		times.add(keyframeIndex, entry.time);
-		values.add(keyframeIndex, entry.value);
-
-		if (entry.inTan != null && entry.outTan != null) {
-			inTans.add(keyframeIndex, entry.inTan);
-			outTans.add(keyframeIndex, entry.outTan);
-		}
-	}
-
-	public void setEntry(final Integer time, final Object value) {
-		for (int index = 0; index < times.size(); index++) {
-			if (times.get(index).equals(time)) {
-				values.set(index, value);
-				if (tans()) {
-					inTans.set(index, value);
-					outTans.set(index, value);
-				}
-			}
-		}
-	}
-
-	/**
-	 * To set an Entry with an Entry
-	 *
-	 * @param time  the time of the entry to be changed
-	 * @param entry the entry to replace the old entry
-	 */
-	public void setEntry(final Integer time, Entry entry) {
-		for (int index = 0; index < times.size(); index++) {
-			if (times.get(index).equals(time)) {
-				times.set(index, entry.time);
-				values.set(index, entry.value);
-				if (tans()) {
-					inTans.set(index, entry.value);
-					outTans.set(index, entry.value);
-				}
-			}
-		}
-	}
-
-	public void setEntry(Entry entry) {
-		setEntry(entry.time, entry);
-	}
-
-	/**
-	 * This class is a small shell of an example for how my "AnimFlag" class
-	 * should've been implemented. It's currently only used for the
-	 * {@link AnimFlag#getEntry(int)} function.
-	 *
-	 * @author Eric
-	 */
-	public static class Entry {
-		public Integer time;
-		public Object value, inTan, outTan;
-
-		public Entry(final Integer time, final Object value, final Object inTan, final Object outTan) {
-			super();
-			this.time = time;
-			this.value = value;
-			this.inTan = inTan;
-			this.outTan = outTan;
-		}
-
-		public Entry(final Integer time, final Object value) {
-			super();
-			this.time = time;
-			this.value = value;
-		}
-
-		public Entry(final Entry other) {
-			super();
-			this.time = other.time;
-			this.value = cloneValue(other.value);
-			this.inTan = cloneValue(other.inTan);
-			this.outTan = cloneValue(other.outTan);
-		}
-
-		public void set(final Entry other) {
-			time = other.time;
-			value = other.value;
-			inTan = other.inTan;
-			outTan = other.outTan;
-		}
-	}
-
-	public Entry getEntry(final int index) {
-		if (tans()) {
-			return new Entry(times.get(index), values.get(index), inTans.get(index), outTans.get(index));
-		} else {
-			return new Entry(times.get(index), values.get(index));
-		}
+	public static AnimFlag<?> createFromAnimFlag(final AnimFlag<?> af) {
+		if (af instanceof IntAnimFlag) {
+			return new IntAnimFlag((IntAnimFlag) af);
+		} else if (af instanceof FloatAnimFlag) {
+			return new FloatAnimFlag((FloatAnimFlag) af);
+		} else if (af instanceof Vec3AnimFlag) {
+			return new Vec3AnimFlag((Vec3AnimFlag) af);
+		} else if (af instanceof QuatAnimFlag) {
+			return new QuatAnimFlag((QuatAnimFlag) af);
+		} else return null;
 	}
 
 	public static Object cloneValue(final Object value) {
@@ -596,7 +190,330 @@ public class AnimFlag {
 		}
 	}
 
-	public Object valueAt(final Integer time) {
+	public static AnimFlag<?> buildEmptyFrom(final AnimFlag<?> af) {
+		if (af instanceof IntAnimFlag) {
+			return new IntAnimFlag((IntAnimFlag) af);
+		} else if (af instanceof FloatAnimFlag) {
+			return new FloatAnimFlag((FloatAnimFlag) af);
+		} else if (af instanceof Vec3AnimFlag) {
+			return new Vec3AnimFlag((Vec3AnimFlag) af);
+		} else if (af instanceof QuatAnimFlag) {
+			return new QuatAnimFlag((QuatAnimFlag) af);
+		} else return null;
+	}
+
+	public boolean equals(final AnimFlag<T> animFlag) {
+		boolean does = animFlag != null;
+		if (!does) {
+			return false;
+		}
+		does = (name.equals(animFlag.getName()))
+				|| (hasGlobalSeq == animFlag.hasGlobalSeq)
+				|| (values.equals(animFlag.values)
+				&& (Objects.equals(globalSeq, animFlag.globalSeq))
+				&& (interpolationType == animFlag.interpolationType)
+				&& (Objects.equals(inTans, animFlag.inTans))
+				&& (Objects.equals(outTans, animFlag.outTans))
+				&& (typeid == animFlag.typeid));
+		return does;
+	}
+
+	public Integer getGlobalSeq() {
+		return globalSeq;
+	}
+
+	public void setGlobalSeq(final Integer globalSeq) {
+		this.globalSeq = globalSeq;
+	}
+
+	public void setGlobSeq(final Integer integer) {
+		globalSeq = integer;
+		hasGlobalSeq = integer != null;
+	}
+
+	public War3ID getWar3ID(final TimelineContainer container) {
+		final AnimationMap id = getAnimationMap(container);
+
+		if (id == null) {
+			throw new RuntimeException("Got an unknown timeline name: " + name);
+		}
+
+		return id.getWar3id();
+	}
+
+	public AnimationMap getAnimationMap(final TimelineContainer container) {
+		if (container instanceof Layer) {
+			switch (name) {
+				case MdlUtils.TOKEN_TEXTURE_ID:
+					return AnimationMap.KMTF;
+				case MdlUtils.TOKEN_ALPHA:
+					return AnimationMap.KMTA;
+				case MdlUtils.TOKEN_EMISSIVE_GAIN:
+					return AnimationMap.KMTE;
+				case MdlUtils.TOKEN_EMISSIVE:
+					return AnimationMap.KMTE;
+				case MdlUtils.TOKEN_FRESNEL_COLOR:
+					return AnimationMap.KFC3;
+				case MdlUtils.TOKEN_FRESNEL_OPACITY:
+					return AnimationMap.KFCA;
+				case MdlUtils.TOKEN_FRESNEL_TEAM_COLOR:
+					return AnimationMap.KFTC;
+			}
+		} else if (container instanceof TextureAnim) {
+			switch (name) {
+				case MdlUtils.TOKEN_TRANSLATION:
+					return AnimationMap.KTAT;
+				case MdlUtils.TOKEN_ROTATION:
+					return AnimationMap.KTAR;
+				case MdlUtils.TOKEN_SCALING:
+					return AnimationMap.KTAS;
+			}
+		} else if (container instanceof GeosetAnim) {
+			switch (name) {
+				case MdlUtils.TOKEN_ALPHA:
+					return AnimationMap.KGAO;
+				case MdlUtils.TOKEN_COLOR:
+					return AnimationMap.KGAC;
+			}
+		} else if (container instanceof Light) {
+			switch (name) {
+				case MdlUtils.TOKEN_ATTENUATION_START:
+					return AnimationMap.KLAS;
+				case MdlUtils.TOKEN_ATTENUATION_END:
+					return AnimationMap.KLAE;
+				case MdlUtils.TOKEN_COLOR:
+					return AnimationMap.KLAC;
+				case MdlUtils.TOKEN_INTENSITY:
+					return AnimationMap.KLAI;
+				case MdlUtils.TOKEN_AMB_INTENSITY:
+					return AnimationMap.KLBI;
+				case MdlUtils.TOKEN_AMB_COLOR:
+					return AnimationMap.KLBC;
+				case MdlUtils.TOKEN_VISIBILITY:
+					return AnimationMap.KLAV;
+			}
+		} else if (container instanceof Attachment) {
+			switch (name) {
+				case MdlUtils.TOKEN_VISIBILITY:
+					return AnimationMap.KATV;
+			}
+		} else if (container instanceof ParticleEmitter) {
+			switch (name) {
+				case MdlUtils.TOKEN_EMISSION_RATE:
+					return AnimationMap.KPEE;
+				case MdlUtils.TOKEN_GRAVITY:
+					return AnimationMap.KPEG;
+				case MdlUtils.TOKEN_LONGITUDE:
+					return AnimationMap.KPLN;
+				case MdlUtils.TOKEN_LATITUDE:
+					return AnimationMap.KPLT;
+				case MdlUtils.TOKEN_LIFE_SPAN:
+					return AnimationMap.KPEL;
+				case MdlUtils.TOKEN_INIT_VELOCITY:
+					return AnimationMap.KPES;
+				case MdlUtils.TOKEN_VISIBILITY:
+					return AnimationMap.KPEV;
+			}
+		} else if (container instanceof ParticleEmitter2) {
+			switch (name) {
+				case MdlUtils.TOKEN_SPEED:
+					return AnimationMap.KP2S;
+				case MdlUtils.TOKEN_VARIATION:
+					return AnimationMap.KP2R;
+				case MdlUtils.TOKEN_LATITUDE:
+					return AnimationMap.KP2L;
+				case MdlUtils.TOKEN_GRAVITY:
+					return AnimationMap.KP2G;
+				case MdlUtils.TOKEN_EMISSION_RATE:
+					return AnimationMap.KP2E;
+				case MdlUtils.TOKEN_LENGTH:
+					return AnimationMap.KP2N;
+				case MdlUtils.TOKEN_WIDTH:
+					return AnimationMap.KP2W;
+				case MdlUtils.TOKEN_VISIBILITY:
+					return AnimationMap.KP2V;
+			}
+		} else if (container instanceof ParticleEmitterPopcorn) {
+			switch (name) {
+				case MdlUtils.TOKEN_ALPHA:
+					return AnimationMap.KPPA;
+				case MdlUtils.TOKEN_COLOR:
+					return AnimationMap.KPPC;
+				case MdlUtils.TOKEN_EMISSION_RATE:
+					return AnimationMap.KPPE;
+				case MdlUtils.TOKEN_LIFE_SPAN:
+					return AnimationMap.KPPL;
+				case MdlUtils.TOKEN_SPEED:
+					return AnimationMap.KPPS;
+				case MdlUtils.TOKEN_VISIBILITY:
+					return AnimationMap.KPPV;
+			}
+		} else if (container instanceof RibbonEmitter) {
+			switch (name) {
+				case MdlUtils.TOKEN_HEIGHT_ABOVE:
+					return AnimationMap.KRHA;
+				case MdlUtils.TOKEN_HEIGHT_BELOW:
+					return AnimationMap.KRHB;
+				case MdlUtils.TOKEN_ALPHA:
+					return AnimationMap.KRAL;
+				case MdlUtils.TOKEN_COLOR:
+					return AnimationMap.KRCO;
+				case MdlUtils.TOKEN_TEXTURE_SLOT:
+					return AnimationMap.KRTX;
+				case MdlUtils.TOKEN_VISIBILITY:
+					return AnimationMap.KRVS;
+			}
+		} else if (container instanceof Camera.SourceNode) {
+			switch (name) {
+				case MdlUtils.TOKEN_TRANSLATION:
+					return AnimationMap.KCTR;
+				case MdlUtils.TOKEN_ROTATION:
+					return AnimationMap.KCRL;
+			}
+		} else if (container instanceof Camera.TargetNode) {
+			switch (name) {
+				case MdlUtils.TOKEN_TRANSLATION:
+					return AnimationMap.KTTR;
+			}
+		}
+
+		if (container instanceof IdObject) {
+			switch (name) {
+				case MdlUtils.TOKEN_TRANSLATION:
+					return AnimationMap.KGTR;
+				case MdlUtils.TOKEN_ROTATION:
+					return AnimationMap.KGRT;
+				case MdlUtils.TOKEN_SCALING:
+					return AnimationMap.KGSC;
+			}
+		}
+
+		return null;
+	}
+
+	protected void setVectorSize(Object value) {
+		if (value instanceof float[]) {
+			vectorSize = ((float[]) value).length;
+		} else if (value instanceof Vec3) {
+			vectorSize = 3;
+		} else if (value instanceof Vec4) {
+			vectorSize = 4;
+		} else if (value.getClass().getName().equals("java.lang.Float") || value.getClass().getName().equals("java.lang.Integer")) {
+			vectorSize = 1;
+		} else {
+			isFloat = false;
+//			System.out.println("value class: " + value.getClass().getName());
+//			System.out.println("long[].class: " + long[].class.getName());
+//			System.out.println("long[].class: " + long[].class.getName());
+			vectorSize = ((long[]) value).length;
+		}
+	}
+
+	public void setInterpType(final InterpolationType interpolationType) {
+		this.interpolationType = interpolationType;
+		if (interpolationType.tangential() && inTans.isEmpty()) {
+			unLinearize();
+		}
+	}
+
+	public InterpolationType getInterpolationType() {
+		return interpolationType;
+	}
+
+	public int size() {
+		return times.size();
+	}
+
+	public abstract MdlxTimeline<?> toMdlx(final TimelineContainer container);
+
+	public int getGlobalSeqId() {
+		return globalSeqId;
+	}
+
+	public void setGlobalSeqId(final int globalSeqId) {
+		this.globalSeqId = globalSeqId;
+	}
+
+	public boolean hasGlobalSeq() {
+		return hasGlobalSeq;
+	}
+
+	public void setHasGlobalSeq(final boolean hasGlobalSeq) {
+		this.hasGlobalSeq = hasGlobalSeq;
+	}
+
+	public void addEntry(final Integer time, final T value) {
+		times.add(time);
+		values.add(value);
+	}
+
+	public void addEntry(final Integer time, final T value, final T inTan, final T outTan) {
+		times.add(time);
+		values.add(value);
+
+		if (inTan != null && outTan != null) {
+			inTans.add(inTan);
+			outTans.add(outTan);
+		}
+	}
+
+	public void addEntry(Entry<T> entry) {
+		int keyframeIndex = getKeyframeCeilIndex(entry.time);
+		times.add(keyframeIndex, entry.time);
+		values.add(keyframeIndex, entry.value);
+
+		if (entry.inTan != null && entry.outTan != null) {
+			inTans.add(keyframeIndex, entry.inTan);
+			outTans.add(keyframeIndex, entry.outTan);
+		}
+	}
+
+//	public abstract T cloneValue(final T value);
+
+	public void setEntry(final Integer time, final T value) {
+		for (int index = 0; index < times.size(); index++) {
+			if (times.get(index).equals(time)) {
+				values.set(index, value);
+				if (tans()) {
+					inTans.set(index, value);
+					outTans.set(index, value);
+				}
+			}
+		}
+	}
+
+	/**
+	 * To set an Entry with an Entry
+	 *
+	 * @param time  the time of the entry to be changed
+	 * @param entry the entry to replace the old entry
+	 */
+	public void setEntry(final Integer time, Entry<T> entry) {
+		for (int index = 0; index < times.size(); index++) {
+			if (times.get(index).equals(time)) {
+				times.set(index, entry.time);
+				values.set(index, entry.value);
+				if (tans()) {
+					inTans.set(index, entry.value);
+					outTans.set(index, entry.value);
+				}
+			}
+		}
+	}
+
+	public void setEntry(Entry<T> entry) {
+		setEntry(entry.time, entry);
+	}
+
+	public Entry<T> getEntry(final int index) {
+		if (tans()) {
+			return new Entry<T>(times.get(index), values.get(index), inTans.get(index), outTans.get(index));
+		} else {
+			return new Entry<T>(times.get(index), values.get(index));
+		}
+	}
+
+	public T valueAt(final Integer time) {
 		for (int i = 0; i < times.size(); i++) {
 			if (times.get(i).equals(time)) {
 				return values.get(i);
@@ -605,7 +522,7 @@ public class AnimFlag {
 		return null;
 	}
 
-	public Object inTanAt(final Integer time) {
+	public T inTanAt(final Integer time) {
 		for (int i = 0; i < times.size(); i++) {
 			if (times.get(i).equals(time)) {
 				return inTans.get(i);
@@ -614,7 +531,7 @@ public class AnimFlag {
 		return null;
 	}
 
-	public Object outTanAt(final Integer time) {
+	public T outTanAt(final Integer time) {
 		for (int i = 0; i < times.size(); i++) {
 			if (times.get(i).equals(time)) {
 				return outTans.get(i);
@@ -623,7 +540,22 @@ public class AnimFlag {
 		return null;
 	}
 
-	public void setValuesTo(final AnimFlag af) {
+	public void setValuesTo(final AnimFlag<?> af) {
+		if (af instanceof IntAnimFlag && this instanceof IntAnimFlag) {
+			((IntAnimFlag) this).setValuesTo((IntAnimFlag) af);
+		} else if (af instanceof FloatAnimFlag && this instanceof FloatAnimFlag) {
+			((FloatAnimFlag) this).setValuesTo((FloatAnimFlag) af);
+		} else if (af instanceof Vec3AnimFlag && this instanceof Vec3AnimFlag) {
+			((Vec3AnimFlag) this).setValuesTo((Vec3AnimFlag) af);
+		} else if (af instanceof QuatAnimFlag && this instanceof QuatAnimFlag) {
+			((QuatAnimFlag) this).setValuesTo((QuatAnimFlag) af);
+		}
+	}
+
+
+	public abstract void setValuesTo2(final AnimFlag<T> af);
+
+	public void setValuesTo3(final AnimFlag<T> af) {
 		name = af.name;
 		globalSeq = af.globalSeq;
 		globalSeqId = af.globalSeqId;
@@ -636,7 +568,7 @@ public class AnimFlag {
 		outTans = deepCopy(af.outTans);
 	}
 
-	private <T> List<T> deepCopy(final List<T> source) {
+	List<T> deepCopy(final List<T> source) {
 
 		final List<T> copy = new ArrayList<>();
 		for (final T item : source) {
@@ -657,12 +589,12 @@ public class AnimFlag {
 		return name;
 	}
 
-	public int getTypeId() {
-		return typeid;
+	public void setName(final String title) {
+		name = title;
 	}
 
-	private AnimFlag() {
-
+	public int getTypeId() {
+		return typeid;
 	}
 
 	public void updateGlobalSeqRef(final EditableModel mdlr) {
@@ -716,8 +648,8 @@ public class AnimFlag {
 		}
 	}
 
-	private void flipAll(byte axis, List<Object> values) {
-		for (final Object value : values) {
+	private void flipAll(byte axis, List<T> values) {
+		for (final T value : values) {
 			final Quat rot = (Quat) value;
 			final Vec3 euler = rot.toEuler();
 			switch (axis) {
@@ -738,15 +670,15 @@ public class AnimFlag {
 		}
 	}
 
-	public AnimFlag getMostVisible(final AnimFlag partner) {
+	public AnimFlag<T> getMostVisible(final AnimFlag<T> partner) {
 		if (partner != null) {
 			if ((typeid == 0) && (partner.typeid == 0)) {
 				final List<Integer> atimes = new ArrayList<>(times);
 				final List<Integer> btimes = new ArrayList<>(partner.times);
-				final List<Float> avalues = new ArrayList(values);
-				final List<Float> bvalues = new ArrayList(partner.values);
+				final List<T> avalues = new ArrayList<>(values);
+				final List<T> bvalues = new ArrayList<>(partner.values);
 
-				AnimFlag mostVisible = null;
+				AnimFlag<T> mostVisible = null;
 				mostVisible = getMostVissibleAnimFlag(atimes, btimes, avalues, bvalues, mostVisible, partner, this);
 				if (mostVisible == null) return null;
 
@@ -763,26 +695,10 @@ public class AnimFlag {
 		return null;
 	}
 
-	private AnimFlag getMostVissibleAnimFlag(List<Integer> atimes, List<Integer> btimes, List<Float> avalues, List<Float> bvalues, AnimFlag mostVisible, AnimFlag flag1, AnimFlag flag2) {
+	private AnimFlag<T> getMostVissibleAnimFlag(List<Integer> atimes, List<Integer> btimes, List<T> avalues, List<T> bvalues, AnimFlag<T> mostVisible, AnimFlag<T> flag1, AnimFlag<T> flag2) {
 		for (int i = atimes.size() - 1; i >= 0; i--)
 		// count down from top, meaning that removing the current value causes no harm
 		{
-			final Integer currentTime = atimes.get(i);
-			final Float currentVal = avalues.get(i);
-
-			if (btimes.contains(currentTime)) {
-				final Float partVal = bvalues.get(btimes.indexOf(currentTime));
-				if (partVal > currentVal) {
-					mostVisible = getMostVis(flag1, flag2, mostVisible);
-					if (mostVisible == null) return null;
-				} else if (partVal < currentVal) {
-					mostVisible = getMostVis(flag2, flag1, mostVisible);
-					if (mostVisible == null) return null;
-				}
-			} else if (currentVal < 1) {
-				mostVisible = getMostVis(flag1, flag2, mostVisible);
-				if (mostVisible == null) return null;
-			}
 		}
 		return mostVisible;
 	}
@@ -799,39 +715,36 @@ public class AnimFlag {
 		}
 	}
 
-	public void copyFrom(final AnimFlag source) {
-		times.addAll(source.times);
-		values.addAll(source.values);
-		final boolean stans = source.tans();
-		final boolean mtans = tans();
-		if (stans && mtans) {
-			inTans.addAll(source.inTans);
-			outTans.addAll(source.outTans);
-		} else if (mtans) {
-			JOptionPane.showMessageDialog(null,
-					"Some animations will lose complexity due to transfer incombatibility. There will probably be no visible change.");
-			inTans.clear();
-			outTans.clear();
-			interpolationType = InterpolationType.LINEAR;
-			// Probably makes this flag linear, but certainly makes it more like the copy source
+	public void unLinearize() {
+		if (!interpolationType.tangential()) {
+			interpolationType = InterpolationType.BEZIER;
+			inTans.addAll(values);
+			outTans.addAll(values);
+		}
+	}
+
+	public void setInterpolationType(InterpolationType interpolationType) {
+		this.interpolationType = interpolationType;
+		if (interpolationType.tangential()) {
+			inTans.addAll(values);
+			outTans.addAll(values);
+		} else {
+			linearize();
 		}
 	}
 
 	public void deleteAnim(final Animation anim) {
 		if (!hasGlobalSeq) {
 			for (int index = times.size() - 1; index >= 0; index--) {
-				final int i = times.get(index);
-				// int index = times.indexOf(inte);
-				if ((i >= anim.getStart()) && (i <= anim.getEnd())) {
-					// If this "i" is a part of the anim being removed
+				final int time = times.get(index);
+				if ((time >= anim.getStart()) && (time <= anim.getEnd())) {
+					// If this "time" is a part of the anim being removed
 					deleteAt(index);
 				}
 			}
 		} else {
 			System.out.println("KeyFrame deleting was blocked by a GlobalSequence");
 		}
-
-		// BOOM magic happens
 	}
 
 	public void deleteAt(final int index) {
@@ -847,51 +760,52 @@ public class AnimFlag {
 	 * Copies time track data from a certain interval into a different, new interval.
 	 * The AnimFlag source of the data to copy cannot be same AnimFlag into which the
 	 * data is copied, or else a ConcurrentModificationException will be thrown.
+	 * Does not check that the destination interval is empty!
+	 *
+	 * @param source      the AnimFlag which values will be copied
+	 * @param sourceStart the start time for the interval to be copied, inclusive
+	 * @param sourceEnd   the end time for the interval to be copied, inclusive
+	 * @param newStart    the start time for the interval in the destination AnimFlag, inclusive
+	 * @param newEnd      the end time for the interval in the destination AnimFlag, inclusive
 	 */
-	public void copyFrom(final AnimFlag source, final int sourceStart, final int sourceEnd, final int newStart,
-			final int newEnd) {
-		// Timescales a part of the AnimFlag from the source into the new time "newStart" to "newEnd"
-		boolean tans = source.tans();
-		if (tans && interpolationType == InterpolationType.LINEAR) {
-			final int x = JOptionPane.showConfirmDialog(null,
-					"ERROR! A source was found to have Linear and Nonlinear motion simultaneously. Does the following have non-zero data? " + source.inTans,
-					"Help This Program!", JOptionPane.YES_NO_OPTION);
-			if (x == JOptionPane.NO_OPTION) {
-				tans = false;
-			}
+	public void copyFrom(final AnimFlag<?> source, final int sourceStart, final int sourceEnd, final int newStart, final int newEnd) {
+		if (this instanceof IntAnimFlag && source instanceof IntAnimFlag) {
+			((IntAnimFlag) this).copyFrom((IntAnimFlag) source, sourceStart, sourceEnd, newStart, newEnd);
 		}
-		for (final Integer inte : source.times) {
-			final int i = inte;
-			final int index = source.times.indexOf(inte);
-			if ((i >= sourceStart) && (i <= sourceEnd)) {
-				// If this "i" is a part of the anim being rescaled
-				final double ratio = (double) (i - sourceStart) / (double) (sourceEnd - sourceStart);
-				times.add((int) (newStart + (ratio * (newEnd - newStart))));
-				values.add(cloneValue(source.values.get(index)));
-				if (tans) {
-					inTans.add(cloneValue(source.inTans.get(index)));
-					outTans.add(cloneValue(source.outTans.get(index)));
-				}
-			}
+		if (this instanceof FloatAnimFlag && source instanceof FloatAnimFlag) {
+			((FloatAnimFlag) this).copyFrom((FloatAnimFlag) source, sourceStart, sourceEnd, newStart, newEnd);
 		}
+		if (this instanceof Vec3AnimFlag && source instanceof Vec3AnimFlag) {
+			((Vec3AnimFlag) this).copyFrom((Vec3AnimFlag) source, sourceStart, sourceEnd, newStart, newEnd);
+		}
+		if (this instanceof QuatAnimFlag && source instanceof QuatAnimFlag) {
+			((QuatAnimFlag) this).copyFrom((QuatAnimFlag) source, sourceStart, sourceEnd, newStart, newEnd);
+		}
+	}
 
-		sort();
-
-		// BOOM magic happens
+	public void copyFrom(final AnimFlag<?> source) {
+		if (this instanceof IntAnimFlag && source instanceof IntAnimFlag) {
+			((IntAnimFlag) this).copyFrom((IntAnimFlag) source);
+		}
+		if (this instanceof FloatAnimFlag && source instanceof FloatAnimFlag) {
+			((FloatAnimFlag) this).copyFrom((FloatAnimFlag) source);
+		}
+		if (this instanceof Vec3AnimFlag && source instanceof Vec3AnimFlag) {
+			((Vec3AnimFlag) this).copyFrom((Vec3AnimFlag) source);
+		}
+		if (this instanceof QuatAnimFlag && source instanceof QuatAnimFlag) {
+			((QuatAnimFlag) this).copyFrom((QuatAnimFlag) source);
+		}
 	}
 
 	public void timeScale(final int start, final int end, final int newStart, final int newEnd) {
-		// Timescales a part of the AnimFlag from section "start" to "end" into
-		// the new time "newStart" to "newEnd"
-		// if( newEnd > newStart )
-		// {
-		for (int z = 0; z < times.size(); z++)// Integer inte: times )
-		{
-			final int i = times.get(z);
-			if ((i >= start) && (i <= end)) {
-				// If this "i" is a part of the anim being rescaled
-				final double ratio = (double) (i - start) / (double) (end - start);
-				times.set(z, (int) (newStart + (ratio * (newEnd - newStart))));
+		// Timescales a part of the AnimFlag from section "start" to "end" into the new time "newStart" to "newEnd"
+		for (int index = 0; index < times.size(); index++) {
+			final int time = times.get(index);
+			if ((time >= start) && (time <= end)) {
+				// If this "time" is a part of the anim being rescaled
+				final double ratio = (double) (time - start) / (double) (end - start);
+				times.set(index, (int) (newStart + (ratio * (newEnd - newStart))));
 			}
 		}
 		sort();
@@ -935,7 +849,7 @@ public class AnimFlag {
 
 	private void exchange(final int i, final int j) {
 		final Integer iTime = times.get(i);
-		final Object iValue = values.get(i);
+		final T iValue = values.get(i);
 
 		times.set(i, times.get(j));
 		try {
@@ -949,8 +863,8 @@ public class AnimFlag {
 
 		if (inTans.size() > 0)// if we have to mess with Tans
 		{
-			final Object iInTan = inTans.get(i);
-			final Object iOutTan = outTans.get(i);
+			final T iInTan = inTans.get(i);
+			final T iOutTan = outTans.get(i);
 
 			inTans.set(i, inTans.get(j));
 			outTans.set(i, outTans.get(j));
@@ -964,15 +878,15 @@ public class AnimFlag {
 		return times;
 	}
 
-	public List<Object> getValues() {
+	public List<T> getValues() {
 		return values;
 	}
 
-	public List<Object> getInTans() {
+	public List<T> getInTans() {
 		return inTans;
 	}
 
-	public List<Object> getOutTans() {
+	public List<T> getOutTans() {
 		return outTans;
 	}
 
@@ -991,28 +905,35 @@ public class AnimFlag {
 	 * Rather than spending time visualizing corner cases for these, I borrowed
 	 * logic from: https://www.geeksforgeeks.org/ceiling-in-a-sorted-array/
 	 */
-	private int ceilIndex(final int time, final int lo, final int hi) {
-		if (time <= times.get(lo)) {
-			return lo;
+	private int ceilIndex(final int time, final int timeStartIndex, final int timeEndIndex) {
+		if (time <= times.get(timeStartIndex)) {
+			return timeStartIndex;
 		}
-		if (time > times.get(hi)) {
+		if (time > times.get(timeEndIndex)) {
 			return -1;
 		}
-		final int mid = (lo + hi) / 2;
-		final Integer midTime = times.get(mid);
-		if (midTime == time) {
-			return mid;
-		} else if (midTime < time) {
-			if (((mid + 1) <= hi) && (time <= times.get(mid + 1))) {
-				return mid + 1;
+
+		if (timeEndIndex - timeStartIndex < 10) {
+			for (int i = timeStartIndex; i <= timeEndIndex; i++) {
+				if (times.get(i) == time || time < times.get(i) && (i > 0) && time > (times.get(i - 1))) {
+					return i;
+				}
+			}
+		}
+
+		final int midIndex = (timeStartIndex + timeEndIndex) / 2;
+		final Integer midTime = times.get(midIndex);
+		if (midTime < time) {
+			if (((midIndex + 1) <= timeEndIndex) && (time <= times.get(midIndex + 1))) {
+				return midIndex + 1;
 			} else {
-				return ceilIndex(time, mid + 1, hi);
+				return ceilIndex(time, midIndex + 1, timeEndIndex);
 			}
 		} else {
-			if (((mid - 1) >= lo) && (time > times.get(mid - 1))) {
-				return mid;
+			if (((midIndex - 1) >= timeStartIndex) && (time > times.get(midIndex - 1))) {
+				return midIndex;
 			} else {
-				return ceilIndex(time, lo, mid - 1);
+				return ceilIndex(time, timeStartIndex, midIndex - 1);
 			}
 		}
 	}
@@ -1028,33 +949,37 @@ public class AnimFlag {
 	 * Rather than spending time visualizing corner cases for these, I borrowed
 	 * logic from: https://www.geeksforgeeks.org/floor-in-a-sorted-array/
 	 */
-	private int floorIndex(final int time, final int lo, final int hi) {
-		if (lo > hi) {
+	private int floorIndex(final int time, final int timeStartIndex, final int timeEndIndex) {
+		if (timeStartIndex > timeEndIndex) {
 			return -1;
+		} else if (time >= times.get(timeEndIndex)) {
+			return timeEndIndex;
 		}
-		if (time >= times.get(hi)) {
-			return hi;
+		if (timeEndIndex - timeStartIndex < 10) {
+			for (int i = timeStartIndex; i <= timeEndIndex; i++) {
+				if (times.get(i) == time) {
+					return i;
+				} else if (time < times.get(i) && (i > 0) && (times.get(i - 1) <= time)) {
+					return i - 1;
+				}
+			}
 		}
-		final int mid = (lo + hi) / 2;
+		final int mid = (timeStartIndex + timeEndIndex) / 2;
 		final Integer midTime = times.get(mid);
 		if (times.get(mid) == time) {
 			return mid;
 		}
-		if ((mid > 0) && (times.get(mid - 1) <= time) && (time < midTime)) {
+		if ((time < midTime) && (mid > 0) && (time >= times.get(mid - 1))) {
 			return mid - 1;
 		}
 		if (time > midTime) {
-			return floorIndex(time, mid + 1, hi);
+			return floorIndex(time, mid + 1, timeEndIndex);
 		} else {
-			return floorIndex(time, lo, mid - 1);
+			return floorIndex(time, timeStartIndex, mid - 1);
 		}
 	}
 
-	public static final Quat ROTATE_IDENTITY = new Quat(0, 0, 0, 1);
-	public static final Vec3 SCALE_IDENTITY = new Vec3(1, 1, 1);
-	public static final Vec3 TRANSLATE_IDENTITY = new Vec3(0, 0, 0);
-
-	private Object identity(final int typeid) {
+	protected Object identity(final int typeid) {
 		return switch (typeid) {
 			case ALPHA -> 1.f;
 			case TRANSLATION -> TRANSLATE_IDENTITY;
@@ -1073,21 +998,24 @@ public class AnimFlag {
 	 * abysmal, but currently this is how the codebase is.
 	 */
 	public Object interpolateAt(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+//		System.out.println(name + ", interpolateAt");
 		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
+//			System.out.println("~~ animatedRenderEnvironment == null");
 			if (values.size() > 0) {
 				return values.get(0);
 			}
 			return identity(typeid);
 		}
 		int localTypeId = typeid;
+//		System.out.println("typeId 1: " + typeid);
 		if ((localTypeId == ROTATION) && (size() > 0) && (values.get(0) instanceof Float)) {
 			localTypeId = ALPHA; // magic Camera rotation!
 		}
 		if (times.isEmpty()) {
+//			System.out.println(name + ", ~~ no times");
 			return identity(localTypeId);
 		}
-		// TODO ghostwolf says to stop using binary search, because linear walking is
-		// faster for the small MDL case
+		// TODO ghostwolf says to stop using binary search, because linear walking is faster for the small MDL case
 		final int time;
 		int ceilIndex;
 		final int floorIndex;
@@ -1099,15 +1027,14 @@ public class AnimFlag {
 		Integer ceilIndexTime;
 		final float timeBetweenFrames;
 		if (hasGlobalSeq() && (getGlobalSeq() >= 0)) {
+//			System.out.println(name + ", ~~ hasGlobalSeq");
 			time = animatedRenderEnvironment.getGlobalSeqTime(getGlobalSeq());
 			final int floorAnimStartIndex = Math.max(0, floorIndex(1));
 			final int floorAnimEndIndex = Math.max(0, floorIndex(getGlobalSeq()));
 			floorIndex = Math.max(0, floorIndex(time));
-			ceilIndex = ceilIndex(time);
-			if (ceilIndex < floorIndex) {
-				// retarded repeated keyframes issue, see Peasant's Bone_Chest at time 18300
-				ceilIndex = floorIndex;
-			}
+
+			ceilIndex = Math.max(floorIndex, ceilIndex(time)); // retarded repeated keyframes issue, see Peasant's Bone_Chest at time 18300
+
 			floorValue = values.get(floorIndex);
 			floorInTan = tans() ? inTans.get(floorIndex) : null;
 			floorOutTan = tans() ? outTans.get(floorIndex) : null;
@@ -1138,32 +1065,31 @@ public class AnimFlag {
 				return floorValue;
 			}
 		} else {
+//			System.out.println(name + ", ~~ no global seq");
 			final BasicTimeBoundProvider animation = animatedRenderEnvironment.getCurrentAnimation();
-			time = animation.getStart() + animatedRenderEnvironment.getAnimationTime();
-			final int floorAnimStartIndex = Math.max(0, floorIndex(animation.getStart() + 1));
-			final int floorAnimEndIndex = Math.max(0, floorIndex(animation.getEnd()));
+			int animationStart = animation.getStart();
+			time = animationStart + animatedRenderEnvironment.getAnimationTime();
+			final int floorAnimStartIndex = Math.max(0, floorIndex(animationStart + 1));
+			int animationEnd = animation.getEnd();
+			final int floorAnimEndIndex = Math.max(0, floorIndex(animationEnd));
 			floorIndex = floorIndex(time);
-			ceilIndex = ceilIndex(time);
-			if (ceilIndex < floorIndex) {
-				// retarded repeated keyframes issue, see Peasant's Bone_Chest at time 18300
-				ceilIndex = floorIndex;
-			}
-			ceilValue = values.get(ceilIndex);
+			ceilIndex = Math.max(floorIndex, ceilIndex(time)); // retarded repeated keyframes issue, see Peasant's Bone_Chest at time 18300
+
 			ceilIndexTime = times.get(ceilIndex);
-			if (ceilIndexTime < animation.getStart()) {
+			final int lookupFloorIndex = Math.max(0, floorIndex);
+			floorIndexTime = times.get(lookupFloorIndex);
+			if (ceilIndexTime < animationStart || floorIndexTime > animationEnd) {
+//				System.out.println(name + ", ~~~~ identity(localTypeId)1 " + localTypeId + " id: " + identity(localTypeId));
 				return identity(localTypeId);
 			}
-			final int lookupFloorIndex = Math.max(0, floorIndex);
+			ceilValue = values.get(ceilIndex);
 			floorValue = values.get(lookupFloorIndex);
 			floorInTan = tans() ? inTans.get(lookupFloorIndex) : null;
 			floorOutTan = tans() ? outTans.get(lookupFloorIndex) : null;
-			floorIndexTime = times.get(lookupFloorIndex);
-			if (floorIndexTime > animation.getEnd()) {
+			if ((floorIndexTime < animationStart) && (ceilIndexTime > animationEnd)) {
+//				System.out.println(name + ", ~~~~ identity(localTypeId)3");
 				return identity(localTypeId);
-			}
-			if ((floorIndexTime < animation.getStart()) && (ceilIndexTime > animation.getEnd())) {
-				return identity(localTypeId);
-			} else if ((floorIndex == -1) || (floorIndexTime < animation.getStart())) {
+			} else if ((floorIndex == -1) || (floorIndexTime < animationStart)) {
 				floorValue = values.get(floorAnimEndIndex);
 				floorIndexTime = times.get(floorAnimStartIndex);
 				if (tans()) {
@@ -1171,28 +1097,30 @@ public class AnimFlag {
 					floorOutTan = inTans.get(floorAnimEndIndex);
 //					floorIndexTime = times.get(floorAnimEndIndex);
 				}
-				timeBetweenFrames = times.get(floorAnimEndIndex) - animation.getStart();
-			} else if ((ceilIndexTime > animation.getEnd())
+				timeBetweenFrames = times.get(floorAnimEndIndex) - animationStart;
+			} else if ((ceilIndexTime > animationEnd)
 					|| ((ceilIndexTime < time) && (times.get(floorAnimEndIndex) < time))) {
-				if (times.get(floorAnimStartIndex) == animation.getStart()) {
+				if (times.get(floorAnimStartIndex) == animationStart) {
 					ceilValue = values.get(floorAnimStartIndex);
 					ceilIndex = floorAnimStartIndex;
-					ceilIndexTime = animation.getEnd();
+					ceilIndexTime = animationEnd;
 					timeBetweenFrames = ceilIndexTime - floorIndexTime;
 				} else {
-					ceilIndex = ceilIndex(animation.getStart());
+					ceilIndex = ceilIndex(animationStart);
 					ceilValue = values.get(ceilIndex);
-					ceilIndexTime = animation.getEnd();
-					timeBetweenFrames = animation.getEnd() - animation.getStart();
+					ceilIndexTime = animationEnd;
+					timeBetweenFrames = animationEnd - animationStart;
 				}
 				// NOTE: we just let it be in this case, based on Water Elemental's birth
 			} else {
 				timeBetweenFrames = ceilIndexTime - floorIndexTime;
 			}
 			if (floorIndex == ceilIndex) {
+//				System.out.println(name + ", ~~~~ floorValue");
 				return floorValue;
 			}
 		}
+//		System.out.println(name + ", ~~ Something");
 
 		final Integer floorTime = floorIndexTime;
 		final Integer ceilTime = ceilIndexTime;
@@ -1257,7 +1185,7 @@ public class AnimFlag {
 		}
 	}
 
-	public void addKeyframe(final Entry entry) {
+	public void addKeyframe(final Entry<T> entry) {
 		addEntry(entry);
 	}
 
@@ -1273,13 +1201,13 @@ public class AnimFlag {
 		return keyframeIndex;
 	}
 
-	public void addKeyframe(final int trackTime, final Object value) {
+	public void addKeyframe(final int trackTime, final T value) {
 		int keyframeIndex = getKeyframeCeilIndex(trackTime);
 		times.add(keyframeIndex, trackTime);
 		values.add(keyframeIndex, value);
 	}
 
-	public void addKeyframe(final int trackTime, final Object value, final Object inTan, final Object outTan) {
+	public void addKeyframe(final int trackTime, final T value, final T inTan, final T outTan) {
 		int keyframeIndex = getKeyframeCeilIndex(trackTime);
 		times.add(keyframeIndex, trackTime);
 		values.add(keyframeIndex, value);
@@ -1287,7 +1215,7 @@ public class AnimFlag {
 		outTans.add(keyframeIndex, outTan);
 	}
 
-	public void setKeyframe(final Integer time, final Object value) {
+	public void setKeyframe(final Integer time, final T value) {
 		if (tans()) {
 			throw new IllegalStateException();
 		}
@@ -1299,7 +1227,7 @@ public class AnimFlag {
 		}
 	}
 
-	public void setKeyframe(final Integer time, final Object value, final Object inTan, final Object outTan) {
+	public void setKeyframe(final Integer time, final T value, final T inTan, final T outTan) {
 		if (!tans()) {
 			throw new IllegalStateException();
 		}
@@ -1328,7 +1256,60 @@ public class AnimFlag {
 		}
 	}
 
-	public void setName(final String title) {
-		name = title;
+	/**
+	 * This class is a small shell of an example for how my "AnimFlag" class
+	 * should've been implemented. It's currently only used for the
+	 * {@link AnimFlag#getEntry(int)} function.
+	 *
+	 * @author Eric
+	 */
+	public static class Entry<T> {
+		public Integer time;
+		public T value, inTan, outTan;
+
+		public Entry(final Integer time, final T value, final T inTan, final T outTan) {
+			super();
+			this.time = time;
+			this.value = value;
+			this.inTan = inTan;
+			this.outTan = outTan;
+		}
+
+		public Entry(final Integer time, final T value) {
+			super();
+			this.time = time;
+			this.value = value;
+		}
+
+		public Entry(final Entry<T> other) {
+			super();
+			this.time = other.time;
+			this.value = cloneEntryValue(other.value);
+			this.inTan = cloneEntryValue(other.inTan);
+			this.outTan = cloneEntryValue(other.outTan);
+		}
+
+		public void set(final Entry<T> other) {
+			time = other.time;
+			value = other.value;
+			inTan = other.inTan;
+			outTan = other.outTan;
+		}
+
+		private T cloneEntryValue(T value) {
+			if (value == null) {
+				return null;
+			}
+
+			if (value instanceof Integer || value instanceof Float) {
+				return value;
+			} else if (value instanceof Vec3) {
+				return (T) new Vec3((Vec3) value);
+			} else if (value instanceof Quat) {
+				return (T) new Quat((Quat) value);
+			} else {
+				throw new IllegalStateException(value.getClass().getName());
+			}
+		}
 	}
 }

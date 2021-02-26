@@ -27,7 +27,7 @@ public class Camera implements Named {
 	double farClip;
 	double nearClip;
 	Vec3 targetPosition;
-	List<AnimFlag> targetAnimFlags = new ArrayList<>();
+	List<AnimFlag<Vec3>> targetAnimFlags = new ArrayList<>();
 	final SourceNode sourceNode = new SourceNode(this);
 	final TargetNode targetNode = new TargetNode(this);
 	float[] bindPose;
@@ -42,9 +42,9 @@ public class Camera implements Named {
 
 		for (final MdlxTimeline<?> timeline : camera.timelines) {
 			if (timeline.name == AnimationMap.KTTR.getWar3id()) {
-				targetNode.add(new AnimFlag(timeline));
+				targetNode.add(AnimFlag.createFromTimeline(timeline));
 			} else {
-				sourceNode.add(new AnimFlag(timeline));
+				sourceNode.add(AnimFlag.createFromTimeline(timeline));
 			}
 		}
 	}
@@ -124,7 +124,7 @@ public class Camera implements Named {
 
 	public static final class SourceNode extends AnimatedNode {
 		private static final Quat rotationHeap = new Quat(0, 0, 0, 1);
-		
+
 		private final Camera parent;
 
 		private SourceNode(final Camera parent) {
@@ -158,7 +158,7 @@ public class Camera implements Named {
 
 		@Override
 		public Quat getRenderRotation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-			final AnimFlag translationFlag = find("Rotation");
+			final AnimFlag<?> translationFlag = find("Rotation");
 			if (translationFlag != null) {
 				final Object interpolated = translationFlag.interpolateAt(animatedRenderEnvironment);
 				if (interpolated instanceof Float) {

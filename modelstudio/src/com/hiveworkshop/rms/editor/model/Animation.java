@@ -149,9 +149,9 @@ public class Animation implements BasicTimeBoundProvider {
 		this.intervalEnd = intervalEnd;
 	}
 
-	public void copyToInterval(final int start, final int end, final List<AnimFlag> flags,
-			final List<EventObject> eventObjs, final List<AnimFlag> newFlags, final List<EventObject> newEventObjs) {
-		for (final AnimFlag af : newFlags) {
+	public void copyToInterval(final int start, final int end, final List<AnimFlag<?>> flags,
+	                           final List<EventObject> eventObjs, final List<AnimFlag<?>> newFlags, final List<EventObject> newEventObjs) {
+		for (final AnimFlag<?> af : newFlags) {
 			if (!af.hasGlobalSeq()) {
 				af.copyFrom(flags.get(newFlags.indexOf(af)), intervalStart, intervalEnd, start, end);
 			}
@@ -163,11 +163,10 @@ public class Animation implements BasicTimeBoundProvider {
 		}
 	}
 
-	public void copyToInterval(final int start, final int end, final List<AnimFlag> flags,
-			final List<EventObject> eventObjs) {
-		for (final AnimFlag af : flags) {
+	public void copyToInterval(final int start, final int end, final List<AnimFlag<?>> flags, final List<EventObject> eventObjs) {
+		for (final AnimFlag<?> af : flags) {
 			if (!af.hasGlobalSeq()) {
-				af.copyFrom(new AnimFlag(af), intervalStart, intervalEnd, start, end);
+				af.copyFrom(af, intervalStart, intervalEnd, start, end);
 			}
 		}
 		for (final EventObject e : eventObjs) {
@@ -177,9 +176,23 @@ public class Animation implements BasicTimeBoundProvider {
 		}
 	}
 
-	public void setInterval(final int start, final int end, final List<AnimFlag> flags,
-			final List<EventObject> eventObjs) {
-		for (final AnimFlag af : flags) {
+//	public <T> void copyToInterval(final int start, final int end, final List<AnimFlag<T>> flags,
+//			final List<EventObject> eventObjs) {
+//		for (final AnimFlag<T> af : flags) {
+//			if (!af.hasGlobalSeq) {
+//				af.copyFrom(af, intervalStart, intervalEnd, start, end);
+//			}
+//		}
+//		for (final EventObject e : eventObjs) {
+//			if (!e.hasGlobalSeq) {
+//				e.copyFrom(e.copy(), intervalStart, intervalEnd, start, end);
+//			}
+//		}
+//	}
+
+	public void setInterval(final int start, final int end, final List<AnimFlag<?>> flags,
+	                        final List<EventObject> eventObjs) {
+		for (final AnimFlag<?> af : flags) {
 			if (!af.hasGlobalSeq()) {
 				af.timeScale(intervalStart, intervalEnd, start, end);
 			}
@@ -193,8 +206,8 @@ public class Animation implements BasicTimeBoundProvider {
 		intervalEnd = end;
 	}
 
-	public void reverse(final List<AnimFlag> flags, final List<EventObject> eventObjs) {
-		for (final AnimFlag af : flags) {
+	public void reverse(final List<AnimFlag<?>> flags, final List<EventObject> eventObjs) {
+		for (final AnimFlag<?> af : flags) {
 			if (!af.hasGlobalSeq() && ((af.getTypeId() == 1) || (af.getTypeId() == 2) || (af.getTypeId() == 3))) {
 				af.timeScale(intervalStart, intervalEnd, intervalEnd, intervalStart);
 			}
@@ -216,12 +229,11 @@ public class Animation implements BasicTimeBoundProvider {
 		// }
 	}
 
-	public void clearData(final List<AnimFlag> flags, final List<EventObject> eventObjs) {
-		for (final AnimFlag af : flags) {
+	public void clearData(final List<AnimFlag<?>> flags, final List<EventObject> eventObjs) {
+		for (final AnimFlag<?> af : flags) {
 			if (((af.getTypeId() == 1) || (af.getTypeId() == 2) || (af.getTypeId() == 3))) {
 				// !af.hasGlobalSeq && was above before
-				af.deleteAnim(this);// timeScale(m_intervalStart, m_intervalEnd,
-									// m_intervalEnd, m_intervalStart);
+				af.deleteAnim(this);
 			}
 		}
 		for (final EventObject e : eventObjs) {
@@ -230,7 +242,7 @@ public class Animation implements BasicTimeBoundProvider {
 	}
 
 	public void setInterval(final int start, final int end, final EditableModel mdlr) {
-		final List<AnimFlag> aniFlags = mdlr.getAllAnimFlags();
+		final List<AnimFlag<?>> aniFlags = mdlr.getAllAnimFlags();
 		final List<EventObject> eventObjs = mdlr.sortedIdObjects(EventObject.class);
 		setInterval(start, end, aniFlags, eventObjs);
 	}

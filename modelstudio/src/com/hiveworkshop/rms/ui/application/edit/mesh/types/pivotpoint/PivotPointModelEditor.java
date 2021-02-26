@@ -629,7 +629,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 
 					@Override
 					public void helper(final Helper object) {
-						final AnimFlag translation = object.find("Translation");
+						final AnimFlag<?> translation = object.find("Translation");
 						if (translation != null) {
 							for (int i = 0; i < translation.size(); i++) {
 								final Vec3 scaleData = (Vec3) translation.getValues().get(i);
@@ -662,7 +662,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 
 					@Override
 					public void bone(final Bone object) {
-						final AnimFlag translation = object.find("Translation");
+						final AnimFlag<?> translation = object.find("Translation");
 						if (translation != null) {
 							for (int i = 0; i < translation.size(); i++) {
 								final Vec3 scaleData = (Vec3) translation.getValues().get(i);

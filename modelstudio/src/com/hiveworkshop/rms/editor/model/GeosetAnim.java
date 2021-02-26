@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxGeosetAnimation;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
@@ -19,11 +20,11 @@ public class GeosetAnim extends TimelineContainer implements Named {
 	Geoset geoset;
 	boolean dropShadow = false;
 
-	public GeosetAnim(final AnimFlag flag) {
+	public GeosetAnim(final AnimFlag<?> flag) {
 		add(flag);
 	}
 
-	public GeosetAnim(final List<AnimFlag> flags) {
+	public GeosetAnim(final List<AnimFlag<?>> flags) {
 		setAnimFlags(flags);
 	}
 
@@ -80,10 +81,10 @@ public class GeosetAnim extends TimelineContainer implements Named {
 
 	public GeosetAnim getMostVisible(final GeosetAnim partner) {
 		if ((getVisibilityFlag() != null) && (partner != null)) {
-			final AnimFlag thisFlag = getVisibilityFlag();
+			final AnimFlag<?> thisFlag = getVisibilityFlag();
 			final AnimFlag thatFlag = partner.getVisibilityFlag();
 			if (thatFlag != null) {
-				final AnimFlag result = thisFlag.getMostVisible(thatFlag);
+				final AnimFlag<?> result = thisFlag.getMostVisible(thatFlag);
 				if (result == thisFlag) {
 					return this;
 				} else if (result == thatFlag) {
@@ -142,29 +143,25 @@ public class GeosetAnim extends TimelineContainer implements Named {
 
 	public void copyVisibilityFrom(final VisibilitySource other, final EditableModel mdlr) {
 		final VisibilitySource temp = this;
-		final AnimFlag visFlag = temp.getVisibilityFlag();// might be
-		// null
-		final AnimFlag newVisFlag;
-		boolean tans = false;
+		final AnimFlag<?> visFlag = getVisibilityFlag();// might be null
+		final FloatAnimFlag newVisFlag;
 		if (visFlag != null) {
-			newVisFlag = AnimFlag.buildEmptyFrom(visFlag);
-			tans = visFlag.tans();
+			newVisFlag = (FloatAnimFlag) AnimFlag.buildEmptyFrom(visFlag);
 		} else {
-			newVisFlag = new AnimFlag(temp.visFlagName());
+			newVisFlag = new FloatAnimFlag(temp.visFlagName());
 		}
 		// newVisFlag = new AnimFlag(temp.visFlagName());
-		final AnimFlag flagNew = other.getVisibilityFlag();
+		final FloatAnimFlag flagNew = (FloatAnimFlag) other.getVisibilityFlag();
 		// this is an element not favoring existing over imported
 		for (final Animation a : mdlr.getAnims()) {
 			if (newVisFlag != null) {
 				if (!newVisFlag.hasGlobalSeq()) {
 					newVisFlag.deleteAnim(a);
-					// All entries for visibility are deleted from original-based
-					// sources during imported animation times
+					// All entries for visibility are deleted from original-based sources during imported animation times
 				}
 			}
 		}
-		if (flagNew != null) {
+		if (flagNew != null && newVisFlag != null) {
 			newVisFlag.copyFrom(flagNew);
 		}
 		setVisibilityFlag(newVisFlag);

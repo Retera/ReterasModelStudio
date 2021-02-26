@@ -8,10 +8,10 @@ import java.util.List;
 public class SlideKeyframeAction implements UndoAction {
 	private final int startTrackTime;
 	private final int endTrackTime;
-	private final List<AnimFlag> timelines;
+	private final List<AnimFlag<?>> timelines;
 	private final Runnable keyframeChangeCallback;
 
-	public SlideKeyframeAction(final int startTrackTime, final int endTrackTime, final List<AnimFlag> timelines,
+	public SlideKeyframeAction(final int startTrackTime, final int endTrackTime, final List<AnimFlag<?>> timelines,
 	                           final Runnable keyframeChangeCallback) {
 		this.startTrackTime = startTrackTime;
 		this.endTrackTime = endTrackTime;
@@ -21,7 +21,7 @@ public class SlideKeyframeAction implements UndoAction {
 
 	@Override
 	public void undo() {
-		for (final AnimFlag timeline : timelines) {
+		for (final AnimFlag<?> timeline : timelines) {
 			timeline.slideKeyframe(endTrackTime, startTrackTime);
 		}
 		keyframeChangeCallback.run();
@@ -29,7 +29,7 @@ public class SlideKeyframeAction implements UndoAction {
 
 	@Override
 	public void redo() {
-		for (final AnimFlag timeline : timelines) {
+		for (final AnimFlag<?> timeline : timelines) {
 			timeline.slideKeyframe(startTrackTime, endTrackTime);
 		}
 		keyframeChangeCallback.run();
