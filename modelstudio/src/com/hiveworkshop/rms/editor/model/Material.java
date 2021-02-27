@@ -13,6 +13,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A class for MDL materials.
@@ -408,9 +409,23 @@ public class Material {
 
 	public void makeHD() {
 		setShaderString("Shader_HD_DefaultUnit");
+		List<Layer> tempList = new ArrayList<>(getLayers());
 		if (getLayers().size() > 1) {
-			getLayers().add(getLayers().remove(0));
+			layers.removeAll(tempList);
+//			List<Layer> temp2 = tempList.stream().filter(l -> !l.getTextureBitmap().getName().equals("Team Color")).collect(Collectors.toList());
+			List<Layer> temp2 = tempList.stream().filter(l -> !l.getTextureBitmap().getPath().equals("")).collect(Collectors.toList());
+			if (temp2.isEmpty()) {
+				layers.add(tempList.get(0));
+			} else {
+				layers.add(temp2.get(0));
+			}
 		} else if (getLayers().size() == 0) {
+			final Bitmap white = new Bitmap("Textures\\White.dds");
+			white.setWrapHeight(true);
+			white.setWrapWidth(true);
+			getLayers().add(new Layer("None", white));
+		}
+		if (getLayers().size() == 0) {
 			final Bitmap white = new Bitmap("Textures\\White.dds");
 			white.setWrapHeight(true);
 			white.setWrapWidth(true);
@@ -419,20 +434,20 @@ public class Material {
 		final Bitmap normTex = new Bitmap("ReplaceableTextures\\TeamColor\\TeamColor09.dds");
 		normTex.setWrapHeight(true);
 		normTex.setWrapWidth(true);
+		getLayers().add(1, new Layer("None", normTex));
 		final Bitmap ormTex = new Bitmap("ReplaceableTextures\\TeamColor\\TeamColor18.dds");
 		ormTex.setWrapHeight(true);
 		ormTex.setWrapWidth(true);
-		getLayers().add(1, new Layer("None", normTex));
 		getLayers().add(2, new Layer("None", ormTex));
 		final Bitmap black32 = new Bitmap("Textures\\Black32.dds");
 		black32.setWrapHeight(true);
 		black32.setWrapWidth(true);
 		getLayers().add(3, new Layer("None", black32));
-		final Bitmap texture2 = new Bitmap("ReplaceableTextures\\EnvironmentMap.dds");
-		texture2.setWrapHeight(true);
-		texture2.setWrapWidth(true);
-		getLayers().add(4, new Layer("None", getLayers().get(0).getTextureBitmap()));
-		getLayers().add(5, new Layer("None", texture2));
+		getLayers().add(4, new Layer("None", new Bitmap("", 1)));
+		final Bitmap envTex = new Bitmap("ReplaceableTextures\\EnvironmentMap.dds");
+		envTex.setWrapHeight(true);
+		envTex.setWrapWidth(true);
+		getLayers().add(5, new Layer("None", envTex));
 		for (final Layer l : getLayers()) {
 			l.setEmissive(1.0);
 		}
@@ -453,7 +468,7 @@ public class Material {
 			if (!Double.isNaN(layer.getEmissive())) {
 				layer.setEmissive(Double.NaN);
 			}
-			final AnimFlag flag = layer.find("Emissive");
+			final AnimFlag<?> flag = layer.find("Emissive");
 			if (flag != null) {
 				layer.remove(flag);
 			}
