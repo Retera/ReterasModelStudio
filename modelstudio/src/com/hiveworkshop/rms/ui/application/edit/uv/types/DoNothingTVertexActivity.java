@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv;
+package com.hiveworkshop.rms.ui.application.edit.uv.types;
 
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.CursorManager;

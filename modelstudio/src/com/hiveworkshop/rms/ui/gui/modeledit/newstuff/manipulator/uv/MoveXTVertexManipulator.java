@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv;
 
-import java.awt.geom.Point2D.Double;
+import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
 
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexEditor;
+import java.awt.geom.Point2D.Double;
 
 public final class MoveXTVertexManipulator extends AbstractMoveTVertexManipulator {
 

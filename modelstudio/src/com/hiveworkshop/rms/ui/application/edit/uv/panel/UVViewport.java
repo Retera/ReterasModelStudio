@@ -7,9 +7,9 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.BasicCoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexEditor;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexEditorChangeListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.viewport.UVViewportModelRenderer;
+import com.hiveworkshop.rms.ui.application.edit.uv.UVViewportModelRenderer;
+import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
+import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditorChangeListener;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 
 import javax.swing.*;

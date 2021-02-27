@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.viewport;
+package com.hiveworkshop.rms.ui.application.edit.uv;
 
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
@@ -6,10 +6,10 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.NodeAnimationSelectionManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.types.faces.FaceSelectionManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.types.geosetvertex.GeosetVertexSelectionManager;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.FaceTVertexEditor;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.GeosetVertexTVertexEditor;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexEditor;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexEditorChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.uv.types.FaceTVertexEditor;
+import com.hiveworkshop.rms.ui.application.edit.uv.types.GeosetVertexTVertexEditor;
+import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
+import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditorChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;

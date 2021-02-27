@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.actions;
 
+import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexEditor;
 
 public class StaticMeshUVScaleAction implements GenericScaleAction {
 	private final TVertexEditor modelEditor;

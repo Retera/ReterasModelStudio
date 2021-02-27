@@ -1,9 +1,4 @@
-package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv;
-
-import java.awt.geom.Rectangle2D;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+package com.hiveworkshop.rms.ui.application.edit.uv.types;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
@@ -14,6 +9,11 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelec
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
+
+import java.awt.geom.Rectangle2D;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public abstract class AbstractSelectingTVertexEditor<T> implements TVertexEditor {
 	protected final SelectionManager<T> selectionManager;

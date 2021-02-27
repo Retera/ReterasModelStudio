@@ -1,18 +1,18 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.selection;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexModelElementRenderer;
+import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexModelElementRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class MultiPartSelectionView implements SelectionView {
 	private final List<SelectionView> selectionViews;
