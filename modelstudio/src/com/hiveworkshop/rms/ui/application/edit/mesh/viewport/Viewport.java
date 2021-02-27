@@ -36,7 +36,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class Viewport extends JPanel
-		implements MouseListener, ActionListener, MouseWheelListener, CoordinateSystem, ViewportView, MouseMotionListener, ModelEditorChangeListener {
+		implements MouseListener, MouseWheelListener, CoordinateSystem, ViewportView, MouseMotionListener, ModelEditorChangeListener {
 	byte m_d1;
 	byte m_d2;
 	double m_a = 0;
@@ -49,34 +49,7 @@ public class Viewport extends JPanel
 	Timer paintTimer;
 	boolean mouseInBounds = false;
 	JPopupMenu contextMenu;
-	JMenu viewMenu;
-	JMenu meshMenu;
-	JMenu editMenu;
-	JMenu matrixMenu;
-	JMenu nodeMenu;
-	JMenuItem frontView;
-	JMenuItem backView;
-	JMenuItem topView;
-	JMenuItem bottomView;
-	JMenuItem leftView;
-	JMenuItem rightView;
-	JMenuItem rig;
-	JMenuItem reAssignMatrix;
-	JMenuItem viewMatrix;
-	JMenuItem reAssignSkinning;
-	JMenuItem viewHDSkinning;
-	JMenuItem setParent;
-	JMenuItem renameBone;
-	JMenuItem appendBoneBone;
-	JMenuItem cogBone;
-	JMenuItem manualMove;
-	JMenuItem manualRotate;
-	JMenuItem manualSet;
-	JMenuItem manualScale;
-	JMenuItem addTeamColor;
-	JMenuItem splitGeo;
 
-	private JMenuItem createFace;
 	private final ViewportModelRenderer viewportModelRenderer;
 	private final AnimatedViewportModelRenderer animatedViewportModelRenderer;
 	private final ResettableAnimatedIdObjectParentLinkRenderer linkRenderer;
@@ -95,6 +68,9 @@ public class Viewport extends JPanel
 	private final Vec3 facingVector;
 	private final ViewportListener viewportListener;
 	private View view;
+
+	long totTempRenderTime;
+	long renderCount;
 
 	public Viewport(final byte d1, final byte d2, final ModelView modelView, final ProgramPreferences programPreferences, final ViewportActivity activityListener, final ModelStructureChangeListener modelStructureChangeListener, final UndoActionListener undoListener, final CoordDisplayListener coordDisplayListener, final UndoHandler undoHandler, final ModelEditor modelEditor, final ViewportTransferHandler viewportTransferHandler, final RenderModel renderModel, final ViewportListener viewportListener) {
 		// Dimension 1 and Dimension 2, these specify which dimensions to display.
@@ -142,64 +118,6 @@ public class Viewport extends JPanel
 			}
 		});
 		paintTimer.start();
-	}
-
-	private void createViewPortMenu(UndoActionListener undoListener) {
-		contextMenu = new JPopupMenu();
-
-		viewMenu = new JMenu("View");
-		contextMenu.add(viewMenu);
-
-		frontView = addMenuItem("Front", new ChangeViewportAxisAction("Front", (byte) 1, (byte) 2), viewMenu);
-		backView = addMenuItem("Back", new ChangeViewportAxisAction("Back", (byte) -2, (byte) 2), viewMenu);
-		topView = addMenuItem("Top", new ChangeViewportAxisAction("Top", (byte) 1, (byte) -1), viewMenu);
-		bottomView = addMenuItem("Bottom", new ChangeViewportAxisAction("Bottom", (byte) 1, (byte) 0), viewMenu);
-		leftView = addMenuItem("Left", new ChangeViewportAxisAction("Left", (byte) -1, (byte) 2), viewMenu);
-		rightView = addMenuItem("Right", new ChangeViewportAxisAction("Right", (byte) 0, (byte) 2), viewMenu);
-
-		meshMenu = new JMenu("Mesh");
-		contextMenu.add(meshMenu);
-
-		createFace = new JMenuItem("Create Face");
-		createFace.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
-		createFace.addActionListener(e -> createFace());
-		meshMenu.add(createFace);
-
-		addTeamColor = addMenuItem("Split Geoset and Add Team Color", e -> undoListener.pushAction(modelEditor.addTeamColor()), meshMenu);
-		splitGeo = addMenuItem("Split Geoset", e -> undoListener.pushAction(modelEditor.splitGeoset()), meshMenu);
-
-		editMenu = new JMenu("Edit");
-		contextMenu.add(editMenu);
-
-		manualMove = addMenuItem("Translation Type-in", e -> manualMove(), editMenu);
-		manualRotate = addMenuItem("Rotate Type-in", e -> manualRotate(), editMenu);
-		manualSet = addMenuItem("Position Type-in", e -> manualSet(), editMenu);
-		manualScale = addMenuItem("Scale Type-in", e -> manualScale(), editMenu);
-
-		matrixMenu = new JMenu("Rig");
-		contextMenu.add(matrixMenu);
-
-		rig = addMenuItem("Selected Mesh to Selected Nodes", e -> undoListener.pushAction(modelEditor.rig()), matrixMenu);
-		reAssignMatrix = addMenuItem("Re-assign Matrix", e -> reAssignMatrix(), matrixMenu);
-		viewMatrix = addMenuItem("View Matrix", e -> InfoPopup.show(this, modelEditor.getSelectedMatricesDescription()), matrixMenu);
-		reAssignSkinning = addMenuItem("Re-assign HD Skin", e -> reAssignSkinning(), matrixMenu);
-		viewHDSkinning = addMenuItem("View HD Skin", e -> InfoPopup.show(this, modelEditor.getSelectedHDSkinningDescription()), matrixMenu);
-
-		nodeMenu = new JMenu("Node");
-		contextMenu.add(nodeMenu);
-
-		setParent = addMenuItem("Set Parent", e -> setParent(), nodeMenu);
-		cogBone = addMenuItem("Auto-Center Bone(s)", e -> undoListener.pushAction(modelEditor.autoCenterSelectedBones()), nodeMenu);
-		renameBone = addMenuItem("Rename Bone", e -> renameBone(), nodeMenu);
-		appendBoneBone = addMenuItem("Append Bone Suffix", e -> appendBoneBone(), nodeMenu);
-
-	}
-
-	private static JMenuItem addMenuItem(String itemText, ActionListener actionListener, JMenu menu) {
-		JMenuItem menuItem = new JMenuItem(itemText);
-		menuItem.addActionListener(actionListener);
-		menu.add(menuItem);
-		return menuItem;
 	}
 
 	public void setView(View view) {
@@ -265,42 +183,68 @@ public class Viewport extends JPanel
 		paintComponent(g, 1);
 	}
 
-	long min = Long.MAX_VALUE;
-	long max;
-	long avg;
-	long runningSum;
-	long count;
+	private static void addMenuItem(String itemText, ActionListener actionListener, JMenu menu) {
+		JMenuItem menuItem = new JMenuItem(itemText);
+		menuItem.addActionListener(actionListener);
+		menu.add(menuItem);
+	}
+
+	private void createViewPortMenu(UndoActionListener undoListener) {
+		contextMenu = new JPopupMenu();
+
+		JMenu viewMenu = new JMenu("View");
+		contextMenu.add(viewMenu);
+
+		addMenuItem("Front", new ChangeViewportAxisAction("Front", (byte) 1, (byte) 2), viewMenu);
+		addMenuItem("Back", new ChangeViewportAxisAction("Back", (byte) -2, (byte) 2), viewMenu);
+		addMenuItem("Top", new ChangeViewportAxisAction("Top", (byte) 1, (byte) -1), viewMenu);
+		addMenuItem("Bottom", new ChangeViewportAxisAction("Bottom", (byte) 1, (byte) 0), viewMenu);
+		addMenuItem("Left", new ChangeViewportAxisAction("Left", (byte) -1, (byte) 2), viewMenu);
+		addMenuItem("Right", new ChangeViewportAxisAction("Right", (byte) 0, (byte) 2), viewMenu);
+
+		JMenu meshMenu = new JMenu("Mesh");
+		contextMenu.add(meshMenu);
+
+		JMenuItem createFace = new JMenuItem("Create Face");
+		createFace.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
+		createFace.addActionListener(e -> createFace());
+		meshMenu.add(createFace);
+
+		addMenuItem("Split Geoset and Add Team Color", e -> undoListener.pushAction(modelEditor.addTeamColor()), meshMenu);
+		addMenuItem("Split Geoset", e -> undoListener.pushAction(modelEditor.splitGeoset()), meshMenu);
+
+		JMenu editMenu = new JMenu("Edit");
+		contextMenu.add(editMenu);
+
+		addMenuItem("Translation Type-in", e -> manualMove(), editMenu);
+		addMenuItem("Rotate Type-in", e -> manualRotate(), editMenu);
+		addMenuItem("Position Type-in", e -> manualSet(), editMenu);
+		addMenuItem("Scale Type-in", e -> manualScale(), editMenu);
+
+		JMenu matrixMenu = new JMenu("Rig");
+		contextMenu.add(matrixMenu);
+
+		addMenuItem("Selected Mesh to Selected Nodes", e -> undoListener.pushAction(modelEditor.rig()), matrixMenu);
+		addMenuItem("Re-assign Matrix", e -> reAssignMatrix(), matrixMenu);
+		addMenuItem("View Matrix", e -> InfoPopup.show(this, modelEditor.getSelectedMatricesDescription()), matrixMenu);
+		addMenuItem("Re-assign HD Skin", e -> reAssignSkinning(), matrixMenu);
+		addMenuItem("View HD Skin", e -> InfoPopup.show(this, modelEditor.getSelectedHDSkinningDescription()), matrixMenu);
+
+		JMenu nodeMenu = new JMenu("Node");
+		contextMenu.add(nodeMenu);
+
+		addMenuItem("Set Parent", e -> setParent(), nodeMenu);
+		addMenuItem("Auto-Center Bone(s)", e -> undoListener.pushAction(modelEditor.autoCenterSelectedBones()), nodeMenu);
+		addMenuItem("Rename Bone", e -> renameBone(), nodeMenu);
+		addMenuItem("Append Bone Suffix", e -> appendBoneBone(), nodeMenu);
+
+	}
 
 	public void paintComponent(final Graphics g, final int vertexSize) {
 		super.paintComponent(g);
 		final long renderStart = System.nanoTime();
 		if (programPreferences.show2dGrid()) {
-			final Point2D.Double cameraOrigin = new Point2D.Double(convertX(0), convertY(0));
-
-			float increment = 20 * (float) getZoomAmount();
-			while (increment < 100) {
-				increment *= 10;
-			}
-			float lightIncrement = increment;
-			while (lightIncrement > 100) {
-				lightIncrement /= 10;
-			}
-			final float darkIncrement = increment * 10;
-			g.setColor(Color.DARK_GRAY);
-			drawXLines(g, cameraOrigin, lightIncrement);
-			drawYLines(g, cameraOrigin, lightIncrement);
-
-			g.setColor(Color.GRAY);
-			drawXLines(g, cameraOrigin, increment);
-			drawYLines(g, cameraOrigin, increment);
-
-			g.setColor(Color.ORANGE);
-			drawXLines(g, cameraOrigin, darkIncrement);
-			drawYLines(g, cameraOrigin, darkIncrement);
-
-			g.setColor(Color.BLACK);
-			g.drawLine(0, (int) cameraOrigin.y, getWidth(), (int) cameraOrigin.y);
-			g.drawLine((int) cameraOrigin.x, 0, (int) cameraOrigin.x, getHeight());
+			drawGrid(g);
 		}
 		final Graphics2D graphics2d = (Graphics2D) g;
 
@@ -314,8 +258,7 @@ public class Viewport extends JPanel
 			linkRenderer.reset(this, graphics2d, NodeIconPalette.HIGHLIGHT, renderModel);
 			modelView.visit(linkRenderingVisitorAdapter);
 			graphics2d.setStroke(stroke);
-			animatedViewportModelRenderer.reset(graphics2d, programPreferences, m_d1, m_d2, this, this, modelView,
-					renderModel);
+			animatedViewportModelRenderer.reset(graphics2d, programPreferences, m_d1, m_d2, this, this, modelView, renderModel);
 			modelView.visit(animatedViewportModelRenderer);
 			activityListener.render(graphics2d, this, renderModel);
 		} else {
@@ -325,75 +268,79 @@ public class Viewport extends JPanel
 		}
 
 		getColor(g, m_d1);
-		g.drawLine((int) Math.round(convertX(0)), (int) Math.round(convertY(0)), (int) Math.round(convertX(5)),
-				(int) Math.round(convertY(0)));
+		g.drawLine((int) Math.round(convertX(0)), (int) Math.round(convertY(0)), (int) Math.round(convertX(5)), (int) Math.round(convertY(0)));
 
 		getColor(g, m_d2);
-		g.drawLine((int) Math.round(convertX(0)), (int) Math.round(convertY(0)), (int) Math.round(convertX(0)),
-				(int) Math.round(convertY(5)));
+		g.drawLine((int) Math.round(convertX(0)), (int) Math.round(convertY(0)), (int) Math.round(convertX(0)), (int) Math.round(convertY(5)));
 
-		// Visual effects from user controls
-		// int xoff = 0;
-		// int yoff = 0;
-		// Component temp = this;
-		// while (temp != null) {
-		// xoff += temp.getX();
-		// yoff += temp.getY();
-		// // if( temp.getClass() == ModelPanel.class )
-		// // {
-		// //// temp = MainFrame.panel; TODO
-		// // temp = null;
-		// // }
-		// // else
-		// // {
-		// temp = temp.getParent();
-		// // }
-		// }
 
-		// try {
-		// final double mx = (MouseInfo.getPointerInfo().getLocation().x -
-		// xoff);// MainFrame.frame.getX()-8);
-		// final double my = (MouseInfo.getPointerInfo().getLocation().y -
-		// yoff);// MainFrame.frame.getY()-30);
-		//
-		// // SelectionBox:
-		// if (selectStart != null) {
-		// final Point sEnd = new Point((int) mx, (int) my);
-		// final Rectangle2D.Double r = pointsToRect(selectStart, sEnd);
-		// g.setColor(MDLDisplay.selectColor);
-		// graphics2d.draw(r);
-		// }
-		// } catch (final Exception exc) {
-		// exc.printStackTrace();
-		// // JOptionPane.showMessageDialog(null,"Error retrieving mouse
-		// // coordinates. (Probably not a major issue. Due to sleep mode?)");
-		// }
+		adjustAndRunPaintTimer(renderStart);
+	}
 
+	public void drawGrid(Graphics g) {
+		final Point2D.Double cameraOrigin = new Point2D.Double(convertX(0), convertY(0));
+
+		float increment = 20 * (float) getZoomAmount();
+		while (increment < 100) {
+			increment *= 10;
+		}
+		float lightIncrement = increment;
+		while (lightIncrement > 100) {
+			lightIncrement /= 10;
+		}
+		final float darkIncrement = increment * 10;
+		g.setColor(Color.DARK_GRAY);
+		drawXLines(g, cameraOrigin, lightIncrement);
+		drawYLines(g, cameraOrigin, lightIncrement);
+
+		g.setColor(Color.GRAY);
+		drawXLines(g, cameraOrigin, increment);
+		drawYLines(g, cameraOrigin, increment);
+
+		g.setColor(Color.ORANGE);
+		drawXLines(g, cameraOrigin, darkIncrement);
+		drawYLines(g, cameraOrigin, darkIncrement);
+
+		g.setColor(Color.BLACK);
+		g.drawLine(0, (int) cameraOrigin.y, getWidth(), (int) cameraOrigin.y);
+		g.drawLine((int) cameraOrigin.x, 0, (int) cameraOrigin.x, getHeight());
+	}
+
+	public void adjustAndRunPaintTimer(long renderStart) {
 		final long renderEnd = System.nanoTime();
-		final long elapsed = renderEnd - renderStart;
-		if (elapsed < min) {
-			min = elapsed;
-		}
-		if (elapsed > max) {
-			max = elapsed;
-		}
-		runningSum += elapsed;
-		count += 1;
-		if (count >= 100) {
-			final long millis = ((runningSum / count) / 1000000L) + 1;
-			if (millis > paintTimer.getDelay()) {
-				final int millis2 = (int) (millis * 5);
-//				System.out.println("delay=" + millis2);
-				paintTimer.setDelay(millis2);
-			} else if (millis < paintTimer.getDelay()) {
-				final int max2 = Math.max(16, (int) (millis * 5));
-//				System.out.println("delay=" + max2);
-				paintTimer.setDelay(max2);
-			}
-			min = Long.MAX_VALUE;
-			max = 0;
-			runningSum = 0;
-			count = 0;
+		final long currFrameRenderTime = renderEnd - renderStart;
+
+//		minRenderTime = Math.min(currFrameRenderTime, minRenderTime);
+//		maxRenderTime = Math.max(currFrameRenderTime, maxRenderTime);
+//		totTempRenderTime += currFrameRenderTime;
+//		renderCount += 1;
+//		if (renderCount >= 100) {
+////			final long millis = ((totTempRenderTime / renderCount) / 1000000L) + 1;
+//			final long millis = ((totTempRenderTime/1000000L) / renderCount);
+//			System.out.println("millis: " + millis);
+//			if (millis > paintTimer.getDelay()) {
+//				final int millis2 = (int) (millis * 5);
+//				System.out.println("min, delay=" + millis2);
+//				paintTimer.setDelay(millis2);
+//			} else if (millis < paintTimer.getDelay()) {
+//				final int max2 = Math.max(16, (int) (millis * 5));
+//				System.out.println("max, delay=" + max2);
+//				paintTimer.setDelay(max2);
+//			}
+//			System.out.println("min render time: " + (minRenderTime/1000000L) + "ms, max render time: " + (maxRenderTime/1000000L) + "ms");
+//			minRenderTime = Long.MAX_VALUE;
+//			maxRenderTime = 0;
+//		}
+
+		totTempRenderTime += currFrameRenderTime;
+		renderCount += 1;
+		if (renderCount >= 100) {
+			final long millis = ((totTempRenderTime / 1000000L) / renderCount) + 1;
+			paintTimer.setDelay(Math.max(16, (int) (millis * 5)));
+//			System.out.println("delay: " + paintTimer.getDelay());
+
+			totTempRenderTime = 0;
+			renderCount = 0;
 		}
 		final boolean showing = isShowing();
 		final boolean running = paintTimer.isRunning();
@@ -444,10 +391,6 @@ public class Viewport extends JPanel
 	@Override
 	public double geomY(final double y) {
 		return -(((y - (getHeight() / 2.0)) / m_zoom) - m_b);
-	}
-
-	@Override
-	public void actionPerformed(final ActionEvent e) {
 	}
 
 	private void createFace() {

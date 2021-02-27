@@ -444,7 +444,7 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 
 			final JLabel baseUnitLabel = new JLabel(WEString.getString("WESTRING_UE_BASEUNIT").replace("&", "") + ":");
 
-			final UnitOptionPanel unitOptionPanel = new UnitOptionPanel(StandardObjectData.getStandardUnits(), StandardObjectData.getStandardAbilities(), 2, true, true);
+			final UnitOptionPanel unitOptionPanel = new UnitOptionPanel(StandardObjectData.getStandardUnits(), StandardObjectData.getStandardAbilities(), true, true);
 			unitOptionPanel.setPreferredSize(new Dimension(416, 400));
 			unitOptionPanel.setSize(new Dimension(416, 400));
 			unitOptionPanel.doLayout();

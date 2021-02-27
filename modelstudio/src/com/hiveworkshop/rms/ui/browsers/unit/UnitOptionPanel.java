@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.parsers.slk.GameObjectComparator;
 import com.hiveworkshop.rms.parsers.slk.ObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -36,63 +37,22 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 	JPanel buttonsPanel;
 	JScrollPane buttonsScrollPane;
 
-	ActionListener buttonListener = new ActionListener() {
-		@Override
-		public void actionPerformed(final ActionEvent e) {
-			boolean found = false;
-			for (final UnitButton btn : unitButtons) {
-				if (e.getSource() == btn) {
-					// do stuff
-					// btn.setBackground(Color.green);
-					btn.setEnabled(false);
-					found = true;
-					String name = btn.getUnit().getName();
-
-					final String race = btn.getUnit().getField("race");
-					boolean showLevel = true;
-					for (int i = 0; i < 6; i++) {
-						if (race.equals(raceKey(i))) {
-							showLevel = false;
-							break;
-						}
-					}
-					if (showLevel) {
-						name += " - " + WEString.getString("WESTRING_LEVEL") + " "
-								+ btn.getUnit().getFieldValue("level");
-					} // unit.getUnitId() + "<br>" +
-					unitsLabel.setText(WEString.getString("WESTRING_UNITS") + ": " + name);
-
-					selection = btn.getUnit();
-				} else {
-					btn.setEnabled(true);
-					// btn.setBackground(null);
-				}
-			}
-			if (!found) {
-				selection = null;
-				unitsLabel.setText(
-						WEString.getString("WESTRING_UNITS") + ": " + WEString.getString("WESTRING_NONE_CAPS"));
-			}
-		}
-	};
-
-	private final int borderGapAmount;
-
 	private final boolean verticalStyle;
 
 	public GameObject getSelection() {
 		return selection;
 	}
 
+	boolean firstTime = true;
+
 	public UnitOptionPanel(final ObjectData dataTable, final ObjectData abilityData) {
-		this(dataTable, abilityData, 12, false, false);
+		this(dataTable, abilityData, false, false);
 	}
 
-	public UnitOptionPanel(final ObjectData dataTable, final ObjectData abilityData, final int borderGapAmount,
-			final boolean hideBorder, final boolean verticalStyle) {
+	public UnitOptionPanel(final ObjectData dataTable, final ObjectData abilityData, final boolean hideBorder, final boolean verticalStyle) {
+		setLayout(new MigLayout("fillx"));
 		unitData = dataTable;
 		this.abilityData = abilityData;
-		this.borderGapAmount = borderGapAmount;
 		this.verticalStyle = verticalStyle;
 		unitsLabel = new JLabel(WEString.getString("WESTRING_UNITS") + ": " + WEString.getString("WESTRING_NONE_CAPS"));
 		heroesLabel = new JLabel(WEString.getString("WESTRING_UTYPE_HEROES"));
@@ -102,58 +62,44 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 
 		// for( int i = 0; i < 12; i++ ) {
 		// playerBoxModel.addElement(WEString.getString("WESTRING_PLAYER_" +
-		// String.format("%2d",i).replace(" ", "0")).replace("\"", ""));
-		// }
-		// playerBoxModel.addElement(WEString.getString("WESTRING_PLAYER_NA").replace("\"",
-		// ""));
-		// playerBoxModel.addElement(WEString.getString("WESTRING_PLAYER_NP").replace("\"",
-		// ""));
+		// String.format("%2d",i).replace(" ", "0")).replace("\"", ""));}
+		// playerBoxModel.addElement(WEString.getString("WESTRING_PLAYER_NA").replace("\"", ""));
+		// playerBoxModel.addElement(WEString.getString("WESTRING_PLAYER_NP").replace("\"", ""));
 
-		raceBoxModel.addElement(WEString.getString("WESTRING_RACE_HUMAN"));
-		raceBoxModel.addElement(WEString.getString("WESTRING_RACE_ORC"));
-		raceBoxModel.addElement(WEString.getString("WESTRING_RACE_UNDEAD"));
-		raceBoxModel.addElement(WEString.getString("WESTRING_RACE_NIGHTELF"));
-		raceBoxModel.addElement(WEString.getString("WESTRING_RACE_NEUTRAL"));
-		raceBoxModel.addElement(WEString.getString("WESTRING_RACE_NEUTRAL_NAGA"));
+		String[] raceStrings = {"WESTRING_RACE_HUMAN", "WESTRING_RACE_ORC", "WESTRING_RACE_UNDEAD", "WESTRING_RACE_NIGHTELF", "WESTRING_RACE_NEUTRAL", "WESTRING_RACE_NEUTRAL_NAGA"};
+		fillModel(raceBoxModel, raceStrings);
 
-		raceBoxModelNeutral.addElement(WEString.getString("WESTRING_RACE_NEUTRAL"));
-		raceBoxModelNeutral.addElement(WEString.getString("WESTRING_RACE_NEUTRAL_NAGA"));
+		String[] neutralRaceStrings = {"WESTRING_RACE_NEUTRAL", "WESTRING_RACE_NEUTRAL_NAGA"};
+		fillModel(raceBoxModelNeutral, neutralRaceStrings);
 
-		meleeBoxModel.addElement(WEString.getString("WESTRING_MELEE"));
-		meleeBoxModel.addElement(WEString.getString("WESTRING_CAMPAIGN"));
-		meleeBoxModel.addElement(WEString.getString("WESTRING_CUSTOM"));
+		String[] meleeStrings = {"WESTRING_MELEE", "WESTRING_CAMPAIGN", "WESTRING_CUSTOM"};
+		fillModel(meleeBoxModel, meleeStrings);
 		meleeBoxModel.addElement(WEString.getString("WESTRING_ITEMSTATUS_HIDDEN").replace("\"", ""));
 
-		tilesetBoxModel.addElement(WEString.getString("WESTRING_LOCALE_ASHENVALE"));
-		tilesetBoxModel.addElement(WEString.getString("WESTRING_LOCALE_BARRENS"));
-		tilesetBoxModel.addElement(WEString.getString("WESTRING_LOCALE_BLACKCITADEL"));
-		tilesetBoxModel.addElement(WEString.getString("WESTRING_LOCALE_CITYSCAPE"));
-		tilesetBoxModel.addElement(WEString.getString("WESTRING_LOCALE_DALARAN"));
-		tilesetBoxModel.addElement(WEString.getString("WESTRING_LOCALE_DALARANRUINS"));
-		tilesetBoxModel.addElement(WEString.getString("WESTRING_LOCALE_DUNGEON"));
-		tilesetBoxModel.addElement(WEString.getString("WESTRING_LOCALE_FELWOOD"));
-		tilesetBoxModel.addElement(WEString.getString("WESTRING_LOCALE_ICECROWN"));
-		tilesetBoxModel.addElement(WEString.getString("WESTRING_LOCALE_LORDAERON_FALL"));
-		tilesetBoxModel.addElement(WEString.getString("WESTRING_LOCALE_LORDAERON_SUMMER"));
-		tilesetBoxModel.addElement(WEString.getString("WESTRING_LOCALE_LORDAERON_WINTER"));
-		tilesetBoxModel.addElement(WEString.getString("WESTRING_LOCALE_NORTHREND"));
-		tilesetBoxModel.addElement(WEString.getString("WESTRING_LOCALE_OUTLAND"));
-		tilesetBoxModel.addElement(WEString.getString("WESTRING_LOCALE_RUINS"));
-		tilesetBoxModel.addElement(WEString.getString("WESTRING_LOCALE_DUNGEON2"));
-		tilesetBoxModel.addElement(WEString.getString("WESTRING_LOCALE_VILLAGE"));
-		tilesetBoxModel.addElement(WEString.getString("WESTRING_LOCALE_VILLAGEFALL"));
+		String[] tilesetStrings = {"WESTRING_LOCALE_ASHENVALE", "WESTRING_LOCALE_BARRENS",
+				"WESTRING_LOCALE_BLACKCITADEL", "WESTRING_LOCALE_CITYSCAPE",
+				"WESTRING_LOCALE_DALARAN", "WESTRING_LOCALE_DALARANRUINS",
+				"WESTRING_LOCALE_DUNGEON", "WESTRING_LOCALE_FELWOOD",
+				"WESTRING_LOCALE_ICECROWN", "WESTRING_LOCALE_LORDAERON_FALL",
+				"WESTRING_LOCALE_LORDAERON_SUMMER", "WESTRING_LOCALE_LORDAERON_WINTER",
+				"WESTRING_LOCALE_NORTHREND", "WESTRING_LOCALE_OUTLAND",
+				"WESTRING_LOCALE_RUINS", "WESTRING_LOCALE_DUNGEON2",
+				"WESTRING_LOCALE_VILLAGE", "WESTRING_LOCALE_VILLAGEFALL"};
+		fillModel(tilesetBoxModel, tilesetStrings);
 
 		levelBoxModel.addElement(WEString.getString("WESTRING_ANYLEVEL"));
 		for (int i = 0; i <= 20; i++) {
 			levelBoxModel.addElement(WEString.getString("WESTRING_LEVEL") + String.format(" %d", i));
 		}
 
-		buttonsPanel = new JPanel();
+		buttonsPanel = new JPanel(new MigLayout("wrap 7"));
 		buttonsScrollPane = new JScrollPane(buttonsPanel);
 		buttonsScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		if (hideBorder) {
 			buttonsScrollPane.setBorder(null);
 		}
+		buttonsScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		buttonsScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
 		// playerBox = new JComboBox<String>(playerBoxModel);
 		// playerBox.addActionListener(this);
@@ -177,17 +123,6 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 		sortRaces();
 
 		tilesetBox.setSelectedIndex(10);
-	}
-
-	private String raceKey() {
-		if (raceBox.getModel() == raceBoxModel) {
-			return raceKey(raceBox.getSelectedIndex());
-		} else {
-			return switch (raceBox.getSelectedIndex()) {
-				case 1 -> "naga";
-				default -> "neutrals";
-			};
-		}
 	}
 
 	private String raceKey(final int index) {
@@ -307,6 +242,164 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 		}
 	}
 
+	private String raceKey() {
+		if (raceBox.getModel() == raceBoxModel) {
+			return raceKey(raceBox.getSelectedIndex());
+		} else if (raceBox.getSelectedIndex() == 1) {
+			return "naga";
+		}
+		return "neutrals";
+	}
+
+	public void relayout() {
+
+		removeAll();
+		buttonsPanel.removeAll();
+
+		// if( playerBox.getSelectedIndex() > 11 ) {
+		// if( raceBox.getModel() != raceBoxModelNeutral )
+		// raceBox.setModel(raceBoxModelNeutral);}
+		// else { if( raceBox.getModel() != raceBoxModel )
+		// raceBox.setModel(raceBoxModel);}
+
+		final String race = raceKey();
+		final String tileset = TILESETS.charAt(tilesetBox.getSelectedIndex()) + "";
+		final boolean isNeutral = race.equals("neutrals");
+		final boolean checkLevel = levelBox.getSelectedIndex() > 0 && isNeutral;
+		// boolean isHostile = playerBox.getSelectedIndex() == 12 && !race.equals("naga");
+		// boolean isPassive = playerBox.getSelectedIndex() == 13 && !race.equals("naga");
+
+		buttonGroup.clearSelection();
+		for (final UnitButton ub : unitButtons) {
+			buttonGroup.remove(ub);
+		}
+		unitButtons.clear();
+
+		RaceData data = sortedRaces.get(race + (meleeBox.getSelectedIndex() == 0 ? "melee" : "campaign"));
+		if (meleeBox.getSelectedIndex() == 2) {
+			data = sortedRaces.get(race + "custom");
+		}
+		if (meleeBox.getSelectedIndex() == 3) {
+			data = sortedRaces.get(race + "hidden");
+		}
+
+		final boolean neutrals = race.equals("neutrals");
+		tilesetBox.setVisible(neutrals);
+		levelBox.setVisible(neutrals);
+		add(raceBox, "growx, gapx 4, split 2, span");
+		add(meleeBox, "growx, wrap");
+		if (verticalStyle) {
+			add(tilesetBox, "growx, gapx 4, split 2, span");
+			add(levelBox, "growx, gapy 4, wrap");
+		} else if (neutrals) {
+			add(tilesetBox, "growx, gapx 4, split 2, span");
+			add(levelBox, "growx, gapy 4, wrap");
+		}
+
+		add(unitsLabel, "growx, span, wrap");
+		add(buttonsScrollPane, "grow, span");
+
+		int scrollbarWith = buttonsScrollPane.getVerticalScrollBar().getWidth();
+		System.out.println("scrollbarWith: " + scrollbarWith);
+		int rowLength = Math.max(1, (buttonsScrollPane.getWidth() - scrollbarWith) / 32);
+		if (firstTime) {
+			rowLength = 8;
+			firstTime = false;
+		}
+//		System.out.println(rowLength);
+
+		buttonsPanel.setLayout(new MigLayout("wrap " + (rowLength - 1)));
+
+		fillWithButtons(tileset, isNeutral, checkLevel, data.units);
+		addComponents(tileset, isNeutral, checkLevel, data.heroes, heroesLabel);
+		addComponents(tileset, isNeutral, checkLevel, data.buildings, buildingsLabel);
+		addComponents(tileset, isNeutral, checkLevel, data.buildingsUprooted, buildingsUprootedLabel);
+		addComponents(tileset, isNeutral, checkLevel, data.special, specialLabel);
+
+		revalidate();
+	}
+
+	public void addComponents(String tileset, boolean isNeutral, boolean checkLevel, List<GameObject> gameObjects, JLabel label) {
+		boolean good = false;
+		for (final GameObject unit : gameObjects) {
+			if (isNeutral && !unit.getField("tilesets").contains(tileset) && !unit.getField("tilesets").contains("*") && !unit.getField("tilesets").contains("_")) {
+				// System.err.println(unit.getField("Name") + " failed for tilset");
+				continue;
+			}
+			if (checkLevel && unit.getFieldValue("level") != levelBox.getSelectedIndex() - 1) {
+				// System.err.println(unit.getField("Name") + " failed for level");
+				continue;
+			}
+			// if( isPassive && unit.getField("hostilePal").startsWith("1") ) {continue;}
+			// if( isHostile && !unit.getField("hostilePal").startsWith("1") ) {continue;}
+			good = true;
+			break;
+		}
+		if (gameObjects.size() > 0 && good) {
+			buttonsPanel.add(label, "newline 12, span, wrap 4");
+
+			fillWithButtons(tileset, isNeutral, checkLevel, gameObjects);
+		}
+	}
+
+	public void fillWithButtons(String tileset, boolean isNeutral, boolean checkLevel, List<GameObject> gameObjects) {
+
+		for (final GameObject unit : gameObjects) {
+			if (isNeutral && !unit.getField("tilesets").contains(tileset) && !unit.getField("tilesets").contains("*") && !unit.getField("tilesets").contains("_")) {
+				// System.err.println(unit.getField("Name") + " failed for tilset");
+				continue;
+			}
+			if (checkLevel && unit.getFieldValue("level") != levelBox.getSelectedIndex() - 1) {
+				// System.err.println(unit.getField("Name") + " failed for level");
+				continue;
+			}
+
+			final UnitButton unitButton = new UnitButton(unit);
+			unitButtons.add(unitButton);
+			buttonsPanel.add(unitButton);
+		}
+	}
+
+	public void unitChosen(UnitButton button) {
+		for (final UnitButton btn : unitButtons) {
+			btn.setEnabled(true);
+		}
+		if (unitButtons.contains(button)) {
+			button.setEnabled(false);
+			String name = button.getUnit().getName();
+
+			final String race = button.getUnit().getField("race");
+			boolean showLevel = true;
+			for (int i = 0; i < 6; i++) {
+				if (race.equals(raceKey(i))) {
+					showLevel = false;
+					break;
+				}
+			}
+			if (showLevel) {
+				name += " - " + WEString.getString("WESTRING_LEVEL") + " " + button.getUnit().getFieldValue("level");
+			}
+			unitsLabel.setText(WEString.getString("WESTRING_UNITS") + ": " + name);
+
+			selection = button.getUnit();
+		} else {
+			selection = null;
+			unitsLabel.setText(WEString.getString("WESTRING_UNITS") + ": " + WEString.getString("WESTRING_NONE_CAPS"));
+		}
+	}
+
+
+	@Override
+	public void actionPerformed(final ActionEvent e) {
+		relayout();
+	}
+
+	private void fillModel(DefaultComboBoxModel<String> boxModel, String[] strings) {
+		for (String string : strings) {
+			boxModel.addElement(WEString.getString(string));
+		}
+	}
+
 	class UnitButton extends JButton {
 		GameObject unit;
 
@@ -368,7 +461,7 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 			}
 			setToolTipText(uberTip);
 			buttonGroup.add(this);
-			addActionListener(buttonListener);
+			addActionListener(e -> unitChosen(this));
 			setDisabledIcon(unit.getScaledTintedIcon(Color.green, 0.5));
 			setMargin(new Insets(0, 0, 0, 0));
 			setBorder(null);
@@ -395,464 +488,5 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 				g2.dispose();
 			}
 		}
-	}
-
-	boolean firstTime = true;
-
-	public void relayout() {
-
-		removeAll();
-		buttonsPanel.removeAll();
-
-		// if( playerBox.getSelectedIndex() > 11 ) {
-		// if( raceBox.getModel() != raceBoxModelNeutral )
-		// raceBox.setModel(raceBoxModelNeutral);
-		// }
-		// else {
-		// if( raceBox.getModel() != raceBoxModel )
-		// raceBox.setModel(raceBoxModel);
-		// }
-
-		final String race = raceKey();
-		final String tileset = TILESETS.charAt(tilesetBox.getSelectedIndex()) + "";
-		final boolean isNeutral = race.equals("neutrals");
-		final boolean checkLevel = levelBox.getSelectedIndex() > 0 && isNeutral;
-		// boolean isHostile = playerBox.getSelectedIndex() == 12 &&
-		// !race.equals("naga");
-		// boolean isPassive = playerBox.getSelectedIndex() == 13 &&
-		// !race.equals("naga");
-
-		buttonGroup.clearSelection();
-		for (final UnitButton ub : unitButtons) {
-			buttonGroup.remove(ub);
-		}
-		unitButtons.clear();
-
-		RaceData data = sortedRaces.get(race + (meleeBox.getSelectedIndex() == 0 ? "melee" : "campaign"));
-		if (meleeBox.getSelectedIndex() == 2) {
-			data = sortedRaces.get(race + "custom");
-		}
-		if (meleeBox.getSelectedIndex() == 3) {
-			data = sortedRaces.get(race + "hidden");
-		}
-
-		final GroupLayout layout = new GroupLayout(this);
-
-		final GroupLayout.Group superHorizontalGroup;
-		final GroupLayout.Group horizontalGroup;
-		final GroupLayout.Group verticalGroup;
-
-		final boolean neutrals = race.equals("neutrals");
-		tilesetBox.setVisible(neutrals);
-		levelBox.setVisible(neutrals);
-		if (verticalStyle) {
-			layout.setHorizontalGroup(superHorizontalGroup = layout
-					.createSequentialGroup().addGap(borderGapAmount).addGroup(layout.createParallelGroup()
-							// .addComponent(playerBox)
-							.addGroup(layout.createSequentialGroup().addComponent(raceBox).addGap(4)
-									.addComponent(meleeBox).addGap(4).addComponent(tilesetBox).addGap(4)
-									.addComponent(levelBox))
-							.addComponent(unitsLabel).addComponent(buttonsScrollPane))
-					.addGap(borderGapAmount));
-
-			layout.setVerticalGroup(layout.createSequentialGroup().addGap(borderGapAmount)
-					// .addComponent(playerBox)
-					// .addGap(4)
-					.addGroup(layout.createParallelGroup().addComponent(raceBox).addComponent(meleeBox)
-							.addComponent(tilesetBox).addComponent(levelBox))
-					.addGap(4).addComponent(unitsLabel).addGap(4).addComponent(buttonsScrollPane)
-					.addGap(borderGapAmount));
-		} else if (neutrals) {
-			layout.setHorizontalGroup(superHorizontalGroup = layout
-					.createSequentialGroup().addGap(borderGapAmount).addGroup(layout.createParallelGroup()
-							// .addComponent(playerBox)
-							.addGroup(layout.createSequentialGroup().addComponent(raceBox).addGap(4)
-									.addComponent(meleeBox))
-							.addGroup(layout.createSequentialGroup().addComponent(tilesetBox).addGap(4)
-									.addComponent(levelBox))
-							.addComponent(unitsLabel).addComponent(buttonsScrollPane))
-					.addGap(borderGapAmount));
-
-			layout.setVerticalGroup(layout.createSequentialGroup().addGap(borderGapAmount)
-					// .addComponent(playerBox)
-					// .addGap(4)
-					.addGroup(layout.createParallelGroup().addComponent(raceBox).addComponent(meleeBox)).addGap(4)
-					.addGroup(layout.createParallelGroup().addComponent(tilesetBox).addComponent(levelBox)).addGap(4)
-					.addComponent(unitsLabel).addGap(4).addComponent(buttonsScrollPane).addGap(borderGapAmount));
-		} else {
-			layout.setHorizontalGroup(superHorizontalGroup = layout
-					.createSequentialGroup().addGap(borderGapAmount).addGroup(layout.createParallelGroup()
-							// .addComponent(playerBox)
-							.addGroup(layout.createSequentialGroup().addComponent(raceBox).addGap(4)
-									.addComponent(meleeBox))
-							.addComponent(unitsLabel).addComponent(buttonsScrollPane))
-					.addGap(borderGapAmount));
-
-			layout.setVerticalGroup(layout.createSequentialGroup().addGap(borderGapAmount)
-					// .addComponent(playerBox)
-					// .addGap(4)
-					.addGroup(layout.createParallelGroup().addComponent(raceBox).addComponent(meleeBox)).addGap(4)
-					.addComponent(unitsLabel).addGap(4).addComponent(buttonsScrollPane).addGap(borderGapAmount));
-		}
-
-		int rowLength = Math.max(1, buttonsScrollPane.getWidth() / 32);// (getWidth()
-		// -
-		// 24)
-		// /
-		// 32;
-		if (firstTime) {
-			rowLength = 7;
-			firstTime = false;
-		}
-
-		final GroupLayout layout2 = new GroupLayout(buttonsPanel);
-		horizontalGroup = layout2.createParallelGroup();
-		verticalGroup = layout2.createSequentialGroup();
-
-		layout2.setVerticalGroup(verticalGroup);
-		layout2.setHorizontalGroup(horizontalGroup);
-
-		GroupLayout.Group lastVertGroup = null;
-		GroupLayout.Group lastHorizGroup = null;
-		int i = 0;
-		for (final GameObject unit : data.units) {
-			// System.err.println(unit.getField("tilesets"));
-			if (isNeutral && !unit.getField("tilesets").contains(tileset) && !unit.getField("tilesets").contains("*")
-					&& !unit.getField("tilesets").contains("_")) {
-				// System.err.println(unit.getField("Name") + " failed for
-				// tilset");
-				continue;
-			}
-			if (checkLevel && unit.getFieldValue("level") != levelBox.getSelectedIndex() - 1) {
-				// System.err.println(unit.getField("Name") + " failed for
-				// level");
-				continue;
-			}
-			// if( isPassive && unit.getField("hostilePal").startsWith("1") ) {
-			// continue;
-			// }
-			// if( isHostile && !unit.getField("hostilePal").startsWith("1") ) {
-			// continue;
-			// }
-			if (i % rowLength == 0) {
-				if (lastVertGroup != null) {
-					horizontalGroup.addGroup(lastHorizGroup);
-					verticalGroup.addGroup(lastVertGroup);
-				}
-				lastVertGroup = layout2.createParallelGroup();
-				lastHorizGroup = layout2.createSequentialGroup();
-			}
-			final UnitButton myButton = new UnitButton(unit);
-			unitButtons.add(myButton);
-			lastVertGroup.addComponent(myButton);
-			lastHorizGroup.addComponent(myButton);
-			i++;
-		}
-		if (lastVertGroup != null) {
-			horizontalGroup.addGroup(lastHorizGroup);
-			verticalGroup.addGroup(lastVertGroup);
-		}
-
-		boolean good = false;
-		for (final GameObject unit : data.heroes) {
-			if (isNeutral && !unit.getField("tilesets").contains(tileset) && !unit.getField("tilesets").contains("*")
-					&& !unit.getField("tilesets").contains("_")) {
-				// System.err.println(unit.getField("Name") + " failed for
-				// tilset");
-				continue;
-			}
-			if (checkLevel && unit.getFieldValue("level") != levelBox.getSelectedIndex() - 1) {
-				// System.err.println(unit.getField("Name") + " failed for
-				// level");
-				continue;
-			}
-			// if( isPassive && unit.getField("hostilePal").startsWith("1") ) {
-			// continue;
-			// }
-			// if( isHostile && !unit.getField("hostilePal").startsWith("1") ) {
-			// continue;
-			// }
-			good = true;
-			break;
-		}
-		if (data.heroes.size() > 0 && good) {
-			verticalGroup.addGap(12);
-			verticalGroup.addComponent(heroesLabel);
-			horizontalGroup.addComponent(heroesLabel);
-			verticalGroup.addGap(4);
-
-			lastVertGroup = null;
-			lastHorizGroup = null;
-			i = 0;
-			for (final GameObject unit : data.heroes) {
-				if (isNeutral && !unit.getField("tilesets").contains(tileset)
-						&& !unit.getField("tilesets").contains("*") && !unit.getField("tilesets").contains("_")) {
-					// System.err.println(unit.getField("Name") + " failed for
-					// tilset");
-					continue;
-				}
-				if (checkLevel && unit.getFieldValue("level") != levelBox.getSelectedIndex() - 1) {
-					// System.err.println(unit.getField("Name") + " failed for
-					// level");
-					continue;
-				}
-				// if( isPassive && unit.getField("hostilePal").startsWith("1")
-				// ) {
-				// continue;
-				// }
-				// if( isHostile && !unit.getField("hostilePal").startsWith("1")
-				// ) {
-				// continue;
-				// }
-				if (i % rowLength == 0) {
-					if (lastVertGroup != null) {
-						horizontalGroup.addGroup(lastHorizGroup);
-						verticalGroup.addGroup(lastVertGroup);
-					}
-					lastVertGroup = layout2.createParallelGroup();
-					lastHorizGroup = layout2.createSequentialGroup();
-				}
-				final UnitButton myButton = new UnitButton(unit);
-				unitButtons.add(myButton);
-				lastVertGroup.addComponent(myButton);
-				lastHorizGroup.addComponent(myButton);
-				i++;
-			}
-			if (lastVertGroup != null) {
-				horizontalGroup.addGroup(lastHorizGroup);
-				verticalGroup.addGroup(lastVertGroup);
-			}
-		}
-
-		good = false;
-		for (final GameObject unit : data.buildings) {
-			if (isNeutral && !unit.getField("tilesets").contains(tileset) && !unit.getField("tilesets").contains("*")
-					&& !unit.getField("tilesets").contains("_")) {
-				continue;
-			}
-			if (checkLevel && unit.getFieldValue("level") != levelBox.getSelectedIndex() - 1) {
-				continue;
-			}
-			// if( isPassive && unit.getField("hostilePal").startsWith("1") ) {
-			// continue;
-			// }
-			// if( isHostile && !unit.getField("hostilePal").startsWith("1") ) {
-			// continue;
-			// }
-			// if( isNeutral && !isPassive && !isHostile ) {
-			// continue;
-			// }
-			good = true;
-			break;
-		}
-		if (data.buildings.size() > 0 && good) {
-			verticalGroup.addGap(12);
-			verticalGroup.addComponent(buildingsLabel);
-			horizontalGroup.addComponent(buildingsLabel);
-			verticalGroup.addGap(4);
-
-			lastVertGroup = null;
-			lastHorizGroup = null;
-			i = 0;
-			for (final GameObject unit : data.buildings) {
-				if (isNeutral && !unit.getField("tilesets").contains(tileset)
-						&& !unit.getField("tilesets").contains("*") && !unit.getField("tilesets").contains("_")) {
-					// System.err.println(unit.getField("Name") + " failed for
-					// tilset");
-					continue;
-				}
-				if (checkLevel && unit.getFieldValue("level") != levelBox.getSelectedIndex() - 1) {
-					// System.err.println(unit.getField("Name") + " failed for
-					// level");
-					continue;
-				}
-				// if( isPassive && unit.getField("hostilePal").startsWith("1")
-				// ) {
-				// continue;
-				// }
-				// if( isHostile && !unit.getField("hostilePal").startsWith("1")
-				// ) {
-				// continue;
-				// }
-				// if( isNeutral && !isPassive && !isHostile ) {
-				// continue;
-				// }
-				if (i % rowLength == 0) {
-					if (lastVertGroup != null) {
-						horizontalGroup.addGroup(lastHorizGroup);
-						verticalGroup.addGroup(lastVertGroup);
-					}
-					lastVertGroup = layout2.createParallelGroup();
-					lastHorizGroup = layout2.createSequentialGroup();
-				}
-				final UnitButton myButton = new UnitButton(unit);
-				unitButtons.add(myButton);
-				lastVertGroup.addComponent(myButton);
-				lastHorizGroup.addComponent(myButton);
-				i++;
-			}
-			if (lastVertGroup != null) {
-				horizontalGroup.addGroup(lastHorizGroup);
-				verticalGroup.addGroup(lastVertGroup);
-			}
-		}
-
-		good = false;
-		for (final GameObject unit : data.buildingsUprooted) {
-			if (isNeutral && !unit.getField("tilesets").contains(tileset) && !unit.getField("tilesets").contains("*")
-					&& !unit.getField("tilesets").contains("_")) {
-				// System.err.println(unit.getField("Name") + " failed for
-				// tilset");
-				continue;
-			}
-			if (checkLevel && unit.getFieldValue("level") != levelBox.getSelectedIndex() - 1) {
-				// System.err.println(unit.getField("Name") + " failed for
-				// level");
-				continue;
-			}
-			// if( isPassive && unit.getField("hostilePal").startsWith("1") ) {
-			// continue;
-			// }
-			// if( isHostile && !unit.getField("hostilePal").startsWith("1") ) {
-			// continue;
-			// }
-			// if( isNeutral && !isPassive && !isHostile ) {
-			// continue;
-			// }
-			good = true;
-			break;
-		}
-		if (data.buildingsUprooted.size() > 0 && good) {
-			verticalGroup.addGap(12);
-			verticalGroup.addComponent(buildingsUprootedLabel);
-			horizontalGroup.addComponent(buildingsUprootedLabel);
-			verticalGroup.addGap(4);
-
-			lastVertGroup = null;
-			lastHorizGroup = null;
-			i = 0;
-			for (final GameObject unit : data.buildingsUprooted) {
-				if (isNeutral && !unit.getField("tilesets").contains(tileset)
-						&& !unit.getField("tilesets").contains("*") && !unit.getField("tilesets").contains("_")) {
-					// System.err.println(unit.getField("Name") + " failed for
-					// tilset");
-					continue;
-				}
-				if (checkLevel && unit.getFieldValue("level") != levelBox.getSelectedIndex() - 1) {
-					// System.err.println(unit.getField("Name") + " failed for
-					// level");
-					continue;
-				}
-				// if( isPassive && unit.getField("hostilePal").startsWith("1")
-				// ) {
-				// continue;
-				// }
-				// if( isHostile && !unit.getField("hostilePal").startsWith("1")
-				// ) {
-				// continue;
-				// }
-				// if( isNeutral && !isPassive && !isHostile ) {
-				// continue;
-				// }
-				if (i % rowLength == 0) {
-					if (lastVertGroup != null) {
-						horizontalGroup.addGroup(lastHorizGroup);
-						verticalGroup.addGroup(lastVertGroup);
-					}
-					lastVertGroup = layout2.createParallelGroup();
-					lastHorizGroup = layout2.createSequentialGroup();
-				}
-				final UnitButton myButton = new UnitButton(unit);
-				unitButtons.add(myButton);
-				lastVertGroup.addComponent(myButton);
-				lastHorizGroup.addComponent(myButton);
-				i++;
-			}
-			if (lastVertGroup != null) {
-				horizontalGroup.addGroup(lastHorizGroup);
-				verticalGroup.addGroup(lastVertGroup);
-			}
-		}
-
-		good = false;
-		for (final GameObject unit : data.special) {
-			if (isNeutral && !unit.getField("tilesets").contains(tileset) && !unit.getField("tilesets").contains("*")
-					&& !unit.getField("tilesets").contains("_")) {
-				continue;
-			}
-			if (checkLevel && unit.getFieldValue("level") != levelBox.getSelectedIndex() - 1) {
-				continue;
-			}
-			// if( isPassive && unit.getField("hostilePal").startsWith("1") ) {
-			// continue;
-			// }
-			// if( isHostile && !unit.getField("hostilePal").startsWith("1") ) {
-			// continue;
-			// }
-			good = true;
-			break;
-		}
-		if (data.special.size() > 0 && good) {
-			verticalGroup.addGap(12);
-			verticalGroup.addComponent(specialLabel);
-			horizontalGroup.addComponent(specialLabel);
-			verticalGroup.addGap(4);
-
-			lastVertGroup = null;
-			lastHorizGroup = null;
-			i = 0;
-			for (final GameObject unit : data.special) {
-				if (isNeutral && !unit.getField("tilesets").contains(tileset)
-						&& !unit.getField("tilesets").contains("*") && !unit.getField("tilesets").contains("_")) {
-					// System.err.println(unit.getField("Name") + " failed for
-					// tilset");
-					continue;
-				}
-				if (checkLevel && unit.getFieldValue("level") != levelBox.getSelectedIndex() - 1) {
-					// System.err.println(unit.getField("Name") + " failed for
-					// level");
-					continue;
-				}
-				// if( isPassive && unit.getField("hostilePal").startsWith("1")
-				// ) {
-				// continue;
-				// }
-				// if( isHostile && !unit.getField("hostilePal").startsWith("1")
-				// ) {
-				// continue;
-				// }
-				if (i % rowLength == 0) {
-					if (lastVertGroup != null) {
-						horizontalGroup.addGroup(lastHorizGroup);
-						verticalGroup.addGroup(lastVertGroup);
-					}
-					lastVertGroup = layout2.createParallelGroup();
-					lastHorizGroup = layout2.createSequentialGroup();
-				}
-				final UnitButton myButton = new UnitButton(unit);
-				unitButtons.add(myButton);
-				lastVertGroup.addComponent(myButton);
-				lastHorizGroup.addComponent(myButton);
-				i++;
-			}
-			if (lastVertGroup != null) {
-				horizontalGroup.addGroup(lastHorizGroup);
-				verticalGroup.addGroup(lastVertGroup);
-			}
-		}
-
-		superHorizontalGroup.addGap(12);
-		// verticalGroup.addGap(12);
-
-		buttonsPanel.setLayout(layout2);
-
-		setLayout(layout);
-
-		revalidate();
-	}
-
-	@Override
-	public void actionPerformed(final ActionEvent e) {
-		relayout();
 	}
 }
