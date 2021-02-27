@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.editor.model;
 
+import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxAttachment;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 
 /**
  * Write a description of class Attachment here.
@@ -40,7 +40,7 @@ public class Attachment extends IdObject {
 		setPath(attachment.path);
 	}
 
-	public MdlxAttachment toMdlx() {
+	public MdlxAttachment toMdlx(final EditableModel model) {
 		final MdlxAttachment attachment = new MdlxAttachment();
 
 		objectToMdlx(attachment);

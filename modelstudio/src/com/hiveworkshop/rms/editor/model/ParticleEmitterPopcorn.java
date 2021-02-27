@@ -53,7 +53,7 @@ public class ParticleEmitterPopcorn extends IdObject {
 		animVisibilityGuide = emitter.animationVisiblityGuide;
 	}
 
-	public MdlxParticleEmitterPopcorn toMdlx() {
+	public MdlxParticleEmitterPopcorn toMdlx(final EditableModel model) {
 		final MdlxParticleEmitterPopcorn emitter = new MdlxParticleEmitterPopcorn();
 
 		objectToMdlx(emitter);

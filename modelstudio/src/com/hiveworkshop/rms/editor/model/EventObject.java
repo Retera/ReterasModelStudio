@@ -57,7 +57,7 @@ public class EventObject extends IdObject {
 		}
 	}
 
-	public MdlxEventObject toMdlx() {
+	public MdlxEventObject toMdlx(final EditableModel model) {
 		final MdlxEventObject object = new MdlxEventObject();
 
 		objectToMdlx(object);

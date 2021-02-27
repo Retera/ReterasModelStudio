@@ -296,8 +296,8 @@ public class ScriptActions {
 	        final EditableModel model = mainPanel.currentMDL();
 	        final int animTrackEnd = model.animTrackEnd();
 	        final int start = animTrackEnd + 1000;
-	        animation.copyToInterval(start, start + anim1Length, model.getAllAnimFlags(), model.sortedIdObjects(EventObject.class));
-	        animation2.copyToInterval(start + anim1Length, start + totalLength, model.getAllAnimFlags(), model.sortedIdObjects(EventObject.class));
+	        animation.copyToInterval(start, start + anim1Length, model.getAllAnimFlags(), model.getEvents());
+	        animation2.copyToInterval(start + anim1Length, start + totalLength, model.getAllAnimFlags(), model.getEvents());
 
 	        final Animation newAnimation = new Animation(nameChoice, start, start + totalLength);
 	        model.add(newAnimation);

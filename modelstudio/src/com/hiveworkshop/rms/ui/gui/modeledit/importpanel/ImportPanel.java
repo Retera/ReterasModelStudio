@@ -312,8 +312,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 	private void makeBonePanel(EditableModel currentModel, EditableModel importedModel, BonePanelListCellRenderer bonePanelRenderer) {
 		addTab("Bones", boneIcon, bonesPanel, "Controls which bones will be imported.");
 		existingBones = new DefaultListModel<>();
-		final List<Bone> currentMDLBones = currentModel.sortedIdObjects(Bone.class);
-		final List<Helper> currentMDLHelpers = currentModel.sortedIdObjects(Helper.class);
+		final List<Bone> currentMDLBones = currentModel.getBones();
+		final List<Helper> currentMDLHelpers = currentModel.getHelpers();
 		for (Bone currentMDLBone : currentMDLBones) {
 			existingBones.addElement(new BoneShell(currentMDLBone));
 		}
@@ -321,8 +321,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			existingBones.addElement(new BoneShell(currentMDLHelper));
 		}
 
-		final List<Bone> importedMDLBones = importedModel.sortedIdObjects(Bone.class);
-		final List<Helper> importedMDLHelpers = importedModel.sortedIdObjects(Helper.class);
+		final List<Bone> importedMDLBones = importedModel.getBones();
+		final List<Helper> importedMDLHelpers = importedModel.getHelpers();
 
 		clearExistingBones = new JCheckBox("Clear pre-existing bones and helpers");
 		// Initialized up here for use with BonePanels
@@ -1012,13 +1012,13 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		if (oldBones == null) {
 			oldBones = new ArrayList<>();
 			newBones = new ArrayList<>();
-			final List<Bone> oldBonesRefs = currentModel.sortedIdObjects(Bone.class);
+			final List<Bone> oldBonesRefs = currentModel.getBones();
 			for (final Bone b : oldBonesRefs) {
 				final BoneShell bs = new BoneShell(b);
 				bs.modelName = currentModel.getName();
 				oldBones.add(bs);
 			}
-			final List<Bone> newBonesRefs = importedModel.sortedIdObjects(Bone.class);
+			final List<Bone> newBonesRefs = importedModel.getBones();
 			for (final Bone b : newBonesRefs) {
 				final BoneShell bs = new BoneShell(b);
 				bs.modelName = importedModel.getName();
@@ -1071,7 +1071,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		// oldHelpers = new ArrayList<BoneShell>();
 		// newHelpers = new ArrayList<BoneShell>();
 		// ArrayList<Bone> oldBonesRefs =
-		// currentModel.sortedIdObjects(Helper.class);
+		// currentModel.getHelpers();
 		// for( Bone b: oldBonesRefs )
 		// {
 		// BoneShell bs = new BoneShell(b);
@@ -1079,7 +1079,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		// oldBones.add(bs);
 		// }
 		// ArrayList<Bone> newBonesRefs =
-		// importedModel.sortedIdObjects(Helper.class);
+		// importedModel.getHelpers();
 		// for( Bone b: newBonesRefs )
 		// {
 		// BoneShell bs = new BoneShell(b);
@@ -1148,21 +1148,21 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		if (oldHelpers == null) {
 			oldHelpers = new ArrayList<>();
 			newHelpers = new ArrayList<>();
-			List<? extends Bone> oldHelpersRefs = currentModel.sortedIdObjects(Bone.class);
+			List<? extends Bone> oldHelpersRefs = currentModel.getBones();
 			for (final Bone b : oldHelpersRefs) {
 				final BoneShell bs = new BoneShell(b);
 				bs.modelName = currentModel.getName();
 				bs.showClass = true;
 				oldHelpers.add(bs);
 			}
-			oldHelpersRefs = currentModel.sortedIdObjects(Helper.class);
+			oldHelpersRefs = currentModel.getHelpers();
 			for (final Bone b : oldHelpersRefs) {
 				final BoneShell bs = new BoneShell(b);
 				bs.modelName = currentModel.getName();
 				bs.showClass = true;
 				oldHelpers.add(bs);
 			}
-			List<? extends Bone> newHelpersRefs = importedModel.sortedIdObjects(Bone.class);
+			List<? extends Bone> newHelpersRefs = importedModel.getBones();
 			for (final Bone b : newHelpersRefs) {
 				final BoneShell bs = new BoneShell(b);
 				bs.modelName = importedModel.getName();
@@ -1170,7 +1170,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 				bs.panel = getPanelOf(b);
 				newHelpers.add(bs);
 			}
-			newHelpersRefs = importedModel.sortedIdObjects(Helper.class);
+			newHelpersRefs = importedModel.getHelpers();
 			for (final Bone b : newHelpersRefs) {
 				final BoneShell bs = new BoneShell(b);
 				bs.modelName = importedModel.getName();
@@ -1702,8 +1702,8 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			final List<Animation> newAnims = new ArrayList<>();
 			final java.util.List<AnimFlag<?>> curFlags = currentModel.getAllAnimFlags();
 			final java.util.List<AnimFlag<?>> impFlags = importedModel.getAllAnimFlags();
-			final List<EventObject> curEventObjs = currentModel.sortedIdObjects(EventObject.class);
-			final List<EventObject> impEventObjs = importedModel.sortedIdObjects(EventObject.class);
+			final List<EventObject> curEventObjs = currentModel.getEvents();
+			final List<EventObject> impEventObjs = importedModel.getEvents();
 			// note to self: remember to scale event objects with time
 			final List<AnimFlag<?>> newImpFlags = new ArrayList<>();
 			for (final AnimFlag<?> af : impFlags) {
@@ -1797,10 +1797,10 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 			}
 
 			if (clearBones) {
-				for (final IdObject o : currentModel.sortedIdObjects(Bone.class)) {
+				for (final IdObject o : currentModel.getBones()) {
 					currentModel.remove(o);
 				}
-				for (final IdObject o : currentModel.sortedIdObjects(Helper.class)) {
+				for (final IdObject o : currentModel.getHelpers()) {
 					currentModel.remove(o);
 				}
 			}

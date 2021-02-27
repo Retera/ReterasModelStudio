@@ -49,7 +49,7 @@ public class ExportTextureDialog {
             final Material mat = model.getMaterials().get(i);
             materials.addElement(mat);
         }
-        for (final ParticleEmitter2 emitter2 : model.sortedIdObjects(ParticleEmitter2.class)) {
+        for (final ParticleEmitter2 emitter2 : model.getParticleEmitter2s()) {
             final Material dummyMaterial = new Material(new Layer("Blend", model.getTexture(emitter2.getTextureID())));
         }
 

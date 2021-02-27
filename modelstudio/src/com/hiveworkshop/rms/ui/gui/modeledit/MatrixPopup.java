@@ -231,7 +231,7 @@ public class MatrixPopup extends JPanel implements ActionListener, ListSelection
 
 	public void buildBonesList() {
 		bones = new DefaultListModel<>();
-		final List<Bone> modelBones = model.sortedIdObjects(Bone.class);
+		final List<Bone> modelBones = model.getBones();
 		// ArrayList<Bone> modelHelpers = model.sortedIdObjects(Bone.class);
 		for (final Bone b : modelBones) {
 			bones.addElement(new BoneShell(b));

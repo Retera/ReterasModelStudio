@@ -174,12 +174,12 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		}
 
 		setPriorityPlane(emitter.priorityPlane);
-		setReplaceableId((int)emitter.replaceableId);
+		setReplaceableId((int) emitter.replaceableId);
 	}
 
-	public MdlxParticleEmitter2 toMdlx() {
+	public MdlxParticleEmitter2 toMdlx(final EditableModel model) {
 		final MdlxParticleEmitter2 emitter = new MdlxParticleEmitter2();
-	
+
 		objectToMdlx(emitter);
 
 		if (unshaded) {

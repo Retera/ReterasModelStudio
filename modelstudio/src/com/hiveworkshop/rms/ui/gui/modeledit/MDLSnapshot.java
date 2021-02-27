@@ -353,13 +353,13 @@ public class MDLSnapshot {
 
 	public void zoomToFitOld() {
 		setYangle(35);// model.getExtents() == null ? 25 :
-						// (float)(45-model.getExtents().getMaximumExtent().getZ()/400*45));
+		// (float)(45-model.getExtents().getMaximumExtent().getZ()/400*45));
 		double width = 128;
 		double depth = 64;
 		final EditableModel model = dispMDL.getModel();
 		final ExtLog exts = model.getExtents();
 		boolean loadedWidth = false;
-		final List<CollisionShape> sortedIdObjects = model.sortedIdObjects(CollisionShape.class);
+		final List<CollisionShape> sortedIdObjects = model.getColliders();
 		double avgWidth = 0;
 		int widthItems = 0;
 		for (final CollisionShape shape : sortedIdObjects) {

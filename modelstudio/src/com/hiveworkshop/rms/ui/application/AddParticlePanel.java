@@ -92,7 +92,7 @@ public class AddParticlePanel {
     private static void makeAddParticlePanel(MainPanel mainPanel, ParticleInformation particleInformation) {
         final ParticleEmitter2 particle;
         try {
-            particle = MdxUtils.loadEditable(particleInformation.getFile()).sortedIdObjects(ParticleEmitter2.class).get(0);
+            particle = MdxUtils.loadEditable(particleInformation.getFile()).getParticleEmitter2s().get(0);
         } catch (final IOException e1) {
             e1.printStackTrace();
             return;

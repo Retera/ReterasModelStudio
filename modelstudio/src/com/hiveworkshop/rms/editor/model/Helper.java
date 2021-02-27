@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.parsers.mdlx.MdlxHelper;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxHelper;
 
 /**
  * Write a description of class Helper here.
@@ -30,7 +30,7 @@ public class Helper extends Bone { // Haha blizz
 		loadObject(helper);
 	}
 
-	public MdlxHelper toMdlxHelper() {
+	public MdlxHelper toMdlxHelper(final EditableModel model) {
 		final MdlxHelper helper = new MdlxHelper();
 
 		objectToMdlx(helper);

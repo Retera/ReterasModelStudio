@@ -55,14 +55,14 @@ public class ModelScale {
 			camera.getPosition().scale(centerX, centerY, centerZ, x, y, z);
 			camera.getTargetPosition().scale(centerX, centerY, centerZ, x, y, z);
 		}
-		for (final CollisionShape collision : mdl.sortedIdObjects(CollisionShape.class)) {
+		for (final CollisionShape collision : mdl.getColliders()) {
 			for (final Vec3 vertex : collision.getVertices()) {
 				vertex.scale(centerX, centerY, centerZ, x, y, z);
 			}
 			final ExtLog extents = collision.getExtents();
 			scale(centerX, centerY, centerZ, x, y, z, extents);
 		}
-		for (final ParticleEmitter2 particle : mdl.sortedIdObjects(ParticleEmitter2.class)) {
+		for (final ParticleEmitter2 particle : mdl.getParticleEmitter2s()) {
 			particle.setLength(particle.getLength() * avgScale);
 			particle.setWidth(particle.getWidth() * avgScale);
 			particle.getParticleScaling().scale(0, 0, 0, avgScale, avgScale, avgScale);

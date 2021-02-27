@@ -122,7 +122,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 
 	private void loadDefaultCameraFor(final ModelView modelView) {
 		ExtLog extents = null;
-		final List<CollisionShape> collisionShapes = modelView.getModel().sortedIdObjects(CollisionShape.class);
+		final List<CollisionShape> collisionShapes = modelView.getModel().getColliders();
 		if (collisionShapes.size() > 0) {
 			for (final CollisionShape shape : collisionShapes) {
 				if ((shape != null) && (shape.getExtents() != null) && shape.getExtents().hasBoundsRadius()) {

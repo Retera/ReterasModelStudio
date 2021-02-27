@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.application.edit.animation;
 
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import net.miginfocom.swing.MigLayout;
@@ -168,7 +167,7 @@ public class TimeBoundChooserPanel extends JPanel {
 		final Animation selectedValue = animationBox.getSelectedValue();
 		if (result == JOptionPane.YES_OPTION) {
 			// del keys
-			selectedValue.clearData(modelView.getModel().getAllAnimFlags(), modelView.getModel().sortedIdObjects(EventObject.class));
+			selectedValue.clearData(modelView.getModel().getAllAnimFlags(), modelView.getModel().getEvents());
 		}
 		if (result != JOptionPane.CANCEL_OPTION) {
 			// del anim
@@ -318,7 +317,7 @@ public class TimeBoundChooserPanel extends JPanel {
 			copyAnimation.setInterval(lastAnim.getEnd() + 300, lastAnim.getEnd() + 300 + selectedAnimation.length());
 			copyAnimation.setName(userChosenName);
 			model.add(copyAnimation);
-			selectedAnimation.copyToInterval(copyAnimation.getStart(), copyAnimation.getEnd(), model.getAllAnimFlags(), model.sortedIdObjects(EventObject.class));
+			selectedAnimation.copyToInterval(copyAnimation.getStart(), copyAnimation.getEnd(), model.getAllAnimFlags(), model.getEvents());
 			animations.addElement(copyAnimation);
 			structureChangeListener.animationsAdded(Collections.singletonList(copyAnimation));
 		}

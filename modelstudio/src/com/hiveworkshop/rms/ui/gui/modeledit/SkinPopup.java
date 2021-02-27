@@ -21,7 +21,7 @@ public class SkinPopup extends JPanel {
             add(boneButton, "growx");
             boneButton.addActionListener(e -> {
                 DefaultListModel<BoneShell> boneShellDefaultListModel = new DefaultListModel<>();
-                for(Bone bone: modelView.getModel().sortedIdObjects(Bone.class)) {
+                for (Bone bone : modelView.getModel().getBones()) {
                     boneShellDefaultListModel.addElement(new BoneShell(bone));
                 }
                 JList<BoneShell> bones = new JList<>(boneShellDefaultListModel);

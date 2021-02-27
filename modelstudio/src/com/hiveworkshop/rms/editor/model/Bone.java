@@ -51,11 +51,11 @@ public class Bone extends IdObject {
 		geosetAnimId = bone.geosetAnimationId;
 	}
 
-	public MdlxBone toMdlx() {
+	public MdlxBone toMdlx(final EditableModel model) {
 		final MdlxBone bone = new MdlxBone();
 
 		objectToMdlx(bone);
-		
+
 		bone.geosetId = geosetId;
 		bone.geosetAnimationId = geosetAnimId;
 

@@ -134,7 +134,7 @@ public final class RenderModel {
 				objectToRenderNode.put(object, renderNode);
 			}
 		}
-		for (final ParticleEmitter2 particleEmitter : model.sortedIdObjects(ParticleEmitter2.class)) {
+		for (final ParticleEmitter2 particleEmitter : model.getParticleEmitter2s()) {
 			particleEmitters2.add(new RenderParticleEmitter2(particleEmitter, renderResourceAllocator.allocateTexture(particleEmitter.getTexture(), particleEmitter)));
 		}
 		particleEmitters2.sort(Comparator.comparingInt(RenderParticleEmitter2::getPriorityPlane));

@@ -3,8 +3,8 @@ package com.hiveworkshop.rms.editor.model;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.editor.render3d.EmitterIdObject;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 
 /**
  * ParticleEmitter2 class, these are the things most people would think of as a
@@ -68,17 +68,17 @@ public class ParticleEmitter extends EmitterIdObject {
 		}
 	}
 
-	public MdlxParticleEmitter toMdlx() {
+	public MdlxParticleEmitter toMdlx(final EditableModel model) {
 		final MdlxParticleEmitter emitter = new MdlxParticleEmitter();
 
 		objectToMdlx(emitter);
 
-		emitter.emissionRate = (float)getEmissionRate();
-		emitter.gravity = (float)getGravity();
-		emitter.speed = (float)getInitVelocity();
-		emitter.latitude = (float)getLatitude();
-		emitter.lifeSpan = (float)getLifeSpan();
-		emitter.longitude = (float)getLongitude();
+		emitter.emissionRate = (float) getEmissionRate();
+		emitter.gravity = (float) getGravity();
+		emitter.speed = (float) getInitVelocity();
+		emitter.latitude = (float) getLatitude();
+		emitter.lifeSpan = (float) getLifeSpan();
+		emitter.longitude = (float) getLongitude();
 		emitter.path = getPath();
 
 		if (isMDLEmitter()) {

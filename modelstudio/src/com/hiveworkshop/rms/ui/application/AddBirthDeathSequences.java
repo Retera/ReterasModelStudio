@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.application;
 
-import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
@@ -80,7 +79,7 @@ public class AddBirthDeathSequences {
         }
         if (removeOldAnimation) {
             // del keys
-            oldAnimation.clearData(model.getAllAnimFlags(), model.sortedIdObjects(EventObject.class));
+            oldAnimation.clearData(model.getAllAnimFlags(), model.getEvents());
             model.remove(oldAnimation);
             mainPanel.modelStructureChangeListener.animationsRemoved(Collections.singletonList(oldAnimation));
         }

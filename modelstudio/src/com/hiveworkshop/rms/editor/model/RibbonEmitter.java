@@ -1,12 +1,12 @@
 package com.hiveworkshop.rms.editor.model;
 
-import java.util.List;
-
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxRibbonEmitter;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.List;
 
 /**
  * RibbonEmitter class, these are the things most people would think of as a
@@ -69,24 +69,24 @@ public class RibbonEmitter extends IdObject {
 		setAlpha(emitter.alpha);
 		setStaticColor(new Vec3(ModelUtils.flipRGBtoBGR(emitter.color)));
 		setLifeSpan(emitter.lifeSpan);
-		setEmissionRate((int)emitter.emissionRate);
-		setRows((int)emitter.rows);
-		setColumns((int)emitter.columns);
+		setEmissionRate((int) emitter.emissionRate);
+		setRows((int) emitter.rows);
+		setColumns((int) emitter.columns);
 		setMaterialId(emitter.materialId);
 		setGravity(emitter.gravity);
 	}
 
-	public MdlxRibbonEmitter toMdlx() {
+	public MdlxRibbonEmitter toMdlx(final EditableModel model) {
 		final MdlxRibbonEmitter emitter = new MdlxRibbonEmitter();
 
 		objectToMdlx(emitter);
 
-		emitter.textureSlot = (long)getTextureSlot();
-		emitter.heightAbove = (float)getHeightAbove();
-		emitter.heightBelow = (float)getHeightBelow();
-		emitter.alpha = (float)getAlpha();
+		emitter.textureSlot = (long) getTextureSlot();
+		emitter.heightAbove = (float) getHeightAbove();
+		emitter.heightBelow = (float) getHeightBelow();
+		emitter.alpha = (float) getAlpha();
 		emitter.color = ModelUtils.flipRGBtoBGR(getStaticColor().toFloatArray());
-		emitter.lifeSpan = (float)getLifeSpan();
+		emitter.lifeSpan = (float) getLifeSpan();
 		emitter.emissionRate = getEmissionRate();
 		emitter.rows = getRows();
 		emitter.columns = getColumns();
