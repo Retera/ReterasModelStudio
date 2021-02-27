@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.widgets;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.util.Vec2;
 
 import java.awt.*;
@@ -9,34 +10,37 @@ public final class TVertexRotatorWidget {
 	private static final int ROTATOR_RADIUS = 60;
 	private static final int ROTATOR_RADIUS_SQUARED = ROTATOR_RADIUS * ROTATOR_RADIUS;
 	private final Vec2 point;
-	private RotateDirection moveDirection = RotateDirection.NONE;
+	private MoveDimension moveDirection = MoveDimension.NONE;
 
 	public TVertexRotatorWidget(final Vec2 point) {
 		this.point = new Vec2(0, 0);
 		this.point.set(point);
 	}
 
-	public RotateDirection getDirectionByMouse(final Point mousePoint, final CoordinateSystem coordinateSystem) {
+	public MoveDimension getDirectionByMouse(final Point mousePoint, final CoordinateSystem coordinateSystem) {
 		final double x = coordinateSystem.convertX(point.getCoord(coordinateSystem.getPortFirstXYZ()));
 		final double y = coordinateSystem.convertY(point.getCoord(coordinateSystem.getPortSecondXYZ()));
 
 		final double deltaY = y - mousePoint.getY();
 		final double deltaX = x - mousePoint.getX();
-		if ((Math.abs(deltaX) <= 3) && (Math.abs(deltaY) <= ROTATOR_RADIUS)) {
-			return RotateDirection.VERTICALLY;
+		byte dim1 = coordinateSystem.getPortFirstXYZ();
+		byte dim2 = coordinateSystem.getPortSecondXYZ();
+
+		if (Math.abs(deltaX) <= 3 && Math.abs(deltaY) <= ROTATOR_RADIUS) {
+			return MoveDimension.getByByte(dim1);
 		}
-		if ((Math.abs(deltaX) <= ROTATOR_RADIUS) && (Math.abs(deltaY) <= 3)) {
-			return RotateDirection.HORIZONTALLY;
+		if (Math.abs(deltaX) <= ROTATOR_RADIUS && Math.abs(deltaY) <= 3) {
+			return MoveDimension.getByByte(dim2);
 		}
-		final double dstSquared = (deltaY * deltaY) + (deltaX * deltaX);
+		final double dstSquared = deltaY * deltaY + deltaX * deltaX;
 		if (Math.abs(Math.sqrt(dstSquared) - ROTATOR_RADIUS) <= 3) {
-			return RotateDirection.SPIN;
+			return MoveDimension.getByByte(getOutwardDimension(dim1, dim2));
 		}
 		if (dstSquared < ROTATOR_RADIUS_SQUARED) {
-			return RotateDirection.FREE;
+			return MoveDimension.NONE;
 		}
 
-		return RotateDirection.NONE;
+		return MoveDimension.NONE;
 	}
 
 	public Vec2 getPoint() {
@@ -47,11 +51,11 @@ public final class TVertexRotatorWidget {
 		this.point.set(point);
 	}
 
-	public RotateDirection getMoveDirection() {
+	public MoveDimension getMoveDirection() {
 		return moveDirection;
 	}
 
-	public void setMoveDirection(final RotateDirection moveDirection) {
+	public void setMoveDirection(final MoveDimension moveDirection) {
 		this.moveDirection = moveDirection;
 	}
 
@@ -60,73 +64,62 @@ public final class TVertexRotatorWidget {
 		final byte yDimension = coordinateSystem.getPortSecondXYZ();
 		final double x = coordinateSystem.convertX(point.getCoord(xDimension));
 		final double y = coordinateSystem.convertY(point.getCoord(yDimension));
-		if (moveDirection != null) {
-			switch (moveDirection) {
-				case FREE -> {
-					graphics.setColor(new Color(0.5f, 0.5f, 0.5f, 0.4f));
-					graphics.fillOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2,
-							ROTATOR_RADIUS * 2);
-					setColorByDimension(graphics, xDimension);
-					graphics.drawLine((int) (x - ROTATOR_RADIUS), (int) y, (int) (x + ROTATOR_RADIUS), (int) y);
-					setColorByDimension(graphics, yDimension);
-					graphics.drawLine((int) x, (int) (y - ROTATOR_RADIUS), (int) x, (int) (y + ROTATOR_RADIUS));
-					setColorByDimension(graphics, getOutwardDimension(xDimension, yDimension));
-					graphics.drawOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2,
-							ROTATOR_RADIUS * 2);
-				}
-				case SPIN -> {
-					setColorByDimension(graphics, xDimension);
-					graphics.drawLine((int) (x - ROTATOR_RADIUS), (int) y, (int) (x + ROTATOR_RADIUS), (int) y);
-					setColorByDimension(graphics, yDimension);
-					graphics.drawLine((int) (x), (int) (y - ROTATOR_RADIUS), (int) (x), (int) (y + ROTATOR_RADIUS));
-					graphics.setColor(new Color(255, 255, 0));
-					graphics.drawOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2,
-							ROTATOR_RADIUS * 2);
-				}
-				case VERTICALLY -> {
-					setColorByDimension(graphics, xDimension);
-					graphics.drawLine((int) (x - ROTATOR_RADIUS), (int) y, (int) (x + ROTATOR_RADIUS), (int) y);
-					graphics.setColor(new Color(255, 255, 0));
-					graphics.drawLine((int) (x), (int) (y - ROTATOR_RADIUS), (int) (x), (int) (y + ROTATOR_RADIUS));
-					setColorByDimension(graphics, getOutwardDimension(xDimension, yDimension));
-					graphics.drawOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2,
-							ROTATOR_RADIUS * 2);
-				}
-				case HORIZONTALLY -> {
-					graphics.setColor(new Color(255, 255, 0));
-					graphics.drawLine((int) (x - ROTATOR_RADIUS), (int) y, (int) (x + ROTATOR_RADIUS), (int) y);
-					setColorByDimension(graphics, yDimension);
-					graphics.drawLine((int) (x), (int) (y - ROTATOR_RADIUS), (int) (x), (int) (y + ROTATOR_RADIUS));
-					setColorByDimension(graphics, getOutwardDimension(xDimension, yDimension));
-					graphics.drawOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2,
-							ROTATOR_RADIUS * 2);
-				}
-				case NONE -> {
-					setColorByDimension(graphics, xDimension);
-					graphics.drawLine((int) (x - ROTATOR_RADIUS), (int) y, (int) (x + ROTATOR_RADIUS), (int) y);
-					setColorByDimension(graphics, yDimension);
-					graphics.drawLine((int) (x), (int) (y - ROTATOR_RADIUS), (int) (x), (int) (y + ROTATOR_RADIUS));
-					setColorByDimension(graphics, getOutwardDimension(xDimension, yDimension));
-					graphics.drawOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2,
-							ROTATOR_RADIUS * 2);
-				}
-			}
+
+		setHighLightableColor(graphics, yDimension, moveDirection);
+		drawHorzLine(graphics, x, y);
+		setHighLightableColor(graphics, xDimension, moveDirection);
+		drawVertLine(graphics, x, y);
+		setHighLightableColor(graphics, getOutwardDimension(xDimension, yDimension), moveDirection);
+		drawCircle(graphics, x, y);
+
+
+		if (moveDirection == MoveDimension.XY) {
+			graphics.setColor(new Color(0.5f, 0.5f, 0.5f, 0.4f));
+			graphics.fillOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2, ROTATOR_RADIUS * 2);
+			setColorByDimension(graphics, xDimension);
+			drawHorzLine(graphics, x, y);
+			setColorByDimension(graphics, yDimension);
+			drawVertLine(graphics, x, y);
+			setColorByDimension(graphics, getOutwardDimension(xDimension, yDimension));
+			drawCircle(graphics, x, y);
 		}
+	}
+
+
+	public void drawCircle(Graphics2D graphics, double x, double y) {
+		graphics.drawOval((int) (x - ROTATOR_RADIUS), (int) (y - ROTATOR_RADIUS), ROTATOR_RADIUS * 2, ROTATOR_RADIUS * 2);
+	}
+
+	public void drawVertLine(Graphics2D graphics, double x, double y) {
+		graphics.drawLine((int) (x), (int) (y - ROTATOR_RADIUS), (int) (x), (int) (y + ROTATOR_RADIUS));
+	}
+
+	public void drawHorzLine(Graphics2D graphics, double x, double y) {
+		graphics.drawLine((int) (x - ROTATOR_RADIUS), (int) y, (int) (x + ROTATOR_RADIUS), (int) y);
 	}
 
 	private byte getOutwardDimension(final byte xDimension, final byte yDimension) {
-		return (byte) (3 - xDimension - yDimension);
+		return CoordinateSystem.Util.getUnusedXYZ(xDimension, yDimension);
 	}
+
+//	private byte getOutwardDimension(final byte xDimension, final byte yDimension) {
+//		return (byte) (3 - xDimension - yDimension);
+//	}
 
 	private void setColorByDimension(final Graphics2D graphics, final byte dimension) {
 		switch (dimension) {
-			case 0 -> graphics.setColor(new Color(0, 255, 0));
-			case 1 -> graphics.setColor(new Color(255, 0, 0));
-			case 2 -> graphics.setColor(new Color(0, 0, 255));
+			case 0, -1 -> graphics.setColor(new Color(0, 255, 0));
+			case 1, -2 -> graphics.setColor(new Color(255, 0, 0));
+			case 2, -3 -> graphics.setColor(new Color(0, 0, 255));
 		}
 	}
 
-	public enum RotateDirection {
-		VERTICALLY, HORIZONTALLY, SPIN, FREE, NONE
+	private void setHighLightableColor(final Graphics2D graphics, final byte dimension, MoveDimension moveDimension) {
+//		System.out.println(moveDimension + " has " + MoveDimension.getByByte(dimension) + "?");
+		if (moveDimension.containDirection(dimension)) {
+			graphics.setColor(new Color(255, 255, 0));
+		} else {
+			setColorByDimension(graphics, dimension);
+		}
 	}
 }

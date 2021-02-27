@@ -11,10 +11,12 @@ public abstract class AbstractMoveManipulator extends AbstractManipulator {
 	protected final ModelEditor modelEditor;
 	protected final Vec3 moveVector;
 	private GenericMoveAction translationAction;
+	MoveDimension dir;
 
-	public AbstractMoveManipulator(final ModelEditor modelEditor) {
+	public AbstractMoveManipulator(final ModelEditor modelEditor, MoveDimension dir) {
 		this.modelEditor = modelEditor;
 		moveVector = new Vec3(0, 0, 0);
+		this.dir = dir;
 	}
 
 	@Override

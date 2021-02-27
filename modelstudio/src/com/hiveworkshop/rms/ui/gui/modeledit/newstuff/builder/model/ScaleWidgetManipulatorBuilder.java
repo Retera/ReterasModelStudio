@@ -5,8 +5,9 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.selection.ViewportSelectionHandler;
 import com.hiveworkshop.rms.ui.application.edit.mesh.widgets.ScalerWidget;
-import com.hiveworkshop.rms.ui.application.edit.mesh.widgets.ScalerWidget.ScaleDirection;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.*;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.ScaleManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec3;
@@ -23,33 +24,26 @@ public final class ScaleWidgetManipulatorBuilder extends AbstractSelectAndEditMo
 	@Override
 	protected boolean widgetOffersEdit(final Vec3 selectionCenter, final Point mousePoint, final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getCenter());
-		final ScaleDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+		final MoveDimension directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 		moverWidget.setMoveDirection(directionByMouse);
-		return directionByMouse != ScaleDirection.NONE;
+		return directionByMouse != MoveDimension.NONE;
 	}
 
 	@Override
 	protected Manipulator createManipulatorFromWidget(final Vec3 selectionCenter, final Point mousePoint, final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getCenter());
-		final ScaleDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
-		if (directionByMouse != null) {
-			moverWidget.setMoveDirection(directionByMouse);
-		}
-		if (directionByMouse != null) {
-			return switch (directionByMouse) {
-				case XYZ -> new ScaleManipulatorUsesYMouseDrag(getModelEditor(), selectionView);
-				case FLAT_XY -> new ScaleXYManipulator(getModelEditor(), selectionView);
-				case RIGHT -> new ScaleXManipulator(getModelEditor(), selectionView);
-				case UP -> new ScaleYManipulator(getModelEditor(), selectionView);
-				case NONE -> null;
-			};
+		final MoveDimension directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+
+		moverWidget.setMoveDirection(directionByMouse);
+		if (directionByMouse != MoveDimension.NONE) {
+			return new ScaleManipulator(getModelEditor(), selectionView, directionByMouse);
 		}
 		return null;
 	}
 
 	@Override
 	protected Manipulator createDefaultManipulator(final Vec3 selectionCenter, final Point mousePoint, final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
-		return new ScaleManipulator(getModelEditor(), selectionView);
+		return new ScaleManipulator(getModelEditor(), selectionView, MoveDimension.XYZ);
 	}
 
 	@Override

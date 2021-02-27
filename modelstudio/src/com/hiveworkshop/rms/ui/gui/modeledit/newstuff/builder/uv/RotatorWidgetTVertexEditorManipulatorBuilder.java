@@ -5,11 +5,9 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.selection.ViewportSelectionHandler;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
 import com.hiveworkshop.rms.ui.application.edit.uv.widgets.TVertexRotatorWidget;
-import com.hiveworkshop.rms.ui.application.edit.uv.widgets.TVertexRotatorWidget.RotateDirection;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv.RotateTVertexHorizontalManipulator;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv.RotateTVertexManipulator;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv.RotateTVertexVerticalManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
@@ -26,30 +24,26 @@ public final class RotatorWidgetTVertexEditorManipulatorBuilder extends Abstract
 	@Override
 	protected boolean widgetOffersEdit(final Vec2 selectionCenter, final Point mousePoint, final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
-		final RotateDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem);
+		final MoveDimension directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem);
 		moverWidget.setMoveDirection(directionByMouse);
-		return directionByMouse != RotateDirection.NONE;
+		return directionByMouse != MoveDimension.NONE;
 	}
 
 	@Override
 	protected Manipulator createManipulatorFromWidget(final Vec2 selectionCenter, final Point mousePoint, final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
-		final RotateDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem);
-		if (directionByMouse != null) {
-			moverWidget.setMoveDirection(directionByMouse);
+		final MoveDimension directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem);
+
+		moverWidget.setMoveDirection(directionByMouse);
+		if (directionByMouse != MoveDimension.NONE) {
+			return new RotateTVertexManipulator(getModelEditor(), selectionView, directionByMouse);
 		}
-		return switch (directionByMouse) {
-			case FREE -> new RotateTVertexManipulator(getModelEditor(), selectionView);
-			case HORIZONTALLY -> new RotateTVertexHorizontalManipulator(getModelEditor(), selectionView);
-			case VERTICALLY -> new RotateTVertexVerticalManipulator(getModelEditor(), selectionView);
-			case SPIN -> new RotateTVertexManipulator(getModelEditor(), selectionView);
-			case NONE -> null;
-		};
+		return null;
 	}
 
 	@Override
 	protected Manipulator createDefaultManipulator(final Vec2 selectionCenter, final Point mousePoint, final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
-		return new RotateTVertexManipulator(getModelEditor(), selectionView);
+		return new RotateTVertexManipulator(getModelEditor(), selectionView, MoveDimension.XYZ);
 	}
 
 	@Override

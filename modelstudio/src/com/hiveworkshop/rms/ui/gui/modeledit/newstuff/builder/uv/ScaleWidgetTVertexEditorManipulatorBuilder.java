@@ -5,9 +5,9 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.selection.ViewportSelectionHandler;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
 import com.hiveworkshop.rms.ui.application.edit.uv.widgets.TVertexScalerWidget;
-import com.hiveworkshop.rms.ui.application.edit.uv.widgets.TVertexScalerWidget.ScaleDirection;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv.*;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv.ScaleTVertexManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
@@ -24,30 +24,26 @@ public final class ScaleWidgetTVertexEditorManipulatorBuilder extends AbstractSe
 	@Override
 	protected boolean widgetOffersEdit(final Vec2 selectionCenter, final Point mousePoint, final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
-		final ScaleDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+		final MoveDimension directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 		moverWidget.setMoveDirection(directionByMouse);
-		return directionByMouse != ScaleDirection.NONE;
+		return directionByMouse != MoveDimension.NONE;
 	}
 
 	@Override
 	protected Manipulator createManipulatorFromWidget(final Vec2 selectionCenter, final Point mousePoint, final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
-		final ScaleDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
-		if (directionByMouse != null) {
-			moverWidget.setMoveDirection(directionByMouse);
+		final MoveDimension directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+
+		moverWidget.setMoveDirection(directionByMouse);
+		if (directionByMouse != MoveDimension.NONE) {
+			return new ScaleTVertexManipulator(getModelEditor(), selectionView, directionByMouse);
 		}
-		return switch (directionByMouse) {
-			case XYZ -> new ScaleTVertexManipulatorUsesYMouseDrag(getModelEditor(), selectionView);
-			case FLAT_XY -> new ScaleXYTVertexManipulator(getModelEditor(), selectionView);
-			case RIGHT -> new ScaleXTVertexManipulator(getModelEditor(), selectionView);
-			case UP -> new ScaleYTVertexManipulator(getModelEditor(), selectionView);
-			case NONE -> null;
-		};
+		return null;
 	}
 
 	@Override
 	protected Manipulator createDefaultManipulator(final Vec2 selectionCenter, final Point mousePoint, final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
-		return new ScaleTVertexManipulator(getModelEditor(), selectionView);
+		return new ScaleTVertexManipulator(getModelEditor(), selectionView, MoveDimension.XYZ);
 	}
 
 	@Override

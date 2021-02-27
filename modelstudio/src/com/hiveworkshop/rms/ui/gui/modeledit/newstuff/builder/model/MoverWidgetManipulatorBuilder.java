@@ -5,11 +5,9 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.selection.ViewportSelectionHandler;
 import com.hiveworkshop.rms.ui.application.edit.mesh.widgets.MoverWidget;
-import com.hiveworkshop.rms.ui.application.edit.mesh.widgets.MoverWidget.MoveDirection;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveManipulator;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveXManipulator;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveYManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec3;
@@ -26,32 +24,26 @@ public final class MoverWidgetManipulatorBuilder extends AbstractSelectAndEditMo
 	@Override
 	protected boolean widgetOffersEdit(final Vec3 selectionCenter, final Point mousePoint, final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getCenter());
-		final MoveDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem,coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+		final MoveDimension directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 		moverWidget.setMoveDirection(directionByMouse);
-		return directionByMouse != MoveDirection.NONE;
+		return directionByMouse != MoveDimension.NONE;
 	}
 
 	@Override
 	protected Manipulator createManipulatorFromWidget(final Vec3 selectionCenter, final Point mousePoint, final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getCenter());
-		final MoveDirection directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
-		if (directionByMouse != null) {
-			moverWidget.setMoveDirection(directionByMouse);
-		}
-		if (directionByMouse != null) {
-			return switch (directionByMouse) {
-				case BOTH -> new MoveManipulator(getModelEditor());
-				case RIGHT -> new MoveXManipulator(getModelEditor());
-				case UP -> new MoveYManipulator(getModelEditor());
-				case NONE -> null;
-			};
+		final MoveDimension directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+
+		moverWidget.setMoveDirection(directionByMouse);
+		if (directionByMouse != MoveDimension.NONE) {
+			return new MoveManipulator(getModelEditor(), directionByMouse);
 		}
 		return null;
 	}
 
 	@Override
 	protected Manipulator createDefaultManipulator(final Vec3 selectionCenter, final Point mousePoint, final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
-		return new MoveManipulator(getModelEditor());
+		return new MoveManipulator(getModelEditor(), MoveDimension.XYZ);
 	}
 
 	@Override

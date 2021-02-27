@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.AbstractManipulator;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.geom.Point2D.Double;
@@ -12,10 +13,12 @@ public abstract class AbstractMoveTVertexManipulator extends AbstractManipulator
 	protected final TVertexEditor modelEditor;
 	protected final Vec3 moveVector;
 	private GenericMoveAction translationAction;
+	MoveDimension dir;
 
-	public AbstractMoveTVertexManipulator(final TVertexEditor modelEditor) {
+	public AbstractMoveTVertexManipulator(final TVertexEditor modelEditor, MoveDimension dir) {
 		this.modelEditor = modelEditor;
 		moveVector = new Vec3(0, 0, 0);
+		this.dir = dir;
 	}
 
 	@Override

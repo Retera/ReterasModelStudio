@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.widgets;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
@@ -8,7 +9,7 @@ import java.awt.*;
 public final class MoverWidget {
 	private static final int TRIANGLE_OFFSET = 60 - 16;
 	private final Vec3 point;
-	private MoveDirection moveDirection = MoveDirection.NONE;
+	private MoveDimension moveDirection = MoveDimension.NONE;
 	private final Polygon northTriangle;
 	private final Polygon eastTriangle;
 
@@ -26,30 +27,37 @@ public final class MoverWidget {
 		eastTriangle.addPoint(0, 5);
 	}
 
-	public MoveDirection getDirectionByMouse(final Point mousePoint, final CoordinateSystem coordinateSystem,
-											 final byte dim1, final byte dim2) {
+	private long debugPrintLimiter;
+
+	public MoveDimension getDirectionByMouse(final Point mousePoint, final CoordinateSystem coordinateSystem, final byte dim1, final byte dim2) {
 		final double x = coordinateSystem.convertX(point.getCoord(dim1));
 		final double y = coordinateSystem.convertY(point.getCoord(dim2));
+		long currentTime = System.currentTimeMillis();
+		if (debugPrintLimiter < currentTime) {
+			debugPrintLimiter = currentTime + 500;
+//			System.out.println("d1: "  + dim1 + ", d2: " + dim2);
+		}
 		eastTriangle.translate((int) x + TRIANGLE_OFFSET, (int) y);
 		northTriangle.translate((int) x, (int) y - TRIANGLE_OFFSET);
-		MoveDirection direction = MoveDirection.NONE;
+		MoveDimension direction = MoveDimension.NONE;
 		if (northTriangle.contains(mousePoint)
 				|| (Math.abs(x - mousePoint.getX()) <= 1
 				&& mousePoint.y < y
 				&& mousePoint.y > y - TRIANGLE_OFFSET)) {
-			direction = MoveDirection.UP;
+			direction = MoveDimension.getByByte(dim2);
 		}
 		if (eastTriangle.contains(mousePoint)
 				|| (Math.abs(y - mousePoint.getY()) <= 1
 				&& mousePoint.x > x
 				&& mousePoint.x < x + TRIANGLE_OFFSET)) {
-			direction = MoveDirection.RIGHT;
+			direction = MoveDimension.getByByte(dim1);
 		}
 		if (new Rectangle((int) x, (int) y - 20, 20, 20).contains(mousePoint)) {
-			direction = MoveDirection.BOTH;
+			direction = MoveDimension.getByByte(dim1, dim2);
 		}
 		eastTriangle.translate(-((int) x + TRIANGLE_OFFSET), -((int) y));
 		northTriangle.translate(-(int) x, -((int) y - TRIANGLE_OFFSET));
+
 		return direction;
 	}
 
@@ -61,11 +69,11 @@ public final class MoverWidget {
 		this.point.set(point);
 	}
 
-	public MoveDirection getMoveDirection() {
+	public MoveDimension getMoveDirection() {
 		return moveDirection;
 	}
 
-	public void setMoveDirection(final MoveDirection moveDirection) {
+	public void setMoveDirection(final MoveDimension moveDirection) {
 		this.moveDirection = moveDirection;
 	}
 
@@ -74,55 +82,30 @@ public final class MoverWidget {
 		final byte yDimension = coordinateSystem.getPortSecondXYZ();
 		final double x = coordinateSystem.convertX(point.getCoord(xDimension));
 		final double y = coordinateSystem.convertY(point.getCoord(yDimension));
-		if (moveDirection != null) {
-			switch (moveDirection) {
-				case BOTH -> {
-					graphics.setColor(new Color(255, 255, 0, 70));
-					graphics.fillRect((int) x, (int) y - 20, 20, 20);
-					graphics.setColor(new Color(255, 255, 0));
-					drawLongNorthLine(graphics, (int) x, (int) y);
-					drawLongEatsLine(graphics, (int) x, (int) y);
-					drawShortNorthLine(graphics, (int) x, (int) y);
-					drawShortEastLine(graphics, (int) x, (int) y);
-					setColorByDimension(graphics, xDimension);
-					drawEastTriangle(graphics, (int) x, (int) y);
-					setColorByDimension(graphics, yDimension);
-					drawNorthTriangle(graphics, (int) x, (int) y);
-				}
-				case UP -> {
-					graphics.setColor(new Color(255, 255, 0));
-					drawLongNorthLine(graphics, (int) x, (int) y);
-					setColorByDimension(graphics, xDimension);
-					drawLongEatsLine(graphics, (int) x, (int) y);
-					drawShortNorthLine(graphics, (int) x, (int) y);
-					drawEastTriangle(graphics, (int) x, (int) y);
-					setColorByDimension(graphics, yDimension);
-					drawShortEastLine(graphics, (int) x, (int) y);
-					drawNorthTriangle(graphics, (int) x, (int) y);
-				}
-				case RIGHT -> {
-					graphics.setColor(new Color(255, 255, 0));
-					drawLongEatsLine(graphics, (int) x, (int) y);
-					setColorByDimension(graphics, xDimension);
-					drawShortNorthLine(graphics, (int) x, (int) y);
-					drawEastTriangle(graphics, (int) x, (int) y);
-					setColorByDimension(graphics, yDimension);
-					drawLongNorthLine(graphics, (int) x, (int) y);
-					drawShortEastLine(graphics, (int) x, (int) y);
-					drawNorthTriangle(graphics, (int) x, (int) y);
-				}
-				case NONE -> {
-					setColorByDimension(graphics, xDimension);
-					drawLongEatsLine(graphics, (int) x, (int) y);
-					drawShortNorthLine(graphics, (int) x, (int) y);
-					drawEastTriangle(graphics, (int) x, (int) y);
-					setColorByDimension(graphics, yDimension);
-					drawLongNorthLine(graphics, (int) x, (int) y);
-					drawShortEastLine(graphics, (int) x, (int) y);
-					drawNorthTriangle(graphics, (int) x, (int) y);
-				}
-			}
+
+		setHighLightableColor(graphics, yDimension, moveDirection);
+		drawNorthArrow(graphics, (int) x, (int) y);
+		setHighLightableColor(graphics, xDimension, moveDirection);
+		drawEastArrow(graphics, (int) x, (int) y);
+		setColorByDimension(graphics, xDimension);
+		drawShortNorthLine(graphics, (int) x, (int) y);
+		setColorByDimension(graphics, yDimension);
+		drawShortEastLine(graphics, (int) x, (int) y);
+
+		if (moveDirection.containDirection(xDimension) && moveDirection.containDirection(yDimension)) {
+			graphics.setColor(new Color(255, 255, 0, 70));
+			graphics.fillRect((int) x, (int) y - 20, 20, 20);
 		}
+	}
+
+	public void drawEastArrow(Graphics2D graphics, int x, int y) {
+		drawLongEatsLine(graphics, x, y);
+		drawEastTriangle(graphics, x, y);
+	}
+
+	public void drawNorthArrow(Graphics2D graphics, int x, int y) {
+		drawLongNorthLine(graphics, x, y);
+		drawNorthTriangle(graphics, x, y);
 	}
 
 	private void drawShortEastLine(Graphics2D graphics, int x, int y) {
@@ -134,11 +117,13 @@ public final class MoverWidget {
 	}
 
 	private void drawLongEatsLine(Graphics2D graphics, int x, int y) {
-		graphics.drawLine(x + 15, y, x + 60, y);
+//		graphics.drawLine(x + 15, y, x + 60, y);
+		graphics.drawLine(x, y, x + 60, y);
 	}
 
 	private void drawLongNorthLine(Graphics2D graphics, int x, int y) {
-		graphics.drawLine(x, y - 15, x, y - 60);
+//		graphics.drawLine(x, y - 15, x, y - 60);
+		graphics.drawLine(x, y, x, y - 60);
 	}
 
 	private void drawEastTriangle(Graphics2D graphics, int x, int y) {
@@ -161,7 +146,12 @@ public final class MoverWidget {
 		}
 	}
 
-	public enum MoveDirection {
-		UP, RIGHT, BOTH, NONE
+	private void setHighLightableColor(final Graphics2D graphics, final byte dimension, MoveDimension moveDimension) {
+//		System.out.println(moveDimension + " has " + MoveDimension.getByByte(dimension) + "?");
+		if (moveDimension.containDirection(dimension)) {
+			graphics.setColor(new Color(255, 255, 0));
+		} else {
+			setColorByDimension(graphics, dimension);
+		}
 	}
 }
