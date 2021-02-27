@@ -193,22 +193,22 @@ public class DnDTabbedPane extends JTabbedPane {
 		final boolean isTB = getTabPlacement() == SwingConstants.TOP || getTabPlacement() == SwingConstants.BOTTOM;
 		for (int i = 0; i < getTabCount(); i++) {
 			final Rectangle r = getBoundsAt(i);
-			if (isTB) {
-				r.setRect(r.x - r.width / 2.0, r.y, r.width, r.height);
-			} else {
-				r.setRect(r.x, r.y - r.height / 2.0, r.width, r.height);
-			}
+			setTBRect(isTB, r, r.x - r.width / 2.0, r.y - r.height / 2.0);
 			if (r.contains(tabPt)) {
 				return i;
 			}
 		}
 		final Rectangle r = getBoundsAt(getTabCount() - 1);
-		if (isTB) {
-			r.setRect(r.x + r.width / 2.0, r.y, r.width, r.height);
-		} else {
-			r.setRect(r.x, r.y + r.height / 2.0, r.width, r.height);
-		}
+		setTBRect(isTB, r, r.x + r.width / 2.0, r.y + r.height / 2.0);
 		return r.contains(tabPt) ? getTabCount() : -1;
+	}
+
+	private void setTBRect(boolean isTB, Rectangle r, double x, double y) {
+		if (isTB) {
+			r.setRect(x, r.y, r.width, r.height);
+		} else {
+			r.setRect(r.x, y, r.width, r.height);
+		}
 	}
 
 	private void convertTab(final int prev, final int next) {
