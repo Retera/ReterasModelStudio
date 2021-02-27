@@ -106,20 +106,35 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
     }
 
     @Override
-    public UndoAction recalcNormals() {
+    public UndoAction recalcNormals(double maxAngle, boolean useTries) {
         final List<Vec3> oldLocations = new ArrayList<>();
         final List<GeosetVertex> selectedVertices = new ArrayList<>();
         final Vec3 snapped = new Vec3(0, 0, 1);
-        for (final Vec3 vertex : selectionManager.getSelectedVertices()) {
-            if (vertex instanceof GeosetVertex) {
+        Collection<? extends Vec3> vertices = selectionManager.getSelectedVertices();
+        if (vertices.isEmpty()) {
+            Set<Geoset> editable = model.getEditableGeosets();
+            List<GeosetVertex> edVert = new ArrayList<>();
+            editable.forEach(geoset -> edVert.addAll(geoset.getVertices()));
+            for (final Vec3 vertex : edVert) {
+//        for (final Vec3 vertex : selectionManager.getSelectedVertices()) {
                 final GeosetVertex gv = (GeosetVertex) vertex;
                 if (gv.getNormal() != null) {
                     oldLocations.add(new Vec3(gv.getNormal()));
                     selectedVertices.add(gv);
                 } // else no normal to snap!!!
             }
+        } else {
+            for (final Vec3 vertex : vertices) {
+                if (vertex instanceof GeosetVertex) {
+                    final GeosetVertex gv = (GeosetVertex) vertex;
+                    if (gv.getNormal() != null) {
+                        oldLocations.add(new Vec3(gv.getNormal()));
+                        selectedVertices.add(gv);
+                    } // else no normal to snap!!!
+                }
+            }
         }
-        final RecalculateNormalsAction2 temp = new RecalculateNormalsAction2(selectedVertices, oldLocations, snapped);
+        final RecalculateNormalsAction2 temp = new RecalculateNormalsAction2(selectedVertices, oldLocations, snapped, maxAngle, useTries);
         temp.redo();// a handy way to do the snapping!
         return temp;
     }
@@ -144,6 +159,41 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
         final List<Geoset> remGeosets = new ArrayList<>();// model.getGeosets()
         final List<Triangle> deletedTris = new ArrayList<>();
         final Collection<? extends Vec3> selection = new ArrayList<>(selectionManager.getSelectedVertices());
+        removeSelectedTriVertsFromGeoset(deletedTris, selection);
+        removeSelectedTrisFromGeosetVerts(deletedTris);
+        removeEmptyGeosetsAndCorrGeoAnims(remGeosets);
+        selectByVertices(new ArrayList<>());
+        if (remGeosets.size() <= 0) {
+            return new DeleteAction(selection, deletedTris, vertexSelectionHelper);
+        } else {
+            final SpecialDeleteAction temp = new SpecialDeleteAction(selection, deletedTris, vertexSelectionHelper, remGeosets, model.getModel(), structureChangeListener);
+            structureChangeListener.geosetsRemoved(remGeosets);
+            return temp;
+        }
+    }
+
+    private void removeEmptyGeosetsAndCorrGeoAnims(List<Geoset> remGeosets) {
+        for (int i = model.getModel().getGeosets().size() - 1; i >= 0; i--) {
+            if (model.getModel().getGeosets().get(i).isEmpty()) {
+                final Geoset g = model.getModel().getGeoset(i);
+                remGeosets.add(g);
+                model.getModel().remove(g);
+                if (g.getGeosetAnim() != null) {
+                    model.getModel().remove(g.getGeosetAnim());
+                }
+            }
+        }
+    }
+
+    private void removeSelectedTrisFromGeosetVerts(List<Triangle> deletedTris) {
+        for (final Triangle t : deletedTris) {
+            for (final GeosetVertex vertex : t.getAll()) {
+                vertex.getTriangles().remove(t);
+            }
+        }
+    }
+
+    private void removeSelectedTriVertsFromGeoset(List<Triangle> deletedTris, Collection<? extends Vec3> selection) {
         for (final Vec3 vertex : selection) {
             if (vertex.getClass() == GeosetVertex.class) {
                 final GeosetVertex gv = (GeosetVertex) vertex;
@@ -155,31 +205,6 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                 }
                 gv.getGeoset().remove(gv);
             }
-        }
-        for (final Triangle t : deletedTris) {
-            for (final GeosetVertex vertex : t.getAll()) {
-                vertex.getTriangles().remove(t);
-            }
-        }
-        for (int i = model.getModel().getGeosets().size() - 1; i >= 0; i--) {
-            if (model.getModel().getGeosets().get(i).isEmpty()) {
-                final Geoset g = model.getModel().getGeoset(i);
-                remGeosets.add(g);
-                model.getModel().remove(g);
-                if (g.getGeosetAnim() != null) {
-                    model.getModel().remove(g.getGeosetAnim());
-                }
-            }
-        }
-        selectByVertices(new ArrayList<>());
-        if (remGeosets.size() <= 0) {
-            final DeleteAction temp = new DeleteAction(selection, deletedTris, vertexSelectionHelper);
-            return temp;
-        } else {
-            final SpecialDeleteAction temp = new SpecialDeleteAction(selection, deletedTris, vertexSelectionHelper,
-                    remGeosets, model.getModel(), structureChangeListener);
-            structureChangeListener.geosetsRemoved(remGeosets);
-            return temp;
         }
     }
 
@@ -238,38 +263,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
         final List<Vec3> selection = new ArrayList<>(selectionManager.getSelectedVertices());
         final List<GeosetVertex> copies = new ArrayList<>();
         final List<Triangle> selTris = new ArrayList<>();
-        for (final Vec3 vert : selection) {
-            if (vert.getClass() == GeosetVertex.class) {
-                final GeosetVertex gv = (GeosetVertex) vert;
-                copies.add(new GeosetVertex(gv));
-
-                for (int ti = 0; ti < gv.getTriangles().size(); ti++) {
-                    final Triangle temptr = gv.getTriangles().get(ti);
-                    if (!selTris.contains(temptr)) {
-                        selTris.add(temptr);
-                    }
-                }
-            } else {
-                copies.add(null);
-                // System.out.println("GeosetVertex " + i + " was not found.");
-            }
-        }
-        for (final Triangle tri : selTris) {
-            if (!selection.contains(tri.get(0)) || !selection.contains(tri.get(1)) || !selection.contains(tri.get(2))) {
-                for (int i = 0; i < 3; i++) {
-                    final GeosetVertex a = tri.get(i);
-                    if (selection.contains(a)) {
-                        final GeosetVertex b = copies.get(selection.indexOf(a));
-                        tri.set(i, b);
-                        a.getTriangles().remove(tri);
-                        // if (a.getTriangles().contains(tri)) {
-                        // System.out.println("It's a bloody war!");
-                        // }
-                        b.getTriangles().add(tri);
-                    }
-                }
-            }
-        }
+        filterExtrudeVertSelection(selection, copies, selTris);
+        filterExtrudeTriSelection(selection, copies, selTris);
         // System.out.println(selection.size() + " verteces cloned into " +
         // copies.size() + " more.");
         final List<Triangle> newTriangles = new ArrayList<>();
@@ -277,22 +272,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
             final Vec3 vert = selection.get(k);
             if (vert.getClass() == GeosetVertex.class) {
                 final GeosetVertex gv = (GeosetVertex) vert;
-                final List<Triangle> gvTriangles = new ArrayList<>();// gv.getTriangles());
-                // WHY IS GV.TRIANGLES WRONG????
-                for (final Triangle tri : gv.getGeoset().getTriangles()) {
-                    if (tri.contains(gv)) {
-                        boolean good = true;
-                        for (final Vec3 vTemp : tri.getAll()) {
-                            if (!selection.contains(vTemp)) {
-                                good = false;
-                                break;
-                            }
-                        }
-                        if (good) {
-                            gvTriangles.add(tri);
-                        }
-                    }
-                }
+                final List<Triangle> gvTriangles = getGvTriangles(selection, gv);
                 for (final Triangle tri : gvTriangles) {
                     // for (final GeosetVertex copyVer : copies) {
                     // if (copyVer != null) {
@@ -301,27 +281,13 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                     for (int gvI = 0; gvI < tri.getAll().length; gvI++) {
                         final GeosetVertex gvTemp = tri.get(gvI);
                         if (!gvTemp.equalLocs(gv) && (gvTemp.getGeoset() == gv.getGeoset())) {
-                            int ctCount = 0;
-                            Triangle temptr = null;
-                            boolean okay = false;
-                            for (final Triangle triTest : gvTriangles) {
-                                if (triTest.contains(gvTemp)) {
-                                    ctCount++;
-                                    temptr = triTest;
-                                    if (temptr.containsRef(gvTemp) && temptr.containsRef(gv)) {
-                                        okay = true;
-                                    }
-                                }
-                            }
-                            if (okay && (ctCount == 1) && selection.contains(gvTemp)) {
+                            Triangle tempTri = getCheckedTriangle(gv, gvTriangles, gvTemp);
+                            if (tempTri != null && selection.contains(gvTemp)) {
                                 final GeosetVertex gvCopy = copies.get(selection.indexOf(gv));
                                 final GeosetVertex gvTempCopy = copies.get(selection.indexOf(gvTemp));
-                                // if (gvCopy == null) {System.out.println("Vertex (gvCopy) copy found as null!");}
-                                // if (gvTempCopy == null) { System.out.println("Vertex (gvTempCopy) copy found as null!");}
-                                Triangle newFace = new Triangle(null, null, null, gv.getGeoset());
 
-                                final int indexA = temptr.indexOf(gv);
-                                final int indexB = temptr.indexOf(gvTemp);
+                                final int indexA = tempTri.indexOf(gv);
+                                final int indexB = tempTri.indexOf(gvTemp);
                                 int indexC = -1;
 
                                 for (int i = 0; (i < 3) && (indexC == -1); i++) {
@@ -331,14 +297,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                                 }
                                 // System.out.println(" Indeces: " + indexA + "," + indexB + "," + indexC);
 
-                                newFace.set(indexA, gv);
-                                newFace.set(indexB, gvTemp);
-                                newFace.set(indexC, gvCopy);
+                                Triangle newFace = getNewFace(gv, gvTemp, gv, gvCopy, indexA, indexB, indexC);
                                 // Make sure it's included later
-                                // gvTemp.triangles.add(newFace);
-                                // gv.getTriangles().add(newFace);
-                                // gvCopy.triangles.add(newFace);
-                                // gv.getGeoset().addTriangle(newFace);
                                 boolean bad = false;
                                 for (final Triangle t : newTriangles) {
                                     // if( t.equals(newFace) )
@@ -351,13 +311,9 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                                 if (!bad) {
                                     newTriangles.add(newFace);
 
-                                    newFace = new Triangle(null, null, null, gv.getGeoset());
-
-                                    newFace.set(indexA, gvCopy);
-                                    newFace.set(indexB, gvTemp);
-                                    newFace.set(indexC, gvTempCopy);
+                                    Triangle newFace2 = getNewFace(gv, gvTemp, gvCopy, gvTempCopy, indexA, indexB, indexC);
                                     // Make sure it's included later
-                                    newTriangles.add(newFace);
+                                    newTriangles.add(newFace2);
                                 }
                             }
                         }
@@ -414,6 +370,91 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
         return tempe;
     }
 
+    public Triangle getNewFace(GeosetVertex gv, GeosetVertex gvTemp, GeosetVertex gvCopy, GeosetVertex gvTempCopy, int indexA, int indexB, int indexC) {
+        Triangle newFace = new Triangle(null, null, null, gv.getGeoset());
+        newFace.set(indexA, gvCopy);
+        newFace.set(indexB, gvTemp);
+        newFace.set(indexC, gvTempCopy);
+        return newFace;
+    }
+
+    private Triangle getCheckedTriangle(GeosetVertex gv, List<Triangle> gvTriangles, GeosetVertex gvTemp) {
+        int ctCount = 0;
+        Triangle tempTri = null;
+        boolean okay = false;
+        for (final Triangle triTest : gvTriangles) {
+            if (triTest.contains(gvTemp)) {
+                ctCount++;
+                tempTri = triTest;
+                if (tempTri.containsRef(gvTemp) && tempTri.containsRef(gv)) {
+                    okay = true;
+                }
+            }
+        }
+        if (okay && (ctCount == 1)) {
+            tempTri = null;
+        }
+        return tempTri;
+    }
+
+    private List<Triangle> getGvTriangles(List<Vec3> selection, GeosetVertex gv) {
+        final List<Triangle> gvTriangles = new ArrayList<>();// gv.getTriangles());
+        // WHY IS GV.TRIANGLES WRONG????
+        for (final Triangle tri : gv.getGeoset().getTriangles()) {
+            if (tri.contains(gv)) {
+                boolean good = true;
+                for (final Vec3 vTemp : tri.getAll()) {
+                    if (!selection.contains(vTemp)) {
+                        good = false;
+                        break;
+                    }
+                }
+                if (good) {
+                    gvTriangles.add(tri);
+                }
+            }
+        }
+        return gvTriangles;
+    }
+
+    private void filterExtrudeTriSelection(List<Vec3> selection, List<GeosetVertex> copies, List<Triangle> selTris) {
+        for (final Triangle tri : selTris) {
+            if (!selection.contains(tri.get(0)) || !selection.contains(tri.get(1)) || !selection.contains(tri.get(2))) {
+                for (int i = 0; i < 3; i++) {
+                    final GeosetVertex a = tri.get(i);
+                    if (selection.contains(a)) {
+                        final GeosetVertex b = copies.get(selection.indexOf(a));
+                        tri.set(i, b);
+                        a.getTriangles().remove(tri);
+                        // if (a.getTriangles().contains(tri)) {
+                        // System.out.println("It's a bloody war!");
+                        // }
+                        b.getTriangles().add(tri);
+                    }
+                }
+            }
+        }
+    }
+
+    private void filterExtrudeVertSelection(List<Vec3> selection, List<GeosetVertex> copies, List<Triangle> selTris) {
+        for (final Vec3 vert : selection) {
+            if (vert.getClass() == GeosetVertex.class) {
+                final GeosetVertex gv = (GeosetVertex) vert;
+                copies.add(new GeosetVertex(gv));
+
+                for (int ti = 0; ti < gv.getTriangles().size(); ti++) {
+                    final Triangle temptr = gv.getTriangles().get(ti);
+                    if (!selTris.contains(temptr)) {
+                        selTris.add(temptr);
+                    }
+                }
+            } else {
+                copies.add(null);
+                // System.out.println("GeosetVertex " + i + " was not found.");
+            }
+        }
+    }
+
     @Override
     public UndoAction beginExtendingSelection() {
         final List<Vec3> selection = new ArrayList<>(selectionManager.getSelectedVertices());
@@ -424,22 +465,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
         final List<Triangle> edges = new ArrayList<>();
         final List<Triangle> brokenFaces = new ArrayList<>();
 
-        for (final Vec3 vert : selection) {
-            if (vert.getClass() == GeosetVertex.class) {
-                final GeosetVertex gv = (GeosetVertex) vert;
-                // copies.add(new GeosetVertex(gv));
-
-                for (int ti = 0; ti < gv.getTriangles().size(); ti++) {
-                    final Triangle temptr = gv.getTriangles().get(ti);
-                    if (!selTris.contains(temptr)) {
-                        selTris.add(temptr);
-                    }
-                }
-            } else {
-                // copies.add(null);
-                // System.out.println("GeosetVertex " + i + " was not found.");
-            }
-        }
+        filterExtendingSelection(selection, selTris);
         System.out.println(selection.size() + " verteces cloned into " + copies.size() + " more.");
         final List<GeosetVertex> copiedGroup = new ArrayList<>();
         for (final Triangle tri : selTris) {
@@ -473,7 +499,6 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                     // System.out.println("Vertex (gvCopy) copy found as null!"); }
                     // if (gvTempCopy == null) {
                     // System.out.println("Vertex (gvTempCopy) copy found as null!"); }
-                    Triangle newFace = new Triangle(null, null, null, gv.getGeoset());
 
                     final int indexA = tri.indexOf(gvCopy);
                     final int indexB = tri.indexOf(gvTempCopy);
@@ -485,10 +510,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                         }
                     }
 
+                    Triangle newFace = getNewFace(gv, gvTemp, gv, gvCopy, indexA, indexB, indexC);
 
-                    newFace.set(indexA, gv);
-                    newFace.set(indexB, gvTemp);
-                    newFace.set(indexC, gvCopy);
                     // Make sure it's included later
                     gvTemp.getTriangles().add(newFace);
                     gv.getTriangles().add(newFace);
@@ -496,17 +519,14 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                     gv.getGeoset().addTriangle(newFace);
                     newTriangles.add(newFace);
 
-                    newFace = new Triangle(null, null, null, gv.getGeoset());
+                    Triangle newFace2 = getNewFace(gv, gvTemp, gvCopy, gvTempCopy, indexA, indexB, indexC);
 
-                    newFace.set(indexA, gvCopy);
-                    newFace.set(indexB, gvTemp);
-                    newFace.set(indexC, gvTempCopy);
                     // Make sure it's included later
-                    gvCopy.getTriangles().add(newFace);
-                    gvTemp.getTriangles().add(newFace);
-                    gvTempCopy.getTriangles().add(newFace);
-                    gv.getGeoset().addTriangle(newFace);
-                    newTriangles.add(newFace);
+                    gvCopy.getTriangles().add(newFace2);
+                    gvTemp.getTriangles().add(newFace2);
+                    gvTempCopy.getTriangles().add(newFace2);
+                    gv.getGeoset().addTriangle(newFace2);
+                    newTriangles.add(newFace2);
                 }
             }
         }
@@ -525,6 +545,26 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
         tempe.setAddedVerts(copies);
         tempe.setCopiedGroup(copiedGroup);
         return tempe;
+    }
+
+    private void filterExtendingSelection(List<Vec3> selection, List<Triangle> selTris) {
+        for (final Vec3 vert : selection) {
+            if (vert.getClass() == GeosetVertex.class) {
+                final GeosetVertex gv = (GeosetVertex) vert;
+                // copies.add(new GeosetVertex(gv));
+
+                // selTris.addAll(gv.getTriangles());
+                for (int ti = 0; ti < gv.getTriangles().size(); ti++) {
+                    final Triangle temptr = gv.getTriangles().get(ti);
+                    if (!selTris.contains(temptr)) {
+                        selTris.add(temptr);
+                    }
+                }
+            } else {
+                // copies.add(null);
+                // System.out.println("GeosetVertex " + i + " was not found.");
+            }
+        }
     }
 
     @Override
@@ -572,6 +612,59 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                 node.setName(nodeToNamePicked.get(node));
             }
         }
+        filterSelectedCloneSelected(source, selTris);
+        cloneTris(source, selTris, newVertices, newTriangles);
+        final Set<Vec3> newSelection = new HashSet<>();
+        cloneVerts(selBones, newBones, newVertices, newSelection);
+        for (final IdObject b : newBones) {
+            newSelection.add(b.getPivotPoint());
+            if (selBones.contains(b.getParent())) {
+                b.setParent(newBones.get(selBones.indexOf(b.getParent())));
+            }
+        }
+        final List<GeosetVertex> newVerticesWithoutNulls = new ArrayList<>();
+        for (final GeosetVertex vertex : newVertices) {
+            if (vertex != null) {
+                newVerticesWithoutNulls.add(vertex);
+            }
+        }
+        // TODO cameras
+        final CloneAction cloneAction = new CloneAction(model, source, structureChangeListener, vertexSelectionHelper, selBones, newVerticesWithoutNulls, newTriangles, newBones, newSelection);
+        cloneAction.redo();
+        return cloneAction;
+    }
+
+    private void cloneVerts(List<IdObject> selBones, List<IdObject> newBones, List<GeosetVertex> newVertices, Set<Vec3> newSelection) {
+        for (final Vec3 ver : newVertices) {
+            if (ver != null) {
+                newSelection.add(ver);
+                if (ver.getClass() == GeosetVertex.class) {
+                    final GeosetVertex gv = (GeosetVertex) ver;
+                    for (int i = 0; i < gv.getBones().size(); i++) {
+                        final Bone b = gv.getBones().get(i);
+                        if (selBones.contains(b)) {
+                            gv.getBones().set(i, (Bone) newBones.get(selBones.indexOf(b)));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void cloneTris(List<Vec3> source, List<Triangle> selTris, List<GeosetVertex> newVertices, List<Triangle> newTriangles) {
+        for (final Triangle tri : selTris) {
+            final GeosetVertex a = newVertices.get(source.indexOf(tri.get(0)));
+            final GeosetVertex b = newVertices.get(source.indexOf(tri.get(1)));
+            final GeosetVertex c = newVertices.get(source.indexOf(tri.get(2)));
+            final Triangle newTriangle = new Triangle(a, b, c, a.getGeoset());
+            newTriangles.add(newTriangle);
+            a.getTriangles().add(newTriangle);
+            b.getTriangles().add(newTriangle);
+            c.getTriangles().add(newTriangle);
+        }
+    }
+
+    private void filterSelectedCloneSelected(List<Vec3> source, List<Triangle> selTris) {
         for (int k = 0; k < source.size(); k++) {
             final Vec3 vert = source.get(k);
             if (vert.getClass() == GeosetVertex.class) {
@@ -596,48 +689,6 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                 }
             }
         }
-        for (final Triangle tri : selTris) {
-            final GeosetVertex a = newVertices.get(source.indexOf(tri.get(0)));
-            final GeosetVertex b = newVertices.get(source.indexOf(tri.get(1)));
-            final GeosetVertex c = newVertices.get(source.indexOf(tri.get(2)));
-            final Triangle newTriangle = new Triangle(a, b, c, a.getGeoset());
-            newTriangles.add(newTriangle);
-            a.getTriangles().add(newTriangle);
-            b.getTriangles().add(newTriangle);
-            c.getTriangles().add(newTriangle);
-        }
-        final Set<Vec3> newSelection = new HashSet<>();
-        for (final Vec3 ver : newVertices) {
-            if (ver != null) {
-                newSelection.add(ver);
-                if (ver.getClass() == GeosetVertex.class) {
-                    final GeosetVertex gv = (GeosetVertex) ver;
-                    for (int i = 0; i < gv.getBones().size(); i++) {
-                        final Bone b = gv.getBones().get(i);
-                        if (selBones.contains(b)) {
-                            gv.getBones().set(i, (Bone) newBones.get(selBones.indexOf(b)));
-                        }
-                    }
-                }
-            }
-        }
-        for (final IdObject b : newBones) {
-            newSelection.add(b.getPivotPoint());
-            if (selBones.contains(b.getParent())) {
-                b.setParent(newBones.get(selBones.indexOf(b.getParent())));
-            }
-        }
-        final List<GeosetVertex> newVerticesWithoutNulls = new ArrayList<>();
-        for (final GeosetVertex vertex : newVertices) {
-            if (vertex != null) {
-                newVerticesWithoutNulls.add(vertex);
-            }
-        }
-        // TODO cameras
-        final CloneAction cloneAction = new CloneAction(model, source, structureChangeListener, vertexSelectionHelper,
-                selBones, newVerticesWithoutNulls, newTriangles, newBones, newSelection);
-        cloneAction.redo();
-        return cloneAction;
     }
 
     @Override

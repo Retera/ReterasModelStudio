@@ -13,6 +13,9 @@ import javax.swing.*;
 import java.util.List;
 
 public class ModelEditActions {
+    static double lastNormalMaxAngle = 90;
+    static boolean useTris = false;
+
     static void viewMatrices(MainPanel mainPanel) {
         final ModelPanel modelPanel = mainPanel.currentModelPanel();
         if (modelPanel != null) {
@@ -91,7 +94,20 @@ public class ModelEditActions {
     static void recalculateNormals(MainPanel mainPanel) {
         final ModelPanel modelPanel = mainPanel.currentModelPanel();
         if (modelPanel != null) {
-            modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().recalcNormals());
+            JPanel panel = new JPanel(new MigLayout());
+            panel.add(new JLabel("Limiting angle"));
+            JSpinner spinner = new JSpinner(new SpinnerNumberModel(lastNormalMaxAngle, -180.0, 180.0, 1));
+            panel.add(spinner, "wrap");
+            panel.add(new JLabel("Use triangles instead of vertices"));
+            JCheckBox useTries = new JCheckBox();
+            useTries.setSelected(useTris);
+            panel.add(useTries);
+            int option = JOptionPane.showConfirmDialog(mainPanel, panel, "Recalculate Normals", JOptionPane.OK_CANCEL_OPTION);
+            if (option == JOptionPane.OK_OPTION) {
+                lastNormalMaxAngle = (double) spinner.getValue();
+                useTris = useTries.isSelected();
+                modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().recalcNormals(lastNormalMaxAngle, useTris));
+            }
         }
         mainPanel.repaint();
     }

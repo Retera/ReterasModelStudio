@@ -68,7 +68,7 @@ public interface ModelEditor extends ComponentVisibilityListener {
 
 	UndoAction snapNormals();
 
-	UndoAction recalcNormals();
+	UndoAction recalcNormals(double maxAngle, boolean useTries);
 
 	UndoAction recalcExtents(boolean onlyIncludeEditableGeosets);
 

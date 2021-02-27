@@ -260,10 +260,10 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
-	public UndoAction recalcNormals() {
+	public UndoAction recalcNormals(double maxAngle, boolean useTries) {
 		final List<UndoAction> actions = new ArrayList<>();
 		for (final ModelEditor handler : set) {
-			actions.add(handler.recalcNormals());
+			actions.add(handler.recalcNormals(maxAngle, useTries));
 		}
 		return mergeActions(actions);
 	}

@@ -294,7 +294,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	@Override
-	public UndoAction recalcNormals() {
+	public UndoAction recalcNormals(double maxAngle, boolean useTries) {
 		throw new WrongModeException("Unable to modify normals in Animation Editor");
 	}
 
