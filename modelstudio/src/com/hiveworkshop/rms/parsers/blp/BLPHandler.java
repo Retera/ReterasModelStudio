@@ -28,7 +28,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
@@ -51,6 +53,10 @@ public class BLPHandler {
 //		System.out.println("BLPHandeler - getImage");
 		String path = defaultTexture.getPath();
 //		System.out.println("path: " + path);
+		return getImage(defaultTexture, workingDirectory, path);
+	}
+
+	public static BufferedImage getImage(Bitmap defaultTexture, DataSource workingDirectory, String path) {
 		if ((path == null) || path.isEmpty()) {
 			if (defaultTexture.getReplaceableId() == 1) {
 				path = "ReplaceableTextures\\TeamColor\\TeamColor" + Material.getTeamColorNumberString() + ".blp";
@@ -267,6 +273,50 @@ public class BLPHandler {
 		return gpuReadyTexture;
 	}
 
+	public GPUReadyTexture loadTexture2(final DataSource dataSource, final String filepath, final Bitmap bitmap) {
+//		System.out.println("loadTexture(), fp: " + filepath);
+		final String lowerFilePath = bitmap.getPath().toLowerCase(Locale.US);
+		GPUReadyTexture gpuReadyTexture = gpuBufferCache.get(lowerFilePath);
+		if (gpuReadyTexture != null) {
+			return gpuReadyTexture;
+		}
+
+		final BufferedImage javaTexture = getImage(bitmap, dataSource, filepath);
+//		final BufferedImage javaTexture = getTexture(dataSource, filepath);
+
+		if (javaTexture == null) {
+			return null;
+		}
+
+		final int[] pixels = new int[javaTexture.getWidth() * javaTexture.getHeight()];
+		javaTexture.getRGB(0, 0, javaTexture.getWidth(), javaTexture.getHeight(), pixels, 0, javaTexture.getWidth());
+
+		final ByteBuffer buffer = BufferUtils
+				.createByteBuffer(javaTexture.getWidth() * javaTexture.getHeight() * BYTES_PER_PIXEL);
+		// 4 for RGBA, 3 for RGB
+
+		for (int y = 0; y < javaTexture.getHeight(); y++) {
+			for (int x = 0; x < javaTexture.getWidth(); x++) {
+				final int pixel = pixels[(y * javaTexture.getWidth()) + x];
+				buffer.put((byte) ((pixel >> 16) & 0xFF)); // Red component
+				buffer.put((byte) ((pixel >> 8) & 0xFF)); // Green component
+				buffer.put((byte) (pixel & 0xFF)); // Blue component
+				buffer.put((byte) ((pixel >> 24) & 0xFF)); // Alpha component.
+				// Only for RGBA
+			}
+		}
+
+		buffer.flip();
+
+		gpuReadyTexture = new GPUReadyTexture(buffer, javaTexture.getWidth(), javaTexture.getHeight());
+		if (cache.containsKey(lowerFilePath)) {
+			// In this case, caching is allowed
+			gpuBufferCache.put(lowerFilePath, gpuReadyTexture);
+		}
+		// You now have a ByteBuffer filled with the color data of each pixel.
+		return gpuReadyTexture;
+	}
+
 	private static BLPHandler current;
 
 	public static BLPHandler get() {
@@ -333,20 +383,22 @@ public class BLPHandler {
 		try {
 			final String lowerCaseFilepath = filepath.toLowerCase(Locale.US);
 			BufferedImage resultImage = cache.get(lowerCaseFilepath);
-			if (resultImage == null && lowerCaseFilepath.endsWith(".blp") || lowerCaseFilepath.endsWith(".tif")) {
-				// War3 allows .blp and .tif to actually resolve to dds
-				final String ddsFilepath = filepath.substring(0, filepath.length() - 4) + ".dds";
+			if (dataSource != null) {
+				if (resultImage == null && lowerCaseFilepath.endsWith(".blp") || lowerCaseFilepath.endsWith(".tif")) {
+					// War3 allows .blp and .tif to actually resolve to dds
+					final String ddsFilepath = filepath.substring(0, filepath.length() - 4) + ".dds";
 
-				if (dataSource.has(ddsFilepath)) {
-					resultImage = getImage(dataSource, lowerCaseFilepath, ddsFilepath);
+					if (dataSource.has(ddsFilepath)) {
+						resultImage = getImage(dataSource, lowerCaseFilepath, ddsFilepath);
+					}
 				}
-			}
-			if (resultImage == null && dataSource.has(filepath)) {
-				resultImage = getImage(dataSource, lowerCaseFilepath, filepath);
-			}
-			if (resultImage == null) {
-				final String nameOnly = filepath.substring(Math.max(filepath.lastIndexOf("/"), filepath.lastIndexOf("\\")) + 1);
-				resultImage = getImage(dataSource, lowerCaseFilepath, nameOnly);
+				if (resultImage == null && dataSource.has(filepath)) {
+					resultImage = getImage(dataSource, lowerCaseFilepath, filepath);
+				}
+				if (resultImage == null) {
+					final String nameOnly = filepath.substring(Math.max(filepath.lastIndexOf("/"), filepath.lastIndexOf("\\")) + 1);
+					resultImage = getImage(dataSource, lowerCaseFilepath, nameOnly);
+				}
 			}
 
 			return resultImage;
@@ -390,5 +442,26 @@ public class BLPHandler {
 			e1.printStackTrace();
 		}
 		return null;
+	}
+
+	public BufferedImage loadTextureDirectly2(Bitmap bitmap) {
+		String filepath = bitmap.getPath();
+		BufferedImage resultImage = null;
+		try (final InputStream imageDataStream = Files.newInputStream(Path.of(filepath), StandardOpenOption.READ)) {
+			if (isExtension(filepath, ".tga")) {
+				resultImage = TgaFile.readTGA(filepath, imageDataStream);
+			} else {
+				resultImage = ImageIO.read(imageDataStream);
+				if (resultImage != null) {
+					if (isExtension(filepath, ".blp")) {
+						resultImage = forceBufferedImagesRGB(resultImage);
+					}
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return resultImage;
 	}
 }

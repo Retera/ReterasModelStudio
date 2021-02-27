@@ -560,7 +560,7 @@ public class MenuBar {
 
     private static void editTextures(MainPanel mainPanel) {
         final EditTexturesPopupPanel textureManager = new EditTexturesPopupPanel(mainPanel.currentModelPanel().getModelViewManager(),
-                mainPanel.modelStructureChangeListener, mainPanel.textureExporter);
+                mainPanel.modelStructureChangeListener);
         final JFrame frame = new JFrame("Edit Textures");
         textureManager.setSize(new Dimension(800, 650));
         frame.setContentPane(textureManager);
