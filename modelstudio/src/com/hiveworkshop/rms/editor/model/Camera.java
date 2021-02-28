@@ -131,10 +131,10 @@ public class Camera implements Named {
 			this.parent = parent;
 		}
 
-		@Override
-		public AnimatedNode getParent() {
-			return null;
-		}
+//		@Override
+//		public AnimatedNode getParent() {
+//			return null;
+//		}
 
 		@Override
 		public Vec3 getPivotPoint() {
@@ -197,10 +197,10 @@ public class Camera implements Named {
 			this.parent = parent;
 		}
 
-		@Override
-		public AnimatedNode getParent() {
-			return null;
-		}
+//		@Override
+//		public AnimatedNode getParent() {
+//			return null;
+//		}
 
 		@Override
 		public Vec3 getPivotPoint() {

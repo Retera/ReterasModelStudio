@@ -51,10 +51,10 @@ public class Bone extends IdObject {
 		geosetAnimId = bone.geosetAnimationId;
 	}
 
-	public MdlxBone toMdlx(final EditableModel model) {
+	public MdlxBone toMdlx(EditableModel model) {
 		final MdlxBone bone = new MdlxBone();
 
-		objectToMdlx(bone);
+		objectToMdlx(bone, model);
 
 		bone.geosetId = geosetId;
 		bone.geosetAnimationId = geosetAnimId;
@@ -68,16 +68,16 @@ public class Bone extends IdObject {
 	}
 	
 	public void copyMotionFrom(final Bone b) {
-		for (final AnimFlag baf : b.animFlags.values()) {
+		for (final AnimFlag<?> baf : b.animFlags.values()) {
 			boolean foundMatch = false;
-			for (final AnimFlag af : animFlags.values()) {
+			for (final AnimFlag<?> af : animFlags.values()) {
 				boolean sameSeq = false;
-				if (baf.getGlobalSeq() == null && af.getGlobalSeq() == null) {
+				if (baf.globalSeq == null && af.globalSeq == null) {
 					sameSeq = true;
-				} else if (baf.getGlobalSeq() != null && af.getGlobalSeq() != null) {
-					sameSeq = baf.getGlobalSeq().equals(af.getGlobalSeq());
+				} else if (baf.globalSeq != null && af.globalSeq != null) {
+					sameSeq = baf.globalSeq.equals(af.globalSeq);
 				}
-				if (baf.getName().equals(af.getName()) && sameSeq && baf.hasGlobalSeq() == af.hasGlobalSeq()) {
+				if (baf.getName().equals(af.getName()) && sameSeq && baf.hasGlobalSeq == af.hasGlobalSeq) {
 					// if( && baf.tags.equals(af.tags)
 					foundMatch = true;
 					af.copyFrom(baf);
@@ -90,7 +90,7 @@ public class Bone extends IdObject {
 	}
 
 	public void clearAnimation(final Animation a) {
-		for (final AnimFlag af : animFlags.values()) {
+		for (final AnimFlag<?> af : animFlags.values()) {
 			af.deleteAnim(a);
 		}
 	}
@@ -100,12 +100,24 @@ public class Bone extends IdObject {
 	 * the time track.
 	 */
 	public boolean animates() {
-		for (final AnimFlag af : animFlags.values()) {
+		for (final AnimFlag<?> af : animFlags.values()) {
 			if (af.size() > 1) {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	public boolean isMultiGeo() {
+		return multiGeoId;
+	}
+
+	public boolean controlsGeoset(Geoset geoset) {
+		return this.geoset.equals(geoset);
+	}
+
+	public boolean controlsGeoset2(Geoset geoset) {
+		return this.geoset.equals(geoset) || multiGeoId;
 	}
 
 	@Override

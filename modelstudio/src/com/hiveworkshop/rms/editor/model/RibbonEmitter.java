@@ -76,10 +76,10 @@ public class RibbonEmitter extends IdObject {
 		setGravity(emitter.gravity);
 	}
 
-	public MdlxRibbonEmitter toMdlx(final EditableModel model) {
+	public MdlxRibbonEmitter toMdlx(EditableModel model) {
 		final MdlxRibbonEmitter emitter = new MdlxRibbonEmitter();
 
-		objectToMdlx(emitter);
+		objectToMdlx(emitter, model);
 
 		emitter.textureSlot = (long) getTextureSlot();
 		emitter.heightAbove = (float) getHeightAbove();

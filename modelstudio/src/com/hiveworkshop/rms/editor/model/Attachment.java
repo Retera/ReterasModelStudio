@@ -40,10 +40,10 @@ public class Attachment extends IdObject {
 		setPath(attachment.path);
 	}
 
-	public MdlxAttachment toMdlx(final EditableModel model) {
+	public MdlxAttachment toMdlx(EditableModel model) {
 		final MdlxAttachment attachment = new MdlxAttachment();
 
-		objectToMdlx(attachment);
+		objectToMdlx(attachment, model);
 
 		attachment.attachmentId = getAttachmentID();
 

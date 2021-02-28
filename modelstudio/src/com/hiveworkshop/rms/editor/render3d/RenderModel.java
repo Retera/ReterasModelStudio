@@ -177,7 +177,10 @@ public final class RenderModel {
 		}
 		for (final AnimatedNode idObject : sortedNodes) {
 			final RenderNode node = getRenderNode(idObject);
-			final AnimatedNode idObjectParent = idObject.getParent();
+			AnimatedNode idObjectParent = null;
+			if (idObject instanceof IdObject) {
+				idObjectParent = ((IdObject) idObject).getParent();
+			}
 			final RenderNode parent = idObjectParent == null ? null : getRenderNode(idObjectParent);
 			final boolean objectVisible = idObject.getRenderVisibility(animatedRenderEnvironment) >= MAGIC_RENDER_SHOW_CONSTANT;
 
@@ -243,53 +246,7 @@ public final class RenderModel {
 				}
 
 				// Billboarding
-				// If the instance is not attached to any scene, this is meaningless
-				if (node.billboarded || node.billboardedX) {
-					wasDirty = true;
-
-					// Cancel the parent's rotation;
-					if (parent != null) {
-						localRotation.set(parent.inverseWorldRotation);
-					} else {
-						localRotation.setIdentity();
-					}
-
-					localRotation.mul(inverseCameraRotation);
-				} else if (node.billboardedY) {
-					// To solve billboard Y, you must rotate to face camera
-					// in node local space only around the node-local version of the Y axis.
-					// Imagine that we have a vector facing outward from the plane that represents
-					// where the front of the plane will face after we apply the node's rotation.
-					// We can easily do "billboarding", which is to say we can construct a rotation
-					// that turns this facing to face the camera. However, for BillboardLockY, we
-					// must instead take the projection of the vector that would result from this --
-					// "facing camera" vector, and take the projection of that vector onto the plane
-					// perpendicular to the billboard lock axis.
-
-					wasDirty = true;
-
-					// Cancel the parent's rotation;
-					localRotation.setIdentity();
-					localRotation.mul(inverseCameraRotationYSpin);
-//					if (parent != null) {
-//						QuaternionRotation.mul(localRotation, localRotation, parent.inverseWorldRotation);
-//					}
-
-					// TODO face camera, TODO have a camera
-				} else if (node.billboardedZ) {
-					wasDirty = true;
-
-					// Cancel the parent's rotation;
-					if (parent != null) {
-						localRotation.set(parent.inverseWorldRotation);
-					} else {
-						localRotation.setIdentity();
-					}
-
-					localRotation.mul(inverseCameraRotationZSpin);
-
-					// TODO face camera, TODO have a camera
-				}
+				wasDirty = RotateAndStuffBillboarding(node, parent, wasDirty, localRotation);
 
 				final boolean wasReallyDirty = forced || wasDirty || (parent == null) || parent.wasDirty;
 				node.wasDirty = wasReallyDirty;
@@ -311,6 +268,7 @@ public final class RenderModel {
 					node.update();
 					if (particles) {
 						final RenderParticleEmitter2View renderer = emitterToRenderer.get(idObject);
+//						System.out.println("render: " + renderer);
 						if (renderer != null) {
 							if ((modelView == null) || modelView.getEditableIdObjects().contains(idObject)) {
 								renderer.fill();
@@ -326,6 +284,56 @@ public final class RenderModel {
 			updateParticles();
 		}
 
+	}
+
+	public boolean RotateAndStuffBillboarding(RenderNode node, RenderNode parent, boolean wasDirty, Quat localRotation) {
+		// If the instance is not attached to any scene, this is meaningless
+		if (node.billboarded || node.billboardedX) {
+			wasDirty = true;
+
+			// Cancel the parent's rotation;
+			if (parent != null) {
+				localRotation.set(parent.inverseWorldRotation);
+			} else {
+				localRotation.setIdentity();
+			}
+
+			localRotation.mul(inverseCameraRotation);
+		} else if (node.billboardedY) {
+			// To solve billboard Y, you must rotate to face camera in node local space only
+			// around the node-local version of the Y axis. Imagine that we have a vector facing
+			// outward from the plane that represents where the front of the plane will face
+			// after we apply the node's rotation. We can easily do "billboarding", which is
+			// to say we can construct a rotation that turns this facing to face the camera.
+			// However, for BillboardLockY, we must instead take the projection of the vector
+			// that would result from this -- "facing camera" vector, and take the projection
+			// of that vector onto the plane perpendicular to the billboard lock axis.
+
+			wasDirty = true;
+
+			// Cancel the parent's rotation;
+			localRotation.setIdentity();
+			localRotation.mul(inverseCameraRotationYSpin);
+//					if (parent != null) {
+//						QuaternionRotation.mul(localRotation, localRotation, parent.inverseWorldRotation);
+//					}
+
+			// TODO face camera, TODO have a camera
+		} else if (node.billboardedZ) {
+			wasDirty = true;
+
+			// Cancel the parent's rotation;
+			if (parent != null) {
+				localRotation.set(parent.inverseWorldRotation);
+			} else {
+				localRotation.setIdentity();
+			}
+
+			localRotation.mul(inverseCameraRotationZSpin);
+
+			// TODO face camera, TODO have a camera
+		}
+		return wasDirty;
 	}
 
 	private void updateParticles() {

@@ -177,10 +177,10 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		setReplaceableId((int) emitter.replaceableId);
 	}
 
-	public MdlxParticleEmitter2 toMdlx(final EditableModel model) {
+	public MdlxParticleEmitter2 toMdlx(EditableModel model) {
 		final MdlxParticleEmitter2 emitter = new MdlxParticleEmitter2();
 
-		objectToMdlx(emitter);
+		objectToMdlx(emitter, model);
 
 		if (unshaded) {
 			emitter.flags |= 0x8000;

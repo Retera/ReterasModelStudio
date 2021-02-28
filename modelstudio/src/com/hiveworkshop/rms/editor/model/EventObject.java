@@ -57,10 +57,10 @@ public class EventObject extends IdObject {
 		}
 	}
 
-	public MdlxEventObject toMdlx(final EditableModel model) {
+	public MdlxEventObject toMdlx(EditableModel model) {
 		final MdlxEventObject object = new MdlxEventObject();
 
-		objectToMdlx(object);
+		objectToMdlx(object, model);
 
 		if (isHasGlobalSeq()) {
 			object.globalSequenceId = getGlobalSeqId();

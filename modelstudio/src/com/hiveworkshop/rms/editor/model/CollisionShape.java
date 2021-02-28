@@ -55,10 +55,10 @@ public class CollisionShape extends IdObject {
 		}
 	}
 
-	public MdlxCollisionShape toMdlx(final EditableModel model) {
+	public MdlxCollisionShape toMdlx(EditableModel model) {
 		final MdlxCollisionShape shape = new MdlxCollisionShape();
 
-		objectToMdlx(shape);
+		objectToMdlx(shape, model);
 
 		shape.type = type;
 

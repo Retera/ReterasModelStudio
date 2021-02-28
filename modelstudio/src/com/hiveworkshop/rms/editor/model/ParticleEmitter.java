@@ -68,10 +68,10 @@ public class ParticleEmitter extends EmitterIdObject {
 		}
 	}
 
-	public MdlxParticleEmitter toMdlx(final EditableModel model) {
+	public MdlxParticleEmitter toMdlx(EditableModel model) {
 		final MdlxParticleEmitter emitter = new MdlxParticleEmitter();
 
-		objectToMdlx(emitter);
+		objectToMdlx(emitter, model);
 
 		emitter.emissionRate = (float) getEmissionRate();
 		emitter.gravity = (float) getGravity();

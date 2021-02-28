@@ -53,10 +53,10 @@ public class ParticleEmitterPopcorn extends IdObject {
 		animVisibilityGuide = emitter.animationVisiblityGuide;
 	}
 
-	public MdlxParticleEmitterPopcorn toMdlx(final EditableModel model) {
+	public MdlxParticleEmitterPopcorn toMdlx(EditableModel model) {
 		final MdlxParticleEmitterPopcorn emitter = new MdlxParticleEmitterPopcorn();
 
-		objectToMdlx(emitter);
+		objectToMdlx(emitter, model);
 
 		emitter.lifeSpan = lifeSpan;
 		emitter.emissionRate = emissionRate;

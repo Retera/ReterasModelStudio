@@ -22,6 +22,17 @@ public class Matrix {
 		m_boneIds.add(id);
 	}
 
+	public Matrix(final List<Bone> newBones) {
+		bones = new ArrayList<>(newBones);
+	}
+
+	public Matrix(final int[] boneIds) {
+		m_boneIds = new ArrayList<>();
+		for (int boneId : boneIds) {
+			m_boneIds.add(boneId);
+		}
+	}
+
 	public String getName() {
 		StringBuilder out = new StringBuilder();
 		if (bones != null) {
@@ -85,30 +96,14 @@ public class Matrix {
 			bones.clear();
 		}
         for (Integer m_boneId : m_boneIds) {
-            final Bone b = mdlr.getBone(m_boneId);
-            // if( b.getClass() == Helper.class )
-            // {
-            // JOptionPane.showMessageDialog(null,"Error: Holy fo shizzle my
-            // grizzle! There's geometry attached to Helper "+b.getName()+" and
-            // that is very bad!");
-            // }
-            if (b != null) {
-                bones.add(b);
-            } else {
+	        final Bone b = mdlr.getBone(m_boneId);
+	        // if( b.getClass() == Helper.class ) { JOptionPane.showMessageDialog(null,"Error: Holy fo shizzle my grizzle! There's geometry attached to Helper "+b.getName()+" and that is very bad!"); }
+	        if (b != null) {
+		        bones.add(b);
+	        } else {
 //				JOptionPane.showMessageDialog(null, "Error: A matrix's bone id was not referencing a real bone!");
-                System.err.println("Error: A matrix's bone id was not referencing a real bone! " + m_boneId);
-            }
-        }
-	}
-
-	public Matrix(final List<Bone> newBones) {
-		bones = new ArrayList<>(newBones);
-	}
-
-	public Matrix(final int[] boneIds) {
-		m_boneIds = new ArrayList<>();
-        for (int boneId : boneIds) {
-            m_boneIds.add(boneId);
+		        System.err.println("Error: A matrix's bone id was not referencing a real bone! " + m_boneId);
+	        }
         }
 	}
 
@@ -122,6 +117,10 @@ public class Matrix {
 
 	public int getBoneId(final int index) {
 		return m_boneIds.get(index);
+	}
+
+	public int getBoneId(final int index, EditableModel model) {
+		return model.getObjectId(bones.get(index));
 	}
 
 	public int size() {
@@ -139,13 +138,12 @@ public class Matrix {
 		if (other.size() != size()) {
 			return false;
 		}
-		boolean same = true;
-		for (int i = 0; (i < size()) && same; i++) {
+		for (int i = 0; i < size(); i++) {
 			if (bones.get(i) != other.bones.get(i)) {
-				same = false;
+				return false;
 			}
 		}
-		return same;
+		return true;
 	}
 
 	public List<Bone> getBones() {
