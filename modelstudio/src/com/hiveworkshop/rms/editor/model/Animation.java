@@ -2,7 +2,8 @@ package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxSequence;
-import com.hiveworkshop.rms.ui.application.edit.animation.BasicTimeBoundProvider;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.List;
  *
  * Eric Theller 11/5/2011
  */
-public class Animation implements BasicTimeBoundProvider {
+public class Animation implements TimeBoundProvider {
 	private String name = "";
 	private int intervalStart = 0;
 	private int intervalEnd = -1;
@@ -245,6 +246,11 @@ public class Animation implements BasicTimeBoundProvider {
 		final List<AnimFlag<?>> aniFlags = mdlr.getAllAnimFlags();
 		final List<EventObject> eventObjs = mdlr.getEvents();
 		setInterval(start, end, aniFlags, eventObjs);
+	}
+
+	@Override
+	public void addChangeListener(TimeBoundChangeListener listener) {
+
 	}
 
 	@Override

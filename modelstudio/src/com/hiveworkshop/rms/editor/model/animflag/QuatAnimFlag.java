@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.editor.model.animflag;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatArrayTimeline;
-import com.hiveworkshop.rms.ui.application.edit.animation.BasicTimeBoundProvider;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.Quat;
 
@@ -235,7 +235,7 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 			}
 		} else {
 //			System.out.println(name + ", ~~ no global seq");
-			final BasicTimeBoundProvider animation = animatedRenderEnvironment.getCurrentAnimation();
+			final TimeBoundProvider animation = animatedRenderEnvironment.getCurrentAnimation();
 			int animationStart = animation.getStart();
 			time = animationStart + animatedRenderEnvironment.getAnimationTime();
 			final int floorAnimStartIndex = Math.max(0, floorIndex(animationStart + 1));

@@ -36,7 +36,7 @@ public class AnimationTimeEnvironmentImpl implements AnimatedRenderEnvironment, 
 	}
 
 	@Override
-	public BasicTimeBoundProvider getCurrentAnimation() {
+	public TimeBoundProvider getCurrentAnimation() {
 		return animation;
 	}
 

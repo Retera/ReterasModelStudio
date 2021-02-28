@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatArrayTimeline;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatTimeline;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxUInt32Timeline;
-import com.hiveworkshop.rms.ui.application.edit.animation.BasicTimeBoundProvider;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.*;
 
@@ -1066,7 +1066,7 @@ public abstract class AnimFlag<T> {
 			}
 		} else {
 //			System.out.println(name + ", ~~ no global seq");
-			final BasicTimeBoundProvider animation = animatedRenderEnvironment.getCurrentAnimation();
+			final TimeBoundProvider animation = animatedRenderEnvironment.getCurrentAnimation();
 			int animationStart = animation.getStart();
 			time = animationStart + animatedRenderEnvironment.getAnimationTime();
 			final int floorAnimStartIndex = Math.max(0, floorIndex(animationStart + 1));

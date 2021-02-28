@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.blp.GPUReadyTexture;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
-import com.hiveworkshop.rms.ui.application.edit.animation.BasicTimeBoundProvider;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.BetterAWTGLCanvas;
@@ -793,7 +793,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		final GeosetAnim geosetAnim = geo.getGeosetAnim();
 		float geosetAnimVisibility = 1;
 		final AnimatedRenderEnvironment timeEnvironment = editorRenderModel.getAnimatedRenderEnvironment();
-		final BasicTimeBoundProvider animation = timeEnvironment == null ? null : timeEnvironment.getCurrentAnimation();
+		final TimeBoundProvider animation = timeEnvironment == null ? null : timeEnvironment.getCurrentAnimation();
 		if ((animation != null) && (geosetAnim != null)) {
 			geosetAnimVisibility = geosetAnim.getRenderVisibility(timeEnvironment);
 			if (geosetAnimVisibility < RenderModel.MAGIC_RENDER_SHOW_CONSTANT) {
@@ -902,7 +902,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		}
 	}
 
-	private void setStandardColors(GeosetAnim geosetAnim, float geosetAnimVisibility, AnimatedRenderEnvironment timeEnvironment, BasicTimeBoundProvider animation, Layer layer) {
+	private void setStandardColors(GeosetAnim geosetAnim, float geosetAnimVisibility, AnimatedRenderEnvironment timeEnvironment, TimeBoundProvider animation, Layer layer) {
 		if (animation != null) {
 			final float layerVisibility = layer.getRenderVisibility(timeEnvironment);
 			if (/* geo.getMaterial().isConstantColor() && */ geosetAnim != null) {

@@ -4,7 +4,7 @@ import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.parsers.mdlx.AnimationMap;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxUInt32Timeline;
-import com.hiveworkshop.rms.ui.application.edit.animation.BasicTimeBoundProvider;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 
 import javax.swing.*;
@@ -135,7 +135,7 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 			}
 		} else {
 //			System.out.println(name + ", ~~ no global seq");
-			final BasicTimeBoundProvider animation = animatedRenderEnvironment.getCurrentAnimation();
+			final TimeBoundProvider animation = animatedRenderEnvironment.getCurrentAnimation();
 			int animationStart = animation.getStart();
 			time = animationStart + animatedRenderEnvironment.getAnimationTime();
 			final int floorAnimStartIndex = Math.max(0, floorIndex(animationStart + 1));

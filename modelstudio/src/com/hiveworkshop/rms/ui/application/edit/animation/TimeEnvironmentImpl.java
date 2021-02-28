@@ -77,7 +77,7 @@ public class TimeEnvironmentImpl implements AnimatedRenderEnvironment, TimeBound
 	}
 
 	@Override
-	public BasicTimeBoundProvider getCurrentAnimation() {
+	public TimeBoundProvider getCurrentAnimation() {
 		if (staticViewMode) {
 			return null;
 		}

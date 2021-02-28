@@ -1,6 +1,10 @@
 package com.hiveworkshop.rms.ui.application.edit.animation;
 
-public interface TimeBoundProvider extends BasicTimeBoundProvider {
+public interface TimeBoundProvider {
 
 	void addChangeListener(TimeBoundChangeListener listener);
+
+	int getStart();
+
+	int getEnd();
 }
