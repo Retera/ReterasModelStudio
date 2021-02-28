@@ -522,7 +522,7 @@ public class CreatorModelingPanel extends JPanel
 	}
 
 	@Override
-	public void timeChanged(final int currentTime, final Set<IdObject> objects, final List<AnimFlag> timelines) {
+	public void timeChanged(final int currentTime, final Set<IdObject> objects, final List<AnimFlag<?>> timelines) {
 //		tSpline.setSelection(currentTime);
 	}
 

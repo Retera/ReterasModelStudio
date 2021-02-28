@@ -52,10 +52,10 @@ public abstract class AnimFlag<T> {
 	public Integer globalSeq;
 	int globalSeqId = -1;
 	public boolean hasGlobalSeq = false;
-	public List<Integer> times = new ArrayList<>();
-	public List<T> values = new ArrayList<>();
-	public List<T> inTans = new ArrayList<>();
-	public List<T> outTans = new ArrayList<>();
+	protected List<Integer> times = new ArrayList<>();
+	protected List<T> values = new ArrayList<>();
+	protected List<T> inTans = new ArrayList<>();
+	protected List<T> outTans = new ArrayList<>();
 	int typeid = 0;
 	int vectorSize = 1;
 	boolean isFloat = true;
@@ -1254,6 +1254,26 @@ public abstract class AnimFlag<T> {
 				sort();
 			}
 		}
+	}
+
+	public AnimFlag<T> setTimes(List<Integer> times) {
+		this.times = times;
+		return this;
+	}
+
+	public AnimFlag<T> setValues(List<T> values) {
+		this.values = values;
+		return this;
+	}
+
+	public AnimFlag<T> setInTans(List<T> inTans) {
+		this.inTans = inTans;
+		return this;
+	}
+
+	public AnimFlag<T> setOutTans(List<T> outTans) {
+		this.outTans = outTans;
+		return this;
 	}
 
 	/**

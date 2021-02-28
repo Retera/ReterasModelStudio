@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
@@ -145,7 +144,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from
 		//  a TimeEnvironmentImpl render environment, and never from the anim previewer impl
 		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
-		final AnimFlag<?> translationFlag = find("Translation", timeEnvironmentImpl.getGlobalSeq());
+		final Vec3AnimFlag translationFlag = (Vec3AnimFlag) find("Translation", timeEnvironmentImpl.getGlobalSeq());
 		if (translationFlag == null) {
 			return;
 		}
@@ -175,7 +174,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex).equals(trackTime))) {
 			// we must change it
-			final Vec3 oldTranslationValue = (Vec3) translationFlag.getValues().get(floorIndex);
+			final Vec3 oldTranslationValue = translationFlag.getValues().get(floorIndex);
 			oldTranslationValue.add(translationHeap.getVec3());
 
 			if (savedLocalTranslation != null) {
@@ -183,10 +182,10 @@ public abstract class AnimatedNode extends TimelineContainer {
 			}
 
 			if (translationFlag.tans()) {
-				final Vec3 oldInTan = (Vec3) translationFlag.getInTans().get(floorIndex);
+				final Vec3 oldInTan = translationFlag.getInTans().get(floorIndex);
 				oldInTan.add(translationHeap.getVec3());
 
-				final Vec3 oldOutTan = (Vec3) translationFlag.getOutTans().get(floorIndex);
+				final Vec3 oldOutTan = translationFlag.getOutTans().get(floorIndex);
 				oldOutTan.add(translationHeap.getVec3());
 			}
 		}
@@ -204,7 +203,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be  constructed from
 		//  a TimeEnvironmentImpl render environment, and never from the anim previewer impl
 		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
-		final AnimFlag<?> rotationTimeline = find("Rotation", timeEnvironmentImpl.getGlobalSeq());
+		final QuatAnimFlag rotationTimeline = (QuatAnimFlag) find("Rotation", timeEnvironmentImpl.getGlobalSeq());
 		if (rotationTimeline == null) {
 			return;
 		}
@@ -247,7 +246,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 		if ((floorIndex != -1) && (rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex).equals(trackTime))) {
 			// we must change it
-			final Quat oldTranslationValue = (Quat) rotationTimeline.getValues().get(floorIndex);
+			final Quat oldTranslationValue = rotationTimeline.getValues().get(floorIndex);
 			oldTranslationValue.mul(rotationDeltaHeap);
 
 			if (savedLocalRotation != null) {
@@ -255,10 +254,10 @@ public abstract class AnimatedNode extends TimelineContainer {
 			}
 
 			if (rotationTimeline.tans()) {
-				final Quat oldInTan = (Quat) rotationTimeline.getInTans().get(floorIndex);
+				final Quat oldInTan = rotationTimeline.getInTans().get(floorIndex);
 				oldInTan.mul(rotationDeltaHeap);
 
-				final Quat oldOutTan = (Quat) rotationTimeline.getOutTans().get(floorIndex);
+				final Quat oldOutTan = rotationTimeline.getOutTans().get(floorIndex);
 				oldOutTan.mul(rotationDeltaHeap);
 			}
 		}
@@ -273,7 +272,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from
 		//  a TimeEnvironmentImpl render environment, and never from the anim previewer impl
 		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
-		final AnimFlag<?> translationFlag = find("Scaling", timeEnvironmentImpl.getGlobalSeq());
+		final Vec3AnimFlag translationFlag = (Vec3AnimFlag) find("Scaling", timeEnvironmentImpl.getGlobalSeq());
 		if (translationFlag == null) {
 			return;
 		}
@@ -291,7 +290,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex).equals(trackTime))) {
 			// we must change it
-			final Vec3 oldTranslationValue = (Vec3) translationFlag.getValues().get(floorIndex);
+			final Vec3 oldTranslationValue = translationFlag.getValues().get(floorIndex);
 			oldTranslationValue.multiply(translationHeap);
 
 			if (savedLocalScaling != null) {
@@ -299,10 +298,10 @@ public abstract class AnimatedNode extends TimelineContainer {
 			}
 
 			if (translationFlag.tans()) {
-				final Vec3 oldInTan = (Vec3) translationFlag.getInTans().get(floorIndex);
+				final Vec3 oldInTan = translationFlag.getInTans().get(floorIndex);
 				oldInTan.multiply(translationHeap);
 
-				final Vec3 oldOutTan = (Vec3) translationFlag.getOutTans().get(floorIndex);
+				final Vec3 oldOutTan = translationFlag.getOutTans().get(floorIndex);
 				oldOutTan.multiply(translationHeap);
 			}
 		}
@@ -313,7 +312,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		// we would like to be able to undo the action of rotating the animation data
 
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
-		final AnimFlag<?> rotationTimeline = find("Rotation", trackGlobalSeq);
+		final QuatAnimFlag rotationTimeline = (QuatAnimFlag) find("Rotation", trackGlobalSeq);
 //		final AnimFlag rotationTimeline = find("Rotation", trackGlobalSeq);
 		if (rotationTimeline == null) {
 			return;
@@ -322,14 +321,14 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 		if ((floorIndex != -1) && (rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex).equals(trackTime))) {
 			// we must change it
-			final Quat oldTranslationValue = (Quat) rotationTimeline.getValues().get(floorIndex);
+			final Quat oldTranslationValue = rotationTimeline.getValues().get(floorIndex);
 			oldTranslationValue.mul(localRotation);
 
 			if (rotationTimeline.tans()) {
-				final Quat oldInTan = (Quat) rotationTimeline.getInTans().get(floorIndex);
+				final Quat oldInTan = rotationTimeline.getInTans().get(floorIndex);
 				oldInTan.mul(localRotation);
 
-				final Quat oldOutTan = (Quat) rotationTimeline.getOutTans().get(floorIndex);
+				final Quat oldOutTan = rotationTimeline.getOutTans().get(floorIndex);
 				oldOutTan.mul(localRotation);
 			}
 		}
@@ -340,7 +339,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		// we would like to be able to undo the action of rotating the animation data
 
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
-		final AnimFlag<?> rotationTimeline = find("Rotation", trackGlobalSeq);
+		final QuatAnimFlag rotationTimeline = (QuatAnimFlag) find("Rotation", trackGlobalSeq);
 		if (rotationTimeline == null) {
 			return;
 		}
@@ -348,14 +347,14 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 		if ((floorIndex != -1) && (rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex).equals(trackTime))) {
 			// we must change it
-			final Quat oldTranslationValue = (Quat) rotationTimeline.getValues().get(floorIndex);
+			final Quat oldTranslationValue = rotationTimeline.getValues().get(floorIndex);
 			rotateStuff(localRotation, oldTranslationValue);
 
 			if (rotationTimeline.tans()) {
-				final Quat oldInTan = (Quat) rotationTimeline.getInTans().get(floorIndex);
+				final Quat oldInTan = rotationTimeline.getInTans().get(floorIndex);
 				rotateStuff(localRotation, oldInTan);
 
-				final Quat oldOutTan = (Quat) rotationTimeline.getOutTans().get(floorIndex);
+				final Quat oldOutTan = rotationTimeline.getOutTans().get(floorIndex);
 				rotateStuff(localRotation, oldOutTan);
 			}
 		}
@@ -364,7 +363,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 	public void updateLocalTranslationKeyframe(final int trackTime, final Integer trackGlobalSeq,
 			final double newDeltaX, final double newDeltaY, final double newDeltaZ) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
-		final AnimFlag<?> translationFlag = find("Translation", trackGlobalSeq);
+		final Vec3AnimFlag translationFlag = (Vec3AnimFlag) find("Translation", trackGlobalSeq);
 		if (translationFlag == null) {
 			return;
 		}
@@ -372,24 +371,23 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex).equals(trackTime))) {
 			// we must change it
-			final Vec3 oldTranslationValue = (Vec3) translationFlag.getValues().get(floorIndex);
+			final Vec3 oldTranslationValue = translationFlag.getValues().get(floorIndex);
 			oldTranslationValue.add(new Vec3(newDeltaX, newDeltaY, newDeltaZ));
 
 			if (translationFlag.tans()) {
-				final Vec3 oldInTan = (Vec3) translationFlag.getInTans().get(floorIndex);
+				final Vec3 oldInTan = translationFlag.getInTans().get(floorIndex);
 				oldInTan.add(new Vec3(newDeltaX, newDeltaY, newDeltaZ));
 
-				final Vec3 oldOutTan = (Vec3) translationFlag.getOutTans().get(floorIndex);
+				final Vec3 oldOutTan = translationFlag.getOutTans().get(floorIndex);
 				oldOutTan.add(new Vec3(newDeltaX, newDeltaY, newDeltaZ));
 			}
 		}
 
 	}
 
-	public void updateLocalScalingKeyframe(final int trackTime, final Integer trackGlobalSeq,
-			final Vec3 localScaling) {
+	public void updateLocalScalingKeyframe(final int trackTime, final Integer trackGlobalSeq, final Vec3 localScaling) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
-		final AnimFlag<?> translationFlag = find("Scaling", trackGlobalSeq);
+		final Vec3AnimFlag translationFlag = (Vec3AnimFlag) find("Scaling", trackGlobalSeq);
 		if (translationFlag == null) {
 			return;
 		}
@@ -397,14 +395,14 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex).equals(trackTime))) {
 			// we must change it
-			final Vec3 oldTranslationValue = (Vec3) translationFlag.getValues().get(floorIndex);
+			final Vec3 oldTranslationValue = translationFlag.getValues().get(floorIndex);
 			oldTranslationValue.multiply(localScaling);
 
 			if (translationFlag.tans()) {
-				final Vec3 oldInTan = (Vec3) translationFlag.getInTans().get(floorIndex);
+				final Vec3 oldInTan = translationFlag.getInTans().get(floorIndex);
 				oldInTan.multiply(localScaling);
 
-				final Vec3 oldOutTan = (Vec3) translationFlag.getOutTans().get(floorIndex);
+				final Vec3 oldOutTan = translationFlag.getOutTans().get(floorIndex);
 				oldOutTan.multiply(localScaling);
 			}
 		}

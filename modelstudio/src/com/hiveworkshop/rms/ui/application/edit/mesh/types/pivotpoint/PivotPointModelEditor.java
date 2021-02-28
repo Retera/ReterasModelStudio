@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.types.pivotpoint;
 
 import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -629,15 +629,15 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 
 					@Override
 					public void helper(final Helper object) {
-						final AnimFlag<?> translation = object.find("Translation");
+						final Vec3AnimFlag translation = (Vec3AnimFlag) object.find("Translation");
 						if (translation != null) {
 							for (int i = 0; i < translation.size(); i++) {
-								final Vec3 scaleData = (Vec3) translation.getValues().get(i);
+								final Vec3 scaleData = translation.getValues().get(i);
 								scaleData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
 								if (translation.tans()) {
-									final Vec3 inTanData = (Vec3) translation.getInTans().get(i);
+									final Vec3 inTanData = translation.getInTans().get(i);
 									inTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
-									final Vec3 outTanData = (Vec3) translation.getInTans().get(i);
+									final Vec3 outTanData = translation.getInTans().get(i);
 									outTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
 								}
 							}
@@ -662,15 +662,15 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 
 					@Override
 					public void bone(final Bone object) {
-						final AnimFlag<?> translation = object.find("Translation");
+						final Vec3AnimFlag translation = (Vec3AnimFlag) object.find("Translation");
 						if (translation != null) {
 							for (int i = 0; i < translation.size(); i++) {
-								final Vec3 scaleData = (Vec3) translation.getValues().get(i);
+								final Vec3 scaleData = translation.getValues().get(i);
 								scaleData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
 								if (translation.tans()) {
-									final Vec3 inTanData = (Vec3) translation.getInTans().get(i);
+									final Vec3 inTanData = translation.getInTans().get(i);
 									inTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
-									final Vec3 outTanData = (Vec3) translation.getInTans().get(i);
+									final Vec3 outTanData = translation.getInTans().get(i);
 									outTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
 								}
 							}
