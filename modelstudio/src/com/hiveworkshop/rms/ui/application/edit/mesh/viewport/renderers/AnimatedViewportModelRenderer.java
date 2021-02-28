@@ -162,14 +162,63 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 		}
 	}
 
+	public void drawNormal(float normalX, float normalY, float normalZ, List<Bone> bones, float firstCoord, float secondCoord, Point point) {
+		normalHeap.set(normalX, normalY, normalZ, 0);
+
+		if (bones.size() > 0) {
+			normalSumHeap.set(0, 0, 0, 0);
+			for (final Bone bone : bones) {
+				appliedNormalHeap.set(Vec4.getTransformed(normalHeap, renderModel.getRenderNode(bone).getWorldMatrix()));
+				normalSumHeap.add(appliedNormalHeap);
+			}
+
+			if (normalSumHeap.length() > 0) {
+				normalSumHeap.normalize();
+			} else {
+				normalSumHeap.set(0, 1, 0, 0);
+			}
+		} else {
+			normalSumHeap.set(normalHeap);
+		}
+		final Color triangleColor = graphics.getColor();
+		final float firstNormalCoord = normalSumHeap.getVec3().getCoord(xDimension);
+		final float secondNormalCoord = normalSumHeap.getVec3().getCoord(yDimension);
+		graphics.setColor(programPreferences.getNormalsColor());
+		final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+		final Point endPoint = new Point(
+				(int) coordinateSystem.convertX(firstCoord + ((firstNormalCoord * 12) / zoom)),
+				(int) coordinateSystem.convertY(secondCoord + ((secondNormalCoord * 12) / zoom)));
+		graphics.drawLine(point.x, point.y, endPoint.x, endPoint.y);
+		graphics.setColor(triangleColor);
+	}
+
+	public Mat4 processHdBones(Bone[] skinBones, short[] skinBoneWeights) {
+		boolean processedBones = false;
+		Mat4 skinBonesMatrixSumHeap = new Mat4().setZero();
+
+		for (int boneIndex = 0; boneIndex < 4; boneIndex++) {
+			final Bone skinBone = skinBones[boneIndex];
+			if (skinBone == null) {
+				continue;
+			}
+			processedBones = true;
+			final Mat4 worldMatrix = renderModel.getRenderNode(skinBone).getWorldMatrix();
+
+			float skinBoneWeight = skinBoneWeights[boneIndex] / 255f;
+			skinBonesMatrixSumHeap.add(worldMatrix.getUniformlyScaled(skinBoneWeight));
+		}
+		if (!processedBones) {
+			skinBonesMatrixSumHeap.setIdentity();
+		}
+		return skinBonesMatrixSumHeap;
+	}
+
 	private static final Vec4 vertexHeap = new Vec4();
 	private static final Vec4 appliedVertexHeap = new Vec4();
 	private static final Vec4 vertexSumHeap = new Vec4();
 	private static final Vec4 normalHeap = new Vec4();
 	private static final Vec4 appliedNormalHeap = new Vec4();
 	private static final Vec4 normalSumHeap = new Vec4();
-	private static final Mat4 skinBonesMatrixHeap = new Mat4();
-	private static final Mat4 skinBonesMatrixSumHeap = new Mat4();
 
 	private final class TriangleRendererImpl implements TriangleVisitor {
 		private final List<Point> previousVertices = new ArrayList<>();
@@ -210,33 +259,7 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 			// vertexSize);
 			if (programPreferences.showNormals()) {
 
-				normalHeap.set((float) normalX, (float) normalY, (float) normalZ, 0);
-
-				if (bones.size() > 0) {
-					normalSumHeap.set(0, 0, 0, 0);
-					for (final Bone bone : bones) {
-						appliedNormalHeap.set(Vec4.getTransformed(normalHeap, renderModel.getRenderNode(bone).getWorldMatrix()));
-						normalSumHeap.add(appliedNormalHeap);
-					}
-
-					if (normalSumHeap.length() > 0) {
-						normalSumHeap.normalize();
-					} else {
-						normalSumHeap.set(0, 1, 0, 0);
-					}
-				} else {
-					normalSumHeap.set(normalHeap);
-				}
-				final Color triangleColor = graphics.getColor();
-				final float firstNormalCoord = normalSumHeap.getVec3().getCoord(xDimension);
-				final float secondNormalCoord = normalSumHeap.getVec3().getCoord(yDimension);
-				graphics.setColor(programPreferences.getNormalsColor());
-				final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
-				final Point endPoint = new Point(
-						(int) coordinateSystem.convertX(firstCoord + ((firstNormalCoord * 12) / zoom)),
-						(int) coordinateSystem.convertY(secondCoord + ((secondNormalCoord * 12) / zoom)));
-				graphics.drawLine(point.x, point.y, endPoint.x, endPoint.y);
-				graphics.setColor(triangleColor);
+				drawNormal((float) normalX, (float) normalY, (float) normalZ, bones, firstCoord, secondCoord, point);
 			}
 			return VertexVisitor.NO_ACTION;
 		}
@@ -245,27 +268,9 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 		public VertexVisitor hdVertex(final double x, final double y, final double z,
 		                              final double normalX, final double normalY, final double normalZ,
 		                              final Bone[] skinBones, final short[] skinBoneWeights) {
+			Mat4 skinBonesMatrixSumHeap = processHdBones(skinBones, skinBoneWeights);
 			vertexHeap.set((float) x, (float) y, (float) z, 1);
-			skinBonesMatrixSumHeap.setZero();
 			vertexSumHeap.set(0, 0, 0, 0);
-
-			boolean processedBones = false;
-			for (int boneIndex = 0; boneIndex < 4; boneIndex++) {
-				final Bone skinBone = skinBones[boneIndex];
-				if (skinBone == null) {
-					continue;
-				}
-				processedBones = true;
-				final Mat4 worldMatrix = renderModel.getRenderNode(skinBone).getWorldMatrix();
-				skinBonesMatrixHeap.set(worldMatrix);
-
-				float skinBoneWeight = skinBoneWeights[boneIndex] / 255f;
-				skinBonesMatrixSumHeap.add(skinBonesMatrixHeap.getUniformlyScaled(skinBoneWeight));
-			}
-
-			if (!processedBones) {
-				skinBonesMatrixSumHeap.setIdentity();
-			}
 			vertexSumHeap.set(Vec4.getTransformed(vertexHeap, skinBonesMatrixSumHeap));
 			normalHeap.set((float) normalX, (float) normalY, (float) normalZ, 0);
 			normalSumHeap.set(Vec4.getTransformed(normalHeap, skinBonesMatrixSumHeap));
