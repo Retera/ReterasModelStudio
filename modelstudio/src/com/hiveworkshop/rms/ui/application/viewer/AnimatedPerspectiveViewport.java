@@ -23,7 +23,9 @@ import org.lwjgl.opengl.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -36,8 +38,7 @@ import java.util.List;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
 
-public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements MouseListener, ActionListener,
-		MouseWheelListener, AnimatedRenderEnvironment, RenderResourceAllocator {
+public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements AnimatedRenderEnvironment, RenderResourceAllocator {
 	public static final boolean LOG_EXCEPTIONS = true;
 	ModelView modelView;
 	private RenderModel renderModel;
@@ -47,13 +48,12 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	Quat inverseCameraRotationZSpin = new Quat();
 	private final Vec4 axisHeap = new Vec4();
 	double m_zoom = 1;
-	Point lastClick;
-	Point leftClickStart;
+	private static final int BYTES_PER_PIXEL = 4;
+	Point cameraPanStartPoint;
 	Point actStart;
 	Timer clickTimer = new Timer(16, e -> clickTimerListener());
 	Timer paintTimer;
 	boolean mouseInBounds = false;
-	JPopupMenu contextMenu;
 	boolean enabled = false;
 
 	boolean texLoaded = false;
@@ -74,41 +74,39 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	private float backgroundRed, backgroundBlue, backgroundGreen;
 
 	private int levelOfDetail;
+	Point cameraSpinStartPoint;
+	boolean wantReload = false;
+	boolean wantReloadAll = false;
+	boolean initialized = false;
+	private float xangle;
+	private float yangle;
+	private LoopType loopType;
+	private float animSpeed = 1.0f;
+	private float xRatio;
+	private float yRatio;
 
-	public AnimatedPerspectiveViewport(final ModelView modelView, final ProgramPreferences programPreferences,
-			final boolean loadDefaultCamera) throws LWJGLException {
+	public AnimatedPerspectiveViewport(final ModelView modelView, final ProgramPreferences programPreferences, final boolean loadDefaultCamera) throws LWJGLException {
 		super();
 		this.programPreferences = programPreferences;
-		// Dimension 1 and Dimension 2, these specify which dimensions to
-		// display.
-		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z
-		// dimensions
-		//
-		// Viewport border
-		// setBorder(BorderFactory.createBevelBorder(1));
-		setBackground(programPreferences == null ? new Color(80, 80, 80)
-				: programPreferences.getPerspectiveBackgroundColor());
+		// Dimension 1 and Dimension 2, these specify which dimensions to display.
+		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z dimensions
+		setBackground(programPreferences == null ? new Color(80, 80, 80) : programPreferences.getPerspectiveBackgroundColor());
 		setMinimumSize(new Dimension(200, 200));
-		// add(Box.createHorizontalStrut(200));
-		// add(Box.createVerticalStrut(200));
-		// setLayout( new BoxLayout(this,BoxLayout.LINE_AXIS));
+
 		this.modelView = modelView;
 		if (loadDefaultCamera) {
 			loadDefaultCameraFor(modelView);
 		}
 		renderModel = new RenderModel(modelView.getModel(), null);
 		renderModel.setSpawnParticles((programPreferences == null) || programPreferences.getRenderParticles());
-		renderModel.refreshFromEditor(this, inverseCameraRotationQuat, inverseCameraRotationYSpin,
-				inverseCameraRotationZSpin, this);
-		addMouseListener(this);
-		addMouseWheelListener(this);
+		renderModel.refreshFromEditor(this, inverseCameraRotationQuat, inverseCameraRotationYSpin, inverseCameraRotationZSpin, this);
+
+		MouseAdapter mouseAdapter = getMouseAdapter();
+		addMouseListener(mouseAdapter);
+		addMouseWheelListener(mouseAdapter);
 
 		if (programPreferences != null) {
-			programPreferences.addChangeListener(() -> {
-				setBackground(programPreferences.getPerspectiveBackgroundColor() == null ? new Color(80, 80, 80)
-						: programPreferences.getPerspectiveBackgroundColor());
-				loadBackgroundColors();
-			});
+			programPreferences.addChangeListener(() -> updateBackgroundColor(programPreferences));
 		}
 		loadBackgroundColors();
 		paintTimer = new Timer(16, e -> {
@@ -118,6 +116,56 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			}
 		});
 		paintTimer.start();
+	}
+
+	private static BufferedImage createTransformed(final BufferedImage image, final AffineTransform at) {
+		final BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		final Graphics2D g = newImage.createGraphics();
+		g.transform(at);
+		g.drawImage(image, 0, 0, null);
+		g.dispose();
+		return newImage;
+	}
+
+	public static int loadTexture(final GPUReadyTexture texture, final Bitmap bitmap, final boolean alpha,
+	                              final int formatVersion) {
+		if (texture == null) {
+			return -1;
+		}
+		final ByteBuffer buffer = texture.getBuffer();
+		// You now have a ByteBuffer filled with the color data of each pixel.
+		// Now just create a texture ID and bind it. Then you can load it using
+		// whatever OpenGL method you want, for example:
+
+		final int textureID = GL11.glGenTextures(); // Generate texture ID
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureID); // Bind texture ID
+
+		// Setup wrap mode
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, bitmap.isWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, bitmap.isWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+
+		// Setup texture scaling filtering
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+
+		// Send texel data to OpenGL
+		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, texture.getWidth(), texture.getHeight(), 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+
+		// Return the texture ID so we can bind it later again
+		return textureID;
+	}
+
+	private void loadBackgroundColors() {
+		if (getBackground() != null) {
+			backgroundRed = getBackground().getRed() / 255f;
+			backgroundGreen = getBackground().getGreen() / 255f;
+			backgroundBlue = getBackground().getBlue() / 255f;
+		}
+	}
+
+	protected void updateBackgroundColor(ProgramPreferences programPreferences) {
+		setBackground(programPreferences.getPerspectiveBackgroundColor() == null ? new Color(80, 80, 80) : programPreferences.getPerspectiveBackgroundColor());
+		loadBackgroundColors();
 	}
 
 	private void loadDefaultCameraFor(final ModelView modelView) {
@@ -137,12 +185,9 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		}
 		Animation defaultAnimation = null;
 		for (final Animation animation : modelView.getModel().getAnims()) {
-			if ((defaultAnimation == null) || !defaultAnimation.getName().toLowerCase().contains("stand")
-					|| (animation.getName().toLowerCase().contains("stand")
-							&& (animation.getName().length() < defaultAnimation.getName().length()))) {
+			if ((defaultAnimation == null) || !defaultAnimation.getName().toLowerCase().contains("stand") || (animation.getName().toLowerCase().contains("stand") && (animation.getName().length() < defaultAnimation.getName().length()))) {
 				defaultAnimation = animation;
-				if ((animation.getExtents() != null) && (animation.getExtents().hasBoundsRadius()
-						|| (animation.getExtents().getMinimumExtent() != null))) {
+				if ((animation.getExtents() != null) && (animation.getExtents().hasBoundsRadius() || (animation.getExtents().getMinimumExtent() != null))) {
 					extents = animation.getExtents();
 				}
 			}
@@ -173,75 +218,35 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		axisHeap.set(0, 1, 0, (float) Math.toRadians(yangle));
 		inverseCameraRotationYSpin.setFromAxisAngle(axisHeap);
 		axisHeap.set(0, 0, 1, (float) Math.toRadians(xangle));
+
 		inverseCameraRotationZSpin.setFromAxisAngle(axisHeap);
 		inverseCameraRotationQuat.set(Quat.getProd(inverseCameraRotationYSpin, inverseCameraRotationZSpin));
-		flipQuitDirection(inverseCameraRotationQuat);
-		flipQuitDirection(inverseCameraRotationYSpin);
-		flipQuitDirection(inverseCameraRotationZSpin);
-	}
-
-	private void flipQuitDirection(Quat quat) {
-		quat.x = -quat.x;
-		quat.y = -quat.y;
-		quat.z = -quat.z;
-	}
-
-	private void loadBackgroundColors() {
-		if (getBackground() != null) {
-			backgroundRed = getBackground().getRed() / 255f;
-			backgroundGreen = getBackground().getGreen() / 255f;
-			backgroundBlue = getBackground().getBlue() / 255f;
-		}
-	}
-
-	public void setModel(final ModelView modelView) {
-		setAnimation(null);
-		this.modelView = modelView;
-		renderModel = new RenderModel(modelView.getModel(), null);
-		renderModel.refreshFromEditor(this, inverseCameraRotationQuat, inverseCameraRotationYSpin,
-				inverseCameraRotationZSpin, this);
-		if (modelView.getModel().getAnims().size() > 0) {
-			setAnimation(modelView.getModel().getAnim(0));
-		}
-		reloadAllTextures();
-	}
-
-	public void setAnimation(final Animation animation) {
-		this.animation = animation;
-		animationTime = 0;
-		lastUpdateMillis = System.currentTimeMillis();
-		renderModel.refreshFromEditor(this, inverseCameraRotationQuat, inverseCameraRotationYSpin,
-				inverseCameraRotationZSpin, this);
-		if (loopType == LoopType.DEFAULT_LOOP) {
-			final boolean loopingState = animation != null && !animation.isNonLooping();
-			looping = loopingState;
-		}
+		inverseCameraRotationQuat.invertRotation();
+		inverseCameraRotationYSpin.invertRotation();
+		inverseCameraRotationZSpin.invertRotation();
 	}
 
 	public void setWireframeHandler(final JCheckBox nwireframe) {
 		wireframe = nwireframe;
 	}
 
-	boolean wantReload = false;
-
 	public void reloadTextures() {
 		wantReload = true;
 	}
-
-	boolean wantReloadAll = false;
 
 	public void reloadAllTextures() {
 		wantReloadAll = true;
 	}
 
-	public void forceReloadTextures() {
-		texLoaded = true;
-
-		deleteAllTextures();
-		addGeosets(modelView.getModel().getGeosets());
-		renderModel.refreshFromEditor(this, inverseCameraRotationQuat, inverseCameraRotationYSpin,
-				inverseCameraRotationZSpin, this);
-
+	public void setModel(final ModelView modelView) {
+		setAnimation(null);
+		this.modelView = modelView;
+		renderModel = new RenderModel(modelView.getModel(), null);
+		renderModel.refreshFromEditor(this, inverseCameraRotationQuat, inverseCameraRotationYSpin, inverseCameraRotationZSpin, this);
+		if (modelView.getModel().getAnims().size() > 0) {
+			setAnimation(modelView.getModel().getAnim(0));
+		}
+		reloadAllTextures();
 	}
 
 	private void deleteAllTextures() {
@@ -251,79 +256,28 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		textureMap.clear();
 	}
 
+	public void setAnimation(final Animation animation) {
+		this.animation = animation;
+		animationTime = 0;
+		lastUpdateMillis = System.currentTimeMillis();
+		renderModel.refreshFromEditor(this, inverseCameraRotationQuat, inverseCameraRotationYSpin, inverseCameraRotationZSpin, this);
+		if (loopType == LoopType.DEFAULT_LOOP) {
+			final boolean loopingState = animation != null && !animation.isNonLooping();
+			looping = loopingState;
+		}
+	}
+
+	public void forceReloadTextures() {
+		texLoaded = true;
+
+		deleteAllTextures();
+		addGeosets(modelView.getModel().getGeosets());
+		renderModel.refreshFromEditor(this, inverseCameraRotationQuat, inverseCameraRotationYSpin, inverseCameraRotationZSpin, this);
+
+	}
+
 	public void loadToTexMap(final Layer layer, final Bitmap tex) {
-		loadToTexMap((layer.getFilterMode() == FilterMode.MODULATE) || (layer.getFilterMode() == FilterMode.MODULATE2X),
-				tex);
-	}
-
-	public void loadToTexMap(boolean alpha, final Bitmap tex) {
-		alpha = true;
-		final int formatVersion = modelView.getModel().getFormatVersion();
-		if (textureMap.get(tex) == null) {
-			String path = tex.getPath();
-			if (path.length() == 0) {
-				if (tex.getReplaceableId() == 1) {
-					path = "ReplaceableTextures\\TeamColor\\TeamColor" + Material.getTeamColorNumberString();
-				} else if (tex.getReplaceableId() == 2) {
-					path = "ReplaceableTextures\\TeamGlow\\TeamGlow" + Material.getTeamColorNumberString();
-				} else if (tex.getReplaceableId() != 0) {
-					path = "replaceabletextures\\lordaerontree\\lordaeronsummertree";
-				}
-				if ((programPreferences.getAllowLoadingNonBlpTextures() != null)
-						&& programPreferences.getAllowLoadingNonBlpTextures()) {
-					path += ".blp";
-				}
-			} else {
-				if ((programPreferences.getAllowLoadingNonBlpTextures() != null)
-						&& programPreferences.getAllowLoadingNonBlpTextures()) {
-				} else {
-					path = path.substring(0, path.length() - 4);
-				}
-			}
-			Integer texture = null;
-			try {
-				final DataSource workingDirectory = modelView.getModel().getWrappedDataSource();
-				if ((programPreferences.getAllowLoadingNonBlpTextures() != null)
-						&& programPreferences.getAllowLoadingNonBlpTextures()) {
-					texture = loadTexture(BLPHandler.get().loadTexture(workingDirectory, path), tex, alpha,
-							formatVersion);
-				} else {
-					texture = loadTexture(BLPHandler.get().loadTexture(workingDirectory, path + ".blp"), tex, alpha,
-							formatVersion);
-				}
-			} catch (final Exception exc) {
-				if (LOG_EXCEPTIONS) {
-					exc.printStackTrace();
-				}
-			}
-			if (texture != null) {
-				textureMap.put(tex, texture);
-			}
-		}
-	}
-
-	public void addGeosets(final List<Geoset> geosets) {
-		for (final Geoset geo : geosets) {// .getMDL().getGeosets()
-			for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
-				if (ModelUtils.isShaderStringSupported(modelView.getModel().getFormatVersion())) {
-					if ((geo.getMaterial().getShaderString() != null)
-							&& (geo.getMaterial().getShaderString().length() > 0)) {
-						if (i > 0) {
-							break;
-						}
-					}
-				}
-				final Layer layer = geo.getMaterial().getLayers().get(i);
-				if (layer.getTextureBitmap() != null) {
-					loadToTexMap(layer, layer.getTextureBitmap());
-				}
-				if (layer.getTextures() != null) {
-					for (final Bitmap tex : layer.getTextures()) {
-						loadToTexMap(layer, tex);
-					}
-				}
-			}
-		}
+		loadToTexMap((layer.getFilterMode() == FilterMode.MODULATE) || (layer.getFilterMode() == FilterMode.MODULATE2X), tex);
 	}
 
 	public void setLevelOfDetail(final int levelOfDetail) {
@@ -342,27 +296,47 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		this.looping = looping;
 	}
 
-	@Override
-	public void initGL() {
-		try {
-			if ((programPreferences == null) || programPreferences.textureModels()) {
-				forceReloadTextures();
+	public void loadToTexMap(boolean alpha, final Bitmap tex) {
+		alpha = true;
+		final int formatVersion = modelView.getModel().getFormatVersion();
+		if (textureMap.get(tex) == null) {
+			String path = tex.getPath();
+			if (path.length() == 0) {
+				if (tex.getReplaceableId() == 1) {
+					path = "ReplaceableTextures\\TeamColor\\TeamColor" + Material.getTeamColorNumberString();
+				} else if (tex.getReplaceableId() == 2) {
+					path = "ReplaceableTextures\\TeamGlow\\TeamGlow" + Material.getTeamColorNumberString();
+				} else if (tex.getReplaceableId() != 0) {
+					path = "replaceabletextures\\lordaerontree\\lordaeronsummertree";
+				}
+				if ((programPreferences.getAllowLoadingNonBlpTextures() != null) && programPreferences.getAllowLoadingNonBlpTextures()) {
+					path += ".blp";
+				}
+			} else {
+				if ((programPreferences.getAllowLoadingNonBlpTextures() != null) && programPreferences.getAllowLoadingNonBlpTextures()) {
+				} else {
+					path = path.substring(0, path.length() - 4);
+				}
 			}
-		} catch (final Throwable e) {
-			JOptionPane.showMessageDialog(null, "initGL failed because of this exact reason:\n"
-					+ e.getClass().getSimpleName() + ": " + e.getMessage());
-			throw new RuntimeException(e);
+			Integer texture = null;
+			try {
+				final DataSource workingDirectory = modelView.getModel().getWrappedDataSource();
+				if ((programPreferences.getAllowLoadingNonBlpTextures() != null) && programPreferences.getAllowLoadingNonBlpTextures()) {
+					texture = loadTexture(BLPHandler.get().loadTexture(workingDirectory, path), tex, alpha,
+							formatVersion);
+				} else {
+					texture = loadTexture(BLPHandler.get().loadTexture(workingDirectory, path + ".blp"), tex, alpha,
+							formatVersion);
+				}
+			} catch (final Exception exc) {
+				if (LOG_EXCEPTIONS) {
+					exc.printStackTrace();
+				}
+			}
+			if (texture != null) {
+				textureMap.put(tex, texture);
+			}
 		}
-		// JAVA 9+ or maybe WIN 10 allow ridiculous virtual pixes, this combination of
-		// old library code and java std library code give me a metric for the
-		// ridiculous ratio:
-		xRatio = (float) (Display.getDisplayMode().getWidth() / Toolkit.getDefaultToolkit().getScreenSize().getWidth());
-		yRatio = (float) (Display.getDisplayMode().getHeight() / Toolkit.getDefaultToolkit().getScreenSize().getHeight());
-		// These ratios will be wrong and users will see corrupted visuals (bad scale,
-		// only fits part of window,
-		// etc) if they are using Windows 10 differing UI scale per monitor. I don't
-		// think I have an API
-		// to query that information yet, though.
 	}
 
 	public void setPosition(final double a, final double b) {
@@ -379,22 +353,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		m_zoom *= 1 + amount;
 	}
 
-	public double getZoomAmount() {
-		return m_zoom;
-	}
-
-	public Point2D.Double getDisplayOffset() {
-		return new Point2D.Double(cameraPos.x, cameraPos.y);
-	}
-
-	// public byte getPortFirstXYZ()
-	// {
-	// return m_d1;
-	// }
-	// public byte getPortSecondXYZ()
-	// {
-	// return m_d2;
-	// }
 	public BufferedImage getBufferedImage() {
 		try {
 			final BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
@@ -427,32 +385,33 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		return createTransformed(image, at);
 	}
 
-	private static BufferedImage createTransformed(final BufferedImage image, final AffineTransform at) {
-		final BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(),
-				BufferedImage.TYPE_INT_ARGB);
-		final Graphics2D g = newImage.createGraphics();
-		g.transform(at);
-		g.drawImage(image, 0, 0, null);
-		g.dispose();
-		return newImage;
+	public void addGeosets(final List<Geoset> geosets) {
+		for (final Geoset geo : geosets) {
+			for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
+				if (ModelUtils.isShaderStringSupported(modelView.getModel().getFormatVersion())) {
+					if ((geo.getMaterial().getShaderString() != null)
+							&& (geo.getMaterial().getShaderString().length() > 0)) {
+						if (i > 0) {
+							break;
+						}
+					}
+				}
+				final Layer layer = geo.getMaterial().getLayers().get(i);
+				if (layer.getTextureBitmap() != null) {
+					loadToTexMap(layer, layer.getTextureBitmap());
+				}
+				if (layer.getTextures() != null) {
+					for (final Bitmap tex : layer.getTextures()) {
+						loadToTexMap(layer, tex);
+					}
+				}
+			}
+		}
 	}
-
-	boolean initialized = false;
-	private float xangle;
-	private float yangle;
 
 	public boolean renderTextures() {
 		return texLoaded && ((programPreferences == null) || programPreferences.textureModels());
 	}
-
-	private final Vec4 vertexHeap = new Vec4();
-	private final Vec4 appliedVertexHeap = new Vec4();
-	private final Vec4 vertexSumHeap = new Vec4();
-	private final Vec4 normalHeap = new Vec4();
-	private final Vec4 appliedNormalHeap = new Vec4();
-	private final Vec4 normalSumHeap = new Vec4();
-	private final Mat4 skinBonesMatrixHeap = new Mat4();
-	private final Mat4 skinBonesMatrixSumHeap = new Mat4();
 
 	@Override
 	protected void exceptionOccurred(final LWJGLException exception) {
@@ -463,6 +422,36 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	@Override
 	public void paintGL() {
 		paintGL(true);
+	}
+
+	@Override
+	public void initGL() {
+		try {
+			if ((programPreferences == null) || programPreferences.textureModels()) {
+				forceReloadTextures();
+			}
+		} catch (final Throwable e) {
+			JOptionPane.showMessageDialog(null, "initGL failed because of this exact reason:\n"
+					+ e.getClass().getSimpleName() + ": " + e.getMessage());
+			throw new RuntimeException(e);
+		}
+		// JAVA 9+ or maybe WIN 10 allow ridiculous virtual pixes, this combination of
+		// old library code and java std library code give me a metric for the
+		// ridiculous ratio:
+		xRatio = (float) (Display.getDisplayMode().getWidth() / Toolkit.getDefaultToolkit().getScreenSize().getWidth());
+		yRatio = (float) (Display.getDisplayMode().getHeight() / Toolkit.getDefaultToolkit().getScreenSize().getHeight());
+		// These ratios will be wrong and users will see corrupted visuals (bad scale, only fits part of window,
+		// etc) if they are using Windows 10 differing UI scale per monitor. I don't
+		// think I have an API to query that information yet, though.
+	}
+
+	private void addLamp(float lightValue, float x, float y, float z, int glLight) {
+		final FloatBuffer lightColor0 = BufferUtils.createFloatBuffer(4);
+		lightColor0.put(lightValue).put(lightValue).put(lightValue).put(1f).flip();
+		final FloatBuffer lightPos0 = BufferUtils.createFloatBuffer(4);
+		lightPos0.put(x).put(y).put(z).put(1f).flip();
+		glLight(glLight, GL_DIFFUSE, lightColor0);
+		glLight(glLight, GL_POSITION, lightPos0);
 	}
 
 	public void paintGL(final boolean autoRepainting) {
@@ -550,8 +539,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			glLoadIdentity();
 			// GL11.glShadeModel(GL11.GL_SMOOTH);
 
-			glTranslatef(0f + (cameraPos.x * (float) m_zoom), -70f - (cameraPos.y * (float) m_zoom),
-					-200f - (cameraPos.z * (float) m_zoom));
+			glTranslatef(0f + (cameraPos.x * (float) m_zoom), -70f - (cameraPos.y * (float) m_zoom), -200f - (cameraPos.z * (float) m_zoom));
 			glRotatef(yangle, 1f, 0f, 0f);
 			glRotatef(xangle, 0f, 1f, 0f);
 			glScalef((float) m_zoom, (float) m_zoom, (float) m_zoom);
@@ -620,15 +608,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		}
 	}
 
-	private void addLamp(float lightValue, float x, float y, float z, int glLight) {
-		final FloatBuffer lightColor0 = BufferUtils.createFloatBuffer(4);
-		lightColor0.put(lightValue).put(lightValue).put(lightValue).put(1f).flip();
-		final FloatBuffer lightPos0 = BufferUtils.createFloatBuffer(4);
-		lightPos0.put(x).put(y).put(z).put(1f).flip();
-		glLight(glLight, GL_DIFFUSE, lightColor0);
-		glLight(glLight, GL_POSITION, lightPos0);
-	}
-
 	private void drawNormals(int formatVersion) {
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
@@ -637,11 +616,22 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		glBegin(GL11.GL_LINES);
 		glColor3f(1f, 1f, 3f);
 		// if( wireframe.isSelected() )
-		drawModel(formatVersion);
+		renderNormals(formatVersion);
 		glEnd();
 	}
 
-	private void drawModel(int formatVersion) {
+	int popupCount = 0;
+
+	public void render(final List<Geoset> geosets, final int formatVersion) {
+		for (final Geoset geo : geosets) {// .getMDL().getGeosets()
+			render(geo, true, formatVersion);
+		}
+		for (final Geoset geo : geosets) {// .getMDL().getGeosets()
+			render(geo, false, formatVersion);
+		}
+	}
+
+	private void renderNormals(int formatVersion) {
 		for (final Geoset geo : modelView.getModel().getGeosets()) {// .getMDL().getGeosets()
 			if ((ModelUtils.isLevelOfDetailSupported(formatVersion)) && (geo.getLevelOfDetailName() != null)
 					&& (geo.getLevelOfDetailName().length() > 0)) {
@@ -649,40 +639,33 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 					continue;
 				}
 			}
-			if ((ModelUtils.isTangentAndSkinSupported(formatVersion)) && (geo.getVertices().size() > 0)
-					&& (geo.getVertex(0).getSkinBones() != null)) {
+			if ((ModelUtils.isTangentAndSkinSupported(formatVersion)) && (geo.getVertices().size() > 0) && (geo.getVertex(0).getSkinBones() != null)) {
 				for (final Triangle tri : geo.getTriangles()) {
 					for (final GeosetVertex v : tri.getVerts()) {
-						setHeap(vertexHeap, v, 1);
-						skinBonesMatrixSumHeap.setZero();
-						boolean processedBones = processBones(v);
-						if (!processedBones) {
-							skinBonesMatrixSumHeap.setIdentity();
-						}
-						vertexSumHeap.set(Vec4.getTransformed(vertexHeap, skinBonesMatrixSumHeap));
+						Vec4 vertexHeap = new Vec4(v, 1);
+						Mat4 skinBonesMatrixSumHeap = processHdBones(v);
+						Vec4 vertexSumHeap = Vec4.getTransformed(vertexHeap, skinBonesMatrixSumHeap);
 						if (v.getNormal() != null) {
-							setHeap(normalHeap, v.getNormal(), 0);
-							normalSumHeap.set(Vec4.getTransformed(normalHeap, skinBonesMatrixSumHeap));
+							Vec4 normalHeap = new Vec4(v.getNormal(), 0);
+							Vec4 normalSumHeap = Vec4.getTransformed(normalHeap, skinBonesMatrixSumHeap);
 
 							if (normalSumHeap.length() > 0) {
 								normalSumHeap.normalize();
 							} else {
 								normalSumHeap.set(0, 1, 0, 0);
 							}
-							if (Float.isNaN(normalSumHeap.x) || Float.isNaN(normalSumHeap.y)
-									|| Float.isNaN(normalSumHeap.z) || Float.isNaN(normalSumHeap.w)
-									|| Float.isInfinite(normalSumHeap.x) || Float.isInfinite(normalSumHeap.y)
-									|| Float.isInfinite(normalSumHeap.z) || Float.isInfinite(normalSumHeap.w)) {
+							if (!normalSumHeap.isValid()) {
 								continue;
 							}
 
 							GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
 							GL11.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
 
+							Vec3 nSA = normalSumHeap.getVec3().scale((float) (6 / m_zoom));
+							Vec3 vSA = vertexSumHeap.getVec3().add(nSA);
+
 							GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-							GL11.glVertex3f(vertexSumHeap.y + (float) ((normalSumHeap.y * 6) / m_zoom),
-									vertexSumHeap.z + (float) ((normalSumHeap.z * 6) / m_zoom),
-									vertexSumHeap.x + (float) ((normalSumHeap.x * 6) / m_zoom));
+							GL11.glVertex3f(vSA.y, vSA.z, vSA.x);
 						}
 					}
 				}
@@ -690,28 +673,23 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 				for (final Triangle tri : geo.getTriangles()) {
 					for (final GeosetVertex v : tri.getVerts()) {
 
-						setHeap(vertexHeap, v, 1);
+						Vec4 vertexHeap = new Vec4(v, 1);
 						final int boneCount = v.getBones().size();
+						Vec4 vertexSumHeap = new Vec4(0, 0, 0, 0);
 						if (boneCount > 0) {
-							vertexSumHeap.set(0, 0, 0, 0);
 							for (final Bone bone : v.getBones()) {
-								appliedVertexHeap.set(Vec4.getTransformed(vertexHeap, renderModel.getRenderNode(bone).getWorldMatrix()));
-								vertexSumHeap.add(appliedVertexHeap);
+								vertexSumHeap.add(Vec4.getTransformed(vertexHeap, renderModel.getRenderNode(bone).getWorldMatrix()));
 							}
-							vertexSumHeap.x /= boneCount;
-							vertexSumHeap.y /= boneCount;
-							vertexSumHeap.z /= boneCount;
-							vertexSumHeap.w /= boneCount;
+							vertexSumHeap.scale(1f / boneCount);
 						} else {
 							vertexSumHeap.set(vertexHeap);
 						}
 						if (v.getNormal() != null) {
-							setHeap(normalHeap, v.getNormal(), 0);
+							Vec4 normalHeap = new Vec4(v.getNormal(), 0);
+							Vec4 normalSumHeap = new Vec4(0, 0, 0, 0);
 							if (boneCount > 0) {
-								normalSumHeap.set(0, 0, 0, 0);
 								for (final Bone bone : v.getBones()) {
-									appliedNormalHeap.set(Vec4.getTransformed(normalHeap, renderModel.getRenderNode(bone).getWorldMatrix()));
-									normalSumHeap.add(appliedNormalHeap);
+									normalSumHeap.add(Vec4.getTransformed(normalHeap, renderModel.getRenderNode(bone).getWorldMatrix()));
 								}
 							} else {
 								normalSumHeap.set(normalHeap);
@@ -726,10 +704,11 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 							GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
 							GL11.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
 
+							Vec3 nSA = normalSumHeap.getVec3().scale((float) (6 / m_zoom));
+							Vec3 vSA = vertexSumHeap.getVec3().add(nSA);
+
 							GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-							GL11.glVertex3f(vertexSumHeap.y + (float) ((normalSumHeap.y * 6) / m_zoom),
-									vertexSumHeap.z + (float) ((normalSumHeap.z * 6) / m_zoom),
-									vertexSumHeap.x + (float) ((normalSumHeap.x * 6) / m_zoom));
+							GL11.glVertex3f(vSA.y, vSA.z, vSA.x);
 						}
 					}
 				}
@@ -737,53 +716,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		}
 	}
 
-	private void setHeap(Vec4 vec4Heap, Vec3 vec3, int i) {
-		vec4Heap.x = vec3.x;
-		vec4Heap.y = vec3.y;
-		vec4Heap.z = vec3.z;
-		vec4Heap.w = i;
-	}
-
-	int popupCount = 0;
-	// public void paintGL() {
-	// super.paintGL();
-	// try {
-	// if( !initialized )
-	// {
-	// initGL();
-	// initialized = true;
-	// }
-	// System.out.println("printingGL");
-	//// makeCurrent();
-	// GL11.glBegin(GL11.GL_QUADS);
-	// GL11.glColor3f(0f,1f,1f);
-	// for (Geoset geo : dispMDL.getMDL().getGeosets()) {
-	// for (Triangle tri : geo.m_triangle) {
-	// for (Vertex v : tri.m_verts) {
-	// GL11.glVertex3f((float) v.x, (float) v.y, (float) v.z);
-	// }
-	// }
-	// }
-	// GL11.glEnd();
-	//// swapBuffers();
-	// } catch (Exception e) {
-	// // Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	// }
-
-	public void render(final List<Geoset> geosets, final int formatVersion) {
-		for (final Geoset geo : geosets) {// .getMDL().getGeosets()
-			render(geo, true, formatVersion);
-		}
-		for (final Geoset geo : geosets) {// .getMDL().getGeosets()
-			render(geo, false, formatVersion);
-		}
-	}
-
 	public void render(final Geoset geo, final boolean renderOpaque, final int formatVersion) {
-		if ((ModelUtils.isLevelOfDetailSupported(formatVersion)) && (geo.getLevelOfDetailName() != null)
-				&& (geo.getLevelOfDetailName().length() > 0)) {
+		if ((ModelUtils.isLevelOfDetailSupported(formatVersion)) && (geo.getLevelOfDetailName() != null) && (geo.getLevelOfDetailName().length() > 0)) {
 			if (geo.getLevelOfDetail() != levelOfDetail) {
 				return;
 			}
@@ -845,17 +779,12 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 						&& (geo.getVertex(0).getSkinBones() != null)) {
 					for (final Triangle tri : geo.getTriangles()) {
 						for (final GeosetVertex v : tri.getVerts()) {
-							setHeap(vertexHeap, v, 1);
-							skinBonesMatrixSumHeap.setZero();
-							vertexSumHeap.set(0, 0, 0, 0);
-							boolean processedBones = processBones(v);
-							if (!processedBones) {
-								skinBonesMatrixSumHeap.setIdentity();
-							}
-							vertexSumHeap.set(Vec4.getTransformed(vertexHeap, skinBonesMatrixSumHeap));
+							Vec4 vertexHeap = new Vec4(v, 1);
+							Mat4 skinBonesMatrixSumHeap = processHdBones(v);
+							Vec4 vertexSumHeap = Vec4.getTransformed(vertexHeap, skinBonesMatrixSumHeap);
 							if (v.getNormal() != null) {
-								setHeap(normalHeap, v.getNormal(), 0);
-								normalSumHeap.set(Vec4.getTransformed(normalHeap, skinBonesMatrixSumHeap));
+								Vec4 normalHeap = new Vec4(v.getNormal(), 0);
+								Vec4 normalSumHeap = Vec4.getTransformed(normalHeap, skinBonesMatrixSumHeap);
 
 								if (normalSumHeap.length() > 0) {
 									normalSumHeap.normalize();
@@ -869,8 +798,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 							if (coordId >= v.getTverts().size()) {
 								coordId = v.getTverts().size() - 1;
 							}
-							GL11.glTexCoord2f(v.getTverts().get(coordId).x,
-									v.getTverts().get(coordId).y);
+							GL11.glTexCoord2f(v.getTverts().get(coordId).x, v.getTverts().get(coordId).y);
 							GL11.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
 						}
 					}
@@ -878,28 +806,23 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 					for (final Triangle tri : geo.getTriangles()) {
 						for (final GeosetVertex v : tri.getVerts()) {
 
-							setHeap(vertexHeap, v, 1);
+							Vec4 vertexHeap = new Vec4(v, 1);
 							final int boneCount = v.getBones().size();
+							Vec4 vertexSumHeap = new Vec4(0, 0, 0, 0);
 							if (boneCount > 0) {
-								vertexSumHeap.set(0, 0, 0, 0);
 								for (final Bone bone : v.getBones()) {
-									appliedVertexHeap.set(Vec4.getTransformed(vertexHeap, renderModel.getRenderNode(bone).getWorldMatrix()));
-									vertexSumHeap.add(appliedVertexHeap);
+									vertexSumHeap.add(Vec4.getTransformed(vertexHeap, renderModel.getRenderNode(bone).getWorldMatrix()));
 								}
-								vertexSumHeap.x /= boneCount;
-								vertexSumHeap.y /= boneCount;
-								vertexSumHeap.z /= boneCount;
-								vertexSumHeap.w /= boneCount;
+								vertexSumHeap.scale(1f / boneCount);
 							} else {
 								vertexSumHeap.set(vertexHeap);
 							}
 							if (v.getNormal() != null) {
-								setHeap(normalHeap, v.getNormal(), 0);
+								Vec4 normalHeap = new Vec4(v.getNormal(), 0);
+								Vec4 normalSumHeap = new Vec4(0, 0, 0, 0);
 								if (boneCount > 0) {
-									normalSumHeap.set(0, 0, 0, 0);
 									for (final Bone bone : v.getBones()) {
-										appliedNormalHeap.set(Vec4.getTransformed(normalHeap, renderModel.getRenderNode(bone).getWorldMatrix()));
-										normalSumHeap.add(appliedNormalHeap);
+										normalSumHeap.add(Vec4.getTransformed(normalHeap, renderModel.getRenderNode(bone).getWorldMatrix()));
 									}
 								} else {
 									normalSumHeap.set(normalHeap);
@@ -923,32 +846,22 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 						}
 					}
 				}
-				// if( texture != null )
-				// {
-				// texture.release();
-				// }
 				glEnd();
 			}
 		}
 
 	}
 
-	private boolean processBones(GeosetVertex v) {
-		final Bone[] skinBones = v.getSkinBones();
-		final short[] skinBoneWeights = v.getSkinBoneWeights();
-		boolean processedBones = false;
-		for (int boneIndex = 0; boneIndex < 4; boneIndex++) {
-			final Bone skinBone = skinBones[boneIndex];
-			if (skinBone == null) {
-				continue;
+	private Mat4 processSdBones(GeosetVertex vertex) {
+		final int boneCount = vertex.getBones().size();
+		Mat4 bonesMatrixSumHeap = new Mat4().setZero();
+		if (boneCount > 0) {
+			for (final Bone bone : vertex.getBones()) {
+				bonesMatrixSumHeap.add(renderModel.getRenderNode(bone).getWorldMatrix());
 			}
-			processedBones = true;
-			final Mat4 worldMatrix = renderModel.getRenderNode(skinBone).getWorldMatrix();
-			skinBonesMatrixHeap.set(worldMatrix);
-			float skinBoneWeight = skinBoneWeights[boneIndex] / 255f;
-			skinBonesMatrixSumHeap.add(skinBonesMatrixHeap.getUniformlyScaled(skinBoneWeight));
+			return bonesMatrixSumHeap.uniformScale(1f / boneCount);
 		}
-		return processedBones;
+		return bonesMatrixSumHeap.setIdentity();
 	}
 
 	public void bindLayer(final Layer layer, final Bitmap tex, final Integer texture, final int formatVersion,
@@ -1075,72 +988,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		}
 	}
 
-	// public void paintComponent(Graphics g)
-	// {
-	// paintComponent(g,1);
-	// }
-	// public void paintComponent(Graphics g, int vertexSize)
-	// {
-	// super.paintComponent(g);
-	// dispMDL.drawGeosets(g,this,vertexSize);
-	// dispMDL.drawPivots(g,this,vertexSize);
-	// switch((int)m_d1)
-	// {
-	// case 0: g.setColor( new Color( 0, 255, 0 ) ); break;
-	// case 1: g.setColor( new Color( 255, 0, 0 ) ); break;
-	// case 2: g.setColor( new Color( 0, 0, 255 ) ); break;
-	// }
-	// //g.setColor( new Color( 255, 0, 0 ) );
-	// g.drawLine((int)Math.round(convertX(0)),(int)Math.round(convertY(0)),(int)Math.round(convertX(5)),(int)Math.round(convertY(0)));
-	//
-	// switch((int)m_d2)
-	// {
-	// case 0: g.setColor( new Color( 0, 255, 0 ) ); break;
-	// case 1: g.setColor( new Color( 255, 0, 0 ) ); break;
-	// case 2: g.setColor( new Color( 0, 0, 255 ) ); break;
-	// }
-	// //g.setColor( new Color( 255, 0, 0 ) );
-	// g.drawLine((int)Math.round(convertX(0)),(int)Math.round(convertY(0)),(int)Math.round(convertX(0)),(int)Math.round(convertY(5)));
-	//
-	// //Visual effects from user controls
-	// int xoff = 0;
-	// int yoff = 0;
-	// Component temp = this;
-	// while( temp != null )
-	// {
-	// xoff+=temp.getX();
-	// yoff+=temp.getY();
-	// if( temp.getClass() == ModelPanel.class )
-	// {
-	// temp = MainFrame.panel;
-	// }
-	// else
-	// {
-	// temp = temp.getParent();
-	// }
-	// }
-	//
-	// try {
-	// double mx =
-	// (MouseInfo.getPointerInfo().getLocation().x-xoff);//MainFrame.frame.getX()-8);
-	// double my =
-	// (MouseInfo.getPointerInfo().getLocation().y-yoff);//MainFrame.frame.getY()-30);
-	//
-	// //SelectionBox:
-	// if( selectStart != null )
-	// {
-	// Point sEnd = new Point((int)mx,(int)my);
-	// Rectangle2D.Double r = pointsToRect(selectStart,sEnd);
-	// g.setColor(MDLDisplay.selectColor);
-	// ((Graphics2D)g).draw(r);
-	// }
-	// }
-	// catch (Exception exc)
-	// {
-	// JOptionPane.showMessageDialog(null,"Error retrieving mouse coordinates.
-	// (Probably not a major issue. Due to sleep mode?)");
-	// }
-	// }
 	public double convertX(final double x) {
 		return ((x + cameraPos.x) * m_zoom) + (getWidth() / 2.0);
 	}
@@ -1157,23 +1004,30 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		return -(((y - (getHeight() / 2.0)) / m_zoom) - cameraPos.y);
 	}
 
-	@Override
-	public void actionPerformed(final ActionEvent e) {
+	private Mat4 processHdBones(GeosetVertex vertex) {
+		final Bone[] skinBones = vertex.getSkinBones();
+		final short[] skinBoneWeights = vertex.getSkinBoneWeights();
+		boolean processedBones = false;
+		Mat4 skinBonesMatrixSumHeap = new Mat4().setZero();
+		for (int boneIndex = 0; boneIndex < 4; boneIndex++) {
+			final Bone skinBone = skinBones[boneIndex];
+			if (skinBone == null) {
+				continue;
+			}
+			processedBones = true;
+			final Mat4 worldMatrix = renderModel.getRenderNode(skinBone).getWorldMatrix();
+			float skinBoneWeight = skinBoneWeights[boneIndex] / 255f;
+			skinBonesMatrixSumHeap.add(worldMatrix.getUniformlyScaled(skinBoneWeight));
+		}
+		if (!processedBones) {
+			skinBonesMatrixSumHeap.setIdentity();
+		}
+		return skinBonesMatrixSumHeap;
 	}
 
 	private void clickTimerListener() {
 		final int xoff = 0;
 		final int yoff = 0;
-		// Component temp = this;
-		// while (temp != null) {
-		// xoff += temp.getX();
-		// yoff += temp.getY();
-		// if (temp.getClass() == ModelPanel.class) {
-		// temp = MainFrame.panel;
-		// } else {
-		// temp = temp.getParent();
-		// }
-		// }
 		final PointerInfo pointerInfo = MouseInfo.getPointerInfo();
 		if (pointerInfo != null) {
 			final double mx = pointerInfo.getLocation().x - xoff;// MainFrame.frame.getX()-8);
@@ -1181,28 +1035,28 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			// JOptionPane.showMessageDialog(null,mx+","+my+" as mouse,
 			// "+lastClick.x+","+lastClick.y+" as last.");
 			// System.out.println(xoff+" and "+mx);
-			if (lastClick != null) {
+			if (cameraPanStartPoint != null) {
 
-				cameraPos.x += ((int) mx - lastClick.x) / m_zoom;
-				cameraPos.y += ((int) my - lastClick.y) / m_zoom;
-				lastClick.x = (int) mx;
-				lastClick.y = (int) my;
+				cameraPos.x += ((int) mx - cameraPanStartPoint.x) / m_zoom;
+				cameraPos.y += ((int) my - cameraPanStartPoint.y) / m_zoom;
+				cameraPanStartPoint.x = (int) mx;
+				cameraPanStartPoint.y = (int) my;
 			}
-			if (leftClickStart != null) {
+			if (cameraSpinStartPoint != null) {
 
-				xangle += mx - leftClickStart.x;
-				yangle += my - leftClickStart.y;
+				xangle += mx - cameraSpinStartPoint.x;
+				yangle += my - cameraSpinStartPoint.y;
 
 				axisHeap.set(0, 1, 0, (float) Math.toRadians(yangle));
 				inverseCameraRotationYSpin.setFromAxisAngle(axisHeap);
 				axisHeap.set(0, 0, 1, (float) Math.toRadians(xangle));
 				inverseCameraRotationZSpin.setFromAxisAngle(axisHeap);
 				inverseCameraRotationQuat.set(Quat.getProd(inverseCameraRotationYSpin, inverseCameraRotationZSpin));
-				flipQuitDirection(inverseCameraRotationQuat);
-				flipQuitDirection(inverseCameraRotationYSpin);
-				flipQuitDirection(inverseCameraRotationZSpin);
-				leftClickStart.x = (int) mx;
-				leftClickStart.y = (int) my;
+				inverseCameraRotationQuat.invertRotation();
+				inverseCameraRotationYSpin.invertRotation();
+				inverseCameraRotationZSpin.invertRotation();
+				cameraSpinStartPoint.x = (int) mx;
+				cameraSpinStartPoint.y = (int) my;
 			}
 			// MainFrame.panel.setMouseCoordDisplay(m_d1,m_d2,((mx-getWidth()/2)/m_zoom)-m_a,-(((my-getHeight()/2)/m_zoom)-m_b));
 
@@ -1216,147 +1070,53 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		}
 	}
 
-	@Override
-	public void mouseEntered(final MouseEvent e) {
-		clickTimer.setRepeats(true);
-		clickTimer.start();
-		mouseInBounds = true;
+	public Rectangle2D.Double pointsToGeomRect(final Point a, final Point b) {
+		final Point2D.Double topLeft = new Point2D.Double(Math.min(geomX(a.x), geomX(b.x)), Math.min(geomY(a.y), geomY(b.y)));
+		final Point2D.Double lowRight = new Point2D.Double(Math.max(geomX(a.x), geomX(b.x)), Math.max(geomY(a.y), geomY(b.y)));
+		final Rectangle2D.Double temp = new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x, lowRight.y - topLeft.y);
+		return temp;
 	}
 
-	@Override
-	public void mouseExited(final MouseEvent e) {
-		if ((leftClickStart == null) && (actStart == null) && (lastClick == null)) {
-			clickTimer.stop();
-		}
-		mouseInBounds = false;
-	}
+	private void clickTimerAction() {
+		final int xoff = 0;
+		final int yoff = 0;
+		final PointerInfo pointerInfo = MouseInfo.getPointerInfo();
+		if (pointerInfo != null) {
+			final double mx = pointerInfo.getLocation().x - xoff;
+			final double my = pointerInfo.getLocation().y - yoff;
+			if (cameraPanStartPoint != null) {
+				// translate Viewport Camera
+				double cameraPointX = ((int) mx - cameraPanStartPoint.x) / m_zoom;
+				double cameraPointY = ((int) my - cameraPanStartPoint.y) / m_zoom;
+				Vec4 vertexHeap = new Vec4(cameraPointX, cameraPointY, 0, 1);
+				cameraPos.add(vertexHeap.getVec3());
+				cameraPanStartPoint.x = (int) mx;
+				cameraPanStartPoint.y = (int) my;
+			}
+			if (cameraSpinStartPoint != null) {
+				// rotate Viewport Camera
 
-	@Override
-	public void mousePressed(final MouseEvent e) {
-		if (programPreferences.getThreeDCameraPanButton().isButton(e)) {
-			lastClick = new Point(e.getXOnScreen(), e.getYOnScreen());
-		} else if (programPreferences.getThreeDCameraSpinButton().isButton(e)) {
-			leftClickStart = new Point(e.getXOnScreen(), e.getYOnScreen());
-		} else if (e.getButton() == MouseEvent.BUTTON3) {
-			actStart = new Point(e.getX(), e.getY());
-			final Point2D.Double convertedStart = new Point2D.Double(geomX(actStart.x), geomY(actStart.y));
-			// dispMDL.startAction(convertedStart,m_d1,m_d2,MainFrame.panel.currentActionType());
-		}
-	}
+				xangle += mx - cameraSpinStartPoint.x;
+				yangle += my - cameraSpinStartPoint.y;
 
-	@Override
-	public void mouseReleased(final MouseEvent e) {
-		if (programPreferences.getThreeDCameraPanButton().isButton(e)) {
-			cameraPos.x += (e.getXOnScreen() - lastClick.x) / m_zoom;
-			cameraPos.y += (e.getYOnScreen() - lastClick.y) / m_zoom;
-			lastClick = null;
-		} else if (programPreferences.getThreeDCameraSpinButton().isButton(e) && (leftClickStart != null)) {
-			final Point selectEnd = new Point(e.getX(), e.getY());
-			final Rectangle2D.Double area = pointsToGeomRect(leftClickStart, selectEnd);
-			// System.out.println(area);
-			// dispMDL.selectVerteces(area,m_d1,m_d2,MainFrame.panel.currentSelectionType());
-			leftClickStart = null;
-		} else if ((e.getButton() == MouseEvent.BUTTON3) && (actStart != null)) {
-			final Point actEnd = new Point(e.getX(), e.getY());
-			final Point2D.Double convertedStart = new Point2D.Double(geomX(actStart.x), geomY(actStart.y));
-			final Point2D.Double convertedEnd = new Point2D.Double(geomX(actEnd.x), geomY(actEnd.y));
-			// dispMDL.finishAction(convertedStart,convertedEnd,m_d1,m_d2);
-			actStart = null;
-		}
-		if (!mouseInBounds && (leftClickStart == null) && (actStart == null) && (lastClick == null)) {
-			clickTimer.stop();
-		}
-		/*
-		 * if( dispMDL != null ) dispMDL.refreshUndo();
-		 */
-	}
+				Vec4 yAxisHeap = new Vec4(0, 1, 0, (float) Math.toRadians(yangle));
+				inverseCameraRotationYSpin.setFromAxisAngle(yAxisHeap).invertRotation();
+				Vec4 zAxisHeap = new Vec4(0, 0, 1, (float) Math.toRadians(xangle));
+				inverseCameraRotationZSpin.setFromAxisAngle(zAxisHeap).invertRotation();
+				inverseCameraRotationQuat.set(Quat.getProd(inverseCameraRotationYSpin, inverseCameraRotationZSpin)).invertRotation();
+				cameraSpinStartPoint.x = (int) mx;
+				cameraSpinStartPoint.y = (int) my;
+			}
+			// MainFrame.panel.setMouseCoordDisplay(m_d1,m_d2,((mx-getWidth()/2)/m_zoom)-m_a,-(((my-getHeight()/2)/m_zoom)-m_b));
 
-	@Override
-	public void mouseClicked(final MouseEvent e) {
-	}
-
-	@Override
-	public void mouseWheelMoved(final MouseWheelEvent e) {
-		int wr = e.getWheelRotation();
-		final boolean neg = wr < 0;
-
-		if (neg) {
-			wr = -wr;
-		}
-		for (int i = 0; i < wr; i++) {
-			if (neg) {
-				// cameraPos.x -= (mx - getWidth() / 2)
-				// * (1 / m_zoom - 1 / (m_zoom * 1.15));
-				// cameraPos.y -= (my - getHeight() / 2)
-				// * (1 / m_zoom - 1 / (m_zoom * 1.15));
-				// cameraPos.z -= (getHeight() / 2)
-				// * (1 / m_zoom - 1 / (m_zoom * 1.15));
-				m_zoom *= 1.15;
-			} else {
-				m_zoom /= 1.15;
-				// cameraPos.x -= (mx - getWidth() / 2)
-				// * (1 / (m_zoom * 1.15) - 1 / m_zoom);
-				// cameraPos.y -= (my - getHeight() / 2)
-				// * (1 / (m_zoom * 1.15) - 1 / m_zoom);
-				// cameraPos.z -= (getHeight() / 2)
-				// * (1 / (m_zoom * 1.15) - 1 / m_zoom);
+			if (actStart != null) {
+				final Point actEnd = new Point((int) mx, (int) my);
+				final Point2D.Double convertedStart = new Point2D.Double(geomX(actStart.x), geomY(actStart.y));
+				final Point2D.Double convertedEnd = new Point2D.Double(geomX(actEnd.x), geomY(actEnd.y));
+				// dispMDL.updateAction(convertedStart,convertedEnd,m_d1,m_d2);
+				actStart = actEnd;
 			}
 		}
-	}
-
-	public Rectangle2D.Double pointsToGeomRect(final Point a, final Point b) {
-		final Point2D.Double topLeft = new Point2D.Double(Math.min(geomX(a.x), geomX(b.x)),
-				Math.min(geomY(a.y), geomY(b.y)));
-		final Point2D.Double lowRight = new Point2D.Double(Math.max(geomX(a.x), geomX(b.x)),
-				Math.max(geomY(a.y), geomY(b.y)));
-		final Rectangle2D.Double temp = new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x,
-				lowRight.y - topLeft.y);
-		return temp;
-	}
-
-	public Rectangle2D.Double pointsToRect(final Point a, final Point b) {
-		final Point2D.Double topLeft = new Point2D.Double(Math.min(a.x, b.x), Math.min(a.y, b.y));
-		final Point2D.Double lowRight = new Point2D.Double(Math.max(a.x, b.x), Math.max(a.y, b.y));
-		final Rectangle2D.Double temp = new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x,
-				lowRight.y - topLeft.y);
-		return temp;
-	}
-
-	private static final int BYTES_PER_PIXEL = 4;
-	private LoopType loopType;
-	private float animSpeed = 1.0f;
-	private float xRatio;
-	private float yRatio;
-
-	public static int loadTexture(final GPUReadyTexture texture, final Bitmap bitmap, final boolean alpha,
-								  final int formatVersion) {
-		if (texture == null) {
-			return -1;
-		}
-		final ByteBuffer buffer = texture.getBuffer();
-		// You now have a ByteBuffer filled with the color data of each pixel.
-		// Now just create a texture ID and bind it. Then you can load it using
-		// whatever OpenGL method you want, for example:
-
-		final int textureID = GL11.glGenTextures(); // Generate texture ID
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureID); // Bind texture ID
-
-		// Setup wrap mode
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S,
-				bitmap.isWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T,
-				bitmap.isWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
-
-		// Setup texture scaling filtering
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-
-		// Send texel data to OpenGL
-		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, texture.getWidth(), texture.getHeight(), 0,
-				GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
-
-		// Return the texture ID so we can bind it later again
-		return textureID;
 	}
 
 	@Override
@@ -1392,6 +1152,110 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 
 	public void setAnimationSpeed(final float speed) {
 		animSpeed = speed;
+	}
+
+	public MouseAdapter getMouseAdapter() {
+		return new MouseAdapter() {
+			@Override
+			public void mouseEntered(final MouseEvent e) {
+				clickTimer.setRepeats(true);
+				clickTimer.start();
+				mouseInBounds = true;
+			}
+
+			@Override
+			public void mouseExited(final MouseEvent e) {
+				if ((cameraSpinStartPoint == null) && (actStart == null) && (cameraPanStartPoint == null)) {
+					clickTimer.stop();
+				}
+				mouseInBounds = false;
+			}
+
+			@Override
+			public void mousePressed(final MouseEvent e) {
+				if (programPreferences.getThreeDCameraPanButton().isButton(e)) {
+					cameraPanStartPoint = new Point(e.getXOnScreen(), e.getYOnScreen());
+				} else if (programPreferences.getThreeDCameraSpinButton().isButton(e)) {
+					cameraSpinStartPoint = new Point(e.getXOnScreen(), e.getYOnScreen());
+				} else if (e.getButton() == MouseEvent.BUTTON3) {
+					actStart = new Point(e.getX(), e.getY());
+					final Point2D.Double convertedStart = new Point2D.Double(geomX(actStart.x), geomY(actStart.y));
+					// dispMDL.startAction(convertedStart,m_d1,m_d2,MainFrame.panel.currentActionType());
+				}
+				System.out.println("camPos: " + cameraPos + ", invQ: " + inverseCameraRotationQuat + ", invYspin: " + inverseCameraRotationYSpin + ", invZspin: " + inverseCameraRotationZSpin);
+			}
+
+			@Override
+			public void mouseReleased(final MouseEvent e) {
+				if (programPreferences.getThreeDCameraPanButton().isButton(e) && (cameraPanStartPoint != null)) {
+					cameraPos.x += (e.getXOnScreen() - cameraPanStartPoint.x) / m_zoom;
+					cameraPos.y += (e.getYOnScreen() - cameraPanStartPoint.y) / m_zoom;
+					cameraPanStartPoint = null;
+				} else if (programPreferences.getThreeDCameraSpinButton().isButton(e) && (cameraSpinStartPoint != null)) {
+					final Point selectEnd = new Point(e.getX(), e.getY());
+					final Rectangle2D.Double area = pointsToGeomRect(cameraSpinStartPoint, selectEnd);
+					// System.out.println(area);
+					// dispMDL.selectVerteces(area,m_d1,m_d2,MainFrame.panel.currentSelectionType());
+					cameraSpinStartPoint = null;
+				} else if ((e.getButton() == MouseEvent.BUTTON3) && (actStart != null)) {
+					final Point actEnd = new Point(e.getX(), e.getY());
+					final Point2D.Double convertedStart = new Point2D.Double(geomX(actStart.x), geomY(actStart.y));
+					final Point2D.Double convertedEnd = new Point2D.Double(geomX(actEnd.x), geomY(actEnd.y));
+					// dispMDL.finishAction(convertedStart,convertedEnd,m_d1,m_d2);
+					actStart = null;
+				}
+				if (!mouseInBounds && (cameraSpinStartPoint == null) && (actStart == null) && (cameraPanStartPoint == null)) {
+					clickTimer.stop();
+				}
+				/*
+				 * if( dispMDL != null ) dispMDL.refreshUndo();
+				 */
+			}
+
+			@Override
+			public void mouseClicked(final MouseEvent e) {
+				if (e.getButton() == MouseEvent.BUTTON3) {
+
+					// if( actEnd.equals(actStart) )
+					// {
+					// actStart = null;
+
+					// JPopupMenu.setDefaultLightWeightPopupEnabled(false);
+					// ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
+					// contextMenu.show(this, e.getX(), e.getY());
+					// }
+				}
+			}
+
+			@Override
+			public void mouseWheelMoved(final MouseWheelEvent e) {
+				int wr = e.getWheelRotation();
+				final boolean neg = wr < 0;
+
+				if (neg) {
+					wr = -wr;
+				}
+				for (int i = 0; i < wr; i++) {
+					if (neg) {
+						// cameraPos.x -= (mx - getWidth() / 2)
+						// * (1 / m_zoom - 1 / (m_zoom * 1.15));
+						// cameraPos.y -= (my - getHeight() / 2)
+						// * (1 / m_zoom - 1 / (m_zoom * 1.15));
+						// cameraPos.z -= (getHeight() / 2)
+						// * (1 / m_zoom - 1 / (m_zoom * 1.15));
+						m_zoom *= 1.15;
+					} else {
+						m_zoom /= 1.15;
+						// cameraPos.x -= (mx - getWidth() / 2)
+						// * (1 / (m_zoom * 1.15) - 1 / m_zoom);
+						// cameraPos.y -= (my - getHeight() / 2)
+						// * (1 / (m_zoom * 1.15) - 1 / m_zoom);
+						// cameraPos.z -= (getHeight() / 2)
+						// * (1 / (m_zoom * 1.15) - 1 / m_zoom);
+					}
+				}
+			}
+		};
 	}
 
 	private final class Particle2TextureInstance implements InternalResource, InternalInstance {
