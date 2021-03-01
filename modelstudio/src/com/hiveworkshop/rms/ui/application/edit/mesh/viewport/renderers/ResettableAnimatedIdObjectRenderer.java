@@ -133,30 +133,6 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
                 renderModel.getRenderNode(ribbonEmitter).getWorldMatrix());
     }
 
-    public static void drawNodeImage(final Graphics2D graphics, final byte xDimension, final byte yDimension,
-                                     final CoordinateSystem coordinateSystem, final IdObject attachment, final Image nodeImage,
-                                     final Mat4 worldMatrix) {
-        Vec3 vertexHeap = Vec3.getTransformed(attachment.getPivotPoint(), worldMatrix);
-        final int xCoord = (int) coordinateSystem.convertX(vertexHeap.getCoord(xDimension));
-        final int yCoord = (int) coordinateSystem.convertY(vertexHeap.getCoord(yDimension));
-        graphics.drawImage(nodeImage, xCoord - (nodeImage.getWidth(null) / 2), yCoord - (nodeImage.getHeight(null) / 2), nodeImage.getWidth(null), nodeImage.getHeight(null), null);
-    }
-
-    public static void drawCrosshair(final Graphics2D graphics, final CoordinateSystem coordinateSystem, int vertexSize, final Vec3 pivotPoint, final Mat4 worldMatrix, final boolean crosshairIsBox) {
-        Vec3 vertexHeap = Vec3.getTransformed(pivotPoint, worldMatrix);
-
-        final int xCoord = (int) coordinateSystem.convertX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
-        final int yCoord = (int) coordinateSystem.convertY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
-        if (crosshairIsBox) {
-            vertexSize *= 3;
-            graphics.fillRect(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2, vertexSize * 2);
-        } else {
-            graphics.drawOval(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2, vertexSize * 2);
-            graphics.drawLine(xCoord - (int) (vertexSize * 1.5f), yCoord, xCoord + (int) (vertexSize * 1.5f), yCoord);
-            graphics.drawLine(xCoord, yCoord - (int) (vertexSize * 1.5f), xCoord, yCoord + (int) (vertexSize * 1.5f));
-        }
-    }
-
     @Override
     public void eventObject(final EventObject eventObject) {
         drawNodeImage(eventObject, nodeIconPalette.getEventImage(),
@@ -228,6 +204,30 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
 
     private void drawNodeImage(final IdObject attachment, final Image nodeImage, final Mat4 worldMatrix) {
         drawNodeImage(graphics, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ(), coordinateSystem, attachment, nodeImage, worldMatrix);
+    }
+
+    public static void drawNodeImage(final Graphics2D graphics, final byte xDimension, final byte yDimension,
+                                     final CoordinateSystem coordinateSystem, final IdObject attachment, final Image nodeImage,
+                                     final Mat4 worldMatrix) {
+        Vec3 vertexHeap = Vec3.getTransformed(attachment.getPivotPoint(), worldMatrix);
+        final int xCoord = (int) coordinateSystem.convertX(vertexHeap.getCoord(xDimension));
+        final int yCoord = (int) coordinateSystem.convertY(vertexHeap.getCoord(yDimension));
+        graphics.drawImage(nodeImage, xCoord - (nodeImage.getWidth(null) / 2), yCoord - (nodeImage.getHeight(null) / 2), nodeImage.getWidth(null), nodeImage.getHeight(null), null);
+    }
+
+    public static void drawCrosshair(final Graphics2D graphics, final CoordinateSystem coordinateSystem, int vertexSize, final Vec3 pivotPoint, final Mat4 worldMatrix, final boolean crosshairIsBox) {
+        Vec3 vertexHeap = Vec3.getTransformed(pivotPoint, worldMatrix);
+
+        final int xCoord = (int) coordinateSystem.convertX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
+        final int yCoord = (int) coordinateSystem.convertY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
+        if (crosshairIsBox) {
+            vertexSize *= 3;
+            graphics.fillRect(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2, vertexSize * 2);
+        } else {
+            graphics.drawOval(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2, vertexSize * 2);
+            graphics.drawLine(xCoord - (int) (vertexSize * 1.5f), yCoord, xCoord + (int) (vertexSize * 1.5f), yCoord);
+            graphics.drawLine(xCoord, yCoord - (int) (vertexSize * 1.5f), xCoord, yCoord + (int) (vertexSize * 1.5f));
+        }
     }
 
     @Override

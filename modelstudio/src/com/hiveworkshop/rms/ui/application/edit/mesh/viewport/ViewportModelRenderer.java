@@ -10,12 +10,13 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.ResettableIdObjectRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.VertexFilter;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ViewportModelRenderer implements ModelVisitor {
 	private Graphics2D graphics;
@@ -160,80 +161,6 @@ public class ViewportModelRenderer implements ModelVisitor {
 
 	}
 
-	private final class TriangleRendererImpl implements TriangleVisitor {
-		private final List<Point> previousVertices = new ArrayList<>();
-
-		public TriangleRendererImpl reset() {
-			previousVertices.clear();
-			return this;
-		}
-
-		@Override
-		public VertexVisitor vertex(final double x, final double y, final double z,
-									final double normalX, final double normalY, final double normalZ,
-									final List<Bone> bones) {
-			final double firstCoord;
-			final double secondCoord;
-			firstCoord = getDimension(x, y, z, xDimension, "Invalid x dimension");
-			secondCoord = getDimension(x, y, z, yDimension, "Invalid y dimension");
-			final Point point = new Point((int) coordinateSystem.convertX(firstCoord),
-					(int) coordinateSystem.convertY(secondCoord));
-
-			if (previousVertices.size() > 0) {
-				final Point previousPoint = previousVertices.get(previousVertices.size() - 1);
-				graphics.drawLine(previousPoint.x, previousPoint.y, point.x, point.y);
-			}
-			previousVertices.add(point);
-
-			if (programPreferences.showNormals()) {
-				final Color triangleColor = graphics.getColor();
-				final double firstNormalCoord;
-				final double secondNormalCoord;
-				firstNormalCoord = getDimension(normalX, normalY, normalZ, xDimension, "Invalid x dimension");
-				secondNormalCoord = getDimension(normalX, normalY, normalZ, yDimension, "Invalid y dimension");
-
-				graphics.setColor(programPreferences.getNormalsColor());
-				final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
-
-				final Point endPoint = new Point(
-						(int) coordinateSystem.convertX(firstCoord + ((firstNormalCoord * 12) / zoom)),
-						(int) coordinateSystem.convertY(secondCoord + ((secondNormalCoord * 12) / zoom)));
-				graphics.drawLine(point.x, point.y, endPoint.x, endPoint.y);
-				graphics.setColor(triangleColor);
-			}
-			return VertexVisitor.NO_ACTION;
-		}
-
-		@Override
-		public VertexVisitor hdVertex(final double x, final double y, final double z,
-									  final double normalX, final double normalY, final double normalZ,
-									  final Bone[] skinBones, final short[] skinBoneWeights) {
-			return vertex(x, y, z, normalX, normalY, normalZ, null);
-		}
-
-		@Override
-		public void triangleFinished() {
-			if (previousVertices.size() > 1) {
-				final Point previousPoint = previousVertices.get(previousVertices.size() - 1);
-				final Point point = previousVertices.get(0);
-				graphics.drawLine(previousPoint.x, previousPoint.y, point.x, point.y);
-			}
-		}
-
-	}
-
-	private double getDimension(double x, double y, double z, byte dimension, String throwMessage) {
-		return switch (dimension) {
-			case 0 -> x;
-			case 1 -> y;
-			case 2 -> z;
-			case -1 -> -x;
-			case -2 -> -y;
-			case -3 -> -z;
-			default -> throw new IllegalStateException(throwMessage);
-		};
-	}
-
 	/**
 	 * Copied directly from MDLDisplay and then made static.
 	 */
@@ -245,17 +172,13 @@ public class ViewportModelRenderer implements ModelVisitor {
 		double maxX = Double.MIN_VALUE;
 		double minY = Double.MAX_VALUE;
 		double maxY = Double.MIN_VALUE;
-		g.setColor(Color.GRAY);
+
 		for (final Geoset geo : model.getGeosets()) {
 			for (final Triangle t : geo.getTriangles()) {
-				boolean drawTriangle = false;
 				for (final GeosetVertex vertex : t.getVerts()) {
-					if (filter.isAccepted(vertex)) {
-						drawTriangle = true;
+					if (filter.isAccepted(vertex) && !triangles.contains(t)) {
+						triangles.add(t);
 					}
-				}
-				if (drawTriangle) {
-					triangles.add(t);
 				}
 				final double[] x = t.getCoords(a);
 				for (final double xval : x) {
@@ -274,30 +197,148 @@ public class ViewportModelRenderer implements ModelVisitor {
 		final double deltaX = maxX - minX;
 		final double deltaY = maxY - minY;
 		final double boxSize = Math.max(deltaX, deltaY);
-		minX -= (boxSize - deltaX) / 2;
-		minY -= (boxSize - deltaY) / 2;
-		final AffineTransform transform = ((Graphics2D) g).getTransform();
+		double boxOffsetX = minX - (boxSize - deltaX) / 2;
+		double boxOffsetY = minY - (boxSize - deltaY) / 2;
+
+//		final AffineTransform transform = ((Graphics2D) g).getTransform();
 		((Graphics2D) g).scale(bounds.getWidth() / boxSize, bounds.getHeight() / boxSize);
-		((Graphics2D) g).translate(-minX, -minY);
+		((Graphics2D) g).translate(-boxOffsetX, -boxOffsetY);
+
+
+		g.setColor(Color.GRAY);
 		for (final Geoset geo : model.getGeosets()) {
 			for (final Triangle t : geo.getTriangles()) {
 				drawTriangle(g, a, b, t);
 			}
 		}
+
 		g.setColor(Color.RED);
 		for (final Triangle t : triangles) {
 			drawTriangle(g, a, b, t);
 		}
+
 		g.setColor(Color.YELLOW);
 		if (extraHighlightPoint != null) {
-			final int x = (int) extraHighlightPoint.getCoord(a);
-			final int y = (int) -extraHighlightPoint.getCoord(b);
-			g.drawOval(x - 5, y - 5, 10, 10);
-			g.drawLine(x, y - 10, x, y + 10);
-			g.drawLine(x - 10, y, x + 10, y);
+			drawCrossHair(g, a, b, extraHighlightPoint);
 		}
-		((Graphics2D) g).setTransform(transform);
+
+//		final AffineTransform transform = ((Graphics2D) g).getTransform();
+//		((Graphics2D) g).setTransform(transform);
 	}
+
+	public static void drawFittedTriangles2(final EditableModel model, final Graphics g, final Rectangle bounds,
+	                                        final byte a, final byte b, final VertexFilter<? super GeosetVertex> filter,
+	                                        final Vec3 extraHighlightPoint) {
+		Vec2[] realBounds = getBoundBoxSize(model, a, b);
+		scaleAndTranslateGraphic((Graphics2D) g, bounds, realBounds);
+
+		drawGeosetFlat(model, g, a, b);
+
+		drawFilteredTriangles(model, g, a, b, filter);
+
+		drawHighlightedPoints(g, a, b, extraHighlightPoint);
+	}
+
+	public static void drawGeosetFlat(EditableModel model, Graphics g, byte a, byte b) {
+		g.setColor(Color.GRAY);
+		for (final Geoset geo : model.getGeosets()) {
+			for (final Triangle t : geo.getTriangles()) {
+				drawTriangle(g, a, b, t);
+			}
+		}
+	}
+
+	public static void drawFilteredTriangles(final EditableModel model, Graphics g,
+	                                         byte a, byte b,
+	                                         VertexFilter<? super GeosetVertex> filter) {
+		final List<Triangle> triangles = getTriangles(model, filter);
+		g.setColor(Color.RED);
+		for (final Triangle t : triangles) {
+			drawTriangle(g, a, b, t);
+		}
+	}
+
+	private static List<Triangle> getTriangles(EditableModel model, VertexFilter<? super GeosetVertex> filter) {
+		final List<Triangle> triangles = new ArrayList<>();
+		for (final Geoset geo : model.getGeosets()) {
+			for (final Triangle t : geo.getTriangles()) {
+				for (final GeosetVertex vertex : t.getVerts()) {
+					if (filter.isAccepted(vertex) && !triangles.contains(t)) {
+						triangles.add(t);
+					}
+				}
+			}
+		}
+		System.out.println(triangles.size());
+		return triangles;
+	}
+
+	public static void drawFilteredTriangles2(final EditableModel model, Graphics g,
+	                                          byte a, byte b, Map<Geoset, Map<Bone, List<GeosetVertex>>> boneMap, Bone bone) {
+		final List<Triangle> triangles = getTriangles(model, boneMap, bone);
+
+		g.setColor(Color.RED);
+		for (final Triangle t : triangles) {
+			drawTriangle(g, a, b, t);
+		}
+	}
+
+	private static List<Triangle> getTriangles(EditableModel model, Map<Geoset, Map<Bone, List<GeosetVertex>>> boneMap, Bone bone) {
+		final List<Triangle> triangles = new ArrayList<>();
+		for (final Geoset geo : model.getGeosets()) {
+			if (boneMap.containsKey(geo) && boneMap.get(geo).containsKey(bone)) {
+				for (final GeosetVertex vertex : boneMap.get(geo).get(bone)) {
+					for (Triangle t : vertex.getTriangles()) {
+						if (!triangles.contains(t) && vertex.getBones().contains(bone)) {
+							triangles.add(t);
+						}
+					}
+				}
+			}
+		}
+		return triangles;
+	}
+
+	public static void drawHighlightedPoints(Graphics g, byte a, byte b, Vec3 extraHighlightPoint) {
+		g.setColor(Color.YELLOW);
+		if (extraHighlightPoint != null) {
+			drawCrossHair(g, a, b, extraHighlightPoint);
+		}
+	}
+
+	public static void scaleAndTranslateGraphic(Graphics2D g, Rectangle bounds, Vec2[] realBounds) {
+		Vec2 delta = Vec2.getDif(realBounds[1], realBounds[0]);
+
+		double boxSize = Math.max(delta.x, delta.y);
+		Vec2 boxOffset = Vec2.getSum(realBounds[0], realBounds[1]).translate(-boxSize, -boxSize).scale(.5f);
+
+		g.scale(bounds.getWidth() / boxSize, bounds.getHeight() / boxSize);
+		g.translate(-boxOffset.x, boxSize - boxOffset.y);
+	}
+
+	public static Vec2[] getBoundBoxSize(final EditableModel model, final byte a, final byte b) {
+		Vec2[] realBoxBounds = {new Vec2(Float.MAX_VALUE, Float.MAX_VALUE), new Vec2(Float.MIN_VALUE, Float.MIN_VALUE)};
+
+		for (final Geoset geo : model.getGeosets()) {
+			for (final Triangle t : geo.getTriangles()) {
+				Vec2[] triVerts = t.getProjectedVerts(a, b);
+				for (Vec2 v : triVerts) {
+					realBoxBounds[0].minimize(v);
+					realBoxBounds[1].maximize(v);
+				}
+			}
+		}
+		return realBoxBounds;
+	}
+
+	public static void drawCrossHair(Graphics g, byte a, byte b, Vec3 extraHighlightPoint) {
+		final int x = (int) extraHighlightPoint.getCoord(a);
+		final int y = (int) -extraHighlightPoint.getCoord(b);
+		g.drawOval(x - 5, y - 5, 10, 10);
+		g.drawLine(x, y - 10, x, y + 10);
+		g.drawLine(x - 10, y, x + 10, y);
+	}
+
 
 	/**
 	 * Copied directly from MDLDisplay and then made static.
@@ -316,4 +357,57 @@ public class ViewportModelRenderer implements ModelVisitor {
 		g.drawPolyline(xInt, yInt, 4);
 	}
 
+	private final class TriangleRendererImpl implements TriangleVisitor {
+		private final List<Point> previousVertices = new ArrayList<>();
+
+		public TriangleRendererImpl reset() {
+			previousVertices.clear();
+			return this;
+		}
+
+		@Override
+		public VertexVisitor vertex(Vec3 vert, Vec3 normal, final List<Bone> bones) {
+			final double firstCoord = vert.getCoord(xDimension);
+			final double secondCoord = vert.getCoord(yDimension);
+			final Point point = new Point((int) coordinateSystem.convertX(firstCoord), (int) coordinateSystem.convertY(secondCoord));
+
+			if (previousVertices.size() > 0) {
+				final Point previousPoint = previousVertices.get(previousVertices.size() - 1);
+				graphics.drawLine(previousPoint.x, previousPoint.y, point.x, point.y);
+			}
+			previousVertices.add(point);
+
+			if (programPreferences.showNormals()) {
+				final Color triangleColor = graphics.getColor();
+				final double firstNormalCoord = normal.getCoord(xDimension);
+				final double secondNormalCoord = normal.getCoord(yDimension);
+
+				graphics.setColor(programPreferences.getNormalsColor());
+				final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+
+				final Point endPoint = new Point(
+						(int) coordinateSystem.convertX(firstCoord + ((firstNormalCoord * 12) / zoom)),
+						(int) coordinateSystem.convertY(secondCoord + ((secondNormalCoord * 12) / zoom)));
+				graphics.drawLine(point.x, point.y, endPoint.x, endPoint.y);
+				graphics.setColor(triangleColor);
+			}
+			return VertexVisitor.NO_ACTION;
+		}
+
+
+		@Override
+		public VertexVisitor hdVertex(Vec3 vert, Vec3 normal, final Bone[] skinBones, final short[] skinBoneWeights) {
+			return vertex(vert, normal, null);
+		}
+
+		@Override
+		public void triangleFinished() {
+			if (previousVertices.size() > 1) {
+				final Point previousPoint = previousVertices.get(previousVertices.size() - 1);
+				final Point point = previousVertices.get(0);
+				graphics.drawLine(previousPoint.x, previousPoint.y, point.x, point.y);
+			}
+		}
+
+	}
 }

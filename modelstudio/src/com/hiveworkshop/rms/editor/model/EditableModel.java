@@ -1300,19 +1300,9 @@ public class EditableModel implements Named {
 				// TODO redesign for nullable normals
 				Vec3 normal = vertex.getNormal() == null ? new Vec3(0, 0, 0) : vertex.getNormal();
 				if (isHD) {
-					if (vertex.getNormal() != null) {
-						vertexRenderer = triangleRenderer.hdVertex(vertex.x, vertex.y, vertex.z, vertex.getNormal().x, vertex.getNormal().y, vertex.getNormal().z, vertex.getSkinBones(), vertex.getSkinBoneWeights());
-					} else {
-						vertexRenderer = triangleRenderer.hdVertex(vertex.x, vertex.y, vertex.z, 0, 0, 0, vertex.getSkinBones(), vertex.getSkinBoneWeights());
-					}
-//					vertexRenderer = triangleRenderer.hdVertex(vertex, normal, vertex.getSkinBones(), vertex.getSkinBoneWeights());
+					vertexRenderer = triangleRenderer.hdVertex(vertex, normal, vertex.getSkinBones(), vertex.getSkinBoneWeights());
 				} else {
-					if (vertex.getNormal() != null) {
-						vertexRenderer = triangleRenderer.vertex(vertex.x, vertex.y, vertex.z, vertex.getNormal().x, vertex.getNormal().y, vertex.getNormal().z, vertex.getBoneAttachments());
-					} else {
-						vertexRenderer = triangleRenderer.vertex(vertex.x, vertex.y, vertex.z, 0, 0, 0, vertex.getBoneAttachments());
-					}
-//					vertexRenderer = triangleRenderer.vertex(vertex, normal, vertex.getBoneAttachments());
+					vertexRenderer = triangleRenderer.vertex(vertex, normal, vertex.getBoneAttachments());
 				}
 				for (final Vec2 tvert : vertex.getTverts()) {
 					vertexRenderer.textureCoords(tvert.x, tvert.y);
