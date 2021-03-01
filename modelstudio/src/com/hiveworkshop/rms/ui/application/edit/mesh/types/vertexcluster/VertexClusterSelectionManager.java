@@ -78,30 +78,23 @@ public final class VertexClusterSelectionManager extends AbstractSelectionManage
 			}
 			for (final Triangle triangle : geoset.getTriangles()) {
 				final GeosetVertex[] triangleVertices = triangle.getVerts();
-				if (containsClusters(selection, geoset, triangleVertices)) {
+				if (containsClusters(selection, geoset, triangleVertices, 0, 1, 2)) {
 					renderer.renderFace(outlineColor, fillColor, triangle.get(0), triangle.get(1), triangle.get(2));
-				} else if (containsClusters(selection, geoset, triangleVertices, 0, 1)) {
+				} else if (containsClusters(selection, geoset, triangleVertices, 0, 1, 0)) {
 					renderer.renderFace(outlineColor, fillColor, triangle.get(0), triangle.get(1), triangle.get(0));
-				} else if (containsClusters(selection, geoset, triangleVertices, 0, 2)) {
+				} else if (containsClusters(selection, geoset, triangleVertices, 0, 2, 0)) {
 					renderer.renderFace(outlineColor, fillColor, triangle.get(0), triangle.get(2), triangle.get(0));
-				} else if (containsClusters(selection, geoset, triangleVertices, 1, 2)) {
+				} else if (containsClusters(selection, geoset, triangleVertices, 1, 2, 1)) {
 					renderer.renderFace(outlineColor, fillColor, triangle.get(1), triangle.get(2), triangle.get(1));
 				}
 			}
 		}
 	}
 
-	private boolean containsClusters(Set<VertexClusterModelEditor.VertexGroupBundle> selection, Geoset geoset, GeosetVertex[] triangleVertices) {
-		return containsCluster(selection, 0, geoset, triangleVertices)
-				&& containsCluster(selection, 1, geoset, triangleVertices)
-				&& containsCluster(selection, 2, geoset, triangleVertices);
-	}
-
-	private boolean containsClusters(Set<VertexClusterModelEditor.VertexGroupBundle> selection,
-	                                 Geoset geoset, GeosetVertex[] triangleVertices,
-	                                 int cluster1, int cluster2) {
+	private boolean containsClusters(Set<VertexClusterModelEditor.VertexGroupBundle> selection, Geoset geoset, GeosetVertex[] triangleVertices, int cluster1, int cluster2, int cluster3) {
 		return containsCluster(selection, cluster1, geoset, triangleVertices)
-				&& containsCluster(selection, cluster2, geoset, triangleVertices);
+				&& containsCluster(selection, cluster2, geoset, triangleVertices)
+				&& containsCluster(selection, cluster3, geoset, triangleVertices);
 	}
 
 	private boolean containsCluster(Set<VertexClusterModelEditor.VertexGroupBundle> selection, int cluster, Geoset geoset, GeosetVertex[] triangleVertices) {

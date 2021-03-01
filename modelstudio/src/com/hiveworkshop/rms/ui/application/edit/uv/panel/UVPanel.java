@@ -670,7 +670,8 @@ public class UVPanel extends JPanel implements ActionListener, CoordDisplayListe
 			if (jComboBox.getSelectedItem() != null) {
 				Bitmap bitmap = bitmaps.get(jComboBox.getSelectedIndex());
 				if (bitmap != null) {
-					image = BLPHandler.getImage(bitmap, null);
+					image = BLPHandler.getImage(bitmap, dispMDL.getModel().getWrappedDataSource());
+//					image = BLPHandler.getImage(bitmap, null);
 				}
 			}
 			setTextureAsBackground(image);
@@ -835,8 +836,7 @@ public class UVPanel extends JPanel implements ActionListener, CoordDisplayListe
 		FileDialog fileDialog = new FileDialog(this);
 		Bitmap bitmap = fileDialog.importImage();
 		if (bitmap != null) {
-//				BufferedImage image = BLPHandler.get().loadTextureDirectly2(bitmap);
-			setTextureAsBackground(BLPHandler.get().loadTextureDirectly2(bitmap));
+			setTextureAsBackground(BLPHandler.getImage(bitmap, dispMDL.getModel().getWrappedDataSource()));
 		}
 	}
 
