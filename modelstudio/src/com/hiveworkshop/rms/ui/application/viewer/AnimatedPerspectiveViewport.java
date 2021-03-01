@@ -491,6 +491,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements An
 			texLoaded = true;
 		}
 		try {
+			normalListMap.clear();
+			vertListMap.clear();
 			final int formatVersion = modelView.getModel().getFormatVersion();
 			if (live) {
 				final long currentTimeMillis = System.currentTimeMillis();
@@ -564,6 +566,10 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements An
 
 			addLamp(0.2f, -100.0f, 100.5f, 0.5f, GL_LIGHT1);
 
+			for (final Geoset geo : modelView.getModel().getGeosets()) {
+				processMesh(geo, isHD(geo, formatVersion));
+			}
+
 			// glColor3f(1f,1f,0f);
 			// glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE ) ;
 			// glEnable(GL_COLOR_MATERIAL);
@@ -624,7 +630,11 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements An
 		glBegin(GL11.GL_LINES);
 		glColor3f(1f, 1f, 3f);
 		// if( wireframe.isSelected() )
-		renderNormals(formatVersion);
+		for (final Geoset geo : modelView.getModel().getGeosets()) {// .getMDL().getGeosets()
+			if (correctLoD(geo, formatVersion)) continue;
+//			renderNormals(formatVersion, geo);
+			renderMesh(geo, null, true);
+		}
 		glEnd();
 	}
 
@@ -695,7 +705,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements An
 				bindLayer(layer, tex, texture, formatVersion, material);
 				glBegin(GL11.GL_TRIANGLES);
 
-				renderMesh(geo, formatVersion, layer);
+//				renderMesh(geo, formatVersion, layer);
+				renderMesh(geo, layer, false);
 				glEnd();
 			}
 		}
@@ -731,52 +742,32 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements An
 		normalListMap.put(geo, transformedNormals);
 	}
 
-	private void renderMesh(Geoset geo, int formatVersion, Layer layer) {
-		for (final Triangle tri : geo.getTriangles()) {
-			for (final GeosetVertex vertex : tri.getVerts()) {
-				Mat4 skinBonesMatrixSumHeap;
-				if (isHD(geo, formatVersion)) {
-					skinBonesMatrixSumHeap = processHdBones(vertex);
-				} else {
-					skinBonesMatrixSumHeap = processSdBones(vertex);
-				}
-				Vec4 vertexSumHeap = Vec4.getTransformed(new Vec4(vertex, 1), skinBonesMatrixSumHeap);
-
-				if (vertex.getNormal() != null) {
-					Vec4 normalSumHeap = Vec4.getTransformed(new Vec4(vertex.getNormal(), 0), skinBonesMatrixSumHeap);
-
-					normalizeHeap(normalSumHeap);
-
-					GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-				}
-				paintVert(layer, vertex, vertexSumHeap);
-			}
-		}
-	}
-
-	private void renderNormals(int formatVersion) {
-		for (final Geoset geo : modelView.getModel().getGeosets()) {// .getMDL().getGeosets()
-			if ((ModelUtils.isLevelOfDetailSupported(formatVersion)) && (geo.getLevelOfDetailName() != null) && (geo.getLevelOfDetailName().length() > 0)) {
-				if (geo.getLevelOfDetail() != levelOfDetail) {
-					continue;
-				}
-			}
+	private void renderMesh(Geoset geo, Layer layer, boolean onlyNormals) {
+		int n = 0;
+		List<Vec4> transformedVertices = vertListMap.get(geo);
+		List<Vec4> transformedNormals = normalListMap.get(geo);
+		if (transformedVertices != null) {
 			for (final Triangle tri : geo.getTriangles()) {
 				for (final GeosetVertex vertex : tri.getVerts()) {
-					Mat4 skinBonesMatrixSumHeap;
-					if (isHD(geo, formatVersion)) {
-						skinBonesMatrixSumHeap = processHdBones(vertex);
-					} else {
-						skinBonesMatrixSumHeap = processSdBones(vertex);
-					}
-					Vec4 vertexSumHeap = Vec4.getTransformed(new Vec4(vertex, 1), skinBonesMatrixSumHeap);
+					Vec4 vertexSumHeap = transformedVertices.get(n);
 
 					if (vertex.getNormal() != null) {
-						Vec4 normalSumHeap = Vec4.getTransformed(new Vec4(vertex.getNormal(), 0), skinBonesMatrixSumHeap);
-						normalizeHeap(normalSumHeap);
+						Vec4 normalSumHeap = transformedNormals.get(n);
 
-						paintNormal(vertexSumHeap, normalSumHeap);
+						if (!normalSumHeap.isValid()) {
+							continue;
+						}
+
+						GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
+
+						if (onlyNormals) {
+							paintNormal(vertexSumHeap, normalSumHeap);
+						}
 					}
+					if (!onlyNormals) {
+						paintVert(layer, vertex, vertexSumHeap);
+					}
+					n++;
 				}
 			}
 		}
@@ -820,6 +811,13 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements An
 			return bonesMatrixSumHeap.uniformScale(1f / boneCount);
 		}
 		return bonesMatrixSumHeap.setIdentity();
+	}
+
+	private boolean correctLoD(Geoset geo, int formatVersion) {
+		if ((ModelUtils.isLevelOfDetailSupported(formatVersion)) && (geo.getLevelOfDetailName() != null) && (geo.getLevelOfDetailName().length() > 0)) {
+			return geo.getLevelOfDetail() != levelOfDetail;
+		}
+		return false;
 	}
 
 	public void bindLayer(final Layer layer, final Bitmap tex, final Integer texture, final int formatVersion,

@@ -357,6 +357,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas implements MouseListe
 	public void paintGL() {
 		reloadIfNeeded();
 		try {
+			normalListMap.clear();
+			vertListMap.clear();
 			final int formatVersion = modelView.getModel().getFormatVersion();
 			initContext(0, 0, 0);
 
@@ -407,6 +409,10 @@ public class PerspectiveViewport extends BetterAWTGLCanvas implements MouseListe
 			addLamp(0.8f, 40.0f, 100.0f, 80.0f, GL_LIGHT0);
 
 			addLamp(0.2f, -100.0f, 100.5f, 0.5f, GL_LIGHT1);
+
+			for (final Geoset geo : modelView.getModel().getGeosets()) {
+				processMesh(geo, isHD(geo, formatVersion));
+			}
 
 			// glColor3f(1f,1f,0f);
 			// glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE ) ;
@@ -540,30 +546,60 @@ public class PerspectiveViewport extends BetterAWTGLCanvas implements MouseListe
 		glBegin(GL11.GL_LINES);
 		glColor3f(1f, 1f, 3f);
 
-		renderNormals(formatVersion);
+		for (final Geoset geo : modelView.getModel().getGeosets()) {
+//			renderNormals(formatVersion, geo);
+			renderMesh(geo, null, true);
+		}
 		glEnd();
 	}
 
-	private void renderNormals(int formatVersion) {
-		// if( wireframe.isSelected() )
-		for (final Geoset geo : modelView.getModel().getGeosets()) {
-
+	private void renderMesh(Geoset geo, Layer layer, boolean onlyNormals) {
+		int n = 0;
+		List<Vec4> transformedVertices = vertListMap.get(geo);
+		List<Vec4> transformedNormals = normalListMap.get(geo);
+		if (transformedVertices != null) {
 			for (final Triangle tri : geo.getTriangles()) {
 				for (final GeosetVertex vertex : tri.getVerts()) {
-					Mat4 skinBonesMatrixSumHeap;
-					if (isHD(geo, formatVersion)) {
-						skinBonesMatrixSumHeap = processHdBones(vertex);
-					} else {
-						skinBonesMatrixSumHeap = processSdBones(vertex);
-					}
-					Vec4 vertexSumHeap = Vec4.getTransformed(new Vec4(vertex, 1), skinBonesMatrixSumHeap);
+					Vec4 vertexSumHeap = transformedVertices.get(n);
 
 					if (vertex.getNormal() != null) {
-						Vec4 normalSumHeap = Vec4.getTransformed(new Vec4(vertex.getNormal(), 0), skinBonesMatrixSumHeap);
-						normalizeHeap(normalSumHeap);
+						Vec4 normalSumHeap = transformedNormals.get(n);
 
-						paintNormal(vertexSumHeap, normalSumHeap);
+						if (!normalSumHeap.isValid()) {
+							continue;
+						}
+
+						GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
+
+						if (onlyNormals) {
+							paintNormal(vertexSumHeap, normalSumHeap);
+						}
 					}
+					if (!onlyNormals) {
+						paintVert(layer, vertex, vertexSumHeap);
+					}
+					n++;
+				}
+			}
+		}
+	}
+
+	private void renderNormals(int formatVersion, Geoset geo) {
+		for (final Triangle tri : geo.getTriangles()) {
+			for (final GeosetVertex vertex : tri.getVerts()) {
+				Mat4 skinBonesMatrixSumHeap;
+				if (isHD(geo, formatVersion)) {
+					skinBonesMatrixSumHeap = processHdBones(vertex);
+				} else {
+					skinBonesMatrixSumHeap = processSdBones(vertex);
+				}
+				Vec4 vertexSumHeap = Vec4.getTransformed(new Vec4(vertex, 1), skinBonesMatrixSumHeap);
+
+				if (vertex.getNormal() != null) {
+					Vec4 normalSumHeap = Vec4.getTransformed(new Vec4(vertex.getNormal(), 0), skinBonesMatrixSumHeap);
+					normalizeHeap(normalSumHeap);
+
+					paintNormal(vertexSumHeap, normalSumHeap);
 				}
 			}
 		}
@@ -638,7 +674,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas implements MouseListe
 				}
 				glBegin(GL11.GL_TRIANGLES);
 
-				renderMesh(geo, formatVersion, layer);
+//				renderMesh(geo, formatVersion, layer);
+				renderMesh(geo, layer, false);
 				glEnd();
 			}
 		}
