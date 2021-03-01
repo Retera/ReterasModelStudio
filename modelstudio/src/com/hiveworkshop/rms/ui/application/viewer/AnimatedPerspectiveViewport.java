@@ -32,8 +32,10 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
@@ -60,6 +62,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements An
 
 	JCheckBox wireframe;
 	HashMap<Bitmap, Integer> textureMap = new HashMap<>();
+	Map<Geoset, List<Vec4>> normalListMap;
+	Map<Geoset, List<Vec4>> vertListMap;
 
 	Class<? extends Throwable> lastThrownErrorClass;
 	private final ProgramPreferences programPreferences;
@@ -88,6 +92,10 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements An
 	public AnimatedPerspectiveViewport(final ModelView modelView, final ProgramPreferences programPreferences, final boolean loadDefaultCamera) throws LWJGLException {
 		super();
 		this.programPreferences = programPreferences;
+
+		normalListMap = new HashMap<>();
+		vertListMap = new HashMap<>();
+
 		// Dimension 1 and Dimension 2, these specify which dimensions to display.
 		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z dimensions
 		setBackground(programPreferences == null ? new Color(80, 80, 80) : programPreferences.getPerspectiveBackgroundColor());
@@ -631,91 +639,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements An
 		}
 	}
 
-	private void renderNormals(int formatVersion) {
-		for (final Geoset geo : modelView.getModel().getGeosets()) {// .getMDL().getGeosets()
-			if ((ModelUtils.isLevelOfDetailSupported(formatVersion)) && (geo.getLevelOfDetailName() != null)
-					&& (geo.getLevelOfDetailName().length() > 0)) {
-				if (geo.getLevelOfDetail() != levelOfDetail) {
-					continue;
-				}
-			}
-			if ((ModelUtils.isTangentAndSkinSupported(formatVersion)) && (geo.getVertices().size() > 0) && (geo.getVertex(0).getSkinBones() != null)) {
-				for (final Triangle tri : geo.getTriangles()) {
-					for (final GeosetVertex v : tri.getVerts()) {
-						Vec4 vertexHeap = new Vec4(v, 1);
-						Mat4 skinBonesMatrixSumHeap = processHdBones(v);
-						Vec4 vertexSumHeap = Vec4.getTransformed(vertexHeap, skinBonesMatrixSumHeap);
-						if (v.getNormal() != null) {
-							Vec4 normalHeap = new Vec4(v.getNormal(), 0);
-							Vec4 normalSumHeap = Vec4.getTransformed(normalHeap, skinBonesMatrixSumHeap);
-
-							if (normalSumHeap.length() > 0) {
-								normalSumHeap.normalize();
-							} else {
-								normalSumHeap.set(0, 1, 0, 0);
-							}
-							if (!normalSumHeap.isValid()) {
-								continue;
-							}
-
-							GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-							GL11.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
-
-							Vec3 nSA = normalSumHeap.getVec3().scale((float) (6 / m_zoom));
-							Vec3 vSA = vertexSumHeap.getVec3().add(nSA);
-
-							GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-							GL11.glVertex3f(vSA.y, vSA.z, vSA.x);
-						}
-					}
-				}
-			} else {
-				for (final Triangle tri : geo.getTriangles()) {
-					for (final GeosetVertex v : tri.getVerts()) {
-
-						Vec4 vertexHeap = new Vec4(v, 1);
-						final int boneCount = v.getBones().size();
-						Vec4 vertexSumHeap = new Vec4(0, 0, 0, 0);
-						if (boneCount > 0) {
-							for (final Bone bone : v.getBones()) {
-								vertexSumHeap.add(Vec4.getTransformed(vertexHeap, renderModel.getRenderNode(bone).getWorldMatrix()));
-							}
-							vertexSumHeap.scale(1f / boneCount);
-						} else {
-							vertexSumHeap.set(vertexHeap);
-						}
-						if (v.getNormal() != null) {
-							Vec4 normalHeap = new Vec4(v.getNormal(), 0);
-							Vec4 normalSumHeap = new Vec4(0, 0, 0, 0);
-							if (boneCount > 0) {
-								for (final Bone bone : v.getBones()) {
-									normalSumHeap.add(Vec4.getTransformed(normalHeap, renderModel.getRenderNode(bone).getWorldMatrix()));
-								}
-							} else {
-								normalSumHeap.set(normalHeap);
-							}
-
-							if (normalSumHeap.length() > 0) {
-								normalSumHeap.normalize();
-							} else {
-								normalSumHeap.set(0, 1, 0, 0);
-							}
-
-							GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-							GL11.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
-
-							Vec3 nSA = normalSumHeap.getVec3().scale((float) (6 / m_zoom));
-							Vec3 vSA = vertexSumHeap.getVec3().add(nSA);
-
-							GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-							GL11.glVertex3f(vSA.y, vSA.z, vSA.x);
-						}
-					}
-				}
-			}
-		}
-	}
-
 	public void render(final Geoset geo, final boolean renderOpaque, final int formatVersion) {
 		if ((ModelUtils.isLevelOfDetailSupported(formatVersion)) && (geo.getLevelOfDetailName() != null) && (geo.getLevelOfDetailName().length() > 0)) {
 			if (geo.getLevelOfDetail() != levelOfDetail) {
@@ -765,91 +688,126 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements An
 
 			final FilterMode filterMode = layer.getFilterMode();
 			final boolean opaqueLayer = (filterMode == FilterMode.NONE) || (filterMode == FilterMode.TRANSPARENT);
-//			if (renderOpaque && (filterMode == FilterMode.ADDITIVE)) {
-//				GL11.glColorMask(true, true, true, true);
-//			} else {
-//				GL11.glColorMask(false, false, false, false);
-//			}
+
 			if ((renderOpaque && opaqueLayer) || (!renderOpaque && !opaqueLayer)) {
 				final Bitmap tex = layer.getRenderTexture(this, modelView.getModel());
 				final Integer texture = textureMap.get(tex);
 				bindLayer(layer, tex, texture, formatVersion, material);
 				glBegin(GL11.GL_TRIANGLES);
-				if ((ModelUtils.isTangentAndSkinSupported(formatVersion)) && (geo.getVertices().size() > 0)
-						&& (geo.getVertex(0).getSkinBones() != null)) {
-					for (final Triangle tri : geo.getTriangles()) {
-						for (final GeosetVertex v : tri.getVerts()) {
-							Vec4 vertexHeap = new Vec4(v, 1);
-							Mat4 skinBonesMatrixSumHeap = processHdBones(v);
-							Vec4 vertexSumHeap = Vec4.getTransformed(vertexHeap, skinBonesMatrixSumHeap);
-							if (v.getNormal() != null) {
-								Vec4 normalHeap = new Vec4(v.getNormal(), 0);
-								Vec4 normalSumHeap = Vec4.getTransformed(normalHeap, skinBonesMatrixSumHeap);
 
-								if (normalSumHeap.length() > 0) {
-									normalSumHeap.normalize();
-								} else {
-									normalSumHeap.set(0, 1, 0, 0);
-								}
-
-								GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-							}
-							int coordId = layer.getCoordId();
-							if (coordId >= v.getTverts().size()) {
-								coordId = v.getTverts().size() - 1;
-							}
-							GL11.glTexCoord2f(v.getTverts().get(coordId).x, v.getTverts().get(coordId).y);
-							GL11.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
-						}
-					}
-				} else {
-					for (final Triangle tri : geo.getTriangles()) {
-						for (final GeosetVertex v : tri.getVerts()) {
-
-							Vec4 vertexHeap = new Vec4(v, 1);
-							final int boneCount = v.getBones().size();
-							Vec4 vertexSumHeap = new Vec4(0, 0, 0, 0);
-							if (boneCount > 0) {
-								for (final Bone bone : v.getBones()) {
-									vertexSumHeap.add(Vec4.getTransformed(vertexHeap, renderModel.getRenderNode(bone).getWorldMatrix()));
-								}
-								vertexSumHeap.scale(1f / boneCount);
-							} else {
-								vertexSumHeap.set(vertexHeap);
-							}
-							if (v.getNormal() != null) {
-								Vec4 normalHeap = new Vec4(v.getNormal(), 0);
-								Vec4 normalSumHeap = new Vec4(0, 0, 0, 0);
-								if (boneCount > 0) {
-									for (final Bone bone : v.getBones()) {
-										normalSumHeap.add(Vec4.getTransformed(normalHeap, renderModel.getRenderNode(bone).getWorldMatrix()));
-									}
-								} else {
-									normalSumHeap.set(normalHeap);
-								}
-
-								if (normalSumHeap.length() > 0) {
-									normalSumHeap.normalize();
-								} else {
-									normalSumHeap.set(0, 1, 0, 0);
-								}
-
-								GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-							}
-							int coordId = layer.getCoordId();
-							if (coordId >= v.getTverts().size()) {
-								coordId = v.getTverts().size() - 1;
-							}
-							GL11.glTexCoord2f(v.getTverts().get(coordId).x,
-									v.getTverts().get(coordId).y);
-							GL11.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
-						}
-					}
-				}
+				renderMesh(geo, formatVersion, layer);
 				glEnd();
 			}
 		}
+	}
 
+	public boolean isHD(Geoset geo, int formatVersion) {
+		return (ModelUtils.isTangentAndSkinSupported(formatVersion)) && (geo.getVertices().size() > 0) && (geo.getVertex(0).getSkinBones() != null);
+	}
+
+	private void processMesh(Geoset geo, boolean isHd) {
+		List<Vec4> transformedVertices = new ArrayList<>();
+		List<Vec4> transformedNormals = new ArrayList<>();
+		for (final Triangle tri : geo.getTriangles()) {
+			for (final GeosetVertex vertex : tri.getVerts()) {
+				Mat4 skinBonesMatrixSumHeap;
+				if (isHd) {
+					skinBonesMatrixSumHeap = processHdBones(vertex);
+				} else {
+					skinBonesMatrixSumHeap = processSdBones(vertex);
+				}
+				Vec4 vertexSumHeap = Vec4.getTransformed(new Vec4(vertex, 1), skinBonesMatrixSumHeap);
+				transformedVertices.add(vertexSumHeap);
+				if (vertex.getNormal() != null) {
+					Vec4 normalSumHeap = Vec4.getTransformed(new Vec4(vertex.getNormal(), 0), skinBonesMatrixSumHeap);
+					normalizeHeap(normalSumHeap);
+					transformedNormals.add(normalSumHeap);
+				} else {
+					transformedNormals.add(null);
+				}
+			}
+		}
+		vertListMap.put(geo, transformedVertices);
+		normalListMap.put(geo, transformedNormals);
+	}
+
+	private void renderMesh(Geoset geo, int formatVersion, Layer layer) {
+		for (final Triangle tri : geo.getTriangles()) {
+			for (final GeosetVertex vertex : tri.getVerts()) {
+				Mat4 skinBonesMatrixSumHeap;
+				if (isHD(geo, formatVersion)) {
+					skinBonesMatrixSumHeap = processHdBones(vertex);
+				} else {
+					skinBonesMatrixSumHeap = processSdBones(vertex);
+				}
+				Vec4 vertexSumHeap = Vec4.getTransformed(new Vec4(vertex, 1), skinBonesMatrixSumHeap);
+
+				if (vertex.getNormal() != null) {
+					Vec4 normalSumHeap = Vec4.getTransformed(new Vec4(vertex.getNormal(), 0), skinBonesMatrixSumHeap);
+
+					normalizeHeap(normalSumHeap);
+
+					GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
+				}
+				paintVert(layer, vertex, vertexSumHeap);
+			}
+		}
+	}
+
+	private void renderNormals(int formatVersion) {
+		for (final Geoset geo : modelView.getModel().getGeosets()) {// .getMDL().getGeosets()
+			if ((ModelUtils.isLevelOfDetailSupported(formatVersion)) && (geo.getLevelOfDetailName() != null) && (geo.getLevelOfDetailName().length() > 0)) {
+				if (geo.getLevelOfDetail() != levelOfDetail) {
+					continue;
+				}
+			}
+			for (final Triangle tri : geo.getTriangles()) {
+				for (final GeosetVertex vertex : tri.getVerts()) {
+					Mat4 skinBonesMatrixSumHeap;
+					if (isHD(geo, formatVersion)) {
+						skinBonesMatrixSumHeap = processHdBones(vertex);
+					} else {
+						skinBonesMatrixSumHeap = processSdBones(vertex);
+					}
+					Vec4 vertexSumHeap = Vec4.getTransformed(new Vec4(vertex, 1), skinBonesMatrixSumHeap);
+
+					if (vertex.getNormal() != null) {
+						Vec4 normalSumHeap = Vec4.getTransformed(new Vec4(vertex.getNormal(), 0), skinBonesMatrixSumHeap);
+						normalizeHeap(normalSumHeap);
+
+						paintNormal(vertexSumHeap, normalSumHeap);
+					}
+				}
+			}
+		}
+	}
+
+	private void normalizeHeap(Vec4 heap) {
+		if (heap.length() > 0) {
+			heap.normalize();
+		} else {
+			heap.set(0, 1, 0, 0);
+		}
+	}
+
+	private void paintNormal(Vec4 vertexSumHeap, Vec4 normalSumHeap) {
+		GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
+		GL11.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
+
+		Vec3 nSA = normalSumHeap.getVec3().scale((float) (6 / m_zoom));
+		Vec3 vSA = vertexSumHeap.getVec3().add(nSA);
+
+		GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
+		GL11.glVertex3f(vSA.y, vSA.z, vSA.x);
+	}
+
+	public void paintVert(Layer layer, GeosetVertex v, Vec4 vertexSumHeap) {
+		int coordId = layer.getCoordId();
+		if (coordId >= v.getTverts().size()) {
+			coordId = v.getTverts().size() - 1;
+		}
+		GL11.glTexCoord2f(v.getTverts().get(coordId).x, v.getTverts().get(coordId).y);
+		GL11.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
 	}
 
 	private Mat4 processSdBones(GeosetVertex vertex) {
