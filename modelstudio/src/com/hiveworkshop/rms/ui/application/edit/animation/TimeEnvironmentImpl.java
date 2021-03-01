@@ -1,47 +1,58 @@
 package com.hiveworkshop.rms.ui.application.edit.animation;
 
+import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 
 public class TimeEnvironmentImpl implements AnimatedRenderEnvironment, TimeBoundProvider {
+	private final ControllableTimeBoundProvider ctrlTimeBProv = new ControllableTimeBoundProvider(0, 1000);
+	int FRAMES_PER_UPDATE = 1000 / 60;
 	private int currentTime;
 	private int globalSequenceLength = -1;
 	private final TimeBoundChangeListener.TimeBoundChangeNotifier notifier = new TimeBoundChangeListener.TimeBoundChangeNotifier();
-	private final ControllableTimeBoundProvider controllableTimeBoundProvider = new ControllableTimeBoundProvider(0,
-			1000);
+	private int start;
 	private boolean staticViewMode;
+	private int end;
+
+	public TimeEnvironmentImpl(int start, int end) {
+		this.start = start;
+		this.end = end;
+	}
 
 	public void setCurrentTime(final int currentTime) {
 		this.currentTime = currentTime;
 	}
 
+	public void setBounds(Animation animation) {
+		setBounds(animation.getStart(), animation.getEnd());
+	}
+
+	public void setBounds(final int startTime, final int endTime) {
+		ctrlTimeBProv.setStart(startTime);
+		ctrlTimeBProv.setEnd(endTime);
+		globalSequenceLength = -1;
+		if (globalSequenceLength == -1) {
+			currentTime = 0;
+			notifier.timeBoundsChanged(ctrlTimeBProv.getStart(),
+					ctrlTimeBProv.getEnd());
+		}
+	}
+
+	@Override
+	public int getStart() {
+		if (globalSequenceLength == -1) {
+			return ctrlTimeBProv.getStart();
+		}
+		return 0;
+	}
+
 	public void setStart(final int startTime) {
-		controllableTimeBoundProvider.setStart(startTime);
+		ctrlTimeBProv.setStart(startTime);
 
 		if (globalSequenceLength == -1) {
 			currentTime = Math.min(startTime, currentTime);
 
-			notifier.timeBoundsChanged(controllableTimeBoundProvider.getStart(),
-					controllableTimeBoundProvider.getEnd());
-		}
-	}
-
-	public void setEnd(final int endTime) {
-		controllableTimeBoundProvider.setEnd(endTime);
-		if (globalSequenceLength == -1) {
-			currentTime = Math.min(endTime, currentTime);
-			notifier.timeBoundsChanged(controllableTimeBoundProvider.getStart(),
-					controllableTimeBoundProvider.getEnd());
-		}
-	}
-
-	public void setBounds(final int startTime, final int endTime) {
-		controllableTimeBoundProvider.setStart(startTime);
-		controllableTimeBoundProvider.setEnd(endTime);
-		globalSequenceLength = -1;
-		if (globalSequenceLength == -1) {
-			currentTime = 0;
-			notifier.timeBoundsChanged(controllableTimeBoundProvider.getStart(),
-					controllableTimeBoundProvider.getEnd());
+			notifier.timeBoundsChanged(ctrlTimeBProv.getStart(),
+					ctrlTimeBProv.getEnd());
 		}
 	}
 
@@ -81,7 +92,7 @@ public class TimeEnvironmentImpl implements AnimatedRenderEnvironment, TimeBound
 		if (staticViewMode) {
 			return null;
 		}
-		return controllableTimeBoundProvider;
+		return ctrlTimeBProv;
 	}
 
 	@Override
@@ -93,19 +104,20 @@ public class TimeEnvironmentImpl implements AnimatedRenderEnvironment, TimeBound
 	}
 
 	@Override
-	public int getStart() {
-		if (globalSequenceLength == -1) {
-			return controllableTimeBoundProvider.getStart();
-		}
-		return 0;
-	}
-
-	@Override
 	public int getEnd() {
 		if (globalSequenceLength == -1) {
-			return controllableTimeBoundProvider.getEnd();
+			return ctrlTimeBProv.getEnd();
 		}
 		return globalSequenceLength;
+	}
+
+	public void setEnd(final int endTime) {
+		ctrlTimeBProv.setEnd(endTime);
+		if (globalSequenceLength == -1) {
+			currentTime = Math.min(endTime, currentTime);
+			notifier.timeBoundsChanged(ctrlTimeBProv.getStart(),
+					ctrlTimeBProv.getEnd());
+		}
 	}
 
 	@Override

@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.ui.application.edit.ClonedNodeNamePickerImplementati
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.RedoActionImplementation;
 import com.hiveworkshop.rms.ui.application.edit.UndoActionImplementation;
-import com.hiveworkshop.rms.ui.application.edit.animation.ControllableTimeBoundProvider;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderPanel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
@@ -91,9 +90,9 @@ public class MainPanel extends JPanel
     View toolView;
     View modelDataView;
     View modelComponentView;
+    //    private ControllableTimeBoundProvider timeBoundProvider;
     ActivityDescriptor currentActivity;
     AbstractAction expandSelectionAction = getExpandSelectionAction();
-    private ControllableTimeBoundProvider timeBoundProvider;
 
     TimeSliderPanel timeSliderPanel;
     //    final JButton setKeyframe;
@@ -139,7 +138,7 @@ public class MainPanel extends JPanel
         TimeSliderView.createMouseCoordDisp(mouseCoordDisplay);
 
         modelStructureChangeListener = ModelStructureChangeListenerImplementation.getModelStructureChangeListener(this);
-        animatedRenderEnvironment = new TimeEnvironmentImpl();
+        animatedRenderEnvironment = new TimeEnvironmentImpl(0, 1);
         blpPanel = new ZoomableImagePreviewPanel(null);
 
         TimeSliderView.createTimeSliderPanel(this);

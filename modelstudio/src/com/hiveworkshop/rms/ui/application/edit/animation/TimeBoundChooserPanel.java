@@ -318,6 +318,7 @@ public class TimeBoundChooserPanel extends JPanel {
 			copyAnimation.setName(userChosenName);
 			model.add(copyAnimation);
 			selectedAnimation.copyToInterval(copyAnimation.getStart(), copyAnimation.getEnd(), model.getAllAnimFlags(), model.getEvents());
+
 			animations.addElement(copyAnimation);
 			structureChangeListener.animationsAdded(Collections.singletonList(copyAnimation));
 		}
@@ -327,7 +328,7 @@ public class TimeBoundChooserPanel extends JPanel {
 		if (tabs.getSelectedIndex() == 0) {
 			final Animation selectedAnimation = animationBox.getSelectedValue();
 			if (selectedAnimation != null) {
-				timeEnvironmentImpl.setBounds(selectedAnimation.getStart(), selectedAnimation.getEnd());
+				timeEnvironmentImpl.setBounds(selectedAnimation);
 			}
 		} else if (tabs.getSelectedIndex() == 1) {
 			timeEnvironmentImpl.setBounds(((Number) timeStart.getValue()).intValue(),
