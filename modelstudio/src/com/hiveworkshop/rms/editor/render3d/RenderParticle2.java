@@ -14,7 +14,6 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 	private final Vec3 velocity;
 	private float gravity;
 	private final Vec3 nodeScale;
-	Vec3[] verticesV;
 
 	private RenderNode node;
 
@@ -28,7 +27,6 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		gravity = 0;
 		nodeScale = new Vec3();
 
-		vertices = new float[12];
 		verticesV = new Vec3[4];
 		lta = 0;
 		lba = 0;
@@ -203,13 +201,8 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 			if (modelObject.getModelSpace()) {
 				worldLocation4f.transform(node.getWorldMatrix());
 			}
-			final float[] vertices = this.vertices;
 
 			Vec3 p = worldLocation4f.getVec3();
-
-			final float px = worldLocation4f.x;
-			final float py = worldLocation4f.y;
-			final float pz = worldLocation4f.z;
 
 			final Vec3 pv1 = vectors[0].getVec3();
 			final Vec3 pv2 = vectors[1].getVec3();
@@ -220,19 +213,6 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 			verticesV[1] = Vec3.getSum(p, Vec3.getProd(pv2, scaleV));
 			verticesV[2] = Vec3.getSum(p, Vec3.getProd(pv3, scaleV));
 			verticesV[3] = Vec3.getSum(p, Vec3.getProd(pv4, scaleV));
-
-			vertices[0] = verticesV[0].x;
-			vertices[1] = verticesV[0].y;
-			vertices[2] = verticesV[0].z;
-			vertices[3] = verticesV[1].x;
-			vertices[4] = verticesV[1].y;
-			vertices[5] = verticesV[1].z;
-			vertices[6] = verticesV[2].x;
-			vertices[7] = verticesV[2].y;
-			vertices[8] = verticesV[2].z;
-			vertices[9] = verticesV[3].x;
-			vertices[10] = verticesV[3].y;
-			vertices[11] = verticesV[3].z;
 		} else {
 			final double tailLength = modelObject.getTailLength();
 			Vec3 offsetV = Vec3.getScaled(velocity, (float) tailLength);
@@ -261,22 +241,6 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 			verticesV[1] = Vec3.getSum(endV, normal);
 			verticesV[2] = Vec3.getDiff(endV, normal);
 			verticesV[3] = Vec3.getSum(scaleV, normal);
-
-			vertices[0] = verticesV[0].x;
-			vertices[1] = verticesV[0].y;
-			vertices[2] = verticesV[0].z;
-
-			vertices[6] = verticesV[1].x;
-			vertices[7] = verticesV[1].y;
-			vertices[8] = verticesV[1].z;
-
-			vertices[3] = verticesV[2].x;
-			vertices[4] = verticesV[2].y;
-			vertices[5] = verticesV[2].z;
-
-			vertices[9] = verticesV[3].x;
-			vertices[10] = verticesV[3].y;
-			vertices[11] = verticesV[3].z;
 		}
 	}
 }

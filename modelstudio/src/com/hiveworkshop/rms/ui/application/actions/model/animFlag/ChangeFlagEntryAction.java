@@ -8,14 +8,14 @@ import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 public class ChangeFlagEntryAction implements UndoAction {
 	private final ModelStructureChangeListener structureChangeListener;
 	private final TimelineContainer timelineContainer;
-	private final AnimFlag animFlag;
+	private final AnimFlag<?> animFlag;
 	AnimFlag.Entry entry;
 	int orgTime;
 	int time;
 	AnimFlag.Entry orgEntry;
 
 
-	public ChangeFlagEntryAction(AnimFlag animFlag, AnimFlag.Entry entry, int orgTime, TimelineContainer timelineContainer, ModelStructureChangeListener structureChangeListener) {
+	public ChangeFlagEntryAction(AnimFlag<?> animFlag, AnimFlag.Entry<?> entry, int orgTime, TimelineContainer timelineContainer, ModelStructureChangeListener structureChangeListener) {
 		this.structureChangeListener = structureChangeListener;
 		this.timelineContainer = timelineContainer;
 		this.animFlag = animFlag;

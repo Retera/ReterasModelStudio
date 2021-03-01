@@ -4,7 +4,7 @@ public interface ParticleEmitterShader {
 
 	void renderParticles(int blendSrc, int blendDst, int rows, int cols,
 	                     InternalResource texture,
-	                     float[] bufferData,
+	                     RenderSharedGeometryEmitter.RenderData[] bufferData,
 	                     boolean isRibbonEmitter, int numItemsToRender);
 
 	void use();

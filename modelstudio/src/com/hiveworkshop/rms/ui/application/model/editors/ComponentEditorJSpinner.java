@@ -101,6 +101,9 @@ public class ComponentEditorJSpinner extends JSpinner {
 	}
 
 	public float getFloatValue() {
+		if (getValue().getClass().equals(Float.class)) {
+			return (float) getValue();
+		}
 		return (float) ((double) getValue());
 	}
 
