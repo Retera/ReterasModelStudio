@@ -380,7 +380,7 @@ public class CreatorModelingPanel extends JPanel
 
 		@Override
 		public void applyTo(final TimeEnvironmentImpl timeEnvironment) {
-			timeEnvironment.setBounds(animation.getStart(), animation.getEnd());
+			timeEnvironment.setBounds(animation);
 		}
 
 		@Override

@@ -379,7 +379,7 @@ public class BLPHandler {
 //	}
 
 	public BufferedImage getTexture(final DataSource dataSource, final String filepath) {
-//		System.out.println("getTexture, fp: " + filepath);
+//		System.out.println("getTexture, fp: " + filepath + ", datasource: " + dataSource);
 		try {
 			final String lowerCaseFilepath = filepath.toLowerCase(Locale.US);
 			BufferedImage resultImage = cache.get(lowerCaseFilepath);
@@ -447,6 +447,7 @@ public class BLPHandler {
 	public BufferedImage loadTextureDirectly2(Bitmap bitmap) {
 		String filepath = bitmap.getPath();
 		BufferedImage resultImage = null;
+//		System.out.println("filepath: " + filepath + ", Path.of(filepath): " + Path.of(filepath));
 		try (final InputStream imageDataStream = Files.newInputStream(Path.of(filepath), StandardOpenOption.READ)) {
 			if (isExtension(filepath, ".tga")) {
 				resultImage = TgaFile.readTGA(filepath, imageDataStream);

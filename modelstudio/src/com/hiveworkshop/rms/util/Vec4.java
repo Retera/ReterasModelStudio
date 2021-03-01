@@ -9,7 +9,7 @@ public class Vec4 {
 	public Vec4() {
 
 	}
-	
+
 	public Vec4(final float x, final float y, final float z, final float w) {
 		set(x, y, z, w);
 	}
@@ -118,19 +118,19 @@ public class Vec4 {
 	}
 
 	public double[] toArray() {
-		return new double[] { x, y, z, w };
+		return new double[] {x, y, z, w};
 	}
 
 	public float[] toFloatArray() {
-		return new float[] { x,  y, z, w };
+		return new float[] {x, y, z, w};
 	}
 
 	public short[] toShortArray() {
-		return new short[] { (short)x, (short)y, (short)z, (short)w };
+		return new short[] {(short) x, (short) y, (short) z, (short) w};
 	}
 
 	public long[] toLongArray() {
-		return new long[] { (long)x, (long)y, (long)z, (long)w };
+		return new long[] {(long) x, (long) y, (long) z, (long) w};
 	}
 
 	public float lengthSquared() {
