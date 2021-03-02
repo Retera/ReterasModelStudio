@@ -573,6 +573,7 @@ public abstract class ComPerspViewport extends BetterAWTGLCanvas implements Rend
 
 		renderModel.getParticleShader().use();
 		for (final RenderParticleEmitter2 particle : renderModel.getParticleEmitters2()) {
+//			System.out.println("renderParticles");
 			particle.render(renderModel, renderModel.getParticleShader());
 		}
 	}

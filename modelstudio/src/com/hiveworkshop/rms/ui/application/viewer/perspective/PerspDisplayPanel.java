@@ -108,7 +108,7 @@ public class PerspDisplayPanel extends JPanel {
 			}
 			removeAll();
 			RenderModel renderModel = modelView.getEditorRenderModel();
-			vp = new PerspectiveViewport(modelView, programPreferences, renderModel, renderEnvironment, false);
+			vp = new PerspectiveViewport(modelView, renderModel, programPreferences, renderEnvironment);
 			vp.setIgnoreRepaint(false);
 			vp.setMinimumSize(new Dimension(viewerSize, viewerSize));
 

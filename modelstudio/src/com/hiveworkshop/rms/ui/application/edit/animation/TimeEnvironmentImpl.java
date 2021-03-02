@@ -12,6 +12,7 @@ public class TimeEnvironmentImpl implements AnimatedRenderEnvironment, TimeBound
 	private int start;
 	private boolean staticViewMode;
 	private int end;
+	protected float animationSpeed = 1f;
 
 	public TimeEnvironmentImpl(int start, int end) {
 		this.start = start;
@@ -125,4 +126,12 @@ public class TimeEnvironmentImpl implements AnimatedRenderEnvironment, TimeBound
 		notifier.subscribe(listener);
 	}
 
+	@Override
+	public float getAnimationSpeed() {
+		return animationSpeed;
+	}
+
+	public void setAnimationSpeed(float animationSpeed) {
+		this.animationSpeed = animationSpeed;
+	}
 }

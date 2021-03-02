@@ -33,8 +33,8 @@ public final class RenderModel {
 	private final RenderNode rootPosition;
 
 	private boolean spawnParticles = true;
-	private boolean allowInanimateParticles = false;
-//	private boolean allowInanimateParticles = true;
+	//	private boolean allowInanimateParticles = false;
+	private boolean allowInanimateParticles = true;
 
 	private long lastConsoleLogTime = 0;
 
@@ -132,11 +132,13 @@ public final class RenderModel {
 				objectToRenderNode.put(object, renderNode);
 			}
 		}
+
 		for (final ParticleEmitter2 particleEmitter : model.getParticleEmitter2s()) {
 			particleEmitters2.add(new RenderParticleEmitter2(particleEmitter, renderResourceAllocator.allocateTexture(particleEmitter.getTexture(), particleEmitter)));
 		}
 		particleEmitters2.sort(Comparator.comparingInt(RenderParticleEmitter2::getPriorityPlane));
 		System.out.println("refresh from renderer, partEm: " + particleEmitters2.size());
+
 		for (final RenderParticleEmitter2 particleEmitter : particleEmitters2) {
 			final RenderParticleEmitter2View emitterView = new RenderParticleEmitter2View(this, particleEmitter);
 			System.out.println("emitterView: " + emitterView + " emitterView.em: " + emitterView.getEmitter());
@@ -268,7 +270,7 @@ public final class RenderModel {
 						final RenderParticleEmitter2View renderer = emitterToRenderer.get(idObject);
 //						System.out.println("render: " + renderer);
 						if (renderer != null) {
-							if ((modelView == null) || modelView.getEditableIdObjects().contains(idObject)) {
+							if ((modelView == null) || modelView.getEditableIdObjects().contains(idObject) || modelView.isVetoOverrideParticles()) {
 								renderer.fill();
 							}
 						}
@@ -343,7 +345,7 @@ public final class RenderModel {
 			// not animating
 			if (allowInanimateParticles) {
 				for (final RenderParticleEmitter2View renderParticleEmitter2View : particleEmitterViews2) {
-					if ((modelView == null) || modelView.getEditableIdObjects().contains(renderParticleEmitter2View.getEmitter()) || modelView.isVetoOverrideParticles()) {
+					if ((modelView == null) || modelView.getEditableIdObjects().contains(renderParticleEmitter2View.getEmitter())) {
 						renderParticleEmitter2View.fill();
 					}
 					renderParticleEmitter2View.update();

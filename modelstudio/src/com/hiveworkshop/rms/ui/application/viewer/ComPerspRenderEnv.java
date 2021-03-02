@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 
 public class ComPerspRenderEnv extends TimeEnvironmentImpl {
-	float animSpeed = 1f;
 	boolean live = false;
 	private int animationTime;
 	private Animation animation;
@@ -97,9 +96,9 @@ public class ComPerspRenderEnv extends TimeEnvironmentImpl {
 		this.live = live;
 	}
 
-	public void setAnimationSpeed(final float speed) {
-		animSpeed = speed;
-	}
+//	public void setAnimationSpeed(final float speed) {
+//		animationSpeed = speed;
+//	}
 
 	public void updateAnimationTime() {
 		long timeSkip = System.currentTimeMillis() - lastUpdateMillis;
@@ -107,9 +106,9 @@ public class ComPerspRenderEnv extends TimeEnvironmentImpl {
 		if ((animation != null) && (animation.length() > 0)) {
 //			System.out.println("animationTime: " + animationTime);
 			if (looping) {
-				animationTime = (int) ((animationTime + (long) (timeSkip * animSpeed)) % animation.length());
+				animationTime = (int) ((animationTime + (long) (timeSkip * animationSpeed)) % animation.length());
 			} else {
-				animationTime = Math.min(animation.length(), (int) (animationTime + (timeSkip * animSpeed)));
+				animationTime = Math.min(animation.length(), (int) (animationTime + (timeSkip * animationSpeed)));
 				if (animationTime > animation.length()) {
 					live = false;
 				}

@@ -6,7 +6,7 @@ import com.hiveworkshop.rms.ui.application.viewer.AnimationControllerListener;
 
 public class AnimationTimeEnvironmentImpl implements AnimatedRenderEnvironment, TimeBoundProvider {
 	private int currentTime;
-	float animSpeed = 1f;
+	float animationSpeed = 1f;
 	private int start;
 	private int globalSequenceLength = -1;
 	private Animation animation;
@@ -162,6 +162,16 @@ public class AnimationTimeEnvironmentImpl implements AnimatedRenderEnvironment, 
 			return animation.getEnd();
 		}
 		return 0;
+	}
+
+	public void setTimeScale(float timeScale) {
+		this.animationSpeed = timeScale;
+	}
+
+
+	@Override
+	public float getAnimationSpeed() {
+		return animationSpeed;
 	}
 
 //	@Override

@@ -101,7 +101,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 	@Override
 	public void update() {
 		final ParticleEmitter2 modelObject = emitter.modelObject;
-		final float dt = AnimatedRenderEnvironment.FRAMES_PER_UPDATE * 0.001f;
+		final float dt = (float) (AnimatedRenderEnvironment.FRAMES_PER_UPDATE * 0.001f * emitterView.getTimeScale());
 
 		health -= dt;
 		velocity.z -= gravity * dt;

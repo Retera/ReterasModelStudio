@@ -16,4 +16,6 @@ public interface AnimatedRenderEnvironment {
 	TimeBoundProvider getCurrentAnimation(); // nullable
 
 	int getGlobalSeqTime(int length); // for glob seq
+
+	float getAnimationSpeed();
 }
