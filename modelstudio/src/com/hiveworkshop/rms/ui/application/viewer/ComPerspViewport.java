@@ -9,7 +9,6 @@ import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.blp.GPUReadyTexture;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
-import com.hiveworkshop.rms.ui.application.viewer.AnimationControllerListener.LoopType;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.BetterAWTGLCanvas;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
@@ -37,63 +36,48 @@ import java.util.Map;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
 
-public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements RenderResourceAllocator {
+public abstract class ComPerspViewport extends BetterAWTGLCanvas implements RenderResourceAllocator {
 	public static final boolean LOG_EXCEPTIONS = true;
-
 	private static final int BYTES_PER_PIXEL = 4;
-	int popupCount = 0;
-
+	private final float[] whiteDiffuse = {1f, 1f, 1f, 1f};
+	private final float[] posSun = {0.0f, 10.0f, 0.0f, 1.0f};
+	protected RenderModel renderModel;
 	ModelView modelView;
-	private RenderModel renderModel;
-
 	Vec3 cameraPos = new Vec3(0, 0, 0);
 	Quat inverseCameraRotationQuat = new Quat();
 	Quat inverseCameraRotationYSpin = new Quat();
 	Quat inverseCameraRotationZSpin = new Quat();
-
 	double m_zoom = 1;
 	Point cameraPanStartPoint;
 	Point cameraSpinStartPoint;
 	Point actStart;
-	Timer clickTimer = new Timer(16, e -> clickTimerAction());
 	Timer paintTimer;
-
 	boolean mouseInBounds = false;
 	boolean enabled = false;
-
 	boolean texLoaded = false;
-
 	JCheckBox wireframe;
 	HashMap<Bitmap, Integer> textureMap = new HashMap<>();
 	Map<Geoset, List<Vec4>> normalListMap;
 	Map<Geoset, List<Vec4>> vertListMap;
-
 	Class<? extends Throwable> lastThrownErrorClass;
-	private final ProgramPreferences programPreferences;
-
-	private int animationTime;
-	ComPerspRenderEnv renderEnv;
-	private boolean looping = true;
-	private Animation animation;
-	private long lastUpdateMillis = System.currentTimeMillis();
-	private long lastExceptionTimeMillis = 0;
-
 	boolean wantReload = false;
 	boolean wantReloadAll = false;
+	int popupCount = 0;
+	ComPerspRenderEnv renderEnv;
 	boolean initialized = false;
-	private boolean live = true;
-	private LoopType loopType;
-	private float animSpeed = 1.0f;
+	private ProgramPreferences programPreferences;
+
+	private long lastExceptionTimeMillis = 0;
+	private float backgroundRed, backgroundBlue, backgroundGreen;
 	private int levelOfDetail = -1;
 
+	private float xRatio;
+	private float yRatio;
 	private float xangle;
 	private float yangle;
-	private float xRatio;
+	Timer clickTimer = new Timer(16, e -> clickTimerAction());
 
-	private float backgroundRed, backgroundBlue, backgroundGreen;
-	private float yRatio;
-
-	public AnimatedPerspectiveViewport(final ModelView modelView, RenderModel renderModel, final ProgramPreferences programPreferences, ComPerspRenderEnv renderEnvironment, boolean loadDefaultCamera) throws LWJGLException {
+	public ComPerspViewport(final ModelView modelView, RenderModel renderModel, final ProgramPreferences programPreferences, ComPerspRenderEnv renderEnvironment, boolean loadDefaultCamera) throws LWJGLException {
 		super();
 		this.programPreferences = programPreferences;
 
@@ -131,11 +115,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Re
 		shortcutKeyListener();
 	}
 
-
-	public void setLevelOfDetail(final int levelOfDetail) {
-		this.levelOfDetail = levelOfDetail;
-	}
-
 	public static int loadTexture(final GPUReadyTexture texture, final Bitmap bitmap) {
 		if (texture == null) {
 			return -1;
@@ -163,6 +142,10 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Re
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, tex.isWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, tex.isWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+	}
+
+	public void setLevelOfDetail(final int levelOfDetail) {
+		this.levelOfDetail = levelOfDetail;
 	}
 
 	void loadDefaultCameraFor(final ModelView modelView) {
@@ -343,7 +326,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Re
 	}
 
 
-
 	public BufferedImage getBufferedImage() {
 		try {
 			int height = getHeight();
@@ -475,17 +457,11 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Re
 
 			GL11.glDepthFunc(GL11.GL_LEQUAL);
 			GL11.glDepthMask(true);
-//			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-
-//			if (renderTextures()) {
-//				glEnable(GL11.GL_TEXTURE_2D);
-//			}
 			glClearColor(backgroundRed, backgroundGreen, backgroundBlue, autoRepainting ? 1.0f : 0.0f);
-//			glMatrixMode(GL_PROJECTION);
-//			glLoadIdentity();
-
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 //			glMatrixMode(GL_MODELVIEW);
+
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
 
@@ -502,20 +478,11 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Re
 			for (final Geoset geo : modelView.getModel().getGeosets()) {
 				processMesh(geo, isHD(geo, formatVersion));
 			}
-
-			renderGeosets(modelView.getModel().getGeosets(), formatVersion, false);
-//			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-//			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
-//			GL11.glDisable(GL11.GL_TEXTURE_2D);
+			renderGeosets(modelView.getEditableGeosets(), formatVersion, false);
 
 			if (modelView.getHighlightedGeoset() != null) {
 				drawHighlightedGeosets(formatVersion);
 			}
-
-//			if (renderTextures()) {
-//				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-//				glEnable(GL11.GL_TEXTURE_2D);
-//			}
 
 			if ((programPreferences != null)) {
 				if (programPreferences.showNormals()) {
@@ -742,7 +709,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Re
 
 	private void drawHighlightedGeosets(int formatVersion) {
 		GL11.glDepthMask(true);
-//		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		if ((programPreferences != null) && (programPreferences.getHighlighTriangleColor() != null)) {
 			final Color highlightTriangleColor = programPreferences.getHighlighTriangleColor();
@@ -1236,6 +1202,5 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Re
 		public InternalInstance addInstance() {
 			return this;
 		}
-
 	}
 }

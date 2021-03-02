@@ -33,4 +33,8 @@ public interface ModelView {
 	Geoset getHighlightedGeoset();
 
 	IdObject getHighlightedNode();
+
+	boolean isVetoOverrideParticles();
+
+	void setVetoOverrideParticles(boolean override);
 }

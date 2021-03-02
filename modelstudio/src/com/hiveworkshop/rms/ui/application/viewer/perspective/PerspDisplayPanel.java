@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.viewer.perspective;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.viewer.ComPerspRenderEnv;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import net.infonode.docking.View;
 import org.lwjgl.LWJGLException;
@@ -25,13 +26,11 @@ public class PerspDisplayPanel extends JPanel {
 	private String title;
 	private final ProgramPreferences programPreferences;
 	private final View view;
-	private final RenderModel editorRenderModel;
 
 	// private JCheckBox wireframe;
-	public PerspDisplayPanel(final String title, final ModelView modelView, final ProgramPreferences programPreferences, final RenderModel editorRenderModel) {
+	public PerspDisplayPanel(final String title, final ModelView modelView, final ProgramPreferences programPreferences) {
 		super();
 		this.programPreferences = programPreferences;
-		this.editorRenderModel = editorRenderModel;
 		setOpaque(true);
 
 		setViewport(modelView);
@@ -51,9 +50,6 @@ public class PerspDisplayPanel extends JPanel {
 		JButton right = getButton(e -> translateViewLeftRight(-20), 16, 32);
 		// add(right);
 
-		final GroupLayout layout = new GroupLayout(this);
-		layout.setHorizontalGroup(layout.createSequentialGroup().addComponent(vp));
-		layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(vp));
 		setLayout(new BorderLayout());
 		add(vp);
 
@@ -95,23 +91,27 @@ public class PerspDisplayPanel extends JPanel {
 		vp.reloadAllTextures();
 	}
 
-	public void setViewport(final ModelView dispModel) {
-		setViewport(dispModel, 200);
+	public void setViewport(final ModelView modelView, ComPerspRenderEnv renderEnvironment) {
+//	public void setViewport(final ModelView modelView, TimeEnvironmentImpl renderEnvironment) {
+		setViewport(modelView, 200, renderEnvironment);
 	}
 
-	public void setViewport(final ModelView modelView, final int viewerSize) {
+	public void setViewport(final ModelView dispModel) {
+		ComPerspRenderEnv renderEnvironment = new ComPerspRenderEnv();
+		setViewport(dispModel, 200, renderEnvironment);
+	}
+
+	public void setViewport(final ModelView modelView, final int viewerSize, ComPerspRenderEnv renderEnvironment) {
 		try {
 			if (vp != null) {
 				vp.destroy();
 			}
 			removeAll();
 			RenderModel renderModel = modelView.getEditorRenderModel();
-			vp = new PerspectiveViewport(modelView, programPreferences, editorRenderModel);
+			vp = new PerspectiveViewport(modelView, programPreferences, renderModel, renderEnvironment, false);
 			vp.setIgnoreRepaint(false);
 			vp.setMinimumSize(new Dimension(viewerSize, viewerSize));
-//			final GroupLayout layout = new GroupLayout(this);
-//			layout.setHorizontalGroup(layout.createSequentialGroup().addComponent(vp));
-//			layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(vp));
+
 			setLayout(new BorderLayout());
 		} catch (final LWJGLException e) {
 			// TODO Auto-generated catch block

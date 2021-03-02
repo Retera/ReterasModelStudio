@@ -26,6 +26,7 @@ public final class ModelViewManager implements ModelView {
 	private IdObject highlightedNode;
 	private final RenderByViewModelRenderer renderByViewModelRenderer;
 	private final RenderByViewMeshRenderer renderByViewMeshRenderer;
+	private boolean vetoParticles = false;
 
 	public ModelViewManager(final EditableModel model) {
 		this.model = model;
@@ -158,6 +159,16 @@ public final class ModelViewManager implements ModelView {
 		}
 		modelViewStateNotifier.unhighlightNode(node);
 
+	}
+
+	@Override
+	public boolean isVetoOverrideParticles() {
+		return vetoParticles;
+	}
+
+	@Override
+	public void setVetoOverrideParticles(boolean override) {
+		vetoParticles = override;
 	}
 
 	@Override

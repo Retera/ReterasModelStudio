@@ -113,9 +113,10 @@ public class ModelPanel implements ActionListener, MouseListener {
 
 		undoManager = new UndoManagerImpl(undoHandler);
 
-		editorRenderModel = new RenderModel(input, modelView);
-		editorRenderModel.setSpawnParticles((prefs.getRenderParticles() == null) || prefs.getRenderParticles());
-		editorRenderModel.setAllowInanimateParticles((prefs.getRenderStaticPoseParticles() == null) || prefs.getRenderStaticPoseParticles());
+//		editorRenderModel = new RenderModel(input, modelView);
+//		editorRenderModel.setSpawnParticles((prefs.getRenderParticles() == null) || prefs.getRenderParticles());
+//		editorRenderModel.setAllowInanimateParticles((prefs.getRenderStaticPoseParticles() == null) || prefs.getRenderStaticPoseParticles());
+		editorRenderModel = modelView.getEditorRenderModel();
 
 		modelEditorManager = new ModelEditorManager(modelView, prefs, modeNotifier, modelEditorChangeNotifier, viewportActivityManager, editorRenderModel, modelStructureChangeListener);
 
@@ -146,7 +147,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 		botArea.setControlsVisible(prefs.showVMControls());
 		sideArea.setControlsVisible(prefs.showVMControls());
 
-		perspArea = new PerspDisplayPanel("Perspective", modelView, prefs, editorRenderModel);
+		perspArea = new PerspDisplayPanel("Perspective", modelView, prefs);
 
 		componentsPanel = new ComponentsPanel(getModelViewManager(), undoManager, modelStructureChangeListener, textureExporter);
 

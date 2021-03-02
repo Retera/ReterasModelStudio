@@ -33,8 +33,8 @@ public final class RenderModel {
 	private final RenderNode rootPosition;
 
 	private boolean spawnParticles = true;
-	//	private boolean allowInanimateParticles = false;
 	private boolean allowInanimateParticles = false;
+//	private boolean allowInanimateParticles = true;
 
 	private long lastConsoleLogTime = 0;
 
@@ -99,9 +99,7 @@ public final class RenderModel {
 		return animatedRenderEnvironment;
 	}
 
-	public void refreshFromEditor(final AnimatedRenderEnvironment animatedRenderEnvironment,
-			final Quat inverseCameraRotation, final Quat inverseCameraRotationYSpin,
-			final Quat inverseCameraRotationZSpin, final RenderResourceAllocator renderResourceAllocator) {
+	public void refreshFromEditor(final AnimatedRenderEnvironment animatedRenderEnvironment, final Quat inverseCameraRotation, final Quat inverseCameraRotationYSpin, final Quat inverseCameraRotationZSpin, final RenderResourceAllocator renderResourceAllocator) {
 		particleEmitterViews2.clear();
 		particleEmitters2.clear();
 		this.animatedRenderEnvironment = animatedRenderEnvironment;
@@ -345,7 +343,7 @@ public final class RenderModel {
 			// not animating
 			if (allowInanimateParticles) {
 				for (final RenderParticleEmitter2View renderParticleEmitter2View : particleEmitterViews2) {
-					if ((modelView == null) || modelView.getEditableIdObjects().contains(renderParticleEmitter2View.getEmitter())) {
+					if ((modelView == null) || modelView.getEditableIdObjects().contains(renderParticleEmitter2View.getEmitter()) || modelView.isVetoOverrideParticles()) {
 						renderParticleEmitter2View.fill();
 					}
 					renderParticleEmitter2View.update();
