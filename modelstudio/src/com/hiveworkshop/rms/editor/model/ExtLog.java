@@ -111,4 +111,8 @@ public class ExtLog {
 	public void setBoundsRadius(final double boundsRadius) {
 		this.boundsRadius = boundsRadius;
 	}
+
+	public String toString() {
+		return "minExt: " + minimumExtent.toString() + "\nmaxExt: " + maximumExtent.toString() + "\nbonusRad: " + boundsRadius;
+	}
 }

@@ -230,7 +230,7 @@ public class Vec4 {
 		x = x / a.x;
 		y = y / a.y;
 		z = z / a.z;
-		z = z / a.w;
+		w = w / a.w;
 		return this;
 	}
 
@@ -239,6 +239,14 @@ public class Vec4 {
 		y = y * factor;
 		z = z * factor;
 		w = w * factor;
+		return this;
+	}
+
+	public Vec4 multiply(Vec4 a) {
+		x = x * a.x;
+		y = y * a.y;
+		z = z * a.z;
+		w = w * a.w;
 		return this;
 	}
 

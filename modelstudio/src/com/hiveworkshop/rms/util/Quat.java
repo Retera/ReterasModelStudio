@@ -20,6 +20,10 @@ public class Quat extends Vec4 {
 		set(other);
 	}
 
+	public Quat(final Vec4 a) {
+		set(a);
+	}
+
 	public Quat(final Vec3 eulerRotation) {
 		set(eulerRotation);
 	}
@@ -312,6 +316,14 @@ public class Quat extends Vec4 {
 		y = q.y;
 		z = q.z;
 		w = q.w;
+		return this;
+	}
+
+	public Quat set(Vec4 a) {
+		x = a.x;
+		y = a.y;
+		z = a.z;
+		w = a.w;
 		return this;
 	}
 }
