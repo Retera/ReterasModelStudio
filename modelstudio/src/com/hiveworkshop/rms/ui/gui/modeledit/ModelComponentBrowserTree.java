@@ -688,6 +688,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final Geoset item, final ModelViewManager modelViewManager) {
+//			final String numberName = item.getName();
 			final String numberName = "Geoset " + (modelViewManager.getModel().getGeosetId(item) + 1);
 			if ((item.getLevelOfDetailName() != null) && (item.getLevelOfDetailName().length() > 0)) {
 				return numberName + ": " + item.getLevelOfDetailName();

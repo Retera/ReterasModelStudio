@@ -134,11 +134,11 @@ public final class RenderModel {
 			particleEmitters2.add(new RenderParticleEmitter2(particleEmitter, renderResourceAllocator.allocateTexture(particleEmitter.getTexture(), particleEmitter)));
 		}
 		particleEmitters2.sort(Comparator.comparingInt(RenderParticleEmitter2::getPriorityPlane));
-		System.out.println("refresh from renderer, partEm: " + particleEmitters2.size());
+//		System.out.println("refresh from renderer, partEm: " + particleEmitters2.size());
 
 		for (final RenderParticleEmitter2 particleEmitter : particleEmitters2) {
 			final RenderParticleEmitter2View emitterView = new RenderParticleEmitter2View(this, particleEmitter);
-			System.out.println("emitterView: " + emitterView + " emitterView.em: " + emitterView.getEmitter());
+//			System.out.println("emitterView: " + emitterView + " emitterView.em: " + emitterView.getEmitter());
 			particleEmitterViews2.add(emitterView);
 			emitterToRenderer.put(emitterView.getEmitter(), emitterView);
 		}
@@ -315,11 +315,14 @@ public final class RenderModel {
 			wasDirty = true;
 
 			// Cancel the parent's rotation;
-			localRotation.setIdentity();
-			localRotation.mul(inverseCameraRotationYSpin);
-//					if (parent != null) {
-//						QuaternionRotation.mul(localRotation, localRotation, parent.inverseWorldRotation);
-//					}
+			if (parent != null) {
+				localRotation.mul(parent.inverseWorldRotation);
+			} else {
+				localRotation.setIdentity();
+			}
+
+			localRotation.mul(inverseCameraRotation);
+
 
 			// TODO face camera, TODO have a camera
 		} else if (node.billboardedZ) {

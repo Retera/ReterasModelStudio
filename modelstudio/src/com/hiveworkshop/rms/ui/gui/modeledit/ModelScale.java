@@ -19,14 +19,16 @@ public class ModelScale {
 				"C:\\Users\\Eric\\Documents\\Warcraft\\Models\\Hayate\\Warcraft_Santa\\Warcraft Santa\\SantaClausFull_scaled.mdx"));
 	}
 
-	public static void scale(final EditableModel mdl, final double x, final double y, final double z) {
+	public static void scale(final EditableModel mdl,
+	                         final double x, final double y, final double z) {
 		scale(mdl, x, y, z, 0, 0, 0);
 	}
 
-	public static void scale(final EditableModel mdl, final double x, final double y, final double z, final double centerX,
-			final double centerY, final double centerZ) {
+	public static void scale(final EditableModel mdl,
+	                         final double x, final double y, final double z,
+	                         final double centerX, final double centerY, final double centerZ) {
 		final double avgScale = (x + y + z) / 3;
-		for (final AnimFlag flag : mdl.getAllAnimFlags()) {
+		for (final AnimFlag<?> flag : mdl.getAllAnimFlags()) {
 			if (flag.getTypeId() == AnimFlag.TRANSLATION) {
 				for (int i = 0; i < flag.size(); i++) {
 					final Vec3 value = (Vec3) flag.getValues().get(i);
@@ -75,8 +77,9 @@ public class ModelScale {
 		}
 	}
 
-	private static void scale(final double centerX, final double centerY, final double centerZ, final double x,
-			final double y, final double z, final ExtLog extents) {
+	private static void scale(final double centerX, final double centerY, final double centerZ,
+	                          final double x, final double y, final double z,
+	                          final ExtLog extents) {
 		if (extents == null) {
 			return;
 		}
