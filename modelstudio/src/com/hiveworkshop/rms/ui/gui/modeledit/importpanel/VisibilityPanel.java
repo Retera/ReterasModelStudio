@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
+import net.miginfocom.swing.MigLayout;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -21,11 +23,16 @@ class VisibilityPanel extends JPanel {
 
 	public VisibilityPanel(final VisibilityShell sourceShell, final DefaultComboBoxModel<Object> oldSources,
 	                       final DefaultComboBoxModel<Object> newSources, final VisShellBoxCellRenderer renderer) {
+		setLayout(new MigLayout("gap 0"));
 		this.sourceShell = sourceShell;
 		title = new JLabel(sourceShell.model.getName() + ": " + sourceShell.source.getName());
 		title.setFont(new Font("Arial", Font.BOLD, 26));
+		title.setMaximumSize(new Dimension(500, 500));
+		add(title, "align center, wrap");
 
 		oldAnimsLabel = new JLabel("Existing animation visibility from: ");
+		add(oldAnimsLabel, "left, wrap");
+
 		oldSourcesBox = new JComboBox<>(oldSources);
 		oldSourcesBox.setEditable(false);
 		oldSourcesBox.setMaximumSize(new Dimension(1000, 25));
@@ -41,6 +48,7 @@ class VisibilityPanel extends JPanel {
 		} else {
 			oldSourcesBox.setSelectedItem(VISIBLE);
 		}
+		add(oldSourcesBox, "grow, wrap");
 
 		newAnimsLabel = new JLabel("Imported animation visibility from: ");
 		newSourcesBox = new JComboBox<>(newSources);
@@ -58,27 +66,11 @@ class VisibilityPanel extends JPanel {
 		} else {
 			newSourcesBox.setSelectedItem(VISIBLE);
 		}
+		add(newSourcesBox, "grow, wrap");
 
 		favorOld = new JCheckBox("Favor component's original visibility when combining");
 		favorOld.setSelected(true);
-
-		final GroupLayout layout = new GroupLayout(this);
-		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-				.addComponent(title)
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-						.addComponent(oldAnimsLabel)
-						.addComponent(oldSourcesBox)
-						.addComponent(newAnimsLabel)
-						.addComponent(newSourcesBox)
-						.addComponent(favorOld)));
-		layout.setVerticalGroup(layout.createSequentialGroup()
-				.addComponent(title).addGap(16)
-				.addComponent(oldAnimsLabel)
-				.addComponent(oldSourcesBox)
-				.addComponent(newAnimsLabel)
-				.addComponent(newSourcesBox)
-				.addComponent(favorOld));
-		setLayout(layout);
+		add(favorOld, "left, wrap");
 	}
 
 	public void selectSimilarOptions() {

@@ -1,6 +1,8 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.BoneShell;
+import com.hiveworkshop.rms.util.IterableListModel;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -11,15 +13,22 @@ class MultiObjectPanel extends ObjectPanel implements ChangeListener {
 	boolean oldVal = true;
 	ImportPanel impPanel;
 
-	public MultiObjectPanel(final DefaultListModel<BoneShell> possibleParents) {
+	public MultiObjectPanel(final IterableListModel<BoneShell> possibleParents) {
+		setLayout(new MigLayout("gap 0", "[grow]", "[][][][][grow]"));
 		title = new JLabel("Multiple Selected");
 		title.setFont(new Font("Arial", Font.BOLD, 26));
+		add(title, "align center, wrap");
 
 		doImport = new JCheckBox("Import these objects (click to apply to all)");
 		doImport.setSelected(true);
 		doImport.addChangeListener(this);
-		parentLabel = new JLabel("Parent:");
+		add(doImport, "left, wrap");
+
 		oldParentLabel = new JLabel("(Old parent can only be displayed for a single object)");
+		add(oldParentLabel, "left, wrap");
+
+		parentLabel = new JLabel("Parent:");
+		add(parentLabel, "left, wrap");
 
 		parents = possibleParents;
 		parentsList = new JList<>(parents);
@@ -27,24 +36,7 @@ class MultiObjectPanel extends ObjectPanel implements ChangeListener {
 		parentsPane = new JScrollPane(parentsList);
 		parentsPane.setEnabled(false);
 		parentsList.setEnabled(false);
-
-		final GroupLayout layout = new GroupLayout(this);
-		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-				.addComponent(title)
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-						.addComponent(doImport)
-						.addComponent(oldParentLabel)
-						.addGroup(layout.createSequentialGroup()
-								.addComponent(parentLabel)
-								.addComponent(parentsPane))));
-		layout.setVerticalGroup(layout.createSequentialGroup()
-				.addComponent(title).addGap(16)
-				.addComponent(doImport)
-				.addComponent(oldParentLabel)
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-						.addComponent(parentLabel)
-						.addComponent(parentsPane)));
-		setLayout(layout);
+		add(parentsPane, "growx, growy 200");
 	}
 
 	@Override

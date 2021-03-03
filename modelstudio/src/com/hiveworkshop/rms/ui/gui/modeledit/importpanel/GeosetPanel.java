@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.Material;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -27,6 +28,7 @@ class GeosetPanel extends JPanel implements ChangeListener {
 	public GeosetPanel(final boolean imported, // Is this Geoset an imported one, or an original?
 	                   final EditableModel model, final int geoIndex, // which geoset is this for? (starts with 0)
 	                   final DefaultListModel<Material> materials, final MaterialListCellRenderer renderer) {
+		setLayout(new MigLayout("gap 0"));
 		this.materials = materials;
 		this.model = model;
 		this.renderer = renderer;
@@ -36,6 +38,7 @@ class GeosetPanel extends JPanel implements ChangeListener {
 
 		geoTitle = new JLabel(model.getName() + " " + (index + 1));
 		geoTitle.setFont(new Font("Arial", Font.BOLD, 26));
+		add(geoTitle, "align center, wrap");
 
 		doImport = new JCheckBox("Import this Geoset");
 		doImport.setSelected(true);
@@ -44,8 +47,10 @@ class GeosetPanel extends JPanel implements ChangeListener {
 		} else {
 			doImport.setEnabled(false);
 		}
+		add(doImport, "left, wrap");
 
 		materialText = new JLabel("Material:");
+		add(materialText, "left, wrap");
 		// Header for materials list
 
 		materialList = new JList<>(materials);
@@ -54,23 +59,7 @@ class GeosetPanel extends JPanel implements ChangeListener {
 		materialList.setSelectedValue(geoset.getMaterial(), true);
 
 		materialListPane = new JScrollPane(materialList);
-
-		final GroupLayout layout = new GroupLayout(this);
-		layout.setHorizontalGroup(layout.createSequentialGroup().addGap(8)
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-						.addComponent(geoTitle)
-						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-								.addComponent(doImport)
-								.addComponent(materialText)
-								.addComponent(materialListPane))).addGap(8));
-
-		layout.setVerticalGroup(layout.createSequentialGroup()
-				.addComponent(geoTitle).addGap(16)
-				.addComponent(doImport)
-				.addComponent(materialText)
-				.addComponent(materialListPane));
-
-		setLayout(layout);
+		add(materialListPane, "grow");
 	}
 
 	@Override

@@ -1,6 +1,8 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.BoneShell;
+import com.hiveworkshop.rms.util.IterableListModel;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,18 +12,19 @@ class MultiBonePanel extends BonePanel {
 	JButton setAllParent;
 	boolean listenForChange = true;
 
-	public MultiBonePanel(final DefaultListModel<BoneShell> existingBonesList, final BoneShellListCellRenderer renderer) {
-		setAllParent = new JButton("Set Parent for All");
-		setAllParent.addActionListener(e -> getImportPanel().setParentMultiBones());
+	public MultiBonePanel(final IterableListModel<BoneShell> existingBonesList, final BoneShellListCellRenderer renderer) {
+		setLayout(new MigLayout("gap 0"));
 		bone = null;
 		existingBones = existingBonesList;
 
 		title = new JLabel("Multiple Selected");
 		title.setFont(new Font("Arial", Font.BOLD, 26));
+		add(title, "align center, wrap");
 
 		importTypeBox.setEditable(false);
 		importTypeBox.addActionListener(this);
 		importTypeBox.setMaximumSize(new Dimension(200, 20));
+		add(importTypeBox, "wrap");
 
 		boneList = new JList<>(existingBones);
 		boneList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -35,17 +38,11 @@ class MultiBonePanel extends BonePanel {
 		cardPanel.add(dummyPanel, "blank");
 		boneList.setEnabled(false);
 		cards.show(cardPanel, "blank");
+		add(cardPanel, "wrap");
 
-		final GroupLayout layout = new GroupLayout(this);
-		layout.setHorizontalGroup(layout.createSequentialGroup().addGap(8)
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(title)
-						.addGroup(layout.createSequentialGroup().addComponent(importTypeBox).addComponent(cardPanel)
-								.addComponent(setAllParent)))
-				.addGap(8));
-		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(title).addGap(16)
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(importTypeBox)
-						.addComponent(cardPanel).addComponent(setAllParent)));
-		setLayout(layout);
+		setAllParent = new JButton("Set Parent for All");
+		setAllParent.addActionListener(e -> getImportPanel().setParentMultiBones());
+		add(setAllParent, "wrap");
 	}
 
 	@Override

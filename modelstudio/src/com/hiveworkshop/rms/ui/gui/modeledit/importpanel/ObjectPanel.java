@@ -3,6 +3,8 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.ui.gui.modeledit.BoneShell;
+import com.hiveworkshop.rms.util.IterableListModel;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,7 +17,7 @@ class ObjectPanel extends JPanel {
 	JCheckBox doImport;
 	JLabel parentLabel;
 	JLabel oldParentLabel;
-	DefaultListModel<BoneShell> parents;
+	IterableListModel<BoneShell> parents;
 	JList<BoneShell> parentsList;
 	JScrollPane parentsPane;
 
@@ -23,20 +25,27 @@ class ObjectPanel extends JPanel {
 
 	}
 
-	public ObjectPanel(final IdObject whichObject, final DefaultListModel<BoneShell> possibleParents) {
+	public ObjectPanel(final IdObject whichObject, final IterableListModel<BoneShell> possibleParents) {
+		setLayout(new MigLayout("gap 0", "[grow]", "[][][][][grow]"));
 		object = whichObject;
 
 		title = new JLabel(object.getClass().getSimpleName() + " \"" + object.getName() + "\"");
 		title.setFont(new Font("Arial", Font.BOLD, 26));
+		add(title, "align center, wrap");
 
 		doImport = new JCheckBox("Import this object");
 		doImport.setSelected(true);
-		parentLabel = new JLabel("Parent:");
+		add(doImport, "left, wrap");
+
 		if (object.getParent() != null) {
 			oldParentLabel = new JLabel("(Old Parent: " + object.getParent().getName() + ")");
 		} else {
 			oldParentLabel = new JLabel("(Old Parent: {no parent})");
 		}
+		add(oldParentLabel, "left, wrap");
+
+		parentLabel = new JLabel("Parent:");
+		add(parentLabel, "left, wrap");
 
 		parents = possibleParents;
 		parentsList = new JList<>(parents);
@@ -49,50 +58,25 @@ class ObjectPanel extends JPanel {
 		}
 
 		parentsPane = new JScrollPane(parentsList);
-
-		final GroupLayout layout = new GroupLayout(this);
-		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-				.addComponent(title)
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-						.addComponent(doImport)
-						.addComponent(oldParentLabel)
-						.addGroup(layout.createSequentialGroup()
-								.addComponent(parentLabel)
-								.addComponent(parentsPane))));
-
-		layout.setVerticalGroup(layout.createSequentialGroup()
-				.addComponent(title).addGap(16)
-				.addComponent(doImport)
-				.addComponent(oldParentLabel)
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-						.addComponent(parentLabel)
-						.addComponent(parentsPane)));
-
-		setLayout(layout);
+		add(parentsPane, "growx, growy 200");
 	}
 
 	public ObjectPanel(final Camera c) {
+		setLayout(new MigLayout("gap 0", "[grow]", "[][][][][grow]"));
 		camera = c;
 
 		title = new JLabel(c.getClass().getSimpleName() + " \"" + c.getName() + "\"");
 		title.setFont(new Font("Arial", Font.BOLD, 26));
+		add(title, "align center, wrap");
 
 		doImport = new JCheckBox("Import this object");
 		doImport.setSelected(true);
-		parentLabel = new JLabel("Parent:");
+		add(doImport, "left, wrap");
+
 		oldParentLabel = new JLabel("(Cameras don't have parents)");
+		add(oldParentLabel, "left, wrap");
 
-		final GroupLayout layout = new GroupLayout(this);
-		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-				.addComponent(title)
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-						.addComponent(doImport)
-						.addComponent(oldParentLabel)));
-
-		layout.setVerticalGroup(layout.createSequentialGroup()
-				.addComponent(title).addGap(16)
-				.addComponent(doImport)
-				.addComponent(oldParentLabel));
-		setLayout(layout);
+//		parentLabel = new JLabel("Parent:");
+//		add(parentLabel, "left, wrap");
 	}
 }
