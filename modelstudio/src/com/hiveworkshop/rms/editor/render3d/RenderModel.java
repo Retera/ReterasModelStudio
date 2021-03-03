@@ -18,9 +18,9 @@ public final class RenderModel {
 	private final EditableModel model;
 	public static final double MAGIC_RENDER_SHOW_CONSTANT = 0.75;
 	private final List<AnimatedNode> sortedNodes = new ArrayList<>();
-	private Quat inverseCameraRotation;
-	private Quat inverseCameraRotationYSpin;
-	private Quat inverseCameraRotationZSpin;
+	private Quat inverseCameraRotation = new Quat(0, 0, 0, 1);
+	private Quat inverseCameraRotationYSpin = new Quat(0, 0, 0, 1);
+	private Quat inverseCameraRotationZSpin = new Quat(0, 0, 0, 1);
 	private AnimatedRenderEnvironment animatedRenderEnvironment;
 
 	private final Map<AnimatedNode, RenderNode> objectToRenderNode = new HashMap<>();
@@ -70,9 +70,6 @@ public final class RenderModel {
 		this.modelView = modelView;
 		rootPosition = new RenderNode(this, new Bone("RootPositionHack"));
 		// Some classes doesn't call refreshFromEditor which leads to null-pointers when these in nor initialised
-		inverseCameraRotation = new Quat(0, 0, 0, 1);
-		inverseCameraRotationYSpin = new Quat(0, 0, 0, 1);
-		inverseCameraRotationZSpin = new Quat(0, 0, 0, 1);
 	}
 
 	public void setSpawnParticles(final boolean spawnParticles) {
@@ -162,6 +159,12 @@ public final class RenderModel {
 				setupHierarchy(object);
 			}
 		}
+	}
+
+	public void setCameraRotations(Quat inverseCameraRotation, Quat inverseCameraRotationYSpin, Quat inverseCameraRotationZSpin) {
+		this.inverseCameraRotation = inverseCameraRotation;
+		this.inverseCameraRotationYSpin = inverseCameraRotationYSpin;
+		this.inverseCameraRotationZSpin = inverseCameraRotationZSpin;
 	}
 
 	public void updateNodes(final boolean forced, final boolean particles) {

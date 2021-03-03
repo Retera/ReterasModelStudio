@@ -9,6 +9,6 @@ public class AnimatedPerspectiveViewport extends ComPerspViewport {
 
 	public AnimatedPerspectiveViewport(final ModelView modelView, RenderModel renderModel, final ProgramPreferences programPreferences, ComPerspRenderEnv renderEnvironment, final boolean loadDefaultCamera) throws LWJGLException {
 		super(modelView, renderModel, programPreferences, renderEnvironment, loadDefaultCamera);
-		this.renderModel.refreshFromEditor(renderEnv, inverseCameraRotationQuat, inverseCameraRotationYSpin, inverseCameraRotationZSpin, this);
+		this.renderModel.refreshFromEditor(renderEnv, inverseCameraRotation, inverseCameraRotationYSpin, inverseCameraRotationZSpin, this);
 	}
 }

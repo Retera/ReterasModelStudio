@@ -44,7 +44,7 @@ public abstract class ComPerspViewport extends BetterAWTGLCanvas implements Rend
 	protected RenderModel renderModel;
 	ModelView modelView;
 	Vec3 cameraPos = new Vec3(0, 0, 0);
-	Quat inverseCameraRotationQuat = new Quat();
+	Quat inverseCameraRotation = new Quat();
 	Quat inverseCameraRotationYSpin = new Quat();
 	Quat inverseCameraRotationZSpin = new Quat();
 	double m_zoom = 1;
@@ -210,72 +210,7 @@ public abstract class ComPerspViewport extends BetterAWTGLCanvas implements Rend
 		inverseCameraRotationYSpin.setFromAxisAngle(yAxisHeap).invertRotation();
 		Vec4 zAxisHeap = new Vec4(0, 0, 1, Math.toRadians(xangle));
 		inverseCameraRotationZSpin.setFromAxisAngle(zAxisHeap).invertRotation();
-		inverseCameraRotationQuat.set(Quat.getProd(inverseCameraRotationYSpin, inverseCameraRotationZSpin)).invertRotation();
-	}
-
-	public void setModel(final ModelView modelView) {
-		renderEnv.setAnimation(null);
-		this.modelView = modelView;
-		renderModel = new RenderModel(modelView.getModel(), modelView);
-//		renderModel.refreshFromEditor(renderEnv, inverseCameraRotationQuat, inverseCameraRotationYSpin, inverseCameraRotationZSpin, this);
-		if (modelView.getModel().getAnims().size() > 0) {
-			renderEnv.setAnimation(modelView.getModel().getAnim(0));
-		}
-		reloadAllTextures();
-	}
-
-	protected void updateBackgroundColor(ProgramPreferences programPreferences) {
-		setBackground(programPreferences.getPerspectiveBackgroundColor() == null ? new Color(80, 80, 80) : programPreferences.getPerspectiveBackgroundColor());
-		loadBackgroundColors();
-	}
-
-	protected void loadBackgroundColors() {
-		backgroundRed = programPreferences.getPerspectiveBackgroundColor().getRed() / 255f;
-		backgroundGreen = programPreferences.getPerspectiveBackgroundColor().getGreen() / 255f;
-		backgroundBlue = programPreferences.getPerspectiveBackgroundColor().getBlue() / 255f;
-	}
-
-	protected void shortcutKeyListener() {
-		addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				System.out.println("key");
-				super.keyPressed(e);
-				if (e.getKeyCode() == KeyEvent.VK_NUMPAD7) {
-					System.out.println("VK_NUMPAD7");
-					setViewportCamera(85, 0, 0, 0, 90);
-//					topDown();
-				}
-				if (e.getKeyCode() == KeyEvent.VK_NUMPAD1) {
-					System.out.println("VK_NUMPAD1");
-					setViewportCamera(0, 0, 0, 0, 0);
-//					topDown();
-				}
-				if (e.getKeyCode() == KeyEvent.VK_NUMPAD3) {
-					System.out.println("VK_NUMPAD3");
-					setViewportCamera(0, 0, 0, 90, 0);
-//					topDown();
-				}
-			}
-		});
-	}
-
-	private void setViewportCamera(int x, int y, int z, int rX, int rY) {
-		cameraPanStartPoint = null;
-		cameraSpinStartPoint = null;
-		actStart = null;
-
-		xangle = rX;
-		yangle = rY;
-
-		Vec4 yAxisHeap = new Vec4(0, 1, 0, (float) Math.toRadians(yangle));
-		inverseCameraRotationYSpin.setFromAxisAngle(yAxisHeap).invertRotation();
-		Vec4 zAxisHeap = new Vec4(0, 0, 1, (float) Math.toRadians(xangle));
-		inverseCameraRotationZSpin.setFromAxisAngle(zAxisHeap).invertRotation();
-		inverseCameraRotationQuat.set(Quat.getProd(inverseCameraRotationYSpin, inverseCameraRotationZSpin)).invertRotation();
-
-		Vec3 vertexHeap = new Vec3(-x, y, -z);
-		cameraPos.set(vertexHeap);
+		inverseCameraRotation.set(Quat.getProd(inverseCameraRotationYSpin, inverseCameraRotationZSpin)).invertRotation();
 	}
 
 
@@ -303,9 +238,14 @@ public abstract class ComPerspViewport extends BetterAWTGLCanvas implements Rend
 	protected void forceReloadTextures() {
 		texLoaded = true;
 
-		deleteAllTextures();
-		addGeosets(modelView.getModel().getGeosets());
-		renderModel.refreshFromEditor(renderEnv, inverseCameraRotationQuat, inverseCameraRotationYSpin, inverseCameraRotationZSpin, this);
+		Vec4 yAxisHeap = new Vec4(0, 1, 0, (float) Math.toRadians(yangle));
+		inverseCameraRotationYSpin.setFromAxisAngle(yAxisHeap).invertRotation();
+		Vec4 zAxisHeap = new Vec4(0, 0, 1, (float) Math.toRadians(xangle));
+		inverseCameraRotationZSpin.setFromAxisAngle(zAxisHeap).invertRotation();
+		inverseCameraRotation.set(Quat.getProd(inverseCameraRotationYSpin, inverseCameraRotationZSpin)).invertRotation();
+
+		Vec3 vertexHeap = new Vec3(-x, y, -z);
+		cameraPos.set(vertexHeap);
 	}
 
 	protected void deleteAllTextures() {
@@ -367,7 +307,7 @@ public abstract class ComPerspViewport extends BetterAWTGLCanvas implements Rend
 		final long currentTimeMillis = System.currentTimeMillis();
 		if ((currentTimeMillis - lastExceptionTimeMillis) > 16) {
 			renderEnv.updateAnimationTime();
-
+			renderModel.setCameraRotations(new Quat(inverseCameraRotation.x, -inverseCameraRotation.y, -inverseCameraRotation.z, inverseCameraRotation.w), inverseCameraRotationYSpin, inverseCameraRotationZSpin);
 			renderModel.updateNodes(false, programPreferences.getRenderParticles());
 //			lastUpdateMillis = currentTimeMillis;
 		}
@@ -953,7 +893,7 @@ public abstract class ComPerspViewport extends BetterAWTGLCanvas implements Rend
 				Vec4 zAxisHeap = new Vec4(0, 0, 1, (float) Math.toRadians(xangle));
 				inverseCameraRotationZSpin.setFromAxisAngle(zAxisHeap).invertRotation();
 
-				inverseCameraRotationQuat.set(Quat.getProd(inverseCameraRotationYSpin, inverseCameraRotationZSpin)).invertRotation();
+				inverseCameraRotation.set(Quat.getProd(inverseCameraRotationYSpin, inverseCameraRotationZSpin)).invertRotation();
 
 				cameraSpinStartPoint.x = (int) mx;
 				cameraSpinStartPoint.y = (int) my;
