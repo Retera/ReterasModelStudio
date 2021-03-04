@@ -1,10 +1,16 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
-import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.Layer;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.BoneShell;
 import com.hiveworkshop.rms.util.IterableListModel;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.util.List;
 import java.util.*;
@@ -74,163 +80,19 @@ public class ModelHolderThing {
 	public ArrayList<Object> visSourcesNew;
 	public BoneShellListCellRenderer boneShellRenderer;
 
+	public ModelViewManager recModelManager;
+	public ModelViewManager donModelManager;
+	ChangeListener changeListener;
+
 
 	public ModelHolderThing(EditableModel receivingModel, EditableModel donatingModel) {
 		this.receivingModel = receivingModel;
 		this.donatingModel = donatingModel;
-	}
+		changeListener = getChangeListener();
 
-	public void initVisibilityList() {
-		visSourcesOld = new ArrayList<>();
-		visSourcesNew = new ArrayList<>();
-		allVisShells = new ArrayList<>();
-		EditableModel model = receivingModel;
-		final List tempList = new ArrayList();
-		for (final Material mat : model.getMaterials()) {
-			for (final Layer lay : mat.getLayers()) {
-				final VisibilityShell vs = new VisibilityShell(lay, model);
-				if (!tempList.contains(lay)) {
-					tempList.add(lay);
-					allVisShells.add(vs);
-				}
-			}
-		}
-		for (final Geoset ga : model.getGeosets()) {
-			final VisibilityShell vs = new VisibilityShell(ga, model);
-			if (!tempList.contains(ga)) {
-				tempList.add(ga);
-				allVisShells.add(vs);
-			}
-		}
-		for (final Object x : model.getLights()) {
-			final VisibilityShell vs = new VisibilityShell((Named) x, model);
-			if (!tempList.contains(x)) {
-				tempList.add(x);
-				allVisShells.add(vs);
-			}
-		}
-		for (final Object x : model.getAttachments()) {
-			final VisibilityShell vs = new VisibilityShell((Named) x, model);
-			if (!tempList.contains(x)) {
-				tempList.add(x);
-				allVisShells.add(vs);
-			}
-		}
-		for (final Object x : model.getParticleEmitters()) {
-			final VisibilityShell vs = new VisibilityShell((Named) x, model);
-			if (!tempList.contains(x)) {
-				tempList.add(x);
-				allVisShells.add(vs);
-			}
-		}
-		for (final Object x : model.getParticleEmitter2s()) {
-			final VisibilityShell vs = new VisibilityShell((Named) x, model);
-			if (!tempList.contains(x)) {
-				tempList.add(x);
-				allVisShells.add(vs);
-			}
-		}
-		for (final Object x : model.getRibbonEmitters()) {
-			final VisibilityShell vs = new VisibilityShell((Named) x, model);
-			if (!tempList.contains(x)) {
-				tempList.add(x);
-				allVisShells.add(vs);
-			}
-		}
-		for (final Object x : model.getPopcornEmitters()) {
-			final VisibilityShell vs = new VisibilityShell((Named) x, model);
-			if (!tempList.contains(x)) {
-				tempList.add(x);
-				allVisShells.add(vs);
-			}
-		}
-		model = donatingModel;
-		for (final Material mat : model.getMaterials()) {
-			for (final Layer x : mat.getLayers()) {
-				final VisibilityShell vs = new VisibilityShell(x, model);
-				if (!tempList.contains(x)) {
-					tempList.add(x);
-					allVisShells.add(vs);
-				}
-			}
-		}
-		for (final Geoset x : model.getGeosets()) {
-			final VisibilityShell vs = new VisibilityShell(x, model);
-			if (!tempList.contains(x)) {
-				tempList.add(x);
-				allVisShells.add(vs);
-			}
-		}
-		for (final Object x : model.getLights()) {
-			final VisibilityShell vs = new VisibilityShell((Named) x, model);
-			if (!tempList.contains(x)) {
-				tempList.add(x);
-				allVisShells.add(vs);
-			}
-		}
-		for (final Object x : model.getAttachments()) {
-			final VisibilityShell vs = new VisibilityShell((Named) x, model);
-			if (!tempList.contains(x)) {
-				tempList.add(x);
-				allVisShells.add(vs);
-			}
-		}
-		for (final Object x : model.getParticleEmitters()) {
-			final VisibilityShell vs = new VisibilityShell((Named) x, model);
-			if (!tempList.contains(x)) {
-				tempList.add(x);
-				allVisShells.add(vs);
-			}
-		}
-		for (final Object x : model.getParticleEmitter2s()) {
-			final VisibilityShell vs = new VisibilityShell((Named) x, model);
-			if (!tempList.contains(x)) {
-				tempList.add(x);
-				allVisShells.add(vs);
-			}
-		}
-		for (final Object x : model.getRibbonEmitters()) {
-			final VisibilityShell vs = new VisibilityShell((Named) x, model);
-			if (!tempList.contains(x)) {
-				tempList.add(x);
-				allVisShells.add(vs);
-			}
-		}
-		for (final Object x : model.getPopcornEmitters()) {
-			final VisibilityShell vs = new VisibilityShell((Named) x, model);
-			if (!tempList.contains(x)) {
-				tempList.add(x);
-				allVisShells.add(vs);
-			}
-		}
-
-		System.out.println("allVisShells:");
-		for (final VisibilityShell vs : allVisShells) {
-			System.out.println(vs.source.getName());
-		}
-
-		System.out.println("new/old:");
-		for (final Object o : receivingModel.getAllVisibilitySources()) {
-			if (o.getClass() != GeosetAnim.class) {
-				visSourcesOld.add(shellFromObject(o));
-				System.out.println(shellFromObject(o).source.getName());
-			} else {
-				visSourcesOld.add(shellFromObject(((GeosetAnim) o).getGeoset()));
-				System.out.println(shellFromObject(((GeosetAnim) o).getGeoset()).source.getName());
-			}
-		}
-		visSourcesOld.add(VisibilityPanel.NOTVISIBLE);
-		visSourcesOld.add(VisibilityPanel.VISIBLE);
-		for (final Object o : donatingModel.getAllVisibilitySources()) {
-			if (o.getClass() != GeosetAnim.class) {
-				visSourcesNew.add(shellFromObject(o));
-			} else {
-				visSourcesNew.add(shellFromObject(((GeosetAnim) o).getGeoset()));
-			}
-		}
-		visSourcesNew.add(VisibilityPanel.NOTVISIBLE);
-		visSourcesNew.add(VisibilityPanel.VISIBLE);
-		visComponents = new IterableListModel<>();
+		recModelManager = new ModelViewManager(receivingModel);
+		donModelManager = new ModelViewManager(donatingModel);
+		boneShellRenderer = new BoneShellListCellRenderer(recModelManager, donModelManager);
 	}
 
 	public IterableListModel<VisibilityPanel> visibilityList() {
@@ -483,22 +345,6 @@ public class ModelHolderThing {
 		return null;
 	}
 
-	public VisibilityShell shellFromObject(final Object o) {
-		for (final VisibilityShell v : allVisShells) {
-			if (v.source == o) {
-				return v;
-			}
-		}
-		return null;
-	}
-
-
-	public void timescaleAllAnims() {
-		for (int i = 0; i < animTabs.getTabCount(); i++) {
-			final AnimPanel aniPanel = (AnimPanel) animTabs.getComponentAt(i);
-			aniPanel.importTypeBox.setSelectedIndex(2);
-		}
-	}
 
 	public void importAllGeos(boolean b) {
 		for (int i = 0; i < geosetTabs.getTabCount(); i++) {
@@ -526,95 +372,31 @@ public class ModelHolderThing {
 		}
 	}
 
-	public void allVisButton(String visible) {
-		for (final VisibilityPanel vPanel : allVisShellPanes) {
-			if (vPanel.sourceShell.model == receivingModel) {
-				vPanel.newSourcesBox.setSelectedItem(visible);
-			} else {
-				vPanel.oldSourcesBox.setSelectedItem(visible);
-			}
-		}
-	}
-
 	public void selSimButton() {
 		for (final VisibilityPanel vPanel : allVisShellPanes) {
 			vPanel.selectSimilarOptions();
 		}
 	}
 
-	public void informGeosetVisibility(final Geoset g, final boolean flag) {
-		for (int i = 0; i < geosetAnimTabs.getTabCount(); i++) {
-			final BoneAttachmentPanel geoPanel = (BoneAttachmentPanel) geosetAnimTabs.getComponentAt(i);
-			if (geoPanel.geoset == g) {
-				geosetAnimTabs.setEnabledAt(i, flag);
-			}
-		}
-	}
-
-	public void allMatrOriginal() {
-		for (int i = 0; i < geosetAnimTabs.getTabCount(); i++) {
-			if (geosetAnimTabs.isEnabledAt(i)) {
-				final BoneAttachmentPanel bap = (BoneAttachmentPanel) geosetAnimTabs.getComponentAt(i);
-				bap.resetMatrices();
-			}
-		}
-	}
-
-	public void allMatrSameName() {
-		for (int i = 0; i < geosetAnimTabs.getTabCount(); i++) {
-			if (geosetAnimTabs.isEnabledAt(i)) {
-				final BoneAttachmentPanel bap = (BoneAttachmentPanel) geosetAnimTabs.getComponentAt(i);
-				bap.setMatricesToSimilarNames();
-			}
-		}
-	}
-
-	public void setSelectedItem(final String what) {
-		for (BonePanel temp : boneTabs.getSelectedValuesList()) {
-			temp.setSelectedValue(what);
-		}
-	}
-
-	/**
-	 * The method run when the user pushes the "Set Parent for All" button in the
-	 * MultiBone panel.
-	 */
-	public void setParentMultiBones() {
-		final JList<BoneShell> list = new JList<>(getFutureBoneListExtended(true));
-		list.setCellRenderer(boneShellRenderer);
-		final int x = JOptionPane.showConfirmDialog(null, new JScrollPane(list), "Set Parent for All Selected Bones", JOptionPane.OK_CANCEL_OPTION);
-		if (x == JOptionPane.OK_OPTION) {
-			for (BonePanel temp : boneTabs.getSelectedValuesList()) {
-				temp.setParent(list.getSelectedValue());
-			}
-		}
-	}
-
-	public void setObjGroupSelected(final boolean flag) {
-		for (ObjectPanel temp : objectTabs.getSelectedValuesList()) {
-			temp.doImport.setSelected(flag);
-		}
-	}
-
-	public void setVisGroupSelected(final boolean flag) {
-		for (VisibilityPanel temp : visTabs.getSelectedValuesList()) {
-			temp.favorOld.setSelected(flag);
-		}
-	}
-
-	public void setVisGroupItemOld(final Object o) {
-		for (VisibilityPanel temp : visTabs.getSelectedValuesList()) {
-			temp.oldSourcesBox.setSelectedItem(o);
-		}
-	}
-
-	public void setVisGroupItemNew(final Object o) {
-		for (VisibilityPanel temp : visTabs.getSelectedValuesList()) {
-			temp.newSourcesBox.setSelectedItem(o);
-		}
-	}
-
 	public BonePanel getPanelOf(final Bone b) {
 		return boneToPanel.get(b);
+	}
+
+
+	public ChangeListener getChangeListener() {
+		return new ChangeListener() {
+			@Override
+			public void stateChanged(final ChangeEvent e) {
+				((AnimPanel) animTabs.getSelectedComponent()).updateSelectionPicks();
+				getFutureBoneList();
+				getFutureBoneListExtended(false);
+				visibilityList();
+//				repaint();
+			}
+		};
+	}
+
+	public ChangeListener getDaChangeListener() {
+		return changeListener;
 	}
 }

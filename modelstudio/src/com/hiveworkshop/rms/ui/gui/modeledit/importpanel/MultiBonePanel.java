@@ -6,13 +6,14 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 
 class MultiBonePanel extends BonePanel {
 	JButton setAllParent;
 	boolean listenForChange = true;
+	ModelHolderThing mht;
 
-	public MultiBonePanel(final IterableListModel<BoneShell> existingBonesList, final BoneShellListCellRenderer renderer) {
+	public MultiBonePanel(ModelHolderThing mht, final IterableListModel<BoneShell> existingBonesList, final BoneShellListCellRenderer renderer) {
+		this.mht = mht;
 		setLayout(new MigLayout("gap 0"));
 		bone = null;
 		existingBones = existingBonesList;
@@ -22,7 +23,7 @@ class MultiBonePanel extends BonePanel {
 		add(title, "align center, wrap");
 
 		importTypeBox.setEditable(false);
-		importTypeBox.addActionListener(this);
+		importTypeBox.addActionListener(e -> selectSimilarOrSomething());
 		importTypeBox.setMaximumSize(new Dimension(200, 20));
 		add(importTypeBox, "wrap");
 
@@ -41,17 +42,8 @@ class MultiBonePanel extends BonePanel {
 		add(cardPanel, "wrap");
 
 		setAllParent = new JButton("Set Parent for All");
-		setAllParent.addActionListener(e -> getImportPanel().mht.setParentMultiBones());
+		setAllParent.addActionListener(e -> setParentMultiBones());
 		add(setAllParent, "wrap");
-	}
-
-	@Override
-	public ImportPanel getImportPanel() {
-		Container temp = getParent();
-		while ((temp != null) && (temp.getClass() != ImportPanel.class)) {
-			temp = temp.getParent();
-		}
-		return (ImportPanel) temp;
 	}
 
 	@Override
@@ -80,8 +72,7 @@ class MultiBonePanel extends BonePanel {
 		listenForChange = true;
 	}
 
-	@Override
-	public void actionPerformed(final ActionEvent e) {
+	private void selectSimilarOrSomething() {
 		final long nanoStart = System.nanoTime();
 		final boolean pastListSelectionState = listenSelection;
 		listenSelection = false;
@@ -92,9 +83,31 @@ class MultiBonePanel extends BonePanel {
 		}
 		listenSelection = pastListSelectionState;
 		if (listenForChange) {
-			getImportPanel().mht.setSelectedItem((String) importTypeBox.getSelectedItem());
+			setSelectedItem((String) importTypeBox.getSelectedItem());
 		}
 		final long nanoEnd = System.nanoTime();
 		System.out.println("MultiBonePanel.actionPerformed() took " + (nanoEnd - nanoStart) + " ns");
+	}
+
+	public void setSelectedItem(final String what) {
+		for (BonePanel temp : mht.boneTabs.getSelectedValuesList()) {
+			temp.setSelectedValue(what);
+		}
+	}
+
+
+	/**
+	 * The method run when the user pushes the "Set Parent for All" button in the
+	 * MultiBone panel.
+	 */
+	public void setParentMultiBones() {
+		final JList<BoneShell> list = new JList<>(mht.getFutureBoneListExtended(true));
+		list.setCellRenderer(mht.boneShellRenderer);
+		final int x = JOptionPane.showConfirmDialog(null, new JScrollPane(list), "Set Parent for All Selected Bones", JOptionPane.OK_CANCEL_OPTION);
+		if (x == JOptionPane.OK_OPTION) {
+			for (BonePanel temp : mht.boneTabs.getSelectedValuesList()) {
+				temp.setParent(list.getSelectedValue());
+			}
+		}
 	}
 }

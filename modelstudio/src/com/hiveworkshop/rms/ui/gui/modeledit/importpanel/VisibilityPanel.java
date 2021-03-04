@@ -14,6 +14,7 @@ class VisibilityPanel extends JPanel {
 	JComboBox<Object> newSourcesBox;
 	JCheckBox favorOld;
 	VisibilityShell sourceShell;
+	ModelHolderThing mht;
 
 	JLabel title;
 
@@ -21,8 +22,9 @@ class VisibilityPanel extends JPanel {
 		// for use in multi pane
 	}
 
-	public VisibilityPanel(final VisibilityShell sourceShell, final DefaultComboBoxModel<Object> oldSources,
+	public VisibilityPanel(ModelHolderThing mht, final VisibilityShell sourceShell, final DefaultComboBoxModel<Object> oldSources,
 	                       final DefaultComboBoxModel<Object> newSources, final VisShellBoxCellRenderer renderer) {
+		this.mht = mht;
 		setLayout(new MigLayout("gap 0"));
 		this.sourceShell = sourceShell;
 		title = new JLabel(sourceShell.model.getName() + ": " + sourceShell.source.getName());

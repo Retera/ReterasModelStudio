@@ -10,7 +10,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.MatrixShell;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -42,13 +41,12 @@ class BoneAttachmentPanel extends JPanel implements ActionListener, ListSelectio
 	EditableModel model;
 	Geoset geoset;
 	MatrixShell currentMatrix = null;
-	ImportPanel impPanel;
+	ModelHolderThing mht;
 
-	public BoneAttachmentPanel(final EditableModel model, final Geoset whichGeoset, final BoneShellListCellRenderer renderer,
-	                           final ImportPanel thePanel) {
+	public BoneAttachmentPanel(ModelHolderThing mht, final EditableModel model, final Geoset whichGeoset, final BoneShellListCellRenderer renderer) {
+		this.mht = mht;
 		this.model = model;
 		geoset = whichGeoset;
-		impPanel = thePanel;
 
 		bonesLabel = new JLabel("Bones");
 		updateBonesList();
@@ -295,17 +293,6 @@ class BoneAttachmentPanel extends JPanel implements ActionListener, ListSelectio
 	}
 
 	public void updateBonesList() {
-		bones = getImportPanel().mht.getFutureBoneList();
-	}
-
-	public ImportPanel getImportPanel() {
-		if (impPanel == null) {
-			Container temp = getParent();
-			while ((temp != null) && (temp.getClass() != ImportPanel.class)) {
-				temp = temp.getParent();
-			}
-			impPanel = (ImportPanel) temp;
-		}
-		return impPanel;
+		bones = mht.getFutureBoneList();
 	}
 }

@@ -7,12 +7,9 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-public class BonePanel extends JPanel implements ListSelectionListener, ActionListener {
+public class BonePanel extends JPanel {
 	static final String IMPORT = "Import this bone";
 	static final String MOTIONFROM = "Import motion to pre-existing:";
 	static final String LEAVE = "Do not import";
@@ -34,21 +31,19 @@ public class BonePanel extends JPanel implements ListSelectionListener, ActionLi
 	JList<BoneShell> futureBonesList;
 	JScrollPane futureBonesListPane;
 	JLabel parentTitle;
-	ImportPanel impPanel;
 	Object[] oldSelection = new Object[0];
 	boolean listenSelection = true;
+	ModelHolderThing mht;
 
 	protected BonePanel() {
 		// This constructor is negative mojo
 	}
 
-	public BonePanel(final Bone whichBone, final IterableListModel<BoneShell> existingBonesList, final BoneShellListCellRenderer renderer,
-	                 final ImportPanel thePanel) {
-
+	public BonePanel(ModelHolderThing mht, final Bone whichBone, final IterableListModel<BoneShell> existingBonesList, final BoneShellListCellRenderer renderer) {
+		this.mht = mht;
 		setLayout(new MigLayout("gap 0"));
 		bone = whichBone;
 		existingBones = existingBonesList;
-		impPanel = thePanel;
 		listModel = new IterableListModel<>();
 		for (int i = 0; i < existingBonesList.size(); i++) {
 			listModel.addElement(existingBonesList.get(i));
@@ -67,14 +62,14 @@ public class BonePanel extends JPanel implements ListSelectionListener, ActionLi
 
 		importTypeBox.setEditable(false);
 //		importTypeBox.addItemListener(this);
-		importTypeBox.addActionListener(this);
+		importTypeBox.addActionListener(e -> ShowCorrectCard());
 		importTypeBox.setMaximumSize(new Dimension(200, 20));
 		add(importTypeBox, "cell 0 1");
 
 		boneList = new JList<>(listModel);
 		boneList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		boneList.setCellRenderer(renderer);
-		boneList.addListSelectionListener(this);
+		boneList.addListSelectionListener(this::updateList);
 		boneListPane = new JScrollPane(boneList);
 		for (int i = 0; i < listModel.size(); i++) {
 			final BoneShell bs = listModel.get(i);
@@ -89,7 +84,7 @@ public class BonePanel extends JPanel implements ListSelectionListener, ActionLi
 			}
 		}
 
-		futureBones = getImportPanel().mht.getFutureBoneListExtended(true);
+		futureBones = mht.getFutureBoneListExtended(true);
 		futureBonesList = new JList<>(futureBones);
 		futureBonesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		futureBonesList.setCellRenderer(renderer);
@@ -103,8 +98,7 @@ public class BonePanel extends JPanel implements ListSelectionListener, ActionLi
 		add(cardPanel, "cell 1 2, growy");
 	}
 
-	@Override
-	public void actionPerformed(final ActionEvent e) {
+	private void ShowCorrectCard() {
 		updateSelectionPicks();
 		final boolean pastListSelectionState = listenSelection;
 		listenSelection = false;
@@ -117,24 +111,13 @@ public class BonePanel extends JPanel implements ListSelectionListener, ActionLi
 	}
 
 	public void initList() {
-		futureBones = getImportPanel().mht.getFutureBoneListExtended(false);
+		futureBones = mht.getFutureBoneListExtended(false);
 		for (int i = 0; i < futureBones.size(); i++) {
 			final BoneShell bs = futureBones.get(i);
 			if (bs.bone == bone.getParent()) {
 				futureBonesList.setSelectedValue(bs, true);
 			}
 		}
-	}
-
-	public ImportPanel getImportPanel() {
-		if (impPanel == null) {
-			Container temp = getParent();
-			while ((temp != null) && (temp.getClass() != ImportPanel.class)) {
-				temp = temp.getParent();
-			}
-			impPanel = (ImportPanel) temp;
-		}
-		return impPanel;
 	}
 
 	public int getSelectedIndex() {
@@ -190,13 +173,12 @@ public class BonePanel extends JPanel implements ListSelectionListener, ActionLi
 		oldSelection = newSelection;
 
 		final long nanoStart = System.nanoTime();
-		futureBones = getImportPanel().mht.getFutureBoneListExtended(false);
+		futureBones = mht.getFutureBoneListExtended(false);
 		final long nanoEnd = System.nanoTime();
 		System.out.println("updating future bone list took " + (nanoEnd - nanoStart) + " ns");
 	}
 
-	@Override
-	public void valueChanged(final ListSelectionEvent e) {
+	private void updateList(ListSelectionEvent e) {
 		if (listenSelection && e.getValueIsAdjusting()) {
 			updateSelectionPicks();
 		}

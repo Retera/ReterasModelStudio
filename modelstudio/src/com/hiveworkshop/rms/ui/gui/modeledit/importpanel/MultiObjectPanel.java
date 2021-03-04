@@ -5,15 +5,14 @@ import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 
-class MultiObjectPanel extends ObjectPanel implements ChangeListener {
+class MultiObjectPanel extends ObjectPanel {
 	boolean oldVal = true;
-	ImportPanel impPanel;
+	ModelHolderThing mht;
 
-	public MultiObjectPanel(final IterableListModel<BoneShell> possibleParents) {
+	public MultiObjectPanel(ModelHolderThing mht, final IterableListModel<BoneShell> possibleParents) {
+		this.mht = mht;
 		setLayout(new MigLayout("gap 0", "[grow]", "[][][][][grow]"));
 		title = new JLabel("Multiple Selected");
 		title.setFont(new Font("Arial", Font.BOLD, 26));
@@ -21,7 +20,7 @@ class MultiObjectPanel extends ObjectPanel implements ChangeListener {
 
 		doImport = new JCheckBox("Import these objects (click to apply to all)");
 		doImport.setSelected(true);
-		doImport.addChangeListener(this);
+		doImport.addChangeListener(e -> doImportPressed());
 		add(doImport, "left, wrap");
 
 		oldParentLabel = new JLabel("(Old parent can only be displayed for a single object)");
@@ -39,22 +38,16 @@ class MultiObjectPanel extends ObjectPanel implements ChangeListener {
 		add(parentsPane, "growx, growy 200");
 	}
 
-	@Override
-	public void stateChanged(final ChangeEvent e) {
+	private void doImportPressed() {
 		if (doImport.isSelected() != oldVal) {
-			getImportPanel().mht.setObjGroupSelected(doImport.isSelected());
+			setObjGroupSelected(doImport.isSelected());
 			oldVal = doImport.isSelected();
 		}
 	}
 
-	public ImportPanel getImportPanel() {
-		if (impPanel == null) {
-			Container temp = getParent();
-			while ((temp != null) && (temp.getClass() != ImportPanel.class)) {
-				temp = temp.getParent();
-			}
-			impPanel = (ImportPanel) temp;
+	public void setObjGroupSelected(final boolean flag) {
+		for (ObjectPanel temp : mht.objectTabs.getSelectedValuesList()) {
+			temp.doImport.setSelected(flag);
 		}
-		return impPanel;
 	}
 }

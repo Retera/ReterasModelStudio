@@ -47,8 +47,10 @@ class AnimPanel extends JPanel implements ChangeListener, ItemListener, ListSele
 	JScrollPane animListPane;
 	Object[] oldSelection = new Object[0];
 	boolean listenSelection = true;
+	ModelHolderThing mht;
 
-	public AnimPanel(final Animation anim, final IterableListModel<AnimShell> existingAnims, final AnimListCellRenderer renderer) {
+	public AnimPanel(ModelHolderThing mht, final Animation anim, final IterableListModel<AnimShell> existingAnims, final AnimListCellRenderer renderer) {
+		this.mht = mht;
 		setLayout(new MigLayout("gap 0"));
 		this.existingAnims = existingAnims;
 		listModel = new IterableListModel<>();

@@ -20,12 +20,14 @@ class ObjectPanel extends JPanel {
 	IterableListModel<BoneShell> parents;
 	JList<BoneShell> parentsList;
 	JScrollPane parentsPane;
+	ModelHolderThing mht;
 
 	protected ObjectPanel() {
 
 	}
 
-	public ObjectPanel(final IdObject whichObject, final IterableListModel<BoneShell> possibleParents) {
+	public ObjectPanel(ModelHolderThing mht, final IdObject whichObject, final IterableListModel<BoneShell> possibleParents) {
+		this.mht = mht;
 		setLayout(new MigLayout("gap 0", "[grow]", "[][][][][grow]"));
 		object = whichObject;
 

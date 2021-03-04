@@ -23,11 +23,12 @@ class GeosetPanel extends JPanel implements ChangeListener {
 	int index;
 	boolean isImported;
 	MaterialListCellRenderer renderer;
-	ImportPanel impPanel;
+	ModelHolderThing mht;
 
-	public GeosetPanel(final boolean imported, // Is this Geoset an imported one, or an original?
+	public GeosetPanel(ModelHolderThing mht, final boolean imported, // Is this Geoset an imported one, or an original?
 	                   final EditableModel model, final int geoIndex, // which geoset is this for? (starts with 0)
 	                   final DefaultListModel<Material> materials, final MaterialListCellRenderer renderer) {
+		this.mht = mht;
 		setLayout(new MigLayout("gap 0"));
 		this.materials = materials;
 		this.model = model;
@@ -80,18 +81,17 @@ class GeosetPanel extends JPanel implements ChangeListener {
 		materialList.setEnabled(doImport.isSelected());
 		materialListPane.setEnabled(doImport.isSelected());
 
-		getImportPanel().mht.informGeosetVisibility(geoset, doImport.isSelected());
+		informGeosetVisibility(geoset, doImport.isSelected());
 	}
 
-	public ImportPanel getImportPanel() {
-		if (impPanel == null) {
-			Container temp = getParent();
-			while ((temp != null) && (temp.getClass() != ImportPanel.class)) {
-				temp = temp.getParent();
+
+	public void informGeosetVisibility(final Geoset g, final boolean flag) {
+		for (int i = 0; i < mht.geosetAnimTabs.getTabCount(); i++) {
+			final BoneAttachmentPanel geoPanel = (BoneAttachmentPanel) mht.geosetAnimTabs.getComponentAt(i);
+			if (geoPanel.geoset == g) {
+				mht.geosetAnimTabs.setEnabledAt(i, flag);
 			}
-			impPanel = (ImportPanel) temp;
 		}
-		return impPanel;
 	}
 
 	public Material getSelectedMaterial() {

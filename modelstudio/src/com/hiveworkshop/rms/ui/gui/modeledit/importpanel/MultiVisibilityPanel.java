@@ -3,16 +3,15 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 
-class MultiVisibilityPanel extends VisibilityPanel implements ChangeListener {
+class MultiVisibilityPanel extends VisibilityPanel {
 	boolean oldVal = true;
-	ImportPanel impPanel;
+	ModelHolderThing mht;
 
-	public MultiVisibilityPanel(final DefaultComboBoxModel<Object> oldSources, final DefaultComboBoxModel<Object> newSources,
+	public MultiVisibilityPanel(ModelHolderThing mht, final DefaultComboBoxModel<Object> oldSources, final DefaultComboBoxModel<Object> newSources,
 	                            final VisShellBoxCellRenderer renderer) {
+		this.mht = mht;
 		setLayout(new MigLayout("gap 0"));
 		title = new JLabel("Multiple Selected");
 		title.setFont(new Font("Arial", Font.BOLD, 26));
@@ -23,7 +22,7 @@ class MultiVisibilityPanel extends VisibilityPanel implements ChangeListener {
 		oldSourcesBox.setEditable(false);
 		oldSourcesBox.setMaximumSize(new Dimension(1000, 25));
 		oldSourcesBox.setRenderer(renderer);
-		oldSourcesBox.addItemListener(e -> getImportPanel().mht.setVisGroupItemOld(oldSourcesBox.getSelectedItem()));
+		oldSourcesBox.addItemListener(e -> setVisGroupItemOld(oldSourcesBox.getSelectedItem()));
 
 		newAnimsLabel = new JLabel("Imported animation visibility from: ");
 
@@ -31,11 +30,11 @@ class MultiVisibilityPanel extends VisibilityPanel implements ChangeListener {
 		newSourcesBox.setEditable(false);
 		newSourcesBox.setMaximumSize(new Dimension(1000, 25));
 		newSourcesBox.setRenderer(renderer);
-		newSourcesBox.addItemListener(e -> getImportPanel().mht.setVisGroupItemNew(newSourcesBox.getSelectedItem()));
+		newSourcesBox.addItemListener(e -> setVisGroupItemNew(newSourcesBox.getSelectedItem()));
 
 		favorOld = new JCheckBox("Favor component's original visibility when combining");
 		favorOld.setSelected(true);
-		favorOld.addChangeListener(this);
+		favorOld.addChangeListener(e -> favorOldPressed());
 
 		add(title, "cell 0 0, spanx, align center, wrap");
 		add(oldAnimsLabel, "cell 0 1");
@@ -45,11 +44,28 @@ class MultiVisibilityPanel extends VisibilityPanel implements ChangeListener {
 		add(favorOld, "cell 0 3");
 	}
 
-	@Override
-	public void stateChanged(final ChangeEvent e) {
+	private void favorOldPressed() {
 		if (favorOld.isSelected() != oldVal) {
-			getImportPanel().mht.setVisGroupSelected(favorOld.isSelected());
+			setVisGroupSelected(favorOld.isSelected());
 			oldVal = favorOld.isSelected();
+		}
+	}
+
+	public void setVisGroupSelected(final boolean flag) {
+		for (VisibilityPanel temp : mht.visTabs.getSelectedValuesList()) {
+			temp.favorOld.setSelected(flag);
+		}
+	}
+
+	public void setVisGroupItemOld(final Object o) {
+		for (VisibilityPanel temp : mht.visTabs.getSelectedValuesList()) {
+			temp.oldSourcesBox.setSelectedItem(o);
+		}
+	}
+
+	public void setVisGroupItemNew(final Object o) {
+		for (VisibilityPanel temp : mht.visTabs.getSelectedValuesList()) {
+			temp.newSourcesBox.setSelectedItem(o);
 		}
 	}
 
@@ -63,16 +79,5 @@ class MultiVisibilityPanel extends VisibilityPanel implements ChangeListener {
 		newSourcesBox.setEditable(true);
 		newSourcesBox.setSelectedItem("Multiple selected");
 		newSourcesBox.setEditable(false);
-	}
-
-	public ImportPanel getImportPanel() {
-		if (impPanel == null) {
-			Container temp = getParent();
-			while ((temp != null) && (temp.getClass() != ImportPanel.class)) {
-				temp = temp.getParent();
-			}
-			impPanel = (ImportPanel) temp;
-		}
-		return impPanel;
 	}
 }
