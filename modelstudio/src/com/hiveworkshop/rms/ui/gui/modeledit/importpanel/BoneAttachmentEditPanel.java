@@ -3,24 +3,24 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.BoneShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.MatrixShell;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.util.List;
 
-public class BoneAttatchmentEditPanel {
-	private static ParentToggleRenderer makeMatricesPanel(ModelHolderThing mht, ModelViewManager recModelManager, ModelViewManager donModelManager) {
-//		addTab("Skin", orangeIcon, new JPanel(), "Edit SKIN chunk");
+public class BoneAttachmentEditPanel extends JPanel {
 
-		final ParentToggleRenderer ptr = new ParentToggleRenderer(mht.displayParents, recModelManager, donModelManager);
+	public JCheckBox displayParents = new JCheckBox("Display parent names");
+	public JButton allMatrOriginal = new JButton("Reset all Matrices");
+	public JButton allMatrSameName = new JButton("Set all to available, original names");
+	ModelHolderThing mht;
 
-		mht.displayParents.addChangeListener(mht.getDaChangeListener());
+	public BoneAttachmentEditPanel(ModelHolderThing mht) {
+		setLayout(new MigLayout("gap 0, fill", "[grow]", "[][grow]"));
+		this.mht = mht;
 
-		mht.allMatrOriginal.addActionListener(e -> allMatrOriginal(mht.geosetAnimTabs));
-		mht.allMatrSameName.addActionListener(e -> allMatrSameName(mht.geosetAnimTabs));
-		return ptr;
-	}
+		add(getTopPanel(), "align center, wrap");
 
-	static JPanel makeGeosetAnimPanel(ModelHolderThing mht) {
 		final ParentToggleRenderer ptr = makeMatricesPanel(mht, mht.recModelManager, mht.donModelManager);
 		for (int i = 0; i < mht.receivingModel.getGeosets().size(); i++) {
 			final BoneAttachmentPanel geoPanel = new BoneAttachmentPanel(mht, mht.receivingModel, mht.receivingModel.getGeoset(i), ptr);
@@ -34,21 +34,27 @@ public class BoneAttatchmentEditPanel {
 		}
 		mht.geosetAnimTabs.addChangeListener(mht.getDaChangeListener());
 
-		mht.geosetAnimPanel.add(mht.geosetAnimTabs);
-		final GroupLayout gaLayout = new GroupLayout(mht.geosetAnimPanel);
-		gaLayout.setVerticalGroup(gaLayout.createSequentialGroup()
-				.addComponent(mht.displayParents)
-				.addComponent(mht.allMatrOriginal)
-				.addComponent(mht.allMatrSameName)
-				.addComponent(mht.geosetAnimTabs));
-		gaLayout.setHorizontalGroup(gaLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
-				.addComponent(mht.displayParents)
-				.addComponent(mht.allMatrOriginal)
-				.addComponent(mht.allMatrSameName)
-				.addComponent(mht.geosetAnimTabs));
-		mht.geosetAnimPanel.setLayout(gaLayout);
 
-		return mht.geosetAnimPanel;
+		add(mht.geosetAnimTabs, "growx, growy");
+	}
+
+	private JPanel getTopPanel() {
+		JPanel topPanel = new JPanel(new MigLayout("gap 0", "[align center]"));
+		topPanel.add(displayParents, "wrap");
+		topPanel.add(allMatrOriginal, "wrap");
+		topPanel.add(allMatrSameName, "wrap");
+		return topPanel;
+	}
+
+	private ParentToggleRenderer makeMatricesPanel(ModelHolderThing mht, ModelViewManager recModelManager, ModelViewManager donModelManager) {
+//		addTab("Skin", orangeIcon, new JPanel(), "Edit SKIN chunk");
+
+		final ParentToggleRenderer ptr = new ParentToggleRenderer(displayParents, recModelManager, donModelManager);
+
+		displayParents.addChangeListener(mht.getDaChangeListener());
+		allMatrOriginal.addActionListener(e -> allMatrOriginal(mht.geosetAnimTabs));
+		allMatrSameName.addActionListener(e -> allMatrSameName(mht.geosetAnimTabs));
+		return ptr;
 	}
 
 	static void uncheckUnusedBoneAttatchments(ModelHolderThing mht, List<BonePanel> usedBonePanels) {

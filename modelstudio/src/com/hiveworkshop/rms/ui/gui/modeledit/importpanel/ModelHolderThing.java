@@ -11,8 +11,6 @@ import com.hiveworkshop.rms.util.IterableListModel;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.*;
-import java.util.List;
 import java.util.*;
 
 public class ModelHolderThing {
@@ -28,54 +26,41 @@ public class ModelHolderThing {
 	public IterableListModel<AnimShell> existingAnims;
 
 	// Bones
-	public JPanel bonesPanel = new JPanel();
 	public JCheckBox clearExistingBones;
 	public IterableListModel<BonePanel> bonePanels = new IterableListModel<>();
 	public Map<Bone, BonePanel> boneToPanel = new HashMap<>();
 	public JList<BonePanel> boneTabs = new JList<>(bonePanels);
-	public CardLayout boneCardLayout = new CardLayout();
-	public JPanel bonePanelCards = new JPanel(boneCardLayout);
-	public JPanel blankPane = new JPanel();
-	public MultiBonePanel multiBonePane;
+
 	public IterableListModel<BoneShell> existingBones;
 
 	// Matrices
-	public JPanel geosetAnimPanel = new JPanel();
 	public JTabbedPane geosetAnimTabs = new JTabbedPane(JTabbedPane.LEFT, JTabbedPane.SCROLL_TAB_LAYOUT);
 
 	public IterableListModel<BoneShell> futureBoneList = new IterableListModel<>();
 	public java.util.List<BoneShell> oldBones;
 	public java.util.List<BoneShell> newBones;
 
-	public JCheckBox displayParents = new JCheckBox("Display parent names");
-	public JButton allMatrOriginal = new JButton("Reset all Matrices");
-	public JButton allMatrSameName = new JButton("Set all to available, original names");
-
 	// Objects
 //	public JPanel objectsPanel = new JPanel();
 	public IterableListModel<ObjectPanel> objectPanels = new IterableListModel<>();
 	public JList<ObjectPanel> objectTabs = new JList<>(objectPanels);
-	public CardLayout objectCardLayout = new CardLayout();
-	public JPanel objectPanelCards = new JPanel(objectCardLayout);
-	public MultiObjectPanel multiObjectPane;
 
 
 	// Visibility
 	public JList<VisibilityPanel> visTabs = new JList<>();
-	public JScrollPane visTabsPane = new JScrollPane(visTabs);
-	public CardLayout visCardLayout = new CardLayout();
-	public JPanel visPanelCards = new JPanel(visCardLayout);
-	public MultiVisibilityPanel multiVisPanel;
 
 	public IterableListModel<VisibilityPanel> visComponents;
 	public ArrayList<VisibilityPanel> allVisShellPanes = new ArrayList<>();
 
 	public IterableListModel<BoneShell> futureBoneListEx = new IterableListModel<>();
 	public List<IterableListModel<BoneShell>> futureBoneListExFixableItems = new ArrayList<>();
+
 	public ArrayList<BoneShell> oldHelpers;
 	public ArrayList<BoneShell> newHelpers;
+
 	public Set<BoneShell> futureBoneListExQuickLookupSet = new HashSet<>();
 	public ArrayList<VisibilityShell> allVisShells;
+
 	public ArrayList<Object> visSourcesOld;
 	public ArrayList<Object> visSourcesNew;
 	public BoneShellListCellRenderer boneShellRenderer;
@@ -100,8 +85,8 @@ public class ModelHolderThing {
 		visComponents.clear();
 		for (int i = 0; i < geosetTabs.getTabCount(); i++) {
 			final GeosetPanel gp = (GeosetPanel) geosetTabs.getComponentAt(i);
-			for (final Layer l : gp.getSelectedMaterial().getLayers()) {
-				final VisibilityPanel vs = visPaneFromObject(l);
+			for (final Layer x : gp.getSelectedMaterial().getLayers()) {
+				final VisibilityPanel vs = visPaneFromObject(x);
 				if (!visComponents.contains(vs) && (vs != null)) {
 					visComponents.addElement(vs);
 				}
@@ -110,8 +95,8 @@ public class ModelHolderThing {
 		for (int i = 0; i < geosetTabs.getTabCount(); i++) {
 			final GeosetPanel gp = (GeosetPanel) geosetTabs.getComponentAt(i);
 			if (gp.doImport.isSelected()) {
-				final Geoset ga = gp.geoset;
-				final VisibilityPanel vs = visPaneFromObject(ga);
+				final Geoset x = gp.geoset;
+				final VisibilityPanel vs = visPaneFromObject(x);
 				if (!visComponents.contains(vs) && (vs != null)) {
 					visComponents.addElement(vs);
 				}
@@ -360,7 +345,7 @@ public class ModelHolderThing {
 		}
 	}
 
-	public void importAllBones(int selsctionIndex) {
+	public void setImportStatusForAllBones(int selsctionIndex) {
 		for (BonePanel bonePanel : bonePanels) {
 			bonePanel.setSelectedIndex(selsctionIndex);
 		}

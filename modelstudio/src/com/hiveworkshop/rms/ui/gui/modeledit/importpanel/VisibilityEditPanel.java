@@ -2,16 +2,27 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.util.IterableListModel;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VisibilityEditPanel {
-	static JPanel makeVisPanel(ModelHolderThing mht) {
-		JPanel visPanel = new JPanel();
-		JSplitPane splitPane;
+public class VisibilityEditPanel extends JPanel {
+
+	public CardLayout visCardLayout = new CardLayout();
+	public JPanel visPanelCards = new JPanel(visCardLayout);
+	public MultiVisibilityPanel multiVisPanel;
+	public JPanel blankPane = new JPanel();
+	ModelHolderThing mht;
+
+	public VisibilityEditPanel(ModelHolderThing mht) {
+		setLayout(new MigLayout("gap 0, fill", "", "[][grow]"));
+		this.mht = mht;
+
+		add(getTopPanel(), "spanx, align center, wrap");
 
 		initVisibilityList(mht);
 		mht.visibilityList();
@@ -22,57 +33,51 @@ public class VisibilityEditPanel {
 
 			mht.allVisShellPanes.add(vp);
 
-			mht.visPanelCards.add(vp, vp.title.getText());
+			visPanelCards.add(vp, vp.title.getText());
 		}
 
-		mht.multiVisPanel = new MultiVisibilityPanel(mht, new DefaultComboBoxModel<>(mht.visSourcesOld.toArray()), new DefaultComboBoxModel<>(mht.visSourcesNew.toArray()), visRenderer);
-		mht.visPanelCards.add(mht.blankPane, "blank");
-		mht.visPanelCards.add(mht.multiVisPanel, "multiple");
+		multiVisPanel = new MultiVisibilityPanel(mht, new DefaultComboBoxModel<>(mht.visSourcesOld.toArray()), new DefaultComboBoxModel<>(mht.visSourcesNew.toArray()), visRenderer);
+		visPanelCards.add(blankPane, "blank");
+		visPanelCards.add(multiVisPanel, "multiple");
 		mht.visTabs.setModel(mht.visComponents);
 		mht.visTabs.setCellRenderer(new VisPaneListCellRenderer(mht.receivingModel));
 		mht.visTabs.addListSelectionListener(e -> visTabsValueChanged(mht));
 		mht.visTabs.setSelectedIndex(0);
-		mht.visPanelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
+		visPanelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
 
-		JButton allInvisButton = new JButton("All Invisible in Exotic Anims");
-		allInvisButton.addActionListener(e -> allVisButton(mht.allVisShellPanes, mht.receivingModel, VisibilityPanel.NOTVISIBLE));
-		allInvisButton.setToolTipText("Forces everything to be always invisibile in animations other than their own original animations.");
-		visPanel.add(allInvisButton);
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(mht.visTabs), visPanelCards);
 
-		JButton allVisButton = new JButton("All Visible in Exotic Anims");
-		allVisButton.addActionListener(e -> allVisButton(mht.allVisShellPanes, mht.receivingModel, VisibilityPanel.VISIBLE));
-		allVisButton.setToolTipText("Forces everything to be always visibile in animations other than their own original animations.");
-		visPanel.add(allVisButton);
-
-		JButton selSimButton = new JButton("Select Similar Options");
-		selSimButton.addActionListener(e -> mht.selSimButton());
-		selSimButton.setToolTipText("Similar components will be selected as visibility sources in exotic animations.");
-		visPanel.add(selSimButton);
-
-		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, mht.visTabsPane, mht.visPanelCards);
-
-		final GroupLayout visLayout = new GroupLayout(visPanel);
-		visLayout.setHorizontalGroup(visLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
-				.addComponent(allInvisButton)// .addGap(8)
-				.addComponent(allVisButton)
-				.addComponent(selSimButton)
-				.addComponent(splitPane));
-		visLayout.setVerticalGroup(visLayout.createSequentialGroup()
-				.addComponent(allInvisButton).addGap(8)
-				.addComponent(allVisButton).addGap(8)
-				.addComponent(selSimButton).addGap(8)
-				.addComponent(splitPane));
-		visPanel.setLayout(visLayout);
-		return visPanel;
+		add(splitPane, "wrap, growx, growy, spany");
 	}
 
-	private static void visTabsValueChanged(ModelHolderThing mht) {
+	private JPanel getTopPanel() {
+		JPanel topPanel = new JPanel(new MigLayout("gap 0", "", "[]8[]8[]"));
+
+		JButton allInvisButton = createButton("All Invisible in Exotic Anims", e -> allVisButton(mht.allVisShellPanes, mht.receivingModel, VisibilityPanel.NOTVISIBLE), "Forces everything to be always invisibile in animations other than their own original animations.");
+		topPanel.add(allInvisButton, "align center, wrap");
+
+		JButton allVisButton = createButton("All Visible in Exotic Anims", e -> allVisButton(mht.allVisShellPanes, mht.receivingModel, VisibilityPanel.VISIBLE), "Forces everything to be always visibile in animations other than their own original animations.");
+		topPanel.add(allVisButton, "align center, wrap");
+
+		JButton selSimButton = createButton("Select Similar Options", e -> mht.selSimButton(), "Similar components will be selected as visibility sources in exotic animations.");
+		topPanel.add(selSimButton, "align center, wrap");
+		return topPanel;
+	}
+
+	public JButton createButton(String text, ActionListener actionListener, String toolTipText) {
+		JButton selSimButton = new JButton(text);
+		selSimButton.addActionListener(actionListener);
+		selSimButton.setToolTipText(toolTipText);
+		return selSimButton;
+	}
+
+	private void visTabsValueChanged(ModelHolderThing mht) {
 		if (mht.visTabs.getSelectedValuesList().toArray().length < 1) {
-			mht.visCardLayout.show(mht.visPanelCards, "blank");
+			visCardLayout.show(visPanelCards, "blank");
 		} else if (mht.visTabs.getSelectedValuesList().toArray().length == 1) {
-			mht.visCardLayout.show(mht.visPanelCards, mht.visTabs.getSelectedValue().title.getText());
+			visCardLayout.show(visPanelCards, mht.visTabs.getSelectedValue().title.getText());
 		} else if (mht.visTabs.getSelectedValuesList().toArray().length > 1) {
-			mht.visCardLayout.show(mht.visPanelCards, "multiple");
+			visCardLayout.show(visPanelCards, "multiple");
 			final Object[] selected = mht.visTabs.getSelectedValuesList().toArray();
 
 			boolean dif = false;
@@ -108,22 +113,22 @@ public class VisibilityEditPanel {
 				}
 			}
 			if (!dif) {
-				mht.multiVisPanel.favorOld.setSelected(selectedt);
+				multiVisPanel.favorOld.setSelected(selectedt);
 			}
 			if (difBoxOld) {
-				mht.multiVisPanel.setMultipleOld();
+				multiVisPanel.setMultipleOld();
 			} else {
-				mht.multiVisPanel.oldSourcesBox.setSelectedIndex(tempIndexOld);
+				multiVisPanel.oldSourcesBox.setSelectedIndex(tempIndexOld);
 			}
 			if (difBoxNew) {
-				mht.multiVisPanel.setMultipleNew();
+				multiVisPanel.setMultipleNew();
 			} else {
-				mht.multiVisPanel.newSourcesBox.setSelectedIndex(tempIndexNew);
+				multiVisPanel.newSourcesBox.setSelectedIndex(tempIndexNew);
 			}
 		}
 	}
 
-	public static void initVisibilityList(ModelHolderThing modelHolderThing) {
+	public void initVisibilityList(ModelHolderThing modelHolderThing) {
 		modelHolderThing.visSourcesOld = new ArrayList<>();
 		modelHolderThing.visSourcesNew = new ArrayList<>();
 		modelHolderThing.allVisShells = new ArrayList<>();
@@ -276,7 +281,7 @@ public class VisibilityEditPanel {
 		modelHolderThing.visComponents = new IterableListModel<>();
 	}
 
-	public static VisibilityShell shellFromObject(ArrayList<VisibilityShell> allVisShells, final Object o) {
+	public VisibilityShell shellFromObject(ArrayList<VisibilityShell> allVisShells, final Object o) {
 		for (final VisibilityShell v : allVisShells) {
 			if (v.source == o) {
 				return v;
@@ -285,7 +290,7 @@ public class VisibilityEditPanel {
 		return null;
 	}
 
-	public static void allVisButton(ArrayList<VisibilityPanel> allVisShellPanes, EditableModel receivingModel, String visible) {
+	public void allVisButton(ArrayList<VisibilityPanel> allVisShellPanes, EditableModel receivingModel, String visible) {
 		for (final VisibilityPanel vPanel : allVisShellPanes) {
 			if (vPanel.sourceShell.model == receivingModel) {
 				vPanel.newSourcesBox.setSelectedItem(visible);

@@ -2,12 +2,20 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.util.IterableListModel;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
-public class GeosetEditPanel {
-	static JPanel makeGeosetPanel(ModelHolderThing mht) {
-		JPanel geosetsPanel = new JPanel();
+public class GeosetEditPanel extends JPanel {
+
+	ModelHolderThing mht;
+
+	public GeosetEditPanel(ModelHolderThing mht) {
+		setLayout(new MigLayout("gap 0, fill", "[grow]", "[]8[grow]"));
+		this.mht = mht;
+
+		add(getTopPanel(), "spanx, align center, wrap");
+
 
 		final IterableListModel<Material> materials = new IterableListModel<>();
 		for (Material material : mht.receivingModel.getMaterials()) {
@@ -35,27 +43,19 @@ public class GeosetEditPanel {
 			mht.geosetTabs.addTab(mht.donatingModel.getName() + " " + (i + 1), ImportPanel.orangeIcon, geoPanel, "Click to modify importing and material data for this geoset.");
 		}
 
+		add(mht.geosetTabs, "growx, growy");
+	}
+
+	private JPanel getTopPanel() {
+		JPanel topPanel = new JPanel(new MigLayout("gap 0", "[]8[]"));
+
 		JButton importAllGeos = new JButton("Import All");
 		importAllGeos.addActionListener(e -> mht.importAllGeos(true));
-		geosetsPanel.add(importAllGeos);
+		topPanel.add(importAllGeos);
 
 		JButton uncheckAllGeos = new JButton("Leave All");
 		uncheckAllGeos.addActionListener(e -> mht.importAllGeos(false));
-		geosetsPanel.add(uncheckAllGeos);
-
-		final GroupLayout geosetLayout = new GroupLayout(geosetsPanel);
-		geosetLayout.setHorizontalGroup(geosetLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
-				.addGroup(geosetLayout.createSequentialGroup()
-						.addComponent(importAllGeos).addGap(8)
-						.addComponent(uncheckAllGeos))
-				.addComponent(mht.geosetTabs));
-		geosetLayout.setVerticalGroup(geosetLayout.createSequentialGroup()
-				.addGroup(geosetLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
-						.addComponent(importAllGeos)
-						.addComponent(uncheckAllGeos)).addGap(8)
-				.addComponent(mht.geosetTabs));
-		geosetsPanel.setLayout(geosetLayout);
-
-		return geosetsPanel;
+		topPanel.add(uncheckAllGeos);
+		return topPanel;
 	}
 }

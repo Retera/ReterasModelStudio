@@ -5,15 +5,33 @@ import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.Helper;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.ui.gui.modeledit.BoneShell;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-public class ObjectEditPanel {
-	static JPanel makeObjecsPanel(ModelHolderThing mht) {
-		JPanel objectsPanel = new JPanel();
-		JSplitPane splitPane;
+public class ObjectEditPanel extends JPanel {
+
+	public CardLayout objectCardLayout = new CardLayout();
+	public JPanel objectPanelCards = new JPanel(objectCardLayout);
+	public MultiObjectPanel multiObjectPane;
+	public JPanel blankPane = new JPanel();
+	ModelHolderThing mht;
+
+	public ObjectEditPanel(ModelHolderThing mht) {
+		setLayout(new MigLayout("gap 0", "[grow][grow]", "[][grow]"));
+		this.mht = mht;
+
+		JButton importAllObjs = new JButton("Import All");
+		importAllObjs.addActionListener(e -> mht.importAllObjs(true));
+		add(importAllObjs, "cell 0 0, right");
+
+		JButton uncheckAllObjs = new JButton("Leave All");
+		uncheckAllObjs.addActionListener(e -> mht.importAllObjs(false));
+		add(uncheckAllObjs, "cell 1 0, left");
+
+
 		mht.getFutureBoneListExtended(false);
 
 		// Build the objectTabs list of ObjectPanels
@@ -25,7 +43,7 @@ public class ObjectEditPanel {
 
 				final ObjectPanel objPanel = new ObjectPanel(mht, obj, mht.getFutureBoneListExtended(true));
 
-				mht.objectPanelCards.add(objPanel, panelid + "");
+				objectPanelCards.add(objPanel, panelid + "");
 				mht.objectPanels.addElement(objPanel);
 				panelid++;
 			}
@@ -35,52 +53,32 @@ public class ObjectEditPanel {
 
 			final ObjectPanel objPanel = new ObjectPanel(obj);
 
-			mht.objectPanelCards.add(objPanel, panelid + "");// (objPanel.title.getText()));
+			objectPanelCards.add(objPanel, panelid + "");// (objPanel.title.getText()));
 			mht.objectPanels.addElement(objPanel);
 			panelid++;
 		}
-		mht.multiObjectPane = new MultiObjectPanel(mht, mht.getFutureBoneListExtended(true));
-		mht.objectPanelCards.add(mht.blankPane, "blank");
-		mht.objectPanelCards.add(mht.multiObjectPane, "multiple");
+		multiObjectPane = new MultiObjectPanel(mht, mht.getFutureBoneListExtended(true));
+		objectPanelCards.add(blankPane, "blank");
+		objectPanelCards.add(multiObjectPane, "multiple");
 		mht.objectTabs.setCellRenderer(objectPanelRenderer);
 		mht.objectTabs.addListSelectionListener(e -> objectTabsValueChanged(mht));
 		mht.objectTabs.setSelectedIndex(0);
-		mht.objectPanelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
+		objectPanelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
 
-		JButton importAllObjs = new JButton("Import All");
-		importAllObjs.addActionListener(e -> mht.importAllObjs(true));
-		mht.bonesPanel.add(importAllObjs);
-
-		JButton uncheckAllObjs = new JButton("Leave All");
-		uncheckAllObjs.addActionListener(e -> mht.importAllObjs(false));
-		mht.bonesPanel.add(uncheckAllObjs);
 
 		JScrollPane objectTabsPane = new JScrollPane(mht.objectTabs);
-		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, objectTabsPane, mht.objectPanelCards);
-
-		final GroupLayout objectLayout = new GroupLayout(objectsPanel);
-		objectLayout.setHorizontalGroup(objectLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
-				.addGroup(objectLayout.createSequentialGroup()
-						.addComponent(importAllObjs).addGap(8)
-						.addComponent(uncheckAllObjs))
-				.addComponent(splitPane));
-		objectLayout.setVerticalGroup(objectLayout.createSequentialGroup()
-				.addGroup(objectLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
-						.addComponent(importAllObjs)
-						.addComponent(uncheckAllObjs)).addGap(8)
-				.addComponent(splitPane));
-		objectsPanel.setLayout(objectLayout);
-		return objectsPanel;
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, objectTabsPane, objectPanelCards);
+		add(splitPane, "cell 0 1, growx, growy, spanx 2");
 	}
 
-	private static void objectTabsValueChanged(ModelHolderThing mht) {
+	private void objectTabsValueChanged(ModelHolderThing mht) {
 		if (mht.objectTabs.getSelectedValuesList().toArray().length < 1) {
-			mht.objectCardLayout.show(mht.objectPanelCards, "blank");
+			objectCardLayout.show(objectPanelCards, "blank");
 		} else if (mht.objectTabs.getSelectedValuesList().toArray().length == 1) {
 			mht.getFutureBoneListExtended(false);
-			mht.objectCardLayout.show(mht.objectPanelCards, (mht.objectTabs.getSelectedIndex()) + "");// .title.getText()
+			objectCardLayout.show(objectPanelCards, (mht.objectTabs.getSelectedIndex()) + "");// .title.getText()
 		} else if (mht.objectTabs.getSelectedValuesList().toArray().length > 1) {
-			mht.objectCardLayout.show(mht.objectPanelCards, "multiple");
+			objectCardLayout.show(objectPanelCards, "multiple");
 			final Object[] selected = mht.objectTabs.getSelectedValuesList().toArray();
 			boolean dif = false;
 			boolean set = false;
@@ -95,7 +93,7 @@ public class ObjectEditPanel {
 				}
 			}
 			if (!dif) {
-				mht.multiObjectPane.doImport.setSelected(selectedt);
+				multiObjectPane.doImport.setSelected(selectedt);
 			}
 		}
 	}

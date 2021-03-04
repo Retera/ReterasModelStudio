@@ -70,22 +70,29 @@ public class ImportPanel extends JTabbedPane {
 		}
 
 		// Geoset Panel
-		addTab("Geosets", geoIcon, GeosetEditPanel.makeGeosetPanel(mht), "Controls which geosets will be imported.");
+		GeosetEditPanel geosetEditPanel = new GeosetEditPanel(mht);
+		addTab("Geosets", geoIcon, geosetEditPanel, "Controls which geosets will be imported.");
+//		addTab("Geosets", geoIcon, GeosetEditPanel.makeGeosetPanel(mht), "Controls which geosets will be imported.");
 
 		// Animation Panel
-		addTab("Animation", animIcon, AnimEditPanel.makeAnimationPanel(mht), "Controls which animations will be imported.");
+		AnimEditPanel animEditPanel = new AnimEditPanel(mht);
+		addTab("Animation", animIcon, animEditPanel, "Controls which animations will be imported.");
 
 		// Bone Panel
-		addTab("Bones", boneIcon, BoneEditPanel.makeBonePanel(mht), "Controls which bones will be imported.");
+		BoneEditPanel boneEditPanel = new BoneEditPanel(mht);
+		addTab("Bones", boneIcon, boneEditPanel, "Controls which bones will be imported.");
 
 		// Matrices Panel // Build the geosetAnimTabs list of GeosetPanels
-		addTab("Matrices", greenIcon, BoneAttatchmentEditPanel.makeGeosetAnimPanel(mht), "Controls which bones geosets are attached to.");
+		BoneAttachmentEditPanel boneAttachmentEditPanel = new BoneAttachmentEditPanel(mht);
+		addTab("Matrices", greenIcon, boneAttachmentEditPanel, "Controls which bones geosets are attached to.");
 
 		// Objects Panel
-		addTab("Objects", objIcon, ObjectEditPanel.makeObjecsPanel(mht), "Controls which objects are imported.");
+		ObjectEditPanel objectEditPanel = new ObjectEditPanel(mht);
+		addTab("Objects", objIcon, objectEditPanel, "Controls which objects are imported.");
 
 		// Visibility Panel
-		addTab("Visibility", orangeIcon, VisibilityEditPanel.makeVisPanel(mht), "Controls the visibility of portions of the model.");
+		VisibilityEditPanel visibilityEditPanel = new VisibilityEditPanel(mht);
+		addTab("Visibility", orangeIcon, visibilityEditPanel, "Controls the visibility of portions of the model.");
 
 		// Listen all
 		addChangeListener(mht.getDaChangeListener());
@@ -523,7 +530,7 @@ public class ImportPanel extends JTabbedPane {
 	// *********************Simple Import Functions****************
 	public void animTransfer(final boolean singleAnimation, final Animation pickedAnim, final Animation visFromAnim, final boolean show) {
 		mht.importAllGeos(false);
-		mht.importAllBones(1);
+		mht.setImportStatusForAllBones(1);
 		mht.clearExistingAnims.doClick();
 		mht.importAllObjs(false);
 		mht.visibilityList();
@@ -577,7 +584,7 @@ public class ImportPanel extends JTabbedPane {
 		// This should be an import from self
 		mht.importAllGeos(false);
 		mht.uncheckAllAnims(false);
-		mht.importAllBones(2);
+		mht.setImportStatusForAllBones(2);
 		mht.importAllObjs(false);
 		mht.visibilityList();
 		mht.selSimButton();
