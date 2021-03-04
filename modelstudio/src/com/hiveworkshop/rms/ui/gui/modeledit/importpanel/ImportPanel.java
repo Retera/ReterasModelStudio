@@ -552,13 +552,14 @@ public class ImportPanel extends JTabbedPane {
 		// Try assuming it's a unit with a corpse; they'll tend to be that way
 
 		// Iterate through new visibility sources, find a geoset with gutz material
-		for (int i = 0; (i < mht.visSourcesNew.size()) && (corpseShell == null); i++) {
-			if (mht.visSourcesNew.get(i) instanceof VisibilityShell) {
-				final VisibilityShell vs = (VisibilityShell) mht.visSourcesNew.get(i);
+		for (Object o : mht.donModVisSourcesNew) {
+			if (o instanceof VisibilityShell) {
+				final VisibilityShell vs = (VisibilityShell) o;
 				if (vs.source instanceof Geoset) {
 					final Geoset g = (Geoset) vs.source;
 					if ((g.getGeosetAnim() != null) && g.getMaterial().firstLayer().firstTexture().getPath().equalsIgnoreCase("textures\\gutz.blp")) {
 						corpseShell = vs;
+						break;
 					}
 				}
 			}

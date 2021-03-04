@@ -5,15 +5,13 @@ import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.util.ArrayList;
+import java.util.List;
 
-class AnimPanel extends JPanel implements ChangeListener, ItemListener, ListSelectionListener {
+class AnimPanel extends JPanel {
 	// Animation panel for controlling which are imported
 
 	static final String IMPORTBASIC = "Import as-is";
@@ -45,7 +43,7 @@ class AnimPanel extends JPanel implements ChangeListener, ItemListener, ListSele
 	IterableListModel<AnimShell> listModel;
 	JList<AnimShell> animList;
 	JScrollPane animListPane;
-	Object[] oldSelection = new Object[0];
+	List<AnimShell> oldSelection = new ArrayList<>();
 	boolean listenSelection = true;
 	ModelHolderThing mht;
 
@@ -53,10 +51,8 @@ class AnimPanel extends JPanel implements ChangeListener, ItemListener, ListSele
 		this.mht = mht;
 		setLayout(new MigLayout("gap 0"));
 		this.existingAnims = existingAnims;
-		listModel = new IterableListModel<>();
-		for (int i = 0; i < existingAnims.size(); i++) {
-			listModel.addElement(existingAnims.get(i));
-		}
+		listModel = new IterableListModel<>(existingAnims);
+
 		this.anim = anim;
 
 		title = new JLabel(anim.getName());
@@ -65,16 +61,16 @@ class AnimPanel extends JPanel implements ChangeListener, ItemListener, ListSele
 
 		doImport = new JCheckBox("Import this Sequence");
 		doImport.setSelected(true);
-		doImport.addChangeListener(this);
+		doImport.addChangeListener(e -> CheckboxStateChanged());
 		add(doImport, "left, wrap");
 
 		inReverse = new JCheckBox("Reverse");
 		inReverse.setSelected(false);
-		inReverse.addChangeListener(this);
+		inReverse.addChangeListener(e -> CheckboxStateChanged());
 		add(inReverse, "left, wrap");
 
 		importTypeBox.setEditable(false);
-		importTypeBox.addItemListener(this);
+		importTypeBox.addItemListener(this::showCorrectCard);
 		importTypeBox.setMaximumSize(new Dimension(200, 20));
 		add(importTypeBox);
 		// Restricts users to pre-existing choices,
@@ -96,7 +92,7 @@ class AnimPanel extends JPanel implements ChangeListener, ItemListener, ListSele
 		// and like-named ones, so that the default selection is any animation
 		// with the same name
 		// (although this should stop after the first one is picked)
-		animList.addListSelectionListener(this);
+		animList.addListSelectionListener(this::updateList);
 		for (int i = 0; (i < existingAnims.size()) && (animList.getSelectedIndex() == -1); i++) {
 			final Animation iAnim = ((AnimShell) listModel.get(i)).anim;
 			if (iAnim.getName().toLowerCase().equals(anim.getName().toLowerCase())) {
@@ -121,18 +117,15 @@ class AnimPanel extends JPanel implements ChangeListener, ItemListener, ListSele
 		doImport.setSelected(flag);
 	}
 
-	@Override
-	public void stateChanged(final ChangeEvent e) {
+	private void CheckboxStateChanged() {
 		importTypeBox.setEnabled(doImport.isSelected());
 		cardPane.setEnabled(doImport.isSelected());
 		animList.setEnabled(doImport.isSelected());
 		newNameEntry.setEnabled(doImport.isSelected());
 		updateSelectionPicks();
-
 	}
 
-	@Override
-	public void itemStateChanged(final ItemEvent e) {
+	private void showCorrectCard(ItemEvent e) {
 		// --
 		// http://docs.oracle.com/javase/tutorial/uiswing/examples/layout/CardLayoutDemoProject/src/layout/CardLayoutDemo.java
 		// -- http://docs.oracle.com/javase/tutorial/uiswing/layout/card.html
@@ -146,50 +139,42 @@ class AnimPanel extends JPanel implements ChangeListener, ItemListener, ListSele
 	public void updateSelectionPicks() {
 		listenSelection = false;
 		// IterableListModel newModel = new IterableListModel();
-		final Object[] selection = animList.getSelectedValuesList().toArray();
+		List<AnimShell> selectedValuesList = animList.getSelectedValuesList();
 		listModel.clear();
-		for (AnimShell temp : existingAnims) {
-			if ((temp == null) || (temp.importAnim == anim)) {
-				listModel.addElement(temp);
+
+		for (AnimShell as : existingAnims) {
+			if ((as == null) || (as.importAnim == anim)) {
+				listModel.addElement(as);
 			}
 		}
-		final int[] indices = new int[selection.length];
-		for (int i = 0; i < selection.length; i++) {
-			indices[i] = listModel.indexOf(selection[i]);
+
+		final int[] indices = new int[selectedValuesList.size()];
+		for (int i = 0; i < indices.length; i++) {
+			indices[i] = listModel.indexOf(selectedValuesList.get(i));
 		}
+
 		animList.setSelectedIndices(indices);
 		listenSelection = true;
 
-		final Object[] newSelection;
+		List<AnimShell> newSelection;
 		if (doImport.isSelected() && (importTypeBox.getSelectedIndex() == 2)) {
-			newSelection = animList.getSelectedValuesList().toArray();
+			newSelection = selectedValuesList;
 		} else {
-			newSelection = new Object[0];
+			newSelection = new ArrayList<>();
 		}
-		// ImportPanel panel = getImportPanel();
-		for (final Object a : oldSelection) {
-			((AnimShell) a).setImportAnim(null);
+		for (AnimShell a : oldSelection) {
+			a.setImportAnim(null);
 		}
-		for (final Object a : newSelection) {
-			((AnimShell) a).setImportAnim(anim);
+		for (AnimShell a : newSelection) {
+			a.setImportAnim(anim);
 		}
-		// panel.addAnimPicks(oldSelection,this);
-		// panel.removeAnimPicks(newSelection,this);
+
 		oldSelection = newSelection;
 	}
 
-	@Override
-	public void valueChanged(final ListSelectionEvent e) {
+	private void updateList(ListSelectionEvent e) {
 		if (listenSelection && e.getValueIsAdjusting()) {
 			updateSelectionPicks();
 		}
-	}
-
-	public ImportPanel getImportPanel() {
-		Container temp = getParent();
-		while ((temp != null) && (temp.getClass() != ImportPanel.class)) {
-			temp = temp.getParent();
-		}
-		return (ImportPanel) temp;
 	}
 }

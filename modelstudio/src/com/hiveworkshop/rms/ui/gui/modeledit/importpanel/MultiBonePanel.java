@@ -32,12 +32,11 @@ class MultiBonePanel extends BonePanel {
 		boneList.setCellRenderer(renderer);
 		boneListPane = new JScrollPane(boneList);
 
-		add(importTypeBox);
-		add(boneListPane);
 		cardPanel = new JPanel(cards);
 		cardPanel.add(boneListPane, "boneList");
 		cardPanel.add(dummyPanel, "blank");
 		boneList.setEnabled(false);
+
 		cards.show(cardPanel, "blank");
 		add(cardPanel, "wrap");
 

@@ -47,7 +47,7 @@ public class BoneEditPanel extends JPanel {
 			final Bone b = donModBones.get(i);
 			final BonePanel bonePanel = new BonePanel(mht, b, mht.existingBones, mht.boneShellRenderer);
 
-			bonePanelCards.add(bonePanel, i + "");// (bonePanel.title.getText()));
+			bonePanelCards.add(bonePanel, i + "");
 			mht.bonePanels.addElement(bonePanel);
 			mht.boneToPanel.put(b, bonePanel);
 		}
@@ -55,19 +55,22 @@ public class BoneEditPanel extends JPanel {
 			final Bone b = donModHelpers.get(i);
 			final BonePanel bonePanel = new BonePanel(mht, b, mht.existingBones, mht.boneShellRenderer);
 
-			bonePanelCards.add(bonePanel, donModBones.size() + i + "");// (bonePanel.title.getText()));
+			bonePanelCards.add(bonePanel, donModBones.size() + i + "");
 			mht.bonePanels.addElement(bonePanel);
 			mht.boneToPanel.put(b, bonePanel);
 		}
-		for (int i = 0; i < mht.bonePanels.size(); i++) {
-			mht.bonePanels.get(i).initList();
+
+		for (BonePanel bonePanel : mht.bonePanels) {
+			bonePanel.initList();
 		}
 		multiBonePane = new MultiBonePanel(mht, mht.existingBones, mht.boneShellRenderer);
 		bonePanelCards.add(blankPane, "blank");
 		bonePanelCards.add(multiBonePane, "multiple");
-		mht.boneTabs.setCellRenderer(bonePanelRenderer);// bonePanelRenderer);
+
+		mht.boneTabs.setCellRenderer(bonePanelRenderer);
 		mht.boneTabs.addListSelectionListener(e -> boneTabsValueChanged(mht));
 		mht.boneTabs.setSelectedIndex(0);
+
 		bonePanelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
 
 
@@ -107,27 +110,22 @@ public class BoneEditPanel extends JPanel {
 	}
 
 	private void boneTabsValueChanged(ModelHolderThing mht) {
-		// boolean listEnabledNow = false;
-		if (mht.boneTabs.getSelectedValuesList().toArray().length < 1) {
-			// listEnabledNow = listEnabled;
+		List<BonePanel> selectedValuesList = mht.boneTabs.getSelectedValuesList();
+		if (selectedValuesList.size() < 1) {
 			boneCardLayout.show(bonePanelCards, "blank");
-		} else if (mht.boneTabs.getSelectedValuesList().toArray().length == 1) {
-			// listEnabledNow = true;
+		} else if (selectedValuesList.size() == 1) {
 			boneCardLayout.show(bonePanelCards, (mht.boneTabs.getSelectedIndex()) + "");
 			mht.boneTabs.getSelectedValue().updateSelectionPicks();
-		} else if (mht.boneTabs.getSelectedValuesList().toArray().length > 1) {
+		} else {
 			boneCardLayout.show(bonePanelCards, "multiple");
-			// listEnabledNow = false;
-			final Object[] selected = mht.boneTabs.getSelectedValuesList().toArray();
 			boolean dif = false;
-			int tempIndex = -99;
-			for (int i = 0; (i < selected.length) && !dif; i++) {
-				final BonePanel temp = (BonePanel) selected[i];
-				if (tempIndex == -99) {
-					tempIndex = temp.importTypeBox.getSelectedIndex();
-				}
-				if (tempIndex != temp.importTypeBox.getSelectedIndex()) {
+
+			int tempIndex = selectedValuesList.get(0).importTypeBox.getSelectedIndex();
+
+			for (BonePanel bp : selectedValuesList) {
+				if (tempIndex != bp.importTypeBox.getSelectedIndex()) {
 					dif = true;
+					break;
 				}
 			}
 			if (dif) {
@@ -185,8 +183,7 @@ public class BoneEditPanel extends JPanel {
 	}
 
 	public void uncheckUnusedBones(ModelHolderThing mht) {
-		// Unselect all bones by iterating + setting to index 2 ("Do not
-		// import" index)
+		// Unselect all bones by iterating + setting to index 2 ("Do not import" index)
 		// Bones could be referenced by:
 		// - A matrix
 		// - Another bone

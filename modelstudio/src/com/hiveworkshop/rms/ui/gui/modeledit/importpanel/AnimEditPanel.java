@@ -19,15 +19,14 @@ public class AnimEditPanel extends JPanel {
 
 
 		mht.existingAnims = new IterableListModel<>();
-		for (int i = 0; i < mht.receivingModel.getAnims().size(); i++) {
-			mht.existingAnims.addElement(new AnimShell(mht.receivingModel.getAnims().get(i)));
+		for (Animation anim : mht.receivingModel.getAnims()) {
+			mht.existingAnims.addElement(new AnimShell(anim));
 		}
 
 		final AnimListCellRenderer animsRenderer = new AnimListCellRenderer();
 
 		// Build the animTabs list of AnimPanels
-		for (int i = 0; i < mht.donatingModel.getAnims().size(); i++) {
-			final Animation anim = mht.donatingModel.getAnim(i);
+		for (Animation anim : mht.donatingModel.getAnims()) {
 			final AnimPanel iAnimPanel = new AnimPanel(mht, anim, mht.existingAnims, animsRenderer);
 
 			mht.animTabs.addTab(anim.getName(), ImportPanel.orangeIcon, iAnimPanel, "Click to modify data for this animation sequence.");
@@ -70,8 +69,8 @@ public class AnimEditPanel extends JPanel {
 	}
 
 	private void renameAllAnims(ModelHolderThing mht) {
-		final String newTagString = JOptionPane.showInputDialog(null,
-				"Choose additional naming (i.e. swim or alternate)");
+		final String newTagString = JOptionPane.showInputDialog(null, "Choose additional naming (i.e. swim or alternate)");
+
 		if (newTagString != null) {
 			for (int i = 0; i < mht.animTabs.getTabCount(); i++) {
 				final AnimPanel aniPanel = (AnimPanel) mht.animTabs.getComponentAt(i);

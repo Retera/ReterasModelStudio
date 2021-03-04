@@ -8,6 +8,8 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BonePanel extends JPanel {
 	static final String IMPORT = "Import this bone";
@@ -31,7 +33,7 @@ public class BonePanel extends JPanel {
 	JList<BoneShell> futureBonesList;
 	JScrollPane futureBonesListPane;
 	JLabel parentTitle;
-	Object[] oldSelection = new Object[0];
+	List<BoneShell> oldSelection = new ArrayList<>();
 	boolean listenSelection = true;
 	ModelHolderThing mht;
 
@@ -44,10 +46,7 @@ public class BonePanel extends JPanel {
 		setLayout(new MigLayout("gap 0"));
 		bone = whichBone;
 		existingBones = existingBonesList;
-		listModel = new IterableListModel<>();
-		for (int i = 0; i < existingBonesList.size(); i++) {
-			listModel.addElement(existingBonesList.get(i));
-		}
+		listModel = new IterableListModel<>(existingBonesList);
 
 		title = new JLabel(bone.getClass().getSimpleName() + " \"" + bone.getName() + "\"");
 		title.setFont(new Font("Arial", Font.BOLD, 26));
@@ -61,7 +60,6 @@ public class BonePanel extends JPanel {
 		add(parentTitle, "cell 2 1");
 
 		importTypeBox.setEditable(false);
-//		importTypeBox.addItemListener(this);
 		importTypeBox.addActionListener(e -> ShowCorrectCard());
 		importTypeBox.setMaximumSize(new Dimension(200, 20));
 		add(importTypeBox, "cell 0 1");
@@ -71,15 +69,14 @@ public class BonePanel extends JPanel {
 		boneList.setCellRenderer(renderer);
 		boneList.addListSelectionListener(this::updateList);
 		boneListPane = new JScrollPane(boneList);
-		for (int i = 0; i < listModel.size(); i++) {
-			final BoneShell bs = listModel.get(i);
-			if (bs.bone.getName().equals(bone.getName()) && (bs.importBone == null)
-					&& (!(bs.bone.getName().contains("Mesh") || bs.bone.getName().contains("Object")
-					|| bs.bone.getName().contains("Box"))
-					|| bs.bone.getPivotPoint().equalLocs(bone.getPivotPoint()))) {
+
+		for (BoneShell bs : listModel) {
+			if (bs.bone.getName().equals(bone.getName())
+					&& (bs.importBone == null)
+					&& (!bs.bone.getName().contains("Mesh") && !bs.bone.getName().contains("Object") && !bs.bone.getName().contains("Box") || bs.bone.getPivotPoint().equalLocs(bone.getPivotPoint()))) {
 				boneList.setSelectedValue(bs, true);
 				bs.setImportBone(bone);
-				i = listModel.size();
+				break;
 				// System.out.println("GREAT BALLS OF FIRE");
 			}
 		}
@@ -112,8 +109,7 @@ public class BonePanel extends JPanel {
 
 	public void initList() {
 		futureBones = mht.getFutureBoneListExtended(false);
-		for (int i = 0; i < futureBones.size(); i++) {
-			final BoneShell bs = futureBones.get(i);
+		for (BoneShell bs : futureBones) {
 			if (bs.bone == bone.getParent()) {
 				futureBonesList.setSelectedValue(bs, true);
 			}
@@ -138,36 +134,34 @@ public class BonePanel extends JPanel {
 
 	public void updateSelectionPicks() {
 		listenSelection = false;
-		// IterableListModel newModel = new IterableListModel();
-		final Object[] selection = boneList.getSelectedValuesList().toArray();
+		List<BoneShell> selectedValuesList = boneList.getSelectedValuesList();
 		listModel.clear();
-		for (int i = 0; i < existingBones.size(); i++) {
-			final Bone temp = existingBones.get(i).importBone;
-			if ((temp == null) || (temp == bone)) {
-				listModel.addElement(existingBones.get(i));
+		for (BoneShell bs : existingBones) {
+			if ((bs.importBone == null) || (bs.importBone == bone)) {
+				listModel.addElement(bs);
 			}
 		}
 
 
-		final int[] indices = new int[selection.length];
-		for (int i = 0; i < selection.length; i++) {
-			indices[i] = listModel.indexOf(selection[i]);
+		final int[] indices = new int[selectedValuesList.size()];
+		for (int i = 0; i < indices.length; i++) {
+			indices[i] = listModel.indexOf(selectedValuesList.get(i));
 		}
 		boneList.setSelectedIndices(indices);
 		listenSelection = true;
 
-		final Object[] newSelection;
+		List<BoneShell> newSelection;
 		if (importTypeBox.getSelectedIndex() == 1) {
-			newSelection = boneList.getSelectedValuesList().toArray();
+			newSelection = selectedValuesList;
 		} else {
-			newSelection = new Object[0];
+			newSelection = new ArrayList<>();
 		}
 
-		for (final Object a : oldSelection) {
-			((BoneShell) a).setImportBone(null);
+		for (final BoneShell bs : oldSelection) {
+			bs.setImportBone(null);
 		}
-		for (final Object a : newSelection) {
-			((BoneShell) a).setImportBone(bone);
+		for (BoneShell bs : newSelection) {
+			bs.setImportBone(bone);
 		}
 
 		oldSelection = newSelection;

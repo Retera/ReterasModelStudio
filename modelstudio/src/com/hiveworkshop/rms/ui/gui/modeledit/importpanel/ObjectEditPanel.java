@@ -53,7 +53,7 @@ public class ObjectEditPanel extends JPanel {
 
 			final ObjectPanel objPanel = new ObjectPanel(obj);
 
-			objectPanelCards.add(objPanel, panelid + "");// (objPanel.title.getText()));
+			objectPanelCards.add(objPanel, panelid + "");
 			mht.objectPanels.addElement(objPanel);
 			panelid++;
 		}
@@ -72,24 +72,22 @@ public class ObjectEditPanel extends JPanel {
 	}
 
 	private void objectTabsValueChanged(ModelHolderThing mht) {
-		if (mht.objectTabs.getSelectedValuesList().toArray().length < 1) {
+		List<ObjectPanel> selectedValuesList = mht.objectTabs.getSelectedValuesList();
+		if (selectedValuesList.size() < 1) {
 			objectCardLayout.show(objectPanelCards, "blank");
-		} else if (mht.objectTabs.getSelectedValuesList().toArray().length == 1) {
+		} else if (selectedValuesList.size() == 1) {
 			mht.getFutureBoneListExtended(false);
-			objectCardLayout.show(objectPanelCards, (mht.objectTabs.getSelectedIndex()) + "");// .title.getText()
-		} else if (mht.objectTabs.getSelectedValuesList().toArray().length > 1) {
+			objectCardLayout.show(objectPanelCards, (mht.objectTabs.getSelectedIndex()) + "");
+		} else {
 			objectCardLayout.show(objectPanelCards, "multiple");
-			final Object[] selected = mht.objectTabs.getSelectedValuesList().toArray();
+
 			boolean dif = false;
-			boolean set = false;
-			boolean selectedt = false;
-			for (int i = 0; (i < selected.length) && !dif; i++) {
-				final ObjectPanel temp = (ObjectPanel) selected[i];
-				if (!set) {
-					set = true;
-					selectedt = temp.doImport.isSelected();
-				} else if (selectedt != temp.doImport.isSelected()) {
+			boolean selectedt = selectedValuesList.get(0).doImport.isSelected();
+
+			for (ObjectPanel op : selectedValuesList) {
+				if (selectedt != op.doImport.isSelected()) {
 					dif = true;
+					break;
 				}
 			}
 			if (!dif) {

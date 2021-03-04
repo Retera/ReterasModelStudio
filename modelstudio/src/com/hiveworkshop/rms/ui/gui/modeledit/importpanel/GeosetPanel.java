@@ -6,11 +6,9 @@ import com.hiveworkshop.rms.editor.model.Material;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 
-class GeosetPanel extends JPanel implements ChangeListener {
+class GeosetPanel extends JPanel {
 	// Geoset/Skin panel for controlling materials and geosets
 	DefaultListModel<Material> materials;
 	JList<Material> materialList;
@@ -44,7 +42,7 @@ class GeosetPanel extends JPanel implements ChangeListener {
 		doImport = new JCheckBox("Import this Geoset");
 		doImport.setSelected(true);
 		if (imported) {
-			doImport.addChangeListener(this);
+			doImport.addChangeListener(e -> checkboxToggeled());
 		} else {
 			doImport.setEnabled(false);
 		}
@@ -75,8 +73,7 @@ class GeosetPanel extends JPanel implements ChangeListener {
 		}
 	}
 
-	@Override
-	public void stateChanged(final ChangeEvent e) {
+	private void checkboxToggeled() {
 		materialText.setEnabled(doImport.isSelected());
 		materialList.setEnabled(doImport.isSelected());
 		materialListPane.setEnabled(doImport.isSelected());

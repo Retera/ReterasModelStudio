@@ -1,15 +1,11 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
-import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.Layer;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.BoneShell;
 import com.hiveworkshop.rms.util.IterableListModel;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.util.*;
 
@@ -37,8 +33,8 @@ public class ModelHolderThing {
 	public JTabbedPane geosetAnimTabs = new JTabbedPane(JTabbedPane.LEFT, JTabbedPane.SCROLL_TAB_LAYOUT);
 
 	public IterableListModel<BoneShell> futureBoneList = new IterableListModel<>();
-	public java.util.List<BoneShell> oldBones;
-	public java.util.List<BoneShell> newBones;
+	public ArrayList<BoneShell> recModOldBones;
+	public ArrayList<BoneShell> donModNewBones;
 
 	// Objects
 //	public JPanel objectsPanel = new JPanel();
@@ -55,14 +51,14 @@ public class ModelHolderThing {
 	public IterableListModel<BoneShell> futureBoneListEx = new IterableListModel<>();
 	public List<IterableListModel<BoneShell>> futureBoneListExFixableItems = new ArrayList<>();
 
-	public ArrayList<BoneShell> oldHelpers;
-	public ArrayList<BoneShell> newHelpers;
+	public ArrayList<BoneShell> recModOldHelpers;
+	public ArrayList<BoneShell> donModNewHelpers;
 
 	public Set<BoneShell> futureBoneListExQuickLookupSet = new HashSet<>();
 	public ArrayList<VisibilityShell> allVisShells;
 
-	public ArrayList<Object> visSourcesOld;
-	public ArrayList<Object> visSourcesNew;
+	public ArrayList<Object> recModVisSourcesOld;
+	public ArrayList<Object> donModVisSourcesNew;
 	public BoneShellListCellRenderer boneShellRenderer;
 
 	public ModelViewManager recModelManager;
@@ -80,8 +76,13 @@ public class ModelHolderThing {
 		boneShellRenderer = new BoneShellListCellRenderer(recModelManager, donModelManager);
 	}
 
+	long totalAddTime;
+	long addCount;
+	long totalRemoveTime;
+	long removeCount;
+
 	public IterableListModel<VisibilityPanel> visibilityList() {
-		final Object selection = visTabs.getSelectedValue();
+		VisibilityPanel selection = visTabs.getSelectedValue();
 		visComponents.clear();
 		for (int i = 0; i < geosetTabs.getTabCount(); i++) {
 			final GeosetPanel gp = (GeosetPanel) geosetTabs.getComponentAt(i);
@@ -104,42 +105,12 @@ public class ModelHolderThing {
 		}
 		// The current's
 		final EditableModel model = receivingModel;
-		for (final Object x : model.getLights()) {
-			final VisibilityPanel vs = visPaneFromObject(x);
-			if (!visComponents.contains(vs) && (vs != null)) {
-				visComponents.addElement(vs);
-			}
-		}
-		for (final Object x : model.getAttachments()) {
-			final VisibilityPanel vs = visPaneFromObject(x);
-			if (!visComponents.contains(vs) && (vs != null)) {
-				visComponents.addElement(vs);
-			}
-		}
-		for (final Object x : model.getParticleEmitters()) {
-			final VisibilityPanel vs = visPaneFromObject(x);
-			if (!visComponents.contains(vs) && (vs != null)) {
-				visComponents.addElement(vs);
-			}
-		}
-		for (final Object x : model.getParticleEmitter2s()) {
-			final VisibilityPanel vs = visPaneFromObject(x);
-			if (!visComponents.contains(vs) && (vs != null)) {
-				visComponents.addElement(vs);
-			}
-		}
-		for (final Object x : model.getRibbonEmitters()) {
-			final VisibilityPanel vs = visPaneFromObject(x);
-			if (!visComponents.contains(vs) && (vs != null)) {
-				visComponents.addElement(vs);
-			}
-		}
-		for (final Object x : model.getPopcornEmitters()) {
-			final VisibilityPanel vs = visPaneFromObject(x);
-			if (!visComponents.contains(vs) && (vs != null)) {
-				visComponents.addElement(vs);
-			}
-		}
+		createAndAddVisComp(model.getLights());
+		createAndAddVisComp(model.getAttachments());
+		createAndAddVisComp(model.getParticleEmitters());
+		createAndAddVisComp(model.getParticleEmitter2s());
+		createAndAddVisComp(model.getRibbonEmitters());
+		createAndAddVisComp(model.getPopcornEmitters());
 
 		for (ObjectPanel op : objectPanels) {
 			if (op.doImport.isSelected() && (op.object != null))
@@ -155,38 +126,47 @@ public class ModelHolderThing {
 		return visComponents;
 	}
 
+	public void createAndAddVisComp(List<? extends IdObject> idObjects) {
+		for (IdObject x : idObjects) {
+			final VisibilityPanel vs = visPaneFromObject(x);
+			if (!visComponents.contains(vs) && (vs != null)) {
+				visComponents.addElement(vs);
+			}
+		}
+	}
+
 	public IterableListModel<BoneShell> getFutureBoneList() {
-		if (oldBones == null) {
-			oldBones = new ArrayList<>();
-			newBones = new ArrayList<>();
-			final List<Bone> oldBonesRefs = receivingModel.getBones();
-			for (final Bone b : oldBonesRefs) {
+		if (recModOldBones == null) {
+			recModOldBones = new ArrayList<>();
+			donModNewBones = new ArrayList<>();
+			final List<Bone> recOldBonesRefs = receivingModel.getBones();
+			for (final Bone b : recOldBonesRefs) {
 				final BoneShell bs = new BoneShell(b);
 				bs.modelName = receivingModel.getName();
-				oldBones.add(bs);
+				recModOldBones.add(bs);
 			}
-			final List<Bone> newBonesRefs = donatingModel.getBones();
-			for (final Bone b : newBonesRefs) {
+			final List<Bone> donNewBonesRefs = donatingModel.getBones();
+			for (final Bone b : donNewBonesRefs) {
 				final BoneShell bs = new BoneShell(b);
 				bs.modelName = donatingModel.getName();
 				bs.panel = getPanelOf(b);
-				newBones.add(bs);
+				donModNewBones.add(bs);
 			}
 		}
 		if (!clearExistingBones.isSelected()) {
-			for (final BoneShell b : oldBones) {
+			for (final BoneShell b : recModOldBones) {
 				if (!futureBoneList.contains(b)) {
 					futureBoneList.addElement(b);
 				}
 			}
 		} else {
-			for (final BoneShell b : oldBones) {
+			for (final BoneShell b : recModOldBones) {
 				if (futureBoneList.contains(b)) {
 					futureBoneList.removeElement(b);
 				}
 			}
 		}
-		for (final BoneShell b : newBones) {
+		for (final BoneShell b : donModNewBones) {
 			if (b.panel.importTypeBox.getSelectedItem() == BonePanel.IMPORT) {
 				if (!futureBoneList.contains(b)) {
 					futureBoneList.addElement(b);
@@ -200,48 +180,47 @@ public class ModelHolderThing {
 		return futureBoneList;
 	}
 
-
 	public IterableListModel<BoneShell> getFutureBoneListExtended(final boolean newSnapshot) {
-		long totalAddTime = 0;
-		long addCount = 0;
-		long totalRemoveTime = 0;
-		long removeCount = 0;
-		if (oldHelpers == null) {
-			oldHelpers = new ArrayList<>();
-			newHelpers = new ArrayList<>();
-			List<? extends Bone> oldHelpersRefs = receivingModel.getBones();
-			for (final Bone b : oldHelpersRefs) {
+		totalAddTime = 0;
+		addCount = 0;
+		totalRemoveTime = 0;
+		removeCount = 0;
+		if (recModOldHelpers == null) {
+			recModOldHelpers = new ArrayList<>();
+			donModNewHelpers = new ArrayList<>();
+			List<? extends Bone> RecOldBonesRefs = receivingModel.getBones();
+			for (final Bone b : RecOldBonesRefs) {
 				final BoneShell bs = new BoneShell(b);
 				bs.modelName = receivingModel.getName();
 				bs.showClass = true;
-				oldHelpers.add(bs);
+				recModOldHelpers.add(bs);
 			}
-			oldHelpersRefs = receivingModel.getHelpers();
-			for (final Bone b : oldHelpersRefs) {
+			List<? extends Bone> recOldHelpersRefs = receivingModel.getHelpers();
+			for (final Bone b : recOldHelpersRefs) {
 				final BoneShell bs = new BoneShell(b);
 				bs.modelName = receivingModel.getName();
 				bs.showClass = true;
-				oldHelpers.add(bs);
+				recModOldHelpers.add(bs);
 			}
-			List<? extends Bone> newHelpersRefs = donatingModel.getBones();
-			for (final Bone b : newHelpersRefs) {
+			List<? extends Bone> donNewBonesRefs = donatingModel.getBones();
+			for (final Bone b : donNewBonesRefs) {
 				final BoneShell bs = new BoneShell(b);
 				bs.modelName = donatingModel.getName();
 				bs.showClass = true;
 				bs.panel = getPanelOf(b);
-				newHelpers.add(bs);
+				donModNewHelpers.add(bs);
 			}
-			newHelpersRefs = donatingModel.getHelpers();
-			for (final Bone b : newHelpersRefs) {
+			List<? extends Bone> donNewHelpersRefs = donatingModel.getHelpers();
+			for (final Bone b : donNewHelpersRefs) {
 				final BoneShell bs = new BoneShell(b);
 				bs.modelName = donatingModel.getName();
 				bs.showClass = true;
 				bs.panel = getPanelOf(b);
-				newHelpers.add(bs);
+				donModNewHelpers.add(bs);
 			}
 		}
 		if (!clearExistingBones.isSelected()) {
-			for (final BoneShell b : oldHelpers) {
+			for (final BoneShell b : recModOldHelpers) {
 				if (!futureBoneListExQuickLookupSet.contains(b)) {
 					final long startTime = System.nanoTime();
 					futureBoneListEx.addElement(b);
@@ -252,7 +231,7 @@ public class ModelHolderThing {
 				}
 			}
 		} else {
-			for (final BoneShell b : oldHelpers) {
+			for (final BoneShell b : recModOldHelpers) {
 				if (futureBoneListExQuickLookupSet.remove(b)) {
 					final long startTime = System.nanoTime();
 					futureBoneListEx.removeElement(b);
@@ -262,7 +241,7 @@ public class ModelHolderThing {
 				}
 			}
 		}
-		for (final BoneShell b : newHelpers) {
+		for (final BoneShell b : donModNewHelpers) {
 			b.panel = getPanelOf(b.bone);
 			if (b.panel != null) {
 				if (b.panel.importTypeBox.getSelectedItem() == BonePanel.IMPORT) {
@@ -369,15 +348,12 @@ public class ModelHolderThing {
 
 
 	public ChangeListener getChangeListener() {
-		return new ChangeListener() {
-			@Override
-			public void stateChanged(final ChangeEvent e) {
-				((AnimPanel) animTabs.getSelectedComponent()).updateSelectionPicks();
-				getFutureBoneList();
-				getFutureBoneListExtended(false);
-				visibilityList();
+		return e -> {
+			((AnimPanel) animTabs.getSelectedComponent()).updateSelectionPicks();
+			getFutureBoneList();
+			getFutureBoneListExtended(false);
+			visibilityList();
 //				repaint();
-			}
 		};
 	}
 

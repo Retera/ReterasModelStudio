@@ -52,8 +52,7 @@ class ObjectPanel extends JPanel {
 		parents = possibleParents;
 		parentsList = new JList<>(parents);
 		parentsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		for (int i = 0; i < parents.size(); i++) {
-			final BoneShell bs = parents.get(i);
+		for (BoneShell bs : parents) {
 			if (bs.bone == object.getParent()) {
 				parentsList.setSelectedValue(bs, true);
 			}

@@ -46,8 +46,8 @@ class MultiObjectPanel extends ObjectPanel {
 	}
 
 	public void setObjGroupSelected(final boolean flag) {
-		for (ObjectPanel temp : mht.objectTabs.getSelectedValuesList()) {
-			temp.doImport.setSelected(flag);
+		for (ObjectPanel op : mht.objectTabs.getSelectedValuesList()) {
+			op.doImport.setSelected(flag);
 		}
 	}
 }

@@ -10,9 +10,7 @@ import java.util.List;
 
 public class BoneAttachmentEditPanel extends JPanel {
 
-	public JCheckBox displayParents = new JCheckBox("Display parent names");
-	public JButton allMatrOriginal = new JButton("Reset all Matrices");
-	public JButton allMatrSameName = new JButton("Set all to available, original names");
+	JCheckBox displayParents;
 	ModelHolderThing mht;
 
 	public BoneAttachmentEditPanel(ModelHolderThing mht) {
@@ -21,7 +19,7 @@ public class BoneAttachmentEditPanel extends JPanel {
 
 		add(getTopPanel(), "align center, wrap");
 
-		final ParentToggleRenderer ptr = makeMatricesPanel(mht, mht.recModelManager, mht.donModelManager);
+		final ParentToggleRenderer ptr = makeMatricesPanel(mht.recModelManager, mht.donModelManager);
 		for (int i = 0; i < mht.receivingModel.getGeosets().size(); i++) {
 			final BoneAttachmentPanel geoPanel = new BoneAttachmentPanel(mht, mht.receivingModel, mht.receivingModel.getGeoset(i), ptr);
 
@@ -38,31 +36,11 @@ public class BoneAttachmentEditPanel extends JPanel {
 		add(mht.geosetAnimTabs, "growx, growy");
 	}
 
-	private JPanel getTopPanel() {
-		JPanel topPanel = new JPanel(new MigLayout("gap 0", "[align center]"));
-		topPanel.add(displayParents, "wrap");
-		topPanel.add(allMatrOriginal, "wrap");
-		topPanel.add(allMatrSameName, "wrap");
-		return topPanel;
-	}
-
-	private ParentToggleRenderer makeMatricesPanel(ModelHolderThing mht, ModelViewManager recModelManager, ModelViewManager donModelManager) {
-//		addTab("Skin", orangeIcon, new JPanel(), "Edit SKIN chunk");
-
-		final ParentToggleRenderer ptr = new ParentToggleRenderer(displayParents, recModelManager, donModelManager);
-
-		displayParents.addChangeListener(mht.getDaChangeListener());
-		allMatrOriginal.addActionListener(e -> allMatrOriginal(mht.geosetAnimTabs));
-		allMatrSameName.addActionListener(e -> allMatrSameName(mht.geosetAnimTabs));
-		return ptr;
-	}
-
 	static void uncheckUnusedBoneAttatchments(ModelHolderThing mht, List<BonePanel> usedBonePanels) {
 		for (int i = 0; i < mht.geosetAnimTabs.getTabCount(); i++) {
 			if (mht.geosetAnimTabs.isEnabledAt(i)) {
 				final BoneAttachmentPanel bap = (BoneAttachmentPanel) mht.geosetAnimTabs.getComponentAt(i);
-				for (int mk = 0; mk < bap.oldBoneRefs.size(); mk++) {
-					final MatrixShell ms = bap.oldBoneRefs.get(mk);
+				for (MatrixShell ms : bap.oldBoneRefs) {
 					for (final BoneShell bs : ms.newBones) {
 						BoneShell shell = bs;
 						BonePanel current = mht.getPanelOf(shell.bone);
@@ -102,19 +80,41 @@ public class BoneAttachmentEditPanel extends JPanel {
 		}
 	}
 
-	public static void allMatrOriginal(JTabbedPane geosetAnimTabs) {
-		for (int i = 0; i < geosetAnimTabs.getTabCount(); i++) {
-			if (geosetAnimTabs.isEnabledAt(i)) {
-				final BoneAttachmentPanel bap = (BoneAttachmentPanel) geosetAnimTabs.getComponentAt(i);
+	private JPanel getTopPanel() {
+		JPanel topPanel = new JPanel(new MigLayout("gap 0", "[align center]"));
+
+		displayParents = new JCheckBox("Display parent names");
+		displayParents.addChangeListener(mht.getDaChangeListener());
+		topPanel.add(displayParents, "wrap");
+
+		JButton allMatrOriginal = new JButton("Reset all Matrices");
+		allMatrOriginal.addActionListener(e -> allMatrOriginal());
+		topPanel.add(allMatrOriginal, "wrap");
+
+		JButton allMatrSameName = new JButton("Set all to available, original names");
+		allMatrSameName.addActionListener(e -> allMatrSameName());
+		topPanel.add(allMatrSameName, "wrap");
+
+		return topPanel;
+	}
+
+	private ParentToggleRenderer makeMatricesPanel(ModelViewManager recModelManager, ModelViewManager donModelManager) {
+		return new ParentToggleRenderer(displayParents, recModelManager, donModelManager);
+	}
+
+	public void allMatrOriginal() {
+		for (int i = 0; i < mht.geosetAnimTabs.getTabCount(); i++) {
+			if (mht.geosetAnimTabs.isEnabledAt(i)) {
+				final BoneAttachmentPanel bap = (BoneAttachmentPanel) mht.geosetAnimTabs.getComponentAt(i);
 				bap.resetMatrices();
 			}
 		}
 	}
 
-	public static void allMatrSameName(JTabbedPane geosetAnimTabs) {
-		for (int i = 0; i < geosetAnimTabs.getTabCount(); i++) {
-			if (geosetAnimTabs.isEnabledAt(i)) {
-				final BoneAttachmentPanel bap = (BoneAttachmentPanel) geosetAnimTabs.getComponentAt(i);
+	public void allMatrSameName() {
+		for (int i = 0; i < mht.geosetAnimTabs.getTabCount(); i++) {
+			if (mht.geosetAnimTabs.isEnabledAt(i)) {
+				final BoneAttachmentPanel bap = (BoneAttachmentPanel) mht.geosetAnimTabs.getComponentAt(i);
 				bap.setMatricesToSimilarNames();
 			}
 		}
