@@ -80,7 +80,7 @@ class GeosetPanel extends JPanel implements ChangeListener {
 		materialList.setEnabled(doImport.isSelected());
 		materialListPane.setEnabled(doImport.isSelected());
 
-		getImportPanel().informGeosetVisibility(geoset, doImport.isSelected());
+		getImportPanel().mht.informGeosetVisibility(geoset, doImport.isSelected());
 	}
 
 	public ImportPanel getImportPanel() {

@@ -89,7 +89,7 @@ public class BonePanel extends JPanel implements ListSelectionListener, ActionLi
 			}
 		}
 
-		futureBones = getImportPanel().getFutureBoneListExtended(true);
+		futureBones = getImportPanel().mht.getFutureBoneListExtended(true);
 		futureBonesList = new JList<>(futureBones);
 		futureBonesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		futureBonesList.setCellRenderer(renderer);
@@ -117,7 +117,7 @@ public class BonePanel extends JPanel implements ListSelectionListener, ActionLi
 	}
 
 	public void initList() {
-		futureBones = getImportPanel().getFutureBoneListExtended(false);
+		futureBones = getImportPanel().mht.getFutureBoneListExtended(false);
 		for (int i = 0; i < futureBones.size(); i++) {
 			final BoneShell bs = futureBones.get(i);
 			if (bs.bone == bone.getParent()) {
@@ -190,7 +190,7 @@ public class BonePanel extends JPanel implements ListSelectionListener, ActionLi
 		oldSelection = newSelection;
 
 		final long nanoStart = System.nanoTime();
-		futureBones = getImportPanel().getFutureBoneListExtended(false);
+		futureBones = getImportPanel().mht.getFutureBoneListExtended(false);
 		final long nanoEnd = System.nanoTime();
 		System.out.println("updating future bone list took " + (nanoEnd - nanoStart) + " ns");
 	}

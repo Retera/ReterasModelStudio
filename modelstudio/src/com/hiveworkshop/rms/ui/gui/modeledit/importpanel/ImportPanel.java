@@ -11,6 +11,7 @@ import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.IterableListModel;
 import com.hiveworkshop.rms.util.Vec3;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -72,8 +73,8 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 		} catch (final Exception e) {
 			JOptionPane.showMessageDialog(null, "Error: Image files were not found! Due to bad programming, this might break the program!");
 		}
-		final ModelViewManager currentModelManager = new ModelViewManager(mht.receivingModel);
-		final ModelViewManager importedModelManager = new ModelViewManager(mht.donatingModel);
+		final ModelViewManager recModelManager = new ModelViewManager(mht.receivingModel);
+		final ModelViewManager donModelManager = new ModelViewManager(mht.donatingModel);
 
 		// Geoset Panel
 
@@ -84,14 +85,14 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 		addTab("Animation", animIcon, makeAnimationPanel(), "Controls which animations will be imported.");
 
 		// Bone Panel
-		mht.boneShellRenderer = new BoneShellListCellRenderer(currentModelManager, importedModelManager);
-		final BonePanelListCellRenderer bonePanelRenderer = new BonePanelListCellRenderer(currentModelManager, importedModelManager);
+		mht.boneShellRenderer = new BoneShellListCellRenderer(recModelManager, donModelManager);
+		final BonePanelListCellRenderer bonePanelRenderer = new BonePanelListCellRenderer(recModelManager, donModelManager);
 
 
 		addTab("Bones", boneIcon, makeBonePanel(bonePanelRenderer), "Controls which bones will be imported.");
 
 		// Matrices Panel
-		final ParentToggleRenderer ptr = makeMatricesPanle(currentModelManager, importedModelManager);
+		final ParentToggleRenderer ptr = makeMatricesPanle(recModelManager, donModelManager);
 
 		// Build the geosetAnimTabs list of GeosetPanels
 		makeGeosetAnimPanel(ptr);
@@ -107,14 +108,17 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 		// Listen all
 		addChangeListener(this);
 
-		makeFinalPanel();
+		final JPanel containerPanel = new JPanel(new MigLayout("gap 0, fill", "[grow]", "[grow]"));
+		containerPanel.add(this, "wrap");
+		containerPanel.add(getFooterPanel());
+		frame.setContentPane(containerPanel);
 
 		frame.setBounds(0, 0, 1024, 780);
 		frame.setLocationRelativeTo(null);
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(final WindowEvent e) {
-				cancelButton();
+				cancelImport();
 			}
 		});
 		frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -152,11 +156,11 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 		}
 
 		JButton importAllGeos = new JButton("Import All");
-		importAllGeos.addActionListener(e -> importAllGeos(true));
+		importAllGeos.addActionListener(e -> mht.importAllGeos(true));
 		geosetsPanel.add(importAllGeos);
 
 		JButton uncheckAllGeos = new JButton("Leave All");
-		uncheckAllGeos.addActionListener(e -> importAllGeos(false));
+		uncheckAllGeos.addActionListener(e -> mht.importAllGeos(false));
 		geosetsPanel.add(uncheckAllGeos);
 
 		final GroupLayout geosetLayout = new GroupLayout(geosetsPanel);
@@ -186,11 +190,11 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 		final AnimListCellRenderer animsRenderer = new AnimListCellRenderer();
 
 		JButton importAllAnims = new JButton("Import All");
-		importAllAnims.addActionListener(e -> uncheckAllAnims(true));
+		importAllAnims.addActionListener(e -> mht.uncheckAllAnims(true));
 		animPanel.add(importAllAnims);
 
 		JButton timescaleAllAnims = new JButton("Time-scale All");
-		timescaleAllAnims.addActionListener(e -> timescaleAllAnims());
+		timescaleAllAnims.addActionListener(e -> mht.timescaleAllAnims());
 		animPanel.add(timescaleAllAnims);
 
 		JButton renameAllAnims = new JButton("Import and Rename All");
@@ -198,7 +202,7 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 		animPanel.add(renameAllAnims);
 
 		JButton uncheckAllAnims = new JButton("Leave All");
-		uncheckAllAnims.addActionListener(e -> uncheckAllAnims(false));
+		uncheckAllAnims.addActionListener(e -> mht.uncheckAllAnims(false));
 		animPanel.add(uncheckAllAnims);
 
 		mht.clearExistingAnims = new JCheckBox("Clear pre-existing animations");
@@ -284,15 +288,15 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 		mht.bonePanelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
 
 		JButton importAllBones = new JButton("Import All");
-		importAllBones.addActionListener(e -> importAllBones(0));
+		importAllBones.addActionListener(e -> mht.importAllBones(0));
 		mht.bonesPanel.add(importAllBones);
 
 		JButton uncheckAllBones = new JButton("Leave All");
-		uncheckAllBones.addActionListener(e -> importAllBones(2));
+		uncheckAllBones.addActionListener(e -> mht.importAllBones(2));
 		mht.bonesPanel.add(uncheckAllBones);
 
 		JButton motionFromBones = new JButton("Motion From All");
-		motionFromBones.addActionListener(e -> importAllBones(1));
+		motionFromBones.addActionListener(e -> mht.importAllBones(1));
 		mht.bonesPanel.add(motionFromBones);
 
 		JButton uncheckUnusedBones = new JButton("Uncheck Unused");
@@ -333,8 +337,8 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 
 		mht.displayParents.addChangeListener(this);
 
-		mht.allMatrOriginal.addActionListener(e -> allMatrOriginal());
-		mht.allMatrSameName.addActionListener(e -> allMatrSameName());
+		mht.allMatrOriginal.addActionListener(e -> mht.allMatrOriginal());
+		mht.allMatrSameName.addActionListener(e -> mht.allMatrSameName());
 		return ptr;
 	}
 
@@ -371,7 +375,7 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 	private JPanel makeObjecsPanel() {
 		JPanel objectsPanel = new JPanel();
 		JSplitPane splitPane;
-		getFutureBoneListExtended(false);
+		mht.getFutureBoneListExtended(false);
 
 		// Build the objectTabs list of ObjectPanels
 		final ObjPanelListCellRenderer objectPanelRenderer = new ObjPanelListCellRenderer();
@@ -380,7 +384,7 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 			final IdObject obj = mht.donatingModel.getIdObjects().get(i);
 			if ((obj.getClass() != Bone.class) && (obj.getClass() != Helper.class)) {
 
-				final ObjectPanel objPanel = new ObjectPanel(obj, getFutureBoneListExtended(true));
+				final ObjectPanel objPanel = new ObjectPanel(obj, mht.getFutureBoneListExtended(true));
 
 				mht.objectPanelCards.add(objPanel, panelid + "");
 				mht.objectPanels.addElement(objPanel);
@@ -396,7 +400,7 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 			mht.objectPanels.addElement(objPanel);
 			panelid++;
 		}
-		mht.multiObjectPane = new MultiObjectPanel(getFutureBoneListExtended(true));
+		mht.multiObjectPane = new MultiObjectPanel(mht.getFutureBoneListExtended(true));
 		mht.objectPanelCards.add(mht.blankPane, "blank");
 		mht.objectPanelCards.add(mht.multiObjectPane, "multiple");
 		mht.objectTabs.setCellRenderer(objectPanelRenderer);
@@ -405,11 +409,11 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 		mht.objectPanelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
 
 		JButton importAllObjs = new JButton("Import All");
-		importAllObjs.addActionListener(e -> importAllObjs(true));
+		importAllObjs.addActionListener(e -> mht.importAllObjs(true));
 		mht.bonesPanel.add(importAllObjs);
 
 		JButton uncheckAllObjs = new JButton("Leave All");
-		uncheckAllObjs.addActionListener(e -> importAllObjs(false));
+		uncheckAllObjs.addActionListener(e -> mht.importAllObjs(false));
 		mht.bonesPanel.add(uncheckAllObjs);
 
 		JScrollPane objectTabsPane = new JScrollPane(mht.objectTabs);
@@ -456,17 +460,17 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 		mht.visPanelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
 
 		JButton allInvisButton = new JButton("All Invisible in Exotic Anims");
-		allInvisButton.addActionListener(e -> allVisButton(VisibilityPanel.NOTVISIBLE));
+		allInvisButton.addActionListener(e -> mht.allVisButton(VisibilityPanel.NOTVISIBLE));
 		allInvisButton.setToolTipText("Forces everything to be always invisibile in animations other than their own original animations.");
 		visPanel.add(allInvisButton);
 
 		JButton allVisButton = new JButton("All Visible in Exotic Anims");
-		allVisButton.addActionListener(e -> allVisButton(VisibilityPanel.VISIBLE));
+		allVisButton.addActionListener(e -> mht.allVisButton(VisibilityPanel.VISIBLE));
 		allVisButton.setToolTipText("Forces everything to be always visibile in animations other than their own original animations.");
 		visPanel.add(allVisButton);
 
 		JButton selSimButton = new JButton("Select Similar Options");
-		selSimButton.addActionListener(e -> selSimButton());
+		selSimButton.addActionListener(e -> mht.selSimButton());
 		selSimButton.setToolTipText("Similar components will be selected as visibility sources in exotic animations.");
 		visPanel.add(selSimButton);
 
@@ -487,29 +491,30 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 		return visPanel;
 	}
 
-	private void makeFinalPanel() {
+	private JPanel getFooterPanel() {
+		JPanel footerPanel = new JPanel(new MigLayout("gap 0", "[grow, left]8[grow, right]"));
 		JButton okayButton = new JButton("Finish");
-		okayButton.addActionListener(e -> okayButton());
+		okayButton.addActionListener(e -> applyImport());
 		JButton cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(e -> cancelButton());
+		cancelButton.addActionListener(e -> cancelImport());
 
-		final JPanel finalPanel = new JPanel();
-		final GroupLayout layout = new GroupLayout(finalPanel);
-		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-				.addComponent(this)
-				.addGroup(layout.createSequentialGroup()
-						.addComponent(cancelButton)
-						.addComponent(okayButton)));
-		layout.setVerticalGroup(layout.createSequentialGroup()
-				.addComponent(this).addGap(8)
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-						.addComponent(cancelButton)
-						.addComponent(okayButton)));
-		finalPanel.setLayout(layout);
+		footerPanel.add(okayButton);
+		footerPanel.add(cancelButton);
 
-		// Later add a Yes/No confirmation of "do you wish to cancel this
-		// import?" when you close the window.
-		frame.setContentPane(finalPanel);
+//		final GroupLayout layout = new GroupLayout(footerPanel);
+//		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+//				.addComponent(this)
+//				.addGroup(layout.createSequentialGroup()
+//						.addComponent(cancelButton)
+//						.addComponent(okayButton)));
+//		layout.setVerticalGroup(layout.createSequentialGroup()
+//				.addComponent(this).addGap(8)
+//				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+//						.addComponent(cancelButton)
+//						.addComponent(okayButton)));
+//		footerPanel.setLayout(layout);
+
+		return footerPanel;
 	}
 
 
@@ -544,27 +549,6 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 		}
 	}
 
-	private void timescaleAllAnims() {
-		for (int i = 0; i < mht.animTabs.getTabCount(); i++) {
-			final AnimPanel aniPanel = (AnimPanel) mht.animTabs.getComponentAt(i);
-			aniPanel.importTypeBox.setSelectedIndex(2);
-		}
-	}
-
-	private void importAllGeos(boolean b) {
-		for (int i = 0; i < mht.geosetTabs.getTabCount(); i++) {
-			final GeosetPanel geoPanel = (GeosetPanel) mht.geosetTabs.getComponentAt(i);
-			geoPanel.setSelected(b);
-		}
-	}
-
-	private void uncheckAllAnims(boolean b) {
-		for (int i = 0; i < mht.animTabs.getTabCount(); i++) {
-			final AnimPanel aniPanel = (AnimPanel) mht.animTabs.getComponentAt(i);
-			aniPanel.setSelected(b);
-		}
-	}
-
 	private void uncheckUnusedBones() {
 		// Unselect all bones by iterating + setting to index 2 ("Do not
 		// import" index)
@@ -581,7 +565,7 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 			if (objectPanel.doImport.isSelected() && (objectPanel.parentsList != null)) {
 				BoneShell shell = objectPanel.parentsList.getSelectedValue();
 				if ((shell != null) && (shell.bone != null)) {
-					BonePanel current = getPanelOf(shell.bone);
+					BonePanel current = mht.getPanelOf(shell.bone);
 					if (!usedBonePanels.contains(current)) {
 						usedBonePanels.add(current);
 					}
@@ -599,7 +583,7 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 						{
 							good = false;
 						} else {
-							current = getPanelOf(shell.bone);
+							current = mht.getPanelOf(shell.bone);
 							if (usedBonePanels.contains(current)) {
 								good = false;
 							} else {
@@ -622,7 +606,7 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 					final MatrixShell ms = bap.oldBoneRefs.get(mk);
 					for (final BoneShell bs : ms.newBones) {
 						BoneShell shell = bs;
-						BonePanel current = getPanelOf(shell.bone);
+						BonePanel current = mht.getPanelOf(shell.bone);
 						if (!usedBonePanels.contains(current)) {
 							usedBonePanels.add(current);
 						}
@@ -640,7 +624,7 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 							{
 								good = false;
 							} else {
-								current = getPanelOf(shell.bone);
+								current = mht.getPanelOf(shell.bone);
 								if (usedBonePanels.contains(current)) {
 									good = false;
 								} else {
@@ -674,7 +658,7 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 						{
 							good = false;
 						} else {
-							current = getPanelOf(shell.bone);
+							current = mht.getPanelOf(shell.bone);
 							if (usedBonePanels.contains(current)) {
 								good = false;
 							} else {
@@ -702,63 +686,17 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 		}
 	}
 
-	private void importAllBones(int selsctionIndex) {
-		for (BonePanel bonePanel : mht.bonePanels) {
-			bonePanel.setSelectedIndex(selsctionIndex);
-		}
-	}
-
-	private void importAllObjs(boolean b) {
-		for (ObjectPanel objectPanel : mht.objectPanels) {
-			objectPanel.doImport.setSelected(b);
-		}
-	}
-
-	private void allVisButton(String visible) {
-		for (final VisibilityPanel vPanel : mht.allVisShellPanes) {
-			if (vPanel.sourceShell.model == mht.receivingModel) {
-				vPanel.newSourcesBox.setSelectedItem(visible);
-			} else {
-				vPanel.oldSourcesBox.setSelectedItem(visible);
-			}
-		}
-	}
-
-	private void selSimButton() {
-		for (final VisibilityPanel vPanel : mht.allVisShellPanes) {
-			vPanel.selectSimilarOptions();
-		}
-	}
-
-	private void okayButton() {
+	private void applyImport() {
 		doImport();
 		frame.setVisible(false);
 	}
 
-	private void cancelButton() {
+	private void cancelImport() {
 		final Object[] options = {"Yes", "No"};
 		final int n = JOptionPane.showOptionDialog(frame, "Really cancel this import?", "Confirmation", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
 		if (n == 0) {
 			frame.setVisible(false);
 			frame = null;
-		}
-	}
-
-	private void allMatrOriginal() {
-		for (int i = 0; i < mht.geosetAnimTabs.getTabCount(); i++) {
-			if (mht.geosetAnimTabs.isEnabledAt(i)) {
-				final BoneAttachmentPanel bap = (BoneAttachmentPanel) mht.geosetAnimTabs.getComponentAt(i);
-				bap.resetMatrices();
-			}
-		}
-	}
-
-	private void allMatrSameName() {
-		for (int i = 0; i < mht.geosetAnimTabs.getTabCount(); i++) {
-			if (mht.geosetAnimTabs.isEnabledAt(i)) {
-				final BoneAttachmentPanel bap = (BoneAttachmentPanel) mht.geosetAnimTabs.getComponentAt(i);
-				bap.setMatricesToSimilarNames();
-			}
 		}
 	}
 
@@ -794,15 +732,6 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 		}
 	}
 
-	public void informGeosetVisibility(final Geoset g, final boolean flag) {
-		for (int i = 0; i < mht.geosetAnimTabs.getTabCount(); i++) {
-			final BoneAttachmentPanel geoPanel = (BoneAttachmentPanel) mht.geosetAnimTabs.getComponentAt(i);
-			if (geoPanel.geoset == g) {
-				mht.geosetAnimTabs.setEnabledAt(i, flag);
-			}
-		}
-	}
-
 	/**
 	 * Provides a Runnable to the ImportPanel that will be run after the import has
 	 * ended successfully.
@@ -811,182 +740,12 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 		this.callback = callback;
 	}
 
-	public BonePanel getPanelOf(final Bone b) {
-		return mht.boneToPanel.get(b);
-	}
-
-	public IterableListModel<BoneShell> getFutureBoneList() {
-		if (mht.oldBones == null) {
-			mht.oldBones = new ArrayList<>();
-			mht.newBones = new ArrayList<>();
-			final List<Bone> oldBonesRefs = mht.receivingModel.getBones();
-			for (final Bone b : oldBonesRefs) {
-				final BoneShell bs = new BoneShell(b);
-				bs.modelName = mht.receivingModel.getName();
-				mht.oldBones.add(bs);
-			}
-			final List<Bone> newBonesRefs = mht.donatingModel.getBones();
-			for (final Bone b : newBonesRefs) {
-				final BoneShell bs = new BoneShell(b);
-				bs.modelName = mht.donatingModel.getName();
-				bs.panel = getPanelOf(b);
-				mht.newBones.add(bs);
-			}
-		}
-		if (!mht.clearExistingBones.isSelected()) {
-			for (final BoneShell b : mht.oldBones) {
-				if (!mht.futureBoneList.contains(b)) {
-					mht.futureBoneList.addElement(b);
-				}
-			}
-		} else {
-			for (final BoneShell b : mht.oldBones) {
-				if (mht.futureBoneList.contains(b)) {
-					mht.futureBoneList.removeElement(b);
-				}
-			}
-		}
-		for (final BoneShell b : mht.newBones) {
-			if (b.panel.importTypeBox.getSelectedItem() == BonePanel.IMPORT) {
-				if (!mht.futureBoneList.contains(b)) {
-					mht.futureBoneList.addElement(b);
-				}
-			} else {
-				if (mht.futureBoneList.contains(b)) {
-					mht.futureBoneList.removeElement(b);
-				}
-			}
-		}
-		return mht.futureBoneList;
-	}
-
-
-	public IterableListModel<BoneShell> getFutureBoneListExtended(final boolean newSnapshot) {
-		long totalAddTime = 0;
-		long addCount = 0;
-		long totalRemoveTime = 0;
-		long removeCount = 0;
-		if (mht.oldHelpers == null) {
-			mht.oldHelpers = new ArrayList<>();
-			mht.newHelpers = new ArrayList<>();
-			List<? extends Bone> oldHelpersRefs = mht.receivingModel.getBones();
-			for (final Bone b : oldHelpersRefs) {
-				final BoneShell bs = new BoneShell(b);
-				bs.modelName = mht.receivingModel.getName();
-				bs.showClass = true;
-				mht.oldHelpers.add(bs);
-			}
-			oldHelpersRefs = mht.receivingModel.getHelpers();
-			for (final Bone b : oldHelpersRefs) {
-				final BoneShell bs = new BoneShell(b);
-				bs.modelName = mht.receivingModel.getName();
-				bs.showClass = true;
-				mht.oldHelpers.add(bs);
-			}
-			List<? extends Bone> newHelpersRefs = mht.donatingModel.getBones();
-			for (final Bone b : newHelpersRefs) {
-				final BoneShell bs = new BoneShell(b);
-				bs.modelName = mht.donatingModel.getName();
-				bs.showClass = true;
-				bs.panel = getPanelOf(b);
-				mht.newHelpers.add(bs);
-			}
-			newHelpersRefs = mht.donatingModel.getHelpers();
-			for (final Bone b : newHelpersRefs) {
-				final BoneShell bs = new BoneShell(b);
-				bs.modelName = mht.donatingModel.getName();
-				bs.showClass = true;
-				bs.panel = getPanelOf(b);
-				mht.newHelpers.add(bs);
-			}
-		}
-		if (!mht.clearExistingBones.isSelected()) {
-			for (final BoneShell b : mht.oldHelpers) {
-				if (!mht.futureBoneListExQuickLookupSet.contains(b)) {
-					final long startTime = System.nanoTime();
-					mht.futureBoneListEx.addElement(b);
-					final long endTime = System.nanoTime();
-					totalAddTime += (endTime - startTime);
-					addCount++;
-					mht.futureBoneListExQuickLookupSet.add(b);
-				}
-			}
-		} else {
-			for (final BoneShell b : mht.oldHelpers) {
-				if (mht.futureBoneListExQuickLookupSet.remove(b)) {
-					final long startTime = System.nanoTime();
-					mht.futureBoneListEx.removeElement(b);
-					final long endTime = System.nanoTime();
-					totalRemoveTime += (endTime - startTime);
-					removeCount++;
-				}
-			}
-		}
-		for (final BoneShell b : mht.newHelpers) {
-			b.panel = getPanelOf(b.bone);
-			if (b.panel != null) {
-				if (b.panel.importTypeBox.getSelectedItem() == BonePanel.IMPORT) {
-					if (!mht.futureBoneListExQuickLookupSet.contains(b)) {
-						final long startTime = System.nanoTime();
-						mht.futureBoneListEx.addElement(b);
-						final long endTime = System.nanoTime();
-						totalAddTime += (endTime - startTime);
-						addCount++;
-						mht.futureBoneListExQuickLookupSet.add(b);
-					}
-				} else {
-					if (mht.futureBoneListExQuickLookupSet.remove(b)) {
-						final long startTime = System.nanoTime();
-						mht.futureBoneListEx.removeElement(b);
-						final long endTime = System.nanoTime();
-						totalRemoveTime += (endTime - startTime);
-						removeCount++;
-					}
-				}
-			}
-		}
-		if (addCount != 0) {
-			System.out.println("average add time: " + (totalAddTime / addCount));
-			System.out.println("add count: " + addCount);
-		}
-		if (removeCount != 0) {
-			System.out.println("average remove time: " + (totalRemoveTime / removeCount));
-			System.out.println("remove count: " + removeCount);
-		}
-
-		final IterableListModel<BoneShell> listModelToReturn;
-		if (newSnapshot || mht.futureBoneListExFixableItems.isEmpty()) {
-			final IterableListModel<BoneShell> futureBoneListReplica = new IterableListModel<>();
-			mht.futureBoneListExFixableItems.add(futureBoneListReplica);
-			listModelToReturn = futureBoneListReplica;
-		} else {
-			listModelToReturn = mht.futureBoneListExFixableItems.get(0);
-		}
-		// We CANT call clear, we have to preserve
-		// the parent list
-		for (final IterableListModel<BoneShell> model : mht.futureBoneListExFixableItems) {
-			// clean things that should not be there
-			for (BoneShell previousElement : model) {
-				if (!mht.futureBoneListExQuickLookupSet.contains(previousElement)) {
-					model.remove(previousElement);
-				}
-			}
-			// add back things who should be there
-			for (BoneShell elementAt : mht.futureBoneListEx) {
-				if (!model.contains(elementAt)) {
-					model.addElement(elementAt);
-				}
-			}
-		}
-		return listModelToReturn;
-	}
-
 
 	private void objectTabsValueChanged() {
 		if (mht.objectTabs.getSelectedValuesList().toArray().length < 1) {
 			mht.objectCardLayout.show(mht.objectPanelCards, "blank");
 		} else if (mht.objectTabs.getSelectedValuesList().toArray().length == 1) {
-			getFutureBoneListExtended(false);
+			mht.getFutureBoneListExtended(false);
 			mht.objectCardLayout.show(mht.objectPanelCards, (mht.objectTabs.getSelectedIndex()) + "");// .title.getText()
 		} else if (mht.objectTabs.getSelectedValuesList().toArray().length > 1) {
 			mht.objectCardLayout.show(mht.objectPanelCards, "multiple");
@@ -1065,56 +824,11 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 		}
 	}
 
-	public void setSelectedItem(final String what) {
-		for (BonePanel temp : mht.boneTabs.getSelectedValuesList()) {
-			temp.setSelectedValue(what);
-		}
-	}
-
-	/**
-	 * The method run when the user pushes the "Set Parent for All" button in the
-	 * MultiBone panel.
-	 */
-	public void setParentMultiBones() {
-		final JList<BoneShell> list = new JList<>(getFutureBoneListExtended(true));
-		list.setCellRenderer(mht.boneShellRenderer);
-		final int x = JOptionPane.showConfirmDialog(this, new JScrollPane(list), "Set Parent for All Selected Bones", JOptionPane.OK_CANCEL_OPTION);
-		if (x == JOptionPane.OK_OPTION) {
-			for (BonePanel temp : mht.boneTabs.getSelectedValuesList()) {
-				temp.setParent(list.getSelectedValue());
-			}
-		}
-	}
-
-	public void setObjGroupSelected(final boolean flag) {
-		for (ObjectPanel temp : mht.objectTabs.getSelectedValuesList()) {
-			temp.doImport.setSelected(flag);
-		}
-	}
-
-	public void setVisGroupSelected(final boolean flag) {
-		for (VisibilityPanel temp : mht.visTabs.getSelectedValuesList()) {
-			temp.favorOld.setSelected(flag);
-		}
-	}
-
-	public void setVisGroupItemOld(final Object o) {
-		for (VisibilityPanel temp : mht.visTabs.getSelectedValuesList()) {
-			temp.oldSourcesBox.setSelectedItem(o);
-		}
-	}
-
-	public void setVisGroupItemNew(final Object o) {
-		for (VisibilityPanel temp : mht.visTabs.getSelectedValuesList()) {
-			temp.newSourcesBox.setSelectedItem(o);
-		}
-	}
-
 	@Override
 	public void stateChanged(final ChangeEvent e) {
 		((AnimPanel) mht.animTabs.getSelectedComponent()).updateSelectionPicks();
-		getFutureBoneList();
-		getFutureBoneListExtended(false);
+		mht.getFutureBoneList();
+		mht.getFutureBoneListExtended(false);
 		mht.visibilityList();
 		repaint();
 	}
@@ -1213,7 +927,7 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 						if (!clearBones) {
 							for (BoneShell bs : mht.existingBones) {
 								if (bs.importBone != null) {
-									if (getPanelOf(bs.importBone).importTypeBox.getSelectedIndex() == 1) {
+									if (mht.getPanelOf(bs.importBone).importTypeBox.getSelectedIndex() == 1) {
 										System.out.println(
 												"Attempting to clear animation for " + bs.bone.getName() + " values " + animShell.anim.getStart() + ", " + animShell.anim.getEnd());
 										bs.bone.clearAnimation(animShell.anim);
@@ -1265,7 +979,7 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 				for (int i = 0; i < mht.existingBones.size(); i++) {
 					final BoneShell bs = mht.existingBones.get(i);
 					if (bs.importBone != null) {
-						if (getPanelOf(bs.importBone).importTypeBox.getSelectedIndex() == 1) {
+						if (mht.getPanelOf(bs.importBone).importTypeBox.getSelectedIndex() == 1) {
 							bs.bone.copyMotionFrom(bs.importBone);
 						}
 					}
@@ -1497,16 +1211,16 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 
 	// *********************Simple Import Functions****************
 	public void animTransfer(final boolean singleAnimation, final Animation pickedAnim, final Animation visFromAnim, final boolean show) {
-		importAllGeos(false);
-		importAllBones(1);
+		mht.importAllGeos(false);
+		mht.importAllBones(1);
 		mht.clearExistingAnims.doClick();
-		importAllObjs(false);
+		mht.importAllObjs(false);
 		mht.visibilityList();
-		selSimButton();
+		mht.selSimButton();
 
 		if (singleAnimation) {
 			// JOptionPane.showMessageDialog(null,"single trans");
-			uncheckAllAnims(false);
+			mht.uncheckAllAnims(false);
 			for (int i = 0; i < mht.animTabs.getTabCount(); i++) {
 				final AnimPanel aniPanel = (AnimPanel) mht.animTabs.getComponentAt(i);
 				if (aniPanel.anim.getName().equals(pickedAnim.getName())) {
@@ -1543,19 +1257,19 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 		}
 
 		if (!show) {
-			okayButton();
+			applyImport();
 		}
 	}
 
 	// *********************Simple Import Functions****************
 	public void animTransferPartTwo(final boolean singleAnimation, final Animation pickedAnim, final Animation visFromAnim, final boolean show) {
 		// This should be an import from self
-		importAllGeos(false);
-		uncheckAllAnims(false);
-		importAllBones(2);
-		importAllObjs(false);
+		mht.importAllGeos(false);
+		mht.uncheckAllAnims(false);
+		mht.importAllBones(2);
+		mht.importAllObjs(false);
 		mht.visibilityList();
-		selSimButton();
+		mht.selSimButton();
 
 		if (singleAnimation) {
 			for (int i = 0; i < mht.animTabs.getTabCount(); i++) {
@@ -1581,7 +1295,7 @@ public class ImportPanel extends JTabbedPane implements ChangeListener {
 		}
 
 		if (!show) {
-			okayButton();
+			applyImport();
 		}
 	}
 }

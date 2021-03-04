@@ -23,7 +23,7 @@ class MultiVisibilityPanel extends VisibilityPanel implements ChangeListener {
 		oldSourcesBox.setEditable(false);
 		oldSourcesBox.setMaximumSize(new Dimension(1000, 25));
 		oldSourcesBox.setRenderer(renderer);
-		oldSourcesBox.addItemListener(e -> getImportPanel().setVisGroupItemOld(oldSourcesBox.getSelectedItem()));
+		oldSourcesBox.addItemListener(e -> getImportPanel().mht.setVisGroupItemOld(oldSourcesBox.getSelectedItem()));
 
 		newAnimsLabel = new JLabel("Imported animation visibility from: ");
 
@@ -31,7 +31,7 @@ class MultiVisibilityPanel extends VisibilityPanel implements ChangeListener {
 		newSourcesBox.setEditable(false);
 		newSourcesBox.setMaximumSize(new Dimension(1000, 25));
 		newSourcesBox.setRenderer(renderer);
-		newSourcesBox.addItemListener(e -> getImportPanel().setVisGroupItemNew(newSourcesBox.getSelectedItem()));
+		newSourcesBox.addItemListener(e -> getImportPanel().mht.setVisGroupItemNew(newSourcesBox.getSelectedItem()));
 
 		favorOld = new JCheckBox("Favor component's original visibility when combining");
 		favorOld.setSelected(true);
@@ -48,7 +48,7 @@ class MultiVisibilityPanel extends VisibilityPanel implements ChangeListener {
 	@Override
 	public void stateChanged(final ChangeEvent e) {
 		if (favorOld.isSelected() != oldVal) {
-			getImportPanel().setVisGroupSelected(favorOld.isSelected());
+			getImportPanel().mht.setVisGroupSelected(favorOld.isSelected());
 			oldVal = favorOld.isSelected();
 		}
 	}

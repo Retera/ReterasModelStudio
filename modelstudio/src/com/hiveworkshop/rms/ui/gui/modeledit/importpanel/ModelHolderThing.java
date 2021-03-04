@@ -308,6 +308,172 @@ public class ModelHolderThing {
 		return visComponents;
 	}
 
+	public IterableListModel<BoneShell> getFutureBoneList() {
+		if (oldBones == null) {
+			oldBones = new ArrayList<>();
+			newBones = new ArrayList<>();
+			final List<Bone> oldBonesRefs = receivingModel.getBones();
+			for (final Bone b : oldBonesRefs) {
+				final BoneShell bs = new BoneShell(b);
+				bs.modelName = receivingModel.getName();
+				oldBones.add(bs);
+			}
+			final List<Bone> newBonesRefs = donatingModel.getBones();
+			for (final Bone b : newBonesRefs) {
+				final BoneShell bs = new BoneShell(b);
+				bs.modelName = donatingModel.getName();
+				bs.panel = getPanelOf(b);
+				newBones.add(bs);
+			}
+		}
+		if (!clearExistingBones.isSelected()) {
+			for (final BoneShell b : oldBones) {
+				if (!futureBoneList.contains(b)) {
+					futureBoneList.addElement(b);
+				}
+			}
+		} else {
+			for (final BoneShell b : oldBones) {
+				if (futureBoneList.contains(b)) {
+					futureBoneList.removeElement(b);
+				}
+			}
+		}
+		for (final BoneShell b : newBones) {
+			if (b.panel.importTypeBox.getSelectedItem() == BonePanel.IMPORT) {
+				if (!futureBoneList.contains(b)) {
+					futureBoneList.addElement(b);
+				}
+			} else {
+				if (futureBoneList.contains(b)) {
+					futureBoneList.removeElement(b);
+				}
+			}
+		}
+		return futureBoneList;
+	}
+
+
+	public IterableListModel<BoneShell> getFutureBoneListExtended(final boolean newSnapshot) {
+		long totalAddTime = 0;
+		long addCount = 0;
+		long totalRemoveTime = 0;
+		long removeCount = 0;
+		if (oldHelpers == null) {
+			oldHelpers = new ArrayList<>();
+			newHelpers = new ArrayList<>();
+			List<? extends Bone> oldHelpersRefs = receivingModel.getBones();
+			for (final Bone b : oldHelpersRefs) {
+				final BoneShell bs = new BoneShell(b);
+				bs.modelName = receivingModel.getName();
+				bs.showClass = true;
+				oldHelpers.add(bs);
+			}
+			oldHelpersRefs = receivingModel.getHelpers();
+			for (final Bone b : oldHelpersRefs) {
+				final BoneShell bs = new BoneShell(b);
+				bs.modelName = receivingModel.getName();
+				bs.showClass = true;
+				oldHelpers.add(bs);
+			}
+			List<? extends Bone> newHelpersRefs = donatingModel.getBones();
+			for (final Bone b : newHelpersRefs) {
+				final BoneShell bs = new BoneShell(b);
+				bs.modelName = donatingModel.getName();
+				bs.showClass = true;
+				bs.panel = getPanelOf(b);
+				newHelpers.add(bs);
+			}
+			newHelpersRefs = donatingModel.getHelpers();
+			for (final Bone b : newHelpersRefs) {
+				final BoneShell bs = new BoneShell(b);
+				bs.modelName = donatingModel.getName();
+				bs.showClass = true;
+				bs.panel = getPanelOf(b);
+				newHelpers.add(bs);
+			}
+		}
+		if (!clearExistingBones.isSelected()) {
+			for (final BoneShell b : oldHelpers) {
+				if (!futureBoneListExQuickLookupSet.contains(b)) {
+					final long startTime = System.nanoTime();
+					futureBoneListEx.addElement(b);
+					final long endTime = System.nanoTime();
+					totalAddTime += (endTime - startTime);
+					addCount++;
+					futureBoneListExQuickLookupSet.add(b);
+				}
+			}
+		} else {
+			for (final BoneShell b : oldHelpers) {
+				if (futureBoneListExQuickLookupSet.remove(b)) {
+					final long startTime = System.nanoTime();
+					futureBoneListEx.removeElement(b);
+					final long endTime = System.nanoTime();
+					totalRemoveTime += (endTime - startTime);
+					removeCount++;
+				}
+			}
+		}
+		for (final BoneShell b : newHelpers) {
+			b.panel = getPanelOf(b.bone);
+			if (b.panel != null) {
+				if (b.panel.importTypeBox.getSelectedItem() == BonePanel.IMPORT) {
+					if (!futureBoneListExQuickLookupSet.contains(b)) {
+						final long startTime = System.nanoTime();
+						futureBoneListEx.addElement(b);
+						final long endTime = System.nanoTime();
+						totalAddTime += (endTime - startTime);
+						addCount++;
+						futureBoneListExQuickLookupSet.add(b);
+					}
+				} else {
+					if (futureBoneListExQuickLookupSet.remove(b)) {
+						final long startTime = System.nanoTime();
+						futureBoneListEx.removeElement(b);
+						final long endTime = System.nanoTime();
+						totalRemoveTime += (endTime - startTime);
+						removeCount++;
+					}
+				}
+			}
+		}
+		if (addCount != 0) {
+			System.out.println("average add time: " + (totalAddTime / addCount));
+			System.out.println("add count: " + addCount);
+		}
+		if (removeCount != 0) {
+			System.out.println("average remove time: " + (totalRemoveTime / removeCount));
+			System.out.println("remove count: " + removeCount);
+		}
+
+		final IterableListModel<BoneShell> listModelToReturn;
+		if (newSnapshot || futureBoneListExFixableItems.isEmpty()) {
+			final IterableListModel<BoneShell> futureBoneListReplica = new IterableListModel<>();
+			futureBoneListExFixableItems.add(futureBoneListReplica);
+			listModelToReturn = futureBoneListReplica;
+		} else {
+			listModelToReturn = futureBoneListExFixableItems.get(0);
+		}
+		// We CANT call clear, we have to preserve
+		// the parent list
+		for (final IterableListModel<BoneShell> model : futureBoneListExFixableItems) {
+			// clean things that should not be there
+			for (BoneShell previousElement : model) {
+				if (!futureBoneListExQuickLookupSet.contains(previousElement)) {
+					model.remove(previousElement);
+				}
+			}
+			// add back things who should be there
+			for (BoneShell elementAt : futureBoneListEx) {
+				if (!model.contains(elementAt)) {
+					model.addElement(elementAt);
+				}
+			}
+		}
+		return listModelToReturn;
+	}
+
 	public VisibilityPanel visPaneFromObject(final Object o) {
 		for (final VisibilityPanel vp : allVisShellPanes) {
 			if (vp.sourceShell.source == o) {
@@ -324,5 +490,131 @@ public class ModelHolderThing {
 			}
 		}
 		return null;
+	}
+
+
+	public void timescaleAllAnims() {
+		for (int i = 0; i < animTabs.getTabCount(); i++) {
+			final AnimPanel aniPanel = (AnimPanel) animTabs.getComponentAt(i);
+			aniPanel.importTypeBox.setSelectedIndex(2);
+		}
+	}
+
+	public void importAllGeos(boolean b) {
+		for (int i = 0; i < geosetTabs.getTabCount(); i++) {
+			final GeosetPanel geoPanel = (GeosetPanel) geosetTabs.getComponentAt(i);
+			geoPanel.setSelected(b);
+		}
+	}
+
+	public void uncheckAllAnims(boolean b) {
+		for (int i = 0; i < animTabs.getTabCount(); i++) {
+			final AnimPanel aniPanel = (AnimPanel) animTabs.getComponentAt(i);
+			aniPanel.setSelected(b);
+		}
+	}
+
+	public void importAllBones(int selsctionIndex) {
+		for (BonePanel bonePanel : bonePanels) {
+			bonePanel.setSelectedIndex(selsctionIndex);
+		}
+	}
+
+	public void importAllObjs(boolean b) {
+		for (ObjectPanel objectPanel : objectPanels) {
+			objectPanel.doImport.setSelected(b);
+		}
+	}
+
+	public void allVisButton(String visible) {
+		for (final VisibilityPanel vPanel : allVisShellPanes) {
+			if (vPanel.sourceShell.model == receivingModel) {
+				vPanel.newSourcesBox.setSelectedItem(visible);
+			} else {
+				vPanel.oldSourcesBox.setSelectedItem(visible);
+			}
+		}
+	}
+
+	public void selSimButton() {
+		for (final VisibilityPanel vPanel : allVisShellPanes) {
+			vPanel.selectSimilarOptions();
+		}
+	}
+
+	public void informGeosetVisibility(final Geoset g, final boolean flag) {
+		for (int i = 0; i < geosetAnimTabs.getTabCount(); i++) {
+			final BoneAttachmentPanel geoPanel = (BoneAttachmentPanel) geosetAnimTabs.getComponentAt(i);
+			if (geoPanel.geoset == g) {
+				geosetAnimTabs.setEnabledAt(i, flag);
+			}
+		}
+	}
+
+	public void allMatrOriginal() {
+		for (int i = 0; i < geosetAnimTabs.getTabCount(); i++) {
+			if (geosetAnimTabs.isEnabledAt(i)) {
+				final BoneAttachmentPanel bap = (BoneAttachmentPanel) geosetAnimTabs.getComponentAt(i);
+				bap.resetMatrices();
+			}
+		}
+	}
+
+	public void allMatrSameName() {
+		for (int i = 0; i < geosetAnimTabs.getTabCount(); i++) {
+			if (geosetAnimTabs.isEnabledAt(i)) {
+				final BoneAttachmentPanel bap = (BoneAttachmentPanel) geosetAnimTabs.getComponentAt(i);
+				bap.setMatricesToSimilarNames();
+			}
+		}
+	}
+
+	public void setSelectedItem(final String what) {
+		for (BonePanel temp : boneTabs.getSelectedValuesList()) {
+			temp.setSelectedValue(what);
+		}
+	}
+
+	/**
+	 * The method run when the user pushes the "Set Parent for All" button in the
+	 * MultiBone panel.
+	 */
+	public void setParentMultiBones() {
+		final JList<BoneShell> list = new JList<>(getFutureBoneListExtended(true));
+		list.setCellRenderer(boneShellRenderer);
+		final int x = JOptionPane.showConfirmDialog(null, new JScrollPane(list), "Set Parent for All Selected Bones", JOptionPane.OK_CANCEL_OPTION);
+		if (x == JOptionPane.OK_OPTION) {
+			for (BonePanel temp : boneTabs.getSelectedValuesList()) {
+				temp.setParent(list.getSelectedValue());
+			}
+		}
+	}
+
+	public void setObjGroupSelected(final boolean flag) {
+		for (ObjectPanel temp : objectTabs.getSelectedValuesList()) {
+			temp.doImport.setSelected(flag);
+		}
+	}
+
+	public void setVisGroupSelected(final boolean flag) {
+		for (VisibilityPanel temp : visTabs.getSelectedValuesList()) {
+			temp.favorOld.setSelected(flag);
+		}
+	}
+
+	public void setVisGroupItemOld(final Object o) {
+		for (VisibilityPanel temp : visTabs.getSelectedValuesList()) {
+			temp.oldSourcesBox.setSelectedItem(o);
+		}
+	}
+
+	public void setVisGroupItemNew(final Object o) {
+		for (VisibilityPanel temp : visTabs.getSelectedValuesList()) {
+			temp.newSourcesBox.setSelectedItem(o);
+		}
+	}
+
+	public BonePanel getPanelOf(final Bone b) {
+		return boneToPanel.get(b);
 	}
 }

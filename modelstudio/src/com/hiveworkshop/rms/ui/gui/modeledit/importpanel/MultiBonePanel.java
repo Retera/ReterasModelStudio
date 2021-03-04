@@ -41,7 +41,7 @@ class MultiBonePanel extends BonePanel {
 		add(cardPanel, "wrap");
 
 		setAllParent = new JButton("Set Parent for All");
-		setAllParent.addActionListener(e -> getImportPanel().setParentMultiBones());
+		setAllParent.addActionListener(e -> getImportPanel().mht.setParentMultiBones());
 		add(setAllParent, "wrap");
 	}
 
@@ -92,7 +92,7 @@ class MultiBonePanel extends BonePanel {
 		}
 		listenSelection = pastListSelectionState;
 		if (listenForChange) {
-			getImportPanel().setSelectedItem((String) importTypeBox.getSelectedItem());
+			getImportPanel().mht.setSelectedItem((String) importTypeBox.getSelectedItem());
 		}
 		final long nanoEnd = System.nanoTime();
 		System.out.println("MultiBonePanel.actionPerformed() took " + (nanoEnd - nanoStart) + " ns");

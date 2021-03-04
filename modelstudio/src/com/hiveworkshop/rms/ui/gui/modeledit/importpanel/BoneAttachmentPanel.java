@@ -295,7 +295,7 @@ class BoneAttachmentPanel extends JPanel implements ActionListener, ListSelectio
 	}
 
 	public void updateBonesList() {
-		bones = getImportPanel().getFutureBoneList();
+		bones = getImportPanel().mht.getFutureBoneList();
 	}
 
 	public ImportPanel getImportPanel() {
