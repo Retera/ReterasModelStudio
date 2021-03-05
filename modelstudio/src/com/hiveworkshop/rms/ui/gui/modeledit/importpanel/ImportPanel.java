@@ -354,25 +354,25 @@ public class ImportPanel extends JTabbedPane {
 			}
 
 			// Objects!
-			for (ObjectPanel objectPanel : mht.objectPanels) {
-				if (objectPanel.doImport.isSelected()) {
-					if (objectPanel.object != null) {
-						final BoneShell mbs = objectPanel.parentsList.getSelectedValue();
+			for (ObjectShell objectPanel : mht.donModObjectShells) {
+				if (objectPanel.getShouldImport()) {
+					if (objectPanel.getIdObject() != null) {
+						final BoneShell mbs = objectPanel.getParent();
 						if (mbs != null) {
-							objectPanel.object.setParent(mbs.bone);
+							objectPanel.getIdObject().setParent(mbs.getBone());
 						} else {
-							objectPanel.object.setParent(null);
+							objectPanel.getIdObject().setParent(null);
 						}
 						// later make a name field?
-						mht.receivingModel.add(objectPanel.object);
-						objectsAdded.add(objectPanel.object);
-					} else if (objectPanel.camera != null) {
-						mht.receivingModel.add(objectPanel.camera);
-						camerasAdded.add(objectPanel.camera);
+						mht.receivingModel.add(objectPanel.getIdObject());
+						objectsAdded.add(objectPanel.getIdObject());
+					} else if (objectPanel.getCamera() != null) {
+						mht.receivingModel.add(objectPanel.getCamera());
+						camerasAdded.add(objectPanel.getCamera());
 					}
 				} else {
-					if (objectPanel.object != null) {
-						objectPanel.object.setParent(null);
+					if (objectPanel.getIdObject() != null) {
+						objectPanel.getIdObject().setParent(null);
 						// Fix cross-model referencing issue (force clean parent node's list of children)
 					}
 				}

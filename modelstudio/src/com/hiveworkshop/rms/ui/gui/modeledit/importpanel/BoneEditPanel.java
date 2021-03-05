@@ -68,38 +68,18 @@ public class BoneEditPanel extends JPanel {
 
 		bonePanelCards.add(singleBonePanel, "single");
 
-//		for (int i = 0; i < donModBones.size(); i++) {
-//			final BoneShell b = mht.donModBoneShellBiMap.get(donModBones.get(i));
-//			final BonePanel bonePanel = new BonePanel(mht, b, mht.boneShellRenderer);
-//
-//			bonePanelCards.add(bonePanel, i + "");
-//			mht.donModBonePanels.addElement(bonePanel);
-//			mht.boneToPanel.put(b.getBone(), bonePanel);
-//		}
-//		for (int i = 0; i < donModHelpers.size(); i++) {
-//			final BoneShell b = mht.donModBoneShellBiMap.get(donModHelpers.get(i));
-//			final BonePanel bonePanel = new BonePanel(mht, b, mht.boneShellRenderer);
-//
-//			bonePanelCards.add(bonePanel, donModBones.size() + i + "");
-//			mht.donModBonePanels.addElement(bonePanel);
-//			mht.boneToPanel.put(b.getBone(), bonePanel);
-//		}
-
-//		for (BonePanel bonePanel : mht.bonePanels) {
-//			bonePanel.initList();
-//		}
 		multiBonePane = new MultiBonePanel(mht, mht.boneShellRenderer);
 		bonePanelCards.add(blankPane, "blank");
 		bonePanelCards.add(multiBonePane, "multiple");
 
-		mht.donModBoneJList.setCellRenderer(bonePanelRenderer);
-		mht.donModBoneJList.addListSelectionListener(e -> showBoneCard(mht));
-		mht.donModBoneJList.setSelectedIndex(0);
+		mht.donModBoneShellJList.setCellRenderer(bonePanelRenderer);
+		mht.donModBoneShellJList.addListSelectionListener(e -> showBoneCard(mht));
+		mht.donModBoneShellJList.setSelectedIndex(0);
 
 		bonePanelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
 
 
-		JScrollPane boneTabsPane = new JScrollPane(mht.donModBoneJList);
+		JScrollPane boneTabsPane = new JScrollPane(mht.donModBoneShellJList);
 		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, boneTabsPane, bonePanelCards);
 
 		add(splitPane, "growx, growy");
@@ -135,12 +115,12 @@ public class BoneEditPanel extends JPanel {
 	}
 
 	private void showBoneCard(ModelHolderThing mht) {
-		List<BoneShell> selectedValuesList = mht.donModBoneJList.getSelectedValuesList();
+		List<BoneShell> selectedValuesList = mht.donModBoneShellJList.getSelectedValuesList();
 		if (selectedValuesList.size() < 1) {
 			boneCardLayout.show(bonePanelCards, "blank");
 		} else if (selectedValuesList.size() == 1) {
 			boneCardLayout.show(bonePanelCards, "single");
-			singleBonePanel.setSelectedBone(mht.donModBoneJList.getSelectedValue());
+			singleBonePanel.setSelectedBone(mht.donModBoneShellJList.getSelectedValue());
 			singleBonePanel.updateSelectionPicks();
 		} else {
 			boneCardLayout.show(bonePanelCards, "multiple");
@@ -207,51 +187,6 @@ public class BoneEditPanel extends JPanel {
 			}
 		}
 	}
-//	void uncheckUnusedActualBones(ModelHolderThing mht, List<BonePanel> usedBonePanels) {
-//		for (BonePanel bonePanel : mht.donModBonePanels) {
-//			if (bonePanel.getSelectedIndex() != 1) {
-//				if (usedBonePanels.contains(bonePanel)) {
-//					BonePanel current = bonePanel;
-//					boolean good = true;
-//					int k = 0;
-//					while (good) {
-//						if ((current == null) || (current.getSelectedIndex() == 1)) {
-//							break;
-//						}
-//						final BoneShell shell = current.futureBonesList.getSelectedValue();
-//						// If shell is null, then the bone has "No Parent"
-//						// If current's selected index is not 2,
-//						if (shell == null)// current.getSelectedIndex() != 2
-//						{
-//							good = false;
-//						} else {
-//							current = mht.getPanelOf(shell.bone);
-//							if (usedBonePanels.contains(current)) {
-//								good = false;
-//							} else {
-//								usedBonePanels.add(current);
-//							}
-//						}
-//						k++;
-//						if (k > 1000) {
-//							JOptionPane.showMessageDialog(null,
-//									"Unexpected error has occurred: Bone parent loop, circular logic");
-//							break;
-//						}
-//					}
-//				}
-//			}
-//		}
-//		for (BonePanel bonePanel : mht.donModBonePanels) {
-//			if (bonePanel.getSelectedIndex() != 1) {
-//				if (usedBonePanels.contains(bonePanel)) {
-//					bonePanel.setSelectedIndex(0);
-//				} else {
-//					bonePanel.setSelectedIndex(2);
-//				}
-//			}
-//		}
-//	}
 
 	public void uncheckUnusedBones(ModelHolderThing mht) {
 		// Unselect all bones by iterating + setting to index 2 ("Do not import" index)
@@ -264,15 +199,4 @@ public class BoneEditPanel extends JPanel {
 		BoneAttachmentEditPanel.uncheckUnusedBoneAttatchments(mht, usedBonePanels);
 		uncheckUnusedActualBones(mht, usedBonePanels);
 	}
-//	public void uncheckUnusedBones(ModelHolderThing mht) {
-//		// Unselect all bones by iterating + setting to index 2 ("Do not import" index)
-//		// Bones could be referenced by:
-//		// - A matrix
-//		// - Another bone
-//		// - An IdObject
-//		final List<BonePanel> usedBonePanels = new ArrayList<>();
-//		ObjectEditPanel.uncheckUnusedObjects(mht, usedBonePanels);
-//		BoneAttachmentEditPanel.uncheckUnusedBoneAttatchments(mht, usedBonePanels);
-//		uncheckUnusedActualBones(mht, usedBonePanels);
-//	}
 }

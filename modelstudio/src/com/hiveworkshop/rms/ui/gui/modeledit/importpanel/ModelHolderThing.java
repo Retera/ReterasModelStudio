@@ -7,7 +7,10 @@ import com.hiveworkshop.rms.util.IterableListModel;
 
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ModelHolderThing {
 	public EditableModel receivingModel;
@@ -23,13 +26,10 @@ public class ModelHolderThing {
 
 	// Bones
 	public JCheckBox clearExistingBones;
-	public IterableListModel<BonePanel> donModBonePanels = new IterableListModel<>();
 	public IterableListModel<BoneShell> donModBoneShells = new IterableListModel<>();
-	public JList<BoneShell> donModBoneJList = new JList<>(donModBoneShells);
+	public JList<BoneShell> donModBoneShellJList = new JList<>(donModBoneShells);
 	public IterableListModel<BoneShell> recModOrgBones;
-	public Map<Bone, BonePanel> boneToPanel = new HashMap<>();
 	public ArrayList<BoneShell> recModBones;
-	//	public JList<BonePanel> donModBoneJList = new JList<>(donModBonePanels);
 	public ArrayList<BoneShell> donModBones;
 
 	// Matrices
@@ -40,9 +40,8 @@ public class ModelHolderThing {
 	public ArrayList<BoneShell> donModHelpersAndBones;
 
 	// Objects
-//	public JPanel objectsPanel = new JPanel();
-	public IterableListModel<ObjectPanel> objectPanels = new IterableListModel<>();
-	public JList<ObjectPanel> objectTabs = new JList<>(objectPanels);
+	public IterableListModel<ObjectShell> donModObjectShells = new IterableListModel<>();
+	public JList<ObjectShell> donModObjectJList = new JList<>(donModObjectShells);
 
 
 	// Visibility
@@ -117,11 +116,11 @@ public class ModelHolderThing {
 		createAndAddVisComp(model.getRibbonEmitters());
 		createAndAddVisComp(model.getPopcornEmitters());
 
-		for (ObjectPanel op : objectPanels) {
-			if (op.doImport.isSelected() && (op.object != null))
+		for (ObjectShell op : donModObjectShells) {
+			if (op.getShouldImport() && (op.getIdObject() != null))
 			// we don't touch camera "object" panels (which aren't idobjects)
 			{
-				final VisibilityPanel vs = visPaneFromObject(op.object);
+				final VisibilityPanel vs = visPaneFromObject(op.getIdObject());
 				if (!visComponents.contains(vs) && (vs != null)) {
 					visComponents.addElement(vs);
 				}
@@ -230,29 +229,7 @@ public class ModelHolderThing {
 			}
 
 		}
-//		for (final BoneShell b : donModHelpersAndBones) {
-//			b.panel = getPanelOf(b.bone);
-//			if (b.panel != null) {
-//				if (b.panel.importTypeBox.getSelectedItem() == BonePanel.IMPORT) {
-//					if (!futureBoneListExQuickLookupSet.contains(b)) {
-//						final long startTime = System.nanoTime();
-//						futureBoneListEx.addElement(b);
-//						final long endTime = System.nanoTime();
-//						totalAddTime += (endTime - startTime);
-//						addCount++;
-//						futureBoneListExQuickLookupSet.add(b);
-//					}
-//				} else {
-//					if (futureBoneListExQuickLookupSet.remove(b)) {
-//						final long startTime = System.nanoTime();
-//						futureBoneListEx.removeElement(b);
-//						final long endTime = System.nanoTime();
-//						totalRemoveTime += (endTime - startTime);
-//						removeCount++;
-//					}
-//				}
-//			}
-//		}
+
 		if (addCount != 0) {
 			System.out.println("average add time: " + (totalAddTime / addCount));
 			System.out.println("add count: " + addCount);
@@ -317,14 +294,11 @@ public class ModelHolderThing {
 		for (BoneShell bonePanel : donModBoneShells) {
 			bonePanel.setImportStatus(selsctionIndex);
 		}
-//		for (BonePanel bonePanel : donModBonePanels) {
-//			bonePanel.setSelectedIndex(selsctionIndex);
-//		}
 	}
 
 	public void importAllObjs(boolean b) {
-		for (ObjectPanel objectPanel : objectPanels) {
-			objectPanel.doImport.setSelected(b);
+		for (ObjectShell objectPanel : donModObjectShells) {
+			objectPanel.setShouldImport(b);
 		}
 	}
 
@@ -336,13 +310,7 @@ public class ModelHolderThing {
 
 	public BoneShell getPanelOf(final Bone b) {
 		return donModBoneShellBiMap.get(b);
-//		return boneToPanel.get(b);
 	}
-
-
-//	public BonePanel getPanelOf(final Bone b) {
-//		return boneToPanel.get(b);
-//	}
 
 
 	public ChangeListener getChangeListener() {

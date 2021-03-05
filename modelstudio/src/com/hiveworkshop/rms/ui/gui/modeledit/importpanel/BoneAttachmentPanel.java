@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.Matrix;
 import com.hiveworkshop.rms.ui.gui.modeledit.MatrixShell;
 import com.hiveworkshop.rms.util.IterableListModel;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
@@ -40,83 +41,77 @@ class BoneAttachmentPanel extends JPanel {
 	ModelHolderThing mht;
 
 	public BoneAttachmentPanel(ModelHolderThing mht, final EditableModel model, final Geoset whichGeoset, final BoneShellListCellRenderer renderer) {
+		setLayout(new MigLayout("gap 0 0 0 0, insets 0 0 0 0, fill", "[grow][grow]0[][grow]", "[grow]"));
 		this.mht = mht;
 		this.model = model;
 		geoset = whichGeoset;
-
-		bonesLabel = new JLabel("Bones");
 		updateBonesList();
+
+		JPanel oldBonesPanel = new JPanel(new MigLayout("gap 0 0 0 0, insets 0 0 0 0, fill", "[grow]", "[][grow]"));
+		oldBonesPanel.add(new JLabel("Old Bone References"), "wrap");
+		oldBoneRefsLabel = new JLabel("Old Bone References");
+
+		buildOldRefsList();
+		oldBoneRefsList = new JList<>(oldBoneRefs);
+		oldBoneRefsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+//		oldBoneRefsList.setCellRenderer(new MatrixShell2DListCellRenderer(new ModelViewManager(impPanel.currentModel), new ModelViewManager(impPanel.importedModel)));
+		oldBoneRefsList.addListSelectionListener(e -> refreshLists());
+		oldBoneRefsPane = new JScrollPane(oldBoneRefsList);
+
+		oldBonesPanel.add(oldBoneRefsPane, "growy, growx");
+
+		add(oldBonesPanel, "growy, growx");
+
+		JPanel newBonesPanel = new JPanel(new MigLayout("gap 0 0 0 0, insets 0 0 0 0, fill", "[grow]", "[][grow][]"));
+		newBonesPanel.add(new JLabel("New Refs"), "wrap");
+		newRefsLabel = new JLabel("New Refs");
+
+		newRefs = new IterableListModel<>();
+		newRefsList = new JList<>(newRefs);
+		newRefsList.setCellRenderer(renderer);
+		newRefsPane = new JScrollPane(newRefsList);
+
+		newBonesPanel.add(newRefsPane, "growy, growx, wrap");
+
+		removeNewRef = new JButton("Remove", ImportPanel.redXIcon);
+		removeNewRef.addActionListener(e -> removeNewRef());
+		newBonesPanel.add(removeNewRef, "alignx center");
+
+		add(newBonesPanel, "growy, growx");
+
+
+		JPanel upDownPanel = new JPanel(new MigLayout("gap 0 0 0 0"));
+		moveUp = new JButton(ImportPanel.moveUpIcon);
+		moveUp.addActionListener(e -> moveUp());
+		upDownPanel.add(moveUp, "wrap");
+
+		moveDown = new JButton(ImportPanel.moveDownIcon);
+		moveDown.addActionListener(e -> moveDown());
+		upDownPanel.add(moveDown, "wrap");
+
+		add(upDownPanel, "aligny center");
+
+
+		JPanel bonesPanel = new JPanel(new MigLayout("gap 0 0 0 0, insets 0 0 0 0, fill", "", "[][grow][]"));
+		bonesPanel.add(new JLabel("Bones"), "wrap");
+		bonesLabel = new JLabel("Bones");
+
 		// Built before oldBoneRefs, so that the MatrixShells can default to
 		// using New Refs with the same name as their first bone
 		bonesList = new JList<>(bones);
 		bonesList.setCellRenderer(renderer);
 		bonesPane = new JScrollPane(bonesList);
 
+		bonesPanel.add(bonesPane, "growy, growx, wrap");
+
 		useBone = new JButton("Use Bone(s)", ImportPanel.greenArrowIcon);
 		useBone.addActionListener(e -> useBone());
-
-		oldBoneRefsLabel = new JLabel("Old Bone References");
-		buildOldRefsList();
-		oldBoneRefsList = new JList<>(oldBoneRefs);
-		oldBoneRefsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-//		oldBoneRefsList.setCellRenderer(new MatrixShell2DListCellRenderer(new ModelViewManager(impPanel.currentModel),
-//				new ModelViewManager(impPanel.importedModel)));
-		oldBoneRefsList.addListSelectionListener(e -> refreshLists());
-		oldBoneRefsPane = new JScrollPane(oldBoneRefsList);
-
-		newRefsLabel = new JLabel("New Refs");
-		newRefs = new IterableListModel<>();
-		newRefsList = new JList<>(newRefs);
-		newRefsList.setCellRenderer(renderer);
-		newRefsPane = new JScrollPane(newRefsList);
-
-		removeNewRef = new JButton("Remove", ImportPanel.redXIcon);
-		removeNewRef.addActionListener(e -> removeNewRef());
-		moveUp = new JButton(ImportPanel.moveUpIcon);
-		moveUp.addActionListener(e -> moveUp());
-		moveDown = new JButton(ImportPanel.moveDownIcon);
-		moveDown.addActionListener(e -> moveDown());
-
-		buildLayout();
+		bonesPanel.add(useBone, "alignx center");
+		add(bonesPanel, "growy, growx");
 
 		refreshNewRefsList();
 	}
 
-	public void buildLayout() {
-		final GroupLayout layout = new GroupLayout(this);
-		layout.setHorizontalGroup(layout.createSequentialGroup()
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-						.addComponent(oldBoneRefsLabel)
-						.addComponent(oldBoneRefsPane))
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-						.addComponent(newRefsLabel)
-						.addComponent(newRefsPane)
-						.addComponent(removeNewRef))
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-						.addComponent(moveUp)
-						.addComponent(moveDown))
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-						.addComponent(bonesLabel)
-						.addComponent(bonesPane)
-						.addComponent(useBone)));
-
-		layout.setVerticalGroup(layout.createSequentialGroup()
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-						.addComponent(oldBoneRefsLabel)
-						.addComponent(newRefsLabel)
-						.addComponent(bonesLabel))
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-						.addComponent(oldBoneRefsPane)
-						.addComponent(newRefsPane)
-						.addGroup(layout.createSequentialGroup()
-								.addComponent(moveUp).addGap(16)
-								.addComponent(moveDown))
-						.addComponent(bonesPane))
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-						.addComponent(removeNewRef)
-						.addComponent(useBone)));
-		setLayout(layout);
-	}
 
 	private void moveDown() {
 		final int[] indices = newRefsList.getSelectedIndices();

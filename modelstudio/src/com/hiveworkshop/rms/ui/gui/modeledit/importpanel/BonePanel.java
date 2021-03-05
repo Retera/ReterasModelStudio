@@ -56,32 +56,12 @@ public class BonePanel extends JPanel {
 		recModOrgBonesListModel = new IterableListModel<>(mht.recModOrgBones);
 		leftSearchField = new JTextField();
 		rightSearchField = new JTextField();
-		leftSearchField.addFocusListener(new FocusAdapter() {
-			CaretListener caretListener = getCaretListener(leftSearchField, rightSearchField, (string) -> setRecModelBonesFilter(string));
 
-			@Override
-			public void focusGained(FocusEvent e) {
-				leftSearchField.addCaretListener(caretListener);
-			}
+		FocusAdapter focusAdapter = getFocusAdapter(leftSearchField, rightSearchField, this::setRecModelBonesFilter);
+		leftSearchField.addFocusListener(focusAdapter);
 
-			@Override
-			public void focusLost(FocusEvent e) {
-				leftSearchField.removeCaretListener(caretListener);
-			}
-		});
-		rightSearchField.addFocusListener(new FocusAdapter() {
-			CaretListener caretListener = getCaretListener(rightSearchField, leftSearchField, (string) -> setFutureBonesFilter(string));
-
-			@Override
-			public void focusGained(FocusEvent e) {
-				rightSearchField.addCaretListener(caretListener);
-			}
-
-			@Override
-			public void focusLost(FocusEvent e) {
-				rightSearchField.removeCaretListener(caretListener);
-			}
-		});
+		FocusAdapter focusAdapter1 = getFocusAdapter(rightSearchField, leftSearchField, this::setFutureBonesFilter);
+		rightSearchField.addFocusListener(focusAdapter1);
 		linkBox = new JCheckBox("linked search");
 		linkBox.addActionListener(e -> queResetList());
 
@@ -103,10 +83,10 @@ public class BonePanel extends JPanel {
 		boneList.setCellRenderer(renderer);
 		boneList.addListSelectionListener(this::updateList);
 		JScrollPane boneListPane = new JScrollPane(boneList);
-		JPanel importIntoPanel = new JPanel(new MigLayout("gap 0, fill", "[grow][]", "[][grow]"));
+		JPanel importIntoPanel = new JPanel(new MigLayout("gap 0, ins 0, fill", "[grow][]", "[][grow]"));
 		importIntoPanel.add(leftSearchField, "grow");
 		importIntoPanel.add(linkBox, "wrap");
-		importIntoPanel.add(boneListPane, "spanx");
+		importIntoPanel.add(boneListPane, "spanx, growx, growy");
 
 		cardPanel = new JPanel(cards);
 		cardPanel.add(importIntoPanel, "boneList");
@@ -135,47 +115,22 @@ public class BonePanel extends JPanel {
 
 
 	}
-//
-//	public BonePanel(ModelHolderThing mht, final BoneShellListCellRenderer renderer) {
-//		this.mht = mht;
-//		setLayout(new MigLayout("gap 0, fill", "[][]", "[][]"));
-//		recModOrgBonesListModel = new IterableListModel<>(mht.recModOrgBones);
-//
-//
-//		title = new JLabel("Select a Bone");
-//		title.setFont(new Font("Arial", Font.BOLD, 26));
-//
-//		add(title, "cell 0 0, spanx, align center, wrap");
-//
-//		parentTitle = new JLabel("Parent:      (Old Parent: {no parent})");
-//		add(parentTitle, "cell 2 1");
-//
-//		importTypeBox.setEditable(false);
-//		importTypeBox.addActionListener(e -> showImportTypeCard());
-//		importTypeBox.setMaximumSize(new Dimension(200, 20));
-//		add(importTypeBox, "cell 0 1");
-//
-//		boneList = new JList<>();
-//		boneList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-//		boneList.setCellRenderer(renderer);
-//		boneList.addListSelectionListener(this::updateList);
-//		JScrollPane boneListPane = new JScrollPane(boneList);
-//
-//		futureBonesList = new JList<>();
-//		futureBonesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-//		futureBonesList.setCellRenderer(renderer);
-//		futureBonesList.addListSelectionListener(e -> setParent());
-//		JScrollPane futureBonesListPane = new JScrollPane(futureBonesList);
-//		futureBonesListPane.setBackground(Color.orange);
-//		futureBonesListPane.setOpaque(true);
-//		add(futureBonesListPane, "cell 2 2, growy");
-//
-//		cardPanel = new JPanel(cards);
-//		cardPanel.add(boneListPane, "boneList");
-//		cardPanel.add(dummyPanel, "blank");
-//		cards.show(cardPanel, "blank");
-//		add(cardPanel, "cell 1 2, growy");
-//	}
+
+	private FocusAdapter getFocusAdapter(final JTextField mainSearchField, final JTextField secondSearchField, final Consumer<String> listModelChangerFunction) {
+		return new FocusAdapter() {
+			CaretListener caretListener = getCaretListener(mainSearchField, secondSearchField, listModelChangerFunction);
+
+			@Override
+			public void focusGained(FocusEvent e) {
+				mainSearchField.addCaretListener(caretListener);
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				mainSearchField.removeCaretListener(caretListener);
+			}
+		};
+	}
 
 	public void setFutureBoneListModel(IterableListModel<BoneShell> model) {
 		futureBonesList.setModel(model);
@@ -198,9 +153,6 @@ public class BonePanel extends JPanel {
 		boneList.setModel(model);
 	}
 
-	//	private void setBone(Bone whichBone) {
-//		bone = whichBone;
-//	}
 	public void setSelectedBone(BoneShell whichBone) {
 		selectedBone = whichBone;
 		initList();
@@ -215,6 +167,7 @@ public class BonePanel extends JPanel {
 
 	private void setTitles() {
 		title.setText(selectedBone.getBone().getClass().getSimpleName() + " \"" + selectedBone.getName() + "\"");
+
 		if (selectedBone.getParentBs() != null) {
 			parentTitle.setText("Parent:      (Old Parent: " + selectedBone.getParentBs().getName() + ")");
 		} else {

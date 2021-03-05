@@ -86,7 +86,7 @@ class MultiBonePanel extends BonePanel {
 	}
 
 	public void setSelectedItem(int importType) {
-		for (BoneShell temp : mht.donModBoneJList.getSelectedValuesList()) {
+		for (BoneShell temp : mht.donModBoneShellJList.getSelectedValuesList()) {
 			temp.setImportStatus(importType);
 		}
 	}
@@ -101,7 +101,7 @@ class MultiBonePanel extends BonePanel {
 		list.setCellRenderer(mht.boneShellRenderer);
 		final int x = JOptionPane.showConfirmDialog(null, new JScrollPane(list), "Set Parent for All Selected Bones", JOptionPane.OK_CANCEL_OPTION);
 		if (x == JOptionPane.OK_OPTION) {
-			for (BoneShell temp : mht.donModBoneJList.getSelectedValuesList()) {
+			for (BoneShell temp : mht.donModBoneShellJList.getSelectedValuesList()) {
 				temp.setParentBs(list.getSelectedValue());
 			}
 		}
