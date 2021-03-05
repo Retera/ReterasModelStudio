@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.gui.modeledit.BoneShell;
 import com.hiveworkshop.rms.ui.util.AbstractSnapshottingListCellRenderer2D;
 import com.hiveworkshop.rms.util.Vec3;
 

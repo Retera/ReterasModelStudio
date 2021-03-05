@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit;
 
 import com.hiveworkshop.rms.editor.model.Matrix;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
 
 import java.util.ArrayList;
 

@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.BoneShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.MatrixShell;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
@@ -237,17 +236,16 @@ public class ImportPanel extends JTabbedPane {
 			}
 			final boolean clearBones = mht.clearExistingBones.isSelected();
 			if (!clearAnims) {
-				for (AnimShell animShell : mht.existingAnims) {
+				for (AnimShell animShell : mht.recModOrgAnims) {
 					if (animShell.importAnim != null) {
 						animShell.importAnim.copyToInterval(animShell.anim.getStart(), animShell.anim.getEnd(), donModFlags, donModEventObjs, newImpFlags, newImpEventObjs);
 						final Animation tempAnim = new Animation("temp", animShell.anim.getStart(), animShell.anim.getEnd());
 						newAnims.add(tempAnim);
 						if (!clearBones) {
-							for (BoneShell bs : mht.existingBones) {
+							for (BoneShell bs : mht.recModOrgBones) {
 								if (bs.importBone != null) {
-									if (mht.getPanelOf(bs.importBone).importTypeBox.getSelectedIndex() == 1) {
-										System.out.println(
-												"Attempting to clear animation for " + bs.bone.getName() + " values " + animShell.anim.getStart() + ", " + animShell.anim.getEnd());
+									if (mht.getPanelOf(bs.importBone).getImportStatus() == 1) {
+										System.out.println("Attempting to clear animation for " + bs.bone.getName() + " values " + animShell.anim.getStart() + ", " + animShell.anim.getEnd());
 										bs.bone.clearAnimation(animShell.anim);
 									}
 								}
@@ -274,16 +272,16 @@ public class ImportPanel extends JTabbedPane {
 			}
 			final List<IdObject> objectsAdded = new ArrayList<>();
 			final List<Camera> camerasAdded = new ArrayList<>();
-			for (BonePanel bonePanel : mht.bonePanels) {
-				final Bone b = bonePanel.bone;
-				final int type = bonePanel.importTypeBox.getSelectedIndex();
+			for (BoneShell boneShell : mht.donModBoneShells) {
+				final Bone b = boneShell.bone;
+				final int type = boneShell.getImportStatus();
 				// we will go through all bone shells for this
 				// Fix cross-model referencing issue (force clean parent node's list of children)
 				switch (type) {
 					case 0 -> {
 						mht.receivingModel.add(b);
 						objectsAdded.add(b);
-						final BoneShell mbs = bonePanel.futureBonesList.getSelectedValue();
+						final BoneShell mbs = boneShell.getParentBs();
 						if (mbs != null) {
 							b.setParent((mbs).bone);
 						} else {
@@ -294,10 +292,10 @@ public class ImportPanel extends JTabbedPane {
 				}
 			}
 			if (!clearBones) {
-				for (int i = 0; i < mht.existingBones.size(); i++) {
-					final BoneShell bs = mht.existingBones.get(i);
+				for (int i = 0; i < mht.recModOrgBones.size(); i++) {
+					final BoneShell bs = mht.recModOrgBones.get(i);
 					if (bs.importBone != null) {
-						if (mht.getPanelOf(bs.importBone).importTypeBox.getSelectedIndex() == 1) {
+						if (mht.getPanelOf(bs.importBone).getImportStatus() == 1) {
 							bs.bone.copyMotionFrom(bs.importBone);
 						}
 					}
@@ -597,7 +595,7 @@ public class ImportPanel extends JTabbedPane {
 					aniPanel.doImport.doClick();
 					aniPanel.importTypeBox.setSelectedItem(AnimPanel.TIMESCALE);
 
-					for (AnimShell shell : mht.existingAnims) {
+					for (AnimShell shell : mht.recModOrgAnims) {
 						if ((shell).anim.getName().equals(pickedAnim.getName())) {
 							aniPanel.animList.setSelectedValue(shell, true);
 							aniPanel.updateSelectionPicks();

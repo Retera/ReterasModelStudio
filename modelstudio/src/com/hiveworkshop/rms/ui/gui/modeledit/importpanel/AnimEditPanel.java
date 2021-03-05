@@ -18,16 +18,16 @@ public class AnimEditPanel extends JPanel {
 		add(getTopPanel(), "align center, wrap");
 
 
-		mht.existingAnims = new IterableListModel<>();
+		mht.recModOrgAnims = new IterableListModel<>();
 		for (Animation anim : mht.receivingModel.getAnims()) {
-			mht.existingAnims.addElement(new AnimShell(anim));
+			mht.recModOrgAnims.addElement(new AnimShell(anim));
 		}
 
 		final AnimListCellRenderer animsRenderer = new AnimListCellRenderer();
 
 		// Build the animTabs list of AnimPanels
 		for (Animation anim : mht.donatingModel.getAnims()) {
-			final AnimPanel iAnimPanel = new AnimPanel(mht, anim, mht.existingAnims, animsRenderer);
+			final AnimPanel iAnimPanel = new AnimPanel(mht, anim, mht.recModOrgAnims, animsRenderer);
 
 			mht.animTabs.addTab(anim.getName(), ImportPanel.orangeIcon, iAnimPanel, "Click to modify data for this animation sequence.");
 		}

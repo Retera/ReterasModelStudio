@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.gui.modeledit.BoneShell;
 
 import javax.swing.*;
 import java.awt.*;

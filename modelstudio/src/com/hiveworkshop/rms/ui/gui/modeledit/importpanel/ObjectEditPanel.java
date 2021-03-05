@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.Helper;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.ui.gui.modeledit.BoneShell;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -96,12 +95,12 @@ public class ObjectEditPanel extends JPanel {
 		}
 	}
 
-	static void uncheckUnusedObjects(ModelHolderThing mht, List<BonePanel> usedBonePanels) {
+	static void uncheckUnusedObjects(ModelHolderThing mht, List<BoneShell> usedBonePanels) {
 		for (ObjectPanel objectPanel : mht.objectPanels) {
 			if (objectPanel.doImport.isSelected() && (objectPanel.parentsList != null)) {
 				BoneShell shell = objectPanel.parentsList.getSelectedValue();
 				if ((shell != null) && (shell.bone != null)) {
-					BonePanel current = mht.getPanelOf(shell.bone);
+					BoneShell current = mht.getPanelOf(shell.bone);
 					if (!usedBonePanels.contains(current)) {
 						usedBonePanels.add(current);
 					}
@@ -109,10 +108,10 @@ public class ObjectEditPanel extends JPanel {
 					boolean good = true;
 					int k = 0;
 					while (good) {
-						if ((current == null) || (current.getSelectedIndex() == 1)) {
+						if ((current == null) || (current.getImportStatus() == 1)) {
 							break;
 						}
-						shell = current.futureBonesList.getSelectedValue();
+						shell = current.getParentBs();
 						// If shell is null, then the bone has "No Parent"
 						// If current's selected index is not 2,
 						if (shell == null)// current.getSelectedIndex() != 2
@@ -136,4 +135,44 @@ public class ObjectEditPanel extends JPanel {
 			}
 		}
 	}
+//	static void uncheckUnusedObjects(ModelHolderThing mht, List<BonePanel> usedBonePanels) {
+//		for (ObjectPanel objectPanel : mht.objectPanels) {
+//			if (objectPanel.doImport.isSelected() && (objectPanel.parentsList != null)) {
+//				BoneShell shell = objectPanel.parentsList.getSelectedValue();
+//				if ((shell != null) && (shell.bone != null)) {
+//					BonePanel current = mht.getPanelOf(shell.bone);
+//					if (!usedBonePanels.contains(current)) {
+//						usedBonePanels.add(current);
+//					}
+//
+//					boolean good = true;
+//					int k = 0;
+//					while (good) {
+//						if ((current == null) || (current.getSelectedIndex() == 1)) {
+//							break;
+//						}
+//						shell = current.futureBonesList.getSelectedValue();
+//						// If shell is null, then the bone has "No Parent"
+//						// If current's selected index is not 2,
+//						if (shell == null)// current.getSelectedIndex() != 2
+//						{
+//							good = false;
+//						} else {
+//							current = mht.getPanelOf(shell.bone);
+//							if (usedBonePanels.contains(current)) {
+//								good = false;
+//							} else {
+//								usedBonePanels.add(current);
+//							}
+//						}
+//						k++;
+//						if (k > 1000) {
+//							JOptionPane.showMessageDialog(null, "Unexpected error has occurred: IdObject to Bone parent loop, circular logic");
+//							break;
+//						}
+//					}
+//				}
+//			}
+//		}
+//	}
 }

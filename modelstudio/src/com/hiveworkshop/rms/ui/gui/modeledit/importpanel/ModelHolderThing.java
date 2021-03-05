@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
-import com.hiveworkshop.rms.ui.gui.modeledit.BoneShell;
+import com.hiveworkshop.rms.util.BiMap;
 import com.hiveworkshop.rms.util.IterableListModel;
 
 import javax.swing.*;
@@ -19,22 +19,25 @@ public class ModelHolderThing {
 	// Animation
 	public JCheckBox clearExistingAnims;
 	public JTabbedPane animTabs = new JTabbedPane(JTabbedPane.LEFT, JTabbedPane.SCROLL_TAB_LAYOUT);
-	public IterableListModel<AnimShell> existingAnims;
+	public IterableListModel<AnimShell> recModOrgAnims;
 
 	// Bones
 	public JCheckBox clearExistingBones;
-	public IterableListModel<BonePanel> bonePanels = new IterableListModel<>();
+	public IterableListModel<BonePanel> donModBonePanels = new IterableListModel<>();
+	public IterableListModel<BoneShell> donModBoneShells = new IterableListModel<>();
+	public JList<BoneShell> donModBoneJList = new JList<>(donModBoneShells);
+	public IterableListModel<BoneShell> recModOrgBones;
 	public Map<Bone, BonePanel> boneToPanel = new HashMap<>();
-	public JList<BonePanel> boneTabs = new JList<>(bonePanels);
-
-	public IterableListModel<BoneShell> existingBones;
+	public ArrayList<BoneShell> recModBones;
+	//	public JList<BonePanel> donModBoneJList = new JList<>(donModBonePanels);
+	public ArrayList<BoneShell> donModBones;
 
 	// Matrices
 	public JTabbedPane geosetAnimTabs = new JTabbedPane(JTabbedPane.LEFT, JTabbedPane.SCROLL_TAB_LAYOUT);
 
 	public IterableListModel<BoneShell> futureBoneList = new IterableListModel<>();
-	public ArrayList<BoneShell> recModOldBones;
-	public ArrayList<BoneShell> donModNewBones;
+	public ArrayList<BoneShell> recModHelpersAndBones;
+	public ArrayList<BoneShell> donModHelpersAndBones;
 
 	// Objects
 //	public JPanel objectsPanel = new JPanel();
@@ -50,9 +53,8 @@ public class ModelHolderThing {
 
 	public IterableListModel<BoneShell> futureBoneListEx = new IterableListModel<>();
 	public List<IterableListModel<BoneShell>> futureBoneListExFixableItems = new ArrayList<>();
-
-	public ArrayList<BoneShell> recModOldHelpers;
-	public ArrayList<BoneShell> donModNewHelpers;
+	BiMap<IdObject, BoneShell> recModBoneShellBiMap;
+	BiMap<IdObject, BoneShell> donModBoneShellBiMap;
 
 	public Set<BoneShell> futureBoneListExQuickLookupSet = new HashSet<>();
 	public ArrayList<VisibilityShell> allVisShells;
@@ -70,6 +72,9 @@ public class ModelHolderThing {
 		this.receivingModel = receivingModel;
 		this.donatingModel = donatingModel;
 		changeListener = getChangeListener();
+
+//		initiateBoneLists();
+//		initiateBoneAndHelperLists();
 
 		recModelManager = new ModelViewManager(receivingModel);
 		donModelManager = new ModelViewManager(donatingModel);
@@ -136,47 +141,41 @@ public class ModelHolderThing {
 	}
 
 	public IterableListModel<BoneShell> getFutureBoneList() {
-		if (recModOldBones == null) {
-			recModOldBones = new ArrayList<>();
-			donModNewBones = new ArrayList<>();
-			final List<Bone> recOldBonesRefs = receivingModel.getBones();
-			for (final Bone b : recOldBonesRefs) {
-				final BoneShell bs = new BoneShell(b);
-				bs.modelName = receivingModel.getName();
-				recModOldBones.add(bs);
-			}
-			final List<Bone> donNewBonesRefs = donatingModel.getBones();
-			for (final Bone b : donNewBonesRefs) {
-				final BoneShell bs = new BoneShell(b);
-				bs.modelName = donatingModel.getName();
-				bs.panel = getPanelOf(b);
-				donModNewBones.add(bs);
-			}
+		if (donModBones == null) {
+			initiateBoneLists();
 		}
 		if (!clearExistingBones.isSelected()) {
-			for (final BoneShell b : recModOldBones) {
+			for (final BoneShell b : recModBones) {
 				if (!futureBoneList.contains(b)) {
 					futureBoneList.addElement(b);
 				}
 			}
 		} else {
-			for (final BoneShell b : recModOldBones) {
-				if (futureBoneList.contains(b)) {
-					futureBoneList.removeElement(b);
-				}
-			}
+			futureBoneList.removeAll(recModBones);
+//			for (final BoneShell b : recModBones) {
+//				if (futureBoneList.contains(b)) {
+//					futureBoneList.removeElement(b);
+//				}
+//			}
 		}
-		for (final BoneShell b : donModNewBones) {
-			if (b.panel.importTypeBox.getSelectedItem() == BonePanel.IMPORT) {
+		for (final BoneShell b : donModBones) {
+			if (b.getImportStatus() == 0) {
 				if (!futureBoneList.contains(b)) {
 					futureBoneList.addElement(b);
 				}
 			} else {
-				if (futureBoneList.contains(b)) {
-					futureBoneList.removeElement(b);
-				}
+				futureBoneList.removeElement(b);
 			}
 		}
+//		for (final BoneShell b : donModBones) {
+//			if (b.panel.importTypeBox.getSelectedItem() == BonePanel.IMPORT) {
+//				if (!futureBoneList.contains(b)) {
+//					futureBoneList.addElement(b);
+//				}
+//			} else {
+//				futureBoneList.removeElement(b);
+//			}
+//		}
 		return futureBoneList;
 	}
 
@@ -185,42 +184,11 @@ public class ModelHolderThing {
 		addCount = 0;
 		totalRemoveTime = 0;
 		removeCount = 0;
-		if (recModOldHelpers == null) {
-			recModOldHelpers = new ArrayList<>();
-			donModNewHelpers = new ArrayList<>();
-			List<? extends Bone> RecOldBonesRefs = receivingModel.getBones();
-			for (final Bone b : RecOldBonesRefs) {
-				final BoneShell bs = new BoneShell(b);
-				bs.modelName = receivingModel.getName();
-				bs.showClass = true;
-				recModOldHelpers.add(bs);
-			}
-			List<? extends Bone> recOldHelpersRefs = receivingModel.getHelpers();
-			for (final Bone b : recOldHelpersRefs) {
-				final BoneShell bs = new BoneShell(b);
-				bs.modelName = receivingModel.getName();
-				bs.showClass = true;
-				recModOldHelpers.add(bs);
-			}
-			List<? extends Bone> donNewBonesRefs = donatingModel.getBones();
-			for (final Bone b : donNewBonesRefs) {
-				final BoneShell bs = new BoneShell(b);
-				bs.modelName = donatingModel.getName();
-				bs.showClass = true;
-				bs.panel = getPanelOf(b);
-				donModNewHelpers.add(bs);
-			}
-			List<? extends Bone> donNewHelpersRefs = donatingModel.getHelpers();
-			for (final Bone b : donNewHelpersRefs) {
-				final BoneShell bs = new BoneShell(b);
-				bs.modelName = donatingModel.getName();
-				bs.showClass = true;
-				bs.panel = getPanelOf(b);
-				donModNewHelpers.add(bs);
-			}
+		if (donModHelpersAndBones == null) {
+			initiateBoneAndHelperLists();
 		}
 		if (!clearExistingBones.isSelected()) {
-			for (final BoneShell b : recModOldHelpers) {
+			for (final BoneShell b : recModHelpersAndBones) {
 				if (!futureBoneListExQuickLookupSet.contains(b)) {
 					final long startTime = System.nanoTime();
 					futureBoneListEx.addElement(b);
@@ -231,7 +199,7 @@ public class ModelHolderThing {
 				}
 			}
 		} else {
-			for (final BoneShell b : recModOldHelpers) {
+			for (final BoneShell b : recModHelpersAndBones) {
 				if (futureBoneListExQuickLookupSet.remove(b)) {
 					final long startTime = System.nanoTime();
 					futureBoneListEx.removeElement(b);
@@ -241,29 +209,50 @@ public class ModelHolderThing {
 				}
 			}
 		}
-		for (final BoneShell b : donModNewHelpers) {
-			b.panel = getPanelOf(b.bone);
-			if (b.panel != null) {
-				if (b.panel.importTypeBox.getSelectedItem() == BonePanel.IMPORT) {
-					if (!futureBoneListExQuickLookupSet.contains(b)) {
-						final long startTime = System.nanoTime();
-						futureBoneListEx.addElement(b);
-						final long endTime = System.nanoTime();
-						totalAddTime += (endTime - startTime);
-						addCount++;
-						futureBoneListExQuickLookupSet.add(b);
-					}
-				} else {
-					if (futureBoneListExQuickLookupSet.remove(b)) {
-						final long startTime = System.nanoTime();
-						futureBoneListEx.removeElement(b);
-						final long endTime = System.nanoTime();
-						totalRemoveTime += (endTime - startTime);
-						removeCount++;
-					}
+		for (final BoneShell b : donModHelpersAndBones) {
+			if (b.getImportStatus() == 0) {
+				if (!futureBoneListExQuickLookupSet.contains(b)) {
+					final long startTime = System.nanoTime();
+					futureBoneListEx.addElement(b);
+					final long endTime = System.nanoTime();
+					totalAddTime += (endTime - startTime);
+					addCount++;
+					futureBoneListExQuickLookupSet.add(b);
+				}
+			} else {
+				if (futureBoneListExQuickLookupSet.remove(b)) {
+					final long startTime = System.nanoTime();
+					futureBoneListEx.removeElement(b);
+					final long endTime = System.nanoTime();
+					totalRemoveTime += (endTime - startTime);
+					removeCount++;
 				}
 			}
+
 		}
+//		for (final BoneShell b : donModHelpersAndBones) {
+//			b.panel = getPanelOf(b.bone);
+//			if (b.panel != null) {
+//				if (b.panel.importTypeBox.getSelectedItem() == BonePanel.IMPORT) {
+//					if (!futureBoneListExQuickLookupSet.contains(b)) {
+//						final long startTime = System.nanoTime();
+//						futureBoneListEx.addElement(b);
+//						final long endTime = System.nanoTime();
+//						totalAddTime += (endTime - startTime);
+//						addCount++;
+//						futureBoneListExQuickLookupSet.add(b);
+//					}
+//				} else {
+//					if (futureBoneListExQuickLookupSet.remove(b)) {
+//						final long startTime = System.nanoTime();
+//						futureBoneListEx.removeElement(b);
+//						final long endTime = System.nanoTime();
+//						totalRemoveTime += (endTime - startTime);
+//						removeCount++;
+//					}
+//				}
+//			}
+//		}
 		if (addCount != 0) {
 			System.out.println("average add time: " + (totalAddTime / addCount));
 			System.out.println("add count: " + addCount);
@@ -325,9 +314,12 @@ public class ModelHolderThing {
 	}
 
 	public void setImportStatusForAllBones(int selsctionIndex) {
-		for (BonePanel bonePanel : bonePanels) {
-			bonePanel.setSelectedIndex(selsctionIndex);
+		for (BoneShell bonePanel : donModBoneShells) {
+			bonePanel.setImportStatus(selsctionIndex);
 		}
+//		for (BonePanel bonePanel : donModBonePanels) {
+//			bonePanel.setSelectedIndex(selsctionIndex);
+//		}
 	}
 
 	public void importAllObjs(boolean b) {
@@ -342,9 +334,15 @@ public class ModelHolderThing {
 		}
 	}
 
-	public BonePanel getPanelOf(final Bone b) {
-		return boneToPanel.get(b);
+	public BoneShell getPanelOf(final Bone b) {
+		return donModBoneShellBiMap.get(b);
+//		return boneToPanel.get(b);
 	}
+
+
+//	public BonePanel getPanelOf(final Bone b) {
+//		return boneToPanel.get(b);
+//	}
 
 
 	public ChangeListener getChangeListener() {
@@ -359,5 +357,59 @@ public class ModelHolderThing {
 
 	public ChangeListener getDaChangeListener() {
 		return changeListener;
+	}
+
+
+	private void initiateBoneLists() {
+		recModBones = new ArrayList<>();
+		donModBones = new ArrayList<>();
+		final List<Bone> recOldBonesRefs = receivingModel.getBones();
+		for (final Bone b : recOldBonesRefs) {
+			final BoneShell bs = new BoneShell(b);
+			bs.modelName = receivingModel.getName();
+			recModBones.add(bs);
+		}
+		final List<Bone> donNewBonesRefs = donatingModel.getBones();
+		for (final Bone b : donNewBonesRefs) {
+			final BoneShell bs = new BoneShell(b);
+			bs.modelName = donatingModel.getName();
+//			bs.panel = getPanelOf(b);
+			donModBones.add(bs);
+		}
+	}
+
+	private void initiateBoneAndHelperLists() {
+		recModHelpersAndBones = new ArrayList<>();
+		donModHelpersAndBones = new ArrayList<>();
+		List<? extends Bone> RecOldBonesRefs = receivingModel.getBones();
+		for (final Bone b : RecOldBonesRefs) {
+			final BoneShell bs = new BoneShell(b);
+			bs.modelName = receivingModel.getName();
+			bs.showClass = true;
+			recModHelpersAndBones.add(bs);
+		}
+		List<? extends Bone> recOldHelpersRefs = receivingModel.getHelpers();
+		for (final Bone b : recOldHelpersRefs) {
+			final BoneShell bs = new BoneShell(b);
+			bs.modelName = receivingModel.getName();
+			bs.showClass = true;
+			recModHelpersAndBones.add(bs);
+		}
+		List<? extends Bone> donNewBonesRefs = donatingModel.getBones();
+		for (final Bone b : donNewBonesRefs) {
+			final BoneShell bs = new BoneShell(b);
+			bs.modelName = donatingModel.getName();
+			bs.showClass = true;
+//			bs.panel = getPanelOf(b);
+			donModHelpersAndBones.add(bs);
+		}
+		List<? extends Bone> donNewHelpersRefs = donatingModel.getHelpers();
+		for (final Bone b : donNewHelpersRefs) {
+			final BoneShell bs = new BoneShell(b);
+			bs.modelName = donatingModel.getName();
+			bs.showClass = true;
+//			bs.panel = getPanelOf(b);
+			donModHelpersAndBones.add(bs);
+		}
 	}
 }

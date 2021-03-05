@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.Matrix;
-import com.hiveworkshop.rms.ui.gui.modeledit.BoneShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.MatrixShell;
 import com.hiveworkshop.rms.util.IterableListModel;
 

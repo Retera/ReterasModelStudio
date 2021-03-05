@@ -1,7 +1,5 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
-import com.hiveworkshop.rms.ui.gui.modeledit.BoneShell;
-import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -12,11 +10,10 @@ class MultiBonePanel extends BonePanel {
 	boolean listenForChange = true;
 	ModelHolderThing mht;
 
-	public MultiBonePanel(ModelHolderThing mht, final IterableListModel<BoneShell> existingBonesList, final BoneShellListCellRenderer renderer) {
+	public MultiBonePanel(ModelHolderThing mht, final BoneShellListCellRenderer renderer) {
 		this.mht = mht;
 		setLayout(new MigLayout("gap 0"));
-		bone = null;
-		existingBones = existingBonesList;
+		selectedBone = null;
 
 		title = new JLabel("Multiple Selected");
 		title.setFont(new Font("Arial", Font.BOLD, 26));
@@ -27,10 +24,10 @@ class MultiBonePanel extends BonePanel {
 		importTypeBox.setMaximumSize(new Dimension(200, 20));
 		add(importTypeBox, "wrap");
 
-		boneList = new JList<>(existingBones);
+		boneList = new JList<>(mht.recModOrgBones);
 		boneList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		boneList.setCellRenderer(renderer);
-		boneListPane = new JScrollPane(boneList);
+		JScrollPane boneListPane = new JScrollPane(boneList);
 
 		cardPanel = new JPanel(cards);
 		cardPanel.add(boneListPane, "boneList");
@@ -82,15 +79,15 @@ class MultiBonePanel extends BonePanel {
 		}
 		listenSelection = pastListSelectionState;
 		if (listenForChange) {
-			setSelectedItem((String) importTypeBox.getSelectedItem());
+			setSelectedItem(importTypeBox.getSelectedIndex());
 		}
 		final long nanoEnd = System.nanoTime();
 		System.out.println("MultiBonePanel.actionPerformed() took " + (nanoEnd - nanoStart) + " ns");
 	}
 
-	public void setSelectedItem(final String what) {
-		for (BonePanel temp : mht.boneTabs.getSelectedValuesList()) {
-			temp.setSelectedValue(what);
+	public void setSelectedItem(int importType) {
+		for (BoneShell temp : mht.donModBoneJList.getSelectedValuesList()) {
+			temp.setImportStatus(importType);
 		}
 	}
 
@@ -104,8 +101,8 @@ class MultiBonePanel extends BonePanel {
 		list.setCellRenderer(mht.boneShellRenderer);
 		final int x = JOptionPane.showConfirmDialog(null, new JScrollPane(list), "Set Parent for All Selected Bones", JOptionPane.OK_CANCEL_OPTION);
 		if (x == JOptionPane.OK_OPTION) {
-			for (BonePanel temp : mht.boneTabs.getSelectedValuesList()) {
-				temp.setParent(list.getSelectedValue());
+			for (BoneShell temp : mht.donModBoneJList.getSelectedValuesList()) {
+				temp.setParentBs(list.getSelectedValue());
 			}
 		}
 	}

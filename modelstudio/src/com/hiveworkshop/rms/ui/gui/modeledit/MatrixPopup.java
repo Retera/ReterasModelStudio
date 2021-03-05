@@ -4,17 +4,15 @@ import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ParentToggleRenderer;
+import com.hiveworkshop.rms.util.IterableListModel;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 
 /**
@@ -23,12 +21,12 @@ import java.util.List;
  * Eric Theller 6/11/2012
  */
 
-public class MatrixPopup extends JPanel implements ActionListener, ListSelectionListener, ChangeListener {
+public class MatrixPopup extends JPanel implements ListSelectionListener {
 	JLabel title;
 
 	// New refs
 	JLabel newRefsLabel;
-	public DefaultListModel<BoneShell> newRefs;
+	public IterableListModel<BoneShell> newRefs;
 	JList<BoneShell> newRefsList;
 	JScrollPane newRefsPane;
 	JButton removeNewRef;
@@ -37,7 +35,7 @@ public class MatrixPopup extends JPanel implements ActionListener, ListSelection
 
 	// Bones (all available -- NEW AND OLD)
 	JLabel bonesLabel;
-	DefaultListModel<BoneShell> bones;
+	IterableListModel<BoneShell> bones;
 	JList<BoneShell> bonesList;
 	JScrollPane bonesPane;
 	JButton useBone;
@@ -50,7 +48,7 @@ public class MatrixPopup extends JPanel implements ActionListener, ListSelection
 		this.model = model;
 		final ModelView disp = new ModelViewManager(model);
 		final ParentToggleRenderer renderer = new ParentToggleRenderer(displayParents, disp, null);
-		displayParents.addChangeListener(this);
+		displayParents.addChangeListener(e -> repaint());
 
 		bonesLabel = new JLabel("Bones");
 		buildBonesList();
@@ -62,21 +60,23 @@ public class MatrixPopup extends JPanel implements ActionListener, ListSelection
 		bonesPane.setPreferredSize(new Dimension(400, 500));
 
 		useBone = new JButton("Use Bone(s)", ImportPanel.greenArrowIcon);
-		useBone.addActionListener(this);
+		useBone.addActionListener(e -> useBone());
 
 		newRefsLabel = new JLabel("New Refs");
-		newRefs = new DefaultListModel<>();
+		newRefs = new IterableListModel<>();
 		newRefsList = new JList<>(newRefs);
 		newRefsList.setCellRenderer(renderer);
 		newRefsPane = new JScrollPane(newRefsList);
 		newRefsPane.setPreferredSize(new Dimension(400, 500));
 
 		removeNewRef = new JButton("Remove", ImportPanel.redXIcon);
-		removeNewRef.addActionListener(this);
+		removeNewRef.addActionListener(e -> removeNewRef());
+
 		moveUp = new JButton(ImportPanel.moveUpIcon);
-		moveUp.addActionListener(this);
+		moveUp.addActionListener(e -> moveUp());
+
 		moveDown = new JButton(ImportPanel.moveDownIcon);
-		moveDown.addActionListener(this);
+		moveDown.addActionListener(e -> moveDown());
 
 		buildLayout();
 
@@ -121,52 +121,56 @@ public class MatrixPopup extends JPanel implements ActionListener, ListSelection
 		refreshLists();
 	}
 
-	@Override
-	public void actionPerformed(final ActionEvent e) {
-		if (e.getSource() == useBone) {
-			for (final Object o : bonesList.getSelectedValuesList()) {
-				if (!newRefs.contains(o)) {
-					newRefs.addElement((BoneShell) o);
+
+	private void moveDown() {
+		final int[] indices = newRefsList.getSelectedIndices();
+		if (indices != null && indices.length > 0) {
+			if (indices[indices.length - 1] < newRefs.size() - 1) {
+				for (int i = indices.length - 1; i >= 0; i--) {
+					final BoneShell bs = newRefs.get(indices[i]);
+					newRefs.removeElement(bs);
+					newRefs.add(indices[i] + 1, bs);
+					indices[i] += 1;
 				}
 			}
-			refreshNewRefsList();
-		} else if (e.getSource() == removeNewRef) {
-			for (final Object o : newRefsList.getSelectedValuesList()) {
-				int i = newRefsList.getSelectedIndex();
-				newRefs.removeElement(o);
-				if (i > newRefs.size() - 1) {
-					i = newRefs.size() - 1;
+			newRefsList.setSelectedIndices(indices);
+		}
+	}
+
+	private void moveUp() {
+		final int[] indices = newRefsList.getSelectedIndices();
+		if (indices != null && indices.length > 0) {
+			if (indices[0] > 0) {
+				for (int i = 0; i < indices.length; i++) {
+					final BoneShell bs = newRefs.get(indices[i]);
+					newRefs.removeElement(bs);
+					newRefs.add(indices[i] - 1, bs);
+					indices[i] -= 1;
 				}
-				newRefsList.setSelectedIndex(i);
 			}
-			refreshNewRefsList();
-		} else if (e.getSource() == moveUp) {
-			final int[] indices = newRefsList.getSelectedIndices();
-			if (indices != null && indices.length > 0) {
-				if (indices[0] > 0) {
-					for (int i = 0; i < indices.length; i++) {
-						final BoneShell bs = newRefs.get(indices[i]);
-						newRefs.removeElement(bs);
-						newRefs.add(indices[i] - 1, bs);
-						indices[i] -= 1;
-					}
-				}
-				newRefsList.setSelectedIndices(indices);
+			newRefsList.setSelectedIndices(indices);
+		}
+	}
+
+	private void removeNewRef() {
+		for (final Object o : newRefsList.getSelectedValuesList()) {
+			int i = newRefsList.getSelectedIndex();
+			newRefs.removeElement(o);
+			if (i > newRefs.size() - 1) {
+				i = newRefs.size() - 1;
 			}
-		} else if (e.getSource() == moveDown) {
-			final int[] indices = newRefsList.getSelectedIndices();
-			if (indices != null && indices.length > 0) {
-				if (indices[indices.length - 1] < newRefs.size() - 1) {
-					for (int i = indices.length - 1; i >= 0; i--) {
-						final BoneShell bs = newRefs.get(indices[i]);
-						newRefs.removeElement(bs);
-						newRefs.add(indices[i] + 1, bs);
-						indices[i] += 1;
-					}
-				}
-				newRefsList.setSelectedIndices(indices);
+			newRefsList.setSelectedIndex(i);
+		}
+		refreshNewRefsList();
+	}
+
+	private void useBone() {
+		for (final Object o : bonesList.getSelectedValuesList()) {
+			if (!newRefs.contains(o)) {
+				newRefs.addElement((BoneShell) o);
 			}
 		}
+		refreshNewRefsList();
 	}
 
 	public void refreshLists() {
@@ -230,7 +234,7 @@ public class MatrixPopup extends JPanel implements ActionListener, ListSelection
 	}
 
 	public void buildBonesList() {
-		bones = new DefaultListModel<>();
+		bones = new IterableListModel<>();
 		final List<Bone> modelBones = model.getBones();
 		// ArrayList<Bone> modelHelpers = model.sortedIdObjects(Bone.class);
 		for (final Bone b : modelBones) {
@@ -240,12 +244,5 @@ public class MatrixPopup extends JPanel implements ActionListener, ListSelection
 		// {
 		// bones.addElement(new BoneShell(b));
 		// }
-	}
-
-	@Override
-	public void stateChanged(final ChangeEvent e) {
-		if (e.getSource() == displayParents) {
-			repaint();
-		}
 	}
 }

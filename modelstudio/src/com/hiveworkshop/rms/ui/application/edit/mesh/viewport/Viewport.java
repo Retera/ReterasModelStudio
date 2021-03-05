@@ -16,8 +16,12 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayL
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.AnimatedViewportModelRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.ResettableAnimatedIdObjectParentLinkRenderer;
-import com.hiveworkshop.rms.ui.gui.modeledit.*;
+import com.hiveworkshop.rms.ui.gui.modeledit.MatrixPopup;
+import com.hiveworkshop.rms.ui.gui.modeledit.SkinPopup;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChangeListener;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
