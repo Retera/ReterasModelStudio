@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.model.Material;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
 
 class GeosetPanel extends JPanel {
@@ -22,30 +23,21 @@ class GeosetPanel extends JPanel {
 	boolean isImported;
 	MaterialListCellRenderer renderer;
 	ModelHolderThing mht;
+	GeosetShell selectedGeoset;
 
-	public GeosetPanel(ModelHolderThing mht, final boolean imported, // Is this Geoset an imported one, or an original?
-	                   final EditableModel model, final int geoIndex, // which geoset is this for? (starts with 0)
-	                   final DefaultListModel<Material> materials, final MaterialListCellRenderer renderer) {
+	public GeosetPanel(ModelHolderThing mht, DefaultListModel<Material> materials, MaterialListCellRenderer renderer) {
 		this.mht = mht;
 		setLayout(new MigLayout("gap 0"));
 		this.materials = materials;
-		this.model = model;
 		this.renderer = renderer;
-		index = geoIndex;
-		geoset = model.getGeoset(geoIndex);
-		isImported = imported;
 
-		geoTitle = new JLabel(model.getName() + " " + (index + 1));
+		geoTitle = new JLabel("Select a geoset");
 		geoTitle.setFont(new Font("Arial", Font.BOLD, 26));
 		add(geoTitle, "align center, wrap");
 
 		doImport = new JCheckBox("Import this Geoset");
 		doImport.setSelected(true);
-		if (imported) {
-			doImport.addChangeListener(e -> checkboxToggeled());
-		} else {
-			doImport.setEnabled(false);
-		}
+		doImport.addChangeListener(e -> checkboxToggeled());
 		add(doImport, "left, wrap");
 
 		materialText = new JLabel("Material:");
@@ -55,10 +47,27 @@ class GeosetPanel extends JPanel {
 		materialList = new JList<>(materials);
 		materialList.setCellRenderer(renderer);
 		materialList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		materialList.setSelectedValue(geoset.getMaterial(), true);
+		materialList.addListSelectionListener(this::setGeosetMaterial);
+
 
 		materialListPane = new JScrollPane(materialList);
 		add(materialListPane, "grow");
+	}
+
+	public void setGeoset(GeosetShell geosetShell) {
+		selectedGeoset = geosetShell;
+		geoset = geosetShell.getGeoset();
+		this.model = geosetShell.getModel();
+		index = geosetShell.getIndex();
+		isImported = geosetShell.isImported();
+
+		geoTitle.setText(model.getName() + " " + (index + 1));
+
+		doImport.setEnabled(geosetShell.isImported());
+		if (geosetShell.isImported()) {
+			doImport.setSelected(geosetShell.isDoImport());
+		}
+		materialList.setSelectedValue(geoset.getMaterial(), true);
 	}
 
 	@Override
@@ -67,9 +76,13 @@ class GeosetPanel extends JPanel {
 		super.paintComponent(g);
 	}
 
-	public void setSelected(final boolean flag) {
-		if (isImported) {
-			doImport.setSelected(flag);
+	private void setGeosetMaterial(ListSelectionEvent e) {
+		if (!e.getValueIsAdjusting() && materialList.getSelectedValue() != null) {
+			if (materialList.getSelectedValue() == selectedGeoset.getNewMaterial()) {
+				selectedGeoset.setNewMaterial(null);
+			} else {
+				selectedGeoset.setNewMaterial(materialList.getSelectedValue());
+			}
 		}
 	}
 
@@ -77,6 +90,10 @@ class GeosetPanel extends JPanel {
 		materialText.setEnabled(doImport.isSelected());
 		materialList.setEnabled(doImport.isSelected());
 		materialListPane.setEnabled(doImport.isSelected());
+
+		if (selectedGeoset != null && selectedGeoset.isImported()) {
+			selectedGeoset.setDoImport(doImport.isSelected());
+		}
 
 		informGeosetVisibility(geoset, doImport.isSelected());
 	}
@@ -89,9 +106,5 @@ class GeosetPanel extends JPanel {
 				mht.geosetAnimTabs.setEnabledAt(i, flag);
 			}
 		}
-	}
-
-	public Material getSelectedMaterial() {
-		return (Material) materialList.getSelectedValue();
 	}
 }

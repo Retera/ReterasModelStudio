@@ -8,12 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BoneShell {
-	public final Bone bone;
-	public Bone importBone;
-	public BoneShell importBoneShell;
-	public String modelName;
+	private final Bone bone;
+	private Bone importBone;
+	private BoneShell importBoneShell;
+	private String modelName;
 	//	public BonePanel panel;
-	public boolean showClass = false;
+	private boolean showClass = false;
 	private String name = "";
 	private boolean shouldImportBone = true;
 	private int importStatus = 0;
@@ -39,7 +39,11 @@ public class BoneShell {
 	}
 
 	public Bone getImportBone() {
-		return importBone;
+		if (importBoneShell == null) {
+			return null;
+		}
+		return importBoneShell.getBone();
+//		return importBone;
 	}
 
 	public void setImportBone(final Bone b) {

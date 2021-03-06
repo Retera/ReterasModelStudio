@@ -42,7 +42,7 @@ public class BoneAttachmentEditPanel extends JPanel {
 				for (MatrixShell ms : bap.oldBoneRefs) {
 					for (final BoneShell bs : ms.newBones) {
 						BoneShell shell = bs;
-						BoneShell current = mht.getPanelOf(shell.bone);
+						BoneShell current = shell;
 						if (!usedBonePanels.contains(current)) {
 							usedBonePanels.add(current);
 						}
@@ -60,7 +60,7 @@ public class BoneAttachmentEditPanel extends JPanel {
 							{
 								good = false;
 							} else {
-								current = mht.getPanelOf(shell.bone);
+								current = shell;
 								if (usedBonePanels.contains(current)) {
 									good = false;
 								} else {

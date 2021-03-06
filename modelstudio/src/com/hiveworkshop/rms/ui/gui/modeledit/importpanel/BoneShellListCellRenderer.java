@@ -25,12 +25,12 @@ class BoneShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 
 	@Override
 	protected boolean contains(final ModelView modelDisp, final BoneShell object) {
-		return modelDisp.getModel().contains(object.bone);
+		return modelDisp.getModel().contains(object.getBone());
 	}
 
 	@Override
 	protected Vec3 getRenderVertex(final BoneShell value) {
-		return value.bone.getPivotPoint();
+		return value.getBone().getPivotPoint();
 	}
 
 	BoneShell selectedBone;
@@ -69,7 +69,7 @@ class BoneShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 
 		@Override
 		public boolean isAccepted(final GeosetVertex vertex) {
-			return vertex.getBoneAttachments().contains(boneShell.bone);
+			return vertex.getBoneAttachments().contains(boneShell.getBone());
 		}
 
 		@Override

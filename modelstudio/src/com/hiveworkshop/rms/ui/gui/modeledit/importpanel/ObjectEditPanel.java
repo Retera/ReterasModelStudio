@@ -77,8 +77,8 @@ public class ObjectEditPanel extends JPanel {
 		for (ObjectShell objectPanel : mht.donModObjectShells) {
 			if (objectPanel.getShouldImport()) {
 				BoneShell shell = objectPanel.getNewParentBs();
-				if ((shell != null) && (shell.bone != null)) {
-					BoneShell current = mht.getPanelOf(shell.bone);
+				if ((shell != null) && (shell.getBone() != null)) {
+					BoneShell current = shell;
 					if (!usedBonePanels.contains(current)) {
 						usedBonePanels.add(current);
 					}
@@ -86,7 +86,7 @@ public class ObjectEditPanel extends JPanel {
 					boolean good = true;
 					int k = 0;
 					while (good) {
-						if ((current == null) || (current.getImportStatus() == 1)) {
+						if (current.getImportStatus() == 1) {
 							break;
 						}
 						shell = current.getNewParentBs();
@@ -96,7 +96,7 @@ public class ObjectEditPanel extends JPanel {
 						{
 							good = false;
 						} else {
-							current = mht.getPanelOf(shell.bone);
+							current = shell;
 							if (usedBonePanels.contains(current)) {
 								good = false;
 							} else {

@@ -7,10 +7,7 @@ import com.hiveworkshop.rms.util.IterableListModel;
 
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ModelHolderThing {
 	public EditableModel receivingModel;
@@ -18,6 +15,12 @@ public class ModelHolderThing {
 
 	// Geosets
 	public JTabbedPane geosetTabs = new JTabbedPane(JTabbedPane.LEFT, JTabbedPane.SCROLL_TAB_LAYOUT);
+	public IterableListModel<GeosetShell> recModGeoShells = new IterableListModel<>();
+	public IterableListModel<GeosetShell> donModGeoShells = new IterableListModel<>();
+	public IterableListModel<GeosetShell> allGeoShells = new IterableListModel<>();
+	public IterableListModel<Material> recModMaterials = new IterableListModel<>();
+	public IterableListModel<Material> donModMaterials = new IterableListModel<>();
+	public IterableListModel<Material> allMaterials = new IterableListModel<>();
 
 	// Animation
 	public JCheckBox clearExistingAnims;
@@ -71,6 +74,7 @@ public class ModelHolderThing {
 		changeListener = getChangeListener();
 
 		initLists();
+		initiateGeosetLists();
 
 		recModelManager = new ModelViewManager(receivingModel);
 		donModelManager = new ModelViewManager(donatingModel);
@@ -85,19 +89,17 @@ public class ModelHolderThing {
 	public IterableListModel<VisibilityPanel> visibilityList() {
 		VisibilityPanel selection = visTabs.getSelectedValue();
 		visComponents.clear();
-		for (int i = 0; i < geosetTabs.getTabCount(); i++) {
-			final GeosetPanel gp = (GeosetPanel) geosetTabs.getComponentAt(i);
-			for (final Layer x : gp.getSelectedMaterial().getLayers()) {
+		for (GeosetShell geoShell : allGeoShells) {
+			for (final Layer x : geoShell.getMaterial().getLayers()) {
 				final VisibilityPanel vs = visPaneFromObject(x);
 				if (!visComponents.contains(vs) && (vs != null)) {
 					visComponents.addElement(vs);
 				}
 			}
 		}
-		for (int i = 0; i < geosetTabs.getTabCount(); i++) {
-			final GeosetPanel gp = (GeosetPanel) geosetTabs.getComponentAt(i);
-			if (gp.doImport.isSelected()) {
-				final Geoset x = gp.geoset;
+		for (GeosetShell geoShell : allGeoShells) {
+			if (geoShell.isDoImport()) {
+				final Geoset x = geoShell.getGeoset();
 				final VisibilityPanel vs = visPaneFromObject(x);
 				if (!visComponents.contains(vs) && (vs != null)) {
 					visComponents.addElement(vs);
@@ -160,15 +162,6 @@ public class ModelHolderThing {
 				futureBoneList.removeElement(b);
 			}
 		}
-//		for (final BoneShell b : donModBones) {
-//			if (b.panel.importTypeBox.getSelectedItem() == BonePanel.IMPORT) {
-//				if (!futureBoneList.contains(b)) {
-//					futureBoneList.addElement(b);
-//				}
-//			} else {
-//				futureBoneList.removeElement(b);
-//			}
-//		}
 		return futureBoneList;
 	}
 
@@ -268,9 +261,10 @@ public class ModelHolderThing {
 
 
 	public void importAllGeos(boolean b) {
-		for (int i = 0; i < geosetTabs.getTabCount(); i++) {
-			final GeosetPanel geoPanel = (GeosetPanel) geosetTabs.getComponentAt(i);
-			geoPanel.setSelected(b);
+		for (GeosetShell geoShell : allGeoShells) {
+			if (geoShell.isImported()) {
+				geoShell.setDoImport(b);
+			}
 		}
 	}
 
@@ -281,9 +275,20 @@ public class ModelHolderThing {
 		}
 	}
 
-	public void setImportStatusForAllBones(int selsctionIndex) {
-		for (BoneShell bonePanel : donModBoneShells) {
-			bonePanel.setImportStatus(selsctionIndex);
+	public void setImportStatusForAllBones(int selectionIndex) {
+		Map<String, BoneShell> nameMap = new HashMap<>();
+		if (selectionIndex == 1) {
+			for (BoneShell boneShell : recModBoneShells) {
+				nameMap.put(boneShell.getName(), boneShell);
+			}
+		}
+		for (BoneShell boneShell : donModBoneShells) {
+			boneShell.setImportStatus(selectionIndex);
+			if (selectionIndex == 1 && nameMap.containsKey(boneShell.getName())) {
+				nameMap.get(boneShell.getName()).setImportBoneShell(boneShell);
+			} else if (selectionIndex != 1) {
+				boneShell.setImportBoneShell(null);
+			}
 		}
 	}
 
@@ -297,10 +302,6 @@ public class ModelHolderThing {
 		for (final VisibilityPanel vPanel : allVisShellPanes) {
 			vPanel.selectSimilarOptions();
 		}
-	}
-
-	public BoneShell getPanelOf(final Bone b) {
-		return donModBoneShellBiMap.get(b);
 	}
 
 
@@ -364,6 +365,30 @@ public class ModelHolderThing {
 		for (BoneShell bs : donModBoneShellBiMap.values()) {
 			bs.setParentBs(donModBoneShellBiMap);
 		}
+	}
+
+	private void initiateGeosetLists() {
+		for (Geoset geoset : receivingModel.getGeosets()) {
+			GeosetShell geoShell = new GeosetShell(geoset, receivingModel, false);
+			recModGeoShells.addElement(geoShell);
+		}
+		allGeoShells.addAll(recModGeoShells);
+
+		for (Geoset geoset : donatingModel.getGeosets()) {
+			GeosetShell geoShell = new GeosetShell(geoset, donatingModel, true);
+			donModGeoShells.addElement(geoShell);
+		}
+		allGeoShells.addAll(donModGeoShells);
+
+		for (Material material : receivingModel.getMaterials()) {
+			recModMaterials.addElement(material);
+		}
+		allMaterials.addAll(recModMaterials);
+
+		for (Material material : donatingModel.getMaterials()) {
+			donModMaterials.addElement(material);
+		}
+		allMaterials.addAll(donModMaterials);
 	}
 
 }

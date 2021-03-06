@@ -82,9 +82,9 @@ public class BoneEditPanel extends JPanel {
 			mht.boneShellRenderer.setSelectedBoneShell(null);
 			boneCardLayout.show(bonePanelCards, "blank");
 		} else if (selectedValuesList.size() == 1) {
-			boneCardLayout.show(bonePanelCards, "single");
 			mht.boneShellRenderer.setSelectedBoneShell(mht.donModBoneShellJList.getSelectedValue());
 			singleBonePanel.setSelectedBone(mht.donModBoneShellJList.getSelectedValue());
+			boneCardLayout.show(bonePanelCards, "single");
 //			singleBonePanel.updateSelectionPicks();
 		} else {
 			mht.boneShellRenderer.setSelectedBoneShell(null);
@@ -115,7 +115,7 @@ public class BoneEditPanel extends JPanel {
 					boolean good = true;
 					int k = 0;
 					while (good) {
-						if ((current == null) || (current.getImportStatus() == 1)) {
+						if (current.getImportStatus() == 1) {
 							break;
 						}
 						final BoneShell shell = current.getNewParentBs();
@@ -125,7 +125,7 @@ public class BoneEditPanel extends JPanel {
 						{
 							good = false;
 						} else {
-							current = mht.getPanelOf(shell.bone);
+							current = shell;
 							if (usedBonePanels.contains(current)) {
 								good = false;
 							} else {
@@ -142,12 +142,12 @@ public class BoneEditPanel extends JPanel {
 				}
 			}
 		}
-		for (BoneShell bonePanel : mht.donModBoneShells) {
-			if (bonePanel.getImportStatus() != 1) {
-				if (usedBonePanels.contains(bonePanel)) {
-					bonePanel.setImportStatus(0);
+		for (BoneShell boneShell : mht.donModBoneShells) {
+			if (boneShell.getImportStatus() != 1) {
+				if (usedBonePanels.contains(boneShell)) {
+					boneShell.setImportStatus(0);
 				} else {
-					bonePanel.setImportStatus(2);
+					boneShell.setImportStatus(2);
 				}
 			}
 		}

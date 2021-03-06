@@ -48,8 +48,8 @@ public class SkinPopup extends JPanel {
 
         BoneShell selectedValue = bones.getSelectedValue();
 
-        SkinPopup.this.bones[index] = selectedValue.bone;
-        boneButton.setText(selectedValue.bone.getName());
+        SkinPopup.this.bones[index] = selectedValue.getBone();
+        boneButton.setText(selectedValue.getImportBone().getName());
 
         JOptionPane.showMessageDialog(SkinPopup.this, panel);
     }

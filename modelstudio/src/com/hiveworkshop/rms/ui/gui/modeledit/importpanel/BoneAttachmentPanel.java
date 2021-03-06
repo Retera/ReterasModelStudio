@@ -229,7 +229,7 @@ class BoneAttachmentPanel extends JPanel {
 			// For look to find similarly named stuff and add it
 			for (BoneShell bs : bones) {
 				for (final Bone b : m.getBones()) {
-					if (bs.bone == b) {
+					if (bs.getBone() == b) {
 						ms.newBones.add(bs);
 					}
 				}
@@ -245,7 +245,7 @@ class BoneAttachmentPanel extends JPanel {
 			// For look to find right stuff and add it
 			for (BoneShell bs : bones) {
 				for (final Bone b : m.getBones()) {
-					if (bs.bone == b) {
+					if (bs.getBone() == b) {
 						ms.newBones.add(bs);
 					}
 				}
@@ -262,7 +262,7 @@ class BoneAttachmentPanel extends JPanel {
 			for (BoneShell bs : bones) {
 				for (final Bone b : m.getBones()) {
 					final String mName = b.getName();
-					if (bs.bone.getName().equals(mName)) {
+					if (bs.getBone().getName().equals(mName)) {
 						ms.newBones.add(bs);
 					}
 				}

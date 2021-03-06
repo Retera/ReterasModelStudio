@@ -159,13 +159,12 @@ public class ImportPanel extends JTabbedPane {
 				JOptionPane.showMessageDialog(null, "The program has confused itself.");
 			}
 
-			for (int i = 0; i < mht.geosetTabs.getTabCount(); i++) {
-				final GeosetPanel gp = (GeosetPanel) mht.geosetTabs.getComponentAt(i);
-				gp.geoset.setMaterial(gp.getSelectedMaterial());
-				if (gp.doImport.isSelected() && (gp.model == mht.donatingModel)) {
-					mht.receivingModel.add(gp.geoset);
-					if (gp.geoset.getGeosetAnim() != null) {
-						mht.receivingModel.add(gp.geoset.getGeosetAnim());
+			for (GeosetShell geoShell : mht.allGeoShells) {
+				geoShell.getGeoset().setMaterial(geoShell.getMaterial());
+				if (geoShell.isImported() && geoShell.isDoImport()) {
+					mht.receivingModel.add(geoShell.getGeoset());
+					if (geoShell.getGeoset().getGeosetAnim() != null) {
+						mht.receivingModel.add(geoShell.getGeoset().getGeosetAnim());
 					}
 				}
 			}
@@ -243,11 +242,9 @@ public class ImportPanel extends JTabbedPane {
 						newAnims.add(tempAnim);
 						if (!clearBones) {
 							for (BoneShell bs : mht.recModBoneShells) {
-								if (bs.importBone != null) {
-									if (mht.getPanelOf(bs.importBone).getImportStatus() == 1) {
-										System.out.println("Attempting to clear animation for " + bs.bone.getName() + " values " + animShell.anim.getStart() + ", " + animShell.anim.getEnd());
-										bs.bone.clearAnimation(animShell.anim);
-									}
+								if (bs.getImportBoneShell() != null && bs.getImportBoneShell().getImportStatus() == 1) {
+									System.out.println("Attempting to clear animation for " + bs.getBone().getName() + " values " + animShell.anim.getStart() + ", " + animShell.anim.getEnd());
+									bs.getBone().clearAnimation(animShell.anim);
 								}
 							}
 						}
@@ -272,32 +269,28 @@ public class ImportPanel extends JTabbedPane {
 			}
 			final List<IdObject> objectsAdded = new ArrayList<>();
 			final List<Camera> camerasAdded = new ArrayList<>();
+
 			for (BoneShell boneShell : mht.donModBoneShells) {
-				final Bone b = boneShell.bone;
 				final int type = boneShell.getImportStatus();
 				// we will go through all bone shells for this
 				// Fix cross-model referencing issue (force clean parent node's list of children)
 				switch (type) {
 					case 0 -> {
-						mht.receivingModel.add(b);
-						objectsAdded.add(b);
-						final BoneShell mbs = boneShell.getNewParentBs();
-						if (mbs != null) {
-							b.setParent((mbs).bone);
+						mht.receivingModel.add(boneShell.getBone());
+						objectsAdded.add(boneShell.getBone());
+						if (boneShell.getNewParentBs() != null) {
+							boneShell.getBone().setParent(boneShell.getNewParentBs().getBone());
 						} else {
-							b.setParent(null);
+							boneShell.getBone().setParent(null);
 						}
 					}
-					case 1, 2 -> b.setParent(null);
+					case 1, 2 -> boneShell.getBone().setParent(null);
 				}
 			}
 			if (!clearBones) {
-				for (int i = 0; i < mht.recModBoneShells.size(); i++) {
-					final BoneShell bs = mht.recModBoneShells.get(i);
-					if (bs.importBone != null) {
-						if (mht.getPanelOf(bs.importBone).getImportStatus() == 1) {
-							bs.bone.copyMotionFrom(bs.importBone);
-						}
+				for (BoneShell bs : mht.recModBoneShells) {
+					if (bs.getImportBoneShell() != null && bs.getImportBoneShell().getImportStatus() == 1) {
+						bs.getBone().copyMotionFrom(bs.getImportBone());
 					}
 				}
 			}
@@ -311,14 +304,14 @@ public class ImportPanel extends JTabbedPane {
 						final MatrixShell ms = bap.oldBoneRefs.get(l);
 						ms.matrix.getBones().clear();
 						for (final BoneShell bs : ms.newBones) {
-							if (mht.receivingModel.contains(bs.bone)) {
-								if (bs.bone.getClass() == Helper.class) {
+							if (mht.receivingModel.contains(bs.getBone())) {
+								if (bs.getBone().getClass() == Helper.class) {
 									JOptionPane.showMessageDialog(null,
 											"Error: Holy fo shizzle my grizzle! A geoset is trying to attach to a helper, not a bone!");
 								}
-								ms.matrix.add(bs.bone);
+								ms.matrix.add(bs.getBone());
 							} else {
-								System.out.println("Boneshaving " + bs.bone.getName() + " out of use");
+								System.out.println("Boneshaving " + bs.getBone().getName() + " out of use");
 							}
 						}
 						if (ms.matrix.size() == 0) {
@@ -486,11 +479,12 @@ public class ImportPanel extends JTabbedPane {
 			// MainFrame.panel.geoControl.setMDLDisplay(display);
 			// display.reloadTextures();//.mpanel.perspArea.reloadTextures();//addGeosets(newGeosets);
 			// }
+
 			final List<Geoset> geosetsAdded = new ArrayList<>();
-			for (int i = 0; i < mht.geosetTabs.getTabCount(); i++) {
-				final GeosetPanel gp = (GeosetPanel) mht.geosetTabs.getComponentAt(i);
-				if (gp.doImport.isSelected() && (gp.model == mht.donatingModel)) {
-					geosetsAdded.add(gp.geoset);
+
+			for (GeosetShell geoShell : mht.allGeoShells) {
+				if (geoShell.isImported() && geoShell.isDoImport()) {
+					geosetsAdded.add(geoShell.getGeoset());
 				}
 			}
 			if (callback != null) {
