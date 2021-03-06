@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.MatrixShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ParentToggleRenderer;
 import com.hiveworkshop.rms.util.IterableListModel;
 

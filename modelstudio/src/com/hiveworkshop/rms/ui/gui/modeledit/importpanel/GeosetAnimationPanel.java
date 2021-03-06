@@ -20,10 +20,10 @@ class GeosetAnimationPanel extends JTabbedPane {
 		this.mht = mht;
 		this.model = model;
 		index = geoIndex;
-		geoset = model.getGeoset(geoIndex);
+//		geoset = model.getGeoset(geoIndex);
 		isImported = imported;
 
-		bap = new BoneAttachmentPanel(mht, model, geoset, null);
+//		bap = new BoneAttachmentPanel(mht, model, geoset, null);
 		addTab("Bones", ImportPanel.boneIcon, bap, "Allows you to edit bone references.");
 
 		// vp = new

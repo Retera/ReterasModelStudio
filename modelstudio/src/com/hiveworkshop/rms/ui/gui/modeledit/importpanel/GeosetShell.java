@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.Material;
+import com.hiveworkshop.rms.util.IterableListModel;
 
 public class GeosetShell {
 	private EditableModel model;
@@ -16,6 +17,7 @@ public class GeosetShell {
 	private Material oldMaterial;
 	private Material newMaterial;
 	private boolean isEnabled = true;
+	IterableListModel<MatrixShell> matrixShells;
 
 	public GeosetShell(Geoset geoset, EditableModel model, boolean isImported) {
 		this.geoset = geoset;
@@ -132,4 +134,15 @@ public class GeosetShell {
 		this.modelName = modelName;
 		return this;
 	}
+
+	public IterableListModel<MatrixShell> getMatrixShells() {
+		return matrixShells;
+	}
+
+	public GeosetShell setMatrixShells(IterableListModel<MatrixShell> matrixShells) {
+		this.matrixShells = matrixShells;
+		return this;
+	}
+
+
 }

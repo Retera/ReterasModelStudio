@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.MatrixShell;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.Vec3;
@@ -297,28 +296,26 @@ public class ImportPanel extends JTabbedPane {
 			// IteratableListModel<BoneShell> bones = getFutureBoneList();
 			boolean shownEmpty = false;
 			Bone dummyBone = null;
-			for (int i = 0; i < mht.geosetAnimTabs.getTabCount(); i++) {
-				if (mht.geosetAnimTabs.isEnabledAt(i)) {
-					final BoneAttachmentPanel bap = (BoneAttachmentPanel) mht.geosetAnimTabs.getComponentAt(i);
-					for (int l = 0; l < bap.oldBoneRefs.size(); l++) {
-						final MatrixShell ms = bap.oldBoneRefs.get(l);
-						ms.matrix.getBones().clear();
-						for (final BoneShell bs : ms.newBones) {
+			for (GeosetShell geosetShell : mht.allGeoShells) {
+				if (geosetShell.isDoImport()) {
+					for (MatrixShell ms : geosetShell.getMatrixShells()) {
+						ms.getMatrix().getBones().clear();
+						for (final BoneShell bs : ms.getNewBones()) {
 							if (mht.receivingModel.contains(bs.getBone())) {
 								if (bs.getBone().getClass() == Helper.class) {
 									JOptionPane.showMessageDialog(null,
 											"Error: Holy fo shizzle my grizzle! A geoset is trying to attach to a helper, not a bone!");
 								}
-								ms.matrix.add(bs.getBone());
+								ms.getMatrix().add(bs.getBone());
 							} else {
 								System.out.println("Boneshaving " + bs.getBone().getName() + " out of use");
 							}
 						}
-						if (ms.matrix.size() == 0) {
+						if (ms.getMatrix().size() == 0) {
 							JOptionPane.showMessageDialog(null,
 									"Error: A matrix was functionally destroyed while importing, and may take the program with it!");
 						}
-						if (ms.matrix.getBones().size() < 1) {
+						if (ms.getMatrix().getBones().size() < 1) {
 							if (dummyBone == null) {
 								dummyBone = new Bone();
 								dummyBone.setName("Bone_MatrixEaterDummy" + (int) (Math.random() * 2000000000));
@@ -334,8 +331,8 @@ public class ImportPanel extends JTabbedPane {
 												+ "\nMultiple geosets may be attached to this bone, and the error will only be reported once for your convenience.");
 								shownEmpty = true;
 							}
-							if (!ms.matrix.getBones().contains(dummyBone)) {
-								ms.matrix.getBones().add(dummyBone);
+							if (!ms.getMatrix().getBones().contains(dummyBone)) {
+								ms.getMatrix().getBones().add(dummyBone);
 							}
 						}
 					}

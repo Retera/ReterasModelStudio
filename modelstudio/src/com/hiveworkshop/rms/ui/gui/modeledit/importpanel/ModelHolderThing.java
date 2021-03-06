@@ -14,7 +14,6 @@ public class ModelHolderThing {
 	public EditableModel donatingModel;
 
 	// Geosets
-	public JTabbedPane geosetTabs = new JTabbedPane(JTabbedPane.LEFT, JTabbedPane.SCROLL_TAB_LAYOUT);
 	public IterableListModel<GeosetShell> recModGeoShells = new IterableListModel<>();
 	public IterableListModel<GeosetShell> donModGeoShells = new IterableListModel<>();
 	public IterableListModel<GeosetShell> allGeoShells = new IterableListModel<>();
@@ -42,8 +41,6 @@ public class ModelHolderThing {
 	BiMap<IdObject, BoneShell> recModBoneShellBiMap = new BiMap<>();
 	BiMap<IdObject, BoneShell> donModBoneShellBiMap = new BiMap<>();
 
-	// Matrices
-	public JTabbedPane geosetAnimTabs = new JTabbedPane(JTabbedPane.LEFT, JTabbedPane.SCROLL_TAB_LAYOUT);
 
 	// Objects
 	public IterableListModel<ObjectShell> donModObjectShells = new IterableListModel<>();
@@ -370,12 +367,14 @@ public class ModelHolderThing {
 	private void initiateGeosetLists() {
 		for (Geoset geoset : receivingModel.getGeosets()) {
 			GeosetShell geoShell = new GeosetShell(geoset, receivingModel, false);
+			geoShell.setMatrixShells(createMatrixShells(geoset, recModBoneShellBiMap));
 			recModGeoShells.addElement(geoShell);
 		}
 		allGeoShells.addAll(recModGeoShells);
 
 		for (Geoset geoset : donatingModel.getGeosets()) {
 			GeosetShell geoShell = new GeosetShell(geoset, donatingModel, true);
+			geoShell.setMatrixShells(createMatrixShells(geoset, donModBoneShellBiMap));
 			donModGeoShells.addElement(geoShell);
 		}
 		allGeoShells.addAll(donModGeoShells);
@@ -389,6 +388,23 @@ public class ModelHolderThing {
 			donModMaterials.addElement(material);
 		}
 		allMaterials.addAll(donModMaterials);
+	}
+
+	private IterableListModel<MatrixShell> createMatrixShells(Geoset geoset, BiMap<IdObject, BoneShell> boneShells) {
+		IterableListModel<MatrixShell> matrixShells = new IterableListModel<>();
+		for (final Matrix matrix : geoset.getMatrix()) {
+			ArrayList<BoneShell> orgBones = new ArrayList<>();
+			// For look to find similarly named stuff and add it
+			for (Bone bone : matrix.getBones()) {
+				if (boneShells.get(bone) != null) {
+					orgBones.add(boneShells.get(bone));
+				}
+			}
+
+			final MatrixShell ms = new MatrixShell(matrix, orgBones);
+			matrixShells.addElement(ms);
+		}
+		return matrixShells;
 	}
 
 }

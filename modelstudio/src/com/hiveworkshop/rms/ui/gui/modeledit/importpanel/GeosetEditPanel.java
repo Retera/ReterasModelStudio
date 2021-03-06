@@ -22,14 +22,16 @@ public class GeosetEditPanel extends JPanel {
 
 		// Build the geosetTabs list of GeosetPanels
 
+		JTabbedPane geosetTabs = new JTabbedPane(JTabbedPane.LEFT, JTabbedPane.SCROLL_TAB_LAYOUT);
+
 		for (GeosetShell geosetShell : mht.allGeoShells) {
 			final GeosetPanel geoPanel = new GeosetPanel(mht, mht.allMaterials, materialsRenderer);
 			geoPanel.setGeoset(geosetShell);
 
-			mht.geosetTabs.addTab(geosetShell.getModelName() + " " + (geosetShell.getIndex() + 1), ImportPanel.greenIcon, geoPanel, "Click to modify material data for this geoset.");
+			geosetTabs.addTab(geosetShell.getModelName() + " " + (geosetShell.getIndex() + 1), ImportPanel.greenIcon, geoPanel, "Click to modify material data for this geoset.");
 		}
 
-		add(mht.geosetTabs, "growx, growy");
+		add(geosetTabs, "growx, growy");
 	}
 
 	private JPanel getTopPanel() {

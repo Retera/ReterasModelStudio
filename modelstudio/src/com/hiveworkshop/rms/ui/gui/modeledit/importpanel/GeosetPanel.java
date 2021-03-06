@@ -94,17 +94,5 @@ class GeosetPanel extends JPanel {
 		if (selectedGeoset != null && selectedGeoset.isImported()) {
 			selectedGeoset.setDoImport(doImport.isSelected());
 		}
-
-		informGeosetVisibility(geoset, doImport.isSelected());
-	}
-
-
-	public void informGeosetVisibility(final Geoset g, final boolean flag) {
-		for (int i = 0; i < mht.geosetAnimTabs.getTabCount(); i++) {
-			final BoneAttachmentPanel geoPanel = (BoneAttachmentPanel) mht.geosetAnimTabs.getComponentAt(i);
-			if (geoPanel.geoset == g) {
-				mht.geosetAnimTabs.setEnabledAt(i, flag);
-			}
-		}
 	}
 }

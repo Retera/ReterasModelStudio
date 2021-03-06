@@ -1,16 +1,23 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.Matrix;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
-import com.hiveworkshop.rms.ui.gui.modeledit.MatrixShell;
+import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BoneAttachmentEditPanel extends JPanel {
 
 	JCheckBox displayParents;
 	ModelHolderThing mht;
+	public JTabbedPane geosetAnimTabs = new JTabbedPane(JTabbedPane.LEFT, JTabbedPane.SCROLL_TAB_LAYOUT);
 
 	public BoneAttachmentEditPanel(ModelHolderThing mht) {
 		setLayout(new MigLayout("gap 0, fill", "[grow]", "[][grow]"));
@@ -19,28 +26,39 @@ public class BoneAttachmentEditPanel extends JPanel {
 		add(getTopPanel(), "align center, wrap");
 
 		final ParentToggleRenderer ptr = makeMatricesPanel(mht.recModelManager, mht.donModelManager);
-		for (int i = 0; i < mht.receivingModel.getGeosets().size(); i++) {
-			final BoneAttachmentPanel geoPanel = new BoneAttachmentPanel(mht, mht.receivingModel, mht.receivingModel.getGeoset(i), ptr);
 
-			mht.geosetAnimTabs.addTab(mht.receivingModel.getName() + " " + (i + 1), ImportPanel.greenIcon, geoPanel, "Click to modify animation data for Geoset " + i + " from " + mht.receivingModel.getName() + ".");
+		for (GeosetShell geosetShell : mht.allGeoShells) {
+			final BoneAttachmentPanel geoPanel = new BoneAttachmentPanel(mht, ptr);
+			geoPanel.setGeoset(geosetShell);
+
+			geosetAnimTabs.addTab(geosetShell.getModelName() + " " + (geosetShell.getIndex() + 1), ImportPanel.greenIcon, geoPanel, "Click to modify animation data for Geoset " + geosetShell.getIndex() + " from " + geosetShell.getModelName() + ".");
 		}
-		for (int i = 0; i < mht.donatingModel.getGeosets().size(); i++) {
-			final BoneAttachmentPanel geoPanel = new BoneAttachmentPanel(mht, mht.donatingModel, mht.donatingModel.getGeoset(i), ptr);
 
-			mht.geosetAnimTabs.addTab(mht.donatingModel.getName() + " " + (i + 1), ImportPanel.orangeIcon, geoPanel, "Click to modify animation data for Geoset " + i + " from " + mht.donatingModel.getName() + ".");
-		}
-		mht.geosetAnimTabs.addChangeListener(mht.getDaChangeListener());
+		geosetAnimTabs.addChangeListener(mht.getDaChangeListener());
 
 
-		add(mht.geosetAnimTabs, "growx, growy");
+		add(geosetAnimTabs, "growx, growy");
+		this.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentShown(ComponentEvent e) {
+				super.componentShown(e);
+				for (GeosetShell geosetShell : mht.allGeoShells) {
+					for (int i = 0; i < geosetAnimTabs.getTabCount(); i++) {
+						final BoneAttachmentPanel geoPanel = (BoneAttachmentPanel) geosetAnimTabs.getComponentAt(i);
+						if (geoPanel.selectedGeoset == geosetShell) {
+							geosetAnimTabs.setEnabledAt(i, geosetShell.isDoImport());
+						}
+					}
+				}
+			}
+		});
 	}
 
 	static void uncheckUnusedBoneAttatchments(ModelHolderThing mht, List<BoneShell> usedBonePanels) {
-		for (int i = 0; i < mht.geosetAnimTabs.getTabCount(); i++) {
-			if (mht.geosetAnimTabs.isEnabledAt(i)) {
-				final BoneAttachmentPanel bap = (BoneAttachmentPanel) mht.geosetAnimTabs.getComponentAt(i);
-				for (MatrixShell ms : bap.oldBoneRefs) {
-					for (final BoneShell bs : ms.newBones) {
+		for (GeosetShell geosetShell : mht.allGeoShells) {
+			if (geosetShell.isDoImport()) {
+				for (MatrixShell ms : geosetShell.getMatrixShells()) {
+					for (final BoneShell bs : ms.getNewBones()) {
 						BoneShell shell = bs;
 						BoneShell current = shell;
 						if (!usedBonePanels.contains(current)) {
@@ -102,19 +120,36 @@ public class BoneAttachmentEditPanel extends JPanel {
 	}
 
 	public void allMatrOriginal() {
-		for (int i = 0; i < mht.geosetAnimTabs.getTabCount(); i++) {
-			if (mht.geosetAnimTabs.isEnabledAt(i)) {
-				final BoneAttachmentPanel bap = (BoneAttachmentPanel) mht.geosetAnimTabs.getComponentAt(i);
-				bap.resetMatrices();
+		for (GeosetShell geosetShell : mht.allGeoShells) {
+			if (geosetShell.isDoImport()) {
+				for (MatrixShell ms : geosetShell.getMatrixShells()) {
+					ms.resetMatrix();
+				}
 			}
 		}
 	}
 
 	public void allMatrSameName() {
-		for (int i = 0; i < mht.geosetAnimTabs.getTabCount(); i++) {
-			if (mht.geosetAnimTabs.isEnabledAt(i)) {
-				final BoneAttachmentPanel bap = (BoneAttachmentPanel) mht.geosetAnimTabs.getComponentAt(i);
-				bap.setMatricesToSimilarNames();
+		IterableListModel<BoneShell> futureBoneList = mht.getFutureBoneList();
+
+		Map<String, BoneShell> nameMap = new HashMap<>();
+		for (BoneShell boneShell : futureBoneList) {
+			nameMap.put(boneShell.getName(), boneShell);
+		}
+
+		for (GeosetShell geosetShell : mht.allGeoShells) {
+			if (geosetShell.isDoImport()) {
+				for (MatrixShell matrixShell : geosetShell.getMatrixShells()) {
+					matrixShell.clearNewBones();
+					final Matrix matrix = matrixShell.getMatrix();
+					// For look to find similarly named stuff and add it
+					for (final Bone bone : matrix.getBones()) {
+						final String mName = bone.getName();
+						if (nameMap.get(mName) != null) {
+							matrixShell.addNewBone(nameMap.get(mName));
+						}
+					}
+				}
 			}
 		}
 	}

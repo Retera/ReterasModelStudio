@@ -94,8 +94,8 @@ class AnimPanel extends JPanel {
 		// (although this should stop after the first one is picked)
 		animList.addListSelectionListener(this::updateList);
 		for (int i = 0; (i < existingAnims.size()) && (animList.getSelectedIndex() == -1); i++) {
-			final Animation iAnim = ((AnimShell) listModel.get(i)).anim;
-			if (iAnim.getName().toLowerCase().equals(anim.getName().toLowerCase())) {
+			final Animation iAnim = listModel.get(i).anim;
+			if (iAnim.getName().equalsIgnoreCase(anim.getName())) {
 				animList.setSelectedValue(listModel.get(i), true);
 			}
 		}
