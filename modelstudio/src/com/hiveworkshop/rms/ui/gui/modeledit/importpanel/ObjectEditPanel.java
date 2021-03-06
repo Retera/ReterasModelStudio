@@ -19,6 +19,7 @@ public class ObjectEditPanel extends JPanel {
 	ModelHolderThing mht;
 
 	ObjectPanel singleObjectPanel;
+	BoneShellListCellRenderer bonePanelRenderer;
 
 	public ObjectEditPanel(ModelHolderThing mht) {
 		setLayout(new MigLayout("gap 0", "[grow][grow]", "[][grow]"));
@@ -34,6 +35,8 @@ public class ObjectEditPanel extends JPanel {
 
 
 		mht.getFutureBoneListExtended(false);
+
+		bonePanelRenderer = new BoneShellListCellRenderer(mht.recModelManager, mht.donModelManager);
 
 		// Build the objectTabs list of ObjectPanels
 		final ObjPanelListCellRenderer objectPanelRenderer = new ObjPanelListCellRenderer();
@@ -51,7 +54,7 @@ public class ObjectEditPanel extends JPanel {
 			os.setParentBs(mht.donModBoneShellBiMap);
 		}
 
-		singleObjectPanel = new ObjectPanel(mht);
+		singleObjectPanel = new ObjectPanel(mht, bonePanelRenderer);
 		objectPanelCards.add(singleObjectPanel, "single");
 
 		objectPanelCards.add(blankPane, "blank");
@@ -73,7 +76,7 @@ public class ObjectEditPanel extends JPanel {
 	static void uncheckUnusedObjects(ModelHolderThing mht, List<BoneShell> usedBonePanels) {
 		for (ObjectShell objectPanel : mht.donModObjectShells) {
 			if (objectPanel.getShouldImport()) {
-				BoneShell shell = objectPanel.getParent();
+				BoneShell shell = objectPanel.getNewParentBs();
 				if ((shell != null) && (shell.bone != null)) {
 					BoneShell current = mht.getPanelOf(shell.bone);
 					if (!usedBonePanels.contains(current)) {
@@ -86,7 +89,7 @@ public class ObjectEditPanel extends JPanel {
 						if ((current == null) || (current.getImportStatus() == 1)) {
 							break;
 						}
-						shell = current.getParentBs();
+						shell = current.getNewParentBs();
 						// If shell is null, then the bone has "No Parent"
 						// If current's selected index is not 2,
 						if (shell == null)// current.getSelectedIndex() != 2
@@ -114,12 +117,15 @@ public class ObjectEditPanel extends JPanel {
 	private void objectTabsValueChanged(ModelHolderThing mht) {
 		List<ObjectShell> selectedValuesList = mht.donModObjectJList.getSelectedValuesList();
 		if (selectedValuesList.size() < 1) {
+			bonePanelRenderer.setSelectedObjectShell(null);
 			objectCardLayout.show(objectPanelCards, "blank");
 		} else if (selectedValuesList.size() == 1) {
 			mht.getFutureBoneListExtended(false);
+			bonePanelRenderer.setSelectedObjectShell(mht.donModObjectJList.getSelectedValue());
 			objectCardLayout.show(objectPanelCards, "single");
 			singleObjectPanel.setSelectedObject(mht.donModObjectJList.getSelectedValue());
 		} else {
+			bonePanelRenderer.setSelectedObjectShell(null);
 			objectCardLayout.show(objectPanelCards, "multiple");
 
 			boolean dif = false;

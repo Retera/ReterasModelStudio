@@ -1,9 +1,5 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
-import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.editor.model.Helper;
-import com.hiveworkshop.rms.util.BiMap;
-import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -29,40 +25,6 @@ public class BoneEditPanel extends JPanel {
 
 
 		final BonePanelListCellRenderer bonePanelRenderer = new BonePanelListCellRenderer(mht.recModelManager, mht.donModelManager);
-		mht.recModOrgBones = new IterableListModel<>();
-
-		final List<Bone> recModBones = mht.receivingModel.getBones();
-		final List<Helper> recModHelpers = mht.receivingModel.getHelpers();
-
-		mht.recModBoneShellBiMap = new BiMap<>();
-
-		for (Bone bone : recModBones) {
-			mht.recModOrgBones.addElement(new BoneShell(bone));
-			mht.recModBoneShellBiMap.put(bone, new BoneShell(bone));
-		}
-		for (Helper helper : recModHelpers) {
-			mht.recModOrgBones.addElement(new BoneShell(helper));
-			mht.recModBoneShellBiMap.put(helper, new BoneShell(helper));
-		}
-		for (BoneShell bs : mht.recModBoneShellBiMap.values()) {
-			bs.setParentBs(mht.recModBoneShellBiMap);
-		}
-
-		final List<Bone> donModBones = mht.donatingModel.getBones();
-		final List<Helper> donModHelpers = mht.donatingModel.getHelpers();
-
-		mht.donModBoneShellBiMap = new BiMap<>();
-		for (Bone bone : donModBones) {
-			mht.donModBoneShellBiMap.put(bone, new BoneShell(bone));
-		}
-		for (Helper helper : donModHelpers) {
-			BoneShell bs = new BoneShell(helper);
-			mht.donModBoneShellBiMap.put(helper, bs);
-		}
-		mht.donModBoneShells.addAll(mht.donModBoneShellBiMap.values());
-		for (BoneShell bs : mht.donModBoneShellBiMap.values()) {
-			bs.setParentBs(mht.donModBoneShellBiMap);
-		}
 
 		singleBonePanel = new BonePanel(mht, mht.boneShellRenderer);
 
@@ -117,12 +79,15 @@ public class BoneEditPanel extends JPanel {
 	private void showBoneCard(ModelHolderThing mht) {
 		List<BoneShell> selectedValuesList = mht.donModBoneShellJList.getSelectedValuesList();
 		if (selectedValuesList.size() < 1) {
+			mht.boneShellRenderer.setSelectedBoneShell(null);
 			boneCardLayout.show(bonePanelCards, "blank");
 		} else if (selectedValuesList.size() == 1) {
 			boneCardLayout.show(bonePanelCards, "single");
+			mht.boneShellRenderer.setSelectedBoneShell(mht.donModBoneShellJList.getSelectedValue());
 			singleBonePanel.setSelectedBone(mht.donModBoneShellJList.getSelectedValue());
-			singleBonePanel.updateSelectionPicks();
+//			singleBonePanel.updateSelectionPicks();
 		} else {
+			mht.boneShellRenderer.setSelectedBoneShell(null);
 			boneCardLayout.show(bonePanelCards, "multiple");
 			boolean dif = false;
 
@@ -153,7 +118,7 @@ public class BoneEditPanel extends JPanel {
 						if ((current == null) || (current.getImportStatus() == 1)) {
 							break;
 						}
-						final BoneShell shell = current.getParentBs();
+						final BoneShell shell = current.getNewParentBs();
 						// If shell is null, then the bone has "No Parent"
 						// If current's selected index is not 2,
 						if (shell == null)// current.getSelectedIndex() != 2

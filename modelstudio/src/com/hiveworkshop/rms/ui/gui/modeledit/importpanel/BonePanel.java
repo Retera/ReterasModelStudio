@@ -7,6 +7,7 @@ import javax.swing.*;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -26,9 +27,13 @@ public class BonePanel extends JPanel {
 	JComboBox<String> importTypeBox = new JComboBox<>(impOptions);
 
 	// List for which bone to transfer motion
-	IterableListModel<BoneShell> recModOrgBonesListModel;
-	IterableListModel<BoneShell> filteredRecModOrgBonesListModel = new IterableListModel<>();
-	JList<BoneShell> boneList;
+	IterableListModel<BoneShell> recModMotionBonesListModel = new IterableListModel<>();
+	IterableListModel<BoneShell> filteredRecModMotionBonesListModel = new IterableListModel<>();
+	IterableListModel<BoneShell> currentMotionBonesListModel; // to let selectImportBones read indicies from the correct list
+	JList<BoneShell> importMotionIntoRecBoneList;
+
+	List<BoneShell> bonesWithMotion = new ArrayList<>();
+
 	JPanel cardPanel;
 	CardLayout cards = new CardLayout();
 	JPanel dummyPanel = new JPanel();
@@ -46,6 +51,10 @@ public class BonePanel extends JPanel {
 	boolean listResetQued = false;
 
 
+	ListSelectionListener setMotionBonesFor = this::updateList;
+	BoneShellMotionListCellRenderer oneShellRenderer;
+
+
 	protected BonePanel() {
 		// This constructor is negative mojo
 	}
@@ -53,7 +62,8 @@ public class BonePanel extends JPanel {
 	public BonePanel(ModelHolderThing mht, final BoneShellListCellRenderer renderer) {
 		this.mht = mht;
 		setLayout(new MigLayout("gap 0, fill", "[][]", "[][grow]"));
-		recModOrgBonesListModel = new IterableListModel<>(mht.recModOrgBones);
+		oneShellRenderer = new BoneShellMotionListCellRenderer(mht.recModelManager, mht.donModelManager);
+
 		leftSearchField = new JTextField();
 		rightSearchField = new JTextField();
 
@@ -72,26 +82,29 @@ public class BonePanel extends JPanel {
 
 		JPanel leftPanel = new JPanel(new MigLayout("gap 0, fill", "[]", "[][grow]"));
 
-
 		importTypeBox.setEditable(false);
 		importTypeBox.addActionListener(e -> showImportTypeCard());
 		importTypeBox.setMaximumSize(new Dimension(200, 20));
 		leftPanel.add(importTypeBox, "wrap");
 
-		boneList = new JList<>();
-		boneList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		boneList.setCellRenderer(renderer);
-		boneList.addListSelectionListener(this::updateList);
-		JScrollPane boneListPane = new JScrollPane(boneList);
-		JPanel importIntoPanel = new JPanel(new MigLayout("gap 0, ins 0, fill", "[grow][]", "[][grow]"));
-		importIntoPanel.add(leftSearchField, "grow");
-		importIntoPanel.add(linkBox, "wrap");
-		importIntoPanel.add(boneListPane, "spanx, growx, growy");
+		JPanel importMotionIntoPanel = new JPanel(new MigLayout("gap 0, ins 0, fill", "[grow][]", "[][][grow]"));
+
+		importMotionIntoPanel.add(new JLabel("Bones to receive motion"), "wrap");
+		importMotionIntoPanel.add(leftSearchField, "grow");
+		importMotionIntoPanel.add(linkBox, "wrap");
+
+		importMotionIntoRecBoneList = new JList<>(recModMotionBonesListModel);
+		currentMotionBonesListModel = recModMotionBonesListModel;
+		importMotionIntoRecBoneList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+//		importMotionIntoRecBoneList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		importMotionIntoRecBoneList.setCellRenderer(oneShellRenderer);
+		importMotionIntoRecBoneList.addListSelectionListener(setMotionBonesFor);
+		JScrollPane boneListPane = new JScrollPane(importMotionIntoRecBoneList);
+		importMotionIntoPanel.add(boneListPane, "spanx, growx, growy");
 
 		cardPanel = new JPanel(cards);
-		cardPanel.add(importIntoPanel, "boneList");
+		cardPanel.add(importMotionIntoPanel, "boneList");
 		cardPanel.add(dummyPanel, "blank");
-		cards.show(cardPanel, "blank");
 		leftPanel.add(cardPanel, "growx, growy, spanx");
 
 		JPanel rightPanel = new JPanel(new MigLayout("gap 0, fill", "[][]", "[][][grow]"));
@@ -104,10 +117,8 @@ public class BonePanel extends JPanel {
 		futureBonesList = new JList<>();
 		futureBonesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		futureBonesList.setCellRenderer(renderer);
-		futureBonesList.addListSelectionListener(e -> setParent());
+		futureBonesList.addListSelectionListener(this::setParent);
 		JScrollPane futureBonesListPane = new JScrollPane(futureBonesList);
-		futureBonesListPane.setBackground(Color.orange);
-		futureBonesListPane.setOpaque(true);
 		rightPanel.add(futureBonesListPane, "spanx, growx, growy");
 
 		add(leftPanel, "cell 0 1, growx, growy");
@@ -136,40 +147,55 @@ public class BonePanel extends JPanel {
 		futureBonesList.setModel(model);
 	}
 
-	private void selectImportBone() {
-		for (BoneShell bs : recModOrgBonesListModel) {
+	private void selectImportBones() {
+		importMotionIntoRecBoneList.removeListSelectionListener(setMotionBonesFor);
+		ArrayList<BoneShell> bonesToSelect = new ArrayList<>();
+		ArrayList<Integer> indeciesToSelect = new ArrayList<>();
+//		for (BoneShell bs : bonesWithMotion) {
+		for (BoneShell bs : currentMotionBonesListModel) {
 			if (bs.bone.getName().equals(selectedBone.getName())
 					&& (bs.importBone == null)
-					&& (!bs.bone.getName().contains("Mesh") && !bs.bone.getName().contains("Object") && !bs.bone.getName().contains("Box") || bs.bone.getPivotPoint().equalLocs(selectedBone.getBone().getPivotPoint()))) {
-				boneList.setSelectedValue(bs, true);
-				bs.setImportBoneShell(selectedBone);
-				break;
+					&& (!bs.bone.getName().contains("Mesh")
+					&& !bs.bone.getName().contains("Object")
+					&& !bs.bone.getName().contains("Box")
+					|| bs.bone.getPivotPoint().equalLocs(selectedBone.getBone().getPivotPoint()))) {
+				indeciesToSelect.add(currentMotionBonesListModel.indexOf(bs));
+//				importMotionIntoRecBoneList.setSelectedValue(bs, true);
+//				break;
 				// System.out.println("GREAT BALLS OF FIRE");
 			}
 		}
+		importMotionIntoRecBoneList.setSelectedIndices(indeciesToSelect.stream().mapToInt(i -> i).toArray());
+
+		importMotionIntoRecBoneList.addListSelectionListener(setMotionBonesFor);
 	}
 
 	private void setImportIntoListModel(IterableListModel<BoneShell> model) {
-		boneList.setModel(model);
+		importMotionIntoRecBoneList.setModel(model);
+
+		currentMotionBonesListModel = model;
+//		selectImportBones();
 	}
 
 	public void setSelectedBone(BoneShell whichBone) {
 		selectedBone = whichBone;
+		oneShellRenderer.setSelectedBoneShell(selectedBone);
+//		futureBones = mht.getFutureBoneListExtended(true);
 		initList();
+		updateRecModMotionBonesListModel();
 		setTitles();
-		setImportIntoListModel(recModOrgBonesListModel);
-		selectImportBone();
-		futureBones = mht.getFutureBoneListExtended(true);
+//		selectImportBones();
 		setFutureBoneListModel(futureBones);
-		setParent(selectedBone.getParentBs());
+//		setParent(selectedBone.getNewParentBs());
 		setSelectedIndex(selectedBone.getImportStatus());
+		repaint();
 	}
 
 	private void setTitles() {
 		title.setText(selectedBone.getBone().getClass().getSimpleName() + " \"" + selectedBone.getName() + "\"");
 
-		if (selectedBone.getParentBs() != null) {
-			parentTitle.setText("Parent:      (Old Parent: " + selectedBone.getParentBs().getName() + ")");
+		if (selectedBone.getOldParentBs() != null) {
+			parentTitle.setText("Parent:      (Old Parent: " + selectedBone.getOldParentBs().getName() + ")");
 		} else {
 			parentTitle.setText("Parent:      (Old Parent: {no parent})");
 		}
@@ -177,7 +203,7 @@ public class BonePanel extends JPanel {
 
 	private void showImportTypeCard() {
 		selectedBone.setImportStatus(importTypeBox.getSelectedIndex());
-		updateSelectionPicks();
+//		updateSelectionPicks();
 		final boolean pastListSelectionState = listenSelection;
 		listenSelection = false;
 		if (importTypeBox.getSelectedItem() == MOTIONFROM) {
@@ -190,11 +216,12 @@ public class BonePanel extends JPanel {
 
 	public void initList() {
 		futureBones = mht.getFutureBoneListExtended(false);
-		for (BoneShell bs : futureBones) {
-			if (bs == selectedBone.getParentBs()) {
-				futureBonesList.setSelectedValue(bs, true);
-			}
-		}
+//		futureBonesList.setSelectedValue(selectedBone.getNewParentBs(), true);
+//		for (BoneShell bs : futureBones) {
+//			if (bs == selectedBone.getParentBs()) {
+//				futureBonesList.setSelectedValue(bs, true);
+//			}
+//		}
 	}
 
 	public int getSelectedIndex() {
@@ -203,36 +230,39 @@ public class BonePanel extends JPanel {
 
 	public void setSelectedIndex(final int index) {
 		importTypeBox.setSelectedIndex(index);
+		showImportTypeCard();
 	}
 
-	public void setSelectedValue(final String value) {
-		importTypeBox.setSelectedItem(value);
-	}
+//	public void setSelectedValue(final String value) {
+//		importTypeBox.setSelectedItem(value);
+//	}
 
-	public void setParent(final BoneShell pick) {
-		futureBonesList.setSelectedValue(pick, true);
-	}
+//	public void setParent(final BoneShell pick) {
+//		futureBonesList.setSelectedValue(pick, true);
+//	}
 
-	private void setParent() {
-		selectedBone.setParentBs(futureBonesList.getSelectedValue());
+	private void setParent(ListSelectionEvent e) {
+		if (!e.getValueIsAdjusting() && futureBonesList.getSelectedValue() != null) {
+			if (futureBonesList.getSelectedValue() == selectedBone.getNewParentBs()) {
+				selectedBone.setNewParentBs(null);
+			} else {
+				selectedBone.setNewParentBs(futureBonesList.getSelectedValue());
+			}
+			// TODO add boneless BoneShell to futureBonesList to let the user select no bone + add null check on things calling bs.getParentBs().getBone();
+		}
 	}
 
 	public void updateSelectionPicks() {
 		listenSelection = false;
-		List<BoneShell> selectedValuesList = boneList.getSelectedValuesList();
-		recModOrgBonesListModel.clear();
-		for (BoneShell bs : mht.recModOrgBones) {
-			if ((bs.importBone == null) || (bs.importBone == selectedBone.getBone())) {
-				recModOrgBonesListModel.addElement(bs);
-			}
-		}
+		List<BoneShell> selectedValuesList = importMotionIntoRecBoneList.getSelectedValuesList();
+		updateRecModMotionBonesListModel();
 
 
 		final int[] indices = new int[selectedValuesList.size()];
 		for (int i = 0; i < indices.length; i++) {
-			indices[i] = recModOrgBonesListModel.indexOf(selectedValuesList.get(i));
+			indices[i] = recModMotionBonesListModel.indexOf(selectedValuesList.get(i));
 		}
-		boneList.setSelectedIndices(indices);
+		importMotionIntoRecBoneList.setSelectedIndices(indices);
 		listenSelection = true;
 
 		List<BoneShell> newSelection;
@@ -257,10 +287,63 @@ public class BonePanel extends JPanel {
 		System.out.println("updating future bone list took " + (nanoEnd - nanoStart) + " ns");
 	}
 
-	private void updateList(ListSelectionEvent e) {
-		if (listenSelection && e.getValueIsAdjusting()) {
-			updateSelectionPicks();
+	private void updateRecModMotionBonesListModel() {
+		recModMotionBonesListModel.clear();
+		for (BoneShell bs : mht.recModBoneShells) {
+			if ((bs.importBone == null) || (bs.importBone == selectedBone.getBone())) {
+				recModMotionBonesListModel.addElement(bs);
+			} else {
+				bonesWithMotion.add(bs);
+			}
 		}
+		recModMotionBonesListModel.addAll(bonesWithMotion);
+	}
+
+	private void updateList(ListSelectionEvent e) {
+//		System.out.println("Update list: " + e + "\n" + e.getValueIsAdjusting() + ", values: ");
+//		for(BoneShell bs : importMotionIntoRecBoneList.getSelectedValuesList()){
+//			System.out.println(bs);
+//		}
+		if (e.getValueIsAdjusting()) {
+			System.out.println("Update list, BEFORE values: ");
+			for (BoneShell bs : importMotionIntoRecBoneList.getSelectedValuesList()) {
+				if (bs.getImportBoneShell() == selectedBone) {
+					bs.setImportBoneShell(null);
+					System.out.println("import to null");
+				} else {
+					bs.setImportBoneShell(selectedBone);
+					System.out.println("import to: " + selectedBone);
+				}
+				System.out.println(bs + ", importBs: " + bs.getImportBoneShell());
+			}
+			System.out.println("_______________");
+//			bonesWithMotion.removeAll(importMotionIntoRecBoneList.getSelectedValuesList());
+			importMotionIntoRecBoneList.setSelectedValue(null, false);
+//			bonesWithMotion.removeAll(importMotionIntoRecBoneList.getSelectedValuesList());
+//			recModMotionBonesListModel.addAll(importMotionIntoRecBoneList.getSelectedValuesList());
+		}
+		if (!e.getValueIsAdjusting()) {
+			System.out.println("Update list, AFTER values: ");
+			for (BoneShell bs : importMotionIntoRecBoneList.getSelectedValuesList()) {
+//				if(bs.getImportBoneShell() == selectedBone){
+//					bs.setImportBoneShell(null);
+//				} else {
+//					bs.setImportBoneShell(selectedBone);
+//				}
+				System.out.println(bs);
+			}
+			System.out.println("_______________");
+//			importMotionIntoRecBoneList.setSelectedValue(null, false);
+
+
+//			bonesWithMotion.removeAll(importMotionIntoRecBoneList.getSelectedValuesList());
+//			recModMotionBonesListModel.addAll(importMotionIntoRecBoneList.getSelectedValuesList());
+		}
+//		if (listenSelection && e.getValueIsAdjusting()) {
+//			updateSelectionPicks();
+//		}
+
+
 	}
 
 	private void queResetList() {
@@ -293,7 +376,7 @@ public class BonePanel extends JPanel {
 			applyRecModBonesFilteredListModel(filterText);
 		} else if (listResetQued) {
 			listResetQued = false;
-			setImportIntoListModel(recModOrgBonesListModel);
+			setImportIntoListModel(recModMotionBonesListModel);
 			leftSearchField.setText("");
 		}
 	}
@@ -325,15 +408,15 @@ public class BonePanel extends JPanel {
 
 	private void applyRecModBonesFilteredListModel(String filterText) {
 		if (!filterText.equals("")) {
-			filteredRecModOrgBonesListModel.clear();
-			for (BoneShell boneShell : recModOrgBonesListModel) {
+			filteredRecModMotionBonesListModel.clear();
+			for (BoneShell boneShell : recModMotionBonesListModel) {
 				if (boneShell.getName().toLowerCase().contains(filterText.toLowerCase())) {
-					filteredRecModOrgBonesListModel.addElement(boneShell);
+					filteredRecModMotionBonesListModel.addElement(boneShell);
 				}
 			}
-			setImportIntoListModel(filteredRecModOrgBonesListModel);
+			setImportIntoListModel(filteredRecModMotionBonesListModel);
 		} else {
-			setImportIntoListModel(recModOrgBonesListModel);
+			setImportIntoListModel(recModMotionBonesListModel);
 		}
 	}
 }

@@ -10,7 +10,10 @@ class MultiBonePanel extends BonePanel {
 	boolean listenForChange = true;
 	ModelHolderThing mht;
 
+	BoneShellMotionListCellRenderer oneShellRenderer;
+
 	public MultiBonePanel(ModelHolderThing mht, final BoneShellListCellRenderer renderer) {
+		BoneShellMotionListCellRenderer oneShellRenderer = new BoneShellMotionListCellRenderer(mht.recModelManager, mht.donModelManager);
 		this.mht = mht;
 		setLayout(new MigLayout("gap 0"));
 		selectedBone = null;
@@ -24,15 +27,15 @@ class MultiBonePanel extends BonePanel {
 		importTypeBox.setMaximumSize(new Dimension(200, 20));
 		add(importTypeBox, "wrap");
 
-		boneList = new JList<>(mht.recModOrgBones);
-		boneList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		boneList.setCellRenderer(renderer);
-		JScrollPane boneListPane = new JScrollPane(boneList);
+		importMotionIntoRecBoneList = new JList<>(mht.recModBoneShells);
+		importMotionIntoRecBoneList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		importMotionIntoRecBoneList.setCellRenderer(renderer);
+		JScrollPane boneListPane = new JScrollPane(importMotionIntoRecBoneList);
 
 		cardPanel = new JPanel(cards);
 		cardPanel.add(boneListPane, "boneList");
 		cardPanel.add(dummyPanel, "blank");
-		boneList.setEnabled(false);
+		importMotionIntoRecBoneList.setEnabled(false);
 
 		cards.show(cardPanel, "blank");
 		add(cardPanel, "wrap");
@@ -49,7 +52,6 @@ class MultiBonePanel extends BonePanel {
 		listenForChange = true;
 	}
 
-	@Override
 	public void setSelectedValue(final String value) {
 		listenForChange = false;
 		importTypeBox.setSelectedItem(value);
@@ -102,7 +104,7 @@ class MultiBonePanel extends BonePanel {
 		final int x = JOptionPane.showConfirmDialog(null, new JScrollPane(list), "Set Parent for All Selected Bones", JOptionPane.OK_CANCEL_OPTION);
 		if (x == JOptionPane.OK_OPTION) {
 			for (BoneShell temp : mht.donModBoneShellJList.getSelectedValuesList()) {
-				temp.setParentBs(list.getSelectedValue());
+				temp.setNewParentBs(list.getSelectedValue());
 			}
 		}
 	}

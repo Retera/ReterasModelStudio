@@ -7,9 +7,14 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
-class BoneShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<BoneShell> {
-	public BoneShellListCellRenderer(final ModelView modelDisplay, final ModelView otherDisplay) {
+class BoneShellMotionListCellRenderer extends AbstractSnapshottingListCellRenderer2D<BoneShell> {
+	Set<BoneShell> selectedBones = new HashSet<>();
+
+	public BoneShellMotionListCellRenderer(final ModelView modelDisplay, final ModelView otherDisplay) {
 		super(modelDisplay, otherDisplay);
 	}
 
@@ -25,25 +30,23 @@ class BoneShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 
 	@Override
 	protected boolean contains(final ModelView modelDisp, final BoneShell object) {
-		return modelDisp.getModel().contains(object.bone);
+		return modelDisp.getModel().contains(object.getBone());
 	}
 
 	@Override
 	protected Vec3 getRenderVertex(final BoneShell value) {
-		return value.bone.getPivotPoint();
+		return value.getBone().getPivotPoint();
 	}
-
-	BoneShell selectedBone;
-	ObjectShell selectedObject;
 
 	public void setSelectedBoneShell(BoneShell boneShell) {
-		selectedBone = boneShell;
+		selectedBones.clear();
+		selectedBones.add(boneShell);
 	}
 
-	public void setSelectedObjectShell(ObjectShell objectShell) {
-		selectedObject = objectShell;
+	public void setSelectedBoneShell(ArrayList<BoneShell> boneShells) {
+		selectedBones.clear();
+		selectedBones.addAll(boneShells);
 	}
-
 
 	@Override
 	public Component getListCellRendererComponent(final JList list, final Object value, final int index,
@@ -52,15 +55,19 @@ class BoneShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 		super.getListCellRendererComponent(list, value, index, iss, chf);
 		setText(value.toString());
 		if (value instanceof BoneShell) {
-			if (selectedBone != null && selectedBone.getNewParentBs() == value
-					|| selectedObject != null && selectedObject.getNewParentBs() == value) {
+			BoneShell importBoneShell = ((BoneShell) value).getImportBoneShell();
+			if (selectedBones.contains(importBoneShell)) {
 				this.setBackground(new Color(130, 230, 170));
+			} else if (importBoneShell != null) {
+				this.setBackground(new Color(160, 160, 160));
+				setForeground(new Color(60, 60, 60));
 			} else {
 				this.setBackground(new Color(255, 255, 255));
 				setForeground(new Color(0, 0, 0));
 			}
-//			setForeground(Color.CYAN);
 		}
+
+
 		return this;
 	}
 
@@ -69,7 +76,7 @@ class BoneShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 
 		@Override
 		public boolean isAccepted(final GeosetVertex vertex) {
-			return vertex.getBoneAttachments().contains(boneShell.bone);
+			return vertex.getBoneAttachments().contains(boneShell.getBone());
 		}
 
 		@Override

@@ -242,7 +242,7 @@ public class ImportPanel extends JTabbedPane {
 						final Animation tempAnim = new Animation("temp", animShell.anim.getStart(), animShell.anim.getEnd());
 						newAnims.add(tempAnim);
 						if (!clearBones) {
-							for (BoneShell bs : mht.recModOrgBones) {
+							for (BoneShell bs : mht.recModBoneShells) {
 								if (bs.importBone != null) {
 									if (mht.getPanelOf(bs.importBone).getImportStatus() == 1) {
 										System.out.println("Attempting to clear animation for " + bs.bone.getName() + " values " + animShell.anim.getStart() + ", " + animShell.anim.getEnd());
@@ -281,7 +281,7 @@ public class ImportPanel extends JTabbedPane {
 					case 0 -> {
 						mht.receivingModel.add(b);
 						objectsAdded.add(b);
-						final BoneShell mbs = boneShell.getParentBs();
+						final BoneShell mbs = boneShell.getNewParentBs();
 						if (mbs != null) {
 							b.setParent((mbs).bone);
 						} else {
@@ -292,8 +292,8 @@ public class ImportPanel extends JTabbedPane {
 				}
 			}
 			if (!clearBones) {
-				for (int i = 0; i < mht.recModOrgBones.size(); i++) {
-					final BoneShell bs = mht.recModOrgBones.get(i);
+				for (int i = 0; i < mht.recModBoneShells.size(); i++) {
+					final BoneShell bs = mht.recModBoneShells.get(i);
 					if (bs.importBone != null) {
 						if (mht.getPanelOf(bs.importBone).getImportStatus() == 1) {
 							bs.bone.copyMotionFrom(bs.importBone);
@@ -357,7 +357,7 @@ public class ImportPanel extends JTabbedPane {
 			for (ObjectShell objectPanel : mht.donModObjectShells) {
 				if (objectPanel.getShouldImport()) {
 					if (objectPanel.getIdObject() != null) {
-						final BoneShell mbs = objectPanel.getParent();
+						final BoneShell mbs = objectPanel.getNewParentBs();
 						if (mbs != null) {
 							objectPanel.getIdObject().setParent(mbs.getBone());
 						} else {

@@ -19,13 +19,13 @@ public class ObjectShell {
 	private int importStatus = 0;
 	private IdObject oldParent;
 	private IdObject newParent;
-	private BoneShell parentBs;
+	private BoneShell newParentBs;
+	private BoneShell oldParentBs;
 
 	public ObjectShell(final IdObject b) {
 		idObject = b;
 		if (b != null) {
 			oldParent = idObject.getParent();
-			newParent = idObject.getParent();
 		}
 	}
 
@@ -69,17 +69,31 @@ public class ObjectShell {
 		newParent = parent;
 	}
 
-	public BoneShell getParent() {
-		return parentBs;
+	public BoneShell getNewParentBs() {
+		return newParentBs;
+	}
+
+	public ObjectShell setNewParentBs(BoneShell newParentBs) {
+		this.newParentBs = newParentBs;
+		if (newParentBs != null) {
+			newParent = newParentBs.getBone();
+		} else {
+			newParent = null;
+		}
+		return this;
+	}
+
+	public BoneShell getOldParentBs() {
+		return oldParentBs;
 	}
 
 	public void setParent(BoneShell parent) {
 		newParent = parent.getBone();
-		parentBs = parent;
+		newParentBs = parent;
 	}
 
 	public ObjectShell setParentBs(BiMap<IdObject, BoneShell> idObjectMap) {
-		this.parentBs = idObjectMap.get(newParent);
+		this.oldParentBs = idObjectMap.get(oldParent);
 		return this;
 	}
 

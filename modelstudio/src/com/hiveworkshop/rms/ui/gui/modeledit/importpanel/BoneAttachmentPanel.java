@@ -54,6 +54,7 @@ class BoneAttachmentPanel extends JPanel {
 		buildOldRefsList();
 		oldBoneRefsList = new JList<>(oldBoneRefs);
 		oldBoneRefsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+//		oldBoneRefsList.setCellRenderer(renderer);
 //		oldBoneRefsList.setCellRenderer(new MatrixShell2DListCellRenderer(new ModelViewManager(impPanel.currentModel), new ModelViewManager(impPanel.importedModel)));
 		oldBoneRefsList.addListSelectionListener(e -> refreshLists());
 		oldBoneRefsPane = new JScrollPane(oldBoneRefsList);

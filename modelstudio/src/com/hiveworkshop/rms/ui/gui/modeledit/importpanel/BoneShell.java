@@ -18,15 +18,15 @@ public class BoneShell {
 	private boolean shouldImportBone = true;
 	private int importStatus = 0;
 	private IdObject oldParent;
+	private BoneShell oldParentBs;
 	private IdObject newParent;
-	private BoneShell parentBs;
+	private BoneShell newParentBs;
 
 	public BoneShell(final Bone b) {
 		bone = b;
 		if (b != null) {
 			name = b.getName();
 			oldParent = bone.getParent();
-			newParent = bone.getParent();
 		}
 	}
 
@@ -63,17 +63,21 @@ public class BoneShell {
 		return this;
 	}
 
-	public BoneShell getParentBs() {
-		return parentBs;
+	public BoneShell getNewParentBs() {
+		return newParentBs;
 	}
 
-	public BoneShell setParentBs(BoneShell parentBs) {
-		this.parentBs = parentBs;
+	public BoneShell setNewParentBs(BoneShell newParentBs) {
+		this.newParentBs = newParentBs;
 		return this;
 	}
 
+	public BoneShell getOldParentBs() {
+		return oldParentBs;
+	}
+
 	public BoneShell setParentBs(BiMap<IdObject, BoneShell> idObjectMap) {
-		this.parentBs = idObjectMap.get(newParent);
+		this.oldParentBs = idObjectMap.get(oldParent);
 		return this;
 	}
 
@@ -153,7 +157,11 @@ public class BoneShell {
 
 	public BoneShell setImportBoneShell(BoneShell importBoneShell) {
 		this.importBoneShell = importBoneShell;
-		this.importBone = importBoneShell.getBone();
+		if (importBoneShell != null) {
+			this.importBone = importBoneShell.getBone();
+		} else {
+			this.importBone = null;
+		}
 		return this;
 	}
 }

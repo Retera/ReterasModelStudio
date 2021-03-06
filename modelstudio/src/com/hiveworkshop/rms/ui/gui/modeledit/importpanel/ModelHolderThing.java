@@ -28,16 +28,19 @@ public class ModelHolderThing {
 	public JCheckBox clearExistingBones;
 	public IterableListModel<BoneShell> donModBoneShells = new IterableListModel<>();
 	public JList<BoneShell> donModBoneShellJList = new JList<>(donModBoneShells);
-	public IterableListModel<BoneShell> recModOrgBones;
-	public ArrayList<BoneShell> recModBones;
-	public ArrayList<BoneShell> donModBones;
+	public IterableListModel<BoneShell> recModBoneShells = new IterableListModel<>();
+	public ArrayList<BoneShell> recModBones = new ArrayList<>();
+	public ArrayList<BoneShell> donModBones = new ArrayList<>();
+	public ArrayList<BoneShell> recModHelpers = new ArrayList<>();
+	public ArrayList<BoneShell> donModHelpers = new ArrayList<>();
+	public IterableListModel<BoneShell> futureBoneListEx = new IterableListModel<>();
+	public List<IterableListModel<BoneShell>> futureBoneListExFixableItems = new ArrayList<>();
+	public IterableListModel<BoneShell> futureBoneList = new IterableListModel<>();
+	BiMap<IdObject, BoneShell> recModBoneShellBiMap = new BiMap<>();
+	BiMap<IdObject, BoneShell> donModBoneShellBiMap = new BiMap<>();
 
 	// Matrices
 	public JTabbedPane geosetAnimTabs = new JTabbedPane(JTabbedPane.LEFT, JTabbedPane.SCROLL_TAB_LAYOUT);
-
-	public IterableListModel<BoneShell> futureBoneList = new IterableListModel<>();
-	public ArrayList<BoneShell> recModHelpersAndBones;
-	public ArrayList<BoneShell> donModHelpersAndBones;
 
 	// Objects
 	public IterableListModel<ObjectShell> donModObjectShells = new IterableListModel<>();
@@ -49,11 +52,6 @@ public class ModelHolderThing {
 
 	public IterableListModel<VisibilityPanel> visComponents;
 	public ArrayList<VisibilityPanel> allVisShellPanes = new ArrayList<>();
-
-	public IterableListModel<BoneShell> futureBoneListEx = new IterableListModel<>();
-	public List<IterableListModel<BoneShell>> futureBoneListExFixableItems = new ArrayList<>();
-	BiMap<IdObject, BoneShell> recModBoneShellBiMap;
-	BiMap<IdObject, BoneShell> donModBoneShellBiMap;
 
 	public Set<BoneShell> futureBoneListExQuickLookupSet = new HashSet<>();
 	public ArrayList<VisibilityShell> allVisShells;
@@ -72,8 +70,7 @@ public class ModelHolderThing {
 		this.donatingModel = donatingModel;
 		changeListener = getChangeListener();
 
-//		initiateBoneLists();
-//		initiateBoneAndHelperLists();
+		initLists();
 
 		recModelManager = new ModelViewManager(receivingModel);
 		donModelManager = new ModelViewManager(donatingModel);
@@ -140,9 +137,6 @@ public class ModelHolderThing {
 	}
 
 	public IterableListModel<BoneShell> getFutureBoneList() {
-		if (donModBones == null) {
-			initiateBoneLists();
-		}
 		if (!clearExistingBones.isSelected()) {
 			for (final BoneShell b : recModBones) {
 				if (!futureBoneList.contains(b)) {
@@ -183,11 +177,9 @@ public class ModelHolderThing {
 		addCount = 0;
 		totalRemoveTime = 0;
 		removeCount = 0;
-		if (donModHelpersAndBones == null) {
-			initiateBoneAndHelperLists();
-		}
+
 		if (!clearExistingBones.isSelected()) {
-			for (final BoneShell b : recModHelpersAndBones) {
+			for (final BoneShell b : recModBoneShells) {
 				if (!futureBoneListExQuickLookupSet.contains(b)) {
 					final long startTime = System.nanoTime();
 					futureBoneListEx.addElement(b);
@@ -198,7 +190,7 @@ public class ModelHolderThing {
 				}
 			}
 		} else {
-			for (final BoneShell b : recModHelpersAndBones) {
+			for (final BoneShell b : recModBoneShells) {
 				if (futureBoneListExQuickLookupSet.remove(b)) {
 					final long startTime = System.nanoTime();
 					futureBoneListEx.removeElement(b);
@@ -208,7 +200,7 @@ public class ModelHolderThing {
 				}
 			}
 		}
-		for (final BoneShell b : donModHelpersAndBones) {
+		for (final BoneShell b : donModBoneShells) {
 			if (b.getImportStatus() == 0) {
 				if (!futureBoneListExQuickLookupSet.contains(b)) {
 					final long startTime = System.nanoTime();
@@ -247,8 +239,7 @@ public class ModelHolderThing {
 		} else {
 			listModelToReturn = futureBoneListExFixableItems.get(0);
 		}
-		// We CANT call clear, we have to preserve
-		// the parent list
+		// We CANT call clear, we have to preserve the parent list
 		for (final IterableListModel<BoneShell> model : futureBoneListExFixableItems) {
 			// clean things that should not be there
 			for (BoneShell previousElement : model) {
@@ -327,57 +318,52 @@ public class ModelHolderThing {
 		return changeListener;
 	}
 
+	private void initLists() {
 
-	private void initiateBoneLists() {
-		recModBones = new ArrayList<>();
-		donModBones = new ArrayList<>();
-		final List<Bone> recOldBonesRefs = receivingModel.getBones();
-		for (final Bone b : recOldBonesRefs) {
-			final BoneShell bs = new BoneShell(b);
-			bs.modelName = receivingModel.getName();
+		for (Bone bone : receivingModel.getBones()) {
+			BoneShell bs = new BoneShell(bone);
+			bs.setModelName(receivingModel.getName());
+			bs.setShowClass(true);
 			recModBones.add(bs);
+			recModBoneShellBiMap.put(bone, bs);
 		}
-		final List<Bone> donNewBonesRefs = donatingModel.getBones();
-		for (final Bone b : donNewBonesRefs) {
-			final BoneShell bs = new BoneShell(b);
-			bs.modelName = donatingModel.getName();
-//			bs.panel = getPanelOf(b);
+		recModBoneShells.addAll(recModBones);
+
+		for (Helper helper : receivingModel.getHelpers()) {
+			BoneShell bs = new BoneShell(helper);
+			bs.setModelName(receivingModel.getName());
+			bs.setShowClass(true);
+			recModHelpers.add(bs);
+			recModBoneShellBiMap.put(helper, bs);
+		}
+		recModBoneShells.addAll(recModHelpers);
+
+		for (BoneShell bs : recModBoneShellBiMap.values()) {
+			bs.setParentBs(recModBoneShellBiMap);
+		}
+
+
+		for (Bone bone : donatingModel.getBones()) {
+			BoneShell bs = new BoneShell(bone);
+			bs.setModelName(donatingModel.getName());
+			bs.setShowClass(true);
 			donModBones.add(bs);
+			donModBoneShellBiMap.put(bone, bs);
+		}
+		donModBoneShells.addAll(donModBones);
+
+		for (Helper helper : donatingModel.getHelpers()) {
+			BoneShell bs = new BoneShell(helper);
+			bs.setModelName(donatingModel.getName());
+			bs.setShowClass(true);
+			donModHelpers.add(bs);
+			donModBoneShellBiMap.put(helper, bs);
+		}
+		donModBoneShells.addAll(donModHelpers);
+
+		for (BoneShell bs : donModBoneShellBiMap.values()) {
+			bs.setParentBs(donModBoneShellBiMap);
 		}
 	}
 
-	private void initiateBoneAndHelperLists() {
-		recModHelpersAndBones = new ArrayList<>();
-		donModHelpersAndBones = new ArrayList<>();
-		List<? extends Bone> RecOldBonesRefs = receivingModel.getBones();
-		for (final Bone b : RecOldBonesRefs) {
-			final BoneShell bs = new BoneShell(b);
-			bs.modelName = receivingModel.getName();
-			bs.showClass = true;
-			recModHelpersAndBones.add(bs);
-		}
-		List<? extends Bone> recOldHelpersRefs = receivingModel.getHelpers();
-		for (final Bone b : recOldHelpersRefs) {
-			final BoneShell bs = new BoneShell(b);
-			bs.modelName = receivingModel.getName();
-			bs.showClass = true;
-			recModHelpersAndBones.add(bs);
-		}
-		List<? extends Bone> donNewBonesRefs = donatingModel.getBones();
-		for (final Bone b : donNewBonesRefs) {
-			final BoneShell bs = new BoneShell(b);
-			bs.modelName = donatingModel.getName();
-			bs.showClass = true;
-//			bs.panel = getPanelOf(b);
-			donModHelpersAndBones.add(bs);
-		}
-		List<? extends Bone> donNewHelpersRefs = donatingModel.getHelpers();
-		for (final Bone b : donNewHelpersRefs) {
-			final BoneShell bs = new BoneShell(b);
-			bs.modelName = donatingModel.getName();
-			bs.showClass = true;
-//			bs.panel = getPanelOf(b);
-			donModHelpersAndBones.add(bs);
-		}
-	}
 }

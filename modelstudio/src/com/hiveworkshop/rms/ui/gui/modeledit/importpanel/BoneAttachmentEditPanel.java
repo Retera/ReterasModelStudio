@@ -53,7 +53,7 @@ public class BoneAttachmentEditPanel extends JPanel {
 							if ((current == null) || (current.getImportStatus() == 1)) {
 								break;
 							}
-							shell = current.getParentBs();
+							shell = current.getNewParentBs();
 							// If shell is null, then the bone has "No Parent"
 							// If current's selected index is not 2,
 							if (shell == null)// current.getSelectedIndex() != 2
@@ -78,49 +78,6 @@ public class BoneAttachmentEditPanel extends JPanel {
 			}
 		}
 	}
-//	static void uncheckUnusedBoneAttatchments(ModelHolderThing mht, List<BonePanel> usedBonePanels) {
-//		for (int i = 0; i < mht.geosetAnimTabs.getTabCount(); i++) {
-//			if (mht.geosetAnimTabs.isEnabledAt(i)) {
-//				final BoneAttachmentPanel bap = (BoneAttachmentPanel) mht.geosetAnimTabs.getComponentAt(i);
-//				for (MatrixShell ms : bap.oldBoneRefs) {
-//					for (final BoneShell bs : ms.newBones) {
-//						BoneShell shell = bs;
-//						BonePanel current = mht.getPanelOf(shell.bone);
-//						if (!usedBonePanels.contains(current)) {
-//							usedBonePanels.add(current);
-//						}
-//
-//						boolean good = true;
-//						int k = 0;
-//						while (good) {
-//							if ((current == null) || (current.getSelectedIndex() == 1)) {
-//								break;
-//							}
-//							shell = current.futureBonesList.getSelectedValue();
-//							// If shell is null, then the bone has "No Parent"
-//							// If current's selected index is not 2,
-//							if (shell == null)// current.getSelectedIndex() != 2
-//							{
-//								good = false;
-//							} else {
-//								current = mht.getPanelOf(shell.bone);
-//								if (usedBonePanels.contains(current)) {
-//									good = false;
-//								} else {
-//									usedBonePanels.add(current);
-//								}
-//							}
-//							k++;
-//							if (k > 1000) {
-//								JOptionPane.showMessageDialog(null, "Unexpected error has occurred: IdObject to Bone parent loop, circular logic");
-//								break;
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}
-//	}
 
 	private JPanel getTopPanel() {
 		JPanel topPanel = new JPanel(new MigLayout("gap 0", "[align center]"));
