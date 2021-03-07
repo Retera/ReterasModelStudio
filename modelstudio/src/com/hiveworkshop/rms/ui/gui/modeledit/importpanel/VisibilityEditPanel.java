@@ -18,6 +18,13 @@ public class VisibilityEditPanel extends JPanel {
 	public JPanel blankPane = new JPanel();
 	ModelHolderThing mht;
 
+	public IterableListModel<VisibilityShell> recModVisSourcesOld = new IterableListModel<>();
+	public IterableListModel<VisibilityShell> donModVisSourcesNew = new IterableListModel<>();
+//	public ArrayList<Object> recModVisSourcesOld = new ArrayList<>();
+//	public ArrayList<Object> donModVisSourcesNew = new ArrayList<>();
+
+	public ArrayList<VisibilityShell> allVisShells = new ArrayList<>();
+
 	private VisibilityPanel singleVisPanel;
 
 	public VisibilityEditPanel(ModelHolderThing mht) {
@@ -27,14 +34,16 @@ public class VisibilityEditPanel extends JPanel {
 		add(getTopPanel(), "spanx, align center, wrap");
 
 		initVisibilityList(mht);
+//		mht.initVisibilityList();
 		mht.visibilityList();
+		mht.donModVisSourcesNew = donModVisSourcesNew;
 
 		final VisShellBoxCellRenderer visRenderer = new VisShellBoxCellRenderer();
-		singleVisPanel = new VisibilityPanel(mht, visRenderer);
+		singleVisPanel = new VisibilityPanel(mht, visRenderer, recModVisSourcesOld, donModVisSourcesNew);
 		visPanelCards.add(singleVisPanel, "single");
 
-		for (VisibilityShell vs : mht.allVisShells) {
-			VisibilityPanel vp = new VisibilityPanel(mht, visRenderer);
+		for (VisibilityShell vs : allVisShells) {
+			VisibilityPanel vp = new VisibilityPanel(mht, visRenderer, recModVisSourcesOld, donModVisSourcesNew);
 			vp.setSource(vs);
 
 			mht.allVisShellPanes.add(vp);
@@ -42,7 +51,8 @@ public class VisibilityEditPanel extends JPanel {
 //			visPanelCards.add(vp, vp.title.getText());
 		}
 
-		multiVisPanel = new MultiVisibilityPanel(mht, new DefaultComboBoxModel<>(mht.recModVisSourcesOld.toArray()), new DefaultComboBoxModel<>(mht.donModVisSourcesNew.toArray()), visRenderer);
+		multiVisPanel = new MultiVisibilityPanel(mht, recModVisSourcesOld, donModVisSourcesNew, visRenderer);
+//		multiVisPanel = new MultiVisibilityPanel(mht, new DefaultComboBoxModel<>(recModVisSourcesOld.toArray()), new DefaultComboBoxModel<>(donModVisSourcesNew.toArray()), visRenderer);
 		visPanelCards.add(blankPane, "blank");
 		visPanelCards.add(multiVisPanel, "multiple");
 		mht.visTabs.setModel(mht.futureVisComponents);
@@ -127,58 +137,59 @@ public class VisibilityEditPanel extends JPanel {
 		}
 	}
 
-	public void initVisibilityList(ModelHolderThing modelHolderThing) {
-		modelHolderThing.recModVisSourcesOld = new ArrayList<>();
-		modelHolderThing.donModVisSourcesNew = new ArrayList<>();
-		modelHolderThing.allVisShells = new ArrayList<>();
-
-		EditableModel recModel = modelHolderThing.receivingModel;
+	public void initVisibilityList(ModelHolderThing mht) {
 
 		final List<Named> tempList = new ArrayList<>();
-		makeUniqueVisShells(modelHolderThing, recModel, tempList);
+		makeUniqueVisShells(mht.receivingModel, tempList);
 
-		EditableModel donModel = modelHolderThing.donatingModel;
-
-		makeUniqueVisShells(modelHolderThing, donModel, tempList);
+		makeUniqueVisShells(mht.donatingModel, tempList);
 
 		System.out.println("allVisShells:");
-		for (final VisibilityShell vs : modelHolderThing.allVisShells) {
+		for (final VisibilityShell vs : allVisShells) {
 			System.out.println(vs.source.getName());
 		}
 
 		System.out.println("new/old:");
-		for (final VisibilitySource visSource : modelHolderThing.receivingModel.getAllVisibilitySources()) {
+//		for (final VisibilitySource visSource : mht.receivingModel.getAllVisibilitySources()) {
+		for (final VisibilitySource visSource : mht.receivingModel.getAllVis()) {
 			if (visSource.getClass() != GeosetAnim.class) {
-				modelHolderThing.recModVisSourcesOld.add(shellFromObject(modelHolderThing.allVisShells, visSource));
-				System.out.println(shellFromObject(modelHolderThing.allVisShells, visSource).source.getName());
+				recModVisSourcesOld.addElement(shellFromObject(allVisShells, visSource));
+				System.out.println(shellFromObject(allVisShells, visSource).source.getName());
 			} else {
-				modelHolderThing.recModVisSourcesOld.add(shellFromObject(modelHolderThing.allVisShells, ((GeosetAnim) visSource).getGeoset()));
-				System.out.println(shellFromObject(modelHolderThing.allVisShells, ((GeosetAnim) visSource).getGeoset()).source.getName());
+				recModVisSourcesOld.addElement(shellFromObject(allVisShells, ((GeosetAnim) visSource).getGeoset()));
+				System.out.println(shellFromObject(allVisShells, ((GeosetAnim) visSource).getGeoset()).source.getName());
 			}
 		}
-		modelHolderThing.recModVisSourcesOld.add(VisibilityPanel.NOTVISIBLE);
-		modelHolderThing.recModVisSourcesOld.add(VisibilityPanel.VISIBLE);
+		VisibilityShell notVis = new VisibilityShell(false);
+		VisibilityShell vis = new VisibilityShell(true);
+		recModVisSourcesOld.addElement(notVis);
+		recModVisSourcesOld.addElement(vis);
+//		recModVisSourcesOld.add(VisibilityPanel.NOTVISIBLE);
+//		recModVisSourcesOld.add(VisibilityPanel.VISIBLE);
 
-		for (final VisibilitySource visSource : modelHolderThing.donatingModel.getAllVisibilitySources()) {
+//		for (final VisibilitySource visSource : mht.donatingModel.getAllVisibilitySources()) {
+		for (final VisibilitySource visSource : mht.donatingModel.getAllVis()) {
 			if (visSource.getClass() != GeosetAnim.class) {
-				modelHolderThing.donModVisSourcesNew.add(shellFromObject(modelHolderThing.allVisShells, visSource));
+				donModVisSourcesNew.addElement(shellFromObject(allVisShells, visSource));
 			} else {
-				modelHolderThing.donModVisSourcesNew.add(shellFromObject(modelHolderThing.allVisShells, ((GeosetAnim) visSource).getGeoset()));
+				donModVisSourcesNew.addElement(shellFromObject(allVisShells, ((GeosetAnim) visSource).getGeoset()));
 			}
 		}
-		modelHolderThing.donModVisSourcesNew.add(VisibilityPanel.NOTVISIBLE);
-		modelHolderThing.donModVisSourcesNew.add(VisibilityPanel.VISIBLE);
+		donModVisSourcesNew.addElement(notVis);
+		donModVisSourcesNew.addElement(vis);
+//		donModVisSourcesNew.add(VisibilityPanel.NOTVISIBLE);
+//		donModVisSourcesNew.add(VisibilityPanel.VISIBLE);
 
-		modelHolderThing.futureVisComponents = new IterableListModel<>();
+		mht.futureVisComponents = new IterableListModel<>();
 	}
 
-	public void makeUniqueVisShells(ModelHolderThing modelHolderThing, EditableModel model, List<Named> tempList) {
+	public void makeUniqueVisShells(EditableModel model, List<Named> tempList) {
 		for (final Material mat : model.getMaterials()) {
 			for (final Layer x : mat.getLayers()) {
 				final VisibilityShell vs = new VisibilityShell(x, model);
 				if (!tempList.contains(x)) {
 					tempList.add(x);
-					modelHolderThing.allVisShells.add(vs);
+					allVisShells.add(vs);
 				}
 			}
 		}
@@ -186,23 +197,23 @@ public class VisibilityEditPanel extends JPanel {
 			final VisibilityShell vs = new VisibilityShell(x, model);
 			if (!tempList.contains(x)) {
 				tempList.add(x);
-				modelHolderThing.allVisShells.add(vs);
+				allVisShells.add(vs);
 			}
 		}
-		createAndAddIdObjectVisShell(modelHolderThing, model, tempList, model.getLights());
-		createAndAddIdObjectVisShell(modelHolderThing, model, tempList, model.getAttachments());
-		createAndAddIdObjectVisShell(modelHolderThing, model, tempList, model.getParticleEmitters());
-		createAndAddIdObjectVisShell(modelHolderThing, model, tempList, model.getParticleEmitter2s());
-		createAndAddIdObjectVisShell(modelHolderThing, model, tempList, model.getRibbonEmitters());
-		createAndAddIdObjectVisShell(modelHolderThing, model, tempList, model.getPopcornEmitters());
+		createAndAddIdObjectVisShell(model, tempList, model.getLights());
+		createAndAddIdObjectVisShell(model, tempList, model.getAttachments());
+		createAndAddIdObjectVisShell(model, tempList, model.getParticleEmitters());
+		createAndAddIdObjectVisShell(model, tempList, model.getParticleEmitter2s());
+		createAndAddIdObjectVisShell(model, tempList, model.getRibbonEmitters());
+		createAndAddIdObjectVisShell(model, tempList, model.getPopcornEmitters());
 	}
 
-	public void createAndAddIdObjectVisShell(ModelHolderThing modelHolderThing, EditableModel model, List<Named> tempList, List<? extends IdObject> idObjects) {
+	public void createAndAddIdObjectVisShell(EditableModel model, List<Named> tempList, List<? extends IdObject> idObjects) {
 		for (final IdObject x : idObjects) {
 			final VisibilityShell vs = new VisibilityShell(x, model);
 			if (!tempList.contains(x)) {
 				tempList.add(x);
-				modelHolderThing.allVisShells.add(vs);
+				allVisShells.add(vs);
 			}
 		}
 	}

@@ -42,15 +42,6 @@ public class IterableListModel<T> extends DefaultListModel<T> implements Iterabl
 		};
 	}
 
-	@SuppressWarnings("unchecked")
-	public T[] toTypedArray() {
-		Object[] o = new Object[size()];
-		for (int i = 0; i < size(); i++) {
-			o[i] = get(i);
-		}
-		return (T[]) o;
-	}
-
 	public void remove(T t) {
 		for (int i = 0; i < size(); i++) {
 			if (get(i) == t || get(i).equals(t)) {

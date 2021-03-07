@@ -1,15 +1,20 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
+import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 class MultiVisibilityPanel extends VisibilityPanel {
 	boolean oldVal = true;
 	ModelHolderThing mht;
 
-	public MultiVisibilityPanel(ModelHolderThing mht, final DefaultComboBoxModel<Object> oldSources, final DefaultComboBoxModel<Object> newSources,
+	public MultiVisibilityPanel(ModelHolderThing mht,
+	                            IterableListModel<VisibilityShell> recModVisSourcesOld,
+	                            IterableListModel<VisibilityShell> donModVisSourcesNew,
 	                            final VisShellBoxCellRenderer renderer) {
 		this.mht = mht;
 		setLayout(new MigLayout("gap 0"));
@@ -17,7 +22,9 @@ class MultiVisibilityPanel extends VisibilityPanel {
 		title.setFont(new Font("Arial", Font.BOLD, 26));
 
 		JLabel oldAnimsLabel = new JLabel("Existing animation visibility from: ");
-
+		List<VisibilityShell> recModShells = new ArrayList<>();
+		recModVisSourcesOld.forEach(recModShells::add);
+		oldSources = new DefaultComboBoxModel<>(recModShells.toArray(new VisibilityShell[0]));
 		oldSourcesBox = new JComboBox<>(oldSources);
 		oldSourcesBox.setEditable(false);
 		oldSourcesBox.setMaximumSize(new Dimension(1000, 25));
@@ -26,6 +33,9 @@ class MultiVisibilityPanel extends VisibilityPanel {
 
 		JLabel newAnimsLabel = new JLabel("Imported animation visibility from: ");
 
+		List<VisibilityShell> donModShells = new ArrayList<>();
+		donModVisSourcesNew.forEach(donModShells::add);
+		newSources = new DefaultComboBoxModel<>(donModShells.toArray(new VisibilityShell[0]));
 		newSourcesBox = new JComboBox<>(newSources);
 		newSourcesBox.setEditable(false);
 		newSourcesBox.setMaximumSize(new Dimension(1000, 25));

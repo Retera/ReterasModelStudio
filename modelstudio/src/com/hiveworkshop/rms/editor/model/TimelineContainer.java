@@ -168,4 +168,11 @@ public abstract class TimelineContainer implements VisibilitySource {
 	public String visFlagName() {
 		return "Visibility";
 	}
+
+	public VisibilitySource getVisibilitySource() {
+		if (getVisibilityFlag() != null) {
+			return this;
+		}
+		return null;
+	}
 }

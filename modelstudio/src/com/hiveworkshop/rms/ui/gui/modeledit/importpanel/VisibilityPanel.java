@@ -1,21 +1,24 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
+import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 class VisibilityPanel extends JPanel {
 	static final String NOTVISIBLE = "Not visible";
 	static final String VISIBLE = "Always visible";
-	JComboBox<Object> oldSourcesBox;
-	JComboBox<Object> newSourcesBox;
+	JComboBox<VisibilityShell> oldSourcesBox;
+	JComboBox<VisibilityShell> newSourcesBox;
 	JCheckBox favorOld;
 	VisibilityShell sourceShell;
 	ModelHolderThing mht;
 
-	DefaultComboBoxModel<Object> oldSources;
-	DefaultComboBoxModel<Object> newSources;
+	DefaultComboBoxModel<VisibilityShell> oldSources;
+	DefaultComboBoxModel<VisibilityShell> newSources;
 
 	JLabel title;
 
@@ -23,7 +26,7 @@ class VisibilityPanel extends JPanel {
 		// for use in multi pane
 	}
 
-	public VisibilityPanel(ModelHolderThing mht, VisShellBoxCellRenderer renderer) {
+	public VisibilityPanel(ModelHolderThing mht, VisShellBoxCellRenderer renderer, IterableListModel<VisibilityShell> recModVisSourcesOld, IterableListModel<VisibilityShell> donModVisSourcesNew) {
 		this.mht = mht;
 		setLayout(new MigLayout("gap 0"));
 		title = new JLabel("Select a source");
@@ -43,9 +46,14 @@ class VisibilityPanel extends JPanel {
 		newSourcesBox = getSourceComboBox(renderer);
 		add(newSourcesBox, "grow, wrap");
 
-		oldSources = new DefaultComboBoxModel<>(mht.recModVisSourcesOld.toArray());
+
+		List<VisibilityShell> recModShells = new ArrayList<>();
+		recModVisSourcesOld.forEach(recModShells::add);
+		oldSources = new DefaultComboBoxModel<>(recModShells.toArray(new VisibilityShell[0]));
 		oldSourcesBox.setModel(oldSources);
-		newSources = new DefaultComboBoxModel<>(mht.donModVisSourcesNew.toArray());
+		List<VisibilityShell> donModShells = new ArrayList<>();
+		donModVisSourcesNew.forEach(donModShells::add);
+		newSources = new DefaultComboBoxModel<>(donModShells.toArray(new VisibilityShell[0]));
 		newSourcesBox.setModel(newSources);
 
 		favorOld = new JCheckBox("Favor component's original visibility when combining");
@@ -61,15 +69,15 @@ class VisibilityPanel extends JPanel {
 
 	}
 
-	public JComboBox<Object> getSourceComboBox(VisShellBoxCellRenderer renderer) {
-		JComboBox<Object> jComboBox = new JComboBox<>();
+	public JComboBox<VisibilityShell> getSourceComboBox(VisShellBoxCellRenderer renderer) {
+		JComboBox<VisibilityShell> jComboBox = new JComboBox<>();
 		jComboBox.setEditable(false);
 		jComboBox.setMaximumSize(new Dimension(1000, 25));
 		jComboBox.setRenderer(renderer);
 		return jComboBox;
 	}
 
-	private void selectVisSource(VisibilityShell sourceShell, DefaultComboBoxModel<Object> sources, JComboBox<Object> jComboBox) {
+	private void selectVisSource(VisibilityShell sourceShell, DefaultComboBoxModel<VisibilityShell> sources, JComboBox<VisibilityShell> jComboBox) {
 //		jComboBox.setModel(sources);
 		boolean didContain = false;
 		for (int i = 0; (i < sources.getSize()) && !didContain; i++) {
@@ -85,19 +93,17 @@ class VisibilityPanel extends JPanel {
 	}
 
 	public void selectSimilarOptions() {
-		final ListModel<Object> oldSources = oldSourcesBox.getModel();
+		final ListModel<VisibilityShell> oldSources = oldSourcesBox.getModel();
 		selectSimilar(oldSources, oldSourcesBox);
-		final ListModel<Object> newSources = newSourcesBox.getModel();
+		final ListModel<VisibilityShell> newSources = newSourcesBox.getModel();
 		selectSimilar(newSources, newSourcesBox);
 	}
 
-	public void selectSimilar(ListModel<Object> sources, JComboBox<Object> sourcesBox) {
+	public void selectSimilar(ListModel<VisibilityShell> sources, JComboBox<VisibilityShell> sourcesBox) {
 		for (int i = 0; i < sources.getSize(); i++) {
-			if (!(sources.getElementAt(i) instanceof String)) {
-				if (sourceShell.source.getName().equals(((VisibilityShell) sources.getElementAt(i)).source.getName())) {
-					System.out.println(sourceShell.source.getName());
-					sourcesBox.setSelectedItem(sources.getElementAt(i));
-				}
+			if (sourceShell.source.getName().equals(sources.getElementAt(i).source.getName())) {
+				System.out.println(sourceShell.source.getName());
+				sourcesBox.setSelectedItem(sources.getElementAt(i));
 			}
 		}
 	}

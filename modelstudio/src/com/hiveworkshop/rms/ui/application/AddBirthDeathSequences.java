@@ -137,13 +137,14 @@ public class AddBirthDeathSequences {
     }
 
     private static void setAnimationVisibilityFlag(EditableModel model, Animation stand, Animation animation) {
-        for (final VisibilitySource source : model.getAllVisibilitySources()) {
-            final FloatAnimFlag dummy = new FloatAnimFlag("dummy");
-            final AnimFlag<?> af = source.getVisibilityFlag();
-            dummy.copyFrom(af);
-            af.deleteAnim(animation);
-            af.copyFrom(dummy, stand.getStart(), stand.getEnd(), animation.getStart(), animation.getEnd());
-        }
+//        for (final VisibilitySource source : model.getAllVisibilitySources()) {
+	    for (final VisibilitySource source : model.getAllVis()) {
+		    final FloatAnimFlag dummy = new FloatAnimFlag("dummy");
+		    final AnimFlag<?> af = source.getVisibilityFlag();
+		    dummy.copyFrom(af);
+		    af.deleteAnim(animation);
+		    af.copyFrom(dummy, stand.getStart(), stand.getEnd(), animation.getStart(), animation.getEnd());
+	    }
     }
 
     // most of the code below are modified versions of code from AnimatedNode and NodeAnimationModelEditor

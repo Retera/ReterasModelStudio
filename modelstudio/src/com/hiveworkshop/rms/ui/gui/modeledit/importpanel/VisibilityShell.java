@@ -28,6 +28,12 @@ class VisibilityShell {
 		this.isFromDonating = isFromDonating;
 	}
 
+	public VisibilityShell(boolean alwaysVisible) {
+		this.alwaysVisible = alwaysVisible;
+		this.neverVisible = !alwaysVisible;
+//		this.isFromDonating = isFromDonating;
+	}
+
 	public VisibilityShell(boolean alwaysVisible, boolean isFromDonating) {
 		this.alwaysVisible = alwaysVisible;
 		this.neverVisible = !alwaysVisible;
@@ -115,5 +121,18 @@ class VisibilityShell {
 		this.neverVisible = neverVisible;
 		this.alwaysVisible = !neverVisible;
 		return this;
+	}
+
+	@Override
+	public String toString() {
+		if (source != null) {
+//			return source.getName();
+			return model.getName() + ": " + source.getName();
+		} else if (alwaysVisible && !neverVisible) {
+			return "Always visible";
+		} else if (neverVisible && !alwaysVisible) {
+			return "Not visible";
+		}
+		return "Null";
 	}
 }

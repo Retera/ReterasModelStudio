@@ -668,7 +668,8 @@ public class EditableModel implements Named {
 	}
 
 	public void copyVisibility(final Animation visibilitySource, final Animation target) {
-		final List<VisibilitySource> allVisibilitySources = getAllVisibilitySources();
+//		final List<VisibilitySource> allVisibilitySources = getAllVisibilitySources();
+		final List<VisibilitySource> allVisibilitySources = getAllVis();
 		for (final VisibilitySource source : allVisibilitySources) {
 			final AnimFlag<?> visibilityFlag = source.getVisibilityFlag();
 			final AnimFlag<?> copyFlag = AnimFlag.createFromAnimFlag(visibilityFlag);
@@ -1039,6 +1040,67 @@ public class EditableModel implements Named {
 		}
 
 		return allFlags;
+	}
+
+	public List<VisibilitySource> getAllVis() {
+		// Probably will cause a bunch of lag, be wary
+		final List<VisibilitySource> allVis = Collections.synchronizedList(new ArrayList<>());
+		for (final Material m : materials) {
+			for (final Layer lay : m.layers) {
+//				allVis.add(lay.getVisibilitySource());
+				VisibilitySource vs = lay.getVisibilitySource();
+				if (vs != null) {
+					allVis.add(vs);
+				}
+			}
+		}
+		if (texAnims != null) {
+			for (final TextureAnim texa : texAnims) {
+				if (texa != null) {
+					VisibilitySource vs = texa.getVisibilitySource();
+					if (vs != null) {
+						allVis.add(vs);
+					}
+				} else {
+					JOptionPane.showMessageDialog(null,
+							"WARNING: Error with processing time-scale from TextureAnims! Program will attempt to proceed.");
+				}
+			}
+		}
+		if (geosetAnims != null) {
+			for (final GeosetAnim ga : geosetAnims) {
+				if (ga != null) {
+					VisibilitySource vs = ga.getVisibilitySource();
+					if (vs != null) {
+						allVis.add(vs);
+					}
+				} else {
+					JOptionPane.showMessageDialog(null,
+							"WARNING: Error with processing time-scale from GeosetAnims! Program will attempt to proceed.");
+				}
+			}
+		}
+//		for (final IdObject idObject : idObjects) {
+		for (final IdObject idObject : modelIdObjects.allObjects) {
+			VisibilitySource vs = idObject.getVisibilitySource();
+			if (vs != null) {
+				allVis.add(vs);
+			}
+		}
+		if (cameras != null) {
+			for (final Camera x : cameras) {
+				VisibilitySource vs1 = x.getSourceNode().getVisibilitySource();
+				if (vs1 != null) {
+					allVis.add(vs1);
+				}
+				VisibilitySource vs2 = x.getTargetNode().getVisibilitySource();
+				if (vs2 != null) {
+					allVis.add(vs2);
+				}
+			}
+		}
+
+		return allVis;
 	}
 
 	public Object getAnimFlagSource(final AnimFlag<?> animFlag) {
