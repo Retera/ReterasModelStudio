@@ -10,7 +10,7 @@ public class GeosetShell {
 	private String modelName;
 	private String name;
 	private int index;
-	private boolean isImported;
+	private boolean isFromDonating;
 	private Geoset geoset;
 	private Geoset importGeoset;
 	private boolean doImport = true;
@@ -19,10 +19,10 @@ public class GeosetShell {
 	private boolean isEnabled = true;
 	IterableListModel<MatrixShell> matrixShells;
 
-	public GeosetShell(Geoset geoset, EditableModel model, boolean isImported) {
+	public GeosetShell(Geoset geoset, EditableModel model, boolean isFromDonating) {
 		this.geoset = geoset;
 		this.model = model;
-		this.isImported = isImported;
+		this.isFromDonating = isFromDonating;
 		modelName = model.getName();
 		name = geoset.getName();
 		index = model.getGeosetId(geoset);
@@ -108,12 +108,12 @@ public class GeosetShell {
 		return this;
 	}
 
-	public boolean isImported() {
-		return isImported;
+	public boolean isFromDonating() {
+		return isFromDonating;
 	}
 
-	public GeosetShell setImported(boolean imported) {
-		isImported = imported;
+	public GeosetShell setFromDonating(boolean fromDonating) {
+		isFromDonating = fromDonating;
 		return this;
 	}
 

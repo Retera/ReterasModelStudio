@@ -16,7 +16,7 @@ class MultiVisibilityPanel extends VisibilityPanel {
 		title = new JLabel("Multiple Selected");
 		title.setFont(new Font("Arial", Font.BOLD, 26));
 
-		oldAnimsLabel = new JLabel("Existing animation visibility from: ");
+		JLabel oldAnimsLabel = new JLabel("Existing animation visibility from: ");
 
 		oldSourcesBox = new JComboBox<>(oldSources);
 		oldSourcesBox.setEditable(false);
@@ -24,7 +24,7 @@ class MultiVisibilityPanel extends VisibilityPanel {
 		oldSourcesBox.setRenderer(renderer);
 		oldSourcesBox.addItemListener(e -> setVisGroupItemOld(oldSourcesBox.getSelectedItem()));
 
-		newAnimsLabel = new JLabel("Imported animation visibility from: ");
+		JLabel newAnimsLabel = new JLabel("Imported animation visibility from: ");
 
 		newSourcesBox = new JComboBox<>(newSources);
 		newSourcesBox.setEditable(false);

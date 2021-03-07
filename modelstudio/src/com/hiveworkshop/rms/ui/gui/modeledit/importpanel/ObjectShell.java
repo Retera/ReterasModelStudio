@@ -12,8 +12,8 @@ public class ObjectShell {
 	private Camera camera;
 	private IdObject importBone;
 	private String modelName;
-	private BonePanel panel;
 	private boolean showClass = true;
+	private boolean isFromDonating;
 
 	private boolean shouldImport = true;
 	private int importStatus = 0;
@@ -29,8 +29,21 @@ public class ObjectShell {
 		}
 	}
 
+	public ObjectShell(final IdObject b, boolean isFromDonating) {
+		idObject = b;
+		if (b != null) {
+			oldParent = idObject.getParent();
+		}
+		this.isFromDonating = isFromDonating;
+	}
+
 	public ObjectShell(final Camera c) {
 		camera = c;
+	}
+
+	public ObjectShell(final Camera c, boolean isFromDonating) {
+		camera = c;
+		this.isFromDonating = isFromDonating;
 	}
 
 	public static List<IdObject> toBonesList(final List<BoneShell> boneShells) {

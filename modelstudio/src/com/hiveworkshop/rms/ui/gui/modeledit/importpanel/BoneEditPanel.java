@@ -23,8 +23,7 @@ public class BoneEditPanel extends JPanel {
 
 		add(getTopPanel(), "align center, wrap");
 
-
-		final BonePanelListCellRenderer bonePanelRenderer = new BonePanelListCellRenderer(mht.recModelManager, mht.donModelManager);
+		final BoneShellListCellRenderer bonePanelRenderer = new BoneShellListCellRenderer(mht.recModelManager, mht.donModelManager);
 
 		singleBonePanel = new BonePanel(mht, mht.boneShellRenderer);
 

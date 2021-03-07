@@ -160,7 +160,7 @@ public class ImportPanel extends JTabbedPane {
 
 			for (GeosetShell geoShell : mht.allGeoShells) {
 				geoShell.getGeoset().setMaterial(geoShell.getMaterial());
-				if (geoShell.isImported() && geoShell.isDoImport()) {
+				if (geoShell.isFromDonating() && geoShell.isDoImport()) {
 					mht.receivingModel.add(geoShell.getGeoset());
 					if (geoShell.getGeoset().getGeosetAnim() != null) {
 						mht.receivingModel.add(geoShell.getGeoset().getGeosetAnim());
@@ -369,7 +369,7 @@ public class ImportPanel extends JTabbedPane {
 			}
 
 			final List<AnimFlag<?>> finalVisFlags = new ArrayList<>();
-			for (VisibilityPanel vPanel : mht.visComponents) {
+			for (VisibilityPanel vPanel : mht.futureVisComponents) {
 				final VisibilitySource temp = ((VisibilitySource) vPanel.sourceShell.source);
 				final AnimFlag<?> visFlag = temp.getVisibilityFlag();// might be null
 				final AnimFlag<?> newVisFlag;
@@ -444,8 +444,8 @@ public class ImportPanel extends JTabbedPane {
 				}
 				finalVisFlags.add(newVisFlag);
 			}
-			for (int i = 0; i < mht.visComponents.size(); i++) {
-				final VisibilityPanel vPanel = mht.visComponents.get(i);
+			for (int i = 0; i < mht.futureVisComponents.size(); i++) {
+				final VisibilityPanel vPanel = mht.futureVisComponents.get(i);
 				final VisibilitySource temp = ((VisibilitySource) vPanel.sourceShell.source);
 				final AnimFlag<?> visFlag = finalVisFlags.get(i);// might be null
 				if (visFlag.size() > 0) {
@@ -480,7 +480,7 @@ public class ImportPanel extends JTabbedPane {
 			final List<Geoset> geosetsAdded = new ArrayList<>();
 
 			for (GeosetShell geoShell : mht.allGeoShells) {
-				if (geoShell.isImported() && geoShell.isDoImport()) {
+				if (geoShell.isFromDonating() && geoShell.isDoImport()) {
 					geosetsAdded.add(geoShell.getGeoset());
 				}
 			}
@@ -554,7 +554,7 @@ public class ImportPanel extends JTabbedPane {
 			}
 		}
 		if (corpseShell != null) {
-			for (VisibilityPanel vp : mht.visComponents) {
+			for (VisibilityPanel vp : mht.futureVisComponents) {
 				if (vp.sourceShell.source instanceof Geoset) {
 					final Geoset g = (Geoset) vp.sourceShell.source;
 					if ((g.getGeosetAnim() != null) && g.getMaterial().firstLayer().firstTexture().getPath().equalsIgnoreCase("textures\\gutz.blp")) {
@@ -598,7 +598,7 @@ public class ImportPanel extends JTabbedPane {
 		} else {
 			JOptionPane.showMessageDialog(null, "Bug in anim transfer: attempted unnecessary 2-part transfer");
 		}
-		for (VisibilityPanel vp : mht.visComponents) {
+		for (VisibilityPanel vp : mht.futureVisComponents) {
 			vp.favorOld.doClick();
 		}
 

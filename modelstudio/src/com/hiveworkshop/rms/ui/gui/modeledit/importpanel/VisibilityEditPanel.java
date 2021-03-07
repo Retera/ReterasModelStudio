@@ -18,6 +18,8 @@ public class VisibilityEditPanel extends JPanel {
 	public JPanel blankPane = new JPanel();
 	ModelHolderThing mht;
 
+	private VisibilityPanel singleVisPanel;
+
 	public VisibilityEditPanel(ModelHolderThing mht) {
 		setLayout(new MigLayout("gap 0, fill", "", "[][grow]"));
 		this.mht = mht;
@@ -28,18 +30,22 @@ public class VisibilityEditPanel extends JPanel {
 		mht.visibilityList();
 
 		final VisShellBoxCellRenderer visRenderer = new VisShellBoxCellRenderer();
-		for (final VisibilityShell vs : mht.allVisShells) {
-			final VisibilityPanel vp = new VisibilityPanel(mht, vs, new DefaultComboBoxModel<>(mht.recModVisSourcesOld.toArray()), new DefaultComboBoxModel<>(mht.donModVisSourcesNew.toArray()), visRenderer);
+		singleVisPanel = new VisibilityPanel(mht, visRenderer);
+		visPanelCards.add(singleVisPanel, "single");
+
+		for (VisibilityShell vs : mht.allVisShells) {
+			VisibilityPanel vp = new VisibilityPanel(mht, visRenderer);
+			vp.setSource(vs);
 
 			mht.allVisShellPanes.add(vp);
 
-			visPanelCards.add(vp, vp.title.getText());
+//			visPanelCards.add(vp, vp.title.getText());
 		}
 
 		multiVisPanel = new MultiVisibilityPanel(mht, new DefaultComboBoxModel<>(mht.recModVisSourcesOld.toArray()), new DefaultComboBoxModel<>(mht.donModVisSourcesNew.toArray()), visRenderer);
 		visPanelCards.add(blankPane, "blank");
 		visPanelCards.add(multiVisPanel, "multiple");
-		mht.visTabs.setModel(mht.visComponents);
+		mht.visTabs.setModel(mht.futureVisComponents);
 		mht.visTabs.setCellRenderer(new VisPaneListCellRenderer(mht.receivingModel));
 		mht.visTabs.addListSelectionListener(e -> visTabsValueChanged(mht));
 		mht.visTabs.setSelectedIndex(0);
@@ -76,7 +82,9 @@ public class VisibilityEditPanel extends JPanel {
 		if (selectedValuesList.size() < 1) {
 			visCardLayout.show(visPanelCards, "blank");
 		} else if (selectedValuesList.size() == 1) {
-			visCardLayout.show(visPanelCards, mht.visTabs.getSelectedValue().title.getText());
+//			visCardLayout.show(visPanelCards, mht.visTabs.getSelectedValue().title.getText());
+			visCardLayout.show(visPanelCards, "single");
+			singleVisPanel.setSource(mht.visTabs.getSelectedValue().sourceShell);
 		} else {
 			visCardLayout.show(visPanelCards, "multiple");
 
@@ -161,7 +169,7 @@ public class VisibilityEditPanel extends JPanel {
 		modelHolderThing.donModVisSourcesNew.add(VisibilityPanel.NOTVISIBLE);
 		modelHolderThing.donModVisSourcesNew.add(VisibilityPanel.VISIBLE);
 
-		modelHolderThing.visComponents = new IterableListModel<>();
+		modelHolderThing.futureVisComponents = new IterableListModel<>();
 	}
 
 	public void makeUniqueVisShells(ModelHolderThing modelHolderThing, EditableModel model, List<Named> tempList) {

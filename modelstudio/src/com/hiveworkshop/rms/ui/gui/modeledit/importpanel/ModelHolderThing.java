@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
+import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.util.BiMap;
@@ -45,19 +46,30 @@ public class ModelHolderThing {
 	// Objects
 	public IterableListModel<ObjectShell> donModObjectShells = new IterableListModel<>();
 	public JList<ObjectShell> donModObjectJList = new JList<>(donModObjectShells);
+	public IterableListModel<ObjectShell> recModObjectShells = new IterableListModel<>();
+//	public JList<ObjectShell> recModObjectJList = new JList<>(recModObjectShells);
 
 
 	// Visibility
-	public JList<VisibilityPanel> visTabs = new JList<>();
 
-	public IterableListModel<VisibilityPanel> visComponents;
+	public IterableListModel<VisibilityShell> donModVisibilityShells = new IterableListModel<>();
+	//	public JList<VisibilityShell> donModVisibilityJList = new JList<>(donModVisibilityShells);
+	public IterableListModel<VisibilityShell> recModVisibilityShells = new IterableListModel<>();
+//	public JList<VisibilityShell> recModVisibilityJList = new JList<>(recModVisibilityShells);
+
+	public IterableListModel<VisibilityPanel> futureVisComponents = new IterableListModel<>();
+	public JList<VisibilityPanel> visTabs = new JList<>(futureVisComponents);
 	public ArrayList<VisibilityPanel> allVisShellPanes = new ArrayList<>();
 
-	public Set<BoneShell> futureBoneListExQuickLookupSet = new HashSet<>();
-	public ArrayList<VisibilityShell> allVisShells;
 
-	public ArrayList<Object> recModVisSourcesOld;
-	public ArrayList<Object> donModVisSourcesNew;
+	public IterableListModel<VisibilityShell> visShellsComps = new IterableListModel<>();
+	public JList<VisibilityShell> visShellJList = new JList<>(visShellsComps);
+	public ArrayList<VisibilityShell> allVisShellss = new ArrayList<>();
+
+	public Set<BoneShell> futureBoneListExQuickLookupSet = new HashSet<>();
+	public ArrayList<VisibilityShell> allVisShells = new ArrayList<>();
+	public ArrayList<Object> recModVisSourcesOld = new ArrayList<>();
+	public ArrayList<Object> donModVisSourcesNew = new ArrayList<>();
 	public BoneShellListCellRenderer boneShellRenderer;
 
 	public ModelViewManager recModelManager;
@@ -76,63 +88,6 @@ public class ModelHolderThing {
 		recModelManager = new ModelViewManager(receivingModel);
 		donModelManager = new ModelViewManager(donatingModel);
 		boneShellRenderer = new BoneShellListCellRenderer(recModelManager, donModelManager);
-	}
-
-	long totalAddTime;
-	long addCount;
-	long totalRemoveTime;
-	long removeCount;
-
-	public IterableListModel<VisibilityPanel> visibilityList() {
-		VisibilityPanel selection = visTabs.getSelectedValue();
-		visComponents.clear();
-		for (GeosetShell geoShell : allGeoShells) {
-			for (final Layer x : geoShell.getMaterial().getLayers()) {
-				final VisibilityPanel vs = visPaneFromObject(x);
-				if (!visComponents.contains(vs) && (vs != null)) {
-					visComponents.addElement(vs);
-				}
-			}
-		}
-		for (GeosetShell geoShell : allGeoShells) {
-			if (geoShell.isDoImport()) {
-				final Geoset x = geoShell.getGeoset();
-				final VisibilityPanel vs = visPaneFromObject(x);
-				if (!visComponents.contains(vs) && (vs != null)) {
-					visComponents.addElement(vs);
-				}
-			}
-		}
-		// The current's
-		final EditableModel model = receivingModel;
-		createAndAddVisComp(model.getLights());
-		createAndAddVisComp(model.getAttachments());
-		createAndAddVisComp(model.getParticleEmitters());
-		createAndAddVisComp(model.getParticleEmitter2s());
-		createAndAddVisComp(model.getRibbonEmitters());
-		createAndAddVisComp(model.getPopcornEmitters());
-
-		for (ObjectShell op : donModObjectShells) {
-			if (op.getShouldImport() && (op.getIdObject() != null))
-			// we don't touch camera "object" panels (which aren't idobjects)
-			{
-				final VisibilityPanel vs = visPaneFromObject(op.getIdObject());
-				if (!visComponents.contains(vs) && (vs != null)) {
-					visComponents.addElement(vs);
-				}
-			}
-		}
-		visTabs.setSelectedValue(selection, true);
-		return visComponents;
-	}
-
-	public void createAndAddVisComp(List<? extends IdObject> idObjects) {
-		for (IdObject x : idObjects) {
-			final VisibilityPanel vs = visPaneFromObject(x);
-			if (!visComponents.contains(vs) && (vs != null)) {
-				visComponents.addElement(vs);
-			}
-		}
 	}
 
 	public IterableListModel<BoneShell> getFutureBoneList() {
@@ -247,23 +202,7 @@ public class ModelHolderThing {
 		return listModelToReturn;
 	}
 
-	public VisibilityPanel visPaneFromObject(final Object o) {
-		for (final VisibilityPanel vp : allVisShellPanes) {
-			if (vp.sourceShell.source == o) {
-				return vp;
-			}
-		}
-		return null;
-	}
-
-
-	public void importAllGeos(boolean b) {
-		for (GeosetShell geoShell : allGeoShells) {
-			if (geoShell.isImported()) {
-				geoShell.setDoImport(b);
-			}
-		}
-	}
+	long totalAddTime;
 
 	public void uncheckAllAnims(boolean b) {
 		for (int i = 0; i < animTabs.getTabCount(); i++) {
@@ -316,10 +255,22 @@ public class ModelHolderThing {
 		return changeListener;
 	}
 
+	long addCount;
+	long totalRemoveTime;
+	long removeCount;
+
+	public void importAllGeos(boolean b) {
+		for (GeosetShell geoShell : allGeoShells) {
+			if (geoShell.isFromDonating()) {
+				geoShell.setDoImport(b);
+			}
+		}
+	}
+
 	private void initLists() {
 
 		for (Bone bone : receivingModel.getBones()) {
-			BoneShell bs = new BoneShell(bone);
+			BoneShell bs = new BoneShell(bone, false);
 			bs.setModelName(receivingModel.getName());
 			bs.setShowClass(true);
 			recModBones.add(bs);
@@ -328,7 +279,7 @@ public class ModelHolderThing {
 		recModBoneShells.addAll(recModBones);
 
 		for (Helper helper : receivingModel.getHelpers()) {
-			BoneShell bs = new BoneShell(helper);
+			BoneShell bs = new BoneShell(helper, false);
 			bs.setModelName(receivingModel.getName());
 			bs.setShowClass(true);
 			recModHelpers.add(bs);
@@ -342,7 +293,7 @@ public class ModelHolderThing {
 
 
 		for (Bone bone : donatingModel.getBones()) {
-			BoneShell bs = new BoneShell(bone);
+			BoneShell bs = new BoneShell(bone, true);
 			bs.setModelName(donatingModel.getName());
 			bs.setShowClass(true);
 			donModBones.add(bs);
@@ -351,7 +302,7 @@ public class ModelHolderThing {
 		donModBoneShells.addAll(donModBones);
 
 		for (Helper helper : donatingModel.getHelpers()) {
-			BoneShell bs = new BoneShell(helper);
+			BoneShell bs = new BoneShell(helper, true);
 			bs.setModelName(donatingModel.getName());
 			bs.setShowClass(true);
 			donModHelpers.add(bs);
@@ -367,14 +318,14 @@ public class ModelHolderThing {
 	private void initiateGeosetLists() {
 		for (Geoset geoset : receivingModel.getGeosets()) {
 			GeosetShell geoShell = new GeosetShell(geoset, receivingModel, false);
-			geoShell.setMatrixShells(createMatrixShells(geoset, recModBoneShellBiMap));
+			geoShell.setMatrixShells(createMatrixShells(geoset, recModBoneShellBiMap, false));
 			recModGeoShells.addElement(geoShell);
 		}
 		allGeoShells.addAll(recModGeoShells);
 
 		for (Geoset geoset : donatingModel.getGeosets()) {
 			GeosetShell geoShell = new GeosetShell(geoset, donatingModel, true);
-			geoShell.setMatrixShells(createMatrixShells(geoset, donModBoneShellBiMap));
+			geoShell.setMatrixShells(createMatrixShells(geoset, donModBoneShellBiMap, true));
 			donModGeoShells.addElement(geoShell);
 		}
 		allGeoShells.addAll(donModGeoShells);
@@ -390,7 +341,7 @@ public class ModelHolderThing {
 		allMaterials.addAll(donModMaterials);
 	}
 
-	private IterableListModel<MatrixShell> createMatrixShells(Geoset geoset, BiMap<IdObject, BoneShell> boneShells) {
+	private IterableListModel<MatrixShell> createMatrixShells(Geoset geoset, BiMap<IdObject, BoneShell> boneShells, boolean isFromDonating) {
 		IterableListModel<MatrixShell> matrixShells = new IterableListModel<>();
 		for (final Matrix matrix : geoset.getMatrix()) {
 			ArrayList<BoneShell> orgBones = new ArrayList<>();
@@ -401,10 +352,213 @@ public class ModelHolderThing {
 				}
 			}
 
-			final MatrixShell ms = new MatrixShell(matrix, orgBones);
+			final MatrixShell ms = new MatrixShell(matrix, orgBones, isFromDonating);
 			matrixShells.addElement(ms);
 		}
 		return matrixShells;
 	}
 
+	private void initObjectLists() {
+
+		List<VisibilityShell> donGeosetVisSources = new ArrayList<>();
+		for (GeosetShell geoShell : donModGeoShells) {
+			for (final Layer x : geoShell.getMaterial().getLayers()) {
+				VisibilityShell vs = new VisibilityShell(x, donatingModel, true);
+				donModVisibilityShells.addElement(vs);
+
+			}
+			VisibilityShell vs = new VisibilityShell(geoShell.getGeoset(), donatingModel, true);
+			donGeosetVisSources.add(vs);
+		}
+		donModVisibilityShells.addAll(donGeosetVisSources);
+
+		for (IdObject obj : donatingModel.getIdObjects()) {
+			if ((obj.getClass() != Bone.class) && (obj.getClass() != Helper.class)) {
+				ObjectShell objectShell = new ObjectShell(obj, true);
+				donModObjectShells.addElement(objectShell);
+				if (obj.getClass() != CollisionShape.class && obj.getClass() != EventObject.class) {
+					donModVisibilityShells.addElement(new VisibilityShell(obj, donatingModel, true));
+				}
+			}
+		}
+		for (Camera obj : donatingModel.getCameras()) {
+			ObjectShell objectShell = new ObjectShell(obj, true);
+			donModObjectShells.addElement(objectShell);
+		}
+		for (ObjectShell os : donModObjectShells) {
+			os.setParentBs(donModBoneShellBiMap);
+		}
+
+		List<VisibilityShell> recGeosetVisSources = new ArrayList<>();
+		for (GeosetShell geoShell : recModGeoShells) {
+			for (final Layer x : geoShell.getMaterial().getLayers()) {
+				VisibilityShell vs = new VisibilityShell(x, receivingModel, true);
+				recModVisibilityShells.addElement(vs);
+
+			}
+			VisibilityShell vs = new VisibilityShell(geoShell.getGeoset(), receivingModel, true);
+			recGeosetVisSources.add(vs);
+		}
+		recModVisibilityShells.addAll(recGeosetVisSources);
+
+		for (IdObject obj : receivingModel.getIdObjects()) {
+			if ((obj.getClass() != Bone.class) && (obj.getClass() != Helper.class)) {
+				ObjectShell objectShell = new ObjectShell(obj, true);
+				recModObjectShells.addElement(objectShell);
+				if (obj.getClass() != CollisionShape.class && obj.getClass() != EventObject.class) {
+					recModVisibilityShells.addElement(new VisibilityShell(obj, receivingModel, true));
+				}
+			}
+		}
+		for (Camera obj : receivingModel.getCameras()) {
+			ObjectShell objectShell = new ObjectShell(obj, true);
+			recModObjectShells.addElement(objectShell);
+		}
+
+		for (ObjectShell os : recModObjectShells) {
+			os.setParentBs(recModBoneShellBiMap);
+		}
+
+	}
+
+	public IterableListModel<VisibilityPanel> visibilityList() {
+		VisibilityPanel selection = visTabs.getSelectedValue();
+		futureVisComponents.clear();
+		List<VisibilityPanel> geosetVisSources = new ArrayList<>();
+		for (GeosetShell geoShell : allGeoShells) {
+			for (final Layer x : geoShell.getMaterial().getLayers()) {
+				VisibilityPanel vs = visPaneFromObject(x);
+				if (!futureVisComponents.contains(vs) && (vs != null)) {
+					futureVisComponents.addElement(vs);
+				}
+			}
+			if (geoShell.isDoImport()) {
+				VisibilityPanel vs = visPaneFromObject(geoShell.getGeoset());
+				if (!futureVisComponents.contains(vs) && !geosetVisSources.contains(vs) && (vs != null)) {
+					geosetVisSources.add(vs);
+				}
+			}
+		}
+		futureVisComponents.addAll(geosetVisSources);
+
+		// The current's
+		final EditableModel model = receivingModel;
+		createAndAddVisComp(model.getLights());
+		createAndAddVisComp(model.getAttachments());
+		createAndAddVisComp(model.getParticleEmitters());
+		createAndAddVisComp(model.getParticleEmitter2s());
+		createAndAddVisComp(model.getRibbonEmitters());
+		createAndAddVisComp(model.getPopcornEmitters());
+
+		for (ObjectShell op : donModObjectShells) {
+			if (op.getShouldImport() && (op.getIdObject() != null))
+			// we don't touch camera "object" panels (which aren't idobjects)
+			{
+				final VisibilityPanel vs = visPaneFromObject(op.getIdObject());
+				if (!futureVisComponents.contains(vs) && (vs != null)) {
+					futureVisComponents.addElement(vs);
+				}
+			}
+		}
+		visTabs.setSelectedValue(selection, true);
+		return futureVisComponents;
+	}
+
+	public void createAndAddVisComp(List<? extends IdObject> idObjects) {
+		for (IdObject x : idObjects) {
+			final VisibilityPanel vs = visPaneFromObject(x);
+			if (!futureVisComponents.contains(vs) && (vs != null)) {
+				futureVisComponents.addElement(vs);
+			}
+		}
+	}
+
+	public VisibilityPanel visPaneFromObject(final Object o) {
+		for (final VisibilityPanel vp : allVisShellPanes) {
+			if (vp.sourceShell.source == o) {
+				return vp;
+			}
+		}
+		return null;
+	}
+
+	public void initVisibilityList() {
+
+		final List<Named> tempList = new ArrayList<>();
+		makeUniqueVisShells(receivingModel, tempList);
+
+		makeUniqueVisShells(donatingModel, tempList);
+
+		System.out.println("allVisShells:");
+		for (final VisibilityShell vs : allVisShells) {
+			System.out.println(vs.source.getName());
+		}
+
+		System.out.println("new/old:");
+		for (final VisibilitySource visSource : receivingModel.getAllVisibilitySources()) {
+			if (visSource.getClass() != GeosetAnim.class) {
+				recModVisSourcesOld.add(shellFromObject(allVisShells, visSource));
+				System.out.println(shellFromObject(allVisShells, visSource).source.getName());
+			} else {
+				recModVisSourcesOld.add(shellFromObject(allVisShells, ((GeosetAnim) visSource).getGeoset()));
+				System.out.println(shellFromObject(allVisShells, ((GeosetAnim) visSource).getGeoset()).source.getName());
+			}
+		}
+		recModVisSourcesOld.add(VisibilityPanel.NOTVISIBLE);
+		recModVisSourcesOld.add(VisibilityPanel.VISIBLE);
+
+		for (final VisibilitySource visSource : donatingModel.getAllVisibilitySources()) {
+			if (visSource.getClass() != GeosetAnim.class) {
+				donModVisSourcesNew.add(shellFromObject(allVisShells, visSource));
+			} else {
+				donModVisSourcesNew.add(shellFromObject(allVisShells, ((GeosetAnim) visSource).getGeoset()));
+			}
+		}
+		donModVisSourcesNew.add(VisibilityPanel.NOTVISIBLE);
+		donModVisSourcesNew.add(VisibilityPanel.VISIBLE);
+	}
+
+	public void makeUniqueVisShells(EditableModel model, List<Named> tempList) {
+		for (final Material mat : model.getMaterials()) {
+			for (final Layer x : mat.getLayers()) {
+				final VisibilityShell vs = new VisibilityShell(x, model);
+				if (!tempList.contains(x)) {
+					tempList.add(x);
+					allVisShells.add(vs);
+				}
+			}
+		}
+		for (final Geoset x : model.getGeosets()) {
+			final VisibilityShell vs = new VisibilityShell(x, model);
+			if (!tempList.contains(x)) {
+				tempList.add(x);
+				allVisShells.add(vs);
+			}
+		}
+		createAndAddIdObjectVisShell(model, tempList, model.getLights());
+		createAndAddIdObjectVisShell(model, tempList, model.getAttachments());
+		createAndAddIdObjectVisShell(model, tempList, model.getParticleEmitters());
+		createAndAddIdObjectVisShell(model, tempList, model.getParticleEmitter2s());
+		createAndAddIdObjectVisShell(model, tempList, model.getRibbonEmitters());
+		createAndAddIdObjectVisShell(model, tempList, model.getPopcornEmitters());
+	}
+
+	public VisibilityShell shellFromObject(ArrayList<VisibilityShell> allVisShells, VisibilitySource o) {
+		for (VisibilityShell v : allVisShells) {
+			if (v.source == o) {
+				return v;
+			}
+		}
+		return null;
+	}
+
+	public void createAndAddIdObjectVisShell(EditableModel model, List<Named> tempList, List<? extends IdObject> idObjects) {
+		for (final IdObject x : idObjects) {
+			final VisibilityShell vs = new VisibilityShell(x, model);
+			if (!tempList.contains(x)) {
+				tempList.add(x);
+				allVisShells.add(vs);
+			}
+		}
+	}
 }

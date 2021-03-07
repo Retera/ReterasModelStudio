@@ -9,6 +9,7 @@ public class MatrixShell {
 	private Matrix matrix;
 	private IterableListModel<BoneShell> newBones;
 	private ArrayList<BoneShell> orgBones;
+	private boolean isFromDonating;
 
 	public MatrixShell(final Matrix m) {
 		matrix = m;
@@ -20,6 +21,13 @@ public class MatrixShell {
 		matrix = m;
 		this.orgBones = orgBones;
 		newBones = new IterableListModel<>(orgBones);
+	}
+
+	public MatrixShell(final Matrix m, ArrayList<BoneShell> orgBones, boolean isFromDonating) {
+		matrix = m;
+		this.orgBones = orgBones;
+		newBones = new IterableListModel<>(orgBones);
+		this.isFromDonating = isFromDonating;
 	}
 
 	public void orgBones(ArrayList<BoneShell> orgBones) {
@@ -86,5 +94,14 @@ public class MatrixShell {
 			return (newIndex);
 		}
 		return 0;
+	}
+
+	public boolean isFromDonating() {
+		return isFromDonating;
+	}
+
+	public MatrixShell setFromDonating(boolean fromDonating) {
+		isFromDonating = fromDonating;
+		return this;
 	}
 }

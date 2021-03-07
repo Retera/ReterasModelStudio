@@ -9,10 +9,8 @@ import java.util.List;
 
 public class BoneShell {
 	private final Bone bone;
-	private Bone importBone;
 	private BoneShell importBoneShell;
 	private String modelName;
-	//	public BonePanel panel;
 	private boolean showClass = false;
 	private String name = "";
 	private boolean shouldImportBone = true;
@@ -21,6 +19,7 @@ public class BoneShell {
 	private BoneShell oldParentBs;
 	private IdObject newParent;
 	private BoneShell newParentBs;
+	boolean isFromDonating;
 
 	public BoneShell(final Bone b) {
 		bone = b;
@@ -28,6 +27,15 @@ public class BoneShell {
 			name = b.getName();
 			oldParent = bone.getParent();
 		}
+	}
+
+	public BoneShell(final Bone b, boolean isFromDonating) {
+		bone = b;
+		if (b != null) {
+			name = b.getName();
+			oldParent = bone.getParent();
+		}
+		this.isFromDonating = isFromDonating;
 	}
 
 	public static List<Bone> toBonesList(final List<BoneShell> boneShells) {
@@ -44,10 +52,6 @@ public class BoneShell {
 		}
 		return importBoneShell.getBone();
 //		return importBone;
-	}
-
-	public void setImportBone(final Bone b) {
-		importBone = b;
 	}
 
 	public Bone getBone() {
@@ -161,11 +165,11 @@ public class BoneShell {
 
 	public BoneShell setImportBoneShell(BoneShell importBoneShell) {
 		this.importBoneShell = importBoneShell;
-		if (importBoneShell != null) {
-			this.importBone = importBoneShell.getBone();
-		} else {
-			this.importBone = null;
-		}
+//		if (importBoneShell != null) {
+//			this.importBone = importBoneShell.getBone();
+//		} else {
+//			this.importBone = null;
+//		}
 		return this;
 	}
 }

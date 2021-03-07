@@ -15,7 +15,6 @@ public class ObjectEditPanel extends JPanel {
 	public CardLayout objectCardLayout = new CardLayout();
 	public JPanel objectPanelCards = new JPanel(objectCardLayout);
 	public MultiObjectPanel multiObjectPane;
-	public JPanel blankPane = new JPanel();
 	ModelHolderThing mht;
 
 	ObjectPanel singleObjectPanel;
@@ -40,14 +39,15 @@ public class ObjectEditPanel extends JPanel {
 
 		// Build the objectTabs list of ObjectPanels
 		final ObjPanelListCellRenderer objectPanelRenderer = new ObjPanelListCellRenderer();
-		int panelid = 0;
 		for (IdObject obj : mht.donatingModel.getIdObjects()) {
 			if ((obj.getClass() != Bone.class) && (obj.getClass() != Helper.class)) {
-				mht.donModObjectShells.addElement(new ObjectShell(obj));
+				ObjectShell objectShell = new ObjectShell(obj, true);
+				mht.donModObjectShells.addElement(objectShell);
 			}
 		}
 		for (Camera obj : mht.donatingModel.getCameras()) {
-			mht.donModObjectShells.addElement(new ObjectShell(obj));
+			ObjectShell objectShell = new ObjectShell(obj, true);
+			mht.donModObjectShells.addElement(objectShell);
 		}
 
 		for (ObjectShell os : mht.donModObjectShells) {
@@ -57,7 +57,7 @@ public class ObjectEditPanel extends JPanel {
 		singleObjectPanel = new ObjectPanel(mht, bonePanelRenderer);
 		objectPanelCards.add(singleObjectPanel, "single");
 
-		objectPanelCards.add(blankPane, "blank");
+		objectPanelCards.add(new JPanel(), "blank");
 
 		multiObjectPane = new MultiObjectPanel(mht, mht.getFutureBoneListExtended(true));
 		objectPanelCards.add(multiObjectPane, "multiple");

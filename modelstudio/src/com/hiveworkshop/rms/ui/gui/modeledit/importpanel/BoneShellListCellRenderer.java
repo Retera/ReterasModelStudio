@@ -48,7 +48,13 @@ class BoneShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 	@Override
 	public Component getListCellRendererComponent(final JList list, final Object value, final int index,
 	                                              final boolean iss, final boolean chf) {
-		setBackground(new Color(220, 180, 255));
+		if (value instanceof BoneShell) {
+			if (((BoneShell) value).isFromDonating) {
+				setBackground(new Color(220, 180, 255));
+			} else {
+				setBackground(new Color(200, 255, 255));
+			}
+		}
 		super.getListCellRendererComponent(list, value, index, iss, chf);
 		setText(value.toString());
 		if (value instanceof BoneShell) {

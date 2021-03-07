@@ -20,7 +20,7 @@ class GeosetPanel extends JPanel {
 	EditableModel model;
 	Geoset geoset;
 	int index;
-	boolean isImported;
+	boolean isFromDonating;
 	MaterialListCellRenderer renderer;
 	ModelHolderThing mht;
 	GeosetShell selectedGeoset;
@@ -59,12 +59,12 @@ class GeosetPanel extends JPanel {
 		geoset = geosetShell.getGeoset();
 		this.model = geosetShell.getModel();
 		index = geosetShell.getIndex();
-		isImported = geosetShell.isImported();
+		isFromDonating = geosetShell.isFromDonating();
 
 		geoTitle.setText(model.getName() + " " + (index + 1));
 
-		doImport.setEnabled(geosetShell.isImported());
-		if (geosetShell.isImported()) {
+		doImport.setEnabled(geosetShell.isFromDonating());
+		if (geosetShell.isFromDonating()) {
 			doImport.setSelected(geosetShell.isDoImport());
 		}
 		materialList.setSelectedValue(geoset.getMaterial(), true);
@@ -91,7 +91,7 @@ class GeosetPanel extends JPanel {
 		materialList.setEnabled(doImport.isSelected());
 		materialListPane.setEnabled(doImport.isSelected());
 
-		if (selectedGeoset != null && selectedGeoset.isImported()) {
+		if (selectedGeoset != null && selectedGeoset.isFromDonating()) {
 			selectedGeoset.setDoImport(doImport.isSelected());
 		}
 	}
