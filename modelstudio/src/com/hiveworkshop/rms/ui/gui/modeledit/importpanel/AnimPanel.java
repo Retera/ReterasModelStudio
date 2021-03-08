@@ -47,6 +47,8 @@ class AnimPanel extends JPanel {
 	boolean listenSelection = true;
 	ModelHolderThing mht;
 
+	final CardLayout animCardLayout = new CardLayout();
+
 	public AnimPanel(ModelHolderThing mht, final Animation anim, final IterableListModel<AnimShell> existingAnims, final AnimListCellRenderer renderer) {
 		this.mht = mht;
 		setLayout(new MigLayout("gap 0"));
@@ -73,44 +75,45 @@ class AnimPanel extends JPanel {
 		importTypeBox.addItemListener(this::showCorrectCard);
 		importTypeBox.setMaximumSize(new Dimension(200, 20));
 		add(importTypeBox);
-		// Restricts users to pre-existing choices,
-		// they cannot enter text in the box
-		// (I think? that's an untested guess)
 
-		// Combo box items:
-		newNameEntry.setText(anim.getName());
 		nameCard.add(newNameEntry);
 
 		animList = new JList<>(listModel);
 		animList.setCellRenderer(renderer);
 		animList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		// Use getSelectedValuesList().toArray() to request an array of selected
-		// animations
+		// Use getSelectedValuesList().toArray() to request an array of selected animations
 
 		// Select any animation found that has the same name automatically
-		// -- This iterates through the list of old animations and picks out
-		// and like-named ones, so that the default selection is any animation
-		// with the same name
+		// -- This iterates through the list of old animations and picks out and
+		// like-named ones, so that the default selection is any animation with the same name
 		// (although this should stop after the first one is picked)
 		animList.addListSelectionListener(this::updateList);
-		for (int i = 0; (i < existingAnims.size()) && (animList.getSelectedIndex() == -1); i++) {
-			final Animation iAnim = listModel.get(i).anim;
-			if (iAnim.getName().equalsIgnoreCase(anim.getName())) {
-				animList.setSelectedValue(listModel.get(i), true);
-			}
-		}
+		selectAnimInList(anim, existingAnims);
 
 		animListPane = new JScrollPane(animList);
 		animListCard.add(animListPane);
 
-		final CardLayout cardLayout = new CardLayout();
-		cardPane.setLayout(cardLayout);
+		cardPane.setLayout(animCardLayout);
 		cardPane.add(blankCardImp, IMPORTBASIC);
 		cardPane.add(nameCard, CHANGENAME);
 		cardPane.add(animListPane, TIMESCALE);
 		cardPane.add(blankCardGS, GLOBALSEQ);
 		// cardLayout.show(cardPane,IMPORTBASIC);
 		add(cardPane, "growx, growy");
+	}
+
+	private void selectAnimInList(Animation anim, IterableListModel<AnimShell> existingAnims) {
+		for (int i = 0; (i < existingAnims.size()) && (animList.getSelectedIndex() == -1); i++) {
+			final Animation iAnim = listModel.get(i).anim;
+			if (iAnim.getName().equalsIgnoreCase(anim.getName())) {
+				animList.setSelectedValue(listModel.get(i), true);
+			}
+		}
+	}
+
+	public void setSelectedAnim() {
+		title.setText(anim.getName());
+		newNameEntry.setText(anim.getName());
 	}
 
 	public void setSelected(final boolean flag) {
@@ -131,8 +134,7 @@ class AnimPanel extends JPanel {
 		// -- http://docs.oracle.com/javase/tutorial/uiswing/layout/card.html
 		// Thanks to the CardLayoutDemo.java at the above urls
 		// in the JavaDocs for the example use of a CardLayout
-		final CardLayout myLayout = (CardLayout) cardPane.getLayout();
-		myLayout.show(cardPane, (String) e.getItem());
+		animCardLayout.show(cardPane, (String) e.getItem());
 		updateSelectionPicks();
 	}
 

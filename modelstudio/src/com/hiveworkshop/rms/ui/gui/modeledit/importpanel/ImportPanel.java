@@ -234,7 +234,7 @@ public class ImportPanel extends JTabbedPane {
 			}
 			final boolean clearBones = mht.clearExistingBones.isSelected();
 			if (!clearAnims) {
-				for (AnimShell animShell : mht.recModOrgAnims) {
+				for (AnimShell animShell : mht.recModAnims) {
 					if (animShell.importAnim != null) {
 						animShell.importAnim.copyToInterval(animShell.anim.getStart(), animShell.anim.getEnd(), donModFlags, donModEventObjs, newImpFlags, newImpEventObjs);
 						final Animation tempAnim = new Animation("temp", animShell.anim.getStart(), animShell.anim.getEnd());
@@ -369,8 +369,8 @@ public class ImportPanel extends JTabbedPane {
 			}
 
 			final List<AnimFlag<?>> finalVisFlags = new ArrayList<>();
-			for (VisibilityPanel vPanel : mht.futureVisComponents) {
-				final VisibilitySource temp = ((VisibilitySource) vPanel.sourceShell.source);
+			for (VisibilityShell visibilityShell : mht.futureVisComponents) {
+				final VisibilitySource temp = ((VisibilitySource) visibilityShell.getSource());
 				final AnimFlag<?> visFlag = temp.getVisibilityFlag();// might be null
 				final AnimFlag<?> newVisFlag;
 				boolean tans = false;
@@ -381,10 +381,10 @@ public class ImportPanel extends JTabbedPane {
 					newVisFlag = new FloatAnimFlag(temp.visFlagName());
 				}
 				// newVisFlag = new AnimFlag(temp.visFlagName());
-				final Object oldSource = vPanel.oldSourcesBox.getSelectedItem();
+				final VisibilityShell oldSource = visibilityShell.getOldVisSource();
 				FloatAnimFlag flagOld = null;
-				if (oldSource.getClass() == String.class) {
-					if (oldSource == VisibilityPanel.NOTVISIBLE) {
+				if (oldSource != null) {
+					if (oldSource.isNeverVisible()) {
 						flagOld = new FloatAnimFlag("temp");
 						for (final Animation a : oldAnims) {
 							if (tans) {
@@ -393,14 +393,14 @@ public class ImportPanel extends JTabbedPane {
 								flagOld.addEntry(a.getStart(), 0f);
 							}
 						}
+					} else if (!oldSource.isAlwaysVisible()) {
+						flagOld = (FloatAnimFlag) ((VisibilitySource) oldSource.getSource()).getVisibilityFlag();
 					}
-				} else {
-					flagOld = (FloatAnimFlag) ((VisibilitySource) ((VisibilityShell) oldSource).source).getVisibilityFlag();
 				}
-				final Object newSource = vPanel.newSourcesBox.getSelectedItem();
+				final VisibilityShell newSource = visibilityShell.getNewVisSource();
 				FloatAnimFlag flagNew = null;
-				if (newSource.getClass() == String.class) {
-					if (newSource == VisibilityPanel.NOTVISIBLE) {
+				if (newSource != null) {
+					if (newSource.isNeverVisible()) {
 						flagNew = new FloatAnimFlag("temp");
 						for (final Animation a : newAnims) {
 							if (tans) {
@@ -409,11 +409,11 @@ public class ImportPanel extends JTabbedPane {
 								flagNew.addEntry(a.getStart(), 0f);
 							}
 						}
+					} else if (!newSource.isAlwaysVisible()) {
+						flagNew = (FloatAnimFlag) ((VisibilitySource) newSource.getSource()).getVisibilityFlag();
 					}
-				} else {
-					flagNew = (FloatAnimFlag) ((VisibilitySource) ((VisibilityShell) newSource).source).getVisibilityFlag();
 				}
-				if ((vPanel.favorOld.isSelected() && (vPanel.sourceShell.model == mht.receivingModel) && !clearAnims) || (!vPanel.favorOld.isSelected() && (vPanel.sourceShell.model == mht.donatingModel))) {
+				if ((visibilityShell.isFavorOld() && (visibilityShell.getModel() == mht.receivingModel) && !clearAnims) || (!visibilityShell.isFavorOld() && (visibilityShell.getModel() == mht.donatingModel))) {
 					// this is an element favoring existing animations over imported
 					for (final Animation a : oldAnims) {
 						if (flagNew != null) {
@@ -445,8 +445,8 @@ public class ImportPanel extends JTabbedPane {
 				finalVisFlags.add(newVisFlag);
 			}
 			for (int i = 0; i < mht.futureVisComponents.size(); i++) {
-				final VisibilityPanel vPanel = mht.futureVisComponents.get(i);
-				final VisibilitySource temp = ((VisibilitySource) vPanel.sourceShell.source);
+				final VisibilityShell vPanel = mht.futureVisComponents.get(i);
+				final VisibilitySource temp = ((VisibilitySource) vPanel.getSource());
 				final AnimFlag<?> visFlag = finalVisFlags.get(i);// might be null
 				if (visFlag.size() > 0) {
 					temp.setVisibilityFlag(visFlag);
@@ -551,11 +551,11 @@ public class ImportPanel extends JTabbedPane {
 			}
 		}
 		if (corpseShell != null) {
-			for (VisibilityPanel vp : mht.futureVisComponents) {
-				if (vp.sourceShell.source instanceof Geoset) {
-					final Geoset g = (Geoset) vp.sourceShell.source;
+			for (VisibilityShell vs : mht.futureVisComponents) {
+				if (vs.getSource() instanceof Geoset) {
+					final Geoset g = (Geoset) vs.getSource();
 					if ((g.getGeosetAnim() != null) && g.getMaterial().firstLayer().firstTexture().getPath().equalsIgnoreCase("textures\\gutz.blp")) {
-						vp.newSourcesBox.setSelectedItem(corpseShell);
+						vs.setNewVisSource(corpseShell);
 					}
 				}
 			}
@@ -583,7 +583,7 @@ public class ImportPanel extends JTabbedPane {
 					aniPanel.doImport.doClick();
 					aniPanel.importTypeBox.setSelectedItem(AnimPanel.TIMESCALE);
 
-					for (AnimShell shell : mht.recModOrgAnims) {
+					for (AnimShell shell : mht.recModAnims) {
 						if ((shell).anim.getName().equals(pickedAnim.getName())) {
 							aniPanel.animList.setSelectedValue(shell, true);
 							aniPanel.updateSelectionPicks();
@@ -595,8 +595,9 @@ public class ImportPanel extends JTabbedPane {
 		} else {
 			JOptionPane.showMessageDialog(null, "Bug in anim transfer: attempted unnecessary 2-part transfer");
 		}
-		for (VisibilityPanel vp : mht.futureVisComponents) {
-			vp.favorOld.doClick();
+		for (VisibilityShell vs : mht.futureVisComponents) {
+			vs.setFavorOld(false);
+//			vp.favorOld.doClick();
 		}
 
 		if (!show) {

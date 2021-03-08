@@ -1,12 +1,8 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
-
-import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.editor.model.Camera;
-import com.hiveworkshop.rms.editor.model.Helper;
-import com.hiveworkshop.rms.editor.model.IdObject;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
 import java.util.List;
 
@@ -36,23 +32,7 @@ public class ObjectEditPanel extends JPanel {
 		mht.getFutureBoneListExtended(false);
 
 		bonePanelRenderer = new BoneShellListCellRenderer(mht.recModelManager, mht.donModelManager);
-
-		// Build the objectTabs list of ObjectPanels
 		final ObjPanelListCellRenderer objectPanelRenderer = new ObjPanelListCellRenderer();
-		for (IdObject obj : mht.donatingModel.getIdObjects()) {
-			if ((obj.getClass() != Bone.class) && (obj.getClass() != Helper.class)) {
-				ObjectShell objectShell = new ObjectShell(obj, true);
-				mht.donModObjectShells.addElement(objectShell);
-			}
-		}
-		for (Camera obj : mht.donatingModel.getCameras()) {
-			ObjectShell objectShell = new ObjectShell(obj, true);
-			mht.donModObjectShells.addElement(objectShell);
-		}
-
-		for (ObjectShell os : mht.donModObjectShells) {
-			os.setParentBs(mht.donModBoneShellBiMap);
-		}
 
 		singleObjectPanel = new ObjectPanel(mht, bonePanelRenderer);
 		objectPanelCards.add(singleObjectPanel, "single");
@@ -63,7 +43,7 @@ public class ObjectEditPanel extends JPanel {
 		objectPanelCards.add(multiObjectPane, "multiple");
 
 		mht.donModObjectJList.setCellRenderer(objectPanelRenderer);
-		mht.donModObjectJList.addListSelectionListener(e -> objectTabsValueChanged(mht));
+		mht.donModObjectJList.addListSelectionListener(e -> objectTabsValueChanged(mht, e));
 		mht.donModObjectJList.setSelectedIndex(0);
 		objectPanelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
 
@@ -114,31 +94,33 @@ public class ObjectEditPanel extends JPanel {
 		}
 	}
 
-	private void objectTabsValueChanged(ModelHolderThing mht) {
-		List<ObjectShell> selectedValuesList = mht.donModObjectJList.getSelectedValuesList();
-		if (selectedValuesList.size() < 1) {
-			bonePanelRenderer.setSelectedObjectShell(null);
-			objectCardLayout.show(objectPanelCards, "blank");
-		} else if (selectedValuesList.size() == 1) {
-			mht.getFutureBoneListExtended(false);
-			bonePanelRenderer.setSelectedObjectShell(mht.donModObjectJList.getSelectedValue());
-			objectCardLayout.show(objectPanelCards, "single");
-			singleObjectPanel.setSelectedObject(mht.donModObjectJList.getSelectedValue());
-		} else {
-			bonePanelRenderer.setSelectedObjectShell(null);
-			objectCardLayout.show(objectPanelCards, "multiple");
+	private void objectTabsValueChanged(ModelHolderThing mht, ListSelectionEvent e) {
+		if (e.getValueIsAdjusting()) {
+			List<ObjectShell> selectedValuesList = mht.donModObjectJList.getSelectedValuesList();
+			if (selectedValuesList.size() < 1) {
+				bonePanelRenderer.setSelectedObjectShell(null);
+				objectCardLayout.show(objectPanelCards, "blank");
+			} else if (selectedValuesList.size() == 1) {
+				mht.getFutureBoneListExtended(false);
+				bonePanelRenderer.setSelectedObjectShell(mht.donModObjectJList.getSelectedValue());
+				objectCardLayout.show(objectPanelCards, "single");
+				singleObjectPanel.setSelectedObject(mht.donModObjectJList.getSelectedValue());
+			} else {
+				bonePanelRenderer.setSelectedObjectShell(null);
+				objectCardLayout.show(objectPanelCards, "multiple");
 
-			boolean dif = false;
-			boolean selectedt = selectedValuesList.get(0).getShouldImport();
+				boolean dif = false;
+				boolean selectedt = selectedValuesList.get(0).getShouldImport();
 
-			for (ObjectShell op : selectedValuesList) {
-				if (selectedt != op.getShouldImport()) {
-					dif = true;
-					break;
+				for (ObjectShell op : selectedValuesList) {
+					if (selectedt != op.getShouldImport()) {
+						dif = true;
+						break;
+					}
 				}
-			}
-			if (!dif) {
-				multiObjectPane.doImport.setSelected(selectedt);
+				if (!dif) {
+					multiObjectPane.doImport.setSelected(selectedt);
+				}
 			}
 		}
 	}

@@ -25,7 +25,8 @@ public class ModelHolderThing {
 	// Animation
 	public JCheckBox clearExistingAnims;
 	public JTabbedPane animTabs = new JTabbedPane(JTabbedPane.LEFT, JTabbedPane.SCROLL_TAB_LAYOUT);
-	public IterableListModel<AnimShell> recModOrgAnims;
+	public IterableListModel<AnimShell> recModAnims = new IterableListModel<>();
+	public IterableListModel<AnimShell> donModAnims = new IterableListModel<>();
 
 	// Bones
 	public JCheckBox clearExistingBones;
@@ -58,16 +59,16 @@ public class ModelHolderThing {
 	//	public JList<VisibilityShell> donModVisibilityJList = new JList<>(donModVisibilityShells);
 	public IterableListModel<VisibilityShell> recModVisibilityShells = new IterableListModel<>();
 	//	public ArrayList<VisibilityShell> allVisShells = new ArrayList<>();
-//	public ArrayList<Object> recModVisSourcesOld = new ArrayList<>();
+	public IterableListModel<VisibilityShell> recModVisSourcesOld = new IterableListModel<>();
 	public IterableListModel<VisibilityShell> donModVisSourcesNew = new IterableListModel<>();
 	//	public ArrayList<Object> donModVisSourcesNew = new ArrayList<>();
 	public BoneShellListCellRenderer boneShellRenderer;
 	//	public JList<VisibilityShell> recModVisibilityJList = new JList<>(recModVisibilityShells);
 	BiMap<VisibilitySource, VisibilityShell> recModVisShellBiMap = new BiMap<>();
 
-	public IterableListModel<VisibilityPanel> futureVisComponents = new IterableListModel<>();
-	public JList<VisibilityPanel> visTabs = new JList<>(futureVisComponents);
-	public ArrayList<VisibilityPanel> allVisShellPanes = new ArrayList<>();
+	public IterableListModel<VisibilityShell> futureVisComponents = new IterableListModel<>();
+	public JList<VisibilityShell> visTabs = new JList<>(futureVisComponents);
+	public ArrayList<VisibilityShell> allVisShellPanes = new ArrayList<>();
 
 
 	public IterableListModel<VisibilityShell> visShellsComps = new IterableListModel<>();
@@ -75,6 +76,9 @@ public class ModelHolderThing {
 	public ArrayList<VisibilityShell> allVisShellss = new ArrayList<>();
 	BiMap<VisibilitySource, VisibilityShell> donModVisShellBiMap = new BiMap<>();
 	BiMap<VisibilitySource, VisibilityShell> allVisShellBiMap = new BiMap<>();
+
+	VisibilityShell neverVisible = new VisibilityShell(false);
+	VisibilityShell alwaysVisible = new VisibilityShell(true);
 
 	public ModelViewManager recModelManager;
 	public ModelViewManager donModelManager;
@@ -240,8 +244,20 @@ public class ModelHolderThing {
 	}
 
 	public void selSimButton() {
-		for (final VisibilityPanel vPanel : allVisShellPanes) {
-			vPanel.selectSimilarOptions();
+		// not sure this is correct
+		for (final VisibilityShell visibilityShell : allVisShellPanes) {
+			for (VisibilityShell vs : donModVisSourcesNew) {
+				if (visibilityShell.getSource().getName().equals(vs.getSource().getName())) {
+					System.out.println(visibilityShell.source.getName());
+					visibilityShell.setNewVisSource(vs);
+				}
+			}
+			for (VisibilityShell vs : recModVisSourcesOld) {
+				if (visibilityShell.getSource().getName().equals(vs.getSource().getName())) {
+					System.out.println(visibilityShell.source.getName());
+					visibilityShell.setNewVisSource(vs);
+				}
+			}
 		}
 	}
 
@@ -439,19 +455,21 @@ public class ModelHolderThing {
 
 	}
 
-	public IterableListModel<VisibilityPanel> visibilityList() {
-		VisibilityPanel selection = visTabs.getSelectedValue();
+	public IterableListModel<VisibilityShell> visibilityList() {
+		VisibilityShell selection = visTabs.getSelectedValue();
 		futureVisComponents.clear();
-		List<VisibilityPanel> geosetVisSources = new ArrayList<>();
+		List<VisibilityShell> geosetVisSources = new ArrayList<>();
+//		List<VisibilityPanel> geosetVisSources = new ArrayList<>();
 		for (GeosetShell geoShell : allGeoShells) {
 			for (final Layer x : geoShell.getMaterial().getLayers()) {
-				VisibilityPanel vs = visPaneFromObject(x);
+//				VisibilityPanel vs = visPaneFromObject(x);
+				VisibilityShell vs = visShellFromObject(x);
 				if (!futureVisComponents.contains(vs) && (vs != null)) {
 					futureVisComponents.addElement(vs);
 				}
 			}
 			if (geoShell.isDoImport()) {
-				VisibilityPanel vs = visPaneFromObject(geoShell.getGeoset());
+				VisibilityShell vs = visShellFromObject(geoShell.getGeoset());
 				if (!futureVisComponents.contains(vs) && !geosetVisSources.contains(vs) && (vs != null)) {
 					geosetVisSources.add(vs);
 				}
@@ -460,19 +478,18 @@ public class ModelHolderThing {
 		futureVisComponents.addAll(geosetVisSources);
 
 		// The current's
-		final EditableModel model = receivingModel;
-		fetchAndAddVisComp(model.getLights());
-		fetchAndAddVisComp(model.getAttachments());
-		fetchAndAddVisComp(model.getParticleEmitters());
-		fetchAndAddVisComp(model.getParticleEmitter2s());
-		fetchAndAddVisComp(model.getRibbonEmitters());
-		fetchAndAddVisComp(model.getPopcornEmitters());
+		fetchAndAddVisComp(receivingModel.getLights());
+		fetchAndAddVisComp(receivingModel.getAttachments());
+		fetchAndAddVisComp(receivingModel.getParticleEmitters());
+		fetchAndAddVisComp(receivingModel.getParticleEmitter2s());
+		fetchAndAddVisComp(receivingModel.getRibbonEmitters());
+		fetchAndAddVisComp(receivingModel.getPopcornEmitters());
 
 		for (ObjectShell op : donModObjectShells) {
 			if (op.getShouldImport() && (op.getIdObject() != null))
 			// we don't touch camera "object" panels (which aren't idobjects)
 			{
-				final VisibilityPanel vs = visPaneFromObject(op.getIdObject());
+				VisibilityShell vs = visShellFromObject(op.getIdObject());
 				if (!futureVisComponents.contains(vs) && (vs != null)) {
 					futureVisComponents.addElement(vs);
 				}
@@ -484,20 +501,11 @@ public class ModelHolderThing {
 
 	public void fetchAndAddVisComp(List<? extends IdObject> idObjects) {
 		for (IdObject x : idObjects) {
-			final VisibilityPanel vs = visPaneFromObject(x);
+			VisibilityShell vs = visShellFromObject(x);
 			if (!futureVisComponents.contains(vs) && (vs != null)) {
 				futureVisComponents.addElement(vs);
 			}
 		}
-	}
-
-	public VisibilityPanel visPaneFromObject(final Object o) {
-		for (final VisibilityPanel vp : allVisShellPanes) {
-			if (vp.sourceShell.source == o) {
-				return vp;
-			}
-		}
-		return null;
 	}
 
 	public VisibilityShell visShellFromObject(VisibilitySource vs) {

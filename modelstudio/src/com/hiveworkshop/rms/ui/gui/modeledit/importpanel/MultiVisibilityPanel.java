@@ -24,23 +24,23 @@ class MultiVisibilityPanel extends VisibilityPanel {
 		JLabel oldAnimsLabel = new JLabel("Existing animation visibility from: ");
 		List<VisibilityShell> recModShells = new ArrayList<>();
 		recModVisSourcesOld.forEach(recModShells::add);
-		oldSources = new DefaultComboBoxModel<>(recModShells.toArray(new VisibilityShell[0]));
-		oldSourcesBox = new JComboBox<>(oldSources);
-		oldSourcesBox.setEditable(false);
-		oldSourcesBox.setMaximumSize(new Dimension(1000, 25));
-		oldSourcesBox.setRenderer(renderer);
-		oldSourcesBox.addItemListener(e -> setVisGroupItemOld(oldSourcesBox.getSelectedItem()));
+		recModSources = new DefaultComboBoxModel<>(recModShells.toArray(new VisibilityShell[0]));
+		receivingModelSourcesBox = new JComboBox<>(recModSources);
+		receivingModelSourcesBox.setEditable(false);
+		receivingModelSourcesBox.setMaximumSize(new Dimension(1000, 25));
+		receivingModelSourcesBox.setRenderer(renderer);
+		receivingModelSourcesBox.addItemListener(e -> setVisGroupItemOld((VisibilityShell) receivingModelSourcesBox.getSelectedItem()));
 
 		JLabel newAnimsLabel = new JLabel("Imported animation visibility from: ");
 
 		List<VisibilityShell> donModShells = new ArrayList<>();
 		donModVisSourcesNew.forEach(donModShells::add);
-		newSources = new DefaultComboBoxModel<>(donModShells.toArray(new VisibilityShell[0]));
-		newSourcesBox = new JComboBox<>(newSources);
-		newSourcesBox.setEditable(false);
-		newSourcesBox.setMaximumSize(new Dimension(1000, 25));
-		newSourcesBox.setRenderer(renderer);
-		newSourcesBox.addItemListener(e -> setVisGroupItemNew(newSourcesBox.getSelectedItem()));
+		donModSources = new DefaultComboBoxModel<>(donModShells.toArray(new VisibilityShell[0]));
+		donatingModelSourcesBox = new JComboBox<>(donModSources);
+		donatingModelSourcesBox.setEditable(false);
+		donatingModelSourcesBox.setMaximumSize(new Dimension(1000, 25));
+		donatingModelSourcesBox.setRenderer(renderer);
+		donatingModelSourcesBox.addItemListener(e -> setVisGroupItemNew((VisibilityShell) donatingModelSourcesBox.getSelectedItem()));
 
 		favorOld = new JCheckBox("Favor component's original visibility when combining");
 		favorOld.setSelected(true);
@@ -48,9 +48,9 @@ class MultiVisibilityPanel extends VisibilityPanel {
 
 		add(title, "cell 0 0, spanx, align center, wrap");
 		add(oldAnimsLabel, "cell 0 1");
-		add(oldSourcesBox, "cell 1 1");
+		add(receivingModelSourcesBox, "cell 1 1");
 		add(newAnimsLabel, "cell 0 2");
-		add(newSourcesBox, "cell 1 2");
+		add(donatingModelSourcesBox, "cell 1 2");
 		add(favorOld, "cell 0 3");
 	}
 
@@ -62,32 +62,32 @@ class MultiVisibilityPanel extends VisibilityPanel {
 	}
 
 	public void setVisGroupSelected(final boolean flag) {
-		for (VisibilityPanel temp : mht.visTabs.getSelectedValuesList()) {
-			temp.favorOld.setSelected(flag);
+		for (VisibilityShell temp : mht.visTabs.getSelectedValuesList()) {
+			temp.setFavorOld(flag);
 		}
 	}
 
-	public void setVisGroupItemOld(final Object o) {
-		for (VisibilityPanel temp : mht.visTabs.getSelectedValuesList()) {
-			temp.oldSourcesBox.setSelectedItem(o);
+	public void setVisGroupItemOld(VisibilityShell o) {
+		for (VisibilityShell temp : mht.visTabs.getSelectedValuesList()) {
+			temp.setOldVisSource(o);
 		}
 	}
 
-	public void setVisGroupItemNew(final Object o) {
-		for (VisibilityPanel temp : mht.visTabs.getSelectedValuesList()) {
-			temp.newSourcesBox.setSelectedItem(o);
+	public void setVisGroupItemNew(VisibilityShell o) {
+		for (VisibilityShell temp : mht.visTabs.getSelectedValuesList()) {
+			temp.setNewVisSource(o);
 		}
 	}
 
 	public void setMultipleOld() {
-		oldSourcesBox.setEditable(true);
-		oldSourcesBox.setSelectedItem("Multiple selected");
-		oldSourcesBox.setEditable(false);
+		receivingModelSourcesBox.setEditable(true);
+		receivingModelSourcesBox.setSelectedItem("Multiple selected");
+		receivingModelSourcesBox.setEditable(false);
 	}
 
 	public void setMultipleNew() {
-		newSourcesBox.setEditable(true);
-		newSourcesBox.setSelectedItem("Multiple selected");
-		newSourcesBox.setEditable(false);
+		donatingModelSourcesBox.setEditable(true);
+		donatingModelSourcesBox.setSelectedItem("Multiple selected");
+		donatingModelSourcesBox.setEditable(false);
 	}
 }

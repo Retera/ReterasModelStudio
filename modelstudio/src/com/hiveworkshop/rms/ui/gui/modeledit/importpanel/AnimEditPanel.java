@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.Animation;
-import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -17,17 +16,18 @@ public class AnimEditPanel extends JPanel {
 
 		add(getTopPanel(), "align center, wrap");
 
-
-		mht.recModOrgAnims = new IterableListModel<>();
-		for (Animation anim : mht.receivingModel.getAnims()) {
-			mht.recModOrgAnims.addElement(new AnimShell(anim));
-		}
-
 		final AnimListCellRenderer animsRenderer = new AnimListCellRenderer();
+
+		for (Animation anim : mht.receivingModel.getAnims()) {
+			AnimShell animShell = new AnimShell(anim);
+			mht.recModAnims.addElement(animShell);
+		}
 
 		// Build the animTabs list of AnimPanels
 		for (Animation anim : mht.donatingModel.getAnims()) {
-			final AnimPanel iAnimPanel = new AnimPanel(mht, anim, mht.recModOrgAnims, animsRenderer);
+			AnimShell animShell = new AnimShell(anim);
+			mht.donModAnims.addElement(animShell);
+			final AnimPanel iAnimPanel = new AnimPanel(mht, anim, mht.recModAnims, animsRenderer);
 
 			mht.animTabs.addTab(anim.getName(), ImportPanel.orangeIcon, iAnimPanel, "Click to modify data for this animation sequence.");
 		}

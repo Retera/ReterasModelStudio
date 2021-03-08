@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Named;
+import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.VisibilitySource;
 
 class VisibilityShell {
@@ -26,6 +27,14 @@ class VisibilityShell {
 		visibilitySource = vs;
 		model = whichModel;
 		this.isFromDonating = isFromDonating;
+		if (visibilitySource instanceof TimelineContainer && visibilitySource.getVisibilityFlag() != null) {
+			if (isFromDonating) {
+				newVisSource = this;
+			} else {
+				oldVisSource = this;
+			}
+		}
+
 	}
 
 	public VisibilityShell(boolean alwaysVisible) {

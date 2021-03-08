@@ -15,9 +15,8 @@ class VisPaneListCellRenderer extends DefaultListCellRenderer {
 	@Override
 	public Component getListCellRendererComponent(final JList list, final Object value, final int index,
 	                                              final boolean iss, final boolean chf) {
-		super.getListCellRendererComponent(list, ((VisibilityPanel) value).sourceShell.model.getName() + ": "
-				+ ((VisibilityPanel) value).sourceShell.source.getName(), index, iss, chf);
-		if (current == ((VisibilityPanel) value).sourceShell.model) {
+		super.getListCellRendererComponent(list, value.toString(), index, iss, chf);
+		if (current == ((VisibilityShell) value).getModel()) {
 			setIcon(ImportPanel.greenIcon);
 		} else {
 			setIcon(ImportPanel.orangeIcon);

@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class BoneEditPanel extends JPanel {
 		bonePanelCards.add(multiBonePane, "multiple");
 
 		mht.donModBoneShellJList.setCellRenderer(bonePanelRenderer);
-		mht.donModBoneShellJList.addListSelectionListener(e -> showBoneCard(mht));
+		mht.donModBoneShellJList.addListSelectionListener(e -> showBoneCard(mht, e));
 		mht.donModBoneShellJList.setSelectedIndex(0);
 
 		bonePanelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
@@ -75,33 +76,34 @@ public class BoneEditPanel extends JPanel {
 		return jButton;
 	}
 
-	private void showBoneCard(ModelHolderThing mht) {
-		List<BoneShell> selectedValuesList = mht.donModBoneShellJList.getSelectedValuesList();
-		if (selectedValuesList.size() < 1) {
-			mht.boneShellRenderer.setSelectedBoneShell(null);
-			boneCardLayout.show(bonePanelCards, "blank");
-		} else if (selectedValuesList.size() == 1) {
-			mht.boneShellRenderer.setSelectedBoneShell(mht.donModBoneShellJList.getSelectedValue());
-			singleBonePanel.setSelectedBone(mht.donModBoneShellJList.getSelectedValue());
-			boneCardLayout.show(bonePanelCards, "single");
-//			singleBonePanel.updateSelectionPicks();
-		} else {
-			mht.boneShellRenderer.setSelectedBoneShell(null);
-			boneCardLayout.show(bonePanelCards, "multiple");
-			boolean dif = false;
-
-			int tempIndex = selectedValuesList.get(0).getImportStatus();
-
-			for (BoneShell bp : selectedValuesList) {
-				if (tempIndex != bp.getImportStatus()) {
-					dif = true;
-					break;
-				}
-			}
-			if (dif) {
-				multiBonePane.setMultiTypes();
+	private void showBoneCard(ModelHolderThing mht, ListSelectionEvent e) {
+		if (e.getValueIsAdjusting()) {
+			List<BoneShell> selectedValuesList = mht.donModBoneShellJList.getSelectedValuesList();
+			if (selectedValuesList.size() < 1) {
+				mht.boneShellRenderer.setSelectedBoneShell(null);
+				boneCardLayout.show(bonePanelCards, "blank");
+			} else if (selectedValuesList.size() == 1) {
+				mht.boneShellRenderer.setSelectedBoneShell(mht.donModBoneShellJList.getSelectedValue());
+				singleBonePanel.setSelectedBone(mht.donModBoneShellJList.getSelectedValue());
+				boneCardLayout.show(bonePanelCards, "single");
 			} else {
-				multiBonePane.setSelectedIndex(tempIndex);
+				mht.boneShellRenderer.setSelectedBoneShell(null);
+				boneCardLayout.show(bonePanelCards, "multiple");
+				boolean dif = false;
+
+				int tempIndex = selectedValuesList.get(0).getImportStatus();
+
+				for (BoneShell bp : selectedValuesList) {
+					if (tempIndex != bp.getImportStatus()) {
+						dif = true;
+						break;
+					}
+				}
+				if (dif) {
+					multiBonePane.setMultiTypes();
+				} else {
+					multiBonePane.setSelectedIndex(tempIndex);
+				}
 			}
 		}
 	}

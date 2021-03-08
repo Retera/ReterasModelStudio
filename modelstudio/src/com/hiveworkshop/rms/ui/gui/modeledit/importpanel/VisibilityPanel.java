@@ -5,22 +5,21 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 class VisibilityPanel extends JPanel {
-	static final String NOTVISIBLE = "Not visible";
-	static final String VISIBLE = "Always visible";
-	JComboBox<VisibilityShell> oldSourcesBox;
-	JComboBox<VisibilityShell> newSourcesBox;
-	JCheckBox favorOld;
-	VisibilityShell sourceShell;
-	ModelHolderThing mht;
+	protected JComboBox<VisibilityShell> receivingModelSourcesBox;
+	protected JComboBox<VisibilityShell> donatingModelSourcesBox;
+	protected JCheckBox favorOld;
+	protected VisibilityShell selectedVisShell;
+	protected ModelHolderThing mht;
 
-	DefaultComboBoxModel<VisibilityShell> oldSources;
-	DefaultComboBoxModel<VisibilityShell> newSources;
+	protected DefaultComboBoxModel<VisibilityShell> recModSources;
+	protected DefaultComboBoxModel<VisibilityShell> donModSources;
 
-	JLabel title;
+	protected JLabel title;
 
 	protected VisibilityPanel() {
 		// for use in multi pane
@@ -37,24 +36,16 @@ class VisibilityPanel extends JPanel {
 		JLabel oldAnimsLabel = new JLabel("Existing animation visibility from: ");
 		add(oldAnimsLabel, "left, wrap");
 
-		oldSourcesBox = getSourceComboBox(renderer);
-		add(oldSourcesBox, "grow, wrap");
+		receivingModelSourcesBox = getSourceComboBox(renderer, recModVisSourcesOld);
+		receivingModelSourcesBox.addItemListener(this::setOldSource);
+		add(receivingModelSourcesBox, "grow, wrap");
 
 		JLabel newAnimsLabel = new JLabel("Imported animation visibility from: ");
 		add(newAnimsLabel, "left, wrap");
 
-		newSourcesBox = getSourceComboBox(renderer);
-		add(newSourcesBox, "grow, wrap");
-
-
-		List<VisibilityShell> recModShells = new ArrayList<>();
-		recModVisSourcesOld.forEach(recModShells::add);
-		oldSources = new DefaultComboBoxModel<>(recModShells.toArray(new VisibilityShell[0]));
-		oldSourcesBox.setModel(oldSources);
-		List<VisibilityShell> donModShells = new ArrayList<>();
-		donModVisSourcesNew.forEach(donModShells::add);
-		newSources = new DefaultComboBoxModel<>(donModShells.toArray(new VisibilityShell[0]));
-		newSourcesBox.setModel(newSources);
+		donatingModelSourcesBox = getSourceComboBox(renderer, donModVisSourcesNew);
+		donatingModelSourcesBox.addItemListener(this::setNewSource);
+		add(donatingModelSourcesBox, "grow, wrap");
 
 		favorOld = new JCheckBox("Favor component's original visibility when combining");
 		favorOld.setSelected(true);
@@ -62,49 +53,45 @@ class VisibilityPanel extends JPanel {
 	}
 
 	public void setSource(VisibilityShell sourceShell) {
-		this.sourceShell = sourceShell;
-		title.setText(sourceShell.model.getName() + ": " + sourceShell.source.getName());
-		selectVisSource(sourceShell, oldSources, oldSourcesBox);
-		selectVisSource(sourceShell, newSources, newSourcesBox);
+		this.selectedVisShell = sourceShell;
+		title.setText(sourceShell.getModel().getName() + ": " + sourceShell.getSource().getName());
 
+		if (sourceShell.getOldVisSource() != null && mht.recModVisSourcesOld.contains(sourceShell.getOldVisSource())) {
+			receivingModelSourcesBox.setSelectedItem(sourceShell.getOldVisSource());
+		} else if (mht.recModVisSourcesOld.contains(sourceShell)) {
+			receivingModelSourcesBox.setSelectedItem(sourceShell);
+		} else {
+			receivingModelSourcesBox.setSelectedItem(mht.alwaysVisible);
+		}
+		if (sourceShell.getNewVisSource() != null && mht.donModVisSourcesNew.contains(sourceShell.getNewVisSource())) {
+			donatingModelSourcesBox.setSelectedItem(sourceShell.getNewVisSource());
+		} else if (mht.donModVisSourcesNew.contains(sourceShell)) {
+			donatingModelSourcesBox.setSelectedItem(sourceShell);
+		} else {
+			donatingModelSourcesBox.setSelectedItem(mht.alwaysVisible);
+		}
 	}
 
-	public JComboBox<VisibilityShell> getSourceComboBox(VisShellBoxCellRenderer renderer) {
-		JComboBox<VisibilityShell> jComboBox = new JComboBox<>();
+	private JComboBox<VisibilityShell> getSourceComboBox(VisShellBoxCellRenderer renderer, IterableListModel<VisibilityShell> visSources) {
+		List<VisibilityShell> shells = new ArrayList<>();
+		visSources.forEach(shells::add);
+		DefaultComboBoxModel<VisibilityShell> sourceModel = new DefaultComboBoxModel<>(shells.toArray(new VisibilityShell[0]));
+		JComboBox<VisibilityShell> jComboBox = new JComboBox<>(sourceModel);
 		jComboBox.setEditable(false);
 		jComboBox.setMaximumSize(new Dimension(1000, 25));
 		jComboBox.setRenderer(renderer);
 		return jComboBox;
 	}
 
-	private void selectVisSource(VisibilityShell sourceShell, DefaultComboBoxModel<VisibilityShell> sources, JComboBox<VisibilityShell> jComboBox) {
-//		jComboBox.setModel(sources);
-		boolean didContain = false;
-		for (int i = 0; (i < sources.getSize()) && !didContain; i++) {
-			if (sourceShell == sources.getElementAt(i)) {
-				didContain = true;
-			}
-		}
-		if (didContain) {
-			jComboBox.setSelectedItem(sourceShell);
-		} else {
-			jComboBox.setSelectedItem(VISIBLE);
+	private void setNewSource(ItemEvent e) {
+		if (e.getStateChange() == ItemEvent.SELECTED) {
+			selectedVisShell.setNewVisSource((VisibilityShell) donatingModelSourcesBox.getSelectedItem());
 		}
 	}
 
-	public void selectSimilarOptions() {
-		final ListModel<VisibilityShell> oldSources = oldSourcesBox.getModel();
-		selectSimilar(oldSources, oldSourcesBox);
-		final ListModel<VisibilityShell> newSources = newSourcesBox.getModel();
-		selectSimilar(newSources, newSourcesBox);
-	}
-
-	public void selectSimilar(ListModel<VisibilityShell> sources, JComboBox<VisibilityShell> sourcesBox) {
-		for (int i = 0; i < sources.getSize(); i++) {
-			if (sourceShell.source.getName().equals(sources.getElementAt(i).source.getName())) {
-				System.out.println(sourceShell.source.getName());
-				sourcesBox.setSelectedItem(sources.getElementAt(i));
-			}
+	private void setOldSource(ItemEvent e) {
+		if (e.getStateChange() == ItemEvent.SELECTED) {
+			selectedVisShell.setOldVisSource((VisibilityShell) receivingModelSourcesBox.getSelectedItem());
 		}
 	}
 }
