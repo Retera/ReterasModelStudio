@@ -7,6 +7,8 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,25 +41,25 @@ class AnimPanel extends JPanel {
 	JTextField newNameEntry = new JTextField("", 40);
 
 	JPanel animListCard = new JPanel();
-	IterableListModel<AnimShell> existingAnims;
-	IterableListModel<AnimShell> listModel;
+	IterableListModel<AnimShell> recModAnims;
+	IterableListModel<AnimShell> recModAnimListModel;
 	JList<AnimShell> animList;
 	JScrollPane animListPane;
 	List<AnimShell> oldSelection = new ArrayList<>();
 	boolean listenSelection = true;
 	ModelHolderThing mht;
 
+	AnimShell selectedAnim;
+
 	final CardLayout animCardLayout = new CardLayout();
 
-	public AnimPanel(ModelHolderThing mht, final Animation anim, final IterableListModel<AnimShell> existingAnims, final AnimListCellRenderer renderer) {
+	public AnimPanel(ModelHolderThing mht, final IterableListModel<AnimShell> recModAnims, final AnimListCellRenderer renderer) {
 		this.mht = mht;
 		setLayout(new MigLayout("gap 0"));
-		this.existingAnims = existingAnims;
-		listModel = new IterableListModel<>(existingAnims);
+		this.recModAnims = recModAnims;
+		recModAnimListModel = new IterableListModel<>(recModAnims);
 
-		this.anim = anim;
-
-		title = new JLabel(anim.getName());
+		title = new JLabel();
 		title.setFont(new Font("Arial", Font.BOLD, 26));
 		add(title, "align center, wrap");
 
@@ -78,7 +80,7 @@ class AnimPanel extends JPanel {
 
 		nameCard.add(newNameEntry);
 
-		animList = new JList<>(listModel);
+		animList = new JList<>(recModAnimListModel);
 		animList.setCellRenderer(renderer);
 		animList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		// Use getSelectedValuesList().toArray() to request an array of selected animations
@@ -88,7 +90,6 @@ class AnimPanel extends JPanel {
 		// like-named ones, so that the default selection is any animation with the same name
 		// (although this should stop after the first one is picked)
 		animList.addListSelectionListener(this::updateList);
-		selectAnimInList(anim, existingAnims);
 
 		animListPane = new JScrollPane(animList);
 		animListCard.add(animListPane);
@@ -100,31 +101,48 @@ class AnimPanel extends JPanel {
 		cardPane.add(blankCardGS, GLOBALSEQ);
 		// cardLayout.show(cardPane,IMPORTBASIC);
 		add(cardPane, "growx, growy");
+		addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentShown(ComponentEvent e) {
+				super.componentShown(e);
+				setSelectedAnim(selectedAnim);
+			}
+		});
 	}
 
-	private void selectAnimInList(Animation anim, IterableListModel<AnimShell> existingAnims) {
-		for (int i = 0; (i < existingAnims.size()) && (animList.getSelectedIndex() == -1); i++) {
-			final Animation iAnim = listModel.get(i).anim;
-			if (iAnim.getName().equalsIgnoreCase(anim.getName())) {
-				animList.setSelectedValue(listModel.get(i), true);
+	private void selectAnimInList(AnimShell anim) {
+		if (anim.getImportAnimShell() != null) {
+			animList.setSelectedValue(anim.getImportAnimShell(), true);
+		} else {
+			for (AnimShell animShell : recModAnimListModel) {
+				if (animShell.getOldName().equalsIgnoreCase(anim.getOldName())) {
+					animList.setSelectedValue(animShell, true);
+				}
 			}
 		}
 	}
 
-	public void setSelectedAnim() {
-		title.setText(anim.getName());
-		newNameEntry.setText(anim.getName());
+	public void setSelectedAnim(AnimShell animShell) {
+		selectedAnim = animShell;
+		this.anim = animShell.getAnim();
+		title.setText(animShell.getName());
+		newNameEntry.setText(animShell.getName());
+		selectAnimInList(animShell);
+		doImport.setSelected(selectedAnim.isDoImport());
+		importTypeBox.setSelectedIndex(animShell.getImportType());
 	}
 
 	public void setSelected(final boolean flag) {
-		doImport.setSelected(flag);
+		selectedAnim.setDoImport(flag);
+		doImport.setSelected(selectedAnim.isDoImport());
 	}
 
 	private void CheckboxStateChanged() {
-		importTypeBox.setEnabled(doImport.isSelected());
-		cardPane.setEnabled(doImport.isSelected());
-		animList.setEnabled(doImport.isSelected());
-		newNameEntry.setEnabled(doImport.isSelected());
+		selectedAnim.setDoImport(doImport.isSelected());
+		importTypeBox.setEnabled(selectedAnim.isDoImport());
+		cardPane.setEnabled(selectedAnim.isDoImport());
+		animList.setEnabled(selectedAnim.isDoImport());
+		newNameEntry.setEnabled(selectedAnim.isDoImport());
 		updateSelectionPicks();
 	}
 
@@ -135,6 +153,8 @@ class AnimPanel extends JPanel {
 		// Thanks to the CardLayoutDemo.java at the above urls
 		// in the JavaDocs for the example use of a CardLayout
 		animCardLayout.show(cardPane, (String) e.getItem());
+		System.out.println("StateChange: " + e.getStateChange() + ", selected Index: " + importTypeBox.getSelectedIndex());
+		selectedAnim.setImportType(importTypeBox.getSelectedIndex());
 		updateSelectionPicks();
 	}
 
@@ -142,17 +162,17 @@ class AnimPanel extends JPanel {
 		listenSelection = false;
 		// IterableListModel newModel = new IterableListModel();
 		List<AnimShell> selectedValuesList = animList.getSelectedValuesList();
-		listModel.clear();
+		recModAnimListModel.clear();
 
-		for (AnimShell as : existingAnims) {
+		for (AnimShell as : recModAnims) {
 			if ((as == null) || (as.importAnim == anim)) {
-				listModel.addElement(as);
+				recModAnimListModel.addElement(as);
 			}
 		}
 
 		final int[] indices = new int[selectedValuesList.size()];
 		for (int i = 0; i < indices.length; i++) {
-			indices[i] = listModel.indexOf(selectedValuesList.get(i));
+			indices[i] = recModAnimListModel.indexOf(selectedValuesList.get(i));
 		}
 
 		animList.setSelectedIndices(indices);

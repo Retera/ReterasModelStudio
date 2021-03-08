@@ -23,10 +23,11 @@ public class ModelHolderThing {
 	public IterableListModel<Material> allMaterials = new IterableListModel<>();
 
 	// Animation
-	public JCheckBox clearExistingAnims;
+	public JCheckBox clearRecModAnims = new JCheckBox("Clear pre-existing animations");
 	public JTabbedPane animTabs = new JTabbedPane(JTabbedPane.LEFT, JTabbedPane.SCROLL_TAB_LAYOUT);
 	public IterableListModel<AnimShell> recModAnims = new IterableListModel<>();
 	public IterableListModel<AnimShell> donModAnims = new IterableListModel<>();
+	public IterableListModel<AnimShell> animTabList = new IterableListModel<>();
 
 	// Bones
 	public JCheckBox clearExistingBones;
@@ -213,10 +214,9 @@ public class ModelHolderThing {
 
 	long totalAddTime;
 
-	public void uncheckAllAnims(boolean b) {
-		for (int i = 0; i < animTabs.getTabCount(); i++) {
-			final AnimPanel aniPanel = (AnimPanel) animTabs.getComponentAt(i);
-			aniPanel.setSelected(b);
+	public void doImportAllAnims(boolean b) {
+		for (AnimShell animShell : animTabList) {
+			animShell.setDoImport(b);
 		}
 	}
 

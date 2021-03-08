@@ -190,44 +190,43 @@ public class ImportPanel extends JTabbedPane {
 			for (EventObject e : donModEventObjs) {
 				newImpEventObjs.add(EventObject.buildEmptyFrom(e));
 			}
-			final boolean clearAnims = mht.clearExistingAnims.isSelected();
+			final boolean clearAnims = mht.clearRecModAnims.isSelected();
 			if (clearAnims) {
 				for (final Animation anim : mht.receivingModel.getAnims()) {
 					anim.clearData(recModFlags, recModEventObjs);
 				}
 				mht.receivingModel.getAnims().clear();
 			}
-			for (int i = 0; i < mht.animTabs.getTabCount(); i++) {
-				final AnimPanel aniPanel = (AnimPanel) mht.animTabs.getComponentAt(i);
-				if (aniPanel.doImport.isSelected()) {
-					final int type = aniPanel.importTypeBox.getSelectedIndex();
+			for (AnimShell animShell : mht.animTabList) {
+				if (animShell.isDoImport()) {
+					final int type = animShell.getImportType();
 					final int animTrackEnd = mht.receivingModel.animTrackEnd();
-					if (aniPanel.inReverse.isSelected()) {
+					if (animShell.isReverse()) {
 						// reverse the animation
-						aniPanel.anim.reverse(donModFlags, donModEventObjs);
+						animShell.getAnim().reverse(donModFlags, donModEventObjs);
 					}
 					switch (type) {
 						case 0:
-							aniPanel.anim.copyToInterval(animTrackEnd + 300, animTrackEnd + aniPanel.anim.length() + 300, donModFlags, donModEventObjs, newImpFlags, newImpEventObjs);
-							aniPanel.anim.setInterval(animTrackEnd + 300, animTrackEnd + aniPanel.anim.length() + 300);
-							mht.receivingModel.add(aniPanel.anim);
-							newAnims.add(aniPanel.anim);
+							animShell.getAnim().copyToInterval(animTrackEnd + 300, animTrackEnd + animShell.getAnim().length() + 300, donModFlags, donModEventObjs, newImpFlags, newImpEventObjs);
+							animShell.getAnim().setInterval(animTrackEnd + 300, animTrackEnd + animShell.getAnim().length() + 300);
+							mht.receivingModel.add(animShell.getAnim());
+							newAnims.add(animShell.getAnim());
 							break;
 						case 1:
-							aniPanel.anim.copyToInterval(animTrackEnd + 300, animTrackEnd + aniPanel.anim.length() + 300, donModFlags, donModEventObjs, newImpFlags, newImpEventObjs);
-							aniPanel.anim.setInterval(animTrackEnd + 300, animTrackEnd + aniPanel.anim.length() + 300);
-							aniPanel.anim.setName(aniPanel.newNameEntry.getText());
-							mht.receivingModel.add(aniPanel.anim);
-							newAnims.add(aniPanel.anim);
+							animShell.getAnim().copyToInterval(animTrackEnd + 300, animTrackEnd + animShell.getAnim().length() + 300, donModFlags, donModEventObjs, newImpFlags, newImpEventObjs);
+							animShell.getAnim().setInterval(animTrackEnd + 300, animTrackEnd + animShell.getAnim().length() + 300);
+							animShell.getAnim().setName(animShell.getName());
+							mht.receivingModel.add(animShell.getAnim());
+							newAnims.add(animShell.getAnim());
 							break;
 						case 2:
 							// List<AnimShell> targets = aniPane.animList.getSelectedValuesList();
-							// aniPanel.anim.setInterval(animTrackEnd+300,animTrackEnd + aniPanel.anim.length() + 300, donModFlags,
+							// animShell.getAnim().setInterval(animTrackEnd+300,animTrackEnd + animShell.getAnim().length() + 300, donModFlags,
 							// donModEventObjs, newImpFlags, newImpEventObjs);
 							// handled by animShells
 							break;
 						case 3:
-							mht.donatingModel.buildGlobSeqFrom(aniPanel.anim, donModFlags);
+							mht.donatingModel.buildGlobSeqFrom(animShell.getAnim(), donModFlags);
 							break;
 					}
 				}
@@ -520,21 +519,20 @@ public class ImportPanel extends JTabbedPane {
 	public void animTransfer(final boolean singleAnimation, final Animation pickedAnim, final Animation visFromAnim, final boolean show) {
 		mht.importAllGeos(false);
 		mht.setImportStatusForAllBones(1);
-		mht.clearExistingAnims.doClick();
+		mht.clearRecModAnims.doClick();
 		mht.importAllObjs(false);
 		mht.visibilityList();
 		mht.selSimButton();
 
 		if (singleAnimation) {
 			// JOptionPane.showMessageDialog(null,"single trans");
-			mht.uncheckAllAnims(false);
-			for (int i = 0; i < mht.animTabs.getTabCount(); i++) {
-				final AnimPanel aniPanel = (AnimPanel) mht.animTabs.getComponentAt(i);
-				if (aniPanel.anim.getName().equals(pickedAnim.getName())) {
-					aniPanel.doImport.setSelected(true);
+			mht.doImportAllAnims(false);
+			for (AnimShell animShell : mht.animTabList) {
+				if (animShell.getOldName().equals(pickedAnim.getName())) {
+					animShell.setDoImport(true);
 				}
 			}
-			mht.clearExistingAnims.doClick();// turn it back off
+			mht.clearRecModAnims.doClick();// turn it back off
 		}
 
 		VisibilityShell corpseShell = null;
@@ -570,23 +568,23 @@ public class ImportPanel extends JTabbedPane {
 	public void animTransferPartTwo(final boolean singleAnimation, final Animation pickedAnim, final Animation visFromAnim, final boolean show) {
 		// This should be an import from self
 		mht.importAllGeos(false);
-		mht.uncheckAllAnims(false);
+		mht.doImportAllAnims(false);
 		mht.setImportStatusForAllBones(2);
 		mht.importAllObjs(false);
 		mht.visibilityList();
 		mht.selSimButton();
 
 		if (singleAnimation) {
-			for (int i = 0; i < mht.animTabs.getTabCount(); i++) {
-				final AnimPanel aniPanel = (AnimPanel) mht.animTabs.getComponentAt(i);
-				if (aniPanel.anim.getName().equals(visFromAnim.getName())) {
-					aniPanel.doImport.doClick();
-					aniPanel.importTypeBox.setSelectedItem(AnimPanel.TIMESCALE);
+			for (AnimShell animShell : mht.animTabList) {
+				if (animShell.getOldName().equals(visFromAnim.getName())) {
+					animShell.setDoImport(true);
+					animShell.setImportType(2); // Time scale
 
 					for (AnimShell shell : mht.recModAnims) {
-						if ((shell).anim.getName().equals(pickedAnim.getName())) {
-							aniPanel.animList.setSelectedValue(shell, true);
-							aniPanel.updateSelectionPicks();
+						if (shell.getOldName().equals(pickedAnim.getName())) {
+							animShell.setImportAnimShell(shell);
+//							aniPanel.animList.setSelectedValue(shell, true);
+//							aniPanel.updateSelectionPicks();
 							break;
 						}
 					}

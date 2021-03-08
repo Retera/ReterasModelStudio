@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.MainFrame;
 import com.hiveworkshop.rms.ui.application.MainPanel;
+import com.hiveworkshop.rms.ui.application.MenuBar;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
@@ -57,6 +58,7 @@ public class AnimationTransfer extends JPanel {
 		filePanel.add(new JLabel("Output file:"));
 		filePanel.add(outFileInput);
 		filePanel.add(getBrowseButton(e -> saveAction(outFileInput)));
+		// TODO: remove save field and make "transfer" (and finished in ImportPanel) open save dialog
 
 		add(filePanel, "growx, spanx, wrap");
 
@@ -235,12 +237,16 @@ public class AnimationTransfer extends JPanel {
 	}
 
 	public void doTransfer(final boolean show) throws IOException {
-		final EditableModel sourceFile = MdxUtils.loadEditable(new File(baseFileInput.getText()));
-		final EditableModel animFile = MdxUtils.loadEditable(new File(animFileInput.getText()));
+		File baseFile = new File(baseFileInput.getText());
+		final EditableModel receivingModel = MdxUtils.loadEditable(baseFile);
+		receivingModel.setFileRef(baseFile);
+		File animFile = new File(animFileInput.getText());
+		final EditableModel donatingModel = MdxUtils.loadEditable(animFile);
+		donatingModel.setFileRef(animFile);
 
 		if (!transferSingleAnimation.isSelected()) {
 			new Thread(() -> {
-				final ImportPanel importPanel = new ImportPanel(sourceFile, animFile, show);
+				final ImportPanel importPanel = new ImportPanel(receivingModel, donatingModel, show);
 				importPanel.animTransfer(transferSingleAnimation.isSelected(), pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()), visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
 				waitWhileVisible(importPanel);
 
@@ -252,7 +258,7 @@ public class AnimationTransfer extends JPanel {
 						if (!filepath.toLowerCase().endsWith(".mdl") && !filepath.toLowerCase().endsWith(".mdx")) {
 							filepath += ".mdl";
 						}
-						trySave(sourceFile, filepath);
+						trySave(receivingModel, filepath);
 						JOptionPane.showMessageDialog(null, "Animation transfer done!");
 					}
 				}
@@ -261,7 +267,7 @@ public class AnimationTransfer extends JPanel {
             }).start();
 		} else {
 			final Thread watcher = new Thread(() -> {
-				final ImportPanel importPanel = new ImportPanel(sourceFile, animFile, show);
+				final ImportPanel importPanel = new ImportPanel(receivingModel, donatingModel, show);
 				importPanel.animTransfer(transferSingleAnimation.isSelected(), pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()), visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
 				waitWhileVisible(importPanel);
 
@@ -271,7 +277,10 @@ public class AnimationTransfer extends JPanel {
 					if (importPanel.importSuccessful()) {
 						final ImportPanel importPanel2;
 						try {
-							importPanel2 = new ImportPanel(sourceFile, MdxUtils.loadEditable(sourceFile.getFile()), show);
+							File newFile = receivingModel.getFile();
+							EditableModel newDonatingModel = MdxUtils.loadEditable(newFile);
+							newDonatingModel.setFileRef(newFile);
+							importPanel2 = new ImportPanel(receivingModel, newDonatingModel, show);
 						} catch (final IOException e) {
 							e.printStackTrace();
 							return;
@@ -286,7 +295,7 @@ public class AnimationTransfer extends JPanel {
 							waitForPanel(importPanel2);
 							if (importPanel2.importSuccessful()) {
 								JOptionPane.showMessageDialog(null, "Animation transfer done!");
-								trySave(sourceFile, outFileInput.getText());
+								trySave(receivingModel, outFileInput.getText());
 							}
 						}
 					}
@@ -312,7 +321,10 @@ public class AnimationTransfer extends JPanel {
 
 	private void trySave(EditableModel sourceFile, String text) {
 		try {
-			MdxUtils.saveMdx(sourceFile, new File(text));
+			File file = new File(text);
+			MdxUtils.saveMdx(sourceFile, file);
+			SaveProfile.get().addRecent(file.getPath());
+			MenuBar.updateRecent();
 		} catch (final IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

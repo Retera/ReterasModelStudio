@@ -27,7 +27,9 @@ public class AnimEditPanel extends JPanel {
 		for (Animation anim : mht.donatingModel.getAnims()) {
 			AnimShell animShell = new AnimShell(anim);
 			mht.donModAnims.addElement(animShell);
-			final AnimPanel iAnimPanel = new AnimPanel(mht, anim, mht.recModAnims, animsRenderer);
+			mht.animTabList.addElement(animShell);
+			final AnimPanel iAnimPanel = new AnimPanel(mht, mht.recModAnims, animsRenderer);
+			iAnimPanel.setSelectedAnim(animShell);
 
 			mht.animTabs.addTab(anim.getName(), ImportPanel.orangeIcon, iAnimPanel, "Click to modify data for this animation sequence.");
 		}
@@ -44,21 +46,20 @@ public class AnimEditPanel extends JPanel {
 	private JPanel getTopPanel() {
 		JPanel topPanel = new JPanel(new MigLayout("gap 0"));
 
-		JButton importAllAnims = createButton("Import All", e -> mht.uncheckAllAnims(true));
+		JButton importAllAnims = createButton("Import All", e -> mht.doImportAllAnims(true));
 		topPanel.add(importAllAnims);
 
-		JButton timescaleAllAnims = createButton("Time-scale All", e -> timescaleAllAnims(mht.animTabs));
+		JButton timescaleAllAnims = createButton("Time-scale All", e -> timescaleAllAnims());
 		topPanel.add(timescaleAllAnims);
 
 		JButton renameAllAnims = createButton("Import and Rename All", e -> renameAllAnims(mht));
 		topPanel.add(renameAllAnims);
 
-		JButton uncheckAllAnims = createButton("Leave All", e -> mht.uncheckAllAnims(false));
+		JButton uncheckAllAnims = createButton("Leave All", e -> mht.doImportAllAnims(false));
 		topPanel.add(uncheckAllAnims, "wrap");
 
 
-		mht.clearExistingAnims = new JCheckBox("Clear pre-existing animations");
-		topPanel.add(mht.clearExistingAnims, "spanx, align center");
+		topPanel.add(mht.clearRecModAnims, "spanx, align center");
 		return topPanel;
 	}
 
@@ -69,13 +70,12 @@ public class AnimEditPanel extends JPanel {
 	}
 
 	private void renameAllAnims(ModelHolderThing mht) {
-		final String newTagString = JOptionPane.showInputDialog(null, "Choose additional naming (i.e. swim or alternate)");
+		final String newTagString = JOptionPane.showInputDialog(this, "Choose additional naming (i.e. swim or alternate)");
 
 		if (newTagString != null) {
-			for (int i = 0; i < mht.animTabs.getTabCount(); i++) {
-				final AnimPanel aniPanel = (AnimPanel) mht.animTabs.getComponentAt(i);
-				aniPanel.importTypeBox.setSelectedIndex(1);
-				final String oldName = aniPanel.anim.getName();
+			for (AnimShell animShell : mht.animTabList) {
+				animShell.setImportType(1);
+				final String oldName = animShell.getOldName();
 				String baseName = oldName;
 				while ((baseName.length() > 0) && baseName.contains(" ")) {
 					final int lastSpaceIndex = baseName.lastIndexOf(' ');
@@ -94,15 +94,14 @@ public class AnimEditPanel extends JPanel {
 				}
 				final String afterBase = oldName.substring(Math.min(oldName.length(), baseName.length() + 1));
 				final String newName = baseName + " " + newTagString + " " + afterBase;
-				aniPanel.newNameEntry.setText(newName);
+				animShell.setName(newName);
 			}
 		}
 	}
 
-	public void timescaleAllAnims(JTabbedPane animTabs) {
-		for (int i = 0; i < animTabs.getTabCount(); i++) {
-			final AnimPanel aniPanel = (AnimPanel) animTabs.getComponentAt(i);
-			aniPanel.importTypeBox.setSelectedIndex(2);
+	public void timescaleAllAnims() {
+		for (AnimShell animShell : mht.animTabList) {
+			animShell.setImportType(2);
 		}
 	}
 }
