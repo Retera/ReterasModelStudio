@@ -30,14 +30,15 @@ public class BoneAttachmentEditPanel extends JPanel {
 		for (GeosetShell geosetShell : mht.allGeoShells) {
 			final BoneAttachmentPanel geoPanel = new BoneAttachmentPanel(mht, ptr);
 			geoPanel.setGeoset(geosetShell);
-
-			geosetAnimTabs.addTab(geosetShell.getModelName() + " " + (geosetShell.getIndex() + 1), ImportPanel.greenIcon, geoPanel, "Click to modify animation data for Geoset " + geosetShell.getIndex() + " from " + geosetShell.getModelName() + ".");
+			ImageIcon imageIcon = ImportPanel.greenIcon;
+			if(geosetShell.isFromDonating()){
+				imageIcon = ImportPanel.orangeIcon;
+			}
+			geosetAnimTabs.addTab(geosetShell.getModelName() + " " + (geosetShell.getIndex() + 1), imageIcon, geoPanel, "Click to modify animation data for Geoset " + geosetShell.getIndex() + " from " + geosetShell.getModelName() + ".");
 		}
 
-		geosetAnimTabs.addChangeListener(mht.getDaChangeListener());
-
-
 		add(geosetAnimTabs, "growx, growy");
+
 		this.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentShown(ComponentEvent e) {
@@ -98,19 +99,25 @@ public class BoneAttachmentEditPanel extends JPanel {
 	}
 
 	private JPanel getTopPanel() {
-		JPanel topPanel = new JPanel(new MigLayout("gap 0", "[align center]"));
-
-		displayParents = new JCheckBox("Display parent names");
-		displayParents.addChangeListener(mht.getDaChangeListener());
-		topPanel.add(displayParents, "wrap");
+		JPanel topPanel = new JPanel(new MigLayout("gap 0", "[][][]"));
 
 		JButton allMatrOriginal = new JButton("Reset all Matrices");
 		allMatrOriginal.addActionListener(e -> allMatrOriginal());
-		topPanel.add(allMatrOriginal, "wrap");
+		topPanel.add(allMatrOriginal);
 
 		JButton allMatrSameName = new JButton("Set all to available, original names");
+//		allMatrSameName.setToolTipText("matches matrix bones in the receiving model to bones with the same name (ignoring case) in the donating model");
+		allMatrSameName.setToolTipText("matches matrices bones to bones with the same name (ignoring case)");
 		allMatrSameName.addActionListener(e -> allMatrSameName());
-		topPanel.add(allMatrSameName, "wrap");
+		topPanel.add(allMatrSameName);
+
+		JButton allMatrSameishName = new JButton("Set all to similar names");
+		allMatrSameishName.setToolTipText("ignores \"bone\", \"helper\", \"_\" and space.");
+		allMatrSameishName.addActionListener(e -> allMatrSameishName());
+		topPanel.add(allMatrSameishName, "wrap");
+
+		displayParents = new JCheckBox("Display parent names");
+		topPanel.add(displayParents, "spanx, align center, wrap");
 
 		return topPanel;
 	}
@@ -145,6 +152,45 @@ public class BoneAttachmentEditPanel extends JPanel {
 					// For look to find similarly named stuff and add it
 					for (final Bone bone : matrix.getBones()) {
 						final String mName = bone.getName();
+						if (nameMap.get(mName) != null) {
+							matrixShell.addNewBone(nameMap.get(mName));
+						}
+					}
+				}
+			}
+		}
+	}
+	public void allMatrSameishName() {
+		// this will disregard some parts of bone names, increasing numbers of matched for some models
+		// placeholder "UGG" is used to make sure words isn't  merged and potentially losing more parts than necessary
+		// "ShelpBoneEric" -> "shelpUGGeric" -> "shelperic" and not "ShelpBoneEric" -> "shelperic" -> "sic"
+		IterableListModel<BoneShell> futureBoneList = mht.getFutureBoneList();
+
+		Map<String, BoneShell> nameMap = new HashMap<>();
+		String placeholder = "UGG";
+		for (BoneShell boneShell : futureBoneList) {
+			String name = boneShell.getName().toLowerCase()
+					.replaceAll("bone", placeholder)
+					.replaceAll("helper", placeholder)
+					.replaceAll("_", "")
+					.replaceAll(" ", "")
+					.replaceAll(placeholder, "");
+			nameMap.put(name, boneShell);
+		}
+
+		for (GeosetShell geosetShell : mht.allGeoShells) {
+			if (geosetShell.isDoImport()) {
+				for (MatrixShell matrixShell : geosetShell.getMatrixShells()) {
+					matrixShell.clearNewBones();
+					final Matrix matrix = matrixShell.getMatrix();
+					// For look to find similarly named stuff and add it
+					for (final Bone bone : matrix.getBones()) {
+						final String mName = bone.getName().toLowerCase()
+								.replaceAll("bone", placeholder)
+								.replaceAll("helper", placeholder)
+								.replaceAll("_", "")
+								.replaceAll(" ", "")
+								.replaceAll(placeholder, "");
 						if (nameMap.get(mName) != null) {
 							matrixShell.addNewBone(nameMap.get(mName));
 						}

@@ -10,7 +10,7 @@ class ObjPanelListCellRenderer extends DefaultListCellRenderer {
 	@Override
 	public Component getListCellRendererComponent(final JList list, final Object value, final int index,
 	                                              final boolean iss, final boolean chf) {
-		super.getListCellRendererComponent(list, value.toString(), index, iss, chf);
+		super.getListCellRendererComponent(list, ((ObjectShell)value).toString(true, false), index, iss, chf);
 		setIcon(ImportPanel.redIcon);
 		return this;
 	}

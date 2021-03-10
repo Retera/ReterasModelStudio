@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 class AnimShell {
-	Animation anim;
-	Animation importAnim;
-	List<AnimShell> animShellList = new ArrayList<>();
-	AnimShell importAnimShell;
+	private Animation anim;
+	private Animation importAnim;
+	private List<AnimShell> animShellList = new ArrayList<>();
+	private AnimShell importAnimShell;
 	private boolean doImport = true;
 	private boolean reverse = false;
 	private int importType = 0;

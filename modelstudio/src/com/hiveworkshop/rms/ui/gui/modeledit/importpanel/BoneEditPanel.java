@@ -26,31 +26,28 @@ public class BoneEditPanel extends JPanel {
 
 		final BoneShellListCellRenderer bonePanelRenderer = new BoneShellListCellRenderer(mht.recModelManager, mht.donModelManager);
 
-		singleBonePanel = new BonePanel(mht, mht.boneShellRenderer);
-
-		bonePanelCards.add(singleBonePanel, "single");
-
-		multiBonePane = new MultiBonePanel(mht, mht.boneShellRenderer);
-		bonePanelCards.add(blankPane, "blank");
-		bonePanelCards.add(multiBonePane, "multiple");
-
 		mht.donModBoneShellJList.setCellRenderer(bonePanelRenderer);
 		mht.donModBoneShellJList.addListSelectionListener(e -> showBoneCard(mht, e));
 		mht.donModBoneShellJList.setSelectedIndex(0);
+		JScrollPane boneTabsPane = new JScrollPane(mht.donModBoneShellJList);
+
+
+		bonePanelCards.add(blankPane, "blank");
+
+		singleBonePanel = new BonePanel(mht, mht.boneShellRenderer);
+		bonePanelCards.add(singleBonePanel, "single");
+
+		multiBonePane = new MultiBonePanel(mht, mht.boneShellRenderer);
+		bonePanelCards.add(multiBonePane, "multiple");
 
 		bonePanelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
 
-
-		JScrollPane boneTabsPane = new JScrollPane(mht.donModBoneShellJList);
 		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, boneTabsPane, bonePanelCards);
-
 		add(splitPane, "growx, growy");
-
 	}
 
 	private JPanel getTopPanel() {
 		JPanel topPanel = new JPanel(new MigLayout("gap 0, debug", "[][][][]", "[][align center]"));
-		topPanel.setBackground(Color.magenta);
 		topPanel.setOpaque(true);
 
 		JButton importAllBones = createButton(e -> mht.setImportStatusForAllBones(0), "Import All");
@@ -88,22 +85,8 @@ public class BoneEditPanel extends JPanel {
 				boneCardLayout.show(bonePanelCards, "single");
 			} else {
 				mht.boneShellRenderer.setSelectedBoneShell(null);
+				multiBonePane.updateMultiBonePanel();
 				boneCardLayout.show(bonePanelCards, "multiple");
-				boolean dif = false;
-
-				int tempIndex = selectedValuesList.get(0).getImportStatus();
-
-				for (BoneShell bp : selectedValuesList) {
-					if (tempIndex != bp.getImportStatus()) {
-						dif = true;
-						break;
-					}
-				}
-				if (dif) {
-					multiBonePane.setMultiTypes();
-				} else {
-					multiBonePane.setSelectedIndex(tempIndex);
-				}
 			}
 		}
 	}

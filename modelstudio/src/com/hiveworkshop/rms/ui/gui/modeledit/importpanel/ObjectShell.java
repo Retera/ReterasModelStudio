@@ -9,6 +9,7 @@ import java.util.List;
 
 public class ObjectShell {
 	private IdObject idObject;
+	private String name;
 	private Camera camera;
 	private IdObject importBone;
 	private String modelName;
@@ -26,6 +27,7 @@ public class ObjectShell {
 		idObject = b;
 		if (b != null) {
 			oldParent = idObject.getParent();
+			name = idObject.getName();
 		}
 	}
 
@@ -33,6 +35,7 @@ public class ObjectShell {
 		idObject = b;
 		if (b != null) {
 			oldParent = idObject.getParent();
+			name = idObject.getName();
 		}
 		this.isFromDonating = isFromDonating;
 	}
@@ -44,6 +47,7 @@ public class ObjectShell {
 	public ObjectShell(final Camera c, boolean isFromDonating) {
 		camera = c;
 		this.isFromDonating = isFromDonating;
+		name = camera.getName();
 	}
 
 	public static List<IdObject> toBonesList(final List<BoneShell> boneShells) {
@@ -173,5 +177,35 @@ public class ObjectShell {
 			nameString += camera.getName();
 		}
 		return nameString;
+	}
+	public String toString(boolean showClass, boolean showParent) {
+		if (idObject == null && camera == null) {
+			return "None";
+		}
+		String stringToReturn = "";
+		if (modelName != null) {
+			stringToReturn += modelName + ": ";
+		}
+		if (showClass) {
+			stringToReturn += "(" + getClassName() + ") ";
+		}
+		stringToReturn += name;
+		if (showParent){
+			if (oldParentBs == null) {
+				stringToReturn += "; (no parent)";
+			} else {
+				stringToReturn += "; " + oldParentBs.getName();
+			}
+		}
+		return stringToReturn;
+	}
+
+	private String getClassName(){
+		if (idObject != null){
+			return idObject.getClass().getSimpleName();
+		} else if (camera != null){
+			return camera.getClass().getSimpleName();
+		}
+		return "";
 	}
 }

@@ -35,6 +35,11 @@ class BoneShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 
 	BoneShell selectedBone;
 	ObjectShell selectedObject;
+	boolean showClass = false;
+
+	public void setShowClass(boolean b){
+		showClass = b;
+	}
 
 	public void setSelectedBoneShell(BoneShell boneShell) {
 		selectedBone = boneShell;
@@ -56,8 +61,8 @@ class BoneShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 			}
 		}
 		super.getListCellRendererComponent(list, value, index, iss, chf);
-		setText(value.toString());
 		if (value instanceof BoneShell) {
+			setText(((BoneShell)value).toString(showClass, false));
 			if (selectedBone != null && selectedBone.getNewParentBs() == value
 					|| selectedObject != null && selectedObject.getNewParentBs() == value) {
 				this.setBackground(new Color(130, 230, 170));
@@ -65,7 +70,8 @@ class BoneShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 				this.setBackground(new Color(255, 255, 255));
 				setForeground(new Color(0, 0, 0));
 			}
-//			setForeground(Color.CYAN);
+		} else {
+			setText(value.toString());
 		}
 		return this;
 	}

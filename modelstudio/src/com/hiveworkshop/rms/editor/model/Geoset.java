@@ -895,4 +895,31 @@ public class Geoset implements Named, VisibilitySource {
 		}
 		return new ExtLog(min, max, maximumDistanceFromCenter);
 	}
+
+	public Map<Bone, List<GeosetVertex>> getBoneMap() {
+		Map<Bone, List<GeosetVertex>> boneMap = new HashMap<>();
+		for (GeosetVertex geosetVertex : vertices) {
+			Bone[] sb = geosetVertex.getSkinBones();
+			short[] bw = geosetVertex.getSkinBoneWeights();
+			if (sb != null && bw != null) {
+				for (int i = 0; i < sb.length; i++) {
+					if (!boneMap.containsKey(sb[i])) {
+						boneMap.put(sb[i], new ArrayList<>());
+					}
+					if (bw[i] > 0) {
+//						System.out.println("added geoVert");
+						boneMap.get(sb[i]).add(geosetVertex);
+					}
+				}
+			} else {
+				for (Bone bone : geosetVertex.getBones()) {
+					if (!boneMap.containsKey(bone)) {
+						boneMap.put(bone, new ArrayList<>());
+					}
+					boneMap.get(bone).add(geosetVertex);
+				}
+			}
+		}
+		return boneMap;
+	}
 }

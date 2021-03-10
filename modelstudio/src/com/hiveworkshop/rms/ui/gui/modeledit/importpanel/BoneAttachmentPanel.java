@@ -4,42 +4,67 @@ import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import javax.swing.event.CaretListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.util.List;
+import java.util.function.Consumer;
 
 class BoneAttachmentPanel extends JPanel {
 	JLabel title;
 
 	// Old bone refs (matrices)
-	JList<MatrixShell> oldBoneRefsList;
+	JList<MatrixShell> recModBoneRefsList;
+	IterableListModel<MatrixShell> recModMatrixShells;
+	IterableListModel<MatrixShell> filteredRecModMatrixShells = new IterableListModel<>();
 
 	// New refs
 	IterableListModel<BoneShell> newRefs = new IterableListModel<>();
 	JList<BoneShell> newRefsList;
 
 	// Bones (all available -- NEW AND OLD)
-	IterableListModel<BoneShell> bones;
+	IterableListModel<BoneShell> futureBones;
+	IterableListModel<BoneShell> filteredFutureBones = new IterableListModel<>();
 	JList<BoneShell> bonesList;
 	JScrollPane bonesPane;
 
-	MatrixShell currentMatrix = null;
 	ModelHolderThing mht;
 
 	GeosetShell selectedGeoset;
+	JCheckBox linkBox;
+
+	JTextField leftSearchField;
+	JTextField rightSearchField;
+	boolean listResetQued = false;
 
 	public BoneAttachmentPanel(ModelHolderThing mht, final BoneShellListCellRenderer renderer) {
-		setLayout(new MigLayout("gap 0 0 0 0, insets 0 0 0 0, fill", "[grow][grow]0[][grow]", "[grow]"));
+		setLayout(new MigLayout("gap 0 0 0 0, insets 0 0 0 0, fill", "[grow, 30%:32%:40%]10[grow, 30%:32%:40%]0[][grow, 30%:32%:40%]", "[grow]"));
 		this.mht = mht;
 
-		JPanel oldBonesPanel = new JPanel(new MigLayout("gap 0 0 0 0, insets 0 0 0 0, fill", "[grow]", "[][grow]"));
+		JPanel oldBonesPanel = new JPanel(new MigLayout("gap 0 0 0 0, insets 0 0 0 0, fill", "[grow]", "[][][grow]"));
 		oldBonesPanel.add(new JLabel("Old Bone References"), "wrap");
 
+		leftSearchField = new JTextField();
+		rightSearchField = new JTextField();
 
-		oldBoneRefsList = new JList<>();
-		oldBoneRefsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		FocusAdapter focusAdapter = getFocusAdapter(leftSearchField, rightSearchField, this::setRecModMatrixFilter);
+		leftSearchField.addFocusListener(focusAdapter);
+
+		FocusAdapter focusAdapter1 = getFocusAdapter(rightSearchField, leftSearchField, this::setFutureBonesFilter);
+		rightSearchField.addFocusListener(focusAdapter1);
+		linkBox = new JCheckBox("linked search");
+		linkBox.addActionListener(e -> queResetList());
+
+		oldBonesPanel.add(leftSearchField, "grow, split");
+		oldBonesPanel.add(linkBox, "wrap");
+
+
+		recModBoneRefsList = new JList<>();
+		recModBoneRefsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 //		oldBoneRefsList.setCellRenderer(renderer);
 //		oldBoneRefsList.setCellRenderer(new MatrixShell2DListCellRenderer(new ModelViewManager(impPanel.currentModel), new ModelViewManager(impPanel.importedModel)));
-		oldBoneRefsList.addListSelectionListener(e -> refreshLists());
-		JScrollPane oldBoneRefsPane = new JScrollPane(oldBoneRefsList);
+		recModBoneRefsList.addListSelectionListener(e -> refreshLists());
+		JScrollPane oldBoneRefsPane = new JScrollPane(recModBoneRefsList);
 		oldBonesPanel.add(oldBoneRefsPane, "growy, growx");
 
 		add(oldBonesPanel, "growy, growx");
@@ -62,20 +87,20 @@ class BoneAttachmentPanel extends JPanel {
 
 		JPanel upDownPanel = new JPanel(new MigLayout("gap 0 0 0 0"));
 		JButton moveUp = new JButton(ImportPanel.moveUpIcon);
-//		moveUp.addActionListener(e -> moveUp());
 		moveUp.addActionListener(e -> moveBone(-1));
 		upDownPanel.add(moveUp, "wrap");
 
 		JButton moveDown = new JButton(ImportPanel.moveDownIcon);
-//		moveDown.addActionListener(e -> moveDown());
 		moveDown.addActionListener(e -> moveBone(1));
 		upDownPanel.add(moveDown, "wrap");
 
 		add(upDownPanel, "aligny center");
 
 
-		JPanel bonesPanel = new JPanel(new MigLayout("gap 0 0 0 0, insets 0 0 0 0, fill", "", "[][grow][]"));
+		JPanel bonesPanel = new JPanel(new MigLayout("gap 0 0 0 0, insets 0 0 0 0, fill", "[grow]", "[][][grow][]"));
 		bonesPanel.add(new JLabel("Bones"), "wrap");
+
+		bonesPanel.add(rightSearchField, "grow, wrap");
 
 		// Built before oldBoneRefs, so that the MatrixShells can default to using New Refs with the same name as their first bone
 		bonesList = new JList<>();
@@ -94,9 +119,10 @@ class BoneAttachmentPanel extends JPanel {
 
 	public void setGeoset(GeosetShell geosetShell) {
 		selectedGeoset = geosetShell;
-		bones = mht.getFutureBoneList();
-		bonesList.setModel(bones);
-		oldBoneRefsList.setModel(geosetShell.getMatrixShells());
+		futureBones = mht.getFutureBoneList();
+		bonesList.setModel(futureBones);
+		recModMatrixShells = geosetShell.getMatrixShells();
+		recModBoneRefsList.setModel(recModMatrixShells);
 		reloadNewRefsList();
 	}
 
@@ -110,7 +136,7 @@ class BoneAttachmentPanel extends JPanel {
 
 		for (int i = 0; i < size; i++) {
 			int index = start - (i * dir);
-			selected[index] = oldBoneRefsList.getSelectedValue().moveBone(selectedValuesList.get(index), dir);
+			selected[index] = recModBoneRefsList.getSelectedValue().moveBone(selectedValuesList.get(index), dir);
 		}
 		newRefsList.setSelectedIndices(selected);
 
@@ -119,7 +145,7 @@ class BoneAttachmentPanel extends JPanel {
 	private void removeNewRef() {
 		int i = newRefsList.getSelectedIndex() - newRefsList.getSelectedValuesList().size();
 		for (BoneShell bs : newRefsList.getSelectedValuesList()) {
-			oldBoneRefsList.getSelectedValue().removeNewBone(bs);
+			recModBoneRefsList.getSelectedValue().removeNewBone(bs);
 		}
 		if (i >= (newRefs.size())) {
 			i = newRefs.size() - 1;
@@ -131,7 +157,7 @@ class BoneAttachmentPanel extends JPanel {
 	}
 
 	private void useBone() {
-		MatrixShell selectedMatrix = oldBoneRefsList.getSelectedValue();
+		MatrixShell selectedMatrix = recModBoneRefsList.getSelectedValue();
 		if (selectedMatrix != null) {
 			for (BoneShell bs : bonesList.getSelectedValuesList()) {
 				if (!selectedMatrix.getNewBones().contains(bs)) {
@@ -142,14 +168,108 @@ class BoneAttachmentPanel extends JPanel {
 	}
 
 	public void refreshLists() {
-		bones = mht.getFutureBoneList();
+		futureBones = mht.getFutureBoneList();
 		reloadNewRefsList();
 	}
 
 	public void reloadNewRefsList() {
-		MatrixShell selectedMatrix = oldBoneRefsList.getSelectedValue();
+		MatrixShell selectedMatrix = recModBoneRefsList.getSelectedValue();
 		if (selectedMatrix != null) {
 			newRefsList.setModel(selectedMatrix.getNewBones());
 		}
+	}
+
+	private void queResetList() {
+		if (!linkBox.isSelected()) {
+			listResetQued = true;
+		}
+	}
+
+	private FocusAdapter getFocusAdapter(final JTextField mainSearchField, final JTextField secondSearchField, final Consumer<String> listModelChangerFunction) {
+		return new FocusAdapter() {
+			CaretListener caretListener = getCaretListener(mainSearchField, secondSearchField, listModelChangerFunction);
+
+			@Override
+			public void focusGained(FocusEvent e) {
+				mainSearchField.addCaretListener(caretListener);
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				mainSearchField.removeCaretListener(caretListener);
+			}
+		};
+	}
+
+	private CaretListener getCaretListener(JTextField activeSearchField, JTextField inActiveSearchField, Consumer<String> listModelFunction) {
+		return e -> {
+			if (linkBox.isSelected()) {
+				inActiveSearchField.setText(activeSearchField.getText());
+			}
+			String filterText = activeSearchField.getText();
+			listModelFunction.accept(filterText);
+		};
+	}
+
+	private void setFutureBonesFilter(String filterText) {
+		applyFutureBonesListModel(filterText);
+		if (linkBox.isSelected()) {
+			applyRecModMatrixFilteredListModel(filterText);
+		} else if (listResetQued) {
+			listResetQued = false;
+			setImportIntoListModel(recModMatrixShells);
+			leftSearchField.setText("");
+		}
+	}
+
+	private void applyFutureBonesListModel(String filterText) {
+		if (!filterText.equals("")) {
+			filteredFutureBones.clear();
+			for (BoneShell boneShell : futureBones) {
+				if (boneShell.getName().toLowerCase().contains(filterText.toLowerCase())) {
+					filteredFutureBones.addElement(boneShell);
+				}
+			}
+			setFutureBoneListModel(filteredFutureBones);
+		} else {
+			setFutureBoneListModel(futureBones);
+		}
+	}
+
+	private void setRecModMatrixFilter(String filterText) {
+		applyRecModMatrixFilteredListModel(filterText);
+		if (linkBox.isSelected()) {
+			applyFutureBonesListModel(filterText);
+		} else if (listResetQued) {
+			listResetQued = false;
+			setFutureBoneListModel(futureBones);
+			rightSearchField.setText("");
+		}
+	}
+
+	private void applyRecModMatrixFilteredListModel(String filterText) {
+		if (!filterText.equals("")) {
+			filteredRecModMatrixShells.clear();
+			for (MatrixShell matrixShell : recModMatrixShells) {
+				for (BoneShell boneShell : matrixShell.getOrgBones()){
+					if (boneShell.getName().toLowerCase().contains(filterText.toLowerCase())) {
+						filteredRecModMatrixShells.addElement(matrixShell);
+						break;
+					}
+				}
+			}
+			setImportIntoListModel(filteredRecModMatrixShells);
+		} else {
+			setImportIntoListModel(recModMatrixShells);
+		}
+	}
+
+	public void setFutureBoneListModel(IterableListModel<BoneShell> model) {
+		bonesList.setModel(model);
+	}
+
+
+	private void setImportIntoListModel(IterableListModel<MatrixShell> model) {
+		recModBoneRefsList.setModel(model);
 	}
 }

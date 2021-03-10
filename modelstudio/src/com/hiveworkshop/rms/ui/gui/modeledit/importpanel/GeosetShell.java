@@ -11,7 +11,7 @@ public class GeosetShell {
 	private String name;
 	private int index;
 	private boolean isFromDonating;
-	private Geoset geoset;
+	private final Geoset geoset;
 	private Geoset importGeoset;
 	private boolean doImport = true;
 	private Material oldMaterial;

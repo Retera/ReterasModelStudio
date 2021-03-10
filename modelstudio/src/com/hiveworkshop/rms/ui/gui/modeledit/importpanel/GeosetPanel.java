@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.Material;
 import net.miginfocom.swing.MigLayout;
 
@@ -10,25 +9,19 @@ import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
 
 class GeosetPanel extends JPanel {
-	// Geoset/Skin panel for controlling materials and geosets
-	DefaultListModel<Material> materials;
-	JList<Material> materialList;
-	JScrollPane materialListPane;
-	JCheckBox doImport;
-	JLabel geoTitle;
-	JLabel materialText;
-	EditableModel model;
-	Geoset geoset;
-	int index;
-	boolean isFromDonating;
-	MaterialListCellRenderer renderer;
-	ModelHolderThing mht;
-	GeosetShell selectedGeoset;
+	private JList<Material> materialList;
+	private JScrollPane materialListPane;
+	private JCheckBox doImport;
+	private JLabel geoTitle;
+	private JLabel materialText;
+	private MaterialListCellRenderer renderer;
+	private ModelHolderThing mht;
+	private GeosetShell selectedGeoset;
 
 	public GeosetPanel(ModelHolderThing mht, DefaultListModel<Material> materials, MaterialListCellRenderer renderer) {
 		this.mht = mht;
 		setLayout(new MigLayout("gap 0"));
-		this.materials = materials;
+		// Geoset/Skin panel for controlling materials and geosets
 		this.renderer = renderer;
 
 		geoTitle = new JLabel("Select a geoset");
@@ -37,7 +30,7 @@ class GeosetPanel extends JPanel {
 
 		doImport = new JCheckBox("Import this Geoset");
 		doImport.setSelected(true);
-		doImport.addChangeListener(e -> checkboxToggeled());
+		doImport.addActionListener(e -> checkboxToggeled());
 		add(doImport, "left, wrap");
 
 		materialText = new JLabel("Material:");
@@ -49,17 +42,14 @@ class GeosetPanel extends JPanel {
 		materialList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		materialList.addListSelectionListener(this::setGeosetMaterial);
 
-
 		materialListPane = new JScrollPane(materialList);
 		add(materialListPane, "grow");
 	}
 
 	public void setGeoset(GeosetShell geosetShell) {
 		selectedGeoset = geosetShell;
-		geoset = geosetShell.getGeoset();
-		this.model = geosetShell.getModel();
-		index = geosetShell.getIndex();
-		isFromDonating = geosetShell.isFromDonating();
+		EditableModel model = geosetShell.getModel();
+		int index = geosetShell.getIndex();
 
 		geoTitle.setText(model.getName() + " " + (index + 1));
 
@@ -67,18 +57,18 @@ class GeosetPanel extends JPanel {
 		if (geosetShell.isFromDonating()) {
 			doImport.setSelected(geosetShell.isDoImport());
 		}
-		materialList.setSelectedValue(geoset.getMaterial(), true);
+		materialList.setSelectedValue(selectedGeoset.getMaterial(), true);
 	}
 
 	@Override
 	public void paintComponent(final Graphics g) {
-		renderer.setMaterial(geoset.getMaterial());
+		renderer.setMaterial(selectedGeoset.getOldMaterial());
 		super.paintComponent(g);
 	}
 
 	private void setGeosetMaterial(ListSelectionEvent e) {
 		if (!e.getValueIsAdjusting() && materialList.getSelectedValue() != null) {
-			if (materialList.getSelectedValue() == selectedGeoset.getNewMaterial()) {
+			if (materialList.getSelectedValue() == selectedGeoset.getOldMaterial()) {
 				selectedGeoset.setNewMaterial(null);
 			} else {
 				selectedGeoset.setNewMaterial(materialList.getSelectedValue());

@@ -1,20 +1,17 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
-import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
 class MultiVisibilityPanel extends VisibilityPanel {
-	boolean oldVal = true;
 	ModelHolderThing mht;
 
 	public MultiVisibilityPanel(ModelHolderThing mht,
-	                            IterableListModel<VisibilityShell> recModVisSourcesOld,
-	                            IterableListModel<VisibilityShell> donModVisSourcesNew,
+	                            List<VisibilityShell> recModVisSourcesOld,
+	                            List<VisibilityShell> donModVisSourcesNew,
 	                            final VisShellBoxCellRenderer renderer) {
 		this.mht = mht;
 		setLayout(new MigLayout("gap 0"));
@@ -22,72 +19,109 @@ class MultiVisibilityPanel extends VisibilityPanel {
 		title.setFont(new Font("Arial", Font.BOLD, 26));
 
 		JLabel oldAnimsLabel = new JLabel("Existing animation visibility from: ");
-		List<VisibilityShell> recModShells = new ArrayList<>();
-		recModVisSourcesOld.forEach(recModShells::add);
-		recModSources = new DefaultComboBoxModel<>(recModShells.toArray(new VisibilityShell[0]));
-		receivingModelSourcesBox = new JComboBox<>(recModSources);
-		receivingModelSourcesBox.setEditable(false);
-		receivingModelSourcesBox.setMaximumSize(new Dimension(1000, 25));
-		receivingModelSourcesBox.setRenderer(renderer);
+		receivingModelSourcesBox = getSourceComboBox(renderer, recModVisSourcesOld);
 		receivingModelSourcesBox.addItemListener(e -> setVisGroupItemOld((VisibilityShell) receivingModelSourcesBox.getSelectedItem()));
 
 		JLabel newAnimsLabel = new JLabel("Imported animation visibility from: ");
-
-		List<VisibilityShell> donModShells = new ArrayList<>();
-		donModVisSourcesNew.forEach(donModShells::add);
-		donModSources = new DefaultComboBoxModel<>(donModShells.toArray(new VisibilityShell[0]));
-		donatingModelSourcesBox = new JComboBox<>(donModSources);
-		donatingModelSourcesBox.setEditable(false);
-		donatingModelSourcesBox.setMaximumSize(new Dimension(1000, 25));
-		donatingModelSourcesBox.setRenderer(renderer);
+		donatingModelSourcesBox = getSourceComboBox(renderer, donModVisSourcesNew);
 		donatingModelSourcesBox.addItemListener(e -> setVisGroupItemNew((VisibilityShell) donatingModelSourcesBox.getSelectedItem()));
 
 		favorOld = new JCheckBox("Favor component's original visibility when combining");
-		favorOld.setSelected(true);
-		favorOld.addChangeListener(e -> favorOldPressed());
+		favorOld.addActionListener(e -> favorOldPressed());
 
-		add(title, "cell 0 0, spanx, align center, wrap");
-		add(oldAnimsLabel, "cell 0 1");
-		add(receivingModelSourcesBox, "cell 1 1");
-		add(newAnimsLabel, "cell 0 2");
-		add(donatingModelSourcesBox, "cell 1 2");
-		add(favorOld, "cell 0 3");
+		add(title, "align center, wrap");
+		add(oldAnimsLabel, "left, wrap");
+		add(receivingModelSourcesBox, "grow, wrap");
+		add(newAnimsLabel, "left, wrap");
+		add(donatingModelSourcesBox, "grow, wrap");
+		add(favorOld, "left, wrap");
+	}
+
+	public void updateMultiVisPanel(){
+		List<VisibilityShell> selectedValuesList = mht.visTabs.getSelectedValuesList();
+
+		boolean firstIsDoFavorOld = selectedValuesList.get(0).isFavorOld();
+
+		if(selectedValuesList.stream().anyMatch(vs -> vs.isFavorOld() != firstIsDoFavorOld)){
+			this.favorOld.setSelected(false);
+			this.favorOld.setBackground(Color.ORANGE);
+		}  else {
+			this.favorOld.setSelected(firstIsDoFavorOld);
+			this.favorOld.setBackground(this.getBackground());
+		}
+
+		VisibilityShell firstOldVisSource = selectedValuesList.get(0).getOldVisSource();
+		if(selectedValuesList.stream()
+				.anyMatch(vs -> vs.getOldVisSource() != firstOldVisSource
+						&& !((firstOldVisSource == null || firstOldVisSource == mht.alwaysVisible)
+							&& (vs.getOldVisSource() == null || vs.getOldVisSource() == mht.alwaysVisible)))){
+			setMultipleOld();
+		} else if (firstOldVisSource == null) {
+			receivingModelSourcesBox.setSelectedItem(mht.alwaysVisible);
+		} else {
+			receivingModelSourcesBox.setSelectedItem(firstOldVisSource);
+		}
+
+		VisibilityShell firstNewVisSource = selectedValuesList.get(0).getNewVisSource();
+		if(selectedValuesList.stream()
+				.anyMatch(vs -> vs.getNewVisSource() != firstNewVisSource
+						&& !((firstOldVisSource == null || firstOldVisSource == mht.alwaysVisible)
+							&& (vs.getNewVisSource() == null || vs.getNewVisSource() == mht.alwaysVisible)))){
+			setMultipleNew();
+		} else if (firstNewVisSource == null) {
+			donatingModelSourcesBox.setSelectedItem(mht.alwaysVisible);
+		} else {
+			donatingModelSourcesBox.setSelectedItem(firstNewVisSource);
+		}
+
+	}
+
+	private JComboBox<VisibilityShell> getSourceComboBox(VisShellBoxCellRenderer renderer, List<VisibilityShell> visSources) {
+		DefaultComboBoxModel<VisibilityShell> sourceModel = new DefaultComboBoxModel<>();
+		sourceModel.addAll(visSources);
+
+		sourceModel.insertElementAt(mht.multipleVisible, 0);
+		JComboBox<VisibilityShell> jComboBox = new JComboBox<>(sourceModel);
+		jComboBox.setMaximumSize(new Dimension(500, 25));
+		jComboBox.setRenderer(renderer);
+		return jComboBox;
 	}
 
 	private void favorOldPressed() {
-		if (favorOld.isSelected() != oldVal) {
-			setVisGroupSelected(favorOld.isSelected());
-			oldVal = favorOld.isSelected();
-		}
-	}
-
-	public void setVisGroupSelected(final boolean flag) {
-		for (VisibilityShell temp : mht.visTabs.getSelectedValuesList()) {
-			temp.setFavorOld(flag);
+		List<VisibilityShell> selectedValuesList = mht.visTabs.getSelectedValuesList();
+		for(VisibilityShell vs : selectedValuesList){
+			vs.setFavorOld(favorOld.isSelected());
 		}
 	}
 
 	public void setVisGroupItemOld(VisibilityShell o) {
-		for (VisibilityShell temp : mht.visTabs.getSelectedValuesList()) {
-			temp.setOldVisSource(o);
+		if (receivingModelSourcesBox.getSelectedItem() != mht.multipleVisible){
+			((DefaultComboBoxModel<VisibilityShell>)receivingModelSourcesBox.getModel()).removeElement(mht.multipleVisible);
+			for (VisibilityShell temp : mht.visTabs.getSelectedValuesList()) {
+				temp.setOldVisSource(o);
+			}
 		}
 	}
 
 	public void setVisGroupItemNew(VisibilityShell o) {
-		for (VisibilityShell temp : mht.visTabs.getSelectedValuesList()) {
-			temp.setNewVisSource(o);
+		if (donatingModelSourcesBox.getSelectedItem() != mht.multipleVisible){
+			((DefaultComboBoxModel<VisibilityShell>)donatingModelSourcesBox.getModel()).removeElement(mht.multipleVisible);
+			for (VisibilityShell temp : mht.visTabs.getSelectedValuesList()) {
+				temp.setNewVisSource(o);
+			}
 		}
 	}
 
 	public void setMultipleOld() {
+		// setting the combo boxes to editable enables select a temporary item not in the list model
 		receivingModelSourcesBox.setEditable(true);
-		receivingModelSourcesBox.setSelectedItem("Multiple selected");
+		receivingModelSourcesBox.setSelectedItem(mht.multipleVisible);
 		receivingModelSourcesBox.setEditable(false);
 	}
 
 	public void setMultipleNew() {
 		donatingModelSourcesBox.setEditable(true);
-		donatingModelSourcesBox.setSelectedItem("Multiple selected");
+		donatingModelSourcesBox.setSelectedItem(mht.multipleVisible);
 		donatingModelSourcesBox.setEditable(false);
 	}
 }

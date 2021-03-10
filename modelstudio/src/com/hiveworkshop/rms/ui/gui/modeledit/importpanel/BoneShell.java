@@ -149,6 +149,29 @@ public class BoneShell {
 			}
 		}
 	}
+	public String toString(boolean showClass, boolean showParent) {
+		if (bone == null) {
+			return "None";
+		}
+		String stringToReturn = "";
+		if (modelName != null) {
+			stringToReturn += modelName + ": ";
+		}
+		if (showClass) {
+			stringToReturn += "(" + bone.getClass().getSimpleName() + ") ";
+		}
+		stringToReturn += name;
+		if (showParent){
+			if (oldParentBs == null) {
+				stringToReturn += "; (no parent)";
+			} else {
+				stringToReturn += "; " + oldParentBs.getName();
+			}
+		}
+		return stringToReturn;
+	}
+
+
 
 	public String getName() {
 		return name;
@@ -165,11 +188,6 @@ public class BoneShell {
 
 	public BoneShell setImportBoneShell(BoneShell importBoneShell) {
 		this.importBoneShell = importBoneShell;
-//		if (importBoneShell != null) {
-//			this.importBone = importBoneShell.getBone();
-//		} else {
-//			this.importBone = null;
-//		}
 		return this;
 	}
 }

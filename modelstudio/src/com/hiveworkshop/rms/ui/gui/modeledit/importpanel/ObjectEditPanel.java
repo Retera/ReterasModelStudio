@@ -34,21 +34,21 @@ public class ObjectEditPanel extends JPanel {
 		bonePanelRenderer = new BoneShellListCellRenderer(mht.recModelManager, mht.donModelManager);
 		final ObjPanelListCellRenderer objectPanelRenderer = new ObjPanelListCellRenderer();
 
+		objectPanelCards.add(new JPanel(), "blank");
+
 		singleObjectPanel = new ObjectPanel(mht, bonePanelRenderer);
 		objectPanelCards.add(singleObjectPanel, "single");
-
-		objectPanelCards.add(new JPanel(), "blank");
 
 		multiObjectPane = new MultiObjectPanel(mht, mht.getFutureBoneListExtended(true));
 		objectPanelCards.add(multiObjectPane, "multiple");
 
-		mht.donModObjectJList.setCellRenderer(objectPanelRenderer);
-		mht.donModObjectJList.addListSelectionListener(e -> objectTabsValueChanged(mht, e));
-		mht.donModObjectJList.setSelectedIndex(0);
+
 		objectPanelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
 
-
+		mht.donModObjectJList.setCellRenderer(objectPanelRenderer);
+		mht.donModObjectJList.addListSelectionListener(e -> objectTabsValueChanged(mht, e));
 		JScrollPane objectTabsPane = new JScrollPane(mht.donModObjectJList);
+
 		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, objectTabsPane, objectPanelCards);
 		add(splitPane, "cell 0 1, growx, growy, spanx 2");
 	}
@@ -107,20 +107,8 @@ public class ObjectEditPanel extends JPanel {
 				singleObjectPanel.setSelectedObject(mht.donModObjectJList.getSelectedValue());
 			} else {
 				bonePanelRenderer.setSelectedObjectShell(null);
+				multiObjectPane.updateMultiObjectPanel();
 				objectCardLayout.show(objectPanelCards, "multiple");
-
-				boolean dif = false;
-				boolean selectedt = selectedValuesList.get(0).getShouldImport();
-
-				for (ObjectShell op : selectedValuesList) {
-					if (selectedt != op.getShouldImport()) {
-						dif = true;
-						break;
-					}
-				}
-				if (!dif) {
-					multiObjectPane.doImport.setSelected(selectedt);
-				}
 			}
 		}
 	}

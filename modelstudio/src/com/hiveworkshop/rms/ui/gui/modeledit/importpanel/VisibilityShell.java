@@ -16,11 +16,7 @@ class VisibilityShell {
 
 	private boolean alwaysVisible = false;
 	private boolean neverVisible = false;
-
-	public VisibilityShell(final Named n, final EditableModel whichModel) {
-		source = n;
-		model = whichModel;
-	}
+	private boolean multipleSelected = false;
 
 	public VisibilityShell(final VisibilitySource vs, final EditableModel whichModel, boolean isFromDonating) {
 		source = (Named) vs;
@@ -40,13 +36,13 @@ class VisibilityShell {
 	public VisibilityShell(boolean alwaysVisible) {
 		this.alwaysVisible = alwaysVisible;
 		this.neverVisible = !alwaysVisible;
-//		this.isFromDonating = isFromDonating;
 	}
 
-	public VisibilityShell(boolean alwaysVisible, boolean isFromDonating) {
-		this.alwaysVisible = alwaysVisible;
-		this.neverVisible = !alwaysVisible;
-		this.isFromDonating = isFromDonating;
+	public VisibilityShell setMultiple(){
+		alwaysVisible = false;
+		neverVisible = false;
+		multipleSelected = true;
+		return this;
 	}
 
 	public Named getSource() {
@@ -136,11 +132,17 @@ class VisibilityShell {
 	public String toString() {
 		if (source != null) {
 //			return source.getName();
-			return model.getName() + ": " + source.getName();
+			String name = source.getName();
+			if(name.length() > 50){
+				name = name.substring(0,50);
+			}
+			return model.getName() + ": " + name;
 		} else if (alwaysVisible && !neverVisible) {
 			return "Always visible";
 		} else if (neverVisible && !alwaysVisible) {
 			return "Not visible";
+		} else if (multipleSelected) {
+			return "Multiple selected";
 		}
 		return "Null";
 	}

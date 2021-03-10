@@ -5,9 +5,9 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 class MultiObjectPanel extends ObjectPanel {
-	boolean oldVal = true;
 	ModelHolderThing mht;
 
 	public MultiObjectPanel(ModelHolderThing mht, final IterableListModel<BoneShell> possibleParents) {
@@ -19,7 +19,7 @@ class MultiObjectPanel extends ObjectPanel {
 
 		doImport = new JCheckBox("Import these objects (click to apply to all)");
 		doImport.setSelected(true);
-		doImport.addChangeListener(e -> doImportPressed());
+		doImport.addActionListener(e -> doImportPressed());
 		add(doImport, "left, wrap");
 
 		oldParentLabel = new JLabel("(Old parent can only be displayed for a single object)");
@@ -33,20 +33,26 @@ class MultiObjectPanel extends ObjectPanel {
 		parentsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		parentsPane = new JScrollPane(parentsList);
 		parentsPane.setEnabled(false);
-		parentsList.setEnabled(false);
 		add(parentsPane, "growx, growy 200");
 	}
 
-	private void doImportPressed() {
-		if (doImport.isSelected() != oldVal) {
-			setObjGroupSelected(doImport.isSelected());
-			oldVal = doImport.isSelected();
+	public void updateMultiObjectPanel(){
+		List<ObjectShell> selectedValuesList = mht.donModObjectJList.getSelectedValuesList();
+
+		boolean firstShouldImport = selectedValuesList.get(0).getShouldImport();
+
+		if (selectedValuesList.stream().anyMatch(objectShell -> objectShell.getShouldImport() != firstShouldImport)){
+			doImport.setSelected(false);
+			doImport.setBackground(Color.ORANGE);
+		} else {
+			doImport.setSelected(firstShouldImport);
+			doImport.setBackground(this.getBackground());
 		}
 	}
 
-	public void setObjGroupSelected(final boolean flag) {
+	private void doImportPressed() {
 		for (ObjectShell op : mht.donModObjectJList.getSelectedValuesList()) {
-			op.setShouldImport(flag);
+			op.setShouldImport(doImport.isSelected());
 		}
 	}
 }

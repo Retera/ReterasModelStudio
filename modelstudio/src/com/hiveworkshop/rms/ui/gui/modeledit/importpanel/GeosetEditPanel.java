@@ -28,7 +28,11 @@ public class GeosetEditPanel extends JPanel {
 			final GeosetPanel geoPanel = new GeosetPanel(mht, mht.allMaterials, materialsRenderer);
 			geoPanel.setGeoset(geosetShell);
 
-			geosetTabs.addTab(geosetShell.getModelName() + " " + (geosetShell.getIndex() + 1), ImportPanel.greenIcon, geoPanel, "Click to modify material data for this geoset.");
+			ImageIcon imageIcon = ImportPanel.greenIcon;
+			if(geosetShell.isFromDonating()){
+				imageIcon = ImportPanel.orangeIcon;
+			}
+			geosetTabs.addTab(geosetShell.getModelName() + " " + (geosetShell.getIndex() + 1), imageIcon, geoPanel, "Click to modify material data for this geoset.");
 		}
 
 		add(geosetTabs, "growx, growy");

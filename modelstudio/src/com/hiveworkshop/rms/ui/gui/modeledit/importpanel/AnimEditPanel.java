@@ -33,7 +33,6 @@ public class AnimEditPanel extends JPanel {
 
 			mht.animTabs.addTab(anim.getName(), ImportPanel.orangeIcon, iAnimPanel, "Click to modify data for this animation sequence.");
 		}
-		mht.animTabs.addChangeListener(mht.getDaChangeListener());
 
 //		JPanel bigPanel = new JPanel(new MigLayout("gap 0, fill", "[30%:30%:30%][70%:70%:70%]", "[grow]"));
 //		bigPanel.add(mht.animTabs);
@@ -64,9 +63,9 @@ public class AnimEditPanel extends JPanel {
 	}
 
 	public JButton createButton(String text, ActionListener actionListener) {
-		JButton uncheckAllAnims = new JButton(text);
-		uncheckAllAnims.addActionListener(actionListener);
-		return uncheckAllAnims;
+		JButton button = new JButton(text);
+		button.addActionListener(actionListener);
+		return button;
 	}
 
 	private void renameAllAnims(ModelHolderThing mht) {

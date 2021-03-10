@@ -183,6 +183,7 @@ public abstract class ComPerspViewport extends BetterAWTGLCanvas implements Rend
 				if (e.getKeyCode() == KeyEvent.VK_NUMPAD7) {
 					// Top view
 					System.out.println("VK_NUMPAD7");
+					System.out.println(modelExt);
 					setViewportCamera(0, -85, (int) -(maxExt.length() * 2), 0, 90);
 				}
 				if (e.getKeyCode() == KeyEvent.VK_NUMPAD1) {

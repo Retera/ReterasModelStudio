@@ -7,7 +7,6 @@ import com.hiveworkshop.rms.util.BiMap;
 import com.hiveworkshop.rms.util.IterableListModel;
 
 import javax.swing.*;
-import javax.swing.event.ChangeListener;
 import java.util.*;
 
 public class ModelHolderThing {
@@ -59,10 +58,12 @@ public class ModelHolderThing {
 	public IterableListModel<VisibilityShell> donModVisibilityShells = new IterableListModel<>();
 	//	public JList<VisibilityShell> donModVisibilityJList = new JList<>(donModVisibilityShells);
 	public IterableListModel<VisibilityShell> recModVisibilityShells = new IterableListModel<>();
-	//	public ArrayList<VisibilityShell> allVisShells = new ArrayList<>();
-	public IterableListModel<VisibilityShell> recModVisSourcesOld = new IterableListModel<>();
-	public IterableListModel<VisibilityShell> donModVisSourcesNew = new IterableListModel<>();
-	//	public ArrayList<Object> donModVisSourcesNew = new ArrayList<>();
+
+	public List<VisibilityShell> recModVisSourcesOld = new ArrayList<>();
+	public List<VisibilityShell> donModVisSourcesNew = new ArrayList<>();
+//	public IterableListModel<VisibilityShell> recModVisSourcesOld = new IterableListModel<>();
+//	public IterableListModel<VisibilityShell> donModVisSourcesNew = new IterableListModel<>();
+
 	public BoneShellListCellRenderer boneShellRenderer;
 	//	public JList<VisibilityShell> recModVisibilityJList = new JList<>(recModVisibilityShells);
 	BiMap<VisibilitySource, VisibilityShell> recModVisShellBiMap = new BiMap<>();
@@ -80,16 +81,15 @@ public class ModelHolderThing {
 
 	VisibilityShell neverVisible = new VisibilityShell(false);
 	VisibilityShell alwaysVisible = new VisibilityShell(true);
+	VisibilityShell multipleVisible = new VisibilityShell(false).setMultiple();
 
 	public ModelViewManager recModelManager;
 	public ModelViewManager donModelManager;
-	ChangeListener changeListener;
 
 
 	public ModelHolderThing(EditableModel receivingModel, EditableModel donatingModel) {
 		this.receivingModel = receivingModel;
 		this.donatingModel = donatingModel;
-		changeListener = getChangeListener();
 
 		initBoneHelperLists();
 		initiateGeosetLists();
@@ -259,21 +259,6 @@ public class ModelHolderThing {
 				}
 			}
 		}
-	}
-
-
-	public ChangeListener getChangeListener() {
-		return e -> {
-			((AnimPanel) animTabs.getSelectedComponent()).updateSelectionPicks();
-			getFutureBoneList();
-			getFutureBoneListExtended(false);
-			visibilityList();
-//				repaint();
-		};
-	}
-
-	public ChangeListener getDaChangeListener() {
-		return changeListener;
 	}
 
 	long addCount;

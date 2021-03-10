@@ -1,12 +1,10 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
-import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
-import java.util.ArrayList;
 import java.util.List;
 
 class VisibilityPanel extends JPanel {
@@ -25,7 +23,7 @@ class VisibilityPanel extends JPanel {
 		// for use in multi pane
 	}
 
-	public VisibilityPanel(ModelHolderThing mht, VisShellBoxCellRenderer renderer, IterableListModel<VisibilityShell> recModVisSourcesOld, IterableListModel<VisibilityShell> donModVisSourcesNew) {
+	public VisibilityPanel(ModelHolderThing mht, VisShellBoxCellRenderer renderer, List<VisibilityShell> recModVisSourcesOld, List<VisibilityShell> donModVisSourcesNew) {
 		this.mht = mht;
 		setLayout(new MigLayout("gap 0"));
 		title = new JLabel("Select a source");
@@ -48,13 +46,15 @@ class VisibilityPanel extends JPanel {
 		add(donatingModelSourcesBox, "grow, wrap");
 
 		favorOld = new JCheckBox("Favor component's original visibility when combining");
-		favorOld.setSelected(true);
+		favorOld.addActionListener(e -> setFavorOld());
 		add(favorOld, "left, wrap");
 	}
 
 	public void setSource(VisibilityShell sourceShell) {
 		this.selectedVisShell = sourceShell;
-		title.setText(sourceShell.getModel().getName() + ": " + sourceShell.getSource().getName());
+//		title.setText(sourceShell.getModel().getName() + ": " + sourceShell.getSource().getName());
+		title.setText(sourceShell.toString());
+		favorOld.setSelected(selectedVisShell.isFavorOld());
 
 		if (sourceShell.getOldVisSource() != null && mht.recModVisSourcesOld.contains(sourceShell.getOldVisSource())) {
 			receivingModelSourcesBox.setSelectedItem(sourceShell.getOldVisSource());
@@ -72,13 +72,16 @@ class VisibilityPanel extends JPanel {
 		}
 	}
 
-	private JComboBox<VisibilityShell> getSourceComboBox(VisShellBoxCellRenderer renderer, IterableListModel<VisibilityShell> visSources) {
-		List<VisibilityShell> shells = new ArrayList<>();
-		visSources.forEach(shells::add);
-		DefaultComboBoxModel<VisibilityShell> sourceModel = new DefaultComboBoxModel<>(shells.toArray(new VisibilityShell[0]));
+	private void setFavorOld(){
+		selectedVisShell.setFavorOld(favorOld.isSelected());
+	}
+
+	private JComboBox<VisibilityShell> getSourceComboBox(VisShellBoxCellRenderer renderer, List<VisibilityShell> visSources) {
+		DefaultComboBoxModel<VisibilityShell> sourceModel = new DefaultComboBoxModel<>();
+		sourceModel.addAll(visSources);
+
 		JComboBox<VisibilityShell> jComboBox = new JComboBox<>(sourceModel);
-		jComboBox.setEditable(false);
-		jComboBox.setMaximumSize(new Dimension(1000, 25));
+		jComboBox.setMaximumSize(new Dimension(500, 25));
 		jComboBox.setRenderer(renderer);
 		return jComboBox;
 	}

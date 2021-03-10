@@ -4,10 +4,10 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 class MultiBonePanel extends BonePanel {
 	JButton setAllParent;
-	boolean listenForChange = true;
 	ModelHolderThing mht;
 
 	BoneShellMotionListCellRenderer oneShellRenderer;
@@ -22,8 +22,7 @@ class MultiBonePanel extends BonePanel {
 		title.setFont(new Font("Arial", Font.BOLD, 26));
 		add(title, "align center, wrap");
 
-		importTypeBox.setEditable(false);
-		importTypeBox.addActionListener(e -> selectSimilarOrSomething());
+		importTypeBox.addActionListener(e -> showImportTypeCard());
 		importTypeBox.setMaximumSize(new Dimension(200, 20));
 		add(importTypeBox, "wrap");
 
@@ -45,51 +44,51 @@ class MultiBonePanel extends BonePanel {
 		add(setAllParent, "wrap");
 	}
 
+	public void updateMultiBonePanel(){
+		List<BoneShell> selectedValuesList = mht.donModBoneShellJList.getSelectedValuesList();
+
+		int firstImportStatus = selectedValuesList.get(0).getImportStatus();
+
+		if(selectedValuesList.stream().anyMatch(bs -> bs.getImportStatus() != firstImportStatus)){
+			setMultiTypes();
+		} else {
+			importTypeBox.setSelectedIndex(firstImportStatus);
+		}
+	}
+
 	@Override
 	public void setSelectedIndex(final int index) {
-		listenForChange = false;
-		importTypeBox.setSelectedIndex(index);
-		listenForChange = true;
-	}
-
-	public void setSelectedValue(final String value) {
-		listenForChange = false;
-		importTypeBox.setSelectedItem(value);
-		listenForChange = true;
-	}
-
-	public void setMultiTypes() {
-		listenForChange = false;
-		importTypeBox.setEditable(true);
-		importTypeBox.setSelectedItem("Multiple selected");
-		importTypeBox.setEditable(false);
-		// boneListPane.setVisible(false);
-		// boneList.setVisible(false);
-		cards.show(cardPanel, "blank");
-		revalidate();
-		listenForChange = true;
-	}
-
-	private void selectSimilarOrSomething() {
-		final long nanoStart = System.nanoTime();
-		final boolean pastListSelectionState = listenSelection;
-		listenSelection = false;
 		if (importTypeBox.getSelectedItem() == MOTIONFROM) {
 			cards.show(cardPanel, "boneList");
 		} else {
 			cards.show(cardPanel, "blank");
 		}
-		listenSelection = pastListSelectionState;
-		if (listenForChange) {
-			setSelectedItem(importTypeBox.getSelectedIndex());
-		}
-		final long nanoEnd = System.nanoTime();
-		System.out.println("MultiBonePanel.actionPerformed() took " + (nanoEnd - nanoStart) + " ns");
 	}
 
-	public void setSelectedItem(int importType) {
+	private void showImportTypeCard() {
+		if (importTypeBox.getSelectedItem() == MOTIONFROM) {
+			cards.show(cardPanel, "boneList");
+			importTypeForAll();
+		} else if(importTypeBox.getSelectedItem() == LEAVE){
+			cards.show(cardPanel, "blank");
+			importTypeForAll();
+		} else if(importTypeBox.getSelectedItem() == IMPORT){
+			cards.show(cardPanel, "blank");
+			importTypeForAll();
+		} else {
+			cards.show(cardPanel, "blank");
+		}
+	}
+
+	public void setMultiTypes() {
+		importTypeBox.setEditable(true);
+		importTypeBox.setSelectedItem("Multiple selected");
+		importTypeBox.setEditable(false);
+	}
+
+	public void importTypeForAll() {
 		for (BoneShell temp : mht.donModBoneShellJList.getSelectedValuesList()) {
-			temp.setImportStatus(importType);
+			temp.setImportStatus(importTypeBox.getSelectedIndex());
 		}
 	}
 
@@ -101,7 +100,7 @@ class MultiBonePanel extends BonePanel {
 	public void setParentMultiBones() {
 		final JList<BoneShell> list = new JList<>(mht.getFutureBoneListExtended(true));
 		list.setCellRenderer(mht.boneShellRenderer);
-		final int x = JOptionPane.showConfirmDialog(null, new JScrollPane(list), "Set Parent for All Selected Bones", JOptionPane.OK_CANCEL_OPTION);
+		final int x = JOptionPane.showConfirmDialog(this, new JScrollPane(list), "Set Parent for All Selected Bones", JOptionPane.OK_CANCEL_OPTION);
 		if (x == JOptionPane.OK_OPTION) {
 			for (BoneShell temp : mht.donModBoneShellJList.getSelectedValuesList()) {
 				temp.setNewParentBs(list.getSelectedValue());
