@@ -21,7 +21,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.SkinPopup;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChangeListener;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
@@ -36,7 +35,6 @@ import java.awt.event.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.util.Collections;
 import java.util.List;
 
 public class Viewport extends JPanel
@@ -458,8 +456,7 @@ public class Viewport extends JPanel
 		final String[] words = { "Accept", "Cancel" };
 		final int i = JOptionPane.showOptionDialog(this, matrixPopup, "Rebuild Matrix", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, words, words[1]);
 		if (i == 0) {
-			// JOptionPane.showMessageDialog(null,"action approved");
-			UndoAction reassignMatrixAction = modelEditor.setMatrix(BoneShell.toBonesList(Collections.list(matrixPopup.newRefs.elements())));
+			UndoAction reassignMatrixAction = modelEditor.setMatrix(matrixPopup.getNewBoneList());
 			undoListener.pushAction(reassignMatrixAction);
 		}
 	}
@@ -469,7 +466,6 @@ public class Viewport extends JPanel
 		final String[] words = { "Accept", "Cancel" };
 		final int i = JOptionPane.showOptionDialog(this, skinPopup, "Rebuild Skin", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, words, words[1]);
 		if (i == 0) {
-			// JOptionPane.showMessageDialog(null,"action approved");
 			undoListener.pushAction(modelEditor.setHDSkinning(skinPopup.getBones(), skinPopup.getSkinWeights()));
 		}
 	}

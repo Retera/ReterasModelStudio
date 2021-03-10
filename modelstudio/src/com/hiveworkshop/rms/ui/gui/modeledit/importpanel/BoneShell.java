@@ -4,9 +4,6 @@ import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.util.BiMap;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class BoneShell {
 	private final Bone bone;
 	private BoneShell importBoneShell;
@@ -36,14 +33,6 @@ public class BoneShell {
 			oldParent = bone.getParent();
 		}
 		this.isFromDonating = isFromDonating;
-	}
-
-	public static List<Bone> toBonesList(final List<BoneShell> boneShells) {
-		final List<Bone> bones = new ArrayList<>();
-		for (final BoneShell bs : boneShells) {
-			bones.add(bs.bone);
-		}
-		return bones;
 	}
 
 	public Bone getImportBone() {

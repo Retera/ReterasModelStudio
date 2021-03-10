@@ -6,14 +6,13 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.MatrixShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ParentToggleRenderer;
 import com.hiveworkshop.rms.util.IterableListModel;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,109 +21,88 @@ import java.util.List;
  * Eric Theller 6/11/2012
  */
 
-public class MatrixPopup extends JPanel implements ListSelectionListener {
-	JLabel title;
+public class MatrixPopup extends JPanel {
 
 	// New refs
-	JLabel newRefsLabel;
 	public IterableListModel<BoneShell> newRefs;
-	JList<BoneShell> newRefsList;
-	JScrollPane newRefsPane;
-	JButton removeNewRef;
-	JButton moveUp;
-	JButton moveDown;
+	JList<BoneShell> newRefsJList;
 
 	// Bones (all available -- NEW AND OLD)
-	JLabel bonesLabel;
 	IterableListModel<BoneShell> bones;
+	IterableListModel<BoneShell> filteredBones = new IterableListModel<>();
 	JList<BoneShell> bonesList;
-	JScrollPane bonesPane;
-	JButton useBone;
-
-	JCheckBox displayParents = new JCheckBox("Display parents", false);
+	JTextField boneSearch;
 
 	EditableModel model;
 
 	public MatrixPopup(final EditableModel model) {
+		setLayout(new MigLayout("gap 0", "[grow][][grow]", "[align center][grow][align center]"));
 		this.model = model;
+
 		final ModelView disp = new ModelViewManager(model);
-		final ParentToggleRenderer renderer = new ParentToggleRenderer(displayParents, disp, null);
+		JCheckBox displayParents = new JCheckBox("Display parents", false);
 		displayParents.addChangeListener(e -> repaint());
 
-		bonesLabel = new JLabel("Bones");
+		final ParentToggleRenderer renderer = new ParentToggleRenderer(displayParents, disp, null);
+
+		JPanel bonePanel = new JPanel(new MigLayout("gap 0, ins 0", "[grow, align center]", "[][][grow][]"));
+		bonePanel.add(new JLabel("Bones"), "wrap");
+
+		boneSearch = new JTextField();
+		boneSearch.addCaretListener(e -> filterBones());
+		bonePanel.add(boneSearch, "growx, wrap");
+
+		// Built before oldBoneRefs, so that the MatrixShells can default to using New Refs with the same name as their first bone
 		buildBonesList();
-		// Built before oldBoneRefs, so that the MatrixShells can default to
-		// using New Refs with the same name as their first bone
+
 		bonesList = new JList<>(bones);
 		bonesList.setCellRenderer(renderer);
-		bonesPane = new JScrollPane(bonesList);
+		JScrollPane bonesPane = new JScrollPane(bonesList);
 		bonesPane.setPreferredSize(new Dimension(400, 500));
 
-		useBone = new JButton("Use Bone(s)", ImportPanel.greenArrowIcon);
+		bonePanel.add(bonesPane, "wrap");
+
+		JButton useBone = new JButton("Use Bone(s)", ImportPanel.greenArrowIcon);
 		useBone.addActionListener(e -> useBone());
 
-		newRefsLabel = new JLabel("New Refs");
+		bonePanel.add(useBone, "wrap");
+
+		JPanel newRefsPanel = new JPanel(new MigLayout("gap 0, ins 0", "[grow, align center]", "[][grow][]"));
+		newRefsPanel.add(new JLabel("New Refs"), "wrap");
+
 		newRefs = new IterableListModel<>();
-		newRefsList = new JList<>(newRefs);
-		newRefsList.setCellRenderer(renderer);
-		newRefsPane = new JScrollPane(newRefsList);
+		newRefsJList = new JList<>(newRefs);
+		newRefsJList.setCellRenderer(renderer);
+		JScrollPane newRefsPane = new JScrollPane(newRefsJList);
 		newRefsPane.setPreferredSize(new Dimension(400, 500));
 
-		removeNewRef = new JButton("Remove", ImportPanel.redXIcon);
+		newRefsPanel.add(newRefsPane, "wrap");
+
+		JButton removeNewRef = new JButton("Remove", ImportPanel.redXIcon);
 		removeNewRef.addActionListener(e -> removeNewRef());
 
-		moveUp = new JButton(ImportPanel.moveUpIcon);
+		newRefsPanel.add(removeNewRef, "wrap");
+
+		JPanel arrowPanel = new JPanel(new MigLayout("gap 0, ins 0", "[]5", "[align center]16[align center]"));
+
+		JButton moveUp = new JButton(ImportPanel.moveUpIcon);
 		moveUp.addActionListener(e -> moveUp());
+		arrowPanel.add(moveUp, "wrap");
 
-		moveDown = new JButton(ImportPanel.moveDownIcon);
+		JButton moveDown = new JButton(ImportPanel.moveDownIcon);
 		moveDown.addActionListener(e -> moveDown());
+		arrowPanel.add(moveDown, "wrap");
 
-		buildLayout();
+		add(displayParents, "wrap, spanx, align center");
+		add(newRefsPanel);
+		add(arrowPanel);
+		add(bonePanel, "wrap");
 
-		refreshNewRefsList();
-	}
-
-	public void buildLayout() {
-		final GroupLayout layout = new GroupLayout(this);
-		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-				.addComponent(displayParents)
-				.addGroup(layout.createSequentialGroup()
-						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-								.addComponent(newRefsLabel)
-								.addComponent(newRefsPane)
-								.addComponent(removeNewRef))
-						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-								.addComponent(moveUp)
-								.addComponent(moveDown))
-						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-								.addComponent(bonesLabel)
-								.addComponent(bonesPane)
-								.addComponent(useBone))));
-		layout.setVerticalGroup(layout.createSequentialGroup()
-				.addComponent(displayParents).addGap(10)
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-						.addComponent(newRefsLabel)
-						.addComponent(bonesLabel))
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-						.addComponent(newRefsPane)
-						.addGroup(layout.createSequentialGroup()
-								.addComponent(moveUp).addGap(16)
-								.addComponent(moveDown))
-						.addComponent(bonesPane))
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-						.addComponent(removeNewRef)
-						.addComponent(useBone)));
-		setLayout(layout);
-	}
-
-	@Override
-	public void valueChanged(final ListSelectionEvent e) {
-		refreshLists();
 	}
 
 
 	private void moveDown() {
-		final int[] indices = newRefsList.getSelectedIndices();
+		final int[] indices = newRefsJList.getSelectedIndices();
 		if (indices != null && indices.length > 0) {
 			if (indices[indices.length - 1] < newRefs.size() - 1) {
 				for (int i = indices.length - 1; i >= 0; i--) {
@@ -134,12 +112,12 @@ public class MatrixPopup extends JPanel implements ListSelectionListener {
 					indices[i] += 1;
 				}
 			}
-			newRefsList.setSelectedIndices(indices);
+			newRefsJList.setSelectedIndices(indices);
 		}
 	}
 
 	private void moveUp() {
-		final int[] indices = newRefsList.getSelectedIndices();
+		final int[] indices = newRefsJList.getSelectedIndices();
 		if (indices != null && indices.length > 0) {
 			if (indices[0] > 0) {
 				for (int i = 0; i < indices.length; i++) {
@@ -149,20 +127,27 @@ public class MatrixPopup extends JPanel implements ListSelectionListener {
 					indices[i] -= 1;
 				}
 			}
-			newRefsList.setSelectedIndices(indices);
+			newRefsJList.setSelectedIndices(indices);
 		}
 	}
 
 	private void removeNewRef() {
-		for (final Object o : newRefsList.getSelectedValuesList()) {
-			int i = newRefsList.getSelectedIndex();
-			newRefs.removeElement(o);
-			if (i > newRefs.size() - 1) {
-				i = newRefs.size() - 1;
+		newRefs.removeAll(newRefsJList.getSelectedValuesList());
+	}
+
+	private void filterBones() {
+		String filterText = boneSearch.getText();
+		if (!filterText.equals("")) {
+			filteredBones.clear();
+			for (BoneShell boneShell : bones) {
+				if (boneShell.getName().toLowerCase().contains(filterText.toLowerCase())) {
+					filteredBones.addElement(boneShell);
+				}
 			}
-			newRefsList.setSelectedIndex(i);
+			bonesList.setModel(filteredBones);
+		} else {
+			bonesList.setModel(bones);
 		}
-		refreshNewRefsList();
 	}
 
 	private void useBone() {
@@ -171,79 +156,21 @@ public class MatrixPopup extends JPanel implements ListSelectionListener {
 				newRefs.addElement((BoneShell) o);
 			}
 		}
-		refreshNewRefsList();
-	}
-
-	public void refreshLists() {
-		refreshNewRefsList();
-	}
-
-	MatrixShell currentMatrix = null;
-
-	public void refreshNewRefsList() {
-		// //Does save the currently constructed matrix
-		// java.util.List selection = newRefsList.getSelectedValuesList();
-		// if( currentMatrix != null )
-		// {
-		// currentMatrix.newBones.clear();
-		// for( Object bs: newRefs.toArray() )
-		// {
-		// currentMatrix.newBones.add((BoneShell)bs);
-		// }
-		// }
-		// newRefs.clear();
-		// if( oldBoneRefsList.getSelectedValue() != null )
-		// {
-		// for( BoneShell bs:
-		// ((MatrixShell)oldBoneRefsList.getSelectedValue()).newBones )
-		// {
-		// if( bones.contains(bs) )
-		// newRefs.addElement(bs);
-		// }
-		// }
-		//
-		// int [] indices = new int[selection.size()];
-		// for( int i = 0; i < selection.size(); i++ )
-		// {
-		// indices[i] = newRefs.indexOf(selection.get(i));
-		// }
-		// newRefsList.setSelectedIndices(indices);
-		// currentMatrix = (MatrixShell)oldBoneRefsList.getSelectedValue();
-	}
-
-	public void reloadNewRefsList() {
-		// //Does not save the currently constructed matrix
-		// java.util.List selection = newRefsList.getSelectedValuesList();
-		// newRefs.clear();
-		// if( oldBoneRefsList.getSelectedValue() != null )
-		// {
-		// for( BoneShell bs:
-		// ((MatrixShell)oldBoneRefsList.getSelectedValue()).newBones )
-		// {
-		// if( bones.contains(bs) )
-		// newRefs.addElement(bs);
-		// }
-		// }
-		//
-		// int [] indices = new int[selection.size()];
-		// for( int i = 0; i < selection.size(); i++ )
-		// {
-		// indices[i] = newRefs.indexOf(selection.get(i));
-		// }
-		// newRefsList.setSelectedIndices(indices);
-		// currentMatrix = (MatrixShell)oldBoneRefsList.getSelectedValue();
 	}
 
 	public void buildBonesList() {
 		bones = new IterableListModel<>();
 		final List<Bone> modelBones = model.getBones();
-		// ArrayList<Bone> modelHelpers = model.sortedIdObjects(Bone.class);
 		for (final Bone b : modelBones) {
 			bones.addElement(new BoneShell(b));
 		}
-		// for( Bone b: modelHelpers )
-		// {
-		// bones.addElement(new BoneShell(b));
-		// }
+	}
+
+	public List<Bone> getNewBoneList() {
+		final List<Bone> bones = new ArrayList<>();
+		for (final BoneShell bs : newRefs) {
+			bones.add(bs.getBone());
+		}
+		return bones;
 	}
 }

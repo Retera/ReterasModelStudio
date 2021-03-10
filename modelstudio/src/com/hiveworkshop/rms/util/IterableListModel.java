@@ -1,8 +1,10 @@
 package com.hiveworkshop.rms.util;
 
 import javax.swing.*;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 /*
  * An extended version of DefaultListModel.
@@ -72,5 +74,13 @@ public class IterableListModel<T> extends DefaultListModel<T> implements Iterabl
 
 	public void addAll(Collection<? extends T> c) {
 		c.forEach(this::addElement);
+	}
+
+	public List<T> asList() {
+		List<T> newList = new ArrayList<>();
+		for (T t : this) {
+			newList.add(t);
+		}
+		return newList;
 	}
 }
