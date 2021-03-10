@@ -731,23 +731,25 @@ public class Viewport extends JPanel
 	@Override
 	public void mouseWheelMoved(final MouseWheelEvent e) {
 		int wr = e.getWheelRotation();
-		final boolean neg = wr < 0;
 
-		final double mx = e.getX();
-		final double my = e.getY();
+		int dir = wr < 0 ? -1 : 1;
 
-		if (neg) {
-			wr = -wr;
-		}
-		for (int i = 0; i < wr; i++) {
-			if (neg) {
-				m_a -= (mx - (getWidth() / 2.0)) * ((1 / m_zoom) - (1 / (m_zoom * 1.15)));
-				m_b -= (my - (getHeight() / 2.0)) * ((1 / m_zoom) - (1 / (m_zoom * 1.15)));
+		double mx = e.getX();
+		double my = e.getY();
+
+		for (int i = 0; i < Math.abs(wr); i++) {
+			double zoomAmount = (1 / m_zoom - 1 / (m_zoom * 1.15)) * dir;
+
+			double w = mx - (getWidth() / 2.0);
+			double h = my - (getHeight() / 2.0);
+
+			m_a += w * zoomAmount;
+			m_b += h * zoomAmount;
+
+			if (dir == -1) {
 				m_zoom *= 1.15;
 			} else {
 				m_zoom /= 1.15;
-				m_a -= (mx - (getWidth() / 2.0)) * ((1 / (m_zoom * 1.15)) - (1 / m_zoom));
-				m_b -= (my - (getHeight() / 2.0)) * ((1 / (m_zoom * 1.15)) - (1 / m_zoom));
 			}
 		}
 	}

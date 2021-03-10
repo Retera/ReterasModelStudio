@@ -191,10 +191,12 @@ public class ObjectShell {
 		}
 		stringToReturn += name;
 		if (showParent){
-			if (oldParentBs == null) {
+			if (oldParentBs == null && oldParent == null) {
 				stringToReturn += "; (no parent)";
-			} else {
+			} else if (oldParentBs != null) {
 				stringToReturn += "; " + oldParentBs.getName();
+			} else {
+				stringToReturn += "; " + oldParent.getName();
 			}
 		}
 		return stringToReturn;

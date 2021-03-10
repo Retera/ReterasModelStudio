@@ -44,7 +44,7 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 	protected abstract ResettableVertexFilter<TYPE> createFilter();
 
 	@Override
-	public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index, final boolean iss, final boolean chf) {
+	public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index, final boolean isSelected, final boolean chf) {
 		final Color backgroundColor = getBackground();
 		setBackground(null);
 		final TYPE matrixShell = valueToType(value);
@@ -71,7 +71,7 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 			}
 			matrixShellToCachedRenderer.put(matrixShell, myIcon);
 		}
-		super.getListCellRendererComponent(list, matrixShell.toString(), index, iss, chf);
+		super.getListCellRendererComponent(list, matrixShell.toString(), index, isSelected, chf);
 		setIcon(myIcon);
 		return this;
 	}

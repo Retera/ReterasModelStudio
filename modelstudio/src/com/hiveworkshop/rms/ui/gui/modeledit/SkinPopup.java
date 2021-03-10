@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ParentToggleRenderer;
+import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -35,23 +36,26 @@ public class SkinPopup extends JPanel {
     private void showSkinPopup(ModelView modelView, int index, JButton boneButton) {
         JPanel panel = new JPanel(new BorderLayout());
 
-        DefaultListModel<BoneShell> boneShellDefaultListModel = new DefaultListModel<>();
+        IterableListModel<BoneShell> boneShellListModel = new IterableListModel<>();
         for (Bone bone : modelView.getModel().getBones()) {
-            boneShellDefaultListModel.addElement(new BoneShell(bone));
+            BoneShell boneShell = new BoneShell(bone);
+            boneShellListModel.addElement(boneShell);
         }
+
         JCheckBox showParents = new JCheckBox("Show Parents");
         panel.add(showParents, BorderLayout.NORTH);
 
-        JList<BoneShell> bones = new JList<>(boneShellDefaultListModel);
-        bones.setCellRenderer(new ParentToggleRenderer(showParents, modelView, null));
-        panel.add(new JScrollPane(bones), BorderLayout.CENTER);
+        JList<BoneShell> bonesJList = new JList<>(boneShellListModel);
 
-        BoneShell selectedValue = bones.getSelectedValue();
+        bonesJList.setCellRenderer(new ParentToggleRenderer(showParents, modelView, null));
+        panel.add(new JScrollPane(bonesJList), BorderLayout.CENTER);
 
-        SkinPopup.this.bones[index] = selectedValue.getBone();
-        boneButton.setText(selectedValue.getImportBone().getName());
+        BoneShell selectedValue = bonesJList.getSelectedValue();
 
-        JOptionPane.showMessageDialog(SkinPopup.this, panel);
+        bones[index] = selectedValue.getBone();
+        boneButton.setText(selectedValue.getBone().getName());
+
+        JOptionPane.showMessageDialog(this, panel);
     }
 
     public Bone[] getBones() {

@@ -198,7 +198,7 @@ public class BonePanel extends JPanel {
 			} else {
 				selectedBone.setNewParentBs(futureBonesList.getSelectedValue());
 			}
-			// TODO add boneless BoneShell to futureBonesList to let the user select no bone + add null check on things calling bs.getParentBs().getBone();
+			futureBonesList.setSelectedValue(null, false);
 		}
 	}
 

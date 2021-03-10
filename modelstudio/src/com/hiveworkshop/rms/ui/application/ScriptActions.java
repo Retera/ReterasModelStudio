@@ -612,15 +612,13 @@ public class ScriptActions {
 				tex.setPath(path.replace('/', '\\'));
 			}
 		}
-		for (final ParticleEmitter emitter : (List<ParticleEmitter>) model.sortedIdObjects(ParticleEmitter.class)) {
-//		for (final ParticleEmitter emitter : model.getParticleEmitters()) {
+		for (final ParticleEmitter emitter : model.getParticleEmitters()) {
 			final String path = emitter.getPath();
 			if (path != null) {
 				emitter.setPath(path.replace('/', '\\'));
 			}
 		}
-		for (final Attachment emitter : (List<Attachment>) model.sortedIdObjects(Attachment.class)) {
-//		for (final Attachment emitter : model.getAttachments()) {
+		for (final Attachment emitter : model.getAttachments()) {
 			final String path = emitter.getPath();
 			if (path != null) {
 				emitter.setPath(path.replace('/', '\\'));

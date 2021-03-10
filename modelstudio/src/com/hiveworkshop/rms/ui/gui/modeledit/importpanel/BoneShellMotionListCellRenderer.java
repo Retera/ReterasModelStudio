@@ -50,7 +50,7 @@ class BoneShellMotionListCellRenderer extends AbstractSnapshottingListCellRender
 
 	@Override
 	public Component getListCellRendererComponent(final JList list, final Object value, final int index,
-	                                              final boolean iss, final boolean chf) {
+	                                              final boolean isSelected, final boolean chf) {
 		if (value instanceof BoneShell) {
 			if (((BoneShell) value).isFromDonating) {
 				setBackground(new Color(220, 180, 255));
@@ -58,7 +58,7 @@ class BoneShellMotionListCellRenderer extends AbstractSnapshottingListCellRender
 				setBackground(new Color(200, 255, 255));
 			}
 		}
-		super.getListCellRendererComponent(list, value, index, iss, chf);
+		super.getListCellRendererComponent(list, value, index, isSelected, chf);
 		setText(value.toString());
 		if (value instanceof BoneShell) {
 			BoneShell importBoneShell = ((BoneShell) value).getImportBoneShell();

@@ -16,8 +16,8 @@ public class ParentToggleRenderer extends BoneShellListCellRenderer {
 
 	@Override
 	public Component getListCellRendererComponent(final JList list, final Object value, final int index,
-	                                              final boolean iss, final boolean chf) {
-		final BoneShellListCellRenderer comp = (BoneShellListCellRenderer) super.getListCellRendererComponent(list, value, index, iss, chf);
+	                                              final boolean isSelected, final boolean chf) {
+		final BoneShellListCellRenderer comp = (BoneShellListCellRenderer) super.getListCellRendererComponent(list, value, index, isSelected, chf);
 		comp.setText(((BoneShell) value).toString(true, toggleBox.isSelected()));
 		return this;
 	}

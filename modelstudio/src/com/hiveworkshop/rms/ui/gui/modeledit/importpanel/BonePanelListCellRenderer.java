@@ -16,9 +16,9 @@ class BonePanelListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 
 	@Override
 	public Component getListCellRendererComponent(final JList list, final Object value, final int index,
-	                                              final boolean iss, final boolean chf) {
+	                                              final boolean isSelected, final boolean chf) {
 		setBackground(new Color(200, 255, 255));
-		super.getListCellRendererComponent(list, ((BoneShell) value).getBone(), index, iss, chf);
+		super.getListCellRendererComponent(list, ((BoneShell) value).getBone(), index, isSelected, chf);
 		setText(((BoneShell) value).getBone().getClass().getSimpleName() + " \"" + ((BoneShell) value).getName() + "\"");
 		// setIcon(ImportPanel.cyanIcon);
 		// setIcon(new ImageIcon(Material.mergeImageScaled(ImportPanel.cyanIcon.getImage(),

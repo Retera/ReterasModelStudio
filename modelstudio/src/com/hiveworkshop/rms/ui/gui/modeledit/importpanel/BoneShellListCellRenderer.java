@@ -52,7 +52,7 @@ class BoneShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 
 	@Override
 	public Component getListCellRendererComponent(final JList list, final Object value, final int index,
-	                                              final boolean iss, final boolean chf) {
+	                                              final boolean isSelected, final boolean chf) {
 		if (value instanceof BoneShell) {
 			if (((BoneShell) value).isFromDonating) {
 				setBackground(new Color(220, 180, 255));
@@ -60,15 +60,18 @@ class BoneShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 				setBackground(new Color(200, 255, 255));
 			}
 		}
-		super.getListCellRendererComponent(list, value, index, iss, chf);
+		super.getListCellRendererComponent(list, value, index, isSelected, chf);
 		if (value instanceof BoneShell) {
-			setText(((BoneShell)value).toString(showClass, false));
+			setText(((BoneShell) value).toString(showClass, false));
 			if (selectedBone != null && selectedBone.getNewParentBs() == value
 					|| selectedObject != null && selectedObject.getNewParentBs() == value) {
 				this.setBackground(new Color(130, 230, 170));
 			} else {
 				this.setBackground(new Color(255, 255, 255));
 				setForeground(new Color(0, 0, 0));
+			}
+			if (isSelected) {
+				this.setBackground(this.getBackground().darker());
 			}
 		} else {
 			setText(value.toString());

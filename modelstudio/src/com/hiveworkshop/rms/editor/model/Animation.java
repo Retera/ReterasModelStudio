@@ -150,16 +150,17 @@ public class Animation implements TimeBoundProvider {
 		this.intervalEnd = intervalEnd;
 	}
 
-	public void copyToInterval(final int start, final int end, final List<AnimFlag<?>> flags,
-	                           final List<EventObject> eventObjs, final List<AnimFlag<?>> newFlags, final List<EventObject> newEventObjs) {
+	public void copyToInterval(final int newStart, final int newEnd,
+	                           final List<AnimFlag<?>> sourceFlags, final List<EventObject> sourceEventObjs,
+	                           final List<AnimFlag<?>> newFlags, final List<EventObject> newEventObjs) {
 		for (final AnimFlag<?> af : newFlags) {
 			if (!af.hasGlobalSeq()) {
-				af.copyFrom(flags.get(newFlags.indexOf(af)), intervalStart, intervalEnd, start, end);
+				af.copyFrom(sourceFlags.get(newFlags.indexOf(af)), intervalStart, intervalEnd, newStart, newEnd);
 			}
 		}
 		for (final EventObject e : newEventObjs) {
 			if (!e.hasGlobalSeq) {
-				e.copyFrom(eventObjs.get(newEventObjs.indexOf(e)), intervalStart, intervalEnd, start, end);
+				e.copyFrom(sourceEventObjs.get(newEventObjs.indexOf(e)), intervalStart, intervalEnd, newStart, newEnd);
 			}
 		}
 	}

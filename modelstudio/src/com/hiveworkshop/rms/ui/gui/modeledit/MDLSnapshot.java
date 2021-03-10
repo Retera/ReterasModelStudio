@@ -49,8 +49,21 @@ public class MDLSnapshot {
 	Class<? extends Throwable> lastThrownErrorClass;
 	private final ProgramPreferences programPreferences;
 
-	public MDLSnapshot(final ModelView dispMDL, final int width, final int height,
-			final ProgramPreferences programPreferences) throws LWJGLException {
+	private static final int BYTES_PER_PIXEL = 4;
+	private final float[] whiteDiffuse = {1f, 1f, 1f, 1f};
+	private final float[] posSun = {0.0f, 10.0f, 0.0f, 1.0f};
+	private final int width;
+	private final int height;
+	boolean initialized = false;
+	int current_height;
+	int current_width;
+	boolean wantReload = false;
+	boolean wantReloadAll = false;
+	private float xangle;
+	private float yangle;
+	private boolean drawBackground;
+
+	public MDLSnapshot(final ModelView dispMDL, final int width, final int height, final ProgramPreferences programPreferences) throws LWJGLException {
 		this.dispMDL = dispMDL;
 		this.width = width;
 		this.height = height;
@@ -77,18 +90,9 @@ public class MDLSnapshot {
 		wireframe = nwireframe;
 	}
 
-	private final float[] whiteDiffuse = { 1f, 1f, 1f, 1f };
-	private final float[] posSun = { 0.0f, 10.0f, 0.0f, 1.0f };
-
-	boolean wantReload = false;
-
 	public void reloadTextures() {
 		wantReload = true;
 	}
-
-	boolean wantReloadAll = false;
-	private final int width;
-	private final int height;
 
 	public void reloadAllTextures() {
 		wantReloadAll = true;
@@ -102,45 +106,36 @@ public class MDLSnapshot {
 				final Layer layer = geo.getMaterial().getLayers().get(i);
 				final Bitmap tex = layer.firstTexture();
 				if (textureMap.get(tex) == null) {
-					String path = tex.getPath();
-					if (path.length() == 0) {
-						if (tex.getReplaceableId() == 1) {
-							path = "ReplaceableTextures\\TeamColor\\TeamColor00";
-						} else if (tex.getReplaceableId() == 2) {
-							path = "ReplaceableTextures\\TeamGlow\\TeamGlow00";
-						}
-					} else {
-						path = path.substring(0, path.length() - 4);
-					}
-					Integer texture = null;
-					try {
-						final BufferedImage gameTex = BLPHandler.get().getGameTex(path + ".blp");
-						texture = loadTexture(layer, gameTex);
-					} catch (final Exception exc) {
-						exc.printStackTrace();
-						final BufferedImage customTex = BLPHandler.get().getCustomTex(
-								dispMDL.getModel().getWorkingDirectory().getPath() + "\\" + path + ".blp");
-						texture = loadTexture(layer, customTex);// TextureLoader.getTexture("TGA",
-																// new
-																// FileInputStream(new
-																// File(dispMDL.getModel().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
-
-						// try { } catch (FileNotFoundException e) {
-						// // Auto-generated catch block
-						// e.printStackTrace();
-						// } catch (IOException e) {
-						// // Auto-generated catch block
-						// e.printStackTrace();
-						// }
-					}
-					if (texture != null) {
-						textureMap.put(tex, texture);
-						// textureMapCID.put(tex,
-						// geo.getMaterial().getLayers().get(i).getCoordId());
-						// texture.bind();
-					}
+					getGetTex(layer, tex);
 				}
 			}
+		}
+	}
+
+	private void getGetTex(Layer layer, Bitmap tex) {
+		String path = tex.getPath();
+		if (path.length() == 0) {
+			if (tex.getReplaceableId() == 1) {
+				path = "ReplaceableTextures\\TeamColor\\TeamColor00";
+			} else if (tex.getReplaceableId() == 2) {
+				path = "ReplaceableTextures\\TeamGlow\\TeamGlow00";
+			} else {
+				path = "textures\\white";
+			}
+		} else {
+			path = path.substring(0, path.length() - 4);
+		}
+		Integer texture = null;
+		try {
+			final BufferedImage gameTex = BLPHandler.get().getGameTex(path + ".blp");
+			texture = loadTexture(layer, gameTex);
+		} catch (final Exception exc) {
+			exc.printStackTrace();
+			final BufferedImage customTex = BLPHandler.get().getCustomTex(dispMDL.getModel().getWorkingDirectory().getPath() + "\\" + path + ".blp");
+			texture = loadTexture(layer, customTex);
+		}
+		if (texture != null) {
+			textureMap.put(tex, texture);
 		}
 	}
 
@@ -149,43 +144,7 @@ public class MDLSnapshot {
 			for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
 				final Layer layer = geo.getMaterial().getLayers().get(i);
 				final Bitmap tex = layer.firstTexture();
-				String path = tex.getPath();
-				if (path.length() == 0) {
-					if (tex.getReplaceableId() == 1) {
-						path = "ReplaceableTextures\\TeamColor\\TeamColor00";
-					} else if (tex.getReplaceableId() == 2) {
-						path = "ReplaceableTextures\\TeamGlow\\TeamGlow00";
-					}
-				} else {
-					path = path.substring(0, path.length() - 4);
-				}
-				Integer texture = null;
-				try {
-					final BufferedImage gameTex = BLPHandler.get().getGameTex(path + ".blp");
-					texture = loadTexture(layer, gameTex);
-				} catch (final Exception exc) {
-					exc.printStackTrace();
-					final BufferedImage customTex = BLPHandler.get()
-							.getCustomTex(dispMDL.getModel().getWorkingDirectory().getPath() + "\\" + path + ".blp");
-					texture = loadTexture(layer, customTex);// TextureLoader.getTexture("TGA",
-															// new
-															// FileInputStream(new
-															// File(dispMDL.getModel().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
-
-					// try { } catch (FileNotFoundException e) {
-					// // Auto-generated catch block
-					// e.printStackTrace();
-					// } catch (IOException e) {
-					// // Auto-generated catch block
-					// e.printStackTrace();
-					// }
-				}
-				if (texture != null) {
-					textureMap.put(tex, texture);
-					// textureMapCID.put(tex,
-					// geo.getMaterial().getLayers().get(i).getCoordId());
-					// texture.bind();
-				}
+				getGetTex(layer, tex);
 			}
 		}
 	}
@@ -198,45 +157,7 @@ public class MDLSnapshot {
 					for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
 						final Layer layer = geo.getMaterial().getLayers().get(i);
 						final Bitmap tex = layer.firstTexture();
-						String path = tex.getPath();
-						if (path.length() == 0) {
-							if (tex.getReplaceableId() == 1) {
-								path = "ReplaceableTextures\\TeamColor\\TeamColor00";
-							} else if (tex.getReplaceableId() == 2) {
-								path = "ReplaceableTextures\\TeamGlow\\TeamGlow00";
-							} else {
-								path = "textures\\white";
-							}
-						} else {
-							path = path.substring(0, path.length() - 4);
-						}
-						Integer texture = null;
-						try {
-							final BufferedImage gameTex = BLPHandler.get().getGameTex(path + ".blp");
-							texture = loadTexture(layer, gameTex);
-						} catch (final Exception exc) {
-							exc.printStackTrace();
-							final BufferedImage customTex = BLPHandler.get().getCustomTex(
-									dispMDL.getModel().getWorkingDirectory().getPath() + "\\" + path + ".blp");
-							texture = loadTexture(layer, customTex);// TextureLoader.getTexture("TGA",
-																	// new
-																	// FileInputStream(new
-																	// File(dispMDL.getModel().getFile().getParent()+"\\"+path+".tga"))).getTextureID();
-
-							// try { } catch (FileNotFoundException e) {
-							// // Auto-generated catch block
-							// e.printStackTrace();
-							// } catch (IOException e) {
-							// // Auto-generated catch block
-							// e.printStackTrace();
-							// }
-						}
-						if (texture != null) {
-							textureMap.put(tex, texture);
-							// textureMapCID.put(tex,
-							// geo.getMaterial().getLayers().get(i).getCoordId());
-							// texture.bind();
-						}
+						getGetTex(layer, tex);
 					}
 				}
 			}
@@ -439,8 +360,7 @@ public class MDLSnapshot {
 	}
 
 	public BufferedImage getBufferedImage(final VertexFilter<? super GeosetVertex> renderMask) throws Exception {
-		System.out.println("Building " + width + "x" + height + " image at zoom=" + zoom + ", cameraPos=" + cameraPos
-				+ ", xangle=" + xangle + ", yangle=" + yangle);
+		System.out.println("Building " + width + "x" + height + " image at zoom=" + zoom + ", cameraPos=" + cameraPos + ", xangle=" + xangle + ", yangle=" + yangle);
 		final BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
 		// paintComponent(image.getGraphics(),5);
 		final Pbuffer buffer = new Pbuffer(getWidth(), getHeight(), new PixelFormat(), null, null);
@@ -462,14 +382,14 @@ public class MDLSnapshot {
 
 	public Area getOutline() throws Exception {
 		// construct the GeneralPath
-		final BufferedImage bi = getBufferedImage();
+		final BufferedImage image = getBufferedImage();
 		final GeneralPath gp = new GeneralPath();
 
 		boolean cont = false;
 		final int targetRGB = 0;// new Color(0,0,0,0).getRGB();
-		for (int xx = 0; xx < bi.getWidth(); xx++) {
-			for (int yy = 0; yy < bi.getHeight(); yy++) {
-				if (bi.getRGB(xx, yy) != targetRGB) {
+		for (int xx = 0; xx < image.getWidth(); xx++) {
+			for (int yy = 0; yy < image.getHeight(); yy++) {
+				if (image.getRGB(xx, yy) != targetRGB) {
 					if (cont) {
 						gp.lineTo(xx, yy);
 						gp.lineTo(xx, yy + 1);
@@ -509,13 +429,6 @@ public class MDLSnapshot {
 		return newImage;
 	}
 
-	boolean initialized = false;
-	int current_height;
-	int current_width;
-	private float xangle;
-	private float yangle;
-	private boolean drawBackground;
-
 	public boolean renderTextures() {
 		return texLoaded && ((programPreferences == null) || programPreferences.textureModels());
 	}
@@ -526,28 +439,7 @@ public class MDLSnapshot {
 
 	public void paintGL(final VertexFilter<? super GeosetVertex> renderMask) {
 		// setSize(getParent().getSize());
-		if (wantReloadAll) {
-			wantReloadAll = false;
-			wantReload = false;// If we just reloaded all, no need to reload
-								// some.
-			try {
-				initGL();// Re-overwrite textures
-			} catch (final Exception e) {
-				e.printStackTrace();
-				ExceptionPopup.display("Error loading textures:", e);
-			}
-		} else if (wantReload) {
-			wantReload = false;
-			try {
-				forceReloadTextures();
-			} catch (final Exception e) {
-				e.printStackTrace();
-				ExceptionPopup.display("Error loading new texture:", e);
-			}
-		} else if (!texLoaded && ((programPreferences == null) || programPreferences.textureModels())) {
-			forceReloadTextures();
-			texLoaded = true;
-		}
+		reloadIfNeeded();
 		try {
 			if ((getWidth() != current_width) || (getHeight() != current_height)) {
 				current_width = getWidth();
@@ -596,34 +488,9 @@ public class MDLSnapshot {
 			glLoadIdentity();
 			// GL11.glShadeModel(GL11.GL_SMOOTH);
 
-			glTranslatef(0f + (cameraPos.x * (float) zoom), -70f - (cameraPos.y * (float) zoom),
-					-200f - (cameraPos.z * (float) zoom));
-			glRotatef(yangle, 1f, 0f, 0f);
-			glRotatef(xangle, 0f, 1f, 0f);
-			glScalef((float) zoom, (float) zoom, (float) zoom);
+			setUpCamera();
 
-			final FloatBuffer ambientColor = BufferUtils.createFloatBuffer(4);
-			ambientColor.put(0.2f).put(0.2f).put(0.2f).put(1f).flip();
-			// float [] ambientColor = {0.2f, 0.2f, 0.2f, 1f};
-			// FloatBuffer buffer =
-			// ByteBuffer.allocateDirect(ambientColor.length*8).asFloatBuffer();
-			// buffer.put(ambientColor).flip();
-			glLightModel(GL_LIGHT_MODEL_AMBIENT, ambientColor);
-
-			final FloatBuffer lightColor0 = BufferUtils.createFloatBuffer(4);
-			lightColor0.put(0.5f).put(0.5f).put(0.5f).put(1f).flip();
-			final FloatBuffer lightPos0 = BufferUtils.createFloatBuffer(4);
-			lightPos0.put(40.0f).put(100.0f).put(80.0f).put(1f).flip();
-			glLight(GL_LIGHT0, GL_DIFFUSE, lightColor0);
-			glLight(GL_LIGHT0, GL_POSITION, lightPos0);
-
-			final FloatBuffer lightColor1 = BufferUtils.createFloatBuffer(4);
-			lightColor1.put(0.2f).put(0.2f).put(0.2f).put(1f).flip();
-			final FloatBuffer lightPos1 = BufferUtils.createFloatBuffer(4);
-			lightPos1.put(-100.0f).put(100.5f).put(0.5f).put(1f).flip();
-
-			glLight(GL_LIGHT1, GL_DIFFUSE, lightColor1);
-			glLight(GL_LIGHT1, GL_POSITION, lightPos1);
+			setUpLighting();
 
 			// glColor3f(1f,1f,0f);
 			// glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE ) ;
@@ -633,108 +500,9 @@ public class MDLSnapshot {
 			// glTranslatef(getWidth() / 2.0f, getHeight() / 2.0f, 0.0f);
 			// glRotatef(2*angle, 0f, 0f, -1.0f);
 			// glRectf(-50.0f, -50.0f, 50.0f, 50.0f);
-			for (final Geoset geo : dispMDL.getVisibleGeosets()) {// .getModel().getGeosets()
-				if (!dispMDL.getEditableGeosets().contains(geo) && (dispMDL.getHighlightedGeoset() != geo)) {
-					for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
-						final Layer layer = geo.getMaterial().getLayers().get(i);
-						final Bitmap tex = layer.firstTexture();
-						final Integer texture = textureMap.get(tex);
-						if (texture != null) {
-							// texture.bind();
-							GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-							if (renderTextures()) {
-								GL11.glEnable(GL11.GL_TEXTURE_2D);
-							}
-							GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
-						} else {
-							GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_COLOR);
-							GL11.glDisable(GL11.GL_TEXTURE_2D);
-						}
-						if (layer.getFilterMode() == FilterMode.ADDITIVE) {
-							// GL11.glDisable(GL11.GL_DEPTH_TEST);
-							GL11.glDepthMask(false);
-							GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
-							// GL11.glBlendFunc(GL11.GL_SRC_ALPHA,
-							// GL11.GL_ONE_MINUS_SRC_ALPHA);
-						} else if (layer.getFilterMode() == FilterMode.ADDALPHA) {
-							// GL11.glDisable(GL11.GL_DEPTH_TEST);
-							GL11.glDepthMask(false);
-							GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
-						} else {
-							// GL11.glEnable(GL11.GL_DEPTH_TEST);
-							GL11.glDepthMask(true);
-							GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-						}
-						glBegin(GL11.GL_TRIANGLES);
-						for (final Triangle tri : geo.getTriangles()) {
-							for (final GeosetVertex v : tri.getVerts()) {
-								if (renderMask.isAccepted(v)) {
-									if (v.getNormal() != null) {
-										GL11.glNormal3f(v.getNormal().y, v.getNormal().z,
-												v.getNormal().x);
-									}
-									GL11.glTexCoord2f(
-											v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).x,
-											v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).y);
-									GL11.glVertex3f(v.y / 1.0f, v.z / 1.0f, v.x / 1.0f);
-								}
-							}
-						}
-						// if( texture != null )
-						// {
-						// texture.release();
-						// }
-						glEnd();
-					}
-				}
-			}
+			drawProtectedGeosets(renderMask);
 			glColor3f(2f, 2f, 2f);
-			for (final Geoset geo : dispMDL.getEditableGeosets()) {// .getModel().getGeosets()
-				if (dispMDL.getHighlightedGeoset() != geo) {
-					for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
-						final Layer layer = geo.getMaterial().getLayers().get(i);
-						final Bitmap tex = layer.firstTexture();
-						final Integer texture = textureMap.get(tex);
-						if (texture != null) {
-							// texture.bind();
-							GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
-						}
-						if (layer.getFilterMode() == FilterMode.ADDITIVE) {
-							// GL11.glDisable(GL11.GL_DEPTH_TEST);
-							GL11.glDepthMask(false);
-							// GL11.glBlendFunc(GL11.GL_SRC_ALPHA,
-							// GL11.GL_ONE_MINUS_SRC_ALPHA);
-							GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
-						} else if (layer.getFilterMode() == FilterMode.ADDALPHA) {
-							// GL11.glDisable(GL11.GL_DEPTH_TEST);
-							GL11.glDepthMask(false);
-							GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
-						} else {
-							// GL11.glEnable(GL11.GL_DEPTH_TEST);
-							GL11.glDepthMask(true);
-							GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-						}
-						glBegin(GL11.GL_TRIANGLES);
-						for (final Triangle tri : geo.getTriangles()) {
-							for (final GeosetVertex v : tri.getVerts()) {
-								if (renderMask.isAccepted(v)) {
-									GL11.glNormal3f(v.getNormal().y, v.getNormal().z,
-											v.getNormal().x);
-									GL11.glTexCoord2f(
-											v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).x,
-											v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).y);
-									GL11.glVertex3f(v.y / 1.0f, v.z / 1.0f, v.x / 1.0f);
-								}
-							}
-						}
-						// if( texture != null )
-						// {
-						// texture.release();
-						// }
-						glEnd();
-					}
-				}
-			}
+			drawEditibleGeosets(renderMask);
 			GL11.glDepthMask(true);
 			// System.out.println("max:
 			// "+GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE));
@@ -742,48 +510,7 @@ public class MDLSnapshot {
 				// for( int i = 0; i < dispMDL.highlight.material.layers.size();
 				// i++ )
 				// {
-				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_COLOR);
-				GL11.glDisable(GL11.GL_TEXTURE_2D);
-				// Layer layer = dispMDL.highlight.material.layers.get(i);
-				// Bitmap tex = layer.firstTexture();
-				// Texture texture = textureMap.get(tex);
-				// if( texture != null )
-				// {
-				// texture.bind();
-				// //GL11.glBindTexture(GL11.GL_TEXTURE_2D,texture.getTextureID());
-				// }
-				// if( layer.getFilterMode().equals("Additive") )
-				// {
-				// //GL11.glDisable(GL11.GL_DEPTH_TEST);
-				// GL11.glDepthMask(false);
-				// GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
-				// }
-				// else if( layer.getFilterMode().equals("AddAlpha") )
-				// {
-				// //GL11.glDisable(GL11.GL_DEPTH_TEST);
-				// GL11.glDepthMask(false);
-				// GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
-				// }
-				// else
-				// {
-				// //GL11.glEnable(GL11.GL_DEPTH_TEST);
-				// GL11.glDepthMask(true);
-				// GL11.glBlendFunc(GL11.GL_SRC_ALPHA,
-				// GL11.GL_ONE_MINUS_SRC_ALPHA);
-				// }
-				glColor3f(1f, 3f, 1f);
-				glBegin(GL11.GL_TRIANGLES);
-				for (final Triangle tri : dispMDL.getHighlightedGeoset().getTriangles()) {
-					for (final GeosetVertex v : tri.getVerts()) {
-						if (renderMask.isAccepted(v)) {
-							GL11.glNormal3f(v.getNormal().y, v.getNormal().z, v.getNormal().x);
-							GL11.glTexCoord2f(v.getTverts().get(0).x, v.getTverts().get(0).y);
-							GL11.glVertex3f(v.y / 1.0f, v.z / 1.0f, v.x / 1.0f);
-						}
-					}
-				}
-				glEnd();
+				drawHighlightedGeoset(renderMask);
 				// }
 			}
 
@@ -791,47 +518,7 @@ public class MDLSnapshot {
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
 			GL11.glDisable(GL11.GL_TEXTURE_2D);
 			if ((programPreferences != null) && programPreferences.showNormals()) {
-				glBegin(GL11.GL_LINES);
-				glColor3f(1f, 1f, 3f);
-				// if( wireframe.isSelected() )
-				for (final Geoset geo : dispMDL.getVisibleGeosets()) {// .getModel().getGeosets()
-					for (final Triangle tri : geo.getTriangles()) {
-						for (final GeosetVertex v : tri.getVerts()) {
-							if (renderMask.isAccepted(v)) {
-								GL11.glNormal3f(v.getNormal().y, v.getNormal().z,
-										v.getNormal().x);
-								GL11.glVertex3f(v.y / 1.0f, v.z / 1.0f, v.x / 1.0f);
-
-								GL11.glNormal3f(v.getNormal().y, v.getNormal().z,
-										v.getNormal().x);
-								GL11.glVertex3f((v.y / 1.0f) + (float) ((v.getNormal().y * 6) / zoom),
-										(v.z / 1.0f) + (float) ((v.getNormal().z * 6) / zoom),
-										(v.x / 1.0f) + (float) ((v.getNormal().x * 6) / zoom));
-							}
-						}
-					}
-				}
-
-				// glPolygonMode( GL_FRONT, GL_POINTS );
-				// for (Geoset geo : dispMDL.visibleGeosets)
-				// {//.getModel().getGeosets()
-				// if( !dispMDL.editableGeosets.contains(geo) &&
-				// dispMDL.highlight != geo )
-				// for (Triangle tri : geo.m_triangle) {
-				// for (GeosetVertex v : tri.m_verts) {
-				// if( dispMDL.selection.contains(v))
-				// glColor3f(1f, 0f, 0f);
-				// else
-				// glColor3f(0f, 0f, 0f);
-				// GL11.glNormal3f((float) v.normal.y, (float) v.normal.z,
-				// (float) v.normal.x);
-				// GL11.glVertex3f((float) v.y/1.0f, (float) v.z/1.0f, (float)
-				// v.x/1.0f);
-				// }
-				// }
-				// }
-
-				glEnd();
+				drawNormals(renderMask);
 				// GL11.glDisable(GL11.GL_BLEND);
 			}
 
@@ -843,6 +530,254 @@ public class MDLSnapshot {
 						+ e.getClass().getSimpleName() + ": " + e.getMessage());
 			}
 			throw new RuntimeException(e);
+		}
+	}
+
+	private void drawEditibleGeosets(VertexFilter<? super GeosetVertex> renderMask) {
+		for (final Geoset geo : dispMDL.getEditableGeosets()) {// .getModel().getGeosets()
+			if (dispMDL.getHighlightedGeoset() != geo) {
+				for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
+					final Layer layer = geo.getMaterial().getLayers().get(i);
+					final Bitmap tex = layer.firstTexture();
+					final Integer texture = textureMap.get(tex);
+					if (texture != null) {
+						// texture.bind();
+						GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
+					}
+					setLayerRenderMode(layer);
+					glBegin(GL11.GL_TRIANGLES);
+					for (final Triangle tri : geo.getTriangles()) {
+						for (final GeosetVertex v : tri.getVerts()) {
+							if (renderMask.isAccepted(v)) {
+								if (v.getNormal() != null) {
+									GL11.glNormal3f(v.getNormal().y, v.getNormal().z, v.getNormal().x);
+								}
+								GL11.glTexCoord2f(v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).x, v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).y);
+								GL11.glVertex3f(v.y / 1.0f, v.z / 1.0f, v.x / 1.0f);
+							}
+						}
+					}
+					// if( texture != null )
+					// {
+					// texture.release();
+					// }
+					glEnd();
+				}
+			}
+		}
+	}
+
+	private void drawProtectedGeosets(VertexFilter<? super GeosetVertex> renderMask) {
+		for (final Geoset geo : dispMDL.getVisibleGeosets()) {// .getModel().getGeosets()
+			if (!dispMDL.getEditableGeosets().contains(geo) && (dispMDL.getHighlightedGeoset() != geo)) {
+				for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
+					final Layer layer = geo.getMaterial().getLayers().get(i);
+					final Bitmap tex = layer.firstTexture();
+					final Integer texture = textureMap.get(tex);
+					if (texture != null) {
+						// texture.bind();
+						GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
+						if (renderTextures()) {
+							GL11.glEnable(GL11.GL_TEXTURE_2D);
+						}
+						GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
+					} else {
+						GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_COLOR);
+						GL11.glDisable(GL11.GL_TEXTURE_2D);
+					}
+					setLayerRenderMode(layer);
+					glBegin(GL11.GL_TRIANGLES);
+					for (final Triangle tri : geo.getTriangles()) {
+						for (final GeosetVertex v : tri.getVerts()) {
+							if (renderMask.isAccepted(v)) {
+								if (v.getNormal() != null) {
+									GL11.glNormal3f(v.getNormal().y, v.getNormal().z, v.getNormal().x);
+								}
+								GL11.glTexCoord2f(v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).x, v.getTverts().get(v.getTverts().size() - 1 - layer.getCoordId()).y);
+								GL11.glVertex3f(v.y / 1.0f, v.z / 1.0f, v.x / 1.0f);
+							}
+						}
+					}
+					// if( texture != null )
+					// {
+					// texture.release();
+					// }
+					glEnd();
+				}
+			}
+		}
+	}
+
+	private void setLayerRenderMode(Layer layer) {
+		if (layer.getFilterMode() == FilterMode.ADDITIVE) {
+			// GL11.glDisable(GL11.GL_DEPTH_TEST);
+			GL11.glDepthMask(false);
+			GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
+			// GL11.glBlendFunc(GL11.GL_SRC_ALPHA,
+			// GL11.GL_ONE_MINUS_SRC_ALPHA);
+		} else if (layer.getFilterMode() == FilterMode.ADDALPHA) {
+			// GL11.glDisable(GL11.GL_DEPTH_TEST);
+			GL11.glDepthMask(false);
+			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+		} else {
+			// GL11.glEnable(GL11.GL_DEPTH_TEST);
+			GL11.glDepthMask(true);
+			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		}
+	}
+
+	private void setUpLighting() {
+		final FloatBuffer ambientColor = BufferUtils.createFloatBuffer(4);
+		ambientColor.put(0.2f).put(0.2f).put(0.2f).put(1f).flip();
+		// float [] ambientColor = {0.2f, 0.2f, 0.2f, 1f};
+		// FloatBuffer buffer =
+		// ByteBuffer.allocateDirect(ambientColor.length*8).asFloatBuffer();
+		// buffer.put(ambientColor).flip();
+		glLightModel(GL_LIGHT_MODEL_AMBIENT, ambientColor);
+
+		final FloatBuffer lightColor0 = BufferUtils.createFloatBuffer(4);
+		lightColor0.put(0.5f).put(0.5f).put(0.5f).put(1f).flip();
+		final FloatBuffer lightPos0 = BufferUtils.createFloatBuffer(4);
+		lightPos0.put(40.0f).put(100.0f).put(80.0f).put(1f).flip();
+		glLight(GL_LIGHT0, GL_DIFFUSE, lightColor0);
+		glLight(GL_LIGHT0, GL_POSITION, lightPos0);
+
+		final FloatBuffer lightColor1 = BufferUtils.createFloatBuffer(4);
+		lightColor1.put(0.2f).put(0.2f).put(0.2f).put(1f).flip();
+		final FloatBuffer lightPos1 = BufferUtils.createFloatBuffer(4);
+		lightPos1.put(-100.0f).put(100.5f).put(0.5f).put(1f).flip();
+
+		glLight(GL_LIGHT1, GL_DIFFUSE, lightColor1);
+		glLight(GL_LIGHT1, GL_POSITION, lightPos1);
+	}
+
+	private void drawNormals(VertexFilter<? super GeosetVertex> renderMask) {
+//		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+//		GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
+//		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		glBegin(GL11.GL_LINES);
+		glColor3f(1f, 1f, 3f);
+		// if( wireframe.isSelected() )
+		for (final Geoset geo : dispMDL.getVisibleGeosets()) {// .getModel().getGeosets()
+			for (final Triangle tri : geo.getTriangles()) {
+				for (final GeosetVertex v : tri.getVerts()) {
+					if (renderMask.isAccepted(v)) {
+						Vec3 normal = v.getNormal();
+						GL11.glNormal3f(normal.y, normal.z, normal.x);
+						GL11.glVertex3f(v.y / 1.0f, v.z / 1.0f, v.x / 1.0f);
+
+						GL11.glNormal3f(normal.y, normal.z, normal.x);
+						Vec3 norm = new Vec3(normal).scale((float) (6 / zoom));
+						GL11.glVertex3f((v.y / 1.0f) + norm.y, (v.z / 1.0f) + norm.z, (v.x / 1.0f) + norm.x);
+					}
+				}
+			}
+		}
+
+		// glPolygonMode( GL_FRONT, GL_POINTS );
+		// for (Geoset geo : dispMDL.visibleGeosets)
+		// {//.getModel().getGeosets()
+		// if( !dispMDL.editableGeosets.contains(geo) &&
+		// dispMDL.highlight != geo )
+		// for (Triangle tri : geo.m_triangle) {
+		// for (GeosetVertex v : tri.m_verts) {
+		// if( dispMDL.selection.contains(v))
+		// glColor3f(1f, 0f, 0f);
+		// else
+		// glColor3f(0f, 0f, 0f);
+		// GL11.glNormal3f((float) v.normal.y, (float) v.normal.z,
+		// (float) v.normal.x);
+		// GL11.glVertex3f((float) v.y/1.0f, (float) v.z/1.0f, (float)
+		// v.x/1.0f);
+		// }
+		// }
+		// }
+
+		glEnd();
+		// GL11.glDisable(GL11.GL_BLEND);
+	}
+
+	private void drawHighlightedGeoset(VertexFilter<? super GeosetVertex> renderMask) {
+		// for( int i = 0; i < dispMDL.highlight.material.layers.size();
+		// i++ )
+		// {
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_COLOR);
+		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		// Layer layer = dispMDL.highlight.material.layers.get(i);
+		// Bitmap tex = layer.firstTexture();
+		// Texture texture = textureMap.get(tex);
+		// if( texture != null )
+		// {
+		// texture.bind();
+		// //GL11.glBindTexture(GL11.GL_TEXTURE_2D,texture.getTextureID());
+		// }
+		// if( layer.getFilterMode().equals("Additive") )
+		// {
+		// //GL11.glDisable(GL11.GL_DEPTH_TEST);
+		// GL11.glDepthMask(false);
+		// GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE);
+		// }
+		// else if( layer.getFilterMode().equals("AddAlpha") )
+		// {
+		// //GL11.glDisable(GL11.GL_DEPTH_TEST);
+		// GL11.glDepthMask(false);
+		// GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+		// }
+		// else
+		// {
+		// //GL11.glEnable(GL11.GL_DEPTH_TEST);
+		// GL11.glDepthMask(true);
+		// GL11.glBlendFunc(GL11.GL_SRC_ALPHA,
+		// GL11.GL_ONE_MINUS_SRC_ALPHA);
+		// }
+		glColor3f(1f, 3f, 1f);
+		glBegin(GL11.GL_TRIANGLES);
+		for (final Triangle tri : dispMDL.getHighlightedGeoset().getTriangles()) {
+			for (final GeosetVertex v : tri.getVerts()) {
+				if (renderMask.isAccepted(v)) {
+					if (v.getNormal() != null) {
+						GL11.glNormal3f(v.getNormal().y, v.getNormal().z, v.getNormal().x);
+					}
+					GL11.glTexCoord2f(v.getTverts().get(0).x, v.getTverts().get(0).y);
+					GL11.glVertex3f(v.y / 1.0f, v.z / 1.0f, v.x / 1.0f);
+				}
+			}
+		}
+		glEnd();
+		// }
+	}
+
+	private void setUpCamera() {
+		glTranslatef(0f + (cameraPos.x * (float) zoom), -70f - (cameraPos.y * (float) zoom),
+				-200f - (cameraPos.z * (float) zoom));
+		glRotatef(yangle, 1f, 0f, 0f);
+		glRotatef(xangle, 0f, 1f, 0f);
+		glScalef((float) zoom, (float) zoom, (float) zoom);
+	}
+
+	private void reloadIfNeeded() {
+		if (wantReloadAll) {
+			wantReloadAll = false;
+			wantReload = false;// If we just reloaded all, no need to reload
+			// some.
+			try {
+				initGL();// Re-overwrite textures
+			} catch (final Exception e) {
+				e.printStackTrace();
+				ExceptionPopup.display("Error loading textures:", e);
+			}
+		} else if (wantReload) {
+			wantReload = false;
+			try {
+				forceReloadTextures();
+			} catch (final Exception e) {
+				e.printStackTrace();
+				ExceptionPopup.display("Error loading new texture:", e);
+			}
+		} else if (!texLoaded && ((programPreferences == null) || programPreferences.textureModels())) {
+			forceReloadTextures();
+			texLoaded = true;
 		}
 	}
 	// public void paintGL() {
@@ -987,8 +922,6 @@ public class MDLSnapshot {
 		// }
 		return loadTexture(image);
 	}
-
-	private static final int BYTES_PER_PIXEL = 4;
 
 	public static int loadTexture(final BufferedImage image) {
 

@@ -209,7 +209,7 @@ public class ImportPanel extends JTabbedPane {
 			}
 			final List<IdObject> objectsAdded = new ArrayList<>();
 
-			addChosennewBones(objectsAdded);
+			addChosenNewBones(objectsAdded);
 
 			if (!clearBones) {
 				copyMotionFromBones();
@@ -425,7 +425,7 @@ public class ImportPanel extends JTabbedPane {
 		}
 	}
 
-	private void addChosennewBones(List<IdObject> objectsAdded) {
+	private void addChosenNewBones(List<IdObject> objectsAdded) {
 		for (BoneShell boneShell : mht.donModBoneShells) {
 			final int type = boneShell.getImportStatus();
 			// we will go through all bone shells for this
@@ -459,7 +459,6 @@ public class ImportPanel extends JTabbedPane {
 		for (AnimShell animShell : mht.recModAnims) {
 
 			if (animShell.getImportAnimShell().getAnim() != null) {
-				// todo copyToInterval should probably (?) be used on animShell.getAnim() and not animShell.getImportAnimShell().getAnim()
 				animShell.getImportAnimShell().getAnim().copyToInterval(animShell.getAnim().getStart(), animShell.getAnim().getEnd(), donModFlags, donModEventObjs, newImpFlags, newImpEventObjs);
 
 				final Animation tempAnim = new Animation("temp", animShell.getAnim().getStart(), animShell.getAnim().getEnd());
@@ -518,11 +517,15 @@ public class ImportPanel extends JTabbedPane {
 
 	private List<Geoset> addChosenGeosets() {
 		List<Geoset> geosetsAdded = new ArrayList<>();
+
 		for (GeosetShell geoShell : mht.allGeoShells) {
 			geoShell.getGeoset().setMaterial(geoShell.getMaterial());
+
 			if (geoShell.isFromDonating() && geoShell.isDoImport()) {
 				mht.receivingModel.add(geoShell.getGeoset());
+
 				geosetsAdded.add(geoShell.getGeoset());
+
 				if (geoShell.getGeoset().getGeosetAnim() != null) {
 					mht.receivingModel.add(geoShell.getGeoset().getGeosetAnim());
 				}
