@@ -28,7 +28,10 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.Timer;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -95,6 +98,8 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	private EditableModel model;
 	MainPanel mainPanel;
 
+//	TimeLine timeLine;
+
 	//	public TimeSliderPanel(
 //			final TimeBoundProvider timeBoundProvider,
 //			final ModelStructureChangeListener structureChangeListener,
@@ -111,7 +116,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		this.preferences = preferences;
 		theme = preferences.getTheme();
 		notifier = new TimeSliderTimeNotifier();
-		setLayout(new MigLayout("debug,fill,novisualpadding,aligny top", "[][grow]"));
+		setLayout(new MigLayout("fill,novisualpadding,aligny top", "[][grow]"));
 		JPanel buttonPanel = new JPanel(new MigLayout());
 		playButton = new JButton(RMSIcons.PLAY);
 		playButton.addActionListener(e -> pausePlayAnimation());
@@ -130,7 +135,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 
 		buttonPanel.add(allKF, "gap 0, wrap");
 		buttonPanel.setOpaque(true);
-		buttonPanel.setBackground(Color.magenta);
+//		buttonPanel.setBackground(Color.magenta);
 //		add(buttonPanel, "cell 0 0, shrink, gap 0, pad -5");
 		add(buttonPanel, "shrink, gap 0, pad -5 -10 0 0");
 
@@ -139,9 +144,13 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		timelinePanel = getTimelinePanel();
 //		timelinePanel.add(Box.createVerticalStrut(VERTICAL_SLIDER_HEIGHT + VERTICAL_TICKS_HEIGHT));
 		timelinePanel.setOpaque(true);
-		timelinePanel.setBackground(Color.cyan);
+//		timelinePanel.setBackground(Color.cyan);
 //		add(timelinePanel, "cell 1 0, grow x, gap 0, pad 0");
+
 		add(timelinePanel, "grow x, growy, gap 0, pad -5");
+
+//		timeLine = new TimeLine(preferences);
+//		add(timeLine, "grow x, growy, gap 0, pad -5");
 
 
 //		add(Box.createVerticalStrut(VERTICAL_SLIDER_HEIGHT + VERTICAL_TICKS_HEIGHT));
@@ -165,7 +174,8 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		liveAnimationTimer = new Timer(16, e -> liveAnimationTimerListener());
 		timelinePanel.addMouseListener(getMouseAdapter());
 
-		timelinePanel.addMouseMotionListener(getMouseMotionListener());
+//		timelinePanel.addMouseMotionListener(getMouseMotionListener());
+		timelinePanel.addMouseMotionListener(getMouseAdapter());
 		try {
 			robot = new Robot();
 		} catch (final AWTException e1) {
@@ -177,19 +187,6 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		keyframePaint = new GradientPaint(new Point(0, 10), new Color(200, 255, 200), new Point(0, getHeight()), new Color(100, 255, 100), true);
 		keyframePaintBlue = new GradientPaint(new Point(0, 10), new Color(200, 200, 255), new Point(0, getHeight()), new Color(100, 100, 255), true);
 		keyframePaintRed = new GradientPaint(new Point(0, 10), new Color(255, 200, 200), new Point(0, getHeight()), new Color(255, 100, 100), true);
-
-//		allKF = new JCheckBox("All KF");
-//		allKF.addActionListener(e -> revalidateKeyframeDisplay());
-//		add(allKF);
-//		final GroupLayout layout = new GroupLayout(this);
-//		layout.setVerticalGroup(layout.createSequentialGroup().addGap(VERTICAL_SLIDER_HEIGHT).addGap(4)
-//				.addGroup(layout.createParallelGroup()
-//						.addComponent(allKF)));
-//		layout.setHorizontalGroup(layout.createSequentialGroup().addGap(24)
-//				.addGroup(layout.createParallelGroup()
-//						.addGroup(layout.createSequentialGroup()
-//								.addComponent(allKF))));
-//		setLayout(layout);
 	}
 
 	public static JButton createSetKeyframeButton(MainPanel mainPanel) {
@@ -220,47 +217,6 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 			public void componentResized(final ComponentEvent e) {
 				slideExistingKeyFramesForResize();
 				timeChooserRect.x = computeSliderXFromTime();
-			}
-		};
-	}
-
-	private MouseMotionListener getMouseMotionListener() {
-		return new MouseMotionListener() {
-			@Override
-			public void mouseMoved(final MouseEvent e) {
-				if (!drawing) {
-					return;
-				}
-				checkMouseOver(e.getPoint());
-			}
-
-			@Override
-			public void mouseDragged(final MouseEvent e) {
-				if (!drawing) {
-					return;
-				}
-				final Point mousePoint = e.getPoint();
-				if (draggingSlider) {
-					dx = mousePoint.getX() - lastMousePoint.getX();
-					timeChooserRect.x += (int) dx;
-					final int maxXPosition = timelinePanel.getWidth() - timeChooserRect.width;
-					if (timeChooserRect.x > maxXPosition) {
-						timeChooserRect.x = maxXPosition;
-					} else if (timeChooserRect.x < 0) {
-						timeChooserRect.x = 0;
-					}
-					final int computedTime = computeTimeFromSlider();
-					if (computedTime != currentTime) {
-						currentTime = computedTime;
-						notifier.timeChanged(currentTime);
-					}
-					repaint();
-				} else if (draggingFrame != null) {
-					dx = mousePoint.getX() - lastMousePoint.getX();
-					updateDraggedKeyframe(mousePoint);
-					repaint();
-				}
-				lastMousePoint = e.getPoint();
 			}
 		};
 	}
@@ -314,6 +270,43 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 				if (!draggingSlider) {
 					mouseNotDraged(mouseEvent);
 				}
+			}
+
+			@Override
+			public void mouseMoved(final MouseEvent e) {
+				if (!drawing) {
+					return;
+				}
+				checkMouseOver(e.getPoint());
+			}
+
+			@Override
+			public void mouseDragged(final MouseEvent e) {
+				if (!drawing) {
+					return;
+				}
+				final Point mousePoint = e.getPoint();
+				if (draggingSlider) {
+					dx = mousePoint.getX() - lastMousePoint.getX();
+					timeChooserRect.x += (int) dx;
+					final int maxXPosition = timelinePanel.getWidth() - timeChooserRect.width;
+					if (timeChooserRect.x > maxXPosition) {
+						timeChooserRect.x = maxXPosition;
+					} else if (timeChooserRect.x < 0) {
+						timeChooserRect.x = 0;
+					}
+					final int computedTime = computeTimeFromSlider();
+					if (computedTime != currentTime) {
+						currentTime = computedTime;
+						notifier.timeChanged(currentTime);
+					}
+					repaint();
+				} else if (draggingFrame != null) {
+					dx = mousePoint.getX() - lastMousePoint.getX();
+					updateDraggedKeyframe(mousePoint);
+					repaint();
+				}
+				lastMousePoint = e.getPoint();
 			}
 		};
 	}
@@ -519,7 +512,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 
 	private ReversedAction getDeleteAction(String actionName, ModelStructureChangeListener structureChangeListener, IdObject object, AnimFlag<?> flag, int trackTime, int flooredTimeIndex) {
 		final ReversedAction deleteFrameAction;
-		if ((flooredTimeIndex != -1) && (flooredTimeIndex < flag.getTimes().size()) && (flag.getTimes().get(flooredTimeIndex) == trackTime)) {
+		if ((flooredTimeIndex != -1) && (flooredTimeIndex < flag.getTimes().size()) && (flag.getTimes().get(flooredTimeIndex).equals(trackTime))) {
 			// I'm going to cheat a little bit.
 			// When this saves the list of keyframe values to put back if we CTRL+Z
 			// to the "undo stack", it will store the memory references directly.
@@ -610,7 +603,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 
 	private void copuKeyframes(IdObject object, AnimFlag<?> flag, int trackTime) {
 		final int flooredTimeIndex = flag.floorIndex(trackTime);
-		if ((flooredTimeIndex != -1) && (flooredTimeIndex < flag.getTimes().size()) && (flag.getTimes().get(flooredTimeIndex) == trackTime)) {
+		if ((flooredTimeIndex != -1) && (flooredTimeIndex < flag.getTimes().size()) && (flag.getTimes().get(flooredTimeIndex).equals(trackTime))) {
 			final Object value = flag.getValues().get(flooredTimeIndex);
 			copiedKeyframes.add(new CopiedKeyFrame(object, flag, new AnimFlag.Entry(flag.getEntry(flooredTimeIndex))));
 //			if (flag.tans()) {
@@ -940,6 +933,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		currentTime = start;
 		timeChooserRect.x = computeSliderXFromTime();
 		updateKeyframeDisplay();
+//		timeLine.repaint();
 		repaint();
 	}
 
@@ -1047,7 +1041,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		// tans might be null
 //		final Object newInTan = AnimFlag.cloneValue(frame.inTan);
 //		final Object newOutTan = AnimFlag.cloneValue(frame.outTan);
-		if ((flooredTimeIndex != -1) && (flooredTimeIndex < sourceTimeline.getTimes().size()) && (sourceTimeline.getTimes().get(flooredTimeIndex) == mouseClickAnimationTime)) {
+		if ((flooredTimeIndex != -1) && (flooredTimeIndex < sourceTimeline.getTimes().size()) && (sourceTimeline.getTimes().get(flooredTimeIndex).equals(mouseClickAnimationTime))) {
 //			if (sourceTimeline.tans()) {
 //				final Object oldValue = sourceTimeline.valueAt(mouseClickAnimationTime);
 //				final Object oldInTan = sourceTimeline.valueAt(mouseClickAnimationTime);
@@ -1193,7 +1187,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		private final Object value;
 		private final Object inTan;
 		private final Object outTan;
-		private final AnimFlag.Entry entry;
+		private final AnimFlag.Entry<?> entry;
 
 		public CopiedKeyFrame(final TimelineContainer node, final AnimFlag<?> sourceTimeline, final Object value,
 		                      final Object inTan, final Object outTan) {
@@ -1205,7 +1199,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 			entry = new AnimFlag.Entry(0, value, inTan, outTan);
 		}
 
-		public CopiedKeyFrame(TimelineContainer node, AnimFlag<?> sourceTimeline, AnimFlag.Entry entry) {
+		public CopiedKeyFrame(TimelineContainer node, AnimFlag<?> sourceTimeline, AnimFlag.Entry<?> entry) {
 			this.node = node;
 			this.sourceTimeline = sourceTimeline;
 			this.entry = entry;
