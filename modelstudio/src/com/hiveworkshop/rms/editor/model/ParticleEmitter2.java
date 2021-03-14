@@ -216,20 +216,20 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		emitter.speed = (float)getSpeed();
 		emitter.variation = (float)getVariation();
 		emitter.latitude = (float)getLatitude();
-		emitter.gravity = (float)getGravity();
-		emitter.lifeSpan = (float)getLifeSpan();
-		emitter.emissionRate = (float)getEmissionRate();
-		emitter.length = (float)getLength();
-		emitter.width = (float)getWidth();
+		emitter.gravity = (float) getGravity();
+		emitter.lifeSpan = (float) getLifeSpan();
+		emitter.emissionRate = (float) getEmissionRate();
+		emitter.length = (float) getLength();
+		emitter.width = (float) getWidth();
 		emitter.rows = getRows();
 		emitter.columns = getCols();
-		emitter.tailLength = (float)getTailLength();
-		emitter.timeMiddle = (float)getTime();
+		emitter.tailLength = (float) getTailLength();
+		emitter.timeMiddle = (float) getTime();
 
-		emitter.segmentColors[0] = getSegmentColor(0).toFloatArray();
-		emitter.segmentColors[1] = getSegmentColor(1).toFloatArray();
-		emitter.segmentColors[2] = getSegmentColor(2).toFloatArray();
-		
+		emitter.segmentColors[0] = ModelUtils.flipRGBtoBGR(getSegmentColor(0).toFloatArray());
+		emitter.segmentColors[1] = ModelUtils.flipRGBtoBGR(getSegmentColor(1).toFloatArray());
+		emitter.segmentColors[2] = ModelUtils.flipRGBtoBGR(getSegmentColor(2).toFloatArray());
+
 		emitter.segmentAlphas = getAlpha().toShortArray();
 		emitter.segmentScaling = getParticleScaling().toFloatArray();
 
