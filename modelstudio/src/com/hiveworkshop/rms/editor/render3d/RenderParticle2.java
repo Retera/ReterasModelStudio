@@ -68,7 +68,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		}
 
 		// Location rotation
-		Vec4 vec4perpZ = new Vec4(0, 0, 1, (float) (Math.PI / 2));
+		Vec4 vec4perpZ = new Vec4(0, 0, 1, 0);
 		Quat rotationZHeap = new Quat().setFromAxisAngle(vec4perpZ);
 		Vec4 vec4randomX = new Vec4(1, 0, 0, MathUtils.randomInRange(-latitude, latitude));
 		Quat rotationYHeap = new Quat().setFromAxisAngle(vec4randomX);
