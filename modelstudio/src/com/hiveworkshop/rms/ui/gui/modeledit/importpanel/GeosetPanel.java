@@ -7,6 +7,8 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 class GeosetPanel extends JPanel {
 	private JList<Material> materialList;
@@ -44,6 +46,15 @@ class GeosetPanel extends JPanel {
 
 		materialListPane = new JScrollPane(materialList);
 		add(materialListPane, "grow");
+
+		//Todo change geosetTabs to a JList and remove this
+		addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentShown(ComponentEvent e) {
+				super.componentShown(e);
+				setGeoset(selectedGeoset);
+			}
+		});
 	}
 
 	public void setGeoset(GeosetShell geosetShell) {
