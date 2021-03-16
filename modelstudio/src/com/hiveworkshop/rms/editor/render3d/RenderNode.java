@@ -15,10 +15,6 @@ public final class RenderNode {
 	boolean billboardedX;
 	boolean billboardedY;
 	boolean billboardedZ;
-	private static final Vec3 locationHeap = new Vec3(); //ToDo try to get rid of these
-	private static final Vec3 scalingHeap = new Vec3();
-	private static final Vec3 pivotHeap = new Vec3();
-	private static final Vec4 vector4Heap = new Vec4();
 
 	protected final Vec3 localLocation = new Vec3();
 	protected final Quat localRotation = new Quat();
@@ -88,13 +84,10 @@ public final class RenderNode {
 		if (dirty) {
 			dirty = false;
 			if (idObject instanceof IdObject && ((IdObject) idObject).getParent() != null) {
-				final Vec3 computedLocation = locationHeap;
-				final Vec3 computedScaling;
-				computedLocation.set(localLocation);
+				Vec3 computedLocation = new Vec3(localLocation);
+				Vec3 computedScaling = new Vec3();
 
 				if (dontInheritScaling) {
-					computedScaling = scalingHeap;
-
 					final Vec3 parentInverseScale = model.getRenderNode(((IdObject) idObject).getParent()).inverseWorldScale;
 					computedScaling.set(parentInverseScale);
 					computedScaling.multiply(localScale);
@@ -108,15 +101,13 @@ public final class RenderNode {
 					worldScale.multiply(localScale);
 				}
 
-				pivotHeap.set(idObject.getPivotPoint());
-				localMatrix.fromRotationTranslationScaleOrigin(localRotation, computedLocation, computedScaling, pivotHeap);
+				localMatrix.fromRotationTranslationScaleOrigin(localRotation, computedLocation, computedScaling, idObject.getPivotPoint());
 
 				worldMatrix.set(Mat4.getProd(model.getRenderNode(((IdObject) idObject).getParent()).worldMatrix, localMatrix));
 				worldRotation.set(Quat.getProd(model.getRenderNode(((IdObject) idObject).getParent()).worldRotation, localRotation));
 			} else {
 
-				pivotHeap.set(idObject.getPivotPoint());
-				localMatrix.fromRotationTranslationScaleOrigin(localRotation, localLocation, localScale, pivotHeap);
+				localMatrix.fromRotationTranslationScaleOrigin(localRotation, localLocation, localScale, idObject.getPivotPoint());
 				worldMatrix.set(localMatrix);
 				worldRotation.set(localRotation);
 				worldScale.set(localScale);
@@ -242,9 +233,8 @@ public final class RenderNode {
 	}
 
 	public Vec3 getPivot() {
-		vector4Heap.set(idObject.getPivotPoint(), 1);
+		Vec4 vector4Heap = new Vec4(idObject.getPivotPoint(), 1);
 		vector4Heap.transform(worldMatrix);
-		pivotHeap.set(vector4Heap);
-		return pivotHeap;
+		return vector4Heap.getVec3();
 	}
 }

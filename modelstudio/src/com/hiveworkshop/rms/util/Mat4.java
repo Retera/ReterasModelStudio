@@ -262,37 +262,27 @@ public class Mat4 {
 	// copied from ghostwolf and
 	// https://www.blend4web.com/api_doc/libs_gl-matrix2.js.html
 	public Mat4 fromRotationTranslationScaleOrigin(final Quat q, final Vec3 v, final Vec3 s, final Vec3 pivot) {
-		final float x = q.x;
-		final float y = q.y;
-		final float z = q.z;
-		final float w = q.w;
-		final float x2 = x + x;
-		final float y2 = y + y;
-		final float z2 = z + z;
-		final float xx = x * x2;
-		final float xy = x * y2;
-		final float xz = x * z2;
-		final float yy = y * y2;
-		final float yz = y * z2;
-		final float zz = z * z2;
-		final float wx = w * x2;
-		final float wy = w * y2;
-		final float wz = w * z2;
-		final float sx = s.x;
-		final float sy = s.y;
-		final float sz = s.z;
+		final float xx = q.x * q.x * 2;
+		final float xy = q.x * q.y * 2;
+		final float xz = q.x * q.z * 2;
+		final float yy = q.y * q.y * 2;
+		final float yz = q.y * q.z * 2;
+		final float zz = q.z * q.z * 2;
+		final float wx = q.w * q.x * 2;
+		final float wy = q.w * q.y * 2;
+		final float wz = q.w * q.z * 2;
 
-		m00 = (1 - (yy + zz)) * sx;
-		m01 = (xy + wz) * sx;
-		m02 = (xz - wy) * sx;
+		m00 = (1 - (yy + zz)) * s.x;
+		m01 = (xy + wz) * s.x;
+		m02 = (xz - wy) * s.x;
 		m03 = 0;
-		m10 = (xy - wz) * sy;
-		m11 = (1 - (xx + zz)) * sy;
-		m12 = (yz + wx) * sy;
+		m10 = (xy - wz) * s.y;
+		m11 = (1 - (xx + zz)) * s.y;
+		m12 = (yz + wx) * s.y;
 		m13 = 0;
-		m20 = (xz + wy) * sz;
-		m21 = (yz - wx) * sz;
-		m22 = (1 - (xx + yy)) * sz;
+		m20 = (xz + wy) * s.z;
+		m21 = (yz - wx) * s.z;
+		m22 = (1 - (xx + yy)) * s.z;
 		m23 = 0;
 		m30 = (v.x + pivot.x) - ((m00 * pivot.x) + (m10 * pivot.y) + (m20 * pivot.z));
 		m31 = (v.y + pivot.y) - ((m01 * pivot.x) + (m11 * pivot.y) + (m21 * pivot.z));
@@ -305,37 +295,27 @@ public class Mat4 {
 	// copied from
 	// https://www.blend4web.com/api_doc/libs_gl-matrix2.js.html
 	public Mat4 fromRotationTranslationScale(final Quat q, final Vec3 v, final Vec3 s) {
-		final float x = q.x;
-		final float y = q.y;
-		final float z = q.z;
-		final float w = q.w;
-		final float x2 = x + x;
-		final float y2 = y + y;
-		final float z2 = z + z;
-		final float xx = x * x2;
-		final float xy = x * y2;
-		final float xz = x * z2;
-		final float yy = y * y2;
-		final float yz = y * z2;
-		final float zz = z * z2;
-		final float wx = w * x2;
-		final float wy = w * y2;
-		final float wz = w * z2;
-		final float sx = s.x;
-		final float sy = s.y;
-		final float sz = s.z;
+		final float xx = q.x * q.x * 2;
+		final float xy = q.x * q.y * 2;
+		final float xz = q.x * q.z * 2;
+		final float yy = q.y * q.y * 2;
+		final float yz = q.y * q.z * 2;
+		final float zz = q.z * q.z * 2;
+		final float wx = q.w * q.x * 2;
+		final float wy = q.w * q.y * 2;
+		final float wz = q.w * q.z * 2;
 
-		m00 = (1 - (yy + zz)) * sx;
-		m01 = (xy + wz) * sx;
-		m02 = (xz - wy) * sx;
+		m00 = (1 - (yy + zz)) * s.x;
+		m01 = (xy + wz) * s.x;
+		m02 = (xz - wy) * s.x;
 		m03 = 0;
-		m10 = (xy - wz) * sy;
-		m11 = (1 - (xx + zz)) * sy;
-		m12 = (yz + wx) * sy;
+		m10 = (xy - wz) * s.y;
+		m11 = (1 - (xx + zz)) * s.y;
+		m12 = (yz + wx) * s.y;
 		m13 = 0;
-		m20 = (xz + wy) * sz;
-		m21 = (yz - wx) * sz;
-		m22 = (1 - (xx + yy)) * sz;
+		m20 = (xz + wy) * s.z;
+		m21 = (yz - wx) * s.z;
+		m22 = (1 - (xx + yy)) * s.z;
 		m23 = 0;
 		m30 = v.x;
 		m31 = v.y;
@@ -346,19 +326,15 @@ public class Mat4 {
 	}
 
 	public Mat4 fromQuat(final Quat q) {
-		final float x = q.x, y = q.y, z = q.z, w = q.w;
-		final float x2 = x + x;
-		final float y2 = y + y;
-		final float z2 = z + z;
-		final float xx = x * x2;
-		final float yx = y * x2;
-		final float yy = y * y2;
-		final float zx = z * x2;
-		final float zy = z * y2;
-		final float zz = z * z2;
-		final float wx = w * x2;
-		final float wy = w * y2;
-		final float wz = w * z2;
+		final float xx = q.x * q.x * 2;
+		final float yx = q.y * q.x * 2;
+		final float yy = q.y * q.y * 2;
+		final float zx = q.z * q.x * 2;
+		final float zy = q.z * q.y * 2;
+		final float zz = q.z * q.z * 2;
+		final float wx = q.w * q.x * 2;
+		final float wy = q.w * q.y * 2;
+		final float wz = q.w * q.z * 2;
 
 		m00 = 1 - yy - zz;
 		m01 = yx + wz;

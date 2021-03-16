@@ -337,17 +337,6 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		}
 	}
 
-	private void pausePlayAnimation() {
-		if (liveAnimationTimer.isRunning()) {
-			liveAnimationTimer.stop();
-			playButton.setIcon(RMSIcons.PLAY);
-		} else {
-			liveAnimationTimer.start();
-			playButton.setIcon(RMSIcons.PAUSE);
-		}
-		repaint();
-	}
-
 	private boolean isMouseOnBackward() {
 		return lastMousePoint.x > timeChooserRect.x
 				&& lastMousePoint.x < (timeChooserRect.x + SLIDER_SIDE_BUTTON_SIZE)
@@ -928,6 +917,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	@Override
 	public void timeBoundsChanged(final int start, final int end) {
 		liveAnimationTimer.stop();
+		playButton.setIcon(RMSIcons.PLAY);
 		this.start = start;
 		this.end = end;
 		currentTime = start;
@@ -1230,9 +1220,23 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	public void play() {
 		if (liveAnimationTimer.isRunning()) {
 			liveAnimationTimer.stop();
+			playButton.setIcon(RMSIcons.PLAY);
 		} else {
 			liveAnimationTimer.start();
+			playButton.setIcon(RMSIcons.PAUSE);
 		}
+		repaint();
+	}
+
+	private void pausePlayAnimation() {
+		if (liveAnimationTimer.isRunning()) {
+			liveAnimationTimer.stop();
+			playButton.setIcon(RMSIcons.PLAY);
+		} else {
+			liveAnimationTimer.start();
+			playButton.setIcon(RMSIcons.PAUSE);
+		}
+		repaint();
 	}
 
 	public void setDrawing(final boolean drawing) {
