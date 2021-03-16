@@ -31,6 +31,7 @@ import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
 import com.hiveworkshop.rms.util.Vec3;
 import net.infonode.docking.*;
+import net.infonode.docking.properties.RootWindowProperties;
 import net.infonode.docking.util.StringViewMap;
 import net.infonode.tabbedpanel.TabAreaVisiblePolicy;
 import net.infonode.tabbedpanel.titledtab.TitledTabBorderSizePolicy;
@@ -124,7 +125,7 @@ public class MainPanel extends JPanel
 
     public MainPanel() {
         super();
-        setLayout(new MigLayout("fill, gap 0, novisualpadding, wrap 1", "[fill, grow]", "[][fill, grow]"));
+        setLayout(new MigLayout("fill, ins 0, gap 0, novisualpadding, wrap 1", "[fill, grow]", "[][fill, grow]"));
         add(ToolBar.createJToolBar(this));
         // testArea = new PerspDisplayPanel("Graphic Test",2,0);
         // //botArea.setViewport(0,1);
@@ -158,7 +159,9 @@ public class MainPanel extends JPanel
         viewMap = new StringViewMap();
 
         rootWindow = new RootWindow(viewMap);
+        setProperties(rootWindow.getRootWindowProperties());
         rootWindow.addListener(getDockingWindowListener(this));
+//        rootWindow.getInsets().set(0,0,0,0);
 
 
         final JPanel contentsDummy = new JPanel();
@@ -192,6 +195,7 @@ public class MainPanel extends JPanel
             actionTypeGroup.maybeSetButtonType(newType);
             changeActivity(newType);
         }, prefs, actionTypeGroup, activeViewportWatcher, animatedRenderEnvironment);
+
         creatorView = new View("Modeling", null, creatorPanel);
 
 
@@ -204,7 +208,6 @@ public class MainPanel extends JPanel
 
         add(rootWindow);
 
-
         // Create a file chooser
         ExportTextureDialog.createFileChooser(this);
 
@@ -216,6 +219,33 @@ public class MainPanel extends JPanel
         actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
         viewportTransferHandler = new ViewportTransferHandler();
         coordDisplayListener = (dim1, dim2, value1, value2) -> TimeSliderView.setMouseCoordDisplay(mouseCoordDisplay, dim1, dim2, value1, value2);
+    }
+
+    private static void setProperties(RootWindowProperties rootWindowProperties) {
+//        System.out.println("DockingWindowProperties:");
+//        for(Property p : DockingWindowProperties.PROPERTIES.getProperties()){
+//            System.out.println(p.getName() + ",  " + p.getDescription());
+//        }
+//        System.out.println("SplitWindowProperties:");
+//        for(Property p : SplitWindowProperties.PROPERTIES.getProperties()){
+//            System.out.println(p.getName() + ",  " + p.getDescription());
+//        }
+//        System.out.println("TabWindowProperties");
+//        for(Property p : TabWindowProperties.PROPERTIES.getProperties()){
+//            System.out.println(p.getName() + ",  " + p.getDescription());
+//        }
+//        System.out.println("TabWindowProperties");
+//        for(Property p : TabbedPanelProperties.PROPERTIES.getProperties()){
+//            System.out.println(p.getName() + ",  " + p.getDescription());
+//        }
+        rootWindowProperties.getSplitWindowProperties().setDividerSize(0);
+        rootWindowProperties.getTabWindowProperties().getTabbedPanelProperties().setShadowEnabled(false);
+        rootWindowProperties.getWindowAreaProperties().getInsets().set(0, 0, 0, 0);
+//        TabbedPanelProperties.getDefaultProperties().setShadowEnabled(false);
+//        SplitWindowProperties.PROPERTIES.getProperty("Divider Size")
+//        System.out.println(DockingWindowProperties.TAB_PROPERTIES.getPropertyGroup().getProperties().getPropertyCount());
+//        System.out.println(DockingWindowProperties.TAB_PROPERTIES.getPropertyGroup().getProperty("SHADOW_SIZE").getName());
+//        DockingWindowProperties.TAB_PROPERTIES.getPropertyGroup().getProperty("SHADOW_SIZE")
     }
 
     AbstractAction selectAllAction = new AbstractAction("Select All") {
