@@ -707,6 +707,13 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
     }
 
     @Override
+    public void rawScale(final Vec3 center, final Vec3 scale) {
+        for (final Vec3 vertex : selectionManager.getSelectedVertices()) {
+            vertex.scale(center, scale);
+        }
+    }
+
+    @Override
     public void rawRotate2d(final double centerX, final double centerY, final double centerZ, final double radians,
                             final byte firstXYZ, final byte secondXYZ) {
         for (final Vec3 vertex : selectionManager.getSelectedVertices()) {
@@ -730,8 +737,24 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
     }
 
     @Override
+    public UndoAction translate(final Vec3 v) {
+        final Vec3 delta = new Vec3(v);
+        final StaticMeshMoveAction moveAction = new StaticMeshMoveAction(this, delta);
+        moveAction.redo();
+        return moveAction;
+    }
+
+    @Override
     public UndoAction setPosition(final Vec3 center, final double x, final double y, final double z) {
         final Vec3 delta = new Vec3(x - center.x, y - center.y, z - center.z);
+        final StaticMeshMoveAction moveAction = new StaticMeshMoveAction(this, delta);
+        moveAction.redo();
+        return moveAction;
+    }
+
+    @Override
+    public UndoAction setPosition(final Vec3 center, final Vec3 v) {
+        final Vec3 delta = Vec3.getDiff(v, center);
         final StaticMeshMoveAction moveAction = new StaticMeshMoveAction(this, delta);
         moveAction.redo();
         return moveAction;
@@ -744,6 +767,17 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                 new SimpleRotateAction(this, center, rotateX, (byte) 2, (byte) 1),
                 new SimpleRotateAction(this, center, rotateY, (byte) 0, (byte) 2),
                 new SimpleRotateAction(this, center, rotateZ, (byte) 1, (byte) 0)));
+        compoundAction.redo();
+        return compoundAction;
+    }
+
+    @Override
+    public UndoAction rotate(final Vec3 center, final Vec3 rotate) {
+
+        final CompoundAction compoundAction = new CompoundAction("rotate", Arrays.asList(
+                new SimpleRotateAction(this, center, rotate.x, (byte) 2, (byte) 1),
+                new SimpleRotateAction(this, center, rotate.y, (byte) 0, (byte) 2),
+                new SimpleRotateAction(this, center, rotate.z, (byte) 1, (byte) 0)));
         compoundAction.redo();
         return compoundAction;
     }
@@ -778,6 +812,11 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
     @Override
     public GenericScaleAction beginScaling(final double centerX, final double centerY, final double centerZ) {
         return new StaticMeshScaleAction(this, centerX, centerY, centerZ);
+    }
+
+    @Override
+    public GenericScaleAction beginScaling(final Vec3 center) {
+        return new StaticMeshScaleAction(this, center);
     }
 
     @Override

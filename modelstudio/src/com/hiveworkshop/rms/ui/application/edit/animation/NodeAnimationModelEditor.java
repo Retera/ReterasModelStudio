@@ -348,9 +348,20 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		throw new UnsupportedOperationException("Unable to scale directly in animation mode, use other system");
 	}
 
+	@Override
+	public void rawScale(Vec3 center, Vec3 scale) {
+		throw new UnsupportedOperationException("Unable to scale directly in animation mode, use other system");
+	}
+
 	public void rawScale(final double centerX, final double centerY, final double centerZ, final double scaleX, final double scaleY, final double scaleZ, final Map<IdObject, Vec3> nodeToLocalScale) {
 		for (final IdObject idObject : selectionManager.getSelection()) {
 			idObject.updateScalingKeyframe(renderModel, scaleX, scaleY, scaleZ, nodeToLocalScale.get(idObject));
+		}
+	}
+
+	public void rawScale(final Vec3 center, final Vec3 scale, final Map<IdObject, Vec3> nodeToLocalScale) {
+		for (final IdObject idObject : selectionManager.getSelection()) {
+			idObject.updateScalingKeyframe(renderModel, scale, nodeToLocalScale.get(idObject));
 		}
 	}
 
@@ -406,6 +417,20 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	@Override
+	public UndoAction rotate(final Vec3 center, final Vec3 rotate) {
+
+		final GenericRotateAction rotationX = beginRotation(center.x, center.y, center.z, (byte) 2, (byte) 1);
+		rotationX.updateRotation(rotate.x);
+		final GenericRotateAction rotationY = beginRotation(center.x, center.y, center.z, (byte) 0, (byte) 2);
+		rotationY.updateRotation(rotate.y);
+		final GenericRotateAction rotationZ = beginRotation(center.x, center.y, center.z, (byte) 1, (byte) 0);
+		rotationZ.updateRotation(rotate.z);
+		final CompoundAction compoundAction = new CompoundAction("rotate", Arrays.asList(rotationX, rotationY, rotationZ));
+		compoundAction.redo();
+		return compoundAction;
+	}
+
+	@Override
 	public GenericMoveAction beginTranslation() {
 		final Set<IdObject> selection = selectionManager.getSelection();
 		final List<UndoAction> actions = new ArrayList<>();
@@ -433,8 +458,24 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	@Override
+	public UndoAction translate(final Vec3 v) {
+		final Vec3 delta = new Vec3(v);
+		final StaticMeshMoveAction moveAction = new StaticMeshMoveAction(this, delta);
+		moveAction.redo();
+		return moveAction;
+	}
+
+	@Override
 	public UndoAction setPosition(final Vec3 center, final double x, final double y, final double z) {
 		final Vec3 delta = new Vec3(x - center.x, y - center.y, z - center.z);
+		final StaticMeshMoveAction moveAction = new StaticMeshMoveAction(this, delta);
+		moveAction.redo();
+		return moveAction;
+	}
+
+	@Override
+	public UndoAction setPosition(final Vec3 center, final Vec3 v) {
+		final Vec3 delta = Vec3.getDiff(v, center);
 		final StaticMeshMoveAction moveAction = new StaticMeshMoveAction(this, delta);
 		moveAction.redo();
 		return moveAction;
@@ -501,6 +542,20 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		final int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
 		final int trackTimeToUse = timeEnvironmentImpl.getGlobalSeq() == null ? trackTime : timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
 		return new ScalingKeyframeAction(new CompoundAction("setup", actions), trackTimeToUse, timeEnvironmentImpl.getGlobalSeq(), selection, this, centerX, centerY, centerZ);
+	}
+
+	@Override
+	public GenericScaleAction beginScaling(final Vec3 center) {
+		final Set<IdObject> selection = selectionManager.getSelection();
+		final List<UndoAction> actions = new ArrayList<>();
+		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
+
+		generateKeyframes(selection, actions, timeEnvironmentImpl, "Scaling", (node, translationTimeline) -> node.createScalingKeyframe(renderModel, (Vec3AnimFlag) translationTimeline, structureChangeListener));
+
+
+		final int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
+		final int trackTimeToUse = timeEnvironmentImpl.getGlobalSeq() == null ? trackTime : timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
+		return new ScalingKeyframeAction(new CompoundAction("setup", actions), trackTimeToUse, timeEnvironmentImpl.getGlobalSeq(), selection, this, center);
 	}
 
 	@Override

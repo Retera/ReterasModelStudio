@@ -42,19 +42,25 @@ public interface ModelEditor extends ComponentVisibilityListener {
 	// knowledge of center point from state holders
 	UndoAction translate(double x, double y, double z);
 
+	UndoAction translate(Vec3 v);
+
 	UndoAction setPosition(Vec3 center, double x, double y, double z);
 
+	UndoAction setPosition(Vec3 center, Vec3 v);
+
 	UndoAction rotate(Vec3 center, double rotateX, double rotateY, double rotateZ);
+
+	UndoAction rotate(Vec3 center, Vec3 rotate);
 
 	UndoAction addVertex(double x, double y, double z, Vec3 preferredNormalFacingVector);
 
 	UndoAction addBone(double x, double y, double z);
 
 	GenericMoveAction addPlane(double x, double y, double x2, double y2, byte dim1, byte dim2, Vec3 facingVector,
-							   int numberOfWidthSegments, int numberOfHeightSegments);
+	                           int numberOfWidthSegments, int numberOfHeightSegments);
 
 	GenericMoveAction addBox(double x, double y, double x2, double y2, byte dim1, byte dim2, Vec3 facingVector,
-							 int numberOfLengthSegments, int numberOfWidthSegments, int numberOfHeightSegments);
+	                         int numberOfLengthSegments, int numberOfWidthSegments, int numberOfHeightSegments);
 
 	UndoAction setMatrix(Collection<Bone> bones);
 
@@ -117,6 +123,8 @@ public interface ModelEditor extends ComponentVisibilityListener {
 
 	GenericScaleAction beginScaling(double centerX, double centerY, double centerZ);
 
+	GenericScaleAction beginScaling(Vec3 center);
+
 	GenericRotateAction beginRotation(double centerX, double centerY, double centerZ, byte firstXYZ, byte secondXYZ);
 
 	GenericRotateAction beginSquatTool(double centerX, double centerY, double centerZ, byte firstXYZ, byte secondXYZ);
@@ -124,6 +132,8 @@ public interface ModelEditor extends ComponentVisibilityListener {
 	void rawTranslate(double x, double y, double z);
 
 	void rawScale(double centerX, double centerY, double centerZ, double scaleX, double scaleY, double scaleZ);
+
+	void rawScale(Vec3 center, Vec3 scale);
 
 	void rawRotate2d(double centerX, double centerY, double centerZ, double radians, byte firstXYZ, byte secondXYZ);
 

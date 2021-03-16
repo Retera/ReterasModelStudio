@@ -1,9 +1,10 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor;
 
-import java.util.List;
-
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
+import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.List;
 
 public final class CompoundScaleAction implements GenericScaleAction {
 	private final List<? extends GenericScaleAction> actions;
@@ -37,6 +38,13 @@ public final class CompoundScaleAction implements GenericScaleAction {
 	public void updateScale(final double scaleX, final double scaleY, final double scaleZ) {
 		for (final GenericScaleAction action : actions) {
 			action.updateScale(scaleX, scaleY, scaleZ);
+		}
+	}
+
+	@Override
+	public void updateScale(final Vec3 scale) {
+		for (final GenericScaleAction action : actions) {
+			action.updateScale(scale);
 		}
 	}
 

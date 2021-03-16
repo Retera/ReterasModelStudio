@@ -33,6 +33,20 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 		center = new Vec3(centerX, centerY, centerZ);
 	}
 
+	public ScalingKeyframeAction(final UndoAction addingTimelinesOrKeyframesAction, final int trackTime,
+	                             final Integer trackGlobalSeq, final Collection<IdObject> nodeSelection,
+	                             final NodeAnimationModelEditor modelEditor, final Vec3 center) {
+		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
+		this.trackTime = trackTime;
+		this.trackGlobalSeq = trackGlobalSeq;
+		this.modelEditor = modelEditor;
+		nodeToLocalScale = new HashMap<>();
+		for (final IdObject node : nodeSelection) {
+			nodeToLocalScale.put(node, new Vec3());
+		}
+		this.center = new Vec3(center);
+	}
+
 	@Override
 	public void undo() {
 		for (final Map.Entry<IdObject, Vec3> nodeAndLocalTranslation : nodeToLocalScale.entrySet()) {
@@ -62,6 +76,11 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 	@Override
 	public void updateScale(final double scaleX, final double scaleY, final double scaleZ) {
 		modelEditor.rawScale(center.x, center.y, center.z, scaleX, scaleY, scaleZ, nodeToLocalScale);
+	}
+
+	@Override
+	public void updateScale(final Vec3 scale) {
+		modelEditor.rawScale(center, scale, nodeToLocalScale);
 	}
 
 }

@@ -263,8 +263,13 @@ public abstract class AnimatedNode extends TimelineContainer {
 		}
 	}
 
-	public void updateScalingKeyframe(final RenderModel renderModel, final double scaleX, final double scaleY,
-			final double scaleZ, final Vec3 savedLocalScaling) {
+	public void updateScalingKeyframe(final RenderModel renderModel,
+	                                  final double scaleX, final double scaleY, final double scaleZ,
+	                                  final Vec3 savedLocalScaling) {
+		updateScalingKeyframe(renderModel, new Vec3(scaleX, scaleY, scaleZ), savedLocalScaling);
+	}
+
+	public void updateScalingKeyframe(final RenderModel renderModel, final Vec3 scale, final Vec3 savedLocalScaling) {
 		// Note to future author: the reason for saved local scaling is that
 		// we would like to be able to undo the action of moving the animation data
 
@@ -286,7 +291,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		}
 		final int floorIndex = translationFlag.floorIndex(trackTime);
 
-		Vec3 translationHeap = new Vec3(scaleX, scaleY, scaleZ);
+		Vec3 translationHeap = new Vec3(scale);
 
 		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex).equals(trackTime))) {
 			// we must change it

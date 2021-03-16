@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
+import com.hiveworkshop.rms.util.Vec3;
 
 public class StaticMeshScaleAction implements GenericScaleAction {
 	private final ModelEditor modelEditor;
@@ -13,11 +14,21 @@ public class StaticMeshScaleAction implements GenericScaleAction {
 	private final double centerZ;
 
 	public StaticMeshScaleAction(final ModelEditor modelEditor, final double centerX, final double centerY,
-			final double centerZ) {
+	                             final double centerZ) {
 		this.modelEditor = modelEditor;
 		this.centerX = centerX;
 		this.centerY = centerY;
 		this.centerZ = centerZ;
+		scaleX = 1;
+		scaleY = 1;
+		scaleZ = 1;
+	}
+
+	public StaticMeshScaleAction(final ModelEditor modelEditor, final Vec3 center) {
+		this.modelEditor = modelEditor;
+		this.centerX = center.x;
+		this.centerY = center.y;
+		this.centerZ = center.z;
 		scaleX = 1;
 		scaleY = 1;
 		scaleZ = 1;
@@ -43,6 +54,14 @@ public class StaticMeshScaleAction implements GenericScaleAction {
 		this.scaleX *= scaleX;
 		this.scaleY *= scaleY;
 		this.scaleZ *= scaleZ;
+		modelEditor.rawScale(centerX, centerY, centerZ, scaleX, scaleY, scaleZ);
+	}
+
+	@Override
+	public void updateScale(final Vec3 scale) {
+		this.scaleX *= scale.x;
+		this.scaleY *= scale.y;
+		this.scaleZ *= scale.z;
 		modelEditor.rawScale(centerX, centerY, centerZ, scaleX, scaleY, scaleZ);
 	}
 

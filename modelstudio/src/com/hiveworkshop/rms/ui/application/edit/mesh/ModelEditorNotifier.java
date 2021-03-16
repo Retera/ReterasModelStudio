@@ -206,6 +206,15 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
+	public UndoAction translate(final Vec3 v) {
+		final List<UndoAction> actions = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			actions.add(handler.translate(v));
+		}
+		return mergeActions(actions);
+	}
+
+	@Override
 	public UndoAction setPosition(final Vec3 center, final double x, final double y, final double z) {
 		final List<UndoAction> actions = new ArrayList<>();
 		for (final ModelEditor handler : set) {
@@ -215,10 +224,28 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
+	public UndoAction setPosition(final Vec3 center, final Vec3 v) {
+		final List<UndoAction> actions = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			actions.add(handler.setPosition(center, v));
+		}
+		return mergeActions(actions);
+	}
+
+	@Override
 	public UndoAction rotate(final Vec3 center, final double rotateX, final double rotateY, final double rotateZ) {
 		final List<UndoAction> actions = new ArrayList<>();
 		for (final ModelEditor handler : set) {
 			actions.add(handler.rotate(center, rotateX, rotateY, rotateZ));
+		}
+		return mergeActions(actions);
+	}
+
+	@Override
+	public UndoAction rotate(final Vec3 center, final Vec3 rotate) {
+		final List<UndoAction> actions = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			actions.add(handler.rotate(center, rotate));
 		}
 		return mergeActions(actions);
 	}
@@ -362,15 +389,22 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 
 	@Override
 	public void rawScale(final double centerX, final double centerY, final double centerZ, final double scaleX,
-			final double scaleY, final double scaleZ) {
+	                     final double scaleY, final double scaleZ) {
 		for (final ModelEditor handler : set) {
 			handler.rawScale(centerX, centerY, centerZ, scaleX, scaleY, scaleZ);
 		}
 	}
 
 	@Override
+	public void rawScale(final Vec3 center, final Vec3 scale) {
+		for (final ModelEditor handler : set) {
+			handler.rawScale(center, scale);
+		}
+	}
+
+	@Override
 	public void rawRotate2d(final double centerX, final double centerY, final double centerZ, final double radians,
-			final byte firstXYZ, final byte secondXYZ) {
+	                        final byte firstXYZ, final byte secondXYZ) {
 		for (final ModelEditor handler : set) {
 			handler.rawRotate2d(centerX, centerY, centerZ, radians, firstXYZ, secondXYZ);
 		}
@@ -471,6 +505,15 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 		final List<GenericScaleAction> actions = new ArrayList<>();
 		for (final ModelEditor handler : set) {
 			actions.add(handler.beginScaling(centerX, centerY, centerZ));
+		}
+		return mergeScaleActions(actions);
+	}
+
+	@Override
+	public GenericScaleAction beginScaling(final Vec3 center) {
+		final List<GenericScaleAction> actions = new ArrayList<>();
+		for (final ModelEditor handler : set) {
+			actions.add(handler.beginScaling(center));
 		}
 		return mergeScaleActions(actions);
 	}
