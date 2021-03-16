@@ -77,7 +77,9 @@ public abstract class ComPerspViewport extends BetterAWTGLCanvas implements Rend
 	private float yangle;
 	Timer clickTimer = new Timer(16, e -> clickTimerAction());
 
-	ExtLog modelExt;
+	ExtLog currentExt = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
+	ExtLog modelExtent = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
+	int ugg = 0;
 
 	public ComPerspViewport(final ModelView modelView, RenderModel renderModel, final ProgramPreferences programPreferences, ComPerspRenderEnv renderEnvironment, boolean loadDefaultCamera) throws LWJGLException {
 		super();
@@ -96,7 +98,10 @@ public abstract class ComPerspViewport extends BetterAWTGLCanvas implements Rend
 		setMinimumSize(new Dimension(200, 200));
 
 		this.modelView = modelView;
+		modelExtent.setMinMax(modelView.getModel().getExtents());
+		setCurrentExtent();
 		if (loadDefaultCamera) {
+			findDefaultAnimation(modelView);
 			loadDefaultCameraFor(modelView);
 		}
 
@@ -178,63 +183,57 @@ public abstract class ComPerspViewport extends BetterAWTGLCanvas implements Rend
 			public void keyPressed(KeyEvent e) {
 				super.keyPressed(e);
 
-				Vec3 maxExt = modelExt.getMaximumExtent();
-				m_zoom = 1;
+				Vec3 maxExt = currentExt.getMaximumExtent();
+//				double boundsRadius = currentExt.getMaximumExtent().distance(currentExt.getMinimumExtent()) / 2;
+//				m_zoom = 128 / (boundsRadius*1.5);
+				m_zoom = 128 / (maxExt.length());
+
 				if (e.getKeyCode() == KeyEvent.VK_NUMPAD7) {
 					// Top view
 					System.out.println("VK_NUMPAD7");
-					System.out.println(modelExt);
-					setViewportCamera(0, -85, (int) -(maxExt.length() * 2), 0, 90);
+					setViewportCamera(0, (int) -(maxExt.length() * .54), 0, 0, 90);
 				}
 				if (e.getKeyCode() == KeyEvent.VK_NUMPAD1) {
 					// Front view
 					System.out.println("VK_NUMPAD1");
-					setViewportCamera(0, (int) (maxExt.length() / 6), (int) -(maxExt.length() * 1.5), 0, 0);
+					setViewportCamera(0, (int) -(maxExt.length() / 6), 0, 0, 0);
 				}
 				if (e.getKeyCode() == KeyEvent.VK_NUMPAD3) {
 					// Side view
 					System.out.println("VK_NUMPAD3");
-					setViewportCamera(0, (int) (maxExt.length() / 6), (int) -(maxExt.length() * 1.5), 90, 0);
+					setViewportCamera(0, (int) -(maxExt.length() / 6), 0, 90, 0);
 				}
 			}
 		});
 	}
 
 	void loadDefaultCameraFor(final ModelView modelView) {
-		ExtLog collisionExtent = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
-//		final List<CollisionShape> collisionShapes = modelView.getModel().sortedIdObjects(CollisionShape.class);
-		final List<CollisionShape> collisionShapes = modelView.getModel().getColliders();
-		if (collisionShapes.size() > 0) {
-			for (final CollisionShape shape : collisionShapes) {
-				if ((shape != null) && (shape.getExtents() != null) && shape.getExtents().hasBoundsRadius()) {
-					collisionExtent.setMinMax(shape.getExtents());
-				}
-			}
-//			final CollisionShape firstShape = collisionShapes.get(0);
-//			extents = firstShape.getExtents();
+		double boundsRadius = getBoundsRadius(modelView);
+
+		m_zoom = 128 / (boundsRadius * 1.3);
+		cameraPos.y -= boundsRadius / 4;
+		yangle += 35;
+
+		calculateCameraRotation();
+	}
+
+	private double getBoundsRadius(ModelView modelView) {
+//		ExtLog collisionExtent = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
+//		final List<CollisionShape> collisionShapes = modelView.getModel().getColliders();
+//		if (collisionShapes.size() > 0) {
+//			for (final CollisionShape shape : collisionShapes) {
+//				if ((shape != null) && (shape.getExtents() != null) && shape.getExtents().hasBoundsRadius()) {
+//					collisionExtent.setMinMax(shape.getExtents());
+//				}
+//			}
+//		}
+
+		ExtLog defaultAnimationExtent = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
+		if ((renderEnv.getCurrentAnimation() != null) && renderEnv.getCurrentAnimation().getExtents() != null) {
+			defaultAnimationExtent.setMinMax(renderEnv.getCurrentAnimation().getExtents());
 		}
-
-		ExtLog modelExtent = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
-		modelExtent.setMinMax(modelView.getModel().getExtents());
-
-
-		ExtLog animationExtent = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
-		Animation defaultAnimation = null;
-		for (final Animation animation : modelView.getModel().getAnims()) {
-			if ((defaultAnimation == null) || !defaultAnimation.getName().toLowerCase().contains("stand") || (animation.getName().toLowerCase().contains("stand") && (animation.getName().length() < defaultAnimation.getName().length()))) {
-				defaultAnimation = animation;
-				if ((animation.getExtents() != null) && (animation.getExtents().hasBoundsRadius() || (animation.getExtents().getMinimumExtent() != null))) {
-//					extents = animation.getExtents();
-					animationExtent.setMinMax(animation.getExtents());
-				}
-			}
-		}
-		renderEnv.setAnimation(defaultAnimation);
 		ExtLog someExtent = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
-		if ((defaultAnimation != null) && defaultAnimation.getExtents() != null) {
-			someExtent.setMinMax(defaultAnimation.getExtents());
-			modelExt = defaultAnimation.getExtents();
-		}
+		someExtent.setMinMax(defaultAnimationExtent);
 		someExtent.setMinMax(modelExtent);
 
 		double boundsRadius = 64;
@@ -254,14 +253,26 @@ public abstract class ComPerspViewport extends BetterAWTGLCanvas implements Rend
 			boundsRadius = 64;
 		}
 
-		m_zoom = 128 / (boundsRadius * 2);
-		cameraPos.y -= boundsRadius / 2;
-		yangle += 35;
+		return boundsRadius;
+	}
 
-		calculateCameraRotation();
+	private Animation findDefaultAnimation(ModelView modelView) {
+		Animation defaultAnimation = null;
+		for (final Animation animation : modelView.getModel().getAnims()) {
+			if ((defaultAnimation == null) || !defaultAnimation.getName().toLowerCase().contains("stand") || (animation.getName().toLowerCase().contains("stand") && (animation.getName().length() < defaultAnimation.getName().length()))) {
+				defaultAnimation = animation;
+			}
+		}
+		renderEnv.setAnimation(defaultAnimation);
+		return defaultAnimation;
+	}
 
-		if (modelExt.getMaximumExtent().distance(new Vec3(0, 0, 0)) < 1) {
-			modelExt = someExtent;
+	private void setCurrentExtent() {
+		if ((renderEnv.getCurrentAnimation() != null) && renderEnv.getCurrentAnimation().getExtents() != null) {
+			currentExt = renderEnv.getCurrentAnimation().getExtents();
+		}
+		if (currentExt.getMaximumExtent().distance(new Vec3(0, 0, 0)) < 1) {
+			currentExt = modelExtent;
 		}
 	}
 
