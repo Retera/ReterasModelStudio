@@ -50,176 +50,152 @@ public class Main {
             }
         }
         final boolean dataPromptForced = hasArgs && args[0].equals("-forcedataprompt");
+        startRealRMS(startupModelPaths, dataPromptForced);
+    }
+
+    private static void startRealRMS(List<String> startupModelPaths, boolean dataPromptForced) throws IOException {
         try {
             LwjglNativesLoader.load();
 
             // Load the jassimp natives.
-            try {
-                final SharedLibraryLoader loader = new SharedLibraryLoader();
-                loader.load("jassimp-natives");
-            } catch (final Exception e) {
-                JOptionPane.showMessageDialog(null,
-                        "The C++ natives to parse FBX models failed to load. " +
-                                "You will not be able to open FBX until you install the necessary software" +
-                                "\nand restart Retera Model Studio." +
-                                "\n\nMaybe you are missing some Visual Studio Runtime dependency?" +
-                                "\n\nNext up I will show you the error message that says why " +
-                                "these C++ jassimp natives failed to load," +
-                                "\nin case you want to copy them and ask for help. " +
-                                "Once you press OK on that error popup, you can probably still use" +
-                                "\nRetera Model Studio just fine for everything else.",
-                        "Error", JOptionPane.ERROR_MESSAGE);
-                ExceptionPopup.display(e);
-            }
+            tryLoadJAssImp();
 
             final ProgramPreferences preferences = SaveProfile.get().getPreferences();
-            switch (preferences.getTheme()) {
-                case DARK:
-                    EditorDisplayManager.setupLookAndFeel();
-                    break;
-                case HIFI:
-                    EditorDisplayManager.setupLookAndFeel("HiFi");
-                    break;
-                case ACRYL:
-                    EditorDisplayManager.setupLookAndFeel("Acryl");
-                    break;
-                case ALUMINIUM:
-                    EditorDisplayManager.setupLookAndFeel("Aluminium");
-                    break;
-                case FOREST_GREEN:
-                    try {
-                        final InfoNodeLookAndFeelTheme theme = new InfoNodeLookAndFeelTheme("Retera Studio",
-                                new Color(44, 46, 20), new Color(116, 126, 36), new Color(44, 46, 20),
-                                new Color(220, 202, 132), new Color(116, 126, 36), new Color(220, 202, 132));
-                        theme.setShadingFactor(-0.8);
-                        theme.setDesktopColor(new Color(60, 82, 44));
-
-                        UIManager.setLookAndFeel(new InfoNodeLookAndFeel(theme));
-                    } catch (final UnsupportedLookAndFeelException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                case WINDOWS:
-                    try {
-                        UIManager.put("desktop", new ColorUIResource(Color.WHITE));
-                        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                        System.out.println(UIManager.getLookAndFeel());
-                    } catch (final UnsupportedLookAndFeelException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
-                        // handle exception
-                    }
-                    break;
-                case WINDOWS_CLASSIC:
-                    try {
-                        UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel");
-                    } catch (final Exception exc) {
-                        setSystemLookAndFeel();
-                    }
-                    break;
-                case JAVA_DEFAULT:
-                    break;
-                case SOFT_GRAY:
-                    try {
-                        final InfoNodeLookAndFeelTheme softGrayTheme = InfoNodeLookAndFeelThemes.getSoftGrayTheme();
-                        UIManager.setLookAndFeel(new InfoNodeLookAndFeel(softGrayTheme));
-                    } catch (final Exception exc) {
-                        setSystemLookAndFeel();
-                    }
-
-                    break;
-                case BLUE_ICE:
-                    try {
-                        final InfoNodeLookAndFeelTheme blueIceTheme = InfoNodeLookAndFeelThemes.getBlueIceTheme();
-                        UIManager.setLookAndFeel(new InfoNodeLookAndFeel(blueIceTheme));
-                    } catch (final Exception exc) {
-                        setSystemLookAndFeel();
-                    }
-
-                    break;
-                case DARK_BLUE_GREEN:
-                    try {
-                        final InfoNodeLookAndFeelTheme darkBlueGreenTheme = InfoNodeLookAndFeelThemes
-                                .getDarkBlueGreenTheme();
-                        UIManager.setLookAndFeel(new InfoNodeLookAndFeel(darkBlueGreenTheme));
-                    } catch (final Exception exc) {
-                        setSystemLookAndFeel();
-                    }
-
-                    break;
-                case GRAY:
-                    try {
-                        final InfoNodeLookAndFeelTheme grayTheme = InfoNodeLookAndFeelThemes.getGrayTheme();
-                        UIManager.setLookAndFeel(new InfoNodeLookAndFeel(grayTheme));
-                    } catch (final Exception exc) {
-                        setSystemLookAndFeel();
-                    }
-
-                    break;
-            }
-            SwingUtilities.invokeLater(() -> {
-                try {
-                    final List<DataSourceDescriptor> dataSources = SaveProfile.get().getDataSources();
-                    if ((dataSources == null) || dataPromptForced) {
-                        final DataSourceChooserPanel dataSourceChooserPanel = new DataSourceChooserPanel(
-                                dataSources);
-
-                        final JFrame jFrame = new JFrame("Retera Model Studio: Setup");
-
-                        jFrame.setUndecorated(true);
-                        jFrame.pack();
-                        jFrame.setSize(0, 0);
-                        jFrame.setLocationRelativeTo(null);
-                        jFrame.setIconImage(MainFrame.MAIN_PROGRAM_ICON);
-                        jFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                        jFrame.setVisible(true);
-                        try {
-                            if (JOptionPane.showConfirmDialog(jFrame, dataSourceChooserPanel,
-                                    "Retera Model Studio: Setup", JOptionPane.OK_CANCEL_OPTION,
-                                    JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION) {
-                                return;
-                            }
-                        } finally {
-                            jFrame.setVisible(false);
-                        }
-                        SaveProfile.get().setDataSources(dataSourceChooserPanel.getDataSourceDescriptors());
-                        SaveProfile.save();
-                        GameDataFileSystem.refresh(SaveProfile.get().getDataSources());
-                        // cache priority order...
-                        UnitOptionPanel.dropRaceCache();
-                        DataTable.dropCache();
-                        ModelOptionPanel.dropCache();
-                        WEString.dropCache();
-                        BLPHandler.get().dropCache();
-                    }
-
-                    JPopupMenu.setDefaultLightWeightPopupEnabled(false);
-                    MainFrame.create(startupModelPaths);
-                } catch (final Throwable th) {
-                    th.printStackTrace();
-                    ExceptionPopup.display(th);
-                    if (!dataPromptForced) {
-                        new Thread(() -> {
-                            try {
-                                main(new String[]{"-forcedataprompt"});
-                            } catch (final IOException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }
-                        }).start();
-                    } else {
-                        startupFailDialog();
-                    }
-                }
-            });
+            setTheme(preferences);
+            SwingUtilities.invokeLater(() -> tryStartup(startupModelPaths, dataPromptForced));
         } catch (final Throwable th) {
             th.printStackTrace();
             SwingUtilities.invokeLater(() -> ExceptionPopup.display(th));
             if (!dataPromptForced) {
-                main(new String[] {"-forcedataprompt"});
+                startRealRMS(null, true);
+//                main(new String[] {"-forcedataprompt"});
             } else {
-                SwingUtilities.invokeLater(() -> {
-                    startupFailDialog();
-                });
+                SwingUtilities.invokeLater(() -> startupFailDialog());
             }
+        }
+    }
+
+    private static void tryStartup(List<String> startupModelPaths, boolean dataPromptForced) {
+        try {
+            final List<DataSourceDescriptor> dataSources = SaveProfile.get().getDataSources();
+
+            if ((dataSources == null) || dataPromptForced) {
+                if (!showDataSourceChooser(dataSources)) return;
+            }
+
+//                    JPopupMenu.setDefaultLightWeightPopupEnabled(false);
+            MainFrame.create(startupModelPaths);
+        } catch (final Throwable th) {
+            th.printStackTrace();
+            ExceptionPopup.display(th);
+            if (!dataPromptForced) {
+                new Thread(() -> {
+                    try {
+                        startRealRMS(null, true);
+//                        main(new String[]{"-forcedataprompt"});
+                    } catch (final IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }).start();
+            } else {
+                startupFailDialog();
+            }
+        }
+    }
+
+    private static boolean showDataSourceChooser(List<DataSourceDescriptor> dataSources) {
+        final DataSourceChooserPanel dataSourceChooserPanel = new DataSourceChooserPanel(dataSources);
+
+        int opt = JOptionPane.showConfirmDialog(null, dataSourceChooserPanel,
+                "Retera Model Studio: Setup", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (opt == JOptionPane.OK_OPTION) {
+            SaveProfile.get().setDataSources(dataSourceChooserPanel.getDataSourceDescriptors());
+            SaveProfile.save();
+            GameDataFileSystem.refresh(SaveProfile.get().getDataSources());
+
+            // cache priority order...
+            UnitOptionPanel.dropRaceCache();
+            DataTable.dropCache();
+            ModelOptionPanel.dropCache();
+            WEString.dropCache();
+            BLPHandler.get().dropCache();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private static void tryLoadJAssImp() {
+        try {
+            final SharedLibraryLoader loader = new SharedLibraryLoader();
+            loader.load("jassimp-natives");
+        } catch (final Exception e) {
+            JOptionPane.showMessageDialog(null,
+                    "The C++ natives to parse FBX models failed to load. " +
+                            "You will not be able to open FBX until you install the necessary software" +
+                            "\nand restart Retera Model Studio." +
+                            "\n\nMaybe you are missing some Visual Studio Runtime dependency?" +
+                            "\n\nNext up I will show you the error message that says why " +
+                            "these C++ jassimp natives failed to load," +
+                            "\nin case you want to copy them and ask for help. " +
+                            "Once you press OK on that error popup, you can probably still use" +
+                            "\nRetera Model Studio just fine for everything else.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            ExceptionPopup.display(e);
+        }
+    }
+
+    private static void setTheme(ProgramPreferences preferences) {
+        switch (preferences.getTheme()) {
+            case JAVA_DEFAULT -> {
+            }
+            case SOFT_GRAY -> trySetTheme(InfoNodeLookAndFeelThemes.getSoftGrayTheme());
+            case BLUE_ICE -> trySetTheme(InfoNodeLookAndFeelThemes.getBlueIceTheme());
+            case DARK_BLUE_GREEN -> trySetTheme(InfoNodeLookAndFeelThemes.getDarkBlueGreenTheme());
+            case GRAY -> trySetTheme(InfoNodeLookAndFeelThemes.getGrayTheme());
+            case DARK -> EditorDisplayManager.setupLookAndFeel();
+            case HIFI -> EditorDisplayManager.setupLookAndFeel("HiFi");
+            case ACRYL -> EditorDisplayManager.setupLookAndFeel("Acryl");
+            case ALUMINIUM -> EditorDisplayManager.setupLookAndFeel("Aluminium");
+            case FOREST_GREEN -> {
+                try {
+                    final InfoNodeLookAndFeelTheme theme = new InfoNodeLookAndFeelTheme("Retera Studio",
+                            new Color(44, 46, 20), new Color(116, 126, 36), new Color(44, 46, 20),
+                            new Color(220, 202, 132), new Color(116, 126, 36), new Color(220, 202, 132));
+                    theme.setShadingFactor(-0.8);
+                    theme.setDesktopColor(new Color(60, 82, 44));
+
+                    UIManager.setLookAndFeel(new InfoNodeLookAndFeel(theme));
+                } catch (final UnsupportedLookAndFeelException e) {
+                    e.printStackTrace();
+                }
+            }
+            case WINDOWS -> {
+                try {
+                    UIManager.put("desktop", new ColorUIResource(Color.WHITE));
+                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                    System.out.println(UIManager.getLookAndFeel());
+                } catch (final UnsupportedLookAndFeelException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+                    // handle exception
+                }
+            }
+            case WINDOWS_CLASSIC -> {
+                try {
+                    UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel");
+                } catch (final Exception exc) {
+                    setSystemLookAndFeel();
+                }
+            }
+        }
+    }
+
+    private static void trySetTheme(InfoNodeLookAndFeelTheme theme) {
+        try {
+            UIManager.setLookAndFeel(new InfoNodeLookAndFeel(theme));
+        } catch (final Exception exc) {
+            setSystemLookAndFeel();
         }
     }
 
