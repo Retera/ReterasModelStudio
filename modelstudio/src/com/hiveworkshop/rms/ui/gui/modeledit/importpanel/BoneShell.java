@@ -181,4 +181,8 @@ public class BoneShell {
 		this.importBoneShell = importBoneShell;
 		return this;
 	}
+
+	public boolean isFromDonating() {
+		return isFromDonating;
+	}
 }

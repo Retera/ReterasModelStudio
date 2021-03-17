@@ -7,8 +7,6 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +20,7 @@ class AnimPanel extends JPanel {
 	static final String GLOBALSEQ = "Rebuild as global sequence";
 
 	JLabel title;
-	JCheckBox doImport;
+	JCheckBox doImport; //ToDo this should be an item in the dropdown, not a checkbox
 	JCheckBox inReverse;
 
 	Animation anim;
@@ -43,7 +41,6 @@ class AnimPanel extends JPanel {
 	IterableListModel<AnimShell> recModAnimListModel;
 	JList<AnimShell> recModAnimJList;
 	JScrollPane animListPane;
-	boolean listenSelection = true;
 	ModelHolderThing mht;
 
 	AnimShell selectedAnim;
@@ -57,36 +54,31 @@ class AnimPanel extends JPanel {
 		this.recModAnims = recModAnims;
 		recModAnimListModel = new IterableListModel<>(recModAnims);
 
-		title = new JLabel();
+		title = new JLabel("Select an Animation");
 		title.setFont(new Font("Arial", Font.BOLD, 26));
-		add(title, "align center, wrap");
+		add(title, "align center, spanx, wrap");
 
 		doImport = new JCheckBox("Import this Sequence");
 		doImport.setSelected(true);
-		doImport.addChangeListener(e -> CheckboxStateChanged());
+		doImport.addActionListener(e -> setDoImport());
 		add(doImport, "left, wrap");
 
 		inReverse = new JCheckBox("Reverse");
 		inReverse.setSelected(false);
-		inReverse.addChangeListener(e -> CheckboxStateChanged());
+		inReverse.addActionListener(e -> setInReverse());
 		add(inReverse, "left, wrap");
 
 		importTypeBox.setEditable(false);
 		importTypeBox.addItemListener(this::showCorrectCard);
 		importTypeBox.setMaximumSize(new Dimension(200, 20));
-		add(importTypeBox);
+		add(importTypeBox, "wrap");
 
 		nameCard.add(newNameEntry);
 		animRenderer = renderer;
 		recModAnimJList = new JList<>(recModAnimListModel);
 		recModAnimJList.setCellRenderer(animRenderer);
 		recModAnimJList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		// Use getSelectedValuesList().toArray() to request an array of selected animations
 
-		// Select any animation found that has the same name automatically
-		// -- This iterates through the list of old animations and picks out and
-		// like-named ones, so that the default selection is any animation with the same name
-		// (although this should stop after the first one is picked)
 		recModAnimJList.addListSelectionListener(this::updateList);
 
 		animListPane = new JScrollPane(recModAnimJList);
@@ -97,60 +89,33 @@ class AnimPanel extends JPanel {
 		cardPane.add(nameCard, CHANGENAME);
 		cardPane.add(animListPane, TIMESCALE);
 		cardPane.add(blankCardGS, GLOBALSEQ);
-		// cardLayout.show(cardPane,IMPORTBASIC);
 		add(cardPane, "growx, growy");
-		addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentShown(ComponentEvent e) {
-				super.componentShown(e);
-				setSelectedAnim(selectedAnim);
-			}
-		});
-	}
-
-	private void selectAnimInList(AnimShell anim) {
-		if (anim.getImportAnimShell() != null) {
-			recModAnimJList.setSelectedValue(anim.getImportAnimShell(), true);
-		} else {
-			for (AnimShell animShell : recModAnimListModel) {
-				if (animShell.getOldName().equalsIgnoreCase(anim.getOldName())) {
-					recModAnimJList.setSelectedValue(animShell, true);
-				}
-			}
-		}
 	}
 
 	public void setSelectedAnim(AnimShell animShell) {
 		selectedAnim = animShell;
 		animRenderer.setSelectedAnim(selectedAnim);
+		updateRecModAnimList();
 		this.anim = animShell.getAnim();
 		title.setText(animShell.getName());
 		newNameEntry.setText(animShell.getName());
-		selectAnimInList(animShell);
 		doImport.setSelected(selectedAnim.isDoImport());
 		importTypeBox.setSelectedIndex(animShell.getImportType());
 	}
 
-	public void setSelected(final boolean flag) {
-		selectedAnim.setDoImport(flag);
-		doImport.setSelected(selectedAnim.isDoImport());
-	}
-
-	private void CheckboxStateChanged() {
+	private void setDoImport() {
 		selectedAnim.setDoImport(doImport.isSelected());
-		importTypeBox.setEnabled(selectedAnim.isDoImport());
 		cardPane.setEnabled(selectedAnim.isDoImport());
+		importTypeBox.setEnabled(selectedAnim.isDoImport());
 		recModAnimJList.setEnabled(selectedAnim.isDoImport());
 		newNameEntry.setEnabled(selectedAnim.isDoImport());
-		updateRecModAnimList();
+	}
+
+	private void setInReverse() {
+		selectedAnim.setReverse(inReverse.isSelected());
 	}
 
 	private void showCorrectCard(ItemEvent e) {
-		// --
-		// http://docs.oracle.com/javase/tutorial/uiswing/examples/layout/CardLayoutDemoProject/src/layout/CardLayoutDemo.java
-		// -- http://docs.oracle.com/javase/tutorial/uiswing/layout/card.html
-		// Thanks to the CardLayoutDemo.java at the above urls
-		// in the JavaDocs for the example use of a CardLayout
 		animCardLayout.show(cardPane, (String) e.getItem());
 		System.out.println("StateChange: " + e.getStateChange() + ", selected Index: " + importTypeBox.getSelectedIndex());
 		selectedAnim.setImportType(importTypeBox.getSelectedIndex());
@@ -162,10 +127,9 @@ class AnimPanel extends JPanel {
 		List<AnimShell> usedAnims = new ArrayList<>();
 
 		for (AnimShell as : recModAnims) {
-			if (as.getImportAnim() == null) {
+			if (as.getImportAnimShell() == null) {
 				recModAnimListModel.addElement(as);
-//			} else if (as.getImportAnim() == anim) {
-			} else if (as.getImportAnim() == selectedAnim.getAnim()) {
+			} else if (as.getImportAnimShell() == selectedAnim) {
 				recModAnimListModel.add(0, as);
 			} else {
 				usedAnims.add(as);
@@ -175,8 +139,15 @@ class AnimPanel extends JPanel {
 	}
 
 	private void updateList(ListSelectionEvent e) {
-		if (listenSelection && e.getValueIsAdjusting()) {
-			updateRecModAnimList();
+		if (e.getValueIsAdjusting()) {
+			for (AnimShell animShell : recModAnimJList.getSelectedValuesList()) {
+				if (animShell.getImportAnimShell() == selectedAnim) {
+					animShell.setImportAnimShell(null);
+				} else {
+					animShell.setImportAnimShell(selectedAnim);
+				}
+			}
+			recModAnimJList.setSelectedValue(null, false);
 		}
 	}
 }

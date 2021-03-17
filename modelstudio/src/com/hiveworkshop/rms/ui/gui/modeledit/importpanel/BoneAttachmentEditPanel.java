@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.Matrix;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
@@ -16,6 +15,7 @@ import java.util.Map;
 public class BoneAttachmentEditPanel extends JPanel {
 
 	JCheckBox displayParents;
+	BoneShellListCellRenderer renderer;
 	ModelHolderThing mht;
 	public JTabbedPane geosetAnimTabs = new JTabbedPane(JTabbedPane.LEFT, JTabbedPane.SCROLL_TAB_LAYOUT);
 
@@ -23,15 +23,15 @@ public class BoneAttachmentEditPanel extends JPanel {
 		setLayout(new MigLayout("gap 0, fill", "[grow]", "[][grow]"));
 		this.mht = mht;
 
+		renderer = new BoneShellListCellRenderer(mht.recModelManager, mht.donModelManager);
+
 		add(getTopPanel(), "align center, wrap");
 
-		final ParentToggleRenderer ptr = makeMatricesPanel(mht.recModelManager, mht.donModelManager);
-
 		for (GeosetShell geosetShell : mht.allGeoShells) {
-			final BoneAttachmentPanel geoPanel = new BoneAttachmentPanel(mht, ptr);
+			final BoneAttachmentPanel geoPanel = new BoneAttachmentPanel(mht, renderer);
 			geoPanel.setGeoset(geosetShell);
 			ImageIcon imageIcon = ImportPanel.greenIcon;
-			if(geosetShell.isFromDonating()){
+			if (geosetShell.isFromDonating()) {
 				imageIcon = ImportPanel.orangeIcon;
 			}
 			geosetAnimTabs.addTab(geosetShell.getModelName() + " " + (geosetShell.getIndex() + 1), imageIcon, geoPanel, "Click to modify animation data for Geoset " + geosetShell.getIndex() + " from " + geosetShell.getModelName() + ".");
@@ -117,13 +117,15 @@ public class BoneAttachmentEditPanel extends JPanel {
 		topPanel.add(allMatrSameishName, "wrap");
 
 		displayParents = new JCheckBox("Display parent names");
+		displayParents.addActionListener(e -> showParents(renderer, displayParents));
 		topPanel.add(displayParents, "spanx, align center, wrap");
 
 		return topPanel;
 	}
 
-	private ParentToggleRenderer makeMatricesPanel(ModelViewManager recModelManager, ModelViewManager donModelManager) {
-		return new ParentToggleRenderer(displayParents, recModelManager, donModelManager);
+	private void showParents(BoneShellListCellRenderer renderer, JCheckBox checkBox) {
+		renderer.setShowParent(checkBox.isSelected());
+		repaint();
 	}
 
 	public void allMatrOriginal() {

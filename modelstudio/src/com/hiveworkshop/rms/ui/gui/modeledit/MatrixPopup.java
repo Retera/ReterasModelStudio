@@ -5,8 +5,8 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShellListCellRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ParentToggleRenderer;
 import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
@@ -40,10 +40,11 @@ public class MatrixPopup extends JPanel {
 		this.model = model;
 
 		final ModelView disp = new ModelViewManager(model);
-		JCheckBox displayParents = new JCheckBox("Display parents", false);
-		displayParents.addChangeListener(e -> repaint());
+		BoneShellListCellRenderer renderer = new BoneShellListCellRenderer(disp, null).setShowClass(false);
 
-		final ParentToggleRenderer renderer = new ParentToggleRenderer(displayParents, disp, null);
+		JCheckBox displayParents = new JCheckBox("Display parents", false);
+		displayParents.addActionListener(e -> showParents(renderer, displayParents));
+
 
 		JPanel bonePanel = new JPanel(new MigLayout("gap 0, ins 0", "[grow, align center]", "[][][grow][]"));
 		bonePanel.add(new JLabel("Bones"), "wrap");
@@ -98,6 +99,11 @@ public class MatrixPopup extends JPanel {
 		add(arrowPanel);
 		add(bonePanel, "wrap");
 
+	}
+
+	private void showParents(BoneShellListCellRenderer renderer, JCheckBox checkBox) {
+		renderer.setShowParent(checkBox.isSelected());
+		repaint();
 	}
 
 

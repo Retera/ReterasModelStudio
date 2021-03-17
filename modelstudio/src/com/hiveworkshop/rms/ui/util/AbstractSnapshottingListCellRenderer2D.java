@@ -14,12 +14,21 @@ import com.hiveworkshop.rms.util.Vec3;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends DefaultListCellRenderer {
+	protected static final Vec3 recModelColor = new Vec3(200, 255, 255);
+	protected static final Vec3 donModelColor = new Vec3(220, 180, 255);
+	protected static final Vec3 selectedOwnerBgCol = new Vec3(130, 230, 170);
+	protected static final Vec3 selectedOwnerFgCol = new Vec3(0, 0, 0);
+	protected static final Vec3 otherOwnerBgCol = new Vec3(160, 160, 160);
+	protected static final Vec3 otherOwnerFgCol = new Vec3(60, 60, 60);
+	protected static final Vec3 noOwnerBgCol = new Vec3(255, 255, 255);
+	protected static final Vec3 noOwnerFgCol = new Vec3(0, 0, 0);
+	protected static final Vec3 hLAdjBgCol = new Vec3(0, 0, 50);
+
 	private static final int SIZE = 32;
 	private static final int QUARTER_SIZE = SIZE / 4;
 	private static final int EIGHTH_SIZE = SIZE / 8;
@@ -45,10 +54,30 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 
 	@Override
 	public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index, final boolean isSelected, final boolean chf) {
-		final Color backgroundColor = getBackground();
+
+		Color backgroundColor = noOwnerBgCol.asIntColor();
+
+		if (value instanceof BoneShell) {
+			if (((BoneShell) value).isFromDonating()) {
+				backgroundColor = donModelColor.asIntColor();
+			} else {
+				backgroundColor = recModelColor.asIntColor();
+			}
+		}
+
 		setBackground(null);
-		final TYPE matrixShell = valueToType(value);
-		ImageIcon myIcon = matrixShellToCachedRenderer.get(matrixShell);
+
+		final TYPE valueType = valueToType(value);
+
+		super.getListCellRendererComponent(list, valueType.toString(), index, isSelected, chf);
+
+		ImageIcon myIcon = getImageIcon(value, backgroundColor, valueType);
+		setIcon(myIcon);
+		return this;
+	}
+
+	private ImageIcon getImageIcon(Object value, Color backgroundColor, TYPE valueType) {
+		ImageIcon myIcon = matrixShellToCachedRenderer.get(valueType);
 		if (myIcon == null) {
 			try {
 				final BufferedImage image = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_ARGB);
@@ -57,11 +86,11 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 				graphics.fill3DRect(0, 0, SIZE, SIZE, true);
 				graphics.setColor(backgroundColor.brighter());
 
-				if (matrixShell == null) {
-					System.out.println("matrixShell Null! value: " + value);
+				if (valueType == null) {
+					System.out.println("valueType Null! value: " + value);
 				} else {
-					makeBoneIcon(backgroundColor, matrixShell, graphics, otherDisplay, value);
-					makeBoneIcon(backgroundColor, matrixShell, graphics, modelDisplay, value);
+					makeBoneIcon(backgroundColor, valueType, graphics, otherDisplay, value);
+					makeBoneIcon(backgroundColor, valueType, graphics, modelDisplay, value);
 				}
 
 				graphics.dispose();
@@ -69,11 +98,9 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 			} catch (final Exception e) {
 				throw new RuntimeException(e);
 			}
-			matrixShellToCachedRenderer.put(matrixShell, myIcon);
+			matrixShellToCachedRenderer.put(valueType, myIcon);
 		}
-		super.getListCellRendererComponent(list, matrixShell.toString(), index, isSelected, chf);
-		setIcon(myIcon);
-		return this;
+		return myIcon;
 	}
 
 	public void makeBoneIcon(Color backgroundColor, TYPE matrixShell, Graphics graphics, ModelView modelDisplay, Object value) {
@@ -103,8 +130,8 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 
 	private BufferedImage getModelOutlineImage(Color backgroundColor, EditableModel model) {
 		if (modelOutlineImageMap.containsKey(model)) {
-			System.out.println("fetching icon for model: " + model.getName());
-			System.out.println("fetching icon for model: " + model.getGeosets().size());
+//			System.out.println("fetching icon for model: " + model.getName());
+//			System.out.println("nr geosets: " + model.getGeosets().size());
 			return modelOutlineImageMap.get(model);
 		} else {
 			final BufferedImage image = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_ARGB);
@@ -115,9 +142,9 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 			graphics.fill3DRect(EIGHTH_SIZE, EIGHTH_SIZE, SIZE - QUARTER_SIZE, SIZE - QUARTER_SIZE, true);
 
 
-			System.out.println("creating icon for model: " + model.getName());
-			System.out.println("creating icon for model: " + model.getGeosets().size());
-			System.out.println("creating icon for model: " + Arrays.toString(getModelBoundsSize(model)));
+//			System.out.println("creating icon for model: " + model.getName());
+//			System.out.println("nr geosets: " + model.getGeosets().size());
+//			System.out.println("bounds: " + Arrays.toString(getModelBoundsSize(model)));
 			ViewportModelRenderer.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), getModelBoundsSize(model));
 
 			ViewportModelRenderer.drawGeosetFlat(model, graphics, (byte) 1, (byte) 2);

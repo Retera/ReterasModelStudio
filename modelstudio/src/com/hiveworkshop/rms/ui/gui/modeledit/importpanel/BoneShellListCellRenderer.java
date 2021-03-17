@@ -8,10 +8,8 @@ import com.hiveworkshop.rms.util.Vec3;
 import javax.swing.*;
 import java.awt.*;
 
-class BoneShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<BoneShell> {
-	public BoneShellListCellRenderer(final ModelView modelDisplay, final ModelView otherDisplay) {
-		super(modelDisplay, otherDisplay);
-	}
+public class BoneShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<BoneShell> {
+	boolean showParent = false;
 
 	@Override
 	protected ResettableVertexFilter<BoneShell> createFilter() {
@@ -37,8 +35,18 @@ class BoneShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 	ObjectShell selectedObject;
 	boolean showClass = false;
 
-	public void setShowClass(boolean b){
+	public BoneShellListCellRenderer(final ModelView recDisplay, final ModelView donDisplay) {
+		super(recDisplay, donDisplay);
+	}
+
+	public BoneShellListCellRenderer setShowClass(boolean b) {
 		showClass = b;
+		return this;
+	}
+
+	public BoneShellListCellRenderer setShowParent(boolean b) {
+		showParent = b;
+		return this;
 	}
 
 	public void setSelectedBoneShell(BoneShell boneShell) {
@@ -53,29 +61,29 @@ class BoneShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 	@Override
 	public Component getListCellRendererComponent(final JList list, final Object value, final int index,
 	                                              final boolean isSelected, final boolean chf) {
-		if (value instanceof BoneShell) {
-			if (((BoneShell) value).isFromDonating) {
-				setBackground(new Color(220, 180, 255));
-			} else {
-				setBackground(new Color(200, 255, 255));
-			}
-		}
 		super.getListCellRendererComponent(list, value, index, isSelected, chf);
+
+		Vec3 bg = noOwnerBgCol;
+		Vec3 fg = noOwnerFgCol;
+
 		if (value instanceof BoneShell) {
-			setText(((BoneShell) value).toString(showClass, false));
+			setText(((BoneShell) value).toString(showClass, showParent));
 			if (selectedBone != null && selectedBone.getNewParentBs() == value
 					|| selectedObject != null && selectedObject.getNewParentBs() == value) {
-				this.setBackground(new Color(130, 230, 170));
-			} else {
-				this.setBackground(new Color(255, 255, 255));
-				setForeground(new Color(0, 0, 0));
-			}
-			if (isSelected) {
-				this.setBackground(this.getBackground().darker());
+				bg = selectedOwnerBgCol;
+				fg = selectedOwnerFgCol;
 			}
 		} else {
 			setText(value.toString());
 		}
+
+		if (isSelected) {
+			bg = Vec3.getSum(bg, hLAdjBgCol);
+		}
+
+		this.setBackground(bg.asIntColor());
+		this.setForeground(fg.asIntColor());
+
 		return this;
 	}
 

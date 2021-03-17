@@ -8,8 +8,6 @@ import javax.swing.event.CaretListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -60,17 +58,16 @@ public class BonePanel extends JPanel {
 
 	public BonePanel(ModelHolderThing mht, final BoneShellListCellRenderer renderer) {
 		this.mht = mht;
-		setLayout(new MigLayout("gap 0, fill", "[][]", "[][grow]"));
+		setLayout(new MigLayout("gap 0, fill", "[grow][grow]", "[][grow]"));
 		oneShellRenderer = new BoneShellMotionListCellRenderer(mht.recModelManager, mht.donModelManager);
 
 		leftSearchField = new JTextField();
 		rightSearchField = new JTextField();
 
-		FocusAdapter focusAdapter = getFocusAdapter(leftSearchField, rightSearchField, this::setRecModelBonesFilter);
-		leftSearchField.addFocusListener(focusAdapter);
+		leftSearchField.addCaretListener(getCaretListener(leftSearchField, rightSearchField, this::setRecModelBonesFilter));
 
-		FocusAdapter focusAdapter1 = getFocusAdapter(rightSearchField, leftSearchField, this::setFutureBonesFilter);
-		rightSearchField.addFocusListener(focusAdapter1);
+		rightSearchField.addCaretListener(getCaretListener(rightSearchField, leftSearchField, this::setFutureBonesFilter));
+
 		linkBox = new JCheckBox("linked search");
 		linkBox.addActionListener(e -> queResetList());
 
@@ -123,22 +120,6 @@ public class BonePanel extends JPanel {
 		add(rightPanel, "cell 1 1, growx, growy");
 
 
-	}
-
-	private FocusAdapter getFocusAdapter(final JTextField mainSearchField, final JTextField secondSearchField, final Consumer<String> listModelChangerFunction) {
-		return new FocusAdapter() {
-			CaretListener caretListener = getCaretListener(mainSearchField, secondSearchField, listModelChangerFunction);
-
-			@Override
-			public void focusGained(FocusEvent e) {
-				mainSearchField.addCaretListener(caretListener);
-			}
-
-			@Override
-			public void focusLost(FocusEvent e) {
-				mainSearchField.removeCaretListener(caretListener);
-			}
-		};
 	}
 
 	public void setFutureBoneListModel(IterableListModel<BoneShell> model) {
@@ -219,26 +200,26 @@ public class BonePanel extends JPanel {
 
 	private void updateList(ListSelectionEvent e) {
 		if (e.getValueIsAdjusting()) {
-			System.out.println("Update list, BEFORE values: ");
+//			System.out.println("Update list, BEFORE values: ");
 			for (BoneShell bs : importMotionIntoRecBoneList.getSelectedValuesList()) {
 				if (bs.getImportBoneShell() == selectedBone) {
 					bs.setImportBoneShell(null);
-					System.out.println("import to null");
+//					System.out.println("import to null");
 				} else {
 					bs.setImportBoneShell(selectedBone);
-					System.out.println("import to: " + selectedBone);
+//					System.out.println("import to: " + selectedBone);
 				}
-				System.out.println(bs + ", importBs: " + bs.getImportBoneShell());
+//				System.out.println(bs + ", importBs: " + bs.getImportBoneShell());
 			}
-			System.out.println("_______________");
+//			System.out.println("_______________");
 			importMotionIntoRecBoneList.setSelectedValue(null, false);
 		}
 		if (!e.getValueIsAdjusting()) {
-			System.out.println("Update list, AFTER values: ");
+//			System.out.println("Update list, AFTER values: ");
 			for (BoneShell bs : importMotionIntoRecBoneList.getSelectedValuesList()) {
 				System.out.println(bs);
 			}
-			System.out.println("_______________");
+//			System.out.println("_______________");
 		}
 
 

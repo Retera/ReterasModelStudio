@@ -4,11 +4,14 @@ import com.hiveworkshop.rms.editor.model.Animation;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import java.awt.*;
 import java.awt.event.ActionListener;
 
 public class AnimEditPanel extends JPanel {
 
 	ModelHolderThing mht;
+	AnimPanel singleAnimPanel;
 
 	public AnimEditPanel(ModelHolderThing mht) {
 		setLayout(new MigLayout("gap 0, fill", "[grow]", "[][grow]"));
@@ -24,6 +27,7 @@ public class AnimEditPanel extends JPanel {
 		}
 
 		// Build the animTabs list of AnimPanels
+		singleAnimPanel = new AnimPanel(mht, mht.recModAnims, animsRenderer);
 		for (Animation anim : mht.donatingModel.getAnims()) {
 			AnimShell animShell = new AnimShell(anim);
 			mht.donModAnims.addElement(animShell);
@@ -34,11 +38,26 @@ public class AnimEditPanel extends JPanel {
 			mht.animTabs.addTab(anim.getName(), ImportPanel.orangeIcon, iAnimPanel, "Click to modify data for this animation sequence.");
 		}
 
+
+		JScrollPane animStrollPane = new JScrollPane(mht.animJList);
+		animStrollPane.setMinimumSize(new Dimension(150, 200));
+		mht.animJList.setCellRenderer(animsRenderer);
+		mht.animJList.addListSelectionListener(e -> changeAnim(mht, e));
+
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, animStrollPane, singleAnimPanel);
+		add(splitPane, "growx, growy");
+
 //		JPanel bigPanel = new JPanel(new MigLayout("gap 0, fill", "[30%:30%:30%][70%:70%:70%]", "[grow]"));
 //		bigPanel.add(mht.animTabs);
 //
 //		add(bigPanel, "growx, growy");
-		add(mht.animTabs, "growx, growy");
+//		add(mht.animTabs, "growx, growy");
+	}
+
+	private void changeAnim(ModelHolderThing mht, ListSelectionEvent e) {
+		if (e.getValueIsAdjusting()) {
+			singleAnimPanel.setSelectedAnim(mht.animJList.getSelectedValue());
+		}
 	}
 
 

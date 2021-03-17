@@ -48,31 +48,46 @@ class BoneShellMotionListCellRenderer extends AbstractSnapshottingListCellRender
 		selectedBones.addAll(boneShells);
 	}
 
+	boolean showClass = false;
+	boolean showParent = false;
+
+	public BoneShellMotionListCellRenderer setShowClass(boolean b) {
+		showClass = b;
+		return this;
+	}
+
+	public BoneShellMotionListCellRenderer setShowParent(boolean b) {
+		showParent = b;
+		return this;
+	}
+
 	@Override
 	public Component getListCellRendererComponent(final JList list, final Object value, final int index,
 	                                              final boolean isSelected, final boolean chf) {
-		if (value instanceof BoneShell) {
-			if (((BoneShell) value).isFromDonating) {
-				setBackground(new Color(220, 180, 255));
-			} else {
-				setBackground(new Color(200, 255, 255));
-			}
-		}
 		super.getListCellRendererComponent(list, value, index, isSelected, chf);
+
 		setText(value.toString());
+
+		Vec3 bg = noOwnerBgCol;
+		Vec3 fg = noOwnerFgCol;
 		if (value instanceof BoneShell) {
+			setText(((BoneShell) value).toString(showClass, showParent));
 			BoneShell importBoneShell = ((BoneShell) value).getImportBoneShell();
 			if (selectedBones.contains(importBoneShell)) {
-				this.setBackground(new Color(130, 230, 170));
+				bg = selectedOwnerBgCol;
+				fg = selectedOwnerFgCol;
 			} else if (importBoneShell != null) {
-				this.setBackground(new Color(160, 160, 160));
-				setForeground(new Color(60, 60, 60));
-			} else {
-				this.setBackground(new Color(255, 255, 255));
-				setForeground(new Color(0, 0, 0));
+				bg = otherOwnerBgCol;
+				fg = otherOwnerFgCol;
 			}
 		}
 
+		if (isSelected) {
+			bg = Vec3.getSum(bg, hLAdjBgCol);
+		}
+
+		this.setBackground(bg.asIntColor());
+		this.setForeground(fg.asIntColor());
 
 		return this;
 	}

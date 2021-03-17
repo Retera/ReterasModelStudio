@@ -92,8 +92,8 @@ public class ImportPanel extends JTabbedPane {
 		VisibilityEditPanel visibilityEditPanel = new VisibilityEditPanel(mht);
 		addTab("Visibility", orangeIcon, visibilityEditPanel, "Controls the visibility of portions of the model.");
 
-		final JPanel containerPanel = new JPanel(new MigLayout("gap 0, fill", "[grow]", "[grow]"));
-		containerPanel.add(this, "wrap");
+		final JPanel containerPanel = new JPanel(new MigLayout("gap 0, fill", "[grow]", "[grow][]"));
+		containerPanel.add(this, "growx, growy, wrap");
 		containerPanel.add(getFooterPanel());
 		frame.setContentPane(containerPanel);
 
@@ -458,7 +458,7 @@ public class ImportPanel extends JTabbedPane {
 	private void addNewAnimsIntoOldAnims(List<AnimFlag<?>> donModFlags, List<EventObject> donModEventObjs, List<AnimFlag<?>> newImpFlags, List<EventObject> newImpEventObjs, List<Animation> newAnims) {
 		for (AnimShell animShell : mht.recModAnims) {
 
-			if (animShell.getImportAnimShell().getAnim() != null) {
+			if (animShell.getImportAnimShell().getAnim() != null && animShell.getImportAnimShell().getImportType() == 2) {
 				animShell.getImportAnimShell().getAnim().copyToInterval(animShell.getAnim().getStart(), animShell.getAnim().getEnd(), donModFlags, donModEventObjs, newImpFlags, newImpEventObjs);
 
 				final Animation tempAnim = new Animation("temp", animShell.getAnim().getStart(), animShell.getAnim().getEnd());

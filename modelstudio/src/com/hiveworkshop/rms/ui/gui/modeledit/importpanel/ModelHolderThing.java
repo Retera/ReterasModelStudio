@@ -27,6 +27,7 @@ public class ModelHolderThing {
 	public IterableListModel<AnimShell> recModAnims = new IterableListModel<>();
 	public IterableListModel<AnimShell> donModAnims = new IterableListModel<>();
 	public IterableListModel<AnimShell> animTabList = new IterableListModel<>();
+	public JList<AnimShell> animJList = new JList<>(animTabList);
 
 	// Bones
 	public JCheckBox clearExistingBones;

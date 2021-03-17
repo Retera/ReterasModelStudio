@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.util;
 
+import java.awt.*;
 import java.util.Collection;
 
 public class Vec3 {
@@ -561,5 +562,14 @@ public class Vec3 {
 		y = data[1];
 		z = data[2];
 		return this;
+	}
+
+	public Color asIntColor() {
+		float max = Math.max(x, Math.max(y, z));
+		float scale = max <= 255 ? 1 : 255 / max;
+		int red = (int) (x * scale);
+		int green = (int) (y * scale);
+		int blue = (int) (z * scale);
+		return new Color(red, green, blue);
 	}
 }

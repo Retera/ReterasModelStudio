@@ -5,8 +5,6 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.event.CaretListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -47,11 +45,10 @@ class BoneAttachmentPanel extends JPanel {
 		leftSearchField = new JTextField();
 		rightSearchField = new JTextField();
 
-		FocusAdapter focusAdapter = getFocusAdapter(leftSearchField, rightSearchField, this::setRecModMatrixFilter);
-		leftSearchField.addFocusListener(focusAdapter);
+		leftSearchField.addCaretListener(getCaretListener(leftSearchField, rightSearchField, this::setRecModMatrixFilter));
 
-		FocusAdapter focusAdapter1 = getFocusAdapter(rightSearchField, leftSearchField, this::setFutureBonesFilter);
-		rightSearchField.addFocusListener(focusAdapter1);
+		rightSearchField.addCaretListener(getCaretListener(rightSearchField, leftSearchField, this::setFutureBonesFilter));
+
 		linkBox = new JCheckBox("linked search");
 		linkBox.addActionListener(e -> queResetList());
 
@@ -113,8 +110,6 @@ class BoneAttachmentPanel extends JPanel {
 		useBone.addActionListener(e -> useBone());
 		bonesPanel.add(useBone, "alignx center");
 		add(bonesPanel, "growy, growx");
-
-
 	}
 
 	public void setGeoset(GeosetShell geosetShell) {
@@ -183,22 +178,6 @@ class BoneAttachmentPanel extends JPanel {
 		if (!linkBox.isSelected()) {
 			listResetQued = true;
 		}
-	}
-
-	private FocusAdapter getFocusAdapter(final JTextField mainSearchField, final JTextField secondSearchField, final Consumer<String> listModelChangerFunction) {
-		return new FocusAdapter() {
-			CaretListener caretListener = getCaretListener(mainSearchField, secondSearchField, listModelChangerFunction);
-
-			@Override
-			public void focusGained(FocusEvent e) {
-				mainSearchField.addCaretListener(caretListener);
-			}
-
-			@Override
-			public void focusLost(FocusEvent e) {
-				mainSearchField.removeCaretListener(caretListener);
-			}
-		};
 	}
 
 	private CaretListener getCaretListener(JTextField activeSearchField, JTextField inActiveSearchField, Consumer<String> listModelFunction) {
