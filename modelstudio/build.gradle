@@ -14,7 +14,7 @@ task run(dependsOn: classes, type: JavaExec) {
     main = project.mainClassName
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
-    ignoreExitValue = true
+    setIgnoreExitValue(true)
 }
 
 task dist(type: Jar) {
