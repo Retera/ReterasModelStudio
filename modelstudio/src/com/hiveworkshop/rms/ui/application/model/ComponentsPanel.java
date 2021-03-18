@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.model.nodepanels.ComponentPopcornPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.util.TextureExporter;
 
 import javax.swing.*;
@@ -73,15 +74,20 @@ public class ComponentsPanel extends JPanel {
 		add(nodePanel, AnimatedNode.class.getName());
 		panelMap.put(AnimatedNode.class, nodePanel);
 
+		ComponentPopcornPanel popcornPanel = new ComponentPopcornPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		JScrollPane popcornScrollPane = new JScrollPane(popcornPanel);
+		popcornScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+		add(popcornScrollPane, ParticleEmitterPopcorn.class.getName());
+		panelMap.put(ParticleEmitterPopcorn.class, popcornPanel);
+
 		cardLayout.show(this, BLANK);
 	}
 
 
 	public void selected(final EditableModel model, final Integer globalSequence, final int globalSequenceId,
-	                     final UndoActionListener undoActionListener,
-	                     final ModelStructureChangeListener modelStructureChangeListener) {
-		globalSeqPanel.setGlobalSequence(model, globalSequence, globalSequenceId, undoActionListener,
-				modelStructureChangeListener);
+	                     final UndoActionListener undoListener,
+	                     final ModelStructureChangeListener changeListener) {
+		globalSeqPanel.setGlobalSequence(model, globalSequence, globalSequenceId, undoListener, changeListener);
 		cardLayout.show(this, GLOBALSEQ);
 	}
 

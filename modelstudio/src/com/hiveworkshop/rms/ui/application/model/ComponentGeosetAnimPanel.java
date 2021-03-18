@@ -2,6 +2,8 @@ package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.GeosetAnim;
+import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
@@ -64,8 +66,8 @@ public class ComponentGeosetAnimPanel extends JPanel implements ComponentPanel<G
 //		animsPanelHolder.add(geosetAnimPanel);
 		animsPanelHolder.revalidate();
 		animsPanelHolder.repaint();
-		alphaPanel.reloadNewValue((float) geosetAnim.getStaticAlpha(), geosetAnim.find("Alpha"), geosetAnim, "Alpha", geosetAnim::setStaticAlpha);
-		colorPanel.reloadNewValue(geosetAnim.getStaticColor(), geosetAnim.find("Color"), geosetAnim, "Color", geosetAnim::setStaticColor);
+		alphaPanel.reloadNewValue((float) geosetAnim.getStaticAlpha(), (FloatAnimFlag) geosetAnim.find("Alpha"), geosetAnim, "Alpha", geosetAnim::setStaticAlpha);
+		colorPanel.reloadNewValue(geosetAnim.getStaticColor(), (Vec3AnimFlag) geosetAnim.find("Color"), geosetAnim, "Color", geosetAnim::setStaticColor);
 
 		revalidate();
 		repaint();

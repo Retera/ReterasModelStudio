@@ -1,6 +1,9 @@
 package com.hiveworkshop.rms.ui.application.model.material;
 
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
@@ -235,13 +238,13 @@ public class ComponentLayerPanel extends JPanel {
 		coordIdSpinner.reloadNewValue(layer.getCoordId());
 		tVertexAnimButton.setText(layer.getTextureAnim() == null ? "None" : layer.getTextureAnim().getFlagNames());
 
-		texturePanel.reloadNewValue(layer.getTextureId(), layer.find("TextureID"), layer, "TextureID", layer::setTextureId);
+		texturePanel.reloadNewValue(layer.getTextureId(), (IntAnimFlag) layer.find("TextureID"), layer, "TextureID", layer::setTextureId);
 
-		alphaPanel.reloadNewValue((float) layer.getStaticAlpha(), layer.find("Alpha"), layer, "Alpha", layer::setStaticAlpha);
+		alphaPanel.reloadNewValue((float) layer.getStaticAlpha(), (FloatAnimFlag) layer.find("Alpha"), layer, "Alpha", layer::setStaticAlpha);
 
 
 		emissiveGainPanel.setVisible(ModelUtils.isEmissiveLayerSupported(formatVersion) && hdShader);
-		emissiveGainPanel.reloadNewValue((float) layer.getEmissive(), layer.find("EmissiveGain"), layer, "EmissiveGain", layer::setEmissive);
+		emissiveGainPanel.reloadNewValue((float) layer.getEmissive(), (FloatAnimFlag) layer.find("EmissiveGain"), layer, "EmissiveGain", layer::setEmissive);
 
 		final boolean fresnelColorLayerSupported = ModelUtils.isFresnelColorLayerSupported(formatVersion) && hdShader;
 
@@ -253,13 +256,13 @@ public class ComponentLayerPanel extends JPanel {
 		fresnelOpacityScrollPane.setVisible(fresnelColorLayerSupported);
 		fresnelTeamColorScrollPane.setVisible(fresnelColorLayerSupported);
 
-		fresnelColorPanel.reloadNewValue(layer.getFresnelColor(), layer.find("FresnelColor"), layer, "FresnelColor", layer::setFresnelColor);
+		fresnelColorPanel.reloadNewValue(layer.getFresnelColor(), (Vec3AnimFlag) layer.find("FresnelColor"), layer, "FresnelColor", layer::setFresnelColor);
 
 		fresnelOpacityPanel.setVisible(fresnelColorLayerSupported);
-		fresnelOpacityPanel.reloadNewValue((float) layer.getFresnelOpacity(), layer.find("FresnelOpacity"), layer, "FresnelOpacity", layer::setFresnelOpacity);
+		fresnelOpacityPanel.reloadNewValue((float) layer.getFresnelOpacity(), (FloatAnimFlag) layer.find("FresnelOpacity"), layer, "FresnelOpacity", layer::setFresnelOpacity);
 
 		fresnelTeamColor.setVisible(fresnelColorLayerSupported);
-		fresnelTeamColor.reloadNewValue((float) layer.getFresnelTeamColor(), layer.find("FresnelTeamColor"), layer, "FresnelTeamColor", layer::setFresnelTeamColor);
+		fresnelTeamColor.reloadNewValue((float) layer.getFresnelTeamColor(), (FloatAnimFlag) layer.find("FresnelTeamColor"), layer, "FresnelTeamColor", layer::setFresnelTeamColor);
 
 		listenersEnabled = true;
 	}

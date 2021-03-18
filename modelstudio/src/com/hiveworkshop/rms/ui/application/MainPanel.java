@@ -238,7 +238,7 @@ public class MainPanel extends JPanel
 //        for(Property p : TabbedPanelProperties.PROPERTIES.getProperties()){
 //            System.out.println(p.getName() + ",  " + p.getDescription());
 //        }
-        rootWindowProperties.getSplitWindowProperties().setDividerSize(0);
+        rootWindowProperties.getSplitWindowProperties().setDividerSize(1);
         rootWindowProperties.getTabWindowProperties().getTabbedPanelProperties().setShadowEnabled(false);
         rootWindowProperties.getWindowAreaProperties().getInsets().set(0, 0, 0, 0);
 //        TabbedPanelProperties.getDefaultProperties().setShadowEnabled(false);

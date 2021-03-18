@@ -172,7 +172,7 @@ public abstract class ValuePanel<T> extends JPanel {
 
 		keyframeTable.setVisible(isDynamic);
 		interpTypeBox.setVisible(isDynamic);
-		makeStaticButton.setVisible(isDynamic);
+		makeStaticButton.setVisible(isDynamic && this.valueSettingFunction != null);
 		keyframeTable.getTableHeader().setVisible(isDynamic);
 		addButton.setVisible(isDynamic);
 
@@ -311,16 +311,16 @@ public abstract class ValuePanel<T> extends JPanel {
 		this.timelineKeyNamer = timelineKeyNamer;
 	}
 
-	public void reloadNewValue(final T value, final AnimFlag animFlag) {
+	public void reloadNewValue(final T value, final AnimFlag<T> animFlag) {
 		reloadNewValue(value, animFlag, null, "");
 	}
 
-	public void reloadNewValue(final T value, final AnimFlag animFlag, final TimelineContainer timelineContainer, final String flagName, Consumer<T> valueSettingFunction) {
+	public void reloadNewValue(final T value, final AnimFlag<T> animFlag, final TimelineContainer timelineContainer, final String flagName, Consumer<T> valueSettingFunction) {
 		this.valueSettingFunction = valueSettingFunction;
 		reloadNewValue(value, animFlag, timelineContainer, flagName);
 	}
 
-	public void reloadNewValue(final T value, final AnimFlag animFlag, final TimelineContainer timelineContainer, final String flagName) {
+	public void reloadNewValue(final T value, final AnimFlag<T> animFlag, final TimelineContainer timelineContainer, final String flagName) {
 		this.animFlag = animFlag;
 		this.timelineContainer = timelineContainer;
 		this.flagName = flagName;
@@ -461,7 +461,7 @@ public abstract class ValuePanel<T> extends JPanel {
 	}
 
 	protected void changeEntry(int row, int col, String field, String val) {
-		AnimFlag.Entry entry = animFlag.getEntry(row);
+		AnimFlag.Entry<T> entry = animFlag.getEntry(row);
 		int orgTime = animFlag.getTimes().get(row);
 		T tValue = parseValue(val);
 		String intString = val.replaceAll("[^\\d.]", "").split("\\.")[0];

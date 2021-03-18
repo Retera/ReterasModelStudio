@@ -697,10 +697,6 @@ public class EditableModel implements Named {
 		for (final GeosetAnim bad : badAnims) {
 			geosetAnims.remove(bad);
 		}
-//		for (final ParticleEmitter2 temp : (List<ParticleEmitter2>)sortedIdObjects(ParticleEmitter2.class)) {
-		for (final ParticleEmitter2 temp : getParticleEmitter2s()) {
-			temp.updateTextureRef(textures);
-		}
 		final List<AnimFlag<?>> animFlags = getAllAnimFlags();// laggggg!
 		for (final AnimFlag<?> af : animFlags) {
 			af.updateGlobalSeqRef(this);
@@ -713,9 +709,16 @@ public class EditableModel implements Named {
 		for (final EventObject af : evtObjs) {
 			af.updateGlobalSeqRef(this);
 		}
+//		for (final ParticleEmitter2 temp : (List<ParticleEmitter2>)sortedIdObjects(ParticleEmitter2.class)) {
+		for (final ParticleEmitter2 temp : getParticleEmitter2s()) {
+			temp.updateTextureRef(textures);
+		}
 //		for (final RibbonEmitter emitter : (List<RibbonEmitter>)sortedIdObjects(RibbonEmitter.class)) {
 		for (final RibbonEmitter emitter : getRibbonEmitters()) {
 			emitter.updateMaterialRef(materials);
+		}
+		for (ParticleEmitterPopcorn popcorn : getPopcornEmitters()) {
+			popcorn.initAnimsVisStates(getAnims());
 		}
 	}
 
