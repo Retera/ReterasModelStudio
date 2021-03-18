@@ -27,6 +27,7 @@ class AnimListCellRenderer extends DefaultListCellRenderer {
 	public Component getListCellRendererComponent(final JList list, final Object value, final int index,
 	                                              final boolean iss, final boolean chf) {
 		super.getListCellRendererComponent(list, ((AnimShell) value).getOldName(), index, iss, chf);
+//		super.getListCellRendererComponent(list, ((AnimShell) value).displName(), index, iss, chf);
 		AnimShell importAnimShell = ((AnimShell) value).getImportAnimShell();
 		Vec3 bg;
 		Vec3 fg;

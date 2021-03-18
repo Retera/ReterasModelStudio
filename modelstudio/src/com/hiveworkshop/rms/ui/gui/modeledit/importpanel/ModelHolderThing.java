@@ -215,9 +215,10 @@ public class ModelHolderThing {
 
 	long totalAddTime;
 
-	public void doImportAllAnims(boolean b) {
+
+	public void setImportTypeForAllAnims(AnimShell.ImportType type) {
 		for (AnimShell animShell : animTabList) {
-			animShell.setDoImport(b);
+			animShell.setImportType(type);
 		}
 	}
 

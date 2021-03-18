@@ -458,7 +458,7 @@ public class ImportPanel extends JTabbedPane {
 	private void addNewAnimsIntoOldAnims(List<AnimFlag<?>> donModFlags, List<EventObject> donModEventObjs, List<AnimFlag<?>> newImpFlags, List<EventObject> newImpEventObjs, List<Animation> newAnims) {
 		for (AnimShell animShell : mht.recModAnims) {
 
-			if (animShell.getImportAnimShell().getAnim() != null && animShell.getImportAnimShell().getImportType() == 2) {
+			if (animShell.getImportAnimShell() != null && animShell.getImportAnimShell().getImportType() == AnimShell.ImportType.TIMESCALE) {
 				animShell.getImportAnimShell().getAnim().copyToInterval(animShell.getAnim().getStart(), animShell.getAnim().getEnd(), donModFlags, donModEventObjs, newImpFlags, newImpEventObjs);
 
 				final Animation tempAnim = new Animation("temp", animShell.getAnim().getStart(), animShell.getAnim().getEnd());
@@ -479,34 +479,34 @@ public class ImportPanel extends JTabbedPane {
 	private List<Animation> getNewAnimations(List<AnimFlag<?>> donModFlags, List<EventObject> donModEventObjs, List<AnimFlag<?>> newImpFlags, List<EventObject> newImpEventObjs) {
 		final List<Animation> newAnims = new ArrayList<>();
 		for (AnimShell animShell : mht.animTabList) {
-			if (animShell.isDoImport()) {
-				final int type = animShell.getImportType();
+			if (animShell.getImportType() != AnimShell.ImportType.DONTIMPORT) {
+				final AnimShell.ImportType type = animShell.getImportType();
 				final int animTrackEnd = mht.receivingModel.animTrackEnd();
 				if (animShell.isReverse()) {
 					// reverse the animation
 					animShell.getAnim().reverse(donModFlags, donModEventObjs);
 				}
 				switch (type) {
-					case 0:
+					case IMPORTBASIC:
 						animShell.getAnim().copyToInterval(animTrackEnd + 300, animTrackEnd + animShell.getAnim().length() + 300, donModFlags, donModEventObjs, newImpFlags, newImpEventObjs);
 						animShell.getAnim().setInterval(animTrackEnd + 300, animTrackEnd + animShell.getAnim().length() + 300);
 						mht.receivingModel.add(animShell.getAnim());
 						newAnims.add(animShell.getAnim());
 						break;
-					case 1:
+					case CHANGENAME:
 						animShell.getAnim().copyToInterval(animTrackEnd + 300, animTrackEnd + animShell.getAnim().length() + 300, donModFlags, donModEventObjs, newImpFlags, newImpEventObjs);
 						animShell.getAnim().setInterval(animTrackEnd + 300, animTrackEnd + animShell.getAnim().length() + 300);
 						animShell.getAnim().setName(animShell.getName());
 						mht.receivingModel.add(animShell.getAnim());
 						newAnims.add(animShell.getAnim());
 						break;
-					case 2:
+					case TIMESCALE:
 						// List<AnimShell> targets = aniPane.animList.getSelectedValuesList();
 						// animShell.getAnim().setInterval(animTrackEnd+300,animTrackEnd + animShell.getAnim().length() + 300, donModFlags,
 						// donModEventObjs, newImpFlags, newImpEventObjs);
 						// handled by animShells
 						break;
-					case 3:
+					case GLOBALSEQ:
 						mht.donatingModel.buildGlobSeqFrom(animShell.getAnim(), donModFlags);
 						break;
 				}
@@ -561,10 +561,11 @@ public class ImportPanel extends JTabbedPane {
 
 		if (singleAnimation) {
 			// JOptionPane.showMessageDialog(null,"single trans");
-			mht.doImportAllAnims(false);
+			mht.setImportTypeForAllAnims(AnimShell.ImportType.DONTIMPORT);
 			for (AnimShell animShell : mht.animTabList) {
 				if (animShell.getOldName().equals(pickedAnim.getName())) {
-					animShell.setDoImport(true);
+//					animShell.setDoImport(true);
+					animShell.setImportType(AnimShell.ImportType.IMPORTBASIC);
 				}
 			}
 			mht.clearRecModAnims.doClick();// turn it back off
@@ -603,7 +604,8 @@ public class ImportPanel extends JTabbedPane {
 	public void animTransferPartTwo(final boolean singleAnimation, final Animation pickedAnim, final Animation visFromAnim, final boolean show) {
 		// This should be an import from self
 		mht.importAllGeos(false);
-		mht.doImportAllAnims(false);
+//		mht.doImportAllAnims(false);
+		mht.setImportTypeForAllAnims(AnimShell.ImportType.DONTIMPORT);
 		mht.setImportStatusForAllBones(2);
 		mht.importAllObjs(false);
 		mht.visibilityList();
@@ -612,8 +614,8 @@ public class ImportPanel extends JTabbedPane {
 		if (singleAnimation) {
 			for (AnimShell animShell : mht.animTabList) {
 				if (animShell.getOldName().equals(visFromAnim.getName())) {
-					animShell.setDoImport(true);
-					animShell.setImportType(2); // Time scale
+//					animShell.setDoImport(true);
+					animShell.setImportType(AnimShell.ImportType.TIMESCALE); // Time scale
 
 					for (AnimShell shell : mht.recModAnims) {
 						if (shell.getOldName().equals(pickedAnim.getName())) {

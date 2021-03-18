@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
-import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
@@ -12,21 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 class AnimPanel extends JPanel {
-	// Animation panel for controlling which are imported
-
-	static final String IMPORTBASIC = "Import as-is";
-	static final String CHANGENAME = "Change name to:";
-	static final String TIMESCALE = "Time-scale into pre-existing:";
-	static final String GLOBALSEQ = "Rebuild as global sequence";
 
 	JLabel title;
-	JCheckBox doImport; //ToDo this should be an item in the dropdown, not a checkbox
 	JCheckBox inReverse;
 
-	Animation anim;
-	String[] animOptions = {IMPORTBASIC, CHANGENAME, TIMESCALE, GLOBALSEQ};
-
-	JComboBox<String> importTypeBox = new JComboBox<>(animOptions);
+	JComboBox<String> importTypeBox = new JComboBox<>(AnimShell.ImportType.getDispList());
 
 	JPanel cardPane = new JPanel();
 
@@ -58,19 +47,16 @@ class AnimPanel extends JPanel {
 		title.setFont(new Font("Arial", Font.BOLD, 26));
 		add(title, "align center, spanx, wrap");
 
-		doImport = new JCheckBox("Import this Sequence");
-		doImport.setSelected(true);
-		doImport.addActionListener(e -> setDoImport());
-		add(doImport, "left, wrap");
-
 		inReverse = new JCheckBox("Reverse");
 		inReverse.setSelected(false);
 		inReverse.addActionListener(e -> setInReverse());
+		inReverse.setEnabled(false);
 		add(inReverse, "left, wrap");
 
 		importTypeBox.setEditable(false);
 		importTypeBox.addItemListener(this::showCorrectCard);
 		importTypeBox.setMaximumSize(new Dimension(200, 20));
+		importTypeBox.setEnabled(false);
 		add(importTypeBox, "wrap");
 
 		nameCard.add(newNameEntry);
@@ -85,10 +71,11 @@ class AnimPanel extends JPanel {
 		animListCard.add(animListPane);
 
 		cardPane.setLayout(animCardLayout);
-		cardPane.add(blankCardImp, IMPORTBASIC);
-		cardPane.add(nameCard, CHANGENAME);
-		cardPane.add(animListPane, TIMESCALE);
-		cardPane.add(blankCardGS, GLOBALSEQ);
+		cardPane.add(blankCardImp, AnimShell.ImportType.DONTIMPORT.getDispText());
+		cardPane.add(blankCardImp, AnimShell.ImportType.IMPORTBASIC.getDispText());
+		cardPane.add(nameCard, AnimShell.ImportType.CHANGENAME.getDispText());
+		cardPane.add(animListPane, AnimShell.ImportType.TIMESCALE.getDispText());
+		cardPane.add(blankCardGS, AnimShell.ImportType.GLOBALSEQ.getDispText());
 		add(cardPane, "growx, growy");
 	}
 
@@ -96,19 +83,10 @@ class AnimPanel extends JPanel {
 		selectedAnim = animShell;
 		animRenderer.setSelectedAnim(selectedAnim);
 		updateRecModAnimList();
-		this.anim = animShell.getAnim();
 		title.setText(animShell.getName());
 		newNameEntry.setText(animShell.getName());
-		doImport.setSelected(selectedAnim.isDoImport());
-		importTypeBox.setSelectedIndex(animShell.getImportType());
-	}
-
-	private void setDoImport() {
-		selectedAnim.setDoImport(doImport.isSelected());
-		cardPane.setEnabled(selectedAnim.isDoImport());
-		importTypeBox.setEnabled(selectedAnim.isDoImport());
-		recModAnimJList.setEnabled(selectedAnim.isDoImport());
-		newNameEntry.setEnabled(selectedAnim.isDoImport());
+		importTypeBox.setEnabled(true);
+		importTypeBox.setSelectedIndex(animShell.getImportType().ordinal());
 	}
 
 	private void setInReverse() {
@@ -119,6 +97,7 @@ class AnimPanel extends JPanel {
 		animCardLayout.show(cardPane, (String) e.getItem());
 		System.out.println("StateChange: " + e.getStateChange() + ", selected Index: " + importTypeBox.getSelectedIndex());
 		selectedAnim.setImportType(importTypeBox.getSelectedIndex());
+		inReverse.setEnabled(selectedAnim.getImportType() != AnimShell.ImportType.DONTIMPORT);
 		updateRecModAnimList();
 	}
 

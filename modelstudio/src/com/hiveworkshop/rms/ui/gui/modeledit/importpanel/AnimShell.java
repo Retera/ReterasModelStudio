@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 import com.hiveworkshop.rms.editor.model.Animation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 class AnimShell {
@@ -10,9 +11,8 @@ class AnimShell {
 	private Animation importAnim;
 	private List<AnimShell> animShellList = new ArrayList<>();
 	private AnimShell importAnimShell;
-	private boolean doImport = true;
 	private boolean reverse = false;
-	private int importType = 0;
+	private ImportType importType = ImportType.IMPORTBASIC;
 	private String name;
 	private String oldName;
 
@@ -48,15 +48,6 @@ class AnimShell {
 		return this;
 	}
 
-	public boolean isDoImport() {
-		return doImport;
-	}
-
-	public AnimShell setDoImport(boolean doImport) {
-		this.doImport = doImport;
-		return this;
-	}
-
 	public boolean isReverse() {
 		return reverse;
 	}
@@ -66,11 +57,16 @@ class AnimShell {
 		return this;
 	}
 
-	public int getImportType() {
+	public ImportType getImportType() {
 		return importType;
 	}
 
 	public AnimShell setImportType(int importType) {
+		this.importType = ImportType.fromInt(importType);
+		return this;
+	}
+
+	public AnimShell setImportType(ImportType importType) {
 		this.importType = importType;
 		return this;
 	}
@@ -110,6 +106,18 @@ class AnimShell {
 		return oldName;
 	}
 
+	public String displName() {
+		String dispName = "";
+		switch (importType) {
+			case DONTIMPORT -> dispName += "\u2297";
+			case IMPORTBASIC -> dispName += "\u24BE";
+			case CHANGENAME -> dispName += "\u24C3";
+			case TIMESCALE -> dispName += "\u24C9";
+			case GLOBALSEQ -> dispName += "\u24BC";
+		}
+		return dispName + "  " + oldName;
+	}
+
 	public AnimShell setOldName(String oldName) {
 		this.oldName = oldName;
 		return this;
@@ -123,4 +131,26 @@ class AnimShell {
 		this.importAnimShell = importAnimShell;
 		return this;
 	}
+
+	public enum ImportType {
+		DONTIMPORT("Do Not Import"), IMPORTBASIC("Import as-is"), CHANGENAME("Change name to:"), TIMESCALE("Time-scale into pre-existing:"), GLOBALSEQ("Rebuild as global sequence");
+		String dispText;
+
+		ImportType(String s) {
+			dispText = s;
+		}
+
+		public static String[] getDispList() {
+			return Arrays.stream(values()).map(ImportType::getDispText).toArray(String[]::new);
+		}
+
+		public static ImportType fromInt(int i) {
+			return values()[i];
+		}
+
+		public String getDispText() {
+			return dispText;
+		}
+	}
+
 }

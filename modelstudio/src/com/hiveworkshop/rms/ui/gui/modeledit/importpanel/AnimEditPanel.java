@@ -64,16 +64,16 @@ public class AnimEditPanel extends JPanel {
 	private JPanel getTopPanel() {
 		JPanel topPanel = new JPanel(new MigLayout("gap 0"));
 
-		JButton importAllAnims = createButton("Import All", e -> mht.doImportAllAnims(true));
+		JButton importAllAnims = createButton("Import All", e -> mht.setImportTypeForAllAnims(AnimShell.ImportType.IMPORTBASIC));
 		topPanel.add(importAllAnims);
 
-		JButton timescaleAllAnims = createButton("Time-scale All", e -> timescaleAllAnims());
+		JButton timescaleAllAnims = createButton("Time-scale All", e -> mht.setImportTypeForAllAnims(AnimShell.ImportType.TIMESCALE));
 		topPanel.add(timescaleAllAnims);
 
 		JButton renameAllAnims = createButton("Import and Rename All", e -> renameAllAnims(mht));
 		topPanel.add(renameAllAnims);
 
-		JButton uncheckAllAnims = createButton("Leave All", e -> mht.doImportAllAnims(false));
+		JButton uncheckAllAnims = createButton("Leave All", e -> mht.setImportTypeForAllAnims(AnimShell.ImportType.DONTIMPORT));
 		topPanel.add(uncheckAllAnims, "wrap");
 
 
@@ -92,7 +92,7 @@ public class AnimEditPanel extends JPanel {
 
 		if (newTagString != null) {
 			for (AnimShell animShell : mht.animTabList) {
-				animShell.setImportType(1);
+				animShell.setImportType(AnimShell.ImportType.CHANGENAME);
 				final String oldName = animShell.getOldName();
 				String baseName = oldName;
 				while ((baseName.length() > 0) && baseName.contains(" ")) {
@@ -114,12 +114,6 @@ public class AnimEditPanel extends JPanel {
 				final String newName = baseName + " " + newTagString + " " + afterBase;
 				animShell.setName(newName);
 			}
-		}
-	}
-
-	public void timescaleAllAnims() {
-		for (AnimShell animShell : mht.animTabList) {
-			animShell.setImportType(2);
 		}
 	}
 }
