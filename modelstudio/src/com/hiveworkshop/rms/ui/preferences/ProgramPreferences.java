@@ -35,10 +35,10 @@ public class ProgramPreferences implements Serializable {
 	transient int actionType = 3;
 
 	Color vertexColor = new Color(0, 0, 255);// new Color(0, 0, 0)
-	Color triangleColor = new Color(255, 255, 255);// new Color(190, 190, 190)
-	Color visibleUneditableColor = new Color(150, 150, 255);
-	Color highlighTriangleColor = new Color(255, 255, 0);
 	Color highlighVertexColor = new Color(0, 255, 0);
+	Color triangleColor = new Color(255, 255, 255);// new Color(190, 190, 190)
+	Color highlighTriangleColor = new Color(255, 255, 0);
+	Color visibleUneditableColor = new Color(150, 150, 255);
 	Color normalsColor = new Color(128, 128, 255);
 	Color pivotPointsSelectedColor = Color.RED.darker();
 	Color pivotPointsColor = Color.MAGENTA;

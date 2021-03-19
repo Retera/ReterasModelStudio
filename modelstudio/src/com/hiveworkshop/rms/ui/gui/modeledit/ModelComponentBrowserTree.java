@@ -113,8 +113,9 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 		root.add(geosetAnims);
 
-		final IdObjectToChooseableElementWrappingConverter converter = new IdObjectToChooseableElementWrappingConverter(
-				modelViewManager, undoActionListener, modelStructureChangeListener);
+		final IdObjectToChooseableElementWrappingConverter converter =
+				new IdObjectToChooseableElementWrappingConverter(
+						modelViewManager, undoActionListener, modelStructureChangeListener);
 
 		final Map<IdObject, DefaultMutableTreeNode> nodeToTreeElement = new HashMap<>();
 		final Map<IdObject, List<DefaultMutableTreeNode>> nodeToChildrenAwaitingLink = new HashMap<>();
@@ -141,8 +142,7 @@ public final class ModelComponentBrowserTree extends JTree {
 			}
 			final List<DefaultMutableTreeNode> childrenNeedingLinkToCurrentNode = nodeToChildrenAwaitingLink.get(object);
 
-			if ((childrenNeedingLinkToCurrentNode != null)
-					&& childrenNeedingLinkToCurrentNode.size() > 0) {
+			if ((childrenNeedingLinkToCurrentNode != null) && childrenNeedingLinkToCurrentNode.size() > 0) {
 				for (final DefaultMutableTreeNode child : childrenNeedingLinkToCurrentNode) {
 					treeNode.add(child);
 				}
@@ -595,7 +595,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(EventObject item, ModelViewManager modelViewManager) {
-			return null;
+			return item.getDispString();
 		}
 	}
 

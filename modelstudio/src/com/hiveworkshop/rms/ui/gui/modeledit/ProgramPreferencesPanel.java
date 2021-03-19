@@ -85,16 +85,16 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 
 	private void createAndAddModelEditorPanel(ProgramPreferences pref) {
 		final JPanel modelEditorPanel = new JPanel();
-		modelEditorPanel.setLayout(new MigLayout());
+		modelEditorPanel.setLayout(new MigLayout("gap 0"));
 
 		int row = 0;
 		addAtRow(modelEditorPanel, row++, new ColorChooserIcon(pref.getBackgroundColor(), pref::setBackgroundColor), "Background Color:");
-		addAtRow(modelEditorPanel, row++, new ColorChooserIcon(pref.getVertexColor(), pref::setVertexColor), "Vertex Color:");
-		addAtRow(modelEditorPanel, row++, new ColorChooserIcon(pref.getTriangleColor(), pref::setTriangleColor), "Triangle Color:");
-		addAtRow(modelEditorPanel, row++, new ColorChooserIcon(pref.getSelectColor(), pref::setSelectColor), "Select Color:");
-		addAtRow(modelEditorPanel, row++, new ColorChooserIcon(pref.getHighlighTriangleColor(), pref::setHighlighTriangleColor), "Triangle Highlight Color:");
-		addAtRow(modelEditorPanel, row++, new ColorChooserIcon(pref.getHighlighVertexColor(), pref::setHighlighVertexColor), "Vertex Highlight Color:");
 		addAtRow(modelEditorPanel, row++, new ColorChooserIcon(pref.getPerspectiveBackgroundColor(), pref::setPerspectiveBackgroundColor), "Perspective Background Color:");
+		addAtRow(modelEditorPanel, row++, new ColorChooserIcon(pref.getVertexColor(), pref::setVertexColor), "Vertex Color:");
+		addAtRow(modelEditorPanel, row++, new ColorChooserIcon(pref.getHighlighVertexColor(), pref::setHighlighVertexColor), "Vertex Highlight Color:");
+		addAtRow(modelEditorPanel, row++, new ColorChooserIcon(pref.getTriangleColor(), pref::setTriangleColor), "Triangle Color:");
+		addAtRow(modelEditorPanel, row++, new ColorChooserIcon(pref.getHighlighTriangleColor(), pref::setHighlighTriangleColor), "Triangle Highlight Color:");
+		addAtRow(modelEditorPanel, row++, new ColorChooserIcon(pref.getSelectColor(), pref::setSelectColor), "Select Color:");
 		addAtRow(modelEditorPanel, row++, new ColorChooserIcon(pref.getVisibleUneditableColor(), pref::setVisibleUneditableColor), "Visible Uneditable Mesh Color:");
 		addAtRow(modelEditorPanel, row++, new ColorChooserIcon(pref.getAnimatedBoneUnselectedColor(), pref::setAnimatedBoneUnselectedColor), "Animation Editor Bone Color:");
 		addAtRow(modelEditorPanel, row++, new ColorChooserIcon(pref.getAnimatedBoneSelectedColor(), pref::setAnimatedBoneSelectedColor), "Animation Editor Selected Bone Color:");

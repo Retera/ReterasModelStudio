@@ -48,7 +48,9 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 		final int xCoord = (int) coordinateSystem.convertX(attachment.getPivotPoint().getCoord(xDimension));
 		final int yCoord = (int) coordinateSystem.convertY(attachment.getPivotPoint().getCoord(yDimension));
 
-		graphics.drawImage(nodeImage, xCoord - (nodeImage.getWidth(null) / 2), yCoord - (nodeImage.getHeight(null) / 2), nodeImage.getWidth(null), nodeImage.getHeight(null), null);
+		int width = nodeImage.getWidth(null);
+		int height = nodeImage.getHeight(null);
+		graphics.drawImage(nodeImage, xCoord - (width / 2), yCoord - (height / 2), width, height, null);
 	}
 
 	private void drawCrosshair(final Bone object) {

@@ -4,7 +4,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
-import com.hiveworkshop.rms.ui.application.model.nodepanels.ComponentPopcornPanel;
+import com.hiveworkshop.rms.ui.application.model.nodepanels.*;
 import com.hiveworkshop.rms.ui.gui.modeledit.util.TextureExporter;
 
 import javax.swing.*;
@@ -79,6 +79,54 @@ public class ComponentsPanel extends JPanel {
 		popcornScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		add(popcornScrollPane, ParticleEmitterPopcorn.class.getName());
 		panelMap.put(ParticleEmitterPopcorn.class, popcornPanel);
+
+		ComponentBonePanel bonePanel = new ComponentBonePanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		JScrollPane boneScrollPane = new JScrollPane(bonePanel);
+		boneScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+		add(boneScrollPane, Bone.class.getName());
+		panelMap.put(Bone.class, bonePanel);
+
+		ComponentHelperPanel helperPanel = new ComponentHelperPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		JScrollPane helperScrollPane = new JScrollPane(helperPanel);
+		helperScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+		add(helperScrollPane, Helper.class.getName());
+		panelMap.put(Helper.class, helperPanel);
+
+		ComponentParticle2Panel particle2Panel = new ComponentParticle2Panel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		JScrollPane particle2ScrollPane = new JScrollPane(particle2Panel);
+		particle2ScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+		add(particle2ScrollPane, ParticleEmitter2.class.getName());
+		panelMap.put(ParticleEmitter2.class, particle2Panel);
+
+		ComponentCollisionPanel collisionPanel = new ComponentCollisionPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		JScrollPane collosionScrollPane = new JScrollPane(collisionPanel);
+		collosionScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+		add(collosionScrollPane, CollisionShape.class.getName());
+		panelMap.put(CollisionShape.class, collisionPanel);
+
+		ComponentEventPanel eventPanel = new ComponentEventPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		JScrollPane eventScrollPane = new JScrollPane(eventPanel);
+		eventScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+		add(eventScrollPane, EventObject.class.getName());
+		panelMap.put(EventObject.class, eventPanel);
+
+		ComponentRibbonPanel ribbonPanel = new ComponentRibbonPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		JScrollPane ribbonScrollPane = new JScrollPane(ribbonPanel);
+		ribbonScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+		add(ribbonScrollPane, RibbonEmitter.class.getName());
+		panelMap.put(RibbonEmitter.class, ribbonPanel);
+
+		ComponentAttatchmentPanel attachmentPanel = new ComponentAttatchmentPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		JScrollPane attachmentScrollPane = new JScrollPane(attachmentPanel);
+		attachmentScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+		add(attachmentScrollPane, Attachment.class.getName());
+		panelMap.put(Attachment.class, attachmentPanel);
+
+//		ComponentPopcornPanel popcornPanel = new ComponentPopcornPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+//		JScrollPane popcornScrollPane = new JScrollPane(popcornPanel);
+//		popcornScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+//		add(popcornScrollPane, ParticleEmitterPopcorn.class.getName());
+//		panelMap.put(ParticleEmitterPopcorn.class, popcornPanel);
 
 		cardLayout.show(this, BLANK);
 	}

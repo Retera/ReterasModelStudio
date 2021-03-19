@@ -27,7 +27,6 @@ public final class RenderModel {
 	private final Map<ParticleEmitter2, RenderParticleEmitter2View> emitterToRenderer = new HashMap<>();
 	private final List<RenderParticleEmitter2> particleEmitters2 = new ArrayList<>();// TODO one per model, not instance
 	private final List<RenderParticleEmitter2View> particleEmitterViews2 = new ArrayList<>();
-	// TODO one per model, not instance
 	private final SoftwareParticleEmitterShader particleShader = new SoftwareParticleEmitterShader();
 
 	private final RenderNode rootPosition;
