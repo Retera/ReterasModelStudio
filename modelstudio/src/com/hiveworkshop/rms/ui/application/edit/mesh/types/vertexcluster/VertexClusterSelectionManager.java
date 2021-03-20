@@ -5,10 +5,10 @@ import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
-import com.hiveworkshop.rms.ui.application.edit.mesh.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.types.geosetvertex.GeosetVertexSelectionManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexModelElementRenderer;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -17,7 +17,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.*;
 
-public final class VertexClusterSelectionManager extends AbstractSelectionManager<VertexClusterModelEditor.VertexGroupBundle> {
+public final class VertexClusterSelectionManager extends SelectionManager<VertexClusterModelEditor.VertexGroupBundle> {
 	private static final Color GROUP_SELECTED_COLOR = new Color(1f, 0.45f, 0.75f, 0.3f);
 
 	private static final Color GROUP_HIGHLIGHT_COLOR = new Color(0.45f, 1f, 0.45f, 0.3f);
@@ -49,18 +49,13 @@ public final class VertexClusterSelectionManager extends AbstractSelectionManage
 	}
 
 	@Override
-	public Collection<Triangle> getSelectedFaces() {
-		return cachedVertexListManager.getSelectedFaces();
-	}
-
-	@Override
 	public Collection<? extends Vec3> getSelectedVertices() {
 		return cachedVertexListManager.getSelectedVertices();
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vec3 center) {
-		return cachedVertexListManager.getCircumscribedSphereRadius(center);
+	public Collection<Triangle> getSelectedFaces() {
+		return cachedVertexListManager.getSelectedFaces();
 	}
 
 	@Override
@@ -102,17 +97,22 @@ public final class VertexClusterSelectionManager extends AbstractSelectionManage
 	}
 
 	@Override
+	public double getCircumscribedSphereRadius(final Vec3 center) {
+		return cachedVertexListManager.getCircumscribedSphereRadius(center);
+	}
+
+	@Override
+	public double getCircumscribedSphereRadius(final Vec2 center, final int tvertexLayerId) {
+		throw new UnsupportedOperationException("Not yet implemented");
+	}
+
+	@Override
 	public Vec2 getUVCenter(final int tvertexLayerId) {
 		throw new UnsupportedOperationException("Not yet implemented");
 	}
 
 	@Override
 	public Collection<? extends Vec2> getSelectedTVertices(final int tvertexLayerId) {
-		throw new UnsupportedOperationException("Not yet implemented");
-	}
-
-	@Override
-	public double getCircumscribedSphereRadius(final Vec2 center, final int tvertexLayerId) {
 		throw new UnsupportedOperationException("Not yet implemented");
 	}
 

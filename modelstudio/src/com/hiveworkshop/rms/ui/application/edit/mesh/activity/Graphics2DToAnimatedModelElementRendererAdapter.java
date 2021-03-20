@@ -17,12 +17,9 @@ import java.awt.*;
 public final class Graphics2DToAnimatedModelElementRendererAdapter implements ModelElementRenderer {
 	private Graphics2D graphics;
 	private CoordinateSystem coordinateSystem;
-	private final Point recyclePointA = new Point(), recyclePointB = new Point(), recyclePointC = new Point();
-	private final int[] recycleXCoords = new int[3];
-	private final int[] recycleYCoords = new int[3];
 	private ProgramPreferences programPreferences;
-	private final int vertexSize;
-	private final ResettableAnimatedIdObjectRenderer idObjectRenderer;
+	private int vertexSize;
+	private ResettableAnimatedIdObjectRenderer idObjectRenderer;
 	private RenderModel renderModel;
 
 	public Graphics2DToAnimatedModelElementRendererAdapter(final int vertexSize) {
@@ -39,31 +36,36 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 	}
 
 	@Override
-	public void renderFace(final Color borderColor, final Color color, final GeosetVertex a, final GeosetVertex b,
-	                       final GeosetVertex c) {
+	public void renderFace(final Color borderColor, final Color color,
+	                       final GeosetVertex a, final GeosetVertex b, final GeosetVertex c) {
 		graphics.setColor(color);
 
-		CoordinateSystem.Util.convertToPoint(coordinateSystem, a, recyclePointA, renderModel);
-		CoordinateSystem.Util.convertToPoint(coordinateSystem, b, recyclePointB, renderModel);
-		CoordinateSystem.Util.convertToPoint(coordinateSystem, c, recyclePointC, renderModel);
+		Point pointA = CoordinateSystem.Util.convertToPoint(coordinateSystem, a, renderModel);
+		Point pointB = CoordinateSystem.Util.convertToPoint(coordinateSystem, b, renderModel);
+		Point pointC = CoordinateSystem.Util.convertToPoint(coordinateSystem, c, renderModel);
 
-		recycleXCoords[0] = recyclePointA.x;
-		recycleXCoords[1] = recyclePointB.x;
-		recycleXCoords[2] = recyclePointC.x;
+		int[] xCoords = new int[3];
+		xCoords[0] = pointA.x;
+		xCoords[1] = pointB.x;
+		xCoords[2] = pointC.x;
 
-		recycleYCoords[0] = recyclePointA.y;
-		recycleYCoords[1] = recyclePointB.y;
-		recycleYCoords[2] = recyclePointC.y;
-		graphics.fillPolygon(recycleXCoords, recycleYCoords, 3);
+		int[] yCoords = new int[3];
+		yCoords[0] = pointA.y;
+		yCoords[1] = pointB.y;
+		yCoords[2] = pointC.y;
+
+		graphics.fillPolygon(xCoords, yCoords, 3);
 		graphics.setColor(borderColor);
-		graphics.drawPolygon(recycleXCoords, recycleYCoords, 3);
+		graphics.drawPolygon(xCoords, yCoords, 3);
+//		GU.fillPolygon(graphics, pointA, pointB, pointC);
+//		GU.drawPolygon(graphics, pointA, pointB, pointC);
 	}
 
 	@Override
 	public void renderVertex(final Color color, final Vec3 vertex) {
-		CoordinateSystem.Util.convertToPoint(coordinateSystem, vertex, recyclePointA);
+		Point point = CoordinateSystem.Util.convertToPoint(coordinateSystem, vertex);
 		graphics.setColor(color);
-		graphics.fillRect(recyclePointA.x - (vertexSize / 2), (int) (recyclePointA.y - (vertexSize / 2.0)), vertexSize, vertexSize);
+		graphics.fillRect(point.x - (vertexSize / 2), (int) (point.y - (vertexSize / 2.0)), vertexSize, vertexSize);
 	}
 
 	@Override
@@ -124,21 +126,12 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 		g2.fillRect((int) dist - vertexSize, 0 - vertexSize, 1 + (vertexSize * 2), 1 + (vertexSize * 2));
 		g2.drawRect((int) dist - size, -size, size * 2, size * 2);
 
-		// if (tarSel) {
-		// g2.setColor(Color.orange.darker());
-		// } else if (verSel) {
 		g2.setColor(targetColor);
-		// }
-		// Target
-		g2.fillRect(0 - vertexSize, 0 - vertexSize, 1 + (vertexSize * 2), 1 + (vertexSize * 2));
-		g2.drawLine(0, 0, size, size);// (int)Math.round(vp.convertX(targ.getCoord(vp.getPortFirstXYZ())+5)),
-										// (int)Math.round(vp.convertY(targ.getCoord(vp.getPortSecondXYZ())+5)));
-		g2.drawLine(0, 0, size, -size);// (int)Math.round(vp.convertX(targ.getCoord(vp.getPortFirstXYZ())-5)),
-										// (int)Math.round(vp.convertY(targ.getCoord(vp.getPortSecondXYZ())-5)));
 
-		// if (!verSel && tarSel) {
-		// g2.setColor(Color.green.darker());
-		// }
+		g2.fillRect(0 - vertexSize, 0 - vertexSize, 1 + (vertexSize * 2), 1 + (vertexSize * 2));
+		g2.drawLine(0, 0, size, size);
+		g2.drawLine(0, 0, size, -size);
+
 		g2.drawLine(0, 0, (int) dist, 0);
 	}
 

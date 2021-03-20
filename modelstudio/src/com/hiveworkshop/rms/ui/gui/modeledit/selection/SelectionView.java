@@ -18,10 +18,8 @@ public interface SelectionView {
 
 	Collection<? extends Vec3> getSelectedVertices();
 
-	// needs to be coord system, not coord axes, so that
-	// vertex selection view knows the zoom level,
-	// so that the width and height of a vertex in pixels
-	// is zoom independent
+	// needs to be coord system, not coord axes, so that vertex selection view knows the zoom level,
+	// so that the width and height of a vertex in pixels is zoom independent
 	// boolean canSelectAt(Point point, CoordinateSystem axes);
 
 	double getCircumscribedSphereRadius(Vec3 center);

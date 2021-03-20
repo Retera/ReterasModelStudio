@@ -31,21 +31,29 @@ public class MultiPartSelectionView implements SelectionView {
 	}
 
 	@Override
+	public Collection<? extends Vec3> getSelectedVertices() {
+		final List<Vec3> vertices = new ArrayList<>();
+		for (final SelectionView selectionView : selectionViews) {
+			vertices.addAll(selectionView.getSelectedVertices());
+		}
+		return vertices;
+	}
+
+	@Override
 	public Collection<Triangle> getSelectedFaces() {
 		final List<Triangle> faces = new ArrayList<>();
 		for (final SelectionView selectionView : selectionViews) {
-            faces.addAll(selectionView.getSelectedFaces());
+			faces.addAll(selectionView.getSelectedFaces());
 		}
 		return faces;
 	}
 
 	@Override
-	public Collection<? extends Vec3> getSelectedVertices() {
-		final List<Vec3> vertices = new ArrayList<>();
+	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem,
+	                            final ModelView modelView, final ProgramPreferences programPreferences) {
 		for (final SelectionView selectionView : selectionViews) {
-            vertices.addAll(selectionView.getSelectedVertices());
+			selectionView.renderSelection(renderer, coordinateSystem, modelView, programPreferences);
 		}
-		return vertices;
 	}
 
 	@Override
@@ -64,14 +72,6 @@ public class MultiPartSelectionView implements SelectionView {
 	}
 
 	@Override
-	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem,
-								final ModelView modelView, final ProgramPreferences programPreferences) {
-		for (final SelectionView selectionView : selectionViews) {
-			selectionView.renderSelection(renderer, coordinateSystem, modelView, programPreferences);
-		}
-	}
-
-	@Override
 	public boolean isEmpty() {
 		boolean empty = true;
 		for (final SelectionView selectionView : selectionViews) {
@@ -80,24 +80,6 @@ public class MultiPartSelectionView implements SelectionView {
 			}
 		}
 		return empty;
-	}
-
-	@Override
-	public Vec2 getUVCenter(final int tvertexLayerId) {
-		final List<Vec2> vertices = new ArrayList<>();
-		for (final SelectionView selectionView : selectionViews) {
-            vertices.addAll(selectionView.getSelectedTVertices(tvertexLayerId));
-		}
-		return Vec2.centerOfGroup(vertices);
-	}
-
-	@Override
-	public Collection<? extends Vec2> getSelectedTVertices(final int tvertexLayerId) {
-		final List<Vec2> vertices = new ArrayList<>();
-		for (final SelectionView selectionView : selectionViews) {
-            vertices.addAll(selectionView.getSelectedTVertices(tvertexLayerId));
-		}
-		return vertices;
 	}
 
 	@Override
@@ -113,6 +95,24 @@ public class MultiPartSelectionView implements SelectionView {
 			}
 		}
 		return radius;
+	}
+
+	@Override
+	public Vec2 getUVCenter(final int tvertexLayerId) {
+		final List<Vec2> vertices = new ArrayList<>();
+		for (final SelectionView selectionView : selectionViews) {
+			vertices.addAll(selectionView.getSelectedTVertices(tvertexLayerId));
+		}
+		return Vec2.centerOfGroup(vertices);
+	}
+
+	@Override
+	public Collection<? extends Vec2> getSelectedTVertices(final int tvertexLayerId) {
+		final List<Vec2> vertices = new ArrayList<>();
+		for (final SelectionView selectionView : selectionViews) {
+			vertices.addAll(selectionView.getSelectedTVertices(tvertexLayerId));
+		}
+		return vertices;
 	}
 
 	@Override

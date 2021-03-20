@@ -235,7 +235,7 @@ public class Vec3 {
 	}
 
 	public float distance(final Vec4 other) {
-		return distance(other.x, other.y, other.z);
+		return distance(other.getVec3());
 	}
 
 	public Vec3 rotate(final double centerX, final double centerY, final double centerZ, final double radians,
