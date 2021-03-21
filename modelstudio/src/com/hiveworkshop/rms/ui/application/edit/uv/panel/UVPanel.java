@@ -51,7 +51,7 @@ import java.util.*;
  * @author (your name)
  * @version (a version number or a date)
  */
-public class UVPanel extends JPanel implements ActionListener, CoordDisplayListener, TVertexEditorChangeActivityListener {
+public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEditorChangeActivityListener {
 
 	static final ImageIcon UVIcon;
 
@@ -198,12 +198,12 @@ public class UVPanel extends JPanel implements ActionListener, CoordDisplayListe
 
 		unwrapDirectionBox.setMaximumSize(new Dimension(100, 35));
 		unwrapDirectionBox.setMinimumSize(new Dimension(90, 15));
-		unwrapDirectionBox.addActionListener(this);
+//		unwrapDirectionBox.addActionListener(this);
 
 		for (final ModeButton button : buttons) {
 			button.setMaximumSize(new Dimension(100, 35));
 			button.setMinimumSize(new Dimension(90, 15));
-			button.addActionListener(this);
+//			button.addActionListener(this);
 		}
 
 		JButton plusZoom = addButton(20, 20, "Plus.png", e -> zoom(.15));
@@ -697,7 +697,8 @@ public class UVPanel extends JPanel implements ActionListener, CoordDisplayListe
 		final JFrame frame = (JFrame) view.getTopLevelAncestor();
 		if (frame != null) {
 			frame.pack();
-			frame.setLocationRelativeTo(null);
+//			frame.setLocationRelativeTo(null);
+			frame.setLocationRelativeTo(mainPanel);
 		}
 	}
 
@@ -717,10 +718,6 @@ public class UVPanel extends JPanel implements ActionListener, CoordDisplayListe
 		super.paintComponent(g);
 		// g.drawString(title,3,3);
 		// vp.repaint();
-	}
-
-	@Override
-	public void actionPerformed(final ActionEvent e) {
 	}
 
 	private void moveUpDown(int i) {
