@@ -75,6 +75,7 @@ public abstract class ComPerspViewport extends BetterAWTGLCanvas implements Rend
 	private float yRatio;
 	private float xangle;
 	private float yangle;
+	private boolean ortho = false;
 	Timer clickTimer = new Timer(16, e -> clickTimerAction());
 
 	ExtLog currentExt = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
@@ -202,6 +203,11 @@ public abstract class ComPerspViewport extends BetterAWTGLCanvas implements Rend
 					// Side view
 					System.out.println("VK_NUMPAD3");
 					setViewportCamera(0, (int) -(maxExt.length() / 6), 0, 90, 0);
+				}
+				if (e.getKeyCode() == KeyEvent.VK_O) {
+					// Side view
+					ortho = !ortho;
+					System.out.println("VK_O");
 				}
 			}
 		});
@@ -616,7 +622,14 @@ public abstract class ComPerspViewport extends BetterAWTGLCanvas implements Rend
 	}
 
 	private void setUpCamera() {
-		gluPerspective(45f, (float) getWidth() / (float) getHeight(), 20.0f, 6000.0f);
+		if (ortho) {
+			float ortoFac = 4.0f;
+			float w = getWidth() / 2.0f / ortoFac;
+			float h = getHeight() / 2.0f / ortoFac;
+			glOrtho(-w, w, -h, h, 20.0f, 6000.0f);
+		} else {
+			gluPerspective(45f, (float) getWidth() / (float) getHeight(), 20.0f, 6000.0f);
+		}
 
 		Vec3 statCamPos = new Vec3(0f, -70f, -200f);
 		Vec3 dynCamPos = Vec3.getScaled(cameraPos, (float) m_zoom).sub(statCamPos);
