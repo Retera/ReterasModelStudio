@@ -213,6 +213,10 @@ public class Vec3 {
 		};
 	}
 
+	public Vec2 getProjected(byte dim1, byte dim2) {
+		return new Vec2(getCoord(dim1), getCoord(dim2));
+	}
+
 	public boolean equalLocs(final Vec3 v) {
 		return (x == v.x) && (y == v.y) && (z == v.z);
 	}

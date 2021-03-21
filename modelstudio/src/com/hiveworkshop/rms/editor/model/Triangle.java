@@ -186,7 +186,17 @@ public class Triangle {
 	public Vec2[] getProjectedVerts(final byte axis1, final byte axis2) {
 		final Vec2[] output = new Vec2[3];
 		for (int i = 0; i < 3; i++) {
-			output[i] = new Vec2(verts[i].getCoord(axis1), verts[i].getCoord(axis2));
+//			output[i] = new Vec2(verts[i].getCoord(axis1), verts[i].getCoord(axis2));
+			output[i] = verts[i].getProjected(axis1, axis2);
+		}
+		return output;
+	}
+
+	public Vec2[] getProjectedNorms(final byte axis1, final byte axis2) {
+		final Vec2[] output = new Vec2[3];
+		for (int i = 0; i < 3; i++) {
+//			output[i] = new Vec2(verts[i].getCoord(axis1), verts[i].getCoord(axis2));
+			output[i] = verts[i].getNormal().getProjected(axis1, axis2);
 		}
 		return output;
 	}

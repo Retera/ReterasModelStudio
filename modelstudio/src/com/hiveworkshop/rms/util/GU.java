@@ -4,7 +4,7 @@ import java.awt.*;
 import java.util.Arrays;
 
 public class GU {
-	public static void fillPolygon(Graphics2D graphics2D, Point... points) {
+	public static void fillPolygon(Graphics graphics, Point... points) {
 		int[] polygonX = new int[points.length];
 		int[] polygonY = new int[points.length];
 
@@ -12,10 +12,10 @@ public class GU {
 			polygonX[i] = points[i].x;
 			polygonY[i] = points[i].y;
 		}
-		graphics2D.fillPolygon(polygonX, polygonY, points.length);
+		graphics.fillPolygon(polygonX, polygonY, points.length);
 	}
 
-	public static void fillPolygonAt(Graphics2D graphics2D, Point point, Point... points) {
+	public static void fillPolygonAt(Graphics graphics, Point point, Point... points) {
 		int[] polygonX = new int[points.length];
 		int[] polygonY = new int[points.length];
 
@@ -23,10 +23,10 @@ public class GU {
 			polygonX[i] = points[i].x + point.x;
 			polygonY[i] = points[i].y + point.y;
 		}
-		graphics2D.fillPolygon(polygonX, polygonY, points.length);
+		graphics.fillPolygon(polygonX, polygonY, points.length);
 	}
 
-	public static void fillPolygonAt(Graphics2D graphics2D, int xOff, int yOff, Point... points) {
+	public static void fillPolygonAt(Graphics graphics, int xOff, int yOff, Point... points) {
 		int[] polygonX = new int[points.length];
 		int[] polygonY = new int[points.length];
 
@@ -34,10 +34,10 @@ public class GU {
 			polygonX[i] = points[i].x + xOff;
 			polygonY[i] = points[i].y + yOff;
 		}
-		graphics2D.fillPolygon(polygonX, polygonY, points.length);
+		graphics.fillPolygon(polygonX, polygonY, points.length);
 	}
 
-	public static void drawPolygon(Graphics2D graphics2D, Point... points) {
+	public static void drawPolygon(Graphics graphics, Point... points) {
 		int[] polygonX = new int[points.length];
 		int[] polygonY = new int[points.length];
 
@@ -45,14 +45,25 @@ public class GU {
 			polygonX[i] = points[i].x;
 			polygonY[i] = points[i].y;
 		}
-		graphics2D.drawPolygon(polygonX, polygonY, points.length);
+		graphics.drawPolygon(polygonX, polygonY, points.length);
 	}
 
-	public static void drawPolygonAt(Graphics2D graphics2D, Point point, Point... points) {
-		drawPolygonAt(graphics2D, point.x, point.y, points);
+	public static void drawPolygon(Graphics graphics, Vec2... points) {
+		int[] polygonX = new int[points.length];
+		int[] polygonY = new int[points.length];
+
+		for (int i = 0; i < points.length; i++) {
+			polygonX[i] = (int) points[i].x;
+			polygonY[i] = (int) points[i].y;
+		}
+		graphics.drawPolygon(polygonX, polygonY, points.length);
 	}
 
-	public static void drawPolygonAt(Graphics2D graphics2D, int xOff, int yOff, Point... points) {
+	public static void drawPolygonAt(Graphics graphics, Point point, Point... points) {
+		drawPolygonAt(graphics, point.x, point.y, points);
+	}
+
+	public static void drawPolygonAt(Graphics graphics, int xOff, int yOff, Point... points) {
 		int[] polygonX = new int[points.length];
 		int[] polygonY = new int[points.length];
 
@@ -60,52 +71,81 @@ public class GU {
 			polygonX[i] = points[i].x + xOff;
 			polygonY[i] = points[i].y + yOff;
 		}
-		graphics2D.drawPolygon(polygonX, polygonY, points.length);
+		graphics.drawPolygon(polygonX, polygonY, points.length);
 	}
 
-	public static void fillCenteredSquare(Graphics2D graphics2D, Point point, int size) {
-		fillCenteredSquare(graphics2D, point.x, point.y, size);
+	public static void drawPolygonAt(Graphics graphics, int xOff, int yOff, Vec2... points) {
+		int[] polygonX = new int[points.length];
+		int[] polygonY = new int[points.length];
+
+		for (int i = 0; i < points.length; i++) {
+			polygonX[i] = (int) points[i].x + xOff;
+			polygonY[i] = (int) points[i].y + yOff;
+		}
+		graphics.drawPolygon(polygonX, polygonY, points.length);
 	}
 
-	public static void fillCenteredSquare(Graphics2D graphics2D, int x, int y, int size) {
+	public static void fillCenteredSquare(Graphics graphics, Point point, int size) {
+		fillCenteredSquare(graphics, point.x, point.y, size);
+	}
+
+	public static void fillCenteredSquare(Graphics graphics, int x, int y, int size) {
 		int offset = size / 2;
-		graphics2D.fillRect(x - offset, (y - offset), size, size);
+		graphics.fillRect(x - offset, (y - offset), size, size);
 	}
 
-	public static void drawCenteredSquare(Graphics2D graphics2D, Point point, int size) {
-		drawCenteredSquare(graphics2D, point.x, point.y, size);
+	public static void drawCenteredSquare(Graphics graphics, Point point, int size) {
+		drawCenteredSquare(graphics, point.x, point.y, size);
 	}
 
-	public static void drawCenteredSquare(Graphics2D graphics2D, int x, int y, int size) {
+	public static void drawCenteredSquare(Graphics graphics, int x, int y, int size) {
 		int offset = size / 2;
-		graphics2D.drawRect(x - offset, (y - offset), size, size);
+		graphics.drawRect(x - offset, (y - offset), size, size);
 	}
 
-	public static void drawLine(Graphics2D graphics2D, Point... points) {
+	public static void drawLine(Graphics graphics, Point... points) {
 		for (int i = 0; i < points.length - 1; i++) {
-			graphics2D.drawLine(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y);
+			graphics.drawLine(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y);
 		}
 	}
 
-	public static void drawPolygonAt(Graphics2D graphics2D, Point point, Polygon polygon) {
+	public static void drawLines(Graphics graphics, Point... points) {
+		for (int i = 0; i < points.length - 1; i += 2) {
+			graphics.drawLine(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y);
+		}
+	}
+
+	public static void drawLines(Graphics graphics, Vec2... points) {
+		for (int i = 0; i < points.length - 1; i += 2) {
+			graphics.drawLine((int) points[i].x, (int) points[i].y, (int) points[i + 1].x, (int) points[i + 1].y);
+		}
+	}
+
+	public static void drawLines(Graphics graphics, Vec2[] starts, Vec2[] ends) {
+		for (int i = 0; i < starts.length - 1; i++) {
+			graphics.drawLine((int) starts[i].x, (int) starts[i].y, (int) ends[i].x, (int) ends[i].y);
+		}
+	}
+
+	public static void drawPolygonAt(Graphics graphics, Point point, Polygon polygon) {
 		polygon.translate(point.x, point.y);
-		graphics2D.drawPolygon(polygon);
+		graphics.drawPolygon(polygon);
 		polygon.translate(-point.x, -point.y);
 	}
 
-	public static void drawPolygonAt(Graphics2D graphics2D, int xOff, int yOff, Polygon polygon) {
+	public static void drawPolygonAt(Graphics graphics, int xOff, int yOff, Polygon polygon) {
 		polygon.translate(xOff, yOff);
-		graphics2D.drawPolygon(polygon);
+		graphics.drawPolygon(polygon);
 		polygon.translate(-xOff, -yOff);
 	}
 
-	public static void fillPolygonAt(Graphics2D graphics2D, Point point, Polygon polygon) {
-		fillPolygonAt(graphics2D, point.x, point.y, polygon);
+	public static void fillPolygonAt(Graphics graphics, Point point, Polygon polygon) {
+		fillPolygonAt(graphics, point.x, point.y, polygon);
 	}
 
-	public static void fillPolygonAt(Graphics2D graphics2D, int xOff, int yOff, Polygon polygon) {
+	public static void fillPolygonAt(Graphics graphics, int xOff, int yOff, Polygon polygon) {
 		polygon.translate(xOff, yOff);
-		graphics2D.fillPolygon(polygon);
+		graphics.fillPolygon(polygon);
 		polygon.translate(-xOff, -yOff);
 	}
 
