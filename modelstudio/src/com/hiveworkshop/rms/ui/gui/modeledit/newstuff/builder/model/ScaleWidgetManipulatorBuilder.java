@@ -14,7 +14,7 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
 
-public final class ScaleWidgetManipulatorBuilder extends AbstractSelectAndEditModelEditorManipulatorBuilder {
+public final class ScaleWidgetManipulatorBuilder extends ModelEditorManipulatorBuilder {
 	private final ScalerWidget moverWidget = new ScalerWidget(new Vec3(0, 0, 0));
 
 	public ScaleWidgetManipulatorBuilder(final ModelEditor modelEditor, final ViewportSelectionHandler viewportSelectionHandler, final ProgramPreferences programPreferences, final ModelView modelView) {

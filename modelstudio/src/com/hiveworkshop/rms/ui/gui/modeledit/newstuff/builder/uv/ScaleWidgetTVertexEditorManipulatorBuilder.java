@@ -14,7 +14,7 @@ import com.hiveworkshop.rms.util.Vec2;
 
 import java.awt.*;
 
-public final class ScaleWidgetTVertexEditorManipulatorBuilder extends AbstractSelectAndEditTVertexEditorManipulatorBuilder {
+public final class ScaleWidgetTVertexEditorManipulatorBuilder extends TVertexEditorManipulatorBuilder {
 	private final TVertexScalerWidget moverWidget = new TVertexScalerWidget(new Vec2(0, 0));
 
 	public ScaleWidgetTVertexEditorManipulatorBuilder(final TVertexEditor modelEditor, final ViewportSelectionHandler viewportSelectionHandler, final ProgramPreferences programPreferences, final ModelView modelView) {

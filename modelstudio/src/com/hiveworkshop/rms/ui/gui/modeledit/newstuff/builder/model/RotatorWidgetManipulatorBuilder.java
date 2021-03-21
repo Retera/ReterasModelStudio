@@ -14,7 +14,7 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
 
-public final class RotatorWidgetManipulatorBuilder extends AbstractSelectAndEditModelEditorManipulatorBuilder {
+public final class RotatorWidgetManipulatorBuilder extends ModelEditorManipulatorBuilder {
 	private final RotatorWidget moverWidget = new RotatorWidget(new Vec3(0, 0, 0));
 
 	public RotatorWidgetManipulatorBuilder(final ModelEditor modelEditor, final ViewportSelectionHandler viewportSelectionHandler, final ProgramPreferences programPreferences, final ModelView modelView) {

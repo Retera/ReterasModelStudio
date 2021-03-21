@@ -14,7 +14,7 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
 
-public final class ExtrudeWidgetManipulatorBuilder extends AbstractSelectAndEditModelEditorManipulatorBuilder {
+public final class ExtrudeWidgetManipulatorBuilder extends ModelEditorManipulatorBuilder {
 	private final MoverWidget moverWidget = new MoverWidget(new Vec3(0, 0, 0));
 
 	public ExtrudeWidgetManipulatorBuilder(final ModelEditor modelEditor, final ViewportSelectionHandler viewportSelectionHandler, final ProgramPreferences programPreferences, final ModelView modelView) {

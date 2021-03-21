@@ -14,7 +14,7 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
 
-public final class SquatToolWidgetManipulatorBuilder extends AbstractSelectAndEditModelEditorManipulatorBuilder {
+public final class SquatToolWidgetManipulatorBuilder extends ModelEditorManipulatorBuilder {
 	private final RotatorWidget moverWidget = new RotatorWidget(new Vec3(0, 0, 0));
 
 	public SquatToolWidgetManipulatorBuilder(final ModelEditor modelEditor, final ViewportSelectionHandler viewportSelectionHandler, final ProgramPreferences programPreferences, final ModelView modelView) {
