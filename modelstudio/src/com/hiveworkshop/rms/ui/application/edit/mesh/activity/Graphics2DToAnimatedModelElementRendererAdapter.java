@@ -10,6 +10,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.ResettableAnimatedIdObjectRenderer;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.util.GU;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
@@ -44,28 +45,17 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 		Point pointB = CoordinateSystem.Util.convertToPoint(coordinateSystem, b, renderModel);
 		Point pointC = CoordinateSystem.Util.convertToPoint(coordinateSystem, c, renderModel);
 
-		int[] xCoords = new int[3];
-		xCoords[0] = pointA.x;
-		xCoords[1] = pointB.x;
-		xCoords[2] = pointC.x;
-
-		int[] yCoords = new int[3];
-		yCoords[0] = pointA.y;
-		yCoords[1] = pointB.y;
-		yCoords[2] = pointC.y;
-
-		graphics.fillPolygon(xCoords, yCoords, 3);
+		GU.fillPolygon(graphics, pointA, pointB, pointC);
 		graphics.setColor(borderColor);
-		graphics.drawPolygon(xCoords, yCoords, 3);
-//		GU.fillPolygon(graphics, pointA, pointB, pointC);
-//		GU.drawPolygon(graphics, pointA, pointB, pointC);
+		GU.drawPolygon(graphics, pointA, pointB, pointC);
 	}
 
 	@Override
 	public void renderVertex(final Color color, final Vec3 vertex) {
 		Point point = CoordinateSystem.Util.convertToPoint(coordinateSystem, vertex);
 		graphics.setColor(color);
-		graphics.fillRect(point.x - (vertexSize / 2), (int) (point.y - (vertexSize / 2.0)), vertexSize, vertexSize);
+		GU.fillCenteredSquare(graphics, point, vertexSize);
+//		graphics.fillRect(point.x - (vertexSize / 2), (int) (point.y - (vertexSize / 2.0)), vertexSize, vertexSize);
 	}
 
 	@Override

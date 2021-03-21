@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.edit.uv.types;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.ResettableIdObjectRenderer;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.util.GU;
 import com.hiveworkshop.rms.util.Vec2;
 
 import java.awt.*;
@@ -34,28 +35,18 @@ public final class Graphics2DToTVertexModelElementRendererAdapter implements TVe
 		Point pointB = CoordinateSystem.Util.convertToPoint(coordinateSystem, b);
 		Point pointC = CoordinateSystem.Util.convertToPoint(coordinateSystem, c);
 
-		int[] recycleXCoords = new int[3];
-		int[] recycleYCoords = new int[3];
-
-		recycleXCoords[0] = pointA.x;
-		recycleXCoords[1] = pointB.x;
-		recycleXCoords[2] = pointC.x;
-		recycleYCoords[0] = pointA.y;
-		recycleYCoords[1] = pointB.y;
-		recycleYCoords[2] = pointC.y;
-
 		graphics.setColor(color);
-		graphics.fillPolygon(recycleXCoords, recycleYCoords, 3);
+		GU.fillPolygon(graphics, pointA, pointB, pointC);
 		graphics.setColor(borderColor);
-		graphics.drawPolygon(recycleXCoords, recycleYCoords, 3);
+		GU.drawPolygon(graphics, pointA, pointB, pointC);
 	}
 
 	@Override
 	public void renderVertex(final Color color, final Vec2 vertex) {
 		Point pointA = CoordinateSystem.Util.convertToPoint(coordinateSystem, vertex);
 		graphics.setColor(color);
-		graphics.fillRect(pointA.x - (vertexSize / 2), (int) (pointA.y - (vertexSize / 2.0)), vertexSize,
-				vertexSize);
+		GU.fillCenteredSquare(graphics, pointA, vertexSize);
+//		graphics.fillRect(pointA.x - (vertexSize / 2), (int) (pointA.y - (vertexSize / 2.0)), vertexSize, vertexSize);
 	}
 
 }
