@@ -4,7 +4,7 @@ import net.sf.image4j.codec.ico.ICODecoder;
 
 import javax.swing.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +15,9 @@ public class ObjectEditorFrame extends JFrame {
 	public ObjectEditorFrame() {
 		super("Object Editor");
 		try {
-			final List<BufferedImage> images = ICODecoder.read(this.getClass().getResourceAsStream("worldedit.ico"));
+			InputStream resourceAsStream = this.getClass().getResourceAsStream("worldedit.ico");
+			System.out.println("image stream (\"this.in\"): " + resourceAsStream);
+			final List<BufferedImage> images = ICODecoder.read(resourceAsStream);
 			final List<BufferedImage> finalImages = new ArrayList<>();
 			BufferedImage lastImage = null;
 			for (final BufferedImage image : images) {
@@ -26,7 +28,7 @@ public class ObjectEditorFrame extends JFrame {
 			}
 			finalImages.add(lastImage);
 			setIconImages(finalImages);
-		} catch (final IOException e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 		setContentPane(panel = new ObjectEditorPanel());

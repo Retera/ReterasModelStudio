@@ -21,6 +21,7 @@ import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.util.War3ID;
 import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -440,7 +441,7 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 			final JTextField nameField = new JTextField(30);
 			nameField.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
 			nameField.setPreferredSize(new Dimension(200, 18));
-			nameField.setMaximumSize(new Dimension(200, 1000));
+			nameField.setMaximumSize(new Dimension(200, 100));
 
 			final JLabel baseUnitLabel = new JLabel(WEString.getString("WESTRING_UE_BASEUNIT").replace("&", "") + ":");
 
@@ -450,24 +451,11 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 			unitOptionPanel.doLayout();
 			unitOptionPanel.relayout();
 
-			final JPanel popupPanel = new JPanel();
-			final GroupLayout groupLayout = new GroupLayout(popupPanel);
-
-			popupPanel.setLayout(groupLayout);
-
-			groupLayout.setHorizontalGroup(groupLayout.createParallelGroup()
-					.addGroup(groupLayout.createSequentialGroup()
-							.addComponent(nameLabel).addGap(4)
-							.addComponent(nameField))
-					.addComponent(baseUnitLabel)
-					.addComponent(unitOptionPanel));
-
-			groupLayout.setVerticalGroup(groupLayout.createSequentialGroup()
-					.addGroup(groupLayout.createParallelGroup()
-							.addComponent(nameLabel)
-							.addComponent(nameField))
-					.addComponent(baseUnitLabel)
-					.addComponent(unitOptionPanel));
+			final JPanel popupPanel = new JPanel(new MigLayout("ins 0"));
+			popupPanel.add(nameLabel, "split 2, spanx");
+			popupPanel.add(nameField, "wrap");
+			popupPanel.add(baseUnitLabel, "spanx, wrap");
+			popupPanel.add(unitOptionPanel, "wrap");
 
 			final int response = JOptionPane.showConfirmDialog(ObjectEditorPanel.this, popupPanel,
 					WEString.getString("WESTRING_UE_CREATECUSTOMUNIT"), JOptionPane.OK_CANCEL_OPTION,
