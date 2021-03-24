@@ -488,6 +488,18 @@ public abstract class AnimFlag<T> {
 	 * @param time  the time of the entry to be changed
 	 * @param entry the entry to replace the old entry
 	 */
+	public void setEntryT(final Integer time, Entry<?> entry) {
+		if (entry.value instanceof Integer && this instanceof IntAnimFlag) {
+			setEntry(time, (Entry<T>) entry);
+		} else if (entry.value instanceof Float && this instanceof FloatAnimFlag) {
+			setEntry(time, (Entry<T>) entry);
+		} else if (entry.value instanceof Vec3 && this instanceof Vec3AnimFlag) {
+			setEntry(time, (Entry<T>) entry);
+		} else if (entry.value instanceof Quat && this instanceof QuatAnimFlag) {
+			setEntry(time, (Entry<T>) entry);
+		}
+	}
+
 	public void setEntry(final Integer time, Entry<T> entry) {
 		for (int index = 0; index < times.size(); index++) {
 			if (times.get(index).equals(time)) {
@@ -497,6 +509,38 @@ public abstract class AnimFlag<T> {
 					inTans.set(index, entry.value);
 					outTans.set(index, entry.value);
 				}
+			}
+		}
+	}
+
+	public void setOrAddEntryT(final Integer time, Entry<?> entry) {
+		if (entry.value instanceof Integer && this instanceof IntAnimFlag) {
+			setOrAddEntry(time, (Entry<T>) entry);
+		} else if (entry.value instanceof Float && this instanceof FloatAnimFlag) {
+			setOrAddEntry(time, (Entry<T>) entry);
+		} else if (entry.value instanceof Vec3 && this instanceof Vec3AnimFlag) {
+			setOrAddEntry(time, (Entry<T>) entry);
+		} else if (entry.value instanceof Quat && this instanceof QuatAnimFlag) {
+			setOrAddEntry(time, (Entry<T>) entry);
+		}
+	}
+
+	public void setOrAddEntry(final Integer time, Entry<T> entry) {
+		System.out.println("vec3 set entry");
+		int index = floorIndex(time);
+		if (!times.get(index).equals(time)) {
+			times.add(index + 1, time);
+			values.add(index + 1, entry.value);
+			if (tans()) {
+				inTans.add(index + 1, entry.value);
+				outTans.add(index + 1, entry.value);
+			}
+		} else {
+			times.set(index, time);
+			values.set(index, entry.value);
+			if (tans()) {
+				inTans.set(index, entry.value);
+				outTans.set(index, entry.value);
 			}
 		}
 	}
@@ -511,6 +555,14 @@ public abstract class AnimFlag<T> {
 		} else {
 			return new Entry<T>(times.get(index), values.get(index));
 		}
+	}
+
+	public Entry<T> getEntryAt(final int time) {
+		int index = ceilIndex(time);
+		if (times.get(index) == time) {
+			return getEntry(index);
+		}
+		return null;
 	}
 
 	public T valueAt(final Integer time) {
@@ -1178,8 +1230,10 @@ public abstract class AnimFlag<T> {
 	public void removeKeyframe(final int trackTime) {
 		final int keyframeIndex = floorIndex(trackTime);
 		if (keyframeIndex == -1 || (keyframeIndex >= size()) || (times.get(keyframeIndex) != trackTime)) {
-			throw new IllegalStateException("Attempted to remove keyframe, but no keyframe was found (" + keyframeIndex
+			System.out.println("Attempted to remove keyframe, but no keyframe was found (" + keyframeIndex
 					+ " @ time " + trackTime + ")");
+//			throw new IllegalStateException("Attempted to remove keyframe, but no keyframe was found (" + keyframeIndex
+//					+ " @ time " + trackTime + ")");
 		} else {
 			deleteAt(keyframeIndex);
 		}
