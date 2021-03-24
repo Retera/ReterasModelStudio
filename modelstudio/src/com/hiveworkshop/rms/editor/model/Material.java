@@ -431,19 +431,23 @@ public class Material {
 			white.setWrapWidth(true);
 			getLayers().add(new Layer("None", white));
 		}
-		final Bitmap normTex = new Bitmap("ReplaceableTextures\\TeamColor\\TeamColor09.dds");
+//		final Bitmap normTex = new Bitmap("ReplaceableTextures\\TeamColor\\TeamColor09.dds");
+		final Bitmap normTex = new Bitmap("Textures\\normal.dds");
 		normTex.setWrapHeight(true);
 		normTex.setWrapWidth(true);
 		getLayers().add(1, new Layer("None", normTex));
-		final Bitmap ormTex = new Bitmap("ReplaceableTextures\\TeamColor\\TeamColor18.dds");
+//		final Bitmap ormTex = new Bitmap("ReplaceableTextures\\TeamColor\\TeamColor18.dds");
+		final Bitmap ormTex = new Bitmap("Textures\\orm.dds");
 		ormTex.setWrapHeight(true);
 		ormTex.setWrapWidth(true);
 		getLayers().add(2, new Layer("None", ormTex));
+
 		final Bitmap black32 = new Bitmap("Textures\\Black32.dds");
 		black32.setWrapHeight(true);
 		black32.setWrapWidth(true);
 		getLayers().add(3, new Layer("None", black32));
 		getLayers().add(4, new Layer("None", new Bitmap("", 1)));
+
 		final Bitmap envTex = new Bitmap("ReplaceableTextures\\EnvironmentMap.dds");
 		envTex.setWrapHeight(true);
 		envTex.setWrapWidth(true);
