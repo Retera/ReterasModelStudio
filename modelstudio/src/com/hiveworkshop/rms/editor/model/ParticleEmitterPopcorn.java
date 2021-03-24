@@ -168,7 +168,7 @@ public class ParticleEmitterPopcorn extends IdObject {
 	public ParticleEmitterPopcorn initAnimsVisStates(List<Animation> anims) {
 		Map<String, String> visGuid = new HashMap<>();
 		for (String vg : animVisibilityGuide.split(",")) {
-			String[] anSt = vg.split("=");
+			String[] anSt = vg.toLowerCase().split("=");
 			if (anSt.length == 2) {
 				System.out.println(vg);
 				visGuid.put(anSt[0].strip(), anSt[1].strip());

@@ -248,6 +248,23 @@ public class MainPanel extends JPanel
 //        DockingWindowProperties.TAB_PROPERTIES.getPropertyGroup().getProperty("SHADOW_SIZE")
     }
 
+    public ModelStructureChangeListener getModelStructureChangeListener() {
+        return modelStructureChangeListener;
+    }
+
+    public ProgramPreferences getPrefs() {
+        return prefs;
+    }
+
+    @Override
+    public JRootPane getRootPane() {
+        return super.getRootPane();
+    }
+
+    public RootWindow getRootWindow() {
+        return rootWindow;
+    }
+
     AbstractAction selectAllAction = new AbstractAction("Select All") {
         @Override
         public void actionPerformed(final ActionEvent e) {

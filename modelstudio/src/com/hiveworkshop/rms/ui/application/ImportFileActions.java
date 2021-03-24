@@ -71,7 +71,7 @@ public class ImportFileActions {
         MenuBarActions.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
     }
 
-    static String convertPathToMDX(String filepath) {
+    public static String convertPathToMDX(String filepath) {
         if (filepath.endsWith(".mdl")) {
             filepath = filepath.replace(".mdl", ".mdx");
         } else if (!filepath.endsWith(".mdx")) {
