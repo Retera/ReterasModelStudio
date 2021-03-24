@@ -31,8 +31,17 @@ public class Vec3SpinnerArray {
 		labels[2] = new JLabel(l3);
 	}
 
+	public Vec3SpinnerArray(String l1, String l2, String l3) {
+		spinners[0] = getStandardSpinner(0);
+		spinners[1] = getStandardSpinner(0);
+		spinners[2] = getStandardSpinner(0);
+		labels[0] = new JLabel(l1);
+		labels[1] = new JLabel(l2);
+		labels[2] = new JLabel(l3);
+	}
+
 	static JSpinner getStandardSpinner(double startValue) {
-		return new JSpinner(new SpinnerNumberModel(startValue, -100000.00, 100000.0, 0.0001));
+		return new JSpinner(new SpinnerNumberModel(startValue, -100000.00, 100000.00, 0.1));
 	}
 
 	public JPanel spinnerPanel() {
@@ -59,6 +68,13 @@ public class Vec3SpinnerArray {
 		double vY = ((Number) spinners[1].getValue()).doubleValue();
 		double vZ = ((Number) spinners[2].getValue()).doubleValue();
 		return new Vec3(vX, vY, vZ);
+	}
+
+	public Vec3SpinnerArray setValues(Vec3 newValues) {
+		spinners[0].setValue(newValues.x);
+		spinners[1].setValue(newValues.y);
+		spinners[2].setValue(newValues.z);
+		return this;
 	}
 
 	public Vec3SpinnerArray setEnabled(boolean b) {
