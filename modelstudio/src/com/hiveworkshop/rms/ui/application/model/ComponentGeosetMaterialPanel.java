@@ -26,9 +26,8 @@ public class ComponentGeosetMaterialPanel extends JPanel {
 
 
 	public ComponentGeosetMaterialPanel() {
-		final JPanel leftHandSettingsPanel = new JPanel();
+		final JPanel leftHandSettingsPanel = new JPanel(new MigLayout("ins 0"));
 
-		leftHandSettingsPanel.setLayout(new MigLayout());
 		materialChooser = new JComboBox<>();
 		cloneMaterial = new JButton();
 		add(materialChooser);
@@ -41,7 +40,7 @@ public class ComponentGeosetMaterialPanel extends JPanel {
 		materialChooser.addActionListener(e -> chooseMaterial(geoset));
 		checkIndex(geoset);
 		materialChooser.setSelectedIndex(materialNumber);
-		add(materialChooser);
+		add(materialChooser, "wrap");
 	}
 
 	private String[] getMaterials(Geoset geoset) {

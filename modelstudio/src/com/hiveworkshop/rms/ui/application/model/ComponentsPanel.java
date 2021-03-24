@@ -128,6 +128,10 @@ public class ComponentsPanel extends JPanel {
 //		add(popcornScrollPane, ParticleEmitterPopcorn.class.getName());
 //		panelMap.put(ParticleEmitterPopcorn.class, popcornPanel);
 
+		ComponentFaceEffectPanel faceEffectPanel = new ComponentFaceEffectPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		add(faceEffectPanel, FaceEffect.class.getName());
+		panelMap.put(FaceEffect.class, faceEffectPanel);
+
 		cardLayout.show(this, BLANK);
 	}
 

@@ -38,19 +38,22 @@ public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geose
 		this.undoActionListener = undoActionListener;
 		this.modelViewManager = modelViewManager;
 		this.modelStructureChangeListener = modelStructureChangeListener;
-		setLayout(new MigLayout("fill", "[][][grow]", "[][][grow]"));
+		setLayout(new MigLayout("fill", "[][grow][grow]", "[][][grow]"));
 
 		materialPanels = new HashMap<>();
 
 		materialPanelHolder = new JPanel(new MigLayout("hidemode 1"));
-		add(materialPanelHolder, "wrap, growx, span 3");
+		add(materialPanelHolder, "wrap, growx, spanx");
 
 		materialPanelHolder.add(new JLabel("Material:"), "wrap");
 		materialPanel = new ComponentGeosetMaterialPanel();
 		materialPanelHolder.add(materialPanel);
 
-		JPanel geosetInfoPanel = new JPanel(new MigLayout("fill, hidemode 1"));
-		add(geosetInfoPanel, "wrap, growx, span 2");
+		JPanel geosetInfoPanel = new JPanel(new MigLayout("fill, hidemode 1", "[][][grow][grow]"));
+		add(geosetInfoPanel, "wrap, growx, spanx");
+
+		createHDPanel(modelViewManager);
+		geosetInfoPanel.add(hdPanel, "growx, spanx, wrap");
 
 		geosetInfoPanel.add(new JLabel("Triangles: "));
 		trisLabel = new JLabel("0");
@@ -66,19 +69,24 @@ public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geose
 		geosetInfoPanel.add(selectionGroupSpinner, "wrap");
 //		selectionGroupLabel = new JLabel("0");
 
-		hdPanel = new JPanel(new MigLayout("fill, novisualpadding"));
+		JButton editUvButton = new JButton("Edit Geoset UVs");
+
+	}
+
+	private void createHDPanel(ModelViewManager modelViewManager) {
+		hdPanel = new JPanel(new MigLayout("fill, ins 0", "[]16[][grow][grow]"));
+
+		hdPanel.add(new JLabel("Name: "));
+		nameTextField = new JTextField(26);
+		nameTextField.addFocusListener(setLoDName());
+		hdPanel.add(nameTextField, "spanx 2, wrap");
+
 		hdPanel.add(new JLabel("LevelOfDetail: "));
 		lodSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 10000, 1));
 		hdPanel.add(lodSpinner, "wrap");
 		lodSpinner.addChangeListener(e -> setLoD());
-		hdPanel.add(new JLabel("Name: "));
-		nameTextField = new JTextField();
-		nameTextField.addFocusListener(setLoDName());
-		hdPanel.add(nameTextField, "wrap");
-		hdPanel.setVisible(modelViewManager.getModel().getFormatVersion() == 1000);
-		geosetInfoPanel.add(hdPanel, "wrap, growx, span 2");
-		JButton editUvButton = new JButton("Edit Geoset UVs");
 
+		hdPanel.setVisible(modelViewManager.getModel().getFormatVersion() == 1000);
 	}
 
 

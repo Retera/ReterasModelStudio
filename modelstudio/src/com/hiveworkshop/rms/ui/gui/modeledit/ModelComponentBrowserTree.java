@@ -634,7 +634,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		@Override
 		protected String getName(final FaceEffect item, final ModelViewManager modelViewManager) {
-			return "FaceFX \"" + item.faceEffectTarget + "\"";
+			return "FaceFX \"" + item.getFaceEffectTarget() + "\"";
 		}
 	}
 

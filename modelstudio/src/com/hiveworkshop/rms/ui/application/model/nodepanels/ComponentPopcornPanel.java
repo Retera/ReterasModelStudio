@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application.model.nodepanels;
 
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.ParticleEmitterPopcorn;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
@@ -43,6 +44,7 @@ public class ComponentPopcornPanel extends JPanel implements ComponentPanel<Part
 //	private ColorValuePanel scalePanel;
 	private ColorValuePanel colorPanel;
 	private ComponentEditorTextField nameField;
+	JLabel parentName;
 
 
 	public ComponentPopcornPanel(final ModelViewManager modelViewManager,
@@ -60,6 +62,10 @@ public class ComponentPopcornPanel extends JPanel implements ComponentPanel<Part
 		popcornPathField = new ComponentEditorTextField(24);
 		popcornPathField.addEditingStoppedListener(this::texturePathField);
 		add(popcornPathField, "wrap");
+
+		add(new JLabel("Parent: "), "split, spanx");
+		parentName = new JLabel("Parent");
+		add(parentName, "wrap");
 
 		visGuidPanel = new JPanel(new MigLayout("gap 0", "[]8[]"));
 		add(visGuidPanel, "wrap");
@@ -135,6 +141,14 @@ public class ComponentPopcornPanel extends JPanel implements ComponentPanel<Part
 	@Override
 	public void setSelectedItem(ParticleEmitterPopcorn itemToSelect) {
 		popcorn = itemToSelect;
+
+		IdObject parent = popcorn.getParent();
+		if (parent != null) {
+			this.parentName.setText(parent.getName());
+		} else {
+			parentName.setText("no parent");
+		}
+
 		nameField.reloadNewValue(popcorn.getName());
 		popcornPathField.reloadNewValue(popcorn.getPath());
 		popcorn.updateAnimsVisMap(modelViewManager.getModel().getAnims());
