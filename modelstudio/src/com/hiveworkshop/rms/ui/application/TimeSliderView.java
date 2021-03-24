@@ -10,37 +10,8 @@ import java.awt.*;
 
 public class TimeSliderView {
 
-	//	static View createTimeSliderView(JTextField[] mouseCoordDisplay, JButton setKeyframe, JButton setTimeBounds, TimeSliderPanel timeSliderPanel) {
 	static View createTimeSliderView(TimeSliderPanel timeSliderPanel) {
 		final View timeSliderView;
-//		final JPanel timeSliderAndExtra = new JPanel(new MigLayout("fill"));
-//		timeSliderAndExtra.add(timeSliderPanel, "growx");
-
-
-//		final GroupLayout tsaeLayout = new GroupLayout(timeSliderAndExtra);
-//		final Component horizontalGlue = Box.createHorizontalGlue();
-//		final Component verticalGlue = Box.createVerticalGlue();
-//		tsaeLayout.setHorizontalGroup(tsaeLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
-//				.addComponent(timeSliderPanel)
-//				.addGroup(tsaeLayout.createSequentialGroup()
-//						.addComponent(mouseCoordDisplay[0])
-//						.addComponent(mouseCoordDisplay[1])
-//						.addComponent(mouseCoordDisplay[2])
-//						.addComponent(horizontalGlue)
-//						.addComponent(setKeyframe)
-//						.addComponent(setTimeBounds)));
-//		tsaeLayout.setVerticalGroup(tsaeLayout.createSequentialGroup()
-//				.addComponent(timeSliderPanel)
-//				.addGroup(tsaeLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
-//						.addComponent(mouseCoordDisplay[0])
-//						.addComponent(mouseCoordDisplay[1])
-//						.addComponent(mouseCoordDisplay[2])
-//						.addComponent(horizontalGlue)
-//						.addComponent(setKeyframe)
-//						.addComponent(setTimeBounds)));
-//		timeSliderAndExtra.setLayout(tsaeLayout);
-
-//		timeSliderView = new View("Timeline", null, timeSliderAndExtra);
 		timeSliderView = new View("Timeline", null, timeSliderPanel);
 		return timeSliderView;
 	}

@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,8 +54,8 @@ public abstract class TimelineContainer implements VisibilitySource {
 		}
 	}
 
-	public Collection<AnimFlag<?>> getAnimFlags() {
-		return animFlags.values();
+	public ArrayList<AnimFlag<?>> getAnimFlags() {
+		return new ArrayList<>(animFlags.values());
 	}
 
 	public void setAnimFlags(final Collection<AnimFlag<?>> timelines) {

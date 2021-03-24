@@ -116,28 +116,28 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		this.preferences = preferences;
 		theme = preferences.getTheme();
 		notifier = new TimeSliderTimeNotifier();
-		setLayout(new MigLayout("fill,novisualpadding,aligny top", "[][grow]"));
-		JPanel buttonPanel = new JPanel(new MigLayout());
+		setLayout(new MigLayout("fill, gap 0, ins 0, aligny top", "3[]3[grow]3", "[]"));
+		JPanel buttonPanel = new JPanel(new MigLayout("ins 0"));
 		playButton = new JButton(RMSIcons.PLAY);
 		playButton.addActionListener(e -> pausePlayAnimation());
 //		JButton playButton = new JButton("||>");
 		playButton.setPreferredSize(PLAY_BUTTON_DIMENSION);
 		playButton.setSize(PLAY_BUTTON_DIMENSION);
-		buttonPanel.add(playButton, "gap 0, pad 0, wrap");
+		buttonPanel.add(playButton, "spany 2");
 		allKF = new JCheckBox("All KF");
 		allKF.addActionListener(e -> revalidateKeyframeDisplay());
 
 
 		setKeyframe = createSetKeyframeButton(mainPanel);
-		buttonPanel.add(setKeyframe, "gap 0, pad 0");
+		buttonPanel.add(setKeyframe, "wrap");
 		setTimeBounds = TimeSliderView.createSetTimeBoundsButton(mainPanel);
-		buttonPanel.add(setTimeBounds, "gap 0, pad 0, wrap");
+		buttonPanel.add(setTimeBounds, "wrap");
 
-		buttonPanel.add(allKF, "gap 0, wrap");
+		buttonPanel.add(allKF, "wrap");
 		buttonPanel.setOpaque(true);
 //		buttonPanel.setBackground(Color.magenta);
 //		add(buttonPanel, "cell 0 0, shrink, gap 0, pad -5");
-		add(buttonPanel, "shrink, gap 0, pad -5 -10 0 0");
+		add(buttonPanel, "aligny top, shrink");
 
 
 //		JPanel timelinePanel = new JPanel(new MigLayout("debug"));
@@ -147,7 +147,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 //		timelinePanel.setBackground(Color.cyan);
 //		add(timelinePanel, "cell 1 0, grow x, gap 0, pad 0");
 
-		add(timelinePanel, "grow x, growy, gap 0, pad -5");
+		add(timelinePanel, "growx, growy, aligny top");
 
 //		timeLine = new TimeLine(preferences);
 //		add(timeLine, "grow x, growy, gap 0, pad -5");
