@@ -37,6 +37,9 @@ class AnimPanel extends JPanel {
 
 	final CardLayout animCardLayout = new CardLayout();
 
+	public AnimPanel() {
+	}
+
 	public AnimPanel(ModelHolderThing mht, final IterableListModel<AnimShell> recModAnims, final AnimListCellRenderer renderer) {
 		this.mht = mht;
 		setLayout(new MigLayout("gap 0"));

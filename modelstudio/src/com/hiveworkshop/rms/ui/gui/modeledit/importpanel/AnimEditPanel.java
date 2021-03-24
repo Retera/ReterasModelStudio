@@ -7,11 +7,16 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 public class AnimEditPanel extends JPanel {
 
 	ModelHolderThing mht;
 	AnimPanel singleAnimPanel;
+	AnimListCellRenderer animRenderer;
+	CardLayout animCardLayout = new CardLayout();
+	JPanel animPanelCards = new JPanel(animCardLayout);
+	MultiAnimPanel multiAnimPanel;
 
 	public AnimEditPanel(ModelHolderThing mht) {
 		setLayout(new MigLayout("gap 0, fill", "[grow]", "[][grow]"));
@@ -19,44 +24,55 @@ public class AnimEditPanel extends JPanel {
 
 		add(getTopPanel(), "align center, wrap");
 
-		final AnimListCellRenderer animsRenderer = new AnimListCellRenderer();
+		animRenderer = new AnimListCellRenderer();
 
 		for (Animation anim : mht.receivingModel.getAnims()) {
 			AnimShell animShell = new AnimShell(anim);
 			mht.recModAnims.addElement(animShell);
 		}
 
+		animPanelCards.add(new JPanel(), "blank");
 		// Build the animTabs list of AnimPanels
-		singleAnimPanel = new AnimPanel(mht, mht.recModAnims, animsRenderer);
+		singleAnimPanel = new AnimPanel(mht, mht.recModAnims, animRenderer);
+		animPanelCards.add(singleAnimPanel, "single");
+
+		multiAnimPanel = new MultiAnimPanel(mht);
+		animPanelCards.add(multiAnimPanel, "multiple");
+
 		for (Animation anim : mht.donatingModel.getAnims()) {
 			AnimShell animShell = new AnimShell(anim);
 			mht.donModAnims.addElement(animShell);
 			mht.animTabList.addElement(animShell);
-			final AnimPanel iAnimPanel = new AnimPanel(mht, mht.recModAnims, animsRenderer);
-			iAnimPanel.setSelectedAnim(animShell);
-
-			mht.animTabs.addTab(anim.getName(), ImportPanel.orangeIcon, iAnimPanel, "Click to modify data for this animation sequence.");
 		}
-
 
 		JScrollPane animStrollPane = new JScrollPane(mht.animJList);
 		animStrollPane.setMinimumSize(new Dimension(150, 200));
-		mht.animJList.setCellRenderer(animsRenderer);
+		mht.animJList.setCellRenderer(animRenderer);
+		animRenderer.setSelectedAnim(null);
 		mht.animJList.addListSelectionListener(e -> changeAnim(mht, e));
+		mht.animJList.setSelectedValue(null, false);
 
-		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, animStrollPane, singleAnimPanel);
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, animStrollPane, animPanelCards);
 		add(splitPane, "growx, growy");
-
-//		JPanel bigPanel = new JPanel(new MigLayout("gap 0, fill", "[30%:30%:30%][70%:70%:70%]", "[grow]"));
-//		bigPanel.add(mht.animTabs);
-//
-//		add(bigPanel, "growx, growy");
-//		add(mht.animTabs, "growx, growy");
 	}
 
 	private void changeAnim(ModelHolderThing mht, ListSelectionEvent e) {
 		if (e.getValueIsAdjusting()) {
+			List<AnimShell> selectedValuesList = mht.animJList.getSelectedValuesList();
+
 			singleAnimPanel.setSelectedAnim(mht.animJList.getSelectedValue());
+			if (selectedValuesList.size() < 1) {
+				animRenderer.setSelectedAnim(null);
+				animCardLayout.show(animPanelCards, "blank");
+			} else if (selectedValuesList.size() == 1) {
+				animRenderer.setSelectedAnim(mht.animJList.getSelectedValue());
+				singleAnimPanel.setSelectedAnim(mht.animJList.getSelectedValue());
+				animCardLayout.show(animPanelCards, "single");
+			} else {
+				animRenderer.setSelectedAnim(null);
+//				multiAnimPanel.updateMultiBonePanel();
+				animCardLayout.show(animPanelCards, "multiple");
+			}
 		}
 	}
 

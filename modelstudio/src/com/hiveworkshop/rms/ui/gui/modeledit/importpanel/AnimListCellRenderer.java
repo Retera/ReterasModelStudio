@@ -31,7 +31,7 @@ class AnimListCellRenderer extends DefaultListCellRenderer {
 		AnimShell importAnimShell = ((AnimShell) value).getImportAnimShell();
 		Vec3 bg;
 		Vec3 fg;
-		if (importAnimShell == selectedAnim) {
+		if (importAnimShell != null && importAnimShell == selectedAnim) {
 			bg = selectedOwnerBgCol;
 			fg = selectedOwnerFgCol;
 		} else if (importAnimShell != null) {
