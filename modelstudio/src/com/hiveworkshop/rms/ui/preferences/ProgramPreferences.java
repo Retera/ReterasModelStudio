@@ -7,9 +7,6 @@ import java.awt.*;
 import java.io.Serializable;
 
 public class ProgramPreferences implements Serializable {
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = 1L;
 	private int viewMode = 1;
 	private boolean showNormals;
@@ -54,6 +51,8 @@ public class ProgramPreferences implements Serializable {
 	private int vertexSize = 3;
 	int teamColor = 6;
 	private Boolean quickBrowse = true;
+	private boolean smallIcons = false;
+
 	private MouseButtonPreference threeDCameraSpinButton = MouseButtonPreference.LEFT;
 	private MouseButtonPreference threeDCameraPanButton = MouseButtonPreference.MIDDLE;
 
@@ -128,6 +127,7 @@ public class ProgramPreferences implements Serializable {
 		useNativeMDXParser = other.useNativeMDXParser;
 		loadPortraits = other.loadPortraits;
 		show2dGrid = other.show2dGrid;
+		smallIcons = other.smallIcons;
 		useBoxesForPivotPoints = other.useBoxesForPivotPoints;
 		activeRColor1 = other.activeRColor1;
 		activeRColor2 = other.activeRColor2;
@@ -449,6 +449,10 @@ public class ProgramPreferences implements Serializable {
 		return show2dGrid != null && show2dGrid;
 	}
 
+	public boolean isSmallIcons() {
+		return smallIcons;
+	}
+
 	public Boolean getUseBoxesForPivotPoints() {
 		return useBoxesForPivotPoints != null && useBoxesForPivotPoints;
 	}
@@ -468,6 +472,12 @@ public class ProgramPreferences implements Serializable {
 
 	public void setShow2dGrid(final Boolean show2dGrid) {
 		this.show2dGrid = show2dGrid;
+		SaveProfile.save();
+		firePrefsChanged();
+	}
+
+	public void setSmallIcons(boolean smallIcons) {
+		this.smallIcons = smallIcons;
 		SaveProfile.save();
 		firePrefsChanged();
 	}

@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.parsers.slk.GameObjectComparator;
 import com.hiveworkshop.rms.parsers.slk.ObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
+import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -19,6 +20,9 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 	ObjectData unitData;
 	final ObjectData abilityData;
 	GameObject selection = null;
+
+	double iconScale = 0.5;
+	double iconMaxSize = 32.0;
 
 	JComboBox<String> raceBox, meleeBox, tilesetBox, levelBox;// playerBox,
 	// DefaultComboBoxModel<String> playerBoxModel = new
@@ -92,12 +96,13 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 			levelBoxModel.addElement(WEString.getString("WESTRING_LEVEL") + String.format(" %d", i));
 		}
 
-		buttonsPanel = new JPanel(new MigLayout("wrap 7"));
+		buttonsPanel = new JPanel(new MigLayout("ins 0, wrap 7"));
 		buttonsScrollPane = new JScrollPane(buttonsPanel);
 		buttonsScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		if (hideBorder) {
-			buttonsScrollPane.setBorder(null);
-		}
+		buttonsScrollPane.setFocusable(true);
+//		if (hideBorder) {
+//			buttonsScrollPane.setBorder(null);
+//		}
 		buttonsScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		buttonsScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
@@ -256,18 +261,10 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 		removeAll();
 		buttonsPanel.removeAll();
 
-		// if( playerBox.getSelectedIndex() > 11 ) {
-		// if( raceBox.getModel() != raceBoxModelNeutral )
-		// raceBox.setModel(raceBoxModelNeutral);}
-		// else { if( raceBox.getModel() != raceBoxModel )
-		// raceBox.setModel(raceBoxModel);}
-
 		final String race = raceKey();
 		final String tileset = TILESETS.charAt(tilesetBox.getSelectedIndex()) + "";
 		final boolean isNeutral = race.equals("neutrals");
 		final boolean checkLevel = levelBox.getSelectedIndex() > 0 && isNeutral;
-		// boolean isHostile = playerBox.getSelectedIndex() == 12 && !race.equals("naga");
-		// boolean isPassive = playerBox.getSelectedIndex() == 13 && !race.equals("naga");
 
 		buttonGroup.clearSelection();
 		for (final UnitButton ub : unitButtons) {
@@ -404,7 +401,13 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 		GameObject unit;
 
 		public UnitButton(final GameObject u) {
-			super(u.getScaledIcon(0.5));
+			super(u.getScaledIcon(iconScale));
+
+			if (SaveProfile.get().getPreferences().isSmallIcons() && getIcon().getIconWidth() > iconMaxSize) {
+				iconScale = iconMaxSize * iconScale / getIcon().getIconWidth();
+				this.setIcon(u.getScaledIcon(iconScale));
+			}
+
 			setFocusable(false);
 			unit = u;
 			String uberTip = unit.getField("Ubertip");
@@ -462,7 +465,8 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 			setToolTipText(uberTip);
 			buttonGroup.add(this);
 			addActionListener(e -> unitChosen(this));
-			setDisabledIcon(unit.getScaledTintedIcon(Color.green, 0.5));
+//			setDisabledIcon(unit.getScaledTintedIcon(Color.green, 0.5));
+			setDisabledIcon(unit.getScaledTintedIcon(Color.green, iconScale));
 			setMargin(new Insets(0, 0, 0, 0));
 			setBorder(null);
 		}
