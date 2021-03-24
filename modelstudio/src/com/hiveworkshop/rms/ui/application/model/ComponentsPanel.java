@@ -46,9 +46,11 @@ public class ComponentsPanel extends JPanel {
 		panelMap.put(Animation.class, animationPanel);
 
 
-		globalSeqPanel = new ComponentGlobalSequencePanel();
-		add(globalSeqPanel, GLOBALSEQ);
-//		panelMap.put(EditableModel.class, globalSeqPanel);
+		globalSeqPanel = new ComponentGlobalSequencePanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		add(globalSeqPanel, Integer.class.getName());
+		panelMap.put(Integer.class, globalSeqPanel);
+//		add(globalSeqPanel, GLOBALSEQ);
+////		panelMap.put(EditableModel.class, globalSeqPanel);
 
 		ComponentBitmapPanel bitmapPanel = new ComponentBitmapPanel(modelViewManager, undoActionListener, modelStructureChangeListener, textureExporter);
 		add(bitmapPanel, Bitmap.class.getName());
@@ -132,6 +134,10 @@ public class ComponentsPanel extends JPanel {
 		add(faceEffectPanel, FaceEffect.class.getName());
 		panelMap.put(FaceEffect.class, faceEffectPanel);
 
+		ComponentCameraPanel cameraPanel = new ComponentCameraPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		add(cameraPanel, Camera.class.getName());
+		panelMap.put(Camera.class, cameraPanel);
+
 		cardLayout.show(this, BLANK);
 	}
 
@@ -139,7 +145,8 @@ public class ComponentsPanel extends JPanel {
 	public void selected(final EditableModel model, final Integer globalSequence, final int globalSequenceId,
 	                     final UndoActionListener undoListener,
 	                     final ModelStructureChangeListener changeListener) {
-		globalSeqPanel.setGlobalSequence(model, globalSequence, globalSequenceId, undoListener, changeListener);
+//		globalSeqPanel.setGlobalSequence(model, globalSequence, globalSequenceId, undoListener, changeListener);
+		globalSeqPanel.setSelectedItem(globalSequence);
 		cardLayout.show(this, GLOBALSEQ);
 	}
 

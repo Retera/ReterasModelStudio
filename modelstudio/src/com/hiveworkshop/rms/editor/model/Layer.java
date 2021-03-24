@@ -427,6 +427,10 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	@Override
+	public void setName(String text) {
+	}
+
+	@Override
 	public String visFlagName() {
 		return "Alpha";
 	}

@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.editor.model.ParticleEmitterPopcorn;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.ui.application.actions.model.ParentChangeAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.model.ComponentGeosetMaterialPanel;
@@ -45,6 +46,7 @@ public class ComponentPopcornPanel extends JPanel implements ComponentPanel<Part
 	private ColorValuePanel colorPanel;
 	private ComponentEditorTextField nameField;
 	JLabel parentName;
+	ParentChooser parentChooser;
 
 
 	public ComponentPopcornPanel(final ModelViewManager modelViewManager,
@@ -65,7 +67,10 @@ public class ComponentPopcornPanel extends JPanel implements ComponentPanel<Part
 
 		add(new JLabel("Parent: "), "split, spanx");
 		parentName = new JLabel("Parent");
-		add(parentName, "wrap");
+		add(parentName);
+		JButton chooseParentButton = new JButton("change");
+		chooseParentButton.addActionListener(e -> chooseParent());
+		add(chooseParentButton, "wrap");
 
 		visGuidPanel = new JPanel(new MigLayout("gap 0", "[]8[]"));
 		add(visGuidPanel, "wrap");
@@ -208,4 +213,12 @@ public class ComponentPopcornPanel extends JPanel implements ComponentPanel<Part
 //		popupMenu.add(menuItem);
 //		return popupMenu;
 //	}
+
+	private void chooseParent() {
+		IdObject newParent = parentChooser.chooseParent(popcorn, this);
+		ParentChangeAction action = new ParentChangeAction(popcorn, newParent, modelStructureChangeListener);
+		action.redo();
+		repaint();
+		undoActionListener.pushAction(action);
+	}
 }

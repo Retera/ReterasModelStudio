@@ -261,4 +261,11 @@ class ModelStructureChangeListenerImplementation implements ModelStructureChange
     interface ModelReference {
         EditableModel getModel();
     }
+
+    @Override
+    public void nodeHierarchyChanged() {
+        final ModelPanel display = displayFor(mainPanel.modelPanels, modelReference.getModel());
+        display.getModelViewManagingTree().reloadFromModelView();
+        reloadComponentBrowser(mainPanel.geoControlModelData, display);
+    }
 }

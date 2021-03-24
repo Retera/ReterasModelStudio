@@ -79,6 +79,10 @@ public class GeosetAnim extends TimelineContainer implements Named {
 		return geoset.getName() + "'s Anim";
 	}
 
+	@Override
+	public void setName(String text) {
+	}
+
 	public GeosetAnim getMostVisible(final GeosetAnim partner) {
 		if ((getVisibilityFlag() != null) && (partner != null)) {
 			final AnimFlag<?> thisFlag = getVisibilityFlag();

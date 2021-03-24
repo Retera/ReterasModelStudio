@@ -304,6 +304,13 @@ public class Geoset implements Named, VisibilitySource {
 		return "Geoset " + (parentModel.getGeosetId(this));// parentModel.getName() // + "
 	}
 
+	@Override
+	public void setName(String text) {
+		if (getParentModel().getFormatVersion() > 900) {
+			setLevelOfDetailName(text);
+		}
+	}
+
 	public String sdGetMostCommonUniqueBoneName() {
 		List<Bone> nonSharedParentBones = new ArrayList<>();
 		List<Bone> mBones = new ArrayList<>();

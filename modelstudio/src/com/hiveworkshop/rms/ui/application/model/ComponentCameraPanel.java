@@ -1,63 +1,47 @@
-package com.hiveworkshop.rms.ui.application.model.nodepanels;
+package com.hiveworkshop.rms.ui.application.model;
 
+import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.RibbonEmitter;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.ui.application.actions.model.NameChangeAction;
-import com.hiveworkshop.rms.ui.application.actions.model.ParentChangeAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
-import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
-public class ComponentRibbonPanel extends JPanel implements ComponentPanel<RibbonEmitter> {
+public class ComponentCameraPanel extends JPanel implements ComponentPanel<Camera> {
 	private final ModelViewManager modelViewManager;
 	private final UndoActionListener undoActionListener;
 	private final ModelStructureChangeListener modelStructureChangeListener;
-	RibbonEmitter idObject;
-
 	JLabel title;
 	JTextField nameField;
-	JLabel parentName;
-	ParentChooser parentChooser;
+	private Camera camera;
 
 
-	public ComponentRibbonPanel(final ModelViewManager modelViewManager,
+	public ComponentCameraPanel(final ModelViewManager modelViewManager,
 	                            final UndoActionListener undoActionListener,
 	                            final ModelStructureChangeListener modelStructureChangeListener) {
 		this.undoActionListener = undoActionListener;
 		this.modelViewManager = modelViewManager;
 		this.modelStructureChangeListener = modelStructureChangeListener;
-		setLayout(new MigLayout("fill, gap 0", "[][][grow]", "[][][grow]"));
-		title = new JLabel("Select an Emitter");
+
+		setLayout(new MigLayout("fill, gap 0", "[]5[]5[grow]", "[][][][grow]"));
+		title = new JLabel("Select a Bone");
 		add(title, "wrap");
 		nameField = new JTextField(24);
 		nameField.addFocusListener(changeName());
 		add(nameField, "wrap");
-		add(new JLabel("Parent: "));
-		parentName = new JLabel("Parent");
-		add(parentName);
-		JButton chooseParentButton = new JButton("change");
-		chooseParentButton.addActionListener(e -> chooseParent());
-		add(chooseParentButton, "wrap");
 	}
 
 	@Override
-	public void setSelectedItem(RibbonEmitter itemToSelect) {
-		idObject = itemToSelect;
-		title.setText(idObject.getName());
-		nameField.setText(idObject.getName());
-		IdObject parent = idObject.getParent();
-		if (parent != null) {
-			this.parentName.setText(parent.getName());
-		} else {
-			parentName.setText("no parent");
-		}
+	public void setSelectedItem(Camera itemToSelect) {
+		camera = itemToSelect;
+		title.setText(camera.getName());
+		nameField.setText(camera.getName());
+
 		revalidate();
 		repaint();
 
@@ -68,21 +52,13 @@ public class ComponentRibbonPanel extends JPanel implements ComponentPanel<Ribbo
 
 	}
 
-	private void chooseParent() {
-		IdObject newParent = parentChooser.chooseParent(idObject, this);
-		ParentChangeAction action = new ParentChangeAction(idObject, newParent, modelStructureChangeListener);
-		action.redo();
-		repaint();
-		undoActionListener.pushAction(action);
-	}
-
 	private FocusAdapter changeName() {
 		return new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
 				String newName = nameField.getText();
 				if (!newName.equals("")) {
-					NameChangeAction action = new NameChangeAction(idObject, newName, modelStructureChangeListener);
+					NameChangeAction action = new NameChangeAction(camera, newName, modelStructureChangeListener);
 					action.redo();
 					undoActionListener.pushAction(action);
 				}

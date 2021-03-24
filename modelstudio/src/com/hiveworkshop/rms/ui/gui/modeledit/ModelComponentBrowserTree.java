@@ -399,7 +399,8 @@ public final class ModelComponentBrowserTree extends JTree {
 		private final int globalSeqId;
 
 		public ChooseableGlobalSequenceItem(final ModelViewManager modelViewManager, final Integer item, final int globalSeqId) {
-			super(GLOBAL_SEQ_ICON, modelViewManager, item);
+			super(GLOBAL_SEQ_ICON, modelViewManager, globalSeqId);
+//			super(GLOBAL_SEQ_ICON, modelViewManager, item);
 			this.globalSeqId = globalSeqId;
 		}
 

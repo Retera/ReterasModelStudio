@@ -39,4 +39,6 @@ public interface ModelStructureChangeListener {
 	void globalSequenceLengthChanged(int index, Integer newLength);
 
 	void materialsListChanged();
+
+	void nodeHierarchyChanged();
 }
