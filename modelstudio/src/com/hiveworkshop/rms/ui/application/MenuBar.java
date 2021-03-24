@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.ui.application.edit.uv.panel.UVPanel;
 import com.hiveworkshop.rms.ui.application.scripts.AnimationTransfer;
 import com.hiveworkshop.rms.ui.application.tools.EditTexturesPopupPanel;
+import com.hiveworkshop.rms.ui.application.tools.KeyframeCopyPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
@@ -307,7 +308,7 @@ public class MenuBar {
 
         JMenuItem editTextures = new JMenuItem("Edit Textures");
         editTextures.setMnemonic(KeyEvent.VK_T);
-        editTextures.addActionListener(e -> editTextures(mainPanel));
+        editTextures.addActionListener(e -> EditTexturesPopupPanel.show(mainPanel));
         toolsMenu.add(editTextures);
 
         createAndAddMenuItem("Rig Selection", toolsMenu, KeyEvent.VK_R, KeyStroke.getKeyStroke("control W"), mainPanel.rigAction);
@@ -467,6 +468,7 @@ public class MenuBar {
         addMenu.add(addParticle);
 
         AddParticlePanel.addParticleButtons(mainPanel, addParticle);
+        createAndAddMenuItem("Empty Popcorn", addParticle, KeyEvent.VK_O, e -> AddParticlePanel.addEmptyPopcorn(mainPanel));
 
         JMenu animationMenu = new JMenu("Animation");
         animationMenu.setMnemonic(KeyEvent.VK_A);
@@ -522,6 +524,8 @@ public class MenuBar {
 //        createAndAddMenuItem("Export Animated Frame PNG", scriptsMenu, KeyEvent.VK_F, e -> ScriptActions.exportAnimatedFramePNG(mainPanel));
         createAndAddMenuItem("Export Animated Frame PNG", scriptsMenu, KeyEvent.VK_F, e -> fileDialog.exportAnimatedFramePNG());
 
+        createAndAddMenuItem("Copy Keyframes Between Animations", scriptsMenu, KeyEvent.VK_K, e -> KeyframeCopyPanel.show(mainPanel));
+
         createAndAddMenuItem("Create Back2Back Animation", scriptsMenu, KeyEvent.VK_P, e -> ScriptActions.combineAnimations(mainPanel));
 
         createAndAddMenuItem("Change Animation Lengths by Scaling", scriptsMenu, KeyEvent.VK_A, e -> ScriptActions.scaleAnimations(mainPanel));
@@ -556,18 +560,6 @@ public class MenuBar {
         MPQBrowserView.setCurrentModel(mainPanel, mainPanel.currentModelPanel());
         mainPanel.rootWindow.revalidate();
         MainLayoutCreator.traverseAndFix(mainPanel.rootWindow);
-    }
-
-    private static void editTextures(MainPanel mainPanel) {
-        final EditTexturesPopupPanel textureManager = new EditTexturesPopupPanel(mainPanel.currentModelPanel().getModelViewManager(),
-                mainPanel.modelStructureChangeListener);
-        final JFrame frame = new JFrame("Edit Textures");
-        textureManager.setSize(new Dimension(800, 650));
-        frame.setContentPane(textureManager);
-        frame.setSize(textureManager.getSize());
-        frame.setLocationRelativeTo(null);
-        frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        frame.setVisible(true);
     }
 
     private static void repaint(MainPanel mainPanel, int radioButton) {

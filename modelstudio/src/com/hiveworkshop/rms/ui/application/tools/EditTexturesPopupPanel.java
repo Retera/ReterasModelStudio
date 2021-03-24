@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.application.FileDialog;
+import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
 import net.miginfocom.swing.MigLayout;
@@ -224,5 +225,17 @@ public class EditTexturesPopupPanel extends JPanel {
 			}
 			imageViewerPanel.revalidate();
 		}
+	}
+
+	public static void show(MainPanel mainPanel) {
+		final EditTexturesPopupPanel textureManager = new EditTexturesPopupPanel(mainPanel.currentModelPanel().getModelViewManager(),
+				mainPanel.getModelStructureChangeListener());
+		final JFrame frame = new JFrame("Edit Textures");
+		textureManager.setSize(new Dimension(800, 650));
+		frame.setContentPane(textureManager);
+		frame.setSize(textureManager.getSize());
+		frame.setLocationRelativeTo(null);
+		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		frame.setVisible(true);
 	}
 }
