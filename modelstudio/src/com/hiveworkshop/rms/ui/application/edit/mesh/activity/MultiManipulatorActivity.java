@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.activity;
 
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.ManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
@@ -44,10 +45,13 @@ public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends Manip
 		final ButtonType buttonType;
 		if (SwingUtilities.isRightMouseButton(e)) {
 			buttonType = ButtonType.RIGHT_MOUSE;
+			finnishAction(e, coordinateSystem, true);
 		} else if (SwingUtilities.isMiddleMouseButton(e)) {
 			buttonType = ButtonType.MIDDLE_MOUSE;
+			finnishAction(e, coordinateSystem, false);
 		} else {
 			buttonType = ButtonType.LEFT_MOUSE;
+			finnishAction(e, coordinateSystem, true);
 		}
 		manipulator = manipulatorBuilder.buildActivityListener(e.getX(), e.getY(), buttonType, coordinateSystem, selectionView);
 		if (manipulator != null) {
@@ -59,9 +63,18 @@ public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends Manip
 
 	@Override
 	public void mouseReleased(final MouseEvent e, final CoordinateSystem coordinateSystem) {
+		finnishAction(e, coordinateSystem, false);
+	}
+
+	private void finnishAction(final MouseEvent e, final CoordinateSystem coordinateSystem, boolean wasCanceled) {
 		if (manipulator != null) {
 			final Point2D.Double mouseEnd = new Point2D.Double(coordinateSystem.geomX(e.getPoint().getX()), coordinateSystem.geomY(e.getPoint().getY()));
-			undoActionListener.pushAction(manipulator.finish(lastDragPoint, mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ()));
+			UndoAction undoAction = manipulator.finish(lastDragPoint, mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+			if (wasCanceled) {
+				undoAction.undo();
+			} else {
+				undoActionListener.pushAction(undoAction);
+			}
 			mouseStartPoint = null;
 			lastDragPoint = null;
 			manipulator = null;
