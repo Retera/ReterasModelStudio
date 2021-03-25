@@ -147,7 +147,7 @@ public class MPQBrowserView {
                 mainPanel.modelStructureChangeListener,
                 mainPanel.coordDisplayListener,
                 mainPanel.viewportTransferHandler,
-                mainPanel.activeViewportWatcher, icon, false,
+                mainPanel.viewportListener, icon, false,
                 mainPanel.textureExporter);
         return temp;
     }
@@ -341,7 +341,7 @@ public class MPQBrowserView {
             mainPanel.geoControlModelData.repaint();
             mainPanel.currentModelPanel.getModelComponentBrowserTree().reloadFromModelView();
         }
-        mainPanel.activeViewportWatcher.viewportChanged(null);
+        mainPanel.viewportListener.viewportChanged(null);
         mainPanel.timeSliderPanel.revalidateKeyframeDisplay();
     }
 

@@ -8,8 +8,8 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.CursorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.Graphics2DToModelElementRendererAdapter;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ActiveViewportWatcher;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
@@ -28,7 +28,7 @@ public class DrawPlaneActivity implements ModelEditorViewportActivity {
 	private final Vec3 locationCalculator = new Vec3(0, 0, 0);
 	private final ModelView modelView;
 	private final Graphics2DToModelElementRendererAdapter graphics2dToModelElementRendererAdapter;
-	private final ActiveViewportWatcher activeViewportWatcher;
+	private final ViewportListener viewportListener;
 	private ModelEditor modelEditor;
 	private SelectionView selectionView;
 	private DrawingState drawingState = DrawingState.NOTHING;
@@ -43,14 +43,14 @@ public class DrawPlaneActivity implements ModelEditorViewportActivity {
 	                         final ModelEditor modelEditor,
 	                         final ModelView modelView,
 	                         final SelectionView selectionView,
-	                         final ActiveViewportWatcher activeViewportWatcher,
+	                         final ViewportListener viewportListener,
 	                         final int numSegsX, final int numSegsY, final int numSegsZ) {
 		this.preferences = preferences;
 		this.undoActionListener = undoActionListener;
 		this.modelEditor = modelEditor;
 		this.modelView = modelView;
 		this.selectionView = selectionView;
-		this.activeViewportWatcher = activeViewportWatcher;
+		this.viewportListener = viewportListener;
 		this.numSegsX = numSegsX;
 		this.numSegsY = numSegsY;
 		graphics2dToModelElementRendererAdapter =
@@ -131,7 +131,7 @@ public class DrawPlaneActivity implements ModelEditorViewportActivity {
 	public void updateBase(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
 		if (Math.abs(mouseEnd.x - this.mouseStart.x) >= 0.1 && Math.abs(mouseEnd.y - this.mouseStart.y) >= 0.1) {
 			if (boxAction == null) {
-				final Viewport viewport = activeViewportWatcher.getViewport();
+				final Viewport viewport = viewportListener.getViewport();
 				final Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
 				try {
 					boxAction = modelEditor.addPlane(

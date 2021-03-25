@@ -220,7 +220,7 @@ public class MainPanelLinkActions {
 					try {
 						final ModelPanel modelPanel = mainPanel.currentModelPanel();
 						if (modelPanel != null) {
-							final Viewport viewport = mainPanel.activeViewportWatcher.getViewport();
+							final Viewport viewport = mainPanel.viewportListener.getViewport();
 							final Vec3 facingVector = viewport == null
 									? new Vec3(0, 0, 1) : viewport.getFacingVector();
 							final UndoAction createFaceFromSelection = modelPanel.getModelEditorManager()

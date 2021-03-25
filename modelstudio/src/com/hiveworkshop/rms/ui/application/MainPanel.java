@@ -10,7 +10,7 @@ import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderPanel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ActivityDescriptor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorChangeActivityListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ActiveViewportWatcher;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanelCloseListener;
@@ -101,7 +101,7 @@ public class MainPanel extends JPanel
     boolean animationModeState = false;
     final ZoomableImagePreviewPanel blpPanel;
 
-    final ActiveViewportWatcher activeViewportWatcher = new ActiveViewportWatcher();
+    final ViewportListener viewportListener = new ViewportListener();
 
     WarcraftDataSourceChangeNotifier directoryChangeNotifier = new WarcraftDataSourceChangeNotifier();
 
@@ -194,7 +194,7 @@ public class MainPanel extends JPanel
         creatorPanel = new CreatorModelingPanel(newType -> {
             actionTypeGroup.maybeSetButtonType(newType);
             changeActivity(newType);
-        }, prefs, actionTypeGroup, activeViewportWatcher, animatedRenderEnvironment);
+        }, prefs, actionTypeGroup, viewportListener, animatedRenderEnvironment);
 
         creatorView = new View("Modeling", null, creatorPanel);
 

@@ -247,9 +247,9 @@ public class MenuBarActions {
                         ((Number) spinner.getValue()).intValue());
             }
             final ModelPanel temp = new ModelPanel(mainPanel, mdl, mainPanel.prefs, mainPanel, mainPanel.selectionItemTypeGroup,
-                    mainPanel.selectionModeGroup, mainPanel.modelStructureChangeListener, mainPanel.coordDisplayListener,
-                    mainPanel.viewportTransferHandler, mainPanel.activeViewportWatcher, RMSIcons.MDLIcon, false,
-                    mainPanel.textureExporter);
+		            mainPanel.selectionModeGroup, mainPanel.modelStructureChangeListener, mainPanel.coordDisplayListener,
+		            mainPanel.viewportTransferHandler, mainPanel.viewportListener, RMSIcons.MDLIcon, false,
+		            mainPanel.textureExporter);
             MPQBrowserView.loadModel(mainPanel, true, true, temp);
         }
 

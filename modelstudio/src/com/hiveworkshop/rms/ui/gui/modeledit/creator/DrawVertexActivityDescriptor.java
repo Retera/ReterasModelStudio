@@ -5,24 +5,24 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ActivityDescriptor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ActiveViewportWatcher;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 
 public class DrawVertexActivityDescriptor implements ActivityDescriptor {
 	private final ProgramPreferences programPrefences;
-	private final ActiveViewportWatcher activeViewportWatcher;
+	private final ViewportListener viewportListener;
 
 	public DrawVertexActivityDescriptor(final ProgramPreferences programPrefences,
-			final ActiveViewportWatcher activeViewportWatcher) {
+	                                    final ViewportListener viewportListener) {
 		this.programPrefences = programPrefences;
-		this.activeViewportWatcher = activeViewportWatcher;
+		this.viewportListener = viewportListener;
 	}
 
 	@Override
 	public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
-                                                      final ModelView modelView, final UndoActionListener undoActionListener) {
+	                                                  final ModelView modelView, final UndoActionListener undoActionListener) {
 		return new DrawVertexActivity(programPrefences, undoActionListener, modelEditorManager.getModelEditor(),
-				modelView, modelEditorManager.getSelectionView(), activeViewportWatcher);
+				modelView, modelEditorManager.getSelectionView(), viewportListener);
 	}
 
 }
