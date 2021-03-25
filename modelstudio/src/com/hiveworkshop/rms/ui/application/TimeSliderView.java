@@ -1,7 +1,9 @@
 package com.hiveworkshop.rms.ui.application;
 
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundChooserPanel;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import net.infonode.docking.View;
 
@@ -35,21 +37,21 @@ public class TimeSliderView {
 	}
 
 	private static void timeBoundsChooserPanel(MainPanel mainPanel) {
-		final TimeBoundChooserPanel timeBoundChooserPanel = new TimeBoundChooserPanel(
-				mainPanel.currentModelPanel() == null ? null : mainPanel.currentModelPanel().getModelViewManager(),
-				mainPanel.modelStructureChangeListener);
-		final int confirmDialogResult = JOptionPane.showConfirmDialog(mainPanel, timeBoundChooserPanel,
+		ModelPanel panel = mainPanel.currentModelPanel();
+		ModelView modelView = panel == null ? null : panel.getModelViewManager();
+		TimeBoundChooserPanel tbcPanel = new TimeBoundChooserPanel(modelView, mainPanel.modelStructureChangeListener);
+		int confirmDialogResult = JOptionPane.showConfirmDialog(mainPanel, tbcPanel,
 				"Set Time Bounds", JOptionPane.OK_CANCEL_OPTION);
 		if (confirmDialogResult == JOptionPane.OK_OPTION) {
-			timeBoundChooserPanel.applyTo(mainPanel.animatedRenderEnvironment);
-			if (mainPanel.currentModelPanel() != null) {
-				mainPanel.currentModelPanel().getEditorRenderModel().refreshFromEditor(
+			tbcPanel.applyTo(mainPanel.animatedRenderEnvironment);
+			if (panel != null) {
+				panel.getEditorRenderModel().refreshFromEditor(
 						mainPanel.animatedRenderEnvironment,
 						ModelStructureChangeListenerImplementation.IDENTITY,
 						ModelStructureChangeListenerImplementation.IDENTITY,
 						ModelStructureChangeListenerImplementation.IDENTITY,
-						mainPanel.currentModelPanel().getPerspArea().getViewport());
-				mainPanel.currentModelPanel().getEditorRenderModel().updateNodes(true, false);
+						panel.getPerspArea().getViewport());
+				panel.getEditorRenderModel().updateNodes(true, false);
 			}
 		}
 	}

@@ -2,8 +2,10 @@ package com.hiveworkshop.rms.ui.application.edit.animation;
 
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
@@ -27,7 +29,7 @@ public class TimeBoundChooserPanel extends JPanel {
 
 		final JPanel globSeqPanel = getGlobSeqPanel(modelView);
 
-		final JPanel customTimePanel = getCustomTimePanel();
+		final JPanel customTimePanel = getCustomTimePanel(modelView);
 
 		setLayout(new BorderLayout());
 		tabs = new JTabbedPane();
@@ -94,16 +96,34 @@ public class TimeBoundChooserPanel extends JPanel {
 		return globSeqPanel;
 	}
 
-	private JPanel getCustomTimePanel() {
+	private JPanel getCustomTimePanel(ModelView modelView) {
+		TimeBoundProvider timeBound = getTimeBound(modelView);
+		int startTime = 0;
+		int endTime = 1000;
+		if (timeBound != null) {
+			startTime = timeBound.getStart();
+			endTime = timeBound.getEnd();
+		}
 		final JPanel customTimePanel = new JPanel(new MigLayout("", "[]"));
 		customTimePanel.add(new JLabel("Start:"));
-		timeStart = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
+		timeStart = new JSpinner(new SpinnerNumberModel(startTime, 0, Integer.MAX_VALUE, 1));
 		customTimePanel.add(timeStart, "growx, wrap");
 
 		customTimePanel.add(new JLabel("End:"));
-		timeEnd = new JSpinner(new SpinnerNumberModel(1000, 0, Integer.MAX_VALUE, 1));
+		timeEnd = new JSpinner(new SpinnerNumberModel(endTime, 0, Integer.MAX_VALUE, 1));
 		customTimePanel.add(timeEnd, "growx, wrap");
 		return customTimePanel;
+	}
+
+	private TimeBoundProvider getTimeBound(ModelView modelView) {
+		RenderModel editorRenderModel = modelView.getEditorRenderModel();
+		if (editorRenderModel != null) {
+			AnimatedRenderEnvironment renderEnvironment = editorRenderModel.getAnimatedRenderEnvironment();
+			if (renderEnvironment != null) {
+				return renderEnvironment.getCurrentAnimation();
+			}
+		}
+		return null;
 	}
 
 	private void makeAnimationBox(ModelView modelView) {
