@@ -71,7 +71,7 @@ public class ComponentBonePanel extends JPanel implements ComponentPanel<Bone> {
 	}
 
 	private void chooseParent() {
-		IdObject newParent = parentChooser.chooseParent(idObject, this);
+		IdObject newParent = parentChooser.chooseParent(idObject, this.getRootPane());
 		ParentChangeAction action = new ParentChangeAction(idObject, newParent, modelStructureChangeListener);
 		action.redo();
 		repaint();

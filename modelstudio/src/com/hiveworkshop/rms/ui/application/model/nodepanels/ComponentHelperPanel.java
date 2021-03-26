@@ -32,6 +32,9 @@ public class ComponentHelperPanel extends JPanel implements ComponentPanel<Helpe
 		this.undoActionListener = undoActionListener;
 		this.modelViewManager = modelViewManager;
 		this.modelStructureChangeListener = modelStructureChangeListener;
+
+		parentChooser = new ParentChooser(modelViewManager);
+
 		setLayout(new MigLayout("fill, gap 0", "[][][grow]", "[][][grow]"));
 		title = new JLabel("Select a Helper");
 		add(title, "wrap");
@@ -68,7 +71,7 @@ public class ComponentHelperPanel extends JPanel implements ComponentPanel<Helpe
 	}
 
 	private void chooseParent() {
-		IdObject newParent = parentChooser.chooseParent(idObject, this);
+		IdObject newParent = parentChooser.chooseParent(idObject, this.getRootPane());
 		ParentChangeAction action = new ParentChangeAction(idObject, newParent, modelStructureChangeListener);
 		action.redo();
 		repaint();

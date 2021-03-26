@@ -33,6 +33,9 @@ public class ComponentParticle2Panel extends JPanel implements ComponentPanel<Pa
 		this.undoActionListener = undoActionListener;
 		this.modelViewManager = modelViewManager;
 		this.modelStructureChangeListener = modelStructureChangeListener;
+
+		parentChooser = new ParentChooser(modelViewManager);
+
 		setLayout(new MigLayout("fill, gap 0", "[][][grow]", "[][][grow]"));
 		title = new JLabel("Select an Emitter");
 		add(title, "wrap");
@@ -69,7 +72,7 @@ public class ComponentParticle2Panel extends JPanel implements ComponentPanel<Pa
 	}
 
 	private void chooseParent() {
-		IdObject newParent = parentChooser.chooseParent(idObject, this);
+		IdObject newParent = parentChooser.chooseParent(idObject, this.getRootPane());
 		ParentChangeAction action = new ParentChangeAction(idObject, newParent, modelStructureChangeListener);
 		action.redo();
 		repaint();

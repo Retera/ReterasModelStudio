@@ -55,6 +55,9 @@ public class ComponentPopcornPanel extends JPanel implements ComponentPanel<Part
 		this.undoActionListener = undoActionListener;
 		this.modelViewManager = modelViewManager;
 		this.modelStructureChangeListener = modelStructureChangeListener;
+
+		parentChooser = new ParentChooser(modelViewManager);
+
 		setLayout(new MigLayout("fill", "[][][grow]", "[][][grow]"));
 
 		nameField = new ComponentEditorTextField(24);
@@ -215,7 +218,8 @@ public class ComponentPopcornPanel extends JPanel implements ComponentPanel<Part
 //	}
 
 	private void chooseParent() {
-		IdObject newParent = parentChooser.chooseParent(popcorn, this);
+		System.out.println(this.getRootPane());
+		IdObject newParent = parentChooser.chooseParent(popcorn, this.getRootPane());
 		ParentChangeAction action = new ParentChangeAction(popcorn, newParent, modelStructureChangeListener);
 		action.redo();
 		repaint();
