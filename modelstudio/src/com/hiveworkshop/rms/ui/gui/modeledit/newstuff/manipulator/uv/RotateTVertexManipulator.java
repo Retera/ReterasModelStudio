@@ -4,14 +4,14 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.AbstractManipulator;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.util.Vec2;
 
 import java.awt.geom.Point2D.Double;
 
-public class RotateTVertexManipulator extends AbstractManipulator {
+public class RotateTVertexManipulator extends Manipulator {
 	private final TVertexEditor modelEditor;
 	private final SelectionView selectionView;
 	private GenericRotateAction rotationAction;

@@ -7,7 +7,7 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.geom.Point2D.Double;
 
-public abstract class AbstractMoveManipulator extends AbstractManipulator {
+public abstract class AbstractMoveManipulator extends Manipulator {
 	protected final ModelEditor modelEditor;
 	protected final Vec3 moveVector;
 	private GenericMoveAction translationAction;

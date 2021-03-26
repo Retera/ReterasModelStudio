@@ -3,13 +3,13 @@ package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.AbstractManipulator;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.geom.Point2D.Double;
 
-public abstract class AbstractMoveTVertexManipulator extends AbstractManipulator {
+public abstract class AbstractMoveTVertexManipulator extends Manipulator {
 	protected final TVertexEditor modelEditor;
 	protected final Vec3 moveVector;
 	private GenericMoveAction translationAction;

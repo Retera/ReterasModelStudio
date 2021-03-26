@@ -9,7 +9,7 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.geom.Point2D.Double;
 
-public class SquatToolManipulator extends AbstractManipulator {
+public class SquatToolManipulator extends Manipulator {
 	private final ModelEditor modelEditor;
 	private final SelectionView selectionView;
 	private GenericRotateAction rotationAction;

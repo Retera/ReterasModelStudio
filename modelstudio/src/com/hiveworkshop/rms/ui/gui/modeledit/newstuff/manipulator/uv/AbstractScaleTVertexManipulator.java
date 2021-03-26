@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.AbstractManipulator;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.util.Vec2;
@@ -11,7 +11,7 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.geom.Point2D.Double;
 
-public abstract class AbstractScaleTVertexManipulator extends AbstractManipulator {
+public abstract class AbstractScaleTVertexManipulator extends Manipulator {
 	private final TVertexEditor modelEditor;
 	private final SelectionView selectionView;
 	private GenericScaleAction scaleAction;

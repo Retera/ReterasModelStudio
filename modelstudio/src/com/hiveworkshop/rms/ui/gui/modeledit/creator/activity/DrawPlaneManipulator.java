@@ -6,7 +6,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.DoNothingAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.AbstractManipulator;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -14,7 +14,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D.Double;
 
-public class DrawPlaneManipulator extends AbstractManipulator {
+public class DrawPlaneManipulator extends Manipulator {
 	private final ModelEditor modelEditor;
 	private Double mouseEnd;
 	private final ProgramPreferences programPreferences;

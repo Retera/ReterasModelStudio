@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.geom.Point2D.Double;
 
-public abstract class AbstractScaleManipulator extends AbstractManipulator {
+public abstract class AbstractScaleManipulator extends Manipulator {
 	private final ModelEditor modelEditor;
 	private final SelectionView selectionView;
 	private GenericScaleAction scaleAction;
