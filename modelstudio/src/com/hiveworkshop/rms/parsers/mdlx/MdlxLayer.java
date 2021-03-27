@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.parsers.mdlx;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.BinaryReader;
 import com.hiveworkshop.rms.util.BinaryWriter;
 
@@ -191,17 +192,17 @@ public class MdlxLayer extends MdlxAnimatedObject {
 				case "static FresnelOpacity":
 					fresnelOpacity = stream.readFloat();
 				break;
-			case "FresnelOpacity":
-				readTimeline(stream, AnimationMap.KFCA);
-				break;
-			case "static FresnelTeamColor":
-				fresnelTeamColor = stream.readFloat();
-				break;
-			case "FresnelTeamColor":
-				readTimeline(stream, AnimationMap.KFTC);
-				break;
-			default:
-				throw new RuntimeException("Unknown token in Layer: " + token);
+				case "FresnelOpacity":
+					readTimeline(stream, AnimationMap.KFCA);
+					break;
+				case "static FresnelTeamColor":
+					fresnelTeamColor = stream.readFloat();
+					break;
+				case "FresnelTeamColor":
+					readTimeline(stream, AnimationMap.KFTC);
+					break;
+				default:
+					ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in Layer: " + token);
 			}
 		}
 	}

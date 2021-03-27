@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.parsers.mdlx;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.BinaryReader;
 import com.hiveworkshop.rms.util.BinaryWriter;
 
@@ -28,8 +29,7 @@ public class MdlxTextureAnimation extends MdlxAnimatedObject {
 				case MdlUtils.TOKEN_TRANSLATION -> readTimeline(stream, AnimationMap.KTAT);
 				case MdlUtils.TOKEN_ROTATION -> readTimeline(stream, AnimationMap.KTAR);
 				case MdlUtils.TOKEN_SCALING -> readTimeline(stream, AnimationMap.KTAS);
-//					default -> throw new RuntimeException("Unknown token in TextureAnimation: " + token);
-				default -> System.out.println("Unknown token in TextureAnimation: " + token);
+				default -> ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in TextureAnimation: " + token);
 			}
 		}
 	}

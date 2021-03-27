@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.parsers.mdlx;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.BinaryReader;
 import com.hiveworkshop.rms.util.BinaryWriter;
 import com.hiveworkshop.rms.util.War3ID;
@@ -282,7 +283,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 				case MdlUtils.TOKEN_UNSELECTABLE -> selectionFlags = 4;
 				case "LevelOfDetail" -> lod = stream.readInt();
 				case "Name" -> lodName = stream.read();
-				default -> throw new RuntimeException("Unknown token in Geoset: " + token);
+				default -> ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in Geoset: " + token);
 			}
 		}
 	}
@@ -338,8 +339,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 			}
 		}
 
-		// For now hardcoded for triangles, until I see a model with something
-		// different.
+		// For now hardcoded for triangles, until I see a model with something different.
 		stream.startBlock(MdlUtils.TOKEN_FACES, 1, faces.length);
 		stream.startBlock(MdlUtils.TOKEN_TRIANGLES);
 		final StringBuilder facesBuffer = new StringBuilder();

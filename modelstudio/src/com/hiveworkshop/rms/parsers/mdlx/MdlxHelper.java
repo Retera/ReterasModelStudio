@@ -3,18 +3,18 @@ package com.hiveworkshop.rms.parsers.mdlx;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 
 public class MdlxHelper extends MdlxGenericObject {
 	public MdlxHelper() {
 		super(0x0); // NOTE: ghostwolf JS didn't pass the 0x1 flag????
-		// ANOTHER NOTE: setting the 0x1 flag causes other fan programs to spam error
-		// messages
+		// ANOTHER NOTE: setting the 0x1 flag causes other fan programs to spam error messages
 	}
 
 	@Override
 	public void readMdl(final MdlTokenInputStream stream, final int version) {
 		for (final String token : readMdlGeneric(stream)) {
-			throw new RuntimeException("Unknown token in Helper: " + token);
+			ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in Helper: " + token);
 		}
 	}
 

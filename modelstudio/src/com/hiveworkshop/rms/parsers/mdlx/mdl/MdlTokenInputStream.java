@@ -6,6 +6,7 @@ import java.util.Iterator;
 public class MdlTokenInputStream {
 	private final ByteBuffer buffer;
 	private int index;
+	private int line = 0;
 
 	public MdlTokenInputStream(final ByteBuffer buffer) {
 		this.buffer = buffer;
@@ -26,6 +27,7 @@ public class MdlTokenInputStream {
 			if (inComment) {
 				if (c == '\n') {
 					inComment = false;
+					line++;
 				}
 			}
 			else if (inString) {
@@ -37,6 +39,9 @@ public class MdlTokenInputStream {
 				}
 			}
 			else if ((c == ' ') || (c == ',') || (c == '\t') || (c == '\n') || (c == ':') || (c == '\r')) {
+				if (c == '\n') {
+					line++;
+				}
 				if (token.length() > 0) {
 					return token.toString();
 				}
@@ -88,8 +93,6 @@ public class MdlTokenInputStream {
 	}
 
 	public int readInt() {
-//		String ugg = read();
-//		System.out.println("ugg: " + ugg);
 		return Integer.parseInt(read());
 	}
 
@@ -238,5 +241,9 @@ public class MdlTokenInputStream {
 		color[0] = readFloat();
 
 		read(); // }
+	}
+
+	public int getLineNumber() {
+		return line;
 	}
 }

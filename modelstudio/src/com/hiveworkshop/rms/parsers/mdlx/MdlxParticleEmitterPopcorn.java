@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.parsers.mdlx;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.BinaryReader;
 import com.hiveworkshop.rms.util.BinaryWriter;
 
@@ -78,7 +79,7 @@ public class MdlxParticleEmitterPopcorn extends MdlxGenericObject {
 				case "ReplaceableId" -> replaceableId = stream.readInt();
 				case "Path" -> path = stream.read();
 				case "AnimVisibilityGuide" -> animationVisiblityGuide = stream.read();
-				default -> throw new RuntimeException("Unknown token in MdlxParticleEmitterPopcorn " + name + ": " + token);
+				default -> ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in MdlxParticleEmitterPopcorn " + name + ": " + token);
 			}
 		}
 	}

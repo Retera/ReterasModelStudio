@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.parsers.mdlx;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.BinaryReader;
 import com.hiveworkshop.rms.util.BinaryWriter;
 import com.hiveworkshop.rms.util.War3ID;
@@ -76,9 +77,7 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 					layers.add(layer);
 				}
 //				default -> throw new RuntimeException("Unknown token in Material: " + token);
-				default -> System.out.println("Unknown token in Material: " + token);
-				//TODO maybe collect problems instead of throwing errors and
-				// present to the user through a popup once the model is loaded
+				default -> ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in Material: " + token);
 			}
 		}
 	}

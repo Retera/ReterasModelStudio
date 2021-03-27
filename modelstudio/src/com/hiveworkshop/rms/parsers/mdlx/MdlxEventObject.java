@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.parsers.mdlx;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.BinaryReader;
 import com.hiveworkshop.rms.util.BinaryWriter;
 import com.hiveworkshop.rms.util.War3ID;
@@ -55,7 +56,7 @@ public class MdlxEventObject extends MdlxGenericObject {
 				stream.readIntArray(keyFrames);
 			}
 			else {
-				throw new RuntimeException("Unknown token in EventObject " + name + ": " + token);
+				ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in EventObject " + name + ": " + token);
 			}
 		}
 	}

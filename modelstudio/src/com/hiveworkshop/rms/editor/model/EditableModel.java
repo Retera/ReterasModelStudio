@@ -265,16 +265,17 @@ public class EditableModel implements Named {
 //					idObject.setPivotPoint(pivots.get(objIdMap.get(idObject)));
 //				}
 			}
-			if (pivots.size() > objIdMap.get(idObject)) {
+			Integer objId = objIdMap.get(idObject);
+			if (pivots.size() > objId && objId > -1) {
 //				System.out.println("set pivot to: " + pivots.get(objIdMap.get(idObject)));
-				idObject.setPivotPoint(pivots.get(objIdMap.get(idObject)));
+				idObject.setPivotPoint(pivots.get(objId));
 			} else {
 				System.out.println("set {0, 0, 0} pivot");
 				idObject.setPivotPoint(new Vec3(0, 0, 0));
 
 			}
-			if (bindPose != null) {
-				idObject.setBindPose(bindPose.bindPose[objIdMap.get(idObject)]);
+			if (bindPose != null && objId > -1) {
+				idObject.setBindPose(bindPose.bindPose[objId]);
 			}
 //
 		}
