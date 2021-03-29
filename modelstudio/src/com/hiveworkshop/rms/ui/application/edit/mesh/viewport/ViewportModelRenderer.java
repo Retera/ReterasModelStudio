@@ -181,7 +181,7 @@ public class ViewportModelRenderer implements ModelVisitor {
 			if (boneMap.containsKey(geo) && boneMap.get(geo).containsKey(bone)) {
 				for (final GeosetVertex vertex : boneMap.get(geo).get(bone)) {
 					for (Triangle t : vertex.getTriangles()) {
-						if (!triangles.contains(t) && vertex.getBones().contains(bone)) {
+						if (!triangles.contains(t)) {
 							triangles.add(t);
 						}
 					}
