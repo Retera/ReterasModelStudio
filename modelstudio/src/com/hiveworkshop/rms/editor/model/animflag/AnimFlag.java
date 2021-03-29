@@ -410,10 +410,12 @@ public abstract class AnimFlag<T> {
 	}
 
 	public void setInterpType(final InterpolationType interpolationType) {
-		this.interpolationType = interpolationType;
 		if (interpolationType.tangential() && inTans.isEmpty()) {
 			unLinearize();
+		} else if (!interpolationType.tangential()) {
+			linearize();
 		}
+		this.interpolationType = interpolationType;
 	}
 
 	public InterpolationType getInterpolationType() {
@@ -506,8 +508,8 @@ public abstract class AnimFlag<T> {
 				times.set(index, entry.time);
 				values.set(index, entry.value);
 				if (tans()) {
-					inTans.set(index, entry.value);
-					outTans.set(index, entry.value);
+					inTans.set(index, entry.inTan);
+					outTans.set(index, entry.outTan);
 				}
 			}
 		}
@@ -532,15 +534,15 @@ public abstract class AnimFlag<T> {
 			times.add(index + 1, time);
 			values.add(index + 1, entry.value);
 			if (tans()) {
-				inTans.add(index + 1, entry.value);
-				outTans.add(index + 1, entry.value);
+				inTans.add(index + 1, entry.inTan);
+				outTans.add(index + 1, entry.outTan);
 			}
 		} else {
 			times.set(index, time);
 			values.set(index, entry.value);
 			if (tans()) {
-				inTans.set(index, entry.value);
-				outTans.set(index, entry.value);
+				inTans.set(index, entry.inTan);
+				outTans.set(index, entry.outTan);
 			}
 		}
 	}
@@ -770,8 +772,9 @@ public abstract class AnimFlag<T> {
 	public void unLinearize() {
 		if (!interpolationType.tangential()) {
 			interpolationType = InterpolationType.BEZIER;
-			inTans.addAll(values);
-			outTans.addAll(values);
+
+			inTans.addAll(deepCopy(values));
+			outTans.addAll(deepCopy(values));
 		}
 	}
 
