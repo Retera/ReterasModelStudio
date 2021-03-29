@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.util.Quat;
+import com.hiveworkshop.rms.util.ScreenInfo;
 import com.hiveworkshop.rms.util.Vec3;
 import net.miginfocom.swing.MigLayout;
 
@@ -16,11 +17,10 @@ import javax.swing.event.CaretListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.beans.PropertyChangeListener;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public abstract class ValuePanel<T> extends JPanel {
@@ -47,9 +47,14 @@ public abstract class ValuePanel<T> extends JPanel {
 	protected boolean doSave;
 	protected String preEditValue;
 
+	protected Map<Integer, Integer> columnSizes = new HashMap<>();
+
 	protected int selectNewIndex = -1;
 
 	protected Consumer<T> valueSettingFunction;
+
+	JScrollPane tableScrollPane = new JScrollPane();
+	JPanel tablePanel;
 
 	public ValuePanel(final String title, UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener) {
 		this(title, Double.MAX_VALUE, -Double.MAX_VALUE, undoActionListener, modelStructureChangeListener);
@@ -59,21 +64,37 @@ public abstract class ValuePanel<T> extends JPanel {
 		//		System.out.println("New FloatValuePanel!");
 		this.undoActionListener = undoActionListener;
 		this.modelStructureChangeListener = modelStructureChangeListener;
+		setFocusable(true);
 		timelineKeyNamer = null;
 		animFlag = null;
 		timelineContainer = null;
 		flagName = "";
 
 		setBorder(BorderFactory.createTitledBorder(title));
-		setLayout(new MigLayout("hidemode 1"));
+		setLayout(new MigLayout("fill, hidemode 1", "[]", "[][][]0[][]"));
 
 
-		JPanel spinInterpPanel = new JPanel(new MigLayout("wrap, hidemode 1", "", "[shrink 0]"));
-
-		add(spinInterpPanel);
+		JPanel dynStatPanel = new JPanel(new MigLayout("ins 0, gap 0, fill, hidemode 3", "[grow][][]", "[]"));
 
 		typeLabel = new JLabel("");
-		spinInterpPanel.add(typeLabel, "wrap");
+		dynStatPanel.add(typeLabel, "al 0% 0%");
+
+		makeStaticButton = new JButton("Make Static");
+		makeStaticButton.addActionListener(e -> makeStatic());
+		makeStaticButton.setVisible(true);
+		dynStatPanel.add(makeStaticButton, "al 100% 0%");
+
+		makeDynamicButton = new JButton("Make Dynamic");
+		makeDynamicButton.addActionListener(e -> makeDynamic());
+		makeDynamicButton.setVisible(false);
+		dynStatPanel.add(makeDynamicButton, "al 100% 0%");
+
+		add(dynStatPanel, "align center, growx, wrap");
+
+
+		JPanel spinInterpPanel = new JPanel(new MigLayout("ins 0, gap 0, hidemode 3", "[]", "[]"));
+		add(spinInterpPanel, "wrap");
+
 		staticComponent = this.getStaticComponent();
 		spinInterpPanel.add(staticComponent);
 
@@ -81,37 +102,47 @@ public abstract class ValuePanel<T> extends JPanel {
 		interpTypeBox.addActionListener(e -> setInterpolationType());
 		spinInterpPanel.add(interpTypeBox);
 
-		JPanel dynStatPanel = new JPanel();
+//		add(getTablePanel(), "growx, wrap");
 
-		makeStaticButton = new JButton("Make Static");
-		makeStaticButton.addActionListener(e -> makeStatic());
-		makeStaticButton.setVisible(true);
-		dynStatPanel.add(makeStaticButton);
+		add(getTablePanel(), "spanx, growx, wrap");
 
-		makeDynamicButton = new JButton("Make Dynamic");
-		makeDynamicButton.addActionListener(e -> makeDynamic());
-		makeDynamicButton.setVisible(false);
-		dynStatPanel.add(makeDynamicButton);
+		addButton = new JButton("add");
+		addButton.addActionListener(e -> addEntry(keyframeTable.getRowCount() - 1));
+		add(addButton, "wrap");
+	}
 
-		add(dynStatPanel, "hidemode 1, wrap");
+	private JPanel getTablePanel() {
+		tablePanel = new JPanel(new MigLayout("gap 0, ins 0, fill, hidemode 2", "[grow][][grow, 1%:50%:80%]", "[][]"));
+		JPanel tablePanel2 = new JPanel(new MigLayout("gap 0, ins 0, fill", "[grow]", "[]"));
 
 		keyframeTable = new JTable();
 		keyframeTable.addPropertyChangeListener(getPropertyChangeListener());
 		addDeleteListeners();
 
-		add(keyframeTable.getTableHeader(), "span 2, wrap, grow");
+		String tableConstraints = "growx, wrap";
+		tablePanel.add(keyframeTable.getTableHeader(), tableConstraints);
 		setTableModel();
+		columnSizes.put(-1, keyframeTable.getRowHeight());
 
 
 		keyframeTable.setDefaultRenderer(Integer.class, getCellRenderer());
 		keyframeTable.setDefaultRenderer(String.class, getCellRenderer());
 		keyframeTable.setDefaultRenderer(Float.class, getCellRenderer());
 
-		add(keyframeTable, "span 2, wrap, grow");
+		tablePanel2.add(keyframeTable, "growx");
 
-		addButton = new JButton("add");
-		addButton.addActionListener(e -> addEntry(keyframeTable.getRowCount() - 1));
-		add(addButton);
+		tableScrollPane = new JScrollPane(tablePanel2);
+		tableScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+		tableScrollPane.setBorder(null);
+		tableScrollPane.setMaximumSize(ScreenInfo.getSuitableSize(700, 300, 0.6));
+		JScrollBar verticalScrollBar = tableScrollPane.getVerticalScrollBar();
+
+		verticalScrollBar.setUnitIncrement(16);
+
+
+		tablePanel.add(tableScrollPane, "growx");
+		tablePanel.add(verticalScrollBar, "spany, growy, wrap");
+		return tablePanel;
 	}
 
 	private void makeStatic() {
@@ -170,6 +201,7 @@ public abstract class ValuePanel<T> extends JPanel {
 	private void toggleStaticDynamicPanel(boolean isStatic) {
 		boolean isDynamic = !isStatic;
 
+		tablePanel.setVisible(isDynamic);
 		keyframeTable.setVisible(isDynamic);
 		interpTypeBox.setVisible(isDynamic);
 		makeStaticButton.setVisible(isDynamic && this.valueSettingFunction != null);
@@ -231,37 +263,39 @@ public abstract class ValuePanel<T> extends JPanel {
 				}
 
 				if (compTextField.getCaretListeners().length == 0) {
-					compTextField.addCaretListener(e -> {
-						editFieldRendering(compTextField, col);
-						String text = compTextField.getText();
-						if (!text.matches("[" + allowedCharacters + "eE]*")) {
-							String newText = text.replaceAll("[^" + allowedCharacters + "eE]*", "");
-							SwingUtilities.invokeLater(() -> {
-								CaretListener listener = compTextField.getCaretListeners()[0];
-								compTextField.removeCaretListener(listener);
-								int carPos = compTextField.getCaretPosition();
-								compTextField.setText(newText);
-								int newCarPos = Math.max(0, Math.min(newText.length(), carPos - 1));
-								compTextField.setCaretPosition(newCarPos);
-								compTextField.addCaretListener(listener);
-							});
-						}
-						if (text.matches("(.*\\.\\.+.*)")) {
-							String newText = text.replaceAll("(\\.+)", ".");
-							SwingUtilities.invokeLater(() -> {
-								CaretListener listener = compTextField.getCaretListeners()[0];
-								compTextField.removeCaretListener(listener);
-								int carPos = compTextField.getCaretPosition();
-								compTextField.setText(newText);
-								int newCarPos = Math.max(0, Math.min(newText.length(), carPos - 1));
-								compTextField.setCaretPosition(newCarPos);
-								compTextField.addCaretListener(listener);
-							});
-						}
-					});
+					compTextField.addCaretListener(getCaretListener(col, compTextField));
 				}
 			}
 		};
+	}
+
+	private CaretListener getCaretListener(int col, JTextField compTextField) {
+		return e -> {
+			editFieldRendering(compTextField, col);
+			String text = compTextField.getText();
+			if (!text.matches("[" + allowedCharacters + "eE]*")) {
+				String newText = text.replaceAll("[^" + allowedCharacters + "eE]*", "");
+				SwingUtilities.invokeLater(() -> {
+					applyFilteredText(compTextField, newText);
+				});
+			}
+			if (text.matches("(.*\\.\\.+.*)")) {
+				String newText = text.replaceAll("(\\.+)", ".");
+				SwingUtilities.invokeLater(() -> {
+					applyFilteredText(compTextField, newText);
+				});
+			}
+		};
+	}
+
+	private void applyFilteredText(JTextField compTextField, String newText) {
+		CaretListener listener = compTextField.getCaretListeners()[0];
+		compTextField.removeCaretListener(listener);
+		int carPos = compTextField.getCaretPosition();
+		compTextField.setText(newText);
+		int newCarPos = Math.max(0, Math.min(newText.length(), carPos - 1));
+		compTextField.setCaretPosition(newCarPos);
+		compTextField.addCaretListener(listener);
 	}
 
 	private DefaultTableCellRenderer getCellRenderer() {
@@ -332,21 +366,33 @@ public abstract class ValuePanel<T> extends JPanel {
 			toggleStaticDynamicPanel(false);
 //			List<InterpolationType> types =  animFlag.getForbiddenInterpolationTypes();
 //			types.forEach(t -> interpTypeBox.remove());
+			ActionListener actionListener = interpTypeBox.getActionListeners()[0];
+			interpTypeBox.removeActionListener(actionListener);
 			interpTypeBox.setSelectedItem(animFlag.getInterpolationType());
+			interpTypeBox.addActionListener(actionListener);
 		}
-//		System.out.println("colums: " + keyframeTable.getModel().getColumnCount());
+
 		reloadStaticValue(value);
 		setTableModel();
 		if (selectNewIndex != -1 && selectNewIndex < keyframeTable.getRowCount()) {
 			keyframeTable.setRowSelectionInterval(selectNewIndex, selectNewIndex);
 			selectNewIndex = -1;
 		}
-//		System.out.println("colums: " + keyframeTable.getColumnCount());
 	}
 
 	abstract JComponent getStaticComponent();
 
 	abstract void reloadStaticValue(T value);
+
+	private void setInterpolationType() {
+		if (interpTypeBox.getSelectedItem() != null) {
+			UndoAction undoAction = new ChangeInterpTypeAction(animFlag, InterpolationType.getType(interpTypeBox.getSelectedItem().toString()), modelStructureChangeListener);
+			undoActionListener.pushAction(undoAction);
+			undoAction.redo();
+
+			setTableModel();
+		}
+	}
 
 	private void setTableModel() {
 		if (floatTrackTableModel == null) {
@@ -358,30 +404,28 @@ public abstract class ValuePanel<T> extends JPanel {
 
 		if (floatTrackTableModel != null) {
 			floatTrackTableModel.setTrack(animFlag);
-//			TableColumn column = keyframeTable.getColumn("");
-//			if (column != null) {
-//				int rowHeight = keyframeTable.getRowHeight();
-//				column.setMaxWidth(rowHeight);
-//				column.setPreferredWidth(rowHeight);
-//				column.setMinWidth(5);
-//			}
-			TableColumn column = keyframeTable.getColumnModel().getColumn(keyframeTable.getColumnCount() - 1);
-			if (column != null) {
-				int rowHeight = keyframeTable.getRowHeight();
-				column.setMaxWidth(rowHeight);
-				column.setPreferredWidth(rowHeight);
-				column.setMinWidth(5);
-			}
-		}
-	}
 
-	private void setInterpolationType() {
-		if (interpTypeBox.getSelectedItem() != null) {
-			animFlag.setInterpType(InterpolationType.getType(interpTypeBox.getSelectedItem().toString()));
+			keyframeTable.setModel(floatTrackTableModel);
+			keyframeTable.createDefaultColumnsFromModel();
+			keyframeTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+
+			for (int i : columnSizes.keySet()) {
+				int count = keyframeTable.getColumnCount();
+				int columnIndex = (count + i) % count;
+				TableColumn column = keyframeTable.getColumnModel().getColumn(columnIndex);
+				if (column != null) {
+					column.setMaxWidth(columnSizes.get(i));
+					column.setPreferredWidth(columnSizes.get(i));
+					column.setMinWidth(5);
+				}
+			}
+
+			tableScrollPane.getVerticalScrollBar().setVisible(keyframeTable.getRowCount() > 5);
 		}
 	}
 
 	private void addEntry(int row) {
+//		System.out.println("addEntry");
 		if (animFlag == null && timelineContainer != null && !flagName.equals("")) {
 			AnimFlag<T> flag = getNewAnimFlag();
 			if (flag != null) {
@@ -450,6 +494,7 @@ public abstract class ValuePanel<T> extends JPanel {
 	}
 
 	private void removeEntry(int row) {
+//		System.out.println("removeEntry");
 		oldAnimFlag = animFlag;
 
 		UndoAction undoAction = new RemoveFlagEntryAction(animFlag, row, timelineContainer, modelStructureChangeListener);
@@ -461,10 +506,14 @@ public abstract class ValuePanel<T> extends JPanel {
 	}
 
 	protected void changeEntry(int row, int col, String field, String val) {
+//		System.out.println("changeEntry");
 		AnimFlag.Entry<T> entry = animFlag.getEntry(row);
 		int orgTime = animFlag.getTimes().get(row);
 		T tValue = parseValue(val);
-		String intString = val.replaceAll("[^\\d.]", "").split("\\.")[0];
+		System.out.println(val);
+		System.out.println(tValue);
+//		String intString = val.replaceAll("[^\\d.]", "");//.split("\\.")[0];
+		String intString = val.replaceAll("[^\\d]", "");//.split("\\.")[0];
 		intString = intString.substring(0, Math.min(intString.length(), 10));
 		int iValue = Integer.parseInt(intString);
 

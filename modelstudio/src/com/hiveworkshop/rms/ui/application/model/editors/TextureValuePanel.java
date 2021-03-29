@@ -16,18 +16,12 @@ import java.util.List;
 
 public class TextureValuePanel extends ValuePanel<Integer> {
 
-//	private static final Bitmap DEFAULT_BITMAP = new Vec3(1, 1, 1);
-
-
-	//	private final JColorChooser colorChooser;
-//
 	private final BasicComboPopup chooseTextureComboPopup;
 	private final JComboBox<Object> textureChooser;
 	DefaultListModel<Bitmap> bitmapListModel;
 	private JComboBox<String> staticTextureChooser;
 	private boolean listenersEnabled = true;
 
-	//	private Consumer<Vec3> valueSettingFunction;
 	private Bitmap bitmap;
 
 	private int selectedRow;
@@ -91,9 +85,13 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 //		this.bitmapId = bitmapId;
 		staticValue = bitmapId;
 		if (bitmapId == -1) {
+//			ActionListener[] actionListeners = staticTextureChooser.getActionListeners();
+			ActionListener actionListener = staticTextureChooser.getActionListeners()[0];
+			staticTextureChooser.removeActionListener(actionListener);
 			staticTextureChooser.setSelectedItem(bitmap.getName());
 			staticValue = staticTextureChooser.getSelectedIndex();
 			this.bitmap = bitmapListModel.get(staticValue);
+			staticTextureChooser.addActionListener(actionListener);
 		} else if (bitmapId < bitmapListModel.size()) {
 			staticTextureChooser.setSelectedIndex(bitmapId);
 			this.bitmap = bitmapListModel.get(bitmapId);

@@ -3,12 +3,18 @@ package com.hiveworkshop.rms.ui.application.model.nodepanels;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Helper;
 import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.ui.application.actions.model.NameChangeAction;
 import com.hiveworkshop.rms.ui.application.actions.model.ParentChangeAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
+import com.hiveworkshop.rms.ui.application.model.editors.QuatValuePanel;
+import com.hiveworkshop.rms.ui.application.model.editors.Vec3ValuePanel;
+import com.hiveworkshop.rms.util.Quat;
+import com.hiveworkshop.rms.util.Vec3;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -24,6 +30,9 @@ public class ComponentHelperPanel extends JPanel implements ComponentPanel<Helpe
 	JLabel parentName;
 	ParentChooser parentChooser;
 	private Helper idObject;
+	private Vec3ValuePanel transPanel;
+	private Vec3ValuePanel scalePanel;
+	private QuatValuePanel rotPanel;
 
 
 	public ComponentHelperPanel(final ModelViewManager modelViewManager,
@@ -47,6 +56,12 @@ public class ComponentHelperPanel extends JPanel implements ComponentPanel<Helpe
 		JButton chooseParentButton = new JButton("change");
 		chooseParentButton.addActionListener(e -> chooseParent());
 		add(chooseParentButton, "wrap");
+		transPanel = new Vec3ValuePanel("Translation", undoActionListener, modelStructureChangeListener);
+		add(transPanel, "spanx, growx, wrap");
+		scalePanel = new Vec3ValuePanel("Scaling", undoActionListener, modelStructureChangeListener);
+		add(scalePanel, "spanx, growx, wrap");
+		rotPanel = new QuatValuePanel("Rotation", undoActionListener, modelStructureChangeListener);
+		add(rotPanel, "spanx, growx, wrap");
 	}
 
 	@Override
@@ -60,6 +75,12 @@ public class ComponentHelperPanel extends JPanel implements ComponentPanel<Helpe
 		} else {
 			parentName.setText("no parent");
 		}
+
+		transPanel.reloadNewValue(new Vec3(0, 0, 0), (Vec3AnimFlag) idObject.find("Translation"), idObject, "Translation", null);
+
+		scalePanel.reloadNewValue(new Vec3(1, 1, 1), (Vec3AnimFlag) idObject.find("Scaling"), idObject, "Scaling", null);
+
+		rotPanel.reloadNewValue(new Quat(0, 0, 0, 1), (QuatAnimFlag) idObject.find("Rotation"), idObject, "Rotation", null);
 		revalidate();
 		repaint();
 

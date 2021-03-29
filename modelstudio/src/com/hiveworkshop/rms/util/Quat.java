@@ -326,4 +326,14 @@ public class Quat extends Vec4 {
 		w = a.w;
 		return this;
 	}
+
+	public static Quat parseQuat(String s) {
+		String unbracketed = s.replaceAll("[\\[\\](){}]", "");
+		String[] numbers = unbracketed.split(",");
+		float num0 = Float.parseFloat(numbers[0].strip());
+		float num1 = Float.parseFloat(numbers[1].strip());
+		float num2 = Float.parseFloat(numbers[2].strip());
+		float num3 = Float.parseFloat(numbers[3].strip());
+		return new Quat(num0, num1, num2, num3);
+	}
 }

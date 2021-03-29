@@ -6,11 +6,13 @@ public class ScreenInfo {
 	static Dimension screenSize;
 	static Dimension bigWindow;
 	static Dimension smallWindow;
+	static int w;
+	static int h;
 
 	static {
 		screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		int w = screenSize.width;
-		int h = screenSize.height;
+		w = screenSize.width;
+		h = screenSize.height;
 
 		int lW = (int) Math.max(w * 0.8, w - 200);
 		int lH = (int) Math.max(h * 0.8, h - 200);
@@ -32,4 +34,22 @@ public class ScreenInfo {
 	public static Dimension getSmallWindow() {
 		return smallWindow;
 	}
+
+	public static Dimension getSuitableSize(int with, int height, double fractionIsh) {
+		int dW = with;
+		int dH = height;
+		if (with * 1.2 > fractionIsh * w) {
+			dW = (int) (fractionIsh * w);
+		} else if (with > w) {
+			dW = w;
+		}
+		if (height * 1.2 > fractionIsh * h) {
+			dH = (int) (fractionIsh * h);
+		} else if (height > h) {
+			dH = h;
+		}
+		return new Dimension(dW, dH);
+	}
+
+	;
 }

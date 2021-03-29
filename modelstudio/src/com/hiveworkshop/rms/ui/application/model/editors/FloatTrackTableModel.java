@@ -7,7 +7,7 @@ import javax.swing.table.AbstractTableModel;
 public class FloatTrackTableModel extends AbstractTableModel {
 	private AnimFlag track;
 	private Object[] lastButtons = {"X", null};
-	private String[] lastButtonstitle = {"", null};
+	private String[] lastButtonsTitle = {"", null};
 	private Class<?>[] lastButtonsClazz = {Integer.class, null};
 	private Class<?> valueClazz = Float.class;
 
@@ -29,8 +29,8 @@ public class FloatTrackTableModel extends AbstractTableModel {
 				case 3 -> "OutTan";
 //				case 4 -> getLbt(0);
 //				case 5 -> getLbt(1);
-				case 4 -> lastButtonstitle[0];
-				case 5 -> lastButtonstitle[1];
+				case 4 -> lastButtonsTitle[0];
+				case 5 -> lastButtonsTitle[1];
 				default -> null;
 			};
 		} else {
@@ -39,8 +39,8 @@ public class FloatTrackTableModel extends AbstractTableModel {
 				case 1 -> "Value";
 //				case 2 -> getLbt(0);
 //				case 3 -> getLbt(1);
-				case 2 -> lastButtonstitle[0];
-				case 3 -> lastButtonstitle[1];
+				case 2 -> lastButtonsTitle[0];
+				case 3 -> lastButtonsTitle[1];
 				default -> null;
 			};
 		}
@@ -167,10 +167,10 @@ public class FloatTrackTableModel extends AbstractTableModel {
 		if (lastButtons[1] == null) {
 //			System.out.println(fill);
 			lastButtons[1] = lastButtons[0];
-			lastButtonstitle[1] = lastButtonstitle[0];
+			lastButtonsTitle[1] = lastButtonsTitle[0];
 			lastButtonsClazz[1] = lastButtonsClazz[0];
 			lastButtons[0] = fill;
-			lastButtonstitle[0] = title;
+			lastButtonsTitle[0] = title;
 			lastButtonsClazz[0] = clazz;
 			setClassList();
 //			System.out.println("did add!, [1]: " + lastButtons[1]);
@@ -181,10 +181,10 @@ public class FloatTrackTableModel extends AbstractTableModel {
 	public void removeExtraColumn() {
 		if (lastButtons[1] != null) {
 			lastButtons[0] = lastButtons[1];
-			lastButtonstitle[0] = lastButtonstitle[1];
+			lastButtonsTitle[0] = lastButtonsTitle[1];
 			lastButtonsClazz[0] = lastButtonsClazz[1];
 			lastButtons[1] = null;
-			lastButtonstitle[1] = null;
+			lastButtonsTitle[1] = null;
 			lastButtonsClazz[1] = null;
 			setClassList();
 		}
@@ -211,7 +211,7 @@ public class FloatTrackTableModel extends AbstractTableModel {
 	}
 
 	private String getLbt(int i) {
-		return lastButtonstitle[i];
+		return lastButtonsTitle[i];
 	}
 
 	private String getLbtValue(int i, int index) {

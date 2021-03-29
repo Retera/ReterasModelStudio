@@ -8,7 +8,6 @@ import com.hiveworkshop.rms.util.Vec3;
 import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.color.ColorSpace;
 import java.awt.event.KeyAdapter;
@@ -27,7 +26,6 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 
 	private JButton staticColorButton;
 
-	//	private Consumer<Vec3> valueSettingFunction;
 	private Vec3 color;
 	private Vec3 selectedColor;
 
@@ -52,13 +50,7 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 
 		addColorChangeListeners();
 
-		TableColumn column = keyframeTable.getColumnModel().getColumn(keyframeTable.getColumnCount() - 2);
-		if (column != null) {
-			int rowHeight = keyframeTable.getRowHeight();
-			column.setMaxWidth(rowHeight);
-			column.setPreferredWidth(rowHeight);
-			column.setMinWidth(5);
-		}
+		columnSizes.put(-2, keyframeTable.getRowHeight());
 	}
 
 	private Color getClampedColor(String string) {

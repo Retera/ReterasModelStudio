@@ -9,10 +9,10 @@ public class ChangeFlagEntryAction implements UndoAction {
 	private final ModelStructureChangeListener structureChangeListener;
 	private final TimelineContainer timelineContainer;
 	private final AnimFlag<?> animFlag;
-	AnimFlag.Entry entry;
+	AnimFlag.Entry<?> entry;
 	int orgTime;
 	int time;
-	AnimFlag.Entry orgEntry;
+	AnimFlag.Entry<?> orgEntry;
 
 
 	public ChangeFlagEntryAction(AnimFlag<?> animFlag, AnimFlag.Entry<?> entry, int orgTime, TimelineContainer timelineContainer, ModelStructureChangeListener structureChangeListener) {
@@ -28,14 +28,14 @@ public class ChangeFlagEntryAction implements UndoAction {
 
 	@Override
 	public void undo() {
-		animFlag.setEntry(time, orgEntry);
+		animFlag.setEntryT(time, orgEntry);
 		animFlag.sort();
 		structureChangeListener.materialsListChanged();
 	}
 
 	@Override
 	public void redo() {
-		animFlag.setEntry(orgTime, entry);
+		animFlag.setEntryT(orgTime, entry);
 		animFlag.sort();
 		structureChangeListener.materialsListChanged();
 	}
