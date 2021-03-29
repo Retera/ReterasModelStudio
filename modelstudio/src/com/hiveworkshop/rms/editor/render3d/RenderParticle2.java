@@ -176,7 +176,8 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		lba = MathUtils.uint8ToUint24((byte) left, (byte) bottom, (byte) a);
 		rta = MathUtils.uint8ToUint24((byte) right, (byte) top, (byte) a);
 		rba = MathUtils.uint8ToUint24((byte) left, (byte) top, (byte) a);
-		rgb = MathUtils.uint8ToUint24((byte) ((int) (colorHeap.z * 255) & 0xFF), (byte) ((int) (colorHeap.y * 255) & 0xFF), (byte) ((int) (colorHeap.x * 255) & 0xFF));
+//		rgb = MathUtils.uint8ToUint24((byte) ((int) (colorHeap.z * 255) & 0xFF), (byte) ((int) (colorHeap.y * 255) & 0xFF), (byte) ((int) (colorHeap.x * 255) & 0xFF));
+		rgb = MathUtils.uint8ToUint24((byte) ((int) (colorHeap.x * 255) & 0xFF), (byte) ((int) (colorHeap.y * 255) & 0xFF), (byte) ((int) (colorHeap.z * 255) & 0xFF));
 
 		final Vec4[] vectors;
 

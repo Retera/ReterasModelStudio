@@ -32,7 +32,7 @@ public class RenderParticleEmitter2View extends EmitterView {
 			final double emissionRate = getEmissionRate();
 			if (emitter.getSquirt()) {
 				// TODO TODO TODO not correct for any interp type other than "DontInterp",
-				// ghostwolf did this differently
+				//  ghostwolf did this differently
 				if (emissionRate != lastEmissionRate) {
 					currentEmission += emissionRate;
 				}

@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitterPopcorn;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
@@ -49,7 +48,9 @@ public class ParticleEmitterPopcorn extends IdObject {
 		lifeSpan = emitter.lifeSpan;
 		emissionRate = emitter.emissionRate;
 		speed = emitter.speed;
-		color = new Vec3(ModelUtils.flipRGBtoBGR(emitter.color));
+		System.out.println("emitter color: " + Arrays.toString(emitter.color));
+		color = new Vec3(emitter.color);
+//		color = new Vec3(ModelUtils.flipRGBtoBGR(emitter.color));
 		alpha = emitter.alpha;
 		replaceableId = emitter.replaceableId;
 		path = emitter.path;
@@ -65,7 +66,8 @@ public class ParticleEmitterPopcorn extends IdObject {
 		emitter.lifeSpan = lifeSpan;
 		emitter.emissionRate = emissionRate;
 		emitter.speed = speed;
-		emitter.color = ModelUtils.flipRGBtoBGR(color.toFloatArray());
+		emitter.color = color.toFloatArray();
+//		emitter.color = ModelUtils.flipRGBtoBGR(color.toFloatArray());
 		emitter.alpha = alpha;
 		emitter.replaceableId = replaceableId;
 		emitter.path = path;

@@ -157,6 +157,11 @@ public class AddParticlePanel {
             final JButton[] colorButtons = new JButton[3];
             final Color[] colors = new Color[colorButtons.length];
             makeColorButtons(particlePanel, particle, colorButtons, colors);
+            JPanel colorPanel = new JPanel(new MigLayout("ins 0, fill", "[][][]", "[]"));
+            for (JButton button : colorButtons) {
+                colorPanel.add(button);
+            }
+            optionsPanel.add(colorPanel, "spanx, wrap");
 
             particlePanel.add(optionsPanel);
             final int x = JOptionPane.showConfirmDialog(mainPanel, particlePanel, "Add " + particleInformation.getName(), JOptionPane.OK_CANCEL_OPTION);
@@ -174,9 +179,9 @@ public class AddParticlePanel {
         particle.setPivotPoint(pivot);
         for (int i = 0; i < colors.length; i++) {
             particle.setSegmentColor(i, new Vec3(
-                    colors[i].getBlue() / 255.00,
+                    colors[i].getRed() / 255.00,
                     colors[i].getGreen() / 255.00,
-                    colors[i].getRed() / 255.00));
+                    colors[i].getBlue() / 255.00));
         }
 
         particle.setParent(parent);
@@ -217,7 +222,7 @@ public class AddParticlePanel {
     private static void makeColorButtons(JPanel parentPanel, ParticleEmitter2 particle, JButton[] colorButtons, Color[] colors) {
         for (int i = 0; i < colorButtons.length; i++) {
             final Vec3 colorValues = particle.getSegmentColor(i);
-            final Color color = new Color((int) (colorValues.z * 255), (int) (colorValues.y * 255), (int) (colorValues.x * 255));
+            final Color color = new Color((int) (colorValues.x * 255), (int) (colorValues.y * 255), (int) (colorValues.z * 255));
 
             final JButton button = new JButton("Color " + (i + 1), new ImageIcon(IconUtils.createBlank(color, 32, 32)));
             colors[i] = color;
