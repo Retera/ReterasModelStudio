@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 
 import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D.Double;
 import java.awt.geom.Rectangle2D;
 
@@ -24,18 +25,18 @@ public class SelectManipulator extends Manipulator {
 	}
 
 	@Override
-	protected void onStart(final Double mouseStart, final byte dim1, final byte dim2) {
+	protected void onStart(MouseEvent e, final Double mouseStart, final byte dim1, final byte dim2) {
 		currentDim1 = dim1;
 		currentDim2 = dim2;
 	}
 
 	@Override
-	public void update(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
+	public void update(MouseEvent e, final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
 		this.mouseEnd = mouseEnd;
 	}
 
 	@Override
-	public UndoAction finish(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
+	public UndoAction finish(MouseEvent e, final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
 		final double minX = Math.min(activityStart.x, mouseEnd.x);
 		final double minY = Math.min(activityStart.y, mouseEnd.y);
 		final double maxX = Math.max(activityStart.x, mouseEnd.x);

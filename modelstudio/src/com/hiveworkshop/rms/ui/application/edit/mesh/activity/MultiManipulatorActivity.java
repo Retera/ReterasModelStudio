@@ -56,7 +56,7 @@ public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends Manip
 		manipulator = manipulatorBuilder.buildActivityListener(e.getX(), e.getY(), buttonType, coordinateSystem, selectionView);
 		if (manipulator != null) {
 			mouseStartPoint = new Point2D.Double(coordinateSystem.geomX(e.getPoint().getX()), coordinateSystem.geomY(e.getPoint().getY()));
-			manipulator.start(mouseStartPoint, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+			manipulator.start(e, mouseStartPoint, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 			lastDragPoint = mouseStartPoint;
 		}
 	}
@@ -69,7 +69,7 @@ public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends Manip
 	private void finnishAction(final MouseEvent e, final CoordinateSystem coordinateSystem, boolean wasCanceled) {
 		if (manipulator != null) {
 			final Point2D.Double mouseEnd = new Point2D.Double(coordinateSystem.geomX(e.getPoint().getX()), coordinateSystem.geomY(e.getPoint().getY()));
-			UndoAction undoAction = manipulator.finish(lastDragPoint, mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+			UndoAction undoAction = manipulator.finish(e, lastDragPoint, mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 			if (wasCanceled) {
 				undoAction.undo();
 			} else {
@@ -90,7 +90,7 @@ public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends Manip
 	public void mouseDragged(final MouseEvent e, final CoordinateSystem coordinateSystem) {
 		if (manipulator != null) {
 			final Point2D.Double mouseEnd = new Point2D.Double(coordinateSystem.geomX(e.getPoint().getX()), coordinateSystem.geomY(e.getPoint().getY()));
-			manipulator.update(lastDragPoint, mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+			manipulator.update(e, lastDragPoint, mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 			lastDragPoint = mouseEnd;
 		}
 	}

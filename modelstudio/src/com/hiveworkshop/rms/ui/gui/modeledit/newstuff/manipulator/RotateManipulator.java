@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotate
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.util.Vec3;
 
+import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D.Double;
 
 public class RotateManipulator extends Manipulator {
@@ -14,6 +15,7 @@ public class RotateManipulator extends Manipulator {
 	private final SelectionView selectionView;
 	private GenericRotateAction rotationAction;
 	MoveDimension dir;
+	private double nonRotAngle;
 
 	public RotateManipulator(final ModelEditor modelEditor, final SelectionView selectionView, MoveDimension dir) {
 		this.modelEditor = modelEditor;
@@ -22,11 +24,12 @@ public class RotateManipulator extends Manipulator {
 	}
 
 	@Override
-	protected void onStart(final Double mouseStart, final byte dim1, final byte dim2) {
-		super.onStart(mouseStart, dim1, dim2);
+	protected void onStart(MouseEvent e, final Double mouseStart, final byte dim1, final byte dim2) {
+		super.onStart(e, mouseStart, dim1, dim2);
 		final Vec3 center = selectionView.getCenter();
 		byte planeDim1;
 		byte planeDim2;
+		nonRotAngle = 0;
 //		System.out.println(dir + ", dim1: " + MoveDimension.getByByte(dim1) + " (" + dim1 + ") dim2: " + MoveDimension.getByByte(dim2) + " (" + dim2 + ")");
 
 		if (dir.containDirection(dim1)) {
@@ -44,19 +47,19 @@ public class RotateManipulator extends Manipulator {
 	}
 
 	@Override
-	public void update(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
+	public void update(MouseEvent e, final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
 		final Vec3 center = selectionView.getCenter();
-		final double radians = computeRotateRadians(mouseStart, mouseEnd, center, dim1, dim2);
+		final double radians = computeRotateRadians(e, mouseStart, mouseEnd, center, dim1, dim2);
 		rotationAction.updateRotation(radians);
 	}
 
 	@Override
-	public UndoAction finish(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
-		update(mouseStart, mouseEnd, dim1, dim2);
+	public UndoAction finish(MouseEvent e, final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
+		update(e, mouseStart, mouseEnd, dim1, dim2);
 		return rotationAction;
 	}
 
-	private double computeRotateRadians(final Double startingClick, final Double endingClick, final Vec3 center, final byte portFirstXYZ, final byte portSecondXYZ) {
+	private double computeRotateRadians(MouseEvent e, final Double startingClick, final Double endingClick, final Vec3 center, final byte portFirstXYZ, final byte portSecondXYZ) {
 		double deltaAngle = 0;
 		if (dir == MoveDimension.XYZ) {
 			final double startingDeltaX = startingClick.x - center.getCoord(portFirstXYZ);
@@ -92,7 +95,21 @@ public class RotateManipulator extends Manipulator {
 				deltaAngle = endingAngle - startingAngle;
 			}
 		}
+		if (e.isControlDown()) {
+			nonRotAngle += deltaAngle;
+			deltaAngle = getSnappedAngle(nonRotAngle, 15);
+			nonRotAngle -= deltaAngle;
+		} else {
+			deltaAngle += nonRotAngle;
+			nonRotAngle = 0;
+		}
 		return deltaAngle;
+	}
+
+	private double getSnappedAngle(double angleToSnap, int snapDeg) {
+		double angleDeg = Math.toDegrees(angleToSnap);
+		int snapAngleDeg = ((int) angleDeg / snapDeg) * snapDeg;
+		return Math.toRadians(snapAngleDeg);
 	}
 
 }

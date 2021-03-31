@@ -12,6 +12,7 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D.Double;
 
 public class DrawPlaneManipulator extends Manipulator {
@@ -34,7 +35,7 @@ public class DrawPlaneManipulator extends Manipulator {
 	}
 
 	@Override
-	public void update(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
+	public void update(MouseEvent e, final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
 		if (Math.abs(mouseEnd.x - activityStart.x) >= 0.1 && Math.abs(mouseEnd.y - activityStart.y) >= 0.1) {
 			if (addPlane == null) {
 				try {
@@ -51,7 +52,7 @@ public class DrawPlaneManipulator extends Manipulator {
 	}
 
 	@Override
-	public UndoAction finish(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
+	public UndoAction finish(MouseEvent e, final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
 		if (addPlane == null) {
 			return new DoNothingAction("do nothing");
 		}

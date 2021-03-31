@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotate
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.util.Vec3;
 
+import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D.Double;
 
 public class SquatToolManipulator extends Manipulator {
@@ -22,8 +23,8 @@ public class SquatToolManipulator extends Manipulator {
 	}
 
 	@Override
-	protected void onStart(final Double mouseStart, final byte dim1, final byte dim2) {
-		super.onStart(mouseStart, dim1, dim2);
+	protected void onStart(MouseEvent e, final Double mouseStart, final byte dim1, final byte dim2) {
+		super.onStart(e, mouseStart, dim1, dim2);
 		final Vec3 center = selectionView.getCenter();
 		byte planeDim1;
 		byte planeDim2;
@@ -43,15 +44,15 @@ public class SquatToolManipulator extends Manipulator {
 	}
 
 	@Override
-	public void update(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
+	public void update(MouseEvent e, final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
 		final Vec3 center = selectionView.getCenter();
 		final double radians = computeRotateRadians(mouseStart, mouseEnd, center, dim1, dim2);
 		rotationAction.updateRotation(radians);
 	}
 
 	@Override
-	public UndoAction finish(final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
-		update(mouseStart, mouseEnd, dim1, dim2);
+	public UndoAction finish(MouseEvent e, final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
+		update(e, mouseStart, mouseEnd, dim1, dim2);
 		return rotationAction;
 	}
 
