@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.ui.gui.modeledit;
+package com.hiveworkshop.rms.ui.gui.modeledit.modelcomponenttree;
 
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.ui.application.model.ComponentsPanel;
@@ -57,5 +57,9 @@ abstract class ChooseableDisplayElement<T> {
 
 	public ImageIcon getIcon(final boolean expanded) {
 		return icon;
+	}
+
+	public T getItem() {
+		return item;
 	}
 }
