@@ -16,24 +16,22 @@ public class EditUVsPanel {
 
             panel.initViewport();
 
-            final FloatingWindow floatingWindow = mainPanel.rootWindow.createFloatingWindow(
-                    new Point(
-                            mainPanel.getX() + (mainPanel.getWidth() / 2),
-                            mainPanel.getY() + (mainPanel.getHeight() / 2)),
-                    panel.getSize(),
-                    panel.getView());
+            final FloatingWindow floatingWindow = getWindow(mainPanel, panel);
 
             panel.init();
             floatingWindow.getTopLevelAncestor().setVisible(true);
             panel.packFrame();
         } else if (!panel.frameVisible()) {
-            final FloatingWindow floatingWindow = mainPanel.rootWindow.createFloatingWindow(
-                    new Point(
-                            mainPanel.getX() + (mainPanel.getWidth() / 2),
-                            mainPanel.getY() + (mainPanel.getHeight() / 2)),
-                    panel.getSize(),
-                    panel.getView());
+
+            final FloatingWindow floatingWindow = getWindow(mainPanel, panel);
             floatingWindow.getTopLevelAncestor().setVisible(true);
         }
+    }
+
+    private static FloatingWindow getWindow(MainPanel mainPanel, UVPanel panel) {
+        int wPos = mainPanel.getX() + mainPanel.getWidth() / 2;
+        int hPos = mainPanel.getY() + mainPanel.getHeight() / 2;
+        Point point = new Point(wPos, hPos);
+        return mainPanel.rootWindow.createFloatingWindow(point, panel.getSize(), panel.getView());
     }
 }

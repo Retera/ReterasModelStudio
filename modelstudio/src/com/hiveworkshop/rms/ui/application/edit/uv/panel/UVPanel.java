@@ -141,6 +141,79 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 		setViewport(modelPanel);
 		this.dispMDL = modelPanel;
 
+		JPanel stuffPanel = getStuffPanel();
+
+		JPanel bottomPanel = getBotomPanel();
+
+
+		setLayout(new MigLayout("fill", "[grow][]", "[][grow][]"));
+		add(toolbar, "wrap, spanx");
+//		add(createJToolBar(), "wrap, spanx");
+		add(vp, "grow");
+		add(stuffPanel, "growy, wrap");
+		add(bottomPanel);
+
+		selectionModeGroup.addToolbarButtonListener(newType -> {
+			resetSelectionModeButtons();
+			final ModeButton selectionModeButton = modeToButton.get(newType);
+			if (selectionModeButton != null) {
+				selectionModeButton.setColors(prefs.getActiveColor1(), prefs.getActiveColor2());
+			}
+		});
+
+		selectionItemTypeGroup.addToolbarButtonListener(newType -> {
+			modelEditorManager.setSelectionItemType(newType);
+			repaint();
+		});
+
+		actionTypeGroup.addToolbarButtonListener(newType -> {
+			if (newType != null) {
+				changeActivity(newType);
+			}
+		});
+		actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
+
+		final JPanel menuHolderPanel = new JPanel(new BorderLayout());
+		menuHolderPanel.add(this, BorderLayout.CENTER);
+		menuHolderPanel.add(createMenuBar(), BorderLayout.BEFORE_FIRST_LINE);
+		view = new View("Texture Coordinate Editor: " + currentModelPanel().getModel().getName(), UVIcon, menuHolderPanel);
+	}
+
+	private JPanel getBotomPanel() {
+		JButton plusZoom = addButton(20, 20, "Plus.png", e -> zoom(.15));
+		JButton minusZoom = addButton(20, 20, "Minus.png", e -> zoom(-.15));
+		zoomPanel = new JPanel(new MigLayout("gap 0", "[]16[]"));
+		zoomPanel.add(plusZoom);
+		zoomPanel.add(minusZoom);
+
+		JButton up = addButton(32, 16, "ArrowUp.png", e -> moveUpDown(20));
+		JButton down = addButton(32, 16, "ArrowDown.png", e -> moveUpDown(-20));
+		JButton left = addButton(16, 32, "ArrowLeft.png", e -> moveLeftRight(20));
+		JButton right = addButton(16, 32, "ArrowRight.png", e -> moveLeftRight(-20));
+
+		navPanel = new JPanel(new MigLayout("gap 0"));
+		navPanel.add(up, "cell 1 0");
+		navPanel.add(left, "cell 0 1");
+		navPanel.add(right, "cell 2 1");
+		navPanel.add(down, "cell 1 2");
+
+
+		for (int i = 0; i < mouseCoordDisplay.length; i++) {
+			mouseCoordDisplay[i] = new JTextField("");
+			mouseCoordDisplay[i].setMaximumSize(new Dimension(80, 18));
+			mouseCoordDisplay[i].setMinimumSize(new Dimension(50, 15));
+			mouseCoordDisplay[i].setEditable(false);
+		}
+
+		JPanel botomPanel = new JPanel(new MigLayout("gap 0, hidemode 2", "[][]120[]16[]"));
+		botomPanel.add(mouseCoordDisplay[0], "aligny top");
+		botomPanel.add(mouseCoordDisplay[1], "aligny top");
+		botomPanel.add(navPanel);
+		botomPanel.add(zoomPanel);
+		return botomPanel;
+	}
+
+	private JPanel getStuffPanel() {
 		// Copied from MainPanel
 		ModeButton selectButton = new ModeButton("Select");
 		selectButton.addActionListener(new ButtonModeChangeListener(0));
@@ -206,37 +279,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 //			button.addActionListener(this);
 		}
 
-		JButton plusZoom = addButton(20, 20, "Plus.png", e -> zoom(.15));
-		JButton minusZoom = addButton(20, 20, "Minus.png", e -> zoom(-.15));
-		zoomPanel = new JPanel(new MigLayout("gap 0", "[]16[]"));
-		zoomPanel.add(plusZoom);
-		zoomPanel.add(minusZoom);
-
-		JButton up = addButton(32, 16, "ArrowUp.png", e -> moveUpDown(20));
-		JButton down = addButton(32, 16, "ArrowDown.png", e -> moveUpDown(-20));
-		JButton left = addButton(16, 32, "ArrowLeft.png", e -> moveLeftRight(20));
-		JButton right = addButton(16, 32, "ArrowRight.png", e -> moveLeftRight(-20));
-
-		navPanel = new JPanel(new MigLayout("gap 0"));
-		navPanel.add(up, "cell 1 0");
-		navPanel.add(left, "cell 0 1");
-		navPanel.add(right, "cell 2 1");
-		navPanel.add(down, "cell 1 2");
-
-
-		for (int i = 0; i < mouseCoordDisplay.length; i++) {
-			mouseCoordDisplay[i] = new JTextField("");
-			mouseCoordDisplay[i].setMaximumSize(new Dimension(80, 18));
-			mouseCoordDisplay[i].setMinimumSize(new Dimension(50, 15));
-			mouseCoordDisplay[i].setEditable(false);
-		}
-
-		JPanel botomPanel = new JPanel(new MigLayout("gap 0", "[][]120[]16[]"));
-		botomPanel.add(mouseCoordDisplay[0], "aligny top");
-		botomPanel.add(mouseCoordDisplay[1], "aligny top");
-		botomPanel.add(navPanel);
-		botomPanel.add(zoomPanel);
-
+		// ToDo the texture combo box should maybe be limited in size and/or moved to a better spot to allow to view longer strings
 		JPanel stuffPanel = new JPanel(new MigLayout("wrap 1, gap 0"));
 		stuffPanel.add(loadImage);
 		stuffPanel.add(getTextureCombobox());
@@ -251,38 +294,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 		stuffPanel.add(divider[2]);
 		stuffPanel.add(unwrapDirectionBox);
 		stuffPanel.add(unwrapButton);
-
-		setLayout(new MigLayout());
-		add(toolbar, "wrap, spanx");
-//		add(createJToolBar(), "wrap, spanx");
-		add(vp, "grow");
-		add(stuffPanel, "growy, wrap");
-		add(botomPanel);
-
-		selectionModeGroup.addToolbarButtonListener(newType -> {
-			resetSelectionModeButtons();
-			final ModeButton selectionModeButton = modeToButton.get(newType);
-			if (selectionModeButton != null) {
-				selectionModeButton.setColors(prefs.getActiveColor1(), prefs.getActiveColor2());
-			}
-		});
-
-		selectionItemTypeGroup.addToolbarButtonListener(newType -> {
-			modelEditorManager.setSelectionItemType(newType);
-			repaint();
-		});
-
-		actionTypeGroup.addToolbarButtonListener(newType -> {
-			if (newType != null) {
-				changeActivity(newType);
-			}
-		});
-		actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
-
-		final JPanel menuHolderPanel = new JPanel(new BorderLayout());
-		menuHolderPanel.add(this, BorderLayout.CENTER);
-		menuHolderPanel.add(createMenuBar(), BorderLayout.BEFORE_FIRST_LINE);
-		view = new View("Texture Coordinate Editor: " + currentModelPanel().getModel().getName(), UVIcon, menuHolderPanel);
+		return stuffPanel;
 	}
 
 	private void addUndoAction(UndoAction undoAction) {
