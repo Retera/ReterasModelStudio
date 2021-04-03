@@ -3,9 +3,17 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import java.awt.*;
+import java.util.List;
 
 public class GeosetEditPanel extends JPanel {
 
+	public CardLayout geoCardLayout = new CardLayout();
+	public JPanel geoPanelCards = new JPanel(geoCardLayout);
+	public JPanel blankPane = new JPanel();
+	//	public MultiGeosetPanel multiGeosetPane;
+	GeosetPanel singleGeosetPanel;
 	ModelHolderThing mht;
 
 	public GeosetEditPanel(ModelHolderThing mht) {
@@ -14,28 +22,44 @@ public class GeosetEditPanel extends JPanel {
 
 		add(getTopPanel(), "spanx, align center, wrap");
 
-		// A list of all materials available for use during this import, in the form of a IterableListModel
+		GeosetListCellRenderer2D geosetListCellRenderer = new GeosetListCellRenderer2D(mht.recModelManager, mht.donModelManager);
+		mht.geosetShellJList.setCellRenderer(geosetListCellRenderer);
+		mht.geosetShellJList.addListSelectionListener(e -> showGeosetCard(mht, e));
+//		mht.geosetShellJList.setSelectedIndex(0);
+		mht.geosetShellJList.setSelectedValue(null, false);
+		JScrollPane geosetTabsPane = new JScrollPane(mht.geosetShellJList);
+		geosetTabsPane.setMinimumSize(new Dimension(150, 200));
 
-		final MaterialListCellRenderer materialsRenderer = new MaterialListCellRenderer(mht.receivingModel);
-		// All material lists will know which materials come from the
-		// out-of-model source (imported model)
+		geoPanelCards.add(blankPane, "blank");
 
-		// Build the geosetTabs list of GeosetPanels
+		singleGeosetPanel = new GeosetPanel(mht, mht.allMaterials);
+		geoPanelCards.add(singleGeosetPanel, "single");
 
-		JTabbedPane geosetTabs = new JTabbedPane(JTabbedPane.LEFT, JTabbedPane.SCROLL_TAB_LAYOUT);
+//		multiGeosetPane = new MultiGeosetPanel(mht, mht.boneShellRenderer);
+//		geoPanelCards.add(multiGeosetPane, "multiple");
 
-		for (GeosetShell geosetShell : mht.allGeoShells) {
-			final GeosetPanel geoPanel = new GeosetPanel(mht, mht.allMaterials, materialsRenderer);
-			geoPanel.setGeoset(geosetShell);
+		geoPanelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
 
-			ImageIcon imageIcon = ImportPanel.greenIcon;
-			if(geosetShell.isFromDonating()){
-				imageIcon = ImportPanel.orangeIcon;
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, geosetTabsPane, geoPanelCards);
+		add(splitPane, "growx, growy");
+	}
+
+	private void showGeosetCard(ModelHolderThing mht, ListSelectionEvent e) {
+		if (e.getValueIsAdjusting()) {
+			List<GeosetShell> selectedValuesList = mht.geosetShellJList.getSelectedValuesList();
+			if (selectedValuesList.size() < 1) {
+//				mht.geoShellRenderer.setSelectedBoneShell(null);
+				geoCardLayout.show(geoPanelCards, "blank");
+			} else if (selectedValuesList.size() == 1) {
+//				mht.geoShellRenderer.setSelectedBoneShell(mht.geosetShellJList.getSelectedValue());
+				singleGeosetPanel.setGeoset(mht.geosetShellJList.getSelectedValue());
+				geoCardLayout.show(geoPanelCards, "single");
+			} else {
+//				mht.geoShellRenderer.setSelectedBoneShell(null);
+//				multiGeosetPane.updateMultiBonePanel();
+				geoCardLayout.show(geoPanelCards, "multiple");
 			}
-			geosetTabs.addTab(geosetShell.getModelName() + " " + (geosetShell.getIndex() + 1), imageIcon, geoPanel, "Click to modify material data for this geoset.");
 		}
-
-		add(geosetTabs, "growx, growy");
 	}
 
 	private JPanel getTopPanel() {

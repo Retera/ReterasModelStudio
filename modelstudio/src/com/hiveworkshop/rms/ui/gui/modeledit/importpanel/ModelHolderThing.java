@@ -17,6 +17,7 @@ public class ModelHolderThing {
 	public IterableListModel<GeosetShell> recModGeoShells = new IterableListModel<>();
 	public IterableListModel<GeosetShell> donModGeoShells = new IterableListModel<>();
 	public IterableListModel<GeosetShell> allGeoShells = new IterableListModel<>();
+	public JList<GeosetShell> geosetShellJList = new JList<>(allGeoShells);
 	public IterableListModel<Material> recModMaterials = new IterableListModel<>();
 	public IterableListModel<Material> donModMaterials = new IterableListModel<>();
 	public IterableListModel<Material> allMaterials = new IterableListModel<>();

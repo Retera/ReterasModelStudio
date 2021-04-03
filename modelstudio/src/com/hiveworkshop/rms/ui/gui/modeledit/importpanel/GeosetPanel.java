@@ -20,11 +20,12 @@ class GeosetPanel extends JPanel {
 	private ModelHolderThing mht;
 	private GeosetShell selectedGeoset;
 
-	public GeosetPanel(ModelHolderThing mht, DefaultListModel<Material> materials, MaterialListCellRenderer renderer) {
+	public GeosetPanel(ModelHolderThing mht, DefaultListModel<Material> materials) {
 		this.mht = mht;
 		setLayout(new MigLayout("gap 0"));
 		// Geoset/Skin panel for controlling materials and geosets
-		this.renderer = renderer;
+		renderer = new MaterialListCellRenderer(mht.receivingModel);
+		;
 
 		geoTitle = new JLabel("Select a geoset");
 		geoTitle.setFont(new Font("Arial", Font.BOLD, 26));
@@ -59,22 +60,17 @@ class GeosetPanel extends JPanel {
 
 	public void setGeoset(GeosetShell geosetShell) {
 		selectedGeoset = geosetShell;
+		renderer.setSelectedGeoset(geosetShell);
 		EditableModel model = geosetShell.getModel();
 		int index = geosetShell.getIndex();
 
 		geoTitle.setText(model.getName() + " " + (index + 1));
 
-		doImport.setEnabled(geosetShell.isFromDonating());
+//		doImport.setEnabled(geosetShell.isFromDonating());
 		if (geosetShell.isFromDonating()) {
 			doImport.setSelected(geosetShell.isDoImport());
 		}
 		materialList.setSelectedValue(selectedGeoset.getMaterial(), true);
-	}
-
-	@Override
-	public void paintComponent(final Graphics g) {
-		renderer.setMaterial(selectedGeoset.getOldMaterial());
-		super.paintComponent(g);
 	}
 
 	private void setGeosetMaterial(ListSelectionEvent e) {

@@ -152,16 +152,22 @@ public class ViewportModelRenderer implements ModelVisitor {
 		}
 
 		@Override
-		public void geosetFinished() { }
+		public void geosetFinished() {
+		}
 
 	}
 
-	public static void drawGeosetFlat(EditableModel model, Graphics g, byte a, byte b) {
-		g.setColor(Color.GRAY);
+	public static void drawGeosetsFlat(EditableModel model, Graphics g, byte a, byte b, Color color) {
+//		g.setColor(color);
 		for (final Geoset geo : model.getGeosets()) {
-			for (final Triangle t : geo.getTriangles()) {
-				drawTriangle(g, a, b, t);
-			}
+			drawGeosetFlat(g, a, b, geo, color);
+		}
+	}
+
+	public static void drawGeosetFlat(Graphics g, byte a, byte b, Geoset geo, Color color) {
+		g.setColor(color);
+		for (final Triangle t : geo.getTriangles()) {
+			drawTriangle(g, a, b, t);
 		}
 	}
 

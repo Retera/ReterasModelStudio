@@ -156,6 +156,7 @@ public class ImportPanel extends JTabbedPane {
 			}
 
 			List<Geoset> geosetsAdded = addChosenGeosets();
+			List<Geoset> geosetsRemoved = getGeosetsRemoved();
 
 			final List<Animation> oldAnims = new ArrayList<>(mht.receivingModel.getAnims());
 
@@ -247,6 +248,7 @@ public class ImportPanel extends JTabbedPane {
 
 			if (callback != null) {
 				callback.geosetsAdded(geosetsAdded);
+				callback.geosetsRemoved(geosetsRemoved);
 				callback.nodesAdded(objectsAdded);
 				callback.camerasAdded(camerasAdded);
 			}
@@ -517,10 +519,10 @@ public class ImportPanel extends JTabbedPane {
 	private List<Geoset> addChosenGeosets() {
 		List<Geoset> geosetsAdded = new ArrayList<>();
 
-		for (GeosetShell geoShell : mht.allGeoShells) {
-			geoShell.getGeoset().setMaterial(geoShell.getMaterial());
+		for (GeosetShell geoShell : mht.donModGeoShells) {
 
-			if (geoShell.isFromDonating() && geoShell.isDoImport()) {
+			if (geoShell.isDoImport()) {
+				geoShell.getGeoset().setMaterial(geoShell.getMaterial());
 				mht.receivingModel.add(geoShell.getGeoset());
 
 				geosetsAdded.add(geoShell.getGeoset());
@@ -531,6 +533,24 @@ public class ImportPanel extends JTabbedPane {
 			}
 		}
 		return geosetsAdded;
+	}
+
+	private List<Geoset> getGeosetsRemoved() {
+		List<Geoset> geosetsRemoved = new ArrayList<>();
+
+		for (GeosetShell geoShell : mht.recModGeoShells) {
+
+			if (!geoShell.isDoImport()) {
+				if (geoShell.getGeoset().getGeosetAnim() != null) {
+					mht.receivingModel.remove(geoShell.getGeoset().getGeosetAnim());
+				}
+				geosetsRemoved.add(geoShell.getGeoset());
+				mht.receivingModel.remove(geoShell.getGeoset());
+			} else {
+				geoShell.getGeoset().setMaterial(geoShell.getMaterial());
+			}
+		}
+		return geosetsRemoved;
 	}
 
 	public boolean importSuccessful() {
