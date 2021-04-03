@@ -36,24 +36,94 @@ public class SaveProfile implements Serializable {
 	public static SaveProfile get() {
 		if (currentProfile == null) {
 			try {
-				final String homeProfile = System.getProperty("user.home");
-				String profilePath = getProfilePath();
-				final File profileDir = new File(homeProfile + profilePath);
+				String homeProfile = System.getProperty("user.home");
+				File profileDir = new File(homeProfile + getProfilePath());
 				File profileFile = getProfileFile(profileDir);
+				if (!profileFile.exists()) {
+					profileFile = getOldProfileFile(profileDir);
+				}
+
 				final ObjectInputStream ois = new ObjectInputStream(new FileInputStream(profileFile));
 				currentProfile = (SaveProfile) ois.readObject();
-				currentProfile.preferences.reload();
-				currentProfile.reload();
+				currentProfile.getPreferences().setNullToDefaults();
 				ois.close();
-			} catch (final Exception e) {
 
+			} catch (final Exception e) {
+				Exception e3 = new Exception("Failed to load new style preferences;\nWill try to load as old style!\n", e);
+				e3.printStackTrace();
+				System.out.println("Will try to load old preferences");
+				tryToLoadOldPrefs();
 			}
 			if (currentProfile == null) {
 				currentProfile = new SaveProfile();
 				currentProfile.preferences = new ProgramPreferences();
+			} else if (currentProfile.preferences == null) {
+				currentProfile.preferences = new ProgramPreferences();
 			}
 		}
 		return currentProfile;
+	}
+
+	private static void tryToLoadOldPrefs() {
+		try {
+			String homeProfile = System.getProperty("user.home");
+			File profileDir = new File(homeProfile + getProfilePath());
+			File profileFile = getProfileFile(profileDir);
+			if (!profileFile.exists()) {
+				profileFile = getOldProfileFile(profileDir);
+			}
+			File tempFile = new File(profileFile.getPath() + "_temp");
+
+			if (tempFile.createNewFile()) {
+				FileInputStream fis = new FileInputStream(profileFile);
+				final FileOutputStream fos = new FileOutputStream(tempFile);
+				byte[] bytes = fis.readAllBytes();
+
+				ArrayList<Byte> byteList = new ArrayList<>();
+				String prefClass = "ProgramPreferences";
+				String saveClass = "SaveProfile";
+
+				for (byte b : bytes) {
+					if (byteList.size() < prefClass.length() && b == prefClass.charAt(byteList.size())) {
+						byteList.add(b);
+					} else if (byteList.size() < saveClass.length() && b == saveClass.charAt(byteList.size())) {
+						byteList.add(b);
+					} else if (byteList.size() != 0) {
+						if (byteList.size() == prefClass.length() || byteList.size() == saveClass.length()) {
+							byteList.set(byteList.size() - 1, (byte) '2');
+						}
+						for (byte b2 : byteList) {
+							fos.write(b2);
+						}
+						byteList.clear();
+						fos.write(b);
+					} else {
+						fos.write(b);
+					}
+				}
+				fos.close();
+
+				final ObjectInputStream ois = new ObjectInputStream(new FileInputStream(tempFile));
+				SaveProfil2 oldSaveProf = (SaveProfil2) ois.readObject();
+
+				SaveProfile saveProfile = new SaveProfile();
+				saveProfile.setPreferences(oldSaveProf.getPreferences().getAsNewPrefs());
+				saveProfile.setDataSources(oldSaveProf.getDataSources());
+				saveProfile.setPath(oldSaveProf.getPath());
+				for (String s : saveProfile.getRecent()) {
+					saveProfile.addRecent(s);
+				}
+
+				currentProfile = saveProfile;
+
+				ois.close();
+				tempFile.delete();
+				System.out.println("seems to successfully loaded new setting");
+			}
+		} catch (Exception e2) {
+			System.out.println("failed to load old settings");
+			e2.printStackTrace();
+		}
 	}
 
 	public static void save() {
@@ -115,6 +185,16 @@ public class SaveProfile implements Serializable {
 	}
 
 	public static File getProfileFile(File profileDir) {
+		File profileFile = new File(profileDir.getPath() + "\\user.profileNew");
+		if (!System.getProperty("os.name").toLowerCase().contains("win")) {
+			profileFile = new File(profileFile.getPath().replace('\\', '/'));
+		}
+		return profileFile;
+	}
+
+	// To not overwrite old prefs
+	// (mostly for twilacs convinience; makes it possible to open old snapshots without specifying the game path)
+	public static File getOldProfileFile(File profileDir) {
 		File profileFile = new File(profileDir.getPath() + "\\user.profile");
 		if (!System.getProperty("os.name").toLowerCase().contains("win")) {
 			profileFile = new File(profileFile.getPath().replace('\\', '/'));
