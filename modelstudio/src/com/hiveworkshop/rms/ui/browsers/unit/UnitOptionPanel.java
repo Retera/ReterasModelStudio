@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.parsers.slk.GameObjectComparator;
 import com.hiveworkshop.rms.parsers.slk.ObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
+import com.hiveworkshop.rms.util.ScreenInfo;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -54,7 +55,8 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 	}
 
 	public UnitOptionPanel(final ObjectData dataTable, final ObjectData abilityData, final boolean hideBorder, final boolean verticalStyle) {
-		setLayout(new MigLayout("fillx"));
+		setLayout(new MigLayout("fill"));
+		setMaximumSize(ScreenInfo.getBigWindow());
 		unitData = dataTable;
 		this.abilityData = abilityData;
 		this.verticalStyle = verticalStyle;
@@ -63,12 +65,6 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 		buildingsLabel = new JLabel(WEString.getString("WESTRING_UTYPE_BUILDINGS"));
 		buildingsUprootedLabel = new JLabel(WEString.getString("WESTRING_UTYPE_BUILDINGS_UPROOTED"));
 		specialLabel = new JLabel(WEString.getString("WESTRING_UTYPE_SPECIAL"));
-
-		// for( int i = 0; i < 12; i++ ) {
-		// playerBoxModel.addElement(WEString.getString("WESTRING_PLAYER_" +
-		// String.format("%2d",i).replace(" ", "0")).replace("\"", ""));}
-		// playerBoxModel.addElement(WEString.getString("WESTRING_PLAYER_NA").replace("\"", ""));
-		// playerBoxModel.addElement(WEString.getString("WESTRING_PLAYER_NP").replace("\"", ""));
 
 		String[] raceStrings = {"WESTRING_RACE_HUMAN", "WESTRING_RACE_ORC", "WESTRING_RACE_UNDEAD", "WESTRING_RACE_NIGHTELF", "WESTRING_RACE_NEUTRAL", "WESTRING_RACE_NEUTRAL_NAGA"};
 		fillModel(raceBoxModel, raceStrings);
@@ -100,6 +96,7 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 		buttonsScrollPane = new JScrollPane(buttonsPanel);
 		buttonsScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		buttonsScrollPane.setFocusable(true);
+		buttonsScrollPane.setMaximumSize(ScreenInfo.getBigWindow());
 //		if (hideBorder) {
 //			buttonsScrollPane.setBorder(null);
 //		}
@@ -306,6 +303,7 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 //		System.out.println(rowLength);
 
 		buttonsPanel.setLayout(new MigLayout("wrap " + (rowLength - 1)));
+		buttonsScrollPane.setMaximumSize(ScreenInfo.getBigWindow());
 
 		fillWithButtons(tileset, isNeutral, checkLevel, data.units);
 		addComponents(tileset, isNeutral, checkLevel, data.heroes, heroesLabel);
