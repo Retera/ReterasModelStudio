@@ -76,6 +76,10 @@ public class BoneShellListCellRenderer extends AbstractSnapshottingListCellRende
 		} else {
 			setText(value.toString());
 		}
+		if (value instanceof BoneShell && ((BoneShell) value).getImportStatus() != BoneShell.ImportType.IMPORT) {
+			bg = Vec3.getProd(bg, otherOwnerBgCol).normalize().scale(160);
+			fg = Vec3.getProd(bg, otherOwnerFgCol).normalize().scale(60);
+		}
 
 		if (isSelected) {
 			bg = Vec3.getSum(bg, hLAdjBgCol);

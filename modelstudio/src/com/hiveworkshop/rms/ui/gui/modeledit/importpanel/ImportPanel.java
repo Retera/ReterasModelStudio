@@ -419,7 +419,7 @@ public class ImportPanel extends JTabbedPane {
 
 	private void copyMotionFromBones() {
 		for (BoneShell bs : mht.recModBoneShells) {
-			if (bs.getImportBoneShell() != null && bs.getImportBoneShell().getImportStatus() == 1) {
+			if (bs.getImportBoneShell() != null && bs.getImportBoneShell().getImportStatus() == BoneShell.ImportType.MOTIONFROM) {
 				bs.getBone().copyMotionFrom(bs.getImportBone());
 			}
 		}
@@ -427,11 +427,10 @@ public class ImportPanel extends JTabbedPane {
 
 	private void addChosenNewBones(List<IdObject> objectsAdded) {
 		for (BoneShell boneShell : mht.donModBoneShells) {
-			final int type = boneShell.getImportStatus();
 			// we will go through all bone shells for this
 			// Fix cross-model referencing issue (force clean parent node's list of children)
-			switch (type) {
-				case 0 -> {
+			switch (boneShell.getImportStatus()) {
+				case IMPORT -> {
 					System.out.println("adding bone: " + boneShell);
 					mht.receivingModel.add(boneShell.getBone());
 					objectsAdded.add(boneShell.getBone());
@@ -441,7 +440,7 @@ public class ImportPanel extends JTabbedPane {
 						boneShell.getBone().setParent(null);
 					}
 				}
-				case 1, 2 -> boneShell.getBone().setParent(null);
+				case MOTIONFROM, DONTIMPORT -> boneShell.getBone().setParent(null);
 			}
 		}
 	}
@@ -466,7 +465,7 @@ public class ImportPanel extends JTabbedPane {
 
 				if (!mht.clearExistingBones.isSelected()) {
 					for (BoneShell bs : mht.recModBoneShells) {
-						if (bs.getImportBoneShell() != null && bs.getImportBoneShell().getImportStatus() == 1) {
+						if (bs.getImportBoneShell() != null && bs.getImportBoneShell().getImportStatus() == BoneShell.ImportType.MOTIONFROM) {
 							System.out.println("Attempting to clear animation for " + bs.getBone().getName() + " values " + animShell.getAnim().getStart() + ", " + animShell.getAnim().getEnd());
 							bs.getBone().clearAnimation(animShell.getAnim());
 						}
@@ -553,7 +552,7 @@ public class ImportPanel extends JTabbedPane {
 	// *********************Simple Import Functions****************
 	public void animTransfer(final boolean singleAnimation, final Animation pickedAnim, final Animation visFromAnim, final boolean show) {
 		mht.importAllGeos(false);
-		mht.setImportStatusForAllBones(1);
+		mht.setImportStatusForAllBones(BoneShell.ImportType.MOTIONFROM);
 		mht.clearRecModAnims.doClick();
 		mht.importAllObjs(false);
 		mht.visibilityList();
@@ -606,7 +605,7 @@ public class ImportPanel extends JTabbedPane {
 		mht.importAllGeos(false);
 //		mht.doImportAllAnims(false);
 		mht.setImportTypeForAllAnims(AnimShell.ImportType.DONTIMPORT);
-		mht.setImportStatusForAllBones(2);
+		mht.setImportStatusForAllBones(BoneShell.ImportType.DONTIMPORT);
 		mht.importAllObjs(false);
 		mht.visibilityList();
 		mht.selSimButton();

@@ -69,7 +69,7 @@ public class BoneAttachmentEditPanel extends JPanel {
 						boolean good = true;
 						int k = 0;
 						while (good) {
-							if ((current == null) || (current.getImportStatus() == 1)) {
+							if ((current == null) || (current.getImportStatus() == BoneShell.ImportType.MOTIONFROM)) {
 								break;
 							}
 							shell = current.getNewParentBs();

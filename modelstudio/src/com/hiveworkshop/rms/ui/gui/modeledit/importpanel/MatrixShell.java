@@ -64,6 +64,9 @@ public class MatrixShell {
 	}
 
 	public void addNewBone(BoneShell boneShell) {
+		if (boneShell.getImportStatus() == BoneShell.ImportType.DONTIMPORT) {
+			boneShell.setImportStatus(BoneShell.ImportType.IMPORT);
+		}
 		newBones.addElement(boneShell);
 	}
 

@@ -66,7 +66,7 @@ public class ObjectEditPanel extends JPanel {
 					boolean good = true;
 					int k = 0;
 					while (good) {
-						if (current.getImportStatus() == 1) {
+						if (current.getImportStatus() == BoneShell.ImportType.MOTIONFROM) {
 							break;
 						}
 						shell = current.getNewParentBs();

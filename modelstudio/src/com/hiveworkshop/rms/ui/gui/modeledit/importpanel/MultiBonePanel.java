@@ -47,18 +47,18 @@ class MultiBonePanel extends BonePanel {
 	public void updateMultiBonePanel(){
 		List<BoneShell> selectedValuesList = mht.donModBoneShellJList.getSelectedValuesList();
 
-		int firstImportStatus = selectedValuesList.get(0).getImportStatus();
+		BoneShell.ImportType firstImportStatus = selectedValuesList.get(0).getImportStatus();
 
-		if(selectedValuesList.stream().anyMatch(bs -> bs.getImportStatus() != firstImportStatus)){
+		if (selectedValuesList.stream().anyMatch(bs -> bs.getImportStatus() != firstImportStatus)) {
 			setMultiTypes();
 		} else {
-			importTypeBox.setSelectedIndex(firstImportStatus);
+			importTypeBox.setSelectedIndex(firstImportStatus.ordinal());
 		}
 	}
 
 	@Override
 	public void setSelectedIndex(final int index) {
-		if (importTypeBox.getSelectedItem() == MOTIONFROM) {
+		if (importTypeBox.getSelectedItem() == BoneShell.ImportType.MOTIONFROM) {
 			cards.show(cardPanel, "boneList");
 		} else {
 			cards.show(cardPanel, "blank");
@@ -66,13 +66,13 @@ class MultiBonePanel extends BonePanel {
 	}
 
 	private void showImportTypeCard() {
-		if (importTypeBox.getSelectedItem() == MOTIONFROM) {
+		if (importTypeBox.getSelectedItem() == BoneShell.ImportType.MOTIONFROM) {
 			cards.show(cardPanel, "boneList");
 			importTypeForAll();
-		} else if(importTypeBox.getSelectedItem() == LEAVE){
+		} else if (importTypeBox.getSelectedItem() == BoneShell.ImportType.DONTIMPORT) {
 			cards.show(cardPanel, "blank");
 			importTypeForAll();
-		} else if(importTypeBox.getSelectedItem() == IMPORT){
+		} else if (importTypeBox.getSelectedItem() == BoneShell.ImportType.IMPORT) {
 			cards.show(cardPanel, "blank");
 			importTypeForAll();
 		} else {

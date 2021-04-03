@@ -102,29 +102,32 @@ public class ModelHolderThing {
 	}
 
 	public IterableListModel<BoneShell> getFutureBoneList() {
+		futureBoneList.clear();
+		ArrayList<BoneShell> motionFromBones = new ArrayList<>();
+		ArrayList<BoneShell> dontImportBones = new ArrayList<>();
+
 		if (!clearExistingBones.isSelected()) {
 			for (final BoneShell b : recModBones) {
-				if (!futureBoneList.contains(b)) {
+				if (b.getImportStatus() == BoneShell.ImportType.IMPORT) {
 					futureBoneList.addElement(b);
+				} else if (b.getImportStatus() == BoneShell.ImportType.DONTIMPORT) {
+					dontImportBones.add(b);
+				} else if (b.getImportStatus() == BoneShell.ImportType.MOTIONFROM) {
+					motionFromBones.add(b);
 				}
 			}
-		} else {
-			futureBoneList.removeAll(recModBones);
-//			for (final BoneShell b : recModBones) {
-//				if (futureBoneList.contains(b)) {
-//					futureBoneList.removeElement(b);
-//				}
-//			}
 		}
+
 		for (final BoneShell b : donModBones) {
-			if (b.getImportStatus() == 0) {
-				if (!futureBoneList.contains(b)) {
-					futureBoneList.addElement(b);
-				}
-			} else {
-				futureBoneList.removeElement(b);
+			if (b.getImportStatus() == BoneShell.ImportType.IMPORT) {
+				futureBoneList.addElement(b);
+			} else if (b.getImportStatus() == BoneShell.ImportType.DONTIMPORT) {
+				dontImportBones.add(b);
+			} else if (b.getImportStatus() == BoneShell.ImportType.MOTIONFROM) {
+				motionFromBones.add(b);
 			}
 		}
+		futureBoneList.addAll(dontImportBones);
 		return futureBoneList;
 	}
 
@@ -134,83 +137,36 @@ public class ModelHolderThing {
 		totalRemoveTime = 0;
 		removeCount = 0;
 
+		ArrayList<BoneShell> motionFromBones = new ArrayList<>();
+		ArrayList<BoneShell> dontImportBones = new ArrayList<>();
+
+		futureBoneListEx.clear();
+
 		if (!clearExistingBones.isSelected()) {
 			for (final BoneShell b : recModBoneShells) {
-				if (!futureBoneListExQuickLookupSet.contains(b)) {
-					final long startTime = System.nanoTime();
+				if (b.getImportStatus() == BoneShell.ImportType.IMPORT) {
 					futureBoneListEx.addElement(b);
-					final long endTime = System.nanoTime();
-					totalAddTime += (endTime - startTime);
-					addCount++;
-					futureBoneListExQuickLookupSet.add(b);
-				}
-			}
-		} else {
-			for (final BoneShell b : recModBoneShells) {
-				if (futureBoneListExQuickLookupSet.remove(b)) {
-					final long startTime = System.nanoTime();
-					futureBoneListEx.removeElement(b);
-					final long endTime = System.nanoTime();
-					totalRemoveTime += (endTime - startTime);
-					removeCount++;
+				} else if (b.getImportStatus() == BoneShell.ImportType.DONTIMPORT) {
+					dontImportBones.add(b);
+				} else if (b.getImportStatus() == BoneShell.ImportType.MOTIONFROM) {
+					motionFromBones.add(b);
 				}
 			}
 		}
+
 		for (final BoneShell b : donModBoneShells) {
-			if (b.getImportStatus() == 0) {
-				if (!futureBoneListExQuickLookupSet.contains(b)) {
-					final long startTime = System.nanoTime();
-					futureBoneListEx.addElement(b);
-					final long endTime = System.nanoTime();
-					totalAddTime += (endTime - startTime);
-					addCount++;
-					futureBoneListExQuickLookupSet.add(b);
-				}
-			} else {
-				if (futureBoneListExQuickLookupSet.remove(b)) {
-					final long startTime = System.nanoTime();
-					futureBoneListEx.removeElement(b);
-					final long endTime = System.nanoTime();
-					totalRemoveTime += (endTime - startTime);
-					removeCount++;
-				}
-			}
-
-		}
-
-		if (addCount != 0) {
-			System.out.println("average add time: " + (totalAddTime / addCount));
-			System.out.println("add count: " + addCount);
-		}
-		if (removeCount != 0) {
-			System.out.println("average remove time: " + (totalRemoveTime / removeCount));
-			System.out.println("remove count: " + removeCount);
-		}
-
-		final IterableListModel<BoneShell> listModelToReturn;
-		if (newSnapshot || futureBoneListExFixableItems.isEmpty()) {
-			final IterableListModel<BoneShell> futureBoneListReplica = new IterableListModel<>();
-			futureBoneListExFixableItems.add(futureBoneListReplica);
-			listModelToReturn = futureBoneListReplica;
-		} else {
-			listModelToReturn = futureBoneListExFixableItems.get(0);
-		}
-		// We CANT call clear, we have to preserve the parent list
-		for (final IterableListModel<BoneShell> model : futureBoneListExFixableItems) {
-			// clean things that should not be there
-			for (BoneShell previousElement : model) {
-				if (!futureBoneListExQuickLookupSet.contains(previousElement)) {
-					model.remove(previousElement);
-				}
-			}
-			// add back things who should be there
-			for (BoneShell elementAt : futureBoneListEx) {
-				if (!model.contains(elementAt)) {
-					model.addElement(elementAt);
-				}
+			if (b.getImportStatus() == BoneShell.ImportType.IMPORT) {
+				futureBoneListEx.addElement(b);
+			} else if (b.getImportStatus() == BoneShell.ImportType.DONTIMPORT) {
+				dontImportBones.add(b);
+			} else if (b.getImportStatus() == BoneShell.ImportType.MOTIONFROM) {
+				motionFromBones.add(b);
 			}
 		}
-		return listModelToReturn;
+
+		futureBoneListEx.addAll(dontImportBones);
+
+		return futureBoneListEx;
 	}
 
 	long totalAddTime;
@@ -222,18 +178,18 @@ public class ModelHolderThing {
 		}
 	}
 
-	public void setImportStatusForAllBones(int selectionIndex) {
+	public void setImportStatusForAllBones(BoneShell.ImportType importType) {
 		Map<String, BoneShell> nameMap = new HashMap<>();
-		if (selectionIndex == 1) {
+		if (importType == BoneShell.ImportType.MOTIONFROM) {
 			for (BoneShell boneShell : recModBoneShells) {
 				nameMap.put(boneShell.getName(), boneShell);
 			}
 		}
 		for (BoneShell boneShell : donModBoneShells) {
-			boneShell.setImportStatus(selectionIndex);
-			if (selectionIndex == 1 && nameMap.containsKey(boneShell.getName())) {
+			boneShell.setImportStatus(importType);
+			if (importType == BoneShell.ImportType.MOTIONFROM && nameMap.containsKey(boneShell.getName())) {
 				nameMap.get(boneShell.getName()).setImportBoneShell(boneShell);
-			} else if (selectionIndex != 1) {
+			} else if (importType != BoneShell.ImportType.MOTIONFROM) {
 				boneShell.setImportBoneShell(null);
 			}
 		}

@@ -13,15 +13,9 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class BonePanel extends JPanel {
-	static final String IMPORT = "Import this bone";
-	static final String MOTIONFROM = "Import motion to pre-existing:";
-	static final String LEAVE = "Do not import";
-	//	Bone bone;
 	BoneShell selectedBone;
 	JLabel title;
-	String[] impOptions = {IMPORT, MOTIONFROM, LEAVE};
-
-	JComboBox<String> importTypeBox = new JComboBox<>(impOptions);
+	JComboBox<String> importTypeBox = new JComboBox<>(BoneShell.ImportType.getDispList());
 
 	// List for which bone to transfer motion
 	IterableListModel<BoneShell> recModMotionBonesListModel = new IterableListModel<>();
@@ -38,7 +32,7 @@ public class BonePanel extends JPanel {
 	IterableListModel<BoneShell> filteredFutureBones = new IterableListModel<>();
 	JList<BoneShell> futureBonesList;
 	JLabel parentTitle;
-	List<BoneShell> oldSelection = new ArrayList<>();
+
 	boolean listenSelection = true;
 	ModelHolderThing mht;
 
@@ -141,7 +135,8 @@ public class BonePanel extends JPanel {
 		setTitles();
 		setFutureBoneListModel(futureBones);
 		updateRecModMotionBonesListModel();
-		setSelectedIndex(selectedBone.getImportStatus());
+		setSelectedIndex(selectedBone.getImportStatus().ordinal());
+		repaint();
 	}
 
 	private void setTitles() {
@@ -159,7 +154,7 @@ public class BonePanel extends JPanel {
 
 		final boolean pastListSelectionState = listenSelection;
 		listenSelection = false;
-		if (importTypeBox.getSelectedItem() == MOTIONFROM) {
+		if (importTypeBox.getSelectedItem() == BoneShell.ImportType.MOTIONFROM) {
 			cards.show(cardPanel, "boneList");
 		} else {
 			cards.show(cardPanel, "blank");

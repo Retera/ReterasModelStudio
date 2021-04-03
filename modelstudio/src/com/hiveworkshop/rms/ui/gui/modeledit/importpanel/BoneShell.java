@@ -4,17 +4,17 @@ import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.util.BiMap;
 
+import java.util.Arrays;
+
 public class BoneShell {
 	private final Bone bone;
 	private BoneShell importBoneShell;
 	private String modelName;
 	private boolean showClass = false;
 	private String name = "";
-	private boolean shouldImportBone = true;
-	private int importStatus = 0;
+	private ImportType importStatus = ImportType.IMPORT;
 	private IdObject oldParent;
 	private BoneShell oldParentBs;
-	private IdObject newParent;
 	private BoneShell newParentBs;
 	boolean isFromDonating;
 
@@ -51,20 +51,14 @@ public class BoneShell {
 		return oldParent;
 	}
 
-	public IdObject getNewParent() {
-		return newParent;
-	}
-
-	public BoneShell setNewParent(IdObject newParent) {
-		this.newParent = newParent;
-		return this;
-	}
-
 	public BoneShell getNewParentBs() {
 		return newParentBs;
 	}
 
 	public BoneShell setNewParentBs(BoneShell newParentBs) {
+		if (newParentBs.getImportStatus() == ImportType.DONTIMPORT) {
+			newParentBs.setImportStatus(ImportType.IMPORT);
+		}
 		this.newParentBs = newParentBs;
 		return this;
 	}
@@ -75,29 +69,21 @@ public class BoneShell {
 
 	public BoneShell setParentBs(BiMap<IdObject, BoneShell> idObjectMap) {
 		this.oldParentBs = idObjectMap.get(oldParent);
+		this.newParentBs = idObjectMap.get(oldParent);
 		return this;
 	}
 
-	public int getImportStatus() {
+	public ImportType getImportStatus() {
 		return importStatus;
 	}
 
-	public BoneShell setImportStatus(int importStatus) {
+	public BoneShell setImportStatus(ImportType importStatus) {
 		this.importStatus = importStatus;
-		if (importStatus == 0) {
-			shouldImportBone = true;
-		} else if (importStatus == 2) {
-			shouldImportBone = false;
-		}
 		return this;
 	}
 
-	public boolean isShouldImportBone() {
-		return shouldImportBone;
-	}
-
-	public BoneShell setShouldImportBone(boolean shouldImportBone) {
-		this.shouldImportBone = shouldImportBone;
+	public BoneShell setImportStatus(int importStatus) {
+		this.importStatus = ImportType.fromInt(importStatus);
 		return this;
 	}
 
@@ -184,5 +170,30 @@ public class BoneShell {
 
 	public boolean isFromDonating() {
 		return isFromDonating;
+	}
+
+//	static final String IMPORT = "Import this bone";
+//	static final String MOTIONFROM = "Import motion to pre-existing:";
+//	static final String LEAVE = "Do not import";
+
+	public enum ImportType {
+		DONTIMPORT("Do Not Import"), IMPORT("Import this bone"), MOTIONFROM("Import motion to pre-existing:");
+		String dispText;
+
+		ImportType(String s) {
+			dispText = s;
+		}
+
+		public static String[] getDispList() {
+			return Arrays.stream(values()).map(ImportType::getDispText).toArray(String[]::new);
+		}
+
+		public static ImportType fromInt(int i) {
+			return values()[i];
+		}
+
+		public String getDispText() {
+			return dispText;
+		}
 	}
 }
