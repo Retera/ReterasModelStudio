@@ -29,7 +29,7 @@ public final class MakeNotEditableAction implements UndoAction {
 	public void redo() {
 		editabilityToggleHandler.makeNotEditable();
 		truncateSelectionRunnable.run();
-		refreshGUIRunnable.run();
+//		refreshGUIRunnable.run();
 	}
 
 	@Override

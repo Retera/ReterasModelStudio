@@ -5,8 +5,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 public class JCheckBoxTreeNode extends DefaultMutableTreeNode {
 	private boolean checked;
-	private boolean allChildrenSelected;
-	private boolean hasPersonalState; // NYI, do not use
+	private boolean tempHidden;
+	private ChildrenSelected childState = ChildrenSelected.NONE;
 
 	public JCheckBoxTreeNode() {
 		super();
@@ -26,29 +26,44 @@ public class JCheckBoxTreeNode extends DefaultMutableTreeNode {
 		this.checked = checked;
 	}
 
-	public void setChecked(final boolean checked) {
+	public JCheckBoxTreeNode setChecked(boolean checked) {
 		this.checked = checked;
+		tempHidden = false;
+		return this;
+	}
+
+	public boolean isTempHidden() {
+		return tempHidden;
 	}
 
 	public boolean isChecked() {
 		return checked;
 	}
 
+	public JCheckBoxTreeNode setTempHidden(boolean hidden) {
+		this.tempHidden = hidden;
+		return this;
+	}
+
 	public boolean isAllChildrenSelected() {
-		return allChildrenSelected;
+		return childState == ChildrenSelected.ALL;
 	}
 
-	public void setAllChildrenSelected(final boolean allChildrenSelected) {
-		this.allChildrenSelected = allChildrenSelected;
+	public JCheckBoxTreeNode setAllChildrenSelected(final boolean allChildrenSelected) {
+		childState = ChildrenSelected.ALL;
+		return this;
 	}
 
-	// NYI, buggy, do not use
-	public void setHasPersonalState(final boolean hasPersonalState) {
-		this.hasPersonalState = hasPersonalState;
+	public ChildrenSelected getChildState() {
+		return childState;
 	}
 
-	// NYI, buggy, do not use
-	public boolean isHasPersonalState() {
-		return hasPersonalState;
+	public JCheckBoxTreeNode setChildState(ChildrenSelected childState) {
+		this.childState = childState;
+		return this;
+	}
+
+	public enum ChildrenSelected {
+		ALL, SOME, NONE
 	}
 }

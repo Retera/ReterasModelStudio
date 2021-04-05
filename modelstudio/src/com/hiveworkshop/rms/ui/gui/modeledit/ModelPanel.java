@@ -17,6 +17,7 @@ import com.hiveworkshop.rms.ui.application.viewer.ControlledAnimationViewer;
 import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelcomponenttree.ModelComponentBrowserTree;
+import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.ModelViewManagingTree;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChangeNotifier;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
@@ -122,7 +123,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 		modelEditorManager = new ModelEditorManager(modelView, prefs, modeNotifier, modelEditorChangeNotifier, viewportActivityManager, editorRenderModel, modelStructureChangeListener);
 
 		modelViewManagingTree = new ModelViewManagingTree(modelView, undoManager, modelEditorManager);
-		modelViewManagingTree.setFocusable(false);
+//		modelViewManagingTree.setFocusable(false);
 
 		modelComponentBrowserTree = new ModelComponentBrowserTree(modelView, undoManager, modelEditorManager, modelStructureChangeListener);
 

@@ -50,8 +50,7 @@ class ModelStructureChangeListenerImplementation implements ModelStructureChange
 
     static void reloadGeosetManagers(MainPanel mainPanel, final ModelPanel display) {
         mainPanel.geoControl.repaint();
-        display.getModelViewManagingTree().reloadFromModelView();
-        mainPanel.geoControl.setViewportView(display.getModelViewManagingTree());
+        mainPanel.geoControl.setViewportView(display.getModelViewManagingTree().reloadFromModelView());
         reloadComponentBrowser(mainPanel.geoControlModelData, display);
         display.getPerspArea().reloadTextures();// .mpanel.perspArea.reloadTextures();//addGeosets(newGeosets);
         display.getAnimationViewer().reload();

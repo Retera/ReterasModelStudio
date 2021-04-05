@@ -18,7 +18,7 @@ public final class ModelViewManager implements ModelView {
 	private final EditableModel model;
 	private final RenderModel editorRenderModel;
 	private final ModelViewStateNotifier modelViewStateNotifier;
-	private final Set<Geoset> editableGeosets;// TODO should be a set
+	private final Set<Geoset> editableGeosets;
 	private final Set<Geoset> visibleGeosets;
 	private final Set<IdObject> editableIdObjects;
 	private final Set<Camera> editableCameras;
