@@ -356,8 +356,8 @@ public class GeosetVertex extends Vec3 {
         }
     }
 
-    public float[] getTangent() {
-        return tangent.toFloatArray();
+    public Vec4 getTangent() {
+        return tangent;
     }
 
     public void setTangent(final float[] tangent) {

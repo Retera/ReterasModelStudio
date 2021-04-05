@@ -257,7 +257,7 @@ public class Geoset implements Named, VisibilitySource {
 					final GeosetVertex vertex = getVertex(i);
 					geoset.skin[(i * 8) + j] = vertex.getSkinBoneIndexes()[j];
 					geoset.skin[(i * 8) + j + 4] = (byte) (vertex.getSkinBoneWeights()[j]);
-					geoset.tangents[(i * 4) + j] = vertex.getTangent()[j];
+					geoset.tangents[(i * 4) + j] = vertex.getTangent().toFloatArray()[j];
 				}
 			}
 		}
