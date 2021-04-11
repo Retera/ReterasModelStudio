@@ -57,51 +57,25 @@ public class ProgramPreferences implements Serializable {
 	private MouseButtonPreference threeDCameraSpinButton = MouseButtonPreference.LEFT;
 	private MouseButtonPreference threeDCameraPanButton = MouseButtonPreference.MIDDLE;
 
-	public void loadFrom(final ProgramPreferences other) {
-		viewMode = other.viewMode;
-		showNormals = other.showNormals;
-		showPerspectiveGrid = other.showPerspectiveGrid;
-		showVertexModifierControls = other.showVertexModifierControls;
-		textureModels = other.textureModels;
-		useNativeMDXParser = other.useNativeMDXParser;
-		loadPortraits = other.loadPortraits;
-		show2dGrid = other.show2dGrid;
-		smallIcons = other.smallIcons;
-		useBoxesForPivotPoints = other.useBoxesForPivotPoints;
-		activeRColor1 = other.activeRColor1;
-		activeRColor2 = other.activeRColor2;
-		activeColor1 = other.activeColor1;
-		activeColor2 = other.activeBColor2;
-		activeBColor1 = other.activeBColor1;
-		activeBColor2 = other.activeBColor2;
-		vertexColor = other.vertexColor;
-		triangleColor = other.triangleColor;
-		visibleUneditableColor = other.visibleUneditableColor;
-		highlighTriangleColor = other.highlighTriangleColor;
-		highlighVertexColor = other.highlighVertexColor;
-		normalsColor = other.normalsColor;
-		pivotPointsSelectedColor = other.pivotPointsSelectedColor;
-		pivotPointsColor = other.pivotPointsColor;
-		animatedBoneSelectedColor = other.animatedBoneSelectedColor;
-		animatedBoneUnselectedColor = other.animatedBoneUnselectedColor;
-		animatedBoneSelectedUpstreamColor = other.animatedBoneSelectedUpstreamColor;
-		lightsColor = other.lightsColor;
-		ambientLightColor = other.ambientLightColor;
-		selectColor = other.selectColor;
-		vertexSize = other.vertexSize;
-		teamColor = other.teamColor;
-		backgroundColor = other.backgroundColor;
-		perspectiveBackgroundColor = other.perspectiveBackgroundColor;
-		threeDCameraPanButton = other.threeDCameraPanButton;
-		threeDCameraSpinButton = other.threeDCameraSpinButton;
-		theme = other.theme;
-		quickBrowse = other.quickBrowse;
-		allowLoadingNonBlpTextures = other.allowLoadingNonBlpTextures;
-		renderParticles = other.renderParticles;
-		renderStaticPoseParticles = other.renderStaticPoseParticles;
+	public void loadFrom(ProgramPreferences other) {
+		setFromOther(other);
 		SaveProfile.save();
 		firePrefsChanged();
 
+	}
+
+	public void setFromOther(ProgramPreferences other) {
+		Field[] declaredFields = this.getClass().getDeclaredFields();
+		for (Field field : declaredFields) {
+			try {
+				if (field.get(other) != null) {
+					field.set(this, field.get(other));
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public int getTeamColor() {
