@@ -289,6 +289,14 @@ public class Quat extends Vec4 {
 		return (Quat) set(newX, newY, newZ, newW);
 	}
 
+	public Quat mulLeft(final Quat a) {
+		float newX = (a.x * w) + (a.w * x) + (a.y * z) - (a.z * y);
+		float newY = (a.y * w) + (a.w * y) + (a.z * x) - (a.x * z);
+		float newZ = (a.z * w) + (a.w * z) + (a.x * y) - (a.y * x);
+		float newW = (a.w * w) - (a.x * x) - (a.y * y) - (a.z * z);
+		return (Quat) set(newX, newY, newZ, newW);
+	}
+
 	public Quat mulInverse(final Quat a) {
 		float len = a.lengthSquared();
 

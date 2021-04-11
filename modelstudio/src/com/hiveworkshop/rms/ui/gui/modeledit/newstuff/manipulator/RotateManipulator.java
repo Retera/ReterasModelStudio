@@ -30,12 +30,11 @@ public class RotateManipulator extends Manipulator {
 		byte planeDim1;
 		byte planeDim2;
 		nonRotAngle = 0;
-//		System.out.println(dir + ", dim1: " + MoveDimension.getByByte(dim1) + " (" + dim1 + ") dim2: " + MoveDimension.getByByte(dim2) + " (" + dim2 + ")");
 
-		if (dir.containDirection(dim1)) {
+		if (dir != MoveDimension.XYZ && dir.containDirection(dim1)) {
 			planeDim1 = CoordinateSystem.Util.getUnusedXYZ(dim1, dim2);
 			planeDim2 = dim2;
-		} else if (dir.containDirection(dim2)) {
+		} else if (dir != MoveDimension.XYZ && dir.containDirection(dim2)) {
 			planeDim1 = dim1;
 			planeDim2 = CoordinateSystem.Util.getUnusedXYZ(dim1, dim2);
 		} else {
