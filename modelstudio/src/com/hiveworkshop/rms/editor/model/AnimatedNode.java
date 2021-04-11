@@ -229,25 +229,26 @@ public abstract class AnimatedNode extends TimelineContainer {
 			axisAngleHeap.transform(parentRenderNode.getWorldMatrix());
 
 			switch (unusedXYZ) {
-				case 0 -> axisAngleHeap.set(axisAngleHeap.x + 1, axisAngleHeap.y + 0, axisAngleHeap.z + 0, radians);
-				case 1 -> axisAngleHeap.set(axisAngleHeap.x + 0, axisAngleHeap.y + -1, axisAngleHeap.z + 0, radians);
-				case 2 -> axisAngleHeap.set(axisAngleHeap.x + 0, axisAngleHeap.y + 0, axisAngleHeap.z + -1, radians);
+				case 0 -> axisAngleHeap.set(axisAngleHeap.x + 1, axisAngleHeap.y + 0, axisAngleHeap.z + 0, 1);
+				case 1 -> axisAngleHeap.set(axisAngleHeap.x + 0, axisAngleHeap.y + -1, axisAngleHeap.z + 0, 1);
+				case 2 -> axisAngleHeap.set(axisAngleHeap.x + 0, axisAngleHeap.y + 0, axisAngleHeap.z + -1, 1);
 			}
 
 			axisAngleHeap.transform(Mat4.getInverted(parentRenderNode.getWorldMatrix()));
 		} else {
 			switch (unusedXYZ) {
-				case 0 -> axisAngleHeap.set(1, 0, 0, radians);
-				case 1 -> axisAngleHeap.set(0, -1, 0, radians);
-				case 2 -> axisAngleHeap.set(0, 0, -1, radians);
+				case 0 -> axisAngleHeap.set(1, 0, 0, 1);
+				case 1 -> axisAngleHeap.set(0, -1, 0, 1);
+				case 2 -> axisAngleHeap.set(0, 0, -1, 1);
 			}
 		}
+		axisAngleHeap.w = (float)radians;
 		Quat rotationDeltaHeap = new Quat().setFromAxisAngle(axisAngleHeap);
 
 		if ((floorIndex != -1) && (rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex).equals(trackTime))) {
 			// we must change it
 			final Quat oldTranslationValue = rotationTimeline.getValues().get(floorIndex);
-			oldTranslationValue.mul(rotationDeltaHeap);
+			oldTranslationValue.mulLeft(rotationDeltaHeap);
 
 			if (savedLocalRotation != null) {
 				savedLocalRotation.mul(rotationDeltaHeap);
