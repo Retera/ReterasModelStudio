@@ -170,10 +170,10 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 				}
 
 				if (baseNode != null) {
-					if (sourceNode == meshes || sourceNode == nodes || sourceNode.isChecked()) {
+					if (sourceNode == meshes || sourceNode == nodes || !baseNode.isChecked()) {
 						baseNode.setChecked(sourceNode.isChecked());
+						hideOrUnhideTemporary(baseNode, !baseNode.isChecked(), components);
 					}
-					hideOrUnhideTemporary(baseNode, !baseNode.isChecked(), components);
 					handleNodeRecursively(baseNode);
 				} else {
 					components.add((CheckableDisplayElement<?>) sourceNode.getUserObject());
