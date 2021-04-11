@@ -289,13 +289,28 @@ public class Quat extends Vec4 {
 		return (Quat) set(newX, newY, newZ, newW);
 	}
 
-	public Quat mulLeft(final Quat a) {
-		float newX = (a.x * w) + (a.w * x) + (a.y * z) - (a.z * y);
-		float newY = (a.y * w) + (a.w * y) + (a.z * x) - (a.x * z);
-		float newZ = (a.z * w) + (a.w * z) + (a.x * y) - (a.y * x);
-		float newW = (a.w * w) - (a.x * x) - (a.y * y) - (a.z * z);
-		return (Quat) set(newX, newY, newZ, newW);
+	public static Quat getScaledInverted(final Quat a) {
+		float len = a.lengthSquared();
+
+		if (len > 0) {
+			len = 1 / len;
+		}
+//		float newX = -a.x * len;
+//		float newY = -a.y * len;
+//		float newZ = -a.z * len;
+//		float newW = a.w * len;
+//
+//		return (Quat) set(newX, newY, newZ, newW);
+		return (Quat) new Quat(a).invertRotation().scale(len);
 	}
+
+//	public Quat mulLeft(final Quat a) {
+//		float newX = (a.x * w) + (a.w * x) + (a.y * z) - (a.z * y);
+//		float newY = (a.y * w) + (a.w * y) + (a.z * x) - (a.x * z);
+//		float newZ = (a.z * w) + (a.w * z) + (a.x * y) - (a.y * x);
+//		float newW = (a.w * w) - (a.x * x) - (a.y * y) - (a.z * z);
+//		return (Quat) set(newX, newY, newZ, newW);
+//	}
 
 	public Quat mulInverse(final Quat a) {
 		float len = a.lengthSquared();
@@ -310,6 +325,14 @@ public class Quat extends Vec4 {
 		float newW = ((w * a.w) + (x * a.x) + (y * a.y) + (z * a.z)) * len;
 
 		return (Quat) set(newX, newY, newZ, newW);
+	}
+
+	public Quat mulLeft(Quat a) {
+		return set(getProd(a, this));
+	}
+
+	public Quat getInverted() {
+		return new Quat(this).invertRotation();
 	}
 
 	public Quat invertRotation() {

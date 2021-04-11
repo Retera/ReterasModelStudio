@@ -226,6 +226,13 @@ public class Vec4 {
 		return this;
 	}
 
+	public Vec4 add(final Vec3 a) {
+		x = x + a.x;
+		y = y + a.y;
+		z = z + a.z;
+		return this;
+	}
+
 	public Vec4 divide(final Vec4 a) {
 		x = x / a.x;
 		y = y / a.y;
