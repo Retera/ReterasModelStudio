@@ -304,7 +304,7 @@ public class MainFrame extends JFrame {
 						}
 
 						JPopupMenu.setDefaultLightWeightPopupEnabled(false);
-						frame = new MainFrame("Retera Model Studio v0.04 ~Supports up to War3 1.32.9.16207~");
+						frame = new MainFrame("Retera Model Studio v0.04 ~Supports only War3 1.32.10.17165~");
 						panel.init();
 						if (!startupModelPaths.isEmpty()) {
 							for (final String path : startupModelPaths) {

@@ -1338,7 +1338,29 @@ public class MainPanel extends JPanel
 		frontView = new View("Front", null, new JPanel());
 		bottomView = new View("Bottom", null, new JPanel());
 		perspectiveView = new View("Perspective", null, new JPanel());
-		previewView = new View("Preview", null, new JPanel());
+		
+
+		final DefaultStyledDocument panel = new DefaultStyledDocument();
+		final JTextPane epane = new JTextPane();
+		epane.setEditable(false);
+		epane.setForeground(Color.BLACK);
+		epane.setBackground(Color.WHITE);
+		final RTFEditorKit rtfk = new RTFEditorKit();
+		try {
+			rtfk.read(MainPanel.class.getResourceAsStream("welcome.rtf"), panel, 0);
+		} catch (final MalformedURLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (final IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (final BadLocationException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		epane.setDocument(panel);
+		
+		previewView = new View("Preview", null, new JScrollPane(epane));
 		final JPanel timeSliderAndExtra = new JPanel();
 		final GroupLayout tsaeLayout = new GroupLayout(timeSliderAndExtra);
 		final Component horizontalGlue = Box.createHorizontalGlue();
@@ -1525,6 +1547,7 @@ public class MainPanel extends JPanel
 				return "Model";
 			}
 		});
+	
 
 		final TabWindow startupTabWindow = new TabWindow(new DockingWindow[] { viewingTab, editingTab, modelTab });
 		traverseAndFix(startupTabWindow);
