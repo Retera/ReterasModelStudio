@@ -268,6 +268,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 					path = "ReplaceableTextures\\TeamColor\\TeamColor" + Material.getTeamColorNumberString();
 				} else if (tex.getReplaceableId() == 2) {
 					path = "ReplaceableTextures\\TeamGlow\\TeamGlow" + Material.getTeamColorNumberString();
+				} else if (tex.getReplaceableId() == 11) {
+					path = "ReplaceableTextures\\Cliff\\Cliff0";
 				} else if (tex.getReplaceableId() != 0) {
 					path = "replaceabletextures\\lordaerontree\\lordaeronsummertree";
 				}

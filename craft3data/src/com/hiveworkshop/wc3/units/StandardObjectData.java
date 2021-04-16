@@ -206,6 +206,11 @@ public class StandardObjectData {
 			profile.readTXT(source.getResourceAsStream("Units\\ItemAbilityFunc.txt"), true);
 			profile.readTXT(source.getResourceAsStream("Units\\ItemAbilityStrings.txt"), true);
 
+			final InputStream unitSkin = source.getResourceAsStream("Units\\AbilitySkin.txt");
+			if (unitSkin != null) {
+				profile.readTXT(unitSkin, true);
+			}
+
 			abilityData.readSLK(source.getResourceAsStream("Units\\AbilityData.slk"));
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);

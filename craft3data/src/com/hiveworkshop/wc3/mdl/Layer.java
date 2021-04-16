@@ -261,7 +261,7 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		}
 		staticAlpha = other.staticAlpha;
 		emissiveGain = other.emissiveGain;
-		fresnelColor = new Vertex(other.fresnelColor);
+		fresnelColor = other.fresnelColor == null ? null : new Vertex(other.fresnelColor);
 		fresnelOpacity = other.fresnelOpacity;
 		fresnelTeamColor = other.fresnelTeamColor;
 		flags = new ArrayList<>(other.flags);
@@ -870,5 +870,9 @@ public class Layer implements Named, VisibilitySource, LayerView {
 
 	public void setFresnelTeamColor(final double fresnelTeamColor) {
 		this.fresnelTeamColor = fresnelTeamColor;
+	}
+
+	public Map<Integer, Bitmap> getRidiculouslyWrongTextureIDToTexture() {
+		return ridiculouslyWrongTextureIDToTexture;
 	}
 }

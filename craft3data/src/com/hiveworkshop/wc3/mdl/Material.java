@@ -107,6 +107,7 @@ public class Material implements MaterialView {
 	}
 
 	public Material(final Material other) {
+		shaderString = other.shaderString;
 		layers = new com.etheller.collections.ArrayList<>();
 		flags = new ArrayList<>(other.flags);
 		for (final Layer lay : other.layers) {
