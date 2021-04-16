@@ -19,20 +19,20 @@ public final class Graphics2DToModelElementRendererAdapter implements ModelEleme
 	private int vertexSize;
 	private ResettableIdObjectRenderer idObjectRenderer;
 
-	public Graphics2DToModelElementRendererAdapter(final int vertexSize, final ProgramPreferences programPreferences) {
+	public Graphics2DToModelElementRendererAdapter(int vertexSize, ProgramPreferences programPreferences) {
 		this.vertexSize = vertexSize;
 		this.programPreferences = programPreferences;
 		idObjectRenderer = new ResettableIdObjectRenderer(vertexSize);
 	}
 
-	public Graphics2DToModelElementRendererAdapter reset(final Graphics2D graphics, final CoordinateSystem coordinateSystem) {
+	public Graphics2DToModelElementRendererAdapter reset(Graphics2D graphics, CoordinateSystem coordinateSystem) {
 		this.graphics = graphics;
 		this.coordinateSystem = coordinateSystem;
 		return this;
 	}
 
 	@Override
-	public void renderFace(final Color borderColor, final Color color, final GeosetVertex a, final GeosetVertex b, final GeosetVertex c) {
+	public void renderFace(Color borderColor, Color color, GeosetVertex a, GeosetVertex b, GeosetVertex c) {
 		graphics.setColor(color);
 
 
@@ -58,37 +58,36 @@ public final class Graphics2DToModelElementRendererAdapter implements ModelEleme
 	}
 
 	@Override
-	public void renderVertex(final Color color, final Vec3 vertex) {
+	public void renderVertex(Color color, Vec3 vertex) {
 		Point point = CoordinateSystem.Util.convertToPoint(coordinateSystem, vertex);
 		graphics.setColor(color);
 		graphics.fillRect(point.x - vertexSize / 2, (int) (point.y - (vertexSize / 2.0)), vertexSize, vertexSize);
 	}
 
 	@Override
-	public void renderIdObject(final IdObject object, final NodeIconPalette nodeIconPalette, final Color lightColor, final Color pivotPointColor) {
+	public void renderIdObject(IdObject object, NodeIconPalette nodeIconPalette, Color lightColor, Color pivotPointColor) {
 		object.apply(idObjectRenderer.reset(coordinateSystem, graphics, lightColor, pivotPointColor, nodeIconPalette, programPreferences.isUseBoxesForPivotPoints()));
 	}
 
 	@Override
-	public void renderCamera(final Camera camera, final Color boxColor, final Vec3 position, final Color targetColor,
-			final Vec3 targetPosition) {
-		final Graphics2D g2 = ((Graphics2D) graphics.create());
-		// final boolean verSel = selection.contains(ver);
-		// final boolean tarSel = selection.contains(targ);
+	public void renderCamera(Camera camera, Color boxColor, Vec3 position, Color targetColor, Vec3 targetPosition) {
+		Graphics2D g2 = ((Graphics2D) graphics.create());
+		// boolean verSel = selection.contains(ver);
+		// boolean tarSel = selection.contains(targ);
 		byte dim1 = coordinateSystem.getPortFirstXYZ();
 		byte dim2 = coordinateSystem.getPortSecondXYZ();
-		final Point start = new Point(
+		Point start = new Point(
 				(int) Math.round(coordinateSystem.convertX(position.getCoord(dim1))),
 				(int) Math.round(coordinateSystem.convertY(position.getCoord(dim2))));
-		final Point end = new Point(
+		Point end = new Point(
 				(int) Math.round(coordinateSystem.convertX(targetPosition.getCoord(dim1))),
 				(int) Math.round(coordinateSystem.convertY(targetPosition.getCoord(dim2))));
 
 		g2.translate(end.x, end.y);
 		g2.rotate(-(Math.PI / 2 + Math.atan2(end.x - start.x, end.y - start.y)));
-		final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
-		final int size = (int) (20 * zoom);
-		final double dist = start.distance(end);
+		double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+		int size = (int) (20 * zoom);
+		double dist = start.distance(end);
 
 		g2.setColor(boxColor);
 		g2.fillRect((int) dist - vertexSize, 0 - vertexSize, 1 + vertexSize * 2, 1 + vertexSize * 2);

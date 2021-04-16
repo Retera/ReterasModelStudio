@@ -15,79 +15,65 @@ import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 public final class ModelUtils {
-	public static final class Mesh {
-		private final List<GeosetVertex> vertices;
-		private final List<Triangle> triangles;
-
-		private Mesh(final List<GeosetVertex> vertices, final List<Triangle> triangles) {
-			this.vertices = vertices;
-			this.triangles = triangles;
-		}
-
-		public List<GeosetVertex> getVertices() {
-			return vertices;
-		}
-
-		public List<Triangle> getTriangles() {
-			return triangles;
-		}
-
-	}
-
-	public static String getPortrait(final String filepath) {
-		final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
-				+ filepath.substring(filepath.lastIndexOf('.'));
+	public static String getPortrait(String filepath) {
+		String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait" + filepath.substring(filepath.lastIndexOf('.'));
 		return portrait;
 	}
 
-	public static Mesh createPlane(final byte planeDimension, final boolean outward, final double planeHeight,
-			final double minFirst, final double minSecond, final double maxFirst, final double maxSecond,
-			final int numberOfSegments) {
-		return createPlane(planeDimension, outward, planeHeight, minFirst, minSecond, maxFirst, maxSecond,
-				numberOfSegments, numberOfSegments);
+	public static Mesh createPlane(byte planeDimension, boolean outward, double planeHeight,
+	                               double minFirst, double minSecond,
+	                               double maxFirst, double maxSecond,
+	                               int numberOfSegments) {
+		return createPlane(planeDimension, outward, planeHeight, minFirst, minSecond, maxFirst, maxSecond, numberOfSegments, numberOfSegments);
 	}
 
-	public static Mesh createPlane(final byte planeDimension, final boolean outward, final double planeHeight,
-			final double minFirst, final double minSecond, final double maxFirst, final double maxSecond,
-			final int numberOfSegmentsX, final int numberOfSegmentsY) {
-		final byte[] dimensions = getBytesDimensions(planeDimension);
+	public static Mesh createPlane(byte planeDimension, boolean outward, double planeHeight,
+	                               double minFirst, double minSecond,
+	                               double maxFirst, double maxSecond,
+	                               int numberOfSegmentsX, int numberOfSegmentsY) {
+		byte[] dimensions = getBytesDimensions(planeDimension);
 
-		final byte firstDimension = dimensions[0];
-		final byte secondDimension = dimensions[1];
+		byte firstDimension = dimensions[0];
+		byte secondDimension = dimensions[1];
 
 		boolean flipFacesForIterationDesignFlaw = false;
 		if (planeDimension == 1) {
 			flipFacesForIterationDesignFlaw = true;
 		}
-		final Vec3 normal = new Vec3(0, 0, 0);
+		Vec3 normal = new Vec3(0, 0, 0);
 		normal.setCoord(planeDimension, outward ? 1 : -1);
-		return createPlane(firstDimension, secondDimension, normal, planeHeight, minFirst, minSecond, maxFirst,
-				maxSecond, numberOfSegmentsX, numberOfSegmentsY);
+		return createPlane(firstDimension, secondDimension, normal, planeHeight, minFirst, minSecond, maxFirst, maxSecond, numberOfSegmentsX, numberOfSegmentsY);
 	}
 
-	public static Mesh createPlane(final byte firstDimension, final byte secondDimension, final Vec3 facingVector,
-			final double planeHeight, final double minFirst, final double minSecond, final double maxFirst,
-			final double maxSecond, final int numberOfSegments) {
-		return createPlane(firstDimension, secondDimension, facingVector, planeHeight, minFirst, minSecond, maxFirst,
-				maxSecond, numberOfSegments, numberOfSegments);
+	public static Mesh createPlane(byte firstDimension, byte secondDimension,
+	                               Vec3 facingVector, double planeHeight,
+	                               double minFirst, double minSecond,
+	                               double maxFirst, double maxSecond,
+	                               int numberOfSegments) {
+		return createPlane(firstDimension, secondDimension, facingVector, planeHeight, minFirst, minSecond, maxFirst, maxSecond, numberOfSegments, numberOfSegments);
 	}
 
-	public static Mesh createPlane(final byte firstDimension, final byte secondDimension, final Vec3 facingVector,
-			final double planeHeight, final double minFirst, final double minSecond, final double maxFirst,
-			final double maxSecond, final int numberOfSegmentsX, final int numberOfSegmentsY) {
-		final byte planeDimension = CoordinateSystem.Util.getUnusedXYZ(firstDimension, secondDimension);
-		final List<GeosetVertex> vertices = new ArrayList<>();
-		final List<Triangle> triangles = new ArrayList<>();
-		final double firstDimensionSegmentWidth = (maxFirst - minFirst) / numberOfSegmentsX;
-		final double secondDimensionSegmentWidth = (maxSecond - minSecond) / numberOfSegmentsY;
-		final double segmentWidthUV1 = 1. / numberOfSegmentsX;
-		final double segmentWidthUV2 = 1. / numberOfSegmentsY;
+	public static Mesh createPlane(byte firstDimension, byte secondDimension,
+	                               Vec3 facingVector, double planeHeight,
+	                               double minFirst, double minSecond,
+	                               double maxFirst, double maxSecond,
+	                               int numberOfSegmentsX, int numberOfSegmentsY) {
+		byte planeDimension = CoordinateSystem.Util.getUnusedXYZ(firstDimension, secondDimension);
+
+		List<GeosetVertex> vertices = new ArrayList<>();
+		List<Triangle> triangles = new ArrayList<>();
+
+		double firstDimensionSegmentWidth = (maxFirst - minFirst) / numberOfSegmentsX;
+		double secondDimensionSegmentWidth = (maxSecond - minSecond) / numberOfSegmentsY;
+		double segmentWidthUV1 = 1. / numberOfSegmentsX;
+		double segmentWidthUV2 = 1. / numberOfSegmentsY;
 		GeosetVertex[] previousRow = null;
+
 		for (int y = 0; y < (numberOfSegmentsY + 1); y++) {
-			final GeosetVertex[] currentRow = new GeosetVertex[numberOfSegmentsX + 1];
+			GeosetVertex[] currentRow = new GeosetVertex[numberOfSegmentsX + 1];
 			for (int x = 0; x < (numberOfSegmentsX + 1); x++) {
-				final Vec3 normal = new Vec3(facingVector.x, facingVector.y, facingVector.z);
-				final GeosetVertex vertex = new GeosetVertex(0, 0, 0, normal);
+				Vec3 normal = new Vec3(facingVector.x, facingVector.y, facingVector.z);
+				GeosetVertex vertex = new GeosetVertex(0, 0, 0, normal);
 				currentRow[x] = vertex;
 				vertex.setCoord(planeDimension, planeHeight);
 				vertex.setCoord(firstDimension, minFirst + (x * firstDimensionSegmentWidth));
@@ -96,14 +82,16 @@ public final class ModelUtils {
 				vertices.add(vertex);
 				if (y > 0) {
 					if (x > 0) {
-						final GeosetVertex lowerLeft = previousRow[x - 1];
-						final GeosetVertex lowerRight = previousRow[x];
-						final GeosetVertex upperLeft = currentRow[x - 1];
-						final Triangle firstFace = new Triangle(vertex, upperLeft, lowerLeft);
+						GeosetVertex lowerLeft = previousRow[x - 1];
+						GeosetVertex lowerRight = previousRow[x];
+						GeosetVertex upperLeft = currentRow[x - 1];
+
+						Triangle firstFace = new Triangle(vertex, upperLeft, lowerLeft);
 						triangles.add(firstFace);
-						final Triangle secondFace = new Triangle(vertex, lowerLeft, lowerRight);
+						Triangle secondFace = new Triangle(vertex, lowerLeft, lowerRight);
 						triangles.add(secondFace);
-						final boolean flip = firstFace.getNormal().dot(facingVector) < 0;
+
+						boolean flip = firstFace.getNormal().dot(facingVector) < 0;
 						if (flip) {
 							firstFace.flip(false);
 							secondFace.flip(false);
@@ -116,35 +104,34 @@ public final class ModelUtils {
 		return new Mesh(vertices, triangles);
 	}
 
-	public static void createBox(final EditableModel model, final Vec3 max, final Vec3 min, final int segments) {
-		final Geoset geoset = new Geoset();
+	public static void createBox(EditableModel model, Vec3 max, Vec3 min, int segments) {
+		Geoset geoset = new Geoset();
 		geoset.setMaterial(new Material(new Layer("None", new Bitmap("textures\\white.blp"))));
 
 		for (byte side = (byte) 0; side < 2; side++) {
 			for (byte dimension = (byte) 0; dimension < 3; dimension++) {
-				final Vec3 sideMaxima = switch (side) {
+				Vec3 sideMaxima = switch (side) {
 					case 0 -> min;
 					case 1 -> max;
 					default -> throw new IllegalStateException();
 				};
-				final double coordinateAtSide = sideMaxima.getCoord(dimension);
+				double coordinateAtSide = sideMaxima.getCoord(dimension);
 
-				final byte[] dimensions = getBytesDimensions(dimension);
+				byte[] dimensions = getBytesDimensions(dimension);
 
-				final byte firstDimension = dimensions[0];
-				final byte secondDimension = dimensions[1];
+				byte firstDimension = dimensions[0];
+				byte secondDimension = dimensions[1];
 
-				final double minFirst = min.getCoord(firstDimension);
-				final double minSecond = min.getCoord(secondDimension);
-				final double maxFirst = max.getCoord(firstDimension);
-				final double maxSecond = max.getCoord(secondDimension);
+				double minFirst = min.getCoord(firstDimension);
+				double minSecond = min.getCoord(secondDimension);
+				double maxFirst = max.getCoord(firstDimension);
+				double maxSecond = max.getCoord(secondDimension);
 
-				final Mesh sidedPlane = createPlane(dimension, side == 1, coordinateAtSide, minFirst, minSecond,
-						maxFirst, maxSecond, segments);
-				for (final GeosetVertex vertex : sidedPlane.vertices) {
+				Mesh sidedPlane = createPlane(dimension, side == 1, coordinateAtSide, minFirst, minSecond, maxFirst, maxSecond, segments);
+				for (GeosetVertex vertex : sidedPlane.vertices) {
 					geoset.add(vertex);
 				}
-				for (final Triangle triangle : sidedPlane.triangles) {
+				for (Triangle triangle : sidedPlane.triangles) {
 					geoset.add(triangle);
 				}
 			}
@@ -155,7 +142,7 @@ public final class ModelUtils {
 		}
 		for (final Triangle triangle : geoset.getTriangles()) {
 			triangle.setGeoset(geoset);
-			for (final GeosetVertex vertex : triangle.getVerts()) {
+			for (GeosetVertex vertex : triangle.getVerts()) {
 				vertex.getTriangles().add(triangle);
 			}
 		}
@@ -166,45 +153,43 @@ public final class ModelUtils {
 	 * Creates a box ready to add to the dataGeoset, but does not actually modify
 	 * the geoset itself
 	 */
-	public static Mesh createBox(final Vec3 max, final Vec3 min, final int lengthSegs, final int widthSegs,
-			final int heightSegs, final Geoset dataGeoset) {
-		final Mesh box = new Mesh(new ArrayList<>(), new ArrayList<>());
+	public static Mesh createBox(Vec3 max, Vec3 min, int lengthSegs, int widthSegs, int heightSegs, Geoset dataGeoset) {
+		Mesh box = new Mesh(new ArrayList<>(), new ArrayList<>());
 		for (byte side = (byte) 0; side < 2; side++) {
 			for (byte dimension = (byte) 0; dimension < 3; dimension++) {
-				final Vec3 sideMaxima = switch (side) {
+				Vec3 sideMaxima = switch (side) {
 					case 0 -> min;
 					case 1 -> max;
 					default -> throw new IllegalStateException();
 				};
-				final double coordinateAtSide = sideMaxima.getCoord(dimension);
+				double coordinateAtSide = sideMaxima.getCoord(dimension);
 
 
-				final byte[] dimensions = getBytesDimensions(dimension);
+				byte[] dimensions = getBytesDimensions(dimension);
 
-				final byte firstDimension = dimensions[0];
-				final byte secondDimension = dimensions[1];
+				byte firstDimension = dimensions[0];
+				byte secondDimension = dimensions[1];
 
-				final int segsX = firstDimension == 0 ? lengthSegs : widthSegs;
-				final int segsY = secondDimension == 2 ? heightSegs : widthSegs;
+				int segsX = firstDimension == 0 ? lengthSegs : widthSegs;
+				int segsY = secondDimension == 2 ? heightSegs : widthSegs;
 
-				final double minFirst = min.getCoord(firstDimension);
-				final double minSecond = min.getCoord(secondDimension);
-				final double maxFirst = max.getCoord(firstDimension);
-				final double maxSecond = max.getCoord(secondDimension);
+				double minFirst = min.getCoord(firstDimension);
+				double minSecond = min.getCoord(secondDimension);
+				double maxFirst = max.getCoord(firstDimension);
+				double maxSecond = max.getCoord(secondDimension);
 
-				final Mesh sidedPlane = createPlane(dimension, side != 1, coordinateAtSide, minFirst, minSecond,
-						maxFirst, maxSecond, segsX, segsY);
-                box.vertices.addAll(sidedPlane.vertices);
-                box.triangles.addAll(sidedPlane.triangles);
+				Mesh sidedPlane = createPlane(dimension, side != 1, coordinateAtSide, minFirst, minSecond, maxFirst, maxSecond, segsX, segsY);
+				box.vertices.addAll(sidedPlane.vertices);
+				box.triangles.addAll(sidedPlane.triangles);
 			}
 		}
-		for (final GeosetVertex vertex : box.getVertices()) {
+		for (GeosetVertex vertex : box.getVertices()) {
 			vertex.addTVertex(new Vec2(0, 0));
 			vertex.setGeoset(dataGeoset);
 		}
-		for (final Triangle triangle : box.getTriangles()) {
+		for (Triangle triangle : box.getTriangles()) {
 			triangle.setGeoset(dataGeoset);
-			for (final GeosetVertex vertex : triangle.getVerts()) {
+			for (GeosetVertex vertex : triangle.getVerts()) {
 				vertex.getTriangles().add(triangle);
 			}
 		}
@@ -212,7 +197,7 @@ public final class ModelUtils {
 	}
 
 	private static byte[] getBytesDimensions(byte dimension) {
-		final byte[] dimensions = new byte[2];
+		byte[] dimensions = new byte[2];
 		switch (dimension) {
 			case 0 -> {
 				dimensions[0] = (byte) 1;
@@ -231,63 +216,63 @@ public final class ModelUtils {
 		return dimensions;
 	}
 
-	public static void createGroundPlane(final EditableModel model, final Vec3 max, final Vec3 min, final int segments) {
-		final Geoset geoset = new Geoset();
+	public static void createGroundPlane(EditableModel model, Vec3 max, Vec3 min, int segments) {
+		Geoset geoset = new Geoset();
 		geoset.setMaterial(new Material(new Layer("None", new Bitmap("textures\\white.blp"))));
 
-		final Mesh sidedPlane = createPlane((byte) 2, true, 0, min.x, min.y, max.x, max.y, segments);
-		for (final GeosetVertex vertex : sidedPlane.vertices) {
+		Mesh sidedPlane = createPlane((byte) 2, true, 0, min.x, min.y, max.x, max.y, segments);
+		for (GeosetVertex vertex : sidedPlane.vertices) {
 			geoset.add(vertex);
 		}
-		for (final Triangle triangle : sidedPlane.triangles) {
+		for (Triangle triangle : sidedPlane.triangles) {
 			geoset.add(triangle);
 		}
-		for (final GeosetVertex vertex : geoset.getVertices()) {
+		for (GeosetVertex vertex : geoset.getVertices()) {
 			vertex.addTVertex(new Vec2(0, 0));
 			vertex.setGeoset(geoset);
 		}
-		for (final Triangle triangle : geoset.getTriangles()) {
+		for (Triangle triangle : geoset.getTriangles()) {
 			triangle.setGeoset(geoset);
-			for (final GeosetVertex vertex : triangle.getVerts()) {
+			for (GeosetVertex vertex : triangle.getVerts()) {
 				vertex.getTriangles().add(triangle);
 			}
 		}
 		model.add(geoset);
 	}
 
-	public static float[] flipRGBtoBGR(final float[] rgb) {
-		final float[] bgr = new float[3];
+	public static float[] flipRGBtoBGR(float[] rgb) {
+		float[] bgr = new float[3];
 		for (int i = 0; i < 3; i++) {
 			bgr[i] = rgb[2 - i];
 		}
 		return bgr;
 	}
 
-	public static boolean isLevelOfDetailSupported(final int formatVersion) {
+	public static boolean isLevelOfDetailSupported(int formatVersion) {
 		return (formatVersion == 900) || (formatVersion == 1000);
 	}
 
-	public static boolean isShaderStringSupported(final int formatVersion) {
+	public static boolean isShaderStringSupported(int formatVersion) {
 		return (formatVersion == 900) || (formatVersion == 1000);
 	}
 
-	public static boolean isTangentAndSkinSupported(final int formatVersion) {
+	public static boolean isTangentAndSkinSupported(int formatVersion) {
 		return (formatVersion == 900) || (formatVersion == 1000);
 	}
 
-	public static boolean isBindPoseSupported(final int formatVersion) {
+	public static boolean isBindPoseSupported(int formatVersion) {
 		return (formatVersion == 900) || (formatVersion == 1000);
 	}
 
-	public static boolean isEmissiveLayerSupported(final int formatVersion) {
+	public static boolean isEmissiveLayerSupported(int formatVersion) {
 		return (formatVersion == 900) || (formatVersion == 1000);
 	}
 
-	public static boolean isFresnelColorLayerSupported(final int formatVersion) {
+	public static boolean isFresnelColorLayerSupported(int formatVersion) {
 		return formatVersion == 1000;
 	}
 
-	public static boolean isCornSupported(final int formatVersion) {
+	public static boolean isCornSupported(int formatVersion) {
 		return (formatVersion == 900) || (formatVersion == 1000);
 	}
 

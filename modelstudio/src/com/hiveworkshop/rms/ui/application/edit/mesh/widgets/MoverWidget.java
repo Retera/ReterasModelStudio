@@ -19,7 +19,7 @@ public final class MoverWidget {
 	private final Polygon eastLineHitBox;
 	private final Polygon nortLineHitBox;
 
-	public MoverWidget(final Vec3 point) {
+	public MoverWidget(Vec3 point) {
 		this.point = new Vec3(0, 0, 0);
 		this.point.set(point);
 
@@ -36,9 +36,9 @@ public final class MoverWidget {
 
 	private long debugPrintLimiter;
 
-	public MoveDimension getDirectionByMouse(final Point mousePoint, final CoordinateSystem coordinateSystem, final byte dim1, final byte dim2) {
-		final double x = coordinateSystem.convertX(point.getCoord(dim1));
-		final double y = coordinateSystem.convertY(point.getCoord(dim2));
+	public MoveDimension getDirectionByMouse(Point mousePoint, CoordinateSystem coordinateSystem, byte dim1, byte dim2) {
+		double x = coordinateSystem.convertX(point.getCoord(dim1));
+		double y = coordinateSystem.convertY(point.getCoord(dim2));
 		long currentTime = System.currentTimeMillis();
 		if (debugPrintLimiter < currentTime) {
 			debugPrintLimiter = currentTime + 500;
@@ -66,7 +66,7 @@ public final class MoverWidget {
 		return point;
 	}
 
-	public void setPoint(final Vec3 point) {
+	public void setPoint(Vec3 point) {
 		this.point.set(point);
 	}
 
@@ -74,15 +74,15 @@ public final class MoverWidget {
 		return moveDirection;
 	}
 
-	public void setMoveDirection(final MoveDimension moveDirection) {
+	public void setMoveDirection(MoveDimension moveDirection) {
 		this.moveDirection = moveDirection;
 	}
 
-	public void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem) {
-		final byte xDimension = coordinateSystem.getPortFirstXYZ();
-		final byte yDimension = coordinateSystem.getPortSecondXYZ();
-		final int x = (int) coordinateSystem.convertX(point.getCoord(xDimension));
-		final int y = (int) coordinateSystem.convertY(point.getCoord(yDimension));
+	public void render(Graphics2D graphics, CoordinateSystem coordinateSystem) {
+		byte xDimension = coordinateSystem.getPortFirstXYZ();
+		byte yDimension = coordinateSystem.getPortSecondXYZ();
+		int x = (int) coordinateSystem.convertX(point.getCoord(xDimension));
+		int y = (int) coordinateSystem.convertY(point.getCoord(yDimension));
 
 		setHighLightableColor(graphics, yDimension, moveDirection);
 		drawNorthArrow(graphics, x, y);
@@ -120,7 +120,7 @@ public final class MoverWidget {
 		graphics.drawLine(x + offset, y, x + offset, y - length);
 	}
 
-	private void setColorByDimension(final Graphics2D graphics, final byte dimension) {
+	private void setColorByDimension(Graphics2D graphics, byte dimension) {
 		switch (dimension) {
 			case 0, -1 -> graphics.setColor(new Color(0, 255, 0));
 			case 1, -2 -> graphics.setColor(new Color(255, 0, 0));
@@ -128,7 +128,7 @@ public final class MoverWidget {
 		}
 	}
 
-	private void setHighLightableColor(final Graphics2D graphics, final byte dimension, MoveDimension moveDimension) {
+	private void setHighLightableColor(Graphics2D graphics, byte dimension, MoveDimension moveDimension) {
 //		System.out.println(moveDimension + " has " + MoveDimension.getByByte(dimension) + "?");
 		if (moveDimension.containDirection(dimension)) {
 			graphics.setColor(new Color(255, 255, 0));

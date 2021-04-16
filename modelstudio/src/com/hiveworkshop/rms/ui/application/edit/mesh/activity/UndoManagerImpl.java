@@ -1,10 +1,10 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.activity;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoHandler;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 public final class UndoManagerImpl implements UndoManager {
 	private final Deque<UndoAction> availableUndoActions;
@@ -19,20 +19,20 @@ public final class UndoManagerImpl implements UndoManager {
 
 	@Override
 	public void undo() {
-		final UndoAction action = availableUndoActions.pop();
+		UndoAction action = availableUndoActions.pop();
 		action.undo();
 		availableRedoActions.push(action);
 	}
 
 	@Override
 	public void redo() {
-		final UndoAction action = availableRedoActions.pop();
+		UndoAction action = availableRedoActions.pop();
 		action.redo();
 		availableUndoActions.push(action);
 	}
 
 	@Override
-	public void pushAction(final UndoAction action) {
+	public void pushAction(UndoAction action) {
 		availableUndoActions.push(action);
 		availableRedoActions.clear();
 		undoHandler.refreshUndo();

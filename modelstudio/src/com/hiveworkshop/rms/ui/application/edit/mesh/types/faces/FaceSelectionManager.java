@@ -25,8 +25,8 @@ public final class FaceSelectionManager extends SelectionManager<Triangle> {
 
 	@Override
 	public Vec3 getCenter() {
-		final Set<Vec3> selectedVertices = new HashSet<>();
-		for (final Triangle triangle : selection) {
+		Set<Vec3> selectedVertices = new HashSet<>();
+		for (Triangle triangle : selection) {
 			selectedVertices.addAll(Arrays.asList(triangle.getVerts()));
 		}
 		return Vec3.centerOfGroup(selectedVertices);
@@ -34,9 +34,9 @@ public final class FaceSelectionManager extends SelectionManager<Triangle> {
 
 	@Override
 	public Set<Vec3> getSelectedVertices() {
-		final Set<Vec3> vertices = new HashSet<>();
-		for (final Triangle triangle : getSelection()) {
-            vertices.addAll(Arrays.asList(triangle.getVerts()));
+		Set<Vec3> vertices = new HashSet<>();
+		for (Triangle triangle : getSelection()) {
+			vertices.addAll(Arrays.asList(triangle.getVerts()));
 		}
 		return vertices;
 	}
@@ -47,12 +47,12 @@ public final class FaceSelectionManager extends SelectionManager<Triangle> {
 	}
 
 	@Override
-	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem,
-								final ModelView modelView, final ProgramPreferences programPreferences) {
-		for (final Geoset geoset : modelView.getEditableGeosets()) {
-			for (final Triangle triangle : geoset.getTriangles()) {
-				final Color outlineColor;
-				final Color fillColor;
+	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem,
+	                            ModelView modelView, ProgramPreferences programPreferences) {
+		for (Geoset geoset : modelView.getEditableGeosets()) {
+			for (Triangle triangle : geoset.getTriangles()) {
+				Color outlineColor;
+				Color fillColor;
 				if (geoset == modelView.getHighlightedGeoset()) {
 					outlineColor = programPreferences.getHighlighTriangleColor();
 					fillColor = FACE_HIGHLIGHT_COLOR;
@@ -71,11 +71,11 @@ public final class FaceSelectionManager extends SelectionManager<Triangle> {
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vec3 sphereCenter) {
+	public double getCircumscribedSphereRadius(Vec3 sphereCenter) {
 		double radius = 0;
-		for (final Triangle item : selection) {
-			for (final GeosetVertex geosetVertex : item.getVerts()) {
-				final double distance = sphereCenter.distance(geosetVertex);
+		for (Triangle item : selection) {
+			for (GeosetVertex geosetVertex : item.getVerts()) {
+				double distance = sphereCenter.distance(geosetVertex);
 				if (distance >= radius) {
 					radius = distance;
 				}
@@ -85,11 +85,11 @@ public final class FaceSelectionManager extends SelectionManager<Triangle> {
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vec2 center, final int tvertexLayerId) {
+	public double getCircumscribedSphereRadius(Vec2 center, int tvertexLayerId) {
 		double radius = 0;
-		for (final Triangle item : selection) {
-			for (final GeosetVertex geosetVertex : item.getVerts()) {
-				final double distance = center.distance(geosetVertex.getTVertex(tvertexLayerId));
+		for (Triangle item : selection) {
+			for (GeosetVertex geosetVertex : item.getVerts()) {
+				double distance = center.distance(geosetVertex.getTVertex(tvertexLayerId));
 				if (distance >= radius) {
 					radius = distance;
 				}
@@ -99,10 +99,10 @@ public final class FaceSelectionManager extends SelectionManager<Triangle> {
 	}
 
 	@Override
-	public Vec2 getUVCenter(final int tvertexLayerId) {
-		final Set<Vec2> selectedVertices = new HashSet<>();
-		for (final Triangle triangle : selection) {
-			for (final GeosetVertex geosetVertex : triangle.getVerts()) {
+	public Vec2 getUVCenter(int tvertexLayerId) {
+		Set<Vec2> selectedVertices = new HashSet<>();
+		for (Triangle triangle : selection) {
+			for (GeosetVertex geosetVertex : triangle.getVerts()) {
 				if (tvertexLayerId < geosetVertex.getTverts().size()) {
 					selectedVertices.add(geosetVertex.getTVertex(tvertexLayerId));
 				}
@@ -112,10 +112,10 @@ public final class FaceSelectionManager extends SelectionManager<Triangle> {
 	}
 
 	@Override
-	public Collection<? extends Vec2> getSelectedTVertices(final int tvertexLayerId) {
-		final Set<Vec2> selectedVertices = new HashSet<>();
-		for (final Triangle triangle : selection) {
-			for (final GeosetVertex geosetVertex : triangle.getVerts()) {
+	public Collection<? extends Vec2> getSelectedTVertices(int tvertexLayerId) {
+		Set<Vec2> selectedVertices = new HashSet<>();
+		for (Triangle triangle : selection) {
+			for (GeosetVertex geosetVertex : triangle.getVerts()) {
 				if (tvertexLayerId < geosetVertex.getTverts().size()) {
 					selectedVertices.add(geosetVertex.getTVertex(tvertexLayerId));
 				}
@@ -125,11 +125,11 @@ public final class FaceSelectionManager extends SelectionManager<Triangle> {
 	}
 
 	@Override
-	public void renderUVSelection(final TVertexModelElementRenderer renderer, final ModelView modelView, final ProgramPreferences programPreferences, final int tvertexLayerId) {
-		for (final Geoset geoset : modelView.getEditableGeosets()) {
-			for (final Triangle triangle : geoset.getTriangles()) {
-				final Color outlineColor;
-				final Color fillColor;
+	public void renderUVSelection(TVertexModelElementRenderer renderer, ModelView modelView, ProgramPreferences programPreferences, int tvertexLayerId) {
+		for (Geoset geoset : modelView.getEditableGeosets()) {
+			for (Triangle triangle : geoset.getTriangles()) {
+				Color outlineColor;
+				Color fillColor;
 				if (geoset == modelView.getHighlightedGeoset()) {
 					outlineColor = programPreferences.getHighlighTriangleColor();
 					fillColor = FACE_HIGHLIGHT_COLOR;

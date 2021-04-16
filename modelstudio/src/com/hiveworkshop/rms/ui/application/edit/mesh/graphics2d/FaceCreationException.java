@@ -6,20 +6,19 @@ public class FaceCreationException extends RuntimeException {
 		super();
 	}
 
-	public FaceCreationException(final String message, final Throwable cause, final boolean enableSuppression,
-			final boolean writableStackTrace) {
+	public FaceCreationException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
 
-	public FaceCreationException(final String message, final Throwable cause) {
+	public FaceCreationException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public FaceCreationException(final String message) {
+	public FaceCreationException(String message) {
 		super(message);
 	}
 
-	public FaceCreationException(final Throwable cause) {
+	public FaceCreationException(Throwable cause) {
 		super(cause);
 	}
 

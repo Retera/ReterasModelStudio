@@ -18,11 +18,32 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 	private NodeIconPalette nodeIconPalette;
 	private RenderModel renderModel;
 
-	public ResettableAnimatedIdObjectParentLinkRenderer(final int vertexSize) {
+	public ResettableAnimatedIdObjectParentLinkRenderer(int vertexSize) {
 		this.vertexSize = vertexSize;
 	}
 
-	public ResettableAnimatedIdObjectParentLinkRenderer reset(final CoordinateSystem coordinateSystem, final Graphics2D graphics, final NodeIconPalette nodeIconPalette, final RenderModel renderModel) {
+	public static void drawLink(Graphics2D graphics, CoordinateSystem coordinateSystem,
+	                            Vec3 pivotPoint, Vec3 target,
+	                            Mat4 worldMatrix, Mat4 targetWorldMatrix) {
+		Vec4 vertexHeap = loadPivotInVertexHeap(pivotPoint, worldMatrix);
+		Vec4 vertexHeap2 = loadPivotInVertexHeap(target, targetWorldMatrix);
+
+		int xCoord = (int) coordinateSystem.convertX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
+		int yCoord = (int) coordinateSystem.convertY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
+		int xCoord2 = (int) coordinateSystem.convertX(vertexHeap2.getCoord(coordinateSystem.getPortFirstXYZ()));
+		int yCoord2 = (int) coordinateSystem.convertY(vertexHeap2.getCoord(coordinateSystem.getPortSecondXYZ()));
+		// TODO resettable
+		graphics.setPaint(new GradientPaint(new Point(xCoord, yCoord), Color.WHITE, new Point(xCoord2, yCoord2), Color.BLACK));
+
+		graphics.drawLine(xCoord, yCoord, xCoord2, yCoord2);
+	}
+
+	public static Vec4 loadPivotInVertexHeap(Vec3 pivotPoint, Mat4 worldMatrix) {
+		Vec4 vertexHeap = new Vec4(pivotPoint, 1);
+		return vertexHeap.transform(worldMatrix);
+	}
+
+	public ResettableAnimatedIdObjectParentLinkRenderer reset(CoordinateSystem coordinateSystem, Graphics2D graphics, NodeIconPalette nodeIconPalette, RenderModel renderModel) {
 		this.coordinateSystem = coordinateSystem;
 		this.graphics = graphics;
 		this.nodeIconPalette = nodeIconPalette;
@@ -31,7 +52,7 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 	}
 
 	@Override
-	public void bone(final Bone object) {
+	public void bone(Bone object) {
 		if (object.getParent() != null) {
 			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
 					renderModel.getRenderNode(object).getWorldMatrix(),
@@ -40,7 +61,7 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 	}
 
 	@Override
-	public void light(final Light object) {
+	public void light(Light object) {
 		if (object.getParent() != null) {
 			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
 					renderModel.getRenderNode(object).getWorldMatrix(),
@@ -48,16 +69,7 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 		}
 	}
 
-	private void drawCrosshair(final Bone object) {
-		if (object.getParent() != null) {
-			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
-					renderModel.getRenderNode(object).getWorldMatrix(),
-					renderModel.getRenderNode(object.getParent()).getWorldMatrix());
-		}
-	}
-
-	@Override
-	public void helper(final Helper object) {
+	private void drawCrosshair(Bone object) {
 		if (object.getParent() != null) {
 			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
 					renderModel.getRenderNode(object).getWorldMatrix(),
@@ -66,7 +78,7 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 	}
 
 	@Override
-	public void attachment(final Attachment object) {
+	public void helper(Helper object) {
 		if (object.getParent() != null) {
 			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
 					renderModel.getRenderNode(object).getWorldMatrix(),
@@ -75,7 +87,7 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 	}
 
 	@Override
-	public void particleEmitter(final ParticleEmitter object) {
+	public void attachment(Attachment object) {
 		if (object.getParent() != null) {
 			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
 					renderModel.getRenderNode(object).getWorldMatrix(),
@@ -84,7 +96,7 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 	}
 
 	@Override
-	public void popcornFxEmitter(final ParticleEmitterPopcorn object) {
+	public void particleEmitter(ParticleEmitter object) {
 		if (object.getParent() != null) {
 			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
 					renderModel.getRenderNode(object).getWorldMatrix(),
@@ -93,7 +105,7 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 	}
 
 	@Override
-	public void particleEmitter2(final ParticleEmitter2 object) {
+	public void popcornFxEmitter(ParticleEmitterPopcorn object) {
 		if (object.getParent() != null) {
 			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
 					renderModel.getRenderNode(object).getWorldMatrix(),
@@ -102,7 +114,7 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 	}
 
 	@Override
-	public void ribbonEmitter(final RibbonEmitter object) {
+	public void particleEmitter2(ParticleEmitter2 object) {
 		if (object.getParent() != null) {
 			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
 					renderModel.getRenderNode(object).getWorldMatrix(),
@@ -111,7 +123,7 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 	}
 
 	@Override
-	public void eventObject(final EventObject object) {
+	public void ribbonEmitter(RibbonEmitter object) {
 		if (object.getParent() != null) {
 			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
 					renderModel.getRenderNode(object).getWorldMatrix(),
@@ -120,7 +132,7 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 	}
 
 	@Override
-	public void collisionShape(final CollisionShape object) {
+	public void eventObject(EventObject object) {
 		if (object.getParent() != null) {
 			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
 					renderModel.getRenderNode(object).getWorldMatrix(),
@@ -129,30 +141,18 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 	}
 
 	@Override
-	public void camera(final Camera camera) {
+	public void collisionShape(CollisionShape object) {
+		if (object.getParent() != null) {
+			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
+					renderModel.getRenderNode(object).getWorldMatrix(),
+					renderModel.getRenderNode(object.getParent()).getWorldMatrix());
+		}
+	}
+
+	@Override
+	public void camera(Camera camera) {
 		// TODO ANIMATE CAMERAS
 		System.err.println("TODO ANIMATE CAMERAS");
-	}
-
-	public static void drawLink(final Graphics2D graphics, final CoordinateSystem coordinateSystem,
-	                            final Vec3 pivotPoint, final Vec3 target,
-	                            final Mat4 worldMatrix, final Mat4 targetWorldMatrix) {
-		Vec4 vertexHeap = loadPivotInVertexHeap(pivotPoint, worldMatrix);
-		Vec4 vertexHeap2 = loadPivotInVertexHeap(target, targetWorldMatrix);
-
-		final int xCoord = (int) coordinateSystem.convertX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
-		final int yCoord = (int) coordinateSystem.convertY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
-		final int xCoord2 = (int) coordinateSystem.convertX(vertexHeap2.getCoord(coordinateSystem.getPortFirstXYZ()));
-		final int yCoord2 = (int) coordinateSystem.convertY(vertexHeap2.getCoord(coordinateSystem.getPortSecondXYZ()));
-		// TODO resettable
-		graphics.setPaint(new GradientPaint(new Point(xCoord, yCoord), Color.WHITE, new Point(xCoord2, yCoord2), Color.BLACK));
-
-		graphics.drawLine(xCoord, yCoord, xCoord2, yCoord2);
-	}
-
-	public static Vec4 loadPivotInVertexHeap(final Vec3 pivotPoint, final Mat4 worldMatrix) {
-		Vec4 vertexHeap = new Vec4(pivotPoint, 1);
-		return vertexHeap.transform(worldMatrix);
 	}
 
 }

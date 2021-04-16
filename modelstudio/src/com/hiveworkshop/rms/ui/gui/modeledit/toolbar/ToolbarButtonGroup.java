@@ -1,15 +1,11 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.toolbar;
 
+import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JToolBar;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
 
 public final class ToolbarButtonGroup<BUTTON_TYPE extends ToolbarButtonType> {
 
@@ -21,11 +17,11 @@ public final class ToolbarButtonGroup<BUTTON_TYPE extends ToolbarButtonType> {
 	private final List<ToolbarButtonAction> buttons;
 	private Border activeButtonDefaultBorder;
 
-	public ToolbarButtonGroup(final JToolBar toolBar, final BUTTON_TYPE[] toolbarButtonTypes) {
+	public ToolbarButtonGroup(JToolBar toolBar, BUTTON_TYPE[] toolbarButtonTypes) {
 		this.toolbarButtonTypes = toolbarButtonTypes;
 		listeners = new ArrayList<>();
 		buttons = new ArrayList<>();
-		for (final BUTTON_TYPE type : toolbarButtonTypes) {
+		for (BUTTON_TYPE type : toolbarButtonTypes) {
 			buttons.add(createButton(toolBar, type));
 		}
 	}
@@ -34,16 +30,16 @@ public final class ToolbarButtonGroup<BUTTON_TYPE extends ToolbarButtonType> {
 		return toolbarButtonTypes;
 	}
 
-	public void addToolbarButtonListener(final ToolbarButtonListener<BUTTON_TYPE> listener) {
+	public void addToolbarButtonListener(ToolbarButtonListener<BUTTON_TYPE> listener) {
 		listeners.add(listener);
 		if (activeButtonType != null) {
 			listener.typeChanged(activeButtonType);
 		}
 	}
 
-	public void maybeSetButtonType(final Object possibleButtonType) {
+	public void maybeSetButtonType(Object possibleButtonType) {
 		boolean foundMatch = false;
-		for (final ToolbarButtonAction action : buttons) {
+		for (ToolbarButtonAction action : buttons) {
 			if (action.getButtonType() == possibleButtonType) {
 				setActiveButton(action.getButton(), action.getButtonType(), action.defaultBorder);
 				foundMatch = true;
@@ -55,8 +51,8 @@ public final class ToolbarButtonGroup<BUTTON_TYPE extends ToolbarButtonType> {
 		}
 	}
 
-	public void setToolbarButtonType(final BUTTON_TYPE buttonType) {
-		for (final ToolbarButtonAction action : buttons) {
+	public void setToolbarButtonType(BUTTON_TYPE buttonType) {
+		for (ToolbarButtonAction action : buttons) {
 			if (action.getButtonType() == buttonType) {
 				setActiveButton(action.getButton(), action.getButtonType(), action.defaultBorder);
 			}
@@ -95,9 +91,9 @@ public final class ToolbarButtonGroup<BUTTON_TYPE extends ToolbarButtonType> {
 		}
 	}
 
-	private ToolbarButtonAction createButton(final JToolBar toolBar, final BUTTON_TYPE editorAction) {
-		final ToolbarButtonAction toolbarEditAction = new ToolbarButtonAction(editorAction);
-		final JButton button = toolBar.add(toolbarEditAction);
+	private ToolbarButtonAction createButton(JToolBar toolBar, BUTTON_TYPE editorAction) {
+		ToolbarButtonAction toolbarEditAction = new ToolbarButtonAction(editorAction);
+		JButton button = toolBar.add(toolbarEditAction);
 		button.setToolTipText(editorAction.getName());
 		button.setIcon(editorAction.getImageIcon());
 		button.setDisabledIcon(editorAction.getImageIcon());
@@ -108,7 +104,7 @@ public final class ToolbarButtonGroup<BUTTON_TYPE extends ToolbarButtonType> {
 		return toolbarEditAction;
 	}
 
-	private void setActiveButton(final JButton button, final BUTTON_TYPE type, final Border defaultBorder) {
+	private void setActiveButton(JButton button, BUTTON_TYPE type, Border defaultBorder) {
 		if (activeButton == button) {
 			return;
 		}
@@ -122,11 +118,11 @@ public final class ToolbarButtonGroup<BUTTON_TYPE extends ToolbarButtonType> {
 			activeButton.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 			activeButtonType = type;
 			this.activeButtonDefaultBorder = defaultBorder;
-			for (final ToolbarButtonListener<BUTTON_TYPE> listener : listeners) {
+			for (ToolbarButtonListener<BUTTON_TYPE> listener : listeners) {
 				listener.typeChanged(activeButtonType);
 			}
 		} else {
-			for (final ToolbarButtonListener<BUTTON_TYPE> listener : listeners) {
+			for (ToolbarButtonListener<BUTTON_TYPE> listener : listeners) {
 				listener.typeChanged(null);
 			}
 		}

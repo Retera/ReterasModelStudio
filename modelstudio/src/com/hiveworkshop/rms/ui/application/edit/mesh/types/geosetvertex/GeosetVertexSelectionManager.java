@@ -31,20 +31,20 @@ public final class GeosetVertexSelectionManager extends SelectionManager<GeosetV
 
 	@Override
 	public Set<Triangle> getSelectedFaces() {
-		final Set<Triangle> faces = new HashSet<>();
-		final Set<GeosetVertex> selectedVertices = new HashSet<>();
-		final Set<Triangle> partiallySelectedFaces = new HashSet<>();
-		for (final GeosetVertex vertex : getSelection()) {
+		Set<Triangle> faces = new HashSet<>();
+		Set<GeosetVertex> selectedVertices = new HashSet<>();
+		Set<Triangle> partiallySelectedFaces = new HashSet<>();
+		for (GeosetVertex vertex : getSelection()) {
 			partiallySelectedFaces.addAll(vertex.getTriangles());
 			selectedVertices.add(vertex);
 		}
-		for (final Triangle face : partiallySelectedFaces) {
+		for (Triangle face : partiallySelectedFaces) {
 			boolean whollySelected = true;
-			for (final GeosetVertex gv : face.getVerts()) {
-                if (!selectedVertices.contains(gv)) {
-                    whollySelected = false;
-                    break;
-                }
+			for (GeosetVertex gv : face.getVerts()) {
+				if (!selectedVertices.contains(gv)) {
+					whollySelected = false;
+					break;
+				}
 			}
 			if (whollySelected) {
 				faces.add(face);
@@ -54,11 +54,11 @@ public final class GeosetVertexSelectionManager extends SelectionManager<GeosetV
 	}
 
 	@Override
-	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem,
-								final ModelView model, final ProgramPreferences programPreferences) {
-		for (final Geoset geo : model.getEditableGeosets()) {
-			final List<GeosetVertex> vertices = geo.getVertices();
-			for (final GeosetVertex geosetVertex : vertices) {
+	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem,
+	                            ModelView model, ProgramPreferences programPreferences) {
+		for (Geoset geo : model.getEditableGeosets()) {
+			List<GeosetVertex> vertices = geo.getVertices();
+			for (GeosetVertex geosetVertex : vertices) {
 				if (model.getHighlightedGeoset() == geo) {
 					renderer.renderVertex(programPreferences.getHighlighVertexColor(), geosetVertex);
 				} else if (selection.contains(geosetVertex)) {
@@ -71,10 +71,10 @@ public final class GeosetVertexSelectionManager extends SelectionManager<GeosetV
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vec3 sphereCenter) {
+	public double getCircumscribedSphereRadius(Vec3 sphereCenter) {
 		double radius = 0;
-		for (final Vec3 item : selection) {
-			final double distance = sphereCenter.distance(item);
+		for (Vec3 item : selection) {
+			double distance = sphereCenter.distance(item);
 			if (distance >= radius) {
 				radius = distance;
 			}
@@ -83,11 +83,11 @@ public final class GeosetVertexSelectionManager extends SelectionManager<GeosetV
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vec2 center, final int tvertexLayerId) {
+	public double getCircumscribedSphereRadius(Vec2 center, int tvertexLayerId) {
 		double radius = 0;
-		for (final GeosetVertex item : selection) {
+		for (GeosetVertex item : selection) {
 			if (tvertexLayerId < item.getTverts().size()) {
-				final double distance = center.distance(item.getTVertex(tvertexLayerId));
+				double distance = center.distance(item.getTVertex(tvertexLayerId));
 				if (distance >= radius) {
 					radius = distance;
 				}
@@ -97,14 +97,14 @@ public final class GeosetVertexSelectionManager extends SelectionManager<GeosetV
 	}
 
 	@Override
-	public Vec2 getUVCenter(final int tvertexLayerId) {
+	public Vec2 getUVCenter(int tvertexLayerId) {
 		return Vec2.centerOfGroup(getSelectedTVertices(tvertexLayerId));
 	}
 
 	@Override
-	public Collection<? extends Vec2> getSelectedTVertices(final int tvertexLayerId) {
-		final Set<Vec2> selectedTVertices = new HashSet<>();
-		for (final GeosetVertex vertex : selection) {
+	public Collection<? extends Vec2> getSelectedTVertices(int tvertexLayerId) {
+		Set<Vec2> selectedTVertices = new HashSet<>();
+		for (GeosetVertex vertex : selection) {
 			if (tvertexLayerId < vertex.getTverts().size()) {
 				selectedTVertices.add(vertex.getTVertex(tvertexLayerId));
 			}
@@ -113,11 +113,11 @@ public final class GeosetVertexSelectionManager extends SelectionManager<GeosetV
 	}
 
 	@Override
-	public void renderUVSelection(final TVertexModelElementRenderer renderer, final ModelView modelView,
-                                  final ProgramPreferences programPreferences, final int tvertexLayerId) {
-		for (final Geoset geo : modelView.getEditableGeosets()) {
-			final List<GeosetVertex> vertices = geo.getVertices();
-			for (final GeosetVertex geosetVertex : vertices) {
+	public void renderUVSelection(TVertexModelElementRenderer renderer, ModelView modelView,
+	                              ProgramPreferences programPreferences, int tvertexLayerId) {
+		for (Geoset geo : modelView.getEditableGeosets()) {
+			List<GeosetVertex> vertices = geo.getVertices();
+			for (GeosetVertex geosetVertex : vertices) {
 				if (tvertexLayerId >= geosetVertex.getTverts().size()) {
 					continue;
 				}

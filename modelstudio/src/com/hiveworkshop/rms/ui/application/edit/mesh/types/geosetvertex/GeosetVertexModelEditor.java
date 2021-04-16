@@ -35,50 +35,51 @@ import java.util.*;
 public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	private final ProgramPreferences programPreferences;
 
-	public GeosetVertexModelEditor(final ModelView model, final ProgramPreferences programPreferences,
-								   final SelectionManager<GeosetVertex> selectionManager,
-								   final ModelStructureChangeListener structureChangeListener) {
+	public GeosetVertexModelEditor(ModelView model, ProgramPreferences programPreferences,
+	                               SelectionManager<GeosetVertex> selectionManager,
+	                               ModelStructureChangeListener structureChangeListener) {
 		super(selectionManager, model, structureChangeListener);
 		this.programPreferences = programPreferences;
 	}
 
-	public static void hitTest(final List<GeosetVertex> selectedItems, final Rectangle2D area, final GeosetVertex geosetVertex, final CoordinateSystem coordinateSystem, final double vertexSize) {
-		final byte dim1 = coordinateSystem.getPortFirstXYZ();
-		final byte dim2 = coordinateSystem.getPortSecondXYZ();
-		final double minX = coordinateSystem.convertX(area.getMinX());
-		final double minY = coordinateSystem.convertY(area.getMinY());
-		final double maxX = coordinateSystem.convertX(area.getMaxX());
-		final double maxY = coordinateSystem.convertY(area.getMaxY());
-		final double vertexX = geosetVertex.getCoord(dim1);
-		final double x = coordinateSystem.convertX(vertexX);
-		final double vertexY = geosetVertex.getCoord(dim2);
-		final double y = coordinateSystem.convertY(vertexY);
+	public static boolean hitTest(Rectangle2D area, GeosetVertex geosetVertex, CoordinateSystem coordinateSystem, double vertexSize) {
+		byte dim1 = coordinateSystem.getPortFirstXYZ();
+		byte dim2 = coordinateSystem.getPortSecondXYZ();
+		double minX = coordinateSystem.convertX(area.getMinX());
+		double minY = coordinateSystem.convertY(area.getMinY());
+		double maxX = coordinateSystem.convertX(area.getMaxX());
+		double maxY = coordinateSystem.convertY(area.getMaxY());
+		double vertexX = geosetVertex.getCoord(dim1);
+		double x = coordinateSystem.convertX(vertexX);
+		double vertexY = geosetVertex.getCoord(dim2);
+		double y = coordinateSystem.convertY(vertexY);
 		if ((distance(x, y, minX, minY) <= (vertexSize / 2.0))
 				|| (distance(x, y, maxX, maxY) <= (vertexSize / 2.0))
 				|| area.contains(vertexX, vertexY)) {
-			selectedItems.add(geosetVertex);
+			return true;
 		}
+		return false;
 	}
 
-	public static boolean hitTest(final Vec3 vertex, final Point2D point, final CoordinateSystem coordinateSystem, final double vertexSize) {
-		final double x = coordinateSystem.convertX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
-		final double y = coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
-		final double px = coordinateSystem.convertX(point.getX());
-		final double py = coordinateSystem.convertY(point.getY());
+	public static boolean hitTest(Vec3 vertex, Point2D point, CoordinateSystem coordinateSystem, double vertexSize) {
+		double x = coordinateSystem.convertX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
+		double y = coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
+		double px = coordinateSystem.convertX(point.getX());
+		double py = coordinateSystem.convertY(point.getY());
 		return Point2D.distance(px, py, x, y) <= (vertexSize / 2.0);
 	}
 
-	public static double distance(final double vertexX, final double vertexY, final double x, final double y) {
-		final double dx = x - vertexX;
-		final double dy = y - vertexY;
+	public static double distance(double vertexX, double vertexY, double x, double y) {
+		double dx = x - vertexX;
+		double dy = y - vertexY;
 		return Math.sqrt((dx * dx) + (dy * dy));
 	}
 
 	@Override
-	public void selectByVertices(final Collection<? extends Vec3> newSelection) {
-		final List<GeosetVertex> newGeosetVertices = new ArrayList<>();
-		for (final Geoset geoset : model.getEditableGeosets()) {
-			for (final GeosetVertex vertex : geoset.getVertices()) {
+	public void selectByVertices(Collection<? extends Vec3> newSelection) {
+		List<GeosetVertex> newGeosetVertices = new ArrayList<>();
+		for (Geoset geoset : model.getEditableGeosets()) {
+			for (GeosetVertex vertex : geoset.getVertices()) {
 				if (newSelection.contains(vertex)) {
 					newGeosetVertices.add(vertex);
 				}
@@ -104,18 +105,18 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 
 	@Override
 	public UndoAction expandSelection() {
-		final Set<GeosetVertex> expandedSelection = new HashSet<>(selectionManager.getSelection());
-		final List<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
-		for (final GeosetVertex v : oldSelection) {
+		Set<GeosetVertex> expandedSelection = new HashSet<>(selectionManager.getSelection());
+		List<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
+		for (GeosetVertex v : oldSelection) {
 			expandSelection(v, expandedSelection);
 		}
 		selectionManager.setSelection(expandedSelection);
 		return (new SetSelectionAction<>(expandedSelection, oldSelection, selectionManager, "expand selection"));
 	}
 
-	private void expandSelection(final GeosetVertex currentVertex, final Set<GeosetVertex> selection) {
+	private void expandSelection(GeosetVertex currentVertex, Set<GeosetVertex> selection) {
 		selection.add(currentVertex);
-		for (final Triangle tri : currentVertex.getTriangles()) {
+		for (Triangle tri : currentVertex.getTriangles()) {
 			for (final GeosetVertex other : tri.getVerts()) {
 				if (!selection.contains(other)) {
 					expandSelection(other, selection);
@@ -126,10 +127,10 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 
 	@Override
 	public UndoAction invertSelection() {
-		final List<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
-		final Set<GeosetVertex> invertedSelection = new HashSet<>(selectionManager.getSelection());
-		for (final Geoset geo : model.getEditableGeosets()) {
-			for (final GeosetVertex geosetVertex : geo.getVertices()) {
+		List<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
+		Set<GeosetVertex> invertedSelection = new HashSet<>(selectionManager.getSelection());
+		for (Geoset geo : model.getEditableGeosets()) {
+			for (GeosetVertex geosetVertex : geo.getVertices()) {
 				toggleSelection(invertedSelection, geosetVertex);
 			}
 		}
@@ -137,7 +138,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 		return (new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection"));
 	}
 
-	private void toggleSelection(final Set<GeosetVertex> selection, final GeosetVertex position) {
+	private void toggleSelection(Set<GeosetVertex> selection, GeosetVertex position) {
 		if (selection.contains(position)) {
 			selection.remove(position);
 		} else {
@@ -147,9 +148,9 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 
 	@Override
 	public UndoAction selectAll() {
-		final List<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
-		final Set<GeosetVertex> allSelection = new HashSet<>();
-		for (final Geoset geo : model.getEditableGeosets()) {
+		List<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
+		Set<GeosetVertex> allSelection = new HashSet<>();
+		for (Geoset geo : model.getEditableGeosets()) {
 			allSelection.addAll(geo.getVertices());
 		}
 		selectionManager.setSelection(allSelection);
@@ -157,21 +158,22 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	}
 
 	@Override
-	protected List<GeosetVertex> genericSelect(final Rectangle2D region, final CoordinateSystem coordinateSystem) {
-		final List<GeosetVertex> selectedItems = new ArrayList<>();
-		final double startingClickX = region.getX();
-		final double startingClickY = region.getY();
-		final double endingClickX = region.getX() + region.getWidth();
-		final double endingClickY = region.getY() + region.getHeight();
+	protected List<GeosetVertex> genericSelect(Rectangle2D region, CoordinateSystem coordinateSystem) {
+		List<GeosetVertex> selectedItems = new ArrayList<>();
+		double startingClickX = region.getX();
+		double startingClickY = region.getY();
+		double endingClickX = region.getX() + region.getWidth();
+		double endingClickY = region.getY() + region.getHeight();
 
-		final double minX = Math.min(startingClickX, endingClickX);
-		final double minY = Math.min(startingClickY, endingClickY);
-		final double maxX = Math.max(startingClickX, endingClickX);
-		final double maxY = Math.max(startingClickY, endingClickY);
-		final Rectangle2D area = new Rectangle2D.Double(minX, minY, (maxX - minX), (maxY - minY));
-		for (final Geoset geoset : model.getEditableGeosets()) {
-			for (final GeosetVertex geosetVertex : geoset.getVertices()) {
-				hitTest(selectedItems, area, geosetVertex, coordinateSystem, programPreferences.getVertexSize());
+		double minX = Math.min(startingClickX, endingClickX);
+		double minY = Math.min(startingClickY, endingClickY);
+		double maxX = Math.max(startingClickX, endingClickX);
+		double maxY = Math.max(startingClickY, endingClickY);
+		Rectangle2D area = new Rectangle2D.Double(minX, minY, (maxX - minX), (maxY - minY));
+		for (Geoset geoset : model.getEditableGeosets()) {
+			for (GeosetVertex geosetVertex : geoset.getVertices()) {
+				if (hitTest(area, geosetVertex, coordinateSystem, programPreferences.getVertexSize()))
+					selectedItems.add(geosetVertex);
 			}
 		}
 		return selectedItems;
@@ -179,23 +181,23 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 
 	@Override
 	public UndoAction addTeamColor() {
-		final TeamColorAddAction<GeosetVertex> teamColorAddAction = new TeamColorAddAction<>(selectionManager.getSelectedFaces(), model.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
+		TeamColorAddAction<GeosetVertex> teamColorAddAction = new TeamColorAddAction<>(selectionManager.getSelectedFaces(), model.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
 		teamColorAddAction.redo();
 		return teamColorAddAction;
 	}
 
 	@Override
 	public UndoAction splitGeoset() {
-		final SplitGeosetAction<GeosetVertex> teamColorAddAction = new SplitGeosetAction<>(selectionManager.getSelectedFaces(), model.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
+		SplitGeosetAction<GeosetVertex> teamColorAddAction = new SplitGeosetAction<>(selectionManager.getSelectedFaces(), model.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
 		teamColorAddAction.redo();
 		return teamColorAddAction;
 	}
 
 	@Override
-	public boolean canSelectAt(final Point point, final CoordinateSystem axes) {
+	public boolean canSelectAt(Point point, CoordinateSystem axes) {
 		boolean canSelect = false;
-		for (final Geoset geoset : model.getEditableGeosets()) {
-			for (final GeosetVertex geosetVertex : geoset.getVertices()) {
+		for (Geoset geoset : model.getEditableGeosets()) {
+			for (GeosetVertex geosetVertex : geoset.getVertices()) {
 				if (hitTest(geosetVertex, CoordinateSystem.Util.geom(axes, point), axes, programPreferences.getVertexSize())) {
 					canSelect = true;
 				}
@@ -205,47 +207,47 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	}
 
 	@Override
-	protected UndoAction buildHideComponentAction(final List<? extends SelectableComponent> selectableComponents, final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
-		final List<GeosetVertex> previousSelection = new ArrayList<>(selectionManager.getSelection());
-		final List<GeosetVertex> possibleVerticesToTruncate = new ArrayList<>();
-		for (final SelectableComponent component : selectableComponents) {
+	protected UndoAction buildHideComponentAction(List<? extends SelectableComponent> selectableComponents, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable) {
+		List<GeosetVertex> previousSelection = new ArrayList<>(selectionManager.getSelection());
+		List<GeosetVertex> possibleVerticesToTruncate = new ArrayList<>();
+		for (SelectableComponent component : selectableComponents) {
 			component.visit(new SelectableComponentVisitor() {
 				@Override
-				public void accept(final Camera camera) {
+				public void accept(Camera camera) {
 				}
 
 				@Override
-				public void accept(final IdObject node) {
+				public void accept(IdObject node) {
 				}
 
 				@Override
-				public void accept(final Geoset geoset) {
+				public void accept(Geoset geoset) {
 					possibleVerticesToTruncate.addAll(geoset.getVertices());
 				}
 			});
 		}
-		final Runnable truncateSelectionRunnable = () -> selectionManager.removeSelection(possibleVerticesToTruncate);
-		final Runnable unTruncateSelectionRunnable = () -> selectionManager.setSelection(previousSelection);
+		Runnable truncateSelectionRunnable = () -> selectionManager.removeSelection(possibleVerticesToTruncate);
+		Runnable unTruncateSelectionRunnable = () -> selectionManager.setSelection(previousSelection);
 		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable, unTruncateSelectionRunnable, refreshGUIRunnable);
 	}
 
 	@Override
 	public CopiedModelData copySelection() {
-		final Set<GeosetVertex> selection = selectionManager.getSelection();
-		final List<Geoset> copiedGeosets = new ArrayList<>();
-		for (final Geoset geoset : model.getEditableGeosets()) {
-			final Geoset copy = new Geoset();
+		Set<GeosetVertex> selection = selectionManager.getSelection();
+		List<Geoset> copiedGeosets = new ArrayList<>();
+		for (Geoset geoset : model.getEditableGeosets()) {
+			Geoset copy = new Geoset();
 			copy.setSelectionGroup(geoset.getSelectionGroup());
 			copy.setAnims(geoset.getAnims());
 			copy.setMaterial(geoset.getMaterial());
-			final Set<Triangle> copiedTriangles = new HashSet<>();
-			final Set<GeosetVertex> copiedVertices = new HashSet<>();
-			for (final Triangle triangle : geoset.getTriangles()) {
+			Set<Triangle> copiedTriangles = new HashSet<>();
+			Set<GeosetVertex> copiedVertices = new HashSet<>();
+			for (Triangle triangle : geoset.getTriangles()) {
 				boolean triangleIsFullySelected = true;
-				final List<GeosetVertex> triangleVertices = new ArrayList<>(3);
-				for (final GeosetVertex geosetVertex : triangle.getAll()) {
+				List<GeosetVertex> triangleVertices = new ArrayList<>(3);
+				for (GeosetVertex geosetVertex : triangle.getAll()) {
 					if (selection.contains(geosetVertex)) {
-						final GeosetVertex newGeosetVertex = new GeosetVertex(geosetVertex);
+						GeosetVertex newGeosetVertex = new GeosetVertex(geosetVertex);
 						newGeosetVertex.getTriangles().clear();
 						copiedVertices.add(newGeosetVertex);
 						triangleVertices.add(newGeosetVertex);
@@ -254,14 +256,14 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 					}
 				}
 				if (triangleIsFullySelected) {
-					final Triangle newTriangle = new Triangle(triangleVertices.get(0), triangleVertices.get(1), triangleVertices.get(2), copy);
+					Triangle newTriangle = new Triangle(triangleVertices.get(0), triangleVertices.get(1), triangleVertices.get(2), copy);
 					copiedTriangles.add(newTriangle);
 				}
 			}
-			for (final Triangle triangle : copiedTriangles) {
+			for (Triangle triangle : copiedTriangles) {
 				copy.add(triangle);
 			}
-			for (final GeosetVertex geosetVertex : copiedVertices) {
+			for (GeosetVertex geosetVertex : copiedVertices) {
 				copy.add(geosetVertex);
 			}
 			if ((copiedTriangles.size() > 0) || (copiedVertices.size() > 0)) {
@@ -272,11 +274,11 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	}
 
 	@Override
-	public UndoAction addVertex(final double x, final double y, final double z, final Vec3 preferredNormalFacingVector) {
-		final List<Geoset> geosets = model.getModel().getGeosets();
+	public UndoAction addVertex(double x, double y, double z, Vec3 preferredNormalFacingVector) {
+		List<Geoset> geosets = model.getModel().getGeosets();
 		Geoset solidWhiteGeoset = null;
-		for (final Geoset geoset : geosets) {
-			final Layer firstLayer = geoset.getMaterial().firstLayer();
+		for (Geoset geoset : geosets) {
+			Layer firstLayer = geoset.getMaterial().firstLayer();
 			if ((geoset.getMaterial() != null)
 					&& (firstLayer != null)
 					&& (firstLayer.getFilterMode() == FilterMode.NONE)
@@ -290,13 +292,13 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 			solidWhiteGeoset.setMaterial(new Material(new Layer("None", new Bitmap("Textures\\white.blp"))));
 			needsGeosetAction = true;
 		}
-		final GeosetVertex geosetVertex = new GeosetVertex(x, y, z, new Vec3(preferredNormalFacingVector.x, preferredNormalFacingVector.y, preferredNormalFacingVector.z));
+		GeosetVertex geosetVertex = new GeosetVertex(x, y, z, new Vec3(preferredNormalFacingVector.x, preferredNormalFacingVector.y, preferredNormalFacingVector.z));
 		geosetVertex.setGeoset(solidWhiteGeoset);
 		geosetVertex.addTVertex(new Vec2(0, 0));
-		final UndoAction action;
-		final DrawVertexAction drawVertexAction = new DrawVertexAction(geosetVertex);
+		UndoAction action;
+		DrawVertexAction drawVertexAction = new DrawVertexAction(geosetVertex);
 		if (needsGeosetAction) {
-			final NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, model.getModel(), structureChangeListener);
+			NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, model.getModel(), structureChangeListener);
 			action = new CompoundAction("add vertex", Arrays.asList(newGeosetAction, drawVertexAction));
 		} else {
 			action = drawVertexAction;
@@ -306,16 +308,16 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	}
 
 	@Override
-	public UndoAction createFaceFromSelection(final Vec3 preferredFacingVector) {
-		final Set<GeosetVertex> selection = selectionManager.getSelection();
+	public UndoAction createFaceFromSelection(Vec3 preferredFacingVector) {
+		Set<GeosetVertex> selection = selectionManager.getSelection();
 		if (selection.size() != 3) {
 			throw new FaceCreationException(
 					"A face can only be created from exactly 3 vertices (you have " + selection.size() + " selected)");
 		}
 		int index = 0;
-		final GeosetVertex[] verticesArray = new GeosetVertex[3];
+		GeosetVertex[] verticesArray = new GeosetVertex[3];
 		Geoset geoset = null;
-		for (final GeosetVertex vertex : selection) {
+		for (GeosetVertex vertex : selection) {
 			verticesArray[index++] = vertex;
 			if (geoset == null) {
 				geoset = vertex.getGeoset();
@@ -324,7 +326,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 						"All three vertices to create a face must be a part of the same Geoset");
 			}
 		}
-		for (final Triangle existingTriangle : verticesArray[0].getTriangles()) {
+		for (Triangle existingTriangle : verticesArray[0].getTriangles()) {
 			if (existingTriangle.contains(verticesArray[0])
 					&& existingTriangle.contains(verticesArray[1])
 					&& existingTriangle.contains(verticesArray[2])) {
@@ -332,20 +334,20 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 			}
 		}
 
-		final Triangle newTriangle = new Triangle(verticesArray[0], verticesArray[1], verticesArray[2], geoset);
-		final Vec3 facingVector = newTriangle.getNormal();
-		final double cosine = facingVector.dot(preferredFacingVector) / (facingVector.length() * preferredFacingVector.length());
+		Triangle newTriangle = new Triangle(verticesArray[0], verticesArray[1], verticesArray[2], geoset);
+		Vec3 facingVector = newTriangle.getNormal();
+		double cosine = facingVector.dot(preferredFacingVector) / (facingVector.length() * preferredFacingVector.length());
 		if (cosine < 0) {
 			newTriangle.flip(false);
 		}
 
-		final AddTriangleAction addTriangleAction = new AddTriangleAction(geoset, Collections.singletonList(newTriangle));
+		AddTriangleAction addTriangleAction = new AddTriangleAction(geoset, Collections.singletonList(newTriangle));
 		addTriangleAction.redo();
 		return addTriangleAction;
 	}
 
 	@Override
-	public UndoAction setParent(final IdObject node) {
+	public UndoAction setParent(IdObject node) {
 		throw new UnsupportedOperationException("This feature is not available in Geoset Vertex mode");
 	}
 

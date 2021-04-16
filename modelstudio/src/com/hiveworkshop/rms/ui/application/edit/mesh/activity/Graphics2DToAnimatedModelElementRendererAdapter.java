@@ -28,7 +28,7 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 		idObjectRenderer = new ResettableAnimatedIdObjectRenderer(vertexSize);
 	}
 
-	public Graphics2DToAnimatedModelElementRendererAdapter reset(final Graphics2D graphics, final CoordinateSystem coordinateSystem, final RenderModel renderModel, final ProgramPreferences preferences) {
+	public Graphics2DToAnimatedModelElementRendererAdapter reset(Graphics2D graphics, CoordinateSystem coordinateSystem, RenderModel renderModel, ProgramPreferences preferences) {
 		this.graphics = graphics;
 		this.coordinateSystem = coordinateSystem;
 		this.renderModel = renderModel;
@@ -37,8 +37,8 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 	}
 
 	@Override
-	public void renderFace(final Color borderColor, final Color color,
-	                       final GeosetVertex a, final GeosetVertex b, final GeosetVertex c) {
+	public void renderFace(Color borderColor, Color color,
+	                       GeosetVertex a, GeosetVertex b, GeosetVertex c) {
 		graphics.setColor(color);
 
 		Point pointA = CoordinateSystem.Util.convertToPoint(coordinateSystem, a, renderModel);
@@ -51,7 +51,7 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 	}
 
 	@Override
-	public void renderVertex(final Color color, final Vec3 vertex) {
+	public void renderVertex(Color color, Vec3 vertex) {
 		Point point = CoordinateSystem.Util.convertToPoint(coordinateSystem, vertex);
 		graphics.setColor(color);
 		GU.fillCenteredSquare(graphics, point, vertexSize);
@@ -59,26 +59,26 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 	}
 
 	@Override
-	public void renderIdObject(final IdObject object, final NodeIconPalette nodeIconPalette, final Color lightColor, final Color pivotPointColor) {
+	public void renderIdObject(IdObject object, NodeIconPalette nodeIconPalette, Color lightColor, Color pivotPointColor) {
 		object.apply(idObjectRenderer.reset(coordinateSystem, graphics, lightColor, pivotPointColor, nodeIconPalette, renderModel, programPreferences.isUseBoxesForPivotPoints()));
 	}
 
 	@Override
-	public void renderCamera(final Camera camera, final Color boxColor, final Vec3 position, final Color targetColor, final Vec3 targetPosition) {
+	public void renderCamera(Camera camera, Color boxColor, Vec3 position, Color targetColor, Vec3 targetPosition) {
 		// TODO ANIMATION
 		if (true) {
 			throw new WrongModeException("not animating cameras yet, code not finished");
 		}
 
-		final Graphics2D g2 = ((Graphics2D) graphics.create());
-		final Vec3 ver = position;
-		final Vec3 targ = targetPosition;
-		// final boolean verSel = selection.contains(ver);
-		// final boolean tarSel = selection.contains(targ);
-		final Point start = new Point(
+		Graphics2D g2 = ((Graphics2D) graphics.create());
+		Vec3 ver = position;
+		Vec3 targ = targetPosition;
+		// boolean verSel = selection.contains(ver);
+		// boolean tarSel = selection.contains(targ);
+		Point start = new Point(
 				(int) Math.round(coordinateSystem.convertX(ver.getCoord(coordinateSystem.getPortFirstXYZ()))),
 				(int) Math.round(coordinateSystem.convertY(ver.getCoord(coordinateSystem.getPortSecondXYZ()))));
-		final Point end = new Point(
+		Point end = new Point(
 				(int) Math.round(coordinateSystem.convertX(targ.getCoord(coordinateSystem.getPortFirstXYZ()))),
 				(int) Math.round(coordinateSystem.convertY(targ.getCoord(coordinateSystem.getPortSecondXYZ()))));
 		// if (dispCameraNames) {
@@ -86,31 +86,25 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 		//
 		// if (verSel) {
 		// g2.setColor(Color.orange.darker());
-		// changedCol = true;
-		// }
+		// changedCol = true;}
 		// g2.drawString(cam.getName(), (int)
 		// Math.round(vp.convertX(ver.getCoord(vp.getPortFirstXYZ()))),
 		// (int) Math.round(vp.convertY(ver.getCoord(vp.getPortSecondXYZ()))));
 		// if (tarSel) {
 		// g2.setColor(Color.orange.darker());
-		// changedCol = true;
-		// } else if (verSel) {
+		// changedCol = true;} else if (verSel) {
 		// g2.setColor(Color.green.darker());
-		// changedCol = false;
-		// }
+		// changedCol = false; }
 		// g2.drawString(cam.getName() + "_target",
 		// (int) Math.round(vp.convertX(targ.getCoord(vp.getPortFirstXYZ()))),
 		// (int) Math.round(vp.convertY(targ.getCoord(vp.getPortSecondXYZ()))));
-		// if (changedCol) {
-		// g2.setColor(Color.green.darker());
-		// }
-		// }
+		// if (changedCol) {g2.setColor(Color.green.darker());}}
 
 		g2.translate(end.x, end.y);
 		g2.rotate(-((Math.PI / 2) + Math.atan2(end.x - start.x, end.y - start.y)));
-		final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
-		final int size = (int) (20 * zoom);
-		final double dist = start.distance(end);
+		double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+		int size = (int) (20 * zoom);
+		double dist = start.distance(end);
 
 		g2.setColor(boxColor);
 		g2.fillRect((int) dist - vertexSize, 0 - vertexSize, 1 + (vertexSize * 2), 1 + (vertexSize * 2));

@@ -40,21 +40,21 @@ public final class PivotPointSelectionManager extends SelectionManager<Vec3> {
 	}
 
 	@Override
-	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem,
-	                            final ModelView model, final ProgramPreferences programPreferences) {
-		final Set<Vec3> drawnSelection = new HashSet<>();
-		for (final IdObject object : model.getEditableIdObjects()) {
+	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem,
+	                            ModelView model, ProgramPreferences programPreferences) {
+		Set<Vec3> drawnSelection = new HashSet<>();
+		for (IdObject object : model.getEditableIdObjects()) {
 			if (selection.contains(object.getPivotPoint())) {
 				renderer.renderIdObject(object, NodeIconPalette.SELECTED, programPreferences.getSelectColor(), programPreferences.getPivotPointsSelectedColor());
 				drawnSelection.add(object.getPivotPoint());
 			}
 		}
-		for (final Camera camera : model.getEditableCameras()) {
+		for (Camera camera : model.getEditableCameras()) {
 			renderer.renderCamera(camera, selection.contains(camera.getPosition()) ? Color.GREEN.darker() : Color.ORANGE.darker(), camera.getPosition(), selection.contains(camera.getTargetPosition()) ? Color.GREEN.darker() : Color.ORANGE.darker(), camera.getTargetPosition());
 			drawnSelection.add(camera.getPosition());
 			drawnSelection.add(camera.getTargetPosition());
 		}
-		for (final Vec3 vertex : selection) {
+		for (Vec3 vertex : selection) {
 			if (!drawnSelection.contains(vertex)) {
 				renderBoneDummy.setPivotPoint(vertex);
 				renderer.renderIdObject(renderBoneDummy, NodeIconPalette.SELECTED, programPreferences.getSelectColor(), programPreferences.getPivotPointsSelectedColor());
@@ -63,10 +63,10 @@ public final class PivotPointSelectionManager extends SelectionManager<Vec3> {
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vec3 sphereCenter) {
+	public double getCircumscribedSphereRadius(Vec3 sphereCenter) {
 		double radius = 0;
-		for (final Vec3 item : selection) {
-			final double distance = sphereCenter.distance(item);
+		for (Vec3 item : selection) {
+			double distance = sphereCenter.distance(item);
 			if (distance >= radius) {
 				radius = distance;
 			}
@@ -75,21 +75,21 @@ public final class PivotPointSelectionManager extends SelectionManager<Vec3> {
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vec2 center, final int tvertexLayerId) {
+	public double getCircumscribedSphereRadius(Vec2 center, int tvertexLayerId) {
 		return 0;
 	}
 
 	@Override
-	public Vec2 getUVCenter(final int tvertexLayerId) {
+	public Vec2 getUVCenter(int tvertexLayerId) {
 		return Vec2.ORIGIN;
 	}
 
 	@Override
-	public Collection<? extends Vec2> getSelectedTVertices(final int tvertexLayerId) {
+	public Collection<? extends Vec2> getSelectedTVertices(int tvertexLayerId) {
 		return Collections.emptySet();
 	}
 
 	@Override
-	public void renderUVSelection(final TVertexModelElementRenderer renderer, final ModelView modelView, final ProgramPreferences programPreferences, final int tvertexLayerId) {
+	public void renderUVSelection(TVertexModelElementRenderer renderer, ModelView modelView, ProgramPreferences programPreferences, int tvertexLayerId) {
 	}
 }
