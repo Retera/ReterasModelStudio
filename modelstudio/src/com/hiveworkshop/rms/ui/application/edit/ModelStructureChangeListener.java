@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit;
 
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 
 import java.util.List;
 
@@ -17,13 +18,13 @@ public interface ModelStructureChangeListener {
 
 	void camerasRemoved(List<Camera> nodes);
 
-	void timelineAdded(TimelineContainer node, AnimFlag timeline);
+	void timelineAdded(TimelineContainer node, AnimFlag<?> timeline);
 
-	void keyframeAdded(TimelineContainer node, AnimFlag timeline, int trackTime);
+	void keyframeAdded(TimelineContainer node, AnimFlag<?> timeline, int trackTime);
 
-	void timelineRemoved(TimelineContainer node, AnimFlag timeline);
+	void timelineRemoved(TimelineContainer node, AnimFlag<?> timeline);
 
-	void keyframeRemoved(TimelineContainer node, AnimFlag timeline, int trackTime);
+	void keyframeRemoved(TimelineContainer node, AnimFlag<?> timeline, int trackTime);
 
 	void animationsAdded(List<Animation> animation);
 
@@ -38,4 +39,6 @@ public interface ModelStructureChangeListener {
 	void globalSequenceLengthChanged(int index, Integer newLength);
 
 	void materialsListChanged();
+
+	void nodeHierarchyChanged();
 }

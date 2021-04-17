@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.parsers.mdlx.mdl;
 
+import java.util.Locale;
+
 public class MdlTokenOutputStream {
 	public final StringBuilder buffer = new StringBuilder();
 	public int ident = 0;
@@ -140,8 +142,8 @@ public class MdlTokenOutputStream {
 	}
 
 	private String formatFloat(final float value) {
-		final String s = Float.toString(value);
-		final String f = String.format("%." + fractionDigits + "f", value);
+		final String s = Float.toString(value).replace(",", ".");
+		final String f = String.format(Locale.US, "%." + fractionDigits + "f", value);
 		if (s.length() > f.length()) {
 			return f;
 		} else {

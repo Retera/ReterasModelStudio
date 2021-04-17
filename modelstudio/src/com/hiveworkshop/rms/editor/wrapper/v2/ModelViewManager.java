@@ -5,18 +5,20 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.editor.wrapper.v2.render.RenderByViewMeshRenderer;
-import com.hiveworkshop.rms.editor.wrapper.v2.render.RenderByViewModelRenderer;
 import com.hiveworkshop.rms.editor.model.visitor.MeshVisitor;
 import com.hiveworkshop.rms.editor.model.visitor.ModelVisitor;
+import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.editor.wrapper.v2.render.RenderByViewMeshRenderer;
+import com.hiveworkshop.rms.editor.wrapper.v2.render.RenderByViewModelRenderer;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public final class ModelViewManager implements ModelView {
 	private final EditableModel model;
+	private final RenderModel editorRenderModel;
 	private final ModelViewStateNotifier modelViewStateNotifier;
-	private final Set<Geoset> editableGeosets;// TODO should be a set
+	private final Set<Geoset> editableGeosets;
 	private final Set<Geoset> visibleGeosets;
 	private final Set<IdObject> editableIdObjects;
 	private final Set<Camera> editableCameras;
@@ -24,9 +26,12 @@ public final class ModelViewManager implements ModelView {
 	private IdObject highlightedNode;
 	private final RenderByViewModelRenderer renderByViewModelRenderer;
 	private final RenderByViewMeshRenderer renderByViewMeshRenderer;
+	private boolean vetoParticles = false;
 
 	public ModelViewManager(final EditableModel model) {
 		this.model = model;
+		editorRenderModel = new RenderModel(this.model, this);
+
 		modelViewStateNotifier = new ModelViewStateNotifier();
 		editableGeosets = new HashSet<>();
 		for (final Geoset geoset : model.getGeosets()) {
@@ -39,6 +44,11 @@ public final class ModelViewManager implements ModelView {
 		editableCameras = new HashSet<>();
 		renderByViewModelRenderer = new RenderByViewModelRenderer(this);
 		renderByViewMeshRenderer = new RenderByViewMeshRenderer(this);
+	}
+
+	@Override
+	public RenderModel getEditorRenderModel() {
+		return editorRenderModel;
 	}
 
 	@Override
@@ -149,6 +159,16 @@ public final class ModelViewManager implements ModelView {
 		}
 		modelViewStateNotifier.unhighlightNode(node);
 
+	}
+
+	@Override
+	public boolean isVetoOverrideParticles() {
+		return vetoParticles;
+	}
+
+	@Override
+	public void setVetoOverrideParticles(boolean override) {
+		vetoParticles = override;
 	}
 
 	@Override

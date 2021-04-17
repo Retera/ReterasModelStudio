@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.parsers.mdlx.MdlxHelper;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxHelper;
 
 /**
  * Write a description of class Helper here.
@@ -30,16 +30,15 @@ public class Helper extends Bone { // Haha blizz
 		loadObject(helper);
 	}
 
-	public MdlxHelper toMdlxHelper() {
+	public MdlxHelper toMdlxHelper(EditableModel model) {
 		final MdlxHelper helper = new MdlxHelper();
 
-		objectToMdlx(helper);
+		objectToMdlx(helper, model);
 
 		return helper;
 	}
 
-	// printTo is already written as a part of bone; these two things are
-	// stupidly the same
+	// printTo is already written as a part of bone; these two things are stupidly the same
 	@Override
 	public Helper copy() {
 		return new Helper(this);

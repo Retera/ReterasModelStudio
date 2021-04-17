@@ -16,6 +16,8 @@ import com.hiveworkshop.rms.ui.application.viewer.AnimationController;
 import com.hiveworkshop.rms.ui.application.viewer.ControlledAnimationViewer;
 import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.modelcomponenttree.ModelComponentBrowserTree;
+import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.ModelViewManagingTree;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChangeNotifier;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
@@ -66,26 +68,39 @@ public class ModelPanel implements ActionListener, MouseListener {
 	private final AnimationController animationController;
 	private final ComponentsPanel componentsPanel;
 
-	public ModelPanel(final JComponent parent, final File input, final ProgramPreferences prefs,
-					  final UndoHandler undoHandler, final ToolbarButtonGroup<SelectionItemTypes> notifier,
-					  final ToolbarButtonGroup<SelectionMode> modeNotifier,
-					  final ModelStructureChangeListener modelStructureChangeListener,
-					  final CoordDisplayListener coordDisplayListener, final ViewportTransferHandler viewportTransferHandler,
-					  final ViewportListener viewportListener, final Icon icon, final boolean specialBLPModel,
-					  final TextureExporter textureExporter) throws IOException {
+	public ModelPanel(final JComponent parent,
+	                  final File input,
+	                  final ProgramPreferences prefs,
+	                  final UndoHandler undoHandler,
+	                  final ToolbarButtonGroup<SelectionItemTypes> notifier,
+	                  final ToolbarButtonGroup<SelectionMode> modeNotifier,
+	                  final ModelStructureChangeListener modelStructureChangeListener,
+	                  final CoordDisplayListener coordDisplayListener,
+	                  final ViewportTransferHandler viewportTransferHandler,
+	                  final ViewportListener viewportListener,
+	                  final Icon icon,
+	                  final boolean specialBLPModel,
+	                  final TextureExporter textureExporter)
+			throws IOException {
 		this(parent, MdxUtils.loadEditable(input), prefs, undoHandler, notifier, modeNotifier,
 				modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, viewportListener, icon,
 				specialBLPModel, textureExporter);
 		file = input;
 	}
 
-	public ModelPanel(final JComponent parent, final EditableModel input, final ProgramPreferences prefs,
-			final UndoHandler undoHandler, final ToolbarButtonGroup<SelectionItemTypes> notifier,
-			final ToolbarButtonGroup<SelectionMode> modeNotifier,
-			final ModelStructureChangeListener modelStructureChangeListener,
-			final CoordDisplayListener coordDisplayListener, final ViewportTransferHandler viewportTransferHandler,
-			final ViewportListener viewportListener, final Icon icon, final boolean specialBLPModel,
-			final TextureExporter textureExporter) {
+	public ModelPanel(final JComponent parent,
+	                  final EditableModel input,
+	                  final ProgramPreferences prefs,
+	                  final UndoHandler undoHandler,
+	                  final ToolbarButtonGroup<SelectionItemTypes> notifier,
+	                  final ToolbarButtonGroup<SelectionMode> modeNotifier,
+	                  final ModelStructureChangeListener modelStructureChangeListener,
+	                  final CoordDisplayListener coordDisplayListener,
+	                  final ViewportTransferHandler viewportTransferHandler,
+	                  final ViewportListener viewportListener,
+	                  final Icon icon,
+	                  final boolean specialBLPModel,
+	                  final TextureExporter textureExporter) {
 		this.parent = parent;
 		this.prefs = prefs;
 		this.undoHandler = undoHandler;
@@ -100,14 +115,15 @@ public class ModelPanel implements ActionListener, MouseListener {
 
 		undoManager = new UndoManagerImpl(undoHandler);
 
-		editorRenderModel = new RenderModel(input, modelView);
-		editorRenderModel.setSpawnParticles((prefs.getRenderParticles() == null) || prefs.getRenderParticles());
-		editorRenderModel.setAllowInanimateParticles((prefs.getRenderStaticPoseParticles() == null) || prefs.getRenderStaticPoseParticles());
+//		editorRenderModel = new RenderModel(input, modelView);
+//		editorRenderModel.setSpawnParticles((prefs.getRenderParticles() == null) || prefs.getRenderParticles());
+//		editorRenderModel.setAllowInanimateParticles((prefs.getRenderStaticPoseParticles() == null) || prefs.getRenderStaticPoseParticles());
+		editorRenderModel = modelView.getEditorRenderModel();
 
 		modelEditorManager = new ModelEditorManager(modelView, prefs, modeNotifier, modelEditorChangeNotifier, viewportActivityManager, editorRenderModel, modelStructureChangeListener);
 
 		modelViewManagingTree = new ModelViewManagingTree(modelView, undoManager, modelEditorManager);
-		modelViewManagingTree.setFocusable(false);
+//		modelViewManagingTree.setFocusable(false);
 
 		modelComponentBrowserTree = new ModelComponentBrowserTree(modelView, undoManager, modelEditorManager, modelStructureChangeListener);
 
@@ -118,20 +134,11 @@ public class ModelPanel implements ActionListener, MouseListener {
 		// dispModel = new MDLDisplay(model,this);
 		loadModel(input);
 
-		frontArea = new DisplayPanel("Front", (byte) 1, (byte) 2, modelView,
-				modelEditorManager.getModelEditor(), modelStructureChangeListener, viewportActivityManager,
-				prefs, undoManager, coordDisplayListener, undoHandler, modelEditorChangeNotifier,
-				viewportTransferHandler, editorRenderModel, viewportListener);
+		frontArea = getDisplayPanel(modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, viewportListener, "Front", (byte) 1, (byte) 2);
 		// frontArea.setViewport(1,2);
-		botArea = new DisplayPanel("Bottom", (byte) 1, (byte) 0, modelView,
-				modelEditorManager.getModelEditor(), modelStructureChangeListener, viewportActivityManager,
-				prefs, undoManager, coordDisplayListener, undoHandler, modelEditorChangeNotifier,
-				viewportTransferHandler, editorRenderModel, viewportListener);
+		botArea = getDisplayPanel(modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, viewportListener, "Bottom", (byte) 1, (byte) 0);
 		// botArea.setViewport(0,1);
-		sideArea = new DisplayPanel("Side", (byte) 0, (byte) 2, modelView,
-				modelEditorManager.getModelEditor(), modelStructureChangeListener, viewportActivityManager,
-				prefs, undoManager, coordDisplayListener, undoHandler, modelEditorChangeNotifier,
-				viewportTransferHandler, editorRenderModel, viewportListener);
+		sideArea = getDisplayPanel(modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, viewportListener, "Side", (byte) 0, (byte) 2);
 		// sideArea.setViewport(0,2);
 
 		animationViewer = new ControlledAnimationViewer(modelView, prefs, !specialBLPModel);
@@ -142,11 +149,18 @@ public class ModelPanel implements ActionListener, MouseListener {
 		botArea.setControlsVisible(prefs.showVMControls());
 		sideArea.setControlsVisible(prefs.showVMControls());
 
-		perspArea = new PerspDisplayPanel("Perspective", modelView, prefs, editorRenderModel);
+		perspArea = new PerspDisplayPanel("Perspective", modelView, prefs);
 
 		componentsPanel = new ComponentsPanel(getModelViewManager(), undoManager, modelStructureChangeListener, textureExporter);
 
 		modelComponentBrowserTree.addSelectListener(componentsPanel);
+	}
+
+	private DisplayPanel getDisplayPanel(ModelStructureChangeListener modelStructureChangeListener, CoordDisplayListener coordDisplayListener, ViewportTransferHandler viewportTransferHandler, ViewportListener viewportListener, String side, byte i, byte i2) {
+		return new DisplayPanel(side, i, i2, modelView,
+				modelEditorManager.getModelEditor(), modelStructureChangeListener, viewportActivityManager,
+				prefs, undoManager, coordDisplayListener, undoHandler, modelEditorChangeNotifier,
+				viewportTransferHandler, editorRenderModel, viewportListener);
 	}
 
 	public RenderModel getEditorRenderModel() {

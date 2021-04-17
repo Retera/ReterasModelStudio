@@ -15,12 +15,9 @@ import java.awt.*;
 public final class Graphics2DToModelElementRendererAdapter implements ModelElementRenderer {
 	private Graphics2D graphics;
 	private CoordinateSystem coordinateSystem;
-	private final Point recyclePointA = new Point(), recyclePointB = new Point(), recyclePointC = new Point();
-	private final int[] recycleXCoords = new int[3];
-	private final int[] recycleYCoords = new int[3];
-	private final ProgramPreferences programPreferences;
-	private final int vertexSize;
-	private final ResettableIdObjectRenderer idObjectRenderer;
+	private ProgramPreferences programPreferences;
+	private int vertexSize;
+	private ResettableIdObjectRenderer idObjectRenderer;
 
 	public Graphics2DToModelElementRendererAdapter(final int vertexSize, final ProgramPreferences programPreferences) {
 		this.vertexSize = vertexSize;
@@ -28,88 +25,64 @@ public final class Graphics2DToModelElementRendererAdapter implements ModelEleme
 		idObjectRenderer = new ResettableIdObjectRenderer(vertexSize);
 	}
 
-	public Graphics2DToModelElementRendererAdapter reset(final Graphics2D graphics,
-			final CoordinateSystem coordinateSystem) {
+	public Graphics2DToModelElementRendererAdapter reset(final Graphics2D graphics, final CoordinateSystem coordinateSystem) {
 		this.graphics = graphics;
 		this.coordinateSystem = coordinateSystem;
 		return this;
 	}
 
 	@Override
-	public void renderFace(final Color borderColor, final Color color, final GeosetVertex a, final GeosetVertex b,
-			final GeosetVertex c) {
+	public void renderFace(final Color borderColor, final Color color, final GeosetVertex a, final GeosetVertex b, final GeosetVertex c) {
 		graphics.setColor(color);
 
-		CoordinateSystem.Util.convertToPoint(coordinateSystem, a, recyclePointA);
-		CoordinateSystem.Util.convertToPoint(coordinateSystem, b, recyclePointB);
-		CoordinateSystem.Util.convertToPoint(coordinateSystem, c, recyclePointC);
 
-		recycleXCoords[0] = recyclePointA.x;
-		recycleXCoords[1] = recyclePointB.x;
-		recycleXCoords[2] = recyclePointC.x;
+		Point vertexA = CoordinateSystem.Util.convertToPoint(coordinateSystem, a);
+		Point vertexB = CoordinateSystem.Util.convertToPoint(coordinateSystem, b);
+		Point vertexC = CoordinateSystem.Util.convertToPoint(coordinateSystem, c);
 
-		recycleYCoords[0] = recyclePointA.y;
-		recycleYCoords[1] = recyclePointB.y;
-		recycleYCoords[2] = recyclePointC.y;
+		int[] polygonX = new int[3];
+		polygonX[0] = vertexA.x;
+		polygonX[1] = vertexB.x;
+		polygonX[2] = vertexC.x;
 
-		graphics.fillPolygon(recycleXCoords, recycleYCoords, 3);
+		int[] polygonY = new int[3];
+		polygonY[0] = vertexA.y;
+		polygonY[1] = vertexB.y;
+		polygonY[2] = vertexC.y;
+
+		graphics.fillPolygon(polygonX, polygonY, 3);
 		graphics.setColor(borderColor);
-		graphics.drawPolygon(recycleXCoords, recycleYCoords, 3);
+		graphics.drawPolygon(polygonX, polygonY, 3);
+//		GU.fillPolygon(graphics, vertexA, vertexB, vertexC);
+//		GU.drawPolygon(graphics, vertexA, vertexB, vertexC);
 	}
 
 	@Override
 	public void renderVertex(final Color color, final Vec3 vertex) {
-		CoordinateSystem.Util.convertToPoint(coordinateSystem, vertex, recyclePointA);
+		Point point = CoordinateSystem.Util.convertToPoint(coordinateSystem, vertex);
 		graphics.setColor(color);
-		graphics.fillRect(recyclePointA.x - vertexSize / 2, (int) (recyclePointA.y - (vertexSize / 2.0)), vertexSize,
-				vertexSize);
+		graphics.fillRect(point.x - vertexSize / 2, (int) (point.y - (vertexSize / 2.0)), vertexSize, vertexSize);
 	}
 
 	@Override
-	public void renderIdObject(final IdObject object, final NodeIconPalette nodeIconPalette, final Color lightColor,
-                               final Color pivotPointColor) {
-		object.apply(idObjectRenderer.reset(coordinateSystem, graphics, lightColor, pivotPointColor, nodeIconPalette,
-				programPreferences.isUseBoxesForPivotPoints()));
+	public void renderIdObject(final IdObject object, final NodeIconPalette nodeIconPalette, final Color lightColor, final Color pivotPointColor) {
+		object.apply(idObjectRenderer.reset(coordinateSystem, graphics, lightColor, pivotPointColor, nodeIconPalette, programPreferences.isUseBoxesForPivotPoints()));
 	}
 
 	@Override
 	public void renderCamera(final Camera camera, final Color boxColor, final Vec3 position, final Color targetColor,
 			final Vec3 targetPosition) {
 		final Graphics2D g2 = ((Graphics2D) graphics.create());
-		final Vec3 ver = position;
-		final Vec3 targ = targetPosition;
 		// final boolean verSel = selection.contains(ver);
 		// final boolean tarSel = selection.contains(targ);
+		byte dim1 = coordinateSystem.getPortFirstXYZ();
+		byte dim2 = coordinateSystem.getPortSecondXYZ();
 		final Point start = new Point(
-				(int) Math.round(coordinateSystem.convertX(ver.getCoord(coordinateSystem.getPortFirstXYZ()))),
-				(int) Math.round(coordinateSystem.convertY(ver.getCoord(coordinateSystem.getPortSecondXYZ()))));
+				(int) Math.round(coordinateSystem.convertX(position.getCoord(dim1))),
+				(int) Math.round(coordinateSystem.convertY(position.getCoord(dim2))));
 		final Point end = new Point(
-				(int) Math.round(coordinateSystem.convertX(targ.getCoord(coordinateSystem.getPortFirstXYZ()))),
-				(int) Math.round(coordinateSystem.convertY(targ.getCoord(coordinateSystem.getPortSecondXYZ()))));
-		// if (dispCameraNames) {
-		// boolean changedCol = false;
-		//
-		// if (verSel) {
-		// g2.setColor(Color.orange.darker());
-		// changedCol = true;
-		// }
-		// g2.drawString(cam.getName(), (int)
-		// Math.round(vp.convertX(ver.getCoord(vp.getPortFirstXYZ()))),
-		// (int) Math.round(vp.convertY(ver.getCoord(vp.getPortSecondXYZ()))));
-		// if (tarSel) {
-		// g2.setColor(Color.orange.darker());
-		// changedCol = true;
-		// } else if (verSel) {
-		// g2.setColor(Color.green.darker());
-		// changedCol = false;
-		// }
-		// g2.drawString(cam.getName() + "_target",
-		// (int) Math.round(vp.convertX(targ.getCoord(vp.getPortFirstXYZ()))),
-		// (int) Math.round(vp.convertY(targ.getCoord(vp.getPortSecondXYZ()))));
-		// if (changedCol) {
-		// g2.setColor(Color.green.darker());
-		// }
-		// }
+				(int) Math.round(coordinateSystem.convertX(targetPosition.getCoord(dim1))),
+				(int) Math.round(coordinateSystem.convertY(targetPosition.getCoord(dim2))));
 
 		g2.translate(end.x, end.y);
 		g2.rotate(-(Math.PI / 2 + Math.atan2(end.x - start.x, end.y - start.y)));
@@ -121,21 +94,12 @@ public final class Graphics2DToModelElementRendererAdapter implements ModelEleme
 		g2.fillRect((int) dist - vertexSize, 0 - vertexSize, 1 + vertexSize * 2, 1 + vertexSize * 2);
 		g2.drawRect((int) dist - size, -size, size * 2, size * 2);
 
-		// if (tarSel) {
-		// g2.setColor(Color.orange.darker());
-		// } else if (verSel) {
 		g2.setColor(targetColor);
-		// }
-		// Target
-		g2.fillRect(0 - vertexSize, 0 - vertexSize, 1 + vertexSize * 2, 1 + vertexSize * 2);
-		g2.drawLine(0, 0, size, size);// (int)Math.round(vp.convertX(targ.getCoord(vp.getPortFirstXYZ())+5)),
-										// (int)Math.round(vp.convertY(targ.getCoord(vp.getPortSecondXYZ())+5)));
-		g2.drawLine(0, 0, size, -size);// (int)Math.round(vp.convertX(targ.getCoord(vp.getPortFirstXYZ())-5)),
-										// (int)Math.round(vp.convertY(targ.getCoord(vp.getPortSecondXYZ())-5)));
 
-		// if (!verSel && tarSel) {
-		// g2.setColor(Color.green.darker());
-		// }
+		g2.fillRect(0 - vertexSize, 0 - vertexSize, 1 + vertexSize * 2, 1 + vertexSize * 2);
+		g2.drawLine(0, 0, size, size);
+		g2.drawLine(0, 0, size, -size);
+
 		g2.drawLine(0, 0, (int) dist, 0);
 	}
 

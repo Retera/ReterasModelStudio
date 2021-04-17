@@ -1,11 +1,11 @@
 package com.hiveworkshop.rms.ui.application.actions.mesh;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.ui.application.actions.VertexActionType;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * MotionAction -- something for you to undo when you screw up with motion
@@ -64,9 +64,7 @@ public class RotateAction extends MoveAction {
 		for (int i = 0; i < normals.size(); i++) {
 			final Vec3 ver = normals.get(i);
 			final Vec3 vect = normalMoveVectors.get(i);
-			ver.x += vect.x;
-			ver.y += vect.y;
-			ver.z += vect.z;
+			ver.add(vect);
 		}
 	}
 
@@ -76,9 +74,7 @@ public class RotateAction extends MoveAction {
 		for (int i = 0; i < normals.size(); i++) {
 			final Vec3 ver = normals.get(i);
 			final Vec3 vect = normalMoveVectors.get(i);
-			ver.x -= vect.x;
-			ver.y -= vect.y;
-			ver.z -= vect.z;
+			ver.sub(vect);
 		}
 	}
 

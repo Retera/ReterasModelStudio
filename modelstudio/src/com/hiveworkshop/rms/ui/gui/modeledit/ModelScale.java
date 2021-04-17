@@ -1,18 +1,12 @@
 package com.hiveworkshop.rms.ui.gui.modeledit;
 
-import java.io.File;
-import java.io.IOException;
-
-import com.hiveworkshop.rms.editor.model.AnimFlag;
-import com.hiveworkshop.rms.editor.model.Animation;
-import com.hiveworkshop.rms.editor.model.Camera;
-import com.hiveworkshop.rms.editor.model.CollisionShape;
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.ExtLog;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
+import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.io.File;
+import java.io.IOException;
 
 public class ModelScale {
 
@@ -25,14 +19,16 @@ public class ModelScale {
 				"C:\\Users\\Eric\\Documents\\Warcraft\\Models\\Hayate\\Warcraft_Santa\\Warcraft Santa\\SantaClausFull_scaled.mdx"));
 	}
 
-	public static void scale(final EditableModel mdl, final double x, final double y, final double z) {
+	public static void scale(final EditableModel mdl,
+	                         final double x, final double y, final double z) {
 		scale(mdl, x, y, z, 0, 0, 0);
 	}
 
-	public static void scale(final EditableModel mdl, final double x, final double y, final double z, final double centerX,
-			final double centerY, final double centerZ) {
+	public static void scale(final EditableModel mdl,
+	                         final double x, final double y, final double z,
+	                         final double centerX, final double centerY, final double centerZ) {
 		final double avgScale = (x + y + z) / 3;
-		for (final AnimFlag flag : mdl.getAllAnimFlags()) {
+		for (final AnimFlag<?> flag : mdl.getAllAnimFlags()) {
 			if (flag.getTypeId() == AnimFlag.TRANSLATION) {
 				for (int i = 0; i < flag.size(); i++) {
 					final Vec3 value = (Vec3) flag.getValues().get(i);
@@ -61,14 +57,14 @@ public class ModelScale {
 			camera.getPosition().scale(centerX, centerY, centerZ, x, y, z);
 			camera.getTargetPosition().scale(centerX, centerY, centerZ, x, y, z);
 		}
-		for (final CollisionShape collision : mdl.sortedIdObjects(CollisionShape.class)) {
+		for (final CollisionShape collision : mdl.getColliders()) {
 			for (final Vec3 vertex : collision.getVertices()) {
 				vertex.scale(centerX, centerY, centerZ, x, y, z);
 			}
 			final ExtLog extents = collision.getExtents();
 			scale(centerX, centerY, centerZ, x, y, z, extents);
 		}
-		for (final ParticleEmitter2 particle : mdl.sortedIdObjects(ParticleEmitter2.class)) {
+		for (final ParticleEmitter2 particle : mdl.getParticleEmitter2s()) {
 			particle.setLength(particle.getLength() * avgScale);
 			particle.setWidth(particle.getWidth() * avgScale);
 			particle.getParticleScaling().scale(0, 0, 0, avgScale, avgScale, avgScale);
@@ -81,8 +77,9 @@ public class ModelScale {
 		}
 	}
 
-	private static void scale(final double centerX, final double centerY, final double centerZ, final double x,
-			final double y, final double z, final ExtLog extents) {
+	private static void scale(final double centerX, final double centerY, final double centerZ,
+	                          final double x, final double y, final double z,
+	                          final ExtLog extents) {
 		if (extents == null) {
 			return;
 		}

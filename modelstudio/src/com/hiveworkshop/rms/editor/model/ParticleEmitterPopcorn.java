@@ -1,11 +1,12 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitterPopcorn;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.*;
 
 /**
  * Popcorn FX is what I am calling the CORN chunk, somebody said that's probably
@@ -22,6 +23,7 @@ public class ParticleEmitterPopcorn extends IdObject {
 	float lifeSpan = 0;
 	String path = "";
 	String animVisibilityGuide = "";
+	Map<Animation, State> animationVisStateMap = new HashMap<>();
 
 	public ParticleEmitterPopcorn(final String name) {
 		this.name = name;
@@ -46,26 +48,31 @@ public class ParticleEmitterPopcorn extends IdObject {
 		lifeSpan = emitter.lifeSpan;
 		emissionRate = emitter.emissionRate;
 		speed = emitter.speed;
-		color = new Vec3(ModelUtils.flipRGBtoBGR(emitter.color));
+		System.out.println("emitter color: " + Arrays.toString(emitter.color));
+		color = new Vec3(emitter.color);
+//		color = new Vec3(ModelUtils.flipRGBtoBGR(emitter.color));
 		alpha = emitter.alpha;
 		replaceableId = emitter.replaceableId;
 		path = emitter.path;
 		animVisibilityGuide = emitter.animationVisiblityGuide;
+		System.out.println(emitter.animationVisiblityGuide);
 	}
 
-	public MdlxParticleEmitterPopcorn toMdlx() {
+	public MdlxParticleEmitterPopcorn toMdlx(EditableModel model) {
 		final MdlxParticleEmitterPopcorn emitter = new MdlxParticleEmitterPopcorn();
 
-		objectToMdlx(emitter);
+		objectToMdlx(emitter, model);
 
 		emitter.lifeSpan = lifeSpan;
 		emitter.emissionRate = emissionRate;
 		emitter.speed = speed;
-		emitter.color = ModelUtils.flipRGBtoBGR(color.toFloatArray());
+		emitter.color = color.toFloatArray();
+//		emitter.color = ModelUtils.flipRGBtoBGR(color.toFloatArray());
 		emitter.alpha = alpha;
 		emitter.replaceableId = replaceableId;
 		emitter.path = path;
-		emitter.animationVisiblityGuide = animVisibilityGuide;
+//		emitter.animationVisiblityGuide = animVisibilityGuide;
+		emitter.animationVisiblityGuide = getAnimVisibilityGuide();
 
 		return emitter;
 	}
@@ -88,6 +95,13 @@ public class ParticleEmitterPopcorn extends IdObject {
 	}
 
 	public String getAnimVisibilityGuide() {
+		if (!animationVisStateMap.isEmpty()) {
+			List<String> visStrings = new ArrayList<>();
+			animationVisStateMap.keySet().stream()
+					.filter(s -> !animationVisStateMap.get(s).equals(State.none))
+					.forEach(s -> visStrings.add(s.getName() + "=" + animationVisStateMap.get(s).name()));
+			return String.join(", ", visStrings);
+		}
 		return animVisibilityGuide;
 	}
 
@@ -151,5 +165,64 @@ public class ParticleEmitterPopcorn extends IdObject {
 
 	public void setReplaceableId(final int replaceableId) {
 		this.replaceableId = replaceableId;
+	}
+
+	public ParticleEmitterPopcorn initAnimsVisStates(List<Animation> anims) {
+		Map<String, String> visGuid = new HashMap<>();
+		for (String vg : animVisibilityGuide.split(",")) {
+			String[] anSt = vg.toLowerCase().split("=");
+			if (anSt.length == 2) {
+				System.out.println(vg);
+				visGuid.put(anSt[0].strip(), anSt[1].strip());
+			}
+		}
+		for (Animation animation : anims) {
+			State state = State.none;
+			if (visGuid.containsKey(animation.getName())) {
+				state = State.valueOf(visGuid.get(animation.getName()));
+			}
+			animationVisStateMap.put(animation, state);
+		}
+
+		return this;
+	}
+
+	public ParticleEmitterPopcorn updateAnimsVisMap(List<Animation> anims) {
+		Set<Animation> existingAnimationSet = new HashSet<>(anims);
+		for (Animation animation : anims) {
+			if (!animationVisStateMap.containsKey(animation)) {
+				animationVisStateMap.put(animation, State.none);
+			}
+		}
+		animationVisStateMap.forEach((a, s) -> {
+			if (!existingAnimationSet.contains(a)) animationVisStateMap.remove(a);
+		});
+		return this;
+	}
+
+	public ParticleEmitterPopcorn setAnimVisState(Animation animation, State state) {
+		animationVisStateMap.put(animation, state);
+		return this;
+	}
+
+	public State getAnimVisState(Animation animation) {
+		return animationVisStateMap.get(animation);
+	}
+
+	public void setStaticVis(float vis) {
+		System.out.println(vis);
+	}
+
+	;
+
+	public enum State {
+		on, off, none;
+
+		static State fromInt(int i) {
+			if (0 <= i && i < 3) {
+				return values()[i];
+			}
+			return none;
+		}
 	}
 }

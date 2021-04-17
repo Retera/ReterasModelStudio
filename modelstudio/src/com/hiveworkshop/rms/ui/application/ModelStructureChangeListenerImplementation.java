@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -49,8 +50,7 @@ class ModelStructureChangeListenerImplementation implements ModelStructureChange
 
     static void reloadGeosetManagers(MainPanel mainPanel, final ModelPanel display) {
         mainPanel.geoControl.repaint();
-        display.getModelViewManagingTree().reloadFromModelView();
-        mainPanel.geoControl.setViewportView(display.getModelViewManagingTree());
+        mainPanel.geoControl.setViewportView(display.getModelViewManagingTree().reloadFromModelView());
         reloadComponentBrowser(mainPanel.geoControlModelData, display);
         display.getPerspArea().reloadTextures();// .mpanel.perspArea.reloadTextures();//addGeosets(newGeosets);
         display.getAnimationViewer().reload();
@@ -159,22 +159,22 @@ class ModelStructureChangeListenerImplementation implements ModelStructureChange
     }
 
     @Override
-    public void timelineAdded(final TimelineContainer node, final AnimFlag timeline) {
+    public void timelineAdded(final TimelineContainer node, final AnimFlag<?> timeline) {
 
     }
 
     @Override
-    public void keyframeAdded(final TimelineContainer node, final AnimFlag timeline, final int trackTime) {
+    public void keyframeAdded(final TimelineContainer node, final AnimFlag<?> timeline, final int trackTime) {
         mainPanel.timeSliderPanel.revalidateKeyframeDisplay();
     }
 
     @Override
-    public void timelineRemoved(final TimelineContainer node, final AnimFlag timeline) {
+    public void timelineRemoved(final TimelineContainer node, final AnimFlag<?> timeline) {
 
     }
 
     @Override
-    public void keyframeRemoved(final TimelineContainer node, final AnimFlag timeline, final int trackTime) {
+    public void keyframeRemoved(final TimelineContainer node, final AnimFlag<?> timeline, final int trackTime) {
         mainPanel.timeSliderPanel.revalidateKeyframeDisplay();
     }
 
@@ -259,5 +259,12 @@ class ModelStructureChangeListenerImplementation implements ModelStructureChange
 
     interface ModelReference {
         EditableModel getModel();
+    }
+
+    @Override
+    public void nodeHierarchyChanged() {
+        final ModelPanel display = displayFor(mainPanel.modelPanels, modelReference.getModel());
+        display.getModelViewManagingTree().reloadFromModelView();
+        reloadComponentBrowser(mainPanel.geoControlModelData, display);
     }
 }

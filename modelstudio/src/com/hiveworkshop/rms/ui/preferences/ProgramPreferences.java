@@ -1,25 +1,23 @@
 package com.hiveworkshop.rms.ui.preferences;
 
-import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.ui.preferences.listeners.ProgramPreferencesChangeListener;
 
 import java.awt.*;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 
 public class ProgramPreferences implements Serializable {
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = 1L;
-	private int viewMode = 1;
-	private boolean showNormals;
-	private boolean showVertexModifierControls = false;
-	private boolean textureModels = true;
-	private boolean useNativeMDXParser = true; // left for compat
-	private boolean loadPortraits = true;
-	private transient boolean cloneOn = false;
-	private transient boolean[] dimLocks = new boolean[3];
-	private Boolean invertedDisplay = true;
+	transient Integer selectionType = 0;
+	transient Integer actionType = 3;
+	Integer teamColor = 6;
+	private Integer viewMode = 1;
+	private Boolean showNormals = false;
+	private Boolean showPerspectiveGrid = true;
+	private Boolean showVertexModifierControls = false;
+	private Boolean textureModels = true;
+	private Boolean useNativeMDXParser = true; // left for compat
+	private Boolean show2dGrid = true;
 	private Boolean useBoxesForPivotPoints = true;
 	private Boolean allowLoadingNonBlpTextures = true;
 	private Boolean renderParticles = true;
@@ -30,14 +28,14 @@ public class ProgramPreferences implements Serializable {
 	Color activeColor2 = new Color(170, 60, 0);
 	Color activeBColor1 = new Color(200, 200, 255);
 	Color activeBColor2 = new Color(0, 60, 170);
-	transient int selectionType = 0;
-	transient int actionType = 3;
+	private Boolean loadPortraits = true;
+	private transient Boolean cloneOn = false;
 
 	Color vertexColor = new Color(0, 0, 255);// new Color(0, 0, 0)
-	Color triangleColor = new Color(255, 255, 255);// new Color(190, 190, 190)
-	Color visibleUneditableColor = new Color(150, 150, 255);
-	Color highlighTriangleColor = new Color(255, 255, 0);
 	Color highlighVertexColor = new Color(0, 255, 0);
+	Color triangleColor = new Color(255, 255, 255);// new Color(190, 190, 190)
+	Color highlighTriangleColor = new Color(255, 255, 0);
+	Color visibleUneditableColor = new Color(150, 150, 255);
 	Color normalsColor = new Color(128, 128, 255);
 	Color pivotPointsSelectedColor = Color.RED.darker();
 	Color pivotPointsColor = Color.MAGENTA;
@@ -50,117 +48,34 @@ public class ProgramPreferences implements Serializable {
 	Color perspectiveBackgroundColor = new Color(80, 80, 80);// new Color(190, 190, 190)
 	Color selectColor = Color.RED;
 	GUITheme theme = GUITheme.ALUMINIUM;
-	private int vertexSize = 3;
-	int teamColor = 6;
+	private transient Boolean[] dimLocks = new Boolean[3];
+	private Integer vertexSize = 3;
 	private Boolean quickBrowse = true;
+	private Boolean smallIcons = true;
+
+
 	private MouseButtonPreference threeDCameraSpinButton = MouseButtonPreference.LEFT;
 	private MouseButtonPreference threeDCameraPanButton = MouseButtonPreference.MIDDLE;
 
-	public void reload() {
-		dimLocks = new boolean[3];
-		actionType = 3;
-		if (invertedDisplay == null) {
-			invertedDisplay = true;
-		}
-		if (useBoxesForPivotPoints == null) {
-			useBoxesForPivotPoints = true;
-		}
-		if (allowLoadingNonBlpTextures == null) {
-			allowLoadingNonBlpTextures = true;
-		}
-		if (renderParticles == null) {
-			renderParticles = true;
-		}
-		if (renderStaticPoseParticles == null) {
-			renderStaticPoseParticles = true;
-		}
-		if ((vertexColor == null) || (normalsColor == null) || (pivotPointsColor == null)) {
-			vertexColor = new Color(0, 0, 255);// new Color(0, 0, 0)
-			triangleColor = new Color(255, 255, 255);// new Color(190, 190, 190)
-			visibleUneditableColor = new Color(150, 150, 255);
-			highlighTriangleColor = new Color(255, 255, 0);
-			highlighVertexColor = new Color(0, 255, 0);
-			normalsColor = new Color(128, 128, 255);
-			pivotPointsColor = Color.magenta;
-			lightsColor = Color.YELLOW.brighter();
-			ambientLightColor = Color.CYAN.brighter();
-		}
-		if (animatedBoneSelectedColor == null) {
-			animatedBoneSelectedColor = Color.red;
-			animatedBoneUnselectedColor = Color.green;
-			animatedBoneSelectedUpstreamColor = Color.yellow;
-		}
-		if (pivotPointsSelectedColor == null) {
-			pivotPointsSelectedColor = Color.RED.darker();
-		}
-		if (selectColor == null) {
-			selectColor = Color.RED;
-		}
-		if (perspectiveBackgroundColor == null) {
-			perspectiveBackgroundColor = new Color(80, 80, 80);
-		}
-		if (backgroundColor == null) {
-			backgroundColor = Color.DARK_GRAY.darker();
-		}
-		if (vertexSize == 0) {
-			vertexSize = 3;
-		}
-		Material.teamColor = teamColor;
-		if (threeDCameraSpinButton == null) {
-			threeDCameraSpinButton = MouseButtonPreference.LEFT;
-			threeDCameraPanButton = MouseButtonPreference.MIDDLE;
-		}
-		if (theme == null) {
-			theme = GUITheme.WINDOWS;
-		}
-		if (quickBrowse == null) {
-			quickBrowse = Boolean.TRUE;
-		}
-	}
-
-	public void loadFrom(final ProgramPreferences other) {
-		viewMode = other.viewMode;
-		showNormals = other.showNormals;
-		showVertexModifierControls = other.showVertexModifierControls;
-		textureModels = other.textureModels;
-		useNativeMDXParser = other.useNativeMDXParser;
-		loadPortraits = other.loadPortraits;
-		invertedDisplay = other.invertedDisplay;
-		useBoxesForPivotPoints = other.useBoxesForPivotPoints;
-		activeRColor1 = other.activeRColor1;
-		activeRColor2 = other.activeRColor2;
-		activeColor1 = other.activeColor1;
-		activeColor2 = other.activeBColor2;
-		activeBColor1 = other.activeBColor1;
-		activeBColor2 = other.activeBColor2;
-		vertexColor = other.vertexColor;
-		triangleColor = other.triangleColor;
-		visibleUneditableColor = other.visibleUneditableColor;
-		highlighTriangleColor = other.highlighTriangleColor;
-		highlighVertexColor = other.highlighVertexColor;
-		normalsColor = other.normalsColor;
-		pivotPointsSelectedColor = other.pivotPointsSelectedColor;
-		pivotPointsColor = other.pivotPointsColor;
-		animatedBoneSelectedColor = other.animatedBoneSelectedColor;
-		animatedBoneUnselectedColor = other.animatedBoneUnselectedColor;
-		animatedBoneSelectedUpstreamColor = other.animatedBoneSelectedUpstreamColor;
-		lightsColor = other.lightsColor;
-		ambientLightColor = other.ambientLightColor;
-		selectColor = other.selectColor;
-		vertexSize = other.vertexSize;
-		teamColor = other.teamColor;
-		backgroundColor = other.backgroundColor;
-		perspectiveBackgroundColor = other.perspectiveBackgroundColor;
-		threeDCameraPanButton = other.threeDCameraPanButton;
-		threeDCameraSpinButton = other.threeDCameraSpinButton;
-		theme = other.theme;
-		quickBrowse = other.quickBrowse;
-		allowLoadingNonBlpTextures = other.allowLoadingNonBlpTextures;
-		renderParticles = other.renderParticles;
-		renderStaticPoseParticles = other.renderStaticPoseParticles;
+	public void loadFrom(ProgramPreferences other) {
+		setFromOther(other);
 		SaveProfile.save();
 		firePrefsChanged();
 
+	}
+
+	public void setFromOther(ProgramPreferences other) {
+		Field[] declaredFields = this.getClass().getDeclaredFields();
+		for (Field field : declaredFields) {
+			try {
+				if (field.get(other) != null) {
+					field.set(this, field.get(other));
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public int getTeamColor() {
@@ -199,6 +114,10 @@ public class ProgramPreferences implements Serializable {
 
 	public boolean showNormals() {
 		return showNormals;
+	}
+
+	public boolean showPerspectiveGrid() {
+		return showPerspectiveGrid;
 	}
 
 	public boolean isCloneOn() {
@@ -247,6 +166,12 @@ public class ProgramPreferences implements Serializable {
 		firePrefsChanged();
 	}
 
+	public void setShowPerspectiveGrid(final boolean showPerspectiveGrid) {
+		this.showPerspectiveGrid = showPerspectiveGrid;
+		SaveProfile.save();
+		firePrefsChanged();
+	}
+
 	public void setShowVertexModifierControls(final boolean showVertexModifierControls) {
 		this.showVertexModifierControls = showVertexModifierControls;
 		SaveProfile.save();
@@ -259,7 +184,7 @@ public class ProgramPreferences implements Serializable {
 		firePrefsChanged();
 	}
 
-	public void setDimLocks(final boolean[] dimLocks) {
+	public void setDimLocks(final Boolean[] dimLocks) {
 		this.dimLocks = dimLocks;
 		SaveProfile.save();
 		firePrefsChanged();
@@ -351,10 +276,6 @@ public class ProgramPreferences implements Serializable {
 		return viewMode;
 	}
 
-	public boolean isShowNormals() {
-		return showNormals;
-	}
-
 	public boolean isShowVertexModifierControls() {
 		return showVertexModifierControls;
 	}
@@ -437,12 +358,16 @@ public class ProgramPreferences implements Serializable {
 		firePrefsChanged();
 	}
 
-	public Boolean isInvertedDisplay() {
-		return invertedDisplay;
+	public Boolean show2dGrid() {
+		return show2dGrid != null && show2dGrid;
+	}
+
+	public boolean isSmallIcons() {
+		return smallIcons;
 	}
 
 	public Boolean getUseBoxesForPivotPoints() {
-		return useBoxesForPivotPoints;
+		return useBoxesForPivotPoints != null && useBoxesForPivotPoints;
 	}
 
 	public boolean isUseBoxesForPivotPoints() {
@@ -458,8 +383,14 @@ public class ProgramPreferences implements Serializable {
 		firePrefsChanged();
 	}
 
-	public void setInvertedDisplay(final Boolean invertedDisplay) {
-		this.invertedDisplay = invertedDisplay;
+	public void setShow2dGrid(final Boolean show2dGrid) {
+		this.show2dGrid = show2dGrid;
+		SaveProfile.save();
+		firePrefsChanged();
+	}
+
+	public void setSmallIcons(boolean smallIcons) {
+		this.smallIcons = smallIcons;
 		SaveProfile.save();
 		firePrefsChanged();
 	}
@@ -515,15 +446,15 @@ public class ProgramPreferences implements Serializable {
 	}
 
 	public Boolean getAllowLoadingNonBlpTextures() {
-		return allowLoadingNonBlpTextures;
+		return allowLoadingNonBlpTextures != null && allowLoadingNonBlpTextures;
 	}
 
 	public Boolean getRenderParticles() {
-		return renderParticles;
+		return renderParticles == null || renderParticles;
 	}
 
 	public Boolean getRenderStaticPoseParticles() {
-		return renderStaticPoseParticles;
+		return renderStaticPoseParticles == null || renderStaticPoseParticles;
 	}
 
 	public void setAllowLoadingNonBlpTextures(final Boolean allowLoadingNonBlpTextures) {
@@ -575,6 +506,9 @@ public class ProgramPreferences implements Serializable {
 	}
 
 	public Color getPerspectiveBackgroundColor() {
+		if (perspectiveBackgroundColor == null) {
+			return new Color(80, 80, 80);
+		}
 		return perspectiveBackgroundColor;
 	}
 
@@ -605,7 +539,7 @@ public class ProgramPreferences implements Serializable {
 	}
 
 	public Boolean getQuickBrowse() {
-		return quickBrowse;
+		return quickBrowse != null && quickBrowse;
 	}
 
 	public void setQuickBrowse(final Boolean quickBrowse) {
@@ -635,5 +569,20 @@ public class ProgramPreferences implements Serializable {
 			notifier = new ProgramPreferencesChangeListener.ProgramPreferencesChangeNotifier();
 		}
 		notifier.subscribe(listener);
+	}
+
+	public void setNullToDefaults() {
+		ProgramPreferences defaultPrefs = new ProgramPreferences();
+		Field[] declaredFields = this.getClass().getDeclaredFields();
+		for (Field field : declaredFields) {
+			try {
+				if (field.get(this) == null) {
+					field.set(this, field.get(defaultPrefs));
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }

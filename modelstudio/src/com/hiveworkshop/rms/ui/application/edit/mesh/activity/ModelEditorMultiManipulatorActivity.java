@@ -8,7 +8,8 @@ public class ModelEditorMultiManipulatorActivity extends MultiManipulatorActivit
 		implements ModelEditorViewportActivity {
 
 	public ModelEditorMultiManipulatorActivity(final ModelEditorManipulatorBuilder manipulatorBuilder,
-			final UndoActionListener undoActionListener, final SelectionView selectionView) {
+	                                           final UndoActionListener undoActionListener,
+	                                           final SelectionView selectionView) {
 		super(manipulatorBuilder, undoActionListener, selectionView);
 	}
 

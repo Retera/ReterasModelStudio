@@ -106,18 +106,14 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 
 	@Override
 	public UndoAction addTeamColor() {
-		final TeamColorAddAction<VertexGroupBundle> teamColorAddAction = new TeamColorAddAction<>(
-				selectionManager.getSelectedFaces(), model.getModel(), structureChangeListener, selectionManager,
-				vertexSelectionHelper);
+		final TeamColorAddAction<VertexGroupBundle> teamColorAddAction = new TeamColorAddAction<>(selectionManager.getSelectedFaces(), model.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
 		teamColorAddAction.redo();
 		return teamColorAddAction;
 	}
 
 	@Override
 	public UndoAction splitGeoset() {
-		final SplitGeosetAction<VertexGroupBundle> teamColorAddAction = new SplitGeosetAction<>(
-				selectionManager.getSelectedFaces(), model.getModel(), structureChangeListener, selectionManager,
-				vertexSelectionHelper);
+		final SplitGeosetAction<VertexGroupBundle> teamColorAddAction = new SplitGeosetAction<>(selectionManager.getSelectedFaces(), model.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
 		teamColorAddAction.redo();
 		return teamColorAddAction;
 	}
@@ -171,8 +167,7 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 		}
 		for (final Geoset geoset : model.getEditableGeosets()) {
 			for (final GeosetVertex geosetVertex : geoset.getVertices()) {
-				if (GeosetVertexModelEditor.hitTest(geosetVertex, CoordinateSystem.Util.geom(axes, point), axes,
-						programPreferences.getVertexSize())) {
+				if (GeosetVertexModelEditor.hitTest(geosetVertex, CoordinateSystem.Util.geom(axes, point), axes, programPreferences.getVertexSize())) {
 					canSelect = true;
 				}
 			}
@@ -196,9 +191,7 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 		for (final Geoset geoset : model.getEditableGeosets()) {
 			for (final Triangle triangle : geoset.getTriangles()) {
 				if (FaceModelEditor.hitTest(triangle, new Point2D.Double(area.getX(), area.getY()), coordinateSystem)
-						|| FaceModelEditor.hitTest(triangle,
-								new Point2D.Double(area.getX() + area.getWidth(), area.getY() + area.getHeight()),
-								coordinateSystem)
+						|| FaceModelEditor.hitTest(triangle, new Point2D.Double(area.getX() + area.getWidth(), area.getY() + area.getHeight()), coordinateSystem)
 						|| FaceModelEditor.hitTest(triangle, area, coordinateSystem)) {
 					for (final GeosetVertex vertex : triangle.getAll()) {
 						newSelection.add(new VertexGroupBundle(geoset, vertex.getVertexGroup()));
@@ -209,8 +202,7 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 		final List<GeosetVertex> geosetVerticesSelected = new ArrayList<>();
 		for (final Geoset geoset : model.getEditableGeosets()) {
 			for (final GeosetVertex geosetVertex : geoset.getVertices()) {
-				GeosetVertexModelEditor.hitTest(geosetVerticesSelected, area, geosetVertex, coordinateSystem,
-						programPreferences.getVertexSize());
+				GeosetVertexModelEditor.hitTest(geosetVerticesSelected, area, geosetVertex, coordinateSystem, programPreferences.getVertexSize());
 			}
 		}
 		for (final GeosetVertex vertex : geosetVerticesSelected) {
@@ -220,8 +212,7 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 	}
 
 	@Override
-	protected UndoAction buildHideComponentAction(final List<? extends SelectableComponent> selectableComponents,
-                                                  final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
+	protected UndoAction buildHideComponentAction(final List<? extends SelectableComponent> selectableComponents, final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
 		final List<VertexGroupBundle> previousSelection = new ArrayList<>(selectionManager.getSelection());
 		final List<VertexGroupBundle> vertexBundlesToTruncate = new ArrayList<>(selectionManager.getSelection());
 		for (final SelectableComponent component : selectableComponents) {
@@ -246,8 +237,7 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 		}
 		final Runnable truncateSelectionRunnable = () -> selectionManager.removeSelection(vertexBundlesToTruncate);
 		final Runnable unTruncateSelectionRunnable = () -> selectionManager.setSelection(previousSelection);
-		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable,
-				unTruncateSelectionRunnable, refreshGUIRunnable);
+		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable, unTruncateSelectionRunnable, refreshGUIRunnable);
 	}
 
 	@Override
@@ -256,8 +246,7 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 		for (final Geoset geoset : model.getEditableGeosets()) {
 			for (final GeosetVertex geosetVertex : geoset.getVertices()) {
 				if (newSelection.contains(geosetVertex)) {
-					newSelectionGroups
-							.add(new VertexGroupBundle(geosetVertex.getGeoset(), geosetVertex.getVertexGroup()));
+					newSelectionGroups.add(new VertexGroupBundle(geosetVertex.getGeoset(), geosetVertex.getVertexGroup()));
 				}
 			}
 		}
@@ -290,8 +279,7 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 					}
 				}
 				if (triangleIsFullySelected) {
-					final Triangle newTriangle = new Triangle(triangleVertices.get(0), triangleVertices.get(1),
-							triangleVertices.get(2), copy);
+					final Triangle newTriangle = new Triangle(triangleVertices.get(0), triangleVertices.get(1), triangleVertices.get(2), copy);
 					copiedTriangles.add(newTriangle);
 				}
 			}

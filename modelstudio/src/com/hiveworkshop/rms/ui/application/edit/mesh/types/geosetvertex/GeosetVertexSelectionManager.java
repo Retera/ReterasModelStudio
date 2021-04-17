@@ -5,9 +5,9 @@ import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
-import com.hiveworkshop.rms.ui.application.edit.mesh.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexModelElementRenderer;
+import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexModelElementRenderer;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -17,7 +17,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public final class GeosetVertexSelectionManager extends AbstractSelectionManager<GeosetVertex> {
+public final class GeosetVertexSelectionManager extends SelectionManager<GeosetVertex> {
+
+	@Override
+	public Vec3 getCenter() {
+		return Vec3.centerOfGroup(selection);
+	}
+
+	@Override
+	public Collection<? extends Vec3> getSelectedVertices() {
+		return getSelection();
+	}
 
 	@Override
 	public Set<Triangle> getSelectedFaces() {
@@ -44,23 +54,6 @@ public final class GeosetVertexSelectionManager extends AbstractSelectionManager
 	}
 
 	@Override
-	public Vec3 getCenter() {
-		return Vec3.centerOfGroup(selection);
-	}
-
-	@Override
-	public double getCircumscribedSphereRadius(final Vec3 sphereCenter) {
-		double radius = 0;
-		for (final Vec3 item : selection) {
-			final double distance = sphereCenter.distance(item);
-			if (distance >= radius) {
-				radius = distance;
-			}
-		}
-		return radius;
-	}
-
-	@Override
 	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem,
 								final ModelView model, final ProgramPreferences programPreferences) {
 		for (final Geoset geo : model.getEditableGeosets()) {
@@ -78,8 +71,29 @@ public final class GeosetVertexSelectionManager extends AbstractSelectionManager
 	}
 
 	@Override
-	public Collection<? extends Vec3> getSelectedVertices() {
-		return getSelection();
+	public double getCircumscribedSphereRadius(final Vec3 sphereCenter) {
+		double radius = 0;
+		for (final Vec3 item : selection) {
+			final double distance = sphereCenter.distance(item);
+			if (distance >= radius) {
+				radius = distance;
+			}
+		}
+		return radius;
+	}
+
+	@Override
+	public double getCircumscribedSphereRadius(final Vec2 center, final int tvertexLayerId) {
+		double radius = 0;
+		for (final GeosetVertex item : selection) {
+			if (tvertexLayerId < item.getTverts().size()) {
+				final double distance = center.distance(item.getTVertex(tvertexLayerId));
+				if (distance >= radius) {
+					radius = distance;
+				}
+			}
+		}
+		return radius;
 	}
 
 	@Override
@@ -99,20 +113,6 @@ public final class GeosetVertexSelectionManager extends AbstractSelectionManager
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vec2 center, final int tvertexLayerId) {
-		double radius = 0;
-		for (final GeosetVertex item : selection) {
-			if (tvertexLayerId < item.getTverts().size()) {
-				final double distance = center.distance(item.getTVertex(tvertexLayerId));
-				if (distance >= radius) {
-					radius = distance;
-				}
-			}
-		}
-		return radius;
-	}
-
-	@Override
 	public void renderUVSelection(final TVertexModelElementRenderer renderer, final ModelView modelView,
                                   final ProgramPreferences programPreferences, final int tvertexLayerId) {
 		for (final Geoset geo : modelView.getEditableGeosets()) {
@@ -122,8 +122,7 @@ public final class GeosetVertexSelectionManager extends AbstractSelectionManager
 					continue;
 				}
 				if (modelView.getHighlightedGeoset() == geo) {
-					renderer.renderVertex(programPreferences.getHighlighVertexColor(),
-							geosetVertex.getTVertex(tvertexLayerId));
+					renderer.renderVertex(programPreferences.getHighlighVertexColor(), geosetVertex.getTVertex(tvertexLayerId));
 				} else if (selection.contains(geosetVertex)) {
 					renderer.renderVertex(programPreferences.getSelectColor(), geosetVertex.getTVertex(tvertexLayerId));
 				} else {

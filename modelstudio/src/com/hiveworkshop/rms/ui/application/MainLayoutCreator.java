@@ -31,44 +31,63 @@ public class MainLayoutCreator {
 //		viewportControllerWindowView.getWindowProperties().setMinimizeEnabled(true);
 //		viewportControllerWindowView.getWindowProperties().setRestoreEnabled(true);
         mainPanel.toolView = new View("Tools", null, new JPanel());
+
         mainPanel.leftView = new View("Side", null, new JPanel());
         mainPanel.frontView = new View("Front", null, new JPanel());
         mainPanel.bottomView = new View("Bottom", null, new JPanel());
         mainPanel.perspectiveView = new View("Perspective", null, new JPanel());
 
-        final TabWindow leftHandTabWindow = new TabWindow(
-                new DockingWindow[]{mainPanel.viewportControllerWindowView, mainPanel.toolView});
-        leftHandTabWindow.setSelectedTab(0);
-//		leftHandTabWindow.getWindowProperties().setCloseEnabled(false);
-        final SplitWindow editingTab = new SplitWindow(false, 0.875f,
-                new SplitWindow(true, 0.2f, leftHandTabWindow,
-                        new SplitWindow(true, 0.8f,
-                                new SplitWindow(false, new SplitWindow(true, mainPanel.frontView, mainPanel.bottomView),
-                                        new SplitWindow(true, mainPanel.leftView, mainPanel.perspectiveView)),
-                                mainPanel.creatorView)),
-                mainPanel.timeSliderView);
-        editingTab.getWindowProperties().setCloseEnabled(false);
-        editingTab.getWindowProperties().setTitleProvider(arg0 -> "Edit");
+
+        final SplitWindow editingTab = getEditTab(mainPanel);
+
+        final SplitWindow viewingTab = getViewTab(mainPanel);
+
+        final SplitWindow modelTab = new SplitWindow(true, 0.2f, mainPanel.modelDataView, mainPanel.modelComponentView);
+        modelTab.getWindowProperties().setTitleProvider(arg0 -> "Model");
+
+        final TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {viewingTab, editingTab, modelTab});
+//        final TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {editingTab, viewingTab, modelTab});
+        traverseAndFix(startupTabWindow);
+        return startupTabWindow;
+    }
+
+    private static SplitWindow getViewTab(MainPanel mainPanel) {
         final ImageIcon imageIcon;
         imageIcon = new ImageIcon(MainFrame.MAIN_PROGRAM_ICON.getScaledInstance(16, 16, Image.SCALE_FAST));
 
         final View mpqBrowserView = MPQBrowserView.createMPQBrowser(mainPanel, imageIcon);
 
         final UnitEditorTree unitEditorTree = createUnitEditorTree(mainPanel);
-        final TabWindow tabWindow = new TabWindow(new DockingWindow[]{
-                new View("Unit Browser", imageIcon, new JScrollPane(unitEditorTree)), mpqBrowserView});
+        View view = new View("Unit Browser", imageIcon, new JScrollPane(unitEditorTree));
+        DockingWindow[] dockingWindow = new DockingWindow[] {view, mpqBrowserView};
+
+        final TabWindow tabWindow = new TabWindow(dockingWindow);
+
         tabWindow.setSelectedTab(0);
-        final SplitWindow viewingTab = new SplitWindow(true, 0.8f,
-                new SplitWindow(true, 0.8f, mainPanel.previewView, mainPanel.animationControllerView), tabWindow);
+
+        SplitWindow animPersp = new SplitWindow(true, 0.8f, mainPanel.previewView, mainPanel.animationControllerView);
+        final SplitWindow viewingTab = new SplitWindow(true, 0.8f, animPersp, tabWindow);
+
         viewingTab.getWindowProperties().setTitleProvider(arg0 -> "View");
         viewingTab.getWindowProperties().setCloseEnabled(false);
+        return viewingTab;
+    }
 
-        final SplitWindow modelTab = new SplitWindow(true, 0.2f, mainPanel.modelDataView, mainPanel.modelComponentView);
-        modelTab.getWindowProperties().setTitleProvider(arg0 -> "Model");
+    private static SplitWindow getEditTab(MainPanel mainPanel) {
+        final TabWindow leftHandTabWindow = new TabWindow(new DockingWindow[] {mainPanel.viewportControllerWindowView, mainPanel.toolView});
+        leftHandTabWindow.setSelectedTab(0);
 
-        final TabWindow startupTabWindow = new TabWindow(new DockingWindow[]{viewingTab, editingTab, modelTab});
-        traverseAndFix(startupTabWindow);
-        return startupTabWindow;
+        SplitWindow frBt = new SplitWindow(true, mainPanel.frontView, mainPanel.bottomView);
+        SplitWindow lfPs = new SplitWindow(true, mainPanel.leftView, mainPanel.perspectiveView);
+        SplitWindow quadView = new SplitWindow(false, frBt, lfPs);
+
+        SplitWindow splitWindow = new SplitWindow(true, 0.2f, leftHandTabWindow, new SplitWindow(true, 0.8f, quadView, mainPanel.creatorView));
+
+        final SplitWindow editingTab = new SplitWindow(false, 0.875f, splitWindow, mainPanel.timeSliderView);
+
+        editingTab.getWindowProperties().setCloseEnabled(false);
+        editingTab.getWindowProperties().setTitleProvider(arg0 -> "Edit");
+        return editingTab;
     }
 
     static void traverseAndFix(final DockingWindow window) {
@@ -106,14 +125,23 @@ public class MainLayoutCreator {
                         true);
             }
         } catch (final IOException e) {
-            e.printStackTrace();
+	        e.printStackTrace();
         }
-        return new MutableObjectData(MutableObjectData.WorldEditorDataType.UNITS, StandardObjectData.getStandardUnits(),
-                StandardObjectData.getStandardUnitMeta(), editorData);
+	    return new MutableObjectData(MutableObjectData.WorldEditorDataType.UNITS, StandardObjectData.getStandardUnits(),
+			    StandardObjectData.getStandardUnitMeta(), editorData);
     }
 
-    public static UnitEditorSettings getUnitEditorSettings() {
-        return new UnitEditorSettings();
-    }
+	public static UnitEditorSettings getUnitEditorSettings() {
+		return new UnitEditorSettings();
+	}
 
+
+////        TempBonePanel tempBonePanel = new TempBonePanel();
+////        final DockingWindow boneTab = new SplitWindow(true, 0.5f, tempBonePanel.getBoneView(), mainPanel.previewView);
+////        boneTab.getWindowProperties().setTitleProvider(arg0 -> "Bones");
+//
+//        editingTab.setDebugGraphicsOptions(JComponent.WHEN_FOCUSED);
+//        System.out.println("editingTab insets: " + editingTab.getInsets());
+//        System.out.println("leftView insets: " + mainPanel.leftView.getInsets());
+////        final TabWindow startupTabWindow = new TabWindow(new DockingWindow[]{boneTab, viewingTab, editingTab, modelTab});
 }

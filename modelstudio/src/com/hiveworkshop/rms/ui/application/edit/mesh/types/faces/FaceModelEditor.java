@@ -52,8 +52,7 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 		throw new UnsupportedOperationException("This feature is not available in Face mode");
 	}
 
-	public static boolean hitTest(final Triangle triangle, final Rectangle2D rectangle,
-	                              final CoordinateSystem coordinateSystem) {
+	public static boolean hitTest(final Triangle triangle, final Rectangle2D rectangle, final CoordinateSystem coordinateSystem) {
 		final byte dim1 = coordinateSystem.getPortFirstXYZ();
 		final byte dim2 = coordinateSystem.getPortSecondXYZ();
 		final GeosetVertex[] verts = triangle.getVerts();
@@ -68,15 +67,21 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 				|| path.intersects(rectangle);
 	}
 
-	@Override
-	public UndoAction addTeamColor() {
-		// copy the selection before we hand it off, so the we can't strip the stored
-		// action's list of faces to add/remove
-		final TeamColorAddAction<Triangle> teamColorAddAction = new TeamColorAddAction<>(
-				new ArrayList<>(selectionManager.getSelection()), model.getModel(), structureChangeListener,
-				selectionManager, vertexSelectionHelper);
-		teamColorAddAction.redo();
-		return teamColorAddAction;
+	public static boolean hitTest(final Triangle triangle, final Point2D point, final CoordinateSystem coordinateSystem) {
+		final byte dim1 = coordinateSystem.getPortFirstXYZ();
+		final byte dim2 = coordinateSystem.getPortSecondXYZ();
+		final GeosetVertex[] verts = triangle.getVerts();
+		final Path2D.Double path = new Path2D.Double();
+		path.moveTo(verts[0].getCoord(dim1), verts[0].getCoord(dim2));
+		for (int i = 1; i < verts.length; i++) {
+			path.lineTo(verts[i].getCoord(dim1), verts[i].getCoord(dim2));
+			// xpts[i] = (int)
+			// (verts[i].getCoord(dim1));
+			// ypts[i] = (int)
+			// (verts[i].getCoord(dim2));
+		} // TODO fix bad performance allocation
+		path.closePath();
+		return path.contains(point);
 	}
 
 	@Override
@@ -150,28 +155,11 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 	}
 
 	@Override
-	protected List<Triangle> genericSelect(final Rectangle2D region, final CoordinateSystem coordinateSystem) {
-		final List<Triangle> newSelection = new ArrayList<>();
-		final double startingClickX = region.getX();
-		final double startingClickY = region.getY();
-		final double endingClickX = region.getX() + region.getWidth();
-		final double endingClickY = region.getY() + region.getHeight();
-
-		final double minX = Math.min(startingClickX, endingClickX);
-		final double minY = Math.min(startingClickY, endingClickY);
-		final double maxX = Math.max(startingClickX, endingClickX);
-		final double maxY = Math.max(startingClickY, endingClickY);
-		final Rectangle2D area = new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
-		for (final Geoset geoset : model.getEditableGeosets()) {
-			for (final Triangle triangle : geoset.getTriangles()) {
-				if (hitTest(triangle, new Point2D.Double(area.getX(), area.getY()), coordinateSystem) || hitTest(
-						triangle, new Point2D.Double(area.getX() + area.getWidth(), area.getY() + area.getHeight()),
-						coordinateSystem) || hitTest(triangle, area, coordinateSystem)) {
-					newSelection.add(triangle);
-				}
-			}
-		}
-		return newSelection;
+	public UndoAction addTeamColor() {
+		// copy the selection before we hand it off, so the we can't strip the stored action's list of faces to add/remove
+		final TeamColorAddAction<Triangle> teamColorAddAction = new TeamColorAddAction<>(new ArrayList<>(selectionManager.getSelection()), model.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
+		teamColorAddAction.redo();
+		return teamColorAddAction;
 	}
 
 	@Override
@@ -188,8 +176,32 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 	}
 
 	@Override
-	protected UndoAction buildHideComponentAction(final List<? extends SelectableComponent> selectableComponents,
-                                                  final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
+	protected List<Triangle> genericSelect(final Rectangle2D region, final CoordinateSystem coordinateSystem) {
+		final List<Triangle> newSelection = new ArrayList<>();
+		final double startingClickX = region.getX();
+		final double startingClickY = region.getY();
+		final double endingClickX = region.getX() + region.getWidth();
+		final double endingClickY = region.getY() + region.getHeight();
+
+		final double minX = Math.min(startingClickX, endingClickX);
+		final double minY = Math.min(startingClickY, endingClickY);
+		final double maxX = Math.max(startingClickX, endingClickX);
+		final double maxY = Math.max(startingClickY, endingClickY);
+		final Rectangle2D area = new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
+		for (final Geoset geoset : model.getEditableGeosets()) {
+			for (final Triangle triangle : geoset.getTriangles()) {
+				if (hitTest(triangle, new Point2D.Double(area.getX(), area.getY()), coordinateSystem)
+						|| hitTest(triangle, new Point2D.Double(area.getX() + area.getWidth(), area.getY() + area.getHeight()), coordinateSystem)
+						|| hitTest(triangle, area, coordinateSystem)) {
+					newSelection.add(triangle);
+				}
+			}
+		}
+		return newSelection;
+	}
+
+	@Override
+	protected UndoAction buildHideComponentAction(final List<? extends SelectableComponent> selectableComponents, final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
 		final List<Triangle> previousSelection = new ArrayList<>(selectionManager.getSelection());
 		final List<Triangle> possibleTrianglesToTruncate = new ArrayList<>();
 		final List<Vec3> possibleVerticesToTruncate = new ArrayList<>();
@@ -214,35 +226,13 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 		}
 		final Runnable truncateSelectionRunnable = () -> selectionManager.removeSelection(possibleTrianglesToTruncate);
 		final Runnable unTruncateSelectionRunnable = () -> selectionManager.setSelection(previousSelection);
-		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable,
-				unTruncateSelectionRunnable, refreshGUIRunnable);
-	}
-
-	public static boolean hitTest(final Triangle triangle, final Point2D point,
-			final CoordinateSystem coordinateSystem) {
-		final byte dim1 = coordinateSystem.getPortFirstXYZ();
-		final byte dim2 = coordinateSystem.getPortSecondXYZ();
-		final GeosetVertex[] verts = triangle.getVerts();
-		final Path2D.Double path = new Path2D.Double();
-		path.moveTo(verts[0].getCoord(dim1), verts[0].getCoord(dim2));
-		for (int i = 1; i < verts.length; i++) {
-			path.lineTo(verts[i].getCoord(dim1), verts[i].getCoord(dim2));
-			// xpts[i] = (int)
-			// (verts[i].getCoord(dim1));
-			// ypts[i] = (int)
-			// (verts[i].getCoord(dim2));
-		} // TODO fix bad performance allocation
-		path.closePath();
-		return path.contains(point);
+		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable, unTruncateSelectionRunnable, refreshGUIRunnable);
 	}
 
 	@Override
 	public UndoAction splitGeoset() {
-		// copy the selection before we hand it off, so the we can't strip the stored
-		// action's list of faces to add/remove
-		final SplitGeosetAction<Triangle> teamColorAddAction = new SplitGeosetAction<>(
-				new ArrayList<>(selectionManager.getSelection()), model.getModel(), structureChangeListener,
-				selectionManager, vertexSelectionHelper);
+		// copy the selection before we hand it off, so the we can't strip the stored action's list of faces to add/remove
+		final SplitGeosetAction<Triangle> teamColorAddAction = new SplitGeosetAction<>(new ArrayList<>(selectionManager.getSelection()), model.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
 		teamColorAddAction.redo();
 		return teamColorAddAction;
 	}
@@ -268,8 +258,7 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 						copiedVertices.add(newGeosetVertex);
 						triangleVertices.add(newGeosetVertex);
 					}
-					final Triangle newTriangle = new Triangle(triangleVertices.get(0), triangleVertices.get(1),
-							triangleVertices.get(2), copy);
+					final Triangle newTriangle = new Triangle(triangleVertices.get(0), triangleVertices.get(1), triangleVertices.get(2), copy);
 					copiedTriangles.add(newTriangle);
 				}
 			}

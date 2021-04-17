@@ -15,10 +15,6 @@ public final class RenderNode {
 	boolean billboardedX;
 	boolean billboardedY;
 	boolean billboardedZ;
-	private static final Vec3 locationHeap = new Vec3();
-	private static final Vec3 scalingHeap = new Vec3();
-	private static final Vec3 pivotHeap = new Vec3();
-	private static final Vec4 vector4Heap = new Vec4();
 
 	protected final Vec3 localLocation = new Vec3();
 	protected final Quat localRotation = new Quat();
@@ -32,9 +28,9 @@ public final class RenderNode {
 	private final Mat4 finalMatrix;
 	private Mat4 bindPose;
 
-	protected final Vec3 inverseWorldLocation = new Vec3();
-	protected final Quat inverseWorldRotation = new Quat();
-	protected final Vec3 inverseWorldScale = new Vec3();
+	protected Vec3 inverseWorldLocation = new Vec3();
+	protected Quat inverseWorldRotation = new Quat();
+	protected Vec3 inverseWorldScale = new Vec3();
 
 	protected boolean visible;
 
@@ -87,96 +83,76 @@ public final class RenderNode {
 	public void recalculateTransformation() {
 		if (dirty) {
 			dirty = false;
-			if (idObject.getParent() != null) {
-				final Vec3 computedLocation = locationHeap;
-				final Vec3 computedScaling;
-				computedLocation.x = localLocation.x;// + (float) parent.pivotPoint.x;
-				computedLocation.y = localLocation.y;// + (float) parent.pivotPoint.y;
-				computedLocation.z = localLocation.z;// + (float) parent.pivotPoint.z;
+			if (idObject instanceof IdObject && ((IdObject) idObject).getParent() != null) {
+				Vec3 computedLocation = new Vec3(localLocation);
+				Vec3 computedScaling = new Vec3();
 
 				if (dontInheritScaling) {
-					computedScaling = scalingHeap;
+					final Vec3 parentInverseScale = model.getRenderNode(((IdObject) idObject).getParent()).inverseWorldScale;
+					computedScaling.set(parentInverseScale);
+					computedScaling.multiply(localScale);
 
-					final Vec3 parentInverseScale = model.getRenderNode(idObject.getParent()).inverseWorldScale;
-					computedScaling.x = parentInverseScale.x * localScale.x;
-					computedScaling.y = parentInverseScale.y * localScale.y;
-					computedScaling.z = parentInverseScale.z * localScale.z;
-
-					worldScale.x = localScale.x;
-					worldScale.y = localScale.y;
-					worldScale.z = localScale.z;
+					worldScale.set(localScale);
 				} else {
 					computedScaling = localScale;
 
-					final Vec3 parentScale = model.getRenderNode(idObject.getParent()).worldScale;
-					worldScale.x = parentScale.x * localScale.x;
-					worldScale.y = parentScale.y * localScale.y;
-					worldScale.z = parentScale.z * localScale.z;
+					final Vec3 parentScale = model.getRenderNode(((IdObject) idObject).getParent()).worldScale;
+					worldScale.set(parentScale);
+					worldScale.multiply(localScale);
 				}
 
-				pivotHeap.x = idObject.getPivotPoint().x;
-				pivotHeap.y = idObject.getPivotPoint().y;
-				pivotHeap.z = idObject.getPivotPoint().z;
-				localMatrix.fromRotationTranslationScaleOrigin(localRotation, computedLocation, computedScaling, pivotHeap);
+				localMatrix.fromRotationTranslationScaleOrigin(localRotation, computedLocation, computedScaling, idObject.getPivotPoint());
 
-				model.getRenderNode(idObject.getParent()).worldMatrix.mul(localMatrix, worldMatrix);
-				model.getRenderNode(idObject.getParent()).worldRotation.mul(localRotation, worldRotation);
+				worldMatrix.set(Mat4.getProd(model.getRenderNode(((IdObject) idObject).getParent()).worldMatrix, localMatrix));
+				worldRotation.set(Quat.getProd(model.getRenderNode(((IdObject) idObject).getParent()).worldRotation, localRotation));
 			} else {
 
-				pivotHeap.x = idObject.getPivotPoint().x;
-				pivotHeap.y = idObject.getPivotPoint().y;
-				pivotHeap.z = idObject.getPivotPoint().z;
-				localMatrix.fromRotationTranslationScaleOrigin(localRotation, localLocation, localScale, pivotHeap);
+				localMatrix.fromRotationTranslationScaleOrigin(localRotation, localLocation, localScale, idObject.getPivotPoint());
 				worldMatrix.set(localMatrix);
 				worldRotation.set(localRotation);
 				worldScale.set(localScale);
 			}
 			if (worldMatrix != finalMatrix) {
-				worldMatrix.mul(bindPose, finalMatrix);
+				finalMatrix.set(Mat4.getProd(worldMatrix, bindPose));
 			}
 
 			// Inverse world rotation
-			inverseWorldRotation.x = -worldRotation.x;
-			inverseWorldRotation.y = -worldRotation.y;
-			inverseWorldRotation.z = -worldRotation.z;
-			inverseWorldRotation.w = worldRotation.w;
+			inverseWorldRotation.set(Quat.getInverseRotation(worldRotation));
 
 			// Inverse world scale
-			inverseWorldScale.x = 1 / worldScale.x;
-			inverseWorldScale.y = 1 / worldScale.y;
-			inverseWorldScale.z = 1 / worldScale.z;
+			inverseWorldScale = Vec3.getQuotient(new Vec3(1, 1, 1), worldScale);
 
 			// World location
-			worldLocation.x = worldMatrix.m30;
-			worldLocation.y = worldMatrix.m31;
-			worldLocation.z = worldMatrix.m32;
+			worldLocation.set(worldMatrix.m30, worldMatrix.m31, worldMatrix.m32);
 
 			// Inverse world location
-			inverseWorldLocation.x = -worldLocation.x;
-			inverseWorldLocation.y = -worldLocation.y;
-			inverseWorldLocation.z = -worldLocation.z;
+			inverseWorldLocation.set(worldLocation).negate();
 		}
 	}
 
 	public void update() {
-		final AnimatedNode parent = idObject.getParent();
-		if (dirty || ((parent != null) && model.getRenderNode(idObject.getParent()).wasDirty)) {
-			dirty = true;
-			wasDirty = true;
-			recalculateTransformation();
-		} else {
-			wasDirty = false;
-		}
+		if (idObject instanceof IdObject) {
+			final AnimatedNode parent = ((IdObject) idObject).getParent();
+			if (dirty || ((parent != null) && model.getRenderNode(((IdObject) idObject).getParent()).wasDirty)) {
+				dirty = true;
+				wasDirty = true;
+				recalculateTransformation();
+			} else {
+				wasDirty = false;
+			}
 
-		updateChildren();
+			updateChildren();
+		}
 	}
 
 	public void updateChildren() {
 		for (final AnimatedNode childNode : idObject.getChildrenNodes()) {
 			if (model.getRenderNode(childNode) == null) {
 				if (childNode instanceof IdObject) {
-					throw new NullPointerException("Cannot find child \"" + childNode.getName() + ":"
-							+ ((IdObject) childNode).getObjectId() + "\" of \"" + idObject.getName() + "\"");
+//					throw new NullPointerException("Cannot find child \"" + childNode.getName() + ":"
+//							+ ((IdObject) childNode).getObjectId() + "\" of \"" + idObject.getName() + "\"");
+					throw new NullPointerException("Cannot find child \"" + childNode.getName()
+							+ "\" of \"" + idObject.getName() + "\"");
 				} else {
 					throw new NullPointerException(
 							"Cannot find child \"" + childNode.getName() + "\" of \"" + idObject.getName() + "\"");
@@ -194,18 +170,11 @@ public final class RenderNode {
 	}
 
 	public void setTransformation(final Vec3 location, final Quat rotation, final Vec3 scale) {
-		localLocation.x = location.x;
-		localLocation.y = location.y;
-		localLocation.z = location.z;
+		localLocation.set(location);
 
-		localRotation.x = rotation.x;
-		localRotation.y = rotation.y;
-		localRotation.z = rotation.z;
-		localRotation.w = rotation.w;
+		localRotation.set(rotation);
 
-		localScale.x = scale.x;
-		localScale.y = scale.y;
-		localScale.z = scale.z;
+		localScale.set(scale);
 
 		dirty = true;
 	}
@@ -264,14 +233,8 @@ public final class RenderNode {
 	}
 
 	public Vec3 getPivot() {
-		vector4Heap.x = idObject.getPivotPoint().x;
-		vector4Heap.y = idObject.getPivotPoint().y;
-		vector4Heap.z = idObject.getPivotPoint().z;
-		vector4Heap.w = 1;
-		worldMatrix.transform(vector4Heap);
-		pivotHeap.x = vector4Heap.x;
-		pivotHeap.y = vector4Heap.y;
-		pivotHeap.z = vector4Heap.z;
-		return pivotHeap;
+		Vec4 vector4Heap = new Vec4(idObject.getPivotPoint(), 1);
+		vector4Heap.transform(worldMatrix);
+		return vector4Heap.getVec3();
 	}
 }

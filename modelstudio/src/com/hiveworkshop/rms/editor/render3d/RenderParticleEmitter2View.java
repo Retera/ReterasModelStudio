@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.editor.render3d;
 
-import com.hiveworkshop.rms.editor.model.AnimFlag;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 
 public class RenderParticleEmitter2View extends EmitterView {
@@ -30,17 +30,16 @@ public class RenderParticleEmitter2View extends EmitterView {
 	public void fill() {
 		if (instance.allowParticleSpawn()) {
 			final double emissionRate = getEmissionRate();
-
 			if (emitter.getSquirt()) {
 				// TODO TODO TODO not correct for any interp type other than "DontInterp",
-				// ghostwolf did this differently
+				//  ghostwolf did this differently
 				if (emissionRate != lastEmissionRate) {
 					currentEmission += emissionRate;
 				}
 
 				lastEmissionRate = emissionRate;
 			} else {
-				currentEmission += emissionRate * AnimatedRenderEnvironment.FRAMES_PER_UPDATE * 0.001;
+				currentEmission += emissionRate * AnimatedRenderEnvironment.FRAMES_PER_UPDATE * 0.001 * instance.getAnimatedRenderEnvironment().getAnimationSpeed();
 			}
 			renderEmitter.fill(this);
 		}
@@ -57,6 +56,10 @@ public class RenderParticleEmitter2View extends EmitterView {
 
 	public double getSpeed() {
 		return emitter.getRenderSpeed(instance.getAnimatedRenderEnvironment());
+	}
+
+	public double getTimeScale() {
+		return instance.getAnimatedRenderEnvironment().getAnimationSpeed();
 	}
 
 	public double getLatitude() {

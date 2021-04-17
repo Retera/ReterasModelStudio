@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff;
 
-import com.hiveworkshop.rms.editor.model.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.util.Quat;
 import net.miginfocom.swing.MigLayout;
@@ -57,7 +57,7 @@ public class TSpline extends JPanel {
 			setVisible(false);
 			return;
 		}
-		if ((num >= len) || (num < 0) || (timeline.getTimes().get(num) != currentFrame)) {
+		if ((num >= len) || (num < 0) || !(timeline.getTimes().get(num).equals(currentFrame))) {
 			setVisible(false);
 			return;
 		}

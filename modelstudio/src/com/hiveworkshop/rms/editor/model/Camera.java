@@ -1,15 +1,16 @@
 package com.hiveworkshop.rms.editor.model;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.AnimationMap;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCamera;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Camera class, these are the things most people would think of as a particle
@@ -26,7 +27,7 @@ public class Camera implements Named {
 	double farClip;
 	double nearClip;
 	Vec3 targetPosition;
-	List<AnimFlag> targetAnimFlags = new ArrayList<>();
+	List<AnimFlag<Vec3>> targetAnimFlags = new ArrayList<>();
 	final SourceNode sourceNode = new SourceNode(this);
 	final TargetNode targetNode = new TargetNode(this);
 	float[] bindPose;
@@ -41,9 +42,9 @@ public class Camera implements Named {
 
 		for (final MdlxTimeline<?> timeline : camera.timelines) {
 			if (timeline.name == AnimationMap.KTTR.getWar3id()) {
-				targetNode.add(new AnimFlag(timeline));
+				targetNode.add(AnimFlag.createFromTimeline(timeline));
 			} else {
-				sourceNode.add(new AnimFlag(timeline));
+				sourceNode.add(AnimFlag.createFromTimeline(timeline));
 			}
 		}
 	}
@@ -123,18 +124,17 @@ public class Camera implements Named {
 
 	public static final class SourceNode extends AnimatedNode {
 		private static final Quat rotationHeap = new Quat(0, 0, 0, 1);
-		
+
 		private final Camera parent;
-		private final Vec3 axisHeap = new Vec3(0, 0, 0);
 
 		private SourceNode(final Camera parent) {
 			this.parent = parent;
 		}
 
-		@Override
-		public AnimatedNode getParent() {
-			return null;
-		}
+//		@Override
+//		public AnimatedNode getParent() {
+//			return null;
+//		}
 
 		@Override
 		public Vec3 getPivotPoint() {
@@ -158,7 +158,7 @@ public class Camera implements Named {
 
 		@Override
 		public Quat getRenderRotation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-			final AnimFlag translationFlag = find("Rotation");
+			final AnimFlag<?> translationFlag = find("Rotation");
 			if (translationFlag != null) {
 				final Object interpolated = translationFlag.interpolateAt(animatedRenderEnvironment);
 				if (interpolated instanceof Float) {
@@ -167,9 +167,10 @@ public class Camera implements Named {
 					final Vec3 targetPosition = parent.targetPosition;
 					final Vec3 sourceTranslation = getRenderTranslation(animatedRenderEnvironment);
 					final Vec3 sourcePosition = parent.position;
-					axisHeap.x = (targetPosition.x + targetTranslation.x) - (sourcePosition.x + sourceTranslation.x);
-					axisHeap.y = (targetPosition.y + targetTranslation.y) - (sourcePosition.y + sourceTranslation.y);
-					axisHeap.z = (targetPosition.z + targetTranslation.z) - (sourcePosition.z + sourceTranslation.z);
+					final Vec3 axisHeap = new Vec3(targetPosition).add(targetTranslation).sub(sourcePosition).sub(sourceTranslation);
+//					axisHeap.x = (targetPosition.x + targetTranslation.x) - (sourcePosition.x + sourceTranslation.x);
+//					axisHeap.y = (targetPosition.y + targetTranslation.y) - (sourcePosition.y + sourceTranslation.y);
+//					axisHeap.z = (targetPosition.z + targetTranslation.z) - (sourcePosition.z + sourceTranslation.z);
 					rotationHeap.setFromAxisAngle(axisHeap, angle);
 					return rotationHeap;
 				} else {
@@ -196,10 +197,10 @@ public class Camera implements Named {
 			this.parent = parent;
 		}
 
-		@Override
-		public AnimatedNode getParent() {
-			return null;
-		}
+//		@Override
+//		public AnimatedNode getParent() {
+//			return null;
+//		}
 
 		@Override
 		public Vec3 getPivotPoint() {

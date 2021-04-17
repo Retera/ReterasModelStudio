@@ -2,46 +2,25 @@ package com.hiveworkshop.rms.ui.util;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 
 /**
  * Cool gradient colored JButton
- *
- * @author (your name)
- * @version (a version number or a date)
  */
 public class ModeButton extends JButton {
 	GradientPaint gPaint;
 
 	public ModeButton(final String s) {
 		super(s);
-		addComponentListener(new ComponentListener() {
-
-			@Override
-			public void componentShown(final ComponentEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-
+		addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(final ComponentEvent e) {
 				if (gPaint != null) {
-					gPaint = new GradientPaint(new Point(0, 10), gPaint.getColor1(), new Point(0, getHeight()),
-							gPaint.getColor2(), true);
+					gPaint = new GradientPaint(
+							new Point(0, 10), gPaint.getColor1(),
+							new Point(0, getHeight()), gPaint.getColor2(), true);
 				}
-			}
-
-			@Override
-			public void componentMoved(final ComponentEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void componentHidden(final ComponentEvent e) {
-				// TODO Auto-generated method stub
-
 			}
 		});
 	}

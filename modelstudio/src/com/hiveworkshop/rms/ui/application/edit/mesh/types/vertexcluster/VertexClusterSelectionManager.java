@@ -5,10 +5,10 @@ import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
-import com.hiveworkshop.rms.ui.application.edit.mesh.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.types.geosetvertex.GeosetVertexSelectionManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexModelElementRenderer;
+import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexModelElementRenderer;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -17,7 +17,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.*;
 
-public final class VertexClusterSelectionManager extends AbstractSelectionManager<VertexClusterModelEditor.VertexGroupBundle> {
+public final class VertexClusterSelectionManager extends SelectionManager<VertexClusterModelEditor.VertexGroupBundle> {
 	private static final Color GROUP_SELECTED_COLOR = new Color(1f, 0.45f, 0.75f, 0.3f);
 
 	private static final Color GROUP_HIGHLIGHT_COLOR = new Color(0.45f, 1f, 0.45f, 0.3f);
@@ -49,23 +49,17 @@ public final class VertexClusterSelectionManager extends AbstractSelectionManage
 	}
 
 	@Override
-	public Collection<Triangle> getSelectedFaces() {
-		return cachedVertexListManager.getSelectedFaces();
-	}
-
-	@Override
 	public Collection<? extends Vec3> getSelectedVertices() {
 		return cachedVertexListManager.getSelectedVertices();
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vec3 center) {
-		return cachedVertexListManager.getCircumscribedSphereRadius(center);
+	public Collection<Triangle> getSelectedFaces() {
+		return cachedVertexListManager.getSelectedFaces();
 	}
 
 	@Override
-	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem,
-								final ModelView modelView, final ProgramPreferences programPreferences) {
+	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem, final ModelView modelView, final ProgramPreferences programPreferences) {
 		final Set<VertexClusterModelEditor.VertexGroupBundle> selection = getSelection();
 		for (final Geoset geoset : modelView.getEditableGeosets()) {
 			final Color outlineColor;
@@ -79,36 +73,37 @@ public final class VertexClusterSelectionManager extends AbstractSelectionManage
 			}
 			for (final Triangle triangle : geoset.getTriangles()) {
 				final GeosetVertex[] triangleVertices = triangle.getVerts();
-				if (containsClusters(selection, geoset, triangleVertices)) {
+				if (containsClusters(selection, geoset, triangleVertices, 0, 1, 2)) {
 					renderer.renderFace(outlineColor, fillColor, triangle.get(0), triangle.get(1), triangle.get(2));
-				} else if (containsClusters(selection, geoset, triangleVertices, 0, 1)) {
+				} else if (containsClusters(selection, geoset, triangleVertices, 0, 1, 0)) {
 					renderer.renderFace(outlineColor, fillColor, triangle.get(0), triangle.get(1), triangle.get(0));
-				} else if (containsClusters(selection, geoset, triangleVertices, 0, 2)) {
+				} else if (containsClusters(selection, geoset, triangleVertices, 0, 2, 0)) {
 					renderer.renderFace(outlineColor, fillColor, triangle.get(0), triangle.get(2), triangle.get(0));
-				} else if (containsClusters(selection, geoset, triangleVertices, 1, 2)) {
+				} else if (containsClusters(selection, geoset, triangleVertices, 1, 2, 1)) {
 					renderer.renderFace(outlineColor, fillColor, triangle.get(1), triangle.get(2), triangle.get(1));
 				}
 			}
 		}
 	}
 
-	private boolean containsClusters(Set<VertexClusterModelEditor.VertexGroupBundle> selection, Geoset geoset, GeosetVertex[] triangleVertices) {
-		return containsCluster(selection, 0, geoset, triangleVertices)
-				&& containsCluster(selection, 1, geoset, triangleVertices)
-				&& containsCluster(selection, 2, geoset, triangleVertices);
-	}
-
-	private boolean containsClusters(Set<VertexClusterModelEditor.VertexGroupBundle> selection,
-	                                 Geoset geoset, GeosetVertex[] triangleVertices,
-	                                 int cluster1, int cluster2) {
+	private boolean containsClusters(Set<VertexClusterModelEditor.VertexGroupBundle> selection, Geoset geoset, GeosetVertex[] triangleVertices, int cluster1, int cluster2, int cluster3) {
 		return containsCluster(selection, cluster1, geoset, triangleVertices)
-				&& containsCluster(selection, cluster2, geoset, triangleVertices);
+				&& containsCluster(selection, cluster2, geoset, triangleVertices)
+				&& containsCluster(selection, cluster3, geoset, triangleVertices);
 	}
 
-	private boolean containsCluster(Set<VertexClusterModelEditor.VertexGroupBundle> selection,
-	                                int cluster, Geoset geoset, GeosetVertex[] triangleVertices) {
-		return selection.contains(
-				new VertexClusterModelEditor.VertexGroupBundle(geoset, vertexClusterDefinitions.getClusterId(triangleVertices[cluster])));
+	private boolean containsCluster(Set<VertexClusterModelEditor.VertexGroupBundle> selection, int cluster, Geoset geoset, GeosetVertex[] triangleVertices) {
+		return selection.contains(new VertexClusterModelEditor.VertexGroupBundle(geoset, vertexClusterDefinitions.getClusterId(triangleVertices[cluster])));
+	}
+
+	@Override
+	public double getCircumscribedSphereRadius(final Vec3 center) {
+		return cachedVertexListManager.getCircumscribedSphereRadius(center);
+	}
+
+	@Override
+	public double getCircumscribedSphereRadius(final Vec2 center, final int tvertexLayerId) {
+		throw new UnsupportedOperationException("Not yet implemented");
 	}
 
 	@Override
@@ -122,13 +117,7 @@ public final class VertexClusterSelectionManager extends AbstractSelectionManage
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vec2 center, final int tvertexLayerId) {
-		throw new UnsupportedOperationException("Not yet implemented");
-	}
-
-	@Override
-	public void renderUVSelection(final TVertexModelElementRenderer renderer, final ModelView modelView,
-                                  final ProgramPreferences programPreferences, final int tvertexLayerId) {
+	public void renderUVSelection(final TVertexModelElementRenderer renderer, final ModelView modelView, final ProgramPreferences programPreferences, final int tvertexLayerId) {
 		throw new UnsupportedOperationException("Not yet implemented");
 	}
 }

@@ -1,13 +1,13 @@
 package com.hiveworkshop.rms.ui.application.actions.mesh;
 
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.util.Vec3;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.util.Vec3;
 
 /**
  * Undoable snap action.
@@ -15,36 +15,51 @@ import com.hiveworkshop.rms.util.Vec3;
  * Eric Theller 6/11/2012
  */
 public class RecalculateNormalsAction2 implements UndoAction {
-	List<Vec3> oldSelLocs;
-	List<GeosetVertex> selection;
+	List<Vec3> oldNormals;
+	List<GeosetVertex> affectedVertices;
 	Vec3 snapPoint;
+	double maxAngle;
+	boolean useTries;
 
-	public RecalculateNormalsAction2(final List<GeosetVertex> selection, final List<Vec3> oldSelLocs,
-			final Vec3 snapPoint) {
-		this.selection = new ArrayList<>(selection);
-		this.oldSelLocs = oldSelLocs;
+	public RecalculateNormalsAction2(final List<GeosetVertex> affectedVertices, final List<Vec3> oldNormals, final Vec3 snapPoint) {
+		this.affectedVertices = new ArrayList<>(affectedVertices);
+		this.oldNormals = oldNormals;
 		this.snapPoint = new Vec3(snapPoint);
+		maxAngle = 360.0;
+		useTries = false;
+	}
+
+	public RecalculateNormalsAction2(final List<GeosetVertex> affectedVertices, final List<Vec3> oldNormals, final Vec3 snapPoint, final double maxAngle, boolean useTries) {
+		this.affectedVertices = new ArrayList<>(affectedVertices);
+		this.oldNormals = oldNormals;
+		this.snapPoint = new Vec3(snapPoint);
+		this.maxAngle = maxAngle;
+		this.useTries = useTries;
 	}
 
 	@Override
 	public void undo() {
-		for (int i = 0; i < selection.size(); i++) {
-			selection.get(i).getNormal().set(oldSelLocs.get(i));
+		for (int i = 0; i < affectedVertices.size(); i++) {
+			affectedVertices.get(i).getNormal().set(oldNormals.get(i));
 		}
 	}
 
 	@Override
 	public void redo() {
 		final Map<Tuplet, List<GeosetVertex>> tupletToMatches = new HashMap<>();
-		for (final GeosetVertex geosetVertex : selection) {
+		for (final GeosetVertex geosetVertex : affectedVertices) {
 			final Tuplet tuplet = new Tuplet(geosetVertex.x, geosetVertex.y, geosetVertex.z);
 			List<GeosetVertex> matches = tupletToMatches.computeIfAbsent(tuplet, k -> new ArrayList<>());
 			matches.add(geosetVertex);
 		}
-		for (final GeosetVertex geosetVertex : selection) {
+		for (final GeosetVertex geosetVertex : affectedVertices) {
 			final Tuplet tuplet = new Tuplet(geosetVertex.x, geosetVertex.y, geosetVertex.z);
 			final List<GeosetVertex> matches = tupletToMatches.get(tuplet);
-			geosetVertex.getNormal().set(geosetVertex.createNormal(matches));
+			if (useTries) {
+				geosetVertex.getNormal().set(geosetVertex.createNormalFromFaces(matches, maxAngle));
+			} else {
+				geosetVertex.getNormal().set(geosetVertex.createNormal(matches, maxAngle));
+			}
 		}
 	}
 

@@ -8,31 +8,30 @@ import java.awt.*;
 
 public class EditUVsPanel {
     static void showEditUVs(MainPanel mainPanel) {
-        final ModelPanel disp = mainPanel.currentModelPanel();
-        if (disp.getEditUVPanel() == null) {
-            final UVPanel panel = new UVPanel(disp, mainPanel.prefs, mainPanel.modelStructureChangeListener);
-            disp.setEditUVPanel(panel);
+        final ModelPanel currentModelPanel = mainPanel.currentModelPanel();
+        UVPanel panel = currentModelPanel.getEditUVPanel();
+        if (panel == null) {
+            panel = new UVPanel(mainPanel, mainPanel.modelStructureChangeListener, mainPanel.prefs);
+            currentModelPanel.setEditUVPanel(panel);
 
             panel.initViewport();
 
-            final FloatingWindow floatingWindow = mainPanel.rootWindow.createFloatingWindow(
-                    new Point(
-                            mainPanel.getX() + (mainPanel.getWidth() / 2),
-                            mainPanel.getY() + (mainPanel.getHeight() / 2)),
-                    panel.getSize(),
-                    panel.getView());
+            final FloatingWindow floatingWindow = getWindow(mainPanel, panel);
 
             panel.init();
             floatingWindow.getTopLevelAncestor().setVisible(true);
             panel.packFrame();
-        } else if (!disp.getEditUVPanel().frameVisible()) {
-            final FloatingWindow floatingWindow = mainPanel.rootWindow.createFloatingWindow(
-                    new Point(
-                            mainPanel.getX() + (mainPanel.getWidth() / 2),
-                            mainPanel.getY() + (mainPanel.getHeight() / 2)),
-                    disp.getEditUVPanel().getSize(),
-                    disp.getEditUVPanel().getView());
+        } else if (!panel.frameVisible()) {
+
+            final FloatingWindow floatingWindow = getWindow(mainPanel, panel);
             floatingWindow.getTopLevelAncestor().setVisible(true);
         }
+    }
+
+    private static FloatingWindow getWindow(MainPanel mainPanel, UVPanel panel) {
+        int wPos = mainPanel.getX() + mainPanel.getWidth() / 2;
+        int hPos = mainPanel.getY() + mainPanel.getHeight() / 2;
+        Point point = new Point(wPos, hPos);
+        return mainPanel.rootWindow.createFloatingWindow(point, panel.getSize(), panel.getView());
     }
 }

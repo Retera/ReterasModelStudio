@@ -2,6 +2,9 @@ package com.hiveworkshop.rms.ui.application.edit.animation;
 
 import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode;
@@ -196,11 +199,8 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	public static void hitTest(final List<IdObject> selectedItems, final Rectangle2D area, final Vec3 geosetVertex, final CoordinateSystem coordinateSystem, final double vertexSize, final IdObject object, final RenderModel renderModel) {
 		final RenderNode renderNode = renderModel.getRenderNode(object);
-		pivotHeap.x = geosetVertex.x;
-		pivotHeap.y = geosetVertex.y;
-		pivotHeap.z = geosetVertex.z;
-		pivotHeap.w = 1;
-		renderNode.getWorldMatrix().transform(pivotHeap);
+		Vec4 pivotHeap = new Vec4(geosetVertex, 1);
+		pivotHeap.transform(renderNode.getWorldMatrix());
 		final byte dim1 = coordinateSystem.getPortFirstXYZ();
 		final byte dim2 = coordinateSystem.getPortSecondXYZ();
 		final double minX = coordinateSystem.convertX(area.getMinX());
@@ -217,11 +217,8 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	public static boolean hitTest(final Vec3 vertex, final Point2D point, final CoordinateSystem coordinateSystem, final double vertexSize, final Mat4 worldMatrix) {
-		pivotHeap.x = vertex.x;
-		pivotHeap.y = vertex.y;
-		pivotHeap.z = vertex.z;
-		pivotHeap.w = 1;
-		worldMatrix.transform(pivotHeap);
+		Vec4 pivotHeap = new Vec4(vertex, 1);
+		pivotHeap.transform(worldMatrix);
 		final double x = coordinateSystem.convertX(pivotHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
 		final double y = coordinateSystem.convertY(pivotHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
 		final double px = coordinateSystem.convertX(point.getX());
@@ -297,7 +294,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	@Override
-	public UndoAction recalcNormals() {
+	public UndoAction recalcNormals(double maxAngle, boolean useTries) {
 		throw new WrongModeException("Unable to modify normals in Animation Editor");
 	}
 
@@ -351,9 +348,20 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		throw new UnsupportedOperationException("Unable to scale directly in animation mode, use other system");
 	}
 
+	@Override
+	public void rawScale(Vec3 center, Vec3 scale) {
+		throw new UnsupportedOperationException("Unable to scale directly in animation mode, use other system");
+	}
+
 	public void rawScale(final double centerX, final double centerY, final double centerZ, final double scaleX, final double scaleY, final double scaleZ, final Map<IdObject, Vec3> nodeToLocalScale) {
 		for (final IdObject idObject : selectionManager.getSelection()) {
 			idObject.updateScalingKeyframe(renderModel, scaleX, scaleY, scaleZ, nodeToLocalScale.get(idObject));
+		}
+	}
+
+	public void rawScale(final Vec3 center, final Vec3 scale, final Map<IdObject, Vec3> nodeToLocalScale) {
+		for (final IdObject idObject : selectionManager.getSelection()) {
+			idObject.updateScalingKeyframe(renderModel, scale, nodeToLocalScale.get(idObject));
 		}
 	}
 
@@ -409,13 +417,27 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	@Override
+	public UndoAction rotate(final Vec3 center, final Vec3 rotate) {
+
+		final GenericRotateAction rotationX = beginRotation(center.x, center.y, center.z, (byte) 2, (byte) 1);
+		rotationX.updateRotation(rotate.x);
+		final GenericRotateAction rotationY = beginRotation(center.x, center.y, center.z, (byte) 0, (byte) 2);
+		rotationY.updateRotation(rotate.y);
+		final GenericRotateAction rotationZ = beginRotation(center.x, center.y, center.z, (byte) 1, (byte) 0);
+		rotationZ.updateRotation(rotate.z);
+		final CompoundAction compoundAction = new CompoundAction("rotate", Arrays.asList(rotationX, rotationY, rotationZ));
+		compoundAction.redo();
+		return compoundAction;
+	}
+
+	@Override
 	public GenericMoveAction beginTranslation() {
 		final Set<IdObject> selection = selectionManager.getSelection();
 		final List<UndoAction> actions = new ArrayList<>();
 		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from a TimeEnvironmentImpl render environment, and never from the anim previewer impl
 		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
 
-		generateKeyframes(selection, actions, timeEnvironmentImpl, "Translation", (node, translationTimeline) -> node.createTranslationKeyframe(renderModel, translationTimeline, structureChangeListener));
+		generateKeyframes(selection, actions, timeEnvironmentImpl, "Translation", (node, translationTimeline) -> node.createTranslationKeyframe(renderModel, (Vec3AnimFlag) translationTimeline, structureChangeListener));
 
 		final int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
 		final int trackTimeToUse = timeEnvironmentImpl.getGlobalSeq() == null ? trackTime : timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
@@ -436,8 +458,24 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	@Override
+	public UndoAction translate(final Vec3 v) {
+		final Vec3 delta = new Vec3(v);
+		final StaticMeshMoveAction moveAction = new StaticMeshMoveAction(this, delta);
+		moveAction.redo();
+		return moveAction;
+	}
+
+	@Override
 	public UndoAction setPosition(final Vec3 center, final double x, final double y, final double z) {
 		final Vec3 delta = new Vec3(x - center.x, y - center.y, z - center.z);
+		final StaticMeshMoveAction moveAction = new StaticMeshMoveAction(this, delta);
+		moveAction.redo();
+		return moveAction;
+	}
+
+	@Override
+	public UndoAction setPosition(final Vec3 center, final Vec3 v) {
+		final Vec3 delta = Vec3.getDiff(v, center);
 		final StaticMeshMoveAction moveAction = new StaticMeshMoveAction(this, delta);
 		moveAction.redo();
 		return moveAction;
@@ -450,7 +488,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
 
-		generateKeyframes(selection, actions, timeEnvironmentImpl, "Rotation", (node, translationTimeline) -> node.createRotationKeyframe(renderModel, translationTimeline, structureChangeListener));
+		generateKeyframes(selection, actions, timeEnvironmentImpl, "Rotation", (node, translationTimeline) -> node.createRotationKeyframe(renderModel, (QuatAnimFlag) translationTimeline, structureChangeListener));
 
 		final int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
 		final int trackTimeToUse = timeEnvironmentImpl.getGlobalSeq() == null ? trackTime : timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
@@ -467,20 +505,25 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		return true;
 	}
 
-	private void generateKeyframes(Set<IdObject> selection, List<UndoAction> actions, TimeEnvironmentImpl timeEnvironmentImpl, String name, BiFunction<IdObject, AnimFlag, AddKeyframeAction> keyframeFunction) {
+	private void generateKeyframes(Set<IdObject> selection, List<UndoAction> actions, TimeEnvironmentImpl timeEnvironmentImpl, String name, BiFunction<IdObject, AnimFlag<?>, AddKeyframeAction> keyframeFunction) {
 		for (final IdObject node : selection) {
-			AnimFlag translationTimeline = node.find(name, timeEnvironmentImpl.getGlobalSeq());
+			AnimFlag<?> transformationTimeline = node.find(name, timeEnvironmentImpl.getGlobalSeq());
 
-			if (translationTimeline == null) {
-				translationTimeline = AnimFlag.createEmpty2018(name, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
-				node.add(translationTimeline);
+			if (transformationTimeline == null) {
+				if (name.equals("Rotation")) {
+					transformationTimeline = QuatAnimFlag.createEmpty2018(name, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+				} else {
+					transformationTimeline = Vec3AnimFlag.createEmpty2018(name, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+				}
+//				transformationTimeline = AnimFlag.createEmpty2018(name, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+				node.add(transformationTimeline);
 
-				final AddTimelineAction addTimelineAction = new AddTimelineAction(node, translationTimeline, structureChangeListener);
-				structureChangeListener.timelineAdded(node, translationTimeline);
+				final AddTimelineAction addTimelineAction = new AddTimelineAction(node, transformationTimeline, structureChangeListener);
+				structureChangeListener.timelineAdded(node, transformationTimeline);
 				actions.add(addTimelineAction);
 			}
-//			final AddKeyframeAction keyframeAction = node.createRotationKeyframe(renderModel, translationTimeline, structureChangeListener);
-			final AddKeyframeAction keyframeAction = keyframeFunction.apply(node, translationTimeline);
+//			final AddKeyframeAction keyframeAction = node.createRotationKeyframe(renderModel, transformationTimeline, structureChangeListener);
+			final AddKeyframeAction keyframeAction = keyframeFunction.apply(node, transformationTimeline);
 			if (keyframeAction != null) {
 				actions.add(keyframeAction);
 			}
@@ -493,12 +536,26 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		final List<UndoAction> actions = new ArrayList<>();
 		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
 
-		generateKeyframes(selection, actions, timeEnvironmentImpl, "Scaling", (node, translationTimeline) -> node.createScalingKeyframe(renderModel, translationTimeline, structureChangeListener));
+		generateKeyframes(selection, actions, timeEnvironmentImpl, "Scaling", (node, translationTimeline) -> node.createScalingKeyframe(renderModel, (Vec3AnimFlag) translationTimeline, structureChangeListener));
 
 
 		final int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
 		final int trackTimeToUse = timeEnvironmentImpl.getGlobalSeq() == null ? trackTime : timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
 		return new ScalingKeyframeAction(new CompoundAction("setup", actions), trackTimeToUse, timeEnvironmentImpl.getGlobalSeq(), selection, this, centerX, centerY, centerZ);
+	}
+
+	@Override
+	public GenericScaleAction beginScaling(final Vec3 center) {
+		final Set<IdObject> selection = selectionManager.getSelection();
+		final List<UndoAction> actions = new ArrayList<>();
+		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
+
+		generateKeyframes(selection, actions, timeEnvironmentImpl, "Scaling", (node, translationTimeline) -> node.createScalingKeyframe(renderModel, (Vec3AnimFlag) translationTimeline, structureChangeListener));
+
+
+		final int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
+		final int trackTimeToUse = timeEnvironmentImpl.getGlobalSeq() == null ? trackTime : timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
+		return new ScalingKeyframeAction(new CompoundAction("setup", actions), trackTimeToUse, timeEnvironmentImpl.getGlobalSeq(), selection, this, center);
 	}
 
 	@Override
@@ -514,21 +571,25 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
 		for (final IdObject node : selection) {
-			AnimFlag translationTimeline = node.find(keyframeMdlTypeName, timeEnvironmentImpl.getGlobalSeq());
+			AnimFlag<?> transformationTimeline = node.find(keyframeMdlTypeName, timeEnvironmentImpl.getGlobalSeq());
 
-			if (translationTimeline == null) {
-				translationTimeline = AnimFlag.createEmpty2018(keyframeMdlTypeName, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
-				node.add(translationTimeline);
+			if (transformationTimeline == null) {
+				if (keyframeMdlTypeName.equals("Rotation")) {
+					transformationTimeline = QuatAnimFlag.createEmpty2018(keyframeMdlTypeName, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+				} else {
+					transformationTimeline = Vec3AnimFlag.createEmpty2018(keyframeMdlTypeName, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+				}
+				node.add(transformationTimeline);
 
-				final AddTimelineAction addTimelineAction = new AddTimelineAction(node, translationTimeline, structureChangeListener);
-				structureChangeListener.timelineAdded(node, translationTimeline);
+				final AddTimelineAction addTimelineAction = new AddTimelineAction(node, transformationTimeline, structureChangeListener);
+				structureChangeListener.timelineAdded(node, transformationTimeline);
 
 				actions.add(addTimelineAction);
 			}
 			final AddKeyframeAction keyframeAction = switch (actionType) {
-				case ROTATION -> node.createRotationKeyframe(renderModel, translationTimeline, structureChangeListener);
-				case SCALING -> node.createScalingKeyframe(renderModel, translationTimeline, structureChangeListener);
-				case TRANSLATION -> node.createTranslationKeyframe(renderModel, translationTimeline, structureChangeListener);
+				case ROTATION -> node.createRotationKeyframe(renderModel, (QuatAnimFlag) transformationTimeline, structureChangeListener);
+				case SCALING -> node.createScalingKeyframe(renderModel, (Vec3AnimFlag) transformationTimeline, structureChangeListener);
+				case TRANSLATION -> node.createTranslationKeyframe(renderModel, (Vec3AnimFlag) transformationTimeline, structureChangeListener);
 			};
 			if (keyframeAction != null) {
 				actions.add(keyframeAction);
@@ -557,9 +618,9 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
 
 		for (final IdObject node : selection) {
-			AnimFlag translationTimeline = node.find("Rotation", timeEnvironmentImpl.getGlobalSeq());
+			QuatAnimFlag translationTimeline = (QuatAnimFlag) node.find("Rotation", timeEnvironmentImpl.getGlobalSeq());
 			if (translationTimeline == null) {
-				translationTimeline = AnimFlag.createEmpty2018("Rotation", InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+				translationTimeline = QuatAnimFlag.createEmpty2018("Rotation", InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
 				node.add(translationTimeline);
 
 				final AddTimelineAction addTimelineAction = new AddTimelineAction(node, translationTimeline, structureChangeListener);

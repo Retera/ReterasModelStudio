@@ -39,6 +39,9 @@ public class MpqDataSource implements DataSource {
 	@Override
 	public File getFile(final String filepath) throws IOException {
 		MpqFile file = getMpqFile(filepath);
+		if (file == null) {
+			return null;
+		}
 
 		String tmpdir = System.getProperty("java.io.tmpdir");
 		if (!tmpdir.endsWith(File.separator)) {

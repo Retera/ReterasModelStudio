@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.parsers.mdlx;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.BinaryReader;
 import com.hiveworkshop.rms.util.BinaryWriter;
 
@@ -52,7 +53,7 @@ public class MdlxAttachment extends MdlxGenericObject {
 				readTimeline(stream, AnimationMap.KATV);
 			}
 			else {
-				throw new RuntimeException("Unknown token in Attachment " + name + ": " + token);
+				ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in Attachment " + name + ": " + token);
 			}
 		}
 	}

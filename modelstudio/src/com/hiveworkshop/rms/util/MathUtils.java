@@ -2,13 +2,13 @@ package com.hiveworkshop.rms.util;
 
 public class MathUtils {
 	/**
-	 * Returns true if the value of <code>b</code> falls between the values
-	 * <code>a</code> and <code>c</code>.
+	 * Returns true if the value of <code>value</code> falls between the values
+	 * <code>endPoint1</code> and <code>endPoint2</code>.
 	 */
-	public static boolean isBetween(final double a, final double b, final double c) {
-		final double min = Math.min(a, c);
-		final double max = Math.max(a, c);
-		return (min < b) && (b < max);
+	public static boolean isBetween(final double endPoint1, final double endPoint2, final double value) {
+		final double min = Math.min(endPoint1, endPoint2);
+		final double max = Math.max(endPoint1, endPoint2);
+		return (min < value) && (value < max);
 	}
 
 	public static float lerp(final float a, final float b, final float t) {

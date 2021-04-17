@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.parsers.mdlx;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.BinaryReader;
 import com.hiveworkshop.rms.util.BinaryWriter;
 
@@ -81,12 +82,11 @@ public class MdlxParticleEmitter extends MdlxGenericObject {
 							case MdlUtils.TOKEN_STATIC_INIT_VELOCITY -> speed = stream.readFloat();
 							case MdlUtils.TOKEN_INIT_VELOCITY -> readTimeline(stream, AnimationMap.KPES);
 							case MdlUtils.TOKEN_PATH -> path = stream.read();
-							default -> throw new RuntimeException(
-									"Unknown token in ParticleEmitter " + name + "'s Particle: " + subToken);
+							default -> ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in ParticleEmitter " + name + "'s Particle: " + subToken);
 						}
 					}
 				}
-				default -> throw new RuntimeException("Unknown token in ParticleEmitter " + name + ": " + token);
+				default -> ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in ParticleEmitter " + name + ": " + token);
 			}
 		}
 	}

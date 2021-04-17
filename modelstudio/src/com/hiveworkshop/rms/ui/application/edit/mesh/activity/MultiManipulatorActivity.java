@@ -1,20 +1,19 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.activity;
 
-import java.awt.Graphics2D;
-import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Double;
-
-import javax.swing.SwingUtilities;
-
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.ManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 
-public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends ManipulatorBuilder>
-		implements ViewportActivity {
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Double;
+
+public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends ManipulatorBuilder> implements ViewportActivity {
 	protected final MANIPULATOR_BUILDER manipulatorBuilder;
 	private final UndoActionListener undoActionListener;
 	private Manipulator manipulator;
@@ -24,7 +23,8 @@ public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends Manip
 	private SelectionView selectionView;
 
 	public MultiManipulatorActivity(final MANIPULATOR_BUILDER manipulatorBuilder,
-			final UndoActionListener undoActionListener, final SelectionView selectionView) {
+	                                final UndoActionListener undoActionListener,
+	                                final SelectionView selectionView) {
 		this.manipulatorBuilder = manipulatorBuilder;
 		this.undoActionListener = undoActionListener;
 		this.selectionView = selectionView;
@@ -45,28 +45,36 @@ public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends Manip
 		final ButtonType buttonType;
 		if (SwingUtilities.isRightMouseButton(e)) {
 			buttonType = ButtonType.RIGHT_MOUSE;
+			finnishAction(e, coordinateSystem, true);
 		} else if (SwingUtilities.isMiddleMouseButton(e)) {
 			buttonType = ButtonType.MIDDLE_MOUSE;
+			finnishAction(e, coordinateSystem, false);
 		} else {
 			buttonType = ButtonType.LEFT_MOUSE;
+			finnishAction(e, coordinateSystem, true);
 		}
-		manipulator = manipulatorBuilder.buildActivityListener(e.getX(), e.getY(), buttonType, coordinateSystem,
-				selectionView);
+		manipulator = manipulatorBuilder.buildActivityListener(e.getX(), e.getY(), buttonType, coordinateSystem, selectionView);
 		if (manipulator != null) {
-			mouseStartPoint = new Point2D.Double(coordinateSystem.geomX(e.getPoint().getX()),
-					coordinateSystem.geomY(e.getPoint().getY()));
-			manipulator.start(mouseStartPoint, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+			mouseStartPoint = new Point2D.Double(coordinateSystem.geomX(e.getPoint().getX()), coordinateSystem.geomY(e.getPoint().getY()));
+			manipulator.start(e, mouseStartPoint, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 			lastDragPoint = mouseStartPoint;
 		}
 	}
 
 	@Override
 	public void mouseReleased(final MouseEvent e, final CoordinateSystem coordinateSystem) {
+		finnishAction(e, coordinateSystem, false);
+	}
+
+	private void finnishAction(final MouseEvent e, final CoordinateSystem coordinateSystem, boolean wasCanceled) {
 		if (manipulator != null) {
-			final Point2D.Double mouseEnd = new Point2D.Double(coordinateSystem.geomX(e.getPoint().getX()),
-					coordinateSystem.geomY(e.getPoint().getY()));
-			undoActionListener.pushAction(manipulator.finish(lastDragPoint, mouseEnd,
-					coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ()));
+			final Point2D.Double mouseEnd = new Point2D.Double(coordinateSystem.geomX(e.getPoint().getX()), coordinateSystem.geomY(e.getPoint().getY()));
+			UndoAction undoAction = manipulator.finish(e, lastDragPoint, mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+			if (wasCanceled) {
+				undoAction.undo();
+			} else {
+				undoActionListener.pushAction(undoAction);
+			}
 			mouseStartPoint = null;
 			lastDragPoint = null;
 			manipulator = null;
@@ -81,17 +89,14 @@ public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends Manip
 	@Override
 	public void mouseDragged(final MouseEvent e, final CoordinateSystem coordinateSystem) {
 		if (manipulator != null) {
-			final Point2D.Double mouseEnd = new Point2D.Double(coordinateSystem.geomX(e.getPoint().getX()),
-					coordinateSystem.geomY(e.getPoint().getY()));
-			manipulator.update(lastDragPoint, mouseEnd, coordinateSystem.getPortFirstXYZ(),
-					coordinateSystem.getPortSecondXYZ());
+			final Point2D.Double mouseEnd = new Point2D.Double(coordinateSystem.geomX(e.getPoint().getX()), coordinateSystem.geomY(e.getPoint().getY()));
+			manipulator.update(e, lastDragPoint, mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 			lastDragPoint = mouseEnd;
 		}
 	}
 
 	@Override
-	public void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem,
-			final RenderModel renderModel) {
+	public void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem, final RenderModel renderModel) {
 		manipulatorBuilder.render(graphics, coordinateSystem, selectionView, renderModel);
 		if (manipulator != null) {
 			manipulator.render(graphics, coordinateSystem);
@@ -112,9 +117,6 @@ public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends Manip
 	}
 
 	@Override
-	public void modelChanged() {
-		// TODO Auto-generated method stub
-
-	}
+	public void modelChanged() {}
 
 }

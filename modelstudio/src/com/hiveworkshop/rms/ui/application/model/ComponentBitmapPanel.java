@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
+import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.actions.model.bitmap.SetBitmapPathAction;
 import com.hiveworkshop.rms.ui.application.actions.model.bitmap.SetBitmapReplaceableIdAction;
 import com.hiveworkshop.rms.ui.application.actions.model.bitmap.SetBitmapWrapHeightAction;
@@ -33,6 +34,7 @@ public class ComponentBitmapPanel extends JPanel implements ComponentPanel<Bitma
 	private final UndoActionListener undoListener;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final ModelViewManager modelViewManager;
+	private final FileDialog fileDialog;
 
 	public ComponentBitmapPanel(final ModelViewManager modelViewManager,
 	                            final UndoActionListener undoListener,
@@ -42,10 +44,13 @@ public class ComponentBitmapPanel extends JPanel implements ComponentPanel<Bitma
 		this.undoListener = undoListener;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		texturePathField = new ComponentEditorTextField(24);
-		texturePathField.addActionListener(e -> texturePathField());
+		texturePathField.addEditingStoppedListener(this::texturePathField);
+		fileDialog = new FileDialog(this);
+//		texturePathField.addActionListener(e -> texturePathField());
 
 		replaceableIdSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(-1, -1, Integer.MAX_VALUE, 1));
-		replaceableIdSpinner.addActionListener(this::replaceableIdSpinner);
+		replaceableIdSpinner.addEditingStoppedListener(this::replaceableIdSpinner);
+//		replaceableIdSpinner.addActionListener(this::replaceableIdSpinner);
 
 		wrapWidthBox = new JCheckBox("Wrap Width");
 		wrapWidthBox.addActionListener(e -> wrapWidthBox());
@@ -66,9 +71,19 @@ public class ComponentBitmapPanel extends JPanel implements ComponentPanel<Bitma
 		add(wrapHeightBox, "cell 0 3");
 
 		final JButton exportTextureImageFile = new JButton("Export Texture Image File");
-		exportTextureImageFile.addActionListener(e -> exportTextureImageFile(textureExporter));
+//		exportTextureImageFile.addActionListener(e -> exportTextureImageFile(textureExporter));
+		exportTextureImageFile.addActionListener(e -> exportTextureImageFile2());
 		add(exportTextureImageFile, "cell 2 3, pushx");
 		add(previewPanel, "cell 0 4 3, growx, growy");
+	}
+
+	private void exportTextureImageFile2() {
+		final DataSource workingDirectory = modelViewManager.getModel().getWrappedDataSource();
+		final BufferedImage texture = BLPHandler.getImage(bitmap, workingDirectory);
+		String suggestedName = texturePathField.getText();
+		suggestedName = suggestedName.substring(suggestedName.lastIndexOf("\\") + 1);
+		suggestedName = suggestedName.substring(suggestedName.lastIndexOf("/") + 1);
+		fileDialog.exportTexture(texture, suggestedName);
 	}
 
 	private void exportTextureImageFile(TextureExporter textureExporter) {

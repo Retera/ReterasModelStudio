@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.actions;
 
+import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.TVertexEditor;
 import com.hiveworkshop.rms.util.Vec2;
 
 public final class SimpleRotateUVAction implements UndoAction {

@@ -1,8 +1,9 @@
 package com.hiveworkshop.rms.editor.model;
 
-import java.util.List;
-
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.List;
 
 public class Triangle {
 	GeosetVertex[] verts = new GeosetVertex[3];
@@ -55,10 +56,8 @@ public class Triangle {
 
 	public void updateVertexIds() {
 		// Potentially this procedure could lag a bunch in the way I wrote it,
-		// but it will
-		// change vertex ids to match a changed geoset, assuming the geoset
-		// still contains the
-		// vertex
+		// but it will change vertex ids to match a changed geoset,
+		// assuming the geoset still contains the vertex
 		vertIds[0] = geoset.getVertexId(verts[0]);
 		vertIds[1] = geoset.getVertexId(verts[1]);
 		vertIds[2] = geoset.getVertexId(verts[2]);
@@ -119,23 +118,21 @@ public class Triangle {
 	}
 
 	public boolean equalLocs(final Triangle t) {
-		boolean equal = true;
-		for (int i = 0; i < 3 && equal; i++) {
+		for (int i = 0; i < 3; i++) {
 			if (!t.verts[i].equalLocs(verts[i]) || t.vertIds[i] != vertIds[i]) {
-				equal = false;
+				return false;
 			}
 		}
-		return equal;
+		return true;
 	}
 
 	public boolean sameVerts(final Triangle t) {
-		boolean equal = true;
-		for (int i = 0; i < 3 && equal; i++) {
+		for (int i = 0; i < 3; i++) {
 			if (!contains(t.verts[i])) {
-				equal = false;
+				return false;
 			}
 		}
-		return equal;
+		return true;
 	}
 
 	public int indexOfRef(final GeosetVertex v) {
@@ -149,25 +146,21 @@ public class Triangle {
 	}
 
 	public boolean equalRefsNoIds(final Triangle t) {
-		boolean equal = true;
-		for (int i = 0; i < 3 && equal; i++) {
-            if (t.verts[i] != verts[i]) {
-                equal = false;
-                break;
-            }
+		for (int i = 0; i < 3; i++) {
+			if (t.verts[i] != verts[i]) {
+				return false;
+			}
 		}
-		return equal;
+		return true;
 	}
 
 	public boolean equalRefs(final Triangle t) {
-		boolean equal = true;
-		for (int i = 0; i < 3 && equal; i++) {
-            if (t.verts[i] != verts[i] || t.vertIds[i] != vertIds[i]) {
-                equal = false;
-                break;
-            }
+		for (int i = 0; i < 3; i++) {
+			if (t.verts[i] != verts[i] || t.vertIds[i] != vertIds[i]) {
+				return false;
+			}
 		}
-		return equal;
+		return true;
 	}
 
 	public GeosetVertex[] getAll() {
@@ -186,6 +179,24 @@ public class Triangle {
 		final double[] output = new double[3];
 		for (int i = 0; i < 3; i++) {
 			output[i] = (verts[i].getCoord(dim));
+		}
+		return output;
+	}
+
+	public Vec2[] getProjectedVerts(final byte axis1, final byte axis2) {
+		final Vec2[] output = new Vec2[3];
+		for (int i = 0; i < 3; i++) {
+//			output[i] = new Vec2(verts[i].getCoord(axis1), verts[i].getCoord(axis2));
+			output[i] = verts[i].getProjected(axis1, axis2);
+		}
+		return output;
+	}
+
+	public Vec2[] getProjectedNorms(final byte axis1, final byte axis2) {
+		final Vec2[] output = new Vec2[3];
+		for (int i = 0; i < 3; i++) {
+//			output[i] = new Vec2(verts[i].getCoord(axis1), verts[i].getCoord(axis2));
+			output[i] = verts[i].getNormal().getProjected(axis1, axis2);
 		}
 		return output;
 	}
@@ -251,14 +262,8 @@ public class Triangle {
 	}
 
 	public Vec3 getNormal() {
-		final Vec3 edge1 = new Vec3();
-		final Vec3 edge2 = new Vec3();
-		final Vec3 normal = new Vec3();
-		
-		verts[1].sub(verts[0], edge1);
-		verts[2].sub(verts[1], edge2);
-		edge1.cross(edge2, normal);
-
-		return normal;
+		final Vec3 edge1 = Vec3.getDiff(verts[1], verts[0]);
+		final Vec3 edge2 = Vec3.getDiff(verts[2], verts[1]);
+		return Vec3.getCross(edge1, edge2);
 	}
 }

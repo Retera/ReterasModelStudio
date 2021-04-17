@@ -12,6 +12,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Mat4;
+import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
 
 import java.awt.*;
@@ -28,8 +29,7 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 	private ViewportView viewportView;
 	private CoordinateSystem coordinateSystem;
 	private final ResettableAnimatedIdObjectRenderer idObjectRenderer;
-	// TODO Now that I added modelView to this class, why does
-	// RenderByViewModelRenderer exist???
+	// TODO Now that I added modelView to this class, why does RenderByViewModelRenderer exist???
 	private ModelView modelView;
 	private RenderModel renderModel;
 
@@ -39,15 +39,13 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 		idObjectRenderer = new ResettableAnimatedIdObjectRenderer(vertexSize);
 	}
 
-	public AnimatedViewportModelRenderer reset(
-			final Graphics2D graphics,
-			final ProgramPreferences programPreferences,
-			final byte xDimension,
-			final byte yDimension,
-			final ViewportView viewportView,
-			final CoordinateSystem coordinateSystem,
-			final ModelView modelView,
-			final RenderModel renderModel) {
+	public AnimatedViewportModelRenderer reset(final Graphics2D graphics,
+	                                           final ProgramPreferences programPreferences,
+	                                           final byte xDimension, final byte yDimension,
+	                                           final ViewportView viewportView,
+	                                           final CoordinateSystem coordinateSystem,
+	                                           final ModelView modelView,
+	                                           final RenderModel renderModel) {
 		this.graphics = graphics;
 		this.programPreferences = programPreferences;
 		this.xDimension = xDimension;
@@ -56,9 +54,7 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 		this.coordinateSystem = coordinateSystem;
 		this.modelView = modelView;
 		this.renderModel = renderModel;
-		idObjectRenderer.reset(coordinateSystem, graphics, programPreferences.getLightsColor(),
-				programPreferences.getAnimatedBoneUnselectedColor(), NodeIconPalette.UNSELECTED, renderModel,
-				programPreferences.isUseBoxesForPivotPoints());
+		idObjectRenderer.reset(coordinateSystem, graphics, programPreferences.getLightsColor(), programPreferences.getAnimatedBoneUnselectedColor(), NodeIconPalette.UNSELECTED, renderModel, programPreferences.isUseBoxesForPivotPoints());
 		return this;
 	}
 
@@ -84,10 +80,8 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 
 	private void resetIdObjectRendererWithNode(final IdObject object) {
 		idObjectRenderer.reset(coordinateSystem, graphics,
-				modelView.getHighlightedNode() == object
-						? programPreferences.getHighlighVertexColor() : programPreferences.getLightsColor(),
-				modelView.getHighlightedNode() == object
-						? programPreferences.getHighlighVertexColor() : programPreferences.getAnimatedBoneUnselectedColor(),
+				modelView.getHighlightedNode() == object ? programPreferences.getHighlighVertexColor() : programPreferences.getLightsColor(),
+				modelView.getHighlightedNode() == object ? programPreferences.getHighlighVertexColor() : programPreferences.getAnimatedBoneUnselectedColor(),
 				modelView.getHighlightedNode() == object ? NodeIconPalette.HIGHLIGHT : NodeIconPalette.UNSELECTED,
 				renderModel, programPreferences.isUseBoxesForPivotPoints());
 	}
@@ -166,47 +160,75 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 
 		@Override
 		public void geosetFinished() {
-			// TODO Auto-generated method stub
-
 		}
-
 	}
 
-	private static final Vec4 vertexHeap = new Vec4();
-	private static final Vec4 appliedVertexHeap = new Vec4();
-	private static final Vec4 vertexSumHeap = new Vec4();
-	private static final Vec4 normalHeap = new Vec4();
-	private static final Vec4 appliedNormalHeap = new Vec4();
-	private static final Vec4 normalSumHeap = new Vec4();
-	private static final Mat4 skinBonesMatrixHeap = new Mat4();
-	private static final Mat4 skinBonesMatrixSumHeap = new Mat4();
+	public void drawNormal(float firstCoord, float secondCoord, Point point, Vec4 normalSumHeap) {
+		final Color triangleColor = graphics.getColor();
 
-	private float getNormalCoord(byte dimension, String exceptionString) {
-		return switch (dimension) {
-			case 0 -> normalSumHeap.x;
-			case 1 -> normalSumHeap.y;
-			case 2 -> normalSumHeap.z;
-			case -1 -> -normalSumHeap.x;
-			case -2 -> -normalSumHeap.y;
-			case -3 -> -normalSumHeap.z;
-			default -> throw new IllegalStateException(exceptionString);
-		};
+		final float firstNormalCoord = normalSumHeap.getVec3().getCoord(xDimension);
+		final float secondNormalCoord = normalSumHeap.getVec3().getCoord(yDimension);
+
+		graphics.setColor(programPreferences.getNormalsColor());
+		final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+
+		double normXsize = (firstNormalCoord * 12) / zoom;
+		double normYsize = (secondNormalCoord * 12) / zoom;
+		double normEndX3 = coordinateSystem.convertX(firstCoord + normXsize);
+		double normEndY3 = coordinateSystem.convertY(secondCoord + normYsize);
+		final Point endPoint3 = new Point((int) normEndX3, (int) normEndY3);
+
+		double normEndX2 = coordinateSystem.convertX(firstCoord + (firstNormalCoord * 12 / zoom));
+		double normEndY2 = coordinateSystem.convertY(secondCoord + (secondNormalCoord * 12 / zoom));
+		final Point endPoint2 = new Point((int) normEndX2, (int) normEndY2);
+
+		double normEndX = firstCoord + (firstNormalCoord * 12 / zoom);
+		double normEndY = secondCoord + (secondNormalCoord * 12 / zoom);
+		final Point endPoint = new Point((int) coordinateSystem.convertX(normEndX), (int) coordinateSystem.convertY(normEndY));
+
+		graphics.drawLine(point.x, point.y, endPoint.x, endPoint.y);
+		graphics.setColor(triangleColor);
 	}
 
-	private void setHeap(Vec4 heap, float normalX, float normalY, float normalZ, int i) {
-		heap.x = normalX;
-		heap.y = normalY;
-		heap.z = normalZ;
-		heap.w = i;
+	public Mat4 processHdBones(Bone[] skinBones, short[] skinBoneWeights) {
+		boolean processedBones = false;
+		Mat4 skinBonesMatrixSumHeap = new Mat4().setZero();
+
+		for (int boneIndex = 0; boneIndex < 4; boneIndex++) {
+			final Bone skinBone = skinBones[boneIndex];
+			if (skinBone == null) {
+				continue;
+			}
+			processedBones = true;
+			final Mat4 worldMatrix = renderModel.getRenderNode(skinBone).getWorldMatrix();
+
+			float skinBoneWeight = skinBoneWeights[boneIndex] / 255f;
+			skinBonesMatrixSumHeap.add(worldMatrix.getUniformlyScaled(skinBoneWeight));
+		}
+		if (!processedBones) {
+			skinBonesMatrixSumHeap.setIdentity();
+		}
+		return skinBonesMatrixSumHeap;
 	}
 
-	private float getCoord(byte dimension, Vec4 vertexSumHeap, String exceptionString) {
-		return switch (dimension) {
-			case 0 -> vertexSumHeap.x;
-			case 1 -> vertexSumHeap.y;
-			case 2 -> vertexSumHeap.z;
-			default -> throw new IllegalStateException(exceptionString);
-		};
+	public Mat4 processSdBones(List<Bone> bones) {
+		final int boneCount = bones.size();
+		Mat4 bonesMatrixSumHeap = new Mat4().setZero();
+		if (boneCount > 0) {
+			for (final Bone bone : bones) {
+				bonesMatrixSumHeap.add(renderModel.getRenderNode(bone).getWorldMatrix());
+			}
+			return bonesMatrixSumHeap.uniformScale(1f / boneCount);
+		}
+		return bonesMatrixSumHeap.setIdentity();
+	}
+
+	public void normalizeHeap(Vec4 heap) {
+		if (heap.length() > 0) {
+			heap.normalize();
+		} else {
+			heap.set(0, 1, 0, 0);
+		}
 	}
 
 	private final class TriangleRendererImpl implements TriangleVisitor {
@@ -218,29 +240,40 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 		}
 
 		@Override
-		public VertexVisitor vertex(final double x, final double y, final double z,
-		                            final double normalX, final double normalY, final double normalZ,
-		                            final List<Bone> bones) {
-			setHeap(vertexHeap, (float) x, (float) y, (float) z, 1);
-			if (bones.size() > 0) {
-				vertexSumHeap.set(0, 0, 0, 0);
-				for (final Bone bone : bones) {
-					renderModel.getRenderNode(bone).getWorldMatrix().transform(vertexHeap, appliedVertexHeap);
-					vertexSumHeap.add(appliedVertexHeap);
-				}
-				final int boneCount = bones.size();
-				vertexSumHeap.x /= boneCount;
-				vertexSumHeap.y /= boneCount;
-				vertexSumHeap.z /= boneCount;
-				vertexSumHeap.w /= boneCount;
-			} else {
-				vertexSumHeap.set(vertexHeap);
-			}
+		public VertexVisitor hdVertex(Vec3 vert, Vec3 normal,
+		                              final Bone[] skinBones, final short[] skinBoneWeights) {
+			Mat4 skinBonesMatrixSumHeap = processHdBones(skinBones, skinBoneWeights);
 
-			final float firstCoord = getCoord(xDimension, vertexSumHeap, "Invalid x dimension");
-			final float secondCoord = getCoord(yDimension, vertexSumHeap, "Invalid y dimension");
-			final Point point = new Point((int) coordinateSystem.convertX(firstCoord),
-					(int) coordinateSystem.convertY(secondCoord));
+			processAndDraw(vert, normal, skinBonesMatrixSumHeap);
+
+			return VertexVisitor.NO_ACTION;
+		}
+
+		@Override
+		public VertexVisitor vertex(Vec3 vert, Vec3 normal,
+		                            final List<Bone> bones) {
+			Mat4 bonesMatrixSumHeap = processSdBones(bones);
+
+			processAndDraw(vert, normal, bonesMatrixSumHeap);
+			return VertexVisitor.NO_ACTION;
+		}
+
+		public void processAndDraw(Vec3 v, Vec3 normal, Mat4 skinBonesMatrixSumHeap) {
+			Vec4 vertexHeap = new Vec4(v, 1);
+			Vec4 vertexSumHeap = Vec4.getTransformed(vertexHeap, skinBonesMatrixSumHeap);
+
+			Vec4 normalHeap = new Vec4(normal, 0);
+			Vec4 normalSumHeap = Vec4.getTransformed(normalHeap, skinBonesMatrixSumHeap);
+			normalizeHeap(normalSumHeap);
+
+			drawLineFromVert(normalSumHeap, vertexSumHeap);
+		}
+
+		public void drawLineFromVert(Vec4 normalSumHeap, Vec4 vertexSumHeap) {
+			final float firstCoord = vertexSumHeap.getVec3().getCoord(xDimension);
+			final float secondCoord = vertexSumHeap.getVec3().getCoord(yDimension);
+			final Point point = new Point((int) coordinateSystem.convertX(firstCoord), (int) coordinateSystem.convertY(secondCoord));
+
 			if (previousVertices.size() > 0) {
 				final Point previousPoint = previousVertices.get(previousVertices.size() - 1);
 				graphics.drawLine(previousPoint.x, previousPoint.y, point.x, point.y);
@@ -248,103 +281,10 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 			previousVertices.add(point);
 			// graphics.setColor(programPreferences.getVertexColor());
 			// graphics.fillRect((int) firstCoord - vertexSize / 2, (int)
-			// secondCoord - vertexSize / 2, vertexSize,
-			// vertexSize);
+			// secondCoord - vertexSize / 2, vertexSize, vertexSize);
 			if (programPreferences.showNormals()) {
-
-				setHeap(normalHeap, (float) normalX, (float) normalY, (float) normalZ, 0);
-
-				if (bones.size() > 0) {
-					normalSumHeap.set(0, 0, 0, 0);
-					for (final Bone bone : bones) {
-						renderModel.getRenderNode(bone).getWorldMatrix().transform(normalHeap, appliedNormalHeap);
-						normalSumHeap.add(appliedNormalHeap);
-					}
-
-					if (normalSumHeap.length() > 0) {
-						normalSumHeap.normalize();
-					} else {
-						normalSumHeap.set(0, 1, 0, 0);
-					}
-				} else {
-					normalSumHeap.set(normalHeap);
-				}
-				final Color triangleColor = graphics.getColor();
-				final float firstNormalCoord = getNormalCoord(xDimension, "Invalid x dimension");
-				final float secondNormalCoord = getNormalCoord(yDimension, "Invalid y dimension");
-				graphics.setColor(programPreferences.getNormalsColor());
-				final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
-				final Point endPoint = new Point(
-						(int) coordinateSystem.convertX(firstCoord + ((firstNormalCoord * 12) / zoom)),
-						(int) coordinateSystem.convertY(secondCoord + ((secondNormalCoord * 12) / zoom)));
-				graphics.drawLine(point.x, point.y, endPoint.x, endPoint.y);
-				graphics.setColor(triangleColor);
+				drawNormal(firstCoord, secondCoord, point, normalSumHeap);
 			}
-			return VertexVisitor.NO_ACTION;
-		}
-
-		@Override
-		public VertexVisitor hdVertex(final double x, final double y, final double z,
-		                              final double normalX, final double normalY, final double normalZ,
-		                              final Bone[] skinBones, final short[] skinBoneWeights) {
-			setHeap(vertexHeap, (float) x, (float) y, (float) z, 1);
-			skinBonesMatrixSumHeap.setZero();
-			vertexSumHeap.set(0, 0, 0, 0);
-
-			boolean processedBones = false;
-			for (int boneIndex = 0; boneIndex < 4; boneIndex++) {
-				final Bone skinBone = skinBones[boneIndex];
-				if (skinBone == null) {
-					continue;
-				}
-				processedBones = true;
-				final Mat4 worldMatrix = renderModel.getRenderNode(skinBone).getWorldMatrix();
-				skinBonesMatrixHeap.set(worldMatrix);
-
-				float skinBoneWeight = skinBoneWeights[boneIndex] / 255f;
-				skinBonesMatrixSumHeap.addToThis(skinBonesMatrixHeap.getUniformlyScaled(skinBoneWeight));
-			}
-
-			if (!processedBones) {
-				skinBonesMatrixSumHeap.setIdentity();
-			}
-			skinBonesMatrixSumHeap.transform(vertexHeap, vertexSumHeap);
-			setHeap(normalHeap, (float) normalX, (float) normalY, (float) normalZ, 0);
-			skinBonesMatrixSumHeap.transform(normalHeap, normalSumHeap);
-
-			if (normalSumHeap.length() > 0) {
-				normalSumHeap.normalize();
-			} else {
-				normalSumHeap.set(0, 1, 0, 0);
-			}
-
-			final float firstCoord = getCoord(xDimension, vertexSumHeap, "Invalid x dimension");
-			final float secondCoord = getCoord(yDimension, vertexSumHeap, "Invalid y dimension");
-
-			final Point point = new Point((int) coordinateSystem.convertX(firstCoord),
-					(int) coordinateSystem.convertY(secondCoord));
-			if (previousVertices.size() > 0) {
-				final Point previousPoint = previousVertices.get(previousVertices.size() - 1);
-				graphics.drawLine(previousPoint.x, previousPoint.y, point.x, point.y);
-			}
-			previousVertices.add(point);
-
-			if (programPreferences.showNormals()) {
-				setHeap(normalHeap, (float) normalX, (float) normalY, (float) normalZ, 0);
-				final Color triangleColor = graphics.getColor();
-
-				final float firstNormalCoord = getCoord(xDimension, normalSumHeap, "Invalid x dimension");
-				final float secondNormalCoord = getCoord(yDimension, normalSumHeap, "Invalid y dimension");
-
-				graphics.setColor(programPreferences.getNormalsColor());
-				final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
-				final Point endPoint = new Point(
-						(int) coordinateSystem.convertX(firstCoord + ((firstNormalCoord * 12) / zoom)),
-						(int) coordinateSystem.convertY(secondCoord + ((secondNormalCoord * 12) / zoom)));
-				graphics.drawLine(point.x, point.y, endPoint.x, endPoint.y);
-				graphics.setColor(triangleColor);
-			}
-			return VertexVisitor.NO_ACTION;
 		}
 
 		@Override

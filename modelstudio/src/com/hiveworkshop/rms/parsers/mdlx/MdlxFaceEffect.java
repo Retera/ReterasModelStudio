@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.parsers.mdlx;
 
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenOutputStream;
+import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.BinaryReader;
 import com.hiveworkshop.rms.util.BinaryWriter;
 
@@ -29,7 +30,7 @@ public class MdlxFaceEffect implements MdlxBlock {
 			if (token.equals("Path")) {
 				path = stream.read();
 			} else {
-				throw new IllegalStateException("Unknown token in MdlxFaceEffect: " + token);
+				ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in MdlxFaceEffect: " + token);
 			}
 		}
 	}

@@ -1,12 +1,12 @@
 package com.hiveworkshop.rms.editor.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxGenericObject;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Write a description of class ObjectId here.
@@ -76,11 +76,11 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		loadTimelines(object);
 	}
 
-	public void objectToMdlx(final MdlxGenericObject object) {
+	public void objectToMdlx(final MdlxGenericObject object, EditableModel model) {
 		object.name = getName();
-		object.objectId = getObjectId();
-		object.parentId = getParentId();
-		
+		object.objectId = getObjectId(model);
+		object.parentId = getParentId(model);
+
 		if (dontInheritTranslation) {
 			object.flags |= 0x1;
 		}
@@ -158,8 +158,6 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	public abstract double getClickRadius(CoordinateSystem coordinateSystem);
 
 	/**
-	 *
-	 *
 	 * @return The Object ID
 	 * @deprecated Note that all object IDs are deleted and regenerated at save
 	 */
@@ -168,14 +166,18 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return objectId;
 	}
 
-	/**
-	 * @param objectId New object ID value
-	 * @deprecated Note that all object IDs are deleted and regenerated at save
-	 */
-	@Deprecated
-	public void setObjectId(final int objectId) {
-		this.objectId = objectId;
+	public int getObjectId(EditableModel model) {
+		return model.getObjectId(this);
 	}
+
+//	/**
+//	 * @param objectId New object ID value
+//	 * @deprecated Note that all object IDs are deleted and regenerated at save
+//	 */
+//	@Deprecated
+//	public void setObjectId(final int objectId) {
+//		this.objectId = objectId;
+//	}
 
 	/**
 	 * @return Parent ID
@@ -183,18 +185,28 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	 */
 	@Deprecated
 	public int getParentId() {
-		return parentId;
+		return parent.getObjectId();
 	}
 
-	/**
-	 * @param parentId new Parent ID
-	 * @deprecated IF UNSURE, YOU SHOULD USE setParent(), note that all object IDs
-	 *             are deleted and regenerated at save
-	 */
-	@Deprecated
-	public void setParentId(final int parentId) {
-		this.parentId = parentId;
+	public int getParentId(EditableModel model) {
+		if (parent == null) {
+//			System.out.println("trying to get parent for bone: " + getName());
+//			System.out.println("parent: " + parent);
+//			System.out.println("_____________________________________________________");
+			return -1;
+		}
+		return model.getObjectId(parent);
 	}
+
+//	/**
+//	 * @param parentId new Parent ID
+//	 * @deprecated IF UNSURE, YOU SHOULD USE setParent(), note that all object IDs
+//	 *             are deleted and regenerated at save
+//	 */
+//	@Deprecated
+//	public void setParentId(final int parentId) {
+//		this.parentId = parentId;
+//	}
 
 	public void setDontInheritTranslation(final boolean dontInheritTranslation) {
 		this.dontInheritTranslation = dontInheritTranslation;
@@ -257,7 +269,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return pivotPoint;
 	}
 
-	@Override
+	//	@Override
 	public IdObject getParent() {
 		return parent;
 	}

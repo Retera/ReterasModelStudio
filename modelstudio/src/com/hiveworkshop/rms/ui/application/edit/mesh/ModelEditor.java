@@ -1,10 +1,5 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh;
 
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
-import java.util.Collection;
-import java.util.List;
-
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
@@ -20,6 +15,11 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ComponentVisibili
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * SelectionManager should've been like this so it didn't wrap the selection in
@@ -42,19 +42,25 @@ public interface ModelEditor extends ComponentVisibilityListener {
 	// knowledge of center point from state holders
 	UndoAction translate(double x, double y, double z);
 
+	UndoAction translate(Vec3 v);
+
 	UndoAction setPosition(Vec3 center, double x, double y, double z);
 
+	UndoAction setPosition(Vec3 center, Vec3 v);
+
 	UndoAction rotate(Vec3 center, double rotateX, double rotateY, double rotateZ);
+
+	UndoAction rotate(Vec3 center, Vec3 rotate);
 
 	UndoAction addVertex(double x, double y, double z, Vec3 preferredNormalFacingVector);
 
 	UndoAction addBone(double x, double y, double z);
 
 	GenericMoveAction addPlane(double x, double y, double x2, double y2, byte dim1, byte dim2, Vec3 facingVector,
-							   int numberOfWidthSegments, int numberOfHeightSegments);
+	                           int numberOfWidthSegments, int numberOfHeightSegments);
 
 	GenericMoveAction addBox(double x, double y, double x2, double y2, byte dim1, byte dim2, Vec3 facingVector,
-							 int numberOfLengthSegments, int numberOfWidthSegments, int numberOfHeightSegments);
+	                         int numberOfLengthSegments, int numberOfWidthSegments, int numberOfHeightSegments);
 
 	UndoAction setMatrix(Collection<Bone> bones);
 
@@ -68,7 +74,7 @@ public interface ModelEditor extends ComponentVisibilityListener {
 
 	UndoAction snapNormals();
 
-	UndoAction recalcNormals();
+	UndoAction recalcNormals(double maxAngle, boolean useTries);
 
 	UndoAction recalcExtents(boolean onlyIncludeEditableGeosets);
 
@@ -117,6 +123,8 @@ public interface ModelEditor extends ComponentVisibilityListener {
 
 	GenericScaleAction beginScaling(double centerX, double centerY, double centerZ);
 
+	GenericScaleAction beginScaling(Vec3 center);
+
 	GenericRotateAction beginRotation(double centerX, double centerY, double centerZ, byte firstXYZ, byte secondXYZ);
 
 	GenericRotateAction beginSquatTool(double centerX, double centerY, double centerZ, byte firstXYZ, byte secondXYZ);
@@ -124,6 +132,8 @@ public interface ModelEditor extends ComponentVisibilityListener {
 	void rawTranslate(double x, double y, double z);
 
 	void rawScale(double centerX, double centerY, double centerZ, double scaleX, double scaleY, double scaleZ);
+
+	void rawScale(Vec3 center, Vec3 scale);
 
 	void rawRotate2d(double centerX, double centerY, double centerZ, double radians, byte firstXYZ, byte secondXYZ);
 

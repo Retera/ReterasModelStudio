@@ -1,14 +1,14 @@
 package com.hiveworkshop.rms.editor.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape.Type;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A class for CollisionShapes, which handle unit selection and related matters
@@ -55,10 +55,10 @@ public class CollisionShape extends IdObject {
 		}
 	}
 
-	public MdlxCollisionShape toMdlx() {
+	public MdlxCollisionShape toMdlx(EditableModel model) {
 		final MdlxCollisionShape shape = new MdlxCollisionShape();
-		
-		objectToMdlx(shape);
+
+		objectToMdlx(shape, model);
 
 		shape.type = type;
 

@@ -1,11 +1,13 @@
 package com.hiveworkshop.rms.editor.render3d;
 
+import com.hiveworkshop.rms.util.Vec3;
+
 public abstract class EmittedObject<EMITTER_VIEW extends EmitterView> {
 	public float health;
 
 	public EMITTER_VIEW emitterView;
 
-	public float[] vertices;
+	public Vec3[] verticesV;
 
 	public float lta, lba, rta, rba, rgb;
 

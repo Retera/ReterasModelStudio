@@ -1,9 +1,9 @@
 package com.hiveworkshop.rms.ui.application;
 
-import com.hiveworkshop.rms.editor.model.AnimFlag;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -13,26 +13,13 @@ import javax.swing.*;
 import java.util.List;
 
 public class ModelEditActions {
+    static double lastNormalMaxAngle = 90;
+    static boolean useTris = false;
+
     static void viewMatrices(MainPanel mainPanel) {
-        final ModelPanel mpanel = mainPanel.currentModelPanel();
-        if (mpanel != null) {
-            mpanel.viewMatrices();
-        }
-        mainPanel.repaint();
-    }
-
-    static void insideOutNormals(MainPanel mainPanel) {
-        final ModelPanel mpanel = mainPanel.currentModelPanel();
-        if (mpanel != null) {
-            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().flipSelectedNormals());
-        }
-        mainPanel.repaint();
-    }
-
-    static void insideOut(MainPanel mainPanel) {
-        final ModelPanel mpanel = mainPanel.currentModelPanel();
-        if (mpanel != null) {
-            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().flipSelectedFaces());
+        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        if (modelPanel != null) {
+            modelPanel.viewMatrices();
         }
         mainPanel.repaint();
     }
@@ -72,33 +59,62 @@ public class ModelEditActions {
         mainPanel.repaint();
     }
 
-    static void snapVerticies(MainPanel mainPanel) {
-        final ModelPanel mpanel = mainPanel.currentModelPanel();
-        if (mpanel != null) {
-            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().snapSelectedVertices());
+    static void insideOutNormals(MainPanel mainPanel) {
+        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        if (modelPanel != null) {
+            modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().flipSelectedNormals());
+        }
+        mainPanel.repaint();
+    }
+
+    static void insideOut(MainPanel mainPanel) {
+        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        if (modelPanel != null) {
+            modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().flipSelectedFaces());
+        }
+        mainPanel.repaint();
+    }
+
+    static void snapVertices(MainPanel mainPanel) {
+        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        if (modelPanel != null) {
+            modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().snapSelectedVertices());
         }
         mainPanel.repaint();
     }
 
     static void snapNormals(MainPanel mainPanel) {
-        final ModelPanel mpanel = mainPanel.currentModelPanel();
-        if (mpanel != null) {
-            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().snapNormals());
+        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        if (modelPanel != null) {
+            modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().snapNormals());
         }
         mainPanel.repaint();
     }
 
     static void recalculateNormals(MainPanel mainPanel) {
-        final ModelPanel mpanel = mainPanel.currentModelPanel();
-        if (mpanel != null) {
-            mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().recalcNormals());
+        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        if (modelPanel != null) {
+            JPanel panel = new JPanel(new MigLayout());
+            panel.add(new JLabel("Limiting angle"));
+            JSpinner spinner = new JSpinner(new SpinnerNumberModel(lastNormalMaxAngle, -180.0, 180.0, 1));
+            panel.add(spinner, "wrap");
+            panel.add(new JLabel("Use triangles instead of vertices"));
+            JCheckBox useTries = new JCheckBox();
+            useTries.setSelected(useTris);
+            panel.add(useTries);
+            int option = JOptionPane.showConfirmDialog(mainPanel, panel, "Recalculate Normals", JOptionPane.OK_CANCEL_OPTION);
+            if (option == JOptionPane.OK_OPTION) {
+                lastNormalMaxAngle = (double) spinner.getValue();
+                useTris = useTries.isSelected();
+                modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().recalcNormals(lastNormalMaxAngle, useTris));
+            }
         }
         mainPanel.repaint();
     }
 
     static void recalculateExtents(MainPanel mainPanel) {
-        final ModelPanel mpanel = mainPanel.currentModelPanel();
-        if (mpanel != null) {
+        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        if (modelPanel != null) {
             final JPanel messagePanel = new JPanel(new MigLayout());
             messagePanel.add(new JLabel("This will calculate the extents of all model components. Proceed?"),
                     "wrap");
@@ -115,21 +131,20 @@ public class ModelEditActions {
             final int userChoice = JOptionPane.showConfirmDialog(mainPanel, messagePanel, "Message",
                     JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
             if (userChoice == JOptionPane.YES_OPTION) {
-                mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor()
+                modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor()
                         .recalcExtents(considerCurrentBtn.isSelected()));
             }
         }
         mainPanel.repaint();
     }
 
-    static void mirrorAxis(MainPanel mainPanel, byte i) {
-        final ModelPanel mpanel = mainPanel.currentModelPanel();
-        if (mpanel != null) {
-            final Vec3 selectionCenter = mpanel.getModelEditorManager().getModelEditor().getSelectionCenter();
-            mpanel.getUndoManager()
-                    .pushAction(mpanel.getModelEditorManager().getModelEditor().mirror(i,
-                            mainPanel.mirrorFlip.isSelected(), selectionCenter.x, selectionCenter.y,
-                            selectionCenter.z));
+    static void mirrorAxis(MainPanel mainPanel, byte i, boolean mirrorFlip) {
+        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        if (modelPanel != null) {
+            final Vec3 selectionCenter = modelPanel.getModelEditorManager().getModelEditor().getSelectionCenter();
+            modelPanel.getUndoManager().pushAction(
+                    modelPanel.getModelEditorManager().getModelEditor()
+                            .mirror(i, mirrorFlip, selectionCenter.x, selectionCenter.y, selectionCenter.z));
         }
         mainPanel.repaint();
     }
@@ -141,8 +156,8 @@ public class ModelEditActions {
                         "\n\nContinue and simplify animations?",
                 "Warning: Linearize Animations", JOptionPane.OK_CANCEL_OPTION);
         if (x == JOptionPane.OK_OPTION) {
-            final List<AnimFlag> allAnimFlags = mainPanel.currentMDL().getAllAnimFlags();
-            for (final AnimFlag flag : allAnimFlags) {
+            final List<AnimFlag<?>> allAnimFlags = mainPanel.currentMDL().getAllAnimFlags();
+            for (final AnimFlag<?> flag : allAnimFlags) {
                 flag.linearize();
             }
         }

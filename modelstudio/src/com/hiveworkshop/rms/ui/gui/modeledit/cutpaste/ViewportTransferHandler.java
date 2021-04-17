@@ -61,14 +61,12 @@ public class ViewportTransferHandler extends TransferHandler {
             final Point dropPoint = dl.getDropPoint();
             pasteModelIntoViewport(pastedModel, list, dropPoint, list.getModelStructureChangeListener());
         } else { // This is a paste
-            pasteModelIntoViewport(pastedModel, list, list.getLastMouseMotion(),
-                    list.getModelStructureChangeListener());
+            pasteModelIntoViewport(pastedModel, list, list.getLastMouseMotion(), list.getModelStructureChangeListener());
         }
         return true;
     }
 
-    private void pasteModelIntoViewport(final EditableModel pastedModel, final Viewport viewport, final Point dropPoint,
-                                        final ModelStructureChangeListener modelStructureChangeListener) {
+    private void pasteModelIntoViewport(final EditableModel pastedModel, final Viewport viewport, final Point dropPoint, final ModelStructureChangeListener modelStructureChangeListener) {
         final ModelViewManager pastedModelView = new ModelViewManager(pastedModel);
         for (final IdObject object : pastedModel.getIdObjects()) {
             pastedModelView.makeIdObjectVisible(object);
@@ -77,10 +75,8 @@ public class ViewportTransferHandler extends TransferHandler {
             pastedModelView.makeCameraVisible(object);
         }
         final ModelEditorNotifier modelEditorNotifier = new ModelEditorNotifier();
-        modelEditorNotifier.subscribe(new GeosetVertexModelEditor(pastedModelView, null,
-                new GeosetVertexSelectionManager(), viewport.getModelStructureChangeListener()));
-        modelEditorNotifier.subscribe(new PivotPointModelEditor(pastedModelView, null, new PivotPointSelectionManager(),
-                viewport.getModelStructureChangeListener()));
+        modelEditorNotifier.subscribe(new GeosetVertexModelEditor(pastedModelView, null, new GeosetVertexSelectionManager(), viewport.getModelStructureChangeListener()));
+        modelEditorNotifier.subscribe(new PivotPointModelEditor(pastedModelView, null, new PivotPointSelectionManager(), viewport.getModelStructureChangeListener()));
         modelEditorNotifier.selectAll();
         final Double geomPoint = CoordinateSystem.Util.geom(viewport, dropPoint);
         final Vec3 vertex = new Vec3(0, 0, 0);
@@ -133,6 +129,7 @@ public class ViewportTransferHandler extends TransferHandler {
         final Viewport viewport = (Viewport) c;
         final EditableModel stringableModel = new EditableModel("CopyPastedModelData");
         stringableModel.setFormatVersion(viewport.getModelView().getModel().getFormatVersion());
+        stringableModel.setExtents(viewport.getModelView().getModel().getExtents());
 
         final CopiedModelData copySelection = viewport.getModelEditor().copySelection();
         final Bone dummyBone = new Bone("CopiedModelDummy");

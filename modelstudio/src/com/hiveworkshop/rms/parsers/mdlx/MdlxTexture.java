@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.parsers.mdlx;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.BinaryReader;
 import com.hiveworkshop.rms.util.BinaryWriter;
 
@@ -44,7 +45,7 @@ public class MdlxTexture implements MdlxBlock {
 				case MdlUtils.TOKEN_REPLACEABLE_ID -> replaceableId = stream.readInt();
 				case MdlUtils.TOKEN_WRAP_WIDTH -> wrapMode = WrapMode.fromId(wrapMode.ordinal() + 0x1);
 				case MdlUtils.TOKEN_WRAP_HEIGHT -> wrapMode = WrapMode.fromId(wrapMode.ordinal() + 0x2);
-				default -> throw new RuntimeException("Unknown token in Texture: " + token);
+				default -> ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in Texture: " + token);
 			}
 		}
 	}

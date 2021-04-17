@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.parsers.mdlx;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.BinaryReader;
 import com.hiveworkshop.rms.util.BinaryWriter;
 import com.hiveworkshop.rms.util.War3ID;
@@ -64,6 +65,7 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 		for (final String token : stream.readBlock()) {
 			switch (token) {
 				case MdlUtils.TOKEN_CONSTANT_COLOR -> flags |= 0x1;
+				case MdlUtils.TOKEN_TWO_SIDED -> flags |= 0x2;
 				case MdlUtils.TOKEN_SORT_PRIMS_NEAR_Z -> flags |= 0x8;
 				case MdlUtils.TOKEN_SORT_PRIMS_FAR_Z -> flags |= 0x10;
 				case MdlUtils.TOKEN_FULL_RESOLUTION -> flags |= 0x20;
@@ -74,7 +76,8 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 					layer.readMdl(stream, version);
 					layers.add(layer);
 				}
-				default -> throw new RuntimeException("Unknown token in Material: " + token);
+//				default -> throw new RuntimeException("Unknown token in Material: " + token);
+				default -> ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in Material: " + token);
 			}
 		}
 	}
@@ -101,6 +104,10 @@ public class MdlxMaterial implements MdlxBlock, MdlxChunk {
 
 		if (priorityPlane != 0) {
 			stream.writeAttrib(MdlUtils.TOKEN_PRIORITY_PLANE, priorityPlane);
+		}
+
+		if ((flags & 0x2) != 0 && version > 800) {
+			stream.writeFlag(MdlUtils.TOKEN_TWO_SIDED);
 		}
 
 		if (version > 800) {

@@ -6,6 +6,7 @@ import java.util.Iterator;
 public class MdlTokenInputStream {
 	private final ByteBuffer buffer;
 	private int index;
+	private int line = 0;
 
 	public MdlTokenInputStream(final ByteBuffer buffer) {
 		this.buffer = buffer;
@@ -26,6 +27,7 @@ public class MdlTokenInputStream {
 			if (inComment) {
 				if (c == '\n') {
 					inComment = false;
+					line++;
 				}
 			}
 			else if (inString) {
@@ -37,6 +39,9 @@ public class MdlTokenInputStream {
 				}
 			}
 			else if ((c == ' ') || (c == ',') || (c == '\t') || (c == '\n') || (c == ':') || (c == '\r')) {
+				if (c == '\n') {
+					line++;
+				}
 				if (token.length() > 0) {
 					return token.toString();
 				}
@@ -173,27 +178,59 @@ public class MdlTokenInputStream {
 	}
 
 	public int[] readUInt16Array(final int[] values) {
-		read(); // {
+		return readUInt16Array(values, values.length);
+	}
 
-		for (int i = 0, l = values.length; i < l; i++) {
-			values[i] = readInt();
+	public int[] readUInt16Array(final int[] values, final int vectorLength) {
+//		read(); // {
+		skipToken("{");
+//		for (int i = 0, l = values.length; i < l; i++) {
+//			values[i] = readInt();
+//		}
+		for (int i = 0; i < values.length; i += vectorLength) {
+			skipToken("{");
+			for (int j = 0; j < vectorLength; j++) {
+				values[i + j] = readInt();
+			}
+			skipToken("}");
 		}
-
-		read(); // }
+		skipToken("}");
+//		read(); // }
 
 		return values;
 	}
 
 	public short[] readUInt8Array(final short[] values) {
+		return readUInt8Array(values, values.length);
+	}
+
+	public short[] readUInt8Array(final short[] values, final int vectorLength) {
 		read(); // {
 
-		for (int i = 0, l = values.length; i < l; i++) {
-			values[i] = Short.parseShort(read());
-		}
+//		for (int i = 0, l = values.length; i < l; i++) {
+//			values[i] = Short.parseShort(read());
+//		}
 
-		read(); // }
+		for (int i = 0; i < values.length; i += vectorLength) {
+			skipToken("{");
+			for (int j = 0; j < vectorLength; j++) {
+				values[i + j] = Short.parseShort(read());
+//				String ugg = read();
+//				values[i+j] = Short.parseShort(ugg);
+//				System.out.println("read(): " + ugg + " i: " + i);
+			}
+			skipToken("}");
+		}
+		skipToken("}");
+//		read(); // }
 
 		return values;
+	}
+
+	private void skipToken(String token) {
+		if (peek().equals(token)) {
+			read();
+		}
 	}
 
 	public void readColor(final float[] color) {
@@ -204,5 +241,9 @@ public class MdlTokenInputStream {
 		color[0] = readFloat();
 
 		read(); // }
+	}
+
+	public int getLineNumber() {
+		return line;
 	}
 }

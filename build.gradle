@@ -7,6 +7,8 @@ buildscript {
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://maven.nikr.net/" }
+        maven { url "https://mvnrepository.com/artifact/" }
+        maven { url "https://mvnrepository.com/" }
         jcenter()
         maven { url 'https://jitpack.io' }
     }
@@ -16,7 +18,7 @@ allprojects {
     apply plugin: "eclipse"
     apply plugin: "idea"
 
-    version = '1.0'
+    version = '0.5'
     ext {
         appName = "retera-jwc3"
         jtattooVersion = '1.6.11'
@@ -24,6 +26,7 @@ allprojects {
 		lwjglVersion = '2.9.3'
 		image4jVersion = '0.7'
 		rsyntaxtextareaVersion = '3.0.2'
+        nashornVersion = '15.2'
     }
 
     repositories {
@@ -31,6 +34,8 @@ allprojects {
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://maven.nikr.net/" }
+        maven { url "https://mvnrepository.com/artifact/" }
+        maven { url "https://mvnrepository.com/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
         maven { url 'https://jitpack.io' }
     }
@@ -47,6 +52,7 @@ project(":modelstudio") {
 
         compile "com.github.inwc3:JMPQ3:1.7.14"
         compile "org.json:json:20200518"
+        compile "org.openjdk.nashorn:nashorn-core:${nashornVersion}"
     }
 }
 

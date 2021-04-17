@@ -15,84 +15,58 @@ import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class ToolBar {
     public static JToolBar createJToolBar(final MainPanel mainPanel) {
-        mainPanel.toolbar = new JToolBar(JToolBar.HORIZONTAL);
-        mainPanel.toolbar.setFloatable(false);
+        JToolBar toolbar = new JToolBar(JToolBar.HORIZONTAL);
+        toolbar.setFloatable(false);
+        FileDialog fileDialog = new FileDialog(mainPanel);
 
-        addToolbarIcon(mainPanel.toolbar, "New", "new.png", () -> MenuBarActions.newModel(mainPanel));
+        addToolbarIcon(toolbar, "New", "new.png", () -> MenuBarActions.newModel(mainPanel));
 
-        addToolbarIcon(mainPanel.toolbar, "Open", "open.png", () -> MenuBarActions.onClickOpen(mainPanel));
+//        addToolbarIcon(toolbar, "Open", "open.png", () -> MenuBarActions.onClickOpen(mainPanel));
+        addToolbarIcon(toolbar, "Open", "open.png", fileDialog::onClickOpen);
 
-        addToolbarIcon(mainPanel.toolbar, "Save", "save.png", () -> MenuBarActions.onClickSave(mainPanel));
+//        addToolbarIcon(toolbar, "Save", "save.png", () -> MenuBarActions.onClickSave(mainPanel));
+        addToolbarIcon(toolbar, "Save", "save.png", fileDialog::onClickSave);
 
-        mainPanel.toolbar.addSeparator();
+        toolbar.addSeparator();
 
 
-        addToolbarIcon(mainPanel.toolbar, "Undo", "undo.png", mainPanel.undoAction);
+        addToolbarIcon(toolbar, "Undo", "undo.png", mainPanel.undoAction);
 
-        addToolbarIcon(mainPanel.toolbar, "Redo", "redo.png", mainPanel.redoAction);
+        addToolbarIcon(toolbar, "Redo", "redo.png", mainPanel.redoAction);
 
-        mainPanel.toolbar.addSeparator();
-        mainPanel.selectionModeGroup = new ToolbarButtonGroup<>(mainPanel.toolbar, SelectionMode.values());
+        toolbar.addSeparator();
+        mainPanel.selectionModeGroup = new ToolbarButtonGroup<>(toolbar, SelectionMode.values());
 
-        mainPanel.toolbar.addSeparator();
+        toolbar.addSeparator();
 
-        mainPanel.selectionItemTypeGroup = new ToolbarButtonGroup<>(mainPanel.toolbar, SelectionItemTypes.values());
+        mainPanel.selectionItemTypeGroup = new ToolbarButtonGroup<>(toolbar, SelectionItemTypes.values());
 
-        mainPanel.toolbar.addSeparator();
+        toolbar.addSeparator();
 
-        mainPanel.selectAndMoveDescriptor = new ToolbarActionButtonType(
-                RMSIcons.loadToolBarImageIcon("move2.png"), "Select and Move") {
-            @Override
-            public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
-                                                              final ModelView modelView,
-                                                              final UndoActionListener undoActionListener) {
-                mainPanel.actionType = ModelEditorActionType.TRANSLATION;
-                MoverWidgetManipulatorBuilder mwmb = new MoverWidgetManipulatorBuilder(
-                        modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), mainPanel.prefs, modelView);
-                return new ModelEditorMultiManipulatorActivity(mwmb, undoActionListener, modelEditorManager.getSelectionView());
-            }
-        };
-        mainPanel.selectAndRotateDescriptor = new ToolbarActionButtonType(
-                RMSIcons.loadToolBarImageIcon("rotate.png"), "Select and Rotate") {
-            @Override
-            public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
-                                                              final ModelView modelView,
-                                                              final UndoActionListener undoActionListener) {
-                mainPanel.actionType = ModelEditorActionType.ROTATION;
-                RotatorWidgetManipulatorBuilder rwmb = new RotatorWidgetManipulatorBuilder(
-                        modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), mainPanel.prefs, modelView);
-                return new ModelEditorMultiManipulatorActivity(rwmb, undoActionListener, modelEditorManager.getSelectionView());
-            }
-        };
-        mainPanel.selectAndScaleDescriptor = new ToolbarActionButtonType(
-                RMSIcons.loadToolBarImageIcon("scale.png"), "Select and Scale") {
-            @Override
-            public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
-                                                              final ModelView modelView,
-                                                              final UndoActionListener undoActionListener) {
-                mainPanel.actionType = ModelEditorActionType.SCALING;
-                ScaleWidgetManipulatorBuilder swmb = new ScaleWidgetManipulatorBuilder(
-                        modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), mainPanel.prefs, modelView);
-                return new ModelEditorMultiManipulatorActivity(swmb, undoActionListener, modelEditorManager.getSelectionView());
-            }
-        };
-        mainPanel.selectAndExtrudeDescriptor = new ToolbarActionButtonType(
-                RMSIcons.loadToolBarImageIcon("extrude.png"), "Select and Extrude") {
-            @Override
-            public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
-                                                              final ModelView modelView,
-                                                              final UndoActionListener undoActionListener) {
-                mainPanel.actionType = ModelEditorActionType.TRANSLATION;
-                ExtrudeWidgetManipulatorBuilder ewmb = new ExtrudeWidgetManipulatorBuilder(
-                        modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), mainPanel.prefs, modelView);
-                return new ModelEditorMultiManipulatorActivity(ewmb, undoActionListener, modelEditorManager.getSelectionView());
-            }
-        };
-        mainPanel.selectAndExtendDescriptor = new ToolbarActionButtonType(
+        mainPanel.actionTypeGroup = new ToolbarButtonGroup<>(toolbar,
+                new ToolbarActionButtonType[] {
+                        getMoverWid(mainPanel),
+                        getRotatorWid(mainPanel),
+                        getScaleWid(mainPanel),
+                        getExtrudeWid(mainPanel),
+                        getExtendWid(mainPanel),});
+        mainPanel.currentActivity = mainPanel.actionTypeGroup.getActiveButtonType();
+
+        toolbar.addSeparator();
+
+        mainPanel.snapButton = addToolbarIcon(toolbar, "Snap", "snap.png", () -> ModelEditActions.snapVertices(mainPanel));
+
+        toolbar.setMaximumSize(new Dimension(80000, 48));
+        return toolbar;
+    }
+
+    private static ToolbarActionButtonType getExtendWid(MainPanel mainPanel) {
+        return new ToolbarActionButtonType(
                 RMSIcons.loadToolBarImageIcon("extend.png"), "Select and Extend") {
             @Override
             public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
@@ -104,20 +78,66 @@ public class ToolBar {
                 return new ModelEditorMultiManipulatorActivity(ewmb, undoActionListener, modelEditorManager.getSelectionView());
             }
         };
+    }
 
-        mainPanel.actionTypeGroup = new ToolbarButtonGroup<>(mainPanel.toolbar,
-                new ToolbarActionButtonType[]{
-                        mainPanel.selectAndMoveDescriptor,
-                        mainPanel.selectAndRotateDescriptor,
-                        mainPanel.selectAndScaleDescriptor,
-                        mainPanel.selectAndExtrudeDescriptor,
-                        mainPanel.selectAndExtendDescriptor,});
-        mainPanel.currentActivity = mainPanel.actionTypeGroup.getActiveButtonType();
-        mainPanel.toolbar.addSeparator();
+    private static ToolbarActionButtonType getExtrudeWid(MainPanel mainPanel) {
+        return new ToolbarActionButtonType(
+                RMSIcons.loadToolBarImageIcon("extrude.png"), "Select and Extrude") {
+            @Override
+            public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+                                                              final ModelView modelView,
+                                                              final UndoActionListener undoActionListener) {
+                mainPanel.actionType = ModelEditorActionType.TRANSLATION;
+                ExtrudeWidgetManipulatorBuilder ewmb = new ExtrudeWidgetManipulatorBuilder(
+                        modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), mainPanel.prefs, modelView);
+                return new ModelEditorMultiManipulatorActivity(ewmb, undoActionListener, modelEditorManager.getSelectionView());
+            }
+        };
+    }
 
-        mainPanel.snapButton = addToolbarIcon(mainPanel.toolbar, "Snap", "snap.png", () -> ModelEditActions.snapVerticies(mainPanel));
+    private static ToolbarActionButtonType getScaleWid(MainPanel mainPanel) {
+        return new ToolbarActionButtonType(
+                RMSIcons.loadToolBarImageIcon("scale.png"), "Select and Scale") {
+            @Override
+            public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+                                                              final ModelView modelView,
+                                                              final UndoActionListener undoActionListener) {
+                mainPanel.actionType = ModelEditorActionType.SCALING;
+                ScaleWidgetManipulatorBuilder swmb = new ScaleWidgetManipulatorBuilder(
+                        modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), mainPanel.prefs, modelView);
+                return new ModelEditorMultiManipulatorActivity(swmb, undoActionListener, modelEditorManager.getSelectionView());
+            }
+        };
+    }
 
-        return mainPanel.toolbar;
+    private static ToolbarActionButtonType getRotatorWid(MainPanel mainPanel) {
+        return new ToolbarActionButtonType(
+                RMSIcons.loadToolBarImageIcon("rotate.png"), "Select and Rotate") {
+            @Override
+            public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+                                                              final ModelView modelView,
+                                                              final UndoActionListener undoActionListener) {
+                mainPanel.actionType = ModelEditorActionType.ROTATION;
+                RotatorWidgetManipulatorBuilder rwmb = new RotatorWidgetManipulatorBuilder(
+                        modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), mainPanel.prefs, modelView);
+                return new ModelEditorMultiManipulatorActivity(rwmb, undoActionListener, modelEditorManager.getSelectionView());
+            }
+        };
+    }
+
+    private static ToolbarActionButtonType getMoverWid(MainPanel mainPanel) {
+        return new ToolbarActionButtonType(
+                RMSIcons.loadToolBarImageIcon("move2.png"), "Select and Move") {
+            @Override
+            public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
+                                                              final ModelView modelView,
+                                                              final UndoActionListener undoActionListener) {
+                mainPanel.actionType = ModelEditorActionType.TRANSLATION;
+                MoverWidgetManipulatorBuilder mwmb = new MoverWidgetManipulatorBuilder(
+                        modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), mainPanel.prefs, modelView);
+                return new ModelEditorMultiManipulatorActivity(mwmb, undoActionListener, modelEditorManager.getSelectionView());
+            }
+        };
     }
 
     static JButton addToolbarIcon(JToolBar toolbar, String hooverText, String icon, AbstractAction action) {

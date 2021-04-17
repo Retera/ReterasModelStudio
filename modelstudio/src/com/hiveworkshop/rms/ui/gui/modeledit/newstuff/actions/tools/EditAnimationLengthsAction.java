@@ -1,11 +1,11 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools;
 
-import java.util.Map;
-
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.editor.model.AnimFlag;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+
+import java.util.Map;
 
 public final class EditAnimationLengthsAction implements UndoAction {
 	private final EditableModel mdl;
@@ -89,7 +89,7 @@ public final class EditAnimationLengthsAction implements UndoAction {
 
 			final int newLength = newGlobalSeqLengths[myAnimationsIndex];
 
-			for (final AnimFlag flag : mdl.getAllAnimFlags()) {
+			for (final AnimFlag<?> flag : mdl.getAllAnimFlags()) {
 				if (flag.hasGlobalSeq() && flag.getGlobalSeq().equals(myAnimation)) {
 					flag.timeScale(0, myAnimation, 0, newLength);
 					flag.setGlobSeq(newLength);

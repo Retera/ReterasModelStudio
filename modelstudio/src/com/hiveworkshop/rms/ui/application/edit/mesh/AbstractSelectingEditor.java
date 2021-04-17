@@ -1,10 +1,5 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh;
 
-import java.awt.geom.Rectangle2D;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.AddSelectionAction;
@@ -14,6 +9,11 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelec
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
+
+import java.awt.geom.Rectangle2D;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public abstract class AbstractSelectingEditor<T> implements ModelEditor {
 	protected final SelectionManager<T> selectionManager;
@@ -61,13 +61,14 @@ public abstract class AbstractSelectingEditor<T> implements ModelEditor {
 	protected abstract List<T> genericSelect(final Rectangle2D region, final CoordinateSystem coordinateSystem);
 
 	protected abstract UndoAction buildHideComponentAction(List<? extends SelectableComponent> selectableComponents,
-                                                           EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable);
+	                                                       EditabilityToggleHandler editabilityToggleHandler,
+	                                                       final Runnable refreshGUIRunnable);
 
 	@Override
 	public UndoAction hideComponent(final List<? extends SelectableComponent> selectableComponent,
-			final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
-		final UndoAction hideComponentAction = buildHideComponentAction(selectableComponent, editabilityToggleHandler,
-				refreshGUIRunnable);
+	                                final EditabilityToggleHandler editabilityToggleHandler,
+	                                final Runnable refreshGUIRunnable) {
+		final UndoAction hideComponentAction = buildHideComponentAction(selectableComponent, editabilityToggleHandler, refreshGUIRunnable);
 		hideComponentAction.redo();
 		return hideComponentAction;
 	}

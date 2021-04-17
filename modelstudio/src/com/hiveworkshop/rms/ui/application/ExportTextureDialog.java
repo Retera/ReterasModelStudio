@@ -1,13 +1,10 @@
 package com.hiveworkshop.rms.ui.application;
 
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.Layer;
-import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.MaterialListRenderer;
+import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.util.TextureExporter;
-import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -41,66 +38,66 @@ public class ExportTextureDialog {
         mainPanel.fc.addChoosableFileFilter(new FileNameExtensionFilter("Autodesk FBX Model (*.fbx)", "fbx"));
     }
 
-    static void exportTextures(MainPanel mainPanel) {
+    //ToDo figure out why these throw errors sometimes (might have to do with non-existing texture files)
+    static void exportMaterialAsTextures(MainPanel mainPanel) {
+        exportMaterialAsTextures(mainPanel, mainPanel.currentMDL());
+    }
+
+    static void exportMaterialAsTextures(JComponent mainPanel, EditableModel model) {
         final DefaultListModel<Material> materials = new DefaultListModel<>();
-        for (int i = 0; i < mainPanel.currentMDL().getMaterials().size(); i++) {
-            final Material mat = mainPanel.currentMDL().getMaterials().get(i);
+        for (int i = 0; i < model.getMaterials().size(); i++) {
+            final Material mat = model.getMaterials().get(i);
             materials.addElement(mat);
         }
-        for (final ParticleEmitter2 emitter2 : mainPanel.currentMDL().sortedIdObjects(ParticleEmitter2.class)) {
-            final Material dummyMaterial = new Material(new Layer("Blend", mainPanel.currentMDL().getTexture(emitter2.getTextureID())));
+        for (final ParticleEmitter2 emitter2 : model.getParticleEmitter2s()) {
+            final Material dummyMaterial = new Material(new Layer("Blend", model.getTexture(emitter2.getTextureID())));
         }
 
         final JList<Material> materialsList = new JList<>(materials);
-        materialsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        materialsList.setCellRenderer(new MaterialListRenderer(mainPanel.currentMDL()));
-        JOptionPane.showMessageDialog(mainPanel, new JScrollPane(materialsList));
+        materialsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); //TODO would be nice to be able to batch save
+        materialsList.setCellRenderer(new MaterialListRenderer(model));
+//        JOptionPane.showMessageDialog(mainPanel, new JScrollPane(materialsList));
+        int option = JOptionPane.showConfirmDialog(mainPanel, new JScrollPane(materialsList), "Export Texture", JOptionPane.OK_CANCEL_OPTION);
+        if (option == JOptionPane.OK_OPTION) {
+            FileDialog fileDialog = new FileDialog(mainPanel);
 
-        if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
-            final EditableModel current = mainPanel.currentMDL();
-            if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
-                mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
-            } else if (mainPanel.profile.getPath() != null) {
-                mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
-            }
-        }
-        if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
-            mainPanel.exportTextureDialog.setSelectedFile(new File(mainPanel.exportTextureDialog.getCurrentDirectory()
-                    + File.separator + materialsList.getSelectedValue().getName()));
-        }
+            BufferedImage bufferedImage = materialsList.getSelectedValue().getBufferedImage(model.getWrappedDataSource());
+            String name = materialsList.getSelectedValue().getName().replaceAll("[^\\w\\[\\]()#\\. ]", "").replaceAll(" +", "_");
+            System.out.println(name);
 
-        final int x = mainPanel.exportTextureDialog.showSaveDialog(mainPanel);
-        if (x == JFileChooser.APPROVE_OPTION) {
-            final File file = mainPanel.exportTextureDialog.getSelectedFile();
-            if (file != null) {
-                try {
-                    if (file.getName().lastIndexOf('.') >= 0) {
-                        BufferedImage bufferedImage = materialsList.getSelectedValue()
-                                .getBufferedImage(mainPanel.currentMDL().getWrappedDataSource());
-                        String fileExtension = file.getName().substring(file.getName().lastIndexOf('.') + 1).toUpperCase();
-                        if (fileExtension.equals("BMP") || fileExtension.equals("JPG") || fileExtension.equals("JPEG")) {
-                            JOptionPane.showMessageDialog(mainPanel,
-                                    "Warning: Alpha channel was converted to black. Some data will be lost" +
-                                            "\nif you convert this texture back to Warcraft BLP.");
-                            bufferedImage = BLPHandler.removeAlphaChannel(bufferedImage);
-                        }
-                        if (fileExtension.equals("BLP")) {
-                            fileExtension = "blp";
-                        }
-                        final boolean write = ImageIO.write(bufferedImage, fileExtension, file);
-                        if (!write) {
-                            JOptionPane.showMessageDialog(mainPanel, "File type unknown or unavailable");
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(mainPanel, "No file type was specified");
-                    }
-                } catch (final Exception e1) {
-                    ExceptionPopup.display(e1);
-                    e1.printStackTrace();
-                }
-            } else {
-                JOptionPane.showMessageDialog(mainPanel, "No output file was specified");
-            }
+            fileDialog.exportTexture(bufferedImage, name);
+        }
+    }
+
+    static void exportTextures(MainPanel mainPanel) {
+        exportTextures(mainPanel, mainPanel.currentMDL());
+    }
+
+    static void exportTextures(JComponent mainPanel, EditableModel model) {
+        final DefaultListModel<Bitmap> bitmaps = new DefaultListModel<>();
+        for (int i = 0; i < model.getTextures().size(); i++) {
+            final Bitmap texture = model.getTextures().get(i);
+            bitmaps.addElement(texture);
+        }
+//        for (final ParticleEmitter2 emitter2 : mainPanel.currentMDL().sortedIdObjects(ParticleEmitter2.class)) {
+//            final Material dummyMaterial = new Material(new Layer("Blend", model.getTexture(emitter2.getTextureID())));
+//        }
+
+        final JList<Bitmap> bitmapJList = new JList<>(bitmaps);
+        bitmapJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); //TODO would be nice to be able to batch save
+        bitmapJList.setCellRenderer(new TextureListRenderer(model));
+//        JOptionPane.showMessageDialog(mainPanel, new JScrollPane(bitmapJList));
+        int option = JOptionPane.showConfirmDialog(mainPanel, new JScrollPane(bitmapJList), "Export Texture", JOptionPane.OK_CANCEL_OPTION);
+        if (option == JOptionPane.OK_OPTION) {
+            FileDialog fileDialog = new FileDialog(mainPanel);
+
+            final BufferedImage texture = BLPHandler.getImage(bitmapJList.getSelectedValue(), model.getWrappedDataSource());
+//        BufferedImage bufferedImage = bitmapJList.getSelectedValue().getBufferedImage(mainPanel.currentMDL().getWrappedDataSource());
+//
+            String name = bitmapJList.getSelectedValue().getName().replaceAll("[^\\w\\[\\]()#\\. ]", "").replaceAll(" +", "_");
+            System.out.println(name);
+//
+            fileDialog.exportTexture(texture, name);
         }
     }
 
@@ -118,14 +115,14 @@ public class ExportTextureDialog {
         @Override
         public void showOpenDialog(final String suggestedName, final TextureExporterClickListener fileHandler,
                                    final Component parent) {
-            setCurrentDirectory(suggestedName);
+//            setCurrentDirectory(suggestedName);
             showWarningDialog(fileHandler, parent, false);
         }
 
         @Override
         public void exportTexture(final String suggestedName, final TextureExporterClickListener fileHandler,
                                   final Component parent) {
-            setCurrentDirectory(suggestedName);
+//            setCurrentDirectory(suggestedName);
             showWarningDialog(fileHandler, parent, true);
         }
 
@@ -147,19 +144,19 @@ public class ExportTextureDialog {
             }
         }
 
-        private void setCurrentDirectory(String suggestedName) {
-            if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
-                final EditableModel current = mainPanel.currentMDL();
-                if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
-                    mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
-                } else if (mainPanel.profile.getPath() != null) {
-                    mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
-                }
-            }
-            if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
-                mainPanel.exportTextureDialog.setSelectedFile(new File(mainPanel.exportTextureDialog.getCurrentDirectory() + File.separator + suggestedName));
-            }
-        }
+//        private void setCurrentDirectory(String suggestedName) {
+//            if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
+//                final EditableModel current = mainPanel.currentMDL();
+//                if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
+//                    mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
+//                } else if (FileDialog.getPath() != null) {
+//                    mainPanel.fc.setCurrentDirectory(new File(FileDialog.getPath()));
+//                }
+//            }
+//            if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
+//                mainPanel.exportTextureDialog.setSelectedFile(new File(mainPanel.exportTextureDialog.getCurrentDirectory() + File.separator + suggestedName));
+//            }
+//        }
 
     }
 }

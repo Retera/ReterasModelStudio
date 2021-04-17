@@ -1,10 +1,13 @@
 package com.hiveworkshop.rms.editor.model;
 
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxTextureAnimation;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * TextureAnims, inside them called TVertexAnims
@@ -15,18 +18,18 @@ public class TextureAnim extends TimelineContainer {
 	/**
 	 * Constructor for objects of class TextureAnim
 	 */
-	public TextureAnim(final AnimFlag flag) {
+	public TextureAnim(final AnimFlag<?> flag) {
 		add(flag);
 	}
 
-	public TextureAnim(final List<AnimFlag> flags) {
+	public TextureAnim(final List<AnimFlag<?>> flags) {
 		setAnimFlags(flags);
 	}
 
 	public TextureAnim(final TextureAnim other) {
-		Collection<AnimFlag> flags = new ArrayList<>();
-		for (AnimFlag animFlag : other.getAnimFlags()) {
-			flags.add(new AnimFlag(animFlag));
+		Collection<AnimFlag<?>> flags = new ArrayList<>();
+		for (AnimFlag<?> animFlag : other.getAnimFlags()) {
+			flags.add(new IntAnimFlag((IntAnimFlag) animFlag));
 		}
 		setAnimFlags(flags);
 	}
@@ -41,5 +44,12 @@ public class TextureAnim extends TimelineContainer {
 		timelinesToMdlx(animation);
 
 		return animation;
+	}
+
+	public String getFlagNames() {
+		Map<String, AnimFlag<?>> flags = this.animFlags;
+		//TODO figure out what this should return
+		System.out.println(flags.keySet());
+		return flags.keySet().toString();
 	}
 }

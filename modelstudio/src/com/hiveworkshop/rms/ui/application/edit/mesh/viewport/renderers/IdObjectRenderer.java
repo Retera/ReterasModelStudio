@@ -1,28 +1,14 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Point;
-import java.util.List;
-
-import com.hiveworkshop.rms.editor.model.Attachment;
-import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.editor.model.Camera;
-import com.hiveworkshop.rms.editor.model.CollisionShape;
-import com.hiveworkshop.rms.editor.model.EventObject;
-import com.hiveworkshop.rms.editor.model.Helper;
-import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.Light;
-import com.hiveworkshop.rms.editor.model.ParticleEmitter;
-import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
-import com.hiveworkshop.rms.editor.model.ParticleEmitterPopcorn;
-import com.hiveworkshop.rms.editor.model.RibbonEmitter;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.awt.*;
+import java.util.List;
 
 public final class IdObjectRenderer implements IdObjectVisitor {
 	private CoordinateSystem coordinateSystem;
@@ -32,8 +18,7 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 	private final Color pivotPointColor;
 	private final NodeIconPalette nodeIconPalette;
 
-	public IdObjectRenderer(final Color lightColor, final Color pivotPointColor, final int vertexSize,
-			final NodeIconPalette nodeIconPalette) {
+	public IdObjectRenderer(final Color lightColor, final Color pivotPointColor, final int vertexSize, final NodeIconPalette nodeIconPalette) {
 		this.lightColor = lightColor;
 		this.pivotPointColor = pivotPointColor;
 		this.vertexSize = vertexSize;
@@ -56,10 +41,8 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 	public void light(final Light light) {
 		final Image lightImage = nodeIconPalette.getLightImage();
 		graphics.setColor(lightColor);
-		final int xCoord = (int) coordinateSystem
-				.convertX(light.getPivotPoint().getCoord(coordinateSystem.getPortFirstXYZ()));
-		final int yCoord = (int) coordinateSystem
-				.convertY(light.getPivotPoint().getCoord(coordinateSystem.getPortSecondXYZ()));
+		final int xCoord = (int) coordinateSystem.convertX(light.getPivotPoint().getCoord(coordinateSystem.getPortFirstXYZ()));
+		final int yCoord = (int) coordinateSystem.convertY(light.getPivotPoint().getCoord(coordinateSystem.getPortSecondXYZ()));
 		final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
 		// graphics.drawOval(xCoord - vertexSize * 2, yCoord - vertexSize * 2,
 		// vertexSize * 4, vertexSize * 4);
@@ -68,13 +51,11 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 		// vertexSize * 3, yCoord);
 		// graphics.drawLine(xCoord, yCoord - vertexSize * 3, xCoord, yCoord +
 		// vertexSize * 3);
-		graphics.drawImage(lightImage, xCoord - (lightImage.getWidth(null) / 2),
-				yCoord - (lightImage.getHeight(null) / 2), lightImage.getWidth(null), lightImage.getHeight(null), null);
+		graphics.drawImage(lightImage, xCoord - (lightImage.getWidth(null) / 2), yCoord - (lightImage.getHeight(null) / 2), lightImage.getWidth(null), lightImage.getHeight(null), null);
 
 		final int attenuationStart = (int) (light.getAttenuationStart() * zoom);
 		if (attenuationStart > 0) {
-			graphics.drawOval(xCoord - attenuationStart, yCoord - attenuationStart, attenuationStart * 2,
-					attenuationStart * 2);
+			graphics.drawOval(xCoord - attenuationStart, yCoord - attenuationStart, attenuationStart * 2, attenuationStart * 2);
 		}
 		final int attenuationEnd = (int) (light.getAttenuationEnd() * zoom);
 		if (attenuationEnd > 0) {
@@ -83,10 +64,8 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 	}
 
 	private void drawCrosshair(final Bone object) {
-		final int xCoord = (int) coordinateSystem
-				.convertX(object.getPivotPoint().getCoord(coordinateSystem.getPortFirstXYZ()));
-		final int yCoord = (int) coordinateSystem
-				.convertY(object.getPivotPoint().getCoord(coordinateSystem.getPortSecondXYZ()));
+		final int xCoord = (int) coordinateSystem.convertX(object.getPivotPoint().getCoord(coordinateSystem.getPortFirstXYZ()));
+		final int yCoord = (int) coordinateSystem.convertY(object.getPivotPoint().getCoord(coordinateSystem.getPortSecondXYZ()));
 		graphics.drawOval(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2, vertexSize * 2);
 		graphics.drawLine(xCoord - (int) (vertexSize * 1.5f), yCoord, xCoord + (int) (vertexSize * 1.5f), yCoord);
 		graphics.drawLine(xCoord, yCoord - (int) (vertexSize * 1.5f), xCoord, yCoord + (int) (vertexSize * 1.5f));
@@ -130,8 +109,7 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 
 	@Override
 	public void collisionShape(final CollisionShape collisionShape) {
-		drawCollisionShape(graphics, pivotPointColor, coordinateSystem, coordinateSystem.getPortFirstXYZ(),
-				coordinateSystem.getPortSecondXYZ(), vertexSize, collisionShape, nodeIconPalette.getCollisionImage());
+		drawCollisionShape(graphics, pivotPointColor, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ(), vertexSize, collisionShape, nodeIconPalette.getCollisionImage());
 	}
 
 	@Override
@@ -205,21 +183,16 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 	}
 
 	private void drawNodeImage(final IdObject attachment, final Image nodeImage) {
-		drawNodeImage(graphics, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ(),
-				coordinateSystem, attachment, nodeImage);
+		drawNodeImage(graphics, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ(), coordinateSystem, attachment, nodeImage);
 	}
 
-	public static void drawNodeImage(final Graphics2D graphics, final byte xDimension, final byte yDimension,
-			final CoordinateSystem coordinateSystem, final IdObject attachment, final Image nodeImage) {
+	public static void drawNodeImage(final Graphics2D graphics, final byte xDimension, final byte yDimension, final CoordinateSystem coordinateSystem, final IdObject attachment, final Image nodeImage) {
 		final int xCoord = (int) coordinateSystem.convertX(attachment.getPivotPoint().getCoord(xDimension));
 		final int yCoord = (int) coordinateSystem.convertY(attachment.getPivotPoint().getCoord(yDimension));
-		graphics.drawImage(nodeImage, xCoord - (nodeImage.getWidth(null) / 2), yCoord - (nodeImage.getHeight(null) / 2),
-				nodeImage.getWidth(null), nodeImage.getHeight(null), null);
+		graphics.drawImage(nodeImage, xCoord - (nodeImage.getWidth(null) / 2), yCoord - (nodeImage.getHeight(null) / 2), nodeImage.getWidth(null), nodeImage.getHeight(null), null);
 	}
 
-	public static void drawCollisionShape(final Graphics2D graphics, final Color color,
-			final CoordinateSystem coordinateSystem, final byte xDimension, final byte yDimension, final int vertexSize,
-			final CollisionShape collisionShape, final Image collisionImage) {
+	public static void drawCollisionShape(final Graphics2D graphics, final Color color, final CoordinateSystem coordinateSystem, final byte xDimension, final byte yDimension, final int vertexSize, final CollisionShape collisionShape, final Image collisionImage) {
 		final Vec3 pivotPoint = collisionShape.getPivotPoint();
 		final List<Vec3> vertices = collisionShape.getVertices();
 		graphics.setColor(color);
@@ -237,8 +210,7 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 				final int minYCoord = Math.min(firstYCoord, secondYCoord);
 				final int maxXCoord = Math.max(firstXCoord, secondXCoord);
 				final int maxYCoord = Math.max(firstYCoord, secondYCoord);
-				graphics.drawRoundRect(minXCoord, minYCoord, maxXCoord - minXCoord, maxYCoord - minYCoord, vertexSize,
-						vertexSize);
+				graphics.drawRoundRect(minXCoord, minYCoord, maxXCoord - minXCoord, maxYCoord - minYCoord, vertexSize, vertexSize);
 			} else {
 				drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage);
 			}
@@ -246,8 +218,7 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 			if (collisionShape.getExtents() != null) {
 				final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
 				final double boundsRadius = collisionShape.getExtents().getBoundsRadius() * zoom;
-				graphics.drawOval((int) (xCoord - boundsRadius), (int) (yCoord - boundsRadius),
-						(int) (boundsRadius * 2), (int) (boundsRadius * 2));
+				graphics.drawOval((int) (xCoord - boundsRadius), (int) (yCoord - boundsRadius), (int) (boundsRadius * 2), (int) (boundsRadius * 2));
 			} else {
 				drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage);
 			}

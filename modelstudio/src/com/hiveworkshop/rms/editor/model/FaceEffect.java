@@ -3,8 +3,8 @@ package com.hiveworkshop.rms.editor.model;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxFaceEffect;
 
 public class FaceEffect {
-	public String faceEffectTarget = "";
-	public String faceEffect = "";
+	private String faceEffectTarget = "";
+	private String faceEffect = "";
 
 	public FaceEffect() {
 
@@ -36,5 +36,23 @@ public class FaceEffect {
 
 	public FaceEffect copy() {
 		return new FaceEffect(this);
+	}
+
+	public String getFaceEffectTarget() {
+		return faceEffectTarget;
+	}
+
+	public FaceEffect setFaceEffectTarget(String faceEffectTarget) {
+		this.faceEffectTarget = faceEffectTarget;
+		return this;
+	}
+
+	public String getFaceEffect() {
+		return faceEffect;
+	}
+
+	public FaceEffect setFaceEffect(String faceEffect) {
+		this.faceEffect = faceEffect;
+		return this;
 	}
 }

@@ -2,12 +2,12 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
+import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.WorldEditorDataType;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.War3ID;
 
@@ -20,9 +20,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 
 public class UnitEditorTreeBrowser extends UnitEditorTree {
 	private int rightClickX, rightClickY;
@@ -54,29 +51,32 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 		extract.addActionListener(e -> {
             final TreePath currentUnitTreePath = getPathForLocation(rightClickX, rightClickY);
             if (currentUnitTreePath != null) {
-                final DefaultMutableTreeNode o = (DefaultMutableTreeNode) currentUnitTreePath
-                        .getLastPathComponent();
+	            final DefaultMutableTreeNode o = (DefaultMutableTreeNode) currentUnitTreePath.getLastPathComponent();
                 if (o.getUserObject() instanceof MutableGameObject) {
-                    final MutableGameObject obj = (MutableGameObject) o.getUserObject();
-                    final String path = convertPathToMDX(obj.getFieldAsString(War3ID.fromString("umdl"), 0));
-                    final BufferedImage iconTexture = IconUtils.getIcon(obj,
-                            WorldEditorDataType.UNITS);
-                    final ImageIcon icon = iconTexture == null ? null
-                            : new ImageIcon(iconTexture.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
-                    try {
-                        final JFileChooser jFileChooser = new JFileChooser(SaveProfile.get().getPath());
-                        final int response = jFileChooser.showSaveDialog(UnitEditorTreeBrowser.this);
-                        if (response == JFileChooser.APPROVE_OPTION) {
-                            final File selectedFile = jFileChooser.getSelectedFile();
-                            if (selectedFile != null) {
-                                Files.copy(GameDataFileSystem.getDefault().getResourceAsStream(path), selectedFile.toPath());
-                            }
-                        }
+	                final MutableGameObject obj = (MutableGameObject) o.getUserObject();
+	                System.out.println("objString: " + obj.getFieldAsString(War3ID.fromString("umdl"), 0));
+	                final String path = convertPathToMDX(obj.getFieldAsString(War3ID.fromString("umdl"), 0));
+	                System.out.println("path: " + path);
+//	                final BufferedImage iconTexture = IconUtils.getIcon(obj, WorldEditorDataType.UNITS);
+//                    final ImageIcon icon = iconTexture == null ? null : new ImageIcon(iconTexture.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
 
-                    } catch (final IOException e1) {
-                        e1.printStackTrace();
-                        ExceptionPopup.display(e1);
-                    }
+	                FileDialog fileDialog = new FileDialog(this);
+	                fileDialog.exportInternalFile(path);
+
+//                    try {
+//                        final JFileChooser jFileChooser = new JFileChooser(SaveProfile.get().getPath());
+//                        final int response = jFileChooser.showSaveDialog(UnitEditorTreeBrowser.this);
+//                        if (response == JFileChooser.APPROVE_OPTION) {
+//                            final File selectedFile = jFileChooser.getSelectedFile();
+//                            if (selectedFile != null) {
+//                                Files.copy(GameDataFileSystem.getDefault().getResourceAsStream(path), selectedFile.toPath());
+//                            }
+//                        }
+//
+//                    } catch (final IOException e1) {
+//                        e1.printStackTrace();
+//                        ExceptionPopup.display(e1);
+//                    }
                 }
             }
         });

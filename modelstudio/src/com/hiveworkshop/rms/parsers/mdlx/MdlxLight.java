@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.parsers.mdlx;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.BinaryReader;
 import com.hiveworkshop.rms.util.BinaryWriter;
 
@@ -92,7 +93,7 @@ public class MdlxLight extends MdlxGenericObject {
 				case MdlUtils.TOKEN_STATIC_AMB_COLOR -> stream.readColor(ambientColor);
 				case MdlUtils.TOKEN_AMB_COLOR -> readTimeline(stream, AnimationMap.KLBC);
 				case MdlUtils.TOKEN_VISIBILITY -> readTimeline(stream, AnimationMap.KLAV);
-				default -> throw new RuntimeException("Unknown token in Light: " + token);
+				default -> ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in Light: " + token);
 			}
 		}
 	}

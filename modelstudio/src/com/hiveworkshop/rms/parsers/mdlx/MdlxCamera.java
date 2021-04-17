@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.parsers.mdlx;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.BinaryReader;
 import com.hiveworkshop.rms.util.BinaryWriter;
 
@@ -70,13 +71,12 @@ public class MdlxCamera extends MdlxAnimatedObject {
 						switch (subToken) {
 							case MdlUtils.TOKEN_POSITION -> stream.readFloatArray(targetPosition);
 							case MdlUtils.TOKEN_TRANSLATION -> readTimeline(stream, AnimationMap.KTTR);
-							default -> throw new IllegalStateException(
-									"Unknown token in Camera " + name + "'s Target: " + subToken);
+							default -> ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in Camera " + name + "'s Target: " + subToken);
 						}
 					}
 					break;
 				default:
-					throw new RuntimeException("Unknown token in Camera " + name + ": " + token);
+					ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in Camera " + name + ": " + token);
 			}
 		}
 	}

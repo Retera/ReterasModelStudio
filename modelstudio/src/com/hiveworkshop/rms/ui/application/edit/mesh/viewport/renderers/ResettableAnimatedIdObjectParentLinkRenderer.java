@@ -22,8 +22,7 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 		this.vertexSize = vertexSize;
 	}
 
-	public ResettableAnimatedIdObjectParentLinkRenderer reset(final CoordinateSystem coordinateSystem,
-			final Graphics2D graphics, final NodeIconPalette nodeIconPalette, final RenderModel renderModel) {
+	public ResettableAnimatedIdObjectParentLinkRenderer reset(final CoordinateSystem coordinateSystem, final Graphics2D graphics, final NodeIconPalette nodeIconPalette, final RenderModel renderModel) {
 		this.coordinateSystem = coordinateSystem;
 		this.graphics = graphics;
 		this.nodeIconPalette = nodeIconPalette;
@@ -135,14 +134,11 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 		System.err.println("TODO ANIMATE CAMERAS");
 	}
 
-	private static final Vec4 vertexHeap = new Vec4();
-	private static final Vec4 vertexHeap2 = new Vec4();
-
 	public static void drawLink(final Graphics2D graphics, final CoordinateSystem coordinateSystem,
-			final Vec3 pivotPoint, final Vec3 target, final Mat4 worldMatrix,
-			final Mat4 targetWorldMatrix) {
-		loadPivotInVertexHeap(pivotPoint, worldMatrix, vertexHeap);
-		loadPivotInVertexHeap(target, targetWorldMatrix, vertexHeap2);
+	                            final Vec3 pivotPoint, final Vec3 target,
+	                            final Mat4 worldMatrix, final Mat4 targetWorldMatrix) {
+		Vec4 vertexHeap = loadPivotInVertexHeap(pivotPoint, worldMatrix);
+		Vec4 vertexHeap2 = loadPivotInVertexHeap(target, targetWorldMatrix);
 
 		final int xCoord = (int) coordinateSystem.convertX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
 		final int yCoord = (int) coordinateSystem.convertY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
@@ -154,13 +150,9 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 		graphics.drawLine(xCoord, yCoord, xCoord2, yCoord2);
 	}
 
-	public static void loadPivotInVertexHeap(final Vec3 pivotPoint, final Mat4 worldMatrix,
-			final Vec4 vertexHeap) {
-		vertexHeap.x = pivotPoint.x;
-		vertexHeap.y = pivotPoint.y;
-		vertexHeap.z = pivotPoint.z;
-		vertexHeap.w = 1;
-		worldMatrix.transform(vertexHeap);
+	public static Vec4 loadPivotInVertexHeap(final Vec3 pivotPoint, final Mat4 worldMatrix) {
+		Vec4 vertexHeap = new Vec4(pivotPoint, 1);
+		return vertexHeap.transform(worldMatrix);
 	}
 
 }

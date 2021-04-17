@@ -5,23 +5,22 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.MainFrame;
 import com.hiveworkshop.rms.ui.application.MainPanel;
-import com.hiveworkshop.rms.ui.gui.modeledit.ImportPanel;
+import com.hiveworkshop.rms.ui.application.MenuBar;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 
-public class AnimationTransfer extends JPanel implements ActionListener {
-	JLabel baseFileLabel, animFileLabel, outFileLabel, transSingleLabel, pickAnimLabel, visFromLabel;
+public class AnimationTransfer extends JPanel {
 	JTextField baseFileInput, animFileInput, outFileInput;
 	JCheckBox transferSingleAnimation, useCurrentModel;
-	JButton baseBrowse, animBrowse, outBrowse, transfer, done, goAdvanced;
 	JComboBox<Animation> pickAnimBox, visFromBox;
 	DefaultComboBoxModel<Animation> baseAnims;
 	DefaultComboBoxModel<Animation> animAnims;
@@ -33,6 +32,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 	private final JFrame parentFrame;
 
 	public AnimationTransfer(final JFrame parentFrame) {
+		setLayout(new MigLayout("gap 0"));
 		this.parentFrame = parentFrame;
 		final MainPanel panel = MainFrame.getPanel();
 		final EditableModel current;// ;
@@ -42,130 +42,86 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 			fc.setCurrentDirectory(new File(SaveProfile.get().getPath()));
 		}
 
-		baseFileLabel = new JLabel("Base file:");
-		baseFileInput = new JTextField("");
-		baseFileInput.setMinimumSize(new Dimension(200, 18));
+		JPanel filePanel = new JPanel(new MigLayout("gap 0, wrap 3", "[grow]8[align right]8[align right]"));
 
-		final Dimension dim = new Dimension(28, 18);
-		baseBrowse = new JButton("...");
-		baseBrowse.setMaximumSize(dim);
-		baseBrowse.setMinimumSize(dim);
-		baseBrowse.setPreferredSize(dim);
-		baseBrowse.addActionListener(e -> openAction(baseFileInput));
+		baseFileInput = getFileField();
+		filePanel.add(new JLabel("Base file:"));
+		filePanel.add(baseFileInput);
+		filePanel.add(getBrowseButton(e -> openAction(baseFileInput)));
 
-		animFileLabel = new JLabel("Animation file:");
-		animFileInput = new JTextField("");
-		animFileInput.setMinimumSize(new Dimension(200, 18));
+		animFileInput = getFileField();
+		filePanel.add(new JLabel("Animation file:"));
+		filePanel.add(animFileInput);
+		filePanel.add(getBrowseButton(e -> openAction(animFileInput)));
 
-		animBrowse = new JButton("...");
-		animBrowse.setMaximumSize(dim);
-		animBrowse.setMinimumSize(dim);
-		animBrowse.setPreferredSize(dim);
-		animBrowse.addActionListener(e -> openAction(animFileInput));
+		outFileInput = getFileField();
+		filePanel.add(new JLabel("Output file:"));
+		filePanel.add(outFileInput);
+		filePanel.add(getBrowseButton(e -> saveAction(outFileInput)));
+		// TODO: remove save field and make "transfer" (and finished in ImportPanel) open save dialog
 
-		outFileLabel = new JLabel("Output file:");
-		outFileInput = new JTextField("");
-		outFileInput.setMinimumSize(new Dimension(200, 18));
+		add(filePanel, "growx, spanx, wrap");
 
-		outBrowse = new JButton("...");
-		outBrowse.setMaximumSize(dim);
-		outBrowse.setMinimumSize(dim);
-		outBrowse.setPreferredSize(dim);
-		outBrowse.addActionListener(e -> saveAction());
-
-		transferSingleAnimation = new JCheckBox("", false);
+		transferSingleAnimation = new JCheckBox("Transfer single animation:", false);
 		transferSingleAnimation.addActionListener(e -> transferSingleAnimation());
-		transSingleLabel = new JLabel("Transfer single animation:");
+		transferSingleAnimation.setHorizontalTextPosition(SwingConstants.LEADING);
+		add(transferSingleAnimation, "spanx, wrap");
+//		transSingleLabel = new JLabel("Transfer single animation:");
 
-		pickAnimLabel = new JLabel("Animation to transfer:");
+		JPanel animTransferPanel = new JPanel(new MigLayout("gap 0, wrap 2", "20[]8[grow,align right]"));
+
+		animTransferPanel.add(new JLabel("Animation to transfer:"));
 		pickAnimBox = new JComboBox<>();
 		pickAnimBox.setEnabled(false);
+		animTransferPanel.add(pickAnimBox, "growx");
 
-		visFromLabel = new JLabel("Get visibility from:");
+		animTransferPanel.add(new JLabel("Get visibility from:"));
 		visFromBox = new JComboBox<>();
 		visFromBox.setEnabled(false);
+		animTransferPanel.add(visFromBox, "growx");
 
-		transfer = new JButton("Transfer");
+		add(animTransferPanel, "growx, spanx, wrap");
+
+		JPanel transferDonePanel = new JPanel(new MigLayout());
+
+		JButton transfer = new JButton("Transfer");
 		transfer.setMnemonic(KeyEvent.VK_T);
 		transfer.setMinimumSize(new Dimension(200, 35));
 		transfer.addActionListener(e -> transfer(false));
+		transferDonePanel.add(transfer);
 
-		done = new JButton("Done");
+		JButton done = new JButton("Done");
 		done.setMnemonic(KeyEvent.VK_D);
 		done.setMinimumSize(new Dimension(80, 35));
 		done.addActionListener(e -> done());
+		transferDonePanel.add(done);
 
-		goAdvanced = new JButton("Go Advanced");
+		add(transferDonePanel, "spanx, align center, wrap");
+
+		JButton goAdvanced = new JButton("Go Advanced");
 		goAdvanced.setMnemonic(KeyEvent.VK_G);
 		goAdvanced.addActionListener(e -> transfer(true));
 		goAdvanced.setToolTipText(
 				"Opens the traditional MatrixEater Import window responsible for this Simple Import, " +
 						"so that you can micro-manage particular settings before finishing the operation.");
 
-		setLayout();
+		add(goAdvanced, "spanx, align center");
 	}
 
-	private void setLayout() {
-		final GroupLayout layout = new GroupLayout(this);
-		layout.setHorizontalGroup(layout.createSequentialGroup().addGap(12)
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-						.addGroup(layout.createParallelGroup()
-								.addGroup(layout.createSequentialGroup()
-										.addGroup(layout.createParallelGroup()
-												.addComponent(baseFileLabel)
-												.addComponent(animFileLabel)
-												.addComponent(outFileLabel)).addGap(16)
-										.addGroup(layout.createParallelGroup()
-												.addComponent(baseFileInput)
-												.addComponent(animFileInput)
-												.addComponent(outFileInput)).addGap(16)
-										.addGroup(layout.createParallelGroup()
-												.addComponent(baseBrowse)
-												.addComponent(animBrowse)
-												.addComponent(outBrowse)))
-								.addGroup(layout.createSequentialGroup()
-										.addComponent(transSingleLabel)
-										.addComponent(transferSingleAnimation)))
-						.addGroup(layout.createSequentialGroup().addGap(48)
-								.addGroup(layout.createParallelGroup()
-										.addComponent(pickAnimLabel)
-										.addComponent(visFromLabel)).addGap(16)
-								.addGroup(layout.createParallelGroup()
-										.addComponent(pickAnimBox)
-										.addComponent(visFromBox)))
-						.addGroup(layout.createSequentialGroup()
-								.addComponent(transfer)
-								.addComponent(done))
-						.addComponent(goAdvanced)).addGap(12));
+	public JTextField getFileField() {
+		JTextField baseFileInput = new JTextField("");
+		baseFileInput.setMinimumSize(new Dimension(200, 18));
+		return baseFileInput;
+	}
 
-		layout.setVerticalGroup(layout.createSequentialGroup().addGap(12)
-				.addGroup(layout.createSequentialGroup()
-						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-								.addComponent(baseFileLabel)
-								.addComponent(baseFileInput)
-								.addComponent(baseBrowse))
-						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-								.addComponent(animFileLabel)
-								.addComponent(animFileInput)
-								.addComponent(animBrowse))
-						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-								.addComponent(outFileLabel)
-								.addComponent(outFileInput)
-								.addComponent(outBrowse))
-						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-								.addComponent(transSingleLabel)
-								.addComponent(transferSingleAnimation)).addGap(8)
-						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-								.addComponent(pickAnimLabel)
-								.addComponent(pickAnimBox))
-						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-								.addComponent(visFromLabel)
-								.addComponent(visFromBox)).addGap(24)
-						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-								.addComponent(transfer)
-								.addComponent(done)).addGap(12)
-						.addComponent(goAdvanced)).addGap(12));
-		setLayout(layout);
+	public JButton getBrowseButton(ActionListener actionListener) {
+		final Dimension dim = new Dimension(28, 18);
+		JButton baseBrowse = new JButton("...");
+		baseBrowse.setMaximumSize(dim);
+		baseBrowse.setMinimumSize(dim);
+		baseBrowse.setPreferredSize(dim);
+		baseBrowse.addActionListener(actionListener);
+		return baseBrowse;
 	}
 
 	public void refreshModels() throws IOException {
@@ -228,10 +184,6 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 		}
 	}
 
-	@Override
-	public void actionPerformed(final ActionEvent e) {
-	}
-
 	private void done() {
 		parentFrame.setVisible(false);
 		parentFrame.dispose();
@@ -252,7 +204,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 		visFromBox.setEnabled(transferSingleAnimation.isSelected());
 	}
 
-	private void saveAction() {
+	private void saveAction(JTextField jTextField) {
 		fc.setDialogTitle("Save");
 		final int returnValue = fc.showSaveDialog(this);
 
@@ -261,11 +213,11 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 			if (!filepath.toLowerCase().endsWith(".mdl") && !filepath.toLowerCase().endsWith(".mdx")) {
 				filepath += ".mdl";
 			}
-			outFileInput.setText(filepath);
+			jTextField.setText(filepath);
 		}
 	}
 
-	private void openAction(JTextField baseFileInput) {
+	private void openAction(JTextField jTextField) {
 		fc.setDialogTitle("Open");
 		final int returnValue = fc.showOpenDialog(this);
 
@@ -274,7 +226,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 			if (!filepath.toLowerCase().endsWith(".mdl") && !filepath.toLowerCase().endsWith(".mdx")) {
 				filepath += ".mdl";
 			}
-			baseFileInput.setText(filepath);
+			jTextField.setText(filepath);
 			try {
 				refreshModels();
 			} catch (final IOException e1) {
@@ -285,15 +237,17 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 	}
 
 	public void doTransfer(final boolean show) throws IOException {
-		final EditableModel sourceFile = MdxUtils.loadEditable(new File(baseFileInput.getText()));
-		final EditableModel animFile = MdxUtils.loadEditable(new File(animFileInput.getText()));
+		File baseFile = new File(baseFileInput.getText());
+		final EditableModel receivingModel = MdxUtils.loadEditable(baseFile);
+		receivingModel.setFileRef(baseFile);
+		File animFile = new File(animFileInput.getText());
+		final EditableModel donatingModel = MdxUtils.loadEditable(animFile);
+		donatingModel.setFileRef(animFile);
 
 		if (!transferSingleAnimation.isSelected()) {
 			new Thread(() -> {
-				final ImportPanel importPanel = new ImportPanel(sourceFile, animFile, show);
-				importPanel.animTransfer(transferSingleAnimation.isSelected(),
-						pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()),
-						visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
+				final ImportPanel importPanel = new ImportPanel(receivingModel, donatingModel, show);
+				importPanel.animTransfer(transferSingleAnimation.isSelected(), pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()), visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
 				waitWhileVisible(importPanel);
 
 				if (importPanel.importStarted()) {
@@ -304,7 +258,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 						if (!filepath.toLowerCase().endsWith(".mdl") && !filepath.toLowerCase().endsWith(".mdx")) {
 							filepath += ".mdl";
 						}
-						trySave(sourceFile, filepath);
+						trySave(receivingModel, filepath);
 						JOptionPane.showMessageDialog(null, "Animation transfer done!");
 					}
 				}
@@ -313,11 +267,8 @@ public class AnimationTransfer extends JPanel implements ActionListener {
             }).start();
 		} else {
 			final Thread watcher = new Thread(() -> {
-				final ImportPanel importPanel = new ImportPanel(sourceFile, animFile, show);
-				importPanel.animTransfer(transferSingleAnimation.isSelected(),
-						pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()),
-						visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
-
+				final ImportPanel importPanel = new ImportPanel(receivingModel, donatingModel, show);
+				importPanel.animTransfer(transferSingleAnimation.isSelected(), pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex()), visFromBox.getItemAt(visFromBox.getSelectedIndex()), show);
 				waitWhileVisible(importPanel);
 
 				if (importPanel.importStarted()) {
@@ -326,7 +277,10 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 					if (importPanel.importSuccessful()) {
 						final ImportPanel importPanel2;
 						try {
-							importPanel2 = new ImportPanel(sourceFile, MdxUtils.loadEditable(sourceFile.getFile()), show);
+							File newFile = receivingModel.getFile();
+							EditableModel newDonatingModel = MdxUtils.loadEditable(newFile);
+							newDonatingModel.setFileRef(newFile);
+							importPanel2 = new ImportPanel(receivingModel, newDonatingModel, show);
 						} catch (final IOException e) {
 							e.printStackTrace();
 							return;
@@ -341,7 +295,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 							waitForPanel(importPanel2);
 							if (importPanel2.importSuccessful()) {
 								JOptionPane.showMessageDialog(null, "Animation transfer done!");
-								trySave(sourceFile, outFileInput.getText());
+								trySave(receivingModel, outFileInput.getText());
 							}
 						}
 					}
@@ -367,7 +321,10 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 
 	private void trySave(EditableModel sourceFile, String text) {
 		try {
-			MdxUtils.saveMdx(sourceFile, new File(text));
+			File file = new File(text);
+			MdxUtils.saveMdx(sourceFile, file);
+			SaveProfile.get().addRecent(file.getPath());
+			MenuBar.updateRecent();
 		} catch (final IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

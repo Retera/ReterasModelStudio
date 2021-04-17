@@ -13,10 +13,10 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChange
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import net.infonode.docking.View;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 
@@ -26,10 +26,9 @@ import java.awt.image.BufferedImage;
  * @author (your name)
  * @version (a version number or a date)
  */
-public class DisplayPanel extends JPanel implements ActionListener {
+public class DisplayPanel extends JPanel {
 	private Viewport vp;
-	private final String title;
-	private final JButton up, down, left, right, plusZoom, minusZoom;
+	JPanel buttonPanel;
 	private final ViewportActivity activityListener;
 	private final ModelEditorChangeNotifier modelEditorChangeNotifier;
 	private final ModelStructureChangeListener modelStructureChangeListener;
@@ -37,9 +36,9 @@ public class DisplayPanel extends JPanel implements ActionListener {
 	private final ViewportListener viewportListener;
 
 	public DisplayPanel(final String title, final byte a, final byte b, final ModelView modelView,
-						final ModelEditor modelEditor, final ModelStructureChangeListener modelStructureChangeListener,
-						final ViewportActivity activityListener, final ProgramPreferences preferences,
-						final UndoActionListener undoListener, final CoordDisplayListener coordDisplayListener,
+	                    final ModelEditor modelEditor, final ModelStructureChangeListener modelStructureChangeListener,
+	                    final ViewportActivity activityListener, final ProgramPreferences preferences,
+	                    final UndoActionListener undoListener, final CoordDisplayListener coordDisplayListener,
 						final UndoHandler undoHandler, final ModelEditorChangeNotifier modelEditorChangeNotifier,
 						final ViewportTransferHandler viewportTransferHandler, final RenderModel renderModel,
 						final ViewportListener viewportListener) {
@@ -48,64 +47,50 @@ public class DisplayPanel extends JPanel implements ActionListener {
 		this.activityListener = activityListener;
 		this.modelEditorChangeNotifier = modelEditorChangeNotifier;
 		this.viewportListener = viewportListener;
-		// setBorder(BorderFactory.createTitledBorder(title));// BorderFactory.createCompoundBorder(
-		// BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title),BorderFactory.createBevelBorder(1)),BorderFactory.createEmptyBorder(1,1,1,1)
-		// ));
+
+		setLayout(new MigLayout("gap 0, ins 0, hidemode 2", "[grow][]", "[grow]"));
+
 		setOpaque(true);
-		setViewport(a, b, modelView, preferences, undoListener, coordDisplayListener, undoHandler, modelEditor,
-				viewportTransferHandler, renderModel);
-		this.title = title;
+		vp = getViewport(a, b, modelView, preferences, undoListener, coordDisplayListener, undoHandler, modelEditor, viewportTransferHandler, renderModel);
+		modelEditorChangeNotifier.subscribe(vp);
+		add(vp, "spany, growy, growx");
 
-		plusZoom = addButton(20, 20, "Plus.png");
+		buttonPanel = getButtonPanel();
+		add(buttonPanel, "gapy 16, top");
 
-		minusZoom = addButton(20, 20, "Minus.png");
-
-		up = addButton(32, 16, "ArrowUp.png");
-
-		down = addButton(32, 16, "ArrowDown.png");
-
-		left = addButton(16, 32, "ArrowLeft.png");
-
-		right = addButton(16, 32, "ArrowRight.png");
-
-		final GroupLayout layout = new GroupLayout(this);
-		layout.setHorizontalGroup(layout.createSequentialGroup()
-				.addComponent(vp)
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-						.addComponent(plusZoom)
-						.addComponent(minusZoom)
-						.addGroup(layout.createSequentialGroup()
-								.addComponent(left)
-								.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-										.addComponent(up)
-										.addComponent(down))
-								.addComponent(right))));
-
-		layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-				.addComponent(vp)
-				.addGroup(layout.createSequentialGroup()
-						.addComponent(plusZoom).addGap(16)
-						.addComponent(minusZoom).addGap(16)
-						.addComponent(up)
-						.addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-								.addComponent(left)
-								.addComponent(right))
-						.addComponent(down)));
-
-		setLayout(layout);
 		view = new View(title, null, this);
 		vp.setView(view);
 	}
 
-	private JButton addButton(int width, int height, String iconPath) {
+	private JPanel getButtonPanel() {
+		JPanel buttonPanel = new JPanel(new MigLayout("gap 0, ins 0, fill", "[][][]", "[][][][][]"));
+		JPanel arrowPanel = new JPanel(new MigLayout("gap 0, ins 0, fill", "[][][]", "[][][]"));
+		JButton plusZoom = addButton(20, 20, "Plus.png", e -> zoom(.15));
+		JButton minusZoom = addButton(20, 20, "Minus.png", e -> zoom(-.15));
+		JButton up = addButton(32, 16, "ArrowUp.png", e -> panUpDown(20));
+		JButton left = addButton(16, 32, "ArrowLeft.png", e -> panLeftRight(20));
+		JButton right = addButton(16, 32, "ArrowRight.png", e -> panLeftRight(-20));
+		JButton down = addButton(32, 16, "ArrowDown.png", e -> panUpDown(-20));
+
+
+		buttonPanel.add(plusZoom, "align center, wrap");
+		buttonPanel.add(minusZoom, "gapy 16, align center, wrap");
+		arrowPanel.add(up, "cell 1 0");
+		arrowPanel.add(left, "cell 0 1");
+		arrowPanel.add(right, "cell 2 1");
+		arrowPanel.add(down, "cell 1 2");
+		buttonPanel.add(arrowPanel, "gapy 16");
+		return buttonPanel;
+	}
+
+	private JButton addButton(int width, int height, String iconPath, ActionListener actionListener) {
 		Dimension dim = new Dimension(width, height);
 		JButton button = new JButton("");
 		button.setMaximumSize(dim);
 		button.setMinimumSize(dim);
 		button.setPreferredSize(dim);
 		button.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage(iconPath)));
-		button.addActionListener(this);
-		add(button);
+		button.addActionListener(actionListener);
 		return button;
 	}
 
@@ -114,81 +99,38 @@ public class DisplayPanel extends JPanel implements ActionListener {
 	}
 
 	public void setControlsVisible(final boolean flag) {
-		up.setVisible(flag);
-		down.setVisible(flag);
-		left.setVisible(flag);
-		right.setVisible(flag);
-		plusZoom.setVisible(flag);
-		minusZoom.setVisible(flag);
+		buttonPanel.setVisible(flag);
 	}
 
-	public void setViewport(final byte a, final byte b, final ModelView modelView,
-							final ProgramPreferences programPreferences, final UndoActionListener undoListener,
-							final CoordDisplayListener coordDisplayListener, final UndoHandler undoHandler,
-							final ModelEditor modelEditor, final ViewportTransferHandler viewportTransferHandler,
-							final RenderModel renderModel) {
-		vp = new Viewport(a, b, modelView, programPreferences, activityListener, modelStructureChangeListener,
-				undoListener, coordDisplayListener, undoHandler, modelEditor, viewportTransferHandler, renderModel,
-				viewportListener);
-		modelEditorChangeNotifier.subscribe(vp);
-		add(vp);
+	public Viewport getViewport(final byte a, final byte b, final ModelView modelView,
+	                            final ProgramPreferences programPreferences, final UndoActionListener undoListener,
+	                            final CoordDisplayListener coordDisplayListener, final UndoHandler undoHandler,
+	                            final ModelEditor modelEditor, final ViewportTransferHandler viewportTransferHandler,
+	                            final RenderModel renderModel) {
+		return new Viewport(a, b, modelView, programPreferences, activityListener, modelStructureChangeListener, undoListener, coordDisplayListener, undoHandler, modelEditor, viewportTransferHandler, renderModel, viewportListener);
 	}
 
 	@Override
 	public void paintComponent(final Graphics g) {
 		super.paintComponent(g);
+		revalidate();
 		// g.drawString(title,3,3);
 		vp.repaint();
 	}
 
-	// public void addGeoset(Geoset g)
-	// {
-	// m_geosets.add(g);
-	// }
-	// public void setGeosetVisible(int index, boolean flag)
-	// {
-	// Geoset geo = (Geoset)m_geosets.get(index);
-	// geo.setVisible(flag);
-	// }
-	// public void setGeosetHighlight(int index, boolean flag)
-	// {
-	// Geoset geo = (Geoset)m_geosets.get(index);
-	// geo.setHighlight(flag);
-	// }
-	// public void clearGeosets()
-	// {
-	// m_geosets.clear();
-	// }
-	// public int getGeosetsSize()
-	// {
-	// return m_geosets.size();
-	// }
-	@Override
-	public void actionPerformed(final ActionEvent e) {
-		if (e.getSource() == up) {
-			vp.translate(0, (20 * (1 / vp.getZoomAmount())));
-			vp.repaint();
-		}
-		if (e.getSource() == down) {
-			vp.translate(0, (-20 * (1 / vp.getZoomAmount())));
-			vp.repaint();
-		}
-		if (e.getSource() == left) {
-			vp.translate((20 * (1 / vp.getZoomAmount())), 0);
-			vp.repaint();
-		}
-		if (e.getSource() == right) {
-			vp.translate((-20 * (1 / vp.getZoomAmount())), 0);// *vp.getZoomAmount()
-			vp.repaint();
-		}
-		if (e.getSource() == plusZoom) {
-			vp.zoom(.15);
-			vp.repaint();
-		}
-		if (e.getSource() == minusZoom) {
-			vp.zoom(-.15);
-			vp.repaint();
-		}
+	public void zoom(double v) {
+		vp.zoom(v);
+		vp.repaint();
+	}
+
+	public void panLeftRight(int i) {
+		vp.translate((i * (1 / vp.getZoomAmount())), 0);
+		vp.repaint();
+	}
+
+	public void panUpDown(int i) {
+		vp.translate(0, (i * (1 / vp.getZoomAmount())));
+		vp.repaint();
 	}
 
 	public ImageIcon getImageIcon() {

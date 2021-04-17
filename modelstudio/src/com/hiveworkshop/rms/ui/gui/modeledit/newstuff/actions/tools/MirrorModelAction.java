@@ -1,13 +1,13 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools;
 
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.util.Vec3;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.util.Vec3;
 
 public final class MirrorModelAction implements UndoAction {
 	private final char[] DIMENSION_NAMES = { 'Z', 'X', 'Y' };
@@ -56,7 +56,7 @@ public final class MirrorModelAction implements UndoAction {
 				}
 				if (gv.getTangent() != null) {
 					// TODO doesn't support flip yet
-					gv.getTangent()[mirrorDim] = -gv.getTangent()[mirrorDim];
+					gv.getTangent().setCoord(mirrorDim, -gv.getTangent().getCoord(mirrorDim));
 				}
 			}
 		}

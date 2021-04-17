@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.parsers.mdlx;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.BinaryReader;
 import com.hiveworkshop.rms.util.BinaryWriter;
 
@@ -92,7 +93,7 @@ public class MdlxCollisionShape extends MdlxGenericObject {
 					stream.read(); // }
 				}
 				case MdlUtils.TOKEN_BOUNDSRADIUS -> boundsRadius = stream.readFloat();
-				default -> throw new RuntimeException("Unknown token in CollisionShape " + name + ": " + token);
+				default -> ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in CollisionShape " + name + ": " + token);
 			}
 		}
 	}

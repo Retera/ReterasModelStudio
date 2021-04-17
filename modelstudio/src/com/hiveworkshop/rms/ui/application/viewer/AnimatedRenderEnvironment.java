@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
-import com.hiveworkshop.rms.ui.application.edit.animation.BasicTimeBoundProvider;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
 
 public interface AnimatedRenderEnvironment {
 	/* This is a rather nonsense constant for emitters regarding how many frames through time the emitter
@@ -13,7 +13,9 @@ public interface AnimatedRenderEnvironment {
 
 	int getAnimationTime();
 
-	BasicTimeBoundProvider getCurrentAnimation(); // nullable
+	TimeBoundProvider getCurrentAnimation(); // nullable
 
 	int getGlobalSeqTime(int length); // for glob seq
+
+	float getAnimationSpeed();
 }

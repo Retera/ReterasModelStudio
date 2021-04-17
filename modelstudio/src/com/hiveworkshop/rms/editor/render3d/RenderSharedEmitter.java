@@ -1,9 +1,9 @@
 package com.hiveworkshop.rms.editor.render3d;
 
+import com.hiveworkshop.rms.editor.model.IdObject;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.hiveworkshop.rms.editor.model.IdObject;
 
 public abstract class RenderSharedEmitter<MODEL_OBJECT extends IdObject, EMITTER_VIEW extends EmitterView> {
 	protected final MODEL_OBJECT modelObject;
@@ -46,6 +46,7 @@ public abstract class RenderSharedEmitter<MODEL_OBJECT extends IdObject, EMITTER
 				}
 			}
 		}
+//		System.out.println("alive: " + alive);
 
 		this.updateData();
 	}

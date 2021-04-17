@@ -1,17 +1,30 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator;
 
-import java.awt.Graphics2D;
-import java.awt.geom.Point2D;
-
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 
-public interface Manipulator {
-	void start(Point2D.Double mouseStart, byte dim1, byte dim2);
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Double;
 
-	void update(Point2D.Double mouseStart, Point2D.Double mouseEnd, byte dim1, byte dim2);
+public abstract class Manipulator {
+	protected final Point2D.Double activityStart = new Point2D.Double();
 
-	UndoAction finish(Point2D.Double mouseStart, Point2D.Double mouseEnd, byte dim1, byte dim2);
+	public final void start(MouseEvent e, final Double mouseStart, final byte dim1, final byte dim2) {
+		activityStart.x = mouseStart.x;
+		activityStart.y = mouseStart.y;
+		onStart(e, mouseStart, dim1, dim2);
+	}
 
-	void render(Graphics2D graphics, CoordinateSystem coordinateSystem);
+	protected void onStart(MouseEvent e, final Double mouseStart, final byte dim1, final byte dim2) {
+	}
+
+	public abstract void update(MouseEvent e, final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2);
+
+	public abstract UndoAction finish(MouseEvent e, final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2);
+
+	public void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem) {
+
+	}
 }

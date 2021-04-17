@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.types.pivotpoint;
 
 import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -38,9 +39,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	private final GenericSelectorVisitor genericSelectorVisitor;
 	private final SelectionAtPointTester selectionAtPointTester;
 
-	public PivotPointModelEditor(final ModelView model, final ProgramPreferences programPreferences,
-			final SelectionManager<Vec3> selectionManager,
-			final ModelStructureChangeListener structureChangeListener) {
+	public PivotPointModelEditor(final ModelView model, final ProgramPreferences programPreferences, final SelectionManager<Vec3> selectionManager, final ModelStructureChangeListener structureChangeListener) {
 		super(selectionManager, model, structureChangeListener);
 		this.programPreferences = programPreferences;
 		genericSelectorVisitor = new GenericSelectorVisitor();
@@ -111,19 +110,22 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 		return renameBoneAction;
 	}
 
-	@Override
-	public UndoAction addSelectedBoneSuffix(final String name) {
-		final Set<Vec3> selection = selectionManager.getSelection();
-		final List<RenameBoneAction> actions = new ArrayList<>();
-		for (final IdObject bone : model.getEditableIdObjects()) {
-			if (selection.contains(bone.getPivotPoint())) {
-				final RenameBoneAction renameBoneAction = new RenameBoneAction(bone.getName(), bone.getName() + name,
-						bone);
-				renameBoneAction.redo();
-				actions.add(renameBoneAction);
-			}
+	public static void hitTest(final List<Vec3> selectedItems, final Rectangle2D area, final Vec3 geosetVertex, final CoordinateSystem coordinateSystem, final double vertexSize) {
+		final byte dim1 = coordinateSystem.getPortFirstXYZ();
+		final byte dim2 = coordinateSystem.getPortSecondXYZ();
+		final double minX = coordinateSystem.convertX(area.getMinX());
+		final double minY = coordinateSystem.convertY(area.getMinY());
+		final double maxX = coordinateSystem.convertX(area.getMaxX());
+		final double maxY = coordinateSystem.convertY(area.getMaxY());
+		final double vertexX = geosetVertex.getCoord(dim1);
+		final double x = coordinateSystem.convertX(vertexX);
+		final double vertexY = geosetVertex.getCoord(dim2);
+		final double y = coordinateSystem.convertY(vertexY);
+		if ((distance(x, y, minX, minY) <= (vertexSize / 2.0))
+				|| (distance(x, y, maxX, maxY) <= (vertexSize / 2.0))
+				|| area.contains(vertexX, vertexY)) {
+			selectedItems.add(geosetVertex);
 		}
-		return new CompoundAction("add selected bone suffix", actions);
 	}
 
 	@Override
@@ -136,168 +138,26 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 		return new DoNothingAction("split geoset");
 	}
 
-	@Override
-	public void selectByVertices(final Collection<? extends Vec3> newSelection) {
-		final List<Vec3> newlySelectedPivots = new ArrayList<>();
-		for (final IdObject object : model.getEditableIdObjects()) {
-			if (newSelection.contains(object.getPivotPoint())) {
-				newlySelectedPivots.add(object.getPivotPoint());
-			}
-			object.apply(new IdObjectVisitor() {
-				@Override
-				public void ribbonEmitter(final RibbonEmitter particleEmitter) {
-
-				}
-
-				@Override
-				public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
-
-				}
-
-				@Override
-				public void particleEmitter(final ParticleEmitter particleEmitter) {
-
-				}
-
-				@Override
-				public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
-
-				}
-
-				@Override
-				public void light(final Light light) {
-
-				}
-
-				@Override
-				public void helper(final Helper object) {
-
-				}
-
-				@Override
-				public void eventObject(final EventObject eventObject) {
-
-				}
-
-				@Override
-				public void collisionShape(final CollisionShape collisionShape) {
-					for (final Vec3 vertex : collisionShape.getVertices()) {
-						if (newSelection.contains(vertex)) {
-							newlySelectedPivots.add(vertex);
-						}
-					}
-				}
-
-				@Override
-				public void camera(final Camera camera) {
-
-				}
-
-				@Override
-				public void bone(final Bone object) {
-
-				}
-
-				@Override
-				public void attachment(final Attachment attachment) {
-
-				}
-			});
-		}
-		for (final Camera camera : model.getEditableCameras()) {
-			if (newSelection.contains(camera.getPosition())) {
-				newlySelectedPivots.add(camera.getPosition());
-			}
-			if (newSelection.contains(camera.getTargetPosition())) {
-				newlySelectedPivots.add(camera.getTargetPosition());
-			}
-		}
-		selectionManager.setSelection(newlySelectedPivots);
+	public static boolean hitTest(final Vec3 vertex, final Point2D point, final CoordinateSystem coordinateSystem, final double vertexSize) {
+		final double x = coordinateSystem.convertX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
+		final double y = coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
+		final double px = coordinateSystem.convertX(point.getX());
+		final double py = coordinateSystem.convertY(point.getY());
+		return Point2D.distance(px, py, x, y) <= (vertexSize / 2.0);
 	}
 
 	@Override
-	public UndoAction expandSelection() {
-		final Set<Vec3> expandedSelection = new HashSet<>(selectionManager.getSelection());
-		final Set<Vec3> oldSelection = new HashSet<>(selectionManager.getSelection());
-		final IdObjectVisitor visitor = new IdObjectVisitor() {
-			@Override
-			public void ribbonEmitter(final RibbonEmitter particleEmitter) {
-
+	public UndoAction addSelectedBoneSuffix(final String name) {
+		final Set<Vec3> selection = selectionManager.getSelection();
+		final List<RenameBoneAction> actions = new ArrayList<>();
+		for (final IdObject bone : model.getEditableIdObjects()) {
+			if (selection.contains(bone.getPivotPoint())) {
+				final RenameBoneAction renameBoneAction = new RenameBoneAction(bone.getName(), bone.getName() + name, bone);
+				renameBoneAction.redo();
+				actions.add(renameBoneAction);
 			}
-
-			@Override
-			public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
-
-			}
-
-			@Override
-			public void particleEmitter(final ParticleEmitter particleEmitter) {
-
-			}
-
-			@Override
-			public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
-			}
-
-			@Override
-			public void light(final Light light) {
-
-			}
-
-			@Override
-			public void helper(final Helper object) {
-
-			}
-
-			@Override
-			public void eventObject(final EventObject eventObject) {
-
-			}
-
-			@Override
-			public void collisionShape(final CollisionShape collisionShape) {
-				boolean selected = false;
-				if (oldSelection.contains(collisionShape.getPivotPoint())) {
-					selected = true;
-				}
-				for (final Vec3 vertex : collisionShape.getVertices()) {
-					if (oldSelection.contains(vertex)) {
-						selected = true;
-						break;
-					}
-				}
-				if (selected) {
-					expandedSelection.addAll(collisionShape.getVertices());
-					expandedSelection.add(collisionShape.getPivotPoint());
-				}
-			}
-
-			@Override
-			public void camera(final Camera camera) {
-				if (oldSelection.contains(camera.getTargetPosition()) || oldSelection.contains(camera.getPosition())) {
-					expandedSelection.add(camera.getPosition());
-					expandedSelection.add(camera.getTargetPosition());
-				}
-			}
-
-			@Override
-			public void bone(final Bone object) {
-
-			}
-
-			@Override
-			public void attachment(final Attachment attachment) {
-
-			}
-		};
-		for (final IdObject node : model.getEditableIdObjects()) {
-			node.apply(visitor);
 		}
-		for (final Camera camera : model.getEditableCameras()) {
-			visitor.camera(camera);
-		}
-		selectionManager.setSelection(expandedSelection);
-		return new SetSelectionAction<>(expandedSelection, oldSelection, selectionManager, "expand selection");
+		return new CompoundAction("add selected bone suffix", actions);
 	}
 
 	@Override
@@ -489,31 +349,152 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 		return selectionAtPointTester.isMouseOverVertex();
 	}
 
-	public static void hitTest(final List<Vec3> selectedItems, final Rectangle2D area, final Vec3 geosetVertex,
-			final CoordinateSystem coordinateSystem, final double vertexSize) {
-		final byte dim1 = coordinateSystem.getPortFirstXYZ();
-		final byte dim2 = coordinateSystem.getPortSecondXYZ();
-		final double minX = coordinateSystem.convertX(area.getMinX());
-		final double minY = coordinateSystem.convertY(area.getMinY());
-		final double maxX = coordinateSystem.convertX(area.getMaxX());
-		final double maxY = coordinateSystem.convertY(area.getMaxY());
-		final double vertexX = geosetVertex.getCoord(dim1);
-		final double x = coordinateSystem.convertX(vertexX);
-		final double vertexY = geosetVertex.getCoord(dim2);
-		final double y = coordinateSystem.convertY(vertexY);
-		if ((distance(x, y, minX, minY) <= (vertexSize / 2.0)) || (distance(x, y, maxX, maxY) <= (vertexSize / 2.0))
-				|| area.contains(vertexX, vertexY)) {
-			selectedItems.add(geosetVertex);
+	@Override
+	public void selectByVertices(final Collection<? extends Vec3> newSelection) {
+		final List<Vec3> newlySelectedPivots = new ArrayList<>();
+		for (final IdObject object : model.getEditableIdObjects()) {
+			if (newSelection.contains(object.getPivotPoint())) {
+				newlySelectedPivots.add(object.getPivotPoint());
+			}
+			object.apply(new IdObjectVisitor() {
+				@Override
+				public void ribbonEmitter(final RibbonEmitter particleEmitter) {
+				}
+
+				@Override
+				public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
+				}
+
+				@Override
+				public void particleEmitter(final ParticleEmitter particleEmitter) {
+				}
+
+				@Override
+				public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
+				}
+
+				@Override
+				public void light(final Light light) {
+				}
+
+				@Override
+				public void helper(final Helper object) {
+				}
+
+				@Override
+				public void eventObject(final EventObject eventObject) {
+				}
+
+				@Override
+				public void collisionShape(final CollisionShape collisionShape) {
+					for (final Vec3 vertex : collisionShape.getVertices()) {
+						if (newSelection.contains(vertex)) {
+							newlySelectedPivots.add(vertex);
+						}
+					}
+				}
+
+				@Override
+				public void camera(final Camera camera) {
+				}
+
+				@Override
+				public void bone(final Bone object) {
+				}
+
+				@Override
+				public void attachment(final Attachment attachment) {
+				}
+			});
 		}
+		for (final Camera camera : model.getEditableCameras()) {
+			if (newSelection.contains(camera.getPosition())) {
+				newlySelectedPivots.add(camera.getPosition());
+			}
+			if (newSelection.contains(camera.getTargetPosition())) {
+				newlySelectedPivots.add(camera.getTargetPosition());
+			}
+		}
+		selectionManager.setSelection(newlySelectedPivots);
 	}
 
-	public static boolean hitTest(final Vec3 vertex, final Point2D point, final CoordinateSystem coordinateSystem,
-			final double vertexSize) {
-		final double x = coordinateSystem.convertX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
-		final double y = coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
-		final double px = coordinateSystem.convertX(point.getX());
-		final double py = coordinateSystem.convertY(point.getY());
-		return Point2D.distance(px, py, x, y) <= (vertexSize / 2.0);
+	@Override
+	public UndoAction expandSelection() {
+		final Set<Vec3> expandedSelection = new HashSet<>(selectionManager.getSelection());
+		final Set<Vec3> oldSelection = new HashSet<>(selectionManager.getSelection());
+		final IdObjectVisitor visitor = new IdObjectVisitor() {
+			@Override
+			public void ribbonEmitter(final RibbonEmitter particleEmitter) {
+			}
+
+			@Override
+			public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
+			}
+
+			@Override
+			public void particleEmitter(final ParticleEmitter particleEmitter) {
+			}
+
+			@Override
+			public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
+			}
+
+			@Override
+			public void light(final Light light) {
+			}
+
+			@Override
+			public void helper(final Helper object) {
+			}
+
+			@Override
+			public void eventObject(final EventObject eventObject) {
+			}
+
+			@Override
+			public void collisionShape(final CollisionShape collisionShape) {
+				boolean selected = false;
+				if (oldSelection.contains(collisionShape.getPivotPoint())) {
+					selected = true;
+				}
+				for (final Vec3 vertex : collisionShape.getVertices()) {
+					if (oldSelection.contains(vertex)) {
+						selected = true;
+						break;
+					}
+				}
+				if (selected) {
+					expandedSelection.addAll(collisionShape.getVertices());
+					expandedSelection.add(collisionShape.getPivotPoint());
+				}
+			}
+
+			@Override
+			public void camera(final Camera camera) {
+				if (oldSelection.contains(camera.getTargetPosition()) || oldSelection.contains(camera.getPosition())) {
+					expandedSelection.add(camera.getPosition());
+					expandedSelection.add(camera.getTargetPosition());
+				}
+			}
+
+			@Override
+			public void bone(final Bone object) {
+
+			}
+
+			@Override
+			public void attachment(final Attachment attachment) {
+
+			}
+		};
+		for (final IdObject node : model.getEditableIdObjects()) {
+			node.apply(visitor);
+		}
+		for (final Camera camera : model.getEditableCameras()) {
+			visitor.camera(camera);
+		}
+		selectionManager.setSelection(expandedSelection);
+		return new SetSelectionAction<>(expandedSelection, oldSelection, selectionManager, "expand selection");
 	}
 
 	public static double distance(final double vertexX, final double vertexY, final double x, final double y) {
@@ -523,8 +504,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	}
 
 	@Override
-	protected UndoAction buildHideComponentAction(final List<? extends SelectableComponent> selectableComponents,
-                                                  final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
+	protected UndoAction buildHideComponentAction(final List<? extends SelectableComponent> selectableComponents, final EditabilityToggleHandler editabilityToggleHandler, final Runnable refreshGUIRunnable) {
 		final List<Vec3> previousSelection = new ArrayList<>(selectionManager.getSelection());
 		final List<Vec3> possibleVerticesToTruncate = new ArrayList<>();
 		for (final SelectableComponent component : selectableComponents) {
@@ -541,37 +521,30 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 					node.apply(new IdObjectVisitor() {
 						@Override
 						public void ribbonEmitter(final RibbonEmitter particleEmitter) {
-
 						}
 
 						@Override
 						public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
-
 						}
 
 						@Override
 						public void particleEmitter(final ParticleEmitter particleEmitter) {
-
 						}
 
 						@Override
 						public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
-
 						}
 
 						@Override
 						public void light(final Light light) {
-
 						}
 
 						@Override
 						public void helper(final Helper object) {
-
 						}
 
 						@Override
 						public void eventObject(final EventObject eventObject) {
-
 						}
 
 						@Override
@@ -586,12 +559,10 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 
 						@Override
 						public void bone(final Bone object) {
-
 						}
 
 						@Override
 						public void attachment(final Attachment attachment) {
-
 						}
 					});
 				}
@@ -603,194 +574,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 		}
 		final Runnable truncateSelectionRunnable = () -> selectionManager.removeSelection(possibleVerticesToTruncate);
 		final Runnable unTruncateSelectionRunnable = () -> selectionManager.setSelection(previousSelection);
-		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable,
-				unTruncateSelectionRunnable, refreshGUIRunnable);
-	}
-
-	private final class SelectionAtPointTester implements IdObjectVisitor {
-		private CoordinateSystem axes;
-		private Point point;
-		private boolean mouseOverVertex;
-
-		private SelectionAtPointTester reset(final CoordinateSystem axes, final Point point) {
-			this.axes = axes;
-			this.point = point;
-			mouseOverVertex = false;
-			return this;
-		}
-
-		@Override
-		public void ribbonEmitter(final RibbonEmitter particleEmitter) {
-			handleDefaultNode(point, axes, particleEmitter);
-		}
-
-		private void handleDefaultNode(final Point point, final CoordinateSystem axes, final IdObject node) {
-			if (hitTest(node.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes,
-					node.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes) * 2)) {
-				mouseOverVertex = true;
-			}
-		}
-
-		@Override
-		public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
-			handleDefaultNode(point, axes, particleEmitter);
-		}
-
-		@Override
-		public void particleEmitter(final ParticleEmitter particleEmitter) {
-			handleDefaultNode(point, axes, particleEmitter);
-		}
-
-		@Override
-		public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
-			handleDefaultNode(point, axes, popcornFxEmitter);
-		}
-
-		@Override
-		public void light(final Light light) {
-			handleDefaultNode(point, axes, light);
-		}
-
-		@Override
-		public void helper(final Helper node) {
-			if (hitTest(node.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes,
-					node.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes))) {
-				mouseOverVertex = true;
-			}
-		}
-
-		@Override
-		public void eventObject(final EventObject eventObject) {
-			handleDefaultNode(point, axes, eventObject);
-		}
-
-		@Override
-		public void collisionShape(final CollisionShape collisionShape) {
-			handleDefaultNode(point, axes, collisionShape);
-			for (final Vec3 vertex : collisionShape.getVertices()) {
-				if (hitTest(vertex, CoordinateSystem.Util.geom(axes, point), axes, IdObject.DEFAULT_CLICK_RADIUS)) {
-					mouseOverVertex = true;
-				}
-			}
-		}
-
-		@Override
-		public void camera(final Camera camera) {
-			if (hitTest(camera.getPosition(), CoordinateSystem.Util.geom(axes, point), axes,
-					programPreferences.getVertexSize())) {
-				mouseOverVertex = true;
-			}
-			if (hitTest(camera.getTargetPosition(), CoordinateSystem.Util.geom(axes, point), axes,
-					programPreferences.getVertexSize())) {
-				mouseOverVertex = true;
-			}
-		}
-
-		@Override
-		public void bone(final Bone node) {
-			if (hitTest(node.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes,
-					node.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes))) {
-				mouseOverVertex = true;
-			}
-		}
-
-		@Override
-		public void attachment(final Attachment attachment) {
-			handleDefaultNode(point, axes, attachment);
-		}
-
-		public boolean isMouseOverVertex() {
-			return mouseOverVertex;
-		}
-	}
-
-	private final class GenericSelectorVisitor implements IdObjectVisitor {
-		private List<Vec3> selectedItems;
-		private Rectangle2D area;
-		private CoordinateSystem coordinateSystem;
-
-		private GenericSelectorVisitor reset(final List<Vec3> selectedItems, final Rectangle2D area,
-				final CoordinateSystem coordinateSystem) {
-			this.selectedItems = selectedItems;
-			this.area = area;
-			this.coordinateSystem = coordinateSystem;
-			return this;
-		}
-
-		@Override
-		public void ribbonEmitter(final RibbonEmitter particleEmitter) {
-			hitTest(selectedItems, area, particleEmitter.getPivotPoint(), coordinateSystem,
-					particleEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem)
-							* 2);
-		}
-
-		@Override
-		public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
-			hitTest(selectedItems, area, particleEmitter.getPivotPoint(), coordinateSystem,
-					particleEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem)
-							* 2);
-		}
-
-		@Override
-		public void particleEmitter(final ParticleEmitter particleEmitter) {
-			hitTest(selectedItems, area, particleEmitter.getPivotPoint(), coordinateSystem,
-					particleEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem)
-							* 2);
-		}
-
-		@Override
-		public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
-			hitTest(selectedItems, area, popcornFxEmitter.getPivotPoint(), coordinateSystem,
-					popcornFxEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem)
-							* 2);
-		}
-
-		@Override
-		public void light(final Light light) {
-			hitTest(selectedItems, area, light.getPivotPoint(), coordinateSystem,
-					light.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2);
-		}
-
-		@Override
-		public void helper(final Helper object) {
-			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem,
-					object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem));
-		}
-
-		@Override
-		public void eventObject(final EventObject eventObject) {
-			hitTest(selectedItems, area, eventObject.getPivotPoint(), coordinateSystem,
-					eventObject.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2);
-		}
-
-		@Override
-		public void collisionShape(final CollisionShape collisionShape) {
-			hitTest(selectedItems, area, collisionShape.getPivotPoint(), coordinateSystem,
-					collisionShape.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem)
-							* 2);
-			for (final Vec3 vertex : collisionShape.getVertices()) {
-				hitTest(selectedItems, area, vertex, coordinateSystem, IdObject.DEFAULT_CLICK_RADIUS);
-			}
-		}
-
-		@Override
-		public void camera(final Camera camera) {
-			hitTest(selectedItems, area, camera.getPosition(), coordinateSystem, programPreferences.getVertexSize());
-			hitTest(selectedItems, area, camera.getTargetPosition(), coordinateSystem,
-					programPreferences.getVertexSize());
-		}
-
-		@Override
-		public void bone(final Bone object) {
-			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem,
-					object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem));
-		}
-
-		@Override
-		public void attachment(final Attachment attachment) {
-			hitTest(selectedItems, area, attachment.getPivotPoint(), coordinateSystem,
-					attachment.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2);
-		}
+		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable, unTruncateSelectionRunnable, refreshGUIRunnable);
 	}
 
 	@Override
@@ -809,7 +593,8 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 			}
 		}
 		for (final Camera camera : model.getEditableCameras()) {
-			if (selection.contains(camera.getTargetPosition()) || selection.contains(camera.getPosition())) {
+			if (selection.contains(camera.getTargetPosition())
+					|| selection.contains(camera.getPosition())) {
 				clonedCameras.add(camera);
 			}
 		}
@@ -817,8 +602,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	}
 
 	@Override
-	public void rawScale(final double centerX, final double centerY, final double centerZ, final double scaleX,
-						 final double scaleY, final double scaleZ) {
+	public void rawScale(final double centerX, final double centerY, final double centerZ, final double scaleX, final double scaleY, final double scaleZ) {
 		super.rawScale(centerX, centerY, centerZ, scaleX, scaleY, scaleZ);
 		for (final IdObject b : model.getEditableIdObjects()) {
 			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
@@ -845,15 +629,15 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 
 					@Override
 					public void helper(final Helper object) {
-						final AnimFlag translation = object.find("Translation");
+						final Vec3AnimFlag translation = (Vec3AnimFlag) object.find("Translation");
 						if (translation != null) {
 							for (int i = 0; i < translation.size(); i++) {
-								final Vec3 scaleData = (Vec3) translation.getValues().get(i);
+								final Vec3 scaleData = translation.getValues().get(i);
 								scaleData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
 								if (translation.tans()) {
-									final Vec3 inTanData = (Vec3) translation.getInTans().get(i);
+									final Vec3 inTanData = translation.getInTans().get(i);
 									inTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
-									final Vec3 outTanData = (Vec3) translation.getInTans().get(i);
+									final Vec3 outTanData = translation.getInTans().get(i);
 									outTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
 								}
 							}
@@ -878,15 +662,15 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 
 					@Override
 					public void bone(final Bone object) {
-						final AnimFlag translation = object.find("Translation");
+						final Vec3AnimFlag translation = (Vec3AnimFlag) object.find("Translation");
 						if (translation != null) {
 							for (int i = 0; i < translation.size(); i++) {
-								final Vec3 scaleData = (Vec3) translation.getValues().get(i);
+								final Vec3 scaleData = translation.getValues().get(i);
 								scaleData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
 								if (translation.tans()) {
-									final Vec3 inTanData = (Vec3) translation.getInTans().get(i);
+									final Vec3 inTanData = translation.getInTans().get(i);
 									inTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
-									final Vec3 outTanData = (Vec3) translation.getInTans().get(i);
+									final Vec3 outTanData = translation.getInTans().get(i);
 									outTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
 								}
 							}
@@ -897,21 +681,6 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 					public void attachment(final Attachment attachment) {
 					}
 				});
-			}
-		}
-	}
-
-	@Override
-	public void rawTranslate(final double x, final double y, final double z) {
-		super.rawTranslate(x, y, z);
-		for (final IdObject b : model.getEditableIdObjects()) {
-			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
-				final float[] bindPose = b.getBindPose();
-				if (bindPose != null) {
-					bindPose[9] += x;
-					bindPose[10] += y;
-					bindPose[11] += z;
-				}
 			}
 		}
 	}
@@ -931,10 +700,121 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 				deletedCameras.add(camera);
 			}
 		}
-		final DeleteNodesAction deleteNodesAction = new DeleteNodesAction(selectionManager.getSelection(),
-				deletedIdObjects, deletedCameras, structureChangeListener, model, vertexSelectionHelper);
+		final DeleteNodesAction deleteNodesAction = new DeleteNodesAction(selectionManager.getSelection(), deletedIdObjects, deletedCameras, structureChangeListener, model, vertexSelectionHelper);
 		deleteNodesAction.redo();
 		return deleteNodesAction;
+	}
+
+	@Override
+	public UndoAction addVertex(final double x, final double y, final double z, final Vec3 preferredNormalFacingVector) {
+		return new DoNothingAction("add vertex");
+	}
+
+	@Override
+	public void rawTranslate(final double x, final double y, final double z) {
+		super.rawTranslate(x, y, z);
+		for (final IdObject b : model.getEditableIdObjects()) {
+			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
+				final float[] bindPose = b.getBindPose();
+				if (bindPose != null) {
+					bindPose[9] += x;
+					bindPose[10] += y;
+					bindPose[11] += z;
+				}
+			}
+		}
+	}
+
+	private final class SelectionAtPointTester implements IdObjectVisitor {
+		private CoordinateSystem axes;
+		private Point point;
+		private boolean mouseOverVertex;
+
+		private SelectionAtPointTester reset(final CoordinateSystem axes, final Point point) {
+			this.axes = axes;
+			this.point = point;
+			mouseOverVertex = false;
+			return this;
+		}
+
+		@Override
+		public void ribbonEmitter(final RibbonEmitter particleEmitter) {
+			handleDefaultNode(point, axes, particleEmitter);
+		}
+
+		private void handleDefaultNode(final Point point, final CoordinateSystem axes, final IdObject node) {
+			if (hitTest(node.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes, node.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes) * 2)) {
+				mouseOverVertex = true;
+			}
+		}
+
+		@Override
+		public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
+			handleDefaultNode(point, axes, particleEmitter);
+		}
+
+		@Override
+		public void particleEmitter(final ParticleEmitter particleEmitter) {
+			handleDefaultNode(point, axes, particleEmitter);
+		}
+
+		@Override
+		public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
+			handleDefaultNode(point, axes, popcornFxEmitter);
+		}
+
+		@Override
+		public void light(final Light light) {
+			handleDefaultNode(point, axes, light);
+		}
+
+		@Override
+		public void helper(final Helper node) {
+			if (hitTest(node.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes, node.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes))) {
+				mouseOverVertex = true;
+			}
+		}
+
+		@Override
+		public void eventObject(final EventObject eventObject) {
+			handleDefaultNode(point, axes, eventObject);
+		}
+
+		@Override
+		public void collisionShape(final CollisionShape collisionShape) {
+			handleDefaultNode(point, axes, collisionShape);
+			for (final Vec3 vertex : collisionShape.getVertices()) {
+				if (hitTest(vertex, CoordinateSystem.Util.geom(axes, point), axes, IdObject.DEFAULT_CLICK_RADIUS)) {
+					mouseOverVertex = true;
+				}
+			}
+		}
+
+		@Override
+		public void camera(final Camera camera) {
+			if (hitTest(camera.getPosition(), CoordinateSystem.Util.geom(axes, point), axes, programPreferences.getVertexSize())) {
+				mouseOverVertex = true;
+			}
+			if (hitTest(camera.getTargetPosition(), CoordinateSystem.Util.geom(axes, point), axes, programPreferences.getVertexSize())) {
+				mouseOverVertex = true;
+			}
+		}
+
+		@Override
+		public void bone(final Bone node) {
+			if (hitTest(node.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes, node.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes))) {
+				mouseOverVertex = true;
+			}
+		}
+
+		@Override
+		public void attachment(final Attachment attachment) {
+			handleDefaultNode(point, axes, attachment);
+		}
+
+		public boolean isMouseOverVertex() {
+			return mouseOverVertex;
+		}
 	}
 
 	@Override
@@ -942,10 +822,76 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 		return new DoNothingAction("create face");
 	}
 
-	@Override
-	public UndoAction addVertex(final double x, final double y, final double z,
-			final Vec3 preferredNormalFacingVector) {
-		return new DoNothingAction("add vertex");
+	private final class GenericSelectorVisitor implements IdObjectVisitor {
+		private List<Vec3> selectedItems;
+		private Rectangle2D area;
+		private CoordinateSystem coordinateSystem;
+
+		private GenericSelectorVisitor reset(final List<Vec3> selectedItems, final Rectangle2D area, final CoordinateSystem coordinateSystem) {
+			this.selectedItems = selectedItems;
+			this.area = area;
+			this.coordinateSystem = coordinateSystem;
+			return this;
+		}
+
+		@Override
+		public void ribbonEmitter(final RibbonEmitter particleEmitter) {
+			hitTest(selectedItems, area, particleEmitter.getPivotPoint(), coordinateSystem, particleEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2);
+		}
+
+		@Override
+		public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
+			hitTest(selectedItems, area, particleEmitter.getPivotPoint(), coordinateSystem, particleEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2);
+		}
+
+		@Override
+		public void particleEmitter(final ParticleEmitter particleEmitter) {
+			hitTest(selectedItems, area, particleEmitter.getPivotPoint(), coordinateSystem, particleEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2);
+		}
+
+		@Override
+		public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
+			hitTest(selectedItems, area, popcornFxEmitter.getPivotPoint(), coordinateSystem, popcornFxEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2);
+		}
+
+		@Override
+		public void light(final Light light) {
+			hitTest(selectedItems, area, light.getPivotPoint(), coordinateSystem, light.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2);
+		}
+
+		@Override
+		public void helper(final Helper object) {
+			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem, object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem));
+		}
+
+		@Override
+		public void eventObject(final EventObject eventObject) {
+			hitTest(selectedItems, area, eventObject.getPivotPoint(), coordinateSystem, eventObject.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2);
+		}
+
+		@Override
+		public void collisionShape(final CollisionShape collisionShape) {
+			hitTest(selectedItems, area, collisionShape.getPivotPoint(), coordinateSystem, collisionShape.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2);
+			for (final Vec3 vertex : collisionShape.getVertices()) {
+				hitTest(selectedItems, area, vertex, coordinateSystem, IdObject.DEFAULT_CLICK_RADIUS);
+			}
+		}
+
+		@Override
+		public void camera(final Camera camera) {
+			hitTest(selectedItems, area, camera.getPosition(), coordinateSystem, programPreferences.getVertexSize());
+			hitTest(selectedItems, area, camera.getTargetPosition(), coordinateSystem, programPreferences.getVertexSize());
+		}
+
+		@Override
+		public void bone(final Bone object) {
+			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem, object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem));
+		}
+
+		@Override
+		public void attachment(final Attachment attachment) {
+			hitTest(selectedItems, area, attachment.getPivotPoint(), coordinateSystem, attachment.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2);
+		}
 	}
 
 	public VertexSelectionHelper getVertexSelectionHelper() {

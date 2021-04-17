@@ -58,19 +58,19 @@ public class Light extends IdObject {
 		setAmbIntensity(light.ambientIntensity);
 	}
 
-	public MdlxLight toMdlx() {
+	public MdlxLight toMdlx(EditableModel model) {
 		final MdlxLight light = new MdlxLight();
 
-		objectToMdlx(light);
+		objectToMdlx(light, model);
 
 		light.type = type;
 		light.attenuation[0] = getAttenuationStart();
 		light.attenuation[1] = getAttenuationEnd();
 		light.color = ModelUtils.flipRGBtoBGR(getStaticColor().toFloatArray());
-		light.intensity = (float)getIntensity();
+		light.intensity = (float) getIntensity();
 		light.ambientColor = ModelUtils.flipRGBtoBGR(getStaticAmbColor().toFloatArray());
-		light.ambientIntensity = (float)getAmbIntensity();
-		
+		light.ambientIntensity = (float) getAmbIntensity();
+
 		return light;
 	}
 

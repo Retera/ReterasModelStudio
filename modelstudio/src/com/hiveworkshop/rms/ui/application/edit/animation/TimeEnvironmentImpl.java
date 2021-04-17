@@ -1,48 +1,56 @@
 package com.hiveworkshop.rms.ui.application.edit.animation;
 
+import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 
 public class TimeEnvironmentImpl implements AnimatedRenderEnvironment, TimeBoundProvider {
+	protected float animationSpeed = 1f;
+	private int start;
 	private int currentTime;
+	private int end;
 	private int globalSequenceLength = -1;
-	private final TimeBoundChangeListener.TimeBoundChangeNotifier notifier = new TimeBoundChangeListener.TimeBoundChangeNotifier();
-	private final ControllableTimeBoundProvider controllableTimeBoundProvider = new ControllableTimeBoundProvider(0,
-			1000);
 	private boolean staticViewMode;
+
+	private final TimeBoundChangeListener.TimeBoundChangeNotifier notifier = new TimeBoundChangeListener.TimeBoundChangeNotifier();
+
+	public TimeEnvironmentImpl(int start, int end) {
+		this.start = start;
+		this.end = end;
+	}
 
 	public void setCurrentTime(final int currentTime) {
 		this.currentTime = currentTime;
 	}
 
-	public void setStart(final int startTime) {
-		controllableTimeBoundProvider.setStart(startTime);
-
-		if (globalSequenceLength == -1) {
-			currentTime = Math.min(startTime, currentTime);
-
-			notifier.timeBoundsChanged(controllableTimeBoundProvider.getStart(),
-					controllableTimeBoundProvider.getEnd());
-		}
-	}
-
-	public void setEnd(final int endTime) {
-		controllableTimeBoundProvider.setEnd(endTime);
-		if (globalSequenceLength == -1) {
-			currentTime = Math.min(endTime, currentTime);
-			notifier.timeBoundsChanged(controllableTimeBoundProvider.getStart(),
-					controllableTimeBoundProvider.getEnd());
-		}
+	public void setBounds(Animation animation) {
+		setBounds(animation.getStart(), animation.getEnd());
 	}
 
 	public void setBounds(final int startTime, final int endTime) {
-		controllableTimeBoundProvider.setStart(startTime);
-		controllableTimeBoundProvider.setEnd(endTime);
-		globalSequenceLength = -1;
+		setStart(startTime);
+		setEnd(endTime);
+		//		globalSequenceLength = -1;
 		if (globalSequenceLength == -1) {
 			currentTime = 0;
-			notifier.timeBoundsChanged(controllableTimeBoundProvider.getStart(),
-					controllableTimeBoundProvider.getEnd());
+			notifier.timeBoundsChanged(start, end);
 		}
+	}
+
+	@Override
+	public int getAnimationTime() {
+		if (globalSequenceLength == -1) {
+//			System.out.println("currentTime: " + currentTime);
+			return currentTime;
+		}
+		return 0;
+	}
+
+	@Override
+	public TimeBoundProvider getCurrentAnimation() {
+		if (staticViewMode) {
+			return null;
+		}
+		return this;
 	}
 
 	public void setStaticViewMode(final boolean staticViewMode) {
@@ -69,19 +77,21 @@ public class TimeEnvironmentImpl implements AnimatedRenderEnvironment, TimeBound
 	}
 
 	@Override
-	public int getAnimationTime() {
+	public int getStart() {
 		if (globalSequenceLength == -1) {
-			return currentTime;
+			return start;
 		}
 		return 0;
 	}
 
-	@Override
-	public BasicTimeBoundProvider getCurrentAnimation() {
-		if (staticViewMode) {
-			return null;
+	public void setStart(final int startTime) {
+		start = startTime;
+
+		if (globalSequenceLength == -1) {
+			currentTime = Math.min(startTime, currentTime);
+
+			notifier.timeBoundsChanged(getStart(), getEnd());
 		}
-		return controllableTimeBoundProvider;
 	}
 
 	@Override
@@ -93,19 +103,19 @@ public class TimeEnvironmentImpl implements AnimatedRenderEnvironment, TimeBound
 	}
 
 	@Override
-	public int getStart() {
-		if (globalSequenceLength == -1) {
-			return controllableTimeBoundProvider.getStart();
-		}
-		return 0;
-	}
-
-	@Override
 	public int getEnd() {
 		if (globalSequenceLength == -1) {
-			return controllableTimeBoundProvider.getEnd();
+			return end;
 		}
 		return globalSequenceLength;
+	}
+
+	public void setEnd(final int endTime) {
+		end = endTime;
+		if (globalSequenceLength == -1) {
+			currentTime = Math.min(endTime, currentTime);
+			notifier.timeBoundsChanged(getStart(), getEnd());
+		}
 	}
 
 	@Override
@@ -113,4 +123,12 @@ public class TimeEnvironmentImpl implements AnimatedRenderEnvironment, TimeBound
 		notifier.subscribe(listener);
 	}
 
+	@Override
+	public float getAnimationSpeed() {
+		return animationSpeed;
+	}
+
+	public void setAnimationSpeed(float animationSpeed) {
+		this.animationSpeed = animationSpeed;
+	}
 }
