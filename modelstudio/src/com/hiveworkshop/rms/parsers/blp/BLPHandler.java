@@ -62,6 +62,8 @@ public class BLPHandler {
 				path = "ReplaceableTextures\\TeamColor\\TeamColor" + Material.getTeamColorNumberString() + ".blp";
 			} else if (defaultTexture.getReplaceableId() == 2) {
 				path = "ReplaceableTextures\\TeamGlow\\TeamGlow" + Material.getTeamColorNumberString() + ".blp";
+			} else if (defaultTexture.getReplaceableId() == 11) {
+				path = "ReplaceableTextures\\Cliff\\Cliff0" + ".blp";
 			} else if (defaultTexture.getReplaceableId() != 0) {
 				path = "replaceabletextures\\lordaerontree\\lordaeronsummertree" + ".blp";
 			}
