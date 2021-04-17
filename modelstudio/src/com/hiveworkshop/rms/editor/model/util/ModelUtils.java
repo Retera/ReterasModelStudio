@@ -1,18 +1,12 @@
 package com.hiveworkshop.rms.editor.model.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.hiveworkshop.rms.editor.model.Bitmap;
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.Layer;
-import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.editor.model.Triangle;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class ModelUtils {
 	public static String getPortrait(String filepath) {
@@ -274,6 +268,25 @@ public final class ModelUtils {
 
 	public static boolean isCornSupported(int formatVersion) {
 		return (formatVersion == 900) || (formatVersion == 1000);
+	}
+
+	public static final class Mesh {
+		private final List<GeosetVertex> vertices;
+		private final List<Triangle> triangles;
+
+		private Mesh(List<GeosetVertex> vertices, List<Triangle> triangles) {
+			this.vertices = vertices;
+			this.triangles = triangles;
+		}
+
+		public List<GeosetVertex> getVertices() {
+			return vertices;
+		}
+
+		public List<Triangle> getTriangles() {
+			return triangles;
+		}
+
 	}
 
 	private ModelUtils() {

@@ -78,8 +78,11 @@ public class GeosetVertex extends Vec3 {
     }
 
     public void magicSkinBones() {
-        final int bonesNum = Math.min(4, bones.size());
-        final short weight = (short) (255 / bonesNum);
+        int bonesNum = Math.min(4, bones.size());
+        short weight = 0;
+        if (bonesNum > 0) {
+            weight = (short) (255 / bonesNum);
+        }
 
         for (int i = 0; i < 4; i++) {
             if (i < bonesNum) {
@@ -88,7 +91,9 @@ public class GeosetVertex extends Vec3 {
                 setSkinBone((short) 0, i);
             }
         }
-        setSkinBone(bones.get(0), (short) (weight + (255 % bonesNum)), 0);
+        if (!bones.isEmpty()) {
+            setSkinBone(bones.get(0), (short) (weight + (255 % bonesNum)), 0);
+        }
     }
 
 //    public void un900Heuristic2() {
@@ -609,6 +614,11 @@ public class GeosetVertex extends Vec3 {
 
         int getBoneId(EditableModel model) {
             return model.getObjectId(bone);
+        }
+
+        public boolean equals(SkinBone otherSkinBone) {
+//            return weight == otherSkinBone.weight && bone.equals(otherSkinBone.bone);
+            return weight == otherSkinBone.weight && bone == otherSkinBone.bone;
         }
     }
 }

@@ -7,12 +7,16 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
+import com.hiveworkshop.rms.ui.application.actions.mesh.DeleteGeosetAction;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.scripts.ChangeAnimationLengthFrame;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.io.BufferedReader;
@@ -655,19 +659,48 @@ public class ScriptActions {
 		}
 	}
 
-	public static void makeItHD(final EditableModel model) {
-		for (final Geoset geo : model.getGeosets()) {
-			final List<GeosetVertex> vertices = geo.getVertices();
-			for (final GeosetVertex gv : vertices) {
-				final Vec3 normal = gv.getNormal();
-				gv.initV900();
-				if (normal != null) {
-					gv.setTangent(normal, 1);
-				}
-				gv.magicSkinBones();
+
+	static void removeLoDs(MainPanel mainPanel) {
+		final ModelPanel modelPanel = mainPanel.currentModelPanel();
+		if (modelPanel != null) {
+			JPanel panel = new JPanel(new MigLayout());
+			panel.add(new JLabel("LoD to remove"));
+			JSpinner spinner = new JSpinner(new SpinnerNumberModel(2, -2, 10, 1));
+			panel.add(spinner, "wrap");
+			int option = JOptionPane.showConfirmDialog(mainPanel, panel, "Remove LoDs", JOptionPane.OK_CANCEL_OPTION);
+			if (option == JOptionPane.OK_OPTION) {
+				removeLoDGeoset(modelPanel, (int) spinner.getValue(), mainPanel.getModelStructureChangeListener());
+
+//				modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().recalcNormals(lastNormalMaxAngle, useTris));
 			}
 		}
-		for (final Material m : model.getMaterials()) {
+		mainPanel.repaint();
+	}
+
+	public static void removeLoDGeoset(ModelPanel modelPanel, int lodToRemove, ModelStructureChangeListener changeListener) {
+		EditableModel model = modelPanel.getModel();
+		List<Geoset> lodGeosToRemove = new ArrayList<>();
+		for (Geoset geo : model.getGeosets()) {
+			if (geo.getLevelOfDetail() == lodToRemove) {
+				lodGeosToRemove.add(geo);
+			}
+		}
+		if (model.getGeosets().size() > lodGeosToRemove.size()) {
+			List<DeleteGeosetAction> deleteGeosetActions = new ArrayList<>();
+			for (Geoset geoset : lodGeosToRemove) {
+				deleteGeosetActions.add(new DeleteGeosetAction(geoset));
+			}
+			CompoundAction deletActions = new CompoundAction("Delete LoD=" + lodToRemove + " geosets", deleteGeosetActions);
+			modelPanel.getUndoManager().pushAction(deletActions);
+			deletActions.redo();
+		}
+	}
+
+	public static void makeItHD(EditableModel model) {
+		for (Geoset geo : model.getGeosets()) {
+			geo.makeHd();
+		}
+		for (Material m : model.getMaterials()) {
 			m.makeHD();
 		}
 	}

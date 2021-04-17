@@ -886,6 +886,10 @@ public class Geoset implements Named, VisibilitySource {
 		triangles.remove(tri);
 	}
 
+	public boolean isHD() {
+		return getParentModel().getFormatVersion() >= 900 && !getVertices().isEmpty() && getVertex(0).getTangent() != null;
+	}
+
 	public ExtLog calculateExtent() {
 		double maximumDistanceFromCenter = 0;
 		Vec3 max = new Vec3(Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
@@ -901,6 +905,24 @@ public class Geoset implements Named, VisibilitySource {
 			}
 		}
 		return new ExtLog(min, max, maximumDistanceFromCenter);
+	}
+
+	public void makeHd() {
+		final List<GeosetVertex> vertices = getVertices();
+		for (final GeosetVertex gv : vertices) {
+			final Vec3 normal = gv.getNormal();
+			gv.initV900();
+			if (normal != null) {
+				gv.setTangent(normal, 1);
+			}
+			gv.magicSkinBones();
+		}
+	}
+
+	public void makeSd() {
+		for (final GeosetVertex vertex : getVertices()) {
+			vertex.un900Heuristic();
+		}
 	}
 
 	public Map<Bone, List<GeosetVertex>> getBoneMap() {
