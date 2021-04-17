@@ -1,0 +1,16 @@
+apply plugin: "java"
+
+sourceCompatibility = 1.14
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+sourceSets.main.java.srcDirs = ["src/"]
+sourceSets.main.resources.srcDirs = ["src/"]
+
+
+eclipse.project {
+    name = appName + "-thirdparty"
+}
+//dependencies {
+//	compile(name: 'idw-gpl', ext:'jar')
+//	compile(name: 'blp-iio-plugin', ext:'jar')
+//}

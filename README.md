@@ -20,6 +20,9 @@ If all is well, this should launch a locally compiled build of Retera Model Stud
 (More details are available in Help -> About inside the program itself)
 
 ## Ghostwolf (http://github.com/flowtsohg/)
+ - Added FBX support with jassimp
+ - Reorganized and improved the codebase
+ - Integrated Retera's transcription of Ghostwolf's mdx-m3-viewer's MDX/MDL code into this project and did cleaning/bugfixes
  - OpenGL rendering logic for Warcraft III model files (from mdx-m3-viewer)
  - Reforged MDX specifications for adding Reforged support
  - Other tips & suggestions for handling WC3 MDX files and rendering
@@ -41,6 +44,12 @@ If all is well, this should launch a locally compiled build of Retera Model Stud
  
 ## seanrowens (https://github.com/seanrowens)
  - OBJ parser for java
+
+## twilac
+ - Feature improvements
+ - Material management in the "Model" tab in places
+ - Some code reorganization on 0.05.
+
  
 ## BogdanW3
  - Some bugfixes (see GitHub Contributors)

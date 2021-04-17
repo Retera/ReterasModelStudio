@@ -7,7 +7,10 @@ buildscript {
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://maven.nikr.net/" }
+        maven { url "https://mvnrepository.com/artifact/" }
+        maven { url "https://mvnrepository.com/" }
         jcenter()
+        maven { url 'https://jitpack.io' }
     }
 }
 
@@ -15,15 +18,15 @@ allprojects {
     apply plugin: "eclipse"
     apply plugin: "idea"
 
-    version = '1.0'
+    version = '0.5'
     ext {
         appName = "retera-jwc3"
         jtattooVersion = '1.6.11'
-        xstreamVersion = '1.4.9'
         miglayoutVersion = '4.2'
 		lwjglVersion = '2.9.3'
 		image4jVersion = '0.7'
 		rsyntaxtextareaVersion = '3.0.2'
+        nashornVersion = '15.2'
     }
 
     repositories {
@@ -31,59 +34,51 @@ allprojects {
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://maven.nikr.net/" }
+        maven { url "https://mvnrepository.com/artifact/" }
+        maven { url "https://mvnrepository.com/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+        maven { url 'https://jitpack.io' }
     }
 }
 
-project(":matrixeater") {
+project(":modelstudio") {
     apply plugin: "java"
 
 
     dependencies {
-        compile project(":craft3data")
-        compile project(":craft3editor")
+        compile project(":thirdparty")
         compile "com.fifesoft:rsyntaxtextarea:$rsyntaxtextareaVersion"
-    }
-}
-
-project(":disarm") {
-    apply plugin: "java"
-
-
-    dependencies {
-        compile project(":craft3data")
-        compile project(":craft3editor")
-        compile project(":matrixeater")
-    }
-}
-
-project(":craft3editor") {
-    apply plugin: "java"
-
-
-    dependencies {
-        compile project(":craft3data")
         compile "org.jclarion:image4j:$image4jVersion"
+
+        compile "com.github.inwc3:JMPQ3:1.7.14"
+        compile "org.json:json:20200518"
+        compile "org.openjdk.nashorn:nashorn-core:${nashornVersion}"
     }
 }
 
-project(":craft3data") {
+
+project(":thirdparty") {
     apply plugin: "java"
 
 
     dependencies {
         compile "com.jtattoo:JTattoo:$jtattooVersion"
         compile "com.miglayout:miglayout-swing:$miglayoutVersion"
-		compile "org.lwjgl:lwjgl:${lwjglVersion}"
-		compile "org.lwjgl:lwjgl-platform:${lwjglVersion}:natives-windows"
-		compile "org.lwjgl:lwjgl-platform:${lwjglVersion}:natives-linux"
-		compile "org.lwjgl:lwjgl-platform:${lwjglVersion}:natives-osx"
-		compile "org.lwjgl.lwjgl:lwjgl_util:${lwjglVersion}"
-		compile "net.nikr:dds:1.0.0"
-        compile "com.google.guava:guava:23.5-jre"
+        compile "org.lwjgl.lwjgl:lwjgl:${lwjglVersion}"
+        compile "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-windows"
+        compile "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-linux"
+        compile "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-osx"
+        compile "org.lwjgl.lwjgl:lwjgl_util:${lwjglVersion}"
+        compile "net.nikr:dds:1.0.0"
 //        compile "com.github.ebourg:infonode:master"
 //        compile "com.github.DrSuperGood:blp-iio-plugin:master"
-		compile files(fileTree(dir:'../jars', includes: ['*.jar']))
+        compile files(fileTree(dir: '../jars', includes: ['*.jar']))
+
+        implementation "org.lwjgl.lwjgl:lwjgl:${lwjglVersion}"
+        implementation "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-windows"
+        implementation "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-linux"
+        implementation "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-osx"
+        implementation "org.lwjgl.lwjgl:lwjgl_util:${lwjglVersion}"
     }
 }
 

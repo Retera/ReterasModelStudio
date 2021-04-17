@@ -1,0 +1,59 @@
+import java.text.SimpleDateFormat
+
+apply plugin: "java"
+
+sourceCompatibility = 1.14
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+sourceSets.main.java.srcDirs = [ "src/" ]
+sourceSets.main.resources.srcDirs = [ "res/" ]
+
+project.ext.mainClassName = "com.hiveworkshop.rms.Main"
+
+task run(dependsOn: classes, type: JavaExec) {
+    main = project.mainClassName
+    classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
+    setIgnoreExitValue(true)
+}
+
+task dist(type: Jar) {
+    // From http://cmoz.me/blog/2014/11/service-files-uber-jars-and-gradle/
+    doFirst {
+        def serviceDir = file("$buildDir/META-INF/services")
+        serviceDir.deleteDir()
+        serviceDir.mkdirs()
+
+        // copy all service files from deps to buildDir
+        for(file in configurations.runtime) {
+            zipTree(file).matching{ include 'META-INF/services/*' }.each { f ->
+                new File(serviceDir, f.name) << f.getText("UTF-8") + "\n"
+            }
+        }
+    }
+
+    from files(sourceSets.main.output.classesDirs)
+    from files(sourceSets.main.output.resourcesDir)
+
+    manifest {
+        attributes 'Main-Class': project.mainClassName
+    }
+
+    from(configurations.runtime.collect{ it.isDirectory() ? it : zipTree(it) }) {
+        exclude 'META-INF/**' // Don't let Gradle merge service files
+    }
+
+    // Include service files from the buildDir.
+    from fileTree(buildDir).matching{ include 'META-INF/services/*' }
+}
+
+task setVersion(){
+    new File(sourceSets.main.output.resourcesDir.path, "version.txt").text ="""${version}.${new SimpleDateFormat("yyyy.MM.dd").format(new Date())}"""
+}
+
+dist.dependsOn classes
+//dist.doLast {setVersion()}
+
+eclipse.project {
+    name = appName + "-modelstudio"
+}
