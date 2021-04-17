@@ -15,6 +15,7 @@ import com.hiveworkshop.rms.util.Vec3SpinnerArray;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.List;
@@ -96,7 +97,6 @@ public class ViewportPopupMenu extends JPopupMenu {
 		addMenuItem("Auto-Center Bone(s)", e -> undoListener.pushAction(modelEditor.autoCenterSelectedBones()), nodeMenu);
 		addMenuItem("Rename Bone", e -> renameBone(viewport), nodeMenu);
 		addMenuItem("Append Bone Suffix", e -> appendBoneBone(viewport), nodeMenu);
-
 	}
 
 
