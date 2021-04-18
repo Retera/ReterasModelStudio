@@ -18,8 +18,8 @@ public final class TVertexRotatorWidget {
 	}
 
 	public MoveDimension getDirectionByMouse(final Point mousePoint, final CoordinateSystem coordinateSystem) {
-		final double x = coordinateSystem.convertX(point.getCoord(coordinateSystem.getPortFirstXYZ()));
-		final double y = coordinateSystem.convertY(point.getCoord(coordinateSystem.getPortSecondXYZ()));
+		final double x = coordinateSystem.viewX(point.getCoord(coordinateSystem.getPortFirstXYZ()));
+		final double y = coordinateSystem.viewY(point.getCoord(coordinateSystem.getPortSecondXYZ()));
 
 		final double deltaY = y - mousePoint.getY();
 		final double deltaX = x - mousePoint.getX();
@@ -62,8 +62,8 @@ public final class TVertexRotatorWidget {
 	public void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem) {
 		final byte xDimension = coordinateSystem.getPortFirstXYZ();
 		final byte yDimension = coordinateSystem.getPortSecondXYZ();
-		final double x = coordinateSystem.convertX(point.getCoord(xDimension));
-		final double y = coordinateSystem.convertY(point.getCoord(yDimension));
+		final double x = coordinateSystem.viewX(point.getCoord(xDimension));
+		final double y = coordinateSystem.viewY(point.getCoord(yDimension));
 
 		setHighLightableColor(graphics, yDimension, moveDirection);
 		drawHorzLine(graphics, x, y);

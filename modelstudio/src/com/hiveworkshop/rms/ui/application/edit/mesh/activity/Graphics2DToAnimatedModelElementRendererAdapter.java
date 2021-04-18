@@ -41,9 +41,9 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 	                       GeosetVertex a, GeosetVertex b, GeosetVertex c) {
 		graphics.setColor(color);
 
-		Point pointA = CoordinateSystem.Util.convertToPoint(coordinateSystem, a, renderModel);
-		Point pointB = CoordinateSystem.Util.convertToPoint(coordinateSystem, b, renderModel);
-		Point pointC = CoordinateSystem.Util.convertToPoint(coordinateSystem, c, renderModel);
+		Point pointA = CoordinateSystem.Util.convertToViewPoint(coordinateSystem, a, renderModel);
+		Point pointB = CoordinateSystem.Util.convertToViewPoint(coordinateSystem, b, renderModel);
+		Point pointC = CoordinateSystem.Util.convertToViewPoint(coordinateSystem, c, renderModel);
 
 		GU.fillPolygon(graphics, pointA, pointB, pointC);
 		graphics.setColor(borderColor);
@@ -52,7 +52,7 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 
 	@Override
 	public void renderVertex(Color color, Vec3 vertex) {
-		Point point = CoordinateSystem.Util.convertToPoint(coordinateSystem, vertex);
+		Point point = CoordinateSystem.Util.convertToViewPoint(coordinateSystem, vertex);
 		graphics.setColor(color);
 		GU.fillCenteredSquare(graphics, point, vertexSize);
 //		graphics.fillRect(point.x - (vertexSize / 2), (int) (point.y - (vertexSize / 2.0)), vertexSize, vertexSize);
@@ -76,11 +76,11 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 		// boolean verSel = selection.contains(ver);
 		// boolean tarSel = selection.contains(targ);
 		Point start = new Point(
-				(int) Math.round(coordinateSystem.convertX(ver.getCoord(coordinateSystem.getPortFirstXYZ()))),
-				(int) Math.round(coordinateSystem.convertY(ver.getCoord(coordinateSystem.getPortSecondXYZ()))));
+				(int) Math.round(coordinateSystem.viewX(ver.getCoord(coordinateSystem.getPortFirstXYZ()))),
+				(int) Math.round(coordinateSystem.viewY(ver.getCoord(coordinateSystem.getPortSecondXYZ()))));
 		Point end = new Point(
-				(int) Math.round(coordinateSystem.convertX(targ.getCoord(coordinateSystem.getPortFirstXYZ()))),
-				(int) Math.round(coordinateSystem.convertY(targ.getCoord(coordinateSystem.getPortSecondXYZ()))));
+				(int) Math.round(coordinateSystem.viewX(targ.getCoord(coordinateSystem.getPortFirstXYZ()))),
+				(int) Math.round(coordinateSystem.viewY(targ.getCoord(coordinateSystem.getPortSecondXYZ()))));
 		// if (dispCameraNames) {
 		// boolean changedCol = false;
 		//

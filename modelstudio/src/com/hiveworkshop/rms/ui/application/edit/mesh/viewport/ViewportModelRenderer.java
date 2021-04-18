@@ -263,7 +263,7 @@ public class ViewportModelRenderer implements ModelVisitor {
 		public VertexVisitor vertex(Vec3 vert, Vec3 normal, List<Bone> bones) {
 			double firstCoord = vert.getCoord(xDimension);
 			double secondCoord = vert.getCoord(yDimension);
-			Point point = new Point((int) coordinateSystem.convertX(firstCoord), (int) coordinateSystem.convertY(secondCoord));
+			Point point = new Point((int) coordinateSystem.viewX(firstCoord), (int) coordinateSystem.viewY(secondCoord));
 
 			if (previousVertices.size() > 0) {
 				Point previousPoint = previousVertices.get(previousVertices.size() - 1);
@@ -281,8 +281,8 @@ public class ViewportModelRenderer implements ModelVisitor {
 				double secondNormalCoord = (normal.getCoord(yDimension) * 12) / zoom;
 
 				Point endPoint = new Point(
-						(int) coordinateSystem.convertX(firstCoord + firstNormalCoord),
-						(int) coordinateSystem.convertY(secondCoord + secondNormalCoord));
+						(int) coordinateSystem.viewX(firstCoord + firstNormalCoord),
+						(int) coordinateSystem.viewY(secondCoord + secondNormalCoord));
 				graphics.drawLine(point.x, point.y, endPoint.x, endPoint.y);
 				graphics.setColor(triangleColor);
 			}

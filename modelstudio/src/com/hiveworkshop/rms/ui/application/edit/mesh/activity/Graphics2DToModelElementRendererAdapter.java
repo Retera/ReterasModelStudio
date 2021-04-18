@@ -36,9 +36,9 @@ public final class Graphics2DToModelElementRendererAdapter implements ModelEleme
 		graphics.setColor(color);
 
 
-		Point vertexA = CoordinateSystem.Util.convertToPoint(coordinateSystem, a);
-		Point vertexB = CoordinateSystem.Util.convertToPoint(coordinateSystem, b);
-		Point vertexC = CoordinateSystem.Util.convertToPoint(coordinateSystem, c);
+		Point vertexA = CoordinateSystem.Util.convertToViewPoint(coordinateSystem, a);
+		Point vertexB = CoordinateSystem.Util.convertToViewPoint(coordinateSystem, b);
+		Point vertexC = CoordinateSystem.Util.convertToViewPoint(coordinateSystem, c);
 
 		int[] polygonX = new int[3];
 		polygonX[0] = vertexA.x;
@@ -59,7 +59,7 @@ public final class Graphics2DToModelElementRendererAdapter implements ModelEleme
 
 	@Override
 	public void renderVertex(Color color, Vec3 vertex) {
-		Point point = CoordinateSystem.Util.convertToPoint(coordinateSystem, vertex);
+		Point point = CoordinateSystem.Util.convertToViewPoint(coordinateSystem, vertex);
 		graphics.setColor(color);
 		graphics.fillRect(point.x - vertexSize / 2, (int) (point.y - (vertexSize / 2.0)), vertexSize, vertexSize);
 	}
@@ -77,11 +77,11 @@ public final class Graphics2DToModelElementRendererAdapter implements ModelEleme
 		byte dim1 = coordinateSystem.getPortFirstXYZ();
 		byte dim2 = coordinateSystem.getPortSecondXYZ();
 		Point start = new Point(
-				(int) Math.round(coordinateSystem.convertX(position.getCoord(dim1))),
-				(int) Math.round(coordinateSystem.convertY(position.getCoord(dim2))));
+				(int) Math.round(coordinateSystem.viewX(position.getCoord(dim1))),
+				(int) Math.round(coordinateSystem.viewY(position.getCoord(dim2))));
 		Point end = new Point(
-				(int) Math.round(coordinateSystem.convertX(targetPosition.getCoord(dim1))),
-				(int) Math.round(coordinateSystem.convertY(targetPosition.getCoord(dim2))));
+				(int) Math.round(coordinateSystem.viewX(targetPosition.getCoord(dim1))),
+				(int) Math.round(coordinateSystem.viewY(targetPosition.getCoord(dim2))));
 
 		g2.translate(end.x, end.y);
 		g2.rotate(-(Math.PI / 2 + Math.atan2(end.x - start.x, end.y - start.y)));

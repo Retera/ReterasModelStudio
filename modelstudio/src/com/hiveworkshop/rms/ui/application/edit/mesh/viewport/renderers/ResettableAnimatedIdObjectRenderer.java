@@ -38,18 +38,18 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
         List<Vec3> vertices = collisionShape.getVertices();
         graphics.setColor(color);
         Vec3 vertexHeap = Vec3.getTransformed(pivotPoint, worldMatrix);
-        int xCoord = (int) coordinateSystem.convertX(vertexHeap.getCoord(xDimension));
-        int yCoord = (int) coordinateSystem.convertY(vertexHeap.getCoord(yDimension));
+        int xCoord = (int) coordinateSystem.viewX(vertexHeap.getCoord(xDimension));
+        int yCoord = (int) coordinateSystem.viewY(vertexHeap.getCoord(yDimension));
         if (collisionShape.getType() == MdlxCollisionShape.Type.BOX) {
             if (vertices.size() > 1) {
                 Vec3 vertex = vertices.get(0);
                 Vec3 vertex2 = vertices.get(1);
                 Vec3 vertexHeap2 = Vec3.getTransformed(vertex2, worldMatrix);
 
-                int firstXCoord = (int) coordinateSystem.convertX(vertexHeap2.getCoord(xDimension));
-                int firstYCoord = (int) coordinateSystem.convertY(vertexHeap2.getCoord(yDimension));
-                int secondXCoord = (int) coordinateSystem.convertX(vertexHeap2.getCoord(xDimension));
-                int secondYCoord = (int) coordinateSystem.convertY(vertexHeap2.getCoord(yDimension));
+                int firstXCoord = (int) coordinateSystem.viewX(vertexHeap2.getCoord(xDimension));
+                int firstYCoord = (int) coordinateSystem.viewY(vertexHeap2.getCoord(yDimension));
+                int secondXCoord = (int) coordinateSystem.viewX(vertexHeap2.getCoord(xDimension));
+                int secondYCoord = (int) coordinateSystem.viewY(vertexHeap2.getCoord(yDimension));
 
                 int minXCoord = Math.min(firstXCoord, secondXCoord);
                 int minYCoord = Math.min(firstYCoord, secondYCoord);
@@ -76,16 +76,16 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
                                      CoordinateSystem coordinateSystem, IdObject attachment, Image nodeImage,
                                      Mat4 worldMatrix) {
         Vec3 vertexHeap = Vec3.getTransformed(attachment.getPivotPoint(), worldMatrix);
-        int xCoord = (int) coordinateSystem.convertX(vertexHeap.getCoord(xDimension));
-        int yCoord = (int) coordinateSystem.convertY(vertexHeap.getCoord(yDimension));
+        int xCoord = (int) coordinateSystem.viewX(vertexHeap.getCoord(xDimension));
+        int yCoord = (int) coordinateSystem.viewY(vertexHeap.getCoord(yDimension));
         graphics.drawImage(nodeImage, xCoord - (nodeImage.getWidth(null) / 2), yCoord - (nodeImage.getHeight(null) / 2), nodeImage.getWidth(null), nodeImage.getHeight(null), null);
     }
 
     public static void drawCrosshair(Graphics2D graphics, CoordinateSystem coordinateSystem, int vertexSize, Vec3 pivotPoint, Mat4 worldMatrix, boolean crosshairIsBox) {
         Vec3 vertexHeap = Vec3.getTransformed(pivotPoint, worldMatrix);
 
-        int xCoord = (int) coordinateSystem.convertX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
-        int yCoord = (int) coordinateSystem.convertY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
+        int xCoord = (int) coordinateSystem.viewX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
+        int yCoord = (int) coordinateSystem.viewY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
         if (crosshairIsBox) {
             vertexSize *= 3;
             graphics.fillRect(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2, vertexSize * 2);
@@ -191,8 +191,8 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
         Image lightImage = nodeIconPalette.getLightImage();
         graphics.setColor(lightColor);
         Vec3 vertexHeap = Vec3.getTransformed(light.getPivotPoint(), renderModel.getRenderNode(light).getWorldMatrix());
-        int xCoord = (int) coordinateSystem.convertX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
-        int yCoord = (int) coordinateSystem.convertY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
+        int xCoord = (int) coordinateSystem.viewX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
+        int yCoord = (int) coordinateSystem.viewY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
         double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
 
         graphics.drawImage(lightImage, xCoord - (lightImage.getWidth(null) / 2), yCoord - (lightImage.getHeight(null) / 2), lightImage.getWidth(null), lightImage.getHeight(null), null);

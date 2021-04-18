@@ -18,8 +18,8 @@ public final class RotatorWidget {
 	}
 
 	public MoveDimension getDirectionByMouse(Point mousePoint, CoordinateSystem coordinateSystem) {
-		double x = coordinateSystem.convertX(point.getCoord(coordinateSystem.getPortFirstXYZ()));
-		double y = coordinateSystem.convertY(point.getCoord(coordinateSystem.getPortSecondXYZ()));
+		double x = coordinateSystem.viewX(point.getCoord(coordinateSystem.getPortFirstXYZ()));
+		double y = coordinateSystem.viewY(point.getCoord(coordinateSystem.getPortSecondXYZ()));
 
 		double deltaY = y - mousePoint.getY();
 		double deltaX = x - mousePoint.getX();
@@ -61,8 +61,8 @@ public final class RotatorWidget {
 	public void render(Graphics2D graphics, CoordinateSystem coordinateSystem) {
 		byte xDimension = coordinateSystem.getPortFirstXYZ();
 		byte yDimension = coordinateSystem.getPortSecondXYZ();
-		double x = coordinateSystem.convertX(point.getCoord(xDimension));
-		double y = coordinateSystem.convertY(point.getCoord(yDimension));
+		double x = coordinateSystem.viewX(point.getCoord(xDimension));
+		double y = coordinateSystem.viewY(point.getCoord(yDimension));
 
 		setHighLightableColor(graphics, yDimension, moveDirection);
 		drawHorzLine(graphics, x, y);

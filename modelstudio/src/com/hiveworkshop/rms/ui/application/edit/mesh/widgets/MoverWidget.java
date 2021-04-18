@@ -37,8 +37,8 @@ public final class MoverWidget {
 	private long debugPrintLimiter;
 
 	public MoveDimension getDirectionByMouse(Point mousePoint, CoordinateSystem coordinateSystem, byte dim1, byte dim2) {
-		double x = coordinateSystem.convertX(point.getCoord(dim1));
-		double y = coordinateSystem.convertY(point.getCoord(dim2));
+		double x = coordinateSystem.viewX(point.getCoord(dim1));
+		double y = coordinateSystem.viewY(point.getCoord(dim2));
 		long currentTime = System.currentTimeMillis();
 		if (debugPrintLimiter < currentTime) {
 			debugPrintLimiter = currentTime + 500;
@@ -81,8 +81,8 @@ public final class MoverWidget {
 	public void render(Graphics2D graphics, CoordinateSystem coordinateSystem) {
 		byte xDimension = coordinateSystem.getPortFirstXYZ();
 		byte yDimension = coordinateSystem.getPortSecondXYZ();
-		int x = (int) coordinateSystem.convertX(point.getCoord(xDimension));
-		int y = (int) coordinateSystem.convertY(point.getCoord(yDimension));
+		int x = (int) coordinateSystem.viewX(point.getCoord(xDimension));
+		int y = (int) coordinateSystem.viewY(point.getCoord(yDimension));
 
 		setHighLightableColor(graphics, yDimension, moveDirection);
 		drawNorthArrow(graphics, x, y);

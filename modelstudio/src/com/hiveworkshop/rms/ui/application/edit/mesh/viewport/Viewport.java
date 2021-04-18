@@ -220,17 +220,17 @@ public class Viewport extends JPanel implements CoordinateSystem, ViewportView, 
 		}
 
 		getColor(g, m_d1);
-		g.drawLine((int) Math.round(convertX(0)), (int) Math.round(convertY(0)), (int) Math.round(convertX(5)), (int) Math.round(convertY(0)));
+		g.drawLine((int) Math.round(viewX(0)), (int) Math.round(viewY(0)), (int) Math.round(viewX(5)), (int) Math.round(viewY(0)));
 
 		getColor(g, m_d2);
-		g.drawLine((int) Math.round(convertX(0)), (int) Math.round(convertY(0)), (int) Math.round(convertX(0)), (int) Math.round(convertY(5)));
+		g.drawLine((int) Math.round(viewX(0)), (int) Math.round(viewY(0)), (int) Math.round(viewX(0)), (int) Math.round(viewY(5)));
 
 
 		adjustAndRunPaintTimer(renderStart);
 	}
 
 	public void drawGrid(Graphics g) {
-		final Point2D.Double cameraOrigin = new Point2D.Double(convertX(0), convertY(0));
+		final Point2D.Double cameraOrigin = new Point2D.Double(viewX(0), viewY(0));
 
 		float increment = 20 * (float) getZoomAmount();
 		while (increment < 100) {
@@ -326,12 +326,12 @@ public class Viewport extends JPanel implements CoordinateSystem, ViewportView, 
 	}
 
 	@Override
-	public double convertX(final double x) {
+	public double viewX(final double x) {
 		return ((x + m_a) * m_zoom) + (getWidth() / 2.0);
 	}
 
 	@Override
-	public double convertY(final double y) {
+	public double viewY(final double y) {
 		return ((-y + m_b) * m_zoom) + (getHeight() / 2.0);
 	}
 

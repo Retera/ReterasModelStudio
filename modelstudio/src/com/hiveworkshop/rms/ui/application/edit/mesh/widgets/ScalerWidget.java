@@ -42,8 +42,8 @@ public final class ScalerWidget {
 	}
 
 	public MoveDimension getDirectionByMouse(Point mousePoint, CoordinateSystem coordinateSystem, byte dim1, byte dim2) {
-		int x = (int) coordinateSystem.convertX(point.getCoord(dim1));
-		int y = (int) coordinateSystem.convertY(point.getCoord(dim2));
+		int x = (int) coordinateSystem.viewX(point.getCoord(dim1));
+		int y = (int) coordinateSystem.viewY(point.getCoord(dim2));
 
 		MoveDimension direction = MoveDimension.NONE;
 
@@ -81,8 +81,8 @@ public final class ScalerWidget {
 	public void render(Graphics2D graphics, CoordinateSystem coordinateSystem) {
 		byte xDimension = coordinateSystem.getPortFirstXYZ();
 		byte yDimension = coordinateSystem.getPortSecondXYZ();
-		int x = (int) coordinateSystem.convertX(point.getCoord(xDimension));
-		int y = (int) coordinateSystem.convertY(point.getCoord(yDimension));
+		int x = (int) coordinateSystem.viewX(point.getCoord(xDimension));
+		int y = (int) coordinateSystem.viewY(point.getCoord(yDimension));
 		if (moveDirection != null) {
 			setHighLightableColor(graphics, xDimension, moveDirection);
 			drawEastLine(graphics, x, y);

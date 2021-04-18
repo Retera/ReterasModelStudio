@@ -49,14 +49,14 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	public static void hitTest(List<IdObject> selectedItems, Rectangle2D area, Vec3 geosetVertex, CoordinateSystem coordinateSystem, double vertexSize, IdObject node) {
 		byte dim1 = coordinateSystem.getPortFirstXYZ();
 		byte dim2 = coordinateSystem.getPortSecondXYZ();
-		double minX = coordinateSystem.convertX(area.getMinX());
-		double minY = coordinateSystem.convertY(area.getMinY());
-		double maxX = coordinateSystem.convertX(area.getMaxX());
-		double maxY = coordinateSystem.convertY(area.getMaxY());
+		double minX = coordinateSystem.viewX(area.getMinX());
+		double minY = coordinateSystem.viewY(area.getMinY());
+		double maxX = coordinateSystem.viewX(area.getMaxX());
+		double maxY = coordinateSystem.viewY(area.getMaxY());
 		double vertexX = geosetVertex.getCoord(dim1);
-		double x = coordinateSystem.convertX(vertexX);
+		double x = coordinateSystem.viewX(vertexX);
 		double vertexY = geosetVertex.getCoord(dim2);
-		double y = coordinateSystem.convertY(vertexY);
+		double y = coordinateSystem.viewY(vertexY);
 		if ((distance(x, y, minX, minY) <= (vertexSize / 2.0))
 				|| (distance(x, y, maxX, maxY) <= (vertexSize / 2.0))
 				|| area.contains(vertexX, vertexY)) {
@@ -65,10 +65,10 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	}
 
 	public static boolean hitTest(Vec3 vertex, Point2D point, CoordinateSystem coordinateSystem, double vertexSize) {
-		double x = coordinateSystem.convertX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
-		double y = coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
-		double px = coordinateSystem.convertX(point.getX());
-		double py = coordinateSystem.convertY(point.getY());
+		double x = coordinateSystem.viewX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
+		double y = coordinateSystem.viewY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
+		double px = coordinateSystem.viewX(point.getX());
+		double py = coordinateSystem.viewY(point.getY());
 		return Point2D.distance(px, py, x, y) <= (vertexSize / 2.0);
 	}
 

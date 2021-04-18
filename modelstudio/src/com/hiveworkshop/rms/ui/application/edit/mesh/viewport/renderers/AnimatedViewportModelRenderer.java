@@ -157,17 +157,17 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 
 		double normXsize = (firstNormalCoord * 12) / zoom;
 		double normYsize = (secondNormalCoord * 12) / zoom;
-		double normEndX3 = coordinateSystem.convertX(firstCoord + normXsize);
-		double normEndY3 = coordinateSystem.convertY(secondCoord + normYsize);
+		double normEndX3 = coordinateSystem.viewX(firstCoord + normXsize);
+		double normEndY3 = coordinateSystem.viewY(secondCoord + normYsize);
 		Point endPoint3 = new Point((int) normEndX3, (int) normEndY3);
 
-		double normEndX2 = coordinateSystem.convertX(firstCoord + (firstNormalCoord * 12 / zoom));
-		double normEndY2 = coordinateSystem.convertY(secondCoord + (secondNormalCoord * 12 / zoom));
+		double normEndX2 = coordinateSystem.viewX(firstCoord + (firstNormalCoord * 12 / zoom));
+		double normEndY2 = coordinateSystem.viewY(secondCoord + (secondNormalCoord * 12 / zoom));
 		Point endPoint2 = new Point((int) normEndX2, (int) normEndY2);
 
 		double normEndX = firstCoord + (firstNormalCoord * 12 / zoom);
 		double normEndY = secondCoord + (secondNormalCoord * 12 / zoom);
-		Point endPoint = new Point((int) coordinateSystem.convertX(normEndX), (int) coordinateSystem.convertY(normEndY));
+		Point endPoint = new Point((int) coordinateSystem.viewX(normEndX), (int) coordinateSystem.viewY(normEndY));
 
 		graphics.drawLine(point.x, point.y, endPoint.x, endPoint.y);
 		graphics.setColor(triangleColor);
@@ -270,7 +270,7 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 		public void drawLineFromVert(Vec4 normalSumHeap, Vec4 vertexSumHeap) {
 			float firstCoord = vertexSumHeap.getVec3().getCoord(xDimension);
 			float secondCoord = vertexSumHeap.getVec3().getCoord(yDimension);
-			Point point = new Point((int) coordinateSystem.convertX(firstCoord), (int) coordinateSystem.convertY(secondCoord));
+			Point point = new Point((int) coordinateSystem.viewX(firstCoord), (int) coordinateSystem.viewY(secondCoord));
 
 			if (previousVertices.size() > 0) {
 				Point previousPoint = previousVertices.get(previousVertices.size() - 1);

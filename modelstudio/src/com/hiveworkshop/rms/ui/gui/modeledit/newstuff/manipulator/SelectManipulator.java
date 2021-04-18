@@ -50,10 +50,10 @@ public class SelectManipulator extends Manipulator {
 			return;
 		}
 		if ((currentDim1 == coordinateSystem.getPortFirstXYZ()) && (currentDim2 == coordinateSystem.getPortSecondXYZ())) {
-			final double minX = Math.min(coordinateSystem.convertX(activityStart.x), coordinateSystem.convertX(mouseEnd.x));
-			final double minY = Math.min(coordinateSystem.convertY(activityStart.y), coordinateSystem.convertY(mouseEnd.y));
-			final double maxX = Math.max(coordinateSystem.convertX(activityStart.x), coordinateSystem.convertX(mouseEnd.x));
-			final double maxY = Math.max(coordinateSystem.convertY(activityStart.y), coordinateSystem.convertY(mouseEnd.y));
+			final double minX = Math.min(coordinateSystem.viewX(activityStart.x), coordinateSystem.viewX(mouseEnd.x));
+			final double minY = Math.min(coordinateSystem.viewY(activityStart.y), coordinateSystem.viewY(mouseEnd.y));
+			final double maxX = Math.max(coordinateSystem.viewX(activityStart.x), coordinateSystem.viewX(mouseEnd.x));
+			final double maxY = Math.max(coordinateSystem.viewY(activityStart.y), coordinateSystem.viewY(mouseEnd.y));
 			graphics.setColor(programPreferences.getSelectColor());
 			graphics.drawRect((int) minX, (int) minY, (int) (maxX - minX), (int) (maxY - minY));
 		}
