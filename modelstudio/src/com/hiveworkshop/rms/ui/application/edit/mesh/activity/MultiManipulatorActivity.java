@@ -6,20 +6,19 @@ import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.ManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.rms.util.Vec2;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Double;
 
 public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends ManipulatorBuilder> implements ViewportActivity {
 	protected final MANIPULATOR_BUILDER manipulatorBuilder;
 	private final UndoActionListener undoActionListener;
 	private Manipulator manipulator;
 	private CursorManager cursorManager;
-	private Double mouseStartPoint;
-	private Double lastDragPoint;
+	private Vec2 mouseStartPoint;
+	private Vec2 lastDragPoint;
 	private SelectionView selectionView;
 
 	public MultiManipulatorActivity(MANIPULATOR_BUILDER manipulatorBuilder,
@@ -55,7 +54,7 @@ public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends Manip
 		}
 		manipulator = manipulatorBuilder.buildActivityListener(e.getX(), e.getY(), buttonType, coordinateSystem, selectionView);
 		if (manipulator != null) {
-			mouseStartPoint = new Point2D.Double(coordinateSystem.geomX(e.getPoint().getX()), coordinateSystem.geomY(e.getPoint().getY()));
+			mouseStartPoint = new Vec2(coordinateSystem.geomX(e.getPoint().getX()), coordinateSystem.geomY(e.getPoint().getY()));
 			manipulator.start(e, mouseStartPoint, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 			lastDragPoint = mouseStartPoint;
 		}
@@ -68,7 +67,7 @@ public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends Manip
 
 	private void finnishAction(MouseEvent e, CoordinateSystem coordinateSystem, boolean wasCanceled) {
 		if (manipulator != null) {
-			Point2D.Double mouseEnd = new Point2D.Double(coordinateSystem.geomX(e.getPoint().getX()), coordinateSystem.geomY(e.getPoint().getY()));
+			Vec2 mouseEnd = new Vec2(coordinateSystem.geomX(e.getPoint().getX()), coordinateSystem.geomY(e.getPoint().getY()));
 			UndoAction undoAction = manipulator.finish(e, lastDragPoint, mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 			if (wasCanceled) {
 				undoAction.undo();
@@ -89,7 +88,7 @@ public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends Manip
 	@Override
 	public void mouseDragged(MouseEvent e, CoordinateSystem coordinateSystem) {
 		if (manipulator != null) {
-			Point2D.Double mouseEnd = new Point2D.Double(coordinateSystem.geomX(e.getPoint().getX()), coordinateSystem.geomY(e.getPoint().getY()));
+			Vec2 mouseEnd = new Vec2(coordinateSystem.geomX(e.getPoint().getX()), coordinateSystem.geomY(e.getPoint().getY()));
 			manipulator.update(e, lastDragPoint, mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 			lastDragPoint = mouseEnd;
 		}

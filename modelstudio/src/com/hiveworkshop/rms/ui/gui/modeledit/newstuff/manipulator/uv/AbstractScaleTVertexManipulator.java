@@ -10,7 +10,6 @@ import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D.Double;
 
 public abstract class AbstractScaleTVertexManipulator extends Manipulator {
 	private final TVertexEditor modelEditor;
@@ -19,23 +18,23 @@ public abstract class AbstractScaleTVertexManipulator extends Manipulator {
 	MoveDimension dir;
 	boolean isNeg = false;
 
-	public AbstractScaleTVertexManipulator(final TVertexEditor modelEditor, final SelectionView selectionView, MoveDimension dir) {
+	public AbstractScaleTVertexManipulator(TVertexEditor modelEditor, SelectionView selectionView, MoveDimension dir) {
 		this.modelEditor = modelEditor;
 		this.selectionView = selectionView;
 		this.dir = dir;
 	}
 
 	@Override
-	protected void onStart(MouseEvent e, final Double mouseStart, final byte dim1, final byte dim2) {
+	protected void onStart(MouseEvent e, Vec2 mouseStart, byte dim1, byte dim2) {
 		super.onStart(e, mouseStart, dim1, dim2);
-		final Vec2 center = selectionView.getUVCenter(modelEditor.getUVLayerIndex());
+		Vec2 center = selectionView.getUVCenter(modelEditor.getUVLayerIndex());
 		scaleAction = modelEditor.beginScaling(center.x, center.y);
 	}
 
 	@Override
-	public void update(MouseEvent e, final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
-		final Vec2 center = selectionView.getUVCenter(modelEditor.getUVLayerIndex());
-		final double scaleFactor = computeScaleFactor(mouseStart, mouseEnd, center, dim1, dim2);
+	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
+		Vec2 center = selectionView.getUVCenter(modelEditor.getUVLayerIndex());
+		double scaleFactor = computeScaleFactor(mouseStart, mouseEnd, center, dim1, dim2);
 		scaleWithFactor(modelEditor, center, scaleFactor, dim1, dim2);
 	}
 
@@ -44,19 +43,19 @@ public abstract class AbstractScaleTVertexManipulator extends Manipulator {
 	}
 
 	@Override
-	public UndoAction finish(MouseEvent e, final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
+	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
 		update(e, mouseStart, mouseEnd, dim1, dim2);
 		isNeg = false;
 		return scaleAction;
 	}
 
-	protected abstract void scaleWithFactor(final TVertexEditor modelEditor, final Vec2 center, final double scaleFactor, byte dim1, byte dim2);
+	protected abstract void scaleWithFactor(TVertexEditor modelEditor, Vec2 center, double scaleFactor, byte dim1, byte dim2);
 
-	protected abstract Vec3 buildScaleVector(final double scaleFactor, byte dim1, byte dim2);
+	protected abstract Vec3 buildScaleVector(double scaleFactor, byte dim1, byte dim2);
 
 
-	protected double computeScaleFactor(final Double startingClick, final Double endingClick, final Vec2 center,
-	                                    final byte dim1, final byte dim2) {
+	protected double computeScaleFactor(Vec2 startingClick, Vec2 endingClick, Vec2 center,
+	                                    byte dim1, byte dim2) {
 		double dxEnd = 0;
 		double dyEnd = 0;
 		double dxStart = 0;
@@ -76,8 +75,8 @@ public abstract class AbstractScaleTVertexManipulator extends Manipulator {
 				flipNeg = getFlipNeg(-dyEnd);
 			}
 		}
-		final double endDist = Math.sqrt((dxEnd * dxEnd) + (dyEnd * dyEnd));
-		final double startDist = Math.sqrt((dxStart * dxStart) + (dyStart * dyStart));
+		double endDist = Math.sqrt((dxEnd * dxEnd) + (dyEnd * dyEnd));
+		double startDist = Math.sqrt((dxStart * dxStart) + (dyStart * dyStart));
 
 		return flipNeg * endDist / startDist;
 	}

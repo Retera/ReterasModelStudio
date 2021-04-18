@@ -4,10 +4,10 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D.Double;
 
 public abstract class AbstractScaleManipulator extends Manipulator {
 	private final ModelEditor modelEditor;
@@ -16,23 +16,23 @@ public abstract class AbstractScaleManipulator extends Manipulator {
 	MoveDimension dir;
 	boolean isNeg = false;
 
-	public AbstractScaleManipulator(final ModelEditor modelEditor, final SelectionView selectionView, MoveDimension dir) {
+	public AbstractScaleManipulator(ModelEditor modelEditor, SelectionView selectionView, MoveDimension dir) {
 		this.modelEditor = modelEditor;
 		this.selectionView = selectionView;
 		this.dir = dir;
 	}
 
 	@Override
-	protected void onStart(MouseEvent e, final Double mouseStart, final byte dim1, final byte dim2) {
+	protected void onStart(MouseEvent e, Vec2 mouseStart, byte dim1, byte dim2) {
 		super.onStart(e, mouseStart, dim1, dim2);
-		final Vec3 center = selectionView.getCenter();
+		Vec3 center = selectionView.getCenter();
 		scaleAction = modelEditor.beginScaling(center.x, center.y, center.z);
 	}
 
 	@Override
-	public void update(MouseEvent e, final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
-		final Vec3 center = selectionView.getCenter();
-		final double scaleFactor = computeScaleFactor(mouseStart, mouseEnd, center, dim1, dim2);
+	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
+		Vec3 center = selectionView.getCenter();
+		double scaleFactor = computeScaleFactor(mouseStart, mouseEnd, center, dim1, dim2);
 		scaleWithFactor(modelEditor, center, scaleFactor, dim1, dim2);
 	}
 
@@ -41,17 +41,17 @@ public abstract class AbstractScaleManipulator extends Manipulator {
 	}
 
 	@Override
-	public UndoAction finish(MouseEvent e, final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
+	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
 		update(e, mouseStart, mouseEnd, dim1, dim2);
 		isNeg = false;
 		return scaleAction;
 	}
 
-	protected abstract void scaleWithFactor(final ModelEditor modelEditor, final Vec3 center, final double scaleFactor, byte dim1, byte dim2);
+	protected abstract void scaleWithFactor(ModelEditor modelEditor, Vec3 center, double scaleFactor, byte dim1, byte dim2);
 
-	protected abstract Vec3 buildScaleVector(final double scaleFactor, byte dim1, byte dim2);
+	protected abstract Vec3 buildScaleVector(double scaleFactor, byte dim1, byte dim2);
 
-	protected double computeScaleFactor(final Double startingClick, final Double endingClick, final Vec3 center, final byte dim1, final byte dim2) {
+	protected double computeScaleFactor(Vec2 startingClick, Vec2 endingClick, Vec3 center, byte dim1, byte dim2) {
 		double dxEnd = 0;
 		double dyEnd = 0;
 		double dxStart = 0;
@@ -72,8 +72,8 @@ public abstract class AbstractScaleManipulator extends Manipulator {
 				flipNeg = getFlipNeg(dyEnd);
 			}
 		}
-		final double endDist = Math.sqrt((dxEnd * dxEnd) + (dyEnd * dyEnd));
-		final double startDist = Math.sqrt((dxStart * dxStart) + (dyStart * dyStart));
+		double endDist = Math.sqrt((dxEnd * dxEnd) + (dyEnd * dyEnd));
+		double startDist = Math.sqrt((dxStart * dxStart) + (dyStart * dyStart));
 
 		return flipNeg * endDist / startDist;
 	}

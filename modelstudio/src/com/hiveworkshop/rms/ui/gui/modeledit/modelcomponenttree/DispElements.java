@@ -37,12 +37,12 @@ public class DispElements {
 	static final class ChooseableModelRoot extends ChooseableDisplayElement<EditableModel> {
 		private static final ImageIcon MODEL_ROOT_ICON = new ImageIcon(IconUtils.worldEditStyleIcon(BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-Trigger.blp")));
 
-		public ChooseableModelRoot(final ModelViewManager modelViewManager, final EditableModel item) {
+		public ChooseableModelRoot(ModelViewManager modelViewManager, EditableModel item) {
 			super(MODEL_ROOT_ICON, modelViewManager, item);
 		}
 
 		@Override
-		protected String getName(final EditableModel item, final ModelViewManager modelViewManager) {
+		protected String getName(EditableModel item, ModelViewManager modelViewManager) {
 			return "Model \"" + item.getHeaderName() + "\"";
 		}
 	}
@@ -50,13 +50,13 @@ public class DispElements {
 	static final class ChooseableModelComment extends ChooseableDisplayElement<ArrayList<String>> {
 		private static final ImageIcon COMMENT_ICON = new ImageIcon(RMSIcons.loadNodeImage("comment.png"));
 
-		public ChooseableModelComment(final ModelViewManager modelViewManager, final ArrayList<String> item) {
+		public ChooseableModelComment(ModelViewManager modelViewManager, ArrayList<String> item) {
 			super(COMMENT_ICON, modelViewManager, item);
-			System.out.println("(ModelComponentBrowserTree) model comment: " + item);
+//			System.out.println("(ModelComponentBrowserTree) model comment: " + item);
 		}
 
 		@Override
-		protected String getName(final ArrayList<String> item, final ModelViewManager modelViewManager) {
+		protected String getName(ArrayList<String> item, ModelViewManager modelViewManager) {
 			return "Comment";
 		}
 	}
@@ -64,12 +64,12 @@ public class DispElements {
 	static final class ChooseableModelHeader extends ChooseableDisplayElement<EditableModel> {
 		private static final ImageIcon DATA_ICON = new ImageIcon(RMSIcons.loadNodeImage("model.png"));
 
-		public ChooseableModelHeader(final ModelViewManager modelViewManager, final EditableModel item) {
+		public ChooseableModelHeader(ModelViewManager modelViewManager, EditableModel item) {
 			super(DATA_ICON, modelViewManager, item);
 		}
 
 		@Override
-		protected String getName(final EditableModel item, final ModelViewManager modelViewManager) {
+		protected String getName(EditableModel item, ModelViewManager modelViewManager) {
 			return "Header";
 		}
 	}
@@ -78,12 +78,12 @@ public class DispElements {
 
 		private static final ImageIcon ANIMATION_ICON = new ImageIcon(RMSIcons.loadNodeImage("animation.png"));
 
-		public ChooseableAnimationItem(final ModelViewManager modelViewManager, final Animation item) {
+		public ChooseableAnimationItem(ModelViewManager modelViewManager, Animation item) {
 			super(ANIMATION_ICON, modelViewManager, item);
 		}
 
 		@Override
-		protected String getName(final Animation item, final ModelViewManager modelViewManager) {
+		protected String getName(Animation item, ModelViewManager modelViewManager) {
 			return "Anim \"" + item.getName() + "\"";
 		}
 	}
@@ -93,19 +93,19 @@ public class DispElements {
 
 		private final int globalSeqId;
 
-		public ChooseableGlobalSequenceItem(final ModelViewManager modelViewManager, final Integer item, final int globalSeqId) {
+		public ChooseableGlobalSequenceItem(ModelViewManager modelViewManager, Integer item, int globalSeqId) {
 			super(GLOBAL_SEQ_ICON, modelViewManager, globalSeqId);
 //			super(GLOBAL_SEQ_ICON, modelViewManager, item);
 			this.globalSeqId = globalSeqId;
 		}
 
 		@Override
-		protected String getName(final Integer item, final ModelViewManager modelViewManager) {
+		protected String getName(Integer item, ModelViewManager modelViewManager) {
 			return "GlobalSequence " + globalSeqId + ": Duration " + item;
 		}
 
 		@Override
-		public boolean hasSameItem(final ChooseableDisplayElement<?> other) {
+		public boolean hasSameItem(ChooseableDisplayElement<?> other) {
 			return (other != null) && (other.getClass() == getClass())
 					&& (globalSeqId == ((ChooseableGlobalSequenceItem) other).globalSeqId);
 		}
@@ -115,12 +115,12 @@ public class DispElements {
 
 		private static final ImageIcon TEXTURE_ICON = new ImageIcon(RMSIcons.loadNodeImage("bitmap.png"));
 
-		public ChooseableBitmapItem(final ModelViewManager modelViewManager, final Bitmap item, int id) {
+		public ChooseableBitmapItem(ModelViewManager modelViewManager, Bitmap item, int id) {
 			super(TEXTURE_ICON, modelViewManager, item, id);
 		}
 
 		@Override
-		protected String getName(final Bitmap item, final ModelViewManager modelViewManager) {
+		protected String getName(Bitmap item, ModelViewManager modelViewManager) {
 			return "Bitmap \"" + item.getName() + "\"";
 		}
 	}
@@ -131,7 +131,7 @@ public class DispElements {
 
 		private static final ImageIcon MATERIAL_ICON = new ImageIcon(RMSIcons.loadNodeImage("material.png"));
 
-		public ChooseableMaterialItem(final ModelViewManager modelViewManager, final Material item, int id) {
+		public ChooseableMaterialItem(ModelViewManager modelViewManager, Material item, int id) {
 			super(MATERIAL_ICON, modelViewManager, item, id);
 			thisNum = id;
 //			thisNum = num;
@@ -143,7 +143,7 @@ public class DispElements {
 		}
 
 		@Override
-		protected String getName(final Material item, final ModelViewManager modelViewManager) {
+		protected String getName(Material item, ModelViewManager modelViewManager) {
 			//\u2116 №
 //			return "Material \u2116" + (thisNum);
 //			return "\u2116 " + (thisNum) + " " + item.getName();
@@ -155,12 +155,12 @@ public class DispElements {
 
 		private static final ImageIcon TEXTURE_ANIM_ICON = new ImageIcon(RMSIcons.loadNodeImage("textureanim.png"));
 
-		public ChooseableTextureAnimItem(final ModelViewManager modelViewManager, final TextureAnim item, int id) {
+		public ChooseableTextureAnimItem(ModelViewManager modelViewManager, TextureAnim item, int id) {
 			super(TEXTURE_ANIM_ICON, modelViewManager, item, id);
 		}
 
 		@Override
-		protected String getName(final TextureAnim item, final ModelViewManager modelViewManager) {
+		protected String getName(TextureAnim item, ModelViewManager modelViewManager) {
 			return "TextureAnim " + modelViewManager.getModel().getTexAnims().indexOf(item);
 		}
 	}
@@ -168,12 +168,12 @@ public class DispElements {
 	private static final class ChooseableBoneItem extends ChooseableDisplayElement<Bone> {
 		private static final ImageIcon BONE_ICON = new ImageIcon(RMSIcons.loadNodeImage("bone.png"));
 
-		public ChooseableBoneItem(final ModelViewManager modelViewManager, final Bone item) {
+		public ChooseableBoneItem(ModelViewManager modelViewManager, Bone item) {
 			super(BONE_ICON, modelViewManager, item);
 		}
 
 		@Override
-		protected String getName(final Bone item, final ModelViewManager modelViewManager) {
+		protected String getName(Bone item, ModelViewManager modelViewManager) {
 			return "Bone \"" + item.getName() + "\"";
 		}
 	}
@@ -181,12 +181,12 @@ public class DispElements {
 	private static final class ChooseableHelperItem extends ChooseableDisplayElement<Helper> {
 		private static final ImageIcon BONE_ICON = new ImageIcon(RMSIcons.loadNodeImage("helperhand.png"));
 
-		public ChooseableHelperItem(final ModelViewManager modelViewManager, final Helper item) {
+		public ChooseableHelperItem(ModelViewManager modelViewManager, Helper item) {
 			super(BONE_ICON, modelViewManager, item);
 		}
 
 		@Override
-		protected String getName(final Helper item, final ModelViewManager modelViewManager) {
+		protected String getName(Helper item, ModelViewManager modelViewManager) {
 			return "Helper \"" + item.getName() + "\"";
 		}
 	}
@@ -194,12 +194,12 @@ public class DispElements {
 	private static final class ChooseableLightItem extends ChooseableDisplayElement<Light> {
 		private static final ImageIcon LIGHT_ICON = new ImageIcon(RMSIcons.loadNodeImage("light.png"));
 
-		public ChooseableLightItem(final ModelViewManager modelViewManager, final Light item) {
+		public ChooseableLightItem(ModelViewManager modelViewManager, Light item) {
 			super(LIGHT_ICON, modelViewManager, item);
 		}
 
 		@Override
-		protected String getName(final Light item, final ModelViewManager modelViewManager) {
+		protected String getName(Light item, ModelViewManager modelViewManager) {
 			return "Light \"" + item.getName() + "\"";
 		}
 	}
@@ -207,12 +207,12 @@ public class DispElements {
 	private static final class ChooseableAttachmentItem extends ChooseableDisplayElement<Attachment> {
 		private static final ImageIcon ATTACHMENT_ICON = new ImageIcon(RMSIcons.loadNodeImage("attachment.png"));
 
-		public ChooseableAttachmentItem(final ModelViewManager modelViewManager, final Attachment item) {
+		public ChooseableAttachmentItem(ModelViewManager modelViewManager, Attachment item) {
 			super(ATTACHMENT_ICON, modelViewManager, item);
 		}
 
 		@Override
-		protected String getName(final Attachment item, final ModelViewManager modelViewManager) {
+		protected String getName(Attachment item, ModelViewManager modelViewManager) {
 			return "Attachment \"" + item.getName() + "\"";
 		}
 	}
@@ -220,12 +220,12 @@ public class DispElements {
 	private static final class ChooseableParticleEmitterItem extends ChooseableDisplayElement<ParticleEmitter> {
 		private static final ImageIcon PARTICLE_ICON = new ImageIcon(RMSIcons.loadNodeImage("particle1.png"));
 
-		public ChooseableParticleEmitterItem(final ModelViewManager modelViewManager, final ParticleEmitter item) {
+		public ChooseableParticleEmitterItem(ModelViewManager modelViewManager, ParticleEmitter item) {
 			super(PARTICLE_ICON, modelViewManager, item);
 		}
 
 		@Override
-		protected String getName(final ParticleEmitter item, final ModelViewManager modelViewManager) {
+		protected String getName(ParticleEmitter item, ModelViewManager modelViewManager) {
 			return "ParticleEmitter \"" + item.getName() + "\"";
 		}
 	}
@@ -233,12 +233,12 @@ public class DispElements {
 	private static final class ChooseableParticleEmitter2Item extends ChooseableDisplayElement<ParticleEmitter2> {
 		private static final ImageIcon PARTICLE2_ICON = new ImageIcon(RMSIcons.loadNodeImage("particle2.png"));
 
-		public ChooseableParticleEmitter2Item(final ModelViewManager modelViewManager, final ParticleEmitter2 item) {
+		public ChooseableParticleEmitter2Item(ModelViewManager modelViewManager, ParticleEmitter2 item) {
 			super(PARTICLE2_ICON, modelViewManager, item);
 		}
 
 		@Override
-		protected String getName(final ParticleEmitter2 item, final ModelViewManager modelViewManager) {
+		protected String getName(ParticleEmitter2 item, ModelViewManager modelViewManager) {
 			return "ParticleEmitter2 \"" + item.getName() + "\"";
 		}
 	}
@@ -246,12 +246,12 @@ public class DispElements {
 	private static final class ChooseableParticleEmitterPopcornItem extends ChooseableDisplayElement<ParticleEmitterPopcorn> {
 		private static final ImageIcon POPCORN_ICON = new ImageIcon(RMSIcons.loadNodeImage("popcorn.png"));
 
-		public ChooseableParticleEmitterPopcornItem(final ModelViewManager modelViewManager, final ParticleEmitterPopcorn item) {
+		public ChooseableParticleEmitterPopcornItem(ModelViewManager modelViewManager, ParticleEmitterPopcorn item) {
 			super(POPCORN_ICON, modelViewManager, item);
 		}
 
 		@Override
-		protected String getName(final ParticleEmitterPopcorn item, final ModelViewManager modelViewManager) {
+		protected String getName(ParticleEmitterPopcorn item, ModelViewManager modelViewManager) {
 			return "ParticleEmitterPopcorn \"" + item.getName() + "\"";
 		}
 	}
@@ -259,12 +259,12 @@ public class DispElements {
 	private static final class ChooseableRibbonEmitterItem extends ChooseableDisplayElement<RibbonEmitter> {
 		private static final ImageIcon RIBBON_ICON = new ImageIcon(RMSIcons.loadNodeImage("ribbon.png"));
 
-		public ChooseableRibbonEmitterItem(final ModelViewManager modelViewManager, final RibbonEmitter item) {
+		public ChooseableRibbonEmitterItem(ModelViewManager modelViewManager, RibbonEmitter item) {
 			super(RIBBON_ICON, modelViewManager, item);
 		}
 
 		@Override
-		protected String getName(final RibbonEmitter item, final ModelViewManager modelViewManager) {
+		protected String getName(RibbonEmitter item, ModelViewManager modelViewManager) {
 			return "RibbonEmitter \"" + item.getName() + "\"";
 		}
 	}
@@ -272,7 +272,7 @@ public class DispElements {
 	private static final class ChooseableEventObjectItem extends ChooseableDisplayElement<EventObject> {
 		private static final ImageIcon EVENT_OBJECT_ICON = new ImageIcon(RMSIcons.loadNodeImage("event.png"));
 
-		public ChooseableEventObjectItem(final ModelViewManager modelViewManager, final EventObject item) {
+		public ChooseableEventObjectItem(ModelViewManager modelViewManager, EventObject item) {
 			super(EVENT_OBJECT_ICON, modelViewManager, item);
 		}
 
@@ -285,12 +285,12 @@ public class DispElements {
 	private static final class ChooseableCollisionShapeItem extends ChooseableDisplayElement<CollisionShape> {
 		private static final ImageIcon COLLISION_SHAPE_ICON = new ImageIcon(RMSIcons.loadNodeImage("collision.png"));
 
-		public ChooseableCollisionShapeItem(final ModelViewManager modelViewManager, final CollisionShape item) {
+		public ChooseableCollisionShapeItem(ModelViewManager modelViewManager, CollisionShape item) {
 			super(COLLISION_SHAPE_ICON, modelViewManager, item);
 		}
 
 		@Override
-		protected String getName(final CollisionShape item, final ModelViewManager modelViewManager) {
+		protected String getName(CollisionShape item, ModelViewManager modelViewManager) {
 			return "CollisionShape \"" + item.getName() + "\"";
 		}
 	}
@@ -298,12 +298,12 @@ public class DispElements {
 	static final class ChooseableGeosetAnimItem extends ChooseableDisplayElement<GeosetAnim> {
 		private static final ImageIcon GEOSET_ANIM_ICON = new ImageIcon(RMSIcons.loadNodeImage("geoanim.png"));
 
-		public ChooseableGeosetAnimItem(final ModelViewManager modelViewManager, final GeosetAnim item, int id) {
+		public ChooseableGeosetAnimItem(ModelViewManager modelViewManager, GeosetAnim item, int id) {
 			super(GEOSET_ANIM_ICON, modelViewManager, item, id);
 		}
 
 		@Override
-		protected String getName(final GeosetAnim item, final ModelViewManager modelViewManager) {
+		protected String getName(GeosetAnim item, ModelViewManager modelViewManager) {
 			return "GeosetAnim " + modelViewManager.getModel().getGeosetAnims().indexOf(item);
 		}
 	}
@@ -311,12 +311,12 @@ public class DispElements {
 	static final class ChooseableCameraItem extends ChooseableDisplayElement<Camera> {
 		private static final ImageIcon CAMERA_ICON = new ImageIcon(RMSIcons.loadNodeImage("camera.png"));
 
-		public ChooseableCameraItem(final ModelViewManager modelViewManager, final Camera item) {
+		public ChooseableCameraItem(ModelViewManager modelViewManager, Camera item) {
 			super(CAMERA_ICON, modelViewManager, item);
 		}
 
 		@Override
-		protected String getName(final Camera item, final ModelViewManager modelViewManager) {
+		protected String getName(Camera item, ModelViewManager modelViewManager) {
 			return "Camera \"" + item.getName() + "\"";
 		}
 	}
@@ -324,12 +324,12 @@ public class DispElements {
 	static final class ChooseableFaceEffectsChunkItem extends ChooseableDisplayElement<FaceEffect> {
 		private static final ImageIcon FACEFX_ICON = new ImageIcon(RMSIcons.loadNodeImage("fafx.png"));
 
-		public ChooseableFaceEffectsChunkItem(final ModelViewManager modelViewManager, final FaceEffect item, int id) {
+		public ChooseableFaceEffectsChunkItem(ModelViewManager modelViewManager, FaceEffect item, int id) {
 			super(FACEFX_ICON, modelViewManager, item, id);
 		}
 
 		@Override
-		protected String getName(final FaceEffect item, final ModelViewManager modelViewManager) {
+		protected String getName(FaceEffect item, ModelViewManager modelViewManager) {
 			return "FaceFX \"" + item.getFaceEffectTarget() + "\"";
 		}
 	}
@@ -337,12 +337,12 @@ public class DispElements {
 	static final class ChooseableBindPoseChunkItem extends ChooseableDisplayElement<BindPose> {
 		private static final ImageIcon BINDPOSE_ICON = new ImageIcon(IconUtils.worldEditStyleIcon(RMSIcons.loadNodeImage("bindpos.png")));
 
-		public ChooseableBindPoseChunkItem(final ModelViewManager modelViewManager, final BindPose item) {
+		public ChooseableBindPoseChunkItem(ModelViewManager modelViewManager, BindPose item) {
 			super(BINDPOSE_ICON, modelViewManager, item);
 		}
 
 		@Override
-		protected String getName(final BindPose item, final ModelViewManager modelViewManager) {
+		protected String getName(BindPose item, ModelViewManager modelViewManager) {
 			return "BindPose";
 		}
 	}
@@ -354,23 +354,23 @@ public class DispElements {
 				BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp")));
 		private final String name2;
 
-		public ChooseableDummyItem(final ModelViewManager modelViewManager, final String name) {
+		public ChooseableDummyItem(ModelViewManager modelViewManager, String name) {
 			super(GROUP_ICON, modelViewManager, null);
 			name2 = name;
 		}
 
 		@Override
-		protected String getName(final Void item, final ModelViewManager modelViewManager) {
+		protected String getName(Void item, ModelViewManager modelViewManager) {
 			return name2;
 		}
 
 		@Override
-		public ImageIcon getIcon(final boolean expanded) {
+		public ImageIcon getIcon(boolean expanded) {
 			return expanded ? GROUP_ICON_EXPANDED : GROUP_ICON;
 		}
 
 		@Override
-		public boolean hasSameItem(final ChooseableDisplayElement<?> other) {
+		public boolean hasSameItem(ChooseableDisplayElement<?> other) {
 			return (other instanceof ChooseableDummyItem) && ((ChooseableDummyItem) other).name2.equals(name2);
 		}
 	}
@@ -378,14 +378,14 @@ public class DispElements {
 	static final class ChooseableGeosetItem extends ChooseableDisplayElement<Geoset> {
 		private static final ImageIcon GEOSET_ITEM_ICON = new ImageIcon(RMSIcons.loadNodeImage("geoset.png"));
 
-		public ChooseableGeosetItem(final ModelViewManager modelViewManager, final Geoset item, int id) {
+		public ChooseableGeosetItem(ModelViewManager modelViewManager, Geoset item, int id) {
 			super(GEOSET_ITEM_ICON, modelViewManager, item, id);
 		}
 
 		@Override
-		protected String getName(final Geoset item, final ModelViewManager modelViewManager) {
-//			final String numberName = item.getName();
-			final String numberName = "Geoset " + (modelViewManager.getModel().getGeosetId(item) + 1);
+		protected String getName(Geoset item, ModelViewManager modelViewManager) {
+//			String numberName = item.getName();
+			String numberName = "Geoset " + (modelViewManager.getModel().getGeosetId(item) + 1);
 			if ((item.getLevelOfDetailName() != null) && (item.getLevelOfDetailName().length() > 0)) {
 				return numberName + ": " + item.getLevelOfDetailName();
 			}
@@ -409,9 +409,9 @@ public class DispElements {
 		private final UndoActionListener undoActionListener;
 		private final ModelStructureChangeListener modelStructureChangeListener;
 
-		public IdObjectToChooseableElementWrappingConverter(final ModelViewManager modelViewManager,
-		                                                    final UndoActionListener undoActionListener,
-		                                                    final ModelStructureChangeListener modelStructureChangeListener) {
+		public IdObjectToChooseableElementWrappingConverter(ModelViewManager modelViewManager,
+		                                                    UndoActionListener undoActionListener,
+		                                                    ModelStructureChangeListener modelStructureChangeListener) {
 			this.modelViewManager = modelViewManager;
 			this.undoActionListener = undoActionListener;
 			this.modelStructureChangeListener = modelStructureChangeListener;
@@ -422,57 +422,57 @@ public class DispElements {
 		}
 
 		@Override
-		public void bone(final Bone object) {
+		public void bone(Bone object) {
 			element = new ChooseableBoneItem(modelViewManager, object);
 		}
 
 		@Override
-		public void light(final Light light) {
+		public void light(Light light) {
 			element = new ChooseableLightItem(modelViewManager, light);
 		}
 
 		@Override
-		public void helper(final Helper object) {
+		public void helper(Helper object) {
 			element = new ChooseableHelperItem(modelViewManager, object);
 		}
 
 		@Override
-		public void attachment(final Attachment attachment) {
+		public void attachment(Attachment attachment) {
 			element = new ChooseableAttachmentItem(modelViewManager, attachment);
 		}
 
 		@Override
-		public void particleEmitter(final ParticleEmitter particleEmitter) {
+		public void particleEmitter(ParticleEmitter particleEmitter) {
 			element = new ChooseableParticleEmitterItem(modelViewManager, particleEmitter);
 		}
 
 		@Override
-		public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
+		public void particleEmitter2(ParticleEmitter2 particleEmitter) {
 			element = new ChooseableParticleEmitter2Item(modelViewManager, particleEmitter);
 		}
 
 		@Override
-		public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
+		public void popcornFxEmitter(ParticleEmitterPopcorn popcornFxEmitter) {
 			element = new ChooseableParticleEmitterPopcornItem(modelViewManager, popcornFxEmitter);
 		}
 
 		@Override
-		public void ribbonEmitter(final RibbonEmitter particleEmitter) {
+		public void ribbonEmitter(RibbonEmitter particleEmitter) {
 			element = new ChooseableRibbonEmitterItem(modelViewManager, particleEmitter);
 		}
 
 		@Override
-		public void eventObject(final EventObject eventObject) {
+		public void eventObject(EventObject eventObject) {
 			element = new ChooseableEventObjectItem(modelViewManager, eventObject);
 		}
 
 		@Override
-		public void collisionShape(final CollisionShape collisionShape) {
+		public void collisionShape(CollisionShape collisionShape) {
 			element = new ChooseableCollisionShapeItem(modelViewManager, collisionShape);
 		}
 
 		@Override
-		public void camera(final Camera camera) {
+		public void camera(Camera camera) {
 			element = new ChooseableCameraItem(modelViewManager, camera);
 		}
 	}

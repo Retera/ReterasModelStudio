@@ -8,14 +8,14 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 
 public class TVertexEditorMultiManipulatorActivity extends MultiManipulatorActivity<TVertexEditorManipulatorBuilder> implements TVertexEditorViewportActivity {
 
-	public TVertexEditorMultiManipulatorActivity(final TVertexEditorManipulatorBuilder manipulatorBuilder,
-	                                             final UndoActionListener undoActionListener,
-	                                             final SelectionView selectionView) {
+	public TVertexEditorMultiManipulatorActivity(TVertexEditorManipulatorBuilder manipulatorBuilder,
+	                                             UndoActionListener undoActionListener,
+	                                             SelectionView selectionView) {
 		super(manipulatorBuilder, undoActionListener, selectionView);
 	}
 
 	@Override
-	public void editorChanged(final TVertexEditor newModelEditor) {
+	public void editorChanged(TVertexEditor newModelEditor) {
 		manipulatorBuilder.editorChanged(newModelEditor);
 	}
 

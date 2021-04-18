@@ -10,7 +10,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.util.Vec2;
 
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D.Double;
 
 public class RotateTVertexManipulator extends Manipulator {
 	private final TVertexEditor modelEditor;
@@ -18,16 +17,16 @@ public class RotateTVertexManipulator extends Manipulator {
 	private GenericRotateAction rotationAction;
 	MoveDimension dir;
 
-	public RotateTVertexManipulator(final TVertexEditor modelEditor, final SelectionView selectionView, MoveDimension dir) {
+	public RotateTVertexManipulator(TVertexEditor modelEditor, SelectionView selectionView, MoveDimension dir) {
 		this.modelEditor = modelEditor;
 		this.selectionView = selectionView;
 		this.dir = dir;
 	}
 
 	@Override
-	protected void onStart(MouseEvent e, final Double mouseStart, final byte dim1, final byte dim2) {
+	protected void onStart(MouseEvent e, Vec2 mouseStart, byte dim1, byte dim2) {
 		super.onStart(e, mouseStart, dim1, dim2);
-		final Vec2 center = selectionView.getUVCenter(modelEditor.getUVLayerIndex());
+		Vec2 center = selectionView.getUVCenter(modelEditor.getUVLayerIndex());
 		byte planeDim1;
 		byte planeDim2;
 
@@ -45,27 +44,29 @@ public class RotateTVertexManipulator extends Manipulator {
 	}
 
 	@Override
-	public void update(MouseEvent e, final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
-		final Vec2 center = selectionView.getUVCenter(modelEditor.getUVLayerIndex());
-		final double radians = computeRotateRadians(mouseStart, mouseEnd, center, dim1, dim2);
+	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
+		Vec2 center = selectionView.getUVCenter(modelEditor.getUVLayerIndex());
+		double radians = computeRotateRadians(mouseStart, mouseEnd, center, dim1, dim2);
 		rotationAction.updateRotation(radians);
 	}
 
 	@Override
-	public UndoAction finish(MouseEvent e, final Double mouseStart, final Double mouseEnd, final byte dim1, final byte dim2) {
+	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
 		update(e, mouseStart, mouseEnd, dim1, dim2);
 		return rotationAction;
 	}
 
-	private double computeRotateRadians(final Double startingClick, final Double endingClick, final Vec2 center, final byte portFirstXYZ, final byte portSecondXYZ) {
+	private double computeRotateRadians(Vec2 startingClick, Vec2 endingClick, Vec2 center, byte portFirstXYZ, byte portSecondXYZ) {
 		double deltaAngle = 0;
 		if (dir == MoveDimension.XYZ) {
-			final double startingDeltaX = startingClick.x - center.getCoord(portFirstXYZ);
-			final double startingDeltaY = startingClick.y - center.getCoord(portSecondXYZ);
-			final double endingDeltaX = endingClick.x - center.getCoord(portFirstXYZ);
-			final double endingDeltaY = endingClick.y - center.getCoord(portSecondXYZ);
-			final double startingAngle = Math.atan2(startingDeltaY, startingDeltaX);
-			final double endingAngle = Math.atan2(endingDeltaY, endingDeltaX);
+//			double startingDeltaX = startingClick.x - center.getCoord(portFirstXYZ);
+//			double startingDeltaY = startingClick.y - center.getCoord(portSecondXYZ);
+
+			Vec2 startingDelta = Vec2.getDif(startingClick, center);
+			Vec2 endingDelta = Vec2.getDif(endingClick, center);
+
+			double startingAngle = Math.atan2(startingDelta.y, startingDelta.x);
+			double endingAngle = Math.atan2(endingDelta.y, endingDelta.x);
 			deltaAngle = endingAngle - startingAngle;
 
 		} else {
@@ -84,12 +85,13 @@ public class RotateTVertexManipulator extends Manipulator {
 				deltaAngle = (endingClick.x - startingClick.x) / radius;
 			}
 			if (dir.containDirection(CoordinateSystem.Util.getUnusedXYZ(portFirstXYZ, portSecondXYZ))) {
-				final double startingDeltaX = startingClick.x - center.getCoord(portFirstXYZ);
-				final double startingDeltaY = startingClick.y - center.getCoord(portSecondXYZ);
-				final double endingDeltaX = endingClick.x - center.getCoord(portFirstXYZ);
-				final double endingDeltaY = endingClick.y - center.getCoord(portSecondXYZ);
-				final double startingAngle = Math.atan2(startingDeltaY, startingDeltaX);
-				final double endingAngle = Math.atan2(endingDeltaY, endingDeltaX);
+//				double startingDeltaX = startingClick.x - center.getCoord(portFirstXYZ);
+//				double startingDeltaY = startingClick.y - center.getCoord(portSecondXYZ);
+				Vec2 startingDelta = Vec2.getDif(startingClick, center);
+				Vec2 endingDelta = Vec2.getDif(endingClick, center);
+
+				double startingAngle = Math.atan2(startingDelta.y, startingDelta.x);
+				double endingAngle = Math.atan2(endingDelta.y, endingDelta.x);
 				deltaAngle = endingAngle - startingAngle;
 			}
 		}
