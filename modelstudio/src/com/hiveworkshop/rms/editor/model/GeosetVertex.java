@@ -32,21 +32,21 @@ public class GeosetVertex extends Vec3 {
 
     Geoset geoset;
 
-    public GeosetVertex(final double x, final double y, final double z) {
+    public GeosetVertex(double x, double y, double z) {
         super(x, y, z);
     }
 
-    public GeosetVertex(final double x, final double y, final double z, final Vec3 n) {
+    public GeosetVertex(double x, double y, double z, Vec3 n) {
         super(x, y, z);
         normal = n;
     }
 
-    public GeosetVertex(final GeosetVertex old) {
+    public GeosetVertex(GeosetVertex old) {
         super(old.x, old.y, old.z);
         normal = new Vec3(old.normal);
         bones = new ArrayList<>(old.bones);
         tverts = new ArrayList<>();
-        for (final Vec2 tv : old.tverts) {
+        for (Vec2 tv : old.tverts) {
             tverts.add(new Vec2(tv));
         }
         // odd, but when writing
@@ -133,7 +133,7 @@ public class GeosetVertex extends Vec3 {
         if (sskinBones != null) {
             bones.clear();
             boolean fallback = false;
-            for (final SkinBone skinBone : sskinBones) {
+            for (SkinBone skinBone : sskinBones) {
                 if (skinBone != null && skinBone.getBone() != null) {
                     fallback = true;
                     if (skinBone.getWeight() > 110) {
@@ -142,7 +142,7 @@ public class GeosetVertex extends Vec3 {
                 }
             }
             if (bones.isEmpty() && fallback) {
-                for (final SkinBone skinBone : sskinBones) {
+                for (SkinBone skinBone : sskinBones) {
                     if (skinBone != null && skinBone.getBone() != null) {
                         bones.add(skinBone.getBone());
                     }
@@ -154,11 +154,11 @@ public class GeosetVertex extends Vec3 {
         }
     }
 
-    public void addTVertex(final Vec2 v) {
+    public void addTVertex(Vec2 v) {
         tverts.add(v);
     }
 
-    public Vec2 getTVertex(final int i) {
+    public Vec2 getTVertex(int i) {
         try {
             return tverts.get(i);
         } catch (final IndexOutOfBoundsException e) {
@@ -170,7 +170,7 @@ public class GeosetVertex extends Vec3 {
         return vertexGroup;
     }
 
-    public void setVertexGroup(final int k) {
+    public void setVertexGroup(int k) {
         vertexGroup = k;
     }
 
@@ -182,11 +182,11 @@ public class GeosetVertex extends Vec3 {
         tverts.clear();
     }
 
-    public void addBoneAttachment(final Bone b) {
+    public void addBoneAttachment(Bone b) {
         bones.add(b);
     }
 
-    public void addBoneAttachments(final List<Bone> b) {
+    public void addBoneAttachments(List<Bone> b) {
         bones.addAll(b);
     }
 
@@ -194,11 +194,11 @@ public class GeosetVertex extends Vec3 {
         return bones;
     }
 
-    public void setMatrix(final Matrix ref) {
+    public void setMatrix(Matrix ref) {
         matrixRef = ref;
     }
 
-    public void setNormal(final Vec3 n) {
+    public void setNormal(Vec3 n) {
         normal = n;
     }
 
@@ -210,7 +210,7 @@ public class GeosetVertex extends Vec3 {
         return tverts;
     }
 
-    public void setTverts(final List<Vec2> tverts) {
+    public void setTverts(List<Vec2> tverts) {
         this.tverts = tverts;
     }
 
@@ -218,7 +218,7 @@ public class GeosetVertex extends Vec3 {
         return bones;
     }
 
-    public void setBones(final List<Bone> bones) {
+    public void setBones(List<Bone> bones) {
         this.bones = bones;
     }
 
@@ -226,7 +226,17 @@ public class GeosetVertex extends Vec3 {
         return triangles;
     }
 
-    public void setTriangles(final List<Triangle> triangles) {
+    public GeosetVertex addTriangle(Triangle triangle) {
+        triangles.add(triangle);
+        return this;
+    }
+
+    public GeosetVertex removeTriangle(Triangle triangle) {
+        triangles.remove(triangle);
+        return this;
+    }
+
+    public void setTriangles(List<Triangle> triangles) {
         this.triangles = triangles;
     }
 
@@ -257,7 +267,7 @@ public class GeosetVertex extends Vec3 {
         return sb;
     }
 
-    public void setSkinBones(final Bone[] skinBones) {
+    public void setSkinBones(Bone[] skinBones) {
 //        this.skinBones = skinBones;
         if (this.sskinBones == null) {
             this.sskinBones = new SkinBone[4];
@@ -284,7 +294,7 @@ public class GeosetVertex extends Vec3 {
 //        this.skinBoneWeights = skinBoneWeights;
 //    }
 
-    public void setSkinBones(final Bone[] skinBones, final short[] skinBoneWeights) {
+    public void setSkinBones(Bone[] skinBones, short[] skinBoneWeights) {
 //        this.skinBones = skinBones;
 //        this.skinBoneWeights = skinBoneWeights;
 
@@ -300,7 +310,7 @@ public class GeosetVertex extends Vec3 {
         }
     }
 
-    public void setSkinBone(final Bone skinBone, final short skinBoneWeight, int i) {
+    public void setSkinBone(Bone skinBone, short skinBoneWeight, int i) {
 //        this.skinBones[i] = skinBone;
 //        this.skinBoneWeights[i] = skinBoneWeight;
         if (this.sskinBones[i] == null) {
@@ -310,7 +320,7 @@ public class GeosetVertex extends Vec3 {
         }
     }
 
-    public void setSkinBone(final Bone skinBone, int i) {
+    public void setSkinBone(Bone skinBone, int i) {
 //        this.skinBones[i] = skinBone;
         if (this.sskinBones[i] == null) {
             this.sskinBones[i] = new SkinBone(skinBone);
@@ -319,7 +329,7 @@ public class GeosetVertex extends Vec3 {
         }
     }
 
-    public void setSkinBone(final short skinBoneWeight, int i) {
+    public void setSkinBone(short skinBoneWeight, int i) {
 //        this.skinBoneWeights[i] = skinBoneWeight;
         if (this.sskinBones[i] == null) {
             this.sskinBones[i] = new SkinBone(skinBoneWeight);
@@ -347,7 +357,7 @@ public class GeosetVertex extends Vec3 {
 //        this.skinBoneWeights = skinBoneWeights;
 //    }
 
-    public void setSkinBoneWeights(final short[] skinBoneWeights) {
+    public void setSkinBoneWeights(short[] skinBoneWeights) {
 //        this.skinBoneWeights = skinBoneWeights;
         if (this.sskinBones == null) {
             this.sskinBones = new SkinBone[4];
@@ -365,7 +375,7 @@ public class GeosetVertex extends Vec3 {
         return tangent;
     }
 
-    public void setTangent(final float[] tangent) {
+    public void setTangent(float[] tangent) {
         this.tangent = new Vec4(tangent);
     }
 
@@ -381,7 +391,7 @@ public class GeosetVertex extends Vec3 {
         this.tangent = new Vec4(tangent, w);
     }
 
-    public void setGeoset(final Geoset geoset) {
+    public void setGeoset(Geoset geoset) {
         this.geoset = geoset;
     }
 
@@ -391,8 +401,8 @@ public class GeosetVertex extends Vec3 {
     }
 
     @Override
-    public Vec3 rotate(final double centerX, final double centerY, final double centerZ, final double radians,
-                       final byte firstXYZ, final byte secondXYZ) {
+    public Vec3 rotate(double centerX, double centerY, double centerZ, double radians,
+                       byte firstXYZ, byte secondXYZ) {
         super.rotate(centerX, centerY, centerZ, radians, firstXYZ, secondXYZ);
         normal.rotate(0, 0, 0, radians, firstXYZ, secondXYZ);
         if (tangent != null) {
@@ -402,8 +412,8 @@ public class GeosetVertex extends Vec3 {
     }
 
     @Override
-    public Vec3 rotate(Vec3 center, final double radians,
-                       final byte firstXYZ, final byte secondXYZ) {
+    public Vec3 rotate(Vec3 center, double radians,
+                       byte firstXYZ, byte secondXYZ) {
         super.rotate(center, radians, firstXYZ, secondXYZ);
         normal.rotate(0, 0, 0, radians, firstXYZ, secondXYZ);
         if (tangent != null) {
@@ -413,17 +423,17 @@ public class GeosetVertex extends Vec3 {
         return this;
     }
 
-//    public static void rotateTangent(final double centerX, final double centerY, final double centerZ,
-//                                     final double radians,
-//                                     final byte firstXYZ, final byte secondXYZ,
-//                                     final float[] vertex) {
-//        final double x1 = getVertexCoord(firstXYZ, vertex);
-//        final double y1 = getVertexCoord(secondXYZ, vertex);
-//        final double cx = getCenter(centerX, centerY, centerZ, firstXYZ);// = coordinateSystem.geomX(centerX);
-//        final double dx = x1 - cx;
-//        final double cy = getCenter(centerX, centerY, centerZ, secondXYZ);// = coordinateSystem.geomY(centerY);
-//        final double dy = y1 - cy;
-//        final double r = Math.sqrt((dx * dx) + (dy * dy));
+//    public static void rotateTangent(double centerX, double centerY, double centerZ,
+//                                     double radians,
+//                                     byte firstXYZ, byte secondXYZ,
+//                                     float[] vertex) {
+//        double x1 = getVertexCoord(firstXYZ, vertex);
+//        double y1 = getVertexCoord(secondXYZ, vertex);
+//        double cx = getCenter(centerX, centerY, centerZ, firstXYZ);// = coordinateSystem.geomX(centerX);
+//        double dx = x1 - cx;
+//        double cy = getCenter(centerX, centerY, centerZ, secondXYZ);// = coordinateSystem.geomY(centerY);
+//        double dy = y1 - cy;
+//        double r = Math.sqrt((dx * dx) + (dy * dy));
 //        double verAng = Math.acos(dx / r);
 //        if (dy < 0) {
 //            verAng = -verAng;
@@ -457,9 +467,9 @@ public class GeosetVertex extends Vec3 {
 //    }
 
     public Vec3 createNormal() {
-        final Vec3 sum = new Vec3();
+        Vec3 sum = new Vec3();
 
-        for (final Triangle triangle : triangles) {
+        for (Triangle triangle : triangles) {
             sum.add(triangle.getNormal());
         }
 
@@ -468,11 +478,11 @@ public class GeosetVertex extends Vec3 {
         return sum;
     }
 
-    public Vec3 createNormal(final List<GeosetVertex> matches) {
-        final Vec3 sum = new Vec3();
+    public Vec3 createNormal(List<GeosetVertex> matches) {
+        Vec3 sum = new Vec3();
 
-        for (final GeosetVertex match : matches) {
-            for (final Triangle triangle : match.triangles) {
+        for (GeosetVertex match : matches) {
+            for (Triangle triangle : match.triangles) {
                 sum.add(triangle.getNormal());
             }
         }
@@ -480,11 +490,11 @@ public class GeosetVertex extends Vec3 {
         return sum.normalize();
     }
 
-    public Vec3 createNormal(final List<GeosetVertex> matches, double maxAngle) {
-        final Vec3 sum = new Vec3();
+    public Vec3 createNormal(List<GeosetVertex> matches, double maxAngle) {
+        Vec3 sum = new Vec3();
         Vec3 normal = createNormal();
         List<Vec3> uniqueNormals = new ArrayList<>();
-        for (final GeosetVertex match : matches) {
+        for (GeosetVertex match : matches) {
             Vec3 matchNormal = match.createNormal();
             uniqueNormals.add(matchNormal);
         }
@@ -494,11 +504,11 @@ public class GeosetVertex extends Vec3 {
     }
 
 
-    public Vec3 createNormalFromFaces(final List<GeosetVertex> matches, double maxAngle) {
-        final Vec3 sum = new Vec3();
+    public Vec3 createNormalFromFaces(List<GeosetVertex> matches, double maxAngle) {
+        Vec3 sum = new Vec3();
         Vec3 normal = createNormal();
-        for (final GeosetVertex match : matches) {
-            for (final Triangle triangle : match.triangles) {
+        for (GeosetVertex match : matches) {
+            for (Triangle triangle : match.triangles) {
                 Vec3 matchNormal = triangle.getNormal().normalize();
                 double angle = normal.degAngleTo(matchNormal);
                 if (angle < maxAngle) {
@@ -517,8 +527,8 @@ public class GeosetVertex extends Vec3 {
 //        } else {
 //            Arrays.fill(skinBones, null);
 //            Arrays.fill(skinBoneWeights, (short) 0);
-//            final int basicWeighting = 255 / matrixBones.size();
-//            final int offset = 255 - (basicWeighting * matrixBones.size());
+//            int basicWeighting = 255 / matrixBones.size();
+//            int offset = 255 - (basicWeighting * matrixBones.size());
 //            for (int i = 0; (i < matrixBones.size()) && (i < 4); i++) {
 //                skinBones[i] = matrixBones.get(i);
 //                skinBoneWeights[i] = (short) basicWeighting;
@@ -538,8 +548,8 @@ public class GeosetVertex extends Vec3 {
 //            Arrays.fill(skinBoneWeights, (short) 0);
 
 
-            final int weight = 255 / matrixBones.size();
-            final int offset = 255 - (weight * matrixBones.size());
+            int weight = 255 / matrixBones.size();
+            int offset = 255 - (weight * matrixBones.size());
             for (int i = 1; i < 4; i++) {
                 if (i < matrixBones.size()) {
                     setSkinBone(matrixBones.get(i), (short) weight, i);
