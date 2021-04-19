@@ -103,9 +103,9 @@ public class CloneContextHelper {
 			GeosetVertex c = newVertices.get(sourceNonPivots.indexOf(tri.get(2)));
 			Triangle newTriangle = new Triangle(a, b, c, a.getGeoset());
 			newTriangles.add(newTriangle);
-			a.addTriangle(newTriangle);
-			b.addTriangle(newTriangle);
-			c.addTriangle(newTriangle);
+//			a.addTriangle(newTriangle);
+//			b.addTriangle(newTriangle);
+//			c.addTriangle(newTriangle);
 		}
 		Set<Vec3> newSelection = new HashSet<>();
 

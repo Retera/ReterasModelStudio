@@ -688,11 +688,8 @@ public class ScriptActions {
 			}
 		}
 		if (model.getGeosets().size() > lodGeosToRemove.size()) {
-			List<DeleteGeosetAction> deleteGeosetActions = new ArrayList<>();
-			for (Geoset geoset : lodGeosToRemove) {
-				deleteGeosetActions.add(new DeleteGeosetAction(geoset));
-			}
-			CompoundAction deletActions = new CompoundAction("Delete LoD=" + lodToRemove + " geosets", deleteGeosetActions);
+			DeleteGeosetAction deleteGeosetAction = new DeleteGeosetAction(lodGeosToRemove, changeListener);
+			CompoundAction deletActions = new CompoundAction("Delete LoD=" + lodToRemove + " geosets", deleteGeosetAction);
 			modelPanel.getUndoManager().pushAction(deletActions);
 			deletActions.redo();
 		}

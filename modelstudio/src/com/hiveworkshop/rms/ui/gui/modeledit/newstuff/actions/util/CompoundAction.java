@@ -1,8 +1,9 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util;
 
-import java.util.List;
-
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+
+import java.util.Collections;
+import java.util.List;
 
 public final class CompoundAction implements UndoAction {
 	private final List<? extends UndoAction> actions;
@@ -11,6 +12,11 @@ public final class CompoundAction implements UndoAction {
 	public CompoundAction(final String name, final List<? extends UndoAction> actions) {
 		this.name = name;
 		this.actions = actions;
+	}
+
+	public CompoundAction(final String name, final UndoAction action) {
+		this.name = name;
+		this.actions = Collections.singletonList(action);
 	}
 
 	@Override

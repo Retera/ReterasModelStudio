@@ -443,7 +443,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
     }
 
     public Triangle getNewFace(GeosetVertex gv, GeosetVertex gvTemp, GeosetVertex gvCopy, GeosetVertex gvTempCopy, int indexA, int indexB, int indexC) {
-        Triangle newFace = new Triangle(null, null, null, gv.getGeoset());
+        Triangle newFace = new Triangle(gv.getGeoset());
         newFace.set(indexA, gvCopy);
         newFace.set(indexB, gvTemp);
         newFace.set(indexC, gvTempCopy);
@@ -727,9 +727,9 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
             GeosetVertex c = newVertices.get(source.indexOf(tri.get(2)));
             Triangle newTriangle = new Triangle(a, b, c, a.getGeoset());
             newTriangles.add(newTriangle);
-            a.addTriangle(newTriangle);
-            b.addTriangle(newTriangle);
-            c.addTriangle(newTriangle);
+//            a.addTriangle(newTriangle);
+//            b.addTriangle(newTriangle);
+//            c.addTriangle(newTriangle);
         }
     }
 
@@ -894,43 +894,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
     }
 
     @Override
-    public RigAction rig() {
-        System.out.println("rig, sel vert: " + this.selectionManager.getSelectedVertices().size());
-        return new RigAction(this.selectionManager.getSelectedVertices(), Collections.emptyList());
-    }
-
-    @Override
     public UndoAction addBone(double x, double y, double z) {
         throw new WrongModeException("Unable to add bone outside of pivot point editor");
-    }
-
-    @Override
-    public String getSelectedMatricesDescription() {
-        List<Bone> boneRefs = new ArrayList<>();
-        for (Vec3 ver : selectionManager.getSelectedVertices()) {
-            if (ver instanceof GeosetVertex) {
-                GeosetVertex gv = (GeosetVertex) ver;
-                for (Bone b : gv.getBones()) {
-                    if (!boneRefs.contains(b)) {
-                        boneRefs.add(b);
-                    }
-                }
-            }
-        }
-        StringBuilder boneList = new StringBuilder();
-        for (int i = 0; i < boneRefs.size(); i++) {
-            if (i == (boneRefs.size() - 2)) {
-                boneList.append(boneRefs.get(i).getName()).append(" and ");
-            } else if (i == (boneRefs.size() - 1)) {
-                boneList.append(boneRefs.get(i).getName());
-            } else {
-                boneList.append(boneRefs.get(i).getName()).append(", ");
-            }
-        }
-        if (boneRefs.size() == 0) {
-            boneList = new StringBuilder("Nothing was selected that was attached to any bones.");
-        }
-        return boneList.toString();
     }
 
     @Override
@@ -988,52 +953,105 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
     }
 
     @Override
+    public RigAction rig() {
+        System.out.println("rig, sel vert: " + this.selectionManager.getSelectedVertices().size());
+        return new RigAction(this.selectionManager.getSelectedVertices(), Collections.emptyList());
+    }
+
+    @Override
+    public String getSelectedMatricesDescription() {
+        List<Bone> boneRefs = new ArrayList<>();
+        for (Vec3 ver : selectionManager.getSelectedVertices()) {
+            if (ver instanceof GeosetVertex) {
+                GeosetVertex gv = (GeosetVertex) ver;
+                for (Bone b : gv.getBones()) {
+                    if (!boneRefs.contains(b)) {
+                        boneRefs.add(b);
+                    }
+                }
+            }
+        }
+        StringBuilder boneList = new StringBuilder();
+        for (int i = 0; i < boneRefs.size(); i++) {
+            if (i == (boneRefs.size() - 2)) {
+                boneList.append(boneRefs.get(i).getName()).append(" and ");
+            } else if (i == (boneRefs.size() - 1)) {
+                boneList.append(boneRefs.get(i).getName());
+            } else {
+                boneList.append(boneRefs.get(i).getName()).append(", ");
+            }
+        }
+        if (boneRefs.size() == 0) {
+            boneList = new StringBuilder("Nothing was selected that was attached to any bones.");
+        }
+        return boneList.toString();
+    }
+
+    @Override
     public String getSelectedHDSkinningDescription() {
         Collection<? extends Vec3> selectedVertices = selectionManager.getSelectedVertices();
-        GeosetVertex.SkinBone[] skinBones = null;
+        Map<String, GeosetVertex.SkinBone[]> skinBonesArrayMap = new TreeMap<>();
+
         boolean selectionIsNotUniform = false;
-        Set<Geoset> geosets = new HashSet<>();
         for (Vec3 vertex : selectedVertices) {
             if (vertex instanceof GeosetVertex) {
                 GeosetVertex gv = (GeosetVertex) vertex;
-                if (skinBones == null) {
-                    skinBones = gv.getSSkinBones();
-                    geosets.add(gv.getGeoset());
-                } else if (!Arrays.equals(skinBones, gv.getSSkinBones())) {
-                    selectionIsNotUniform = true; // todo collect and show all groups
-                    break;
-                } else {
-                    geosets.add(gv.getGeoset());
+                GeosetVertex.SkinBone[] skinBones = gv.getSSkinBones(); //Arrays.equals(skinBones, gv.getSSkinBones())
+
+                String sbId = skinBonesId(skinBones);
+                if (!skinBonesArrayMap.containsKey(sbId)) {
+                    skinBonesArrayMap.put(sbId, skinBones);
                 }
             }
         }
-        if (selectionIsNotUniform) {
-            return "The skinning of the selection is not uniform. Please select only one vertex, or a group of vertices that are exactly sharing their animation skin bindings.";
-        }
-        if (skinBones == null && model.getModel().getFormatVersion() >= 900) {
-            for (Geoset geoset : geosets) {
-                geoset.makeHd();
+//        if (selectionIsNotUniform) {
+//            return "The skinning of the selection is not uniform. Please select only one vertex, or a group of vertices that are exactly sharing their animation skin bindings.";
+//        }
 
-            }
-        }
         StringBuilder output = new StringBuilder();
-        for (int i = 0; i < 4; i++) {
-            if (skinBones == null) {
-                output.append("null");
-            } else {
-                if (skinBones[i].getBone() == null) {
+        String ugg = ":                            ";
+        for (GeosetVertex.SkinBone[] skinBones : skinBonesArrayMap.values()) {
+            for (int i = 0; i < 4; i++) {
+                if (skinBones == null) {
                     output.append("null");
                 } else {
-                    output.append(skinBones[i].getBone().getName());
+                    String s;
+                    if (skinBones[i].getBone() == null) {
+                        s = "null";
+                    } else {
+                        s = skinBones[i].getBone().getName();
+                    }
+                    s = (s + ugg).substring(0, ugg.length());
+                    output.append(s);
+                    String w = "   " + skinBones[i].getWeight();
+                    w = w.substring(w.length() - 3);
+                    output.append(w);
+                    output.append(" ( ");
+                    String w2 = (Math.round(skinBones[i].getWeight() / .255) / 1000.0 + "000000").substring(0, 6);
+                    output.append(w2);
+                    output.append(" )\n");
                 }
-                output.append(": ");
-                output.append(skinBones[i].getWeight());
-                output.append(" (");
-                output.append(skinBones[i].getWeight() / 255.0);
-                output.append(")\n");
             }
+            output.append("\n");
         }
         return output.toString();
+    }
+
+    private String skinBonesId(GeosetVertex.SkinBone[] skinBones) {
+        // this creates an id-string from the memory addresses of the bones and the weights.
+        // keeping weights and bones separated lets us use the string to sort on common bones
+        // inverting the weight lets us sort highest weight first
+        if (skinBones != null) {
+            StringBuilder output = new StringBuilder();
+            StringBuilder output2 = new StringBuilder();
+            for (GeosetVertex.SkinBone skinBone : skinBones) {
+//                output.append(skinBone.getBone()).append(skinBone.getWeight());
+                output.append(skinBone.getBone());
+                output2.append(255 - skinBone.getWeight());
+            }
+            return output.toString() + output2.toString();
+        }
+        return "null";
     }
 
     protected Rectangle2D getArea(Rectangle2D region) {

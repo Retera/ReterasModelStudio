@@ -65,7 +65,8 @@ public class ExtrudeAction implements UndoAction {
 				if (good) {
 					List<Triangle> tris = new ArrayList<>(gv.getTriangles());
 					for (Triangle t : tris) {
-						if (!selection.contains(t.get(0)) || !selection.contains(t.get(1))
+						if (!selection.contains(t.get(0))
+								|| !selection.contains(t.get(1))
 								|| !selection.contains(t.get(2))) {
 							// System.out.println("SHOULD be one:"+Collections.frequency(tris,t));
 							// System.out.println("should be a number:"+t.indexOfRef(gv));

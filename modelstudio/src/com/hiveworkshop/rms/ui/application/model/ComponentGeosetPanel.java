@@ -88,7 +88,7 @@ public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geose
 		hdPanel.add(nameTextField, "spanx 2, wrap");
 
 		hdPanel.add(new JLabel("LevelOfDetail: "));
-		lodSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 10000, 1));
+		lodSpinner = new JSpinner(new SpinnerNumberModel(0, -1, 10000, 1));
 		hdPanel.add(lodSpinner, "wrap");
 		lodSpinner.addChangeListener(e -> setLoD());
 

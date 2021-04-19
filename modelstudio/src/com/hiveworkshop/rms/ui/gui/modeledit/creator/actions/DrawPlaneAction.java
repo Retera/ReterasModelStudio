@@ -45,9 +45,9 @@ public class DrawPlaneAction implements GenericMoveAction {
 		}
 		for (Triangle triangle : plane.getTriangles()) {
 			triangle.setGeoset(planeGeoset);
-			for (GeosetVertex vertex : triangle.getVerts()) {
-				vertex.addTriangle(triangle);
-			}
+//			for (GeosetVertex vertex : triangle.getVerts()) {
+//				vertex.addTriangle(triangle);
+//			}
 		}
 	}
 

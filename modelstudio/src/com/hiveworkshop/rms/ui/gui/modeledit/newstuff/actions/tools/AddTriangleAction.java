@@ -31,7 +31,9 @@ public class AddTriangleAction implements UndoAction {
 		for (Triangle triangle : triangles) {
 			geoset.add(triangle);
 			for (GeosetVertex geosetVertex : triangle.getVerts()) {
-				geosetVertex.addTriangle(triangle);
+				if (!geosetVertex.hasTriangle(triangle)) {
+					geosetVertex.addTriangle(triangle);
+				}
 			}
 		}
 	}

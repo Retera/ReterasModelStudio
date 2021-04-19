@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
@@ -35,13 +35,13 @@ public class DisplayPanel extends JPanel {
 	private final View view;
 	private final ViewportListener viewportListener;
 
-	public DisplayPanel(final String title, final byte a, final byte b, final ModelView modelView,
-	                    final ModelEditor modelEditor, final ModelStructureChangeListener modelStructureChangeListener,
-	                    final ViewportActivity activityListener, final ProgramPreferences preferences,
-	                    final UndoActionListener undoListener, final CoordDisplayListener coordDisplayListener,
-						final UndoHandler undoHandler, final ModelEditorChangeNotifier modelEditorChangeNotifier,
-						final ViewportTransferHandler viewportTransferHandler, final RenderModel renderModel,
-						final ViewportListener viewportListener) {
+	public DisplayPanel(String title, byte a, byte b, ModelView modelView,
+	                    ModelEditorManager modelEditorManager, ModelStructureChangeListener modelStructureChangeListener,
+	                    ViewportActivity activityListener, ProgramPreferences preferences,
+	                    UndoActionListener undoListener, CoordDisplayListener coordDisplayListener,
+	                    UndoHandler undoHandler, ModelEditorChangeNotifier modelEditorChangeNotifier,
+	                    ViewportTransferHandler viewportTransferHandler, RenderModel renderModel,
+	                    ViewportListener viewportListener) {
 		super();
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		this.activityListener = activityListener;
@@ -51,7 +51,7 @@ public class DisplayPanel extends JPanel {
 		setLayout(new MigLayout("gap 0, ins 0, hidemode 2", "[grow][]", "[grow]"));
 
 		setOpaque(true);
-		vp = getViewport(a, b, modelView, preferences, undoListener, coordDisplayListener, undoHandler, modelEditor, viewportTransferHandler, renderModel);
+		vp = getViewport(a, b, modelView, preferences, undoListener, coordDisplayListener, undoHandler, modelEditorManager, viewportTransferHandler, renderModel);
 		modelEditorChangeNotifier.subscribe(vp);
 		add(vp, "spany, growy, growx");
 
@@ -98,20 +98,20 @@ public class DisplayPanel extends JPanel {
 		return view;
 	}
 
-	public void setControlsVisible(final boolean flag) {
+	public void setControlsVisible(boolean flag) {
 		buttonPanel.setVisible(flag);
 	}
 
-	public Viewport getViewport(final byte a, final byte b, final ModelView modelView,
-	                            final ProgramPreferences programPreferences, final UndoActionListener undoListener,
-	                            final CoordDisplayListener coordDisplayListener, final UndoHandler undoHandler,
-	                            final ModelEditor modelEditor, final ViewportTransferHandler viewportTransferHandler,
-	                            final RenderModel renderModel) {
-		return new Viewport(a, b, modelView, programPreferences, activityListener, modelStructureChangeListener, undoListener, coordDisplayListener, undoHandler, modelEditor, viewportTransferHandler, renderModel, viewportListener);
+	public Viewport getViewport(byte a, byte b, ModelView modelView,
+	                            ProgramPreferences programPreferences, UndoActionListener undoListener,
+	                            CoordDisplayListener coordDisplayListener, UndoHandler undoHandler,
+	                            ModelEditorManager modelEditorManager, ViewportTransferHandler viewportTransferHandler,
+	                            RenderModel renderModel) {
+		return new Viewport(a, b, modelView, programPreferences, activityListener, modelStructureChangeListener, undoListener, coordDisplayListener, undoHandler, modelEditorManager, viewportTransferHandler, renderModel, viewportListener);
 	}
 
 	@Override
-	public void paintComponent(final Graphics g) {
+	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		revalidate();
 		// g.drawString(title,3,3);

@@ -157,10 +157,9 @@ public class ModelPanel implements ActionListener, MouseListener {
 	}
 
 	private DisplayPanel getDisplayPanel(ModelStructureChangeListener modelStructureChangeListener, CoordDisplayListener coordDisplayListener, ViewportTransferHandler viewportTransferHandler, ViewportListener viewportListener, String side, byte i, byte i2) {
-		return new DisplayPanel(side, i, i2, modelView,
-				modelEditorManager.getModelEditor(), modelStructureChangeListener, viewportActivityManager,
-				prefs, undoManager, coordDisplayListener, undoHandler, modelEditorChangeNotifier,
-				viewportTransferHandler, editorRenderModel, viewportListener);
+		return new DisplayPanel(side, i, i2, modelView, modelEditorManager, modelStructureChangeListener,
+				viewportActivityManager, prefs, undoManager, coordDisplayListener, undoHandler,
+				modelEditorChangeNotifier, viewportTransferHandler, editorRenderModel, viewportListener);
 	}
 
 	public RenderModel getEditorRenderModel() {
@@ -196,8 +195,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 	}
 
 	public void changeActivity(final ActivityDescriptor activityDescriptor) {
-		viewportActivityManager.setCurrentActivity(
-				activityDescriptor.createActivity(modelEditorManager, modelView, undoManager));
+		viewportActivityManager.setCurrentActivity(activityDescriptor.createActivity(modelEditorManager, modelView, undoManager));
 	}
 
 	public ModelEditorManager getModelEditorManager() {

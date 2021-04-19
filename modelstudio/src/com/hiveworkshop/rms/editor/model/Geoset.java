@@ -306,7 +306,7 @@ public class Geoset implements Named, VisibilitySource {
 
 	@Override
 	public void setName(String text) {
-		if (getParentModel().getFormatVersion() > 900) {
+		if (getParentModel() != null && getParentModel().getFormatVersion() > 900) {
 			setLevelOfDetailName(text);
 		}
 	}
@@ -623,6 +623,12 @@ public class Geoset implements Named, VisibilitySource {
 
 	private void setSkinBones(EditableModel mdlr, int i, GeosetVertex gv) {
 		if ((ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion())) && (tangents != null)) {
+//			if (skinBones == null && model.getModel().getFormatVersion() >= 900) {
+//	            for (Geoset geoset : geosets) {
+//	                geoset.makeHd();
+//
+//	            }
+//	        }
 			gv.initV900();
 			for (int j = 0; j < 4; j++) {
 				short boneLookupId = (short) ((skin.get(i)[j] + 256) % 256);
@@ -804,6 +810,10 @@ public class Geoset implements Named, VisibilitySource {
 
 	public List<GeosetVertex> getVertices() {
 		return vertices;
+	}
+
+	public void addVerticies(List<GeosetVertex> vertex) {
+		this.vertices.addAll(vertex);
 	}
 
 	public void setVertex(final List<GeosetVertex> vertex) {
